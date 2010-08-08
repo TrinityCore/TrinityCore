@@ -156,11 +156,11 @@ public:
     {
         npc_sylvanas_fosAI(Creature *c) : ScriptedAI(c)
         {
-            pInstance = me->GetInstanceData();
+            pInstance = me->GetInstanceScript();
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         }
 
-        ScriptedInstance* pInstance;
+        InstanceScript* pInstance;
 
         EventMap events;
         Phase phase;
@@ -281,11 +281,11 @@ public:
     {
         npc_jaina_fosAI(Creature *c) : ScriptedAI(c)
         {
-            pInstance = me->GetInstanceData();
+            pInstance = me->GetInstanceScript();
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         }
 
-        ScriptedInstance* pInstance;
+        InstanceScript* pInstance;
 
         EventMap events;
         Phase phase;

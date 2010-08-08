@@ -28,67 +28,69 @@ EndScriptData */
 #define SPELL_WHIRLWIND                 26038
 #define SPELL_CLEAVE                    20691
 #define SPELL_THUNDERCLAP               23931               //Not sure if he cast this spell
-
-struct boss_rend_blackhandAI : public ScriptedAI
+class boss_rend_blackhand : public CreatureScript
 {
-    boss_rend_blackhandAI(Creature *c) : ScriptedAI(c) {}
+public:
+    boss_rend_blackhand() : CreatureScript("boss_rend_blackhand") { }
 
-    uint32 WhirlWind_Timer;
-    uint32 Cleave_Timer;
-    uint32 Thunderclap_Timer;
-
-    void Reset()
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        WhirlWind_Timer = 20000;
-        Cleave_Timer = 5000;
-        Thunderclap_Timer = 9000;
+        return new boss_rend_blackhandAI (pCreature);
     }
 
-    void EnterCombat(Unit * /*who*/)
+    struct boss_rend_blackhandAI : public ScriptedAI
     {
-    }
+        boss_rend_blackhandAI(Creature *c) : ScriptedAI(c) {}
 
-    void UpdateAI(const uint32 diff)
-    {
-        //Return since we have no target
-        if (!UpdateVictim())
-            return;
+        uint32 WhirlWind_Timer;
+        uint32 Cleave_Timer;
+        uint32 Thunderclap_Timer;
 
-        //WhirlWind_Timer
-        if (WhirlWind_Timer <= diff)
+        void Reset()
         {
-            DoCast(me->getVictim(), SPELL_WHIRLWIND);
-            WhirlWind_Timer = 18000;
-        } else WhirlWind_Timer -= diff;
+            WhirlWind_Timer = 20000;
+            Cleave_Timer = 5000;
+            Thunderclap_Timer = 9000;
+        }
 
-        //Cleave_Timer
-        if (Cleave_Timer <= diff)
+        void EnterCombat(Unit * /*who*/)
         {
-            DoCast(me->getVictim(), SPELL_CLEAVE);
-            Cleave_Timer = 10000;
-        } else Cleave_Timer -= diff;
+        }
 
-        //Thunderclap_Timer
-        if (Thunderclap_Timer <= diff)
+        void UpdateAI(const uint32 diff)
         {
-            DoCast(me->getVictim(), SPELL_THUNDERCLAP);
-            Thunderclap_Timer = 16000;
-        } else Thunderclap_Timer -= diff;
+            //Return since we have no target
+            if (!UpdateVictim())
+                return;
 
-        DoMeleeAttackIfReady();
-    }
+            //WhirlWind_Timer
+            if (WhirlWind_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_WHIRLWIND);
+                WhirlWind_Timer = 18000;
+            } else WhirlWind_Timer -= diff;
+
+            //Cleave_Timer
+            if (Cleave_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_CLEAVE);
+                Cleave_Timer = 10000;
+            } else Cleave_Timer -= diff;
+
+            //Thunderclap_Timer
+            if (Thunderclap_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_THUNDERCLAP);
+                Thunderclap_Timer = 16000;
+            } else Thunderclap_Timer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
-CreatureAI* GetAI_boss_rend_blackhand(Creature* pCreature)
-{
-    return new boss_rend_blackhandAI (pCreature);
-}
 
 void AddSC_boss_rend_blackhand()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_rend_blackhand";
-    newscript->GetAI = &GetAI_boss_rend_blackhand;
-    newscript->RegisterSelf();
+    new boss_rend_blackhand();
 }
-

@@ -44,91 +44,94 @@ enum Events
     EVENT_CORRUPTED_FLESH,
     EVENT_SHARED_SUFFERING,
 };
-
-struct boss_marwynAI : public boss_horAI
+class boss_marwyn : public CreatureScript
 {
-    boss_marwynAI(Creature *pCreature) : boss_horAI(pCreature) {}
+public:
+    boss_marwyn() : CreatureScript("boss_marwyn") { }
 
-    void Reset()
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        boss_horAI::Reset();
-
-        if (pInstance)
-            pInstance->SetData(DATA_MARWYN_EVENT, NOT_STARTED);
+        return new boss_marwynAI(pCreature);
     }
 
-    void EnterCombat(Unit* who)
+    struct boss_marwynAI : public boss_horAI
     {
-        DoScriptText(SAY_AGGRO, me);
-        if (pInstance)
-            pInstance->SetData(DATA_MARWYN_EVENT, IN_PROGRESS);
+        boss_marwynAI(Creature *pCreature) : boss_horAI(pCreature) {}
 
-        events.ScheduleEvent(EVENT_OBLITERATE, 30000);          // TODO Check timer
-        events.ScheduleEvent(EVENT_WELL_OF_CORRUPTION, 13000);
-        events.ScheduleEvent(EVENT_CORRUPTED_FLESH, 20000);
-        events.ScheduleEvent(EVENT_SHARED_SUFFERING, 20000);    // TODO Check timer
-    }
-
-    void JustDied(Unit* killer)
-    {
-        DoScriptText(SAY_DEATH, me);
-
-        if (pInstance)
-            pInstance->SetData(DATA_MARWYN_EVENT, DONE);
-    }
-
-    void KilledUnit(Unit *victim)
-    {
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        // Return since we have no target
-        if (!UpdateVictim())
-            return;
-
-        events.Update(diff);
-
-        if (me->hasUnitState(UNIT_STAT_CASTING))
-            return;
-
-        switch (events.ExecuteEvent())
+        void Reset()
         {
-            case EVENT_OBLITERATE:
-                DoCast(SPELL_OBLITERATE);
-                events.ScheduleEvent(EVENT_OBLITERATE, 30000);
-                break;
-            case EVENT_WELL_OF_CORRUPTION:
-                DoCast(SPELL_WELL_OF_CORRUPTION);
-                events.ScheduleEvent(EVENT_WELL_OF_CORRUPTION, 13000);
-                break;
-            case EVENT_CORRUPTED_FLESH:
-                DoScriptText(RAND(SAY_CORRUPTED_FLESH_1,SAY_CORRUPTED_FLESH_2), me);
-                DoCast(SPELL_CORRUPTED_FLESH);
-                events.ScheduleEvent(EVENT_CORRUPTED_FLESH, 20000);
-                break;
-            case EVENT_SHARED_SUFFERING:
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
-                    DoCast(pTarget, SPELL_SHARED_SUFFERING);
-                events.ScheduleEvent(EVENT_SHARED_SUFFERING, 20000);
-                break;
+            boss_horAI::Reset();
+
+            if (pInstance)
+                pInstance->SetData(DATA_MARWYN_EVENT, NOT_STARTED);
         }
 
-        DoMeleeAttackIfReady();
-    }
+        void EnterCombat(Unit* who)
+        {
+            DoScriptText(SAY_AGGRO, me);
+            if (pInstance)
+                pInstance->SetData(DATA_MARWYN_EVENT, IN_PROGRESS);
+
+            events.ScheduleEvent(EVENT_OBLITERATE, 30000);          // TODO Check timer
+            events.ScheduleEvent(EVENT_WELL_OF_CORRUPTION, 13000);
+            events.ScheduleEvent(EVENT_CORRUPTED_FLESH, 20000);
+            events.ScheduleEvent(EVENT_SHARED_SUFFERING, 20000);    // TODO Check timer
+        }
+
+        void JustDied(Unit* killer)
+        {
+            DoScriptText(SAY_DEATH, me);
+
+            if (pInstance)
+                pInstance->SetData(DATA_MARWYN_EVENT, DONE);
+        }
+
+        void KilledUnit(Unit *victim)
+        {
+            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            // Return since we have no target
+            if (!UpdateVictim())
+                return;
+
+            events.Update(diff);
+
+            if (me->hasUnitState(UNIT_STAT_CASTING))
+                return;
+
+            switch (events.ExecuteEvent())
+            {
+                case EVENT_OBLITERATE:
+                    DoCast(SPELL_OBLITERATE);
+                    events.ScheduleEvent(EVENT_OBLITERATE, 30000);
+                    break;
+                case EVENT_WELL_OF_CORRUPTION:
+                    DoCast(SPELL_WELL_OF_CORRUPTION);
+                    events.ScheduleEvent(EVENT_WELL_OF_CORRUPTION, 13000);
+                    break;
+                case EVENT_CORRUPTED_FLESH:
+                    DoScriptText(RAND(SAY_CORRUPTED_FLESH_1,SAY_CORRUPTED_FLESH_2), me);
+                    DoCast(SPELL_CORRUPTED_FLESH);
+                    events.ScheduleEvent(EVENT_CORRUPTED_FLESH, 20000);
+                    break;
+                case EVENT_SHARED_SUFFERING:
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
+                        DoCast(pTarget, SPELL_SHARED_SUFFERING);
+                    events.ScheduleEvent(EVENT_SHARED_SUFFERING, 20000);
+                    break;
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_marwyn(Creature* pCreature)
-{
-    return new boss_marwynAI(pCreature);
-}
 
 void AddSC_boss_marwyn()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name="boss_marwyn";
-    newscript->GetAI = &GetAI_boss_marwyn;
-    newscript->RegisterSelf();
+    new boss_marwyn();
 }

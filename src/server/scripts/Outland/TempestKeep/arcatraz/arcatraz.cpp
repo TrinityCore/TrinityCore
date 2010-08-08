@@ -78,10 +78,10 @@ class npc_millhouse_manastorm : public CreatureScript
         {
             npc_millhouse_manastormAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceData();
+                pInstance = pCreature->GetInstanceScript();
             }
             
-            ScriptedInstance* pInstance;
+            InstanceScript* pInstance;
 
             uint32 EventProgress_Timer;
             uint32 Phase;
@@ -282,10 +282,10 @@ class npc_warden_mellichar : public CreatureScript
         {
             npc_warden_mellicharAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceData();
+                pInstance = pCreature->GetInstanceScript();
             }
 
-            ScriptedInstance* pInstance;
+            InstanceScript* pInstance;
 
             bool IsRunning;
             bool CanSpawn;

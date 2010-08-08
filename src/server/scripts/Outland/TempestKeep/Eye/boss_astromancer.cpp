@@ -84,13 +84,13 @@ class boss_high_astromancer_solarian : public CreatureScript
         {
             boss_high_astromancer_solarianAI(Creature* pCreature) : ScriptedAI(pCreature), Summons(me)
             {
-                pInstance = pCreature->GetInstanceData();
+                pInstance = pCreature->GetInstanceScript();
 
                 defaultarmor = pCreature->GetArmor();
                 defaultsize = pCreature->GetFloatValue(OBJECT_FIELD_SCALE_X);
             }
 
-            ScriptedInstance *pInstance;
+            InstanceScript *pInstance;
             SummonList Summons;
 
             uint8 Phase;
@@ -418,10 +418,10 @@ class mob_solarium_priest : public CreatureScript
         {
             mob_solarium_priestAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceData();
+                pInstance = pCreature->GetInstanceScript();
             }
 
-            ScriptedInstance *pInstance;
+            InstanceScript *pInstance;
 
             uint32 healTimer;
             uint32 holysmiteTimer;

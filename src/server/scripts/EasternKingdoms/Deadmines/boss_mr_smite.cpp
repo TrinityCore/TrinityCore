@@ -36,146 +36,149 @@ enum eSpels
 
     SAY_AGGRO               = -1036001
 };
-
-struct boss_mr_smiteAI : public ScriptedAI
+class boss_mr_smite : public CreatureScript
 {
-    boss_mr_smiteAI(Creature* pCreature) : ScriptedAI(pCreature)
+public:
+    boss_mr_smite() : CreatureScript("boss_mr_smite") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        pInstance = pCreature->GetInstanceData();
+        return new boss_mr_smiteAI (pCreature);
     }
 
-    ScriptedInstance* pInstance;
-
-    uint32 uiTrashTimer;
-    uint32 uiSlamTimer;
-    uint32 uiNimbleReflexesTimer;
-
-    uint8 uiHealth;
-
-    uint32 uiPhase;
-    uint32 uiTimer;
-
-    void Reset()
+    struct boss_mr_smiteAI : public ScriptedAI
     {
-        uiTrashTimer = urand(5000,9000);
-        uiSlamTimer = 9000;
-        uiNimbleReflexesTimer = urand(15500,31600);
-
-        uiHealth = 0;
-
-        uiPhase = 0;
-        uiTimer = 0;
-
-        SetEquipmentSlots(false, EQUIP_SWORD, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
-    }
-
-    void EnterCombat(Unit* /*pWho*/)
-    {
-       DoScriptText(SAY_AGGRO, me);
-    }
-
-    bool bCheckChances()
-    {
-        uint32 uiChances = urand(0,99);
-        if (uiChances <= 15)
-            return false;
-        else
-            return true;
-    }
-
-    void UpdateAI(const uint32 uiDiff)
-    {
-        if (!UpdateVictim())
-            return;
-
-    /*START ACID-AI*/
-        if (uiTrashTimer <= uiDiff)
+        boss_mr_smiteAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            if (bCheckChances())
-                DoCast(me, SPELL_TRASH);
-            uiTrashTimer = urand(6000,15500);
-        } else uiTrashTimer -= uiDiff;
-
-        if (uiSlamTimer <= uiDiff)
-        {
-            if (bCheckChances())
-                DoCast(me->getVictim(), SPELL_SMITE_SLAM);
-            uiSlamTimer = 11000;
-        } else uiSlamTimer -= uiDiff;
-
-        if (uiNimbleReflexesTimer <= uiDiff)
-        {
-            if (bCheckChances())
-                DoCast(me, SPELL_NIMBLE_REFLEXES);
-            uiNimbleReflexesTimer = urand(27300,60100);
-        } else uiNimbleReflexesTimer -= uiDiff;
-    /*END ACID-AI*/
-
-        if (uiHealth == 0 && me->GetHealth()*100 / me->GetMaxHealth() <= 66 || uiHealth == 1 && me->GetHealth()*100 / me->GetMaxHealth() <= 33)
-        {
-            ++uiHealth;
-            DoCastAOE(SPELL_SMITE_STOMP,false);
-            SetCombatMovement(false);
-            if (pInstance)
-                if (GameObject* pGo = GameObject::GetGameObject((*me),pInstance->GetData64(DATA_SMITE_CHEST)))
-                {
-                    me->GetMotionMaster()->Clear();
-                    me->GetMotionMaster()->MovePoint(1,-3.00+pGo->GetPositionX(),pGo->GetPositionY(),pGo->GetPositionZ());
-                }
+            pInstance = pCreature->GetInstanceScript();
         }
 
-        if (uiPhase)
+        InstanceScript* pInstance;
+
+        uint32 uiTrashTimer;
+        uint32 uiSlamTimer;
+        uint32 uiNimbleReflexesTimer;
+
+        uint8 uiHealth;
+
+        uint32 uiPhase;
+        uint32 uiTimer;
+
+        void Reset()
         {
-            if (uiTimer <= uiDiff)
+            uiTrashTimer = urand(5000,9000);
+            uiSlamTimer = 9000;
+            uiNimbleReflexesTimer = urand(15500,31600);
+
+            uiHealth = 0;
+
+            uiPhase = 0;
+            uiTimer = 0;
+
+            SetEquipmentSlots(false, EQUIP_SWORD, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
+        }
+
+        void EnterCombat(Unit* /*pWho*/)
+        {
+           DoScriptText(SAY_AGGRO, me);
+        }
+
+        bool bCheckChances()
+        {
+            uint32 uiChances = urand(0,99);
+            if (uiChances <= 15)
+                return false;
+            else
+                return true;
+        }
+
+        void UpdateAI(const uint32 uiDiff)
+        {
+            if (!UpdateVictim())
+                return;
+
+        /*START ACID-AI*/
+            if (uiTrashTimer <= uiDiff)
             {
-                switch(uiPhase)
-                {
-                    case 1:
-                        me->HandleEmoteCommand(EMOTE_STATE_KNEEL); //dosen't work?
-                        uiTimer = 1000;
-                        uiPhase = 2;
-                        break;
-                    case 2:
-                        if (uiHealth == 1)
-                            SetEquipmentSlots(false, EQUIP_SWORD, EQUIP_SWORD, EQUIP_NO_CHANGE);
-                        else
-                            SetEquipmentSlots(false, EQUIP_MACE, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
-                        uiTimer = 500;
-                        uiPhase = 3;
-                        break;
-                    case 3:
-                        SetCombatMovement(true);
-                        me->GetMotionMaster()->MoveChase(me->getVictim(), me->m_CombatDistance);
-                        uiPhase = 0;
-                        break;
+                if (bCheckChances())
+                    DoCast(me, SPELL_TRASH);
+                uiTrashTimer = urand(6000,15500);
+            } else uiTrashTimer -= uiDiff;
 
-                }
-            } else uiTimer -= uiDiff;
+            if (uiSlamTimer <= uiDiff)
+            {
+                if (bCheckChances())
+                    DoCast(me->getVictim(), SPELL_SMITE_SLAM);
+                uiSlamTimer = 11000;
+            } else uiSlamTimer -= uiDiff;
+
+            if (uiNimbleReflexesTimer <= uiDiff)
+            {
+                if (bCheckChances())
+                    DoCast(me, SPELL_NIMBLE_REFLEXES);
+                uiNimbleReflexesTimer = urand(27300,60100);
+            } else uiNimbleReflexesTimer -= uiDiff;
+        /*END ACID-AI*/
+
+            if (uiHealth == 0 && me->GetHealth()*100 / me->GetMaxHealth() <= 66 || uiHealth == 1 && me->GetHealth()*100 / me->GetMaxHealth() <= 33)
+            {
+                ++uiHealth;
+                DoCastAOE(SPELL_SMITE_STOMP,false);
+                SetCombatMovement(false);
+                if (pInstance)
+                    if (GameObject* pGo = GameObject::GetGameObject((*me),pInstance->GetData64(DATA_SMITE_CHEST)))
+                    {
+                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MovePoint(1,-3.00+pGo->GetPositionX(),pGo->GetPositionY(),pGo->GetPositionZ());
+                    }
+            }
+
+            if (uiPhase)
+            {
+                if (uiTimer <= uiDiff)
+                {
+                    switch(uiPhase)
+                    {
+                        case 1:
+                            me->HandleEmoteCommand(EMOTE_STATE_KNEEL); //dosen't work?
+                            uiTimer = 1000;
+                            uiPhase = 2;
+                            break;
+                        case 2:
+                            if (uiHealth == 1)
+                                SetEquipmentSlots(false, EQUIP_SWORD, EQUIP_SWORD, EQUIP_NO_CHANGE);
+                            else
+                                SetEquipmentSlots(false, EQUIP_MACE, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
+                            uiTimer = 500;
+                            uiPhase = 3;
+                            break;
+                        case 3:
+                            SetCombatMovement(true);
+                            me->GetMotionMaster()->MoveChase(me->getVictim(), me->m_CombatDistance);
+                            uiPhase = 0;
+                            break;
+
+                    }
+                } else uiTimer -= uiDiff;
+            }
+
+            DoMeleeAttackIfReady();
         }
 
-        DoMeleeAttackIfReady();
-    }
+        void MovementInform(uint32 uiType, uint32 /*uiId*/)
+        {
+            if (uiType != POINT_MOTION_TYPE)
+                return;
 
-    void MovementInform(uint32 uiType, uint32 /*uiId*/)
-    {
-        if (uiType != POINT_MOTION_TYPE)
-            return;
+            uiTimer = 1500;
+            uiPhase = 1;
+        }
 
-        uiTimer = 1500;
-        uiPhase = 1;
-    }
+    };
 
 };
-CreatureAI* GetAI_boss_mr_smite(Creature* pCreature)
-{
-    return new boss_mr_smiteAI (pCreature);
-}
 
 void AddSC_boss_mr_smite()
 {
-    Script* newscript;
-    newscript = new Script;
-    newscript->Name = "boss_mr_smite";
-    newscript->GetAI = &GetAI_boss_mr_smite;
-    newscript->RegisterSelf();
+    new boss_mr_smite();
 }

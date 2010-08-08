@@ -42,12 +42,12 @@ void OPvPCapturePointEP_EWT::ChangeState()
         // if changing from controlling alliance to horde or vice versa
         if (m_OldState == OBJECTIVESTATE_ALLIANCE && m_OldState != m_State)
         {
-            sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_LOOSE_EWT_A));
+            sWorld.SendZoneText(EP_GraveYardZone,sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_LOOSE_EWT_A));
             ((OutdoorPvPEP*)m_PvP)->EP_Controls[EP_EWT] = 0;
         }
         else if (m_OldState == OBJECTIVESTATE_HORDE && m_OldState != m_State)
         {
-            sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_LOOSE_EWT_H));
+            sWorld.SendZoneText(EP_GraveYardZone,sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_LOOSE_EWT_H));
             ((OutdoorPvPEP*)m_PvP)->EP_Controls[EP_EWT] = 0;
         }
 
@@ -63,7 +63,7 @@ void OPvPCapturePointEP_EWT::ChangeState()
             artkit = 2;
             SummonSupportUnitAtNorthpassTower(ALLIANCE);
             ((OutdoorPvPEP*)m_PvP)->EP_Controls[EP_EWT] = ALLIANCE;
-            if (m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_EWT_A));
+            if (m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_EWT_A));
             break;
         case OBJECTIVESTATE_HORDE:
             if (m_value == -m_maxValue)
@@ -73,7 +73,7 @@ void OPvPCapturePointEP_EWT::ChangeState()
             artkit = 1;
             SummonSupportUnitAtNorthpassTower(HORDE);
             ((OutdoorPvPEP*)m_PvP)->EP_Controls[EP_EWT] = HORDE;
-            if (m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_EWT_H));
+            if (m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_EWT_H));
             break;
         case OBJECTIVESTATE_NEUTRAL:
             m_TowerState = EP_TS_N;
@@ -193,12 +193,12 @@ void OPvPCapturePointEP_NPT::ChangeState()
         // if changing from controlling alliance to horde or vice versa
         if (m_OldState == OBJECTIVESTATE_ALLIANCE && m_OldState != m_State)
         {
-            sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_LOOSE_NPT_A));
+            sWorld.SendZoneText(EP_GraveYardZone,sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_LOOSE_NPT_A));
             ((OutdoorPvPEP*)m_PvP)->EP_Controls[EP_NPT] = 0;
         }
         else if (m_OldState == OBJECTIVESTATE_HORDE && m_OldState != m_State)
         {
-            sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_LOOSE_NPT_H));
+            sWorld.SendZoneText(EP_GraveYardZone,sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_LOOSE_NPT_H));
             ((OutdoorPvPEP*)m_PvP)->EP_Controls[EP_NPT] = 0;
         }
 
@@ -214,7 +214,7 @@ void OPvPCapturePointEP_NPT::ChangeState()
             artkit = 2;
             SummonGO(ALLIANCE);
             ((OutdoorPvPEP*)m_PvP)->EP_Controls[EP_NPT] = ALLIANCE;
-            if (m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_NPT_A));
+            if (m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_NPT_A));
             break;
         case OBJECTIVESTATE_HORDE:
             if (m_value == -m_maxValue)
@@ -224,7 +224,7 @@ void OPvPCapturePointEP_NPT::ChangeState()
             artkit = 1;
             SummonGO(HORDE);
             ((OutdoorPvPEP*)m_PvP)->EP_Controls[EP_NPT] = HORDE;
-            if (m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_NPT_H));
+            if (m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_NPT_H));
             break;
         case OBJECTIVESTATE_NEUTRAL:
             m_TowerState = EP_TS_N;
@@ -340,12 +340,12 @@ void OPvPCapturePointEP_CGT::ChangeState()
         // if changing from controlling alliance to horde or vice versa
         if (m_OldState == OBJECTIVESTATE_ALLIANCE && m_OldState != m_State)
         {
-            sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_LOOSE_CGT_A));
+            sWorld.SendZoneText(EP_GraveYardZone,sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_LOOSE_CGT_A));
             ((OutdoorPvPEP*)m_PvP)->EP_Controls[EP_CGT] = 0;
         }
         else if (m_OldState == OBJECTIVESTATE_HORDE && m_OldState != m_State)
         {
-            sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_LOOSE_CGT_H));
+            sWorld.SendZoneText(EP_GraveYardZone,sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_LOOSE_CGT_H));
             ((OutdoorPvPEP*)m_PvP)->EP_Controls[EP_CGT] = 0;
         }
 
@@ -361,7 +361,7 @@ void OPvPCapturePointEP_CGT::ChangeState()
             artkit = 2;
             LinkGraveYard(ALLIANCE);
             ((OutdoorPvPEP*)m_PvP)->EP_Controls[EP_CGT] = ALLIANCE;
-            if (m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_CGT_A));
+            if (m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_CGT_A));
             break;
         case OBJECTIVESTATE_HORDE:
             if (m_value == -m_maxValue)
@@ -371,7 +371,7 @@ void OPvPCapturePointEP_CGT::ChangeState()
             artkit = 1;
             LinkGraveYard(HORDE);
             ((OutdoorPvPEP*)m_PvP)->EP_Controls[EP_CGT] = HORDE;
-            if (m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_CGT_H));
+            if (m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_CGT_H));
             break;
         case OBJECTIVESTATE_NEUTRAL:
             m_TowerState = EP_TS_N;
@@ -462,8 +462,8 @@ void OPvPCapturePointEP_CGT::LinkGraveYard(uint32 team)
     if (m_GraveyardSide != team)
     {
         m_GraveyardSide = team;
-        objmgr.RemoveGraveYardLink(EP_GraveYardId,EP_GraveYardZone,team,false);
-        objmgr.AddGraveYardLink(EP_GraveYardId,EP_GraveYardZone,team,false);
+        sObjectMgr.RemoveGraveYardLink(EP_GraveYardId,EP_GraveYardZone,team,false);
+        sObjectMgr.AddGraveYardLink(EP_GraveYardId,EP_GraveYardZone,team,false);
     }
 }
 
@@ -482,12 +482,12 @@ void OPvPCapturePointEP_PWT::ChangeState()
         // if changing from controlling alliance to horde or vice versa
         if (m_OldState == OBJECTIVESTATE_ALLIANCE && m_OldState != m_State)
         {
-            sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_LOOSE_PWT_A));
+            sWorld.SendZoneText(EP_GraveYardZone,sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_LOOSE_PWT_A));
             ((OutdoorPvPEP*)m_PvP)->EP_Controls[EP_PWT] = 0;
         }
         else if (m_OldState == OBJECTIVESTATE_HORDE && m_OldState != m_State)
         {
-            sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_LOOSE_PWT_H));
+            sWorld.SendZoneText(EP_GraveYardZone,sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_LOOSE_PWT_H));
             ((OutdoorPvPEP*)m_PvP)->EP_Controls[EP_PWT] = 0;
         }
 
@@ -503,7 +503,7 @@ void OPvPCapturePointEP_PWT::ChangeState()
             SummonFlightMaster(ALLIANCE);
             artkit = 2;
             ((OutdoorPvPEP*)m_PvP)->EP_Controls[EP_PWT] = ALLIANCE;
-            if (m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_PWT_A));
+            if (m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_PWT_A));
             break;
         case OBJECTIVESTATE_HORDE:
             if (m_value == -m_maxValue)
@@ -513,7 +513,7 @@ void OPvPCapturePointEP_PWT::ChangeState()
             SummonFlightMaster(HORDE);
             artkit = 1;
             ((OutdoorPvPEP*)m_PvP)->EP_Controls[EP_PWT] = HORDE;
-            if (m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_PWT_H));
+            if (m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_PWT_H));
             break;
         case OBJECTIVESTATE_NEUTRAL:
             m_TowerState = EP_TS_N;

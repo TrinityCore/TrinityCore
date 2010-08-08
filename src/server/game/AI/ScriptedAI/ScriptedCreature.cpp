@@ -513,7 +513,7 @@ void Scripted_NoMovementAI::AttackStart(Unit* pWho)
 }
 
 BossAI::BossAI(Creature *c, uint32 id) : ScriptedAI(c)
-, bossId(id), summons(me), instance(c->GetInstanceData())
+, bossId(id), summons(me), instance(c->GetInstanceScript())
 , boundary(instance ? instance->GetBossBoundary(id) : NULL)
 {
 }

@@ -77,228 +77,230 @@ static Locations TeleportPoint[]=
     {930.548, 284.888, 193.367},
     {965.997, 278.398, 195.777}
 };
-
-struct boss_shahrazAI : public ScriptedAI
+class boss_mother_shahraz : public CreatureScript
 {
-    boss_shahrazAI(Creature *c) : ScriptedAI(c)
+public:
+    boss_mother_shahraz() : CreatureScript("boss_mother_shahraz") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        pInstance = c->GetInstanceData();
+        return new boss_shahrazAI (pCreature);
     }
 
-    ScriptedInstance* pInstance;
-
-    uint64 TargetGUID[3];
-    uint32 BeamTimer;
-    uint32 BeamCount;
-    uint32 CurrentBeam;
-    uint32 PrismaticShieldTimer;
-    uint32 FatalAttractionTimer;
-    uint32 FatalAttractionExplodeTimer;
-    uint32 ShriekTimer;
-    uint32 SaberTimer;
-    uint32 RandomYellTimer;
-    uint32 EnrageTimer;
-    uint32 ExplosionCount;
-
-    bool Enraged;
-
-    void Reset()
+    struct boss_shahrazAI : public ScriptedAI
     {
-        if (pInstance)
-            pInstance->SetData(DATA_MOTHERSHAHRAZEVENT, NOT_STARTED);
-
-        for (uint8 i = 0; i<3; ++i)
-            TargetGUID[i] = 0;
-
-        BeamTimer = 20000; // Timers may be incorrect
-        BeamCount = 0;
-        CurrentBeam = 0;                                    // 0 - Sinister, 1 - Vile, 2 - Wicked, 3 - Sinful
-        PrismaticShieldTimer = 0;
-        FatalAttractionTimer = 60000;
-        FatalAttractionExplodeTimer = 70000;
-        ShriekTimer = 30000;
-        SaberTimer = 35000;
-        RandomYellTimer = 70000 + rand()%41 * 1000;
-        EnrageTimer = 600000;
-        ExplosionCount = 0;
-
-        Enraged = false;
-    }
-
-    void EnterCombat(Unit * /*who*/)
-    {
-        if (pInstance)
-            pInstance->SetData(DATA_MOTHERSHAHRAZEVENT, IN_PROGRESS);
-
-        DoZoneInCombat();
-        DoScriptText(SAY_AGGRO, me);
-    }
-
-    void KilledUnit(Unit * /*victim*/)
-    {
-        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
-    }
-
-    void JustDied(Unit * /*victim*/)
-    {
-        if (pInstance)
-            pInstance->SetData(DATA_MOTHERSHAHRAZEVENT, DONE);
-
-        DoScriptText(SAY_DEATH, me);
-    }
-
-    void TeleportPlayers()
-    {
-        uint32 random = rand()%7;
-        float X = TeleportPoint[random].x;
-        float Y = TeleportPoint[random].y;
-        float Z = TeleportPoint[random].z;
-        for (uint8 i = 0; i < 3; ++i)
+        boss_shahrazAI(Creature *c) : ScriptedAI(c)
         {
-            Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 1);
-            if (pUnit && pUnit->isAlive() && (pUnit->GetTypeId() == TYPEID_PLAYER))
-            {
-                TargetGUID[i] = pUnit->GetGUID();
-                pUnit->CastSpell(pUnit, SPELL_TELEPORT_VISUAL, true);
-                DoTeleportPlayer(pUnit, X, Y, Z, pUnit->GetOrientation());
-            }
-        }
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
-
-        if (((me->GetHealth()*100 / me->GetMaxHealth()) < 10) && !Enraged)
-        {
-            Enraged = true;
-            DoCast(me, SPELL_ENRAGE, true);
-            DoScriptText(SAY_ENRAGE, me);
+            pInstance = c->GetInstanceScript();
         }
 
-        //Randomly cast one beam.
-        if (BeamTimer <= diff)
+        InstanceScript* pInstance;
+
+        uint64 TargetGUID[3];
+        uint32 BeamTimer;
+        uint32 BeamCount;
+        uint32 CurrentBeam;
+        uint32 PrismaticShieldTimer;
+        uint32 FatalAttractionTimer;
+        uint32 FatalAttractionExplodeTimer;
+        uint32 ShriekTimer;
+        uint32 SaberTimer;
+        uint32 RandomYellTimer;
+        uint32 EnrageTimer;
+        uint32 ExplosionCount;
+
+        bool Enraged;
+
+        void Reset()
         {
-            Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            if (!pTarget || !pTarget->isAlive())
-                return;
+            if (pInstance)
+                pInstance->SetData(DATA_MOTHERSHAHRAZEVENT, NOT_STARTED);
 
-            BeamTimer = 9000;
+            for (uint8 i = 0; i<3; ++i)
+                TargetGUID[i] = 0;
 
-            switch(CurrentBeam)
-            {
-                case 0:
-                    DoCast(pTarget, SPELL_BEAM_SINISTER);
-                    break;
-                case 1:
-                    DoCast(pTarget, SPELL_BEAM_VILE);
-                    break;
-                case 2:
-                    DoCast(pTarget, SPELL_BEAM_WICKED);
-                    break;
-                case 3:
-                    DoCast(pTarget, SPELL_BEAM_SINFUL);
-                    break;
-            }
-            ++BeamCount;
-            uint32 Beam = CurrentBeam;
-            if (BeamCount > 3)
-                while (CurrentBeam == Beam)
-                    CurrentBeam = rand()%3;
-
-        } else BeamTimer -= diff;
-
-        // Random Prismatic Shield every 15 seconds.
-        if (PrismaticShieldTimer <= diff)
-        {
-            uint32 random = rand()%6;
-            if (PrismaticAuras[random])
-                DoCast(me, PrismaticAuras[random]);
-            PrismaticShieldTimer = 15000;
-        } else PrismaticShieldTimer -= diff;
-
-        // Select 3 random targets (can select same target more than once), teleport to a random location then make them cast explosions until they get away from each other.
-        if (FatalAttractionTimer <= diff)
-        {
+            BeamTimer = 20000; // Timers may be incorrect
+            BeamCount = 0;
+            CurrentBeam = 0;                                    // 0 - Sinister, 1 - Vile, 2 - Wicked, 3 - Sinful
+            PrismaticShieldTimer = 0;
+            FatalAttractionTimer = 60000;
+            FatalAttractionExplodeTimer = 70000;
+            ShriekTimer = 30000;
+            SaberTimer = 35000;
+            RandomYellTimer = 70000 + rand()%41 * 1000;
+            EnrageTimer = 600000;
             ExplosionCount = 0;
 
-            TeleportPlayers();
+            Enraged = false;
+        }
 
-            DoScriptText(RAND(SAY_SPELL2,SAY_SPELL3), me);
-            FatalAttractionExplodeTimer = 2000;
-            FatalAttractionTimer = 40000 + rand()%31 * 1000;
-        } else FatalAttractionTimer -= diff;
-
-        if (FatalAttractionExplodeTimer <= diff)
+        void EnterCombat(Unit * /*who*/)
         {
-            // Just make them explode three times... they're supposed to keep exploding while they are in range, but it'll take too much code. I'll try to think of an efficient way for it later.
-            if (ExplosionCount < 3)
+            if (pInstance)
+                pInstance->SetData(DATA_MOTHERSHAHRAZEVENT, IN_PROGRESS);
+
+            DoZoneInCombat();
+            DoScriptText(SAY_AGGRO, me);
+        }
+
+        void KilledUnit(Unit * /*victim*/)
+        {
+            DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
+        }
+
+        void JustDied(Unit * /*victim*/)
+        {
+            if (pInstance)
+                pInstance->SetData(DATA_MOTHERSHAHRAZEVENT, DONE);
+
+            DoScriptText(SAY_DEATH, me);
+        }
+
+        void TeleportPlayers()
+        {
+            uint32 random = rand()%7;
+            float X = TeleportPoint[random].x;
+            float Y = TeleportPoint[random].y;
+            float Z = TeleportPoint[random].z;
+            for (uint8 i = 0; i < 3; ++i)
             {
-                for (uint8 i = 0; i < 3; ++i)
+                Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 1);
+                if (pUnit && pUnit->isAlive() && (pUnit->GetTypeId() == TYPEID_PLAYER))
                 {
-                    Unit* pUnit = NULL;
-                    if (TargetGUID[i])
-                    {
-                        pUnit = Unit::GetUnit((*me), TargetGUID[i]);
-                        if (pUnit)
-                            pUnit->CastSpell(pUnit, SPELL_ATTRACTION, true);
-                        TargetGUID[i] = 0;
-                    }
+                    TargetGUID[i] = pUnit->GetGUID();
+                    pUnit->CastSpell(pUnit, SPELL_TELEPORT_VISUAL, true);
+                    DoTeleportPlayer(pUnit, X, Y, Z, pUnit->GetOrientation());
                 }
-
-                ++ExplosionCount;
-                FatalAttractionExplodeTimer = 1000;
             }
-            else
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            if (((me->GetHealth()*100 / me->GetMaxHealth()) < 10) && !Enraged)
             {
-                FatalAttractionExplodeTimer = FatalAttractionTimer + 2000;
-                ExplosionCount = 0;
+                Enraged = true;
+                DoCast(me, SPELL_ENRAGE, true);
+                DoScriptText(SAY_ENRAGE, me);
             }
-        } else FatalAttractionExplodeTimer -= diff;
 
-        if (ShriekTimer <= diff)
-        {
-            DoCast(me->getVictim(), SPELL_SILENCING_SHRIEK);
-            ShriekTimer = 25000+rand()%10 * 1000;
-        } else ShriekTimer -= diff;
+            //Randomly cast one beam.
+            if (BeamTimer <= diff)
+            {
+                Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                if (!pTarget || !pTarget->isAlive())
+                    return;
 
-        if (SaberTimer <= diff)
-        {
-            DoCast(me->getVictim(), SPELL_SABER_LASH);
-            SaberTimer = 25000+rand()%10 * 1000;
-        } else SaberTimer -= diff;
+                BeamTimer = 9000;
 
-        //Enrage
-        if (!me->HasAura(SPELL_BERSERK))
-            if (EnrageTimer <= diff)
-        {
-            DoCast(me, SPELL_BERSERK);
-            DoScriptText(SAY_ENRAGE, me);
-        } else EnrageTimer -= diff;
+                switch(CurrentBeam)
+                {
+                    case 0:
+                        DoCast(pTarget, SPELL_BEAM_SINISTER);
+                        break;
+                    case 1:
+                        DoCast(pTarget, SPELL_BEAM_VILE);
+                        break;
+                    case 2:
+                        DoCast(pTarget, SPELL_BEAM_WICKED);
+                        break;
+                    case 3:
+                        DoCast(pTarget, SPELL_BEAM_SINFUL);
+                        break;
+                }
+                ++BeamCount;
+                uint32 Beam = CurrentBeam;
+                if (BeamCount > 3)
+                    while (CurrentBeam == Beam)
+                        CurrentBeam = rand()%3;
 
-        //Random taunts
-        if (RandomYellTimer <= diff)
-        {
-            DoScriptText(RAND(SAY_TAUNT1,SAY_TAUNT2,SAY_TAUNT3), me);
-            RandomYellTimer = 60000 + rand()%91 * 1000;
-        } else RandomYellTimer -= diff;
+            } else BeamTimer -= diff;
 
-        DoMeleeAttackIfReady();
-    }
+            // Random Prismatic Shield every 15 seconds.
+            if (PrismaticShieldTimer <= diff)
+            {
+                uint32 random = rand()%6;
+                if (PrismaticAuras[random])
+                    DoCast(me, PrismaticAuras[random]);
+                PrismaticShieldTimer = 15000;
+            } else PrismaticShieldTimer -= diff;
+
+            // Select 3 random targets (can select same target more than once), teleport to a random location then make them cast explosions until they get away from each other.
+            if (FatalAttractionTimer <= diff)
+            {
+                ExplosionCount = 0;
+
+                TeleportPlayers();
+
+                DoScriptText(RAND(SAY_SPELL2,SAY_SPELL3), me);
+                FatalAttractionExplodeTimer = 2000;
+                FatalAttractionTimer = 40000 + rand()%31 * 1000;
+            } else FatalAttractionTimer -= diff;
+
+            if (FatalAttractionExplodeTimer <= diff)
+            {
+                // Just make them explode three times... they're supposed to keep exploding while they are in range, but it'll take too much code. I'll try to think of an efficient way for it later.
+                if (ExplosionCount < 3)
+                {
+                    for (uint8 i = 0; i < 3; ++i)
+                    {
+                        Unit* pUnit = NULL;
+                        if (TargetGUID[i])
+                        {
+                            pUnit = Unit::GetUnit((*me), TargetGUID[i]);
+                            if (pUnit)
+                                pUnit->CastSpell(pUnit, SPELL_ATTRACTION, true);
+                            TargetGUID[i] = 0;
+                        }
+                    }
+
+                    ++ExplosionCount;
+                    FatalAttractionExplodeTimer = 1000;
+                }
+                else
+                {
+                    FatalAttractionExplodeTimer = FatalAttractionTimer + 2000;
+                    ExplosionCount = 0;
+                }
+            } else FatalAttractionExplodeTimer -= diff;
+
+            if (ShriekTimer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_SILENCING_SHRIEK);
+                ShriekTimer = 25000+rand()%10 * 1000;
+            } else ShriekTimer -= diff;
+
+            if (SaberTimer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_SABER_LASH);
+                SaberTimer = 25000+rand()%10 * 1000;
+            } else SaberTimer -= diff;
+
+            //Enrage
+            if (!me->HasAura(SPELL_BERSERK))
+                if (EnrageTimer <= diff)
+            {
+                DoCast(me, SPELL_BERSERK);
+                DoScriptText(SAY_ENRAGE, me);
+            } else EnrageTimer -= diff;
+
+            //Random taunts
+            if (RandomYellTimer <= diff)
+            {
+                DoScriptText(RAND(SAY_TAUNT1,SAY_TAUNT2,SAY_TAUNT3), me);
+                RandomYellTimer = 60000 + rand()%91 * 1000;
+            } else RandomYellTimer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_shahraz(Creature* pCreature)
-{
-    return new boss_shahrazAI (pCreature);
-}
 
 void AddSC_boss_mother_shahraz()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_mother_shahraz";
-    newscript->GetAI = &GetAI_boss_shahraz;
-    newscript->RegisterSelf();
+    new boss_mother_shahraz();
 }
-

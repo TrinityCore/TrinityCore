@@ -35,111 +35,113 @@ enum Spells
     SPELL_TRASH                  =  3391,
     SPELL_WIDE_SLASH             = 25814
 };
-
-struct boss_kurinnaxxAI : public ScriptedAI
+class boss_kurinnaxx : public CreatureScript
 {
-    boss_kurinnaxxAI(Creature *c) : ScriptedAI(c)
+public:
+    boss_kurinnaxx() : CreatureScript("boss_kurinnaxx") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        pInstance = c->GetInstanceData();
+        return new boss_kurinnaxxAI (pCreature);
     }
 
-    uint32 uiMortalWoundTimer;
-    uint32 uiSandtrapTimer;
-    uint32 uiWideSlashTimer;
-    uint32 uiSummonPlayerTimer;
-    uint32 uiTrashTimer;
-    bool bIsEnraged;
-
-    ScriptedInstance* pInstance;
-
-    void Reset()
+    struct boss_kurinnaxxAI : public ScriptedAI
     {
-        bIsEnraged = false;
-        uiMortalWoundTimer = urand(2000,7000);
-        uiSandtrapTimer = urand(20000,30000);
-        uiWideSlashTimer = urand(10000,15000);
-        uiTrashTimer = urand(20000,25000);
-        uiSummonPlayerTimer = urand(30000,40000);
-
-        if (pInstance)
-            pInstance->SetData(DATA_KURINNAXX_EVENT, NOT_STARTED);
-    }
-
-    void EnterCombat(Unit * /*who*/)
-    {
-        if (pInstance)
-            pInstance->SetData(DATA_KURINNAXX_EVENT, IN_PROGRESS);
-    }
-
-    void JustDied(Unit * /*killer*/)
-    {
-        if (pInstance)
-            pInstance->SetData(DATA_KURINNAXX_EVENT, DONE);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
-
-        //If we are <30% cast enrage
-        if (!bIsEnraged && me->GetHealth()*100 / me->GetMaxHealth() <= 30 && !me->IsNonMeleeSpellCasted(false))
+        boss_kurinnaxxAI(Creature *c) : ScriptedAI(c)
         {
-            bIsEnraged = true;
-            DoCast(me, SPELL_ENRAGE);
+            pInstance = c->GetInstanceScript();
         }
 
-        //Mortal Wound spell
-        if (uiMortalWoundTimer <= diff)
+        uint32 uiMortalWoundTimer;
+        uint32 uiSandtrapTimer;
+        uint32 uiWideSlashTimer;
+        uint32 uiSummonPlayerTimer;
+        uint32 uiTrashTimer;
+        bool bIsEnraged;
+
+        InstanceScript* pInstance;
+
+        void Reset()
         {
-            DoCast(me->getVictim(), SPELL_MORTALWOUND);
+            bIsEnraged = false;
             uiMortalWoundTimer = urand(2000,7000);
-        } else uiMortalWoundTimer -= diff;
-
-        //Santrap spell
-        if (uiSandtrapTimer <= diff)
-        {
-            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget, SPELL_SANDTRAP);
-            uiSandtrapTimer = 30000;
-        } else uiSandtrapTimer -= diff;
-
-        //Wide Slash spell
-        if (uiWideSlashTimer <= diff)
-        {
-            DoCast(me->getVictim(), SPELL_WIDE_SLASH);
+            uiSandtrapTimer = urand(20000,30000);
             uiWideSlashTimer = urand(10000,15000);
-        } else uiWideSlashTimer -= diff;
-
-        //Trash spell
-        if (uiTrashTimer <= diff)
-        {
-            DoCast(me, SPELL_TRASH);
             uiTrashTimer = urand(20000,25000);
-        } else uiTrashTimer -= diff;
-
-        //Summon Player spell
-        if (uiSummonPlayerTimer <= diff)
-        {
-            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget, SPELL_SUMMON_PLAYER);
             uiSummonPlayerTimer = urand(30000,40000);
-        } else uiSummonPlayerTimer -= diff;
 
-        DoMeleeAttackIfReady();
-    }
+            if (pInstance)
+                pInstance->SetData(DATA_KURINNAXX_EVENT, NOT_STARTED);
+        }
+
+        void EnterCombat(Unit * /*who*/)
+        {
+            if (pInstance)
+                pInstance->SetData(DATA_KURINNAXX_EVENT, IN_PROGRESS);
+        }
+
+        void JustDied(Unit * /*killer*/)
+        {
+            if (pInstance)
+                pInstance->SetData(DATA_KURINNAXX_EVENT, DONE);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            //If we are <30% cast enrage
+            if (!bIsEnraged && me->GetHealth()*100 / me->GetMaxHealth() <= 30 && !me->IsNonMeleeSpellCasted(false))
+            {
+                bIsEnraged = true;
+                DoCast(me, SPELL_ENRAGE);
+            }
+
+            //Mortal Wound spell
+            if (uiMortalWoundTimer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_MORTALWOUND);
+                uiMortalWoundTimer = urand(2000,7000);
+            } else uiMortalWoundTimer -= diff;
+
+            //Santrap spell
+            if (uiSandtrapTimer <= diff)
+            {
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(pTarget, SPELL_SANDTRAP);
+                uiSandtrapTimer = 30000;
+            } else uiSandtrapTimer -= diff;
+
+            //Wide Slash spell
+            if (uiWideSlashTimer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_WIDE_SLASH);
+                uiWideSlashTimer = urand(10000,15000);
+            } else uiWideSlashTimer -= diff;
+
+            //Trash spell
+            if (uiTrashTimer <= diff)
+            {
+                DoCast(me, SPELL_TRASH);
+                uiTrashTimer = urand(20000,25000);
+            } else uiTrashTimer -= diff;
+
+            //Summon Player spell
+            if (uiSummonPlayerTimer <= diff)
+            {
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(pTarget, SPELL_SUMMON_PLAYER);
+                uiSummonPlayerTimer = urand(30000,40000);
+            } else uiSummonPlayerTimer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
-CreatureAI* GetAI_boss_kurinnaxx(Creature* pCreature)
-{
-    return new boss_kurinnaxxAI (pCreature);
-}
 
 void AddSC_boss_kurinnaxx()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_kurinnaxx";
-    newscript->GetAI = &GetAI_boss_kurinnaxx;
-    newscript->RegisterSelf();
+    new boss_kurinnaxx();
 }
-

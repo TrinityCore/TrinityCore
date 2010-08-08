@@ -74,57 +74,59 @@ enum EmeraldDrake
     // you do not have access to until you kill the Mage-Lord Urom
     SPELL_EMERALD_DREAM_FUNNEL                    = 50344         //(60 yds) - Channeled - Transfers 5% of the caster's max health to a friendly drake every second for 10 seconds as long as the caster channels.
 };
-
-struct boss_eregosAI : public ScriptedAI
+class boss_eregos : public CreatureScript
 {
-    boss_eregosAI(Creature *c) : ScriptedAI(c)
+public:
+    boss_eregos() : CreatureScript("boss_eregos") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        pInstance = c->GetInstanceData();
+        return new boss_eregosAI (pCreature);
     }
 
-    ScriptedInstance* pInstance;
-
-    void Reset()
+    struct boss_eregosAI : public ScriptedAI
     {
-        if (pInstance)
-            pInstance->SetData(DATA_EREGOS_EVENT, NOT_STARTED);
-    }
+        boss_eregosAI(Creature *c) : ScriptedAI(c)
+        {
+            pInstance = c->GetInstanceScript();
+        }
 
-    void EnterCombat(Unit* /*who*/)
-    {
-        if (pInstance)
-            pInstance->SetData(DATA_EREGOS_EVENT, IN_PROGRESS);
-    }
+        InstanceScript* pInstance;
 
-    void AttackStart(Unit* /*who*/) {}
-    void MoveInLineOfSight(Unit* /*who*/) {}
-    void UpdateAI(const uint32 /*diff*/)
-    {
-        //Return since we have no target
-        if (!UpdateVictim())
-            return;
+        void Reset()
+        {
+            if (pInstance)
+                pInstance->SetData(DATA_EREGOS_EVENT, NOT_STARTED);
+        }
 
-        DoMeleeAttackIfReady();
-    }
+        void EnterCombat(Unit* /*who*/)
+        {
+            if (pInstance)
+                pInstance->SetData(DATA_EREGOS_EVENT, IN_PROGRESS);
+        }
 
-    void JustDied(Unit* /*killer*/)
-    {
-        if (pInstance)
-            pInstance->SetData(DATA_EREGOS_EVENT, DONE);
-    }
+        void AttackStart(Unit* /*who*/) {}
+        void MoveInLineOfSight(Unit* /*who*/) {}
+        void UpdateAI(const uint32 /*diff*/)
+        {
+            //Return since we have no target
+            if (!UpdateVictim())
+                return;
+
+            DoMeleeAttackIfReady();
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            if (pInstance)
+                pInstance->SetData(DATA_EREGOS_EVENT, DONE);
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_eregos(Creature* pCreature)
-{
-    return new boss_eregosAI (pCreature);
-}
 
 void AddSC_boss_eregos()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "boss_eregos";
-    newscript->GetAI = &GetAI_boss_eregos;
-    newscript->RegisterSelf();
+    new boss_eregos();
 }

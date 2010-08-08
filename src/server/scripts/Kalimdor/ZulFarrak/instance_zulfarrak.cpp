@@ -86,276 +86,279 @@ float Spawnsway[2][3] =
     {1884.86,1228.62,9},
     {1887.53,1263,41}
 };
-
-struct instance_zulfarrak : public ScriptedInstance
+class instance_zulfarrak : public InstanceMapScript
 {
-    instance_zulfarrak(Map* pMap) : ScriptedInstance(pMap) {Initialize();}
+public:
+    instance_zulfarrak() : InstanceMapScript("instance_zulfarrak") { }
 
-    uint32 GahzRillaEncounter;
-    uint64 ZumrahGUID;
-    uint64 BlyGUID;
-    uint64 WeegliGUID;
-    uint64 OroGUID;
-    uint64 RavenGUID;
-    uint64 MurtaGUID;
-    uint64 EndDoorGUID;
-    uint32 PyramidPhase;    
-    uint32 major_wave_Timer;
-    uint32 minor_wave_Timer;
-    uint32 addGroupSize;
-    uint32 waypoint;
-
-    void Initialize()
+    InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
     {
-        GahzRillaEncounter = NOT_STARTED;
+        return new instance_zulfarrak_InstanceMapScript(pMap);
     }
 
-    void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+    struct instance_zulfarrak_InstanceMapScript : public InstanceScript
     {
-        switch (pCreature->GetEntry())
+        instance_zulfarrak_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();}
+
+        uint32 GahzRillaEncounter;
+        uint64 ZumrahGUID;
+        uint64 BlyGUID;
+        uint64 WeegliGUID;
+        uint64 OroGUID;
+        uint64 RavenGUID;
+        uint64 MurtaGUID;
+        uint64 EndDoorGUID;
+        uint32 PyramidPhase;
+        uint32 major_wave_Timer;
+        uint32 minor_wave_Timer;
+        uint32 addGroupSize;
+        uint32 waypoint;
+
+        void Initialize()
         {
-            case ENTRY_ZUMRAH:
-                ZumrahGUID = pCreature->GetGUID();
-                break;
-            case ENTRY_BLY:
-                BlyGUID = pCreature->GetGUID();
-                pCreature->SetReactState(REACT_PASSIVE); // starts out passive (in a cage)
-                break;
-            case ENTRY_RAVEN:
-                RavenGUID = pCreature->GetGUID();
-                pCreature->SetReactState(REACT_PASSIVE);// starts out passive (in a cage)
-                break;
-            case ENTRY_ORO:
-                OroGUID = pCreature->GetGUID();
-                pCreature->SetReactState(REACT_PASSIVE);// starts out passive (in a cage)
-                break;
-            case ENTRY_WEEGLI:
-                WeegliGUID = pCreature->GetGUID();
-                pCreature->SetReactState(REACT_PASSIVE);// starts out passive (in a cage)
-                break;
-            case ENTRY_MURTA:
-                MurtaGUID = pCreature->GetGUID();
-                pCreature->SetReactState(REACT_PASSIVE);// starts out passive (in a cage)
-                break;
-            case NPC_GAHZRILLA:
-                if (GahzRillaEncounter >= IN_PROGRESS)
-                    pCreature->DisappearAndDie();
-                else
-                    GahzRillaEncounter = IN_PROGRESS;
-                break;
+            GahzRillaEncounter = NOT_STARTED;
         }
-    }
 
-    void OnGameObjectCreate(GameObject* pGo, bool /*apply*/)
-    {
-        switch(pGo->GetEntry())
+        void OnCreatureCreate(Creature* pCreature, bool /*add*/)
         {
-            case GO_END_DOOR:
-                EndDoorGUID = pGo->GetGUID();
-                break;
+            switch (pCreature->GetEntry())
+            {
+                case ENTRY_ZUMRAH:
+                    ZumrahGUID = pCreature->GetGUID();
+                    break;
+                case ENTRY_BLY:
+                    BlyGUID = pCreature->GetGUID();
+                    pCreature->SetReactState(REACT_PASSIVE); // starts out passive (in a cage)
+                    break;
+                case ENTRY_RAVEN:
+                    RavenGUID = pCreature->GetGUID();
+                    pCreature->SetReactState(REACT_PASSIVE);// starts out passive (in a cage)
+                    break;
+                case ENTRY_ORO:
+                    OroGUID = pCreature->GetGUID();
+                    pCreature->SetReactState(REACT_PASSIVE);// starts out passive (in a cage)
+                    break;
+                case ENTRY_WEEGLI:
+                    WeegliGUID = pCreature->GetGUID();
+                    pCreature->SetReactState(REACT_PASSIVE);// starts out passive (in a cage)
+                    break;
+                case ENTRY_MURTA:
+                    MurtaGUID = pCreature->GetGUID();
+                    pCreature->SetReactState(REACT_PASSIVE);// starts out passive (in a cage)
+                    break;
+                case NPC_GAHZRILLA:
+                    if (GahzRillaEncounter >= IN_PROGRESS)
+                        pCreature->DisappearAndDie();
+                    else
+                        GahzRillaEncounter = IN_PROGRESS;
+                    break;
+            }
         }
-    }
 
-    uint32 GetData(uint32 type)
-    {
-        switch(type)
+        void OnGameObjectCreate(GameObject* pGo, bool /*apply*/)
         {
-            case EVENT_PYRAMID:
-                return PyramidPhase;
+            switch(pGo->GetEntry())
+            {
+                case GO_END_DOOR:
+                    EndDoorGUID = pGo->GetGUID();
+                    break;
+            }
         }
-        return 0;
-    }
 
-    uint64 GetData64(uint32 data)
-    {
-        switch(data)
+        uint32 GetData(uint32 type)
         {
-            case ENTRY_ZUMRAH:
-                return ZumrahGUID;
-            case ENTRY_BLY:
-                return BlyGUID;
-            case ENTRY_RAVEN:
-                return RavenGUID;
-            case ENTRY_ORO:
-                return OroGUID;
-            case ENTRY_WEEGLI:
-                return WeegliGUID;
-            case ENTRY_MURTA:
-                return MurtaGUID;
-            case GO_END_DOOR:
-                return EndDoorGUID;
+            switch(type)
+            {
+                case EVENT_PYRAMID:
+                    return PyramidPhase;
+            }
+            return 0;
         }
-        return 0;
-    }
 
-    void SetData(uint32 type, uint32 data)
-    {
-        switch(type)
+        uint64 GetData64(uint32 data)
         {
-            case EVENT_PYRAMID:
-                PyramidPhase=data;
-                break;
-        };
-    }   
+            switch(data)
+            {
+                case ENTRY_ZUMRAH:
+                    return ZumrahGUID;
+                case ENTRY_BLY:
+                    return BlyGUID;
+                case ENTRY_RAVEN:
+                    return RavenGUID;
+                case ENTRY_ORO:
+                    return OroGUID;
+                case ENTRY_WEEGLI:
+                    return WeegliGUID;
+                case ENTRY_MURTA:
+                    return MurtaGUID;
+                case GO_END_DOOR:
+                    return EndDoorGUID;
+            }
+            return 0;
+        }
 
-    virtual void Update(uint32 diff)
-    {
-        switch (PyramidPhase)
+        void SetData(uint32 type, uint32 data)
         {
-            case PYRAMID_NOT_STARTED:
-            case PYRAMID_KILLED_ALL_TROLLS:
-                break;
-            case PYRAMID_ARRIVED_AT_STAIR:
-                SpawnPyramidWave(1);
-                SetData(EVENT_PYRAMID,PYRAMID_WAVE_1);
-                major_wave_Timer=120000;
-                minor_wave_Timer=0;
-                addGroupSize=2;
-                break;
-            case PYRAMID_WAVE_1:
-                if (IsWaveAllDead())
-                {
-                    SetData(EVENT_PYRAMID,PYRAMID_PRE_WAVE_2);
-                    major_wave_Timer = 10000; //give players a few seconds before wave 2 starts to rebuff
-                }
-                else
-                    if (minor_wave_Timer<diff)
+            switch(type)
+            {
+                case EVENT_PYRAMID:
+                    PyramidPhase=data;
+                    break;
+            };
+        }   
+
+        virtual void Update(uint32 diff)
+        {
+            switch (PyramidPhase)
+            {
+                case PYRAMID_NOT_STARTED:
+                case PYRAMID_KILLED_ALL_TROLLS:
+                    break;
+                case PYRAMID_ARRIVED_AT_STAIR:
+                    SpawnPyramidWave(1);
+                    SetData(EVENT_PYRAMID,PYRAMID_WAVE_1);
+                    major_wave_Timer=120000;
+                    minor_wave_Timer=0;
+                    addGroupSize=2;
+                    break;
+                case PYRAMID_WAVE_1:
+                    if (IsWaveAllDead())
                     {
-                        SendAddsUpStairs(addGroupSize++);
-                        minor_wave_Timer=10000;
+                        SetData(EVENT_PYRAMID,PYRAMID_PRE_WAVE_2);
+                        major_wave_Timer = 10000; //give players a few seconds before wave 2 starts to rebuff
                     }
                     else
-                        minor_wave_Timer -= diff;
-                break;
-            case PYRAMID_PRE_WAVE_2:
-                if (major_wave_Timer<diff)
-                {
-                    // beginning 2nd wave!
-                    SpawnPyramidWave(2);
-                    SetData(EVENT_PYRAMID,PYRAMID_WAVE_2);
-                    minor_wave_Timer = 0;
-                    addGroupSize=2;
-                }
-                else
-                    major_wave_Timer -= diff;
-                break;
-            case PYRAMID_WAVE_2:
-                if (IsWaveAllDead())
-                {
-                    SpawnPyramidWave(3);
-                    SetData(EVENT_PYRAMID,PYRAMID_PRE_WAVE_3);
-                    major_wave_Timer = 5000; //give NPCs time to return to their home spots
-                } 
-                else 
-                    if (minor_wave_Timer<diff)
+                        if (minor_wave_Timer<diff)
+                        {
+                            SendAddsUpStairs(addGroupSize++);
+                            minor_wave_Timer=10000;
+                        }
+                        else
+                            minor_wave_Timer -= diff;
+                    break;
+                case PYRAMID_PRE_WAVE_2:
+                    if (major_wave_Timer<diff)
                     {
-                        SendAddsUpStairs(addGroupSize++);
-                        minor_wave_Timer=10000;
+                        // beginning 2nd wave!
+                        SpawnPyramidWave(2);
+                        SetData(EVENT_PYRAMID,PYRAMID_WAVE_2);
+                        minor_wave_Timer = 0;
+                        addGroupSize=2;
+                    }
+                    else
+                        major_wave_Timer -= diff;
+                    break;
+                case PYRAMID_WAVE_2:
+                    if (IsWaveAllDead())
+                    {
+                        SpawnPyramidWave(3);
+                        SetData(EVENT_PYRAMID,PYRAMID_PRE_WAVE_3);
+                        major_wave_Timer = 5000; //give NPCs time to return to their home spots
                     } 
                     else 
-                        minor_wave_Timer -= diff;
-                break;
-            case PYRAMID_PRE_WAVE_3:
-                if (major_wave_Timer<diff)
-                {
-                    // move NPCs to bottom of stair
-                    MoveNPCIfAlive(ENTRY_BLY,1887.92,1228.179,9.98,4.78);
-                    MoveNPCIfAlive(ENTRY_MURTA,1891.57,1228.68,9.69,4.78);
-                    MoveNPCIfAlive(ENTRY_ORO,1897.23,1228.34,9.43,4.78);
-                    MoveNPCIfAlive(ENTRY_RAVEN,1883.68,1227.95,9.543,4.78);
-                    MoveNPCIfAlive(ENTRY_WEEGLI,1878.02,1227.65,9.485,4.78);
-                    SetData(EVENT_PYRAMID,PYRAMID_WAVE_3);
-                } 
-                else 
-                    major_wave_Timer -= diff;
-                break;
-            case PYRAMID_WAVE_3:
-                if (IsWaveAllDead()) // move NPCS to their final positions
-                {
-                    SetData(EVENT_PYRAMID,PYRAMID_KILLED_ALL_TROLLS);
-                    MoveNPCIfAlive(ENTRY_BLY,1883.82,1200.83,8.87,1.32);
-                    MoveNPCIfAlive(ENTRY_MURTA,1891.83,1201.45,8.87,1.32);
-                    MoveNPCIfAlive(ENTRY_ORO,1894.50,1204.40,8.87,1.32);
-                    MoveNPCIfAlive(ENTRY_RAVEN,1874.11,1206.17,8.87,1.32);
-                    MoveNPCIfAlive(ENTRY_WEEGLI,1877.52,1199.63,8.87,1.32);
-                }
-                break;
-        };
-    }
+                        if (minor_wave_Timer<diff)
+                        {
+                            SendAddsUpStairs(addGroupSize++);
+                            minor_wave_Timer=10000;
+                        } 
+                        else 
+                            minor_wave_Timer -= diff;
+                    break;
+                case PYRAMID_PRE_WAVE_3:
+                    if (major_wave_Timer<diff)
+                    {
+                        // move NPCs to bottom of stair
+                        MoveNPCIfAlive(ENTRY_BLY,1887.92,1228.179,9.98,4.78);
+                        MoveNPCIfAlive(ENTRY_MURTA,1891.57,1228.68,9.69,4.78);
+                        MoveNPCIfAlive(ENTRY_ORO,1897.23,1228.34,9.43,4.78);
+                        MoveNPCIfAlive(ENTRY_RAVEN,1883.68,1227.95,9.543,4.78);
+                        MoveNPCIfAlive(ENTRY_WEEGLI,1878.02,1227.65,9.485,4.78);
+                        SetData(EVENT_PYRAMID,PYRAMID_WAVE_3);
+                    } 
+                    else 
+                        major_wave_Timer -= diff;
+                    break;
+                case PYRAMID_WAVE_3:
+                    if (IsWaveAllDead()) // move NPCS to their final positions
+                    {
+                        SetData(EVENT_PYRAMID,PYRAMID_KILLED_ALL_TROLLS);
+                        MoveNPCIfAlive(ENTRY_BLY,1883.82,1200.83,8.87,1.32);
+                        MoveNPCIfAlive(ENTRY_MURTA,1891.83,1201.45,8.87,1.32);
+                        MoveNPCIfAlive(ENTRY_ORO,1894.50,1204.40,8.87,1.32);
+                        MoveNPCIfAlive(ENTRY_RAVEN,1874.11,1206.17,8.87,1.32);
+                        MoveNPCIfAlive(ENTRY_WEEGLI,1877.52,1199.63,8.87,1.32);
+                    }
+                    break;
+            };
+        }
 
-    std::list<uint64> addsAtBase,movedadds;
+        std::list<uint64> addsAtBase,movedadds;
 
-    void MoveNPCIfAlive(uint32 entry,float x,float y,float z,float o)
-    {
-       if (Creature* npc = instance->GetCreature(GetData64(entry)))
-       {
-           if (npc->isAlive())
+        void MoveNPCIfAlive(uint32 entry,float x,float y,float z,float o)
+        {
+           if (Creature* npc = instance->GetCreature(GetData64(entry)))
            {
-                npc->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                npc->GetMotionMaster()->MovePoint(1,x,y,z);
-                npc->SetHomePosition(x,y,z,o);
-           }
+               if (npc->isAlive())
+               {
+                    npc->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                    npc->GetMotionMaster()->MovePoint(1,x,y,z);
+                    npc->SetHomePosition(x,y,z,o);
+               }
+            }
         }
-    }
 
-    void SpawnPyramidWave(uint32 wave){
-        for (int i = 0; i < pyramidSpawnTotal; i++)
-        {
-            if (pyramidSpawns[i][0] == (float)wave)
+        void SpawnPyramidWave(uint32 wave){
+            for (int i = 0; i < pyramidSpawnTotal; i++)
             {
-                Position pos = {pyramidSpawns[i][2], pyramidSpawns[i][3], 8.87, 0};
-                TempSummon* ts = instance->SummonCreature(pyramidSpawns[i][1],pos);
-                ts->GetMotionMaster()->MoveRandom(10);
-                addsAtBase.push_back(ts->GetGUID());
+                if (pyramidSpawns[i][0] == (float)wave)
+                {
+                    Position pos = {pyramidSpawns[i][2], pyramidSpawns[i][3], 8.87, 0};
+                    TempSummon* ts = instance->SummonCreature(pyramidSpawns[i][1],pos);
+                    ts->GetMotionMaster()->MoveRandom(10);
+                    addsAtBase.push_back(ts->GetGUID());
+                }
             }
         }
-    }
 
-    bool IsWaveAllDead(){
-        for(std::list<uint64>::iterator itr = addsAtBase.begin(); itr != addsAtBase.end(); ++itr)
-        {
-            if (Creature* add = instance->GetCreature((*itr)))
+        bool IsWaveAllDead(){
+            for(std::list<uint64>::iterator itr = addsAtBase.begin(); itr != addsAtBase.end(); ++itr)
             {
-                if (add->isAlive())
-                    return false;
+                if (Creature* add = instance->GetCreature((*itr)))
+                {
+                    if (add->isAlive())
+                        return false;
+                }
             }
-        }
-        for(std::list<uint64>::iterator itr = movedadds.begin(); itr != movedadds.end(); ++itr)
-        {
-            if (Creature* add = instance->GetCreature(((*itr))))
+            for(std::list<uint64>::iterator itr = movedadds.begin(); itr != movedadds.end(); ++itr)
             {
-                if (add->isAlive())
-                    return false;
+                if (Creature* add = instance->GetCreature(((*itr))))
+                {
+                    if (add->isAlive())
+                        return false;
+                }
             }
+            return true;
         }
-        return true;
-    }
 
-    void SendAddsUpStairs(uint32 count)
-    {
-        //pop a add from list, send him up the stairs...
-        for (uint32 addCount = 0; addCount<count && !addsAtBase.empty(); addCount++)
+        void SendAddsUpStairs(uint32 count)
         {
-            if (Creature* add = instance->GetCreature(*addsAtBase.begin()))
+            //pop a add from list, send him up the stairs...
+            for (uint32 addCount = 0; addCount<count && !addsAtBase.empty(); addCount++)
             {
-                add->GetMotionMaster()->MovePath(PATH_ADDS,false);
-                movedadds.push_back(add->GetGUID());
+                if (Creature* add = instance->GetCreature(*addsAtBase.begin()))
+                {
+                    add->GetMotionMaster()->MovePath(PATH_ADDS,false);
+                    movedadds.push_back(add->GetGUID());
+                }
+                addsAtBase.erase(addsAtBase.begin());
             }
-            addsAtBase.erase(addsAtBase.begin());
         }
-    }
+    };
+
 };
 
-InstanceData* GetInstanceData_instance_zulfarrak(Map* pMap)
-{
-    return new instance_zulfarrak(pMap);
-}
 
 void AddSC_instance_zulfarrak()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "instance_zulfarrak";
-    newscript->GetInstanceData = &GetInstanceData_instance_zulfarrak;
-    newscript->RegisterSelf();
+    new instance_zulfarrak();
 }

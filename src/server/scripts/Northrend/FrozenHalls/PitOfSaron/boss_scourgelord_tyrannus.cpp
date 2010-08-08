@@ -84,191 +84,197 @@ enum Misc
 {
     SEAT_TYRANNUS = 0
 };
-
-struct boss_tyrannusAI : public ScriptedAI
+class boss_tyrannus : public CreatureScript
 {
-    boss_tyrannusAI(Creature *c) : ScriptedAI(c)
+public:
+    boss_tyrannus() : CreatureScript("boss_tyrannus") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        pInstance = c->GetInstanceData();
+        return new boss_tyrannusAI(pCreature);
     }
 
-    ScriptedInstance* pInstance;
-    EventMap events;
-
-    void Reset()
+    struct boss_tyrannusAI : public ScriptedAI
     {
-        events.Reset();
-
-        if (pInstance)
-            pInstance->SetData(DATA_TYRANNUS_EVENT, NOT_STARTED);
-    }
-
-    Creature* GetRimefang()
-    {
-        return me->GetCreature(*me, pInstance->GetData64(DATA_RIMEFANG));
-    }
-
-    void EnterCombat(Unit* /*who*/)
-    {
-        DoScriptText(SAY_AGGRO, me);
-        me->ExitVehicle();
-
-        // restore health if any damage done during intro
-        me->SetHealth(me->GetMaxHealth());
-
-        if (pInstance)
-            pInstance->SetData(DATA_TYRANNUS_EVENT, IN_PROGRESS);
-
-        events.ScheduleEvent(EVENT_FORCEFUL_SMASH, 10000);
-        events.ScheduleEvent(EVENT_OVERLORDS_BRAND, 35000);
-        events.ScheduleEvent(EVENT_DARK_MIGHT, 40000);
-    }
-
-    void KilledUnit(Unit * /*victim*/)
-    {
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
-    }
-
-    void JustDied(Unit* /*killer*/)
-    {
-        DoScriptText(SAY_DEATH, me);
-
-        if (pInstance)
+        boss_tyrannusAI(Creature *c) : ScriptedAI(c)
         {
-            pInstance->SetData(DATA_TYRANNUS_EVENT, DONE);
-            if (Creature* pRimefang = GetRimefang())
-                pRimefang->ForcedDespawn();
+            pInstance = c->GetInstanceScript();
         }
-    }
 
-    void UpdateAI(const uint32 diff)
-    {
-         //Return since we have no target
-        if (!UpdateVictim())
-            return;
+        InstanceScript* pInstance;
+        EventMap events;
 
-        events.Update(diff);
-
-        if (me->hasUnitState(UNIT_STAT_CASTING))
-            return;
-
-        while (uint32 eventId = events.ExecuteEvent())
+        void Reset()
         {
-            switch(eventId)
+            events.Reset();
+
+            if (pInstance)
+                pInstance->SetData(DATA_TYRANNUS_EVENT, NOT_STARTED);
+        }
+
+        Creature* GetRimefang()
+        {
+            return me->GetCreature(*me, pInstance->GetData64(DATA_RIMEFANG));
+        }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            DoScriptText(SAY_AGGRO, me);
+            me->ExitVehicle();
+
+            // restore health if any damage done during intro
+            me->SetHealth(me->GetMaxHealth());
+
+            if (pInstance)
+                pInstance->SetData(DATA_TYRANNUS_EVENT, IN_PROGRESS);
+
+            events.ScheduleEvent(EVENT_FORCEFUL_SMASH, 10000);
+            events.ScheduleEvent(EVENT_OVERLORDS_BRAND, 35000);
+            events.ScheduleEvent(EVENT_DARK_MIGHT, 40000);
+        }
+
+        void KilledUnit(Unit * /*victim*/)
+        {
+            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            DoScriptText(SAY_DEATH, me);
+
+            if (pInstance)
             {
-                case EVENT_FORCEFUL_SMASH:
-                    DoCast(me->getVictim(), SPELL_FORCEFUL_SMASH);
-                    events.ScheduleEvent(EVENT_FORCEFUL_SMASH, 10000);
-                    return;
-                case EVENT_OVERLORDS_BRAND:
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget, SPELL_OVERLORDS_BRAND);
-                    events.ScheduleEvent(EVENT_OVERLORDS_BRAND, 45000);
-                    return;
-                case EVENT_DARK_MIGHT:
-                    DoScriptText(SAY_DARK_MIGHT_1, me);
-                    DoScriptText(SAY_DARK_MIGHT_2, me);
-                    DoCast(me, SPELL_DARK_MIGHT);
-                    events.ScheduleEvent(EVENT_DARK_MIGHT, 60000);
-                    return;
+                pInstance->SetData(DATA_TYRANNUS_EVENT, DONE);
+                if (Creature* pRimefang = GetRimefang())
+                    pRimefang->ForcedDespawn();
             }
         }
 
-        DoMeleeAttackIfReady();
-    }
-};
-
-struct boss_rimefangAI : public ScriptedAI
-{
-    boss_rimefangAI(Creature *c) : ScriptedAI(c)
-    {
-        pInstance = c->GetInstanceData();
-    }
-
-    ScriptedInstance* pInstance;
-    EventMap events;
-
-    void Reset()
-    {
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
-        me->InterruptSpell(CURRENT_GENERIC_SPELL);
-        me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
-        me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-        events.Reset();
-    }
-
-    void EnterCombat(Unit* /*who*/)
-    {
-        me->InterruptSpell(CURRENT_GENERIC_SPELL);
-        me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
-        me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-        events.ScheduleEvent(EVENT_MARK_OF_RIMEFANG, 25000);
-        events.ScheduleEvent(EVENT_ICY_BLAST, 35000);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        //Return since we have no target
-        if (!UpdateVictim())
-            return;
-
-        events.Update(diff);
-
-        if (me->hasUnitState(UNIT_STAT_CASTING))
-            return;
-
-        while (uint32 eventId = events.ExecuteEvent())
+        void UpdateAI(const uint32 diff)
         {
-            switch(eventId)
-            {
-                case EVENT_MARK_OF_RIMEFANG:
-                    DoScriptText(SAY_MARK_RIMEFANG_1, me);
-                    DoScriptText(SAY_MARK_RIMEFANG_2, me);
+             //Return since we have no target
+            if (!UpdateVictim())
+                return;
 
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget, SPELL_MARK_OF_RIMEFANG);
-                    events.ScheduleEvent(EVENT_HOARFROST, 5000);
-                    return;
-                case EVENT_HOARFROST:
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget, SPELL_HOARFROST);
-                    events.ScheduleEvent(EVENT_MARK_OF_RIMEFANG, 20000);
-                    return;
-                case EVENT_ICY_BLAST:
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget, SPELL_ICY_BLAST);
-                    events.ScheduleEvent(EVENT_ICY_BLAST_2, 5000);
-                    return;
-                case EVENT_ICY_BLAST_2:
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget->getVictim(), SPELL_ICY_BLAST_2);
-                    events.ScheduleEvent(EVENT_ICY_BLAST, 30000);
-                    return;
+            events.Update(diff);
+
+            if (me->hasUnitState(UNIT_STAT_CASTING))
+                return;
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch(eventId)
+                {
+                    case EVENT_FORCEFUL_SMASH:
+                        DoCast(me->getVictim(), SPELL_FORCEFUL_SMASH);
+                        events.ScheduleEvent(EVENT_FORCEFUL_SMASH, 10000);
+                        return;
+                    case EVENT_OVERLORDS_BRAND:
+                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                            DoCast(pTarget, SPELL_OVERLORDS_BRAND);
+                        events.ScheduleEvent(EVENT_OVERLORDS_BRAND, 45000);
+                        return;
+                    case EVENT_DARK_MIGHT:
+                        DoScriptText(SAY_DARK_MIGHT_1, me);
+                        DoScriptText(SAY_DARK_MIGHT_2, me);
+                        DoCast(me, SPELL_DARK_MIGHT);
+                        events.ScheduleEvent(EVENT_DARK_MIGHT, 60000);
+                        return;
+                }
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+};
+class boss_rimefang : public CreatureScript
+{
+public:
+    boss_rimefang() : CreatureScript("boss_rimefang") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new boss_rimefangAI(pCreature);
+    }
+
+    struct boss_rimefangAI : public ScriptedAI
+    {
+        boss_rimefangAI(Creature *c) : ScriptedAI(c)
+        {
+            pInstance = c->GetInstanceScript();
+        }
+
+        InstanceScript* pInstance;
+        EventMap events;
+
+        void Reset()
+        {
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+            me->InterruptSpell(CURRENT_GENERIC_SPELL);
+            me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
+            me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+            events.Reset();
+        }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            me->InterruptSpell(CURRENT_GENERIC_SPELL);
+            me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
+            me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+            events.ScheduleEvent(EVENT_MARK_OF_RIMEFANG, 25000);
+            events.ScheduleEvent(EVENT_ICY_BLAST, 35000);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            //Return since we have no target
+            if (!UpdateVictim())
+                return;
+
+            events.Update(diff);
+
+            if (me->hasUnitState(UNIT_STAT_CASTING))
+                return;
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch(eventId)
+                {
+                    case EVENT_MARK_OF_RIMEFANG:
+                        DoScriptText(SAY_MARK_RIMEFANG_1, me);
+                        DoScriptText(SAY_MARK_RIMEFANG_2, me);
+
+                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                            DoCast(pTarget, SPELL_MARK_OF_RIMEFANG);
+                        events.ScheduleEvent(EVENT_HOARFROST, 5000);
+                        return;
+                    case EVENT_HOARFROST:
+                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                            DoCast(pTarget, SPELL_HOARFROST);
+                        events.ScheduleEvent(EVENT_MARK_OF_RIMEFANG, 20000);
+                        return;
+                    case EVENT_ICY_BLAST:
+                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                            DoCast(pTarget, SPELL_ICY_BLAST);
+                        events.ScheduleEvent(EVENT_ICY_BLAST_2, 5000);
+                        return;
+                    case EVENT_ICY_BLAST_2:
+                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                            DoCast(pTarget->getVictim(), SPELL_ICY_BLAST_2);
+                        events.ScheduleEvent(EVENT_ICY_BLAST, 30000);
+                        return;
+                }
             }
         }
-    }
+    };
+
 };
 
-CreatureAI* GetAI_boss_tyrannus(Creature* pCreature)
-{
-    return new boss_tyrannusAI(pCreature);
-}
 
-CreatureAI* GetAI_boss_rimefang(Creature* pCreature)
-{
-    return new boss_rimefangAI(pCreature);
-}
 
 void AddSC_boss_tyrannus()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name="boss_tyrannus";
-    newscript->GetAI = &GetAI_boss_tyrannus;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name="boss_rimefang";
-    newscript->GetAI = &GetAI_boss_rimefang;
-    newscript->RegisterSelf();
+    new boss_tyrannus();
+    new boss_rimefang();
 }

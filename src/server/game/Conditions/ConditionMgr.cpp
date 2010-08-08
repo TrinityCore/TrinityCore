@@ -26,7 +26,7 @@
 #include "GameEventMgr.h"
 #include "ObjectMgr.h"
 #include "ProgressBar.h"
-#include "InstanceData.h"
+#include "InstanceScript.h"
 #include "ConditionMgr.h"
 #include "ScriptMgr.h"
 
@@ -119,8 +119,8 @@ bool Condition::Meets(Player * player, Unit* targetOverride)
         case CONDITION_INSTANCE_DATA:
         {
             Map *map = player->GetMap();
-            if (map && map->IsDungeon() && ((InstanceMap*)map)->GetInstanceData())
-                condMeets = ((InstanceMap*)map)->GetInstanceData()->GetData(mConditionValue1) == mConditionValue2;
+            if (map && map->IsDungeon() && ((InstanceMap*)map)->GetInstanceScript())
+                condMeets = ((InstanceMap*)map)->GetInstanceScript()->GetData(mConditionValue1) == mConditionValue2;
             break;
         }
         case CONDITION_SPELL_SCRIPT_TARGET:

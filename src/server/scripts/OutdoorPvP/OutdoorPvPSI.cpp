@@ -94,7 +94,7 @@ bool OutdoorPvPSI::HandleAreaTrigger(Player *plr, uint32 trigger)
             if (m_Gathered_A >= SI_MAX_RESOURCES)
             {
                 TeamApplyBuff(TEAM_ALLIANCE, SI_CENARION_FAVOR);
-                sWorld.SendZoneText(OutdoorPvPSIBuffZones[0],objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_SI_CAPTURE_A));
+                sWorld.SendZoneText(OutdoorPvPSIBuffZones[0],sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_SI_CAPTURE_A));
                 m_LastController = ALLIANCE;
                 m_Gathered_A = 0;
                 m_Gathered_H = 0;
@@ -119,7 +119,7 @@ bool OutdoorPvPSI::HandleAreaTrigger(Player *plr, uint32 trigger)
             if (m_Gathered_H >= SI_MAX_RESOURCES)
             {
                 TeamApplyBuff(TEAM_HORDE, SI_CENARION_FAVOR);
-                sWorld.SendZoneText(OutdoorPvPSIBuffZones[0],objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_SI_CAPTURE_H));
+                sWorld.SendZoneText(OutdoorPvPSIBuffZones[0],sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_SI_CAPTURE_H));
                 m_LastController = HORDE;
                 m_Gathered_A = 0;
                 m_Gathered_H = 0;
@@ -163,7 +163,7 @@ bool OutdoorPvPSI::HandleDropFlag(Player *plr, uint32 spellId)
                             return true;
                         }
 
-                        if (!go->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT),SI_SILITHYST_MOUND, map, plr->GetPhaseMask(), plr->GetPositionX(),plr->GetPositionY(),plr->GetPositionZ(),plr->GetOrientation(),0,0,0,0,100,GO_STATE_READY))
+                        if (!go->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT),SI_SILITHYST_MOUND, map, plr->GetPhaseMask(), plr->GetPositionX(),plr->GetPositionY(),plr->GetPositionZ(),plr->GetOrientation(),0,0,0,0,100,GO_STATE_READY))
                         {
                             delete go;
                         }
@@ -192,7 +192,7 @@ bool OutdoorPvPSI::HandleDropFlag(Player *plr, uint32 spellId)
                           delete go;
                           return true;
                           }
-                        if (!go->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT),SI_SILITHYST_MOUND, map, plr->GetPhaseMask() ,plr->GetPositionX(),plr->GetPositionY(),plr->GetPositionZ(),plr->GetOrientation(),0,0,0,0,100,GO_STATE_READY))
+                        if (!go->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT),SI_SILITHYST_MOUND, map, plr->GetPhaseMask() ,plr->GetPositionX(),plr->GetPositionY(),plr->GetPositionZ(),plr->GetOrientation(),0,0,0,0,100,GO_STATE_READY))
                         {
                             delete go;
                         }

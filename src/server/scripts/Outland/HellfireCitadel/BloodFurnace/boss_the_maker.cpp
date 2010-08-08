@@ -54,10 +54,10 @@ class boss_the_maker : public CreatureScript
         {
             boss_the_makerAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceData();
+                pInstance = pCreature->GetInstanceScript();
             }
 
-            ScriptedInstance* pInstance;
+            InstanceScript* pInstance;
 
             uint32 AcidSpray_Timer;
             uint32 ExplodingBreaker_Timer;

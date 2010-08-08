@@ -53,72 +53,79 @@ enum eAeranas
 
     C_AERANAS               = 17085
 };
-
-struct npc_aeranasAI : public ScriptedAI
+class npc_aeranas : public CreatureScript
 {
-    npc_aeranasAI(Creature* c) : ScriptedAI(c) {}
+public:
+    npc_aeranas() : CreatureScript("npc_aeranas") { }
 
-    uint32 Faction_Timer;
-    uint32 EnvelopingWinds_Timer;
-    uint32 Shock_Timer;
-
-    void Reset()
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        Faction_Timer = 8000;
-        EnvelopingWinds_Timer = 9000;
-        Shock_Timer = 5000;
-
-        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-        me->setFaction(FACTION_FRIENDLY);
-
-        DoScriptText(SAY_SUMMON, me);
+        return new npc_aeranasAI (pCreature);
     }
 
-    void UpdateAI(const uint32 diff)
+    struct npc_aeranasAI : public ScriptedAI
     {
-        if (Faction_Timer)
-        {
-            if (Faction_Timer <= diff)
-            {
-                me->setFaction(FACTION_HOSTILE);
-                Faction_Timer = 0;
-            } else Faction_Timer -= diff;
-        }
+        npc_aeranasAI(Creature* c) : ScriptedAI(c) {}
 
-        if (!UpdateVictim())
-            return;
+        uint32 Faction_Timer;
+        uint32 EnvelopingWinds_Timer;
+        uint32 Shock_Timer;
 
-        if ((me->GetHealth()*100) / me->GetMaxHealth() < 30)
+        void Reset()
         {
+            Faction_Timer = 8000;
+            EnvelopingWinds_Timer = 9000;
+            Shock_Timer = 5000;
+
+            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
             me->setFaction(FACTION_FRIENDLY);
-            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-            me->RemoveAllAuras();
-            me->DeleteThreatList();
-            me->CombatStop(true);
-            DoScriptText(SAY_FREE, me);
-            return;
+
+            DoScriptText(SAY_SUMMON, me);
         }
 
-        if (Shock_Timer <= diff)
+        void UpdateAI(const uint32 diff)
         {
-            DoCast(me->getVictim(), SPELL_SHOCK);
-            Shock_Timer = 10000;
-        } else Shock_Timer -= diff;
+            if (Faction_Timer)
+            {
+                if (Faction_Timer <= diff)
+                {
+                    me->setFaction(FACTION_HOSTILE);
+                    Faction_Timer = 0;
+                } else Faction_Timer -= diff;
+            }
 
-        if (EnvelopingWinds_Timer <= diff)
-        {
-            DoCast(me->getVictim(), SPELL_ENVELOPING_WINDS);
-            EnvelopingWinds_Timer = 25000;
-        } else EnvelopingWinds_Timer -= diff;
+            if (!UpdateVictim())
+                return;
 
-        DoMeleeAttackIfReady();
-    }
+            if ((me->GetHealth()*100) / me->GetMaxHealth() < 30)
+            {
+                me->setFaction(FACTION_FRIENDLY);
+                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                me->RemoveAllAuras();
+                me->DeleteThreatList();
+                me->CombatStop(true);
+                DoScriptText(SAY_FREE, me);
+                return;
+            }
+
+            if (Shock_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_SHOCK);
+                Shock_Timer = 10000;
+            } else Shock_Timer -= diff;
+
+            if (EnvelopingWinds_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_ENVELOPING_WINDS);
+                EnvelopingWinds_Timer = 25000;
+            } else EnvelopingWinds_Timer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
 
-CreatureAI* GetAI_npc_aeranas(Creature* pCreature)
-{
-    return new npc_aeranasAI (pCreature);
-}
 
 /*######
 ## npc_ancestral_wolf
@@ -134,68 +141,81 @@ enum eAncestralWolf
 
     NPC_RYGA                        = 17123
 };
-
-struct npc_ancestral_wolfAI : public npc_escortAI
+class npc_ancestral_wolf : public CreatureScript
 {
-    npc_ancestral_wolfAI(Creature* pCreature) : npc_escortAI(pCreature)
-    {
-        if (pCreature->GetOwner() && pCreature->GetOwner()->GetTypeId() == TYPEID_PLAYER)
-            Start(false, false, pCreature->GetOwner()->GetGUID());
-        else
-            sLog.outError("TRINITY: npc_ancestral_wolf can not obtain owner or owner is not a player.");
+public:
+    npc_ancestral_wolf() : CreatureScript("npc_ancestral_wolf") { }
 
-        pCreature->SetSpeed(MOVE_WALK, 1.5f);
-        Reset();
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_ancestral_wolfAI(pCreature);
     }
 
-    Unit* pRyga;
-
-    void Reset()
+    struct npc_ancestral_wolfAI : public npc_escortAI
     {
-        pRyga = NULL;
-        DoCast(me, SPELL_ANCESTRAL_WOLF_BUFF, true);
-    }
-
-    void MoveInLineOfSight(Unit* pWho)
-    {
-        if (!pRyga && pWho->GetTypeId() == TYPEID_UNIT && pWho->GetEntry() == NPC_RYGA && me->IsWithinDistInMap(pWho, 15.0f))
-            pRyga = pWho;
-
-        npc_escortAI::MoveInLineOfSight(pWho);
-    }
-
-    void WaypointReached(uint32 uiPointId)
-    {
-        switch(uiPointId)
+        npc_ancestral_wolfAI(Creature* pCreature) : npc_escortAI(pCreature)
         {
-            case 0:
-                DoScriptText(EMOTE_WOLF_LIFT_HEAD, me);
-                break;
-            case 2:
-                DoScriptText(EMOTE_WOLF_HOWL, me);
-                break;
-            case 50:
-                if (pRyga && pRyga->isAlive() && !pRyga->isInCombat())
-                    DoScriptText(SAY_WOLF_WELCOME, pRyga);
-                break;
+            if (pCreature->GetOwner() && pCreature->GetOwner()->GetTypeId() == TYPEID_PLAYER)
+                Start(false, false, pCreature->GetOwner()->GetGUID());
+            else
+                sLog.outError("TRINITY: npc_ancestral_wolf can not obtain owner or owner is not a player.");
+
+            pCreature->SetSpeed(MOVE_WALK, 1.5f);
+            Reset();
         }
-    }
+
+        Unit* pRyga;
+
+        void Reset()
+        {
+            pRyga = NULL;
+            DoCast(me, SPELL_ANCESTRAL_WOLF_BUFF, true);
+        }
+
+        void MoveInLineOfSight(Unit* pWho)
+        {
+            if (!pRyga && pWho->GetTypeId() == TYPEID_UNIT && pWho->GetEntry() == NPC_RYGA && me->IsWithinDistInMap(pWho, 15.0f))
+                pRyga = pWho;
+
+            npc_escortAI::MoveInLineOfSight(pWho);
+        }
+
+        void WaypointReached(uint32 uiPointId)
+        {
+            switch(uiPointId)
+            {
+                case 0:
+                    DoScriptText(EMOTE_WOLF_LIFT_HEAD, me);
+                    break;
+                case 2:
+                    DoScriptText(EMOTE_WOLF_HOWL, me);
+                    break;
+                case 50:
+                    if (pRyga && pRyga->isAlive() && !pRyga->isInCombat())
+                        DoScriptText(SAY_WOLF_WELCOME, pRyga);
+                    break;
+            }
+        }
+    };
+
 };
 
-CreatureAI* GetAI_npc_ancestral_wolf(Creature* pCreature)
-{
-    return new npc_ancestral_wolfAI(pCreature);
-}
 
 /*######
 ## go_haaleshi_altar
 ######*/
-
-bool GOHello_go_haaleshi_altar(Player* /*pPlayer*/, GameObject* pGo)
+class go_haaleshi_altar : public GameObjectScript
 {
-    pGo->SummonCreature(C_AERANAS,-1321.79, 4043.80, 116.24, 1.25, TEMPSUMMON_TIMED_DESPAWN, 180000);
-    return false;
-}
+public:
+    go_haaleshi_altar() : GameObjectScript("go_haaleshi_altar") { }
+
+    bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
+    {
+        pGo->SummonCreature(C_AERANAS,-1321.79, 4043.80, 116.24, 1.25, TEMPSUMMON_TIMED_DESPAWN, 180000);
+        return false;
+    }
+
+};
 
 /*######
 ## npc_naladu
@@ -207,24 +227,31 @@ enum eNaladu
 {
     GOSSIP_TEXTID_NALADU1   = 9788
 };
-
-bool GossipHello_npc_naladu(Player* pPlayer, Creature* pCreature)
+class npc_naladu : public CreatureScript
 {
-    if (pCreature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+public:
+    npc_naladu() : CreatureScript("npc_naladu") { }
 
-    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_NALADU_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-    return true;
-}
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    {
+        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_NALADU1, pCreature->GetGUID());
 
-bool GossipSelect_npc_naladu(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
-{
-    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
-        pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_NALADU1, pCreature->GetGUID());
+        return true;
+    }
 
-    return true;
-}
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    {
+        if (pCreature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_NALADU_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        return true;
+    }
+
+};
+
 
 /*######
 ## npc_tracy_proudwell
@@ -239,40 +266,47 @@ enum eTracy
     GOSSIP_TEXTID_TRACY_PROUDWELL1       = 10689,
     QUEST_DIGGING_FOR_PRAYER_BEADS       = 10916
 };
-
-bool GossipHello_npc_tracy_proudwell(Player* pPlayer, Creature* pCreature)
+class npc_tracy_proudwell : public CreatureScript
 {
-    if (pCreature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+public:
+    npc_tracy_proudwell() : CreatureScript("npc_tracy_proudwell") { }
 
-    if (pCreature->isVendor())
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_REDEEM_MARKS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-
-    if (pPlayer->GetQuestStatus(QUEST_DIGGING_FOR_PRAYER_BEADS) == QUEST_STATUS_INCOMPLETE)
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TRACY_PROUDWELL_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-    return true;
-}
-
-bool GossipSelect_npc_tracy_proudwell(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
-{
-    switch(uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        case GOSSIP_ACTION_INFO_DEF+1:
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TRACY_PROUDWELL_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_TRACY_PROUDWELL1, pCreature->GetGUID());
-            break;
-        case GOSSIP_ACTION_INFO_DEF+2:
-            pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-            break;
-        case GOSSIP_ACTION_TRADE:
-            pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
-            break;
+        switch(uiAction)
+        {
+            case GOSSIP_ACTION_INFO_DEF+1:
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TRACY_PROUDWELL_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_TRACY_PROUDWELL1, pCreature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF+2:
+                pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+                break;
+            case GOSSIP_ACTION_TRADE:
+                pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+                break;
+        }
+
+        return true;
     }
 
-    return true;
-}
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    {
+        if (pCreature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+        if (pCreature->isVendor())
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_REDEEM_MARKS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+
+        if (pPlayer->GetQuestStatus(QUEST_DIGGING_FOR_PRAYER_BEADS) == QUEST_STATUS_INCOMPLETE)
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TRACY_PROUDWELL_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        return true;
+    }
+
+};
+
 
 /*######
 ## npc_trollbane
@@ -288,36 +322,43 @@ enum eTrollbane
     GOSSIP_TEXTID_TROLLBANE2        = 9933,
     GOSSIP_TEXTID_TROLLBANE3        = 8772
 };
-
-bool GossipHello_npc_trollbane(Player* pPlayer, Creature* pCreature)
+class npc_trollbane : public CreatureScript
 {
-    if (pCreature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+public:
+    npc_trollbane() : CreatureScript("npc_trollbane") { }
 
-    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TROLLBANE_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TROLLBANE_ITEM3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-    return true;
-}
-
-bool GossipSelect_npc_trollbane(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
-{
-    switch(uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        case GOSSIP_ACTION_INFO_DEF+1:
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TROLLBANE_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_TROLLBANE1, pCreature->GetGUID());
-            break;
-        case GOSSIP_ACTION_INFO_DEF+2:
-            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_TROLLBANE2, pCreature->GetGUID());
-            break;
-        case GOSSIP_ACTION_INFO_DEF+3:
-            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_TROLLBANE3, pCreature->GetGUID());
-            break;
+        switch(uiAction)
+        {
+            case GOSSIP_ACTION_INFO_DEF+1:
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TROLLBANE_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_TROLLBANE1, pCreature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF+2:
+                pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_TROLLBANE2, pCreature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF+3:
+                pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_TROLLBANE3, pCreature->GetGUID());
+                break;
+        }
+
+        return true;
     }
 
-    return true;
-}
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    {
+        if (pCreature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TROLLBANE_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TROLLBANE_ITEM3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        return true;
+    }
+
+};
+
 
 /*######
 ## npc_wounded_blood_elf
@@ -334,78 +375,86 @@ enum eWoundedBloodElf
 
     QUEST_ROAD_TO_FALCON_WATCH  = 9375
 };
-
-struct npc_wounded_blood_elfAI : public npc_escortAI
+class npc_wounded_blood_elf : public CreatureScript
 {
-    npc_wounded_blood_elfAI(Creature *c) : npc_escortAI(c) {}
+public:
+    npc_wounded_blood_elf() : CreatureScript("npc_wounded_blood_elf") { }
 
-    void WaypointReached(uint32 i)
+    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* quest)
     {
-        Player* pPlayer = GetPlayerForEscort();
-
-        if (!pPlayer)
-            return;
-
-        switch (i)
+        if (quest->GetQuestId() == QUEST_ROAD_TO_FALCON_WATCH)
         {
-        case 0:
-            DoScriptText(SAY_ELF_START, me, pPlayer);
-            break;
-        case 9:
-            DoScriptText(SAY_ELF_SUMMON1, me, pPlayer);
-            // Spawn two Haal'eshi Talonguard
-            DoSpawnCreature(16967, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-            DoSpawnCreature(16967, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-            break;
-        case 13:
-            DoScriptText(SAY_ELF_RESTING, me, pPlayer);
-            break;
-        case 14:
-            DoScriptText(SAY_ELF_SUMMON2, me, pPlayer);
-            // Spawn two Haal'eshi Windwalker
-            DoSpawnCreature(16966, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-            DoSpawnCreature(16966, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-            break;
-        case 27:
-            DoScriptText(SAY_ELF_COMPLETE, me, pPlayer);
-            // Award quest credit
-            pPlayer->GroupEventHappens(QUEST_ROAD_TO_FALCON_WATCH,me);
-            break;
+            if (npc_escortAI* pEscortAI = CAST_AI(npc_wounded_blood_elf::npc_wounded_blood_elfAI, pCreature->AI()))
+                pEscortAI->Start(true, false, pPlayer->GetGUID());
+
+            // Change faction so mobs attack
+            pCreature->setFaction(775);
         }
+
+        return true;
     }
 
-    void Reset() { }
-
-    void EnterCombat(Unit* /*who*/)
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        if (HasEscortState(STATE_ESCORT_ESCORTING))
-            DoScriptText(SAY_ELF_AGGRO, me);
+        return new npc_wounded_blood_elfAI(pCreature);
     }
 
-    void JustSummoned(Creature* summoned)
+    struct npc_wounded_blood_elfAI : public npc_escortAI
     {
-        summoned->AI()->AttackStart(me);
-    }
+        npc_wounded_blood_elfAI(Creature *c) : npc_escortAI(c) {}
+
+        void WaypointReached(uint32 i)
+        {
+            Player* pPlayer = GetPlayerForEscort();
+
+            if (!pPlayer)
+                return;
+
+            switch (i)
+            {
+            case 0:
+                DoScriptText(SAY_ELF_START, me, pPlayer);
+                break;
+            case 9:
+                DoScriptText(SAY_ELF_SUMMON1, me, pPlayer);
+                // Spawn two Haal'eshi Talonguard
+                DoSpawnCreature(16967, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                DoSpawnCreature(16967, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                break;
+            case 13:
+                DoScriptText(SAY_ELF_RESTING, me, pPlayer);
+                break;
+            case 14:
+                DoScriptText(SAY_ELF_SUMMON2, me, pPlayer);
+                // Spawn two Haal'eshi Windwalker
+                DoSpawnCreature(16966, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                DoSpawnCreature(16966, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                break;
+            case 27:
+                DoScriptText(SAY_ELF_COMPLETE, me, pPlayer);
+                // Award quest credit
+                pPlayer->GroupEventHappens(QUEST_ROAD_TO_FALCON_WATCH,me);
+                break;
+            }
+        }
+
+        void Reset() { }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            if (HasEscortState(STATE_ESCORT_ESCORTING))
+                DoScriptText(SAY_ELF_AGGRO, me);
+        }
+
+        void JustSummoned(Creature* summoned)
+        {
+            summoned->AI()->AttackStart(me);
+        }
+    };
+
 };
 
-CreatureAI* GetAI_npc_wounded_blood_elf(Creature* pCreature)
-{
-    return new npc_wounded_blood_elfAI(pCreature);
-}
 
-bool QuestAccept_npc_wounded_blood_elf(Player* pPlayer, Creature* pCreature, Quest const* quest)
-{
-    if (quest->GetQuestId() == QUEST_ROAD_TO_FALCON_WATCH)
-    {
-        if (npc_escortAI* pEscortAI = CAST_AI(npc_wounded_blood_elfAI, pCreature->AI()))
-            pEscortAI->Start(true, false, pPlayer->GetGUID());
-
-        // Change faction so mobs attack
-        pCreature->setFaction(775);
-    }
-
-    return true;
-}
 
 /*######
 ## npc_fel_guard_hound
@@ -417,108 +466,77 @@ enum eFelGuard
 
     NPC_DERANGED_HELBOAR                          = 16863
 };
-
-struct npc_fel_guard_houndAI : public ScriptedAI
+class npc_fel_guard_hound : public CreatureScript
 {
-    npc_fel_guard_houndAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+public:
+    npc_fel_guard_hound() : CreatureScript("npc_fel_guard_hound") { }
 
-    uint32 uiCheckTimer;
-    uint64 uiHelboarGUID;
-
-    void Reset()
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        uiCheckTimer = 5000; //check for creature every 5 sec
-        uiHelboarGUID = 0;
+        return new npc_fel_guard_houndAI(pCreature);
     }
 
-    void MovementInform(uint32 uiType, uint32 uiId)
+    struct npc_fel_guard_houndAI : public ScriptedAI
     {
-        if (uiType != POINT_MOTION_TYPE || uiId != 1)
-            return;
+        npc_fel_guard_houndAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
-        if (Creature* pHelboar = me->GetCreature(*me,uiHelboarGUID))
+        uint32 uiCheckTimer;
+        uint64 uiHelboarGUID;
+
+        void Reset()
         {
-            pHelboar->RemoveCorpse();
-            DoCast(SPELL_SUMMON_POO);
-
-            if (Player* pOwner = me->GetCharmerOrOwnerPlayerOrPlayerItself())
-                me->GetMotionMaster()->MoveFollow(pOwner,0.0f,0.0f);
+            uiCheckTimer = 5000; //check for creature every 5 sec
+            uiHelboarGUID = 0;
         }
-    }
 
-    void UpdateAI(const uint32 uiDiff)
-    {
-        if (uiCheckTimer <= uiDiff)
+        void MovementInform(uint32 uiType, uint32 uiId)
         {
-            if (Creature* pHelboar = me->FindNearestCreature(NPC_DERANGED_HELBOAR, 10.0f, false))
+            if (uiType != POINT_MOTION_TYPE || uiId != 1)
+                return;
+
+            if (Creature* pHelboar = me->GetCreature(*me,uiHelboarGUID))
             {
-                if (pHelboar->GetGUID() != uiHelboarGUID && me->GetMotionMaster()->GetCurrentMovementGeneratorType() != POINT_MOTION_TYPE && !me->FindCurrentSpellBySpellId(SPELL_SUMMON_POO))
-                {
-                    uiHelboarGUID = pHelboar->GetGUID();
-                    me->GetMotionMaster()->MovePoint(1,pHelboar->GetPositionX(),pHelboar->GetPositionY(),pHelboar->GetPositionZ());
-                }
+                pHelboar->RemoveCorpse();
+                DoCast(SPELL_SUMMON_POO);
+
+                if (Player* pOwner = me->GetCharmerOrOwnerPlayerOrPlayerItself())
+                    me->GetMotionMaster()->MoveFollow(pOwner,0.0f,0.0f);
             }
-            uiCheckTimer = 5000;
-        }else uiCheckTimer -= uiDiff;
+        }
 
-        if (!UpdateVictim())
-            return;
+        void UpdateAI(const uint32 uiDiff)
+        {
+            if (uiCheckTimer <= uiDiff)
+            {
+                if (Creature* pHelboar = me->FindNearestCreature(NPC_DERANGED_HELBOAR, 10.0f, false))
+                {
+                    if (pHelboar->GetGUID() != uiHelboarGUID && me->GetMotionMaster()->GetCurrentMovementGeneratorType() != POINT_MOTION_TYPE && !me->FindCurrentSpellBySpellId(SPELL_SUMMON_POO))
+                    {
+                        uiHelboarGUID = pHelboar->GetGUID();
+                        me->GetMotionMaster()->MovePoint(1,pHelboar->GetPositionX(),pHelboar->GetPositionY(),pHelboar->GetPositionZ());
+                    }
+                }
+                uiCheckTimer = 5000;
+            }else uiCheckTimer -= uiDiff;
 
-        DoMeleeAttackIfReady();
-    }
+            if (!UpdateVictim())
+                return;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
 
-CreatureAI* GetAI_npc_fel_guard_hound(Creature* pCreature)
-{
-    return new npc_fel_guard_houndAI(pCreature);
-}
 
 void AddSC_hellfire_peninsula()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "npc_aeranas";
-    newscript->GetAI = &GetAI_npc_aeranas;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_ancestral_wolf";
-    newscript->GetAI = &GetAI_npc_ancestral_wolf;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "go_haaleshi_altar";
-    newscript->pGOHello = &GOHello_go_haaleshi_altar;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_naladu";
-    newscript->pGossipHello = &GossipHello_npc_naladu;
-    newscript->pGossipSelect = &GossipSelect_npc_naladu;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_tracy_proudwell";
-    newscript->pGossipHello = &GossipHello_npc_tracy_proudwell;
-    newscript->pGossipSelect = &GossipSelect_npc_tracy_proudwell;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_trollbane";
-    newscript->pGossipHello = &GossipHello_npc_trollbane;
-    newscript->pGossipSelect = &GossipSelect_npc_trollbane;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_wounded_blood_elf";
-    newscript->GetAI = &GetAI_npc_wounded_blood_elf;
-    newscript->pQuestAccept = &QuestAccept_npc_wounded_blood_elf;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name="npc_fel_guard_hound";
-    newscript->GetAI = &GetAI_npc_fel_guard_hound;
-    newscript->RegisterSelf();
+    new npc_aeranas();
+    new npc_ancestral_wolf();
+    new go_haaleshi_altar();
+    new npc_naladu();
+    new npc_tracy_proudwell();
+    new npc_trollbane();
+    new npc_wounded_blood_elf();
+    new npc_fel_guard_hound();
 }
-

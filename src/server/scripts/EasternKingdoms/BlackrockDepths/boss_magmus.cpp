@@ -35,66 +35,69 @@ enum eEnums
 {
     DATA_THRONE_DOOR                              = 24 // not id or guid of doors but number of enum in blackrock_depths.h
 };
-
-struct boss_magmusAI : public ScriptedAI
+class boss_magmus : public CreatureScript
 {
-    boss_magmusAI(Creature *c) : ScriptedAI(c) {}
+public:
+    boss_magmus() : CreatureScript("boss_magmus") { }
 
-    uint32 FieryBurst_Timer;
-    uint32 WarStomp_Timer;
-
-    void Reset()
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        FieryBurst_Timer = 5000;
-        WarStomp_Timer =0;
+        return new boss_magmusAI (pCreature);
     }
 
-    void EnterCombat(Unit * /*who*/)
+    struct boss_magmusAI : public ScriptedAI
     {
-    }
+        boss_magmusAI(Creature *c) : ScriptedAI(c) {}
 
-    void UpdateAI(const uint32 diff)
-    {
-        //Return since we have no target
-        if (!UpdateVictim())
-            return;
+        uint32 FieryBurst_Timer;
+        uint32 WarStomp_Timer;
 
-        //FieryBurst_Timer
-        if (FieryBurst_Timer <= diff)
+        void Reset()
         {
-            DoCast(me->getVictim(), SPELL_FIERYBURST);
-            FieryBurst_Timer = 6000;
-        } else FieryBurst_Timer -= diff;
-
-        //WarStomp_Timer
-        if (me->GetHealth()*100 / me->GetMaxHealth() < 51)
-        {
-            if (WarStomp_Timer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_WARSTOMP);
-                WarStomp_Timer = 8000;
-            } else WarStomp_Timer -= diff;
+            FieryBurst_Timer = 5000;
+            WarStomp_Timer =0;
         }
 
-        DoMeleeAttackIfReady();
-    }
-    // When he die open door to last chamber
-    void JustDied(Unit *who)
-    {
-        if (ScriptedInstance* pInstance = who->GetInstanceData())
-            pInstance->HandleGameObject(pInstance->GetData64(DATA_THRONE_DOOR), true);
-    }
+        void EnterCombat(Unit * /*who*/)
+        {
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            //Return since we have no target
+            if (!UpdateVictim())
+                return;
+
+            //FieryBurst_Timer
+            if (FieryBurst_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_FIERYBURST);
+                FieryBurst_Timer = 6000;
+            } else FieryBurst_Timer -= diff;
+
+            //WarStomp_Timer
+            if (me->GetHealth()*100 / me->GetMaxHealth() < 51)
+            {
+                if (WarStomp_Timer <= diff)
+                {
+                    DoCast(me->getVictim(), SPELL_WARSTOMP);
+                    WarStomp_Timer = 8000;
+                } else WarStomp_Timer -= diff;
+            }
+
+            DoMeleeAttackIfReady();
+        }
+        // When he die open door to last chamber
+        void JustDied(Unit *who)
+        {
+            if (InstanceScript* pInstance = who->GetInstanceScript())
+                pInstance->HandleGameObject(pInstance->GetData64(DATA_THRONE_DOOR), true);
+        }
+    };
+
 };
-CreatureAI* GetAI_boss_magmus(Creature* pCreature)
-{
-    return new boss_magmusAI (pCreature);
-}
 
 void AddSC_boss_magmus()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_magmus";
-    newscript->GetAI = &GetAI_boss_magmus;
-    newscript->RegisterSelf();
+    new boss_magmus();
 }

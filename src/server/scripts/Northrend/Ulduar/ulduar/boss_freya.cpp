@@ -63,62 +63,65 @@ enum
     ACHIEV_LUMBERJACKED                           = 21686,
     SPELL_LUMBERJACKED_ACHIEVEMENT_CHECK          = 65296,
 };
-
-struct boss_freyaAI : public BossAI
+class boss_freya : public CreatureScript
 {
-    boss_freyaAI(Creature* pCreature) : BossAI(pCreature, TYPE_FREYA)
+public:
+    boss_freya() : CreatureScript("boss_freya") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
+        return new boss_freyaAI(pCreature);
     }
 
-    void Reset()
+    struct boss_freyaAI : public BossAI
     {
-        _Reset();
-    }
+        boss_freyaAI(Creature* pCreature) : BossAI(pCreature, TYPE_FREYA)
+        {
+        }
 
-    void KilledUnit(Unit * /*victim*/)
-    {
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
-    }
+        void Reset()
+        {
+            _Reset();
+        }
 
-    void JustDied(Unit * /*victim*/)
-    {
-        DoScriptText(SAY_DEATH, me);
-        _JustDied();
+        void KilledUnit(Unit * /*victim*/)
+        {
+            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
+        }
 
-        // cast is not rewarding the achievement.
-        // DoCast(SPELL_ACHIEVEMENT_CHECK);
-        instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_ACHIEVEMENT_CHECK);
-    }
+        void JustDied(Unit * /*victim*/)
+        {
+            DoScriptText(SAY_DEATH, me);
+            _JustDied();
 
-    void EnterCombat(Unit* /*pWho*/)
-    {
-        DoScriptText(SAY_AGGRO, me);
-        _EnterCombat();
-    }
+            // cast is not rewarding the achievement.
+            // DoCast(SPELL_ACHIEVEMENT_CHECK);
+            instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_ACHIEVEMENT_CHECK);
+        }
 
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
-//SPELLS TODO:
+        void EnterCombat(Unit* /*pWho*/)
+        {
+            DoScriptText(SAY_AGGRO, me);
+            _EnterCombat();
+        }
 
-//
-        DoMeleeAttackIfReady();
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+    //SPELLS TODO:
 
-        EnterEvadeIfOutOfCombatArea(diff);
-    }
+    //
+            DoMeleeAttackIfReady();
+
+            EnterEvadeIfOutOfCombatArea(diff);
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_freya(Creature* pCreature)
-{
-    return new boss_freyaAI(pCreature);
-}
 
 void AddSC_boss_freya()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_freya";
-    newscript->GetAI = &GetAI_boss_freya;
-    newscript->RegisterSelf();
+    new boss_freya();
 }

@@ -47,9 +47,9 @@ class instance_drak_tharon : public InstanceMapScript
 public:
     instance_drak_tharon() : InstanceMapScript("instance_drak_tharon") { }
 
-    struct instance_drak_tharon_ScriptedInstance : public ScriptedInstance
+    struct instance_drak_tharon_InstanceScript : public InstanceScript
     {
-        instance_drak_tharon_ScriptedInstance(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
+        instance_drak_tharon_InstanceScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
 
         uint8 uiDredAchievCounter;
 
@@ -232,9 +232,9 @@ public:
         }
     };
 
-    InstanceData* GetInstanceData(InstanceMap *map) const
+    InstanceScript* GetInstanceScript(InstanceMap *map) const
     {
-        return new instance_drak_tharon_ScriptedInstance(map);
+        return new instance_drak_tharon_InstanceScript(map);
     }
 };
 

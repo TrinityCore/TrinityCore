@@ -86,14 +86,14 @@ class boss_halazzi : public CreatureScript
         {
             boss_halazziAI(Creature *c) : ScriptedAI(c)
             {
-                pInstance = c->GetInstanceData();
+                pInstance = c->GetInstanceScript();
                 // need to find out what controls totem's spell cooldown
                 SpellEntry *TempSpell = GET_SPELL(SPELL_LIGHTNING);
                 if (TempSpell && TempSpell->CastingTimeIndex != 5)
                     TempSpell->CastingTimeIndex = 5; // 2000 ms casting time
             }
 
-            ScriptedInstance *pInstance;
+            InstanceScript *pInstance;
 
             uint32 FrenzyTimer;
             uint32 SaberlashTimer;

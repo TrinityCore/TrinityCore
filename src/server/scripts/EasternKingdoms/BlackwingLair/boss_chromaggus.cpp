@@ -58,246 +58,248 @@ enum Spells
     SPELL_FRENZY                                           = 28371,   //The frenzy spell may be wrong
     SPELL_ENRAGE                                           = 28747
 };
-
-struct boss_chromaggusAI : public ScriptedAI
+class boss_chromaggus : public CreatureScript
 {
-    boss_chromaggusAI(Creature *c) : ScriptedAI(c)
+public:
+    boss_chromaggus() : CreatureScript("boss_chromaggus") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        //Select the 2 breaths that we are going to use until despawned
-        //5 possiblities for the first breath, 4 for the second, 20 total possiblites
-        //This way we don't end up casting 2 of the same breath
-        //TL TL would be stupid
-        switch (urand(0,19))
-        {
-            //B1 - Incin
-            case 0:
-                Breath1_Spell = SPELL_INCINERATE;
-                Breath2_Spell = SPELL_TIMELAPSE;
-                break;
-            case 1:
-                Breath1_Spell = SPELL_INCINERATE;
-                Breath2_Spell = SPELL_CORROSIVEACID;
-                break;
-            case 2:
-                Breath1_Spell = SPELL_INCINERATE;
-                Breath2_Spell = SPELL_IGNITEFLESH;
-                break;
-            case 3:
-                Breath1_Spell = SPELL_INCINERATE;
-                Breath2_Spell = SPELL_FROSTBURN;
-                break;
-
-                //B1 - TL
-            case 4:
-                Breath1_Spell = SPELL_TIMELAPSE;
-                Breath2_Spell = SPELL_INCINERATE;
-                break;
-            case 5:
-                Breath1_Spell = SPELL_TIMELAPSE;
-                Breath2_Spell = SPELL_CORROSIVEACID;
-                break;
-            case 6:
-                Breath1_Spell = SPELL_TIMELAPSE;
-                Breath2_Spell = SPELL_IGNITEFLESH;
-                break;
-            case 7:
-                Breath1_Spell = SPELL_TIMELAPSE;
-                Breath2_Spell = SPELL_FROSTBURN;
-                break;
-
-                //B1 - Acid
-            case 8:
-                Breath1_Spell = SPELL_CORROSIVEACID;
-                Breath2_Spell = SPELL_INCINERATE;
-                break;
-            case 9:
-                Breath1_Spell = SPELL_CORROSIVEACID;
-                Breath2_Spell = SPELL_TIMELAPSE;
-                break;
-            case 10:
-                Breath1_Spell = SPELL_CORROSIVEACID;
-                Breath2_Spell = SPELL_IGNITEFLESH;
-                break;
-            case 11:
-                Breath1_Spell = SPELL_CORROSIVEACID;
-                Breath2_Spell = SPELL_FROSTBURN;
-                break;
-
-                //B1 - Ignite
-            case 12:
-                Breath1_Spell = SPELL_IGNITEFLESH;
-                Breath2_Spell = SPELL_INCINERATE;
-                break;
-            case 13:
-                Breath1_Spell = SPELL_IGNITEFLESH;
-                Breath2_Spell = SPELL_CORROSIVEACID;
-                break;
-            case 14:
-                Breath1_Spell = SPELL_IGNITEFLESH;
-                Breath2_Spell = SPELL_TIMELAPSE;
-                break;
-            case 15:
-                Breath1_Spell = SPELL_IGNITEFLESH;
-                Breath2_Spell = SPELL_FROSTBURN;
-                break;
-
-                //B1 - Frost
-            case 16:
-                Breath1_Spell = SPELL_FROSTBURN;
-                Breath2_Spell = SPELL_INCINERATE;
-                break;
-            case 17:
-                Breath1_Spell = SPELL_FROSTBURN;
-                Breath2_Spell = SPELL_TIMELAPSE;
-                break;
-            case 18:
-                Breath1_Spell = SPELL_FROSTBURN;
-                Breath2_Spell = SPELL_CORROSIVEACID;
-                break;
-            case 19:
-                Breath1_Spell = SPELL_FROSTBURN;
-                Breath2_Spell = SPELL_IGNITEFLESH;
-                break;
-        };
-
-        EnterEvadeMode();
+        return new boss_chromaggusAI (pCreature);
     }
 
-    uint32 Breath1_Spell;
-    uint32 Breath2_Spell;
-    uint32 CurrentVurln_Spell;
-
-    uint32 Shimmer_Timer;
-    uint32 Breath1_Timer;
-    uint32 Breath2_Timer;
-    uint32 Affliction_Timer;
-    uint32 Frenzy_Timer;
-    bool Enraged;
-
-    void Reset()
+    struct boss_chromaggusAI : public ScriptedAI
     {
-        CurrentVurln_Spell = 0;                             //We use this to store our last vulnerabilty spell so we can remove it later
-
-        Shimmer_Timer = 0;                                  //Time till we change vurlnerabilites
-        Breath1_Timer = 30000;                              //First breath is 30 seconds
-        Breath2_Timer = 60000;                              //Second is 1 minute so that we can alternate
-        Affliction_Timer = 10000;                           //This is special - 5 seconds means that we cast this on 1 player every 5 sconds
-        Frenzy_Timer = 15000;
-
-        Enraged = false;
-    }
-
-    void EnterCombat(Unit * /*who*/)
-    {
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
-
-        //Shimmer_Timer Timer
-        if (Shimmer_Timer <= diff)
+        boss_chromaggusAI(Creature *c) : ScriptedAI(c)
         {
-            //Remove old vulnerabilty spell
-            if (CurrentVurln_Spell)
-                me->RemoveAurasDueToSpell(CurrentVurln_Spell);
-
-            //Cast new random vulnerabilty on self
-            uint32 spell = RAND(SPELL_FIRE_VULNERABILITY, SPELL_FROST_VULNERABILITY,
-                SPELL_SHADOW_VULNERABILITY, SPELL_NATURE_VULNERABILITY, SPELL_ARCANE_VULNERABILITY);
-
-            DoCast(me, spell);
-            CurrentVurln_Spell = spell;
-
-            DoScriptText(EMOTE_SHIMMER, me);
-            Shimmer_Timer = 45000;
-        } else Shimmer_Timer -= diff;
-
-        //Breath1_Timer
-        if (Breath1_Timer <= diff)
-        {
-            DoCast(me->getVictim(), Breath1_Spell);
-            Breath1_Timer = 60000;
-        } else Breath1_Timer -= diff;
-
-        //Breath2_Timer
-        if (Breath2_Timer <= diff)
-        {
-            DoCast(me->getVictim(), Breath2_Spell);
-            Breath2_Timer = 60000;
-        } else Breath2_Timer -= diff;
-
-        //Affliction_Timer
-        if (Affliction_Timer <= diff)
-        {
-            std::list<HostileReference*> threatlist = me->getThreatManager().getThreatList();
-            for (std::list<HostileReference*>::const_iterator i = threatlist.begin(); i != threatlist.end(); ++i)
+            //Select the 2 breaths that we are going to use until despawned
+            //5 possiblities for the first breath, 4 for the second, 20 total possiblites
+            //This way we don't end up casting 2 of the same breath
+            //TL TL would be stupid
+            switch (urand(0,19))
             {
-                Unit* pUnit;
-                if ((*i) && (*i)->getSource())
+                //B1 - Incin
+                case 0:
+                    Breath1_Spell = SPELL_INCINERATE;
+                    Breath2_Spell = SPELL_TIMELAPSE;
+                    break;
+                case 1:
+                    Breath1_Spell = SPELL_INCINERATE;
+                    Breath2_Spell = SPELL_CORROSIVEACID;
+                    break;
+                case 2:
+                    Breath1_Spell = SPELL_INCINERATE;
+                    Breath2_Spell = SPELL_IGNITEFLESH;
+                    break;
+                case 3:
+                    Breath1_Spell = SPELL_INCINERATE;
+                    Breath2_Spell = SPELL_FROSTBURN;
+                    break;
+
+                    //B1 - TL
+                case 4:
+                    Breath1_Spell = SPELL_TIMELAPSE;
+                    Breath2_Spell = SPELL_INCINERATE;
+                    break;
+                case 5:
+                    Breath1_Spell = SPELL_TIMELAPSE;
+                    Breath2_Spell = SPELL_CORROSIVEACID;
+                    break;
+                case 6:
+                    Breath1_Spell = SPELL_TIMELAPSE;
+                    Breath2_Spell = SPELL_IGNITEFLESH;
+                    break;
+                case 7:
+                    Breath1_Spell = SPELL_TIMELAPSE;
+                    Breath2_Spell = SPELL_FROSTBURN;
+                    break;
+
+                    //B1 - Acid
+                case 8:
+                    Breath1_Spell = SPELL_CORROSIVEACID;
+                    Breath2_Spell = SPELL_INCINERATE;
+                    break;
+                case 9:
+                    Breath1_Spell = SPELL_CORROSIVEACID;
+                    Breath2_Spell = SPELL_TIMELAPSE;
+                    break;
+                case 10:
+                    Breath1_Spell = SPELL_CORROSIVEACID;
+                    Breath2_Spell = SPELL_IGNITEFLESH;
+                    break;
+                case 11:
+                    Breath1_Spell = SPELL_CORROSIVEACID;
+                    Breath2_Spell = SPELL_FROSTBURN;
+                    break;
+
+                    //B1 - Ignite
+                case 12:
+                    Breath1_Spell = SPELL_IGNITEFLESH;
+                    Breath2_Spell = SPELL_INCINERATE;
+                    break;
+                case 13:
+                    Breath1_Spell = SPELL_IGNITEFLESH;
+                    Breath2_Spell = SPELL_CORROSIVEACID;
+                    break;
+                case 14:
+                    Breath1_Spell = SPELL_IGNITEFLESH;
+                    Breath2_Spell = SPELL_TIMELAPSE;
+                    break;
+                case 15:
+                    Breath1_Spell = SPELL_IGNITEFLESH;
+                    Breath2_Spell = SPELL_FROSTBURN;
+                    break;
+
+                    //B1 - Frost
+                case 16:
+                    Breath1_Spell = SPELL_FROSTBURN;
+                    Breath2_Spell = SPELL_INCINERATE;
+                    break;
+                case 17:
+                    Breath1_Spell = SPELL_FROSTBURN;
+                    Breath2_Spell = SPELL_TIMELAPSE;
+                    break;
+                case 18:
+                    Breath1_Spell = SPELL_FROSTBURN;
+                    Breath2_Spell = SPELL_CORROSIVEACID;
+                    break;
+                case 19:
+                    Breath1_Spell = SPELL_FROSTBURN;
+                    Breath2_Spell = SPELL_IGNITEFLESH;
+                    break;
+            };
+
+            EnterEvadeMode();
+        }
+
+        uint32 Breath1_Spell;
+        uint32 Breath2_Spell;
+        uint32 CurrentVurln_Spell;
+
+        uint32 Shimmer_Timer;
+        uint32 Breath1_Timer;
+        uint32 Breath2_Timer;
+        uint32 Affliction_Timer;
+        uint32 Frenzy_Timer;
+        bool Enraged;
+
+        void Reset()
+        {
+            CurrentVurln_Spell = 0;                             //We use this to store our last vulnerabilty spell so we can remove it later
+
+            Shimmer_Timer = 0;                                  //Time till we change vurlnerabilites
+            Breath1_Timer = 30000;                              //First breath is 30 seconds
+            Breath2_Timer = 60000;                              //Second is 1 minute so that we can alternate
+            Affliction_Timer = 10000;                           //This is special - 5 seconds means that we cast this on 1 player every 5 sconds
+            Frenzy_Timer = 15000;
+
+            Enraged = false;
+        }
+
+        void EnterCombat(Unit * /*who*/)
+        {
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            //Shimmer_Timer Timer
+            if (Shimmer_Timer <= diff)
+            {
+                //Remove old vulnerabilty spell
+                if (CurrentVurln_Spell)
+                    me->RemoveAurasDueToSpell(CurrentVurln_Spell);
+
+                //Cast new random vulnerabilty on self
+                uint32 spell = RAND(SPELL_FIRE_VULNERABILITY, SPELL_FROST_VULNERABILITY,
+                    SPELL_SHADOW_VULNERABILITY, SPELL_NATURE_VULNERABILITY, SPELL_ARCANE_VULNERABILITY);
+
+                DoCast(me, spell);
+                CurrentVurln_Spell = spell;
+
+                DoScriptText(EMOTE_SHIMMER, me);
+                Shimmer_Timer = 45000;
+            } else Shimmer_Timer -= diff;
+
+            //Breath1_Timer
+            if (Breath1_Timer <= diff)
+            {
+                DoCast(me->getVictim(), Breath1_Spell);
+                Breath1_Timer = 60000;
+            } else Breath1_Timer -= diff;
+
+            //Breath2_Timer
+            if (Breath2_Timer <= diff)
+            {
+                DoCast(me->getVictim(), Breath2_Spell);
+                Breath2_Timer = 60000;
+            } else Breath2_Timer -= diff;
+
+            //Affliction_Timer
+            if (Affliction_Timer <= diff)
+            {
+                std::list<HostileReference*> threatlist = me->getThreatManager().getThreatList();
+                for (std::list<HostileReference*>::const_iterator i = threatlist.begin(); i != threatlist.end(); ++i)
                 {
-                    pUnit = Unit::GetUnit((*me), (*i)->getUnitGuid());
-                    if (pUnit)
+                    Unit* pUnit;
+                    if ((*i) && (*i)->getSource())
                     {
-                        //Cast affliction
-                        DoCast(pUnit, RAND(SPELL_BROODAF_BLUE, SPELL_BROODAF_BLACK,
-                                           SPELL_BROODAF_RED, SPELL_BROODAF_BRONZE, SPELL_BROODAF_GREEN), true);
-
-                        //Chromatic mutation if target is effected by all afflictions
-                        if (pUnit->HasAura(SPELL_BROODAF_BLUE)
-                            && pUnit->HasAura(SPELL_BROODAF_BLACK)
-                            && pUnit->HasAura(SPELL_BROODAF_RED)
-                            && pUnit->HasAura(SPELL_BROODAF_BRONZE)
-                            && pUnit->HasAura(SPELL_BROODAF_GREEN))
+                        pUnit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                        if (pUnit)
                         {
-                            //pTarget->RemoveAllAuras();
-                            //DoCast(pTarget, SPELL_CHROMATIC_MUT_1);
+                            //Cast affliction
+                            DoCast(pUnit, RAND(SPELL_BROODAF_BLUE, SPELL_BROODAF_BLACK,
+                                               SPELL_BROODAF_RED, SPELL_BROODAF_BRONZE, SPELL_BROODAF_GREEN), true);
 
-                            //Chromatic mutation is causing issues
-                            //Assuming it is caused by a lack of core support for Charm
-                            //So instead we instant kill our target
+                            //Chromatic mutation if target is effected by all afflictions
+                            if (pUnit->HasAura(SPELL_BROODAF_BLUE)
+                                && pUnit->HasAura(SPELL_BROODAF_BLACK)
+                                && pUnit->HasAura(SPELL_BROODAF_RED)
+                                && pUnit->HasAura(SPELL_BROODAF_BRONZE)
+                                && pUnit->HasAura(SPELL_BROODAF_GREEN))
+                            {
+                                //pTarget->RemoveAllAuras();
+                                //DoCast(pTarget, SPELL_CHROMATIC_MUT_1);
 
-                            //WORKAROUND
-                            if (pUnit->GetTypeId() == TYPEID_PLAYER)
-                                pUnit->CastSpell(pUnit, 5, false);
+                                //Chromatic mutation is causing issues
+                                //Assuming it is caused by a lack of core support for Charm
+                                //So instead we instant kill our target
+
+                                //WORKAROUND
+                                if (pUnit->GetTypeId() == TYPEID_PLAYER)
+                                    pUnit->CastSpell(pUnit, 5, false);
+                            }
                         }
                     }
                 }
+
+                Affliction_Timer = 10000;
+            } else Affliction_Timer -= diff;
+
+            //Frenzy_Timer
+            if (Frenzy_Timer <= diff)
+            {
+                DoCast(me, SPELL_FRENZY);
+                DoScriptText(EMOTE_FRENZY, me);
+                Frenzy_Timer = urand(10000,15000);
+            } else Frenzy_Timer -= diff;
+
+            //Enrage if not already enraged and below 20%
+            if (!Enraged && (me->GetHealth()*100 / me->GetMaxHealth()) < 20)
+            {
+                DoCast(me, SPELL_ENRAGE);
+                Enraged = true;
             }
 
-            Affliction_Timer = 10000;
-        } else Affliction_Timer -= diff;
-
-        //Frenzy_Timer
-        if (Frenzy_Timer <= diff)
-        {
-            DoCast(me, SPELL_FRENZY);
-            DoScriptText(EMOTE_FRENZY, me);
-            Frenzy_Timer = urand(10000,15000);
-        } else Frenzy_Timer -= diff;
-
-        //Enrage if not already enraged and below 20%
-        if (!Enraged && (me->GetHealth()*100 / me->GetMaxHealth()) < 20)
-        {
-            DoCast(me, SPELL_ENRAGE);
-            Enraged = true;
+            DoMeleeAttackIfReady();
         }
+    };
 
-        DoMeleeAttackIfReady();
-    }
 };
-CreatureAI* GetAI_boss_chromaggus(Creature* pCreature)
-{
-    return new boss_chromaggusAI (pCreature);
-}
 
 void AddSC_boss_chromaggus()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_chromaggus";
-    newscript->GetAI = &GetAI_boss_chromaggus;
-    newscript->RegisterSelf();
+    new boss_chromaggus();
 }
-

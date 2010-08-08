@@ -56,114 +56,116 @@ enum Yells
     SAY_SUMMON_GHOULS_1                         = -1595043,
     SAY_SUMMON_GHOULS_2                         = -1595044
 };
-
-struct boss_salrammAI : public ScriptedAI
+class boss_salramm : public CreatureScript
 {
-    boss_salrammAI(Creature *c) : ScriptedAI(c)
+public:
+    boss_salramm() : CreatureScript("boss_salramm") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        pInstance = c->GetInstanceData();
-        if (pInstance)
-            DoScriptText(SAY_SPAWN,me);
+        return new boss_salrammAI (pCreature);
     }
 
-    uint32 uiCurseFleshTimer;
-    uint32 uiExplodeGhoulTimer;
-    uint32 uiShadowBoltTimer;
-    uint32 uiStealFleshTimer;
-    uint32 uiSummonGhoulsTimer;
-
-    ScriptedInstance* pInstance;
-
-    void Reset()
+    struct boss_salrammAI : public ScriptedAI
     {
-         uiCurseFleshTimer = 30000;  //30s DBM
-         uiExplodeGhoulTimer = urand(25000,28000); //approx 6 sec after summon ghouls
-         uiShadowBoltTimer = urand(8000,12000); // approx 10s
-         uiStealFleshTimer = 12345;
-         uiSummonGhoulsTimer = urand(19000,24000); //on a video approx 24s after aggro
-
-         if (pInstance)
-             pInstance->SetData(DATA_SALRAMM_EVENT, NOT_STARTED);
-    }
-
-    void EnterCombat(Unit* /*who*/)
-    {
-        DoScriptText(SAY_AGGRO, me);
-
-        if (pInstance)
-             pInstance->SetData(DATA_SALRAMM_EVENT, IN_PROGRESS);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        //Return since we have no target
-        if (!UpdateVictim())
-            return;
-
-        //Curse of twisted flesh timer
-        if (uiCurseFleshTimer <= diff)
+        boss_salrammAI(Creature *c) : ScriptedAI(c)
         {
-            DoCast(me->getVictim(), SPELL_CURSE_OF_TWISTED_FLESH);
-            uiCurseFleshTimer = 37000;
-        } else uiCurseFleshTimer -= diff;
+            pInstance = c->GetInstanceScript();
+            if (pInstance)
+                DoScriptText(SAY_SPAWN,me);
+        }
 
-        //Shadow bolt timer
-        if (uiShadowBoltTimer <= diff)
+        uint32 uiCurseFleshTimer;
+        uint32 uiExplodeGhoulTimer;
+        uint32 uiShadowBoltTimer;
+        uint32 uiStealFleshTimer;
+        uint32 uiSummonGhoulsTimer;
+
+        InstanceScript* pInstance;
+
+        void Reset()
         {
-            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(pTarget, SPELL_SHADOW_BOLT);
-            uiShadowBoltTimer = urand(8000,12000);
-        } else uiShadowBoltTimer -= diff;
+             uiCurseFleshTimer = 30000;  //30s DBM
+             uiExplodeGhoulTimer = urand(25000,28000); //approx 6 sec after summon ghouls
+             uiShadowBoltTimer = urand(8000,12000); // approx 10s
+             uiStealFleshTimer = 12345;
+             uiSummonGhoulsTimer = urand(19000,24000); //on a video approx 24s after aggro
 
-        //Steal Flesh timer
-        if (uiStealFleshTimer <= diff)
+             if (pInstance)
+                 pInstance->SetData(DATA_SALRAMM_EVENT, NOT_STARTED);
+        }
+
+        void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(RAND(SAY_STEAL_FLESH_1,SAY_STEAL_FLESH_2,SAY_STEAL_FLESH_3), me);
-            if (Unit* random_pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(random_pTarget, SPELL_STEAL_FLESH);
-            uiStealFleshTimer = 10000;
-        } else uiStealFleshTimer -= diff;
+            DoScriptText(SAY_AGGRO, me);
 
-        //Summon ghouls timer
-        if (uiSummonGhoulsTimer <= diff)
+            if (pInstance)
+                 pInstance->SetData(DATA_SALRAMM_EVENT, IN_PROGRESS);
+        }
+
+        void UpdateAI(const uint32 diff)
         {
-            DoScriptText(RAND(SAY_SUMMON_GHOULS_1,SAY_SUMMON_GHOULS_2), me);
-            if (Unit* random_pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(random_pTarget, SPELL_SUMMON_GHOULS);
-            uiSummonGhoulsTimer = 10000;
-        } else uiSummonGhoulsTimer -= diff;
+            //Return since we have no target
+            if (!UpdateVictim())
+                return;
 
-        DoMeleeAttackIfReady();
-    }
+            //Curse of twisted flesh timer
+            if (uiCurseFleshTimer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_CURSE_OF_TWISTED_FLESH);
+                uiCurseFleshTimer = 37000;
+            } else uiCurseFleshTimer -= diff;
 
-    void JustDied(Unit* /*killer*/)
-    {
-        DoScriptText(SAY_DEATH, me);
+            //Shadow bolt timer
+            if (uiShadowBoltTimer <= diff)
+            {
+                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    DoCast(pTarget, SPELL_SHADOW_BOLT);
+                uiShadowBoltTimer = urand(8000,12000);
+            } else uiShadowBoltTimer -= diff;
 
-        if (pInstance)
-            pInstance->SetData(DATA_SALRAMM_EVENT, DONE);
-    }
+            //Steal Flesh timer
+            if (uiStealFleshTimer <= diff)
+            {
+                DoScriptText(RAND(SAY_STEAL_FLESH_1,SAY_STEAL_FLESH_2,SAY_STEAL_FLESH_3), me);
+                if (Unit* random_pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    DoCast(random_pTarget, SPELL_STEAL_FLESH);
+                uiStealFleshTimer = 10000;
+            } else uiStealFleshTimer -= diff;
 
-    void KilledUnit(Unit * victim)
-    {
-        if (victim == me)
-            return;
+            //Summon ghouls timer
+            if (uiSummonGhoulsTimer <= diff)
+            {
+                DoScriptText(RAND(SAY_SUMMON_GHOULS_1,SAY_SUMMON_GHOULS_2), me);
+                if (Unit* random_pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    DoCast(random_pTarget, SPELL_SUMMON_GHOULS);
+                uiSummonGhoulsTimer = 10000;
+            } else uiSummonGhoulsTimer -= diff;
 
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
-    }
+            DoMeleeAttackIfReady();
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            DoScriptText(SAY_DEATH, me);
+
+            if (pInstance)
+                pInstance->SetData(DATA_SALRAMM_EVENT, DONE);
+        }
+
+        void KilledUnit(Unit * victim)
+        {
+            if (victim == me)
+                return;
+
+            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_salramm(Creature* pCreature)
-{
-    return new boss_salrammAI (pCreature);
-}
 
 void AddSC_boss_salramm()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "boss_salramm";
-    newscript->GetAI = &GetAI_boss_salramm;
-    newscript->RegisterSelf();
+    new boss_salramm();
 }

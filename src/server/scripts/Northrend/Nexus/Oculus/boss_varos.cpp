@@ -43,64 +43,66 @@ enum Yells
     SAY_STRIKE_3                                  = -1578028,
     SAY_SPAWN                                     = -1578029
 };
-
-struct boss_varosAI : public ScriptedAI
+class boss_varos : public CreatureScript
 {
-    boss_varosAI(Creature *c) : ScriptedAI(c)
+public:
+    boss_varos() : CreatureScript("boss_varos") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        pInstance = c->GetInstanceData();
+        return new boss_varosAI (pCreature);
     }
 
-    ScriptedInstance* pInstance;
+    struct boss_varosAI : public ScriptedAI
+    {
+        boss_varosAI(Creature *c) : ScriptedAI(c)
+        {
+            pInstance = c->GetInstanceScript();
+        }
 
-    void Reset()
-    {
-        if (pInstance)
-            pInstance->SetData(DATA_VAROS_EVENT, NOT_STARTED);
-    }
-    void EnterCombat(Unit* /*who*/)
-    {
-        DoScriptText(SAY_AGGRO, me);
+        InstanceScript* pInstance;
 
-        if (pInstance)
-            pInstance->SetData(DATA_VAROS_EVENT, IN_PROGRESS);
-    }
-    void AttackStart(Unit* /*who*/) {}
-    void MoveInLineOfSight(Unit* /*who*/) {}
-    void UpdateAI(const uint32 /*diff*/)
-    {
-        //Return since we have no target
-        if (!UpdateVictim())
-            return;
+        void Reset()
+        {
+            if (pInstance)
+                pInstance->SetData(DATA_VAROS_EVENT, NOT_STARTED);
+        }
+        void EnterCombat(Unit* /*who*/)
+        {
+            DoScriptText(SAY_AGGRO, me);
 
-        DoMeleeAttackIfReady();
-    }
-    void JustDied(Unit* /*killer*/)
-    {
-        DoScriptText(SAY_DEATH, me);
+            if (pInstance)
+                pInstance->SetData(DATA_VAROS_EVENT, IN_PROGRESS);
+        }
+        void AttackStart(Unit* /*who*/) {}
+        void MoveInLineOfSight(Unit* /*who*/) {}
+        void UpdateAI(const uint32 /*diff*/)
+        {
+            //Return since we have no target
+            if (!UpdateVictim())
+                return;
 
-        if (pInstance)
-            pInstance->SetData(DATA_VAROS_EVENT, DONE);
-    }
-    void KilledUnit(Unit * victim)
-    {
-        if (victim == me)
-            return;
-        DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2), me);
-    }
+            DoMeleeAttackIfReady();
+        }
+        void JustDied(Unit* /*killer*/)
+        {
+            DoScriptText(SAY_DEATH, me);
+
+            if (pInstance)
+                pInstance->SetData(DATA_VAROS_EVENT, DONE);
+        }
+        void KilledUnit(Unit * victim)
+        {
+            if (victim == me)
+                return;
+            DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2), me);
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_varos(Creature* pCreature)
-{
-    return new boss_varosAI (pCreature);
-}
 
 void AddSC_boss_varos()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "boss_varos";
-    newscript->GetAI = &GetAI_boss_varos;
-    newscript->RegisterSelf();
+    new boss_varos();
 }

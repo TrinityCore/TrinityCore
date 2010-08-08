@@ -153,9 +153,9 @@ class boss_zuljin : public CreatureScript
         {
             boss_zuljinAI(Creature *c) : ScriptedAI(c), Summons(me)
             {
-                pInstance = c->GetInstanceData();
+                pInstance = c->GetInstanceScript();
             }
-            ScriptedInstance *pInstance;
+            InstanceScript *pInstance;
 
             uint64 SpiritGUID[4];
             uint64 ClawTargetGUID;

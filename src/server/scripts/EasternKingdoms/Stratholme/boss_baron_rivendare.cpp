@@ -76,117 +76,119 @@ EndScriptData */
 #define SPELL_RAISE_DEAD4   17478
 #define SPELL_RAISE_DEAD5   17479
 #define SPELL_RAISE_DEAD6   17480
-
-struct boss_baron_rivendareAI : public ScriptedAI
+class boss_baron_rivendare : public CreatureScript
 {
-    boss_baron_rivendareAI(Creature *c) : ScriptedAI(c)
+public:
+    boss_baron_rivendare() : CreatureScript("boss_baron_rivendare") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        pInstance = me->GetInstanceData();
+        return new boss_baron_rivendareAI (pCreature);
     }
 
-    ScriptedInstance* pInstance;
-
-    uint32 ShadowBolt_Timer;
-    uint32 Cleave_Timer;
-    uint32 MortalStrike_Timer;
-    //    uint32 RaiseDead_Timer;
-    uint32 SummonSkeletons_Timer;
-
-    void Reset()
+    struct boss_baron_rivendareAI : public ScriptedAI
     {
-        ShadowBolt_Timer = 5000;
-        Cleave_Timer = 8000;
-        MortalStrike_Timer = 12000;
-        //        RaiseDead_Timer = 30000;
-        SummonSkeletons_Timer = 34000;
-        if (pInstance && pInstance->GetData(TYPE_RAMSTEIN) == DONE)
-            pInstance->SetData(TYPE_BARON,NOT_STARTED);
-    }
-
-    void AttackStart(Unit* who)
-    {
-        if (pInstance)//can't use entercombat(), boss' dmg aura sets near players in combat, before entering the room's door
-            pInstance->SetData(TYPE_BARON,IN_PROGRESS);
-        ScriptedAI::AttackStart(who);
-    }
-
-    void JustSummoned(Creature* summoned)
-    {
-        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-            summoned->AI()->AttackStart(pTarget);
-    }
-
-     void JustDied(Unit* /*Killer*/)
-     {
-         if (pInstance)
-             pInstance->SetData(TYPE_BARON,DONE);
-     }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
-
-        //ShadowBolt
-        if (ShadowBolt_Timer <= diff)
+        boss_baron_rivendareAI(Creature *c) : ScriptedAI(c)
         {
-            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(me->getVictim(), SPELL_SHADOWBOLT);
+            pInstance = me->GetInstanceScript();
+        }
 
-            ShadowBolt_Timer = 10000;
-        } else ShadowBolt_Timer -= diff;
+        InstanceScript* pInstance;
 
-        //Cleave
-        if (Cleave_Timer <= diff)
+        uint32 ShadowBolt_Timer;
+        uint32 Cleave_Timer;
+        uint32 MortalStrike_Timer;
+        //    uint32 RaiseDead_Timer;
+        uint32 SummonSkeletons_Timer;
+
+        void Reset()
         {
-            DoCast(me->getVictim(), SPELL_CLEAVE);
-            //13 seconds until we should cast this again
-            Cleave_Timer = 7000 + (rand()%10000);
-        } else Cleave_Timer -= diff;
+            ShadowBolt_Timer = 5000;
+            Cleave_Timer = 8000;
+            MortalStrike_Timer = 12000;
+            //        RaiseDead_Timer = 30000;
+            SummonSkeletons_Timer = 34000;
+            if (pInstance && pInstance->GetData(TYPE_RAMSTEIN) == DONE)
+                pInstance->SetData(TYPE_BARON,NOT_STARTED);
+        }
 
-        //MortalStrike
-        if (MortalStrike_Timer <= diff)
+        void AttackStart(Unit* who)
         {
-            DoCast(me->getVictim(), SPELL_MORTALSTRIKE);
-            MortalStrike_Timer = 10000 + (rand()%15000);
-        } else MortalStrike_Timer -= diff;
+            if (pInstance)//can't use entercombat(), boss' dmg aura sets near players in combat, before entering the room's door
+                pInstance->SetData(TYPE_BARON,IN_PROGRESS);
+            ScriptedAI::AttackStart(who);
+        }
 
-        //RaiseDead
-        //            if (RaiseDead_Timer <= diff)
-        //          {
-        //      DoCast(me, SPELL_RAISEDEAD);
-        //                RaiseDead_Timer = 45000;
-        //            } else RaiseDead_Timer -= diff;
-
-        //SummonSkeletons
-        if (SummonSkeletons_Timer <= diff)
+        void JustSummoned(Creature* summoned)
         {
-            me->SummonCreature(11197,ADD_1X,ADD_1Y,ADD_1Z,ADD_1O,TEMPSUMMON_TIMED_DESPAWN,29000);
-            me->SummonCreature(11197,ADD_2X,ADD_2Y,ADD_2Z,ADD_2O,TEMPSUMMON_TIMED_DESPAWN,29000);
-            me->SummonCreature(11197,ADD_3X,ADD_3Y,ADD_3Z,ADD_3O,TEMPSUMMON_TIMED_DESPAWN,29000);
-            me->SummonCreature(11197,ADD_4X,ADD_4Y,ADD_4Z,ADD_4O,TEMPSUMMON_TIMED_DESPAWN,29000);
-            me->SummonCreature(11197,ADD_5X,ADD_5Y,ADD_5Z,ADD_5O,TEMPSUMMON_TIMED_DESPAWN,29000);
-            me->SummonCreature(11197,ADD_6X,ADD_6Y,ADD_6Z,ADD_6O,TEMPSUMMON_TIMED_DESPAWN,29000);
+            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                summoned->AI()->AttackStart(pTarget);
+        }
 
-            //34 seconds until we should cast this again
-            SummonSkeletons_Timer = 40000;
-        } else SummonSkeletons_Timer -= diff;
+         void JustDied(Unit* /*Killer*/)
+         {
+             if (pInstance)
+                 pInstance->SetData(TYPE_BARON,DONE);
+         }
 
-        DoMeleeAttackIfReady();
-    }
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            //ShadowBolt
+            if (ShadowBolt_Timer <= diff)
+            {
+                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    DoCast(me->getVictim(), SPELL_SHADOWBOLT);
+
+                ShadowBolt_Timer = 10000;
+            } else ShadowBolt_Timer -= diff;
+
+            //Cleave
+            if (Cleave_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_CLEAVE);
+                //13 seconds until we should cast this again
+                Cleave_Timer = 7000 + (rand()%10000);
+            } else Cleave_Timer -= diff;
+
+            //MortalStrike
+            if (MortalStrike_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_MORTALSTRIKE);
+                MortalStrike_Timer = 10000 + (rand()%15000);
+            } else MortalStrike_Timer -= diff;
+
+            //RaiseDead
+            //            if (RaiseDead_Timer <= diff)
+            //          {
+            //      DoCast(me, SPELL_RAISEDEAD);
+            //                RaiseDead_Timer = 45000;
+            //            } else RaiseDead_Timer -= diff;
+
+            //SummonSkeletons
+            if (SummonSkeletons_Timer <= diff)
+            {
+                me->SummonCreature(11197,ADD_1X,ADD_1Y,ADD_1Z,ADD_1O,TEMPSUMMON_TIMED_DESPAWN,29000);
+                me->SummonCreature(11197,ADD_2X,ADD_2Y,ADD_2Z,ADD_2O,TEMPSUMMON_TIMED_DESPAWN,29000);
+                me->SummonCreature(11197,ADD_3X,ADD_3Y,ADD_3Z,ADD_3O,TEMPSUMMON_TIMED_DESPAWN,29000);
+                me->SummonCreature(11197,ADD_4X,ADD_4Y,ADD_4Z,ADD_4O,TEMPSUMMON_TIMED_DESPAWN,29000);
+                me->SummonCreature(11197,ADD_5X,ADD_5Y,ADD_5Z,ADD_5O,TEMPSUMMON_TIMED_DESPAWN,29000);
+                me->SummonCreature(11197,ADD_6X,ADD_6Y,ADD_6Z,ADD_6O,TEMPSUMMON_TIMED_DESPAWN,29000);
+
+                //34 seconds until we should cast this again
+                SummonSkeletons_Timer = 40000;
+            } else SummonSkeletons_Timer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_baron_rivendare(Creature* pCreature)
-{
-    return new boss_baron_rivendareAI (pCreature);
-}
 
 void AddSC_boss_baron_rivendare()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_baron_rivendare";
-    newscript->GetAI = &GetAI_boss_baron_rivendare;
-    newscript->RegisterSelf();
+    new boss_baron_rivendare();
 }
-

@@ -72,7 +72,7 @@ public:
     {
         boss_novosAI(Creature *c) : Scripted_NoMovementAI(c), lSummons(me)
         {
-            pInstance = c->GetInstanceData();
+            pInstance = c->GetInstanceScript();
         }
 
         uint32 uiTimer;
@@ -86,7 +86,7 @@ public:
 
         CombatPhase Phase;
 
-        ScriptedInstance* pInstance;
+        InstanceScript* pInstance;
 
         void Reset()
         {
@@ -243,12 +243,12 @@ public:
     {
         mob_crystal_handlerAI(Creature *c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceData();
+            pInstance = c->GetInstanceScript();
         }
 
         uint32 uiFlashOfDarknessTimer;
 
-        ScriptedInstance *pInstance;
+        InstanceScript *pInstance;
 
         void Reset()
         {
@@ -300,10 +300,10 @@ public:
     {
         mob_novos_minionAI(Creature *c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceData();
+            pInstance = c->GetInstanceScript();
         }
 
-        ScriptedInstance *pInstance;
+        InstanceScript *pInstance;
 
         void MovementInform(uint32 type, uint32 id)
         {

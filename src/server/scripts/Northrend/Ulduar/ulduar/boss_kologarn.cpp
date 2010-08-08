@@ -53,113 +53,116 @@ enum
 {
     ACHIEV_DISARMED_START_EVENT                   = 21687,
 };
-
-struct boss_kologarnAI : public BossAI
+class boss_kologarn : public CreatureScript
 {
-    boss_kologarnAI(Creature *pCreature) : BossAI(pCreature, TYPE_KOLOGARN), vehicle(pCreature->GetVehicleKit()),
-        left(false), right(false)
+public:
+    boss_kologarn() : CreatureScript("boss_kologarn") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        assert(vehicle);
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED); // i think this is a hack, but there is no other way to disable his rotation
+        return new boss_kologarnAI (pCreature);
     }
 
-    Vehicle *vehicle;
-    bool left, right;
-
-    void AttackStart(Unit *who)
+    struct boss_kologarnAI : public BossAI
     {
-        me->Attack(who, true);
-    }
-
-    void JustDied(Unit * /*victim*/)
-    {
-        DoScriptText(SAY_DEATH, me);
-        _JustDied();
-    }
-
-    void KilledUnit(Unit* /*who*/)
-    {
-        DoScriptText(RAND(SAY_SLAY_2,SAY_SLAY_2), me);
-    }
-
-    void PassengerBoarded(Unit *who, int8 /*seatId*/, bool apply)
-    {
-        if (who->GetTypeId() == TYPEID_UNIT)
+        boss_kologarnAI(Creature *pCreature) : BossAI(pCreature, TYPE_KOLOGARN), vehicle(pCreature->GetVehicleKit()),
+            left(false), right(false)
         {
-            if (who->GetEntry() == 32933)
-                left = apply;
-            else if (who->GetEntry() == 32934)
-                right = apply;
-
-            if (!apply && instance)
-                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);
-
-            who->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
-            CAST_CRE(who)->SetReactState(REACT_PASSIVE);
-        }
-    }
-
-    void EnterCombat(Unit * /*who*/)
-    {
-        DoScriptText(SAY_AGGRO, me);
-        _EnterCombat();
-        events.ScheduleEvent(EVENT_SMASH, 5000);
-        events.ScheduleEvent(EVENT_SWEEP, 10000);
-        events.ScheduleEvent(EVENT_GRIP, 15000);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
-
-        events.Update(diff);
-
-        if (me->hasUnitState(UNIT_STAT_CASTING))
-            return;
-
-        // TODO: because we are using hack, he is stunned and cannot cast, so we use triggered for every spell
-        switch(events.GetEvent())
-        {
-            case EVENT_NONE:
-                break;
-            case EVENT_SMASH:
-                if (left && right)
-                    DoCastVictim(SPELL_TWO_ARM_SMASH, true);
-                else if (left || right)
-                    DoCastVictim(SPELL_ONE_ARM_SMASH, true);
-                events.RepeatEvent(15000);
-                break;
-            case EVENT_SWEEP:
-                if (left)
-                    DoCastAOE(SPELL_ARM_SWEEP, true);
-                events.RepeatEvent(15000);
-                break;
-            case EVENT_GRIP:
-                if (right)
-                    DoCastAOE(SPELL_STONE_GRIP, true);
-                events.RepeatEvent(15000);
-                break;
-            default:
-                events.PopEvent();
-                break;
+            assert(vehicle);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED); // i think this is a hack, but there is no other way to disable his rotation
         }
 
-        DoMeleeAttackIfReady();
-    }
+        Vehicle *vehicle;
+        bool left, right;
+
+        void AttackStart(Unit *who)
+        {
+            me->Attack(who, true);
+        }
+
+        void JustDied(Unit * /*victim*/)
+        {
+            DoScriptText(SAY_DEATH, me);
+            _JustDied();
+        }
+
+        void KilledUnit(Unit* /*who*/)
+        {
+            DoScriptText(RAND(SAY_SLAY_2,SAY_SLAY_2), me);
+        }
+
+        void PassengerBoarded(Unit *who, int8 /*seatId*/, bool apply)
+        {
+            if (who->GetTypeId() == TYPEID_UNIT)
+            {
+                if (who->GetEntry() == 32933)
+                    left = apply;
+                else if (who->GetEntry() == 32934)
+                    right = apply;
+
+                if (!apply && instance)
+                    instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);
+
+                who->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+                CAST_CRE(who)->SetReactState(REACT_PASSIVE);
+            }
+        }
+
+        void EnterCombat(Unit * /*who*/)
+        {
+            DoScriptText(SAY_AGGRO, me);
+            _EnterCombat();
+            events.ScheduleEvent(EVENT_SMASH, 5000);
+            events.ScheduleEvent(EVENT_SWEEP, 10000);
+            events.ScheduleEvent(EVENT_GRIP, 15000);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            events.Update(diff);
+
+            if (me->hasUnitState(UNIT_STAT_CASTING))
+                return;
+
+            // TODO: because we are using hack, he is stunned and cannot cast, so we use triggered for every spell
+            switch(events.GetEvent())
+            {
+                case EVENT_NONE:
+                    break;
+                case EVENT_SMASH:
+                    if (left && right)
+                        DoCastVictim(SPELL_TWO_ARM_SMASH, true);
+                    else if (left || right)
+                        DoCastVictim(SPELL_ONE_ARM_SMASH, true);
+                    events.RepeatEvent(15000);
+                    break;
+                case EVENT_SWEEP:
+                    if (left)
+                        DoCastAOE(SPELL_ARM_SWEEP, true);
+                    events.RepeatEvent(15000);
+                    break;
+                case EVENT_GRIP:
+                    if (right)
+                        DoCastAOE(SPELL_STONE_GRIP, true);
+                    events.RepeatEvent(15000);
+                    break;
+                default:
+                    events.PopEvent();
+                    break;
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_kologarn(Creature* pCreature)
-{
-    return new boss_kologarnAI (pCreature);
-}
 
 void AddSC_boss_kologarn()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_kologarn";
-    newscript->GetAI = &GetAI_boss_kologarn;
-    newscript->RegisterSelf();
+    new boss_kologarn();
 }

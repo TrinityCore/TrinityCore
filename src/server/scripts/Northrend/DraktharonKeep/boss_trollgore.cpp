@@ -63,7 +63,7 @@ public:
     {
         boss_trollgoreAI(Creature *c) : ScriptedAI(c), lSummons(me)
         {
-            pInstance = c->GetInstanceData();
+            pInstance = c->GetInstanceScript();
         }
 
         uint32 uiConsumeTimer;
@@ -77,7 +77,7 @@ public:
 
         SummonList lSummons;
 
-        ScriptedInstance* pInstance;
+        InstanceScript* pInstance;
 
         void Reset()
         {

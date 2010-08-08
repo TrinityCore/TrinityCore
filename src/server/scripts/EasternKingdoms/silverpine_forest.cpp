@@ -38,58 +38,67 @@ EndContentData */
 
 #define GOSSIP_HAH "You're Astor Hadren, right?"
 #define GOSSIP_SAH "You've got something I need, Astor. And I'll be taking it now."
-
-struct npc_astor_hadrenAI : public ScriptedAI
+class npc_astor_hadren : public CreatureScript
 {
-    npc_astor_hadrenAI(Creature *c) : ScriptedAI(c) {}
+public:
+    npc_astor_hadren() : CreatureScript("npc_astor_hadren") { }
 
-    void Reset()
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        me->setFaction(68);
+        return new npc_astor_hadrenAI(pCreature);
     }
 
-    void EnterCombat(Unit* /*who*/)
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
     {
+        switch (uiAction)
+        {
+            case GOSSIP_ACTION_INFO_DEF + 1:
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SAH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                pPlayer->SEND_GOSSIP_MENU(624, pCreature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 2:
+                pPlayer->CLOSE_GOSSIP_MENU();
+                pCreature->setFaction(21);
+                if (pPlayer)
+                    CAST_AI(npc_astor_hadren::npc_astor_hadrenAI, pCreature->AI())->AttackStart(pPlayer);
+                break;
+        }
+        return true;
     }
 
-    void JustDied(Unit * /*who*/)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
-        me->setFaction(68);
+        if (pPlayer->GetQuestStatus(1886) == QUEST_STATUS_INCOMPLETE)
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HAH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+        pPlayer->SEND_GOSSIP_MENU(623, pCreature->GetGUID());
+
+        return true;
     }
+
+    struct npc_astor_hadrenAI : public ScriptedAI
+    {
+        npc_astor_hadrenAI(Creature *c) : ScriptedAI(c) {}
+
+        void Reset()
+        {
+            me->setFaction(68);
+        }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+        }
+
+        void JustDied(Unit * /*who*/)
+        {
+            me->setFaction(68);
+        }
+    };
+
 };
 
-CreatureAI* GetAI_npc_astor_hadren(Creature* pCreature)
-{
-    return new npc_astor_hadrenAI(pCreature);
-}
 
-bool GossipHello_npc_astor_hadren(Player* pPlayer, Creature* pCreature)
-{
-    if (pPlayer->GetQuestStatus(1886) == QUEST_STATUS_INCOMPLETE)
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HAH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
-    pPlayer->SEND_GOSSIP_MENU(623, pCreature->GetGUID());
-
-    return true;
-}
-
-bool GossipSelect_npc_astor_hadren(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
-{
-    switch (uiAction)
-    {
-        case GOSSIP_ACTION_INFO_DEF + 1:
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SAH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-            pPlayer->SEND_GOSSIP_MENU(624, pCreature->GetGUID());
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 2:
-            pPlayer->CLOSE_GOSSIP_MENU();
-            pCreature->setFaction(21);
-            if (pPlayer)
-                CAST_AI(npc_astor_hadrenAI, pCreature->AI())->AttackStart(pPlayer);
-            break;
-    }
-    return true;
-}
 
 /*######
 ## npc_deathstalker_erland
@@ -116,68 +125,75 @@ enum eErland
     NPC_RANE            = 1950,
     NPC_QUINN           = 1951
 };
-
-struct npc_deathstalker_erlandAI : public npc_escortAI
+class npc_deathstalker_erland : public CreatureScript
 {
-    npc_deathstalker_erlandAI(Creature *c) : npc_escortAI(c) {}
+public:
+    npc_deathstalker_erland() : CreatureScript("npc_deathstalker_erland") { }
 
-    void WaypointReached(uint32 i)
+    struct npc_deathstalker_erlandAI : public npc_escortAI
     {
-        Player* pPlayer = GetPlayerForEscort();
+        npc_deathstalker_erlandAI(Creature *c) : npc_escortAI(c) {}
 
-        if (!pPlayer)
-            return;
-
-        switch(i)
+        void WaypointReached(uint32 i)
         {
-        case 1: DoScriptText(SAY_START, me, pPlayer);break;
-        case 13:
-            DoScriptText(SAY_LAST, me, pPlayer);
-            pPlayer->GroupEventHappens(QUEST_ESCORTING, me); break;
-        case 14: DoScriptText(SAY_THANKS, me, pPlayer); break;
-        case 15: {
-                Unit* Rane = me->FindNearestCreature(NPC_RANE, 20);
-                if (Rane)
-                    DoScriptText(SAY_RANE, Rane);
-                break;}
-        case 16: DoScriptText(SAY_ANSWER, me); break;
-        case 17: DoScriptText(SAY_MOVE_QUINN, me); break;
-        case 24: DoScriptText(SAY_GREETINGS, me); break;
-        case 25: {
-                Unit* Quinn = me->FindNearestCreature(NPC_QUINN, 20);
-                if (Quinn)
-                    DoScriptText(SAY_QUINN, Quinn);
-                break;}
-        case 26: DoScriptText(SAY_ON_BYE, me, NULL); break;
+            Player* pPlayer = GetPlayerForEscort();
 
+            if (!pPlayer)
+                return;
+
+            switch(i)
+            {
+            case 1: DoScriptText(SAY_START, me, pPlayer);break;
+            case 13:
+                DoScriptText(SAY_LAST, me, pPlayer);
+                pPlayer->GroupEventHappens(QUEST_ESCORTING, me); break;
+            case 14: DoScriptText(SAY_THANKS, me, pPlayer); break;
+            case 15: {
+                    Unit* Rane = me->FindNearestCreature(NPC_RANE, 20);
+                    if (Rane)
+                        DoScriptText(SAY_RANE, Rane);
+                    break;}
+            case 16: DoScriptText(SAY_ANSWER, me); break;
+            case 17: DoScriptText(SAY_MOVE_QUINN, me); break;
+            case 24: DoScriptText(SAY_GREETINGS, me); break;
+            case 25: {
+                    Unit* Quinn = me->FindNearestCreature(NPC_QUINN, 20);
+                    if (Quinn)
+                        DoScriptText(SAY_QUINN, Quinn);
+                    break;}
+            case 26: DoScriptText(SAY_ON_BYE, me, NULL); break;
+
+            }
         }
-    }
 
-    void Reset() {}
+        void Reset() {}
 
-    void EnterCombat(Unit* who)
+        void EnterCombat(Unit* who)
+        {
+            DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2), me, who);
+        }
+    };
+
+    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* quest)
     {
-        DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2), me, who);
+        if (quest->GetQuestId() == QUEST_ESCORTING)
+        {
+            DoScriptText(SAY_QUESTACCEPT, pCreature, pPlayer);
+
+            if (npc_escortAI* pEscortAI = CAST_AI(npc_deathstalker_erland::npc_deathstalker_erlandAI, pCreature->AI()))
+                pEscortAI->Start(true, false, pPlayer->GetGUID());
+        }
+
+        return true;
     }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_deathstalker_erlandAI(pCreature);
+    }
+
 };
 
-bool QuestAccept_npc_deathstalker_erland(Player* pPlayer, Creature* pCreature, Quest const* quest)
-{
-    if (quest->GetQuestId() == QUEST_ESCORTING)
-    {
-        DoScriptText(SAY_QUESTACCEPT, pCreature, pPlayer);
-
-        if (npc_escortAI* pEscortAI = CAST_AI(npc_deathstalker_erlandAI, pCreature->AI()))
-            pEscortAI->Start(true, false, pPlayer->GetGUID());
-    }
-
-    return true;
-}
-
-CreatureAI* GetAI_npc_deathstalker_erlandAI(Creature* pCreature)
-{
-    return new npc_deathstalker_erlandAI(pCreature);
-}
 
 /*######
 ## pyrewood_ambush
@@ -204,159 +220,167 @@ static float PyrewoodSpawnPoints[3][4] =
 };
 
 #define WAIT_SECS 6000
-
-struct pyrewood_ambushAI : public ScriptedAI
+class pyrewood_ambush : public CreatureScript
 {
-    pyrewood_ambushAI(Creature *c) : ScriptedAI(c), Summons(me)
+public:
+    pyrewood_ambush() : CreatureScript("pyrewood_ambush") { }
+
+    bool OnQuestAccept(Player *pPlayer, Creature *pCreature, const Quest *pQuest)
     {
-       QuestInProgress = false;
-    }
-
-    uint32 Phase;
-    int8 KillCount;
-    uint32 WaitTimer;
-    uint64 PlayerGUID;
-    SummonList Summons;
-
-    bool QuestInProgress;
-
-    void Reset()
-    {
-        WaitTimer = WAIT_SECS;
-
-        if (!QuestInProgress) //fix reset values (see UpdateVictim)
+        if (pQuest->GetQuestId() == QUEST_PYREWOOD_AMBUSH && !CAST_AI(pyrewood_ambush::pyrewood_ambushAI, pCreature->AI())->QuestInProgress)
         {
-            Phase = 0;
-            KillCount = 0;
-            PlayerGUID = 0;
-            Summons.DespawnAll();
+            CAST_AI(pyrewood_ambush::pyrewood_ambushAI, pCreature->AI())->QuestInProgress = true;
+            CAST_AI(pyrewood_ambush::pyrewood_ambushAI, pCreature->AI())->Phase = 0;
+            CAST_AI(pyrewood_ambush::pyrewood_ambushAI, pCreature->AI())->KillCount = 0;
+            CAST_AI(pyrewood_ambush::pyrewood_ambushAI, pCreature->AI())->PlayerGUID = pPlayer->GetGUID();
         }
+
+        return true;
     }
 
-    void EnterCombat(Unit * /*who*/){}
-
-    void JustSummoned(Creature *pSummoned)
+    CreatureAI* GetAI(Creature *pCreature)
     {
-        Summons.Summon(pSummoned);
-        ++KillCount;
+        return new pyrewood_ambushAI (pCreature);
     }
 
-    void SummonedCreatureDespawn(Creature *pSummoned)
+    struct pyrewood_ambushAI : public ScriptedAI
     {
-        Summons.Despawn(pSummoned);
-        --KillCount;
-    }
-
-    void SummonCreatureWithRandomTarget(uint32 creatureId, int position)
-    {
-        if (Creature *pSummoned = me->SummonCreature(creatureId, PyrewoodSpawnPoints[position][0], PyrewoodSpawnPoints[position][1], PyrewoodSpawnPoints[position][2], PyrewoodSpawnPoints[position][3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15000))
+        pyrewood_ambushAI(Creature *c) : ScriptedAI(c), Summons(me)
         {
-            Player *pPlayer = NULL;
-            Unit *pTarget = NULL;
-            if (PlayerGUID)
-            {
-                pPlayer = Unit::GetPlayer(*me, PlayerGUID);
-                if (pPlayer)
-                    pTarget = RAND((Unit*)me, (Unit*)pPlayer);
-            } else
-                pTarget = me;
+           QuestInProgress = false;
+        }
 
-            if (pTarget)
+        uint32 Phase;
+        int8 KillCount;
+        uint32 WaitTimer;
+        uint64 PlayerGUID;
+        SummonList Summons;
+
+        bool QuestInProgress;
+
+        void Reset()
+        {
+            WaitTimer = WAIT_SECS;
+
+            if (!QuestInProgress) //fix reset values (see UpdateVictim)
             {
-                pSummoned->setFaction(168);
-                pSummoned->AddThreat(pTarget, 32.0f);
-                pSummoned->AI()->AttackStart(pTarget);
+                Phase = 0;
+                KillCount = 0;
+                PlayerGUID = 0;
+                Summons.DespawnAll();
             }
         }
-    }
 
-    void JustDied(Unit * /*pKiller*/)
-    {
-        if (PlayerGUID)
-            if (Player *pPlayer = Unit::GetPlayer(*me, PlayerGUID))
-                if (pPlayer->GetQuestStatus(QUEST_PYREWOOD_AMBUSH) == QUEST_STATUS_INCOMPLETE)
-                    pPlayer->FailQuest(QUEST_PYREWOOD_AMBUSH);
-    }
+        void EnterCombat(Unit * /*who*/){}
 
-    void UpdateAI(const uint32 diff)
-    {
-        //sLog.outString("DEBUG: p(%i) k(%i) d(%u) W(%i)", Phase, KillCount, diff, WaitTimer);
-
-        if (!QuestInProgress)
-            return;
-
-        if (KillCount && Phase < 6)
+        void JustSummoned(Creature *pSummoned)
         {
-            if (!UpdateVictim()) //reset() on target Despawn...
-                return;
-
-            DoMeleeAttackIfReady();
-            return;
+            Summons.Summon(pSummoned);
+            ++KillCount;
         }
 
-        switch (Phase)
+        void SummonedCreatureDespawn(Creature *pSummoned)
         {
-            case 0:
-                if (WaitTimer == WAIT_SECS)
-                    me->MonsterSay(NPCSAY_INIT, LANG_UNIVERSAL, 0); //no blizzlike
+            Summons.Despawn(pSummoned);
+            --KillCount;
+        }
 
-                if (WaitTimer <= diff)
-                {
-                    WaitTimer -= diff;
-                    return;
-                }
-                break;
-            case 1:
-                SummonCreatureWithRandomTarget(2060, 1);
-                break;
-            case 2:
-                SummonCreatureWithRandomTarget(2061, 2);
-                SummonCreatureWithRandomTarget(2062, 0);
-                break;
-            case 3:
-                SummonCreatureWithRandomTarget(2063, 1);
-                SummonCreatureWithRandomTarget(2064, 2);
-                SummonCreatureWithRandomTarget(2065, 0);
-                break;
-            case 4:
-                SummonCreatureWithRandomTarget(2066, 1);
-                SummonCreatureWithRandomTarget(2067, 0);
-                SummonCreatureWithRandomTarget(2068, 2);
-                break;
-            case 5: //end
+        void SummonCreatureWithRandomTarget(uint32 creatureId, int position)
+        {
+            if (Creature *pSummoned = me->SummonCreature(creatureId, PyrewoodSpawnPoints[position][0], PyrewoodSpawnPoints[position][1], PyrewoodSpawnPoints[position][2], PyrewoodSpawnPoints[position][3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15000))
+            {
+                Player *pPlayer = NULL;
+                Unit *pTarget = NULL;
                 if (PlayerGUID)
                 {
-                    if (Player *pPlayer = Unit::GetPlayer(*me, PlayerGUID))
-                    {
-                        me->MonsterSay(NPCSAY_END, LANG_UNIVERSAL, 0); //not blizzlike
-                        pPlayer->GroupEventHappens(QUEST_PYREWOOD_AMBUSH, me);
-                    }
+                    pPlayer = Unit::GetPlayer(*me, PlayerGUID);
+                    if (pPlayer)
+                        pTarget = RAND((Unit*)me, (Unit*)pPlayer);
+                } else
+                    pTarget = me;
+
+                if (pTarget)
+                {
+                    pSummoned->setFaction(168);
+                    pSummoned->AddThreat(pTarget, 32.0f);
+                    pSummoned->AI()->AttackStart(pTarget);
                 }
-                QuestInProgress = false;
-                Reset();
-                break;
+            }
         }
-        ++Phase; //prepare next phase
-    }
+
+        void JustDied(Unit * /*pKiller*/)
+        {
+            if (PlayerGUID)
+                if (Player *pPlayer = Unit::GetPlayer(*me, PlayerGUID))
+                    if (pPlayer->GetQuestStatus(QUEST_PYREWOOD_AMBUSH) == QUEST_STATUS_INCOMPLETE)
+                        pPlayer->FailQuest(QUEST_PYREWOOD_AMBUSH);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            //sLog.outString("DEBUG: p(%i) k(%i) d(%u) W(%i)", Phase, KillCount, diff, WaitTimer);
+
+            if (!QuestInProgress)
+                return;
+
+            if (KillCount && Phase < 6)
+            {
+                if (!UpdateVictim()) //reset() on target Despawn...
+                    return;
+
+                DoMeleeAttackIfReady();
+                return;
+            }
+
+            switch (Phase)
+            {
+                case 0:
+                    if (WaitTimer == WAIT_SECS)
+                        me->MonsterSay(NPCSAY_INIT, LANG_UNIVERSAL, 0); //no blizzlike
+
+                    if (WaitTimer <= diff)
+                    {
+                        WaitTimer -= diff;
+                        return;
+                    }
+                    break;
+                case 1:
+                    SummonCreatureWithRandomTarget(2060, 1);
+                    break;
+                case 2:
+                    SummonCreatureWithRandomTarget(2061, 2);
+                    SummonCreatureWithRandomTarget(2062, 0);
+                    break;
+                case 3:
+                    SummonCreatureWithRandomTarget(2063, 1);
+                    SummonCreatureWithRandomTarget(2064, 2);
+                    SummonCreatureWithRandomTarget(2065, 0);
+                    break;
+                case 4:
+                    SummonCreatureWithRandomTarget(2066, 1);
+                    SummonCreatureWithRandomTarget(2067, 0);
+                    SummonCreatureWithRandomTarget(2068, 2);
+                    break;
+                case 5: //end
+                    if (PlayerGUID)
+                    {
+                        if (Player *pPlayer = Unit::GetPlayer(*me, PlayerGUID))
+                        {
+                            me->MonsterSay(NPCSAY_END, LANG_UNIVERSAL, 0); //not blizzlike
+                            pPlayer->GroupEventHappens(QUEST_PYREWOOD_AMBUSH, me);
+                        }
+                    }
+                    QuestInProgress = false;
+                    Reset();
+                    break;
+            }
+            ++Phase; //prepare next phase
+        }
+    };
+
 };
 
-CreatureAI* GetAI_pyrewood_ambush(Creature *pCreature)
-{
-    return new pyrewood_ambushAI (pCreature);
-}
 
-bool QuestAccept_pyrewood_ambush(Player *pPlayer, Creature *pCreature, const Quest *pQuest)
-{
-    if (pQuest->GetQuestId() == QUEST_PYREWOOD_AMBUSH && !CAST_AI(pyrewood_ambushAI, pCreature->AI())->QuestInProgress)
-    {
-        CAST_AI(pyrewood_ambushAI, pCreature->AI())->QuestInProgress = true;
-        CAST_AI(pyrewood_ambushAI, pCreature->AI())->Phase = 0;
-        CAST_AI(pyrewood_ambushAI, pCreature->AI())->KillCount = 0;
-        CAST_AI(pyrewood_ambushAI, pCreature->AI())->PlayerGUID = pPlayer->GetGUID();
-    }
-
-    return true;
-}
 
 /*######
 ## AddSC
@@ -364,24 +388,7 @@ bool QuestAccept_pyrewood_ambush(Player *pPlayer, Creature *pCreature, const Que
 
 void AddSC_silverpine_forest()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "npc_astor_hadren";
-    newscript->pGossipHello =  &GossipHello_npc_astor_hadren;
-    newscript->pGossipSelect = &GossipSelect_npc_astor_hadren;
-    newscript->GetAI = &GetAI_npc_astor_hadren;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_deathstalker_erland";
-    newscript->GetAI = &GetAI_npc_deathstalker_erlandAI;
-    newscript->pQuestAccept = &QuestAccept_npc_deathstalker_erland;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "pyrewood_ambush";
-    newscript->GetAI = &GetAI_pyrewood_ambush;
-    newscript->pQuestAccept = &QuestAccept_pyrewood_ambush;
-    newscript->RegisterSelf();
+    new npc_astor_hadren();
+    new npc_deathstalker_erland();
+    new pyrewood_ambush();
 }

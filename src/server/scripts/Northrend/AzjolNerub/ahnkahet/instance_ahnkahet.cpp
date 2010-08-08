@@ -38,9 +38,9 @@ class instance_ahnkahet : public InstanceMapScript
 public:
     instance_ahnkahet() : InstanceMapScript("instance_ahnkahet") { }
 
-    struct instance_ahnkahet_ScriptedInstance : public ScriptedInstance
+    struct instance_ahnkahet_InstanceScript : public InstanceScript
     {
-        instance_ahnkahet_ScriptedInstance(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
+        instance_ahnkahet_InstanceScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
 
         uint64 Elder_Nadox;
         uint64 Prince_Taldaram;
@@ -302,9 +302,9 @@ public:
         }
     };
 
-    InstanceData* GetInstanceData(InstanceMap *map) const
+    InstanceScript* GetInstanceScript(InstanceMap *map) const
     {
-       return new instance_ahnkahet_ScriptedInstance(map);
+       return new instance_ahnkahet_InstanceScript(map);
     }
 };
 

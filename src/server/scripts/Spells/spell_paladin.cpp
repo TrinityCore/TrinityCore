@@ -99,13 +99,13 @@ class spell_pal_holy_shock : public SpellHandlerScript
                     return false;
 
                 // can't use other spell than holy shock due to spell_ranks dependency
-                if (spellmgr.GetFirstSpellInChain(PALADIN_SPELL_HOLY_SHOCK_R1) != spellmgr.GetFirstSpellInChain(spellEntry->Id))
+                if (sSpellMgr.GetFirstSpellInChain(PALADIN_SPELL_HOLY_SHOCK_R1) != sSpellMgr.GetFirstSpellInChain(spellEntry->Id))
                     return false;
 
-                uint8 rank = spellmgr.GetSpellRank(spellEntry->Id);
-                if (!spellmgr.GetSpellWithRank(PALADIN_SPELL_HOLY_SHOCK_R1_DAMAGE, rank, true))
+                uint8 rank = sSpellMgr.GetSpellRank(spellEntry->Id);
+                if (!sSpellMgr.GetSpellWithRank(PALADIN_SPELL_HOLY_SHOCK_R1_DAMAGE, rank, true))
                     return false;
-                if (!spellmgr.GetSpellWithRank(PALADIN_SPELL_HOLY_SHOCK_R1_HEALING, rank, true))
+                if (!sSpellMgr.GetSpellWithRank(PALADIN_SPELL_HOLY_SHOCK_R1_HEALING, rank, true))
                     return false;
 
                 return true;
@@ -117,12 +117,12 @@ class spell_pal_holy_shock : public SpellHandlerScript
                 {
                     Unit *caster = GetCaster();
 
-                    uint8 rank = spellmgr.GetSpellRank(GetSpellInfo()->Id);
+                    uint8 rank = sSpellMgr.GetSpellRank(GetSpellInfo()->Id);
 
                     if (caster->IsFriendlyTo(unitTarget))
-                        caster->CastSpell(unitTarget, spellmgr.GetSpellWithRank(PALADIN_SPELL_HOLY_SHOCK_R1_HEALING, rank), true, 0);
+                        caster->CastSpell(unitTarget, sSpellMgr.GetSpellWithRank(PALADIN_SPELL_HOLY_SHOCK_R1_HEALING, rank), true, 0);
                     else
-                        caster->CastSpell(unitTarget, spellmgr.GetSpellWithRank(PALADIN_SPELL_HOLY_SHOCK_R1_DAMAGE, rank), true, 0);
+                        caster->CastSpell(unitTarget, sSpellMgr.GetSpellWithRank(PALADIN_SPELL_HOLY_SHOCK_R1_DAMAGE, rank), true, 0);
                 }
             }
 

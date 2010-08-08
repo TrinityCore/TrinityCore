@@ -147,11 +147,11 @@ struct advisorbase_ai : public ScriptedAI
 {
     advisorbase_ai(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = pCreature->GetInstanceData();
+        m_pInstance = pCreature->GetInstanceScript();
         m_bDoubled_Health = false;
     }
 
-    ScriptedInstance* m_pInstance;
+    InstanceScript* m_pInstance;
     bool FakeDeath;
     bool m_bDoubled_Health;
     uint32 DelayRes_Timer;
@@ -281,11 +281,11 @@ class boss_kaelthas : public CreatureScript
         {
             boss_kaelthasAI(Creature* pCreature) : ScriptedAI(pCreature), summons(me)
             {
-                m_pInstance = pCreature->GetInstanceData();
+                m_pInstance = pCreature->GetInstanceScript();
                 memset(&m_auiAdvisorGuid, 0, sizeof(m_auiAdvisorGuid));
             }
 
-            ScriptedInstance* m_pInstance;
+            InstanceScript* m_pInstance;
 
             uint32 Fireball_Timer;
             uint32 ArcaneDisruption_Timer;
@@ -1573,7 +1573,7 @@ class mob_phoenix_egg_tk : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI_mob_phoenix_egg_tk(Creature* pCreature)
+        CreatureAI* GetAI(Creature* pCreature) const
         {
             return new mob_phoenix_egg_tkAI(pCreature);
         }

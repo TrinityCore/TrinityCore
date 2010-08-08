@@ -38,44 +38,47 @@ enum Yells
     SAY_SLAY        = -1509026,
     SAY_DEATH       = -1509027
 };
-
-struct boss_ossirianAI : public ScriptedAI
+class boss_ossirian : public CreatureScript
 {
-    boss_ossirianAI(Creature *c) : ScriptedAI(c)
+public:
+    boss_ossirian() : CreatureScript("boss_ossirian") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        pInstance = c->GetInstanceData();
+        return new boss_ossirianAI (pCreature);
     }
 
-    ScriptedInstance *pInstance;
-
-    void Reset()
+    struct boss_ossirianAI : public ScriptedAI
     {
-        if (pInstance)
-            pInstance->SetData(DATA_OSSIRIAN_EVENT, NOT_STARTED);
-    }
+        boss_ossirianAI(Creature *c) : ScriptedAI(c)
+        {
+            pInstance = c->GetInstanceScript();
+        }
 
-    void EnterCombat(Unit * /*who*/)
-    {
-        if (pInstance)
-            pInstance->SetData(DATA_OSSIRIAN_EVENT, IN_PROGRESS);
-    }
+        InstanceScript *pInstance;
 
-    void JustDied(Unit * /*killer*/)
-    {
-        if (pInstance)
-            pInstance->SetData(DATA_OSSIRIAN_EVENT, DONE);
-    }
+        void Reset()
+        {
+            if (pInstance)
+                pInstance->SetData(DATA_OSSIRIAN_EVENT, NOT_STARTED);
+        }
+
+        void EnterCombat(Unit * /*who*/)
+        {
+            if (pInstance)
+                pInstance->SetData(DATA_OSSIRIAN_EVENT, IN_PROGRESS);
+        }
+
+        void JustDied(Unit * /*killer*/)
+        {
+            if (pInstance)
+                pInstance->SetData(DATA_OSSIRIAN_EVENT, DONE);
+        }
+    };
+
 };
-CreatureAI* GetAI_boss_ossirian(Creature* pCreature)
-{
-    return new boss_ossirianAI (pCreature);
-}
 
 void AddSC_boss_ossirian()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_ossirian";
-    newscript->GetAI = &GetAI_boss_ossirian;
-    newscript->RegisterSelf();
+    new boss_ossirian();
 }

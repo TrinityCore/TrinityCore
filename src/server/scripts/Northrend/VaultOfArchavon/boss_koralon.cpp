@@ -62,160 +62,165 @@ enum Spells
     SPELL_FW_METEOR_FISTS_B                     = 67331,
     SPELL_FW_METEOR_FISTS_B_H                   = 68160,
 };
-
-struct boss_koralonAI : public ScriptedAI
+class boss_koralon : public CreatureScript
 {
-    boss_koralonAI(Creature *c) : ScriptedAI(c)
+public:
+    boss_koralon() : CreatureScript("boss_koralon") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        pInstance = c->GetInstanceData();
+        return new boss_koralonAI (pCreature);
     }
 
-    ScriptedInstance *pInstance;
-    EventMap events;
-
-    void Reset()
+    struct boss_koralonAI : public ScriptedAI
     {
-        events.Reset();
-
-        if (pInstance)
-            pInstance->SetData(DATA_KORALON_EVENT, NOT_STARTED);
-    }
-
-    void KilledUnit(Unit* /*Victim*/) {}
-
-    void JustDied(Unit* /*Killer*/)
-    {
-        if (pInstance)
-            pInstance->SetData(DATA_KORALON_EVENT, DONE);
-    }
-
-    void EnterCombat(Unit * /*who*/)
-    {
-        DoZoneInCombat();
-
-        DoCast(me, SPELL_BURNING_FURY);
-
-        events.ScheduleEvent(EVENT_BURNING_FURY, 20000);    // TODO check timer
-        events.ScheduleEvent(EVENT_BURNING_BREATH, 15000);  // 1st after 15sec, then every 45sec
-        events.ScheduleEvent(EVENT_METEOR_FISTS_A, 75000);  // 1st after 75sec, then every 45sec
-        events.ScheduleEvent(EVENT_FLAME_CINDER_A, 30000);  // TODO check timer
-
-        if (pInstance)
-            pInstance->SetData(DATA_KORALON_EVENT, IN_PROGRESS);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
-
-        events.Update(diff);
-
-        if (me->hasUnitState(UNIT_STAT_CASTING))
-            return;
-
-        while (uint32 eventId = events.ExecuteEvent())
+        boss_koralonAI(Creature *c) : ScriptedAI(c)
         {
-            switch(eventId)
-            {
-                case EVENT_BURNING_FURY:
-                    DoCast(me, SPELL_BURNING_FURY);
-                    events.ScheduleEvent(EVENT_BURNING_FURY, 20000);
-                    return;
-                case EVENT_BURNING_BREATH:
-                    DoCast(me, RAID_MODE(SPELL_BURNING_BREATH,SPELL_BURNING_BREATH_H));
-                    events.ScheduleEvent(EVENT_BURNING_BREATH, 45000);
-                    return;
-                case EVENT_METEOR_FISTS_A:
-                    DoCast(me, RAID_MODE(SPELL_METEOR_FISTS_A,SPELL_METEOR_FISTS_A_H));
-                    events.ScheduleEvent(EVENT_METEOR_FISTS_B, 1500);
-                    return;
-                case EVENT_METEOR_FISTS_B:
-                    DoCast(me, RAID_MODE(SPELL_METEOR_FISTS_B,SPELL_METEOR_FISTS_B_H));
-                    events.ScheduleEvent(EVENT_METEOR_FISTS_A, 45000);
-                    return;
-                case EVENT_FLAME_CINDER_A:
-                    DoCast(me, RAID_MODE(SPELL_FLAME_CINDER_A,SPELL_FLAME_CINDER_A_H));
-                    events.ScheduleEvent(EVENT_FLAME_CINDER_A, 30000);
-                    return;
-            }
+            pInstance = c->GetInstanceScript();
         }
-        DoMeleeAttackIfReady();
-    }
+
+        InstanceScript *pInstance;
+        EventMap events;
+
+        void Reset()
+        {
+            events.Reset();
+
+            if (pInstance)
+                pInstance->SetData(DATA_KORALON_EVENT, NOT_STARTED);
+        }
+
+        void KilledUnit(Unit* /*Victim*/) {}
+
+        void JustDied(Unit* /*Killer*/)
+        {
+            if (pInstance)
+                pInstance->SetData(DATA_KORALON_EVENT, DONE);
+        }
+
+        void EnterCombat(Unit * /*who*/)
+        {
+            DoZoneInCombat();
+
+            DoCast(me, SPELL_BURNING_FURY);
+
+            events.ScheduleEvent(EVENT_BURNING_FURY, 20000);    // TODO check timer
+            events.ScheduleEvent(EVENT_BURNING_BREATH, 15000);  // 1st after 15sec, then every 45sec
+            events.ScheduleEvent(EVENT_METEOR_FISTS_A, 75000);  // 1st after 75sec, then every 45sec
+            events.ScheduleEvent(EVENT_FLAME_CINDER_A, 30000);  // TODO check timer
+
+            if (pInstance)
+                pInstance->SetData(DATA_KORALON_EVENT, IN_PROGRESS);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            events.Update(diff);
+
+            if (me->hasUnitState(UNIT_STAT_CASTING))
+                return;
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch(eventId)
+                {
+                    case EVENT_BURNING_FURY:
+                        DoCast(me, SPELL_BURNING_FURY);
+                        events.ScheduleEvent(EVENT_BURNING_FURY, 20000);
+                        return;
+                    case EVENT_BURNING_BREATH:
+                        DoCast(me, RAID_MODE(SPELL_BURNING_BREATH,SPELL_BURNING_BREATH_H));
+                        events.ScheduleEvent(EVENT_BURNING_BREATH, 45000);
+                        return;
+                    case EVENT_METEOR_FISTS_A:
+                        DoCast(me, RAID_MODE(SPELL_METEOR_FISTS_A,SPELL_METEOR_FISTS_A_H));
+                        events.ScheduleEvent(EVENT_METEOR_FISTS_B, 1500);
+                        return;
+                    case EVENT_METEOR_FISTS_B:
+                        DoCast(me, RAID_MODE(SPELL_METEOR_FISTS_B,SPELL_METEOR_FISTS_B_H));
+                        events.ScheduleEvent(EVENT_METEOR_FISTS_A, 45000);
+                        return;
+                    case EVENT_FLAME_CINDER_A:
+                        DoCast(me, RAID_MODE(SPELL_FLAME_CINDER_A,SPELL_FLAME_CINDER_A_H));
+                        events.ScheduleEvent(EVENT_FLAME_CINDER_A, 30000);
+                        return;
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
 
 /*######
 ##  Mob Flame Warder
-######*/
-struct mob_flame_warderAI : public ScriptedAI
+######*/class mob_flame_warder : public CreatureScript
 {
-    mob_flame_warderAI(Creature *c) : ScriptedAI(c) {}
+public:
+    mob_flame_warder() : CreatureScript("mob_flame_warder") { }
 
-    EventMap events;
-
-    void Reset()
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        events.Reset();
+        return new mob_flame_warderAI (pCreature);
     }
 
-    void EnterCombat(Unit * /*who*/)
+    struct mob_flame_warderAI : public ScriptedAI
     {
-        DoZoneInCombat();
+        mob_flame_warderAI(Creature *c) : ScriptedAI(c) {}
 
-        events.ScheduleEvent(EVENT_FW_LAVA_BIRST, 5000);
-        events.ScheduleEvent(EVENT_FW_METEOR_FISTS_A, 10000);
-    }
+        EventMap events;
 
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
-
-        events.Update(diff);
-
-        while (uint32 eventId = events.ExecuteEvent())
+        void Reset()
         {
-            switch(eventId)
-            {
-                case EVENT_FW_LAVA_BIRST:
-                    DoCast(me->getVictim(), RAID_MODE(SPELL_FW_LAVA_BIRST,SPELL_FW_LAVA_BIRST_H));
-                    events.ScheduleEvent(EVENT_FW_LAVA_BIRST, 15000);
-                    return;
-                case EVENT_FW_METEOR_FISTS_A:
-                    DoCast(me, RAID_MODE(SPELL_FW_METEOR_FISTS_A,SPELL_FW_METEOR_FISTS_A_H));
-                    events.ScheduleEvent(EVENT_FW_METEOR_FISTS_B, 1500);
-                    return;
-                case EVENT_FW_METEOR_FISTS_B:
-                    DoCast(me, RAID_MODE(SPELL_FW_METEOR_FISTS_B,SPELL_FW_METEOR_FISTS_B_H));
-                    events.ScheduleEvent(EVENT_FW_METEOR_FISTS_A, 20000);
-                    return;
-            }
+            events.Reset();
         }
-        DoMeleeAttackIfReady();
-    }
+
+        void EnterCombat(Unit * /*who*/)
+        {
+            DoZoneInCombat();
+
+            events.ScheduleEvent(EVENT_FW_LAVA_BIRST, 5000);
+            events.ScheduleEvent(EVENT_FW_METEOR_FISTS_A, 10000);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch(eventId)
+                {
+                    case EVENT_FW_LAVA_BIRST:
+                        DoCast(me->getVictim(), RAID_MODE(SPELL_FW_LAVA_BIRST,SPELL_FW_LAVA_BIRST_H));
+                        events.ScheduleEvent(EVENT_FW_LAVA_BIRST, 15000);
+                        return;
+                    case EVENT_FW_METEOR_FISTS_A:
+                        DoCast(me, RAID_MODE(SPELL_FW_METEOR_FISTS_A,SPELL_FW_METEOR_FISTS_A_H));
+                        events.ScheduleEvent(EVENT_FW_METEOR_FISTS_B, 1500);
+                        return;
+                    case EVENT_FW_METEOR_FISTS_B:
+                        DoCast(me, RAID_MODE(SPELL_FW_METEOR_FISTS_B,SPELL_FW_METEOR_FISTS_B_H));
+                        events.ScheduleEvent(EVENT_FW_METEOR_FISTS_A, 20000);
+                        return;
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_koralon(Creature* pCreature)
-{
-    return new boss_koralonAI (pCreature);
-}
 
-CreatureAI* GetAI_mob_flame_warder(Creature* pCreature)
-{
-    return new mob_flame_warderAI (pCreature);
-}
 
 void AddSC_boss_koralon()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "boss_koralon";
-    newscript->GetAI = &GetAI_boss_koralon;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "mob_flame_warder";
-    newscript->GetAI = &GetAI_mob_flame_warder;
-    newscript->RegisterSelf();
+    new boss_koralon();
+    new mob_flame_warder();
 }

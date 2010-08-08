@@ -30,45 +30,47 @@ enum Yells
 {
     EMOTE_TARGET               = -1509002
 };
-
-struct boss_buruAI : public ScriptedAI
+class boss_buru : public CreatureScript
 {
-    boss_buruAI(Creature *c) : ScriptedAI(c)
+public:
+    boss_buru() : CreatureScript("boss_buru") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        pInstance = c->GetInstanceData();
+        return new boss_buruAI (pCreature);
     }
 
-    ScriptedInstance *pInstance;
-
-    void Reset()
+    struct boss_buruAI : public ScriptedAI
     {
-        if (pInstance)
-            pInstance->SetData(DATA_BURU_EVENT, NOT_STARTED);
-    }
+        boss_buruAI(Creature *c) : ScriptedAI(c)
+        {
+            pInstance = c->GetInstanceScript();
+        }
 
-    void EnterCombat(Unit * /*who*/)
-    {
-        if (pInstance)
-            pInstance->SetData(DATA_BURU_EVENT, IN_PROGRESS);
-    }
+        InstanceScript *pInstance;
 
-    void JustDied(Unit * /*killer*/)
-    {
-        if (pInstance)
-            pInstance->SetData(DATA_BURU_EVENT, DONE);
-    }
+        void Reset()
+        {
+            if (pInstance)
+                pInstance->SetData(DATA_BURU_EVENT, NOT_STARTED);
+        }
+
+        void EnterCombat(Unit * /*who*/)
+        {
+            if (pInstance)
+                pInstance->SetData(DATA_BURU_EVENT, IN_PROGRESS);
+        }
+
+        void JustDied(Unit * /*killer*/)
+        {
+            if (pInstance)
+                pInstance->SetData(DATA_BURU_EVENT, DONE);
+        }
+    };
+
 };
-CreatureAI* GetAI_boss_buru(Creature* pCreature)
-{
-    return new boss_buruAI (pCreature);
-}
 
 void AddSC_boss_buru()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_buru";
-    newscript->GetAI = &GetAI_boss_buru;
-    newscript->RegisterSelf();
+    new boss_buru();
 }
-

@@ -29,65 +29,68 @@ enum Spells
 {
     SPELL_FIREBLAST                                        = 15573
 };
-
-struct boss_ambassador_flamelashAI : public ScriptedAI
+class boss_ambassador_flamelash : public CreatureScript
 {
-    boss_ambassador_flamelashAI(Creature *c) : ScriptedAI(c) {}
+public:
+    boss_ambassador_flamelash() : CreatureScript("boss_ambassador_flamelash") { }
 
-    uint32 FireBlast_Timer;
-    uint32 Spirit_Timer;
-
-    void Reset()
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        FireBlast_Timer = 2000;
-        Spirit_Timer = 24000;
+        return new boss_ambassador_flamelashAI (pCreature);
     }
 
-    void EnterCombat(Unit * /*who*/) {}
-
-    void SummonSpirits(Unit* victim)
+    struct boss_ambassador_flamelashAI : public ScriptedAI
     {
-        if (Creature *Spirit = DoSpawnCreature(9178, irand(-9,9), irand(-9,9), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000))
-            Spirit->AI()->AttackStart(victim);
-    }
+        boss_ambassador_flamelashAI(Creature *c) : ScriptedAI(c) {}
 
-    void UpdateAI(const uint32 diff)
-    {
-        //Return since we have no target
-        if (!UpdateVictim())
-            return;
+        uint32 FireBlast_Timer;
+        uint32 Spirit_Timer;
 
-        //FireBlast_Timer
-        if (FireBlast_Timer <= diff)
+        void Reset()
         {
-            DoCast(me->getVictim(), SPELL_FIREBLAST);
-            FireBlast_Timer = 7000;
-        } else FireBlast_Timer -= diff;
+            FireBlast_Timer = 2000;
+            Spirit_Timer = 24000;
+        }
 
-        //Spirit_Timer
-        if (Spirit_Timer <= diff)
+        void EnterCombat(Unit * /*who*/) {}
+
+        void SummonSpirits(Unit* victim)
         {
-            SummonSpirits(me->getVictim());
-            SummonSpirits(me->getVictim());
-            SummonSpirits(me->getVictim());
-            SummonSpirits(me->getVictim());
+            if (Creature *Spirit = DoSpawnCreature(9178, irand(-9,9), irand(-9,9), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000))
+                Spirit->AI()->AttackStart(victim);
+        }
 
-            Spirit_Timer = 30000;
-        } else Spirit_Timer -= diff;
+        void UpdateAI(const uint32 diff)
+        {
+            //Return since we have no target
+            if (!UpdateVictim())
+                return;
 
-        DoMeleeAttackIfReady();
-    }
+            //FireBlast_Timer
+            if (FireBlast_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_FIREBLAST);
+                FireBlast_Timer = 7000;
+            } else FireBlast_Timer -= diff;
+
+            //Spirit_Timer
+            if (Spirit_Timer <= diff)
+            {
+                SummonSpirits(me->getVictim());
+                SummonSpirits(me->getVictim());
+                SummonSpirits(me->getVictim());
+                SummonSpirits(me->getVictim());
+
+                Spirit_Timer = 30000;
+            } else Spirit_Timer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
-CreatureAI* GetAI_boss_ambassador_flamelash(Creature* pCreature)
-{
-    return new boss_ambassador_flamelashAI (pCreature);
-}
 
 void AddSC_boss_ambassador_flamelash()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_ambassador_flamelash";
-    newscript->GetAI = &GetAI_boss_ambassador_flamelash;
-    newscript->RegisterSelf();
+    new boss_ambassador_flamelash();
 }

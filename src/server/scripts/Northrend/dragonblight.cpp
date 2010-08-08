@@ -252,7 +252,7 @@ public:
         if (quest->GetQuestId() == QUEST_A_RIGHTEOUS_SERMON)
         {        
             DoScriptText(SAY_WP_0, pCreature, pPlayer);
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_inquisitor_hallardAI, pCreature->AI()))
+            if (npc_escortAI* pEscortAI = CAST_AI(npc_inquisitor_hallard::npc_inquisitor_hallardAI, pCreature->AI()))
             {
                 pEscortAI->Start(true, false, pPlayer->GetGUID(), 0, true);
                 pCreature->GetMotionMaster()->MovePoint(0, 3801.543, -679.350, 213.75);            

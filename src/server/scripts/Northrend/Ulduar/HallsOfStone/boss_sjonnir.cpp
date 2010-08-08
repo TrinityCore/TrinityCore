@@ -81,237 +81,245 @@ static Locations PipeLocations[] =
 };
 
 static Locations CenterPoint = {1295.21, 667.157, 189.691};
-
-struct boss_sjonnirAI : public ScriptedAI
+class boss_sjonnir : public CreatureScript
 {
-    boss_sjonnirAI(Creature *c) : ScriptedAI(c), lSummons(me)
+public:
+    boss_sjonnir() : CreatureScript("boss_sjonnir") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        pInstance = c->GetInstanceData();
+        return new boss_sjonnirAI (pCreature);
     }
 
-    bool bIsFrenzy;
-
-    uint32 uiChainLightningTimer;
-    uint32 uiLightningShieldTimer;
-    uint32 uiStaticChargeTimer;
-    uint32 uiLightningRingTimer;
-    uint32 uiSummonTimer;
-    uint32 uiFrenzyTimer;
-    uint32 uiEncounterTimer;
-    uint32 uiKilledIronSludges;
-
-    SummonList lSummons;
-
-    ScriptedInstance* pInstance;
-
-    void Reset()
+    struct boss_sjonnirAI : public ScriptedAI
     {
-        bIsFrenzy = false;
-
-        uiEncounterTimer = 0;
-        uiChainLightningTimer = 3000 + rand()%5000;
-        uiLightningShieldTimer = 20000 + rand()%5000;
-        uiStaticChargeTimer = 20000 + rand()%5000;
-        uiLightningRingTimer = 30000 + rand()%5000;
-        uiSummonTimer = 5000;
-        uiFrenzyTimer = 300000; //5 minutes
-        uiKilledIronSludges = 0;
-
-        lSummons.DespawnAll();
-
-        if (pInstance)
-            pInstance->SetData(DATA_SJONNIR_EVENT, NOT_STARTED);
-    }
-
-    void EnterCombat(Unit* /*who*/)
-    {
-        DoScriptText(SAY_AGGRO, me);
-
-        uiEncounterTimer = 0;
-
-        if (pInstance)
+        boss_sjonnirAI(Creature *c) : ScriptedAI(c), lSummons(me)
         {
-            if (GameObject *pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_SJONNIR_DOOR)))
-                if (pDoor->GetGoState() == GO_STATE_READY)
-                {
-                    EnterEvadeMode();
-                    return;
-                }
-
-            pInstance->SetData(DATA_SJONNIR_EVENT, IN_PROGRESS);
-        }
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        //Return since we have no target
-        if (!UpdateVictim())
-            return;
-
-        if (uiChainLightningTimer <= diff)
-        {
-            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget, SPELL_CHAIN_LIGHTING);
-            uiChainLightningTimer = 10000 + rand()%5000;
-        } else uiChainLightningTimer -= diff;
-
-        if (uiLightningShieldTimer <= diff)
-        {
-            DoCast(me, SPELL_LIGHTING_SHIELD);
-            uiLightningShieldTimer -= diff;
+            pInstance = c->GetInstanceScript();
         }
 
-        if (uiStaticChargeTimer <= diff)
+        bool bIsFrenzy;
+
+        uint32 uiChainLightningTimer;
+        uint32 uiLightningShieldTimer;
+        uint32 uiStaticChargeTimer;
+        uint32 uiLightningRingTimer;
+        uint32 uiSummonTimer;
+        uint32 uiFrenzyTimer;
+        uint32 uiEncounterTimer;
+        uint32 uiKilledIronSludges;
+
+        SummonList lSummons;
+
+        InstanceScript* pInstance;
+
+        void Reset()
         {
-            DoCast(me->getVictim(), SPELL_STATIC_CHARGE);
+            bIsFrenzy = false;
+
+            uiEncounterTimer = 0;
+            uiChainLightningTimer = 3000 + rand()%5000;
+            uiLightningShieldTimer = 20000 + rand()%5000;
             uiStaticChargeTimer = 20000 + rand()%5000;
-        } uiStaticChargeTimer -= diff;
-
-        if (uiLightningRingTimer <= diff)
-        {
-            if (me->IsNonMeleeSpellCasted(false))
-                me->InterruptNonMeleeSpells(false);
-            DoCast(me, SPELL_LIGHTING_RING);
             uiLightningRingTimer = 30000 + rand()%5000;
-        } else uiLightningRingTimer -= diff;
+            uiSummonTimer = 5000;
+            uiFrenzyTimer = 300000; //5 minutes
+            uiKilledIronSludges = 0;
 
-        if (uiSummonTimer <= diff)
-        {
-            uint32 uiSummonPipe = rand()%2;
-            me->SummonCreature(uiEncounterTimer > DATA_TIME_BEFORE_OOZE ? CREATURE_MALFORMED_OOZE :
-                                       RAND(CREATURE_FORGED_IRON_DWARF,CREATURE_FORGED_IRON_TROGG),
-                                       PipeLocations[uiSummonPipe].x, PipeLocations[uiSummonPipe].y, PipeLocations[uiSummonPipe].z, 0.0f,
-                                       TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
-            uiSummonTimer = 20000;
-        } else uiSummonTimer -= diff;
+            lSummons.DespawnAll();
 
-        if (!bIsFrenzy)
-        {
-          if (uiFrenzyTimer <= diff)
-          {
-              DoCast(me, SPELL_FRENZY);
-              bIsFrenzy = true;
-          }
-          else uiFrenzyTimer -= diff;
+            if (pInstance)
+                pInstance->SetData(DATA_SJONNIR_EVENT, NOT_STARTED);
         }
 
-        uiEncounterTimer +=diff;
-
-        DoMeleeAttackIfReady();
-    }
-
-    void JustSummoned(Creature* summon)
-    {
-        summon->GetMotionMaster()->MovePoint(0, CenterPoint.x, CenterPoint.y, CenterPoint.z);
-        /*if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-            summon->AI()->AttackStart(pTarget);*/
-        lSummons.Summon(summon);
-    }
-
-    void JustDied(Unit* /*killer*/)
-    {
-        DoScriptText(SAY_DEATH, me);
-        lSummons.DespawnAll();
-
-        if (pInstance)
+        void EnterCombat(Unit* /*who*/)
         {
-            pInstance->SetData(DATA_SJONNIR_EVENT, DONE);
-            if (IsHeroic() && uiKilledIronSludges > 4)
-                pInstance->DoCompleteAchievement(ACHIEV_ABUSE_THE_OOZE);
-        }
-    }
-    void KilledUnit(Unit * victim)
-    {
-        if (victim == me)
-            return;
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
-    }
+            DoScriptText(SAY_AGGRO, me);
 
-    void KilledIronSludge()
-    {
-        ++uiKilledIronSludges;
-    }
-};
+            uiEncounterTimer = 0;
 
-CreatureAI* GetAI_boss_sjonnir(Creature* pCreature)
-{
-    return new boss_sjonnirAI (pCreature);
-}
-
-struct mob_malformed_oozeAI : public ScriptedAI
-{
-    mob_malformed_oozeAI(Creature *c) : ScriptedAI(c) {}
-
-    uint32 uiMergeTimer;
-
-    void Reset()
-    {
-        uiMergeTimer = 10000;
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (uiMergeTimer <= diff)
-        {
-            if (Creature* pTemp = me->FindNearestCreature(CREATURE_MALFORMED_OOZE, 3.0f, true))
+            if (pInstance)
             {
-                DoSpawnCreature(CREATURE_IRON_SLUDGE, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000);
-                pTemp->DisappearAndDie();
-                me->DisappearAndDie();
+                if (GameObject *pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_SJONNIR_DOOR)))
+                    if (pDoor->GetGoState() == GO_STATE_READY)
+                    {
+                        EnterEvadeMode();
+                        return;
+                    }
+
+                pInstance->SetData(DATA_SJONNIR_EVENT, IN_PROGRESS);
             }
-            uiMergeTimer = 3000;
-        } else uiMergeTimer -= diff;
+        }
 
-        if (!UpdateVictim())
-            return;
+        void UpdateAI(const uint32 diff)
+        {
+            //Return since we have no target
+            if (!UpdateVictim())
+                return;
 
-        DoMeleeAttackIfReady();
-    }
+            if (uiChainLightningTimer <= diff)
+            {
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(pTarget, SPELL_CHAIN_LIGHTING);
+                uiChainLightningTimer = 10000 + rand()%5000;
+            } else uiChainLightningTimer -= diff;
+
+            if (uiLightningShieldTimer <= diff)
+            {
+                DoCast(me, SPELL_LIGHTING_SHIELD);
+                uiLightningShieldTimer -= diff;
+            }
+
+            if (uiStaticChargeTimer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_STATIC_CHARGE);
+                uiStaticChargeTimer = 20000 + rand()%5000;
+            } uiStaticChargeTimer -= diff;
+
+            if (uiLightningRingTimer <= diff)
+            {
+                if (me->IsNonMeleeSpellCasted(false))
+                    me->InterruptNonMeleeSpells(false);
+                DoCast(me, SPELL_LIGHTING_RING);
+                uiLightningRingTimer = 30000 + rand()%5000;
+            } else uiLightningRingTimer -= diff;
+
+            if (uiSummonTimer <= diff)
+            {
+                uint32 uiSummonPipe = rand()%2;
+                me->SummonCreature(uiEncounterTimer > DATA_TIME_BEFORE_OOZE ? CREATURE_MALFORMED_OOZE :
+                                           RAND(CREATURE_FORGED_IRON_DWARF,CREATURE_FORGED_IRON_TROGG),
+                                           PipeLocations[uiSummonPipe].x, PipeLocations[uiSummonPipe].y, PipeLocations[uiSummonPipe].z, 0.0f,
+                                           TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
+                uiSummonTimer = 20000;
+            } else uiSummonTimer -= diff;
+
+            if (!bIsFrenzy)
+            {
+              if (uiFrenzyTimer <= diff)
+              {
+                  DoCast(me, SPELL_FRENZY);
+                  bIsFrenzy = true;
+              }
+              else uiFrenzyTimer -= diff;
+            }
+
+            uiEncounterTimer +=diff;
+
+            DoMeleeAttackIfReady();
+        }
+
+        void JustSummoned(Creature* summon)
+        {
+            summon->GetMotionMaster()->MovePoint(0, CenterPoint.x, CenterPoint.y, CenterPoint.z);
+            /*if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                summon->AI()->AttackStart(pTarget);*/
+            lSummons.Summon(summon);
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            DoScriptText(SAY_DEATH, me);
+            lSummons.DespawnAll();
+
+            if (pInstance)
+            {
+                pInstance->SetData(DATA_SJONNIR_EVENT, DONE);
+                if (IsHeroic() && uiKilledIronSludges > 4)
+                    pInstance->DoCompleteAchievement(ACHIEV_ABUSE_THE_OOZE);
+            }
+        }
+        void KilledUnit(Unit * victim)
+        {
+            if (victim == me)
+                return;
+            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
+        }
+
+        void KilledIronSludge()
+        {
+            ++uiKilledIronSludges;
+        }
+    };
+
 };
 
-CreatureAI* GetAI_mob_malformed_ooze(Creature* pCreature)
+class mob_malformed_ooze : public CreatureScript
 {
-    return new mob_malformed_oozeAI(pCreature);
-}
+public:
+    mob_malformed_ooze() : CreatureScript("mob_malformed_ooze") { }
 
-struct mob_iron_sludgeAI : public ScriptedAI
-{
-    mob_iron_sludgeAI(Creature *c) : ScriptedAI(c)
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        pInstance = c->GetInstanceData();
+        return new mob_malformed_oozeAI(pCreature);
     }
 
-    ScriptedInstance* pInstance;
-
-    void JustDied(Unit* /*pKiller*/)
+    struct mob_malformed_oozeAI : public ScriptedAI
     {
-        if (pInstance)
-            if (Creature* pSjonnir = Unit::GetCreature(*me, pInstance->GetData64(DATA_SJONNIR)))
-                CAST_AI(boss_sjonnirAI, pSjonnir->AI())->KilledIronSludge();
-    }
+        mob_malformed_oozeAI(Creature *c) : ScriptedAI(c) {}
+
+        uint32 uiMergeTimer;
+
+        void Reset()
+        {
+            uiMergeTimer = 10000;
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (uiMergeTimer <= diff)
+            {
+                if (Creature* pTemp = me->FindNearestCreature(CREATURE_MALFORMED_OOZE, 3.0f, true))
+                {
+                    DoSpawnCreature(CREATURE_IRON_SLUDGE, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000);
+                    pTemp->DisappearAndDie();
+                    me->DisappearAndDie();
+                }
+                uiMergeTimer = 3000;
+            } else uiMergeTimer -= diff;
+
+            if (!UpdateVictim())
+                return;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
 
-CreatureAI* GetAI_mob_iron_sludge(Creature* pCreature)
+class mob_iron_sludge : public CreatureScript
 {
-    return new mob_iron_sludgeAI(pCreature);
-}
+public:
+    mob_iron_sludge() : CreatureScript("mob_iron_sludge") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new mob_iron_sludgeAI(pCreature);
+    }
+
+    struct mob_iron_sludgeAI : public ScriptedAI
+    {
+        mob_iron_sludgeAI(Creature *c) : ScriptedAI(c)
+        {
+            pInstance = c->GetInstanceScript();
+        }
+
+        InstanceScript* pInstance;
+
+        void JustDied(Unit* /*pKiller*/)
+        {
+            if (pInstance)
+                if (Creature* pSjonnir = Unit::GetCreature(*me, pInstance->GetData64(DATA_SJONNIR)))
+                    CAST_AI(boss_sjonnir::boss_sjonnirAI, pSjonnir->AI())->KilledIronSludge();
+        }
+    };
+
+};
+
 
 void AddSC_boss_sjonnir()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "boss_sjonnir";
-    newscript->GetAI = &GetAI_boss_sjonnir;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "mob_malformed_ooze";
-    newscript->GetAI = &GetAI_mob_malformed_ooze;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "mob_iron_sludge";
-    newscript->GetAI = &GetAI_mob_iron_sludge;
-    newscript->RegisterSelf();
+    new boss_sjonnir();
+    new mob_malformed_ooze();
+    new mob_iron_sludge();
 }

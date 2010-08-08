@@ -69,7 +69,7 @@ uint32 OPvPCapturePointNA::GetAliveGuardsCount()
                     if (cr->isAlive())
                         ++cnt;
                 }
-                else if (CreatureData const * cd = objmgr.GetCreatureData(GUID_LOPART(itr->second)))
+                else if (CreatureData const * cd = sObjectMgr.GetCreatureData(GUID_LOPART(itr->second)))
                 {
                     if (!cd->is_dead)
                         ++cnt;
@@ -137,15 +137,15 @@ void OPvPCapturePointNA::DeSpawnGOs()
 void OPvPCapturePointNA::FactionTakeOver(uint32 team)
 {
     if (m_ControllingFaction)
-        objmgr.RemoveGraveYardLink(NA_HALAA_GRAVEYARD,NA_HALAA_GRAVEYARD_ZONE,m_ControllingFaction,false);
+        sObjectMgr.RemoveGraveYardLink(NA_HALAA_GRAVEYARD,NA_HALAA_GRAVEYARD_ZONE,m_ControllingFaction,false);
     if (m_ControllingFaction == ALLIANCE)
-        sWorld.SendZoneText(NA_HALAA_GRAVEYARD_ZONE,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_NA_LOOSE_A));
+        sWorld.SendZoneText(NA_HALAA_GRAVEYARD_ZONE,sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_NA_LOOSE_A));
     else if (m_ControllingFaction == HORDE)
-        sWorld.SendZoneText(NA_HALAA_GRAVEYARD_ZONE,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_NA_LOOSE_H));
+        sWorld.SendZoneText(NA_HALAA_GRAVEYARD_ZONE,sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_NA_LOOSE_H));
 
     m_ControllingFaction = team;
     if (m_ControllingFaction)
-        objmgr.AddGraveYardLink(NA_HALAA_GRAVEYARD,NA_HALAA_GRAVEYARD_ZONE,m_ControllingFaction,false);
+        sObjectMgr.AddGraveYardLink(NA_HALAA_GRAVEYARD,NA_HALAA_GRAVEYARD_ZONE,m_ControllingFaction,false);
     DeSpawnGOs();
     DeSpawnNPCs();
     SpawnGOsForTeam(team);
@@ -163,7 +163,7 @@ void OPvPCapturePointNA::FactionTakeOver(uint32 team)
         m_PvP->SendUpdateWorldState(NA_UI_HORDE_GUARDS_SHOW, 0);
         m_PvP->SendUpdateWorldState(NA_UI_ALLIANCE_GUARDS_SHOW, 1);
         m_PvP->SendUpdateWorldState(NA_UI_GUARDS_LEFT, m_GuardsAlive);
-        sWorld.SendZoneText(NA_HALAA_GRAVEYARD_ZONE,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_NA_CAPTURE_A));
+        sWorld.SendZoneText(NA_HALAA_GRAVEYARD_ZONE,sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_NA_CAPTURE_A));
     }
     else
     {
@@ -175,7 +175,7 @@ void OPvPCapturePointNA::FactionTakeOver(uint32 team)
         m_PvP->SendUpdateWorldState(NA_UI_HORDE_GUARDS_SHOW, 1);
         m_PvP->SendUpdateWorldState(NA_UI_ALLIANCE_GUARDS_SHOW, 0);
         m_PvP->SendUpdateWorldState(NA_UI_GUARDS_LEFT, m_GuardsAlive);
-        sWorld.SendZoneText(NA_HALAA_GRAVEYARD_ZONE,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_NA_CAPTURE_H));
+        sWorld.SendZoneText(NA_HALAA_GRAVEYARD_ZONE,sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_NA_CAPTURE_H));
     }
     UpdateWyvernRoostWorldState(NA_ROOST_S);
     UpdateWyvernRoostWorldState(NA_ROOST_N);

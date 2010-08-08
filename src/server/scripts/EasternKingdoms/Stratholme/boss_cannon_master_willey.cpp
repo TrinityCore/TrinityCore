@@ -75,148 +75,150 @@ EndScriptData */
 #define SPELL_PUMMEL    15615
 #define SPELL_SHOOT    16496
 //#define SPELL_SUMMONCRIMSONRIFLEMAN    17279
-
-struct boss_cannon_master_willeyAI : public ScriptedAI
+class boss_cannon_master_willey : public CreatureScript
 {
-    boss_cannon_master_willeyAI(Creature *c) : ScriptedAI(c) {}
+public:
+    boss_cannon_master_willey() : CreatureScript("boss_cannon_master_willey") { }
 
-    uint32 KnockAway_Timer;
-    uint32 Pummel_Timer;
-    uint32 Shoot_Timer;
-    uint32 SummonRifleman_Timer;
-
-    void Reset()
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        Shoot_Timer = 1000;
-        Pummel_Timer = 7000;
-        KnockAway_Timer = 11000;
-        SummonRifleman_Timer = 15000;
+        return new boss_cannon_master_willeyAI (pCreature);
     }
 
-    void JustDied(Unit* /*Victim*/)
+    struct boss_cannon_master_willeyAI : public ScriptedAI
     {
-        me->SummonCreature(11054,ADD_1X,ADD_1Y,ADD_1Z,ADD_1O,TEMPSUMMON_TIMED_DESPAWN,240000);
-        me->SummonCreature(11054,ADD_2X,ADD_2Y,ADD_2Z,ADD_2O,TEMPSUMMON_TIMED_DESPAWN,240000);
-        me->SummonCreature(11054,ADD_3X,ADD_3Y,ADD_3Z,ADD_3O,TEMPSUMMON_TIMED_DESPAWN,240000);
-        me->SummonCreature(11054,ADD_4X,ADD_4Y,ADD_4Z,ADD_4O,TEMPSUMMON_TIMED_DESPAWN,240000);
-        me->SummonCreature(11054,ADD_5X,ADD_5Y,ADD_5Z,ADD_5O,TEMPSUMMON_TIMED_DESPAWN,240000);
-        me->SummonCreature(11054,ADD_7X,ADD_7Y,ADD_7Z,ADD_7O,TEMPSUMMON_TIMED_DESPAWN,240000);
-        me->SummonCreature(11054,ADD_9X,ADD_9Y,ADD_9Z,ADD_9O,TEMPSUMMON_TIMED_DESPAWN,240000);
-    }
+        boss_cannon_master_willeyAI(Creature *c) : ScriptedAI(c) {}
 
-    void EnterCombat(Unit * /*who*/)
-    {
-    }
+        uint32 KnockAway_Timer;
+        uint32 Pummel_Timer;
+        uint32 Shoot_Timer;
+        uint32 SummonRifleman_Timer;
 
-    void UpdateAI(const uint32 diff)
-    {
-        //Return since we have no target
-        if (!UpdateVictim())
-            return;
-
-        //Pummel
-        if (Pummel_Timer <= diff)
+        void Reset()
         {
-            //Cast
-            if (rand()%100 < 90) //90% chance to cast
-            {
-                DoCast(me->getVictim(), SPELL_PUMMEL);
-            }
-            //12 seconds until we should cast this again
-            Pummel_Timer = 12000;
-        } else Pummel_Timer -= diff;
-
-        //KnockAway
-        if (KnockAway_Timer <= diff)
-        {
-            //Cast
-            if (rand()%100 < 80) //80% chance to cast
-            {
-                DoCast(me->getVictim(), SPELL_KNOCKAWAY);
-            }
-            //14 seconds until we should cast this again
-            KnockAway_Timer = 14000;
-        } else KnockAway_Timer -= diff;
-
-        //Shoot
-        if (Shoot_Timer <= diff)
-        {
-            //Cast
-            DoCast(me->getVictim(), SPELL_SHOOT);
-            //1 seconds until we should cast this again
             Shoot_Timer = 1000;
-        } else Shoot_Timer -= diff;
+            Pummel_Timer = 7000;
+            KnockAway_Timer = 11000;
+            SummonRifleman_Timer = 15000;
+        }
 
-        //SummonRifleman
-        if (SummonRifleman_Timer <= diff)
+        void JustDied(Unit* /*Victim*/)
         {
-            //Cast
-            switch (rand()%9)
-            {
-            case 0:
-                me->SummonCreature(11054,ADD_1X,ADD_1Y,ADD_1Z,ADD_1O,TEMPSUMMON_TIMED_DESPAWN,240000);
-                me->SummonCreature(11054,ADD_2X,ADD_2Y,ADD_2Z,ADD_2O,TEMPSUMMON_TIMED_DESPAWN,240000);
-                me->SummonCreature(11054,ADD_4X,ADD_4Y,ADD_4Z,ADD_4O,TEMPSUMMON_TIMED_DESPAWN,240000);
-                break;
-            case 1:
-                me->SummonCreature(11054,ADD_2X,ADD_2Y,ADD_2Z,ADD_2O,TEMPSUMMON_TIMED_DESPAWN,240000);
-                me->SummonCreature(11054,ADD_3X,ADD_3Y,ADD_3Z,ADD_3O,TEMPSUMMON_TIMED_DESPAWN,240000);
-                me->SummonCreature(11054,ADD_5X,ADD_5Y,ADD_5Z,ADD_5O,TEMPSUMMON_TIMED_DESPAWN,240000);
-                break;
-            case 2:
-                me->SummonCreature(11054,ADD_3X,ADD_3Y,ADD_3Z,ADD_3O,TEMPSUMMON_TIMED_DESPAWN,240000);
-                me->SummonCreature(11054,ADD_4X,ADD_4Y,ADD_4Z,ADD_4O,TEMPSUMMON_TIMED_DESPAWN,240000);
-                me->SummonCreature(11054,ADD_6X,ADD_6Y,ADD_6Z,ADD_6O,TEMPSUMMON_TIMED_DESPAWN,240000);
-                break;
-            case 3:
-                me->SummonCreature(11054,ADD_4X,ADD_4Y,ADD_4Z,ADD_4O,TEMPSUMMON_TIMED_DESPAWN,240000);
-                me->SummonCreature(11054,ADD_5X,ADD_5Y,ADD_5Z,ADD_5O,TEMPSUMMON_TIMED_DESPAWN,240000);
-                me->SummonCreature(11054,ADD_7X,ADD_7Y,ADD_7Z,ADD_7O,TEMPSUMMON_TIMED_DESPAWN,240000);
-                break;
-            case 4:
-                me->SummonCreature(11054,ADD_5X,ADD_5Y,ADD_5Z,ADD_5O,TEMPSUMMON_TIMED_DESPAWN,240000);
-                me->SummonCreature(11054,ADD_6X,ADD_6Y,ADD_6Z,ADD_6O,TEMPSUMMON_TIMED_DESPAWN,240000);
-                me->SummonCreature(11054,ADD_8X,ADD_8Y,ADD_8Z,ADD_8O,TEMPSUMMON_TIMED_DESPAWN,240000);
-                break;
-            case 5:
-                me->SummonCreature(11054,ADD_6X,ADD_6Y,ADD_6Z,ADD_6O,TEMPSUMMON_TIMED_DESPAWN,240000);
-                me->SummonCreature(11054,ADD_7X,ADD_7Y,ADD_7Z,ADD_7O,TEMPSUMMON_TIMED_DESPAWN,240000);
-                me->SummonCreature(11054,ADD_9X,ADD_9Y,ADD_9Z,ADD_9O,TEMPSUMMON_TIMED_DESPAWN,240000);
-                break;
-            case 6:
-                me->SummonCreature(11054,ADD_7X,ADD_7Y,ADD_7Z,ADD_7O,TEMPSUMMON_TIMED_DESPAWN,240000);
-                me->SummonCreature(11054,ADD_8X,ADD_8Y,ADD_8Z,ADD_8O,TEMPSUMMON_TIMED_DESPAWN,240000);
-                me->SummonCreature(11054,ADD_1X,ADD_1Y,ADD_1Z,ADD_1O,TEMPSUMMON_TIMED_DESPAWN,240000);
-                break;
-            case 7:
-                me->SummonCreature(11054,ADD_8X,ADD_8Y,ADD_8Z,ADD_8O,TEMPSUMMON_TIMED_DESPAWN,240000);
-                me->SummonCreature(11054,ADD_9X,ADD_9Y,ADD_9Z,ADD_9O,TEMPSUMMON_TIMED_DESPAWN,240000);
-                me->SummonCreature(11054,ADD_2X,ADD_2Y,ADD_2Z,ADD_2O,TEMPSUMMON_TIMED_DESPAWN,240000);
-                break;
-            case 8:
-                me->SummonCreature(11054,ADD_9X,ADD_9Y,ADD_9Z,ADD_9O,TEMPSUMMON_TIMED_DESPAWN,240000);
-                me->SummonCreature(11054,ADD_1X,ADD_1Y,ADD_1Z,ADD_1O,TEMPSUMMON_TIMED_DESPAWN,240000);
-                me->SummonCreature(11054,ADD_3X,ADD_3Y,ADD_3Z,ADD_3O,TEMPSUMMON_TIMED_DESPAWN,240000);
-                break;
-            }
-            //30 seconds until we should cast this again
-            SummonRifleman_Timer = 30000;
-        } else SummonRifleman_Timer -= diff;
+            me->SummonCreature(11054,ADD_1X,ADD_1Y,ADD_1Z,ADD_1O,TEMPSUMMON_TIMED_DESPAWN,240000);
+            me->SummonCreature(11054,ADD_2X,ADD_2Y,ADD_2Z,ADD_2O,TEMPSUMMON_TIMED_DESPAWN,240000);
+            me->SummonCreature(11054,ADD_3X,ADD_3Y,ADD_3Z,ADD_3O,TEMPSUMMON_TIMED_DESPAWN,240000);
+            me->SummonCreature(11054,ADD_4X,ADD_4Y,ADD_4Z,ADD_4O,TEMPSUMMON_TIMED_DESPAWN,240000);
+            me->SummonCreature(11054,ADD_5X,ADD_5Y,ADD_5Z,ADD_5O,TEMPSUMMON_TIMED_DESPAWN,240000);
+            me->SummonCreature(11054,ADD_7X,ADD_7Y,ADD_7Z,ADD_7O,TEMPSUMMON_TIMED_DESPAWN,240000);
+            me->SummonCreature(11054,ADD_9X,ADD_9Y,ADD_9Z,ADD_9O,TEMPSUMMON_TIMED_DESPAWN,240000);
+        }
 
-        DoMeleeAttackIfReady();
-    }
+        void EnterCombat(Unit * /*who*/)
+        {
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            //Return since we have no target
+            if (!UpdateVictim())
+                return;
+
+            //Pummel
+            if (Pummel_Timer <= diff)
+            {
+                //Cast
+                if (rand()%100 < 90) //90% chance to cast
+                {
+                    DoCast(me->getVictim(), SPELL_PUMMEL);
+                }
+                //12 seconds until we should cast this again
+                Pummel_Timer = 12000;
+            } else Pummel_Timer -= diff;
+
+            //KnockAway
+            if (KnockAway_Timer <= diff)
+            {
+                //Cast
+                if (rand()%100 < 80) //80% chance to cast
+                {
+                    DoCast(me->getVictim(), SPELL_KNOCKAWAY);
+                }
+                //14 seconds until we should cast this again
+                KnockAway_Timer = 14000;
+            } else KnockAway_Timer -= diff;
+
+            //Shoot
+            if (Shoot_Timer <= diff)
+            {
+                //Cast
+                DoCast(me->getVictim(), SPELL_SHOOT);
+                //1 seconds until we should cast this again
+                Shoot_Timer = 1000;
+            } else Shoot_Timer -= diff;
+
+            //SummonRifleman
+            if (SummonRifleman_Timer <= diff)
+            {
+                //Cast
+                switch (rand()%9)
+                {
+                case 0:
+                    me->SummonCreature(11054,ADD_1X,ADD_1Y,ADD_1Z,ADD_1O,TEMPSUMMON_TIMED_DESPAWN,240000);
+                    me->SummonCreature(11054,ADD_2X,ADD_2Y,ADD_2Z,ADD_2O,TEMPSUMMON_TIMED_DESPAWN,240000);
+                    me->SummonCreature(11054,ADD_4X,ADD_4Y,ADD_4Z,ADD_4O,TEMPSUMMON_TIMED_DESPAWN,240000);
+                    break;
+                case 1:
+                    me->SummonCreature(11054,ADD_2X,ADD_2Y,ADD_2Z,ADD_2O,TEMPSUMMON_TIMED_DESPAWN,240000);
+                    me->SummonCreature(11054,ADD_3X,ADD_3Y,ADD_3Z,ADD_3O,TEMPSUMMON_TIMED_DESPAWN,240000);
+                    me->SummonCreature(11054,ADD_5X,ADD_5Y,ADD_5Z,ADD_5O,TEMPSUMMON_TIMED_DESPAWN,240000);
+                    break;
+                case 2:
+                    me->SummonCreature(11054,ADD_3X,ADD_3Y,ADD_3Z,ADD_3O,TEMPSUMMON_TIMED_DESPAWN,240000);
+                    me->SummonCreature(11054,ADD_4X,ADD_4Y,ADD_4Z,ADD_4O,TEMPSUMMON_TIMED_DESPAWN,240000);
+                    me->SummonCreature(11054,ADD_6X,ADD_6Y,ADD_6Z,ADD_6O,TEMPSUMMON_TIMED_DESPAWN,240000);
+                    break;
+                case 3:
+                    me->SummonCreature(11054,ADD_4X,ADD_4Y,ADD_4Z,ADD_4O,TEMPSUMMON_TIMED_DESPAWN,240000);
+                    me->SummonCreature(11054,ADD_5X,ADD_5Y,ADD_5Z,ADD_5O,TEMPSUMMON_TIMED_DESPAWN,240000);
+                    me->SummonCreature(11054,ADD_7X,ADD_7Y,ADD_7Z,ADD_7O,TEMPSUMMON_TIMED_DESPAWN,240000);
+                    break;
+                case 4:
+                    me->SummonCreature(11054,ADD_5X,ADD_5Y,ADD_5Z,ADD_5O,TEMPSUMMON_TIMED_DESPAWN,240000);
+                    me->SummonCreature(11054,ADD_6X,ADD_6Y,ADD_6Z,ADD_6O,TEMPSUMMON_TIMED_DESPAWN,240000);
+                    me->SummonCreature(11054,ADD_8X,ADD_8Y,ADD_8Z,ADD_8O,TEMPSUMMON_TIMED_DESPAWN,240000);
+                    break;
+                case 5:
+                    me->SummonCreature(11054,ADD_6X,ADD_6Y,ADD_6Z,ADD_6O,TEMPSUMMON_TIMED_DESPAWN,240000);
+                    me->SummonCreature(11054,ADD_7X,ADD_7Y,ADD_7Z,ADD_7O,TEMPSUMMON_TIMED_DESPAWN,240000);
+                    me->SummonCreature(11054,ADD_9X,ADD_9Y,ADD_9Z,ADD_9O,TEMPSUMMON_TIMED_DESPAWN,240000);
+                    break;
+                case 6:
+                    me->SummonCreature(11054,ADD_7X,ADD_7Y,ADD_7Z,ADD_7O,TEMPSUMMON_TIMED_DESPAWN,240000);
+                    me->SummonCreature(11054,ADD_8X,ADD_8Y,ADD_8Z,ADD_8O,TEMPSUMMON_TIMED_DESPAWN,240000);
+                    me->SummonCreature(11054,ADD_1X,ADD_1Y,ADD_1Z,ADD_1O,TEMPSUMMON_TIMED_DESPAWN,240000);
+                    break;
+                case 7:
+                    me->SummonCreature(11054,ADD_8X,ADD_8Y,ADD_8Z,ADD_8O,TEMPSUMMON_TIMED_DESPAWN,240000);
+                    me->SummonCreature(11054,ADD_9X,ADD_9Y,ADD_9Z,ADD_9O,TEMPSUMMON_TIMED_DESPAWN,240000);
+                    me->SummonCreature(11054,ADD_2X,ADD_2Y,ADD_2Z,ADD_2O,TEMPSUMMON_TIMED_DESPAWN,240000);
+                    break;
+                case 8:
+                    me->SummonCreature(11054,ADD_9X,ADD_9Y,ADD_9Z,ADD_9O,TEMPSUMMON_TIMED_DESPAWN,240000);
+                    me->SummonCreature(11054,ADD_1X,ADD_1Y,ADD_1Z,ADD_1O,TEMPSUMMON_TIMED_DESPAWN,240000);
+                    me->SummonCreature(11054,ADD_3X,ADD_3Y,ADD_3Z,ADD_3O,TEMPSUMMON_TIMED_DESPAWN,240000);
+                    break;
+                }
+                //30 seconds until we should cast this again
+                SummonRifleman_Timer = 30000;
+            } else SummonRifleman_Timer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
-CreatureAI* GetAI_boss_cannon_master_willey(Creature* pCreature)
-{
-    return new boss_cannon_master_willeyAI (pCreature);
-}
 
 void AddSC_boss_cannon_master_willey()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_cannon_master_willey";
-    newscript->GetAI = &GetAI_boss_cannon_master_willey;
-    newscript->RegisterSelf();
+    new boss_cannon_master_willey();
 }
-

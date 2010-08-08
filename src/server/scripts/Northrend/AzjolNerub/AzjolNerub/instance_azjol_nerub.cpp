@@ -31,9 +31,9 @@ class instance_azjol_nerub : public InstanceMapScript
 public:
     instance_azjol_nerub() : InstanceMapScript("instance_azjol_nerub") { }
 
-    struct instance_azjol_nerub_ScriptedInstance : public ScriptedInstance
+    struct instance_azjol_nerub_InstanceScript : public InstanceScript
     {
-        instance_azjol_nerub_ScriptedInstance(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
+        instance_azjol_nerub_InstanceScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
 
         uint64 uiKrikthir;
         uint64 uiHadronox;
@@ -204,9 +204,9 @@ public:
         }
     };
 
-    InstanceData* GetInstanceData(InstanceMap *map) const
+    InstanceScript* GetInstanceScript(InstanceMap *map) const
     {
-        return new instance_azjol_nerub_ScriptedInstance(map);
+        return new instance_azjol_nerub_InstanceScript(map);
     }
 };
 

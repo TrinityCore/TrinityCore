@@ -29,15 +29,18 @@ EndScriptData */
 #include "zulaman.h"
 #include "Weather.h"
 
-#define SPELL_STATIC_DISRUPTION     43622
-#define SPELL_STATIC_VISUAL         45265
-#define SPELL_CALL_LIGHTNING        43661 //Missing timer
-#define SPELL_GUST_OF_WIND          43621
-#define SPELL_ELECTRICAL_STORM      43648
-#define SPELL_BERSERK               45078
-#define SPELL_ELECTRICAL_DAMAGE     43657
-#define SPELL_ELECTRICAL_OVERLOAD   43658
-#define SPELL_EAGLE_SWOOP           44732
+enum Spells
+{
+    SPELL_STATIC_DISRUPTION     = 43622,
+    SPELL_STATIC_VISUAL         = 45265,
+    SPELL_CALL_LIGHTNING        = 43661, //Missing timer
+    SPELL_GUST_OF_WIND          = 43621,
+    SPELL_ELECTRICAL_STORM      = 43648,
+    SPELL_BERSERK               = 45078,
+    SPELL_ELECTRICAL_DAMAGE     = 43657,
+    SPELL_ELECTRICAL_OVERLOAD   = 43658,
+    SPELL_EAGLE_SWOOP           = 44732
+};
 
 //"Your death gonna be quick, strangers. You shoulda never have come to this place..."
 #define SAY_ONAGGRO "I be da predator! You da prey..."
@@ -75,9 +78,9 @@ class boss_akilzon : public CreatureScript
                 SpellEntry *TempSpell = GET_SPELL(SPELL_ELECTRICAL_DAMAGE);
                 if (TempSpell)
                     TempSpell->EffectBasePoints[1] = 49;//disable bugged lightning until fixed in core
-                pInstance = c->GetInstanceData();
+                pInstance = c->GetInstanceScript();
             }
-            ScriptedInstance *pInstance;
+            InstanceScript *pInstance;
 
             uint64 BirdGUIDs[8];
             uint64 TargetGUID;

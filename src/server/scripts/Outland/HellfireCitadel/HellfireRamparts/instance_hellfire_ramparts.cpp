@@ -34,9 +34,9 @@ class instance_ramparts : public InstanceMapScript
         {
         }            
 
-        struct instance_ramparts_InstanceMapScript : public ScriptedInstance
+        struct instance_ramparts_InstanceMapScript : public InstanceScript
         {
-            instance_ramparts_InstanceMapScript(Map* pMap) : ScriptedInstance(pMap) {Initialize();}
+            instance_ramparts_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();}
 
             uint32 m_auiEncounter[MAX_ENCOUNTER];
             uint64 m_uiChestNGUID;
@@ -83,7 +83,7 @@ class instance_ramparts : public InstanceMapScript
             }
         };
 
-        InstanceData* GetInstanceData(Map* pMap) const
+        InstanceScript* GetInstanceScript(Map* pMap) const
         {
             return new instance_ramparts_InstanceMapScript(pMap);
         }

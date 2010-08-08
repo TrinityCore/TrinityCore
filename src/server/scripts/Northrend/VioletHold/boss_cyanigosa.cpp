@@ -44,118 +44,120 @@ enum Yells
     SAY_SPECIAL_ATTACK_1                        = -1608008,
     SAY_SPECIAL_ATTACK_2                        = -1608009
 };
-
-struct boss_cyanigosaAI : public ScriptedAI
+class boss_cyanigosa : public CreatureScript
 {
-    boss_cyanigosaAI(Creature *c) : ScriptedAI(c)
+public:
+    boss_cyanigosa() : CreatureScript("boss_cyanigosa") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        pInstance = c->GetInstanceData();
+        return new boss_cyanigosaAI (pCreature);
     }
 
-    uint32 uiArcaneVacuumTimer;
-    uint32 uiBlizzardTimer;
-    uint32 uiManaDestructionTimer;
-    uint32 uiTailSweepTimer;
-    uint32 uiUncontrollableEnergyTimer;
-
-    ScriptedInstance* pInstance;
-
-    void Reset()
+    struct boss_cyanigosaAI : public ScriptedAI
     {
-        uiArcaneVacuumTimer = 10000;
-        uiBlizzardTimer = 15000;
-        uiManaDestructionTimer = 30000;
-        uiTailSweepTimer = 20000;
-        uiUncontrollableEnergyTimer = 25000;
-        if (pInstance)
-            pInstance->SetData(DATA_CYANIGOSA_EVENT, NOT_STARTED);
-    }
-
-    void EnterCombat(Unit* /*who*/)
-    {
-        DoScriptText(SAY_AGGRO, me);
-
-        if (pInstance)
-            pInstance->SetData(DATA_CYANIGOSA_EVENT, IN_PROGRESS);
-    }
-
-    void MoveInLineOfSight(Unit* /*who*/) {}
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (pInstance && pInstance->GetData(DATA_REMOVE_NPC) == 1)
+        boss_cyanigosaAI(Creature *c) : ScriptedAI(c)
         {
-            me->ForcedDespawn();
-            pInstance->SetData(DATA_REMOVE_NPC, 0);
+            pInstance = c->GetInstanceScript();
         }
 
-        //Return since we have no target
-        if (!UpdateVictim())
-            return;
+        uint32 uiArcaneVacuumTimer;
+        uint32 uiBlizzardTimer;
+        uint32 uiManaDestructionTimer;
+        uint32 uiTailSweepTimer;
+        uint32 uiUncontrollableEnergyTimer;
 
-        if (uiArcaneVacuumTimer <= diff)
+        InstanceScript* pInstance;
+
+        void Reset()
         {
-            DoCast(SPELL_ARCANE_VACUUM);
             uiArcaneVacuumTimer = 10000;
-        } else uiArcaneVacuumTimer -= diff;
-
-        if (uiBlizzardTimer <= diff)
-        {
-            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget, SPELL_BLIZZARD);
             uiBlizzardTimer = 15000;
-        } else uiBlizzardTimer -= diff;
-
-        if (uiTailSweepTimer <= diff)
-        {
-            DoCast(SPELL_TAIL_SWEEP);
+            uiManaDestructionTimer = 30000;
             uiTailSweepTimer = 20000;
-        } else uiTailSweepTimer -= diff;
-
-        if (uiUncontrollableEnergyTimer <= diff)
-        {
-            DoCastVictim(SPELL_UNCONTROLLABLE_ENERGY);
             uiUncontrollableEnergyTimer = 25000;
-        } else uiUncontrollableEnergyTimer -= diff;
+            if (pInstance)
+                pInstance->SetData(DATA_CYANIGOSA_EVENT, NOT_STARTED);
+        }
 
-        if (IsHeroic())
-            if (uiManaDestructionTimer <= diff)
+        void EnterCombat(Unit* /*who*/)
+        {
+            DoScriptText(SAY_AGGRO, me);
+
+            if (pInstance)
+                pInstance->SetData(DATA_CYANIGOSA_EVENT, IN_PROGRESS);
+        }
+
+        void MoveInLineOfSight(Unit* /*who*/) {}
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (pInstance && pInstance->GetData(DATA_REMOVE_NPC) == 1)
             {
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(pTarget, SPELL_MANA_DESTRUCTION);
-                uiManaDestructionTimer = 30000;
-            } else uiManaDestructionTimer -= diff;
+                me->ForcedDespawn();
+                pInstance->SetData(DATA_REMOVE_NPC, 0);
+            }
 
-        DoMeleeAttackIfReady();
-    }
+            //Return since we have no target
+            if (!UpdateVictim())
+                return;
 
-    void JustDied(Unit* /*killer*/)
-    {
-        DoScriptText(SAY_DEATH, me);
+            if (uiArcaneVacuumTimer <= diff)
+            {
+                DoCast(SPELL_ARCANE_VACUUM);
+                uiArcaneVacuumTimer = 10000;
+            } else uiArcaneVacuumTimer -= diff;
 
-        if (pInstance)
-            pInstance->SetData(DATA_CYANIGOSA_EVENT, DONE);
-    }
+            if (uiBlizzardTimer <= diff)
+            {
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(pTarget, SPELL_BLIZZARD);
+                uiBlizzardTimer = 15000;
+            } else uiBlizzardTimer -= diff;
 
-    void KilledUnit(Unit * victim)
-    {
-        if (victim == me)
-            return;
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
-    }
+            if (uiTailSweepTimer <= diff)
+            {
+                DoCast(SPELL_TAIL_SWEEP);
+                uiTailSweepTimer = 20000;
+            } else uiTailSweepTimer -= diff;
+
+            if (uiUncontrollableEnergyTimer <= diff)
+            {
+                DoCastVictim(SPELL_UNCONTROLLABLE_ENERGY);
+                uiUncontrollableEnergyTimer = 25000;
+            } else uiUncontrollableEnergyTimer -= diff;
+
+            if (IsHeroic())
+                if (uiManaDestructionTimer <= diff)
+                {
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        DoCast(pTarget, SPELL_MANA_DESTRUCTION);
+                    uiManaDestructionTimer = 30000;
+                } else uiManaDestructionTimer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            DoScriptText(SAY_DEATH, me);
+
+            if (pInstance)
+                pInstance->SetData(DATA_CYANIGOSA_EVENT, DONE);
+        }
+
+        void KilledUnit(Unit * victim)
+        {
+            if (victim == me)
+                return;
+            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_cyanigosa(Creature* pCreature)
-{
-    return new boss_cyanigosaAI (pCreature);
-}
 
 void AddSC_boss_cyanigosa()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "boss_cyanigosa";
-    newscript->GetAI = &GetAI_boss_cyanigosa;
-    newscript->RegisterSelf();
+    new boss_cyanigosa();
 }

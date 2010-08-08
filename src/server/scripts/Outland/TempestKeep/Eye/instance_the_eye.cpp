@@ -43,9 +43,9 @@ class instance_mechanar : public InstanceMapScript
         {
         }
         
-        struct instance_the_eye_InstanceMapScript : public ScriptedInstance
+        struct instance_the_eye_InstanceMapScript : public InstanceScript
         {
-            instance_the_eye_InstanceMapScript(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
+            instance_the_eye_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
 
             uint64 ThaladredTheDarkener;
             uint64 LordSanguinar;
@@ -194,7 +194,7 @@ class instance_mechanar : public InstanceMapScript
             }
         };
 
-        InstanceData* GetInstanceData(InstanceMap* pMap) const
+        InstanceScript* GetInstanceScript(InstanceMap* pMap) const
         {
             return new instance_the_eye_InstanceMapScript(pMap);
         }

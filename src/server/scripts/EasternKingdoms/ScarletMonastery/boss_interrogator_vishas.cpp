@@ -36,85 +36,87 @@ enum eEnums
 
     SPELL_SHADOWWORDPAIN    = 2767,
 };
-
-struct boss_interrogator_vishasAI : public ScriptedAI
+class boss_interrogator_vishas : public CreatureScript
 {
-    boss_interrogator_vishasAI(Creature *c) : ScriptedAI(c)
+public:
+    boss_interrogator_vishas() : CreatureScript("boss_interrogator_vishas") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        pInstance = me->GetInstanceData();
+        return new boss_interrogator_vishasAI (pCreature);
     }
 
-    ScriptedInstance* pInstance;
-
-    bool Yell30;
-    bool Yell60;
-    uint32 ShadowWordPain_Timer;
-
-    void Reset()
+    struct boss_interrogator_vishasAI : public ScriptedAI
     {
-        ShadowWordPain_Timer = 5000;
-    }
-
-    void EnterCombat(Unit * /*who*/)
-    {
-        DoScriptText(SAY_AGGRO, me);
-    }
-
-    void KilledUnit(Unit* /*Victim*/)
-    {
-        DoScriptText(SAY_KILL, me);
-    }
-
-    void JustDied(Unit* /*Killer*/)
-    {
-        if (!pInstance)
-            return;
-
-        //Any other actions to do with vorrel? setStandState?
-        if (Unit *vorrel = Unit::GetUnit(*me,pInstance->GetData64(DATA_VORREL)))
-            DoScriptText(SAY_TRIGGER_VORREL, vorrel);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
-
-        //If we are low on hp Do sayings
-        if (!Yell60 && ((me->GetHealth()*100) / me->GetMaxHealth() <= 60))
+        boss_interrogator_vishasAI(Creature *c) : ScriptedAI(c)
         {
-            DoScriptText(SAY_HEALTH1, me);
-            Yell60 = true;
+            pInstance = me->GetInstanceScript();
         }
 
-        if (!Yell30 && ((me->GetHealth()*100) / me->GetMaxHealth() <= 30))
+        InstanceScript* pInstance;
+
+        bool Yell30;
+        bool Yell60;
+        uint32 ShadowWordPain_Timer;
+
+        void Reset()
         {
-            DoScriptText(SAY_HEALTH2, me);
-            Yell30 = true;
+            ShadowWordPain_Timer = 5000;
         }
 
-        //ShadowWordPain_Timer
-        if (ShadowWordPain_Timer <= diff)
+        void EnterCombat(Unit * /*who*/)
         {
-            DoCast(me->getVictim(), SPELL_SHADOWWORDPAIN);
-            ShadowWordPain_Timer = 5000 + rand()%10000;
-        } else ShadowWordPain_Timer -= diff;
+            DoScriptText(SAY_AGGRO, me);
+        }
 
-        DoMeleeAttackIfReady();
-    }
+        void KilledUnit(Unit* /*Victim*/)
+        {
+            DoScriptText(SAY_KILL, me);
+        }
+
+        void JustDied(Unit* /*Killer*/)
+        {
+            if (!pInstance)
+                return;
+
+            //Any other actions to do with vorrel? setStandState?
+            if (Unit *vorrel = Unit::GetUnit(*me,pInstance->GetData64(DATA_VORREL)))
+                DoScriptText(SAY_TRIGGER_VORREL, vorrel);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            //If we are low on hp Do sayings
+            if (!Yell60 && ((me->GetHealth()*100) / me->GetMaxHealth() <= 60))
+            {
+                DoScriptText(SAY_HEALTH1, me);
+                Yell60 = true;
+            }
+
+            if (!Yell30 && ((me->GetHealth()*100) / me->GetMaxHealth() <= 30))
+            {
+                DoScriptText(SAY_HEALTH2, me);
+                Yell30 = true;
+            }
+
+            //ShadowWordPain_Timer
+            if (ShadowWordPain_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_SHADOWWORDPAIN);
+                ShadowWordPain_Timer = 5000 + rand()%10000;
+            } else ShadowWordPain_Timer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_interrogator_vishas(Creature* pCreature)
-{
-    return new boss_interrogator_vishasAI (pCreature);
-}
 
 void AddSC_boss_interrogator_vishas()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_interrogator_vishas";
-    newscript->GetAI = &GetAI_boss_interrogator_vishas;
-    newscript->RegisterSelf();
+    new boss_interrogator_vishas();
 }
-

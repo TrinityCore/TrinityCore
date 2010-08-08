@@ -38,103 +38,105 @@ EndScriptData */
 #define SPELL_HOLYWRATH         32445
 #define SPELL_HOLYGROUND        29512
 #define SPELL_BERSERK           26662
-
-struct boss_maiden_of_virtueAI : public ScriptedAI
+class boss_maiden_of_virtue : public CreatureScript
 {
-    boss_maiden_of_virtueAI(Creature *c) : ScriptedAI(c) {}
+public:
+    boss_maiden_of_virtue() : CreatureScript("boss_maiden_of_virtue") { }
 
-    uint32 Repentance_Timer;
-    uint32 Holyfire_Timer;
-    uint32 Holywrath_Timer;
-    uint32 Holyground_Timer;
-    uint32 Enrage_Timer;
-
-    bool Enraged;
-
-    void Reset()
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        Repentance_Timer    = 25000+(rand()%15000);
-        Holyfire_Timer      = 8000+(rand()%17000);
-        Holywrath_Timer     = 15000+(rand()%10000);
-        Holyground_Timer    = 3000;
-        Enrage_Timer        = 600000;
-
-        Enraged = false;
+        return new boss_maiden_of_virtueAI (pCreature);
     }
 
-    void KilledUnit(Unit* /*Victim*/)
+    struct boss_maiden_of_virtueAI : public ScriptedAI
     {
-        if (urand(0,1) == 0)
-            DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), me);
-    }
+        boss_maiden_of_virtueAI(Creature *c) : ScriptedAI(c) {}
 
-    void JustDied(Unit* /*Killer*/)
-    {
-        DoScriptText(SAY_DEATH, me);
-    }
+        uint32 Repentance_Timer;
+        uint32 Holyfire_Timer;
+        uint32 Holywrath_Timer;
+        uint32 Holyground_Timer;
+        uint32 Enrage_Timer;
 
-    void EnterCombat(Unit * /*who*/)
-    {
-        DoScriptText(SAY_AGGRO, me);
-    }
+        bool Enraged;
 
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
-
-        if (Enrage_Timer < diff && !Enraged)
+        void Reset()
         {
-            DoCast(me, SPELL_BERSERK, true);
-            Enraged = true;
-        } else Enrage_Timer -= diff;
+            Repentance_Timer    = 25000+(rand()%15000);
+            Holyfire_Timer      = 8000+(rand()%17000);
+            Holywrath_Timer     = 15000+(rand()%10000);
+            Holyground_Timer    = 3000;
+            Enrage_Timer        = 600000;
 
-        if (Holyground_Timer <= diff)
+            Enraged = false;
+        }
+
+        void KilledUnit(Unit* /*Victim*/)
         {
-            DoCast(me, SPELL_HOLYGROUND, true);   //Triggered so it doesn't interrupt her at all
-            Holyground_Timer = 3000;
-        } else Holyground_Timer -= diff;
+            if (urand(0,1) == 0)
+                DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), me);
+        }
 
-        if (Repentance_Timer <= diff)
+        void JustDied(Unit* /*Killer*/)
         {
-            DoCast(me->getVictim(), SPELL_REPENTANCE);
-            DoScriptText(RAND(SAY_REPENTANCE1,SAY_REPENTANCE2), me);
+            DoScriptText(SAY_DEATH, me);
+        }
 
-            Repentance_Timer = urand(25000,35000);        //A little randomness on that spell
-        } else Repentance_Timer -= diff;
-
-        if (Holyfire_Timer <= diff)
+        void EnterCombat(Unit * /*who*/)
         {
-            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget, SPELL_HOLYFIRE);
+            DoScriptText(SAY_AGGRO, me);
+        }
 
-                Holyfire_Timer = urand(8000,23000);      //Anywhere from 8 to 23 seconds, good luck having several of those in a row!
-        } else Holyfire_Timer -= diff;
-
-        if (Holywrath_Timer <= diff)
+        void UpdateAI(const uint32 diff)
         {
-            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget, SPELL_HOLYWRATH);
+            if (!UpdateVictim())
+                return;
 
-            Holywrath_Timer = urand(20000,25000);        //20-30 secs sounds nice
-        } else Holywrath_Timer -= diff;
+            if (Enrage_Timer < diff && !Enraged)
+            {
+                DoCast(me, SPELL_BERSERK, true);
+                Enraged = true;
+            } else Enrage_Timer -= diff;
 
-        DoMeleeAttackIfReady();
-    }
+            if (Holyground_Timer <= diff)
+            {
+                DoCast(me, SPELL_HOLYGROUND, true);   //Triggered so it doesn't interrupt her at all
+                Holyground_Timer = 3000;
+            } else Holyground_Timer -= diff;
+
+            if (Repentance_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_REPENTANCE);
+                DoScriptText(RAND(SAY_REPENTANCE1,SAY_REPENTANCE2), me);
+
+                Repentance_Timer = urand(25000,35000);        //A little randomness on that spell
+            } else Repentance_Timer -= diff;
+
+            if (Holyfire_Timer <= diff)
+            {
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(pTarget, SPELL_HOLYFIRE);
+
+                    Holyfire_Timer = urand(8000,23000);      //Anywhere from 8 to 23 seconds, good luck having several of those in a row!
+            } else Holyfire_Timer -= diff;
+
+            if (Holywrath_Timer <= diff)
+            {
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(pTarget, SPELL_HOLYWRATH);
+
+                Holywrath_Timer = urand(20000,25000);        //20-30 secs sounds nice
+            } else Holywrath_Timer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+
+    };
 
 };
 
-CreatureAI* GetAI_boss_maiden_of_virtue(Creature* pCreature)
-{
-    return new boss_maiden_of_virtueAI (pCreature);
-}
 
 void AddSC_boss_maiden_of_virtue()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_maiden_of_virtue";
-    newscript->GetAI = &GetAI_boss_maiden_of_virtue;
-    newscript->RegisterSelf();
+    new boss_maiden_of_virtue();
 }
-

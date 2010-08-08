@@ -49,7 +49,7 @@
 #include "DBCEnums.h"
 #include "ScriptMgr.h"
 #include "MapManager.h"
-#include "InstanceData.h"
+#include "InstanceScript.h"
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket & recv_data)
 {

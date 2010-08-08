@@ -82,11 +82,11 @@ class boss_alar : public CreatureScript
         {
             boss_alarAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceData();
+                pInstance = pCreature->GetInstanceScript();
                 DefaultMoveSpeedRate = pCreature->GetSpeedRate(MOVE_RUN);
             }
 
-            ScriptedInstance *pInstance;
+            InstanceScript *pInstance;
 
             WaitEventType WaitEvent;
             uint32 WaitTimer;
@@ -469,12 +469,12 @@ class mob_ember_of_alar : public CreatureScript
         {
             mob_ember_of_alarAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceData();
+                pInstance = pCreature->GetInstanceScript();
                 pCreature->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
                 pCreature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
             }
 
-            ScriptedInstance *pInstance;
+            InstanceScript *pInstance;
             bool toDie;
 
             void Reset() 

@@ -53,12 +53,12 @@ public:
     {
         boss_hadronoxAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceData();
+            pInstance = c->GetInstanceScript();
             fMaxDistance = 50.0f;
             bFirstTime = true;
         }
 
-        ScriptedInstance* pInstance;
+        InstanceScript* pInstance;
 
         uint32 uiAcidTimer;
         uint32 uiLeechTimer;

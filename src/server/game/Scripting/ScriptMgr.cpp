@@ -593,12 +593,12 @@ void ScriptMgr::OnMapUpdate(Map* map, uint32 diff)
 #undef SCR_MAP_BGN
 #undef SCR_MAP_END
 
-InstanceData* ScriptMgr::CreateInstanceData(InstanceMap* map)
+InstanceScript* ScriptMgr::CreateInstanceData(InstanceMap* map)
 {
     ASSERT(map);
 
     GET_SCRIPT_RET(InstanceMapScript, map->GetScriptId(), tmpscript, NULL);
-    return tmpscript->GetInstanceData(map);
+    return tmpscript->GetInstanceScript(map);
 }
 
 bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, Item* target)

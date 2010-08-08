@@ -44,105 +44,107 @@ enum Events
 };
 
 #define EMOTE_NEARBY    " spots a nearby zombie to devour!"
-
-struct boss_gluthAI : public BossAI
+class boss_gluth : public CreatureScript
 {
-    boss_gluthAI(Creature *c) : BossAI(c, BOSS_GLUTH)
+public:
+    boss_gluth() : CreatureScript("boss_gluth") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        // Do not let Gluth be affected by zombies' debuff
-        me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_INFECTED_WOUND, true);
+        return new boss_gluthAI (pCreature);
     }
 
-    void MoveInLineOfSight(Unit *who)
+    struct boss_gluthAI : public BossAI
     {
-        if (who->GetEntry() == MOB_ZOMBIE && me->IsWithinDistInMap(who, 7))
+        boss_gluthAI(Creature *c) : BossAI(c, BOSS_GLUTH)
         {
-            SetGazeOn(who);
-            // TODO: use a script text
-            me->MonsterTextEmote(EMOTE_NEARBY, 0, true);
+            // Do not let Gluth be affected by zombies' debuff
+            me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_INFECTED_WOUND, true);
         }
-        else
-            BossAI::MoveInLineOfSight(who);
-    }
 
-    void EnterCombat(Unit * /*who*/)
-    {
-        _EnterCombat();
-        events.ScheduleEvent(EVENT_WOUND, 10000);
-        events.ScheduleEvent(EVENT_ENRAGE, 15000);
-        events.ScheduleEvent(EVENT_DECIMATE, 105000);
-        events.ScheduleEvent(EVENT_BERSERK, 8*60000);
-        events.ScheduleEvent(EVENT_SUMMON, 15000);
-    }
-
-    void JustSummoned(Creature *summon)
-    {
-        if (summon->GetEntry() == MOB_ZOMBIE)
-            summon->AI()->AttackStart(me);
-        summons.Summon(summon);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictimWithGaze() || !CheckInRoom())
-            return;
-
-        events.Update(diff);
-
-        while (uint32 eventId = events.ExecuteEvent())
+        void MoveInLineOfSight(Unit *who)
         {
-            switch(eventId)
+            if (who->GetEntry() == MOB_ZOMBIE && me->IsWithinDistInMap(who, 7))
             {
-                case EVENT_WOUND:
-                    DoCast(me->getVictim(), SPELL_MORTAL_WOUND);
-                    events.ScheduleEvent(EVENT_WOUND, 10000);
-                    break;
-                case EVENT_ENRAGE:
-                    // TODO : Add missing text
-                    DoCast(me, SPELL_ENRAGE);
-                    events.ScheduleEvent(EVENT_ENRAGE, 15000);
-                    break;
-                case EVENT_DECIMATE:
-                    // TODO : Add missing text
-                    DoCastAOE(SPELL_DECIMATE);
-                    events.ScheduleEvent(EVENT_DECIMATE, 105000);
-                    break;
-                case EVENT_BERSERK:
-                    DoCast(me, SPELL_BERSERK);
-                    events.ScheduleEvent(EVENT_BERSERK, 5*60000);
-                    break;
-                case EVENT_SUMMON:
-                    for (uint32 i = 0; i < RAID_MODE(1,2); ++i)
-                        DoSummon(MOB_ZOMBIE, PosSummon[rand()%3]);
-                    events.ScheduleEvent(EVENT_SUMMON, 10000);
-                    break;
+                SetGazeOn(who);
+                // TODO: use a script text
+                me->MonsterTextEmote(EMOTE_NEARBY, 0, true);
             }
+            else
+                BossAI::MoveInLineOfSight(who);
         }
 
-        if (me->getVictim() && me->getVictim()->GetEntry() == MOB_ZOMBIE)
+        void EnterCombat(Unit * /*who*/)
         {
-            if (me->IsWithinMeleeRange(me->getVictim()))
-            {
-                me->Kill(me->getVictim());
-                me->ModifyHealth(me->GetMaxHealth() * 0.05f);
-            }
+            _EnterCombat();
+            events.ScheduleEvent(EVENT_WOUND, 10000);
+            events.ScheduleEvent(EVENT_ENRAGE, 15000);
+            events.ScheduleEvent(EVENT_DECIMATE, 105000);
+            events.ScheduleEvent(EVENT_BERSERK, 8*60000);
+            events.ScheduleEvent(EVENT_SUMMON, 15000);
         }
-        else
-            DoMeleeAttackIfReady();
-    }
+
+        void JustSummoned(Creature *summon)
+        {
+            if (summon->GetEntry() == MOB_ZOMBIE)
+                summon->AI()->AttackStart(me);
+            summons.Summon(summon);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictimWithGaze() || !CheckInRoom())
+                return;
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch(eventId)
+                {
+                    case EVENT_WOUND:
+                        DoCast(me->getVictim(), SPELL_MORTAL_WOUND);
+                        events.ScheduleEvent(EVENT_WOUND, 10000);
+                        break;
+                    case EVENT_ENRAGE:
+                        // TODO : Add missing text
+                        DoCast(me, SPELL_ENRAGE);
+                        events.ScheduleEvent(EVENT_ENRAGE, 15000);
+                        break;
+                    case EVENT_DECIMATE:
+                        // TODO : Add missing text
+                        DoCastAOE(SPELL_DECIMATE);
+                        events.ScheduleEvent(EVENT_DECIMATE, 105000);
+                        break;
+                    case EVENT_BERSERK:
+                        DoCast(me, SPELL_BERSERK);
+                        events.ScheduleEvent(EVENT_BERSERK, 5*60000);
+                        break;
+                    case EVENT_SUMMON:
+                        for (uint32 i = 0; i < RAID_MODE(1,2); ++i)
+                            DoSummon(MOB_ZOMBIE, PosSummon[rand()%3]);
+                        events.ScheduleEvent(EVENT_SUMMON, 10000);
+                        break;
+                }
+            }
+
+            if (me->getVictim() && me->getVictim()->GetEntry() == MOB_ZOMBIE)
+            {
+                if (me->IsWithinMeleeRange(me->getVictim()))
+                {
+                    me->Kill(me->getVictim());
+                    me->ModifyHealth(me->GetMaxHealth() * 0.05f);
+                }
+            }
+            else
+                DoMeleeAttackIfReady();
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_gluth(Creature* pCreature)
-{
-    return new boss_gluthAI (pCreature);
-}
 
 void AddSC_boss_gluth()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_gluth";
-    newscript->GetAI = &GetAI_boss_gluth;
-    newscript->RegisterSelf();
+    new boss_gluth();
 }
-

@@ -211,11 +211,46 @@ struct TRINITY_DLL_DECL custom_exampleAI : public ScriptedAI
 };
 
 //This is the GetAI method used by all scripts that involve AI
-//It is called every time a new Creature using this script is created
-CreatureAI* GetAI_custom_example(Creature* pCreature)
+//It is called every time a new Creature using this script is createdclass custom_example : public CreatureScript
 {
-    return new custom_exampleAI (pCreature);
-}
+public:
+    custom_example() : CreatureScript("custom_example") { }
+
+    bool ReceiveEmote(Player* pPlayer, Creature* pCreature, uint32 emote)
+    {
+        pCreature->HandleEmoteCommand(emote);
+
+        if (emote == TEXTEMOTE_DANCE)
+            ((custom_exampleAI*)_Creature->AI())->DoSay(SAY_DANCE,LANG_UNIVERSAL,NULL);
+
+        if (emote == TEXTEMOTE_SALUTE)
+            ((custom_exampleAI*)_Creature->AI())->DoSay(SAY_SALUTE,LANG_UNIVERSAL,NULL);
+
+        return true;
+    }
+
+    bool GossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+    {
+        if (uiSender == GOSSIP_SENDER_MAIN)
+            SendDefaultMenu(pPlayer, pCreature, uiAction);
+
+        return true;
+    }
+
+    bool GossipHello(Player* pPlayer, Creature* pCreature)
+    {
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM        , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        pPlayer->PlayerTalkClass->SendGossipMenu(907, pCreature->GetGUID());
+
+        return true;
+    }
+
+    CreatureAI* GetAI(Creature* pCreature)
+    {
+        return new custom_exampleAI (pCreature);
+    }
+
+};
 
 //This function is called when the player clicks an option on the gossip menu
 void SendDefaultMenu_custom_example(Player* pPlayer, Creature* pCreature, uint32 uiAction)
@@ -230,36 +265,10 @@ void SendDefaultMenu_custom_example(Player* pPlayer, Creature* pCreature, uint32
 }
 
 //This function is called when the player clicks an option on the gossip menu
-bool GossipSelect_custom_example(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
-{
-    if (uiSender == GOSSIP_SENDER_MAIN)
-        SendDefaultMenu_custom_example(pPlayer, pCreature, uiAction);
-
-    return true;
-}
 
 //This function is called when the player opens the gossip menu
-bool GossipHello_custom_example(Player* pPlayer, Creature* pCreature)
-{
-    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM        , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-    pPlayer->PlayerTalkClass->SendGossipMenu(907, pCreature->GetGUID());
-
-    return true;
-}
 
 //Our Recive emote function
-bool ReceiveEmote_custom_example(Player* pPlayer, Creature* pCreature, uint32 emote)
-{
-    pCreature->HandleEmoteCommand(emote);
-
-    if (emote == TEXTEMOTE_DANCE)
-        ((custom_exampleAI*)_Creature->AI())->DoSay(SAY_DANCE,LANG_UNIVERSAL,NULL);
-
-    if (emote == TEXTEMOTE_SALUTE)
-        ((custom_exampleAI*)_Creature->AI())->DoSay(SAY_SALUTE,LANG_UNIVERSAL,NULL);
-
-    return true;
-}
 
 //This is the actual function called only once durring InitScripts()
 //It must define all handled functions that are to be run in this script
@@ -267,14 +276,5 @@ bool ReceiveEmote_custom_example(Player* pPlayer, Creature* pCreature, uint32 em
 //newscript->ReciveEmote = My_Emote_Function;
 void AddSC_custom_example()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name="custom_example";
-    newscript->GetAI = &GetAI_custom_example;
-    newscript->pGossipHello = &GossipHello_custom_example;
-    newscript->pGossipSelect = &GossipSelect_custom_example;
-    newscript->pReceiveEmote = &ReceiveEmote_custom_example;
-    newscript->RegisterSelf();
+    new custom_example();
 }
-

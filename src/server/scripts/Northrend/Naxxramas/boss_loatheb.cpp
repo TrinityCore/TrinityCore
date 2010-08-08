@@ -35,90 +35,92 @@ enum Events
     EVENT_BLOOM,
     EVENT_DOOM,
 };
-
-struct boss_loathebAI : public BossAI
+class boss_loatheb : public CreatureScript
 {
-    boss_loathebAI(Creature *c) : BossAI(c, BOSS_LOATHEB) {}
+public:
+    boss_loatheb() : CreatureScript("boss_loatheb") { }
 
-    void EnterCombat(Unit * /*who*/)
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        _EnterCombat();
-        events.ScheduleEvent(EVENT_AURA, 10000);
-        events.ScheduleEvent(EVENT_BLOOM, 5000);
-        events.ScheduleEvent(EVENT_DOOM, 120000);
+        return new boss_loathebAI (pCreature);
     }
 
-    void UpdateAI(const uint32 diff)
+    struct boss_loathebAI : public BossAI
     {
-        if (!UpdateVictim())
-            return;
+        boss_loathebAI(Creature *c) : BossAI(c, BOSS_LOATHEB) {}
 
-        events.Update(diff);
-
-        while (uint32 eventId = events.ExecuteEvent())
+        void EnterCombat(Unit * /*who*/)
         {
-            switch(eventId)
-            {
-                case EVENT_AURA:
-                    DoCastAOE(SPELL_NECROTIC_AURA);
-                    events.ScheduleEvent(EVENT_AURA, 20000);
-                    break;
-                case EVENT_BLOOM:
-                    // TODO : Add missing text
-                    DoCastAOE(SPELL_SUMMON_SPORE, true);
-                    DoCastAOE(RAID_MODE(SPELL_DEATHBLOOM,H_SPELL_DEATHBLOOM));
-                    events.ScheduleEvent(EVENT_BLOOM, 30000);
-                    break;
-                case EVENT_DOOM:
-                    DoCastAOE(RAID_MODE(SPELL_INEVITABLE_DOOM,H_SPELL_INEVITABLE_DOOM));
-                    events.ScheduleEvent(EVENT_DOOM, events.GetTimer() < 5*60000 ? 30000 : 15000);
-                    break;
-            }
+            _EnterCombat();
+            events.ScheduleEvent(EVENT_AURA, 10000);
+            events.ScheduleEvent(EVENT_BLOOM, 5000);
+            events.ScheduleEvent(EVENT_DOOM, 120000);
         }
 
-        DoMeleeAttackIfReady();
-    }
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch(eventId)
+                {
+                    case EVENT_AURA:
+                        DoCastAOE(SPELL_NECROTIC_AURA);
+                        events.ScheduleEvent(EVENT_AURA, 20000);
+                        break;
+                    case EVENT_BLOOM:
+                        // TODO : Add missing text
+                        DoCastAOE(SPELL_SUMMON_SPORE, true);
+                        DoCastAOE(RAID_MODE(SPELL_DEATHBLOOM,H_SPELL_DEATHBLOOM));
+                        events.ScheduleEvent(EVENT_BLOOM, 30000);
+                        break;
+                    case EVENT_DOOM:
+                        DoCastAOE(RAID_MODE(SPELL_INEVITABLE_DOOM,H_SPELL_INEVITABLE_DOOM));
+                        events.ScheduleEvent(EVENT_DOOM, events.GetTimer() < 5*60000 ? 30000 : 15000);
+                        break;
+                }
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_loatheb(Creature* pCreature)
-{
-    return new boss_loathebAI (pCreature);
-}
 
 enum SporeSpells
 {
     SPELL_FUNGAL_CREEP                                     = 29232
 };
-
-struct mob_loatheb_sporeAI : public ScriptedAI
+class mob_loatheb_spore : public CreatureScript
 {
-    mob_loatheb_sporeAI(Creature *c) : ScriptedAI(c) {}
+public:
+    mob_loatheb_spore() : CreatureScript("mob_loatheb_spore") { }
 
-    void JustDied(Unit* killer)
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        DoCast(killer, SPELL_FUNGAL_CREEP);
+        return new mob_loatheb_sporeAI (pCreature);
     }
+
+    struct mob_loatheb_sporeAI : public ScriptedAI
+    {
+        mob_loatheb_sporeAI(Creature *c) : ScriptedAI(c) {}
+
+        void JustDied(Unit* killer)
+        {
+            DoCast(killer, SPELL_FUNGAL_CREEP);
+        }
+    };
+
 };
 
-CreatureAI* GetAI_mob_loatheb_spore(Creature* pCreature)
-{
-    return new mob_loatheb_sporeAI (pCreature);
-}
 
 void AddSC_boss_loatheb()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_loatheb";
-    newscript->GetAI = &GetAI_boss_loatheb;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "mob_loatheb_spore";
-    newscript->GetAI = &GetAI_mob_loatheb_spore;
-    newscript->RegisterSelf();
-
-    // Fungal Creep
-    //GetAISpellInfo(29232)->condition = AICOND_DIE;
+    new boss_loatheb();
+    new mob_loatheb_spore();
 }
-
