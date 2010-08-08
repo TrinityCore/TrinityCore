@@ -25,7 +25,7 @@
 
 #define GET_SPELL(a)    (const_cast<SpellEntry*>(GetSpellStore()->LookupEntry(a)))
 
-class ScriptedInstance;
+class InstanceData;
 
 class SummonList : public std::list<uint64>
 {
