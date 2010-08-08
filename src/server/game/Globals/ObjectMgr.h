@@ -40,7 +40,6 @@
 #include "ace/Singleton.h"
 #include "SQLStorage.h"
 #include "Vehicle.h"
-#include "Weather.h"
 #include "ObjectMgr.h"
 #include <string>
 #include <map>
@@ -385,8 +384,6 @@ class ObjectMgr
 
         typedef UNORDERED_MAP<uint32, PointOfInterest> PointOfInterestMap;
 
-        typedef UNORDERED_MAP<uint32, WeatherData> WeatherZoneMap;
-
         typedef std::vector<std::string> ScriptNameMap;
 
         Player* GetPlayer(const char* name) const { return sObjectAccessor.FindPlayerByName(name);}
@@ -675,7 +672,6 @@ class ObjectMgr
 
         void LoadNPCSpellClickSpells();
 
-        void LoadWeatherData();
         void LoadGameTele();
 
         void LoadNpcTextId();
@@ -726,15 +722,6 @@ class ObjectMgr
                     return &*set_itr;
 
             return NULL;
-        }
-
-        WeatherData const* GetWeatherChances(uint32 zone_id) const
-        {
-            WeatherZoneMap::const_iterator itr = mWeatherZoneMap.find(zone_id);
-            if (itr != mWeatherZoneMap.end())
-                return &itr->second;
-            else
-                return NULL;
         }
 
         CellObjectGuids const& GetCellObjectGuids(uint16 mapid, uint8 spawnMode, uint32 cell_id)
@@ -1021,8 +1008,6 @@ class ObjectMgr
         PointOfInterestMap  mPointsOfInterest;
 
         QuestPOIMap         mQuestPOIMap;
-
-        WeatherZoneMap      mWeatherZoneMap;
 
         //character reserved names
         typedef std::set<std::wstring> ReservedNamesMap;
