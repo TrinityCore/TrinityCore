@@ -31,6 +31,20 @@
 
 class Player;
 
+#define WEATHER_SEASONS 4
+struct WeatherSeasonChances
+{
+    uint32 rainChance;
+    uint32 snowChance;
+    uint32 stormChance;
+};
+
+struct WeatherData
+{
+    WeatherSeasonChances data[WEATHER_SEASONS];
+    uint32 ScriptId;
+};
+
 enum WeatherState
 {
     WEATHER_STATE_FINE              = 0,

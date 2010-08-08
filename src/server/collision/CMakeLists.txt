@@ -16,8 +16,9 @@ set(collision_STAT_SRCS
 
 include_directories(
   ${ACE_INCLUDE_DIR}
+  ${MYSQL_INCLUDE_DIR}
+  ${OPENSSL_INCLUDE_DIR}
   ${CMAKE_SOURCE_DIR}/externals/g3dlite
-  ${CMAKE_SOURCE_DIR}/externals/mysql
   ${CMAKE_SOURCE_DIR}/src/server/shared
   ${CMAKE_SOURCE_DIR}/src/server/shared/Debugging
   ${CMAKE_SOURCE_DIR}/src/server/shared/Dynamic
