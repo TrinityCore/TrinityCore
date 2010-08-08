@@ -86,7 +86,7 @@ void LFGQueue::Update()
         queuedTime = uint32(currTime - queue->joinTime);
         for (LfgRolesMap::const_iterator itPlayer = queue->roles.begin(); itPlayer != queue->roles.end(); ++itPlayer)
         {
-            plr = objmgr.GetPlayer(itPlayer->first);
+            plr = sObjectMgr.GetPlayer(itPlayer->first);
             if (!plr)
                 continue;
             role = itPlayer->second;
@@ -177,7 +177,7 @@ void LFGMgr::Update(uint32 diff)
         Player *plr = NULL;
         for (LfgRolesMap::const_iterator itRoles = pRoleCheck->roles.begin(); itRoles != pRoleCheck->roles.end(); ++itRoles)
         {
-            plr = objmgr.GetPlayer(itRoles->first);
+            plr = sObjectMgr.GetPlayer(itRoles->first);
             if (!plr)
                 continue;
             plr->GetSession()->SendPacket(&data);
@@ -706,7 +706,7 @@ void LFGMgr::BuildLfgRoleCheck(WorldPacket &data, LfgRoleCheck *pRoleCheck)
     data << uint64(pRoleCheck->leader);                     // Guid
     data << uint8(roles > 0);                               // Ready
     data << uint32(roles);                                  // Roles
-    plr = objmgr.GetPlayer(pRoleCheck->leader);
+    plr = sObjectMgr.GetPlayer(pRoleCheck->leader);
     if (plr)
         data << uint8(plr->getLevel());                     // Level
     else
@@ -721,7 +721,7 @@ void LFGMgr::BuildLfgRoleCheck(WorldPacket &data, LfgRoleCheck *pRoleCheck)
         data << uint64(itPlayers->first);                   // Guid
         data << uint8(roles > 0);                           // Ready
         data << uint32(roles);                              // Roles
-        plr = objmgr.GetPlayer(pRoleCheck->leader);
+        plr = sObjectMgr.GetPlayer(pRoleCheck->leader);
         if (plr)
             data << uint8(plr->getLevel());                 // Level
         else

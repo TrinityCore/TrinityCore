@@ -127,7 +127,7 @@ uint32 GetItemEnchantMod(int32 entry)
 
 uint32 GenerateEnchSuffixFactor(uint32 item_id)
 {
-    ItemPrototype const *itemProto = objmgr.GetItemPrototype(item_id);
+    ItemPrototype const *itemProto = sObjectMgr.GetItemPrototype(item_id);
 
     if (!itemProto)
         return 0;

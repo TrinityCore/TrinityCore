@@ -131,7 +131,7 @@ bool ChatHandler::HandleAccountDeleteCommand(const char* args)
         return false;
     }
 
-    uint32 account_id = accmgr.GetId(account_name);
+    uint32 account_id = sAccountMgr.GetId(account_name);
     if(!account_id)
     {
         PSendSysMessage(LANG_ACCOUNT_NOT_EXIST,account_name.c_str());
@@ -145,7 +145,7 @@ bool ChatHandler::HandleAccountDeleteCommand(const char* args)
     if(HasLowerSecurityAccount (NULL,account_id,true))
         return false;
 
-    AccountOpResult result = accmgr.DeleteAccount(account_id);
+    AccountOpResult result = sAccountMgr.DeleteAccount(account_id);
     switch(result)
     {
         case AOR_OK:
@@ -208,7 +208,7 @@ bool ChatHandler::GetDeletedCharacterInfoList(DeletedInfoList& foundList, std::s
             info.accountId  = fields[2].GetUInt32();
 
             // account name will be empty for not existed account
-            accmgr.GetName(info.accountId, info.accountName);
+            sAccountMgr.GetName(info.accountId, info.accountName);
 
             info.deleteDate = time_t(fields[3].GetUInt64());
 
@@ -331,14 +331,14 @@ void ChatHandler::HandleCharacterDeletedRestoreHelper(DeletedInfo const& delInfo
     }
 
     // check character count
-    uint32 charcount = accmgr.GetCharactersCount(delInfo.accountId);
+    uint32 charcount = sAccountMgr.GetCharactersCount(delInfo.accountId);
     if (charcount >= 10)
     {
         PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_FULL, delInfo.name.c_str(), delInfo.lowguid, delInfo.accountId);
         return;
     }
 
-    if (objmgr.GetPlayerGUIDByName(delInfo.name))
+    if (sObjectMgr.GetPlayerGUIDByName(delInfo.name))
     {
         PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_NAME, delInfo.name.c_str(), delInfo.lowguid, delInfo.accountId);
         return;
@@ -403,7 +403,7 @@ bool ChatHandler::HandleCharacterDeletedRestoreCommand(const char* args)
         if (newAccount && newAccount != delInfo.accountId)
         {
             delInfo.accountId = newAccount;
-            accmgr.GetName(newAccount, delInfo.accountName);
+            sAccountMgr.GetName(newAccount, delInfo.accountName);
         }
 
         HandleCharacterDeletedRestoreHelper(delInfo);
@@ -498,7 +498,7 @@ bool ChatHandler::HandleCharacterEraseCommand(const char* args){
     uint64 character_guid;
     uint32 account_id;
 
-    Player *player = objmgr.GetPlayer(character_name.c_str());
+    Player *player = sObjectMgr.GetPlayer(character_name.c_str());
     if(player)
     {
         character_guid = player->GetGUID();
@@ -507,7 +507,7 @@ bool ChatHandler::HandleCharacterEraseCommand(const char* args){
     }
     else
     {
-        character_guid = objmgr.GetPlayerGUIDByName(character_name);
+        character_guid = sObjectMgr.GetPlayerGUIDByName(character_name);
         if(!character_guid)
         {
             PSendSysMessage(LANG_NO_PLAYER,character_name.c_str());
@@ -515,11 +515,11 @@ bool ChatHandler::HandleCharacterEraseCommand(const char* args){
             return false;
         }
 
-        account_id = objmgr.GetPlayerAccountIdByGUID(character_guid);
+        account_id = sObjectMgr.GetPlayerAccountIdByGUID(character_guid);
     }
 
     std::string account_name;
-    accmgr.GetName (account_id,account_name);
+    sAccountMgr.GetName (account_id,account_name);
 
     Player::DeleteFromDB(character_guid, account_id, true, true);
     PSendSysMessage(LANG_CHARACTER_DELETED,character_name.c_str(),GUID_LOPART(character_guid),account_name.c_str(), account_id);
@@ -592,11 +592,11 @@ bool ChatHandler::HandleAccountCreateCommand(const char* args)
     if(!szAcc || !szPassword)
         return false;
 
-    // normalized in accmgr.CreateAccount
+    // normalized in sAccountMgr.CreateAccount
     std::string account_name = szAcc;
     std::string password = szPassword;
 
-    AccountOpResult result = accmgr.CreateAccount(account_name, password);
+    AccountOpResult result = sAccountMgr.CreateAccount(account_name, password);
     switch(result)
     {
         case AOR_OK:

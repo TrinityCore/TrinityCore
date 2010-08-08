@@ -345,6 +345,6 @@ class AchievementGlobalMgr
         AchievementRewardLocales m_achievementRewardLocales;
 };
 
-#define achievementmgr (*ACE_Singleton<AchievementGlobalMgr, ACE_Null_Mutex>::instance())
+#define sAchievementMgr (*ACE_Singleton<AchievementGlobalMgr, ACE_Null_Mutex>::instance())
 
 #endif

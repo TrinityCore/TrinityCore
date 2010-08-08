@@ -289,7 +289,7 @@ void ScriptMgr::FillSpellSummary()
 
 void ScriptMgr::CreateSpellScripts(uint32 spell_id, std::list<SpellScript *> & script_vector)
 {
-    SpellScriptsBounds bounds = objmgr.GetSpellScriptsBounds(spell_id);
+    SpellScriptsBounds bounds = sObjectMgr.GetSpellScriptsBounds(spell_id);
 
     for (SpellScriptsMap::iterator itr = bounds.first; itr != bounds.second; ++itr)
     {
@@ -311,7 +311,7 @@ void ScriptMgr::CreateSpellScripts(uint32 spell_id, std::list<SpellScript *> & s
 
 void ScriptMgr::CreateSpellScripts(uint32 spell_id, std::vector<std::pair<SpellScript *, SpellScriptsMap::iterator> > & script_vector)
 {
-    SpellScriptsBounds bounds = objmgr.GetSpellScriptsBounds(spell_id);
+    SpellScriptsBounds bounds = sObjectMgr.GetSpellScriptsBounds(spell_id);
     script_vector.reserve(std::distance(bounds.first, bounds.second));
 
     for (SpellScriptsMap::iterator itr = bounds.first; itr != bounds.second; ++itr)

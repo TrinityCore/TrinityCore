@@ -278,7 +278,7 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
         if (res)
         {
             // then some spillover calculation here if it exist
-            if (RepSpilloverTemplate const * repTemplate = objmgr.GetRepSpilloverTemplate(factionEntry->ID))
+            if (RepSpilloverTemplate const * repTemplate = sObjectMgr.GetRepSpilloverTemplate(factionEntry->ID))
             {
                 for (uint32 i = 0; i < MAX_SPILLOVER_FACTIONS; ++i)
                 {

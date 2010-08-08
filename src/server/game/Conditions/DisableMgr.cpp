@@ -182,7 +182,7 @@ void DisableMgr::CheckQuestDisables()
     {
         bar.step();
         const uint32 entry = itr->first;
-        if (!objmgr.GetQuestTemplate(entry))
+        if (!sObjectMgr.GetQuestTemplate(entry))
         {
             sLog.outErrorDb("Quest entry %u from `disables` doesn't exist, skipped.", entry);
             m_DisableMap[DISABLE_TYPE_QUEST].erase(itr++);
