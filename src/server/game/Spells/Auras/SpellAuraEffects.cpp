@@ -30,7 +30,7 @@
 #include "Util.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
-#include "BattleGround.h"
+#include "Battleground.h"
 #include "OutdoorPvPMgr.h"
 #include "Formulas.h"
 #include "GridNotifiers.h"
@@ -1538,7 +1538,7 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
 
             // add HoTs to amount healed in bgs
             if (caster->GetTypeId() == TYPEID_PLAYER)
-                if (BattleGround *bg = caster->ToPlayer()->GetBattleGround())
+                if (Battleground *bg = caster->ToPlayer()->GetBattleground())
                     bg->UpdatePlayerScore(caster->ToPlayer(), SCORE_HEALING_DONE, gain);
 
             target->getHostileRefManager().threatAssist(caster, float(gain) * 0.5f, GetSpellProto());
@@ -2781,8 +2781,8 @@ void AuraEffect::HandlePhase(AuraApplication const * aurApp, uint8 mode, bool ap
     if (target->GetTypeId() == TYPEID_PLAYER)
     {
         // drop flag at invisible in bg
-        if (target->ToPlayer()->InBattleGround())
-            if (BattleGround *bg = target->ToPlayer()->GetBattleGround())
+        if (target->ToPlayer()->InBattleground())
+            if (Battleground *bg = target->ToPlayer()->GetBattleground())
           bg->EventPlayerDroppedFlag(target->ToPlayer());
 
         // GM-mode have mask 0xFFFFFFFF
@@ -4232,9 +4232,9 @@ void AuraEffect::HandleAuraModEffectImmunity(AuraApplication const * aurApp, uin
     {
         if (target->GetTypeId() == TYPEID_PLAYER)
         {
-            if (target->ToPlayer()->InBattleGround())
+            if (target->ToPlayer()->InBattleground())
             {
-                if (BattleGround *bg = target->ToPlayer()->GetBattleGround())
+                if (Battleground *bg = target->ToPlayer()->GetBattleground())
                     bg->EventPlayerDroppedFlag(target->ToPlayer());
             }
             else
@@ -5687,7 +5687,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                         case 2584: // Waiting to Resurrect
                             // Waiting to resurrect spell cancel, we must remove player from resurrect queue
                             if (target->GetTypeId() == TYPEID_PLAYER)
-                                if (BattleGround *bg = target->ToPlayer()->GetBattleGround())
+                                if (Battleground *bg = target->ToPlayer()->GetBattleground())
                                     bg->RemovePlayerFromResurrectQueue(target->GetGUID());
                             break;
                         case 36730:                                     // Flame Strike

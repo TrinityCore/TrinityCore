@@ -18,15 +18,15 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "BattleGround.h"
-#include "BattleGroundNA.h"
+#include "Battleground.h"
+#include "BattlegroundNA.h"
 #include "Language.h"
 #include "Object.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "WorldPacket.h"
 
-BattleGroundNA::BattleGroundNA()
+BattlegroundNA::BattlegroundNA()
 {
     m_BgObjects.resize(BG_NA_OBJECT_MAX);
 
@@ -41,14 +41,14 @@ BattleGroundNA::BattleGroundNA()
     m_StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_ARENA_HAS_BEGUN;
 }
 
-BattleGroundNA::~BattleGroundNA()
+BattlegroundNA::~BattlegroundNA()
 {
 
 }
 
-void BattleGroundNA::Update(uint32 diff)
+void BattlegroundNA::Update(uint32 diff)
 {
-    BattleGround::Update(diff);
+    Battleground::Update(diff);
 
     /*if (GetStatus() == STATUS_IN_PROGRESS)
     {
@@ -56,13 +56,13 @@ void BattleGroundNA::Update(uint32 diff)
     }*/
 }
 
-void BattleGroundNA::StartingEventCloseDoors()
+void BattlegroundNA::StartingEventCloseDoors()
 {
     for (uint32 i = BG_NA_OBJECT_DOOR_1; i <= BG_NA_OBJECT_DOOR_4; ++i)
         SpawnBGObject(i, RESPAWN_IMMEDIATELY);
 }
 
-void BattleGroundNA::StartingEventOpenDoors()
+void BattlegroundNA::StartingEventOpenDoors()
 {
     for (uint32 i = BG_NA_OBJECT_DOOR_1; i <= BG_NA_OBJECT_DOOR_2; ++i)
         DoorOpen(i);
@@ -71,18 +71,18 @@ void BattleGroundNA::StartingEventOpenDoors()
         SpawnBGObject(i, 60);
 }
 
-void BattleGroundNA::AddPlayer(Player *plr)
+void BattlegroundNA::AddPlayer(Player *plr)
 {
-    BattleGround::AddPlayer(plr);
+    Battleground::AddPlayer(plr);
     //create score and add it to map, default values are set in constructor
-    BattleGroundNAScore* sc = new BattleGroundNAScore;
+    BattlegroundNAScore* sc = new BattlegroundNAScore;
 
     m_PlayerScores[plr->GetGUID()] = sc;
 
     UpdateArenaWorldState();
 }
 
-void BattleGroundNA::RemovePlayer(Player* /*plr*/, uint64 /*guid*/)
+void BattlegroundNA::RemovePlayer(Player* /*plr*/, uint64 /*guid*/)
 {
     if (GetStatus() == STATUS_WAIT_LEAVE)
         return;
@@ -91,30 +91,30 @@ void BattleGroundNA::RemovePlayer(Player* /*plr*/, uint64 /*guid*/)
     CheckArenaWinConditions();
 }
 
-void BattleGroundNA::HandleKillPlayer(Player *player, Player *killer)
+void BattlegroundNA::HandleKillPlayer(Player *player, Player *killer)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
     if (!killer)
     {
-        sLog.outError("BattleGroundNA: Killer player not found");
+        sLog.outError("BattlegroundNA: Killer player not found");
         return;
     }
 
-    BattleGround::HandleKillPlayer(player,killer);
+    Battleground::HandleKillPlayer(player,killer);
 
     UpdateArenaWorldState();
     CheckArenaWinConditions();
 }
 
-bool BattleGroundNA::HandlePlayerUnderMap(Player *player)
+bool BattlegroundNA::HandlePlayerUnderMap(Player *player)
 {
     player->TeleportTo(GetMapId(),4055.504395,2919.660645,13.611241,player->GetOrientation(),false);
     return true;
 }
 
-void BattleGroundNA::HandleAreaTrigger(Player *Source, uint32 Trigger)
+void BattlegroundNA::HandleAreaTrigger(Player *Source, uint32 Trigger)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
@@ -136,19 +136,19 @@ void BattleGroundNA::HandleAreaTrigger(Player *Source, uint32 Trigger)
     //    HandleTriggerBuff(buff_guid,Source);
 }
 
-void BattleGroundNA::FillInitialWorldStates(WorldPacket &data)
+void BattlegroundNA::FillInitialWorldStates(WorldPacket &data)
 {
     data << uint32(0xa11) << uint32(1);           // 9
     UpdateArenaWorldState();
 }
 
-void BattleGroundNA::Reset()
+void BattlegroundNA::Reset()
 {
     //call parent's class reset
-    BattleGround::Reset();
+    Battleground::Reset();
 }
 
-bool BattleGroundNA::SetupBattleGround()
+bool BattlegroundNA::SetupBattleground()
 {
     // gates
     if (!AddObject(BG_NA_OBJECT_DOOR_1, BG_NA_OBJECT_TYPE_DOOR_1, 4031.854, 2966.833, 12.6462, -2.648788, 0, 0, 0.9697962, -0.2439165, RESPAWN_IMMEDIATELY)

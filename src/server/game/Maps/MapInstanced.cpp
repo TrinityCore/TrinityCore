@@ -21,7 +21,7 @@
 #include "MapInstanced.h"
 #include "ObjectMgr.h"
 #include "MapManager.h"
-#include "BattleGround.h"
+#include "Battleground.h"
 #include "VMapFactory.h"
 #include "InstanceSaveMgr.h"
 #include "World.h"
@@ -116,15 +116,15 @@ Map* MapInstanced::CreateInstance(const uint32 mapId, Player * player)
     Map* map = NULL;
     uint32 NewInstanceId = 0;                       // instanceId of the resulting map
 
-    if (IsBattleGroundOrArena())
+    if (IsBattlegroundOrArena())
     {
         // instantiate or find existing bg map for player
         // the instance id is set in battlegroundid
-        NewInstanceId = player->GetBattleGroundId();
+        NewInstanceId = player->GetBattlegroundId();
         if (!NewInstanceId) return NULL;
         map = _FindMap(NewInstanceId);
         if (!map)
-            map = CreateBattleGround(NewInstanceId, player->GetBattleGround());
+            map = CreateBattleground(NewInstanceId, player->GetBattleground());
     }
     else
     {
@@ -202,19 +202,19 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave *save,
     return map;
 }
 
-BattleGroundMap* MapInstanced::CreateBattleGround(uint32 InstanceId, BattleGround* bg)
+BattlegroundMap* MapInstanced::CreateBattleground(uint32 InstanceId, Battleground* bg)
 {
     // load/create a map
     ACE_GUARD_RETURN(ACE_Thread_Mutex, Guard, Lock, NULL);
 
-    sLog.outDebug("MapInstanced::CreateBattleGround: map bg %d for %d created.", InstanceId, GetId());
+    sLog.outDebug("MapInstanced::CreateBattleground: map bg %d for %d created.", InstanceId, GetId());
 
     PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(),bg->GetMinLevel());
 
     uint8 spawnMode = bracketEntry ? bracketEntry->difficulty : REGULAR_DIFFICULTY;
 
-    BattleGroundMap *map = new BattleGroundMap(GetId(), GetGridExpiry(), InstanceId, this, spawnMode);
-    ASSERT(map->IsBattleGroundOrArena());
+    BattlegroundMap *map = new BattlegroundMap(GetId(), GetGridExpiry(), InstanceId, this, spawnMode);
+    ASSERT(map->IsBattlegroundOrArena());
     map->SetBG(bg);
     bg->SetBgMap(map);
 

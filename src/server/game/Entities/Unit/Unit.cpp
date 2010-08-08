@@ -42,7 +42,7 @@
 #include "Pet.h"
 #include "Util.h"
 #include "Totem.h"
-#include "BattleGround.h"
+#include "Battleground.h"
 #include "OutdoorPvP.h"
 #include "InstanceSaveMgr.h"
 #include "GridNotifiersImpl.h"
@@ -687,7 +687,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
         // in bg, count dmg if victim is also a player
         if (pVictim->GetTypeId() == TYPEID_PLAYER)
         {
-            if (BattleGround *bg = killer->GetBattleGround())
+            if (Battleground *bg = killer->GetBattleground())
             {
                 // FIXME: kept by compatibility. don't know in BG if the restriction apply.
                 bg->UpdatePlayerScore(killer, SCORE_DAMAGE_DONE, damage);
@@ -9817,7 +9817,7 @@ int32 Unit::DealHeal(Unit *pVictim, uint32 addhealth, SpellEntry const *spellPro
         // overheal = addhealth - gain
         unit->SendHealSpellLog(pVictim, spellProto->Id, addhealth, addhealth - gain, absorb, critical);
 
-        if (BattleGround *bg = unit->ToPlayer()->GetBattleGround())
+        if (Battleground *bg = unit->ToPlayer()->GetBattleground())
             bg->UpdatePlayerScore((Player*)unit, SCORE_HEALING_DONE, gain);
 
         // use the actual gain, as the overheal shall not be counted, skip gain 0 (it ignored anyway in to criteria)
@@ -11631,7 +11631,7 @@ void Unit::Mount(uint32 mount, uint32 VehicleId)
         Pet* pet = this->ToPlayer()->GetPet();
         if (pet)
         {
-            BattleGround *bg = ToPlayer()->GetBattleGround();
+            Battleground *bg = ToPlayer()->GetBattleground();
             // don't unsummon pet in arena but SetFlag UNIT_FLAG_STUNNED to disable pet's interface
             if (bg && bg->isArena())
                 pet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
@@ -15046,7 +15046,7 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
         pVictim->ToPlayer()->SetPvPDeath(player != NULL);
 
         // only if not player and not controlled by player pet. And not at BG
-        if ((durabilityLoss && !player && !pVictim->ToPlayer()->InBattleGround()) || (player && sWorld.getConfig(CONFIG_DURABILITY_LOSS_IN_PVP)))
+        if ((durabilityLoss && !player && !pVictim->ToPlayer()->InBattleground()) || (player && sWorld.getConfig(CONFIG_DURABILITY_LOSS_IN_PVP)))
         {
             DEBUG_LOG("We are dead, losing %u percent durability", sWorld.getRate(RATE_DURABILITY_LOSS_ON_DEATH));
             pVictim->ToPlayer()->DurabilityLossAll(sWorld.getRate(RATE_DURABILITY_LOSS_ON_DEATH),false);
@@ -15123,9 +15123,9 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
     //        pvp->HandlePlayerActivityChangedpVictim->ToPlayer();
 
     // battleground things (do this at the end, so the death state flag will be properly set to handle in the bg->handlekill)
-    if (player && player->InBattleGround())
+    if (player && player->InBattleground())
     {
-        if (BattleGround *bg = player->GetBattleGround())
+        if (Battleground *bg = player->GetBattleground())
         {
             if (pVictim->GetTypeId() == TYPEID_PLAYER)
                 bg->HandleKillPlayer((Player*)pVictim, player);
@@ -15396,7 +15396,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type)
 
     // Set charmed
      Map* pMap = GetMap();
-     if (!IsVehicle() || (IsVehicle() && pMap && !pMap->IsBattleGround()))
+     if (!IsVehicle() || (IsVehicle() && pMap && !pMap->IsBattleground()))
         setFaction(charmer->getFaction());
 
     charmer->SetCharm(this, true);
@@ -15496,7 +15496,7 @@ void Unit::RemoveCharmedBy(Unit *charmer)
     getHostileRefManager().deleteReferences();
     DeleteThreatList();
     Map* pMap = GetMap();
-    if (!IsVehicle() || (IsVehicle() && pMap && !pMap->IsBattleGround()))
+    if (!IsVehicle() || (IsVehicle() && pMap && !pMap->IsBattleground()))
         RestoreFaction();
     GetMotionMaster()->InitDefault();
 
@@ -16336,8 +16336,8 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId)
         this->ToPlayer()->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
         // drop flag at invisible in bg
-        if (this->ToPlayer()->InBattleGround())
-            if (BattleGround *bg = this->ToPlayer()->GetBattleGround())
+        if (this->ToPlayer()->InBattleground())
+            if (Battleground *bg = this->ToPlayer()->GetBattleground())
           bg->EventPlayerDroppedFlag(this->ToPlayer());
     }
 

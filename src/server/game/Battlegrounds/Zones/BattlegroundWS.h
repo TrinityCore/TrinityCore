@@ -21,7 +21,7 @@
 #ifndef __BATTLEGROUNDWS_H
 #define __BATTLEGROUNDWS_H
 
-#include "BattleGround.h"
+#include "Battleground.h"
 
 enum BG_WS_TimerOrScore
 {
@@ -144,23 +144,23 @@ enum BG_WS_Objectives
     WS_OBJECTIVE_RETURN_FLAG    = 44
 };
 
-class BattleGroundWGScore : public BattleGroundScore
+class BattlegroundWGScore : public BattlegroundScore
 {
     public:
-        BattleGroundWGScore() : FlagCaptures(0), FlagReturns(0) {};
-        virtual ~BattleGroundWGScore() {};
+        BattlegroundWGScore() : FlagCaptures(0), FlagReturns(0) {};
+        virtual ~BattlegroundWGScore() {};
         uint32 FlagCaptures;
         uint32 FlagReturns;
 };
 
-class BattleGroundWS : public BattleGround
+class BattlegroundWS : public Battleground
 {
-    friend class BattleGroundMgr;
+    friend class BattlegroundMgr;
 
     public:
         /* Construction */
-        BattleGroundWS();
-        ~BattleGroundWS();
+        BattlegroundWS();
+        ~BattlegroundWS();
         void Update(uint32 diff);
 
         /* inherited from BattlegroundClass */
@@ -191,9 +191,9 @@ class BattleGroundWS : public BattleGround
         void RemovePlayer(Player *plr, uint64 guid);
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
         void HandleKillPlayer(Player *player, Player *killer);
-        bool SetupBattleGround();
+        bool SetupBattleground();
         virtual void Reset();
-        void EndBattleGround(uint32 winner);
+        void EndBattleground(uint32 winner);
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
         void UpdateFlagState(uint32 team, uint32 value);

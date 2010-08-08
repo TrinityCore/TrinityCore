@@ -30,8 +30,8 @@
 #include "QuestDef.h"
 #include "ObjectAccessor.h"
 #include "Group.h"
-#include "BattleGround.h"
-#include "BattleGroundAV.h"
+#include "Battleground.h"
+#include "BattlegroundAV.h"
 #include "ScriptMgr.h"
 
 void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket & recv_data)
@@ -455,10 +455,10 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recv_data)
     if (pQuest)
     {
         // TODO: need a virtual function
-        if (GetPlayer()->InBattleGround())
-            if (BattleGround* bg = GetPlayer()->GetBattleGround())
+        if (GetPlayer()->InBattleground())
+            if (Battleground* bg = GetPlayer()->GetBattleground())
                 if (bg->GetTypeID() == BATTLEGROUND_AV)
-                    ((BattleGroundAV*)bg)->HandleQuestComplete(quest, GetPlayer());
+                    ((BattlegroundAV*)bg)->HandleQuestComplete(quest, GetPlayer());
 
         if (_player->GetQuestStatus(quest) != QUEST_STATUS_COMPLETE)
         {

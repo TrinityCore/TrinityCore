@@ -29,7 +29,7 @@
 #include "MapManager.h"
 #include "GossipDef.h"
 #include "Player.h"
-#include "BattleGroundMgr.h"
+#include "BattlegroundMgr.h"
 
 bool GameEventMgr::CheckOneGameEvent(uint16 entry) const
 {
@@ -929,7 +929,7 @@ void GameEventMgr::LoadFromDB()
     }
 
     // set all flags to 0
-    mGameEventBattleGroundHolidays.resize(mGameEvent.size(),0);
+    mGameEventBattlegroundHolidays.resize(mGameEvent.size(),0);
     // load game event battleground flags
 
     sLog.outString("Loading Game Event Battleground Data...");
@@ -966,7 +966,7 @@ void GameEventMgr::LoadFromDB()
 
             ++count;
 
-            mGameEventBattleGroundHolidays[event_id] = fields[1].GetUInt32();
+            mGameEventBattlegroundHolidays[event_id] = fields[1].GetUInt32();
 
         } while (result->NextRow());
         sLog.outString();
@@ -1172,7 +1172,7 @@ void GameEventMgr::UnApplyEvent(uint16 event_id)
     // remove vendor items
     UpdateEventNPCVendor(event_id, false);
     // update bg holiday
-    UpdateBattleGroundSettings();
+    UpdateBattlegroundSettings();
 }
 
 void GameEventMgr::ApplyNewEvent(uint16 event_id)
@@ -1203,7 +1203,7 @@ void GameEventMgr::ApplyNewEvent(uint16 event_id)
     // add vendor items
     UpdateEventNPCVendor(event_id, true);
     // update bg holiday
-    UpdateBattleGroundSettings();
+    UpdateBattlegroundSettings();
 }
 
 void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)
@@ -1230,12 +1230,12 @@ void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)
     }
 }
 
-void GameEventMgr::UpdateBattleGroundSettings()
+void GameEventMgr::UpdateBattlegroundSettings()
 {
     uint32 mask = 0;
     for (ActiveEvents::const_iterator itr = m_ActiveEvents.begin(); itr != m_ActiveEvents.end(); ++itr)
-        mask |= mGameEventBattleGroundHolidays[*itr];
-    sBattleGroundMgr.SetHolidayWeekends(mask);
+        mask |= mGameEventBattlegroundHolidays[*itr];
+    sBattlegroundMgr.SetHolidayWeekends(mask);
 }
 
 void GameEventMgr::UpdateEventNPCVendor(uint16 event_id, bool activate)
@@ -1579,14 +1579,14 @@ void GameEventMgr::UpdateWorldStates(uint16 event_id, bool Activate)
     GameEventData const& event = mGameEvent[event_id];
     if (event.holiday_id != HOLIDAY_NONE)
     {
-        BattleGroundTypeId bgTypeId = BattleGroundMgr::WeekendHolidayIdToBGType(event.holiday_id);
+        BattlegroundTypeId bgTypeId = BattlegroundMgr::WeekendHolidayIdToBGType(event.holiday_id);
         if (bgTypeId != BATTLEGROUND_TYPE_NONE)
         {
             BattlemasterListEntry const * bl = sBattlemasterListStore.LookupEntry(bgTypeId);
             if (bl && bl->HolidayWorldStateId)
             {
                 WorldPacket data;
-                sBattleGroundMgr.BuildUpdateWorldStatePacket(&data, bl->HolidayWorldStateId, Activate ? 1 : 0);
+                sBattlegroundMgr.BuildUpdateWorldStatePacket(&data, bl->HolidayWorldStateId, Activate ? 1 : 0);
                 sWorld.SendGlobalMessage(&data);
             }
         }

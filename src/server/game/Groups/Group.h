@@ -23,7 +23,7 @@
 
 #include "GroupReference.h"
 #include "GroupRefManager.h"
-#include "BattleGround.h"
+#include "Battleground.h"
 #include "LootMgr.h"
 #include "DBCEnums.h"
 #include "Unit.h"
@@ -77,7 +77,7 @@ enum GroupType
     // 0x10, leave/change group?, I saw this flag when leaving group and after leaving BG while in group
 };
 
-class BattleGround;
+class Battleground;
 
 enum GroupUpdateFlags
 {
@@ -270,8 +270,8 @@ class Group
         // some additional raid methods
         void ConvertToRaid();
 
-        void SetBattlegroundGroup(BattleGround *bg) { m_bgGroup = bg; }
-        GroupJoinBattlegroundResult CanJoinBattleGroundQueue(BattleGround const* bgOrTemplate, BattleGroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 MaxPlayerCount, bool isRated, uint32 arenaSlot);
+        void SetBattlegroundGroup(Battleground *bg) { m_bgGroup = bg; }
+        GroupJoinBattlegroundResult CanJoinBattlegroundQueue(Battleground const* bgOrTemplate, BattlegroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 MaxPlayerCount, bool isRated, uint32 arenaSlot);
 
         void ChangeMembersGroup(const uint64 &guid, const uint8 &group);
         void ChangeMembersGroup(Player *player, const uint8 &group);
@@ -449,7 +449,7 @@ class Group
         GroupType           m_groupType;
         Difficulty          m_dungeonDifficulty;
         Difficulty          m_raidDifficulty;
-        BattleGround*       m_bgGroup;
+        Battleground*       m_bgGroup;
         uint64              m_targetIcons[TARGETICONCOUNT];
         LootMethod          m_lootMethod;
         ItemQualities       m_lootThreshold;

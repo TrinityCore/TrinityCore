@@ -1845,7 +1845,7 @@ void WorldObject::SetZoneScript()
     {
         if (map->IsDungeon())
             m_zoneScript = (ZoneScript*)((InstanceMap*)map)->GetInstanceData();
-        else if (!map->IsBattleGroundOrArena())
+        else if (!map->IsBattlegroundOrArena())
             m_zoneScript = sOutdoorPvPMgr.GetZoneScript(GetZoneId());
     }
 }

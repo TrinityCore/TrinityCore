@@ -773,7 +773,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x2E6*/ { "SMSG_WARDEN_DATA",                             STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x2E7*/ { "CMSG_WARDEN_DATA",                             STATUS_LOGGEDIN, &WorldSession::HandleWardenDataOpcode          },
     /*0x2E8*/ { "SMSG_GROUP_JOINED_BATTLEGROUND",               STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
-    /*0x2E9*/ { "MSG_BATTLEGROUND_PLAYER_POSITIONS",            STATUS_LOGGEDIN, &WorldSession::HandleBattleGroundPlayerPositionsOpcode},
+    /*0x2E9*/ { "MSG_BATTLEGROUND_PLAYER_POSITIONS",            STATUS_LOGGEDIN, &WorldSession::HandleBattlegroundPlayerPositionsOpcode},
     /*0x2EA*/ { "CMSG_PET_STOP_ATTACK",                         STATUS_NEVER,    &WorldSession::Handle_NULL                     },
     /*0x2EB*/ { "SMSG_BINDER_CONFIRM",                          STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x2EC*/ { "SMSG_BATTLEGROUND_PLAYER_JOINED",              STATUS_NEVER,    &WorldSession::Handle_ServerSide               },

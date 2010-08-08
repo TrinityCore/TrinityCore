@@ -28,8 +28,8 @@
 #include "Group.h"
 #include "Formulas.h"
 #include "ObjectAccessor.h"
-#include "BattleGround.h"
-#include "BattleGroundMgr.h"
+#include "Battleground.h"
+#include "BattlegroundMgr.h"
 #include "MapManager.h"
 #include "InstanceSaveMgr.h"
 #include "MapInstanced.h"
@@ -420,7 +420,7 @@ void Group::Disband(bool hideDestroy)
         //we cannot call _removeMember because it would invalidate member iterator
         //if we are removing player from battleground raid
         if (isBGGroup())
-            player->RemoveFromBattleGroundRaid();
+            player->RemoveFromBattlegroundRaid();
         else
         {
             //we can remove player who is in battleground from his original group
@@ -1081,7 +1081,7 @@ void Group::SendUpdate()
         data << uint8(m_groupType);                         // group type (flags in 3.3)
         data << uint8(citr->group);
         data << uint8(citr->flags);
-        data << uint8(isBGGroup() ? 1 : 0);                 // 2.0.x, isBattleGroundGroup?
+        data << uint8(isBGGroup() ? 1 : 0);                 // 2.0.x, isBattlegroundGroup?
         if (m_groupType & GROUPTYPE_LFD)
         {
             data << uint8(0);
@@ -1221,9 +1221,9 @@ bool Group::_addMember(const uint64 &guid, const char* name, uint8 group)
     if (player)
     {
         player->SetGroupInvite(NULL);
-        //if player is in group and he is being added to BG raid group, then call SetBattleGroundRaid()
+        //if player is in group and he is being added to BG raid group, then call SetBattlegroundRaid()
         if (player->GetGroup() && isBGGroup())
-            player->SetBattleGroundRaid(this, group);
+            player->SetBattlegroundRaid(this, group);
         //if player is in bg raid and we are adding him to normal group, then call SetOriginalGroup()
         else if (player->GetGroup())
             player->SetOriginalGroup(this, group);
@@ -1258,7 +1258,7 @@ bool Group::_removeMember(const uint64 &guid)
     {
         //if we are removing player from battleground raid
         if (isBGGroup())
-            player->RemoveFromBattleGroundRaid();
+            player->RemoveFromBattlegroundRaid();
         else
         {
             //we can remove player who is in battleground from his original group
@@ -1561,7 +1561,7 @@ void Group::UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed)
     }
 }
 
-GroupJoinBattlegroundResult Group::CanJoinBattleGroundQueue(BattleGround const* bgOrTemplate, BattleGroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 /*MaxPlayerCount*/, bool isRated, uint32 arenaSlot)
+GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* bgOrTemplate, BattlegroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 /*MaxPlayerCount*/, bool isRated, uint32 arenaSlot)
 {
     BattlemasterListEntry const* bgEntry = sBattlemasterListStore.LookupEntry(bgOrTemplate->GetTypeID());
     if (!bgEntry)
@@ -1590,7 +1590,7 @@ GroupJoinBattlegroundResult Group::CanJoinBattleGroundQueue(BattleGround const* 
     uint32 arenaTeamId = reference->GetArenaTeamId(arenaSlot);
     uint32 team = reference->GetTeam();
 
-    BattleGroundQueueTypeId bgQueueTypeIdRandom = BattleGroundMgr::BGQueueTypeId(BATTLEGROUND_RB, 0);
+    BattlegroundQueueTypeId bgQueueTypeIdRandom = BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_RB, 0);
 
     // check every member of the group to be able to join
     for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
@@ -1610,19 +1610,19 @@ GroupJoinBattlegroundResult Group::CanJoinBattleGroundQueue(BattleGround const* 
         if (isRated && member->GetArenaTeamId(arenaSlot) != arenaTeamId)
             return ERR_BATTLEGROUND_JOIN_FAILED;
         // don't let join if someone from the group is already in that bg queue
-        if (member->InBattleGroundQueueForBattleGroundQueueType(bgQueueTypeId))
+        if (member->InBattlegroundQueueForBattlegroundQueueType(bgQueueTypeId))
             return ERR_BATTLEGROUND_JOIN_FAILED;            // not blizz-like
         // don't let join if someone from the group is in bg queue random
-        if (member->InBattleGroundQueueForBattleGroundQueueType(bgQueueTypeIdRandom))
+        if (member->InBattlegroundQueueForBattlegroundQueueType(bgQueueTypeIdRandom))
             return ERR_IN_RANDOM_BG;
         // don't let join to bg queue random if someone from the group is already in bg queue
-        if (bgOrTemplate->GetTypeID() == BATTLEGROUND_RB && member->InBattleGroundQueue())
+        if (bgOrTemplate->GetTypeID() == BATTLEGROUND_RB && member->InBattlegroundQueue())
             return ERR_IN_NON_RANDOM_BG;
         // check for deserter debuff in case not arena queue
         if (bgOrTemplate->GetTypeID() != BATTLEGROUND_AA && !member->CanJoinToBattleground())
             return ERR_GROUP_JOIN_BATTLEGROUND_DESERTERS;
         // check if member can join any more battleground queues
-        if (!member->HasFreeBattleGroundQueueId())
+        if (!member->HasFreeBattlegroundQueueId())
             return ERR_BATTLEGROUND_TOO_MANY_QUEUES;        // not blizz-like
     }
     return GroupJoinBattlegroundResult(bgOrTemplate->GetTypeID());

@@ -18,9 +18,9 @@
 #ifndef __BATTLEGROUNDDS_H
 #define __BATTLEGROUNDDS_H
 
-class BattleGround;
+class Battleground;
 
-enum BattleGroundDSObjectTypes
+enum BattlegroundDSObjectTypes
 {
     BG_DS_OBJECT_DOOR_1         = 0,
     BG_DS_OBJECT_DOOR_2         = 1,
@@ -31,7 +31,7 @@ enum BattleGroundDSObjectTypes
     BG_DS_OBJECT_MAX            = 6
 };
 
-enum BattleGroundDSObjects
+enum BattlegroundDSObjects
 {
     BG_DS_OBJECT_TYPE_DOOR_1    = 192642,
     BG_DS_OBJECT_TYPE_DOOR_2    = 192643,
@@ -41,28 +41,28 @@ enum BattleGroundDSObjects
     BG_DS_OBJECT_TYPE_BUFF_2    = 184664
 };
 
-enum BattleGroundDSData
+enum BattlegroundDSData
 { // These values are NOT blizzlike... need the correct data!
     BG_DS_WATERFALL_TIMER_MIN                    = 30000,
     BG_DS_WATERFALL_TIMER_MAX                    = 60000,
     BG_DS_WATERFALL_DURATION                     = 10000,
 };
 
-class BattleGroundDSScore : public BattleGroundScore
+class BattlegroundDSScore : public BattlegroundScore
 {
     public:
-        BattleGroundDSScore() {};
-        virtual ~BattleGroundDSScore() {};
+        BattlegroundDSScore() {};
+        virtual ~BattlegroundDSScore() {};
         //TODO fix me
 };
 
-class BattleGroundDS : public BattleGround
+class BattlegroundDS : public Battleground
 {
-    friend class BattleGroundMgr;
+    friend class BattlegroundMgr;
 
     public:
-        BattleGroundDS();
-        ~BattleGroundDS();
+        BattlegroundDS();
+        ~BattlegroundDS();
         void Update(uint32 diff);
 
         /* inherited from BattlegroundClass */
@@ -72,7 +72,7 @@ class BattleGroundDS : public BattleGround
 
         void RemovePlayer(Player *plr, uint64 guid);
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
-        bool SetupBattleGround();
+        bool SetupBattleground();
         virtual void Reset();
         virtual void FillInitialWorldStates(WorldPacket &d);
         void HandleKillPlayer(Player* player, Player *killer);
