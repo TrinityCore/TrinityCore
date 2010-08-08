@@ -256,7 +256,7 @@ void ThreatContainer::modifyThreatPercent(Unit *pVictim, int32 iPercent)
 void ThreatContainer::update()
 {
     if (iDirty && iThreatList.size() >1)
-    {    
+    {
         iThreatList.sort(Trinity::ThreatOrderPred());
     }
     iDirty = false;

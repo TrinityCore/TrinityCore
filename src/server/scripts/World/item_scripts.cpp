@@ -458,7 +458,7 @@ public:
 };
 
 enum TheEmissary
-{   
+{
     QUEST_THE_EMISSARY      =   11626,
     NPC_LEVIROTH            =   26452
 };

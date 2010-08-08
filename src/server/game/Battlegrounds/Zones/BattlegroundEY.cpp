@@ -696,7 +696,7 @@ void BattlegroundEY::EventTeamLostPoint(Player *Source, uint32 Point)
     UpdatePointsIcons(Team, Point);
     UpdatePointsCount(Team);
 
-    //remove bonus honor aura trigger creature when node is lost  
+    //remove bonus honor aura trigger creature when node is lost
      if (Point < EY_POINTS_MAX)
          DelCreature(Point + 6);//NULL checks are in DelCreature! 0-5 spirit guides
 }

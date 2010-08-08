@@ -35,7 +35,7 @@ namespace Trinity
             sScriptMgr.OnHonorCalculation(honor, level, count);
             return honor;
         }
-        
+
         inline uint32 hk_honor_at_level(uint8 level, uint32 count = 1)
         {
             uint32 honor = ceil(hk_honor_at_level_f(level, count));

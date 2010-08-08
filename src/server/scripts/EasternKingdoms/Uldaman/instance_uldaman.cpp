@@ -289,7 +289,7 @@ class instance_uldaman : public InstanceMapScript
                 return 0;
             } // end GetData64
         };
-        
+
         InstanceScript* OnGetInstanceData(InstanceMap* pMap)
         {
             return new instance_uldaman_InstanceMapScript(pMap);

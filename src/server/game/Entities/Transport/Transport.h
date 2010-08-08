@@ -64,7 +64,7 @@ class Transport : public GameObject
         struct WayPoint
         {
             WayPoint() : mapid(0), x(0), y(0), z(0), teleport(false), id(0) {}
-            WayPoint(uint32 _mapid, float _x, float _y, float _z, bool _teleport, uint32 _id = 0, 
+            WayPoint(uint32 _mapid, float _x, float _y, float _z, bool _teleport, uint32 _id = 0,
                 uint32 _arrivalEventID = 0, uint32 _departureEventID = 0)
                 : mapid(_mapid), x(_x), y(_y), z(_z), teleport(_teleport), id(_id),
                 arrivalEventID(_arrivalEventID), departureEventID(_departureEventID)

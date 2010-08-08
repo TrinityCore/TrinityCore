@@ -1171,26 +1171,26 @@ public:
         {
             if (damage < me->GetHealth())
                 return;
-    
+
             //anything below only used if incoming damage will kill
-    
+
             if (Phase == PHASE_ROMULO)
             {
                 DoScriptText(SAY_ROMULO_DEATH, me);
                 PretendToDie(me);
                 IsFakingDeath = true;
                 Phase = PHASE_BOTH;
-    
+
                 if (Creature* Julianne = (Unit::GetCreature((*me), JulianneGUID)))
                 {
                     CAST_AI(boss_julianne::boss_julianneAI, Julianne->AI())->RomuloDead = true;
                     CAST_AI(boss_julianne::boss_julianneAI, Julianne->AI())->ResurrectSelfTimer = 10000;
                 }
-    
+
                 damage = 0;
                 return;
             }
-    
+
             if (Phase == PHASE_BOTH)
             {
                 if (JulianneDead)
@@ -1206,7 +1206,7 @@ public:
                     }
                     return;
                 }
-    
+
                 if (Creature* Julianne = (Unit::GetCreature((*me), JulianneGUID)))
                 {
                     PretendToDie(me);
@@ -1217,7 +1217,7 @@ public:
                     return;
                 }
             }
-    
+
             sLog.outError("TSCR: boss_romuloAI: DamageTaken reach end of code, that should not happen.");
         }
 
@@ -1267,7 +1267,7 @@ public:
         {
             if (!UpdateVictim() || IsFakingDeath)
                 return;
-    
+
             if (JulianneDead)
             {
                 if (ResurrectTimer <= diff)
@@ -1283,7 +1283,7 @@ public:
                     }
                 } else ResurrectTimer -= diff;
             }
-    
+
             if (BackwardLungeTimer <= diff)
             {
                 Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
@@ -1293,26 +1293,26 @@ public:
                     BackwardLungeTimer = urand(15000,30000);
                 }
             } else BackwardLungeTimer -= diff;
-    
+
             if (DaringTimer <= diff)
             {
                 DoCast(me, SPELL_DARING);
                 DaringTimer = urand(20000,40000);
             } else DaringTimer -= diff;
-    
+
             if (DeadlySwatheTimer <= diff)
             {
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(pTarget, SPELL_DEADLY_SWATHE);
                 DeadlySwatheTimer = urand(15000,25000);
             } else DeadlySwatheTimer -= diff;
-    
+
             if (PoisonThrustTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_POISON_THRUST);
                 PoisonThrustTimer = urand(10000,20000);
             } else PoisonThrustTimer -= diff;
-    
+
             DoMeleeAttackIfReady();
         }
     };

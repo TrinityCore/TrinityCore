@@ -244,7 +244,7 @@ class boss_hakkar : public CreatureScript
                 DoMeleeAttackIfReady();
             }
         };
-        
+
         CreatureAI* GetAI(Creature* creature) const
         {
             return new boss_hakkarAI(creature);

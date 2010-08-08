@@ -612,7 +612,7 @@ enum BG_AV_CreaturePlace
     AV_CPLACE_TRIGGER13       = 314,
     AV_CPLACE_TRIGGER14       = 315,
     AV_CPLACE_TRIGGER15       = 316,
-    
+
     //boss,captain triggers
     AV_CPLACE_TRIGGER16       = 317,
     AV_CPLACE_TRIGGER17       = 318,

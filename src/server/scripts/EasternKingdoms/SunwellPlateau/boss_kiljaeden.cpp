@@ -170,10 +170,10 @@ enum Phase
 };
 
 //Timers
-enum KilJaedenTimers 
+enum KilJaedenTimers
 {
     TIMER_SPEECH           = 0,
-    
+
     //Phase 2 Timer
     TIMER_SOUL_FLAY        = 1,
     TIMER_LEGION_LIGHTNING = 2,
@@ -222,11 +222,11 @@ static Speech Speeches[]=
     //Kil Phase 2 -> Phase 3
     {SAY_KALECGOS_AWAKEN,       DATA_KALECGOS_KJ,   10000},
     {SAY_ANVEENA_IMPRISONED,    DATA_ANVEENA,       5000},
-    {SAY_KJ_PHASE3,             DATA_KILJAEDEN,     5000}, 
+    {SAY_KJ_PHASE3,             DATA_KILJAEDEN,     5000},
     //Kil Phase 3 -> Phase 4
     {SAY_KALECGOS_LETGO,        DATA_KALECGOS_KJ,   10000},
     {SAY_ANVEENA_LOST,          DATA_ANVEENA,       8000},
-    {SAY_KJ_PHASE4,             DATA_KILJAEDEN,     7000}, 
+    {SAY_KJ_PHASE4,             DATA_KILJAEDEN,     7000},
     //Kil Phase 4 -> Phase 5
     {SAY_KALECGOS_FOCUS,        DATA_KALECGOS_KJ,   4000},
     {SAY_ANVEENA_KALEC,         DATA_ANVEENA,       11000},
@@ -235,7 +235,7 @@ static Speech Speeches[]=
     {SAY_KJ_PHASE5,             DATA_KILJAEDEN,     5500},
 
     // use in End sequence?
-    {SAY_KALECGOS_GOODBYE,      DATA_KALECGOS_KJ,   12000},   
+    {SAY_KALECGOS_GOODBYE,      DATA_KALECGOS_KJ,   12000},
 };
 
 //AI for Kalecgosclass boss_kalecgos_kj : public CreatureScript
@@ -268,7 +268,7 @@ public:
             me->setActive(true);
 
             for (uint8 i = 0; i < 4; ++i)
-                if (GameObject* pOrb = GetOrb(i)) 
+                if (GameObject* pOrb = GetOrb(i))
                     pOrb->SetGoType(GAMEOBJECT_TYPE_BUTTON);
         }
 
@@ -296,7 +296,7 @@ public:
         {
             me->RemoveDynObject(SPELL_RING_OF_BLUE_FLAMES);
             for (uint8 i = 0; i < 4; ++i)
-                if (GameObject* pOrb = GetOrb(i)) 
+                if (GameObject* pOrb = GetOrb(i))
                     pOrb->SetUInt32Value(GAMEOBJECT_FACTION, 0);
         }
 
@@ -378,7 +378,7 @@ public:
         {
             InstanceScript* pInstance = pGo->GetInstanceScript();
             pPlayer->SummonCreature(CREATURE_POWER_OF_THE_BLUE_DRAGONFLIGHT, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 121000);
-            pPlayer->CastSpell(pPlayer, SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, false);   
+            pPlayer->CastSpell(pPlayer, SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, false);
             pGo->SetUInt32Value(GAMEOBJECT_FACTION, 0);
 
             if (Creature* pKalec = Unit::GetCreature(*pPlayer, pInstance->GetData64(DATA_KALECGOS_KJ)))
@@ -697,7 +697,7 @@ public:
                 {
                     switch(t)
                     {
-                        case TIMER_SPEECH: 
+                        case TIMER_SPEECH:
                             if (SpeechBegins)
                             {
                                 SpeechBegins=false;
@@ -735,7 +735,7 @@ public:
                         case TIMER_SOUL_FLAY:
                             if (!me->IsNonMeleeSpellCasted(false))
                             {
-                                DoCast(me->getVictim(), SPELL_SOUL_FLAY_SLOW, false); 
+                                DoCast(me->getVictim(), SPELL_SOUL_FLAY_SLOW, false);
                                 DoCast(me->getVictim(), SPELL_SOUL_FLAY, false);
                                 Timer[TIMER_SOUL_FLAY] = 3500;
                             }
@@ -749,7 +749,7 @@ public:
                                 for (uint8 z = 0; z < 6; ++z)
                                 {
                                     pRandomPlayer = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                                    if (!pRandomPlayer || !pRandomPlayer->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT,0)) 
+                                    if (!pRandomPlayer || !pRandomPlayer->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT,0))
                                         break;
                                 }
 
@@ -757,7 +757,7 @@ public:
                                     DoCast(pRandomPlayer, SPELL_LEGION_LIGHTNING, false);
                                 else
                                     sLog.outError("try to cast SPELL_LEGION_LIGHTNING on invalid target");
-                            
+
                                 Timer[TIMER_LEGION_LIGHTNING] = (Phase == PHASE_SACRIFICE) ? 18000 : 30000; // 18 seconds in PHASE_SACRIFICE
                                 Timer[TIMER_SOUL_FLAY] = 2500;
                             }
@@ -786,7 +786,7 @@ public:
                             if (!me->IsNonMeleeSpellCasted(false))
                             {
                                 CastSinisterReflection();
-                                DoCastAOE(SPELL_SHADOW_SPIKE, false); 
+                                DoCastAOE(SPELL_SHADOW_SPIKE, false);
                                 ChangeTimers(true, 30000);
                                 Timer[TIMER_SHADOW_SPIKE] = 0;
                                 TimerIsDeactivated[TIMER_SPEECH] = false;
@@ -978,8 +978,8 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_SHADOW_BOLT_VOLLEY);
                 ShadowBoltVolleyTimer = 12000;
-            } 
-            else 
+            }
+            else
                 ShadowBoltVolleyTimer -= diff;
 
             // Felfire Portal - Creatres a portal, that spawns Volatile Felfire Fiends, which do suicide bombing.
@@ -1021,7 +1021,7 @@ public:
 
         uint32 uiSpawnFiendTimer;
 
-        void Reset() 
+        void Reset()
         {
             uiSpawnFiendTimer = 5000;
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE);
@@ -1227,7 +1227,7 @@ public:
                 {
                     DoTeleportTo(x,y,SHIELD_ORB_Z);
                     bPointReached = true;
-                } 
+                }
                 else uiCheckTimer -= diff;
             }
 

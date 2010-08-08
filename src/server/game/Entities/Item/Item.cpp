@@ -1071,7 +1071,7 @@ bool Item::IsBindedNotWith(Player const* player) const
     // BOA item case
     if (IsBoundAccountWide())
         return false;
-        
+
     return true;
 }
 

@@ -18,10 +18,10 @@
 /* ScriptData
 SDName: Boss_Onyxia
 SD%Complete: 95
-SDComment: <Known bugs> 
-               Ground visual for Deep Breath effect; 
-               Wing Buffet not ignoring armor; 
-               Not summoning whelps on phase 3 (lacks info) 
+SDComment: <Known bugs>
+               Ground visual for Deep Breath effect;
+               Wing Buffet not ignoring armor;
+               Not summoning whelps on phase 3 (lacks info)
            </Known bugs>
 SDCategory: Onyxia's Lair
 EndScriptData */
@@ -110,7 +110,7 @@ public:
 
     struct boss_onyxiaAI : public ScriptedAI
     {
-        boss_onyxiaAI(Creature* pCreature) : ScriptedAI(pCreature), Summons(me) 
+        boss_onyxiaAI(Creature* pCreature) : ScriptedAI(pCreature), Summons(me)
         {
             m_pInstance = pCreature->GetInstanceScript();
             Reset();
@@ -140,7 +140,7 @@ public:
         uint8 m_uiSummonWhelpCount;
         uint8 m_uiSummonLairGuardCount;
         bool m_bIsMoving;
-        
+
         void Reset()
         {
             if (!IsCombatMovement())
@@ -168,7 +168,7 @@ public:
             m_uiSummonWhelpCount = 0;
             m_uiSummonLairGuardCount = 0;
             m_bIsMoving = false;
-            
+
             if (m_pInstance)
             {
                 m_pInstance->SetData(DATA_ONYXIA, NOT_STARTED);
@@ -181,7 +181,7 @@ public:
         {
             DoScriptText(SAY_AGGRO, me);
             me->SetInCombatWithZone();
-            
+
             if (m_pInstance)
             {
                 m_pInstance->SetData(DATA_ONYXIA, IN_PROGRESS);
@@ -203,7 +203,7 @@ public:
             pSummoned->SetInCombatWithZone();
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
                 pSummoned->AI()->AttackStart(pTarget);
-            
+
             switch (pSummoned->GetEntry())
             {
                 case NPC_WHELP:
@@ -217,7 +217,7 @@ public:
             Summons.Summon(pSummoned);
         }
 
-        void SummonedCreatureDespawn(Creature *summon) 
+        void SummonedCreatureDespawn(Creature *summon)
         {
             Summons.Despawn(summon);
         }
@@ -265,14 +265,14 @@ public:
                     default:
                         m_bIsMoving = false;
                         break;
-                }            
+                }
             }
         }
-        
-        void SpellHitTarget(Unit* target, const SpellEntry* pSpell) 
+
+        void SpellHitTarget(Unit* target, const SpellEntry* pSpell)
         {
             //Workaround - Couldn't find a way to group this spells (All Eruption)
-            if (((pSpell->Id >= 17086 && pSpell->Id <= 17095) || 
+            if (((pSpell->Id >= 17086 && pSpell->Id <= 17095) ||
                 (pSpell->Id == 17097) ||
                 (pSpell->Id >= 18351 && pSpell->Id <= 18361) ||
                 (pSpell->Id >= 18564 && pSpell->Id <= 18576) ||
@@ -331,7 +331,7 @@ public:
                     if (me->GetHealth()*100 / me->GetMaxHealth() < 60)
                     {
                         m_uiPhase = PHASE_BREATH;
-                        
+
                         if (m_pInstance)
                             m_pInstance->SetData(DATA_ONYXIA_PHASE, m_uiPhase);
 
@@ -419,7 +419,7 @@ public:
 
                 if (m_uiDeepBreathTimer <= uiDiff)
                 {
-                    if (!m_bIsMoving) 
+                    if (!m_bIsMoving)
                     {
                         if (me->IsNonMeleeSpellCasted(false))
                             me->InterruptNonMeleeSpells(false);
@@ -434,7 +434,7 @@ public:
 
                 if (m_uiMovementTimer <= uiDiff)
                 {
-                    if (!m_bIsMoving) 
+                    if (!m_bIsMoving)
                     {
                         SetNextRandomPoint();
                         m_pPointData = GetMoveData();
@@ -463,7 +463,7 @@ public:
                 else
                     m_uiFireballTimer -= uiDiff;
 
-                if (m_uiLairGuardTimer <= uiDiff)            
+                if (m_uiLairGuardTimer <= uiDiff)
                 {
                     me->SummonCreature(NPC_LAIRGUARD, aSpawnLocations[2].GetPositionX(), aSpawnLocations[2].GetPositionY(), aSpawnLocations[2].GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_DESPAWN);
                     if (m_uiSummonLairGuardCount >= RAID_MODE(1,2))
@@ -484,8 +484,8 @@ public:
                     if (m_uiSummonWhelpCount >= RAID_MODE(20,40))
                     {
                         m_uiSummonWhelpCount = 0;
-                        m_uiWhelpTimer = 90000;    
-                    } 
+                        m_uiWhelpTimer = 90000;
+                    }
                     else
                         m_uiWhelpTimer = 500;
                 }

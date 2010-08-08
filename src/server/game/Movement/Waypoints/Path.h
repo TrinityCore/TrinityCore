@@ -53,7 +53,7 @@ class Path
             }
             return len;
         }
-        
+
         float GetTotalLength() const { return GetTotalLength(0,size()); }
 
         float GetPassedLength(uint32 curnode, float x, float y, float z)
@@ -74,7 +74,7 @@ class Path
 
         PathNode& operator[](size_t idx) { return i_nodes[idx]; }
         PathNode const& operator[](size_t idx) const { return i_nodes[idx]; }
-        
+
         void set(size_t idx, PathElem elem) { i_nodes[idx] = elem; }
 
     protected:

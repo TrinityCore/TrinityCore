@@ -31,7 +31,7 @@ class AddonHandler
     /* Construction */
     friend class ACE_Singleton<AddonHandler, ACE_Null_Mutex>;
     AddonHandler();
-    
+
     public:
         ~AddonHandler();
                                                             //build addon packet

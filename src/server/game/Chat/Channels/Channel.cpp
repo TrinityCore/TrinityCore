@@ -711,7 +711,7 @@ void Channel::Invite(uint64 p, const char *newname)
         SendToOne(&data, p);
         return;
     }
-    
+
     Player *plr = sObjectMgr.GetPlayer(p);
     if (!plr)
         return;

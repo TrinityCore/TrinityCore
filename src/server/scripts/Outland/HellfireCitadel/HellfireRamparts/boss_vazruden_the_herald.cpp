@@ -85,7 +85,7 @@ class boss_nazan : public CreatureScript
             boss_nazanAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
                 VazrudenGUID = 0;
-                flight = true;        
+                flight = true;
             }
 
             uint32 Fireball_Timer;
@@ -102,7 +102,7 @@ class boss_nazan : public CreatureScript
                 Fireball_Timer = 4000;
                 Fly_Timer = 45000;
                 Turn_Timer = 0;
-            }  
+            }
 
             void EnterCombat(Unit* /*who*/) {}
 
@@ -133,8 +133,8 @@ class boss_nazan : public CreatureScript
                     if (Unit* pVictim = SelectUnit(SELECT_TARGET_RANDOM,0))
                         DoCast(pVictim, DUNGEON_MODE(SPELL_FIREBALL, SPELL_FIREBALL_H), true);
                     Fireball_Timer = urand(4000,7000);
-                } 
-                else 
+                }
+                else
                     Fireball_Timer -= diff;
 
                 if (flight) // phase 1 - the flight
@@ -144,7 +144,7 @@ class boss_nazan : public CreatureScript
                     {
                         flight = false;
                         BellowingRoar_Timer = 6000;
-                        ConeOfFire_Timer = 12000;                
+                        ConeOfFire_Timer = 12000;
                         me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                         me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
                         me->GetMotionMaster()->Clear();
@@ -174,8 +174,8 @@ class boss_nazan : public CreatureScript
                         DoCast(me, DUNGEON_MODE(SPELL_CONE_OF_FIRE, SPELL_CONE_OF_FIRE_H));
                         ConeOfFire_Timer = 12000;
                         Fireball_Timer = 4000;
-                    } 
-                    else 
+                    }
+                    else
                         ConeOfFire_Timer -= diff;
 
                     if (IsHeroic())
@@ -183,8 +183,8 @@ class boss_nazan : public CreatureScript
                         {
                             DoCast(me, SPELL_BELLOWING_ROAR);
                             BellowingRoar_Timer = 45000;
-                        } 
-                        else 
+                        }
+                        else
                             BellowingRoar_Timer -= diff;
 
                     DoMeleeAttackIfReady();
@@ -252,8 +252,8 @@ class boss_vazruden : public CreatureScript
                             WipeSaid = true;
                         }
                         me->DisappearAndDie();
-                    } 
-                    else 
+                    }
+                    else
                         UnsummonCheck -= diff;
                     return;
                 }
@@ -263,8 +263,8 @@ class boss_vazruden : public CreatureScript
                     if (Unit *victim = me->getVictim())
                         DoCast(victim, DUNGEON_MODE(SPELL_REVENGE,SPELL_REVENGE_H));
                     Revenge_Timer = 5000;
-                } 
-                else 
+                }
+                else
                     Revenge_Timer -= diff;
 
                 DoMeleeAttackIfReady();
@@ -308,7 +308,7 @@ class boss_vazruden_the_herald : public CreatureScript
                 phase = 0;
                 waypoint = 0;
                 check = 0;
-                UnsummonAdds();        
+                UnsummonAdds();
             }
 
             void UnsummonAdds()
@@ -344,8 +344,8 @@ class boss_vazruden_the_herald : public CreatureScript
                 {
                     if (Creature* Vazruden = me->SummonCreature(ENTRY_VAZRUDEN,VazrudenMiddle[0],VazrudenMiddle[1],VazrudenMiddle[2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,6000000))
                         VazrudenGUID = Vazruden->GetGUID();
-                    if (Creature* Nazan = me->SummonCreature(ENTRY_NAZAN,VazrudenMiddle[0],VazrudenMiddle[1],VazrudenMiddle[2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,6000000))                            
-                        NazanGUID = Nazan->GetGUID();            
+                    if (Creature* Nazan = me->SummonCreature(ENTRY_NAZAN,VazrudenMiddle[0],VazrudenMiddle[1],VazrudenMiddle[2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,6000000))
+                        NazanGUID = Nazan->GetGUID();
                     summoned = true;
                     me->SetVisibility(VISIBILITY_OFF);
                     me->addUnitState(UNIT_STAT_ROOT);
@@ -371,11 +371,11 @@ class boss_vazruden_the_herald : public CreatureScript
                 {
                     CAST_AI(boss_nazan::boss_nazanAI, pSummoned->AI())->VazrudenGUID = VazrudenGUID;
                     pSummoned->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                    pSummoned->SetSpeed(MOVE_FLIGHT, 2.5);            
+                    pSummoned->SetSpeed(MOVE_FLIGHT, 2.5);
                     if (pVictim)
                         AttackStartNoMove(pVictim);
                 }
-                else 
+                else
                     if (pVictim)
                         pSummoned->AI()->AttackStart(pVictim);
             }
@@ -413,8 +413,8 @@ class boss_vazruden_the_herald : public CreatureScript
                             phase = 2;
                             return;
                         }
-                    } 
-                    else 
+                    }
+                    else
                         check -= diff;
                     break;
                 default: // adds do the job now
@@ -440,8 +440,8 @@ class boss_vazruden_the_herald : public CreatureScript
                             //me->Kill(me);
                         }
                         check = 2000;
-                    } 
-                    else 
+                    }
+                    else
                         check -= diff;
                     break;
                 }
@@ -491,8 +491,8 @@ class mob_hellfire_sentry : public CreatureScript
                     if (Unit *victim = me->getVictim())
                         DoCast(victim, SPELL_KIDNEY_SHOT);
                     KidneyShot_Timer = 20000;
-                } 
-                else 
+                }
+                else
                     KidneyShot_Timer -= diff;
 
                 DoMeleeAttackIfReady();

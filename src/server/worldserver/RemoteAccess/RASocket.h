@@ -52,7 +52,7 @@ class RASocket: public TcpSocket
     private:
         char buff[RA_BUFF_SIZE];
         std::string szLogin;
-       
+
         unsigned int iInputLength;
         bool bSecure;
         //will protect from DOS, bruteforce attacks

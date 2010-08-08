@@ -471,7 +471,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
     LoginDatabase.PExecute("INSERT INTO realmcharacters (numchars, acctid, realmid) VALUES (%u, %u, %u)",  charcount, GetAccountId(), realmID);
 
     pNewChar->CleanupsBeforeDelete();
-    
+
     data << (uint8)CHAR_CREATE_SUCCESS;
     SendPacket(&data);
 

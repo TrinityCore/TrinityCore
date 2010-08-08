@@ -53,7 +53,7 @@ ConfusedMovementGenerator<T>::Initialize(T &unit)
         float wanderY = y + wander_distance*rand_norm() - wander_distance/2;
         Trinity::NormalizeMapCoord(wanderX);
         Trinity::NormalizeMapCoord(wanderY);
-        
+
         float new_z = map->GetHeight(wanderX, wanderY, z, true);
         if (new_z > INVALID_HEIGHT && unit.IsWithinLOS(wanderX, wanderY, new_z))
         {
@@ -68,7 +68,7 @@ ConfusedMovementGenerator<T>::Initialize(T &unit)
                 i_waypoints[idx][2] = idx > 0 ? i_waypoints[idx-1][2] : z;
                 continue;
             }
-            
+
             // Taken from FleeingMovementGenerator
             if (!(new_z - z) || wander_distance / fabs(new_z - z) > 1.0f)
             {

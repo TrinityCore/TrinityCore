@@ -11,12 +11,12 @@ void PreparedStatementHolder::_prepareStatement(const char* name, const char* sq
     strcat(query, "'");
     strcat(query, sql);
     strcat(query, "'");
-    
+
     DEBUG_LOG("Preparing statement: %s", query);
     db->Execute(query);
-    
+
     delete[] query;
-    ++count;    
+    ++count;
 }
 
 void PreparedStatementHolder::LoadAuthserver(Database *db, uint32 &count)
@@ -41,7 +41,7 @@ void PreparedStatementHolder::PExecute(Database *db, const char *name, const cha
 {
     // NOTE: if args == NULL, we're crashing here. No need to waste performance on checking;
     // devs must make sure they use PExecute for args and Execute for no args.
-    
+
     const char prefix[] = "EXECUTE ";
     size_t querySize = 8 + strlen(name) + 7 + strlen(args) + 1;
     char* query = new char[querySize];
@@ -49,7 +49,7 @@ void PreparedStatementHolder::PExecute(Database *db, const char *name, const cha
     strcat(query, name);
     strcat(query, " USING ");
     strcat(query, args);
-    
+
     DEBUG_LOG("Prepared statement (parsed args): %s", query);
     db->Execute(query);
     delete[] query;

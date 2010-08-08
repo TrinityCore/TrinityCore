@@ -265,7 +265,7 @@ class boss_arlokk : public CreatureScript
 class go_gong_of_bethekk : public GameObjectScript
 {
     public:
-        go_gong_of_bethekk() : GameObjectScript("go_gong_of_bethekk") 
+        go_gong_of_bethekk() : GameObjectScript("go_gong_of_bethekk")
         {
         }
 

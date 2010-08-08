@@ -80,7 +80,7 @@ class npc_millhouse_manastorm : public CreatureScript
             {
                 pInstance = pCreature->GetInstanceScript();
             }
-            
+
             InstanceScript* pInstance;
 
             uint32 EventProgress_Timer;
@@ -90,7 +90,7 @@ class npc_millhouse_manastorm : public CreatureScript
 
             uint32 Pyroblast_Timer;
             uint32 Fireball_Timer;
-            
+
             void Reset()
             {
                 EventProgress_Timer = 2000;
@@ -106,11 +106,11 @@ class npc_millhouse_manastorm : public CreatureScript
                     if (pInstance->GetData(TYPE_WARDEN_2) == DONE)
                         Init = true;
 
-                    if (pInstance->GetData(TYPE_HARBINGERSKYRISS) == DONE)                    
-                        DoScriptText(SAY_COMPLETE, me);                    
+                    if (pInstance->GetData(TYPE_HARBINGERSKYRISS) == DONE)
+                        DoScriptText(SAY_COMPLETE, me);
                 }
             }
-            
+
             void AttackStart(Unit* pWho)
             {
                 if (me->Attack(pWho, true))
@@ -137,7 +137,7 @@ class npc_millhouse_manastorm : public CreatureScript
                 if (pInstance && pInstance->GetData(TYPE_HARBINGERSKYRISS) != DONE)
                 ->FailQuest();*/
             }
-            
+
             void UpdateAI(const uint32 diff)
             {
                 if (!Init)
@@ -183,12 +183,12 @@ class npc_millhouse_manastorm : public CreatureScript
                             }
                             ++Phase;
                         }
-                    } 
-                    else 
+                    }
+                    else
                         EventProgress_Timer -= diff;
                 }
 
-                if (!UpdateVictim())            
+                if (!UpdateVictim())
                     return;
                 if (!LowHp && ((me->GetHealth()*100 / me->GetMaxHealth()) < 20))
                 {
@@ -425,11 +425,11 @@ class npc_warden_mellichar : public CreatureScript
                         case 2:
                             switch (urand(0,1))
                             {
-                            case 0: 
-                                me->SummonCreature(ENTRY_TRICKSTER,478.326,-148.505,42.56,3.19,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000); 
+                            case 0:
+                                me->SummonCreature(ENTRY_TRICKSTER,478.326,-148.505,42.56,3.19,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
                                 break;
                             case 1:
-                                me->SummonCreature(ENTRY_PH_HUNTER,478.326,-148.505,42.56,3.19,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000); 
+                                me->SummonCreature(ENTRY_PH_HUNTER,478.326,-148.505,42.56,3.19,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
                                 break;
                             }
                             break;
@@ -442,22 +442,22 @@ class npc_warden_mellichar : public CreatureScript
                         case 5:
                             switch (urand(0,1))
                             {
-                            case 0: 
-                                me->SummonCreature(ENTRY_AKKIRIS,420.179,-174.396,42.58,0.02,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000); 
+                            case 0:
+                                me->SummonCreature(ENTRY_AKKIRIS,420.179,-174.396,42.58,0.02,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
                                 break;
-                            case 1: 
-                                me->SummonCreature(ENTRY_SULFURON,420.179,-174.396,42.58,0.02,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000); 
+                            case 1:
+                                me->SummonCreature(ENTRY_SULFURON,420.179,-174.396,42.58,0.02,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
                                 break;
                             }
                             break;
                         case 6:
                             switch (urand(0,1))
                             {
-                            case 0: 
-                                me->SummonCreature(ENTRY_TW_DRAK,471.795,-174.58,42.58,3.06,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000); 
+                            case 0:
+                                me->SummonCreature(ENTRY_TW_DRAK,471.795,-174.58,42.58,3.06,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
                                 break;
-                            case 1: 
-                                me->SummonCreature(ENTRY_BL_DRAK,471.795,-174.58,42.58,3.06,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000); 
+                            case 1:
+                                me->SummonCreature(ENTRY_BL_DRAK,471.795,-174.58,42.58,3.06,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
                                 break;
                             }
                             break;
@@ -508,8 +508,8 @@ class npc_warden_mellichar : public CreatureScript
                             break;
                         }
                     }
-                } 
-                else 
+                }
+                else
                     EventProgress_Timer -= diff;
             }
         };
@@ -517,7 +517,7 @@ class npc_warden_mellichar : public CreatureScript
         CreatureAI* OnGetAI(Creature* creature) const
         {
             return new npc_warden_mellicharAI(creature);
-        }        
+        }
 };
 
 /*#####
@@ -543,13 +543,13 @@ class mob_zerekethvoidzone : public CreatureScript
                 me->SetUInt32Value(UNIT_NPC_FLAGS,0);
                 me->setFaction(16);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                
+
                 DoCast(me, SPELL_VOID_ZONE_DAMAGE);
             }
-            
+
             void EnterCombat(Unit* /*who*/) {}
         };
-        
+
         CreatureAI* OnGetAI(Creature* creature) const
         {
             return new mob_zerekethvoidzoneAI(creature);

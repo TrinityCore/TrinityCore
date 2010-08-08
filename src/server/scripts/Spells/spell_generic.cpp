@@ -16,7 +16,7 @@
  */
 
 /*
- * Scripts for spells with SPELLFAMILY_GENERIC which cannot be included in AI script file 
+ * Scripts for spells with SPELLFAMILY_GENERIC which cannot be included in AI script file
  * of creature using it or can't be bound to any player class.
  * Ordered alphabetically using scriptname.
  * Scriptnames of files in this file should be prefixed with "spell_gen_"

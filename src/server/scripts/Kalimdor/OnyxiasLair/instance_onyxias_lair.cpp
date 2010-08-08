@@ -18,7 +18,7 @@
 /* ScriptData
 SDName: Instance_Onyxias_Lair
 SD%Complete: 100
-SDComment: 
+SDComment:
 SDCategory: Onyxia's Lair
 EndScriptData */
 
@@ -40,9 +40,9 @@ public:
 
         //Eruption is a BFS graph problem
         //One map to remember all floor, one map to keep floor that still need to erupt and one queue to know what needs to be removed
-        std::map<uint64,uint32> FloorEruptionGUID[2]; 
-        std::queue<uint64> FloorEruptionGUIDQueue; 
-    
+        std::map<uint64,uint32> FloorEruptionGUID[2];
+        std::queue<uint64> FloorEruptionGUIDQueue;
+
         uint64 m_uiOnyxiasGUID;
         uint32 m_uiOnyxiaLiftoffTimer;
         uint32 m_uiManyWhelpsCounter;
@@ -110,7 +110,7 @@ public:
                 pFloorEruption->SendCustomAnim();
                 pFloorEruption->CastSpell(NULL, Difficulty(instance->GetSpawnMode()) == RAID_DIFFICULTY_10MAN_NORMAL ? 17731 : 69294); //pFloorEruption->GetGOInfo()->trap.spellId
 
-                //Get all immediatly nearby floors 
+                //Get all immediatly nearby floors
                 std::list<GameObject*> nearFloorList;
                 Trinity::GameObjectInRangeCheck check(pFloorEruption->GetPositionX(), pFloorEruption->GetPositionY(), pFloorEruption->GetPositionZ(), 15);
                 Trinity::GameObjectListSearcher<Trinity::GameObjectInRangeCheck> searcher(pFloorEruption, nearFloorList, check);
@@ -211,12 +211,12 @@ public:
                 } else m_uiOnyxiaLiftoffTimer -= uiDiff;
             }
 
-            if (!FloorEruptionGUIDQueue.empty()) 
+            if (!FloorEruptionGUIDQueue.empty())
             {
                 if (m_uiEruptTimer <= uiDiff)
                 {
                     uint32 treeHeight = 0;
-                    do 
+                    do
                     {
                         treeHeight = (*FloorEruptionGUID[1].find(FloorEruptionGUIDQueue.front())).second;
                         FloorEruption(FloorEruptionGUIDQueue.front());

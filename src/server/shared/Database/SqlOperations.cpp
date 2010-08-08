@@ -41,12 +41,12 @@ void SqlTransaction::Execute(Database *db)
         m_Mutex.release();
         return;
     }
-    
+
     db->DirectExecute("START TRANSACTION");
     while (!m_queue.empty())
     {
         sql = m_queue.front();
-        
+
         if (!db->DirectExecute(sql))
         {
             free((void*)const_cast<char*>(sql));

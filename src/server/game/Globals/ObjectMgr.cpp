@@ -526,7 +526,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
             ok2 = false;
             if (difficultyEntries[diff2].find(cInfo->Entry) != difficultyEntries[diff2].end())
             {
-                sLog.outErrorDb("Creature (Entry: %u) is listed as `difficulty_entry_%u` of another creature, but itself lists %u in `difficulty_entry_%u`.", 
+                sLog.outErrorDb("Creature (Entry: %u) is listed as `difficulty_entry_%u` of another creature, but itself lists %u in `difficulty_entry_%u`.",
                     cInfo->Entry, diff2 + 1, cInfo->DifficultyEntry[diff], diff + 1);
                 continue;
             }
@@ -2284,12 +2284,12 @@ void ObjectMgr::LoadItemPrototypes()
             // To be implemented later
             if (proto->RandomProperty == -1)
                 const_cast<ItemPrototype*>(proto)->RandomProperty = 0;
-                
+
             else if (!sItemRandomPropertiesStore.LookupEntry(GetItemEnchantMod(proto->RandomProperty)))
             {
                 sLog.outErrorDb("Item (Entry: %u) has unknown (wrong or not listed in `item_enchantment_template`) RandomProperty (%u)",i,proto->RandomProperty);
                 const_cast<ItemPrototype*>(proto)->RandomProperty = 0;
-            }    
+            }
         }
 
         if (proto->RandomSuffix && !sItemRandomSuffixStore.LookupEntry(GetItemEnchantMod(proto->RandomSuffix)))
@@ -2716,7 +2716,7 @@ void ObjectMgr::PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint3
 
                     if (!found)
                         sLog.outErrorDb("Item %u specified to be removed from original create info not found in dbc!", itemId);
-                    
+
                     if (!doneOne)
                         doneOne = true;
                     else
@@ -3585,7 +3585,7 @@ void ObjectMgr::LoadGroups()
     {
         bar2.step();
         fields = result->Fetch();
-        
+
         if (groupLowGuid != fields[0].GetUInt32())
         {
             groupLowGuid = fields[0].GetUInt32();
@@ -4761,7 +4761,7 @@ void ObjectMgr::LoadScripts(ScriptMapMap& scripts, char const* tablename)
                     tablename, tmp.datalong2, tmp.id);
                     continue;
                 }
-                break;          
+                break;
             }
         }
 
@@ -8439,7 +8439,7 @@ void ObjectMgr::LoadGossipMenu()
         GossipMenus gMenu;
 
         gMenu.entry             = fields[0].GetUInt32();
-        gMenu.text_id           = fields[1].GetUInt32();        
+        gMenu.text_id           = fields[1].GetUInt32();
 
         if (!GetGossipText(gMenu.text_id))
         {

@@ -546,7 +546,7 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket & recv_data)
     uint8 groupNr;
     recv_data >> name;
     recv_data >> groupNr;
-    
+
     if (groupNr >= MAX_RAID_SUBGROUPS)
         return;
 
@@ -561,7 +561,7 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket & recv_data)
 
     Player *movedPlayer = sObjectMgr.GetPlayer(name.c_str());
     if (movedPlayer)
-    {   
+    {
         //Do not allow leader to change group of player in combat
         if (movedPlayer->isInCombat())
             return;

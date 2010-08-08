@@ -27,7 +27,7 @@ EndScriptData */
 
 enum Spells
 {
-                                                  
+
     SPELL_ARCANE_SHIELD                           = 53813, //Dummy --> Channeled, shields the caster from damage.
     SPELL_EMPOWERED_ARCANE_EXPLOSION              = 51110,
     SPELL_EMPOWERED_ARCANE_EXPLOSION_2            = 59377,
@@ -58,7 +58,7 @@ enum eCreature
     NPC_PHANTASMAL_AIR                            = 27650,
     NPC_PHANTASMAL_FIRE                           = 27651,
     NPC_PHANTASMAL_WATER                          = 27653,
-    
+
     NPC_PHANTASMAL_MURLOC                         = 27649,
     NPC_PHANTASMAL_NAGAL                          = 27648,
     NPC_PHANTASMAL_OGRE                           = 27647
@@ -176,7 +176,7 @@ public:
                     pWho->SetInCombatWith(me);
 
                     me->GetMotionMaster()->MoveChase(pWho, 0,0);
-                }    
+                }
             }
         }
 
@@ -190,7 +190,7 @@ public:
                 uiGroup[0] = urand(0,2);
                 uiGroup[1] = urand(0,2);
                 uiGroup[2] = urand(0,2);
-            } 
+            }
         }
 
         void SetPosition(uint8 uiI)
@@ -247,7 +247,7 @@ public:
 
             if (!pInstance || pInstance->GetData(DATA_UROM_PLATAFORM) < 2)
                 return;
-        
+
             if (uiTeleportTimer <= uiDiff)
             {
                 me->InterruptNonMeleeSpells(false);
@@ -291,7 +291,7 @@ public:
                 if (uiFrostBombTimer <= uiDiff)
                 {
                     DoCastVictim(SPELL_FROSTBOMB);
-                    uiFrostBombTimer = urand(5000,8000);        
+                    uiFrostBombTimer = urand(5000,8000);
                 } else uiFrostBombTimer -= uiDiff;
 
                 if (uiTimeBombTimer <= uiDiff)
@@ -342,7 +342,7 @@ public:
                     break;
                 case SPELL_TELEPORT:
                     me->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY); // with out it the npc will fall down while is casting
-                    bCanCast = true;  
+                    bCanCast = true;
                     break;
                 default:
                     break;

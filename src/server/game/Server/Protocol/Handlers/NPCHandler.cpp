@@ -38,7 +38,7 @@
 #include "Guild.h"
 #include "ScriptMgr.h"
 
-enum StableResultCode	
+enum StableResultCode    
 {
     STABLE_ERR_MONEY        = 0x01,                         // "you don't have enough money"
     STABLE_ERR_STABLE       = 0x06,                         // currently used in most fail cases

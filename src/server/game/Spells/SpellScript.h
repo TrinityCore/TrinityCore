@@ -78,7 +78,7 @@ class _SpellScript
         //
         // SpellScript/AuraScript interface base
         // these functions are safe to override, see notes below for usage instructions
-        // 
+        //
         // Function in which handler functions are registered, must be implemented in script
         virtual void Register() = 0;
         // Function called on server startup, if returns false script won't be used in core
@@ -116,7 +116,7 @@ class SpellScript : public _SpellScript
         //
         // SpellScript interface
         // hooks to which you can attach your functions
-        // 
+        //
         // List of functions registered by EffectHandlerFn
         // allows more than one hook
         // example EffectHandlers += EffectHandlerFn(class::function, EffectIndexSpecifier, EffectNameSpecifier);
@@ -135,9 +135,9 @@ class SpellScript : public _SpellScript
         WorldLocation * GetDest();
 
         // methods useable only during spell hit on target phase:
-        
+
         // returns: target of current effect if it was Unit otherwise NULL
-        Unit * GetHitUnit(); 
+        Unit * GetHitUnit();
         // returns: target of current effect if it was Creature otherwise NULL
         Creature * GetHitCreature();
         // returns: target of current effect if it was Player otherwise NULL
@@ -174,7 +174,7 @@ class SpellScript : public _SpellScript
 // EFFECT_1 - second effect matches
 // EFFECT_2 - third effect matches
 // EFFECT_FIRST_FOUND - first effect matching other conditions matches
-// EFFECT_ALL - all effects of spell match 
+// EFFECT_ALL - all effects of spell match
 //
 // EffectNameSpecifier - specifies conditions for spell effect names
 // SPELL_EFFECT_ANY - any effect but not 0 matches condition

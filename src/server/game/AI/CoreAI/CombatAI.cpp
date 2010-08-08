@@ -304,7 +304,7 @@ VehicleAI::VehicleAI(Creature *c) : CreatureAI(c), m_vehicle(c->GetVehicleKit())
 void VehicleAI::UpdateAI(const uint32 diff)
 {
     CheckConditions(diff);
-    
+
     if (m_DoDismiss)
     {
         if (m_DismissTimer < diff)

@@ -272,16 +272,16 @@ enum eTruuen
 {
     NPC_GHOST_UTHER             = 17233,
     NPC_THEL_DANIS              = 1854,
-    NPC_GHOUL                   = 1791,      //ambush 
+    NPC_GHOUL                   = 1791,      //ambush
 
     QUEST_TOMB_LIGHTBRINGER     = 9446,
 
-    SAY_WP_0                    = -1999981,  //Beware! We are attacked!    
+    SAY_WP_0                    = -1999981,  //Beware! We are attacked!
     SAY_WP_1                    = -1999982,  //It must be the purity of the Mark of the Lightbringer that is drawing forth the Scourge to attack us. We must proceed with caution lest we be overwhelmed!
     SAY_WP_2                    = -1999983,  //This land truly needs to be cleansed by the Light! Let us continue on to the tomb. It isn't far now...
     SAY_WP_3                    = -1999984,  //Be welcome, friends!
-    SAY_WP_4                    = -1999985,  //Thank you for coming here in remembrance of me. Your efforts in recovering that symbol, while unnecessary, are certainly touching to an old man's heart. 
-    SAY_WP_5                    = -1999986,  //Please, rise my friend. Keep the Blessing as a symbol of the strength of the Light and how heroes long gone might once again rise in each of us to inspire. 
+    SAY_WP_4                    = -1999985,  //Thank you for coming here in remembrance of me. Your efforts in recovering that symbol, while unnecessary, are certainly touching to an old man's heart.
+    SAY_WP_5                    = -1999986,  //Please, rise my friend. Keep the Blessing as a symbol of the strength of the Light and how heroes long gone might once again rise in each of us to inspire.
     SAY_WP_6                    = -1999987   //Thank you my friend for making this possible. This is a day that I shall never forget! I think I will stay a while. Please return to High Priestess MacDonnell at the camp. I know that she'll be keenly interested to know of what has transpired here.
 };
 class npc_anchorite_truuen : public CreatureScript
@@ -293,8 +293,8 @@ public:
     {
         npc_escortAI* pEscortAI = CAST_AI(npc_anchorite_truuen::npc_anchorite_truuenAI, pCreature->AI());
 
-        if (quest->GetQuestId() == QUEST_TOMB_LIGHTBRINGER)      
-            pEscortAI->Start(true, true, pPlayer->GetGUID());               
+        if (quest->GetQuestId() == QUEST_TOMB_LIGHTBRINGER)
+            pEscortAI->Start(true, true, pPlayer->GetGUID());
         return false;
     }
 
@@ -316,7 +316,7 @@ public:
         Creature* Theldanis;
 
         void Reset()
-        {    
+        {
             m_uiChatTimer = 7000;
         }
 
@@ -325,7 +325,7 @@ public:
             if (pSummoned->GetEntry() == NPC_GHOUL)
                 pSummoned->AI()->AttackStart(me);
         }
-    
+
         void WaypointReached(uint32 i)
         {
             Player* pPlayer = GetPlayerForEscort();
@@ -339,7 +339,7 @@ public:
                 case 9:
                     DoScriptText(SAY_WP_1, me);
                     break;
-                case 14:            
+                case 14:
                     me->SummonCreature(NPC_GHOUL, me->GetPositionX()+7.0f, me->GetPositionY()+7.0f, me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 90000);
                     me->SummonCreature(NPC_GHOUL, me->GetPositionX()+5.0f, me->GetPositionY()+5.0f, me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 90000);
                     me->SummonCreature(NPC_GHOUL, me->GetPositionX()+10.0f, me->GetPositionY()+10.0f, me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 90000);
@@ -347,14 +347,14 @@ public:
                     break;
                 case 15:
                     DoScriptText(SAY_WP_2, me);
-                case 21:             
+                case 21:
                     Theldanis = GetClosestCreatureWithEntry(me, NPC_THEL_DANIS, 150);
                     DoScriptText(SAY_WP_3, Theldanis);
                     break;
                 case 22:
-                    break;            
+                    break;
                 case 23:
-                    Ughost = me->SummonCreature(NPC_GHOST_UTHER, 971.86,-1825.42 ,81.99 , 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);            
+                    Ughost = me->SummonCreature(NPC_GHOST_UTHER, 971.86,-1825.42 ,81.99 , 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                     Ughost->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                     DoScriptText(SAY_WP_4, Ughost, me);
                     m_uiChatTimer = 4000;
@@ -369,8 +369,8 @@ public:
                     break;
                 case 26:
                     if (pPlayer)
-                        pPlayer->GroupEventHappens(QUEST_TOMB_LIGHTBRINGER, me);            
-                    break;        
+                        pPlayer->GroupEventHappens(QUEST_TOMB_LIGHTBRINGER, me);
+                    break;
             }
         }
 
@@ -380,7 +380,7 @@ public:
         {
            Player* pPlayer = GetPlayerForEscort();
             if (pPlayer)
-                pPlayer->FailQuest(QUEST_TOMB_LIGHTBRINGER);  
+                pPlayer->FailQuest(QUEST_TOMB_LIGHTBRINGER);
         }
 
         void UpdateAI(const uint32 uiDiff)

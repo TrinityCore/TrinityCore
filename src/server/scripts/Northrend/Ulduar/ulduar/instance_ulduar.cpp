@@ -72,7 +72,7 @@ public:
         uint64 uiFreyaChestGUID;
 
         void Initialize()
-        {   
+        {
             uiIgnisGUID           = 0;
             uiRazorscaleGUID      = 0;
             uiXT002GUID           = 0;
@@ -113,7 +113,7 @@ public:
             switch(pCreature->GetEntry())
             {
                 case NPC_LEVIATHAN:
-                    uiLeviathanGUID = pCreature->GetGUID();         
+                    uiLeviathanGUID = pCreature->GetGUID();
                     break;
                 case NPC_IGNIS:
                     uiIgnisGUID = pCreature->GetGUID();
@@ -194,10 +194,10 @@ public:
                     if (flag == 7)
                         flag =0;
                     break;
-                case GO_LEVIATHAN_GATE:            
+                case GO_LEVIATHAN_GATE:
                     uiLeviathanGateGUID = add ? pGO->GetGUID() : NULL;
-                    HandleGameObject(NULL, false, pGO); 
-                    break;         
+                    HandleGameObject(NULL, false, pGO);
+                    break;
             }
         }
 
@@ -211,7 +211,7 @@ public:
                 {
                     case EVENT_TOWER_OF_STORM_DESTROYED:
                         //pGO->GetInstanceScript()->SetData(DATA_TOWER_STORMS,DESTROYED);
-                        pFlameLeviathan->AI()->DoAction(1);                
+                        pFlameLeviathan->AI()->DoAction(1);
                         break;
                     case EVENT_TOWER_OF_FROST_DESTROYED:
                         pFlameLeviathan->AI()->DoAction(2);
@@ -277,9 +277,9 @@ public:
                         if (Creature* pBoss = instance->GetCreature(uiLeviathanGUID))
                             pBoss->AI()->DoAction(10);
                         if (GameObject* pGate = instance->GetGameObject(uiLeviathanGateGUID))
-                            pGate->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);                                                           
+                            pGate->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
                     }
-                    break;        
+                    break;
                 default:
                     break;
             }

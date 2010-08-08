@@ -474,12 +474,12 @@ public:
                     break;
             }
         }
-    
+
         void UpdateAI(const uint32 diff)
         {
             if (pInstance && pInstance->GetData(DATA_MAIN_EVENT_PHASE != IN_PROGRESS))
                 me->CastStop();
-        
+
             npc_escortAI::UpdateAI(diff);
 
             if(!bHasGotMovingPoints)
@@ -557,7 +557,7 @@ public:
         uint32 uiSpawnTimer;
         bool bPortalGuardianOrKeeperOrEliteSpawn;
         uint8 uiTypeOfMobsPortal;
-    
+
         SummonList listOfMobs;
 
         InstanceScript *pInstance;
@@ -569,14 +569,14 @@ public:
         }
 
         void EnterCombat(Unit * /*who*/) {}
-    
+
         void MoveInLineOfSight(Unit * /*who*/) {}
 
         void UpdateAI(const uint32 diff)
         {
             if (!pInstance) //Massive usage of pInstance, global check
                 return;
-        
+
             if (pInstance->GetData(DATA_REMOVE_NPC) == 1)
             {
                 me->ForcedDespawn();

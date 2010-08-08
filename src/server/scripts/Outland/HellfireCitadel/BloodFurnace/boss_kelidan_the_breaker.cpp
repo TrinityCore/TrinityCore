@@ -228,8 +228,8 @@ class boss_kelidan_the_breaker : public CreatureScript
                 {
                     DoCast(me, SPELL_SHADOW_BOLT_VOLLEY);
                     ShadowVolley_Timer = 5000+rand()%8000;
-                } 
-                else 
+                }
+                else
                     ShadowVolley_Timer -=diff;
 
                 if (Corruption_Timer <= diff)
@@ -237,7 +237,7 @@ class boss_kelidan_the_breaker : public CreatureScript
                     DoCast(me, SPELL_CORRUPTION);
                     Corruption_Timer = 30000+rand()%20000;
                 }
-                else 
+                else
                     Corruption_Timer -=diff;
 
                 if (BurningNova_Timer <= diff)
@@ -344,8 +344,8 @@ class mob_shadowmoon_channeler : public CreatureScript
                                     DoCast(channeled, SPELL_CHANNELING);
                             }
                         check_Timer = 5000;
-                    } 
-                    else 
+                    }
+                    else
                         check_Timer -= diff;
                     return;
                 }
@@ -355,16 +355,16 @@ class mob_shadowmoon_channeler : public CreatureScript
                     if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                         DoCast(pTarget, SPELL_MARK_OF_SHADOW);
                     MarkOfShadow_Timer = 15000+rand()%5000;
-                } 
-                else 
+                }
+                else
                     MarkOfShadow_Timer -=diff;
 
                 if (ShadowBolt_Timer <= diff)
                 {
                     DoCast(me->getVictim(), SPELL_SHADOW_BOLT);
                     ShadowBolt_Timer = 5000+rand()%1000;
-                } 
-                else 
+                }
+                else
                     ShadowBolt_Timer -=diff;
 
                 DoMeleeAttackIfReady();

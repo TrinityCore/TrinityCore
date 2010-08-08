@@ -12,9 +12,9 @@ typedef unsigned __int16   uint16;
 typedef unsigned __int8    uint8;
 #else
 #include <stdint.h>
-#ifndef uint64_t 
+#ifndef uint64_t
 #ifdef __linux__
-#include <linux/types.h> 
+#include <linux/types.h>
 #endif
 #endif
 typedef int64_t            int64;
