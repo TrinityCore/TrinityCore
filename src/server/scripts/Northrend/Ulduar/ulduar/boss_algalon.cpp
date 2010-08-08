@@ -80,7 +80,8 @@ enum Yells
     SAY_SUMMON_2                                = -1603018,
     SAY_SUMMON_3                                = -1603019,
 };
-class boss_algalon : public CreatureScript
+
+class boss_algalon : public CreatureScript
 {
 public:
     boss_algalon() : CreatureScript("boss_algalon") { }
@@ -338,7 +339,8 @@ public:
 
 };
 
-//Collapsing Starclass mob_collapsing_star : public CreatureScript
+//Collapsing Star
+class mob_collapsing_star : public CreatureScript
 {
 public:
     mob_collapsing_star() : CreatureScript("mob_collapsing_star") { }
@@ -378,8 +380,6 @@ public:
     };
 
 };
-
-
 
 void AddSC_boss_Algalon()
 {

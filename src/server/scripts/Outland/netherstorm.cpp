@@ -60,7 +60,8 @@ EndContentData */
 #define SPELL_DISABLE_VISUAL    35031
 #define SPELL_INTERRUPT_1       35016                       //ACID mobs should cast this
 #define SPELL_INTERRUPT_2       35176                       //ACID mobs should cast this (Manaforge Ara-version)
-class npc_manaforge_control_console : public CreatureScript
+
+class npc_manaforge_control_console : public CreatureScript
 {
 public:
     npc_manaforge_control_console() : CreatureScript("npc_manaforge_control_console") { }
@@ -296,7 +297,8 @@ public:
 ## go_manaforge_control_console
 ######*/
 
-//TODO: clean up this workaround when Trinity adds support to do it properly (with gossip selections instead of instant summon)class go_manaforge_control_console : public GameObjectScript
+//TODO: clean up this workaround when Trinity adds support to do it properly (with gossip selections instead of instant summon)
+class go_manaforge_control_console : public GameObjectScript
 {
 public:
     go_manaforge_control_console() : GameObjectScript("go_manaforge_control_console") { }
@@ -373,7 +375,8 @@ const uint32 CreatureEntry[3] =
     19831,                                                // Dawnforge
     21504                                                 // Pathaleon
 };
-class npc_commander_dawnforge : public CreatureScript
+
+class npc_commander_dawnforge : public CreatureScript
 {
 public:
     npc_commander_dawnforge() : CreatureScript("npc_commander_dawnforge") { }
@@ -625,7 +628,8 @@ public:
 
 };
 
-class at_commander_dawnforge : public AreaTriggerScript
+
+class at_commander_dawnforge : public AreaTriggerScript
 {
 public:
     at_commander_dawnforge() : AreaTriggerScript("at_commander_dawnforge") { }
@@ -661,7 +665,8 @@ public:
 
 #define QUEST_DIMENSIUS 10439
 #define QUEST_ON_NETHERY_WINGS 10438
-class npc_professor_dabiri : public CreatureScript
+
+class npc_professor_dabiri : public CreatureScript
 {
 public:
     npc_professor_dabiri() : CreatureScript("npc_professor_dabiri") { }
@@ -719,7 +724,8 @@ public:
 #define SPELL_MANA_BURN                 13321
 #define SPELL_MATERIALIZE               34804
 #define SPELL_DE_MATERIALIZE            34814
-class mob_phase_hunter : public CreatureScript
+
+class mob_phase_hunter : public CreatureScript
 {
 public:
     mob_phase_hunter() : CreatureScript("mob_phase_hunter") { }
@@ -848,7 +854,8 @@ public:
 #define SPAWN_SECOND    19881
 #define SAY_THADELL_1   -1000304
 #define SAY_THADELL_2   -1000305
-class npc_bessy : public CreatureScript
+
+class npc_bessy : public CreatureScript
 {
 public:
     npc_bessy() : CreatureScript("npc_bessy") { }

@@ -105,7 +105,8 @@ bool CheckAllBossDied(InstanceScript* pInstance, Creature* me)
     return false;
 }
 
-//High King Maulgar AIclass boss_high_king_maulgar : public CreatureScript
+//High King Maulgar AI
+class boss_high_king_maulgar : public CreatureScript
 {
 public:
     boss_high_king_maulgar() : CreatureScript("boss_high_king_maulgar") { }
@@ -303,7 +304,8 @@ public:
 
 };
 
-//Olm The Summoner AIclass boss_olm_the_summoner : public CreatureScript
+//Olm The Summoner AI
+class boss_olm_the_summoner : public CreatureScript
 {
 public:
     boss_olm_the_summoner() : CreatureScript("boss_olm_the_summoner") { }
@@ -430,7 +432,8 @@ public:
 
 };
 
-//Kiggler The Crazed AIclass boss_kiggler_the_crazed : public CreatureScript
+//Kiggler The Crazed AI
+class boss_kiggler_the_crazed : public CreatureScript
 {
 public:
     boss_kiggler_the_crazed() : CreatureScript("boss_kiggler_the_crazed") { }
@@ -551,7 +554,8 @@ public:
 
 };
 
-//Blindeye The Seer AIclass boss_blindeye_the_seer : public CreatureScript
+//Blindeye The Seer AI
+class boss_blindeye_the_seer : public CreatureScript
 {
 public:
     boss_blindeye_the_seer() : CreatureScript("boss_blindeye_the_seer") { }
@@ -660,7 +664,8 @@ public:
 
 };
 
-//Krosh Firehand AIclass boss_krosh_firehand : public CreatureScript
+//Krosh Firehand AI
+class boss_krosh_firehand : public CreatureScript
 {
 public:
     boss_krosh_firehand() : CreatureScript("boss_krosh_firehand") { }

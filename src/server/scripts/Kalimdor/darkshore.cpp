@@ -64,7 +64,8 @@ enum eKerlonian
     FACTION_KER_ESCORTEE        = 113
 };
 
-//TODO: make concept similar as "ringo" -escort. Find a way to run the scripted attacks, _if_ player are choosing road.class npc_kerlonian : public CreatureScript
+//TODO: make concept similar as "ringo" -escort. Find a way to run the scripted attacks, _if_ player are choosing road.
+class npc_kerlonian : public CreatureScript
 {
 public:
     npc_kerlonian() : CreatureScript("npc_kerlonian") { }
@@ -204,7 +205,8 @@ enum eRemtravel
     NPC_GRAVEL_BONE             = 2159,
     NPC_GRAVEL_GEO              = 2160
 };
-class npc_prospector_remtravel : public CreatureScript
+
+class npc_prospector_remtravel : public CreatureScript
 {
 public:
     npc_prospector_remtravel() : CreatureScript("npc_prospector_remtravel") { }
@@ -327,7 +329,8 @@ enum eThreshwackonator
 };
 
 #define GOSSIP_ITEM_INSERT_KEY  "[PH] Insert key"
-class npc_threshwackonator : public CreatureScript
+
+class npc_threshwackonator : public CreatureScript
 {
 public:
     npc_threshwackonator() : CreatureScript("npc_threshwackonator") { }

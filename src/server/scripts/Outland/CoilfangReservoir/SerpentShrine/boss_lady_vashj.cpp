@@ -132,7 +132,8 @@ float ShieldGeneratorChannelPos[4][4] =
     {49.3126, -943.398, 42.5501, 2.40174}
 };
 
-//Lady Vashj AIclass boss_lady_vashj : public CreatureScript
+//Lady Vashj AI
+class boss_lady_vashj : public CreatureScript
 {
 public:
     boss_lady_vashj() : CreatureScript("boss_lady_vashj") { }
@@ -575,7 +576,8 @@ public:
 };
 
 //Enchanted Elemental
-//If one of them reaches Vashj he will increase her damage done by 5%.class mob_enchanted_elemental : public CreatureScript
+//If one of them reaches Vashj he will increase her damage done by 5%.
+class mob_enchanted_elemental : public CreatureScript
 {
 public:
     mob_enchanted_elemental() : CreatureScript("mob_enchanted_elemental") { }
@@ -676,7 +678,8 @@ public:
 };
 
 //Tainted Elemental
-//This mob has 7,900 life, doesn't move, and shoots Poison Bolts at one person anywhere in the area, doing 3,000 nature damage and placing a posion doing 2,000 damage every 2 seconds. He will switch targets often, or sometimes just hang on a single player, but there is nothing you can do about it except heal the damage and kill the Tainted Elementalclass mob_tainted_elemental : public CreatureScript
+//This mob has 7,900 life, doesn't move, and shoots Poison Bolts at one person anywhere in the area, doing 3,000 nature damage and placing a posion doing 2,000 damage every 2 seconds. He will switch targets often, or sometimes just hang on a single player, but there is nothing you can do about it except heal the damage and kill the Tainted Elemental
+class mob_tainted_elemental : public CreatureScript
 {
 public:
     mob_tainted_elemental() : CreatureScript("mob_tainted_elemental") { }
@@ -750,7 +753,8 @@ public:
 };
 
 //Toxic Sporebat
-//Toxic Spores: Used in Phase 3 by the Spore Bats, it creates a contaminated green patch of ground, dealing about 2775-3225 nature damage every second to anyone who stands in it.class mob_toxic_sporebat : public CreatureScript
+//Toxic Spores: Used in Phase 3 by the Spore Bats, it creates a contaminated green patch of ground, dealing about 2775-3225 nature damage every second to anyone who stands in it.
+class mob_toxic_sporebat : public CreatureScript
 {
 public:
     mob_toxic_sporebat() : CreatureScript("mob_toxic_sporebat") { }
@@ -857,7 +861,8 @@ public:
 };
 
 //Coilfang Elite
-//It's an elite Naga mob with 170,000 HP. It does about 5000 damage on plate, and has a nasty cleave hitting for about 7500 damageclass mob_coilfang_elite : public CreatureScript
+//It's an elite Naga mob with 170,000 HP. It does about 5000 damage on plate, and has a nasty cleave hitting for about 7500 damage
+class mob_coilfang_elite : public CreatureScript
 {
 public:
     mob_coilfang_elite() : CreatureScript("mob_coilfang_elite") { }
@@ -881,7 +886,8 @@ public:
 };
 
 //Coilfang Strider
-//It hits plate for about 8000 damage, has a Mind Blast spell doing about 3000 shadow damage, and a Psychic Scream Aura, which fears everybody in a 8 yard range of it every 2-3 seconds , for 5 seconds and increasing their movement speed by 150% during the fear.class mob_coilfang_strider : public CreatureScript
+//It hits plate for about 8000 damage, has a Mind Blast spell doing about 3000 shadow damage, and a Psychic Scream Aura, which fears everybody in a 8 yard range of it every 2-3 seconds , for 5 seconds and increasing their movement speed by 150% during the fear.
+class mob_coilfang_strider : public CreatureScript
 {
 public:
     mob_coilfang_strider() : CreatureScript("mob_coilfang_strider") { }
@@ -905,7 +911,8 @@ public:
     }
 
 };
-class mob_shield_generator_channel : public CreatureScript
+
+class mob_shield_generator_channel : public CreatureScript
 {
 public:
     mob_shield_generator_channel() : CreatureScript("mob_shield_generator_channel") { }
@@ -963,7 +970,8 @@ public:
     };
 
 };
-class item_tainted_core : public ItemScript
+
+class item_tainted_core : public ItemScript
 {
 public:
     item_tainted_core() : ItemScript("item_tainted_core") { }

@@ -80,7 +80,8 @@ enum SuperSpell
     SUPER_BLIZZARD,
     SUPER_AE,
 };
-class boss_shade_of_aran : public CreatureScript
+
+class boss_shade_of_aran : public CreatureScript
 {
 public:
     boss_shade_of_aran() : CreatureScript("boss_shade_of_aran") { }
@@ -507,7 +508,8 @@ public:
     };
 
 };
-class mob_aran_elemental : public CreatureScript
+
+class mob_aran_elemental : public CreatureScript
 {
 public:
     mob_aran_elemental() : CreatureScript("mob_aran_elemental") { }
@@ -545,7 +547,8 @@ public:
 
 };
 
-// CONVERT TO ACIDclass mob_shadow_of_aran : public CreatureScript
+// CONVERT TO ACID
+class mob_shadow_of_aran : public CreatureScript
 {
 public:
     mob_shadow_of_aran() : CreatureScript("mob_shadow_of_aran") { }

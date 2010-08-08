@@ -43,7 +43,8 @@ EndContentData */
 /*######
 +## go_shadowforge_brazier
 +######*/
-class go_shadowforge_brazier : public GameObjectScript
+
+class go_shadowforge_brazier : public GameObjectScript
 {
 public:
     go_shadowforge_brazier() : GameObjectScript("go_shadowforge_brazier") { }
@@ -99,7 +100,8 @@ uint32 RingBoss[]=
     9031,                                                   // Anub'shiah
     9032,                                                   // Hedrum
 };
-class at_ring_of_law : public AreaTriggerScript
+
+class at_ring_of_law : public AreaTriggerScript
 {
 public:
     at_ring_of_law() : AreaTriggerScript("at_ring_of_law") { }
@@ -135,7 +137,8 @@ enum GrimstoneTexts
     SCRIPT_TEXT6                                           = -1000005
 };
 
-//TODO: implement quest part of event (different end boss)class npc_grimstone : public CreatureScript
+//TODO: implement quest part of event (different end boss)
+class npc_grimstone : public CreatureScript
 {
 public:
     npc_grimstone() : CreatureScript("npc_grimstone") { }
@@ -375,7 +378,8 @@ enum PhalanxSpells
     SPELL_FIREBALLVOLLEY                                   = 22425,
     SPELL_MIGHTYBLOW                                       = 14099
 };
-class mob_phalanx : public CreatureScript
+
+class mob_phalanx : public CreatureScript
 {
 public:
     mob_phalanx() : CreatureScript("mob_phalanx") { }
@@ -457,7 +461,8 @@ enum KharamQuests
 #define GOSSIP_ITEM_KHARAN_8    "Continue with your story please."
 #define GOSSIP_ITEM_KHARAN_9    "Indeed."
 #define GOSSIP_ITEM_KHARAN_10   "The door is open, Kharan. You are a free man."
-class npc_kharan_mighthammer : public CreatureScript
+
+class npc_kharan_mighthammer : public CreatureScript
 {
 public:
     npc_kharan_mighthammer() : CreatureScript("npc_kharan_mighthammer") { }
@@ -554,7 +559,8 @@ enum LokhtosSpells
 
 #define GOSSIP_ITEM_SHOW_ACCESS     "Show me what I have access to, Lothos."
 #define GOSSIP_ITEM_GET_CONTRACT    "Get Thorium Brotherhood Contract"
-class npc_lokhtos_darkbargainer : public CreatureScript
+
+class npc_lokhtos_darkbargainer : public CreatureScript
 {
 public:
     npc_lokhtos_darkbargainer() : CreatureScript("npc_lokhtos_darkbargainer") { }
@@ -610,7 +616,8 @@ enum DughalQuests
 #define SAY_DUGHAL_FREE         "Thank you, $N! I'm free!!!"
 #define GOSSIP_DUGHAL           "You're free, Dughal! Get out of here!"
 
-/*class npc_dughal_stormwing : public CreatureScript
+/*
+class npc_dughal_stormwing : public CreatureScript
 {
 public:
     npc_dughal_stormwing() : CreatureScript("npc_dughal_stormwing") { }
@@ -719,7 +726,8 @@ public:
 #define MOB_ENTRY_REGINALD_WINDSOR  9682
 
 Player* pPlayerStart;
-/*class npc_marshal_windsor : public CreatureScript
+/*
+class npc_marshal_windsor : public CreatureScript
 {
 public:
     npc_marshal_windsor() : CreatureScript("npc_marshal_windsor") { }
@@ -892,7 +900,8 @@ public:
 #define MOB_ENTRY_CREST_KILLER      9680
 
 int wp = 0;
-/*class npc_marshal_reginald_windsor : public CreatureScript
+/*
+class npc_marshal_reginald_windsor : public CreatureScript
 {
 public:
     npc_marshal_reginald_windsor() : CreatureScript("npc_marshal_reginald_windsor") { }
@@ -1094,7 +1103,8 @@ public:
 ######*/
 
 #define SAY_TOBIAS_FREE         "Thank you! I will run for safety immediately!"
-/*class npc_tobias_seecher : public CreatureScript
+/*
+class npc_tobias_seecher : public CreatureScript
 {
 public:
     npc_tobias_seecher() : CreatureScript("npc_tobias_seecher") { }
@@ -1211,7 +1221,8 @@ enum RocknotQuests
 {
     QUEST_ALE                                              = 4295
 };
-class npc_rocknot : public CreatureScript
+
+class npc_rocknot : public CreatureScript
 {
 public:
     npc_rocknot() : CreatureScript("npc_rocknot") { }

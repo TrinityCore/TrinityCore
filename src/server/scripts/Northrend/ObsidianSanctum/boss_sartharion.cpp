@@ -217,7 +217,8 @@ Locations TwilightEggsSarth[] =
 /*######
 ## Boss Sartharion
 ######*/
-class boss_sartharion : public CreatureScript
+
+class boss_sartharion : public CreatureScript
 {
 public:
     boss_sartharion() : CreatureScript("boss_sartharion") { }
@@ -1001,7 +1002,8 @@ struct dummy_dragonAI : public ScriptedAI
 /*######
 ## Mob Tenebron
 ######*/
-class mob_tenebron : public CreatureScript
+
+class mob_tenebron : public CreatureScript
 {
 public:
     mob_tenebron() : CreatureScript("mob_tenebron") { }
@@ -1095,7 +1097,8 @@ public:
 /*######
 ## Mob Shadron
 ######*/
-class mob_shadron : public CreatureScript
+
+class mob_shadron : public CreatureScript
 {
 public:
     mob_shadron() : CreatureScript("mob_shadron") { }
@@ -1204,7 +1207,8 @@ public:
 /*######
 ## Mob Vesperon
 ######*/
-class mob_vesperon : public CreatureScript
+
+class mob_vesperon : public CreatureScript
 {
 public:
     mob_vesperon() : CreatureScript("mob_vesperon") { }
@@ -1304,7 +1308,8 @@ public:
 /*######
 ## Mob Acolyte of Shadron
 ######*/
-class mob_acolyte_of_shadron : public CreatureScript
+
+class mob_acolyte_of_shadron : public CreatureScript
 {
 public:
     mob_acolyte_of_shadron() : CreatureScript("mob_acolyte_of_shadron") { }
@@ -1412,7 +1417,8 @@ public:
 /*######
 ## Mob Acolyte of Vesperon
 ######*/
-class mob_acolyte_of_vesperon : public CreatureScript
+
+class mob_acolyte_of_vesperon : public CreatureScript
 {
 public:
     mob_acolyte_of_vesperon() : CreatureScript("mob_acolyte_of_vesperon") { }
@@ -1507,7 +1513,8 @@ public:
 /*######
 ## Mob Twilight Eggs
 ######*/
-class mob_twilight_eggs : public CreatureScript
+
+class mob_twilight_eggs : public CreatureScript
 {
 public:
     mob_twilight_eggs() : CreatureScript("mob_twilight_eggs") { }
@@ -1578,7 +1585,8 @@ public:
 
 /*######
 ## Mob Flame Tsunami
-######*/class npc_flame_tsunami : public CreatureScript
+######*/
+class npc_flame_tsunami : public CreatureScript
 {
 public:
     npc_flame_tsunami() : CreatureScript("npc_flame_tsunami") { }
@@ -1628,7 +1636,8 @@ public:
 
 };
 
-// Twilight Fissureclass npc_twilight_fissure : public CreatureScript
+// Twilight Fissure
+class npc_twilight_fissure : public CreatureScript
 {
 public:
     npc_twilight_fissure() : CreatureScript("npc_twilight_fissure") { }
@@ -1679,7 +1688,8 @@ public:
 /*######
 ## Mob Twilight Whelps
 ######*/
-class mob_twilight_whelp : public CreatureScript
+
+class mob_twilight_whelp : public CreatureScript
 {
 public:
     mob_twilight_whelp() : CreatureScript("mob_twilight_whelp") { }

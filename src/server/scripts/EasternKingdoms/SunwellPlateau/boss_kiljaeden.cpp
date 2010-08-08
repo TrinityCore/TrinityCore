@@ -238,7 +238,8 @@ static Speech Speeches[]=
     {SAY_KALECGOS_GOODBYE,      DATA_KALECGOS_KJ,   12000},
 };
 
-//AI for Kalecgosclass boss_kalecgos_kj : public CreatureScript
+//AI for Kalecgos
+class boss_kalecgos_kj : public CreatureScript
 {
 public:
     boss_kalecgos_kj() : CreatureScript("boss_kalecgos_kj") { }
@@ -367,7 +368,8 @@ public:
     };
 
 };
-class go_orb_of_the_blue_flight : public GameObjectScript
+
+class go_orb_of_the_blue_flight : public GameObjectScript
 {
 public:
     go_orb_of_the_blue_flight() : GameObjectScript("go_orb_of_the_blue_flight") { }
@@ -391,7 +393,8 @@ public:
 
 };
 
-//AI for Kil'jaeden Event Controllerclass mob_kiljaeden_controller : public CreatureScript
+//AI for Kil'jaeden Event Controller
+class mob_kiljaeden_controller : public CreatureScript
 {
 public:
     mob_kiljaeden_controller() : CreatureScript("mob_kiljaeden_controller") { }
@@ -491,7 +494,8 @@ public:
 };
 
 
-//AI for Kil'jaedenclass boss_kiljaeden : public CreatureScript
+//AI for Kil'jaeden
+class boss_kiljaeden : public CreatureScript
 {
 public:
     boss_kiljaeden() : CreatureScript("boss_kiljaeden") { }
@@ -904,7 +908,8 @@ public:
 };
 
 
-//AI for Hand of the Deceiverclass mob_hand_of_the_deceiver : public CreatureScript
+//AI for Hand of the Deceiver
+class mob_hand_of_the_deceiver : public CreatureScript
 {
 public:
     mob_hand_of_the_deceiver() : CreatureScript("mob_hand_of_the_deceiver") { }
@@ -1005,7 +1010,8 @@ public:
 };
 
 
-//AI for Felfire Portalclass mob_felfire_portal : public CreatureScript
+//AI for Felfire Portal
+class mob_felfire_portal : public CreatureScript
 {
 public:
     mob_felfire_portal() : CreatureScript("mob_felfire_portal") { }
@@ -1050,7 +1056,8 @@ public:
 };
 
 
-//AI for Felfire Fiendclass mob_volatile_felfire_fiend : public CreatureScript
+//AI for Felfire Fiend
+class mob_volatile_felfire_fiend : public CreatureScript
 {
 public:
     mob_volatile_felfire_fiend() : CreatureScript("mob_volatile_felfire_fiend") { }
@@ -1108,7 +1115,8 @@ public:
 };
 
 
-//AI for Armageddon targetclass mob_armageddon : public CreatureScript
+//AI for Armageddon target
+class mob_armageddon : public CreatureScript
 {
 public:
     mob_armageddon() : CreatureScript("mob_armageddon") { }
@@ -1163,7 +1171,8 @@ public:
 };
 
 
-//AI for Shield Orbsclass mob_shield_orb : public CreatureScript
+//AI for Shield Orbs
+class mob_shield_orb : public CreatureScript
 {
 public:
     mob_shield_orb() : CreatureScript("mob_shield_orb") { }
@@ -1251,7 +1260,8 @@ public:
 };
 
 
-//AI for Sinister Reflectionclass mob_sinster_reflection : public CreatureScript
+//AI for Sinister Reflection
+class mob_sinster_reflection : public CreatureScript
 {
 public:
     mob_sinster_reflection() : CreatureScript("mob_sinster_reflection") { }
