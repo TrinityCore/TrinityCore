@@ -27,7 +27,8 @@ EndScriptData */
 #include "wailing_caverns.h"
 
 #define MAX_ENCOUNTER   9
-class instance_wailing_caverns : public InstanceMapScript
+
+class instance_wailing_caverns : public InstanceMapScript
 {
 public:
     instance_wailing_caverns() : InstanceMapScript("instance_wailing_caverns") { }

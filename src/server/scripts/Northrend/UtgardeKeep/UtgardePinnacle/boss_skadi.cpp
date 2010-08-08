@@ -155,7 +155,8 @@ enum eAchievments
 {
     ACHIEV_TIMED_START_EVENT                      = 17726,
 };
-class boss_skadi : public CreatureScript
+
+class boss_skadi : public CreatureScript
 {
 public:
     boss_skadi() : CreatureScript("boss_skadi") { }
@@ -454,7 +455,8 @@ public:
     };
 
 };
-class go_harpoon_launcher : public GameObjectScript
+
+class go_harpoon_launcher : public GameObjectScript
 {
 public:
     go_harpoon_launcher() : GameObjectScript("go_harpoon_launcher") { }

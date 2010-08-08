@@ -25,7 +25,8 @@ enum Factions
 {
     FACTION_HOSTILE_FOR_ALL                       = 16
 };
-class instance_nexus : public InstanceMapScript
+
+class instance_nexus : public InstanceMapScript
 {
 public:
     instance_nexus() : InstanceMapScript("instance_nexus") { }

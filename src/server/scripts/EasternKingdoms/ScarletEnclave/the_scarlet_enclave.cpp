@@ -22,7 +22,8 @@
 ####*/
 #define SPELL_REVIVE 51918
 #define VALK_WHISPER "It is not yet your time, champion. Rise! Rise and fight once more!"
-class npc_valkyr_battle_maiden : public CreatureScript
+
+class npc_valkyr_battle_maiden : public CreatureScript
 {
 public:
     npc_valkyr_battle_maiden() : CreatureScript("npc_valkyr_battle_maiden") { }

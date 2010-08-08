@@ -142,7 +142,8 @@ struct NotOnSameSide : public std::unary_function<Unit *, bool> {
       return (m_inLiveSide != IN_LIVE_SIDE(pTarget));
     }
 };
-class boss_gothik : public CreatureScript
+
+class boss_gothik : public CreatureScript
 {
 public:
     boss_gothik() : CreatureScript("boss_gothik") { }
@@ -489,7 +490,8 @@ public:
     };
 
 };
-class mob_gothik_minion : public CreatureScript
+
+class mob_gothik_minion : public CreatureScript
 {
 public:
     mob_gothik_minion() : CreatureScript("mob_gothik_minion") { }

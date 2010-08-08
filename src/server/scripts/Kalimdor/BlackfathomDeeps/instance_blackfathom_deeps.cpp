@@ -50,7 +50,8 @@ const Position SpawnsLocation[] =
     {-862.193, -174.251, -25.871, 6.182},
     {-863.895, -458.899, -33.891, 5.637}
 };
-class instance_blackfathom_deeps : public InstanceMapScript
+
+class instance_blackfathom_deeps : public InstanceMapScript
 {
 public:
     instance_blackfathom_deeps() : InstanceMapScript("instance_blackfathom_deeps") { }

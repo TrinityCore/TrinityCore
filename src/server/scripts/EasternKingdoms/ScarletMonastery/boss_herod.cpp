@@ -39,7 +39,8 @@ EndScriptData */
 
 #define ENTRY_SCARLET_TRAINEE       6575
 #define ENTRY_SCARLET_MYRMIDON      4295
-class boss_herod : public CreatureScript
+
+class boss_herod : public CreatureScript
 {
 public:
     boss_herod() : CreatureScript("boss_herod") { }
@@ -117,7 +118,8 @@ public:
 
 };
 
-class mob_scarlet_trainee : public CreatureScript
+
+class mob_scarlet_trainee : public CreatureScript
 {
 public:
     mob_scarlet_trainee() : CreatureScript("mob_scarlet_trainee") { }

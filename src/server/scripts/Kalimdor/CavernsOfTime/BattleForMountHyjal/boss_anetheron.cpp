@@ -51,7 +51,8 @@
 
 #define SAY_ONAGGRO "You are defenders of a doomed world! Flee here, and perhaps you will prolong your pathetic lives!"
 #define SOUND_ONAGGRO 10977
-class boss_anetheron : public CreatureScript
+
+class boss_anetheron : public CreatureScript
 {
 public:
     boss_anetheron() : CreatureScript("boss_anetheron") { }
@@ -241,7 +242,8 @@ public:
 
 #define SPELL_IMMOLATION     31303
 #define SPELL_INFERNO_EFFECT 31302
-class mob_towering_infernal : public CreatureScript
+
+class mob_towering_infernal : public CreatureScript
 {
 public:
     mob_towering_infernal() : CreatureScript("mob_towering_infernal") { }

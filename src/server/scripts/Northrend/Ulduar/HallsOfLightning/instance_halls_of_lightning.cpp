@@ -32,7 +32,8 @@ EndScriptData */
 2 - Ionar
 3 - Loken
 */
-class instance_halls_of_lightning : public InstanceMapScript
+
+class instance_halls_of_lightning : public InstanceMapScript
 {
 public:
     instance_halls_of_lightning() : InstanceMapScript("instance_halls_of_lightning") { }

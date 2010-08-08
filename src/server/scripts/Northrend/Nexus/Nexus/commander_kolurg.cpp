@@ -39,7 +39,8 @@ update creature_template set scriptname = 'boss_commander_kolurg' where entry = 
 #define SAY_AGGRO                                          -1576024
 #define SAY_KILL                                           -1576025
 #define SAY_DEATH                                          -1576026
-class boss_commander_kolurg : public CreatureScript
+
+class boss_commander_kolurg : public CreatureScript
 {
 public:
     boss_commander_kolurg() : CreatureScript("boss_commander_kolurg") { }

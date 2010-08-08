@@ -30,7 +30,8 @@ EndScriptData */
 #define SPELL_PIERCEARMOR           6016
 #define SPELL_CRYPT_SCARABS         31602
 #define SPELL_RAISEUNDEADSCARAB     17235
-class boss_nerubenkan : public CreatureScript
+
+class boss_nerubenkan : public CreatureScript
 {
 public:
     boss_nerubenkan() : CreatureScript("boss_nerubenkan") { }

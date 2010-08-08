@@ -89,7 +89,8 @@ enum UnworthyInitiatePhase
     PHASE_TO_ATTACK,
     PHASE_ATTACKING,
 };
-class npc_unworthy_initiate : public CreatureScript
+
+class npc_unworthy_initiate : public CreatureScript
 {
 public:
     npc_unworthy_initiate() : CreatureScript("npc_unworthy_initiate") { }
@@ -278,7 +279,8 @@ public:
 
 };
 
-class npc_unworthy_initiate_anchor : public CreatureScript
+
+class npc_unworthy_initiate_anchor : public CreatureScript
 {
 public:
     npc_unworthy_initiate_anchor() : CreatureScript("npc_unworthy_initiate_anchor") { }
@@ -307,7 +309,8 @@ public:
 
 
 
-class go_acherus_soul_prison : public GameObjectScript
+
+class go_acherus_soul_prison : public GameObjectScript
 {
 public:
     go_acherus_soul_prison() : GameObjectScript("go_acherus_soul_prison") { }
@@ -355,7 +358,8 @@ int32 m_auiRandomSay[] =
 {
     SAY_DUEL_A, SAY_DUEL_B, SAY_DUEL_C, SAY_DUEL_D, SAY_DUEL_E, SAY_DUEL_F, SAY_DUEL_G, SAY_DUEL_H, SAY_DUEL_I
 };
-class npc_death_knight_initiate : public CreatureScript
+
+class npc_death_knight_initiate : public CreatureScript
 {
 public:
     npc_death_knight_initiate() : CreatureScript("npc_death_knight_initiate") { }
@@ -519,7 +523,8 @@ public:
 
 #define DESPAWN_HORSE 52267
 #define SAY_DARK_RIDER      "The realm of shadows awaits..."
-class npc_dark_rider_of_acherus : public CreatureScript
+
+class npc_dark_rider_of_acherus : public CreatureScript
 {
 public:
     npc_dark_rider_of_acherus() : CreatureScript("npc_dark_rider_of_acherus") { }
@@ -611,7 +616,8 @@ enum eSalanar
     CALL_DARK_RIDER             = 52266,
     SPELL_EFFECT_OVERTAKE       = 52349
 };
-class npc_salanar_the_horseman : public CreatureScript
+
+class npc_salanar_the_horseman : public CreatureScript
 {
 public:
     npc_salanar_the_horseman() : CreatureScript("npc_salanar_the_horseman") { }
@@ -677,7 +683,8 @@ public:
 /*######
 ## npc_ros_dark_rider
 ######*/
-class npc_ros_dark_rider : public CreatureScript
+
+class npc_ros_dark_rider : public CreatureScript
 {
 public:
     npc_ros_dark_rider() : CreatureScript("npc_ros_dark_rider") { }
@@ -728,7 +735,8 @@ enum SG
 {
     GHOULS = 28845,
     GHOSTS = 28846,
-};class npc_dkc1_gothik : public CreatureScript
+};
+class npc_dkc1_gothik : public CreatureScript
 {
 public:
     npc_dkc1_gothik() : CreatureScript("npc_dkc1_gothik") { }
@@ -772,7 +780,8 @@ public:
 
 };
 
-class npc_scarlet_ghoul : public CreatureScript
+
+class npc_scarlet_ghoul : public CreatureScript
 {
 public:
     npc_scarlet_ghoul() : CreatureScript("npc_scarlet_ghoul") { }
@@ -862,7 +871,8 @@ public:
 
 #define SPELL_CART_CHECK     54173
 #define SPELL_CART_DRAG      52465
-class npc_scarlet_miner_cart : public CreatureScript
+
+class npc_scarlet_miner_cart : public CreatureScript
 {
 public:
     npc_scarlet_miner_cart() : CreatureScript("npc_scarlet_miner_cart") { }
@@ -916,7 +926,8 @@ public:
 
 #define SAY_SCARLET_MINER1  "Where'd this come from? I better get this down to the ships before the foreman sees it!"
 #define SAY_SCARLET_MINER2  "Now I can have a rest!"
-class npc_scarlet_miner : public CreatureScript
+
+class npc_scarlet_miner : public CreatureScript
 {
 public:
     npc_scarlet_miner() : CreatureScript("npc_scarlet_miner") { }
@@ -1051,7 +1062,8 @@ public:
 ######*/
 
 #define SPELL_CART_SUMM   52463
-class go_inconspicuous_mine_car : public GameObjectScript
+
+class go_inconspicuous_mine_car : public GameObjectScript
 {
 public:
     go_inconspicuous_mine_car() : GameObjectScript("go_inconspicuous_mine_car") { }

@@ -30,7 +30,8 @@ EndScriptData */
 #define SPELL_DRAINLIFE    20743
 #define SPELL_DRAIN_MANA    17243
 #define SPELL_ICETOMB    16869
-class boss_maleki_the_pallid : public CreatureScript
+
+class boss_maleki_the_pallid : public CreatureScript
 {
 public:
     boss_maleki_the_pallid() : CreatureScript("boss_maleki_the_pallid") { }

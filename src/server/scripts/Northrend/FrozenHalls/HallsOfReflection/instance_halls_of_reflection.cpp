@@ -95,7 +95,8 @@ static Position RiflemanSpawnPos[ENCOUNTER_WAVE_RIFLEMAN] =
     {5295.64,1973.76,707.778,1.18682},
     {5282.9,2019.6,707.778,5.88176},
 };
-class instance_halls_of_reflection : public InstanceMapScript
+
+class instance_halls_of_reflection : public InstanceMapScript
 {
 public:
     instance_halls_of_reflection() : InstanceMapScript("instance_halls_of_reflection") { }

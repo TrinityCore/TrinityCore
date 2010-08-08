@@ -42,7 +42,8 @@
 
 #define SAY_ONAGGRO "Abandon all hope! The legion has returned to finish what was begun so many years ago. This time there will be no escape!"
 #define SOUND_ONAGGRO 10999
-class boss_azgalor : public CreatureScript
+
+class boss_azgalor : public CreatureScript
 {
 public:
     boss_azgalor() : CreatureScript("boss_azgalor") { }
@@ -205,7 +206,8 @@ public:
 #define SPELL_THRASH 12787
 #define SPELL_CRIPPLE 31406
 #define SPELL_WARSTOMP 31408
-class mob_lesser_doomguard : public CreatureScript
+
+class mob_lesser_doomguard : public CreatureScript
 {
 public:
     mob_lesser_doomguard() : CreatureScript("mob_lesser_doomguard") { }

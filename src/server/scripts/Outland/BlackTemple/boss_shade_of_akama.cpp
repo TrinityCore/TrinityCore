@@ -106,7 +106,8 @@ static Location BrokenWP[]=
 #define CREATURE_BROKEN             23319
 
 const uint32 spawnEntries[4]= { 23523, 23318, 23524 };
-class mob_ashtongue_channeler : public CreatureScript
+
+class mob_ashtongue_channeler : public CreatureScript
 {
 public:
     mob_ashtongue_channeler() : CreatureScript("mob_ashtongue_channeler") { }
@@ -131,7 +132,8 @@ public:
     };
 
 };
-class mob_ashtongue_sorcerer : public CreatureScript
+
+class mob_ashtongue_sorcerer : public CreatureScript
 {
 public:
     mob_ashtongue_sorcerer() : CreatureScript("mob_ashtongue_sorcerer") { }
@@ -185,7 +187,8 @@ public:
     };
 
 };
-class boss_shade_of_akama : public CreatureScript
+
+class boss_shade_of_akama : public CreatureScript
 {
 public:
     boss_shade_of_akama() : CreatureScript("boss_shade_of_akama") { }
@@ -514,7 +517,8 @@ public:
     };
 
 };
-void mob_ashtongue_channeler::mob_ashtongue_channelerAI::JustDied(Unit* /*killer*/)
+
+void mob_ashtongue_channeler::mob_ashtongue_channelerAI::JustDied(Unit* /*killer*/)
 {
     Creature* Shade = (Unit::GetCreature((*me), ShadeGUID));
     if (Shade && Shade->isAlive())
@@ -528,7 +532,9 @@ void mob_ashtongue_sorcerer::mob_ashtongue_sorcererAI::JustDied(Unit* /*killer*/
     if (Shade && Shade->isAlive())
         CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI, Shade->AI())->IncrementDeathCount(me->GetGUID());
     else sLog.outError("SD2 ERROR: Sorcerer dead but unable to increment DeathCount for Shade of Akama.");
-}class npc_akama_shade : public CreatureScript
+}
+
+class npc_akama_shade : public CreatureScript
 {
 public:
     npc_akama_shade() : CreatureScript("npc_akama_shade") { }

@@ -49,7 +49,8 @@ enum eRaliq
     QUEST_CRACK_SKULLS      = 10009,
     FACTION_HOSTILE_RD      = 45
 };
-class npc_raliq_the_drunk : public CreatureScript
+
+class npc_raliq_the_drunk : public CreatureScript
 {
 public:
     npc_raliq_the_drunk() : CreatureScript("npc_raliq_the_drunk") { }
@@ -124,7 +125,8 @@ public:
 #define QUEST_10004                     10004
 
 #define SPELL_MAGNETIC_PULL             31705
-class npc_salsalabim : public CreatureScript
+
+class npc_salsalabim : public CreatureScript
 {
 public:
     npc_salsalabim() : CreatureScript("npc_salsalabim") { }
@@ -201,7 +203,8 @@ purchasable for one Mark of Illidari each
 Purchase requires exalted reputation with Scryers/Aldor, Cenarion Expedition and The Sha'tar
 ##################################################
 */
-class npc_shattrathflaskvendors : public CreatureScript
+
+class npc_shattrathflaskvendors : public CreatureScript
 {
 public:
     npc_shattrathflaskvendors() : CreatureScript("npc_shattrathflaskvendors") { }
@@ -255,7 +258,8 @@ public:
 ######*/
 
 #define GOSSIP_HZ "Take me to the Caverns of Time."
-class npc_zephyr : public CreatureScript
+
+class npc_zephyr : public CreatureScript
 {
 public:
     npc_zephyr() : CreatureScript("npc_zephyr") { }
@@ -397,7 +401,8 @@ public:
 #define QUEST_WBI       10231
 #define NPC_CREEPJACK   19726
 #define NPC_MALONE      19725
-class npc_dirty_larry : public CreatureScript
+
+class npc_dirty_larry : public CreatureScript
 {
 public:
     npc_dirty_larry() : CreatureScript("npc_dirty_larry") { }
@@ -580,7 +585,8 @@ public:
 
 #define ISANAH_GOSSIP_1 "Who are the Sha'tar?"
 #define ISANAH_GOSSIP_2 "Isn't Shattrath a draenei city? Why do you allow others here?"
-class npc_ishanah : public CreatureScript
+
+class npc_ishanah : public CreatureScript
 {
 public:
     npc_ishanah() : CreatureScript("npc_ishanah") { }
@@ -621,7 +627,8 @@ public:
 #define KHADGAR_GOSSIP_4    "What did you do then?"
 #define KHADGAR_GOSSIP_5    "What happened next?"
 #define KHADGAR_GOSSIP_7    "There was something else I wanted to ask you."
-class npc_khadgar : public CreatureScript
+
+class npc_khadgar : public CreatureScript
 {
 public:
     npc_khadgar() : CreatureScript("npc_khadgar") { }

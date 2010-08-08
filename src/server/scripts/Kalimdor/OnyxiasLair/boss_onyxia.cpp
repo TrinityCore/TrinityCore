@@ -98,7 +98,8 @@ static Position aSpawnLocations[3]=
     //Lair Guard
     {-145.950, -212.831, -68.659}
 };
-class boss_onyxia : public CreatureScript
+
+class boss_onyxia : public CreatureScript
 {
 public:
     boss_onyxia() : CreatureScript("boss_onyxia") { }

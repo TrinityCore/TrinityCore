@@ -27,7 +27,8 @@ EndScriptData */
 npc_kanati
 npc_lakota_windsong
 npc_swiftmountain
-npc_pluckynpc_enraged_panther
+npc_plucky
+npc_enraged_panther
 go_panther_cage
 EndContentData */
 
@@ -47,7 +48,8 @@ enum eKanati
 };
 
 const float m_afGalakLoc[]= {-4867.387695, -1357.353760, -48.226 };
-class npc_kanati : public CreatureScript
+
+class npc_kanati : public CreatureScript
 {
 public:
     npc_kanati() : CreatureScript("npc_kanati") { }
@@ -136,7 +138,8 @@ float m_afBanditLoc[6][6]=
     {-4767.985352, -1873.169189, 90.192},
     {-4788.861328, -1888.007813, 89.888}
 };
-class npc_lakota_windsong : public CreatureScript
+
+class npc_lakota_windsong : public CreatureScript
 {
 public:
     npc_lakota_windsong() : CreatureScript("npc_lakota_windsong") { }
@@ -222,7 +225,8 @@ float m_afWyvernLoc[3][3]=
     {-4970.241, -927.378, -4.951},
     {-4985.364, -952.528, -5.199}
 };
-class npc_paoka_swiftmountain : public CreatureScript
+
+class npc_paoka_swiftmountain : public CreatureScript
 {
 public:
     npc_paoka_swiftmountain() : CreatureScript("npc_paoka_swiftmountain") { }
@@ -295,7 +299,8 @@ enum ePlucky
     SPELL_PLUCKY_HUMAN      = 9192,
     SPELL_PLUCKY_CHICKEN    = 9220
 };
-class npc_plucky : public CreatureScript
+
+class npc_plucky : public CreatureScript
 {
 public:
     npc_plucky() : CreatureScript("npc_plucky") { }
@@ -424,7 +429,8 @@ public:
         return true ;
     }
 };
-class npc_enraged_panther : public CreatureScript
+
+class npc_enraged_panther : public CreatureScript
 {
 public:
     npc_enraged_panther() : CreatureScript("npc_enraged_panther") { }

@@ -35,7 +35,8 @@ enum Events
     EVENT_BLOOM,
     EVENT_DOOM,
 };
-class boss_loatheb : public CreatureScript
+
+class boss_loatheb : public CreatureScript
 {
 public:
     boss_loatheb() : CreatureScript("boss_loatheb") { }
@@ -96,7 +97,8 @@ enum SporeSpells
 {
     SPELL_FUNGAL_CREEP                                     = 29232
 };
-class mob_loatheb_spore : public CreatureScript
+
+class mob_loatheb_spore : public CreatureScript
 {
 public:
     mob_loatheb_spore() : CreatureScript("mob_loatheb_spore") { }

@@ -42,7 +42,8 @@ enum eMist
     NPC_ARYNIA              = 3519,
     FACTION_DARNASSUS       = 79
 };
-class npc_mist : public CreatureScript
+
+class npc_mist : public CreatureScript
 {
 public:
     npc_mist() : CreatureScript("npc_mist") { }

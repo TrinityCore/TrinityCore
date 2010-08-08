@@ -45,7 +45,8 @@ EndContentData */
 #define GOSSIP_SELECT9  "300? So the Dark Irons killed him and dragged him into the Depths?"
 #define GOSSIP_SELECT10 "Ahh... Ironfoe"
 #define GOSSIP_SELECT11 "Thanks, Ragged John. Your story was very uplifting and informative"
-class npc_ragged_john : public CreatureScript
+
+class npc_ragged_john : public CreatureScript
 {
 public:
     npc_ragged_john() : CreatureScript("npc_ragged_john") { }

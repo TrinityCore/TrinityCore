@@ -42,7 +42,8 @@ enum Yells
     SAY_ADD_KILLED                              = -1608016,
     SAY_BOTH_ADDS_KILLED                        = -1608017
 };
-class boss_erekem : public CreatureScript
+
+class boss_erekem : public CreatureScript
 {
 public:
     boss_erekem() : CreatureScript("boss_erekem") { }
@@ -257,7 +258,8 @@ enum GuardSpells
     SPELL_HOWLING_SCREECH                 = 54462,
     SPELL_STRIKE                          = 14516
 };
-class mob_erekem_guard : public CreatureScript
+
+class mob_erekem_guard : public CreatureScript
 {
 public:
     mob_erekem_guard() : CreatureScript("mob_erekem_guard") { }

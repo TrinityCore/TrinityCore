@@ -28,7 +28,8 @@ EndScriptData */
 #define SPELL_FIRENOVA          23462
 #define SPELL_FLAMEBUFFET       23341
 #define SPELL_PYROBLAST         17274
-class boss_pyroguard_emberseer : public CreatureScript
+
+class boss_pyroguard_emberseer : public CreatureScript
 {
 public:
     boss_pyroguard_emberseer() : CreatureScript("boss_pyroguard_emberseer") { }

@@ -100,7 +100,8 @@ static Position2d Coords[]=
     {450.4, 137.4},
     {450.4, 168.3}
 };
-class npc_enslaved_soul : public CreatureScript
+
+class npc_enslaved_soul : public CreatureScript
 {
 public:
     npc_enslaved_soul() : CreatureScript("npc_enslaved_soul") { }
@@ -128,7 +129,8 @@ public:
     };
 
 };
-class boss_reliquary_of_souls : public CreatureScript
+
+class boss_reliquary_of_souls : public CreatureScript
 {
 public:
     boss_reliquary_of_souls() : CreatureScript("boss_reliquary_of_souls") { }
@@ -355,7 +357,8 @@ public:
     };
 
 };
-void npc_enslaved_soul::npc_enslaved_soulAI::JustDied(Unit * /*killer*/)
+
+void npc_enslaved_soul::npc_enslaved_soulAI::JustDied(Unit * /*killer*/)
 {
     if (ReliquaryGUID)
         if (Creature *Reliquary = (Unit::GetCreature((*me), ReliquaryGUID)))
@@ -363,7 +366,8 @@ public:
 
     DoCast(me, SPELL_SOUL_RELEASE, true);
 }
-class boss_essence_of_suffering : public CreatureScript
+
+class boss_essence_of_suffering : public CreatureScript
 {
 public:
     boss_essence_of_suffering() : CreatureScript("boss_essence_of_suffering") { }
@@ -487,7 +491,8 @@ public:
     };
 
 };
-class boss_essence_of_desire : public CreatureScript
+
+class boss_essence_of_desire : public CreatureScript
 {
 public:
     boss_essence_of_desire() : CreatureScript("boss_essence_of_desire") { }
@@ -589,7 +594,8 @@ public:
     };
 
 };
-class boss_essence_of_anger : public CreatureScript
+
+class boss_essence_of_anger : public CreatureScript
 {
 public:
     boss_essence_of_anger() : CreatureScript("boss_essence_of_anger") { }

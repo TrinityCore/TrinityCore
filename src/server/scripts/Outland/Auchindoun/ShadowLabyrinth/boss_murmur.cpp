@@ -35,7 +35,8 @@ EndScriptData */
 #define SPELL_MAGNETIC_PULL         33689
 #define SPELL_SONIC_SHOCK           38797
 #define SPELL_THUNDERING_STORM      39365
-class boss_murmur : public CreatureScript
+
+class boss_murmur : public CreatureScript
 {
 public:
     boss_murmur() : CreatureScript("boss_murmur") { }

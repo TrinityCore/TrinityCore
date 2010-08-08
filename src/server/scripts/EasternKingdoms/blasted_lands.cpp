@@ -39,7 +39,8 @@ EndContentData */
 #define SPELL_TELEPORT_SINGLE           12885
 #define SPELL_TELEPORT_SINGLE_IN_GROUP  13142
 #define SPELL_TELEPORT_GROUP            27686
-class npc_deathly_usher : public CreatureScript
+
+class npc_deathly_usher : public CreatureScript
 {
 public:
     npc_deathly_usher() : CreatureScript("npc_deathly_usher") { }
@@ -81,7 +82,8 @@ public:
 #define GOSSIP_ITEM_FALLEN3 "What are the stones of binding?"
 #define GOSSIP_ITEM_FALLEN4 "You can count on me, Hero"
 #define GOSSIP_ITEM_FALLEN5 "I shall"
-class npc_fallen_hero_of_horde : public CreatureScript
+
+class npc_fallen_hero_of_horde : public CreatureScript
 {
 public:
     npc_fallen_hero_of_horde() : CreatureScript("npc_fallen_hero_of_horde") { }

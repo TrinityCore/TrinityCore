@@ -39,7 +39,8 @@ EndScriptData */
 #define SPELL_HOLY_SHIELD           31904
 #define SPELL_DEVOTION_AURA         8258
 #define SPELL_CONSECRATION          38385
-class boss_captain_skarloc : public CreatureScript
+
+class boss_captain_skarloc : public CreatureScript
 {
 public:
     boss_captain_skarloc() : CreatureScript("boss_captain_skarloc") { }

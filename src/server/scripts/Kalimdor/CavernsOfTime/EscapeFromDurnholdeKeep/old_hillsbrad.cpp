@@ -45,7 +45,8 @@ EndContentData */
 /*######
 ## npc_erozion
 ######*/
-class npc_erozion : public CreatureScript
+
+class npc_erozion : public CreatureScript
 {
 public:
     npc_erozion() : CreatureScript("npc_erozion") { }
@@ -186,7 +187,8 @@ public:
 #define GOSSIP_ID_COMPLETE      9578                        //Thank you friends, I owe my freedom to you. Where is Taretha? I hoped to see her
 
 #define GOSSIP_ITEM_WALKING     "[PH] Start walking."
-class npc_thrall_old_hillsbrad : public CreatureScript
+
+class npc_thrall_old_hillsbrad : public CreatureScript
 {
 public:
     npc_thrall_old_hillsbrad() : CreatureScript("npc_thrall_old_hillsbrad") { }
@@ -570,7 +572,8 @@ public:
 #define GOSSIP_ITEM_EPOCH1      "Strange wizard?"
 #define GOSSIP_ID_EPOCH2        9613                        //Yes, friends. This man was no wizard of
 #define GOSSIP_ITEM_EPOCH2      "We'll get you out. Taretha. Don't worry. I doubt the wizard would wander too far away."
-class npc_taretha : public CreatureScript
+
+class npc_taretha : public CreatureScript
 {
 public:
     npc_taretha() : CreatureScript("npc_taretha") { }

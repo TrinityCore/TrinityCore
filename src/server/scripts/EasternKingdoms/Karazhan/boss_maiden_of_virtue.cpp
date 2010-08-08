@@ -38,7 +38,8 @@ EndScriptData */
 #define SPELL_HOLYWRATH         32445
 #define SPELL_HOLYGROUND        29512
 #define SPELL_BERSERK           26662
-class boss_maiden_of_virtue : public CreatureScript
+
+class boss_maiden_of_virtue : public CreatureScript
 {
 public:
     boss_maiden_of_virtue() : CreatureScript("boss_maiden_of_virtue") { }

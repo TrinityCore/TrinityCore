@@ -22,7 +22,8 @@ enum Spells
 {
     SPELL_NET                                              = 6533
 };
-class boss_gelihast : public CreatureScript
+
+class boss_gelihast : public CreatureScript
 {
 public:
     boss_gelihast() : CreatureScript("boss_gelihast") { }

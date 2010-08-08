@@ -55,7 +55,8 @@ EndContentData */
 #define SPELL_CORRUPT_AEONUS    37853
 
 #define C_COUNCIL_ENFORCER      17023
-class npc_medivh_bm : public CreatureScript
+
+class npc_medivh_bm : public CreatureScript
 {
 public:
     npc_medivh_bm() : CreatureScript("npc_medivh_bm") { }
@@ -248,7 +249,8 @@ static Wave PortalWaves[]=
     {C_EXECU, C_CHRON, C_WHELP, C_ASSAS},
     {C_EXECU, C_VANQU, C_CHRON, C_ASSAS}
 };
-class npc_time_rift : public CreatureScript
+
+class npc_time_rift : public CreatureScript
 {
 public:
     npc_time_rift() : CreatureScript("npc_time_rift") { }
@@ -364,7 +366,8 @@ public:
 #define GOSSIP_ITEM_OBTAIN      "[PH] Obtain Chrono-Beacon"
 #define SPELL_CHRONO_BEACON     34975
 #define ITEM_CHRONO_BEACON      24289
-class npc_saat : public CreatureScript
+
+class npc_saat : public CreatureScript
 {
 public:
     npc_saat() : CreatureScript("npc_saat") { }

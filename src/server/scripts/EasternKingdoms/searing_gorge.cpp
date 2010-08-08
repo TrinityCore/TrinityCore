@@ -38,7 +38,8 @@ EndContentData */
 #define GOSSIP_HELLO_KW    "Tell me what drives this vengance?"
 #define GOSSIP_SELECT_KW1  "Continue please"
 #define GOSSIP_SELECT_KW2  "Let me confer with my colleagues"
-class npc_kalaran_windblade : public CreatureScript
+
+class npc_kalaran_windblade : public CreatureScript
 {
 public:
     npc_kalaran_windblade() : CreatureScript("npc_kalaran_windblade") { }
@@ -84,7 +85,8 @@ public:
 ######*/
 
 #define GOSSIP_HELLO_LR "Teleport me to the Molten Core"
-class npc_lothos_riftwaker : public CreatureScript
+
+class npc_lothos_riftwaker : public CreatureScript
 {
 public:
     npc_lothos_riftwaker() : CreatureScript("npc_lothos_riftwaker") { }
@@ -123,7 +125,8 @@ public:
 #define GOSSIP_HELLO_ZL     "Tell me your story"
 #define GOSSIP_SELECT_ZL1   "Please continue..."
 #define GOSSIP_SELECT_ZL2   "Goodbye"
-class npc_zamael_lunthistle : public CreatureScript
+
+class npc_zamael_lunthistle : public CreatureScript
 {
 public:
     npc_zamael_lunthistle() : CreatureScript("npc_zamael_lunthistle") { }

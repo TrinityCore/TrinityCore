@@ -51,7 +51,8 @@ enum Events
     EVENT_KNIFE,
     EVENT_COMMAND,
 };
-class boss_razuvious : public CreatureScript
+
+class boss_razuvious : public CreatureScript
 {
 public:
     boss_razuvious() : CreatureScript("boss_razuvious") { }

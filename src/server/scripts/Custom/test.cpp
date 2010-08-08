@@ -152,7 +152,8 @@ struct TRINITY_DLL_DECL npc_testAI : public npc_escortAI
             }
         }
 };
-class test : public CreatureScript
+
+class test : public CreatureScript
 {
 public:
     test() : CreatureScript("test") { }

@@ -67,7 +67,8 @@ enum CombatPhase
     TROLL,
     RHINO
 };
-class boss_gal_darah : public CreatureScript
+
+class boss_gal_darah : public CreatureScript
 {
 public:
     boss_gal_darah() : CreatureScript("boss_gal_darah") { }

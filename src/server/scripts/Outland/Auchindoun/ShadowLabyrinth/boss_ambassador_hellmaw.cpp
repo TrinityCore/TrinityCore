@@ -43,7 +43,8 @@ enum eEnums
     SPELL_FEAR              = 33547,
     SPELL_ENRAGE            = 34970
 };
-class boss_ambassador_hellmaw : public CreatureScript
+
+class boss_ambassador_hellmaw : public CreatureScript
 {
 public:
     boss_ambassador_hellmaw() : CreatureScript("boss_ambassador_hellmaw") { }

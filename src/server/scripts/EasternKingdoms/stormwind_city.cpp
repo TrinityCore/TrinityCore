@@ -42,7 +42,8 @@ EndContentData */
 ######*/
 
 #define GOSSIP_ITEM_MALIN "Can you send me to Theramore? I have an urgent message for Lady Jaina from Highlord Bolvar."
-class npc_archmage_malin : public CreatureScript
+
+class npc_archmage_malin : public CreatureScript
 {
 public:
     npc_archmage_malin() : CreatureScript("npc_archmage_malin") { }
@@ -83,7 +84,8 @@ enum eBartleby
     FACTION_ENEMY       = 168,
     QUEST_BEAT          = 1640
 };
-class npc_bartleby : public CreatureScript
+
+class npc_bartleby : public CreatureScript
 {
 public:
     npc_bartleby() : CreatureScript("npc_bartleby") { }
@@ -156,7 +158,8 @@ enum eDashel
     QUEST_MISSING_DIPLO_PT8     = 1447,
     FACTION_HOSTILE             = 168
 };
-class npc_dashel_stonefist : public CreatureScript
+
+class npc_dashel_stonefist : public CreatureScript
 {
 public:
     npc_dashel_stonefist() : CreatureScript("npc_dashel_stonefist") { }
@@ -228,7 +231,8 @@ public:
 #define GOSSIP_ITEM_KAT_2 "My apologies, Lady Prestor."
 #define GOSSIP_ITEM_KAT_3 "Begging your pardon, Lady Prestor. That was not my intent."
 #define GOSSIP_ITEM_KAT_4 "Thank you for your time, Lady Prestor."
-class npc_lady_katrana_prestor : public CreatureScript
+
+class npc_lady_katrana_prestor : public CreatureScript
 {
 public:
     npc_lady_katrana_prestor() : CreatureScript("npc_lady_katrana_prestor") { }
@@ -293,7 +297,8 @@ enum eLordGregorLescovar
 
     QUEST_THE_ATTACK    = 434
 };
-class npc_lord_gregor_lescovar : public CreatureScript
+
+class npc_lord_gregor_lescovar : public CreatureScript
 {
 public:
     npc_lord_gregor_lescovar() : CreatureScript("npc_lord_gregor_lescovar") { }
@@ -449,7 +454,8 @@ public:
 /*######
 ## npc_marzon_silent_blade
 ######*/
-class npc_marzon_silent_blade : public CreatureScript
+
+class npc_marzon_silent_blade : public CreatureScript
 {
 public:
     npc_marzon_silent_blade() : CreatureScript("npc_marzon_silent_blade") { }
@@ -545,7 +551,8 @@ enum eTyrionSpybot
     NPC_PRIESTESS_TYRIONA    = 7779,
     NPC_LORD_GREGOR_LESCOVAR = 1754,
 };
-class npc_tyrion_spybot : public CreatureScript
+
+class npc_tyrion_spybot : public CreatureScript
 {
 public:
     npc_tyrion_spybot() : CreatureScript("npc_tyrion_spybot") { }
@@ -684,7 +691,8 @@ enum eTyrion
 {
     NPC_TYRION_SPYBOT = 8856
 };
-class npc_tyrion : public CreatureScript
+
+class npc_tyrion : public CreatureScript
 {
 public:
     npc_tyrion() : CreatureScript("npc_tyrion") { }

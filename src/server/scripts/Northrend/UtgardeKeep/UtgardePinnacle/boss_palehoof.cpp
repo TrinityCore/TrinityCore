@@ -84,7 +84,8 @@ enum Phase
     PHASE_GORTOK_PALEHOOF,
     PHASE_NONE
 };
-class boss_palehoof : public CreatureScript
+
+class boss_palehoof : public CreatureScript
 {
 public:
     boss_palehoof() : CreatureScript("boss_palehoof") { }
@@ -282,7 +283,8 @@ enum RavenousSpells
     SPELL_CRAZED                                = 48139,
     SPELL_TERRIFYING_ROAR                       = 48144
 };
-class mob_ravenous_furbolg : public CreatureScript
+
+class mob_ravenous_furbolg : public CreatureScript
 {
 public:
     mob_ravenous_furbolg() : CreatureScript("mob_ravenous_furbolg") { }
@@ -395,7 +397,8 @@ enum FrenziedSpells
     SPELL_ENRAGE_1                              = 48138,
     SPELL_ENRAGE_2                              = 48142
 };
-class mob_frenzied_worgen : public CreatureScript
+
+class mob_frenzied_worgen : public CreatureScript
 {
 public:
     mob_frenzied_worgen() : CreatureScript("mob_frenzied_worgen") { }
@@ -511,7 +514,8 @@ enum FerociousSpells
     H_SPELL_GRIEVOUS_WOUND                      = 59263,
     SPELL_STOMP                                 = 48131
 };
-class mob_ferocious_rhino : public CreatureScript
+
+class mob_ferocious_rhino : public CreatureScript
 {
 public:
     mob_ferocious_rhino() : CreatureScript("mob_ferocious_rhino") { }
@@ -631,7 +635,8 @@ enum MassiveAdds
 {
   CREATURE_JORMUNGAR_WORM                     = 27228
 };
-class mob_massive_jormungar : public CreatureScript
+
+class mob_massive_jormungar : public CreatureScript
 {
 public:
     mob_massive_jormungar() : CreatureScript("mob_massive_jormungar") { }
@@ -736,7 +741,8 @@ public:
     };
 
 };
-class mob_palehoof_orb : public CreatureScript
+
+class mob_palehoof_orb : public CreatureScript
 {
 public:
     mob_palehoof_orb() : CreatureScript("mob_palehoof_orb") { }
@@ -822,7 +828,8 @@ public:
     };
 
 };
-class go_palehoof_sphere : public GameObjectScript
+
+class go_palehoof_sphere : public GameObjectScript
 {
 public:
     go_palehoof_sphere() : GameObjectScript("go_palehoof_sphere") { }

@@ -39,7 +39,8 @@
 
 #define SAY_ONAGGRO "Cry for mercy! Your meaningless lives will soon be forfeit."
 #define SOUND_ONAGGRO 11015
-class boss_kazrogal : public CreatureScript
+
+class boss_kazrogal : public CreatureScript
 {
 public:
     boss_kazrogal() : CreatureScript("boss_kazrogal") { }

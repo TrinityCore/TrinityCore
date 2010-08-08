@@ -46,7 +46,8 @@ enum Yells
     SAY_SHIELD                                  = -1608043,
     SAY_WHISPER                                 = -1608044
 };
-class boss_zuramat : public CreatureScript
+
+class boss_zuramat : public CreatureScript
 {
 public:
     boss_zuramat() : CreatureScript("boss_zuramat") { }

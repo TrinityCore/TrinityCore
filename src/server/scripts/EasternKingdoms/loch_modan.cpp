@@ -41,7 +41,8 @@ EndContentData */
 #define GOSSIP_MP4 "Yes..."
 #define GOSSIP_MP5 "Ok, i'll try to remember that."
 #define GOSSIP_MP6 "A key? Ok!"
-class npc_mountaineer_pebblebitty : public CreatureScript
+
+class npc_mountaineer_pebblebitty : public CreatureScript
 {
 public:
     npc_mountaineer_pebblebitty() : CreatureScript("npc_mountaineer_pebblebitty") { }

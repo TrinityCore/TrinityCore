@@ -101,7 +101,8 @@ float Spawns[6][2]=
 #define SPAWN_Z             90.5
 #define SPAWN_Y             -1758
 #define SPAWN_O             4.738
-class npc_barnes : public CreatureScript
+
+class npc_barnes : public CreatureScript
 {
 public:
     npc_barnes() : CreatureScript("npc_barnes") { }
@@ -408,7 +409,8 @@ enum eBerthold
 };
 
 #define GOSSIP_ITEM_TELEPORT    "Teleport me to the Guardian's Library"
-class npc_berthold : public CreatureScript
+
+class npc_berthold : public CreatureScript
 {
 public:
     npc_berthold() : CreatureScript("npc_berthold") { }
@@ -460,7 +462,8 @@ public:
 
 static float MedivPos[4] = {-11161.49,-1902.24,91.48,1.94};
 static float ArcanagosPos[4] = {-11169.75,-1881.48,95.39,4.83};
-class npc_image_of_medivh : public CreatureScript
+
+class npc_image_of_medivh : public CreatureScript
 {
 public:
     npc_image_of_medivh() : CreatureScript("npc_image_of_medivh") { }

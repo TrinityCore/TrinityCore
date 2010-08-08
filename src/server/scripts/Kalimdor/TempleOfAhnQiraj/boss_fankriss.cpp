@@ -36,7 +36,8 @@ EndScriptData */
 
 // Enrage for his spawns
 #define SPELL_ENRAGE       28798
-class boss_fankriss : public CreatureScript
+
+class boss_fankriss : public CreatureScript
 {
 public:
     boss_fankriss() : CreatureScript("boss_fankriss") { }

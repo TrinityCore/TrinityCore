@@ -76,7 +76,8 @@ EndScriptData */
 #define SPELL_RAISE_DEAD4   17478
 #define SPELL_RAISE_DEAD5   17479
 #define SPELL_RAISE_DEAD6   17480
-class boss_baron_rivendare : public CreatureScript
+
+class boss_baron_rivendare : public CreatureScript
 {
 public:
     boss_baron_rivendare() : CreatureScript("boss_baron_rivendare") { }

@@ -36,7 +36,8 @@ enum Spells
     SPELL_HANDOFTHAURISSAN                                 = 17492,
     SPELL_AVATAROFFLAME                                    = 15636
 };
-class boss_emperor_dagran_thaurissan : public CreatureScript
+
+class boss_emperor_dagran_thaurissan : public CreatureScript
 {
 public:
     boss_emperor_dagran_thaurissan() : CreatureScript("boss_emperor_dagran_thaurissan") { }

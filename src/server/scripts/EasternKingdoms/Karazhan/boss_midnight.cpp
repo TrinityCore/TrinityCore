@@ -45,7 +45,8 @@ EndScriptData */
 
 //Attumen (TODO: Use the summoning spell instead of Creature id. It works , but is not convenient for us)
 #define SUMMON_ATTUMEN 15550
-class boss_attumen : public CreatureScript
+
+class boss_attumen : public CreatureScript
 {
 public:
     boss_attumen() : CreatureScript("boss_attumen") { }
@@ -105,7 +106,8 @@ public:
     };
 
 };
-class boss_midnight : public CreatureScript
+
+class boss_midnight : public CreatureScript
 {
 public:
     boss_midnight() : CreatureScript("boss_midnight") { }
@@ -221,7 +223,8 @@ public:
         void SetMidnight(Creature *pAttumen, uint64 value)
         {
             CAST_AI(boss_attumen::boss_attumenAI, pAttumen->AI())->Midnight = value;
-        }    };
+        }
+    };
 
 };
 

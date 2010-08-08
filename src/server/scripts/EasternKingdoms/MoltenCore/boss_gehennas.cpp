@@ -28,7 +28,8 @@ EndScriptData */
 #define SPELL_SHADOWBOLT            19728
 #define SPELL_RAINOFFIRE            19717
 #define SPELL_GEHENNASCURSE         19716
-class boss_gehennas : public CreatureScript
+
+class boss_gehennas : public CreatureScript
 {
 public:
     boss_gehennas() : CreatureScript("boss_gehennas") { }

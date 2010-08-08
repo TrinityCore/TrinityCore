@@ -30,7 +30,8 @@ EndScriptData */
 #define SPELL_SHADOWFLAME        22539
 #define SPELL_WINGBUFFET         23339
 #define SPELL_FRENZY             23342                      //This spell periodically triggers fire nova
-class boss_flamegor : public CreatureScript
+
+class boss_flamegor : public CreatureScript
 {
 public:
     boss_flamegor() : CreatureScript("boss_flamegor") { }

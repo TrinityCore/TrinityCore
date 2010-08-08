@@ -32,7 +32,8 @@ EndScriptData */
 #define SPELL_BLASTWAVE         23331
 #define SPELL_MORTALSTRIKE      24573
 #define SPELL_KNOCKBACK         25778
-class boss_broodlord : public CreatureScript
+
+class boss_broodlord : public CreatureScript
 {
 public:
     boss_broodlord() : CreatureScript("boss_broodlord") { }

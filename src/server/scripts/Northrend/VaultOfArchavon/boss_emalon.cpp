@@ -56,7 +56,8 @@ struct Position TempestMinions[MAX_TEMPEST_MINIONS] =
 
 /*######
 ##  Emalon the Storm Watcher
-######*/class boss_emalon : public CreatureScript
+######*/
+class boss_emalon : public CreatureScript
 {
 public:
     boss_emalon() : CreatureScript("boss_emalon") { }
@@ -162,7 +163,8 @@ public:
 
 /*######
 ##  Tempest Minion
-######*/class mob_tempest_minion : public CreatureScript
+######*/
+class mob_tempest_minion : public CreatureScript
 {
 public:
     mob_tempest_minion() : CreatureScript("mob_tempest_minion") { }

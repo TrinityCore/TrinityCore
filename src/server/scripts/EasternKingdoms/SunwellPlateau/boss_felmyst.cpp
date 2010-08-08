@@ -102,7 +102,8 @@ enum EventFelmyst
     EVENT_SUMMON_DEAD,
     EVENT_SUMMON_FOG,
 };
-class boss_felmyst : public CreatureScript
+
+class boss_felmyst : public CreatureScript
 {
 public:
     boss_felmyst() : CreatureScript("boss_felmyst") { }
@@ -518,7 +519,8 @@ public:
     };
 
 };
-class mob_felmyst_vapor : public CreatureScript
+
+class mob_felmyst_vapor : public CreatureScript
 {
 public:
     mob_felmyst_vapor() : CreatureScript("mob_felmyst_vapor") { }
@@ -550,7 +552,8 @@ public:
     };
 
 };
-class mob_felmyst_trail : public CreatureScript
+
+class mob_felmyst_trail : public CreatureScript
 {
 public:
     mob_felmyst_trail() : CreatureScript("mob_felmyst_trail") { }

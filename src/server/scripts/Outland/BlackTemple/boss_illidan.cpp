@@ -363,7 +363,8 @@ static Animation DemonTransformation[]=
 
 #define EMOTE_SETS_GAZE_ON     "sets its gaze on $N!"
 #define EMOTE_UNABLE_TO_SUMMON "is unable to summon Maiev Shadowsong and enter Phase 4. Resetting Encounter."
-class mob_flame_of_azzinoth : public CreatureScript
+
+class mob_flame_of_azzinoth : public CreatureScript
 {
 public:
     mob_flame_of_azzinoth() : CreatureScript("mob_flame_of_azzinoth") { }
@@ -454,7 +455,8 @@ public:
 
 };
 
-/************************************** Illidan's AI ***************************************/class boss_illidan_stormrage : public CreatureScript
+/************************************** Illidan's AI ***************************************/
+class boss_illidan_stormrage : public CreatureScript
 {
 public:
     boss_illidan_stormrage() : CreatureScript("boss_illidan_stormrage") { }
@@ -1360,7 +1362,8 @@ public:
     };
 
 };
-class npc_akama_illidan : public CreatureScript
+
+class npc_akama_illidan : public CreatureScript
 {
 public:
     npc_akama_illidan() : CreatureScript("npc_akama_illidan") { }
@@ -1997,7 +2000,9 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::HandleTalkSequence()
     if (Phase == PHASE_TALK_SEQUENCE)
         Talk(TalkCount); // This function does most of the talking
     ++TalkCount;
-}class mob_cage_trap_trigger : public CreatureScript
+}
+
+class mob_cage_trap_trigger : public CreatureScript
 {
 public:
     mob_cage_trap_trigger() : CreatureScript("mob_cage_trap_trigger") { }
@@ -2072,7 +2077,8 @@ public:
     };
 
 };
-class gameobject_cage_trap : public GameObjectScript
+
+class gameobject_cage_trap : public GameObjectScript
 {
 public:
     gameobject_cage_trap() : GameObjectScript("gameobject_cage_trap") { }
@@ -2090,7 +2096,8 @@ public:
     }
 
 };
-class mob_shadow_demon : public CreatureScript
+
+class mob_shadow_demon : public CreatureScript
 {
 public:
     mob_shadow_demon() : CreatureScript("mob_shadow_demon") { }
@@ -2140,7 +2147,8 @@ public:
     };
 
 };
-class mob_blade_of_azzinoth : public CreatureScript
+
+class mob_blade_of_azzinoth : public CreatureScript
 {
 public:
     mob_blade_of_azzinoth() : CreatureScript("mob_blade_of_azzinoth") { }
@@ -2162,7 +2170,8 @@ public:
     };
 
 };
-class mob_parasitic_shadowfiend : public CreatureScript
+
+class mob_parasitic_shadowfiend : public CreatureScript
 {
 public:
     mob_parasitic_shadowfiend() : CreatureScript("mob_parasitic_shadowfiend") { }

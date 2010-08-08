@@ -48,7 +48,8 @@ EndContentData */
 
 #define SPELL_PULVERIZE                 2676
 //#define SPELL_QUID9889                32174
-class mob_unkor_the_ruthless : public CreatureScript
+
+class mob_unkor_the_ruthless : public CreatureScript
 {
 public:
     mob_unkor_the_ruthless() : CreatureScript("mob_unkor_the_ruthless") { }
@@ -155,7 +156,8 @@ public:
 /*######
 ## mob_infested_root_walker
 ######*/
-class mob_infested_root_walker : public CreatureScript
+
+class mob_infested_root_walker : public CreatureScript
 {
 public:
     mob_infested_root_walker() : CreatureScript("mob_infested_root_walker") { }
@@ -249,7 +251,8 @@ public:
 /*######
 ## mob_rotting_forest_rager
 ######*/
-class mob_rotting_forest_rager : public CreatureScript
+
+class mob_rotting_forest_rager : public CreatureScript
 {
 public:
     mob_rotting_forest_rager() : CreatureScript("mob_rotting_forest_rager") { }
@@ -288,7 +291,8 @@ public:
 const uint32 netherwebVictims[6] =
 {
     18470, 16805, 21242, 18452, 22482, 21285
-};class mob_netherweb_victim : public CreatureScript
+};
+class mob_netherweb_victim : public CreatureScript
 {
 public:
     mob_netherweb_victim() : CreatureScript("mob_netherweb_victim") { }
@@ -348,7 +352,8 @@ enum eFloon
     FACTION_HOSTILE_FL      = 1738,
     QUEST_CRACK_SKULLS      = 10009
 };
-class npc_floon : public CreatureScript
+
+class npc_floon : public CreatureScript
 {
 public:
     npc_floon() : CreatureScript("npc_floon") { }
@@ -452,7 +457,8 @@ public:
 #define QUEST_EFTW_A    10051
 #define GO_CAGE         182794
 #define SPELL_CAT       32447
-class npc_isla_starmane : public CreatureScript
+
+class npc_isla_starmane : public CreatureScript
 {
 public:
     npc_isla_starmane() : CreatureScript("npc_isla_starmane") { }
@@ -537,7 +543,8 @@ public:
 #define GOSSIP_S_KARROG         "Summon Karrog"
 #define GOSSIP_S_GEZZARAK_THE_HUNTRESS         "Summon Gezzarak the Huntress"
 #define GOSSIP_S_VAKKIZ_THE_WINDRAGER         "Summon Vakkiz the Windrager"
-class go_skull_pile : public GameObjectScript
+
+class go_skull_pile : public GameObjectScript
 {
 public:
     go_skull_pile() : GameObjectScript("go_skull_pile") { }
@@ -593,7 +600,8 @@ enum eSlim
 {
     FACTION_CONSORTIUM  = 933
 };
-class npc_slim : public CreatureScript
+
+class npc_slim : public CreatureScript
 {
 public:
     npc_slim() : CreatureScript("npc_slim") { }
@@ -631,7 +639,8 @@ enum eAkuno
     QUEST_ESCAPING_THE_TOMB = 10887,
     NPC_CABAL_SKRIMISHER    = 21661
 };
-class npc_akuno : public CreatureScript
+
+class npc_akuno : public CreatureScript
 {
 public:
     npc_akuno() : CreatureScript("npc_akuno") { }

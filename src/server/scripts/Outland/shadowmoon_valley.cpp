@@ -62,7 +62,8 @@ enum eMatureNetherwing
     QUEST_KINDNESS              = 10804,
     NPC_EVENT_PINGER            = 22131
 };
-class mob_mature_netherwing_drake : public CreatureScript
+
+class mob_mature_netherwing_drake : public CreatureScript
 {
 public:
     mob_mature_netherwing_drake() : CreatureScript("mob_mature_netherwing_drake") { }
@@ -194,7 +195,8 @@ public:
 
 #define CREATURE_DRAGONMAW_SUBJUGATOR   21718
 #define CREATURE_ESCAPE_DUMMY           22317
-class mob_enslaved_netherwing_drake : public CreatureScript
+
+class mob_enslaved_netherwing_drake : public CreatureScript
 {
 public:
     mob_enslaved_netherwing_drake() : CreatureScript("mob_enslaved_netherwing_drake") { }
@@ -325,7 +327,8 @@ public:
 /*#####
 # mob_dragonmaw_peon
 #####*/
-class mob_dragonmaw_peon : public CreatureScript
+
+class mob_dragonmaw_peon : public CreatureScript
 {
 public:
     mob_dragonmaw_peon() : CreatureScript("mob_dragonmaw_peon") { }
@@ -403,7 +406,8 @@ public:
 /*######
 ## npc_drake_dealer_hurlunk
 ######*/
-class npc_drake_dealer_hurlunk : public CreatureScript
+
+class npc_drake_dealer_hurlunk : public CreatureScript
 {
 public:
     npc_drake_dealer_hurlunk() : CreatureScript("npc_drake_dealer_hurlunk") { }
@@ -435,7 +439,8 @@ public:
 
 #define GOSSIP_HSK1 "Take Flanis's Pack"
 #define GOSSIP_HSK2 "Take Kagrosh's Pack"
-class npcs_flanis_swiftwing_and_kagrosh : public CreatureScript
+
+class npcs_flanis_swiftwing_and_kagrosh : public CreatureScript
 {
 public:
     npcs_flanis_swiftwing_and_kagrosh() : CreatureScript("npcs_flanis_swiftwing_and_kagrosh") { }
@@ -492,7 +497,8 @@ public:
 #define GOSSIP_SMO3 "Continue please."
 #define GOSSIP_SMO4 "Who are these bidders?"
 #define GOSSIP_SMO5 "Well... yes."
-class npc_murkblood_overseer : public CreatureScript
+
+class npc_murkblood_overseer : public CreatureScript
 {
 public:
     npc_murkblood_overseer() : CreatureScript("npc_murkblood_overseer") { }
@@ -556,7 +562,8 @@ public:
 #define GOSSIP_SN1 "But you are dragons! How could orcs do this to you?"
 #define GOSSIP_SN2 "Your mate?"
 #define GOSSIP_SN3 "I have battled many beasts, dragon. I will help you."
-class npc_neltharaku : public CreatureScript
+
+class npc_neltharaku : public CreatureScript
 {
 public:
     npc_neltharaku() : CreatureScript("npc_neltharaku") { }
@@ -612,7 +619,8 @@ public:
 #define GOSSIP_ORONOK5 "Continue, please."
 #define GOSSIP_ORONOK6 "So what of the cipher now? And your boys?"
 #define GOSSIP_ORONOK7 "I will find your boys and the cipher, Oronok."
-class npc_oronok_tornheart : public CreatureScript
+
+class npc_oronok_tornheart : public CreatureScript
 {
 public:
     npc_oronok_tornheart() : CreatureScript("npc_oronok_tornheart") { }
@@ -686,7 +694,8 @@ enum eKarynaku
 
     TAXI_PATH_ID            = 649
 };
-class npc_karynaku : public CreatureScript
+
+class npc_karynaku : public CreatureScript
 {
 public:
     npc_karynaku() : CreatureScript("npc_karynaku") { }
@@ -734,7 +743,8 @@ public:
 #define LORD_ILLIDAN_SAY_7 -1100220
 
 #define YARZILL_THE_MERC_SAY -1100221
-class npc_overlord_morghor : public CreatureScript
+
+class npc_overlord_morghor : public CreatureScript
 {
 public:
     npc_overlord_morghor() : CreatureScript("npc_overlord_morghor") { }
@@ -951,7 +961,8 @@ enum eEarthmender
     NPC_COILSKAR_ASSASSIN       = 21044,
     FACTION_EARTHEN             = 1726                      //guessed
 };
-class npc_earthmender_wilda : public CreatureScript
+
+class npc_earthmender_wilda : public CreatureScript
 {
 public:
     npc_earthmender_wilda() : CreatureScript("npc_earthmender_wilda") { }
@@ -1203,7 +1214,8 @@ static SpawnSpells SpawnCast[]=
 /*######
 # mob_torloth_the_magnificent
 #####*/
-class mob_torloth_the_magnificent : public CreatureScript
+
+class mob_torloth_the_magnificent : public CreatureScript
 {
 public:
     mob_torloth_the_magnificent() : CreatureScript("mob_torloth_the_magnificent") { }
@@ -1364,7 +1376,8 @@ public:
 /*#####
 # npc_lord_illidan_stormrage
 #####*/
-class npc_lord_illidan_stormrage : public CreatureScript
+
+class npc_lord_illidan_stormrage : public CreatureScript
 {
 public:
     npc_lord_illidan_stormrage() : CreatureScript("npc_lord_illidan_stormrage") { }
@@ -1511,7 +1524,8 @@ public:
 /*######
 # mob_illidari_spawn
 ######*/
-class mob_illidari_spawn : public CreatureScript
+
+class mob_illidari_spawn : public CreatureScript
 {
 public:
     mob_illidari_spawn() : CreatureScript("mob_illidari_spawn") { }
@@ -1697,7 +1711,8 @@ void npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI::SummonNextWave()
 /*#####
 # go_crystal_prison
 ######*/
-class go_crystal_prison : public GameObjectScript
+
+class go_crystal_prison : public GameObjectScript
 {
 public:
     go_crystal_prison() : GameObjectScript("go_crystal_prison") { }
@@ -1766,7 +1781,8 @@ public:
 /* Factions */
 #define ENRAGED_SOUL_FRIENDLY 35
 #define ENRAGED_SOUL_HOSTILE 14
-class npc_enraged_spirit : public CreatureScript
+
+class npc_enraged_spirit : public CreatureScript
 {
 public:
     npc_enraged_spirit() : CreatureScript("npc_enraged_spirit") { }

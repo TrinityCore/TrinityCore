@@ -35,7 +35,8 @@ enum Spells
     SPELL_TRASH                  =  3391,
     SPELL_WIDE_SLASH             = 25814
 };
-class boss_kurinnaxx : public CreatureScript
+
+class boss_kurinnaxx : public CreatureScript
 {
 public:
     boss_kurinnaxx() : CreatureScript("boss_kurinnaxx") { }

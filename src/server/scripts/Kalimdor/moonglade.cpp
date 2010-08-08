@@ -48,7 +48,8 @@ enum eBunthen
 
 #define GOSSIP_ITEM_THUNDER     "I'd like to fly to Thunder Bluff."
 #define GOSSIP_ITEM_AQ_END      "Do you know where I can find Half Pendant of Aquatic Endurance?"
-class npc_bunthen_plainswind : public CreatureScript
+
+class npc_bunthen_plainswind : public CreatureScript
 {
 public:
     npc_bunthen_plainswind() : CreatureScript("npc_bunthen_plainswind") { }
@@ -106,7 +107,8 @@ public:
 #define GOSSIP_BEAR2 "I seek to understand the importance of strength of the body."
 #define GOSSIP_BEAR3 "I seek to understand the importance of strength of the heart."
 #define GOSSIP_BEAR4 "I have heard your words, Great Bear Spirit, and I understand. I now seek your blessings to fully learn the way of the Claw."
-class npc_great_bear_spirit : public CreatureScript
+
+class npc_great_bear_spirit : public CreatureScript
 {
 public:
     npc_great_bear_spirit() : CreatureScript("npc_great_bear_spirit") { }
@@ -161,7 +163,8 @@ public:
 
 #define GOSSIP_ITEM_RUTHERAN    "I'd like to fly to Rut'theran Village."
 #define GOSSIP_ITEM_AQ_AGI      "Do you know where I can find Half Pendant of Aquatic Agility?"
-class npc_silva_filnaveth : public CreatureScript
+
+class npc_silva_filnaveth : public CreatureScript
 {
 public:
     npc_silva_filnaveth() : CreatureScript("npc_silva_filnaveth") { }
@@ -279,7 +282,8 @@ float Clintar_spirit_WP[41][5] =
 #define CLINTAR_SPIRIT_SAY_GET_TWO -1000290
 #define CLINTAR_SPIRIT_SAY_GET_THREE -1000291
 #define CLINTAR_SPIRIT_SAY_GET_FINAL -1000292
-class npc_clintar_spirit : public CreatureScript
+
+class npc_clintar_spirit : public CreatureScript
 {
 public:
     npc_clintar_spirit() : CreatureScript("npc_clintar_spirit") { }
@@ -550,7 +554,8 @@ public:
 ####*/
 
 #define CLINTAR_SPIRIT 22916
-class npc_clintar_dreamwalker : public CreatureScript
+
+class npc_clintar_dreamwalker : public CreatureScript
 {
 public:
     npc_clintar_dreamwalker() : CreatureScript("npc_clintar_dreamwalker") { }

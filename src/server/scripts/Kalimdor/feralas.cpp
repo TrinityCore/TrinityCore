@@ -31,7 +31,8 @@ EndScriptData */
 ######*/
 
 #define GOSSIP_HELLO "Buy somethin', will ya?"
-class npc_gregan_brewspewer : public CreatureScript
+
+class npc_gregan_brewspewer : public CreatureScript
 {
 public:
     npc_gregan_brewspewer() : CreatureScript("npc_gregan_brewspewer") { }
@@ -87,7 +88,8 @@ enum eOOX
     FACTION_ESCORTEE_A      = 774,
     FACTION_ESCORTEE_H      = 775
 };
-class npc_oox22fe : public CreatureScript
+
+class npc_oox22fe : public CreatureScript
 {
 public:
     npc_oox22fe() : CreatureScript("npc_oox22fe") { }
@@ -185,7 +187,8 @@ public:
 /*######
 ## npc_screecher_spirit
 ######*/
-class npc_screecher_spirit : public CreatureScript
+
+class npc_screecher_spirit : public CreatureScript
 {
 public:
     npc_screecher_spirit() : CreatureScript("npc_screecher_spirit") { }

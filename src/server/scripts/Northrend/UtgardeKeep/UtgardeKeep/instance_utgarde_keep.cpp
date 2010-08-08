@@ -47,7 +47,8 @@ EndScriptData */
 1 - Skarvald Dalronn
 2 - Ingvar the Plunderer
 */
-class instance_utgarde_keep : public InstanceMapScript
+
+class instance_utgarde_keep : public InstanceMapScript
 {
 public:
     instance_utgarde_keep() : InstanceMapScript("instance_utgarde_keep") { }

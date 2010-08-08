@@ -56,7 +56,8 @@ enum eEnums
     SPELL_SUMMON_DALRONN_GHOST                  = 48612,
     MOB_DALRONN_GHOST                           = 27389
 };
-class boss_skarvald_the_constructor : public CreatureScript
+
+class boss_skarvald_the_constructor : public CreatureScript
 {
 public:
     boss_skarvald_the_constructor() : CreatureScript("boss_skarvald_the_constructor") { }
@@ -206,7 +207,8 @@ public:
 
 };
 
-class boss_dalronn_the_controller : public CreatureScript
+
+class boss_dalronn_the_controller : public CreatureScript
 {
 public:
     boss_dalronn_the_controller() : CreatureScript("boss_dalronn_the_controller") { }

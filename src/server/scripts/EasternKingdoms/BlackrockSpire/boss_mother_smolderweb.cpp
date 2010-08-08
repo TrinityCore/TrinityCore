@@ -28,7 +28,8 @@ EndScriptData */
 #define SPELL_CRYSTALIZE                16104
 #define SPELL_MOTHERSMILK               16468
 #define SPELL_SUMMON_SPIRE_SPIDERLING   16103
-class boss_mother_smolderweb : public CreatureScript
+
+class boss_mother_smolderweb : public CreatureScript
 {
 public:
     boss_mother_smolderweb() : CreatureScript("boss_mother_smolderweb") { }

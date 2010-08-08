@@ -35,7 +35,8 @@ enum eEnums
 {
     DATA_THRONE_DOOR                              = 24 // not id or guid of doors but number of enum in blackrock_depths.h
 };
-class boss_magmus : public CreatureScript
+
+class boss_magmus : public CreatureScript
 {
 public:
     boss_magmus() : CreatureScript("boss_magmus") { }

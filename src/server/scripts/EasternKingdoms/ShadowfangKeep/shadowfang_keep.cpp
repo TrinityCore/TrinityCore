@@ -52,7 +52,8 @@ enum eEnums
 };
 
 #define GOSSIP_ITEM_DOOR        "Thanks, I'll follow you to the door."
-class npc_shadowfang_prisoner : public CreatureScript
+
+class npc_shadowfang_prisoner : public CreatureScript
 {
 public:
     npc_shadowfang_prisoner() : CreatureScript("npc_shadowfang_prisoner") { }
@@ -141,7 +142,8 @@ public:
 
 
 
-class npc_arugal_voidwalker : public CreatureScript
+
+class npc_arugal_voidwalker : public CreatureScript
 {
 public:
     npc_arugal_voidwalker() : CreatureScript("npc_arugal_voidwalker") { }

@@ -44,7 +44,8 @@ enum Events
 };
 
 #define EMOTE_NEARBY    " spots a nearby zombie to devour!"
-class boss_gluth : public CreatureScript
+
+class boss_gluth : public CreatureScript
 {
 public:
     boss_gluth() : CreatureScript("boss_gluth") { }

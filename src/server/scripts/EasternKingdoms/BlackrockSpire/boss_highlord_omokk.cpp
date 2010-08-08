@@ -32,7 +32,8 @@ EndScriptData */
 #define SPELL_SUNDERARMOR       24317
 #define SPELL_KNOCKAWAY         20686
 #define SPELL_SLOW              22356
-class boss_highlord_omokk : public CreatureScript
+
+class boss_highlord_omokk : public CreatureScript
 {
 public:
     boss_highlord_omokk() : CreatureScript("boss_highlord_omokk") { }

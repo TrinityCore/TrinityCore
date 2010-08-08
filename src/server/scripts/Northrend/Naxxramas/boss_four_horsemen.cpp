@@ -76,7 +76,8 @@ const int32 SAY_DEATH[]     =   {-1533057, -1533050, -1533074, -1533064};
 
 #define SAY_BARON_AGGRO     RAND(-1533065,-1533066,-1533067)
 #define SAY_BARON_SLAY      RAND(-1533068,-1533069)
-class boss_four_horsemen : public CreatureScript
+
+class boss_four_horsemen : public CreatureScript
 {
 public:
     boss_four_horsemen() : CreatureScript("boss_four_horsemen") { }

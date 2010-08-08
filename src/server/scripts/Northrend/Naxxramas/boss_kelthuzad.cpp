@@ -251,7 +251,8 @@ struct NotCharmedTargetSelector : public std::unary_function<Unit *, bool> {
         return (!pTarget->isCharmed());
     }
 };
-class boss_kelthuzad : public CreatureScript
+
+class boss_kelthuzad : public CreatureScript
 {
 public:
     boss_kelthuzad() : CreatureScript("boss_kelthuzad") { }
@@ -641,7 +642,8 @@ public:
     }
 
 };
-class at_kelthuzad_center : public AreaTriggerScript
+
+class at_kelthuzad_center : public AreaTriggerScript
 {
 public:
     at_kelthuzad_center() : AreaTriggerScript("at_kelthuzad_center") { }

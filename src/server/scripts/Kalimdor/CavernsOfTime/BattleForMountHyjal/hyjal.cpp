@@ -44,7 +44,8 @@ EndContentData */
 #define ITEM_TEAR_OF_GODDESS        24494
 
 #define GOSSIP_ITEM_GM1             "[GM] Toggle Debug Timers"
-class npc_jaina_proudmoore : public CreatureScript
+
+class npc_jaina_proudmoore : public CreatureScript
 {
 public:
     npc_jaina_proudmoore() : CreatureScript("npc_jaina_proudmoore") { }
@@ -120,7 +121,8 @@ public:
 };
 
 
-class npc_thrall : public CreatureScript
+
+class npc_thrall : public CreatureScript
 {
 public:
     npc_thrall() : CreatureScript("npc_thrall") { }
@@ -198,7 +200,8 @@ public:
 };
 
 
-class npc_tyrande_whisperwind : public CreatureScript
+
+class npc_tyrande_whisperwind : public CreatureScript
 {
 public:
     npc_tyrande_whisperwind() : CreatureScript("npc_tyrande_whisperwind") { }

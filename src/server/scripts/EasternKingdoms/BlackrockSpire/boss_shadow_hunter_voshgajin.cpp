@@ -28,7 +28,8 @@ EndScriptData */
 #define SPELL_CURSEOFBLOOD      24673
 #define SPELL_HEX               16708
 #define SPELL_CLEAVE            20691
-class boss_shadow_hunter_voshgajin : public CreatureScript
+
+class boss_shadow_hunter_voshgajin : public CreatureScript
 {
 public:
     boss_shadow_hunter_voshgajin() : CreatureScript("boss_shadow_hunter_voshgajin") { }

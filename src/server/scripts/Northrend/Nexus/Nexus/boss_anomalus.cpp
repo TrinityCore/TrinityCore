@@ -58,7 +58,8 @@ const Position RiftLocation[6] =
     {639.87, -314.11, -9.49},
     {651.72, -297.44, -9.37}
 };
-class boss_anomalus : public CreatureScript
+
+class boss_anomalus : public CreatureScript
 {
 public:
     boss_anomalus() : CreatureScript("boss_anomalus") { }
@@ -180,7 +181,8 @@ enum RiftSpells
     SPELL_CHARGED_CHAOTIC_ENERGY_BURST            = 47737,
     SPELL_ARCANEFORM                              = 48019 //Chaotic Rift visual
 };
-class mob_chaotic_rift : public CreatureScript
+
+class mob_chaotic_rift : public CreatureScript
 {
 public:
     mob_chaotic_rift() : CreatureScript("mob_chaotic_rift") { }

@@ -80,7 +80,8 @@ enum eEnums
 /*######
 ## boss_bjarngrim
 ######*/
-class boss_bjarngrim : public CreatureScript
+
+class boss_bjarngrim : public CreatureScript
 {
 public:
     boss_bjarngrim() : CreatureScript("boss_bjarngrim") { }
@@ -355,7 +356,8 @@ public:
 /*######
 ## mob_stormforged_lieutenant
 ######*/
-class mob_stormforged_lieutenant : public CreatureScript
+
+class mob_stormforged_lieutenant : public CreatureScript
 {
 public:
     mob_stormforged_lieutenant() : CreatureScript("mob_stormforged_lieutenant") { }

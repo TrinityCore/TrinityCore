@@ -45,7 +45,8 @@ EndContentData */
 #define ENTRY_TARLORD 6519
 #define ENTRY_TARLORD1 6519
 #define ENTRY_STOMPER 6513
-class npc_ame : public CreatureScript
+
+class npc_ame : public CreatureScript
 {
 public:
     npc_ame() : CreatureScript("npc_ame") { }
@@ -176,7 +177,8 @@ enum eRingo
     NPC_SPRAGGLE                = 9997,
     FACTION_ESCORTEE            = 113
 };
-class npc_ringo : public CreatureScript
+
+class npc_ringo : public CreatureScript
 {
 public:
     npc_ringo() : CreatureScript("npc_ringo") { }

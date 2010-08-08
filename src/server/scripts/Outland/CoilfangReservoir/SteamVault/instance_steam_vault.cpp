@@ -37,7 +37,8 @@ EndScriptData */
 2 - Mekgineer Steamrigger Event
 3 - Warlord Kalithresh Event
 */
-class go_main_chambers_access_panel : public GameObjectScript
+
+class go_main_chambers_access_panel : public GameObjectScript
 {
 public:
     go_main_chambers_access_panel() : GameObjectScript("go_main_chambers_access_panel") { }
@@ -59,7 +60,8 @@ public:
     }
 
 };
-class instance_steam_vault : public InstanceMapScript
+
+class instance_steam_vault : public InstanceMapScript
 {
 public:
     instance_steam_vault() : InstanceMapScript("instance_steam_vault") { }

@@ -26,7 +26,8 @@
 3 - Koralon the Flame Watcher event
 4 - Toravon the Ice Watcher event
 */
-class instance_archavon : public InstanceMapScript
+
+class instance_archavon : public InstanceMapScript
 {
 public:
     instance_archavon() : InstanceMapScript("instance_archavon") { }

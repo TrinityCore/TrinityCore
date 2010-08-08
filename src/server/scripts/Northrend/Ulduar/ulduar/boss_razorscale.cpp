@@ -46,7 +46,8 @@ enum Mobs
 {
     NPC_DARK_RUNE_SENTINEL = 33846
 };
-class boss_razorscale : public CreatureScript
+
+class boss_razorscale : public CreatureScript
 {
 public:
     boss_razorscale() : CreatureScript("boss_razorscale") { }

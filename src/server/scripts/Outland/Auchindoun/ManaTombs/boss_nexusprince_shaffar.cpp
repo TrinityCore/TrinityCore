@@ -54,7 +54,8 @@ enum ePrince
 
     NR_INITIAL_BEACONS              = 3
 };
-class boss_nexusprince_shaffar : public CreatureScript
+
+class boss_nexusprince_shaffar : public CreatureScript
 {
 public:
     boss_nexusprince_shaffar() : CreatureScript("boss_nexusprince_shaffar") { }
@@ -220,7 +221,8 @@ enum eEnums
     SPELL_ARCANE_BOLT               = 15254,
     SPELL_ETHEREAL_APPRENTICE       = 32372                 // Summon 18430
 };
-class mob_ethereal_beacon : public CreatureScript
+
+class mob_ethereal_beacon : public CreatureScript
 {
 public:
     mob_ethereal_beacon() : CreatureScript("mob_ethereal_beacon") { }
@@ -312,7 +314,8 @@ enum eEthereal
     SPELL_ETHEREAL_APPRENTICE_FIREBOLT          = 32369,
     SPELL_ETHEREAL_APPRENTICE_FROSTBOLT         = 32370
 };
-class mob_ethereal_apprentice : public CreatureScript
+
+class mob_ethereal_apprentice : public CreatureScript
 {
 public:
     mob_ethereal_apprentice() : CreatureScript("mob_ethereal_apprentice") { }

@@ -40,7 +40,8 @@ EndScriptData */
 #define H_SPELL_VOID_BLAST              38760
 #define SPELL_DARK_SHELL                32358
 #define H_SPELL_DARK_SHELL              38759
-class boss_pandemonius : public CreatureScript
+
+class boss_pandemonius : public CreatureScript
 {
 public:
     boss_pandemonius() : CreatureScript("boss_pandemonius") { }

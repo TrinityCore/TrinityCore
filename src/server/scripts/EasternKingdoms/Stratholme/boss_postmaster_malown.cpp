@@ -35,7 +35,8 @@ EndScriptData */
 #define SPELL_CURSEOFWEAKNESS    8552
 #define SPELL_CURSEOFTONGUES    12889
 #define SPELL_CALLOFTHEGRAVE    17831
-class boss_postmaster_malown : public CreatureScript
+
+class boss_postmaster_malown : public CreatureScript
 {
 public:
     boss_postmaster_malown() : CreatureScript("boss_postmaster_malown") { }

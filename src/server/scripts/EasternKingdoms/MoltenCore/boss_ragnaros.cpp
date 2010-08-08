@@ -84,7 +84,8 @@ EndScriptData */
 #define ADD_8Y -810.869385
 #define ADD_8Z -229.683182
 #define ADD_8O 4.693108
-class boss_ragnaros : public CreatureScript
+
+class boss_ragnaros : public CreatureScript
 {
 public:
     boss_ragnaros() : CreatureScript("boss_ragnaros") { }

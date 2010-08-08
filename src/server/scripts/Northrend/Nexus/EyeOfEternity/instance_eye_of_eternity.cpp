@@ -17,7 +17,8 @@
 
 #include "ScriptPCH.h"
 #include "eye_of_eternity.h"
-class instance_eye_of_eternity : public InstanceMapScript
+
+class instance_eye_of_eternity : public InstanceMapScript
 {
 public:
     instance_eye_of_eternity() : InstanceMapScript("instance_eye_of_eternity") { }

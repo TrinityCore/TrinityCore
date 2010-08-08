@@ -58,7 +58,8 @@ enum Spells
     SPELL_FRENZY                                           = 28371,   //The frenzy spell may be wrong
     SPELL_ENRAGE                                           = 28747
 };
-class boss_chromaggus : public CreatureScript
+
+class boss_chromaggus : public CreatureScript
 {
 public:
     boss_chromaggus() : CreatureScript("boss_chromaggus") { }

@@ -29,7 +29,8 @@ enum Spells
 {
     SPELL_FIREBLAST                                        = 15573
 };
-class boss_ambassador_flamelash : public CreatureScript
+
+class boss_ambassador_flamelash : public CreatureScript
 {
 public:
     boss_ambassador_flamelash() : CreatureScript("boss_ambassador_flamelash") { }

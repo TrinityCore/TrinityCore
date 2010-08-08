@@ -526,7 +526,8 @@ public:
 
 #define SPELL_DISEASE_CLOUD 31607
 #define SPELL_KNOCKDOWN 31610
-class mob_abomination : public CreatureScript
+
+class mob_abomination : public CreatureScript
 {
 public:
     mob_abomination() : CreatureScript("mob_abomination") { }
@@ -627,7 +628,8 @@ public:
 
 
 #define SPELL_FRENZY 31540
-class mob_ghoul : public CreatureScript
+
+class mob_ghoul : public CreatureScript
 {
 public:
     mob_ghoul() : CreatureScript("mob_ghoul") { }
@@ -736,7 +738,8 @@ public:
 #define SPELL_RAISE_DEAD_2 31624
 #define SPELL_RAISE_DEAD_3 31625
 #define SPELL_SHADOW_BOLT 31627
-class mob_necromancer : public CreatureScript
+
+class mob_necromancer : public CreatureScript
 {
 public:
     mob_necromancer() : CreatureScript("mob_necromancer") { }
@@ -857,7 +860,8 @@ public:
 #define SPELL_BANSHEE_CURSE 31651
 #define SPELL_BANSHEE_WAIL 38183
 #define SPELL_ANTI_MAGIC_SHELL 31662
-class mob_banshee : public CreatureScript
+
+class mob_banshee : public CreatureScript
 {
 public:
     mob_banshee() : CreatureScript("mob_banshee") { }
@@ -962,7 +966,8 @@ public:
 
 
 #define SPELL_WEB 28991
-class mob_crypt_fiend : public CreatureScript
+
+class mob_crypt_fiend : public CreatureScript
 {
 public:
     mob_crypt_fiend() : CreatureScript("mob_crypt_fiend") { }
@@ -1054,7 +1059,8 @@ public:
 
 
 #define SPELL_MANA_BURN 31729
-class mob_fel_stalker : public CreatureScript
+
+class mob_fel_stalker : public CreatureScript
 {
 public:
     mob_fel_stalker() : CreatureScript("mob_fel_stalker") { }
@@ -1146,7 +1152,8 @@ public:
 
 
 #define SPELL_FROST_BREATH 31688
-class mob_frost_wyrm : public CreatureScript
+
+class mob_frost_wyrm : public CreatureScript
 {
 public:
     mob_frost_wyrm() : CreatureScript("mob_frost_wyrm") { }
@@ -1263,7 +1270,8 @@ public:
 
 
 #define SPELL_GARGOYLE_STRIKE 31664
-class mob_gargoyle : public CreatureScript
+
+class mob_gargoyle : public CreatureScript
 {
 public:
     mob_gargoyle() : CreatureScript("mob_gargoyle") { }
@@ -1403,7 +1411,8 @@ public:
 
 
 #define SPELL_EXPLODING_SHOT 7896
-class alliance_rifleman : public CreatureScript
+
+class alliance_rifleman : public CreatureScript
 {
 public:
     alliance_rifleman() : CreatureScript("alliance_rifleman") { }

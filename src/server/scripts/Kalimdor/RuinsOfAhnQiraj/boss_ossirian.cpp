@@ -38,7 +38,8 @@ enum Yells
     SAY_SLAY        = -1509026,
     SAY_DEATH       = -1509027
 };
-class boss_ossirian : public CreatureScript
+
+class boss_ossirian : public CreatureScript
 {
 public:
     boss_ossirian() : CreatureScript("boss_ossirian") { }

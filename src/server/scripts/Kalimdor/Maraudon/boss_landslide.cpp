@@ -28,7 +28,8 @@ EndScriptData */
 #define SPELL_KNOCKAWAY         18670
 #define SPELL_TRAMPLE           5568
 #define SPELL_LANDSLIDE         21808
-class boss_landslide : public CreatureScript
+
+class boss_landslide : public CreatureScript
 {
 public:
     boss_landslide() : CreatureScript("boss_landslide") { }

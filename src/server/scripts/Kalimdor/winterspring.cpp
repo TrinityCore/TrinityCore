@@ -42,7 +42,8 @@ EndContentData */
 #define GOSSIP_SL3 "What deal?"
 #define GOSSIP_SL4 "Then what happened?"
 #define GOSSIP_SL5 "He is not safe, i'll make sure of that."
-class npc_lorax : public CreatureScript
+
+class npc_lorax : public CreatureScript
 {
 public:
     npc_lorax() : CreatureScript("npc_lorax") { }
@@ -98,7 +99,8 @@ public:
 /*######
 ## npc_rivern_frostwind
 ######*/
-class npc_rivern_frostwind : public CreatureScript
+
+class npc_rivern_frostwind : public CreatureScript
 {
 public:
     npc_rivern_frostwind() : CreatureScript("npc_rivern_frostwind") { }
@@ -132,7 +134,8 @@ public:
 ######*/
 
 #define GOSSIP_HWDM "I'd like you to make me a new Cache of Mau'ari please."
-class npc_witch_doctor_mauari : public CreatureScript
+
+class npc_witch_doctor_mauari : public CreatureScript
 {
 public:
     npc_witch_doctor_mauari() : CreatureScript("npc_witch_doctor_mauari") { }

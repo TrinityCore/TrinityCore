@@ -27,7 +27,8 @@ EndScriptData */
 
 #define SPELL_TOXICVOLLEY           21687
 #define SPELL_UPPERCUT              22916
-class boss_noxxion : public CreatureScript
+
+class boss_noxxion : public CreatureScript
 {
 public:
     boss_noxxion() : CreatureScript("boss_noxxion") { }

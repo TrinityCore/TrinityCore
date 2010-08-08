@@ -32,7 +32,8 @@ EndScriptData */
 1 - High King Maulgar event
 2 - Gruul event
 */
-class instance_gruuls_lair : public InstanceMapScript
+
+class instance_gruuls_lair : public InstanceMapScript
 {
 public:
     instance_gruuls_lair() : InstanceMapScript("instance_gruuls_lair") { }

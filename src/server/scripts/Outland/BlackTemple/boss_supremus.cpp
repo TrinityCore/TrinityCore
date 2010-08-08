@@ -52,7 +52,8 @@ EndScriptData */
 #define EVENT_HATEFUL_STRIKE    6
 
 #define GCD_CAST    1
-class molten_flame : public CreatureScript
+
+class molten_flame : public CreatureScript
 {
 public:
     molten_flame() : CreatureScript("molten_flame") { }
@@ -77,7 +78,8 @@ public:
     };
 
 };
-class boss_supremus : public CreatureScript
+
+class boss_supremus : public CreatureScript
 {
 public:
     boss_supremus() : CreatureScript("boss_supremus") { }
@@ -248,7 +250,8 @@ public:
     };
 
 };
-class npc_volcano : public CreatureScript
+
+class npc_volcano : public CreatureScript
 {
 public:
     npc_volcano() : CreatureScript("npc_volcano") { }

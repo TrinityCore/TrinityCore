@@ -44,7 +44,8 @@ enum Events
     EVENT_IMPENDING_DESPAIR,
     EVENT_DEFILING_HORROR,
 };
-class boss_falric : public CreatureScript
+
+class boss_falric : public CreatureScript
 {
 public:
     boss_falric() : CreatureScript("boss_falric") { }

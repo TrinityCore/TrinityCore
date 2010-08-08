@@ -31,7 +31,8 @@ EndScriptData */
 #define SPELL_MORTALSTRIKE      16856
 #define SPELL_PUMMEL            15615
 #define SPELL_THROWAXE          16075
-class boss_warmaster_voone : public CreatureScript
+
+class boss_warmaster_voone : public CreatureScript
 {
 public:
     boss_warmaster_voone() : CreatureScript("boss_warmaster_voone") { }

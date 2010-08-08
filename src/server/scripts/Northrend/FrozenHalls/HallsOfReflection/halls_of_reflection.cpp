@@ -148,7 +148,8 @@ static Position UtherSpawnPos           = {5308.310059, 2003.857178, 709.341431,
 static Position LichKingSpawnPos        = {5362.917480, 2062.307129, 707.695374, 3.945812};
 static Position LichKingMoveThronePos   = {5312.080566, 2009.172119, 709.341431, 3.973301}; // Lich King walks to throne
 static Position LichKingMoveAwayPos     = {5400.069824, 2102.7131689, 707.69525, 0.843803}; // Lich King walks away
-class npc_jaina_or_sylvanas_hor : public CreatureScript
+
+class npc_jaina_or_sylvanas_hor : public CreatureScript
 {
 private:
     bool m_isSylvana;
@@ -614,7 +615,8 @@ enum TrashEvents
     EVENT_FROST_TRAP,
     EVENT_ICE_SHOT,
 };
-class npc_ghostly_priest : public CreatureScript
+
+class npc_ghostly_priest : public CreatureScript
 {
 public:
     npc_ghostly_priest() : CreatureScript("npc_ghostly_priest") { }
@@ -695,7 +697,8 @@ public:
     };
 
 };
-class npc_phantom_mage : public CreatureScript
+
+class npc_phantom_mage : public CreatureScript
 {
 public:
     npc_phantom_mage() : CreatureScript("npc_phantom_mage") { }
@@ -771,7 +774,8 @@ public:
     };
 
 };
-class npc_phantom_hallucination : public CreatureScript
+
+class npc_phantom_hallucination : public CreatureScript
 {
 public:
     npc_phantom_hallucination() : CreatureScript("npc_phantom_hallucination") { }
@@ -794,7 +798,8 @@ public:
     };
 
 };
-class npc_shadowy_mercenary : public CreatureScript
+
+class npc_shadowy_mercenary : public CreatureScript
 {
 public:
     npc_shadowy_mercenary() : CreatureScript("npc_shadowy_mercenary") { }
@@ -864,7 +869,8 @@ public:
     };
 
 };
-class npc_spectral_footman : public CreatureScript
+
+class npc_spectral_footman : public CreatureScript
 {
 public:
     npc_spectral_footman() : CreatureScript("npc_spectral_footman") { }
@@ -928,7 +934,8 @@ public:
     };
 
 };
-class npc_tortured_rifleman : public CreatureScript
+
+class npc_tortured_rifleman : public CreatureScript
 {
 public:
     npc_tortured_rifleman() : CreatureScript("npc_tortured_rifleman") { }

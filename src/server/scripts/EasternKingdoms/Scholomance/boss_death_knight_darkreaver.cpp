@@ -24,7 +24,8 @@ SDCategory: Scholomance
 EndScriptData */
 
 #include "ScriptPCH.h"
-class boss_death_knight_darkreaver : public CreatureScript
+
+class boss_death_knight_darkreaver : public CreatureScript
 {
 public:
     boss_death_knight_darkreaver() : CreatureScript("boss_death_knight_darkreaver") { }

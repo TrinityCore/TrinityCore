@@ -56,7 +56,8 @@ enum Achievements
     ACHIEVEMENT_MOMMA_SAID_KNOCK_YOU_OUT_10 = 1997,
     ACHIEVEMENT_MOMMA_SAID_KNOCK_YOU_OUT_25 = 2140
 };
-class boss_faerlina : public CreatureScript
+
+class boss_faerlina : public CreatureScript
 {
 public:
     boss_faerlina() : CreatureScript("boss_faerlina") { }
@@ -174,7 +175,8 @@ public:
 
 };
 
-class mob_faerlina_add : public CreatureScript
+
+class mob_faerlina_add : public CreatureScript
 {
 public:
     mob_faerlina_add() : CreatureScript("mob_faerlina_add") { }

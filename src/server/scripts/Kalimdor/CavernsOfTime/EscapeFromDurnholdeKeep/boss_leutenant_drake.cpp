@@ -30,7 +30,8 @@ EndScriptData */
 /*######
 ## go_barrel_old_hillsbrad
 ######*/
-class go_barrel_old_hillsbrad : public GameObjectScript
+
+class go_barrel_old_hillsbrad : public GameObjectScript
 {
 public:
     go_barrel_old_hillsbrad() : GameObjectScript("go_barrel_old_hillsbrad") { }
@@ -97,7 +98,8 @@ static Location DrakeWP[]=
     {17, 2125.50, 88.9481, 54.7953},
     {18, 2128.20, 70.9763, 64.4221}
 };
-class boss_lieutenant_drake : public CreatureScript
+
+class boss_lieutenant_drake : public CreatureScript
 {
 public:
     boss_lieutenant_drake() : CreatureScript("boss_lieutenant_drake") { }

@@ -28,7 +28,8 @@ EndScriptData */
 #define SPELL_FLAMEBREAK            16785
 #define SPELL_IMMOLATE              20294
 #define SPELL_TERRIFYINGROAR        14100
-class boss_the_beast : public CreatureScript
+
+class boss_the_beast : public CreatureScript
 {
 public:
     boss_the_beast() : CreatureScript("boss_the_beast") { }

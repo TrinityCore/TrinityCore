@@ -56,7 +56,8 @@ enum Yells
     SAY_REPEAT_SUMMON_2                         = -1608035,
     SAY_SUMMON_ENERGY                           = -1608036
 };
-class boss_xevozz : public CreatureScript
+
+class boss_xevozz : public CreatureScript
 {
 public:
     boss_xevozz() : CreatureScript("boss_xevozz") { }
@@ -221,7 +222,8 @@ public:
 
 };
 
-class mob_ethereal_sphere : public CreatureScript
+
+class mob_ethereal_sphere : public CreatureScript
 {
 public:
     mob_ethereal_sphere() : CreatureScript("mob_ethereal_sphere") { }

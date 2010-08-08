@@ -48,7 +48,8 @@ enum Creatures
 };
 
 #define SPIKE_DISTANCE                            5.0f
-class boss_ormorok : public CreatureScript
+
+class boss_ormorok : public CreatureScript
 {
 public:
     boss_ormorok() : CreatureScript("boss_ormorok") { }
@@ -218,7 +219,8 @@ public:
     };
 
 };
-class mob_crystal_spike : public CreatureScript
+
+class mob_crystal_spike : public CreatureScript
 {
 public:
     mob_crystal_spike() : CreatureScript("mob_crystal_spike") { }
@@ -260,7 +262,8 @@ public:
     };
 
 };
-class mob_crystalline_tangler : public CreatureScript
+
+class mob_crystalline_tangler : public CreatureScript
 {
 public:
     mob_crystalline_tangler() : CreatureScript("mob_crystalline_tangler") { }

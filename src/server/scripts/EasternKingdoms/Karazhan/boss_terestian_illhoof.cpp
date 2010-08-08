@@ -55,7 +55,8 @@ EndScriptData */
 #define CREATURE_FIENDISHIMP    17267
 #define CREATURE_PORTAL         17265
 #define CREATURE_KILREK         17229
-class mob_kilrek : public CreatureScript
+
+class mob_kilrek : public CreatureScript
 {
 public:
     mob_kilrek() : CreatureScript("mob_kilrek") { }
@@ -126,7 +127,8 @@ public:
     };
 
 };
-class mob_demon_chain : public CreatureScript
+
+class mob_demon_chain : public CreatureScript
 {
 public:
     mob_demon_chain() : CreatureScript("mob_demon_chain") { }
@@ -163,7 +165,8 @@ public:
     };
 
 };
-class mob_fiendish_portal : public CreatureScript
+
+class mob_fiendish_portal : public CreatureScript
 {
 public:
     mob_fiendish_portal() : CreatureScript("mob_fiendish_portal") { }
@@ -199,7 +202,8 @@ public:
 };
 
 #define SPELL_FIREBOLT  30050   // Blasts a target for 181-209 Fire damage.
-class mob_fiendish_imp : public CreatureScript
+
+class mob_fiendish_imp : public CreatureScript
 {
 public:
     mob_fiendish_imp() : CreatureScript("mob_fiendish_imp") { }
@@ -241,7 +245,8 @@ public:
     };
 
 };
-class boss_terestian_illhoof : public CreatureScript
+
+class boss_terestian_illhoof : public CreatureScript
 {
 public:
     boss_terestian_illhoof() : CreatureScript("boss_terestian_illhoof") { }

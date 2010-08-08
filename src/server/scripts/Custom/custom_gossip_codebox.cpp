@@ -33,7 +33,8 @@ EndScriptData */
 #define SAY_WRONG               "Wrong!"
 #define SAY_RIGHT               "You're right, you are allowed to see my inner secrets."
 
-//This function is called when the player opens the gossip menuboolclass custom_gossip_codebox : public GameObjectScript
+//This function is called when the player opens the gossip menubool
+class custom_gossip_codebox : public GameObjectScript
 {
 public:
     custom_gossip_codebox() : GameObjectScript("custom_gossip_codebox") { }

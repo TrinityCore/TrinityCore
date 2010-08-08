@@ -34,7 +34,8 @@ enum eEnums
     SPELL_FIRESHIELD             = 19626,
     SPELL_FRENZY                 = 8269 //28371,
 };
-class boss_vectus : public CreatureScript
+
+class boss_vectus : public CreatureScript
 {
 public:
     boss_vectus() : CreatureScript("boss_vectus") { }
