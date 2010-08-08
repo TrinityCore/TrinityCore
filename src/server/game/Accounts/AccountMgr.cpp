@@ -243,7 +243,7 @@ bool AccountMgr::normalizeString(std::string& utf8str)
 
 std::string AccountMgr::CalculateShaPassHash(std::string& name, std::string& password)
 {
-    Sha1Hash sha;
+    SHA1Hash sha;
     sha.Initialize();
     sha.UpdateData(name);
     sha.UpdateData(":");
