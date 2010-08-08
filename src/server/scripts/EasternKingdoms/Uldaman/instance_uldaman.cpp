@@ -298,5 +298,5 @@ class instance_uldaman : public InstanceMapScript
 
 void AddSC_instance_uldaman()
 {
-    new instance_uldaman;
+    new instance_uldaman();
 }
