@@ -886,7 +886,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 }
 
                 ProgressType progressType;
-                if (!progress) 
+                if (!progress)
                     // 1st time. Start count.
                     progressType = PROGRESS_SET;
                 else if (progress->date < (nextDailyResetTime - 2 * DAY))

@@ -135,10 +135,10 @@ class SqlAsyncTask : public ACE_Method_Request
 public:
     SqlAsyncTask(Database * db, SqlOperation * op) : m_db(db), m_op(op){}
     ~SqlAsyncTask()
-    { 
+    {
         if (!m_op)
-            return; 
-        
+            return;
+
         delete m_op;
         m_op = NULL;
     }

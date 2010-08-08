@@ -25,5 +25,5 @@
 
 void AddSC_deathknight_spell_scripts()
 {
-    
+
 }

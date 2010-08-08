@@ -25,5 +25,5 @@
 
 void AddSC_shaman_spell_scripts()
 {
-    
+
 }

@@ -21,14 +21,14 @@ public:
     void close();
 
     void GetFileListTo(vector<string>& filelist) {
-    	uint32 filenum;
-    	if(libmpq__file_number(mpq_a, "(listfile)", &filenum)) return;
-    	libmpq__off_t size, transferred;
-		libmpq__file_unpacked_size(mpq_a, filenum, &size);
+        uint32 filenum;
+        if(libmpq__file_number(mpq_a, "(listfile)", &filenum)) return;
+        libmpq__off_t size, transferred;
+        libmpq__file_unpacked_size(mpq_a, filenum, &size);
 
         char *buffer = new char[size];
-		
-		libmpq__file_read(mpq_a, filenum, (unsigned char*)buffer, size, &transferred);
+        
+        libmpq__file_read(mpq_a, filenum, (unsigned char*)buffer, size, &transferred);
 
         char seps[] = "\n";
         char *token;

@@ -57,8 +57,8 @@ class instance_shattered_halls : public InstanceMapScript
             {
                 switch(pGo->GetEntry())
                 {
-                    case DOOR_NETHEKURSE: 
-                        nethekurseDoorGUID = pGo->GetGUID(); 
+                    case DOOR_NETHEKURSE:
+                        nethekurseDoorGUID = pGo->GetGUID();
                         break;
                 }
             }
@@ -67,8 +67,8 @@ class instance_shattered_halls : public InstanceMapScript
             {
                 switch(pCreature->GetEntry())
                 {
-                    case 16807: 
-                        nethekurseGUID = pCreature->GetGUID(); 
+                    case 16807:
+                        nethekurseGUID = pCreature->GetGUID();
                         break;
                 }
             }

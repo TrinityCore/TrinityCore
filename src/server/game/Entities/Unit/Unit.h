@@ -691,7 +691,7 @@ enum MovementFlags2
     MOVEMENTFLAG2_UNK8                     = 0x00000080,
     MOVEMENTFLAG2_UNK9                     = 0x00000100,
     MOVEMENTFLAG2_UNK10                    = 0x00000200,
-    MOVEMENTFLAG2_INTERPOLATED_MOVEMENT    = 0x00000400, 
+    MOVEMENTFLAG2_INTERPOLATED_MOVEMENT    = 0x00000400,
     MOVEMENTFLAG2_INTERPOLATED_TURNING     = 0x00000800,
     MOVEMENTFLAG2_INTERPOLATED_PITCHING    = 0x00001000,
     MOVEMENTFLAG2_UNK14                    = 0x00002000,
@@ -699,7 +699,7 @@ enum MovementFlags2
     MOVEMENTFLAG2_UNK16                    = 0x00008000,
 
     // player only?
-    MOVEMENTFLAG2_INTERPOLATED = 
+    MOVEMENTFLAG2_INTERPOLATED =
         MOVEMENTFLAG2_INTERPOLATED_MOVEMENT |
         MOVEMENTFLAG2_INTERPOLATED_TURNING |
         MOVEMENTFLAG2_INTERPOLATED_PITCHING
@@ -2108,7 +2108,7 @@ namespace Trinity
         public:
             PowerPctOrderPred(Powers power, bool ascending = true) : m_power(power), m_ascending(ascending) {}
             bool operator() (const Unit *a, const Unit *b) const
-            { 
+            {
                 float rA = a->GetMaxPower(m_power) ? float(a->GetPower(m_power)) / float(a->GetMaxPower(m_power)) : 0.0f;
                 float rB = b->GetMaxPower(m_power) ? float(b->GetPower(m_power)) / float(b->GetMaxPower(m_power)) : 0.0f;
                 return m_ascending ? rA < rB : rA > rB;
@@ -2117,14 +2117,14 @@ namespace Trinity
             const Powers m_power;
             const bool m_ascending;
     };
-      
+
     // Binary predicate for sorting Units based on percent value of health
     class HealthPctOrderPred
     {
         public:
             HealthPctOrderPred(bool ascending = true) : m_ascending(ascending) {}
             bool operator() (const Unit *a, const Unit *b) const
-            { 
+            {
                 float rA = a->GetMaxHealth() ? float(a->GetHealth()) / float(a->GetMaxHealth()) : 0.0f;
                 float rB = b->GetMaxHealth() ? float(b->GetHealth()) / float(b->GetMaxHealth()) : 0.0f;
                 return m_ascending ? rA < rB : rA > rB;
@@ -2150,14 +2150,14 @@ inline void Unit::SendMonsterMoveByPath(Path<Elem,Node> const& path, uint32 star
     data << uint32(((GetUnitMovementFlags() & MOVEMENTFLAG_LEVITATING) || isInFlight()) ? (SPLINEFLAG_FLYING|SPLINEFLAG_WALKING) : SPLINEFLAG_WALKING);
     data << uint32(traveltime);
     data << uint32(pathSize);
-    
+
     for (uint32 i = start; i < end; ++i)
     {
         data << float(path[i].x);
         data << float(path[i].y);
         data << float(path[i].z);
     }
-    
+
     SendMessageToSet(&data, true);
 }
 #endif

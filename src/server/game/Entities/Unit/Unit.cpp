@@ -3617,7 +3617,7 @@ void Unit::_AddAura(UnitAura * aura, Unit * caster)
             {
                 AuraEffect *existingEff = foundAura->GetEffect(i);
                 AuraEffect *newEff = aura->GetEffect(i);
-                if (!existingEff || !newEff) 
+                if (!existingEff || !newEff)
                     continue;
                 newEff->SetPeriodicTimer(existingEff->GetPeriodicTimer());
             }
@@ -4427,7 +4427,7 @@ void Unit::RemoveAllAuras()
         AuraApplicationMap::iterator aurAppIter;
         for (aurAppIter = m_appliedAuras.begin(); aurAppIter != m_appliedAuras.end();)
             _UnapplyAura(aurAppIter, AURA_REMOVE_BY_DEFAULT);
-        
+
         AuraMap::iterator aurIter;
         for (aurIter = m_ownedAuras.begin(); aurIter != m_ownedAuras.end();)
             RemoveOwnedAura(aurIter);
@@ -7738,7 +7738,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
         }
         default:
             break;
-    } 
+    }
 
     // if not handled by custom case, get triggered spell from dummySpell proto
     if (!triggered_spell_id)
@@ -7914,7 +7914,7 @@ bool Unit::HandleAuraProc(Unit * pVictim, uint32 damage, Aura * triggeredByAura,
                         int32 bp0 = (damage/12) * SpellMgr::CalculateSpellEffectAmount(dummySpell, 2)/100;
                         CastCustomSpell(pVictim, 66922, &bp0, NULL, NULL, true);
                         return true;
-                    }   
+                    }
                 }
                 // but should not proc on non-critical Holy Shocks
                 else if ((procSpell->SpellFamilyFlags[0] & 0x200000 || procSpell->SpellFamilyFlags[1] & 0x10000) && !(procEx & PROC_EX_CRITICAL_HIT))
@@ -9803,7 +9803,7 @@ int32 Unit::DealHeal(Unit *pVictim, uint32 addhealth, SpellEntry const *spellPro
     // calculate heal absorb and reduce healing
     CalcHealAbsorb(pVictim, spellProto, addhealth, absorb);
     int32 gain = 0;
-    
+
     if (addhealth)
         gain = pVictim->ModifyHealth(int32(addhealth));
 
@@ -10572,7 +10572,7 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
     // Mobs can't crit with spells.
     if (IS_CREATURE_GUID(GetGUID()))
         return false;
-    
+
     // not critting spell
     if ((spellProto->AttributesEx2 & SPELL_ATTR_EX2_CANT_CRIT))
         return false;

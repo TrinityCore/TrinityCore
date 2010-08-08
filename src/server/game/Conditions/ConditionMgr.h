@@ -127,7 +127,7 @@ class ConditionMgr
     friend class ACE_Singleton<ConditionMgr, ACE_Null_Mutex>;
     ConditionMgr();
     ~ConditionMgr();
-    
+
     public:
 
         void LoadConditions(bool isReload = false);

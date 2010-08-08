@@ -38,7 +38,7 @@
 
 size_t Database::db_count = 0;
 
-Database::Database() : mMysql(NULL) 
+Database::Database() : mMysql(NULL)
 {
     // before first connection
     if (db_count++ == 0)

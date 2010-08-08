@@ -644,7 +644,7 @@ class boss_kaelthas : public CreatureScript
                             if (Phase_Timer <= diff)
                             {
                                 PhaseSubphase = 1;
-                            } 
+                            }
                             else
                                 Phase_Timer -= diff;
                         }
@@ -672,8 +672,8 @@ class boss_kaelthas : public CreatureScript
                                     m_pInstance->SetData(DATA_KAELTHASEVENT, 3);
                                 Phase = 3;
                                 PhaseSubphase = 0;
-                            } 
-                            else 
+                            }
+                            else
                                 Phase_Timer -= diff;
                         }
                     }
@@ -719,8 +719,8 @@ class boss_kaelthas : public CreatureScript
                                 AttackStart(pTarget);
 
                             Phase_Timer = 30000;
-                        } 
-                        else 
+                        }
+                        else
                             Phase_Timer -= diff;
                     }
                     break;
@@ -757,7 +757,7 @@ class boss_kaelthas : public CreatureScript
                                     IsCastingFireball = false;
                                     Fireball_Timer = 5000+rand()%10000;
                                 }
-                            } 
+                            }
                             else
                                 Fireball_Timer -= diff;
 
@@ -766,8 +766,8 @@ class boss_kaelthas : public CreatureScript
                             {
                                 DoCast(me->getVictim(), SPELL_ARCANE_DISRUPTION, true);
                                 ArcaneDisruption_Timer = 60000;
-                            } 
-                            else 
+                            }
+                            else
                                 ArcaneDisruption_Timer -= diff;
 
                             if (FlameStrike_Timer <= diff)
@@ -776,8 +776,8 @@ class boss_kaelthas : public CreatureScript
                                     DoCast(pUnit, SPELL_FLAME_STRIKE);
 
                                 FlameStrike_Timer = 30000;
-                            } 
-                            else 
+                            }
+                            else
                                 FlameStrike_Timer -= diff;
 
                             if (MindControl_Timer <= diff)
@@ -790,8 +790,8 @@ class boss_kaelthas : public CreatureScript
                                 }
 
                                 MindControl_Timer = 60000;
-                            } 
-                            else 
+                            }
+                            else
                                 MindControl_Timer -= diff;
                         }
 
@@ -802,8 +802,8 @@ class boss_kaelthas : public CreatureScript
                             DoScriptText(RAND(SAY_SUMMON_PHOENIX1,SAY_SUMMON_PHOENIX2), me);
 
                             Phoenix_Timer = 60000;
-                        } 
-                        else 
+                        }
+                        else
                             Phoenix_Timer -= diff;
 
                         //Phase 4 specific spells
@@ -836,8 +836,8 @@ class boss_kaelthas : public CreatureScript
                                 ChainPyros = true;
                                 PyrosCasted = 0;
                                 ShockBarrier_Timer = 60000;
-                            } 
-                            else 
+                            }
+                            else
                                 ShockBarrier_Timer -= diff;
 
                             //Chain Pyros (3 of them max)
@@ -869,7 +869,7 @@ class boss_kaelthas : public CreatureScript
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                 Phase = 6;
                                 AttackStart(me->getVictim());
-                            } 
+                            }
                             else
                                 Phase_Timer -= diff;
                         }
@@ -978,7 +978,7 @@ class boss_kaelthas : public CreatureScript
                                     DoCast(me, SPELL_SHOCK_BARRIER);
                                     ShockBarrier_Timer = 20000;
                                 }
-                                else 
+                                else
                                     ShockBarrier_Timer -= diff;
 
                                 //NetherBeam_Timer
@@ -1073,7 +1073,7 @@ class boss_thaladred_the_darkener : public CreatureScript
                         Gaze_Timer = 8500;
                     }
                 }
-                else 
+                else
                     Gaze_Timer -= diff;
 
                 //Silence_Timer
@@ -1251,7 +1251,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
                         DoScriptText(SAY_CAPERNIAN_AGGRO, me);
                         Yell = true;
                     }
-                    else 
+                    else
                         Yell_Timer -= diff;
                 }
 
@@ -1260,8 +1260,8 @@ class boss_grand_astromancer_capernian : public CreatureScript
                 {
                     DoCast(me->getVictim(), SPELL_CAPERNIAN_FIREBALL);
                     Fireball_Timer = 4000;
-                } 
-                else 
+                }
+                else
                     Fireball_Timer -= diff;
 
                 //Conflagration_Timer
@@ -1276,8 +1276,8 @@ class boss_grand_astromancer_capernian : public CreatureScript
                         DoCast(me->getVictim(), SPELL_CONFLAGRATION);
 
                     Conflagration_Timer = 10000+rand()%5000;
-                } 
-                else 
+                }
+                else
                     Conflagration_Timer -= diff;
 
                 //ArcaneExplosion_Timer
@@ -1302,8 +1302,8 @@ class boss_grand_astromancer_capernian : public CreatureScript
                         DoCast(pTarget, SPELL_ARCANE_EXPLOSION);
 
                     ArcaneExplosion_Timer = 4000+rand()%2000;
-                } 
-                else 
+                }
+                else
                     ArcaneExplosion_Timer -= diff;
 
                 //Do NOT deal any melee damage.
@@ -1374,8 +1374,8 @@ class boss_master_engineer_telonicus : public CreatureScript
                 {
                     DoCast(me->getVictim(), SPELL_BOMB);
                     Bomb_Timer = 25000;
-                } 
-                else 
+                }
+                else
                     Bomb_Timer -= diff;
 
                 //RemoteToy_Timer
@@ -1385,7 +1385,7 @@ class boss_master_engineer_telonicus : public CreatureScript
                         DoCast(pTarget, SPELL_REMOTE_TOY);
 
                     RemoteToy_Timer = 10000+rand()%5000;
-                } 
+                }
                 else
                     RemoteToy_Timer -= diff;
 
@@ -1445,14 +1445,14 @@ class mob_kael_flamestrike : public CreatureScript
                     {
                         me->InterruptNonMeleeSpells(false);
                         DoCast(me, SPELL_FLAME_STRIKE_DMG);
-                    } 
-                    else 
+                    }
+                    else
                         me->Kill(me);
 
                     KillSelf = true;
                     Timer = 1000;
-                } 
-                else 
+                }
+                else
                     Timer -= diff;
             }
         };
@@ -1503,8 +1503,8 @@ class mob_phoenix_tk : public CreatureScript
                     if (me->GetHealth() > dmg)
                         me->SetHealth(uint32(me->GetHealth()-dmg));
                     Cycle_Timer = 2000;
-                } 
-                else 
+                }
+                else
                     Cycle_Timer -= diff;
 
                 DoMeleeAttackIfReady();
@@ -1567,8 +1567,8 @@ class mob_phoenix_egg_tk : public CreatureScript
                 {
                     me->SummonCreature(NPC_PHOENIX,me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(),me->GetOrientation(),TEMPSUMMON_CORPSE_DESPAWN,5000);
                     Rebirth_Timer = 0;
-                } 
-                else 
+                }
+                else
                     Rebirth_Timer -= diff;
             }
         };

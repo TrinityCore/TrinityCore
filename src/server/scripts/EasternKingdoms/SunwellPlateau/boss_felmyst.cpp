@@ -291,7 +291,7 @@ public:
             case 2:
             {
                 Unit *pTarget = pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
-                if (!pTarget) 
+                if (!pTarget)
                     pTarget = Unit::GetUnit(*me, pInstance ? pInstance->GetData64(DATA_PLAYER_GUID) : 0);
 
                 if (!pTarget)
@@ -312,13 +312,13 @@ public:
                 events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 10000);
                 break;
             }
-            case 3: 
+            case 3:
             {
                 DespawnSummons(MOB_VAPOR_TRAIL);
                 //DoCast(me, SPELL_VAPOR_SELECT); need core support
 
                 Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
-                if (!pTarget) 
+                if (!pTarget)
                     pTarget = Unit::GetUnit(*me, pInstance ? pInstance->GetData64(DATA_PLAYER_GUID) : 0);
 
                 if (!pTarget)
@@ -348,7 +348,7 @@ public:
             case 5:
             {
                 Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
-                if (!pTarget) 
+                if (!pTarget)
                     pTarget = Unit::GetUnit(*me, pInstance ? pInstance->GetData64(DATA_PLAYER_GUID) : 0);
 
                 if (!pTarget)
@@ -386,7 +386,7 @@ public:
                 me->RemoveAurasDueToSpell(SPELL_FOG_BREATH);
                 ++uiBreathCount;
                 events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 1);
-                if (uiBreathCount < 3) 
+                if (uiBreathCount < 3)
                     uiFlightCount = 4;
                 break;
             case 9:

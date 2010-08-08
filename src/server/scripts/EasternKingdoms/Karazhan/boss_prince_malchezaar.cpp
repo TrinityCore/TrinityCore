@@ -164,7 +164,7 @@ public:
         void Cleanup()
         {
             Unit *pMalchezaar = Unit::GetUnit(*me, malchezaar);
-    
+
             if (pMalchezaar && pMalchezaar->isAlive())
                 CAST_AI(boss_malchezaar::boss_malchezaarAI, CAST_CRE(pMalchezaar)->AI())->Cleanup(me, point);
         }                                         //below ...

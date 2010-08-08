@@ -146,7 +146,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recv_data)
             _player->GetSession()->SendPacket(&data);
             return;
         }
-        
+
         if (_player->InBattlegroundQueue() && bgTypeId == BATTLEGROUND_RB)
         {
             //player is already in queue, can't start random queue

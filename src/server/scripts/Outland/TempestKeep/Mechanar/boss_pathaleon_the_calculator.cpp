@@ -45,7 +45,7 @@ enum eSpells
     H_SPELL_ARCANE_EXPLOSION       = 15453,
     SPELL_FRENZY                   = 36992,
     //Spells work, but not implemented
-    SPELL_SUMMON_NETHER_WRAITH_1   = 35285,              
+    SPELL_SUMMON_NETHER_WRAITH_1   = 35285,
     SPELL_SUMMON_NETHER_WRAITH_2   = 35286,
     SPELL_SUMMON_NETHER_WRAITH_3   = 35287,
     SPELL_SUMMON_NETHER_WRAITH_4   = 35288,
@@ -62,22 +62,22 @@ class boss_pathaleon_the_calculator : public CreatureScript
             : CreatureScript("boss_pathaleon_the_calculator")
         {
         }
-        
+
         struct boss_pathaleon_the_calculatorAI : public ScriptedAI
         {
             boss_pathaleon_the_calculatorAI(Creature* pCreature) : ScriptedAI(pCreature), summons(me)
             {
             }
-            
+
             uint32 Summon_Timer;
             SummonList summons;
             uint32 ManaTap_Timer;
             uint32 ArcaneTorrent_Timer;
             uint32 Domination_Timer;
             uint32 ArcaneExplosion_Timer;
-            
+
             bool Enraged;
-            
+
             uint32 Counter;
 
             void Reset()
@@ -107,24 +107,24 @@ class boss_pathaleon_the_calculator : public CreatureScript
             {
                 DoScriptText(SAY_DEATH, me);
 
-                summons.DespawnAll();    
+                summons.DespawnAll();
             }
-            
-            void JustSummoned(Creature *summon) 
+
+            void JustSummoned(Creature *summon)
             {
                 summons.Summon(summon);
             }
-            void SummonedCreatureDespawn(Creature *summon) 
+            void SummonedCreatureDespawn(Creature *summon)
             {
                 summons.Despawn(summon);
             }
 
             void UpdateAI(const uint32 diff)
-            {  
+            {
                 //Return since we have no target
                 if (!UpdateVictim())
                     return;
-                
+
                 if (Summon_Timer <= diff)
                 {
                     for (uint8 i = 0; i < 3; ++i)
@@ -136,7 +136,7 @@ class boss_pathaleon_the_calculator : public CreatureScript
                     }
                     DoScriptText(SAY_SUMMON, me);
                     Summon_Timer = 30000 + rand()%15000;
-                } 
+                }
                 else
                     Summon_Timer -= diff;
 
@@ -144,18 +144,18 @@ class boss_pathaleon_the_calculator : public CreatureScript
                 {
                     DoCast(me->getVictim(), SPELL_MANA_TAP);
                     ManaTap_Timer = 14000 + rand()%8000;
-                } 
+                }
                 else
                     ManaTap_Timer -= diff;
-                
+
                 if (ArcaneTorrent_Timer <= diff)
                 {
                     DoCast(me->getVictim(), SPELL_ARCANE_TORRENT);
                     ArcaneTorrent_Timer = 12000 + rand()%6000;
                 }
-                else 
+                else
                     ArcaneTorrent_Timer -= diff;
-                
+
                 if (Domination_Timer <= diff)
                 {
                     if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
@@ -164,8 +164,8 @@ class boss_pathaleon_the_calculator : public CreatureScript
                         DoCast(pTarget, SPELL_DOMINATION);
                     }
                     Domination_Timer = 25000 + rand()%5000;
-                } 
-                else 
+                }
+                else
                     Domination_Timer -= diff;
 
                 //Only casting if Heroic Mode is used
@@ -176,10 +176,10 @@ class boss_pathaleon_the_calculator : public CreatureScript
                         DoCast(me->getVictim(), H_SPELL_ARCANE_EXPLOSION);
                         ArcaneExplosion_Timer = 10000 + rand()%4000;
                     }
-                    else 
-                        ArcaneExplosion_Timer -= diff;        
+                    else
+                        ArcaneExplosion_Timer -= diff;
                 }
-                
+
                 if (!Enraged && me->GetHealth()*100 / me->GetMaxHealth() < 21)
                 {
                     DoCast(me, SPELL_FRENZY);
@@ -187,7 +187,7 @@ class boss_pathaleon_the_calculator : public CreatureScript
                     Enraged = true;
 
                 }
-                
+
                 DoMeleeAttackIfReady();
             }
         };
@@ -206,7 +206,7 @@ class mob_nether_wraith : public CreatureScript
             : CreatureScript("mob_nether_wraith")
         {
         }
-        
+
         struct mob_nether_wraithAI : public ScriptedAI
         {
             mob_nether_wraithAI(Creature* pCreature) : ScriptedAI(pCreature) {}
@@ -238,8 +238,8 @@ class mob_nether_wraith : public CreatureScript
                     else
                         DoCast(me->getVictim(), SPELL_ARCANE_MISSILES);
                     ArcaneMissiles_Timer = 5000 + rand()%5000;
-                } 
-                else 
+                }
+                else
                     ArcaneMissiles_Timer -=diff;
 
                 if (!Detonation)
@@ -249,7 +249,7 @@ class mob_nether_wraith : public CreatureScript
                         DoCast(me, SPELL_DETONATION);
                         Detonation = true;
                     }
-                    else 
+                    else
                         Detonation_Timer -= diff;
                 }
 
@@ -259,13 +259,13 @@ class mob_nether_wraith : public CreatureScript
                     {
                         me->setDeathState(JUST_DIED);
                         me->RemoveCorpse();
-                    } 
-                    else 
+                    }
+                    else
                         Die_Timer -= diff;
                 }
                 DoMeleeAttackIfReady();
             }
-        };    
+        };
 
         CreatureAI* GetAI(Creature* pCreature) const
         {

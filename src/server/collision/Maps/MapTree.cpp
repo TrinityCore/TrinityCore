@@ -154,7 +154,7 @@ namespace VMAP
         iTree.intersectRay(pRay, intersectionCallBack, distance, pStopAtFirstHit);
         if (intersectionCallBack.didHit())
             pMaxDist = distance;
-        return intersectionCallBack.didHit();    
+        return intersectionCallBack.didHit();
     }
     //=========================================================
 

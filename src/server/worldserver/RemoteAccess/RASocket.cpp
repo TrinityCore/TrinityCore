@@ -205,7 +205,7 @@ void RASocket::OnRead()
                        SetDeleteByHandler(false);
                     CliCommandHolder* cmd = new CliCommandHolder(this, buff, &RASocket::zprint, &RASocket::commandFinished);
                     sWorld.QueueCliCommand(cmd);
-                    ++pendingCommands; 
+                    ++pendingCommands;
                 }
                 else
                     Sendf("TC>");
@@ -231,7 +231,7 @@ void RASocket::commandFinished(void* callbackArg, bool success)
     RASocket* raSocket = (RASocket*)callbackArg;
     raSocket->Sendf("TC>");
     uint64 remainingCommands = --raSocket->pendingCommands;
- 
+
     if(remainingCommands == 0)
         raSocket->SetDeleteByHandler(true);
  }

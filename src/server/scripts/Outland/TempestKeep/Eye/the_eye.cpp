@@ -56,7 +56,7 @@ class mob_crystalcore_devastator : public CreatureScript
                 Countercharge_Timer = 9000;
                 Knockaway_Timer = 25000;
             }
-            
+
             void EnterCombat(Unit * /*who*/)
             {
             }
@@ -83,7 +83,7 @@ class mob_crystalcore_devastator : public CreatureScript
 
                     Knockaway_Timer = 23000;
                 }
-                else 
+                else
                     Knockaway_Timer -= diff;
 
                 //Countercharge_Timer
@@ -91,8 +91,8 @@ class mob_crystalcore_devastator : public CreatureScript
                 {
                     DoCast(me, SPELL_COUNTERCHARGE);
                     Countercharge_Timer = 45000;
-                } 
-                else 
+                }
+                else
                     Countercharge_Timer -= diff;
 
                 DoMeleeAttackIfReady();

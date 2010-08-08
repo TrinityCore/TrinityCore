@@ -171,7 +171,7 @@ Unit * SpellScript::GetCaster()
 
 Unit * SpellScript::GetOriginalCaster()
 {
-     return m_spell->GetOriginalCaster(); 
+     return m_spell->GetOriginalCaster();
 }
 
 SpellEntry const * SpellScript::GetSpellInfo()
@@ -188,7 +188,7 @@ WorldLocation * SpellScript::GetDest()
 
 Unit * SpellScript::GetHitUnit()
 {
-    return m_spell->unitTarget; 
+    return m_spell->unitTarget;
 }
 
 Creature * SpellScript::GetHitCreature()

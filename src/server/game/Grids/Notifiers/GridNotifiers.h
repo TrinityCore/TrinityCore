@@ -1203,7 +1203,7 @@ namespace Trinity
     class GameObjectInRangeCheck
     {
     public:
-        GameObjectInRangeCheck(float _x, float _y, float _z, float _range, uint32 _entry = 0) : 
+        GameObjectInRangeCheck(float _x, float _y, float _z, float _range, uint32 _entry = 0) :
           x(_x), y(_y), z(_z), range(_range), entry(_entry) {}
         bool operator() (GameObject* go)
         {

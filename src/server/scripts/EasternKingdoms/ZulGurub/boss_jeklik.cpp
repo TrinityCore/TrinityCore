@@ -216,7 +216,7 @@ class boss_jeklik : public CreatureScript
                     DoMeleeAttackIfReady();
                 }
             }
-        };		
+        };        
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -289,7 +289,7 @@ class mob_batrider : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
-        };		
+        };        
 
         CreatureAI* GetAI(Creature* creature) const
         {

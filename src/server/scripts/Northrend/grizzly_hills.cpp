@@ -576,12 +576,12 @@ public:
     struct npc_wounded_skirmisherAI : public ScriptedAI
     {
         npc_wounded_skirmisherAI(Creature *c) : ScriptedAI(c) {}
-        
+
         uint64 uiPlayerGUID;
 
         uint32 DespawnTimer;
 
-        void Reset () 
+        void Reset ()
         {
             DespawnTimer = 5000;
             uiPlayerGUID = 0;
@@ -594,23 +594,23 @@ public:
         }
 
         void SpellHit(Unit *caster, const SpellEntry *spell)
-        {        
+        {
             if (spell->Id == SPELL_RENEW_SKIRMISHER && caster->GetTypeId() == TYPEID_PLAYER
                 && caster->ToPlayer()->GetQuestStatus(12288) == QUEST_STATUS_INCOMPLETE)
-            {            
+            {
                 caster->ToPlayer()->KilledMonsterCredit(CREDIT_NPC, 0);
                 DoScriptText(RAND(RANDOM_SAY_1,RANDOM_SAY_2,RANDOM_SAY_3),caster);
-                if(me->IsStandState())            
-                    me->GetMotionMaster()->MovePoint(1, me->GetPositionX()+7, me->GetPositionY()+7, me->GetPositionZ());                                                                                   
+                if(me->IsStandState())
+                    me->GetMotionMaster()->MovePoint(1, me->GetPositionX()+7, me->GetPositionY()+7, me->GetPositionZ());
                 else
                 {
                     me->SetStandState(UNIT_STAND_STATE_STAND);
-                    me->ForcedDespawn(DespawnTimer);   
+                    me->ForcedDespawn(DespawnTimer);
                 }
-                    
+
             }
         }
-        
+
         void UpdateAI(const uint32 /*diff*/)
         {
             if (!UpdateVictim())

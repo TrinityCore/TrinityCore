@@ -250,7 +250,7 @@ bool Transport::GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids)
         return false;
 
     TaxiPathNodeList const& path = sTaxiPathNodesByPath[pathid];
-    
+
     std::vector<keyFrame> keyFrames;
     int mapChange = 0;
     mapids.clear();
@@ -516,7 +516,7 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
         UpdateForMap(oldMap);
         UpdateForMap(newMap);
     }
-    
+
     for (std::set<TransportCreatureProto *>::const_iterator i = sMapMgr.m_TransportNPCMap[GetEntry()].begin(); i != sMapMgr.m_TransportNPCMap[GetEntry()].end(); ++i)
     {
         TransportCreatureProto *proto = (*i);
@@ -660,7 +660,7 @@ uint32 Transport::AddNPCPassenger(uint32 tguid, uint32 entry, float x, float y, 
     pCreature->Relocate(
         GetPositionX() + (x * cos(GetOrientation()) + y * sin(GetOrientation() + M_PI)),
         GetPositionY() + (y * cos(GetOrientation()) + x * sin(GetOrientation())),
-        z + GetPositionZ() , 
+        z + GetPositionZ() ,
         o + GetOrientation());
 
     if(!pCreature->IsPositionValid())

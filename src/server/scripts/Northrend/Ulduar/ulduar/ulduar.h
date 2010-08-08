@@ -42,7 +42,7 @@ enum eTypes
     DATA_MOLGEIM                = 21,
     DATA_BRUNDIR                = 22,
     DATA_RUNEMASTER_MOLGEIM     = 23,
-    DATA_STORMCALLER_BRUNDIR    = 24,    
+    DATA_STORMCALLER_BRUNDIR    = 24,
 
     NPC_LEVIATHAN               = 33113,
     NPC_IGNIS                   = 33118,

@@ -98,7 +98,7 @@ class instance_arcatraz : public InstanceMapScript
 
                 return false;
             }
-            
+
 
             void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
             {
@@ -155,7 +155,7 @@ class instance_arcatraz : public InstanceMapScript
                         m_auiEncounter[8] = NOT_STARTED;
                     }
                     m_auiEncounter[3] = data;
-                    break; 
+                    break;
                 case TYPE_WARDEN_1:
                     if (data == IN_PROGRESS)
                         if (GameObject *pGo = instance->GetGameObject(Pod_AlphaGUID))
@@ -163,7 +163,7 @@ class instance_arcatraz : public InstanceMapScript
                     m_auiEncounter[4] = data;
                     break;
                 case TYPE_WARDEN_2:
-                    if (data == IN_PROGRESS)                
+                    if (data == IN_PROGRESS)
                     {
                         if (GameObject *pGo = instance->GetGameObject(Pod_BetaGUID))
                             pGo->UseDoorOrButton();
@@ -201,23 +201,23 @@ class instance_arcatraz : public InstanceMapScript
                             pGo->UseDoorOrButton();
                     }
                     break;
-                } 
+                }
             }
-            
+
             uint32 GetData(uint32 type)
-            {         
+            {
                 switch(type)
                 {
                 case TYPE_HARBINGERSKYRISS: return m_auiEncounter[3];
                 case TYPE_WARDEN_1:         return m_auiEncounter[4];
-                case TYPE_WARDEN_2:         return m_auiEncounter[5];  
+                case TYPE_WARDEN_2:         return m_auiEncounter[5];
                 case TYPE_WARDEN_3:         return m_auiEncounter[6];
                 case TYPE_WARDEN_4:         return m_auiEncounter[7];
                 case TYPE_WARDEN_5:         return m_auiEncounter[8];
                 }
                 return 0;
             }
-            
+
             uint64 GetData64(uint32 data)
             {
                 switch(data)

@@ -103,8 +103,8 @@ class boss_gatewatcher_iron_hand : public CreatureScript
                     {
                         DoCast(me, SPELL_SHADOW_POWER);
                         Shadow_Power_Timer = 20000 + rand()%8000;
-                    } 
-                    else 
+                    }
+                    else
                         Shadow_Power_Timer -= diff;
 
                     //Jack Hammer
@@ -120,8 +120,8 @@ class boss_gatewatcher_iron_hand : public CreatureScript
 
                         DoScriptText(RAND(SAY_HAMMER_1,SAY_HAMMER_2), me);
                         Jackhammer_Timer = 30000;
-                    } 
-                    else 
+                    }
+                    else
                         Jackhammer_Timer -= diff;
 
                     //Stream of Machine Fluid
@@ -129,8 +129,8 @@ class boss_gatewatcher_iron_hand : public CreatureScript
                     {
                         DoCast(me->getVictim(), SPELL_STREAM_OF_MACHINE_FLUID);
                         Stream_of_Machine_Fluid_Timer = 35000 + rand()%15000;
-                    } 
-                    else 
+                    }
+                    else
                         Stream_of_Machine_Fluid_Timer -= diff;
 
                     DoMeleeAttackIfReady();
@@ -140,7 +140,7 @@ class boss_gatewatcher_iron_hand : public CreatureScript
             CreatureAI* GetAI(Creature* creature) const
             {
                 return new boss_gatewatcher_iron_handAI(creature);
-            }        
+            }
 };
 
 void AddSC_boss_gatewatcher_iron_hand()

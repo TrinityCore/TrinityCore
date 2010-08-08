@@ -456,11 +456,11 @@ public:
             if (questPhase > 0)
             {
               ++paladinPhase;
-    
+
               if (paladinPhase < 4)
                   questPhase = 2;
               else
-                  Reset();  // Quest Complete, QuestComplete handler is 
+                  Reset();  // Quest Complete, QuestComplete handler is
             }
         }
 

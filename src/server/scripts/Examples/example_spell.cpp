@@ -52,9 +52,9 @@ class spell_ex_49375 : public SpellHandlerScript
                 EffectHandlers += EffectHandlerFn(spell_ex_49375SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
                 // this will prompt an error on startup because effect 0 of spell 49375 is set to SPELL_EFFECT_DUMMY, not SPELL_EFFECT_APPLY_AURA
                 //EffectHandlers += EffectHandlerFn(spell_gen_49375SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-                // this will make HandleDummy function to be called on first != 0 effect of spell 49375 
+                // this will make HandleDummy function to be called on first != 0 effect of spell 49375
                 //EffectHandlers += EffectHandlerFn(spell_gen_49375SpellScript::HandleDummy, EFFECT_FIRST_FOUND, SPELL_EFFECT_ANY);
-                // this will make HandleDummy function to be called on all != 0 effect of spell 49375 
+                // this will make HandleDummy function to be called on all != 0 effect of spell 49375
                 //EffectHandlers += EffectHandlerFn(spell_gen_49375SpellScript::HandleDummy, EFFECT_ALL, SPELL_EFFECT_ANY);
             };
 
@@ -78,7 +78,7 @@ class spell_ex_49375 : public SpellHandlerScript
                 // script will be immediately removed from the spell
                 // for example - we don't want this script to be executed on a creature
                 // if (GetCaster()->GetTypeID() != TYPEID_PLAYER)
-                //     return false; 
+                //     return false;
             }
 
             // function called just before script delete
@@ -98,7 +98,7 @@ class spell_ex_49375 : public SpellHandlerScript
 /* empty script for copypasting
 class spell_ex : public SpellHandlerScript
 {
-    public: 
+    public:
         spell_ex() : SpellHandlerScript("spell_ex") { }
 
         class spell_ex_SpellScript : public SpellScript

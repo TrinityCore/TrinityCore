@@ -115,7 +115,7 @@ enum eEnums
 
     SPELL_FLAME_TSUNAMI_DMG_AURA                = 57491,    // periodic damage, npc has this aura
     SPELL_FLAME_TSUNAMI_BUFF                    = 60430,
-    
+
 
     NPC_FLAME_TSUNAMI                           = 30616,    // for the flame waves
     NPC_LAVA_BLAZE                              = 30643,    // adds spawning from flame strike
@@ -398,7 +398,7 @@ public:
                     pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_TWILIGHT_DUO,H_ACHIEV_TWILIGHT_DUO));
                     pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_TWILIGHT_ZONE,H_ACHIEV_TWILIGHT_ZONE));
                 }
-       
+
                 pInstance->SetData(TYPE_SARTHARION_EVENT, DONE);
             }
         }
@@ -860,7 +860,7 @@ struct dummy_dragonAI : public ScriptedAI
             case NPC_TENEBRON:
             {
                 iTextId = WHISPER_HATCH_EGGS;
-                if (pInstance && !pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS) 
+                if (pInstance && !pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
                 {
                     for(uint32 i = 0; i < 6; ++i)
                         me->SummonCreature(NPC_TWILIGHT_EGG, TwilightEggs[i].x, TwilightEggs[i].y, TwilightEggs[i].z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
@@ -1273,7 +1273,7 @@ public:
                 else
                 {
                     OpenPortal();
-                    DoCast(me->getVictim(), SPELL_TWILIGHT_TORMENT_VESP);        
+                    DoCast(me->getVictim(), SPELL_TWILIGHT_TORMENT_VESP);
                     m_uiAcolyteVesperonTimer = urand(60000,70000);
                 }
             }
@@ -1324,7 +1324,7 @@ public:
 
         InstanceScript* pInstance;
         uint32 uiDespawnTimer;
- 
+
         void Reset()
         {
             uiDespawnTimer = 28000;
@@ -1361,7 +1361,7 @@ public:
                 if (map->IsDungeon())
                 {
                     Map::PlayerList const &PlayerList = map->GetPlayers();
- 
+
                     if (PlayerList.isEmpty())
                         return;
 
@@ -1437,14 +1437,14 @@ public:
             uiDespawnTimer = 28000;
             if (pInstance)
             {
-                me->AddAura(SPELL_TWILIGHT_SHIFT_ENTER,me);            
+                me->AddAura(SPELL_TWILIGHT_SHIFT_ENTER,me);
             }
             DoCast(me, SPELL_TWILIGHT_TORMENT_VESP_ACO);
         }
 
         void JustDied(Unit* pKiller)
         {
-            me->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP_ACO); 
+            me->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP_ACO);
 
             // remove twilight torment on Vesperon
             if (pInstance)
@@ -1455,7 +1455,7 @@ public:
 
                 if (pVesperon && pVesperon->isAlive() && pVesperon->HasAura(SPELL_TWILIGHT_TORMENT_VESP))
                     pVesperon->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP);
-            
+
                 Map *map = me->GetMap();
                 if (map->IsDungeon())
                 {
@@ -1520,7 +1520,7 @@ public:
     struct mob_twilight_eggsAI : public Scripted_NoMovementAI
     {
         mob_twilight_eggsAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
-        {    
+        {
             pInstance = pCreature->GetInstanceScript();
         }
 
@@ -1538,23 +1538,23 @@ public:
             m_uiFadeArmorTimer = 1000;
             m_uiHatchEggTimer = 20000;
         }
-    
+
         void SpawnWhelps()
         {
             me->RemoveAllAuras();
 
             if (!pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
                 me->SummonCreature(NPC_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
-            else                  
+            else
                 me->SummonCreature(NPC_SHARTHARION_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
             me->DealDamage(me, me->GetHealth());
         }
-    
+
         void JustSummoned(Creature* pWho)
         {
             pWho->SetInCombatWithZone();
         }
-    
+
         void UpdateAI(const uint32 uiDiff)
         {
             if (m_uiHatchEggTimer <= uiDiff)
@@ -1565,9 +1565,9 @@ public:
                 SpawnWhelps();
             }
             else
-                m_uiHatchEggTimer -= uiDiff;  
+                m_uiHatchEggTimer -= uiDiff;
         }
-    
+
 
         void AttackStart(Unit* pWho) {}
         void MoveInLineOfSight(Unit* pWho) {}
@@ -1608,7 +1608,7 @@ public:
             TsunamiBuff_timer = 1000;
             entry = 0;
         }
-    
+
         void UpdateAI(const uint32 diff)
         {
             if (Tsunami_Timer <= diff)
@@ -1616,7 +1616,7 @@ public:
                 DoCast(me,SPELL_FLAME_TSUNAMI_DMG_AURA);
                 Tsunami_Timer = 500;
             }else Tsunami_Timer -= diff;
-        
+
             if(TsunamiBuff_timer <= diff)
             {
                 if (Unit* LavaBlaze = GetClosestCreatureWithEntry(me,NPC_LAVA_BLAZE, 10.0f, true))

@@ -40,7 +40,7 @@ enum eSpells
     WAR_STOMP          = 34716,
     SUMMON_TREANTS     = 34727, // DBC: 34727, 34731, 34733, 34734, 34736, 34739, 34741 (with Ancestral Life spell 34742)   // won't work (guardian summon)
     ARCANE_VOLLEY      = 36705,
-    ARCANE_VOLLEY_H    = 39133, 
+    ARCANE_VOLLEY_H    = 39133,
     SPELL_HEAL_FATHER  = 6262,
 };
 
@@ -109,7 +109,7 @@ class mob_warp_splinter_treant : public CreatureScript
                         }
                         check_Timer = 1000;
                     }
-                    else 
+                    else
                         check_Timer -= diff;
                     return;
                 }
@@ -201,7 +201,7 @@ class boss_warp_splinter : public CreatureScript
                     DoCast(me->getVictim(), WAR_STOMP);
                     War_Stomp_Timer = 25000 + rand()%15000;
                 }
-                else 
+                else
                     War_Stomp_Timer -= diff;
 
                 //Check for Arcane Volley
@@ -209,7 +209,7 @@ class boss_warp_splinter : public CreatureScript
                 {
                     DoCast(me->getVictim(), DUNGEON_MODE(ARCANE_VOLLEY,ARCANE_VOLLEY_H));
                     Arcane_Volley_Timer = 20000 + rand()%15000;
-                } 
+                }
                 else
                     Arcane_Volley_Timer -= diff;
 
@@ -218,8 +218,8 @@ class boss_warp_splinter : public CreatureScript
                 {
                     SummonTreants();
                     Summon_Treants_Timer = 45000;
-                } 
-                else 
+                }
+                else
                     Summon_Treants_Timer -= diff;
 
                 DoMeleeAttackIfReady();

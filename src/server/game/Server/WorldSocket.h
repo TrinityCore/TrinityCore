@@ -157,7 +157,7 @@ class WorldSocket : protected WorldHandler
         /// @param g the guard is for m_OutBufferLock, the function will release it
         int cancel_wakeup_output (GuardType& g);
         int schedule_wakeup_output (GuardType& g);
-        
+
         /// Drain the queue if its not empty.
         int handle_output_queue (GuardType& g);
 

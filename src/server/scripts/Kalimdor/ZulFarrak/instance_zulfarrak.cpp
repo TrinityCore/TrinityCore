@@ -79,7 +79,7 @@ float pyramidSpawns [pyramidSpawnTotal][4] = {
     {3,7788,1889.94,1212.21},
     {3,7275,1889.23,1207.72},
     {3,7796,1879.77,1207.96}
-};    
+};
 
 float Spawnsway[2][3] =
 {
@@ -205,7 +205,7 @@ public:
                     PyramidPhase=data;
                     break;
             };
-        }   
+        }
 
         virtual void Update(uint32 diff)
         {
@@ -254,14 +254,14 @@ public:
                         SpawnPyramidWave(3);
                         SetData(EVENT_PYRAMID,PYRAMID_PRE_WAVE_3);
                         major_wave_Timer = 5000; //give NPCs time to return to their home spots
-                    } 
-                    else 
+                    }
+                    else
                         if (minor_wave_Timer<diff)
                         {
                             SendAddsUpStairs(addGroupSize++);
                             minor_wave_Timer=10000;
-                        } 
-                        else 
+                        }
+                        else
                             minor_wave_Timer -= diff;
                     break;
                 case PYRAMID_PRE_WAVE_3:
@@ -274,8 +274,8 @@ public:
                         MoveNPCIfAlive(ENTRY_RAVEN,1883.68,1227.95,9.543,4.78);
                         MoveNPCIfAlive(ENTRY_WEEGLI,1878.02,1227.65,9.485,4.78);
                         SetData(EVENT_PYRAMID,PYRAMID_WAVE_3);
-                    } 
-                    else 
+                    }
+                    else
                         major_wave_Timer -= diff;
                     break;
                 case PYRAMID_WAVE_3:

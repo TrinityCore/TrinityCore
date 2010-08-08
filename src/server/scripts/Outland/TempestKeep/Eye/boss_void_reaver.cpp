@@ -50,7 +50,7 @@ class boss_void_reaver : public CreatureScript
             : CreatureScript("boss_void_reaver")
         {
         }
-        
+
         struct boss_void_reaverAI : public ScriptedAI
         {
             boss_void_reaverAI(Creature* pCreature) : ScriptedAI(pCreature)
@@ -113,7 +113,7 @@ class boss_void_reaver : public CreatureScript
                     DoScriptText(RAND(SAY_POUNDING1,SAY_POUNDING2), me);
                     Pounding_Timer = 15000; //cast time(3000) + cooldown time(12000)
                 }
-                else 
+                else
                     Pounding_Timer -= diff;
                 // Arcane Orb
                 if (ArcaneOrb_Timer <= diff)
@@ -154,16 +154,16 @@ class boss_void_reaver : public CreatureScript
                     if (DoGetThreat(me->getVictim()))
                         DoModifyThreatPercent(me->getVictim(),-25);
                     KnockAway_Timer = 30000;
-                } 
-                else 
+                }
+                else
                     KnockAway_Timer -= diff;
                 //Berserk
                 if (Berserk_Timer < diff && !Enraged)
                 {
                     DoCast(me, SPELL_BERSERK);
                     Enraged = true;
-                } 
-                else 
+                }
+                else
                     Berserk_Timer -= diff;
 
                 DoMeleeAttackIfReady();

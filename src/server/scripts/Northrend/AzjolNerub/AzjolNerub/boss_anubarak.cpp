@@ -65,7 +65,7 @@ enum
     ACHIEV_TIMED_START_EVENT                      = 20381,
 };
 
-enum Phases 
+enum Phases
 {
     PHASE_MELEE                                   = 0,
     PHASE_UNDERGROUND                             = 1,
@@ -81,7 +81,7 @@ const Position SpawnPoint[2] =
 };
 
 const Position SpawnPointGuardian[2] =
-{ 
+{
     { 550.348633, 316.006805, 234.2947 },
     { 550.188660, 324.264557, 237.7412 },
 };
@@ -113,11 +113,11 @@ public:
         uint32 uiUndergroundTimer;
         uint32 uiVenomancerTimer;
         uint32 uiDatterTimer;
-        
+
         uint32 uiImpaleTimer;
         uint32 uiImpalePhase;
         uint64 uiImpaleTarget;
-        
+
         SummonList lSummons;
 
         void Reset()
@@ -136,7 +136,7 @@ public:
             me->RemoveAura(SPELL_SUBMERGE);
 
             lSummons.DespawnAll();
-           
+
             if (pInstance)
             {
                 pInstance->SetData(DATA_ANUBARAK_EVENT, NOT_STARTED);
@@ -177,14 +177,14 @@ public:
                 return;
 
             switch (uiPhase)
-            {       
+            {
             case PHASE_UNDERGROUND:
                 if (uiImpaleTimer <= diff)
                 {
                     switch(uiImpalePhase)
-                    {                    
+                    {
                     case IMPALE_PHASE_TARGET:
-                        if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true)) 
+                        if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         {
                             if (Creature *pImpaleTarget = DoSummonImpaleTarget(target))
                                 pImpaleTarget->CastSpell(pImpaleTarget, SPELL_IMPALE_SHAKEGROUND, true);
@@ -288,7 +288,7 @@ public:
 
                     DoCast(me, SPELL_SUBMERGE, false);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
-                    
+
                     uiPhase = PHASE_UNDERGROUND;
                     ++uiUndergroundPhase;
                 }
@@ -305,7 +305,7 @@ public:
                     DoCastVictim(SPELL_CARRION_BEETLES);
                     uiCarrionBeetlesTimer = 25*IN_MILLISECONDS;
                 } else uiCarrionBeetlesTimer -= diff;
-                
+
                 if (uiLeechingSwarmTimer <= diff)
                 {
                     DoCast(me, SPELL_LEECHING_SWARM, true);
@@ -326,7 +326,7 @@ public:
                 break;
             }
         }
-        
+
         void JustDied(Unit * /*pKiller*/)
         {
             DoScriptText(SAY_DEATH, me);

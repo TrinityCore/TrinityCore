@@ -155,7 +155,7 @@ bool BattlegroundSA::ResetObjs()
         GetBGObject(i)->SetUInt32Value(GAMEOBJECT_FACTION, atF);
     }
 
-	for (uint8 i = BG_SA_PORTAL_DEFFENDER_BLUE; i < BG_SA_BOMB; i++)
+    for (uint8 i = BG_SA_PORTAL_DEFFENDER_BLUE; i < BG_SA_BOMB; i++)
     {
         AddObject(i, BG_SA_ObjEntries[i],
             BG_SA_ObjSpawnlocs[i][0], BG_SA_ObjSpawnlocs[i][1],
@@ -260,7 +260,7 @@ void BattlegroundSA::Update(uint32 diff)
                 InitSecondRound = false;
                 SendMessageToAll(LANG_BG_SA_ROUND_TWO_ONE_MINUTE, CHAT_MSG_BG_SYSTEM_NEUTRAL);
             }
-        }else 
+        }else
         {
             UpdateWaitTimer -= diff;
             return;
@@ -277,7 +277,7 @@ void BattlegroundSA::Update(uint32 diff)
             TotalTime = 0;
             ToggleTimer();
             DemolisherStartState(false);
-            status = BG_SA_ROUND_ONE;            
+            status = BG_SA_ROUND_ONE;
         }
         if (TotalTime >= BG_SA_BOAT_START)
             StartShips();
@@ -287,7 +287,7 @@ void BattlegroundSA::Update(uint32 diff)
     {
         if (RoundScores[0].time<BG_SA_ROUNDLENGTH)
             BG_SA_ENDROUNDTIME = RoundScores[0].time;
-        else 
+        else
             BG_SA_ENDROUNDTIME = BG_SA_ROUNDLENGTH;
 
         if (TotalTime >= 60000)
@@ -319,7 +319,7 @@ void BattlegroundSA::Update(uint32 diff)
                 RoundScores[0].time = BG_SA_ROUNDLENGTH;
                 TotalTime = 0;
                 status = BG_SA_SECOND_WARMUP;
-                attackers = (attackers == TEAM_ALLIANCE) ? TEAM_HORDE : TEAM_ALLIANCE;                
+                attackers = (attackers == TEAM_ALLIANCE) ? TEAM_HORDE : TEAM_ALLIANCE;
                 UpdateWaitTimer = 5000;
                 SignaledRoundTwo = false;
                 SignaledRoundTwoHalfMin = false;
@@ -511,7 +511,7 @@ void BattlegroundSA::EventPlayerDamagedGO(Player* plr, GameObject* go, uint8 hit
                 GateStatus[i] = BG_SA_GATE_DAMAGED;
                 uint32 uws = GetWorldStateFromGateID(i);
                 if (uws)
-                    UpdateWorldState(uws, GateStatus[i]);            
+                    UpdateWorldState(uws, GateStatus[i]);
                 break;
             }
         case BG_OBJECT_DMG_HIT_TYPE_HIGH_DAMAGED:
@@ -586,7 +586,7 @@ void BattlegroundSA::DestroyGate(Player* pl, GameObject* /*go*/, uint32 destroye
             GateStatus[i] = BG_SA_GATE_DESTROYED;
             uint32 uws = GetWorldStateFromGateID(i);
             if (uws)
-                UpdateWorldState(uws, GateStatus[i]);    
+                UpdateWorldState(uws, GateStatus[i]);
             bool rewardHonor = true;
             switch(i)
             {

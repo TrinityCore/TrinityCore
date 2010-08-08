@@ -268,7 +268,7 @@ public:
             Summons.Summon(pSummoned);
         }
 
-        void SummonedCreatureDespawn(Creature* pSummoned) 
+        void SummonedCreatureDespawn(Creature* pSummoned)
         {
             if (pSummoned->GetEntry() == CREATURE_GRAUF)
                 m_uiGraufGUID = 0;
@@ -310,7 +310,7 @@ public:
                 case FLYING:
                     if (!UpdateVictim())
                         return;
-                    
+
                     if (me->GetPositionX() >= 519)
                     {
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
@@ -325,14 +325,14 @@ public:
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                         m_bSaidEmote = false;
                     }
-                
+
                     if (m_uiMountTimer && m_uiMountTimer <= diff)
                     {
                         me->Mount(DATA_MOUNT);
                         me->SetFlying(true);
                         m_uiMountTimer = 0;
                     } else m_uiMountTimer -= diff;
-                
+
                     if (m_uiSummonTimer <= diff)
                     {
                         SpawnMobs();
@@ -343,35 +343,35 @@ public:
                     {
                         switch(m_uiWaypointId)
                         {
-                            case 0: 
-                                me->GetMotionMaster()->MovePoint(0, Location[1].GetPositionX(), Location[1].GetPositionY(), Location[1].GetPositionZ()); 
+                            case 0:
+                                me->GetMotionMaster()->MovePoint(0, Location[1].GetPositionX(), Location[1].GetPositionY(), Location[1].GetPositionZ());
                                 m_uiMovementTimer = 5000;
                                 break;
-                            case 1: 
+                            case 1:
                                 me->GetMotionMaster()->MovePoint(0, Location[2].GetPositionX(), Location[2].GetPositionY(), Location[2].GetPositionZ());
                                 m_uiMovementTimer = 2000;
                                 break;
-                            case 2: 
+                            case 2:
                                 me->GetMotionMaster()->MovePoint(0, Location[3].GetPositionX(), Location[3].GetPositionY(), Location[3].GetPositionZ());
                                 m_uiMovementTimer = 15000;
                                 break;
                             case 3:
-                                me->GetMotionMaster()->MovePoint(0, Location[69].GetPositionX(), Location[69].GetPositionY(), Location[69].GetPositionZ()); 
+                                me->GetMotionMaster()->MovePoint(0, Location[69].GetPositionX(), Location[69].GetPositionY(), Location[69].GetPositionZ());
                                 DoScriptText(RAND(SAY_DRAKE_BREATH_1,SAY_DRAKE_BREATH_2), me);
                                 DoScriptText(EMOTE_BREATH, me);
                                 m_uiMovementTimer = 2500;
                                 break;
                             case 4:
-                                me->GetMotionMaster()->MovePoint(0, Location[70].GetPositionX(), Location[70].GetPositionY(), Location[70].GetPositionZ()); 
+                                me->GetMotionMaster()->MovePoint(0, Location[70].GetPositionX(), Location[70].GetPositionY(), Location[70].GetPositionZ());
                                 m_uiMovementTimer = 2000;
                                 SpawnTrigger();
                                 break;
                             case 5:
-                                me->GetMotionMaster()->MovePoint(0, Location[71].GetPositionX(), Location[71].GetPositionY(), Location[71].GetPositionZ()); 
+                                me->GetMotionMaster()->MovePoint(0, Location[71].GetPositionX(), Location[71].GetPositionY(), Location[71].GetPositionZ());
                                 m_uiMovementTimer = 3000;
                                 break;
                             case 6:
-                                me->GetMotionMaster()->MovePoint(0, Location[3].GetPositionX(), Location[3].GetPositionY(), Location[3].GetPositionZ()); 
+                                me->GetMotionMaster()->MovePoint(0, Location[3].GetPositionX(), Location[3].GetPositionY(), Location[3].GetPositionZ());
                                 m_uiWaypointId = 2;
                                 m_uiMovementTimer = 15000;
                                 break;

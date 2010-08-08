@@ -487,9 +487,9 @@ bool AuctionHouseObject::RemoveAuction(AuctionEntry *auction, uint32 item_templa
 
     sScriptMgr.OnAuctionRemove(this, auction);
 
-	// we need to delete the entry, it is not referenced any more
-	delete auction;
-	return wasInMap;
+    // we need to delete the entry, it is not referenced any more
+    delete auction;
+    return wasInMap;
 }
 
 void AuctionHouseObject::Update()

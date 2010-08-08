@@ -1,2 +1,2 @@
-# Be sure to specify files instead of * when running the script.
-perl -p -i -e "s/\t/    /g" *
+#!/bin/bash
+perl -wpi -e "s/\t/    /g" $1

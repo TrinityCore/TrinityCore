@@ -1105,7 +1105,7 @@ struct LFGDungeonEntry
     //char*   name[16];                                     // 1-17 Name lang
     uint32  minlevel;                                       // 18
     uint32  maxlevel;                                       // 19
-    uint32  reclevel;                                       // 20      
+    uint32  reclevel;                                       // 20
     uint32  recminlevel;                                    // 21
     uint32  recmaxlevel;                                    // 22
     int32  map;                                             // 23

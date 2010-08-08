@@ -174,12 +174,12 @@ bool WorldSession::Update(uint32 diff)
 {
     /// Update Timeout timer.
     UpdateTimeOutTime(diff);
-    
-    ///- Before we process anything:    
+
+    ///- Before we process anything:
     /// If necessary, kick the player from the character select screen
     if (IsConnectionIdle())
         m_Socket->CloseSocket();
-    
+
     ///- Retrieve packets from the receive queue and call the appropriate handlers
     /// not proccess packets if socket already closed
     WorldPacket* packet;
@@ -261,7 +261,7 @@ bool WorldSession::Update(uint32 diff)
                         // and before other STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT opcodes.
                         if (packet->GetOpcode() != CMSG_SET_ACTIVE_VOICE_CHANNEL)
                             m_playerRecentlyLogout = false;
-                        
+
                         sScriptMgr.OnPacketReceive(m_Socket, WorldPacket(*packet));
                         (this->*opHandle.handler)(*packet);
                         if (sLog.IsOutDebug() && packet->rpos() < packet->wpos())

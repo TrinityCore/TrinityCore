@@ -479,7 +479,7 @@ class CreatureScript : public ScriptObject, public UpdatableScript<Creature>
     public:
 
         bool IsDatabaseBound() const { return true; }
-        
+
         // Called when a dummy spell effect is triggered on the creature.
         virtual bool OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, Creature* target) { return false; }
 
@@ -524,25 +524,25 @@ class GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
     public:
 
         bool IsDatabaseBound() const { return true; }
-        
+
         // Called when a dummy spell effect is triggered on the gameobject.
         virtual bool OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, GameObject* target) { return false; }
-        
+
         // Called when a player opens a gossip dialog with the gameobject.
         virtual bool OnGossipHello(Player* player, GameObject* go) { return false; }
-        
+
         // Called when a player selects a gossip item in the gameobject's gossip menu.
         virtual bool OnGossipSelect(Player* player, GameObject* go, uint32 sender, uint32 action) { return false; }
-        
+
         // Called when a player selects a gossip with a code in the gameobject's gossip menu.
         virtual bool OnGossipSelectCode(Player* player, GameObject* go, uint32 sender, uint32 action, const char* code) { return false; }
-        
+
         // Called when a player accepts a quest from the gameobject.
         virtual bool OnQuestAccept(Player* player, GameObject* go, Quest const* quest) { return false; }
-        
+
         // Called when a player selects a quest reward.
         virtual bool OnQuestReward(Player* player, GameObject* go, Quest const* quest, uint32 opt) { return false; }
-        
+
         // Called when the dialog status between a player and the gameobject is requested.
         virtual uint32 GetDialogStatus(Player* player, GameObject* go) { return 0; }
 
@@ -953,26 +953,26 @@ class ScriptMgr
         {
             // Counter used for code-only scripts.
             static uint32 _scriptIdCounter;
- 
+
             public:
- 
+
                 typedef std::map<uint32, TScript*> ScriptMap;
                 typedef typename ScriptMap::iterator ScriptMapIterator;
- 
+
                 // The actual list of scripts. This will be accessed concurrently, so it must not be modified
                 // after server startup.
                 static ScriptMap ScriptPointerList;
- 
+
                 // Gets a script by its ID (assigned by ObjectMgr).
                 static TScript* GetScriptById(uint32 id)
                 {
                     ScriptMapIterator it = ScriptPointerList.find(id);
                     if (it != ScriptPointerList.end())
                         return it->second;
- 
+
                     return NULL;
                 }
- 
+
                 // Attempts to add a new script to the list.
                 static void AddScript(TScript* const script);
         };

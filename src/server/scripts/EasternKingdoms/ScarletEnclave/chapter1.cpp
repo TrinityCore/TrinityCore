@@ -185,10 +185,10 @@ public:
                     }
                     else
                         sLog.outError("npc_unworthy_initiateAI: unable to find anchor!");
-    
+
                     float dist = 99.0f;
                     GameObject *prison = NULL;
-    
+
                     for (uint8 i = 0; i < 12; ++i)
                     {
                         if (GameObject* temp_prison = me->FindNearestGameObject(acherus_soul_prison[i],30))
@@ -200,7 +200,7 @@ public:
                             }
                         }
                     }
-    
+
                     if (prison)
                         prison->ResetDoorOrButton();
                     else
@@ -231,7 +231,7 @@ public:
                         me->setFaction(14);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                         phase = PHASE_ATTACKING;
-    
+
                         if (Player *pTarget = Unit::GetPlayer(*me, playerGUID))
                             me->AI()->AttackStart(pTarget);
                         wait_timer = 0;
@@ -241,9 +241,9 @@ public:
             case PHASE_ATTACKING:
                 if (!UpdateVictim())
                     return;
-    
+
                 events.Update(diff);
-    
+
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch(eventId)
@@ -270,7 +270,7 @@ public:
                         break;
                     }
                 }
-    
+
                 DoMeleeAttackIfReady();
             }
         }

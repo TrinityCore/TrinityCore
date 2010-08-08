@@ -240,7 +240,7 @@ enum eGurgthock
     QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_1          = 12932,
     QUEST_AMPHITHEATER_ANGUISH_MAGNATAUR          = 12933,
     QUEST_AMPHITHEATER_ANGUISH_FROM_BEYOND        = 12934,
- 
+
     NPC_ORINOKO_TUSKBREAKER                       = 30020,
     NPC_KORRAK_BLOODRAGER                         = 30023,
     NPC_YGGDRAS                                   = 30014,
@@ -480,7 +480,7 @@ public:
                             }
                             break;
                         case 10:
-                            me->SummonCreature(NPC_YGGDRAS, SpawnPosition[1], TEMPSUMMON_CORPSE_DESPAWN, 1000);     
+                            me->SummonCreature(NPC_YGGDRAS, SpawnPosition[1], TEMPSUMMON_CORPSE_DESPAWN, 1000);
                             DoScriptText(EMOTE_YGGDRAS_SPAWN,me);
                             uiPhase = 0;
                             break;
@@ -511,7 +511,7 @@ public:
                                 pCreature->AI()->SetData(1,uiBossRandom);
                             uiPhase = 0;
                             break;
-                    } 
+                    }
                 }else uiTimer -= uiDiff;
             }
         }
@@ -965,7 +965,7 @@ public:
                     }
                 }
             }
-            
+
             if (bThunderClap && me->GetHealth()*100 / me->GetMaxHealth() <= 10)
             {
                 DoCastAOE(SPELL_THUNDERCLAP);
@@ -1057,7 +1057,7 @@ public:
         }
 
         void SummonAdds()
-        {        
+        {
             if (!Boss[uiBossRandom].uiAdd)
                 return;
 
@@ -1071,7 +1071,7 @@ public:
                     SummonList.push_back(pSummon->GetGUID());
                 }
             }
-           
+
         }
 
         void EnterCombat(Unit* pUnit)
@@ -1082,7 +1082,7 @@ public:
                     if (Creature* pTemp = Unit::GetCreature(*me, *itr))
                     {
                         pTemp->m_CombatDistance = 100.0f; // ugly hack? we are not in a instance sorry. :(
-                        pTemp->AI()->AttackStart(pUnit); 
+                        pTemp->AI()->AttackStart(pUnit);
                     }
                 }
         }
@@ -1109,7 +1109,7 @@ public:
                     }
                 }
             }
-            
+
             if (uiElementalSpellTimer <= uiDiff)
             {
                 DoCastVictim(Boss[uiBossRandom].uiSpell);
@@ -1131,7 +1131,7 @@ public:
                                 pTemp->GetMotionMaster()->MoveChase(pTemp->getVictim());
                         }
                     }
-            
+
                 bAddAttack = true;
             }
 
@@ -1192,10 +1192,10 @@ public:
         {
             if (!pWho)
                 return;
-            
+
             AttackStartNoMove(pWho);
         }
-        
+
         void SetData(uint32 uiData, uint32 uiValue)
         {
             if (uiData == 1)
@@ -1207,7 +1207,7 @@ public:
         {
             if (!UpdateVictim())
                 return;
-            
+
             if (me->GetPositionZ() >= 287.0f)
                 if (uiMissleTimer <= uiDiff)
                 {

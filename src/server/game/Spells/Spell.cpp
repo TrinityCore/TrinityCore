@@ -819,7 +819,7 @@ void Spell::prepareDataForTriggerSystem(AuraEffect const * /*triggeredByAura*/)
             }
             break;
         }
-        case SPELLFAMILY_WARLOCK: 
+        case SPELLFAMILY_WARLOCK:
         {
             // For Hellfire Effect / Rain of Fire - trigger as DOT
             if (m_spellInfo->SpellFamilyFlags[0] & 0x60)
@@ -1740,7 +1740,7 @@ void Spell::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, SpellNo
 {
     if (TargetType == SPELL_TARGETS_GO)
         return;
-    
+
     Position *pos;
     switch(type)
     {
@@ -2658,7 +2658,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     }
                 }
             }
-            
+
             // Other special target selection goes here
             if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
             {
@@ -5273,7 +5273,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                     (!pTempItem || !pTempItem->GetProto()->LockID || !pTempItem->IsLocked()))
                     return SPELL_FAILED_BAD_TARGETS;
 
-                if (m_spellInfo->Id != 1842 || m_targets.getGOTarget() && 
+                if (m_spellInfo->Id != 1842 || m_targets.getGOTarget() &&
                     m_targets.getGOTarget()->GetGOInfo()->type != GAMEOBJECT_TYPE_TRAP)
                     if (m_caster->ToPlayer()->InBattleground() && // In Battleground players can use only flags and banners
                         !m_caster->ToPlayer()->CanUseBattlegroundObject())

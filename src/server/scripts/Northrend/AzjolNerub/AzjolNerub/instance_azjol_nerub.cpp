@@ -136,7 +136,7 @@ public:
                 if (data == IN_PROGRESS)
                     for (uint8 i = 0; i < 3; ++i)
                         HandleGameObject(uiAnubarakDoor[i], false);
-                else if (data == NOT_STARTED || data == DONE) 
+                else if (data == NOT_STARTED || data == DONE)
                     for (uint8 i = 0; i < 3; ++i)
                         HandleGameObject(uiAnubarakDoor[i], true);
                 break;
