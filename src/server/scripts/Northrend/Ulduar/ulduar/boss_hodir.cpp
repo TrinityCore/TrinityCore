@@ -30,59 +30,61 @@ enum Yells
     SAY_YS_HELP                                 = -1603217,
     SAY_HARD_MODE_MISSED                        = -1603218,
 };
-
-struct boss_hodirAI : public BossAI
+class boss_hodir : public CreatureScript
 {
-    boss_hodirAI(Creature *pCreature) : BossAI(pCreature, TYPE_HODIR)
+public:
+    boss_hodir() : CreatureScript("boss_hodir") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
+        return new boss_hodirAI(pCreature);
     }
 
-    void Reset()
+    struct boss_hodirAI : public BossAI
     {
-        _Reset();
-    }
+        boss_hodirAI(Creature *pCreature) : BossAI(pCreature, TYPE_HODIR)
+        {
+        }
 
-    void KilledUnit(Unit * /*victim*/)
-    {
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
-    }
+        void Reset()
+        {
+            _Reset();
+        }
 
-    void JustDied(Unit * /*victim*/)
-    {
-        DoScriptText(SAY_DEATH, me);
-        _JustDied();
-    }
+        void KilledUnit(Unit * /*victim*/)
+        {
+            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
+        }
 
-    void EnterCombat(Unit* /*pWho*/)
-    {
-        DoScriptText(SAY_AGGRO, me);
-        _EnterCombat();
-    }
+        void JustDied(Unit * /*victim*/)
+        {
+            DoScriptText(SAY_DEATH, me);
+            _JustDied();
+        }
 
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
-//SPELLS TODO:
+        void EnterCombat(Unit* /*pWho*/)
+        {
+            DoScriptText(SAY_AGGRO, me);
+            _EnterCombat();
+        }
 
-//
-        DoMeleeAttackIfReady();
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+    //SPELLS TODO:
 
-        EnterEvadeIfOutOfCombatArea(diff);
-    }
+    //
+            DoMeleeAttackIfReady();
+
+            EnterEvadeIfOutOfCombatArea(diff);
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_hodir(Creature* pCreature)
-{
-    return new boss_hodirAI(pCreature);
-}
 
 void AddSC_boss_hodir()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_hodir";
-    newscript->GetAI = &GetAI_boss_hodir;
-    newscript->RegisterSelf();
-
+    new boss_hodir();
 }

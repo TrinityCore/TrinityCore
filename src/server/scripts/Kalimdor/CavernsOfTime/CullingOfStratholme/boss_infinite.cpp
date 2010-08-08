@@ -31,57 +31,59 @@ enum Yells
     SAY_DEATH                                   = -1595047
 };
 
-
-struct boss_infinite_corruptorAI : public ScriptedAI
+class boss_infinite_corruptor : public CreatureScript
 {
-    boss_infinite_corruptorAI(Creature *c) : ScriptedAI(c)
+public:
+    boss_infinite_corruptor() : CreatureScript("boss_infinite_corruptor") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        pInstance = c->GetInstanceData();
+        return new boss_infinite_corruptorAI(pCreature);
     }
 
-    ScriptedInstance* pInstance;
-
-    void Reset()
+    struct boss_infinite_corruptorAI : public ScriptedAI
     {
-        if (pInstance)
-            pInstance->SetData(DATA_INFINITE_EVENT, NOT_STARTED);
-    }
+        boss_infinite_corruptorAI(Creature *c) : ScriptedAI(c)
+        {
+            pInstance = c->GetInstanceScript();
+        }
 
-    void EnterCombat(Unit* /*who*/)
-    {
-        if (pInstance)
-            pInstance->SetData(DATA_INFINITE_EVENT, IN_PROGRESS);
-    }
+        InstanceScript* pInstance;
 
-    void AttackStart(Unit* /*who*/) {}
-    void MoveInLineOfSight(Unit* /*who*/) {}
-    void UpdateAI(const uint32 /*diff*/)
-    {
-        //Return since we have no target
-        if (!UpdateVictim())
-            return;
+        void Reset()
+        {
+            if (pInstance)
+                pInstance->SetData(DATA_INFINITE_EVENT, NOT_STARTED);
+        }
 
-        DoMeleeAttackIfReady();
-    }
+        void EnterCombat(Unit* /*who*/)
+        {
+            if (pInstance)
+                pInstance->SetData(DATA_INFINITE_EVENT, IN_PROGRESS);
+        }
 
-    void JustDied(Unit* /*killer*/)
-    {
-        if (pInstance)
-            pInstance->SetData(DATA_INFINITE_EVENT, DONE);
-    }
+        void AttackStart(Unit* /*who*/) {}
+        void MoveInLineOfSight(Unit* /*who*/) {}
+        void UpdateAI(const uint32 /*diff*/)
+        {
+            //Return since we have no target
+            if (!UpdateVictim())
+                return;
+
+            DoMeleeAttackIfReady();
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            if (pInstance)
+                pInstance->SetData(DATA_INFINITE_EVENT, DONE);
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_infinite_corruptor(Creature* pCreature)
-{
-    return new boss_infinite_corruptorAI(pCreature);
-}
 
 void AddSC_boss_infinite_corruptor()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "boss_infinite_corruptor";
-    newscript->GetAI = &GetAI_boss_infinite_corruptor;
-    newscript->RegisterSelf();
+    new boss_infinite_corruptor();
 }

@@ -45,95 +45,103 @@ EndContentData */
 #define ENTRY_TARLORD 6519
 #define ENTRY_TARLORD1 6519
 #define ENTRY_STOMPER 6513
-
-struct npc_ameAI : public npc_escortAI
+class npc_ame : public CreatureScript
 {
-    npc_ameAI(Creature *c) : npc_escortAI(c) {}
+public:
+    npc_ame() : CreatureScript("npc_ame") { }
 
-    uint32 DEMORALIZINGSHOUT_Timer;
-
-    void WaypointReached(uint32 i)
+    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* quest)
     {
-        Player* pPlayer = GetPlayerForEscort();
-
-        if (!pPlayer)
-            return;
-
-        switch (i)
+        if (quest->GetQuestId() == QUEST_CHASING_AME)
         {
+            CAST_AI(npc_escortAI, (pCreature->AI()))->Start(false, false, pPlayer->GetGUID());
+            DoScriptText(SAY_READY, pCreature, pPlayer);
+            pCreature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
+            // Change faction so mobs attack
+            pCreature->setFaction(113);
+        }
+        return true;
+    }
 
-         case 19:
-            me->SummonCreature(ENTRY_STOMPER, -6391.69, -1730.49, -272.83, 4.96, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-            DoScriptText(SAY_AGGRO1, me, pPlayer);
-            break;
-            case 28:
-            DoScriptText(SAY_SEARCH, me, pPlayer);
-            break;
-            case 38:
-            me->SummonCreature(ENTRY_TARLORD, -6370.75, -1382.84, -270.51, 6.06, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-            DoScriptText(SAY_AGGRO2, me, pPlayer);
-            break;
-            case 49:
-            me->SummonCreature(ENTRY_TARLORD1, -6324.44, -1181.05, -270.17, 4.34, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-            DoScriptText(SAY_AGGRO3, me, pPlayer);
-            break;
-         case 55:
-            DoScriptText(SAY_FINISH, me, pPlayer);
-            if (pPlayer)
-                pPlayer->GroupEventHappens(QUEST_CHASING_AME,me);
-            break;
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_ameAI(pCreature);
+    }
+
+    struct npc_ameAI : public npc_escortAI
+    {
+        npc_ameAI(Creature *c) : npc_escortAI(c) {}
+
+        uint32 DEMORALIZINGSHOUT_Timer;
+
+        void WaypointReached(uint32 i)
+        {
+            Player* pPlayer = GetPlayerForEscort();
+
+            if (!pPlayer)
+                return;
+
+            switch (i)
+            {
+
+             case 19:
+                me->SummonCreature(ENTRY_STOMPER, -6391.69, -1730.49, -272.83, 4.96, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                DoScriptText(SAY_AGGRO1, me, pPlayer);
+                break;
+                case 28:
+                DoScriptText(SAY_SEARCH, me, pPlayer);
+                break;
+                case 38:
+                me->SummonCreature(ENTRY_TARLORD, -6370.75, -1382.84, -270.51, 6.06, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                DoScriptText(SAY_AGGRO2, me, pPlayer);
+                break;
+                case 49:
+                me->SummonCreature(ENTRY_TARLORD1, -6324.44, -1181.05, -270.17, 4.34, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                DoScriptText(SAY_AGGRO3, me, pPlayer);
+                break;
+             case 55:
+                DoScriptText(SAY_FINISH, me, pPlayer);
+                if (pPlayer)
+                    pPlayer->GroupEventHappens(QUEST_CHASING_AME,me);
+                break;
+
+            }
+        }
+
+        void Reset()
+        {
+          DEMORALIZINGSHOUT_Timer = 5000;
+        }
+
+        void JustSummoned(Creature* summoned)
+        {
+            summoned->AI()->AttackStart(me);
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            if (Player* pPlayer = GetPlayerForEscort())
+                pPlayer->FailQuest(QUEST_CHASING_AME);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            npc_escortAI::UpdateAI(diff);
+            if (!UpdateVictim())
+                return;
+
+            if (DEMORALIZINGSHOUT_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_DEMORALIZINGSHOUT);
+                DEMORALIZINGSHOUT_Timer = 70000;
+            } else DEMORALIZINGSHOUT_Timer -= diff;
 
         }
-    }
+    };
 
-    void Reset()
-    {
-      DEMORALIZINGSHOUT_Timer = 5000;
-    }
-
-    void JustSummoned(Creature* summoned)
-    {
-        summoned->AI()->AttackStart(me);
-    }
-
-    void JustDied(Unit* /*killer*/)
-    {
-        if (Player* pPlayer = GetPlayerForEscort())
-            pPlayer->FailQuest(QUEST_CHASING_AME);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        npc_escortAI::UpdateAI(diff);
-        if (!UpdateVictim())
-            return;
-
-        if (DEMORALIZINGSHOUT_Timer <= diff)
-        {
-            DoCast(me->getVictim(), SPELL_DEMORALIZINGSHOUT);
-            DEMORALIZINGSHOUT_Timer = 70000;
-        } else DEMORALIZINGSHOUT_Timer -= diff;
-
-    }
 };
 
-bool QuestAccept_npc_ame(Player* pPlayer, Creature* pCreature, Quest const* quest)
-{
-    if (quest->GetQuestId() == QUEST_CHASING_AME)
-    {
-        CAST_AI(npc_escortAI, (pCreature->AI()))->Start(false, false, pPlayer->GetGUID());
-        DoScriptText(SAY_READY, pCreature, pPlayer);
-        pCreature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
-        // Change faction so mobs attack
-        pCreature->setFaction(113);
-    }
-    return true;
-}
 
-CreatureAI* GetAI_npc_ame(Creature* pCreature)
-{
-    return new npc_ameAI(pCreature);
-}
 
 /*####
 # npc_ringo
@@ -168,191 +176,187 @@ enum eRingo
     NPC_SPRAGGLE                = 9997,
     FACTION_ESCORTEE            = 113
 };
-
-struct npc_ringoAI : public FollowerAI
+class npc_ringo : public CreatureScript
 {
-    npc_ringoAI(Creature* pCreature) : FollowerAI(pCreature) { }
+public:
+    npc_ringo() : CreatureScript("npc_ringo") { }
 
-    uint32 m_uiFaintTimer;
-    uint32 m_uiEndEventProgress;
-    uint32 m_uiEndEventTimer;
-
-    uint64 SpraggleGUID;
-
-    void Reset()
+    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
     {
-        m_uiFaintTimer = urand(30000, 60000);
-        m_uiEndEventProgress = 0;
-        m_uiEndEventTimer = 1000;
-        SpraggleGUID = 0;
-    }
-
-    void MoveInLineOfSight(Unit *pWho)
-    {
-        FollowerAI::MoveInLineOfSight(pWho);
-
-        if (!me->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && pWho->GetEntry() == NPC_SPRAGGLE)
+        if (pQuest->GetQuestId() == QUEST_A_LITTLE_HELP)
         {
-            if (me->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
+            if (npc_ringoAI* pRingoAI = CAST_AI(npc_ringo::npc_ringoAI, pCreature->AI()))
             {
-                if (Player* pPlayer = GetLeaderForFollower())
-                {
-                    if (pPlayer->GetQuestStatus(QUEST_A_LITTLE_HELP) == QUEST_STATUS_INCOMPLETE)
-                        pPlayer->GroupEventHappens(QUEST_A_LITTLE_HELP, me);
-                }
-
-                SpraggleGUID = pWho->GetGUID();
-                SetFollowComplete(true);
+                pCreature->SetStandState(UNIT_STAND_STATE_STAND);
+                pRingoAI->StartFollow(pPlayer, FACTION_ESCORTEE, pQuest);
             }
         }
+
+        return true;
     }
 
-    void SpellHit(Unit* /*pCaster*/, const SpellEntry* pSpell)
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        if (HasFollowState(STATE_FOLLOW_INPROGRESS | STATE_FOLLOW_PAUSED) && pSpell->Id == SPELL_REVIVE_RINGO)
-            ClearFaint();
+        return new npc_ringoAI(pCreature);
     }
 
-    void SetFaint()
+    struct npc_ringoAI : public FollowerAI
     {
-        if (!HasFollowState(STATE_FOLLOW_POSTEVENT))
+        npc_ringoAI(Creature* pCreature) : FollowerAI(pCreature) { }
+
+        uint32 m_uiFaintTimer;
+        uint32 m_uiEndEventProgress;
+        uint32 m_uiEndEventTimer;
+
+        uint64 SpraggleGUID;
+
+        void Reset()
         {
-            SetFollowPaused(true);
-
-            DoScriptText(RAND(SAY_FAINT_1,SAY_FAINT_2,SAY_FAINT_3,SAY_FAINT_4), me);
+            m_uiFaintTimer = urand(30000, 60000);
+            m_uiEndEventProgress = 0;
+            m_uiEndEventTimer = 1000;
+            SpraggleGUID = 0;
         }
 
-        //what does actually happen here? Emote? Aura?
-        me->SetStandState(UNIT_STAND_STATE_SLEEP);
-    }
-
-    void ClearFaint()
-    {
-        me->SetStandState(UNIT_STAND_STATE_STAND);
-
-        if (HasFollowState(STATE_FOLLOW_POSTEVENT))
-            return;
-
-        DoScriptText(RAND(SAY_WAKE_1,SAY_WAKE_2,SAY_WAKE_3,SAY_WAKE_4), me);
-
-        SetFollowPaused(false);
-    }
-
-    void UpdateFollowerAI(const uint32 uiDiff)
-    {
-        if (!UpdateVictim())
+        void MoveInLineOfSight(Unit *pWho)
         {
+            FollowerAI::MoveInLineOfSight(pWho);
+
+            if (!me->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && pWho->GetEntry() == NPC_SPRAGGLE)
+            {
+                if (me->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
+                {
+                    if (Player* pPlayer = GetLeaderForFollower())
+                    {
+                        if (pPlayer->GetQuestStatus(QUEST_A_LITTLE_HELP) == QUEST_STATUS_INCOMPLETE)
+                            pPlayer->GroupEventHappens(QUEST_A_LITTLE_HELP, me);
+                    }
+
+                    SpraggleGUID = pWho->GetGUID();
+                    SetFollowComplete(true);
+                }
+            }
+        }
+
+        void SpellHit(Unit* /*pCaster*/, const SpellEntry* pSpell)
+        {
+            if (HasFollowState(STATE_FOLLOW_INPROGRESS | STATE_FOLLOW_PAUSED) && pSpell->Id == SPELL_REVIVE_RINGO)
+                ClearFaint();
+        }
+
+        void SetFaint()
+        {
+            if (!HasFollowState(STATE_FOLLOW_POSTEVENT))
+            {
+                SetFollowPaused(true);
+
+                DoScriptText(RAND(SAY_FAINT_1,SAY_FAINT_2,SAY_FAINT_3,SAY_FAINT_4), me);
+            }
+
+            //what does actually happen here? Emote? Aura?
+            me->SetStandState(UNIT_STAND_STATE_SLEEP);
+        }
+
+        void ClearFaint()
+        {
+            me->SetStandState(UNIT_STAND_STATE_STAND);
+
             if (HasFollowState(STATE_FOLLOW_POSTEVENT))
-            {
-                if (m_uiEndEventTimer <= uiDiff)
-                {
-                    Unit *pSpraggle = Unit::GetUnit(*me, SpraggleGUID);
-                    if (!pSpraggle || !pSpraggle->isAlive())
-                    {
-                        SetFollowComplete();
-                        return;
-                    }
+                return;
 
-                    switch(m_uiEndEventProgress)
+            DoScriptText(RAND(SAY_WAKE_1,SAY_WAKE_2,SAY_WAKE_3,SAY_WAKE_4), me);
+
+            SetFollowPaused(false);
+        }
+
+        void UpdateFollowerAI(const uint32 uiDiff)
+        {
+            if (!UpdateVictim())
+            {
+                if (HasFollowState(STATE_FOLLOW_POSTEVENT))
+                {
+                    if (m_uiEndEventTimer <= uiDiff)
                     {
-                        case 1:
-                            DoScriptText(SAY_RIN_END_1, me);
-                            m_uiEndEventTimer = 3000;
-                            break;
-                        case 2:
-                            DoScriptText(SAY_SPR_END_2, pSpraggle);
-                            m_uiEndEventTimer = 5000;
-                            break;
-                        case 3:
-                            DoScriptText(SAY_RIN_END_3, me);
-                            m_uiEndEventTimer = 1000;
-                            break;
-                        case 4:
-                            DoScriptText(EMOTE_RIN_END_4, me);
-                            SetFaint();
-                            m_uiEndEventTimer = 9000;
-                            break;
-                        case 5:
-                            DoScriptText(EMOTE_RIN_END_5, me);
-                            ClearFaint();
-                            m_uiEndEventTimer = 1000;
-                            break;
-                        case 6:
-                            DoScriptText(SAY_RIN_END_6, me);
-                            m_uiEndEventTimer = 3000;
-                            break;
-                        case 7:
-                            DoScriptText(SAY_SPR_END_7, pSpraggle);
-                            m_uiEndEventTimer = 10000;
-                            break;
-                        case 8:
-                            DoScriptText(EMOTE_RIN_END_8, me);
-                            m_uiEndEventTimer = 5000;
-                            break;
-                        case 9:
+                        Unit *pSpraggle = Unit::GetUnit(*me, SpraggleGUID);
+                        if (!pSpraggle || !pSpraggle->isAlive())
+                        {
                             SetFollowComplete();
-                            break;
-                    }
+                            return;
+                        }
 
-                    ++m_uiEndEventProgress;
-                }
-                else
-                    m_uiEndEventTimer -= uiDiff;
-            }
-            else if (HasFollowState(STATE_FOLLOW_INPROGRESS))
-            {
-                if (!HasFollowState(STATE_FOLLOW_PAUSED))
-                {
-                    if (m_uiFaintTimer <= uiDiff)
-                    {
-                        SetFaint();
-                        m_uiFaintTimer = urand(60000, 120000);
+                        switch(m_uiEndEventProgress)
+                        {
+                            case 1:
+                                DoScriptText(SAY_RIN_END_1, me);
+                                m_uiEndEventTimer = 3000;
+                                break;
+                            case 2:
+                                DoScriptText(SAY_SPR_END_2, pSpraggle);
+                                m_uiEndEventTimer = 5000;
+                                break;
+                            case 3:
+                                DoScriptText(SAY_RIN_END_3, me);
+                                m_uiEndEventTimer = 1000;
+                                break;
+                            case 4:
+                                DoScriptText(EMOTE_RIN_END_4, me);
+                                SetFaint();
+                                m_uiEndEventTimer = 9000;
+                                break;
+                            case 5:
+                                DoScriptText(EMOTE_RIN_END_5, me);
+                                ClearFaint();
+                                m_uiEndEventTimer = 1000;
+                                break;
+                            case 6:
+                                DoScriptText(SAY_RIN_END_6, me);
+                                m_uiEndEventTimer = 3000;
+                                break;
+                            case 7:
+                                DoScriptText(SAY_SPR_END_7, pSpraggle);
+                                m_uiEndEventTimer = 10000;
+                                break;
+                            case 8:
+                                DoScriptText(EMOTE_RIN_END_8, me);
+                                m_uiEndEventTimer = 5000;
+                                break;
+                            case 9:
+                                SetFollowComplete();
+                                break;
+                        }
+
+                        ++m_uiEndEventProgress;
                     }
                     else
-                        m_uiFaintTimer -= uiDiff;
+                        m_uiEndEventTimer -= uiDiff;
                 }
+                else if (HasFollowState(STATE_FOLLOW_INPROGRESS))
+                {
+                    if (!HasFollowState(STATE_FOLLOW_PAUSED))
+                    {
+                        if (m_uiFaintTimer <= uiDiff)
+                        {
+                            SetFaint();
+                            m_uiFaintTimer = urand(60000, 120000);
+                        }
+                        else
+                            m_uiFaintTimer -= uiDiff;
+                    }
+                }
+
+                return;
             }
 
-            return;
+            DoMeleeAttackIfReady();
         }
+    };
 
-        DoMeleeAttackIfReady();
-    }
 };
 
-CreatureAI* GetAI_npc_ringo(Creature* pCreature)
-{
-    return new npc_ringoAI(pCreature);
-}
 
-bool QuestAccept_npc_ringo(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
-{
-    if (pQuest->GetQuestId() == QUEST_A_LITTLE_HELP)
-    {
-        if (npc_ringoAI* pRingoAI = CAST_AI(npc_ringoAI, pCreature->AI()))
-        {
-            pCreature->SetStandState(UNIT_STAND_STATE_STAND);
-            pRingoAI->StartFollow(pPlayer, FACTION_ESCORTEE, pQuest);
-        }
-    }
-
-    return true;
-}
 
 void AddSC_ungoro_crater()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "npc_ame";
-    newscript->GetAI = &GetAI_npc_ame;
-    newscript->pQuestAccept = &QuestAccept_npc_ame;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_ringo";
-    newscript->GetAI = &GetAI_npc_ringo;
-    newscript->pQuestAccept = &QuestAccept_npc_ringo;
-    newscript->RegisterSelf();
+    new npc_ame();
+    new npc_ringo();
 }
-

@@ -39,43 +39,45 @@ update creature_template set scriptname = 'boss_commander_stoutbeard' where entr
 #define SAY_AGGRO                                              -1576021
 #define SAY_KILL                                               -1576022
 #define SAY_DEATH                                              -1576023
-
-struct boss_commander_stoutbeardAI : public ScriptedAI
+class boss_commander_stoutbeard : public CreatureScript
 {
-    boss_commander_stoutbeardAI(Creature *c) : ScriptedAI(c) {}
+public:
+    boss_commander_stoutbeard() : CreatureScript("boss_commander_stoutbeard") { }
 
-    void Reset() {}
-    void EnterCombat(Unit* /*who*/)
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        DoScriptText(SAY_AGGRO, me);
+        return new boss_commander_stoutbeardAI (pCreature);
     }
-    void AttackStart(Unit* /*who*/) {}
-    void MoveInLineOfSight(Unit* /*who*/) {}
-    void UpdateAI(const uint32 /*diff*/)
-    {
-        //Return since we have no target
-        if (!UpdateVictim())
-            return;
 
-        DoMeleeAttackIfReady();
-    }
-    void JustDied(Unit* /*killer*/)
+    struct boss_commander_stoutbeardAI : public ScriptedAI
     {
-        DoScriptText(SAY_DEATH, me);
-    }
+        boss_commander_stoutbeardAI(Creature *c) : ScriptedAI(c) {}
+
+        void Reset() {}
+        void EnterCombat(Unit* /*who*/)
+        {
+            DoScriptText(SAY_AGGRO, me);
+        }
+        void AttackStart(Unit* /*who*/) {}
+        void MoveInLineOfSight(Unit* /*who*/) {}
+        void UpdateAI(const uint32 /*diff*/)
+        {
+            //Return since we have no target
+            if (!UpdateVictim())
+                return;
+
+            DoMeleeAttackIfReady();
+        }
+        void JustDied(Unit* /*killer*/)
+        {
+            DoScriptText(SAY_DEATH, me);
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_commander_stoutbeard(Creature* pCreature)
-{
-    return new boss_commander_stoutbeardAI (pCreature);
-}
 
 void AddSC_boss_commander_stoutbeard()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "boss_commander_stoutbeard";
-    newscript->GetAI = &GetAI_boss_commander_stoutbeard;
-    newscript->RegisterSelf();
+    new boss_commander_stoutbeard();
 }

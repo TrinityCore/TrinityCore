@@ -11,7 +11,7 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
-#include "InstanceData.h"
+#include "InstanceScript.h"
 
 #define SCRIPT_CAST_TYPE dynamic_cast
 
@@ -24,7 +24,7 @@
 
 #define GET_SPELL(a)    (const_cast<SpellEntry*>(GetSpellStore()->LookupEntry(a)))
 
-class InstanceData;
+class InstanceScript;
 
 class SummonList : public std::list<uint64>
 {
@@ -250,7 +250,7 @@ struct BossAI : public ScriptedAI
     const uint32 bossId;
     EventMap events;
     SummonList summons;
-    InstanceData * const instance;
+    InstanceScript * const instance;
     const BossBoundaryMap * const boundary;
 
     void JustSummoned(Creature *summon);

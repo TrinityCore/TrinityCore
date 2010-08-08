@@ -1362,7 +1362,7 @@ public:
         {
             pPlayer->CLOSE_GOSSIP_MENU();
             pCreature->CastSpell(pPlayer, SPELL_QUEST_CREDIT, true);
-            CAST_AI(npc_crusade_recruitAI, (pCreature->AI()))->m_uiPhase = 1;
+            CAST_AI(npc_crusade_recruit::npc_crusade_recruitAI, (pCreature->AI()))->m_uiPhase = 1;
             pCreature->SetInFront(pPlayer);
             pCreature->SendMovementFlagUpdate();
         }

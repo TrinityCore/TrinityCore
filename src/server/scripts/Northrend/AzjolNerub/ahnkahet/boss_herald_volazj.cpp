@@ -69,10 +69,10 @@ public:
     {
         boss_volazjAI(Creature* pCreature) : ScriptedAI(pCreature),Summons(me)
         {
-            pInstance = pCreature->GetInstanceData();
+            pInstance = pCreature->GetInstanceScript();
         }
 
-        ScriptedInstance *pInstance;
+        InstanceScript *pInstance;
 
         uint32 uiMindFlayTimer;
         uint32 uiShadowBoltVolleyTimer;

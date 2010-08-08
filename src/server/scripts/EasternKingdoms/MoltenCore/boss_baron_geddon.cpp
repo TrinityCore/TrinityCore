@@ -31,79 +31,81 @@ EndScriptData */
 #define SPELL_IGNITEMANA            19659
 #define SPELL_LIVINGBOMB            20475
 #define SPELL_ARMAGEDDOM            20479
-
-struct boss_baron_geddonAI : public ScriptedAI
+class boss_baron_geddon : public CreatureScript
 {
-    boss_baron_geddonAI(Creature *c) : ScriptedAI(c) {}
+public:
+    boss_baron_geddon() : CreatureScript("boss_baron_geddon") { }
 
-    uint32 Inferno_Timer;
-    uint32 IgniteMana_Timer;
-    uint32 LivingBomb_Timer;
-
-    void Reset()
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        Inferno_Timer = 45000;                              //These times are probably wrong
-        IgniteMana_Timer = 30000;
-        LivingBomb_Timer = 35000;
+        return new boss_baron_geddonAI (pCreature);
     }
 
-    void EnterCombat(Unit * /*who*/)
+    struct boss_baron_geddonAI : public ScriptedAI
     {
-    }
+        boss_baron_geddonAI(Creature *c) : ScriptedAI(c) {}
 
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
+        uint32 Inferno_Timer;
+        uint32 IgniteMana_Timer;
+        uint32 LivingBomb_Timer;
 
-        //If we are <2% hp cast Armageddom
-        if (me->GetHealth()*100 / me->GetMaxHealth() <= 2)
+        void Reset()
         {
-            me->InterruptNonMeleeSpells(true);
-            DoCast(me, SPELL_ARMAGEDDOM);
-            DoScriptText(EMOTE_SERVICE, me);
-            return;
+            Inferno_Timer = 45000;                              //These times are probably wrong
+            IgniteMana_Timer = 30000;
+            LivingBomb_Timer = 35000;
         }
 
-        //Inferno_Timer
-        if (Inferno_Timer <= diff)
+        void EnterCombat(Unit * /*who*/)
         {
-            DoCast(me, SPELL_INFERNO);
-            Inferno_Timer = 45000;
-        } else Inferno_Timer -= diff;
+        }
 
-        //IgniteMana_Timer
-        if (IgniteMana_Timer <= diff)
+        void UpdateAI(const uint32 diff)
         {
-            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(pTarget, SPELL_IGNITEMANA);
+            if (!UpdateVictim())
+                return;
 
-            IgniteMana_Timer = 30000;
-        } else IgniteMana_Timer -= diff;
+            //If we are <2% hp cast Armageddom
+            if (me->GetHealth()*100 / me->GetMaxHealth() <= 2)
+            {
+                me->InterruptNonMeleeSpells(true);
+                DoCast(me, SPELL_ARMAGEDDOM);
+                DoScriptText(EMOTE_SERVICE, me);
+                return;
+            }
 
-        //LivingBomb_Timer
-        if (LivingBomb_Timer <= diff)
-        {
-           if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-               DoCast(pTarget, SPELL_LIVINGBOMB);
+            //Inferno_Timer
+            if (Inferno_Timer <= diff)
+            {
+                DoCast(me, SPELL_INFERNO);
+                Inferno_Timer = 45000;
+            } else Inferno_Timer -= diff;
 
-            LivingBomb_Timer = 35000;
-        } else LivingBomb_Timer -= diff;
+            //IgniteMana_Timer
+            if (IgniteMana_Timer <= diff)
+            {
+                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                    DoCast(pTarget, SPELL_IGNITEMANA);
 
-        DoMeleeAttackIfReady();
-    }
+                IgniteMana_Timer = 30000;
+            } else IgniteMana_Timer -= diff;
+
+            //LivingBomb_Timer
+            if (LivingBomb_Timer <= diff)
+            {
+               if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                   DoCast(pTarget, SPELL_LIVINGBOMB);
+
+                LivingBomb_Timer = 35000;
+            } else LivingBomb_Timer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
-CreatureAI* GetAI_boss_baron_geddon(Creature* pCreature)
-{
-    return new boss_baron_geddonAI (pCreature);
-}
 
 void AddSC_boss_baron_geddon()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_baron_geddon";
-    newscript->GetAI = &GetAI_boss_baron_geddon;
-    newscript->RegisterSelf();
+    new boss_baron_geddon();
 }
-

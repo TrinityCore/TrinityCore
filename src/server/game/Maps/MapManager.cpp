@@ -26,7 +26,7 @@
 #include "Transport.h"
 #include "GridDefines.h"
 #include "MapInstanced.h"
-#include "InstanceData.h"
+#include "InstanceScript.h"
 #include "DestinationHolderImp.h"
 #include "Config.h"
 #include "World.h"

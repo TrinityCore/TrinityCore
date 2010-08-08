@@ -76,15 +76,15 @@ enum Actions
 };
 
 // Base class for FALRIC and MARWYN
-// handled the summonList and the notification events to/from the InstanceData
+// handled the summonList and the notification events to/from the InstanceScript
 struct boss_horAI : ScriptedAI
 {
     boss_horAI(Creature *pCreature) : ScriptedAI(pCreature), summons(pCreature)
     {
-        pInstance = me->GetInstanceData();
+        pInstance = me->GetInstanceScript();
     }
     
-    InstanceData* pInstance;
+    InstanceScript* pInstance;
     EventMap events;
     SummonList summons;
     
@@ -106,8 +106,8 @@ struct boss_horAI : ScriptedAI
     {
         switch(actionID)
         {
-            case ACTION_ENTER_COMBAT:  // called by InstanceData when boss shall enter in combat.
-                // Just in case. Should have been done by InstanceData
+            case ACTION_ENTER_COMBAT:  // called by InstanceScript when boss shall enter in combat.
+                // Just in case. Should have been done by InstanceScript
                 me->SetVisibility(VISIBILITY_ON);
 
                 // Reset flags

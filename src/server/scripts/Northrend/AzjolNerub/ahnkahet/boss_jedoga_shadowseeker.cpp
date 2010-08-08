@@ -72,12 +72,12 @@ public:
     {
         boss_jedoga_shadowseekerAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceData();
+            pInstance = c->GetInstanceScript();
             bFirstTime = true;
             bPreDone = false;
         }
 
-        ScriptedInstance* pInstance;
+        InstanceScript* pInstance;
 
         uint32 uiOpFerTimer;
         uint32 uiCycloneTimer;
@@ -339,10 +339,10 @@ public:
     {
         mob_jedoga_initiandAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceData();
+            pInstance = c->GetInstanceScript();
         }
 
-        ScriptedInstance* pInstance;
+        InstanceScript* pInstance;
 
         uint32 bCheckTimer;
 
@@ -504,14 +504,14 @@ public:
     {
         npc_jedogas_aufseher_triggerAI(Creature* c) : Scripted_NoMovementAI(c)
         {
-            pInstance = c->GetInstanceData();
+            pInstance = c->GetInstanceScript();
             bRemoved = false;
             bRemoved2 = false;
             bCasted = false;
             bCasted2 = false;
         }
 
-        ScriptedInstance* pInstance;
+        InstanceScript* pInstance;
 
         bool bRemoved;
         bool bRemoved2;

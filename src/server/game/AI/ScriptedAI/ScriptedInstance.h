@@ -5,7 +5,7 @@
 #ifndef SC_INSTANCE_H
 #define SC_INSTANCE_H
 
-#include "InstanceData.h"
+#include "InstanceScript.h"
 #include "Map.h"
 
 #define OUT_SAVE_INST_DATA             sLog.outDebug("TSCR: Saving Instance Data for Instance %s (Map %d, Instance Id %d)", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())

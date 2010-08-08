@@ -42,106 +42,108 @@ enum eEnums
     SPELL_SAND_BREATH   = 31473,
     H_SPELL_SAND_BREATH = 39049
 };
-
-struct boss_aeonusAI : public ScriptedAI
+class boss_aeonus : public CreatureScript
 {
-    boss_aeonusAI(Creature *c) : ScriptedAI(c)
+public:
+    boss_aeonus() : CreatureScript("boss_aeonus") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        pInstance = c->GetInstanceData();
+        return new boss_aeonusAI (pCreature);
     }
 
-    ScriptedInstance *pInstance;
-
-    uint32 SandBreath_Timer;
-    uint32 TimeStop_Timer;
-    uint32 Frenzy_Timer;
-
-    void Reset()
+    struct boss_aeonusAI : public ScriptedAI
     {
-        SandBreath_Timer = 15000+rand()%15000;
-        TimeStop_Timer = 10000+rand()%5000;
-        Frenzy_Timer = 30000+rand()%15000;
-    }
-
-    void EnterCombat(Unit * /*who*/)
-    {
-        DoScriptText(SAY_AGGRO, me);
-    }
-
-    void MoveInLineOfSight(Unit *who)
-    {
-        //Despawn Time Keeper
-        if (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == C_TIME_KEEPER)
+        boss_aeonusAI(Creature *c) : ScriptedAI(c)
         {
-            if (me->IsWithinDistInMap(who,20.0f))
-            {
-                DoScriptText(SAY_BANISH, me);
-                me->DealDamage(who, who->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-            }
+            pInstance = c->GetInstanceScript();
         }
 
-        ScriptedAI::MoveInLineOfSight(who);
-    }
+        InstanceScript *pInstance;
 
-    void JustDied(Unit * /*victim*/)
-    {
-        DoScriptText(SAY_DEATH, me);
+        uint32 SandBreath_Timer;
+        uint32 TimeStop_Timer;
+        uint32 Frenzy_Timer;
 
-         if (pInstance)
-         {
-             pInstance->SetData(TYPE_RIFT,DONE);
-             pInstance->SetData(TYPE_MEDIVH,DONE);//FIXME: later should be removed
-         }
-    }
-
-    void KilledUnit(Unit * /*victim*/)
-    {
-        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        //Return since we have no target
-        if (!UpdateVictim())
-            return;
-
-        //Sand Breath
-        if (SandBreath_Timer <= diff)
+        void Reset()
         {
-            DoCast(me->getVictim(), SPELL_SAND_BREATH);
-            SandBreath_Timer = 15000+rand()%10000;
-        } else SandBreath_Timer -= diff;
+            SandBreath_Timer = 15000+rand()%15000;
+            TimeStop_Timer = 10000+rand()%5000;
+            Frenzy_Timer = 30000+rand()%15000;
+        }
 
-        //Time Stop
-        if (TimeStop_Timer <= diff)
+        void EnterCombat(Unit * /*who*/)
         {
-            DoCast(me->getVictim(), SPELL_TIME_STOP);
-            TimeStop_Timer = 20000+rand()%15000;
-        } else TimeStop_Timer -= diff;
+            DoScriptText(SAY_AGGRO, me);
+        }
 
-        //Frenzy
-        if (Frenzy_Timer <= diff)
+        void MoveInLineOfSight(Unit *who)
         {
-            DoScriptText(EMOTE_FRENZY, me);
-            DoCast(me, SPELL_ENRAGE);
-            Frenzy_Timer = 20000+rand()%15000;
-        } else Frenzy_Timer -= diff;
+            //Despawn Time Keeper
+            if (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == C_TIME_KEEPER)
+            {
+                if (me->IsWithinDistInMap(who,20.0f))
+                {
+                    DoScriptText(SAY_BANISH, me);
+                    me->DealDamage(who, who->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                }
+            }
 
-        DoMeleeAttackIfReady();
-    }
+            ScriptedAI::MoveInLineOfSight(who);
+        }
+
+        void JustDied(Unit * /*victim*/)
+        {
+            DoScriptText(SAY_DEATH, me);
+
+             if (pInstance)
+             {
+                 pInstance->SetData(TYPE_RIFT,DONE);
+                 pInstance->SetData(TYPE_MEDIVH,DONE);//FIXME: later should be removed
+             }
+        }
+
+        void KilledUnit(Unit * /*victim*/)
+        {
+            DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            //Return since we have no target
+            if (!UpdateVictim())
+                return;
+
+            //Sand Breath
+            if (SandBreath_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_SAND_BREATH);
+                SandBreath_Timer = 15000+rand()%10000;
+            } else SandBreath_Timer -= diff;
+
+            //Time Stop
+            if (TimeStop_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_TIME_STOP);
+                TimeStop_Timer = 20000+rand()%15000;
+            } else TimeStop_Timer -= diff;
+
+            //Frenzy
+            if (Frenzy_Timer <= diff)
+            {
+                DoScriptText(EMOTE_FRENZY, me);
+                DoCast(me, SPELL_ENRAGE);
+                Frenzy_Timer = 20000+rand()%15000;
+            } else Frenzy_Timer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_aeonus(Creature* pCreature)
-{
-    return new boss_aeonusAI (pCreature);
-}
 
 void AddSC_boss_aeonus()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_aeonus";
-    newscript->GetAI = &GetAI_boss_aeonus;
-    newscript->RegisterSelf();
+    new boss_aeonus();
 }
-

@@ -55,180 +55,187 @@ EndContentData */
 #define SPELL_CORRUPT_AEONUS    37853
 
 #define C_COUNCIL_ENFORCER      17023
-
-struct npc_medivh_bmAI : public ScriptedAI
+class npc_medivh_bm : public CreatureScript
 {
-    npc_medivh_bmAI(Creature *c) : ScriptedAI(c)
+public:
+    npc_medivh_bm() : CreatureScript("npc_medivh_bm") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        pInstance = c->GetInstanceData();
+        return new npc_medivh_bmAI (pCreature);
     }
 
-    ScriptedInstance *pInstance;
-
-    uint32 SpellCorrupt_Timer;
-    uint32 Check_Timer;
-
-    bool Life75;
-    bool Life50;
-    bool Life25;
-
-    void Reset()
+    struct npc_medivh_bmAI : public ScriptedAI
     {
-        SpellCorrupt_Timer = 0;
-
-        if (!pInstance)
-            return;
-
-        if (pInstance->GetData(TYPE_MEDIVH) == IN_PROGRESS)
-            DoCast(me, SPELL_CHANNEL, true);
-        else if (me->HasAura(SPELL_CHANNEL))
-            me->RemoveAura(SPELL_CHANNEL);
-
-        DoCast(me, SPELL_PORTAL_RUNE, true);
-    }
-
-    void MoveInLineOfSight(Unit *who)
-    {
-        if (!pInstance)
-            return;
-
-        if (who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 10.0f))
+        npc_medivh_bmAI(Creature *c) : ScriptedAI(c)
         {
-            if (pInstance->GetData(TYPE_MEDIVH) == IN_PROGRESS || pInstance->GetData(TYPE_MEDIVH) == DONE)
-                return;
-
-            DoScriptText(SAY_INTRO, me);
-            pInstance->SetData(TYPE_MEDIVH,IN_PROGRESS);
-            DoCast(me, SPELL_CHANNEL, false);
-            Check_Timer = 5000;
-                 }
-        else if (who->GetTypeId() == TYPEID_UNIT && me->IsWithinDistInMap(who, 15.0f))
-        {
-            if (pInstance->GetData(TYPE_MEDIVH) != IN_PROGRESS)
-                return;
-
-            uint32 entry = who->GetEntry();
-            if (entry == C_ASSAS || entry == C_WHELP || entry == C_CHRON || entry == C_EXECU || entry == C_VANQU)
-            {
-                who->StopMoving();
-                who->CastSpell(me,SPELL_CORRUPT,false);
-            }
-            else if (entry == C_AEONUS)
-            {
-                who->StopMoving();
-                who->CastSpell(me,SPELL_CORRUPT_AEONUS,false);
-            }
-        }
-    }
-
-    void AttackStart(Unit * /*who*/)
-    {
-        //if (pInstance && pInstance->GetData(TYPE_MEDIVH) == IN_PROGRESS)
-        //return;
-
-        //ScriptedAI::AttackStart(who);
-    }
-
-    void EnterCombat(Unit * /*who*/) {}
-
-    void SpellHit(Unit* /*caster*/, const SpellEntry* spell)
-    {
-        if (SpellCorrupt_Timer)
-            return;
-
-        if (spell->Id == SPELL_CORRUPT_AEONUS)
-            SpellCorrupt_Timer = 1000;
-
-        if (spell->Id == SPELL_CORRUPT)
-            SpellCorrupt_Timer = 3000;
-    }
-
-    void JustDied(Unit* Killer)
-    {
-        if (Killer->GetEntry() == me->GetEntry())
-            return;
-
-        DoScriptText(SAY_DEATH, me);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!pInstance)
-            return;
-
-        if (SpellCorrupt_Timer)
-        {
-            if (SpellCorrupt_Timer <= diff)
-            {
-                    pInstance->SetData(TYPE_MEDIVH,SPECIAL);
-
-                if (me->HasAura(SPELL_CORRUPT_AEONUS))
-                    SpellCorrupt_Timer = 1000;
-                else if (me->HasAura(SPELL_CORRUPT))
-                    SpellCorrupt_Timer = 3000;
-                else
-                    SpellCorrupt_Timer = 0;
-            } else SpellCorrupt_Timer -= diff;
+            pInstance = c->GetInstanceScript();
         }
 
-        if (Check_Timer)
+        InstanceScript *pInstance;
+
+        uint32 SpellCorrupt_Timer;
+        uint32 Check_Timer;
+
+        bool Life75;
+        bool Life50;
+        bool Life25;
+
+        void Reset()
         {
-            if (Check_Timer <= diff)
+            SpellCorrupt_Timer = 0;
+
+            if (!pInstance)
+                return;
+
+            if (pInstance->GetData(TYPE_MEDIVH) == IN_PROGRESS)
+                DoCast(me, SPELL_CHANNEL, true);
+            else if (me->HasAura(SPELL_CHANNEL))
+                me->RemoveAura(SPELL_CHANNEL);
+
+            DoCast(me, SPELL_PORTAL_RUNE, true);
+        }
+
+        void MoveInLineOfSight(Unit *who)
+        {
+            if (!pInstance)
+                return;
+
+            if (who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 10.0f))
             {
-                uint32 pct = pInstance->GetData(DATA_SHIELD);
-
-                Check_Timer = 5000;
-
-                if (Life25 && pct <= 25)
-                {
-                    DoScriptText(SAY_WEAK25, me);
-                    Life25 = false;
-                }
-                else if (Life50 && pct <= 50)
-                {
-                    DoScriptText(SAY_WEAK50, me);
-                    Life50 = false;
-                }
-                else if (Life75 && pct <= 75)
-                {
-                    DoScriptText(SAY_WEAK75, me);
-                    Life75 = false;
-                }
-
-                //if we reach this it means event was running but at some point reset.
-                if (pInstance->GetData(TYPE_MEDIVH) == NOT_STARTED)
-                {
-                    me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                    me->RemoveCorpse();
-                    me->Respawn();
+                if (pInstance->GetData(TYPE_MEDIVH) == IN_PROGRESS || pInstance->GetData(TYPE_MEDIVH) == DONE)
                     return;
-                }
 
-                if (pInstance->GetData(TYPE_RIFT) == DONE)
+                DoScriptText(SAY_INTRO, me);
+                pInstance->SetData(TYPE_MEDIVH,IN_PROGRESS);
+                DoCast(me, SPELL_CHANNEL, false);
+                Check_Timer = 5000;
+                     }
+            else if (who->GetTypeId() == TYPEID_UNIT && me->IsWithinDistInMap(who, 15.0f))
+            {
+                if (pInstance->GetData(TYPE_MEDIVH) != IN_PROGRESS)
+                    return;
+
+                uint32 entry = who->GetEntry();
+                if (entry == C_ASSAS || entry == C_WHELP || entry == C_CHRON || entry == C_EXECU || entry == C_VANQU)
                 {
-                    DoScriptText(SAY_WIN, me);
-                    Check_Timer = 0;
-
-                    if (me->HasAura(SPELL_CHANNEL))
-                        me->RemoveAura(SPELL_CHANNEL);
-
-                    //TODO: start the post-event here
-                    pInstance->SetData(TYPE_MEDIVH,DONE);
+                    who->StopMoving();
+                    who->CastSpell(me,SPELL_CORRUPT,false);
                 }
-            } else Check_Timer -= diff;
+                else if (entry == C_AEONUS)
+                {
+                    who->StopMoving();
+                    who->CastSpell(me,SPELL_CORRUPT_AEONUS,false);
+                }
+            }
         }
 
-        //if (!UpdateVictim())
-        //return;
+        void AttackStart(Unit * /*who*/)
+        {
+            //if (pInstance && pInstance->GetData(TYPE_MEDIVH) == IN_PROGRESS)
+            //return;
 
-        //DoMeleeAttackIfReady();
-    }
+            //ScriptedAI::AttackStart(who);
+        }
+
+        void EnterCombat(Unit * /*who*/) {}
+
+        void SpellHit(Unit* /*caster*/, const SpellEntry* spell)
+        {
+            if (SpellCorrupt_Timer)
+                return;
+
+            if (spell->Id == SPELL_CORRUPT_AEONUS)
+                SpellCorrupt_Timer = 1000;
+
+            if (spell->Id == SPELL_CORRUPT)
+                SpellCorrupt_Timer = 3000;
+        }
+
+        void JustDied(Unit* Killer)
+        {
+            if (Killer->GetEntry() == me->GetEntry())
+                return;
+
+            DoScriptText(SAY_DEATH, me);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!pInstance)
+                return;
+
+            if (SpellCorrupt_Timer)
+            {
+                if (SpellCorrupt_Timer <= diff)
+                {
+                        pInstance->SetData(TYPE_MEDIVH,SPECIAL);
+
+                    if (me->HasAura(SPELL_CORRUPT_AEONUS))
+                        SpellCorrupt_Timer = 1000;
+                    else if (me->HasAura(SPELL_CORRUPT))
+                        SpellCorrupt_Timer = 3000;
+                    else
+                        SpellCorrupt_Timer = 0;
+                } else SpellCorrupt_Timer -= diff;
+            }
+
+            if (Check_Timer)
+            {
+                if (Check_Timer <= diff)
+                {
+                    uint32 pct = pInstance->GetData(DATA_SHIELD);
+
+                    Check_Timer = 5000;
+
+                    if (Life25 && pct <= 25)
+                    {
+                        DoScriptText(SAY_WEAK25, me);
+                        Life25 = false;
+                    }
+                    else if (Life50 && pct <= 50)
+                    {
+                        DoScriptText(SAY_WEAK50, me);
+                        Life50 = false;
+                    }
+                    else if (Life75 && pct <= 75)
+                    {
+                        DoScriptText(SAY_WEAK75, me);
+                        Life75 = false;
+                    }
+
+                    //if we reach this it means event was running but at some point reset.
+                    if (pInstance->GetData(TYPE_MEDIVH) == NOT_STARTED)
+                    {
+                        me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                        me->RemoveCorpse();
+                        me->Respawn();
+                        return;
+                    }
+
+                    if (pInstance->GetData(TYPE_RIFT) == DONE)
+                    {
+                        DoScriptText(SAY_WIN, me);
+                        Check_Timer = 0;
+
+                        if (me->HasAura(SPELL_CHANNEL))
+                            me->RemoveAura(SPELL_CHANNEL);
+
+                        //TODO: start the post-event here
+                        pInstance->SetData(TYPE_MEDIVH,DONE);
+                    }
+                } else Check_Timer -= diff;
+            }
+
+            //if (!UpdateVictim())
+            //return;
+
+            //DoMeleeAttackIfReady();
+        }
+    };
+
 };
 
-CreatureAI* GetAI_npc_medivh_bm(Creature* pCreature)
-{
-    return new npc_medivh_bmAI (pCreature);
-}
 
 struct Wave
 {
@@ -241,166 +248,165 @@ static Wave PortalWaves[]=
     {C_EXECU, C_CHRON, C_WHELP, C_ASSAS},
     {C_EXECU, C_VANQU, C_CHRON, C_ASSAS}
 };
-
-struct npc_time_riftAI : public ScriptedAI
+class npc_time_rift : public CreatureScript
 {
-    npc_time_riftAI(Creature *c) : ScriptedAI(c)
+public:
+    npc_time_rift() : CreatureScript("npc_time_rift") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        pInstance = c->GetInstanceData();
+        return new npc_time_riftAI (pCreature);
     }
 
-    ScriptedInstance *pInstance;
-
-    uint32 TimeRiftWave_Timer;
-    uint8 mRiftWaveCount;
-    uint8 mPortalCount;
-    uint8 mWaveId;
-
-    void Reset()
+    struct npc_time_riftAI : public ScriptedAI
     {
-
-        TimeRiftWave_Timer = 15000;
-        mRiftWaveCount = 0;
-
-        if (!pInstance)
-            return;
-
-        mPortalCount = pInstance->GetData(DATA_PORTAL_COUNT);
-
-        if (mPortalCount < 6)
-            mWaveId = 0;
-        else if (mPortalCount > 12)
-            mWaveId = 2;
-        else mWaveId = 1;
-
-    }
-    void EnterCombat(Unit * /*who*/) {}
-
-    void DoSummonAtRift(uint32 creature_entry)
-    {
-        if (!creature_entry)
-            return;
-
-        if (pInstance && pInstance->GetData(TYPE_MEDIVH) != IN_PROGRESS)
+        npc_time_riftAI(Creature *c) : ScriptedAI(c)
         {
-            me->InterruptNonMeleeSpells(true);
-            me->RemoveAllAuras();
-            return;
+            pInstance = c->GetInstanceScript();
         }
 
-        Position pos;
-        me->GetRandomNearPosition(pos, 10.0f);
+        InstanceScript *pInstance;
 
-        //normalize Z-level if we can, if rift is not at ground level.
-        pos.m_positionZ = std::max(me->GetMap()->GetHeight(pos.m_positionX, pos.m_positionY, MAX_HEIGHT), me->GetMap()->GetWaterLevel(pos.m_positionX, pos.m_positionY));
+        uint32 TimeRiftWave_Timer;
+        uint8 mRiftWaveCount;
+        uint8 mPortalCount;
+        uint8 mWaveId;
 
-        if (Unit *Summon = DoSummon(creature_entry, pos, 30000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT))
-            if (Unit *temp = Unit::GetUnit(*me, pInstance ? pInstance->GetData64(DATA_MEDIVH) : 0))
-                Summon->AddThreat(temp,0.0f);
-    }
+        void Reset()
+        {
 
-    void DoSelectSummon()
-    {
-        uint32 entry = 0;
-
-        if ((mRiftWaveCount > 2 && mWaveId < 1) || mRiftWaveCount > 3)
+            TimeRiftWave_Timer = 15000;
             mRiftWaveCount = 0;
 
-        entry = PortalWaves[mWaveId].PortalMob[mRiftWaveCount];
-        sLog.outDebug("TSCR: npc_time_rift: summoning wave Creature (Wave %u, Entry %u).",mRiftWaveCount,entry);
+            if (!pInstance)
+                return;
 
-        ++mRiftWaveCount;
+            mPortalCount = pInstance->GetData(DATA_PORTAL_COUNT);
 
-        if (entry == C_WHELP)
+            if (mPortalCount < 6)
+                mWaveId = 0;
+            else if (mPortalCount > 12)
+                mWaveId = 2;
+            else mWaveId = 1;
+
+        }
+        void EnterCombat(Unit * /*who*/) {}
+
+        void DoSummonAtRift(uint32 creature_entry)
         {
-            for (uint8 i = 0; i < 3; ++i)
-                DoSummonAtRift(entry);
-        } else DoSummonAtRift(entry);
-    }
+            if (!creature_entry)
+                return;
 
-    void UpdateAI(const uint32 diff)
-    {
-        if (!pInstance)
-            return;
+            if (pInstance && pInstance->GetData(TYPE_MEDIVH) != IN_PROGRESS)
+            {
+                me->InterruptNonMeleeSpells(true);
+                me->RemoveAllAuras();
+                return;
+            }
 
-        if (TimeRiftWave_Timer <= diff)
+            Position pos;
+            me->GetRandomNearPosition(pos, 10.0f);
+
+            //normalize Z-level if we can, if rift is not at ground level.
+            pos.m_positionZ = std::max(me->GetMap()->GetHeight(pos.m_positionX, pos.m_positionY, MAX_HEIGHT), me->GetMap()->GetWaterLevel(pos.m_positionX, pos.m_positionY));
+
+            if (Unit *Summon = DoSummon(creature_entry, pos, 30000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT))
+                if (Unit *temp = Unit::GetUnit(*me, pInstance ? pInstance->GetData64(DATA_MEDIVH) : 0))
+                    Summon->AddThreat(temp,0.0f);
+        }
+
+        void DoSelectSummon()
         {
-            DoSelectSummon();
-            TimeRiftWave_Timer = 15000;
-        } else TimeRiftWave_Timer -= diff;
+            uint32 entry = 0;
 
-        if (me->IsNonMeleeSpellCasted(false))
-            return;
+            if ((mRiftWaveCount > 2 && mWaveId < 1) || mRiftWaveCount > 3)
+                mRiftWaveCount = 0;
 
-        sLog.outDebug("TSCR: npc_time_rift: not casting anylonger, i need to die.");
-        me->setDeathState(JUST_DIED);
+            entry = PortalWaves[mWaveId].PortalMob[mRiftWaveCount];
+            sLog.outDebug("TSCR: npc_time_rift: summoning wave Creature (Wave %u, Entry %u).",mRiftWaveCount,entry);
 
-        if (pInstance->GetData(TYPE_RIFT) == IN_PROGRESS)
-            pInstance->SetData(TYPE_RIFT,SPECIAL);
-    }
+            ++mRiftWaveCount;
+
+            if (entry == C_WHELP)
+            {
+                for (uint8 i = 0; i < 3; ++i)
+                    DoSummonAtRift(entry);
+            } else DoSummonAtRift(entry);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!pInstance)
+                return;
+
+            if (TimeRiftWave_Timer <= diff)
+            {
+                DoSelectSummon();
+                TimeRiftWave_Timer = 15000;
+            } else TimeRiftWave_Timer -= diff;
+
+            if (me->IsNonMeleeSpellCasted(false))
+                return;
+
+            sLog.outDebug("TSCR: npc_time_rift: not casting anylonger, i need to die.");
+            me->setDeathState(JUST_DIED);
+
+            if (pInstance->GetData(TYPE_RIFT) == IN_PROGRESS)
+                pInstance->SetData(TYPE_RIFT,SPECIAL);
+        }
+    };
+
 };
 
-CreatureAI* GetAI_npc_time_rift(Creature* pCreature)
-{
-    return new npc_time_riftAI (pCreature);
-}
 
 #define SAY_SAAT_WELCOME        -1269019
 
 #define GOSSIP_ITEM_OBTAIN      "[PH] Obtain Chrono-Beacon"
 #define SPELL_CHRONO_BEACON     34975
 #define ITEM_CHRONO_BEACON      24289
-
-bool GossipHello_npc_saat(Player* pPlayer, Creature* pCreature)
+class npc_saat : public CreatureScript
 {
-    if (pCreature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+public:
+    npc_saat() : CreatureScript("npc_saat") { }
 
-    if (pPlayer->GetQuestStatus(QUEST_OPENING_PORTAL) == QUEST_STATUS_INCOMPLETE && !pPlayer->HasItemCount(ITEM_CHRONO_BEACON,1))
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_ITEM_OBTAIN,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
-        pPlayer->SEND_GOSSIP_MENU(10000, pCreature->GetGUID());
-        return true;
-    }
-    else if (pPlayer->GetQuestRewardStatus(QUEST_OPENING_PORTAL) && !pPlayer->HasItemCount(ITEM_CHRONO_BEACON,1))
-    {
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_ITEM_OBTAIN,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
-        pPlayer->SEND_GOSSIP_MENU(10001, pCreature->GetGUID());
+        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+        {
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pCreature->CastSpell(pPlayer,SPELL_CHRONO_BEACON,false);
+        }
         return true;
     }
 
-    pPlayer->SEND_GOSSIP_MENU(10002, pCreature->GetGUID());
-    return true;
-}
-
-bool GossipSelect_npc_saat(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
-{
-    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
-        pPlayer->CLOSE_GOSSIP_MENU();
-        pCreature->CastSpell(pPlayer,SPELL_CHRONO_BEACON,false);
+        if (pCreature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+        if (pPlayer->GetQuestStatus(QUEST_OPENING_PORTAL) == QUEST_STATUS_INCOMPLETE && !pPlayer->HasItemCount(ITEM_CHRONO_BEACON,1))
+        {
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_ITEM_OBTAIN,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
+            pPlayer->SEND_GOSSIP_MENU(10000, pCreature->GetGUID());
+            return true;
+        }
+        else if (pPlayer->GetQuestRewardStatus(QUEST_OPENING_PORTAL) && !pPlayer->HasItemCount(ITEM_CHRONO_BEACON,1))
+        {
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_ITEM_OBTAIN,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
+            pPlayer->SEND_GOSSIP_MENU(10001, pCreature->GetGUID());
+            return true;
+        }
+
+        pPlayer->SEND_GOSSIP_MENU(10002, pCreature->GetGUID());
+        return true;
     }
-    return true;
-}
+
+};
+
 
 void AddSC_dark_portal()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "npc_medivh_bm";
-    newscript->GetAI = &GetAI_npc_medivh_bm;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_time_rift";
-    newscript->GetAI = &GetAI_npc_time_rift;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_saat";
-    newscript->pGossipHello = &GossipHello_npc_saat;
-    newscript->pGossipSelect = &GossipSelect_npc_saat;
-    newscript->RegisterSelf();
+    new npc_medivh_bm();
+    new npc_time_rift();
+    new npc_saat();
 }
-

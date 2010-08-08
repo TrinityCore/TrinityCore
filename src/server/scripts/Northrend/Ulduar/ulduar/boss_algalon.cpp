@@ -80,304 +80,309 @@ enum Yells
     SAY_SUMMON_2                                = -1603018,
     SAY_SUMMON_3                                = -1603019,
 };
-
-struct boss_algalonAI : public ScriptedAI
+class boss_algalon : public CreatureScript
 {
-    boss_algalonAI(Creature *c) : ScriptedAI(c)
+public:
+    boss_algalon() : CreatureScript("boss_algalon") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        pInstance = c->GetInstanceData();
-        Summon = false; // not in reset. intro speech done only once.
+        return new boss_algalonAI(pCreature);
     }
 
-    ScriptedInstance* pInstance;
-
-    std::list<uint64> m_lCollapsingStarGUIDList;
-
-    uint32 Phase;
-    uint32 Ascend_Timer;
-    uint32 Berserk_Timer;
-    uint32 BigBang_Timer;
-    uint32 CosmicSmash_Timer;
-    uint32 PhasePunch_Timer;
-    uint32 QuantumStrike_Timer;
-    uint32 CollapsingStar_Timer;
-    uint32 uiPhase_timer;
-    uint32 uiStep;
-
-    uint64 BlackHoleGUID;
-
-    bool Enrage;
-    bool Summon;
-
-    void EnterCombat(Unit* who)
+    struct boss_algalonAI : public ScriptedAI
     {
-        if (Summon)
+        boss_algalonAI(Creature *c) : ScriptedAI(c)
         {
-            DoScriptText(SAY_AGGRO, me);
-            me->InterruptSpell(CURRENT_CHANNELED_SPELL);
-            DoZoneInCombat(who->ToCreature());
-        }
-        else
-        {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->SetReactState(REACT_PASSIVE);
-            uiStep = 1;
+            pInstance = c->GetInstanceScript();
+            Summon = false; // not in reset. intro speech done only once.
         }
 
-        if (pInstance)
-            pInstance->SetData(TYPE_ALGALON, IN_PROGRESS);
-    }
+        InstanceScript* pInstance;
 
-    void KilledUnit(Unit * /*victim*/)
-    {
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
-    }
+        std::list<uint64> m_lCollapsingStarGUIDList;
 
-    void Reset()
-    {
-        Phase = 1;
+        uint32 Phase;
+        uint32 Ascend_Timer;
+        uint32 Berserk_Timer;
+        uint32 BigBang_Timer;
+        uint32 CosmicSmash_Timer;
+        uint32 PhasePunch_Timer;
+        uint32 QuantumStrike_Timer;
+        uint32 CollapsingStar_Timer;
+        uint32 uiPhase_timer;
+        uint32 uiStep;
 
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        if (pInstance)
-            pInstance->SetData(TYPE_ALGALON, NOT_STARTED);
+        uint64 BlackHoleGUID;
 
-        BlackHoleGUID = 0;
+        bool Enrage;
+        bool Summon;
 
-        uiPhase_timer = 0;
-        Ascend_Timer = 480000; //8 minutes
-        QuantumStrike_Timer = 4000 + rand()%10000;
-        Berserk_Timer = 360000; //6 minutes
-        CollapsingStar_Timer = urand(15000, 20000); //Spawns between 15 to 20 seconds
-        BigBang_Timer = 90000;
-        PhasePunch_Timer = 8000;
-        CosmicSmash_Timer = urand(30000, 60000);
-        Enrage = false;
-    }
-
-    void JumpToNextStep(uint32 uiTimer)
-    {
-        uiPhase_timer = uiTimer;
-        ++uiStep;
-    }
-
-    void DespawnCollapsingStar()
-    {
-        if (m_lCollapsingStarGUIDList.empty())
-            return;
-
-        for (std::list<uint64>::const_iterator itr = m_lCollapsingStarGUIDList.begin(); itr != m_lCollapsingStarGUIDList.end(); ++itr)
+        void EnterCombat(Unit* who)
         {
-            if (Creature* pTemp = Unit::GetCreature(*me, *itr))
+            if (Summon)
             {
-                if (pTemp->isAlive())
-                    pTemp->ForcedDespawn();
+                DoScriptText(SAY_AGGRO, me);
+                me->InterruptSpell(CURRENT_CHANNELED_SPELL);
+                DoZoneInCombat(who->ToCreature());
             }
-        }
-        m_lCollapsingStarGUIDList.clear();
-    }
-
-    void JustSummoned(Creature* pSummoned)
-    {
-        if (pSummoned->GetEntry() == CREATURE_COLLAPSING_STAR)
-        {
-            Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            if (me->getVictim())
-                pSummoned->AI()->AttackStart(pTarget ? pTarget : me->getVictim());
-            m_lCollapsingStarGUIDList.push_back(pSummoned->GetGUID());
-        }
-    }
-
-    void SummonCollapsingStar(Unit* target)
-    {
-        DoScriptText(SAY_SUMMON_COLLAPSING_STAR, me);
-        me->SummonCreature(CREATURE_COLLAPSING_STAR,target->GetPositionX()+15.0,target->GetPositionY()+15.0,target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN, 100000);
-        me->SummonCreature(CREATURE_BLACK_HOLE,target->GetPositionX()+15.0,target->GetPositionY()+15.0,target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN, 27000);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        //Return since we have no target
-        if (!UpdateVictim())
-            return;
-
-        if (Phase == 1 && HealthBelowPct(20))
-        {
-            Phase = 2;
-            DoScriptText(SAY_PHASE_2, me);
-        }
-
-        if (HealthBelowPct(2))
-        {
-            me->SummonGameObject(GAMEOBJECT_GIVE_OF_THE_OBSERVER, 1634.258667, -295.101166,417.321381,0,0,0,0,0,0);
-
-            // All of them. or random?
-            DoScriptText(SAY_DEATH_1, me);
-            DoScriptText(SAY_DEATH_2, me);
-            DoScriptText(SAY_DEATH_3, me);
-            DoScriptText(SAY_DEATH_4, me);
-            DoScriptText(SAY_DEATH_5, me);
-
-            me->DisappearAndDie();
+            else
+            {
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->SetReactState(REACT_PASSIVE);
+                uiStep = 1;
+            }
 
             if (pInstance)
-                pInstance->SetData(TYPE_ALGALON, DONE);
-
-            return;
+                pInstance->SetData(TYPE_ALGALON, IN_PROGRESS);
         }
 
-        if (Phase == 1)
+        void KilledUnit(Unit * /*victim*/)
         {
-            if (!Summon)
+            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
+        }
+
+        void Reset()
+        {
+            Phase = 1;
+
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            if (pInstance)
+                pInstance->SetData(TYPE_ALGALON, NOT_STARTED);
+
+            BlackHoleGUID = 0;
+
+            uiPhase_timer = 0;
+            Ascend_Timer = 480000; //8 minutes
+            QuantumStrike_Timer = 4000 + rand()%10000;
+            Berserk_Timer = 360000; //6 minutes
+            CollapsingStar_Timer = urand(15000, 20000); //Spawns between 15 to 20 seconds
+            BigBang_Timer = 90000;
+            PhasePunch_Timer = 8000;
+            CosmicSmash_Timer = urand(30000, 60000);
+            Enrage = false;
+        }
+
+        void JumpToNextStep(uint32 uiTimer)
+        {
+            uiPhase_timer = uiTimer;
+            ++uiStep;
+        }
+
+        void DespawnCollapsingStar()
+        {
+            if (m_lCollapsingStarGUIDList.empty())
+                return;
+
+            for (std::list<uint64>::const_iterator itr = m_lCollapsingStarGUIDList.begin(); itr != m_lCollapsingStarGUIDList.end(); ++itr)
             {
-                if (uiPhase_timer <= diff)
+                if (Creature* pTemp = Unit::GetCreature(*me, *itr))
                 {
-                    switch(uiStep)
-                    {
-                        case 1:
-                            DoScriptText(SAY_SUMMON_1, me);
-                            JumpToNextStep(3000);
-                            break;
-                        case 2:
-                            DoScriptText(SAY_SUMMON_2, me);
-                            JumpToNextStep(3000);
-                            break;
-                        case 3:
-                            DoScriptText(SAY_SUMMON_3, me);
-                            JumpToNextStep(3000);
-                            break;
-                        case 4:
-                            DoScriptText(SAY_ENGADED_FOR_FIRTS_TIME, me);
-                            JumpToNextStep(3000);
-                            break;
-                        case 5:
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            me->SetReactState(REACT_AGGRESSIVE);
-                            Summon = true;
-                            break;
-                    }
-                } else uiPhase_timer -= diff;
+                    if (pTemp->isAlive())
+                        pTemp->ForcedDespawn();
+                }
+            }
+            m_lCollapsingStarGUIDList.clear();
+        }
+
+        void JustSummoned(Creature* pSummoned)
+        {
+            if (pSummoned->GetEntry() == CREATURE_COLLAPSING_STAR)
+            {
+                Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                if (me->getVictim())
+                    pSummoned->AI()->AttackStart(pTarget ? pTarget : me->getVictim());
+                m_lCollapsingStarGUIDList.push_back(pSummoned->GetGUID());
+            }
+        }
+
+        void SummonCollapsingStar(Unit* target)
+        {
+            DoScriptText(SAY_SUMMON_COLLAPSING_STAR, me);
+            me->SummonCreature(CREATURE_COLLAPSING_STAR,target->GetPositionX()+15.0,target->GetPositionY()+15.0,target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN, 100000);
+            me->SummonCreature(CREATURE_BLACK_HOLE,target->GetPositionX()+15.0,target->GetPositionY()+15.0,target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN, 27000);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            //Return since we have no target
+            if (!UpdateVictim())
+                return;
+
+            if (Phase == 1 && HealthBelowPct(20))
+            {
+                Phase = 2;
+                DoScriptText(SAY_PHASE_2, me);
+            }
+
+            if (HealthBelowPct(2))
+            {
+                me->SummonGameObject(GAMEOBJECT_GIVE_OF_THE_OBSERVER, 1634.258667, -295.101166,417.321381,0,0,0,0,0,0);
+
+                // All of them. or random?
+                DoScriptText(SAY_DEATH_1, me);
+                DoScriptText(SAY_DEATH_2, me);
+                DoScriptText(SAY_DEATH_3, me);
+                DoScriptText(SAY_DEATH_4, me);
+                DoScriptText(SAY_DEATH_5, me);
+
+                me->DisappearAndDie();
+
+                if (pInstance)
+                    pInstance->SetData(TYPE_ALGALON, DONE);
 
                 return;
             }
 
-            if (QuantumStrike_Timer <= diff)
+            if (Phase == 1)
             {
-                DoCast(me->getVictim(), RAID_MODE(SPELL_QUANTUM_STRIKE,H_SPELL_QUANTUM_STRIKE), true);
+                if (!Summon)
+                {
+                    if (uiPhase_timer <= diff)
+                    {
+                        switch(uiStep)
+                        {
+                            case 1:
+                                DoScriptText(SAY_SUMMON_1, me);
+                                JumpToNextStep(3000);
+                                break;
+                            case 2:
+                                DoScriptText(SAY_SUMMON_2, me);
+                                JumpToNextStep(3000);
+                                break;
+                            case 3:
+                                DoScriptText(SAY_SUMMON_3, me);
+                                JumpToNextStep(3000);
+                                break;
+                            case 4:
+                                DoScriptText(SAY_ENGADED_FOR_FIRTS_TIME, me);
+                                JumpToNextStep(3000);
+                                break;
+                            case 5:
+                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                                me->SetReactState(REACT_AGGRESSIVE);
+                                Summon = true;
+                                break;
+                        }
+                    } else uiPhase_timer -= diff;
 
-                QuantumStrike_Timer = urand(4000, 14000);
-            } else QuantumStrike_Timer -= diff;
+                    return;
+                }
 
-            if (BigBang_Timer <= diff)
-            {
-                DoScriptText(RAND(SAY_BIG_BANG_1,SAY_BIG_BANG_2), me);
-                DoCast(me->getVictim(), RAID_MODE(SPELL_BIG_BANG,H_SPELL_BIG_BANG), true);
+                if (QuantumStrike_Timer <= diff)
+                {
+                    DoCast(me->getVictim(), RAID_MODE(SPELL_QUANTUM_STRIKE,H_SPELL_QUANTUM_STRIKE), true);
 
-                BigBang_Timer = 90000;
-            } else BigBang_Timer -= diff;
+                    QuantumStrike_Timer = urand(4000, 14000);
+                } else QuantumStrike_Timer -= diff;
 
-            if (Ascend_Timer <= diff)
-            {
-                DoCast(me->getVictim(),SPELL_ASCEND, true);
+                if (BigBang_Timer <= diff)
+                {
+                    DoScriptText(RAND(SAY_BIG_BANG_1,SAY_BIG_BANG_2), me);
+                    DoCast(me->getVictim(), RAID_MODE(SPELL_BIG_BANG,H_SPELL_BIG_BANG), true);
 
-                Ascend_Timer = 480000;
-            } else Ascend_Timer -= diff;
+                    BigBang_Timer = 90000;
+                } else BigBang_Timer -= diff;
 
-            if (PhasePunch_Timer <= diff)
-            {
-                DoCast(me->getVictim(),SPELL_PHASE_PUNCH, true);
-
-                PhasePunch_Timer = 8000;
-            } else PhasePunch_Timer -= diff;
-
-            if (CosmicSmash_Timer <= diff)
-            {
-                DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), RAID_MODE(SPELL_COSMIC_SMASH,H_SPELL_COSMIC_SMASH), true);
-
-                CosmicSmash_Timer = urand(30000, 60000);
-            } else CosmicSmash_Timer -= diff;
-
-            if (Berserk_Timer <= diff)
-            {
-                DoScriptText(SAY_BERSERK, me);
-                DoCast(me->getVictim(),SPELL_BERSERK, true);
-
-                Berserk_Timer = 360000;
-            } else Berserk_Timer -= diff;
-
-            DoMeleeAttackIfReady();
-
-            EnterEvadeIfOutOfCombatArea(diff);
-        }
-
-        if (Phase == 2)
-        {
-            if (Enrage)
-            {
                 if (Ascend_Timer <= diff)
                 {
-                    DoCast(me, SPELL_ASCEND);
-                    DoScriptText(SAY_BERSERK, me);
-                    Ascend_Timer = urand(360000,365000);
-                    Enrage = false;
+                    DoCast(me->getVictim(),SPELL_ASCEND, true);
+
+                    Ascend_Timer = 480000;
                 } else Ascend_Timer -= diff;
+
+                if (PhasePunch_Timer <= diff)
+                {
+                    DoCast(me->getVictim(),SPELL_PHASE_PUNCH, true);
+
+                    PhasePunch_Timer = 8000;
+                } else PhasePunch_Timer -= diff;
+
+                if (CosmicSmash_Timer <= diff)
+                {
+                    DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), RAID_MODE(SPELL_COSMIC_SMASH,H_SPELL_COSMIC_SMASH), true);
+
+                    CosmicSmash_Timer = urand(30000, 60000);
+                } else CosmicSmash_Timer -= diff;
+
+                if (Berserk_Timer <= diff)
+                {
+                    DoScriptText(SAY_BERSERK, me);
+                    DoCast(me->getVictim(),SPELL_BERSERK, true);
+
+                    Berserk_Timer = 360000;
+                } else Berserk_Timer -= diff;
+
+                DoMeleeAttackIfReady();
+
+                EnterEvadeIfOutOfCombatArea(diff);
             }
+
+            if (Phase == 2)
+            {
+                if (Enrage)
+                {
+                    if (Ascend_Timer <= diff)
+                    {
+                        DoCast(me, SPELL_ASCEND);
+                        DoScriptText(SAY_BERSERK, me);
+                        Ascend_Timer = urand(360000,365000);
+                        Enrage = false;
+                    } else Ascend_Timer -= diff;
+                }
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+};
+
+//Collapsing Starclass mob_collapsing_star : public CreatureScript
+{
+public:
+    mob_collapsing_star() : CreatureScript("mob_collapsing_star") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new mob_collapsing_starAI(pCreature);
+    }
+
+    struct mob_collapsing_starAI : public ScriptedAI
+    {
+        mob_collapsing_starAI(Creature *pCreature) : ScriptedAI(pCreature)
+        {
+            pInstance = pCreature->GetInstanceScript();
         }
 
-        DoMeleeAttackIfReady();
-    }
-};
+        InstanceScript* pInstance;
 
-//Collapsing Star
-struct mob_collapsing_starAI : public ScriptedAI
-{
-    mob_collapsing_starAI(Creature *pCreature) : ScriptedAI(pCreature)
-    {
-        pInstance = pCreature->GetInstanceData();
-    }
+        uint32 BlackHoleExplosion_Timer;
 
-    ScriptedInstance* pInstance;
-
-    uint32 BlackHoleExplosion_Timer;
-
-    void Reset()
-    {
-        BlackHoleExplosion_Timer = 0;
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
-
-        if (BlackHoleExplosion_Timer <= diff)
+        void Reset()
         {
-            me->CastSpell(me, SPELL_BLACK_HOLE_EXPLOSION, false);
             BlackHoleExplosion_Timer = 0;
-        } else BlackHoleExplosion_Timer -= diff;
-    }
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            if (BlackHoleExplosion_Timer <= diff)
+            {
+                me->CastSpell(me, SPELL_BLACK_HOLE_EXPLOSION, false);
+                BlackHoleExplosion_Timer = 0;
+            } else BlackHoleExplosion_Timer -= diff;
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_algalon(Creature* pCreature)
-{
-    return new boss_algalonAI(pCreature);
-}
 
-CreatureAI* GetAI_mob_collapsing_star(Creature* pCreature)
-{
-    return new mob_collapsing_starAI(pCreature);
-}
 
 void AddSC_boss_Algalon()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "boss_algalon";
-    newscript->GetAI = &GetAI_boss_algalon;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "mob_collapsing_star";
-    newscript->GetAI = &GetAI_mob_collapsing_star;
-    newscript->RegisterSelf();
+    new boss_algalon();
+    new mob_collapsing_star();
 }

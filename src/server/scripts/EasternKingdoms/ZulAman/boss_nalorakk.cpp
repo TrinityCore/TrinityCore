@@ -105,10 +105,10 @@ class boss_nalorakk : public CreatureScript
             {
                 MoveEvent = true;
                 MovePhase = 0;
-                pInstance = c->GetInstanceData();
+                pInstance = c->GetInstanceScript();
             }
 
-            ScriptedInstance *pInstance;
+            InstanceScript *pInstance;
 
             uint32 BrutalSwipe_Timer;
             uint32 Mangle_Timer;

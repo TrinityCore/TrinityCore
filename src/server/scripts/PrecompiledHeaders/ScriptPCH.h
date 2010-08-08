@@ -15,7 +15,7 @@
 #include "GameObject.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "ScriptedInstance.h"
+#include "InstanceScript.h"
 #include "CombatAI.h"
 #include "PassiveAI.h"
 #include "Chat.h"

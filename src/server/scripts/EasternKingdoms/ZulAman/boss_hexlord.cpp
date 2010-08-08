@@ -177,11 +177,11 @@ static PlayerAbilityStruct PlayerAbility[][3] =
 
 struct boss_hexlord_addAI : public ScriptedAI
 {
-    ScriptedInstance* pInstance;
+    InstanceScript* pInstance;
 
     boss_hexlord_addAI(Creature* c) : ScriptedAI(c)
     {
-        pInstance = c->GetInstanceData();
+        pInstance = c->GetInstanceScript();
     }
 
     void Reset() {}
@@ -213,13 +213,13 @@ class boss_hexlord_malacrass : public CreatureScript
         {
             boss_hex_lord_malacrassAI(Creature *c) : ScriptedAI(c)
             {
-                pInstance = c->GetInstanceData();
+                pInstance = c->GetInstanceScript();
                 SelectAddEntry();
                 for (uint8 i = 0; i < 4; ++i)
                     AddGUID[i] = 0;
             }
 
-            ScriptedInstance *pInstance;
+            InstanceScript *pInstance;
 
             uint64 AddGUID[4];
             uint32 AddEntry[4];
@@ -469,7 +469,7 @@ class boss_hexlord_malacrass : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_hexlord_malacrassAI(creature);
+            return new boss_hex_lord_malacrassAI(creature);
         }
 };
 
@@ -937,7 +937,7 @@ void AddSC_boss_hex_lord_malacrass()
 {
     new boss_hexlord_malacrass();
     new boss_thurg();
-    new boss_gazakroth();
+    // new boss_gazakroth();
     new boss_lord_raadan();
     new boss_darkheart();
     new boss_slither();

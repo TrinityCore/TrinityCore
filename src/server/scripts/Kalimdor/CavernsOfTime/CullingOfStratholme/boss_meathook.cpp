@@ -44,96 +44,98 @@ enum Yells
     SAY_SPAWN                                   = -1595030,
     SAY_DEATH                                   = -1595031
 };
-
-struct boss_meathookAI : public ScriptedAI
+class boss_meathook : public CreatureScript
 {
-    boss_meathookAI(Creature *c) : ScriptedAI(c)
+public:
+    boss_meathook() : CreatureScript("boss_meathook") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        pInstance = c->GetInstanceData();
-        if (pInstance)
-            DoScriptText(SAY_SPAWN,me);
+        return new boss_meathookAI (pCreature);
     }
 
-    uint32 uiChainTimer;
-    uint32 uiDiseaseTimer;
-    uint32 uiFrenzyTimer;
-
-    ScriptedInstance* pInstance;
-
-    void Reset()
+    struct boss_meathookAI : public ScriptedAI
     {
-        uiChainTimer = urand(12000,17000);   //seen on video 13, 17, 15, 12, 16
-        uiDiseaseTimer = urand(2000,4000);   //approx 3s
-        uiFrenzyTimer = urand(21000,26000);  //made it up
-
-        if (pInstance)
-            pInstance->SetData(DATA_MEATHOOK_EVENT, NOT_STARTED);
-    }
-
-    void EnterCombat(Unit* /*who*/)
-    {
-        DoScriptText(SAY_AGGRO, me);
-
-        if (pInstance)
-            pInstance->SetData(DATA_MEATHOOK_EVENT, IN_PROGRESS);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        //Return since we have no target
-        if (!UpdateVictim())
-            return;
-
-        if (uiDiseaseTimer <= diff)
+        boss_meathookAI(Creature *c) : ScriptedAI(c)
         {
-            DoCastAOE(SPELL_DISEASE_EXPULSION);
-            uiDiseaseTimer = urand(1500,4000);
-        } else uiDiseaseTimer -= diff;
+            pInstance = c->GetInstanceScript();
+            if (pInstance)
+                DoScriptText(SAY_SPAWN,me);
+        }
 
-        if (uiFrenzyTimer <= diff)
+        uint32 uiChainTimer;
+        uint32 uiDiseaseTimer;
+        uint32 uiFrenzyTimer;
+
+        InstanceScript* pInstance;
+
+        void Reset()
         {
-            DoCast(me, SPELL_FRENZY);
-            uiFrenzyTimer = urand(21000,26000);
-        } else uiFrenzyTimer -= diff;
+            uiChainTimer = urand(12000,17000);   //seen on video 13, 17, 15, 12, 16
+            uiDiseaseTimer = urand(2000,4000);   //approx 3s
+            uiFrenzyTimer = urand(21000,26000);  //made it up
 
-        if (uiChainTimer <= diff)
+            if (pInstance)
+                pInstance->SetData(DATA_MEATHOOK_EVENT, NOT_STARTED);
+        }
+
+        void EnterCombat(Unit* /*who*/)
         {
-            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget, SPELL_CONSTRICTING_CHAINS); //anyone but the tank
-            uiChainTimer = urand(2000,4000);
-        } else uiChainTimer -= diff;
+            DoScriptText(SAY_AGGRO, me);
 
-        DoMeleeAttackIfReady();
-    }
+            if (pInstance)
+                pInstance->SetData(DATA_MEATHOOK_EVENT, IN_PROGRESS);
+        }
 
-    void JustDied(Unit* /*killer*/)
-    {
-        DoScriptText(SAY_DEATH, me);
+        void UpdateAI(const uint32 diff)
+        {
+            //Return since we have no target
+            if (!UpdateVictim())
+                return;
 
-        if (pInstance)
-            pInstance->SetData(DATA_MEATHOOK_EVENT, DONE);
-    }
+            if (uiDiseaseTimer <= diff)
+            {
+                DoCastAOE(SPELL_DISEASE_EXPULSION);
+                uiDiseaseTimer = urand(1500,4000);
+            } else uiDiseaseTimer -= diff;
 
-    void KilledUnit(Unit * victim)
-    {
-        if (victim == me)
-            return;
+            if (uiFrenzyTimer <= diff)
+            {
+                DoCast(me, SPELL_FRENZY);
+                uiFrenzyTimer = urand(21000,26000);
+            } else uiFrenzyTimer -= diff;
 
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
-    }
+            if (uiChainTimer <= diff)
+            {
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(pTarget, SPELL_CONSTRICTING_CHAINS); //anyone but the tank
+                uiChainTimer = urand(2000,4000);
+            } else uiChainTimer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            DoScriptText(SAY_DEATH, me);
+
+            if (pInstance)
+                pInstance->SetData(DATA_MEATHOOK_EVENT, DONE);
+        }
+
+        void KilledUnit(Unit * victim)
+        {
+            if (victim == me)
+                return;
+
+            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_meathook(Creature* pCreature)
-{
-    return new boss_meathookAI (pCreature);
-}
 
 void AddSC_boss_meathook()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "boss_meathook";
-    newscript->GetAI = &GetAI_boss_meathook;
-    newscript->RegisterSelf();
+    new boss_meathook();
 }

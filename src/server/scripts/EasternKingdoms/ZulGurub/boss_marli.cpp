@@ -53,10 +53,10 @@ class boss_marli : public CreatureScript
         {
             boss_marliAI(Creature *c) : ScriptedAI(c)
             {
-                m_pInstance = c->GetInstanceData();
+                m_pInstance = c->GetInstanceScript();
             }
 
-            ScriptedInstance *m_pInstance;
+            InstanceScript *m_pInstance;
 
             uint32 SpawnStartSpiders_Timer;
             uint32 PoisonVolley_Timer;
@@ -211,11 +211,10 @@ class boss_marli : public CreatureScript
                 }
             }
         };
-		
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new example_creatureAI(creature);
+            return new boss_marliAI(creature);
         }
 };
 

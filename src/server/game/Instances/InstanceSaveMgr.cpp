@@ -37,7 +37,7 @@
 #include "ObjectMgr.h"
 #include "World.h"
 #include "Group.h"
-#include "InstanceData.h"
+#include "InstanceScript.h"
 #include "ProgressBar.h"
 
 
@@ -169,7 +169,7 @@ void InstanceSave::SaveToDB()
     if (map)
     {
         ASSERT(map->IsDungeon());
-        if (InstanceData *iData = ((InstanceMap*)map)->GetInstanceData())
+        if (InstanceScript *iData = ((InstanceMap*)map)->GetInstanceScript())
         {
             data = iData->GetSaveData();
             if (!data.empty())

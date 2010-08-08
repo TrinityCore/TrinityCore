@@ -70,11 +70,11 @@ class boss_harbinger_skyriss : public CreatureScript
         {
             boss_harbinger_skyrissAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceData();
+                pInstance = pCreature->GetInstanceScript();
                 Intro = false;
             }
 
-            ScriptedInstance *pInstance;
+            InstanceScript *pInstance;
 
             bool Intro;
             bool IsImage33;
@@ -272,7 +272,7 @@ class boss_harbinger_skyriss : public CreatureScript
             }
         };
         
-        CreatureAI* GetAI_boss_harbinger_skyriss(Creature* pCreature)
+        CreatureAI* GetAI(Creature* pCreature) const
         {
             return new boss_harbinger_skyrissAI (pCreature);
         }

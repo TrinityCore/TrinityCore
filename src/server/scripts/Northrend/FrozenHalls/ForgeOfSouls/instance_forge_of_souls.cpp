@@ -30,9 +30,9 @@ class instance_forge_of_souls : public InstanceMapScript
 public:
     instance_forge_of_souls() : InstanceMapScript("instance_forge_of_souls") { }
 
-    struct instance_forge_of_souls_ScriptedInstance : public ScriptedInstance
+    struct instance_forge_of_souls_InstanceScript : public InstanceScript
     {
-        instance_forge_of_souls_ScriptedInstance(Map* pMap) : ScriptedInstance(pMap) {};
+        instance_forge_of_souls_InstanceScript(Map* pMap) : InstanceScript(pMap) {};
 
         uint64 uiBronjahm;
         uint64 uiDevourer;
@@ -159,9 +159,9 @@ public:
         }
     };
 
-    InstanceData* GetInstanceData(InstanceMap *map) const
+    InstanceScript* GetInstanceScript(InstanceMap *map) const
     {
-        return new instance_forge_of_souls_ScriptedInstance(map);
+        return new instance_forge_of_souls_InstanceScript(map);
     }
 };
 

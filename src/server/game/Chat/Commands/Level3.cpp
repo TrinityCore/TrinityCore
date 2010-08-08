@@ -50,7 +50,7 @@
 #include "ItemEnchantmentMgr.h"
 #include "BattlegroundMgr.h"
 #include "InstanceSaveMgr.h"
-#include "InstanceData.h"
+#include "InstanceScript.h"
 #include "CreatureEventAIMgr.h"
 #include "SpellAuraEffects.h"
 #include "DBCEnums.h"
@@ -6576,14 +6576,14 @@ bool ChatHandler::HandleInstanceSaveDataCommand(const char * /*args*/)
         return false;
     }
 
-    if (!((InstanceMap*)map)->GetInstanceData())
+    if (!((InstanceMap*)map)->GetInstanceScript())
     {
         PSendSysMessage("Map has no instance data.");
         SetSentErrorMessage(true);
         return false;
     }
 
-    ((InstanceMap*)map)->GetInstanceData()->SaveToDB();
+    ((InstanceMap*)map)->GetInstanceScript()->SaveToDB();
     return true;
 }
 

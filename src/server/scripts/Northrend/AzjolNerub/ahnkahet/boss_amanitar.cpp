@@ -50,11 +50,11 @@ public:
     {
         boss_amanitarAI(Creature *c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceData();
+            pInstance = c->GetInstanceScript();
             bFirstTime = true;
         }
 
-        ScriptedInstance* pInstance;
+        InstanceScript* pInstance;
 
         uint32 uiRootTimer;
         uint32 uiBashTimer;

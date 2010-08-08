@@ -98,404 +98,406 @@ static Position aSpawnLocations[3]=
     //Lair Guard
     {-145.950, -212.831, -68.659}
 };
-
-struct boss_onyxiaAI : public ScriptedAI
+class boss_onyxia : public CreatureScript
 {
-    boss_onyxiaAI(Creature* pCreature) : ScriptedAI(pCreature), Summons(me) 
+public:
+    boss_onyxia() : CreatureScript("boss_onyxia") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        m_pInstance = pCreature->GetInstanceData();
-        Reset();
+        return new boss_onyxiaAI (pCreature);
     }
 
-    ScriptedInstance* m_pInstance;
-    SummonList Summons;
-
-    uint32 m_uiPhase;
-
-    uint32 m_uiFlameBreathTimer;
-    uint32 m_uiCleaveTimer;
-    uint32 m_uiTailSweepTimer;
-    uint32 m_uiWingBuffetTimer;
-
-    uint32 m_uiMovePoint;
-    uint32 m_uiMovementTimer;
-    sOnyxMove* m_pPointData;
-
-    uint32 m_uiFireballTimer;
-    uint32 m_uiWhelpTimer;
-    uint32 m_uiLairGuardTimer;
-    uint32 m_uiDeepBreathTimer;
-
-    uint32 m_uiBellowingRoarTimer;
-
-    uint8 m_uiSummonWhelpCount;
-    uint8 m_uiSummonLairGuardCount;
-    bool m_bIsMoving;
-    
-    void Reset()
+    struct boss_onyxiaAI : public ScriptedAI
     {
-        if (!IsCombatMovement())
-            SetCombatMovement(true);
-
-        m_uiPhase = PHASE_START;
-
-        m_uiFlameBreathTimer = urand(10000, 20000);
-        m_uiTailSweepTimer = urand(15000, 20000);
-        m_uiCleaveTimer = urand(2000, 5000);
-        m_uiWingBuffetTimer = urand(10000, 20000);
-
-        m_uiMovePoint = urand(0, 5);
-        m_uiMovementTimer = 20000;
-        m_pPointData = GetMoveData();
-
-        m_uiFireballTimer = 15000;
-        m_uiWhelpTimer = 1000;
-        m_uiLairGuardTimer = 15000;
-        m_uiDeepBreathTimer = 85000;
-
-        m_uiBellowingRoarTimer = 30000;
-
-        Summons.DespawnAll();
-        m_uiSummonWhelpCount = 0;
-        m_uiSummonLairGuardCount = 0;
-        m_bIsMoving = false;
-        
-        if (m_pInstance)
+        boss_onyxiaAI(Creature* pCreature) : ScriptedAI(pCreature), Summons(me) 
         {
-            m_pInstance->SetData(DATA_ONYXIA, NOT_STARTED);
-            m_pInstance->SetData(DATA_ONYXIA_PHASE, m_uiPhase);
-            m_pInstance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  ACHIEV_TIMED_START_EVENT);
+            m_pInstance = pCreature->GetInstanceScript();
+            Reset();
         }
-    }
 
-    void EnterCombat(Unit* pWho)
-    {
-        DoScriptText(SAY_AGGRO, me);
-        me->SetInCombatWithZone();
+        InstanceScript* m_pInstance;
+        SummonList Summons;
+
+        uint32 m_uiPhase;
+
+        uint32 m_uiFlameBreathTimer;
+        uint32 m_uiCleaveTimer;
+        uint32 m_uiTailSweepTimer;
+        uint32 m_uiWingBuffetTimer;
+
+        uint32 m_uiMovePoint;
+        uint32 m_uiMovementTimer;
+        sOnyxMove* m_pPointData;
+
+        uint32 m_uiFireballTimer;
+        uint32 m_uiWhelpTimer;
+        uint32 m_uiLairGuardTimer;
+        uint32 m_uiDeepBreathTimer;
+
+        uint32 m_uiBellowingRoarTimer;
+
+        uint8 m_uiSummonWhelpCount;
+        uint8 m_uiSummonLairGuardCount;
+        bool m_bIsMoving;
         
-        if (m_pInstance)
+        void Reset()
         {
-            m_pInstance->SetData(DATA_ONYXIA, IN_PROGRESS);
-            m_pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  ACHIEV_TIMED_START_EVENT);
-            sLog.outBasic("[Onyxia] DoStartTimedAchievement(%u,%u)",ACHIEVEMENT_TIMED_TYPE_EVENT,  ACHIEV_TIMED_START_EVENT);
-        }
-    }
+            if (!IsCombatMovement())
+                SetCombatMovement(true);
 
-    void JustDied(Unit* killer)
-    {
-        if (m_pInstance)
-            m_pInstance->SetData(DATA_ONYXIA, DONE);
+            m_uiPhase = PHASE_START;
 
-        Summons.DespawnAll();
-    }
+            m_uiFlameBreathTimer = urand(10000, 20000);
+            m_uiTailSweepTimer = urand(15000, 20000);
+            m_uiCleaveTimer = urand(2000, 5000);
+            m_uiWingBuffetTimer = urand(10000, 20000);
 
-    void JustSummoned(Creature *pSummoned)
-    {
-        pSummoned->SetInCombatWithZone();
-        if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-            pSummoned->AI()->AttackStart(pTarget);
-        
-        switch (pSummoned->GetEntry())
-        {
-            case NPC_WHELP:
-                ++m_uiSummonWhelpCount;
-                break;
-            case NPC_LAIRGUARD:
-                pSummoned->setActive(true);
-                ++m_uiSummonLairGuardCount;
-                break;
-        }
-        Summons.Summon(pSummoned);
-    }
-
-    void SummonedCreatureDespawn(Creature *summon) 
-    {
-        Summons.Despawn(summon);
-    }
-
-    void KilledUnit(Unit* pVictim)
-    {
-        DoScriptText(SAY_KILL, me);
-    }
-
-    void SpellHit(Unit *pCaster, const SpellEntry* pSpell)
-    {
-        if (pSpell->Id == SPELL_BREATH_EAST_TO_WEST ||
-            pSpell->Id == SPELL_BREATH_WEST_TO_EAST ||
-            pSpell->Id == SPELL_BREATH_SE_TO_NW ||
-            pSpell->Id == SPELL_BREATH_NW_TO_SE ||
-            pSpell->Id == SPELL_BREATH_SW_TO_NE ||
-            pSpell->Id == SPELL_BREATH_NE_TO_SW)
-        {
+            m_uiMovePoint = urand(0, 5);
+            m_uiMovementTimer = 20000;
             m_pPointData = GetMoveData();
-            m_uiMovePoint = m_pPointData->uiLocIdEnd;
 
-            me->SetSpeed(MOVE_FLIGHT, 1.5f);
-            me->GetMotionMaster()->MovePoint(8, MiddleRoomLocation);
-        }
-    }
+            m_uiFireballTimer = 15000;
+            m_uiWhelpTimer = 1000;
+            m_uiLairGuardTimer = 15000;
+            m_uiDeepBreathTimer = 85000;
 
-    void MovementInform(uint32 type, uint32 id)
-    {
-        if (type == POINT_MOTION_TYPE)
-        {
-            switch (id)
-            {
-                case 8:
-                    m_pPointData = GetMoveData();
-                    if (m_pPointData)
-                    {
-                        me->SetSpeed(MOVE_FLIGHT, 1.0f);
-                        me->GetMotionMaster()->MovePoint(m_pPointData->uiLocId, m_pPointData->fX, m_pPointData->fY, m_pPointData->fZ);
-                    }
-                    break;
-                case 9:
-                    me->GetMotionMaster()->MoveChase(me->getVictim());
-                    m_uiBellowingRoarTimer = 1000;
-                    break;
-                default:
-                    m_bIsMoving = false;
-                    break;
-            }            
-        }
-    }
-    
-    void SpellHitTarget(Unit* target, const SpellEntry* pSpell) 
-    {
-        //Workaround - Couldn't find a way to group this spells (All Eruption)
-        if (((pSpell->Id >= 17086 && pSpell->Id <= 17095) || 
-            (pSpell->Id == 17097) ||
-            (pSpell->Id >= 18351 && pSpell->Id <= 18361) ||
-            (pSpell->Id >= 18564 && pSpell->Id <= 18576) ||
-            (pSpell->Id >= 18578 && pSpell->Id <= 18607) ||
-            (pSpell->Id == 18609) ||
-            (pSpell->Id >= 18611 && pSpell->Id <= 18628) ||
-            (pSpell->Id >= 21132 && pSpell->Id <= 21133) ||
-            (pSpell->Id >= 21135 && pSpell->Id <= 21139) ||
-            (pSpell->Id >= 22191 && pSpell->Id <= 22202) ||
-            (pSpell->Id >= 22267 && pSpell->Id <= 22268)) &&
-            (target->GetTypeId() == TYPEID_PLAYER))
-        {
+            m_uiBellowingRoarTimer = 30000;
+
+            Summons.DespawnAll();
+            m_uiSummonWhelpCount = 0;
+            m_uiSummonLairGuardCount = 0;
+            m_bIsMoving = false;
+            
             if (m_pInstance)
             {
-                m_pInstance->SetData(DATA_SHE_DEEP_BREATH_MORE, FAIL);
+                m_pInstance->SetData(DATA_ONYXIA, NOT_STARTED);
+                m_pInstance->SetData(DATA_ONYXIA_PHASE, m_uiPhase);
+                m_pInstance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  ACHIEV_TIMED_START_EVENT);
             }
         }
-    }
 
-    sOnyxMove* GetMoveData()
-    {
-        uint32 uiMaxCount = sizeof(aMoveData)/sizeof(sOnyxMove);
-
-        for (uint32 i = 0; i < uiMaxCount; ++i)
+        void EnterCombat(Unit* pWho)
         {
-            if (aMoveData[i].uiLocId == m_uiMovePoint)
-                return &aMoveData[i];
+            DoScriptText(SAY_AGGRO, me);
+            me->SetInCombatWithZone();
+            
+            if (m_pInstance)
+            {
+                m_pInstance->SetData(DATA_ONYXIA, IN_PROGRESS);
+                m_pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  ACHIEV_TIMED_START_EVENT);
+                sLog.outBasic("[Onyxia] DoStartTimedAchievement(%u,%u)",ACHIEVEMENT_TIMED_TYPE_EVENT,  ACHIEV_TIMED_START_EVENT);
+            }
         }
 
-        return NULL;
-    }
-
-    void SetNextRandomPoint()
-    {
-        uint32 uiMaxCount = sizeof(aMoveData)/sizeof(sOnyxMove);
-
-        int iTemp = rand()%(uiMaxCount-1);
-
-        if (iTemp >= m_uiMovePoint)
-            ++iTemp;
-
-        m_uiMovePoint = iTemp;
-    }
-
-    void UpdateAI(const uint32 uiDiff)
-    {
-        if (!UpdateVictim())
-            return;
-
-        //Common to PHASE_START && PHASE_END
-        if (m_uiPhase == PHASE_START || m_uiPhase == PHASE_END)
+        void JustDied(Unit* killer)
         {
-            //Specific to PHASE_START || PHASE_END
-            if (m_uiPhase == PHASE_START)
+            if (m_pInstance)
+                m_pInstance->SetData(DATA_ONYXIA, DONE);
+
+            Summons.DespawnAll();
+        }
+
+        void JustSummoned(Creature *pSummoned)
+        {
+            pSummoned->SetInCombatWithZone();
+            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                pSummoned->AI()->AttackStart(pTarget);
+            
+            switch (pSummoned->GetEntry())
             {
-                if (me->GetHealth()*100 / me->GetMaxHealth() < 60)
+                case NPC_WHELP:
+                    ++m_uiSummonWhelpCount;
+                    break;
+                case NPC_LAIRGUARD:
+                    pSummoned->setActive(true);
+                    ++m_uiSummonLairGuardCount;
+                    break;
+            }
+            Summons.Summon(pSummoned);
+        }
+
+        void SummonedCreatureDespawn(Creature *summon) 
+        {
+            Summons.Despawn(summon);
+        }
+
+        void KilledUnit(Unit* pVictim)
+        {
+            DoScriptText(SAY_KILL, me);
+        }
+
+        void SpellHit(Unit *pCaster, const SpellEntry* pSpell)
+        {
+            if (pSpell->Id == SPELL_BREATH_EAST_TO_WEST ||
+                pSpell->Id == SPELL_BREATH_WEST_TO_EAST ||
+                pSpell->Id == SPELL_BREATH_SE_TO_NW ||
+                pSpell->Id == SPELL_BREATH_NW_TO_SE ||
+                pSpell->Id == SPELL_BREATH_SW_TO_NE ||
+                pSpell->Id == SPELL_BREATH_NE_TO_SW)
+            {
+                m_pPointData = GetMoveData();
+                m_uiMovePoint = m_pPointData->uiLocIdEnd;
+
+                me->SetSpeed(MOVE_FLIGHT, 1.5f);
+                me->GetMotionMaster()->MovePoint(8, MiddleRoomLocation);
+            }
+        }
+
+        void MovementInform(uint32 type, uint32 id)
+        {
+            if (type == POINT_MOTION_TYPE)
+            {
+                switch (id)
                 {
-                    m_uiPhase = PHASE_BREATH;
-                    
+                    case 8:
+                        m_pPointData = GetMoveData();
+                        if (m_pPointData)
+                        {
+                            me->SetSpeed(MOVE_FLIGHT, 1.0f);
+                            me->GetMotionMaster()->MovePoint(m_pPointData->uiLocId, m_pPointData->fX, m_pPointData->fY, m_pPointData->fZ);
+                        }
+                        break;
+                    case 9:
+                        me->GetMotionMaster()->MoveChase(me->getVictim());
+                        m_uiBellowingRoarTimer = 1000;
+                        break;
+                    default:
+                        m_bIsMoving = false;
+                        break;
+                }            
+            }
+        }
+        
+        void SpellHitTarget(Unit* target, const SpellEntry* pSpell) 
+        {
+            //Workaround - Couldn't find a way to group this spells (All Eruption)
+            if (((pSpell->Id >= 17086 && pSpell->Id <= 17095) || 
+                (pSpell->Id == 17097) ||
+                (pSpell->Id >= 18351 && pSpell->Id <= 18361) ||
+                (pSpell->Id >= 18564 && pSpell->Id <= 18576) ||
+                (pSpell->Id >= 18578 && pSpell->Id <= 18607) ||
+                (pSpell->Id == 18609) ||
+                (pSpell->Id >= 18611 && pSpell->Id <= 18628) ||
+                (pSpell->Id >= 21132 && pSpell->Id <= 21133) ||
+                (pSpell->Id >= 21135 && pSpell->Id <= 21139) ||
+                (pSpell->Id >= 22191 && pSpell->Id <= 22202) ||
+                (pSpell->Id >= 22267 && pSpell->Id <= 22268)) &&
+                (target->GetTypeId() == TYPEID_PLAYER))
+            {
+                if (m_pInstance)
+                {
+                    m_pInstance->SetData(DATA_SHE_DEEP_BREATH_MORE, FAIL);
+                }
+            }
+        }
+
+        sOnyxMove* GetMoveData()
+        {
+            uint32 uiMaxCount = sizeof(aMoveData)/sizeof(sOnyxMove);
+
+            for (uint32 i = 0; i < uiMaxCount; ++i)
+            {
+                if (aMoveData[i].uiLocId == m_uiMovePoint)
+                    return &aMoveData[i];
+            }
+
+            return NULL;
+        }
+
+        void SetNextRandomPoint()
+        {
+            uint32 uiMaxCount = sizeof(aMoveData)/sizeof(sOnyxMove);
+
+            int iTemp = rand()%(uiMaxCount-1);
+
+            if (iTemp >= m_uiMovePoint)
+                ++iTemp;
+
+            m_uiMovePoint = iTemp;
+        }
+
+        void UpdateAI(const uint32 uiDiff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            //Common to PHASE_START && PHASE_END
+            if (m_uiPhase == PHASE_START || m_uiPhase == PHASE_END)
+            {
+                //Specific to PHASE_START || PHASE_END
+                if (m_uiPhase == PHASE_START)
+                {
+                    if (me->GetHealth()*100 / me->GetMaxHealth() < 60)
+                    {
+                        m_uiPhase = PHASE_BREATH;
+                        
+                        if (m_pInstance)
+                            m_pInstance->SetData(DATA_ONYXIA_PHASE, m_uiPhase);
+
+                        SetCombatMovement(false);
+                        me->GetMotionMaster()->Clear(false);
+                        me->GetMotionMaster()->MoveIdle();
+                        me->SetFlying(true);
+
+                        DoScriptText(SAY_PHASE_2_TRANS, me);
+
+                        if (m_pPointData)
+                            me->GetMotionMaster()->MovePoint(m_pPointData->uiLocId, m_pPointData->fX, m_pPointData->fY, m_pPointData->fZ);
+
+                        m_uiWhelpTimer = 1000;
+                        return;
+                    }
+                }
+                else
+                {
+                    if (m_uiBellowingRoarTimer <= uiDiff)
+                    {
+                        DoCastVictim(SPELL_BELLOWING_ROAR);
+                        // Eruption
+                        GameObject* pFloor = NULL;
+                        Trinity::GameObjectInRangeCheck check(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 15);
+                        Trinity::GameObjectLastSearcher<Trinity::GameObjectInRangeCheck> searcher(me, pFloor, check);
+                        me->VisitNearbyGridObject(30, searcher);
+                        if (m_pInstance && pFloor)
+                            m_pInstance->SetData64(DATA_FLOOR_ERUPTION_GUID, pFloor->GetGUID());
+                        m_uiBellowingRoarTimer = 30000;
+                    }
+                    else
+                        m_uiBellowingRoarTimer -= uiDiff;
+                }
+
+                if (m_uiFlameBreathTimer <= uiDiff)
+                {
+                    DoCastVictim(SPELL_FLAME_BREATH);
+                    m_uiFlameBreathTimer = urand(10000, 20000);
+                }
+                else
+                    m_uiFlameBreathTimer -= uiDiff;
+
+                if (m_uiTailSweepTimer <= uiDiff)
+                {
+                    DoCastAOE(SPELL_TAIL_SWEEP);
+                    m_uiTailSweepTimer = urand(15000, 20000);
+                }
+                else
+                    m_uiTailSweepTimer -= uiDiff;
+
+                if (m_uiCleaveTimer <= uiDiff)
+                {
+                    DoCastVictim(SPELL_CLEAVE);
+                    m_uiCleaveTimer = urand(2000, 5000);
+                }
+                else
+                    m_uiCleaveTimer -= uiDiff;
+
+                if (m_uiWingBuffetTimer <= uiDiff)
+                {
+                    DoCastVictim(SPELL_WING_BUFFET);
+                    m_uiWingBuffetTimer = urand(15000, 30000);
+                }
+                else
+                    m_uiWingBuffetTimer -= uiDiff;
+
+                DoMeleeAttackIfReady();
+            }
+            else
+            {
+                if (me->GetHealth()*100 / me->GetMaxHealth() < 40)
+                {
+                    m_uiPhase = PHASE_END;
                     if (m_pInstance)
                         m_pInstance->SetData(DATA_ONYXIA_PHASE, m_uiPhase);
+                    DoScriptText(SAY_PHASE_3_TRANS, me);
 
-                    SetCombatMovement(false);
-                    me->GetMotionMaster()->Clear(false);
-                    me->GetMotionMaster()->MoveIdle();
-                    me->SetFlying(true);
-
-                    DoScriptText(SAY_PHASE_2_TRANS, me);
-
-                    if (m_pPointData)
-                        me->GetMotionMaster()->MovePoint(m_pPointData->uiLocId, m_pPointData->fX, m_pPointData->fY, m_pPointData->fZ);
-
-                    m_uiWhelpTimer = 1000;
+                    SetCombatMovement(true);
+                    me->SetFlying(false);
+                    m_bIsMoving = false;
+                    me->GetMotionMaster()->MovePoint(9,me->GetHomePosition());
                     return;
                 }
-            }
-            else
-            {
-                if (m_uiBellowingRoarTimer <= uiDiff)
+
+                if (m_uiDeepBreathTimer <= uiDiff)
                 {
-                    DoCastVictim(SPELL_BELLOWING_ROAR);
-                    // Eruption
-                    GameObject* pFloor = NULL;
-                    Trinity::GameObjectInRangeCheck check(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 15);
-                    Trinity::GameObjectLastSearcher<Trinity::GameObjectInRangeCheck> searcher(me, pFloor, check);
-                    me->VisitNearbyGridObject(30, searcher);
-                    if (m_pInstance && pFloor)
-                        m_pInstance->SetData64(DATA_FLOOR_ERUPTION_GUID, pFloor->GetGUID());
-                    m_uiBellowingRoarTimer = 30000;
+                    if (!m_bIsMoving) 
+                    {
+                        if (me->IsNonMeleeSpellCasted(false))
+                            me->InterruptNonMeleeSpells(false);
+
+                        DoScriptText(EMOTE_BREATH, me);
+                        DoCast(me, m_pPointData->uiSpellId);
+                        m_uiDeepBreathTimer = 70000;
+                    }
                 }
                 else
-                    m_uiBellowingRoarTimer -= uiDiff;
-            }
+                    m_uiDeepBreathTimer -= uiDiff;
 
-            if (m_uiFlameBreathTimer <= uiDiff)
-            {
-                DoCastVictim(SPELL_FLAME_BREATH);
-                m_uiFlameBreathTimer = urand(10000, 20000);
-            }
-            else
-                m_uiFlameBreathTimer -= uiDiff;
+                if (m_uiMovementTimer <= uiDiff)
+                {
+                    if (!m_bIsMoving) 
+                    {
+                        SetNextRandomPoint();
+                        m_pPointData = GetMoveData();
 
-            if (m_uiTailSweepTimer <= uiDiff)
-            {
-                DoCastAOE(SPELL_TAIL_SWEEP);
-                m_uiTailSweepTimer = urand(15000, 20000);
-            }
-            else
-                m_uiTailSweepTimer -= uiDiff;
+                        if (!m_pPointData)
+                            return;
 
-            if (m_uiCleaveTimer <= uiDiff)
-            {
-                DoCastVictim(SPELL_CLEAVE);
-                m_uiCleaveTimer = urand(2000, 5000);
-            }
-            else
-                m_uiCleaveTimer -= uiDiff;
+                        me->GetMotionMaster()->MovePoint(m_pPointData->uiLocId, m_pPointData->fX, m_pPointData->fY, m_pPointData->fZ);
+                        m_bIsMoving = true;
+                        m_uiMovementTimer = 25000;
+                    }
+                }
+                else
+                    m_uiMovementTimer -= uiDiff;
 
-            if (m_uiWingBuffetTimer <= uiDiff)
-            {
-                DoCastVictim(SPELL_WING_BUFFET);
-                m_uiWingBuffetTimer = urand(15000, 30000);
-            }
-            else
-                m_uiWingBuffetTimer -= uiDiff;
+                if (m_uiFireballTimer <= uiDiff)
+                {
+                    if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != POINT_MOTION_TYPE)
+                    {
+                        if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                            DoCast(pTarget, SPELL_FIREBALL);
 
-            DoMeleeAttackIfReady();
+                        m_uiFireballTimer = 8000;
+                    }
+                }
+                else
+                    m_uiFireballTimer -= uiDiff;
+
+                if (m_uiLairGuardTimer <= uiDiff)            
+                {
+                    me->SummonCreature(NPC_LAIRGUARD, aSpawnLocations[2].GetPositionX(), aSpawnLocations[2].GetPositionY(), aSpawnLocations[2].GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_DESPAWN);
+                    if (m_uiSummonLairGuardCount >= RAID_MODE(1,2))
+                    {
+                        m_uiSummonLairGuardCount = 0;
+                        m_uiLairGuardTimer = 30000;
+                    }
+                    else
+                        m_uiLairGuardTimer = 2000;
+                }
+                else
+                    m_uiLairGuardTimer -= uiDiff;
+
+                if (m_uiWhelpTimer <= uiDiff)
+                {
+                    me->SummonCreature(NPC_WHELP, aSpawnLocations[0].GetPositionX(), aSpawnLocations[0].GetPositionY(), aSpawnLocations[0].GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_DESPAWN);
+                    me->SummonCreature(NPC_WHELP, aSpawnLocations[1].GetPositionX(), aSpawnLocations[1].GetPositionY(), aSpawnLocations[1].GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_DESPAWN);
+                    if (m_uiSummonWhelpCount >= RAID_MODE(20,40))
+                    {
+                        m_uiSummonWhelpCount = 0;
+                        m_uiWhelpTimer = 90000;    
+                    } 
+                    else
+                        m_uiWhelpTimer = 500;
+                }
+                else
+                    m_uiWhelpTimer -= uiDiff;
+            }
         }
-        else
-        {
-            if (me->GetHealth()*100 / me->GetMaxHealth() < 40)
-            {
-                m_uiPhase = PHASE_END;
-                if (m_pInstance)
-                    m_pInstance->SetData(DATA_ONYXIA_PHASE, m_uiPhase);
-                DoScriptText(SAY_PHASE_3_TRANS, me);
+    };
 
-                SetCombatMovement(true);
-                me->SetFlying(false);
-                m_bIsMoving = false;
-                me->GetMotionMaster()->MovePoint(9,me->GetHomePosition());
-                return;
-            }
-
-            if (m_uiDeepBreathTimer <= uiDiff)
-            {
-                if (!m_bIsMoving) 
-                {
-                    if (me->IsNonMeleeSpellCasted(false))
-                        me->InterruptNonMeleeSpells(false);
-
-                    DoScriptText(EMOTE_BREATH, me);
-                    DoCast(me, m_pPointData->uiSpellId);
-                    m_uiDeepBreathTimer = 70000;
-                }
-            }
-            else
-                m_uiDeepBreathTimer -= uiDiff;
-
-            if (m_uiMovementTimer <= uiDiff)
-            {
-                if (!m_bIsMoving) 
-                {
-                    SetNextRandomPoint();
-                    m_pPointData = GetMoveData();
-
-                    if (!m_pPointData)
-                        return;
-
-                    me->GetMotionMaster()->MovePoint(m_pPointData->uiLocId, m_pPointData->fX, m_pPointData->fY, m_pPointData->fZ);
-                    m_bIsMoving = true;
-                    m_uiMovementTimer = 25000;
-                }
-            }
-            else
-                m_uiMovementTimer -= uiDiff;
-
-            if (m_uiFireballTimer <= uiDiff)
-            {
-                if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != POINT_MOTION_TYPE)
-                {
-                    if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget, SPELL_FIREBALL);
-
-                    m_uiFireballTimer = 8000;
-                }
-            }
-            else
-                m_uiFireballTimer -= uiDiff;
-
-            if (m_uiLairGuardTimer <= uiDiff)            
-            {
-                me->SummonCreature(NPC_LAIRGUARD, aSpawnLocations[2].GetPositionX(), aSpawnLocations[2].GetPositionY(), aSpawnLocations[2].GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_DESPAWN);
-                if (m_uiSummonLairGuardCount >= RAID_MODE(1,2))
-                {
-                    m_uiSummonLairGuardCount = 0;
-                    m_uiLairGuardTimer = 30000;
-                }
-                else
-                    m_uiLairGuardTimer = 2000;
-            }
-            else
-                m_uiLairGuardTimer -= uiDiff;
-
-            if (m_uiWhelpTimer <= uiDiff)
-            {
-                me->SummonCreature(NPC_WHELP, aSpawnLocations[0].GetPositionX(), aSpawnLocations[0].GetPositionY(), aSpawnLocations[0].GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_DESPAWN);
-                me->SummonCreature(NPC_WHELP, aSpawnLocations[1].GetPositionX(), aSpawnLocations[1].GetPositionY(), aSpawnLocations[1].GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_DESPAWN);
-                if (m_uiSummonWhelpCount >= RAID_MODE(20,40))
-                {
-                    m_uiSummonWhelpCount = 0;
-                    m_uiWhelpTimer = 90000;    
-                } 
-                else
-                    m_uiWhelpTimer = 500;
-            }
-            else
-                m_uiWhelpTimer -= uiDiff;
-        }
-    }
 };
-
-CreatureAI* GetAI_boss_onyxiaAI(Creature* pCreature)
-{
-    return new boss_onyxiaAI (pCreature);
-}
 
 void AddSC_boss_onyxia()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_onyxia";
-    newscript->GetAI = &GetAI_boss_onyxiaAI;
-    newscript->RegisterSelf();
+    new boss_onyxia();
 }

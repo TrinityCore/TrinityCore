@@ -25,182 +25,185 @@
 1 - Varos Cloudstrider
 2 - Mage-Lord Urom
 3 - Ley-Guardian Eregos */
-
-struct instance_oculus : public ScriptedInstance
+class instance_oculus : public InstanceMapScript
 {
-    instance_oculus(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
+public:
+    instance_oculus() : InstanceMapScript("instance_oculus") { }
 
-    uint64 uiDrakos;
-    uint64 uiVaros;
-    uint64 uiUrom;
-    uint64 uiEregos;
-
-    uint8 uiPlataformUrom;
-
-    uint8 m_auiEncounter[MAX_ENCOUNTER];
-    std::string str_data;
-
-    std::list<uint64> GameObjectList;
-
-    void Initialize()
+    InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
     {
-        uiPlataformUrom = 0;
+        return new instance_oculus_InstanceMapScript(pMap);
     }
 
-    void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+    struct instance_oculus_InstanceMapScript : public InstanceScript
     {
-        switch(pCreature->GetEntry())
+        instance_oculus_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
+
+        uint64 uiDrakos;
+        uint64 uiVaros;
+        uint64 uiUrom;
+        uint64 uiEregos;
+
+        uint8 uiPlataformUrom;
+
+        uint8 m_auiEncounter[MAX_ENCOUNTER];
+        std::string str_data;
+
+        std::list<uint64> GameObjectList;
+
+        void Initialize()
         {
-            case CREATURE_DRAKOS:
-                uiDrakos = pCreature->GetGUID();
-                break;
-            case CREATURE_VAROS:
-                uiVaros = pCreature->GetGUID();
-                break;
-            case CREATURE_UROM:
-                uiUrom = pCreature->GetGUID();
-                break;
-            case CREATURE_EREGOS:
-                uiEregos = pCreature->GetGUID();
-                break;
+            uiPlataformUrom = 0;
         }
-    }
 
-    void OnGameObjectCreate(GameObject* pGO, bool bAdd)
-    {
-        if (pGO->GetEntry() == GO_DRAGON_CAGE_DOOR)
+        void OnCreatureCreate(Creature* pCreature, bool /*add*/)
         {
-            if (DATA_DRAKOS_EVENT == DONE)
-                pGO->SetGoState(GO_STATE_ACTIVE);
-            else
-                pGO->SetGoState(GO_STATE_READY);
+            switch(pCreature->GetEntry())
+            {
+                case CREATURE_DRAKOS:
+                    uiDrakos = pCreature->GetGUID();
+                    break;
+                case CREATURE_VAROS:
+                    uiVaros = pCreature->GetGUID();
+                    break;
+                case CREATURE_UROM:
+                    uiUrom = pCreature->GetGUID();
+                    break;
+                case CREATURE_EREGOS:
+                    uiEregos = pCreature->GetGUID();
+                    break;
+            }
+        }
+
+        void OnGameObjectCreate(GameObject* pGO, bool bAdd)
+        {
+            if (pGO->GetEntry() == GO_DRAGON_CAGE_DOOR)
+            {
+                if (DATA_DRAKOS_EVENT == DONE)
+                    pGO->SetGoState(GO_STATE_ACTIVE);
+                else
+                    pGO->SetGoState(GO_STATE_READY);
         
-            GameObjectList.push_back(pGO->GetGUID());
+                GameObjectList.push_back(pGO->GetGUID());
+            }
         }
-    }
 
-    void SetData(uint32 type, uint32 data)
-    {
-        switch(type)
+        void SetData(uint32 type, uint32 data)
         {
-            case DATA_DRAKOS_EVENT:
-                m_auiEncounter[0] = data;
-                if (data == DONE)
-                    OpenCageDoors();
-                break;
-            case DATA_VAROS_EVENT:
-                m_auiEncounter[1] = data;
-                break;
-            case DATA_UROM_EVENT:
-                m_auiEncounter[2] = data;
-                break;
-            case DATA_EREGOS_EVENT:
-                m_auiEncounter[3] = data;
-                break;
-            case DATA_UROM_PLATAFORM:
-                uiPlataformUrom = data;
-                break;
+            switch(type)
+            {
+                case DATA_DRAKOS_EVENT:
+                    m_auiEncounter[0] = data;
+                    if (data == DONE)
+                        OpenCageDoors();
+                    break;
+                case DATA_VAROS_EVENT:
+                    m_auiEncounter[1] = data;
+                    break;
+                case DATA_UROM_EVENT:
+                    m_auiEncounter[2] = data;
+                    break;
+                case DATA_EREGOS_EVENT:
+                    m_auiEncounter[3] = data;
+                    break;
+                case DATA_UROM_PLATAFORM:
+                    uiPlataformUrom = data;
+                    break;
+            }
+
+            if (data == DONE)
+                SaveToDB();
         }
 
-        if (data == DONE)
-            SaveToDB();
-    }
-
-    uint32 GetData(uint32 type)
-    {
-        switch(type)
+        uint32 GetData(uint32 type)
         {
-            case DATA_DRAKOS_EVENT:                return m_auiEncounter[0];
-            case DATA_VAROS_EVENT:                 return m_auiEncounter[1];
-            case DATA_UROM_EVENT:                  return m_auiEncounter[2];
-            case DATA_EREGOS_EVENT:                return m_auiEncounter[3];
-            case DATA_UROM_PLATAFORM:              return uiPlataformUrom;
+            switch(type)
+            {
+                case DATA_DRAKOS_EVENT:                return m_auiEncounter[0];
+                case DATA_VAROS_EVENT:                 return m_auiEncounter[1];
+                case DATA_UROM_EVENT:                  return m_auiEncounter[2];
+                case DATA_EREGOS_EVENT:                return m_auiEncounter[3];
+                case DATA_UROM_PLATAFORM:              return uiPlataformUrom;
+            }
+
+            return 0;
         }
 
-        return 0;
-    }
-
-    uint64 GetData64(uint32 identifier)
-    {
-        switch(identifier)
+        uint64 GetData64(uint32 identifier)
         {
-            case DATA_DRAKOS:                 return uiDrakos;
-            case DATA_VAROS:                  return uiVaros;
-            case DATA_UROM:                   return uiUrom;
-            case DATA_EREGOS:                 return uiEregos;
-        }
+            switch(identifier)
+            {
+                case DATA_DRAKOS:                 return uiDrakos;
+                case DATA_VAROS:                  return uiVaros;
+                case DATA_UROM:                   return uiUrom;
+                case DATA_EREGOS:                 return uiEregos;
+            }
 
-        return 0;
-    }
+            return 0;
+        }
     
-    void OpenCageDoors()
-    {
-        if (GameObjectList.empty())
-            return;
-
-        for (std::list<uint64>::const_iterator itr = GameObjectList.begin(); itr != GameObjectList.end(); ++itr)
+        void OpenCageDoors()
         {
-            if (GameObject* pGO = instance->GetGameObject(*itr))
-                pGO->SetGoState(GO_STATE_ACTIVE);
-        }
-    }
+            if (GameObjectList.empty())
+                return;
 
-    std::string GetSaveData()
-    {
-        OUT_SAVE_INST_DATA;
-
-        std::ostringstream saveStream;
-        saveStream << "T O " << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " " << m_auiEncounter[3];
-
-        str_data = saveStream.str();
-
-        OUT_SAVE_INST_DATA_COMPLETE;
-        return str_data;
-    }
-
-    void Load(const char* in)
-    {
-        if (!in)
-        {
-            OUT_LOAD_INST_DATA_FAIL;
-            return;
+            for (std::list<uint64>::const_iterator itr = GameObjectList.begin(); itr != GameObjectList.end(); ++itr)
+            {
+                if (GameObject* pGO = instance->GetGameObject(*itr))
+                    pGO->SetGoState(GO_STATE_ACTIVE);
+            }
         }
 
-        OUT_LOAD_INST_DATA(in);
-
-        char dataHead1, dataHead2;
-        uint16 data0, data1, data2, data3;
-
-        std::istringstream loadStream(in);
-        loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3;
-
-        if (dataHead1 == 'T' && dataHead2 == 'O')
+        std::string GetSaveData()
         {
-            m_auiEncounter[0] = data0;
-            m_auiEncounter[1] = data1;
-            m_auiEncounter[2] = data2;
-            m_auiEncounter[3] = data3;
+            OUT_SAVE_INST_DATA;
 
-            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                if (m_auiEncounter[i] == IN_PROGRESS)
-                    m_auiEncounter[i] = NOT_STARTED;
+            std::ostringstream saveStream;
+            saveStream << "T O " << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " " << m_auiEncounter[3];
 
-        } else OUT_LOAD_INST_DATA_FAIL;
+            str_data = saveStream.str();
 
-        OUT_LOAD_INST_DATA_COMPLETE;
-    }
+            OUT_SAVE_INST_DATA_COMPLETE;
+            return str_data;
+        }
+
+        void Load(const char* in)
+        {
+            if (!in)
+            {
+                OUT_LOAD_INST_DATA_FAIL;
+                return;
+            }
+
+            OUT_LOAD_INST_DATA(in);
+
+            char dataHead1, dataHead2;
+            uint16 data0, data1, data2, data3;
+
+            std::istringstream loadStream(in);
+            loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3;
+
+            if (dataHead1 == 'T' && dataHead2 == 'O')
+            {
+                m_auiEncounter[0] = data0;
+                m_auiEncounter[1] = data1;
+                m_auiEncounter[2] = data2;
+                m_auiEncounter[3] = data3;
+
+                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+                    if (m_auiEncounter[i] == IN_PROGRESS)
+                        m_auiEncounter[i] = NOT_STARTED;
+
+            } else OUT_LOAD_INST_DATA_FAIL;
+
+            OUT_LOAD_INST_DATA_COMPLETE;
+        }
+    };
+
 };
 
-InstanceData* GetInstanceData_instance_oculus(Map* pMap)
-{
-    return new instance_oculus(pMap);
-}
 
 void AddSC_instance_oculus()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "instance_oculus";
-    newscript->GetInstanceData = &GetInstanceData_instance_oculus;
-    newscript->RegisterSelf();
+    new instance_oculus();
 }

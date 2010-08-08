@@ -189,12 +189,12 @@ class mob_healing_ward : public CreatureScript
         {
             mob_healing_wardAI(Creature *c) : ScriptedAI(c)
             {
-                pInstance = c->GetInstanceData();
+                pInstance = c->GetInstanceScript();
             }
 
             uint32 Heal_Timer;
 
-            ScriptedInstance *pInstance;
+            InstanceScript *pInstance;
 
             void Reset()
             {

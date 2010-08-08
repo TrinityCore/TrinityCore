@@ -44,100 +44,103 @@ enum Events
     EVENT_IMPENDING_DESPAIR,
     EVENT_DEFILING_HORROR,
 };
-
-struct boss_falricAI : public boss_horAI
+class boss_falric : public CreatureScript
 {
-    boss_falricAI(Creature *pCreature) : boss_horAI(pCreature) {}
+public:
+    boss_falric() : CreatureScript("boss_falric") { }
 
-    uint8 uiHopelessnessCount;
-
-    void Reset()
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        boss_horAI::Reset();
-
-        uiHopelessnessCount = 0;
-
-        if (pInstance)
-            pInstance->SetData(DATA_FALRIC_EVENT, NOT_STARTED);
+        return new boss_falricAI(pCreature);
     }
 
-    void EnterCombat(Unit* who)
+    struct boss_falricAI : public boss_horAI
     {
-        DoScriptText(SAY_AGGRO, me);
-        if (pInstance)
-            pInstance->SetData(DATA_FALRIC_EVENT, IN_PROGRESS);
+        boss_falricAI(Creature *pCreature) : boss_horAI(pCreature) {}
 
-        events.ScheduleEvent(EVENT_QUIVERING_STRIKE, 23000);
-        events.ScheduleEvent(EVENT_IMPENDING_DESPAIR, 9000);
-        events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(25000,45000)); // TODO adjust timer.
-    }
+        uint8 uiHopelessnessCount;
 
-    void JustDied(Unit* killer)
-    {
-        DoScriptText(SAY_DEATH, me);
-
-        if (pInstance)
-            pInstance->SetData(DATA_FALRIC_EVENT, DONE);
-    }
-
-    void KilledUnit(Unit *victim)
-    {
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        // Return since we have no target
-        if (!UpdateVictim())
-            return;
-
-        events.Update(diff);
-
-        if (me->hasUnitState(UNIT_STAT_CASTING))
-            return;
-
-        switch (events.ExecuteEvent())
+        void Reset()
         {
-            case EVENT_QUIVERING_STRIKE:
-                DoCast(SPELL_QUIVERING_STRIKE);
-                events.ScheduleEvent(EVENT_QUIVERING_STRIKE, 10000);
-                break;
-            case EVENT_IMPENDING_DESPAIR:
-                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
-                {
-                    DoScriptText(SAY_IMPENDING_DESPAIR, me);
-                    DoCast(pTarget, SPELL_IMPENDING_DESPAIR);
-                }
-                events.ScheduleEvent(EVENT_IMPENDING_DESPAIR, 13000);
-                break;
-            case EVENT_DEFILING_HORROR:
-                DoCast(SPELL_DEFILING_HORROR);
-                events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(25000,45000)); // TODO adjust timer.
-                break;
+            boss_horAI::Reset();
+
+            uiHopelessnessCount = 0;
+
+            if (pInstance)
+                pInstance->SetData(DATA_FALRIC_EVENT, NOT_STARTED);
         }
 
-        if ((uiHopelessnessCount < 1 && HealthBelowPct(66))
-            || (uiHopelessnessCount < 2 && HealthBelowPct(33))
-            || (uiHopelessnessCount < 3 && HealthBelowPct(10)))
+        void EnterCombat(Unit* who)
         {
-            uiHopelessnessCount++;
-            DoCast(DUNGEON_MODE(SPELL_HOPELESSNESS,H_SPELL_HOPELESSNESS));
+            DoScriptText(SAY_AGGRO, me);
+            if (pInstance)
+                pInstance->SetData(DATA_FALRIC_EVENT, IN_PROGRESS);
+
+            events.ScheduleEvent(EVENT_QUIVERING_STRIKE, 23000);
+            events.ScheduleEvent(EVENT_IMPENDING_DESPAIR, 9000);
+            events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(25000,45000)); // TODO adjust timer.
         }
 
-        DoMeleeAttackIfReady();
-    }
+        void JustDied(Unit* killer)
+        {
+            DoScriptText(SAY_DEATH, me);
+
+            if (pInstance)
+                pInstance->SetData(DATA_FALRIC_EVENT, DONE);
+        }
+
+        void KilledUnit(Unit *victim)
+        {
+            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            // Return since we have no target
+            if (!UpdateVictim())
+                return;
+
+            events.Update(diff);
+
+            if (me->hasUnitState(UNIT_STAT_CASTING))
+                return;
+
+            switch (events.ExecuteEvent())
+            {
+                case EVENT_QUIVERING_STRIKE:
+                    DoCast(SPELL_QUIVERING_STRIKE);
+                    events.ScheduleEvent(EVENT_QUIVERING_STRIKE, 10000);
+                    break;
+                case EVENT_IMPENDING_DESPAIR:
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
+                    {
+                        DoScriptText(SAY_IMPENDING_DESPAIR, me);
+                        DoCast(pTarget, SPELL_IMPENDING_DESPAIR);
+                    }
+                    events.ScheduleEvent(EVENT_IMPENDING_DESPAIR, 13000);
+                    break;
+                case EVENT_DEFILING_HORROR:
+                    DoCast(SPELL_DEFILING_HORROR);
+                    events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(25000,45000)); // TODO adjust timer.
+                    break;
+            }
+
+            if ((uiHopelessnessCount < 1 && HealthBelowPct(66))
+                || (uiHopelessnessCount < 2 && HealthBelowPct(33))
+                || (uiHopelessnessCount < 3 && HealthBelowPct(10)))
+            {
+                uiHopelessnessCount++;
+                DoCast(DUNGEON_MODE(SPELL_HOPELESSNESS,H_SPELL_HOPELESSNESS));
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_falric(Creature* pCreature)
-{
-    return new boss_falricAI(pCreature);
-}
 
 void AddSC_boss_falric()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name="boss_falric";
-    newscript->GetAI = &GetAI_boss_falric;
-    newscript->RegisterSelf();
+    new boss_falric();
 }

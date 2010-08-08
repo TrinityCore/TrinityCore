@@ -27,9 +27,8 @@ EndScriptData */
 npc_kanati
 npc_lakota_windsong
 npc_swiftmountain
-npc_plucky
+npc_pluckynpc_enraged_panther
 go_panther_cage
-npc_enraged_panther
 EndContentData */
 
 #include "ScriptPCH.h"
@@ -48,56 +47,64 @@ enum eKanati
 };
 
 const float m_afGalakLoc[]= {-4867.387695, -1357.353760, -48.226 };
-
-struct npc_kanatiAI : public npc_escortAI
+class npc_kanati : public CreatureScript
 {
-    npc_kanatiAI(Creature* pCreature) : npc_escortAI(pCreature) { }
+public:
+    npc_kanati() : CreatureScript("npc_kanati") { }
 
-    void Reset() { }
-
-    void WaypointReached(uint32 uiPointId)
+    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
     {
-        switch(uiPointId)
+        if (pQuest->GetQuestId() == QUEST_PROTECT_KANATI)
         {
-            case 0:
-                DoScriptText(SAY_KAN_START, me);
-                DoSpawnGalak();
-                break;
-            case 1:
-                if (Player* pPlayer = GetPlayerForEscort())
-                    pPlayer->GroupEventHappens(QUEST_PROTECT_KANATI, me);
-                break;
+            if (npc_kanatiAI* pEscortAI = CAST_AI(npc_kanati::npc_kanatiAI, pCreature->AI()))
+                pEscortAI->Start(false, false, pPlayer->GetGUID(), pQuest, true);
         }
+        return true;
     }
 
-    void DoSpawnGalak()
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        for (int i = 0; i < 3; ++i)
-            me->SummonCreature(NPC_GALAK_ASS,
-            m_afGalakLoc[0], m_afGalakLoc[1], m_afGalakLoc[2], 0.0f,
-            TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+        return new npc_kanatiAI(pCreature);
     }
 
-    void JustSummoned(Creature* pSummoned)
+    struct npc_kanatiAI : public npc_escortAI
     {
-        pSummoned->AI()->AttackStart(me);
-    }
+        npc_kanatiAI(Creature* pCreature) : npc_escortAI(pCreature) { }
+
+        void Reset() { }
+
+        void WaypointReached(uint32 uiPointId)
+        {
+            switch(uiPointId)
+            {
+                case 0:
+                    DoScriptText(SAY_KAN_START, me);
+                    DoSpawnGalak();
+                    break;
+                case 1:
+                    if (Player* pPlayer = GetPlayerForEscort())
+                        pPlayer->GroupEventHappens(QUEST_PROTECT_KANATI, me);
+                    break;
+            }
+        }
+
+        void DoSpawnGalak()
+        {
+            for (int i = 0; i < 3; ++i)
+                me->SummonCreature(NPC_GALAK_ASS,
+                m_afGalakLoc[0], m_afGalakLoc[1], m_afGalakLoc[2], 0.0f,
+                TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+        }
+
+        void JustSummoned(Creature* pSummoned)
+        {
+            pSummoned->AI()->AttackStart(me);
+        }
+    };
+
 };
 
-CreatureAI* GetAI_npc_kanati(Creature* pCreature)
-{
-    return new npc_kanatiAI(pCreature);
-}
 
-bool QuestAccept_npc_kanati(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
-{
-    if (pQuest->GetQuestId() == QUEST_PROTECT_KANATI)
-    {
-        if (npc_kanatiAI* pEscortAI = CAST_AI(npc_kanatiAI, pCreature->AI()))
-            pEscortAI->Start(false, false, pPlayer->GetGUID(), pQuest, true);
-    }
-    return true;
-}
 
 /*######
 # npc_lakota_windsong
@@ -129,62 +136,70 @@ float m_afBanditLoc[6][6]=
     {-4767.985352, -1873.169189, 90.192},
     {-4788.861328, -1888.007813, 89.888}
 };
-
-struct npc_lakota_windsongAI : public npc_escortAI
+class npc_lakota_windsong : public CreatureScript
 {
-    npc_lakota_windsongAI(Creature* pCreature) : npc_escortAI(pCreature) { }
+public:
+    npc_lakota_windsong() : CreatureScript("npc_lakota_windsong") { }
 
-    void Reset() { }
-
-    void WaypointReached(uint32 uiPointId)
+    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
     {
-        switch(uiPointId)
+        if (pQuest->GetQuestId() == QUEST_FREE_AT_LAST)
         {
-            case 8:
-                DoScriptText(SAY_LAKO_LOOK_OUT, me);
-                DoSpawnBandits(ID_AMBUSH_1);
-                break;
-            case 14:
-                DoScriptText(SAY_LAKO_HERE_COME, me);
-                DoSpawnBandits(ID_AMBUSH_2);
-                break;
-            case 21:
-                DoScriptText(SAY_LAKO_MORE, me);
-                DoSpawnBandits(ID_AMBUSH_3);
-                break;
-            case 45:
-                if (Player* pPlayer = GetPlayerForEscort())
-                    pPlayer->GroupEventHappens(QUEST_FREE_AT_LAST, me);
-                break;
+            DoScriptText(SAY_LAKO_START, pCreature, pPlayer);
+            pCreature->setFaction(FACTION_ESCORTEE_LAKO);
+
+            if (npc_lakota_windsongAI* pEscortAI = CAST_AI(npc_lakota_windsong::npc_lakota_windsongAI, pCreature->AI()))
+                pEscortAI->Start(false, false, pPlayer->GetGUID(), pQuest);
         }
+        return true;
     }
 
-    void DoSpawnBandits(int uiAmbushId)
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        for (int i = 0; i < 2; ++i)
-            me->SummonCreature(NPC_GRIM_BANDIT,
-            m_afBanditLoc[i+uiAmbushId][0], m_afBanditLoc[i+uiAmbushId][1], m_afBanditLoc[i+uiAmbushId][2], 0.0f,
-            TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
+        return new npc_lakota_windsongAI(pCreature);
     }
+
+    struct npc_lakota_windsongAI : public npc_escortAI
+    {
+        npc_lakota_windsongAI(Creature* pCreature) : npc_escortAI(pCreature) { }
+
+        void Reset() { }
+
+        void WaypointReached(uint32 uiPointId)
+        {
+            switch(uiPointId)
+            {
+                case 8:
+                    DoScriptText(SAY_LAKO_LOOK_OUT, me);
+                    DoSpawnBandits(ID_AMBUSH_1);
+                    break;
+                case 14:
+                    DoScriptText(SAY_LAKO_HERE_COME, me);
+                    DoSpawnBandits(ID_AMBUSH_2);
+                    break;
+                case 21:
+                    DoScriptText(SAY_LAKO_MORE, me);
+                    DoSpawnBandits(ID_AMBUSH_3);
+                    break;
+                case 45:
+                    if (Player* pPlayer = GetPlayerForEscort())
+                        pPlayer->GroupEventHappens(QUEST_FREE_AT_LAST, me);
+                    break;
+            }
+        }
+
+        void DoSpawnBandits(int uiAmbushId)
+        {
+            for (int i = 0; i < 2; ++i)
+                me->SummonCreature(NPC_GRIM_BANDIT,
+                m_afBanditLoc[i+uiAmbushId][0], m_afBanditLoc[i+uiAmbushId][1], m_afBanditLoc[i+uiAmbushId][2], 0.0f,
+                TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
+        }
+    };
+
 };
 
-CreatureAI* GetAI_npc_lakota_windsong(Creature* pCreature)
-{
-    return new npc_lakota_windsongAI(pCreature);
-}
 
-bool QuestAccept_npc_lakota_windsong(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
-{
-    if (pQuest->GetQuestId() == QUEST_FREE_AT_LAST)
-    {
-        DoScriptText(SAY_LAKO_START, pCreature, pPlayer);
-        pCreature->setFaction(FACTION_ESCORTEE_LAKO);
-
-        if (npc_lakota_windsongAI* pEscortAI = CAST_AI(npc_lakota_windsongAI, pCreature->AI()))
-            pEscortAI->Start(false, false, pPlayer->GetGUID(), pQuest);
-    }
-    return true;
-}
 
 /*######
 # npc_paoka_swiftmountain
@@ -207,57 +222,65 @@ float m_afWyvernLoc[3][3]=
     {-4970.241, -927.378, -4.951},
     {-4985.364, -952.528, -5.199}
 };
-
-struct npc_paoka_swiftmountainAI : public npc_escortAI
+class npc_paoka_swiftmountain : public CreatureScript
 {
-    npc_paoka_swiftmountainAI(Creature* pCreature) : npc_escortAI(pCreature) { }
+public:
+    npc_paoka_swiftmountain() : CreatureScript("npc_paoka_swiftmountain") { }
 
-    void Reset() { }
-
-    void WaypointReached(uint32 uiPointId)
+    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
     {
-        switch(uiPointId)
+        if (pQuest->GetQuestId() == QUEST_HOMEWARD)
         {
-            case 15:
-                DoScriptText(SAY_WYVERN, me);
-                DoSpawnWyvern();
-                break;
-            case 26:
-                DoScriptText(SAY_COMPLETE, me);
-                break;
-            case 27:
-                if (Player* pPlayer = GetPlayerForEscort())
-                    pPlayer->GroupEventHappens(QUEST_HOMEWARD, me);
-                break;
+            DoScriptText(SAY_START, pCreature, pPlayer);
+            pCreature->setFaction(FACTION_ESCORTEE);
+
+            if (npc_paoka_swiftmountainAI* pEscortAI = CAST_AI(npc_paoka_swiftmountain::npc_paoka_swiftmountainAI,pCreature->AI()))
+                pEscortAI->Start(false, false, pPlayer->GetGUID(), pQuest);
         }
+        return true;
     }
 
-    void DoSpawnWyvern()
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        for (int i = 0; i < 3; ++i)
-            me->SummonCreature(NPC_WYVERN,
-            m_afWyvernLoc[i][0], m_afWyvernLoc[i][1], m_afWyvernLoc[i][2], 0.0f,
-            TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
+        return new npc_paoka_swiftmountainAI(pCreature);
     }
+
+    struct npc_paoka_swiftmountainAI : public npc_escortAI
+    {
+        npc_paoka_swiftmountainAI(Creature* pCreature) : npc_escortAI(pCreature) { }
+
+        void Reset() { }
+
+        void WaypointReached(uint32 uiPointId)
+        {
+            switch(uiPointId)
+            {
+                case 15:
+                    DoScriptText(SAY_WYVERN, me);
+                    DoSpawnWyvern();
+                    break;
+                case 26:
+                    DoScriptText(SAY_COMPLETE, me);
+                    break;
+                case 27:
+                    if (Player* pPlayer = GetPlayerForEscort())
+                        pPlayer->GroupEventHappens(QUEST_HOMEWARD, me);
+                    break;
+            }
+        }
+
+        void DoSpawnWyvern()
+        {
+            for (int i = 0; i < 3; ++i)
+                me->SummonCreature(NPC_WYVERN,
+                m_afWyvernLoc[i][0], m_afWyvernLoc[i][1], m_afWyvernLoc[i][2], 0.0f,
+                TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
+        }
+    };
+
 };
 
-CreatureAI* GetAI_npc_paoka_swiftmountain(Creature* pCreature)
-{
-    return new npc_paoka_swiftmountainAI(pCreature);
-}
 
-bool QuestAccept_npc_paoka_swiftmountain(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
-{
-    if (pQuest->GetQuestId() == QUEST_HOMEWARD)
-    {
-        DoScriptText(SAY_START, pCreature, pPlayer);
-        pCreature->setFaction(FACTION_ESCORTEE);
-
-        if (npc_paoka_swiftmountainAI* pEscortAI = CAST_AI(npc_paoka_swiftmountainAI,pCreature->AI()))
-            pEscortAI->Start(false, false, pPlayer->GetGUID(), pQuest);
-    }
-    return true;
-}
 
 /*#####
 # npc_plucky
@@ -272,185 +295,173 @@ enum ePlucky
     SPELL_PLUCKY_HUMAN      = 9192,
     SPELL_PLUCKY_CHICKEN    = 9220
 };
-
-struct npc_pluckyAI : public ScriptedAI
+class npc_plucky : public CreatureScript
 {
-    npc_pluckyAI(Creature *c) : ScriptedAI(c) { m_uiNormFaction = c->getFaction(); }
+public:
+    npc_plucky() : CreatureScript("npc_plucky") { }
 
-    uint32 m_uiNormFaction;
-    uint32 m_uiResetTimer;
-
-    void Reset()
+    bool OnGossipSelect(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
     {
-        m_uiResetTimer = 120000;
-
-        if (me->getFaction() != m_uiNormFaction)
-            me->setFaction(m_uiNormFaction);
-
-        if (me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-
-        DoCast(me, SPELL_PLUCKY_CHICKEN, false);
+        switch(uiAction)
+        {
+            case GOSSIP_ACTION_INFO_DEF+1:
+                pPlayer->CLOSE_GOSSIP_MENU();
+                pPlayer->CompleteQuest(QUEST_SCOOP);
+            break;
+        }
+        return true;
     }
 
-    void ReceiveEmote(Player* pPlayer, uint32 uiTextEmote)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
         if (pPlayer->GetQuestStatus(QUEST_SCOOP) == QUEST_STATUS_INCOMPLETE)
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_P, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        pPlayer->SEND_GOSSIP_MENU(738, pCreature->GetGUID());
+
+        return true;
+    }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_pluckyAI(pCreature);
+    }
+
+    struct npc_pluckyAI : public ScriptedAI
+    {
+        npc_pluckyAI(Creature *c) : ScriptedAI(c) { m_uiNormFaction = c->getFaction(); }
+
+        uint32 m_uiNormFaction;
+        uint32 m_uiResetTimer;
+
+        void Reset()
         {
-            if (uiTextEmote == TEXTEMOTE_BECKON)
+            m_uiResetTimer = 120000;
+
+            if (me->getFaction() != m_uiNormFaction)
+                me->setFaction(m_uiNormFaction);
+
+            if (me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+
+            DoCast(me, SPELL_PLUCKY_CHICKEN, false);
+        }
+
+        void ReceiveEmote(Player* pPlayer, uint32 uiTextEmote)
+        {
+            if (pPlayer->GetQuestStatus(QUEST_SCOOP) == QUEST_STATUS_INCOMPLETE)
             {
-                me->setFaction(FACTION_FRIENDLY);
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                DoCast(me, SPELL_PLUCKY_HUMAN, false);
+                if (uiTextEmote == TEXTEMOTE_BECKON)
+                {
+                    me->setFaction(FACTION_FRIENDLY);
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    DoCast(me, SPELL_PLUCKY_HUMAN, false);
+                }
+            }
+
+            if (uiTextEmote == TEXTEMOTE_CHICKEN)
+            {
+                if (me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
+                    return;
+                else
+                {
+                    me->setFaction(FACTION_FRIENDLY);
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    DoCast(me, SPELL_PLUCKY_HUMAN, false);
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
+                }
             }
         }
 
-        if (uiTextEmote == TEXTEMOTE_CHICKEN)
+        void UpdateAI(const uint32 uiDiff)
         {
             if (me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
-                return;
-            else
             {
-                me->setFaction(FACTION_FRIENDLY);
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                DoCast(me, SPELL_PLUCKY_HUMAN, false);
-                me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
-            }
-        }
-    }
+                if (m_uiResetTimer <= uiDiff)
+                {
+                    if (!me->getVictim())
+                        EnterEvadeMode();
+                    else
+                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-    void UpdateAI(const uint32 uiDiff)
-    {
-        if (me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
-        {
-            if (m_uiResetTimer <= uiDiff)
-            {
-                if (!me->getVictim())
-                    EnterEvadeMode();
+                    return;
+                }
                 else
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-
-                return;
+                    m_uiResetTimer -= uiDiff;
             }
-            else
-                m_uiResetTimer -= uiDiff;
+
+            if (!UpdateVictim())
+                return;
+
+            DoMeleeAttackIfReady();
         }
+    };
 
-        if (!UpdateVictim())
-            return;
-
-        DoMeleeAttackIfReady();
-    }
 };
-
-bool GossipHello_npc_plucky(Player* pPlayer, Creature* pCreature)
-{
-    if (pPlayer->GetQuestStatus(QUEST_SCOOP) == QUEST_STATUS_INCOMPLETE)
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_P, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-    pPlayer->SEND_GOSSIP_MENU(738, pCreature->GetGUID());
-
-    return true;
-}
-
-bool GossipSelect_npc_plucky(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
-{
-    switch(uiAction)
-    {
-        case GOSSIP_ACTION_INFO_DEF+1:
-            pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->CompleteQuest(QUEST_SCOOP);
-        break;
-    }
-    return true;
-}
-
-CreatureAI* GetAI_npc_plucky(Creature* pCreature)
-{
-    return new npc_pluckyAI(pCreature);
-}
 
 enum ePantherCage
 {
     ENRAGED_PANTHER = 10992
 };
 
-bool go_panther_cage(Player* pPlayer, GameObject* pGo)
+class go_panther_cage : public GameObjectScript
 {
+public:
+    go_panther_cage() : GameObjectScript("go_panther_cage") { }
 
-    if (pPlayer->GetQuestStatus(5151) == QUEST_STATUS_INCOMPLETE)
+    bool OnGossipHello(Player* pPlayer, GameObject* pGo)
     {
-        if (Creature* panther = pGo->FindNearestCreature(ENRAGED_PANTHER, 5, true))
+
+        if (pPlayer->GetQuestStatus(5151) == QUEST_STATUS_INCOMPLETE)
         {
-            panther->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
-            panther->SetReactState(REACT_AGGRESSIVE);
-            panther->AI()->AttackStart(pPlayer);
+            if (Creature* panther = pGo->FindNearestCreature(ENRAGED_PANTHER, 5, true))
+            {
+                panther->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+                panther->SetReactState(REACT_AGGRESSIVE);
+                panther->AI()->AttackStart(pPlayer);
+            }
         }
-    }
 
-    return true ;
-}
-
-struct npc_enraged_pantherAI : public ScriptedAI
-{
-    npc_enraged_pantherAI(Creature *c) : ScriptedAI(c) {}
-
-    void Reset()
-    {
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        me->SetReactState(REACT_PASSIVE);
-    }
-
-    void UpdateAI(const uint32 /*diff*/)
-    {
-        if (!UpdateVictim())
-            return;
-
-        DoMeleeAttackIfReady();
+        return true ;
     }
 };
-
-CreatureAI* GetAI_npc_enraged_panther(Creature* pCreature)
+class npc_enraged_panther : public CreatureScript
 {
-    return new npc_enraged_pantherAI(pCreature);
-}
+public:
+    npc_enraged_panther() : CreatureScript("npc_enraged_panther") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_enraged_pantherAI(pCreature);
+    }
+
+    struct npc_enraged_pantherAI : public ScriptedAI
+    {
+        npc_enraged_pantherAI(Creature *c) : ScriptedAI(c) {}
+
+        void Reset()
+        {
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->SetReactState(REACT_PASSIVE);
+        }
+
+        void UpdateAI(const uint32 /*diff*/)
+        {
+            if (!UpdateVictim())
+                return;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+};
+
 
 void AddSC_thousand_needles()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "npc_kanati";
-    newscript->GetAI = &GetAI_npc_kanati;
-    newscript->pQuestAccept = &QuestAccept_npc_kanati;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_lakota_windsong";
-    newscript->GetAI = &GetAI_npc_lakota_windsong;
-    newscript->pQuestAccept = &QuestAccept_npc_lakota_windsong;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_paoka_swiftmountain";
-    newscript->GetAI = &GetAI_npc_paoka_swiftmountain;
-    newscript->pQuestAccept = &QuestAccept_npc_paoka_swiftmountain;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_plucky";
-    newscript->GetAI = &GetAI_npc_plucky;
-    newscript->pGossipHello =   &GossipHello_npc_plucky;
-    newscript->pGossipSelect = &GossipSelect_npc_plucky;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name="npc_enraged_panther";
-    newscript->GetAI = &GetAI_npc_enraged_panther;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name="go_panther_cage";
-    newscript->pGOHello = &go_panther_cage;
-    newscript->RegisterSelf();
+    new npc_kanati();
+    new npc_lakota_windsong();
+    new npc_paoka_swiftmountain();
+    new npc_plucky();
+    new npc_enraged_panther();
+    new go_panther_cage();
 }
-

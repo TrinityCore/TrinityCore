@@ -61,150 +61,153 @@ enum eEnums
     EQUIP_ID_MACE                               = 49344,
     ACHIEV_DOESNT_GO_TO_ELEVEN                  = 4524,
 };
-
-struct boss_garfrostAI : public ScriptedAI
+class boss_garfrost : public CreatureScript
 {
-    boss_garfrostAI(Creature *c) : ScriptedAI(c)
+public:
+    boss_garfrost() : CreatureScript("boss_garfrost") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        pInstance = c->GetInstanceData();
+        return new boss_garfrostAI (pCreature);
     }
 
-    bool phase2;
-    bool phase3;
-    bool bAchievement;
-
-    ScriptedInstance* pInstance;
-    EventMap events;
-
-    void Reset()
+    struct boss_garfrostAI : public ScriptedAI
     {
-        events.Reset();
-
-        phase2 = false;
-        phase3 = false;
-        bAchievement = true;
-
-        if (pInstance)
-            pInstance->SetData(DATA_GARFROST_EVENT, NOT_STARTED);
-    }
-
-    void EnterCombat(Unit* /*who*/)
-    {
-        DoScriptText(SAY_AGGRO, me);
-        DoCast(me, SPELL_PERMAFROST);
-
-        if (pInstance)
-            pInstance->SetData(DATA_GARFROST_EVENT, IN_PROGRESS);
-
-        events.ScheduleEvent(EVENT_THROW_SARONITE, 45000);
-    }
-
-    void DamageTaken(Unit* /*pDoneBy*/, uint32& /*uiDamage*/)
-    {
-        if (HealthBelowPct(66) && !phase2)
+        boss_garfrostAI(Creature *c) : ScriptedAI(c)
         {
-            phase2 = true;
-            DoCast(me, SPELL_THUNDERING_STOMP);
-            // TODO: should go to a forge
-            DoCast(me, SPELL_FORGE_BLADE);
-            // TODO: should equip when spell completes
-            SetEquipmentSlots(false, EQUIP_ID_SWORD, -1, -1);
-            me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
-            events.ScheduleEvent(EVENT_CHILLINGWAVE, 10000);
+            pInstance = c->GetInstanceScript();
         }
 
-        if (HealthBelowPct(33) && !phase3)
+        bool phase2;
+        bool phase3;
+        bool bAchievement;
+
+        InstanceScript* pInstance;
+        EventMap events;
+
+        void Reset()
         {
-            phase3 = true;
-            DoCast(me, SPELL_THUNDERING_STOMP);
-            // TODO: should go to a forge
-            DoCast(me, SPELL_FORGE_MACE);
-            // TODO: should equip when spell completes
-            SetEquipmentSlots(false, EQUIP_ID_MACE, -1, -1);
-            me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
-            events.CancelEvent(EVENT_CHILLINGWAVE); // cast only in phase 2.
-            events.ScheduleEvent(EVENT_DEEPFREEZE, 10000);
+            events.Reset();
+
+            phase2 = false;
+            phase3 = false;
+            bAchievement = true;
+
+            if (pInstance)
+                pInstance->SetData(DATA_GARFROST_EVENT, NOT_STARTED);
         }
-    }
 
-    void KilledUnit(Unit * victim)
-    {
-        if (victim == me)
-            return;
-
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
-    }
-
-    void JustDied(Unit* /*killer*/)
-    {
-        DoScriptText(SAY_DEATH, me);
-        if (pInstance)
+        void EnterCombat(Unit* /*who*/)
         {
-            if (Creature *pTyrannus = me->GetCreature(*me, pInstance->GetData64(DATA_TYRANNUS)))
-                DoScriptText(SAY_TYRANNUS_DEATH, pTyrannus);
+            DoScriptText(SAY_AGGRO, me);
+            DoCast(me, SPELL_PERMAFROST);
 
-            pInstance->SetData(DATA_GARFROST_EVENT, DONE);
-            if (IsHeroic() && bAchievement)
-                pInstance->DoCompleteAchievement(ACHIEV_DOESNT_GO_TO_ELEVEN);
+            if (pInstance)
+                pInstance->SetData(DATA_GARFROST_EVENT, IN_PROGRESS);
+
+            events.ScheduleEvent(EVENT_THROW_SARONITE, 45000);
         }
-    }
 
-    void SpellHitTarget(Unit* pTarget, const SpellEntry *spell)
-    {
-        if (spell->Id == SPELL_PERMAFROST_TRIGGER && bAchievement)
+        void DamageTaken(Unit* /*pDoneBy*/, uint32& /*uiDamage*/)
         {
-            if (Aura *pAura = pTarget->GetAura(SPELL_PERMAFROST_TRIGGER))
-                if (pAura->GetStackAmount() > 10)
-                    bAchievement = false;
-        }
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        //Return since we have no target
-        if (!UpdateVictim())
-            return;
-
-        events.Update(diff);
-
-        if (me->hasUnitState(UNIT_STAT_CASTING))
-            return;
-
-        while (uint32 eventId = events.ExecuteEvent())
-        {
-            switch(eventId)
+            if (HealthBelowPct(66) && !phase2)
             {
-                case EVENT_THROW_SARONITE:
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget, SPELL_THROW_SARONITE);
-                    events.RescheduleEvent(EVENT_THROW_SARONITE, 35000);
-                    return;
-                case EVENT_DEEPFREEZE:
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget, SPELL_DEEP_FREEZE);
-                    events.RescheduleEvent(EVENT_DEEPFREEZE, 35000);
-                    return;
-                case EVENT_CHILLINGWAVE:
-                    DoCastAOE(SPELL_CHILLING_WAVE);
-                    events.RescheduleEvent(EVENT_CHILLINGWAVE, 40000);
-                    return;
+                phase2 = true;
+                DoCast(me, SPELL_THUNDERING_STOMP);
+                // TODO: should go to a forge
+                DoCast(me, SPELL_FORGE_BLADE);
+                // TODO: should equip when spell completes
+                SetEquipmentSlots(false, EQUIP_ID_SWORD, -1, -1);
+                me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
+                events.ScheduleEvent(EVENT_CHILLINGWAVE, 10000);
+            }
+
+            if (HealthBelowPct(33) && !phase3)
+            {
+                phase3 = true;
+                DoCast(me, SPELL_THUNDERING_STOMP);
+                // TODO: should go to a forge
+                DoCast(me, SPELL_FORGE_MACE);
+                // TODO: should equip when spell completes
+                SetEquipmentSlots(false, EQUIP_ID_MACE, -1, -1);
+                me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
+                events.CancelEvent(EVENT_CHILLINGWAVE); // cast only in phase 2.
+                events.ScheduleEvent(EVENT_DEEPFREEZE, 10000);
             }
         }
 
-        DoMeleeAttackIfReady();
-    }
+        void KilledUnit(Unit * victim)
+        {
+            if (victim == me)
+                return;
+
+            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            DoScriptText(SAY_DEATH, me);
+            if (pInstance)
+            {
+                if (Creature *pTyrannus = me->GetCreature(*me, pInstance->GetData64(DATA_TYRANNUS)))
+                    DoScriptText(SAY_TYRANNUS_DEATH, pTyrannus);
+
+                pInstance->SetData(DATA_GARFROST_EVENT, DONE);
+                if (IsHeroic() && bAchievement)
+                    pInstance->DoCompleteAchievement(ACHIEV_DOESNT_GO_TO_ELEVEN);
+            }
+        }
+
+        void SpellHitTarget(Unit* pTarget, const SpellEntry *spell)
+        {
+            if (spell->Id == SPELL_PERMAFROST_TRIGGER && bAchievement)
+            {
+                if (Aura *pAura = pTarget->GetAura(SPELL_PERMAFROST_TRIGGER))
+                    if (pAura->GetStackAmount() > 10)
+                        bAchievement = false;
+            }
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            //Return since we have no target
+            if (!UpdateVictim())
+                return;
+
+            events.Update(diff);
+
+            if (me->hasUnitState(UNIT_STAT_CASTING))
+                return;
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch(eventId)
+                {
+                    case EVENT_THROW_SARONITE:
+                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                            DoCast(pTarget, SPELL_THROW_SARONITE);
+                        events.RescheduleEvent(EVENT_THROW_SARONITE, 35000);
+                        return;
+                    case EVENT_DEEPFREEZE:
+                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                            DoCast(pTarget, SPELL_DEEP_FREEZE);
+                        events.RescheduleEvent(EVENT_DEEPFREEZE, 35000);
+                        return;
+                    case EVENT_CHILLINGWAVE:
+                        DoCastAOE(SPELL_CHILLING_WAVE);
+                        events.RescheduleEvent(EVENT_CHILLINGWAVE, 40000);
+                        return;
+                }
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_garfrost(Creature* pCreature)
-{
-    return new boss_garfrostAI (pCreature);
-}
 
 void AddSC_boss_garfrost()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name="boss_garfrost";
-    newscript->GetAI = &GetAI_boss_garfrost;
-    newscript->RegisterSelf();
+    new boss_garfrost();
 }

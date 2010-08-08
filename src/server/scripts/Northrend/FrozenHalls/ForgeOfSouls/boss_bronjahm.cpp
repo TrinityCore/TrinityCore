@@ -71,10 +71,10 @@ public:
     {
         boss_bronjahmAI(Creature *c) : ScriptedAI(c)
         {
-            pInstance = me->GetInstanceData();
+            pInstance = me->GetInstanceScript();
         }
 
-        ScriptedInstance* pInstance;
+        InstanceScript* pInstance;
         EventMap events;
 
         CombatPhases phase;
@@ -209,10 +209,10 @@ public:
     {
         mob_corrupted_soul_fragmentAI(Creature *c) : ScriptedAI(c)
         {
-            pInstance = me->GetInstanceData();
+            pInstance = me->GetInstanceScript();
         }
 
-        ScriptedInstance* pInstance;
+        InstanceScript* pInstance;
 
         uint32 uiCheckTimer;
 

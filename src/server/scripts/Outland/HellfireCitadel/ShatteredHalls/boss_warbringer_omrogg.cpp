@@ -164,10 +164,10 @@ class boss_warbringer_omrogg : public CreatureScript
             {
                 LeftHeadGUID  = 0;
                 RightHeadGUID = 0;
-                pInstance = pCreature->GetInstanceData();
+                pInstance = pCreature->GetInstanceScript();
             }
 
-            ScriptedInstance* pInstance;
+            InstanceScript* pInstance;
 
             uint64 LeftHeadGUID;
             uint64 RightHeadGUID;
@@ -414,7 +414,7 @@ class boss_warbringer_omrogg : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI_boss_warbringer_omrogg(Creature* pCreature)
+        CreatureAI* GetAI(Creature* pCreature) const
         {
             return new boss_warbringer_omroggAI (pCreature);
         }

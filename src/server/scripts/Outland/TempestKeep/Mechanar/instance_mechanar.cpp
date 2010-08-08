@@ -36,9 +36,9 @@ class instance_mechanar : public InstanceMapScript
         {
         }
         
-        struct instance_mechanar_InstanceMapScript : public ScriptedInstance
+        struct instance_mechanar_InstanceMapScript : public InstanceScript
         {
-            instance_mechanar_InstanceMapScript(Map* pMap) : ScriptedInstance(pMap) { Initialize(); };
+            instance_mechanar_InstanceMapScript(Map* pMap) : InstanceScript(pMap) { Initialize(); };
             
             uint32 m_auiEncounter[MAX_ENCOUNTER];
             
@@ -79,7 +79,7 @@ class instance_mechanar : public InstanceMapScript
                 }
             }
         };
-            InstanceData* GetInstanceData(InstanceMap* pMap) const
+            InstanceScript* GetInstanceScript(InstanceMap* pMap) const
             {
                 return new instance_mechanar_InstanceMapScript(pMap);
             }

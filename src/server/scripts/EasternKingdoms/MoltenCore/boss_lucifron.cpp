@@ -28,66 +28,68 @@ EndScriptData */
 #define SPELL_IMPENDINGDOOM 19702
 #define SPELL_LUCIFRONCURSE 19703
 #define SPELL_SHADOWSHOCK   20603
-
-struct boss_lucifronAI : public ScriptedAI
+class boss_lucifron : public CreatureScript
 {
-    boss_lucifronAI(Creature *c) : ScriptedAI(c) {}
+public:
+    boss_lucifron() : CreatureScript("boss_lucifron") { }
 
-    uint32 ImpendingDoom_Timer;
-    uint32 LucifronCurse_Timer;
-    uint32 ShadowShock_Timer;
-
-    void Reset()
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        ImpendingDoom_Timer = 10000;                        //Initial cast after 10 seconds so the debuffs alternate
-        LucifronCurse_Timer = 20000;                        //Initial cast after 20 seconds
-        ShadowShock_Timer = 6000;                           //6 seconds
+        return new boss_lucifronAI (pCreature);
     }
 
-    void EnterCombat(Unit * /*who*/)
+    struct boss_lucifronAI : public ScriptedAI
     {
-    }
+        boss_lucifronAI(Creature *c) : ScriptedAI(c) {}
 
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
+        uint32 ImpendingDoom_Timer;
+        uint32 LucifronCurse_Timer;
+        uint32 ShadowShock_Timer;
 
-        //Impending doom timer
-        if (ImpendingDoom_Timer <= diff)
+        void Reset()
         {
-            DoCast(me->getVictim(), SPELL_IMPENDINGDOOM);
-            ImpendingDoom_Timer = 20000;
-        } else ImpendingDoom_Timer -= diff;
+            ImpendingDoom_Timer = 10000;                        //Initial cast after 10 seconds so the debuffs alternate
+            LucifronCurse_Timer = 20000;                        //Initial cast after 20 seconds
+            ShadowShock_Timer = 6000;                           //6 seconds
+        }
 
-        //Lucifron's curse timer
-        if (LucifronCurse_Timer <= diff)
+        void EnterCombat(Unit * /*who*/)
         {
-            DoCast(me->getVictim(), SPELL_LUCIFRONCURSE);
-            LucifronCurse_Timer = 15000;
-        } else LucifronCurse_Timer -= diff;
+        }
 
-        //Shadowshock
-        if (ShadowShock_Timer <= diff)
+        void UpdateAI(const uint32 diff)
         {
-            DoCast(me->getVictim(), SPELL_SHADOWSHOCK);
-            ShadowShock_Timer = 6000;
-        } else ShadowShock_Timer -= diff;
+            if (!UpdateVictim())
+                return;
 
-        DoMeleeAttackIfReady();
-    }
+            //Impending doom timer
+            if (ImpendingDoom_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_IMPENDINGDOOM);
+                ImpendingDoom_Timer = 20000;
+            } else ImpendingDoom_Timer -= diff;
+
+            //Lucifron's curse timer
+            if (LucifronCurse_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_LUCIFRONCURSE);
+                LucifronCurse_Timer = 15000;
+            } else LucifronCurse_Timer -= diff;
+
+            //Shadowshock
+            if (ShadowShock_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_SHADOWSHOCK);
+                ShadowShock_Timer = 6000;
+            } else ShadowShock_Timer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
-CreatureAI* GetAI_boss_lucifron(Creature* pCreature)
-{
-    return new boss_lucifronAI (pCreature);
-}
 
 void AddSC_boss_lucifron()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_lucifron";
-    newscript->GetAI = &GetAI_boss_lucifron;
-    newscript->RegisterSelf();
+    new boss_lucifron();
 }
-

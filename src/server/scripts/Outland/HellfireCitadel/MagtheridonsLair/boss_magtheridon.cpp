@@ -217,7 +217,7 @@ class boss_magtheridon : public CreatureScript
         {
             boss_magtheridonAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceData();
+                pInstance = pCreature->GetInstanceScript();
                 me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
                 me->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
 
@@ -238,7 +238,7 @@ class boss_magtheridon : public CreatureScript
 
             CubeMap Cube;
 
-            ScriptedInstance* pInstance;
+            InstanceScript* pInstance;
 
             uint32 Berserk_Timer;
             uint32 Quake_Timer;
@@ -497,10 +497,10 @@ class mob_hellfire_channeler : public CreatureScript
         {
             mob_hellfire_channelerAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceData();
+                pInstance = pCreature->GetInstanceScript();
             }
 
-            ScriptedInstance* pInstance;
+            InstanceScript* pInstance;
 
             uint32 ShadowBoltVolley_Timer;
             uint32 DarkMending_Timer;
@@ -613,7 +613,7 @@ public:
 
     bool OnGossipHello(Player *pPlayer, GameObject * pGO)
     {
-        ScriptedInstance* pInstance = pGO->GetInstanceData();
+        InstanceScript* pInstance = pGO->GetInstanceScript();
 
         if (!pInstance)
             return true;

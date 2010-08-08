@@ -47,128 +47,130 @@ enum eSays
     SAY_QUAKE                                     = -1604016,
     EMOTE_TRANSFORM                               = -1604017
 };
-
-struct boss_moorabiAI : public ScriptedAI
+class boss_moorabi : public CreatureScript
 {
-    boss_moorabiAI(Creature* pCreature) : ScriptedAI(pCreature)
+public:
+    boss_moorabi() : CreatureScript("boss_moorabi") { }
+
+    CreatureAI* GetAI(Creature *pCreature)
     {
-        pInstance = pCreature->GetInstanceData();
+        return new boss_moorabiAI(pCreature);
     }
 
-    ScriptedInstance* pInstance;
-
-    bool bPhase;
-
-    uint32 uiNumblingShoutTimer;
-    uint32 uiGroundTremorTimer;
-    uint32 uiDeterminedStabTimer;
-    uint32 uiTransformationTImer;
-
-    void Reset()
+    struct boss_moorabiAI : public ScriptedAI
     {
-        uiGroundTremorTimer = 18*IN_MILLISECONDS;
-        uiNumblingShoutTimer =  10*IN_MILLISECONDS;
-        uiDeterminedStabTimer = 20*IN_MILLISECONDS;
-        uiTransformationTImer = 12*IN_MILLISECONDS;
-        bPhase = false;
-
-        if (pInstance)
-            pInstance->SetData(DATA_MOORABI_EVENT, NOT_STARTED);
-    }
-
-    void EnterCombat(Unit* /*pWho*/)
-    {
-        DoScriptText(SAY_AGGRO, me);
-        DoCast(me, SPELL_MOJO_FRENZY, true);
-
-        if (pInstance)
-            pInstance->SetData(DATA_MOORABI_EVENT, IN_PROGRESS);
-    }
-
-    void UpdateAI(const uint32 uiDiff)
-    {
-        //Return since we have no target
-         if (!UpdateVictim())
-             return;
-
-        if (!bPhase && me->HasAura(SPELL_TRANSFORMATION))
+        boss_moorabiAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            bPhase = true;
-            me->RemoveAura(SPELL_MOJO_FRENZY);
+            pInstance = pCreature->GetInstanceScript();
         }
 
-        if (uiGroundTremorTimer <= uiDiff)
+        InstanceScript* pInstance;
+
+        bool bPhase;
+
+        uint32 uiNumblingShoutTimer;
+        uint32 uiGroundTremorTimer;
+        uint32 uiDeterminedStabTimer;
+        uint32 uiTransformationTImer;
+
+        void Reset()
         {
-            DoScriptText(SAY_QUAKE, me);
-            if (bPhase)
-                DoCast(me->getVictim(), SPELL_QUAKE, true);
-            else
-                DoCast(me->getVictim(), SPELL_GROUND_TREMOR, true);
-            uiGroundTremorTimer = 10*IN_MILLISECONDS;
-        } else uiGroundTremorTimer -= uiDiff;
+            uiGroundTremorTimer = 18*IN_MILLISECONDS;
+            uiNumblingShoutTimer =  10*IN_MILLISECONDS;
+            uiDeterminedStabTimer = 20*IN_MILLISECONDS;
+            uiTransformationTImer = 12*IN_MILLISECONDS;
+            bPhase = false;
 
-        if (uiNumblingShoutTimer <= uiDiff)
-        {
-            if (bPhase)
-                DoCast(me->getVictim(), SPELL_NUMBING_ROAR, true);
-            else
-                DoCast(me->getVictim(), SPELL_NUMBING_SHOUT, true);
-            uiNumblingShoutTimer = 10*IN_MILLISECONDS;
-        } else uiNumblingShoutTimer -=uiDiff;
-
-        if (uiDeterminedStabTimer <= uiDiff)
-        {
-            if (bPhase)
-                DoCast(me->getVictim(), SPELL_DETERMINED_GORE);
-            else
-                DoCast(me->getVictim(), SPELL_DETERMINED_STAB, true);
-            uiDeterminedStabTimer = 8*IN_MILLISECONDS;
-        } else uiDeterminedStabTimer -=uiDiff;
-
-        if (!bPhase && uiTransformationTImer <= uiDiff)
-        {
-            DoScriptText(EMOTE_TRANSFORM, me);
-            DoScriptText(SAY_TRANSFORM, me);
-            DoCast(me, SPELL_TRANSFORMATION, false);
-            uiTransformationTImer = 10*IN_MILLISECONDS;
-        } else uiTransformationTImer -= uiDiff;
-
-        DoMeleeAttackIfReady();
-     }
-
-     void JustDied(Unit* /*pKiller*/)
-     {
-        DoScriptText(SAY_DEATH, me);
-
-        if (pInstance)
-        {
-            pInstance->SetData(DATA_MOORABI_EVENT, DONE);
-
-            if (IsHeroic() && !bPhase)
-                pInstance->DoCompleteAchievement(ACHIEV_LESS_RABI);
+            if (pInstance)
+                pInstance->SetData(DATA_MOORABI_EVENT, NOT_STARTED);
         }
-    }
 
-    void KilledUnit(Unit* pVictim)
-    {
-        if (pVictim == me)
-            return;
+        void EnterCombat(Unit* /*pWho*/)
+        {
+            DoScriptText(SAY_AGGRO, me);
+            DoCast(me, SPELL_MOJO_FRENZY, true);
 
-        DoScriptText(RAND(SAY_SLAY_2,SAY_SLAY_3), me);
-    }
+            if (pInstance)
+                pInstance->SetData(DATA_MOORABI_EVENT, IN_PROGRESS);
+        }
+
+        void UpdateAI(const uint32 uiDiff)
+        {
+            //Return since we have no target
+             if (!UpdateVictim())
+                 return;
+
+            if (!bPhase && me->HasAura(SPELL_TRANSFORMATION))
+            {
+                bPhase = true;
+                me->RemoveAura(SPELL_MOJO_FRENZY);
+            }
+
+            if (uiGroundTremorTimer <= uiDiff)
+            {
+                DoScriptText(SAY_QUAKE, me);
+                if (bPhase)
+                    DoCast(me->getVictim(), SPELL_QUAKE, true);
+                else
+                    DoCast(me->getVictim(), SPELL_GROUND_TREMOR, true);
+                uiGroundTremorTimer = 10*IN_MILLISECONDS;
+            } else uiGroundTremorTimer -= uiDiff;
+
+            if (uiNumblingShoutTimer <= uiDiff)
+            {
+                if (bPhase)
+                    DoCast(me->getVictim(), SPELL_NUMBING_ROAR, true);
+                else
+                    DoCast(me->getVictim(), SPELL_NUMBING_SHOUT, true);
+                uiNumblingShoutTimer = 10*IN_MILLISECONDS;
+            } else uiNumblingShoutTimer -=uiDiff;
+
+            if (uiDeterminedStabTimer <= uiDiff)
+            {
+                if (bPhase)
+                    DoCast(me->getVictim(), SPELL_DETERMINED_GORE);
+                else
+                    DoCast(me->getVictim(), SPELL_DETERMINED_STAB, true);
+                uiDeterminedStabTimer = 8*IN_MILLISECONDS;
+            } else uiDeterminedStabTimer -=uiDiff;
+
+            if (!bPhase && uiTransformationTImer <= uiDiff)
+            {
+                DoScriptText(EMOTE_TRANSFORM, me);
+                DoScriptText(SAY_TRANSFORM, me);
+                DoCast(me, SPELL_TRANSFORMATION, false);
+                uiTransformationTImer = 10*IN_MILLISECONDS;
+            } else uiTransformationTImer -= uiDiff;
+
+            DoMeleeAttackIfReady();
+         }
+
+         void JustDied(Unit* /*pKiller*/)
+         {
+            DoScriptText(SAY_DEATH, me);
+
+            if (pInstance)
+            {
+                pInstance->SetData(DATA_MOORABI_EVENT, DONE);
+
+                if (IsHeroic() && !bPhase)
+                    pInstance->DoCompleteAchievement(ACHIEV_LESS_RABI);
+            }
+        }
+
+        void KilledUnit(Unit* pVictim)
+        {
+            if (pVictim == me)
+                return;
+
+            DoScriptText(RAND(SAY_SLAY_2,SAY_SLAY_3), me);
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_moorabi(Creature *pCreature)
-{
-    return new boss_moorabiAI(pCreature);
-}
 
 void AddSC_boss_moorabi()
 {
-    Script* newscript;
-
-    newscript = new Script;
-    newscript->Name = "boss_moorabi";
-    newscript->GetAI = &GetAI_boss_moorabi;
-    newscript->RegisterSelf();
+    new boss_moorabi();
 }

@@ -199,7 +199,7 @@ class example_escort : public CreatureScript
 
         bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
         {
-            npc_escortAI* pEscortAI = CAST_AI(example_escortAI, creature->AI());
+            npc_escortAI* pEscortAI = CAST_AI(example_escort::example_escortAI, creature->AI());
 
             switch(action)
             {

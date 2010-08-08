@@ -62,152 +62,155 @@ enum Events
     EVENT_WAVE,
     EVENT_GROUND,
 };
-
-struct boss_nothAI : public BossAI
+class boss_noth : public CreatureScript
 {
-    boss_nothAI(Creature *c) : BossAI(c, BOSS_NOTH) {}
+public:
+    boss_noth() : CreatureScript("boss_noth") { }
 
-    uint32 waveCount, balconyCount;
-
-    void Reset()
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        me->SetReactState(REACT_AGGRESSIVE);
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        _Reset();
+        return new boss_nothAI (pCreature);
     }
 
-    void EnterCombat(Unit * /*who*/)
+    struct boss_nothAI : public BossAI
     {
-        _EnterCombat();
-        DoScriptText(SAY_AGGRO, me);
-        balconyCount = 0;
-        EnterPhaseGround();
-    }
+        boss_nothAI(Creature *c) : BossAI(c, BOSS_NOTH) {}
 
-    void EnterPhaseGround()
-    {
-        me->SetReactState(REACT_AGGRESSIVE);
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        DoZoneInCombat();
-        if (me->getThreatManager().isThreatListEmpty())
-            EnterEvadeMode();
-        else
+        uint32 waveCount, balconyCount;
+
+        void Reset()
         {
-            events.ScheduleEvent(EVENT_BALCONY, 110000);
-            events.ScheduleEvent(EVENT_CURSE, 10000+rand()%15000);
-            events.ScheduleEvent(EVENT_WARRIOR, 30000);
-            if (getDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
-                events.ScheduleEvent(EVENT_BLINK, 20000 + rand()%20000);
+            me->SetReactState(REACT_AGGRESSIVE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            _Reset();
         }
-    }
 
-    void KilledUnit(Unit* /*victim*/)
-    {
-        if (!(rand()%5))
-            DoScriptText(SAY_SLAY, me);
-    }
-
-    void JustSummoned(Creature *summon)
-    {
-        summons.Summon(summon);
-        summon->setActive(true);
-        summon->AI()->DoZoneInCombat();
-    }
-
-    void JustDied(Unit* /*Killer*/)
-    {
-        _JustDied();
-        DoScriptText(SAY_DEATH, me);
-    }
-
-    void SummonUndead(uint32 entry, uint32 num)
-    {
-        for (uint32 i = 0; i < num; ++i)
+        void EnterCombat(Unit * /*who*/)
         {
-            uint32 pos = rand()%MAX_SUMMON_POS;
-            me->SummonCreature(entry, SummonPos[pos][0], SummonPos[pos][1], SummonPos[pos][2],
-                SummonPos[pos][3], TEMPSUMMON_CORPSE_DESPAWN, 60000);
+            _EnterCombat();
+            DoScriptText(SAY_AGGRO, me);
+            balconyCount = 0;
+            EnterPhaseGround();
         }
-    }
 
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateCombatState() || !CheckInRoom())
-            return;
-
-        events.Update(diff);
-
-        while (uint32 eventId = events.ExecuteEvent())
+        void EnterPhaseGround()
         {
-            switch(eventId)
+            me->SetReactState(REACT_AGGRESSIVE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            DoZoneInCombat();
+            if (me->getThreatManager().isThreatListEmpty())
+                EnterEvadeMode();
+            else
             {
-                case EVENT_CURSE:
-                    DoCastAOE(SPELL_CURSE_PLAGUEBRINGER);
-                    events.ScheduleEvent(EVENT_CURSE, 50000 + rand()%10000);
-                    return;
-                case EVENT_WARRIOR:
-                    DoScriptText(SAY_SUMMON, me);
-                    SummonUndead(MOB_WARRIOR, RAID_MODE(2,3));
-                    events.ScheduleEvent(EVENT_WARRIOR, 30000);
-                    return;
-                case EVENT_BLINK:
-                    DoCastAOE(SPELL_CRIPPLE, true);
-                    DoCastAOE(SPELL_BLINK);
-                    DoResetThreat();
-                    events.ScheduleEvent(EVENT_BLINK, 40000);
-                    return;
-                case EVENT_BALCONY:
-                    me->SetReactState(REACT_PASSIVE);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    me->AttackStop();
-                    me->RemoveAllAuras();
-                    me->NearTeleportTo(TELE_X, TELE_Y, TELE_Z, TELE_O);
-                    events.Reset();
-                    events.ScheduleEvent(EVENT_WAVE, 2000 + rand()%3000);
-                    waveCount = 0;
-                    return;
-                case EVENT_WAVE:
-                    DoScriptText(SAY_SUMMON, me);
-                    switch(balconyCount)
-                    {
-                        case 0: SummonUndead(MOB_CHAMPION, RAID_MODE(2,4)); break;
-                        case 1: SummonUndead(MOB_CHAMPION, RAID_MODE(1,2));
-                                SummonUndead(MOB_GUARDIAN, RAID_MODE(1,2)); break;
-                        case 2: SummonUndead(MOB_GUARDIAN, RAID_MODE(2,4)); break;
-                        default:SummonUndead(MOB_CHAMPION, RAID_MODE(5,10));
-                                SummonUndead(MOB_GUARDIAN, RAID_MODE(5,10));break;
-                    }
-                    ++waveCount;
-                    events.ScheduleEvent(waveCount < 2 ? EVENT_WAVE : EVENT_GROUND, 30000 + rand()%15000);
-                    return;
-                case EVENT_GROUND:
-                {
-                    ++balconyCount;
-                    float x, y, z, o;
-                    me->GetHomePosition(x, y, z, o);
-                    me->NearTeleportTo(x, y, z, o);
-                    events.ScheduleEvent(EVENT_BALCONY, 110000);
-                    EnterPhaseGround();
-                    return;
-                }
+                events.ScheduleEvent(EVENT_BALCONY, 110000);
+                events.ScheduleEvent(EVENT_CURSE, 10000+rand()%15000);
+                events.ScheduleEvent(EVENT_WARRIOR, 30000);
+                if (getDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
+                    events.ScheduleEvent(EVENT_BLINK, 20000 + rand()%20000);
             }
         }
 
-        if (me->HasReactState(REACT_AGGRESSIVE))
-            DoMeleeAttackIfReady();
-    }
+        void KilledUnit(Unit* /*victim*/)
+        {
+            if (!(rand()%5))
+                DoScriptText(SAY_SLAY, me);
+        }
+
+        void JustSummoned(Creature *summon)
+        {
+            summons.Summon(summon);
+            summon->setActive(true);
+            summon->AI()->DoZoneInCombat();
+        }
+
+        void JustDied(Unit* /*Killer*/)
+        {
+            _JustDied();
+            DoScriptText(SAY_DEATH, me);
+        }
+
+        void SummonUndead(uint32 entry, uint32 num)
+        {
+            for (uint32 i = 0; i < num; ++i)
+            {
+                uint32 pos = rand()%MAX_SUMMON_POS;
+                me->SummonCreature(entry, SummonPos[pos][0], SummonPos[pos][1], SummonPos[pos][2],
+                    SummonPos[pos][3], TEMPSUMMON_CORPSE_DESPAWN, 60000);
+            }
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateCombatState() || !CheckInRoom())
+                return;
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch(eventId)
+                {
+                    case EVENT_CURSE:
+                        DoCastAOE(SPELL_CURSE_PLAGUEBRINGER);
+                        events.ScheduleEvent(EVENT_CURSE, 50000 + rand()%10000);
+                        return;
+                    case EVENT_WARRIOR:
+                        DoScriptText(SAY_SUMMON, me);
+                        SummonUndead(MOB_WARRIOR, RAID_MODE(2,3));
+                        events.ScheduleEvent(EVENT_WARRIOR, 30000);
+                        return;
+                    case EVENT_BLINK:
+                        DoCastAOE(SPELL_CRIPPLE, true);
+                        DoCastAOE(SPELL_BLINK);
+                        DoResetThreat();
+                        events.ScheduleEvent(EVENT_BLINK, 40000);
+                        return;
+                    case EVENT_BALCONY:
+                        me->SetReactState(REACT_PASSIVE);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->AttackStop();
+                        me->RemoveAllAuras();
+                        me->NearTeleportTo(TELE_X, TELE_Y, TELE_Z, TELE_O);
+                        events.Reset();
+                        events.ScheduleEvent(EVENT_WAVE, 2000 + rand()%3000);
+                        waveCount = 0;
+                        return;
+                    case EVENT_WAVE:
+                        DoScriptText(SAY_SUMMON, me);
+                        switch(balconyCount)
+                        {
+                            case 0: SummonUndead(MOB_CHAMPION, RAID_MODE(2,4)); break;
+                            case 1: SummonUndead(MOB_CHAMPION, RAID_MODE(1,2));
+                                    SummonUndead(MOB_GUARDIAN, RAID_MODE(1,2)); break;
+                            case 2: SummonUndead(MOB_GUARDIAN, RAID_MODE(2,4)); break;
+                            default:SummonUndead(MOB_CHAMPION, RAID_MODE(5,10));
+                                    SummonUndead(MOB_GUARDIAN, RAID_MODE(5,10));break;
+                        }
+                        ++waveCount;
+                        events.ScheduleEvent(waveCount < 2 ? EVENT_WAVE : EVENT_GROUND, 30000 + rand()%15000);
+                        return;
+                    case EVENT_GROUND:
+                    {
+                        ++balconyCount;
+                        float x, y, z, o;
+                        me->GetHomePosition(x, y, z, o);
+                        me->NearTeleportTo(x, y, z, o);
+                        events.ScheduleEvent(EVENT_BALCONY, 110000);
+                        EnterPhaseGround();
+                        return;
+                    }
+                }
+            }
+
+            if (me->HasReactState(REACT_AGGRESSIVE))
+                DoMeleeAttackIfReady();
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_noth(Creature* pCreature)
-{
-    return new boss_nothAI (pCreature);
-}
 
 void AddSC_boss_noth()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_noth";
-    newscript->GetAI = &GetAI_boss_noth;
-    newscript->RegisterSelf();
+    new boss_noth();
 }

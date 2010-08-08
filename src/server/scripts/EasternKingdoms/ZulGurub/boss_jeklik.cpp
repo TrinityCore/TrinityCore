@@ -56,10 +56,10 @@ class boss_jeklik : public CreatureScript
         {
             boss_jeklikAI(Creature *c) : ScriptedAI(c)
             {
-                m_pInstance = c->GetInstanceData();
+                m_pInstance = c->GetInstanceScript();
             }
 
-            ScriptedInstance *m_pInstance;
+            InstanceScript *m_pInstance;
 
             uint32 Charge_Timer;
             uint32 SonicBurst_Timer;
@@ -238,10 +238,10 @@ class mob_batrider : public CreatureScript
         {
             mob_batriderAI(Creature *c) : ScriptedAI(c)
             {
-                m_pInstance = c->GetInstanceData();
+                m_pInstance = c->GetInstanceScript();
             }
 
-            ScriptedInstance *m_pInstance;
+            InstanceScript *m_pInstance;
 
             uint32 Bomb_Timer;
             uint32 Check_Timer;

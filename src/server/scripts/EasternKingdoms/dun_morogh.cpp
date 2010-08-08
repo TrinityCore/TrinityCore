@@ -35,70 +35,72 @@ EndContentData */
 
 // signed for 6172
 #define SAY_HEAL -1100280
-
-struct npc_narm_faulkAI : public ScriptedAI
+class npc_narm_faulk : public CreatureScript
 {
-    uint32 lifeTimer;
-    bool spellHit;
+public:
+    npc_narm_faulk() : CreatureScript("npc_narm_faulk") { }
 
-    npc_narm_faulkAI(Creature *c) : ScriptedAI(c) {}
-
-    void Reset()
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        lifeTimer = 120000;
-        me->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
-        me->SetStandState(UNIT_STAND_STATE_DEAD);
-        spellHit = false;
+        return new npc_narm_faulkAI (pCreature);
     }
 
-    void EnterCombat(Unit * /*who*/)
+    struct npc_narm_faulkAI : public ScriptedAI
     {
-    }
+        uint32 lifeTimer;
+        bool spellHit;
 
-    void MoveInLineOfSight(Unit * /*who*/)
-    {
-        return;
-    }
+        npc_narm_faulkAI(Creature *c) : ScriptedAI(c) {}
 
-    void UpdateAI(const uint32 diff)
-    {
-       if (me->IsStandState())
+        void Reset()
         {
-            if (lifeTimer <= diff)
+            lifeTimer = 120000;
+            me->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+            me->SetStandState(UNIT_STAND_STATE_DEAD);
+            spellHit = false;
+        }
+
+        void EnterCombat(Unit * /*who*/)
+        {
+        }
+
+        void MoveInLineOfSight(Unit * /*who*/)
+        {
+            return;
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+           if (me->IsStandState())
             {
-                EnterEvadeMode();
-                return;
+                if (lifeTimer <= diff)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+                else
+                    lifeTimer -= diff;
             }
-            else
-                lifeTimer -= diff;
         }
-    }
 
-    void SpellHit(Unit * /*Hitter*/, const SpellEntry *Spellkind)
-    {
-        if (Spellkind->Id == 8593 && !spellHit)
+        void SpellHit(Unit * /*Hitter*/, const SpellEntry *Spellkind)
         {
-            DoCast(me, 32343);
-            me->SetStandState(UNIT_STAND_STATE_STAND);
-            me->SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);
-            //me->RemoveAllAuras();
-            DoScriptText(SAY_HEAL, me);
-            spellHit = true;
+            if (Spellkind->Id == 8593 && !spellHit)
+            {
+                DoCast(me, 32343);
+                me->SetStandState(UNIT_STAND_STATE_STAND);
+                me->SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);
+                //me->RemoveAllAuras();
+                DoScriptText(SAY_HEAL, me);
+                spellHit = true;
+            }
         }
-    }
+
+    };
 
 };
-CreatureAI* GetAI_npc_narm_faulk(Creature* pCreature)
-{
-    return new npc_narm_faulkAI (pCreature);
-}
 
 void AddSC_dun_morogh()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "npc_narm_faulk";
-    newscript->GetAI = &GetAI_npc_narm_faulk;
-    newscript->RegisterSelf();
+    new npc_narm_faulk();
 }

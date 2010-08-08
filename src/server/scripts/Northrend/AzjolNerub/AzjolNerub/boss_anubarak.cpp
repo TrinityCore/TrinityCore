@@ -95,10 +95,10 @@ public:
     {
         boss_anub_arakAI(Creature *c) : ScriptedAI(c), lSummons(me)
         {
-            pInstance = c->GetInstanceData();
+            pInstance = c->GetInstanceScript();
         }
 
-        ScriptedInstance *pInstance;
+        InstanceScript *pInstance;
 
         bool bChanneling;
         bool bGuardianSummoned;

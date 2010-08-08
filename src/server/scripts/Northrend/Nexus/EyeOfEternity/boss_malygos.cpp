@@ -104,89 +104,91 @@ enum
 {
     ACHIEV_TIMED_START_EVENT                      = 20387,
 };
-
-struct boss_malygosAI : public ScriptedAI
+class boss_malygos : public CreatureScript
 {
-    boss_malygosAI(Creature *c) : ScriptedAI(c)
+public:
+    boss_malygos() : CreatureScript("boss_malygos") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        instance = me->GetInstanceData();
+        return new boss_malygosAI (pCreature);
     }
 
-    InstanceData *instance;
-
-    uint32 phase;
-    uint32 enrage;
-
-    void Reset()
+    struct boss_malygosAI : public ScriptedAI
     {
-        phase = 1;
-        enrage = 615000;    //Source Deadly Boss Mod
-
-        if (instance)
-            instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
-    }
-
-    void EnterCombat(Unit* /*who*/)
-    {
-        if (phase == 1)
+        boss_malygosAI(Creature *c) : ScriptedAI(c)
         {
-            DoScriptText(SAY_PHASE1_AGGRO, me);
+            instance = me->GetInstanceScript();
+        }
+
+        InstanceScript *instance;
+
+        uint32 phase;
+        uint32 enrage;
+
+        void Reset()
+        {
+            phase = 1;
+            enrage = 615000;    //Source Deadly Boss Mod
+
             if (instance)
-                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
-        if (phase == 2)
-            DoScriptText(SAY_PHASE1_AGGRO, me);
-        if (phase == 3)
-            DoScriptText(SAY_PHASE1_AGGRO, me);
-    }
+        void EnterCombat(Unit* /*who*/)
+        {
+            if (phase == 1)
+            {
+                DoScriptText(SAY_PHASE1_AGGRO, me);
+                if (instance)
+                    instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+            }
 
-    void UpdateAI(const uint32 /*diff*/)
-    {
-        //Return since we have no target
-        if (!UpdateVictim())
-            return;
-
-        if (phase == 1 && HealthBelowPct(50)) {
-            phase = 2;
-            //spawn adds
-            //set malygos unatackable untill all adds spawned dead
-            //start phase3
+            if (phase == 2)
+                DoScriptText(SAY_PHASE1_AGGRO, me);
+            if (phase == 3)
+                DoScriptText(SAY_PHASE1_AGGRO, me);
         }
 
-        DoMeleeAttackIfReady();
-    }
+        void UpdateAI(const uint32 /*diff*/)
+        {
+            //Return since we have no target
+            if (!UpdateVictim())
+                return;
 
-    void JustDied(Unit* /*killer*/)
-    {
-        DoScriptText(SAY_DEATH, me);
-    }
+            if (phase == 1 && HealthBelowPct(50)) {
+                phase = 2;
+                //spawn adds
+                //set malygos unatackable untill all adds spawned dead
+                //start phase3
+            }
 
-    void KilledUnit(Unit * victim)
-    {
-        if (victim == me)
-            return;
+            DoMeleeAttackIfReady();
+        }
 
-        if (phase == 1)
-            DoScriptText(RAND(SAY_PHASE1_SLAY_1,SAY_PHASE1_SLAY_2,SAY_PHASE1_SLAY_3), me);
-        if (phase == 2)
-            DoScriptText(RAND(SAY_PHASE2_SLAY_1,SAY_PHASE2_SLAY_2,SAY_PHASE2_SLAY_3), me);
-        if (phase == 3)
-            DoScriptText(RAND(SAY_PHASE3_SLAY_1,SAY_PHASE3_SLAY_2,SAY_PHASE3_SLAY_3), me);
-    }
+        void JustDied(Unit* /*killer*/)
+        {
+            DoScriptText(SAY_DEATH, me);
+        }
+
+        void KilledUnit(Unit * victim)
+        {
+            if (victim == me)
+                return;
+
+            if (phase == 1)
+                DoScriptText(RAND(SAY_PHASE1_SLAY_1,SAY_PHASE1_SLAY_2,SAY_PHASE1_SLAY_3), me);
+            if (phase == 2)
+                DoScriptText(RAND(SAY_PHASE2_SLAY_1,SAY_PHASE2_SLAY_2,SAY_PHASE2_SLAY_3), me);
+            if (phase == 3)
+                DoScriptText(RAND(SAY_PHASE3_SLAY_1,SAY_PHASE3_SLAY_2,SAY_PHASE3_SLAY_3), me);
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_malygos(Creature* pCreature)
-{
-    return new boss_malygosAI (pCreature);
-}
 
 void AddSC_boss_malygos()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "boss_malygos";
-    newscript->GetAI = &GetAI_boss_malygos;
-    newscript->RegisterSelf();
+    new boss_malygos();
 }

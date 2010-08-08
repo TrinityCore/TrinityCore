@@ -37,7 +37,7 @@
 #include "CreatureAISelector.h"
 #include "Formulas.h"
 #include "WaypointMovementGenerator.h"
-#include "InstanceData.h"
+#include "InstanceScript.h"
 #include "BattlegroundMgr.h"
 #include "Util.h"
 #include "GridNotifiers.h"

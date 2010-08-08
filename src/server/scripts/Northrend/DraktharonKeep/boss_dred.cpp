@@ -55,7 +55,7 @@ public:
     {
         boss_dredAI(Creature *c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceData();
+            pInstance = c->GetInstanceScript();
         }
 
         uint32 uiBellowingRoarTimer;
@@ -65,7 +65,7 @@ public:
         uint32 uiPiercingSlashTimer;
         uint32 uiRaptorCallTimer;
 
-        ScriptedInstance* pInstance;
+        InstanceScript* pInstance;
 
         void Reset()
         {
@@ -167,10 +167,10 @@ public:
     {
         npc_drakkari_gutripperAI(Creature *c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceData();
+            pInstance = c->GetInstanceScript();
         }
 
-        ScriptedInstance* pInstance;
+        InstanceScript* pInstance;
 
         uint32 GutRipTimer;
 
@@ -221,10 +221,10 @@ public:
     {
         npc_drakkari_scytheclawAI(Creature *c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceData();
+            pInstance = c->GetInstanceScript();
         }
 
-        ScriptedInstance* pInstance;
+        InstanceScript* pInstance;
 
         uint32 uiRendTimer;
 

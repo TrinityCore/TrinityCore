@@ -42,75 +42,76 @@ enum eMist
     NPC_ARYNIA              = 3519,
     FACTION_DARNASSUS       = 79
 };
-
-struct npc_mistAI : public FollowerAI
+class npc_mist : public CreatureScript
 {
-    npc_mistAI(Creature* pCreature) : FollowerAI(pCreature) { }
+public:
+    npc_mist() : CreatureScript("npc_mist") { }
 
-    void Reset() { }
-
-    void MoveInLineOfSight(Unit *pWho)
+    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
     {
-        FollowerAI::MoveInLineOfSight(pWho);
-
-        if (!me->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && pWho->GetEntry() == NPC_ARYNIA)
+        if (pQuest->GetQuestId() == QUEST_MIST)
         {
-            if (me->IsWithinDistInMap(pWho, 10.0f))
+            if (npc_mistAI* pMistAI = CAST_AI(npc_mist::npc_mistAI, pCreature->AI()))
+                pMistAI->StartFollow(pPlayer, FACTION_DARNASSUS, pQuest);
+        }
+
+        return true;
+    }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_mistAI(pCreature);
+    }
+
+    struct npc_mistAI : public FollowerAI
+    {
+        npc_mistAI(Creature* pCreature) : FollowerAI(pCreature) { }
+
+        void Reset() { }
+
+        void MoveInLineOfSight(Unit *pWho)
+        {
+            FollowerAI::MoveInLineOfSight(pWho);
+
+            if (!me->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && pWho->GetEntry() == NPC_ARYNIA)
             {
-                DoScriptText(SAY_AT_HOME, pWho);
-                DoComplete();
+                if (me->IsWithinDistInMap(pWho, 10.0f))
+                {
+                    DoScriptText(SAY_AT_HOME, pWho);
+                    DoComplete();
+                }
             }
         }
-    }
 
-    void DoComplete()
-    {
-        DoScriptText(EMOTE_AT_HOME, me);
-
-        if (Player* pPlayer = GetLeaderForFollower())
+        void DoComplete()
         {
-            if (pPlayer->GetQuestStatus(QUEST_MIST) == QUEST_STATUS_INCOMPLETE)
-                pPlayer->GroupEventHappens(QUEST_MIST, me);
+            DoScriptText(EMOTE_AT_HOME, me);
+
+            if (Player* pPlayer = GetLeaderForFollower())
+            {
+                if (pPlayer->GetQuestStatus(QUEST_MIST) == QUEST_STATUS_INCOMPLETE)
+                    pPlayer->GroupEventHappens(QUEST_MIST, me);
+            }
+
+            //The follow is over (and for later development, run off to the woods before really end)
+            SetFollowComplete();
         }
 
-        //The follow is over (and for later development, run off to the woods before really end)
-        SetFollowComplete();
-    }
+        //call not needed here, no known abilities
+        /*void UpdateFollowerAI(const uint32 uiDiff)
+        {
+            if (!UpdateVictim())
+                return;
 
-    //call not needed here, no known abilities
-    /*void UpdateFollowerAI(const uint32 uiDiff)
-    {
-        if (!UpdateVictim())
-            return;
+            DoMeleeAttackIfReady();
+        }*/
+    };
 
-        DoMeleeAttackIfReady();
-    }*/
 };
 
-CreatureAI* GetAI_npc_mist(Creature* pCreature)
-{
-    return new npc_mistAI(pCreature);
-}
 
-bool QuestAccept_npc_mist(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
-{
-    if (pQuest->GetQuestId() == QUEST_MIST)
-    {
-        if (npc_mistAI* pMistAI = CAST_AI(npc_mistAI, pCreature->AI()))
-            pMistAI->StartFollow(pPlayer, FACTION_DARNASSUS, pQuest);
-    }
-
-    return true;
-}
 
 void AddSC_teldrassil()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "npc_mist";
-    newscript->GetAI = &GetAI_npc_mist;
-    newscript->pQuestAccept = &QuestAccept_npc_mist;
-    newscript->RegisterSelf();
+    new npc_mist();
 }
-

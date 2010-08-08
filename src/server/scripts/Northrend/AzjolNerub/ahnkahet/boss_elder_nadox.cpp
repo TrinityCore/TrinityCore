@@ -64,7 +64,7 @@ public:
     {
         boss_elder_nadoxAI(Creature *c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceData();
+            pInstance = c->GetInstanceScript();
         }
 
         uint32 uiPlagueTimer;
@@ -76,7 +76,7 @@ public:
 
         bool bGuardSpawned;
 
-        ScriptedInstance *pInstance;
+        InstanceScript *pInstance;
 
         void Reset()
         {
@@ -197,10 +197,10 @@ public:
     {
         mob_ahnkahar_nerubianAI(Creature *c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceData();
+            pInstance = c->GetInstanceScript();
         }
 
-        ScriptedInstance *pInstance;
+        InstanceScript *pInstance;
         uint32 uiSprintTimer;
 
         void Reset()

@@ -91,10 +91,10 @@ class boss_grand_warlock_nethekurse : public CreatureScript
         {
             boss_grand_warlock_nethekurseAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceData();
+                pInstance = pCreature->GetInstanceScript();
             }
 
-            ScriptedInstance* pInstance;
+            InstanceScript* pInstance;
 
             bool IntroOnce;
             bool IsIntroEvent;
@@ -321,10 +321,10 @@ class mob_fel_orc_convert : public CreatureScript
         {
             mob_fel_orc_convertAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceData();
+                pInstance = pCreature->GetInstanceScript();
             }
 
-            ScriptedInstance* pInstance;
+            InstanceScript* pInstance;
             uint32 Hemorrhage_Timer;
 
             void Reset()
@@ -410,7 +410,7 @@ class mob_lesser_shadow_fissure : public CreatureScript
             void EnterCombat(Unit* /*who*/) {}
         };
 
-        CreatureAI* GetAI_mob_lesser_shadow_fissure(Creature* pCreature)
+        CreatureAI* GetAI(Creature* pCreature) const
         {
             return new mob_lesser_shadow_fissureAI (pCreature);
         }
