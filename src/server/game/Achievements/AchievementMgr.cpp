@@ -2098,7 +2098,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
 {
     m_criteriaDataMap.clear();                              // need for reload case
 
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT criteria_id, type, value1, value2 FROM achievement_criteria_data");
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT criteria_id, type, value1, value2, ScriptName FROM achievement_criteria_data");
 
     if (!result)
     {
@@ -2129,7 +2129,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
         uint32 dataType = fields[1].GetUInt32();
         const char* scriptName = fields[4].GetString();
         uint32 scriptId = 0;
-        if (scriptName)
+        if (scriptName != "")
         {
             if (dataType != ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT)
                 sLog.outErrorDb("Table `achievement_criteria_data` has ScriptName set for non-scripted data type (Entry: %u, type %u), useless data.", criteria_id, dataType);
