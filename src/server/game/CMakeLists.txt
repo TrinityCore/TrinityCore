@@ -90,14 +90,11 @@ set(game_STAT_SRCS
   ${sources_World}
 )
 
-if( MSVC )
-  set(sources_PrecompiledHeaders 
-    PrecompiledHeaders/gamePCH.cpp
-    PrecompiledHeaders/gamePCH.h
-  )
+if(MSVC)
   set(game_STAT_SRCS
     ${game_STAT_SRCS}
-    ${sources_PrecompiledHeaders}
+    PrecompiledHeaders/gamePCH.cpp
+    PrecompiledHeaders/gamePCH.h
   )
 endif()
 
@@ -190,6 +187,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Tools
   ${CMAKE_SOURCE_DIR}/src/server/game/Weather
   ${CMAKE_SOURCE_DIR}/src/server/game/World
+  ${CMAKE_SOURCE_DIR}/src/server/scripts/PrecompiledHeaders
 )
 
 add_library(game STATIC ${game_STAT_SRCS})
