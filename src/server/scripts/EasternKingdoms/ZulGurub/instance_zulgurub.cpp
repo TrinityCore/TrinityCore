@@ -30,7 +30,7 @@ class instance_zulgurub : public InstanceMapScript
 {
     public:
         instance_zulgurub()
-            : InstanceMapScript("instance_zulgurub")
+            : InstanceMapScript("instance_zulgurub", 309)
         {
         }
 

@@ -30,7 +30,7 @@
 class instance_archavon : public InstanceMapScript
 {
 public:
-    instance_archavon() : InstanceMapScript("instance_archavon") { }
+    instance_archavon() : InstanceMapScript("instance_archavon", 624) { }
 
     InstanceScript* GetInstanceData_InstanceMapScript(Map* map)
     {

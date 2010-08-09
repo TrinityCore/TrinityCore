@@ -64,7 +64,7 @@ public:
 class instance_steam_vault : public InstanceMapScript
 {
 public:
-    instance_steam_vault() : InstanceMapScript("instance_steam_vault") { }
+    instance_steam_vault() : InstanceMapScript("instance_steam_vault", 545) { }
 
     InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
     {

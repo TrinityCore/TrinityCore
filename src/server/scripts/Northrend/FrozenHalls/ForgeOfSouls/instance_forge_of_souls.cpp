@@ -28,7 +28,7 @@
 class instance_forge_of_souls : public InstanceMapScript
 {
 public:
-    instance_forge_of_souls() : InstanceMapScript("instance_forge_of_souls") { }
+    instance_forge_of_souls() : InstanceMapScript("instance_forge_of_souls", 632) { }
 
     struct instance_forge_of_souls_InstanceScript : public InstanceScript
     {

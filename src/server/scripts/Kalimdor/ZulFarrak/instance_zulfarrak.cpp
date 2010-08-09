@@ -90,7 +90,7 @@ float Spawnsway[2][3] =
 class instance_zulfarrak : public InstanceMapScript
 {
 public:
-    instance_zulfarrak() : InstanceMapScript("instance_zulfarrak") { }
+    instance_zulfarrak() : InstanceMapScript("instance_zulfarrak", 209) { }
 
     InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
     {

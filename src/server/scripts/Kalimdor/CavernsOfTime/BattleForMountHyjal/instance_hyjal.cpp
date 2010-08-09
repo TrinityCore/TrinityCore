@@ -44,7 +44,7 @@ enum eEnums
 class instance_hyjal : public InstanceMapScript
 {
 public:
-    instance_hyjal() : InstanceMapScript("instance_hyjal") { }
+    instance_hyjal() : InstanceMapScript("instance_hyjal", 534) { }
 
     InstanceScript* GetInstanceData_instance_mount_hyjal_InstanceMapScript(Map* pMap)
     {

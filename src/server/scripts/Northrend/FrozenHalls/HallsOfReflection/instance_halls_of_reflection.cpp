@@ -99,7 +99,7 @@ static Position RiflemanSpawnPos[ENCOUNTER_WAVE_RIFLEMAN] =
 class instance_halls_of_reflection : public InstanceMapScript
 {
 public:
-    instance_halls_of_reflection() : InstanceMapScript("instance_halls_of_reflection") { }
+    instance_halls_of_reflection() : InstanceMapScript("instance_halls_of_reflection", 668) { }
 
     InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
     {

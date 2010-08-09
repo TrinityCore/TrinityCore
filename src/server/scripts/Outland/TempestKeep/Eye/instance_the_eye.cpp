@@ -39,7 +39,7 @@ class instance_the_eye : public InstanceMapScript
 {
     public:
         instance_the_eye()
-            : InstanceMapScript("instance_the_eye")
+            : InstanceMapScript("instance_the_eye", 550)
         {
         }
 

@@ -35,7 +35,7 @@ enum eEnums
 class instance_sethekk_halls : public InstanceMapScript
 {
 public:
-    instance_sethekk_halls() : InstanceMapScript("instance_sethekk_halls") { }
+    instance_sethekk_halls() : InstanceMapScript("instance_sethekk_halls", 556) { }
 
     InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
     {

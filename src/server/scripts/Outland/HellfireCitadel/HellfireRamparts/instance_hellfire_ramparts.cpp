@@ -30,7 +30,7 @@ class instance_ramparts : public InstanceMapScript
 {
     public:
         instance_ramparts()
-            : InstanceMapScript("instance_ramparts")
+            : InstanceMapScript("instance_ramparts", 543)
         {
         }
 
