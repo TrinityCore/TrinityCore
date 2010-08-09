@@ -21,7 +21,7 @@
 class instance_eye_of_eternity : public InstanceMapScript
 {
 public:
-    instance_eye_of_eternity() : InstanceMapScript("instance_eye_of_eternity") { }
+    instance_eye_of_eternity() : InstanceMapScript("instance_eye_of_eternity", 616) { }
 
     InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
     {
