@@ -12,22 +12,15 @@
 ##### Base setup for project
 #####
 
+#
+# Set projectname (must be done AFTER setting configurationtypes btw...)
+#
+
 project(TrinityCore)
 
 # CMake policies
 cmake_minimum_required(VERSION 2.6)
 cmake_policy(SET CMP0005 OLD)
-
-#
-# Override configuration-types
-#
-
-if(CMAKE_CONFIGURATION_TYPES)
-  set(CMAKE_CONFIGURATION_TYPES Release RelWitDebInfo Debug)
-  set(CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}" CACHE STRING
-    "Reset the configurations to what we need"
-    FORCE)
-endif()
 
 #
 # Force out-of-source build
@@ -91,7 +84,8 @@ option(SCRIPTS "Build worldserver with scripts included" 1)
 option(TOOLS "Build map/vmap extraction/assembler tools" 0)
 option(CLI "Build worldserver with commandline-interface included" 1)
 option(DEBUG "Build worldserver with additional debug-code included" 0)
-option(PCH "Use precompiled headers when compiling" 1)
+option(SCRIPTPCH "Use precompiled headers when compiling scripts project" 1)
+option(GAMEPCH "Use precompiled headers when compiling game project" 1)
 option(SQL "Copy SQL files during installation" 0)
 option(WARNINGS "Enable all compile-warnings during compile" 0)
 
@@ -169,6 +163,7 @@ execute_process(
 # Output some generic information about the core and buildtype chosen
 #
 
+message("")
 message("* TrinityCore revision  : ${HG_REVISION}")
 message("* Build binaries in     : ${CMAKE_BUILD_TYPE} mode")
 message("")
@@ -224,10 +219,16 @@ else()
   message("* Build in debug-mode   : No  (default)")
 endif()
 
-if( PCH )
-  message("* Use PCH               : Yes (default)")
+if( GAMEPCH )
+  message("* Build game w/PCH      : Yes (default)")
 else()
-  message("* Use PCH               : No")
+  message("* Build game w/PCH      : No")
+endif()
+
+if( SCRIPTPCH )
+  message("* Build scripts w/PCH   : Yes (default)")
+else()
+  message("* Build scripts w/PCH   : No")
 endif()
 
 if( WARNINGS )
@@ -260,6 +261,7 @@ if( SQL )
 else()
   message("* Install SQL-files     : No  (default)")
 endif()
+message("")
 
 #####
 ##### Tweaks to make things operate well
