@@ -87,6 +87,13 @@ else()
   )
 endif()
 
+if( WIN32 )
+  add_custom_command(TARGET authserver
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/authserver.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
+  )
+endif()
+
 if( UNIX )
   install(TARGETS authserver DESTINATION bin)
   install(FILES  authserver.conf.dist DESTINATION etc)
