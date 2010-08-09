@@ -6536,25 +6536,26 @@ void Spell::EffectLeap(uint32 i)
 
 void Spell::EffectReputation(uint32 i)
 {
-    if (!unitTarget)
+    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    if (Player *_player = unitTarget->ToPlayer())
+    Player *_player = (Player*)unitTarget;
+
+    int32  rep_change = damage;//+1;           // field store reputation change -1
+
+    uint32 faction_id = m_spellInfo->EffectMiscValue[i];
+
+    FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction_id);
+
+    if (!factionEntry)
+        return;
+
+    if (RepRewardRate const * repData = sObjectMgr.GetRepRewardRate(faction_id))
     {
-        int32  rep_change = damage;//+1;           // field store reputation change -1
-        uint32 faction_id = m_spellInfo->EffectMiscValue[i];
-
-        FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction_id);
-        if (!factionEntry)
-            return;
-
-        if (RepRewardRate const * repData = sObjectMgr.GetRepRewardRate(faction_id))
-            rep_change = (float)rep_change * repData->spell_rate;
-
-        rep_change = _player->CalculateReputationGain(REPUTATION_SOURCE_SPELL, rep_change, faction_id);
-
-        _player->GetReputationMgr().ModifyReputation(factionEntry, rep_change);
+        rep_change = (float)rep_change * repData->spell_rate;
     }
+
+    _player->GetReputationMgr().ModifyReputation(factionEntry, rep_change);
 }
 
 void Spell::EffectQuestComplete(uint32 i)
