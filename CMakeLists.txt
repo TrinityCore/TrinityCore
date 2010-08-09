@@ -8,6 +8,10 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+#####
+##### Base setup for project
+#####
+
 project(TrinityCore)
 
 # CMake policies
@@ -25,7 +29,10 @@ if(CMAKE_CONFIGURATION_TYPES)
     FORCE)
 endif()
 
+#
 # Force out-of-source build
+#
+
 string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_BINARY_DIR}" BUILDING_IN_SOURCE)
 
 if( BUILDING_IN_SOURCE )
@@ -63,31 +70,30 @@ if( UNIX )
   include(FindBZip2)
 endif()
 
+#
 # Select the Release build configuration by default.
+#
+
 if( NOT CMAKE_BUILD_TYPE )
   set(CMAKE_BUILD_TYPE "Release")
 endif()
 
-if( UNIX )
-configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-  IMMEDIATE @ONLY
-)
+#####
+##### Options and settings
+#####
 
-add_custom_target(uninstall
-  "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-)
-endif()
+#
+# Set up default option-parameters for building
+#
 
-option(SERVERS "Build servers" 1)
-option(CLI "With CLI" 1)
-option(DEBUG "Debug mode" 0)
-option(PCH "Use precompiled headers" 1)
-option(SCRIPTS "With trinityscripts" 1)
-option(SQL "Copy SQL files" 0)
-option(TOOLS "Build tools" 0)
-option(WARNINGS "Enable all compile warnings" 0)
+option(SERVERS "Build worldserver and authserver" 1)
+option(SCRIPTS "Build worldserver with scripts included" 1)
+option(TOOLS "Build map/vmap extraction/assembler tools" 0)
+option(CLI "Build worldserver with commandline-interface included" 1)
+option(DEBUG "Build worldserver with additional debug-code included" 0)
+option(PCH "Use precompiled headers when compiling" 1)
+option(SQL "Copy SQL files during installation" 0)
+option(WARNINGS "Enable all compile-warnings during compile" 0)
 
 if( UNIX )
   option(CENTOS "CENTOS" 0)
@@ -99,15 +105,25 @@ if( UNIX )
   endif()
 endif()
 
+#
 # Set up the installation-prefix
+#
+
 if( PREFIX )
   set(CMAKE_INSTALL_PREFIX ${PREFIX})
 endif()
 
+#
 # Handle debugmode compiles (this will require further work for proper WIN32-setups)
+#
+
 if( DEBUG )
   set(CMAKE_BUILD_TYPE Debug)
 endif()
+
+#
+# WINDOWS/MSVC: Set up paths for where we want binaries to end up after compilation
+#
 
 if( MSVC )
   # Set up MSVC to dump binaries in the <builddir>/bin/<buildtype>/ folder
@@ -117,42 +133,9 @@ if( MSVC )
 endif()
 
 #
-# Generate revision-extractor
+# Set default configuration-directory (used on NIX-based platforms only)
 #
 
-set(GENREV_SRC
-  src/genrevision/genrevision.cpp
-)
-add_executable(genrev
-  ${GENREV_SRC}
-)
-
-if( CMAKE_GENERATOR MATCHES "Visual Studio" )
-  add_custom_target("revision.h" ALL
-    COMMAND "${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/genrev"
-    ${CMAKE_SOURCE_DIR}
-    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-    DEPENDS genrev
-  )
-else()
-  add_custom_target("revision.h" ALL
-    COMMAND "${CMAKE_BINARY_DIR}/genrev"
-    ${CMAKE_SOURCE_DIR}
-    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-    DEPENDS genrev
-  )
-endif()
-
-execute_process(
-  COMMAND hg tip --template {rev}
-  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-  OUTPUT_VARIABLE HG_REVISION
-)
-
-message("")
-message("* TrinityCore revision  : ${HG_REVISION}")
-message("* Build binaries in     : ${CMAKE_BUILD_TYPE} mode")
-message("")
 
 if( NOT CONF_DIR )
   set(CONF_DIR ${CMAKE_INSTALL_PREFIX}/etc)
@@ -160,22 +143,62 @@ endif()
 
 set(LIBSDIR ${CMAKE_INSTALL_PREFIX}/lib)
 
-message("* Install core to       : ${CMAKE_INSTALL_PREFIX}")
-message("* Install libraries to  : ${LIBSDIR}")
-message("* Install configs to    : ${CONF_DIR}")
+
+#####
+##### Build-preparation
+#####
+
+#
+# Create genrev object and create revision.h
+# (Moved to subfolder to avoid cluttering up the base build-dir)
+#
+
+add_subdirectory(src/genrevision)
+
+#
+# Find current revision of downloaded sourcetree
+#
+
+execute_process(
+  COMMAND hg tip --template {rev}
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+  OUTPUT_VARIABLE HG_REVISION
+)
+
+#
+# Output some generic information about the core and buildtype chosen
+#
+
+message("* TrinityCore revision  : ${HG_REVISION}")
+message("* Build binaries in     : ${CMAKE_BUILD_TYPE} mode")
 message("")
 
+#
+# Output information about installation-directories and locations
+#
+
+if( UNIX )
+  message("* Install core to       : ${CMAKE_INSTALL_PREFIX}")
+  message("* Install libraries to  : ${LIBSDIR}")
+  message("* Install configs to    : ${CONF_DIR}")
+  message("")
+endif()
+
+#
+# Show infomation about the options selected during configuration
+#
+
 if( SERVERS )
-  message("* Build server          : Yes (default)")
+  message("* Build servers         : Yes (default)")
 else()
-  message("* Build server          : No")
+  message("* Build servers         : No")
 endif()
 
 if( SCRIPTS )
-  message("* Build Trinityscripts  : Yes (default)")
+  message("* Build with scripts    : Yes (default)")
   add_definitions(-DSCRIPTS)
 else()
-  message("* Build Trinityscripts  : No")
+  message("* Build with scripts    : No")
 endif()
 
 if( TOOLS )
@@ -228,22 +251,34 @@ else()
   endif()
 endif()
 
+#
+# Inform if we will install SQL-files or not
+#
+
 if( SQL )
   message("* Install SQL-files     : Yes")
 else()
   message("* Install SQL-files     : No  (default)")
 endif()
 
-message("")
+#####
+##### Tweaks to make things operate well
+#####
 
+#
 # Little tweak for OS X
+#
+
 if( CMAKE_SYSTEM_NAME MATCHES "Darwin" )
   set(MACOSX 1)
   set(OSX_LIBS /opt/local/lib/libcrypto.dylib)
   add_definitions(-D__ASSERTMACROS__)
 endif()
 
+#
 # Some small tweaks for Visual Studio 7 and above.  
+#
+
 if( MSVC )
   # Mark 32 bit executables large address aware so they can use > 2GB address space
   if(CMAKE_SIZEOF_VOID_P MATCHES 4)
@@ -251,10 +286,38 @@ if( MSVC )
   endif()
 endif()
 
+#
+# Set RPATH-handing (CMake parameters)
+#
+
 set(CMAKE_SKIP_BUILD_RPATH 0)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH 0)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH 1)
+
+#####
+##### Start filling in the blanks, and build the project
+#####
+
+#
+# Create uninstall-object for UNIX platforms
+#
+
+if( UNIX )
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+  IMMEDIATE @ONLY
+)
+
+add_custom_target(uninstall
+  "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+)
+endif()
+
+#
+# Enter the different builddirectories and start working 
+#
 
 add_subdirectory(externals)
 add_subdirectory(src)
