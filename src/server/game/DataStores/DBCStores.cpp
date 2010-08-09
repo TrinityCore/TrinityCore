@@ -808,16 +808,26 @@ MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &di
 
 PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level)
 {
-    // prevent out-of-range levels for dbc data
-    if (level > DEFAULT_MAX_LEVEL)
-        level = DEFAULT_MAX_LEVEL;
-
+    PvPDifficultyEntry const* maxEntry = NULL;              // used for level > max listed level case
     for (uint32 i = 0; i < sPvPDifficultyStore.GetNumRows(); ++i)
+    {
         if (PvPDifficultyEntry const* entry = sPvPDifficultyStore.LookupEntry(i))
-            if (entry->mapId == mapid && entry->minLevel <= level && entry->maxLevel >= level)
+        {
+            // skip unrelated and too-high brackets
+            if (entry->mapId != mapid || entry->minLevel > level)
+                continue;
+
+            // exactly fit
+            if (entry->maxLevel >= level)
                 return entry;
 
-    return NULL;
+            // remember for possible out-of-range case (search higher from existed)
+            if (!maxEntry || maxEntry->maxLevel < entry->maxLevel)
+                maxEntry = entry;
+        }
+    }
+
+    return maxEntry;
 }
 
 PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundBracketId id)
