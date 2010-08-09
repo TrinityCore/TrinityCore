@@ -231,7 +231,7 @@ void SpellCastTargets::Update(Unit* caster)
             m_itemTargetEntry = m_itemTarget->GetEntry();
     }
     // update positions by transport move
-    if (m_srcTransGUID)
+    if (HasSrc() && m_srcTransGUID)
     {
         if (WorldObject * transport = ObjectAccessor::GetWorldObject(*caster, m_srcTransGUID))
         {
@@ -239,7 +239,7 @@ void SpellCastTargets::Update(Unit* caster)
             m_srcPos.RelocateOffset(m_srcTransOffset);
         }
     }
-    if (m_dstTransGUID)
+    if (HasDst() && m_dstTransGUID)
     {
         if (WorldObject * transport = ObjectAccessor::GetWorldObject(*caster, m_dstTransGUID))
         {
