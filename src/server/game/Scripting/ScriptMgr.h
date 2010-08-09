@@ -82,13 +82,17 @@ void DoScriptText(int32 textEntry, WorldObject* pSource, Unit *pTarget = NULL);
     {
         uint32 _someId;
 
+        private:
+
+            void RegisterSelf();
+
         protected:
 
             MyScriptType(const char* name, uint32 someId)
                 : ScriptObject(name), _someId(someId)
-            { }
-
-            void RegisterSelf();
+            {
+                RegisterSelf();
+            }
 
         public:
 
@@ -162,8 +166,6 @@ class ScriptObject
 
         const std::string& GetName() const { return _name; }
 
-        const char* ToString() const { return _name.c_str(); }
-
     protected:
 
         // Call this to register the script with ScriptMgr.
@@ -174,9 +176,6 @@ class ScriptObject
         {
             // Allow the script to do startup routines.
             OnInitialize();
-
-            // Register with ScriptMgr.
-            RegisterSelf();
         }
 
         virtual ~ScriptObject()
@@ -205,13 +204,17 @@ template<class TObject> class UpdatableScript
 
 class SpellHandlerScript : public ScriptObject
 {
+    private:
+
+        void RegisterSelf();
+
     protected:
 
         SpellHandlerScript(const char* name)
             : ScriptObject(name)
-        { }
-
-        void RegisterSelf();
+        {
+            RegisterSelf();
+        }
 
     public:
 
@@ -223,13 +226,17 @@ class SpellHandlerScript : public ScriptObject
 
 class AuraHandlerScript : public ScriptObject
 {
+    private:
+
+        void RegisterSelf();
+
     protected:
 
         AuraHandlerScript(const char* name)
             : ScriptObject(name)
-        { }
-
-        void RegisterSelf();
+        {
+            RegisterSelf();
+        }
 
     public:
 
@@ -241,13 +248,17 @@ class AuraHandlerScript : public ScriptObject
 
 class ServerScript : public ScriptObject
 {
+    private:
+
+        void RegisterSelf();
+
     protected:
 
         ServerScript(const char* name)
             : ScriptObject(name)
-        { }
-
-        void RegisterSelf();
+        {
+            RegisterSelf();
+        }
 
     public:
 
@@ -279,13 +290,17 @@ class ServerScript : public ScriptObject
 
 class WorldScript : public ScriptObject, public UpdatableScript<void>
 {
+    private:
+
+        void RegisterSelf();
+
     protected:
 
         WorldScript(const char* name)
             : ScriptObject(name)
-        { }
-
-        void RegisterSelf();
+        {
+            RegisterSelf();
+        }
 
     public:
 
@@ -316,13 +331,17 @@ class WorldScript : public ScriptObject, public UpdatableScript<void>
 
 class FormulaScript : public ScriptObject
 {
+    private:
+
+        void RegisterSelf();
+
     protected:
 
         FormulaScript(const char* name)
             : ScriptObject(name)
-        { }
-
-        void RegisterSelf();
+        {
+            RegisterSelf();
+        }
 
     public:
 
@@ -347,6 +366,7 @@ class FormulaScript : public ScriptObject
         // Called after calculating experience gain.
         virtual void OnGainCalculation(uint32& gain, Player* player, Unit* unit) { }
 
+        // Called when calculating the experience rate for group experience.
         virtual void OnGroupRateCalculation(float& rate, uint32 count, bool isRaid) { }
 };
 
@@ -392,6 +412,10 @@ template<class TMap> class MapScript : public UpdatableScript<TMap>
 
 class WorldMapScript : public ScriptObject, public MapScript<Map>
 {
+    private:
+
+        void RegisterSelf();
+
     protected:
 
         WorldMapScript(const char* name, uint32 mapId)
@@ -399,13 +423,17 @@ class WorldMapScript : public ScriptObject, public MapScript<Map>
         {
             if (GetEntry() && !GetEntry()->IsContinent())
                 sLog.outError("WorldMapScript for map %u is invalid.", mapId);
+            else
+                RegisterSelf();
         }
-
-        void RegisterSelf();
 };
 
 class InstanceMapScript : public ScriptObject, public MapScript<InstanceMap>
 {
+    private:
+
+        void RegisterSelf();
+
     protected:
 
         InstanceMapScript(const char* name, uint32 mapId = 0)
@@ -413,9 +441,9 @@ class InstanceMapScript : public ScriptObject, public MapScript<InstanceMap>
         {
             if (GetEntry() && !GetEntry()->IsDungeon())
                 sLog.outError("InstanceMapScript for map %u is invalid.", mapId);
+            else
+                RegisterSelf();
         }
-
-        void RegisterSelf();
 
     public:
 
@@ -434,6 +462,8 @@ class BattlegroundMapScript : public ScriptObject, public MapScript<Battleground
         {
             if (GetEntry() && !GetEntry()->IsBattleground())
                 sLog.outError("BattlegroundMapScript for map %u is invalid.", mapId);
+            else
+                RegisterSelf();
         }
 
         void RegisterSelf();
@@ -441,13 +471,17 @@ class BattlegroundMapScript : public ScriptObject, public MapScript<Battleground
 
 class ItemScript : public ScriptObject
 {
+    private:
+
+        void RegisterSelf();
+
     protected:
 
         ItemScript(const char* name)
             : ScriptObject(name)
-        { }
-
-        void RegisterSelf();
+        {
+            RegisterSelf();
+        }
 
     public:
 
@@ -468,13 +502,17 @@ class ItemScript : public ScriptObject
 
 class CreatureScript : public ScriptObject, public UpdatableScript<Creature>
 {
+    private:
+
+        void RegisterSelf();
+
     protected:
 
         CreatureScript(const char* name)
             : ScriptObject(name)
-        { }
-
-        void RegisterSelf();
+        {
+            RegisterSelf();
+        }
 
     public:
 
@@ -513,13 +551,17 @@ class CreatureScript : public ScriptObject, public UpdatableScript<Creature>
 
 class GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
 {
+    private:
+
+        void RegisterSelf();
+
     protected:
 
         GameObjectScript(const char* name)
             : ScriptObject(name)
-        { }
-
-        void RegisterSelf();
+        {
+            RegisterSelf();
+        }
 
     public:
 
@@ -552,13 +594,17 @@ class GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
 
 class AreaTriggerScript : public ScriptObject
 {
+    private:
+
+        void RegisterSelf();
+
     protected:
 
         AreaTriggerScript(const char* name)
             : ScriptObject(name)
-        { }
-
-        void RegisterSelf();
+        {
+            RegisterSelf();
+        }
 
     public:
 
@@ -570,13 +616,17 @@ class AreaTriggerScript : public ScriptObject
 
 class BattlegroundScript : public ScriptObject
 {
+    private:
+
+        void RegisterSelf();
+
     protected:
 
         BattlegroundScript(const char* name)
             : ScriptObject(name)
-        { }
-
-        void RegisterSelf();
+        {
+            RegisterSelf();
+        }
 
     public:
 
@@ -588,13 +638,17 @@ class BattlegroundScript : public ScriptObject
 
 class OutdoorPvPScript : public ScriptObject
 {
+    private:
+
+        void RegisterSelf();
+
     protected:
 
         OutdoorPvPScript(const char* name)
             : ScriptObject(name)
-        { }
-
-        void RegisterSelf();
+        {
+            RegisterSelf();
+        }
 
     public:
 
@@ -606,13 +660,17 @@ class OutdoorPvPScript : public ScriptObject
 
 class CommandScript : public ScriptObject
 {
+    private:
+
+        void RegisterSelf();
+
     protected:
 
         CommandScript(const char* name)
             : ScriptObject(name)
-        { }
-
-        void RegisterSelf();
+        {
+            RegisterSelf();
+        }
 
     public:
 
@@ -622,13 +680,17 @@ class CommandScript : public ScriptObject
 
 class WeatherScript : public ScriptObject, public UpdatableScript<Weather>
 {
+    private:
+
+        void RegisterSelf();
+
     protected:
 
         WeatherScript(const char* name)
             : ScriptObject(name)
-        { }
-
-        void RegisterSelf();
+        {
+            RegisterSelf();
+        }
 
     public:
 
@@ -640,13 +702,17 @@ class WeatherScript : public ScriptObject, public UpdatableScript<Weather>
 
 class AuctionHouseScript : public ScriptObject
 {
+    private:
+
+        void RegisterSelf();
+
     protected:
 
         AuctionHouseScript(const char* name)
             : ScriptObject(name)
-        { }
-
-        void RegisterSelf();
+        {
+            RegisterSelf();
+        }
 
     public:
 
@@ -665,13 +731,17 @@ class AuctionHouseScript : public ScriptObject
 
 class ConditionScript : public ScriptObject
 {
+    private:
+
+        void RegisterSelf();
+
     protected:
 
         ConditionScript(const char* name)
             : ScriptObject(name)
-        { }
-
-        void RegisterSelf();
+        {
+            RegisterSelf();
+        }
 
     public:
 
@@ -683,13 +753,17 @@ class ConditionScript : public ScriptObject
 
 class VehicleScript : public ScriptObject
 {
+    private:
+
+        void RegisterSelf();
+
     protected:
 
         VehicleScript(const char* name)
             : ScriptObject(name)
-        { }
-
-        void RegisterSelf();
+        {
+            RegisterSelf();
+        }
 
     public:
 
@@ -717,25 +791,32 @@ class VehicleScript : public ScriptObject
 
 class DynamicObjectScript : public ScriptObject, public UpdatableScript<DynamicObject>
 {
+    private:
+
+        void RegisterSelf();
+
     protected:
 
         DynamicObjectScript(const char* name)
             : ScriptObject(name)
-        { }
-
-        void RegisterSelf();
+        {
+            RegisterSelf();
+        }
 };
 
 class TransportScript : public ScriptObject, public UpdatableScript<Transport>
 {
+    private:
+
+        void RegisterSelf();
+
     protected:
 
         TransportScript(const char* name)
             : ScriptObject(name)
         {
+            RegisterSelf();
         }
-
-        void RegisterSelf();
 
     public:
 
@@ -756,14 +837,17 @@ class TransportScript : public ScriptObject, public UpdatableScript<Transport>
 
 class AchievementCriteriaScript : public ScriptObject
 {
+    private:
+
+        void RegisterSelf();
+
     protected:
 
         AchievementCriteriaScript(const char* name)
             : ScriptObject(name)
         {
+            RegisterSelf();
         }
-
-        void RegisterSelf();
 
     public:
 
