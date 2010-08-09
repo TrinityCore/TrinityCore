@@ -18,8 +18,6 @@
 #ifndef DEF_DEADMINES_H
 #define DEF_DEADMINES_H
 
-#include "ScriptPCH.h"
-
 enum CannonState
 {
     CANNON_NOT_USED,
