@@ -192,7 +192,7 @@ include_directories(
 
 add_library(game STATIC ${game_STAT_SRCS})
 
-add_dependencies(game revision.h)
+add_dependencies(game genrev)
 
 # Generate precompiled header
 if(PCH)
