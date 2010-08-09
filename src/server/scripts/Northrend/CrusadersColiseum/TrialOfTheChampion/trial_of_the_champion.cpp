@@ -44,7 +44,7 @@ const Position SpawnPosition = {746.261,657.401,411.681,4.65};
 class npc_announcer_toc5 : public CreatureScript
 {
 public:
-    npc_announcer_toc5() : CreatureScript("CreatureScript") { }
+    npc_announcer_toc5() : CreatureScript("npc_announcer_toc5") { }
 
     struct npc_announcer_toc5AI : public ScriptedAI
     {
