@@ -17,8 +17,6 @@
 
 #include "ScriptPCH.h"
 
-#include "ScriptPCH.h"
-
 /*######
 ##Quest 5441: Lazy Peons
 ##npc_lazy_peon
