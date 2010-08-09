@@ -145,13 +145,6 @@ class ScriptObject
 
     public:
 
-        // Called when the script is initialized. Use it to initialize any properties of the script. Do not use
-        // the constructor for this.
-        virtual void OnInitialize() { }
-
-        // Called when the script is deleted. Use it to free memory, etc. Do not use the destructor for this.
-        virtual void OnTeardown() { }
-
         // Do not override this in scripts; it should be overridden by the various script type classes. It indicates
         // whether or not this script type must be assigned in the database.
         virtual bool IsDatabaseBound() const { return false; }
@@ -163,14 +156,10 @@ class ScriptObject
         ScriptObject(const char* name)
             : _name(std::string(name))
         {
-            // Allow the script to do startup routines.
-            OnInitialize();
         }
 
         virtual ~ScriptObject()
         {
-            // Allow the script to do cleanup routines.
-            OnTeardown();
         }
 
     private:
@@ -902,7 +891,7 @@ class ScriptMgr
                                 sLog.outError("Script '%s' already assigned with the same script name, so the script can't work.",
                                     script->GetName().c_str());
 
-                                delete script;
+                                ASSERT(false); // Error that should be fixed ASAP.
                             }
                         }
                         else
@@ -911,8 +900,6 @@ class ScriptMgr
                             if (script->GetName().find("example") == std::string::npos)
                                 sLog.outErrorDb("Script named '%s' does not have a script name assigned in database.",
                                     script->GetName().c_str());
-
-                            delete script;
                         }
                     }
                     else
