@@ -292,7 +292,7 @@ void SpellCastTargets::OutDebug()
     }
     if (m_targetMask & TARGET_FLAG_STRING)
     {
-        sLog.outString("TARGET_FLAG_STRING: %s", m_strTarget);
+        sLog.outString("TARGET_FLAG_STRING: %s", m_strTarget.c_str());
     }
     sLog.outString("speed: %f", m_speed);
     sLog.outString("elevation: %f", m_elevation);
