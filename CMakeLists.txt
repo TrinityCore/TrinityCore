@@ -19,11 +19,11 @@ cmake_minimum_required(VERSION 2.6)
 cmake_policy(SET CMP0005 OLD)
 
 #
-# Override configuration-types - we don't use anything else than debug and release
+# Override configuration-types
 #
 
 if(CMAKE_CONFIGURATION_TYPES)
-  set(CMAKE_CONFIGURATION_TYPES Release Debug)
+  set(CMAKE_CONFIGURATION_TYPES Release RelWitDebInfo Debug)
   set(CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}" CACHE STRING
     "Reset the configurations to what we need"
     FORCE)
@@ -219,11 +219,6 @@ if( DEBUG )
   add_definitions(-DTRINITY_DEBUG)
   if(CMAKE_COMPILER_IS_GNUCXX)
     add_definitions(-g)
-  elseif(MSVC)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /Zi")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zi")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /DEBUG")
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /DEBUG")
   endif()
 else()
   message("* Build in debug-mode   : No  (default)")

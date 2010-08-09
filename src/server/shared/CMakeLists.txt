@@ -66,7 +66,7 @@ include_directories(
 
 add_library(shared STATIC ${shared_STAT_SRCS})
 
-add_dependencies(shared revision.h)
+add_dependencies(shared genrev)
 
 if(WIN32)
   target_link_libraries(shared

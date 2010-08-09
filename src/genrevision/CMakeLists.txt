@@ -16,18 +16,15 @@ add_executable(genrev
 )
 
 if( CMAKE_GENERATOR MATCHES "Visual Studio" )
-  add_custom_target("revision.h" ALL
-    COMMAND "${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/genrev"
-    ${CMAKE_SOURCE_DIR}
+  add_custom_command(TARGET genrev ALL
+    POST_BUILD
+    COMMAND ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/genrev ${CMAKE_SOURCE_DIR}
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-    DEPENDS genrev
   )
 else()
-  add_custom_target("revision.h" ALL
-    COMMAND "${CMAKE_BINARY_DIR}/src/genrevision/genrev"
-    ${CMAKE_SOURCE_DIR}
+  add_custom_command(TARGET genrev ALL
+    COMMAND ${CMAKE_BINARY_DIR}/src/genrevision/genrev ${CMAKE_SOURCE_DIR}
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-    DEPENDS genrev
   )
 endif()
 
