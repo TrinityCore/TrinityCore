@@ -1610,6 +1610,7 @@ public:
 
         void Reset()
         {
+            me->SetReactState(REACT_PASSIVE);
             Tsunami_Timer = 100;
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
