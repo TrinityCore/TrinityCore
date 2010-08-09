@@ -39,7 +39,7 @@ EndScriptData */
 class instance_ruins_of_ahnqiraj : public InstanceMapScript
 {
 public:
-    instance_ruins_of_ahnqiraj() : InstanceMapScript("instance_ruins_of_ahnqiraj") { }
+    instance_ruins_of_ahnqiraj() : InstanceMapScript("instance_ruins_of_ahnqiraj", 509) { }
 
     InstanceScript* GetInstanceData_instance_ruins_of_ahn_qiraj_InstanceMapScript(Map* pMap)
     {

@@ -31,7 +31,7 @@ EndScriptData */
 class instance_wailing_caverns : public InstanceMapScript
 {
 public:
-    instance_wailing_caverns() : InstanceMapScript("instance_wailing_caverns") { }
+    instance_wailing_caverns() : InstanceMapScript("instance_wailing_caverns", 43) { }
 
     InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
     {

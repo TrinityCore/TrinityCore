@@ -31,7 +31,7 @@
 class instance_gundrak : public InstanceMapScript
 {
 public:
-    instance_gundrak() : InstanceMapScript("instance_gundrak") { }
+    instance_gundrak() : InstanceMapScript("instance_gundrak", 604) { }
 
     InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
     {

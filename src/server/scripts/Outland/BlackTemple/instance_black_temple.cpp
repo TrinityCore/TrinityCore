@@ -43,7 +43,7 @@ EndScriptData */
 class instance_black_temple : public InstanceMapScript
 {
 public:
-    instance_black_temple() : InstanceMapScript("instance_black_temple") { }
+    instance_black_temple() : InstanceMapScript("instance_black_temple", 564) { }
 
     InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
     {

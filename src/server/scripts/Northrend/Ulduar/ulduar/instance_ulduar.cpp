@@ -35,7 +35,7 @@ enum eGameObjects
 class instance_ulduar : public InstanceMapScript
 {
 public:
-    instance_ulduar() : InstanceMapScript("instance_ulduar") { }
+    instance_ulduar() : InstanceMapScript("instance_ulduar", 603) { }
 
     InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
     {

@@ -36,7 +36,7 @@ EndScriptData */
 class instance_scarlet_monastery : public InstanceMapScript
 {
 public:
-    instance_scarlet_monastery() : InstanceMapScript("instance_scarlet_monastery") { }
+    instance_scarlet_monastery() : InstanceMapScript("instance_scarlet_monastery", 189) { }
 
     InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
     {

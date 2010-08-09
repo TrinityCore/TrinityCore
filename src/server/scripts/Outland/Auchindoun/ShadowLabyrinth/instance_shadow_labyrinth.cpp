@@ -41,7 +41,7 @@ EndScriptData */
 class instance_shadow_labyrinth : public InstanceMapScript
 {
 public:
-    instance_shadow_labyrinth() : InstanceMapScript("instance_shadow_labyrinth") { }
+    instance_shadow_labyrinth() : InstanceMapScript("instance_shadow_labyrinth", 555) { }
 
     InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
     {

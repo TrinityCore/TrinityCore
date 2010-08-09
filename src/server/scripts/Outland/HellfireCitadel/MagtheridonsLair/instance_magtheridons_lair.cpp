@@ -44,7 +44,7 @@ class instance_magtheridons_lair : public InstanceMapScript
 {
     public:
         instance_magtheridons_lair()
-            : InstanceMapScript("instance_magtheridons_lair")
+            : InstanceMapScript("instance_magtheridons_lair", 544)
         {
         }
 

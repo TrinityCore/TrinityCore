@@ -64,7 +64,7 @@ static Wave RiftWaves[]=
 class instance_dark_portal : public InstanceMapScript
 {
 public:
-    instance_dark_portal() : InstanceMapScript("instance_dark_portal") { }
+    instance_dark_portal() : InstanceMapScript("instance_dark_portal", 269) { }
 
     InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
     {

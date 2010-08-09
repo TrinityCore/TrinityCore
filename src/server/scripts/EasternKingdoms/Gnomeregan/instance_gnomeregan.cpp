@@ -23,7 +23,7 @@
 class instance_gnomeregan : public InstanceMapScript
 {
 public:
-    instance_gnomeregan() : InstanceMapScript("instance_gnomeregan") { }
+    instance_gnomeregan() : InstanceMapScript("instance_gnomeregan", 90) { }
 
     InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
     {

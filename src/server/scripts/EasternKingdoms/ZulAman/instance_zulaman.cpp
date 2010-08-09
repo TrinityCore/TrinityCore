@@ -55,7 +55,7 @@ class instance_zulaman : public InstanceMapScript
 {
     public:
         instance_zulaman()
-            : InstanceMapScript("instance_zulaman")
+            : InstanceMapScript("instance_zulaman", 568)
         {
         }
 
