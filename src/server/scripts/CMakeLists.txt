@@ -18,7 +18,7 @@ file(GLOB_RECURSE scripts_examples Examples/*.cpp Examples/*.h)
 file(GLOB_RECURSE scripts_outdoorpvp OutdoorPvP/*.cpp OutdoorPvP/*.h)
 
 # Enable precompiled headers when using the GCC compiler.
-if(PCH)
+if( SCRIPTPCH )
   include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
   )
@@ -142,7 +142,7 @@ add_library(scripts STATIC ${scripts_STAT_SRCS})
 add_dependencies(scripts genrev)
 
 # Generate precompiled header
-if(PCH)
+if( SCRIPTPCH )
   if(CMAKE_COMPILER_IS_GNUCXX)
     add_precompiled_header(scripts ${CMAKE_SOURCE_DIR}/src/server/scripts/PrecompiledHeaders/ScriptPCH.h)
   elseif(MSVC)

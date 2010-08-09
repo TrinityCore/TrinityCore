@@ -8,10 +8,7 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-######## game ########
-
-# Enable precompiled headers when using the GCC compiler.
-if(PCH)
+if( GAMEPCH )
   include_directories(${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
@@ -195,7 +192,7 @@ add_library(game STATIC ${game_STAT_SRCS})
 add_dependencies(game genrev)
 
 # Generate precompiled header
-if(PCH)
+if( GAMEPCH )
   if(CMAKE_COMPILER_IS_GNUCXX)
     add_precompiled_header(game ${CMAKE_SOURCE_DIR}/src/server/game/PrecompiledHeaders/gamePCH.h)
   elseif(MSVC)
