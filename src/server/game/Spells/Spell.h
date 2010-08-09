@@ -152,7 +152,7 @@ class SpellCastTargets
 
             m_dstTransGUID = target.m_dstTransGUID;
             m_dstTransOffset = target.m_dstTransOffset;
-            m_dstPos.Relocate(target.m_dstPos);
+            m_dstPos = target.m_dstPos;
 
             m_elevation = target.m_elevation;
             m_speed = target.m_speed;
@@ -373,7 +373,7 @@ class Spell
         void EffectSendTaxi(uint32 i);
         void EffectSummonCritter(uint32 i);
         void EffectKnockBack(uint32 i);
-        void EffectPlayerPull(uint32 i);
+        void EffectPullTowards(uint32 i);
         void EffectDispelMechanic(uint32 i);
         void EffectSummonDeadPet(uint32 i);
         void EffectDestroyAllTotems(uint32 i);
