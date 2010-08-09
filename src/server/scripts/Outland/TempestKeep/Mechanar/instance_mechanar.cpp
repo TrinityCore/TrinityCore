@@ -32,7 +32,7 @@ class instance_mechanar : public InstanceMapScript
 {
     public:
         instance_mechanar()
-            : InstanceMapScript("instance_mechanar")
+            : InstanceMapScript("instance_mechanar", 554)
         {
         }
 

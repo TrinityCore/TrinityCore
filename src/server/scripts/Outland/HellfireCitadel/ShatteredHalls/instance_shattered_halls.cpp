@@ -34,7 +34,7 @@ class instance_shattered_halls : public InstanceMapScript
 {
     public:
         instance_shattered_halls()
-            : InstanceMapScript("instance_shattered_halls")
+            : InstanceMapScript("instance_shattered_halls", 540)
         {
         }
         struct instance_shattered_halls_InstanceMapScript : public InstanceScript

@@ -29,7 +29,7 @@
 class instance_azjol_nerub : public InstanceMapScript
 {
 public:
-    instance_azjol_nerub() : InstanceMapScript("instance_azjol_nerub") { }
+    instance_azjol_nerub() : InstanceMapScript("instance_azjol_nerub", 601) { }
 
     struct instance_azjol_nerub_InstanceScript : public InstanceScript
     {

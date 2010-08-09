@@ -34,7 +34,7 @@ class instance_blood_furnace : public InstanceMapScript
 {
     public:
         instance_blood_furnace()
-            : InstanceMapScript("instance_blood_furnace")
+            : InstanceMapScript("instance_blood_furnace", 542)
         {
         }
 

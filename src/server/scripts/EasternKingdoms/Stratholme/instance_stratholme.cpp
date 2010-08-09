@@ -52,7 +52,7 @@ EndScriptData */
 class instance_stratholme : public InstanceMapScript
 {
 public:
-    instance_stratholme() : InstanceMapScript("instance_stratholme") { }
+    instance_stratholme() : InstanceMapScript("instance_stratholme", 329) { }
 
     InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
     {

@@ -29,7 +29,7 @@ enum Factions
 class instance_nexus : public InstanceMapScript
 {
 public:
-    instance_nexus() : InstanceMapScript("instance_nexus") { }
+    instance_nexus() : InstanceMapScript("instance_nexus", 576) { }
 
     InstanceScript *GetInstanceData_InstanceMapScript(Map *pMap)
     {

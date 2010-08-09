@@ -47,7 +47,7 @@ class instance_deadmines : public InstanceMapScript
 {
     public:
         instance_deadmines()
-            : InstanceMapScript("instance_deadmines")
+            : InstanceMapScript("instance_deadmines", 36)
         {
         }
 

@@ -40,7 +40,7 @@ EndScriptData */
 class instance_sunwell_plateau : public InstanceMapScript
 {
 public:
-    instance_sunwell_plateau() : InstanceMapScript("instance_sunwell_plateau") { }
+    instance_sunwell_plateau() : InstanceMapScript("instance_sunwell_plateau", 580) { }
 
     InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
     {

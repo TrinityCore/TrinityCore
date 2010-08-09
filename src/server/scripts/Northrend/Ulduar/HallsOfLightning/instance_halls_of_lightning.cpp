@@ -36,7 +36,7 @@ EndScriptData */
 class instance_halls_of_lightning : public InstanceMapScript
 {
 public:
-    instance_halls_of_lightning() : InstanceMapScript("instance_halls_of_lightning") { }
+    instance_halls_of_lightning() : InstanceMapScript("instance_halls_of_lightning", 602) { }
 
     InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
     {

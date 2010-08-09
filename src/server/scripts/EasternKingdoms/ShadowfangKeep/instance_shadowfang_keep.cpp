@@ -57,7 +57,7 @@ const Position SpawnLocation[] =
 class instance_shadowfang_keep : public InstanceMapScript
 {
 public:
-    instance_shadowfang_keep() : InstanceMapScript("instance_shadowfang_keep") { }
+    instance_shadowfang_keep() : InstanceMapScript("instance_shadowfang_keep", 33) { }
 
     InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
     {

@@ -45,7 +45,7 @@ enum GameObjects
 class instance_drak_tharon : public InstanceMapScript
 {
 public:
-    instance_drak_tharon() : InstanceMapScript("instance_drak_tharon") { }
+    instance_drak_tharon() : InstanceMapScript("instance_drak_tharon", 600) { }
 
     struct instance_drak_tharon_InstanceScript : public InstanceScript
     {

@@ -29,7 +29,7 @@ class instance_uldaman : public InstanceMapScript
 {
     public:
         instance_uldaman()
-            : InstanceMapScript("instance_uldaman")
+            : InstanceMapScript("instance_uldaman", 70)
         {
         }
 

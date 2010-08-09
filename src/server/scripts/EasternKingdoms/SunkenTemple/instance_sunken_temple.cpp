@@ -42,7 +42,7 @@ EndScriptData */
 class instance_sunken_temple : public InstanceMapScript
 {
 public:
-    instance_sunken_temple() : InstanceMapScript("instance_sunken_temple") { }
+    instance_sunken_temple() : InstanceMapScript("instance_sunken_temple", 109) { }
 
     InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
     {

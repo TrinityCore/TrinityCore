@@ -35,8 +35,8 @@ public:
 
 };
 
-
 void AddSC_instance_eye_of_eternity()
 {
-    new instance_eye_of_eternity();
+    // doesn't exist in the database?
+    //new instance_eye_of_eternity();
 }

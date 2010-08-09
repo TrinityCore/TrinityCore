@@ -40,7 +40,7 @@ EndScriptData */
 class instance_scholomance : public InstanceMapScript
 {
 public:
-    instance_scholomance() : InstanceMapScript("instance_scholomance") { }
+    instance_scholomance() : InstanceMapScript("instance_scholomance", 289) { }
 
     InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
     {
