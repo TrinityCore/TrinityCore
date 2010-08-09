@@ -283,7 +283,7 @@ struct GameObjectInfo
             uint32 openTextID;                              //6
             uint32 losOK;                                   //7
         } flagstand;
-        //25 GAMEOBJECT_TYPE_FISHINGHOLE                    // not implemented yet
+        //25 GAMEOBJECT_TYPE_FISHINGHOLE
         struct
         {
             uint32 radius;                                  //0 how close bobber must land for sending loot
@@ -755,6 +755,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
                                                             // For traps this: spell casting cooldown, for doors/buttons: reset time.
         std::list<uint32> m_SkillupList;
 
+        Player* m_ritualOwner;                              // used for GAMEOBJECT_TYPE_SUMMONING_RITUAL where GO is not summoned (no owner)
         std::set<uint32> m_unique_users;
         uint32 m_usetimes;
 
