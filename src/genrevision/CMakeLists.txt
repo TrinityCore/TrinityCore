@@ -24,7 +24,7 @@ if( CMAKE_GENERATOR MATCHES "Visual Studio" )
   )
 else()
   add_custom_target("revision.h" ALL
-    COMMAND "${CMAKE_BINARY_DIR}/genrev"
+    COMMAND "${CMAKE_BINARY_DIR}/src/genrevision/genrev"
     ${CMAKE_SOURCE_DIR}
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
     DEPENDS genrev
