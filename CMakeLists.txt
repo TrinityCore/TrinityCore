@@ -58,6 +58,7 @@ include(cmake/FindOpenSSL.cmake)
 
 if( UNIX )
   include(cmake/FindReadline.cmake)
+  include(cmake/FindTermcap.cmake)
   include(FindZLIB)
   include(FindBZip2)
 endif()
@@ -100,17 +101,8 @@ endif()
 #
 
 if( PREFIX )
-  set(CMAKE_INSTALL_PREFIX "${PREFIX}")
+  set(CMAKE_INSTALL_PREFIX ${PREFIX})
 endif()
-
-IF(WIN32)
-   IF(NOT CYGWIN)
-     IF(NOT CMAKE_INSTALL_PREFIX)
-       SET(CMAKE_INSTALL_PREFIX
-           "${CMAKE_BINARY_DIR}/bin")
-     ENDIF(NOT CMAKE_INSTALL_PREFIX)
-   ENDIF(NOT CYGWIN)
-ENDIF(WIN32)
 
 #
 # Handle debugmode compiles (this will require further work for proper WIN32-setups)
@@ -125,10 +117,10 @@ endif()
 #
 
 if( MSVC )
-  # Set up MSVC to dump binaries into the installation-folder
-  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX})
-  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX})
-  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX})
+  # Set up MSVC to dump binaries in the <builddir>/bin/<buildtype>/ folder
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 endif()
 
 #
@@ -169,72 +161,73 @@ execute_process(
 #
 
 message("")
-message("* TrinityCore revision      : ${HG_REVISION}")
+message("* TrinityCore revision  : ${HG_REVISION}")
+message("* Build binaries in     : ${CMAKE_BUILD_TYPE} mode")
 message("")
 
 #
 # Output information about installation-directories and locations
 #
 
-message("* Install core to           : ${CMAKE_INSTALL_PREFIX}")
 if( UNIX )
-  message("* Install libraries to      : ${LIBSDIR}")
-  message("* Install configs to        : ${CONF_DIR}")
+  message("* Install core to       : ${CMAKE_INSTALL_PREFIX}")
+  message("* Install libraries to  : ${LIBSDIR}")
+  message("* Install configs to    : ${CONF_DIR}")
+  message("")
 endif()
-message("")
 
 #
 # Show infomation about the options selected during configuration
 #
 
 if( SERVERS )
-  message("* Build core                : Yes (default)")
+  message("* Build servers         : Yes (default)")
 else()
-  message("* Build core                : No")
-endif()
-
-if( GAMEPCH )
-  message("* Build core with PCH       : Yes (default)")
-else()
-  message("* Build core with PCH       : No")
+  message("* Build servers         : No")
 endif()
 
 if( SCRIPTS )
+  message("* Build with scripts    : Yes (default)")
   add_definitions(-DSCRIPTS)
-  message("* Build scripts             : Yes (default)")
 else()
-  set(SCRIPTPCH 0)
-  message("* Build scripts             : No")
-endif()
-
-if( SCRIPTPCH )
-  message("* Build scripts with PCH    : Yes (default)")
-else()
-  message("* Build scripts with PCH    : No")
+  message("* Build with scripts    : No")
 endif()
 
 if( TOOLS )
-  message("* Build map/vmap tools      : Yes")
+  message("* Build map/vmap tools  : Yes")
 else()
-  message("* Build map/vmap tools      : No  (default)")
+  message("* Build map/vmap tools  : No  (default)")
 endif()
 
 if( DEBUG )
+  message("* Build in debug-mode   : Yes")
   add_definitions(-DTRINITY_DEBUG)
   if(CMAKE_COMPILER_IS_GNUCXX)
     add_definitions(-g)
   endif()
-  message("* Build with coreside debug : Yes")
 else()
-  message("* Build with coreside debug : No  (default)")
+  message("* Build in debug-mode   : No  (default)")
+endif()
+
+if( GAMEPCH )
+  message("* Build game w/PCH      : Yes (default)")
+else()
+  message("* Build game w/PCH      : No")
+endif()
+
+if( SCRIPTPCH )
+  message("* Build scripts w/PCH   : Yes (default)")
+else()
+  message("* Build scripts w/PCH   : No")
 endif()
 
 if( WARNINGS )
+  message("* Show all warnings     : Yes")
   if( UNIX )
     add_definitions(-Wall -Wfatal-errors -Wextra)
   endif()
-  message("* Show all warnings         : Yes")
 else()
+  message("* Show compile-warnings : No  (default)")
   if( UNIX )
     add_definitions(--no-warnings) # makes build look nice, no warnings shown at all, only errors
   elseif( WIN32 )
@@ -245,7 +238,6 @@ else()
     endif()
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
   endif()
-  message("* Show compile-warnings     : No  (default)")
 endif()
 
 #
@@ -253,13 +245,10 @@ endif()
 #
 
 if( SQL )
-  message("* Install SQL-files         : Yes")
+  message("* Install SQL-files     : Yes")
 else()
-  message("* Install SQL-files         : No  (default)")
+  message("* Install SQL-files     : No  (default)")
 endif()
-
-message("")
-message(STATUS "Report errors to our issuetracker, and remember to include this output")
 message("")
 
 #####
