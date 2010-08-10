@@ -194,7 +194,7 @@ endif()
 if( WIN32 )
   add_custom_command(TARGET worldserver
     POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/worldserver.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/worldserver.conf.dist ${CMAKE_INSTALL_PREFIX}/$(ConfigurationName)/
   )
 endif()
 
