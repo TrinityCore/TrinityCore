@@ -138,7 +138,7 @@ endif()
 add_dependencies(worldserver genrev)
 
 if( UNIX )
-  set(worldserver_LINK_FLAGS "-pthread ${worldserver_LINK_FLAGS}")
+  set(worldserver_LINK_FLAGS "-pthread -lncurses ${worldserver_LINK_FLAGS}")
 endif()
 
 if( CMAKE_SYSTEM_NAME MATCHES "Darwin" )
