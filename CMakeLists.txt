@@ -88,14 +88,12 @@ option(GAMEPCH "Use precompiled headers when compiling game project" 1)
 option(SQL "Copy SQL files during installation" 0)
 option(WARNINGS "Enable all compile-warnings during compile" 0)
 
+#
+# Search for readline on *nixbased systems (CLI-handler)
+#
+
 if( UNIX )
-  option(CENTOS "CENTOS" 0)
-  if( CENTOS )
-    add_definitions(-DCENTOS)
-    find_termcap()
-  else()
-    find_readline()
-  endif()
+  find_readline()
 endif()
 
 #
