@@ -1,6 +1,0 @@
-IF(WIN32)
-   IF(NOT CYGWIN)
-     SET(CMAKE_INSTALL_PREFIX
-         "" CACHE PATH "Default install path")
-   ENDIF(NOT CYGWIN)
-ENDIF(WIN32)
