@@ -1174,13 +1174,15 @@ void LFGMgr::SendUpdateProposal(Player *plr, uint32 proposalId, LfgProposal *pPr
     LfgProposalPlayer *ppPlayer = itPlayer->second;
     uint32 pLowGroupGuid = ppPlayer->groupLowGuid;
     uint32 dLowGuid = pProp->groupLowGuid;
+    uint32 dungeonId = pProp->dungeonId;
 
     sLog.outDebug("SMSG_LFG_PROPOSAL_UPDATE");
     WorldPacket data(SMSG_LFG_PROPOSAL_UPDATE, 4 + 1 + 4 + 4 + 1 + 1 + pProp->players.size() * (4 + 1 + 1 + 1 + 1 +1));
     if (plr->GetLfgDungeons()->size() == 1 && *plr->GetLfgDungeons()->begin() != pProp->dungeonId)
-        data << uint32(*plr->GetLfgDungeons()->begin()); // Random dungeon
-    else
-        data << uint32(pProp->dungeonId);                   // Dungeon
+        dungeonId = *plr->GetLfgDungeons()->begin();        // Random dungeon
+    if (LFGDungeonEntry const *dungeon = sLFGDungeonStore.LookupEntry(*plr->GetLfgDungeons()->begin()))
+        dungeonId = dungeon->Entry();
+    data << uint32(dungeonId);                              // Dungeon
     data << uint8(pProp->state);                            // Result state
     data << uint32(proposalId);                             // Internal Proposal ID
     data << uint32(0);                                      // Bosses killed - FIXME
