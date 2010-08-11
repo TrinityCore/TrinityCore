@@ -23,6 +23,7 @@
 #include "SocialMgr.h"
 #include "LFGMgr.h"
 #include "ObjectMgr.h"
+#include "DisableMgr.h"
 #include "WorldPacket.h"
 
 LFGMgr::LFGMgr()
@@ -1433,36 +1434,53 @@ LfgLockStatusSet* LFGMgr::GetPlayerLockStatusDungeons(Player *plr, LfgDungeonSet
     LfgLockStatusType locktype;
     uint8 level = plr->getLevel();
     uint8 expansion = plr->GetSession()->Expansion();
+    AccessRequirement const* ar;
 
     for (LfgDungeonSet::const_iterator it = dungeons->begin(); it != dungeons->end(); ++it)
     {
         dungeon = sLFGDungeonStore.LookupEntry(*it);
         ASSERT(dungeon); // Will never happen - We provide a list from sLFGDungeonStore
+        ar = sObjectMgr.GetAccessRequirement(dungeon->map, Difficulty(dungeon->difficulty));
 
         locktype = LFG_LOCKSTATUS_OK;
         if (dungeon->expansion > expansion)
             locktype = LFG_LOCKSTATUS_INSUFFICIENT_EXPANSION;
-        else if (dungeon->minlevel > level)
-            locktype = LFG_LOCKSTATUS_TOO_LOW_LEVEL;
-        else if (dungeon->maxlevel < level)
-            locktype = LFG_LOCKSTATUS_TOO_HIGH_LEVEL;
-        /* TODO - Use these types when needed...
-        else if ()
-            locktype = LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
-        else if ()
-            locktype = LFG_LOCKSTATUS_TOO_HIGH_GEAR_SCORE;
-        else if () // Locked due to WG, closed by GM, done daily, etc
+        else if (sDisableMgr.IsDisabledFor(DISABLE_TYPE_MAP, dungeon->map, plr))
             locktype = LFG_LOCKSTATUS_RAID_LOCKED;
-        else if ()
+        else if (dungeon->difficulty > DUNGEON_DIFFICULTY_NORMAL && plr->GetBoundInstance(dungeon->map, Difficulty(dungeon->difficulty)))
+            locktype = LFG_LOCKSTATUS_RAID_LOCKED;
+        else
+        {
+            if (!sWorld.getConfig(CONFIG_INSTANCE_IGNORE_LEVEL))
+                if (dungeon->minlevel > level)
+                    locktype = LFG_LOCKSTATUS_TOO_LOW_LEVEL;
+                else if (dungeon->maxlevel < level)
+                    locktype = LFG_LOCKSTATUS_TOO_HIGH_LEVEL;
+
+            if (locktype == LFG_LOCKSTATUS_OK && ar)
+            {
+                if (ar->achievement && !plr->GetAchievementMgr().HasAchieved(sAchievementStore.LookupEntry(ar->achievement)))
+                    locktype = LFG_LOCKSTATUS_RAID_LOCKED; // FIXME: Check the correct lock value
+                else if (plr->GetTeam() == ALLIANCE && ar->quest_A && !plr->GetQuestRewardStatus(ar->quest_A))
+                    locktype = LFG_LOCKSTATUS_QUEST_NOT_COMPLETED;
+                else if (plr->GetTeam() == HORDE && ar->quest_H && !plr->GetQuestRewardStatus(ar->quest_H))
+                    locktype = LFG_LOCKSTATUS_QUEST_NOT_COMPLETED;
+                else
+                    if (ar->item)
+                    {
+                        if (!plr->HasItemCount(ar->item, 1) && (!ar->item2 || !plr->HasItemCount(ar->item2, 1)))
+                            locktype = LFG_LOCKSTATUS_MISSING_ITEM;
+                    }
+                    else if (ar->item2 && !plr->HasItemCount(ar->item2, 1))
+                        locktype = LFG_LOCKSTATUS_MISSING_ITEM;
+            }
+        }
+        /* TODO VoA closed if WG is not under team control (LFG_LOCKSTATUS_RAID_LOCKED)
+            locktype = LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
+            locktype = LFG_LOCKSTATUS_TOO_HIGH_GEAR_SCORE;
             locktype = LFG_LOCKSTATUS_ATTUNEMENT_TOO_LOW_LEVEL;
-        else if ()
             locktype = LFG_LOCKSTATUS_ATTUNEMENT_TOO_HIGH_LEVEL;
-        else if () // Need list of instances and needed quest to enter
-            locktype = LFG_LOCKSTATUS_QUEST_NOT_COMPLETED;
-        else if () // Need list of instances and needed key to enter
-            locktype = LFG_LOCKSTATUS_MISSING_ITEM;
-        else if () // Need list of instances and needed season to open
-            locktype = LFG_LOCKSTATUS_NOT_IN_SEASON;
+            locktype = LFG_LOCKSTATUS_NOT_IN_SEASON; // Need list of instances and needed season to open
         */
 
         if (locktype != LFG_LOCKSTATUS_OK)
