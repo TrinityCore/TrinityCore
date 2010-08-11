@@ -65,6 +65,9 @@ typedef int64_t libmpq__off_t;
 /* generic information about library. */
 extern LIBMPQ_API const char *libmpq__version(void);
 
+/* string error message for a libmpq return code. */
+extern LIBMPQ_API const char *libmpq__strerror(int32_t returncode);
+
 /* generic mpq archive information. */
 extern LIBMPQ_API int32_t libmpq__archive_open(mpq_archive_s **mpq_archive, const char *mpq_filename, libmpq__off_t archive_offset);
 extern LIBMPQ_API int32_t libmpq__archive_close(mpq_archive_s *mpq_archive);
