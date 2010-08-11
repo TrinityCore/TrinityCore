@@ -2250,7 +2250,14 @@ class Player : public Unit, public GridObject<Player>
         void SetAtLoginFlag(AtLoginFlags f) { m_atLoginFlags |= f; }
         void RemoveAtLoginFlag(AtLoginFlags f, bool in_db_also = false);
 
-        LookingForGroup m_lookingForGroup;
+        // Dungeon Finder
+        bool isLfgDungeonDone(const uint32 entry) { return m_LookingForGroup.donerandomDungeons.find(entry) != m_LookingForGroup.donerandomDungeons.end(); }  
+        LfgDungeonSet *GetLfgDungeons() { return &m_LookingForGroup.applyDungeons; }
+        LfgDungeonSet *GetLfgDungeonsDone() { return &m_LookingForGroup.donerandomDungeons; }
+        std::string GetLfgComment() { return m_LookingForGroup.comment; }
+        void SetLfgComment(std::string _comment) { m_LookingForGroup.comment = _comment; }
+        uint8 GetLfgRoles() { return m_LookingForGroup.roles; }
+        void SetLfgRoles(uint8 _roles) { m_LookingForGroup.roles = _roles; }
 
         // Temporarily removed pet cache
         uint32 GetTemporaryUnsummonedPetNumber() const { return m_temporaryUnsummonedPetNumber; }
@@ -2671,6 +2678,8 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_timeSyncTimer;
         uint32 m_timeSyncClient;
         uint32 m_timeSyncServer;
+
+        LookingForGroup m_LookingForGroup;
 };
 
 void AddItemsSetItem(Player*player,Item *item);

@@ -42,12 +42,12 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket &recv_data)
         return;
     }
 
-    GetPlayer()->m_lookingForGroup.roles = uint8(roles);
+    GetPlayer()->SetLfgRoles(uint8(roles));
     for (int8 i = 0 ; i < numDungeons; ++i)
     {
         recv_data >> dungeon;
         // remove the type from the dungeon entry
-        GetPlayer()->m_lookingForGroup.applyDungeons.insert((dungeon & 0x00FFFFFF));
+        GetPlayer()->GetLfgDungeons()->insert((dungeon & 0x00FFFFFF));
     }
 
     recv_data >> numDungeons;                               // unk - always 3
@@ -56,7 +56,7 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket &recv_data)
 
     recv_data >> comment;
 
-    GetPlayer()->m_lookingForGroup.comment = comment;
+    GetPlayer()->SetLfgComment(comment);
     sLFGMgr.Join(GetPlayer());
 }
 
@@ -86,7 +86,7 @@ void WorldSession::HandleLfgSetRolesOpcode(WorldPacket &recv_data)
     Group *grp = GetPlayer()->GetGroup();
     if (!grp)
         return;
-    GetPlayer()->m_lookingForGroup.roles = roles;
+    GetPlayer()->SetLfgRoles(roles);
     sLFGMgr.UpdateRoleCheck(grp, GetPlayer());
 }
 
@@ -97,7 +97,7 @@ void WorldSession::HandleSetLfgCommentOpcode(WorldPacket & recv_data)
     std::string comment;
     recv_data >> comment;
 
-    GetPlayer()->m_lookingForGroup.comment = comment;
+    GetPlayer()->SetLfgComment(comment);
 }
 
 void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket &/*recv_data*/)
@@ -125,12 +125,15 @@ void WorldSession::SendLfgUpdatePlayer(uint8 updateType)
         extrainfo = true;
         break;
     //case LFG_UPDATETYPE_CLEAR_LOCK_LIST: // TODO: Sometimes has extrainfo - Check ocurrences...
-    case LFG_UPDATETYPE_PROPOSAL_FOUND:
+    case LFG_UPDATETYPE_PROPOSAL_BEGIN:
         extrainfo = true;
         break;
     }
+    LfgDungeonSet *dungeons = GetPlayer()->GetLfgDungeons();
+    uint8 size = dungeons->size();
+    std::string comment = GetPlayer()->GetLfgComment();
     sLog.outDebug("SMSG_LFG_UPDATE_PLAYER");
-    WorldPacket data(SMSG_LFG_UPDATE_PLAYER, 1 + 1 + (extrainfo ? 1 : 0) * (1 + 1 + 1 + 1 + GetPlayer()->m_lookingForGroup.applyDungeons.size() * 4 + GetPlayer()->m_lookingForGroup.comment.length()));
+    WorldPacket data(SMSG_LFG_UPDATE_PLAYER, 1 + 1 + (extrainfo ? 1 : 0) * (1 + 1 + 1 + 1 + size * 4 + comment.length()));
     data << uint8(updateType);                              // Lfg Update type
     data << uint8(extrainfo);                               // Extra info
     if (extrainfo)
@@ -139,12 +142,11 @@ void WorldSession::SendLfgUpdatePlayer(uint8 updateType)
         data << uint8(0);                                   // unk - Always 0
         data << uint8(0);                                   // unk - Always 0
 
-        uint8 size = GetPlayer()->m_lookingForGroup.applyDungeons.size();
         data << uint8(size);
 
-        for (LfgDungeonSet::const_iterator it = GetPlayer()->m_lookingForGroup.applyDungeons.begin(); it != GetPlayer()->m_lookingForGroup.applyDungeons.end(); ++it)
+        for (LfgDungeonSet::const_iterator it = dungeons->begin(); it != dungeons->end(); ++it)
             data << uint32(*it);
-        data << GetPlayer()->m_lookingForGroup.comment;
+        data << comment;
     }
     SendPacket(&data);
 }
@@ -169,14 +171,17 @@ void WorldSession::SendLfgUpdateParty(uint8 updateType)
         // join = true;  // TODO: Sometimes queued and extrainfo - Check ocurrences...
         queued = true;
         break;
-    case LFG_UPDATETYPE_PROPOSAL_FOUND:
+    case LFG_UPDATETYPE_PROPOSAL_BEGIN:
         extrainfo = true;
         join = true;
         break;
     }
 
+    LfgDungeonSet *dungeons = GetPlayer()->GetLfgDungeons();
+    uint8 size = dungeons->size();
+    std::string comment = GetPlayer()->GetLfgComment();
     sLog.outDebug("SMSG_LFG_UPDATE_PARTY");
-    WorldPacket data(SMSG_LFG_UPDATE_PARTY, 1 + 1 + (extrainfo ? 1 : 0) * (1 + 1 + 1 + 1 + 1 + GetPlayer()->m_lookingForGroup.applyDungeons.size() * 4 + GetPlayer()->m_lookingForGroup.comment.length()));
+    WorldPacket data(SMSG_LFG_UPDATE_PARTY, 1 + 1 + (extrainfo ? 1 : 0) * (1 + 1 + 1 + 1 + 1 + size * 4 + comment.length()));
     data << uint8(updateType);                              // Lfg Update type
     data << uint8(extrainfo);                               // Extra info
     if (extrainfo)
@@ -188,13 +193,12 @@ void WorldSession::SendLfgUpdateParty(uint8 updateType)
         for (uint8 i = 0; i < 3; ++i)
             data << uint8(0);                               // unk - Always 0
 
-        uint8 size = GetPlayer()->m_lookingForGroup.applyDungeons.size();
         data << uint8(size);
 
-        for (LfgDungeonSet::const_iterator it = GetPlayer()->m_lookingForGroup.applyDungeons.begin(); it != GetPlayer()->m_lookingForGroup.applyDungeons.end(); ++it)
+        for (LfgDungeonSet::const_iterator it = dungeons->begin(); it != dungeons->end(); ++it)
             data << uint32(*it);
 
-        data << GetPlayer()->m_lookingForGroup.comment;
+        data << comment;
     }
     SendPacket(&data);
 }

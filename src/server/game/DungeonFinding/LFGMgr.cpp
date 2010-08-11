@@ -181,8 +181,8 @@ void LFGMgr::Update(uint32 diff)
             if (!plr)
                 continue;
             plr->GetSession()->SendPacket(&data);
-            plr->m_lookingForGroup.applyDungeons.clear();
-            plr->m_lookingForGroup.roles = 0;
+            plr->GetLfgDungeons()->clear();
+            plr->SetLfgRoles(ROLE_NONE);
 
             if (itRoles->first == pRoleCheck->leader)
                 plr->GetSession()->SendLfgJoinResult(LFG_JOIN_FAILED, pRoleCheck->result);
@@ -258,7 +258,7 @@ void LFGMgr::Join(Player *plr)
     else
     {
         // Check if all dungeons are valid
-        for (LfgDungeonSet::const_iterator it = plr->m_lookingForGroup.applyDungeons.begin(); it != plr->m_lookingForGroup.applyDungeons.end(); ++it)
+        for (LfgDungeonSet::const_iterator it = plr->GetLfgDungeons()->begin(); it != plr->GetLfgDungeons()->end(); ++it)
         {
             if ((m_DungeonsMap[LFG_ALL_DUNGEONS])->find(*it) == (m_DungeonsMap[LFG_ALL_DUNGEONS])->end())
             {
@@ -293,8 +293,8 @@ void LFGMgr::Join(Player *plr)
 
     if (result != LFG_JOIN_OK)
     {
-        plr->m_lookingForGroup.applyDungeons.clear();
-        plr->m_lookingForGroup.roles = 0;
+        plr->GetLfgDungeons()->clear();
+        plr->SetLfgRoles(ROLE_NONE);
         plr->GetSession()->SendLfgJoinResult(result, 0);
         return;
     }
@@ -302,10 +302,13 @@ void LFGMgr::Join(Player *plr)
     if (grp)
     {
         Player *plrg = NULL;
+        LfgDungeonSet *dungeons;
         for (GroupReference *itr = plr->GetGroup()->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             plrg = itr->getSource();                        // Not null, checked earlier
-            plrg->m_lookingForGroup.applyDungeons = plr->m_lookingForGroup.applyDungeons;
+            dungeons = plrg->GetLfgDungeons();
+            for (LfgDungeonSet::const_iterator itDungeon = plr->GetLfgDungeons()->begin(); itDungeon != plr->GetLfgDungeons()->end(); ++itDungeon)
+                dungeons->insert(*itDungeon);
             plrg->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_JOIN_PROPOSAL);
         }
         UpdateRoleCheck(grp, plr);
@@ -321,14 +324,14 @@ void LFGMgr::Join(Player *plr)
         uint8 tanks = LFG_TANKS_NEEDED;
         uint8 healers = LFG_HEALERS_NEEDED;
         uint8 dps = LFG_DPS_NEEDED;
-        if (plr->m_lookingForGroup.roles & ROLE_TANK)
+        if (plr->GetLfgRoles() & ROLE_TANK)
             --tanks;
-        else if (plr->m_lookingForGroup.roles & ROLE_HEALER)
+        else if (plr->GetLfgRoles() & ROLE_HEALER)
             --healers;
         else
             --dps;
         m_update = false;
-        for (LfgDungeonSet::const_iterator it = plr->m_lookingForGroup.applyDungeons.begin(); it != plr->m_lookingForGroup.applyDungeons.end(); ++it)
+        for (LfgDungeonSet::const_iterator it = plr->GetLfgDungeons()->begin(); it != plr->GetLfgDungeons()->end(); ++it)
         {
             groupType = GetDungeonGroupType(*it);
             pqInfo = m_Queues[groupType] ? m_Queues[groupType]->GetQueueInfo(plr->GetGUID()) : NULL;
@@ -341,7 +344,7 @@ void LFGMgr::Join(Player *plr)
             pqInfo->tanks = tanks;
             pqInfo->healers = healers;
             pqInfo->dps = dps;
-            pqInfo->roles[plr->GetGUID()] = plr->m_lookingForGroup.roles;
+            pqInfo->roles[plr->GetGUID()] = plr->GetLfgRoles();
             if (!m_Queues[groupType])
                 m_Queues[groupType] = new LFGQueue();
             m_Queues[groupType]->AddToQueue(plr->GetGUID(), pqInfo);
@@ -386,15 +389,15 @@ void LFGMgr::Leave(Player *plr, Group *grp /* = NULL*/)
             if (Player *plrg = itr->getSource())
             {
                 plrg->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_REMOVED_FROM_QUEUE);
-                plrg->m_lookingForGroup.applyDungeons.clear();
-                plrg->m_lookingForGroup.roles = 0;
+                plrg->GetLfgDungeons()->clear();
+                plrg->SetLfgRoles(ROLE_NONE);
             }
     }
     else
     {
         plr->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_REMOVED_FROM_QUEUE);
-        plr->m_lookingForGroup.applyDungeons.clear();
-        plr->m_lookingForGroup.roles = 0;
+        plr->GetLfgDungeons()->clear();
+        plr->SetLfgRoles(ROLE_NONE);
     }
 }
 
@@ -426,7 +429,8 @@ void LFGMgr::UpdateRoleCheck(Group *grp, Player *plr /* = NULL*/)
             if (Player *plrg = itr->getSource())
                 pRoleCheck->roles[plrg->GetGUID()] = 0;
 
-        pRoleCheck->dungeons = plr->m_lookingForGroup.applyDungeons;
+        for (LfgDungeonSet::const_iterator itDungeon = plr->GetLfgDungeons()->begin(); itDungeon != plr->GetLfgDungeons()->end(); ++itDungeon)
+            pRoleCheck->dungeons.insert(*itDungeon);
     }
     else
         pRoleCheck = itRoleCheck->second;
@@ -435,12 +439,12 @@ void LFGMgr::UpdateRoleCheck(Group *grp, Player *plr /* = NULL*/)
     if (plr)
     {
         // Player selected no role.
-        if (plr->m_lookingForGroup.roles < ROLE_TANK)
+        if (plr->GetLfgRoles() < ROLE_TANK)
             pRoleCheck->result = LFG_ROLECHECK_NO_ROLE;
         else
         {
             // Check if all players have selected a role
-            pRoleCheck->roles[plr->GetGUID()] = plr->m_lookingForGroup.roles;
+            pRoleCheck->roles[plr->GetGUID()] = plr->GetLfgRoles();
             uint8 size = 0;
             for (LfgRolesMap::const_iterator itRoles = pRoleCheck->roles.begin(); itRoles != pRoleCheck->roles.end() && itRoles->second != ROLE_NONE; ++itRoles)
                 ++size;
@@ -489,7 +493,7 @@ void LFGMgr::UpdateRoleCheck(Group *grp, Player *plr /* = NULL*/)
 
         session = plrg->GetSession();
         if (!newRoleCheck && plr)
-            session->SendLfgRoleChosen(plr->GetGUID(), plr->m_lookingForGroup.roles);
+            session->SendLfgRoleChosen(plr->GetGUID(), plr->GetLfgRoles());
         session->SendPacket(&data);
 
         switch(pRoleCheck->result)
@@ -516,16 +520,16 @@ void LFGMgr::UpdateRoleCheck(Group *grp, Player *plr /* = NULL*/)
                     session->SendPacket(&data);
                 }
                 session->SendLfgUpdateParty(LFG_UPDATETYPE_ROLECHECK_FAILED);
-                plrg->m_lookingForGroup.applyDungeons.clear();
-                plrg->m_lookingForGroup.roles = 0;
+                plrg->GetLfgDungeons()->clear();
+                plrg->SetLfgRoles(ROLE_NONE);
             }
             break;
         default:
             if (grp->IsLeader(plrg->GetGUID()))
                 session->SendLfgJoinResult(LFG_JOIN_FAILED, pRoleCheck->result);
             session->SendLfgUpdateParty(LFG_UPDATETYPE_ROLECHECK_FAILED);
-            plrg->m_lookingForGroup.applyDungeons.clear();
-            plrg->m_lookingForGroup.roles = 0;
+            plrg->GetLfgDungeons()->clear();
+            plrg->SetLfgRoles(ROLE_NONE);
             break;
         }
     }
@@ -565,7 +569,7 @@ void LFGMgr::UpdateRoleCheck(Group *grp, Player *plr /* = NULL*/)
             for (GroupReference *itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
             {
                 if (Player *plrg = itr->getSource())
-                    pqInfo->roles[plrg->GetGUID()] = plrg->m_lookingForGroup.roles;
+                    pqInfo->roles[plrg->GetGUID()] = plrg->GetLfgRoles();
             }
             if (!m_Queues[groupType])
                 m_Queues[groupType] = new LFGQueue();
@@ -769,7 +773,7 @@ void LFGMgr::SendLfgPartyInfo(Player *plr)
 /// <param name="plr">Player</param>
 void LFGMgr::BuildRewardBlock(WorldPacket &data, uint32 dungeon, Player *plr)
 {
-    bool done = plr->m_lookingForGroup.isDungeonDone(dungeon);
+    bool done = plr->isLfgDungeonDone(dungeon);
     LfgReward *reward = GetRandomDungeonReward(dungeon, done, plr->getLevel());
 
     if (!reward)
