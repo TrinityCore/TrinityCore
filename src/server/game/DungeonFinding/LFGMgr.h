@@ -302,6 +302,7 @@ class LFGMgr
 
         void SendLfgPlayerInfo(Player *plr);
         void SendLfgPartyInfo(Player *plr);
+        bool isRandomDungeon(uint32 dungeonId);
 
     private:
         void SendUpdateProposal(Player *plr, uint32 proposalId, LfgProposal *pProp);
@@ -314,7 +315,6 @@ class LFGMgr
 
         void AddToQueue(uint64 guid, LfgRolesMap *roles, LfgDungeonSet *dungeons);
         bool RemoveFromQueue(uint64 guid);
-        bool isRandomDungeon(uint32 dungeonId);
         void FindNewGroups(LfgGuidList &check, LfgGuidList all, LfgProposalList *proposals);
         bool CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag = true);
         void RemoveProposal(LfgProposalMap::iterator itProposal, LfgUpdateType type);

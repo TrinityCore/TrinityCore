@@ -43,11 +43,47 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket &recv_data)
     }
 
     GetPlayer()->SetLfgRoles(uint8(roles));
-    for (int8 i = 0 ; i < numDungeons; ++i)
+
+    // Check if it's offer continue
+    Group *grp = GetPlayer()->GetGroup();
+    if (grp && grp->isLFGGroup())
     {
-        recv_data >> dungeon;
-        // remove the type from the dungeon entry
-        GetPlayer()->GetLfgDungeons()->insert((dungeon & 0x00FFFFFF));
+        LfgDungeonSet *dungeons = GetPlayer()->GetLfgDungeons();
+        if (grp->GetLfgStatus() == LFG_STATUS_COMPLETE)     // Dungeon complete add all dungeons
+        {
+            dungeons->clear();
+            for (int8 i = 0 ; i < numDungeons; ++i)
+            {
+                recv_data >> dungeon;
+                dungeons->insert((dungeon & 0x00FFFFFF));
+            }
+        }
+        else if (dungeons->size() > 1 || dungeons->size() ==1 && !sLFGMgr.isRandomDungeon(*dungeons->begin()))
+        {
+            dungeons->clear();
+            // ignore the list and select the current dungeon
+            for (int8 i = 0 ; i < numDungeons; ++i)
+                recv_data.read_skip<uint32>();
+            dungeons->insert(grp->GetLfgDungeonEntry());
+        }
+        else // currently added to random Dungeon
+        {
+            for (int8 i = 0 ; i < numDungeons; ++i)
+            {
+                recv_data >> dungeon;
+                // remove the type from the dungeon entry
+                GetPlayer()->GetLfgDungeons()->insert((dungeon & 0x00FFFFFF));
+            }
+        }
+    }
+    else
+    {
+        for (int8 i = 0 ; i < numDungeons; ++i)
+        {
+            recv_data >> dungeon;
+            // remove the type from the dungeon entry
+            GetPlayer()->GetLfgDungeons()->insert((dungeon & 0x00FFFFFF));
+        }
     }
 
     recv_data >> numDungeons;                               // unk - always 3
