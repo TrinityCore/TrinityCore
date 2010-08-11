@@ -63,17 +63,21 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket &recv_data)
 void WorldSession::HandleLfgLeaveOpcode(WorldPacket & /*recv_data*/)
 {
     sLog.outDebug("CMSG_LFG_LEAVE");
+    Group *grp = GetPlayer()->GetGroup();
 
     // Check cheating - only leader can leave the queue
-    if (Group *grp = GetPlayer()->GetGroup())
-    {
-        if (grp->GetLeaderGUID() != GetPlayer()->GetGUID())
-            return;
-        else
-            sLFGMgr.Leave(GetPlayer(), grp);
-    }
-    else
+    if (!grp || grp->GetLeaderGUID() == GetPlayer()->GetGUID())
         sLFGMgr.Leave(GetPlayer());
+}
+
+void WorldSession::HandleLfgProposalResultOpcode(WorldPacket &recv_data)
+{
+    sLog.outDebug("CMSG_LFG_PROPOSAL_RESULT");
+
+    uint32 lfgGroupID;                                      // Internal lfgGroupID
+    uint8 accept;                                           // Accept to join?
+    recv_data >> lfgGroupID;
+    recv_data >> accept;
 }
 
 void WorldSession::HandleLfgSetRolesOpcode(WorldPacket &recv_data)
@@ -81,7 +85,7 @@ void WorldSession::HandleLfgSetRolesOpcode(WorldPacket &recv_data)
     sLog.outDebug("CMSG_LFG_SET_ROLES");
 
     uint8 roles;
-    recv_data >> roles;                                    // Player Group Roles
+    recv_data >> roles;                                     // Player Group Roles
 
     Group *grp = GetPlayer()->GetGroup();
     if (!grp)
@@ -100,6 +104,22 @@ void WorldSession::HandleSetLfgCommentOpcode(WorldPacket & recv_data)
     GetPlayer()->SetLfgComment(comment);
 }
 
+void WorldSession::HandleLfgSetBootVoteOpcode(WorldPacket &recv_data)
+{
+    sLog.outDebug("CMSG_LFG_SET_BOOT_VOTE");
+
+    uint8 agree;                                             // Agree to kick player
+    recv_data >> agree;
+}
+
+void WorldSession::HandleLfgTeleportOpcode(WorldPacket &recv_data)
+{
+    sLog.outDebug("CMSG_LFG_TELEPORT");
+
+    bool out;
+    recv_data >> out;
+}
+
 void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket &/*recv_data*/)
 {
     sLog.outDebug("CMSG_LFD_PLAYER_LOCK_INFO_REQUEST");
@@ -109,7 +129,22 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket &/*recv_data
 void WorldSession::HandleLfgPartyLockInfoRequestOpcode(WorldPacket &/*recv_data*/)
 {
     sLog.outDebug("CMSG_LFD_PARTY_LOCK_INFO_REQUEST");
-    sLFGMgr.SendLfgPartyInfo(GetPlayer());
+}
+
+void WorldSession::HandleLfrSearchOpcode(WorldPacket &recv_data)
+{
+    sLog.outDebug("CMSG_SEARCH_LFG_JOIN");
+
+    uint32 entry;                                           // Raid id to search
+    recv_data >> entry;
+}
+
+void WorldSession::HandleLfrLeaveOpcode(WorldPacket &recv_data)
+{
+    sLog.outDebug("CMSG_SEARCH_LFG_LEAVE");
+
+    uint32 dungeonId;                                       // Raid id queue to leave
+    recv_data >> dungeonId;
 }
 
 void WorldSession::SendLfgUpdatePlayer(uint8 updateType)
@@ -207,7 +242,7 @@ void WorldSession::SendLfgRoleChosen(uint64 guid, uint8 roles)
 {
     sLog.outDebug("SMSG_LFG_ROLE_CHOSEN");
 
-    WorldPacket data(SMSG_LFG_ROLE_CHOSEN);
+    WorldPacket data(SMSG_LFG_ROLE_CHOSEN, 8 + 1 + 4);
     data << uint64(guid);                                   // Guid
     data << uint8(roles > 0);                               // Ready
     data << uint32(roles);                                  // Roles
@@ -221,7 +256,7 @@ void WorldSession::SendLfgJoinResult(uint8 checkResult, uint8 checkValue)
 
     sLog.outDebug("SMSG_LFG_JOIN_RESULT");
 
-    WorldPacket data(SMSG_LFG_JOIN_RESULT);
+    WorldPacket data(SMSG_LFG_JOIN_RESULT, 4 + 4);
     data << uint32(checkResult);                            // Check Result
     data << uint32(checkValue);                             // Check Value
     SendPacket(&data);
@@ -230,7 +265,7 @@ void WorldSession::SendLfgJoinResult(uint8 checkResult, uint8 checkValue)
 void WorldSession::SendLfgQueueStatus(uint32 dungeon, int32 waitTime, int32 avgWaitTime, int32 waitTimeTanks, int32 waitTimeHealer, int32 waitTimeDps, uint32 queuedTime, uint8 tanks, uint8 healers, uint8 dps)
 {
     sLog.outDebug("SMSG_LFG_QUEUE_STATUS");
-    WorldPacket data(SMSG_LFG_QUEUE_STATUS);
+    WorldPacket data(SMSG_LFG_QUEUE_STATUS, 4 + 4 + 4 + 4 + 4 +4 + 1 + 1 + 1 + 4);
 
     data << uint32(dungeon);                                // Dungeon
     data << uint32(avgWaitTime);                            // Average Wait time
@@ -249,7 +284,32 @@ void WorldSession::SendLfgUpdateSearch(bool update)
 {
     sLog.outDebug("SMSG_LFG_UPDATE_SEARCH");
 
-    WorldPacket data(SMSG_LFG_UPDATE_SEARCH);
+    WorldPacket data(SMSG_LFG_UPDATE_SEARCH, 1);
     data << uint8(update);                                  // In Lfg Queue?
+    SendPacket(&data);
+}
+
+void WorldSession::SendLfgDisabled()
+{
+    sLog.outDebug("SMSG_LFG_DISABLED");
+    WorldPacket data(SMSG_LFG_DISABLED, 0);
+    SendPacket(&data);
+}
+
+void WorldSession::SendLfgOfferContinue(uint32 dungeonEntry)
+{
+    sLog.outDebug("SMSG_LFG_OFFER_CONTINUE");
+
+    WorldPacket data(SMSG_LFG_OFFER_CONTINUE, 4);
+    data << uint32(dungeonEntry);
+    SendPacket(&data);
+}
+
+void WorldSession::SendLfgTeleportError(uint8 err)
+{
+    sLog.outDebug("SMSG_LFG_TELEPORT_DENIED");
+
+    WorldPacket data(SMSG_LFG_TELEPORT_DENIED, 4);
+    data << uint32(err);                                    // Error
     SendPacket(&data);
 }

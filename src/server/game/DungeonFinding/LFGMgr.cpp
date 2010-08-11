@@ -20,6 +20,7 @@
 #include "SharedDefines.h"
 #include "Group.h"
 #include "Player.h"
+#include "SocialMgr.h"
 #include "LFGMgr.h"
 #include "ObjectMgr.h"
 #include "WorldPacket.h"
@@ -54,6 +55,9 @@ LFGMgr::~LFGMgr()
         delete it->second;
     m_RoleChecks.clear();
 
+    for (LfgDungeonMap::iterator it = m_CachedDungeonMap.begin(); it != m_CachedDungeonMap.end(); ++it)
+        delete it->second;
+    m_CachedDungeonMap.clear();
     m_QueueInfoMap.clear();
     m_currentQueue.clear();
     m_newToQueue.clear();
@@ -188,18 +192,13 @@ void LFGMgr::InitLFG()
         m_RewardDoneList.push_back(reward);
     }
     // Initialize dungeonMap
-    m_DungeonsMap[LFG_ALL_DUNGEONS] = GetAllDungeons();
-    m_DungeonsMap[LFG_RANDOM_CLASSIC] = GetDungeonsByRandom(LFG_RANDOM_CLASSIC);
-    m_DungeonsMap[LFG_RANDOM_BC_NORMAL] = GetDungeonsByRandom(LFG_RANDOM_BC_NORMAL);
-    m_DungeonsMap[LFG_RANDOM_BC_HEROIC] = GetDungeonsByRandom(LFG_RANDOM_BC_HEROIC);
-    m_DungeonsMap[LFG_RANDOM_LK_NORMAL] = GetDungeonsByRandom(LFG_RANDOM_LK_NORMAL);
-    m_DungeonsMap[LFG_RANDOM_LK_HEROIC] = GetDungeonsByRandom(LFG_RANDOM_LK_HEROIC);
+    GetAllDungeons();
 }
 
 /// <summary>
-/// Adds the player to lfg queue
+/// Adds the player/group to lfg queue
 /// </summary>
-/// <param name="plr">Player</param>
+/// <param name="Player *">Player</param>
 void LFGMgr::Join(Player *plr)
 {
     Group *grp = plr->GetGroup();
@@ -609,7 +608,6 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag /*= true
     return tank == LFG_TANKS_NEEDED && healer == LFG_HEALERS_NEEDED && damage == LFG_DPS_NEEDED;
 }
 
-
 // --------------------------------------------------------------------------//
 // Packet Functions
 // --------------------------------------------------------------------------//
@@ -617,9 +615,8 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag /*= true
 /// <summary>
 /// Build lfgRolecheck packet
 /// </summary>
-/// <param name="data">WorldPacket</param>
-/// <param name="plr">Player</param>
-/// <param name="status">Player status in LFG system</param>
+/// <param name="WorldPacket &">WorldPacket</param>
+/// <param name="LfgRoleCheck *">RoleCheck info</param>
 void LFGMgr::BuildLfgRoleCheck(WorldPacket &data, LfgRoleCheck *pRoleCheck)
 {
     ASSERT(pRoleCheck);
@@ -640,14 +637,12 @@ void LFGMgr::BuildLfgRoleCheck(WorldPacket &data, LfgRoleCheck *pRoleCheck)
     data << uint8(pRoleCheck->roles.size());                // Players in group
     // Leader info MUST be sent 1st :S
     roles = pRoleCheck->roles[pRoleCheck->leader];
-    data << uint64(pRoleCheck->leader);                     // Guid
+    uint64 guid = MAKE_NEW_GUID(pRoleCheck->leader, 0, HIGHGUID_PLAYER);
+    data << uint64(guid);                                   // Guid
     data << uint8(roles > 0);                               // Ready
     data << uint32(roles);                                  // Roles
-    plr = sObjectMgr.GetPlayer(pRoleCheck->leader);
-    if (plr)
-        data << uint8(plr->getLevel());                     // Level
-    else
-        data << uint8(0);
+    plr = sObjectMgr.GetPlayer(guid);
+    data << uint8(plr ? plr->getLevel() : 0);               // Level
 
     for (LfgRolesMap::const_iterator itPlayers = pRoleCheck->roles.begin(); itPlayers != pRoleCheck->roles.end(); ++itPlayers)
     {
@@ -655,43 +650,58 @@ void LFGMgr::BuildLfgRoleCheck(WorldPacket &data, LfgRoleCheck *pRoleCheck)
             continue;
 
         roles = itPlayers->second;
-        data << uint64(itPlayers->first);                   // Guid
+        guid = MAKE_NEW_GUID(itPlayers->first, 0, HIGHGUID_PLAYER);
+        data << uint64(guid);                               // Guid
         data << uint8(roles > 0);                           // Ready
         data << uint32(roles);                              // Roles
-        plr = sObjectMgr.GetPlayer(pRoleCheck->leader);
-        if (plr)
-            data << uint8(plr->getLevel());                 // Level
-        else
-            data << uint8(0);
+        plr = sObjectMgr.GetPlayer(guid);
+        data << uint8(plr ? plr->getLevel() : 0);           // Level
     }
 }
 
 /// <summary>
 /// Build and Send LFG lock player info and reward
 /// </summary>
-/// <param name="plr">Player</param>
+/// <param name="Player *">Player</param>
 void LFGMgr::SendLfgPlayerInfo(Player *plr)
 {
     uint32 rsize = 0;
     uint32 lsize = 0;
+    bool done;
     LfgDungeonSet *randomlist = GetRandomDungeons(plr->getLevel(), plr->GetSession()->Expansion());
-    LfgLockStatusSet *lockSet = GetPlayerLockStatusDungeons(plr, m_DungeonsMap[LFG_ALL_DUNGEONS]);
+    LfgLockStatusSet *lockSet = GetPlayerLockStatusDungeons(plr, GetAllDungeons());
+
     if (randomlist)
         rsize = randomlist->size();
+
     if (lockSet)
         lsize = lockSet->size();
 
     sLog.outDebug("SMSG_LFG_PLAYER_INFO");
-    WorldPacket data(SMSG_LFG_PLAYER_INFO, 1 + rsize * (4 + 1 + 4 + 4 + 4 + 4 + 1 + 4 + 4 + 4) + 4 + lsize * (4 + 4));
+    WorldPacket data(SMSG_LFG_PLAYER_INFO, 1 + rsize * (4 + 1 + 4 + 4 + 4 + 4 + 1 + 4 + 4 + 4) + 4 + lsize * (1 + 4 + 4 + 4 + 4 + 1 + 4 + 4 + 4));
     if (!randomlist)
         data << uint8(0);
     else
     {
+        LfgReward *reward;
         data << uint8(randomlist->size());                  // Random Dungeon count
         for (LfgDungeonSet::iterator it = randomlist->begin(); it != randomlist->end(); ++it)
         {
+            done = plr->isLfgDungeonDone(*it);
+            reward = GetRandomDungeonReward(*it, done, plr->getLevel());
             data << uint32(*it);                            // Entry
-            BuildRewardBlock(data, *it, plr);
+            data << uint8(done);
+            data << uint32(reward->baseMoney);
+            data << uint32(reward->baseXP);
+            data << uint32(reward->variableMoney);
+            data << uint32(reward->variableXP);
+            data << uint8(reward->itemId != 0);
+            if (reward->itemId)
+            {
+                data << uint32(reward->itemId);
+                data << uint32(reward->displayId);
+                data << uint32(reward->stackCount);
+            }
         }
         randomlist->clear();
         delete randomlist;
@@ -703,10 +713,10 @@ void LFGMgr::SendLfgPlayerInfo(Player *plr)
 /// <summary>
 /// Build and Send LFG lock party info and reward
 /// </summary>
-/// <param name="plr">Player</param>
+/// <param name="Player *">Player</param>
 void LFGMgr::SendLfgPartyInfo(Player *plr)
 {
-    if (LfgLockStatusMap *lockMap = GetPartyLockStatusDungeons(plr, m_DungeonsMap[LFG_ALL_DUNGEONS]))
+    if (LfgLockStatusMap *lockMap = GetPartyLockStatusDungeons(plr, GetAllDungeons()))
     {
         uint32 size = 0;
         for (LfgLockStatusMap::const_iterator it = lockMap->begin(); it != lockMap->end(); ++it)
@@ -719,40 +729,10 @@ void LFGMgr::SendLfgPartyInfo(Player *plr)
 }
 
 /// <summary>
-/// Build Reward packet structure for a given dungeon
-/// </summary>
-/// <param name="data">WorldPacket</param>
-/// <param name="dungeon">Dungeon entry</param>
-/// <param name="plr">Player</param>
-void LFGMgr::BuildRewardBlock(WorldPacket &data, uint32 dungeon, Player *plr)
-{
-    bool done = plr->isLfgDungeonDone(dungeon);
-    LfgReward *reward = GetRandomDungeonReward(dungeon, done, plr->getLevel());
-
-    if (!reward)
-        return;
-
-    data << uint8(done);
-    if (data.GetOpcode() == SMSG_LFG_PLAYER_REWARD)
-        data << uint32(reward->strangers);
-    data << uint32(reward->baseMoney);
-    data << uint32(reward->baseXP);
-    data << uint32(reward->variableMoney);
-    data << uint32(reward->variableXP);
-    data << uint8(reward->itemId != 0);
-    if (reward->itemId)
-    {
-        data << uint32(reward->itemId);
-        data << uint32(reward->displayId);
-        data << uint32(reward->stackCount);
-    }
-}
-
-/// <summary>
 /// Build Party Dungeon lock status packet
 /// </summary>
-/// <param name="data">WorldPacket</param>
-/// <param name="lock">lock status map</param>
+/// <param name="WorldPacket &">WorldPacket</param>
+/// <param name="LfgLockStatusMap *">lock status map</param>
 void LFGMgr::BuildPartyLockDungeonBlock(WorldPacket &data, LfgLockStatusMap *lockMap)
 {
     ASSERT(lockMap);
@@ -760,15 +740,13 @@ void LFGMgr::BuildPartyLockDungeonBlock(WorldPacket &data, LfgLockStatusMap *loc
     data << uint8(lockMap->size());
 
     LfgLockStatusSet *lockSet;
-    uint64 guid;
     for (LfgLockStatusMap::const_iterator it = lockMap->begin(); it != lockMap->end(); ++it)
     {
-        guid = it->first;
         lockSet = it->second;
         if (!lockSet)
             continue;
 
-        data << uint64(guid);                               // Player guid
+        data << uint64(MAKE_NEW_GUID(it->first, 0, HIGHGUID_PLAYER)); // Player guid
         BuildPlayerLockDungeonBlock(data, lockSet);
     }
     lockMap->clear();
@@ -778,8 +756,8 @@ void LFGMgr::BuildPartyLockDungeonBlock(WorldPacket &data, LfgLockStatusMap *loc
 /// <summary>
 /// Build Player Dungeon lock status packet
 /// </summary>
-/// <param name="data">WorldPacket</param>
-/// <param name="lock">lock status list</param>
+/// <param name="WorldPacket &">WorldPacket</param>
+/// <param name="LfgLockStatusSet *">lock status list</param>
 void LFGMgr::BuildPlayerLockDungeonBlock(WorldPacket &data, LfgLockStatusSet *lockSet)
 {
     ASSERT(lockSet);
@@ -794,40 +772,28 @@ void LFGMgr::BuildPlayerLockDungeonBlock(WorldPacket &data, LfgLockStatusSet *lo
     delete lockSet;
 }
 
-
-
-
 // --------------------------------------------------------------------------//
 // Auxiliar Functions
 // --------------------------------------------------------------------------//
 
 /// <summary>
-/// Get all Group members list of dungeons that can't be done and reason
-/// leader excluded as the list given is he list he can do
+/// Given a group get the dungeons that can't be done and reason
 /// </summary>
-/// <param name="grp">Group</param>
-/// <param name="dungeons">Dungeons to check</param>
+/// <param name="PlayerSet *">Players to check lock status</param>
+/// <param name="LfgDungeonSet *">Dungeons to check</param>
 /// <returns>LfgLockStatusMap*</returns>
-LfgLockStatusMap* LFGMgr::GetPartyLockStatusDungeons(Player *plr, LfgDungeonSet *dungeons)
+LfgLockStatusMap* LFGMgr::GetGroupLockStatusDungeons(PlayerSet *pPlayers, LfgDungeonSet *dungeons)
 {
-    ASSERT(plr);
+    ASSERT(pPlayers);
     ASSERT(dungeons);
-    Group *grp = plr->GetGroup();
-    if (!grp)
-        return NULL;
 
-    Player *plrg;
     LfgLockStatusSet *dungeonSet = NULL;
     LfgLockStatusMap *dungeonMap = new LfgLockStatusMap();
-    for (GroupReference *itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
+    for (PlayerSet::const_iterator itr = pPlayers->begin(); itr != pPlayers->end(); ++itr)
     {
-        plrg = itr->getSource();
-        if (!plrg || plrg == plr)
-            continue;
-
-        dungeonSet = GetPlayerLockStatusDungeons(plrg, dungeons);
+        dungeonSet = GetPlayerLockStatusDungeons(*itr, dungeons);
         if (dungeonSet)
-            (*dungeonMap)[plrg->GetGUID()] = dungeonSet;
+            (*dungeonMap)[(*itr)->GetGUID()] = dungeonSet;
     }
 
     if (!dungeonMap->size())
@@ -839,10 +805,39 @@ LfgLockStatusMap* LFGMgr::GetPartyLockStatusDungeons(Player *plr, LfgDungeonSet 
 }
 
 /// <summary>
+/// Get all Group members list of dungeons that can't be done and reason
+/// leader excluded as the list given is he list he can do
+/// </summary>
+/// <param name="Player *">Player to get Party Lock info</param>
+/// <param name="LfgDungeonSet *">Dungeons to check</param>
+/// <returns>LfgLockStatusMap*</returns>
+LfgLockStatusMap* LFGMgr::GetPartyLockStatusDungeons(Player *plr, LfgDungeonSet *dungeons)
+{
+    ASSERT(plr);
+    ASSERT(dungeons);
+    Group *grp = plr->GetGroup();
+    if (!grp)
+        return NULL;
+
+    PlayerSet *pPlayers = new PlayerSet();
+    Player *plrg;
+    for (GroupReference *itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
+    {
+        plrg = itr->getSource();
+        if (plrg && plrg != plr)
+            pPlayers->insert(plrg);
+    }
+    LfgLockStatusMap *dungeonMap = GetGroupLockStatusDungeons(pPlayers, dungeons);
+    pPlayers->clear();
+    delete pPlayers;
+    return dungeonMap;
+}
+
+/// <summary>
 /// Get list of dungeons player can't do and reasons
 /// </summary>
-/// <param name="plr">Player</param>
-/// <param name="dungeons">Dungeons to check</param>
+/// <param name="Player *">Player to check lock status</param>
+/// <param name="LfgDungeonSet *">Dungeons to check</param>
 /// <returns>LfgLockStatusSet*</returns>
 LfgLockStatusSet* LFGMgr::GetPlayerLockStatusDungeons(Player *plr, LfgDungeonSet *dungeons)
 {
@@ -906,58 +901,55 @@ LfgLockStatusSet* LFGMgr::GetPlayerLockStatusDungeons(Player *plr, LfgDungeonSet
 /// <returns>LfgDungeonSet*</returns>
 LfgDungeonSet* LFGMgr::GetAllDungeons()
 {
-    LfgDungeonSet *dungeons = new LfgDungeonSet();
+    LfgDungeonSet *alldungeons = m_CachedDungeonMap[0];
+
+    if (alldungeons)
+        return alldungeons;
+
+    LfgDungeonSet *dungeons;
     LFGDungeonEntry const *dungeon;
+
+    alldungeons = new LfgDungeonSet();
+    m_CachedDungeonMap[0] = alldungeons;
     for (uint32 i = 0; i < sLFGDungeonStore.GetNumRows(); ++i)
     {
         dungeon = sLFGDungeonStore.LookupEntry(i);
         if (!dungeon || dungeon->type == LFG_TYPE_ZONE)
             continue;
-        dungeons->insert(dungeon->ID);
+        dungeons = m_CachedDungeonMap[dungeon->grouptype];
+        if (!dungeons)
+        {
+            dungeons = new LfgDungeonSet();
+            m_CachedDungeonMap[dungeon->grouptype] = dungeons;
+        }
+        if (dungeon->type != LFG_TYPE_RANDOM)
+            dungeons->insert(dungeon->ID);
+        alldungeons->insert(dungeon->ID);
     }
-    if (!dungeons->size())
-    {
-        delete dungeons;
-        return NULL;
-    }
-    else
-        return dungeons;
+
+    return alldungeons;
 }
 
 /// <summary>
 /// Get the dungeon list that can be done given a random dungeon entry.
+/// Special case: randomdungeon == 0 then will return all dungeons
 /// </summary>
-/// <param name="randomdungeon">Random dungeon entry</param>
+/// <param name="uint32">Random dungeon entry</param>
 /// <returns>LfgDungeonSet*</returns>
 LfgDungeonSet* LFGMgr::GetDungeonsByRandom(uint32 randomdungeon)
 {
-    LFGDungeonEntry const *dungeon = sLFGDungeonStore.LookupEntry(randomdungeon);
-    if (!dungeon)
-        return NULL;
+    uint8 groupType = 0;
+    if (LFGDungeonEntry const *dungeon = sLFGDungeonStore.LookupEntry(randomdungeon))
+        groupType = dungeon->grouptype;
 
-    uint32 grouptype = dungeon->grouptype;
-    LfgDungeonSet *random = new LfgDungeonSet();
-    for (uint32 i = 0; i < sLFGDungeonStore.GetNumRows(); ++i)
-    {
-        dungeon = sLFGDungeonStore.LookupEntry(i);
-        if (!dungeon || dungeon->type == LFG_TYPE_RANDOM || dungeon->grouptype != grouptype)
-            continue;
-        random->insert(dungeon->ID);
-    }
-    if (!random->size())
-    {
-        delete random;
-        return NULL;
-    }
-    else
-        return random;
+    return m_CachedDungeonMap[groupType];
 }
 
 /// <summary>
 /// Get the random dungeon list that can be done at a certain level and expansion.
 /// </summary>
-/// <param name="level">Player level</param>
-/// <param name="expansion">Player account expansion</param>
+/// <param name="uint8">Player level</param>
+/// <param name="uint8">Player account expansion</param>
 /// <returns>LfgDungeonSet*</returns>
 LfgDungeonSet* LFGMgr::GetRandomDungeons(uint8 level, uint8 expansion)
 {
@@ -974,11 +966,12 @@ LfgDungeonSet* LFGMgr::GetRandomDungeons(uint8 level, uint8 expansion)
 }
 
 /// <summary>
-/// Get the reward of a given random dungeon
+/// Get the reward of a given random dungeon at a certain level
 /// </summary>
-/// <param name="dungeon">random dungeon id</param>
-/// <param name="done">Dungeon previously done</param>
-/// <returns></returns>
+/// <param name="uint32">random dungeon id</param>
+/// <param name="bool">Dungeon previously done</param>
+/// <param name="uint8">Player level</param>
+/// <returns>LfgReward*</returns>
 LfgReward* LFGMgr::GetRandomDungeonReward(uint32 dungeon, bool done, uint8 level)
 {
     uint8 index = 0;
@@ -1022,7 +1015,7 @@ LfgReward* LFGMgr::GetRandomDungeonReward(uint32 dungeon, bool done, uint8 level
 /// <summary>
 /// Given a Dungeon id returns the dungeon Group Type
 /// </summary>
-/// <param name="dungeonId">Dungeon id</param>
+/// <param name="uint32">Dungeon id</param>
 /// <returns>uint8: GroupType</returns>
 uint8 LFGMgr::GetDungeonGroupType(uint32 dungeonId)
 {

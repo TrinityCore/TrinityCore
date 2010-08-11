@@ -47,6 +47,7 @@ enum LfgType
 
 enum LfgGroupType
 {
+    LFG_GROUPTYPE_ALL          = 0,                         // Internal use, represents all groups.
     LFG_GROUPTYPE_CLASSIC      = 1,
     LFG_GROUPTYPE_BC_NORMAL    = 2,
     LFG_GROUPTYPE_BC_HEROIC    = 3,
@@ -107,6 +108,7 @@ enum LfgRoleCheckResult
     LFG_ROLECHECK_NO_ROLE      = 6,                         // Someone selected no role
 };
 
+// TODO: Remove me, will not be needed when Reward moved to quest system
 enum LfgRandomDungeonEntries
 {
     LFG_ALL_DUNGEONS       = 0,
@@ -182,15 +184,10 @@ struct LfgReward
     uint32 stackCount;
 };
 
-typedef std::set<LfgLockStatus*> LfgLockStatusSet;
-typedef std::vector<LfgReward*> LfgRewardList;
-typedef std::map<uint64, LfgLockStatusSet*> LfgLockStatusMap;
-typedef std::map<uint32, LfgDungeonSet*> LfgDungeonMap;
-
-typedef std::map<uint64, int8> LfgAnswerMap;
+typedef std::map<uint32, uint8> LfgRolesMap;
+typedef std::map<uint32, int8> LfgAnswerMap;
 typedef std::list<uint64> LfgGuidList;
-typedef std::map<uint64, uint8> LfgRolesMap;
-typedef std::set<uint64> LfgGuidSet;
+typedef std::map<uint32, LfgDungeonSet*> LfgDungeonMap;
 
 // Stores player or group queue info
 struct LfgQueueInfo
@@ -211,56 +208,63 @@ struct LfgRoleCheck
     LfgRolesMap roles;
     LfgRoleCheckResult result;
     LfgDungeonSet dungeons;
-    uint64 leader;
+    uint32 leader;
 };
 
+typedef std::set<Player*> PlayerSet;
+typedef std::set<LfgLockStatus*> LfgLockStatusSet;
+typedef std::vector<LfgReward*> LfgRewardList;
+typedef std::map<uint32, LfgReward*> LfgRewardMap;
+typedef std::map<uint32, LfgLockStatusSet*> LfgLockStatusMap;
 typedef std::map<uint64, LfgQueueInfo*> LfgQueueInfoMap;
 typedef std::map<uint32, LfgRoleCheck*> LfgRoleCheckMap;
+typedef std::list<Player *> LfgPlayerList;
 
 class LFGMgr
 {
     friend class ACE_Singleton<LFGMgr, ACE_Null_Mutex>;
-    LFGMgr();
     public:
-       ~LFGMgr();
+        LFGMgr();
+        ~LFGMgr();
 
         void InitLFG();
-        void SendLfgPlayerInfo(Player *plr);
-        void SendLfgPartyInfo(Player *plr);
         void Join(Player *plr);
         void Leave(Player *plr, Group *grp = NULL);
         void UpdateRoleCheck(Group *grp, Player *plr = NULL);
         void Update(uint32 diff);
 
+        void SendLfgPlayerInfo(Player *plr);
+        void SendLfgPartyInfo(Player *plr);
+
     private:
         void BuildLfgRoleCheck(WorldPacket &data, LfgRoleCheck *pRoleCheck);
         void BuildAvailableRandomDungeonList(WorldPacket &data, Player *plr);
-        void BuildRewardBlock(WorldPacket &data, uint32 dungeon, Player *plr);
         void BuildPlayerLockDungeonBlock(WorldPacket &data, LfgLockStatusSet *lockSet);
         void BuildPartyLockDungeonBlock(WorldPacket &data, LfgLockStatusMap *lockMap);
-        bool CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag = true);
 
         void AddToQueue(uint64 guid, LfgRolesMap *roles, LfgDungeonSet *dungeons);
         bool RemoveFromQueue(uint64 guid);
         bool isRandomDungeon(uint32 dungeonId);
+        bool CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag = true);
 
+        LfgLockStatusMap* GetGroupLockStatusDungeons(PlayerSet *pPlayers, LfgDungeonSet *dungeons);
         LfgLockStatusMap* GetPartyLockStatusDungeons(Player *plr, LfgDungeonSet *dungeons);
         LfgLockStatusSet* GetPlayerLockStatusDungeons(Player *plr, LfgDungeonSet *dungeons);
-        LfgDungeonSet* GetRandomDungeons(uint8 level, uint8 expansion);
         LfgDungeonSet* GetDungeonsByRandom(uint32 randomdungeon);
+        LfgDungeonSet* GetRandomDungeons(uint8 level, uint8 expansion);
         LfgDungeonSet* GetAllDungeons();
         LfgReward* GetRandomDungeonReward(uint32 dungeon, bool done, uint8 level);
         uint8 GetDungeonGroupType(uint32 dungeon);
 
-        LfgRewardList m_RewardList;
-        LfgRewardList m_RewardDoneList;
-        LfgDungeonMap m_DungeonsMap;
+        LfgRewardList m_RewardList;                         // TODO: Change it to list of quests
+        LfgRewardList m_RewardDoneList;                     // TODO: Change it to list of quests
+        LfgDungeonMap m_CachedDungeonMap;                   // Stores all dungeons by groupType
         LfgQueueInfoMap m_QueueInfoMap;                     // Queued groups
         LfgGuidList m_currentQueue;                         // Ordered list. Used to find groups
         LfgGuidList m_newToQueue;                           // New groups to add to queue;
-
         LfgRoleCheckMap m_RoleChecks;                       // Current Role checks
         uint32 m_QueueTimer;                                // used to check interval of update
+        uint32 m_lfgProposalId;                             // used as internal counter for proposals
         int32 m_avgWaitTime;
         int32 m_waitTimeTanks;
         int32 m_waitTimeHealer;
