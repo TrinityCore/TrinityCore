@@ -587,8 +587,8 @@ void LFGMgr::UpdateRoleCheck(Group *grp, Player *plr /* = NULL*/)
 /// <summary>
 /// Check if a group can be formed with the given group
 /// </summary>
-/// <param name="groles">Map of roles</param>
-/// <param name="firstCall">bool, will be used to remove ROLE_LEADER</param>
+/// <param name="LfgRolesMap &">Roles to check</param>
+/// <param name="bool">Used to remove ROLE_LEADER</param>
 /// <returns>bool</returns>
 bool LFGMgr::CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag /*= true*/)
 {
@@ -598,79 +598,59 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag /*= true
     uint8 damage = 0;
     uint8 tank = 0;
     uint8 healer = 0;
-    uint64 tguid = 0;
-    uint64 hguid = 0;
-    uint64 dguid = 0;
-    uint64 guid = 0;
-    uint8 role = 0;
 
     if (removeLeaderFlag)
         for (LfgRolesMap::iterator it = groles.begin(); it != groles.end(); ++it)
             it->second &= ~ROLE_LEADER;
 
-    for (LfgRolesMap::const_iterator it = groles.begin(); it != groles.end(); ++it)
+    for (LfgRolesMap::iterator it = groles.begin(); it != groles.end(); ++it)
     {
-        guid = it->first;
-        role = it->second;
-
-        if (role == ROLE_NONE)
+        switch(it->second)
+        {
+        case ROLE_NONE:
             return false;
-
-        if (role & ROLE_TANK)
-        {
-            if (!tank)
+        case ROLE_TANK:
+            if (tank == LFG_TANKS_NEEDED)
+                return false;
+            tank++;
+            break;
+        case ROLE_HEALER:
+            if (healer == LFG_HEALERS_NEEDED)
+                return false;
+            healer++;
+            break;
+        case ROLE_DAMAGE:
+            if (damage == LFG_DPS_NEEDED)
+                return false;
+            damage++;
+            break;
+        default:
+            if (it->second & ROLE_TANK)
             {
-                tguid = guid;
-                ++tank;
-            }
-            else
-            {
-                if (groles[tguid] == ROLE_TANK)
-                    tguid = guid;
-                groles[tguid] -= ROLE_TANK;
-                return CheckGroupRoles(groles, false);
-            }
-        }
-
-        if (role & ROLE_HEALER)
-        {
-            if (!healer)
-            {
-                hguid = guid;
-                ++healer;
-            }
-            else
-            {
-                if (groles[hguid] == ROLE_HEALER)
-                    hguid = guid;
-                groles[hguid] -= ROLE_HEALER;
-                return CheckGroupRoles(groles, false);
-            }
-        }
-
-        if (role & ROLE_DAMAGE)
-        {
-            if (damage < 3)
-            {
-                if (!damage)
-                    dguid = guid;
-                ++damage;
-            }
-            else
-            {
-                if (groles[dguid] == ROLE_DAMAGE)
-                    dguid = guid;
-                groles[dguid] -= ROLE_DAMAGE;
-                if (!CheckGroupRoles(groles, false))
-                    groles[dguid] += ROLE_DAMAGE;
-                else
+                it->second -= ROLE_TANK;
+                if (CheckGroupRoles(groles, false))
                     return true;
+                it->second += ROLE_TANK;
             }
+
+            if (it->second & ROLE_HEALER)
+            {
+                it->second -= ROLE_HEALER;
+                if (CheckGroupRoles(groles, false))
+                    return true;
+                it->second += ROLE_HEALER;
+            }
+
+            if (it->second & ROLE_DAMAGE)
+            {
+                it->second -= ROLE_DAMAGE;
+                return CheckGroupRoles(groles, false);
+            }
+            break;
         }
     }
-    return true;
+    return tank == LFG_TANKS_NEEDED && healer == LFG_HEALERS_NEEDED && damage == LFG_DPS_NEEDED;
 }
-
 
 
 // --------------------------------------------------------------------------//
