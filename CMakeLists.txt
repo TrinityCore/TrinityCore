@@ -101,8 +101,17 @@ endif()
 #
 
 if( PREFIX )
-  set(CMAKE_INSTALL_PREFIX ${PREFIX})
+  set(CMAKE_INSTALL_PREFIX "${PREFIX}")
 endif()
+
+IF(WIN32)
+   IF(NOT CYGWIN)
+     IF(NOT CMAKE_INSTALL_PREFIX)
+       SET(CMAKE_INSTALL_PREFIX
+           "${CMAKE_BINARY_DIR}/bin")
+     ENDIF(NOT CMAKE_INSTALL_PREFIX)
+   ENDIF(NOT CYGWIN)
+ENDIF(WIN32)
 
 #
 # Handle debugmode compiles (this will require further work for proper WIN32-setups)
@@ -117,23 +126,27 @@ endif()
 #
 
 if( MSVC )
-  # Set up MSVC to dump binaries in the <builddir>/bin/<buildtype>/ folder
-  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+  # Set up MSVC to dump files in the <builddir>/bin/<buildtype>/ folder for testing builds before install
+
+  # executable binaries (.exe-files)
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+  # dynamic linked libraries (.dll)
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+  # statically linked libraries - commented out as it's not needed - shown here as an example only
+  #set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 endif()
 
 #
 # Set default configuration-directory (used on NIX-based platforms only)
 #
 
-
 if( NOT CONF_DIR )
   set(CONF_DIR ${CMAKE_INSTALL_PREFIX}/etc)
 endif()
 
 set(LIBSDIR ${CMAKE_INSTALL_PREFIX}/lib)
-
 
 #####
 ##### Build-preparation
@@ -169,12 +182,12 @@ message("")
 # Output information about installation-directories and locations
 #
 
+message("* Install core to       : ${CMAKE_INSTALL_PREFIX}")
 if( UNIX )
-  message("* Install core to       : ${CMAKE_INSTALL_PREFIX}")
   message("* Install libraries to  : ${LIBSDIR}")
   message("* Install configs to    : ${CONF_DIR}")
-  message("")
 endif()
+message("")
 
 #
 # Show infomation about the options selected during configuration
@@ -186,11 +199,24 @@ else()
   message("* Build servers         : No")
 endif()
 
+if( GAMEPCH )
+  message("* Build game w/PCH      : Yes (default)")
+else()
+  message("* Build game w/PCH      : No")
+endif()
+
 if( SCRIPTS )
   message("* Build with scripts    : Yes (default)")
   add_definitions(-DSCRIPTS)
 else()
   message("* Build with scripts    : No")
+  set(SCRIPTPCH 0)
+endif()
+
+if( SCRIPTPCH )
+  message("* Build scripts w/PCH   : Yes (default)")
+else()
+  message("* Build scripts w/PCH   : No")
 endif()
 
 if( TOOLS )
@@ -207,18 +233,6 @@ if( DEBUG )
   endif()
 else()
   message("* Build in debug-mode   : No  (default)")
-endif()
-
-if( GAMEPCH )
-  message("* Build game w/PCH      : Yes (default)")
-else()
-  message("* Build game w/PCH      : No")
-endif()
-
-if( SCRIPTPCH )
-  message("* Build scripts w/PCH   : Yes (default)")
-else()
-  message("* Build scripts w/PCH   : No")
 endif()
 
 if( WARNINGS )
@@ -294,15 +308,14 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH 1)
 #
 
 if( UNIX )
-configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-  IMMEDIATE @ONLY
-)
-
-add_custom_target(uninstall
-  "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-)
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+    IMMEDIATE @ONLY
+  )
+  add_custom_target(uninstall
+    "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+  )
 endif()
 
 #

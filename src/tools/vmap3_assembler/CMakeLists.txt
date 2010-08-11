@@ -23,6 +23,8 @@ add_definitions(-DNO_CORE_FUNCS)
 
 add_executable(vmap3assembler VMapAssembler.cpp)
 
+add_dependencies(vmap3assembler mpq)
+
 if(WIN32)
   target_link_libraries(vmap3assembler
     collision
@@ -39,4 +41,6 @@ endif()
 
 if( UNIX )
   install(TARGETS vmap3assembler DESTINATION bin)
+elseif( WIN32 )
+  install(TARGETS vmap3assembler DESTINATION "${CMAKE_INSTALL_PREFIX}")
 endif()
