@@ -188,18 +188,20 @@ typedef std::map<uint64, LfgLockStatusSet*> LfgLockStatusMap;
 typedef std::map<uint32, LfgDungeonSet*> LfgDungeonMap;
 
 typedef std::map<uint64, int8> LfgAnswerMap;
+typedef std::list<uint64> LfgGuidList;
 typedef std::map<uint64, uint8> LfgRolesMap;
 typedef std::set<uint64> LfgGuidSet;
 
 // Stores player or group queue info
 struct LfgQueueInfo
 {
+    LfgQueueInfo(): tanks(LFG_TANKS_NEEDED), healers(LFG_HEALERS_NEEDED), dps(LFG_DPS_NEEDED) {};
     time_t joinTime;                                        // Player queue join time (to calculate wait times)
-    uint32 dungeonId;                                       // Selected Player/Group Dungeon
-    LfgRolesMap roles;                                      // Selected Player Role/s
     uint8 tanks;                                            // Tanks needed
     uint8 healers;                                          // Healers needed
     uint8 dps;                                              // Dps needed
+    LfgDungeonSet dungeons;                                 // Selected Player/Group Dungeon/s
+    LfgRolesMap roles;                                      // Selected Player Role/s
 };
 
 // Stores all rolecheck info of a group that wants to join LFG
@@ -214,26 +216,6 @@ struct LfgRoleCheck
 
 typedef std::map<uint64, LfgQueueInfo*> LfgQueueInfoMap;
 typedef std::map<uint32, LfgRoleCheck*> LfgRoleCheckMap;
-
-class LFGQueue
-{
-    public:
-        LFGQueue();
-        ~LFGQueue();
-
-        void Update();
-        void AddToQueue(uint64 guid, LfgQueueInfo *pqInfo);
-        bool RemoveFromQueue(uint64 guid);
-        LfgQueueInfo* GetQueueInfo(uint64 guid);
-    private:
-        LfgQueueInfoMap m_LfgQueue;
-        int32 avgWaitTime;
-        int32 waitTimeTanks;
-        int32 waitTimeHealer;
-        int32 waitTimeDps;
-};
-
-typedef std::map<uint8, LFGQueue *> LFGQueueMap;
 
 class LFGMgr
 {
@@ -258,6 +240,10 @@ class LFGMgr
         void BuildPartyLockDungeonBlock(WorldPacket &data, LfgLockStatusMap *lockMap);
         bool CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag = true);
 
+        void AddToQueue(uint64 guid, LfgRolesMap *roles, LfgDungeonSet *dungeons);
+        bool RemoveFromQueue(uint64 guid);
+        bool isRandomDungeon(uint32 dungeonId);
+
         LfgLockStatusMap* GetPartyLockStatusDungeons(Player *plr, LfgDungeonSet *dungeons);
         LfgLockStatusSet* GetPlayerLockStatusDungeons(Player *plr, LfgDungeonSet *dungeons);
         LfgDungeonSet* GetRandomDungeons(uint8 level, uint8 expansion);
@@ -269,10 +255,16 @@ class LFGMgr
         LfgRewardList m_RewardList;
         LfgRewardList m_RewardDoneList;
         LfgDungeonMap m_DungeonsMap;
+        LfgQueueInfoMap m_QueueInfoMap;                     // Queued groups
+        LfgGuidList m_currentQueue;                         // Ordered list. Used to find groups
+        LfgGuidList m_newToQueue;                           // New groups to add to queue;
 
-        LFGQueueMap m_Queues;
-        LfgRoleCheckMap m_RoleChecks;
-        uint32 m_QueueTimer;
+        LfgRoleCheckMap m_RoleChecks;                       // Current Role checks
+        uint32 m_QueueTimer;                                // used to check interval of update
+        int32 m_avgWaitTime;
+        int32 m_waitTimeTanks;
+        int32 m_waitTimeHealer;
+        int32 m_waitTimeDps;
         bool m_update;
 };
 
