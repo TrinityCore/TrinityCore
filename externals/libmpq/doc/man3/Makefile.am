@@ -27,4 +27,5 @@ man_MANS =				\
 	libmpq__file_packed_size.3	\
 	libmpq__file_read.3		\
 	libmpq__file_unpacked_size.3	\
+	libmpq__strerror.3		\
 	libmpq__version.3

@@ -45,7 +45,8 @@ int32_t libmpq__decrypt_block(
 int32_t libmpq__decrypt_key(
 	uint8_t		*in_buf,
 	uint32_t	in_size,
-	uint32_t	block_size
+	uint32_t	block_size,
+	uint32_t	*key
 );
 
 /* function to decompress or explode block from archive. */
