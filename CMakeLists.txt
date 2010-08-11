@@ -128,13 +128,11 @@ endif()
 if( MSVC )
   # Set up MSVC to dump files in the <builddir>/bin/<buildtype>/ folder for testing builds before install
 
-  # executable binaries (.exe-files)
+  # executable binaries (.exe-files, and .dll-files on DLL-capable platforms)
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-  # dynamic linked libraries (.dll)
-  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
-  # statically linked libraries - commented out as it's not needed - shown here as an example only
+  # other parts like static libraries etc - commented out as it's not needed - shown here as an example only
+  #set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
   #set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 endif()
 
@@ -247,8 +245,8 @@ else()
   elseif( WIN32 )
     # Disable warnings in Visual Studio 8 and above
     if(MSVC AND NOT CMAKE_GENERATOR MATCHES "Visual Studio 7")
-      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4996 /wd4355 /wd4244 /wd4985 /wd4267")
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4996 /wd4355 /wd4244 /wd4985 /wd4267")
+      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4996 /wd4355 /wd4244 /wd4985 /wd4267 /wd4619")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4996 /wd4355 /wd4244 /wd4985 /wd4267 /wd4619")
     endif()
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
   endif()
