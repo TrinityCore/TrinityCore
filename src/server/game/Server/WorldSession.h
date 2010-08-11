@@ -270,10 +270,6 @@ class WorldSession
         void SendNotInArenaTeamPacket(uint8 type);
         void SendPetitionShowList(uint64 guid);
         void SendSaveGuildEmblem(uint32 msg);
-        // Looking For Group
-        // TRUE values set by client sending CMSG_LFG_SET_AUTOJOIN and CMSG_LFM_CLEAR_AUTOFILL before player login
-        bool LookingForGroup_auto_join;
-        bool LookingForGroup_auto_add;
 
         void BuildPartyMemberStatsChangedPacket(Player *player, WorldPacket *data);
 
@@ -705,12 +701,21 @@ class WorldSession
         void HandleLfgJoinOpcode(WorldPacket &recv_data);
         void HandleLfgLeaveOpcode(WorldPacket & /*recv_data*/);
         void HandleLfgSetRolesOpcode(WorldPacket &recv_data);
+        void HandleLfgProposalResultOpcode(WorldPacket &recv_data);
+        void HandleLfgSetBootVoteOpcode(WorldPacket &recv_data);
+        void HandleLfgTeleportOpcode(WorldPacket &recv_data);
+        void HandleLfrSearchOpcode(WorldPacket &recv_data);
+        void HandleLfrLeaveOpcode(WorldPacket &recv_data);
+
         void SendLfgUpdatePlayer(uint8 updateType);
         void SendLfgUpdateParty(uint8 updateType);
         void SendLfgRoleChosen(uint64 guid, uint8 roles);
         void SendLfgUpdateSearch(bool update);
         void SendLfgJoinResult(uint8 checkResult, uint8 checkValue);
         void SendLfgQueueStatus(uint32 dungeon, int32 waitTime, int32 avgWaitTime, int32 waitTimeTanks, int32 waitTimeHealer, int32 waitTimeDps, uint32 queuedTime, uint8 tanks, uint8 healers, uint8 dps);
+        void SendLfgDisabled();
+        void SendLfgOfferContinue(uint32 dungeonEntry);
+        void SendLfgTeleportError(uint8 err);
 
         // Arena Team
         void HandleInspectArenaTeamsOpcode(WorldPacket& recv_data);
