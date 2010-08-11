@@ -25,6 +25,7 @@ set(authserver_SRCS
 if( WIN32 )
 set(authserver_SRCS
     ${authserver_SRCS}
+    ${sources_Debugging}
     authserver.rc
 )
 endif()
