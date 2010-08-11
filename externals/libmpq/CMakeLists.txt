@@ -14,12 +14,20 @@ set(mpq_STAT_SRCS
   ${sources_mpq}
 )
 
-include_directories(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/win
-  ${CMAKE_SOURCE_DIR}/externals/zlib
-  ${CMAKE_SOURCE_DIR}/externals/bzip2
-)
+if( UNIX )
+  include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/externals/zlib
+    ${CMAKE_SOURCE_DIR}/externals/bzip2
+  )
+elseif( WIN32 )
+  include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/win
+    ${CMAKE_SOURCE_DIR}/externals/zlib
+    ${CMAKE_SOURCE_DIR}/externals/bzip2
+  )
+endif()
 
 add_library(mpq STATIC ${mpq_STAT_SRCS})
 
