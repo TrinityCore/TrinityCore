@@ -899,7 +899,7 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag /*= true
             break;
         }
     }
-    return tank == LFG_TANKS_NEEDED && healer == LFG_HEALERS_NEEDED && damage == LFG_DPS_NEEDED;
+    return true;
 }
 
 /// <summary>
