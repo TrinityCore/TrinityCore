@@ -11,13 +11,22 @@
 
 file(GLOB_RECURSE sources *.cpp *.h)
 
-include_directories (
-  ${CMAKE_SOURCE_DIR}/src/server/shared
-  ${CMAKE_SOURCE_DIR}/externals/libmpq
-  ${CMAKE_SOURCE_DIR}/externals/libmpq/win
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/loadlib
-)
+if( UNIX )
+  include_directories (
+    ${CMAKE_SOURCE_DIR}/src/server/shared
+    ${CMAKE_SOURCE_DIR}/externals/libmpq
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/loadlib
+  )
+elseif( WIN32 )
+  include_directories (
+    ${CMAKE_SOURCE_DIR}/src/server/shared
+    ${CMAKE_SOURCE_DIR}/externals/libmpq
+    ${CMAKE_SOURCE_DIR}/externals/libmpq/win
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/loadlib
+  )
+endif()
 
 add_executable(mapextractor
   ${sources}
