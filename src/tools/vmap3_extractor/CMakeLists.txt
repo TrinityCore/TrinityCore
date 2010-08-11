@@ -20,10 +20,16 @@ add_definitions("-Wall")
 add_definitions("-ggdb")
 add_definitions("-O3")
 
-include_directories(
-  ${CMAKE_SOURCE_DIR}/externals/libmpq
-  ${CMAKE_SOURCE_DIR}/externals/libmpq/win
-)
+if( UNIX )
+  include_directories(
+    ${CMAKE_SOURCE_DIR}/externals/libmpq
+  )
+elseif( WIN32 )
+  include_directories(
+    ${CMAKE_SOURCE_DIR}/externals/libmpq
+    ${CMAKE_SOURCE_DIR}/externals/libmpq/win
+  )
+endif()
 
 add_executable(vmap3extractor ${sources})
 
