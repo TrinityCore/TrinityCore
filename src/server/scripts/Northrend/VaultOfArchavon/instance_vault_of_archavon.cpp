@@ -34,7 +34,7 @@ public:
 
     InstanceScript* GetInstanceScript(InstanceMap* pMap) const
     {
-        return new instance_archavon_InstanceMapScript(map);
+        return new instance_archavon_InstanceMapScript(pMap);
     }
 
     struct instance_archavon_InstanceMapScript : public InstanceScript
