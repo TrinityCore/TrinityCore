@@ -22,6 +22,7 @@ add_definitions("-O3")
 
 include_directories(
   ${CMAKE_SOURCE_DIR}/externals/libmpq
+  ${CMAKE_SOURCE_DIR}/externals/libmpq/win
 )
 
 add_executable(vmap3extractor ${sources})
