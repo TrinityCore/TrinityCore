@@ -37,7 +37,7 @@ class instance_ulduar : public InstanceMapScript
 public:
     instance_ulduar() : InstanceMapScript("instance_ulduar", 603) { }
 
-    InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
+    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
     {
         return new instance_ulduar_InstanceMapScript(pMap);
     }

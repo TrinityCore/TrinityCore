@@ -37,7 +37,7 @@ class instance_sethekk_halls : public InstanceMapScript
 public:
     instance_sethekk_halls() : InstanceMapScript("instance_sethekk_halls", 556) { }
 
-    InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
+    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
     {
         return new instance_sethekk_halls_InstanceMapScript(pMap);
     }
