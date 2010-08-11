@@ -271,7 +271,6 @@ void LFGMgr::Join(Player *plr)
 
     uint64 guid = grp ? grp->GetGUID() : plr->GetGUID();
 
-
     LfgJoinResult result = LFG_JOIN_OK;
     // Previous checks before joining
     if (m_QueueInfoMap[guid])
@@ -700,6 +699,7 @@ void LFGMgr::UpdateRoleCheck(Group *grp, Player *plr /* = NULL*/)
     LfgRoleCheck *pRoleCheck = NULL;
     LfgRolesMap check_roles;
     LfgRoleCheckMap::iterator itRoleCheck = m_RoleChecks.find(rolecheckId);
+    LfgDungeonSet *dungeons = plr->GetLfgDungeons();
     bool newRoleCheck = itRoleCheck == m_RoleChecks.end();
     if (newRoleCheck)
     {
@@ -715,8 +715,33 @@ void LFGMgr::UpdateRoleCheck(Group *grp, Player *plr /* = NULL*/)
             if (Player *plrg = itr->getSource())
                 pRoleCheck->roles[plrg->GetGUIDLow()] = 0;
 
-        for (LfgDungeonSet::const_iterator itDungeon = plr->GetLfgDungeons()->begin(); itDungeon != plr->GetLfgDungeons()->end(); ++itDungeon)
-            pRoleCheck->dungeons.insert(*itDungeon);
+        // Check if it's offer continue (random + current one)
+        if (grp->isLFGGroup() && dungeons->size() == 2)
+        {
+            LfgDungeonSet::const_iterator itDungeon = dungeons->begin();
+            uint32 aDungeon = *itDungeon;
+            uint32 rDungeon = *(++itDungeon);
+
+            // it's a Offer to continue (Actual dungeon + random dungeon in the list)
+            // Rolecheck will be using the actual dungeon - Players random
+            if (aDungeon == grp->GetLfgDungeonEntry() && isRandomDungeon(rDungeon))
+            {
+                for (GroupReference *itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
+                {
+                    if (Player *plrg = itr->getSource())
+                    {
+                        plrg->GetLfgDungeons()->clear();
+                        plrg->GetLfgDungeons()->insert(rDungeon);
+                    }
+                }
+                pRoleCheck->dungeons.insert(aDungeon);
+            }
+
+        }
+
+        if (pRoleCheck->dungeons.empty())
+            for (LfgDungeonSet::const_iterator itDungeon = plr->GetLfgDungeons()->begin(); itDungeon != plr->GetLfgDungeons()->end(); ++itDungeon)
+                pRoleCheck->dungeons.insert(*itDungeon);
     }
     else
         pRoleCheck = itRoleCheck->second;
@@ -1178,9 +1203,9 @@ void LFGMgr::SendUpdateProposal(Player *plr, uint32 proposalId, LfgProposal *pPr
 
     sLog.outDebug("SMSG_LFG_PROPOSAL_UPDATE");
     WorldPacket data(SMSG_LFG_PROPOSAL_UPDATE, 4 + 1 + 4 + 4 + 1 + 1 + pProp->players.size() * (4 + 1 + 1 + 1 + 1 +1));
-    if (plr->GetLfgDungeons()->size() == 1 && *plr->GetLfgDungeons()->begin() != pProp->dungeonId)
-        dungeonId = *plr->GetLfgDungeons()->begin();        // Random dungeon
-    if (LFGDungeonEntry const *dungeon = sLFGDungeonStore.LookupEntry(*plr->GetLfgDungeons()->begin()))
+    if (!dLowGuid && plr->GetLfgDungeons()->size() == 1)   // New group - select the dungeon the player selected
+        dungeonId = *plr->GetLfgDungeons()->begin();
+    if (LFGDungeonEntry const *dungeon = sLFGDungeonStore.LookupEntry(dungeonId))
         dungeonId = dungeon->Entry();
     data << uint32(dungeonId);                              // Dungeon
     data << uint8(pProp->state);                            // Result state
