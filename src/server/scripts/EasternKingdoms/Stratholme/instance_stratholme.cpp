@@ -54,7 +54,7 @@ class instance_stratholme : public InstanceMapScript
 public:
     instance_stratholme() : InstanceMapScript("instance_stratholme", 329) { }
 
-    InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
+    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
     {
         return new instance_stratholme_InstanceMapScript(pMap);
     }

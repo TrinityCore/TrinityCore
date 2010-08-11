@@ -38,7 +38,7 @@ class instance_gruuls_lair : public InstanceMapScript
 public:
     instance_gruuls_lair() : InstanceMapScript("instance_gruuls_lair", 565) { }
 
-    InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
+    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
     {
         return new instance_gruuls_lair_InstanceMapScript(pMap);
     }

@@ -38,7 +38,7 @@ class instance_halls_of_lightning : public InstanceMapScript
 public:
     instance_halls_of_lightning() : InstanceMapScript("instance_halls_of_lightning", 602) { }
 
-    InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
+    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
     {
         return new instance_halls_of_lightning_InstanceMapScript(pMap);
     }

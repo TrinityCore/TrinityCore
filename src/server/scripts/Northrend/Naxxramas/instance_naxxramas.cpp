@@ -107,7 +107,7 @@ class instance_naxxramas : public InstanceMapScript
 public:
     instance_naxxramas() : InstanceMapScript("instance_naxxramas", 533) { }
 
-    InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
+    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
     {
         return new instance_naxxramas_InstanceMapScript(pMap);
     }
