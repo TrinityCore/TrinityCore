@@ -203,7 +203,8 @@ class Group
                 return (m_LfgDungeonEntry & 0x00FFFFFF);
             else
                 return m_LfgDungeonEntry;
-        }       
+        }
+        
         void SetLfgRoles(uint64 guid, const uint8 roles)
         {
             member_witerator slot = _getMemberWSlot(guid);
