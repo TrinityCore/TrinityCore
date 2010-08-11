@@ -3,7 +3,7 @@
 // MSDN Magazine, 2002
 // FILE: WheatyExceptionReport.CPP
 //==========================================
-#ifdef _WIN32
+#if PLATFORM == PLATFORM_WINDOWS
 #define WIN32_LEAN_AND_MEAN
 #pragma warning(disable:4996)
 #pragma warning(disable:4312)
@@ -18,7 +18,7 @@
 #include "SystemConfig.h"
 #include "revision.h"
 #define CrashFolder _T("Crashes")
-//#pragma comment(linker, "/defaultlib:dbghelp.lib")
+#pragma comment(linker, "/DEFAULTLIB:dbghelp.lib")
 
 inline LPTSTR ErrorMessage(DWORD dw)
 {

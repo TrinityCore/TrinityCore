@@ -25,6 +25,7 @@ set(worldserver_SRCS
 if( WIN32 )
   set(worldserver_SRCS
     ${worldserver_SRCS}
+    ${sources_Debugging}
     worldserver.rc
   )
 endif()

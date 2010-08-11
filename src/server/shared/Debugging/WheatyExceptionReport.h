@@ -1,7 +1,7 @@
 #ifndef _WHEATYEXCEPTIONREPORT_
 #define _WHEATYEXCEPTIONREPORT_
 
-#ifdef _WIN32
+#if PLATFORM == PLATFORM_WINDOWS
 
 #include <dbghelp.h>
 
