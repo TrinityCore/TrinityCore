@@ -15,9 +15,10 @@ set(mpq_STAT_SRCS
 )
 
 include_directories(
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/win
   ${CMAKE_SOURCE_DIR}/externals/zlib
   ${CMAKE_SOURCE_DIR}/externals/bzip2
-  ${CMAKE_SOURCE_DIR}/externals/libmpq
 )
 
 add_library(mpq STATIC ${mpq_STAT_SRCS})
