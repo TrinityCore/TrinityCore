@@ -59,7 +59,7 @@ class instance_shadowfang_keep : public InstanceMapScript
 public:
     instance_shadowfang_keep() : InstanceMapScript("instance_shadowfang_keep", 33) { }
 
-    InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
+    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
     {
         return new instance_shadowfang_keep_InstanceMapScript(pMap);
     }

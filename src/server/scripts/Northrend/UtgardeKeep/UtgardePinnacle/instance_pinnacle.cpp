@@ -248,7 +248,7 @@ class instance_utgarde_pinnacle : public InstanceMapScript
 public:
     instance_utgarde_pinnacle() : InstanceMapScript("instance_utgarde_pinnacle", 575) { }
 
-    InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
+    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
     {
         return new instance_pinnacle(pMap);
     }

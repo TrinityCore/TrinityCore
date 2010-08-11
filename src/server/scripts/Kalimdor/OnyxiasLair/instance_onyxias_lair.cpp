@@ -30,7 +30,7 @@ class instance_onyxias_lair : public InstanceMapScript
 public:
     instance_onyxias_lair() : InstanceMapScript("instance_onyxias_lair", 249) { }
 
-    InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
+    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
     {
         return new instance_onyxias_lair_InstanceMapScript(pMap);
     }

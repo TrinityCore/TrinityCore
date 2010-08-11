@@ -31,7 +31,7 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
 public:
     instance_temple_of_ahnqiraj() : InstanceMapScript("instance_temple_of_ahnqiraj", 531) { }
 
-    InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
+    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
     {
         return new instance_temple_of_ahnqiraj_InstanceMapScript(pMap);
     }

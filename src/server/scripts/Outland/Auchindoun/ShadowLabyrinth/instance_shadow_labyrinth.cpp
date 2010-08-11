@@ -43,7 +43,7 @@ class instance_shadow_labyrinth : public InstanceMapScript
 public:
     instance_shadow_labyrinth() : InstanceMapScript("instance_shadow_labyrinth", 555) { }
 
-    InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
+    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
     {
         return new instance_shadow_labyrinth_InstanceMapScript(pMap);
     }

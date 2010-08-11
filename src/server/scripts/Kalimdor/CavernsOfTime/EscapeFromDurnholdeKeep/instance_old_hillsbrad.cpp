@@ -42,7 +42,7 @@ class instance_old_hillsbrad : public InstanceMapScript
 public:
     instance_old_hillsbrad() : InstanceMapScript("instance_old_hillsbrad", 560) { }
 
-    InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
+    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
     {
         return new instance_old_hillsbrad_InstanceMapScript(pMap);
     }

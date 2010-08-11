@@ -66,7 +66,7 @@ class instance_dark_portal : public InstanceMapScript
 public:
     instance_dark_portal() : InstanceMapScript("instance_dark_portal", 269) { }
 
-    InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
+    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
     {
         return new instance_dark_portal_InstanceMapScript(pMap);
     }

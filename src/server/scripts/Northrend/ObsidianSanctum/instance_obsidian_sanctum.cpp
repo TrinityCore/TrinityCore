@@ -29,7 +29,7 @@ class instance_obsidian_sanctum : public InstanceMapScript
 public:
     instance_obsidian_sanctum() : InstanceMapScript("instance_obsidian_sanctum", 615) { }
 
-    InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
+    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
     {
         return new instance_obsidian_sanctum_InstanceMapScript(pMap);
     }

@@ -80,7 +80,7 @@ class instance_blackrock_depths : public InstanceMapScript
 public:
     instance_blackrock_depths() : InstanceMapScript("instance_blackrock_depths", 230) { }
 
-    InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
+    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
     {
         return new instance_blackrock_depths_InstanceMapScript(pMap);
     }
