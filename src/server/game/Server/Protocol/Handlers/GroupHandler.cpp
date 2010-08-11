@@ -384,6 +384,8 @@ void WorldSession::HandleGroupDisbandOpcode(WorldPacket & /*recv_data*/)
     SendPartyResult(PARTY_OP_LEAVE, GetPlayer()->GetName(), ERR_PARTY_RESULT_OK);
 
     GetPlayer()->RemoveFromGroup();
+    if (grp->isLFGGroup() && GetPlayer()->GetMap()->IsDungeon())
+        GetPlayer()->TeleportToBGEntryPoint();
 }
 
 void WorldSession::HandleLootMethodOpcode(WorldPacket & recv_data)

@@ -49,7 +49,7 @@ Group::Group()
     m_counter           = 0;
     m_maxEnchantingLevel= 0;
     m_LfgQueued         = false;
-    m_LfgStatus         = 1;
+    m_LfgStatus         = LFG_STATUS_NOT_SAVED;
     m_LfgDungeonEntry   = 0;
 
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
@@ -355,6 +355,8 @@ uint32 Group::RemoveMember(const uint64 &guid, const uint8 &method)
 
     if (isLfgQueued())
         sLFGMgr.Leave(NULL, this);
+    else if (isLFGGroup())
+        sLFGMgr.OfferContinue(this);
 
     // remove member and change leader (if need) only if strong more 2 members _before_ member remove
     if (GetMembersCount() > (isBGGroup() ? 1 : 2))           // in BG group case allow 1 members group

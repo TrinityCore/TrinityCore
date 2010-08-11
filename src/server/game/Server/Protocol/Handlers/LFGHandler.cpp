@@ -78,6 +78,9 @@ void WorldSession::HandleLfgProposalResultOpcode(WorldPacket &recv_data)
     uint8 accept;                                           // Accept to join?
     recv_data >> lfgGroupID;
     recv_data >> accept;
+
+    if (accept < 2)
+        sLFGMgr.UpdateProposal(lfgGroupID, GetPlayer()->GetGUIDLow(), accept);
 }
 
 void WorldSession::HandleLfgSetRolesOpcode(WorldPacket &recv_data)
@@ -110,6 +113,7 @@ void WorldSession::HandleLfgSetBootVoteOpcode(WorldPacket &recv_data)
 
     uint8 agree;                                             // Agree to kick player
     recv_data >> agree;
+
 }
 
 void WorldSession::HandleLfgTeleportOpcode(WorldPacket &recv_data)
@@ -118,6 +122,8 @@ void WorldSession::HandleLfgTeleportOpcode(WorldPacket &recv_data)
 
     bool out;
     recv_data >> out;
+
+    sLFGMgr.TeleportPlayer(GetPlayer(), out);
 }
 
 void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket &/*recv_data*/)
@@ -129,6 +135,7 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket &/*recv_data
 void WorldSession::HandleLfgPartyLockInfoRequestOpcode(WorldPacket &/*recv_data*/)
 {
     sLog.outDebug("CMSG_LFD_PARTY_LOCK_INFO_REQUEST");
+    //sLFGMgr.SendLfgPartyInfo(GetPlayer());
 }
 
 void WorldSession::HandleLfrSearchOpcode(WorldPacket &recv_data)
@@ -137,6 +144,7 @@ void WorldSession::HandleLfrSearchOpcode(WorldPacket &recv_data)
 
     uint32 entry;                                           // Raid id to search
     recv_data >> entry;
+    //SendLfrUpdateListOpcode(entry);
 }
 
 void WorldSession::HandleLfrLeaveOpcode(WorldPacket &recv_data)
@@ -145,6 +153,7 @@ void WorldSession::HandleLfrLeaveOpcode(WorldPacket &recv_data)
 
     uint32 dungeonId;                                       // Raid id queue to leave
     recv_data >> dungeonId;
+    //sLFGMgr.LeaveLfr(GetPlayer(), dungeonId);
 }
 
 void WorldSession::SendLfgUpdatePlayer(uint8 updateType)
@@ -313,3 +322,13 @@ void WorldSession::SendLfgTeleportError(uint8 err)
     data << uint32(err);                                    // Error
     SendPacket(&data);
 }
+
+/*
+void WorldSession::SendLfrUpdateListOpcode(uint32 entry)
+{
+    sLog.outDebug("SMSG_UPDATE_LFG_LIST");
+    WorldPacket data(SMSG_UPDATE_LFG_LIST);
+    sLFGMgr.BuildLfrUpdateList(data, entry);
+    SendPacket(&data);
+}
+*/
