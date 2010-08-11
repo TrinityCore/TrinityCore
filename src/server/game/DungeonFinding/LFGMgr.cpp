@@ -311,6 +311,7 @@ void LFGMgr::Leave(Player *plr, Group *grp /* = NULL*/)
     // Remove from Role Checks
     if (grp)
     {
+        grp->SetLfgQueued(false);
         LfgRoleCheckMap::const_iterator itRoleCheck = m_RoleChecks.find(GUID_LOPART(guid));
         if (itRoleCheck != m_RoleChecks.end())
         {
@@ -526,7 +527,10 @@ void LFGMgr::UpdateRoleCheck(Group *grp, Player *plr /* = NULL*/)
     }
 
     if (pRoleCheck->result == LFG_ROLECHECK_FINISHED)
+    {
+        grp->SetLfgQueued(true);
         AddToQueue(grp->GetGUID(), &pRoleCheck->roles, &pRoleCheck->dungeons);
+    }
 
     if (pRoleCheck->result != LFG_ROLECHECK_INITIALITING)
     {

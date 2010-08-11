@@ -32,7 +32,7 @@
 #include "Util.h"
 #include "SpellAuras.h"
 #include "Vehicle.h"
-#include "LFG.h"
+#include "LFGMgr.h"
 
 class Aura;
 
@@ -266,8 +266,9 @@ void WorldSession::HandleGroupDeclineOpcode(WorldPacket & /*recv_data*/)
 void WorldSession::HandleGroupUninviteGuidOpcode(WorldPacket & recv_data)
 {
     uint64 guid;
+    std::string reason;
     recv_data >> guid;
-    recv_data.read_skip<std::string>();                     // reason
+    recv_data >> reason;
 
     //can't uninvite yourself
     if (guid == GetPlayer()->GetGUID())
@@ -366,7 +367,8 @@ void WorldSession::HandleGroupSetLeaderOpcode(WorldPacket & recv_data)
 
 void WorldSession::HandleGroupDisbandOpcode(WorldPacket & /*recv_data*/)
 {
-    if (!GetPlayer()->GetGroup())
+    Group *grp = GetPlayer()->GetGroup();
+    if (!grp)
         return;
 
     if (_player->InBattleground())

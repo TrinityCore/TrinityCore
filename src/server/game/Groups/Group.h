@@ -72,8 +72,8 @@ enum GroupType
     GROUPTYPE_BG     = 0x01,
     GROUPTYPE_RAID   = 0x02,
     GROUPTYPE_BGRAID = GROUPTYPE_BG | GROUPTYPE_RAID,       // mask
-    // 0x04?
-    GROUPTYPE_LFD    = 0x08,
+    GROUPTYPE_UNK1   = 0x04,
+    GROUPTYPE_LFG    = 0x08,
     // 0x10, leave/change group?, I saw this flag when leaving group and after leaving BG while in group
 };
 
@@ -158,6 +158,7 @@ class Group
             std::string name;
             uint8       group;
             uint8       flags;
+            uint8       roles;
         };
         typedef std::list<MemberSlot> MemberSlotList;
         typedef MemberSlotList::const_iterator member_citerator;
@@ -191,8 +192,30 @@ class Group
         void   SetLootThreshold(ItemQualities threshold) { m_lootThreshold = threshold; }
         void   Disband(bool hideDestroy=false);
 
+        void   SetLfgQueued(bool queued) { m_LfgQueued = queued; }
+        bool   isLfgQueued() { return m_LfgQueued; }
+        void   SetLfgStatus(uint8 status) { m_LfgStatus = status; }
+        uint8  GetLfgStatus() { return m_LfgStatus; }
+        void   SetLfgDungeonEntry(uint32 dungeonEntry) { m_LfgDungeonEntry = dungeonEntry; }
+        uint32 GetLfgDungeonEntry(bool id = true)
+        {
+            if (id)
+                return (m_LfgDungeonEntry & 0x00FFFFFF);
+            else
+                return m_LfgDungeonEntry;
+        }       
+        void SetLfgRoles(uint64 guid, const uint8 roles)
+        {
+            member_witerator slot = _getMemberWSlot(guid);
+            if (slot == m_memberSlots.end())
+                return;
+
+            slot->roles = roles;
+            SendUpdate();
+        }
         // properties accessories
         bool IsFull() const { return (m_groupType == GROUPTYPE_NORMAL) ? (m_memberSlots.size() >= MAXGROUPSIZE) : (m_memberSlots.size() >= MAXRAIDSIZE); }
+        bool isLFGGroup()  const { return m_groupType & GROUPTYPE_LFG; }
         bool isRaidGroup() const { return m_groupType & GROUPTYPE_RAID; }
         bool isBGGroup()   const { return m_bgGroup != NULL; }
         bool IsCreated()   const { return GetMembersCount() > 0; }
@@ -267,6 +290,7 @@ class Group
             return mslot->group;
         }
 
+        void ConvertToLFG();
         // some additional raid methods
         void ConvertToRaid();
 
@@ -460,5 +484,8 @@ class Group
         uint64              m_guid;
         uint32              m_counter;                      // used only in SMSG_GROUP_LIST
         uint32              m_maxEnchantingLevel;
+        bool                m_LfgQueued;
+        uint8               m_LfgStatus;
+        uint32              m_LfgDungeonEntry;
 };
 #endif
