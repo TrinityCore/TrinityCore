@@ -1,4 +1,3 @@
-
 DROP TABLE IF EXISTS `reputation_spillover_template`;
 CREATE TABLE `reputation_spillover_template` (
   `faction` smallint(6) unsigned NOT NULL default '0' COMMENT 'faction entry',
