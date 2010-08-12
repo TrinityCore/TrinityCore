@@ -3923,9 +3923,7 @@ void AuraEffect::HandleModPossessPet(AuraApplication const * aurApp, uint8 mode,
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
-    Unit * target = aurApp->GetTarget();
-
-    Unit * caster = GetCaster();
+    Unit* caster = GetCaster();
     if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
@@ -3933,24 +3931,35 @@ void AuraEffect::HandleModPossessPet(AuraApplication const * aurApp, uint8 mode,
     //if (caster->ToPlayer()->GetPet() != target)
     //    return;
 
+    Unit* target = aurApp->GetTarget();
+    if (target->GetTypeId() != TYPEID_UNIT || !target->ToCreature()->isPet())
+        return;
+
+    Pet* pet = target->ToPet();
+
     if (apply)
     {
-        if (caster->ToPlayer()->GetPet() != target)
+        if (caster->ToPlayer()->GetPet() != pet)
             return;
 
-        target->SetCharmedBy(caster, CHARM_TYPE_POSSESS);
+        pet->SetCharmedBy(caster, CHARM_TYPE_POSSESS);
     }
     else
     {
-        target->RemoveCharmedBy(caster);
+        pet->RemoveCharmedBy(caster);
 
-        // Reinitialize the pet bar and make the pet come back to the owner
-        caster->ToPlayer()->PetSpellInitialize();
-        if (!target->getVictim())
+        if (!pet->IsWithinDistInMap(caster, pet->GetMap()->GetVisibilityDistance()))
+            pet->Remove(PET_SAVE_NOT_IN_SLOT, true);
+        else 
         {
-            target->GetMotionMaster()->MoveFollow(caster, PET_FOLLOW_DIST, target->GetFollowAngle());
-            //if (target->GetCharmInfo())
-            //    target->GetCharmInfo()->SetCommandState(COMMAND_FOLLOW);
+            // Reinitialize the pet bar and make the pet come back to the owner
+            caster->ToPlayer()->PetSpellInitialize();
+            if (!pet->getVictim())
+            {
+                pet->GetMotionMaster()->MoveFollow(caster, PET_FOLLOW_DIST, pet->GetFollowAngle());
+                //if (target->GetCharmInfo())
+                //    target->GetCharmInfo()->SetCommandState(COMMAND_FOLLOW);
+            }
         }
     }
 }
