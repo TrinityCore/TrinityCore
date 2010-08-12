@@ -687,12 +687,19 @@ public:
     // Called when a player's reputation changes (before it is actually changed)
     virtual void OnReputationChange(Player *player, uint32 factionID, int32& standing, bool incremental) { }
 
-    // Called when a player sends a chat message. toOrChannel is empty when type is neither whisper nor channel
-    virtual void OnChat(WorldSession *session, uint32 type, uint32 lang, std::string msg, std::string toOrChannel) { }
+    // Called when a player sends a chat message. param depends on the chat type:
+    // CHAT_MSG_WHISPER - Player*: receiver;
+    // CHAT_MSG_PARTY, CHAT_MSG_PARTY_LEADER - Group*: group of player;
+    // CHAT_MSG_OFFICER, CHAT_MSG_GUILD - Guild*: guild of player;
+    // CHAT_MSG_RAID, CHAT_MSG_RAID_LEADER, CHAT_MSG_RAID_WARNING - Group*: group of player;
+    // CHAT_MSG_BATTLEGROUND, CHAT_MSG_BATTLEGROUND_LEADER - Group*: group of player;
+    // CHAT_MSG_CHANNEL - Channel*: channel player speaks to;
+    // other - NULL.
+    virtual void OnChat(Player* player, uint32 type, uint32 lang, std::string msg, void* param = NULL) { }
 
     // Both of the below are called on emote opcodes
-    virtual void OnEmote(WorldSession *session, uint32 emote) { }
-    virtual void OnTextEmote(WorldSession *session, uint32 text_emote, uint32 emoteNum, uint64 guid) { }
+    virtual void OnEmote(Player* player, uint32 emote) { }
+    virtual void OnTextEmote(Player* player, uint32 text_emote, uint32 emoteNum, uint64 guid) { }
 };
 
 // Placed here due to ScriptRegistry::AddScript dependency.
@@ -877,9 +884,9 @@ class ScriptMgr
         void OnPlayerMoneyChanged(Player *player, int32& amount);
         void OnGivePlayerXP(Player *player, uint32& amount, Unit *victim);
         void OnPlayerReputationChange(Player *player, uint32 factionID, int32& standing, bool incremental);
-        void OnPlayerChat(WorldSession *session, uint32 type, uint32 lang, std::string msg, std::string toOrChannel);
-        void OnPlayerEmote(WorldSession *session, uint32 emote);
-        void OnPlayerTextEmote(WorldSession *session, uint32 text_emote, uint32 emoteNum, uint64 guid);
+        void OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string msg, void* param = NULL);
+        void OnPlayerEmote(Player* player, uint32 emote);
+        void OnPlayerTextEmote(Player* player, uint32 text_emote, uint32 emoteNum, uint64 guid);
 
     public: /* ScriptRegistry */
 
