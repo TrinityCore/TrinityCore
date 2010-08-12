@@ -8,7 +8,6 @@ build/
 *~
 .git/
 *.kdev*
-.hgrignore
 
 # use regexp syntax.
 syntax: regexp
