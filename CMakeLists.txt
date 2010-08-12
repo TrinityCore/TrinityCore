@@ -104,14 +104,17 @@ if( PREFIX )
   set(CMAKE_INSTALL_PREFIX "${PREFIX}")
 endif()
 
-IF(WIN32)
-   IF(NOT CYGWIN)
-     IF(NOT CMAKE_INSTALL_PREFIX)
-       SET(CMAKE_INSTALL_PREFIX
-           "${CMAKE_BINARY_DIR}/bin")
-     ENDIF(NOT CMAKE_INSTALL_PREFIX)
-   ENDIF(NOT CYGWIN)
-ENDIF(WIN32)
+#
+# Example: Check the CMake preload parameters (Commented out by default)
+#
+# Overload CMAKE_INSTALL_PREFIX if not being set properly
+#if( WIN32 )
+#  if( NOT CYGWIN )
+#    if( NOT CMAKE_INSTALL_PREFIX )
+#      set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/bin")
+#    endif()
+#  endif()
+#endif()
 
 #
 # Handle debugmode compiles (this will require further work for proper WIN32-setups)
