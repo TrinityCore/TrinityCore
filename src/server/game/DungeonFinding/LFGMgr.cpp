@@ -1282,7 +1282,8 @@ void LFGMgr::SendLfgPlayerInfo(Player *plr)
         randomlist->clear();
         delete randomlist;
     }
-    BuildPlayerLockDungeonBlock(data, lockSet);
+    if (lockSet)
+        BuildPlayerLockDungeonBlock(data, lockSet);
     plr->GetSession()->SendPacket(&data);
 }
 
