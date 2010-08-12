@@ -64,7 +64,7 @@ int32_t libmpq__do_decompress_wave(uint8_t *out_buf, int32_t out_length, uint8_t
 	uint32_t index;
 	int32_t nr_array1[2];
 	int32_t nr_array2[2];
-	uint32_t count = 0;
+	int32_t count = 0;
 
 	/* end on input buffer. */
 	uint8_t *in_end = in_buf + in_length;
