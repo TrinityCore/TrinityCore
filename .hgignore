@@ -7,6 +7,8 @@ build/
 *.rej
 *~
 .git/
+*.kdev*
+.hgrignore
 
 # use regexp syntax.
 syntax: regexp
