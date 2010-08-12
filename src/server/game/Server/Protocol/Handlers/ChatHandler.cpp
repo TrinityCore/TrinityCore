@@ -39,6 +39,7 @@
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 #include "Util.h"
+#include "ScriptMgr.h"
 
 bool WorldSession::processChatmessageFurtherAfterSecurityChecks(std::string& msg, uint32 lang)
 {
@@ -192,6 +193,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
         {
             std::string msg;
             recv_data >> msg;
+            sScriptMgr.OnPlayerChat(this, type, lang, msg, "");
 
             if (msg.empty())
                 break;
@@ -224,6 +226,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
             std::string to, msg;
             recv_data >> to;
             recv_data >> msg;
+            sScriptMgr.OnPlayerChat(this, type, lang, msg, to);
 
             if (_player->getLevel() < sWorld.getConfig(CONFIG_CHAT_WHISPER_LEVEL_REQ))
             {
@@ -277,6 +280,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
         {
             std::string msg;
             recv_data >> msg;
+            sScriptMgr.OnPlayerChat(this, type, lang, msg, "");
 
             if (msg.empty())
                 break;
@@ -315,6 +319,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
         {
             std::string msg;
             recv_data >> msg;
+            sScriptMgr.OnPlayerChat(this, type, lang, msg, "");
 
             if (msg.empty())
                 break;
@@ -353,6 +358,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
         {
             std::string msg;
             recv_data >> msg;
+            sScriptMgr.OnPlayerChat(this, type, lang, msg, "");
 
             if (msg.empty())
                 break;
@@ -383,6 +389,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
         {
             std::string msg;
             recv_data >> msg;
+            sScriptMgr.OnPlayerChat(this, type, lang, msg, "");
 
             if (msg.empty())
                 break;
@@ -417,6 +424,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
         {
             std::string msg;
             recv_data >> msg;
+            sScriptMgr.OnPlayerChat(this, type, lang, msg, "");
 
             if (msg.empty())
                 break;
@@ -451,6 +459,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
         {
             std::string msg;
             recv_data >> msg;
+            sScriptMgr.OnPlayerChat(this, type, lang, msg, "");
 
             if (!processChatmessageFurtherAfterSecurityChecks(msg, lang))
                 return;
@@ -476,6 +485,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
         {
             std::string msg;
             recv_data >> msg;
+            sScriptMgr.OnPlayerChat(this, type, lang, msg, "");
 
             if (!processChatmessageFurtherAfterSecurityChecks(msg, lang))
                 return;
@@ -501,6 +511,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
         {
             std::string msg;
             recv_data >> msg;
+            sScriptMgr.OnPlayerChat(this, type, lang, msg, "");
 
             if (!processChatmessageFurtherAfterSecurityChecks(msg, lang))
                 return;
@@ -527,6 +538,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
             std::string channel, msg;
             recv_data >> channel;
             recv_data >> msg;
+            sScriptMgr.OnPlayerChat(this, type, lang, msg, channel);
 
             if (!processChatmessageFurtherAfterSecurityChecks(msg, lang))
                 return;
@@ -565,6 +577,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
         {
             std::string msg;
             recv_data >> msg;
+            sScriptMgr.OnPlayerChat(this, type, lang, msg, "");
 
             if ((msg.empty() || !_player->isAFK()) && !_player->isInCombat())
             {
@@ -584,6 +597,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
         {
             std::string msg;
             recv_data >> msg;
+            sScriptMgr.OnPlayerChat(this, type, lang, msg, "");
 
             if (msg.empty() || !_player->isDND())
             {
@@ -612,6 +626,7 @@ void WorldSession::HandleEmoteOpcode(WorldPacket & recv_data)
 
     uint32 emote;
     recv_data >> emote;
+    sScriptMgr.OnPlayerEmote(this, emote);
     GetPlayer()->HandleEmoteCommand(emote);
 }
 
@@ -665,6 +680,8 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket & recv_data)
     recv_data >> text_emote;
     recv_data >> emoteNum;
     recv_data >> guid;
+
+    sScriptMgr.OnPlayerTextEmote(this, text_emote, emoteNum, guid);
 
     EmotesTextEntry const *em = sEmotesTextStore.LookupEntry(text_emote);
     if (!em)

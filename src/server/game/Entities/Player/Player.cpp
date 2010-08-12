@@ -2614,6 +2614,8 @@ void Player::GiveXP(uint32 xp, Unit* victim)
 
     uint8 level = getLevel();
 
+    sScriptMgr.OnGivePlayerXP(this, xp, victim);
+
     // Favored experience increase START
     uint32 zone = GetZoneId();
     float favored_exp_mult = 0;
@@ -20705,6 +20707,28 @@ void Player::UpdateVisibilityForPlayer()
 void Player::InitPrimaryProfessions()
 {
     SetFreePrimaryProfessions(sWorld.getConfig(CONFIG_MAX_PRIMARY_TRADE_SKILL));
+}
+
+void Player::ModifyMoney(int32 d)
+{
+    sScriptMgr.OnPlayerMoneyChanged(this, d);
+
+    if (d < 0)
+        SetMoney (GetMoney() > uint32(-d) ? GetMoney() + d : 0);
+    else
+    {
+        uint32 newAmount = 0;
+        if (GetMoney() < uint32(MAX_MONEY_AMOUNT - d))
+            newAmount = GetMoney() + d;
+        else
+        {
+            // "At Gold Limit"
+            newAmount = MAX_MONEY_AMOUNT;
+            if (d)
+                SendEquipError(EQUIP_ERR_TOO_MUCH_GOLD, NULL, NULL);
+        }
+        SetMoney (newAmount);
+    }
 }
 
 Unit * Player::GetSelectedUnit() const

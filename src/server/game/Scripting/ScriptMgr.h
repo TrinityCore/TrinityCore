@@ -677,6 +677,22 @@ public:
 
     // Called when a player's talent points are reset (right before the reset is done)
     virtual void OnTalentsReset(Player *player, bool no_cost) { }
+
+    // Called when a player's money is modified (before the modification is done)
+    virtual void OnMoneyChanged(Player *player, int32& amount) { }
+
+    // Called when a player gains XP (before anything is given)
+    virtual void OnGiveXP(Player *player, uint32& amount, Unit *victim) { }
+
+    // Called when a player's reputation changes (before it is actually changed)
+    virtual void OnReputationChange(Player *player, uint32 factionID, int32& standing, bool incremental) { }
+
+    // Called when a player sends a chat message. toOrChannel is empty when type is neither whisper nor channel
+    virtual void OnChat(WorldSession *session, uint32 type, uint32 lang, std::string msg, std::string toOrChannel) { }
+
+    // Both of the below are called on emote opcodes
+    virtual void OnEmote(WorldSession *session, uint32 emote) { }
+    virtual void OnTextEmote(WorldSession *session, uint32 text_emote, uint32 emoteNum, uint64 guid) { }
 };
 
 // Placed here due to ScriptRegistry::AddScript dependency.
@@ -858,6 +874,12 @@ class ScriptMgr
         void OnPlayerLevelChanged(Player *player, uint8 newLevel);
         void OnPlayerFreeTalentPointsChanged(Player *player, uint32 newPoints);
         void OnPlayerTalentsReset(Player *player, bool no_cost);
+        void OnPlayerMoneyChanged(Player *player, int32& amount);
+        void OnGivePlayerXP(Player *player, uint32& amount, Unit *victim);
+        void OnPlayerReputationChange(Player *player, uint32 factionID, int32& standing, bool incremental);
+        void OnPlayerChat(WorldSession *session, uint32 type, uint32 lang, std::string msg, std::string toOrChannel);
+        void OnPlayerEmote(WorldSession *session, uint32 emote);
+        void OnPlayerTextEmote(WorldSession *session, uint32 text_emote, uint32 emoteNum, uint64 guid);
 
     public: /* ScriptRegistry */
 
