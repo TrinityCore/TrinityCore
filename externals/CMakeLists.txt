@@ -22,4 +22,7 @@ endif()
 add_subdirectory(g3dlite)
 add_subdirectory(sockets)
 add_subdirectory(gsoap)
-add_subdirectory(libmpq)
+
+if(TOOLS)
+  add_subdirectory(libmpq)
+endif()
