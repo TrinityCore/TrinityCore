@@ -1112,19 +1112,19 @@ void ScriptMgr::OnPlayerReputationChange(Player *player, uint32 factionID, int32
     FOREACH_SCRIPT(PlayerScript)->OnReputationChange(player, factionID, standing, incremental);
 }
 
-void ScriptMgr::OnPlayerChat(WorldSession *session, uint32 type, uint32 lang, std::string msg, std::string toOrChannel)
+void ScriptMgr::OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string msg, void* param)
 {
-    FOREACH_SCRIPT(PlayerScript)->OnChat(session, type, lang, msg, toOrChannel);
+    FOREACH_SCRIPT(PlayerScript)->OnChat(player, type, lang, msg, param);
 }
 
-void ScriptMgr::OnPlayerEmote(WorldSession *session, uint32 emote)
+void ScriptMgr::OnPlayerEmote(Player* player, uint32 emote)
 {
-    FOREACH_SCRIPT(PlayerScript)->OnEmote(session, emote);
+    FOREACH_SCRIPT(PlayerScript)->OnEmote(player, emote);
 }
 
-void ScriptMgr::OnPlayerTextEmote(WorldSession *session, uint32 text_emote, uint32 emoteNum, uint64 guid)
+void ScriptMgr::OnPlayerTextEmote(Player* player, uint32 text_emote, uint32 emoteNum, uint64 guid)
 {
-    FOREACH_SCRIPT(PlayerScript)->OnTextEmote(session, text_emote, emoteNum, guid);
+    FOREACH_SCRIPT(PlayerScript)->OnTextEmote(player, text_emote, emoteNum, guid);
 }
 
 SpellHandlerScript::SpellHandlerScript(const char* name)
