@@ -2655,6 +2655,8 @@ void Player::GiveLevel(uint8 level)
     if (level == getLevel())
         return;
 
+    sScriptMgr.OnPlayerLevelChanged(this, level);
+
     PlayerLevelInfo info;
     sObjectMgr.GetPlayerLevelInfo(getRace(),getClass(),level,&info);
 
@@ -3983,6 +3985,8 @@ uint32 Player::resetTalentsCost() const
 
 bool Player::resetTalents(bool no_cost)
 {
+    sScriptMgr.OnPlayerTalentsReset(this, no_cost);
+
     // not need after this call
     if (HasAtLoginFlag(AT_LOGIN_RESET_TALENTS))
         RemoveAtLoginFlag(AT_LOGIN_RESET_TALENTS, true);
@@ -4068,6 +4072,12 @@ bool Player::resetTalents(bool no_cost)
     */
 
     return true;
+}
+
+void Player::SetFreeTalentPoints(uint32 points)
+{
+    sScriptMgr.OnPlayerFreeTalentPointsChanged(this, points);
+    SetUInt32Value(PLAYER_CHARACTER_POINTS1,points);
 }
 
 Mail* Player::GetMail(uint32 id)

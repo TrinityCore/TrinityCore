@@ -1559,7 +1559,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetReputation(uint32 factionentry);
         std::string GetGuildName();
         uint32 GetFreeTalentPoints() const { return GetUInt32Value(PLAYER_CHARACTER_POINTS1); }
-        void SetFreeTalentPoints(uint32 points) { SetUInt32Value(PLAYER_CHARACTER_POINTS1,points); }
+        void SetFreeTalentPoints(uint32 points);
         bool resetTalents(bool no_cost = false);
         uint32 resetTalentsCost() const;
         void InitTalentForLevel();
