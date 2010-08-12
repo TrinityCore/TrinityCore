@@ -1854,7 +1854,7 @@ void AchievementMgr::UpdateTimedAchievements(uint32 timeDiff)
     }
 }
 
-void AchievementMgr::StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry)
+void AchievementMgr::StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry, uint32 timeLost /*= 0*/)
 {
     AchievementCriteriaEntryList const& achievementCriteriaList = sAchievementMgr.GetTimedAchievementCriteriaByType(type);
     for (AchievementCriteriaEntryList::const_iterator i = achievementCriteriaList.begin(); i != achievementCriteriaList.end(); ++i)
@@ -1866,10 +1866,13 @@ void AchievementMgr::StartTimedAchievement(AchievementCriteriaTimedTypes type, u
         if (m_timedAchievements.find((*i)->ID) == m_timedAchievements.end() && !IsCompletedCriteria(*i, achievement))
         {
             // Start the timer
-            m_timedAchievements[(*i)->ID] = (*i)->timeLimit * IN_MILLISECONDS;
+            if ((*i)->timeLimit * IN_MILLISECONDS > timeLost)
+            {
+                m_timedAchievements[(*i)->ID] = (*i)->timeLimit * IN_MILLISECONDS - timeLost;
 
-            // and at client too
-            SetCriteriaProgress(*i, 0, PROGRESS_SET);
+                // and at client too
+                SetCriteriaProgress(*i, 0, PROGRESS_SET);
+            }
         }
     }
 }
