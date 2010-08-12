@@ -720,15 +720,29 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
         Kill(pVictim, durabilityLoss);
 
         //Hook for OnPVPKill Event
-        if (pVictim->GetTypeId() == TYPEID_PLAYER && this->GetTypeId() == TYPEID_PLAYER)
+        if (this->GetTypeId() == TYPEID_PLAYER)
         {
-            Player *killer = this->ToPlayer();
-            Player *killed = pVictim->ToPlayer();
+            if (pVictim->GetTypeId() == TYPEID_PLAYER)
+            {
+                Player *killer = this->ToPlayer();
+                Player *killed = pVictim->ToPlayer();
+                sScriptMgr.OnPVPKill(killer, killed);
+            }
+            else if (pVictim->GetTypeId() == TYPEID_UNIT)
+            {
+                Player *killer = this->ToPlayer();
+                Creature *killed = pVictim->ToCreature();
+                sScriptMgr.OnCreatureKill(killer, killed);
+            }
         }
-        if (pVictim->GetTypeId() == TYPEID_UNIT && this->GetTypeId() == TYPEID_PLAYER)
+        else if (this->GetTypeId() == TYPEID_UNIT)
         {
-            Player *killer = this->ToPlayer();
-            Creature *pCreature = (pVictim->ToCreature());
+            if (pVictim->GetTypeId() == TYPEID_PLAYER)
+            {
+                Creature *killer = this->ToCreature();
+                Player *killed = pVictim->ToPlayer();
+                sScriptMgr.OnPlayerKilledByCreature(killer, killed);
+            }
         }
     }
     else                                                    // if (health <= damage)

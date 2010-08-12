@@ -58,6 +58,7 @@
 #include "DisableMgr.h"
 #include "Transport.h"
 #include "WeatherMgr.h"
+#include "ScriptMgr.h"
 
 //reload commands
 bool ChatHandler::HandleReloadAllCommand(const char*)
@@ -4913,8 +4914,9 @@ bool ChatHandler::HandleResetLevelCommand(const char * args)
         ? sWorld.getConfig(CONFIG_START_PLAYER_LEVEL)
         : sWorld.getConfig(CONFIG_START_HEROIC_PLAYER_LEVEL);
 
-    target->_ApplyAllLevelScaleItemMods(false);
+    sScriptMgr.OnPlayerLevelChanged(target, start_level);
 
+    target->_ApplyAllLevelScaleItemMods(false);
     target->SetLevel(start_level);
     target->InitRunes();
     target->InitStatsForLevel(true);
