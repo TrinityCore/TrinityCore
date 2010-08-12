@@ -1067,6 +1067,36 @@ bool ScriptMgr::OnCriteriaCheck(AchievementCriteriaData const* data, Player* sou
     return tmpscript->OnCheck(source, target);
 }
 
+void ScriptMgr::OnPVPKill(Player *killer, Player *killed)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnPVPKill(killer, killed);
+}
+
+void ScriptMgr::OnCreatureKill(Player *killer, Creature *killed)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnCreatureKill(killer, killed);
+}
+
+void ScriptMgr::OnPlayerKilledByCreature(Creature *killer, Player *killed)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnPlayerKilledByCreature(killer, killed);
+}
+
+void ScriptMgr::OnPlayerLevelChanged(Player *player, uint8 newLevel)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnLevelChanged(player, newLevel);
+}
+
+void ScriptMgr::OnPlayerFreeTalentPointsChanged(Player *player, uint32 points)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnFreeTalentPointsChanged(player, points);
+}
+
+void ScriptMgr::OnPlayerTalentsReset(Player *player, bool no_cost)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnTalentsReset(player, no_cost);
+}
+
 SpellHandlerScript::SpellHandlerScript(const char* name)
     : ScriptObject(name)
 {
@@ -1206,6 +1236,12 @@ AchievementCriteriaScript::AchievementCriteriaScript(const char* name)
     : ScriptObject(name)
 {
     ScriptMgr::ScriptRegistry<AchievementCriteriaScript>::AddScript(this);
+}
+
+PlayerScript::PlayerScript(const char* name)
+    : ScriptObject(name)
+{
+    ScriptMgr::ScriptRegistry<PlayerScript>::AddScript(this);
 }
 
 // Instantiate static members of ScriptMgr::ScriptRegistry.
