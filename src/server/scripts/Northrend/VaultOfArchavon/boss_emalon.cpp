@@ -62,7 +62,7 @@ class boss_emalon : public CreatureScript
 public:
     boss_emalon() : CreatureScript("boss_emalon") { }
 
-    CreatureAI* GetAI(Creature *_Creature)
+    CreatureAI* GetAI(Creature *_Creature) const
     {
         return new boss_emalonAI (_Creature);
     }
@@ -169,7 +169,7 @@ class mob_tempest_minion : public CreatureScript
 public:
     mob_tempest_minion() : CreatureScript("mob_tempest_minion") { }
 
-    CreatureAI* GetAI(Creature *_Creature)
+    CreatureAI* GetAI(Creature *_Creature) const
     {
         return new mob_tempest_minionAI (_Creature);
     }
