@@ -22,6 +22,7 @@
 #include "WorldPacket.h"
 #include "World.h"
 #include "ObjectMgr.h"
+#include "ScriptMgr.h"
 
 const int32 ReputationMgr::PointsInRank[MAX_REPUTATION_RANK] = {36000, 3000, 3000, 3000, 6000, 12000, 21000, 1000};
 
@@ -251,6 +252,8 @@ void ReputationMgr::Initialize()
 
 bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standing, bool incremental)
 {
+    sScriptMgr.OnPlayerReputationChange(m_player, factionEntry->ID, standing, incremental);
+
     if (SimpleFactionsList const* flist = GetFactionTeamList(factionEntry->ID))
     {
         bool res = false;
