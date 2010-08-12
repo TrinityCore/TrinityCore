@@ -1097,6 +1097,36 @@ void ScriptMgr::OnPlayerTalentsReset(Player *player, bool no_cost)
     FOREACH_SCRIPT(PlayerScript)->OnTalentsReset(player, no_cost);
 }
 
+void ScriptMgr::OnPlayerMoneyChanged(Player *player, int32& amount)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnMoneyChanged(player, amount);
+}
+
+void ScriptMgr::OnGivePlayerXP(Player *player, uint32& amount, Unit *victim)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnGiveXP(player, amount, victim);
+}
+
+void ScriptMgr::OnPlayerReputationChange(Player *player, uint32 factionID, int32& standing, bool incremental)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnReputationChange(player, factionID, standing, incremental);
+}
+
+void ScriptMgr::OnPlayerChat(WorldSession *session, uint32 type, uint32 lang, std::string msg, std::string toOrChannel)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnChat(session, type, lang, msg, toOrChannel);
+}
+
+void ScriptMgr::OnPlayerEmote(WorldSession *session, uint32 emote)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnEmote(session, emote);
+}
+
+void ScriptMgr::OnPlayerTextEmote(WorldSession *session, uint32 text_emote, uint32 emoteNum, uint64 guid)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnTextEmote(session, text_emote, emoteNum, guid);
+}
+
 SpellHandlerScript::SpellHandlerScript(const char* name)
     : ScriptObject(name)
 {
