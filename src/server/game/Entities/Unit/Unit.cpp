@@ -15409,8 +15409,8 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type)
     }
 
     // Set charmed
-     Map* pMap = GetMap();
-     if (!IsVehicle() || (IsVehicle() && pMap && !pMap->IsBattleground()))
+    Map* pMap = GetMap();
+    if (!IsVehicle() || (IsVehicle() && pMap && !pMap->IsBattleground()))
         setFaction(charmer->getFaction());
 
     charmer->SetCharm(this, true);
