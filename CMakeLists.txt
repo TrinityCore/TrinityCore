@@ -273,7 +273,7 @@ message("")
 
 if( CMAKE_SYSTEM_NAME MATCHES "Darwin" )
   set(MACOSX 1)
-  set(OSX_LIBS /opt/local/lib/libcrypto.dylib)
+  set(OSX_LIBS /usr/lib/libcrypto.dylib)
   add_definitions(-D__ASSERTMACROS__)
 endif()
 
