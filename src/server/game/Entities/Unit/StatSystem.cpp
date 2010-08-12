@@ -26,6 +26,26 @@
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 
+inline bool _ModifyUInt32(bool apply, uint32& baseValue, int32& amount) 
+{
+    // If amount is negative, change sign and value of apply.
+    if (amount < 0)
+    {
+        apply = !apply;
+        amount = -amount;
+    }
+    if (apply)
+        baseValue += amount;
+    else 
+    {
+        // Make sure we do not get uint32 overflow.
+        if (amount > baseValue)
+            amount = baseValue;
+        baseValue -= amount;
+    }
+    return apply;
+}
+
 /*#######################################
 ########                         ########
 ########   PLAYERS STAT SYSTEM   ########
@@ -113,12 +133,12 @@ bool Player::UpdateStats(Stats stat)
 
 void Player::ApplySpellPowerBonus(int32 amount, bool apply)
 {
-    m_baseSpellPower+=apply?amount:-amount;
+    apply = _ModifyUInt32(apply, m_baseSpellPower, amount);
 
     // For speed just update for client
     ApplyModUInt32Value(PLAYER_FIELD_MOD_HEALING_DONE_POS, amount, apply);
     for (int i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
-        ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS+i, amount, apply);;
+        ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + i, amount, apply);
 }
 
 void Player::UpdateSpellDamageAndHealingBonus()
@@ -256,7 +276,7 @@ void Player::UpdateMaxPower(Powers power)
 
 void Player::ApplyFeralAPBonus(int32 amount, bool apply)
 {
-    m_baseFeralAP+= apply ? amount:-amount;
+    _ModifyUInt32(apply, m_baseFeralAP, amount);
     UpdateAttackPowerAndDamage();
 }
 
@@ -692,13 +712,13 @@ void Player::UpdateExpertise(WeaponAttackType attack)
 
 void Player::ApplyManaRegenBonus(int32 amount, bool apply)
 {
-    m_baseManaRegen+= apply ? amount : -amount;
+    _ModifyUInt32(apply, m_baseManaRegen, amount);
     UpdateManaRegen();
 }
 
 void Player::ApplyHealthRegenBonus(int32 amount, bool apply)
 {
-    m_baseHealthRegen+= apply ? amount : -amount;
+    _ModifyUInt32(apply, m_baseHealthRegen, amount);
 }
 
 void Player::UpdateManaRegen()
