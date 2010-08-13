@@ -1194,7 +1194,7 @@ void LFGMgr::SendUpdateProposal(Player *plr, uint32 proposalId, LfgProposal *pPr
 
     uint32 pLogGuid = plr->GetGUIDLow();
     LfgProposalPlayerMap::const_iterator itPlayer = pProp->players.find(pLogGuid);
-    if (itPlayer != pProp->players.end())                   // Player MUST be in the proposal
+    if (itPlayer == pProp->players.end())                   // Player MUST be in the proposal
         return;
 
     LfgProposalPlayer *ppPlayer = itPlayer->second;
