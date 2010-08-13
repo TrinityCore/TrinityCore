@@ -17,6 +17,8 @@
  */
 
 #include "ScriptPCH.h"
+#include "BattlegroundAB.h"
+#include "BattlegroundWS.h"
 
 class achievement_school_of_hard_knocks : public AchievementCriteriaScript
 {
@@ -53,8 +55,73 @@ class achievement_storm_glory : public AchievementCriteriaScript
         }
 };
 
+class achievement_resilient_victory : public AchievementCriteriaScript
+{
+    public:
+        achievement_resilient_victory() : AchievementCriteriaScript("achievement_resilient_victory") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            Battleground* bg = source->GetBattleground();
+            if (!bg)
+                return false;
+
+            if (bg->GetTypeID(true) != BATTLEGROUND_AB)
+                return false;
+
+            if (!static_cast<BattlegroundAB*>(bg)->IsTeamScores500Disadvantage(source->GetTeam()))
+                return false;
+
+            return true;
+        }
+};
+
+class achievement_bg_control_all_nodes : public AchievementCriteriaScript
+{
+    public:
+        achievement_bg_control_all_nodes() : AchievementCriteriaScript("achievement_bg_control_all_nodes") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            Battleground* bg = source->GetBattleground();
+            if (!bg)
+                return false;
+
+            if (!bg->IsAllNodesConrolledByTeam(source->GetTeam()))
+                return false;
+
+            return true;
+        }
+};
+
+class achievement_save_the_day : public AchievementCriteriaScript
+{
+    public:
+        achievement_save_the_day() : AchievementCriteriaScript("achievement_save_the_day") { }
+
+        bool OnCheck(Player* source, Unit* target)
+        {
+            if (!target)
+                return false;
+
+            if (Player const* pTarget = target->ToPlayer())
+            {
+                if (source->GetBattlegroundTypeId() != BATTLEGROUND_WS || !source->GetBattleground())
+                    return false;
+
+                BattlegroundWS* pWSG = static_cast<BattlegroundWS*>(source->GetBattleground());
+                if (pWSG->GetFlagState(pTarget->GetTeam()) == BG_WS_FLAG_STATE_ON_BASE)
+                    return true;
+            }
+            return false;
+        }
+};
+
 void AddSC_achievement_scripts()
 {
-    new achievement_school_of_hard_knocks;
-    new achievement_storm_glory;
+    new achievement_school_of_hard_knocks();
+    new achievement_storm_glory();
+    new achievement_resilient_victory();
+    new achievement_bg_control_all_nodes();
+    new achievement_save_the_day();
 }

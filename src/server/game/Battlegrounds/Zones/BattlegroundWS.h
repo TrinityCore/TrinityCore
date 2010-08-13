@@ -47,8 +47,10 @@ enum BG_WS_SpellId
 {
     BG_WS_SPELL_WARSONG_FLAG            = 23333,
     BG_WS_SPELL_WARSONG_FLAG_DROPPED    = 23334,
+    BG_WS_SPELL_WARSONG_FLAG_PICKED     = 61266,    // fake spell, does not exist but used as timer start event
     BG_WS_SPELL_SILVERWING_FLAG         = 23335,
     BG_WS_SPELL_SILVERWING_FLAG_DROPPED = 23336,
+    BG_WS_SPELL_SILVERWING_FLAG_PICKED  = 61265,    // fake spell, does not exist but used as timer start event
     BG_WS_SPELL_FOCUSED_ASSAULT         = 46392,
     BG_WS_SPELL_BRUTAL_ASSAULT          = 46393
 };
@@ -143,6 +145,8 @@ enum BG_WS_Objectives
     WS_OBJECTIVE_CAPTURE_FLAG   = 42,
     WS_OBJECTIVE_RETURN_FLAG    = 44
 };
+
+#define WS_EVENT_START_BATTLE   8563
 
 class BattlegroundWGScore : public BattlegroundScore
 {
