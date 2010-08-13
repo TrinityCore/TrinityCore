@@ -432,7 +432,7 @@ void AchievementMgr::ResetAchievementCriteria(AchievementCriteriaTypes type, uin
                 (!achievementCriteria->additionalRequrements[j].additionalRequirement_value ||
                 achievementCriteria->additionalRequrements[j].additionalRequirement_value == miscvalue2))
             {
-                SetCriteriaProgress(achievementCriteria, 0, PROGRESS_SET);
+                RemoveCriteriaProgress(achievementCriteria);
                 break;
             }
     }
@@ -786,42 +786,10 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if (achievementCriteria->win_bg.bgMapID != GetPlayer()->GetMapId())
                     continue;
 
-                if (achievementCriteria->additionalRequrements[0].additionalRequirement_type)
-                {
-                    // those requirements couldn't be found in the dbc
-                    AchievementCriteriaDataSet const* data = sAchievementMgr.GetCriteriaDataSet(achievementCriteria);
-                    if (!data || !data->Meets(GetPlayer(),unit))
-                        continue;
-                }
-                // some hardcoded requirements
-                else
-                {
-                    Battleground* bg = GetPlayer()->GetBattleground();
-                    if (!bg)
-                        continue;
-
-                    switch(achievementCriteria->referredAchievement)
-                    {
-                        case 161:                           // AB, Overcome a 500 resource disadvantage
-                        {
-                            if (bg->GetTypeID(true) != BATTLEGROUND_AB)
-                                continue;
-                            if (!((BattlegroundAB*)bg)->IsTeamScores500Disadvantage(GetPlayer()->GetTeam()))
-                                continue;
-                            break;
-                        }
-                        case 156:                           // AB, win while controlling all 5 flags (all nodes)
-                        case 784:                           // EY, win while holding 4 bases (all nodes)
-                        {
-                            if (!bg->IsAllNodesConrolledByTeam(GetPlayer()->GetTeam()))
-                                continue;
-                            break;
-                        }
-                        case 1762:                          // SA, win without losing any siege vehicles
-                        case 2192:                          // SA, win without losing any siege vehicles
-                            continue;                       // not implemented
-                    }
-                }
+                // those requirements couldn't be found in the dbc
+                AchievementCriteriaDataSet const* data = sAchievementMgr.GetCriteriaDataSet(achievementCriteria);
+                if (!data || !data->Meets(GetPlayer(),unit))
+                    continue;
 
                 SetCriteriaProgress(achievementCriteria, miscvalue1, PROGRESS_ACCUMULATE);
                 break;
@@ -1463,10 +1431,28 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 break;
             }
             case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
+            {
                 if (!miscvalue1 || miscvalue1 != achievementCriteria->bg_objective.objectiveId)
                     continue;
+
+                // those requirements couldn't be found in the dbc
+                AchievementCriteriaDataSet const* data = sAchievementMgr.GetCriteriaDataSet(achievementCriteria);
+                if (!data || !data->Meets(GetPlayer(), unit))
+                    continue;
+
                 SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
                 break;
+            }
+            case ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL:
+            {
+                // those requirements couldn't be found in the dbc
+                AchievementCriteriaDataSet const* data = sAchievementMgr.GetCriteriaDataSet(achievementCriteria);
+                if (!data || !data->Meets(GetPlayer(), unit))
+                    continue;
+
+                SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
+                break;
+            }
             // std case: not exist in DBC, not triggered in code as result
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEALTH:
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_SPELLPOWER:
@@ -1485,7 +1471,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_REACH_TEAM_RATING:
             case ACHIEVEMENT_CRITERIA_TYPE_OWN_RANK:
             case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
-            case ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL:
             case ACHIEVEMENT_CRITERIA_TYPE_EARNED_PVP_TITLE:
             case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE:
             case ACHIEVEMENT_CRITERIA_TYPE_TOTAL:
@@ -1622,6 +1607,8 @@ bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achieve
             return progress->counter >= achievementCriteria->loot_money.goldInCopper;
         case ACHIEVEMENT_CRITERIA_TYPE_USE_GAMEOBJECT:
             return progress->counter >= achievementCriteria->use_gameobject.useCount;
+        case ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL:
+            return progress->counter >= achievementCriteria->special_pvp_kill.killCount;
         case ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT:
             return progress->counter >= achievementCriteria->fish_in_gameobject.lootCount;
         case ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS:
@@ -1829,6 +1816,25 @@ void AchievementMgr::SetCriteriaProgress(AchievementCriteriaEntry const* entry, 
     SendCriteriaUpdate(entry, progress, timeElapsed, timedCompleted);
 }
 
+void AchievementMgr::RemoveCriteriaProgress(const AchievementCriteriaEntry *entry)
+{
+    CriteriaProgressMap::iterator criteriaProgress = m_criteriaProgress.find(entry->ID);
+    if (criteriaProgress == m_criteriaProgress.end())
+        return;
+
+    CriteriaProgress progress = criteriaProgress->second;
+    //if (progress.counter)
+    //{
+    //    progress.counter = 0;
+    //    SendCriteriaUpdate(entry, &progress, entry->timeLimit, false);
+    //}
+    WorldPacket data(SMSG_CRITERIA_DELETED,4);
+    data << uint32(entry->ID);
+    m_player->SendDirectMessage(&data);
+
+    m_criteriaProgress.erase(criteriaProgress);
+}
+
 void AchievementMgr::UpdateTimedAchievements(uint32 timeDiff)
 {
     if (!m_timedAchievements.empty())
@@ -1839,11 +1845,8 @@ void AchievementMgr::UpdateTimedAchievements(uint32 timeDiff)
             if (itr->second <= timeDiff)
             {
                 AchievementCriteriaEntry const *entry = sAchievementCriteriaStore.LookupEntry(itr->first);
-                SetCriteriaProgress(entry, 0, PROGRESS_SET);
-                CriteriaProgressMap::iterator criteriaProgress = m_criteriaProgress.find(itr->first);
+                RemoveCriteriaProgress(entry);
                 m_timedAchievements.erase(itr++);
-                if (criteriaProgress != m_criteriaProgress.end())
-                    m_criteriaProgress.erase(criteriaProgress);
             }
             else
             {
@@ -1890,11 +1893,8 @@ void AchievementMgr::RemoveTimedAchievement(AchievementCriteriaTimedTypes type, 
         if (timedIter == m_timedAchievements.end())
             continue;
 
-        // SetCriteriaProgress for packet send, then remove progress
-        SetCriteriaProgress(*i, 0, PROGRESS_SET);
-        CriteriaProgressMap::iterator criteriaProgress = m_criteriaProgress.find((*i)->ID);
-        if (criteriaProgress != m_criteriaProgress.end())
-            m_criteriaProgress.erase(criteriaProgress);
+        // remove progress
+        RemoveCriteriaProgress(*i);
 
         // Remove the timer
         m_timedAchievements.erase(timedIter);
@@ -2166,9 +2166,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
 
         switch(criteria->requiredType)
         {
-            case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:
-                if (!criteria->additionalRequrements[0].additionalRequirement_type)
-                    continue;
+            case ACHIEVEMENT_CRITERIA_TYPE_WIN_BG:          // any cases
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE:
                 break;                                      // any cases
@@ -2225,6 +2223,8 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
                     continue;
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
+                break;                                      // any cases
+            case ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL:
                 break;                                      // any cases
             default:                                        // type not use DB data, ignore
                 continue;

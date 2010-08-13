@@ -1654,12 +1654,26 @@ UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_si' WHERE `TypeId`=5;
 UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_ep' WHERE `TypeId`=6;
 
 /* ACHIEVEMENTS */
-DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (3693,6641,6642,6643,6644) AND `type`=11;
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (3693,6641,6642,6643,6644,3804,3805,3806,3807,3808,3809,3810,3811,3812,3813,1234,1239,5605,5606) AND `type` IN (0,11);
 INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,`ScriptName`) VALUES
 (3693,11,0,0, 'achievement_storm_glory'),
 (6641,11,0,0, 'achievement_school_of_hard_knocks'),
 (6642,11,0,0, 'achievement_school_of_hard_knocks'),
 (6643,11,0,0, 'achievement_school_of_hard_knocks'),
-(6644,11,0,0, 'achievement_school_of_hard_knocks');
+(6644,11,0,0, 'achievement_school_of_hard_knocks'),
+(3804,11,0,0, 'achievement_resilient_victory'),
+(3805,11,0,0, 'achievement_resilient_victory'),
+(3806,11,0,0, 'achievement_resilient_victory'),
+(3807,11,0,0, 'achievement_resilient_victory'),
+(3808,11,0,0, 'achievement_resilient_victory'),
+(3809,11,0,0, 'achievement_resilient_victory'),
+(3810,11,0,0, 'achievement_resilient_victory'),
+(3811,11,0,0, 'achievement_resilient_victory'),
+(3812,11,0,0, 'achievement_resilient_victory'),
+(3813,11,0,0, 'achievement_resilient_victory'),
+(1234,11,0,0, 'achievement_bg_control_all_nodes'),
+(1239,11,0,0, 'achievement_bg_control_all_nodes'),
+(5605,11,0,0, 'achievement_save_the_day'),
+(5606,11,0,0, 'achievement_save_the_day');
 
 /* EOF */
