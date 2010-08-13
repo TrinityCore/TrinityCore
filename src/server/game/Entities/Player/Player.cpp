@@ -22840,7 +22840,7 @@ void Player::HandleFall(MovementInfo const& movementInfo)
         {
             uint32 damage = (uint32)(damageperc * GetMaxHealth()*sWorld.getRate(RATE_DAMAGE_FALL));
 
-            float height = movementInfo.t_pos.m_positionZ;
+            float height = movementInfo.pos.m_positionZ;
             UpdateGroundPositionZ(movementInfo.pos.m_positionX,movementInfo.pos.m_positionY,height);
 
             if (damage > 0)
