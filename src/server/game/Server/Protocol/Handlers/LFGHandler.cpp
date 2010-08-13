@@ -150,6 +150,8 @@ void WorldSession::HandleLfgSetBootVoteOpcode(WorldPacket &recv_data)
     uint8 agree;                                             // Agree to kick player
     recv_data >> agree;
 
+    if (agree < 2)
+        sLFGMgr.UpdateBoot(GetPlayer(), agree);
 }
 
 void WorldSession::HandleLfgTeleportOpcode(WorldPacket &recv_data)

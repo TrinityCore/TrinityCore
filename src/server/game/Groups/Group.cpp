@@ -51,6 +51,8 @@ Group::Group()
     m_LfgQueued         = false;
     m_LfgStatus         = LFG_STATUS_NOT_SAVED;
     m_LfgDungeonEntry   = 0;
+    m_Lfgkicks          = 0;
+    m_LfgkicksActive    = false;
 
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
         m_targetIcons[i] = 0;
