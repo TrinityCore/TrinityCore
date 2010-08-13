@@ -374,9 +374,12 @@ uint32 Group::RemoveMember(const uint64 &guid, const uint8 &method)
             if (method == 1)
             {
                 data.Initialize(SMSG_GROUP_UNINVITE, 0);
-                player->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_LEADER);
                 player->GetSession()->SendPacket(&data);
             }
+
+            player->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_LEADER);
+            if (isLFGGroup() && player->GetMap()->IsDungeon())
+                player->TeleportToBGEntryPoint();
 
             //we already removed player from group and in player->GetGroup() is his original group!
             if (Group* group = player->GetGroup())
@@ -448,6 +451,8 @@ void Group::Disband(bool hideDestroy)
             else
                 player->SetGroup(NULL);
 
+            if (isLFGGroup() && player->GetMap()->IsDungeon())
+                player->TeleportToBGEntryPoint();
             player->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_GROUP_DISBAND);
             player->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_LEADER);
         }
