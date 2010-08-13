@@ -35,6 +35,8 @@
 #define MAXRAIDSIZE 40
 #define MAX_RAID_SUBGROUPS MAXRAIDSIZE/MAXGROUPSIZE
 #define TARGETICONCOUNT 8
+#define GROUP_MAX_LFG_KICKS 3
+#define GROUP_LFG_KICK_VOTES_NEEDED 3
 
 enum RollVote
 {
@@ -44,6 +46,13 @@ enum RollVote
     DISENCHANT        = 3,
     NOT_EMITED_YET    = 4,
     NOT_VALID         = 5
+};
+
+enum LfgDungeonStatus
+{
+    LFG_STATUS_SAVED     = 0,
+    LFG_STATUS_NOT_SAVED = 1,
+    LFG_STATUS_COMPLETE  = 2,
 };
 
 enum GroupMemberOnlineStatus
@@ -192,10 +201,12 @@ class Group
         void   SetLootThreshold(ItemQualities threshold) { m_lootThreshold = threshold; }
         void   Disband(bool hideDestroy=false);
 
+        // Dungeon Finder
         void   SetLfgQueued(bool queued) { m_LfgQueued = queued; }
         bool   isLfgQueued() { return m_LfgQueued; }
         void   SetLfgStatus(uint8 status) { m_LfgStatus = status; }
         uint8  GetLfgStatus() { return m_LfgStatus; }
+        bool   isLfgDungeonComplete() const { return m_LfgStatus == LFG_STATUS_COMPLETE; }
         void   SetLfgDungeonEntry(uint32 dungeonEntry) { m_LfgDungeonEntry = dungeonEntry; }
         uint32 GetLfgDungeonEntry(bool id = true)
         {
@@ -204,8 +215,11 @@ class Group
             else
                 return m_LfgDungeonEntry;
         }
-        
-        void SetLfgRoles(uint64 guid, const uint8 roles)
+        bool   isLfgKickActive() const { return m_LfgkicksActive; }
+        void   SetLfgKickActive(bool active) { m_LfgkicksActive = active; }
+        uint8  GetLfgKicks() const { return m_Lfgkicks; }
+        void   SetLfgKicks(uint8 kicks) { m_Lfgkicks = kicks; }
+        void   SetLfgRoles(uint64 guid, const uint8 roles)
         {
             member_witerator slot = _getMemberWSlot(guid);
             if (slot == m_memberSlots.end())
@@ -214,6 +228,7 @@ class Group
             slot->roles = roles;
             SendUpdate();
         }
+
         // properties accessories
         bool IsFull() const { return (m_groupType == GROUPTYPE_NORMAL) ? (m_memberSlots.size() >= MAXGROUPSIZE) : (m_memberSlots.size() >= MAXRAIDSIZE); }
         bool isLFGGroup()  const { return m_groupType & GROUPTYPE_LFG; }
@@ -350,6 +365,7 @@ class Group
         /***                   LOOT SYSTEM                     ***/
         /*********************************************************/
 
+        bool isRollLootActive() const { return !RollId.empty(); }
         void SendLootStartRoll(uint32 CountDown, uint32 mapid, const Roll &r);
         void SendLootRoll(const uint64& SourceGuid, const uint64& TargetGuid, uint8 RollNumber, uint8 RollType, const Roll &r);
         void SendLootRollWon(const uint64& SourceGuid, const uint64& TargetGuid, uint8 RollNumber, uint8 RollType, const Roll &r);
@@ -488,5 +504,7 @@ class Group
         bool                m_LfgQueued;
         uint8               m_LfgStatus;
         uint32              m_LfgDungeonEntry;
+        uint8               m_Lfgkicks;
+        bool                m_LfgkicksActive;
 };
 #endif

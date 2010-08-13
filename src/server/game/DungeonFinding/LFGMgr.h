@@ -27,8 +27,8 @@
 enum LFGenum
 {
     LFG_TIME_ROLECHECK       = 2*MINUTE,
+    LFG_TIME_BOOT            = 2*MINUTE,
     LFG_TIME_PROPOSAL        = 2*MINUTE,
-    LFG_VOTES_NEEDED         = 3,
     LFG_TANKS_NEEDED         = 1,
     LFG_HEALERS_NEEDED       = 1,
     LFG_DPS_NEEDED           = 3,
@@ -158,13 +158,6 @@ enum LfgRewardEnums
     LFG_REWARD_DATA_SIZE   = 10,
 };
 
-enum LfgDungeonStatus
-{
-    LFG_STATUS_SAVED     = 0,
-    LFG_STATUS_NOT_SAVED = 1,
-    LFG_STATUS_COMPLETE  = 2,
-};
-
 const uint32 RewardDungeonData[LFG_REWARD_DATA_SIZE+1][5] =
 { // XP, money, item, item display, count
     {310, 3500, 51999, 56915, 1},                           // Classic 15-23
@@ -273,6 +266,17 @@ struct LfgRoleCheck
     uint32 leader;
 };
 
+// Stores information of a current vote to kick someone from a group
+struct LfgPlayerBoot
+{
+    time_t cancelTime;                                      // Time left to vote
+    bool inProgress;                                        // Vote in progress
+    LfgAnswerMap votes;                                     // Player votes (-1 not answer | 0 Not agree | 1 agree)
+    uint32 victimLowGuid;                                   // Player guid to be kicked (can't vote)
+    uint8 votedNeeded;                                      // Votes needed to kick the player
+    std::string reason;                                     // kick reason
+};
+
 typedef std::set<Player*> PlayerSet;
 typedef std::set<LfgLockStatus*> LfgLockStatusSet;
 typedef std::vector<LfgReward*> LfgRewardList;
@@ -282,6 +286,7 @@ typedef std::map<uint32, LfgLockStatusSet*> LfgLockStatusMap;
 typedef std::map<uint64, LfgQueueInfo*> LfgQueueInfoMap;
 typedef std::map<uint32, LfgRoleCheck*> LfgRoleCheckMap;
 typedef std::map<uint32, LfgProposal*> LfgProposalMap;
+typedef std::map<uint32, LfgPlayerBoot*> LfgPlayerBootMap;
 typedef std::list<Player *> LfgPlayerList;
 
 class LFGMgr
@@ -297,14 +302,17 @@ class LFGMgr
         void OfferContinue(Group *grp);
         void TeleportPlayer(Player *plr, bool out);
         void UpdateProposal(uint32 proposalId, uint32 lowGuid, uint8 accept);
+        void UpdateBoot(Player *plr, uint8 accept);
         void UpdateRoleCheck(Group *grp, Player *plr = NULL);
         void Update(uint32 diff);
 
         void SendLfgPlayerInfo(Player *plr);
         void SendLfgPartyInfo(Player *plr);
         bool isRandomDungeon(uint32 dungeonId);
+        void InitBoot(Group *grp, uint32 plowGuid, uint32 vlowGuid, std::string reason);
 
     private:
+        void SendLfgBootPlayer(Player *plr, LfgPlayerBoot *pBoot);
         void SendUpdateProposal(Player *plr, uint32 proposalId, LfgProposal *pProp);
         void SendLfgPlayerReward(Player *plr);
 
@@ -312,6 +320,7 @@ class LFGMgr
         void BuildAvailableRandomDungeonList(WorldPacket &data, Player *plr);
         void BuildPlayerLockDungeonBlock(WorldPacket &data, LfgLockStatusSet *lockSet);
         void BuildPartyLockDungeonBlock(WorldPacket &data, LfgLockStatusMap *lockMap);
+        void BuildBootPlayerBlock(WorldPacket &data, LfgPlayerBoot *pBoot, uint32 lowGuid);
 
         void AddToQueue(uint64 guid, LfgRolesMap *roles, LfgDungeonSet *dungeons);
         bool RemoveFromQueue(uint64 guid);
@@ -335,6 +344,7 @@ class LFGMgr
         LfgGuidList m_currentQueue;                         // Ordered list. Used to find groups
         LfgGuidList m_newToQueue;                           // New groups to add to queue;
         LfgProposalMap m_Proposals;                         // Current Proposals
+        LfgPlayerBootMap m_Boots;                           // Current player kicks
         LfgRoleCheckMap m_RoleChecks;                       // Current Role checks
         uint32 m_QueueTimer;                                // used to check interval of update
         uint32 m_lfgProposalId;                             // used as internal counter for proposals

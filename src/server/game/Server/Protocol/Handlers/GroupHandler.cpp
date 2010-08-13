@@ -32,6 +32,7 @@
 #include "Util.h"
 #include "SpellAuras.h"
 #include "Vehicle.h"
+#include "LFGMgr.h"
 
 class Aura;
 
@@ -289,7 +290,10 @@ void WorldSession::HandleGroupUninviteGuidOpcode(WorldPacket & recv_data)
 
     if (grp->IsMember(guid))
     {
-        Player::RemoveFromGroup(grp,guid);
+        if (grp->isLFGGroup())
+            sLFGMgr.InitBoot(grp, GUID_LOPART(GetPlayer()->GetGUID()), GUID_LOPART(guid), reason);
+        else
+            Player::RemoveFromGroup(grp,guid);
         return;
     }
 
@@ -331,7 +335,10 @@ void WorldSession::HandleGroupUninviteOpcode(WorldPacket & recv_data)
 
     if (uint64 guid = grp->GetMemberGUID(membername))
     {
-        Player::RemoveFromGroup(grp,guid);
+        if (grp->isLFGGroup())
+            sLFGMgr.InitBoot(grp, GUID_LOPART(GetPlayer()->GetGUID()), GUID_LOPART(guid), "");
+        else
+            Player::RemoveFromGroup(grp,guid);
         return;
     }
 
