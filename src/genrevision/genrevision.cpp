@@ -24,7 +24,7 @@
 
 #pragma warning(disable:4996)
 
-std::string build_directive;
+std::string build_directive = "Unknown";
 
 struct RawData
 {
@@ -338,7 +338,7 @@ int main(int argc, char **argv)
     //    -s use svn prefered
     //    -r use only revision (without repo URL) (default)
     //    -u include repositire URL as commit URL or "rev at URL"
-    //    -d compile directive debug
+    //    -m build mode string
     for (int k = 1; k <= argc; ++k)
     {
         if(!argv[k] || !*argv[k])
@@ -375,19 +375,14 @@ int main(int argc, char **argv)
             case 'u':
                 use_url = true;
                 continue;
-            case 'd':
-                debug = true;
+            case 'm':
+                build_directive = argv[++k];
                 continue;
             default:
                 printf("Unknown option %s",argv[k]);
                 return 1;
         }
     }
-
-    if (debug)
-        build_directive = "Debug";
-    else
-        build_directive = "Release";
 
     /// new data extraction
     std::string newData;
