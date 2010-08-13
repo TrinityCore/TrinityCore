@@ -368,7 +368,6 @@ void LFGMgr::Join(Player *plr)
 void LFGMgr::Leave(Player *plr, Group *grp /* = NULL*/)
 {
     uint64 guid = grp ? grp->GetGUID() : plr ? plr->GetGUID() : 0;
-    ASSERT(guid);
 
     // Remove from Role Checks
     if (grp)
@@ -418,9 +417,7 @@ void LFGMgr::Leave(Player *plr, Group *grp /* = NULL*/)
 /// <param name="Group *">Group than needs new players</param>
 void LFGMgr::OfferContinue(Group *grp)
 {
-    ASSERT(grp);
-
-    if (grp->GetLfgStatus() != LFG_STATUS_COMPLETE)
+    if (grp && grp->GetLfgStatus() != LFG_STATUS_COMPLETE)
         if (Player *leader = sObjectMgr.GetPlayer(grp->GetLeaderGUID()))
             leader->GetSession()->SendLfgOfferContinue(grp->GetLfgDungeonEntry(false));
 }
@@ -433,8 +430,8 @@ void LFGMgr::OfferContinue(Group *grp)
 /// <param name="LfgDungeonSet *">Selected dungeons</param>
 void LFGMgr::AddToQueue(uint64 guid, LfgRolesMap *roles, LfgDungeonSet *dungeons)
 {
-    ASSERT(roles);
-    ASSERT(dungeons);
+    if (!roles || !dungeons)
+        return;
 
     LfgQueueInfo *pqInfo = new LfgQueueInfo();
     pqInfo->joinTime = time_t(time(NULL));
@@ -693,7 +690,8 @@ void LFGMgr::FindNewGroups(LfgGuidList &check, LfgGuidList all, LfgProposalList 
 /// <param name="Player *">Player (optional, default NULL)</param>
 void LFGMgr::UpdateRoleCheck(Group *grp, Player *plr /* = NULL*/)
 {
-    ASSERT(grp);
+    if (!grp)
+        return;
 
     uint32 rolecheckId = grp->GetLowGUID();
     LfgRoleCheck *pRoleCheck = NULL;
@@ -1191,11 +1189,14 @@ void LFGMgr::BuildLfgRoleCheck(WorldPacket &data, LfgRoleCheck *pRoleCheck)
 /// <returns></returns>
 void LFGMgr::SendUpdateProposal(Player *plr, uint32 proposalId, LfgProposal *pProp)
 {
-    ASSERT(pProp);
-    ASSERT(plr);
+    if (!plr || !pProp)
+        return;
+
     uint32 pLogGuid = plr->GetGUIDLow();
     LfgProposalPlayerMap::const_iterator itPlayer = pProp->players.find(pLogGuid);
-    ASSERT(itPlayer != pProp->players.end());               // Player MUST be in the proposal
+    if (itPlayer != pProp->players.end())                   // Player MUST be in the proposal
+        return;
+
     LfgProposalPlayer *ppPlayer = itPlayer->second;
     uint32 pLowGroupGuid = ppPlayer->groupLowGuid;
     uint32 dLowGuid = pProp->groupLowGuid;
@@ -1282,8 +1283,7 @@ void LFGMgr::SendLfgPlayerInfo(Player *plr)
         randomlist->clear();
         delete randomlist;
     }
-    if (lockSet)
-        BuildPlayerLockDungeonBlock(data, lockSet);
+    BuildPlayerLockDungeonBlock(data, lockSet);
     plr->GetSession()->SendPacket(&data);
 }
 
@@ -1320,7 +1320,9 @@ void LFGMgr::SendLfgPlayerReward(Player *plr)
         sdungeonId = plr->GetGroup()->GetLfgDungeonEntry(false);
     bool done = plr->isLfgDungeonDone(rdungeonId);
     LfgReward *reward = GetRandomDungeonReward(rdungeonId, done, plr->getLevel());
-    ASSERT(reward);
+    if (!reward)
+        return;
+
     uint8 itemNum = uint8(reward->itemId != 0);
 
     sLog.outDebug("SMSG_LFG_PLAYER_REWARD");
@@ -1350,19 +1352,17 @@ void LFGMgr::SendLfgPlayerReward(Player *plr)
 /// <param name="LfgLockStatusMap *">lock status map</param>
 void LFGMgr::BuildPartyLockDungeonBlock(WorldPacket &data, LfgLockStatusMap *lockMap)
 {
-    ASSERT(lockMap);
+    if (!lockMap || !lockMap->size())
+    {
+        data << uint8(0);
+        return;
+    }
 
     data << uint8(lockMap->size());
-
-    LfgLockStatusSet *lockSet;
     for (LfgLockStatusMap::const_iterator it = lockMap->begin(); it != lockMap->end(); ++it)
     {
-        lockSet = it->second;
-        if (!lockSet)
-            continue;
-
         data << uint64(MAKE_NEW_GUID(it->first, 0, HIGHGUID_PLAYER)); // Player guid
-        BuildPlayerLockDungeonBlock(data, lockSet);
+        BuildPlayerLockDungeonBlock(data, it->second);
     }
     lockMap->clear();
     delete lockMap;
@@ -1375,7 +1375,11 @@ void LFGMgr::BuildPartyLockDungeonBlock(WorldPacket &data, LfgLockStatusMap *loc
 /// <param name="LfgLockStatusSet *">lock status list</param>
 void LFGMgr::BuildPlayerLockDungeonBlock(WorldPacket &data, LfgLockStatusSet *lockSet)
 {
-    ASSERT(lockSet);
+    if (!lockSet || !lockSet->size())
+    {
+        data << uint8(0);
+        return;
+    }
     data << uint32(lockSet->size());                        // Size of lock dungeons
     for (LfgLockStatusSet::iterator it = lockSet->begin(); it != lockSet->end(); ++it)
     {
@@ -1399,8 +1403,8 @@ void LFGMgr::BuildPlayerLockDungeonBlock(WorldPacket &data, LfgLockStatusSet *lo
 /// <returns>LfgLockStatusMap*</returns>
 LfgLockStatusMap* LFGMgr::GetGroupLockStatusDungeons(PlayerSet *pPlayers, LfgDungeonSet *dungeons)
 {
-    ASSERT(pPlayers);
-    ASSERT(dungeons);
+    if (!pPlayers || !dungeons)
+        return NULL;
 
     LfgLockStatusSet *dungeonSet = NULL;
     LfgLockStatusMap *dungeonMap = new LfgLockStatusMap();
@@ -1428,8 +1432,9 @@ LfgLockStatusMap* LFGMgr::GetGroupLockStatusDungeons(PlayerSet *pPlayers, LfgDun
 /// <returns>LfgLockStatusMap*</returns>
 LfgLockStatusMap* LFGMgr::GetPartyLockStatusDungeons(Player *plr, LfgDungeonSet *dungeons)
 {
-    ASSERT(plr);
-    ASSERT(dungeons);
+    if (!plr || !dungeons)
+        return NULL;
+
     Group *grp = plr->GetGroup();
     if (!grp)
         return NULL;
@@ -1467,7 +1472,9 @@ LfgLockStatusSet* LFGMgr::GetPlayerLockStatusDungeons(Player *plr, LfgDungeonSet
     for (LfgDungeonSet::const_iterator it = dungeons->begin(); it != dungeons->end(); ++it)
     {
         dungeon = sLFGDungeonStore.LookupEntry(*it);
-        ASSERT(dungeon); // Will never happen - We provide a list from sLFGDungeonStore
+        if (!dungeon) // should never happen - We provide a list from sLFGDungeonStore
+            continue;
+
         ar = sObjectMgr.GetAccessRequirement(dungeon->map, Difficulty(dungeon->difficulty));
 
         locktype = LFG_LOCKSTATUS_OK;
