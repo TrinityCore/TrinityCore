@@ -346,6 +346,7 @@ class Battleground
         /* achievement req. */
         virtual bool IsAllNodesConrolledByTeam(uint32 /*team*/) const { return false; }
         bool IsTeamScoreInRange(uint32 team, uint32 minScore, uint32 maxScore) const;
+        void StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
 
         /* Battleground */
         // Get methods:
