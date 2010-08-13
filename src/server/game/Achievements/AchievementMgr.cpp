@@ -1822,12 +1822,6 @@ void AchievementMgr::RemoveCriteriaProgress(const AchievementCriteriaEntry *entr
     if (criteriaProgress == m_criteriaProgress.end())
         return;
 
-    CriteriaProgress progress = criteriaProgress->second;
-    //if (progress.counter)
-    //{
-    //    progress.counter = 0;
-    //    SendCriteriaUpdate(entry, &progress, entry->timeLimit, false);
-    //}
     WorldPacket data(SMSG_CRITERIA_DELETED,4);
     data << uint32(entry->ID);
     m_player->SendDirectMessage(&data);
