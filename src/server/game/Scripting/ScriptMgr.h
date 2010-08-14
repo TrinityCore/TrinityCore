@@ -486,7 +486,7 @@ class AreaTriggerScript : public ScriptObject
         bool IsDatabaseBound() const { return true; }
 
         // Called when the area trigger is activated by a player.
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) { return false; }
+        virtual bool OnTrigger(Player* player, AreaTriggerEntry const* trigger) { return false; }
 };
 
 class BattlegroundScript : public ScriptObject
@@ -552,16 +552,16 @@ class AuctionHouseScript : public ScriptObject
     public:
 
         // Called when an auction is added to an auction house.
-        void OnAuctionAdd(AuctionHouseObject* ah, AuctionEntry* entry) { }
+        virtual void OnAuctionAdd(AuctionHouseObject* ah, AuctionEntry* entry) { }
 
         // Called when an auction is removed from an auction house.
-        void OnAuctionRemove(AuctionHouseObject* ah, AuctionEntry* entry) { }
+        virtual void OnAuctionRemove(AuctionHouseObject* ah, AuctionEntry* entry) { }
 
         // Called when an auction was succesfully completed.
-        void OnAuctionSuccessful(AuctionHouseObject* ah, AuctionEntry* entry) { }
+        virtual void OnAuctionSuccessful(AuctionHouseObject* ah, AuctionEntry* entry) { }
 
         // Called when an auction expires.
-        void OnAuctionExpire(AuctionHouseObject* ah, AuctionEntry* entry) { }
+        virtual void OnAuctionExpire(AuctionHouseObject* ah, AuctionEntry* entry) { }
 };
 
 class ConditionScript : public ScriptObject
@@ -575,7 +575,7 @@ class ConditionScript : public ScriptObject
         bool IsDatabaseBound() const { return true; }
 
         // Called when a single condition is checked for a player.
-        bool OnConditionCheck(Condition* condition, Player* player, Unit* targetOverride) { return true; }
+        virtual bool OnConditionCheck(Condition* condition, Player* player, Unit* targetOverride) { return true; }
 };
 
 class VehicleScript : public ScriptObject
