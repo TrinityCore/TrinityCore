@@ -103,7 +103,7 @@ void WorldSession::HandleLfgLeaveOpcode(WorldPacket & /*recv_data*/)
 
     // Check cheating - only leader can leave the queue
     if (!grp || grp->GetLeaderGUID() == GetPlayer()->GetGUID())
-        sLFGMgr.Leave(GetPlayer());
+        sLFGMgr.Leave(GetPlayer(), grp);
 }
 
 void WorldSession::HandleLfgProposalResultOpcode(WorldPacket &recv_data)
