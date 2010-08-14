@@ -4,7 +4,7 @@
 /**
  *  @file    Log_Msg_UNIX_Syslog.h
  *
- *  $Id: Log_Msg_UNIX_Syslog.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Log_Msg_UNIX_Syslog.h 90388 2010-06-02 15:27:59Z vzykov $
  *
  *  @author Jerry D. De Master <jdemaster@rite-solutions.com>
  */
@@ -23,6 +23,7 @@
 #if !defined (ACE_LACKS_UNIX_SYSLOG)
 
 #include "ace/Log_Msg_Backend.h"
+#include "ace/Basic_Types.h"
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

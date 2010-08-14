@@ -4,7 +4,7 @@
 /**
  *  @file    Process.h
  *
- *  $Id: Process.h 87826 2009-11-30 14:02:40Z johnnyw $
+ *  $Id: Process.h 91233 2010-07-29 14:47:16Z shuston $
  *
  *  @author Tim Harrison <harrison@cs.wustl.edu>
  */
@@ -94,8 +94,14 @@ public:
   /**
    * Set the standard handles of the new process to the respective
    * handles.  If you want to affect a subset of the handles, make
-   * sure to set the others to ACE_INVALID_HANDLE.  Returns 0 on
-   * success, -1 on failure.
+   * sure to set the others to ACE_INVALID_HANDLE.
+   *
+   * @note Any handle passed as ACE_INVALID_HANDLE will be changed to
+   * a duplicate of the current associated handle. For example, passing
+   * ACE_INVALID_HANDLE for @a std_in will cause ACE_STDIN to be
+   * duplicated and set in this object.
+   *
+   * @return 0 on success, -1 on failure.
    */
   int set_handles (ACE_HANDLE std_in,
                    ACE_HANDLE std_out = ACE_INVALID_HANDLE,

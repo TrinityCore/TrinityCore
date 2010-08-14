@@ -1,4 +1,4 @@
-// $Id: Message_Queue_T.cpp 88560 2010-01-15 05:02:05Z schmidt $
+// $Id: Message_Queue_T.cpp 91016 2010-07-06 11:29:50Z johnnyw $
 
 #ifndef ACE_MESSAGE_QUEUE_T_CPP
 #define ACE_MESSAGE_QUEUE_T_CPP
@@ -60,13 +60,13 @@ ACE_Message_Queue_Ex<ACE_MESSAGE_TYPE, ACE_SYNCH_USE>::message_length (size_t ne
 }
 
 template <class ACE_MESSAGE_TYPE, ACE_SYNCH_DECL>
-ACE_Message_Queue_Ex<ACE_MESSAGE_TYPE, ACE_SYNCH_USE>::ACE_Message_Queue_Ex (size_t hwm,
-                                                                             size_t lwm,
+ACE_Message_Queue_Ex<ACE_MESSAGE_TYPE, ACE_SYNCH_USE>::ACE_Message_Queue_Ex (size_t high_water_mark,
+                                                                             size_t low_water_mark,
                                                                              ACE_Notification_Strategy *ns)
 {
   ACE_TRACE ("ACE_Message_Queue_Ex<ACE_MESSAGE_TYPE, ACE_SYNCH_USE>::ACE_Message_Queue_Ex");
 
-  if (this->queue_.open (hwm, lwm, ns) == -1)
+  if (this->queue_.open (high_water_mark, low_water_mark, ns) == -1)
     ACE_ERROR ((LM_ERROR,
                 ACE_TEXT ("ACE_Message_Queue_Ex")));
 }

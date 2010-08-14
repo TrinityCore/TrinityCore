@@ -1,4 +1,4 @@
-// $Id: ACE.cpp 88193 2009-12-16 09:14:06Z mcorino $
+// $Id: ACE.cpp 91066 2010-07-12 11:05:04Z johnnyw $
 
 #include "ace/ACE.h"
 
@@ -40,7 +40,7 @@ extern "C" int maxFiles;
 
 ACE_RCSID (ace,
            ACE,
-           "$Id: ACE.cpp 88193 2009-12-16 09:14:06Z mcorino $")
+           "$Id: ACE.cpp 91066 2010-07-12 11:05:04Z johnnyw $")
 
 
 // Open versioned namespace, if enabled by the user.
@@ -658,8 +658,7 @@ ACE::recv_n_i (ACE_HANDLE handle,
               errno == EWOULDBLOCK)
             {
               // Wait upto <timeout> for the blocking to subside.
-              int rtn = ACE::handle_read_ready (handle,
-                                                timeout);
+              int const rtn = ACE::handle_read_ready (handle, timeout);
 
               // Did select() succeed?
               if (rtn != -1)
@@ -720,8 +719,7 @@ ACE::t_rcv_n_i (ACE_HANDLE handle,
           if (errno == EWOULDBLOCK)
             {
               // Wait for the blocking to subside.
-              int result = ACE::handle_read_ready (handle,
-                                                   0);
+              int const result = ACE::handle_read_ready (handle, 0);
 
               // Did select() succeed?
               if (result != -1)
@@ -778,8 +776,7 @@ ACE::t_rcv_n_i (ACE_HANDLE handle,
               errno == EWOULDBLOCK)
             {
               // Wait upto <timeout> for the blocking to subside.
-              int rtn = ACE::handle_read_ready (handle,
-                                                timeout);
+              int const rtn = ACE::handle_read_ready (handle, timeout);
 
               // Did select() succeed?
               if (rtn != -1)
@@ -839,8 +836,7 @@ ACE::recv_n_i (ACE_HANDLE handle,
           if (errno == EWOULDBLOCK)
             {
               // Wait for the blocking to subside.
-              int result = ACE::handle_read_ready (handle,
-                                                   0);
+              int const result = ACE::handle_read_ready (handle, 0);
 
               // Did select() succeed?
               if (result != -1)
@@ -895,8 +891,7 @@ ACE::recv_n_i (ACE_HANDLE handle,
               errno == EWOULDBLOCK)
             {
               // Wait upto <timeout> for the blocking to subside.
-              int rtn = ACE::handle_read_ready (handle,
-                                                timeout);
+              int const rtn = ACE::handle_read_ready (handle, timeout);
 
               // Did select() succeed?
               if (rtn != -1)
@@ -934,8 +929,8 @@ ssize_t
 ACE::recv (ACE_HANDLE handle, size_t n, ...)
 {
   va_list argp;
-  int total_tuples = static_cast<int> (n / 2);
-  iovec *iovp;
+  int const total_tuples = static_cast<int> (n / 2);
+  iovec *iovp = 0;
 #if defined (ACE_HAS_ALLOCA)
   iovp = (iovec *) alloca (total_tuples * sizeof (iovec));
 #else
@@ -952,7 +947,7 @@ ACE::recv (ACE_HANDLE handle, size_t n, ...)
       iovp[i].iov_len = va_arg (argp, int);
     }
 
-  ssize_t result = ACE_OS::recvv (handle, iovp, total_tuples);
+  ssize_t const result = ACE_OS::recvv (handle, iovp, total_tuples);
 #if !defined (ACE_HAS_ALLOCA)
   delete [] iovp;
 #endif /* !defined (ACE_HAS_ALLOCA) */
@@ -992,14 +987,10 @@ ACE::recvv_n_i (ACE_HANDLE handle,
   size_t &bytes_transferred = bt == 0 ? temp : *bt;
   bytes_transferred = 0;
 
-  for (int s = 0;
-       s < iovcnt;
-       )
+  for (int s = 0; s < iovcnt; )
     {
       // Try to transfer as much of the remaining data as possible.
-      ssize_t n = ACE_OS::recvv (handle,
-                                 iov + s,
-                                 iovcnt - s);
+      ssize_t n = ACE_OS::recvv (handle, iov + s, iovcnt - s);
       // Check EOF.
       if (n == 0)
         return 0;
@@ -1011,8 +1002,7 @@ ACE::recvv_n_i (ACE_HANDLE handle,
           if (errno == EWOULDBLOCK)
             {
               // Wait for the blocking to subside.
-              int result = ACE::handle_read_ready (handle,
-                                                   0);
+              int const result = ACE::handle_read_ready (handle, 0);
 
               // Did select() succeed?
               if (result != -1)
@@ -1060,28 +1050,21 @@ ACE::recvv_n_i (ACE_HANDLE handle,
   int val = 0;
   ACE::record_and_set_non_blocking_mode (handle, val);
 
-  for (int s = 0;
-       s < iovcnt;
-       )
+  for (int s = 0; s < iovcnt; )
     {
       // Try to transfer as much of the remaining data as possible.
       // Since the socket is in non-blocking mode, this call will not
       // block.
-      ssize_t n = ACE_OS::recvv (handle,
-                                 iov + s,
-                                 iovcnt - s);
+      ssize_t n = ACE_OS::recvv (handle, iov + s, iovcnt - s);
 
       // Check for errors.
-      if (n == 0 ||
-          n == -1)
+      if (n == 0 || n == -1)
         {
           // Check for possible blocking.
-          if (n == -1 &&
-              errno == EWOULDBLOCK)
+          if (n == -1 && errno == EWOULDBLOCK)
             {
               // Wait upto <timeout> for the blocking to subside.
-              int rtn = ACE::handle_read_ready (handle,
-                                                timeout);
+              int const rtn = ACE::handle_read_ready (handle, timeout);
 
               // Did select() succeed?
               if (rtn != -1)
@@ -1242,7 +1225,8 @@ ACE::send (ACE_HANDLE handle,
         return -1;
       else
         {
-          ssize_t bytes_transferred = ACE_OS::send (handle, (const char *) buf, n, flags);
+          ssize_t const bytes_transferred =
+            ACE_OS::send (handle, (const char *) buf, n, flags);
           ACE::restore_non_blocking_mode (handle, val);
           return bytes_transferred;
         }
@@ -1267,7 +1251,8 @@ ACE::t_snd (ACE_HANDLE handle,
         return -1;
       else
         {
-          ssize_t bytes_transferred = ACE_OS::t_snd (handle, (const char *) buf, n, flags);
+          ssize_t const bytes_transferred =
+            ACE_OS::t_snd (handle, (const char *) buf, n, flags);
           ACE::restore_non_blocking_mode (handle, val);
           return bytes_transferred;
         }
@@ -1291,7 +1276,7 @@ ACE::send (ACE_HANDLE handle,
         return -1;
       else
         {
-          ssize_t bytes_transferred = ACE::send_i (handle, buf, n);
+          ssize_t const bytes_transferred = ACE::send_i (handle, buf, n);
           ACE::restore_non_blocking_mode (handle, val);
           return bytes_transferred;
         }
@@ -1313,7 +1298,8 @@ ACE::sendmsg (ACE_HANDLE handle,
         return -1;
       else
         {
-          ssize_t bytes_transferred = ACE_OS::sendmsg (handle, msg, flags);
+          ssize_t const bytes_transferred =
+            ACE_OS::sendmsg (handle, msg, flags);
           ACE::restore_non_blocking_mode (handle, val);
           return bytes_transferred;
         }
@@ -1338,7 +1324,7 @@ ACE::sendto (ACE_HANDLE handle,
         return -1;
       else
         {
-          ssize_t bytes_transferred =
+          ssize_t const bytes_transferred =
             ACE_OS::sendto (handle, buf, len, flags, addr, addrlen);
           ACE::restore_non_blocking_mode (handle, val);
           return bytes_transferred;
@@ -1381,8 +1367,7 @@ ACE::send_n_i (ACE_HANDLE handle,
 #endif /* ACE_WIN32 */
             {
               // Wait for the blocking to subside.
-              int result = ACE::handle_write_ready (handle,
-                                                    0);
+              int const result = ACE::handle_write_ready (handle, 0);
 
               // Did select() succeed?
               if (result != -1)
@@ -1435,12 +1420,10 @@ ACE::send_n_i (ACE_HANDLE handle,
           n == -1)
         {
           // Check for possible blocking.
-          if (n == -1 &&
-              (errno == EWOULDBLOCK || errno == ENOBUFS))
+          if (n == -1 && (errno == EWOULDBLOCK || errno == ENOBUFS))
             {
               // Wait upto <timeout> for the blocking to subside.
-              int rtn = ACE::handle_write_ready (handle,
-                                                 timeout);
+              int const rtn = ACE::handle_write_ready (handle, timeout);
 
               // Did select() succeed?
               if (rtn != -1)
@@ -1505,8 +1488,7 @@ ACE::t_snd_n_i (ACE_HANDLE handle,
           if (errno == EWOULDBLOCK || errno == ENOBUFS)
             {
               // Wait for the blocking to subside.
-              int result = ACE::handle_write_ready (handle,
-                                                    0);
+              int const result = ACE::handle_write_ready (handle, 0);
 
               // Did select() succeed?
               if (result != -1)
@@ -1563,8 +1545,7 @@ ACE::t_snd_n_i (ACE_HANDLE handle,
               errno == EWOULDBLOCK || errno == ENOBUFS)
             {
               // Wait upto <timeout> for the blocking to subside.
-              int rtn = ACE::handle_write_ready (handle,
-                                                 timeout);
+              int const rtn = ACE::handle_write_ready (handle, timeout);
 
               // Did select() succeed?
               if (rtn != -1)
@@ -1625,8 +1606,7 @@ ACE::send_n_i (ACE_HANDLE handle,
           if (errno == EWOULDBLOCK || errno == ENOBUFS)
             {
               // Wait for the blocking to subside.
-              int result = ACE::handle_write_ready (handle,
-                                                    0);
+              int const result = ACE::handle_write_ready (handle, 0);
 
               // Did select() succeed?
               if (result != -1)
@@ -1681,8 +1661,7 @@ ACE::send_n_i (ACE_HANDLE handle,
               (errno == EWOULDBLOCK || errno == ENOBUFS))
             {
               // Wait upto <timeout> for the blocking to subside.
-              int rtn = ACE::handle_write_ready (handle,
-                                                 timeout);
+              int const rtn = ACE::handle_write_ready (handle, timeout);
 
               // Did select() succeed?
               if (rtn != -1)
@@ -1788,9 +1767,8 @@ ACE::sendv_n_i (ACE_HANDLE handle,
        )
     {
       // Try to transfer as much of the remaining data as possible.
-      ssize_t n = ACE_OS::sendv (handle,
-                                 iov + s,
-                                 iovcnt - s);
+      ssize_t n = ACE_OS::sendv (handle, iov + s, iovcnt - s);
+      
       // Check EOF.
       if (n == 0)
         return 0;
@@ -1802,8 +1780,7 @@ ACE::sendv_n_i (ACE_HANDLE handle,
           if (errno == EWOULDBLOCK || errno == ENOBUFS)
             {
               // Wait for the blocking to subside.
-              int result = ACE::handle_write_ready (handle,
-                                                    0);
+              int const result = ACE::handle_write_ready (handle, 0);
 
               // Did select() succeed?
               if (result != -1)
@@ -1860,9 +1837,7 @@ ACE::sendv_n_i (ACE_HANDLE handle,
       // Try to transfer as much of the remaining data as possible.
       // Since the socket is in non-blocking mode, this call will not
       // block.
-      ssize_t n = ACE_OS::sendv (handle,
-                                 iov + s,
-                                 iovcnt - s);
+      ssize_t n = ACE_OS::sendv (handle, iov + s, iovcnt - s);
 
       // Check for errors.
       if (n == 0 ||
@@ -1873,8 +1848,7 @@ ACE::sendv_n_i (ACE_HANDLE handle,
               (errno == EWOULDBLOCK || errno == ENOBUFS))
             {
               // Wait upto <timeout> for the blocking to subside.
-              int rtn = ACE::handle_write_ready (handle,
-                                                 timeout);
+              int const rtn = ACE::handle_write_ready (handle, timeout);
 
               // Did select() succeed?
               if (rtn != -1)

@@ -4,7 +4,7 @@
 /**
  *  @file    Capabilities.h
  *
- *  $Id: Capabilities.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Capabilities.h 91077 2010-07-13 14:33:08Z johnnyw $
  *
  *  @author Arturo Montes <mitosys@colomsat.net.co>
  */
@@ -124,16 +124,17 @@ protected:
 /**
  * @class ACE_Capabilities
  *
- * @brief This class implement the ACE Capabilities.
+ * @brief
+ * This class implement the ACE Capabilities.
  *
  * This is a container class for ACE Capabilities
  * values. Currently exist three different capability values:
- * <ACE_IntCapEntry> (integer), <ACE_BoolCapEntry> (bool) and
- * <ACE_StringCapEntry> (String).  An ACE_Capabilities is a
- * unordered set of pair = (<String>, <ACE_CapEntry> *).  Where
+ * ACE_IntCapEntry (integer), ACE_BoolCapEntry (bool) and
+ * ACE_StringCapEntry (String).  An ACE_Capabilities is a
+ * unordered set of pair = (String, ACE_CapEntry *).  Where
  * the first component is the name of capability and the second
  * component is a pointer to the capability value container.  A
- * <FILE> is a container for ACE_Capabilities, the
+ * FILE is a container for ACE_Capabilities, the
  * ACE_Capabilities has a name in the file, as a termcap file.
  */
 class ACE_Export ACE_Capabilities
@@ -188,7 +189,6 @@ private:
 
   /// This is the set of ACE_CapEntry.
   CAPABILITIES_MAP caps_;
-
 };
 
 #if defined (ACE_IS_SPLITTING)
