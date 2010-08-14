@@ -82,7 +82,7 @@ class boss_felblood_kaelthas : public CreatureScript
 public:
     boss_felblood_kaelthas() : CreatureScript("boss_felblood_kaelthas") { }
 
-    CreatureAI* GetAI(Creature* c)
+    CreatureAI* GetAI(Creature* c) const
     {
         return new boss_felblood_kaelthasAI(c);
     }
@@ -434,7 +434,7 @@ class mob_felkael_flamestrike : public CreatureScript
 public:
     mob_felkael_flamestrike() : CreatureScript("mob_felkael_flamestrike") { }
 
-    CreatureAI* GetAI(Creature* c)
+    CreatureAI* GetAI(Creature* c) const
     {
         return new mob_felkael_flamestrikeAI(c);
     }
@@ -476,7 +476,7 @@ class mob_felkael_phoenix : public CreatureScript
 public:
     mob_felkael_phoenix() : CreatureScript("mob_felkael_phoenix") { }
 
-    CreatureAI* GetAI(Creature* c)
+    CreatureAI* GetAI(Creature* c) const
     {
         return new mob_felkael_phoenixAI(c);
     }
@@ -596,7 +596,7 @@ class mob_felkael_phoenix_egg : public CreatureScript
 public:
     mob_felkael_phoenix_egg() : CreatureScript("mob_felkael_phoenix_egg") { }
 
-    CreatureAI* GetAI(Creature* c)
+    CreatureAI* GetAI(Creature* c) const
     {
         return new mob_felkael_phoenix_eggAI(c);
     }
@@ -633,7 +633,7 @@ class mob_arcane_sphere : public CreatureScript
 public:
     mob_arcane_sphere() : CreatureScript("mob_arcane_sphere") { }
 
-    CreatureAI* GetAI(Creature* c)
+    CreatureAI* GetAI(Creature* c) const
     {
         return new mob_arcane_sphereAI(c);
     }

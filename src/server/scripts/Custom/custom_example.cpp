@@ -106,7 +106,7 @@ public:
         }
     }
 
-    CreatureAI* GetAI(Creature* pCreature)
+    CreatureAI* GetAI(Creature* pCreature) const
     {
         return new custom_exampleAI (pCreature);
     }

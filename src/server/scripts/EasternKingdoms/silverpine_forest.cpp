@@ -241,7 +241,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature *pCreature)
+    CreatureAI* GetAI(Creature *pCreature) const
     {
         return new pyrewood_ambushAI (pCreature);
     }

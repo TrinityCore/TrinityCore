@@ -114,7 +114,7 @@ class mob_blood_elf_council_voice_trigger : public CreatureScript
 public:
     mob_blood_elf_council_voice_trigger() : CreatureScript("mob_blood_elf_council_voice_trigger") { }
 
-    CreatureAI* GetAI(Creature* c)
+    CreatureAI* GetAI(Creature* c) const
     {
         return new mob_blood_elf_council_voice_triggerAI(c);
     }

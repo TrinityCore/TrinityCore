@@ -1652,7 +1652,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature)
+    CreatureAI *GetAI(Creature *creature) const
     {
         return new npc_beryl_sorcererAI(creature);
     }

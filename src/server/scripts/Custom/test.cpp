@@ -199,7 +199,7 @@ public:
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature)
+    CreatureAI* GetAI(Creature* pCreature) const
     {
         npcAI* testAI = new npcAI(pCreature);
 
