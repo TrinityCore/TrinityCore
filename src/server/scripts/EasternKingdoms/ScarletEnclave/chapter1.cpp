@@ -932,7 +932,7 @@ class npc_scarlet_miner : public CreatureScript
 public:
     npc_scarlet_miner() : CreatureScript("npc_scarlet_miner") { }
 
-    CreatureAI* GetAI(Creature *_Creature)
+    CreatureAI* GetAI(Creature *_Creature) const
     {
         return new npc_scarlet_minerAI(_Creature);
     }
