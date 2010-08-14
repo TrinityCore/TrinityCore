@@ -4,7 +4,7 @@
 /**
  *  @file    Message_Block.h
  *
- *  $Id: Message_Block.h 86825 2009-09-28 17:45:23Z johnnyw $
+ *  $Id: Message_Block.h 91066 2010-07-12 11:05:04Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -241,8 +241,8 @@ public:
   /**
    * Delete all the resources held in the message.
    *
-   * Note that <release()> is designed to release the continuation
-   * chain; the destructor is not. See <release()> for details.
+   * @note Note that release() is designed to release the continuation
+   * chain; the destructor is not. See release() for details.
    */
   virtual ~ACE_Message_Block (void);
 

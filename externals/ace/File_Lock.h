@@ -4,7 +4,7 @@
 /**
  *  @file    File_Lock.h
  *
- *  $Id: File_Lock.h 87213 2009-10-23 13:11:34Z johnnyw $
+ *  $Id: File_Lock.h 91064 2010-07-12 10:11:24Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -69,7 +69,7 @@ public:
 
   /**
    * Note, for interface uniformity with other synchronization
-   * wrappers we include the <acquire> method.  This is implemented as
+   * wrappers we include the acquire() method. This is implemented as
    * a write-lock to be on the safe-side...
    */
   int acquire (short whence = 0, ACE_OFF_T start = 0, ACE_OFF_T len = 1);

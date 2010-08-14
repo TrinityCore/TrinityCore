@@ -4,7 +4,7 @@
 /**
  *  @file    Logging_Strategy.h
  *
- *  $Id: Logging_Strategy.h 89512 2010-03-17 14:42:24Z vzykov $
+ *  $Id: Logging_Strategy.h 91064 2010-07-12 10:11:24Z johnnyw $
  *
  *  @author Prashant Jain <pjain@cs.wustl.edu>
  *  @author Orlando Ribeiro <oribeiro@inescporto.pt>
@@ -30,7 +30,8 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 /**
  * @class ACE_Logging_Strategy
  *
- * @brief This class provides a way to dynamically configure the ACE logging
+ * @brief
+ * This class provides a way to dynamically configure the ACE logging
  * mechanism at run time as well as enable the mechanisms for limiting
  * log file size and log file backup/rotation capability.
  *
@@ -170,16 +171,16 @@ protected:
   /// Program name to be used for %n format specifier.
   ACE_TCHAR *program_name_;
 
-  /// If non-0 then wipeout the logfile, otherwise append to it.
-  /// Default value is 0.
+  /// If true then wipeout the logfile, otherwise append to it.
+  /// Default value is false.
   bool wipeout_logfile_;
 
-  /// If non-0 we have a maximum number of log files we can write.
-  /// Default value is 0, i.e., no maximum number.
+  /// If true we have a maximum number of log files we can write.
+  /// Default value is false, i.e., no maximum number.
   bool fixed_number_;
 
-  /// If non-0 we order the files as we rotate them.  Default value
-  /// is 0, i.e., we do not rotate files by default.
+  /// If true we order the files as we rotate them.  Default value
+  /// is false, i.e., we do not rotate files by default.
   bool order_files_;
 
   /// This tells us in what file we last wrote. It will be increased

@@ -4,7 +4,7 @@
 /**
  *  @file    Time_Value.h
  *
- *  $Id: Time_Value.h 89121 2010-02-22 14:48:31Z schmidt $
+ *  $Id: Time_Value.h 90683 2010-06-17 22:07:42Z shuston $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -129,11 +129,24 @@ public:
   /// Converts from ACE_Time_Value format into milliseconds format.
   /**
    * @return Sum of second field (in milliseconds) and microsecond field
+   *         (in milliseconds).
+   *
+   * @note The semantics of this method differs from the sec() and
+   *       usec() methods.  There is no analogous "millisecond"
+   *       component in an ACE_Time_Value.
+   */
+  ACE_UINT64 get_msec () const;
+
+  /// Converts from ACE_Time_Value format into milliseconds format.
+  /**
+   * @return Sum of second field (in milliseconds) and microsecond field
    *         (in milliseconds) and return them via the @param ms parameter.
    *
    * @note The semantics of this method differs from the sec() and
    *       usec() methods.  There is no analogous "millisecond"
    *       component in an ACE_Time_Value.
+   *
+   * @deprecated Use get_msec() instead.
    */
   void msec (ACE_UINT64 &ms) const;
 
@@ -145,8 +158,18 @@ public:
    * @note The semantics of this method differs from the sec() and
    *       usec() methods.  There is no analogous "millisecond"
    *       component in an ACE_Time_Value.
+   *
+   * @deprecated Use get_msec() instead.
    */
   void msec (ACE_UINT64 &ms) /* const */;
+
+  /// Converts from milli-seconds format into ACE_Time_Value format.
+  /**
+   * @note The semantics of this method differs from the sec() and
+   *       usec() methods.  There is no analogous "millisecond"
+   *       component in an ACE_Time_Value.
+   */
+  void set_msec (const ACE_UINT64 &ms);
 
   /// Converts from milli-seconds format into ACE_Time_Value format.
   /**
