@@ -1107,7 +1107,7 @@ void LFGMgr::RemoveProposal(LfgProposalMap::iterator itProposal, LfgUpdateType t
     pProposal->state = LFG_PROPOSAL_FAILED;
 
     // Mark all people that didn't answered as no accept
-    if (LFG_UPDATETYPE_PROPOSAL_FAILED)
+    if (type == LFG_UPDATETYPE_PROPOSAL_FAILED)
         for (LfgProposalPlayerMap::const_iterator it = pProposal->players.begin(); it != pProposal->players.end(); ++it)
             if (it->second->accept < 1)
                 it->second->accept = 0;
