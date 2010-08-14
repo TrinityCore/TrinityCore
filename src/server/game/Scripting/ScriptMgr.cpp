@@ -1299,6 +1299,12 @@ PlayerScript::PlayerScript(const char* name)
     ScriptMgr::ScriptRegistry<PlayerScript>::AddScript(this);
 }
 
+GuildScript::GuildScript(const char* name)
+    : ScriptObject(name)
+{
+    ScriptMgr::ScriptRegistry<GuildScript>::AddScript(this);
+}
+
 // Instantiate static members of ScriptMgr::ScriptRegistry.
 template<class TScript> std::map<uint32, TScript*> ScriptMgr::ScriptRegistry<TScript>::ScriptPointerList;
 template<class TScript> uint32 ScriptMgr::ScriptRegistry<TScript>::_scriptIdCounter = 0;
