@@ -312,6 +312,9 @@ class LFGMgr
         void InitBoot(Group *grp, uint32 plowGuid, uint32 vlowGuid, std::string reason);
 
     private:
+        void Cleaner();
+        void AddGuidToNewQueue(uint64 guid);
+
         void SendLfgBootPlayer(Player *plr, LfgPlayerBoot *pBoot);
         void SendUpdateProposal(Player *plr, uint32 proposalId, LfgProposal *pProp);
         void SendLfgPlayerReward(Player *plr);

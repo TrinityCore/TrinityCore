@@ -73,6 +73,101 @@ LFGMgr::~LFGMgr()
     m_newToQueue.clear();
 }
 
+
+// Temporal add to try to find bugs that leaves data inconsistent
+void LFGMgr::Cleaner()
+{
+    LfgQueueInfoMap::iterator itQueue;
+    LfgGuidList::iterator itGuidListRemove;
+    LfgGuidList eraseList;
+
+    for (LfgQueueInfoMap::iterator it = m_QueueInfoMap.begin(); it != m_QueueInfoMap.end();)
+    {
+        itQueue = it++;
+        // Remove empty queues
+        if (!itQueue->second)
+        {
+            sLog.outError("LFGMgr::Cleaner: removing " UI64FMTD " from QueueInfoMap, data is null", itQueue->first);
+            m_QueueInfoMap.erase(itQueue);
+        }
+        // Remove queue with empty players
+        else if(!itQueue->second->roles.size())
+        {
+            sLog.outError("LFGMgr::Cleaner: removing " UI64FMTD " from QueueInfoMap, no players in queue!", itQueue->first);
+            m_QueueInfoMap.erase(itQueue);
+        }
+    }
+   
+    // Remove from NewToQueue those guids that do not exist in queueMap
+    for (LfgGuidList::iterator it = m_newToQueue.begin(); it != m_newToQueue.end();)
+    {
+        itGuidListRemove = it++;
+        if (m_QueueInfoMap.find(*itGuidListRemove) == m_QueueInfoMap.end())
+        {
+            eraseList.push_back(*itGuidListRemove);
+            m_newToQueue.erase(itGuidListRemove);
+            sLog.outError("LFGMgr::Cleaner: removing " UI64FMTD " from newToQueue, no queue info with that guid", *itGuidListRemove);
+        }
+    }
+
+    // Remove from currentQueue those guids that do not exist in queueMap
+    for (LfgGuidList::iterator it = m_currentQueue.begin(); it != m_currentQueue.end();)
+    {
+        itGuidListRemove = it++;
+        if (m_QueueInfoMap.find(*itGuidListRemove) == m_QueueInfoMap.end())
+        {
+            eraseList.push_back(*itGuidListRemove);
+            m_newToQueue.erase(itGuidListRemove);
+            sLog.outError("LFGMgr::Cleaner: removing " UI64FMTD " from currentQueue, no queue info with that guid", *itGuidListRemove);
+        }
+    }
+
+    for (LfgGuidList::iterator it = eraseList.begin(); it != eraseList.end(); ++it)
+    {
+        if (IS_GROUP(*it))
+        {
+            if (Group *grp = sObjectMgr.GetGroupByGUID(GUID_LOPART(*it)))
+                for (GroupReference *itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
+                    if (Player *plr = itr->getSource())
+                        plr->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_REMOVED_FROM_QUEUE);
+        }
+        else
+            if (Player *plr = sObjectMgr.GetPlayer(*it))
+                plr->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_REMOVED_FROM_QUEUE);
+    }
+}
+
+// Temporal added to perform consistency check before adding
+void LFGMgr::AddGuidToNewQueue(uint64 guid)
+{
+    // Consistency check
+    LfgGuidList::const_iterator it;
+    for (it = m_newToQueue.begin(); it != m_newToQueue.end(); ++it)
+    {
+        if (*it == guid)
+        {
+            sLog.outError("LFGMgr::AddToQueue: " UI64FMTD " being added to queue and it was already added. ignoring", guid);
+            break;
+        }
+    }
+    if (it != m_newToQueue.end())
+    {
+        LfgGuidList::iterator itRemove;
+        for (LfgGuidList::iterator it = m_currentQueue.begin(); it != m_currentQueue.end() && *it != guid;)
+        {
+            itRemove = it++;
+            if (*itRemove == guid)
+            {
+                sLog.outError("LFGMgr::AddToQueue: " UI64FMTD " being added to queue and already in current queue (removing to readd)", guid);
+                m_currentQueue.erase(itRemove);
+                break;
+            }
+        }
+        // Add to queue
+        m_newToQueue.push_back(guid);
+    }
+}
+
 void LFGMgr::Update(uint32 diff)
 {
     if (!m_update || !sWorld.getConfig(CONFIG_DUNGEON_FINDER_ENABLE))
@@ -143,58 +238,8 @@ void LFGMgr::Update(uint32 diff)
         }
     }
 
-    // Consistency Clean Begin - Added to try to find a bug that leaves data inconsistent
-    LfgQueueInfoMap::iterator itQueue;
-    LfgGuidList::iterator itGuidListRemove;
-    LfgGuidList eraseList;
-
-    for (LfgQueueInfoMap::iterator it = m_QueueInfoMap.begin(); it != m_QueueInfoMap.end();)
-    {
-        itQueue = it++;
-        if (!itQueue->second)
-        {
-            sLog.outError("LFGMgr::Update: removing " UI64FMTD " from QueueInfoMap, data is null", itQueue->first);
-            m_QueueInfoMap.erase(itQueue);
-        }
-    }
-    
-    for (LfgGuidList::iterator it = m_newToQueue.begin(); it != m_newToQueue.end();)
-    {
-        itGuidListRemove = it++;
-        if (m_QueueInfoMap.find(*itGuidListRemove) == m_QueueInfoMap.end())
-        {
-            eraseList.push_back(*itGuidListRemove);
-            m_newToQueue.erase(itGuidListRemove);
-            sLog.outError("LFGMgr::Update: removing " UI64FMTD " from newToQueue, no queue info with that guid", *itGuidListRemove);
-        }
-    }
-
-    for (LfgGuidList::iterator it = m_currentQueue.begin(); it != m_currentQueue.end();)
-    {
-        itGuidListRemove = it++;
-        if (m_QueueInfoMap.find(*itGuidListRemove) == m_QueueInfoMap.end())
-        {
-            eraseList.push_back(*itGuidListRemove);
-            m_newToQueue.erase(itGuidListRemove);
-            sLog.outError("LFGMgr::Update: removing " UI64FMTD " from currentQueue, no queue info with that guid", *itGuidListRemove);
-        }
-    }
-
-    for (LfgGuidList::iterator it = eraseList.begin(); it != eraseList.end(); ++it)
-    {
-        if (IS_GROUP(*it))
-        {
-            if (Group *grp = sObjectMgr.GetGroupByGUID(GUID_LOPART(*it)))
-                for (GroupReference *itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
-                    if (Player *plr = itr->getSource())
-                        plr->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_REMOVED_FROM_QUEUE);
-        }
-        else
-            if (Player *plr = sObjectMgr.GetPlayer(*it))
-                plr->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_REMOVED_FROM_QUEUE);
-    }
-    // Consistency clean End
-
+    // Consistency cleaner
+    Cleaner();
 
     // Check if a proposal can be formed with the new groups being added
     LfgProposalList proposals;
@@ -536,7 +581,7 @@ void LFGMgr::AddToQueue(uint64 guid, LfgRolesMap *roles, LfgDungeonSet *dungeons
         pqInfo->dungeons.insert(*it);
 
     m_QueueInfoMap[guid] = pqInfo;
-    m_newToQueue.push_back(guid);
+    AddGuidToNewQueue(guid);
 }
 
 /// <summary>
@@ -1160,7 +1205,7 @@ void LFGMgr::RemoveProposal(LfgProposalMap::iterator itProposal, LfgUpdateType t
                 updateType = LFG_UPDATETYPE_REMOVED_FROM_QUEUE;
             else
             {
-                m_newToQueue.push_back(guid);
+                AddGuidToNewQueue(guid);
                 updateType = LFG_UPDATETYPE_ADDED_TO_QUEUE;
             }
         }
