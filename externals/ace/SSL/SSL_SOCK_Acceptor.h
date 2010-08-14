@@ -4,7 +4,7 @@
 /**
  *  @file    SSL_SOCK_Acceptor.h
  *
- *  $Id: SSL_SOCK_Acceptor.h 81826 2008-06-02 15:29:53Z schmidt $
+ *  $Id: SSL_SOCK_Acceptor.h 82723 2008-09-16 09:35:44Z johnnyw $
  *
  *  @author John Heitmann
  *  @author Chris Zimman
@@ -138,8 +138,8 @@ public:
   int accept (ACE_SSL_SOCK_Stream &new_stream,
               ACE_Addr *remote_addr = 0,
               ACE_Time_Value *timeout = 0,
-              int restart = 1,
-              int reset_new_handle = 0) const;
+              bool restart = true,
+              bool reset_new_handle = false) const;
 
   /**
    * Accept a new ACE_SSL_SOCK_Stream connection using the RVSP QoS
@@ -160,8 +160,8 @@ public:
               ACE_Accept_QoS_Params qos_params,
               ACE_Addr *remote_addr = 0,
               ACE_Time_Value *timeout = 0,
-              int restart = 1,
-              int reset_new_handle = 0) const;
+              bool restart = true,
+              bool reset_new_handle = false) const;
   //@}
 
   /// Meta-type info

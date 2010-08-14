@@ -4,7 +4,7 @@
 /**
  *  @file    Task_T.h
  *
- *  $Id: Task_T.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Task_T.h 91016 2010-07-06 11:29:50Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -96,13 +96,13 @@ public: // Should be protected:
    * the stream. To do this, the message is put onto the task next in
    * the stream after this task's sibling.
    *
-   * @param ACE_Message_Block  Pointer to the block that is used in the reply.
-   * @param timeout  The absolute time at which the put operation used to
-   *                 send the message block to the next module in the stream
-   *                 will time out. If 0, this call blocks until it can be
-   *                 completed.
+   * @param mb Pointer to the block that is used in the reply.
+   * @param tv The absolute time at which the put operation used to
+   *           send the message block to the next module in the stream
+   *           will time out. If 0, this call blocks until it can be
+   *           completed.
    */
-  int reply (ACE_Message_Block *, ACE_Time_Value *timeout = 0);
+  int reply (ACE_Message_Block *mb, ACE_Time_Value *tv = 0);
 
   /**
    * Transfer message to the adjacent ACE_Task in a ACE_Stream.  Note
