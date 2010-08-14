@@ -170,6 +170,8 @@ ScriptMgr::~ScriptMgr()
     SCR_CLEAR(DynamicObjectScript);
     SCR_CLEAR(TransportScript);
     SCR_CLEAR(AchievementCriteriaScript);
+    SCR_CLEAR(PlayerScript);
+    SCR_CLEAR(GuildScript);
 
     #undef SCR_CLEAR
 }
