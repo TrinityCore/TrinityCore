@@ -75,7 +75,7 @@ LFGMgr::~LFGMgr()
 
 void LFGMgr::Update(uint32 diff)
 {
-    if (!m_update)
+    if (!m_update || !sWorld.getConfig(CONFIG_DUNGEON_FINDER_ENABLE))
         return;
 
     m_update = false;
