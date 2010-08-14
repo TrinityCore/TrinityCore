@@ -121,6 +121,28 @@ void LFGMgr::Update(uint32 diff)
             RemoveProposal(itRemove, LFG_UPDATETYPE_PROPOSAL_FAILED);
     }
 
+    // Remove obsolete kicks
+    LfgPlayerBootMap::iterator itBoot;
+    LfgPlayerBoot *pBoot;
+    for (LfgPlayerBootMap::iterator it = m_Boots.begin(); it != m_Boots.end();)
+    {
+        itBoot = it++;
+        pBoot = itBoot->second;
+        if (pBoot->cancelTime < currTime)
+        {
+            Group *grp = sObjectMgr.GetGroupByGUID(itBoot->first);
+            pBoot->inProgress = false;
+            for (LfgAnswerMap::const_iterator itVotes = pBoot->votes.begin(); itVotes != pBoot->votes.end(); ++itVotes)
+                if (Player *plrg = sObjectMgr.GetPlayer(itVotes->first))
+                    if (plrg->GetGUIDLow() != pBoot->victimLowGuid)
+                        SendLfgBootPlayer(plrg, pBoot);
+            if (grp)
+                grp->SetLfgKickActive(false);
+            delete pBoot;
+            m_Boots.erase(itBoot);
+        }
+    }
+
     // Consistency Clean Begin - Added to try to find a bug that leaves data inconsistent
     LfgQueueInfoMap::iterator itQueue;
     LfgGuidList::iterator itGuidListRemove;
