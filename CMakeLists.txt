@@ -43,22 +43,14 @@ endif()
 include(CheckIncludeFiles)
 include(cmake/FindPlatform.cmake)
 include(cmake/FindPCHSupport.cmake)
-
 if(WIN32)
   set(ACE_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/externals)
 endif()
-
 include(cmake/FindACE.cmake)
 include(cmake/FindMySQL.cmake)
 include(cmake/FindOpenSSL.cmake)
-
-#
-# *nix-specific packages ( zlib and bzip2 libraries will be built from sourcetree on WIN32-platforms)
-#
-
 if( UNIX )
   include(cmake/FindReadline.cmake)
-  include(cmake/FindTermcap.cmake)
   include(FindZLIB)
   include(FindBZip2)
 endif()
@@ -82,7 +74,7 @@ endif()
 option(SERVERS "Build worldserver and authserver" 1)
 option(SCRIPTS "Build worldserver with scripts included" 1)
 option(TOOLS "Build map/vmap extraction/assembler tools" 0)
-option(DEBUG "Build worldserver with additional debug-code included" 0)
+option(COREDEBUG "Build worldserver with additional debug-code included" 0)
 option(SCRIPTPCH "Use precompiled headers when compiling scripts project" 1)
 option(GAMEPCH "Use precompiled headers when compiling game project" 1)
 option(SQL "Copy SQL files during installation" 0)
@@ -117,10 +109,10 @@ endif()
 #endif()
 
 #
-# Handle debugmode compiles (this will require further work for proper WIN32-setups)
+# Handle core debugmode compilation (this will require further work for proper WIN32-setups)
 #
 
-if( DEBUG )
+if( COREDEBUG )
   set(CMAKE_BUILD_TYPE Debug)
 endif()
 
@@ -170,13 +162,20 @@ execute_process(
   OUTPUT_VARIABLE HG_REVISION
 )
 
+if(DEFINED NOPCH)
+  set(SCRIPTPCH 0)
+  set(GAMEPCH 0)
+endif()
+
 #
 # Output some generic information about the core and buildtype chosen
 #
 
 message("")
 message("* TrinityCore revision  : ${HG_REVISION}")
-message("* Build binaries in     : ${CMAKE_BUILD_TYPE} mode")
+if( UNIX )
+  message("* Build binaries in     : ${CMAKE_BUILD_TYPE} mode")
+endif()
 message("")
 
 #
@@ -226,14 +225,14 @@ else()
   message("* Build map/vmap tools  : No  (default)")
 endif()
 
-if( DEBUG )
-  message("* Build in debug-mode   : Yes")
+if( COREDEBUG )
+  message("* Use coreside debug    : Yes")
   add_definitions(-DTRINITY_DEBUG)
   if(CMAKE_COMPILER_IS_GNUCXX)
     add_definitions(-g)
   endif()
 else()
-  message("* Build in debug-mode   : No  (default)")
+  message("* Use coreside debug    : No  (default)")
 endif()
 
 if( WARNINGS )
