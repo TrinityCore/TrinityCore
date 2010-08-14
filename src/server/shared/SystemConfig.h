@@ -45,10 +45,5 @@
 #else
 #  define _FULLVERSION _PACKAGENAME "Rev: " _REVISION " " _BUILD_DIRECTIVE " Hash: " _HASH " (Unix," _ENDIAN_STRING ")"
 #endif
-
-#define DEFAULT_PLAYER_LIMIT 100
-#define DEFAULT_WORLDSERVER_PORT 8085                       //8129
-#define DEFAULT_REALMSERVER_PORT 3724
-#define DEFAULT_SOCKET_SELECT_TIME 10000
 #endif
 

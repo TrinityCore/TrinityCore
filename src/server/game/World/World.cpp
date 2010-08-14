@@ -423,7 +423,7 @@ void World::LoadConfigSettings(bool reload)
     }
 
     ///- Read the player limit and the Message of the day from the config file
-    SetPlayerLimit(sConfig.GetIntDefault("PlayerLimit", DEFAULT_PLAYER_LIMIT), true);
+    SetPlayerLimit(sConfig.GetIntDefault("PlayerLimit", 100), true);
     SetMotd(sConfig.GetStringDefault("Motd", "Welcome to a Trinity Core Server."));
 
     ///- Get string for new logins (newly created characters)
@@ -628,21 +628,21 @@ void World::LoadConfigSettings(bool reload)
 
     if (reload)
     {
-        uint32 val = sConfig.GetIntDefault("WorldServerPort", DEFAULT_WORLDSERVER_PORT);
+        uint32 val = sConfig.GetIntDefault("WorldServerPort", 8085);
         if (val != m_configs[CONFIG_PORT_WORLD])
             sLog.outError("WorldServerPort option can't be changed at worldserver.conf reload, using current value (%u).",m_configs[CONFIG_PORT_WORLD]);
     }
     else
-        m_configs[CONFIG_PORT_WORLD] = sConfig.GetIntDefault("WorldServerPort", DEFAULT_WORLDSERVER_PORT);
+        m_configs[CONFIG_PORT_WORLD] = sConfig.GetIntDefault("WorldServerPort", 8085);
 
     if (reload)
     {
-        uint32 val = sConfig.GetIntDefault("SocketSelectTime", DEFAULT_SOCKET_SELECT_TIME);
+        uint32 val = sConfig.GetIntDefault("SocketSelectTime", 10000);
         if (val != m_configs[CONFIG_SOCKET_SELECTTIME])
             sLog.outError("SocketSelectTime option can't be changed at worldserver.conf reload, using current value (%u).",m_configs[CONFIG_SOCKET_SELECTTIME]);
     }
     else
-        m_configs[CONFIG_SOCKET_SELECTTIME] = sConfig.GetIntDefault("SocketSelectTime", DEFAULT_SOCKET_SELECT_TIME);
+        m_configs[CONFIG_SOCKET_SELECTTIME] = sConfig.GetIntDefault("SocketSelectTime", 10000);
 
     m_configs[CONFIG_SOCKET_TIMEOUTTIME] = sConfig.GetIntDefault("SocketTimeOutTime", 900000);
     m_configs[CONFIG_SESSION_ADD_DELAY] = sConfig.GetIntDefault("SessionAddDelay", 10000);
