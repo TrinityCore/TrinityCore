@@ -1127,6 +1127,31 @@ void ScriptMgr::OnPlayerTextEmote(Player* player, uint32 text_emote, uint32 emot
     FOREACH_SCRIPT(PlayerScript)->OnTextEmote(player, text_emote, emoteNum, guid);
 }
 
+void ScriptMgr::OnGuildAddMember(Guild *guild, Player *player, uint32& plRank)
+{
+    FOREACH_SCRIPT(GuildScript)->OnAddMember(guild, player, plRank);
+}
+
+void ScriptMgr::OnGuildRemoveMember(Guild *guild, Player *player, bool isDisbanding, bool isKicked)
+{
+    FOREACH_SCRIPT(GuildScript)->OnRemoveMember(guild, player, isDisbanding, isKicked);
+}
+
+void ScriptMgr::OnGuildMOTDChanged(Guild *guild, std::string newMotd)
+{
+    FOREACH_SCRIPT(GuildScript)->OnMOTDChanged(guild, newMotd);
+}
+
+void ScriptMgr::OnGuildInfoChanged(Guild *guild, std::string newGInfo)
+{
+    FOREACH_SCRIPT(GuildScript)->OnGInfoChanged(guild, newGInfo);
+}
+
+void ScriptMgr::OnGuildDisband(Guild *guild)
+{
+    FOREACH_SCRIPT(GuildScript)->OnDisband(guild);
+}
+
 SpellHandlerScript::SpellHandlerScript(const char* name)
     : ScriptObject(name)
 {
