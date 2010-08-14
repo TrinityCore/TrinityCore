@@ -6198,7 +6198,7 @@ bool ChatHandler::HandleServerPLimitCommand(const char *args)
         else if (strncmp(param,"administrator",l) == 0)
             sWorld.SetPlayerSecurityLimit(SEC_ADMINISTRATOR);
         else if (strncmp(param,"reset",l) == 0)
-            sWorld.SetPlayerLimit(sConfig.GetIntDefault("PlayerLimit", DEFAULT_PLAYER_LIMIT));
+            sWorld.SetPlayerLimit(sConfig.GetIntDefault("PlayerLimit", 100));
         else
         {
             int val = atoi(param);

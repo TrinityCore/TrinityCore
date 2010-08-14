@@ -47,7 +47,7 @@ MACRO(_PCH_GET_COMPILE_FLAGS _out_compile_flags)
   IF(CMAKE_COMPILER_IS_GNUCXX)
     GET_TARGET_PROPERTY(_targetType ${_PCH_current_target} TYPE)
     IF(${_targetType} STREQUAL SHARED_LIBRARY AND NOT WIN32)
-      LIST(APPEND ${_out_compile_flags} "${${_out_compile_flags}} -fPIC")
+      LIST(APPEND ${_out_compile_flags} -fPIC")
     ENDIF()
 
   ELSE(CMAKE_COMPILER_IS_GNUCXX)
