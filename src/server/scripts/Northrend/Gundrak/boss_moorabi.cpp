@@ -53,7 +53,7 @@ class boss_moorabi : public CreatureScript
 public:
     boss_moorabi() : CreatureScript("boss_moorabi") { }
 
-    CreatureAI* GetAI(Creature *pCreature)
+    CreatureAI* GetAI(Creature *pCreature) const
     {
         return new boss_moorabiAI(pCreature);
     }

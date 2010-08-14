@@ -543,7 +543,7 @@ class npc_teleportation_portal_vh : public CreatureScript
 public:
     npc_teleportation_portal_vh() : CreatureScript("npc_teleportation_portal_vh") { }
 
-    CreatureAI* GetAI_npc_teleportation_portal(Creature *pCreature)
+    CreatureAI* GetAI_npc_teleportation_portal(Creature *pCreature) const
     {
         return new npc_teleportation_portalAI(pCreature);
     }

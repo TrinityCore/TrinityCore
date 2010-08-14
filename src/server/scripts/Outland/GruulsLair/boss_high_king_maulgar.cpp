@@ -438,7 +438,7 @@ class boss_kiggler_the_crazed : public CreatureScript
 public:
     boss_kiggler_the_crazed() : CreatureScript("boss_kiggler_the_crazed") { }
 
-    CreatureAI *GetAI(Creature* pCreature)
+    CreatureAI *GetAI(Creature* pCreature) const
     {
         return new boss_kiggler_the_crazedAI (pCreature);
     }
@@ -560,7 +560,7 @@ class boss_blindeye_the_seer : public CreatureScript
 public:
     boss_blindeye_the_seer() : CreatureScript("boss_blindeye_the_seer") { }
 
-    CreatureAI *GetAI(Creature* pCreature)
+    CreatureAI *GetAI(Creature* pCreature) const
     {
         return new boss_blindeye_the_seerAI (pCreature);
     }
@@ -670,7 +670,7 @@ class boss_krosh_firehand : public CreatureScript
 public:
     boss_krosh_firehand() : CreatureScript("boss_krosh_firehand") { }
 
-    CreatureAI *GetAI(Creature* pCreature)
+    CreatureAI *GetAI(Creature* pCreature) const
     {
         return new boss_krosh_firehandAI (pCreature);
     }
