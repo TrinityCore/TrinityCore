@@ -1220,7 +1220,7 @@ class mob_torloth_the_magnificent : public CreatureScript
 public:
     mob_torloth_the_magnificent() : CreatureScript("mob_torloth_the_magnificent") { }
 
-    CreatureAI* GetAI(Creature* c)
+    CreatureAI* GetAI(Creature* c) const
     {
         return new mob_torloth_the_magnificentAI(c);
     }
@@ -1382,7 +1382,7 @@ class npc_lord_illidan_stormrage : public CreatureScript
 public:
     npc_lord_illidan_stormrage() : CreatureScript("npc_lord_illidan_stormrage") { }
 
-    CreatureAI* GetAI(Creature* c)
+    CreatureAI* GetAI(Creature* c) const
     {
         return new npc_lord_illidan_stormrageAI(c);
     }
@@ -1530,7 +1530,7 @@ class mob_illidari_spawn : public CreatureScript
 public:
     mob_illidari_spawn() : CreatureScript("mob_illidari_spawn") { }
 
-    CreatureAI* GetAI(Creature* c)
+    CreatureAI* GetAI(Creature* c) const
     {
         return new mob_illidari_spawnAI(c);
     }

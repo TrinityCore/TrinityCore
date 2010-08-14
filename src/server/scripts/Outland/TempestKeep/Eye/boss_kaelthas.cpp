@@ -1393,7 +1393,7 @@ class boss_master_engineer_telonicus : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* Creature)
+        CreatureAI* GetAI(Creature* Creature) const
         {
             return new boss_master_engineer_telonicusAI(Creature);
         }
@@ -1457,7 +1457,7 @@ class mob_kael_flamestrike : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* Creature)
+        CreatureAI* GetAI(Creature* Creature) const
         {
             return new mob_kael_flamestrikeAI(Creature);
         }
