@@ -3804,6 +3804,7 @@ bool ChatHandler::HandleGuildUninviteCommand(const char *args)
         return false;
 
     uint32 glId   = target ? target->GetGuildId () : Player::GetGuildIdFromDB (target_guid);
+
     if (!glId)
         return false;
 
@@ -3811,7 +3812,7 @@ bool ChatHandler::HandleGuildUninviteCommand(const char *args)
     if (!targetGuild)
         return false;
 
-    targetGuild->DelMember (target_guid);
+    targetGuild->DelMember (target_guid, false, true);
     return true;
 }
 
