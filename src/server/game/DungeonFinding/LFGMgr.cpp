@@ -604,7 +604,7 @@ void LFGMgr::FindNewGroups(LfgGuidList &check, LfgGuidList all, LfgProposalList 
 
     if (numPlayers < MAXGROUPSIZE)
     {
-        while (!all.empty())
+        while (!all.empty() && check.size() < MAXGROUPSIZE)
         {
             check.push_back(all.front());
             all.pop_front();
