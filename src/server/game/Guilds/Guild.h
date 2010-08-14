@@ -315,7 +315,7 @@ class Guild
         void SetLeader(uint64 guid);
         bool AddMember(uint64 plGuid, uint32 plRank);
         void ChangeRank(uint64 guid, uint32 newRank);
-        void DelMember(uint64 guid, bool isDisbanding = false);
+        void DelMember(uint64 guid, bool isDisbanding = false, bool isKicked = false);
         //lowest rank is the count of ranks - 1 (the highest rank_id in table)
         uint32 GetLowestRank() const { return m_Ranks.size() - 1; }
 

@@ -702,6 +702,21 @@ public:
     virtual void OnTextEmote(Player* player, uint32 text_emote, uint32 emoteNum, uint64 guid) { }
 };
 
+class GuildScript : public ScriptObject
+{
+protected:
+    GuildScript(const char* name);
+
+public:
+    bool IsDatabaseBound() const { return false; }
+
+    virtual void OnAddMember(Guild *guild, Player *player, uint32& plRank) { }
+    virtual void OnRemoveMember(Guild *guild, Player *player, bool isDisbanding, bool isKicked) { }
+    virtual void OnMOTDChanged(Guild *guild, std::string newMotd) { }
+    virtual void OnGInfoChanged(Guild *guild, std::string newGInfo) { }
+    virtual void OnDisband(Guild *guild) { }
+};
+
 // Placed here due to ScriptRegistry::AddScript dependency.
 #define sScriptMgr (*ACE_Singleton<ScriptMgr, ACE_Null_Mutex>::instance())
 
@@ -875,6 +890,7 @@ class ScriptMgr
         bool OnCriteriaCheck(AchievementCriteriaData const* data, Player* source, Unit* target);
 
     public: /* PlayerScript */
+
         void OnPVPKill(Player *killer, Player *killed);
         void OnCreatureKill(Player *killer, Creature *killed);
         void OnPlayerKilledByCreature(Creature *killer, Player *killed);
@@ -887,6 +903,13 @@ class ScriptMgr
         void OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string msg, void* param = NULL);
         void OnPlayerEmote(Player* player, uint32 emote);
         void OnPlayerTextEmote(Player* player, uint32 text_emote, uint32 emoteNum, uint64 guid);
+
+    public: /* GuildScript */
+        void OnGuildAddMember(Guild *guild, Player *player, uint32& plRank);
+        void OnGuildRemoveMember(Guild *guild, Player *player, bool isDisbanding, bool isKicked);
+        void OnGuildMOTDChanged(Guild *guild, std::string newMotd);
+        void OnGuildInfoChanged(Guild *guild, std::string newGInfo);
+        void OnGuildDisband(Guild *guild);
 
     public: /* ScriptRegistry */
 

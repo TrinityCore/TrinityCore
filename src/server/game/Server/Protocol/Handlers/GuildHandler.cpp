@@ -179,7 +179,7 @@ void WorldSession::HandleGuildRemoveOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    guild->DelMember(plGuid);
+    guild->DelMember(plGuid, false, true);
     // Put record into guildlog
     guild->LogGuildEvent(GUILD_EVENT_LOG_UNINVITE_PLAYER, GetPlayer()->GetGUIDLow(), GUID_LOPART(plGuid), 0);
 
@@ -389,7 +389,8 @@ void WorldSession::HandleGuildLeaveOpcode(WorldPacket& /*recvPacket*/)
         return;
     }
 
-    guild->DelMember(_player->GetGUID());
+    guild->DelMember(_player->GetGUID(), false, false);
+
     // Put record into guildlog
     guild->LogGuildEvent(GUILD_EVENT_LOG_LEAVE_GUILD, _player->GetGUIDLow(), 0, 0);
 
