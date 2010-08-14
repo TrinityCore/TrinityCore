@@ -150,7 +150,7 @@ void LFGMgr::AddGuidToNewQueue(uint64 guid)
             break;
         }
     }
-    if (it != m_newToQueue.end())
+    if (it == m_newToQueue.end())
     {
         LfgGuidList::iterator itRemove;
         for (LfgGuidList::iterator it = m_currentQueue.begin(); it != m_currentQueue.end() && *it != guid;)
