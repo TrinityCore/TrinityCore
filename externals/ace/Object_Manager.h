@@ -4,7 +4,7 @@
 /**
  *  @file    Object_Manager.h
  *
- *  $Id: Object_Manager.h 91066 2010-07-12 11:05:04Z johnnyw $
+ *  $Id: Object_Manager.h 84163 2009-01-15 07:57:27Z johnnyw $
  *
  *  @author David L. Levine <levine@cs.wustl.edu>
  *  @author Matthias Kerkhoff
@@ -272,7 +272,7 @@ public:
   static int remove_at_exit (void *object);
 
 #if 0 /* not implemented yet */
-  /// Similar to at_exit(), except that the cleanup_hook is called
+  /// Similar to <at_exit>, except that the cleanup_hook is called
   /// when the current thread exits instead of when the program terminates.
   static int at_thread_exit (void *object,
                              ACE_CLEANUP_FUNC cleanup_hook,
@@ -327,8 +327,7 @@ public:
     };
 
   /**
-   * @deprecated
-   * Accesses a default signal set used, for example,
+   * @deprecated Accesses a default signal set used, for example,
    * in ACE_Sig_Guard methods.
    * Deprecated: use ACE_Object_Manager::default_mask () instead.
    */
@@ -412,10 +411,10 @@ public:
   static void *preallocated_array[ACE_PREALLOCATED_ARRAYS];
 
 public:
-  /// Application code should not use these explicitly, so they're
-  /// hidden here.  They're public so that the ACE_Object_Manager can
-  /// be constructed/destructed in <main> with
-  /// ACE_HAS_NONSTATIC_OBJECT_MANAGER.
+  // Application code should not use these explicitly, so they're
+  // hidden here.  They're public so that the ACE_Object_Manager can
+  // be constructed/destructed in <main> with
+  // ACE_HAS_NONSTATIC_OBJECT_MANAGER.
   ACE_Object_Manager (void);
   ~ACE_Object_Manager (void);
 
@@ -436,7 +435,7 @@ private:
 #endif /* ACE_MT_SAFE */
 
 #if defined (ACE_HAS_TSS_EMULATION)
-  /// Main thread's thread-specific storage array.
+  // Main thread's thread-specific storage array.
   void *ts_storage_[ACE_TSS_Emulation::ACE_TSS_THREAD_KEYS_MAX];
   bool ts_storage_initialized_;
 #endif /* ACE_HAS_TSS_EMULATION */
@@ -445,7 +444,7 @@ private:
   friend class ACE_Object_Manager_Manager;
 #endif /* ACE_HAS_NONSTATIC_OBJECT_MANAGER */
 
-  /// Disallow copying by not implementing the following . . .
+  // Disallow copying by not implementing the following . . .
   ACE_Object_Manager (const ACE_Object_Manager &);
   ACE_Object_Manager &operator= (const ACE_Object_Manager &);
 };

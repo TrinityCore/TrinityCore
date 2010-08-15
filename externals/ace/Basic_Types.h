@@ -4,7 +4,7 @@
 /**
  *  @file    Basic_Types.h
  *
- *  $Id: Basic_Types.h 91161 2010-07-21 18:25:12Z schmidt $
+ *  $Id: Basic_Types.h 87392 2009-11-07 09:32:06Z johnnyw $
  *
  *  @author David L. Levine
  *
@@ -712,7 +712,7 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 #  if defined (PRId8)
 #    define ACE_INT8_FORMAT_SPECIFIER ACE_TEXT ("%") ACE_TEXT (PRId8)
 #  else
-#    define ACE_INT8_FORMAT_SPECIFIER ACE_TEXT (ACE_INT8_FORMAT_SPECIFIER_ASCII)
+#    define ACE_INT8_FORMAT_SPECIFIER ACE_TEXT (ACE_INT8_FORMAT_SPECIFIER)
 #  endif /* defined (PRId8) */
 #endif /* ACE_INT8_FORMAT_SPECIFIER */
 

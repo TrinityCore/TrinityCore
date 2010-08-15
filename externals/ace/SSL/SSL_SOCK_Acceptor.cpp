@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: SSL_SOCK_Acceptor.cpp 82723 2008-09-16 09:35:44Z johnnyw $
+// $Id: SSL_SOCK_Acceptor.cpp 82577 2008-08-09 17:43:11Z mitza $
 
 
 #include "SSL_SOCK_Acceptor.h"
@@ -19,7 +19,7 @@
 
 ACE_RCSID (ACE_SSL,
            SSL_SOCK_Acceptor,
-           "$Id: SSL_SOCK_Acceptor.cpp 82723 2008-09-16 09:35:44Z johnnyw $")
+           "$Id: SSL_SOCK_Acceptor.cpp 82577 2008-08-09 17:43:11Z mitza $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -176,8 +176,8 @@ int
 ACE_SSL_SOCK_Acceptor::accept (ACE_SSL_SOCK_Stream &new_stream,
                                ACE_Addr *remote_addr,
                                ACE_Time_Value *timeout,
-                               bool restart,
-                               bool reset_new_handle) const
+                               int restart,
+                               int reset_new_handle) const
 {
   ACE_TRACE ("ACE_SSL_SOCK_Acceptor::accept");
 
@@ -214,8 +214,8 @@ ACE_SSL_SOCK_Acceptor::accept (ACE_SSL_SOCK_Stream &new_stream,
                                ACE_Accept_QoS_Params qos_params,
                                ACE_Addr *remote_addr,
                                ACE_Time_Value *timeout,
-                               bool restart,
-                               bool reset_new_handle) const
+                               int restart,
+                               int reset_new_handle) const
 {
   ACE_TRACE ("ACE_SSL_SOCK_Acceptor::accept");
 

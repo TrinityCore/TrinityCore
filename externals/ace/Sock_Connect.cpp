@@ -1,4 +1,4 @@
-// $Id: Sock_Connect.cpp 90399 2010-06-03 21:35:20Z mesnier_p $
+// $Id: Sock_Connect.cpp 87160 2009-10-19 14:01:10Z olli $
 
 #include "ace/Sock_Connect.h"
 #include "ace/INET_Addr.h"
@@ -60,6 +60,9 @@ const struct in6_addr in6addr_linklocal_allrouters = IN6ADDR_LINKLOCAL_ALLROUTER
 #if defined (ACE_HAS_WINCE)
 #include /**/ <iphlpapi.h>
 # if defined (ACE_HAS_WINSOCK2) && (ACE_HAS_WINSOCK2 != 0) && (_WIN32_WCE < 0x600) && defined (ACE_HAS_IPV6)
+// The following code is suggested by microsoft as a workaround to the fact
+// that on Windows CE, these constants are exported as function addresses
+// rather than simply values.
 #  include /**/ <ws2tcpip.h>
 const struct in6_addr in6addr_any = IN6ADDR_ANY_INIT;
 const struct in6_addr in6addr_loopback = IN6ADDR_LOOPBACK_INIT;
@@ -159,7 +162,7 @@ static ACE_Auto_Array_Ptr<sockaddr> force_compiler_to_include_socket_h;
 
 ACE_RCSID (ace,
            Sock_Connect,
-           "$Id: Sock_Connect.cpp 90399 2010-06-03 21:35:20Z mesnier_p $")
+           "$Id: Sock_Connect.cpp 87160 2009-10-19 14:01:10Z olli $")
 
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL

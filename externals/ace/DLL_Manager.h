@@ -4,7 +4,7 @@
 /**
  *  @file    DLL_Manager.h
  *
- *  $Id: DLL_Manager.h 91064 2010-07-12 10:11:24Z johnnyw $
+ *  $Id: DLL_Manager.h 80826 2008-03-04 14:51:23Z wotte $
  *
  *  @author Don Hinton <dhinton@ieee.org>
  */
@@ -45,7 +45,7 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
  * on some platforms.  It is refcounted and managed by
  * ACE_DLL_Manager, so there will only be a single instance of this
  * class for each dll loaded, no matter how many instances of ACE_DLL
- * an application has open.  Operations open(), close(), and symbol()
+ * an application has open.  Operations <open>, <close>, and <symbol>
  * have been implemented to help opening/closing and extracting symbol
  * information from a DLL, respectively.
  *
@@ -69,11 +69,11 @@ public:
 
   /**
    * This method opens and dynamically links @a dll_name.  The default
-   * mode is @c RTLD_LAZY, which loads identifier symbols but not the
+   * mode is <RTLD_LAZY>, which loads identifier symbols but not the
    * symbols for functions, which are loaded dynamically on-demand.
-   * Other supported modes include: @c RTLD_NOW, which performs all
+   * Other supported modes include: <RTLD_NOW>, which performs all
    * necessary relocations when @a dll_name is first loaded and
-   * @c RTLD_GLOBAL, which makes symbols available for relocation
+   * <RTLD_GLOBAL>, which makes symbols available for relocation
    * processing of any other DLLs.  Returns -1 on failure and 0 on
    * success.
    */
@@ -110,20 +110,20 @@ private:
   /// to the caller.
   auto_ptr <ACE_TString> error (void);
 
-  /// Builds array of DLL names to try to dlopen, based on platform
-  /// and configured DLL prefixes/suffixes.
-  /// Returns the array of names to try in try_names.
+  // Builds array of DLL names to try to dlopen, based on platform
+  // and configured DLL prefixes/suffixes.
+  // Returns the array of names to try in try_names.
   void get_dll_names (const ACE_TCHAR *dll_name,
                       ACE_Array<ACE_TString> &try_names);
 
-  /// Disallow copying and assignment since we don't handle them.
+  // Disallow copying and assignment since we don't handle them.
   ACE_DLL_Handle (const ACE_DLL_Handle &);
   void operator= (const ACE_DLL_Handle &);
 
 private:
 
-  /// Keep track of how many ACE_DLL objects have a reference to this
-  /// dll.
+  // Keep track of how many ACE_DLL objects have a reference to this
+  // dll.
   sig_atomic_t refcount_;
 
   /// Name of the shared library.
@@ -218,16 +218,16 @@ protected:
   /// Destructor.
   ~ACE_DLL_Manager (void);
 
-  /// Allocate handle_vector_.
+  // Allocate handle_vector_.
   int open (int size);
 
-  /// Close all open dlls and deallocate memory.
+  // Close all open dlls and deallocate memory.
   int close (void);
 
-  /// Find dll in handle_vector_.
+  // Find dll in handle_vector_.
   ACE_DLL_Handle *find_dll (const ACE_TCHAR *dll_name) const;
 
-  /// Applies strategy for unloading dll.
+  // Applies strategy for unloading dll.
   int unload_dll (ACE_DLL_Handle *dll_handle, int force_unload = 0);
 
 private:
@@ -235,7 +235,7 @@ private:
   /// Close the singleton instance.
   static void close_singleton (void);
 
-  /// Disallow copying and assignment since we don't handle these.
+  // Disallow copying and assignment since we don't handle these.
   ACE_DLL_Manager (const ACE_DLL_Manager &);
   void operator= (const ACE_DLL_Manager &);
 
