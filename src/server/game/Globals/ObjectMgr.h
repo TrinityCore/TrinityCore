@@ -839,7 +839,7 @@ class ObjectMgr
         time_t GetGORespawnTime(uint32 loguid, uint32 instance)
         {
             ACE_GUARD_RETURN(ACE_Thread_Mutex, guard, m_GORespawnTimesMtx, 0);
-            return mGORespawnTimes[MAKE_PAIR64(loguid,instance)]; }
+            return mGORespawnTimes[MAKE_PAIR64(loguid,instance)];
         }
         void SaveGORespawnTime(uint32 loguid, uint32 instance, time_t t);
         void DeleteRespawnTimeForInstance(uint32 instance);
