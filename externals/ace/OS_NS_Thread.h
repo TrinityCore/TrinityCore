@@ -4,7 +4,7 @@
 /**
  *  @file   OS_NS_Thread.h
  *
- *  $Id: OS_NS_Thread.h 91210 2010-07-26 20:31:30Z shuston $
+ *  $Id: OS_NS_Thread.h 85547 2009-06-07 17:57:11Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -1604,7 +1604,7 @@ namespace ACE_OS {
    * defined, this is the thread-id. For linux-threads, when
    * ACE_HAS_SCHED_SETAFFINITY defined, it expects a process-id. Since for
    * linux-threads a thread is seen as a process, it does the job.
-   * @param cpu_set_size The size of the cpu_mask, in bytes.
+   * @param cpu_set_size The size of the cpu_mask
    * @param cpu_mask Is a bitmask of CPUs to bind to, e.g value 1 binds the
    * thread to the "CPU 0", etc
    */
@@ -1621,7 +1621,7 @@ namespace ACE_OS {
    * defined, this is the thread-id. For linux-threads, when
    * ACE_HAS_SCHED_SETAFFINITY defined, it expects a process-id. Since for
    * linux-threads a thread is seen as a process, it does the job.
-   * @param cpu_set_size The size of the cpu_mask, in bytes.
+   * @param cpu_set_size The size of the cpu_mask
    * @param cpu_mask Is a bitmask of CPUs to bind to, e.g value 1 binds the
    * thread to the "CPU 0", etc
    */

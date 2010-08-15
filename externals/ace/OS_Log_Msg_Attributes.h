@@ -4,7 +4,7 @@
 /**
  *  @file    OS_Log_Msg_Attributes.h
  *
- *  $Id: OS_Log_Msg_Attributes.h 91066 2010-07-12 11:05:04Z johnnyw $
+ *  $Id: OS_Log_Msg_Attributes.h 83729 2008-11-13 15:32:36Z mitza $
  *
  *  @author Carlos O'Ryan
  */
@@ -23,7 +23,6 @@
 #include /**/ "ace/ACE_export.h"
 #include "ace/os_include/os_stdio.h"
 #include "ace/iosfwd.h"
-#include "ace/Copy_Disabled.h"
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -40,7 +39,7 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
  * The contents of the class must be made available to the OS layer,
  * because they are part of the thread descriptor.
  */
-class ACE_Export ACE_OS_Log_Msg_Attributes : private ACE_Copy_Disabled
+class ACE_Export ACE_OS_Log_Msg_Attributes
 {
 public:
   /// Constructor
@@ -66,11 +65,16 @@ protected:
   /// Depth of the nesting for printing traces.
   int trace_depth_;
 
-#if defined (ACE_HAS_WIN32_STRUCTURAL_EXCEPTIONS)
+#   if defined (ACE_HAS_WIN32_STRUCTURAL_EXCEPTIONS)
   /// Structured exception handling Callbacks, only used under Win32
   ACE_SEH_EXCEPT_HANDLER seh_except_selector_;
   ACE_SEH_EXCEPT_HANDLER seh_except_handler_;
-#endif /* ACE_HAS_WIN32_STRUCTURAL_EXCEPTIONS */
+#   endif /* ACE_HAS_WIN32_STRUCTURAL_EXCEPTIONS */
+
+private:
+  // Prevent copying
+  ACE_OS_Log_Msg_Attributes (const ACE_OS_Log_Msg_Attributes &);
+  ACE_OS_Log_Msg_Attributes &operator= (const ACE_OS_Log_Msg_Attributes &);
 };
 
 ACE_END_VERSIONED_NAMESPACE_DECL
