@@ -830,9 +830,17 @@ class ObjectMgr
         void AddCorpseCellData(uint32 mapid, uint32 cellid, uint32 player_guid, uint32 instance);
         void DeleteCorpseCellData(uint32 mapid, uint32 cellid, uint32 player_guid);
 
-        time_t GetCreatureRespawnTime(uint32 loguid, uint32 instance) { return mCreatureRespawnTimes[MAKE_PAIR64(loguid,instance)]; }
+        time_t GetCreatureRespawnTime(uint32 loguid, uint32 instance)
+        { 
+            ACE_GUARD_RETURN(ACE_Thread_Mutex, guard, m_CreatureRespawnTimesMtx, 0);
+            return mCreatureRespawnTimes[MAKE_PAIR64(loguid,instance)];
+        }
         void SaveCreatureRespawnTime(uint32 loguid, uint32 instance, time_t t);
-        time_t GetGORespawnTime(uint32 loguid, uint32 instance) { return mGORespawnTimes[MAKE_PAIR64(loguid,instance)]; }
+        time_t GetGORespawnTime(uint32 loguid, uint32 instance)
+        {
+            ACE_GUARD_RETURN(ACE_Thread_Mutex, guard, m_GORespawnTimesMtx, 0);
+            return mGORespawnTimes[MAKE_PAIR64(loguid,instance)]; }
+        }
         void SaveGORespawnTime(uint32 loguid, uint32 instance, time_t t);
         void DeleteRespawnTimeForInstance(uint32 instance);
 
