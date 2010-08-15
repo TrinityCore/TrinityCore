@@ -2,7 +2,7 @@
 
 ACE_RCSID (ACE_SSL,
            SSL_Asynch_Stream,
-           "$Id: SSL_Asynch_Stream.cpp 84181 2009-01-16 22:37:49Z shuston $")
+           "$Id: SSL_Asynch_Stream.cpp 82574 2008-08-08 19:35:06Z parsons $")
 
 // This only works on platforms with Asynchronous IO support.
 #if OPENSSL_VERSION_NUMBER > 0x0090581fL && ((defined (ACE_WIN32) && !defined (ACE_HAS_WINCE)) || (defined (ACE_HAS_AIO_CALLS)))
@@ -16,10 +16,6 @@ ACE_RCSID (ACE_SSL,
 #include "ace/OS_NS_string.h"
 #include "ace/Proactor.h"
 #include "ace/Truncate.h"
-
-#if !defined(__ACE_INLINE__)
-#include "SSL_Asynch_Stream.inl"
-#endif /* __ACE_INLINE__ */
 
 #include <openssl/err.h>
 
@@ -97,13 +93,13 @@ ACE_SSL_Asynch_Stream::ACE_SSL_Asynch_Stream (
   ACE_SSL_Asynch_Stream::Stream_Type s_type,
   ACE_SSL_Context * context)
   : type_         (s_type),
+    handle_       (ACE_INVALID_HANDLE),
     proactor_     (0),
     ext_handler_  (0),
     ext_read_result_ (0),
     ext_write_result_(0),
     flags_        (0),
     ssl_          (0),
-    handshake_complete_(false),
     bio_          (0),
     bio_istream_  (),
     bio_inp_msg_  (),
@@ -264,7 +260,7 @@ ACE_SSL_Asynch_Stream::open (ACE_Handler & handler,
   // Get a proactor for/from the user.
   this->proactor_    = this->get_proactor (proactor, handler);
   this->ext_handler_ = & handler;
-  this->handle (handle);
+  this->handle_      = handle;
 
   // Open internal input stream
   if (this->bio_istream_.open (*this,   // real callbacks to this
@@ -346,7 +342,7 @@ ACE_SSL_Asynch_Stream::read (ACE_Message_Block & message_block,
   ACE_NEW_RETURN (this->ext_read_result_,
                   ACE_SSL_Asynch_Read_Stream_Result (
                     *this->ext_handler_,
-                    this->handle (),
+                    this->handle_,
                     message_block,
                     bytes_to_read,
                     act,
@@ -389,7 +385,7 @@ ACE_SSL_Asynch_Stream::write (ACE_Message_Block & message_block,
   ACE_NEW_RETURN (this->ext_write_result_,
                   ACE_SSL_Asynch_Write_Stream_Result (
                     *this->ext_handler_,
-                    this->handle (),
+                    this->handle_,
                     message_block,
                     bytes_to_write,
                     act,
@@ -495,18 +491,7 @@ int
 ACE_SSL_Asynch_Stream::do_SSL_handshake (void)
 {
   if (SSL_is_init_finished (this->ssl_))
-    {
-      if (!handshake_complete_)
-        {
-          handshake_complete_ = true;
-
-          if (!post_handshake_check ())
-            {
-              return -1;
-            }
-        }
-      return 1;  
-    }
+    return 1;
 
   if (this->flags_ & SF_REQ_SHUTDOWN)
     return -1;
@@ -554,13 +539,6 @@ ACE_SSL_Asynch_Stream::do_SSL_handshake (void)
     }
 
   return 1;
-}
-
-
-bool
-ACE_SSL_Asynch_Stream::post_handshake_check (void)
-{
-  return true;
 }
 
 // ************************************************************
@@ -790,7 +768,7 @@ ACE_SSL_Asynch_Stream::print_error (int err_ssl,
                                     const ACE_TCHAR * pText)
 {
   ACE_DEBUG ((LM_DEBUG,
-              ACE_TEXT("SSL-error:%d %s\n"),
+              "SSL-error:%d %s\n" ,
               err_ssl,
               pText));
 
@@ -803,7 +781,7 @@ ACE_SSL_Asynch_Stream::print_error (int err_ssl,
     {
       ERR_error_string_n (lerr, buf, sizeof buf);
 
-      ACE_DEBUG ((LM_DEBUG, "%C\n", buf));
+      ACE_DEBUG ((LM_DEBUG, "%s\n", buf));
     }
 #endif  /* OPENSSL_VERSION_NUMBER */
 }

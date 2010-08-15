@@ -4,7 +4,7 @@
 /**
  *  @file    Mem_Map.h
  *
- *  $Id: Mem_Map.h 91066 2010-07-12 11:05:04Z johnnyw $
+ *  $Id: Mem_Map.h 80826 2008-03-04 14:51:23Z wotte $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -22,7 +22,6 @@
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 #include "ace/Global_Macros.h"
-#include "ace/Copy_Disabled.h"
 #include "ace/os_include/sys/os_mman.h"
 #include "ace/os_include/os_limits.h"
 #include "ace/os_include/os_fcntl.h"
@@ -38,7 +37,7 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
  * This class works with both the mmap(2) UNIX system and the
  * Win32 family of memory mapping system calls.
  */
-class ACE_Export ACE_Mem_Map : private ACE_Copy_Disabled
+class ACE_Export ACE_Mem_Map
 {
 public:
   // = Initialization and termination methods.
@@ -129,38 +128,38 @@ public:
   /// file.
   size_t size (void) const;
 
-  /// Unmap the region starting at base_addr_.
+  /// Unmap the region starting at <base_addr_>.
   int unmap (ssize_t len = -1);
 
-  /// Unmap the region starting at addr_.
+  /// Unmap the region starting at <addr_>.
   int unmap (void *addr, ssize_t len);
 
   /**
    * Sync @a len bytes of the memory region to the backing store
-   * starting at base_addr_.  If @a len == -1 then sync the whole
+   * starting at <base_addr_>.  If @a len == -1 then sync the whole
    * region.
    */
   int sync (size_t len, int flags = MS_SYNC);
 
   /**
    * Sync the whole memory region to the backing store
-   * starting at base_addr_.
+   * starting at <base_addr_>.
    */
   int sync (int flags = MS_SYNC);
 
   /// Sync @a len bytes of the memory region to the backing store
-  /// starting at addr_.
+  /// starting at <addr_>.
   int sync (void *addr, size_t len, int flags = MS_SYNC);
 
   /**
    * Change the protection of the pages of the mapped region to @a prot
-   * starting at base_addr_ up to @a len bytes.
+   * starting at <base_addr_> up to @a len bytes.
    */
   int protect (size_t len, int prot = PROT_RDWR);
 
   /**
    * Change the protection of all the pages of the mapped region to @a prot
-   * starting at base_addr_.
+   * starting at <base_addr_>.
    */
   int protect (int prot = PROT_RDWR);
 
@@ -197,6 +196,10 @@ private:
               void *addr = 0,
               ACE_OFF_T offset = 0,
               LPSECURITY_ATTRIBUTES sa = 0);
+
+  // = Disallow copying and assignment.
+  ACE_Mem_Map (const ACE_Mem_Map &);
+  void operator = (const ACE_Mem_Map &);
 
 private:
 

@@ -4,7 +4,7 @@
 /**
  *  @file    Dirent.h
  *
- *  $Id: Dirent.h 91064 2010-07-12 10:11:24Z johnnyw $
+ *  $Id: Dirent.h 84316 2009-02-03 19:46:05Z johnnyw $
  *
  *  Define a portable C++ interface to ACE_OS_Dirent directory-entry
  *  manipulation.
@@ -59,21 +59,21 @@ public:
    * refers, and positions the directory stream at the next entry,
    * except on read-only filesystems.  It returns a NULL pointer upon
    * reaching the end of the directory stream, or upon detecting an
-   * invalid location in the directory.  @c read() shall not return
+   * invalid location in the directory.  <readdir> shall not return
    * directory entries containing empty names.  It is unspecified
    * whether entries are returned for dot or dot-dot.  The pointer
-   * returned by @c read() points to data that may be overwritten by
-   * another call to @c read() on the same directory stream.  This
-   * data shall not be overwritten by another call to @c read() on a
-   * different directory stream.  @c read() may buffer several
-   * directory entries per actual read operation; @c read() marks for
+   * returned by <readdir> points to data that may be overwritten by
+   * another call to <readdir> on the same directory stream.  This
+   * data shall not be overwritten by another call to <readdir> on a
+   * different directory stream.  <readdir> may buffer several
+   * directory entries per actual read operation; <readdir> marks for
    * update the st_atime field of the directory each time the
    * directory is actually read.
    */
   ACE_DIRENT *read (void);
 
   /**
-   * Has the equivalent functionality as @c read() except that an
+   * Has the equivalent functionality as <readdir> except that an
    * @a entry and @a result buffer must be supplied by the caller to
    * store the result.
    */
@@ -86,15 +86,15 @@ public:
   long tell (void);
 
   /**
-   * Sets the position of the next @c read() operation on the
+   * Sets the position of the next <readdir> operation on the
    * directory stream.  The new position reverts to the position
-   * associated with the directory stream at the time the @c tell()
+   * associated with the directory stream at the time the <telldir>
    * operation that provides loc was performed.  Values returned by
-   * @c tell() are good only for the lifetime of the ACE_DIR pointer from
+   * <telldir> are good only for the lifetime of the <ACE_DIR> pointer from
    * which they are derived.  If the directory is closed and then
-   * reopened, the @c telldir() value may be invalidated due to
+   * reopened, the <telldir> value may be invalidated due to
    * undetected directory compaction.  It is safe to use a previous
-   * @c telldir() value immediately after a call to @c opendir() and before
+   * <telldir> value immediately after a call to <opendir> and before
    * any calls to readdir.
    */
   void seek (long loc);
@@ -103,7 +103,7 @@ public:
    * Resets the position of the directory stream to the beginning of
    * the directory.  It also causes the directory stream to refer to
    * the current state of the corresponding directory, as a call to
-   * @c opendir() would.
+   * <opendir> would.
    */
   void rewind (void);
 

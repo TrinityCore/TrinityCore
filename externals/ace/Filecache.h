@@ -4,7 +4,7 @@
 /**
  *  @file    Filecache.h
  *
- *  $Id: Filecache.h 91066 2010-07-12 11:05:04Z johnnyw $
+ *  $Id: Filecache.h 80826 2008-03-04 14:51:23Z wotte $
  *
  *  @author James Hu
  */
@@ -41,8 +41,7 @@ class ACE_Filecache_Object;
 /**
  * @class ACE_Filecache_Handle
  *
- * @brief
- * Abstraction over a real file.  This is meant to be the entry
+ * @brief Abstraction over a real file.  This is meant to be the entry
  * point into the Cached Virtual Filesystem.
  *
  * This is a cached filesystem implementation based loosely on the
@@ -144,7 +143,7 @@ private:
   /// A reference to the low level instance.
   ACE_Filecache_Object *file_;
 
-  /// A dup'd version of the one from file_.
+  /// A <dup>'d version of the one from <file_>.
   ACE_HANDLE handle_;
 
   int mapit_;
@@ -158,8 +157,7 @@ typedef ACE_Hash_Map_Entry<const ACE_TCHAR *, ACE_Filecache_Object *> ACE_Fileca
 /**
  * @class ACE_Filecache
  *
- * @brief
- * A hash table holding the information about entry point into
+ * @brief A hash table holding the information about entry point into
  * the Cached Virtual Filesystem. On insertion, the reference
  * count is incremented. On destruction, reference count is
  * decremented.
@@ -233,8 +231,7 @@ private:
 /**
  * @class ACE_Filecache_Object
  *
- * @brief
- * Abstraction over a real file.  This is what the Virtual
+ * @brief Abstraction over a real file.  This is what the Virtual
  * Filesystem contains.  This class is not intended for general
  * consumption.  Please consult a physician before attempting to
  * use this class.
