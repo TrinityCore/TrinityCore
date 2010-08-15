@@ -6,6 +6,7 @@
 // ------------------------------
 #if !defined (ACE_SSL_EXPORT_H)
 #define ACE_SSL_EXPORT_H
+#define ACE_SSL_BUILD_DLL
 
 #include /**/ "ace/config-all.h"
 
