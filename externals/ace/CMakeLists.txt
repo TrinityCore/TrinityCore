@@ -332,8 +332,6 @@ add_definitions(-DACE_BUILD_DLL)
 
 add_library(ace SHARED ${ace_STAT_SRCS})
 
-if(PCH)
-  add_native_precompiled_header(ace ${CMAKE_SOURCE_DIR}/externals/ace/PrecompiledHeaders/WinAcePCH)
-endif()
+add_native_precompiled_header(ace ${CMAKE_SOURCE_DIR}/externals/ace/PrecompiledHeaders/WinAcePCH)
 
 install(TARGETS ace RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}")
