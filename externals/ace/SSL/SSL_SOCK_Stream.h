@@ -4,7 +4,7 @@
 /**
  *  @file    SSL_SOCK_Stream.h
  *
- *  $Id: SSL_SOCK_Stream.h 91103 2010-07-15 12:36:57Z mcorino $
+ *  $Id: SSL_SOCK_Stream.h 80826 2008-03-04 14:51:23Z wotte $
  *
  *  @author Ossama Othman <ossama@uci.edu>
  *  @author Carlos O'Ryan <coryan@uci.edu>
@@ -207,18 +207,6 @@ public:
                   size_t *bytes_transferred = 0) const;
 
   /**
-   * Try to send exactly len bytes into buf (uses the send() call).
-   * If send() blocks for longer than timeout the number of bytes
-   * actually sent is returned with errno == ETIME.  If a timeout does
-   * not occur, send_n() return len (i.e., the number of bytes
-   * requested to be sent).
-   */
-  ssize_t send_n (const void *buf,
-                  size_t len,
-                  const ACE_Time_Value *timeout,
-                  size_t *bytes_transferred = 0) const;
-
-  /**
    * Try to receive exactly len bytes into buf (uses the recv() call).
    * The ACE_Time_Value indicates how long to blocking trying to
    * receive.  If timeout == 0, the caller will block until action is
@@ -231,21 +219,6 @@ public:
   ssize_t recv_n (void *buf,
                   size_t len,
                   int flags,
-                  const ACE_Time_Value *timeout,
-                  size_t *bytes_transferred = 0) const;
-                  
-  /**
-   * Try to receive exactly len bytes into buf (uses the recv() call).
-   * The ACE_Time_Value indicates how long to blocking trying to
-   * receive.  If timeout == 0, the caller will block until action is
-   * possible, else will wait until the relative time specified in
-   * timeout elapses).  If recv() blocks for longer than timeout the
-   * number of bytes actually read is returned with errno == ETIME.
-   * If a timeout does not occur, recv_n return len (i.e., the number
-   * of bytes requested to be read).
-   */
-  ssize_t recv_n (void *buf,
-                  size_t len,
                   const ACE_Time_Value *timeout,
                   size_t *bytes_transferred = 0) const;
   //@}

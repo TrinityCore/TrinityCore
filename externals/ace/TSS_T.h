@@ -4,7 +4,7 @@
 /**
  *  @file    TSS_T.h
  *
- *  $Id: TSS_T.h 91124 2010-07-19 11:54:35Z vzykov $
+ *  $Id: TSS_T.h 80826 2008-03-04 14:51:23Z wotte $
  *
  *   Moved from Synch.h.
  *
@@ -38,10 +38,6 @@
 #include "ace/Thread_Mutex.h"
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
-#if defined (ACE_HAS_THR_C_DEST)
-class ACE_TSS_Adapter;
-#endif
 
 /**
  * @class ACE_TSS
@@ -197,20 +193,6 @@ protected:
 
   /// "Destructor" that deletes internal TYPE * when thread exits.
   static void cleanup (void *ptr);
-
-  /// Obtains a plain value stored in the thread-specific storage.
-# if defined (ACE_HAS_THR_C_DEST)
-  ACE_TSS_Adapter *ts_value (void) const;
-# else
-  TYPE *ts_value (void) const;
-# endif /* ACE_HAS_THR_C_DEST */
-
-  /// Stores a new plain value in the thread-specific storage.
-# if defined (ACE_HAS_THR_C_DEST)
-  int ts_value (ACE_TSS_Adapter *new_tss_adapter) const;
-# else
-  int ts_value (TYPE *new_ts_obj) const;
-# endif /* ACE_HAS_THR_C_DEST */
 #endif /* defined (ACE_HAS_THREADS) && (defined (ACE_HAS_THREAD_SPECIFIC_STORAGE) || defined (ACE_HAS_TSS_EMULATION)) */
   // = Disallow copying...
   ACE_UNIMPLEMENTED_FUNC (void operator= (const ACE_TSS<TYPE> &))

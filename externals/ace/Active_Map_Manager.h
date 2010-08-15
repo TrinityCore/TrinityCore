@@ -4,7 +4,7 @@
 /**
  *  @file    Active_Map_Manager.h
  *
- *  $Id: Active_Map_Manager.h 91066 2010-07-12 11:05:04Z johnnyw $
+ *  $Id: Active_Map_Manager.h 83956 2008-12-03 07:57:38Z johnnyw $
  *
  *  @author Irfan Pyarali
  */
@@ -95,7 +95,7 @@ private:
     /// Slot index in the active map.
     ACE_UINT32 slot_index_;
 
-    /// Slot generation number of @c slot_index_ slot in the active map.
+    /// Slot generation number of <slot_index_> slot in the active map.
     ACE_UINT32 slot_generation_;
   };
 

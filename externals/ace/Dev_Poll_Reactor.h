@@ -4,7 +4,7 @@
 /**
  *  @file    Dev_Poll_Reactor.h
  *
- *  $Id: Dev_Poll_Reactor.h 91066 2010-07-12 11:05:04Z johnnyw $
+ *  $Id: Dev_Poll_Reactor.h 90177 2010-05-19 11:44:22Z vzykov $
  *
  *  @c /dev/poll (or Linux @c sys_epoll) based Reactor implementation.
  *
@@ -53,6 +53,52 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 class ACE_Sig_Handler;
 class ACE_Dev_Poll_Reactor;
 
+
+// ---------------------------------------------------------------------
+
+#if 0
+/**
+ * @class ACE_Dev_Poll_Ready_Set
+ *
+ * @brief Class that contains the list of "ready" file descriptors.
+ *
+ * This class points to an array of pollfd structures corresponding to
+ * "ready" file descriptors, such as those corresponding to event
+ * handlers that request an additional callback after being initially
+ * dispatched (i.e. return a value greater than zero).
+ * @par
+ * The idea is to store the "ready" set in an existing area of memory
+ * that already contains pollfd instances.  Doing so is safe since the
+ * "ready" set is dispatched before polling for additional events,
+ * thus avoiding being potentially overwritten during the event poll.
+ * @par
+ * When the "ready" set is dispatched, all that needs to be done is to
+ * iterate over the contents of the array.  There is no need to "walk"
+ * the array in search of ready file descriptors since the array by
+ * design only contains ready file descriptors.  As such, this
+ * implementation of a ready set is much more efficient in the
+ * presence of a large number of file descriptors in terms of both
+ * time and space than the one used in the Select_Reactor, for
+ * example.
+ */
+class ACE_Dev_Poll_Ready_Set
+{
+public:
+
+  /// Constructor.
+  ACE_Dev_Poll_Ready_Set (void);
+
+public:
+
+  /// The array containing the pollfd structures corresponding to the
+  /// "ready" file descriptors.
+  struct pollfd *pfds;
+
+  /// The number of "ready" file descriptors in the above array.
+  int nfds;
+
+};
+#endif  /* 0 */
 
 // ---------------------------------------------------------------------
 
@@ -1003,6 +1049,10 @@ protected:
    * done through this file descriptor.
    */
   ACE_HANDLE poll_fd_;
+
+  /// Track HANDLES we are interested in for various events that must
+  /// be dispatched *without* polling.
+  /// ACE_Dev_Poll_Ready_Set ready_set_;
 
 #if defined (ACE_HAS_EVENT_POLL)
   /// Event structure to be filled by epoll_wait. epoll_wait() only gets

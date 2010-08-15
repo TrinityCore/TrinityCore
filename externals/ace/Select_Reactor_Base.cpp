@@ -1,4 +1,4 @@
-// $Id: Select_Reactor_Base.cpp 90989 2010-07-05 11:22:50Z johnnyw $
+// $Id: Select_Reactor_Base.cpp 88832 2010-02-04 09:57:42Z johnnyw $
 
 #include "ace/Select_Reactor_Base.h"
 #include "ace/Reactor.h"
@@ -20,7 +20,7 @@
 
 ACE_RCSID (ace,
            Select_Reactor_Base,
-           "$Id: Select_Reactor_Base.cpp 90989 2010-07-05 11:22:50Z johnnyw $")
+           "$Id: Select_Reactor_Base.cpp 88832 2010-02-04 09:57:42Z johnnyw $")
 
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
@@ -83,7 +83,7 @@ ACE_Select_Reactor_Handler_Repository::handle_in_range (ACE_HANDLE handle)
 }
 
 int
-ACE_Select_Reactor_Handler_Repository::open (size_type size)
+ACE_Select_Reactor_Handler_Repository::open (size_t size)
 {
   ACE_TRACE ("ACE_Select_Reactor_Handler_Repository::open");
 
