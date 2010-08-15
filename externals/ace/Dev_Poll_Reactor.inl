@@ -1,5 +1,6 @@
 // -*- C++ -*-
-// $Id: Dev_Poll_Reactor.inl 91066 2010-07-12 11:05:04Z johnnyw $
+//
+// $Id: Dev_Poll_Reactor.inl 90177 2010-05-19 11:44:22Z vzykov $
 
 #include "ace/Log_Msg.h"
 
@@ -16,6 +17,17 @@ ACE_Dev_Poll_Reactor::Event_Tuple::Event_Tuple (ACE_Event_Handler *eh,
     controlled (is_controlled)
 {
 }
+
+// ---------------------------------------------------------------------
+
+#if 0
+ACE_INLINE
+ACE_Dev_Poll_Ready_Set::ACE_Dev_Poll_Ready_Set (void)
+  : pfds (0),
+    nfds (0)
+{
+}
+#endif  /* 0 */
 
 // ---------------------------------------------------------------------
 

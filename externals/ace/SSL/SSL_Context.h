@@ -4,7 +4,7 @@
 /**
  *  @file    SSL_Context.h
  *
- *  $Id: SSL_Context.h 83916 2008-11-28 16:32:21Z johnnyw $
+ *  $Id: SSL_Context.h 80826 2008-03-04 14:51:23Z wotte $
  *
  *  @author Carlos O'Ryan <coryan@ece.uci.edu>
  *  @author Ossama Othman <ossama@dre.vanderbilt.edu>
@@ -264,6 +264,7 @@ public:
    */
   void set_verify_peer (int strict = 0, int once = 1, int depth = 0);
 
+
   /// TODO: a implementation that will lookup the CTX table for the list
   /// of files and paths etc.
   /// Query the location of trusted certification authority
@@ -278,14 +279,6 @@ public:
    */
   void default_verify_mode (int mode);
   int default_verify_mode (void) const;
-
-  /**
-   * Set and query the default verify callback for this context, it is
-   * inherited by all the ACE_SSL objects created using the context.
-   * It can be overriden on a per-ACE_SSL object.
-   */
-  void default_verify_callback (int (*callback) (int, X509_STORE_CTX *));
-  int (*default_verify_callback(void) const) (int,X509_STORE_CTX *);
 
   /**
    * @name OpenSSL Random Number Generator Seed Related Methods
@@ -361,16 +354,13 @@ private:
   /// Cache the mode so we can answer fast
   int mode_;
 
-  /// The private key, certificate, and Diffie-Hellman parameters files
+  /// The private key, certificate, and Diffie-Hellman paramters files
   ACE_SSL_Data_File private_key_;
   ACE_SSL_Data_File certificate_;
   ACE_SSL_Data_File dh_params_;
 
   /// The default verify mode.
   int default_verify_mode_;
-
-  /// The default verify callback.
-  int (*default_verify_callback_)(int, X509_STORE_CTX *);
 
   /// count of successful CA load attempts
   int have_ca_;

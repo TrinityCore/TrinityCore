@@ -4,7 +4,7 @@
 /**
  *  @file    Log_Msg_Callback.h
  *
- *  $Id: Log_Msg_Callback.h 91064 2010-07-12 10:11:24Z johnnyw $
+ *  $Id: Log_Msg_Callback.h 80826 2008-03-04 14:51:23Z wotte $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -35,7 +35,7 @@ class ACE_Log_Record;
  *     Log_Msg class and make sure that they turn on the
  *     ACE_Log_Msg::MSG_CALLBACK flag.
  *
- *     Your log() routine is called with an instance of
+ *     Your <log> routine is called with an instance of
  *     ACE_Log_Record.  From this class, you can get the log
  *     message, the verbose log message, message type, message
  *     priority, and so on.
@@ -43,9 +43,9 @@ class ACE_Log_Record;
  *     Remember that there is one Log_Msg object per thread.
  *     Therefore, you may need to register your callback object with
  *     many ACE_Log_Msg objects (and have the correct
- *     synchronization in the log() method) or have a separate
+ *     synchronization in the <log> method) or have a separate
  *     callback object per Log_Msg object.  Moreover,
- *     ACE_Log_Msg_Callbacks are not inherited when a new thread
+ *     <ACE_Log_Msg_Callbacks> are not inherited when a new thread
  *     is spawned because it might have been allocated off of the
  *     stack of the original thread, in which case all hell would
  *     break loose...  Therefore, you'll need to reset these in each

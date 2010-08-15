@@ -4,7 +4,7 @@
 /**
  *  @file    Stream.h
  *
- *  $Id: Stream.h 91058 2010-07-12 08:20:09Z johnnyw $
+ *  $Id: Stream.h 84477 2009-02-16 13:30:38Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@uci.edu>
  */
@@ -37,8 +37,8 @@ class ACE_Time_Value;
  * @brief This class is the primary abstraction for the ASX framework.
  * It is moduled after System V Stream.
  *
- * A Stream consists of a stack of @c ACE_Modules, each of which
- * contains two @c ACE_Tasks.  Even though the methods in this
+ * A Stream consists of a stack of <ACE_Modules>, each of which
+ * contains two <ACE_Tasks>.  Even though the methods in this
  * class are virtual, this class isn't really intended for
  * subclassing unless you know what you are doing.  In
  * particular, the ACE_Stream destructor calls <close>, which
@@ -53,7 +53,7 @@ public:
 
   enum
   {
-    /// Indicates that @c close() deletes the Tasks.  Don't change this
+    /// Indicates that <close> deletes the Tasks.  Don't change this
     /// value without updating the same enum in class ACE_Module...
     M_DELETE = 3
   };
@@ -88,7 +88,7 @@ public:
   // = ACE_Stream plumbing operations
 
   /// Add a new module @a mod right below the Stream head.  The
-  /// @c open() hook methods of the @c ACE_Tasks in this ACE_Module
+  /// <open()> hook methods of the <ACE_Tasks> in this ACE_Module
   /// are invoked to initialize the tasks.
   virtual int push (ACE_Module<ACE_SYNCH_USE> *mod);
 
@@ -101,7 +101,7 @@ public:
   /// head).
   virtual int top (ACE_Module<ACE_SYNCH_USE> *&mod);
 
-  /// Insert a new module @a mod below the named module @a prev_name.
+  /// Insert a new module @a mod below the named module <prev_name>.
   virtual int insert (const ACE_TCHAR *prev_name,
                       ACE_Module<ACE_SYNCH_USE> *mod);
 
@@ -111,7 +111,7 @@ public:
                        int flags = M_DELETE);
 
   /// Remove the named module @a mod from the stream.  This bypasses the
-  /// strict LIFO ordering of @c push and @c pop.
+  /// strict LIFO ordering of <push> and <pop>.
   virtual int remove (const ACE_TCHAR *mod,
                       int flags = M_DELETE);
 
@@ -218,7 +218,7 @@ public:
   int advance (void);
 
 private:
-  /// Next ACE_Module that we haven't yet seen.
+  /// Next <Module> that we haven't yet seen.
   ACE_Module<ACE_SYNCH_USE> *next_;
 };
 

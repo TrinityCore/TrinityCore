@@ -1,4 +1,4 @@
-// $Id: TSS_T.cpp 91136 2010-07-20 08:56:37Z vzykov $
+// $Id: TSS_T.cpp 84282 2009-01-30 15:04:29Z msmit $
 
 #ifndef ACE_TSS_T_CPP
 #define ACE_TSS_T_CPP
@@ -26,28 +26,12 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 ACE_ALLOC_HOOK_DEFINE(ACE_TSS)
 
-#if defined (ACE_HAS_THREADS) && (defined (ACE_HAS_THREAD_SPECIFIC_STORAGE) || defined (ACE_HAS_TSS_EMULATION))
-# if defined (ACE_HAS_THR_C_DEST)
-extern "C" void ACE_TSS_C_cleanup (void *); // defined in Synch.cpp
-# endif /* ACE_HAS_THR_C_DEST */
-#endif /* defined (ACE_HAS_THREADS) && (defined (ACE_HAS_THREAD_SPECIFIC_STORAGE) || defined (ACE_HAS_TSS_EMULATION)) */
-
 template <class TYPE>
 ACE_TSS<TYPE>::~ACE_TSS (void)
 {
 #if defined (ACE_HAS_THREADS) && (defined (ACE_HAS_THREAD_SPECIFIC_STORAGE) || defined (ACE_HAS_TSS_EMULATION))
   if (this->once_)
   {
-# if defined (ACE_HAS_THR_C_DEST)
-    ACE_TSS_Adapter *tss_adapter = this->ts_value ();
-    this->ts_value (0);
-    ACE_TSS_C_cleanup (tss_adapter);
-# else
-    TYPE *ts_obj = this->ts_value ();
-    this->ts_value (0);
-    ACE_TSS<TYPE>::cleanup (ts_obj);
-# endif /* ACE_HAS_THR_C_DEST */
-
     ACE_OS::thr_key_detach (this->key_, this);
     ACE_OS::thr_keyfree (this->key_);
   }
@@ -95,6 +79,9 @@ ACE_TSS<TYPE>::dump (void) const
 }
 
 #if defined (ACE_HAS_THREADS) && (defined (ACE_HAS_THREAD_SPECIFIC_STORAGE) || defined (ACE_HAS_TSS_EMULATION))
+#if defined (ACE_HAS_THR_C_DEST)
+extern "C" void ACE_TSS_C_cleanup (void *); // defined in Synch.cpp
+#endif /* ACE_HAS_THR_C_DEST */
 
 template <class TYPE> void
 ACE_TSS<TYPE>::cleanup (void *ptr)
@@ -171,12 +158,20 @@ ACE_TSS<TYPE>::ACE_TSS (TYPE *ts_obj)
                                 ACE_TSS<TYPE>::cleanup));
 
       // Put the adapter in thread specific storage
-      if (this->ts_value (tss_adapter) == -1)
+      if (ACE_Thread::setspecific (this->key_,
+                                   (void *) tss_adapter) != 0)
         {
           delete tss_adapter;
+          ACE_ERROR ((LM_ERROR,
+                      ACE_TEXT ("%p\n"),
+                      ACE_TEXT ("ACE_Thread::setspecific() failed!")));
         }
 #else
-      this->ts_value (ts_obj);
+      if (ACE_Thread::setspecific (this->key_,
+                                   (void *) ts_obj) != 0)
+        ACE_ERROR ((LM_ERROR,
+                    ACE_TEXT ("%p\n"),
+                    ACE_TEXT ("ACE_Thread::setspecific() failed!")));
 #endif /* ACE_HAS_THR_C_DEST */
     }
 }
@@ -195,21 +190,23 @@ ACE_TSS<TYPE>::ts_get (void) const
   TYPE *ts_obj = 0;
 
 #if defined (ACE_HAS_THR_C_DEST)
-  ACE_TSS_Adapter *tss_adapter = this->ts_value ();
-  ACE_TSS_Adapter *fake_tss_adapter = 0;
+  ACE_TSS_Adapter *tss_adapter = 0;
 
-  // If tss_adapter is not 0 but its ts_obj_ is 0 then we still need to create
-  // a proper ts_obj. That's the intent of this member function.
-  if (tss_adapter != 0 && tss_adapter->ts_obj_ == 0)
-    {
-      fake_tss_adapter = tss_adapter;
-      tss_adapter = 0;
-    }
+  // Get the adapter from thread-specific storage
+  void *temp = tss_adapter; // Need this temp to keep G++ from complaining.
+  if (ACE_Thread::getspecific (this->key_, &temp) == -1)
+    return 0; // This should not happen!
+  tss_adapter = static_cast <ACE_TSS_Adapter *> (temp);
 
   // Check to see if this is the first time in for this thread.
   if (tss_adapter == 0)
 #else
-  ts_obj = this->ts_value ();
+  // Get the ts_obj from thread-specific storage.  Note that no locks
+  // are required here...
+  void *temp = ts_obj; // Need this temp to keep G++ from complaining.
+  if (ACE_Thread::getspecific (this->key_, &temp) == -1)
+    return 0; // This should not happen!
+  ts_obj = static_cast <TYPE *> (temp);
 
   // Check to see if this is the first time in for this thread.
   if (ts_obj == 0)
@@ -231,7 +228,8 @@ ACE_TSS<TYPE>::ts_get (void) const
                                        ACE_TSS<TYPE>::cleanup), 0);
 
       // Put the adapter in thread specific storage
-      if (this->ts_value (tss_adapter) == -1)
+      if (ACE_Thread::setspecific (this->key_,
+                                   (void *) tss_adapter) != 0)
         {
           delete tss_adapter;
           delete ts_obj;
@@ -240,7 +238,8 @@ ACE_TSS<TYPE>::ts_get (void) const
 #else
       // Store the dynamically allocated pointer in thread-specific
       // storage.
-      if (this->ts_value (ts_obj) == -1)
+      if (ACE_Thread::setspecific (this->key_,
+                                   (void *) ts_obj) != 0)
         {
           delete ts_obj;
           return 0; // Major problems, this should *never* happen!
@@ -249,8 +248,6 @@ ACE_TSS<TYPE>::ts_get (void) const
     }
 
 #if defined (ACE_HAS_THR_C_DEST)
-  // Delete the adapter that didn't actually have a real ts_obj.
-  delete fake_tss_adapter;
   // Return the underlying ts object.
   return static_cast <TYPE *> (tss_adapter->ts_obj_);
 #else
@@ -271,15 +268,28 @@ ACE_TSS<TYPE>::ts_object (void) const
   TYPE *ts_obj = 0;
 
 #if defined (ACE_HAS_THR_C_DEST)
-  ACE_TSS_Adapter *tss_adapter = this->ts_value ();
+  ACE_TSS_Adapter *tss_adapter = 0;
 
-  if (tss_adapter != 0)
+  // Get the tss adapter from thread-specific storage
+  void *temp = tss_adapter; // Need this temp to keep G++ from complaining.
+  if (ACE_Thread::getspecific (this->key_, &temp) == -1)
     {
-      // Extract the real TS object.
-      ts_obj = static_cast <TYPE *> (tss_adapter->ts_obj_);
+      return 0; // This should not happen!
+    }
+  else
+    {
+      tss_adapter = static_cast <ACE_TSS_Adapter *> (temp);
+      {
+        if (tss_adapter != 0)
+            // Extract the real TS object.
+            ts_obj = static_cast <TYPE *> (tss_adapter->ts_obj_);
+      }
     }
 #else
-  ts_obj = this->ts_value ();
+  void *temp = ts_obj; // Need this temp to keep G++ from complaining.
+  if (ACE_Thread::getspecific (this->key_, &temp) == -1)
+    return 0; // This should not happen!
+  ts_obj = static_cast <TYPE *> (temp);
 #endif /* ACE_HAS_THR_C_DEST */
 
   return ts_obj;
@@ -301,33 +311,37 @@ ACE_TSS<TYPE>::ts_object (TYPE *new_ts_obj)
   TYPE *ts_obj = 0;
 
 #if defined (ACE_HAS_THR_C_DEST)
-  ACE_TSS_Adapter *tss_adapter = this->ts_value ();
+  ACE_TSS_Adapter *tss_adapter = 0;
+
+  void *temp = tss_adapter; // Need this temp to keep G++ from complaining.
+  if (ACE_Thread::getspecific (this->key_, &temp) == -1)
+    return 0; // This should not happen!
+  tss_adapter = static_cast <ACE_TSS_Adapter *> (temp);
 
   if (tss_adapter != 0)
     {
       ts_obj = static_cast <TYPE *> (tss_adapter->ts_obj_);
-      // Don't delete tss_adapter yet. It can be double-deleted
-      // in case setspecific below fails.
+      delete tss_adapter;       // don't need this anymore
     }
 
-  ACE_TSS_Adapter *new_tss_adapter = 0;
-  ACE_NEW_RETURN (new_tss_adapter,
+  ACE_NEW_RETURN (tss_adapter,
                   ACE_TSS_Adapter ((void *) new_ts_obj,
                                    ACE_TSS<TYPE>::cleanup),
                   0);
 
-  if (this->ts_value (new_tss_adapter) == -1)
+  if (ACE_Thread::setspecific (this->key_,
+                               (void *) tss_adapter) == -1)
     {
-      delete new_tss_adapter;
-    }
-  else
-    {
-      // Now it's fine to delete the old tss_adapter.
       delete tss_adapter;
+      return ts_obj; // This should not happen!
     }
 #else
-  ts_obj = this->ts_value ();
-  this->ts_value (new_ts_obj);
+  void *temp = ts_obj; // Need this temp to keep G++ from complaining.
+  if (ACE_Thread::getspecific (this->key_, &temp) == -1)
+    return 0; // This should not happen!
+  ts_obj = static_cast <TYPE *> (temp);
+  if (ACE_Thread::setspecific (this->key_, (void *) new_ts_obj) == -1)
+    return ts_obj; // This should not happen!
 #endif /* ACE_HAS_THR_C_DEST */
 
   return ts_obj;
