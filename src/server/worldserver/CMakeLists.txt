@@ -31,9 +31,6 @@ if( WIN32 )
 endif()
 
 include_directories(
-  ${ACE_INCLUDE_DIR}
-  ${MYSQL_INCLUDE_DIR}
-  ${OPENSSL_INCLUDE_DIR}
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/externals/gsoap
   ${CMAKE_SOURCE_DIR}/externals/sockets/include
@@ -126,6 +123,9 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/worldserver/RemoteAccess
   ${CMAKE_SOURCE_DIR}/src/server/worldserver/TCSoap
   ${CMAKE_SOURCE_DIR}/src/server/worldserver/WorldThread
+  ${ACE_INCLUDE_DIR}
+  ${MYSQL_INCLUDE_DIR}
+  ${OPENSSL_INCLUDE_DIR}
 )
 
 set(worldserver_LINK_FLAGS "")

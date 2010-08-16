@@ -13,9 +13,10 @@
 #include <stdio.h>
 #include <tchar.h>
 #define _NO_CVCONST_H
-#include "revision.h"
 #include <dbghelp.h>
 #include "WheatyExceptionReport.h"
+#include "SystemConfig.h"
+#include "revision.h"
 #define CrashFolder _T("Crashes")
 #pragma comment(linker, "/DEFAULTLIB:dbghelp.lib")
 

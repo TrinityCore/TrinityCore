@@ -51,7 +51,6 @@ endif()
 message("-- Added Script Library to SCRIPTS lib")
 
 include_directories(
-  ${ACE_INCLUDE_DIR}
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/externals/mersennetwister
   ${CMAKE_SOURCE_DIR}/externals/zlib
@@ -136,6 +135,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Weather
   ${CMAKE_SOURCE_DIR}/src/server/game/World
   ${CMAKE_SOURCE_DIR}/src/server/scripts/PrecompiledHeaders
+  ${ACE_INCLUDE_DIR}
   ${MYSQL_INCLUDE_DIR}
 )
 
