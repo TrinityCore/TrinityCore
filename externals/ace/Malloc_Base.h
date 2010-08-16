@@ -4,7 +4,7 @@
 /**
  *  @file    Malloc_Base.h
  *
- *  $Id: Malloc_Base.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Malloc_Base.h 91058 2010-07-12 08:20:09Z johnnyw $
  *
  *  @author Doug Schmidt and Irfan Pyarali
  */
@@ -73,7 +73,7 @@ public:
                         size_type elem_size,
                         char initial_value = '\0') = 0;
 
-  /// Free <ptr> (must have been allocated by <ACE_Allocator::malloc>).
+  /// Free @a ptr (must have been allocated by ACE_Allocator::malloc()).
   virtual void free (void *ptr) = 0;
 
   /// Remove any resources associated with this memory manager.

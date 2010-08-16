@@ -4,7 +4,7 @@
 /**
  *  @file    Cached_Connect_Strategy_T.h
  *
- *  $Id: Cached_Connect_Strategy_T.h 82771 2008-09-17 18:47:48Z johnnyw $
+ *  $Id: Cached_Connect_Strategy_T.h 91077 2010-07-13 14:33:08Z johnnyw $
  *
  *  @author Kirthika Parameswaran <kirthika@cs.wustl.edu>
  */
@@ -116,12 +116,12 @@ protected:
   /// Add to cache (non-locking version).
   virtual int cache_i (const void *recycling_act);
 
-  /// Get/Set <recycle_state> (non-locking version).
+  /// Get/Set recycle_state (non-locking version).
   virtual int recycle_state_i (const void *recycling_act,
                                ACE_Recyclable_State new_state);
   virtual ACE_Recyclable_State recycle_state_i (const void *recycling_act) const;
 
-  /// Cleanup hint and reset <*act_holder> to zero if <act_holder != 0>.
+  /// Cleanup hint and reset @c *act_holder to zero if @a act_holder != 0.
   virtual int cleanup_hint_i (const void *recycling_act,
                               void **act_holder);
 
@@ -184,19 +184,20 @@ protected:
 /**
  * @class ACE_Bounded_Cached_Connect_Strategy
  *
- * @brief A connection strategy which caches connections to peers
- *     (represented by SVC_HANDLER instances), thereby allowing
- *     subsequent re-use of unused, but available, connections.
- *     This strategy should be used when the cache is bounded by
- *     maximum size.
+ * @brief
+ * A connection strategy which caches connections to peers
+ * (represented by SVC_HANDLER instances), thereby allowing
+ * subsequent re-use of unused, but available, connections.
+ * This strategy should be used when the cache is bounded by
+ * maximum size.
  *
- *       <Bounded_Cached_Connect_Strategy> is intended to be used as a
- *     plug-in connection strategy for ACE_Strategy_Connector.
- *     It's added value is re-use of established connections and
- *     tweaking the role of the cache as per the caching strategy.
- *     Thanks to Edan Ayal  <edana@bandwiz.com> for contributing this
- *     class and Susan Liebeskind  <shl@janis.gtri.gatech.edu> for
- *     brainstorming about it.
+ * Bounded_Cached_Connect_Strategy is intended to be used as a
+ * plug-in connection strategy for ACE_Strategy_Connector.
+ * It's added value is re-use of established connections and
+ * tweaking the role of the cache as per the caching strategy.
+ * Thanks to Edan Ayal  <edana@bandwiz.com> for contributing this
+ * class and Susan Liebeskind  <shl@janis.gtri.gatech.edu> for
+ * brainstorming about it.
  */
 template <class SVC_HANDLER, ACE_PEER_CONNECTOR_1,
           class CACHING_STRATEGY, class ATTRIBUTES,
@@ -244,7 +245,7 @@ protected:
 
 protected:
 
-  /// max items in the cache, used as a bound for the creation of svc_handlers.
+  /// Max items in the cache, used as a bound for the creation of svc_handlers.
   size_t  max_size_;
 };
 

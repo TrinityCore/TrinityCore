@@ -4,7 +4,7 @@
 /**
  *  @file    Recursive_Thread_Mutex.h
  *
- *  $Id: Recursive_Thread_Mutex.h 89121 2010-02-22 14:48:31Z schmidt $
+ *  $Id: Recursive_Thread_Mutex.h 91066 2010-07-12 11:05:04Z johnnyw $
  *
  *   Moved from Synch.h.
  *
@@ -90,14 +90,14 @@ public:
 
   /**
    * Acquire mutex ownership.  This calls <acquire> and is only
-   * here to make the <ACE_Recusive_Thread_Mutex> interface consistent
+   * here to make the ACE_Recusive_Thread_Mutex interface consistent
    * with the other synchronization APIs.
    */
   int acquire_read (void);
 
   /**
    * Acquire mutex ownership.  This calls <acquire> and is only
-   * here to make the <ACE_Recusive_Thread_Mutex> interface consistent
+   * here to make the ACE_Recusive_Thread_Mutex interface consistent
    * with the other synchronization APIs.
    */
   int acquire_write (void);
@@ -105,7 +105,7 @@ public:
   /**
    * Conditionally acquire mutex (i.e., won't block).  This calls
    * <tryacquire> and is only here to make the
-   * <ACE_Recusive_Thread_Mutex> interface consistent with the other
+   * ACE_Recusive_Thread_Mutex interface consistent with the other
    * synchronization APIs.  Returns -1 on failure.  If we "failed"
    * because someone else already had the lock, @c errno is set to
    * @c EBUSY.
@@ -115,7 +115,7 @@ public:
   /**
    * Conditionally acquire mutex (i.e., won't block).  This calls
    * <tryacquire> and is only here to make the
-   * <ACE_Recusive_Thread_Mutex> interface consistent with the other
+   * ACE_Recusive_Thread_Mutex interface consistent with the other
    * synchronization APIs.  Returns -1 on failure.  If we "failed"
    * because someone else already had the lock, @c errno is set to
    * @c EBUSY.
