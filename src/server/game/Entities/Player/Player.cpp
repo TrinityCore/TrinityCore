@@ -16289,6 +16289,7 @@ bool Player::LoadFromDB(uint32 guid, SqlQueryHolder *holder)
 
     // load skills after InitStatsForLevel because it triggering aura apply also
     _LoadSkills(holder->GetResult(PLAYER_LOGIN_QUERY_LOADSKILLS));
+    UpdateSkillsForLevel (); //update skills after load, to make sure they are correctly update at player load
 
     // apply original stats mods before spell loading or item equipment that call before equip _RemoveStatsMods()
 
