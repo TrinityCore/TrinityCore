@@ -24,7 +24,15 @@ if( SCRIPTPCH )
   )
 endif()
 
+if( SCRIPTPCH AND MSVC )
+  set(scripts_STAT_SRCS
+    PrecompiledHeaders/ScriptPCH.cpp
+    PrecompiledHeaders/ScriptPCH.h
+  )
+endif()
+
 set(scripts_STAT_SRCS
+  ${scripts_STAT_SRCS}
   ${scripts_easternkingdoms}
   ${scripts_kalimdor}
   ${scripts_northrend}
@@ -39,14 +47,6 @@ set(scripts_STAT_SRCS
   ../game/AI/ScriptedAI/ScriptedGuardAI.cpp
   ../game/AI/ScriptedAI/ScriptedSimpleAI.cpp
 )
-
-if(MSVC)
-  set(scripts_STAT_SRCS
-    ${scripts_STAT_SRCS}
-    PrecompiledHeaders/ScriptPCH.cpp
-    PrecompiledHeaders/ScriptPCH.h
-  )
-endif()
 
 message("-- Added Script Library to SCRIPTS lib")
 
@@ -146,8 +146,8 @@ add_dependencies(scripts genrev)
 # Generate precompiled header
 if( SCRIPTPCH )
   if(CMAKE_COMPILER_IS_GNUCXX)
-    add_precompiled_header(scripts ${CMAKE_SOURCE_DIR}/src/server/scripts/PrecompiledHeaders/ScriptPCH.h)
+    add_precompiled_header(scripts ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/ScriptPCH.h)
   elseif(MSVC)
-    add_native_precompiled_header(scripts ${CMAKE_SOURCE_DIR}/src/server/scripts/PrecompiledHeaders/ScriptPCH)
+    add_native_precompiled_header(scripts ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/ScriptPCH)
   endif()
 endif()

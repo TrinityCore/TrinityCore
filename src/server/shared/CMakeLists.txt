@@ -8,6 +8,10 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+if( GAMEPCH )
+  include_directories(${CMAKE_CURRENT_BINARY_DIR})
+endif()
+
 file(GLOB_RECURSE sources_Configuration Configuration/*.cpp Configuration/*.h)
 file(GLOB_RECURSE sources_Cryptography Cryptography/*.cpp Cryptography/*.h)
 file(GLOB_RECURSE sources_Database Database/*.cpp Database/*.h)
@@ -24,7 +28,15 @@ file(GLOB sources_localdir *.cpp *.h)
 # Build shared sourcelist
 #
 
+if( GAMEPCH AND MSVC )
+  set(shared_STAT_SRCS
+    PrecompiledHeaders/sharedPCH.cpp
+    PrecompiledHeaders/sharedPCH.h
+  )
+endif()
+
 set(shared_STAT_SRCS
+  ${shared_STAT_SRCS}
   ${sources_Configuration}
   ${sources_Cryptography}
   ${sources_Database}
@@ -62,7 +74,6 @@ include_directories(
   ${OPENSSL_INCLUDE_DIR}
 )
 
-
 add_library(shared STATIC ${shared_STAT_SRCS})
 
 add_dependencies(shared genrev)
@@ -76,3 +87,13 @@ else()
     ${ACE_LIBRARY}
   )
 endif()
+
+# Generate precompiled header
+if( GAMEPCH )
+  if(CMAKE_COMPILER_IS_GNUCXX)
+    add_precompiled_header(shared ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/sharedPCH.h)
+  elseif(MSVC)
+    add_native_precompiled_header(shared ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/sharedPCH)
+  endif()
+endif()
+

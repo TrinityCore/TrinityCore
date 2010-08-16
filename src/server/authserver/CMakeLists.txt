@@ -15,7 +15,19 @@ file(GLOB_RECURSE sources_realms Realms/*.cpp Realms/*.h)
 file(GLOB_RECURSE sources_server Server/*.cpp Server/*.h)
 file(GLOB sources_localdir *.cpp *.h)
 
+if( GAMEPCH )
+  include_directories(${CMAKE_CURRENT_BINARY_DIR})
+endif()
+
+if ( GAMEPCH AND MSVC )
+  set(authserver_SRCS
+    PrecompiledHeaders/authPCH.cpp
+    PrecompiledHeaders/authPCH.h
+  )
+endif()
+
 set(authserver_SRCS
+  ${authserver_SRCS}
   ${sources_authentication}
   ${sources_realms}
   ${sources_server}
@@ -102,3 +114,13 @@ elseif( WIN32 )
   install(TARGETS authserver DESTINATION "${CMAKE_INSTALL_PREFIX}")
   install(FILES authserver.conf.dist DESTINATION "${CMAKE_INSTALL_PREFIX}")
 endif()
+
+# Generate precompiled header
+if( GAMEPCH )
+  if(CMAKE_COMPILER_IS_GNUCXX)
+    add_precompiled_header(authserver ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/authPCH.h)
+  elseif(MSVC)
+    add_native_precompiled_header(authserver ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/authPCH)
+  endif()
+endif()
+
