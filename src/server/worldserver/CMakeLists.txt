@@ -14,7 +14,19 @@ file(GLOB_RECURSE sources_TCSoap TCSoap/*.cpp TCSoap/*.h)
 file(GLOB_RECURSE sources_WorldThread WorldThread/*.cpp WorldThread/*.h)
 file(GLOB sources_localdir *.cpp *.h)
 
+if( GAMEPCH )
+  include_directories(${CMAKE_CURRENT_BINARY_DIR})
+endif()
+
+if ( GAMEPCH AND MSVC )
+  set(worldserver_SRCS
+    PrecompiledHeaders/worldPCH.cpp
+    PrecompiledHeaders/worldPCH.h
+  )
+endif()
+
 set(worldserver_SRCS
+  ${worldserver_SRCS}
   ${sources_CommandLine}
   ${sources_RemoteAccess}
   ${sources_TCSoap}
@@ -205,4 +217,13 @@ if( UNIX )
 elseif( WIN32 )
   install(TARGETS worldserver DESTINATION "${CMAKE_INSTALL_PREFIX}")
   install(FILES worldserver.conf.dist DESTINATION "${CMAKE_INSTALL_PREFIX}")
+endif()
+
+# Generate precompiled header
+if( GAMEPCH )
+  if(CMAKE_COMPILER_IS_GNUCXX)
+    add_precompiled_header(worldserver ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/worldPCH.h)
+  elseif(MSVC)
+    add_native_precompiled_header(worldserver ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/worldPCH)
+  endif()
 endif()
