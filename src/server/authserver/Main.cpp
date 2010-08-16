@@ -22,14 +22,13 @@
 /// @{
 /// \file
 
-#include "revision.h"
-
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
 #include "Database/PreparedStatements.h"
 
 #include "Configuration/Config.h"
 #include "Log.h"
+#include "SystemConfig.h"
 #include "Util.h"
 #include "SignalHandler.h"
 #include "RealmList.h"
