@@ -6,7 +6,7 @@
  *
  *  system error numbers
  *
- *  $Id: os_errno.h 85122 2009-04-20 16:34:19Z johnnyw $
+ *  $Id: os_errno.h 91076 2010-07-13 14:20:35Z johnnyw $
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -41,6 +41,121 @@ extern "C"
 
 #if defined (ACE_WIN32)
    // error code mapping for windows
+
+   // VC++ 10 has these error codes defined in errno.h,
+   // this will cause different errors in ACE.
+   // So we undef these error codes if they are wrongly defined
+#   if defined (EWOULDBLOCK) && (EWOULDBLOCK != WSAEWOULDBLOCK)
+#     undef EWOULDBLOCK
+#   endif /* EWOULDBLOCK */
+#   if defined (EINPROGRESS) && (EINPROGRESS != WSAEINPROGRESS)
+#     undef EINPROGRESS
+#   endif /* EINPROGRESS */
+#   if defined (EALREADY) && (EALREADY != WSAEALREADY)
+#     undef EALREADY
+#   endif /* EALREADY */
+#   if defined (ENOTSOCK) && (ENOTSOCK != WSAENOTSOCK)
+#     undef ENOTSOCK
+#   endif /* ENOTSOCK */
+#   if defined (EDESTADDRREQ) && (EDESTADDRREQ != WSAEDESTADDRREQ)
+#     undef EDESTADDRREQ
+#   endif /* EDESTADDRREQ */
+#   if defined (EMSGSIZE) && (EMSGSIZE != WSAEMSGSIZE)
+#     undef EMSGSIZE
+#   endif /* EMSGSIZE */
+#   if defined (EPROTOTYPE) && (EPROTOTYPE != WSAEPROTOTYPE)
+#     undef EPROTOTYPE
+#   endif /* EPROTOTYPE */
+#   if defined (ENOPROTOOPT) && (ENOPROTOOPT != WSAENOPROTOOPT)
+#     undef ENOPROTOOPT
+#   endif /* ENOPROTOOPT */
+#   if defined (EPROTONOSUPPORT) && (EPROTONOSUPPORT != WSAEPROTONOSUPPORT)
+#     undef EPROTONOSUPPORT
+#   endif /* EPROTONOSUPPORT */
+#   if defined (ESOCKTNOSUPPORT) && (ESOCKTNOSUPPORT != WSAESOCKTNOSUPPORT)
+#     undef ESOCKTNOSUPPORT
+#   endif /* ESOCKTNOSUPPORT */
+#   if defined (EOPNOTSUPP) && (EOPNOTSUPP != WSAEOPNOTSUPP)
+#     undef EOPNOTSUPP
+#   endif /* EOPNOTSUPP */
+#   if defined (EPFNOSUPPORT) && (EPFNOSUPPORT != WSAEPFNOSUPPORT)
+#     undef EPFNOSUPPORT
+#   endif /* EPFNOSUPPORT */
+#   if defined (EAFNOSUPPORT) && (EAFNOSUPPORT != WSAEAFNOSUPPORT)
+#     undef EAFNOSUPPORT
+#   endif /* EAFNOSUPPORT */
+#   if defined (EADDRINUSE) && (EADDRINUSE != WSAEADDRINUSE)
+#     undef EADDRINUSE
+#   endif /* EADDRINUSE */
+#   if defined (EADDRNOTAVAIL) && (EADDRNOTAVAIL != WSAEADDRNOTAVAIL)
+#     undef EADDRNOTAVAIL
+#   endif /* EADDRNOTAVAIL */
+#   if defined (ENETDOWN) && (ENETDOWN != WSAENETDOWN)
+#     undef ENETDOWN
+#   endif /* ENETDOWN */
+#   if defined (ENETUNREACH) && (ENETUNREACH != WSAENETUNREACH)
+#     undef ENETUNREACH
+#   endif /* ENETUNREACH */
+#   if defined (ENETRESET) && (ENETRESET != WSAENETRESET)
+#     undef ENETRESET
+#   endif /* ENETRESET */
+#   if defined (ECONNABORTED) && (ECONNABORTED != WSAECONNABORTED)
+#     undef ECONNABORTED
+#   endif /* ECONNABORTED */
+#   if defined (ECONNRESET) && (ECONNRESET != WSAECONNRESET)
+#     undef ECONNRESET
+#   endif /* ECONNRESET */
+#   if defined (ENOBUFS) && (ENOBUFS != WSAENOBUFS)
+#     undef ENOBUFS
+#   endif /* ENOBUFS */
+#   if defined (EISCONN) && (EISCONN != WSAEISCONN)
+#     undef EISCONN
+#   endif /* EISCONN */
+#   if defined (ENOTCONN) && (ENOTCONN != WSAENOTCONN)
+#     undef ENOTCONN
+#   endif /* ENOTCONN */
+#   if defined (ESHUTDOWN) && (ESHUTDOWN != WSAESHUTDOWN)
+#     undef ESHUTDOWN
+#   endif /* ESHUTDOWN */
+#   if defined (ETOOMANYREFS) && (ETOOMANYREFS != WSAETOOMANYREFS)
+#     undef ETOOMANYREFS
+#   endif /* ETOOMANYREFS */
+#   if defined (ETIMEDOUT) && (ETIMEDOUT != WSAETIMEDOUT)
+#     undef ETIMEDOUT
+#   endif /* ETIMEDOUT */
+#   if defined (ECONNREFUSED) && (ECONNREFUSED != WSAECONNREFUSED)
+#     undef ECONNREFUSED
+#   endif /* ECONNREFUSED */
+#   if defined (ELOOP) && (ELOOP != WSAELOOP)
+#     undef ELOOP
+#   endif /* ELOOP */
+//#   if defined (ENAMETOOLONG) && (ENAMETOOLONG != WSAENAMETOOLONG)
+//#      undef ENAMETOOLONG
+//#   endif /* ENAMETOOLONG */
+#   if defined (EHOSTDOWN) && (EHOSTDOWN != WSAEHOSTDOWN)
+#     undef EHOSTDOWN
+#   endif /* EHOSTDOWN */
+#   if defined (EHOSTUNREACH) && (EHOSTUNREACH != WSAEHOSTUNREACH)
+#     undef EHOSTUNREACH
+#   endif /* EHOSTUNREACH */
+//#   if defined (ENOTEMPTY) && (ENOTEMPTY != WSAENOTEMPTY)
+//#      undef ENOTEMPTY
+//#   endif /* ENOTEMPTY */
+#   if defined (EPROCLIM) && (EPROCLIM != WSAEPROCLIM)
+#     undef EPROCLIM
+#   endif /* EPROCLIM */
+#   if defined (EUSERS) && (EUSERS != WSAEUSERS)
+#     undef EUSERS
+#   endif /* EUSERS */
+#   if defined (EDQUOT) && (EDQUOT != WSAEDQUOT)
+#     undef EDQUOT
+#   endif /* EDQUOT */
+#   if defined (ESTALE) && (ESTALE != WSAESTALE)
+#     undef ESTALE
+#   endif /* ESTALE */
+#   if defined (EREMOTE) && (EREMOTE != WSAEREMOTE)
+#     undef EREMOTE
+#   endif /* EREMOTE */
 
 #   if !defined (ETIME)
 #     define ETIME                  ERROR_SEM_TIMEOUT

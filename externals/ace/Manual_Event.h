@@ -4,7 +4,7 @@
 /**
  *  @file    Manual_Event.h
  *
- *  $Id: Manual_Event.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Manual_Event.h 91066 2010-07-12 11:05:04Z johnnyw $
  *
  *   Moved from Synch.h.
  *
@@ -39,14 +39,14 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 class ACE_Export ACE_Manual_Event : public ACE_Event
 {
 public:
-  /// constructor which will create manual event
+  /// Constructor which will create manual event
   ACE_Manual_Event (int initial_state = 0,
                     int type = USYNC_THREAD,
                     const char *name = 0,
                     void *arg = 0);
 
 #if defined (ACE_HAS_WCHAR)
-  /// constructor which will create manual event (wchar_t version)
+  /// Constructor which will create manual event (wchar_t version)
   ACE_Manual_Event (int initial_state,
                     int type,
                     const wchar_t *name,
