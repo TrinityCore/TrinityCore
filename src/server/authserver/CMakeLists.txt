@@ -31,9 +31,6 @@ set(authserver_SRCS
 endif()
 
 include_directories(
-  ${ACE_INCLUDE_DIR}
-  ${MYSQL_INCLUDE_DIR}
-  ${OPENSSL_INCLUDE_DIR}
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/src/server/shared
   ${CMAKE_SOURCE_DIR}/src/server/shared/Database
@@ -46,6 +43,9 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/authserver/Authentication
   ${CMAKE_SOURCE_DIR}/src/server/authserver/Realms
   ${CMAKE_SOURCE_DIR}/src/server/authserver/Server
+  ${ACE_INCLUDE_DIR}
+  ${MYSQL_INCLUDE_DIR}
+  ${OPENSSL_INCLUDE_DIR}
 )
 
 set(authserver_LINK_FLAGS "")

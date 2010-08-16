@@ -24,9 +24,8 @@
 
 #include <ace/Sig_Handler.h>
 
-#include "revision.h"
-
 #include "Common.h"
+#include "SystemConfig.h"
 #include "SignalHandler.h"
 #include "World.h"
 #include "WorldRunnable.h"

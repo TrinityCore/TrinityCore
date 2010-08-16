@@ -21,9 +21,6 @@ set(collision_STAT_SRCS
 )
 
 include_directories(
-  ${ACE_INCLUDE_DIR}
-  ${MYSQL_INCLUDE_DIR}
-  ${OPENSSL_INCLUDE_DIR}
   ${CMAKE_SOURCE_DIR}/externals/g3dlite
   ${CMAKE_SOURCE_DIR}/src/server/shared
   ${CMAKE_SOURCE_DIR}/src/server/shared/Debugging
@@ -34,6 +31,9 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/collision/Maps
   ${CMAKE_SOURCE_DIR}/src/server/collision/Models
   ${CMAKE_BINARY_DIR}
+  ${ACE_INCLUDE_DIR}
+  ${MYSQL_INCLUDE_DIR}
+  ${OPENSSL_INCLUDE_DIR}
 )
 
 add_library(collision STATIC ${collision_STAT_SRCS})
