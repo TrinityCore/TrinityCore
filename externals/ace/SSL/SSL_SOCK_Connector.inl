@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: SSL_SOCK_Connector.inl 80826 2008-03-04 14:51:23Z wotte $
+// $Id: SSL_SOCK_Connector.inl 82728 2008-09-16 10:22:28Z johnnyw $
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -11,7 +11,7 @@ ACE_SSL_SOCK_Connector::ACE_SSL_SOCK_Connector (void)
   ACE_TRACE ("ACE_SSL_SOCK_Connector::ACE_SSL_SOCK_Connector");
 }
 
-ACE_INLINE int
+ACE_INLINE bool
 ACE_SSL_SOCK_Connector::reset_new_handle (ACE_HANDLE handle)
 {
   ACE_TRACE ("ACE_SSL_SOCK_Connector::reset_new_handle");

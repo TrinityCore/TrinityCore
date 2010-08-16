@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: SSL_SOCK_Stream.inl 82579 2008-08-10 23:03:06Z mitza $
+// $Id: SSL_SOCK_Stream.inl 91103 2010-07-15 12:36:57Z mcorino $
 
 #include "ace/OS_NS_errno.h"
 #include "ace/Truncate.h"
@@ -252,10 +252,30 @@ ACE_SSL_SOCK_Stream::recv_n (void *buf, int buf_size) const
 }
 
 ACE_INLINE ssize_t
+ACE_SSL_SOCK_Stream::recv_n (void *buf,
+                             size_t len,
+                             const ACE_Time_Value *timeout,
+                             size_t *bytes_transferred) const
+{
+  ACE_TRACE ("ACE_SSL_SOCK_Stream::recv_n");
+  return this->recv_n (buf, len, 0, timeout, bytes_transferred);
+}
+
+ACE_INLINE ssize_t
 ACE_SSL_SOCK_Stream::send_n (const void *buf, int len) const
 {
   ACE_TRACE ("ACE_SSL_SOCK_Stream::send_n");
   return this->send_n (buf, len, 0);
+}
+
+ACE_INLINE ssize_t
+ACE_SSL_SOCK_Stream::send_n (const void *buf,
+                             size_t len,
+                             const ACE_Time_Value *timeout,
+                             size_t *bytes_transferred) const
+{
+  ACE_TRACE ("ACE_SSL_SOCK_Stream::send_n");
+  return this->send_n (buf, len, 0, timeout, bytes_transferred);
 }
 
 ACE_INLINE int

@@ -4,7 +4,7 @@
 /**
  *  @file   OS_NS_unistd.h
  *
- *  $Id: OS_NS_unistd.h 84918 2009-03-20 08:07:01Z johnnyw $
+ *  $Id: OS_NS_unistd.h 91066 2010-07-12 11:05:04Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -189,12 +189,12 @@ namespace ACE_OS
 
   // should call gethostname()
   ACE_NAMESPACE_INLINE_FUNCTION
-  int hostname (char *name,
+  int hostname (char name[],
                 size_t maxnamelen);
 
 #if defined (ACE_HAS_WCHAR)
   ACE_NAMESPACE_INLINE_FUNCTION
-  int hostname (wchar_t *name,
+  int hostname (wchar_t name[],
                 size_t maxnamelen);
 #endif /* ACE_HAS_WCHAR */
 

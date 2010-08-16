@@ -6,7 +6,7 @@
  *
  * @file config-doxygen.h
  *
- * $Id: config-doxygen.h 84610 2009-02-26 10:26:09Z johnnyw $
+ * $Id: config-doxygen.h 91101 2010-07-15 09:49:28Z johnnyw $
  *
  * @author Carlos O'Ryan <coryan@uci.edu>
  * @author Darrell Brunsch <brunsch@uci.edu>
@@ -122,5 +122,7 @@
 #define ACE_END_VERSIONED_NAMESPACE_DECL
 #define TAO_BEGIN_VERSIONED_NAMESPACE_DECL
 #define TAO_END_VERSIONED_NAMESPACE_DECL
+
+#define ACE_HAS_POSITION_INDEPENDENT_POINTERS 1
 
 #endif /* ACE_CONFIG_DOXYGEN_H */

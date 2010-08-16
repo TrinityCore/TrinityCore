@@ -4,7 +4,7 @@
 /**
  *  @file   SSL_Asynch_Stream.h
  *
- *  $Id: SSL_Asynch_Stream.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: SSL_Asynch_Stream.h 84181 2009-01-16 22:37:49Z shuston $
  *
  *  @author Alexander Libman <alibman@baltimore.com>
  */
@@ -185,6 +185,9 @@ public:
 
   int close (void);
 
+  /// Return a pointer to the underlying SSL structure.
+  SSL *ssl (void) const;
+
   /**
    * Initializes the factory with information which will be used with
    * each asynchronous call.
@@ -295,6 +298,40 @@ protected:
   virtual void handle_wakeup (void);
 
   /**
+   * This method will be called after a successful SSL handshake indicating
+   * that the peer's certificate chain (if any) has been verified and the key
+   * exchange has completed.  When a peer certificate is required, this
+   * method must be used to perform additional checks beyond the verification
+   * performed by OpenSSL.
+   *
+   * Check 1:
+   *
+   * SSL clients that require a peer certificate must specify SSL_VERIFY_PEER 
+   * via ACE_SSL_Context::default_verify_mode.  If the peer sends an invalid
+   * certificate, the SSL handshake will fail; however, if the peer does not
+   * send a certificate, the SSL handshake will complete successfully which 
+   * may not be acceptable.  In this case, you must override this method in a
+   * subclass and return false if the call to SSL_get_peer_certificate returns
+   * null.  
+   *
+   * Check 2:
+   *
+   * An additional post handshake check that you should perform is to verify
+   * the certificate's FQDN against the host address you intended to connect
+   * to.  This check will prevent an attacker from using a certificate signed
+   * by your CA to usurp your session.  For further info on this check, see
+   * the post_connection_check method in Example 5-8 of 'Network Security with
+   * OpenSSL' by Viega, et. al.
+   * 
+   * Return:
+   * 
+   * false - Terminate the connection.  Outstanding IO complete with ERR_CANCELED.   
+   *
+   * true  - Proceed with connection.  The default implementation returns true.
+   */
+  virtual bool post_handshake_check (void);
+
+  /**
    * @name SSL State Machine
    */
   //@{
@@ -342,9 +379,6 @@ protected:
   /// Stream Type ST_CLIENT/ST_SERVER
   Stream_Type type_;
 
-  /// The real file/socket handle
-  ACE_HANDLE handle_;
-
   /// The proactor
   ACE_Proactor * proactor_;
 
@@ -376,6 +410,9 @@ protected:
 
   /// The SSL session.
   SSL * ssl_;
+
+  /// Flag ensures that post_connection_check() is called at most one time.
+  bool handshake_complete_;
 
   /// The BIO implementation
   BIO * bio_;
@@ -416,6 +453,10 @@ protected:
 };
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+
+#if defined(__ACE_INLINE__)
+#include "SSL_Asynch_Stream.inl"
+#endif /* __ACE_INLINE__ */
 
 #endif  /* OPENSSL_VERSION_NUMBER > 0x0090581fL && (ACE_WIN32 ||
            ACE_HAS_AIO_CALLS) */

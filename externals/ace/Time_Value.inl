@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: Time_Value.inl 88502 2010-01-12 19:53:17Z olli $
+// $Id: Time_Value.inl 90689 2010-06-18 11:14:47Z shuston $
 
 #include "ace/Truncate.h"
 
@@ -147,13 +147,21 @@ ACE_Time_Value::msec (void) const
   return ACE_Utils::truncate_cast<unsigned long> (secs);
 }
 
+ACE_INLINE ACE_UINT64
+ACE_Time_Value::get_msec () const
+{
+  // ACE_OS_TRACE ("ACE_Time_Value::get_msec");
+  ACE_UINT64 ms = ACE_Utils::truncate_cast<ACE_UINT64> (this->tv_.tv_sec);
+  ms *= 1000;
+  ms += (this->tv_.tv_usec / 1000);
+  return ms;
+}
+
 ACE_INLINE void
 ACE_Time_Value::msec (ACE_UINT64 &ms) const
 {
   // ACE_OS_TRACE ("ACE_Time_Value::msec");
-  ms = ACE_Utils::truncate_cast<ACE_UINT64> (this->tv_.tv_sec);
-  ms *= 1000;
-  ms += (this->tv_.tv_usec / 1000);
+  ms = this->get_msec ();
 }
 
 ACE_INLINE void
@@ -162,6 +170,17 @@ ACE_Time_Value::msec (ACE_UINT64 &ms) /*const*/
   // ACE_OS_TRACE ("ACE_Time_Value::msec");
   const ACE_Time_Value *tv = this;
   tv->msec (ms);
+}
+
+ACE_INLINE void
+ACE_Time_Value::set_msec (const ACE_UINT64 &ms)
+{
+  // ACE_OS_TRACE ("ACE_Time_Value::set_msec");
+  // Convert millisecond units to seconds;
+  ACE_UINT64 secs = ms / 1000;
+  this->tv_.tv_sec = static_cast<long> (secs);
+  // Convert remainder to microseconds;
+  this->tv_.tv_usec = static_cast<long>((ms - (secs * 1000)) * 1000);
 }
 
 /// Converts from milli-seconds format into Time_Value format.
