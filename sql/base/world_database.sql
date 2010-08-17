@@ -14740,6 +14740,9 @@ LOCK TABLES `spell_script_names` WRITE;
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 -- generic
 ( 58601, 'spell_gen_remove_flight_auras'),
+-- quest
+( 45449, 'spell_q11587_arcane_prisoner_rescue'),
+( 46023, 'spell_q11730_ultrasonic_screwdriver'),
 -- warrior
 ( 12975,'spell_warr_last_stand'),
 -- paladin
@@ -14747,9 +14750,12 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (-20473, 'spell_pal_holy_shock'),
 ( 37877, 'spell_pal_blessing_of_faith'),
 -- hunter
-( 23989, 'spell_hun_readiness'),
+( 53209, 'spell_hun_chimera_shot'),
+( 53412, 'spell_hun_invigoration'),
 ( 53271, 'spell_hun_masters_call'),
 ( 53478, 'spell_hun_last_stand_pet'),
+( 23989, 'spell_hun_readiness'),
+( 37506, 'spell_hun_scatter_shot'),
 ( 55709, 'spell_hun_pet_heart_of_the_phoenix'),
 ( 54044, 'spell_hun_pet_carrion_feeder'),
 -- rogue
@@ -14761,13 +14767,23 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 47948, 'spell_pri_pain_and_suffering_proc'),
 (-47540, 'spell_pri_penance'),
 -- death knight
+(-49158,'spell_dk_corpse_explosion'),
+( 50524,'spell_dk_runic_power_feed'),
+(-55090,'spell_dk_scourge_strike'),
 -- shaman
+( 39610, 'spell_sha_mana_tide_totem'),
+( -1535, 'spell_sha_fire_nova'),
 -- mage
 ( 11958, 'spell_mage_cold_snap'),
 ( 31687, 'spell_mage_summon_water_elemental'),
-( 32826, 'spell_mage_polymorph_visual');
+( 32826, 'spell_mage_polymorph_visual'),
 -- warlock
+( -6201, 'spell_warl_create_healthstone'),
+( 47193, 'spell_warl_demonic_empowerment'),
+( 47422, 'spell_warl_everlasting_affliction'),
+( 63521, 'spell_warl_guarded_by_the_light'),
 -- druid
+( 54846, 'spell_dru_glyph_of_starfire');
 /*!40000 ALTER TABLE `spell_script_names` ENABLE KEYS */;
 UNLOCK TABLES;
 

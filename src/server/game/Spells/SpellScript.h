@@ -155,6 +155,12 @@ class SpellScript : public _SpellScript
 
         // method avalible only in EffectHandler method
         int32 GetEffectValue();
+
+        // returns: cast item if present.
+        Item * GetCastItem();
+
+        // Creates item. Calls Spell::DoCreateItem method.
+        void CreateItem(uint32 effIndex, uint32 itemId);
 };
 // SpellScript interface
 //
