@@ -1,27 +1,17 @@
-
 ** HOW TO SCRIPT IN C++ **
 
-1 - create a file myscript.cpp in scripts folder.
-2 - copy the content of script_default.cpp, it as the structure on how the scripting fuctions are organized.
-		dont forget to change the name of fuctions, like GossipHello_default to GossipHello_myscript.
+=========================================================
+WARNING: THIS DOCUMENTATION IS NOT ALWAYS UP TO DATE.
+FOR MORE UP-TO-DATE INFORMATION, CHECK THE TRINITY WIKI.
+=========================================================
 
-3 - in fuction AddSC_default change to AddSC_myscript.
-4 - newscript->Name="default"; change the string to "myscript" this name is the one to be called from the db
-5 - dont forget to change the name in here to newscript->pGossipHello = &GossipHello_default; this is where the scripted fuctions are stored.
-6 - and last thing is in ScriptMgr.cpp
-
-add your AddSC_myscript in here
-
-// -- Scripts to be added --
-extern void AddSC_default();
-// -------------------
-
-and here
-
-// -- Inicialize the Scripts to be Added --
-	AddSC_default();
-// ----------------------------------------
-	
-now start using the player fuctions to script ;)
-
-hope it helps, any question use our forum.
+1 - create a file myscript.cpp in the scripts/custom folder.
+2 - Find the appropriate examples script in the scripts/examples folder and copy its contents.
+    Don't forget to rename the classes as appropriate!
+3 - Rename the AddSC functions as appropriate.
+4 - Make sure to change the initializations in the AddSC function to the appropriate script names!
+5 - Under ScriptLoader.cpp, add your AddSC function near the top and in AddCustomScripts(), call it.
+6 - Add your myscript.cpp file to the scripts CMakeLists.txt: under: set(scripts_STAT_SRCS add: Custom/myscript.cpp
+7 - Redefine the virtual functions you want to override in your script.
+8 - If the script you are writing is database bound, add the scriptname to the appropriate location in the database.
+9 - Recompile and restart the server, and your script should be up and running.

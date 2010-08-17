@@ -1,6 +1,11 @@
 = TrinityCore -- Linux installation =
 Copyright (C) 2008-2010 TrinityCore (http://www.trinitycore.org)
 
+=========================================================
+WARNING: THIS DOCUMENTATION IS NOT ALWAYS UP TO DATE.
+FOR MORE UP-TO-DATE INFORMATION, CHECK THE TRINITY WIKI.
+=========================================================
+
 CHECK http://www.trinitycore.info/w/Linux_Build_HOWTO FOR FURTHER HELP
 
 Installing TrinityCore is fairly simple on a Linux machine, assuming you 
@@ -13,8 +18,7 @@ The most important ones are:
     make
     cmake version 2.6.x or greater
     libmysql++-dev
-    subversion (for checking out Trinity Database)
-    mercurial (for checking out the core)
+    mercurial (for checking out the core and database)
     openssl
     libssl-dev
     zlib1g-dev
