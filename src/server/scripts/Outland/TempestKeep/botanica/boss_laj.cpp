@@ -211,7 +211,7 @@ class boss_laj : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI_boss_laj(Creature* Creature) const
+        CreatureAI* GetAI(Creature* Creature) const
         {
             return new boss_lajAI (Creature);
         }
