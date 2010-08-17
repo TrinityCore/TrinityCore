@@ -253,10 +253,12 @@ void LFGMgr::Update(uint32 diff)
             LfgProposal *pProposal = *proposals.begin();
             // TODO: Create algorithm to select better group based on GS (uses to be good tank with bad healer and viceversa)
 
-            // Remove groups in the proposal from the queue
+            // Remove groups in the proposal new and current queues (not from queue map)
             for (LfgGuidList::const_iterator it = pProposal->queues.begin(); it != pProposal->queues.end(); ++it)
-                RemoveFromQueue(*it);
-
+            {
+                m_currentQueue.remove(*it);
+                m_newToQueue.remove(*it);
+            }
             m_Proposals[++m_lfgProposalId] = pProposal;
 
             uint32 lowGuid = 0;
