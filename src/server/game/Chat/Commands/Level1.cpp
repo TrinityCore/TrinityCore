@@ -737,8 +737,9 @@ bool ChatHandler::HandleGPSCommand(const char* args)
 
     GridPair p = Trinity::ComputeGridPair(obj->GetPositionX(), obj->GetPositionY());
 
-    int gx=63-p.x_coord;
-    int gy=63-p.y_coord;
+    // 63? WHY?
+    int gx = 63 - p.x_coord;
+    int gy = 63 - p.y_coord;
 
     uint32 have_map = Map::ExistMap(obj->GetMapId(),gx,gy) ? 1 : 0;
     uint32 have_vmap = Map::ExistVMap(obj->GetMapId(),gx,gy) ? 1 : 0;
@@ -748,7 +749,7 @@ bool ChatHandler::HandleGPSCommand(const char* args)
         if(map->IsOutdoors(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ()))
             PSendSysMessage("You are outdoors");
         else
-            PSendSysMessage("You are indoor");
+            PSendSysMessage("You are indoors");
     }
     else PSendSysMessage("no VMAP available for area info");
 
@@ -784,7 +785,7 @@ bool ChatHandler::HandleGPSCommand(const char* args)
 }
 
 //Summon Player
-bool ChatHandler::HandleNamegoCommand(const char* args)
+bool ChatHandler::HandleSummonCommand(const char* args)
 {
     Player* target;
     uint64 target_guid;
@@ -827,12 +828,8 @@ bool ChatHandler::HandleNamegoCommand(const char* args)
             }
             // if both players are in different bgs
             else if (target->GetBattlegroundId() && m_session->GetPlayer()->GetBattlegroundId() != target->GetBattlegroundId())
-            {
                 target->LeaveBattleground(false); // Note: should be changed so target gets no Deserter debuff
-                //PSendSysMessage(LANG_CANNOT_GO_TO_BG_FROM_BG,nameLink.c_str());
-                //SetSentErrorMessage(true);
-                //return false;
-            }
+
             // all's well, set bg id
             // when porting out from the bg, it will be reset to 0
             target->SetBattlegroundId(m_session->GetPlayer()->GetBattlegroundId(), m_session->GetPlayer()->GetBattlegroundTypeId());
@@ -843,14 +840,9 @@ bool ChatHandler::HandleNamegoCommand(const char* args)
         else if (pMap->IsDungeon())
         {
             Map* cMap = target->GetMap();
+
             if (cMap->Instanceable() && cMap->GetInstanceId() != pMap->GetInstanceId())
-            {
                 target->UnbindInstance(pMap->GetInstanceId(), target->GetDungeonDifficulty(), true);
-                // cannot summon from instance to instance
-                //PSendSysMessage(LANG_CANNOT_SUMMON_TO_INST,nameLink.c_str());
-                //SetSentErrorMessage(true);
-                //return false;
-            }
 
             // we are in instance, and can summon only player in our group with us as lead
             if (!m_session->GetPlayer()->GetGroup() || !target->GetGroup() ||
@@ -908,7 +900,7 @@ bool ChatHandler::HandleNamegoCommand(const char* args)
 }
 
 //Teleport to Player
-bool ChatHandler::HandleGonameCommand(const char* args)
+bool ChatHandler::HandleAppearCommand(const char* args)
 {
     Player* target;
     uint64 target_guid;
@@ -944,12 +936,8 @@ bool ChatHandler::HandleGonameCommand(const char* args)
             }
             // if both players are in different bgs
             else if (_player->GetBattlegroundId() && _player->GetBattlegroundId() != target->GetBattlegroundId())
-            {
                 _player->LeaveBattleground(false); // Note: should be changed so _player gets no Deserter debuff
-                //PSendSysMessage(LANG_CANNOT_GO_TO_BG_FROM_BG,chrNameLink.c_str());
-                //SetSentErrorMessage(true);
-                //return false;
-            }
+
             // all's well, set bg id
             // when porting out from the bg, it will be reset to 0
             _player->SetBattlegroundId(target->GetBattlegroundId(), target->GetBattlegroundTypeId());
@@ -959,8 +947,6 @@ bool ChatHandler::HandleGonameCommand(const char* args)
         }
         else if (cMap->IsDungeon())
         {
-            //Map* pMap = _player->GetMap();
-
             // we have to go to instance, and can go to player only if:
             //   1) we are in his group (either as leader or as member)
             //   2) we are not bound to any group and have GM mode on
@@ -1005,8 +991,6 @@ bool ChatHandler::HandleGonameCommand(const char* args)
         }
 
         PSendSysMessage(LANG_APPEARING_AT, chrNameLink.c_str());
-        //if (needReportToTarget(target))
-        //    ChatHandler(target).PSendSysMessage(LANG_APPEARING_TO, GetNameLink().c_str());
 
         // stop flight if need
         if (_player->isInFlight())
@@ -1130,16 +1114,6 @@ bool ChatHandler::HandleModifyManaCommand(const char* args)
     if (!*args)
         return false;
 
-    // char* pmana = strtok((char*)args, " ");
-    // if (!pmana)
-    //     return false;
-
-    // char* pmanaMax = strtok(NULL, " ");
-    // if (!pmanaMax)
-    //     return false;
-
-    // int32 manam = atoi(pmanaMax);
-    // int32 mana = atoi(pmana);
     int32 mana = atoi((char*)args);
     int32 manam = atoi((char*)args);
 
@@ -2595,7 +2569,7 @@ bool ChatHandler::HandleTeleGroupCommand(const char * args)
 }
 
 //Summon group of player
-bool ChatHandler::HandleGroupgoCommand(const char* args)
+bool ChatHandler::HandleGroupSummonCommand(const char* args)
 {
     Player* target;
     if (!extractPlayerTarget((char*)args,&target))
@@ -2751,7 +2725,8 @@ bool ChatHandler::HandleGoXYCommand(const char* args)
     uint32 mapid;
     if (pmapid)
         mapid = (uint32)atoi(pmapid);
-    else mapid = _player->GetMapId();
+    else
+        mapid = _player->GetMapId();
 
     if (!MapManager::IsValidMapCoord(mapid,x,y))
     {
@@ -2853,7 +2828,7 @@ bool ChatHandler::HandleGoZoneXYCommand(const char* args)
 
     AreaTableEntry const* areaEntry = GetAreaEntryByAreaID(areaid);
 
-    if (x<0 || x>100 || y<0 || y>100 || !areaEntry)
+    if (x < 0 || x > 100 || y < 0 || y > 100 || !areaEntry)
     {
         PSendSysMessage(LANG_INVALID_ZONE_COORD,x,y,areaid);
         SetSentErrorMessage(true);
