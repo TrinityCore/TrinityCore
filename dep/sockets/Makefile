@@ -39,10 +39,10 @@ RM = /usr/bin/cmake -E remove -f
 CMAKE_EDIT_COMMAND = /usr/bin/ccmake
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/trinity/dev/trinitycore/externals/sockets
+CMAKE_SOURCE_DIR = /home/trinity/dev/trinitycore/dep/sockets
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/trinity/dev/trinitycore/externals/sockets
+CMAKE_BINARY_DIR = /home/trinity/dev/trinitycore/dep/sockets
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -69,9 +69,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/trinity/dev/trinitycore/externals/sockets/CMakeFiles /home/trinity/dev/trinitycore/externals/sockets/CMakeFiles/progress.make
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/trinity/dev/trinitycore/dep/sockets/CMakeFiles /home/trinity/dev/trinitycore/dep/sockets/CMakeFiles/progress.make
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/trinity/dev/trinitycore/externals/sockets/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/trinity/dev/trinitycore/dep/sockets/CMakeFiles 0
 .PHONY : all
 
 # The main clean target

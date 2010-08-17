@@ -320,9 +320,9 @@ set(ace_STAT_SRCS
 )
 
 include_directories(
-  ${CMAKE_SOURCE_DIR}/externals
-  ${CMAKE_SOURCE_DIR}/externals/ace/PrecompiledHeaders
-  ${CMAKE_SOURCE_DIR}/externals/zlib
+  ${CMAKE_SOURCE_DIR}/dep/acelite
+  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders
+  ${CMAKE_SOURCE_DIR}/dep/zlib
 )
 
 # Needed for PCH support
@@ -332,6 +332,6 @@ add_definitions(-DACE_BUILD_DLL)
 
 add_library(ace SHARED ${ace_STAT_SRCS})
 
-add_native_precompiled_header(ace ${CMAKE_SOURCE_DIR}/externals/ace/PrecompiledHeaders/WinAcePCH)
+add_native_precompiled_header(ace ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/WinAcePCH)
 
 install(TARGETS ace RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}")

@@ -44,7 +44,7 @@ include(CheckIncludeFiles)
 include(cmake/FindPlatform.cmake)
 include(cmake/FindPCHSupport.cmake)
 if(WIN32)
-  set(ACE_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/externals)
+  set(ACE_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/dep/acelite)
 endif()
 include(cmake/FindACE.cmake)
 include(cmake/FindMySQL.cmake)
@@ -322,7 +322,7 @@ endif()
 # Enter the different builddirectories and start working 
 #
 
-add_subdirectory(externals)
+add_subdirectory(dep)
 add_subdirectory(src)
 if( SQL )
   add_subdirectory(sql)

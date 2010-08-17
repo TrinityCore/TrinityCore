@@ -10,13 +10,13 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 include_directories(
-  ${ACE_INCLUDE_DIR}
-  ${ZLIB_INCLUDE_DIR}
-  ${CMAKE_SOURCE_DIR}/externals/g3dlite
+  ${CMAKE_SOURCE_DIR}/dep/g3dlite
   ${CMAKE_SOURCE_DIR}/src/server/shared
   ${CMAKE_SOURCE_DIR}/src/server/shared/Debugging
   ${CMAKE_SOURCE_DIR}/src/server/collision/Maps
   ${CMAKE_SOURCE_DIR}/src/server/collision/Models
+  ${ACE_INCLUDE_DIR}
+  ${ZLIB_INCLUDE_DIR}
 )
 
 add_definitions(-DNO_CORE_FUNCS)
