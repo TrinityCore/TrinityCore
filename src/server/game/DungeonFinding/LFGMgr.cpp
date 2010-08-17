@@ -259,8 +259,10 @@ void LFGMgr::Update(uint32 diff)
 
             m_Proposals[++m_lfgProposalId] = pProposal;
 
+            uint32 lowGuid = 0;
             for (LfgProposalPlayerMap::const_iterator itPlayers = pProposal->players.begin(); itPlayers != pProposal->players.end(); ++itPlayers)
             {
+                lowGuid = itPlayers->first;
                 if (Player *plr = sObjectMgr.GetPlayer(itPlayers->first))
                 {
                     if (plr->GetGroup())
@@ -270,6 +272,9 @@ void LFGMgr::Update(uint32 diff)
                     SendUpdateProposal(plr, m_lfgProposalId, pProposal);
                 }
             }
+            
+            if (pProposal->state == LFG_PROPOSAL_SUCCESS)
+                UpdateProposal(m_lfgProposalId, lowGuid, 1);
 
             // Clean up
             for (LfgProposalList::iterator it = proposals.begin(); it != proposals.end(); ++it)
@@ -797,19 +802,27 @@ void LFGMgr::FindNewGroups(LfgGuidList &check, LfgGuidList all, LfgProposalList 
     }
     pProposal->leaderLowGuid = newLeaderLowGuid;
 
+    uint8 numAccept = 0;
     for (itPlayers = players.begin(); itPlayers != players.end(); ++itPlayers)
     {
         lowGuid = (*itPlayers)->GetGUIDLow();
         ppPlayer = new LfgProposalPlayer();
-        if ((*itPlayers)->GetGroup())
+        Group *grp = (*itPlayers)->GetGroup();
+        if (grp)
         {
-            ppPlayer->groupLowGuid = (*itPlayers)->GetGroup()->GetLowGUID();
-            if (ppPlayer->groupLowGuid == pProposal->groupLowGuid) // Player from existing group, autoaccept
+            ppPlayer->groupLowGuid = grp->GetLowGUID();
+            if (grp->GetLfgDungeonEntry() == selectedDungeon && ppPlayer->groupLowGuid == pProposal->groupLowGuid) // Player from existing group, autoaccept
+            {
                 ppPlayer->accept = 1;
+                ++numAccept;
+            }
         }
         ppPlayer->role = rolesMap[lowGuid];
         pProposal->players[lowGuid] = ppPlayer;
     }
+    if (numAccept == MAXGROUPSIZE)
+        pProposal->state = LFG_PROPOSAL_SUCCESS;
+
     if (!proposals)
         proposals = new LfgProposalList();
     proposals->push_back(pProposal);
@@ -1088,6 +1101,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint32 lowGuid, uint8 accept)
     }
     else
     {
+        bool sendUpdate = pProposal->state != LFG_PROPOSAL_SUCCESS;
         pProposal->state = LFG_PROPOSAL_SUCCESS;
 
         // Create a new group (if needed)
@@ -1095,7 +1109,8 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint32 lowGuid, uint8 accept)
         for (LfgPlayerList::const_iterator it = players.begin(); it != players.end(); ++it)
         {
             plr = *it;
-            SendUpdateProposal(plr, proposalId, pProposal);
+            if (sendUpdate)
+                SendUpdateProposal(plr, proposalId, pProposal);
             //plr->SetLfgSendUpdates(false);
             if (plr->GetGroup())
             {
@@ -1429,10 +1444,11 @@ void LFGMgr::SendUpdateProposal(Player *plr, uint32 proposalId, LfgProposal *pPr
     uint32 pLowGroupGuid = ppPlayer->groupLowGuid;
     uint32 dLowGuid = pProp->groupLowGuid;
     uint32 dungeonId = pProp->dungeonId;
+    uint32 isSameDungeon = plr->GetGroup() && plr->GetGroup()->GetLfgDungeonEntry() == dungeonId;
 
     sLog.outDebug("SMSG_LFG_PROPOSAL_UPDATE");
     WorldPacket data(SMSG_LFG_PROPOSAL_UPDATE, 4 + 1 + 4 + 4 + 1 + 1 + pProp->players.size() * (4 + 1 + 1 + 1 + 1 +1));
-    if (!dLowGuid && plr->GetLfgDungeons()->size() == 1)   // New group - select the dungeon the player selected
+    if (!dLowGuid && plr->GetLfgDungeons()->size() == 1)    // New group - select the dungeon the player selected
         dungeonId = *plr->GetLfgDungeons()->begin();
     if (LFGDungeonEntry const *dungeon = sLFGDungeonStore.LookupEntry(dungeonId))
         dungeonId = dungeon->Entry();
@@ -1440,7 +1456,7 @@ void LFGMgr::SendUpdateProposal(Player *plr, uint32 proposalId, LfgProposal *pPr
     data << uint8(pProp->state);                            // Result state
     data << uint32(proposalId);                             // Internal Proposal ID
     data << uint32(0);                                      // Bosses killed - FIXME
-    data << uint8(pLowGroupGuid && pLowGroupGuid == dLowGuid); // Silent (show client window)
+    data << uint8(isSameDungeon);                           // Silent (show client window)
     data << uint8(pProp->players.size());                   // Group size
 
     for (itPlayer = pProp->players.begin(); itPlayer != pProp->players.end(); ++itPlayer)
