@@ -288,6 +288,8 @@ if( MSVC )
   if(CMAKE_SIZEOF_VOID_P MATCHES 4)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE")
   endif()
+  # Multithreaded compiling on VS
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 endif()
 
 #
