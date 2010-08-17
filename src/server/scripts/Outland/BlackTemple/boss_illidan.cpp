@@ -1798,7 +1798,7 @@ public:
         }
     };
 
-    bool GossipSelect_npc_akama_at_illidan(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
     {
         if (uiAction == GOSSIP_ACTION_INFO_DEF) // Time to begin the Event
         {
@@ -1808,7 +1808,7 @@ public:
         return true;
     }
 
-    bool GossipHello_npc_akama_at_illidan(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
         pPlayer->SEND_GOSSIP_MENU(10465, pCreature->GetGUID());
