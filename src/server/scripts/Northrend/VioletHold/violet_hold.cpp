@@ -253,7 +253,7 @@ class npc_sinclari_vh : public CreatureScript
 public:
     npc_sinclari_vh() : CreatureScript("npc_sinclari_vh") { }
 
-    bool GossipSelect_npc_sinclari(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
     {
         switch(uiAction)
         {
@@ -274,7 +274,7 @@ public:
         return true;
     }
 
-    bool GossipHello_npc_sinclari(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
         if (InstanceScript* pInstance = pCreature->GetInstanceScript())
         {
@@ -543,7 +543,7 @@ class npc_teleportation_portal_vh : public CreatureScript
 public:
     npc_teleportation_portal_vh() : CreatureScript("npc_teleportation_portal_vh") { }
 
-    CreatureAI* GetAI_npc_teleportation_portal(Creature *pCreature) const
+    CreatureAI* GetAI(Creature *pCreature) const
     {
         return new npc_teleportation_portalAI(pCreature);
     }
