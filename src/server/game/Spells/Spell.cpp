@@ -2015,6 +2015,11 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     if (Guardian* pet = m_caster->GetGuardianPet())
                         AddUnitTarget(pet, i);
                     break;
+                case TARGET_UNIT_SUMMONER:
+                    if (m_caster->isSummon())
+                        if (Unit* unit = m_caster->ToTempSummon()->GetSummoner())
+                            AddUnitTarget(unit, i);
+                    break;
                 case TARGET_UNIT_PARTY_CASTER:
                 case TARGET_UNIT_RAID_CASTER:
                     pushType = PUSH_CASTER_CENTER;
@@ -2069,8 +2074,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                 case TARGET_UNIT_TARGET_ALLY:
                 case TARGET_UNIT_TARGET_RAID:
                 case TARGET_UNIT_TARGET_PARTY:
-                case TARGET_UNIT_MINIPET:
-                case TARGET_UNIT_UNK_92:
+                case TARGET_UNIT_TARGET_PUPPET:
                     AddUnitTarget(target, i);
                     break;
                 case TARGET_UNIT_PARTY_TARGET:
@@ -6877,6 +6881,8 @@ bool Spell::IsValidSingleTargetEffect(Unit const* target, Targets type) const
             return m_caster != target && m_caster->IsInPartyWith(target);
         case TARGET_UNIT_TARGET_RAID:
             return m_caster->IsInRaidWith(target);
+        case TARGET_UNIT_TARGET_PUPPET:
+            return target->HasUnitTypeMask(UNIT_MASK_PUPPET) && m_caster == target->GetOwner();
     }
     return true;
 }
