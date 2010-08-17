@@ -1762,31 +1762,26 @@ LfgLockStatusSet* LFGMgr::GetPlayerLockStatusDungeons(Player *plr, LfgDungeonSet
             locktype = LFG_LOCKSTATUS_RAID_LOCKED;
         else if (dungeon->difficulty > DUNGEON_DIFFICULTY_NORMAL && plr->GetBoundInstance(dungeon->map, Difficulty(dungeon->difficulty)))
             locktype = LFG_LOCKSTATUS_RAID_LOCKED;
-        else
+        else if (dungeon->minlevel > level)
+            locktype = LFG_LOCKSTATUS_TOO_LOW_LEVEL;
+        else if (dungeon->maxlevel < level)
+            locktype = LFG_LOCKSTATUS_TOO_HIGH_LEVEL;
+        else if (locktype == LFG_LOCKSTATUS_OK && ar)
         {
-            if (!sWorld.getConfig(CONFIG_INSTANCE_IGNORE_LEVEL))
-                if (dungeon->minlevel > level)
-                    locktype = LFG_LOCKSTATUS_TOO_LOW_LEVEL;
-                else if (dungeon->maxlevel < level)
-                    locktype = LFG_LOCKSTATUS_TOO_HIGH_LEVEL;
-
-            if (locktype == LFG_LOCKSTATUS_OK && ar)
-            {
-                if (ar->achievement && !plr->GetAchievementMgr().HasAchieved(sAchievementStore.LookupEntry(ar->achievement)))
-                    locktype = LFG_LOCKSTATUS_RAID_LOCKED; // FIXME: Check the correct lock value
-                else if (plr->GetTeam() == ALLIANCE && ar->quest_A && !plr->GetQuestRewardStatus(ar->quest_A))
-                    locktype = LFG_LOCKSTATUS_QUEST_NOT_COMPLETED;
-                else if (plr->GetTeam() == HORDE && ar->quest_H && !plr->GetQuestRewardStatus(ar->quest_H))
-                    locktype = LFG_LOCKSTATUS_QUEST_NOT_COMPLETED;
-                else
-                    if (ar->item)
-                    {
-                        if (!plr->HasItemCount(ar->item, 1) && (!ar->item2 || !plr->HasItemCount(ar->item2, 1)))
-                            locktype = LFG_LOCKSTATUS_MISSING_ITEM;
-                    }
-                    else if (ar->item2 && !plr->HasItemCount(ar->item2, 1))
+            if (ar->achievement && !plr->GetAchievementMgr().HasAchieved(sAchievementStore.LookupEntry(ar->achievement)))
+                locktype = LFG_LOCKSTATUS_RAID_LOCKED; // FIXME: Check the correct lock value
+            else if (plr->GetTeam() == ALLIANCE && ar->quest_A && !plr->GetQuestRewardStatus(ar->quest_A))
+                locktype = LFG_LOCKSTATUS_QUEST_NOT_COMPLETED;
+            else if (plr->GetTeam() == HORDE && ar->quest_H && !plr->GetQuestRewardStatus(ar->quest_H))
+                locktype = LFG_LOCKSTATUS_QUEST_NOT_COMPLETED;
+            else
+                if (ar->item)
+                {
+                    if (!plr->HasItemCount(ar->item, 1) && (!ar->item2 || !plr->HasItemCount(ar->item2, 1)))
                         locktype = LFG_LOCKSTATUS_MISSING_ITEM;
-            }
+                }
+                else if (ar->item2 && !plr->HasItemCount(ar->item2, 1))
+                    locktype = LFG_LOCKSTATUS_MISSING_ITEM;
         }
         /* TODO VoA closed if WG is not under team control (LFG_LOCKSTATUS_RAID_LOCKED)
             locktype = LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
