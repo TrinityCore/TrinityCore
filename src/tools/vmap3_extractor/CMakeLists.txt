@@ -22,12 +22,12 @@ add_definitions("-O3")
 
 if( UNIX )
   include_directories(
-    ${CMAKE_SOURCE_DIR}/externals/libmpq
+    ${CMAKE_SOURCE_DIR}/dep/libmpq
   )
 elseif( WIN32 )
   include_directories(
-    ${CMAKE_SOURCE_DIR}/externals/libmpq
-    ${CMAKE_SOURCE_DIR}/externals/libmpq/win
+    ${CMAKE_SOURCE_DIR}/dep/libmpq
+    ${CMAKE_SOURCE_DIR}/dep/libmpq/win
   )
 endif()
 

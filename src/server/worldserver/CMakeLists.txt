@@ -44,9 +44,9 @@ endif()
 
 include_directories(
   ${CMAKE_BINARY_DIR}
-  ${CMAKE_SOURCE_DIR}/externals/gsoap
-  ${CMAKE_SOURCE_DIR}/externals/sockets/include
-  ${CMAKE_SOURCE_DIR}/externals/mersennetwister
+  ${CMAKE_SOURCE_DIR}/dep/gsoap
+  ${CMAKE_SOURCE_DIR}/dep/sockets/include
+  ${CMAKE_SOURCE_DIR}/dep/mersennetwister
   ${CMAKE_SOURCE_DIR}/src/server/collision
   ${CMAKE_SOURCE_DIR}/src/server/collision/Management
   ${CMAKE_SOURCE_DIR}/src/server/shared
@@ -130,11 +130,11 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Tools
   ${CMAKE_SOURCE_DIR}/src/server/game/Weather
   ${CMAKE_SOURCE_DIR}/src/server/game/World
-  ${CMAKE_SOURCE_DIR}/src/server/worldserver
-  ${CMAKE_SOURCE_DIR}/src/server/worldserver/CommandLine
-  ${CMAKE_SOURCE_DIR}/src/server/worldserver/RemoteAccess
-  ${CMAKE_SOURCE_DIR}/src/server/worldserver/TCSoap
-  ${CMAKE_SOURCE_DIR}/src/server/worldserver/WorldThread
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/CommandLine
+  ${CMAKE_CURRENT_SOURCE_DIR}/RemoteAccess
+  ${CMAKE_CURRENT_SOURCE_DIR}/TCSoap
+  ${CMAKE_CURRENT_SOURCE_DIR}/WorldThread
   ${ACE_INCLUDE_DIR}
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}

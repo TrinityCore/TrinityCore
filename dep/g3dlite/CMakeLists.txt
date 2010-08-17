@@ -8,27 +8,30 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-file(GLOB sources_mpq libmpq/*.c libmpq/*.h)
+file(GLOB sources *.cpp)
 
-set(mpq_STAT_SRCS
-  ${sources_mpq}
+set(g3dlib_STAT_SRCS
+  ${sources}
 )
-
-if( UNIX )
+if(WIN32)
   include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_SOURCE_DIR}/externals/zlib
-    ${CMAKE_SOURCE_DIR}/externals/bzip2
+    ${CMAKE_SOURCE_DIR}/dep/zlib
   )
-elseif( WIN32 )
+else()
   include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/win
-    ${CMAKE_SOURCE_DIR}/externals/zlib
-    ${CMAKE_SOURCE_DIR}/externals/bzip2
   )
 endif()
 
-add_library(mpq STATIC ${mpq_STAT_SRCS})
+add_library(g3dlib STATIC ${g3dlib_STAT_SRCS})
 
-set_target_properties(mpq PROPERTIES LINKER_LANGUAGE CXX)
+if(WIN32)
+  target_link_libraries(g3dlib
+    zlib
+  )
+else()
+  target_link_libraries(g3dlib
+    ${ZLIB_LIBRARIES}
+  )
+endif()
