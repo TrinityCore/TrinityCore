@@ -1187,9 +1187,9 @@ enum Targets
     TARGET_DEST_DEST                   = 87,
     TARGET_DEST_DYNOBJ_NONE            = 88,
     TARGET_DEST_TRAJ                   = 89,
-    TARGET_UNIT_MINIPET                = 90,
+    TARGET_UNIT_TARGET_PUPPET          = 90,
     TARGET_DEST_DEST_RANDOM_DIR_DIST   = 91,
-    TARGET_UNIT_UNK_92                 = 92,
+    TARGET_UNIT_SUMMONER               = 92,
     TARGET_CORPSE_AREA_ENEMY_PLAYER_SRC= 93, // TODO
     TARGET_UNIT_VEHICLE                = 94,
     TARGET_UNIT_DRIVER                 = 95,

@@ -119,9 +119,10 @@ SpellMgr::SpellMgr()
             case TARGET_UNIT_PASSENGER_5:
             case TARGET_UNIT_PASSENGER_6:
             case TARGET_UNIT_PASSENGER_7:
+            case TARGET_UNIT_SUMMONER:
                 SpellTargetType[i] = TARGET_TYPE_UNIT_CASTER;
                 break;
-            case TARGET_UNIT_MINIPET:
+            case TARGET_UNIT_TARGET_PUPPET:
             case TARGET_UNIT_TARGET_ALLY:
             case TARGET_UNIT_TARGET_RAID:
             case TARGET_UNIT_TARGET_ANY:
@@ -130,7 +131,6 @@ SpellMgr::SpellMgr()
             case TARGET_UNIT_PARTY_TARGET:
             case TARGET_UNIT_CLASS_TARGET:
             case TARGET_UNIT_CHAINHEAL:
-            case TARGET_UNIT_UNK_92:
                 SpellTargetType[i] = TARGET_TYPE_UNIT_TARGET;
                 break;
             case TARGET_UNIT_NEARBY_ENEMY:
