@@ -241,3 +241,13 @@ int32 SpellScript::GetEffectValue()
 {
     return m_spell->damage;
 }
+
+Item * SpellScript::GetCastItem()
+{
+    return m_spell->m_CastItem;
+}
+
+void SpellScript::CreateItem(uint32 effIndex, uint32 itemId) 
+{
+    m_spell->DoCreateItem(effIndex, itemId);
+}
