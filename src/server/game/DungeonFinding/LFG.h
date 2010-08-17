@@ -52,8 +52,9 @@ typedef std::set<uint32> LfgDungeonSet;
 
 struct LookingForGroup
 {
-    LookingForGroup(): roles(0) {}
+    LookingForGroup(): roles(0), update(true) {}
     uint8 roles;
+    bool update;
     LfgDungeonSet applyDungeons;                            // Dungeons the player have applied for
     LfgDungeonSet donerandomDungeons;                       // Finished random Dungeons (to calculate the bonus);
     std::string comment;
