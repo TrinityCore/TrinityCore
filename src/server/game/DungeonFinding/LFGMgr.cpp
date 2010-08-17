@@ -255,7 +255,8 @@ void LFGMgr::Update(uint32 diff)
 
             // Remove groups in the proposal from the queue
             for (LfgGuidList::const_iterator it = pProposal->queues.begin(); it != pProposal->queues.end(); ++it)
-                m_currentQueue.remove(*it);
+                RemoveFromQueue(*it);
+
             m_Proposals[++m_lfgProposalId] = pProposal;
 
             for (LfgProposalPlayerMap::const_iterator itPlayers = pProposal->players.begin(); itPlayers != pProposal->players.end(); ++itPlayers)
@@ -284,8 +285,10 @@ void LFGMgr::Update(uint32 diff)
             proposals.clear();
         }
         else
+        {
             m_currentQueue.push_back(m_newToQueue.front()); // Group not found, add this group to the queue.
-        m_newToQueue.pop_front();
+            m_newToQueue.pop_front();
+        }
         firstNew.clear();
     }
 
