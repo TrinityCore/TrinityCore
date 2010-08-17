@@ -1,12 +1,16 @@
-=============================================
-EventAI documentation: (updated May 19, 2009)
-=============================================
+=====================================================
+EventAI documentation: (last changed August 16, 2010)
+=====================================================
 
-EventAI allows users to create new creature scripts entierly within the database.
+EventAI allows users to create new creature scripts entirely within the database.
 
 For the AI to be used, you must first make sure to set AIname for each creature that should use this AI.
 UPDATE creature_template SET AIName = 'EventAI' WHERE entry IN (...);
 
+=========================================================
+WARNING: THIS DOCUMENTATION IS NOT ALWAYS UP TO DATE.
+FOR MORE UP-TO-DATE INFORMATION, CHECK THE TRINITY WIKI.
+=========================================================
 
 =========================================
 Basic structure of EventAI

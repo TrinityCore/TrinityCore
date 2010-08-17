@@ -2,6 +2,11 @@
 Texts Documentation
 =========================================
 
+=========================================================
+WARNING: THIS DOCUMENTATION IS NOT ALWAYS UP TO DATE.
+FOR MORE UP-TO-DATE INFORMATION, CHECK THE TRINITY WIKI.
+=========================================================
+
 Scriptdev2 Revision 695 introduces a new format for using texts in EventAI and SD2 Scripts.
 This information relates to the *_texts tables located in the ScriptDev Database.
 
