@@ -351,10 +351,14 @@ class LFGMgr
         LfgRoleCheckMap m_RoleChecks;                       // Current Role checks
         uint32 m_QueueTimer;                                // used to check interval of update
         uint32 m_lfgProposalId;                             // used as internal counter for proposals
-        int32 m_avgWaitTime;
-        int32 m_waitTimeTanks;
-        int32 m_waitTimeHealer;
-        int32 m_waitTimeDps;
+        int32 m_WaitTimeAvg;
+        int32 m_WaitTimeTank;
+        int32 m_WaitTimeHealer;
+        int32 m_WaitTimeDps;
+        uint32 m_NumWaitTimeAvg;
+        uint32 m_NumWaitTimeTank;
+        uint32 m_NumWaitTimeHealer;
+        uint32 m_NumWaitTimeDps;
         bool m_update;
 };
 

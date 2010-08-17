@@ -2241,6 +2241,8 @@ class Player : public Unit, public GridObject<Player>
         void SetLfgComment(std::string _comment) { m_LookingForGroup.comment = _comment; }
         uint8 GetLfgRoles() { return m_LookingForGroup.roles; }
         void SetLfgRoles(uint8 _roles) { m_LookingForGroup.roles = _roles; }
+        bool GetLfgUpdate() { return m_LookingForGroup.update; }
+        void SetLfgUpdate(bool update) { m_LookingForGroup.update = update; }
 
         // Temporarily removed pet cache
         uint32 GetTemporaryUnsummonedPetNumber() const { return m_temporaryUnsummonedPetNumber; }
