@@ -755,7 +755,7 @@ bool Player::Create(uint32 guidlow, const std::string& name, uint8 race, uint8 c
     // start with every map explored
     if (sWorld.getConfig(CONFIG_START_ALL_EXPLORED))
     {
-        for (uint8 i=0; i<64; i++)
+        for (uint8 i=0; i<PLAYER_EXPLORED_ZONES_SIZE; i++)
             SetFlag(PLAYER_EXPLORED_ZONES_1+i,0xFFFFFFFF);
     }
 
