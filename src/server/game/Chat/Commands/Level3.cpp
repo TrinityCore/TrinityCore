@@ -831,7 +831,7 @@ bool ChatHandler::HandleReloadGossipScriptsCommand(const char* arg)
     if (*arg != 'a')
         sLog.outString("Re-Loading Scripts from `gossip_scripts`...");
 
-    sObectMgr.LoadGossipScripts();
+    sObjectMgr.LoadGossipScripts();
 
     if (*arg != 'a')
         SendGlobalGMSysMessage("DB table `gossip_scripts` reloaded.");
