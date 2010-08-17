@@ -1607,22 +1607,6 @@ void Spell::EffectDummy(uint32 i)
                 return;
             }
             break;
-        case SPELLFAMILY_HUNTER:
-            switch(m_spellInfo->Id)
-            {
-                case 37506:                                 // Scatter Shot
-                {
-                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    // break Auto Shot and autohit
-                    m_caster->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
-                    m_caster->AttackStop();
-                    m_caster->ToPlayer()->SendAttackSwingCancelAttack();
-                    return;
-                }
-            }
-            break;
         case SPELLFAMILY_PALADIN:
             // Divine Storm
             if (m_spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_PALADIN_DIVINESTORM && i == 1)
@@ -1690,50 +1674,6 @@ void Spell::EffectDummy(uint32 i)
                 m_caster->CastCustomSpell(unitTarget, 52032, &damage, 0, 0, true, 0, 0, m_originalCasterGUID);
                 return;
             }
-            if (m_spellInfo->Id == 39610)                    // Mana Tide Totem effect
-            {
-                if (!unitTarget || unitTarget->getPowerType() != POWER_MANA)
-                    return;
-                // Glyph of Mana Tide
-                if (Unit *owner = m_caster->GetOwner())
-                    if (AuraEffect *dummy = owner->GetAuraEffect(55441, 0))
-                        damage += dummy->GetAmount();
-                // Regenerate 6% of Total Mana Every 3 secs
-                int32 EffectBasePoints0 = unitTarget->GetMaxPower(POWER_MANA) * damage / 100;
-                m_caster->CastCustomSpell(unitTarget, 39609, &EffectBasePoints0, NULL, NULL, true, NULL, NULL, m_originalCasterGUID);
-                return;
-            }
-            // Fire Nova
-            if (m_spellInfo->SpellIconID == 33)
-            {
-                if (!m_caster)
-                    return;
-
-                uint32 triggered_spell_id;
-                switch(m_spellInfo->Id)
-                {
-                    case 1535:  triggered_spell_id = 8349; break;
-                    case 8498:  triggered_spell_id = 8502; break;
-                    case 8499:  triggered_spell_id = 8503; break;
-                    case 11314: triggered_spell_id = 11306; break;
-                    case 11315: triggered_spell_id = 11307; break;
-                    case 25546: triggered_spell_id = 25535; break;
-                    case 25547: triggered_spell_id = 25537; break;
-                    case 61649: triggered_spell_id = 61650; break;
-                    case 61657: triggered_spell_id = 61654; break;
-                    default:
-                        break;
-                }
-                // fire slot
-                if (triggered_spell_id && m_caster->m_SummonSlot[1])
-                {
-                    Creature* totem = m_caster->GetMap()->GetCreature(m_caster->m_SummonSlot[1]);
-                    if (totem && totem->isTotem())
-                        totem->CastSpell(totem, triggered_spell_id, true);
-                    return;
-                }
-                return;
-            }
             // Lava Lash
             if (m_spellInfo->SpellFamilyFlags[2] & SPELLFAMILYFLAG2_SHAMAN_LAVA_LASH)
             {
@@ -1761,13 +1701,6 @@ void Spell::EffectDummy(uint32 i)
                 m_caster->CastCustomSpell(m_caster, 45470, &bp, NULL, NULL, false);
                 return;
             }
-            // Scourge Strike
-            if (m_spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_DK_SCOURGE_STRIKE)
-            {
-                int32 bp = (m_damage * damage * unitTarget->GetDiseasesByCaster(m_caster->GetGUID())) / 100;
-                m_caster->CastCustomSpell(unitTarget, 70890, &bp, NULL, NULL, true);
-                return;
-            }
             // Death Coil
             if (m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_DK_DEATH_COIL)
             {
@@ -1783,40 +1716,30 @@ void Spell::EffectDummy(uint32 i)
                 }
                 return;
             }
-            // Hungering Cold
-            if (m_spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_DK_HUNGERING_COLD)
+            switch (m_spellInfo->Id)
             {
-                unitTarget->CastSpell(m_caster, 51209, true);
-                return;
-            }
-            // Death Grip
-            if (m_spellInfo->Id == 49560)
-            {
+            case 49560: // Death Grip
                 Position pos;
                 GetSummonPosition(i, pos);
                 if (Unit *unit = unitTarget->GetVehicleBase()) // what is this for?
-                    unit->CastSpell(pos.GetPositionX(),pos.GetPositionY(),pos.GetPositionZ(),damage,true);
+                    unit->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), damage, true);
                 else
-                    unitTarget->CastSpell(pos.GetPositionX(),pos.GetPositionY(),pos.GetPositionZ(),damage,true);
+                    unitTarget->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), damage, true);
                 return;
-            }
-            else if (m_spellInfo->Id == 46584) // Raise dead
-            {
+            case 46584: // Raise Dead
                 if (m_caster->GetTypeId() != TYPEID_PLAYER)
                     return;
 
                 // Do we have talent Master of Ghouls?
                 if (m_caster->HasAura(52143))
                     // summon as pet
-                    bp =  52150;
+                    bp = 52150;
                 else
                     // or guardian
                     bp = 46585;
 
                 if (m_targets.HasDst())
-                {
                     targets.setDst(m_targets.m_dstPos);
-                }
                 else
                 {
                     targets.setDst(*m_caster);
@@ -1824,50 +1747,16 @@ void Spell::EffectDummy(uint32 i)
                     triggered = false;
                 }
                 // Remove cooldown - summon spellls have category
-                m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id,true);
-                spell_id=48289;
-            }
+                m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
+                spell_id = 48289;
+                break;
             // Raise dead - take reagents and trigger summon spells
-            else if (m_spellInfo->Id == 48289)
-            {
+            case 48289:
                 if (m_targets.HasDst())
                     targets.setDst(m_targets.m_dstPos);
 
                 spell_id = CalculateDamage(0, NULL);
-            }
-            // Corpse Explosion
-            else if (m_spellInfo->SpellIconID == 1737)
-            {
-                // Dummy effect 1 is used only for targeting and damage amount
-                if (i != 0)
-                    return;
-                int32 bp = 0;
-                // Living ghoul as a target
-                if (unitTarget->isAlive())
-                {
-                    bp = unitTarget->GetMaxHealth()*0.25f;
-                }
-                // Some corpse
-                else
-                {
-                    bp = damage;
-                }
-                m_caster->CastCustomSpell(unitTarget, SpellMgr::CalculateSpellEffectAmount(m_spellInfo, 1), &bp,NULL,NULL,true);
-                // Corpse Explosion (Suicide)
-                unitTarget->CastCustomSpell(unitTarget,43999,&bp,NULL,NULL,true);
-                // Set corpse look
-                unitTarget->SetDisplayId(25537+urand(0,3));
-            }
-            // Runic Power Feed (keeping Gargoyle alive)
-            else if (m_spellInfo->Id == 50524)
-            {
-                // No power, dismiss Gargoyle
-                if (m_caster->GetPower(POWER_RUNIC_POWER)<30)
-                    m_caster->RemoveAurasDueToSpell(50514, m_caster->GetGUID());
-                else
-                    m_caster->ModifyPower(POWER_RUNIC_POWER,-30);
-
-                return;
+                break;
             }
             break;
     }
@@ -4748,24 +4637,6 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     }
                     return;
                 }
-                // Glyph of Starfire
-                case 54846:
-                {
-                    if (AuraEffect const * aurEff = unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE,SPELLFAMILY_DRUID,0x00000002,0,0,m_caster->GetGUID()))
-                    {
-                        uint32 countMin = aurEff->GetBase()->GetMaxDuration();
-                        uint32 countMax = 18000;
-                        countMax += m_caster->HasAura(38414) ? 3000 : 0;
-                        countMax += m_caster->HasAura(57865) ? 3000 : 0;
-
-                        if (countMin < countMax)
-                        {
-                            aurEff->GetBase()->SetDuration(uint32(aurEff->GetBase()->GetDuration()+3000));
-                            aurEff->GetBase()->SetMaxDuration(countMin+3000);
-                        }
-                    }
-                    return;
-                }
                 // Glyph of Backstab
                 case 63975:
                 {
@@ -5650,211 +5521,6 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                             return;
                     DoCreateItem(effIndex, itemId[urand(0,4)]);
                     return;
-            }
-            break;
-        }
-        case SPELLFAMILY_WARLOCK:
-        {
-            switch(m_spellInfo->Id)
-            {
-                // Healthstone creating spells
-                case  6201:
-                case  6202:
-                case  5699:
-                case 11729:
-                case 11730:
-                case 27230:
-                case 47871:
-                case 47878:
-                {
-                    uint32 itemtype;
-                    uint32 rank = 0;
-
-                    // Improved Healthstone
-                    if (AuraEffect const * aurEff = unitTarget->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, 284, 0))
-                    {
-                        if (aurEff->GetId() == 18692)
-                            rank = 1;
-                        else if (aurEff->GetId() == 18693)
-                            rank = 2;
-                        else
-                            sLog.outError("Unknown rank of Improved Healthstone id: %d", aurEff->GetId());
-                    }
-
-                    static uint32 const itypes[8][3] = {
-                        { 5512, 19004, 19005},              // Minor Healthstone
-                        { 5511, 19006, 19007},              // Lesser Healthstone
-                        { 5509, 19008, 19009},              // Healthstone
-                        { 5510, 19010, 19011},              // Greater Healthstone
-                        { 9421, 19012, 19013},              // Major Healthstone
-                        {22103, 22104, 22105},              // Master Healthstone
-                        {36889, 36890, 36891},              // Demonic Healthstone
-                        {36892, 36893, 36894}               // Fel Healthstone
-                    };
-
-                    switch(m_spellInfo->Id)
-                    {
-                        case  6201:
-                            itemtype=itypes[0][rank];break; // Minor Healthstone
-                        case  6202:
-                            itemtype=itypes[1][rank];break; // Lesser Healthstone
-                        case  5699:
-                            itemtype=itypes[2][rank];break; // Healthstone
-                        case 11729:
-                            itemtype=itypes[3][rank];break; // Greater Healthstone
-                        case 11730:
-                            itemtype=itypes[4][rank];break; // Major Healthstone
-                        case 27230:
-                            itemtype=itypes[5][rank];break; // Master Healthstone
-                        case 47871:
-                            itemtype=itypes[6][rank];break; // Demonic Healthstone
-                        case 47878:
-                            itemtype=itypes[7][rank];break; // Fel Healthstone
-                        default:
-                            return;
-                    }
-                    DoCreateItem(effIndex, itemtype);
-                    return;
-                }
-                // Everlasting Affliction
-                case 47422:
-                    // Refresh corruption on target
-                    if (AuraEffect * aur = unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_WARLOCK, 0x2, 0, 0, m_caster->GetGUID()))
-                        aur->GetBase()->RefreshDuration();
-                    return;
-                // Demonic Empowerment
-                case 47193:
-                {
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT || !unitTarget->ToCreature()->isPet())
-                        return;
-                    CreatureInfo const * ci = sObjectMgr.GetCreatureTemplate(unitTarget->GetEntry());
-                    switch (ci->family)
-                    {
-                    case CREATURE_FAMILY_SUCCUBUS:
-                        unitTarget->CastSpell(unitTarget, 54435, true);
-                        break;
-                    case CREATURE_FAMILY_VOIDWALKER:
-                    {
-                        SpellEntry const* spellInfo = sSpellStore.LookupEntry(54443);
-                        int32 hp = unitTarget->GetMaxHealth() * m_caster->CalculateSpellDamage(unitTarget, spellInfo, 0) /100;
-                        unitTarget->CastCustomSpell(unitTarget, 54443,&hp, NULL, NULL,true);
-                        //unitTarget->CastSpell(unitTarget, 54441, true);
-                        break;
-                    }
-                    case CREATURE_FAMILY_FELGUARD:
-                        unitTarget->CastSpell(unitTarget, 54508, true);
-                        break;
-                    case CREATURE_FAMILY_FELHUNTER:
-                        unitTarget->CastSpell(unitTarget, 54509, true);
-                        break;
-                    case CREATURE_FAMILY_IMP:
-                        unitTarget->CastSpell(unitTarget, 54444, true);
-                        break;
-                    }
-                    return;
-                }
-                // Guarded by The Light
-                case 63521:
-                {
-                    // Divine Plea
-                    if (Aura * aura = m_caster->GetAura(54428))
-                        aura->RefreshDuration();
-                    return;
-                }
-            }
-            break;
-        }
-        case SPELLFAMILY_HUNTER:
-        {
-            switch(m_spellInfo->Id)
-            {
-                // Invigoration
-                case 53412:
-                {
-                    if (AuraEffect * aurEff = unitTarget->GetDummyAuraEffect(SPELLFAMILY_HUNTER, 3487, 0))
-                    {
-                        if (roll_chance_i(aurEff->GetAmount()))
-                            unitTarget->CastSpell(unitTarget, 53398, true);
-                    }
-                    break;
-                }
-                // Heart of the Pheonix
-                case 55709:
-                {
-                    int pct = 100;
-                    if (unitTarget->GetTypeId() == TYPEID_UNIT && unitTarget->ToCreature()->isPet())
-                        if (Unit* owner = unitTarget->ToCreature()->GetOwner())
-                            owner->CastCustomSpell(unitTarget, 54114, &pct, NULL, NULL, true);
-                    break;
-                }
-                // Chimera Shot
-                case 53209:
-                {
-                    uint32 spellId = 0;
-                    int32 basePoint = 0;
-                    Unit::AuraApplicationMap& Auras = unitTarget->GetAppliedAuras();
-                    for (Unit::AuraApplicationMap::iterator i = Auras.begin(); i != Auras.end(); ++i)
-                    {
-                        Aura * aura = (*i).second->GetBase();
-                        if (aura->GetCasterGUID() != m_caster->GetGUID())
-                            continue;
-                        // Search only Serpent Sting, Viper Sting, Scorpid Sting auras
-                        flag96 familyFlag = aura->GetSpellProto()->SpellFamilyFlags;
-                        if (!(familyFlag[1] & 0x00000080 || familyFlag[0] & 0x0000C000))
-                            continue;
-                        if (AuraEffect const * aurEff = aura->GetEffect(0))
-                        {
-                            // Serpent Sting - Instantly deals 40% of the damage done by your Serpent Sting.
-                            if (familyFlag[0] & 0x4000)
-                            {
-                                int32 TickCount = aurEff->GetTotalTicks();
-                                spellId = 53353; // 53353 Chimera Shot - Serpent
-                                basePoint = aurEff->GetAmount() * TickCount * 40 / 100;
-                            }
-                            // Viper Sting - Instantly restores mana to you equal to 60% of the total amount drained by your Viper Sting.
-                            else if (familyFlag[1] & 0x00000080)
-                            {
-                                int32 TickCount = aura->GetEffect(0)->GetTotalTicks();
-                                spellId = 53358; // 53358 Chimera Shot - Viper
-
-                                // Amount of one aura tick
-                                basePoint = aurEff->GetAmount() * unitTarget->GetMaxPower(POWER_MANA) / 100 ;
-                                int32 casterBasePoint = aurEff->GetAmount() * unitTarget->GetMaxPower(POWER_MANA) / 50 ;
-                                if (basePoint > casterBasePoint)
-                                    basePoint = casterBasePoint;
-                                basePoint = basePoint * TickCount * 60 / 100;
-                            }
-                            // Scorpid Sting - Attempts to Disarm the target for 10 sec. This effect cannot occur more than once per 1 minute.
-                            else if (familyFlag[0] & 0x00008000)
-                                spellId = 53359; // 53359 Chimera Shot - Scorpid
-                            // ?? nothing say in spell desc (possibly need addition check)
-                            //if (familyFlag & 0x0000010000000000LL || // dot
-                            //    familyFlag & 0x0000100000000000LL)   // stun
-                            //{
-                            //    spellId = 53366; // 53366 Chimera Shot - Wyvern
-                            //}
-
-                            // Refresh aura duration
-                            aura->RefreshDuration();
-                        }
-                        break;
-                    }
-                    if (spellId)
-                        m_caster->CastCustomSpell(unitTarget, spellId, &basePoint, 0, 0, false);
-                    return;
-                }
-                // Master's Call
-                case 53271:
-                {
-                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    if (Pet *PlrPet = m_caster->ToPlayer()->GetPet())
-                        m_caster->CastSpell(PlrPet, 62305, true);
-                        return;
-                }
-                default:
-                    break;
             }
             break;
         }
