@@ -8,15 +8,21 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-file(GLOB sources *.c)
+if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+  add_subdirectory(jemalloc)
+  set(JEMALLOC_LIB "jemalloc")
+endif()
 
-set(bzip2_STAT_SRCS
-  ${sources}
-)
+if(CMAKE_SYSTEM_NAME MATCHES "Windows")
+  add_subdirectory(acelite)
+  add_subdirectory(zlib)
+  add_subdirectory(bzip2)
+endif()
 
-include_directories(
-  ${CMAKE_SOURCE_DIR}/externals/zlib
-  ${CMAKE_CURRENT_SOURCE_DIR}
-)
+add_subdirectory(g3dlite)
+add_subdirectory(sockets)
+add_subdirectory(gsoap)
 
-add_library(bzip2 STATIC ${bzip2_STAT_SRCS})
+if(TOOLS)
+  add_subdirectory(libmpq)
+endif()

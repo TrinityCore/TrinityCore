@@ -51,10 +51,10 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/shared/Cryptography/Authentication
   ${CMAKE_SOURCE_DIR}/src/server/shared/Logging
   ${CMAKE_SOURCE_DIR}/src/server/shared/Utilities
-  ${CMAKE_SOURCE_DIR}/src/server/authserver
-  ${CMAKE_SOURCE_DIR}/src/server/authserver/Authentication
-  ${CMAKE_SOURCE_DIR}/src/server/authserver/Realms
-  ${CMAKE_SOURCE_DIR}/src/server/authserver/Server
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/Authentication
+  ${CMAKE_CURRENT_SOURCE_DIR}/Realms
+  ${CMAKE_CURRENT_SOURCE_DIR}/Server
   ${ACE_INCLUDE_DIR}
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
