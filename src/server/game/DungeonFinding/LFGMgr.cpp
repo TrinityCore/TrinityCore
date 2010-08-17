@@ -467,9 +467,13 @@ void LFGMgr::Join(Player *plr)
         for (GroupReference *itr = plr->GetGroup()->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             plrg = itr->getSource();                        // Not null, checked earlier
-            dungeons = plrg->GetLfgDungeons();
-            for (LfgDungeonSet::const_iterator itDungeon = plr->GetLfgDungeons()->begin(); itDungeon != plr->GetLfgDungeons()->end(); ++itDungeon)
-                dungeons->insert(*itDungeon);
+            if (plrg != plr)
+            {
+                dungeons = plrg->GetLfgDungeons();
+                dungeons->clear();
+                for (LfgDungeonSet::const_iterator itDungeon = plr->GetLfgDungeons()->begin(); itDungeon != plr->GetLfgDungeons()->end(); ++itDungeon)
+                    dungeons->insert(*itDungeon);
+            }
             plrg->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_JOIN_PROPOSAL);
         }
         UpdateRoleCheck(grp, plr);
@@ -839,32 +843,11 @@ void LFGMgr::UpdateRoleCheck(Group *grp, Player *plr /* = NULL*/)
             if (Player *plrg = itr->getSource())
                 pRoleCheck->roles[plrg->GetGUIDLow()] = 0;
 
-        // Check if it's offer continue (random + current one)
-        if (grp->isLFGGroup() && dungeons->size() == 2)
-        {
-            LfgDungeonSet::const_iterator itDungeon = dungeons->begin();
-            uint32 aDungeon = *itDungeon;
-            uint32 rDungeon = *(++itDungeon);
-
-            // it's a Offer to continue (Actual dungeon + random dungeon in the list)
-            // Rolecheck will be using the actual dungeon - Players random
-            if (aDungeon == grp->GetLfgDungeonEntry() && isRandomDungeon(rDungeon))
-            {
-                for (GroupReference *itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
-                {
-                    if (Player *plrg = itr->getSource())
-                    {
-                        plrg->GetLfgDungeons()->clear();
-                        plrg->GetLfgDungeons()->insert(rDungeon);
-                    }
-                }
-                pRoleCheck->dungeons.insert(aDungeon);
-            }
-
-        }
-
-        if (pRoleCheck->dungeons.empty())
-            for (LfgDungeonSet::const_iterator itDungeon = plr->GetLfgDungeons()->begin(); itDungeon != plr->GetLfgDungeons()->end(); ++itDungeon)
+        // Check if it's offer continue or trying to find a new instance after a random assigned (Join Random + LfgGroup)
+        if (grp->isLFGGroup() && dungeons->size() == 1 && isRandomDungeon(*dungeons->begin()))
+            pRoleCheck->dungeons.insert(grp->GetLfgDungeonEntry());
+        else
+            for (LfgDungeonSet::const_iterator itDungeon = dungeons->begin(); itDungeon != dungeons->end(); ++itDungeon)
                 pRoleCheck->dungeons.insert(*itDungeon);
     }
     else
