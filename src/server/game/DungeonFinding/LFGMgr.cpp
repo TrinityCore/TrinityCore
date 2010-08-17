@@ -1395,7 +1395,13 @@ void LFGMgr::BuildLfgRoleCheck(WorldPacket &data, LfgRoleCheck *pRoleCheck)
     for (LfgDungeonSet::iterator it = pRoleCheck->dungeons.begin(); it != pRoleCheck->dungeons.end(); ++it)
     {
         dungeon = sLFGDungeonStore.LookupEntry(*it);        // not null - been checked at join time
-        data << uint32(dungeon->Entry());                   // Dungeon
+        if (!dungeon)
+        {
+            sLog.outError("LFGMgr::BuildLfgRoleCheck: Dungeon %u does not exist in dbcs", *it);
+            data << uint32(0);
+        }
+        else
+            data << uint32(dungeon->Entry());               // Dungeon
     }
 
     data << uint8(pRoleCheck->roles.size());                // Players in group
