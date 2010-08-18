@@ -59,7 +59,6 @@
 #include "OutdoorPvPMgr.h"
 #include "ArenaTeam.h"
 #include "Chat.h"
-#include "AsyncDatabaseImpl.h"
 #include "Spell.h"
 #include "SocialMgr.h"
 #include "GameEventMgr.h"

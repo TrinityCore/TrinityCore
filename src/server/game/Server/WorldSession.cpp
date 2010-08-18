@@ -290,6 +290,8 @@ bool WorldSession::Update(uint32 diff)
         delete packet;
     }
 
+    ProcessQueryCallbacks();
+
     time_t currTime = time(NULL);
     ///- If necessary, log the player out
     if (ShouldLogOut(currTime) && !m_playerLoading)
@@ -954,4 +956,64 @@ void WorldSession::SetPlayer(Player *plr)
     // set m_GUID that can be used while player loggined and later until m_playerRecentlyLogout not reset
     if (_player)
         m_GUIDLow = _player->GetGUIDLow();
+}
+
+void WorldSession::ProcessQueryCallbacks()
+{
+    QueryResult_AutoPtr result;
+
+    //! HandleNameQueryOpcode
+    while (!m_nameQueryCallbacks.is_empty())
+    {
+        QueryResultFuture lResult;
+        ACE_Time_Value timeout = ACE_Time_Value::zero;
+        if (m_nameQueryCallbacks.next_readable(lResult, &timeout) != 1)
+           break;
+ 
+        lResult.get(result);
+        SendNameQueryOpcodeFromDBCallBack(result);
+    }
+    
+    //! HandleCharEnumOpcode
+    if (m_charEnumCallback.ready())
+    {
+        m_charEnumCallback.get(result);
+        HandleCharEnum(result);
+        m_charEnumCallback.cancel();
+    }
+
+    //! HandlePlayerLoginOpcode
+    if (m_charLoginCallback.ready())
+    {
+        SQLQueryHolder* param;
+        m_charLoginCallback.get(param);
+        HandlePlayerLogin((LoginQueryHolder*)param);
+        m_charLoginCallback.cancel();
+    }
+
+    //! HandleAddFriendOpcode
+    if (m_addFriendCallback.IsReady())
+    {
+        std::string& param = m_addFriendCallback.GetParam();
+        m_addFriendCallback.GetResult(result);
+        HandleAddFriendOpcodeCallBack(result, param);
+        m_addFriendCallback.FreeResult();
+    }
+
+    //- HandleCharRenameOpcode
+    if (m_charRenameCallback.IsReady())
+    {
+        std::string& param = m_charRenameCallback.GetParam();
+        m_charRenameCallback.GetResult(result);
+        HandleChangePlayerNameOpcodeCallBack(result, param);
+        m_charRenameCallback.FreeResult();
+    }
+    
+    //- HandleCharAddIgnoreOpcode
+    if (m_addIgnoreCallback.ready())
+    {
+        m_addIgnoreCallback.get(result);
+        HandleAddIgnoreOpcodeCallBack(result);
+        m_addIgnoreCallback.cancel();
+    }
 }

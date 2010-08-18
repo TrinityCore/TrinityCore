@@ -54,7 +54,6 @@
 #include "VMapFactory.h"
 #include "GameEventMgr.h"
 #include "PoolMgr.h"
-#include "AsyncDatabaseImpl.h"
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 #include "InstanceSaveMgr.h"
@@ -103,7 +102,6 @@ World::World()
     m_maxQueuedSessionCount = 0;
     m_PlayerCount = 0;
     m_MaxPlayerCount = 0;
-    m_resultQueue = NULL;
     m_NextDailyQuestReset = 0;
     m_NextWeeklyQuestReset = 0;
     m_scheduledScripts = 0;
@@ -133,8 +131,6 @@ World::~World()
         delete command;
 
     VMAP::VMapFactory::clear();
-
-    delete m_resultQueue;
 
     //TODO free addSessQueue
 }
@@ -1979,8 +1975,8 @@ void World::Update(uint32 diff)
     RecordTimeDiff("UpdateLFGMgr");
 
     // execute callbacks from sql queries that were queued recently
-    UpdateResultQueue();
-    RecordTimeDiff("UpdateResultQueue");
+    ProcessQueryCallbacks();
+    RecordTimeDiff("ProcessQueryCallbacks");
 
     ///- Erase corpses once every 20 minutes
     if (m_timers[WUPDATE_CORPSES].Passed())
@@ -2500,21 +2496,12 @@ void World::SendRNDBroadcast()
     }
 }
 
-void World::InitResultQueue()
-{
-    m_resultQueue = new SQLResultQueue;
-    CharacterDatabase.SetResultQueue(m_resultQueue);
-}
-
-void World::UpdateResultQueue()
-{
-    m_resultQueue->Update();
-}
-
 void World::UpdateRealmCharCount(uint32 accountId)
 {
-    CharacterDatabase.AsyncPQuery(this, &World::_UpdateRealmCharCount, accountId,
-        "SELECT COUNT(guid) FROM characters WHERE account = '%u'", accountId);
+    m_realmCharCallback.SetParam(accountId);
+    m_realmCharCallback.SetFutureResult(
+        LoginDatabase.AsyncPQuery("SELECT COUNT(guid) FROM characters WHERE account = '%u'", accountId)
+        );
 }
 
 void World::_UpdateRealmCharCount(QueryResult_AutoPtr resultCharCount, uint32 accountId)
@@ -2741,4 +2728,18 @@ uint64 World::getWorldState(uint32 index) const
 {
     WorldStatesMap::const_iterator it = m_worldstates.find(index);
     return it != m_worldstates.end() ? it->second : 0;
+}
+
+void World::ProcessQueryCallbacks()
+{
+    QueryResult_AutoPtr result;
+
+    //-UpdateRealmCharCount
+    if (m_realmCharCallback.IsReady())
+    {
+        uint32 param = m_realmCharCallback.GetParam();
+        m_realmCharCallback.GetResult(result);
+        _UpdateRealmCharCount(result, param);
+        m_realmCharCallback.FreeResult();
+    }
 }

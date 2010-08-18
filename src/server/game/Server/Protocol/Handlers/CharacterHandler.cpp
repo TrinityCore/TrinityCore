@@ -27,7 +27,6 @@
 #include "WorldSession.h"
 #include "MD5.h"
 #include "DatabaseEnv.h"
-#include "AsyncDatabaseImpl.h"
 
 #include "ArenaTeam.h"
 #include "Chat.h"
@@ -103,33 +102,6 @@ bool LoginQueryHolder::Initialize()
     return res;
 }
 
-// don't call WorldSession directly
-// it may get deleted before the query callbacks get executed
-// instead pass an account id to this handler
-class CharacterHandler
-{
-
-    public:
-        void HandleCharEnumCallback(QueryResult_AutoPtr result, uint32 account)
-        {
-            WorldSession * session = sWorld.FindSession(account);
-            if (!session)
-                return;
-            session->HandleCharEnum(result);
-        }
-        void HandlePlayerLoginCallback(QueryResult_AutoPtr /*dummy*/, SQLQueryHolder * holder)
-        {
-            if (!holder) return;
-            WorldSession *session = sWorld.FindSession(((LoginQueryHolder*)holder)->GetAccountId());
-            if (!session)
-            {
-                delete holder;
-                return;
-            }
-            session->HandlePlayerLogin((LoginQueryHolder*)holder);
-        }
-} chrHandler;
-
 void WorldSession::HandleCharEnum(QueryResult_AutoPtr result)
 {
     WorldPacket data(SMSG_CHAR_ENUM, 100);                  // we guess size
@@ -158,31 +130,33 @@ void WorldSession::HandleCharEnum(QueryResult_AutoPtr result)
 void WorldSession::HandleCharEnumOpcode(WorldPacket & /*recv_data*/)
 {
     /// get all the data necessary for loading all characters (along with their pets) on the account
-    CharacterDatabase.AsyncPQuery(&chrHandler, &CharacterHandler::HandleCharEnumCallback, GetAccountId(),
-         !sWorld.getConfig(CONFIG_DECLINED_NAMES_USED) ?
-    //   ------- Query Without Declined Names --------
-    //           0               1                2                3                 4                  5                       6                        7
-        "SELECT characters.guid, characters.name, characters.race, characters.class, characters.gender, characters.playerBytes, characters.playerBytes2, characters.level, "
-    //   8                9               10                     11                     12                     13                    14
-        "characters.zone, characters.map, characters.position_x, characters.position_y, characters.position_z, guild_member.guildid, characters.playerFlags, "
-    //  15                    16                   17                     18                   19
-        "characters.at_login, character_pet.entry, character_pet.modelid, character_pet.level, characters.equipmentCache "
-        "FROM characters LEFT JOIN character_pet ON characters.guid=character_pet.owner AND character_pet.slot='%u' "
-        "LEFT JOIN guild_member ON characters.guid = guild_member.guid "
-        "WHERE characters.account = '%u' ORDER BY characters.guid"
-        :
-    //   --------- Query With Declined Names ---------
-    //           0               1                2                3                 4                  5                       6                        7
-        "SELECT characters.guid, characters.name, characters.race, characters.class, characters.gender, characters.playerBytes, characters.playerBytes2, characters.level, "
-    //   8                9               10                     11                     12                     13                    14
-        "characters.zone, characters.map, characters.position_x, characters.position_y, characters.position_z, guild_member.guildid, characters.playerFlags, "
-    //  15                    16                   17                     18                   19               20
-        "characters.at_login, character_pet.entry, character_pet.modelid, character_pet.level, characters.equipmentCache, character_declinedname.genitive "
-        "FROM characters LEFT JOIN character_pet ON characters.guid = character_pet.owner AND character_pet.slot='%u' "
-        "LEFT JOIN character_declinedname ON characters.guid = character_declinedname.guid "
-        "LEFT JOIN guild_member ON characters.guid = guild_member.guid "
-        "WHERE characters.account = '%u' ORDER BY characters.guid",
-        PET_SAVE_AS_CURRENT,GetAccountId());
+    m_charEnumCallback =
+        CharacterDatabase.AsyncPQuery(
+             !sWorld.getConfig(CONFIG_DECLINED_NAMES_USED) ?
+            //   ------- Query Without Declined Names --------
+            //           0               1                2                3                 4                  5                       6                        7
+                "SELECT characters.guid, characters.name, characters.race, characters.class, characters.gender, characters.playerBytes, characters.playerBytes2, characters.level, "
+            //   8                9               10                     11                     12                     13                    14
+                "characters.zone, characters.map, characters.position_x, characters.position_y, characters.position_z, guild_member.guildid, characters.playerFlags, "
+            //  15                    16                   17                     18                   19
+                "characters.at_login, character_pet.entry, character_pet.modelid, character_pet.level, characters.equipmentCache "
+                "FROM characters LEFT JOIN character_pet ON characters.guid=character_pet.owner AND character_pet.slot='%u' "
+                "LEFT JOIN guild_member ON characters.guid = guild_member.guid "
+                "WHERE characters.account = '%u' ORDER BY characters.guid"
+                :
+            //   --------- Query With Declined Names ---------
+            //           0               1                2                3                 4                  5                       6                        7
+                "SELECT characters.guid, characters.name, characters.race, characters.class, characters.gender, characters.playerBytes, characters.playerBytes2, characters.level, "
+            //   8                9               10                     11                     12                     13                    14
+                "characters.zone, characters.map, characters.position_x, characters.position_y, characters.position_z, guild_member.guildid, characters.playerFlags, "
+            //  15                    16                   17                     18                   19               20
+                "characters.at_login, character_pet.entry, character_pet.modelid, character_pet.level, characters.equipmentCache, character_declinedname.genitive "
+                "FROM characters LEFT JOIN character_pet ON characters.guid = character_pet.owner AND character_pet.slot='%u' "
+                "LEFT JOIN character_declinedname ON characters.guid = character_declinedname.guid "
+                "LEFT JOIN guild_member ON characters.guid = guild_member.guid "
+                "WHERE characters.account = '%u' ORDER BY characters.guid",
+                PET_SAVE_AS_CURRENT, GetAccountId()
+            );
 }
 
 void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
@@ -565,7 +539,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket & recv_data)
         return;
     }
 
-    CharacterDatabase.DelayQueryHolder(&chrHandler, &CharacterHandler::HandlePlayerLoginCallback, holder);
+    m_charLoginCallback = CharacterDatabase.DelayQueryHolder((SQLQueryHolder*)holder);
 }
 
 void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
@@ -957,24 +931,22 @@ void WorldSession::HandleCharRenameOpcode(WorldPacket& recv_data)
 
     // make sure that the character belongs to the current account, that rename at login is enabled
     // and that there is no character with the desired new name
-    CharacterDatabase.AsyncPQuery(&WorldSession::HandleChangePlayerNameOpcodeCallBack,
-        GetAccountId(), newname,
+    m_charRenameCallback.SetParam(newname);
+    m_charRenameCallback.SetFutureResult(
+        CharacterDatabase.AsyncPQuery(
         "SELECT guid, name FROM characters WHERE guid = %d AND account = %d AND (at_login & %d) = %d AND NOT EXISTS (SELECT NULL FROM characters WHERE name = '%s')",
         GUID_LOPART(guid), GetAccountId(), AT_LOGIN_RENAME, AT_LOGIN_RENAME, escaped_newname.c_str()
-);
+        )
+    );
 }
 
-void WorldSession::HandleChangePlayerNameOpcodeCallBack(QueryResult_AutoPtr result, uint32 accountId, std::string newname)
+void WorldSession::HandleChangePlayerNameOpcodeCallBack(QueryResult_AutoPtr result, std::string newname)
 {
-    WorldSession * session = sWorld.FindSession(accountId);
-    if (!session)
-            return;
-
     if (!result)
     {
         WorldPacket data(SMSG_CHAR_RENAME, 1);
         data << uint8(CHAR_CREATE_ERROR);
-        session->SendPacket(&data);
+        SendPacket(&data);
         return;
     }
 
@@ -985,13 +957,13 @@ void WorldSession::HandleChangePlayerNameOpcodeCallBack(QueryResult_AutoPtr resu
     CharacterDatabase.PExecute("UPDATE characters set name = '%s', at_login = at_login & ~ %u WHERE guid ='%u'", newname.c_str(), uint32(AT_LOGIN_RENAME), guidLow);
     CharacterDatabase.PExecute("DELETE FROM character_declinedname WHERE guid ='%u'", guidLow);
 
-    sLog.outChar("Account: %d (IP: %s) Character:[%s] (guid:%u) Changed name to: %s", session->GetAccountId(), session->GetRemoteAddress().c_str(), oldname.c_str(), guidLow, newname.c_str());
+    sLog.outChar("Account: %d (IP: %s) Character:[%s] (guid:%u) Changed name to: %s", GetAccountId(), GetRemoteAddress().c_str(), oldname.c_str(), guidLow, newname.c_str());
 
     WorldPacket data(SMSG_CHAR_RENAME, 1+8+(newname.size()+1));
     data << uint8(RESPONSE_SUCCESS);
     data << uint64(guid);
     data << newname;
-    session->SendPacket(&data);
+    SendPacket(&data);
 }
 
 void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recv_data)
