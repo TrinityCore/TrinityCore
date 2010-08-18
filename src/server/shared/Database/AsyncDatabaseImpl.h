@@ -19,8 +19,8 @@
  */
 
 
-#include "Database/DatabaseWorkerPool.h"
-#include "Database/SQLOperation.h"
+#include "DatabaseWorkerPool.h"
+#include "SQLOperation.h"
 
 
 /// Function body definitions for the template function members of the Database class
