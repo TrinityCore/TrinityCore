@@ -197,6 +197,32 @@ void DatabaseWorkerPool::CommitTransaction()
     }
 }
 
+QueryResultFuture DatabaseWorkerPool::AsyncQuery(const char* sql)
+{
+    QueryResultFuture res;
+    BasicStatementTask* task = new BasicStatementTask(sql, res);
+    Enqueue(task);
+    return res;         //! Fool compiler, has no use yet
+}
+
+QueryResultFuture DatabaseWorkerPool::AsyncPQuery(const char* sql, ...)
+{
+    va_list ap;
+    char szQuery[MAX_QUERY_LEN];
+    va_start(ap, sql);
+    int res = vsnprintf(szQuery, MAX_QUERY_LEN, sql, ap);
+    va_end(ap);
+
+    return AsyncQuery(szQuery);
+}
+
+QueryResultHolderFuture DatabaseWorkerPool::DelayQueryHolder(SQLQueryHolder* holder)
+{
+    QueryResultHolderFuture res;
+    SQLQueryHolderTask* task = new SQLQueryHolderTask(holder, res);
+    Enqueue(task);
+    return res;     //! Fool compiler, has no use yet
+}
 
 MySQLConnection* DatabaseWorkerPool::GetConnection()
 {

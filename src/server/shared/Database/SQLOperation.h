@@ -43,17 +43,21 @@ class SQLOperation : public ACE_Method_Request
         MySQLConnection* m_conn;
 };
 
+typedef ACE_Future<QueryResult_AutoPtr> QueryResultFuture;
 /*! Raw, ad-hoc query. */
 class BasicStatementTask :  public SQLOperation
 {
     public:
         BasicStatementTask(const char* sql);
+        BasicStatementTask(const char* sql, QueryResultFuture result);
         ~BasicStatementTask();
 
         bool Execute();
 
     private:
         const char* m_sql;      //- Raw query to be executed
+        bool m_has_result;
+        QueryResultFuture m_result;
 };
 
 /*! Transactions */
@@ -68,14 +72,6 @@ class TransactionTask : public SQLOperation
 
     private:
         std::queue<char*> m_queries;
-};
-
-/*! ResultQueue */
-class SQLResultQueue : public ACE_Based::LockedQueue<Trinity::IQueryCallback* , ACE_Thread_Mutex>
-{
-    public:
-        SQLResultQueue() {}
-        void Update();
 };
 
 class SQLQueryHolder
@@ -94,28 +90,17 @@ class SQLQueryHolder
         void SetResult(size_t index, QueryResult_AutoPtr result);
 };
 
+typedef ACE_Future<SQLQueryHolder*> QueryResultHolderFuture;
+
 class SQLQueryHolderTask : public SQLOperation
 {
     private:
         SQLQueryHolder * m_holder;
-        Trinity::IQueryCallback * m_callback;
-        SQLResultQueue * m_queue;
-    public:
-        SQLQueryHolderTask(SQLQueryHolder *holder, Trinity::IQueryCallback * callback, SQLResultQueue * queue)
-            : m_holder(holder), m_callback(callback), m_queue(queue) {}
-        bool Execute();
-};
+        QueryResultHolderFuture m_result;
 
-class SQLQueryTask : public SQLOperation
-{
-    private:
-        const char *m_sql;
-        Trinity::IQueryCallback * m_callback;
-        SQLResultQueue * m_queue;
     public:
-        SQLQueryTask(const char *sql, Trinity::IQueryCallback * callback, SQLResultQueue * queue)
-            : m_sql(strdup(sql)), m_callback(callback), m_queue(queue) {}
-        ~SQLQueryTask() { void* tofree = const_cast<char*>(m_sql); free(tofree); }
+        SQLQueryHolderTask(SQLQueryHolder *holder, QueryResultHolderFuture res)
+            : m_holder(holder), m_result(res){};
         bool Execute();
 };
 
