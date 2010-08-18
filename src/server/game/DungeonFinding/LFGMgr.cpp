@@ -632,12 +632,15 @@ bool LFGMgr::RemoveFromQueue(uint64 guid)
 /// <param name="LfgProposalList *">Proposals found.</param>
 void LFGMgr::FindNewGroups(LfgGuidList &check, LfgGuidList all, LfgProposalList *proposals)
 {
+    if (!check.size() || check.size() > MAXGROUPSIZE)
+        return;
+
     uint8 numPlayers = 0;
     uint8 numLfgGroups = 0;
     uint32 groupLowGuid = 0;
     LfgQueueInfoMap pqInfoMap;
     LfgQueueInfoMap::iterator itQueue;
-    for (LfgGuidList::const_iterator it = check.begin(); it != check.end(); ++it)
+    for (LfgGuidList::const_iterator it = check.begin(); it != check.end() && numLfgGroups < 2 && numPlayers <= MAXGROUPSIZE; ++it)
     {
         itQueue = m_QueueInfoMap.find(*it);
         if (itQueue == m_QueueInfoMap.end())
@@ -670,7 +673,7 @@ void LFGMgr::FindNewGroups(LfgGuidList &check, LfgGuidList all, LfgProposalList 
 
     if (numPlayers < MAXGROUPSIZE)
     {
-        while (!all.empty() && check.size() < MAXGROUPSIZE)
+        while (!all.empty() && !proposals->size())
         {
             check.push_back(all.front());
             all.pop_front();
