@@ -417,6 +417,8 @@ void AddSC_instance_halls_of_reflection();   // Halls of Reflection
 void AddSC_halls_of_reflection();
 void AddSC_boss_falric();
 void AddSC_boss_marwyn();
+void AddSC_boss_lord_marrowgar();       // Icecrown Citadel
+void AddSC_instance_icecrown_citadel();
 
 void AddSC_dalaran();
 void AddSC_borean_tundra();
@@ -1079,6 +1081,8 @@ void AddNorthrendScripts()
     AddSC_halls_of_reflection();
     AddSC_boss_falric();
     AddSC_boss_marwyn();
+    AddSC_boss_lord_marrowgar();        // Icecrown Citadel
+    AddSC_instance_icecrown_citadel();
 
     AddSC_dalaran();
     AddSC_borean_tundra();
