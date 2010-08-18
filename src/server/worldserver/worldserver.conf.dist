@@ -36,6 +36,30 @@
 #                    .;/path/to/unix_socket;username;password;database
 #                     - use Unix sockets in Unix/Linux
 #
+#    LoginDatabase.WorkerThreads
+#    WorldDatabase.WorkerThreads
+#    CharacterDatabase.WorkerThreads
+#        The amount of worker threads spawned to handle
+#        asynchroneous MySQL statements
+#        Each worker thread is mirrored with its own
+#        connection to the MySQL server and their own
+#        thread on the MySQL server.
+#        Default: 1
+#
+#   LoginDatabase.ThreadBundleMask
+#   WorldDatabase.ThreadBundleMask
+#   CharacterDatabase.ThreadBundleMask
+#       Defines which runnable threads are bundled into one synchroneous
+#       connection. Runnables not specified in the mask will have their
+#       seperate connection to the MySQL server.
+#       Value is a bitmask consisting of:
+#           MYSQL_BUNDLE_NONE   = 0,     Each task will run their own MySQL connection
+#           MYSQL_BUNDLE_CLI    = 1,     Commandline interface thread
+#           MYSQL_BUNDLE_RA     = 2,     Remote admin thread
+#           MYSQL_BUNDLE_RAR    = 4,     Reactor runnable thread
+#           MYSQL_BUNDLE_WORLD  = 8,     WorldRunnable
+#           MYSQL_BUNDLE_ALL    = 15,    All bundled together
+#
 #    MaxPingTime
 #        Settings for maximum database-ping interval (minutes between pings)
 #
@@ -53,6 +77,12 @@ LogsDir = ""
 LoginDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;auth"
 WorldDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;world"
 CharacterDatabaseInfo = "127.0.0.1;3306;trinity;trinity;characters"
+LoginDatabase.WorkerThreads = 1
+WorldDatabase.WorkerThreads = 1
+CharacterDatabase.WorkerThreads = 1
+LoginDatabase.ThreadBundleMask = 15
+WorldDatabase.ThreadBundleMask = 15
+CharacterDatabase.ThreadBundleMask = 15
 MaxPingTime = 30
 WorldServerPort = 8085
 BindIP = "0.0.0.0"
