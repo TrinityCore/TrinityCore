@@ -1041,7 +1041,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage *damageInfo, int32 dama
     SpellSchoolMask damageSchoolMask = SpellSchoolMask(damageInfo->schoolMask);
     uint32 crTypeMask = pVictim->GetCreatureTypeMask();
 
-    if (damageSchoolMask & SPELL_SCHOOL_MASK_NORMAL)
+    if (IsDamageReducedByArmor(damageSchoolMask, spellInfo))
         damage = CalcArmorReducedDamage(pVictim, damage, spellInfo, attackType);
 
     bool blocked = false;
@@ -1252,7 +1252,7 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
     MeleeDamageBonus(damageInfo->target, &damage, damageInfo->attackType);
 
     // Calculate armor reduction
-    if (damageInfo->damageSchoolMask & SPELL_SCHOOL_MASK_NORMAL)
+    if (IsDamageReducedByArmor((SpellSchoolMask)(damageInfo->damageSchoolMask)))
     {
         damageInfo->damage = CalcArmorReducedDamage(damageInfo->target, damage, NULL , damageInfo->attackType);
         damageInfo->cleanDamage += damage - damageInfo->damage;
@@ -1563,6 +1563,25 @@ void Unit::HandleEmoteCommand(uint32 anim_id)
     data << uint32(anim_id);
     data << uint64(GetGUID());
     SendMessageToSet(&data, true);
+}
+
+bool Unit::IsDamageReducedByArmor(SpellSchoolMask schoolMask, SpellEntry const *spellInfo, uint8 effIndex)
+{
+    // only physical spells damage gets reduced by armor
+    if ((schoolMask & SPELL_SCHOOL_MASK_NORMAL) == 0)
+        return false;
+    if (spellInfo)
+    {
+        // there are spells with no specific attribute but they have "ignores armor" in tooltip
+        if (sSpellMgr.GetSpellCustomAttr(spellInfo->Id) & SPELL_ATTR_CU_IGNORE_ARMOR)
+            return false;
+
+        // bleeding effects are not reduced by armor
+        if (effIndex != MAX_SPELL_EFFECTS && spellInfo->EffectApplyAuraName[effIndex] == SPELL_AURA_PERIODIC_DAMAGE)
+            if (GetSpellMechanicMask(spellInfo, effIndex) & MECHANIC_BLEED)
+                return false;
+    }
+    return true;
 }
 
 uint32 Unit::CalcArmorReducedDamage(Unit* pVictim, const uint32 damage, SpellEntry const *spellInfo, WeaponAttackType /*attackType*/)
