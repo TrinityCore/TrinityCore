@@ -880,6 +880,7 @@ inline bool IsProfessionSkill(uint32 skill)
 #define SPELL_ATTR_CU_NEGATIVE_EFF1     0x00020000
 #define SPELL_ATTR_CU_NEGATIVE_EFF2     0x00040000
 #define SPELL_ATTR_CU_NEGATIVE          0x00070000
+#define SPELL_ATTR_CU_IGNORE_ARMOR      0x00080000
 
 typedef std::vector<uint32> SpellCustomAttribute;
 typedef std::vector<bool> EnchantCustomAttribute;
