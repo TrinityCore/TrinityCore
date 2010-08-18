@@ -802,7 +802,7 @@ class WorldSession
     private:
         void ProcessQueryCallbacks();
 
-        QueryResultFutureSet m_nameQueryCallbacks;    
+        ACE_Future_Set<QueryResult_AutoPtr> m_nameQueryCallbacks;    
         QueryResultFuture m_charEnumCallback;
         QueryResultFuture m_addIgnoreCallback;
         QueryCallback<std::string> m_charRenameCallback;

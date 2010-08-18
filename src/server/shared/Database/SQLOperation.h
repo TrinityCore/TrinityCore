@@ -31,13 +31,12 @@ class SQLOperation : public ACE_Method_Request
 {
     public:
         SQLOperation(){};
-        int call()
+        virtual int call()
         {
             Execute();
             return 0;
         }
         virtual bool Execute() = 0;
-
         virtual void SetConnection(MySQLConnection* con) { m_conn = con; }
 
         MySQLConnection* m_conn;
@@ -102,6 +101,7 @@ class SQLQueryHolderTask : public SQLOperation
         SQLQueryHolderTask(SQLQueryHolder *holder, QueryResultHolderFuture res)
             : m_holder(holder), m_result(res){};
         bool Execute();
+
 };
 
 
