@@ -153,7 +153,7 @@ class instance_zulgurub : public InstanceMapScript
             }
         };
 
-        InstanceScript* OnGetInstanceData(InstanceMap* pMap)
+        InstanceScript* GetInstanceScript(InstanceMap* pMap)
         {
             return new instance_zulgurub_InstanceMapScript(pMap);
         }
