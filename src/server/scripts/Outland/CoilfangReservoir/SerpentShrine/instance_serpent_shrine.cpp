@@ -72,7 +72,7 @@ class instance_serpent_shrine : public InstanceMapScript
 public:
     instance_serpent_shrine() : InstanceMapScript("instance_serpent_shrine", 548) { }
 
-    InstanceScript* GetInstanceData_instance_serpentshrine_cavern_InstanceMapScript(Map* pMap)
+    InstanceScript* GetInstanceScript(Map* pMap)
     {
         return new instance_serpentshrine_cavern_InstanceMapScript(pMap);
     }

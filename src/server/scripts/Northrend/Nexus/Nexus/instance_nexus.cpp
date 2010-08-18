@@ -31,7 +31,7 @@ class instance_nexus : public InstanceMapScript
 public:
     instance_nexus() : InstanceMapScript("instance_nexus", 576) { }
 
-    InstanceScript *GetInstanceData_InstanceMapScript(Map *pMap)
+    InstanceScript *GetInstanceScript(Map *pMap)
     {
         return new instance_nexus_InstanceMapScript(pMap);
     }

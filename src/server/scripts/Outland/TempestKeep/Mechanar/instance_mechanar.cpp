@@ -79,11 +79,11 @@ class instance_mechanar : public InstanceMapScript
                 }
             }
         };
-            InstanceScript* GetInstanceScript(InstanceMap* pMap) const
-            {
-                return new instance_mechanar_InstanceMapScript(pMap);
-            }
 
+        InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+        {
+            return new instance_mechanar_InstanceMapScript(pMap);
+        }
 };
 
 
