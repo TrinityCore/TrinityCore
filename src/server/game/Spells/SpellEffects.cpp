@@ -2041,6 +2041,9 @@ void Spell::EffectTriggerSpell(uint32 effIndex)
         case 57879:
             originalCaster = m_originalCaster;
             break;
+        // Coldflame
+        case 33801:
+            return; // just make the core stfu
     }
 
     // normal case
@@ -4193,6 +4196,24 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
 
     switch (m_spellInfo->SpellFamilyName)
     {
+        case SPELLFAMILY_GENERIC:
+        {
+            switch (m_spellInfo->Id)
+            {
+                case 69055:     // Saber Lash
+                case 70814:     // Saber Lash
+                {
+                    uint32 count = 0;
+                    for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                        if (ihit->effectMask & (1 << i))
+                            ++count;
+
+                    totalDamagePercentMod /= count;
+                    break;
+                }
+            }
+            break;
+        }
         case SPELLFAMILY_WARRIOR:
         {
             // Devastate (player ones)
