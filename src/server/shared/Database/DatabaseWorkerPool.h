@@ -39,6 +39,20 @@ enum MySQLThreadBundle
     MYSQL_BUNDLE_ALL    = MYSQL_BUNDLE_CLI | MYSQL_BUNDLE_RA | MYSQL_BUNDLE_RAR | MYSQL_BUNDLE_WORLD,
 };
 
+class DatabaseWorkerPoolEnd : public SQLOperation
+{
+    public:
+        //- This deletion will shut down the worker thread
+        int call()
+        {
+            return -1;
+        }
+        bool Execute()
+        {
+            return false;
+        }
+};
+
 class DatabaseWorkerPool
 {
     public:
@@ -57,8 +71,8 @@ class DatabaseWorkerPool
         void DirectPExecute(const char* sql, ...);
         QueryResult_AutoPtr Query(const char* sql);
         QueryResult_AutoPtr PQuery(const char* sql, ...);
-        QueryResultFuture AsyncQuery(const char* sql);
-        QueryResultFuture AsyncPQuery(const char* sql, ...);
+        ACE_Future<QueryResult_AutoPtr> AsyncQuery(const char* sql);
+        ACE_Future<QueryResult_AutoPtr> AsyncPQuery(const char* sql, ...);
         QueryResultHolderFuture DelayQueryHolder(SQLQueryHolder* holder);
         
         void BeginTransaction();

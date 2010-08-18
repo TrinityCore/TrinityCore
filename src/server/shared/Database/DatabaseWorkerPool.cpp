@@ -61,12 +61,17 @@ void DatabaseWorkerPool::Close()
 {
     /// Shuts down worker threads for this connection pool.
     for (uint8 i = 0; i < m_async_connections.size(); i++)
-        Enqueue(NULL);
-
-    //- MySQL::Thread_End() should be called manually from the aborting calling threads
+    {
+        Enqueue(new DatabaseWorkerPoolEnd());
+    }
+    
+    m_queue->queue()->deactivate();
 
     delete m_bundle_conn;
     m_bundle_conn = NULL;
+
+    //- MySQL::Thread_End() should be called manually from the aborting calling threads
+    ASSERT( m_sync_connections.empty() );
 }
 
 /*! This function creates a new MySQL connection for every MapUpdate thread
@@ -197,7 +202,7 @@ void DatabaseWorkerPool::CommitTransaction()
     }
 }
 
-QueryResultFuture DatabaseWorkerPool::AsyncQuery(const char* sql)
+ACE_Future<QueryResult_AutoPtr> DatabaseWorkerPool::AsyncQuery(const char* sql)
 {
     QueryResultFuture res;
     BasicStatementTask* task = new BasicStatementTask(sql, res);
@@ -205,7 +210,7 @@ QueryResultFuture DatabaseWorkerPool::AsyncQuery(const char* sql)
     return res;         //! Fool compiler, has no use yet
 }
 
-QueryResultFuture DatabaseWorkerPool::AsyncPQuery(const char* sql, ...)
+ACE_Future<QueryResult_AutoPtr> DatabaseWorkerPool::AsyncPQuery(const char* sql, ...)
 {
     va_list ap;
     char szQuery[MAX_QUERY_LEN];

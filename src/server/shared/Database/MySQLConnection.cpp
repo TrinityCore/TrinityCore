@@ -40,7 +40,6 @@ m_Mysql(NULL)
 
 MySQLConnection::~MySQLConnection()
 {
-    delete m_worker;
 }
 
 bool MySQLConnection::Open(const std::string& infoString)

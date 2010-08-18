@@ -60,7 +60,7 @@ void WorldSession::SendNameQueryOpcode(Player *p)
 
 void WorldSession::SendNameQueryOpcodeFromDB(uint64 guid)
 {
-    m_nameQueryCallbacks.insert(
+    ACE_Future<QueryResult_AutoPtr> lFutureResult = 
         CharacterDatabase.AsyncPQuery(
             !sWorld.getConfig(CONFIG_DECLINED_NAMES_USED) ?
         //   ------- Query Without Declined Names --------
@@ -74,8 +74,10 @@ void WorldSession::SendNameQueryOpcodeFromDB(uint64 guid)
         //   5         6       7           8             9
             "genitive, dative, accusative, instrumental, prepositional "
             "FROM characters LEFT JOIN character_declinedname ON characters.guid = character_declinedname.guid WHERE characters.guid = '%u'",
-            GUID_LOPART(guid))
+            GUID_LOPART(guid)
         );
+
+    m_nameQueryCallbacks.insert(lFutureResult);
 
 // CharacterDatabase.AsyncPQuery(&WorldSession::SendNameQueryOpcodeFromDBCallBack, GetAccountId(),
 }
