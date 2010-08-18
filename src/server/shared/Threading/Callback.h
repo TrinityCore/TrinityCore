@@ -76,8 +76,4 @@ class QueryCallback
         ParamType param;
 };
 
-/*! ACE_Future_Set to store a bunch of unique async queries with callbacks.
-    (ie name queries)
-*/
-typedef ACE_Future_Set<QueryResultFuture> QueryResultFutureSet;
 #endif
