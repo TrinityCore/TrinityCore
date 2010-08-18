@@ -1074,9 +1074,10 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint32 lowGuid, uint8 accept)
     LfgProposal *pProposal = itProposal->second;
 
     // Check if proposal have the current player
-    LfgProposalPlayer *ppPlayer = pProposal->players[lowGuid];
-    if (!ppPlayer)
+    LfgProposalPlayerMap::iterator itProposalPlayer = pProposal->players.find(lowGuid);
+    if (itProposalPlayer == pProposal->players.end())
         return;
+    LfgProposalPlayer *ppPlayer = itProposalPlayer->second;
 
     ppPlayer->accept = accept;
     if (!accept)
@@ -1094,10 +1095,13 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint32 lowGuid, uint8 accept)
     {
         plr = sObjectMgr.GetPlayer(itPlayers->first);
 
-        if (plr && itPlayers->first == pProposal->leaderLowGuid)
-            players.push_front(plr);
-        else
-            players.push_back(plr);
+        if (plr)
+        {
+            if (itPlayers->first == pProposal->leaderLowGuid)
+                players.push_front(plr);
+            else
+                players.push_back(plr);
+        }
 
         if (itPlayers->second->accept < 1)                  // No answer (-1) or not accepted (0)
             allAnswered = false;
