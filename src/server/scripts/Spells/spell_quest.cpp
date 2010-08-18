@@ -21,6 +21,8 @@
  * Scriptnames of files in this file should be prefixed with "spell_q#questID_".
  */
 
+#include "ScriptPCH.h"
+
 enum Quest11587Spells
 {
     QUEST11587_SPELL_SUMMON_ARCANE_PRISONER_MALE    = 45446,    // Summon Arcane Prisoner - Male
