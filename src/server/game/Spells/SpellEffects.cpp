@@ -4810,15 +4810,6 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     cTarget->RemoveCorpse();
                     break;
                 }
-                /*// Flame Crash
-                case 41126:
-                {
-                    if (!unitTarget)
-                        return;
-
-                    unitTarget->CastSpell(unitTarget, 41131, true);
-                    break;
-                }*/
                 case 48025:                                     // Headless Horseman's Mount
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
@@ -7310,7 +7301,7 @@ void Spell::EffectRechargeManaGem(uint32 /*i*/)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    Player *player = (Player*)m_caster;
+    Player *player = m_caster->ToPlayer();
 
     if (!player)
         return;

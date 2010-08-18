@@ -164,6 +164,14 @@ void SpellCastTargets::setDst(WorldObject &wObj)
     m_targetMask |= TARGET_FLAG_DEST_LOCATION;
 }
 
+void SpellCastTargets::setDst(SpellCastTargets &spellTargets)
+{
+    m_dstTransGUID = spellTargets.m_dstTransGUID;
+    m_dstTransOffset.Relocate(spellTargets.m_dstTransOffset);
+    m_dstPos.Relocate(spellTargets.m_dstPos);
+    m_targetMask |= TARGET_FLAG_DEST_LOCATION;
+}
+
 void SpellCastTargets::modDst(Position &pos)
 {
     ASSERT(m_targetMask & TARGET_FLAG_DEST_LOCATION);
@@ -2329,20 +2337,23 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
 
             switch (cur)
             {
-                case TARGET_UNIT_CHANNEL:
-                    // in some cases unittarget is invalid and crash. do not know why it happens.
+                case TARGET_UNIT_CHANNEL_TARGET:
+                    // unit target may be no longer avalible - teleported out of map for example
                     if (Unit* target = Unit::GetUnit(*m_caster, m_originalCaster->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->m_targets.getUnitTargetGUID()))
                         AddUnitTarget(target, i);
                     else
                         sLog.outError("SPELL: cannot find channel spell target for spell ID %u", m_spellInfo->Id);
                     break;
-                case TARGET_DEST_CHANNEL:
+                case TARGET_DEST_CHANNEL_TARGET:
                     if (m_originalCaster->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->m_targets.HasDst())
-                        m_targets = m_originalCaster->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->m_targets;
+                        m_targets.setDst(m_originalCaster->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->m_targets);
                     else if (Unit* target = Unit::GetUnit(*m_caster, m_originalCaster->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->m_targets.getUnitTargetGUID()))
                         m_targets.setDst(*target);
                     else
                         sLog.outError("SPELL: cannot find channel spell destination for spell ID %u", m_spellInfo->Id);
+                    break;
+                case TARGET_DEST_CHANNEL_CASTER:
+                    m_targets.setDst(*m_originalCaster->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->GetCaster());
                     break;
             }
             break;
@@ -2455,6 +2466,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                 break;
             case TARGET_GAMEOBJECT_AREA_SRC:
             case TARGET_GAMEOBJECT_AREA_DST:
+            case TARGET_GAMEOBJECT_AREA_PATH:
                 radius = GetSpellRadius(m_spellInfo, i, true);
                 targetType = SPELL_TARGETS_GO;
                 break;
