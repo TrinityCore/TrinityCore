@@ -826,6 +826,12 @@ UPDATE `creature_template` SET `ScriptName`='npc_argent_tournament_post' WHERE `
 UPDATE `creature_template` SET `ScriptName`='npc_alorah_and_grimmin' WHERE `entry` IN (36101,36102);
 UPDATE `creature_template` SET `ScriptName`='npc_guardian_pavilion' WHERE `entry` IN (33543,33643);
 
+/* ICECROWN CITADEL */
+UPDATE `instance_template` SET `script`='instance_icecrown_citadel' WHERE `map`=631;
+UPDATE `creature_template` SET `ScriptName`='boss_lord_marrowgar' WHERE `entry`=36612;
+UPDATE `creature_template` SET `ScriptName`='npc_coldflame' WHERE `entry`=36672;
+UPDATE `creature_template` SET `ScriptName`='npc_bone_spike' WHERE `entry`=38711;
+
 /* IRONFORGE */
 UPDATE `creature_template` SET `ScriptName`='npc_royal_historian_archesonus' WHERE `entry`=8879;
 

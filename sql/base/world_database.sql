@@ -14740,6 +14740,15 @@ LOCK TABLES `spell_script_names` WRITE;
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 -- generic
 ( 58601, 'spell_gen_remove_flight_auras'),
+-- instances
+( 69057, 'spell_marrowgar_bone_spike_graveyard'),
+( 69140, 'spell_marrowgar_coldflame'),
+( 72705, 'spell_marrowgar_coldflame'),
+( 69147, 'spell_marrowgar_coldflame_trigger'),
+( 69075, 'spell_marrowgar_bone_storm'),
+( 70834, 'spell_marrowgar_bone_storm'),
+( 70835, 'spell_marrowgar_bone_storm'),
+( 70836, 'spell_marrowgar_bone_storm'),
 -- quest
 ( 45449, 'spell_q11587_arcane_prisoner_rescue'),
 ( 46023, 'spell_q11730_ultrasonic_screwdriver'),

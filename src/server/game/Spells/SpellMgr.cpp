@@ -3841,6 +3841,18 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->AttributesEx |= SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY;
             count++;
             break;
+        case 69055:     // Saber Lash
+        case 70814:     // Saber Lash
+            spellInfo->EffectRadiusIndex[0] = 8;
+            count++;
+            break;
+        case 69075:     // Bone Storm
+        case 70834:     // Bone Storm
+        case 70835:     // Bone Storm
+        case 70836:     // Bone Storm
+            spellInfo->EffectRadiusIndex[0] = 12;
+            count++;
+            break;
         default:
             break;
         }
