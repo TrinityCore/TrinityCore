@@ -160,6 +160,7 @@ SpellMgr::SpellMgr()
             case TARGET_UNIT_CONE_ENTRY:
             case TARGET_UNIT_CONE_ENEMY_UNKNOWN:
             case TARGET_UNIT_AREA_PATH:
+            case TARGET_GAMEOBJECT_AREA_PATH:
                 SpellTargetType[i] = TARGET_TYPE_AREA_CONE;
                 break;
             case TARGET_DST_CASTER:
@@ -214,8 +215,9 @@ SpellMgr::SpellMgr()
             case TARGET_DST_NEARBY_ENTRY:
                 SpellTargetType[i] = TARGET_TYPE_DEST_SPECIAL;
                 break;
-            case TARGET_UNIT_CHANNEL:
-            case TARGET_DEST_CHANNEL:
+            case TARGET_UNIT_CHANNEL_TARGET:
+            case TARGET_DEST_CHANNEL_TARGET:
+            case TARGET_DEST_CHANNEL_CASTER:
                 SpellTargetType[i] = TARGET_TYPE_CHANNEL;
                 break;
             default:
@@ -223,7 +225,7 @@ SpellMgr::SpellMgr()
         }
     }
 
-    for (int i = 0; i < TOTAL_SPELL_TARGETS; ++i)
+    for (int32 i = 0; i < TOTAL_SPELL_TARGETS; ++i)
     {
         switch(i)
         {
@@ -241,6 +243,7 @@ SpellMgr::SpellMgr()
             case TARGET_UNIT_CONE_ALLY:
             case TARGET_UNIT_CONE_ENEMY_UNKNOWN:
             case TARGET_UNIT_AREA_PATH:
+            case TARGET_GAMEOBJECT_AREA_PATH:
             case TARGET_UNIT_RAID_CASTER:
                 IsAreaEffectTarget[i] = true;
                 break;
@@ -734,7 +737,6 @@ bool IsPositiveTarget(uint32 targetA, uint32 targetB)
         case TARGET_UNIT_CONE_ENEMY:
         case TARGET_DEST_DYNOBJ_ENEMY:
         case TARGET_DST_TARGET_ENEMY:
-        case TARGET_UNIT_CHANNEL:
             return false;
         default:
             break;
