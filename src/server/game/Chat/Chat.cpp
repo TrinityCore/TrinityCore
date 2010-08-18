@@ -778,6 +778,8 @@ ChatCommand * ChatHandler::getCommandTable()
 
     if (load_command_table)
     {
+        load_command_table = false;
+
         QueryResult_AutoPtr result = WorldDatabase.Query("SELECT name,security,help FROM command");
         if (result)
         {
