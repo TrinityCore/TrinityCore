@@ -84,12 +84,10 @@ Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
         else // save
         {
             // _name is already escaped at this point.
-            if (CharacterDatabase.PExecute("INSERT INTO channels (m_name, m_team, m_announce, m_moderate, m_public, m_password) "
-                "VALUES ('%s', '%u', '1', '0', '1', '')", _name.c_str(), m_Team))
-            {
-                sLog.outDebug("New Channel(%s) saved", name.c_str());
-                m_IsSaved = true;
-            }
+            CharacterDatabase.PExecute("INSERT INTO channels (m_name, m_team, m_announce, m_moderate, m_public, m_password) "
+                "VALUES ('%s', '%u', '1', '0', '1', '')", _name.c_str(), m_Team);
+            sLog.outDebug("New Channel(%s) saved", name.c_str());
+            m_IsSaved = true;
         }
     }
 }
@@ -101,8 +99,9 @@ bool Channel::_UpdateStringInDB(const std::string& colName, const std::string& c
     std::string _colValue(colValue);
     CharacterDatabase.escape_string(_colValue);
     CharacterDatabase.escape_string(_name);
-    return CharacterDatabase.PExecute("UPDATE channels SET %s = '%s' WHERE m_name = '%s' AND m_team = '%u'",
+    CharacterDatabase.PExecute("UPDATE channels SET %s = '%s' WHERE m_name = '%s' AND m_team = '%u'",
         colName.c_str(), _colValue.c_str(), _name.c_str(), m_Team);
+    return true;
 }
 
 bool Channel::_UpdateIntInDB(const std::string& colName, int colValue) const
@@ -110,8 +109,9 @@ bool Channel::_UpdateIntInDB(const std::string& colName, int colValue) const
     // Prevent SQL-injection
     std::string _name(m_name);
     CharacterDatabase.escape_string(_name);
-    return CharacterDatabase.PExecute("UPDATE channels SET %s = '%u' WHERE m_name = '%s' AND m_team = '%u'",
+    CharacterDatabase.PExecute("UPDATE channels SET %s = '%u' WHERE m_name = '%s' AND m_team = '%u'",
         colName.c_str(), colValue, _name.c_str(), m_Team);
+    return true;
 }
 
 void Channel::_UpdateBanListInDB() const

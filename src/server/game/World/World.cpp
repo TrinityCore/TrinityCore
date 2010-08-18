@@ -54,7 +54,7 @@
 #include "VMapFactory.h"
 #include "GameEventMgr.h"
 #include "PoolMgr.h"
-#include "DatabaseImpl.h"
+#include "AsyncDatabaseImpl.h"
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 #include "InstanceSaveMgr.h"
@@ -1222,6 +1222,11 @@ void World::LoadConfigSettings(bool reload)
 
     // Dungeon finder
     m_configs[CONFIG_DUNGEON_FINDER_ENABLE] = sConfig.GetBoolDefault("DungeonFinder.Enable", false);
+
+    // MySQL thread bundling config for other runnable tasks
+    m_configs[CONFIG_MYSQL_BUNDLE_LOGINDB] = sConfig.GetIntDefault("LoginDatabase.ThreadBundleMask", MYSQL_BUNDLE_ALL);
+    m_configs[CONFIG_MYSQL_BUNDLE_CHARDB] = sConfig.GetIntDefault("CharacterDatabase.ThreadBundleMask", MYSQL_BUNDLE_ALL);
+    m_configs[CONFIG_MYSQL_BUNDLE_WORLDDB] = sConfig.GetIntDefault("WorldDatabase.ThreadBundleMask", MYSQL_BUNDLE_ALL);
 
     sScriptMgr.OnConfigLoad(reload);
 }
@@ -2478,7 +2483,7 @@ void World::SendRNDBroadcast()
 
 void World::InitResultQueue()
 {
-    m_resultQueue = new SqlResultQueue;
+    m_resultQueue = new SQLResultQueue;
     CharacterDatabase.SetResultQueue(m_resultQueue);
 }
 

@@ -21,7 +21,7 @@
 #include "SQLStorage.h"
 #include "SQLStorageImpl.h"
 
-extern Database WorldDatabase;
+extern DatabaseType WorldDatabase;
 
 const char CreatureInfosrcfmt[]="iiiiiiiiiisssiiiiiiifffiffiifiiiiiiiiiiffiiiiiiiiiiiiiiiiiiiiiiiisiifffliiiiiiiliiisi";
 const char CreatureInfodstfmt[]="iiiiiiiiiisssibbiiiifffiffiifiiiiiiiiiiffiiiiiiiiiiiiiiiiiiiiiiiisiifffliiiiiiiliiiii";

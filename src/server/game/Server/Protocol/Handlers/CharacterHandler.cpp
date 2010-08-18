@@ -27,7 +27,7 @@
 #include "WorldSession.h"
 #include "MD5.h"
 #include "DatabaseEnv.h"
-#include "DatabaseImpl.h"
+#include "AsyncDatabaseImpl.h"
 
 #include "ArenaTeam.h"
 #include "Chat.h"
@@ -44,7 +44,7 @@
 #include "Util.h"
 #include "ScriptMgr.h"
 
-class LoginQueryHolder : public SqlQueryHolder
+class LoginQueryHolder : public SQLQueryHolder
 {
     private:
         uint32 m_accountId;
@@ -117,7 +117,7 @@ class CharacterHandler
                 return;
             session->HandleCharEnum(result);
         }
-        void HandlePlayerLoginCallback(QueryResult_AutoPtr /*dummy*/, SqlQueryHolder * holder)
+        void HandlePlayerLoginCallback(QueryResult_AutoPtr /*dummy*/, SQLQueryHolder * holder)
         {
             if (!holder) return;
             WorldSession *session = sWorld.FindSession(((LoginQueryHolder*)holder)->GetAccountId());

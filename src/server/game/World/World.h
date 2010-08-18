@@ -42,7 +42,7 @@ class WorldSession;
 class Player;
 struct ScriptAction;
 struct ScriptInfo;
-class SqlResultQueue;
+class SQLResultQueue;
 class QueryResult;
 class WorldSocket;
 class SystemMgr;
@@ -286,6 +286,9 @@ enum WorldConfigs
     CONFIG_CHARDELETE_MIN_LEVEL,
     CONFIG_CLEAN_CHARACTER_DB,
     CONFIG_DUNGEON_FINDER_ENABLE,
+    CONFIG_MYSQL_BUNDLE_LOGINDB,
+    CONFIG_MYSQL_BUNDLE_CHARDB,
+    CONFIG_MYSQL_BUNDLE_WORLDDB,
     CONFIG_VALUE_COUNT
 };
 
@@ -761,7 +764,7 @@ class World
 
         // CLI command holder to be thread safe
         ACE_Based::LockedQueue<CliCommandHolder*,ACE_Thread_Mutex> cliCmdQueue;
-        SqlResultQueue *m_resultQueue;
+        SQLResultQueue *m_resultQueue;
 
         // next daily quests and random bg reset time
         time_t m_NextDailyQuestReset;

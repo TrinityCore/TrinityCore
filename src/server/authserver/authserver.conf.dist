@@ -7,17 +7,6 @@
 ###############################################################################
 # AUTH SERVER SETTINGS
 #
-#    LoginDatabaseInfo
-#        Database connection settings for the realm server.
-#        Default:
-#                    hostname;port;username;password;database
-#                    .;somenumber;username;password;database
-#                     - use named pipes in Windows
-#                    Named pipes: mySQL required adding
-#                        "enable-named-pipe" to [mysqld] section my.ini
-#                    .;/path/to/unix_socket;username;password;database
-#                     - use Unix sockets in Unix/Linux
-#
 #    LogsDir
 #        Logs directory setting.
 #        Important: Logs dir must exists, or all logs need to be disabled
@@ -146,3 +135,30 @@ RealmsStateUpdateDelay = 20
 WrongPass.MaxCount = 0
 WrongPass.BanTime = 600
 WrongPass.BanType = 0
+
+###############################################################################
+# MYSQL SETTINGS
+#
+#    LoginDatabaseInfo
+#        Database connection settings for the realm server.
+#        Default:
+#                    hostname;port;username;password;database
+#                    .;somenumber;username;password;database
+#                     - use named pipes in Windows
+#                    Named pipes: mySQL required adding
+#                        "enable-named-pipe" to [mysqld] section my.ini
+#                    .;/path/to/unix_socket;username;password;database
+#                     - use Unix sockets in Unix/Linux
+#
+#    LoginDatabase.WorkerThreads
+#        The amount of worker threads spawned to handle
+#        asynchroneous MySQL statements
+#        Each worker thread is mirrored with its own
+#        connection to the MySQL server and their own
+#        thread on the MySQL server.
+#        Default: 1
+#
+###############################################################################
+
+LoginDatabaseInfo = "127.0.0.1;3306;trinity;trinity;auth"
+LoginDatabase.WorkerThreads = 1
