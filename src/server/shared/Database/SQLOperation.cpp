@@ -21,7 +21,15 @@
 #include "Log.h"
 
 /*! Basic, ad-hoc queries. */
-BasicStatementTask::BasicStatementTask(const char* sql)
+BasicStatementTask::BasicStatementTask(const char* sql) :
+m_has_result(false)
+{
+    m_sql = strdup(sql);
+}
+
+BasicStatementTask::BasicStatementTask(const char* sql, QueryResultFuture result) :
+m_result(result),
+m_has_result(true)
 {
     m_sql = strdup(sql);
 }
@@ -33,6 +41,15 @@ BasicStatementTask::~BasicStatementTask()
 
 bool BasicStatementTask::Execute()
 {
+    if (m_has_result)
+    {
+        m_result.set(
+            m_conn->Query(m_sql)
+            );
+
+        return true;
+    }
+
     return m_conn->Execute(m_sql);
 }
 
@@ -81,18 +98,6 @@ bool TransactionTask::Execute()
 
     m_conn->CommitTransaction();
     return true;
-}
-
-/*! Callback statements/holders */
-void SQLResultQueue::Update()
-{
-    /// execute the callbacks waiting in the synchronization queue
-    Trinity::IQueryCallback* callback;
-    while (next(callback))
-    {
-        callback->Execute();
-        delete callback;
-    }
 }
 
 bool SQLQueryHolder::SetQuery(size_t index, const char *sql)
@@ -181,7 +186,7 @@ void SQLQueryHolder::SetSize(size_t size)
 
 bool SQLQueryHolderTask::Execute()
 {
-    if (!m_holder || !m_callback || !m_queue)
+    if (!m_holder)
         return false;
 
     /// we can do this, we are friends
@@ -195,19 +200,6 @@ bool SQLQueryHolderTask::Execute()
             m_holder->SetResult(i, m_conn->Query(sql));
     }
 
-    /// sync with the caller thread
-    m_queue->add(m_callback);
-    return true;
-}
-
-bool SQLQueryTask::Execute()
-{
-    if (!m_callback || !m_queue)
-        return false;
-
-    /// execute the query and store the result in the callback
-    m_callback->SetResult(m_conn->Query(m_sql));
-    /// add the callback to the sql result queue of the thread it originated from
-    m_queue->add(m_callback);
+    m_result.set(m_holder);
     return true;
 }

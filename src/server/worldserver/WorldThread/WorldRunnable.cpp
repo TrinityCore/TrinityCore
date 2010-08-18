@@ -65,8 +65,6 @@ void WorldRunnable::run()
     if (needInit)
         MySQL::Thread_Init();
 
-    sWorld.InitResultQueue();
-
     uint32 realCurrTime = 0;
     uint32 realPrevTime = getMSTime();
 
