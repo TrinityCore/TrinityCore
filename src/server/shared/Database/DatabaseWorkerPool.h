@@ -20,9 +20,7 @@
 #define _DATABASEWORKERPOOL_H
 
 #include "Common.h"
-#include "Logging/Log.h"
 
-#include <ace/Activation_Queue.h>
 #include <ace/Atomic_Op_T.h>
 #include <ace/Thread_Mutex.h>
 
