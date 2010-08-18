@@ -21,7 +21,7 @@
 #include "Common.h"
 #include "Language.h"
 #include "DatabaseEnv.h"
-#include "DatabaseImpl.h"
+#include "AsyncDatabaseImpl.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "Opcodes.h"

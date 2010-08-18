@@ -24,7 +24,6 @@
 
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
-#include "Database/PreparedStatements.h"
 
 #include "Configuration/Config.h"
 #include "Log.h"
@@ -315,7 +314,7 @@ extern int main(int argc, char **argv)
         {
             loopCounter = 0;
             sLog.outDetail("Ping MySQL to keep connection alive");
-            sPreparedStatement.Query(&LoginDatabase, "auth_ping");
+            LoginDatabase.Query("SELECT 1 FROM realmlist");
         }
 #ifdef _WIN32
         if (m_ServiceStatus == 0) stopEvent = true;
@@ -323,9 +322,8 @@ extern int main(int argc, char **argv)
 #endif
     }
 
-    ///- Wait for the delay thread to exit
-    LoginDatabase.ThreadEnd();
-    LoginDatabase.HaltDelayThread();
+    ///- Close the Database Pool
+    LoginDatabase.Close();
 
     sLog.outString("Halting process...");
     return 0;
@@ -341,16 +339,18 @@ bool StartDB()
         return false;
     }
 
-    if (!LoginDatabase.Initialize(dbstring.c_str()))
+    uint8 num_threads = sConfig.GetIntDefault("LoginDatabase.WorkerThreads", 1);
+    if (num_threads < 1 || num_threads > 32)
+    {
+        sLog.outError("Improper value specified for LoginDatabase.WorkerThreads, defaulting to 1.");
+        num_threads = 1;
+    }
+
+    if (!LoginDatabase.Open(dbstring.c_str(), num_threads))
     {
         sLog.outError("Cannot connect to database");
         return false;
     }
-    LoginDatabase.ThreadStart();
-
-    uint32 count = 0;
-    sPreparedStatement.LoadAuthserver(&LoginDatabase, count);
-    sLog.outString("Loaded %u prepared MySQL statements for auth DB.", count);
 
     return true;
 }
