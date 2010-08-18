@@ -744,7 +744,10 @@ void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
     {
         VehicleEntry const* vehId = sVehicleStore.LookupEntry(cInfo->VehicleId);
         if (!vehId)
+        {
              sLog.outErrorDb("Creature (Entry: %u) has a non-existing VehicleId (%u). This *WILL* cause the client to freeze!", cInfo->Entry, cInfo->VehicleId);
+             const_cast<CreatureInfo*>(cInfo)->VehicleId = 0;
+        }
     }
 
     if (cInfo->PetSpellDataId)
