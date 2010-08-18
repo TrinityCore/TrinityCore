@@ -27,7 +27,6 @@
 
 enum WarlockSpells
 {
-    WARLOCK_DIVINE_PLEA                     = 54428,
     WARLOCK_DEMONIC_EMPOWERMENT_SUCCUBUS    = 54435,
     WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER  = 54443,
     WARLOCK_DEMONIC_EMPOWERMENT_FELGUARD    = 54508,
@@ -134,40 +133,6 @@ public:
     }
 };
 
-// 63521 Guarded by The Light
-class spell_warl_guarded_by_the_light : public SpellHandlerScript
-{
-public:
-    spell_warl_guarded_by_the_light() : SpellHandlerScript("spell_warl_guarded_by_the_light") { }
-
-    class spell_warl_guarded_by_the_light_SpellScript : public SpellScript
-    {
-        bool Validate(SpellEntry const * spellEntry)
-        {
-            if (!sSpellStore.LookupEntry(WARLOCK_DIVINE_PLEA))
-                return false;
-            return true;
-        }
-
-        void HandleScriptEffect(SpellEffIndex effIndex)
-        {
-            // Divine Plea
-            if (Aura* aura = GetCaster()->GetAura(WARLOCK_DIVINE_PLEA))
-                aura->RefreshDuration();
-        }
-
-        void Register()
-        {
-            EffectHandlers += EffectHandlerFn(spell_warl_guarded_by_the_light_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_warl_guarded_by_the_light_SpellScript();
-    }
-};
-
 // 6201 Create Healthstone (and ranks)
 class spell_warl_create_healthstone : public SpellHandlerScript
 {
@@ -238,6 +203,5 @@ void AddSC_warlock_spell_scripts()
 {
     new spell_warl_demonic_empowerment();
     new spell_warl_everlasting_affliction();
-    new spell_warl_guarded_by_the_light();
     new spell_warl_create_healthstone();
 }

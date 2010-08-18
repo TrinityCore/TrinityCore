@@ -14747,6 +14747,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 12975,'spell_warr_last_stand'),
 -- paladin
 ( 20425, 'spell_pal_judgement_of_command'),
+( 63521, 'spell_pal_guarded_by_the_light'),
 (-20473, 'spell_pal_holy_shock'),
 ( 37877, 'spell_pal_blessing_of_faith'),
 -- hunter
@@ -14781,7 +14782,6 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( -6201, 'spell_warl_create_healthstone'),
 ( 47193, 'spell_warl_demonic_empowerment'),
 ( 47422, 'spell_warl_everlasting_affliction'),
-( 63521, 'spell_warl_guarded_by_the_light'),
 -- druid
 ( 54846, 'spell_dru_glyph_of_starfire');
 /*!40000 ALTER TABLE `spell_script_names` ENABLE KEYS */;
