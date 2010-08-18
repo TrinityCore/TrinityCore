@@ -3862,6 +3862,9 @@ void SpellMgr::LoadSpellCustomAttr()
         case 64777: // Machine Gun
         case 65239: // Machine Gun
         case 65919: // Pursuing Spikes
+        case 67858: // Pursuing Spikes
+        case 67859: // Pursuing Spikes
+        case 67860: // Pursuing Spikes
         case 69293: // Wing Buffet
         case 74439: // Machine Gun
             mSpellCustomAttr[i] |= SPELL_ATTR_CU_IGNORE_ARMOR;
