@@ -129,7 +129,7 @@ class WorldSession
 {
     friend class CharacterHandler;
     public:
-        WorldSession(uint32 id, WorldSocket *sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale);
+        WorldSession(uint32 id, WorldSocket *sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter);
         ~WorldSession();
 
         bool PlayerLoading() const { return m_playerLoading; }
@@ -306,6 +306,8 @@ class WorldSession
             return false;
         }
 
+        // Recruit-A-Friend Handling
+        uint32 GetRecruiterId() { return recruiterId; }
 
     public:                                                 // opcodes handlers
 
@@ -826,6 +828,7 @@ class WorldSession
         uint32 m_Tutorials[8];
         bool   m_TutorialsChanged;
         AddonsList m_addonsList;
+        uint32 recruiterId;
         ACE_Based::LockedQueue<WorldPacket*, ACE_Thread_Mutex> _recvQueue;
 };
 #endif

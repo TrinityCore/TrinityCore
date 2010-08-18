@@ -2586,22 +2586,26 @@ void Player::RemoveFromGroup(Group* group, uint64 guid)
     }
 }
 
-void Player::SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 RestXP)
+void Player::SendLogXPGain(uint32 GivenXP, Unit* victim, uint32 BonusXP, bool recruitAFriend, float group_rate)
 {
-    WorldPacket data(SMSG_LOG_XPGAIN, 21);
+    WorldPacket data(SMSG_LOG_XPGAIN, 21); // guess size?
     data << uint64(victim ? victim->GetGUID() : 0);         // guid
-    data << uint32(GivenXP+RestXP);                         // given experience
+    data << uint32(GivenXP + BonusXP);                      // given experience
     data << uint8(victim ? 0 : 1);                          // 00-kill_xp type, 01-non_kill_xp type
+
     if (victim)
     {
-        data << uint32(GivenXP);                            // experience without rested bonus
+        data << uint32(GivenXP);                            // experience without bonus
+
+        // should use group_rate here but can't figure out how
         data << float(1);                                   // 1 - none 0 - 100% group bonus output
     }
-    data << uint8(0);                                       // new 2.4.0
+
+    data << uint8(recruitAFriend ? 1 : 0);                  // does the GivenXP include a RaF bonus?
     GetSession()->SendPacket(&data);
 }
 
-void Player::GiveXP(uint32 xp, Unit* victim)
+void Player::GiveXP(uint32 xp, Unit *victim, float group_rate)
 {
     if (xp < 1)
         return;
@@ -2619,7 +2623,8 @@ void Player::GiveXP(uint32 xp, Unit* victim)
     // Favored experience increase START
     uint32 zone = GetZoneId();
     float favored_exp_mult = 0;
-    if ((HasAura(32096) || HasAura(32098)) && (zone == 3483 || zone == 3562 || zone == 3836 || zone == 3713 || zone == 3714)) favored_exp_mult = 0.05; // Thrallmar's Favor and Honor Hold's Favor
+    if ((HasAura(32096) || HasAura(32098)) && (zone == 3483 || zone == 3562 || zone == 3836 || zone == 3713 || zone == 3714))
+        favored_exp_mult = 0.05; // Thrallmar's Favor and Honor Hold's Favor
     xp *= (1 + favored_exp_mult);
     // Favored experience increase END
 
@@ -2627,14 +2632,20 @@ void Player::GiveXP(uint32 xp, Unit* victim)
     if (level >= sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL))
         return;
 
-    // XP resting bonus for kill
-    uint32 rested_bonus_xp = victim ? GetXPRestBonus(xp) : 0;
+    uint32 bonus_xp = 0;
+    bool recruitAFriend = GetsRecruitAFriendBonus(true);
 
-    SendLogXPGain(xp,victim,rested_bonus_xp);
+    // RaF does NOT stack with rested experience
+    if (recruitAFriend)
+        bonus_xp = 2 * xp; // xp + bonus_xp must add up to 3 * xp for RaF; calculation for quests done client-side
+    else
+        bonus_xp = victim ? GetXPRestBonus(xp) : 0; // XP resting bonus
+
+    SendLogXPGain(xp, victim, bonus_xp, recruitAFriend, group_rate);
 
     uint32 curXP = GetUInt32Value(PLAYER_XP);
     uint32 nextLvlXP = GetUInt32Value(PLAYER_NEXT_LEVEL_XP);
-    uint32 newXP = curXP + xp + rested_bonus_xp;
+    uint32 newXP = curXP + xp + bonus_xp;
 
     while (newXP >= nextLvlXP && level < sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL))
     {
@@ -6567,46 +6578,42 @@ void Player::RewardReputation(Unit *pVictim, float rate)
     if (favored_rep_mult > 0) favored_rep_mult *= 2; // Multiplied by 2 because the reputation is divided by 2 for some reason (See "donerep1 / 2" and "donerep2 / 2") -- if you know why this is done, please update/explain :)
     // Favored reputation increase END
 
+    bool recruitAFriend = GetsRecruitAFriendBonus(false);
+
     if (Rep->repfaction1 && (!Rep->team_dependent || team == ALLIANCE))
     {
         int32 donerep1 = CalculateReputationGain(pVictim->getLevel(), Rep->repvalue1, ChampioningFaction ? ChampioningFaction : Rep->repfaction1, false);
         donerep1 = int32(donerep1*(rate + favored_rep_mult));
+
+        if (recruitAFriend)
+            donerep1 = int32(donerep1 * (1 + sWorld.getRate(RATE_REPUTATION_RECRUIT_A_FRIEND_BONUS)));
+
         FactionEntry const *factionEntry1 = sFactionStore.LookupEntry(ChampioningFaction ? ChampioningFaction : Rep->repfaction1);
         uint32 current_reputation_rank1 = GetReputationMgr().GetRank(factionEntry1);
         if (factionEntry1 && current_reputation_rank1 <= Rep->reputation_max_cap1)
             GetReputationMgr().ModifyReputation(factionEntry1, donerep1);
-
-        // Wiki: Team factions value divided by 2 -- Deprecated, see ModifyReputation
-        /*if (factionEntry1 && Rep->is_teamaward1)
-        {
-            FactionEntry const *team1_factionEntry = sFactionStore.LookupEntry(factionEntry1->team);
-            if (team1_factionEntry)
-                GetReputationMgr().ModifyReputation(team1_factionEntry, donerep1 / 2);
-        }*/
     }
 
     if (Rep->repfaction2 && (!Rep->team_dependent || team == HORDE))
     {
         int32 donerep2 = CalculateReputationGain(pVictim->getLevel(), Rep->repvalue2, ChampioningFaction ? ChampioningFaction : Rep->repfaction2, false);
         donerep2 = int32(donerep2*(rate + favored_rep_mult));
+
+        if (recruitAFriend)
+            donerep2 = int32(donerep2 * (1 + sWorld.getRate(RATE_REPUTATION_RECRUIT_A_FRIEND_BONUS)));
+
         FactionEntry const *factionEntry2 = sFactionStore.LookupEntry(ChampioningFaction ? ChampioningFaction : Rep->repfaction2);
         uint32 current_reputation_rank2 = GetReputationMgr().GetRank(factionEntry2);
         if (factionEntry2 && current_reputation_rank2 <= Rep->reputation_max_cap2)
             GetReputationMgr().ModifyReputation(factionEntry2, donerep2);
-
-        // Wiki: Team factions value divided by 2 -- Deprecated, see ModifyReputation
-        /*if (factionEntry2 && Rep->is_teamaward2)
-        {
-            FactionEntry const *team2_factionEntry = sFactionStore.LookupEntry(factionEntry2->team);
-            if (team2_factionEntry)
-                GetReputationMgr().ModifyReputation(team2_factionEntry, donerep2 / 2);
-        }*/
     }
 }
 
 //Calculate how many reputation points player gain with the quest
 void Player::RewardReputation(Quest const *pQuest)
 {
+    bool recruitAFriend = GetsRecruitAFriendBonus(false);
+
     // quest reputation reward/loss
     for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
     {
@@ -6615,6 +6622,10 @@ void Player::RewardReputation(Quest const *pQuest)
         if (pQuest->RewRepValue[i])
         {
             int32 rep = CalculateReputationGain(GetQuestLevel(pQuest), pQuest->RewRepValue[i]/100, pQuest->RewRepFaction[i], true, true);
+
+            if (recruitAFriend)
+                rep = int32(rep * (1 + sWorld.getRate(RATE_REPUTATION_RECRUIT_A_FRIEND_BONUS)));
+
             if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(pQuest->RewRepFaction[i]))
                 GetReputationMgr().ModifyReputation(factionEntry, rep);
         }
@@ -6625,19 +6636,21 @@ void Player::RewardReputation(Quest const *pQuest)
 
             if (const QuestFactionRewEntry *pRow = sQuestFactionRewardStore.LookupEntry(row))
             {
-                 int32 repPoints = pRow->QuestRewFactionValue[field];
+                int32 repPoints = pRow->QuestRewFactionValue[field];
 
-                 if (!repPoints)
-                     continue;
+                if (!repPoints)
+                    continue;
 
-                 repPoints = CalculateReputationGain(GetQuestLevel(pQuest), repPoints, pQuest->RewRepFaction[i], true);
-                 if (const FactionEntry* factionEntry = sFactionStore.LookupEntry(pQuest->RewRepFaction[i]))
+                repPoints = CalculateReputationGain(GetQuestLevel(pQuest), repPoints, pQuest->RewRepFaction[i], true);
+
+                if (recruitAFriend)
+                    repPoints = int32(repPoints * (1 + sWorld.getRate(RATE_REPUTATION_RECRUIT_A_FRIEND_BONUS)));
+
+                if (const FactionEntry* factionEntry = sFactionStore.LookupEntry(pQuest->RewRepFaction[i]))
                     GetReputationMgr().ModifyReputation(factionEntry, repPoints);
             }
         }
     }
-
-    // TODO: implement reputation spillover
 }
 
 void Player::UpdateHonorFields()
@@ -21665,6 +21678,47 @@ bool Player::isHonorOrXPTarget(Unit* pVictim)
     return true;
 }
 
+bool Player::GetsRecruitAFriendBonus(bool forXP)
+{
+    bool recruitAFriend = false;
+    if (getLevel() <= sWorld.getConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL) || !forXP)
+    {
+        if (Group *group = this->GetGroup())
+        {
+            for (GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+            {
+                Player* pGroupGuy = itr->getSource();
+                if (!pGroupGuy)
+                    continue;
+
+                if (!pGroupGuy->IsAtRecruitAFriendDistance(this))
+                    continue;                               // member (alive or dead) or his corpse at req. distance
+
+                if (forXP)
+                {
+                    // level must be allowed to get RaF bonus
+                    if (pGroupGuy->getLevel() > sWorld.getConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL))
+                        continue;
+
+                    // level difference must be small enough to get RaF bonus, UNLESS we are lower level
+                    if (pGroupGuy->getLevel() < getLevel())
+                        if ((getLevel() - pGroupGuy->getLevel()) > sWorld.getConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL_DIFFERENCE))
+                            continue;
+                }
+
+                bool ARecruitedB = (pGroupGuy->GetSession()->GetRecruiterId() == GetSession()->GetAccountId());
+                bool BRecruitedA = (GetSession()->GetRecruiterId() == pGroupGuy->GetSession()->GetAccountId());
+                if (ARecruitedB || BRecruitedA)
+                {
+                    recruitAFriend = true;
+                    break;
+                }
+            }
+        }
+    }
+    return recruitAFriend;
+}
+
 bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
 {
     bool PvP = pVictim->isCharmedOwnedByPlayerOrPlayer();
@@ -21726,7 +21780,7 @@ bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
                         for (Unit::AuraEffectList::const_iterator i = ModXPPctAuras.begin(); i != ModXPPctAuras.end(); ++i)
                             itr_xp = uint32(itr_xp*(1.0f + (*i)->GetAmount() / 100.0f));
 
-                        pGroupGuy->GiveXP(itr_xp, pVictim);
+                        pGroupGuy->GiveXP(itr_xp, pVictim, group_rate);
                         if (Pet* pet = pGroupGuy->GetPet())
                             pet->GivePetXP(itr_xp/2);
                     }
@@ -21812,6 +21866,20 @@ bool Player::IsAtGroupRewardDistance(WorldObject const* pRewardSource) const
         return false;
 
     return pRewardSource->GetDistance(player) <= sWorld.getConfig(CONFIG_GROUP_XP_DISTANCE);
+}
+
+bool Player::IsAtRecruitAFriendDistance(WorldObject const* pOther) const
+{
+    if (!pOther)
+        return false;
+    const WorldObject* player = GetCorpse();
+    if (!player || isAlive())
+        player = this;
+
+    if (player->GetMapId() != pOther->GetMapId() || player->GetInstanceId() != pOther->GetInstanceId())
+        return false;
+
+    return pOther->GetDistance(player) <= sWorld.getConfig(CONFIG_MAX_RECRUIT_A_FRIEND_DISTANCE);
 }
 
 uint32 Player::GetBaseWeaponSkillValue (WeaponAttackType attType) const

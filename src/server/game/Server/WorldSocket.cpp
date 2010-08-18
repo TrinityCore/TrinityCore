@@ -829,7 +829,8 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
                                 "s, "                       //5
                                 "expansion, "               //6
                                 "mutetime, "                //7
-                                "locale "                   //8
+                                "locale, "                  //8
+                                "recruiter "                //9
                                 "FROM account "
                                 "WHERE username = '%s'",
                                 safe_account.c_str());
@@ -897,6 +898,8 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     locale = LocaleConstant (fields[8].GetUInt8());
     if (locale >= MAX_LOCALE)
         locale = LOCALE_enUS;
+
+    uint32 recruiter = fields[9].GetUInt32();
 
     // Checks gmlevel per Realm
     result =
@@ -989,7 +992,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
                             safe_account.c_str());
 
     // NOTE ATM the socket is single-threaded, have this in mind ...
-    ACE_NEW_RETURN (m_Session, WorldSession (id, this, AccountTypes(security), expansion, mutetime, locale), -1);
+    ACE_NEW_RETURN (m_Session, WorldSession (id, this, AccountTypes(security), expansion, mutetime, locale, recruiter), -1);
 
     m_Crypt.Init(&K);
 
