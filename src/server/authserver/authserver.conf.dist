@@ -116,7 +116,6 @@
 #
 ###############################################################################
 
-LoginDatabaseInfo = "127.0.0.1;3306;trinity;trinity;auth"
 LogsDir = ""
 MaxPingTime = 30
 RealmServerPort = 3724
