@@ -22,7 +22,7 @@
 #define SQLSTORAGE_H
 
 #include "Common.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 
 class SQLStorage
 {

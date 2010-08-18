@@ -16,9 +16,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "Utilities/ProgressBar.h"
-#include "Logging/Log.h"
-#include "DataStores/DBCFileLoader.h"
+#include "ProgressBar.h"
+#include "Log.h"
+#include "DBCFileLoader.h"
 
 template<class T>
 template<class S, class D>

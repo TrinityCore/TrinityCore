@@ -20,9 +20,10 @@
 #define _SQLOPERATION_H
 
 #include <ace/Method_Request.h>
+#include <ace/Activation_Queue.h>
 
 #include "Common.h"
-#include "Threading/Callback.h"
+#include "Callback.h"
 
 class MySQLConnection;
 

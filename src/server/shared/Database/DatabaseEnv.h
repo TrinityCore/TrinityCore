@@ -22,14 +22,14 @@
 #define DATABASEENV_H
 
 #include "Common.h"
-#include "Logging/Log.h"
-#include "Debugging/Errors.h"
+#include "Log.h"
+#include "Errors.h"
 
-#include "Database/Field.h"
-#include "Database/QueryResult.h"
+#include "Field.h"
+#include "QueryResult.h"
 
-#include "Database/DatabaseWorkerPool.h"
-#include "Database/MySQLThreading.h"
+#include "DatabaseWorkerPool.h"
+#include "MySQLThreading.h"
 
 typedef DatabaseWorkerPool DatabaseType;
 #define _LIKE_           "LIKE"

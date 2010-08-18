@@ -16,10 +16,15 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <mysql.h>
+#include "Common.h"
+#include "QueryResult.h"
+#include "SQLOperation.h"
 #include "MySQLConnection.h"
 #include "DatabaseWorker.h"
-#include "Utilities/Util.h"
-#include "Utilities/Timer.h"
+#include "Log.h"
+#include "Util.h"
+#include "Timer.h"
 
 MySQLConnection::MySQLConnection() :
 m_Mysql(NULL)
