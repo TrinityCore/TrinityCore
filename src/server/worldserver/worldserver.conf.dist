@@ -780,6 +780,16 @@ ChatLogTimestamp = 0
 #        Amount of arena points that new players will start with
 #        Default: 0
 #
+#    RecruitAFriend.MaxLevel
+#        Highest level at which a player can benefit from the Recruit-A-Friend
+#         XP multiplier
+#        Default: 60
+#
+#    RecruitAFriend.MaxDifference = 3
+#        Highest level difference between linked players for both players to 
+#         benefit from the Recruit-A-Friend XP multiplier
+#        Default: 3
+#
 #    InstantLogout
 #        Enable or disable instant logout for security level (0..4) or higher
 #        (NOT in combat/while dueling/while falling)
@@ -885,6 +895,10 @@ ChatLogTimestamp = 0
 #        Max distance to creature for group member to get XP at creature death.
 #        Default: 74
 #
+#    MaxRecruitAFriendBonusDistance
+#        Max distance to player for group member to get RaF bonus for XP.
+#        Default: 100
+#
 #    MailDeliveryDelay
 #        Mail delivery delay time for item sending
 #        Default: 3600 sec (1 hour)
@@ -960,6 +974,8 @@ MaxHonorPoints = 75000
 StartHonorPoints = 0
 MaxArenaPoints = 5000
 StartArenaPoints = 0
+RecruitAFriend.MaxLevel = 60
+RecruitAFriend.MaxDifference = 3
 InstantLogout = 1
 DisableWaterBreath = 4
 AllFlightPaths = 0
@@ -979,6 +995,7 @@ Guild.BankEventLogRecordsCount = 25
 MaxPrimaryTradeSkill = 2
 MinPetitionSigns = 9
 MaxGroupXPDistance = 74
+MaxRecruitAFriendBonusDistance = 100
 MailDeliveryDelay = 3600
 SkillChance.Prospecting = 0
 SkillChance.Milling = 0
@@ -1492,12 +1509,16 @@ Visibility.Notify.Period.InBGArenas   = 1000
 #        Default: 1
 #
 #    Rate.Reputation.LowLevel.Kill
-#        Reputation Gain from low level kill (grey creture)
+#        Reputation Gain from low level kill (grey creature)
 #        Default: 1
 #
 #    Rate.Reputation.LowLevel.Quest
 #        Reputation Gain rate
 #        Default: 1
+#
+#    Rate.Reputation.RecruitAFriendBonus
+#        Reputation bonus amount for recruit-a-friend. 0.1 = 10% bonus.
+#        Default: 0.1 (blizzlike)
 #
 #    Rate.MoveSpeed
 #        Multiply the default movement speed for players
@@ -1628,6 +1649,7 @@ Rate.Talent = 1
 Rate.Reputation.Gain = 1
 Rate.Reputation.LowLevel.Kill    = 1
 Rate.Reputation.LowLevel.Quest   = 1
+Rate.Reputation.RecruitAFriendBonus = 0.1
 Rate.MoveSpeed = 1
 Rate.InstanceResetTime = 1
 SkillGain.Crafting = 1
