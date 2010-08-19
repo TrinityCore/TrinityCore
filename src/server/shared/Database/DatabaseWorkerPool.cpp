@@ -205,6 +205,7 @@ void DatabaseWorkerPool::RollbackTransaction()
     {
         itr->second->ForcefulDelete();
         delete itr->second;
+        itr->second = NULL;
     }
 }
 
@@ -216,7 +217,7 @@ void DatabaseWorkerPool::CommitTransaction()
     if (itr != m_tranQueues.end() && itr->second != NULL)
     {
         Enqueue(itr->second);
-        m_tranQueues.erase(itr);
+        itr->second = NULL;
     }
 }
 
