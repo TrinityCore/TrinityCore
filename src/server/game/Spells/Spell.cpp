@@ -4836,11 +4836,11 @@ SpellCastResult Spell::CheckCast(bool strict)
 
             if (m_caster->GetTypeId() == TYPEID_PLAYER)
             {
-                // Not allow banish not self target
+                // Do not allow to banish target tapped by someone not in caster's group
                 if (m_spellInfo->Mechanic == MECHANIC_BANISH)
-                    if (target->GetTypeId() == TYPEID_UNIT &&
-                        !m_caster->ToPlayer()->isAllowedToLoot(target->ToCreature()))
-                        return SPELL_FAILED_CANT_CAST_ON_TAPPED;
+                    if (Creature *targetCreature = target->ToCreature())
+                        if (targetCreature->hasLootRecipient() && !targetCreature->isTappedBy(m_caster->ToPlayer()))
+                            return SPELL_FAILED_CANT_CAST_ON_TAPPED;
 
                 if (m_customAttr & SPELL_ATTR_CU_PICKPOCKET)
                 {
@@ -4855,7 +4855,8 @@ SpellCastResult Spell::CheckCast(bool strict)
                 {
                     if (target->GetTypeId() == TYPEID_PLAYER)
                     {
-                        if (!target->ToPlayer()->GetWeaponForAttack(BASE_ATTACK) || !target->ToPlayer()->IsUseEquipedWeapon(true))
+                        Player *player = target->ToPlayer();
+                        if (!player->GetWeaponForAttack(BASE_ATTACK) || !player->IsUseEquipedWeapon(true))
                             return SPELL_FAILED_TARGET_NO_WEAPONS;
                     }
                     else if (!target->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID))
