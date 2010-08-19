@@ -60,9 +60,12 @@ bool DatabaseWorkerPool::Open(const std::string& infoString, uint8 num_threads)
 void DatabaseWorkerPool::Close()
 {
     /// Shuts down worker threads for this connection pool.
+    ACE_Thread_Mutex shutdown_Mtx;
+    ACE_Condition_Thread_Mutex m_condition(shutdown_Mtx);
     for (uint8 i = 0; i < m_async_connections.size(); i++)
     {
-        Enqueue(new DatabaseWorkerPoolEnd());
+        Enqueue(new DatabaseWorkerPoolEnd(m_condition));
+        m_condition.wait();
     }
     
     m_queue->queue()->deactivate();
@@ -71,7 +74,11 @@ void DatabaseWorkerPool::Close()
     m_bundle_conn = NULL;
 
     //- MySQL::Thread_End() should be called manually from the aborting calling threads
-    ASSERT( m_sync_connections.empty() );
+    DEBUG_LOG("Waiting for synchroneous database threads to exit.");
+    while (!m_sync_connections.empty())
+    {
+    }
+    DEBUG_LOG("Synchroneous database threads exited succesfuly.");
 }
 
 /*! This function creates a new MySQL connection for every MapUpdate thread
@@ -96,7 +103,9 @@ void DatabaseWorkerPool::End_MySQL_Connection()
     MySQLConnection* conn;
     {
         ACE_Guard<ACE_Thread_Mutex> guard(m_connectionMap_mtx);
-        conn = m_sync_connections[ACE_Based::Thread::current()];
+        ConnectionMap::iterator itr = m_sync_connections.find(ACE_Based::Thread::current());
+        conn = itr->second;
+        m_sync_connections.erase(itr);
     }
     delete conn;
     conn = NULL;

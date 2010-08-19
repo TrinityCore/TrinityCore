@@ -42,15 +42,13 @@ enum MySQLThreadBundle
 class DatabaseWorkerPoolEnd : public SQLOperation
 {
     public:
-        //- This deletion will shut down the worker thread
-        int call()
-        {
-            return -1;
-        }
-        bool Execute()
-        {
-            return false;
-        }
+        DatabaseWorkerPoolEnd(ACE_Condition_Thread_Mutex &mtx)  : shutdown_Mtx(mtx) {} 
+        ~DatabaseWorkerPoolEnd() { shutdown_Mtx.broadcast(); }  //! Tells the Worker Pool to enqueue the next DatabaseWorkerPoolEnd operation.
+
+        int call() { return -1; }
+        bool Execute() { return false;}                         //! Not called - fool the compiler
+        
+        ACE_Condition_Thread_Mutex &shutdown_Mtx;
 };
 
 class DatabaseWorkerPool
