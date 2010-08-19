@@ -1404,6 +1404,8 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
     if (m_spellInfo->speed && (unit->IsImmunedToDamage(m_spellInfo) || unit->IsImmunedToSpell(m_spellInfo)))
         return SPELL_MISS_IMMUNE;
 
+    PrepareTargetHitForScripts();
+
     if (unit->GetTypeId() == TYPEID_PLAYER)
     {
         unit->ToPlayer()->GetAchievementMgr().StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET, m_spellInfo->Id);
@@ -1639,6 +1641,8 @@ void Spell::DoAllEffectOnTarget(GOTargetInfo *target)
     if (!go)
         return;
 
+    PrepareTargetHitForScripts();
+
     for (uint32 effectNumber = 0; effectNumber < 3; ++effectNumber)
         if (effectMask & (1 << effectNumber))
             HandleEffects(NULL, NULL, go, effectNumber);
@@ -1657,6 +1661,8 @@ void Spell::DoAllEffectOnTarget(ItemTargetInfo *target)
     uint32 effectMask = target->effectMask;
     if (!target->item || !effectMask)
         return;
+
+    PrepareTargetHitForScripts();
 
     for (uint32 effectNumber = 0; effectNumber < 3; ++effectNumber)
         if (effectMask & (1 << effectNumber))
@@ -3255,6 +3261,8 @@ void Spell::cast(bool skipCheck)
     // CAST SPELL
     SendSpellCooldown();
 
+    PrepareTargetHitForScripts();
+
     for (uint32 i = 0; i < 3; ++i)
     {
         switch(m_spellInfo->Effect[i])
@@ -3418,6 +3426,8 @@ void Spell::_handle_immediate_phase()
     m_spellAura = NULL;
     // handle some immediate features of the spell here
     HandleThreatSpells(m_spellInfo->Id);
+
+    PrepareTargetHitForScripts();
 
     m_needSpellLog = IsNeedSendToClient();
     for (uint32 j = 0; j < 3; ++j)
@@ -4667,17 +4677,22 @@ void Spell::HandleEffects(Unit *pUnitTarget,Item *pItemTarget,GameObject *pGOTar
     //we do not need DamageMultiplier here.
     damage = CalculateDamage(i, NULL);
 
+    // execute script effect handler hooks and check if effects was prevented
+    bool preventDefault = false;
     for(std::list<SpellScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
     {
         std::list<SpellScript::EffectHandler>::iterator effEndItr = (*scritr)->EffectHandlers.end(), effItr = (*scritr)->EffectHandlers.begin();
         for(; effItr != effEndItr ; ++effItr)
         {
-            if ((*effItr).IsEffectAffected(m_spellInfo, i))
+            // effect execution can be prevented
+            if (!(*scritr)->_IsEffectPrevented((SpellEffIndex)i) && (*effItr).IsEffectAffected(m_spellInfo, i))
                 (*effItr).Call(*scritr, (SpellEffIndex)i);
         }
+        if (!preventDefault)
+            preventDefault = (*scritr)->_IsDefaultEffectPrevented((SpellEffIndex)i);
     }
 
-    if (eff < TOTAL_SPELL_EFFECTS)
+    if (!preventDefault && eff < TOTAL_SPELL_EFFECTS)
     {
         (this->*SpellEffects[eff])(i);
     }
@@ -7288,5 +7303,13 @@ void Spell::LoadScripts()
         }
         (*itr)->Register();
         ++itr;
+    }
+}
+
+void Spell::PrepareTargetHitForScripts()
+{
+    for(std::list<SpellScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
+    {
+        (*scritr)->_InitHit();
     }
 }

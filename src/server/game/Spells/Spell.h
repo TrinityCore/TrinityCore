@@ -672,6 +672,7 @@ class Spell
 
         // Scripting system
         void LoadScripts();
+        void PrepareTargetHitForScripts();
         std::list<SpellScript *> m_loadedScripts;
 
         // effect helpers
