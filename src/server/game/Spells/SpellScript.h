@@ -26,6 +26,7 @@ class Unit;
 struct SpellEntry;
 class SpellScript;
 class Spell;
+class Aura;
 class Creature;
 class GameObject;
 class Player;
@@ -110,8 +111,13 @@ class SpellScript : public _SpellScript
     public:
         bool _Validate(SpellEntry const * entry, const char * scriptname);
         bool _Load(Spell * spell);
+        void _InitHit();
+        bool _IsEffectPrevented(SpellEffIndex effIndex) {return m_hitPreventEffectMask & (1<<effIndex);};
+        bool _IsDefaultEffectPrevented(SpellEffIndex effIndex) {return m_hitPreventDefaultEffectMask & (1<<effIndex);};
     private:
         Spell * m_spell;
+        uint8 m_hitPreventEffectMask;
+        uint8 m_hitPreventDefaultEffectMask;
     public:
         //
         // SpellScript interface
@@ -149,9 +155,27 @@ class SpellScript : public _SpellScript
         // setter/getter for for damage done by spell to target of spell hit
         int32 GetHitDamage();
         void SetHitDamage(int32 damage);
+        void PreventHitDamage() { SetHitDamage(0); };
         // setter/getter for for heal done by spell to target of spell hit
         int32 GetHitHeal();
         void SetHitHeal(int32 heal);
+        void PreventHitHeal() { SetHitHeal(0); };
+
+        // returns current spell hit target aura
+        Aura * GetHitAura();
+        // prevents applying aura on current spell hit target
+        void PreventHitAura();
+
+        // prevents effect execution on current spell hit target
+        // including other effect/hit scripts
+        // will not work on aura/damage/heal
+        // will not work if effects were already handled
+        void PreventHitEffect(SpellEffIndex effIndex);
+
+        // prevents default effect execution on current spell hit target
+        // will not work on aura/damage/heal effects
+        // will not work if effects were already handled
+        void PreventHitDefaultEffect(SpellEffIndex effIndex);
 
         // method avalible only in EffectHandler method
         int32 GetEffectValue();
