@@ -48,7 +48,7 @@ enum eCreatures
 {
     NPC_LORD_MARROWGAR      = 36612,
     NPC_COLDFLAME           = 36672,
-    NPC_BONE_SPIKE          = 38711
+    NPC_BONE_SPIKE          = 36619
 };
 
 enum eGameobjects
