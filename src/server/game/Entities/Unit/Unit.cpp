@@ -7980,7 +7980,11 @@ bool Unit::HandleAuraProc(Unit * pVictim, uint32 damage, Aura * triggeredByAura,
                         return true;                        // charge counting (will removed)
                     }
 
-                    this->CastSpell(this, 28682, true);
+                    // This function can be called twice during one spell hit (Area of Effect spells)
+                    // Make sure 28682 wasn't already removed by previous call
+                    if (HasAura(28682))
+                        this->CastSpell(this, 28682, true);
+
                     return false; // ordinary chrages will be removed during crit chance computations.
                 }
                 // Empowered Fire
