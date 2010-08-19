@@ -16377,7 +16377,7 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId)
 
     if (GetTypeId() == TYPEID_PLAYER)
     {
-        if(this->ToPlayer()->isInCombat())
+        if (vehicle->GetBase()->GetTypeId() == TYPEID_PLAYER && this->ToPlayer()->isInCombat())
             return;
 
         this->ToPlayer()->InterruptNonMeleeSpells(false);
