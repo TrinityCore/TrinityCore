@@ -79,6 +79,8 @@ void DatabaseWorkerPool::Close()
     {
     }
     DEBUG_LOG("Synchroneous database threads exited succesfuly.");
+
+    mysql_library_end();
 }
 
 /*! This function creates a new MySQL connection for every MapUpdate thread
