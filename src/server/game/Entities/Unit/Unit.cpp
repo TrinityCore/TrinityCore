@@ -1578,7 +1578,7 @@ bool Unit::IsDamageReducedByArmor(SpellSchoolMask schoolMask, SpellEntry const *
 
         // bleeding effects are not reduced by armor
         if (effIndex != MAX_SPELL_EFFECTS && spellInfo->EffectApplyAuraName[effIndex] == SPELL_AURA_PERIODIC_DAMAGE)
-            if (GetSpellMechanicMask(spellInfo, effIndex) & MECHANIC_BLEED)
+            if (GetSpellMechanicMask(spellInfo, effIndex) & (1<<MECHANIC_BLEED))
                 return false;
     }
     return true;

@@ -19,6 +19,7 @@
 #include <string>
 #include "SpellScript.h"
 #include "Spell.h"
+#include "SpellAuras.h"
 
 bool _SpellScript::_Validate(SpellEntry const * entry, const char * scriptname)
 {
@@ -164,6 +165,12 @@ bool SpellScript::_Load(Spell * spell)
     return Load();
 }
 
+void SpellScript::_InitHit()
+{
+    m_hitPreventEffectMask = 0;
+    m_hitPreventDefaultEffectMask = 0;
+}
+
 Unit * SpellScript::GetCaster()
 {
      return m_spell->GetCaster();
@@ -235,6 +242,32 @@ int32 SpellScript::GetHitHeal()
 void SpellScript::SetHitHeal(int32 heal)
 {
     m_spell->m_healing = heal;
+}
+
+Aura* SpellScript::GetHitAura()
+{
+    if (!m_spell->m_spellAura)
+        return NULL;
+    if (m_spell->m_spellAura->IsRemoved())
+        return NULL;
+    return m_spell->m_spellAura;
+}
+
+void SpellScript::PreventHitAura()
+{
+    if (m_spell->m_spellAura)
+        m_spell->m_spellAura->Remove();
+}
+
+void SpellScript::PreventHitEffect(SpellEffIndex effIndex)
+{
+    m_hitPreventEffectMask |= 1 << effIndex;
+    PreventHitDefaultEffect(effIndex);
+}
+
+void SpellScript::PreventHitDefaultEffect(SpellEffIndex effIndex)
+{
+    m_hitPreventDefaultEffectMask |= 1 << effIndex;
 }
 
 int32 SpellScript::GetEffectValue()
