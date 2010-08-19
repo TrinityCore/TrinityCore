@@ -32,7 +32,7 @@
 #include "SharedDefines.h"
 #include "GridRefManager.h"
 #include "MapRefManager.h"
-#include "MersenneTwister.h"
+#include "sfmt.h"
 
 #include <bitset>
 #include <list>
@@ -427,13 +427,13 @@ class Map : public GridRefManager<NGridType>
         void UpdateIteratorBack(Player *player);
 
 #ifdef MAP_BASED_RAND_GEN
-        MTRand mtRand;
-        int32 irand(int32 min, int32 max)       { return int32 (mtRand.randInt(max - min)) + min; }
-        uint32 urand(uint32 min, uint32 max)    { return mtRand.randInt(max - min) + min; }
-        int32 rand32()                          { return mtRand.randInt(); }
-        double rand_norm()                      { return mtRand.randExc(); }
-        double rand_chance()                    { return mtRand.randExc(100.0); }
-#endif
+        SFMTRand sfmtRand;
+        int32 irand(int32 min, int32 max)       { return int32(sfmtRand.IRandom(min, max)); }
+        uint32 urand(uint32 min, uint32 max)    { return uint32(sfmtRand.URandom(min, max)); }
+        int32 rand32()                          { return int32(sfmtRand.BRandom()); }
+        double rand_norm()                      { return sfmtRand.Random(); }
+        double rand_chance()                    { return sfmtRand.Random() * 100.0; }
+#endif // MAP_BASED_RAND_GEN
 
         TempSummon *SummonCreature(uint32 entry, const Position &pos, SummonPropertiesEntry const *properties = NULL, uint32 duration = 0, Unit *summoner = NULL, uint32 vehId = 0);
         Creature* GetCreature(uint64 guid);
