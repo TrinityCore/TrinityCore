@@ -40,6 +40,7 @@ m_Mysql(NULL)
 
 MySQLConnection::~MySQLConnection()
 {
+    mysql_close(m_Mysql);
 }
 
 bool MySQLConnection::Open(const std::string& infoString)
