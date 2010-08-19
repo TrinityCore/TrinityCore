@@ -872,7 +872,7 @@ void LFGMgr::UpdateRoleCheck(Group *grp, Player *plr /* = NULL*/)
                 pRoleCheck->roles[plrg->GetGUIDLow()] = 0;
 
         // Check if it's offer continue or trying to find a new instance after a random assigned (Join Random + LfgGroup)
-        if (grp->isLFGGroup() && dungeons->size() == 1 && isRandomDungeon(*dungeons->begin()))
+        if (grp->isLFGGroup() && dungeons->size() == 1 && isRandomDungeon(*dungeons->begin()) && grp->GetLfgDungeonEntry())
             pRoleCheck->dungeons.insert(grp->GetLfgDungeonEntry());
         else
             for (LfgDungeonSet::const_iterator itDungeon = dungeons->begin(); itDungeon != dungeons->end(); ++itDungeon)
