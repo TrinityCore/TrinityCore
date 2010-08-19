@@ -40,6 +40,7 @@ m_Mysql(NULL)
 
 MySQLConnection::~MySQLConnection()
 {
+    MySQL::Thread_End();
     mysql_close(m_Mysql);
 }
 
