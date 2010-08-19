@@ -22,7 +22,6 @@
 #        Default: "" - no log directory prefix, if used log names isn't
 #         absolute path then logs will be stored in current directory.
 #
-#
 #    LoginDatabaseInfo
 #    WorldDatabaseInfo
 #    CharacterDatabaseInfo
@@ -385,7 +384,6 @@ CleanCharacterDB = 0
 #    CharLogDump.SeparateDir
 #        Subdirectory within logs dir for separate char dumps.
 #
-#
 #    GmLogFile
 #        Log file of gm commands
 #        Default: "gm_commands.log"
@@ -577,7 +575,6 @@ ChatLogTimestamp = 0
 #    RealmZone
 #        Server realm zone (set allowed alphabet in character names/etc)
 #         See also Strict*Names options.
-#
 #        Default: 1 Development    - any language
 #                 2 United States  - extended-Latin
 #                 3 Oceanic        - extended-Latin
@@ -1894,7 +1891,6 @@ Ra.IP = 0.0.0.0
 Ra.Port = 3443
 Ra.MinLevel = 3
 Ra.Secure = 1
-
 SOAP.Enabled = 0
 SOAP.IP = 127.0.0.1
 SOAP.Port = 7878
@@ -1942,7 +1938,6 @@ CharDelete.KeepDays = 30
 #         Do not enable if you do not know what you are doing!
 #        Default: 0 - off
 #                 1 - on
-#
 #
 #    PlayerStart.MapsExplored
 #        Players will start with all maps explored if enabled
@@ -2030,6 +2025,7 @@ CharDelete.KeepDays = 30
 #        Enable Dungeon Finder system. Will enable dungeon finder and raid finder
 #        Default: 0 - off
 #                 1 - on
+#
 ###############################################################################
 
 PlayerStart.AllReputation = 0
