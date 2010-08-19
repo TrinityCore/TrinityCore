@@ -281,7 +281,7 @@ public:
             if (spell->Id == SPELL_HARPOON_DAMAGE)
             {
                 m_uiSpellHitCount++;
-                if (m_uiSpellHitCount >= 5)
+                if (m_uiSpellHitCount >= 3)
                 {
                     Phase = SKADI;
                     me->SetFlying(false);
