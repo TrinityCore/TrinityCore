@@ -31,7 +31,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 memset(uiEncounterState, 0, MAX_ENCOUNTER*sizeof(uint32));
                 memset(uiIcewall, 0, 2*sizeof(uint32));
                 uiMarrowgarEntrance = 0;
-                isBonedEgible = true;
+                isBonedEligible = true;
             }
 
             bool IsEncounterInProgress() const
@@ -125,7 +125,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
 
                     case COMMAND_FAIL_BONED:
-                        isBonedEgible = data ? true : false;
+                        isBonedEligible = data ? true : false;
                 }
             }
 
@@ -137,7 +137,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case CRITERIA_BONED_25N:
                     case CRITERIA_BONED_10H:
                     case CRITERIA_BONED_25H:
-                        return isBonedEgible;
+                        return isBonedEligible;
                 }
 
                 return false;
@@ -152,7 +152,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                     saveStream << uiEncounterState[i] << " ";
 
-                saveStream << isBonedEgible;
+                saveStream << isBonedEligible;
 
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return saveStream.str();
@@ -184,7 +184,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         uiEncounterState[i] = tmpState;
                     }
 
-                    loadStream >> isBonedEgible;
+                    loadStream >> isBonedEligible;
                 } else OUT_LOAD_INST_DATA_FAIL;
 
                 OUT_LOAD_INST_DATA_COMPLETE;
@@ -194,7 +194,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint32 uiEncounterState[MAX_ENCOUNTER];
             uint64 uiIcewall[2];
             uint64 uiMarrowgarEntrance;
-            bool isBonedEgible;
+            bool isBonedEligible;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* pMap) const
