@@ -34,7 +34,7 @@ class MySQL
         static void Thread_Init()
         {
             mysql_thread_init();
-            printf("Core thread with ID ["UI64FMTD"] initializing MySQL thread.",
+            printf("Core thread with ID ["UI64FMTD"] initializing MySQL thread.\n",
                     (uint64)ACE_Based::Thread::currentId());
         }
 
@@ -45,7 +45,7 @@ class MySQL
         static void Thread_End()
         {
             mysql_thread_end();
-            printf("Core thread with ID ["UI64FMTD"] shutting down MySQL thread.",
+            printf("Core thread with ID ["UI64FMTD"] shutting down MySQL thread.\n",
                 (uint64)ACE_Based::Thread::currentId());
         }
 };
