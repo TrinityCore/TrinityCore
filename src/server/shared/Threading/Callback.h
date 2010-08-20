@@ -51,7 +51,7 @@ class QueryCallback
             return result.ready();
         }
         
-        void GetResult(QueryResult_AutoPtr res)
+        void GetResult(QueryResult_AutoPtr& res)
         {
             result.get(res);
         }
