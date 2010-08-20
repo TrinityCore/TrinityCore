@@ -258,7 +258,7 @@ MySQLConnection* DatabaseWorkerPool::GetConnection()
         ACE_Guard<ACE_Thread_Mutex> guard(m_connectionMap_mtx);
         itr = m_sync_connections.find(ACE_Based::Thread::current());
         if (itr != m_sync_connections.end())
-            conn = itr->second;
+            return itr->second;
     }
     /*! Bundled threads */
     conn = m_bundle_conn;
