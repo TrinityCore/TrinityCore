@@ -1,0 +1,33 @@
+if(CMAKE_COMPILER_IS_GNUCXX)
+   # check the GCC version
+   exec_program(${CMAKE_C_COMPILER} ARGS -dumpversion OUTPUT_VARIABLE _gcc_version)
+   macro_ensure_version("4.4.1" "${_gcc_version}" GCC_4_4_1)
+   if(NOT GCC_4_4_1)
+      message(STATUS "\n--\n-- WARNING : Your GCC is older than 4.4.1. This is known to cause problems/bugs.\n-- Please update to the latest GCC if you can.\n--\n--")
+      macro_ensure_version("4.3.0" "${_gcc_version}" GCC_4_3_0)
+      if(NOT GCC_4_3_0)
+         message(STATUS "\n--\n-- WARNING : Your GCC is older than 4.3.0. It is unable to handle all SSE2 intrinsics.\n-- All SSE code will be disabled. Please update to the latest GCC if you can.\n--\n--")
+         set(SSE_INTRINSICS_BROKEN true)
+      endif(NOT GCC_4_3_0)
+   endif(NOT GCC_4_4_1)
+
+   if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+      set(ENABLE_STRICT_ALIASING true CACHE BOOL "Enables strict aliasing rules for more aggressive optimizations")
+      if(NOT ENABLE_STRICT_ALIASING)
+         set(CMAKE_CXX_FLAGS_RELEASE        "${CMAKE_CXX_FLAGS_RELEASE} -fno-strict-aliasing ")
+         set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -fno-strict-aliasing ")
+         set(CMAKE_C_FLAGS_RELEASE        "${CMAKE_C_FLAGS_RELEASE} -fno-strict-aliasing ")
+         set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -fno-strict-aliasing ")
+      endif(NOT ENABLE_STRICT_ALIASING)
+   endif(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+
+   # if compiling for 32 bit x86 we need to use the -mfpmath=sse since the x87 is broken by design
+   CHECK_CXX_SOURCE_RUNS("int main() { return sizeof(void*) != 8; }" VOID_PTR_IS_64BIT)
+   if(NOT VOID_PTR_IS_64BIT)
+      exec_program(${CMAKE_C_COMPILER} ARGS -dumpmachine OUTPUT_VARIABLE _gcc_machine)
+      if(_gcc_machine MATCHES "[x34567]86")
+         AddCompilerFlag("-mfpmath=sse")
+      endif(_gcc_machine MATCHES "[x34567]86")
+   endif(NOT VOID_PTR_IS_64BIT)
+endif()
+
