@@ -26,7 +26,9 @@
 #include "Timer.h"
 
 MySQLConnection::MySQLConnection() :
-m_Mysql(NULL)
+m_Mysql(NULL),
+m_worker(NULL),
+m_queue(NULL)
 {
 }
 
