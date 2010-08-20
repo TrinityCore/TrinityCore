@@ -3440,34 +3440,13 @@ void Map::ScriptsProcess()
                 }
 
                 //Lets choose our ScriptMap map
-                ScriptMapMap *datamap = NULL;
-                switch (step.script->dataint)
-                {
-                    case 1: //QUEST END SCRIPTMAP
-                        datamap = &sQuestEndScripts;
-                        break;
-                    case 2: //QUEST START SCRIPTMAP
-                        datamap = &sQuestStartScripts;
-                        break;
-                    case 3: //SPELLS SCRIPTMAP
-                        datamap = &sSpellScripts;
-                        break;
-                    case 4: //GAMEOBJECTS SCRIPTMAP
-                        datamap = &sGameObjectScripts;
-                        break;
-                    case 5: //EVENTS SCRIPTMAP
-                        datamap = &sEventScripts;
-                        break;
-                    case 6: //WAYPOINTS SCRIPTMAP
-                        datamap = &sWaypointScripts;
-                        break;
-                    default:
-                        sLog.outError("SCRIPT_COMMAND_CALLSCRIPT (script id: %u) unknown scriptmap (%u) specified, skipping.", step.script->id, step.script->dataint);
-                        break;
-                }
+                ScriptMapMap *datamap = GetScriptsMapByType(ScriptsType(step.script->dataint));
                 //if no scriptmap present...
                 if (!datamap)
+                {
+                    sLog.outError("SCRIPT_COMMAND_CALLSCRIPT (script id: %u) unknown scriptmap (%u) specified, skipping.", step.script->id, step.script->dataint);
                     break;
+                }
 
                 // Insert script into schedule but do not start it
                 ScriptsStart(*datamap, step.script->datalong2, cTarget, NULL);
