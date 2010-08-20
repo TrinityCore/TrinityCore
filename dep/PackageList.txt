@@ -20,6 +20,10 @@ libMPQ (a library for reading MPQ files)
   https://libmpq.org/
   Version: 1.0.4
 
+MersenneTwister (a very fast random number generator)
+    http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/emt.html
+    Version: 0.4.2
+
 SFMT (SIMD-oriented Fast Mersenne Twister)
   Based on http://agner.org/random/
   Version: 2010-Aug-03
