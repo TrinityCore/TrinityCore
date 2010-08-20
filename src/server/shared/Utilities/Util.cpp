@@ -22,9 +22,14 @@
 
 #include "socket_include.h"
 #include "utf8.h"
+#ifdef USE_SFMT_FOR_RNG
 #include "SFMT.h"
+#else
+#include "MersenneTwister.h"
+#endif
 #include <ace/TSS_T.h>
 
+#ifdef USE_SFMT_FOR_RNG
 typedef ACE_TSS<SFMTRand> SFMTRandTSS;
 static SFMTRandTSS sfmtRand;
 
@@ -52,6 +57,35 @@ double rand_chance (void)
 {
     return sfmtRand->Random() * 100.0;
 }
+#else
+typedef ACE_TSS<MTRand> MTRandTSS;
+static MTRandTSS mtRand;
+
+int32 irand(int32 min, int32 max)
+{
+    return int32(mtRand->randInt (max - min)) + min;
+}
+
+uint32 urand(uint32 min, uint32 max)
+{
+    return mtRand->randInt (max - min) + min;
+}
+
+int32 rand32()
+{
+    return mtRand->randInt ();
+}
+
+double rand_norm(void)
+{
+    return mtRand->randExc();
+}
+
+double rand_chance(void)
+{
+    return mtRand->randExc(100.0);
+}
+#endif
 
 Tokens StrSplit(const std::string &src, const std::string &sep)
 {

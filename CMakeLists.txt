@@ -96,6 +96,7 @@ option(SCRIPTPCH "Use precompiled headers when compiling scripts project" 1)
 option(GAMEPCH "Use precompiled headers when compiling game project" 1)
 option(SQL "Copy SQL files during installation" 0)
 option(WARNINGS "Enable all compile-warnings during compile" 0)
+option(USE_SFMT "Use SFMT for random number generation." 0)
 
 #
 # Search for readline on *nixbased systems (CLI-handler)
@@ -280,6 +281,17 @@ if( SQL )
 else()
   message("* Install SQL-files     : No  (default)")
 endif()
+
+#
+# SFMT...
+#
+if( USE_SFMT )
+  add_definitions(-DUSE_SFMT_FOR_RNG)
+  message("* Use SFMT for RNG      : Yes")
+else()
+  message("* Use SFMT for RNG      : No  (default)")
+endif()
+
 message("")
 
 #####
