@@ -74,20 +74,6 @@ struct GameTele
 
 typedef UNORDERED_MAP<uint32, GameTele > GameTeleMap;
 
-struct ScriptInfo
-{
-    uint32 id;
-    uint32 delay;
-    uint32 command;
-    uint32 datalong;
-    uint32 datalong2;
-    int32  dataint;
-    float x;
-    float y;
-    float z;
-    float o;
-};
-
 enum ScriptsType
 {
     SCRIPTS_FIRST = 1,
@@ -101,6 +87,23 @@ enum ScriptsType
     SCRIPTS_GOSSIP,
 
     SCRIPTS_LAST
+};
+
+struct ScriptInfo
+{
+    uint32 id;
+    uint32 delay;
+    ScriptCommands command;
+    uint32 datalong;
+    uint32 datalong2;
+    int32  dataint;
+    float x;
+    float y;
+    float z;
+    float o;
+    ScriptsType type;
+
+    std::string GetDebugInfo() const;
 };
 
 typedef std::multimap<uint32, ScriptInfo> ScriptMap;
@@ -117,6 +120,7 @@ extern ScriptMapMap sWaypointScripts;
 
 std::string GetScriptsTableNameByType(ScriptsType type);
 ScriptMapMap* GetScriptsMapByType(ScriptsType type);
+std::string GetScriptCommandName(ScriptCommands command);
 
 struct SpellClickInfo
 {
