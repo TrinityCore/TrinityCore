@@ -16,9 +16,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "DatabaseEnv.h"
 #include "SQLOperation.h"
 #include "MySQLConnection.h"
-#include "Log.h"
 
 /*! Basic, ad-hoc queries. */
 BasicStatementTask::BasicStatementTask(const char* sql) :
