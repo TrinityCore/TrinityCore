@@ -22,7 +22,7 @@
 
 #include "socket_include.h"
 #include "utf8.h"
-#include "sfmt.h"
+#include "SFMT.h"
 #include <ace/TSS_T.h>
 
 typedef ACE_TSS<SFMTRand> SFMTRandTSS;
