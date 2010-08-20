@@ -32,7 +32,7 @@
 #include "SharedDefines.h"
 #include "GridRefManager.h"
 #include "MapRefManager.h"
-#include "sfmt.h"
+#include "SFMT.h"
 
 #include <bitset>
 #include <list>
