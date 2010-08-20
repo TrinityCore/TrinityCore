@@ -5,7 +5,7 @@
 #include "Common.h"
 
 #include "MapManager.h"
-#include "Logging/Log.h"
+#include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectDefines.h"
 #include "SQLStorage.h"
