@@ -13480,7 +13480,8 @@ void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId, bool showQue
                         bCanTalk = false;
                     break;
                 case GOSSIP_OPTION_QUESTGIVER:
-					bCanTalk = false;
+                    bCanTalk = false;
+                    break;
                 case GOSSIP_OPTION_GOSSIP:
                 case GOSSIP_OPTION_SPIRITGUIDE:
                 case GOSSIP_OPTION_INNKEEPER:
