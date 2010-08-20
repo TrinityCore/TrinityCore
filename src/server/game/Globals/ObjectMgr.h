@@ -88,6 +88,21 @@ struct ScriptInfo
     float o;
 };
 
+enum ScriptsType
+{
+    SCRIPTS_FIRST = 1,
+
+    SCRIPTS_QUEST_END = SCRIPTS_FIRST,
+    SCRIPTS_QUEST_START,
+    SCRIPTS_SPELL,
+    SCRIPTS_GAMEOBJECT,
+    SCRIPTS_EVENT,
+    SCRIPTS_WAYPOINT,
+    SCRIPTS_GOSSIP,
+
+    SCRIPTS_LAST
+};
+
 typedef std::multimap<uint32, ScriptInfo> ScriptMap;
 typedef std::map<uint32, ScriptMap > ScriptMapMap;
 typedef std::multimap<uint32, uint32> SpellScriptsMap;
@@ -99,6 +114,9 @@ extern ScriptMapMap sGameObjectScripts;
 extern ScriptMapMap sEventScripts;
 extern ScriptMapMap sGossipScripts;
 extern ScriptMapMap sWaypointScripts;
+
+std::string GetScriptsTableNameByType(ScriptsType type);
+ScriptMapMap* GetScriptsMapByType(ScriptsType type);
 
 struct SpellClickInfo
 {
@@ -1041,8 +1059,8 @@ class ObjectMgr
         int DBCLocaleIndex;
 
     private:
-        void LoadScripts(ScriptMapMap& scripts, char const* tablename);
-        void CheckScripts(ScriptMapMap const& scripts,std::set<int32>& ids);
+        void LoadScripts(ScriptsType type);
+        void CheckScripts(ScriptsType type, std::set<int32>& ids);
         void LoadCreatureAddons(SQLStorage& creatureaddons, char const* entryName, char const* comment);
         void ConvertCreatureAddonAuras(CreatureDataAddon* addon, char const* table, char const* guidEntryStr);
         void LoadQuestRelationsHelper(QuestRelations& map,char const* table);
