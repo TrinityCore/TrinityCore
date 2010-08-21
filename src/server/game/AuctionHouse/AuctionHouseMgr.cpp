@@ -535,7 +535,7 @@ void AuctionHouseObject::AddAuction(AuctionEntry *auction)
     sScriptMgr.OnAuctionAdd(this, auction);
 }
 
-bool AuctionHouseObject::RemoveAuction(AuctionEntry *auction, uint32 item_template)
+bool AuctionHouseObject::RemoveAuction(AuctionEntry *auction, uint32 /*item_template*/)
 {
     bool wasInMap = AuctionsMap.erase(auction->Id) ? true : false;
 

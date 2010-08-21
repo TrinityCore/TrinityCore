@@ -477,7 +477,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
             ROLLBACK(DUMP_FILE_BROKEN);
         }
 
-        DumpTableType type;
+        DumpTableType type = DumpTableType(0);
         uint8 i;
         for (i = 0; i < DUMP_TABLE_COUNT; ++i)
         {

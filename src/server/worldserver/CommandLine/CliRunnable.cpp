@@ -72,7 +72,7 @@ char * command_finder(const char* text, int state)
     return ((char*)NULL);
 }
 
-char ** cli_completion(const char * text, int start, int end)
+char ** cli_completion(const char * text, int start, int /*end*/)
 {
     char ** matches;
     matches = (char**)NULL;
@@ -85,7 +85,7 @@ char ** cli_completion(const char * text, int start, int end)
 }
 #endif
 
-void utf8print(void* arg, const char* str)
+void utf8print(void* /*arg*/, const char* str)
 {
 #if PLATFORM == PLATFORM_WINDOWS
     wchar_t wtemp_buf[6000];
@@ -106,7 +106,7 @@ void utf8print(void* arg, const char* str)
 #endif
 }
 
-void commandFinished(void*, bool sucess)
+void commandFinished(void*, bool /*success*/)
 {
     printf("TC> ");
     fflush(stdout);

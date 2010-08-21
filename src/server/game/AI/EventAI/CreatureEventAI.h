@@ -556,7 +556,7 @@ typedef UNORDERED_MAP<uint32, std::vector<CreatureEventAI_Event> > CreatureEvent
 
 struct CreatureEventAI_Summon
 {
-    uint32 id;
+    uint32 id2;
 
     float position_x;
     float position_y;

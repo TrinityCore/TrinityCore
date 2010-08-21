@@ -1114,7 +1114,7 @@ bool ChatHandler::HandleReloadAuctionsCommand(const char * /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleReloadConditions(const char* args)
+bool ChatHandler::HandleReloadConditions(const char* /*args*/)
 {
     sLog.outString("Re-Loading Conditions...");
     sConditionMgr.LoadConditions(true);
@@ -3536,8 +3536,8 @@ bool ChatHandler::HandleLookupFactionCommand(const char *args)
 
                 if (repState)                               // and then target != NULL also
                 {
-                    ReputationRank rank = target->GetReputationMgr().GetRank(factionEntry);
-                    std::string rankName = GetTrinityString(ReputationRankStrIndex[rank]);
+                    uint32 index = target->GetReputationMgr().GetReputationRankStrIndex(factionEntry);
+                    std::string rankName = GetTrinityString(index);
 
                     ss << " " << rankName << "|h|r (" << target->GetReputationMgr().GetReputation(factionEntry) << ")";
 
