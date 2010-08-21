@@ -16,9 +16,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "DatabaseEnv.h"
 #include "SQLOperation.h"
 #include "MySQLConnection.h"
+#include "Log.h"
 
 /*! Basic, ad-hoc queries. */
 BasicStatementTask::BasicStatementTask(const char* sql) :
@@ -51,53 +51,6 @@ bool BasicStatementTask::Execute()
     }
 
     return m_conn->Execute(m_sql);
-}
-
-/*! Transactions. */
-TransactionTask::TransactionTask()
-{
-}
-
-TransactionTask::~TransactionTask()
-{
-   
-}
-
-void TransactionTask::ForcefulDelete()
-{
-    while (!m_queries.empty())
-    {
-        free((void*)const_cast<char*>(m_queries.front()));
-        m_queries.pop();
-    }
-}
-
-bool TransactionTask::Execute()
-{
-    if (m_queries.empty())
-        return false;
-
-    const char* sql;
-
-    m_conn->BeginTransaction();
-    while (!m_queries.empty())
-    {
-        sql = m_queries.front();
-        if (!m_conn->Execute(sql))
-        {
-            free((void*)const_cast<char*>(sql));
-            m_queries.pop();
-            m_conn->RollbackTransaction();
-            ForcefulDelete();
-            return false;
-        }
-
-        free((void*)const_cast<char*>(sql));
-        m_queries.pop();
-    }
-
-    m_conn->CommitTransaction();
-    return true;
 }
 
 bool SQLQueryHolder::SetQuery(size_t index, const char *sql)

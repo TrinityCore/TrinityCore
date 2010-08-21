@@ -644,10 +644,10 @@ void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
         << uint32(GetGoAnimProgress()) << ", "
         << uint32(GetGoState()) << ")";
 
-    WorldDatabase.BeginTransaction();
-    WorldDatabase.PExecute("DELETE FROM gameobject WHERE guid = '%u'", m_DBTableGuid);
-    WorldDatabase.PExecute(ss.str().c_str());
-    WorldDatabase.CommitTransaction();
+    SQLTransaction trans = WorldDatabase.BeginTransaction();
+    trans->PAppend("DELETE FROM gameobject WHERE guid = '%u'", m_DBTableGuid);
+    trans->Append(ss.str().c_str());
+    WorldDatabase.CommitTransaction(trans);
 }
 
 bool GameObject::LoadFromDB(uint32 guid, Map *map)

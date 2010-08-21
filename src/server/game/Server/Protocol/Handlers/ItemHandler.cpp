@@ -1120,8 +1120,8 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recv_data)
         return;
     }
 
-    CharacterDatabase.BeginTransaction();
-    CharacterDatabase.PExecute("INSERT INTO character_gifts VALUES ('%u', '%u', '%u', '%u')", GUID_LOPART(item->GetOwnerGUID()), item->GetGUIDLow(), item->GetEntry(), item->GetUInt32Value(ITEM_FIELD_FLAGS));
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    trans->PAppend("INSERT INTO character_gifts VALUES ('%u', '%u', '%u', '%u')", GUID_LOPART(item->GetOwnerGUID()), item->GetGUIDLow(), item->GetEntry(), item->GetUInt32Value(ITEM_FIELD_FLAGS));
     item->SetEntry(gift->GetEntry());
 
     switch (item->GetEntry())
@@ -1141,9 +1141,9 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recv_data)
     {
         // after save it will be impossible to remove the item from the queue
         item->RemoveFromUpdateQueueOf(_player);
-        item->SaveToDB();                                   // item gave inventory record unchanged and can be save standalone
+        item->SaveToDB(trans);                                   // item gave inventory record unchanged and can be save standalone
     }
-    CharacterDatabase.CommitTransaction();
+    CharacterDatabase.CommitTransaction(trans);
 
     uint32 count = 1;
     _player->DestroyItemCount(gift, count, true);

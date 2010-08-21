@@ -124,11 +124,11 @@ InstanceSave *InstanceSaveManager::GetInstanceSave(uint32 InstanceId)
 
 void InstanceSaveManager::DeleteInstanceFromDB(uint32 instanceid)
 {
-    CharacterDatabase.BeginTransaction();
-    CharacterDatabase.PExecute("DELETE FROM instance WHERE id = '%u'", instanceid);
-    CharacterDatabase.PExecute("DELETE FROM character_instance WHERE instance = '%u'", instanceid);
-    CharacterDatabase.PExecute("DELETE FROM group_instance WHERE instance = '%u'", instanceid);
-    CharacterDatabase.CommitTransaction();
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    trans->PAppend("DELETE FROM instance WHERE id = '%u'", instanceid);
+    trans->PAppend("DELETE FROM character_instance WHERE instance = '%u'", instanceid);
+    trans->PAppend("DELETE FROM group_instance WHERE instance = '%u'", instanceid);
+    CharacterDatabase.CommitTransaction(trans);
     // respawn times should be deleted only when the map gets unloaded
 }
 
@@ -648,11 +648,11 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
         }
 
         // delete them from the DB, even if not loaded
-        CharacterDatabase.BeginTransaction();
-        CharacterDatabase.PExecute("DELETE FROM character_instance USING character_instance LEFT JOIN instance ON character_instance.instance = id WHERE map = '%u' and difficulty='%u'", mapid, difficulty);
-        CharacterDatabase.PExecute("DELETE FROM group_instance USING group_instance LEFT JOIN instance ON group_instance.instance = id WHERE map = '%u' and difficulty='%u'", mapid, difficulty);
-        CharacterDatabase.PExecute("DELETE FROM instance WHERE map = '%u' and difficulty='%u'", mapid, difficulty);
-        CharacterDatabase.CommitTransaction();
+        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        trans->PAppend("DELETE FROM character_instance USING character_instance LEFT JOIN instance ON character_instance.instance = id WHERE map = '%u' and difficulty='%u'", mapid, difficulty);
+        trans->PAppend("DELETE FROM group_instance USING group_instance LEFT JOIN instance ON group_instance.instance = id WHERE map = '%u' and difficulty='%u'", mapid, difficulty);
+        trans->PAppend("DELETE FROM instance WHERE map = '%u' and difficulty='%u'", mapid, difficulty);
+        CharacterDatabase.CommitTransaction(trans);
 
         // calculate the next reset time
         uint32 diff = sWorld.getConfig(CONFIG_INSTANCE_RESET_TIME_HOUR) * HOUR;

@@ -229,7 +229,7 @@ class WorldSession
         void LoadAccountData(QueryResult_AutoPtr result, uint32 mask);
         void LoadTutorialsData();
         void SendTutorialsData();
-        void SaveTutorialsData();
+        void SaveTutorialsData(SQLTransaction& trans);
         uint32 GetTutorialInt(uint32 intId)
         {
             return m_Tutorials[intId];
@@ -250,8 +250,6 @@ class WorldSession
         void SendAuctionCommandResult(uint32 auctionId, uint32 Action, uint32 ErrorCode, uint32 bidError = 0);
         void SendAuctionBidderNotification(uint32 location, uint32 auctionId, uint64 bidder, uint32 bidSum, uint32 diff, uint32 item_template);
         void SendAuctionOwnerNotification(AuctionEntry * auction);
-        void SendAuctionOutbiddedMail(AuctionEntry * auction, uint32 newPrice);
-        void SendAuctionCancelledToBidderMail(AuctionEntry* auction);
 
         //Item Enchantment
         void SendEnchantmentLog(uint64 Target, uint64 Caster,uint32 ItemID,uint32 SpellID);

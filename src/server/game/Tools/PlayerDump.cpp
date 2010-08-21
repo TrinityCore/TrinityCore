@@ -369,7 +369,7 @@ DumpReturn PlayerDumpWriter::WriteDump(const std::string& file, uint32 guid)
 }
 
 // Reading - High-level functions
-#define ROLLBACK(DR) {CharacterDatabase.RollbackTransaction(); fclose(fin); return (DR);}
+#define ROLLBACK(DR) {fclose(fin); return (DR);}
 
 void fixNULLfields(std::string &line)
 {
@@ -436,7 +436,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
     typedef PetIds::value_type PetIdsPair;
     PetIds petids;
 
-    CharacterDatabase.BeginTransaction();
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
     while (!feof(fin))
     {
         if (!fgets(buf, 32000, fin))
@@ -629,10 +629,10 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
 
         fixNULLfields(line);
 
-        CharacterDatabase.Execute(line.c_str());
+        trans->Append(line.c_str());
     }
 
-    CharacterDatabase.CommitTransaction();
+    CharacterDatabase.CommitTransaction(trans);
 
     sObjectMgr.m_hiItemGuid += items.size();
     sObjectMgr.m_mailid     += mails.size();

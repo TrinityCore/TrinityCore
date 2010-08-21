@@ -1041,11 +1041,11 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recv_data)
     for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
         CharacterDatabase.escape_string(declinedname.name[i]);
 
-    CharacterDatabase.BeginTransaction();
-    CharacterDatabase.PExecute("DELETE FROM character_declinedname WHERE guid = '%u'", GUID_LOPART(guid));
-    CharacterDatabase.PExecute("INSERT INTO character_declinedname (guid, genitive, dative, accusative, instrumental, prepositional) VALUES ('%u','%s','%s','%s','%s','%s')",
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    trans->PAppend("DELETE FROM character_declinedname WHERE guid = '%u'", GUID_LOPART(guid));
+    trans->PAppend("INSERT INTO character_declinedname (guid, genitive, dative, accusative, instrumental, prepositional) VALUES ('%u','%s','%s','%s','%s','%s')",
         GUID_LOPART(guid), declinedname.name[0].c_str(), declinedname.name[1].c_str(), declinedname.name[2].c_str(), declinedname.name[3].c_str(), declinedname.name[4].c_str());
-    CharacterDatabase.CommitTransaction();
+    CharacterDatabase.CommitTransaction(trans);
 
     WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT, 4+8);
     data << uint32(0);                                      // OK
