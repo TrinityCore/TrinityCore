@@ -59,7 +59,7 @@ Guild::Guild()
 
 Guild::~Guild()
 {
-    DeleteGuildBankItems();
+    DeleteGuildBankItems(SQLTransaction(NULL));
 }
 
 bool Guild::Create(Player* leader, std::string gname)
@@ -716,7 +716,7 @@ void Guild::Disband()
     trans->PAppend("DELETE FROM guild_bank_tab WHERE guildid = '%u'", m_Id);
 
     //Free bank tab used memory and delete items stored in them
-    DeleteGuildBankItems(true);
+    DeleteGuildBankItems(trans, true);
 
     trans->PAppend("DELETE FROM guild_bank_item WHERE guildid = '%u'", m_Id);
     trans->PAppend("DELETE FROM guild_bank_right WHERE guildid = '%u'", m_Id);
@@ -2350,7 +2350,7 @@ void Guild::BroadcastEvent(GuildEvents event, uint64 guid, uint8 strCount, std::
     sLog.outDebug("WORLD: Sent SMSG_GUILD_EVENT");
 }
 
-void Guild::DeleteGuildBankItems( bool alsoInDB /*= false*/, SQLTransaction& trans)
+void Guild::DeleteGuildBankItems(SQLTransaction& trans, bool alsoInDB /*= false*/)
 {
     for (size_t i = 0; i < m_TabListMap.size(); ++i)
     {

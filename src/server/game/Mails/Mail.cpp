@@ -852,7 +852,7 @@ void MailDraft::prepareItems(Player* receiver, SQLTransaction& trans)
     }
 }
 
-void MailDraft::deleteIncludedItems(bool inDB /*= false*/, SQLTransaction& trans)
+void MailDraft::deleteIncludedItems(SQLTransaction& trans, bool inDB /*= false*/ )
 {
     for (MailItemMap::iterator mailItemIter = m_items.begin(); mailItemIter != m_items.end(); ++mailItemIter)
     {
@@ -879,7 +879,7 @@ void MailDraft::SendReturnToSender(uint32 sender_acc, uint32 sender_guid, uint32
 
     if (!receiver && !rc_account)                            // sender not exist
     {
-        deleteIncludedItems(true, trans);
+        deleteIncludedItems(trans, true);
         return;
     }
 
@@ -991,8 +991,8 @@ void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, 
             }
         }
         else if (!m_items.empty())
-            deleteIncludedItems();
+            deleteIncludedItems(SQLTransaction(NULL));
     }
     else if (!m_items.empty())
-        deleteIncludedItems();
+        deleteIncludedItems(SQLTransaction(NULL));
 }
