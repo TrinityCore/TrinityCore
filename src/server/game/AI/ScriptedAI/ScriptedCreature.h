@@ -188,6 +188,8 @@ struct ScriptedAI : public CreatureAI
             return normal5;
         case DUNGEON_DIFFICULTY_HEROIC:
             return heroic10;
+        default:
+            break;
         }
 
         return heroic10;
@@ -202,6 +204,8 @@ struct ScriptedAI : public CreatureAI
             return normal10;
         case RAID_DIFFICULTY_25MAN_NORMAL:
             return normal25;
+        default:
+            break;
         }
 
         return normal25;

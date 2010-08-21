@@ -2229,6 +2229,8 @@ void Player::Regenerate(Powers power)
         case POWER_HAPPINESS:
         case POWER_HEALTH:
             break;
+        default:
+            break;
     }
 
     // Mana regen calculated in Player::UpdateManaRegen()
@@ -5499,6 +5501,8 @@ void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
             ApplyCastTimePercentMod(RatingChange,apply);
             break;
         }
+        default:
+            break;
     }
 
     UpdateRating(cr);
@@ -5831,6 +5835,8 @@ void Player::UpdateWeaponSkill (WeaponAttackType attType)
                 UpdateSkill(tmpitem->GetSkill(), weapon_skill_gain);
             break;
         }
+        default:
+            break;
     }
     UpdateAllCritPercentages();
 }
@@ -7187,6 +7193,8 @@ void Player::DuelComplete(DuelCompleteType type)
                     duel->opponent->CastSpell(duel->opponent, 52994, true);
             }
             break;
+        default:
+            break;
     }
 
     //Remove Duel Flag object
@@ -8304,6 +8312,8 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
                             break;
                         case MASTER_LOOT:
                             group->MasterLoot(loot, go);
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -18118,7 +18128,9 @@ void Player::_SaveSkills(SQLTransaction& trans)
                 trans->PAppend("UPDATE character_skills SET value = '%u',max = '%u'WHERE guid = '%u' AND skill = '%u' ",
                     value, max, GetGUIDLow(), itr->first);
                 break;
-        };
+            default:
+                break;
+        }
         itr->second.uState = SKILL_UNCHANGED;
 
         ++itr;
@@ -20975,6 +20987,8 @@ void Player::SendTransferAborted(uint32 mapid, TransferAbortReason reason, uint8
         case TRANSFER_ABORT_UNIQUE_MESSAGE:
             // these are the ONLY cases that have an extra argument in the packet!!!
             data << uint8(arg);
+            break;
+        default:
             break;
     }
     GetSession()->SendPacket(&data);

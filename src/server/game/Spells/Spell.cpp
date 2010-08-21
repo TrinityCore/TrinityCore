@@ -2571,6 +2571,8 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                                         case TYPEID_PLAYER:
                                             m_targets.setUnitTarget((Unit*)result);
                                             break;
+                                        default:
+                                            break;
                                     }
                                 }
                                 else
@@ -6900,6 +6902,8 @@ bool Spell::IsValidSingleTargetEffect(Unit const* target, Targets type) const
             return m_caster->IsInRaidWith(target);
         case TARGET_UNIT_TARGET_PUPPET:
             return target->HasUnitTypeMask(UNIT_MASK_PUPPET) && m_caster == target->GetOwner();
+        default:
+            break;
     }
     return true;
 }

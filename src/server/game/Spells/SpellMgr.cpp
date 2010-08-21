@@ -3522,6 +3522,8 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Targets |= TARGET_FLAG_UNIT;
                     count++;
                     break;
+                default:
+                    break;
             }
         }
 

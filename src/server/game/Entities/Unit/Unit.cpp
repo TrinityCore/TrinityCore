@@ -629,6 +629,8 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
             }
             case RANGED_ATTACK:
                 break;
+            default:
+                break;
         }
     }
 
@@ -3312,6 +3314,7 @@ uint32 Unit::GetWeaponSkillValue (WeaponAttackType attType, Unit const* target) 
             case BASE_ATTACK:   value += uint32(this->ToPlayer()->GetRatingBonusValue(CR_WEAPON_SKILL_MAINHAND)); break;
             case OFF_ATTACK:    value += uint32(this->ToPlayer()->GetRatingBonusValue(CR_WEAPON_SKILL_OFFHAND));  break;
             case RANGED_ATTACK: value += uint32(this->ToPlayer()->GetRatingBonusValue(CR_WEAPON_SKILL_RANGED));   break;
+            default: break;
         }
     }
     else
@@ -8895,9 +8898,13 @@ bool Unit::HandleOverrideClassScriptAuraProc(Unit *pVictim, uint32 /*damage*/, A
                 case POWER_RAGE:   triggered_spell_id = 48541; break;
                 case POWER_ENERGY: triggered_spell_id = 48540; break;
                 case POWER_RUNIC_POWER: triggered_spell_id = 48543; break;
+                default:
+                    break;
             }
             break;
         }
+        default:
+            break;
     }
 
     // not processed
@@ -13022,6 +13029,8 @@ bool Unit::HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, f
         case TOTAL_PCT:
             m_auraModifiersGroup[unitMod][modifierType] += (apply ? amount : -amount) / 100.0f;
             break;
+        default:
+            break;
     }
 
     if (!CanModifyStats())
@@ -13389,6 +13398,8 @@ uint32 Unit::GetCreatePowers(Powers power) const
         case POWER_RUNIC_POWER: return 1000;
         case POWER_RUNE:      return 0;
         case POWER_HEALTH:    return 0;
+        default:
+            break;
     }
 
     return 0;
@@ -16226,6 +16237,8 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
             return 864;
         case FORM_SPIRITOFREDEMPTION:
             return 16031;
+        default:
+            break;
     }
     return 0;
 }
@@ -16503,6 +16516,8 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
                 WPAssert(const_cast<Unit*>(this)->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE);
                 const_cast<Unit*>(this)->AddUnitMovementFlag(MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_SPLINE_ENABLED);
             }
+            break;
+        default:
             break;
     }
 
