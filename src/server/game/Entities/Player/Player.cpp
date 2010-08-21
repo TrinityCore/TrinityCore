@@ -1861,9 +1861,8 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     // The player was ported to another map and looses the duel immediately.
     // We have to perform this check before the teleport, otherwise the
     // ObjectAccessor won't find the flag.
-    if (duel && GetMapId() != mapid)
-        if (GameObject* obj = GetMap()->GetGameObject(GetUInt64Value(PLAYER_DUEL_ARBITER)))
-            DuelComplete(DUEL_FLED);
+    if (duel && GetMapId() != mapid && GetMap()->GetGameObject(GetUInt64Value(PLAYER_DUEL_ARBITER)))
+        DuelComplete(DUEL_FLED);
 
     if (GetMapId() == mapid && !m_transport)
     {
@@ -15022,7 +15021,7 @@ bool Player::CanShareQuest(uint32 quest_id) const
 
 void Player::SetQuestStatus(uint32 quest_id, QuestStatus status)
 {
-    if (Quest const* qInfo = sObjectMgr.GetQuestTemplate(quest_id))
+    if (sObjectMgr.GetQuestTemplate(quest_id))
     {
         QuestStatusData& q_status = mQuestStatus[quest_id];
 
@@ -17498,10 +17497,6 @@ bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, bool report
             GetSession()->SendAreaTriggerMessage(GetSession()->GetTrinityString(LANG_INSTANCE_CLOSED));
             return false;
         }
-
-        bool isNormalTargetMap = mapEntry->IsRaid()
-            ? (GetRaidDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
-            : (GetDungeonDifficulty() == DUNGEON_DIFFICULTY_NORMAL);
 
         uint32 missingQuest = 0;
         if (GetTeam() == ALLIANCE && ar->quest_A && !GetQuestRewardStatus(ar->quest_A))

@@ -2277,7 +2277,6 @@ bool InstanceMap::CanEnter(Player *player)
     // permanent save in the same instance id
 
     PlayerList const &playerList = GetPlayers();
-    Player *firstInsidePlayer = NULL;
 
     if (!playerList.isEmpty())
         for (PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
