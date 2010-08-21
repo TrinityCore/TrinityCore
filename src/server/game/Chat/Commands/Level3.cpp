@@ -1161,7 +1161,7 @@ bool ChatHandler::HandleAccountSetGmLevelCommand(const char *args)
 
     // Check for invalid specified GM level.
     gm = (isAccountNameGiven) ? atoi(arg2) : atoi(arg1);
-    if (gm < SEC_PLAYER)
+    if (gm > SEC_CONSOLE)
     {
         SendSysMessage(LANG_BAD_VALUE);
         SetSentErrorMessage(true);
@@ -5397,7 +5397,7 @@ bool ChatHandler::HandleQuestComplete(const char *args)
     // All creature/GO slain/casted (not required, but otherwise it will display "Creature slain 0/10")
     for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
     {
-        uint32 creature = pQuest->ReqCreatureOrGOId[i];
+        int32 creature = pQuest->ReqCreatureOrGOId[i];
         uint32 creaturecount = pQuest->ReqCreatureOrGOCount[i];
 
         if (uint32 spell_id = pQuest->ReqSpell[i])
