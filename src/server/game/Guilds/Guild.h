@@ -294,7 +294,7 @@ class Guild
         void CreateDefaultGuildRanks(int locale_idx);
         void Disband();
 
-        void DeleteGuildBankItems(bool alsoInDB = false, SQLTransaction& trans = SQLTransaction(NULL));
+        void DeleteGuildBankItems(SQLTransaction& trans, bool alsoInDB = false);
         typedef std::map<uint32, MemberSlot> MemberList;
         typedef std::vector<RankInfo> RankList;
 

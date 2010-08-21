@@ -139,7 +139,7 @@ class MailDraft
         void SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, MailSender const& sender, MailCheckMask checked = MAIL_CHECK_MASK_NONE, uint32 deliver_delay = 0);
 
     private:
-        void deleteIncludedItems(bool inDB = false, SQLTransaction& trans = SQLTransaction(NULL));
+        void deleteIncludedItems(SQLTransaction& trans, bool inDB = false);
         void prepareItems(Player* receiver, SQLTransaction& trans);                // called from SendMailTo for generate mailTemplateBase items
 
         uint16      m_mailTemplateId;
