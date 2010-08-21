@@ -19,6 +19,7 @@
 #include "ScriptPCH.h"
 #include "icecrown_citadel.h"
 #include "MapManager.h"
+#include "Spell.h"
 
 enum eScriptTexts
 {
@@ -85,6 +86,7 @@ class boss_lord_marrowgar : public CreatureScript
                 fBaseSpeed = pCreature->GetSpeedRate(MOVE_RUN);
                 bIntroDone = false;
                 pInstance = pCreature->GetInstanceScript();
+                coldflameLastPos.Relocate(pCreature);
             }
 
             void Reset()
@@ -161,6 +163,7 @@ class boss_lord_marrowgar : public CreatureScript
                             events.ScheduleEvent(EVENT_BONE_SPIKE_GRAVEYARD, urand(25000, 35000));
                             break;
                         case EVENT_COLDFLAME:
+                            coldflameLastPos.Relocate(me);
                             if (!me->HasAura(SPELL_BONE_STORM))
                                 DoCast(me, SPELL_COLDFLAME_NORMAL);
                             else
@@ -230,6 +233,11 @@ class boss_lord_marrowgar : public CreatureScript
                 DoStartNoMovement(me->getVictim());
             }
 
+            const Position* GetLastColdflamePosition() const
+            {
+                return &coldflameLastPos;
+            }
+
         private:
 
             EventMap events;
@@ -238,6 +246,7 @@ class boss_lord_marrowgar : public CreatureScript
             uint32 uiBoneStormDuration;
             float fBaseSpeed;
             bool bBoneSlice;
+            Position coldflameLastPos;
         };
 
         CreatureAI* GetAI(Creature* pCreature) const
@@ -283,7 +292,8 @@ class npc_coldflame : public CreatureScript
                 else
                 {
                     me->GetPosition(x, y, z);
-                    float ang = me->GetAngle(owner) - static_cast<float>(M_PI);
+                    Position const* ownerPos = CAST_AI(boss_lord_marrowgar::boss_lord_marrowgarAI, owner->ToCreature()->AI())->GetLastColdflamePosition();
+                    float ang = me->GetAngle(ownerPos) - static_cast<float>(M_PI);
                     MapManager::NormalizeOrientation(ang);
                     x += 50.0f * cosf(ang);
                     y += 50.0f * sinf(ang);
@@ -407,12 +417,24 @@ class spell_marrowgar_coldflame : public SpellScriptLoader
         {
             void HandleScriptEffect(SpellEffIndex effIndex)
             {
+                Unit* caster = GetCaster();
                 uint8 count = 1;
                 if (GetSpellInfo()->Id == 72705)
                     count = 4;
 
+                SpellCastTargets targets;
+                targets.setUnitTarget(caster);
+                targets.setDst(*caster);
+
+                Spell* spell = NULL;
+                SpellEntry const* spellInfo = NULL;
+
                 for (uint8 i = 0; i < count; ++i)
-                    GetCaster()->CastSpell(GetCaster(), SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), EFFECT_0)+i, true);
+                {
+                    spellInfo = sSpellStore.LookupEntry(GetEffectValue()+i);
+                    spell = new Spell(caster, spellInfo, true);
+                    spell->prepare(&targets);
+                }
             }
 
             void Register()
@@ -450,8 +472,8 @@ class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
                 {
                     // select any unit but not the tank
                     Unit* target = marrowgarAI->SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true, -SPELL_IMPALED);
-                    if (!target)
-                        target = marrowgarAI->SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_IMPALED);  // or the tank if its solo
+                    if (!target && !i)
+                        target = marrowgarAI->SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_IMPALED);
                     if (!target)
                         break;
                     yell = true;

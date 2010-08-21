@@ -1413,7 +1413,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
     if (unit->GetTypeId() == TYPEID_PLAYER)
     {
         unit->ToPlayer()->GetAchievementMgr().StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET, m_spellInfo->Id);
-        unit->ToPlayer()->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, m_spellInfo->Id);
+        unit->ToPlayer()->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, m_spellInfo->Id, 0, m_caster);
         unit->ToPlayer()->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2, m_spellInfo->Id);
     }
 
@@ -2804,6 +2804,18 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     case 55789: // Improved Icy Talons
                     case 59725: // Improved Spell Reflection - aoe aura
                         unitList.remove(m_caster);
+                        break;
+                    case 72255: // Mark of the Fallen Champion (Deathbringer Saurfang)
+                    case 72444:
+                    case 72445:
+                    case 72446:
+                        for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end();)
+                        {
+                            if (!(*itr)->HasAura(72293))
+                                itr = unitList.erase(itr);
+                            else
+                                ++itr;
+                        }
                         break;
                 }
                 // Death Pact

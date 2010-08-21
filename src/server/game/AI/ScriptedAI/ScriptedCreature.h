@@ -180,6 +180,9 @@ struct ScriptedAI : public CreatureAI
     // return the dungeon or raid difficulty
     Difficulty getDifficulty() { return m_difficulty; }
 
+    // return true for 25 man or 25 man heroic mode
+    bool Is25ManRaid() { return m_difficulty & 1; }
+
     template<class T> inline
     const T& DUNGEON_MODE(const T& normal5, const T& heroic10)
     {
