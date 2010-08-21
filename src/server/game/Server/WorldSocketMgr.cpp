@@ -238,8 +238,8 @@ class ReactorRunnable : protected ACE_Task_Base
 };
 
 WorldSocketMgr::WorldSocketMgr() :
-    m_NetThreadsCount(0),
     m_NetThreads(0),
+    m_NetThreadsCount(0),
     m_SockOutKBuff(-1),
     m_SockOutUBuff(65536),
     m_UseNoDelay(true),

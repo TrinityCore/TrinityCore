@@ -731,8 +731,8 @@ namespace Trinity
 
         SpellNotifierCreatureAndPlayer(Unit *source, std::list<Unit*> &data, float radius, SpellNotifyPushType type,
             SpellTargets TargetType = SPELL_TARGETS_ENEMY, const Position *pos = NULL, uint32 entry = 0)
-            : i_source(source), i_data(&data), i_radius(radius), i_push_type(type)
-            , i_TargetType(TargetType), i_pos(pos), i_entry(entry)
+            : i_data(&data), i_push_type(type), i_radius(radius), i_TargetType(TargetType),
+            i_source(source), i_entry(entry), i_pos(pos)
         {
             ASSERT(i_source);
         }

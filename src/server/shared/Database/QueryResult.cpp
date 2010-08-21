@@ -21,9 +21,9 @@
 #include "DatabaseEnv.h"
 
 QueryResult::QueryResult(MYSQL_RES *result, MYSQL_FIELD *fields, uint64 rowCount, uint32 fieldCount)
-: mResult(result)
-, mFieldCount(fieldCount)
+: mFieldCount(fieldCount)
 , mRowCount(rowCount)
+, mResult(result)
 {
     mCurrentRow = new Field[mFieldCount];
     ASSERT(mCurrentRow);

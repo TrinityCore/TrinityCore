@@ -30,8 +30,8 @@ class MapUpdater
     private:
 
         DelayExecutor m_executor;
-        ACE_Condition_Thread_Mutex m_condition;
         ACE_Thread_Mutex m_mutex;
+        ACE_Condition_Thread_Mutex m_condition;
         size_t pending_requests;
 
         void update_finished();

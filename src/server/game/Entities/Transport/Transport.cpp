@@ -179,7 +179,7 @@ void MapManager::LoadTransportNPCs()
     sLog.outString(">> Loaded %u transport npcs", count);
 }
 
-Transport::Transport(uint32 period, uint32 script) : m_period(period), ScriptId(script), GameObject()
+Transport::Transport(uint32 period, uint32 script) : GameObject(), m_period(period), ScriptId(script)
 {
     m_updateFlag = (UPDATEFLAG_TRANSPORT | UPDATEFLAG_HIGHGUID | UPDATEFLAG_HAS_POSITION | UPDATEFLAG_ROTATION);
 }

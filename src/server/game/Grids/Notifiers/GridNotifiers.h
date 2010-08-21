@@ -86,7 +86,7 @@ namespace Trinity
         CellPair &p;
         const float i_radius;
         DelayedUnitRelocation(Cell &c, CellPair &pair, Map &map, float radius) :
-            cell(c), p(pair), i_map(map), i_radius(radius) {}
+            i_map(map), cell(c), p(pair), i_radius(radius) {}
         template<class T> void Visit(GridRefManager<T> &) {}
         void Visit(CreatureMapType &);
         void Visit(PlayerMapType   &);
@@ -129,7 +129,7 @@ namespace Trinity
         uint32 team;
         Player const* skipped_receiver;
         MessageDistDeliverer(WorldObject *src, WorldPacket *msg, float dist, bool own_team_only = false, Player const* skipped = NULL)
-            : i_source(src), i_message(msg), i_distSq(dist * dist), i_phaseMask(src->GetPhaseMask())
+            : i_source(src), i_message(msg), i_phaseMask(src->GetPhaseMask()), i_distSq(dist * dist)
             , team((own_team_only && src->GetTypeId() == TYPEID_PLAYER) ? ((Player*)src)->GetTeam() : 0)
             , skipped_receiver(skipped)
         {
@@ -1207,7 +1207,7 @@ namespace Trinity
           x(_x), y(_y), z(_z), range(_range), entry(_entry) {}
         bool operator() (GameObject* go)
         {
-            if (!entry || go->GetGOInfo() && go->GetGOInfo()->id == entry)
+            if (!entry || (go->GetGOInfo() && go->GetGOInfo()->id == entry))
                 return go->IsInRange(x, y, z, range);
             else return false;
         }
