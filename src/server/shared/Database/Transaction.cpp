@@ -29,7 +29,7 @@ void Transaction::PAppend(const char* sql, ...)
     va_list ap;
     char szQuery [MAX_QUERY_LEN];
     va_start(ap, sql);
-    int res = vsnprintf(szQuery, MAX_QUERY_LEN, sql, ap);
+    vsnprintf(szQuery, MAX_QUERY_LEN, sql, ap);
     va_end(ap);
 
     Append(szQuery);

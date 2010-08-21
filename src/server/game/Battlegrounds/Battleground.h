@@ -341,7 +341,7 @@ class Battleground
         {
         }
 
-        virtual void DestroyGate(Player* pl, GameObject* go, uint32 destroyedEvent) {}
+        virtual void DestroyGate(Player* /*pl*/, GameObject* /*go*/, uint32 /*destroyedEvent*/) {}
 
         /* achievement req. */
         virtual bool IsAllNodesConrolledByTeam(uint32 /*team*/) const { return false; }
@@ -529,7 +529,7 @@ class Battleground
         virtual void EventPlayerCapturedFlag(Player* /*player*/) {}
         void EventPlayerLoggedIn(Player* player, uint64 plr_guid);
         void EventPlayerLoggedOut(Player* player);
-        virtual void EventPlayerDamagedGO(Player* plr, GameObject* go, uint8 hitType, uint32 destroyedEvent) {}
+        virtual void EventPlayerDamagedGO(Player* /*plr*/, GameObject* /*go*/, uint8 /*hitType*/, uint32 /*destroyedEvent*/) {}
         virtual void EventPlayerUsedGO(Player* /*player*/, GameObject* /*go*/){}
 
         /* Death related */

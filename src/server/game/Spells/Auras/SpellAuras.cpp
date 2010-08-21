@@ -35,9 +35,9 @@
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 
-AuraApplication::AuraApplication(Unit * target, Unit * caster, Aura * aura, uint8 effMask)
-    : m_target(target), m_base(aura), m_slot(MAX_AURAS), m_flags(AFLAG_NONE), m_needClientUpdate(false)
-    , m_removeMode(AURA_REMOVE_NONE), m_effectsToApply(effMask)
+AuraApplication::AuraApplication(Unit * target, Unit * caster, Aura * aura, uint8 effMask):
+m_target(target), m_base(aura), m_slot(MAX_AURAS), m_flags(AFLAG_NONE),
+m_effectsToApply(effMask), m_removeMode(AURA_REMOVE_NONE), m_needClientUpdate(false)
 {
     ASSERT(GetTarget() && GetBase());
 
@@ -230,6 +230,8 @@ Aura * Aura::TryCreate(SpellEntry const* spellproto, uint8 tryEffMask, WorldObje
                     effMask |= 1 << i;
             }
             break;
+        default:
+            break;
     }
     if (uint8 realMask = effMask & tryEffMask)
         return Create(spellproto,realMask,owner,caster,baseAmount,castItem,casterGUID);
@@ -258,6 +260,8 @@ Aura * Aura::TryCreate(SpellEntry const* spellproto, WorldObject * owner, Unit *
                 if (spellproto->Effect[i] == SPELL_EFFECT_PERSISTENT_AREA_AURA)
                     effMask |= 1 << i;
             }
+            break;
+        default:
             break;
     }
     if (effMask)
@@ -315,10 +319,12 @@ Aura * Aura::Create(SpellEntry const* spellproto, uint8 effMask, WorldObject * o
     return aura;
 }
 
-Aura::Aura(SpellEntry const* spellproto, uint8 effMask, WorldObject * owner, Unit * caster, int32 *baseAmount, Item * castItem, uint64 casterGUID) :
-m_spellProto(spellproto), m_owner(owner), m_casterGuid(casterGUID ? casterGUID : caster->GetGUID()), m_castItemGuid(castItem ? castItem->GetGUID() : 0),
-    m_applyTime(time(NULL)), m_timeCla(0), m_isSingleTarget(false), m_updateTargetMapInterval(0),
-    m_procCharges(0), m_stackAmount(1), m_isRemoved(false), m_casterLevel(caster ? caster->getLevel() : m_spellProto->spellLevel)
+Aura::Aura(SpellEntry const* spellproto, uint8 effMask, WorldObject * owner, Unit * caster, int32 *baseAmount, Item * castItem, uint64 casterGUID):
+m_spellProto(spellproto), m_casterGuid(casterGUID ? casterGUID : caster->GetGUID()),
+m_castItemGuid(castItem ? castItem->GetGUID() : 0), m_applyTime(time(NULL)),
+m_owner(owner), m_timeCla(0), m_updateTargetMapInterval(0),
+m_casterLevel(caster ? caster->getLevel() : m_spellProto->spellLevel), m_procCharges(0), m_stackAmount(1),
+m_isRemoved(false), m_isSingleTarget(false)
 {
     if (m_spellProto->manaPerSecond || m_spellProto->manaPerSecondPerLevel)
         m_timeCla = 1 * IN_MILLISECONDS;
@@ -1247,6 +1253,8 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                                 case POWER_RAGE:   triggeredSpellId = 63653; break;
                                 case POWER_ENERGY: triggeredSpellId = 63655; break;
                                 case POWER_RUNIC_POWER: triggeredSpellId = 63652; break;
+                                default:
+                                    break;
                             }
                             if (triggeredSpellId)
                                 caster->CastSpell(target, triggeredSpellId, true);

@@ -317,7 +317,7 @@ class EventMap : private std::map<uint32, uint32>
     private:
         uint32 m_time, m_phase;
     public:
-        explicit EventMap() : m_phase(0), m_time(0) {}
+        explicit EventMap(): m_time(0), m_phase(0) {}
 
         uint32 GetTimer() const { return m_time; }
 

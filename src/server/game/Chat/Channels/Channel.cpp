@@ -25,7 +25,7 @@
 #include "World.h"
 
 Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
- : m_name(name), m_announce(true), m_moderate(false), m_channelId(channel_id), m_ownerGUID(0), m_password(""), m_flags(0), m_Team(Team)
+ : m_announce(true), m_moderate(false), m_name(name), m_password(""), m_flags(0), m_channelId(channel_id), m_ownerGUID(0), m_Team(Team)
 {
     // set special flags if built-in channel
     ChatChannelsEntry const* ch = GetChannelEntryFor(channel_id);
