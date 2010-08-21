@@ -22,8 +22,8 @@
 #define DATABASEENV_H
 
 #include "Common.h"
-#include "Log.h"
 #include "Errors.h"
+#include "Log.h"
 
 #include "Field.h"
 #include "QueryResult.h"
