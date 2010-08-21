@@ -59,7 +59,7 @@ bool DatabaseWorkerPool::Open(const std::string& infoString, uint8 num_threads)
 
 void DatabaseWorkerPool::Close()
 {
-    DEBUG_LOG("Closing down %u connections on this DatabaseWorkerPool", (uint32)m_connections.value());
+    sLog.outStaticDebug("Closing down %u connections on this DatabaseWorkerPool", (uint32)m_connections.value());
     /// Shuts down worker threads for this connection pool.
     ACE_Thread_Mutex shutdown_Mtx;
     ACE_Condition_Thread_Mutex m_condition(shutdown_Mtx);
@@ -75,14 +75,14 @@ void DatabaseWorkerPool::Close()
     delete m_bundle_conn;
     m_bundle_conn = NULL;
     --m_connections;
-    DEBUG_LOG("Closed bundled connection.");
+    sLog.outStaticDebug("Closed bundled connection.");
 
     //- MySQL::Thread_End() should be called manually from the aborting calling threads
-    DEBUG_LOG("Waiting for %u synchroneous database threads to exit.", (uint32)m_connections.value());
+    sLog.outStaticDebug("Waiting for %u synchroneous database threads to exit.", (uint32)m_connections.value());
     while (!m_sync_connections.empty())
     {
     }
-    DEBUG_LOG("Synchroneous database threads exited succesfuly.");
+    sLog.outStaticDebug("Synchroneous database threads exited succesfuly.");
 
     mysql_library_end();
 }

@@ -280,7 +280,7 @@ Corpse* ObjectAccessor::ConvertCorpseForPlayer(uint64 player_guid, bool /*insign
         return NULL;
     }
 
-    DEBUG_LOG("Deleting Corpse and spawned bones.");
+    sLog.outStaticDebug("Deleting Corpse and spawned bones.");
 
     //Map* map = corpse->FindMap();
 

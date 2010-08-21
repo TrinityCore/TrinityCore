@@ -417,7 +417,7 @@ bool WorldSession::CheckStableMaster(uint64 guid)
     {
         if (!GetPlayer()->isGameMaster() && !GetPlayer()->HasAuraType(SPELL_AURA_OPEN_STABLE))
         {    
-            DEBUG_LOG("Player (GUID:%u) attempt open stable in cheating way.", GUID_LOPART(guid));
+            sLog.outStaticDebug("Player (GUID:%u) attempt open stable in cheating way.", GUID_LOPART(guid));
             return false;
         }
     }
@@ -426,7 +426,7 @@ bool WorldSession::CheckStableMaster(uint64 guid)
     {
         if (!GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_STABLEMASTER))
         {
-            DEBUG_LOG("Stablemaster (GUID:%u) not found or you can't interact with him.", GUID_LOPART(guid));
+            sLog.outStaticDebug("Stablemaster (GUID:%u) not found or you can't interact with him.", GUID_LOPART(guid));
             return false;
         }
     }

@@ -1020,7 +1020,7 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
     {
         if (type == DAMAGE_FALL)                               // DealDamage not apply item durability loss at self damage
         {
-            DEBUG_LOG("We are fall to death, loosing 10 percents durability");
+            sLog.outStaticDebug("We are fall to death, loosing 10 percents durability");
             DurabilityLossAll(0.10f,false);
             // durability lost message
             WorldPacket data2(SMSG_DURABILITY_DAMAGE_DEATH, 0);
@@ -5053,7 +5053,7 @@ uint32 Player::DurabilityRepair(uint16 pos, bool cost, float discountMod, bool g
             {
                 if (GetGuildId() == 0)
                 {
-                    DEBUG_LOG("You are not member of a guild");
+                    sLog.outStaticDebug("You are not member of a guild");
                     return TotalCost;
                 }
 
@@ -5063,19 +5063,19 @@ uint32 Player::DurabilityRepair(uint16 pos, bool cost, float discountMod, bool g
 
                 if (!pGuild->HasRankRight(GetRank(), GR_RIGHT_WITHDRAW_REPAIR))
                 {
-                    DEBUG_LOG("You do not have rights to withdraw for repairs");
+                    sLog.outStaticDebug("You do not have rights to withdraw for repairs");
                     return TotalCost;
                 }
 
                 if (pGuild->GetMemberMoneyWithdrawRem(GetGUIDLow()) < costs)
                 {
-                    DEBUG_LOG("You do not have enough money withdraw amount remaining");
+                    sLog.outStaticDebug("You do not have enough money withdraw amount remaining");
                     return TotalCost;
                 }
 
                 if (pGuild->GetGuildBankMoney() < costs)
                 {
-                    DEBUG_LOG("There is not enough money in bank");
+                    sLog.outStaticDebug("There is not enough money in bank");
                     return TotalCost;
                 }
 
@@ -5088,7 +5088,7 @@ uint32 Player::DurabilityRepair(uint16 pos, bool cost, float discountMod, bool g
             }
             else if (GetMoney() < costs)
             {
-                DEBUG_LOG("You do not have enough money");
+                sLog.outStaticDebug("You do not have enough money");
                 return TotalCost;
             }
             else
@@ -7731,7 +7731,7 @@ void Player::ApplyEquipSpell(SpellEntry const* spellInfo, Item* item, bool apply
                     return;
         }
 
-        DEBUG_LOG("WORLD: cast %s Equip spellId - %i", (item ? "item" : "itemset"), spellInfo->Id);
+        sLog.outStaticDebug("WORLD: cast %s Equip spellId - %i", (item ? "item" : "itemset"), spellInfo->Id);
 
         CastSpell(this,spellInfo,true,item);
     }
@@ -17596,7 +17596,7 @@ bool Player::_LoadHomeBind(QueryResult_AutoPtr result)
             GetGUIDLow(), m_homebindMapId, m_homebindAreaId, m_homebindX, m_homebindY, m_homebindZ);
     }
 
-    DEBUG_LOG("Setting player home position - mapid: %u, areaid: %u, X: %f, Y: %f, Z: %f",
+    sLog.outStaticDebug("Setting player home position - mapid: %u, areaid: %u, X: %f, Y: %f, Z: %f",
         m_homebindMapId, m_homebindAreaId, m_homebindX, m_homebindY, m_homebindZ);
 
     return true;
@@ -22964,7 +22964,7 @@ void Player::HandleFall(MovementInfo const& movementInfo)
             }
 
             //Z given by moveinfo, LastZ, FallTime, WaterZ, MapZ, Damage, Safefall reduction
-            DEBUG_LOG("FALLDAMAGE z=%f sz=%f pZ=%f FallTime=%d mZ=%f damage=%d SF=%d" , movementInfo.pos.GetPositionZ(), height, GetPositionZ(), movementInfo.fallTime, height, damage, safe_fall);
+            sLog.outStaticDebug("FALLDAMAGE z=%f sz=%f pZ=%f FallTime=%d mZ=%f damage=%d SF=%d" , movementInfo.pos.GetPositionZ(), height, GetPositionZ(), movementInfo.fallTime, height, damage, safe_fall);
         }
     }
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_LANDING); // No fly zone - Parachute

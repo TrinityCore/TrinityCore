@@ -488,7 +488,7 @@ void Creature::Update(uint32 diff)
             else if (m_deathTimer <= diff)
             {
                 RemoveCorpse();
-                DEBUG_LOG("Removing corpse... %u ", GetUInt32Value(OBJECT_FIELD_ENTRY));
+                sLog.outStaticDebug("Removing corpse... %u ", GetUInt32Value(OBJECT_FIELD_ENTRY));
             }
             else
             {
@@ -506,7 +506,7 @@ void Creature::Update(uint32 diff)
                 if (m_deathTimer <= diff)
                 {
                     RemoveCorpse();
-                    DEBUG_LOG("Removing alive corpse... %u ", GetUInt32Value(OBJECT_FIELD_ENTRY));
+                    sLog.outStaticDebug("Removing alive corpse... %u ", GetUInt32Value(OBJECT_FIELD_ENTRY));
                 }
                 else
                 {
@@ -1569,7 +1569,7 @@ void Creature::Respawn(bool force)
         if (m_DBTableGuid)
             sObjectMgr.SaveCreatureRespawnTime(m_DBTableGuid,GetInstanceId(),0);
 
-        DEBUG_LOG("Respawning...");
+        sLog.outStaticDebug("Respawning...");
         m_respawnTime = 0;
         lootForPickPocketed = false;
         lootForBody         = false;
