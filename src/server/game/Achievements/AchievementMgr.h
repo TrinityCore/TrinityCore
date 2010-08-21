@@ -22,7 +22,7 @@
 #include <string>
 
 #include "Common.h"
-#include "ace/Singleton.h"
+#include <ace/Singleton.h>
 #include "DatabaseEnv.h"
 #include "DBCEnums.h"
 #include "DBCStores.h"
