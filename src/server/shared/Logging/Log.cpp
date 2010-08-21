@@ -734,6 +734,18 @@ void Log::outDebug(const char * str, ...)
     fflush(stdout);
 }
 
+void Log::outStaticDebug(const char * fmt, ...)
+{
+    #ifdef TRINITY_DEBUG
+    va_list ap;
+    char str[2048];
+    va_start(ap, str);
+    vsnprintf(str, 2048, fmt, ap);
+    va_end(ap);
+    outDebug(str);
+    #endif
+}
+
 void Log::outStringInLine(const char * str, ...)
 {
     if (!str)

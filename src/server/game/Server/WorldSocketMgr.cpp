@@ -156,7 +156,7 @@ class ReactorRunnable : protected ACE_Task_Base
 
         virtual int svc()
         {
-            DEBUG_LOG ("Network Thread Starting");
+            sLog.outStaticDebug ("Network Thread Starting");
 
             bool needInit = true;
             if (!(sWorld.getConfig(CONFIG_MYSQL_BUNDLE_LOGINDB) & MYSQL_BUNDLE_RA))
@@ -218,7 +218,7 @@ class ReactorRunnable : protected ACE_Task_Base
             if (needInit)
                 MySQL::Thread_End();
 
-            DEBUG_LOG ("Network Thread Exitting");
+            sLog.outStaticDebug ("Network Thread Exitting");
 
             return 0;
         }

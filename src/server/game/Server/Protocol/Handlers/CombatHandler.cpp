@@ -31,7 +31,7 @@ void WorldSession::HandleAttackSwingOpcode(WorldPacket & recv_data)
     uint64 guid;
     recv_data >> guid;
 
-    DEBUG_LOG("WORLD: Recvd CMSG_ATTACKSWING Message guidlow:%u guidhigh:%u", GUID_LOPART(guid), GUID_HIPART(guid));
+    sLog.outStaticDebug("WORLD: Recvd CMSG_ATTACKSWING Message guidlow:%u guidhigh:%u", GUID_LOPART(guid), GUID_HIPART(guid));
 
     Unit *pEnemy = ObjectAccessor::GetUnit(*_player, guid);
 
