@@ -21,7 +21,7 @@
 #define _ADDONMGR_H
 
 #include "Common.h"
-#include "ace/Singleton.h"
+#include <ace/Singleton.h>
 
 #include <string>
 

@@ -23,7 +23,7 @@
 
 #include "Common.h"
 #include "Config.h"
-#include "ace/Singleton.h"
+#include <ace/Singleton.h>
 #include "WorldPacket.h"
 
 class AddonHandler

@@ -22,8 +22,8 @@
 #define TRINITY_MAP_H
 
 #include "Define.h"
-#include "ace/RW_Thread_Mutex.h"
-#include "ace/Thread_Mutex.h"
+#include <ace/RW_Thread_Mutex.h>
+#include <ace/Thread_Mutex.h>
 
 #include "DBCStructure.h"
 #include "GridDefines.h"
