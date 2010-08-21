@@ -26,11 +26,13 @@ class instance_icecrown_citadel : public InstanceMapScript
 
         struct instance_icecrown_citadel_InstanceMapScript : public InstanceScript
         {
-            instance_icecrown_citadel_InstanceMapScript(Map* pMap) : InstanceScript(pMap)
+            instance_icecrown_citadel_InstanceMapScript(InstanceMap* pMap) : InstanceScript(pMap)
             {
                 memset(uiEncounterState, 0, MAX_ENCOUNTER*sizeof(uint32));
                 memset(uiIcewall, 0, 2*sizeof(uint32));
                 uiMarrowgarEntrance = 0;
+                uiLadyDeathwisperElevator = 0;
+                uiOratoryDoor = 0;
                 isBonedEligible = true;
             }
 
@@ -49,18 +51,31 @@ class instance_icecrown_citadel : public InstanceMapScript
                 {
                     case DOODAD_ICECROWN_ICEWALL02:
                         uiIcewall[0] = pGo->GetGUID();
-                        if (GetData(DATA_LORD_MARROWGAR) == NOT_STARTED)
-                            HandleGameObject(uiIcewall[0], false, pGo);
+                        if (GetData(DATA_LORD_MARROWGAR) == DONE)
+                            HandleGameObject(uiIcewall[0], true, pGo);
                         break;
                     case ICEWALL:
                         uiIcewall[1] = pGo->GetGUID();
-                        if (GetData(DATA_LORD_MARROWGAR) == NOT_STARTED)
-                            HandleGameObject(uiIcewall[1], false, pGo);
+                        if (GetData(DATA_LORD_MARROWGAR) == DONE)
+                            HandleGameObject(uiIcewall[1], true, pGo);
                         break;
                     case LORD_MARROWGAR_S_ENTRANCE:
                         uiMarrowgarEntrance = pGo->GetGUID();
                         if (GetData(DATA_LORD_MARROWGAR) == DONE)
                             HandleGameObject(uiMarrowgarEntrance, true, pGo);
+                        break;
+                    case ORATORY_OF_THE_DAMNED_ENTRANCE:
+                        uiOratoryDoor = pGo->GetGUID();
+                        if (GetData(DATA_LADY_DEATHWHISPER) == DONE)
+                            HandleGameObject(uiOratoryDoor, true, pGo);
+                        break;
+                    case LADY_DEATHWHISPER_ELEVATOR:
+                        uiLadyDeathwisperElevator = pGo->GetGUID();
+                        if (GetData(DATA_LADY_DEATHWHISPER) == DONE)
+                        {
+                            pGo->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
+                            pGo->SetGoState(GO_STATE_READY);
+                        }
                         break;
                 }
             }
@@ -111,6 +126,25 @@ class instance_icecrown_citadel : public InstanceMapScript
                         }
                         break;
                     case DATA_LADY_DEATHWHISPER:
+                        uiEncounterState[type] = data;
+                        switch(data)
+                        {
+                            case DONE:
+                                HandleGameObject(uiOratoryDoor, true);
+                                if (GameObject* elevator = instance->GetGameObject(uiLadyDeathwisperElevator))
+                                {
+                                    elevator->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
+                                    elevator->SetGoState(GO_STATE_READY);
+                                }
+                                break;
+                            case IN_PROGRESS:
+                                HandleGameObject(uiOratoryDoor, false);
+                                break;
+                            case NOT_STARTED:
+                                HandleGameObject(uiOratoryDoor, true);
+                                break;
+                        }
+                        break;
                     case DATA_GUNSHIP_EVENT:
                     case DATA_DEATHBRINGER_SAURFANG:
                     case DATA_FESTERGUT:
@@ -126,7 +160,11 @@ class instance_icecrown_citadel : public InstanceMapScript
 
                     case COMMAND_FAIL_BONED:
                         isBonedEligible = data ? true : false;
+                        break;
                 }
+
+                if (data == DONE && type < MAX_ENCOUNTER)
+                    SaveToDB();
             }
 
             bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/, uint32 /*miscvalue1*/)
@@ -151,8 +189,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                 saveStream << "I C ";
                 for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                     saveStream << uiEncounterState[i] << " ";
-
-                saveStream << isBonedEligible;
 
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return saveStream.str();
@@ -183,8 +219,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                             tmpState = NOT_STARTED;
                         uiEncounterState[i] = tmpState;
                     }
-
-                    loadStream >> isBonedEligible;
                 } else OUT_LOAD_INST_DATA_FAIL;
 
                 OUT_LOAD_INST_DATA_COMPLETE;
@@ -194,6 +228,8 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint32 uiEncounterState[MAX_ENCOUNTER];
             uint64 uiIcewall[2];
             uint64 uiMarrowgarEntrance;
+            uint64 uiLadyDeathwisperElevator;
+            uint64 uiOratoryDoor;
             bool isBonedEligible;
         };
 

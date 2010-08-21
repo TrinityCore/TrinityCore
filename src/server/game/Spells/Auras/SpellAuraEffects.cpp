@@ -2224,6 +2224,14 @@ void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
                     case 39857: triggerSpellId = 39856; break;
                     // Personalized Weather
                     case 46736: triggerSpellId = 46737; break;
+                    // Mana Barrier - Lady Deathwhisper
+                    case 70842:
+                    {
+                        int32 missingHealth = caster->GetMaxHealth() - caster->GetHealth();
+                        caster->ModifyHealth(missingHealth);
+                        caster->ModifyPower(POWER_MANA, -missingHealth);
+                        return;
+                    }
                 }
                 break;
             }
