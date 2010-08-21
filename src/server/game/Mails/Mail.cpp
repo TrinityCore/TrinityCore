@@ -992,8 +992,14 @@ void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, 
             }
         }
         else if (!m_items.empty())
-            deleteIncludedItems(SQLTransaction(NULL));
+        {
+            SQLTransaction temp = SQLTransaction(NULL);
+            deleteIncludedItems(temp);
+        }
     }
     else if (!m_items.empty())
-        deleteIncludedItems(SQLTransaction(NULL));
+    {
+        SQLTransaction temp = SQLTransaction(NULL);
+        deleteIncludedItems(temp);
+    }
 }
