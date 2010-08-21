@@ -45,6 +45,21 @@ class spell_ex_49375 : public SpellHandlerScript
                     GetCaster()->CastSpell(target, 70522, true);
             };
 
+            void HandleBeforeHit()
+            {
+                sLog.outError("Spell is about to hit target!");
+            }
+
+            void HandleOnHit()
+            {
+                sLog.outError("Spell just hit target!");
+            }
+
+            void HandleAfterHit()
+            {
+                sLog.outError("Spell just finished hitting target!");
+            }
+
             void Register()
             {
                 // we're registering our function here
@@ -56,6 +71,12 @@ class spell_ex_49375 : public SpellHandlerScript
                 //EffectHandlers += EffectHandlerFn(spell_gen_49375SpellScript::HandleDummy, EFFECT_FIRST_FOUND, SPELL_EFFECT_ANY);
                 // this will make HandleDummy function to be called on all != 0 effect of spell 49375
                 //EffectHandlers += EffectHandlerFn(spell_gen_49375SpellScript::HandleDummy, EFFECT_ALL, SPELL_EFFECT_ANY);
+                // bind handler to BeforeHit event of the spell
+                BeforeHit += HitHandlerFn(spell_ex_49375SpellScript::HandleBeforeHit);
+                // bind handler to OnHit event of the spell
+                OnHit += HitHandlerFn(spell_ex_49375SpellScript::HandleOnHit);
+                // bind handler to AfterHit event of the spell
+                AfterHit += HitHandlerFn(spell_ex_49375SpellScript::HandleAfterHit);
             };
 
             // function called on server startup
