@@ -325,6 +325,8 @@ class EventMap : private std::map<uint32, uint32>
 
         void Update(uint32 time) { m_time += time; }
 
+        uint32 GetPhaseMask() const { return (m_phase >> 24) & 0xFF; }
+
         void SetPhase(uint32 phase)
         {
             if (phase && phase < 9)

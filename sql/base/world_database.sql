@@ -14749,6 +14749,8 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 70834, 'spell_marrowgar_bone_storm'),
 ( 70835, 'spell_marrowgar_bone_storm'),
 ( 70836, 'spell_marrowgar_bone_storm'),
+( 70903, 'spell_cultist_dark_martyrdrom'),
+( 71236, 'spell_cultist_dark_martyrdrom'),
 -- quest
 ( 45449, 'spell_q11587_arcane_prisoner_rescue'),
 ( 46023, 'spell_q11730_ultrasonic_screwdriver'),
