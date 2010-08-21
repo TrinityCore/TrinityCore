@@ -49,7 +49,9 @@
 #ifdef VERSION
 #undef VERSION
 #endif //VERSION
+
 # include "config.h"
+
 #undef PACKAGE
 #undef PACKAGE_BUGREPORT
 #undef PACKAGE_NAME
@@ -60,21 +62,6 @@
 #endif //HAVE_CONFIG_H
 
 #include "Define.h"
-
-#if COMPILER == COMPILER_MICROSOFT
-#   pragma warning(disable:4996)                            // 'function': was declared deprecated
-#ifndef __SHOW_STUPID_WARNINGS__
-#   pragma warning(disable:4005)                            // 'identifier' : macro redefinition
-#   pragma warning(disable:4018)                            // 'expression' : signed/unsigned mismatch
-#   pragma warning(disable:4244)                            // 'argument' : conversion from 'type1' to 'type2', possible loss of data
-#   pragma warning(disable:4267)                            // 'var' : conversion from 'size_t' to 'type', possible loss of data
-#   pragma warning(disable:4305)                            // 'identifier' : truncation from 'type1' to 'type2'
-#   pragma warning(disable:4311)                            // 'variable' : pointer truncation from 'type' to 'type'
-#   pragma warning(disable:4355)                            // 'this' : used in base member initializer list
-#   pragma warning(disable:4800)                            // 'type' : forcing value to bool 'true' or 'false' (performance warning)
-#   pragma warning(disable:4522)                            //warning when class has 2 constructors
-#endif                                                      // __SHOW_STUPID_WARNINGS__
-#endif                                                      // __GNUC__
 
 #include "Dynamic/UnorderedMap.h"
 #include <stdio.h>
@@ -88,6 +75,18 @@
 
 #if PLATFORM == PLATFORM_WINDOWS
 #define STRCASECMP stricmp
+#define stricmp _stricmp
+#define putenv _putenv
+#define access _access
+#define chdir _chdir
+#define rmdir _rmdir
+#define getcwd _getcwd
+#define swab _swab
+#define unlnk _unlink
+#define mkdir _mkdir
+#define tempnam _tempnam
+#define strdup _strdup
+#define fdopen _fdopen
 #else
 #define STRCASECMP strcasecmp
 #endif
@@ -109,7 +108,6 @@
 #include <ace/Thread_Mutex.h>
 
 #if PLATFORM == PLATFORM_WINDOWS
-#  define FD_SETSIZE 4096
 #  include <ace/config-all.h>
 // XP winver - needed to compile with standard leak check in MemoryLeaks.h
 // uncomment later if needed
@@ -212,4 +210,3 @@ LocaleConstant GetLocaleByName(const std::string& name);
 #endif
 
 #endif
-

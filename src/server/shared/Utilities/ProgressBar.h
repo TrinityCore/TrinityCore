@@ -27,16 +27,15 @@ class barGoLink
     static char const * const empty;
     static char const * const full;
 
-    int rec_no;
-    int rec_pos;
-    int num_rec;
-    int indic_len;
+    uint64 rec_no;
+    uint64 rec_pos;
+    uint64 num_rec;
+    uint64 indic_len;
 
     public:
 
         void step( void );
-        barGoLink( int );
+        barGoLink( uint64 );
         ~barGoLink();
 };
 #endif
-
