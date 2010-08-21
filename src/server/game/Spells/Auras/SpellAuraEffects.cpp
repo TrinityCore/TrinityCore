@@ -1148,6 +1148,16 @@ void AuraEffect::UpdatePeriodic(Unit * caster)
                         case 59911: // Tenacity (vehicle)
                            GetBase()->RefreshDuration();
                            break;
+                        case 66823: case 67618: case 67619: case 67620: // Paralytic Toxin
+                            // Get 0 effect aura
+                            if (AuraEffect *slow = GetBase()->GetEffect(0))
+                            {
+                                int32 newAmount = slow->GetAmount() - 10;
+                                if (newAmount < -100)
+                                    newAmount = -100;
+                                slow->ChangeAmount(newAmount);
+                            }
+                            break;
                     }
                     break;
                 case SPELLFAMILY_MAGE:
@@ -1871,7 +1881,7 @@ void AuraEffect::PeriodicDummyTick(Unit * target, Unit * caster) const
                 }
                 break;
             case 66118: // Leeching Swarm (Anub'arak)
-                int32 lifeLeeched = target->GetHealth() * GetSpellProto()->EffectBasePoints[0] / 100;
+                int32 lifeLeeched = target->GetHealth() * GetAmount() / 100;
                 if (lifeLeeched < 250) lifeLeeched = 250;
                 // Damage
                 caster->CastCustomSpell(target, 66240, &lifeLeeched, 0, 0, false);
