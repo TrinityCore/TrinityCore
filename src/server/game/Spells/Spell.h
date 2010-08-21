@@ -672,7 +672,11 @@ class Spell
 
         // Scripting system
         void LoadScripts();
-        void PrepareTargetHitForScripts();
+        void PrepareScriptHitHandlers();
+        bool CallScriptEffectHandlers(SpellEffIndex effIndex);
+        void CallScriptBeforeHitHandlers();
+        void CallScriptOnHitHandlers();
+        void CallScriptAfterHitHandlers();
         std::list<SpellScript *> m_loadedScripts;
 
         // effect helpers

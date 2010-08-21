@@ -34,6 +34,7 @@ class Item;
 class WorldLocation;
 
 typedef void(SpellScript::*EffectHandlerFnType)(SpellEffIndex);
+typedef void(SpellScript::*HitHandlerFnType)();
 
 #define SPELL_EFFECT_ANY (uint16)-1
 #define SPELL_AURA_ANY (uint16)-1
@@ -108,6 +109,7 @@ class SpellScript : public _SpellScript
             private:
                 EffectHandlerFnType pEffectHandlerScript;
         };
+        typedef HitHandlerFnType HitHandler;
     public:
         bool _Validate(SpellEntry const * entry, const char * scriptname);
         bool _Load(Spell * spell);
@@ -127,6 +129,20 @@ class SpellScript : public _SpellScript
         // allows more than one hook
         // example EffectHandlers += EffectHandlerFn(class::function, EffectIndexSpecifier, EffectNameSpecifier);
         HookList<EffectHandler> EffectHandlers;
+        // List of functions registered by HitHandlerFn
+        // allows more than one hook
+        // example: BeforeHit += HitHandlerFn(class::function);
+        HookList<HitHandler> BeforeHit;
+        // example: OnHit += HitHandlerFn(class::function);
+        HookList<HitHandler> OnHit;
+        // example: AfterHit += HitHandlerFn(class::function);
+        HookList<HitHandler> AfterHit;
+
+        // hooks are executed in following order, at specified event of spell:
+        // 1. BeforeHit - executed just before spell hits a target
+        // 2. EffectHandlers - executed just before specified effect handler call
+        // 3. OnHit - executed just before spell deals damage and procs auras
+        // 4. AfterHit - executed just after spell finishes all it's jobs for target
 
         //
         // methods allowing interaction with Spell object
@@ -195,6 +211,11 @@ class SpellScript : public _SpellScript
 // hook parameter is current effect index
 // parameters: function to call, EffectIndexSpecifier, EffectNameSpecifier
 #define EffectHandlerFn(F, I, N) EffectHandler((EffectHandlerFnType)&F, I, N)
+
+// HitHandlerFn
+// called at: Spell hit on unit, before or after effect handlers, depends if bound to OnHit or AfterHit
+// parameters: function to call
+#define HitHandlerFn(F) (HitHandlerFnType)&F
 
 //
 // definitions:

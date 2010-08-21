@@ -1279,6 +1279,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
             break;
         }
     }
+    CallScriptOnHitHandlers();
+
     // All calculated do it!
     // Do healing and triggers
     if (m_healing > 0)
@@ -1392,6 +1394,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
             m_caster->ToPlayer()->UpdatePvP(true);
         }
 
+        CallScriptAfterHitHandlers();
     }
 }
 
@@ -1404,7 +1407,8 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
     if (m_spellInfo->speed && (unit->IsImmunedToDamage(m_spellInfo) || unit->IsImmunedToSpell(m_spellInfo)))
         return SPELL_MISS_IMMUNE;
 
-    PrepareTargetHitForScripts();
+    PrepareScriptHitHandlers();
+    CallScriptBeforeHitHandlers();
 
     if (unit->GetTypeId() == TYPEID_PLAYER)
     {
@@ -1497,7 +1501,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
         if (scaleAura)
         {
             aurSpellInfo = sSpellMgr.SelectAuraRankForPlayerLevel(m_spellInfo,unitTarget->getLevel());
-            ASSERT (aurSpellInfo);
+            ASSERT(aurSpellInfo);
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             {
                 basePoints[i] = aurSpellInfo->EffectBasePoints[i];
@@ -1641,11 +1645,14 @@ void Spell::DoAllEffectOnTarget(GOTargetInfo *target)
     if (!go)
         return;
 
-    PrepareTargetHitForScripts();
+    PrepareScriptHitHandlers();
+    CallScriptBeforeHitHandlers();
 
     for (uint32 effectNumber = 0; effectNumber < 3; ++effectNumber)
         if (effectMask & (1 << effectNumber))
             HandleEffects(NULL, NULL, go, effectNumber);
+
+    CallScriptOnHitHandlers();
 
     // cast at creature (or GO) quest objectives update at successful cast finished (+channel finished)
     // ignore autorepeat/melee casts for speed (not exist quest for spells (hm...)
@@ -1654,6 +1661,7 @@ void Spell::DoAllEffectOnTarget(GOTargetInfo *target)
         if (Player* p = m_originalCaster->GetCharmerOrOwnerPlayerOrPlayerItself())
             p->CastedCreatureOrGO(go->GetEntry(),go->GetGUID(),m_spellInfo->Id);
     }
+    CallScriptAfterHitHandlers();
 }
 
 void Spell::DoAllEffectOnTarget(ItemTargetInfo *target)
@@ -1662,11 +1670,16 @@ void Spell::DoAllEffectOnTarget(ItemTargetInfo *target)
     if (!target->item || !effectMask)
         return;
 
-    PrepareTargetHitForScripts();
+    PrepareScriptHitHandlers();
+    CallScriptBeforeHitHandlers();
 
     for (uint32 effectNumber = 0; effectNumber < 3; ++effectNumber)
         if (effectMask & (1 << effectNumber))
             HandleEffects(NULL, target->item, NULL, effectNumber);
+
+    CallScriptOnHitHandlers();
+
+    CallScriptAfterHitHandlers();
 }
 
 bool Spell::UpdateChanneledTargetList()
@@ -3261,7 +3274,7 @@ void Spell::cast(bool skipCheck)
     // CAST SPELL
     SendSpellCooldown();
 
-    PrepareTargetHitForScripts();
+    PrepareScriptHitHandlers();
 
     for (uint32 i = 0; i < 3; ++i)
     {
@@ -3427,7 +3440,7 @@ void Spell::_handle_immediate_phase()
     // handle some immediate features of the spell here
     HandleThreatSpells(m_spellInfo->Id);
 
-    PrepareTargetHitForScripts();
+    PrepareScriptHitHandlers();
 
     m_needSpellLog = IsNeedSendToClient();
     for (uint32 j = 0; j < 3; ++j)
@@ -4677,20 +4690,7 @@ void Spell::HandleEffects(Unit *pUnitTarget,Item *pItemTarget,GameObject *pGOTar
     //we do not need DamageMultiplier here.
     damage = CalculateDamage(i, NULL);
 
-    // execute script effect handler hooks and check if effects was prevented
-    bool preventDefault = false;
-    for(std::list<SpellScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
-    {
-        std::list<SpellScript::EffectHandler>::iterator effEndItr = (*scritr)->EffectHandlers.end(), effItr = (*scritr)->EffectHandlers.begin();
-        for(; effItr != effEndItr ; ++effItr)
-        {
-            // effect execution can be prevented
-            if (!(*scritr)->_IsEffectPrevented((SpellEffIndex)i) && (*effItr).IsEffectAffected(m_spellInfo, i))
-                (*effItr).Call(*scritr, (SpellEffIndex)i);
-        }
-        if (!preventDefault)
-            preventDefault = (*scritr)->_IsDefaultEffectPrevented((SpellEffIndex)i);
-    }
+    bool preventDefault = CallScriptEffectHandlers((SpellEffIndex)i);
 
     if (!preventDefault && eff < TOTAL_SPELL_EFFECTS)
     {
@@ -7306,10 +7306,65 @@ void Spell::LoadScripts()
     }
 }
 
-void Spell::PrepareTargetHitForScripts()
+void Spell::PrepareScriptHitHandlers()
 {
     for(std::list<SpellScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
     {
         (*scritr)->_InitHit();
+    }
+}
+
+bool Spell::CallScriptEffectHandlers(SpellEffIndex effIndex)
+{
+    // execute script effect handler hooks and check if effects was prevented
+    bool preventDefault = false;
+    for(std::list<SpellScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
+    {
+        std::list<SpellScript::EffectHandler>::iterator effEndItr = (*scritr)->EffectHandlers.end(), effItr = (*scritr)->EffectHandlers.begin();
+        for(; effItr != effEndItr ; ++effItr)
+        {
+            // effect execution can be prevented
+            if (!(*scritr)->_IsEffectPrevented(effIndex) && (*effItr).IsEffectAffected(m_spellInfo, effIndex))
+                (*effItr).Call(*scritr, effIndex);
+        }
+        if (!preventDefault)
+            preventDefault = (*scritr)->_IsDefaultEffectPrevented(effIndex);
+    }
+    return preventDefault;
+}
+
+void Spell::CallScriptBeforeHitHandlers()
+{
+    for(std::list<SpellScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
+    {
+        std::list<SpellScript::HitHandler>::iterator hookItrEnd = (*scritr)->BeforeHit.end(), hookItr = (*scritr)->BeforeHit.begin();
+        for(; hookItr != hookItrEnd ; ++hookItr)
+        {
+            ((*scritr)->*(*hookItr))();
+        }
+    }
+}
+
+void Spell::CallScriptOnHitHandlers()
+{
+    for(std::list<SpellScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
+    {
+        std::list<SpellScript::HitHandler>::iterator hookItrEnd = (*scritr)->OnHit.end(), hookItr = (*scritr)->OnHit.begin();
+        for(; hookItr != hookItrEnd ; ++hookItr)
+        {
+            ((*scritr)->*(*hookItr))();
+        }
+    }
+}
+
+void Spell::CallScriptAfterHitHandlers()
+{
+    for(std::list<SpellScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
+    {
+        std::list<SpellScript::HitHandler>::iterator hookItrEnd = (*scritr)->AfterHit.end(), hookItr = (*scritr)->AfterHit.begin();
+        for(; hookItr != hookItrEnd ; ++hookItr)
+        {
+            ((*scritr)->*(*hookItr))();
+        }
     }
 }
