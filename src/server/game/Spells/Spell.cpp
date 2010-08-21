@@ -421,14 +421,13 @@ void SpellCastTargets::write (ByteBuffer & data)
         data << m_strTarget;
 }
 
-Spell::Spell(Unit* Caster, SpellEntry const *info, bool triggered, uint64 originalCasterGUID, Spell** triggeringContainer, bool skipCheck):
+Spell::Spell(Unit* Caster, SpellEntry const *info, bool triggered, uint64 originalCasterGUID, bool skipCheck):
 m_spellInfo(sSpellMgr.GetSpellForDifficultyFromSpell(info, Caster)),
 m_caster(Caster), m_spellValue(new SpellValue(m_spellInfo))
 {
     m_customAttr = sSpellMgr.GetSpellCustomAttr(m_spellInfo->Id);
     m_skipCheck = skipCheck;
     m_selfContainer = NULL;
-    m_triggeringContainer = triggeringContainer;
     m_referencedFromCurrentSpell = false;
     m_executedCurrently = false;
     m_needComboPoints = NeedsComboPoints(m_spellInfo);
@@ -493,7 +492,6 @@ m_caster(Caster), m_spellValue(new SpellValue(m_spellInfo))
 
     m_spellState = SPELL_STATE_NULL;
 
-    m_TriggerSpells.clear();
     m_IsTriggeredSpell = triggered;
     m_CastItem = NULL;
 
@@ -3752,11 +3750,6 @@ void Spell::finish(bool ok)
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, true);
     }
 
-    // call triggered spell only at successful cast (after clear combo points -> for add some if need)
-    // I assume what he means is that some triggered spells may add combo points
-    if (!m_TriggerSpells.empty())
-        TriggerSpell();
-
     // Take mods after trigger spell (needed for 14177 to affect 48664)
     // mods are taken only on succesfull cast and independantly from targets of the spell
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -4700,15 +4693,6 @@ void Spell::HandleEffects(Unit *pUnitTarget,Item *pItemTarget,GameObject *pGOTar
     if (!preventDefault && eff < TOTAL_SPELL_EFFECTS)
     {
         (this->*SpellEffects[eff])(i);
-    }
-}
-
-void Spell::TriggerSpell()
-{
-    for (TriggerSpells::iterator si=m_TriggerSpells.begin(); si != m_TriggerSpells.end(); ++si)
-    {
-        Spell* spell = new Spell(m_caster, (*si), true, m_originalCasterGUID, m_selfContainer, true);
-        spell->prepare(&m_targets);                         // use original spell original targets
     }
 }
 

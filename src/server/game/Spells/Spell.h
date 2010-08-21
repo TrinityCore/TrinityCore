@@ -415,7 +415,7 @@ class Spell
 
         typedef std::set<Aura *> UsedSpellMods;
 
-        Spell(Unit* Caster, SpellEntry const *info, bool triggered, uint64 originalCasterGUID = 0, Spell** triggeringContainer = NULL, bool skipCheck = false);
+        Spell(Unit* Caster, SpellEntry const *info, bool triggered, uint64 originalCasterGUID = 0, bool skipCheck = false);
         ~Spell();
 
         void prepare(SpellCastTargets const* targets, AuraEffect const * triggeredByAura = NULL);
@@ -429,7 +429,6 @@ class Spell
         void TakeRunePower();
         void TakeReagents();
         void TakeCastItem();
-        void TriggerSpell();
 
         SpellCastResult CheckCast(bool strict);
         SpellCastResult CheckPetCast(Unit* target);
@@ -530,8 +529,6 @@ class Spell
         void UpdatePointers();                              // must be used at call Spell code after time delay (non triggered spell cast/update spell call/etc)
 
         bool CheckTargetCreatureType(Unit* target) const;
-
-        void AddTriggeredSpell(SpellEntry const* spell) { m_TriggerSpells.push_back(spell); }
 
         void CleanupTargetList();
 
@@ -688,8 +685,6 @@ class Spell
         // -------------------------------------------
 
         //List For Triggered Spells
-        typedef std::vector<SpellEntry const*> TriggerSpells;
-        TriggerSpells m_TriggerSpells;
         typedef std::vector< std::pair<SpellEntry const*, int32> > ChanceTriggerSpells;
         ChanceTriggerSpells m_ChanceTriggerSpells;
 
