@@ -59,7 +59,8 @@ Guild::Guild()
 
 Guild::~Guild()
 {
-    DeleteGuildBankItems(SQLTransaction(NULL));
+    SQLTransaction temp = SQLTransaction(NULL);
+    DeleteGuildBankItems(temp);
 }
 
 bool Guild::Create(Player* leader, std::string gname)
@@ -2356,7 +2357,7 @@ void Guild::DeleteGuildBankItems(SQLTransaction& trans, bool alsoInDB /*= false*
     {
         for (uint8 j = 0; j < GUILD_BANK_MAX_SLOTS; ++j)
         {
-            if (Item* pItem = m_TabListMap[i]->Slots[j])
+            if (Item*& pItem = m_TabListMap[i]->Slots[j])
             {
                 pItem->RemoveFromWorld();
 
@@ -2364,9 +2365,11 @@ void Guild::DeleteGuildBankItems(SQLTransaction& trans, bool alsoInDB /*= false*
                     pItem->DeleteFromDB(trans);
 
                 delete pItem;
+                pItem = NULL;
             }
         }
         delete m_TabListMap[i];
+        m_TabListMap[i] = NULL;
     }
     m_TabListMap.clear();
 }
