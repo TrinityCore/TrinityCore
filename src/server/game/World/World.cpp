@@ -836,7 +836,7 @@ void World::LoadConfigSettings(bool reload)
     }
 
     m_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL] = sConfig.GetIntDefault("RecruitAFriend.MaxLevel", 60);
-    if (m_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL] < 0 || m_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL] > m_configs[CONFIG_MAX_PLAYER_LEVEL])
+    if (m_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL] > m_configs[CONFIG_MAX_PLAYER_LEVEL])
     {
         sLog.outError("RecruitAFriend.MaxLevel (%i) must be in the range 0..MaxLevel(%u). Set to %u.",
             m_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL],m_configs[CONFIG_MAX_PLAYER_LEVEL],60);
@@ -844,12 +844,14 @@ void World::LoadConfigSettings(bool reload)
     }
 
     m_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL_DIFFERENCE] = sConfig.GetIntDefault("RecruitAFriend.MaxDifference", 3);
+    /* "comparison of unsigned expression < 0 is always false"
     if (m_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL_DIFFERENCE] < 0)
     {
         sLog.outError("RecruitAFriend.MaxLevel (%i) must be greater than or equal to 0. Set to %u.",
             m_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL_DIFFERENCE],3);
         m_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL_DIFFERENCE] = 3;
     }
+    */
 
     m_configs[CONFIG_ALL_TAXI_PATHS] = sConfig.GetBoolDefault("AllFlightPaths", false);
     m_configs[CONFIG_INSTANT_TAXI] = sConfig.GetBoolDefault("InstantFlightPaths", false);
@@ -939,32 +941,40 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_SKILL_MILLING] = sConfig.GetBoolDefault("SkillChance.Milling",false);
 
     m_configs[CONFIG_SKILL_GAIN_CRAFTING]  = sConfig.GetIntDefault("SkillGain.Crafting", 1);
+    /* "comparison of unsigned expression < 0 is always false"
     if (m_configs[CONFIG_SKILL_GAIN_CRAFTING] < 0)
     {
         sLog.outError("SkillGain.Crafting (%i) can't be negative. Set to 1.",m_configs[CONFIG_SKILL_GAIN_CRAFTING]);
         m_configs[CONFIG_SKILL_GAIN_CRAFTING] = 1;
     }
+    */
 
     m_configs[CONFIG_SKILL_GAIN_DEFENSE]  = sConfig.GetIntDefault("SkillGain.Defense", 1);
+    /* "comparison of unsigned expression < 0 is always false"
     if (m_configs[CONFIG_SKILL_GAIN_DEFENSE] < 0)
     {
         sLog.outError("SkillGain.Defense (%i) can't be negative. Set to 1.",m_configs[CONFIG_SKILL_GAIN_DEFENSE]);
         m_configs[CONFIG_SKILL_GAIN_DEFENSE] = 1;
     }
+    */
 
     m_configs[CONFIG_SKILL_GAIN_GATHERING]  = sConfig.GetIntDefault("SkillGain.Gathering", 1);
+    /* "comparison of unsigned expression < 0 is always false"
     if (m_configs[CONFIG_SKILL_GAIN_GATHERING] < 0)
     {
         sLog.outError("SkillGain.Gathering (%i) can't be negative. Set to 1.",m_configs[CONFIG_SKILL_GAIN_GATHERING]);
         m_configs[CONFIG_SKILL_GAIN_GATHERING] = 1;
     }
+    */
 
     m_configs[CONFIG_SKILL_GAIN_WEAPON]  = sConfig.GetIntDefault("SkillGain.Weapon", 1);
+    /* "comparison of unsigned expression < 0 is always false"
     if (m_configs[CONFIG_SKILL_GAIN_WEAPON] < 0)
     {
         sLog.outError("SkillGain.Weapon (%i) can't be negative. Set to 1.",m_configs[CONFIG_SKILL_GAIN_WEAPON]);
         m_configs[CONFIG_SKILL_GAIN_WEAPON] = 1;
     }
+    */
 
     m_configs[CONFIG_MAX_OVERSPEED_PINGS] = sConfig.GetIntDefault("MaxOverspeedPings",2);
     if (m_configs[CONFIG_MAX_OVERSPEED_PINGS] != 0 && m_configs[CONFIG_MAX_OVERSPEED_PINGS] < 2)
@@ -1012,7 +1022,7 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_QUEST_IGNORE_RAID] = sConfig.GetBoolDefault("Quests.IgnoreRaid", false);
 
     m_configs[CONFIG_RANDOM_BG_RESET_HOUR] = sConfig.GetIntDefault("Battleground.Random.ResetHour", 6);
-    if (m_configs[CONFIG_RANDOM_BG_RESET_HOUR] < 0 || m_configs[CONFIG_RANDOM_BG_RESET_HOUR] > 23)
+    if (m_configs[CONFIG_RANDOM_BG_RESET_HOUR] > 23)
     {
         sLog.outError("Battleground.Random.ResetHour (%i) can't be load. Set to 6.", m_configs[CONFIG_RANDOM_BG_RESET_HOUR]);
         m_configs[CONFIG_RANDOM_BG_RESET_HOUR] = 6;
@@ -1206,8 +1216,10 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_BG_START_MUSIC] = sConfig.GetBoolDefault("MusicInBattleground", false);
     m_configs[CONFIG_START_ALL_SPELLS] = sConfig.GetBoolDefault("PlayerStart.AllSpells", false);
     m_configs[CONFIG_HONOR_AFTER_DUEL] = sConfig.GetIntDefault("HonorPointsAfterDuel", 0);
+    /* "comparison of unsigned expression < 0 is always false"
     if (m_configs[CONFIG_HONOR_AFTER_DUEL] < 0)
         m_configs[CONFIG_HONOR_AFTER_DUEL]= 0;
+    */
     m_configs[CONFIG_START_ALL_EXPLORED] = sConfig.GetBoolDefault("PlayerStart.MapsExplored", false);
     m_configs[CONFIG_START_ALL_REP] = sConfig.GetBoolDefault("PlayerStart.AllReputation", false);
     m_configs[CONFIG_ALWAYS_MAXSKILL] = sConfig.GetBoolDefault("AlwaysMaxWeaponSkill", false);
