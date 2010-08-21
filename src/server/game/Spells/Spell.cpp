@@ -5358,7 +5358,6 @@ SpellCastResult Spell::CheckCast(bool strict)
                     m_spellInfo->EffectImplicitTargetA[i] != TARGET_GAMEOBJECT_ITEM)
                     break;
 
-                uint32 spellId = m_spellInfo->Id;
                 if (m_caster->GetTypeId() != TYPEID_PLAYER  // only players can open locks, gather etc.
                     // we need a go target in case of TARGET_GAMEOBJECT
                     || m_spellInfo->EffectImplicitTargetA[i] == TARGET_GAMEOBJECT && !m_targets.getGOTarget())

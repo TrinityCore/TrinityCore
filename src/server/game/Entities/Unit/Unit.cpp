@@ -2264,7 +2264,7 @@ void Unit::CalcHealAbsorb(Unit *pVictim, const SpellEntry *healSpell, uint32 &he
 
     int32 RemainingHeal = healAmount;
     // Get unit state (need for some absorb check)
-    uint32 unitflag = pVictim->GetUInt32Value(UNIT_FIELD_FLAGS);
+    //uint32 unitflag = pVictim->GetUInt32Value(UNIT_FIELD_FLAGS);
     // Need remove expired auras after
     bool existExpired = false;
 
@@ -2275,7 +2275,7 @@ void Unit::CalcHealAbsorb(Unit *pVictim, const SpellEntry *healSpell, uint32 &he
         if (!((*i)->GetMiscValue() & healSpell->SchoolMask))
             continue;
 
-        SpellEntry const* spellProto = (*i)->GetSpellProto();
+        //SpellEntry const* spellProto = (*i)->GetSpellProto();
 
         // Max Amount can be absorbed by this aura
         int32 currentAbsorb = (*i)->GetAmount();
@@ -6839,7 +6839,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     if (beaconTarget == this)
                         return false;
                     // check if it was heal by paladin which casted this beacon of light
-                    if (Aura const * aura = beaconTarget->GetAura(53563, pVictim->GetGUID()))
+                    if (beaconTarget->GetAura(53563, pVictim->GetGUID()))
                     {
                         if (beaconTarget->IsWithinLOSInMap(pVictim))
                         {
@@ -10736,7 +10736,7 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                         // Lava Burst
                         if (spellProto->SpellFamilyFlags[1] & 0x00001000)
                         {
-                            if (AuraEffect const* flameShock = pVictim->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_SHAMAN, 0x10000000, 0,0, GetGUID()))
+                            if (pVictim->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_SHAMAN, 0x10000000, 0,0, GetGUID()))
                                 return true;
                             break;
                         }
@@ -11282,7 +11282,7 @@ bool Unit::IsImmunedToSpellEffect(SpellEntry const* spellInfo, uint32 index) con
     {
         SpellImmuneList const& mechanicList = m_spellImmune[IMMUNITY_MECHANIC];
         for (SpellImmuneList::const_iterator itr = mechanicList.begin(); itr != mechanicList.end(); ++itr)
-            if (itr->type == spellInfo->EffectMechanic[index])
+            if (itr->type == mechanic)
                 return true;
     }
 
@@ -11688,9 +11688,9 @@ void Unit::Mount(uint32 mount, uint32 VehicleId)
                 this->ToPlayer()->UnsummonPetTemporaryIfAny();
         }
 
-        if (VehicleId !=0)
+        if (VehicleId != 0)
         {
-            if (VehicleEntry const *ve = sVehicleStore.LookupEntry(VehicleId))
+            if (sVehicleStore.LookupEntry(VehicleId))
             {
 
                 if (CreateVehicleKit(VehicleId))
