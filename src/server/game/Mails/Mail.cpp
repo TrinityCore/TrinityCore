@@ -18,6 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "DatabaseEnv.h"
 #include "Mail.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
