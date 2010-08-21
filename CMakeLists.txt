@@ -95,7 +95,7 @@ option(COREDEBUG "Build worldserver with additional debug-code included" 0)
 option(SCRIPTPCH "Use precompiled headers when compiling scripts project" 1)
 option(GAMEPCH "Use precompiled headers when compiling game project" 1)
 option(SQL "Copy SQL files during installation" 0)
-option(WARNINGS "Enable all compile-warnings during compile" 0)
+option(WARNINGS "Enable all compile-warnings during compile" 1)
 option(USE_SFMT "Use SFMT for random number generation." 0)
 
 #
