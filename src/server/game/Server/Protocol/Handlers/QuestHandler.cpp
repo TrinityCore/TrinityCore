@@ -239,7 +239,7 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket & recv_data)
 
     // Verify that the guid is valid and is a questgiver or involved in the requested quest
     Object* pObject = ObjectAccessor::GetObjectByTypeMask(*_player, guid,TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT|TYPEMASK_ITEM);
-    if (!pObject||!pObject->hasQuest(quest) && !pObject->hasInvolvedQuest(quest))
+    if (!pObject || (!pObject->hasQuest(quest) && !pObject->hasInvolvedQuest(quest)))
     {
         _player->PlayerTalkClass->CloseGossip();
         return;
