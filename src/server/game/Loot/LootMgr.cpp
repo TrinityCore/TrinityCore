@@ -978,7 +978,7 @@ bool LootTemplate::LootGroup::HasQuestDropForPlayer(Player const * player) const
     return false;
 }
 
-void LootTemplate::LootGroup::CopyConditions(ConditionList conditions)
+void LootTemplate::LootGroup::CopyConditions(ConditionList /*conditions*/)
 {
     for (LootStoreItemList::iterator i = ExplicitlyChanced.begin(); i != ExplicitlyChanced.end(); ++i)
     {
@@ -1114,7 +1114,7 @@ void LootTemplate::LootGroup::Verify(LootStore const& lootstore, uint32 id, uint
     }
 }
 
-void LootTemplate::LootGroup::CheckLootRefs(LootTemplateMap const& store, LootIdSet* ref_set) const
+void LootTemplate::LootGroup::CheckLootRefs(LootTemplateMap const& /*store*/, LootIdSet* ref_set) const
 {
     for (LootStoreItemList::const_iterator ieItr=ExplicitlyChanced.begin(); ieItr != ExplicitlyChanced.end(); ++ieItr)
     {

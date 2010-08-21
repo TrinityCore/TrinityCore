@@ -6200,7 +6200,7 @@ void Spell::EffectBlock(uint32 /*i*/)
         unitTarget->ToPlayer()->SetCanBlock(true);
 }
 
-void Spell::EffectLeap(uint32 i)
+void Spell::EffectLeap(uint32 /*i*/)
 {
     if (unitTarget->isInFlight())
         return;

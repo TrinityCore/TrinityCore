@@ -80,7 +80,7 @@ WorldSession::~WorldSession()
     }
 
     ///- empty incoming packet queue
-    WorldPacket* packet;
+    WorldPacket* packet = NULL;
     while (_recvQueue.next(packet))
         delete packet;
 

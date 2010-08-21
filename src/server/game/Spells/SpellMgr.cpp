@@ -1826,7 +1826,7 @@ bool SpellMgr::IsSkillTypeSpell(uint32 spellId, SkillType type) const
 }
 
 // basepoints provided here have to be valid basepoints (use SpellMgr::CalculateSpellEffectBaseAmount)
-int32 SpellMgr::CalculateSpellEffectAmount(SpellEntry const * spellEntry, uint8 effIndex, Unit const * caster, int32 const * effBasePoints, Unit const * target)
+int32 SpellMgr::CalculateSpellEffectAmount(SpellEntry const * spellEntry, uint8 effIndex, Unit const * caster, int32 const * effBasePoints, Unit const * /*target*/)
 {
     float basePointsPerLevel = spellEntry->EffectRealPointsPerLevel[effIndex];
     int32 basePoints = effBasePoints ? *effBasePoints : spellEntry->EffectBasePoints[effIndex];
