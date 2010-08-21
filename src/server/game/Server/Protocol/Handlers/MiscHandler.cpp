@@ -1072,18 +1072,18 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recv_data)
 
 void WorldSession::HandleCompleteCinematic(WorldPacket & /*recv_data*/)
 {
-    DEBUG_LOG("WORLD: Player is watching cinema");
+    sLog.outStaticDebug("WORLD: Player is watching cinema");
 }
 
 void WorldSession::HandleNextCinematicCamera(WorldPacket & /*recv_data*/)
 {
-    DEBUG_LOG("WORLD: Which movie to play");
+    sLog.outStaticDebug("WORLD: Which movie to play");
 }
 
 void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket & recv_data)
 {
     /*  WorldSession::Update(getMSTime());*/
-    DEBUG_LOG("WORLD: Time Lag/Synchronization Resent/Update");
+    sLog.outStaticDebug("WORLD: Time Lag/Synchronization Resent/Update");
 
     uint64 guid;
     recv_data.readPackGUID(guid);
@@ -1105,7 +1105,7 @@ void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket & recv_data)
 
 void WorldSession::HandleFeatherFallAck(WorldPacket &recv_data)
 {
-    DEBUG_LOG("WORLD: CMSG_MOVE_FEATHER_FALL_ACK");
+    sLog.outStaticDebug("WORLD: CMSG_MOVE_FEATHER_FALL_ACK");
 
     // no used
     recv_data.rpos(recv_data.wpos());                       // prevent warnings spam
@@ -1203,7 +1203,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recv_data)
 {
     uint64 guid;
     recv_data >> guid;
-    DEBUG_LOG("Inspected guid is " UI64FMTD, guid);
+    sLog.outStaticDebug("Inspected guid is " UI64FMTD, guid);
 
     _player->SetSelection(guid);
 
@@ -1281,7 +1281,7 @@ void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recv_data)
         return;
     }
 
-    DEBUG_LOG("Time %u sec, map=%u, x=%f, y=%f, z=%f, orient=%f", time/1000, mapid, PositionX, PositionY, PositionZ, Orientation);
+    sLog.outStaticDebug("Time %u sec, map=%u, x=%f, y=%f, z=%f, orient=%f", time/1000, mapid, PositionX, PositionY, PositionZ, Orientation);
 
     if (GetSecurity() >= SEC_ADMINISTRATOR)
         GetPlayer()->TeleportTo(mapid,PositionX,PositionY,PositionZ,Orientation);

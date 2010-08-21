@@ -104,6 +104,7 @@ class Log
         void outBasic( const char * str, ... )                  ATTR_PRINTF(2,3);
         void outDetail( const char * str, ... )                 ATTR_PRINTF(2,3);
         void outDebug( const char * str, ... )                  ATTR_PRINTF(2,3);
+        void outStaticDebug( const char * str, ... )            ATTR_PRINTF(2,3);
         void outDebugInLine( const char * str, ... )            ATTR_PRINTF(2,3);
         void outErrorDb( const char * str, ... )                ATTR_PRINTF(2,3);
         void outChar( const char * str, ... )                   ATTR_PRINTF(2,3);
@@ -173,12 +174,6 @@ class Log
 };
 
 #define sLog (*ACE_Singleton<Log, ACE_Thread_Mutex>::instance())
-
-#ifdef TRINITY_DEBUG
-#define DEBUG_LOG sLog.outDebug
-#else
-#define DEBUG_LOG
-#endif
 
 #endif
 

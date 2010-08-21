@@ -49,14 +49,14 @@
 #  define DECLSPEC_NORETURN
 #endif //PLATFORM
 
-#if !defined(DEBUG)
+#if !defined(COREDEBUG)
 #  define TRINITY_INLINE inline
-#else //DEBUG
+#else //COREDEBUG
 #  if !defined(TRINITY_DEBUG)
 #    define TRINITY_DEBUG
 #  endif //TRINITY_DEBUG
 #  define TRINITY_INLINE
-#endif //!DEBUG
+#endif //!COREDEBUG
 
 #if COMPILER == COMPILER_GNU
 #  define ATTR_NORETURN __attribute__((noreturn))
@@ -74,12 +74,5 @@ typedef ACE_UINT64 uint64;
 typedef ACE_UINT32 uint32;
 typedef ACE_UINT16 uint16;
 typedef ACE_UINT8 uint8;
-
-#if COMPILER != COMPILER_MICROSOFT
-typedef uint16      WORD;
-typedef uint32      DWORD;
-#endif //COMPILER
-
-typedef uint64 OBJECT_HANDLE;
 
 #endif //TRINITY_DEFINE_H

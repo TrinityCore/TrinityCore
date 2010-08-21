@@ -2081,7 +2081,7 @@ void Spell::EffectTriggerMissileSpell(uint32 effect_idx)
     }
 
     if (m_CastItem)
-        DEBUG_LOG("WORLD: cast Item spellId - %i", spellInfo->Id);
+        sLog.outStaticDebug("WORLD: cast Item spellId - %i", spellInfo->Id);
 
     // Remove spell cooldown (not category) if spell triggering spell with cooldown and same category
     // Needed by freezing arrow and few other spells
@@ -6736,7 +6736,7 @@ void Spell::EffectTransmitted(uint32 effIndex)
     //pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel());
     pGameObj->SetSpellId(m_spellInfo->Id);
 
-    DEBUG_LOG("AddObject at SpellEfects.cpp EffectTransmitted");
+    sLog.outStaticDebug("AddObject at SpellEfects.cpp EffectTransmitted");
     //m_caster->AddGameObject(pGameObj);
     //m_ObjToDel.push_back(pGameObj);
 
@@ -7385,11 +7385,11 @@ void Spell::EffectBind(uint32 i)
     data << uint32(area_id);
     player->SendDirectMessage( &data );
 
-    DEBUG_LOG("New homebind X      : %f", loc.m_positionX);
-    DEBUG_LOG("New homebind Y      : %f", loc.m_positionY);
-    DEBUG_LOG("New homebind Z      : %f", loc.m_positionZ);
-    DEBUG_LOG("New homebind MapId  : %u", loc.m_mapId);
-    DEBUG_LOG("New homebind AreaId : %u", area_id);
+    sLog.outStaticDebug("New homebind X      : %f", loc.m_positionX);
+    sLog.outStaticDebug("New homebind Y      : %f", loc.m_positionY);
+    sLog.outStaticDebug("New homebind Z      : %f", loc.m_positionZ);
+    sLog.outStaticDebug("New homebind MapId  : %u", loc.m_mapId);
+    sLog.outStaticDebug("New homebind AreaId : %u", area_id);
 
     // zone update
     data.Initialize(SMSG_PLAYERBOUND, 8+4);
