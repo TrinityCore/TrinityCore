@@ -105,8 +105,8 @@ bool Corpse::Create(uint32 guidlow, Player *owner)
 void Corpse::SaveToDB()
 {
     // prevent DB data inconsistence problems and duplicates
-    CharacterDatabase.BeginTransaction();
-    DeleteFromDB();
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    DeleteFromDB(trans);
 
     std::ostringstream ss;
     ss  << "INSERT INTO corpse (guid,player,position_x,position_y,position_z,orientation,zone,map,displayId,itemCache,bytes1,bytes2,guild,flags,dynFlags,time,corpse_type,instance,phaseMask) VALUES ("
@@ -131,8 +131,8 @@ void Corpse::SaveToDB()
         << uint32(GetType()) << ", "
         << int(GetInstanceId()) << ", "
         << uint16(GetPhaseMask()) << ")";           // prevent out of range error
-    CharacterDatabase.Execute(ss.str().c_str());
-    CharacterDatabase.CommitTransaction();
+    trans->Append(ss.str().c_str());
+    CharacterDatabase.CommitTransaction(trans);
 }
 
 void Corpse::DeleteBonesFromWorld()
@@ -149,14 +149,14 @@ void Corpse::DeleteBonesFromWorld()
     AddObjectToRemoveList();
 }
 
-void Corpse::DeleteFromDB()
+void Corpse::DeleteFromDB(SQLTransaction& trans)
 {
     if (GetType() == CORPSE_BONES)
         // only specific bones
-        CharacterDatabase.PExecute("DELETE FROM corpse WHERE guid = '%d'", GetGUIDLow());
+        trans->PAppend("DELETE FROM corpse WHERE guid = '%d'", GetGUIDLow());
     else
         // all corpses (not bones)
-        CharacterDatabase.PExecute("DELETE FROM corpse WHERE player = '%d' AND corpse_type <> '0'",  GUID_LOPART(GetOwnerGUID()));
+        trans->PAppend("DELETE FROM corpse WHERE player = '%d' AND corpse_type <> '0'",  GUID_LOPART(GetOwnerGUID()));
 }
 
 bool Corpse::LoadFromDB(uint32 guid, Field *fields)

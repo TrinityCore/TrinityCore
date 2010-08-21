@@ -66,8 +66,8 @@ struct AuctionEntry
     uint32 GetAuctionCut() const;
     uint32 GetAuctionOutBid() const;
     bool BuildAuctionInfo(WorldPacket & data) const;
-    void DeleteFromDB() const;
-    void SaveToDB() const;
+    void DeleteFromDB(SQLTransaction& trans) const;
+    void SaveToDB(SQLTransaction& trans) const;
 };
 
 //this class is used as auctionhouse instance
@@ -138,10 +138,13 @@ class AuctionHouseMgr
         }
 
         //auction messages
-        void SendAuctionWonMail(AuctionEntry * auction);
-        void SendAuctionSalePendingMail(AuctionEntry * auction);
-        void SendAuctionSuccessfulMail(AuctionEntry * auction);
-        void SendAuctionExpiredMail(AuctionEntry * auction);
+        void SendAuctionWonMail(AuctionEntry * auction, SQLTransaction& trans);
+        void SendAuctionSalePendingMail(AuctionEntry * auction, SQLTransaction& trans);
+        void SendAuctionSuccessfulMail(AuctionEntry * auction, SQLTransaction& trans);
+        void SendAuctionExpiredMail(AuctionEntry * auction, SQLTransaction& trans);
+        void SendAuctionOutbiddedMail(AuctionEntry * auction, uint32 newPrice, Player* newBidder, SQLTransaction& trans);
+        void SendAuctionCancelledToBidderMail(AuctionEntry* auction, SQLTransaction& trans);
+
         static uint32 GetAuctionDeposit(AuctionHouseEntry const* entry, uint32 time, Item *pItem);
         static AuctionHouseEntry const* GetAuctionHouseEntry(uint32 factionTemplateId);
 

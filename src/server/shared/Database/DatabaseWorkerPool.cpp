@@ -16,7 +16,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "DatabaseEnv.h"
 #include "DatabaseWorkerPool.h"
 #include "MySQLConnection.h"
 #include "DatabaseEnv.h"
@@ -183,43 +182,25 @@ QueryResult_AutoPtr DatabaseWorkerPool::PQuery(const char* sql, ...)
     return Query(szQuery);
 }
 
-void DatabaseWorkerPool::BeginTransaction()
+SQLTransaction DatabaseWorkerPool::BeginTransaction()
 {
-    ACE_Guard<ACE_Thread_Mutex> guard(m_transQueues_mtx);
-    ACE_Based::Thread* tranThread = ACE_Based::Thread::current();              // owner of this transaction
-    TransactionQueues::iterator itr = m_tranQueues.find(tranThread);
-    if (itr != m_tranQueues.end() && itr->second != NULL)
-    {
-        itr->second->ForcefulDelete();
-        delete itr->second;
-    }
-    m_tranQueues[tranThread] = new TransactionTask();
-    return;
+    return SQLTransaction(new Transaction);
 }
 
-void DatabaseWorkerPool::RollbackTransaction()
+void DatabaseWorkerPool::CommitTransaction(SQLTransaction transaction)
 {
-    ACE_Guard<ACE_Thread_Mutex> guard(m_transQueues_mtx);
-    ACE_Based::Thread* tranThread = ACE_Based::Thread::current();              // owner of this transaction
-    TransactionQueues::iterator itr = m_tranQueues.find(tranThread);
-    if (itr != m_tranQueues.end() && itr->second != NULL)
+    #ifdef _DEBUG
+    if (transaction->GetSize() == 0)
     {
-        itr->second->ForcefulDelete();
-        delete itr->second;
-        itr->second = NULL;
+        sLog.outError("Transaction contains 0 queries");
+        return;
     }
-}
-
-void DatabaseWorkerPool::CommitTransaction()
-{
-    ACE_Guard<ACE_Thread_Mutex> guard(m_transQueues_mtx);
-    ACE_Based::Thread* tranThread = ACE_Based::Thread::current();              // owner of this transaction
-    TransactionQueues::iterator itr = m_tranQueues.find(tranThread);
-    if (itr != m_tranQueues.end() && itr->second != NULL)
+    if (transaction->GetSize() == 1)
     {
-        Enqueue(itr->second);
-        itr->second = NULL;
+        sLog.outDetail("Warning: Transaction only holds 1 query, consider removing Transaction context in code.");
     }
+    #endif
+    Enqueue(new TransactionTask(transaction));
 }
 
 ACE_Future<QueryResult_AutoPtr> DatabaseWorkerPool::AsyncQuery(const char* sql)
@@ -258,7 +239,7 @@ MySQLConnection* DatabaseWorkerPool::GetConnection()
         ACE_Guard<ACE_Thread_Mutex> guard(m_connectionMap_mtx);
         itr = m_sync_connections.find(ACE_Based::Thread::current());
         if (itr != m_sync_connections.end())
-            return itr->second;
+            conn = itr->second;
     }
     /*! Bundled threads */
     conn = m_bundle_conn;

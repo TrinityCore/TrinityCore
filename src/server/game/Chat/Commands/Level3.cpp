@@ -6818,16 +6818,19 @@ bool ChatHandler::HandleSendItemsCommand(const char *args)
     // fill mail
     MailDraft draft(subject, text);
 
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
     for (ItemPairs::const_iterator itr = items.begin(); itr != items.end(); ++itr)
     {
         if (Item* item = Item::CreateItem(itr->first,itr->second,m_session ? m_session->GetPlayer() : 0))
         {
-            item->SaveToDB();                               // save for prevent lost at next mail load, if send fail then item will deleted
+            item->SaveToDB(trans);                               // save for prevent lost at next mail load, if send fail then item will deleted
             draft.AddItem(item);
         }
     }
 
-    draft.SendMailTo(MailReceiver(receiver,GUID_LOPART(receiver_guid)), sender);
+    draft.SendMailTo(trans, MailReceiver(receiver,GUID_LOPART(receiver_guid)), sender);
+    CharacterDatabase.CommitTransaction(trans);
 
     std::string nameLink = playerLink(receiver_name);
     PSendSysMessage(LANG_MAIL_SENT, nameLink.c_str());
@@ -6873,9 +6876,13 @@ bool ChatHandler::HandleSendMoneyCommand(const char *args)
     // from console show not existed sender
     MailSender sender(MAIL_NORMAL,m_session ? m_session->GetPlayer()->GetGUIDLow() : 0, MAIL_STATIONERY_GM);
 
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
     MailDraft(subject, text)
         .AddMoney(money)
-        .SendMailTo(MailReceiver(receiver,GUID_LOPART(receiver_guid)),sender);
+        .SendMailTo(trans, MailReceiver(receiver,GUID_LOPART(receiver_guid)),sender);
+
+    CharacterDatabase.CommitTransaction(trans);
 
     std::string nameLink = playerLink(receiver_name);
     PSendSysMessage(LANG_MAIL_SENT, nameLink.c_str());

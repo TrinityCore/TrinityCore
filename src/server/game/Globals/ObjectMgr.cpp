@@ -9040,9 +9040,10 @@ void ObjectMgr::_AddOrUpdateGMTicket(GM_Ticket &ticket)
     ss << ticket.closed << "', '";
     ss << ticket.assignedToGM << "', '";
     ss << comment << "');";
-    CharacterDatabase.BeginTransaction();
-    CharacterDatabase.Execute(ss.str().c_str());
-    CharacterDatabase.CommitTransaction();
+    
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    trans->Append(ss.str().c_str());
+    CharacterDatabase.CommitTransaction(trans);
 }
 
 void ObjectMgr::RemoveGMTicket(GM_Ticket *ticket, int64 source, bool permanently)
