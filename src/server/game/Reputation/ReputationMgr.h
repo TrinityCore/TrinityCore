@@ -101,6 +101,10 @@ class ReputationMgr
 
         ReputationRank GetRank(FactionEntry const* factionEntry) const;
         ReputationRank GetBaseRank(FactionEntry const* factionEntry) const;
+        uint32 GetReputationRankStrIndex(FactionEntry const* factionEntry)
+        {
+			return ReputationRankStrIndex[GetRank(factionEntry)];
+		};
 
         ReputationRank const* GetForcedRankIfAny(FactionTemplateEntry const* factionTemplateEntry) const
         {

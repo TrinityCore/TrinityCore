@@ -262,7 +262,9 @@ void FlightPathMovementGenerator::Finalize(Player & player)
 {
     player.clearUnitState(UNIT_STAT_IN_FLIGHT);
 
-    float x, y, z;
+    float x = 0;
+    float y = 0;
+    float z = 0;
     i_destinationHolder.GetLocationNow(player.GetBaseMap(), x, y, z);
     player.SetPosition(x, y, z, player.GetOrientation());
 

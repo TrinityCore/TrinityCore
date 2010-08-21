@@ -177,7 +177,7 @@ template<class TObject> class UpdatableScript
 
     public:
 
-        virtual void OnUpdate(TObject* obj, uint32 diff) { }
+        virtual void OnUpdate(TObject* /*obj*/, uint32 /*diff*/) { }
 };
 
 class SpellHandlerScript : public ScriptObject

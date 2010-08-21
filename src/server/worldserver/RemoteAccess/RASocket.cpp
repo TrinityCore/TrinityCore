@@ -226,7 +226,7 @@ void RASocket::zprint(void* callbackArg, const char * szText )
        send(((RASocket*)callbackArg)->GetSocket(), szText, sz, 0);
 }
 
-void RASocket::commandFinished(void* callbackArg, bool success)
+void RASocket::commandFinished(void* callbackArg, bool /*success*/)
 {
     RASocket* raSocket = (RASocket*)callbackArg;
     raSocket->Sendf("TC>");
