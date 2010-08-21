@@ -748,6 +748,34 @@ class npc_vengeful_shade : public CreatureScript
         }
 };
 
+class spell_deathwhisper_mana_barrier : public SpellScriptLoader
+{
+    public:
+        spell_deathwhisper_mana_barrier() : SpellScriptLoader("spell_deathwhisper_mana_barrier") { }
+
+        class spell_deathwhisper_mana_barrier_AuraScript : public AuraScript
+        {
+            void HandlePeriodicTick(AuraEffect const * aurEff, AuraApplication const * aurApp)
+            {
+                PreventDefaultAction(EFFECT_0);
+                Unit* caster = GetCaster();
+                int32 missingHealth = caster->GetMaxHealth() - caster->GetHealth();
+                caster->ModifyHealth(missingHealth);
+                caster->ModifyPower(POWER_MANA, -missingHealth);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_deathwhisper_mana_barrier_AuraScript::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_deathwhisper_mana_barrier_AuraScript();
+        }
+};
+
 class spell_cultist_dark_martyrdom : public SpellScriptLoader
 {
     public:
@@ -794,5 +822,6 @@ void AddSC_boss_lady_deathwhisper()
     new npc_cult_fanatic();
     new npc_cult_adherent();
     new npc_vengeful_shade();
+    new spell_deathwhisper_mana_barrier();
     new spell_cultist_dark_martyrdom();
 }

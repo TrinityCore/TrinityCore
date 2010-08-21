@@ -33,7 +33,11 @@ class instance_icecrown_citadel : public InstanceMapScript
                 uiMarrowgarEntrance = 0;
                 uiLadyDeathwisperElevator = 0;
                 uiOratoryDoor = 0;
-                isBonedEligible = true;
+                uiDeathbringerSaurfang = 0;
+                uiSaurfangDoor = 0;
+                uiSaurfangEventNPC = 0;
+                uiDeathbringersCache = 0;
+                isBonedEligible = false;
             }
 
             bool IsEncounterInProgress() const
@@ -43,6 +47,36 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return true;
 
                 return false;
+            }
+
+            void OnCreatureCreate(Creature* creature, bool add)
+            {
+                Map::PlayerList const &players = instance->GetPlayers();
+                uint32 TeamInInstance = 0;
+
+                if (!players.isEmpty())
+                {
+                    if (Player* pPlayer = players.begin()->getSource())
+                        TeamInInstance = pPlayer->GetTeam();
+                }
+
+                switch (creature->GetEntry())
+                {
+                    case NPC_DEATHBRINGER_SAURFANG:
+                        uiDeathbringerSaurfang = creature->GetGUID();
+                        break;
+                    case NPC_SE_HIGH_OVERLORD_SAURFANG:
+                        if (TeamInInstance == ALLIANCE)
+                            creature->UpdateEntry(NPC_SE_MURADIN_BRONZEBEARD, ALLIANCE);
+                    case NPC_SE_MURADIN_BRONZEBEARD:
+                        uiSaurfangEventNPC = creature->GetGUID();
+                        creature->LastUsedScriptID = creature->GetScriptId();
+                        break;
+                    case NPC_SE_KOR_KRON_REAVER:
+                        if (TeamInInstance == ALLIANCE)
+                            creature->UpdateEntry(NPC_SE_SKYBREAKER_MARINE, ALLIANCE);
+                        break;
+                }
             }
 
             void OnGameObjectCreate(GameObject* pGo, bool add)
@@ -77,6 +111,15 @@ class instance_icecrown_citadel : public InstanceMapScript
                             pGo->SetGoState(GO_STATE_READY);
                         }
                         break;
+                    case SAURFANG_S_DOOR:
+                        uiSaurfangDoor = pGo->GetGUID();
+                        break;
+                    case DEATHBRINGER_S_CACHE_10N:
+                    case DEATHBRINGER_S_CACHE_25N:
+                    case DEATHBRINGER_S_CACHE_10H:
+                    case DEATHBRINGER_S_CACHE_25H:
+                        uiDeathbringersCache = pGo->GetGUID();
+                        break;
                 }
             }
 
@@ -97,6 +140,21 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case DATA_SINDRAGOSA:
                     case DATA_THE_LICH_KING:
                         return uiEncounterState[type];
+                }
+
+                return 0;
+            }
+
+            uint64 GetData64(uint32 type)
+            {
+                switch (type)
+                {
+                    case DATA_DEATHBRINGER_SAURFANG:
+                        return uiDeathbringerSaurfang;
+                    case DATA_SAURFANG_EVENT_NPC:
+                        return uiSaurfangEventNPC;
+                    case DATA_SAURFANG_DOOR:
+                        return uiSaurfangDoor;
                 }
 
                 return 0;
@@ -130,6 +188,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                         switch(data)
                         {
                             case DONE:
+                                // TEMPORARY, UNCOMMMENT IF YOU WANT TO DO SAURFANG AND SKIP GUNSHIP
+                                //uiEncounterState[DATA_GUNSHIP_EVENT] = DONE;
                                 HandleGameObject(uiOratoryDoor, true);
                                 if (GameObject* elevator = instance->GetGameObject(uiLadyDeathwisperElevator))
                                 {
@@ -146,7 +206,15 @@ class instance_icecrown_citadel : public InstanceMapScript
                         }
                         break;
                     case DATA_GUNSHIP_EVENT:
+                        uiEncounterState[type] = data;
+                        break;
                     case DATA_DEATHBRINGER_SAURFANG:
+                        uiEncounterState[type] = data;
+                        if (data == DONE)
+                            if (GameObject* lootCache = instance->GetGameObject(uiDeathbringersCache))
+                                if (!lootCache->isSpawned())
+                                    lootCache->SetRespawnTime(7*DAY);
+                        break;
                     case DATA_FESTERGUT:
                     case DATA_ROTFACE:
                     case DATA_PROFESSOR_PUTRICIDE:
@@ -230,6 +298,10 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 uiMarrowgarEntrance;
             uint64 uiLadyDeathwisperElevator;
             uint64 uiOratoryDoor;
+            uint64 uiDeathbringerSaurfang;
+            uint64 uiSaurfangDoor;
+            uint64 uiSaurfangEventNPC;  // Muradin Bronzebeard or High Overlord Saurfang
+            uint64 uiDeathbringersCache;
             bool isBonedEligible;
         };
 
