@@ -69,6 +69,7 @@ std::string GetScriptsTableNameByType(ScriptsType type)
         case SCRIPTS_EVENT:         res = "event_scripts";      break;
         case SCRIPTS_WAYPOINT:      res = "waypoint_scripts";   break;
         case SCRIPTS_GOSSIP:        res = "gossip_scripts";     break;
+        default: break;
     }
     return res;
 }
@@ -85,6 +86,7 @@ ScriptMapMap* GetScriptsMapByType(ScriptsType type)
         case SCRIPTS_EVENT:         res = &sEventScripts;       break;
         case SCRIPTS_WAYPOINT:      res = &sWaypointScripts;    break;
         case SCRIPTS_GOSSIP:        res = &sGossipScripts;      break;
+        default: break;
     }
     return res;
 }
@@ -239,6 +241,8 @@ bool SpellClickInfo::IsFitToRequirements(Player const* player, Creature const * 
         case SPELL_CLICK_USER_PARTY:
             if (!player->IsInPartyWith(summoner))
                 return false;
+            break;
+        default:
             break;
     }
 
@@ -4874,6 +4878,8 @@ void ObjectMgr::LoadScripts(ScriptsType type)
                 }
                 break;
             }
+            default:
+                break;
         }
 
         if (scripts->find(tmp.id) == scripts->end())
@@ -8876,6 +8882,8 @@ void ObjectMgr::CheckScripts(ScriptsType type, std::set<int32>& ids)
                     if (ids.find(itrM->second.dataint) != ids.end())
                         ids.erase(itrM->second.dataint);
                 }
+                default:
+                    break;
             }
         }
     }

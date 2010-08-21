@@ -214,6 +214,8 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket & recv_data)
                 case TYPEID_GAMEOBJECT:
                     sScriptMgr.OnQuestAccept(_player, ((GameObject*)pObject), qInfo);
                     break;
+                default:
+                    break;
             }
             _player->PlayerTalkClass->CloseGossip();
 
@@ -321,6 +323,8 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket & recv_data)
                         if (Quest const* nextquest = _player->GetNextQuest(guid ,pQuest))
                             _player->PlayerTalkClass->SendQuestGiverQuestDetails(nextquest,guid,true);
                     }
+                    break;
+                default:
                     break;
             }
         }
