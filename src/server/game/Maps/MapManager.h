@@ -22,8 +22,8 @@
 #define TRINITY_MAPMANAGER_H
 
 #include "Define.h"
-#include "ace/Singleton.h"
-#include "ace/Thread_Mutex.h"
+#include <ace/Singleton.h>
+#include <ace/Thread_Mutex.h>
 #include "Common.h"
 #include "Map.h"
 #include "GridStates.h"

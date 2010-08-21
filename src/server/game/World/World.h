@@ -29,7 +29,7 @@
 #include "Timer.h"
 #include <ace/Singleton.h>
 #include "SharedDefines.h"
-#include "ace/Atomic_Op.h"
+#include <ace/Atomic_Op.h>
 #include "QueryResult.h"
 #include "Callback.h"
 

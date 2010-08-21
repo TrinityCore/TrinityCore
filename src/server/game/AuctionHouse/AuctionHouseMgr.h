@@ -19,7 +19,7 @@
 #ifndef _AUCTION_HOUSE_MGR_H
 #define _AUCTION_HOUSE_MGR_H
 
-#include "ace/Singleton.h"
+#include <ace/Singleton.h>
 
 #include "SharedDefines.h"
 

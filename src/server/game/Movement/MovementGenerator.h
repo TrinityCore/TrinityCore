@@ -22,7 +22,7 @@
 #define TRINITY_MOVEMENTGENERATOR_H
 
 #include "Define.h"
-#include "ace/Singleton.h"
+#include <ace/Singleton.h>
 #include "ObjectRegistry.h"
 #include "FactoryHolder.h"
 #include "Common.h"
