@@ -21,9 +21,9 @@ enum ePoints
 
 FollowerAI::FollowerAI(Creature* pCreature) : ScriptedAI(pCreature),
     m_uiLeaderGUID(0),
-    m_pQuestForFollow(NULL),
     m_uiUpdateFollowTimer(2500),
-    m_uiFollowState(STATE_FOLLOW_NONE)
+    m_uiFollowState(STATE_FOLLOW_NONE),
+    m_pQuestForFollow(NULL)
 {}
 
 void FollowerAI::AttackStart(Unit* pWho)

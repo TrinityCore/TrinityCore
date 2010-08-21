@@ -29,8 +29,8 @@ m_has_result(false)
 }
 
 BasicStatementTask::BasicStatementTask(const char* sql, QueryResultFuture result) :
-m_result(result),
-m_has_result(true)
+m_has_result(true),
+m_result(result)
 {
     m_sql = strdup(sql);
 }

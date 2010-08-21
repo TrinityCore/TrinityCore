@@ -71,7 +71,7 @@ class WaypointMovementGenerator
 {
     public:
         WaypointMovementGenerator(uint32 _path_id = 0, bool _repeating = true) :
-          i_nextMoveTime(0), path_id(_path_id), repeating(_repeating), StopedByPlayer(false), node(NULL) {}
+          node(NULL), path_id(_path_id), i_nextMoveTime(0), repeating(_repeating), StopedByPlayer(false) {}
 
         void Initialize(T &);
         void Finalize(T &);
@@ -105,7 +105,7 @@ public PathMovementBase<Player,TaxiPathNodeList const*>
             i_currentNode = startNode;
         }
         void Initialize(Player &);
-        void Reset(Player &u){};
+        void Reset(Player & /*u*/){};
         void Finalize(Player &);
         bool Update(Player &, const uint32 &);
         MovementGeneratorType GetMovementGeneratorType() { return FLIGHT_MOTION_TYPE; }

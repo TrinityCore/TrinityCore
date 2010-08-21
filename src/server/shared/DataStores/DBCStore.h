@@ -30,7 +30,7 @@ struct SqlDbc
     int32 indexPos;
     int32 sqlIndexPos;
     SqlDbc(const std::string * _filename, const std::string * _format, const std::string * _idname, const char * fmt)
-        :formatString(_format),sqlIndexPos(0), indexName (_idname)
+        :formatString(_format), indexName (_idname), sqlIndexPos(0)
     {
         // Convert dbc file name to sql table name
         sqlTableName = *_filename;
@@ -44,14 +44,15 @@ struct SqlDbc
 
         // Get sql index position
         DBCFileLoader::GetFormatRecordSize(fmt, &indexPos);
-        if (indexPos>=0)
+        if (indexPos >= 0)
         {
-            for (int32 x=0; x < formatString->size(); x++)
+			uint32 uindexPos = uint32(indexPos);
+            for (uint32 x = 0; x < formatString->size(); ++x)
             {
                 // Count only fields present in sql
                 if ((*formatString)[x] == FT_SQL_PRESENT)
                 {
-                    if (x == indexPos)
+                    if (x == uindexPos)
                         break;
                     ++sqlIndexPos;
                 }
@@ -65,7 +66,7 @@ class DBCStorage
 {
     typedef std::list<char*> StringPoolList;
     public:
-        explicit DBCStorage(const char *f) : nCount(0), fieldCount(0), fmt(f), indexTable(NULL), m_dataTable(NULL) { }
+        explicit DBCStorage(const char *f) : fmt(f), nCount(0), fieldCount(0), indexTable(NULL), m_dataTable(NULL) { }
         ~DBCStorage() { Clear(); }
 
         T const* LookupEntry(uint32 id) const { return (id>=nCount)?NULL:indexTable[id]; }

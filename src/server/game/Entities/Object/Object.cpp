@@ -1215,15 +1215,11 @@ void MovementInfo::OutDebug()
     }
 }
 
-WorldObject::WorldObject()
-    : WorldLocation(), m_InstanceId(0), m_phaseMask(PHASEMASK_NORMAL), m_currMap(NULL)
-    , m_zoneScript(NULL)
-    , m_isActive(false), m_isWorldObject(false)
-    , m_name("")
-    , m_notifyflags(0), m_executed_notifies(0)
-{
-    m_transport = NULL;
-}
+WorldObject::WorldObject(): WorldLocation(), 
+m_isWorldObject(false), m_name(""), m_isActive(false), m_zoneScript(NULL),
+m_transport(NULL), m_currMap(NULL), m_InstanceId(0),
+m_phaseMask(PHASEMASK_NORMAL), m_notifyflags(0), m_executed_notifies(0)
+{}
 
 void WorldObject::SetWorldObject(bool on)
 {
@@ -1994,6 +1990,8 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
             pet->SetPower(POWER_MANA, pet->GetMaxPower(POWER_MANA));
             pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, time(NULL));
             break;
+        default:
+            break;
     }
 
     map->Add(pet->ToCreature());
@@ -2005,6 +2003,8 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
             pet->InitTalentForLevel();
             pet->SavePetToDB(PET_SAVE_AS_CURRENT);
             PetSpellInitialize();
+            break;
+        default:
             break;
     }
 

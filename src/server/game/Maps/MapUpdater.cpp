@@ -61,8 +61,8 @@ class MapUpdateRequest : public ACE_Method_Request
         }
 };
 
-MapUpdater::MapUpdater()
-    : m_mutex(), m_condition(m_mutex), m_executor(), pending_requests(0)
+MapUpdater::MapUpdater():
+m_executor(), m_mutex(), m_condition(m_mutex), pending_requests(0)
 {
 }
 
