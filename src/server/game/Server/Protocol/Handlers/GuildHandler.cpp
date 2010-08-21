@@ -887,13 +887,11 @@ void WorldSession::HandleGuildBankDepositMoney(WorldPacket & recv_data)
     if (!pGuild->GetPurchasedTabs())
         return;
 
-    CharacterDatabase.BeginTransaction();
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-    pGuild->SetBankMoney(pGuild->GetGuildBankMoney()+money);
+    pGuild->SetBankMoney(pGuild->GetGuildBankMoney()+money, trans);
     GetPlayer()->ModifyMoney(-int(money));
-    GetPlayer()->SaveGoldToDB();
-
-    CharacterDatabase.CommitTransaction();
+    GetPlayer()->SaveGoldToDB(trans);
 
     // logging money
     if (_player->GetSession()->GetSecurity() > SEC_PLAYER && sWorld.getConfig(CONFIG_GM_LOG_TRADE))
@@ -903,7 +901,9 @@ void WorldSession::HandleGuildBankDepositMoney(WorldPacket & recv_data)
     }
 
     // log
-    pGuild->LogBankEvent(GUILD_BANK_LOG_DEPOSIT_MONEY, uint8(0), GetPlayer()->GetGUIDLow(), money);
+    pGuild->LogBankEvent(trans, GUILD_BANK_LOG_DEPOSIT_MONEY, uint8(0), GetPlayer()->GetGUIDLow(), money);
+
+    CharacterDatabase.CommitTransaction(trans);
 
     pGuild->DisplayGuildBankTabsInfo(this);
     pGuild->DisplayGuildBankContent(this, 0);
@@ -941,21 +941,18 @@ void WorldSession::HandleGuildBankWithdrawMoney(WorldPacket & recv_data)
     if (!pGuild->HasRankRight(GetPlayer()->GetRank(), GR_RIGHT_WITHDRAW_GOLD))
         return;
 
-    CharacterDatabase.BeginTransaction();
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-    if (!pGuild->MemberMoneyWithdraw(money, GetPlayer()->GetGUIDLow()))
-    {
-        CharacterDatabase.RollbackTransaction();
+    if (!pGuild->MemberMoneyWithdraw(money, GetPlayer()->GetGUIDLow(), trans))
         return;
-    }
 
     GetPlayer()->ModifyMoney(money);
-    GetPlayer()->SaveGoldToDB();
-
-    CharacterDatabase.CommitTransaction();
+    GetPlayer()->SaveGoldToDB(trans);
 
     // Log
-    pGuild->LogBankEvent(GUILD_BANK_LOG_WITHDRAW_MONEY, uint8(0), GetPlayer()->GetGUIDLow(), money);
+    pGuild->LogBankEvent(trans, GUILD_BANK_LOG_WITHDRAW_MONEY, uint8(0), GetPlayer()->GetGUIDLow(), money);
+
+    CharacterDatabase.CommitTransaction(trans);
 
     pGuild->SendMoneyInfo(this, GetPlayer()->GetGUIDLow());
     pGuild->DisplayGuildBankTabsInfo(this);

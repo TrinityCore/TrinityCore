@@ -301,7 +301,7 @@ void Item::UpdateDuration(Player* owner, uint32 diff)
     SetState(ITEM_CHANGED, owner);                          // save new time in database
 }
 
-void Item::SaveToDB()
+void Item::SaveToDB(SQLTransaction& trans)
 {
     uint32 guid = GetGUIDLow();
     switch (uState)
@@ -334,7 +334,7 @@ void Item::SaveToDB()
             ss << GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME) << ",'";
             ss << text << "')";
 
-            CharacterDatabase.Execute(ss.str().c_str());
+            trans->Append(ss.str().c_str());
         }break;
         case ITEM_CHANGED:
         {
@@ -364,16 +364,16 @@ void Item::SaveToDB()
             ss << ", playedTime = " << GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME);
             ss << ", text = '" << text << "' WHERE guid = " << guid;
 
-            CharacterDatabase.Execute(ss.str().c_str());
+            trans->Append(ss.str().c_str());
 
             if (HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED))
-                CharacterDatabase.PExecute("UPDATE character_gifts SET guid = '%u' WHERE item_guid = '%u'", GUID_LOPART(GetOwnerGUID()),GetGUIDLow());
+                trans->PAppend("UPDATE character_gifts SET guid = '%u' WHERE item_guid = '%u'", GUID_LOPART(GetOwnerGUID()),GetGUIDLow());
         }break;
         case ITEM_REMOVED:
         {
-            CharacterDatabase.PExecute("DELETE FROM item_instance WHERE guid = '%u'", guid);
+            trans->PAppend("DELETE FROM item_instance WHERE guid = '%u'", guid);
             if (HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED))
-                CharacterDatabase.PExecute("DELETE FROM character_gifts WHERE item_guid = '%u'", GetGUIDLow());
+                trans->PAppend("DELETE FROM character_gifts WHERE item_guid = '%u'", GetGUIDLow());
             delete this;
             return;
         }
@@ -471,14 +471,14 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, QueryResult_AutoPtr result
     return true;
 }
 
-void Item::DeleteFromDB()
+void Item::DeleteFromDB(SQLTransaction& trans)
 {
-    CharacterDatabase.PExecute("DELETE FROM item_instance WHERE guid = '%u'",GetGUIDLow());
+    trans->PAppend("DELETE FROM item_instance WHERE guid = '%u'",GetGUIDLow());
 }
 
-void Item::DeleteFromInventoryDB()
+void Item::DeleteFromInventoryDB(SQLTransaction& trans)
 {
-    CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item = '%u'",GetGUIDLow());
+    trans->PAppend("DELETE FROM character_inventory WHERE item = '%u'",GetGUIDLow());
 }
 
 ItemPrototype const *Item::GetProto() const
@@ -1103,11 +1103,11 @@ void Item::BuildUpdate(UpdateDataMapType& data_map)
 
 void Item::SaveRefundDataToDB()
 {
-    CharacterDatabase.BeginTransaction();
-    CharacterDatabase.PExecute("DELETE FROM item_refund_instance WHERE item_guid = '%u'", GetGUIDLow());
-    CharacterDatabase.PExecute("INSERT INTO item_refund_instance (`item_guid`,`player_guid`,`paidMoney`,`paidExtendedCost`)"
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    trans->PAppend("DELETE FROM item_refund_instance WHERE item_guid = '%u'", GetGUIDLow());
+    trans->PAppend("INSERT INTO item_refund_instance (`item_guid`,`player_guid`,`paidMoney`,`paidExtendedCost`)"
     " VALUES('%u','%u','%u','%u')", GetGUIDLow(), GetRefundRecipient(), GetPaidMoney(), GetPaidExtendedCost());
-    CharacterDatabase.CommitTransaction();
+    CharacterDatabase.CommitTransaction(trans);
 }
 
 void Item::DeleteRefundDataFromDB()

@@ -440,13 +440,13 @@ void AchievementMgr::ResetAchievementCriteria(AchievementCriteriaTypes type, uin
 
 void AchievementMgr::DeleteFromDB(uint32 lowguid)
 {
-    CharacterDatabase.BeginTransaction ();
-    CharacterDatabase.PExecute("DELETE FROM character_achievement WHERE guid = %u",lowguid);
-    CharacterDatabase.PExecute("DELETE FROM character_achievement_progress WHERE guid = %u",lowguid);
-    CharacterDatabase.CommitTransaction ();
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    trans->PAppend("DELETE FROM character_achievement WHERE guid = %u",lowguid);
+    trans->PAppend("DELETE FROM character_achievement_progress WHERE guid = %u",lowguid);
+    CharacterDatabase.CommitTransaction(trans);
 }
 
-void AchievementMgr::SaveToDB()
+void AchievementMgr::SaveToDB(SQLTransaction& trans)
 {
     if (!m_completedAchievements.empty())
     {
@@ -485,8 +485,8 @@ void AchievementMgr::SaveToDB()
 
         if (need_execute)
         {
-            CharacterDatabase.Execute(ssdel.str().c_str());
-            CharacterDatabase.Execute(ssins.str().c_str());
+            trans->Append(ssdel.str().c_str());
+            trans->Append(ssins.str().c_str());
         }
     }
 
@@ -545,9 +545,9 @@ void AchievementMgr::SaveToDB()
         if (need_execute_del || need_execute_ins)
         {
             if (need_execute_del)
-                CharacterDatabase.Execute(ssdel.str().c_str());
+                trans->Append(ssdel.str().c_str());
             if (need_execute_ins)
-                CharacterDatabase.Execute(ssins.str().c_str());
+                trans->Append(ssins.str().c_str());
         }
     }
 }
@@ -1953,16 +1953,18 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
 
         MailDraft draft(subject, text);
 
+        SQLTransaction trans = CharacterDatabase.BeginTransaction();
         if (item)
         {
             // save new item before send
-            item->SaveToDB();                               // save for prevent lost at next mail load, if send fail then item will deleted
+            item->SaveToDB(trans);                               // save for prevent lost at next mail load, if send fail then item will deleted
 
             // item
             draft.AddItem(item);
         }
 
-        draft.SendMailTo(GetPlayer(), MailSender(MAIL_CREATURE, reward->sender));
+        draft.SendMailTo(trans, GetPlayer(), MailSender(MAIL_CREATURE, reward->sender));
+        CharacterDatabase.CommitTransaction(trans);
     }
 }
 

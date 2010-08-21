@@ -1422,8 +1422,9 @@ class Player : public Unit, public GridObject<Player>
         /*********************************************************/
 
         void SaveToDB();
-        void SaveInventoryAndGoldToDB();                    // fast save function for item/money cheating preventing
-        void SaveGoldToDB();
+        void SaveInventoryAndGoldToDB(SQLTransaction& trans);                    // fast save function for item/money cheating preventing
+        void SaveGoldToDB(SQLTransaction& trans);
+
         static void SetUInt32ValueInArray(Tokens& data,uint16 index, uint32 value);
         static void SetFloatValueInArray(Tokens& data,uint16 index, float value);
         static void Customize(uint64 guid, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair);
@@ -1617,7 +1618,7 @@ class Player : public Unit, public GridObject<Player>
         void RemoveArenaSpellCooldowns();
         void RemoveAllSpellCooldown();
         void _LoadSpellCooldowns(QueryResult_AutoPtr result);
-        void _SaveSpellCooldowns();
+        void _SaveSpellCooldowns(SQLTransaction& trans);
         void SetLastPotionId(uint32 item_id) { m_lastPotionId = item_id; }
         void UpdatePotionCooldown(Spell* spell = NULL);
 
@@ -2428,20 +2429,20 @@ class Player : public Unit, public GridObject<Player>
         /***                   SAVE SYSTEM                     ***/
         /*********************************************************/
 
-        void _SaveActions();
-        void _SaveAuras();
-        void _SaveInventory();
-        void _SaveMail();
-        void _SaveQuestStatus();
-        void _SaveDailyQuestStatus();
-        void _SaveWeeklyQuestStatus();
-        void _SaveSkills();
-        void _SaveSpells();
-        void _SaveEquipmentSets();
-        void _SaveBGData();
-        void _SaveGlyphs();
-        void _SaveTalents();
-        void _SaveStats();
+        void _SaveActions(SQLTransaction& trans);
+        void _SaveAuras(SQLTransaction& trans);
+        void _SaveInventory(SQLTransaction& trans);
+        void _SaveMail(SQLTransaction& trans);
+        void _SaveQuestStatus(SQLTransaction& trans);
+        void _SaveDailyQuestStatus(SQLTransaction& trans);
+        void _SaveWeeklyQuestStatus(SQLTransaction& trans);
+        void _SaveSkills(SQLTransaction& trans);
+        void _SaveSpells(SQLTransaction& trans);
+        void _SaveEquipmentSets(SQLTransaction& trans);
+        void _SaveBGData(SQLTransaction& trans);
+        void _SaveGlyphs(SQLTransaction& trans);
+        void _SaveTalents(SQLTransaction& trans);
+        void _SaveStats(SQLTransaction& trans);
 
         void _SetCreateBits(UpdateMask *updateMask, Player *target) const;
         void _SetUpdateBits(UpdateMask *updateMask, Player *target) const;

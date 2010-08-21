@@ -2395,8 +2395,12 @@ bool ChatHandler::HandleSendMailCommand(const char* args)
     // from console show not existed sender
     MailSender sender(MAIL_NORMAL,m_session ? m_session->GetPlayer()->GetGUIDLow() : 0, MAIL_STATIONERY_GM);
 
+    //- TODO: Fix poor design
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
     MailDraft(subject, text)
-        .SendMailTo(MailReceiver(target,GUID_LOPART(target_guid)),sender);
+        .SendMailTo(trans, MailReceiver(target,GUID_LOPART(target_guid)),sender);
+
+    CharacterDatabase.CommitTransaction(trans);
 
     std::string nameLink = playerLink(target_name);
     PSendSysMessage(LANG_MAIL_SENT, nameLink.c_str());
