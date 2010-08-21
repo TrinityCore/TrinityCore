@@ -1719,7 +1719,8 @@ uint16 Map::GetAreaFlag(float x, float y, float z, bool *isOutdoors) const
     if (GetAreaInfo(x, y, z, mogpFlags, adtId, rootId, groupId))
     {
         haveAreaInfo = true;
-        if (wmoEntry = GetWMOAreaTableEntryByTripple(rootId, adtId, groupId))
+        wmoEntry = GetWMOAreaTableEntryByTripple(rootId, adtId, groupId);
+        if (wmoEntry)
             atEntry = GetAreaEntryByAreaID(wmoEntry->areaId);
     }
 
@@ -3233,8 +3234,8 @@ void Map::ScriptsProcess()
 
                 // when script called for item spell casting then target == (unit or GO) and source is player
                 WorldObject* worldObject;
-                Player* pTarget = NULL;
-                if (pTarget = target->ToPlayer())
+                Player* pTarget = target->ToPlayer();
+                if (pTarget)
                 {
                     if (source->GetTypeId() != TYPEID_UNIT && source->GetTypeId() != TYPEID_GAMEOBJECT && source->GetTypeId() != TYPEID_PLAYER)
                     {
@@ -3244,23 +3245,27 @@ void Map::ScriptsProcess()
                     }
                     worldObject = dynamic_cast<WorldObject*>(source);
                 }
-                else if (pTarget = source->ToPlayer())
+                else 
                 {
-                    if (target->GetTypeId() != TYPEID_UNIT && target->GetTypeId() != TYPEID_GAMEOBJECT && target->GetTypeId() != TYPEID_PLAYER)
-                    {
-                        sLog.outError("%s target is not unit, gameobject or player (TypeId: %u, Entry: %u, GUID: %u), skipping.",
-                            step.script->GetDebugInfo().c_str(), target->GetTypeId(), target->GetEntry(), target->GetGUIDLow());
-                        break;
-                    }
-                    worldObject =  dynamic_cast<WorldObject*>(target);
-                }
-                else
-                {
-                    sLog.outError("%s neither source nor target is player (source: TypeId: %u, Entry: %u, GUID: %u; target: TypeId: %u, Entry: %u, GUID: %u), skipping.",
-                        step.script->GetDebugInfo().c_str(), 
-                        source ? source->GetTypeId() : 0, source ? source->GetEntry() : 0, source ? source->GetGUIDLow() : 0,
-                        target ? target->GetTypeId() : 0, target ? target->GetEntry() : 0, target ? target->GetGUIDLow() : 0);
-                    break;
+					pTarget = source->ToPlayer();
+					if (pTarget)
+					{
+						if (target->GetTypeId() != TYPEID_UNIT && target->GetTypeId() != TYPEID_GAMEOBJECT && target->GetTypeId() != TYPEID_PLAYER)
+						{
+							sLog.outError("%s target is not unit, gameobject or player (TypeId: %u, Entry: %u, GUID: %u), skipping.",
+								step.script->GetDebugInfo().c_str(), target->GetTypeId(), target->GetEntry(), target->GetGUIDLow());
+							break;
+						}
+						worldObject =  dynamic_cast<WorldObject*>(target);
+					}
+					else
+					{
+						sLog.outError("%s neither source nor target is player (source: TypeId: %u, Entry: %u, GUID: %u; target: TypeId: %u, Entry: %u, GUID: %u), skipping.",
+							step.script->GetDebugInfo().c_str(), 
+							source ? source->GetTypeId() : 0, source ? source->GetEntry() : 0, source ? source->GetGUIDLow() : 0,
+							target ? target->GetTypeId() : 0, target ? target->GetEntry() : 0, target ? target->GetGUIDLow() : 0);
+						break;
+					}
                 }
 
                 // quest id and flags checked at script loading
