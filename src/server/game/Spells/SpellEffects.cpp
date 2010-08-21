@@ -1847,8 +1847,10 @@ void Spell::EffectForceCast(uint32 i)
             case 52349: // Overtake
                 unitTarget->CastCustomSpell(unitTarget, spellInfo->Id, &damage, NULL, NULL, true, NULL, NULL, m_originalCasterGUID);
                 return;
-            //case 72378: // Blood Nova
-            //case 73058: // Blood Nova
+            case 72378: // Blood Nova
+            case 73058: // Blood Nova
+                spellInfo = sSpellMgr.GetSpellForDifficultyFromSpell(spellInfo, m_caster);
+                break;
         }
     }
     Unit * caster = GetTriggeredSpellCaster(spellInfo, m_caster, unitTarget);
@@ -2629,7 +2631,9 @@ void Spell::EffectHealthLeech(uint32 i)
 
     // Do not apply multiplier to damage if it's Death Coil
     int32 new_damage;
-    if (m_spellInfo->SpellFamilyFlags[0] & 0x80000)
+    if (m_spellInfo->SpellFamilyFlags[0] & 0x80000 ||
+        m_spellInfo->Id == 72409 || m_spellInfo->Id == 72447 || // ...or Deathbringer Saurfang's Rune of Blood
+        m_spellInfo->Id == 72448 || m_spellInfo->Id == 72449)
         new_damage = damage;
     else
         new_damage = int32(damage * multiplier);

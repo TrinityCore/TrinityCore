@@ -8681,6 +8681,16 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
             if (!pVictim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, procSpell, this))
                 return false;
             break;
+        // Deathbringer Saurfang - Rune of Blood
+        case 72408:
+            // can proc only if target is marked with rune
+            if (!pVictim->HasAura(72410))
+                return false;
+            break;
+        // Deathbringer Saurfang - Blood Beast's Blood Link
+        case 72176:
+            basepoints0 = 3;
+            break;
     }
 
     // Blade Barrier
@@ -8868,6 +8878,10 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                 return false;
             break;
         }
+        // Deathbringer Saurfang - Blood Link
+        case 72202:
+            target = FindNearestCreature(37813, 75.0f); // NPC_DEATHBRINGER_SAURFANG = 37813
+            break;
     }
 
     if (cooldown && GetTypeId() == TYPEID_PLAYER && ToPlayer()->HasSpellCooldown(trigger_spell_id))
