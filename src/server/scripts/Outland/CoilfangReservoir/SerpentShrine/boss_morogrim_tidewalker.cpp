@@ -26,76 +26,55 @@ EndScriptData */
 #include "ScriptPCH.h"
 #include "serpent_shrine.h"
 
-#define SAY_AGGRO                   -1548030
-#define SAY_SUMMON1                 -1548031
-#define SAY_SUMMON2                 -1548032
-#define SAY_SUMMON_BUBL1            -1548033
-#define SAY_SUMMON_BUBL2            -1548034
-#define SAY_SLAY1                   -1548035
-#define SAY_SLAY2                   -1548036
-#define SAY_SLAY3                   -1548037
-#define SAY_DEATH                   -1548038
-#define EMOTE_WATERY_GRAVE          -1548039
-#define EMOTE_EARTHQUAKE            -1548040
-#define EMOTE_WATERY_GLOBULES       -1548041
-
-#define SPELL_TIDAL_WAVE            37730
-#define SPELL_WATERY_GRAVE          38049
-#define SPELL_EARTHQUAKE            37764
-#define SPELL_WATERY_GRAVE_EXPLOSION 37852
-
-#define WATERY_GRAVE_X1             334.64
-#define WATERY_GRAVE_Y1             -728.89
-#define WATERY_GRAVE_Z1             -14.42
-#define WATERY_GRAVE_X2             365.51
-#define WATERY_GRAVE_Y2             -737.14
-#define WATERY_GRAVE_Z2             -14.44
-#define WATERY_GRAVE_X3             366.19
-#define WATERY_GRAVE_Y3             -709.59
-#define WATERY_GRAVE_Z3             -14.36
-#define WATERY_GRAVE_X4             372.93
-#define WATERY_GRAVE_Y4             -690.96
-#define WATERY_GRAVE_Z4             -14.44
-
-#define SPELL_WATERY_GRAVE_1    38023
-#define SPELL_WATERY_GRAVE_2    38024
-#define SPELL_WATERY_GRAVE_3    38025
-#define SPELL_WATERY_GRAVE_4    37850
-
-#define SPELL_SUMMON_WATER_GLOBULE_1    37854
-#define SPELL_SUMMON_WATER_GLOBULE_2    37858
-#define SPELL_SUMMON_WATER_GLOBULE_3    37860
-#define SPELL_SUMMON_WATER_GLOBULE_4    37861
-
-/*#define SPELL_SUMMON_MURLOC_A6    39813
-#define SPELL_SUMMON_MURLOC_A7  39814
-#define SPELL_SUMMON_MURLOC_A8  39815
-#define SPELL_SUMMON_MURLOC_A9  39816
-#define SPELL_SUMMON_MURLOC_A10 39817
-
-#define SPELL_SUMMON_MURLOC_B6  39818
-#define SPELL_SUMMON_MURLOC_B7  39819
-#define SPELL_SUMMON_MURLOC_B8  39820
-#define SPELL_SUMMON_MURLOC_B9  39821
-#define SPELL_SUMMON_MURLOC_B10 39822*/
-
-float MurlocCords[10][5] =
+enum eEnums
 {
-      {21920, 424.36, -715.4, -7.14, 0.124},
-       {21920, 425.13, -719.3, -7.14, 0.124},
-       {21920, 425.05, -724.23, -7.14, 0.124},
-       {21920, 424.91, -728.68, -7.14, 0.124},
-      {21920, 424.84, -732.18, -7.14, 0.124},
-       {21920, 321.05, -734.2, -13.15, 0.124},
-       {21920, 321.05, -729.4, -13.15, 0.124},
-       {21920, 321.05, -724.03, -13.15, 0.124},
-      {21920, 321.05, -718.73, -13.15, 0.124},
-       {21920, 321.05, -714.24, -13.15, 0.124}
+    // Yell
+    SAY_AGGRO = -1548030,
+    SAY_SUMMON1 = -1548031,
+    SAY_SUMMON2 = -1548032,
+    SAY_SUMMON_BUBL1 = -1548033,
+    SAY_SUMMON_BUBL2 = -1548034,
+    SAY_SLAY1 = -1548035,
+    SAY_SLAY2 = -1548036,
+    SAY_SLAY3 = -1548037,
+    SAY_DEATH = -1548038,
+    // Emotes
+    EMOTE_WATERY_GRAVE = -1548039,
+    EMOTE_EARTHQUAKE = -1548040,
+    EMOTE_WATERY_GLOBULES = -1548041,
+    // Spells
+    SPELL_TIDAL_WAVE = 37730,
+    SPELL_WATERY_GRAVE = 38049,
+    SPELL_EARTHQUAKE = 37764,
+    SPELL_WATERY_GRAVE_EXPLOSION = 37852,
+
+    SPELL_WATERY_GRAVE_1 = 38023,
+    SPELL_WATERY_GRAVE_2 = 38024,
+    SPELL_WATERY_GRAVE_3 = 38025,
+    SPELL_WATERY_GRAVE_4 = 37850,
+
+    SPELL_SUMMON_WATER_GLOBULE_1 = 37854,
+    SPELL_SUMMON_WATER_GLOBULE_2 = 37858,
+    SPELL_SUMMON_WATER_GLOBULE_3 = 37860,
+    SPELL_SUMMON_WATER_GLOBULE_4 = 37861,
+    // Creatures
+    NPC_WATER_GLOBULE = 21913,
+    NPC_TIDEWALKER_LURKER = 21920,
 };
 
-//Creatures
-#define WATER_GLOBULE               21913
-#define TIDEWALKER_LURKER           21920
+float MurlocCords[10][4] =
+{
+      {424.36f, -715.4f,  -7.14f,  0.124f},
+      {425.13f, -719.3f,  -7.14f,  0.124f},
+      {425.05f, -724.23f, -7.14f,  0.124f},
+      {424.91f, -728.68f, -7.14f,  0.124f},
+      {424.84f, -732.18f, -7.14f,  0.124f},
+      {321.05f, -734.2f,  -13.15f, 0.124f},
+      {321.05f, -729.4f,  -13.15f, 0.124f},
+      {321.05f, -724.03f, -13.15f, 0.124f},
+      {321.05f, -718.73f, -13.15f, 0.124f},
+      {321.05f, -714.24f, -13.15f, 0.124f}
+};
 
 //Morogrim Tidewalker AI
 class boss_morogrim_tidewalker : public CreatureScript
@@ -209,7 +188,7 @@ public:
                     for (uint8 i = 0; i < 10; ++i)
                     {
                         Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                        Creature* Murloc = me->SummonCreature(MurlocCords[i][0],MurlocCords[i][1],MurlocCords[i][2],MurlocCords[i][3],MurlocCords[i][4], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
+                        Creature* Murloc = me->SummonCreature(NPC_TIDEWALKER_LURKER, MurlocCords[i][0], MurlocCords[i][1], MurlocCords[i][2], MurlocCords[i][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
                         if (pTarget && Murloc)
                             Murloc->AI()->AttackStart(pTarget);
                     }
@@ -286,8 +265,10 @@ public:
                             ++counter;
                         } while (itr != globulelist.end());
                         if (pGlobuleTarget)
+                        {
                             globulelist.insert(pGlobuleTarget->GetGUID());
-                        pGlobuleTarget->CastSpell(pGlobuleTarget, globulespell[g], true);
+                            pGlobuleTarget->CastSpell(pGlobuleTarget, globulespell[g], true);
+                        }
                     }
                     DoScriptText(EMOTE_WATERY_GLOBULES, me);
                     WateryGlobules_Timer = 25000;
