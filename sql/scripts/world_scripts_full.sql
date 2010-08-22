@@ -1400,6 +1400,54 @@ UPDATE `creature_template` SET `ScriptName`='npc_argent_soldier'  WHERE `entry` 
 UPDATE `creature_template` SET `ScriptName`='npc_black_knight_skeletal_gryphon' WHERE `entry`=35491;
 UPDATE `creature_template` SET `AIName`='PassiveAI' WHERE `entry` IN (35332,35330,35328,35327,35331,35329,35325,35314,35326,35323);
 
+/* TRIAL OF THE CRUSADER */
+UPDATE `instance_template` SET `script`='instance_trial_of_the_crusader' WHERE `map`=649;
+UPDATE `creature_template` SET `scriptname`='npc_announcer_toc10' WHERE `entry`=34816;
+UPDATE `creature_template` SET `scriptname`='boss_lich_king_toc' WHERE `entry`=35877;
+UPDATE `creature_template` SET `scriptname`='npc_fizzlebang_toc' WHERE `entry`=35458;
+UPDATE `creature_template` SET `scriptname`='npc_tirion_toc' WHERE `entry`=34996;
+UPDATE `creature_template` SET `scriptname`='npc_garrosh_toc' WHERE `entry`=34995;
+UPDATE `creature_template` SET `scriptname`='npc_varian_toc' WHERE `entry`=34990;
+UPDATE `creature_template` SET `scriptname`='boss_gormok' WHERE `entry`=34796;
+UPDATE `creature_template` SET `scriptname`='mob_snobold_vassal' WHERE `entry`=34800;
+UPDATE `creature_template` SET `scriptname`='boss_dreadscale' WHERE `entry`=34799;
+UPDATE `creature_template` SET `scriptname`='boss_acidmaw' WHERE `entry`=35144;
+UPDATE `creature_template` SET `scriptname`='mob_slime_pool' WHERE `entry`=35176;
+UPDATE `creature_template` SET `scriptname`='boss_icehowl' WHERE `entry`=34797;
+UPDATE `creature_template` SET `scriptname`='boss_jaraxxus' WHERE `entry`= 34780;
+UPDATE `creature_template` SET `scriptname`='mob_legion_flame' WHERE `entry`=34784;
+UPDATE `creature_template` SET `scriptname`='mob_infernal_volcano' WHERE `entry`=34813;
+UPDATE `creature_template` SET `scriptname`='mob_nether_portal' WHERE `entry`=34825;
+UPDATE `creature_template` SET `scriptname`='mob_fel_infernal' WHERE `entry`=34815;
+UPDATE `creature_template` SET `scriptname`='mob_mistress_of_pain' WHERE `entry`=34826;
+UPDATE `creature_template` SET `scriptname`='boss_toc_champion_controller' WHERE `entry`=34781;
+UPDATE `creature_template` SET `scriptname`='mob_toc_warrior' WHERE `entry` IN (34475,34453);
+UPDATE `creature_template` SET `scriptname`='mob_toc_mage' WHERE `entry` IN (34468,34449);
+UPDATE `creature_template` SET `scriptname`='mob_toc_shaman' WHERE `entry` IN (34470,34444);
+UPDATE `creature_template` SET `scriptname`='mob_toc_enh_shaman' WHERE `entry` IN (34463,34455);
+UPDATE `creature_template` SET `scriptname`='mob_toc_hunter' WHERE `entry` IN (34467,34448);
+UPDATE `creature_template` SET `scriptname`='mob_toc_rogue' WHERE `entry` IN (34472,34454);
+UPDATE `creature_template` SET `scriptname`='mob_toc_priest' WHERE `entry` IN (34466,34447);
+UPDATE `creature_template` SET `scriptname`='mob_toc_shadow_priest' WHERE `entry` IN (34473,34441);
+UPDATE `creature_template` SET `scriptname`='mob_toc_dk' WHERE `entry` IN (34461,34458);
+UPDATE `creature_template` SET `scriptname`='mob_toc_paladin' WHERE `entry` IN (34465,34445);
+UPDATE `creature_template` SET `scriptname`='mob_toc_retro_paladin' WHERE `entry` IN (34471,34456);
+UPDATE `creature_template` SET `scriptname`='mob_toc_druid' WHERE `entry` IN (34469,34459);
+UPDATE `creature_template` SET `scriptname`='mob_toc_boomkin' WHERE `entry` IN (34460,34451);
+UPDATE `creature_template` SET `scriptname`='mob_toc_warlock' WHERE `entry` IN (34474,34450);
+UPDATE `creature_template` SET `scriptname`='mob_toc_pet_warlock' WHERE `entry`=35465;
+UPDATE `creature_template` SET `scriptname`='mob_toc_pet_hunter' WHERE `entry`=35610;
+UPDATE `creature_template` SET `scriptname`='boss_fjola' WHERE `entry`=34497;
+UPDATE `creature_template` SET `scriptname`='boss_eydis' WHERE `entry`=34496;
+UPDATE `creature_template` SET `scriptname`='mob_essence_of_twin' WHERE `entry` IN (34567,34568);
+UPDATE `creature_template` SET `scriptname`='mob_unleashed_dark' WHERE entry=34628;
+UPDATE `creature_template` SET `scriptname`='mob_unleashed_light' WHERE entry=34630;
+UPDATE `creature_template` SET `scriptname`='boss_anubarak_trial' WHERE `entry`=34564;
+UPDATE `creature_template` SET `ScriptName`='mob_frost_sphere' WHERE `entry`=34606;
+UPDATE `creature_template` SET `scriptname`='mob_swarm_scarab' WHERE `entry`=34605;
+UPDATE `creature_template` SET `scriptname`='mob_nerubian_burrower' WHERE `entry`=34607;
+UPDATE `creature_template` SET `scriptname`='mob_anubarak_spike' WHERE `entry`=34660;
+
 /* TIRISFAL GLADES */
 UPDATE `creature_template` SET `ScriptName`='npc_calvin_montague' WHERE `entry`=6784;
 
