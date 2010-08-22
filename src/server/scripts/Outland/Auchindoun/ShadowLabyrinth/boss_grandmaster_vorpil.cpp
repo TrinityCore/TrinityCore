@@ -51,15 +51,15 @@ EndScriptData */
 #define MOB_VOID_PORTAL             19224
 #define SPELL_VOID_PORTAL_VISUAL    33569
 
-float VorpilPosition[3] = {-252.8820,-264.3030,17.1};
+float VorpilPosition[3] = {-252.8820f,-264.3030f,17.1f};
 
 float VoidPortalCoords[5][3] =
 {
-    {-283.5894, -239.5718, 12.7},
-    {-306.5853, -258.4539, 12.7},
-    {-295.8789, -269.0899, 12.7},
-    {-209.3401, -262.7564, 17.1},
-    {-261.4533, -297.3298, 17.1}
+    {-283.5894f, -239.5718f, 12.7f},
+    {-306.5853f, -258.4539f, 12.7f},
+    {-295.8789f, -269.0899f, 12.7f},
+    {-209.3401f, -262.7564f, 17.1f},
+    {-261.4533f, -297.3298f, 17.1f}
 };
 
 class mob_voidtraveler : public CreatureScript

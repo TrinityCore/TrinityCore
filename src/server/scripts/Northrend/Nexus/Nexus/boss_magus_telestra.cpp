@@ -53,7 +53,7 @@ enum Achievements
     ACHIEV_TIMER                                  = 5*IN_MILLISECONDS
 };
 
-const Position  CenterOfRoom = {504.80, 89.07, -16.12, 6.27};
+const Position  CenterOfRoom = {504.80f, 89.07f, -16.12f, 6.27f};
 
 class boss_magus_telestra : public CreatureScript
 {
@@ -293,7 +293,7 @@ public:
                 if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(pTarget, SPELL_ICE_NOVA, false);
-                    uiCooldown = 1.5*IN_MILLISECONDS;
+                    uiCooldown = 1.5f*IN_MILLISECONDS;
                 }
                 uiIceNovaTimer = 15*IN_MILLISECONDS;
             } else uiIceNovaTimer -= diff;

@@ -133,7 +133,7 @@ public:
             {
                 m_pInstance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, IN_PROGRESS);
 
-                Whitemane->GetMotionMaster()->MovePoint(1,1163.113370,1398.856812,32.527786);
+                Whitemane->GetMotionMaster()->MovePoint(1,1163.113370f,1398.856812f,32.527786f);
 
                 me->GetMotionMaster()->MovementExpired();
                 me->GetMotionMaster()->MoveIdle();

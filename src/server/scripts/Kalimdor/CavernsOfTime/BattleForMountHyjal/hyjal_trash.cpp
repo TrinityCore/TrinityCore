@@ -28,131 +28,131 @@
 
 float HordeWPs[8][3]=//basic waypoints from spawn to leader
 {
-    {5492.91,    -2404.61,    1462.63},
-    {5531.76,    -2460.87,    1469.55},
-    {5554.58,    -2514.66,    1476.12},
-    {5554.16,    -2567.23,    1479.90},
-    {5540.67,    -2625.99,    1480.89},
-    {5508.16,    -2659.20,    1480.15},//random rush starts from here
-    {5489.62,    -2704.05,    1482.18},
-    {5457.04,    -2726.26,    1485.10}
+    {5492.91f,    -2404.61f,    1462.63f},
+    {5531.76f,    -2460.87f,    1469.55f},
+    {5554.58f,    -2514.66f,    1476.12f},
+    {5554.16f,    -2567.23f,    1479.90f},
+    {5540.67f,    -2625.99f,    1480.89f},
+    {5508.16f,    -2659.20f,    1480.15f},//random rush starts from here
+    {5489.62f,    -2704.05f,    1482.18f},
+    {5457.04f,    -2726.26f,    1485.10f}
 };
 float AllianceWPs[8][3]=//basic waypoints from spawn to leader
 {
-    {4896.08,    -1576.35,    1333.65},
-    {4898.68,    -1615.02,    1329.48},
-    {4907.12,    -1667.08,    1321.00},
-    {4963.18,    -1699.35,    1340.51},
-    {4989.16,    -1716.67,    1335.74},//first WP in the base, after the gate
-    {5026.27,    -1736.89,    1323.02},
-    {5037.77,    -1770.56,    1324.36},
-    {5067.23,    -1789.95,    1321.17}
+    {4896.08f,    -1576.35f,    1333.65f},
+    {4898.68f,    -1615.02f,    1329.48f},
+    {4907.12f,    -1667.08f,    1321.00f},
+    {4963.18f,    -1699.35f,    1340.51f},
+    {4989.16f,    -1716.67f,    1335.74f},//first WP in the base, after the gate
+    {5026.27f,    -1736.89f,    1323.02f},
+    {5037.77f,    -1770.56f,    1324.36f},
+    {5067.23f,    -1789.95f,    1321.17f}
 };
 
 float FrostWyrmWPs[3][3]=//waypoints for the frost wyrms in horde base
 {
-    {5580.82,    -2628.83,    1528.28},
-    {5550.90,    -2667.16,    1505.45},
-    {5459.64,    -2725.91,    1484.83}
+    {5580.82f,    -2628.83f,    1528.28f},
+    {5550.90f,    -2667.16f,    1505.45f},
+    {5459.64f,    -2725.91f,    1484.83f}
 };
 
 float GargoyleWPs[3][3]=//waypoints for the gargoyles in horde base
 {
-    {5533.66,    -2634.32,    1495.33},
-    {5517.88,    -2712.05,    1490.54},
-    {5459.64,    -2725.91,    1484.83}
+    {5533.66f,    -2634.32f,    1495.33f},
+    {5517.88f,    -2712.05f,    1490.54f},
+    {5459.64f,    -2725.91f,    1484.83f}
 };
 
 float FlyPathWPs[3][3]=//waypoints for the gargoyls and frost wyrms in horde base in wave 1/3
 {
-    {5531.96, -2772.83, 1516.68},
-    {5498.32, -2734.84, 1497.01},
-    {5456.67, -2725.48, 1493.08}
+    {5531.96f, -2772.83f, 1516.68f},
+    {5498.32f, -2734.84f, 1497.01f},
+    {5456.67f, -2725.48f, 1493.08f}
 };
 
 float AllianceOverrunWP[55][3]=//waypoints in the alliance base used in the end in the cleaning wave
 {
-    {4976.37,-1708.02,1339.43},//0spawn
-    {4994.83,-1725.52,1333.25},//1 start
-    {4982.92,-1753.7,1330.69},//2 end
-    {4996.75,-1721.47,1332.95},//3 start
-    {5015.74,-1755.05,1322.49},//4
-    {4998.68,-1773.44,1329.59},//5
-    {4994.83,-1725.52,1333.25},//6 start
-    {5022.8,-1735.46,1323.53},//7
-    {5052.15,-1729.02,1320.88},//8
-    {5082.43,-1726.29,1327.87},//9
-    {4994.83,-1725.52,1333.25},//10 start
-    {5018.92,-1751.14,1322.19},//11
-    {5040.09,-1792.09,1322.1},//12
-    {4994.83,-1725.52,1333.25},//13 start
-    {5023.47,-1748.1,1322.51},//14
-    {5013.43,-1842.39,1322.07},//15
-    {4994.83,-1725.52,1333.25},//16 start
-    {5020.8,-1756.86,1322.2},//17
-    {5019.53,-1824.6,1321.96},//18
-    {5043.42,-1853.75,1324.52},//19
-    {5053.02,-1864.13,1330.36},//20
-    {5062.49,-1852.47,1330.49},//21
-    {5015.27, -1738.77, 1324.83},//35//start 22
-    {5027.97, -1775.25, 1321.87},//34 23
-    {5015.94, -1821.24, 1321.86},//33 24
-    {4983.25, -1857.4, 1320.48},//32 25
-    {4981.51, -1883.7, 1322.34},//31 26
-    {5002.33, -1893.98, 1325.88},//30 27
-    {5049.32, -1886.54, 1331.69},//29 28
-    {5089.68, -1846.88, 1328.99},//28 29
-    {5127.90, -1825.14, 1335.58},//27 30
-    {5163.27, -1789.08, 1337.04},//26 31
-    {5138.97, -1755.88, 1334.57},//25 32
-    {5096.63, -1742.22, 1329.61},//24 33
-    {5065.81, -1729.43, 1325.66},//23 34
-    {5049.32, -1726.31, 1320.64},//22 start
-    {5081.07, -1902.10, 1346.36},//36 abo start
-    {5107.65, -1912.03, 1356.49},//37
-    {5132.83, -1927.07, 1362.42},//38
-    {5147.78, -1954.41, 1365.98},//39
-    {5164.96, -1966.48, 1367.04},//40
-    {5189.04, -1961.06, 1367.90},//41
-    {5212.27, -1975.30, 1365.58},//42
-    {5221.82, -1994.18, 1364.97},//43 end1
-    {5202.23, -1994.94, 1367.59},//44 end2
-    {5279.94, -2049.68, 1311.38},//45 garg1
-    {5289.15, -2219.06, 1291.12},//46 garg2
-    {5202.07, -2136.10, 1305.07},//47 garg3
-    {5071.52, -2425.63, 1454.48},//48 garg4
-    {5120.65, -2467.92, 1463.93},//49 garg5
-    {5283.04, -2043.26, 1300.11},//50 garg target1
-    {5313.22, -2207.60, 1290.06},//51 garg target2
-    {5180.41, -2121.87, 1292.62},//52 garg target3
-    {5088.68, -2432.04, 1441.73},//53 garg target4
-    {5111.26, -2454.73, 1449.63}//54 garg target5
+    {4976.37f,-1708.02f,1339.43f},//0spawn
+    {4994.83f,-1725.52f,1333.25f},//1 start
+    {4982.92f,-1753.7f,1330.69f},//2 end
+    {4996.75f,-1721.47f,1332.95f},//3 start
+    {5015.74f,-1755.05f,1322.49f},//4
+    {4998.68f,-1773.44f,1329.59f},//5
+    {4994.83f,-1725.52f,1333.25f},//6 start
+    {5022.8f,-1735.46f,1323.53f},//7
+    {5052.15f,-1729.02f,1320.88f},//8
+    {5082.43f,-1726.29f,1327.87f},//9
+    {4994.83f,-1725.52f,1333.25f},//10 start
+    {5018.92f,-1751.14f,1322.19f},//11
+    {5040.09f,-1792.09f,1322.1f},//12
+    {4994.83f,-1725.52f,1333.25f},//13 start
+    {5023.47f,-1748.1f,1322.51f},//14
+    {5013.43f,-1842.39f,1322.07f},//15
+    {4994.83f,-1725.52f,1333.25f},//16 start
+    {5020.8f,-1756.86f,1322.2f},//17
+    {5019.53f,-1824.6f,1321.96f},//18
+    {5043.42f,-1853.75f,1324.52f},//19
+    {5053.02f,-1864.13f,1330.36f},//20
+    {5062.49f,-1852.47f,1330.49f},//21
+    {5015.27f, -1738.77f, 1324.83f},//35//start 22
+    {5027.97f, -1775.25f, 1321.87f},//34 23
+    {5015.94f, -1821.24f, 1321.86f},//33 24
+    {4983.25f, -1857.4f, 1320.48f},//32 25
+    {4981.51f, -1883.7f, 1322.34f},//31 26
+    {5002.33f, -1893.98f, 1325.88f},//30 27
+    {5049.32f, -1886.54f, 1331.69f},//29 28
+    {5089.68f, -1846.88f, 1328.99f},//28 29
+    {5127.90f, -1825.14f, 1335.58f},//27 30
+    {5163.27f, -1789.08f, 1337.04f},//26 31
+    {5138.97f, -1755.88f, 1334.57f},//25 32
+    {5096.63f, -1742.22f, 1329.61f},//24 33
+    {5065.81f, -1729.43f, 1325.66f},//23 34
+    {5049.32f, -1726.31f, 1320.64f},//22 start
+    {5081.07f, -1902.10f, 1346.36f},//36 abo start
+    {5107.65f, -1912.03f, 1356.49f},//37
+    {5132.83f, -1927.07f, 1362.42f},//38
+    {5147.78f, -1954.41f, 1365.98f},//39
+    {5164.96f, -1966.48f, 1367.04f},//40
+    {5189.04f, -1961.06f, 1367.90f},//41
+    {5212.27f, -1975.30f, 1365.58f},//42
+    {5221.82f, -1994.18f, 1364.97f},//43 end1
+    {5202.23f, -1994.94f, 1367.59f},//44 end2
+    {5279.94f, -2049.68f, 1311.38f},//45 garg1
+    {5289.15f, -2219.06f, 1291.12f},//46 garg2
+    {5202.07f, -2136.10f, 1305.07f},//47 garg3
+    {5071.52f, -2425.63f, 1454.48f},//48 garg4
+    {5120.65f, -2467.92f, 1463.93f},//49 garg5
+    {5283.04f, -2043.26f, 1300.11f},//50 garg target1
+    {5313.22f, -2207.60f, 1290.06f},//51 garg target2
+    {5180.41f, -2121.87f, 1292.62f},//52 garg target3
+    {5088.68f, -2432.04f, 1441.73f},//53 garg target4
+    {5111.26f, -2454.73f, 1449.63f}//54 garg target5
 
 };
 
 float HordeOverrunWP[21][3]=//waypoints in the horde base used in the end in the cleaning wave
 {
-    {5490.72,-2702.94,1482.14},//0 start
-    {5469.77,-2741.34,1486.95},
-    {5439.47,-2771.02,1494.59},
-    {5408.85,-2811.92,1505.68},
-    {5423.87,-2857.80,1515.55},
-    {5428.19,-2898.15,1524.61},
-    {5394.59,-2930.05,1528.23},
-    {5351.11,-2935.80,1532.24},
-    {5312.37,-2959.06,1536.21},
-    {5264.93,-2989.80,1545.70},
-    {5256.63,-3056.16,1559.24},
-    {5267.32,-3119.55,1575.36},
-    {5305.61,-3139.88,1586.38},
-    {5330.56,-3135.37,1588.58},
-    {5365.87,-3139.78,1583.96},
-    {5389.39,-3163.57,1582.57},//15 end
-    {5500.86,-2669.89,1481.04},//16 start
-    {5472.08,-2715.14,1483.55},
-    {5450.11,-2721.47,1485.61},
-    {5433.25,-2712.93,1493.02},//19 end 1
-    {5429.91,-2718.44,1493.42}//20 end 2
+    {5490.72f,-2702.94f,1482.14f},//0 start
+    {5469.77f,-2741.34f,1486.95f},
+    {5439.47f,-2771.02f,1494.59f},
+    {5408.85f,-2811.92f,1505.68f},
+    {5423.87f,-2857.80f,1515.55f},
+    {5428.19f,-2898.15f,1524.61f},
+    {5394.59f,-2930.05f,1528.23f},
+    {5351.11f,-2935.80f,1532.24f},
+    {5312.37f,-2959.06f,1536.21f},
+    {5264.93f,-2989.80f,1545.70f},
+    {5256.63f,-3056.16f,1559.24f},
+    {5267.32f,-3119.55f,1575.36f},
+    {5305.61f,-3139.88f,1586.38f},
+    {5330.56f,-3135.37f,1588.58f},
+    {5365.87f,-3139.78f,1583.96f},
+    {5389.39f,-3163.57f,1582.57f},//15 end
+    {5500.86f,-2669.89f,1481.04f},//16 start
+    {5472.08f,-2715.14f,1483.55f},
+    {5450.11f,-2721.47f,1485.61f},
+    {5433.25f,-2712.93f,1493.02f},//19 end 1
+    {5429.91f,-2718.44f,1493.42f}//20 end 2
 };
 
 hyjal_trashAI::hyjal_trashAI(Creature *c) : npc_escortAI(c)
@@ -436,7 +436,7 @@ public:
                 {
                     Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
                     if (pTarget && pTarget->isAlive())
-                        me->AddThreat(pTarget,0.0);
+                        me->AddThreat(pTarget,0.0f);
                 }
             }
         }
@@ -477,7 +477,7 @@ public:
                         {
                             Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
                             if (pTarget && pTarget->isAlive())
-                                me->AddThreat(pTarget,0.0);
+                                me->AddThreat(pTarget,0.0f);
                         } else if (pInstance->GetData(DATA_ALLIANCE_RETREAT) && pInstance->GetData(DATA_HORDE_RETREAT)){
                             //do overrun
                         }
@@ -564,11 +564,11 @@ public:
                 {
                     Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
                     if (pTarget && pTarget->isAlive())
-                        me->AddThreat(pTarget,0.0);
+                        me->AddThreat(pTarget,0.0f);
                 }else{
                     Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
                     if (pTarget && pTarget->isAlive())
-                        me->AddThreat(pTarget,0.0);
+                        me->AddThreat(pTarget,0.0f);
                 }
             }
             if (i == LastOverronPos && IsOverrun)
@@ -670,11 +670,11 @@ public:
                 {
                     Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
                     if (pTarget && pTarget->isAlive())
-                        me->AddThreat(pTarget,0.0);
+                        me->AddThreat(pTarget,0.0f);
                 }else{
                     Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
                     if (pTarget && pTarget->isAlive())
-                        me->AddThreat(pTarget,0.0);
+                        me->AddThreat(pTarget,0.0f);
                 }
             }
             if (i == LastOverronPos && IsOverrun)
@@ -785,11 +785,11 @@ public:
                 {
                     Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
                     if (pTarget && pTarget->isAlive())
-                        me->AddThreat(pTarget,0.0);
+                        me->AddThreat(pTarget,0.0f);
                 }else{
                     Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
                     if (pTarget && pTarget->isAlive())
-                        me->AddThreat(pTarget,0.0);
+                        me->AddThreat(pTarget,0.0f);
                 }
             }
         }
@@ -902,11 +902,11 @@ public:
                 {
                     Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
                     if (pTarget && pTarget->isAlive())
-                        me->AddThreat(pTarget,0.0);
+                        me->AddThreat(pTarget,0.0f);
                 }else{
                     Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
                     if (pTarget && pTarget->isAlive())
-                        me->AddThreat(pTarget,0.0);
+                        me->AddThreat(pTarget,0.0f);
                 }
             }
         }
@@ -1004,11 +1004,11 @@ public:
                 {
                     Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
                     if (pTarget && pTarget->isAlive())
-                        me->AddThreat(pTarget,0.0);
+                        me->AddThreat(pTarget,0.0f);
                 }else{
                     Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
                     if (pTarget && pTarget->isAlive())
-                        me->AddThreat(pTarget,0.0);
+                        me->AddThreat(pTarget,0.0f);
                 }
             }
         }
@@ -1097,11 +1097,11 @@ public:
                 {
                     Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
                     if (pTarget && pTarget->isAlive())
-                        me->AddThreat(pTarget,0.0);
+                        me->AddThreat(pTarget,0.0f);
                 }else{
                     Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
                     if (pTarget && pTarget->isAlive())
-                        me->AddThreat(pTarget,0.0);
+                        me->AddThreat(pTarget,0.0f);
                 }
             }
         }
@@ -1193,7 +1193,7 @@ public:
                 Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
                 if (pTarget && pTarget->isAlive())
                 {
-                    me->AddThreat(pTarget,0.0);
+                    me->AddThreat(pTarget,0.0f);
                     DoCast(pTarget, SPELL_FROST_BREATH, true);
                 }
             }
@@ -1302,7 +1302,7 @@ public:
         void Reset()
         {
             forcemove = true;
-            Zpos = 10.0;
+            Zpos = 10.0f;
             StrikeTimer = 2000+rand()%5000;
             MoveTimer = 0;
             me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
@@ -1316,7 +1316,7 @@ public:
                 Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
                 if (pTarget && pTarget->isAlive())
                 {
-                    me->AddThreat(pTarget,0.0);
+                    me->AddThreat(pTarget,0.0f);
                     DoCast(pTarget, SPELL_GARGOYLE_STRIKE, true);
                 }
             }
@@ -1389,7 +1389,7 @@ public:
                     float x,y,z;
                     me->getVictim()->GetPosition(x,y,z);
                     me->GetMotionMaster()->MovePoint(0,x,y,z+Zpos);
-                    Zpos-=1.0;
+                    Zpos-=1.0f;
                     if (Zpos <= 0)Zpos=0;
                     MoveTimer = 2000;
                 } else MoveTimer-=diff;

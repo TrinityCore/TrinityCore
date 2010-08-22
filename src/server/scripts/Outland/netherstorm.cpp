@@ -149,48 +149,48 @@ public:
                 case ENTRY_BNAAR_C_CONSOLE:
                     if (rand()%2)
                     {
-                        add = me->SummonCreature(ENTRY_SUNFURY_TECH,2933.68,4162.55,164.00,1.60,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                        if (add) add->GetMotionMaster()->MovePoint(0,2927.36,4212.97,164.00);
+                        add = me->SummonCreature(ENTRY_SUNFURY_TECH,2933.68f,4162.55f,164.00f,1.60f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                        if (add) add->GetMotionMaster()->MovePoint(0,2927.36f,4212.97f,164.00f);
                     }
                     else
                     {
-                        add = me->SummonCreature(ENTRY_SUNFURY_TECH,2927.36,4212.97,164.00,4.94,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                        if (add) add->GetMotionMaster()->MovePoint(0,2933.68,4162.55,164.00);
+                        add = me->SummonCreature(ENTRY_SUNFURY_TECH,2927.36f,4212.97f,164.00f,4.94f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                        if (add) add->GetMotionMaster()->MovePoint(0,2933.68f,4162.55f,164.00f);
                     }
                     Wave_Timer = 30000;
                     break;
                 case ENTRY_CORUU_C_CONSOLE:
-                    add = me->SummonCreature(ENTRY_SUNFURY_TECH,2445.21,2765.26,134.49,3.93,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                    if (add) add->GetMotionMaster()->MovePoint(0,2424.21,2740.15,133.81);
-                    add = me->SummonCreature(ENTRY_SUNFURY_TECH,2429.86,2731.85,134.53,1.31,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                    if (add) add->GetMotionMaster()->MovePoint(0,2435.37,2766.04,133.81);
+                    add = me->SummonCreature(ENTRY_SUNFURY_TECH,2445.21f,2765.26f,134.49f,3.93f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                    if (add) add->GetMotionMaster()->MovePoint(0,2424.21f,2740.15f,133.81f);
+                    add = me->SummonCreature(ENTRY_SUNFURY_TECH,2429.86f,2731.85f,134.53f,1.31f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                    if (add) add->GetMotionMaster()->MovePoint(0,2435.37f,2766.04f,133.81f);
                     Wave_Timer = 20000;
                     break;
                 case ENTRY_DURO_C_CONSOLE:
-                    add = me->SummonCreature(ENTRY_SUNFURY_TECH,2986.80,2205.36,165.37,3.74,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                    if (add) add->GetMotionMaster()->MovePoint(0,2985.15,2197.32,164.79);
-                    add = me->SummonCreature(ENTRY_SUNFURY_TECH,2952.91,2191.20,165.32,0.22,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                    if (add) add->GetMotionMaster()->MovePoint(0,2060.01,2185.27,164.67);
+                    add = me->SummonCreature(ENTRY_SUNFURY_TECH,2986.80f,2205.36f,165.37f,3.74f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                    if (add) add->GetMotionMaster()->MovePoint(0,2985.15f,2197.32f,164.79f);
+                    add = me->SummonCreature(ENTRY_SUNFURY_TECH,2952.91f,2191.20f,165.32f,0.22f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                    if (add) add->GetMotionMaster()->MovePoint(0,2060.01f,2185.27f,164.67f);
                     Wave_Timer = 15000;
                     break;
                 case ENTRY_ARA_C_CONSOLE:
                     if (rand()%2)
                     {
-                        add = me->SummonCreature(ENTRY_ARA_TECH,4035.11,4038.97,194.27,2.57,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                        if (add) add->GetMotionMaster()->MovePoint(0,4003.42,4040.19,193.49);
-                        add = me->SummonCreature(ENTRY_ARA_TECH,4033.66,4036.79,194.28,2.57,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                        if (add) add->GetMotionMaster()->MovePoint(0,4003.42,4040.19,193.49);
-                        add = me->SummonCreature(ENTRY_ARA_TECH,4037.13,4037.30,194.23,2.57,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                        if (add) add->GetMotionMaster()->MovePoint(0,4003.42,4040.19,193.49);
+                        add = me->SummonCreature(ENTRY_ARA_TECH,4035.11f,4038.97f,194.27f,2.57f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                        if (add) add->GetMotionMaster()->MovePoint(0,4003.42f,4040.19f,193.49f);
+                        add = me->SummonCreature(ENTRY_ARA_TECH,4033.66f,4036.79f,194.28f,2.57f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                        if (add) add->GetMotionMaster()->MovePoint(0,4003.42f,4040.19f,193.49f);
+                        add = me->SummonCreature(ENTRY_ARA_TECH,4037.13f,4037.30f,194.23f,2.57f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                        if (add) add->GetMotionMaster()->MovePoint(0,4003.42f,4040.19f,193.49f);
                     }
                     else
                     {
-                        add = me->SummonCreature(ENTRY_ARA_TECH,3099.59,4049.30,194.22,0.05,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                        if (add) add->GetMotionMaster()->MovePoint(0,4028.01,4035.17,193.59);
-                        add = me->SummonCreature(ENTRY_ARA_TECH,3999.72,4046.75,194.22,0.05,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                        if (add) add->GetMotionMaster()->MovePoint(0,4028.01,4035.17,193.59);
-                        add = me->SummonCreature(ENTRY_ARA_TECH,3996.81,4048.26,194.22,0.05,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                        if (add) add->GetMotionMaster()->MovePoint(0,4028.01,4035.17,193.59);
+                        add = me->SummonCreature(ENTRY_ARA_TECH,3099.59f,4049.30f,194.22f,0.05f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                        if (add) add->GetMotionMaster()->MovePoint(0,4028.01f,4035.17f,193.59f);
+                        add = me->SummonCreature(ENTRY_ARA_TECH,3999.72f,4046.75f,194.22f,0.05f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                        if (add) add->GetMotionMaster()->MovePoint(0,4028.01f,4035.17f,193.59f);
+                        add = me->SummonCreature(ENTRY_ARA_TECH,3996.81f,4048.26f,194.22f,0.05f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                        if (add) add->GetMotionMaster()->MovePoint(0,4028.01f,4035.17f,193.59f);
                     }
                     Wave_Timer = 15000;
                     break;
@@ -201,30 +201,30 @@ public:
             switch(pCreature->GetEntry())
             {
                 case ENTRY_BNAAR_C_CONSOLE:
-                    add = me->SummonCreature(ENTRY_SUNFURY_TECH,2946.52,4201.42,163.47,3.54,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                    if (add) add->GetMotionMaster()->MovePoint(0,2927.49,4192.81,163.00);
+                    add = me->SummonCreature(ENTRY_SUNFURY_TECH,2946.52f,4201.42f,163.47f,3.54f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                    if (add) add->GetMotionMaster()->MovePoint(0,2927.49f,4192.81f,163.00f);
                     break;
                 case ENTRY_CORUU_C_CONSOLE:
-                    add = me->SummonCreature(ENTRY_SUNFURY_TECH,2453.88,2737.85,133.27,2.59,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                    if (add) add->GetMotionMaster()->MovePoint(0,2433.96,2751.53,133.85);
-                    add = me->SummonCreature(ENTRY_SUNFURY_TECH,2441.62,2735.32,134.49,1.97,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                    if (add) add->GetMotionMaster()->MovePoint(0,2433.96,2751.53,133.85);
-                    add = me->SummonCreature(ENTRY_SUNFURY_TECH,2450.73,2754.50,134.49,3.29,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                    if (add) add->GetMotionMaster()->MovePoint(0,2433.96,2751.53,133.85);
+                    add = me->SummonCreature(ENTRY_SUNFURY_TECH,2453.88f,2737.85f,133.27f,2.59f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                    if (add) add->GetMotionMaster()->MovePoint(0,2433.96f,2751.53f,133.85f);
+                    add = me->SummonCreature(ENTRY_SUNFURY_TECH,2441.62f,2735.32f,134.49f,1.97f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                    if (add) add->GetMotionMaster()->MovePoint(0,2433.96f,2751.53f,133.85f);
+                    add = me->SummonCreature(ENTRY_SUNFURY_TECH,2450.73f,2754.50f,134.49f,3.29f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                    if (add) add->GetMotionMaster()->MovePoint(0,2433.96f,2751.53f,133.85f);
                     break;
                 case ENTRY_DURO_C_CONSOLE:
-                    add = me->SummonCreature(ENTRY_SUNFURY_TECH,2956.18,2202.85,165.32,5.45,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                    if (add) add->GetMotionMaster()->MovePoint(0,2972.27,2193.22,164.48);
-                    add = me->SummonCreature(ENTRY_SUNFURY_TECH,2975.30,2211.50,165.32,4.55,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                    if (add) add->GetMotionMaster()->MovePoint(0,2972.27,2193.22,164.48);
-                    add = me->SummonCreature(ENTRY_SUNFURY_PROT,2965.02,2217.45,164.16,4.96,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                    if (add) add->GetMotionMaster()->MovePoint(0,2972.27,2193.22,164.48);
+                    add = me->SummonCreature(ENTRY_SUNFURY_TECH,2956.18f,2202.85f,165.32f,5.45f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                    if (add) add->GetMotionMaster()->MovePoint(0,2972.27f,2193.22f,164.48f);
+                    add = me->SummonCreature(ENTRY_SUNFURY_TECH,2975.30f,2211.50f,165.32f,4.55f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                    if (add) add->GetMotionMaster()->MovePoint(0,2972.27f,2193.22f,164.48f);
+                    add = me->SummonCreature(ENTRY_SUNFURY_PROT,2965.02f,2217.45f,164.16f,4.96f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                    if (add) add->GetMotionMaster()->MovePoint(0,2972.27f,2193.22f,164.48f);
                     break;
                 case ENTRY_ARA_C_CONSOLE:
-                    add = me->SummonCreature(ENTRY_ARA_ENGI,3994.51,4020.46,192.18,0.91,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                    if (add) add->GetMotionMaster()->MovePoint(0,4008.35,4035.04,192.70);
-                    add = me->SummonCreature(ENTRY_ARA_GORKLONN,4021.56,4059.35,193.59,4.44,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
-                    if (add) add->GetMotionMaster()->MovePoint(0,4016.62,4039.89,193.46);
+                    add = me->SummonCreature(ENTRY_ARA_ENGI,3994.51f,4020.46f,192.18f,0.91f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                    if (add) add->GetMotionMaster()->MovePoint(0,4008.35f,4035.04f,192.70f);
+                    add = me->SummonCreature(ENTRY_ARA_GORKLONN,4021.56f,4059.35f,193.59f,4.44f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                    if (add) add->GetMotionMaster()->MovePoint(0,4016.62f,4039.89f,193.46f);
                     break;
             }
         }
@@ -318,22 +318,22 @@ public:
             case 3726:                                          //b'naar
                 if ((pPlayer->GetQuestStatus(10299) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(10329) == QUEST_STATUS_INCOMPLETE) &&
                     pPlayer->HasItemCount(29366,1))
-                    manaforge = pPlayer->SummonCreature(ENTRY_BNAAR_C_CONSOLE,2918.95,4189.98,161.88,0.34,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,125000);
+                    manaforge = pPlayer->SummonCreature(ENTRY_BNAAR_C_CONSOLE,2918.95f,4189.98f,161.88f,0.34f,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,125000);
                 break;
             case 3730:                                          //coruu
                 if ((pPlayer->GetQuestStatus(10321) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(10330) == QUEST_STATUS_INCOMPLETE) &&
                     pPlayer->HasItemCount(29396,1))
-                    manaforge = pPlayer->SummonCreature(ENTRY_CORUU_C_CONSOLE,2426.77,2750.38,133.24,2.14,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,125000);
+                    manaforge = pPlayer->SummonCreature(ENTRY_CORUU_C_CONSOLE,2426.77f,2750.38f,133.24f,2.14f,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,125000);
                 break;
             case 3734:                                          //duro
                 if ((pPlayer->GetQuestStatus(10322) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(10338) == QUEST_STATUS_INCOMPLETE) &&
                     pPlayer->HasItemCount(29397,1))
-                    manaforge = pPlayer->SummonCreature(ENTRY_DURO_C_CONSOLE,2976.48,2183.29,163.20,1.85,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,125000);
+                    manaforge = pPlayer->SummonCreature(ENTRY_DURO_C_CONSOLE,2976.48f,2183.29f,163.20f,1.85f,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,125000);
                 break;
             case 3722:                                          //ara
                 if ((pPlayer->GetQuestStatus(10323) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(10365) == QUEST_STATUS_INCOMPLETE) &&
                     pPlayer->HasItemCount(29411,1))
-                    manaforge = pPlayer->SummonCreature(ENTRY_ARA_C_CONSOLE,4013.71,4028.76,192.10,1.25,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,125000);
+                    manaforge = pPlayer->SummonCreature(ENTRY_ARA_C_CONSOLE,4013.71f,4028.76f,192.10f,1.25f,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,125000);
                 break;
         }
 
@@ -546,7 +546,7 @@ public:
                 //Phase 4 Pathaleon spawns up to phase 9
             case 4:
                 //spawn pathaleon's image
-                me->SummonCreature(CreatureEntry[2], 2325.851563, 2799.534668, 133.084229, 6.038996, TEMPSUMMON_TIMED_DESPAWN, 90000);
+                me->SummonCreature(CreatureEntry[2], 2325.851563f, 2799.534668f, 133.084229f, 6.038996f, TEMPSUMMON_TIMED_DESPAWN, 90000);
                 ++Phase;
                 Phase_Timer = 500;
                 break;
@@ -897,14 +897,14 @@ public:
             switch(i)
             {
                 case 3: //first spawn
-                    me->SummonCreature(SPAWN_FIRST, 2449.67, 2183.11, 96.85, 6.20, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    me->SummonCreature(SPAWN_FIRST, 2449.53, 2184.43, 96.36, 6.27, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    me->SummonCreature(SPAWN_FIRST, 2449.85, 2186.34, 97.57, 6.08, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    me->SummonCreature(SPAWN_FIRST, 2449.67f, 2183.11f, 96.85f, 6.20f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    me->SummonCreature(SPAWN_FIRST, 2449.53f, 2184.43f, 96.36f, 6.27f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    me->SummonCreature(SPAWN_FIRST, 2449.85f, 2186.34f, 97.57f, 6.08f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                     break;
 
                 case 7:
-                    me->SummonCreature(SPAWN_SECOND, 2309.64, 2186.24, 92.25, 6.06, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    me->SummonCreature(SPAWN_SECOND, 2309.25, 2183.46, 91.75, 6.22, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    me->SummonCreature(SPAWN_SECOND, 2309.64f, 2186.24f, 92.25f, 6.06f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    me->SummonCreature(SPAWN_SECOND, 2309.25f, 2183.46f, 91.75f, 6.22f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                     break;
 
                 case 12:

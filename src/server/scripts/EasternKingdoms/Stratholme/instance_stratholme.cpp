@@ -277,7 +277,7 @@ public:
                         //a bit itchy, it should close the door after 10 secs, but it doesn't. skipping it for now.
                         //UpdateGoState(ziggurat4GUID,0,true);
                         if (Creature* pBaron = instance->GetCreature(baronGUID))
-                            pBaron->SummonCreature(C_RAMSTEIN,4032.84,-3390.24,119.73,4.71,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1800000);
+                            pBaron->SummonCreature(C_RAMSTEIN,4032.84f,-3390.24f,119.73f,4.71f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1800000);
                         sLog.outDebug("TSCR: Instance Stratholme: Ramstein spawned.");
                     }
                     else
@@ -442,7 +442,7 @@ public:
                     if (Creature* pBaron = instance->GetCreature(baronGUID))
                     {
                         for (uint8 i = 0; i < 4; ++i)
-                            pBaron->SummonCreature(C_BLACK_GUARD,4032.84,-3390.24,119.73,4.71,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1800000);
+                            pBaron->SummonCreature(C_BLACK_GUARD,4032.84f,-3390.24f,119.73f,4.71f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1800000);
 
                         HandleGameObject(ziggurat4GUID, true);
                         HandleGameObject(ziggurat5GUID, true);

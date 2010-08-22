@@ -955,11 +955,11 @@ const float BG_AV_CreaturePos[AV_CPLACE_MAX][4] = {
     {-910.14f,-229.959f,72.9279f,0.27677f},
     {-851.563f,-88.6527f,68.5983f,3.61896f},
     //boss
-    {-848.902f,-92.931f,68.6325f,3.33350},
+    {-848.902f,-92.931f,68.6325f,3.33350f},
     //herald
-    {-48.459f,-288.802f,55.47f,1.0},
+    {-48.459f,-288.802f,55.47f,1.0f},
     //triggers
-    {637.083,-32.6603,45.9715,1.14353},         //firstaid_station
+    {637.083f,-32.6603f,45.9715f,1.14353f},         //firstaid_station
     {669.007f,-294.078f,30.2909f,2.77507f},     //stormpike_grave
     {77.8013f,-404.7f,46.7549f,-0.872665f},     //stoneheart_grave
     {-202.581f,-112.73f,78.4876f,-0.715585f},   //snowfall_grave
@@ -968,7 +968,7 @@ const float BG_AV_CreaturePos[AV_CPLACE_MAX][4] = {
     {-1402.21f,-307.431f,89.4424f,0.191986f},   //frostwolf_hut
     {553.779f,-78.6566f,51.9378f,-1.22173f},    //dunbaldar_south
     {674.001f,-143.125f,63.6615f,0.994838f},    //dunbaldar_north
-    {203.281f,-360.366f,56.3869f,-0.925024},    //icewing_bunker
+    {203.281f,-360.366f,56.3869f,-0.925024f},    //icewing_bunker
     {-152.437f,-441.758f,40.3982f,-1.95477f},   //stoneheart_bunker
     {-571.88f,-262.777f,75.0087f,-0.802851f},   //iceblood_tower
     {-768.907f,-363.71f,90.8949f,1.07991f},     //tower_point

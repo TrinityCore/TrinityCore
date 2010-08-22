@@ -45,18 +45,18 @@ enum eEnums
     SAY_DEATH                                = -1574004
 };
 
-#define SKELETONSPAWN_Z                          42.8668
+#define SKELETONSPAWN_Z                          42.8668f
 
 float SkeletonSpawnPoint[5][5]=
 {
-    {156.2559, 259.2093},
-    {156.2559, 259.2093},
-    {156.2559, 259.2093},
-    {156.2559, 259.2093},
-    {156.2559, 259.2093},
+    {156.2559f, 259.2093f},
+    {156.2559f, 259.2093f},
+    {156.2559f, 259.2093f},
+    {156.2559f, 259.2093f},
+    {156.2559f, 259.2093f},
 };
 
-float AttackLoc[3]={197.636, 194.046, 40.8164};
+float AttackLoc[3]={197.636f, 194.046f, 40.8164f};
 
 bool ShatterFrostTomb; // needed for achievement: On The Rocks(1919)
 

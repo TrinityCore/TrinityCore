@@ -76,28 +76,28 @@ static Position JaraxxusLoc[]=
 
 static Position FactionChampionLoc[]=
 {
-    {514.231,105.569,418.234},               //  0 - Horde Initial Pos 0
-    {508.334,115.377,418.234},               //  1 - Horde Initial Pos 1
-    {506.454,126.291,418.234},               //  2 - Horde Initial Pos 2
-    {506.243,106.596,421.592},               //  3 - Horde Initial Pos 3
-    {499.885,117.717,421.557},               //  4 - Horde Initial Pos 4
+    {514.231f,105.569f,418.234f},               //  0 - Horde Initial Pos 0
+    {508.334f,115.377f,418.234f},               //  1 - Horde Initial Pos 1
+    {506.454f,126.291f,418.234f},               //  2 - Horde Initial Pos 2
+    {506.243f,106.596f,421.592f},               //  3 - Horde Initial Pos 3
+    {499.885f,117.717f,421.557f},               //  4 - Horde Initial Pos 4
 
-    {613.127,100.443,419.74},                //  5 - Ally Initial Pos 0
-    {621.126,128.042,418.231},               //  6 - Ally Initial Pos 1
-    {618.829,113.606,418.232},               //  7 - Ally Initial Pos 2
-    {625.845,112.914,421.575},               //  8 - Ally Initial Pos 3
-    {615.566,109.653,418.234},               //  9 - Ally Initial Pos 4
+    {613.127f,100.443f,419.74f},                //  5 - Ally Initial Pos 0
+    {621.126f,128.042f,418.231f},               //  6 - Ally Initial Pos 1
+    {618.829f,113.606f,418.232f},               //  7 - Ally Initial Pos 2
+    {625.845f,112.914f,421.575f},               //  8 - Ally Initial Pos 3
+    {615.566f,109.653f,418.234f},               //  9 - Ally Initial Pos 4
 
-    {535.469,113.012,394.66},                // 10 - Horde Final Pos 0
-    {526.417,137.465,394.749},               // 11 - Horde Final Pos 1
-    {528.108,111.057,395.289},               // 12 - Horde Final Pos 2
-    {519.92,134.285,395.289},                // 13 - Horde Final Pos 3
-    {533.648,119.148,394.646},               // 14 - Horde Final Pos 4
-    {531.399,125.63,394.708},                // 15 - Horde Final Pos 5
-    {528.958,131.47,394.73},                 // 16 - Horde Final Pos 6
-    {526.309,116.667,394.833},               // 17 - Horde Final Pos 7
-    {524.238,122.411,394.819},               // 18 - Horde Final Pos 8
-    {521.901,128.488,394.832},               // 19 - Horde Final Pos 9
+    {535.469f,113.012f,394.66f},                // 10 - Horde Final Pos 0
+    {526.417f,137.465f,394.749f},               // 11 - Horde Final Pos 1
+    {528.108f,111.057f,395.289f},               // 12 - Horde Final Pos 2
+    {519.92f,134.285f,395.289f},                // 13 - Horde Final Pos 3
+    {533.648f,119.148f,394.646f},               // 14 - Horde Final Pos 4
+    {531.399f,125.63f,394.708f},                // 15 - Horde Final Pos 5
+    {528.958f,131.47f,394.73f},                 // 16 - Horde Final Pos 6
+    {526.309f,116.667f,394.833f},               // 17 - Horde Final Pos 7
+    {524.238f,122.411f,394.819f},               // 18 - Horde Final Pos 8
+    {521.901f,128.488f,394.832f},               // 19 - Horde Final Pos 9
 };
 
 static Position TwinValkyrsLoc[]=

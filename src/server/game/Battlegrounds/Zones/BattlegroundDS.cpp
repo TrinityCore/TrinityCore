@@ -145,7 +145,7 @@ void BattlegroundDS::HandleAreaTrigger(Player *Source, uint32 Trigger)
 
 bool BattlegroundDS::HandlePlayerUnderMap(Player *player)
 {
-    player->TeleportTo(GetMapId(), 1299.046, 784.825, 9.338, 2.422, false);
+    player->TeleportTo(GetMapId(), 1299.046f, 784.825f, 9.338f, 2.422f, false);
     return true;
 }
 
@@ -165,14 +165,14 @@ void BattlegroundDS::Reset()
 bool BattlegroundDS::SetupBattleground()
 {
     // gates
-    if (!AddObject(BG_DS_OBJECT_DOOR_1, BG_DS_OBJECT_TYPE_DOOR_1, 1350.95, 817.2, 20.8096, 3.15, 0, 0, 0.99627, 0.0862864, RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_DS_OBJECT_DOOR_2, BG_DS_OBJECT_TYPE_DOOR_2, 1232.65, 764.913, 20.0729, 6.3, 0, 0, 0.0310211, -0.999519, RESPAWN_IMMEDIATELY)
+    if (!AddObject(BG_DS_OBJECT_DOOR_1, BG_DS_OBJECT_TYPE_DOOR_1, 1350.95f, 817.2f, 20.8096f, 3.15f, 0, 0, 0.99627f, 0.0862864f, RESPAWN_IMMEDIATELY)
+        || !AddObject(BG_DS_OBJECT_DOOR_2, BG_DS_OBJECT_TYPE_DOOR_2, 1232.65f, 764.913f, 20.0729f, 6.3f, 0, 0, 0.0310211f, -0.999519f, RESPAWN_IMMEDIATELY)
     // water
-        || !AddObject(BG_DS_OBJECT_WATER_1, BG_DS_OBJECT_TYPE_WATER_1, 1291.56, 790.837, 7.1, 3.14238, 0, 0, 0.694215, -0.719768, 120)
-        || !AddObject(BG_DS_OBJECT_WATER_2, BG_DS_OBJECT_TYPE_WATER_2, 1291.56, 790.837, 7.1, 3.14238, 0, 0, 0.694215, -0.719768, 120)
+        || !AddObject(BG_DS_OBJECT_WATER_1, BG_DS_OBJECT_TYPE_WATER_1, 1291.56f, 790.837f, 7.1f, 3.14238f, 0, 0, 0.694215f, -0.719768f, 120)
+        || !AddObject(BG_DS_OBJECT_WATER_2, BG_DS_OBJECT_TYPE_WATER_2, 1291.56f, 790.837f, 7.1f, 3.14238f, 0, 0, 0.694215f, -0.719768f, 120)
     // buffs
-        || !AddObject(BG_DS_OBJECT_BUFF_1, BG_DS_OBJECT_TYPE_BUFF_1, 1291.7, 813.424, 7.11472, 4.64562, 0, 0, 0.730314, -0.683111, 120)
-        || !AddObject(BG_DS_OBJECT_BUFF_2, BG_DS_OBJECT_TYPE_BUFF_2, 1291.7, 768.911, 7.11472, 1.55194, 0, 0, 0.700409, 0.713742, 120))
+        || !AddObject(BG_DS_OBJECT_BUFF_1, BG_DS_OBJECT_TYPE_BUFF_1, 1291.7f, 813.424f, 7.11472f, 4.64562f, 0, 0, 0.730314f, -0.683111f, 120)
+        || !AddObject(BG_DS_OBJECT_BUFF_2, BG_DS_OBJECT_TYPE_BUFF_2, 1291.7f, 768.911f, 7.11472f, 1.55194f, 0, 0, 0.700409f, 0.713742f, 120))
     {
         sLog.outErrorDb("BatteGroundDS: Failed to spawn some object!");
         return false;

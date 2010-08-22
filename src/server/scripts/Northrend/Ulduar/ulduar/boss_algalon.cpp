@@ -44,19 +44,6 @@ enum Creatures
     CREATURE_DARK_MATTER            = 33089
 };
 
-#define NORDRASSIL_X               1614.288574
-#define NORDRASSIL_Y               -320.713287
-#define NORDRASSIL_Z               417.321167
-#define NORDRASSIL_X               1614.276245
-#define NORDRASSIL_Y               -287.016632
-#define NORDRASSIL_Z               417.321106
-#define NORDRASSIL_X               1650.428467
-#define NORDRASSIL_Y               -292.331390
-#define NORDRASSIL_Z               417.321167
-#define NORDRASSIL_X               1649.501831
-#define NORDRASSIL_Y               -324.609222
-#define NORDRASSIL_Z               417.322174
-
 enum Yells
 {
     SAY_AGGRO                                   = -1603000,
@@ -200,8 +187,8 @@ public:
         void SummonCollapsingStar(Unit* target)
         {
             DoScriptText(SAY_SUMMON_COLLAPSING_STAR, me);
-            me->SummonCreature(CREATURE_COLLAPSING_STAR,target->GetPositionX()+15.0,target->GetPositionY()+15.0,target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN, 100000);
-            me->SummonCreature(CREATURE_BLACK_HOLE,target->GetPositionX()+15.0,target->GetPositionY()+15.0,target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN, 27000);
+            me->SummonCreature(CREATURE_COLLAPSING_STAR,target->GetPositionX()+15.0f,target->GetPositionY()+15.0f,target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN, 100000);
+            me->SummonCreature(CREATURE_BLACK_HOLE,target->GetPositionX()+15.0f,target->GetPositionY()+15.0f,target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN, 27000);
         }
 
         void UpdateAI(const uint32 diff)
@@ -218,7 +205,7 @@ public:
 
             if (HealthBelowPct(2))
             {
-                me->SummonGameObject(GAMEOBJECT_GIVE_OF_THE_OBSERVER, 1634.258667, -295.101166,417.321381,0,0,0,0,0,0);
+                me->SummonGameObject(GAMEOBJECT_GIVE_OF_THE_OBSERVER, 1634.258667f, -295.101166f,417.321381f,0,0,0,0,0,0);
 
                 // All of them. or random?
                 DoScriptText(SAY_DEATH_1, me);

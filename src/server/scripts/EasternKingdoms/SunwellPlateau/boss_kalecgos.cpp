@@ -96,8 +96,8 @@ enum SWPActions
 #define CENTER_Y    930
 #define RADIUS      30
 
-#define DRAGON_REALM_Z  53.079
-#define DEMON_REALM_Z   -74.558
+#define DRAGON_REALM_Z  53.079f
+#define DEMON_REALM_Z   -74.558f
 
 #define MAX_PLAYERS_IN_SPECTRAL_REALM 0 //over this, teleport object won't work, 0 disables check
 

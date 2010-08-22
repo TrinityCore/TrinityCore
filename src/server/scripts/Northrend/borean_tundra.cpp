@@ -1022,19 +1022,19 @@ public:
             {
                 case 3:
                     SetEscortPaused(true);
-                    if (Creature *pArthas = me->SummonCreature(NPC_IMAGE_LICH_KING, 3730.313, 3518.689, 473.324, 1.562, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000))
+                    if (Creature *pArthas = me->SummonCreature(NPC_IMAGE_LICH_KING, 3730.313f, 3518.689f, 473.324f, 1.562f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000))
                     {
                         uiArthas = pArthas->GetGUID();
                         pArthas->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         pArthas->SetReactState(REACT_PASSIVE);
                         pArthas->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                        pArthas->GetMotionMaster()->MovePoint(0, 3737.374756,3564.841309,477.433014);
+                        pArthas->GetMotionMaster()->MovePoint(0, 3737.374756f,3564.841309f,477.433014f);
                     }
-                    if (Creature *pTalbot = me->SummonCreature(NPC_COUNSELOR_TALBOT, 3747.23, 3614.936, 473.321, 4.462012, TEMPSUMMON_CORPSE_TIMED_DESPAWN,120000))
+                    if (Creature *pTalbot = me->SummonCreature(NPC_COUNSELOR_TALBOT, 3747.23f, 3614.936f, 473.321f, 4.462012f, TEMPSUMMON_CORPSE_TIMED_DESPAWN,120000))
                     {
                         uiTalbot = pTalbot->GetGUID();
                         pTalbot->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                        pTalbot->GetMotionMaster()->MovePoint(0, 3738.000977,3568.882080,477.433014);
+                        pTalbot->GetMotionMaster()->MovePoint(0, 3738.000977f,3568.882080f,477.433014f);
                     }
                     me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                     break;
@@ -1112,19 +1112,19 @@ public:
                         break;
 
                     case 6:
-                        if (Creature* pArlos = me->SummonCreature(NPC_GENERAL_ARLOS, 3745.527100, 3615.655029, 473.321533, 4.447805, TEMPSUMMON_CORPSE_TIMED_DESPAWN,120000))
+                        if (Creature* pArlos = me->SummonCreature(NPC_GENERAL_ARLOS, 3745.527100f, 3615.655029f, 473.321533f, 4.447805f, TEMPSUMMON_CORPSE_TIMED_DESPAWN,120000))
                         {
                             uiArlos = pArlos->GetGUID();
                             pArlos->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                            pArlos->GetMotionMaster()->MovePoint(0, 3735.570068, 3572.419922, 477.441010);
+                            pArlos->GetMotionMaster()->MovePoint(0, 3735.570068f, 3572.419922f, 477.441010f);
                         }
-                        if (Creature *pLeryssa = me->SummonCreature(NPC_LERYSSA, 3749.654541, 3614.959717, 473.323486, 4.524959, TEMPSUMMON_CORPSE_TIMED_DESPAWN,120000))
+                        if (Creature *pLeryssa = me->SummonCreature(NPC_LERYSSA, 3749.654541f, 3614.959717f, 473.323486f, 4.524959f, TEMPSUMMON_CORPSE_TIMED_DESPAWN,120000))
                         {
                             uiLeryssa = pLeryssa->GetGUID();
                             pLeryssa->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
                             pLeryssa->SetReactState(REACT_PASSIVE);
                             pLeryssa->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            pLeryssa->GetMotionMaster()->MovePoint(0, 3741.969971, 3571.439941, 477.441010);
+                            pLeryssa->GetMotionMaster()->MovePoint(0, 3741.969971f, 3571.439941f, 477.441010f);
                         }
                         uiPhaseTimer = 2000;
                         uiPhase = 0;
@@ -1443,7 +1443,7 @@ public:
             pLeryssa->RemoveAura(SPELL_STUN);
             pLeryssa->clearUnitState(UNIT_STAT_STUNNED);
             pLeryssa->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
-            pLeryssa->GetMotionMaster()->MovePoint(0,3722.114502, 3564.201660, 477.441437);
+            pLeryssa->GetMotionMaster()->MovePoint(0,3722.114502f, 3564.201660f, 477.441437f);
 
             if (pKiller->GetTypeId() == TYPEID_PLAYER)
                 CAST_PLR(pKiller)->RewardPlayerAndGroupAtEvent(NPC_PRINCE_VALANAR, 0);

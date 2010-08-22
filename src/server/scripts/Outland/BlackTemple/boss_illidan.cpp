@@ -69,7 +69,7 @@ const char*  SAY_KILL2        = "This is too easy!";
 
 /************** Spells *************/
 // Normal Form
-#define SPELL_SHEAR                     37335 // 41032 is bugged, cannot be block/dodge/parry// Reduces Max. Health by 60% for 7 seconds. Can stack 19 times. 1.5 second cast
+#define SPELL_SHEAR                     37335 // 41032 is bugged, cannot be block/dodge/parry// Reduces Max. Health by 60% for 7 seconds. Can stack 19 times. 1.5f second cast
 #define SPELL_FLAME_CRASH               40832 // Summons an invis/unselect passive mob that has an aura of flame in a circle around him.
 #define SPELL_DRAW_SOUL                 40904 // 5k Shadow Damage in front of him. Heals Illidan for 100k health (script effect)
 #define SPELL_PARASITIC_SHADOWFIEND     41917 // DoT of 3k Shadow every 2 seconds. Lasts 10 seconds. (Script effect: Summon 2 parasites once the debuff has ticked off)
@@ -81,7 +81,7 @@ const char*  SAY_KILL2        = "This is too easy!";
 #define SPELL_THROW_GLAIVE              39635 // Throws a glaive on the ground
 #define SPELL_THROW_GLAIVE2             39849 // Animation for the above spell
 #define SPELL_GLAIVE_RETURNS            39873 // Glaive flies back to Illidan
-#define SPELL_FIREBALL                  40598 // 2.5k-3.5k damage in 10 yard radius. 2 second cast time.
+#define SPELL_FIREBALL                  40598 // 2.5fk-3.5fk damage in 10 yard radius. 2 second cast time.
 #define SPELL_DARK_BARRAGE              40585 // 10 second channeled spell, 3k shadow damage per second.
 // Demon Form
 #define SPELL_DEMON_TRANSFORM_1         40511 // First phase of animations for transforming into Dark Illidan (fall to ground)
@@ -89,7 +89,7 @@ const char*  SAY_KILL2        = "This is too easy!";
 #define SPELL_DEMON_TRANSFORM_3         40510 // Final phase of animations (stand up and roar)
 #define SPELL_DEMON_FORM                40506 // Transforms into Demon Illidan. Has an Aura of Dread on him.
 #define SPELL_SHADOW_BLAST              41078 // 8k - 11k Shadow Damage. Targets highest threat. Has a splash effect, damaging anyone in 20 yards of the target.
-#define SPELL_FLAME_BURST               41126 // Hurls fire at entire raid for ~3.5k damage every 10 seconds. Resistable. (Does not work: Script effect)
+#define SPELL_FLAME_BURST               41126 // Hurls fire at entire raid for ~3.5fk damage every 10 seconds. Resistable. (Does not work: Script effect)
 #define SPELL_FLAME_BURST_EFFECT        41131 // The actual damage. Have each player cast it on itself (workaround)
 // Other Illidan spells
 #define SPELL_KNEEL                     39656 // Before beginning encounter, this is how he appears (talking to skully).
@@ -132,9 +132,9 @@ const char*  SAY_KILL2        = "This is too easy!";
 #define SPELL_FAN_BLADES                39954 // bugged visual
 
 // Other defines
-#define CENTER_X            676.740
-#define CENTER_Y            305.297
-#define CENTER_Z            353.192
+#define CENTER_X            676.740f
+#define CENTER_Y            305.297f
+#define CENTER_Z            353.192f
 
 #define FLAME_ENRAGE_DISTANCE   30
 #define FLAME_CHARGE_DISTANCE   50
@@ -298,47 +298,47 @@ struct Locations
 
 static Locations HoverPosition[]=
 {
-    {657, 340, 355},
-    {657, 275, 355},
-    {705, 275, 355},
-    {705, 340, 355}
+    {657.0f, 340.0f, 355.0f},
+    {657.0f, 275.0f, 355.0f},
+    {705.0f, 275.0f, 355.0f},
+    {705.0f, 340.0f, 355.0f}
 };
 
 static Locations GlaivePosition[]=
 {
-    {695.105, 305.303, 354.256},
-    {659.338, 305.303, 354.256},//the distance between two glaives is 36
-    {700.105, 305.303, 354.256},
-    {664.338, 305.303, 354.256}
+    {695.105f, 305.303f, 354.256f},
+    {659.338f, 305.303f, 354.256f},//the distance between two glaives is 36
+    {700.105f, 305.303f, 354.256f},
+    {664.338f, 305.303f, 354.256f}
 };
 
 static Locations EyeBlast[]=
 {
-    {677, 350, 354},//start point, pass through glaive point
-    {677, 260, 354}
+    {677.0f, 350.0f, 354.0f},//start point, pass through glaive point
+    {677.0f, 260.0f, 354.0f}
 };
 
 static Locations AkamaWP[]=
 {
-    {770.01, 304.50, 312.29}, // Bottom of the first stairs, at the doors
-    {780.66, 304.50, 319.74}, // Top of the first stairs
-    {790.13, 319.68, 319.76}, // Bottom of the second stairs (left from the entrance)
-    {787.17, 347.38, 341.42}, // Top of the second stairs
-    {781.34, 350.31, 341.44}, // Bottom of the third stairs
-    {762.60, 361.06, 353.60}, // Top of the third stairs
-    {756.35, 360.52, 353.27}, // Before the door-thingy
-    {743.82, 342.21, 353.00}, // Somewhere further
-    {732.69, 305.13, 353.00}, // In front of Illidan - (8)
-    {738.11, 365.44, 353.00}, // in front of the door-thingy (the other one!)
-    {792.18, 366.62, 341.42}, // Down the first flight of stairs
-    {796.84, 304.89, 319.76}, // Down the second flight of stairs
-    {782.01, 304.55, 319.76}  // Final location - back at the initial gates. This is where he will fight the minions! (12)
+    {770.01f, 304.50f, 312.29f}, // Bottom of the first stairs, at the doors
+    {780.66f, 304.50f, 319.74f}, // Top of the first stairs
+    {790.13f, 319.68f, 319.76f}, // Bottom of the second stairs (left from the entrance)
+    {787.17f, 347.38f, 341.42f}, // Top of the second stairs
+    {781.34f, 350.31f, 341.44f}, // Bottom of the third stairs
+    {762.60f, 361.06f, 353.60f}, // Top of the third stairs
+    {756.35f, 360.52f, 353.27f}, // Before the door-thingy
+    {743.82f, 342.21f, 353.00f}, // Somewhere further
+    {732.69f, 305.13f, 353.00f}, // In front of Illidan - (8)
+    {738.11f, 365.44f, 353.00f}, // in front of the door-thingy (the other one!)
+    {792.18f, 366.62f, 341.42f}, // Down the first flight of stairs
+    {796.84f, 304.89f, 319.76f}, // Down the second flight of stairs
+    {782.01f, 304.55f, 319.76f}  // Final location - back at the initial gates. This is where he will fight the minions! (12)
 };
-// 755.762, 304.0747, 312.1769 -- This is where Akama should be spawned
+// 755.762f, 304.0747f, 312.1769f -- This is where Akama should be spawned
 static Locations SpiritSpawns[]=
 {
-    {755.5426, 309.9156, 312.2129},
-    {755.5426, 298.7923, 312.0834}
+    {755.5426f, 309.9156f, 312.2129f},
+    {755.5426f, 298.7923f, 312.0834f}
 };
 
 struct Animation // For the demon transformation
@@ -1024,7 +1024,7 @@ public:
                     break;
 
                 case EVENT_SHEAR:
-                    // no longer exists in 3.0.2
+                    // no longer exists in 3.0f.2
                     //DoCast(me->getVictim(), SPELL_SHEAR);
                     Timer[EVENT_SHEAR] = 25000 + (rand()%16 * 1000);
                     break;

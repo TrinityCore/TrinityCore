@@ -66,23 +66,23 @@ enum eBlastmasterEmiShortfuse
 
 const Position SpawnPosition[] =
 {
-    {-557.630,-114.514,-152.209,0.641},
-    {-555.263,-113.802,-152.737,0.311},
-    {-552.154,-112.476,-153.349,0.621},
-    {-548.692,-111.089,-154.090,0.621},
-    {-546.905,-108.340,-154.877,0.729},
-    {-547.736,-105.154,-155.176,0.372},
-    {-547.274,-114.109,-153.952,0.735},
-    {-552.534,-110.012,-153.577,0.747},
-    {-550.708,-116.436,-153.103,0.679},
-    {-554.030,-115.983,-152.635,0.695},
-    {-494.595,-87.516,149.116,3.344},
-    {-493.349,-90.845,-148.882,3.717},
-    {-491.995,-87.619,-148.197,3.230},
-    {-490.732,-90.739,-148.091,3.230},
-    {-490.554,-89.114,-148.055,3.230},
-    {-495.240,-90.808,-149.493,3.238},
-    {-494.195,-89.553,-149.131,3.254}
+    {-557.630f,-114.514f,-152.209f,0.641f},
+    {-555.263f,-113.802f,-152.737f,0.311f},
+    {-552.154f,-112.476f,-153.349f,0.621f},
+    {-548.692f,-111.089f,-154.090f,0.621f},
+    {-546.905f,-108.340f,-154.877f,0.729f},
+    {-547.736f,-105.154f,-155.176f,0.372f},
+    {-547.274f,-114.109f,-153.952f,0.735f},
+    {-552.534f,-110.012f,-153.577f,0.747f},
+    {-550.708f,-116.436f,-153.103f,0.679f},
+    {-554.030f,-115.983f,-152.635f,0.695f},
+    {-494.595f,-87.516f,149.116f,3.344f},
+    {-493.349f,-90.845f,-148.882f,3.717f},
+    {-491.995f,-87.619f,-148.197f,3.230f},
+    {-490.732f,-90.739f,-148.091f,3.230f},
+    {-490.554f,-89.114f,-148.055f,3.230f},
+    {-495.240f,-90.808f,-149.493f,3.238f},
+    {-494.195f,-89.553f,-149.131f,3.254f}
 };
 
 class npc_blastmaster_emi_shortfuse : public CreatureScript
@@ -353,7 +353,7 @@ public:
                     me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[9], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
                     break;
                 case 2:
-                    if (GameObject* pGo = me->SummonGameObject(183410, -533.140,-105.322,-156.016, 0, 0, 0, 0, 0, 1000))
+                    if (GameObject* pGo = me->SummonGameObject(183410, -533.140f,-105.322f,-156.016f, 0, 0, 0, 0, 0, 1000))
                     {
                         GoSummonList.push_back(pGo->GetGUID());
                         pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1); //We can't use it!
@@ -368,7 +368,7 @@ public:
                     DoScriptText(SAY_BLASTMASTER_19,me);
                     break;
                 case 4:
-                    if (GameObject* pGo = me->SummonGameObject(183410, -542.199,-96.854,-155.790, 0, 0, 0, 0, 0, 1000))
+                    if (GameObject* pGo = me->SummonGameObject(183410, -542.199f,-96.854f,-155.790f, 0, 0, 0, 0, 0, 1000))
                     {
                         GoSummonList.push_back(pGo->GetGUID());
                         pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
@@ -388,7 +388,7 @@ public:
                     me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[14], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
                     break;
                 case 7:
-                    if (GameObject* pGo = me->SummonGameObject(183410, -507.820,-103.333,-151.353, 0, 0, 0, 0, 0, 1000))
+                    if (GameObject* pGo = me->SummonGameObject(183410, -507.820f,-103.333f,-151.353f, 0, 0, 0, 0, 0, 1000))
                     {
                         GoSummonList.push_back(pGo->GetGUID());
                         pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1); //We can't use it!
@@ -396,7 +396,7 @@ public:
                     }
                     break;
                 case 8:
-                    if (GameObject* pGo = me->SummonGameObject(183410, -511.829,-86.249,-151.431, 0, 0, 0, 0, 0, 1000))
+                    if (GameObject* pGo = me->SummonGameObject(183410, -511.829f,-86.249f,-151.431f, 0, 0, 0, 0, 0, 1000))
                     {
                         GoSummonList.push_back(pGo->GetGUID());
                         pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1); //We can't use it!

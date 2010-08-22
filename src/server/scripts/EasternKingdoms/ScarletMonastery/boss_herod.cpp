@@ -80,7 +80,7 @@ public:
          void JustDied(Unit* /*killer*/)
          {
              for (uint8 i = 0; i < 20; ++i)
-                 me->SummonCreature(ENTRY_SCARLET_TRAINEE, 1939.18, -431.58, 17.09, 6.22, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
+                 me->SummonCreature(ENTRY_SCARLET_TRAINEE, 1939.18f, -431.58f, 17.09f, 6.22f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
          }
 
         void UpdateAI(const uint32 diff)

@@ -157,15 +157,15 @@ public:
                 switch (urand(0,2))
                 {
                     case 0:
-                        me->GetMap()->CreatureRelocation(me, -8340.782227,2083.814453,125.648788,0.0f);
+                        me->GetMap()->CreatureRelocation(me, -8340.782227f,2083.814453f,125.648788f,0.0f);
                         DoResetThreat();
                         break;
                     case 1:
-                        me->GetMap()->CreatureRelocation(me, -8341.546875,2118.504639,133.058151,0.0f);
+                        me->GetMap()->CreatureRelocation(me, -8341.546875f,2118.504639f,133.058151f,0.0f);
                         DoResetThreat();
                         break;
                     case 2:
-                        me->GetMap()->CreatureRelocation(me, -8318.822266,2058.231201,133.058151,0.0f);
+                        me->GetMap()->CreatureRelocation(me, -8318.822266f,2058.231201f,133.058151f,0.0f);
                         DoResetThreat();
                         break;
                 }
@@ -174,7 +174,7 @@ public:
                 Blink_Timer= 20000 + rand()%20000;
             } else Blink_Timer -= diff;
 
-            int procent = (int) (me->GetHealth()*100 / me->GetMaxHealth() +0.5);
+            int procent = (int) (me->GetHealth()*100 / me->GetMaxHealth() +0.5f);
 
             //Summoning 2 Images and teleporting to a random position on 75% health
             if ((!Images75 && !IsImage) && (procent <= 75 && procent > 70))
@@ -210,9 +210,9 @@ public:
         {
             DoScriptText(SAY_SPLIT, me);
 
-            ov_mycoordinates *place1 = new ov_mycoordinates(-8340.782227,2083.814453,125.648788,0);
-            ov_mycoordinates *place2 = new ov_mycoordinates(-8341.546875,2118.504639,133.058151,0);
-            ov_mycoordinates *place3 = new ov_mycoordinates(-8318.822266,2058.231201,133.058151,0);
+            ov_mycoordinates *place1 = new ov_mycoordinates(-8340.782227f,2083.814453f,125.648788f,0);
+            ov_mycoordinates *place2 = new ov_mycoordinates(-8341.546875f,2118.504639f,133.058151f,0);
+            ov_mycoordinates *place3 = new ov_mycoordinates(-8318.822266f,2058.231201f,133.058151f,0);
 
             ov_mycoordinates *bossc=place1, *i1=place2, *i2=place3;
 

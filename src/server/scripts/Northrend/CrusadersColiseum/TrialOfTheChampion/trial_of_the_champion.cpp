@@ -33,13 +33,13 @@ EndContentData */
 #define GOSSIP_START_EVENT1     "I'm ready to start challenge."
 #define GOSSIP_START_EVENT2     "I'm ready for the next challenge."
 
-#define ORIENTATION             4.714
+#define ORIENTATION             4.714f
 
 /*######
 ## npc_announcer_toc5
 ######*/
 
-const Position SpawnPosition = {746.261,657.401,411.681,4.65};
+const Position SpawnPosition = {746.261f,657.401f,411.681f,4.65f};
 
 class npc_announcer_toc5 : public CreatureScript
 {
@@ -124,7 +124,7 @@ public:
                     NextStep(10000,false,1);
                     break;
                 case DATA_IN_POSITION: //movement done.
-                    me->GetMotionMaster()->MovePoint(1,735.81,661.92,412.39);
+                    me->GetMotionMaster()->MovePoint(1,735.81f,661.92f,412.39f);
                     if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
                         pInstance->HandleGameObject(pGO->GetGUID(),false);
                     NextStep(10000,false,3);
@@ -306,7 +306,7 @@ public:
 
         void DoStartArgentChampionEncounter()
         {
-            me->GetMotionMaster()->MovePoint(1,735.81,661.92,412.39);
+            me->GetMotionMaster()->MovePoint(1,735.81f,661.92f,412.39f);
 
             if (Creature* pBoss = me->SummonCreature(uiArgentChampion,SpawnPosition))
             {
@@ -369,7 +369,7 @@ public:
                if (pInstance->GetData(BOSS_GRAND_CHAMPIONS) == DONE &&
                    pInstance->GetData(BOSS_ARGENT_CHALLENGE_E) == DONE ||
                    pInstance->GetData(BOSS_ARGENT_CHALLENGE_P) == DONE)
-                    me->SummonCreature(VEHICLE_BLACK_KNIGHT,769.834,651.915,447.035,0);
+                    me->SummonCreature(VEHICLE_BLACK_KNIGHT,769.834f,651.915f,447.035f,0);
             }
         }
 

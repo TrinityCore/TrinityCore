@@ -42,12 +42,12 @@ EndScriptData */
 #define CREATURE_CHROMATIC_DRAKANOID    14302
 #define CREATURE_NEFARIAN               11583
 
-#define ADD_X1 -7591.151855
-#define ADD_X2 -7514.598633
-#define ADD_Y1 -1204.051880
-#define ADD_Y2 -1150.448853
-#define ADD_Z1 476.800476
-#define ADD_Z2 476.796570
+#define ADD_X1 -7591.151855f
+#define ADD_X2 -7514.598633f
+#define ADD_Y1 -1204.051880f
+#define ADD_Y2 -1150.448853f
+#define ADD_Z1 476.800476f
+#define ADD_Z2 476.796570f
 
 #define NEF_X   -7445
 #define NEF_Y   -1332
@@ -300,7 +300,7 @@ public:
                     ++SpawnedAdds;
 
                     //Spawn Creature and force it to start attacking a random target
-                    Spawned = me->SummonCreature(CreatureID,ADD_X1,ADD_Y1,ADD_Z1,5.000,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
+                    Spawned = me->SummonCreature(CreatureID,ADD_X1,ADD_Y1,ADD_Z1,5.000f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
                     pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                     if (pTarget && Spawned)
                     {
@@ -316,7 +316,7 @@ public:
 
                     ++SpawnedAdds;
 
-                    Spawned = me->SummonCreature(CreatureID,ADD_X2,ADD_Y2,ADD_Z2,5.000,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
+                    Spawned = me->SummonCreature(CreatureID,ADD_X2,ADD_Y2,ADD_Z2,5.000f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
                     pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                     if (pTarget && Spawned)
                     {

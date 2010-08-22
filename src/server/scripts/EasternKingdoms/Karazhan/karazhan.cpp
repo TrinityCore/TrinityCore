@@ -98,9 +98,9 @@ float Spawns[6][2]=
 #define SPELL_SPOTLIGHT     25824
 #define SPELL_TUXEDO        32616
 
-#define SPAWN_Z             90.5
+#define SPAWN_Z             90.5f
 #define SPAWN_Y             -1758
-#define SPAWN_O             4.738
+#define SPAWN_O             4.738f
 
 class npc_barnes : public CreatureScript
 {
@@ -460,8 +460,8 @@ public:
 #define SPELL_CONFLAGRATION_BLAST   30977
 #define SPELL_MANA_SHIELD           31635
 
-static float MedivPos[4] = {-11161.49,-1902.24,91.48,1.94};
-static float ArcanagosPos[4] = {-11169.75,-1881.48,95.39,4.83};
+static float MedivPos[4] = {-11161.49f,-1902.24f,91.48f,1.94f};
+static float ArcanagosPos[4] = {-11169.75f,-1881.48f,95.39f,4.83f};
 
 class npc_image_of_medivh : public CreatureScript
 {
@@ -582,7 +582,7 @@ public:
                     CAST_CRE(arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_8, LANG_UNIVERSAL, NULL);
                 return 5000;
             case 12:
-                arca->GetMotionMaster()->MovePoint(0, -11010.82,-1761.18, 156.47);
+                arca->GetMotionMaster()->MovePoint(0, -11010.82f,-1761.18f, 156.47f);
                 arca->setActive(true);
                 arca->InterruptNonMeleeSpells(true);
                 arca->SetSpeed(MOVE_FLIGHT, 2.0f);

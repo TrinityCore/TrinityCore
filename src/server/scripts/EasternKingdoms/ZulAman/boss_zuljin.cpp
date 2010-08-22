@@ -107,9 +107,9 @@ EndScriptData */
 #define PHASE_TROLL 4
 
 //coords for going for changing form
-#define CENTER_X 120.148811
-#define CENTER_Y 703.713684
-#define CENTER_Z 45.111477
+#define CENTER_X 120.148811f
+#define CENTER_Y 703.713684f
+#define CENTER_Z 45.111477f
 
 struct SpiritInfoStruct
 {
@@ -119,10 +119,10 @@ struct SpiritInfoStruct
 
 static SpiritInfoStruct SpiritInfo[] =
 {
-    {23878, 147.87, 706.51, 45.11, 3.04},
-    {23880, 88.95, 705.49, 45.11, 6.11},
-    {23877, 137.23, 725.98, 45.11, 3.71},
-    {23879, 104.29, 726.43, 45.11, 5.43}
+    {23878, 147.87f, 706.51f, 45.11f, 3.04f},
+    {23880, 88.95f, 705.49f, 45.11f, 6.11f},
+    {23877, 137.23f, 725.98f, 45.11f, 3.71f},
+    {23879, 104.29f, 726.43f, 45.11f, 5.43f}
 };
 
 struct TransformStruct
@@ -191,7 +191,7 @@ class boss_zuljin : public CreatureScript
 
                 Phase = 0;
 
-                health_20 = me->GetMaxHealth()*0.2;
+                health_20 = me->GetMaxHealth()*0.2f;
 
                 Intro_Timer = 37000;
                 Berserk_Timer = 600000;

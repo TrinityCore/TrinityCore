@@ -76,14 +76,14 @@ enum Phases
 
 const Position SpawnPoint[2] =
 {
-    { 550.7, 282.8, 224.3 },
-    { 551.1, 229.4, 224.3 },
+    { 550.7f, 282.8f, 224.3f },
+    { 551.1f, 229.4f, 224.3f },
 };
 
 const Position SpawnPointGuardian[2] =
 {
-    { 550.348633, 316.006805, 234.2947 },
-    { 550.188660, 324.264557, 237.7412 },
+    { 550.348633f, 316.006805f, 234.2947f },
+    { 550.188660f, 324.264557f, 237.7412f },
 };
 
 class boss_anub_arak : public CreatureScript
@@ -319,7 +319,7 @@ public:
                         if (Creature *pImpaleTarget = DoSummonImpaleTarget(target))
                             me->CastSpell(pImpaleTarget, DUNGEON_MODE(SPELL_POUND, SPELL_POUND_H), false);
                     }
-                    uiPoundTimer = 16.5*IN_MILLISECONDS;
+                    uiPoundTimer = 16.5f*IN_MILLISECONDS;
                 } else uiPoundTimer -= diff;
 
                 DoMeleeAttackIfReady();

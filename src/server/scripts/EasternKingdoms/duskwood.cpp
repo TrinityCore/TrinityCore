@@ -38,7 +38,7 @@ public:
     {
         if (pPlayer->HasQuestForItem(21149))
         {
-            if (Unit* TCorrupter = pPlayer->SummonCreature(15625,-10328.16,-489.57,49.95,0,TEMPSUMMON_MANUAL_DESPAWN,60000))
+            if (Unit* TCorrupter = pPlayer->SummonCreature(15625,-10328.16f,-489.57f,49.95f,0,TEMPSUMMON_MANUAL_DESPAWN,60000))
             {
                 TCorrupter->setFaction(14);
                 TCorrupter->SetMaxHealth(832750);

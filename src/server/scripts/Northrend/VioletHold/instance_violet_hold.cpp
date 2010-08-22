@@ -67,26 +67,26 @@ enum Events
 
 const Position PortalLocation[] =
 {
-    {1877.51, 850.104, 44.6599, 4.7822 },     // WP 1
-    {1918.37, 853.437, 47.1624, 4.12294},     // WP 2
-    {1936.07, 803.198, 53.3749, 3.12414},     // WP 3
-    {1927.61, 758.436, 51.4533, 2.20891},     // WP 4
-    {1890.64, 753.471, 48.7224, 1.71042},     // WP 5
-    {1908.31, 809.657, 38.7037, 3.08701}      // WP 6
+    {1877.51f, 850.104f, 44.6599f, 4.7822f },     // WP 1
+    {1918.37f, 853.437f, 47.1624f, 4.12294f},     // WP 2
+    {1936.07f, 803.198f, 53.3749f, 3.12414f},     // WP 3
+    {1927.61f, 758.436f, 51.4533f, 2.20891f},     // WP 4
+    {1890.64f, 753.471f, 48.7224f, 1.71042f},     // WP 5
+    {1908.31f, 809.657f, 38.7037f, 3.08701f}      // WP 6
 };
 
-const Position BossStartMove1  = {1894.684448, 739.390503, 47.668003};
-const Position BossStartMove2  = {1875.173950, 860.832703, 43.333565};
-const Position BossStartMove21 = {1858.854614, 855.071411, 43.333565};
-const Position BossStartMove22 = {1891.926636, 863.388977, 43.333565};
-const Position BossStartMove3  = {1916.138062, 778.152222, 35.772308};
-const Position BossStartMove4  = {1853.618286, 758.557617, 38.657505};
-const Position BossStartMove5  = {1906.683960, 842.348022, 38.637459};
-const Position BossStartMove6  = {1928.207031, 852.864441, 47.200813};
+const Position BossStartMove1  = {1894.684448f, 739.390503f, 47.668003f};
+const Position BossStartMove2  = {1875.173950f, 860.832703f, 43.333565f};
+const Position BossStartMove21 = {1858.854614f, 855.071411f, 43.333565f};
+const Position BossStartMove22 = {1891.926636f, 863.388977f, 43.333565f};
+const Position BossStartMove3  = {1916.138062f, 778.152222f, 35.772308f};
+const Position BossStartMove4  = {1853.618286f, 758.557617f, 38.657505f};
+const Position BossStartMove5  = {1906.683960f, 842.348022f, 38.637459f};
+const Position BossStartMove6  = {1928.207031f, 852.864441f, 47.200813f};
 
-const Position CyanigosasSpawnLocation = {1930.281250, 804.407715, 52.410946, 3.139621};
-const Position MiddleRoomLocation = {1892.291260, 805.696838, 38.438862, 3.139621};
-const Position MiddleRoomPortalSaboLocation = {1896.622925, 804.854126, 38.504772, 3.139621};
+const Position CyanigosasSpawnLocation = {1930.281250f, 804.407715f, 52.410946f, 3.139621f};
+const Position MiddleRoomLocation = {1892.291260f, 805.696838f, 38.438862f, 3.139621f};
+const Position MiddleRoomPortalSaboLocation = {1896.622925f, 804.854126f, 38.504772f, 3.139621f};
 
 //Cyanigosa's prefight event data
 enum Yells

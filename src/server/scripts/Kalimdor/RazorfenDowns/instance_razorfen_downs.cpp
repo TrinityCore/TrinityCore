@@ -158,17 +158,17 @@ public:
                         }
 
 
-                        if (Creature* pCreature = pGo->SummonCreature(uiCreature,2502.635,844.140,46.896,0.633))
+                        if (Creature* pCreature = pGo->SummonCreature(uiCreature,2502.635f,844.140f,46.896f,0.633f))
                         {
                             if (uiGongWaves == 10 || uiGongWaves == 1)
                             {
                                 for (uint8 i = 0; i < uiSummonTimes; ++i)
                                 {
-                                    if (Creature* pSummon = pGo->SummonCreature(uiCreature,2502.635 + float(irand(-5,5)),844.140 + float(irand(-5,5)),46.896,0.633))
-                                        pSummon->GetMotionMaster()->MovePoint(0,2533.479 + float(irand(-5,5)),870.020 + float(irand(-5,5)),47.678);
+                                    if (Creature* pSummon = pGo->SummonCreature(uiCreature,2502.635f + float(irand(-5,5)),844.140f + float(irand(-5,5)),46.896f,0.633f))
+                                        pSummon->GetMotionMaster()->MovePoint(0,2533.479f + float(irand(-5,5)),870.020f + float(irand(-5,5)),47.678f);
                                 }
                             }
-                            pCreature->GetMotionMaster()->MovePoint(0,2533.479 + float(irand(-5,5)),870.020 + float(irand(-5,5)),47.678);
+                            pCreature->GetMotionMaster()->MovePoint(0,2533.479f + float(irand(-5,5)),870.020f + float(irand(-5,5)),47.678f);
                         }
                         break;
                     }

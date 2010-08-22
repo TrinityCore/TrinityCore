@@ -33,7 +33,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_frozen_orb' WHERE `entry`='3845
 
 // Spells Frost Warder
 #define SPELL_FROST_BLAST   RAID_MODE(72123,72124)      // don't know cd... using 20 secs.
-#define SPELL_FROZEN_MALLET 72122
+#define SPELL_FROZEN_MALLET_2 72122
 
 // Spell Frozen Orb
 #define SPELL_FROZEN_ORB_DMG    72081   // priodic dmg aura
@@ -166,7 +166,7 @@ public:
         {
             DoZoneInCombat();
 
-            DoCast(me, SPELL_FROZEN_MALLET);
+            DoCast(me, SPELL_FROZEN_MALLET_2);
 
             events.ScheduleEvent(EVENT_FROST_BLAST, 5000);
         }

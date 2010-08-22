@@ -59,9 +59,9 @@ enum Achievements
     ACHIEV_OH_NOVOS                               = 2057
 };
 
-static Position AddSpawnPoint = { -379.20, -816.76, 59.70 };
-static Position CrystalHandlerSpawnPoint = { -326.626343, -709.956604, 27.813314 };
-static Position AddDestinyPoint = { -379.314545, -772.577637, 28.58837 };
+static Position AddSpawnPoint = { -379.20f, -816.76f, 59.70f };
+static Position CrystalHandlerSpawnPoint = { -326.626343f, -709.956604f, 27.813314f };
+static Position AddDestinyPoint = { -379.314545f, -772.577637f, 28.58837f };
 
 class boss_novos : public CreatureScript
 {

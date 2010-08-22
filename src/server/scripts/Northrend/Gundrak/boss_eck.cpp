@@ -27,7 +27,7 @@ enum Spells
     SPELL_ECK_SPRING_2                            = 55837  //Eck leaps at a distant target.
 };
 
-static Position EckSpawnPoint = { 1643.877930, 936.278015, 107.204948, 0.668432 };
+static Position EckSpawnPoint = { 1643.877930f, 936.278015f, 107.204948f, 0.668432f };
 
 class boss_eck : public CreatureScript
 {

@@ -30,14 +30,14 @@ EndScriptData */
 //Trash Waves
 float NalorakkWay[8][3] =
 {
-    { 18.569, 1414.512, 11.42},// waypoint 1
-    {-17.264, 1419.551, 12.62},
-    {-52.642, 1419.357, 27.31},// waypoint 2
-    {-69.908, 1419.721, 27.31},
-    {-79.929, 1395.958, 27.31},
-    {-80.072, 1374.555, 40.87},// waypoint 3
-    {-80.072, 1314.398, 40.87},
-    {-80.072, 1295.775, 48.60} // waypoint 4
+    { 18.569f, 1414.512f, 11.42f},// waypoint 1
+    {-17.264f, 1419.551f, 12.62f},
+    {-52.642f, 1419.357f, 27.31f},// waypoint 2
+    {-69.908f, 1419.721f, 27.31f},
+    {-79.929f, 1395.958f, 27.31f},
+    {-80.072f, 1374.555f, 40.87f},// waypoint 3
+    {-80.072f, 1314.398f, 40.87f},
+    {-80.072f, 1295.775f, 48.60f} // waypoint 4
 };
 
 #define YELL_NALORAKK_WAVE1     "Get da move on, guards! It be killin' time!"
@@ -317,7 +317,7 @@ class boss_nalorakk : public CreatureScript
                     switch(MovePhase)
                     {
                         case 2:
-                            me->SetOrientation(3.1415*2);
+                            me->SetOrientation(3.1415f*2);
                             inMove = false;
                             return;
                         case 1:
@@ -329,11 +329,11 @@ class boss_nalorakk : public CreatureScript
                             inMove = true;
                             return;
                         case 5:
-                            me->SetOrientation(3.1415*0.5);
+                            me->SetOrientation(3.1415f*0.5f);
                             inMove = false;
                             return;
                         case 7:
-                            me->SetOrientation(3.1415*0.5);
+                            me->SetOrientation(3.1415f*0.5f);
                             inMove = false;
                             return;
                     }

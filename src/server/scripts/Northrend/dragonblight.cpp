@@ -255,7 +255,7 @@ public:
             if (npc_escortAI* pEscortAI = CAST_AI(npc_inquisitor_hallard::npc_inquisitor_hallardAI, pCreature->AI()))
             {
                 pEscortAI->Start(true, false, pPlayer->GetGUID(), 0, true);
-                pCreature->GetMotionMaster()->MovePoint(0, 3801.543, -679.350, 213.75);
+                pCreature->GetMotionMaster()->MovePoint(0, 3801.543f, -679.350f, 213.75f);
             }
         }
         return true;

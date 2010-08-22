@@ -957,34 +957,34 @@ public:
 
         void InitWaypoint()
         {
-            AddWaypoint(1, 2389.03,     -5902.74,     109.014, 5000);
-            AddWaypoint(2, 2341.812012, -5900.484863, 102.619743);
-            AddWaypoint(3, 2306.561279, -5901.738281, 91.792419);
-            AddWaypoint(4, 2300.098389, -5912.618652, 86.014885);
-            AddWaypoint(5, 2294.142090, -5927.274414, 75.316849);
-            AddWaypoint(6, 2286.984375, -5944.955566, 63.714966);
-            AddWaypoint(7, 2280.001709, -5961.186035, 54.228283);
-            AddWaypoint(8, 2259.389648, -5974.197754, 42.359348);
-            AddWaypoint(9, 2242.882812, -5984.642578, 32.827850);
-            AddWaypoint(10, 2217.265625, -6028.959473, 7.675705);
-            AddWaypoint(11, 2202.595947, -6061.325684, 5.882018);
-            AddWaypoint(12, 2188.974609, -6080.866699, 3.370027);
+            AddWaypoint(1, 2389.03f,     -5902.74f,     109.014f, 5000);
+            AddWaypoint(2, 2341.812012f, -5900.484863f, 102.619743f);
+            AddWaypoint(3, 2306.561279f, -5901.738281f, 91.792419f);
+            AddWaypoint(4, 2300.098389f, -5912.618652f, 86.014885f);
+            AddWaypoint(5, 2294.142090f, -5927.274414f, 75.316849f);
+            AddWaypoint(6, 2286.984375f, -5944.955566f, 63.714966f);
+            AddWaypoint(7, 2280.001709f, -5961.186035f, 54.228283f);
+            AddWaypoint(8, 2259.389648f, -5974.197754f, 42.359348f);
+            AddWaypoint(9, 2242.882812f, -5984.642578f, 32.827850f);
+            AddWaypoint(10, 2217.265625f, -6028.959473f, 7.675705f);
+            AddWaypoint(11, 2202.595947f, -6061.325684f, 5.882018f);
+            AddWaypoint(12, 2188.974609f, -6080.866699f, 3.370027f);
 
             if (urand(0,1))
             {
-                AddWaypoint(13, 2176.483887, -6110.407227, 1.855181);
-                AddWaypoint(14, 2172.516602, -6146.752441, 1.074235);
-                AddWaypoint(15, 2138.918457, -6158.920898, 1.342926);
-                AddWaypoint(16, 2129.866699, -6174.107910, 4.380779);
-                AddWaypoint(17, 2117.709473, -6193.830078, 13.3542, 10000);
+                AddWaypoint(13, 2176.483887f, -6110.407227f, 1.855181f);
+                AddWaypoint(14, 2172.516602f, -6146.752441f, 1.074235f);
+                AddWaypoint(15, 2138.918457f, -6158.920898f, 1.342926f);
+                AddWaypoint(16, 2129.866699f, -6174.107910f, 4.380779f);
+                AddWaypoint(17, 2117.709473f, -6193.830078f, 13.3542f, 10000);
             }
             else
             {
-                AddWaypoint(13, 2184.190186, -6166.447266, 0.968877);
-                AddWaypoint(14, 2234.265625, -6163.741211, 0.916021);
-                AddWaypoint(15, 2268.071777, -6158.750977, 1.822252);
-                AddWaypoint(16, 2270.028320, -6176.505859, 6.340538);
-                AddWaypoint(17, 2271.739014, -6195.401855, 13.3542, 10000);
+                AddWaypoint(13, 2184.190186f, -6166.447266f, 0.968877f);
+                AddWaypoint(14, 2234.265625f, -6163.741211f, 0.916021f);
+                AddWaypoint(15, 2268.071777f, -6158.750977f, 1.822252f);
+                AddWaypoint(16, 2270.028320f, -6176.505859f, 6.340538f);
+                AddWaypoint(17, 2271.739014f, -6195.401855f, 13.3542f, 10000);
             }
         }
 
@@ -1073,7 +1073,7 @@ public:
         if (pPlayer->GetQuestStatus(12701) == QUEST_STATUS_INCOMPLETE)
         {
             // Hack Why Trinity Dont Support Custom Summon Location
-            if (Creature *miner = pPlayer->SummonCreature(28841, 2383.869629, -5900.312500, 107.996086, pPlayer->GetOrientation(),TEMPSUMMON_DEAD_DESPAWN, 1))
+            if (Creature *miner = pPlayer->SummonCreature(28841, 2383.869629f, -5900.312500f, 107.996086f, pPlayer->GetOrientation(),TEMPSUMMON_DEAD_DESPAWN, 1))
             {
                 pPlayer->CastSpell(pPlayer, SPELL_CART_SUMM, true);
                 if (Creature *car = pPlayer->GetVehicleCreatureBase())

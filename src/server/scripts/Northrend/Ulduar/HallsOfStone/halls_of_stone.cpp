@@ -128,8 +128,8 @@ enum Achievements
 
 static Position SpawnLocations[]=
 {
-    {946.992, 397.016, 208.374},
-    {960.748, 382.944, 208.374},
+    {946.992f, 397.016f, 208.374f},
+    {960.748f, 382.944f, 208.374f},
 };
 
 class mob_tribuna_controller : public CreatureScript
@@ -195,13 +195,13 @@ public:
                     {
                         if (uiPositionCounter == 0)
                         {
-                            (*itr)->GetMap()->CreatureRelocation((*itr), 927.265, 333.200, 218.780, (*itr)->GetOrientation());
-                            (*itr)->SendMonsterMove(927.265, 333.200, 218.780, 0, (*itr)->GetMovementFlags(), 1);
+                            (*itr)->GetMap()->CreatureRelocation((*itr), 927.265f, 333.200f, 218.780f, (*itr)->GetOrientation());
+                            (*itr)->SendMonsterMove(927.265f, 333.200f, 218.780f, 0, (*itr)->GetMovementFlags(), 1);
                         }
                         else
                         {
-                            (*itr)->GetMap()->CreatureRelocation((*itr), 921.745, 328.076, 218.780, (*itr)->GetOrientation());
-                            (*itr)->SendMonsterMove(921.745, 328.076, 218.780, 0, (*itr)->GetMovementFlags(), 1);
+                            (*itr)->GetMap()->CreatureRelocation((*itr), 921.745f, 328.076f, 218.780f, (*itr)->GetOrientation());
+                            (*itr)->SendMonsterMove(921.745f, 328.076f, 218.780f, 0, (*itr)->GetMovementFlags(), 1);
                         }
                     }
                     ++uiPositionCounter;

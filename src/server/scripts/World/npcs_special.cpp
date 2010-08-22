@@ -500,34 +500,34 @@ struct Location
 
 static Location AllianceCoords[]=
 {
-    {-3757.38, -4533.05, 14.16, 3.62},                      // Top-far-right bunk as seen from entrance
-    {-3754.36, -4539.13, 14.16, 5.13},                      // Top-far-left bunk
-    {-3749.54, -4540.25, 14.28, 3.34},                      // Far-right bunk
-    {-3742.10, -4536.85, 14.28, 3.64},                      // Right bunk near entrance
-    {-3755.89, -4529.07, 14.05, 0.57},                      // Far-left bunk
-    {-3749.51, -4527.08, 14.07, 5.26},                      // Mid-left bunk
-    {-3746.37, -4525.35, 14.16, 5.22},                      // Left bunk near entrance
+    {-3757.38f, -4533.05f, 14.16f, 3.62f},                      // Top-far-right bunk as seen from entrance
+    {-3754.36f, -4539.13f, 14.16f, 5.13f},                      // Top-far-left bunk
+    {-3749.54f, -4540.25f, 14.28f, 3.34f},                      // Far-right bunk
+    {-3742.10f, -4536.85f, 14.28f, 3.64f},                      // Right bunk near entrance
+    {-3755.89f, -4529.07f, 14.05f, 0.57f},                      // Far-left bunk
+    {-3749.51f, -4527.08f, 14.07f, 5.26f},                      // Mid-left bunk
+    {-3746.37f, -4525.35f, 14.16f, 5.22f},                      // Left bunk near entrance
 };
 
 //alliance run to where
-#define A_RUNTOX -3742.96
-#define A_RUNTOY -4531.52
-#define A_RUNTOZ 11.91
+#define A_RUNTOX -3742.96f
+#define A_RUNTOY -4531.52f
+#define A_RUNTOZ 11.91f
 
 static Location HordeCoords[]=
 {
-    {-1013.75, -3492.59, 62.62, 4.34},                      // Left, Behind
-    {-1017.72, -3490.92, 62.62, 4.34},                      // Right, Behind
-    {-1015.77, -3497.15, 62.82, 4.34},                      // Left, Mid
-    {-1019.51, -3495.49, 62.82, 4.34},                      // Right, Mid
-    {-1017.25, -3500.85, 62.98, 4.34},                      // Left, front
-    {-1020.95, -3499.21, 62.98, 4.34}                       // Right, Front
+    {-1013.75f, -3492.59f, 62.62f, 4.34f},                      // Left, Behind
+    {-1017.72f, -3490.92f, 62.62f, 4.34f},                      // Right, Behind
+    {-1015.77f, -3497.15f, 62.82f, 4.34f},                      // Left, Mid
+    {-1019.51f, -3495.49f, 62.82f, 4.34f},                      // Right, Mid
+    {-1017.25f, -3500.85f, 62.98f, 4.34f},                      // Left, front
+    {-1020.95f, -3499.21f, 62.98f, 4.34f}                       // Right, Front
 };
 
 //horde run to where
-#define H_RUNTOX -1016.44
-#define H_RUNTOY -3508.48
-#define H_RUNTOZ 62.96
+#define H_RUNTOX -1016.44f
+#define H_RUNTOY -3508.48f
+#define H_RUNTOZ 62.96f
 
 const uint32 AllianceSoldierId[3] =
 {
@@ -924,7 +924,7 @@ public:
 
             me->SetStandState(UNIT_STAND_STATE_KNEEL);
             //expect database to have RegenHealth=0
-            me->SetHealth(int(me->GetMaxHealth()*0.7));
+            me->SetHealth(int(me->GetMaxHealth()*0.7f));
         }
 
         void EnterCombat(Unit * /*who*/) {}
@@ -1904,7 +1904,7 @@ public:
     {
         npc_ebon_gargoyleAI(Creature *c) : CasterAI(c) {}
 
-        int despawnTimer;
+        uint32 despawnTimer;
 
         void InitializeAI()
         {
@@ -2177,9 +2177,9 @@ public:
             case GOSSIP_ACTION_INFO_DEF + 1: //Borean Tundra
                 pPlayer->CLOSE_GOSSIP_MENU();
                 if (roll) //At the moment we don't have chance on spell_target_position table so we hack this
-                    pPlayer->TeleportTo(571, 4305.505859, 5450.839844, 63.005806, 0.627286);
+                    pPlayer->TeleportTo(571, 4305.505859f, 5450.839844f, 63.005806f, 0.627286f);
                 else
-                    pPlayer->TeleportTo(571, 3201.936279, 5630.123535, 133.658798, 3.855272);
+                    pPlayer->TeleportTo(571, 3201.936279f, 5630.123535f, 133.658798f, 3.855272f);
                 break;
             case GOSSIP_ACTION_INFO_DEF + 2: //Howling Fjord
                 pPlayer->CLOSE_GOSSIP_MENU();

@@ -30,7 +30,7 @@ enum eSpells
 
 #define GOSSIP_ITEM_MORRIDUNE "Please port me to Darnassus"
 
-const Position HomePosition = {-815.817,-145.299,-25.870, 0};
+const Position HomePosition = {-815.817f,-145.299f,-25.870f, 0};
 
 class go_blackfathom_altar : public GameObjectScript
 {
@@ -207,7 +207,7 @@ public:
         switch(uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
-                pPlayer->TeleportTo(1,9952.239,2284.277,1341.394,1.595);
+                pPlayer->TeleportTo(1,9952.239f,2284.277f,1341.394f,1.595f);
                 pPlayer->CLOSE_GOSSIP_MENU();
                 break;
         }
@@ -242,7 +242,7 @@ public:
             {
                 case 4:
                     SetEscortPaused(true);
-                    me->SetOrientation(1.775791);
+                    me->SetOrientation(1.775791f);
                     me->SendMovementFlagUpdate();
                     me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     DoScriptText(SAY_MORRIDUNE_2,me);

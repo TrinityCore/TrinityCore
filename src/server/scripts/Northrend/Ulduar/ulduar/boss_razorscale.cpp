@@ -272,8 +272,8 @@ public:
 
         void FlyPhase(uint8 Phase, const uint32 /*diff*/)
         {
-            const float x = 587.54;
-            const float y = -174.92;
+            const float x = 587.54f;
+            const float y = -174.92f;
             const float GroundLevel = me->GetBaseMap()->GetHeight(x, y, MAX_HEIGHT);
             const float FlightHeight = GroundLevel + 4.0f; // TODO: Fly out of range of attacks (442 is sufficient height for this), minus ~(10*number of harpoon gun chains attached to Razorscale)
 

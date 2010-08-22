@@ -167,34 +167,34 @@ enum eAchievementData
 
 static Position Center[]=
 {
-    {354.8771, -12.90240, 409.803650},
+    {354.8771f, -12.90240f, 409.803650f},
 };
 
 const Position PosSiege[5] =
 {
-    {-814.59,-64.54,429.92,5.969},
-    {-784.37,-33.31,429.92,5.096},
-    {-808.99,-52.10,429.92,5.668},
-    {-798.59,-44.00,429.92,5.663},
-    {-812.83,-77.71,429.92,0.046},
+    {-814.59f,-64.54f,429.92f,5.969f},
+    {-784.37f,-33.31f,429.92f,5.096f},
+    {-808.99f,-52.10f,429.92f,5.668f},
+    {-798.59f,-44.00f,429.92f,5.663f},
+    {-812.83f,-77.71f,429.92f,0.046f},
 };
 
 const Position PosChopper[5] =
 {
-    {-717.83,-106.56,430.02,0.122},
-    {-717.83,-114.23,430.44,0.122},
-    {-717.83,-109.70,430.22,0.122},
-    {-718.45,-118.24,430.26,0.052},
-    {-718.45,-123.58,430.41,0.085},
+    {-717.83f,-106.56f,430.02f,0.122f},
+    {-717.83f,-114.23f,430.44f,0.122f},
+    {-717.83f,-109.70f,430.22f,0.122f},
+    {-718.45f,-118.24f,430.26f,0.052f},
+    {-718.45f,-123.58f,430.41f,0.085f},
 };
 
 const Position PosDemolisher[5] =
 {
-    {-724.12,-176.64,430.03,2.543},
-    {-766.70,-225.03,430.50,1.710},
-    {-729.54,-186.26,430.12,1.902},
-    {-756.01,-219.23,430.50,2.369},
-    {-798.01,-227.24,429.84,1.446},
+    {-724.12f,-176.64f,430.03f,2.543f},
+    {-766.70f,-225.03f,430.50f,1.710f},
+    {-729.54f,-186.26f,430.12f,1.902f},
+    {-756.01f,-219.23f,430.50f,2.369f},
+    {-798.01f,-227.24f,429.84f,1.446f},
 };
 
 class boss_flame_leviathan : public CreatureScript
@@ -421,7 +421,7 @@ public:
                 events.CancelEvent(EVENT_THORIM_S_HAMMER);
                 return;
             case EVENT_MIMIRON_S_INFERNO: // Tower of Flames
-                me->SummonCreature(MOB_MIMIRON_BEACON, 390.93, -13.91, 409.81);
+                me->SummonCreature(MOB_MIMIRON_BEACON, 390.93f, -13.91f, 409.81f);
                 DoScriptText(SAY_TOWER_FLAME, me);
                 events.CancelEvent(EVENT_MIMIRON_S_INFERNO);
                 return;
@@ -451,10 +451,10 @@ public:
 
         void StartFreyaEvent()//summon these 4 on each corner wich wil spawn additional hostile mobs
         {
-            me->SummonCreature(MOB_FREYA_BEACON, 377.02, -119.10, 409.81);
-            me->SummonCreature(MOB_FREYA_BEACON, 377.02, 54.78, 409.81);
-            me->SummonCreature(MOB_FREYA_BEACON, 185.62, 54.78, 409.81);
-            me->SummonCreature(MOB_FREYA_BEACON, 185.62, -119.10, 409.81);
+            me->SummonCreature(MOB_FREYA_BEACON, 377.02f, -119.10f, 409.81f);
+            me->SummonCreature(MOB_FREYA_BEACON, 377.02f, 54.78f, 409.81f);
+            me->SummonCreature(MOB_FREYA_BEACON, 185.62f, 54.78f, 409.81f);
+            me->SummonCreature(MOB_FREYA_BEACON, 185.62f, -119.10f, 409.81f);
         }
 
         void DoAction(const int32 uiAction)
@@ -462,8 +462,8 @@ public:
             // Start encounter
             if (uiAction == 10)
             {
-                me->SetHomePosition(354.8771, -12.90240, 409.803, 0);
-                me->GetMotionMaster()->MoveCharge(354.8771, -12.90240, 409.803); //position center
+                me->SetHomePosition(354.8771f, -12.90240f, 409.803f, 0);
+                me->GetMotionMaster()->MoveCharge(354.8771f, -12.90240f, 409.803f); //position center
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
                 DoZoneInCombat();

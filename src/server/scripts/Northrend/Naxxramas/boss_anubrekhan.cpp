@@ -24,7 +24,7 @@
 
 #define MOB_CRYPT_GUARD     16573
 
-const Position GuardSummonPos = {3333.72, -3476.30, 287.1, 6.2801};
+const Position GuardSummonPos = {3333.72f, -3476.30f, 287.1f, 6.2801f};
 
 enum Events
 {

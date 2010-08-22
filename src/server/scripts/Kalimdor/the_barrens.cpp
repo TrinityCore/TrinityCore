@@ -333,12 +333,12 @@ enum eTwiggyFlathead
 
 float AffrayChallengerLoc[6][4]=
 {
-    {-1683, -4326, 2.79, 0},
-    {-1682, -4329, 2.79, 0},
-    {-1683, -4330, 2.79, 0},
-    {-1680, -4334, 2.79, 1.49},
-    {-1674, -4326, 2.79, 3.49},
-    {-1677, -4334, 2.79, 1.66}
+    {-1683.0f, -4326.0f, 2.79f, 0.0f},
+    {-1682.0f, -4329.0f, 2.79f, 0.0f},
+    {-1683.0f, -4330.0f, 2.79f, 0.0f},
+    {-1680.0f, -4334.0f, 2.79f, 1.49f},
+    {-1674.0f, -4326.0f, 2.79f, 3.49f},
+    {-1677.0f, -4334.0f, 2.79f, 1.66f}
 };
 
 class npc_twiggy_flathead : public CreatureScript
@@ -509,12 +509,12 @@ public:
                             }
                         }
                         else if (Wave >= 6 && !EventBigWill) {
-                            if (Creature* pCreature = me->SummonCreature(NPC_BIG_WILL, -1722, -4341, 6.12, 6.26, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 480000))
+                            if (Creature* pCreature = me->SummonCreature(NPC_BIG_WILL, -1722, -4341, 6.12f, 6.26f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 480000))
                             {
                                 BigWill = pCreature->GetGUID();
-                                //pCreature->GetMotionMaster()->MovePoint(0, -1693, -4343, 4.32);
-                                //pCreature->GetMotionMaster()->MovePoint(1, -1684, -4333, 2.78);
-                                pCreature->GetMotionMaster()->MovePoint(2, -1682, -4329, 2.79);
+                                //pCreature->GetMotionMaster()->MovePoint(0, -1693, -4343, 4.32f);
+                                //pCreature->GetMotionMaster()->MovePoint(1, -1684, -4333, 2.78f);
+                                pCreature->GetMotionMaster()->MovePoint(2, -1682, -4329, 2.79f);
                                 pCreature->HandleEmoteCommand(EMOTE_STATE_READYUNARMED);
                                 EventBigWill = true;
                                 Wave_Timer = 1000;

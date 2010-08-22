@@ -35,20 +35,20 @@
 #define MOB_GUARDIAN        16981
 
 // Teleport position of Noth on his balcony
-#define TELE_X 2631.370
-#define TELE_Y -3529.680
-#define TELE_Z 274.040
-#define TELE_O 6.277
+#define TELE_X 2631.370f
+#define TELE_Y -3529.680f
+#define TELE_Z 274.040f
+#define TELE_O 6.277f
 
 #define MAX_SUMMON_POS 5
 
 const float SummonPos[MAX_SUMMON_POS][4] =
 {
-    {2728.12, -3544.43, 261.91, 6.04},
-    {2729.05, -3544.47, 261.91, 5.58},
-    {2728.24, -3465.08, 264.20, 3.56},
-    {2704.11, -3456.81, 265.53, 4.51},
-    {2663.56, -3464.43, 262.66, 5.20},
+    {2728.12f, -3544.43f, 261.91f, 6.04f},
+    {2729.05f, -3544.47f, 261.91f, 5.58f},
+    {2728.24f, -3465.08f, 264.20f, 3.56f},
+    {2704.11f, -3456.81f, 265.53f, 4.51f},
+    {2663.56f, -3464.43f, 262.66f, 5.20f},
 };
 
 enum Events

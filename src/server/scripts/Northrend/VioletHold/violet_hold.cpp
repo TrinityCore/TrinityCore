@@ -127,126 +127,126 @@ enum eSinclari
 
 float FirstPortalWPs [6][3] =
 {
-    {1877.670288, 842.280273, 43.333591},
-    {1877.338867, 834.615356, 38.762287},
-    {1872.161011, 823.854309, 38.645401},
-    {1864.860474, 815.787170, 38.784843},
-    {1858.953735, 810.048950, 44.008759},
-    {1843.707153, 805.807739, 44.135197}
-    //{1825.736084, 807.305847, 44.363785}
+    {1877.670288f, 842.280273f, 43.333591f},
+    {1877.338867f, 834.615356f, 38.762287f},
+    {1872.161011f, 823.854309f, 38.645401f},
+    {1864.860474f, 815.787170f, 38.784843f},
+    {1858.953735f, 810.048950f, 44.008759f},
+    {1843.707153f, 805.807739f, 44.135197f}
+    //{1825.736084f, 807.305847f, 44.363785f}
 };
 
 float SecondPortalFirstWPs [9][3] =
 {
-    {1902.561401, 853.334656, 47.106117},
-    {1895.486084, 855.376404, 44.334591},
-    {1882.805176, 854.993286, 43.333591},
-    {1877.670288, 842.280273, 43.333591},
-    {1877.338867, 834.615356, 38.762287},
-    {1872.161011, 823.854309, 38.645401},
-    {1864.860474, 815.787170, 38.784843},
-    {1858.953735, 810.048950, 44.008759},
-    {1843.707153, 805.807739, 44.135197}
-    //{1825.736084, 807.305847, 44.363785}
+    {1902.561401f, 853.334656f, 47.106117f},
+    {1895.486084f, 855.376404f, 44.334591f},
+    {1882.805176f, 854.993286f, 43.333591f},
+    {1877.670288f, 842.280273f, 43.333591f},
+    {1877.338867f, 834.615356f, 38.762287f},
+    {1872.161011f, 823.854309f, 38.645401f},
+    {1864.860474f, 815.787170f, 38.784843f},
+    {1858.953735f, 810.048950f, 44.008759f},
+    {1843.707153f, 805.807739f, 44.135197f}
+    //{1825.736084f, 807.305847f, 44.363785f}
 };
 
 float SecondPortalSecondWPs [8][3] =
 {
-    {1929.392212, 837.614990, 47.136166},
-    {1928.290649, 824.750427, 45.474411},
-    {1915.544922, 826.919373, 38.642811},
-    {1900.933960, 818.855652, 38.801647},
-    {1886.810547, 813.536621, 38.490490},
-    {1869.079712, 808.701538, 38.689003},
-    {1860.843384, 806.645020, 44.008789},
-    {1843.707153, 805.807739, 44.135197}
-    //{1825.736084, 807.305847, 44.363785}
+    {1929.392212f, 837.614990f, 47.136166f},
+    {1928.290649f, 824.750427f, 45.474411f},
+    {1915.544922f, 826.919373f, 38.642811f},
+    {1900.933960f, 818.855652f, 38.801647f},
+    {1886.810547f, 813.536621f, 38.490490f},
+    {1869.079712f, 808.701538f, 38.689003f},
+    {1860.843384f, 806.645020f, 44.008789f},
+    {1843.707153f, 805.807739f, 44.135197f}
+    //{1825.736084f, 807.305847f, 44.363785f}
 };
 
 float ThirdPortalWPs [8][3] =
 {
-    {1934.049438, 815.778503, 52.408699},
-    {1928.290649, 824.750427, 45.474411},
-    {1915.544922, 826.919373, 38.642811},
-    {1900.933960, 818.855652, 38.801647},
-    {1886.810547, 813.536621, 38.490490},
-    {1869.079712, 808.701538, 38.689003},
-    {1860.843384, 806.645020, 44.008789},
-    {1843.707153, 805.807739, 44.135197}
-    //{1825.736084, 807.305847, 44.363785}
+    {1934.049438f, 815.778503f, 52.408699f},
+    {1928.290649f, 824.750427f, 45.474411f},
+    {1915.544922f, 826.919373f, 38.642811f},
+    {1900.933960f, 818.855652f, 38.801647f},
+    {1886.810547f, 813.536621f, 38.490490f},
+    {1869.079712f, 808.701538f, 38.689003f},
+    {1860.843384f, 806.645020f, 44.008789f},
+    {1843.707153f, 805.807739f, 44.135197f}
+    //{1825.736084f, 807.305847f, 44.363785f}
 };
 
 float FourthPortalWPs [9][3] =
 {
-    {1921.658447, 761.657043, 50.866741},
-    {1910.559814, 755.780457, 47.701447},
-    {1896.664673, 752.920898, 47.667004},
-    {1887.398804, 763.633240, 47.666851},
-    {1879.020386, 775.396973, 38.705990},
-    {1872.439087, 782.568604, 38.808292},
-    {1863.573364, 791.173584, 38.743660},
-    {1857.811890, 796.765564, 43.950329},
-    {1845.577759, 800.681152, 44.104248}
-    //{1827.100342, 801.605957, 44.363358}
+    {1921.658447f, 761.657043f, 50.866741f},
+    {1910.559814f, 755.780457f, 47.701447f},
+    {1896.664673f, 752.920898f, 47.667004f},
+    {1887.398804f, 763.633240f, 47.666851f},
+    {1879.020386f, 775.396973f, 38.705990f},
+    {1872.439087f, 782.568604f, 38.808292f},
+    {1863.573364f, 791.173584f, 38.743660f},
+    {1857.811890f, 796.765564f, 43.950329f},
+    {1845.577759f, 800.681152f, 44.104248f}
+    //{1827.100342f, 801.605957f, 44.363358f}
 };
 
 float FifthPortalWPs [6][3] =
 {
-    {1887.398804, 763.633240, 47.666851},
-    {1879.020386, 775.396973, 38.705990},
-    {1872.439087, 782.568604, 38.808292},
-    {1863.573364, 791.173584, 38.743660},
-    {1857.811890, 796.765564, 43.950329},
-    {1845.577759, 800.681152, 44.104248}
-    //{1827.100342, 801.605957, 44.363358}
+    {1887.398804f, 763.633240f, 47.666851f},
+    {1879.020386f, 775.396973f, 38.705990f},
+    {1872.439087f, 782.568604f, 38.808292f},
+    {1863.573364f, 791.173584f, 38.743660f},
+    {1857.811890f, 796.765564f, 43.950329f},
+    {1845.577759f, 800.681152f, 44.104248f}
+    //{1827.100342f, 801.605957f, 44.363358f}
 };
 
 float SixthPoralWPs [4][3] =
 {
-    {1888.861084, 805.074768, 38.375790},
-    {1869.793823, 804.135804, 38.647018},
-    {1861.541504, 804.149780, 43.968292},
-    {1843.567017, 804.288208, 44.139091}
-    //{1826.889648, 803.929993, 44.363239}
+    {1888.861084f, 805.074768f, 38.375790f},
+    {1869.793823f, 804.135804f, 38.647018f},
+    {1861.541504f, 804.149780f, 43.968292f},
+    {1843.567017f, 804.288208f, 44.139091f}
+    //{1826.889648f, 803.929993f, 44.363239f}
 };
 
 const float SaboteurFinalPos1[3][3] =
 {
-    {1892.502319, 777.410767, 38.630402},
-    {1891.165161, 762.969421, 47.666920},
-    {1893.168091, 740.919189, 47.666920}
+    {1892.502319f, 777.410767f, 38.630402f},
+    {1891.165161f, 762.969421f, 47.666920f},
+    {1893.168091f, 740.919189f, 47.666920f}
 };
 const float SaboteurFinalPos2[3][3] =
 {
-    {1882.242676, 834.818726, 38.646786},
-    {1879.220825, 842.224854, 43.333641},
-    {1873.842896, 863.892456, 43.333641}
+    {1882.242676f, 834.818726f, 38.646786f},
+    {1879.220825f, 842.224854f, 43.333641f},
+    {1873.842896f, 863.892456f, 43.333641f}
 };
 const float SaboteurFinalPos3[2][3] =
 {
-    {1904.298340, 792.400391, 38.646782},
-    {1935.716919, 758.437073, 30.627895}
+    {1904.298340f, 792.400391f, 38.646782f},
+    {1935.716919f, 758.437073f, 30.627895f}
 };
 const float SaboteurFinalPos4[3] =
 {
-    1855.006104, 760.641724, 38.655266
+    1855.006104f, 760.641724f, 38.655266f
 };
 const float SaboteurFinalPos5[3] =
 {
-    1906.667358, 841.705566, 38.637894
+    1906.667358f, 841.705566f, 38.637894f
 };
 const float SaboteurFinalPos6[5][3] =
 {
-    {1911.437012, 821.289246, 38.684128},
-    {1920.734009, 822.978027, 41.525414},
-    {1928.262939, 830.836609, 44.668266},
-    {1929.338989, 837.593933, 47.137596},
-    {1931.063354, 848.468445, 47.190434}
+    {1911.437012f, 821.289246f, 38.684128f},
+    {1920.734009f, 822.978027f, 41.525414f},
+    {1928.262939f, 830.836609f, 44.668266f},
+    {1929.338989f, 837.593933f, 47.137596f},
+    {1931.063354f, 848.468445f, 47.190434f}
  };
 
-const Position MovePosition = {1806.955566, 803.851807, 44.363323};
-const Position playerTeleportPosition = {1830.531006, 803.939758, 44.340508, 6.281611};
-const Position sinclariOutsidePosition = {1817.315674, 804.060608, 44.363998};
+const Position MovePosition = {1806.955566f, 803.851807f, 44.363323f};
+const Position playerTeleportPosition = {1830.531006f, 803.939758f, 44.340508f, 6.281611f};
+const Position sinclariOutsidePosition = {1817.315674f, 804.060608f, 44.363998f};
 
 class npc_sinclari_vh : public CreatureScript
 {
@@ -492,30 +492,30 @@ public:
                     case 1:
                         for(int i=0;i<3;i++)
                             AddWaypoint(i,SaboteurFinalPos1[i][0],SaboteurFinalPos1[i][1],SaboteurFinalPos1[i][2],0);
-                        me->SetHomePosition(SaboteurFinalPos1[2][0],SaboteurFinalPos1[2][1],SaboteurFinalPos1[2][2],4.762346);
+                        me->SetHomePosition(SaboteurFinalPos1[2][0],SaboteurFinalPos1[2][1],SaboteurFinalPos1[2][2],4.762346f);
                         break;
                     case 2:
                         for(int i=0;i<3;i++)
                             AddWaypoint(i,SaboteurFinalPos2[i][0],SaboteurFinalPos2[i][1],SaboteurFinalPos2[i][2],0);
-                        me->SetHomePosition(SaboteurFinalPos2[2][0],SaboteurFinalPos2[2][1],SaboteurFinalPos2[2][2],1.862674);
+                        me->SetHomePosition(SaboteurFinalPos2[2][0],SaboteurFinalPos2[2][1],SaboteurFinalPos2[2][2],1.862674f);
                         break;
                     case 3:
                         for(int i=0;i<2;i++)
                             AddWaypoint(i,SaboteurFinalPos3[i][0],SaboteurFinalPos3[i][1],SaboteurFinalPos3[i][2],0);
-                        me->SetHomePosition(SaboteurFinalPos3[1][0],SaboteurFinalPos3[1][1],SaboteurFinalPos3[1][2],5.500638);
+                        me->SetHomePosition(SaboteurFinalPos3[1][0],SaboteurFinalPos3[1][1],SaboteurFinalPos3[1][2],5.500638f);
                         break;
                     case 4:
                         AddWaypoint(0,SaboteurFinalPos4[0],SaboteurFinalPos4[1],SaboteurFinalPos4[2],0);
-                        me->SetHomePosition(SaboteurFinalPos4[0],SaboteurFinalPos4[1],SaboteurFinalPos4[2],3.991108);
+                        me->SetHomePosition(SaboteurFinalPos4[0],SaboteurFinalPos4[1],SaboteurFinalPos4[2],3.991108f);
                         break;
                     case 5:
                         AddWaypoint(0,SaboteurFinalPos5[0],SaboteurFinalPos5[1],SaboteurFinalPos5[2],0);
-                        me->SetHomePosition(SaboteurFinalPos5[0],SaboteurFinalPos5[1],SaboteurFinalPos5[2],1.100841);
+                        me->SetHomePosition(SaboteurFinalPos5[0],SaboteurFinalPos5[1],SaboteurFinalPos5[2],1.100841f);
                         break;
                     case 6:
                         for(int i=0;i<5;i++)
                             AddWaypoint(i,SaboteurFinalPos6[i][0],SaboteurFinalPos6[i][1],SaboteurFinalPos6[i][2],0);
-                        me->SetHomePosition(SaboteurFinalPos6[4][0],SaboteurFinalPos6[4][1],SaboteurFinalPos6[4][2],0.983031);
+                        me->SetHomePosition(SaboteurFinalPos6[4][0],SaboteurFinalPos6[4][1],SaboteurFinalPos6[4][2],0.983031f);
                         break;
                 }
 
@@ -734,7 +734,7 @@ struct violet_hold_trashAI : public npc_escortAI
                 case 0:
                     for(int i=0;i<6;i++)
                         AddWaypoint(i,FirstPortalWPs[i][0]+irand(-1,1),FirstPortalWPs[i][1]+irand(-1,1),FirstPortalWPs[i][2]+irand(-1,1),0);
-                    me->SetHomePosition(FirstPortalWPs[5][0],FirstPortalWPs[5][1],FirstPortalWPs[5][2],3.149439);
+                    me->SetHomePosition(FirstPortalWPs[5][0],FirstPortalWPs[5][1],FirstPortalWPs[5][2],3.149439f);
                     break;
                 case 1:
                     secondPortalRouteID = urand(0,1);
@@ -743,34 +743,34 @@ struct violet_hold_trashAI : public npc_escortAI
                         case 0:
                             for(int i=0;i<9;i++)
                                 AddWaypoint(i,SecondPortalFirstWPs[i][0]+irand(-1,1),SecondPortalFirstWPs[i][1]+irand(-1,1),SecondPortalFirstWPs[i][2],0);
-                            me->SetHomePosition(SecondPortalFirstWPs[8][0]+irand(-1,1),SecondPortalFirstWPs[8][1]+irand(-1,1),SecondPortalFirstWPs[8][2]+irand(-1,1),3.149439);
+                            me->SetHomePosition(SecondPortalFirstWPs[8][0]+irand(-1,1),SecondPortalFirstWPs[8][1]+irand(-1,1),SecondPortalFirstWPs[8][2]+irand(-1,1),3.149439f);
                             break;
                         case 1:
                             for(int i=0;i<8;i++)
                                 AddWaypoint(i,SecondPortalSecondWPs[i][0]+irand(-1,1),SecondPortalSecondWPs[i][1]+irand(-1,1),SecondPortalSecondWPs[i][2],0);
-                            me->SetHomePosition(SecondPortalSecondWPs[7][0],SecondPortalSecondWPs[7][1],SecondPortalSecondWPs[7][2],3.149439);
+                            me->SetHomePosition(SecondPortalSecondWPs[7][0],SecondPortalSecondWPs[7][1],SecondPortalSecondWPs[7][2],3.149439f);
                             break;
                     }
                     break;
                 case 2:
                     for(int i=0;i<8;i++)
                         AddWaypoint(i,ThirdPortalWPs[i][0]+irand(-1,1),ThirdPortalWPs[i][1]+irand(-1,1),ThirdPortalWPs[i][2],0);
-                        me->SetHomePosition(ThirdPortalWPs[7][0],ThirdPortalWPs[7][1],ThirdPortalWPs[7][2],3.149439);
+                        me->SetHomePosition(ThirdPortalWPs[7][0],ThirdPortalWPs[7][1],ThirdPortalWPs[7][2],3.149439f);
                     break;
                 case 3:
                     for(int i=0;i<9;i++)
                         AddWaypoint(i,FourthPortalWPs[i][0]+irand(-1,1),FourthPortalWPs[i][1]+irand(-1,1),FourthPortalWPs[i][2],0);
-                    me->SetHomePosition(FourthPortalWPs[8][0],FourthPortalWPs[8][1],FourthPortalWPs[8][2],3.149439);
+                    me->SetHomePosition(FourthPortalWPs[8][0],FourthPortalWPs[8][1],FourthPortalWPs[8][2],3.149439f);
                     break;
                 case 4:
                     for(int i=0;i<6;i++)
                         AddWaypoint(i,FifthPortalWPs[i][0]+irand(-1,1),FifthPortalWPs[i][1]+irand(-1,1),FifthPortalWPs[i][2],0);
-                    me->SetHomePosition(FifthPortalWPs[5][0],FifthPortalWPs[5][1],FifthPortalWPs[5][2],3.149439);
+                    me->SetHomePosition(FifthPortalWPs[5][0],FifthPortalWPs[5][1],FifthPortalWPs[5][2],3.149439f);
                     break;
                 case 5:
                     for(int i=0;i<4;i++)
                         AddWaypoint(i,SixthPoralWPs[i][0]+irand(-1,1),SixthPoralWPs[i][1]+irand(-1,1),SixthPoralWPs[i][2],0);
-                    me->SetHomePosition(SixthPoralWPs[3][0],SixthPoralWPs[3][1],SixthPoralWPs[3][2],3.149439);
+                    me->SetHomePosition(SixthPoralWPs[3][0],SixthPoralWPs[3][1],SixthPoralWPs[3][2],3.149439f);
                     break;
             }
             SetDespawnAtEnd(false);
