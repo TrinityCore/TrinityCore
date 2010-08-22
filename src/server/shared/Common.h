@@ -75,18 +75,6 @@
 
 #if PLATFORM == PLATFORM_WINDOWS
 #define STRCASECMP stricmp
-#define stricmp _stricmp
-#define putenv _putenv
-#define access _access
-#define chdir _chdir
-#define rmdir _rmdir
-#define getcwd _getcwd
-#define swab _swab
-#define unlnk _unlink
-#define mkdir _mkdir
-#define tempnam _tempnam
-#define strdup _strdup
-#define fdopen _fdopen
 #else
 #define STRCASECMP strcasecmp
 #endif
