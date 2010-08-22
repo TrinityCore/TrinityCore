@@ -130,7 +130,7 @@ public:
             {
                 Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
                 if (pTarget && pTarget->isAlive())
-                    me->AddThreat(pTarget,0.0);
+                    me->AddThreat(pTarget,0.0f);
             }
         }
 
@@ -154,14 +154,14 @@ public:
                     pGo = true;
                     if (pInstance)
                     {
-                        AddWaypoint(0, 4896.08,    -1576.35,    1333.65);
-                        AddWaypoint(1, 4898.68,    -1615.02,    1329.48);
-                        AddWaypoint(2, 4907.12,    -1667.08,    1321.00);
-                        AddWaypoint(3, 4963.18,    -1699.35,    1340.51);
-                        AddWaypoint(4, 4989.16,    -1716.67,    1335.74);
-                        AddWaypoint(5, 5026.27,    -1736.89,    1323.02);
-                        AddWaypoint(6, 5037.77,    -1770.56,    1324.36);
-                        AddWaypoint(7, 5067.23,    -1789.95,    1321.17);
+                        AddWaypoint(0, 4896.08f,    -1576.35f,    1333.65f);
+                        AddWaypoint(1, 4898.68f,    -1615.02f,    1329.48f);
+                        AddWaypoint(2, 4907.12f,    -1667.08f,    1321.00f);
+                        AddWaypoint(3, 4963.18f,    -1699.35f,    1340.51f);
+                        AddWaypoint(4, 4989.16f,    -1716.67f,    1335.74f);
+                        AddWaypoint(5, 5026.27f,    -1736.89f,    1323.02f);
+                        AddWaypoint(6, 5037.77f,    -1770.56f,    1324.36f);
+                        AddWaypoint(7, 5067.23f,    -1789.95f,    1321.17f);
                         Start(false, true);
                         SetDespawnAtEnd(false);
                     }

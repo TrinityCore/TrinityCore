@@ -85,9 +85,9 @@ struct Point
 
 const Point MovementPoint[] =
 {
-  {746.84,623.15,411.41},
-  {747.96,620.29,411.09},
-  {750.23,618.35,411.09}
+  {746.84f,623.15f,411.41f},
+  {747.96f,620.29f,411.09f},
+  {750.23f,618.35f,411.09f}
 };
 
 void AggroAllPlayers(Creature* pTemp)
@@ -178,22 +178,22 @@ public:
             switch(uiType)
             {
                 case 1:
-                    AddWaypoint(0,747.36,634.07,411.572);
-                    AddWaypoint(1,780.43,607.15,411.82);
-                    AddWaypoint(2,785.99,599.41,411.92);
-                    AddWaypoint(3,778.44,601.64,411.79);
+                    AddWaypoint(0,747.36f,634.07f,411.572f);
+                    AddWaypoint(1,780.43f,607.15f,411.82f);
+                    AddWaypoint(2,785.99f,599.41f,411.92f);
+                    AddWaypoint(3,778.44f,601.64f,411.79f);
                     uiWaypointPath = 1;
                     break;
                 case 2:
-                    AddWaypoint(0,747.35,634.07,411.57);
-                    AddWaypoint(1,768.72,581.01,411.92);
-                    AddWaypoint(2,763.55,590.52,411.71);
+                    AddWaypoint(0,747.35f,634.07f,411.57f);
+                    AddWaypoint(1,768.72f,581.01f,411.92f);
+                    AddWaypoint(2,763.55f,590.52f,411.71f);
                     uiWaypointPath = 2;
                     break;
                 case 3:
-                    AddWaypoint(0,747.35,634.07,411.57);
-                    AddWaypoint(1,784.02,645.33,412.39);
-                    AddWaypoint(2,775.67,641.91,411.91);
+                    AddWaypoint(0,747.35f,634.07f,411.57f);
+                    AddWaypoint(1,784.02f,645.33f,412.39f);
+                    AddWaypoint(2,775.67f,641.91f,411.91f);
                     uiWaypointPath = 3;
                     break;
             }
@@ -362,11 +362,11 @@ public:
                 bDone = true;
 
                 if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
-                    me->SetHomePosition(739.678,662.541,412.393,4.49);
+                    me->SetHomePosition(739.678f,662.541f,412.393f,4.49f);
                 else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_2))
-                    me->SetHomePosition(746.71,661.02,411.69,4.6);
+                    me->SetHomePosition(746.71f,661.02f,411.69f,4.6f);
                 else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
-                    me->SetHomePosition(754.34,660.70,412.39,4.79);
+                    me->SetHomePosition(754.34f,660.70f,412.39f,4.79f);
 
                 EnterEvadeMode();
                 bHome = true;
@@ -496,11 +496,11 @@ public:
                 bDone = true;
 
                 if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
-                    me->SetHomePosition(739.678,662.541,412.393,4.49);
+                    me->SetHomePosition(739.678f,662.541f,412.393f,4.49f);
                 else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_2))
-                    me->SetHomePosition(746.71,661.02,411.69,4.6);
+                    me->SetHomePosition(746.71f,661.02f,411.69f,4.6f);
                 else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
-                    me->SetHomePosition(754.34,660.70,412.39,4.79);
+                    me->SetHomePosition(754.34f,660.70f,412.39f,4.79f);
 
                 if (pInstance)
                     pInstance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
@@ -642,11 +642,11 @@ public:
                 bDone = true;
 
                 if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
-                    me->SetHomePosition(739.678,662.541,412.393,4.49);
+                    me->SetHomePosition(739.678f,662.541f,412.393f,4.49f);
                 else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_2))
-                    me->SetHomePosition(746.71,661.02,411.69,4.6);
+                    me->SetHomePosition(746.71f,661.02f,411.69f,4.6f);
                 else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
-                    me->SetHomePosition(754.34,660.70,412.39,4.79);
+                    me->SetHomePosition(754.34f,660.70f,412.39f,4.79f);
 
                 if (pInstance)
                     pInstance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
@@ -789,11 +789,11 @@ public:
                 bDone = true;
 
                 if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
-                    me->SetHomePosition(739.678,662.541,412.393,4.49);
+                    me->SetHomePosition(739.678f,662.541f,412.393f,4.49f);
                 else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_2))
-                    me->SetHomePosition(746.71,661.02,411.69,4.6);
+                    me->SetHomePosition(746.71f,661.02f,411.69f,4.6f);
                 else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
-                    me->SetHomePosition(754.34,660.70,412.39,4.79);
+                    me->SetHomePosition(754.34f,660.70f,412.39f,4.79f);
 
                 if (pInstance)
                     pInstance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
@@ -937,11 +937,11 @@ public:
                 bDone = true;
 
                 if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
-                    me->SetHomePosition(739.678,662.541,412.393,4.49);
+                    me->SetHomePosition(739.678f,662.541f,412.393f,4.49f);
                 else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_2))
-                    me->SetHomePosition(746.71,661.02,411.69,4.6);
+                    me->SetHomePosition(746.71f,661.02f,411.69f,4.6f);
                 else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
-                    me->SetHomePosition(754.34,660.70,412.39,4.79);
+                    me->SetHomePosition(754.34f,660.70f,412.39f,4.79f);
 
                 if (pInstance)
                     pInstance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);

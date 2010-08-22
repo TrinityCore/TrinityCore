@@ -157,7 +157,7 @@ class instance_deadmines : public InstanceMapScript
             void MoveCreatureInside(Creature* pCreature)
             {
                 pCreature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                pCreature->GetMotionMaster()->MovePoint(0, -102.7,-655.9, pCreature->GetPositionZ());
+                pCreature->GetMotionMaster()->MovePoint(0, -102.7f,-655.9f, pCreature->GetPositionZ());
             }
 
             void ShootCannon()

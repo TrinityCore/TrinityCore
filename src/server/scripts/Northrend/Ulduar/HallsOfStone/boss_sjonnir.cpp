@@ -76,11 +76,11 @@ struct Locations
 
 static Locations PipeLocations[] =
 {
-  {1295.44, 734.07, 200.3}, //left
-  {1297.7,  595.6,  199.9} //right
+  {1295.44f, 734.07f, 200.3f}, //left
+  {1297.7f,  595.6f,  199.9f} //right
 };
 
-static Locations CenterPoint = {1295.21, 667.157, 189.691};
+static Locations CenterPoint = {1295.21f, 667.157f, 189.691f};
 
 class boss_sjonnir : public CreatureScript
 {

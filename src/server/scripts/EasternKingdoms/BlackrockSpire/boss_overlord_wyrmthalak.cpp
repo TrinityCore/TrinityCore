@@ -30,15 +30,15 @@ EndScriptData */
 #define SPELL_CLEAVE            20691
 #define SPELL_KNOCKAWAY         20686
 
-#define ADD_1X -39.355381
-#define ADD_1Y -513.456482
-#define ADD_1Z 88.472046
-#define ADD_1O 4.679872
+#define ADD_1X -39.355381f
+#define ADD_1Y -513.456482f
+#define ADD_1Z 88.472046f
+#define ADD_1O 4.679872f
 
-#define ADD_2X -49.875881
-#define ADD_2Y -511.896942
-#define ADD_2Z 88.195160
-#define ADD_2O 4.613114
+#define ADD_2X -49.875881f
+#define ADD_2Y -511.896942f
+#define ADD_2Z 88.195160f
+#define ADD_2O 4.613114f
 
 class boss_overlord_wyrmthalak : public CreatureScript
 {

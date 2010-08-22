@@ -70,12 +70,12 @@ EndScriptData */
 /** Locations **/
 float KaelLocations[3][2]=
 {
-    {148.744659, 181.377426},
-    {140.823883, 195.403046},
-    {156.574188, 195.650482},
+    {148.744659f, 181.377426f},
+    {140.823883f, 195.403046f},
+    {156.574188f, 195.650482f},
 };
 
-#define LOCATION_Z                  -16.727455
+#define LOCATION_Z                  -16.727455f
 
 class boss_felblood_kaelthas : public CreatureScript
 {
@@ -175,7 +175,7 @@ public:
 
         void MoveInLineOfSight(Unit *who)
         {
-            if (!HasTaunted && me->IsWithinDistInMap(who, 40.0))
+            if (!HasTaunted && me->IsWithinDistInMap(who, 40.0f))
             {
                 DoScriptText(SAY_AGGRO, me);
                 HasTaunted = true;
@@ -334,7 +334,7 @@ public:
                     } else FlameStrikeTimer -= diff;
 
                     // Below 50%
-                    if (me->GetMaxHealth() * 0.5 > me->GetHealth())
+                    if (me->GetMaxHealth() * 0.5f > me->GetHealth())
                     {
                         me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
                         me->StopMoving();

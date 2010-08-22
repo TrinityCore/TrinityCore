@@ -67,7 +67,7 @@ public:
         {
             for (uint8 i = 0; i < 30; ++i)
             {
-                if (Creature* mob = me->SummonCreature(C_MINDLESS_UNDEAD,3969.35+irand(-10,10),-3391.87+irand(-10,10),119.11,5.91,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1800000))
+                if (Creature* mob = me->SummonCreature(C_MINDLESS_UNDEAD,3969.35f+irand(-10,10),-3391.87f+irand(-10,10),119.11f,5.91f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1800000))
                     mob->AI()->AttackStart(me->SelectNearestTarget(500));
             }
 

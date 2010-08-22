@@ -73,9 +73,9 @@ public:
                 float y = me->GetPositionY();
                 float z = me->GetPositionZ();
 
-                Hitter->SummonCreature(18181,x+(0.7 * (rand()%30)),y+(rand()%5),z,0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,60000);
+                Hitter->SummonCreature(18181,x+(0.7f * (rand()%30)),y+(rand()%5),z,0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,60000);
                 Hitter->SummonCreature(18181,x+(rand()%5),y-(rand()%5),z,0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,60000);
-                Hitter->SummonCreature(18181,x-(rand()%5),y+(0.5 *(rand()%60)),z,0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,60000);
+                Hitter->SummonCreature(18181,x-(rand()%5),y+(0.5f *(rand()%60)),z,0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,60000);
                 me->setDeathState(CORPSE);
                 Spawn = true;
             }
@@ -599,8 +599,8 @@ enum eMagharCaptive
     NPC_MURK_PUTRIFIER          = 18202
 };
 
-static float m_afAmbushA[]= {-1568.805786, 8533.873047, 1.958};
-static float m_afAmbushB[]= {-1491.554321, 8506.483398, 1.248};
+static float m_afAmbushA[]= {-1568.805786f, 8533.873047f, 1.958f};
+static float m_afAmbushB[]= {-1491.554321f, 8506.483398f, 1.248f};
 
 class npc_maghar_captive : public CreatureScript
 {

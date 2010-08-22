@@ -380,76 +380,76 @@ struct Location
 //Cordinates for Spawns
 static Location SpawnLocation[]=
 {
-    {-8085, 1528, 2.61, 3.141592},//Kaldorei Infantry
-    {-8080, 1526, 2.61, 3.141592},//Kaldorei Infantry
-    {-8085, 1524, 2.61, 3.141592},//Kaldorei Infantry
-    {-8080, 1522, 2.61, 3.141592},//Kaldorei Infantry
-    {-8085, 1520, 2.61, 3.141592},//Kaldorei Infantry
+    {-8085, 1528, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8080, 1526, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8085, 1524, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8080, 1522, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8085, 1520, 2.61f, 3.141592f},//Kaldorei Infantry
 
-    {-8085, 1524, 2.61, 3.141592},//Kaldorei Infantry
-    {-8080, 1522, 2.61, 3.141592},//Kaldorei Infantry
-    {-8085, 1520, 2.61, 3.141592},//Kaldorei Infantry
-    {-8080, 1518, 2.61, 3.141592},//Kaldorei Infantry
-    {-8085, 1516, 2.61, 3.141592},//Kaldorei Infantry
+    {-8085, 1524, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8080, 1522, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8085, 1520, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8080, 1518, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8085, 1516, 2.61f, 3.141592f},//Kaldorei Infantry
 
-    {-8085, 1518, 2.61, 3.141592},//Kaldorei Infantry
-    {-8080, 1516, 2.61, 3.141592},//Kaldorei Infantry
-    {-8080, 1520, 2.61, 3.141592},//Kaldorei Infantry
-    {-8080, 1424, 2.61, 3.141592},//Kaldorei Infantry
-    {-8085, 1422, 2.61, 3.141592},//Kaldorei Infantry
+    {-8085, 1518, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8080, 1516, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8080, 1520, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8080, 1424, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8085, 1422, 2.61f, 3.141592f},//Kaldorei Infantry
     // 2 waves of warriors
-    {-8082, 1528, 2.61, 3.141592},//Kaldorei Infantry
-    {-8078, 1525, 2.61, 3.141592},//Kaldorei Infantry
-    {-8082, 1524, 2.61, 3.141592},//Kaldorei Infantry
-    {-8078, 1526, 2.61, 3.141592},//Kaldorei Infantry
-    {-8082, 1527, 2.61, 3.141592},//Kaldorei Infantry
+    {-8082, 1528, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8078, 1525, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8082, 1524, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8078, 1526, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8082, 1527, 2.61f, 3.141592f},//Kaldorei Infantry
 
-    {-8082, 1524, 2.61, 3.141592},//Kaldorei Infantry
-    {-8078, 1522, 2.61, 3.141592},//Kaldorei Infantry
-    {-8082, 1520, 2.61, 3.141592},//Kaldorei Infantry
-    {-8078, 1518, 2.61, 3.141592},//Kaldorei Infantry
-    {-8082, 1516, 2.61, 3.141592},//Kaldorei Infantry
+    {-8082, 1524, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8078, 1522, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8082, 1520, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8078, 1518, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8082, 1516, 2.61f, 3.141592f},//Kaldorei Infantry
 
-    {-8082, 1523, 2.61, 3.141592},//Kaldorei Infantry
-    {-8078, 1521, 2.61, 3.141592},//Kaldorei Infantry
-    {-8082, 1528, 2.61, 3.141592},//Kaldorei Infantry
-    {-8078, 1519, 2.61, 3.141592},//Kaldorei Infantry
-    {-8082, 1526, 2.61, 3.141592},//Kaldorei Infantry
+    {-8082, 1523, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8078, 1521, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8082, 1528, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8078, 1519, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8082, 1526, 2.61f, 3.141592f},//Kaldorei Infantry
 
-    {-8082, 1524, 2.61, 3.141592},//Kaldorei Infantry
-    {-8078, 1522, 2.61, 3.141592},//Kaldorei Infantry
-    {-8082, 1520, 2.61, 3.141592},//Kaldorei Infantry
-    {-8078, 1518, 2.61, 3.141592},//Kaldorei Infantry
-    {-8082, 1516, 2.61, 3.141592},//Kaldorei Infantry
+    {-8082, 1524, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8078, 1522, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8082, 1520, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8078, 1518, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8082, 1516, 2.61f, 3.141592f},//Kaldorei Infantry
 
-    {-8088, 1510, 2.61, 0},//Anubisath Conqueror
-    {-8084, 1520, 2.61, 0},//Anubisath Conqueror
-    {-8088, 1530, 2.61, 0},//Anubisath Conqueror
+    {-8088, 1510, 2.61f, 0},//Anubisath Conqueror
+    {-8084, 1520, 2.61f, 0},//Anubisath Conqueror
+    {-8088, 1530, 2.61f, 0},//Anubisath Conqueror
 
-    {-8080, 1513, 2.61, 0},//Qiraj Wasp
-    {-8082, 1523, 2.61, 0},//Qiraj Wasp
-    {-8085, 1518, 2.61, 0},//Qiraj Wasp
-    {-8082, 1516, 2.61, 0},//Qiraj Wasp
-    {-8085, 1520, 2.61, 0},//Qiraj Wasp
-    {-8080, 1528, 2.61, 0},//Qiraj Wasp
+    {-8080, 1513, 2.61f, 0},//Qiraj Wasp
+    {-8082, 1523, 2.61f, 0},//Qiraj Wasp
+    {-8085, 1518, 2.61f, 0},//Qiraj Wasp
+    {-8082, 1516, 2.61f, 0},//Qiraj Wasp
+    {-8085, 1520, 2.61f, 0},//Qiraj Wasp
+    {-8080, 1528, 2.61f, 0},//Qiraj Wasp
 
-    {-8082, 1513, 2.61, 0},//Qiraj Wasp
-    {-8079, 1523, 2.61, 0},//Qiraj Wasp
-    {-8080, 1531, 2.61, 0},//Qiraj Wasp
-    {-8079, 1516, 2.61, 0},//Qiraj Wasp
-    {-8082, 1520, 2.61, 0},//Qiraj Wasp
-    {-8080, 1518, 2.61, 0},//Qiraj Wasp
+    {-8082, 1513, 2.61f, 0},//Qiraj Wasp
+    {-8079, 1523, 2.61f, 0},//Qiraj Wasp
+    {-8080, 1531, 2.61f, 0},//Qiraj Wasp
+    {-8079, 1516, 2.61f, 0},//Qiraj Wasp
+    {-8082, 1520, 2.61f, 0},//Qiraj Wasp
+    {-8080, 1518, 2.61f, 0},//Qiraj Wasp
 
-    {-8081, 1514, 2.61, 0},//Qiraj Tank
-    {-8081, 1520, 2.61, 0},//Qiraj Tank
-    {-8081, 1526, 2.61, 0},//Qiraj Tank
-    {-8081, 1512, 2.61, 0},//Qiraj Tank
-    {-8082, 1520, 2.61, 0},//Qiraj Tank
-    {-8081, 1528, 2.61, 0},//Qiraj Tank
+    {-8081, 1514, 2.61f, 0},//Qiraj Tank
+    {-8081, 1520, 2.61f, 0},//Qiraj Tank
+    {-8081, 1526, 2.61f, 0},//Qiraj Tank
+    {-8081, 1512, 2.61f, 0},//Qiraj Tank
+    {-8082, 1520, 2.61f, 0},//Qiraj Tank
+    {-8081, 1528, 2.61f, 0},//Qiraj Tank
 
-    {-8082, 1513, 2.61, 3.141592},//Anubisath Conqueror
-    {-8082, 1520, 2.61, 3.141592},//Anubisath Conqueror
-    {-8082, 1527, 2.61, 3.141592},//Anubisath Conqueror
+    {-8082, 1513, 2.61f, 3.141592f},//Anubisath Conqueror
+    {-8082, 1520, 2.61f, 3.141592f},//Anubisath Conqueror
+    {-8082, 1527, 2.61f, 3.141592f},//Anubisath Conqueror
 };
 
 struct WaveData
@@ -570,7 +570,7 @@ public:
                         break;
                     case 7:
                         Caelestrasz->SetUInt64Value(UNIT_FIELD_TARGET, NULL);
-                        Merithra->GetMotionMaster()->MoveCharge(-8065,1530,2.61,10);
+                        Merithra->GetMotionMaster()->MoveCharge(-8065,1530,2.61f,10);
                         break;
                     case 8:
                         DoScriptText(MERITHRA_YELL_1,Merithra);
@@ -581,7 +581,7 @@ public:
                     case 10:
                         Merithra->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
                         Merithra->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                        Merithra->GetMotionMaster()->MoveCharge(-8065,1530,6.61,3);
+                        Merithra->GetMotionMaster()->MoveCharge(-8065,1530,6.61f,3);
                         break;
                     case 11:
                         Merithra->CastSpell(Merithra,24818,false);
@@ -596,8 +596,8 @@ public:
                         Merithra->SetVisibility(VISIBILITY_OFF);
                         break;
                     case 15:
-                        Arygos->GetMotionMaster()->MoveCharge(-8065,1530,2.61,10);
-                        Merithra->GetMotionMaster()->MoveCharge(-8034.535,1535.14,2.61,42);
+                        Arygos->GetMotionMaster()->MoveCharge(-8065,1530,2.61f,10);
+                        Merithra->GetMotionMaster()->MoveCharge(-8034.535f,1535.14f,2.61f,42);
                         break;
                     case 16:
                         DoScriptText(ARYGOS_YELL_1, Arygos);
@@ -608,7 +608,7 @@ public:
                     case 18:
                         Arygos->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
                         Arygos->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                        Arygos->GetMotionMaster()->MoveCharge(-8065,1530,6.61,42);
+                        Arygos->GetMotionMaster()->MoveCharge(-8065,1530,6.61f,42);
                         break;
                     case 19:
                         Arygos->CastSpell(Arygos,50505,false);
@@ -622,9 +622,9 @@ public:
                         DoScriptText(CAELESTRASZ_SAY_2,Caelestrasz, Fandral);
                         break;
                     case 23:
-                        Caelestrasz->GetMotionMaster()->MoveCharge(-8065,1530,2.61,10);
+                        Caelestrasz->GetMotionMaster()->MoveCharge(-8065,1530,2.61f,10);
                         Arygos->SetVisibility(VISIBILITY_OFF);
-                        Arygos->GetMotionMaster()->MoveCharge(-8034.535,1535.14,2.61,10);
+                        Arygos->GetMotionMaster()->MoveCharge(-8034.535f,1535.14f,2.61f,10);
                         break;
                     case 24:
                         DoScriptText(CAELESTRASZ_YELL_1, Caelestrasz);
@@ -635,7 +635,7 @@ public:
                     case 26:
                         Caelestrasz->HandleEmoteCommand(254);
                         Caelestrasz->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                        Caelestrasz->GetMotionMaster()->MoveCharge(-8065,1530,7.61,4);
+                        Caelestrasz->GetMotionMaster()->MoveCharge(-8065,1530,7.61f,4);
                         break;
                     case 27:
                         Caelestrasz->CastSpell(Caelestrasz,54293,false);
@@ -654,9 +654,9 @@ public:
                         break;
                     case 32:
                         Caelestrasz->SetVisibility(VISIBILITY_OFF);
-                        Caelestrasz->GetMotionMaster()->MoveCharge(-8034.535,1535.14,2.61,42);
-                        Fandral->GetMotionMaster()->MoveCharge(-8108,1529,2.77,8);
-                        me->GetMotionMaster()->MoveCharge(-8113,1525,2.77,8);
+                        Caelestrasz->GetMotionMaster()->MoveCharge(-8034.535f,1535.14f,2.61f,42);
+                        Fandral->GetMotionMaster()->MoveCharge(-8108,1529,2.77f,8);
+                        me->GetMotionMaster()->MoveCharge(-8113,1525,2.77f,8);
                         break;//both run to the gate
                     case 33:
                         DoScriptText(ANACHRONOS_SAY_4, me);
@@ -666,17 +666,17 @@ public:
                         DoCast(plr, 23017, true);//Arcane Channeling
                         break;
                     case 35:
-                        me->CastSpell(-8088,1520.43,2.67,25158,true);
+                        me->CastSpell(-8088,1520.43f,2.67f,25158,true);
                         break;
                     case 36:
                         DoCast(plr, 25159, true);
                         break;
                     case 37:
-                        me->SummonGameObject(GO_GATE_OF_AHN_QIRAJ,-8130,1525,17.5,0,0,0,0,0,0);
+                        me->SummonGameObject(GO_GATE_OF_AHN_QIRAJ,-8130,1525,17.5f,0,0,0,0,0,0);
                         break;
                     case 38:
                         DoCast(plr, 25166, true);
-                        me->SummonGameObject(GO_GLYPH_OF_AHN_QIRAJ,-8130,1525,17.5,0,0,0,0,0,0);
+                        me->SummonGameObject(GO_GLYPH_OF_AHN_QIRAJ,-8130,1525,17.5f,0,0,0,0,0,0);
                         break;
                     case 39:
                         DoScriptText(ANACHRONOS_SAY_5, me, Fandral);
@@ -685,7 +685,7 @@ public:
                         Fandral->CastSpell(me, 25167, true);
                         break;
                     case 41:
-                        Fandral->SummonGameObject(GO_ROOTS_OF_AHN_QIRAJ,-8130,1525,17.5,0,0,0,0,0,0);
+                        Fandral->SummonGameObject(GO_ROOTS_OF_AHN_QIRAJ,-8130,1525,17.5f,0,0,0,0,0,0);
                         DoScriptText(FANDRAL_SAY_3, Fandral);
                         break;
                     case 42:
@@ -703,7 +703,7 @@ public:
                         break;
                     case 46:
                         DoScriptText(ANACHRONOS_SAY_8, me);
-                        me->GetMotionMaster()->MoveCharge(-8110,1527,2.77,4);
+                        me->GetMotionMaster()->MoveCharge(-8110,1527,2.77f,4);
                         break;
                     case 47:
                         DoScriptText(ANACHRONOS_EMOTE_1, me);
@@ -716,7 +716,7 @@ public:
                         break;
                     case 50:
                         DoScriptText(FANDRAL_EMOTE_2,Fandral);
-                        Fandral->CastSpell(-8127,1525,17.5,33806,true);
+                        Fandral->CastSpell(-8127,1525,17.5f,33806,true);
                         break;
                     case 51:
                     {
@@ -733,7 +733,7 @@ public:
                         break;
                     }
                     case 52:
-                        Fandral->GetMotionMaster()->MoveCharge(-8028.75, 1538.795, 2.61,4);
+                        Fandral->GetMotionMaster()->MoveCharge(-8028.75f, 1538.795f, 2.61f,4);
                         DoScriptText(ANACHRONOS_SAY_9, me,Fandral);
                         break;
                     case 53:
@@ -747,24 +747,24 @@ public:
                         break;
                     case 56:
                         DoScriptText(ANACHRONOS_EMOTE_3, me);
-                        me->GetMotionMaster()->MoveCharge(-8116,1522,3.65,4);
+                        me->GetMotionMaster()->MoveCharge(-8116,1522,3.65f,4);
                         break;
                     case 57:
-                        me->GetMotionMaster()->MoveCharge(-8116.7,1527,3.7,4);
+                        me->GetMotionMaster()->MoveCharge(-8116.7f,1527,3.7f,4);
                         break;
                     case 58:
-                        me->GetMotionMaster()->MoveCharge(-8112.67,1529.9,2.86,4);
+                        me->GetMotionMaster()->MoveCharge(-8112.67f,1529.9f,2.86f,4);
                         break;
                     case 59:
-                        me->GetMotionMaster()->MoveCharge(-8117.99,1532.24,3.94,4);
+                        me->GetMotionMaster()->MoveCharge(-8117.99f,1532.24f,3.94f,4);
                         break;
                     case 60:
                         if (plr)
                             DoScriptText(ANACHRONOS_SAY_10, me,plr);
-                        me->GetMotionMaster()->MoveCharge(-8113.46,1524.16,2.89,4);
+                        me->GetMotionMaster()->MoveCharge(-8113.46f,1524.16f,2.89f,4);
                         break;
                     case 61:
-                        me->GetMotionMaster()->MoveCharge(-8057.1,1470.32,2.61,6);
+                        me->GetMotionMaster()->MoveCharge(-8057.1f,1470.32f,2.61f,6);
                         if (plr->IsInRange(me,0,15))
                             plr->GroupEventHappens(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD ,me);
                         break;
@@ -1104,11 +1104,11 @@ public:
             if (Unit* Anachronos_Quest_Trigger = go->FindNearestCreature(15454, 100, plr))
             {
 
-                Unit *Merithra = Anachronos_Quest_Trigger->SummonCreature(15378,-8034.535,1535.14,2.61,0,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,220000);
-                Unit *Caelestrasz = Anachronos_Quest_Trigger->SummonCreature(15379,-8032.767, 1533.148,2.61, 1.5,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,220000);
-                Unit *Arygos = Anachronos_Quest_Trigger->SummonCreature(15380,-8034.52, 1537.843, 2.61, 5.7,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,220000);
-                /* Unit *Fandral = */ Anachronos_Quest_Trigger->SummonCreature(15382,-8028.462, 1535.843, 2.61, 3.141592,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,220000);
-                Creature *Anachronos = Anachronos_Quest_Trigger->SummonCreature(15381,-8028.75, 1538.795, 2.61, 4,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,220000);
+                Unit *Merithra = Anachronos_Quest_Trigger->SummonCreature(15378,-8034.535f,1535.14f,2.61f,0,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,220000);
+                Unit *Caelestrasz = Anachronos_Quest_Trigger->SummonCreature(15379,-8032.767f, 1533.148f,2.61f, 1.5f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,220000);
+                Unit *Arygos = Anachronos_Quest_Trigger->SummonCreature(15380,-8034.52f, 1537.843f, 2.61f, 5.7f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,220000);
+                /* Unit *Fandral = */ Anachronos_Quest_Trigger->SummonCreature(15382,-8028.462f, 1535.843f, 2.61f, 3.141592f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,220000);
+                Creature *Anachronos = Anachronos_Quest_Trigger->SummonCreature(15381,-8028.75f, 1538.795f, 2.61f, 4,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,220000);
 
                 if (Merithra)
                 {

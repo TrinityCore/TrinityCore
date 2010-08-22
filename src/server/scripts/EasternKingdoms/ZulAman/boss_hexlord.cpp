@@ -96,11 +96,11 @@ EndScriptData */
 #define SPELL_WR_WHIRLWIND      43442
 #define SPELL_WR_MORTAL_STRIKE  43441
 
-#define ORIENT                  1.5696
-#define POS_Y                   921.2795
-#define POS_Z                   33.8883
+#define ORIENT                  1.5696f
+#define POS_Y                   921.2795f
+#define POS_Z                   33.8883f
 
-static float Pos_X[4] = {112.8827, 107.8827, 122.8827, 127.8827};
+static float Pos_X[4] = {112.8827f, 107.8827f, 122.8827f, 127.8827f};
 
 static uint32 AddEntryList[8]=
 {
@@ -348,7 +348,7 @@ class boss_hexlord_malacrass : public CreatureScript
 
                 if (ResetTimer <= diff)
                 {
-                    if (me->IsWithinDist3d(119.223, 1035.45, 29.4481, 10))
+                    if (me->IsWithinDist3d(119.223f, 1035.45f, 29.4481f, 10))
                     {
                         EnterEvadeMode();
                         return;

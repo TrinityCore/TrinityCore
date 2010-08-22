@@ -338,7 +338,7 @@ public:
                     if (Creature* pIck = GetIck())
                     {
                         // TODO: tele on Ick then run some distance.
-                        pIck->GetNearPosition(pos, 5.0f, 3.14);
+                        pIck->GetNearPosition(pos, 5.0f, 3.14f);
                         me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), 0.0f);
                     }
                     me->SetVisibility(VISIBILITY_ON);

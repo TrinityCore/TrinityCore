@@ -87,17 +87,17 @@ static sOnyxMove aMoveData[]=
     {7, 6, SPELL_BREATH_NORTH_TO_SOUTH,  22.8763f, -217.152f, -55.0548f},//north
 };
 
-const Position MiddleRoomLocation = {-23.6155, -215.357, -55.7344};
+const Position MiddleRoomLocation = {-23.6155f, -215.357f, -55.7344f};
 
-const Position Phase2Location = {-80.924, -214.299, -82.942};
+const Position Phase2Location = {-80.924f, -214.299f, -82.942f};
 
 static Position aSpawnLocations[3]=
 {
     //Whelps
-    {-30.127, -254.463, -89.440},
-    {-30.817, -177.106, -89.258},
+    {-30.127f, -254.463f, -89.440f},
+    {-30.817f, -177.106f, -89.258f},
     //Lair Guard
-    {-145.950, -212.831, -68.659}
+    {-145.950f, -212.831f, -68.659f}
 };
 
 class boss_onyxia : public CreatureScript
@@ -325,7 +325,7 @@ public:
         {
             uint32 uiMaxCount = sizeof(aMoveData)/sizeof(sOnyxMove);
 
-            int iTemp = rand()%(uiMaxCount-1);
+            uint32 iTemp = rand()%(uiMaxCount-1);
 
             if (iTemp >= m_uiMovePoint)
                 ++iTemp;

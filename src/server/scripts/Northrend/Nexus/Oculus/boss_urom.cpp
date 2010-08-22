@@ -164,10 +164,10 @@ public:
             if (!pWho)
                 return;
 
-            if (me->GetPositionZ() > 518.63)
+            if (me->GetPositionZ() > 518.63f)
                 DoStartNoMovement(pWho);
 
-            if (me->GetPositionZ() < 518.63)
+            if (me->GetPositionZ() < 518.63f)
             {
                 if (me->Attack(pWho, true))
                 {
@@ -330,15 +330,15 @@ public:
             switch(pSpell->Id)
             {
                 case SPELL_SUMMON_MENAGERIE:
-                    me->SetHomePosition(968.66,1042.53,527.32,0.077);
+                    me->SetHomePosition(968.66f,1042.53f,527.32f,0.077f);
                     LeaveCombat();
                     break;
                 case SPELL_SUMMON_MENAGERIE_2:
-                    me->SetHomePosition(1164.02,1170.85,527.321,3.66);
+                    me->SetHomePosition(1164.02f,1170.85f,527.321f,3.66f);
                     LeaveCombat();
                     break;
                 case SPELL_SUMMON_MENAGERIE_3:
-                    me->SetHomePosition(1118.31,1080.377,508.361,4.25);
+                    me->SetHomePosition(1118.31f,1080.377f,508.361f,4.25f);
                     LeaveCombat();
                     break;
                 case SPELL_TELEPORT:

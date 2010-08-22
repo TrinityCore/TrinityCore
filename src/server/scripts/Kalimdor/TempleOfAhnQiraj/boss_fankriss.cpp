@@ -148,7 +148,7 @@ public:
                         switch(urand(0,2))
                         {
                             case 0:
-                                DoTeleportPlayer(pTarget, -8106.0142,1289.2900,-74.419533,5.112);
+                                DoTeleportPlayer(pTarget, -8106.0142f,1289.2900f,-74.419533f,5.112f);
                                 Hatchling = me->SummonCreature(15962, pTarget->GetPositionX()-3, pTarget->GetPositionY()-3, pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                                 if (Hatchling)
                                     Hatchling->AI()->AttackStart(pTarget);
@@ -163,7 +163,7 @@ public:
                                     Hatchling->AI()->AttackStart(pTarget);
                                 break;
                             case 1:
-                                DoTeleportPlayer(pTarget, -7990.135354,1155.1907,-78.849319,2.608);
+                                DoTeleportPlayer(pTarget, -7990.135354f,1155.1907f,-78.849319f,2.608f);
                                 Hatchling = me->SummonCreature(15962, pTarget->GetPositionX()-3, pTarget->GetPositionY()-3, pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                                 if (Hatchling)
                                     Hatchling->AI()->AttackStart(pTarget);
@@ -178,7 +178,7 @@ public:
                                     Hatchling->AI()->AttackStart(pTarget);
                                 break;
                             case 2:
-                                DoTeleportPlayer(pTarget,-8159.7753,1127.9064,-76.868660,0.675);
+                                DoTeleportPlayer(pTarget,-8159.7753f,1127.9064f,-76.868660f,0.675f);
                                 Hatchling = me->SummonCreature(15962, pTarget->GetPositionX()-3, pTarget->GetPositionY()-3, pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                                 if (Hatchling)
                                     Hatchling->AI()->AttackStart(pTarget);

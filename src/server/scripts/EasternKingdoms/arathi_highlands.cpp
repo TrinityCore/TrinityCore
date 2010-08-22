@@ -78,8 +78,8 @@ class npc_professor_phizzlethorpe : public CreatureScript
                 case 8:DoScriptText(EMOTE_PROGRESS_4, me);break;
                 case 9:
                     {
-                    me->SummonCreature(MOB_VENGEFUL_SURGE, -2052.96, -2142.49, 20.15, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                    me->SummonCreature(MOB_VENGEFUL_SURGE, -2052.96, -2142.49, 20.15, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    me->SummonCreature(MOB_VENGEFUL_SURGE, -2052.96f, -2142.49f, 20.15f, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    me->SummonCreature(MOB_VENGEFUL_SURGE, -2052.96f, -2142.49f, 20.15f, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
                     break;
                     }
                 case 10:DoScriptText(SAY_PROGRESS_5, me, pPlayer);break;

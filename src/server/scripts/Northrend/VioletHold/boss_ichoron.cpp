@@ -64,11 +64,11 @@ enum Actions
 #define MAX_SPAWN_LOC 5
 static Position SpawnLoc[MAX_SPAWN_LOC]=
 {
-    {1840.64, 795.407, 44.079, 1.676},
-    {1886.24, 757.733, 47.750, 5.201},
-    {1877.91, 845.915, 43.417, 3.560},
-    {1918.97, 850.645, 47.225, 4.136},
-    {1935.50, 796.224, 52.492, 4.224},
+    {1840.64f, 795.407f, 44.079f, 1.676f},
+    {1886.24f, 757.733f, 47.750f, 5.201f},
+    {1877.91f, 845.915f, 43.417f, 3.560f},
+    {1918.97f, 850.645f, 47.225f, 4.136f},
+    {1935.50f, 796.224f, 52.492f, 4.224f},
 };
 
 class boss_ichoron : public CreatureScript
@@ -162,7 +162,7 @@ public:
             switch(param)
             {
                 case ACTION_WATER_ELEMENT_HIT:
-                    me->SetHealth(me->GetHealth() + me->GetMaxHealth() * 0.01);
+                    me->SetHealth(me->GetHealth() + me->GetMaxHealth() * 0.01f);
 
                     if (bIsExploded)
                         DoExplodeCompleted();

@@ -793,7 +793,7 @@ public:
         {
             me->SetUInt32Value(UNIT_NPC_FLAGS, 0);
             me->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
-            Unit* Illidan = me->SummonCreature(C_ILLIDAN, -5107.83, 602.584, 85.2393, 4.92598, TEMPSUMMON_CORPSE_DESPAWN, 0);
+            Unit* Illidan = me->SummonCreature(C_ILLIDAN, -5107.83f, 602.584f, 85.2393f, 4.92598f, TEMPSUMMON_CORPSE_DESPAWN, 0);
             if (Illidan)
             {
                 IllidanGUID = Illidan->GetGUID();
@@ -825,7 +825,7 @@ public:
             switch(Step)
             {
             case 0: return 0; break;
-            case 1: me->GetMotionMaster()->MovePoint(0, -5104.41, 595.297, 85.6838); return 9000; break;
+            case 1: me->GetMotionMaster()->MovePoint(0, -5104.41f, 595.297f, 85.6838f); return 9000; break;
             case 2: DoScriptText(OVERLORD_YELL_1, me, plr); return 4500; break;
             case 3: me->SetInFront(plr); return 3200;  break;
             case 4: DoScriptText(OVERLORD_SAY_2, me, plr); return 2000; break;
@@ -909,7 +909,7 @@ public:
                     Yarzill->CastSpell(plr, 41540, true);
                 return 1000;}
     break;
-            case 32: me->GetMotionMaster()->MovePoint(0, -5085.77, 577.231, 86.6719); return 5000; break;
+            case 32: me->GetMotionMaster()->MovePoint(0, -5085.77f, 577.231f, 86.6719f); return 5000; break;
             case 33: Reset(); return 100; break;
 
             default : return 0;
@@ -1160,22 +1160,22 @@ struct Location
 static Location SpawnLocation[]=
 {
     //Cords used for:
-    {-4615.8556, 1342.2532, 139.9, 1.612},//Illidari Soldier
-    {-4598.9365, 1377.3182, 139.9, 3.917},//Illidari Soldier
-    {-4598.4697, 1360.8999, 139.9, 2.427},//Illidari Soldier
-    {-4589.3599, 1369.1061, 139.9, 3.165},//Illidari Soldier
-    {-4608.3477, 1386.0076, 139.9, 4.108},//Illidari Soldier
-    {-4633.1889, 1359.8033, 139.9, 0.949},//Illidari Soldier
-    {-4623.5791, 1351.4574, 139.9, 0.971},//Illidari Soldier
-    {-4607.2988, 1351.6099, 139.9, 2.416},//Illidari Soldier
-    {-4633.7764, 1376.0417, 139.9, 5.608},//Illidari Soldier
-    {-4600.2461, 1369.1240, 139.9, 3.056},//Illidari Mind Breaker
-    {-4631.7808, 1367.9459, 139.9, 0.020},//Illidari Mind Breaker
-    {-4600.2461, 1369.1240, 139.9, 3.056},//Illidari Highlord
-    {-4631.7808, 1367.9459, 139.9, 0.020},//Illidari Highlord
-    {-4615.5586, 1353.0031, 139.9, 1.540},//Illidari Highlord
-    {-4616.4736, 1384.2170, 139.9, 4.971},//Illidari Highlord
-    {-4627.1240, 1378.8752, 139.9, 2.544} //Torloth The Magnificent
+    {-4615.8556f, 1342.2532f, 139.9f, 1.612f},//Illidari Soldier
+    {-4598.9365f, 1377.3182f, 139.9f, 3.917f},//Illidari Soldier
+    {-4598.4697f, 1360.8999f, 139.9f, 2.427f},//Illidari Soldier
+    {-4589.3599f, 1369.1061f, 139.9f, 3.165f},//Illidari Soldier
+    {-4608.3477f, 1386.0076f, 139.9f, 4.108f},//Illidari Soldier
+    {-4633.1889f, 1359.8033f, 139.9f, 0.949f},//Illidari Soldier
+    {-4623.5791f, 1351.4574f, 139.9f, 0.971f},//Illidari Soldier
+    {-4607.2988f, 1351.6099f, 139.9f, 2.416f},//Illidari Soldier
+    {-4633.7764f, 1376.0417f, 139.9f, 5.608f},//Illidari Soldier
+    {-4600.2461f, 1369.1240f, 139.9f, 3.056f},//Illidari Mind Breaker
+    {-4631.7808f, 1367.9459f, 139.9f, 0.020f},//Illidari Mind Breaker
+    {-4600.2461f, 1369.1240f, 139.9f, 3.056f},//Illidari Highlord
+    {-4631.7808f, 1367.9459f, 139.9f, 0.020f},//Illidari Highlord
+    {-4615.5586f, 1353.0031f, 139.9f, 1.540f},//Illidari Highlord
+    {-4616.4736f, 1384.2170f, 139.9f, 4.971f},//Illidari Highlord
+    {-4627.1240f, 1378.8752f, 139.9f, 2.544f} //Torloth The Magnificent
 };
 
 struct WaveData

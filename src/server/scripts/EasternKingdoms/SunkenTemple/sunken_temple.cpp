@@ -44,7 +44,7 @@ public:
         if (InstanceScript* pInstance = pPlayer->GetInstanceScript())
         {
             if (!pPlayer->FindNearestCreature(15362,15))
-                pPlayer->SummonCreature(15362, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), -1.52, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 100000);
+                pPlayer->SummonCreature(15362, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), -1.52f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 100000);
             return false;
         }
     return false;

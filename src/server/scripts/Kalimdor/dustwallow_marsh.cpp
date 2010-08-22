@@ -365,7 +365,7 @@ public:
 ## npc_zelfrax
 ######*/
 
-const Position MovePosition = {-2967.030,-3872.1799,35.620};
+const Position MovePosition = {-2967.030f,-3872.1799f,35.620f};
 
 enum eZelfrax
 {

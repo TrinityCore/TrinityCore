@@ -96,7 +96,7 @@ public:
         if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
         {
             pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->TeleportTo(409, 1096, -467, -104.6, 3.64);
+            pPlayer->TeleportTo(409, 1096, -467, -104.6f, 3.64f);
         }
 
         return true;

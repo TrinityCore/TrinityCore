@@ -33,35 +33,35 @@ EndScriptData */
 #define SAY_4    "So you see fit to toy with the Lich King's creations? Ramstein, be sure to give the intruders a proper greeting."
 #define SAY_5    "Time to take matters into my own hands. Come. Enter my domain and challenge the might of the Scourge!"
 
-#define ADD_1X 4017.403809
-#define ADD_1Y -3339.703369
-#define ADD_1Z 115.057655
-#define ADD_1O 5.487860
+#define ADD_1X 4017.403809f
+#define ADD_1Y -3339.703369f
+#define ADD_1Z 115.057655f
+#define ADD_1O 5.487860f
 
-#define ADD_2X 4013.189209
-#define ADD_2Y -3351.808350
-#define ADD_2Z 115.052254
-#define ADD_2O 0.134280
+#define ADD_2X 4013.189209f
+#define ADD_2Y -3351.808350f
+#define ADD_2Z 115.052254f
+#define ADD_2O 0.134280f
 
-#define ADD_3X 4017.738037
-#define ADD_3Y -3363.478016
-#define ADD_3Z 115.057274
-#define ADD_3O 0.723313
+#define ADD_3X 4017.738037f
+#define ADD_3Y -3363.478016f
+#define ADD_3Z 115.057274f
+#define ADD_3O 0.723313f
 
-#define ADD_4X 4048.877197
-#define ADD_4Y -3363.223633
-#define ADD_4Z 115.054253
-#define ADD_4O 3.627735
+#define ADD_4X 4048.877197f
+#define ADD_4Y -3363.223633f
+#define ADD_4Z 115.054253f
+#define ADD_4O 3.627735f
 
-#define ADD_5X 4051.777588
-#define ADD_5Y -3350.893311
-#define ADD_5Z 115.055351
-#define ADD_5O 3.066176
+#define ADD_5X 4051.777588f
+#define ADD_5Y -3350.893311f
+#define ADD_5Z 115.055351f
+#define ADD_5O 3.066176f
 
-#define ADD_6X 4048.375977
-#define ADD_6Y -3339.966309
-#define ADD_6Z 115.055222
-#define ADD_6O 2.457497
+#define ADD_6X 4048.375977f
+#define ADD_6Y -3339.966309f
+#define ADD_6Z 115.055222f
+#define ADD_6O 2.457497f
 
 #define SPELL_SHADOWBOLT    17393
 #define SPELL_CLEAVE        15284

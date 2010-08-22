@@ -47,12 +47,12 @@ enum eSpells
 
 static float waypoint[6][3] =
 {
-    {340.15, 58.65, 17.71},
-    {388.09, 31.54, 20.18},
-    {388.18, -32.85, 20.18},
-    {340.29, -60.19, 17.72},
-    {332, 0.01, 39}, // better not use the same xy coord
-    {331, 0.01, -2.39}
+    {340.15f, 58.65f, 17.71f},
+    {388.09f, 31.54f, 20.18f},
+    {388.18f, -32.85f, 20.18f},
+    {340.29f, -60.19f, 17.72f},
+    {332.0f, 0.01f, 39.0f}, // better not use the same xy coord
+    {331.0f, 0.01f, -2.39f}
 };
 
 enum WaitEventType
@@ -502,7 +502,7 @@ class mob_ember_of_alar : public CreatureScript
                     {
                         if (Unit* Alar = Unit::GetUnit((*me), pInstance->GetData64(DATA_ALAR)))
                         {
-                            int AlarHealth = Alar->GetHealth() - Alar->GetMaxHealth()*0.03;
+                            int AlarHealth = Alar->GetHealth() - Alar->GetMaxHealth()*0.03f;
                             if (AlarHealth > 0)
                                 Alar->SetHealth(AlarHealth);
                             else
