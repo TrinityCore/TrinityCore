@@ -49,8 +49,8 @@ ConfusedMovementGenerator<T>::Initialize(T &unit)
 
     for (uint8 idx = 0; idx <= MAX_CONF_WAYPOINTS; ++idx)
     {
-        float wanderX = x + wander_distance*rand_norm() - wander_distance/2;
-        float wanderY = y + wander_distance*rand_norm() - wander_distance/2;
+        float wanderX = x + wander_distance*(float)rand_norm() - wander_distance/2;
+        float wanderY = y + wander_distance*(float)rand_norm() - wander_distance/2;
         Trinity::NormalizeMapCoord(wanderX);
         Trinity::NormalizeMapCoord(wanderY);
 

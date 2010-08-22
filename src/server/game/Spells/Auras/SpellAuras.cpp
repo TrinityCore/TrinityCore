@@ -1226,13 +1226,13 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                         // effect on caster
                         if (AuraEffect const * aurEff = aura->GetEffect(0))
                         {
-                            float multiplier = aurEff->GetAmount();
+                            float multiplier = (float)aurEff->GetAmount();
                             if (aurEff->GetId() == 47535)
                                 multiplier -= 0.5f;
                             else if (aurEff->GetId() == 47537)
                                 multiplier += 0.5f;
 
-                            int32 basepoints0 = (multiplier * caster->GetMaxPower(POWER_MANA) / 100);
+                            int32 basepoints0 = int32(multiplier * caster->GetMaxPower(POWER_MANA) / 100);
                             caster->CastCustomSpell(caster, 47755, &basepoints0, NULL, NULL, true);
                         }
                         // effect on aura target

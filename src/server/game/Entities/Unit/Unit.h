@@ -1976,7 +1976,7 @@ class Unit : public WorldObject
 
         void RewardRage(uint32 damage, uint32 weaponSpeedHitFactor, bool attacker);
 
-        virtual float GetFollowAngle() const { return M_PI/2; }
+        virtual float GetFollowAngle() const { return static_cast<float>(M_PI/2); }
 
         void OutDebugInfo() const;
         virtual bool isBeingLoaded() const { return false;}
