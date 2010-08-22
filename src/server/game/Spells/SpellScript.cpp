@@ -47,8 +47,8 @@ uint8 _SpellScript::EffectHook::GetAffectedEffectsMask(SpellEntry const * spellE
         {
             if ((effIndex == EFFECT_FIRST_FOUND) && mask)
                 return mask;
-            if (CheckEffect(spellEntry, effIndex))
-                mask |= (uint8)1<<effIndex;
+            if (CheckEffect(spellEntry, i))
+                mask |= (uint8)1<<i;
         }
     }
     else
