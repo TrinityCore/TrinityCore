@@ -784,11 +784,11 @@ namespace Trinity
                             i_data->push_back(target);
                         break;
                     case PUSH_IN_FRONT:
-                        if (i_source->isInFront(target, i_radius, M_PI/2))
+                        if (i_source->isInFront(target, i_radius, static_cast<float>(M_PI/2)))
                             i_data->push_back(target);
                         break;
                     case PUSH_IN_BACK:
-                        if (i_source->isInBack(target, i_radius, M_PI/2))
+                        if (i_source->isInBack(target, i_radius, static_cast<float>(M_PI/2)))
                             i_data->push_back(target);
                         break;
                     case PUSH_IN_LINE:

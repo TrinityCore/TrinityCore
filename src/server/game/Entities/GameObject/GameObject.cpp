@@ -352,7 +352,7 @@ void GameObject::Update(uint32 diff)
                     bool IsBattlegroundTrap = false;
                     //FIXME: this is activation radius (in different casting radius that must be selected from spell data)
                     //TODO: move activated state code (cast itself) to GO_ACTIVATED, in this place only check activating and set state
-                    float radius = (goInfo->trap.radius)/2; // TODO rename radius to diameter (goInfo->trap.radius) should be (goInfo->trap.diameter)
+                    float radius = (float)(goInfo->trap.radius)/2; // TODO rename radius to diameter (goInfo->trap.radius) should be (goInfo->trap.diameter)
                     if (!radius)
                     {
                         if (goInfo->trap.cooldown != 3)            // cast in other case (at some triggering/linked go/etc explicit call)
@@ -362,7 +362,7 @@ void GameObject::Update(uint32 diff)
                             if (m_respawnTime > 0)
                                 break;
 
-                            radius = goInfo->trap.cooldown;       // battlegrounds gameobjects has data2 == 0 && data5 == 3
+                            radius = (float)goInfo->trap.cooldown;       // battlegrounds gameobjects has data2 == 0 && data5 == 3
                             IsBattlegroundTrap = true;
 
                             if (!radius)
@@ -899,7 +899,7 @@ void GameObject::TriggeringLinkedGameObject(uint32 trapEntry, Unit* target)
     else
     {
         if (Unit *owner = GetOwner())
-            range = owner->GetSpellMaxRangeForTarget(target, srentry);
+            range = (float)owner->GetSpellMaxRangeForTarget(target, srentry);
         else
             //if no owner assume that object is hostile to target
             range = GetSpellMaxRangeForHostile(srentry);
@@ -1230,7 +1230,7 @@ void GameObject::Use(Unit* user)
                     int32 chance;
                     if (skill < zone_skill)
                     {
-                        chance = pow((double)skill/zone_skill,2) * 100;
+                        chance = int32(pow((double)skill/zone_skill,2) * 100);
                         if (chance < 1)
                             chance = 1;
                     }
@@ -1732,8 +1732,8 @@ void GameObject::UpdateRotationFields(float rotation2 /*=0.0f*/, float rotation3
 
     if (rotation2 == 0.0f && rotation3 == 0.0f)
     {
-        rotation2 = f_rot1;
-        rotation3 = f_rot2;
+        rotation2 = (float)f_rot1;
+        rotation3 = (float)f_rot2;
     }
 
     SetFloatValue(GAMEOBJECT_PARENTROTATION+2, rotation2);

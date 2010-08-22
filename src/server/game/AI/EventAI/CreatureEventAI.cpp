@@ -216,7 +216,7 @@ bool CreatureEventAI::ProcessEvent(CreatureEventAIHolder& pHolder, Unit* pAction
             if (!me->isInCombat())
                 return false;
 
-            Unit* pUnit = DoSelectLowestHpFriendly(event.friendly_hp.radius, event.friendly_hp.hpDeficit);
+            Unit* pUnit = DoSelectLowestHpFriendly((float)event.friendly_hp.radius, event.friendly_hp.hpDeficit);
             if (!pUnit)
                 return false;
 
@@ -232,7 +232,7 @@ bool CreatureEventAI::ProcessEvent(CreatureEventAIHolder& pHolder, Unit* pAction
                 return false;
 
             std::list<Creature*> pList;
-            DoFindFriendlyCC(pList, event.friendly_is_cc.radius);
+            DoFindFriendlyCC(pList, (float)event.friendly_is_cc.radius);
 
             //List is empty
             if (pList.empty())
@@ -248,7 +248,7 @@ bool CreatureEventAI::ProcessEvent(CreatureEventAIHolder& pHolder, Unit* pAction
         case EVENT_T_FRIENDLY_MISSING_BUFF:
         {
             std::list<Creature*> pList;
-            DoFindFriendlyMissingBuff(pList, event.friendly_buff.radius, event.friendly_buff.spellId);
+            DoFindFriendlyMissingBuff(pList, (float)event.friendly_buff.radius, event.friendly_buff.spellId);
 
             //List is empty
             if (pList.empty())
@@ -763,7 +763,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
         }
         case ACTION_T_CALL_FOR_HELP:
         {
-            me->CallForHelp(action.call_for_help.radius);
+            me->CallForHelp((float)action.call_for_help.radius);
             break;
         }
         break;
@@ -772,7 +772,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
         case ACTION_T_MOVE_RANDOM_POINT: //dosen't work in combat
         {
             float x,y,z;
-            me->GetClosePoint(x, y, z, me->GetObjectSize() / 3, action.raw.param1);
+            me->GetClosePoint(x, y, z, me->GetObjectSize() / 3, (float)action.raw.param1);
             me->GetMotionMaster()->MovePoint(0,x,y,z);
             break;
         }
@@ -1014,7 +1014,7 @@ void CreatureEventAI::MoveInLineOfSight(Unit *who)
             if ((*itr).Event.event_type == EVENT_T_OOC_LOS)
             {
                 //can trigger if closer than fMaxAllowedRange
-                float fMaxAllowedRange = (*itr).Event.ooc_los.maxRange;
+                float fMaxAllowedRange = (float)((*itr).Event.ooc_los.maxRange);
 
                 //if range is ok and we are actually in LOS
                 if (me->IsWithinDistInMap(who, fMaxAllowedRange) && me->IsWithinLOSInMap(who))

@@ -936,7 +936,7 @@ LootStoreItem const * LootTemplate::LootGroup::Roll() const
 {
     if (!ExplicitlyChanced.empty())                             // First explicitly chanced entries are checked
     {
-        float Roll = rand_chance();
+        float Roll = (float)rand_chance();
 
         for (uint32 i = 0; i < ExplicitlyChanced.size(); ++i)   // check each explicitly chanced entry in the template and modify its chance based on quality.
         {
@@ -1013,7 +1013,7 @@ void LootTemplate::LootGroup::Process(Loot& loot, uint16 lootMode) const
         if (!ExplicitPossibleDrops.empty())              // First explicitly chanced entries are checked
         {
             itemSource = 1;
-            float Roll = rand_chance();
+            float Roll = (float)rand_chance();
             // check each explicitly chanced entry in the template and modify its chance based on quality
             for (itr = ExplicitPossibleDrops.begin(); itr != ExplicitPossibleDrops.end(); itr = ExplicitPossibleDrops.erase(itr))
             {

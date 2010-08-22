@@ -291,7 +291,7 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
                         if (m_player->GetReputationRank(repTemplate->faction[i]) <= ReputationRank(repTemplate->faction_rank[i]))
                         {
                             // bonuses are already given, so just modify standing by rate
-                            int32 spilloverRep = standing * repTemplate->faction_rate[i];
+                            int32 spilloverRep = int32(standing * repTemplate->faction_rate[i]);
                             SetOneFactionReputation(sFactionStore.LookupEntry(repTemplate->faction[i]), spilloverRep, incremental);
                         }
                     }
@@ -318,7 +318,7 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
         if (incremental)
         {
             // int32 *= float cause one point loss?
-            standing = floor((float)standing * sWorld.getRate(RATE_REPUTATION_GAIN) + 0.5);
+            standing = int32(floor((float)standing * sWorld.getRate(RATE_REPUTATION_GAIN) + 0.5));
             standing += itr->second.Standing + BaseRep;
         }
 

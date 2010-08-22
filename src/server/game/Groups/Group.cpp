@@ -653,7 +653,7 @@ void Group::GroupLoot(Loot *loot, WorldObject* pLootedObject)
                     continue;
                 if (i->AllowedForPlayer(member))
                 {
-                    if (member->IsWithinDistInMap(pLootedObject,sWorld.getConfig(CONFIG_GROUP_XP_DISTANCE),false))
+                    if (member->IsWithinDistInMap(pLootedObject,(float)sWorld.getConfig(CONFIG_GROUP_XP_DISTANCE),false))
                     {
                         r->totalPlayersRolling++;
 
@@ -744,7 +744,7 @@ void Group::NeedBeforeGreed(Loot *loot, WorldObject* pLootedObject)
 
                 if (playerToRoll->CanUseItem(item) == EQUIP_ERR_OK && i->AllowedForPlayer(playerToRoll))
                 {
-                    if (playerToRoll->IsWithinDistInMap(pLootedObject,sWorld.getConfig(CONFIG_GROUP_XP_DISTANCE),false))
+                    if (playerToRoll->IsWithinDistInMap(pLootedObject,(float)sWorld.getConfig(CONFIG_GROUP_XP_DISTANCE),false))
                     {
                         r->totalPlayersRolling++;
 
@@ -823,7 +823,7 @@ void Group::MasterLoot(Loot* /*loot*/, WorldObject* pLootedObject)
         if (!looter->IsInWorld())
             continue;
 
-        if (looter->IsWithinDistInMap(pLootedObject,sWorld.getConfig(CONFIG_GROUP_XP_DISTANCE),false))
+        if (looter->IsWithinDistInMap(pLootedObject,(float)sWorld.getConfig(CONFIG_GROUP_XP_DISTANCE),false))
         {
             data << uint64(looter->GetGUID());
             ++real_count;
@@ -835,7 +835,7 @@ void Group::MasterLoot(Loot* /*loot*/, WorldObject* pLootedObject)
     for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player *looter = itr->getSource();
-        if (looter->IsWithinDistInMap(pLootedObject,sWorld.getConfig(CONFIG_GROUP_XP_DISTANCE),false))
+        if (looter->IsWithinDistInMap(pLootedObject,(float)sWorld.getConfig(CONFIG_GROUP_XP_DISTANCE),false))
             looter->GetSession()->SendPacket(&data);
     }
 }
@@ -1545,7 +1545,7 @@ void Group::UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed)
         {
             // not update if only update if need and ok
             Player* looter = ObjectAccessor::FindPlayer(guid_itr->guid);
-            if (looter && looter->IsWithinDistInMap(pLootedObject,sWorld.getConfig(CONFIG_GROUP_XP_DISTANCE),false))
+            if (looter && looter->IsWithinDistInMap(pLootedObject,(float)sWorld.getConfig(CONFIG_GROUP_XP_DISTANCE),false))
                 return;
         }
         ++guid_itr;
@@ -1556,7 +1556,7 @@ void Group::UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed)
     for (member_citerator itr = guid_itr; itr != m_memberSlots.end(); ++itr)
     {
         if (Player* pl = ObjectAccessor::FindPlayer(itr->guid))
-            if (pl->IsWithinDistInMap(pLootedObject,sWorld.getConfig(CONFIG_GROUP_XP_DISTANCE),false))
+            if (pl->IsWithinDistInMap(pLootedObject,(float)sWorld.getConfig(CONFIG_GROUP_XP_DISTANCE),false))
             {
                 pNewLooter = pl;
                 break;
@@ -1569,7 +1569,7 @@ void Group::UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed)
         for (member_citerator itr = m_memberSlots.begin(); itr != guid_itr; ++itr)
         {
             if (Player* pl = ObjectAccessor::FindPlayer(itr->guid))
-                if (pl->IsWithinDistInMap(pLootedObject,sWorld.getConfig(CONFIG_GROUP_XP_DISTANCE),false))
+                if (pl->IsWithinDistInMap(pLootedObject,(float)sWorld.getConfig(CONFIG_GROUP_XP_DISTANCE),false))
                 {
                     pNewLooter = pl;
                     break;

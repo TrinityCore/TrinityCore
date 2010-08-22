@@ -1546,7 +1546,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
 
                 // and duration of auras affected by SPELL_AURA_PERIODIC_HASTE
                 if (m_originalCaster->HasAuraTypeWithAffectMask(SPELL_AURA_PERIODIC_HASTE, aurSpellInfo))
-                    duration *= m_originalCaster->GetFloatValue(UNIT_MOD_CAST_SPEED);
+                    duration = int32(duration * m_originalCaster->GetFloatValue(UNIT_MOD_CAST_SPEED));
 
                 if (duration != m_spellAura->GetMaxDuration())
                 {
@@ -2028,7 +2028,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                 {
                     float min_dis = GetSpellMinRange(m_spellInfo, true);
                     float max_dis = GetSpellMaxRange(m_spellInfo, true);
-                    float dis = rand_norm() * (max_dis - min_dis) + min_dis;
+                    float dis = (float)rand_norm() * (max_dis - min_dis) + min_dis;
                     float x, y, z;
                     m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE, dis);
                     m_targets.setDst(x, y, z, m_caster->GetOrientation());
@@ -2192,21 +2192,21 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
             if (dist < objSize)
                 dist = objSize;
             else if (cur == TARGET_DEST_CASTER_RANDOM)
-                dist = objSize + (dist - objSize) * rand_norm();
+                dist = objSize + (dist - objSize) * (float)rand_norm();
 
             switch(cur)
             {
-                case TARGET_DEST_CASTER_FRONT_LEFT: angle = -M_PI/4;    break;
-                case TARGET_DEST_CASTER_BACK_LEFT:  angle = -3*M_PI/4;  break;
-                case TARGET_DEST_CASTER_BACK_RIGHT: angle = 3*M_PI/4;   break;
-                case TARGET_DEST_CASTER_FRONT_RIGHT:angle = M_PI/4;     break;
+                case TARGET_DEST_CASTER_FRONT_LEFT: angle = static_cast<float>(-M_PI/4);                   break;
+                case TARGET_DEST_CASTER_BACK_LEFT:  angle = static_cast<float>(-3*M_PI/4);                 break;
+                case TARGET_DEST_CASTER_BACK_RIGHT: angle = static_cast<float>(3*M_PI/4);                  break;
+                case TARGET_DEST_CASTER_FRONT_RIGHT:angle = static_cast<float>(M_PI/4);                    break;
                 case TARGET_MINION:
                 case TARGET_DEST_CASTER_FRONT_LEAP:
-                case TARGET_DEST_CASTER_FRONT:      angle = 0.0f;       break;
-                case TARGET_DEST_CASTER_BACK:       angle = M_PI;       break;
-                case TARGET_DEST_CASTER_RIGHT:      angle = M_PI/2;     break;
-                case TARGET_DEST_CASTER_LEFT:       angle = -M_PI/2;    break;
-                default:                            angle = rand_norm()*2*M_PI; break;
+                case TARGET_DEST_CASTER_FRONT:      angle = 0.0f;                                          break;
+                case TARGET_DEST_CASTER_BACK:       angle = static_cast<float>(M_PI);                      break;
+                case TARGET_DEST_CASTER_RIGHT:      angle = static_cast<float>(M_PI/2);                    break;
+                case TARGET_DEST_CASTER_LEFT:       angle = static_cast<float>(-M_PI/2);                   break;
+                default:                            angle = (float)rand_norm()*static_cast<float>(2*M_PI); break;
             }
 
             Position pos;
@@ -2237,23 +2237,23 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
             float angle, dist;
 
             float objSize = target->GetObjectSize();
-            dist = target->GetSpellRadiusForTarget(target, sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+            dist = (float)target->GetSpellRadiusForTarget(target, sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
             if (dist < objSize)
                 dist = objSize;
             else if (cur == TARGET_DEST_CASTER_RANDOM)
-                dist = objSize + (dist - objSize) * rand_norm();
+                dist = objSize + (dist - objSize) * (float)rand_norm();
 
             switch(cur)
             {
-                case TARGET_DEST_TARGET_FRONT:      angle = 0.0f;       break;
-                case TARGET_DEST_TARGET_BACK:       angle = M_PI;       break;
-                case TARGET_DEST_TARGET_RIGHT:      angle = M_PI/2;     break;
-                case TARGET_DEST_TARGET_LEFT:       angle = -M_PI/2;    break;
-                case TARGET_DEST_TARGET_FRONT_LEFT: angle = -M_PI/4;    break;
-                case TARGET_DEST_TARGET_BACK_LEFT:  angle = -3*M_PI/4;  break;
-                case TARGET_DEST_TARGET_BACK_RIGHT: angle = 3*M_PI/4;   break;
-                case TARGET_DEST_TARGET_FRONT_RIGHT:angle = M_PI/4;     break;
-                default:                            angle = rand_norm()*2*M_PI; break;
+                case TARGET_DEST_TARGET_FRONT:      angle = 0.0f;                                          break;
+                case TARGET_DEST_TARGET_BACK:       angle = static_cast<float>(M_PI);                      break;
+                case TARGET_DEST_TARGET_RIGHT:      angle = static_cast<float>(M_PI/2);                    break;
+                case TARGET_DEST_TARGET_LEFT:       angle = static_cast<float>(-M_PI/2);                   break;
+                case TARGET_DEST_TARGET_FRONT_LEFT: angle = static_cast<float>(-M_PI/4);                   break;
+                case TARGET_DEST_TARGET_BACK_LEFT:  angle = static_cast<float>(-3*M_PI/4);                 break;
+                case TARGET_DEST_TARGET_BACK_RIGHT: angle = static_cast<float>(3*M_PI/4);                  break;
+                case TARGET_DEST_TARGET_FRONT_RIGHT:angle = static_cast<float>(M_PI/4);                    break;
+                default:                            angle = (float)rand_norm()*static_cast<float>(2*M_PI); break;
             }
 
             Position pos;
@@ -2282,21 +2282,21 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                 case TARGET_DEST_TRAJ:
                     SelectTrajTargets();
                     return;
-                case TARGET_DEST_DEST_FRONT:      angle = 0.0f;       break;
-                case TARGET_DEST_DEST_BACK:       angle = M_PI;       break;
-                case TARGET_DEST_DEST_RIGHT:      angle = M_PI/2;     break;
-                case TARGET_DEST_DEST_LEFT:       angle = -M_PI/2;    break;
-                case TARGET_DEST_DEST_FRONT_LEFT: angle = -M_PI/4;    break;
-                case TARGET_DEST_DEST_BACK_LEFT:  angle = -3*M_PI/4;  break;
-                case TARGET_DEST_DEST_BACK_RIGHT: angle = 3*M_PI/4;   break;
-                case TARGET_DEST_DEST_FRONT_RIGHT:angle = M_PI/4;     break;
-                default:                          angle = rand_norm()*2*M_PI; break;
+                case TARGET_DEST_DEST_FRONT:      angle = 0.0f;                                          break;
+                case TARGET_DEST_DEST_BACK:       angle = static_cast<float>(M_PI);                      break;
+                case TARGET_DEST_DEST_RIGHT:      angle = static_cast<float>(M_PI/2);                    break;
+                case TARGET_DEST_DEST_LEFT:       angle = static_cast<float>(-M_PI/2);                   break;
+                case TARGET_DEST_DEST_FRONT_LEFT: angle = static_cast<float>(-M_PI/4);                   break;
+                case TARGET_DEST_DEST_BACK_LEFT:  angle = static_cast<float>(-3*M_PI/4);                 break;
+                case TARGET_DEST_DEST_BACK_RIGHT: angle = static_cast<float>(3*M_PI/4);                  break;
+                case TARGET_DEST_DEST_FRONT_RIGHT:angle = static_cast<float>(M_PI/4);                    break;
+                default:                          angle = (float)rand_norm()*static_cast<float>(2*M_PI); break;
             }
 
             float dist;
             dist = GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
             if (cur == TARGET_DEST_DEST_RANDOM || cur == TARGET_DEST_DEST_RANDOM_DIR_DIST)
-                dist *= rand_norm();
+                dist *= (float)rand_norm();
 
             // must has dst, no need to set flag
             Position pos = m_targets.m_dstPos;
@@ -4592,7 +4592,7 @@ void Spell::TakeRunePower()
     }
 
     // you can gain some runic power when use runes
-    float rp = src->runePowerGain;
+    float rp = (float)src->runePowerGain;
     rp *= sWorld.getRate(RATE_POWER_RUNICPOWER_INCOME);
     plr->ModifyPower(POWER_RUNIC_POWER, (int32)rp);
 }
@@ -4956,7 +4956,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                     return SPELL_FAILED_TARGET_AURASTATE;
 
         //Must be behind the target.
-        if (m_spellInfo->AttributesEx2 == 0x100000 && (m_spellInfo->AttributesEx & 0x200) == 0x200 && target->HasInArc(M_PI, m_caster)
+        if (m_spellInfo->AttributesEx2 == 0x100000 && (m_spellInfo->AttributesEx & 0x200) == 0x200 && target->HasInArc(static_cast<float>(M_PI), m_caster)
             //Exclusion for Pounce: Facing Limitation was removed in 2.0.1, but it still uses the same, old Ex-Flags
             && (!(m_spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && m_spellInfo->SpellFamilyFlags.IsEqual(0x20000,0,0)))
             //Mutilate no longer requires you be behind the target as of patch 3.0.3
@@ -4969,7 +4969,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         }
 
         //Target must be facing you.
-        if ((m_spellInfo->Attributes == 0x150010) && !target->HasInArc(M_PI, m_caster))
+        if ((m_spellInfo->Attributes == 0x150010) && !target->HasInArc(static_cast<float>(M_PI), m_caster))
         {
             SendInterrupted(2);
             return SPELL_FAILED_NOT_INFRONT;
@@ -5190,7 +5190,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 {
                     // spell different for friends and enemies
                     // hurt version required facing
-                    if (m_targets.getUnitTarget() && !m_caster->IsFriendlyTo(m_targets.getUnitTarget()) && !m_caster->HasInArc(M_PI, m_targets.getUnitTarget()))
+                    if (m_targets.getUnitTarget() && !m_caster->IsFriendlyTo(m_targets.getUnitTarget()) && !m_caster->HasInArc(static_cast<float>(M_PI), m_targets.getUnitTarget()))
                         return SPELL_FAILED_UNIT_NOT_INFRONT;
                 }
                 else if (m_spellInfo->SpellIconID == 33 && m_spellInfo->SpellFamilyName == SPELLFAMILY_SHAMAN && m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_SHAMAN_FIRE_NOVA)
@@ -5932,8 +5932,8 @@ SpellCastResult Spell::CheckRange(bool strict)
     SpellRangeEntry const* srange = sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex);
 
     Unit *target = m_targets.getUnitTarget();
-    float max_range = m_caster->GetSpellMaxRangeForTarget(target, srange);
-    float min_range = m_caster->GetSpellMinRangeForTarget(target, srange);
+    float max_range = (float)m_caster->GetSpellMaxRangeForTarget(target, srange);
+    float min_range = (float)m_caster->GetSpellMinRangeForTarget(target, srange);
     uint32 range_type = GetSpellRangeType(srange);
 
     if (Player* modOwner = m_caster->GetSpellModOwner())
@@ -5959,7 +5959,7 @@ SpellCastResult Spell::CheckRange(bool strict)
             return SPELL_FAILED_TOO_CLOSE;
 
         if (m_caster->GetTypeId() == TYPEID_PLAYER &&
-            (m_spellInfo->FacingCasterFlags & SPELL_FACING_FLAG_INFRONT) && !m_caster->HasInArc(M_PI, target))
+            (m_spellInfo->FacingCasterFlags & SPELL_FACING_FLAG_INFRONT) && !m_caster->HasInArc(static_cast<float>(M_PI), target))
             return SPELL_FAILED_UNIT_NOT_INFRONT;
     }
 
@@ -7030,9 +7030,9 @@ int32 Spell::CalculateDamageDone(Unit *unit, const uint32 effectMask, float *mul
             {
                 if (IsAreaEffectTarget[m_spellInfo->EffectImplicitTargetA[i]] || IsAreaEffectTarget[m_spellInfo->EffectImplicitTargetB[i]])
                 {
-                    m_damage = float(m_damage) * unit->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, m_spellInfo->SchoolMask);
+                    m_damage = int32(float(m_damage) * unit->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, m_spellInfo->SchoolMask));
                     if (m_caster->GetTypeId() == TYPEID_UNIT)
-                        m_damage = float(m_damage) * unit->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE, m_spellInfo->SchoolMask);
+                        m_damage = int32(float(m_damage) * unit->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE, m_spellInfo->SchoolMask));
 
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
                     {
@@ -7044,7 +7044,7 @@ int32 Spell::CalculateDamageDone(Unit *unit, const uint32 effectMask, float *mul
             }
             if (m_applyMultiplierMask & (1 << i))
             {
-                m_damage *= m_damageMultipliers[i];
+                m_damage = int32(m_damage * m_damageMultipliers[i]);
                 m_damageMultipliers[i] *= multiplier[i];
             }
 

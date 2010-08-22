@@ -133,7 +133,7 @@ bool OPvPCapturePoint::SetCapturePointData(uint32 entry, uint32 map, float x, fl
         return false;
 
     // get the needed values from goinfo
-    m_maxValue = goinfo->capturePoint.maxTime;
+    m_maxValue = (float)goinfo->capturePoint.maxTime;
     m_maxSpeed = m_maxValue / (goinfo->capturePoint.minTime ? goinfo->capturePoint.minTime : 60);
     m_neutralValuePct = goinfo->capturePoint.neutralPercent;
     m_minValue = m_maxValue * goinfo->capturePoint.neutralPercent / 100;
@@ -274,7 +274,7 @@ bool OPvPCapturePoint::Update(uint32 diff)
     if (!m_capturePoint)
         return false;
 
-    float radius = m_capturePoint->GetGOInfo()->capturePoint.radius;
+    float radius = (float)m_capturePoint->GetGOInfo()->capturePoint.radius;
 
     for (uint32 team = 0; team < 2; ++team)
     {
