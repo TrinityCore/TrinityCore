@@ -657,20 +657,20 @@ void Player::UpdateArmorPenetration(int32 amount)
 
 void Player::UpdateMeleeHitChances()
 {
-    m_modMeleeHitChance = GetTotalAuraModifier(SPELL_AURA_MOD_HIT_CHANCE);
-    m_modMeleeHitChance+=  GetRatingBonusValue(CR_HIT_MELEE);
+    m_modMeleeHitChance = (float)GetTotalAuraModifier(SPELL_AURA_MOD_HIT_CHANCE);
+    m_modMeleeHitChance += GetRatingBonusValue(CR_HIT_MELEE);
 }
 
 void Player::UpdateRangedHitChances()
 {
-    m_modRangedHitChance = GetTotalAuraModifier(SPELL_AURA_MOD_HIT_CHANCE);
-    m_modRangedHitChance+= GetRatingBonusValue(CR_HIT_RANGED);
+    m_modRangedHitChance = (float)GetTotalAuraModifier(SPELL_AURA_MOD_HIT_CHANCE);
+    m_modRangedHitChance += GetRatingBonusValue(CR_HIT_RANGED);
 }
 
 void Player::UpdateSpellHitChances()
 {
-    m_modSpellHitChance = GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_HIT_CHANCE);
-    m_modSpellHitChance+= GetRatingBonusValue(CR_HIT_SPELL);
+    m_modSpellHitChance = (float)GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_HIT_CHANCE);
+    m_modSpellHitChance += GetRatingBonusValue(CR_HIT_SPELL);
 }
 
 void Player::UpdateAllSpellCritChances()
@@ -1249,16 +1249,16 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
         {
             case HAPPY:
                 // 125% of normal damage
-                mindamage = mindamage * 1.25;
-                maxdamage = maxdamage * 1.25;
+                mindamage = mindamage * 1.25f;
+                maxdamage = maxdamage * 1.25f;
                 break;
             case CONTENT:
                 // 100% of normal damage, nothing to modify
                 break;
             case UNHAPPY:
                 // 75% of normal damage
-                mindamage = mindamage * 0.75;
-                maxdamage = maxdamage * 0.75;
+                mindamage = mindamage * 0.75f;
+                maxdamage = maxdamage * 0.75f;
                 break;
         }
     }

@@ -63,57 +63,55 @@ RandomMovementGenerator<Creature>::_setRandomLocation(Creature &creature)
 
     for (uint32 i = 0; ; ++i)
     {
+        const float angle = (float)rand_norm()*static_cast<float>(M_PI*2);
+        const float range = (float)rand_norm()*wander_distance;
+        const float distanceX = range * cos(angle);
+        const float distanceY = range * sin(angle);
 
-    const float angle = rand_norm()*(M_PI*2);
-    const float range = rand_norm()*wander_distance;
-    const float distanceX = range * cos(angle);
-    const float distanceY = range * sin(angle);
+        nx = X + distanceX;
+        ny = Y + distanceY;
 
-    nx = X + distanceX;
-    ny = Y + distanceY;
+        // prevent invalid coordinates generation
+        Trinity::NormalizeMapCoord(nx);
+        Trinity::NormalizeMapCoord(ny);
 
-    // prevent invalid coordinates generation
-    Trinity::NormalizeMapCoord(nx);
-    Trinity::NormalizeMapCoord(ny);
+        dist = (nx - X)*(nx - X) + (ny - Y)*(ny - Y);
 
-    dist = (nx - X)*(nx - X) + (ny - Y)*(ny - Y);
-
-    if (i == 5)
-    {
-        nz = Z;
-        break;
-    }
-
-    if (is_air_ok) // 3D system above ground and above water (flying mode)
-    {
-        const float distanceZ = rand_norm() * sqrtf(dist)/2; // Limit height change
-        nz = Z + distanceZ;
-        float tz = map->GetHeight(nx, ny, nz-2.0f, false); // Map check only, vmap needed here but need to alter vmaps checks for height.
-        float wz = map->GetWaterLevel(nx, ny);
-        if (tz >= nz || wz >= nz)
-            continue; // Problem here, we must fly above the ground and water, not under. Let's try on next tick
-    }
-    //else if (is_water_ok) // 3D system under water and above ground (swimming mode)
-    else // 2D only
-    {
-        dist = dist >= 100.0f ? 10.0f : sqrtf(dist); // 10.0 is the max that vmap high can check (MAX_CAN_FALL_DISTANCE)
-
-        // The fastest way to get an accurate result 90% of the time.
-        // Better result can be obtained like 99% accuracy with a ray light, but the cost is too high and the code is too long.
-        nz = map->GetHeight(nx,ny,Z+dist-2.0f,false); // Map check
-        if (fabs(nz-Z)>dist)
+        if (i == 5)
         {
-            nz = map->GetHeight(nx,ny,Z-2.0f,true); // Vmap Horizontal or above
+            nz = Z;
+            break;
+        }
+
+        if (is_air_ok) // 3D system above ground and above water (flying mode)
+        {
+            const float distanceZ = (float)(rand_norm()) * sqrtf(dist)/2; // Limit height change
+            nz = Z + distanceZ;
+            float tz = map->GetHeight(nx, ny, nz-2.0f, false); // Map check only, vmap needed here but need to alter vmaps checks for height.
+            float wz = map->GetWaterLevel(nx, ny);
+            if (tz >= nz || wz >= nz)
+                continue; // Problem here, we must fly above the ground and water, not under. Let's try on next tick
+        }
+        //else if (is_water_ok) // 3D system under water and above ground (swimming mode)
+        else // 2D only
+        {
+            dist = dist >= 100.0f ? 10.0f : sqrtf(dist); // 10.0 is the max that vmap high can check (MAX_CAN_FALL_DISTANCE)
+
+            // The fastest way to get an accurate result 90% of the time.
+            // Better result can be obtained like 99% accuracy with a ray light, but the cost is too high and the code is too long.
+            nz = map->GetHeight(nx,ny,Z+dist-2.0f,false); // Map check
             if (fabs(nz-Z)>dist)
             {
-                nz = map->GetHeight(nx,ny,Z+dist-2.0f,true); // Vmap Higher
+                nz = map->GetHeight(nx,ny,Z-2.0f,true); // Vmap Horizontal or above
                 if (fabs(nz-Z)>dist)
-                    continue; // let's forget this bad coords where a z cannot be find and retry at next tick
+                {
+                    nz = map->GetHeight(nx,ny,Z+dist-2.0f,true); // Vmap Higher
+                    if (fabs(nz-Z)>dist)
+                        continue; // let's forget this bad coords where a z cannot be find and retry at next tick
+                }
             }
         }
-    }
-
-    break;
+        break;
     }
 
     Traveller<Creature> traveller(creature);

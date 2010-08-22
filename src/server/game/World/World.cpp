@@ -287,7 +287,7 @@ World::AddSession_ (WorldSession* s)
     // Updates the population
     if (pLimit > 0)
     {
-        float popu = GetActiveSessionCount ();              // updated number of users on the server
+        float popu = (float)GetActiveSessionCount();              // updated number of users on the server
         popu /= pLimit;
         popu *= 2;
         sLog.outDetail ("Server Population (%f).", popu);

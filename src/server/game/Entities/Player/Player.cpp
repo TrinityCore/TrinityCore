@@ -1394,7 +1394,7 @@ void Player::Update(uint32 p_time)
             int time_inn = time(NULL)-GetTimeInnEnter();
             if (time_inn >= 10)                             // freeze update
             {
-                float bubble = 0.125*sWorld.getRate(RATE_REST_INGAME);
+                float bubble = 0.125f*sWorld.getRate(RATE_REST_INGAME);
                                                             // speed collect rest bonus (section/in hour)
                 SetRestBonus(GetRestBonus()+ time_inn*((float)GetUInt32Value(PLAYER_NEXT_LEVEL_XP)/72000)*bubble);
                 UpdateInnerTime(time(NULL));
@@ -2309,7 +2309,7 @@ void Player::RegenerateHealth()
 
     // polymorphed case
     if (IsPolymorphed())
-        addvalue = GetMaxHealth()/3;
+        addvalue = (float)GetMaxHealth()/3;
     // normal regen case (maybe partly in combat case)
     else if (!isInCombat() || HasAuraType(SPELL_AURA_MOD_REGEN_DURING_COMBAT))
     {
@@ -2625,7 +2625,7 @@ void Player::GiveXP(uint32 xp, Unit *victim, float group_rate)
     float favored_exp_mult = 0;
     if ((HasAura(32096) || HasAura(32098)) && (zone == 3483 || zone == 3562 || zone == 3836 || zone == 3713 || zone == 3714))
         favored_exp_mult = 0.05f; // Thrallmar's Favor and Honor Hold's Favor
-    xp *= (1 + favored_exp_mult);
+    xp = uint32(xp * (1 + favored_exp_mult));
     // Favored experience increase END
 
     // XP to money conversion processed in Player::RewardQuest
@@ -5044,7 +5044,7 @@ uint32 Player::DurabilityRepair(uint16 pos, bool cost, float discountMod, bool g
             uint32 dmultiplier = dcost->multiplier[ItemSubClassToDurabilityMultiplierId(ditemProto->Class,ditemProto->SubClass)];
             uint32 costs = uint32(LostDurability*dmultiplier*double(dQualitymodEntry->quality_mod));
 
-            costs = uint32(costs * discountMod) * sWorld.getRate(RATE_REPAIRCOST);
+            costs = uint32(costs * discountMod * sWorld.getRate(RATE_REPAIRCOST));
 
             if (costs == 0)                                   //fix for ITEM_QUALITY_ARTIFACT
                 costs = 1;
@@ -6732,7 +6732,7 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, int32 honor, bool pvpt
         return true;
 
     // Promote to float for calculations
-    float honor_f = honor;
+    float honor_f = (float)honor;
 
     if (honor_f <= 0)
     {
@@ -6807,7 +6807,7 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, int32 honor, bool pvpt
 
     honor_f *= sWorld.getRate(RATE_HONOR);
     // Back to int now
-    honor = honor_f;
+    honor = int32(honor_f);
     // honor - for show honor points in log
     // victim_guid - for show victim name in log
     // victim_rank [1..4]  HK: <dishonored rank>
@@ -7845,7 +7845,7 @@ void Player::CastItemCombatSpell(Unit *target, WeaponAttackType attType, uint32 
             if (m_extraAttacks && IsSpellHaveEffect(spellInfo, SPELL_EFFECT_ADD_EXTRA_ATTACKS))
                 return;
 
-            float chance = spellInfo->procChance;
+            float chance = (float)spellInfo->procChance;
 
             if (spellData.SpellPPMRate)
             {
@@ -7915,7 +7915,7 @@ void Player::CastItemCombatSpell(Unit *target, WeaponAttackType attType, uint32 
                 if (entry->PPMChance)
                     chance = GetPPMProcChance(proto->Delay, entry->PPMChance, spellInfo);
                 else if (entry->customChance)
-                    chance = entry->customChance;
+                    chance = (float)entry->customChance;
             }
 
             // Apply spell mods
@@ -13110,27 +13110,27 @@ void Player::ApplyEnchantment(Item *item, EnchantmentSlot slot, bool apply, bool
                         case ITEM_MOD_AGILITY:
                             sLog.outDebug("+ %u AGILITY",enchant_amount);
                             HandleStatModifier(UNIT_MOD_STAT_AGILITY, TOTAL_VALUE, float(enchant_amount), apply);
-                            ApplyStatBuffMod(STAT_AGILITY, enchant_amount, apply);
+                            ApplyStatBuffMod(STAT_AGILITY, (float)enchant_amount, apply);
                             break;
                         case ITEM_MOD_STRENGTH:
                             sLog.outDebug("+ %u STRENGTH",enchant_amount);
                             HandleStatModifier(UNIT_MOD_STAT_STRENGTH, TOTAL_VALUE, float(enchant_amount), apply);
-                            ApplyStatBuffMod(STAT_STRENGTH, enchant_amount, apply);
+                            ApplyStatBuffMod(STAT_STRENGTH, (float)enchant_amount, apply);
                             break;
                         case ITEM_MOD_INTELLECT:
                             sLog.outDebug("+ %u INTELLECT",enchant_amount);
                             HandleStatModifier(UNIT_MOD_STAT_INTELLECT, TOTAL_VALUE, float(enchant_amount), apply);
-                            ApplyStatBuffMod(STAT_INTELLECT, enchant_amount, apply);
+                            ApplyStatBuffMod(STAT_INTELLECT, (float)enchant_amount, apply);
                             break;
                         case ITEM_MOD_SPIRIT:
                             sLog.outDebug("+ %u SPIRIT",enchant_amount);
                             HandleStatModifier(UNIT_MOD_STAT_SPIRIT, TOTAL_VALUE, float(enchant_amount), apply);
-                            ApplyStatBuffMod(STAT_SPIRIT, enchant_amount, apply);
+                            ApplyStatBuffMod(STAT_SPIRIT, (float)enchant_amount, apply);
                             break;
                         case ITEM_MOD_STAMINA:
                             sLog.outDebug("+ %u STAMINA",enchant_amount);
                             HandleStatModifier(UNIT_MOD_STAT_STAMINA, TOTAL_VALUE, float(enchant_amount), apply);
-                            ApplyStatBuffMod(STAT_STAMINA, enchant_amount, apply);
+                            ApplyStatBuffMod(STAT_STAMINA, (float)enchant_amount, apply);
                             break;
                         case ITEM_MOD_DEFENSE_SKILL_RATING:
                             ApplyRatingMod(CR_DEFENSE_SKILL, enchant_amount, apply);
@@ -15961,7 +15961,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     uint32 transGUID = fields[30].GetUInt32();
     Relocate(fields[12].GetFloat(),fields[13].GetFloat(),fields[14].GetFloat(),fields[16].GetFloat());
     uint32 mapId = fields[15].GetUInt32();
-    uint32 instanceId = fields[58].GetFloat();
+    uint32 instanceId = fields[58].GetUInt32();
 
     uint32 dungeonDiff = fields[38].GetUInt32() & 0x0F;
     if (dungeonDiff >= MAX_DUNGEON_DIFFICULTY)
@@ -18625,7 +18625,7 @@ void Player::Say(const std::string& text, const uint32 language)
 
     WorldPacket data(SMSG_MESSAGECHAT, 200);
     BuildPlayerChat(&data, CHAT_MSG_SAY, text, language);
-    SendMessageToSetInRange(&data,sWorld.getConfig(CONFIG_LISTEN_RANGE_SAY),true);
+    SendMessageToSetInRange(&data,(float)sWorld.getConfig(CONFIG_LISTEN_RANGE_SAY),true);
 }
 
 void Player::Yell(const std::string& text, const uint32 language)
@@ -18634,7 +18634,7 @@ void Player::Yell(const std::string& text, const uint32 language)
 
     WorldPacket data(SMSG_MESSAGECHAT, 200);
     BuildPlayerChat(&data, CHAT_MSG_YELL, text, language);
-    SendMessageToSetInRange(&data,sWorld.getConfig(CONFIG_LISTEN_RANGE_YELL),true);
+    SendMessageToSetInRange(&data,(float)sWorld.getConfig(CONFIG_LISTEN_RANGE_YELL),true);
 }
 
 void Player::TextEmote(const std::string& text)
@@ -18643,7 +18643,7 @@ void Player::TextEmote(const std::string& text)
 
     WorldPacket data(SMSG_MESSAGECHAT, 200);
     BuildPlayerChat(&data, CHAT_MSG_EMOTE, text, LANG_UNIVERSAL);
-    SendMessageToSetInRange(&data,sWorld.getConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE),true, !sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT));
+    SendMessageToSetInRange(&data,(float)sWorld.getConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE),true, !sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT));
 }
 
 void Player::Whisper(const std::string& text, uint32 language,uint64 receiver)
@@ -19154,7 +19154,7 @@ void Player::SetRestBonus (float rest_bonus_new)
     if (rest_bonus_new < 0)
         rest_bonus_new = 0;
 
-    float rest_bonus_max = (float)GetUInt32Value(PLAYER_NEXT_LEVEL_XP)*1.5/2;
+    float rest_bonus_max = (float)GetUInt32Value(PLAYER_NEXT_LEVEL_XP)*1.5f/2;
 
     if (rest_bonus_new > rest_bonus_max)
         m_rest_bonus = rest_bonus_max;

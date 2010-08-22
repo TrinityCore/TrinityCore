@@ -573,7 +573,7 @@ class WorldObject : public Object, public WorldLocation
         void GetRandomNearPosition(Position &pos, float radius)
         {
             GetPosition(&pos);
-            MovePosition(pos, radius * rand_norm(), rand_norm() * 2 * M_PI);
+            MovePosition(pos, radius * (float)rand_norm(), (float)rand_norm() * static_cast<float>(2 * M_PI));
         }
 
         void GetContactPoint(const WorldObject* obj, float &x, float &y, float &z, float distance2d = CONTACT_DISTANCE) const

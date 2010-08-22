@@ -38,7 +38,7 @@ namespace Trinity
 
         inline uint32 hk_honor_at_level(uint8 level, uint32 count = 1)
         {
-            uint32 honor = ceil(hk_honor_at_level_f(level, count));
+            uint32 honor = uint32(ceil(hk_honor_at_level_f(level, count)));
             sScriptMgr.OnHonorCalculation(honor, level, count);
             return honor;
         }
@@ -176,13 +176,13 @@ namespace Trinity
                 {
                     // Elites in instances have a 2.75x XP bonus instead of the regular 2x world bonus.
                     if (u->GetMap() && u->GetMap()->IsDungeon())
-                       gain *= 2.75;
+                       gain = uint32(gain * 2.75);
                     else
                         gain *= 2;
                 }
             }
 
-            gain *= sWorld.getRate(RATE_XP_KILL);
+            gain = uint32(gain * sWorld.getRate(RATE_XP_KILL));
             sScriptMgr.OnGainCalculation(gain, pl, u);
             return gain;
         }

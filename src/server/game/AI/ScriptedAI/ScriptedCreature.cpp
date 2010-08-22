@@ -267,7 +267,7 @@ SpellEntry const* ScriptedAI::SelectSpell(Unit* pTarget, uint32 uiSchool, uint32
             continue;
 
         //Check if our target is in range
-         if (me->IsWithinDistInMap(pTarget, me->GetSpellMinRangeForTarget(pTarget, pTempRange)) || !me->IsWithinDistInMap(pTarget, me->GetSpellMaxRangeForTarget(pTarget, pTempRange)))
+         if (me->IsWithinDistInMap(pTarget, (float)me->GetSpellMinRangeForTarget(pTarget, pTempRange)) || !me->IsWithinDistInMap(pTarget, (float)me->GetSpellMaxRangeForTarget(pTarget, pTempRange)))
             continue;
 
         //All good so lets add it to the spell list
@@ -303,7 +303,7 @@ bool ScriptedAI::CanCast(Unit* pTarget, SpellEntry const* pSpell, bool bTriggere
         return false;
 
     //Unit is out of range of this spell
-    if (me->IsInRange(pTarget, me->GetSpellMinRangeForTarget(pTarget, pTempRange), me->GetSpellMaxRangeForTarget(pTarget, pTempRange)))
+    if (me->IsInRange(pTarget, (float)me->GetSpellMinRangeForTarget(pTarget, pTempRange), (float)me->GetSpellMaxRangeForTarget(pTarget, pTempRange)))
         return false;
 
     return true;
