@@ -28,7 +28,7 @@
 #include "soapStub.h"
 #include "stdsoap2.h"
 
-#include <ace/SV_Semaphore_Simple.h>
+#include <ace/SV_Semaphore.h>
 #include <ace/Task.h>
 
 
@@ -78,11 +78,9 @@ class SOAPWorkingThread : public ACE_Task<ACE_MT_SYNCH>
 class SOAPCommand
 {
     public:
-        SOAPCommand()
+        SOAPCommand():
+            pendingCommands(0, USYNC_THREAD, "pendingCommands")
         {
-            ACE_ASSERT(pendingCommands.open("pendingCommands",
-                ACE_SV_Semaphore_Simple::ACE_CREATE,
-                0) != -1);
         }
 
         ~SOAPCommand()
@@ -94,7 +92,7 @@ class SOAPCommand
             m_printBuffer += msg;
         }
 
-        ACE_SV_Semaphore_Simple pendingCommands;
+        ACE_Semaphore pendingCommands;
 
         void setCommandSuccess(bool val)
         {
