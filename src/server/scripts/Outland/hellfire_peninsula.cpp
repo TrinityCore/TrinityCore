@@ -214,7 +214,7 @@ public:
 
     bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
     {
-        pGo->SummonCreature(C_AERANAS,-1321.79, 4043.80, 116.24, 1.25, TEMPSUMMON_TIMED_DESPAWN, 180000);
+        pGo->SummonCreature(C_AERANAS,-1321.79f, 4043.80f, 116.24f, 1.25f, TEMPSUMMON_TIMED_DESPAWN, 180000);
         return false;
     }
 

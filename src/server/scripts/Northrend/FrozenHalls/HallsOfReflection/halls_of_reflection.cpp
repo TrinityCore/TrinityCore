@@ -137,17 +137,17 @@ enum eEnum
 
 static Position HallsofReflectionLocs[]=
 {
-    {5283.234863, 1990.946777, 707.695679, 0.929097},   // 2 Loralen Follows
-    {5408.031250, 2102.918213, 707.695251, 0.792756},   // 9 Sylvanas Follows
-    {5401.866699, 2110.837402, 707.695251, 0.800610},   // 10 Loralen follows
+    {5283.234863f, 1990.946777f, 707.695679f, 0.929097f},   // 2 Loralen Follows
+    {5408.031250f, 2102.918213f, 707.695251f, 0.792756f},   // 9 Sylvanas Follows
+    {5401.866699f, 2110.837402f, 707.695251f, 0.800610f},   // 10 Loralen follows
 };
 
-static Position SpawnPos                = {5262.540527, 1949.693726, 707.695007, 0.808736}; // Jaina/Sylvanas Beginning Position
-static Position MoveThronePos           = {5306.952148, 1998.499023, 709.341431, 1.277278}; // Jaina/Sylvanas walks to throne
-static Position UtherSpawnPos           = {5308.310059, 2003.857178, 709.341431, 4.650315};
-static Position LichKingSpawnPos        = {5362.917480, 2062.307129, 707.695374, 3.945812};
-static Position LichKingMoveThronePos   = {5312.080566, 2009.172119, 709.341431, 3.973301}; // Lich King walks to throne
-static Position LichKingMoveAwayPos     = {5400.069824, 2102.7131689, 707.69525, 0.843803}; // Lich King walks away
+static Position SpawnPos                = {5262.540527f, 1949.693726f, 707.695007f, 0.808736f}; // Jaina/Sylvanas Beginning Position
+static Position MoveThronePos           = {5306.952148f, 1998.499023f, 709.341431f, 1.277278f}; // Jaina/Sylvanas walks to throne
+static Position UtherSpawnPos           = {5308.310059f, 2003.857178f, 709.341431f, 4.650315f};
+static Position LichKingSpawnPos        = {5362.917480f, 2062.307129f, 707.695374f, 3.945812f};
+static Position LichKingMoveThronePos   = {5312.080566f, 2009.172119f, 709.341431f, 3.973301f}; // Lich King walks to throne
+static Position LichKingMoveAwayPos     = {5400.069824f, 2102.7131689f, 707.69525f, 0.843803f}; // Lich King walks away
 
 class npc_jaina_or_sylvanas_hor : public CreatureScript
 {

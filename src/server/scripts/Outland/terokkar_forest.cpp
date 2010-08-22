@@ -229,7 +229,7 @@ public:
             {
                 if (CAST_PLR(who)->GetQuestStatus(10898) == QUEST_STATUS_INCOMPLETE)
                 {
-                    float Radius = 10.0;
+                    float Radius = 10.0f;
                     if (me->IsWithinDistInMap(who, Radius))
                     {
                         Start(false, false, who->GetGUID());
@@ -679,8 +679,8 @@ public:
             switch(i)
             {
                 case 3:
-                    me->SummonCreature(NPC_CABAL_SKRIMISHER,-2795.99,5420.33,-34.53,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    me->SummonCreature(NPC_CABAL_SKRIMISHER,-2793.55,5412.79,-34.53,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    me->SummonCreature(NPC_CABAL_SKRIMISHER,-2795.99f,5420.33f,-34.53f,0.0f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    me->SummonCreature(NPC_CABAL_SKRIMISHER,-2793.55f,5412.79f,-34.53f,0.0f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                     break;
                 case 11:
                     if (pPlayer && pPlayer->GetTypeId() == TYPEID_PLAYER)

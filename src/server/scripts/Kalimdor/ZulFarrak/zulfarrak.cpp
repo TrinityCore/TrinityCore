@@ -224,11 +224,11 @@ public:
         {
             pInstance->SetData(EVENT_PYRAMID, PYRAMID_CAGES_OPEN);
             //set bly & co to aggressive & start moving to top of stairs
-            initBlyCrewMember(pInstance,ENTRY_BLY,1884.99,1263,41.52);
-            initBlyCrewMember(pInstance,ENTRY_RAVEN,1882.5,1263,41.52);
-            initBlyCrewMember(pInstance,ENTRY_ORO,1886.47,1270.68,41.68);
-            initBlyCrewMember(pInstance,ENTRY_WEEGLI,1890,1263,41.52);
-            initBlyCrewMember(pInstance,ENTRY_MURTA,1891.19,1272.03,41.60);
+            initBlyCrewMember(pInstance,ENTRY_BLY,1884.99f,1263,41.52f);
+            initBlyCrewMember(pInstance,ENTRY_RAVEN,1882.5f,1263,41.52f);
+            initBlyCrewMember(pInstance,ENTRY_ORO,1886.47f,1270.68f,41.68f);
+            initBlyCrewMember(pInstance,ENTRY_WEEGLI,1890,1263,41.52f);
+            initBlyCrewMember(pInstance,ENTRY_MURTA,1891.19f,1272.03f,41.60f);
         }
         return false;
     }
@@ -362,7 +362,7 @@ public:
                 {
                     pInstance->SetData(EVENT_PYRAMID,PYRAMID_ARRIVED_AT_STAIR);
                     DoScriptText(SAY_WEEGLI_OHNO,me);
-                    me->SetHomePosition(1882.69,1272.28,41.87,0);
+                    me->SetHomePosition(1882.69f,1272.28f,41.87f,0);
                 }
                 else
                     if (destroyingDoor)
@@ -384,8 +384,8 @@ public:
             if (me->isAlive())
             {
                 me->setFaction(FACTION_FRIENDLY);
-                me->GetMotionMaster()->MovePoint(0, 1858.57,1146.35,14.745);
-                me->SetHomePosition(1858.57,1146.35,14.745,3.85); // in case he gets interrupted
+                me->GetMotionMaster()->MovePoint(0, 1858.57f,1146.35f,14.745f);
+                me->SetHomePosition(1858.57f,1146.35f,14.745f,3.85f); // in case he gets interrupted
                 DoScriptText(SAY_WEEGLI_OK_I_GO,me);
                 destroyingDoor=true;
             }

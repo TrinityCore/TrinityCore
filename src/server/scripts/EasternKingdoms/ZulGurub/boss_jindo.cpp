@@ -127,7 +127,7 @@ class boss_jindo : public CreatureScript
                     pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
                     if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER)
                     {
-                        DoTeleportPlayer(pTarget, -11583.7783,-1249.4278,77.5471,4.745);
+                        DoTeleportPlayer(pTarget, -11583.7783f,-1249.4278f,77.5471f,4.745f);
 
                         if (DoGetThreat(me->getVictim()))
                             DoModifyThreatPercent(pTarget,-100);

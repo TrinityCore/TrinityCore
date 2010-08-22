@@ -152,66 +152,66 @@ struct Locations
 //each dragons special points. First where fly to before connect to connon, second where land point is.
 Waypoint m_aTene[]=
 {
-    {3212.854, 575.597, 109.856},                           //init
-    {3246.425, 565.367, 61.249}                             //end
+    {3212.854f, 575.597f, 109.856f},                           //init
+    {3246.425f, 565.367f, 61.249f}                             //end
 };
 
 Waypoint m_aShad[]=
 {
-    {3293.238, 472.223, 106.968},
-    {3271.669, 526.907, 61.931}
+    {3293.238f, 472.223f, 106.968f},
+    {3271.669f, 526.907f, 61.931f}
 };
 
 Waypoint m_aVesp[]=
 {
-    {3193.310, 472.861, 102.697},
-    {3227.268, 533.238, 59.995}
+    {3193.310f, 472.861f, 102.697f},
+    {3227.268f, 533.238f, 59.995f}
 };
 
 #define MAX_WAYPOINT 6
 //points around raid "isle", counter clockwise. should probably be adjusted to be more alike
 Waypoint m_aDragonCommon[MAX_WAYPOINT]=
 {
-    {3214.012, 468.932, 98.652},
-    {3244.950, 468.427, 98.652},
-    {3283.520, 496.869, 98.652},
-    {3287.316, 555.875, 98.652},
-    {3250.479, 585.827, 98.652},
-    {3209.969, 566.523, 98.652}
+    {3214.012f, 468.932f, 98.652f},
+    {3244.950f, 468.427f, 98.652f},
+    {3283.520f, 496.869f, 98.652f},
+    {3287.316f, 555.875f, 98.652f},
+    {3250.479f, 585.827f, 98.652f},
+    {3209.969f, 566.523f, 98.652f}
 };
 
-static Location FlameRight1Spawn = { 3200.00, 573.211, 57.1551 };
-static Location FlameRight1Direction = { 3289.28, 573.211, 57.1551 };
-static Location FlameRight2Spawn = { 3200.00, 532.211, 57.1551 };
-static Location FlameRight2Direction = { 3289.28, 532.211, 57.1551 };
-static Location FlameRight3Spawn = { 3200.00, 491.211, 57.1551 };
-static Location FlameRight3Direction = { 3289.28, 491.211, 57.1551 };
-static Location FlameLeft1Spawn = { 3289.28, 511.711, 57.1551 };
-static Location FlameLeft1Direction = { 3200.00, 511.711, 57.1551 };
-static Location FlameLeft2Spawn = { 3289.28, 552.711, 57.1551 };
-static Location FlameLeft2Direction = { 3200.00, 552.711, 57.1551 };
+static Location FlameRight1Spawn = { 3200.00f, 573.211f, 57.1551f };
+static Location FlameRight1Direction = { 3289.28f, 573.211f, 57.1551f };
+static Location FlameRight2Spawn = { 3200.00f, 532.211f, 57.1551f };
+static Location FlameRight2Direction = { 3289.28f, 532.211f, 57.1551f };
+static Location FlameRight3Spawn = { 3200.00f, 491.211f, 57.1551f };
+static Location FlameRight3Direction = { 3289.28f, 491.211f, 57.1551f };
+static Location FlameLeft1Spawn = { 3289.28f, 511.711f, 57.1551f };
+static Location FlameLeft1Direction = { 3200.00f, 511.711f, 57.1551f };
+static Location FlameLeft2Spawn = { 3289.28f, 552.711f, 57.1551f };
+static Location FlameLeft2Direction = { 3200.00f, 552.711f, 57.1551f };
 
-static Location AcolyteofShadron = { 3363.92, 534.703, 97.2683 };
-static Location AcolyteofShadron2 = { 3246.57, 551.263, 58.6164 };
-static Location AcolyteofVesperon = { 3145.68, 520.71, 89.7 };
-static Location AcolyteofVesperon2 = { 3246.57, 551.263, 58.6164 };
+static Location AcolyteofShadron = { 3363.92f, 534.703f, 97.2683f };
+static Location AcolyteofShadron2 = { 3246.57f, 551.263f, 58.6164f };
+static Location AcolyteofVesperon = { 3145.68f, 520.71f, 89.7f };
+static Location AcolyteofVesperon2 = { 3246.57f, 551.263f, 58.6164f };
 Locations TwilightEggs[] =
 {
-    {3219.28, 669.121 , 88.5549},
-    {3221.55, 682.852 , 90.5361},
-    {3239.77, 685.94 , 90.3168},
-    {3250.33, 669.749 , 88.7637},
-    {3246.6, 642.365 , 84.8752},
-    {3233.68, 653.117 , 85.7051}
+    {3219.28f, 669.121f , 88.5549f},
+    {3221.55f, 682.852f , 90.5361f},
+    {3239.77f, 685.94f , 90.3168f},
+    {3250.33f, 669.749f , 88.7637f},
+    {3246.6f, 642.365f , 84.8752f},
+    {3233.68f, 653.117f , 85.7051f}
 };
 Locations TwilightEggsSarth[] =
 {
-    {3252.73, 515.762 , 58.5501},
-    {3256.56, 521.119 , 58.6061},
-    {3255.63, 527.513 , 58.7568},
-    {3264.90, 525.865 , 58.6436},
-    {3264.26, 516.364 , 58.8011},
-    {3257.54, 502.285 , 58.2077}
+    {3252.73f, 515.762f , 58.5501f},
+    {3256.56f, 521.119f , 58.6061f},
+    {3255.63f, 527.513f , 58.7568f},
+    {3264.90f, 525.865f , 58.6436f},
+    {3264.26f, 516.364f , 58.8011f},
+    {3257.54f, 502.285f , 58.2077f}
 };
 
 /*######
@@ -285,7 +285,7 @@ public:
                 me->RemoveAurasDueToSpell(SPELL_TWILIGHT_REVENGE);
 
             me->ResetLootMode();
-            me->SetHomePosition(3246.57, 551.263, 58.6164, 4.66003);
+            me->SetHomePosition(3246.57f, 551.263f, 58.6164f, 4.66003f);
 
             achievProgress = 0;
 
@@ -297,7 +297,7 @@ public:
                 Creature* pVesperon = Unit::GetCreature(*me, pInstance->GetData64(DATA_VESPERON));
                 if (pTenebron)
                 {
-                    pTenebron->SetHomePosition(3239.07, 657.235, 86.8775, 4.74729);
+                    pTenebron->SetHomePosition(3239.07f, 657.235f, 86.8775f, 4.74729f);
                     if(pTenebron->isAlive())
                     {
                         if (pTenebron->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
@@ -315,7 +315,7 @@ public:
                 }
                 if (pShadron)
                 {
-                    pShadron->SetHomePosition(3363.06, 525.28, 98.362, 4.76475);
+                    pShadron->SetHomePosition(3363.06f, 525.28f, 98.362f, 4.76475f);
                     if(pShadron->isAlive())
                     {
                         if (pShadron->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
@@ -333,7 +333,7 @@ public:
                 }
                 if (pVesperon)
                 {
-                    pVesperon->SetHomePosition(3145.68, 520.71, 89.7, 4.64258);
+                    pVesperon->SetHomePosition(3145.68f, 520.71f, 89.7f, 4.64258f);
                     if(pVesperon->isAlive())
                     {
                         if (pVesperon->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))

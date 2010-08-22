@@ -131,24 +131,24 @@ public:
                 // First Ambush(3 Yetis)
                 case 11:
                     DoScriptText(SAY_OOX_AMBUSH, me);
-                    me->SummonCreature(NPC_YETI, -4841.01, 1593.91, 73.42, 3.98, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
-                    me->SummonCreature(NPC_YETI, -4837.61, 1568.58, 78.21, 3.13, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
-                    me->SummonCreature(NPC_YETI, -4841.89, 1569.95, 76.53, 0.68, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                    me->SummonCreature(NPC_YETI, -4841.01f, 1593.91f, 73.42f, 3.98f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                    me->SummonCreature(NPC_YETI, -4837.61f, 1568.58f, 78.21f, 3.13f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                    me->SummonCreature(NPC_YETI, -4841.89f, 1569.95f, 76.53f, 0.68f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                     break;
                 //Second Ambush(3 Gorillas)
                 case 21:
                     DoScriptText(SAY_OOX_AMBUSH, me);
-                    me->SummonCreature(NPC_GORILLA, -4595.81, 2005.99, 53.08, 3.74, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
-                    me->SummonCreature(NPC_GORILLA, -4597.53, 2008.31, 52.70, 3.78, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
-                    me->SummonCreature(NPC_GORILLA, -4599.37, 2010.59, 52.77, 3.84, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                    me->SummonCreature(NPC_GORILLA, -4595.81f, 2005.99f, 53.08f, 3.74f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                    me->SummonCreature(NPC_GORILLA, -4597.53f, 2008.31f, 52.70f, 3.78f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                    me->SummonCreature(NPC_GORILLA, -4599.37f, 2010.59f, 52.77f, 3.84f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                     break;
                 //Third Ambush(4 Gnolls)
                 case 30:
                     DoScriptText(SAY_OOX_AMBUSH, me);
-                    me->SummonCreature(NPC_WOODPAW_REAVER, -4425.14, 2075.87, 47.77, 3.77, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
-                    me->SummonCreature(NPC_WOODPAW_BRUTE , -4426.68, 2077.98, 47.57, 3.77, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
-                    me->SummonCreature(NPC_WOODPAW_MYSTIC, -4428.33, 2080.24, 47.43, 3.87, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
-                    me->SummonCreature(NPC_WOODPAW_ALPHA , -4430.04, 2075.54, 46.83, 3.81, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                    me->SummonCreature(NPC_WOODPAW_REAVER, -4425.14f, 2075.87f, 47.77f, 3.77f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                    me->SummonCreature(NPC_WOODPAW_BRUTE , -4426.68f, 2077.98f, 47.57f, 3.77f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                    me->SummonCreature(NPC_WOODPAW_MYSTIC, -4428.33f, 2080.24f, 47.43f, 3.87f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                    me->SummonCreature(NPC_WOODPAW_ALPHA , -4430.04f, 2075.54f, 46.83f, 3.81f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                     break;
                 case 37:
                     DoScriptText(SAY_OOX_END, me);

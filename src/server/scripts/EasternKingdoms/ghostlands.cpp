@@ -192,13 +192,13 @@ public:
                 DoScriptText(SAY_PROGRESS1, me, pPlayer);
             case 11:
                 DoScriptText(SAY_PROGRESS2, me, pPlayer);
-                me->SetOrientation(4.762841);
+                me->SetOrientation(4.762841f);
                 break;
             case 18:
                 {
                 DoScriptText(SAY_PROGRESS3, me, pPlayer);
-                Creature* Summ1 = me->SummonCreature(16342, 7627.083984, -7532.538086, 152.128616, 1.082733, TEMPSUMMON_DEAD_DESPAWN, 0);
-                Creature* Summ2 = me->SummonCreature(16343, 7620.432129, -7532.550293, 152.454865, 0.827478, TEMPSUMMON_DEAD_DESPAWN, 0);
+                Creature* Summ1 = me->SummonCreature(16342, 7627.083984f, -7532.538086f, 152.128616f, 1.082733f, TEMPSUMMON_DEAD_DESPAWN, 0);
+                Creature* Summ2 = me->SummonCreature(16343, 7620.432129f, -7532.550293f, 152.454865f, 0.827478f, TEMPSUMMON_DEAD_DESPAWN, 0);
                 if (Summ1 && Summ2)
                 {
                     Summ1->Attack(me, true);
@@ -214,11 +214,11 @@ public:
                     CAST_PLR(pPlayer)->GroupEventHappens(QUEST_ESCAPE_FROM_THE_CATACOMBS,me);
                 break;
             case 32:
-                me->SetOrientation(2.978281);
+                me->SetOrientation(2.978281f);
                 DoScriptText(SAY_END1, me, pPlayer);
                 break;
             case 33:
-                me->SetOrientation(5.858011);
+                me->SetOrientation(5.858011f);
                 DoScriptText(SAY_END2, me, pPlayer);
                 Unit* CaptainHelios = me->FindNearestCreature(NPC_CAPTAIN_HELIOS, 50);
                 if (CaptainHelios)

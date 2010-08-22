@@ -41,7 +41,7 @@ enum eEnums
     POINT_ID_LAND               = 1
 };
 
-const float afKaelLandPoint[] = {225.045, -276.236, -5.434};
+const float afKaelLandPoint[] = {225.045f, -276.236f, -5.434f};
 
 #define GOSSIP_ITEM_KAEL_1      "Who are you?"
 #define GOSSIP_ITEM_KAEL_2      "What can we do to assist you?"

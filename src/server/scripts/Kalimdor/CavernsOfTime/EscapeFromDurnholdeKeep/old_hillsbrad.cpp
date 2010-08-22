@@ -228,7 +228,7 @@ public:
 
             case GOSSIP_ACTION_INFO_DEF+20:
                 pPlayer->SEND_GOSSIP_MENU(GOSSIP_ID_SKARLOC3, pCreature->GetGUID());
-                pCreature->SummonCreature(SKARLOC_MOUNT,2038.81,270.26,63.20,5.41,TEMPSUMMON_TIMED_DESPAWN,12000);
+                pCreature->SummonCreature(SKARLOC_MOUNT,2038.81f,270.26f,63.20f,5.41f,TEMPSUMMON_TIMED_DESPAWN,12000);
                 if (pInstance)
                     pInstance->SetData(TYPE_THRALL_PART2,IN_PROGRESS);
 
@@ -304,7 +304,7 @@ public:
             {
                 case 8:
                     SetRun(false);
-                    me->SummonCreature(18764,2181.87,112.46,89.45,0.26,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
+                    me->SummonCreature(18764,2181.87f,112.46f,89.45f,0.26f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
                     break;
                 case 9:
                     DoScriptText(SAY_TH_ARMORY, me);
@@ -322,26 +322,26 @@ public:
                     SetRun();
                     break;
                 case 15:
-                    me->SummonCreature(MOB_ENTRY_RIFLE,2200.28,137.37,87.93,5.07,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
-                    me->SummonCreature(MOB_ENTRY_WARDEN,2197.44,131.83,87.93,0.78,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
-                    me->SummonCreature(MOB_ENTRY_VETERAN,2203.62,135.40,87.93,3.70,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
-                    me->SummonCreature(MOB_ENTRY_VETERAN,2200.75,130.13,87.93,1.48,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
+                    me->SummonCreature(MOB_ENTRY_RIFLE,2200.28f,137.37f,87.93f,5.07f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
+                    me->SummonCreature(MOB_ENTRY_WARDEN,2197.44f,131.83f,87.93f,0.78f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
+                    me->SummonCreature(MOB_ENTRY_VETERAN,2203.62f,135.40f,87.93f,3.70f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
+                    me->SummonCreature(MOB_ENTRY_VETERAN,2200.75f,130.13f,87.93f,1.48f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
                     break;
                 case 21:
-                    me->SummonCreature(MOB_ENTRY_RIFLE,2135.80,154.01,67.45,4.98,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
-                    me->SummonCreature(MOB_ENTRY_WARDEN,2144.36,151.87,67.74,4.46,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
-                    me->SummonCreature(MOB_ENTRY_VETERAN,2142.12,154.41,67.12,4.56,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
-                    me->SummonCreature(MOB_ENTRY_VETERAN,2138.08,155.38,67.24,4.60,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
+                    me->SummonCreature(MOB_ENTRY_RIFLE,2135.80f,154.01f,67.45f,4.98f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
+                    me->SummonCreature(MOB_ENTRY_WARDEN,2144.36f,151.87f,67.74f,4.46f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
+                    me->SummonCreature(MOB_ENTRY_VETERAN,2142.12f,154.41f,67.12f,4.56f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
+                    me->SummonCreature(MOB_ENTRY_VETERAN,2138.08f,155.38f,67.24f,4.60f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
                     break;
                 case 25:
-                    me->SummonCreature(MOB_ENTRY_RIFLE,2102.98,192.17,65.24,6.02,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
-                    me->SummonCreature(MOB_ENTRY_WARDEN,2108.48,198.75,65.18,5.15,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
-                    me->SummonCreature(MOB_ENTRY_VETERAN,2106.11,197.29,65.18,5.63,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
-                    me->SummonCreature(MOB_ENTRY_VETERAN,2104.18,194.82,65.18,5.75,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
+                    me->SummonCreature(MOB_ENTRY_RIFLE,2102.98f,192.17f,65.24f,6.02f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
+                    me->SummonCreature(MOB_ENTRY_WARDEN,2108.48f,198.75f,65.18f,5.15f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
+                    me->SummonCreature(MOB_ENTRY_VETERAN,2106.11f,197.29f,65.18f,5.63f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
+                    me->SummonCreature(MOB_ENTRY_VETERAN,2104.18f,194.82f,65.18f,5.75f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
                     break;
                 case 29:
                     DoScriptText(SAY_TH_SKARLOC_MEET, me);
-                    me->SummonCreature(ENTRY_SCARLOC,2036.48,271.22,63.43,5.27,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000);
+                    me->SummonCreature(ENTRY_SCARLOC,2036.48f,271.22f,63.43f,5.27f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,30000);
                     //temporary,skarloc should rather be triggered to walk up to thrall
                     break;
                 case 30:
@@ -356,12 +356,12 @@ public:
                     break;
                 case 37:
                     //possibly regular patrollers? If so, remove this and let database handle them
-                    me->SummonCreature(MOB_ENTRY_WATCHMAN,2124.26,522.16,56.87,3.99,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
-                    me->SummonCreature(MOB_ENTRY_WATCHMAN,2121.69,525.37,57.11,4.01,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
-                    me->SummonCreature(MOB_ENTRY_SENTRY,2124.65,524.55,56.63,3.98,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
+                    me->SummonCreature(MOB_ENTRY_WATCHMAN,2124.26f,522.16f,56.87f,3.99f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
+                    me->SummonCreature(MOB_ENTRY_WATCHMAN,2121.69f,525.37f,57.11f,4.01f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
+                    me->SummonCreature(MOB_ENTRY_SENTRY,2124.65f,524.55f,56.63f,3.98f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
                     break;
                 case 59:
-                    me->SummonCreature(SKARLOC_MOUNT,2488.64,625.77,58.26,4.71,TEMPSUMMON_TIMED_DESPAWN,10000);
+                    me->SummonCreature(SKARLOC_MOUNT,2488.64f,625.77f,58.26f,4.71f,TEMPSUMMON_TIMED_DESPAWN,10000);
                     DoUnmount();
                     HadMount = false;
                     SetRun(false);
@@ -378,10 +378,10 @@ public:
                     SetRun(false);
                     break;
                 case 68:
-                    me->SummonCreature(MOB_ENTRY_BARN_PROTECTOR,2500.22,692.60,55.50,2.84,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
-                    me->SummonCreature(MOB_ENTRY_BARN_LOOKOUT,2500.13,696.55,55.51,3.38,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
-                    me->SummonCreature(MOB_ENTRY_BARN_GUARDSMAN,2500.55,693.64,55.50,3.14,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
-                    me->SummonCreature(MOB_ENTRY_BARN_GUARDSMAN,2500.94,695.81,55.50,3.14,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
+                    me->SummonCreature(MOB_ENTRY_BARN_PROTECTOR,2500.22f,692.60f,55.50f,2.84f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
+                    me->SummonCreature(MOB_ENTRY_BARN_LOOKOUT,2500.13f,696.55f,55.51f,3.38f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
+                    me->SummonCreature(MOB_ENTRY_BARN_GUARDSMAN,2500.55f,693.64f,55.50f,3.14f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
+                    me->SummonCreature(MOB_ENTRY_BARN_GUARDSMAN,2500.94f,695.81f,55.50f,3.14f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
                     break;
                 case 71:
                     SetRun();
@@ -390,10 +390,10 @@ public:
                     SetRun(false);
                     break;
                 case 83:
-                    me->SummonCreature(MOB_ENTRY_CHURCH_PROTECTOR,2627.33,646.82,56.03,4.28,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,5000);
-                    me->SummonCreature(MOB_ENTRY_CHURCH_LOOKOUT,2624.14,648.03,56.03,4.50,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,5000);
-                    me->SummonCreature(MOB_ENTRY_CHURCH_GUARDSMAN,2625.32,649.60,56.03,4.38,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,5000);
-                    me->SummonCreature(MOB_ENTRY_CHURCH_GUARDSMAN,2627.22,649.00,56.03,4.34,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,5000);
+                    me->SummonCreature(MOB_ENTRY_CHURCH_PROTECTOR,2627.33f,646.82f,56.03f,4.28f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,5000);
+                    me->SummonCreature(MOB_ENTRY_CHURCH_LOOKOUT,2624.14f,648.03f,56.03f,4.50f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,5000);
+                    me->SummonCreature(MOB_ENTRY_CHURCH_GUARDSMAN,2625.32f,649.60f,56.03f,4.38f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,5000);
+                    me->SummonCreature(MOB_ENTRY_CHURCH_GUARDSMAN,2627.22f,649.00f,56.03f,4.34f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,5000);
                     break;
                 case 84:
                     DoScriptText(SAY_TH_CHURCH_END, me);
@@ -404,10 +404,10 @@ public:
                     SetRun(false);
                     break;
                 case 93:
-                    me->SummonCreature(MOB_ENTRY_INN_PROTECTOR,2652.71,660.31,61.93,1.67,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
-                    me->SummonCreature(MOB_ENTRY_INN_LOOKOUT,2648.96,662.59,61.93,0.79,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
-                    me->SummonCreature(MOB_ENTRY_INN_GUARDSMAN,2657.36,662.34,61.93,2.68,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
-                    me->SummonCreature(MOB_ENTRY_INN_GUARDSMAN,2656.39,659.77,61.93,2.61,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
+                    me->SummonCreature(MOB_ENTRY_INN_PROTECTOR,2652.71f,660.31f,61.93f,1.67f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
+                    me->SummonCreature(MOB_ENTRY_INN_LOOKOUT,2648.96f,662.59f,61.93f,0.79f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
+                    me->SummonCreature(MOB_ENTRY_INN_GUARDSMAN,2657.36f,662.34f,61.93f,2.68f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
+                    me->SummonCreature(MOB_ENTRY_INN_GUARDSMAN,2656.39f,659.77f,61.93f,2.61f,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
                     break;
                 case 94:
                     if (uint64 TarethaGUID = pInstance->GetData64(DATA_TARETHA))
@@ -455,7 +455,7 @@ public:
                         }
 
                         //alot will happen here, thrall and taretha talk, erozion appear at spot to explain
-                        me->SummonCreature(EROZION_ENTRY,2646.47,680.416,55.38,4.16,TEMPSUMMON_TIMED_DESPAWN,120000);
+                        me->SummonCreature(EROZION_ENTRY,2646.47f,680.416f,55.38f,4.16f,TEMPSUMMON_TIMED_DESPAWN,120000);
                     }
                     break;
                 case 108:
@@ -599,7 +599,7 @@ public:
             {
                 pInstance->SetData(TYPE_THRALL_PART4,IN_PROGRESS);
                 if (pInstance->GetData64(DATA_EPOCH) == 0)
-                     pCreature->SummonCreature(ENTRY_EPOCH,2639.13,698.55,65.43,4.59,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,120000);
+                     pCreature->SummonCreature(ENTRY_EPOCH,2639.13f,698.55f,65.43f,4.59f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,120000);
 
                  if (uint64 ThrallGUID = pInstance->GetData64(DATA_THRALL))
                  {

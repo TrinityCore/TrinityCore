@@ -64,17 +64,17 @@ EndScriptData */
 #define ENTRY_TAINTED_SPAWN         22036
 #define ENTRY_BEAM_DUMMY            21934
 
-#define HYDROSS_X                   -239.439
-#define HYDROSS_Y                   -363.481
+#define HYDROSS_X                   -239.439f
+#define HYDROSS_Y                   -363.481f
 
-#define SPAWN_X_DIFF1               6.934003
-#define SPAWN_Y_DIFF1               -11.255012
-#define SPAWN_X_DIFF2               -6.934003
-#define SPAWN_Y_DIFF2               11.255012
-#define SPAWN_X_DIFF3               -12.577011
-#define SPAWN_Y_DIFF3               -4.72702
-#define SPAWN_X_DIFF4               12.577011
-#define SPAWN_Y_DIFF4               4.72702
+#define SPAWN_X_DIFF1               6.934003f
+#define SPAWN_Y_DIFF1               -11.255012f
+#define SPAWN_X_DIFF2               -6.934003f
+#define SPAWN_Y_DIFF2               11.255012f
+#define SPAWN_X_DIFF3               -12.577011f
+#define SPAWN_Y_DIFF3               -4.72702f
+#define SPAWN_X_DIFF4               12.577011f
+#define SPAWN_Y_DIFF4               4.72702f
 
 class boss_hydross_the_unstable : public CreatureScript
 {
@@ -137,7 +137,7 @@ public:
 
         void SummonBeams()
         {
-            Creature* beamer = me->SummonCreature(ENTRY_BEAM_DUMMY,-258.333,-356.34,22.0499,5.90835,TEMPSUMMON_CORPSE_DESPAWN,0);
+            Creature* beamer = me->SummonCreature(ENTRY_BEAM_DUMMY,-258.333f,-356.34f,22.0499f,5.90835f,TEMPSUMMON_CORPSE_DESPAWN,0);
             if (beamer)
             {
                 beamer->CastSpell(me,SPELL_BLUE_BEAM,true);
@@ -145,7 +145,7 @@ public:
                 beamer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 beams[0]=beamer->GetGUID();
             }
-            beamer = beamer = me->SummonCreature(ENTRY_BEAM_DUMMY,-219.918,-371.308,22.0042,2.73072,TEMPSUMMON_CORPSE_DESPAWN,0);
+            beamer = beamer = me->SummonCreature(ENTRY_BEAM_DUMMY,-219.918f,-371.308f,22.0042f,2.73072f,TEMPSUMMON_CORPSE_DESPAWN,0);
             if (beamer)
             {
                 beamer->CastSpell(me,SPELL_BLUE_BEAM,true);

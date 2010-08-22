@@ -64,15 +64,15 @@ enum eEnums
     MAX_ACTIVE_LACKEY       = 4
 };
 
-const float fOrientation = 4.98;
-const float fZLocation = -19.921;
+const float fOrientation = 4.98f;
+const float fZLocation = -19.921f;
 
 float LackeyLocations[4][2]=
 {
-    {123.77, 17.6007},
-    {131.731, 15.0827},
-    {121.563, 15.6213},
-    {129.988, 17.2355},
+    {123.77f, 17.6007f},
+    {131.731f, 15.0827f},
+    {121.563f, 15.6213f},
+    {129.988f, 17.2355f},
 };
 
 const uint32 m_auiAddEntries[] =

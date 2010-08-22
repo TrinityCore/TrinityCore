@@ -64,7 +64,7 @@ enum eSays
     EMOTE                         = -1543025,
 };
 
-const float VazrudenMiddle[3] = {-1406.5, 1746.5, 81.2};
+const float VazrudenMiddle[3] = {-1406.5f, 1746.5f, 81.2f};
 const float VazrudenRing[2][3] =
 {
     {-1430, 1705, 112},
@@ -371,7 +371,7 @@ class boss_vazruden_the_herald : public CreatureScript
                 {
                     CAST_AI(boss_nazan::boss_nazanAI, pSummoned->AI())->VazrudenGUID = VazrudenGUID;
                     pSummoned->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                    pSummoned->SetSpeed(MOVE_FLIGHT, 2.5);
+                    pSummoned->SetSpeed(MOVE_FLIGHT, 2.5f);
                     if (pVictim)
                         AttackStartNoMove(pVictim);
                 }

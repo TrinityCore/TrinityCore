@@ -90,7 +90,7 @@ enum Spells
     SPELL_REBIRTH                               = 44200, // Emerge from the Sunwell
     SPELL_SOUL_FLAY                             = 45442, // 9k Shadow damage over 3 seconds. Spammed throughout all the fight.
     SPELL_SOUL_FLAY_SLOW                        = 47106,
-    SPELL_LEGION_LIGHTNING                      = 45664, // Chain Lightning, 4 targets, ~3k Shadow damage, 1.5k mana burn
+    SPELL_LEGION_LIGHTNING                      = 45664, // Chain Lightning, 4 targets, ~3k Shadow damage, 1.5fk mana burn
     SPELL_FIRE_BLOOM                            = 45641, // Places a debuff on 5 raid members, which causes them to deal 2k Fire damage to nearby allies and selves. MIGHT NOT WORK
     SPELL_DESTROY_ALL_DRAKES                    = 46707, // when he use it?
 
@@ -157,8 +157,8 @@ enum Spells
 #define ERROR_KJ_NOT_SUMMONED "TSCR ERROR: Unable to summon Kil'Jaeden for some reason"
 
 /*** Others ***/
-#define FLOOR_Z         28.050388
-#define SHIELD_ORB_Z    45.000
+#define FLOOR_Z         28.050388f
+#define SHIELD_ORB_Z    45.000f
 
 enum Phase
 {
@@ -193,18 +193,18 @@ enum KilJaedenTimers
 // Locations of the Hand of Deceiver adds
 Position DeceiverLocations[3]=
 {
-    {1682.045, 631.299, 5.936},
-    {1684.099, 618.848, 0.589},
-    {1694.170, 612.272, 1.416},
+    {1682.045f, 631.299f, 5.936f},
+    {1684.099f, 618.848f, 0.589f},
+    {1694.170f, 612.272f, 1.416f},
 };
 
 // Locations, where Shield Orbs will spawn
 float ShieldOrbLocations[4][2]=
 {
-    {1698.900, 627.870},    // middle pont of Sunwell
-    {12, 3.14},             // First one spawns northeast of KJ
-    {12, 3.14/0.7},         // Second one spawns southeast
-    {12, 3.14*3.8}          // Third one spawns (?)
+    {1698.900f, 627.870f},    // middle pont of Sunwell
+    {12, 3.14f},             // First one spawns northeast of KJ
+    {12, 3.14f/0.7f},         // Second one spawns southeast
+    {12, 3.14f*3.8f}          // Third one spawns (?)
 };
 
 struct Speech

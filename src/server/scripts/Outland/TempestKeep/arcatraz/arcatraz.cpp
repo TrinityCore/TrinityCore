@@ -426,15 +426,15 @@ class npc_warden_mellichar : public CreatureScript
                             switch (urand(0,1))
                             {
                             case 0:
-                                me->SummonCreature(ENTRY_TRICKSTER,478.326,-148.505,42.56,3.19,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
+                                me->SummonCreature(ENTRY_TRICKSTER,478.326f,-148.505f,42.56f,3.19f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
                                 break;
                             case 1:
-                                me->SummonCreature(ENTRY_PH_HUNTER,478.326,-148.505,42.56,3.19,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
+                                me->SummonCreature(ENTRY_PH_HUNTER,478.326f,-148.505f,42.56f,3.19f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
                                 break;
                             }
                             break;
                         case 3:
-                            me->SummonCreature(ENTRY_MILLHOUSE,413.292,-148.378,42.56,6.27,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
+                            me->SummonCreature(ENTRY_MILLHOUSE,413.292f,-148.378f,42.56f,6.27f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
                             break;
                         case 4:
                             DoScriptText(YELL_RELEASE2B, me);
@@ -443,10 +443,10 @@ class npc_warden_mellichar : public CreatureScript
                             switch (urand(0,1))
                             {
                             case 0:
-                                me->SummonCreature(ENTRY_AKKIRIS,420.179,-174.396,42.58,0.02,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
+                                me->SummonCreature(ENTRY_AKKIRIS,420.179f,-174.396f,42.58f,0.02f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
                                 break;
                             case 1:
-                                me->SummonCreature(ENTRY_SULFURON,420.179,-174.396,42.58,0.02,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
+                                me->SummonCreature(ENTRY_SULFURON,420.179f,-174.396f,42.58f,0.02f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
                                 break;
                             }
                             break;
@@ -454,15 +454,15 @@ class npc_warden_mellichar : public CreatureScript
                             switch (urand(0,1))
                             {
                             case 0:
-                                me->SummonCreature(ENTRY_TW_DRAK,471.795,-174.58,42.58,3.06,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
+                                me->SummonCreature(ENTRY_TW_DRAK,471.795f,-174.58f,42.58f,3.06f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
                                 break;
                             case 1:
-                                me->SummonCreature(ENTRY_BL_DRAK,471.795,-174.58,42.58,3.06,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
+                                me->SummonCreature(ENTRY_BL_DRAK,471.795f,-174.58f,42.58f,3.06f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
                                 break;
                             }
                             break;
                         case 7:
-                            me->SummonCreature(ENTRY_SKYRISS,445.763,-191.639,44.64,1.60,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
+                            me->SummonCreature(ENTRY_SKYRISS,445.763f,-191.639f,44.64f,1.60f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
                             DoScriptText(YELL_WELCOME, me);
                             break;
                         }

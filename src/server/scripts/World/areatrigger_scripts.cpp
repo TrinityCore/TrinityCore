@@ -267,7 +267,7 @@ class AreaTrigger_at_scent_larkorwi : public AreaTriggerScript
             if (!player->isDead() && player->GetQuestStatus(QUEST_SCENT_OF_LARKORWI) == QUEST_STATUS_INCOMPLETE)
             {
                 if (!player->FindNearestCreature(NPC_LARKORWI_MATE,15))
-                    player->SummonCreature(NPC_LARKORWI_MATE, player->GetPositionX()+5, player->GetPositionY(), player->GetPositionZ(), 3.3, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 100000);
+                    player->SummonCreature(NPC_LARKORWI_MATE, player->GetPositionX()+5, player->GetPositionY(), player->GetPositionZ(), 3.3f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 100000);
             }
 
             return false;
@@ -303,13 +303,13 @@ class AreaTrigger_at_last_rites : public AreaTriggerScript
             {
                 case 5332:
                 case 5338:
-                    pPosition = WorldLocation(571,3733.68,3563.25,290.812,3.665192);
+                    pPosition = WorldLocation(571,3733.68f,3563.25f,290.812f,3.665192f);
                     break;
                 case 5334:
-                    pPosition = WorldLocation(571,3802.38,3585.95,49.5765,0);
+                    pPosition = WorldLocation(571,3802.38f,3585.95f,49.5765f,0.0f);
                     break;
                 case 5340:
-                    pPosition = WorldLocation(571,3687.91,3577.28,473.342,0);
+                    pPosition = WorldLocation(571,3687.91f,3577.28f,473.342f,0.0f);
                     break;
                 default:
                     return false;

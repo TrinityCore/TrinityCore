@@ -70,9 +70,9 @@ EndScriptData */
 #define CREATURE_ANCIENT_WISP           17946
 #define CREATURE_CHANNEL_TARGET         22418
 
-#define NORDRASSIL_X        5503.713
-#define NORDRASSIL_Y       -3523.436
-#define NORDRASSIL_Z        1608.781
+#define NORDRASSIL_X        5503.713f
+#define NORDRASSIL_Y       -3523.436f
+#define NORDRASSIL_Z        1608.781f
 
 class mob_ancient_wisp : public CreatureScript
 {
@@ -412,11 +412,11 @@ public:
         void SummonDoomfire(Unit *pTarget)
         {
             me->SummonCreature(CREATURE_DOOMFIRE_SPIRIT,
-                pTarget->GetPositionX()+15.0,pTarget->GetPositionY()+15.0,pTarget->GetPositionZ(),0,
+                pTarget->GetPositionX()+15.0f,pTarget->GetPositionY()+15.0f,pTarget->GetPositionZ(),0,
                 TEMPSUMMON_TIMED_DESPAWN, 27000);
 
             me->SummonCreature(CREATURE_DOOMFIRE,
-                pTarget->GetPositionX()-15.0,pTarget->GetPositionY()-15.0,pTarget->GetPositionZ(),0,
+                pTarget->GetPositionX()-15.0f,pTarget->GetPositionY()-15.0f,pTarget->GetPositionZ(),0,
                 TEMPSUMMON_TIMED_DESPAWN, 27000);
         }
 

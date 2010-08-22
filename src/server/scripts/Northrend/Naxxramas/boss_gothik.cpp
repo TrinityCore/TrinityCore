@@ -113,26 +113,26 @@ enum Pos
 
 const Position PosSummonLive[POS_LIVE] =
 {
-    {2669.7, -3428.76, 268.56, 1.6},
-    {2692.1, -3428.76, 268.56, 1.6},
-    {2714.4, -3428.76, 268.56, 1.6},
-    {2669.7, -3431.67, 268.56, 1.6},
-    {2692.1, -3431.67, 268.56, 1.6},
-    {2714.4, -3431.67, 268.56, 1.6},
+    {2669.7f, -3428.76f, 268.56f, 1.6f},
+    {2692.1f, -3428.76f, 268.56f, 1.6f},
+    {2714.4f, -3428.76f, 268.56f, 1.6f},
+    {2669.7f, -3431.67f, 268.56f, 1.6f},
+    {2692.1f, -3431.67f, 268.56f, 1.6f},
+    {2714.4f, -3431.67f, 268.56f, 1.6f},
 };
 
 const Position PosSummonDead[POS_DEAD] =
 {
-    {2725.1, -3310.0, 268.85, 3.4},
-    {2699.3, -3322.8, 268.60, 3.3},
-    {2733.1, -3348.5, 268.84, 3.1},
-    {2682.8, -3304.2, 268.85, 3.9},
-    {2664.8, -3340.7, 268.23, 3.7},
+    {2725.1f, -3310.0f, 268.85f, 3.4f},
+    {2699.3f, -3322.8f, 268.60f, 3.3f},
+    {2733.1f, -3348.5f, 268.84f, 3.1f},
+    {2682.8f, -3304.2f, 268.85f, 3.9f},
+    {2664.8f, -3340.7f, 268.23f, 3.7f},
 };
 
-const float PosGroundLiveSide[4] = {2691.2, -3387.0, 267.68, 1.52};
-const float PosGroundDeadSide[4] = {2693.5, -3334.6, 267.68, 4.67};
-const float PosPlatform[4] = {2640.5, -3360.6, 285.26, 0};
+const float PosGroundLiveSide[4] = {2691.2f, -3387.0f, 267.68f, 1.52f};
+const float PosGroundDeadSide[4] = {2693.5f, -3334.6f, 267.68f, 4.67f};
+const float PosPlatform[4] = {2640.5f, -3360.6f, 285.26f, 0.0f};
 
 // Predicate function to check that the r   efzr unit is NOT on the same side as the source.
 struct NotOnSameSide : public std::unary_function<Unit *, bool> {

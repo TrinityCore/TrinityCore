@@ -166,10 +166,10 @@ struct Locations
 
 static Locations SpawnPosition[]=
 {
-    {5.3, -11.8, 0.361, 4.2},
-    {11.2, -29.17, 0.361, 2.7},
-    {-5.7, -34.85, 0.361, 1.09},
-    {-11.9, -18, 0.361, 5.87}
+    {5.3f, -11.8f, 0.361f, 4.2f},
+    {11.2f, -29.17f, 0.361f, 2.7f},
+    {-5.7f, -34.85f, 0.361f, 1.09f},
+    {-11.9f, -18, 0.361f, 5.87f}
 };
 
 static uint32 PaladinEntry[] = {CHAMPION_BLOODWRATH, CHAMPION_LIGHTREND, CHAMPION_SWIFTBLADE, CHAMPION_SUNSTRIKER};
@@ -582,9 +582,9 @@ public:
 
             if (Summon)
             {
-                me->SummonCreature(MOB_GHARZUL, 8745, -7134.32, 35.22, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
-                me->SummonCreature(MOB_ANGERSHADE, 8745, -7134.32, 35.22, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
-                me->SummonCreature(MOB_ANGERSHADE, 8745, -7134.32, 35.22, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
+                me->SummonCreature(MOB_GHARZUL, 8745, -7134.32f, 35.22f, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
+                me->SummonCreature(MOB_ANGERSHADE, 8745, -7134.32f, 35.22f, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
+                me->SummonCreature(MOB_ANGERSHADE, 8745, -7134.32f, 35.22f, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
                 Summon = false;
             }
         }
@@ -608,14 +608,14 @@ struct Location
 
 static Location SpawnLocations[] =
 {
-    {8270.68, -7188.53, 139.619},
-    {8284.27, -7187.78, 139.603},
-    {8297.43, -7193.53, 139.603},
-    {8303.5, -7201.96, 139.577},
-    {8273.22, -7241.82, 139.382},
-    {8254.89, -7222.12, 139.603},
-    {8278.51, -7242.13, 139.162},
-    {8267.97, -7239.17, 139.517}
+    {8270.68f, -7188.53f, 139.619f},
+    {8284.27f, -7187.78f, 139.603f},
+    {8297.43f, -7193.53f, 139.603f},
+    {8303.5f, -7201.96f, 139.577f},
+    {8273.22f, -7241.82f, 139.382f},
+    {8254.89f, -7222.12f, 139.603f},
+    {8278.51f, -7242.13f, 139.162f},
+    {8267.97f, -7239.17f, 139.517f}
 };
 
 class npc_infused_crystal : public CreatureScript

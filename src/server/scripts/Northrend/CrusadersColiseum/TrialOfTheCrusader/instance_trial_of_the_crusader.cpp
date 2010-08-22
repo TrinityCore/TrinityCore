@@ -295,7 +295,7 @@ public:
                             }
                             if (tributeChest)
                                 if (Creature* pTirion =  instance->GetCreature(m_uiTirionGUID))
-                                    if (GameObject* pChest = pTirion->SummonGameObject(tributeChest,805.62,134.87,142.16,3.27,0,0,0,0,90000000))
+                                    if (GameObject* pChest = pTirion->SummonGameObject(tributeChest,805.62f,134.87f,142.16f,3.27f,0,0,0,0,90000000))
                                         pChest->SetRespawnTime(pChest->GetRespawnDelay());
                             break;
                     }

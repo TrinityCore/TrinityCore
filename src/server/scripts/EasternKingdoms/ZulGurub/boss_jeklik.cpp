@@ -139,21 +139,21 @@ class boss_jeklik : public CreatureScript
                             Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
 
                             Creature* Bat = NULL;
-                            Bat = me->SummonCreature(11368,-12291.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                            Bat = me->SummonCreature(11368,-12291.6220f,-1380.2640f,144.8304f,5.483f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                             if (pTarget && Bat) Bat ->AI()->AttackStart(pTarget);
 
-                            Bat = me->SummonCreature(11368,-12289.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                            Bat = me->SummonCreature(11368,-12289.6220f,-1380.2640f,144.8304f,5.483f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                             if (pTarget && Bat) Bat ->AI()->AttackStart(pTarget);
 
-                            Bat = me->SummonCreature(11368,-12293.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                            Bat = me->SummonCreature(11368,-12293.6220f,-1380.2640f,144.8304f,5.483f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                             if (pTarget && Bat) Bat ->AI()->AttackStart(pTarget);
 
-                            Bat = me->SummonCreature(11368,-12291.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                            Bat = me->SummonCreature(11368,-12291.6220f,-1380.2640f,144.8304f,5.483f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                             if (pTarget && Bat) Bat ->AI()->AttackStart(pTarget);
 
-                            Bat = me->SummonCreature(11368,-12289.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                            Bat = me->SummonCreature(11368,-12289.6220f,-1380.2640f,144.8304f,5.483f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                             if (pTarget && Bat) Bat ->AI()->AttackStart(pTarget);
-                            Bat = me->SummonCreature(11368,-12293.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                            Bat = me->SummonCreature(11368,-12293.6220f,-1380.2640f,144.8304f,5.483f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                             if (pTarget && Bat) Bat ->AI()->AttackStart(pTarget);
 
                             SpawnBats_Timer = 60000;

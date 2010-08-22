@@ -193,7 +193,7 @@ public:
         {
             if (pPlayer->GetQuestStatus(9678) == QUEST_STATUS_INCOMPLETE)
             {
-                if (Creature* Stillblade = pPlayer->SummonCreature(NPC_STILLBLADE, 8106.11, -7542.06, 151.775, 3.02598, TEMPSUMMON_DEAD_DESPAWN, 60000))
+                if (Creature* Stillblade = pPlayer->SummonCreature(NPC_STILLBLADE, 8106.11f, -7542.06f, 151.775f, 3.02598f, TEMPSUMMON_DEAD_DESPAWN, 60000))
                     Stillblade->AI()->AttackStart(pPlayer);
             }
         }
@@ -402,7 +402,7 @@ public:
     bool OnGossipHello(Player *pPlayer, GameObject *pGO)
     {
         if (pGO->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
-            pPlayer->SummonCreature(NPC_ARIKARA, -5008.338, -2118.894, 83.657, 0.874, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+            pPlayer->SummonCreature(NPC_ARIKARA, -5008.338f, -2118.894f, 83.657f, 0.874f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
 
         return true;
     }
@@ -783,7 +783,7 @@ public:
     {
         if (pPlayer->GetQuestStatus(QUEST_PRISON_BREAK) == QUEST_STATUS_INCOMPLETE)
         {
-            pGO->SummonCreature(25318, 3485.089844, 6115.7422188, 70.966812, 0, TEMPSUMMON_TIMED_DESPAWN, 60000);
+            pGO->SummonCreature(25318, 3485.089844f, 6115.7422188f, 70.966812f, 0, TEMPSUMMON_TIMED_DESPAWN, 60000);
             pPlayer->CastSpell(pPlayer, SPELL_ARCANE_PRISONER_KILL_CREDIT, true);
             return true;
         } else
@@ -805,7 +805,7 @@ public:
     bool OnGossipHello(Player *pPlayer, GameObject *pGO)
     {
         if (pGO->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
-            pPlayer->SummonCreature(NPC_ZELEMAR, -369.746, 166.759, -21.50, 5.235, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+            pPlayer->SummonCreature(NPC_ZELEMAR, -369.746f, 166.759f, -21.50f, 5.235f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
 
         return true;
     }

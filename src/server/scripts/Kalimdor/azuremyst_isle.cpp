@@ -433,7 +433,7 @@ enum eGeezle
     GO_NAGA_FLAG    = 181694
 };
 
-static float SparkPos[3] = {-5029.91, -11291.79, 8.096};
+static float SparkPos[3] = {-5029.91f, -11291.79f, 8.096f};
 
 class npc_geezle : public CreatureScript
 {
@@ -487,8 +487,8 @@ public:
             {
             case 0:
                 if (Spark)
-                    Spark->GetMotionMaster()->MovePoint(0, -5080.70, -11253.61, 0.56);
-                me->GetMotionMaster()->MovePoint(0, -5092.26, -11252, 0.71);
+                    Spark->GetMotionMaster()->MovePoint(0, -5080.70f, -11253.61f, 0.56f);
+                me->GetMotionMaster()->MovePoint(0, -5092.26f, -11252, 0.71f);
                 return 9000; // NPCs are walking up to fire
             case 1:
                 DespawnNagaFlag(true);

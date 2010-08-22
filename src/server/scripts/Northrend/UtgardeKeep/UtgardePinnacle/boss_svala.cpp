@@ -77,12 +77,12 @@ enum CombatPhase
 
 static Position RitualChannelerPos[]=
 {
-    {296.42, -355.01, 90.94},
-    {302.36, -352.01, 90.54},
-    {291.39, -350.89, 90.54}
+    {296.42f, -355.01f, 90.94f},
+    {302.36f, -352.01f, 90.54f},
+    {291.39f, -350.89f, 90.54f}
 };
-static Position ArthasPos = { 295.81, -366.16, 92.57, 1.58 };
-static Position SvalaPos = { 296.632, -346.075, 90.6307, 1.58 };
+static Position ArthasPos = { 295.81f, -366.16f, 92.57f, 1.58f };
+static Position SvalaPos = { 296.632f, -346.075f, 90.6307f, 1.58f };
 
 class boss_svala : public CreatureScript
 {
@@ -160,28 +160,28 @@ public:
                     case 0:
                         DoScriptText(SAY_DIALOG_WITH_ARTHAS_1, me);
                         ++uiIntroPhase;
-                        uiIntroTimer = 3.5*IN_MILLISECONDS;
+                        uiIntroTimer = 3.5f*IN_MILLISECONDS;
                         break;
                     case 1:
                         DoScriptText(SAY_DIALOG_OF_ARTHAS_1, pArthas);
                         ++uiIntroPhase;
-                        uiIntroTimer = 3.5*IN_MILLISECONDS;
+                        uiIntroTimer = 3.5f*IN_MILLISECONDS;
                         break;
                     case 2:
                         DoScriptText(SAY_DIALOG_WITH_ARTHAS_2, me);
                         ++uiIntroPhase;
-                        uiIntroTimer = 3.5*IN_MILLISECONDS;
+                        uiIntroTimer = 3.5f*IN_MILLISECONDS;
                         break;
                     case 3:
                         DoScriptText(SAY_DIALOG_OF_ARTHAS_2, pArthas);
                         ++uiIntroPhase;
-                        uiIntroTimer = 3.5*IN_MILLISECONDS;
+                        uiIntroTimer = 3.5f*IN_MILLISECONDS;
                         break;
                     case 4:
                         DoScriptText(SAY_DIALOG_WITH_ARTHAS_3, me);
                         DoCast(me, SPELL_SVALA_TRANSFORMING1);
                         ++uiIntroPhase;
-                        uiIntroTimer = 2.8*IN_MILLISECONDS;
+                        uiIntroTimer = 2.8f*IN_MILLISECONDS;
                         break;
                     case 5:
                         DoCast(me, SPELL_SVALA_TRANSFORMING2);
@@ -287,7 +287,7 @@ public:
 
             Phase = NORMAL;
 
-            DoTeleportTo(296.632, -346.075, 90.6307);
+            DoTeleportTo(296.632f, -346.075f, 90.6307f);
             me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
 
             summons.DespawnAll();
@@ -348,9 +348,9 @@ public:
                             DoScriptText(RAND(SAY_SACRIFICE_PLAYER_1,SAY_SACRIFICE_PLAYER_2,SAY_SACRIFICE_PLAYER_3,SAY_SACRIFICE_PLAYER_4,SAY_SACRIFICE_PLAYER_5),me);
                             DoCast(pSacrificeTarget, SPELL_RITUAL_OF_THE_SWORD);
                             //Spell doesn't teleport
-                            DoTeleportPlayer(pSacrificeTarget, 296.632, -346.075, 90.63, 4.6);
+                            DoTeleportPlayer(pSacrificeTarget, 296.632f, -346.075f, 90.63f, 4.6f);
                             me->SetUnitMovementFlags(MOVEMENTFLAG_CAN_FLY);
-                            DoTeleportTo(296.632, -346.075, 120.85);
+                            DoTeleportTo(296.632f, -346.075f, 120.85f);
                             Phase = SACRIFICING;
                             if (pInstance)
                             {
