@@ -5290,7 +5290,8 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (25530, 0.1667, -1, -1, -1, 'Shaman - Searing Totem Attack Rank 7'),
 (58700, 0.1667, -1, -1, -1, 'Shaman - Searing Totem Attack Rank 8'),
 (58701, 0.1667, -1, -1, -1, 'Shaman - Searing Totem Attack Rank 9'),
-(52752, 0, 0, 0, 0, 'Ancestral Awakening'),
+(52752, 0, 0, 0, 0, 'Shaman - Ancestral Awakening'),
+(70809, 0, 0, 0, 0, 'Shaman - Item - T10 Restoration 4P Bonus'),
 (55533, 0, 0, 0, 0, 'Shaman - Glyph of Healing Wave'),
 (50796, 0.7139, -1, -1, -1, 'Warlock - Chaos Bolt'),
 (17962, 0, 0, 0, 0, 'Warlock - Conflagrate'),
@@ -7417,7 +7418,8 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 67771, 0x01,   0, 0x00000000, 0x00000000, 0x00000000, 0x00851154, 0x00000003,   0,  35,  45), -- Item - Coliseum Melee Trinket 10men
 ( 67702, 0x01,   0, 0x00000000, 0x00000000, 0x00000000, 0x00851154, 0x00000003,   0,  35,  45), -- Item - Coliseum Melee Trinket 25men
 ( 70748, 0x00,   3, 0x00000000, 0x00200000, 0x00000000, 0x00000400, 0x00000000,   0,   0,   0), -- Item - Mage T10 4P Bonus
-( 70807, 0x00,  11, 0x00000000, 0x00000000, 0x00000010, 0x00000000, 0x00000000,   0, 100,   0), -- Item - Shaman T10 Restoration 2P Bonus
+( 70807, 0x00,  11, 0x00000000, 0x00000000, 0x00000010, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Shaman T10 Restoration 2P Bonus
+( 70830, 0x00,  11, 0x00000000, 0x00020000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Shaman T10 Enhancement 2P Bonus
 ( 71519, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0, 105), -- Item - Deathbringer's Will Trinket Normal
 ( 71562, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0, 105), -- Item - Deathbringer's Will Trinket Heroic
 ( 70761, 0x00,  10, 0x00000000, 0x80004000, 0x00000001, 0x00000400, 0x00000000,   0,   0,   0), -- Item - Paladin T10 Protection 4P Bonus
