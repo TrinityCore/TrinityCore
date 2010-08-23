@@ -91,10 +91,10 @@ void BattlegroundWS::Update(uint32 diff)
             else
                 EndBattleground(ALLIANCE);
         }
-        else if (GetStartTime() > m_minutesElapsed*MINUTE*IN_MILLISECONDS)
+        else if (GetStartTime() > uint32(m_minutesElapsed * MINUTE * IN_MILLISECONDS))
         {
             ++m_minutesElapsed;
-            UpdateWorldState(BG_WS_STATE_TIMER, 25-m_minutesElapsed);
+            UpdateWorldState(BG_WS_STATE_TIMER, 25 - m_minutesElapsed);
         }
 
         if (m_FlagState[BG_TEAM_ALLIANCE] == BG_WS_FLAG_STATE_WAIT_RESPAWN)

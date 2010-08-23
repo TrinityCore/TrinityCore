@@ -951,7 +951,7 @@ public:
                 return;
 
             Event = EVENT_NULL;
-            for (uint32 i = 1; i <= MaxTimer[Phase]; ++i)
+            for (int32 i = 1; i <= MaxTimer[Phase]; ++i)
             {
                 if (Timer[i]) // Event is enabled
                     if (Timer[i] <= diff)

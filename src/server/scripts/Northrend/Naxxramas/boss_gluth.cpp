@@ -122,8 +122,8 @@ public:
                         events.ScheduleEvent(EVENT_BERSERK, 5*60000);
                         break;
                     case EVENT_SUMMON:
-                        for (uint32 i = 0; i < RAID_MODE(1,2); ++i)
-                            DoSummon(MOB_ZOMBIE, PosSummon[rand()%3]);
+                        for (int32 i = 0; i < RAID_MODE(1, 2); ++i)
+                            DoSummon(MOB_ZOMBIE, PosSummon[rand() % 3]);
                         events.ScheduleEvent(EVENT_SUMMON, 10000);
                         break;
                 }
