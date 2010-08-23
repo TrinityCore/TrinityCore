@@ -112,13 +112,13 @@ class npc_announcer_toc10 : public CreatureScript
             void Reset()
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                if(Creature *pAlly = GetClosestCreatureWithEntry(me, NPC_THRALL, 300.0f))
+                if (Creature *pAlly = GetClosestCreatureWithEntry(me, NPC_THRALL, 300.0f))
                     pAlly->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                if(Creature *pAlly = GetClosestCreatureWithEntry(me, NPC_PROUDMOORE, 300.0f))
+                if (Creature *pAlly = GetClosestCreatureWithEntry(me, NPC_PROUDMOORE, 300.0f))
                     pAlly->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
 
-            void AttackStart(Unit* pWho) {}
+            void AttackStart(Unit* /*pWho*/) {}
         };
 
         bool OnGossipHello(Player* pPlayer, Creature* pCreature)
@@ -133,7 +133,7 @@ class npc_announcer_toc10 : public CreatureScript
                 return true;
 
             uint8 i;
-            for(i = 0; i < NUM_MESSAGES; i++)
+            for (i = 0; i < NUM_MESSAGES; i++)
             {
                 if ((!_GossipMessage[i].state && m_pInstance->GetData(_GossipMessage[i].encounter) != DONE)
                     || (_GossipMessage[i].state && m_pInstance->GetData(_GossipMessage[i].encounter) == DONE))
@@ -147,7 +147,7 @@ class npc_announcer_toc10 : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+        bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
         {
             InstanceScript* m_pInstance;
             m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
@@ -319,7 +319,7 @@ class boss_lich_king_toc : public CreatureScript
                             if (GameObject* pGoFloor = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(GO_ARGENT_COLISEUM_FLOOR)))
                                 pGoFloor->TakenDamage(1000000);
                             me->CastSpell(me,69016,false);
-                            if(m_pInstance) m_pInstance->SetData(TYPE_LICH_KING,DONE);
+                            if (m_pInstance) m_pInstance->SetData(TYPE_LICH_KING,DONE);
                             Creature* pTemp = Unit::GetCreature((*me),m_pInstance->GetData64(NPC_ANUBARAK));
                             if (!pTemp || !pTemp->isAlive())
                                 pTemp = me->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
@@ -379,7 +379,7 @@ class npc_fizzlebang_toc : public CreatureScript
 
             void MovementInform(uint32 uiType, uint32 uiId)
             {
-                if(uiType != POINT_MOTION_TYPE) return;
+                if (uiType != POINT_MOTION_TYPE) return;
 
                 switch (uiId)
                 {
@@ -402,7 +402,7 @@ class npc_fizzlebang_toc : public CreatureScript
 
             void UpdateAI(const uint32 uiDiff)
             {
-                if(!m_pInstance) return;
+                if (!m_pInstance) return;
 
                 if (m_pInstance->GetData(TYPE_EVENT_NPC) != NPC_FIZZLEBANG) return;
 
@@ -524,7 +524,7 @@ class npc_tirion_toc : public CreatureScript
 
             void Reset() {}
 
-            void AttackStart(Unit* pWho) {}
+            void AttackStart(Unit* /*pWho*/) {}
 
             void UpdateAI(const uint32 uiDiff)
             {
@@ -838,7 +838,7 @@ class npc_garrosh_toc : public CreatureScript
 
             void Reset() {}
 
-            void AttackStart(Unit* pWho) {}
+            void AttackStart(Unit* /*pWho*/) {}
 
             void UpdateAI(const uint32 uiDiff)
             {
@@ -916,7 +916,7 @@ class npc_varian_toc : public CreatureScript
 
             void Reset() {}
 
-            void AttackStart(Unit* pWho) {}
+            void AttackStart(Unit* /*pWho*/) {}
 
             void UpdateAI(const uint32 uiDiff)
             {

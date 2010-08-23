@@ -21,7 +21,7 @@
 
 #include "OutdoorPvP.h"
 
-const uint32 OutdoorPvPTFBuffZonesNum = 5;
+const uint8 OutdoorPvPTFBuffZonesNum = 5;
 
 const uint32 OutdoorPvPTFBuffZones[OutdoorPvPTFBuffZonesNum] =
 {

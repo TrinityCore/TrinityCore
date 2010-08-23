@@ -30,7 +30,7 @@ const uint32 EP_GraveYardZone = 139;
 
 const uint32 EP_GraveYardId = 927;
 
-const uint32 EPBuffZonesNum = 3;
+const uint8 EPBuffZonesNum = 3;
 
 const uint32 EP_EWT_CM = 17690;
 const uint32 EP_CGT_CM = 17689;
@@ -149,8 +149,8 @@ const uint32 EPTowerPlayerEnterEvents[EP_TOWER_NUM] = {10691,10699,10701,10705};
 
 const uint32 EPTowerPlayerLeaveEvents[EP_TOWER_NUM] = {10692,10698,10700,10704};
 
-const uint32 EP_NUM_CREATURES = 6;
-const uint32 EP_EWT_NUM_CREATURES = 5;
+const uint8 EP_NUM_CREATURES = 6;
+const uint8 EP_EWT_NUM_CREATURES = 5;
 
 // one lordaeron commander, 4 soldiers
 // should be spawned at EWT and follow a path, but trans-grid pathing isn't safe, so summon them directly at NPT

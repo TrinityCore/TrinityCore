@@ -38,14 +38,14 @@ class spell_rog_cheat_death : public SpellHandlerScript
 
         class spell_rog_cheat_death_SpellScript : public SpellScript
         {
-            bool Validate(SpellEntry const * spellEntry)
+            bool Validate(SpellEntry const * /*spellEntry*/)
             {
                 if (!sSpellStore.LookupEntry(ROGUE_SPELL_CHEATING_DEATH))
                     return false;
                 return true;
             }
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Unit *caster = GetCaster();
                 caster->CastSpell(caster, ROGUE_SPELL_CHEATING_DEATH, true);
@@ -71,14 +71,14 @@ class spell_rog_hunger_for_blood : public SpellHandlerScript
 
         class spell_rog_hunger_for_blood_SpellScript : public SpellScript
         {
-            bool Validate(SpellEntry const * spellEntry)
+            bool Validate(SpellEntry const * /*spellEntry*/)
             {
                 if (!sSpellStore.LookupEntry(ROGUE_SPELL_HUNGER_FOR_BLOOD_BUFF))
                     return false;
                 return true;
             }
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Unit *caster = GetCaster();
                 caster->CastSpell(caster, ROGUE_SPELL_HUNGER_FOR_BLOOD_BUFF, true);
@@ -104,14 +104,14 @@ class spell_rog_preparation : public SpellHandlerScript
 
         class spell_rog_preparation_SpellScript : public SpellScript
         {
-            bool Validate(SpellEntry const * spellEntry)
+            bool Validate(SpellEntry const * /*spellEntry*/)
             {
                 if (!sSpellStore.LookupEntry(ROGUE_SPELL_GLYPH_OF_PREPARATION))
                     return false;
                 return true;
             }
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Unit *caster = GetCaster();
                 if (caster->GetTypeId() != TYPEID_PLAYER)
@@ -166,14 +166,14 @@ class spell_rog_shiv : public SpellHandlerScript
 
         class spell_rog_shiv_SpellScript : public SpellScript
         {
-            bool Validate(SpellEntry const * spellEntry)
+            bool Validate(SpellEntry const * /*spellEntry*/)
             {
                 if (!sSpellStore.LookupEntry(ROGUE_SPELL_SHIV_TRIGGERED))
                     return false;
                 return true;
             }
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Unit *caster = GetCaster();
                 if (caster->GetTypeId() != TYPEID_PLAYER)

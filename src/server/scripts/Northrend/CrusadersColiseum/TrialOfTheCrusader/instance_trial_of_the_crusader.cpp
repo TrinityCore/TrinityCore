@@ -113,7 +113,7 @@ public:
 
         bool IsEncounterInProgress() const
         {
-            for(uint8 i = 0; i < MAX_ENCOUNTERS ; ++i)
+            for (uint8 i = 0; i < MAX_ENCOUNTERS ; ++i)
                 if (m_auiEncounter[i] == IN_PROGRESS)
                     return true;
             return false;
@@ -134,9 +134,9 @@ public:
 
             for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
             {
-                if(Player* pPlayer = i->getSource())
+                if (Player* pPlayer = i->getSource())
                 {
-                    if(pPlayer->isAlive())
+                    if (pPlayer->isAlive())
                         return false;
                 }
             }
@@ -145,16 +145,16 @@ public:
 
         void OpenDoor(uint64 guid)
         {
-            if(!guid) return;
+            if (!guid) return;
             GameObject* pGo = instance->GetGameObject(guid);
-            if(pGo) pGo->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+            if (pGo) pGo->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
         }
 
         void CloseDoor(uint64 guid)
         {
-            if(!guid) return;
+            if (!guid) return;
             GameObject* pGo = instance->GetGameObject(guid);
-            if(pGo) pGo->SetGoState(GO_STATE_READY);
+            if (pGo) pGo->SetGoState(GO_STATE_READY);
         }
 
         void OnCreatureCreate(Creature* pCreature, bool /*add*/)
@@ -179,24 +179,24 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* pGO, bool bAdd)
+        void OnGameObjectCreate(GameObject* pGO, bool /*bAdd*/)
         {
             switch(pGO->GetEntry())
             {
                 case GO_CRUSADERS_CACHE_10:
-                    if(instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_NORMAL)
+                    if (instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_NORMAL)
                         m_uiCrusadersCacheGUID = pGO->GetGUID(); 
                     break;
                 case GO_CRUSADERS_CACHE_25:
-                    if(instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_NORMAL)
+                    if (instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_NORMAL)
                         m_uiCrusadersCacheGUID = pGO->GetGUID(); 
                     break;
                 case GO_CRUSADERS_CACHE_10_H:
-                    if(instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_HEROIC)
+                    if (instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_HEROIC)
                         m_uiCrusadersCacheGUID = pGO->GetGUID(); 
                     break;
                 case GO_CRUSADERS_CACHE_25_H:
-                    if(instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_HEROIC)
+                    if (instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_HEROIC)
                         m_uiCrusadersCacheGUID = pGO->GetGUID(); 
                     break;
                 case GO_ARGENT_COLISEUM_FLOOR: m_uiFloorGUID = pGO->GetGUID(); break;
@@ -520,20 +520,18 @@ public:
 
         void Update(uint32 uiDiff)
         {
-            if (GetData(TYPE_NORTHREND_BEASTS) == SNAKES_SPECIAL)
+            if (GetData(TYPE_NORTHREND_BEASTS) == SNAKES_SPECIAL && m_uiNotOneButTwoJormungarsTimer)
             {
-                if (m_uiNotOneButTwoJormungarsTimer)
-                    if (m_uiNotOneButTwoJormungarsTimer <= uiDiff)
-                        m_uiNotOneButTwoJormungarsTimer = 0;
-                    else m_uiNotOneButTwoJormungarsTimer -= uiDiff;
+                if (m_uiNotOneButTwoJormungarsTimer <= uiDiff)
+                    m_uiNotOneButTwoJormungarsTimer = 0;
+                else m_uiNotOneButTwoJormungarsTimer -= uiDiff;
             }
 
-            if (GetData(TYPE_CRUSADERS) == IN_PROGRESS)
+            if (GetData(TYPE_CRUSADERS) == IN_PROGRESS && m_uiResilienceWillFixItTimer)
             {
-                if (m_uiResilienceWillFixItTimer)
-                    if (m_uiResilienceWillFixItTimer <= uiDiff)
-                        m_uiResilienceWillFixItTimer = 0;
-                    else m_uiResilienceWillFixItTimer -= uiDiff;
+                if (m_uiResilienceWillFixItTimer <= uiDiff)
+                    m_uiResilienceWillFixItTimer = 0;
+                else m_uiResilienceWillFixItTimer -= uiDiff;
             }
         }
 
@@ -543,7 +541,7 @@ public:
 
             std::ostringstream saveStream;
 
-            for(uint8 i = 0; i < MAX_ENCOUNTERS; ++i)
+            for (uint8 i = 0; i < MAX_ENCOUNTERS; ++i)
                 saveStream << m_auiEncounter[i] << " ";
 
             saveStream << m_uiTrialCounter;
@@ -571,7 +569,7 @@ public:
 
             std::istringstream loadStream(strIn);
 
-            for(uint8 i = 0; i < MAX_ENCOUNTERS; ++i)
+            for (uint8 i = 0; i < MAX_ENCOUNTERS; ++i)
             {
                 loadStream >> m_auiEncounter[i];
 

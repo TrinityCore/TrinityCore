@@ -40,7 +40,7 @@ class AT_example_areatrigger : public AreaTriggerScript
         {
         }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
             DoScriptText(SAY_HI, player);
             return true;
@@ -56,7 +56,7 @@ class ItemUse_example_item : public ItemScript
         {
         }
 
-        bool OnUse(Player* player, Item* item, SpellCastTargets const& targets)
+        bool OnUse(Player* /*player*/, Item* /*item*/, SpellCastTargets const& /*targets*/)
         {
             sScriptMgr.LoadDatabase();
             return true;
@@ -72,7 +72,7 @@ class GOHello_example_go_teleporter : public GameObjectScript
         {
         }
 
-        bool OnGossipHello(Player* player, GameObject* go)
+        bool OnGossipHello(Player* player, GameObject* /*go*/)
         {
             player->TeleportTo(0, 1807.07f, 336.105f, 70.3975f, 0.0f);
             return false;

@@ -117,7 +117,7 @@ public:
 
         void Reset() 
         {
-            if(m_pInstance)
+            if (m_pInstance)
                 m_pInstance->SetData(TYPE_JARAXXUS, NOT_STARTED);
             SetEquipmentSlots(false, EQUIP_MAIN, EQUIP_OFFHAND, EQUIP_RANGED);
             m_uiFelFireballTimer = 5*IN_MILLISECONDS;
@@ -149,7 +149,7 @@ public:
             }
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* /*pKiller*/)
         {
             Summons.DespawnAll();
             DoScriptText(SAY_DEATH,me);
@@ -162,7 +162,7 @@ public:
             Summons.Summon(pSummoned);
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* /*pWho*/)
         {
             me->SetInCombatWithZone();
             if (m_pInstance)
@@ -270,7 +270,7 @@ public:
             DoCast(SPELL_LEGION_FLAME_EFFECT);
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(const uint32 /*uiDiff*/)
         {
             if (!UpdateVictim())
                 return;
@@ -330,7 +330,7 @@ public:
             pSummoned->SetCorpseDelay(0);
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* /*pKiller*/)
         {
             me->ForcedDespawn();
         }
@@ -514,7 +514,7 @@ public:
             me->SetInCombatWithZone();
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* /*pKiller*/)
         {
             if (m_pInstance)
                 m_pInstance->SetData(DATA_MISTRESS_OF_PAIN_COUNT, DECREASE);

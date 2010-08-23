@@ -58,7 +58,7 @@ public:
             return true;
         }
 
-        void HandleDummy(SpellEffIndex effIndex)
+        void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             if (Unit *unitTarget = GetHitUnit())
             {
@@ -97,14 +97,14 @@ public:
 
     class spell_pal_guarded_by_the_light_SpellScript : public SpellScript
     {
-        bool Validate(SpellEntry const * spellEntry)
+        bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(PALADIN_SPELL_DIVINE_PLEA))
                 return false;
             return true;
         }
 
-        void HandleScriptEffect(SpellEffIndex effIndex)
+        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
         {
             // Divine Plea
             if (Aura* aura = GetCaster()->GetAura(PALADIN_SPELL_DIVINE_PLEA))
@@ -148,7 +148,7 @@ public:
             return true;
         }
 
-        void HandleDummy(SpellEffIndex effIndex)
+        void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             if (Unit *unitTarget = GetHitUnit())
             {
@@ -183,7 +183,7 @@ public:
 
     class spell_pal_judgement_of_command_SpellScript : public SpellScript
     {
-        void HandleDummy(SpellEffIndex effIndex)
+        void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             if (Unit *unitTarget = GetHitUnit())
                 if (SpellEntry const* spell_proto = sSpellStore.LookupEntry(GetEffectValue()))

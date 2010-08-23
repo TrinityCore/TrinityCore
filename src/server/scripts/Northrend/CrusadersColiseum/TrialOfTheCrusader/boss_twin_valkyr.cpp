@@ -172,7 +172,7 @@ struct boss_twin_baseAI : public ScriptedAI
 
     void MovementInform(uint32 uiType, uint32 uiId)
     {
-        if(uiType != POINT_MOTION_TYPE) return;
+        if (uiType != POINT_MOTION_TYPE) return;
 
         switch (uiId)
         {
@@ -218,7 +218,7 @@ struct boss_twin_baseAI : public ScriptedAI
             case NPC_DARK_ESSENCE:
                 Map* pMap = me->GetMap();
                 Map::PlayerList const &lPlayers = pMap->GetPlayers();
-                for(Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
+                for (Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
                 {
                     Unit* pPlayer = itr->getSource();
                     if (!pPlayer) continue;
@@ -243,12 +243,12 @@ struct boss_twin_baseAI : public ScriptedAI
 
         if (pDoneBy->GetTypeId() == TYPEID_PLAYER)
         {
-            if(pDoneBy->HasAura(m_uiOtherEssenceSpellId))
+            if (pDoneBy->HasAura(m_uiOtherEssenceSpellId))
                 uiDamage += uiDamage/2;
-            if(pDoneBy->HasAura(m_uiEmpoweredWeaknessSpellId))
+            if (pDoneBy->HasAura(m_uiEmpoweredWeaknessSpellId))
                 uiDamage += uiDamage;
             else
-                if(pDoneBy->HasAura(m_uiMyEssenceSpellId))
+                if (pDoneBy->HasAura(m_uiMyEssenceSpellId))
                     uiDamage /= 2;
         }
 
@@ -279,19 +279,21 @@ struct boss_twin_baseAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit* /*pKiller*/)
     {
         DoScriptText(SAY_DEATH,me);
         if (m_pInstance) 
         {
             m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, 0);
             if (Creature* pSister = GetSister())
+            {
                 if (!pSister->isAlive())
                 {
                     m_pInstance->SetData(TYPE_VALKIRIES, DONE);
                     Summons.DespawnAll();
                 }
                 else m_pInstance->SetData(TYPE_VALKIRIES, SPECIAL);
+            }
         }
         Summons.DespawnAll();
     }
@@ -302,7 +304,7 @@ struct boss_twin_baseAI : public ScriptedAI
         return Unit::GetCreature((*me),m_pInstance->GetData64(m_uiSisterNpcId));
     }
 
-    void EnterCombat(Unit* pWho)
+    void EnterCombat(Unit* /*pWho*/)
     {
         me->SetInCombatWithZone();
         if (m_pInstance)
@@ -579,7 +581,7 @@ struct mob_unleashed_ballAI : public ScriptedAI
 
     void MovementInform(uint32 uiType, uint32 uiId)
     {
-        if(uiType != POINT_MOTION_TYPE) return;
+        if (uiType != POINT_MOTION_TYPE) return;
 
         switch (uiId)
         {
