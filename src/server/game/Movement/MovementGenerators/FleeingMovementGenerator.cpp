@@ -145,11 +145,11 @@ FleeingMovementGenerator<T>::_getPoint(T &owner, float &x, float &y, float &z)
                 distance /= 4;
                 break;
             case 15:
-                angle = i_cur_angle + static_cast<float>(M_PI*3/4.0f);
+                angle = i_cur_angle + static_cast<float>(M_PI*3/4);
                 distance /= 2;
                 break;
             case 16:
-                angle = i_cur_angle - static_cast<float>(M_PI*3/4.0f);
+                angle = i_cur_angle - static_cast<float>(M_PI*3/4);
                 distance /= 2;
                 break;
             case 17:
