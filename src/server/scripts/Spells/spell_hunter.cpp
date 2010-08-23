@@ -41,10 +41,10 @@ enum HunterSpells
 };
 
 // 53209 Chimera Shot
-class spell_hun_chimera_shot : public SpellHandlerScript
+class spell_hun_chimera_shot : public SpellScriptLoader
 {
 public:
-    spell_hun_chimera_shot() : SpellHandlerScript("spell_hun_chimera_shot") { }
+    spell_hun_chimera_shot() : SpellScriptLoader("spell_hun_chimera_shot") { }
 
     class spell_hun_chimera_shot_SpellScript : public SpellScript
     {
@@ -122,7 +122,7 @@ public:
 
         void Register()
         {
-            EffectHandlers += EffectHandlerFn(spell_hun_chimera_shot_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffect += SpellEffectFn(spell_hun_chimera_shot_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 
@@ -133,10 +133,10 @@ public:
 };
 
 // 53412 Invigoration
-class spell_hun_invigoration : public SpellHandlerScript
+class spell_hun_invigoration : public SpellScriptLoader
 {
 public:
-    spell_hun_invigoration() : SpellHandlerScript("spell_hun_invigoration") { }
+    spell_hun_invigoration() : SpellScriptLoader("spell_hun_invigoration") { }
 
     class spell_hun_invigoration_SpellScript : public SpellScript
     {
@@ -157,7 +157,7 @@ public:
 
         void Register()
         {
-            EffectHandlers += EffectHandlerFn(spell_hun_invigoration_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffect += SpellEffectFn(spell_hun_invigoration_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 
@@ -167,10 +167,10 @@ public:
     }
 };
 
-class spell_hun_last_stand_pet : public SpellHandlerScript
+class spell_hun_last_stand_pet : public SpellScriptLoader
 {
 public:
-    spell_hun_last_stand_pet() : SpellHandlerScript("spell_hun_last_stand_pet") { }
+    spell_hun_last_stand_pet() : SpellScriptLoader("spell_hun_last_stand_pet") { }
 
     class spell_hun_last_stand_pet_SpellScript : public SpellScript
     {
@@ -191,7 +191,7 @@ public:
         void Register()
         {
             // add dummy effect spell handler to pet's Last Stand
-            EffectHandlers += EffectHandlerFn(spell_hun_last_stand_pet_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffect += SpellEffectFn(spell_hun_last_stand_pet_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -201,10 +201,10 @@ public:
     }
 };
 
-class spell_hun_masters_call : public SpellHandlerScript
+class spell_hun_masters_call : public SpellScriptLoader
 {
 public:
-    spell_hun_masters_call() : SpellHandlerScript("spell_hun_masters_call") { }
+    spell_hun_masters_call() : SpellScriptLoader("spell_hun_masters_call") { }
 
     class spell_hun_masters_call_SpellScript : public SpellScript
     {
@@ -241,8 +241,8 @@ public:
 
         void Register()
         {
-            EffectHandlers += EffectHandlerFn(spell_hun_masters_call_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            EffectHandlers += EffectHandlerFn(spell_hun_masters_call_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffect += SpellEffectFn(spell_hun_masters_call_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffect += SpellEffectFn(spell_hun_masters_call_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 
@@ -252,10 +252,10 @@ public:
     }
 };
 
-class spell_hun_readiness : public SpellHandlerScript
+class spell_hun_readiness : public SpellScriptLoader
 {
 public:
-    spell_hun_readiness() : SpellHandlerScript("spell_hun_readiness") { }
+    spell_hun_readiness() : SpellScriptLoader("spell_hun_readiness") { }
 
     class spell_hun_readiness_SpellScript : public SpellScript
     {
@@ -284,7 +284,7 @@ public:
         void Register()
         {
             // add dummy effect spell handler to Readiness
-            EffectHandlers += EffectHandlerFn(spell_hun_readiness_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffect += SpellEffectFn(spell_hun_readiness_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -295,10 +295,10 @@ public:
 };
 
 // 37506 Scatter Shot
-class spell_hun_scatter_shot : public SpellHandlerScript
+class spell_hun_scatter_shot : public SpellScriptLoader
 {
 public:
-    spell_hun_scatter_shot() : SpellHandlerScript("spell_hun_scatter_shot") { }
+    spell_hun_scatter_shot() : SpellScriptLoader("spell_hun_scatter_shot") { }
 
     class spell_hun_scatter_shot_SpellScript : public SpellScript
     {
@@ -316,7 +316,7 @@ public:
 
         void Register()
         {
-            EffectHandlers += EffectHandlerFn(spell_hun_scatter_shot_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffect += SpellEffectFn(spell_hun_scatter_shot_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -326,10 +326,10 @@ public:
     }
 };
 
-class spell_hun_pet_heart_of_the_phoenix : public SpellHandlerScript
+class spell_hun_pet_heart_of_the_phoenix : public SpellScriptLoader
 {
 public:
-    spell_hun_pet_heart_of_the_phoenix() : SpellHandlerScript("spell_hun_pet_heart_of_the_phoenix") { }
+    spell_hun_pet_heart_of_the_phoenix() : SpellScriptLoader("spell_hun_pet_heart_of_the_phoenix") { }
 
     class spell_hun_pet_heart_of_the_phoenix_SpellScript : public SpellScript
     {
@@ -354,7 +354,7 @@ public:
         void Register()
         {
             // add dummy effect spell handler to pet's Last Stand
-            EffectHandlers += EffectHandlerFn(spell_hun_pet_heart_of_the_phoenix_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffect += SpellEffectFn(spell_hun_pet_heart_of_the_phoenix_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
 
         bool Load()
@@ -371,10 +371,10 @@ public:
     }
 };
 
-class spell_hun_pet_carrion_feeder : public SpellHandlerScript
+class spell_hun_pet_carrion_feeder : public SpellScriptLoader
 {
 public:
-    spell_hun_pet_carrion_feeder() : SpellHandlerScript("spell_hun_pet_carrion_feeder") { }
+    spell_hun_pet_carrion_feeder() : SpellScriptLoader("spell_hun_pet_carrion_feeder") { }
 
     class spell_hun_pet_carrion_feeder_SpellScript : public SpellScript
     {
@@ -396,7 +396,7 @@ public:
         void Register()
         {
             // add dummy effect spell handler to pet's Last Stand
-            EffectHandlers += EffectHandlerFn(spell_hun_pet_carrion_feeder_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffect += SpellEffectFn(spell_hun_pet_carrion_feeder_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
 
         bool Load()

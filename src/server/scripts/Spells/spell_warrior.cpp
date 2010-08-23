@@ -28,10 +28,10 @@ enum WarriorSpells
     WARRIOR_SPELL_LAST_STAND_TRIGGERED           = 12976,
 };
 
-class spell_warr_last_stand : public SpellHandlerScript
+class spell_warr_last_stand : public SpellScriptLoader
 {
     public:
-        spell_warr_last_stand() : SpellHandlerScript("spell_warr_last_stand") { }
+        spell_warr_last_stand() : SpellScriptLoader("spell_warr_last_stand") { }
 
         class spell_warr_last_stand_SpellScript : public SpellScript
         {
@@ -51,7 +51,7 @@ class spell_warr_last_stand : public SpellHandlerScript
             void Register()
             {
                 // add dummy effect spell handler to Last Stand
-                EffectHandlers += EffectHandlerFn(spell_warr_last_stand_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffect += SpellEffectFn(spell_warr_last_stand_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
