@@ -7327,6 +7327,52 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     triggered_spell_id = 64930;            // Electrified
                     break;
                 }
+                // Shaman T9 Elemental 4P Bonus
+                case 67228:
+                {
+                    // Lava Burst
+					if (procSpell->SpellFamilyFlags[1] & 0x1000)
+                    {
+                        triggered_spell_id = 71824;
+                        SpellEntry const* triggeredSpell = sSpellStore.LookupEntry(triggered_spell_id);
+                        if (!triggeredSpell)
+                            return false;
+                        basepoints0 = int32(triggerAmount * damage / 100 / (GetSpellMaxDuration(triggeredSpell) / triggeredSpell->EffectAmplitude[0]));
+                    }
+                    break;
+                }
+                // Item - Shaman T10 Restoration 4P Bonus
+                case 70808:
+                {
+                    // Chain Heal
+                    if((procSpell->SpellFamilyFlags[0] & 0x100) && (procEx & PROC_EX_CRITICAL_HIT))
+                    {
+                        triggered_spell_id = 70809;
+                        SpellEntry const* triggeredSpell = sSpellStore.LookupEntry(triggered_spell_id);
+                        if (!triggeredSpell)
+                            return false;
+                        basepoints0 = int32(triggerAmount * damage / 100 / (GetSpellMaxDuration(triggeredSpell) / triggeredSpell->EffectAmplitude[0]));
+                    }
+                    break;
+                }
+                // Item - Shaman T10 Elemental 2P Bonus
+                case 70811:
+                {
+                    // Lightning Bolt & Chain Lightning
+                    if(procSpell->SpellFamilyFlags[0] & 0x3)
+                    {
+                        if (ToPlayer()->HasSpellCooldown(16166))
+                        {
+                            uint32 newCooldownDelay = ToPlayer()->GetSpellCooldownDelay(16166) - 2;
+                            if (newCooldownDelay < 0) newCooldownDelay = 0;
+                                ToPlayer()->AddSpellCooldown(16166,0, uint32(time(NULL) + newCooldownDelay));
+
+                            //TODO: need to send CD decrease to client
+                            return true;
+                        }
+                    }
+                    return false;
+                }
             }
             // Frozen Power
             if (dummySpell->SpellIconID == 3780)
