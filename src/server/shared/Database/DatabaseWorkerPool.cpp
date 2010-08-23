@@ -137,7 +137,7 @@ void DatabaseWorkerPool::PExecute(const char* sql, ...)
     va_list ap;
     char szQuery[MAX_QUERY_LEN];
     va_start(ap, sql);
-    int res = vsnprintf(szQuery, MAX_QUERY_LEN, sql, ap);
+    vsnprintf(szQuery, MAX_QUERY_LEN, sql, ap);
     va_end(ap);
 
     Execute(szQuery);
@@ -157,7 +157,7 @@ void DatabaseWorkerPool::DirectPExecute(const char* sql, ...)
     va_list ap;
     char szQuery[MAX_QUERY_LEN];
     va_start(ap, sql);
-    int res = vsnprintf(szQuery, MAX_QUERY_LEN, sql, ap);
+    vsnprintf(szQuery, MAX_QUERY_LEN, sql, ap);
     va_end(ap);
 
     return DirectExecute(szQuery);
@@ -176,7 +176,7 @@ QueryResult_AutoPtr DatabaseWorkerPool::PQuery(const char* sql, ...)
     va_list ap;
     char szQuery[MAX_QUERY_LEN];
     va_start(ap, sql);
-    int res = vsnprintf(szQuery, MAX_QUERY_LEN, sql, ap);
+    vsnprintf(szQuery, MAX_QUERY_LEN, sql, ap);
     va_end(ap);
 
     return Query(szQuery);
@@ -216,7 +216,7 @@ ACE_Future<QueryResult_AutoPtr> DatabaseWorkerPool::AsyncPQuery(const char* sql,
     va_list ap;
     char szQuery[MAX_QUERY_LEN];
     va_start(ap, sql);
-    int res = vsnprintf(szQuery, MAX_QUERY_LEN, sql, ap);
+    vsnprintf(szQuery, MAX_QUERY_LEN, sql, ap);
     va_end(ap);
 
     return AsyncQuery(szQuery);

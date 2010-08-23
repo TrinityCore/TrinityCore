@@ -763,7 +763,7 @@ void BattlegroundSA::EventPlayerUsedGO(Player* Source, GameObject* object)
     {
         if (Source->GetTeamId() == attackers)
         {
-            if (Source->GetTeamId() == ALLIANCE)
+            if (Source->GetTeamId() == TEAM_ALLIANCE)
                 SendMessageToAll(LANG_BG_SA_ALLIANCE_CAPTURED_RELIC, CHAT_MSG_BG_SYSTEM_NEUTRAL);
             else SendMessageToAll(LANG_BG_SA_HORDE_CAPTURED_RELIC, CHAT_MSG_BG_SYSTEM_NEUTRAL);
 
