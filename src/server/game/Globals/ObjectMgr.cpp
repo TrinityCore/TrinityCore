@@ -5103,18 +5103,38 @@ void ObjectMgr::ValidateSpellScripts()
     for (SpellScriptsMap::iterator itr = mSpellScripts.begin(); itr != mSpellScripts.end();)
     {
         SpellEntry const * spellEntry = sSpellStore.LookupEntry(itr->first);
-        std::vector<std::pair<SpellScript *, SpellScriptsMap::iterator> > spellScripts;
-        sScriptMgr.CreateSpellScripts(itr->first, spellScripts);
+        std::vector<std::pair<SpellScriptLoader *, SpellScriptsMap::iterator> > SpellScriptLoaders;
+        sScriptMgr.CreateSpellScriptLoaders(itr->first, SpellScriptLoaders);
         SpellScriptsMap::iterator bitr;
         itr = mSpellScripts.upper_bound(itr->first);
 
-        for (std::vector<std::pair<SpellScript *, SpellScriptsMap::iterator> >::iterator sitr = spellScripts.begin(); sitr != spellScripts.end(); ++sitr)
+        for (std::vector<std::pair<SpellScriptLoader *, SpellScriptsMap::iterator> >::iterator sitr = SpellScriptLoaders.begin(); sitr != SpellScriptLoaders.end(); ++sitr)
         {
             bar.step();
-            sitr->first->Register();
-            if (!sitr->first->_Validate(spellEntry, sObjectMgr.GetScriptName(sitr->second->second)))
+            SpellScript * spellScript = sitr->first->GetSpellScript();
+            AuraScript * auraScript = sitr->first->GetAuraScript();
+            bool valid = true;
+            if (!spellScript && !auraScript)
+            {
+                sLog.outError("TSCR: Functions GetSpellScript() and GetAuraScript() of script `%s` do not return objects - script skipped",  GetScriptName(sitr->second->second));
+                valid = false;
+            }
+            if (spellScript)
+            {
+                spellScript->Register();
+                if (!spellScript->_Validate(spellEntry, sObjectMgr.GetScriptName(sitr->second->second)))
+                    valid = false;
+                delete spellScript;
+            }
+            if (auraScript)
+            {
+                auraScript->Register();
+                if (!auraScript->_Validate(spellEntry, sObjectMgr.GetScriptName(sitr->second->second)))
+                    valid = false;
+                delete auraScript;
+            }
+            if (!valid)
                 mSpellScripts.erase(sitr->second);
-            delete sitr->first;
         }
     }
 

@@ -398,10 +398,10 @@ class npc_bone_spike : public CreatureScript
         }
 };
 
-class spell_marrowgar_coldflame : public SpellHandlerScript
+class spell_marrowgar_coldflame : public SpellScriptLoader
 {
     public:
-        spell_marrowgar_coldflame() : SpellHandlerScript("spell_marrowgar_coldflame") { }
+        spell_marrowgar_coldflame() : SpellScriptLoader("spell_marrowgar_coldflame") { }
 
         class spell_marrowgar_coldflame_SpellScript : public SpellScript
         {
@@ -417,7 +417,7 @@ class spell_marrowgar_coldflame : public SpellHandlerScript
 
             void Register()
             {
-                EffectHandlers += EffectHandlerFn(spell_marrowgar_coldflame_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffect += SpellEffectFn(spell_marrowgar_coldflame_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
 
             bool Load()
@@ -434,10 +434,10 @@ class spell_marrowgar_coldflame : public SpellHandlerScript
         }
 };
 
-class spell_marrowgar_bone_spike_graveyard : public SpellHandlerScript
+class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
 {
     public:
-        spell_marrowgar_bone_spike_graveyard() : SpellHandlerScript("spell_marrowgar_bone_spike_graveyard") { }
+        spell_marrowgar_bone_spike_graveyard() : SpellScriptLoader("spell_marrowgar_bone_spike_graveyard") { }
 
         class spell_marrowgar_bone_spike_graveyard_SpellScript : public SpellScript
         {
@@ -466,7 +466,7 @@ class spell_marrowgar_bone_spike_graveyard : public SpellHandlerScript
 
             void Register()
             {
-                EffectHandlers += EffectHandlerFn(spell_marrowgar_bone_spike_graveyard_SpellScript::HandleApplyAura, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+                OnEffect += SpellEffectFn(spell_marrowgar_bone_spike_graveyard_SpellScript::HandleApplyAura, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
             }
 
             bool Load()
@@ -483,10 +483,10 @@ class spell_marrowgar_bone_spike_graveyard : public SpellHandlerScript
         }
 };
 
-class spell_marrowgar_bone_storm : public SpellHandlerScript
+class spell_marrowgar_bone_storm : public SpellScriptLoader
 {
     public:
-        spell_marrowgar_bone_storm() : SpellHandlerScript("spell_marrowgar_bone_storm") { }
+        spell_marrowgar_bone_storm() : SpellScriptLoader("spell_marrowgar_bone_storm") { }
 
         class spell_marrowgar_bone_storm_SpellScript : public SpellScript
         {
@@ -504,7 +504,7 @@ class spell_marrowgar_bone_storm : public SpellHandlerScript
 
             void Register()
             {
-                EffectHandlers += EffectHandlerFn(spell_marrowgar_bone_storm_SpellScript::RecalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffect += SpellEffectFn(spell_marrowgar_bone_storm_SpellScript::RecalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
 
             bool Load()

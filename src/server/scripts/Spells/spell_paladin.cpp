@@ -38,10 +38,10 @@ enum PaladinSpells
     SPELL_BLESSING_OF_LOWER_CITY_SHAMAN          = 37881,
 };
 
-class spell_pal_blessing_of_faith : public SpellHandlerScript
+class spell_pal_blessing_of_faith : public SpellScriptLoader
 {
 public:
-    spell_pal_blessing_of_faith() : SpellHandlerScript("spell_pal_blessing_of_faith") { }
+    spell_pal_blessing_of_faith() : SpellScriptLoader("spell_pal_blessing_of_faith") { }
 
     class spell_pal_blessing_of_faith_SpellScript : public SpellScript
     {
@@ -79,7 +79,7 @@ public:
         void Register()
         {
             // add dummy effect spell handler to Blessing of Faith
-            EffectHandlers += EffectHandlerFn(spell_pal_blessing_of_faith_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffect += SpellEffectFn(spell_pal_blessing_of_faith_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -90,10 +90,10 @@ public:
 };
 
 // 63521 Guarded by The Light
-class spell_pal_guarded_by_the_light : public SpellHandlerScript
+class spell_pal_guarded_by_the_light : public SpellScriptLoader
 {
 public:
-    spell_pal_guarded_by_the_light() : SpellHandlerScript("spell_pal_guarded_by_the_light") { }
+    spell_pal_guarded_by_the_light() : SpellScriptLoader("spell_pal_guarded_by_the_light") { }
 
     class spell_pal_guarded_by_the_light_SpellScript : public SpellScript
     {
@@ -113,7 +113,7 @@ public:
 
         void Register()
         {
-            EffectHandlers += EffectHandlerFn(spell_pal_guarded_by_the_light_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffect += SpellEffectFn(spell_pal_guarded_by_the_light_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 
@@ -123,10 +123,10 @@ public:
     }
 };
 
-class spell_pal_holy_shock : public SpellHandlerScript
+class spell_pal_holy_shock : public SpellScriptLoader
 {
 public:
-    spell_pal_holy_shock() : SpellHandlerScript("spell_pal_holy_shock") { }
+    spell_pal_holy_shock() : SpellScriptLoader("spell_pal_holy_shock") { }
 
     class spell_pal_holy_shock_SpellScript : public SpellScript
     {
@@ -166,7 +166,7 @@ public:
         void Register()
         {
             // add dummy effect spell handler to Holy Shock
-            EffectHandlers += EffectHandlerFn(spell_pal_holy_shock_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffect += SpellEffectFn(spell_pal_holy_shock_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -176,10 +176,10 @@ public:
     }
 };
 
-class spell_pal_judgement_of_command : public SpellHandlerScript
+class spell_pal_judgement_of_command : public SpellScriptLoader
 {
 public:
-    spell_pal_judgement_of_command() : SpellHandlerScript("spell_pal_judgement_of_command") { }
+    spell_pal_judgement_of_command() : SpellScriptLoader("spell_pal_judgement_of_command") { }
 
     class spell_pal_judgement_of_command_SpellScript : public SpellScript
     {
@@ -193,7 +193,7 @@ public:
         void Register()
         {
             // add dummy effect spell handler to Judgement of Command
-            EffectHandlers += EffectHandlerFn(spell_pal_judgement_of_command_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffect += SpellEffectFn(spell_pal_judgement_of_command_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 

@@ -31,10 +31,10 @@ enum PriestSpells
     PRIEST_SPELL_PENANCE_R1_HEAL                 = 47757,
 };
 
-class spell_pri_pain_and_suffering_proc : public SpellHandlerScript
+class spell_pri_pain_and_suffering_proc : public SpellScriptLoader
 {
     public:
-        spell_pri_pain_and_suffering_proc() : SpellHandlerScript("spell_pri_pain_and_suffering_proc") { }
+        spell_pri_pain_and_suffering_proc() : SpellScriptLoader("spell_pri_pain_and_suffering_proc") { }
 
         // 47948 Pain and Suffering (proc)
         class spell_pri_pain_and_suffering_proc_SpellScript : public SpellScript
@@ -49,7 +49,7 @@ class spell_pri_pain_and_suffering_proc : public SpellHandlerScript
 
             void Register()
             {
-                EffectHandlers += EffectHandlerFn(spell_pri_pain_and_suffering_proc_SpellScript::HandleEffectScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffect += SpellEffectFn(spell_pri_pain_and_suffering_proc_SpellScript::HandleEffectScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -59,10 +59,10 @@ class spell_pri_pain_and_suffering_proc : public SpellHandlerScript
         }
 };
 
-class spell_pri_penance : public SpellHandlerScript
+class spell_pri_penance : public SpellScriptLoader
 {
     public:
-        spell_pri_penance() : SpellHandlerScript("spell_pri_penance") { }
+        spell_pri_penance() : SpellScriptLoader("spell_pri_penance") { }
 
         class spell_pri_penance_SpellScript : public SpellScript
         {
@@ -102,7 +102,7 @@ class spell_pri_penance : public SpellHandlerScript
             void Register()
             {
                 // add dummy effect spell handler to Penance
-                EffectHandlers += EffectHandlerFn(spell_pri_penance_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffect += SpellEffectFn(spell_pri_penance_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
