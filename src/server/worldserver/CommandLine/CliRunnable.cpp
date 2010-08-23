@@ -83,6 +83,14 @@ char ** cli_completion(const char * text, int start, int /*end*/)
         rl_bind_key('\t',rl_abort);
     return (matches);
 }
+
+int cli_hook_func(void)
+{
+       if (World::IsStopped())
+           rl_done = 1;
+       return 0;
+}
+
 #endif
 
 void utf8print(void* /*arg*/, const char* str)
@@ -717,6 +725,7 @@ void CliRunnable::run()
     //sLog.outString("");
     #if PLATFORM != WINDOWS
     rl_attempted_completion_function = cli_completion;
+    rl_event_hook = cli_hook_func;
     #endif
     if (sConfig.GetBoolDefault("BeepAtStart", true))
         printf("\a");                                       // \a = Alert
