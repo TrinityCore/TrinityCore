@@ -154,8 +154,9 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
                     if (!TargetUnit)
                         return;
 
-                    if (!pet->canAttack(TargetUnit))
-                        return;
+                    if (Unit *owner = pet->GetOwner())
+                        if (!owner->canAttack(TargetUnit))
+                            return;
 
                     // Not let attack through obstructions
                     if (sWorld.getConfig(CONFIG_PET_LOS))
