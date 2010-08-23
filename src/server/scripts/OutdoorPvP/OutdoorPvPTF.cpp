@@ -222,7 +222,7 @@ bool OutdoorPvPTF::SetupOutdoorPvP()
     first_digit = 0;
 
     // add the zones affected by the pvp buff
-    for (int i = 0; i < OutdoorPvPTFBuffZonesNum; ++i)
+    for (uint8 i = 0; i < OutdoorPvPTFBuffZonesNum; ++i)
         RegisterZone(OutdoorPvPTFBuffZones[i]);
 
     AddCapturePoint(new OPvPCapturePointTF(this,TF_TOWER_NW));

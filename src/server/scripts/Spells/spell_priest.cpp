@@ -39,7 +39,7 @@ class spell_pri_pain_and_suffering_proc : public SpellHandlerScript
         // 47948 Pain and Suffering (proc)
         class spell_pri_pain_and_suffering_proc_SpellScript : public SpellScript
         {
-            void HandleEffectScriptEffect(SpellEffIndex effIndex)
+            void HandleEffectScriptEffect(SpellEffIndex /*effIndex*/)
             {
                 // Refresh Shadow Word: Pain on target
                 if (Unit *unitTarget = GetHitUnit())
@@ -83,7 +83,7 @@ class spell_pri_penance : public SpellHandlerScript
                 return true;
             }
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Unit *unitTarget = GetHitUnit();
                 if (!unitTarget || !unitTarget->isAlive())

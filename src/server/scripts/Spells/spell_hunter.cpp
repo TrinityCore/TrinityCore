@@ -48,7 +48,7 @@ public:
 
     class spell_hun_chimera_shot_SpellScript : public SpellScript
     {
-        bool Validate(SpellEntry const * spellEntry)
+        bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(HUNTER_SPELL_CHIMERA_SHOT_SERPENT))
                 return false;
@@ -59,7 +59,7 @@ public:
             return true;
         }
 
-        void HandleScriptEffect(SpellEffIndex effIndex)
+        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
         {
             Unit* caster = GetCaster();
             Unit* unitTarget = GetHitUnit();
@@ -140,14 +140,14 @@ public:
 
     class spell_hun_invigoration_SpellScript : public SpellScript
     {
-        bool Validate(SpellEntry const * spellEntry)
+        bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(HUNTER_SPELL_INVIGORATION_TRIGGERED))
                 return false;
             return true;
         }
 
-        void HandleScriptEffect(SpellEffIndex effIndex)
+        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
         {
             if (Unit* unitTarget = GetHitUnit())
                 if (AuraEffect* aurEff = unitTarget->GetDummyAuraEffect(SPELLFAMILY_HUNTER, 3487, 0))
@@ -174,14 +174,14 @@ public:
 
     class spell_hun_last_stand_pet_SpellScript : public SpellScript
     {
-        bool Validate(SpellEntry const * spellEntry)
+        bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(HUNTER_PET_SPELL_LAST_STAND_TRIGGERED))
                 return false;
             return true;
         }
 
-        void HandleDummy(SpellEffIndex effIndex)
+        void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             Unit *caster = GetCaster();
             int32 healthModSpellBasePoints0 = int32(caster->GetMaxHealth()*0.3);
@@ -208,7 +208,7 @@ public:
 
     class spell_hun_masters_call_SpellScript : public SpellScript
     {
-        bool Validate(SpellEntry const * spellEntry)
+        bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(HUNTER_SPELL_MASTERS_CALL_TRIGGERED))
                 return false;
@@ -228,7 +228,7 @@ public:
                     pet->CastSpell(unitTarget, SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), effIndex), true);
         }
 
-        void HandleScriptEffect(SpellEffIndex effIndex)
+        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
         {
             Unit* caster = GetCaster();
             if (caster->GetTypeId() != TYPEID_PLAYER)
@@ -259,7 +259,7 @@ public:
 
     class spell_hun_readiness_SpellScript : public SpellScript
     {
-        void HandleDummy(SpellEffIndex effIndex)
+        void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             Unit *caster = GetCaster();
             if (caster->GetTypeId() != TYPEID_PLAYER)
@@ -302,7 +302,7 @@ public:
 
     class spell_hun_scatter_shot_SpellScript : public SpellScript
     {
-        void HandleDummy(SpellEffIndex effIndex)
+        void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             Unit* caster = GetCaster();
             if (caster->GetTypeId() != TYPEID_PLAYER)
@@ -333,7 +333,7 @@ public:
 
     class spell_hun_pet_heart_of_the_phoenix_SpellScript : public SpellScript
     {
-        bool Validate(SpellEntry const * spellEntry)
+        bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED))
                 return false;
@@ -342,7 +342,7 @@ public:
             return true;
         }
 
-        void HandleScript(SpellEffIndex effIndex)
+        void HandleScript(SpellEffIndex /*effIndex*/)
         {
             Unit *caster = GetCaster();
             if (caster->HasAura(HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF))
@@ -378,14 +378,14 @@ public:
 
     class spell_hun_pet_carrion_feeder_SpellScript : public SpellScript
     {
-        bool Validate(SpellEntry const * spellEntry)
+        bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(HUNTER_PET_SPELL_CARRION_FEEDER_TRIGGERED))
                 return false;
             return true;
         }
 
-        void HandleDummy(SpellEffIndex effIndex)
+        void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             if (!GetHitUnit())
                 return;

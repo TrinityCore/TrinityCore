@@ -71,7 +71,7 @@ void RASocket::OnRead()
     TcpSocket::OnRead();
 
     unsigned int sz=ibuf.GetLength();
-    if(iInputLength+sz>=RA_BUFF_SIZE)
+    if (iInputLength+sz>=RA_BUFF_SIZE)
     {
         sLog.outRemote("Input buffer overflow, possible DOS attack.\n");
         SetCloseAndDelete();
@@ -82,9 +82,9 @@ void RASocket::OnRead()
     ibuf.Read(inp,sz);
 
     /// \todo Can somebody explain this 'Linux bugfix'?
-    if(stage==NONE)
-        if(sz>4)                                            //linux remote telnet
-            if(memcmp(inp ,"USER ",5))
+    if (stage==NONE)
+        if (sz>4)                                            //linux remote telnet
+            if (memcmp(inp ,"USER ",5))
             {
                 delete [] inp;return;
                 printf("lin bugfix");
@@ -94,7 +94,7 @@ void RASocket::OnRead()
     bool gotenter=false;
     unsigned int y=0;
     for (; y<sz; y++)
-        if(inp[y]=='\r'||inp[y]=='\n')
+        if (inp[y]=='\r'||inp[y]=='\n')
     {
         gotenter=true;
         break;
@@ -104,7 +104,7 @@ void RASocket::OnRead()
     memcpy(&buff[iInputLength],inp,y);
     iInputLength+=y;
     delete [] inp;
-    if(gotenter)
+    if (gotenter)
     {
 
         buff[iInputLength]=0;
@@ -113,7 +113,7 @@ void RASocket::OnRead()
         {
             /// <ul> <li> If the input is 'USER <username>'
             case NONE:
-                if(!memcmp(buff,"USER ",5))                 //got "USER" cmd
+                if (!memcmp(buff,"USER ",5))                 //got "USER" cmd
                 {
                     szLogin=&buff[5];
 
@@ -129,11 +129,11 @@ void RASocket::OnRead()
                     QueryResult_AutoPtr result = LoginDatabase.PQuery("SELECT a.id, aa.gmlevel, aa.RealmID FROM account a LEFT JOIN account_access aa ON (a.id = aa.id) WHERE a.username = '%s'",login.c_str ());
 
                     ///- If the user is not found, deny access
-                    if(!result)
+                    if (!result)
                     {
                         Sendf("-No such user.\r\n");
                         sLog.outRemote("User %s does not exist.\n",szLogin.c_str());
-                        if(bSecure)SetCloseAndDelete();
+                        if (bSecure)SetCloseAndDelete();
                     }
                     else
                     {
@@ -142,18 +142,18 @@ void RASocket::OnRead()
                         //szPass=fields[0].GetString();
 
                         ///- if gmlevel is too low, deny access
-                        if(fields[1].GetUInt32()<iMinLevel || fields[1].GetUInt32() == NULL)
+                        if (fields[1].GetUInt32() < iMinLevel)
                         {
                             Sendf("-Not enough privileges.\r\n");
                             sLog.outRemote("User %s has no privilege.\n",szLogin.c_str());
-                            if(bSecure)SetCloseAndDelete();
+                            if (bSecure)SetCloseAndDelete();
                         }
-                        else if(fields[2].GetInt32() != -1)
+                        else if (fields[2].GetInt32() != -1)
                         {
                             ///- if RealmID isn't -1, deny access
                             Sendf("-Not enough privileges.\r\n");
                             sLog.outRemote("User %s has to be assigned on all realms (with RealmID = '-1').\n",szLogin.c_str());
-                            if(bSecure)SetCloseAndDelete();
+                            if (bSecure)SetCloseAndDelete();
                         }
                         else
                         {
@@ -164,7 +164,7 @@ void RASocket::OnRead()
                 break;
                 ///<li> If the input is 'PASS <password>' (and the user already gave his username)
             case LG:
-                if(!memcmp(buff,"PASS ",5))                 //got "PASS" cmd
+                if (!memcmp(buff,"PASS ",5))                 //got "PASS" cmd
                 {                                           //login+pass ok
                     ///- If password is correct, increment the number of active administrators
                     std::string login = szLogin;
@@ -179,7 +179,7 @@ void RASocket::OnRead()
                         "SELECT 1 FROM account WHERE username = '%s' AND sha_pass_hash=SHA1(CONCAT('%s',':','%s'))",
                         login.c_str(), login.c_str(), pw.c_str());
 
-                    if(check)
+                    if (check)
                     {
                         GetSocket();
                         stage=OK;
@@ -193,13 +193,13 @@ void RASocket::OnRead()
                         ///- Else deny access
                         Sendf("-Wrong pass.\r\n");
                         sLog.outRemote("User %s has failed to log in.\n",szLogin.c_str());
-                        if(bSecure)SetCloseAndDelete();
+                        if (bSecure)SetCloseAndDelete();
                     }
                 }
                 break;
                 ///<li> If user is logged, parse and execute the command
             case OK:
-                if(strlen(buff))
+                if (strlen(buff))
                 {
                     sLog.outRemote("Got '%s' cmd.\n",buff);
                        SetDeleteByHandler(false);
@@ -219,7 +219,7 @@ void RASocket::OnRead()
 /// Output function
 void RASocket::zprint(void* callbackArg, const char * szText )
 {
-    if( !szText )
+    if ( !szText )
         return;
 
     unsigned int sz=strlen(szText);
@@ -232,6 +232,6 @@ void RASocket::commandFinished(void* callbackArg, bool /*success*/)
     raSocket->Sendf("TC>");
     uint64 remainingCommands = --raSocket->pendingCommands;
 
-    if(remainingCommands == 0)
+    if (remainingCommands == 0)
         raSocket->SetDeleteByHandler(true);
  }

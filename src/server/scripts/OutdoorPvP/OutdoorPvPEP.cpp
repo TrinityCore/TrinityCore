@@ -171,7 +171,7 @@ void OPvPCapturePointEP_EWT::SummonSupportUnitAtNorthpassTower(uint32 team)
         else
             ct=EP_EWT_Summons_H;
 
-        for (int i = 0; i < EP_EWT_NUM_CREATURES; ++i)
+        for (uint8 i = 0; i < EP_EWT_NUM_CREATURES; ++i)
         {
             DelCreature(i);
             AddCreature(i,ct[i].entry,ct[i].teamval,ct[i].map,ct[i].x,ct[i].y,ct[i].z,ct[i].o,1000000);
@@ -623,7 +623,7 @@ OutdoorPvPEP::OutdoorPvPEP()
 
 bool OutdoorPvPEP::SetupOutdoorPvP()
 {
-    for (int i = 0; i < EPBuffZonesNum; ++i)
+    for (uint8 i = 0; i < EPBuffZonesNum; ++i)
         RegisterZone(EPBuffZones[i]);
 
     AddCapturePoint(new OPvPCapturePointEP_EWT(this));

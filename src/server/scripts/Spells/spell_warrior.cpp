@@ -35,14 +35,14 @@ class spell_warr_last_stand : public SpellHandlerScript
 
         class spell_warr_last_stand_SpellScript : public SpellScript
         {
-            bool Validate(SpellEntry const *spellEntry)
+            bool Validate(SpellEntry const * /*spellEntry*/)
             {
                 if (!sSpellStore.LookupEntry(WARRIOR_SPELL_LAST_STAND_TRIGGERED))
                     return false;
                 return true;
             }
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 int32 healthModSpellBasePoints0 = int32(GetCaster()->GetMaxHealth() * 0.3);
                 GetCaster()->CastCustomSpell(GetCaster(), WARRIOR_SPELL_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, NULL, NULL, true, NULL);

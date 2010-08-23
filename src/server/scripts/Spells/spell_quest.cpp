@@ -39,7 +39,7 @@ public:
 
     class spell_q11587_arcane_prisoner_rescue_SpellScript : public SpellScript
     {
-        bool Validate(SpellEntry const * spellEntry)
+        bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(QUEST11587_SPELL_SUMMON_ARCANE_PRISONER_MALE))
                 return false;
@@ -50,7 +50,7 @@ public:
             return true;
         }
 
-        void HandleDummy(SpellEffIndex effIndex)
+        void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             Unit* caster = GetCaster();
             if (Unit* unitTarget = GetHitUnit())
@@ -99,7 +99,7 @@ public:
 
     class spell_q11730_ultrasonic_screwdriver_SpellScript : public SpellScript
     {
-        bool Validate(SpellEntry const * spellEntry)
+        bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_QUEST_SUMMON_SCAVENGEBOT_004A8))
                 return false;
@@ -116,7 +116,7 @@ public:
             return true;
         }
 
-        void HandleDummy(SpellEffIndex effIndex)
+        void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             Item *castItem = GetCastItem();
             if (!castItem)

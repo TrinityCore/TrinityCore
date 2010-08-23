@@ -109,12 +109,12 @@ enum SummonActions
 };
 const Position SphereSpawn[6] =
 {
-    { 786.6439f, 108.2498f, 155.6701f },
-    { 806.8429f, 150.5902f, 155.6701f },
-    { 759.1386f, 163.9654f, 155.6701f },
-    { 744.3701f, 119.5211f, 155.6701f },
-    { 710.0211f, 120.8152f, 155.6701f },
-    { 706.6383f, 161.5266f, 155.6701f },
+    { 786.6439f, 108.2498f, 155.6701f, 0 },
+    { 806.8429f, 150.5902f, 155.6701f, 0 },
+    { 759.1386f, 163.9654f, 155.6701f, 0 },
+    { 744.3701f, 119.5211f, 155.6701f, 0 },
+    { 710.0211f, 120.8152f, 155.6701f, 0 },
+    { 706.6383f, 161.5266f, 155.6701f, 0 },
 };class boss_anubarak_trial : public CreatureScript
 {
 public:
@@ -188,7 +188,7 @@ public:
             }
         }
 
-        void MoveInLineOfSight(Unit* pWho) 
+        void MoveInLineOfSight(Unit* /*pWho*/)
         {
             if (!m_bIntro)
             {
@@ -207,7 +207,7 @@ public:
                     pTemp->setFaction(31);
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* /*pKiller*/)
         {
             Summons.DespawnAll();
             DoScriptText(SAY_DEATH,me);
@@ -243,7 +243,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* /*pWho*/)
         {
             DoScriptText(SAY_AGGRO,me);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -575,7 +575,7 @@ public:
             DoCast(SPELL_FROST_SPHERE);
         }
 
-        void DamageTaken(Unit* pWho, uint32& uiDamage)
+        void DamageTaken(Unit* /*pWho*/, uint32& uiDamage)
         {
             if (me->GetHealth() < uiDamage)
             {
@@ -595,7 +595,7 @@ public:
 
         void MovementInform(uint32 uiType, uint32 uiId)
         {
-            if(uiType != POINT_MOTION_TYPE) return;
+            if (uiType != POINT_MOTION_TYPE) return;
 
             switch (uiId)
             {
@@ -663,7 +663,7 @@ public:
             me->TauntApply(pWho);
         }
 
-        void DamageTaken(Unit* pWho, uint32& uiDamage)
+        void DamageTaken(Unit* /*pWho*/, uint32& uiDamage)
         {
             uiDamage = 0;
         }
@@ -680,6 +680,7 @@ public:
             }
 
             if (m_uiIncreaseSpeedTimer)
+            {
                 if (m_uiIncreaseSpeedTimer <= uiDiff) 
                 {
                     switch (m_uiSpeed)
@@ -701,6 +702,7 @@ public:
                             break;
                     }
                 } else m_uiIncreaseSpeedTimer -= uiDiff;
+            }
         }
     };
 

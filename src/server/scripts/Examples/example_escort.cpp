@@ -197,7 +197,7 @@ class example_escort : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
         {
             npc_escortAI* pEscortAI = CAST_AI(example_escort::example_escortAI, creature->AI());
 

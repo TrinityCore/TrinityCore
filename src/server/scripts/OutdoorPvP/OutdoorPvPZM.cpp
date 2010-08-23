@@ -180,7 +180,7 @@ bool OutdoorPvPZM::SetupOutdoorPvP()
     m_HordeTowersControlled = 0;
 
     // add the zones affected by the pvp buff
-    for (int i = 0; i < OutdoorPvPZMBuffZonesNum; ++i)
+    for (uint8 i = 0; i < OutdoorPvPZMBuffZonesNum; ++i)
         RegisterZone(OutdoorPvPZMBuffZones[i]);
 
     AddCapturePoint(new OPvPCapturePointZM_Beacon(this,ZM_BEACON_WEST));
@@ -211,7 +211,7 @@ bool OPvPCapturePointZM_GraveYard::Update(uint32 /*diff*/)
 
 int32 OPvPCapturePointZM_GraveYard::HandleOpenGo(Player *plr, uint64 guid)
 {
-    uint32 retval = OPvPCapturePoint::HandleOpenGo(plr, guid);
+    int32 retval = OPvPCapturePoint::HandleOpenGo(plr, guid);
     if (retval >= 0)
     {
         if (plr->HasAura(ZM_BATTLE_STANDARD_A) && m_GraveYardState != ZM_GRAVEYARD_A)
@@ -327,7 +327,7 @@ void OPvPCapturePointZM_GraveYard::SetBeaconState(uint32 controlling_faction)
     UpdateTowerState();
 }
 
-bool OPvPCapturePointZM_GraveYard::CanTalkTo(Player * plr, Creature * c, GossipMenuItems gso)
+bool OPvPCapturePointZM_GraveYard::CanTalkTo(Player * plr, Creature * c, GossipMenuItems /*gso*/)
 {
     uint64 guid = c->GetGUID();
     std::map<uint64,uint32>::iterator itr = m_CreatureTypes.find(guid);

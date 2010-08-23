@@ -95,7 +95,7 @@ class AreaTrigger_at_coilfang_waterfall : public AreaTriggerScript
         {
         }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
             if (GameObject* pGo = GetClosestGameObjectWithEntry(player, GO_COILFANG_WATERFALL, 35.0f))
                 if (pGo->getLootState() == GO_READY)
@@ -127,7 +127,7 @@ class AreaTrigger_at_legion_teleporter : public AreaTriggerScript
         {
         }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
             if (player->isAlive() && !player->isInCombat())
             {
@@ -164,7 +164,7 @@ class AreaTrigger_at_ravenholdt : public AreaTriggerScript
         {
         }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
             if (player->GetQuestStatus(QUEST_MANOR_RAVENHOLDT) == QUEST_STATUS_INCOMPLETE)
                 player->KilledMonsterCredit(NPC_RAVENHOLDT, 0);
@@ -234,7 +234,7 @@ class AreaTrigger_at_stormwright_shelf : public AreaTriggerScript
         {
         }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
             if (!player->isDead() && player->GetQuestStatus(QUEST_STRENGTH_OF_THE_TEMPEST) == QUEST_STATUS_INCOMPLETE)
                 player->CastSpell(player, SPELL_CREATE_TRUE_POWER_OF_THE_TEMPEST, false);
@@ -262,7 +262,7 @@ class AreaTrigger_at_scent_larkorwi : public AreaTriggerScript
         {
         }
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
             if (!player->isDead() && player->GetQuestStatus(QUEST_SCENT_OF_LARKORWI) == QUEST_STATUS_INCOMPLETE)
             {

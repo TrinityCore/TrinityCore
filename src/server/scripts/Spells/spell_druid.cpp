@@ -38,7 +38,7 @@ public:
 
     class spell_dru_glyph_of_starfire_SpellScript : public SpellScript
     {
-        bool Validate(SpellEntry const * spellEntry)
+        bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(DRUID_INCREASED_MOONFIRE_DURATION))
                 return false;
@@ -47,7 +47,7 @@ public:
             return true;
         }
 
-        void HandleScriptEffect(SpellEffIndex effIndex)
+        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
         {
             Unit* caster = GetCaster();
             if (Unit* unitTarget = GetHitUnit())

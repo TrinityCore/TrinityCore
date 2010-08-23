@@ -44,7 +44,7 @@ class spell_mage_cold_snap : public SpellHandlerScript
 
         class spell_mage_cold_snap_SpellScript : public SpellScript
         {
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Unit *caster = GetCaster();
 
@@ -90,7 +90,7 @@ class spell_mage_polymorph_cast_visual : public SpellHandlerScript
         {
             static const uint32 spell_list[6];
 
-            bool Validate(SpellEntry const * spellEntry)
+            bool Validate(SpellEntry const * /*spellEntry*/)
             {
                 // check if spell ids exist in dbc
                 for (int i = 0; i < 6; i++)
@@ -99,7 +99,7 @@ class spell_mage_polymorph_cast_visual : public SpellHandlerScript
                 return true;
             }
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (Unit *unitTarget = GetHitUnit())
                     if (unitTarget->GetTypeId() == TYPEID_UNIT)
@@ -136,7 +136,7 @@ class spell_mage_summon_water_elemental : public SpellHandlerScript
 
         class spell_mage_summon_water_elemental_SpellScript : public SpellScript
         {
-            bool Validate(SpellEntry const * spellEntry)
+            bool Validate(SpellEntry const * /*spellEntry*/)
             {
                 if (!sSpellStore.LookupEntry(SPELL_MAGE_GLYPH_OF_ETERNAL_WATER))
                     return false;
@@ -147,7 +147,7 @@ class spell_mage_summon_water_elemental : public SpellHandlerScript
                 return true;
             }
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (Unit *unitTarget = GetHitUnit())
                 {

@@ -57,9 +57,9 @@ class ReactorRunnable : protected ACE_Task_Base
     public:
 
         ReactorRunnable() :
-            m_ThreadId(-1),
+            m_Reactor(0),
             m_Connections(0),
-            m_Reactor(0)
+            m_ThreadId(-1)
         {
             ACE_Reactor_Impl* imp = 0;
 

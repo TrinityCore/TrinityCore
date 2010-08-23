@@ -146,7 +146,7 @@ public:
             Summons.DespawnAll();
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* /*pKiller*/)
         {
             if (m_pInstance)
                 m_pInstance->SetData(TYPE_NORTHREND_BEASTS,GORMOK_DONE);
@@ -159,7 +159,7 @@ public:
             me->ForcedDespawn();
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* /*pWho*/)
         {
             me->SetInCombatWithZone();
             m_pInstance->SetData(TYPE_NORTHREND_BEASTS,GORMOK_IN_PROGRESS);
@@ -279,7 +279,7 @@ public:
 
         void MovementInform(uint32 uiType, uint32 uiId)
         {
-            if(uiType != POINT_MOTION_TYPE) return;
+            if (uiType != POINT_MOTION_TYPE) return;
 
             switch (uiId)
             {
@@ -290,7 +290,7 @@ public:
             }
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* /*pKiller*/)
         {
             if (Unit *pTarget = Unit::GetPlayer(*me,m_uiTargetGUID))
                 if (pTarget->isAlive())
@@ -396,14 +396,18 @@ struct boss_jormungarAI : public ScriptedAI
         m_uiSweepTimer = urand(15*IN_MILLISECONDS,30*IN_MILLISECONDS);
     }
 
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit* /*pKiller*/)
     {
         if (m_pInstance)
+        {
             if (Creature* pSister = Unit::GetCreature((*me),m_pInstance->GetData64(m_uiSisterID)))
+            {
                 if (!pSister->isAlive())
                     m_pInstance->SetData(TYPE_NORTHREND_BEASTS, SNAKES_DONE);
                 else 
                     m_pInstance->SetData(TYPE_NORTHREND_BEASTS, SNAKES_SPECIAL);
+            }
+        }
     }
 
     void JustReachedHome()
@@ -422,7 +426,7 @@ struct boss_jormungarAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* pWho)
+    void EnterCombat(Unit* /*pWho*/)
     {
         me->SetInCombatWithZone();
         if (m_pInstance)
@@ -646,7 +650,7 @@ public:
             me->ForcedDespawn(60*IN_MILLISECONDS);
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(const uint32 /*uiDiff*/)
         {
             if (!casted)
             {
@@ -706,7 +710,7 @@ public:
             m_uiStage = 0;
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* /*pKiller*/)
         {
             if (m_pInstance)
                 m_pInstance->SetData(TYPE_NORTHREND_BEASTS, ICEHOWL_DONE);
@@ -714,7 +718,7 @@ public:
 
         void MovementInform(uint32 uiType, uint32 uiId)
         {
-            if(uiType != POINT_MOTION_TYPE) return;
+            if (uiType != POINT_MOTION_TYPE) return;
 
             switch (uiId)
             {
@@ -727,7 +731,7 @@ public:
                     else
                     {
                         // Landed from Hop backwards (start trample)
-                        if(Unit* pTarget = Unit::GetPlayer(*me,m_uiTrampleTargetGUID))
+                        if (Unit::GetPlayer(*me,m_uiTrampleTargetGUID))
                         {
                             m_uiStage = 4;
                         } else m_uiStage = 6;
@@ -755,7 +759,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* /*pWho*/)
         {
             if (m_pInstance)
                 m_pInstance->SetData(TYPE_NORTHREND_BEASTS, ICEHOWL_IN_PROGRESS);
@@ -764,7 +768,7 @@ public:
 
         void SpellHitTarget(Unit* target, const SpellEntry* spell)
         {
-            if(spell->Id == SPELL_TRAMPLE && target->GetTypeId() == TYPEID_PLAYER)
+            if (spell->Id == SPELL_TRAMPLE && target->GetTypeId() == TYPEID_PLAYER)
             {
                 if (!m_bTrampleCasted)
                 {
@@ -831,7 +835,7 @@ public:
                 case 3:
                     if (m_uiTrampleTimer <= uiDiff)
                     {
-                        if(Unit* pTarget = Unit::GetPlayer(*me,m_uiTrampleTargetGUID))
+                        if (Unit* pTarget = Unit::GetPlayer(*me,m_uiTrampleTargetGUID))
                         {
                             m_bTrampleCasted = false;
                             m_bMovementStarted = true;
@@ -863,7 +867,7 @@ public:
                     if (m_uiTrampleTimer <= uiDiff)
                     {
                         Map::PlayerList const &lPlayers = me->GetMap()->GetPlayers();
-                        for(Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
+                        for (Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
                         {
                             if (Unit* pPlayer = itr->getSource()) 
                                 if (pPlayer->isAlive() && pPlayer->IsWithinDistInMap(me, 6.0f)) 

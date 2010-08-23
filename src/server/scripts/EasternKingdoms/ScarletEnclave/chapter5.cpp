@@ -251,36 +251,36 @@ void UpdateWorldState(Map *map, uint32 id, uint32 state)
 
 static Locations LightofDawnLoc[]=
 {
-    {2281.335f, -5300.409f, 85.170f, 0},     // 0 Tirion Fordring loc
-    {2283.896f, -5287.914f, 83.066f, 1.55f},  // 1 Tirion Fordring loc2
-    {2281.461f, -5263.014f, 81.164f, 0},     // 2 Tirion charges
-    {2262.277f, -5293.477f, 82.167f, 0},     // 3 Tirion run
-    {2270.286f, -5287.73f, 82.262f, 0},      // 4 Tirion relocate
-    {2269.511f, -5288.289f, 82.225f, 0},     // 5 Tirion forward
-    {2262.277f, -5293.477f, 82.167f, 0},     // 6 Tirion runs to Darion
-    {2270.286f, -5287.73f, 82.262f, 0},
-    {2269.511f, -5288.289f, 82.225f, 0},
-    {2273.205f, -5288.848f, 82.617f, 0},     // 9 Korfax loc1
-    {2274.739f, -5287.926f, 82.684f, 0},     // 10 Korfax loc2
-    {2253.673f, -5318.004f, 81.724f, 0},     // 11 Korfax kicked
-    {2287.028f, -5309.644f, 87.253f, 0},     // 12 Maxwell loc1
-    {2286.978f, -5308.025f, 86.83f, 0},      // 13 Maxwell loc2
-    {2248.877f, -5307.586f, 82.166f, 0},     // 14 maxwell kicked
-    {2278.58f, -5316.933f, 88.319f, 0},      // 15 Eligor loc1
-    {2278.535f, -5315.479f, 88.08f, 0},      // 16 Eligor loc2
-    {2259.416f, -5304.505f, 82.149f, 0},     // 17 eligor kicked
-    {2289.259f, -5280.355f, 82.112f, 0},     // 18 Koltira loc1
-    {2289.02f, -5281.985f, 82.207f, 0},      // 19 Koltira loc2
-    {2273.289f, -5273.675f, 81.701f, 0},     // 20 Thassarian loc1
-    {2273.332f, -5275.544f, 81.849f, 0},     // 21 Thassarian loc2
-    {2281.198f, -5257.397f, 80.224f, 4.66f},  // 22 Alexandros loc1
-    {2281.156f, -5259.934f, 80.647f, 0},     // 23 Alexandros loc2
-    {2281.294f, -5281.895f, 82.445f, 1.35f},  // 24 Darion loc1
-    {2281.093f, -5263.013f, 81.125f, 0},     // 25 Darion loc1
-    {2281.313f, -5250.282f, 79.322f, 4.69f},  // 26 Lich King spawns
-    {2281.523f, -5261.058f, 80.877f, 0},     // 27 Lich king move forwards
-    {2272.709f, -5255.552f, 78.226f, 0},     // 28 Lich king kicked
-    {2273.972f, -5257.676f, 78.862f, 0}      // 29 Lich king moves forward
+    {2281.335f, -5300.409f, 85.170f, 0 ,0},     // 0 Tirion Fordring loc
+    {2283.896f, -5287.914f, 83.066f, 1.55f ,0},  // 1 Tirion Fordring loc2
+    {2281.461f, -5263.014f, 81.164f, 0 ,0},     // 2 Tirion charges
+    {2262.277f, -5293.477f, 82.167f, 0 ,0},     // 3 Tirion run
+    {2270.286f, -5287.73f, 82.262f, 0 ,0},      // 4 Tirion relocate
+    {2269.511f, -5288.289f, 82.225f, 0 ,0},     // 5 Tirion forward
+    {2262.277f, -5293.477f, 82.167f, 0 ,0},     // 6 Tirion runs to Darion
+    {2270.286f, -5287.73f, 82.262f, 0 ,0},
+    {2269.511f, -5288.289f, 82.225f, 0 ,0},
+    {2273.205f, -5288.848f, 82.617f, 0 ,0},     // 9 Korfax loc1
+    {2274.739f, -5287.926f, 82.684f, 0 ,0},     // 10 Korfax loc2
+    {2253.673f, -5318.004f, 81.724f, 0 ,0},     // 11 Korfax kicked
+    {2287.028f, -5309.644f, 87.253f, 0 ,0},     // 12 Maxwell loc1
+    {2286.978f, -5308.025f, 86.83f, 0 ,0},      // 13 Maxwell loc2
+    {2248.877f, -5307.586f, 82.166f, 0 ,0},     // 14 maxwell kicked
+    {2278.58f, -5316.933f, 88.319f, 0 ,0},      // 15 Eligor loc1
+    {2278.535f, -5315.479f, 88.08f, 0 ,0},      // 16 Eligor loc2
+    {2259.416f, -5304.505f, 82.149f, 0 ,0},     // 17 eligor kicked
+    {2289.259f, -5280.355f, 82.112f, 0 ,0},     // 18 Koltira loc1
+    {2289.02f, -5281.985f, 82.207f, 0 ,0},      // 19 Koltira loc2
+    {2273.289f, -5273.675f, 81.701f, 0 ,0},     // 20 Thassarian loc1
+    {2273.332f, -5275.544f, 81.849f, 0 ,0},     // 21 Thassarian loc2
+    {2281.198f, -5257.397f, 80.224f, 4.66f ,0}, // 22 Alexandros loc1
+    {2281.156f, -5259.934f, 80.647f, 0 ,0},     // 23 Alexandros loc2
+    {2281.294f, -5281.895f, 82.445f, 1.35f ,0}, // 24 Darion loc1
+    {2281.093f, -5263.013f, 81.125f, 0 ,0},     // 25 Darion loc1
+    {2281.313f, -5250.282f, 79.322f, 4.69f ,0}, // 26 Lich King spawns
+    {2281.523f, -5261.058f, 80.877f, 0 ,0},     // 27 Lich king move forwards
+    {2272.709f, -5255.552f, 78.226f, 0 ,0},     // 28 Lich king kicked
+    {2273.972f, -5257.676f, 78.862f, 0, 0},     // 29 Lich king moves forward
 };
 
 class npc_highlord_darion_mograine : public CreatureScript
@@ -936,7 +936,7 @@ public:
                             break;
 
                         case 33: // Darion supports to jump to lich king here
-                            if (Creature* pTemp = Unit::GetCreature(*me, uiLichKingGUID))
+                            if (Unit::GetCreature(*me, uiLichKingGUID))
                                 DoCast(me, SPELL_MOGRAINE_CHARGE); // jumping charge
     //   doesn't make it looks well, so workarounds, Darion charges, looks better
                             me->SetSpeed(MOVE_RUN, 3.0f);

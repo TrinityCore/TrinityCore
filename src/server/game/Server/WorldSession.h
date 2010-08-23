@@ -288,7 +288,7 @@ class WorldSession
         time_t m_timeOutTime;
         void UpdateTimeOutTime(uint32 diff)
         {
-            if (diff > m_timeOutTime)
+            if (time_t(diff) > m_timeOutTime)
                 m_timeOutTime = 0;
             else
                 m_timeOutTime -= diff;
