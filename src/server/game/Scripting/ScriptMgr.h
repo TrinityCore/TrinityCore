@@ -42,6 +42,7 @@ class Creature;
 class CreatureAI;
 class InstanceScript;
 class SpellScript;
+class AuraScript;
 class Quest;
 class Item;
 class GameObject;
@@ -180,32 +181,20 @@ template<class TObject> class UpdatableScript
         virtual void OnUpdate(TObject* /*obj*/, uint32 /*diff*/) { }
 };
 
-class SpellHandlerScript : public ScriptObject
+class SpellScriptLoader : public ScriptObject
 {
     protected:
 
-        SpellHandlerScript(const char* name);
+        SpellScriptLoader(const char* name);
 
     public:
 
         bool IsDatabaseBound() const { return true; }
 
         // Should return a fully valid SpellScript pointer.
-        virtual SpellScript* GetSpellScript() const = 0;
-};
-
-class AuraHandlerScript : public ScriptObject
-{
-    protected:
-
-        AuraHandlerScript(const char* name);
-
-    public:
-
-        bool IsDatabaseBound() const { return true; }
-
+        virtual SpellScript* GetSpellScript() const { return NULL; };
         // Should return a fully valid AuraScript pointer.
-        // virtual AuraScript* GetAuraScript() const = 0;
+        virtual AuraScript* GetAuraScript() const { return NULL; };
 };
 
 class ServerScript : public ScriptObject
@@ -742,15 +731,11 @@ class ScriptMgr
         void IncrementScriptCount() { ++_scriptCount; }
         uint32 GetScriptCount() const { return _scriptCount; }
 
-    public: /* SpellHandlerScript */
+    public: /* SpellScriptLoader */
 
         void CreateSpellScripts(uint32 spell_id, std::list<SpellScript*>& script_vector);
-        void CreateSpellScripts(uint32 spell_id, std::vector<std::pair<SpellScript*, SpellScriptsMap::iterator> >& script_vector);
-
-    public: /* AuraHandlerScript */
-
-        // void CreateAuraScripts(uint32 spell_id, std::list<AuraScript*>& script_vector);
-        // void CreateAuraScripts(uint32 spell_id, std::vector<std::pair<AuraScript*, SpellScriptsMap::iterator> >& script_vector);
+        void CreateAuraScripts(uint32 spell_id, std::list<AuraScript*>& script_vector);
+        void CreateSpellScriptLoaders(uint32 spell_id, std::vector<std::pair<SpellScriptLoader*, SpellScriptsMap::iterator> >& script_vector);
 
     public: /* ServerScript */
 

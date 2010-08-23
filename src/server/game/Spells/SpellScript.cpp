@@ -126,7 +126,7 @@ std::string _SpellScript::EffectAuraNameCheck::ToString()
     }
 }
 
-SpellScript::EffectHandler::EffectHandler(EffectHandlerFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName)
+SpellScript::EffectHandler::EffectHandler(SpellEffectFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName)
     : _SpellScript::EffectNameCheck(_effName), _SpellScript::EffectHook(_effIndex)
 {
     pEffectHandlerScript = _pEffectHandlerScript;
@@ -149,7 +149,7 @@ void SpellScript::EffectHandler::Call(SpellScript * spellScript, SpellEffIndex e
 
 bool SpellScript::_Validate(SpellEntry const * entry, const char * scriptname)
 {
-    for (std::list<EffectHandler>::iterator itr = EffectHandlers.begin(); itr != EffectHandlers.end();  ++itr)
+    for (std::list<EffectHandler>::iterator itr = OnEffect.begin(); itr != OnEffect.end();  ++itr)
     {
         if (!(*itr).GetAffectedEffectsMask(entry))
         {
@@ -284,3 +284,271 @@ void SpellScript::CreateItem(uint32 effIndex, uint32 itemId)
 {
     m_spell->DoCreateItem(effIndex, itemId);
 }
+
+bool AuraScript::_Validate(SpellEntry const * entry, const char * scriptname)
+{
+    for (std::list<EffectApplyHandler>::iterator itr = OnEffectApply.begin(); itr != OnEffectApply.end();  ++itr)
+        if (!(*itr).GetAffectedEffectsMask(entry))
+            sLog.outError("TSCR: Spell `%u` Effect `%s` of script`%s` did not match dbc effect data - bound handler won't be executed", entry->Id, (*itr).ToString().c_str(), scriptname);
+
+    for (std::list<EffectApplyHandler>::iterator itr = OnEffectRemove.begin(); itr != OnEffectRemove.end();  ++itr)
+        if (!(*itr).GetAffectedEffectsMask(entry))
+            sLog.outError("TSCR: Spell `%u` Effect `%s` of script`%s` did not match dbc effect data - bound handler won't be executed", entry->Id, (*itr).ToString().c_str(), scriptname);
+
+    for (std::list<EffectPeriodicHandler>::iterator itr = OnEffectPeriodic.begin(); itr != OnEffectPeriodic.end();  ++itr)
+        if (!(*itr).GetAffectedEffectsMask(entry))
+            sLog.outError("TSCR: Spell `%u` Effect `%s` of script`%s` did not match dbc effect data - bound handler won't be executed", entry->Id, (*itr).ToString().c_str(), scriptname);
+
+    for (std::list<EffectUpdatePeriodicHandler>::iterator itr = OnEffectUpdatePeriodic.begin(); itr != OnEffectUpdatePeriodic.end();  ++itr)
+        if (!(*itr).GetAffectedEffectsMask(entry))
+            sLog.outError("TSCR: Spell `%u` Effect `%s` of script`%s` did not match dbc effect data - bound handler won't be executed", entry->Id, (*itr).ToString().c_str(), scriptname);
+
+    for (std::list<EffectCalcAmountHandler>::iterator itr = OnEffectCalcAmount.begin(); itr != OnEffectCalcAmount.end();  ++itr)
+        if (!(*itr).GetAffectedEffectsMask(entry))
+            sLog.outError("TSCR: Spell `%u` Effect `%s` of script`%s` did not match dbc effect data - bound handler won't be executed", entry->Id, (*itr).ToString().c_str(), scriptname);
+
+    for (std::list<EffectCalcPeriodicHandler>::iterator itr = OnEffectCalcPeriodic.begin(); itr != OnEffectCalcPeriodic.end();  ++itr)
+        if (!(*itr).GetAffectedEffectsMask(entry))
+            sLog.outError("TSCR: Spell `%u` Effect `%s` of script`%s` did not match dbc effect data - bound handler won't be executed", entry->Id, (*itr).ToString().c_str(), scriptname);
+
+    for (std::list<EffectCalcSpellModHandler>::iterator itr = OnEffectCalcSpellMod.begin(); itr != OnEffectCalcSpellMod.end();  ++itr)
+        if (!(*itr).GetAffectedEffectsMask(entry))
+            sLog.outError("TSCR: Spell `%u` Effect `%s` of script`%s` did not match dbc effect data - bound handler won't be executed", entry->Id, (*itr).ToString().c_str(), scriptname);
+
+    return _SpellScript::_Validate(entry, scriptname);
+}
+
+AuraScript::EffectBase::EffectBase(uint8 _effIndex, uint16 _effName)
+    : _SpellScript::EffectAuraNameCheck(_effName), _SpellScript::EffectHook(_effIndex)
+{
+}
+
+bool AuraScript::EffectBase::CheckEffect(SpellEntry const * spellEntry, uint8 effIndex)
+{
+    return _SpellScript::EffectAuraNameCheck::Check(spellEntry, effIndex);
+}
+
+std::string AuraScript::EffectBase::ToString()
+{
+    return "Index: " + EffIndexToString() + " AuraName: " +_SpellScript::EffectAuraNameCheck::ToString();
+}
+
+AuraScript::EffectPeriodicHandler::EffectPeriodicHandler(AuraEffectPeriodicFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName)
+    : AuraScript::EffectBase(_effIndex, _effName)
+{
+    pEffectHandlerScript = _pEffectHandlerScript;
+}
+
+void AuraScript::EffectPeriodicHandler::Call(AuraScript * auraScript, AuraEffect const * _aurEff, AuraApplication const * _aurApp)
+{
+    (auraScript->*pEffectHandlerScript)(_aurEff, _aurApp);
+}
+
+AuraScript::EffectUpdatePeriodicHandler::EffectUpdatePeriodicHandler(AuraEffectUpdatePeriodicFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName)
+    : AuraScript::EffectBase(_effIndex, _effName)
+{
+    pEffectHandlerScript = _pEffectHandlerScript;
+}
+
+void AuraScript::EffectUpdatePeriodicHandler::Call(AuraScript * auraScript, AuraEffect * aurEff)
+{
+    (auraScript->*pEffectHandlerScript)(aurEff);
+}
+
+AuraScript::EffectCalcAmountHandler::EffectCalcAmountHandler(AuraEffectCalcAmountFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName)
+    : AuraScript::EffectBase(_effIndex, _effName)
+{
+    pEffectHandlerScript = _pEffectHandlerScript;
+}
+
+void AuraScript::EffectCalcAmountHandler::Call(AuraScript * auraScript, AuraEffect const * aurEff, int32 & amount, bool & canBeRecalculated)
+{
+    (auraScript->*pEffectHandlerScript)(aurEff, amount, canBeRecalculated);
+}
+
+AuraScript::EffectCalcPeriodicHandler::EffectCalcPeriodicHandler(AuraEffectCalcPeriodicFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName)
+    : AuraScript::EffectBase(_effIndex, _effName)
+{
+    pEffectHandlerScript = _pEffectHandlerScript;
+}
+
+void AuraScript::EffectCalcPeriodicHandler::Call(AuraScript * auraScript, AuraEffect const * aurEff, bool & isPeriodic, int32 & periodicTimer)
+{
+    (auraScript->*pEffectHandlerScript)(aurEff, isPeriodic, periodicTimer);
+}
+
+AuraScript::EffectCalcSpellModHandler::EffectCalcSpellModHandler(AuraEffectCalcSpellModFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName)
+    : AuraScript::EffectBase(_effIndex, _effName)
+{
+    pEffectHandlerScript = _pEffectHandlerScript;
+}
+
+void AuraScript::EffectCalcSpellModHandler::Call(AuraScript * auraScript, AuraEffect const * aurEff, SpellModifier *& spellMod)
+{
+    (auraScript->*pEffectHandlerScript)(aurEff, spellMod);
+}
+
+AuraScript::EffectApplyHandler::EffectApplyHandler(AuraEffectApplicationModeFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName, AuraEffectHandleModes _mode)
+    : AuraScript::EffectBase(_effIndex, _effName)
+{
+    pEffectHandlerScript = _pEffectHandlerScript;
+    mode = _mode;
+}
+
+void AuraScript::EffectApplyHandler::Call(AuraScript * auraScript, AuraEffect const * _aurEff, AuraApplication const * _aurApp, AuraEffectHandleModes _mode)
+{
+    if (_mode & mode)
+        (auraScript->*pEffectHandlerScript)(_aurEff, _aurApp, _mode);
+}
+
+bool AuraScript::_Load(Aura * aura)
+{
+    m_aura = aura;
+    return Load();
+}
+
+SpellEntry const* AuraScript::GetSpellProto() const
+{
+    return m_aura->GetSpellProto();
+}
+
+uint32 AuraScript::GetId() const
+{
+    return m_aura->GetId();
+}
+
+uint64 const& AuraScript::GetCasterGUID() const
+{
+    return m_aura->GetCasterGUID();
+}
+
+Unit* AuraScript::GetCaster() const
+{
+    return m_aura->GetCaster();
+}
+
+WorldObject* AuraScript::GetOwner() const
+{
+    return m_aura->GetOwner();
+}
+
+Unit* AuraScript::GetUnitOwner() const
+{
+    return m_aura->GetUnitOwner();
+}
+
+DynamicObject* AuraScript::GetDynobjOwner() const
+{
+    return m_aura->GetDynobjOwner();
+}
+
+void AuraScript::Remove(uint32 removeMode)
+{
+    m_aura->Remove((AuraRemoveMode)removeMode);
+}
+
+Aura* AuraScript::GetAura() const
+{
+    return m_aura;
+}
+
+AuraObjectType AuraScript::GetType() const
+{
+    return m_aura->GetType();
+}
+
+int32 AuraScript::GetDuration() const
+{
+    return m_aura->GetDuration();
+}
+
+void AuraScript::SetDuration(int32 duration, bool withMods)
+{
+    m_aura->SetDuration(duration, withMods);
+}
+
+void AuraScript::RefreshDuration()
+{
+    m_aura->RefreshDuration();
+}
+
+time_t AuraScript::GetApplyTime() const
+{
+    return m_aura->GetApplyTime();
+}
+
+int32 AuraScript::GetMaxDuration() const
+{
+    return m_aura->GetMaxDuration();
+}
+
+void AuraScript::SetMaxDuration(int32 duration)
+{
+    m_aura->SetMaxDuration(duration);
+}
+
+bool AuraScript::IsExpired() const
+{
+    return m_aura->IsExpired();
+}
+
+bool AuraScript::IsPermanent() const
+{
+    return m_aura->IsPermanent();
+}
+
+uint8 AuraScript::GetCharges() const
+{
+    return m_aura->GetCharges();
+}
+
+void AuraScript::SetCharges(uint8 charges)
+{
+    m_aura->SetCharges(charges);
+}
+
+bool AuraScript::DropCharge()
+{
+    return m_aura->DropCharge();
+}
+
+uint8 AuraScript::GetStackAmount() const
+{
+    return m_aura->GetStackAmount();
+}
+
+void AuraScript::SetStackAmount(uint8 num, bool applied)
+{
+    m_aura->SetStackAmount(num, applied);
+}
+
+bool AuraScript::ModStackAmount(int32 num)
+{
+    return m_aura->ModStackAmount(num);
+}
+
+bool AuraScript::IsPassive() const
+{
+    return m_aura->IsPassive();
+}
+
+bool AuraScript::IsDeathPersistent() const
+{
+    return m_aura->IsDeathPersistent();
+}
+
+bool AuraScript::HasEffect(uint8 effIndex) const
+{
+    return m_aura->HasEffect(effIndex);
+}
+
+AuraEffect* AuraScript::GetEffect(uint8 effIndex) const
+{
+    return m_aura->GetEffect(effIndex);
+}
+
+bool AuraScript::HasEffectType(AuraType type) const
+{
+    return m_aura->HasEffectType(type);
+}
+

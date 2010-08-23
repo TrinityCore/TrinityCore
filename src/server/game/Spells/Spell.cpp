@@ -7312,7 +7312,7 @@ bool Spell::CallScriptEffectHandlers(SpellEffIndex effIndex)
     bool preventDefault = false;
     for(std::list<SpellScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
     {
-        std::list<SpellScript::EffectHandler>::iterator effEndItr = (*scritr)->EffectHandlers.end(), effItr = (*scritr)->EffectHandlers.begin();
+        std::list<SpellScript::EffectHandler>::iterator effEndItr = (*scritr)->OnEffect.end(), effItr = (*scritr)->OnEffect.begin();
         for(; effItr != effEndItr ; ++effItr)
         {
             // effect execution can be prevented

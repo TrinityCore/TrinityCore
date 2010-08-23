@@ -32,10 +32,10 @@ enum Quest11587Spells
 
 // http://www.wowhead.com/quest=11587 Prison Break
 // 45449 Arcane Prisoner Rescue
-class spell_q11587_arcane_prisoner_rescue : public SpellHandlerScript
+class spell_q11587_arcane_prisoner_rescue : public SpellScriptLoader
 {
 public:
-    spell_q11587_arcane_prisoner_rescue() : SpellHandlerScript("spell_q11587_arcane_prisoner_rescue") { }
+    spell_q11587_arcane_prisoner_rescue() : SpellScriptLoader("spell_q11587_arcane_prisoner_rescue") { }
 
     class spell_q11587_arcane_prisoner_rescue_SpellScript : public SpellScript
     {
@@ -65,7 +65,7 @@ public:
 
         void Register()
         {
-            EffectHandlers += EffectHandlerFn(spell_q11587_arcane_prisoner_rescue_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffect += SpellEffectFn(spell_q11587_arcane_prisoner_rescue_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -92,10 +92,10 @@ enum Quest11730Spells
 
 // http://www.wowhead.com/quest=11730 Master and Servant
 // 46023 The Ultrasonic Screwdriver
-class spell_q11730_ultrasonic_screwdriver : public SpellHandlerScript
+class spell_q11730_ultrasonic_screwdriver : public SpellScriptLoader
 {
 public:
-    spell_q11730_ultrasonic_screwdriver() : SpellHandlerScript("spell_q11730_ultrasonic_screwdriver") { }
+    spell_q11730_ultrasonic_screwdriver() : SpellScriptLoader("spell_q11730_ultrasonic_screwdriver") { }
 
     class spell_q11730_ultrasonic_screwdriver_SpellScript : public SpellScript
     {
@@ -148,7 +148,7 @@ public:
 
         void Register()
         {
-            EffectHandlers += EffectHandlerFn(spell_q11730_ultrasonic_screwdriver_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffect += SpellEffectFn(spell_q11730_ultrasonic_screwdriver_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 

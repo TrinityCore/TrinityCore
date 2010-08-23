@@ -737,6 +737,8 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
         DoneActualBenefit *= caster->CalculateLevelPenalty(GetSpellProto());
         amount += (int32)DoneActualBenefit;
     }
+
+    GetBase()->CallScriptEffectCalcAmountHandlers(const_cast<AuraEffect const *>(this), amount, m_canBeRecalculated);
     amount *= GetBase()->GetStackAmount();
     return amount;
 }
@@ -786,6 +788,8 @@ void AuraEffect::CalculatePeriodic(Unit * caster, bool create)
         default:
             break;
     }
+
+    GetBase()->CallScriptEffectCalcPeriodicHandlers(const_cast<AuraEffect const *>(this), m_isPeriodic, m_amplitude);
 
     if (!m_isPeriodic)
         return;
@@ -907,6 +911,7 @@ void AuraEffect::CalculateSpellMod()
         default:
             break;
     }
+    GetBase()->CallScriptEffectCalcSpellModHandlers(const_cast<AuraEffect const *>(this), m_spellmod);
 }
 
 void AuraEffect::ChangeAmount(int32 newAmount, bool mark)
@@ -946,7 +951,14 @@ void AuraEffect::HandleEffect(AuraApplication const * aurApp, uint8 mode, bool a
     if (mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK)
         ApplySpellMod(aurApp->GetTarget(), apply);
 
-    (*this.*AuraEffectHandler [GetAuraType()])(aurApp, mode, apply);
+    bool prevented = false;
+    if (apply)
+        prevented = GetBase()->CallScriptEffectApplyHandlers(const_cast<AuraEffect const *>(this), aurApp, (AuraEffectHandleModes)mode);
+    else
+        prevented = GetBase()->CallScriptEffectRemoveHandlers(const_cast<AuraEffect const *>(this), aurApp, (AuraEffectHandleModes)mode);
+
+    if (!prevented)
+        (*this.*AuraEffectHandler [GetAuraType()])(aurApp, mode, apply);
 }
 
 void AuraEffect::HandleEffect(Unit * target, uint8 mode, bool apply)
@@ -1203,6 +1215,7 @@ void AuraEffect::UpdatePeriodic(Unit * caster)
        default:
            break;
     }
+    GetBase()->CallScriptEffectUpdatePeriodicHandlers(this);
 }
 
 bool AuraEffect::IsPeriodicTickCrit(Unit * target, Unit const * caster) const
@@ -1243,6 +1256,10 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
         SendTickImmune(target, caster);
         return;
     }
+
+    bool prevented = GetBase()->CallScriptEffectPeriodicHandlers(const_cast<AuraEffect const *>(this), GetBase()->GetApplicationOfTarget(target->GetGUID()));
+    if (prevented)
+        return;
 
     switch(GetAuraType())
     {
