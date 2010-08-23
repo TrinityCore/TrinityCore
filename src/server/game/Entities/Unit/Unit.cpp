@@ -7331,7 +7331,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 case 67228:
                 {
                     // Lava Burst
-					if (procSpell->SpellFamilyFlags[1] & 0x1000)
+                    if (procSpell->SpellFamilyFlags[1] & 0x1000)
                     {
                         triggered_spell_id = 71824;
                         SpellEntry const* triggeredSpell = sSpellStore.LookupEntry(triggered_spell_id);
