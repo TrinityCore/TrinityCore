@@ -6497,7 +6497,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                         return false;
 
                     int32 mana_perc = triggeredByAura->GetSpellProto()->EffectBasePoints[triggeredByAura->GetEffIndex()]+1;
-                    basepoints0 = uint32((GetPower(POWER_MANA) * mana_perc / 100) / 10);
+                    basepoints0 = uint32((GetCreatePowers(POWER_MANA) * mana_perc / 100) / 10);
                     triggered_spell_id = 54833;
                     target = this;
                     break;
