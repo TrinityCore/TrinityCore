@@ -412,7 +412,7 @@ bool OPvPCapturePointNA::HandleCustomSpell(Player * plr, uint32 spellId, GameObj
 
 int32 OPvPCapturePointNA::HandleOpenGo(Player *plr, uint64 guid)
 {
-    uint32 retval = OPvPCapturePoint::HandleOpenGo(plr, guid);
+    int32 retval = OPvPCapturePoint::HandleOpenGo(plr, guid);
     if (retval >= 0)
     {
         const go_type * gos = NULL;

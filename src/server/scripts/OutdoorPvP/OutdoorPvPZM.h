@@ -22,7 +22,7 @@
 #include "Language.h"
 #include "OutdoorPvP.h"
 
-const uint32 OutdoorPvPZMBuffZonesNum = 5;
+const uint8 OutdoorPvPZMBuffZonesNum = 5;
 
 // the buff is cast in these zones
 const uint32 OutdoorPvPZMBuffZones[OutdoorPvPZMBuffZonesNum] = {3521,3607,3717,3715,3716};

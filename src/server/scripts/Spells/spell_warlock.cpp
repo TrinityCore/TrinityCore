@@ -44,7 +44,7 @@ public:
 
     class spell_warl_demonic_empowerment_SpellScript : public SpellScript
     {
-        bool Validate(SpellEntry const * spellEntry)
+        bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(WARLOCK_DEMONIC_EMPOWERMENT_SUCCUBUS))
                 return false;
@@ -59,7 +59,7 @@ public:
             return true;
         }
 
-        void HandleScriptEffect(SpellEffIndex effIndex)
+        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
         {
             if (Creature* targetCreature = GetHitCreature())
             {
@@ -113,7 +113,7 @@ public:
 
     class spell_warl_everlasting_affliction_SpellScript : public SpellScript
     {
-        void HandleScriptEffect(SpellEffIndex effIndex)
+        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
         {
             if (Unit* unitTarget = GetHitUnit())
                 // Refresh corruption on target
@@ -143,7 +143,7 @@ public:
     {
         static uint32 const iTypes[8][3];
 
-        bool Validate(SpellEntry const * spellEntry)
+        bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(WARLOCK_IMPROVED_HEALTHSTONE_R1))
                 return false;

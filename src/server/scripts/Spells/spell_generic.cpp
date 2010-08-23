@@ -38,7 +38,7 @@ public:
 
     class spell_gen_remove_flight_auras_SpellScript : public SpellScript
     {
-        void HandleScript(SpellEffIndex effIndex)
+        void HandleScript(SpellEffIndex /*effIndex*/)
         {
             Unit *target = GetHitUnit();
             if (!target)
@@ -66,7 +66,7 @@ public:
 
     class spell_gen_pet_summonedSpellScript : public SpellScript
     {
-        void HandleScript(SpellEffIndex effIndex)
+        void HandleScript(SpellEffIndex /*effIndex*/)
         {
             Unit *caster = GetCaster();
             if (caster->GetTypeId() != TYPEID_PLAYER)

@@ -35,11 +35,10 @@ class spell_ex_49375 : public SpellHandlerScript
             char * localVariable2;
 
             // effect handler hook - effIndex - effIndex of handled effect of a spell
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 // we're handling SPELL_EFFECT_DUMMY in effIndex 0 here
                 sLog.outError("WE ARE HANDLING DUMMY!");
-                sLog.outError(localVariable.c_str());
                 // make caster cast a spell on a unit target of effect
                 if (Unit * target = GetHitUnit())
                     GetCaster()->CastSpell(target, 70522, true);
@@ -81,7 +80,7 @@ class spell_ex_49375 : public SpellHandlerScript
 
             // function called on server startup
             // checks if script has data required for it to work
-            bool Validate(SpellEntry const * spellEntry)
+            bool Validate(SpellEntry const * /*spellEntry*/)
             {
                 // check if spellid 1 exists in dbc
                 if (!sSpellStore.LookupEntry(70522))

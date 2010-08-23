@@ -31,7 +31,7 @@ enum OutdoorPvPSISpells
 
 const uint32 SI_MAX_RESOURCES = 200;
 
-const uint32 OutdoorPvPSIBuffZonesNum = 3;
+const uint8 OutdoorPvPSIBuffZonesNum = 3;
 
 const uint32 OutdoorPvPSIBuffZones[OutdoorPvPSIBuffZonesNum] = { 1377, 3428, 3429 };
 

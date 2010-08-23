@@ -1176,7 +1176,7 @@ class go_massive_seaforium_charge : public GameObjectScript
 public:
     go_massive_seaforium_charge() : GameObjectScript("go_massive_seaforium_charge") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject *pGo)
+    bool OnGossipHello(Player* /*pPlayer*/, GameObject *pGo)
     {
         pGo->SetLootState(GO_JUST_DEACTIVATED);
         return true;

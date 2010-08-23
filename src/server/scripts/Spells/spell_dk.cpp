@@ -40,14 +40,14 @@ public:
 
     class spell_dk_corpse_explosion_SpellScript : public SpellScript
     {
-        bool Validate(SpellEntry const * spellEntry)
+        bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(DK_SPELL_CORPSE_EXPLOSION_TRIGGERED))
                 return false;
             return true;
         }
 
-        void HandleDummy(SpellEffIndex effIndex)
+        void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             if (Unit* unitTarget = GetHitUnit())
             {
@@ -86,14 +86,14 @@ public:
 
     class spell_dk_runic_power_feed_SpellScript : public SpellScript
     {
-        bool Validate(SpellEntry const * spellEntry)
+        bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(DK_SPELL_SUMMON_GARGOYLE))
                 return false;
             return true;
         }
 
-        void HandleDummy(SpellEffIndex effIndex)
+        void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             if (Unit* caster = GetCaster())
             {
@@ -125,14 +125,14 @@ public:
 
     class spell_dk_scourge_strike_SpellScript : public SpellScript
     {
-        bool Validate(SpellEntry const * spellEntry)
+        bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(DK_SPELL_SCOURGE_STRIKE_TRIGGERED))
                 return false;
             return true;
         }
 
-        void HandleDummy(SpellEffIndex effIndex)
+        void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             Unit* caster = GetCaster();
             if (Unit* unitTarget = GetHitUnit())
