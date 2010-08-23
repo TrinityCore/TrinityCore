@@ -33,10 +33,10 @@ enum ShamanSpells
 };
 
 // 1535 Fire Nova
-class spell_sha_fire_nova : public SpellHandlerScript
+class spell_sha_fire_nova : public SpellScriptLoader
 {
 public:
-    spell_sha_fire_nova() : SpellHandlerScript("spell_sha_fire_nova") { }
+    spell_sha_fire_nova() : SpellScriptLoader("spell_sha_fire_nova") { }
 
     class spell_sha_fire_nova_SpellScript : public SpellScript
     {
@@ -71,7 +71,7 @@ public:
 
         void Register()
         {
-            EffectHandlers += EffectHandlerFn(spell_sha_fire_nova_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffect += SpellEffectFn(spell_sha_fire_nova_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -82,10 +82,10 @@ public:
 };
 
 // 39610 Mana Tide Totem
-class spell_sha_mana_tide_totem : public SpellHandlerScript
+class spell_sha_mana_tide_totem : public SpellScriptLoader
 {
 public:
-    spell_sha_mana_tide_totem() : SpellHandlerScript("spell_sha_mana_tide_totem") { }
+    spell_sha_mana_tide_totem() : SpellScriptLoader("spell_sha_mana_tide_totem") { }
 
     class spell_sha_mana_tide_totem_SpellScript : public SpellScript
     {
@@ -119,7 +119,7 @@ public:
 
         void Register()
         {
-            EffectHandlers += EffectHandlerFn(spell_sha_mana_tide_totem_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffect += SpellEffectFn(spell_sha_mana_tide_totem_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 

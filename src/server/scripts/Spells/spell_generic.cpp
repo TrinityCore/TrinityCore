@@ -24,6 +24,7 @@
 
 #include "ScriptPCH.h"
 
+
 enum NPCEntries
 {
     NPC_DOOMGUARD                                = 11859,
@@ -31,10 +32,10 @@ enum NPCEntries
     NPC_IMP                                      = 416,
 };
 
-class spell_gen_remove_flight_auras : public SpellHandlerScript
+class spell_gen_remove_flight_auras : public SpellScriptLoader
 {
 public:
-    spell_gen_remove_flight_auras() : SpellHandlerScript("spell_gen_remove_flight_auras") {}
+    spell_gen_remove_flight_auras() : SpellScriptLoader("spell_gen_remove_flight_auras") {}
 
     class spell_gen_remove_flight_auras_SpellScript : public SpellScript
     {
@@ -49,7 +50,7 @@ public:
 
         void Register()
         {
-            EffectHandlers += EffectHandlerFn(spell_gen_remove_flight_auras_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffect += SpellEffectFn(spell_gen_remove_flight_auras_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 
@@ -59,10 +60,10 @@ public:
     }
 };
 
-class spell_gen_pet_summoned : public SpellHandlerScript
+class spell_gen_pet_summoned : public SpellScriptLoader
 {
 public:
-    spell_gen_pet_summoned() : SpellHandlerScript("spell_gen_pet_summoned") { }
+    spell_gen_pet_summoned() : SpellScriptLoader("spell_gen_pet_summoned") { }
 
     class spell_gen_pet_summonedSpellScript : public SpellScript
     {
@@ -105,7 +106,7 @@ public:
 
         void Register()
         {
-            EffectHandlers += EffectHandlerFn(spell_gen_pet_summonedSpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffect += SpellEffectFn(spell_gen_pet_summonedSpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 
