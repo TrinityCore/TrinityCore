@@ -826,7 +826,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
                     if (spell->getState() == SPELL_STATE_CASTING)
                     {
                         uint32 channelInterruptFlags = spell->m_spellInfo->ChannelInterruptFlags;
-                        if (channelInterruptFlags & CHANNEL_FLAG_DELAY)
+                        if (channelInterruptFlags & CHANNEL_FLAG_DELAY != 0 && damagetype != DOT)
                             spell->DelayedChannel();
                     }
                 }
