@@ -239,7 +239,7 @@ bool TurretAI::CanAIAttack(const Unit * /*who*/) const
 {
     // TODO: use one function to replace it
     if (!me->IsWithinCombatRange(me->getVictim(), me->m_CombatDistance)
-        || m_minRange && me->IsWithinCombatRange(me->getVictim(), m_minRange))
+        || (m_minRange && me->IsWithinCombatRange(me->getVictim(), m_minRange)))
         return false;
     return true;
 }

@@ -101,7 +101,7 @@ namespace VMAP
                 spawnedModelFiles.insert(entry->second.name);
             }
 
-            printf("Creating map tree...\n", map_iter->first);
+            printf("Creating map tree for map %u...\n", map_iter->first);
             BIH pTree;
             pTree.build(mapSpawns, BoundsTrait<ModelSpawn*>::getBounds);
 

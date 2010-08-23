@@ -199,11 +199,12 @@ bool RealmSocket::send(const char *buf, size_t len)
 
         if (n < 0)
             return false;
-        else if (n == len)
+        size_t un = size_t(n);
+        if (un == len)
             return true;
 
         // fall down
-        message_block.rd_ptr((size_t)n);
+        message_block.rd_ptr(un);
     }
 
     ACE_Message_Block *mb = message_block.clone();
@@ -243,7 +244,7 @@ int RealmSocket::handle_output(ACE_HANDLE /*= ACE_INVALID_HANDLE*/)
         mb->release();
         return -1;
     }
-    else if (n == mb->length())
+    else if (size_t(n) == mb->length())
     {
         mb->release();
         return 1;

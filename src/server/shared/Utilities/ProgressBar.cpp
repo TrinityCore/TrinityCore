@@ -46,7 +46,7 @@ barGoLink::barGoLink( uint64 row_count )
     #else
     printf( "[" );
     #endif
-    for (int i = 0; i < indic_len; i++ ) printf( empty );
+    for (uint64 i = 0; i < indic_len; ++i) printf( empty );
     #ifdef _WIN32
     printf( "\x3D 0%%\r\x3D" );
     #else

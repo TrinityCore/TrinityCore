@@ -116,7 +116,7 @@ void DisableMgr::LoadDisables()
                         break;
                     case MAP_BATTLEGROUND:
                     case MAP_ARENA:
-                        sLog.outErrorDb("Battleground map specified to be disabled in map case, skipped.", entry);
+                        sLog.outErrorDb("Battleground map %u specified to be disabled in map case, skipped.", entry);
                         continue;
                 }
                 if (isFlagInvalid)
