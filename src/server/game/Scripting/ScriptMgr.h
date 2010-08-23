@@ -70,7 +70,6 @@ void DoScriptText(int32 textEntry, WorldObject* pSource, Unit *pTarget = NULL);
     CollisionScript
     GroupScript
     ArenaTeamScript
-    GuildScript
 
 */
 
