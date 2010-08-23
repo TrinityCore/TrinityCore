@@ -733,6 +733,7 @@ void CliRunnable::run()
         char *command_str ;             // = fgets(commandbuf,sizeof(commandbuf),stdin);
 
         #if PLATFORM == WINDOWS
+        char commandbuf[256];
         command_str = fgets(commandbuf,sizeof(commandbuf),stdin);
         #else
         command_str = readline("TC>");
