@@ -248,7 +248,7 @@ public:
             if (Phase == FEEDING && pEmbraceTarget && pEmbraceTarget->isAlive())
             {
               uiEmbraceTakenDamage += damage;
-              if (uiEmbraceTakenDamage > DUNGEON_MODE(DATA_EMBRACE_DMG, H_DATA_EMBRACE_DMG))
+              if (uiEmbraceTakenDamage > (uint32) DUNGEON_MODE(DATA_EMBRACE_DMG, H_DATA_EMBRACE_DMG))
               {
                   Phase = NORMAL;
                   uiPhaseTimer = 0;

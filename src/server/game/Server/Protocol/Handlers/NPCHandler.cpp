@@ -277,7 +277,7 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket & recv_data)
     uint32 nSpellCost = uint32(floor(trainer_spell->spellCost * _player->GetReputationPriceDiscount(unit)));
 
     // check money requirement
-    if (_player->GetMoney() < nSpellCost)
+    if (!_player->HasEnoughMoney(nSpellCost))
         return;
 
     _player->ModifyMoney(-int32(nSpellCost));
@@ -727,7 +727,7 @@ void WorldSession::HandleBuyStableSlot(WorldPacket & recv_data)
     if (GetPlayer()->m_stableSlots < MAX_PET_STABLES)
     {
         StableSlotPricesEntry const *SlotPrice = sStableSlotPricesStore.LookupEntry(GetPlayer()->m_stableSlots+1);
-        if (_player->GetMoney() >= SlotPrice->Price)
+        if (_player->HasEnoughMoney(SlotPrice->Price))
         {
             ++GetPlayer()->m_stableSlots;
             _player->ModifyMoney(-int32(SlotPrice->Price));

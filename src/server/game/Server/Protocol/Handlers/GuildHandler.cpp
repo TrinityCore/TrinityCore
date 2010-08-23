@@ -743,7 +743,7 @@ void WorldSession::HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    if (GetPlayer()->GetMoney() < 10*GOLD)
+    if (!GetPlayer()->HasEnoughMoney(10 * GOLD))
     {
         //"You can't afford to do that."
         SendSaveGuildEmblem(ERR_GUILDEMBLEM_NOTENOUGHMONEY);
@@ -873,7 +873,7 @@ void WorldSession::HandleGuildBankDepositMoney(WorldPacket & recv_data)
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
         return;
 
-    if (GetPlayer()->GetMoney() < money)
+    if (!GetPlayer()->HasEnoughMoney(money))
         return;
 
     uint32 GuildId = GetPlayer()->GetGuildId();
@@ -1098,7 +1098,7 @@ void WorldSession::HandleGuildBankBuyTab(WorldPacket & recv_data)
     if (!TabCost)
         return;
 
-    if (GetPlayer()->GetMoney() < TabCost)                  // Should not happen, this is checked by client
+    if (!GetPlayer()->HasEnoughMoney(TabCost))                  // Should not happen, this is checked by client
         return;
 
     // Go on with creating tab

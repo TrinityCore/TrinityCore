@@ -198,7 +198,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
 
     //we have to take deposit :
     uint32 deposit = sAuctionMgr.GetAuctionDeposit(auctionHouseEntry, etime, it);
-    if (pl->GetMoney() < deposit)
+    if (!pl->HasEnoughMoney(deposit))
     {
         SendAuctionCommandResult(0, AUCTION_SELL_ITEM, AUCTION_NOT_ENOUGHT_MONEY);
         return;
@@ -305,7 +305,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket & recv_data)
         return;
     }
 
-    if (price > pl->GetMoney())
+    if (pl->HasEnoughMoney(price))
     {
         //you don't have enought money!, client tests!
         //SendAuctionCommandResult(auction->auctionId, AUCTION_PLACE_BID, ???);
@@ -404,7 +404,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket & recv_data)
             if (auction->bidder > 0)                        // If we have a bidder, we have to send him the money he paid
             {
                 uint32 auctionCut = auction->GetAuctionCut();
-                if (pl->GetMoney() < auctionCut)          //player doesn't have enough money, maybe message needed
+                if (!pl->HasEnoughMoney(auctionCut))          //player doesn't have enough money, maybe message needed
                     return;
                 //some auctionBidderNotification would be needed, but don't know that parts..
                 sAuctionMgr.SendAuctionCancelledToBidderMail(auction, trans);

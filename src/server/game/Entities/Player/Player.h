@@ -1447,8 +1447,15 @@ class Player : public Unit, public GridObject<Player>
         void setRegenTimerCount(uint32 time) {m_regenTimerCount = time;}
         void setWeaponChangeTimer(uint32 time) {m_weaponChangeTimer = time;}
 
-        uint32 GetMoney() { return GetUInt32Value (PLAYER_FIELD_COINAGE); }
+        uint32 GetMoney() const { return GetUInt32Value (PLAYER_FIELD_COINAGE); }
         void ModifyMoney(int32 d);
+        bool HasEnoughMoney(uint32 amount) const { return (GetMoney() >= amount); }
+        bool HasEnoughMoney(int32 amount) const
+        {
+            if (amount > 0)
+                return (GetMoney() >= (uint32) amount);
+            return true;
+        }
 
         void SetMoney(uint32 value)
         {

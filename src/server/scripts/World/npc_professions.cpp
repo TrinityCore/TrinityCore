@@ -185,17 +185,17 @@ there is no difference here (except that default text is chosen with `gameobject
 # formulas to calculate unlearning cost
 ###*/
 
-uint32 DoLearnCost(Player* /*pPlayer*/)                      //tailor, alchemy
+int32 DoLearnCost(Player* /*pPlayer*/)                      //tailor, alchemy
 {
     return 200000;
 }
 
-uint32 DoHighUnlearnCost(Player* /*pPlayer*/)                //tailor, alchemy
+int32 DoHighUnlearnCost(Player* /*pPlayer*/)                //tailor, alchemy
 {
     return 1500000;
 }
 
-uint32 DoMedUnlearnCost(Player* pPlayer)                     //blacksmith, leatherwork
+int32 DoMedUnlearnCost(Player* pPlayer)                     //blacksmith, leatherwork
 {
     uint8 level = pPlayer->getLevel();
     if (level < 51)
@@ -206,7 +206,7 @@ uint32 DoMedUnlearnCost(Player* pPlayer)                     //blacksmith, leath
         return 1000000;
 }
 
-uint32 DoLowUnlearnCost(Player* pPlayer)                     //blacksmith
+int32 DoLowUnlearnCost(Player* pPlayer)                     //blacksmith
 {
     uint8 level = pPlayer->getLevel();
     if (level < 66)
@@ -412,7 +412,7 @@ public:
                 break;
                 //Learn Alchemy
             case GOSSIP_ACTION_INFO_DEF + 1:
-                if (!pPlayer->HasSpell(S_TRANSMUTE) && pPlayer->GetMoney() >= DoLearnCost(pPlayer))
+                if (!pPlayer->HasSpell(S_TRANSMUTE) && pPlayer->HasEnoughMoney(DoLearnCost(pPlayer)))
                 {
                     pPlayer->CastSpell(pPlayer, S_LEARN_TRANSMUTE, true);
                     pPlayer->ModifyMoney(-DoLearnCost(pPlayer));
@@ -421,7 +421,7 @@ public:
                 pPlayer->CLOSE_GOSSIP_MENU();
                 break;
             case GOSSIP_ACTION_INFO_DEF + 2:
-                if (!pPlayer->HasSpell(S_ELIXIR) && pPlayer->GetMoney() >= DoLearnCost(pPlayer))
+                if (!pPlayer->HasSpell(S_ELIXIR) && pPlayer->HasEnoughMoney(DoLearnCost(pPlayer)))
                 {
                     pPlayer->CastSpell(pPlayer, S_LEARN_ELIXIR, true);
                     pPlayer->ModifyMoney(-DoLearnCost(pPlayer));
@@ -430,7 +430,7 @@ public:
                 pPlayer->CLOSE_GOSSIP_MENU();
                 break;
             case GOSSIP_ACTION_INFO_DEF + 3:
-                if (!pPlayer->HasSpell(S_POTION) && pPlayer->GetMoney() >= DoLearnCost(pPlayer))
+                if (!pPlayer->HasSpell(S_POTION) && pPlayer->HasEnoughMoney(DoLearnCost(pPlayer)))
                 {
                     pPlayer->CastSpell(pPlayer, S_LEARN_POTION, true);
                     pPlayer->ModifyMoney(-DoLearnCost(pPlayer));
@@ -440,7 +440,7 @@ public:
                 break;
                 //Unlearn Alchemy
             case GOSSIP_ACTION_INFO_DEF + 4:
-                if (pPlayer->GetMoney() >= DoHighUnlearnCost(pPlayer))
+                if (pPlayer->HasEnoughMoney(DoHighUnlearnCost(pPlayer)))
                 {
                     pCreature->CastSpell(pPlayer, S_UNLEARN_TRANSMUTE, true);
                     pPlayer->ModifyMoney(-DoHighUnlearnCost(pPlayer));
@@ -449,7 +449,7 @@ public:
                 pPlayer->CLOSE_GOSSIP_MENU();
                 break;
             case GOSSIP_ACTION_INFO_DEF + 5:
-                if (pPlayer->GetMoney() >= DoHighUnlearnCost(pPlayer))
+                if (pPlayer->HasEnoughMoney(DoHighUnlearnCost(pPlayer)))
                 {
                     pCreature->CastSpell(pPlayer, S_UNLEARN_ELIXIR, true);
                     pPlayer->ModifyMoney(-DoHighUnlearnCost(pPlayer));
@@ -458,7 +458,7 @@ public:
                 pPlayer->CLOSE_GOSSIP_MENU();
                 break;
             case GOSSIP_ACTION_INFO_DEF + 6:
-                if (pPlayer->GetMoney() >= DoHighUnlearnCost(pPlayer))
+                if (pPlayer->HasEnoughMoney(DoHighUnlearnCost(pPlayer)))
                 {
                     pCreature->CastSpell(pPlayer, S_UNLEARN_POTION, true);
                     pPlayer->ModifyMoney(-DoHighUnlearnCost(pPlayer));
@@ -650,7 +650,7 @@ public:
                 }
                 else if (EquippedOk(pPlayer,S_UNLEARN_WEAPON))
                 {
-                    if (pPlayer->GetMoney() >= DoLowUnlearnCost(pPlayer))
+                    if (pPlayer->HasEnoughMoney(DoLowUnlearnCost(pPlayer)))
                     {
                         pPlayer->CastSpell(pPlayer, S_UNLEARN_WEAPON, true);
                         ProfessionUnlearnSpells(pPlayer, S_UNLEARN_WEAPON);
@@ -669,7 +669,7 @@ public:
             case GOSSIP_ACTION_INFO_DEF + 4:
                 if (EquippedOk(pPlayer,S_UNLEARN_ARMOR))
                 {
-                    if (pPlayer->GetMoney() >= DoLowUnlearnCost(pPlayer))
+                    if (pPlayer->HasEnoughMoney(DoLowUnlearnCost(pPlayer)))
                     {
                         pPlayer->CastSpell(pPlayer, S_UNLEARN_ARMOR, true);
                         ProfessionUnlearnSpells(pPlayer, S_UNLEARN_ARMOR);
@@ -698,7 +698,7 @@ public:
             case GOSSIP_ACTION_INFO_DEF + 8:
                 if (EquippedOk(pPlayer,S_UNLEARN_HAMMER))
                 {
-                    if (pPlayer->GetMoney() >= DoMedUnlearnCost(pPlayer))
+                    if (pPlayer->HasEnoughMoney(DoMedUnlearnCost(pPlayer)))
                     {
                         pPlayer->CastSpell(pPlayer, S_UNLEARN_HAMMER, true);
                         ProfessionUnlearnSpells(pPlayer, S_UNLEARN_HAMMER);
@@ -712,7 +712,7 @@ public:
             case GOSSIP_ACTION_INFO_DEF + 9:
                 if (EquippedOk(pPlayer,S_UNLEARN_AXE))
                 {
-                    if (pPlayer->GetMoney() >= DoMedUnlearnCost(pPlayer))
+                    if (pPlayer->HasEnoughMoney(DoMedUnlearnCost(pPlayer)))
                     {
                         pPlayer->CastSpell(pPlayer, S_UNLEARN_AXE, true);
                         ProfessionUnlearnSpells(pPlayer, S_UNLEARN_AXE);
@@ -726,7 +726,7 @@ public:
             case GOSSIP_ACTION_INFO_DEF + 10:
                 if (EquippedOk(pPlayer,S_UNLEARN_SWORD))
                 {
-                    if (pPlayer->GetMoney() >= DoMedUnlearnCost(pPlayer))
+                    if (pPlayer->HasEnoughMoney(DoMedUnlearnCost(pPlayer)))
                     {
                         pPlayer->CastSpell(pPlayer, S_UNLEARN_SWORD, true);
                         ProfessionUnlearnSpells(pPlayer, S_UNLEARN_SWORD);
@@ -1012,7 +1012,7 @@ public:
             case GOSSIP_ACTION_INFO_DEF + 1:
                 if (EquippedOk(pPlayer,S_UNLEARN_DRAGON))
                 {
-                    if (pPlayer->GetMoney() >= DoMedUnlearnCost(pPlayer))
+                    if (pPlayer->HasEnoughMoney(DoMedUnlearnCost(pPlayer)))
                     {
                         pPlayer->CastSpell(pPlayer, S_UNLEARN_DRAGON, true);
                         ProfessionUnlearnSpells(pPlayer, S_UNLEARN_DRAGON);
@@ -1026,7 +1026,7 @@ public:
             case GOSSIP_ACTION_INFO_DEF + 2:
                 if (EquippedOk(pPlayer,S_UNLEARN_ELEMENTAL))
                 {
-                    if (pPlayer->GetMoney() >= DoMedUnlearnCost(pPlayer))
+                    if (pPlayer->HasEnoughMoney(DoMedUnlearnCost(pPlayer)))
                     {
                         pPlayer->CastSpell(pPlayer, S_UNLEARN_ELEMENTAL, true);
                         ProfessionUnlearnSpells(pPlayer, S_UNLEARN_ELEMENTAL);
@@ -1040,7 +1040,7 @@ public:
             case GOSSIP_ACTION_INFO_DEF + 3:
                 if (EquippedOk(pPlayer,S_UNLEARN_TRIBAL))
                 {
-                    if (pPlayer->GetMoney() >= DoMedUnlearnCost(pPlayer))
+                    if (pPlayer->HasEnoughMoney(DoMedUnlearnCost(pPlayer)))
                     {
                         pPlayer->CastSpell(pPlayer, S_UNLEARN_TRIBAL, true);
                         ProfessionUnlearnSpells(pPlayer, S_UNLEARN_TRIBAL);
@@ -1166,7 +1166,7 @@ public:
                 break;
                 //Learn Tailor
             case GOSSIP_ACTION_INFO_DEF + 1:
-                if (!pPlayer->HasSpell(S_SPELLFIRE) && pPlayer->GetMoney() >= DoLearnCost(pPlayer))
+                if (!pPlayer->HasSpell(S_SPELLFIRE) && pPlayer->HasEnoughMoney(DoLearnCost(pPlayer)))
                 {
                     pPlayer->CastSpell(pPlayer, S_LEARN_SPELLFIRE, true);
                     pPlayer->ModifyMoney(-DoLearnCost(pPlayer));
@@ -1175,7 +1175,7 @@ public:
                 pPlayer->CLOSE_GOSSIP_MENU();
                 break;
             case GOSSIP_ACTION_INFO_DEF + 2:
-                if (!pPlayer->HasSpell(S_MOONCLOTH) && pPlayer->GetMoney() >= DoLearnCost(pPlayer))
+                if (!pPlayer->HasSpell(S_MOONCLOTH) && pPlayer->HasEnoughMoney(DoLearnCost(pPlayer)))
                 {
                     pPlayer->CastSpell(pPlayer, S_LEARN_MOONCLOTH, true);
                     pPlayer->ModifyMoney(-DoLearnCost(pPlayer));
@@ -1184,7 +1184,7 @@ public:
                 pPlayer->CLOSE_GOSSIP_MENU();
                 break;
             case GOSSIP_ACTION_INFO_DEF + 3:
-                if (!pPlayer->HasSpell(S_SHADOWEAVE) && pPlayer->GetMoney() >= DoLearnCost(pPlayer))
+                if (!pPlayer->HasSpell(S_SHADOWEAVE) && pPlayer->HasEnoughMoney(DoLearnCost(pPlayer)))
                 {
                     pPlayer->CastSpell(pPlayer, S_LEARN_SHADOWEAVE, true);
                     pPlayer->ModifyMoney(-DoLearnCost(pPlayer));
@@ -1196,7 +1196,7 @@ public:
             case GOSSIP_ACTION_INFO_DEF + 4:
                 if (EquippedOk(pPlayer,S_UNLEARN_SPELLFIRE))
                 {
-                    if (pPlayer->GetMoney() >= DoHighUnlearnCost(pPlayer))
+                    if (pPlayer->HasEnoughMoney(DoHighUnlearnCost(pPlayer)))
                     {
                         pPlayer->CastSpell(pPlayer, S_UNLEARN_SPELLFIRE, true);
                         ProfessionUnlearnSpells(pPlayer, S_UNLEARN_SPELLFIRE);
@@ -1210,7 +1210,7 @@ public:
             case GOSSIP_ACTION_INFO_DEF + 5:
                 if (EquippedOk(pPlayer,S_UNLEARN_MOONCLOTH))
                 {
-                    if (pPlayer->GetMoney() >= DoHighUnlearnCost(pPlayer))
+                    if (pPlayer->HasEnoughMoney(DoHighUnlearnCost(pPlayer)))
                     {
                         pPlayer->CastSpell(pPlayer, S_UNLEARN_MOONCLOTH, true);
                         ProfessionUnlearnSpells(pPlayer, S_UNLEARN_MOONCLOTH);
@@ -1224,7 +1224,7 @@ public:
             case GOSSIP_ACTION_INFO_DEF + 6:
                 if (EquippedOk(pPlayer,S_UNLEARN_SHADOWEAVE))
                 {
-                    if (pPlayer->GetMoney() >= DoHighUnlearnCost(pPlayer))
+                    if (pPlayer->HasEnoughMoney(DoHighUnlearnCost(pPlayer)))
                     {
                         pPlayer->CastSpell(pPlayer, S_UNLEARN_SHADOWEAVE, true);
                         ProfessionUnlearnSpells(pPlayer, S_UNLEARN_SHADOWEAVE);

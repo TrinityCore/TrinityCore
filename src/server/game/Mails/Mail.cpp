@@ -122,7 +122,7 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data)
 
     uint32 reqmoney = cost + money;
 
-    if (pl->GetMoney() < reqmoney)
+    if (!pl->HasEnoughMoney(reqmoney))
     {
         pl->SendMailResult(0, MAIL_SEND, MAIL_ERR_NOT_ENOUGH_MONEY);
         return;
@@ -425,7 +425,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket & recv_data)
     }
 
     // prevent cheating with skip client money check
-    if (pl->GetMoney() < m->COD)
+    if (!pl->HasEnoughMoney(m->COD))
     {
         pl->SendMailResult(mailId, MAIL_ITEM_TAKEN, MAIL_ERR_NOT_ENOUGH_MONEY);
         return;

@@ -4027,7 +4027,7 @@ bool Player::resetTalents(bool no_cost)
     {
         cost = resetTalentsCost();
 
-        if (GetMoney() < cost)
+        if (!HasEnoughMoney(cost))
         {
             SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
             return false;
@@ -5090,7 +5090,7 @@ uint32 Player::DurabilityRepair(uint16 pos, bool cost, float discountMod, bool g
 
                 TotalCost = costs;
             }
-            else if (GetMoney() < costs)
+            else if (!HasEnoughMoney(costs))
             {
                 sLog.outStaticDebug("You do not have enough money");
                 return TotalCost;
@@ -13699,7 +13699,7 @@ void Player::OnGossipSelect(WorldObject* pSource, uint32 gossipListId, uint32 me
         case GOSSIP_OPTION_LEARNDUALSPEC:
             if (GetSpecsCount() == 1 && !(getLevel() < sWorld.getConfig(CONFIG_MIN_DUALSPEC_LEVEL)))
             {
-                if (GetMoney() < 10000000)
+                if (!HasEnoughMoney(10000000))
                 {
                     SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
                     PlayerTalkClass->CloseGossip();
@@ -14127,7 +14127,7 @@ bool Player::CanCompleteQuest(uint32 quest_id)
 
             if (qInfo->GetRewOrReqMoney() < 0)
             {
-                if (GetMoney() < uint32(-qInfo->GetRewOrReqMoney()))
+                if (!HasEnoughMoney(-qInfo->GetRewOrReqMoney()))
                     return false;
             }
 
@@ -14194,7 +14194,7 @@ bool Player::CanRewardQuest(Quest const *pQuest, bool msg)
     }
 
     // prevent receive reward with low money and GetRewOrReqMoney() < 0
-    if (pQuest->GetRewOrReqMoney() < 0 && GetMoney() < uint32(-pQuest->GetRewOrReqMoney()))
+    if (pQuest->GetRewOrReqMoney() < 0 && !HasEnoughMoney(-pQuest->GetRewOrReqMoney()))
         return false;
 
     return true;
@@ -19790,7 +19790,7 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
     if (price)
         price = uint32(floor(price * GetReputationPriceDiscount(pCreature)));
 
-    if (GetMoney() < price)
+    if (!HasEnoughMoney(price))
     {
         SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, item, 0);
         return false;

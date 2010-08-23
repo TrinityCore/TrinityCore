@@ -1080,7 +1080,7 @@ void WorldSession::HandleAlterAppearance(WorldPacket & recv_data)
     // 0 - ok
     // 1,3 - not enough money
     // 2 - you have to seat on barber chair
-    if (_player->GetMoney() < Cost)
+    if (!_player->HasEnoughMoney(Cost))
     {
         WorldPacket data(SMSG_BARBER_SHOP_RESULT, 4);
         data << uint32(1);                                  // no money
