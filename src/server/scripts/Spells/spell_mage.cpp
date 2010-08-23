@@ -37,10 +37,10 @@ enum MageSpells
     SPELL_MAGE_SUMMON_WATER_ELEMENTAL_TEMPORARY  = 70907,
 };
 
-class spell_mage_cold_snap : public SpellHandlerScript
+class spell_mage_cold_snap : public SpellScriptLoader
 {
     public:
-        spell_mage_cold_snap() : SpellHandlerScript("spell_mage_cold_snap") { }
+        spell_mage_cold_snap() : SpellScriptLoader("spell_mage_cold_snap") { }
 
         class spell_mage_cold_snap_SpellScript : public SpellScript
         {
@@ -71,7 +71,7 @@ class spell_mage_cold_snap : public SpellHandlerScript
             void Register()
             {
                 // add dummy effect spell handler to Cold Snap
-                EffectHandlers += EffectHandlerFn(spell_mage_cold_snap_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffect += SpellEffectFn(spell_mage_cold_snap_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -81,10 +81,10 @@ class spell_mage_cold_snap : public SpellHandlerScript
         }
 };
 
-class spell_mage_polymorph_cast_visual : public SpellHandlerScript
+class spell_mage_polymorph_cast_visual : public SpellScriptLoader
 {
     public:
-        spell_mage_polymorph_cast_visual() : SpellHandlerScript("spell_mage_polymorph_visual") { }
+        spell_mage_polymorph_cast_visual() : SpellScriptLoader("spell_mage_polymorph_visual") { }
 
         class spell_mage_polymorph_cast_visual_SpellScript : public SpellScript
         {
@@ -109,7 +109,7 @@ class spell_mage_polymorph_cast_visual : public SpellHandlerScript
             void Register()
             {
                 // add dummy effect spell handler to Polymorph visual
-                EffectHandlers += EffectHandlerFn(spell_mage_polymorph_cast_visual_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffect += SpellEffectFn(spell_mage_polymorph_cast_visual_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -129,10 +129,10 @@ const uint32 spell_mage_polymorph_cast_visual::spell_mage_polymorph_cast_visual_
     SPELL_MAGE_SHEEP_FORM
 };
 
-class spell_mage_summon_water_elemental : public SpellHandlerScript
+class spell_mage_summon_water_elemental : public SpellScriptLoader
 {
     public:
-        spell_mage_summon_water_elemental() : SpellHandlerScript("spell_mage_summon_water_elemental") { }
+        spell_mage_summon_water_elemental() : SpellScriptLoader("spell_mage_summon_water_elemental") { }
 
         class spell_mage_summon_water_elemental_SpellScript : public SpellScript
         {
@@ -162,7 +162,7 @@ class spell_mage_summon_water_elemental : public SpellHandlerScript
             void Register()
             {
                 // add dummy effect spell handler to Summon Water Elemental
-                EffectHandlers += EffectHandlerFn(spell_mage_summon_water_elemental_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffect += SpellEffectFn(spell_mage_summon_water_elemental_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 

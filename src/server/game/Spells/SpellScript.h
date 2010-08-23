@@ -21,20 +21,22 @@
 
 #include "Util.h"
 #include "SharedDefines.h"
+#include "SpellAuraDefines.h"
 
 class Unit;
 struct SpellEntry;
 class SpellScript;
 class Spell;
 class Aura;
+class AuraEffect;
+struct SpellModifier;
 class Creature;
 class GameObject;
+class DynamicObject;
 class Player;
 class Item;
 class WorldLocation;
-
-typedef void(SpellScript::*EffectHandlerFnType)(SpellEffIndex);
-typedef void(SpellScript::*HitHandlerFnType)();
+class WorldObject;
 
 #define SPELL_EFFECT_ANY (uint16)-1
 #define SPELL_AURA_ANY (uint16)-1
@@ -99,17 +101,20 @@ class SpellScript : public _SpellScript
     // internal use classes & functions
     // DO NOT OVERRIDE THESE IN SCRIPTS
     public:
+        typedef void(SpellScript::*SpellEffectFnType)(SpellEffIndex);
+        typedef void(SpellScript::*SpellHitFnType)();
+
         class EffectHandler : public  _SpellScript::EffectNameCheck, public _SpellScript::EffectHook
         {
             public:
-                EffectHandler(EffectHandlerFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName);
+                EffectHandler(SpellEffectFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName);
                 std::string ToString();
                 bool CheckEffect(SpellEntry const * spellEntry, uint8 effIndex);
                 void Call(SpellScript * spellScript, SpellEffIndex effIndex);
             private:
-                EffectHandlerFnType pEffectHandlerScript;
+                SpellEffectFnType pEffectHandlerScript;
         };
-        typedef HitHandlerFnType HitHandler;
+        typedef SpellHitFnType HitHandler;
     public:
         bool _Validate(SpellEntry const * entry, const char * scriptname);
         bool _Load(Spell * spell);
@@ -125,22 +130,23 @@ class SpellScript : public _SpellScript
         // SpellScript interface
         // hooks to which you can attach your functions
         //
-        // List of functions registered by EffectHandlerFn
-        // allows more than one hook
-        // example EffectHandlers += EffectHandlerFn(class::function, EffectIndexSpecifier, EffectNameSpecifier);
-        HookList<EffectHandler> EffectHandlers;
-        // List of functions registered by HitHandlerFn
-        // allows more than one hook
-        // example: BeforeHit += HitHandlerFn(class::function);
+        // example: OnEffect += SpellEffectFn(class::function, EffectIndexSpecifier, EffectNameSpecifier);
+        // where function is void function(SpellEffIndex effIndex)
+        HookList<EffectHandler> OnEffect;
+        #define SpellEffectFn(F, I, N) EffectHandler((SpellEffectFnType)&F, I, N)
+
+        // example: BeforeHit += SpellHitFn(class::function);
         HookList<HitHandler> BeforeHit;
-        // example: OnHit += HitHandlerFn(class::function);
+        // example: OnHit += SpellHitFn(class::function);
         HookList<HitHandler> OnHit;
-        // example: AfterHit += HitHandlerFn(class::function);
+        // example: AfterHit += SpellHitFn(class::function);
         HookList<HitHandler> AfterHit;
+        // where function is: void function()
+        #define SpellHitFn(F) (SpellHitFnType)&F
 
         // hooks are executed in following order, at specified event of spell:
         // 1. BeforeHit - executed just before spell hits a target
-        // 2. EffectHandlers - executed just before specified effect handler call
+        // 2. OnEffect - executed just before specified effect handler call
         // 3. OnHit - executed just before spell deals damage and procs auras
         // 4. AfterHit - executed just after spell finishes all it's jobs for target
 
@@ -202,20 +208,193 @@ class SpellScript : public _SpellScript
         // Creates item. Calls Spell::DoCreateItem method.
         void CreateItem(uint32 effIndex, uint32 itemId);
 };
-// SpellScript interface
-//
-// function registering macros, should be used only in Register()
-//
-// EffectHandlerFn
-// called at: Spell hit on unit, just before default effect handler, called for effects matching EffectIndexSpecifier and EffectNameSpecifier conditions
-// hook parameter is current effect index
-// parameters: function to call, EffectIndexSpecifier, EffectNameSpecifier
-#define EffectHandlerFn(F, I, N) EffectHandler((EffectHandlerFnType)&F, I, N)
 
-// HitHandlerFn
-// called at: Spell hit on unit, before or after effect handlers, depends if bound to OnHit or AfterHit
-// parameters: function to call
-#define HitHandlerFn(F) (HitHandlerFnType)&F
+class AuraScript : public _SpellScript
+{
+    // internal use classes & functions
+    // DO NOT OVERRIDE THESE IN SCRIPTS
+    public:
+        typedef void(AuraScript::*AuraEffectApplicationModeFnType)(AuraEffect const *, AuraApplication const *, AuraEffectHandleModes mode);
+        typedef void(AuraScript::*AuraEffectPeriodicFnType)(AuraEffect const *, AuraApplication const *);
+        typedef void(AuraScript::*AuraEffectUpdatePeriodicFnType)(AuraEffect *);
+        typedef void(AuraScript::*AuraEffectCalcAmountFnType)(AuraEffect const *, int32 &, bool &);
+        typedef void(AuraScript::*AuraEffectCalcPeriodicFnType)(AuraEffect const *, bool &, int32 &);
+        typedef void(AuraScript::*AuraEffectCalcSpellModFnType)(AuraEffect const *, SpellModifier *&);
+
+        class EffectBase : public  _SpellScript::EffectAuraNameCheck, public _SpellScript::EffectHook
+        {
+            public:
+                EffectBase(uint8 _effIndex, uint16 _effName);
+                std::string ToString();
+                bool CheckEffect(SpellEntry const * spellEntry, uint8 effIndex);
+        };
+        class EffectPeriodicHandler : public EffectBase
+        {
+            public:
+                EffectPeriodicHandler(AuraEffectPeriodicFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName);
+                void Call(AuraScript * auraScript, AuraEffect const * _aurEff, AuraApplication const * _aurApp);
+            private:
+                AuraEffectPeriodicFnType pEffectHandlerScript;
+        };
+        class EffectUpdatePeriodicHandler : public EffectBase
+        {
+            public:
+                EffectUpdatePeriodicHandler(AuraEffectUpdatePeriodicFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName);
+                void Call(AuraScript * auraScript, AuraEffect * aurEff);
+            private:
+                AuraEffectUpdatePeriodicFnType pEffectHandlerScript;
+        };
+        class EffectCalcAmountHandler : public EffectBase
+        {
+            public:
+                EffectCalcAmountHandler(AuraEffectCalcAmountFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName);
+                void Call(AuraScript * auraScript, AuraEffect const* aurEff, int32 & amount, bool & canBeRecalculated);
+            private:
+                AuraEffectCalcAmountFnType pEffectHandlerScript;
+        };
+        class EffectCalcPeriodicHandler : public EffectBase
+        {
+            public:
+                EffectCalcPeriodicHandler(AuraEffectCalcPeriodicFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName);
+                void Call(AuraScript * auraScript, AuraEffect const* aurEff, bool & isPeriodic, int32 & periodicTimer);
+            private:
+                AuraEffectCalcPeriodicFnType pEffectHandlerScript;
+        };
+        class EffectCalcSpellModHandler : public EffectBase
+        {
+            public:
+                EffectCalcSpellModHandler(AuraEffectCalcSpellModFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName);
+                void Call(AuraScript * auraScript, AuraEffect const* aurEff, SpellModifier *& spellMod);
+            private:
+                AuraEffectCalcSpellModFnType pEffectHandlerScript;
+        };
+        class EffectApplyHandler : public EffectBase
+        {
+            public:
+                EffectApplyHandler(AuraEffectApplicationModeFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName, AuraEffectHandleModes _mode);
+                void Call(AuraScript * auraScript, AuraEffect const * _aurEff, AuraApplication const * _aurApp, AuraEffectHandleModes _mode);
+            private:
+                AuraEffectApplicationModeFnType pEffectHandlerScript;
+                AuraEffectHandleModes mode;
+        };
+    public:
+        bool _Validate(SpellEntry const * entry, const char * scriptname);
+        bool _Load(Aura * aura);
+        void _ResetDefault() { m_default = true; }
+        bool _IsDefaultActionPrevented(SpellEffIndex effIndex) {return !m_default;};
+        bool PreventDefaultAction() { m_default = false; };
+    private:
+        Aura * m_aura;
+        bool m_default;
+    public:
+        //
+        // AuraScript interface
+        // hooks to which you can attach your functions
+        //
+        // executed when periodic aura effect is applied with specified mode to target
+        // example: OnEffectApply += AuraEffectApplyFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier, AuraEffectHandleModes);
+        HookList<EffectApplyHandler> OnEffectApply;
+        #define AuraEffectApplyFn(F, I, N, M) EffectApplyHandler((AuraEffectApplicationModeFnType)&F, I, N, M)
+
+        // executed when periodic aura effect is removed with specified mode from target
+        // example: OnEffectRemove += AuraEffectRemoveFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier, AuraEffectHandleModes);
+        // where function is: void function (AuraEffect const * aurEff, AuraApplication const * aurApp, AuraEffectHandleModes mode);
+        HookList<EffectApplyHandler> OnEffectRemove;
+        #define AuraEffectRemoveFn(F, I, N, M) EffectApplyHandler((AuraEffectApplicationModeFnType)&F, I, N, M)
+
+        // executed when periodic aura effect ticks on target
+        // example: OnEffectPeriodic += AuraEffectPeriodicFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier);
+        // where function is: void function (AuraEffect const * aurEff, AuraApplication const * aurApp, AuraEffectHandleModes mode);
+        HookList<EffectPeriodicHandler> OnEffectPeriodic;
+        #define AuraEffectPeriodicFn(F, I, N) EffectPeriodicHandler((AuraEffectPeriodicFnType)&F, I, N)
+
+        // executed when periodic aura effect is updated
+        // example: OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier);
+        // where function is: void function (AuraEffect const * aurEff, AuraApplication const * aurApp);
+        HookList<EffectUpdatePeriodicHandler> OnEffectUpdatePeriodic;
+        #define AuraEffectUpdatePeriodicFn(F, I, N) EffectUpdatePeriodicHandler((AuraEffectUpdatePeriodicFnType)&F, I, N)
+
+        // executed when aura effect calculates amount
+        // example: OnEffectCalcAmount += AuraEffectCalcAmounFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier);
+        // where function is: void function (AuraEffect * aurEff, int32 & amount, bool & canBeRecalculated);
+        HookList<EffectCalcAmountHandler> OnEffectCalcAmount;
+        #define AuraEffectCalcAmountFn(F, I, N) EffectCalcAmountHandler((AuraEffectCalcAmountFnType)&F, I, N)
+
+        // executed when aura effect calculates periodic data
+        // example: OnEffectCalcPeriodic += AuraEffectCalcPeriodicFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier);
+        // where function is: void function (AuraEffect const * aurEff, bool & isPeriodic, int32 & amplitude);
+        HookList<EffectCalcPeriodicHandler> OnEffectCalcPeriodic;
+        #define AuraEffectCalcPeriodicFn(F, I, N) EffectCalcPeriodicHandler((AuraEffectCalcPeriodicFnType)&F, I, N)
+
+        // executed when aura effect calculates spellmod
+        // example: OnEffectCalcSpellMod += AuraEffectCalcSpellModFn(class::function, EffectIndexSpecifier, EffectAuraNameSpecifier);
+        // where function is: void function (AuraEffect const * aurEff, SpellModifier *& spellMod);
+        HookList<EffectCalcSpellModHandler> OnEffectCalcSpellMod;
+        #define AuraEffectCalcSpellModFn(F, I, N) EffectCalcSpellModHandler((AuraEffectCalcSpellModFnType)&F, I, N)
+
+        // AuraScript interface - functions which are redirecting to Aura class
+
+        // returns proto of the spell
+        SpellEntry const* GetSpellProto() const;
+        // returns spellid of the spell
+        uint32 GetId() const;
+
+        // returns guid of object which casted the aura (m_originalCaster of the Spell class)
+        uint64 const& GetCasterGUID() const;
+        // returns unit which casted the aura or NULL if not avalible (caster logged out for example)
+        Unit* GetCaster() const;
+        // returns object on which aura was casted, target for non-area auras, area aura source for area auras
+        WorldObject * GetOwner() const;
+        // returns owner if it's unit, NULL otherwise
+        Unit * GetUnitOwner() const;
+        // returns owner if it's dynobj, NULL otherwise
+        DynamicObject * GetDynobjOwner() const;
+
+        // removes aura with remove mode (see AuraRemoveMode enum)
+        void Remove(uint32 removeMode = 0);
+        // returns aura object of script
+        Aura * GetAura() const;
+
+        // returns type of the aura, may be dynobj owned aura or unit owned aura
+        AuraObjectType GetType() const;
+
+        // aura duration manipulation - when duration goes to 0 aura is removed
+        int32 GetDuration() const;
+        void SetDuration(int32 duration, bool withMods = false);
+        // sets duration to maxduration
+        void RefreshDuration();
+        time_t GetApplyTime() const;
+        int32 GetMaxDuration() const;
+        void SetMaxDuration(int32 duration);
+        // expired - duration just went to 0
+        bool IsExpired() const;
+        // permament - has infinite duration
+        bool IsPermanent() const;
+
+        // charges manipulation - 0 - not charged aura
+        uint8 GetCharges() const;
+        void SetCharges(uint8 charges);
+        // returns true if last charge dropped
+        bool DropCharge();
+
+        // stack amount manipulation
+        uint8 GetStackAmount() const;
+        void SetStackAmount(uint8 num, bool applied = true);
+        bool ModStackAmount(int32 num);
+
+        // passive - "working in background", not saved, not removed by immonities, not seen by player
+        bool IsPassive() const;
+        // death persistent - not removed on death
+        bool IsDeathPersistent() const;
+
+        // check if aura has effect of given effindex
+        bool HasEffect(uint8 effIndex) const;
+        // returns aura effect of given effect index or NULL
+        AuraEffect * GetEffect(uint8 effIndex) const;
+
+        // check if aura has effect of given aura type
+        bool HasEffectType(AuraType type) const;
+};
 
 //
 // definitions:

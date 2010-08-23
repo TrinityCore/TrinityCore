@@ -9,15 +9,6 @@ class Aura;
 
 #include "SpellAuras.h"
 
-#define AURA_EFFECT_HANDLE_DEFAULT 0
-#define AURA_EFFECT_HANDLE_REAL 0x01
-#define AURA_EFFECT_HANDLE_SEND_FOR_CLIENT 0x02
-#define AURA_EFFECT_HANDLE_CHANGE_AMOUNT 0x04
-#define AURA_EFFECT_HANDLE_STAT 0x08
-#define AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK (AURA_EFFECT_HANDLE_SEND_FOR_CLIENT | AURA_EFFECT_HANDLE_REAL)
-#define AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK (AURA_EFFECT_HANDLE_CHANGE_AMOUNT | AURA_EFFECT_HANDLE_REAL)
-#define AURA_EFFECT_HANDLE_CHANGE_AMOUNT_SEND_FOR_CLIENT_MASK  (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK)
-
 typedef void(AuraEffect::*pAuraEffectHandler)(AuraApplication const * aurApp, uint8 mode, bool apply) const;
 
 class AuraEffect
@@ -91,11 +82,11 @@ class AuraEffect
         int32 const m_baseAmount;
 
         int32 m_amount;
-        bool m_canBeRecalculated:1;
+        bool m_canBeRecalculated;
 
         SpellModifier *m_spellmod;
 
-        bool m_isPeriodic:1;
+        bool m_isPeriodic;
         int32 m_periodicTimer;
         int32 m_amplitude;
         uint32 m_tickNumber;

@@ -33,10 +33,10 @@ enum DeathKnightSpells
 };
 
 // 49158 Corpse Explosion (51325, 51326, 51327, 51328)
-class spell_dk_corpse_explosion : public SpellHandlerScript
+class spell_dk_corpse_explosion : public SpellScriptLoader
 {
 public:
-    spell_dk_corpse_explosion() : SpellHandlerScript("spell_dk_corpse_explosion") { }
+    spell_dk_corpse_explosion() : SpellScriptLoader("spell_dk_corpse_explosion") { }
 
     class spell_dk_corpse_explosion_SpellScript : public SpellScript
     {
@@ -68,7 +68,7 @@ public:
 
         void Register()
         {
-            EffectHandlers += EffectHandlerFn(spell_dk_corpse_explosion_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffect += SpellEffectFn(spell_dk_corpse_explosion_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -79,10 +79,10 @@ public:
 };
 
 // 50524 Runic Power Feed (keeping Gargoyle alive)
-class spell_dk_runic_power_feed : public SpellHandlerScript
+class spell_dk_runic_power_feed : public SpellScriptLoader
 {
 public:
-    spell_dk_runic_power_feed() : SpellHandlerScript("spell_dk_runic_power_feed") { }
+    spell_dk_runic_power_feed() : SpellScriptLoader("spell_dk_runic_power_feed") { }
 
     class spell_dk_runic_power_feed_SpellScript : public SpellScript
     {
@@ -107,7 +107,7 @@ public:
 
         void Register()
         {
-            EffectHandlers += EffectHandlerFn(spell_dk_runic_power_feed_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffect += SpellEffectFn(spell_dk_runic_power_feed_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -118,10 +118,10 @@ public:
 };
 
 // 55090 Scourge Strike (55265, 55270, 55271)
-class spell_dk_scourge_strike : public SpellHandlerScript
+class spell_dk_scourge_strike : public SpellScriptLoader
 {
 public:
-    spell_dk_scourge_strike() : SpellHandlerScript("spell_dk_scourge_strike") { }
+    spell_dk_scourge_strike() : SpellScriptLoader("spell_dk_scourge_strike") { }
 
     class spell_dk_scourge_strike_SpellScript : public SpellScript
     {
@@ -144,7 +144,7 @@ public:
 
         void Register()
         {
-            EffectHandlers += EffectHandlerFn(spell_dk_scourge_strike_SpellScript::HandleDummy, EFFECT_2, SPELL_EFFECT_DUMMY);
+            OnEffect += SpellEffectFn(spell_dk_scourge_strike_SpellScript::HandleDummy, EFFECT_2, SPELL_EFFECT_DUMMY);
         }
     };
 

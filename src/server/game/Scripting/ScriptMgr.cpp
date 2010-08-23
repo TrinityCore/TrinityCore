@@ -148,8 +148,7 @@ ScriptMgr::~ScriptMgr()
         SCR_REG_LST(T).clear();
 
     // Clear scripts for every script type.
-    SCR_CLEAR(SpellHandlerScript);
-    SCR_CLEAR(AuraHandlerScript);
+    SCR_CLEAR(SpellScriptLoader);
     SCR_CLEAR(ServerScript);
     SCR_CLEAR(WorldScript);
     SCR_CLEAR(FormulaScript);
@@ -296,42 +295,50 @@ void ScriptMgr::CreateSpellScripts(uint32 spell_id, std::list<SpellScript *> & s
 
     for (SpellScriptsMap::iterator itr = bounds.first; itr != bounds.second; ++itr)
     {
-        SpellHandlerScript* tmpscript = ScriptRegistry<SpellHandlerScript>::GetScriptById(itr->second);
+        SpellScriptLoader* tmpscript = ScriptRegistry<SpellScriptLoader>::GetScriptById(itr->second);
         if (!tmpscript)
             continue;
 
         SpellScript* script = tmpscript->GetSpellScript();
 
         if (!script)
-        {
-            sLog.outError("Spell script %s for spell %u returned a NULL SpellScript pointer!", tmpscript->GetName().c_str(), spell_id);
             continue;
-        }
 
         script_vector.push_back(script);
     }
 }
 
-void ScriptMgr::CreateSpellScripts(uint32 spell_id, std::vector<std::pair<SpellScript *, SpellScriptsMap::iterator> > & script_vector)
+void ScriptMgr::CreateAuraScripts(uint32 spell_id, std::list<AuraScript *> & script_vector)
+{
+    SpellScriptsBounds bounds = sObjectMgr.GetSpellScriptsBounds(spell_id);
+
+    for (SpellScriptsMap::iterator itr = bounds.first; itr != bounds.second; ++itr)
+    {
+        SpellScriptLoader* tmpscript = ScriptRegistry<SpellScriptLoader>::GetScriptById(itr->second);
+        if (!tmpscript)
+            continue;
+
+        AuraScript* script = tmpscript->GetAuraScript();
+
+        if (!script)
+            continue;
+
+        script_vector.push_back(script);
+    }
+}
+
+void ScriptMgr::CreateSpellScriptLoaders(uint32 spell_id, std::vector<std::pair<SpellScriptLoader *, SpellScriptsMap::iterator> > & script_vector)
 {
     SpellScriptsBounds bounds = sObjectMgr.GetSpellScriptsBounds(spell_id);
     script_vector.reserve(std::distance(bounds.first, bounds.second));
 
     for (SpellScriptsMap::iterator itr = bounds.first; itr != bounds.second; ++itr)
     {
-        SpellHandlerScript* tmpscript = ScriptRegistry<SpellHandlerScript>::GetScriptById(itr->second);
+        SpellScriptLoader* tmpscript = ScriptRegistry<SpellScriptLoader>::GetScriptById(itr->second);
         if (!tmpscript)
             continue;
 
-        SpellScript* script = tmpscript->GetSpellScript();
-
-        if (!script)
-        {
-            sLog.outError("Spell script %s for spell %u returned a NULL SpellScript pointer!", tmpscript->GetName().c_str(), spell_id);
-            continue;
-        }
-
-        script_vector.push_back(std::make_pair(script, itr));
+        script_vector.push_back(std::make_pair(tmpscript, itr));
     }
 }
 
@@ -1154,16 +1161,10 @@ void ScriptMgr::OnGuildDisband(Guild *guild)
     FOREACH_SCRIPT(GuildScript)->OnDisband(guild);
 }
 
-SpellHandlerScript::SpellHandlerScript(const char* name)
+SpellScriptLoader::SpellScriptLoader(const char* name)
     : ScriptObject(name)
 {
-    ScriptMgr::ScriptRegistry<SpellHandlerScript>::AddScript(this);
-}
-
-AuraHandlerScript::AuraHandlerScript(const char* name)
-    : ScriptObject(name)
-{
-    ScriptMgr::ScriptRegistry<AuraHandlerScript>::AddScript(this);
+    ScriptMgr::ScriptRegistry<SpellScriptLoader>::AddScript(this);
 }
 
 ServerScript::ServerScript(const char* name)
@@ -1312,8 +1313,7 @@ template<class TScript> std::map<uint32, TScript*> ScriptMgr::ScriptRegistry<TSc
 template<class TScript> uint32 ScriptMgr::ScriptRegistry<TScript>::_scriptIdCounter = 0;
 
 // Specialize for each script type class like so:
-template class ScriptMgr::ScriptRegistry<SpellHandlerScript>;
-template class ScriptMgr::ScriptRegistry<AuraHandlerScript>;
+template class ScriptMgr::ScriptRegistry<SpellScriptLoader>;
 template class ScriptMgr::ScriptRegistry<ServerScript>;
 template class ScriptMgr::ScriptRegistry<WorldScript>;
 template class ScriptMgr::ScriptRegistry<FormulaScript>;
