@@ -311,7 +311,7 @@ struct VendorItem
         : item(_item), maxcount(_maxcount), incrtime(_incrtime), ExtendedCost(_ExtendedCost) {}
 
     uint32 item;
-    int32  maxcount;                                        // 0 for infinity item amount
+    uint32  maxcount;                                       // 0 for infinity item amount
     uint32 incrtime;                                        // time for restore items amount if maxcount != 0
     uint32 ExtendedCost;
 

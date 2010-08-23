@@ -171,11 +171,14 @@ void PlayerMenu::SendGossipMenu(uint32 TitleTextId, uint64 objectGUID)
         data << uint8(0);                                   // 3.3.3 changes icon: blue question or yellow exclamation
         std::string Title = pQuest->GetTitle();
 
-        int loc_idx = pSession->GetSessionDbLocaleIndex();
+        int8 loc_idx = pSession->GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
+        {
+            uint8 uloc_idx = uint8(loc_idx);
             if (QuestLocale const *ql = sObjectMgr.GetQuestLocale(questID))
-                if (ql->Title.size() > loc_idx && !ql->Title[loc_idx].empty())
-                    Title = ql->Title[loc_idx];
+                if (ql->Title.size() > uloc_idx && !ql->Title[uloc_idx].empty())
+                    Title = ql->Title[uloc_idx];
+        }
         data << Title;                                      // max 0x200
     }
 
@@ -214,14 +217,15 @@ void PlayerMenu::SendPointOfInterest(uint32 poi_id)
 
     std::string icon_name = poi->icon_name;
 
-    int loc_idx = pSession->GetSessionDbLocaleIndex();
+    int8 loc_idx = pSession->GetSessionDbLocaleIndex();
     if (loc_idx >= 0)
     {
+        uint8 uloc_idx = uint8(loc_idx);
         PointOfInterestLocale const *pl = sObjectMgr.GetPointOfInterestLocale(poi_id);
         if (pl)
         {
-            if (pl->IconName.size() > size_t(loc_idx) && !pl->IconName[loc_idx].empty())
-                icon_name = pl->IconName[loc_idx];
+            if (pl->IconName.size() > uloc_idx && !pl->IconName[uloc_idx].empty())
+                icon_name = pl->IconName[uloc_idx];
         }
     }
 
@@ -268,18 +272,19 @@ void PlayerMenu::SendTalking(uint32 textID)
             Text_0[i]=pGossip->Options[i].Text_0;
             Text_1[i]=pGossip->Options[i].Text_1;
         }
-        int loc_idx = pSession->GetSessionDbLocaleIndex();
+        int8 loc_idx = pSession->GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
         {
+            uint8 uloc_idx = uint8(loc_idx);
             NpcTextLocale const *nl = sObjectMgr.GetNpcTextLocale(textID);
             if (nl)
             {
                 for (int i=0; i<8; ++i)
                 {
-                    if (nl->Text_0[i].size() > loc_idx && !nl->Text_0[i][loc_idx].empty())
-                        Text_0[i]=nl->Text_0[i][loc_idx];
-                    if (nl->Text_1[i].size() > loc_idx && !nl->Text_1[i][loc_idx].empty())
-                        Text_1[i]=nl->Text_1[i][loc_idx];
+                    if (nl->Text_0[i].size() > uloc_idx && !nl->Text_0[i][uloc_idx].empty())
+                        Text_0[i]=nl->Text_0[i][uloc_idx];
+                    if (nl->Text_1[i].size() > uloc_idx && !nl->Text_1[i][uloc_idx].empty())
+                        Text_1[i]=nl->Text_1[i][uloc_idx];
                 }
             }
         }
@@ -401,13 +406,14 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title
         {
             std::string title = pQuest->GetTitle();
 
-            int loc_idx = pSession->GetSessionDbLocaleIndex();
+            int8 loc_idx = pSession->GetSessionDbLocaleIndex();
             if (loc_idx >= 0)
             {
+                uint8 uloc_idx = uint8(loc_idx);
                 if (QuestLocale const *ql = sObjectMgr.GetQuestLocale(questID))
                 {
-                    if (ql->Title.size() > (size_t)loc_idx && !ql->Title[loc_idx].empty())
-                        title = ql->Title[loc_idx];
+                    if (ql->Title.size() > uloc_idx && !ql->Title[uloc_idx].empty())
+                        title = ql->Title[uloc_idx];
                 }
             }
 
@@ -442,20 +448,21 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const *pQuest, uint64 npcGUID,
     std::string Objectives = pQuest->GetObjectives();
     std::string EndText    = pQuest->GetEndText();
 
-    int loc_idx = pSession->GetSessionDbLocaleIndex();
+    int8 loc_idx = pSession->GetSessionDbLocaleIndex();
     if (loc_idx >= 0)
     {
+        uint8 uloc_idx = uint8(loc_idx);
         QuestLocale const *ql = sObjectMgr.GetQuestLocale(pQuest->GetQuestId());
         if (ql)
         {
-            if (ql->Title.size() > loc_idx && !ql->Title[loc_idx].empty())
-                Title=ql->Title[loc_idx];
-            if (ql->Details.size() > loc_idx && !ql->Details[loc_idx].empty())
-                Details=ql->Details[loc_idx];
-            if (ql->Objectives.size() > loc_idx && !ql->Objectives[loc_idx].empty())
-                Objectives=ql->Objectives[loc_idx];
-            if (ql->EndText.size() > loc_idx && !ql->EndText[loc_idx].empty())
-                EndText=ql->EndText[loc_idx];
+            if (ql->Title.size() > uloc_idx && !ql->Title[uloc_idx].empty())
+                Title=ql->Title[uloc_idx];
+            if (ql->Details.size() > uloc_idx && !ql->Details[uloc_idx].empty())
+                Details=ql->Details[uloc_idx];
+            if (ql->Objectives.size() > uloc_idx && !ql->Objectives[uloc_idx].empty())
+                Objectives=ql->Objectives[uloc_idx];
+            if (ql->EndText.size() > uloc_idx && !ql->EndText[uloc_idx].empty())
+                EndText=ql->EndText[uloc_idx];
         }
     }
 
@@ -566,23 +573,24 @@ void PlayerMenu::SendQuestQueryResponse(Quest const *pQuest)
     int loc_idx = pSession->GetSessionDbLocaleIndex();
     if (loc_idx >= 0)
     {
+        uint8 uloc_idx = uint8(loc_idx);
         QuestLocale const *ql = sObjectMgr.GetQuestLocale(pQuest->GetQuestId());
         if (ql)
         {
-            if (ql->Title.size() > loc_idx && !ql->Title[loc_idx].empty())
-                Title=ql->Title[loc_idx];
-            if (ql->Details.size() > loc_idx && !ql->Details[loc_idx].empty())
-                Details=ql->Details[loc_idx];
-            if (ql->Objectives.size() > loc_idx && !ql->Objectives[loc_idx].empty())
-                Objectives=ql->Objectives[loc_idx];
-            if (ql->EndText.size() > loc_idx && !ql->EndText[loc_idx].empty())
-                EndText=ql->EndText[loc_idx];
-            if (ql->CompletedText.size() > (size_t)loc_idx && !ql->CompletedText[loc_idx].empty())
-                CompletedText=ql->CompletedText[loc_idx];
+            if (ql->Title.size() > uloc_idx && !ql->Title[uloc_idx].empty())
+                Title=ql->Title[uloc_idx];
+            if (ql->Details.size() > uloc_idx && !ql->Details[uloc_idx].empty())
+                Details=ql->Details[uloc_idx];
+            if (ql->Objectives.size() > uloc_idx && !ql->Objectives[uloc_idx].empty())
+                Objectives=ql->Objectives[uloc_idx];
+            if (ql->EndText.size() > uloc_idx && !ql->EndText[uloc_idx].empty())
+                EndText=ql->EndText[uloc_idx];
+            if (ql->CompletedText.size() > uloc_idx && !ql->CompletedText[uloc_idx].empty())
+                CompletedText=ql->CompletedText[uloc_idx];
 
             for (int i=0; i<QUEST_OBJECTIVES_COUNT; ++i)
-                if (ql->ObjectiveText[i].size() > loc_idx && !ql->ObjectiveText[i][loc_idx].empty())
-                    ObjectiveText[i]=ql->ObjectiveText[i][loc_idx];
+                if (ql->ObjectiveText[i].size() > uloc_idx && !ql->ObjectiveText[i][uloc_idx].empty())
+                    ObjectiveText[i]=ql->ObjectiveText[i][uloc_idx];
         }
     }
 
@@ -706,13 +714,14 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* pQuest, uint64 npcGUID, 
     int loc_idx = pSession->GetSessionDbLocaleIndex();
     if (loc_idx >= 0)
     {
+        uint8 uloc_idx = uint8(loc_idx);
         QuestLocale const *ql = sObjectMgr.GetQuestLocale(pQuest->GetQuestId());
         if (ql)
         {
-            if (ql->Title.size() > loc_idx && !ql->Title[loc_idx].empty())
-                Title=ql->Title[loc_idx];
-            if (ql->OfferRewardText.size() > loc_idx && !ql->OfferRewardText[loc_idx].empty())
-                OfferRewardText=ql->OfferRewardText[loc_idx];
+            if (ql->Title.size() > uloc_idx && !ql->Title[uloc_idx].empty())
+                Title=ql->Title[uloc_idx];
+            if (ql->OfferRewardText.size() > uloc_idx && !ql->OfferRewardText[uloc_idx].empty())
+                OfferRewardText=ql->OfferRewardText[uloc_idx];
         }
     }
 
@@ -809,13 +818,14 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const *pQuest, uint64 npcGUID,
     int loc_idx = pSession->GetSessionDbLocaleIndex();
     if (loc_idx >= 0)
     {
+        uint8 uloc_idx = uint8(loc_idx);
         QuestLocale const *ql = sObjectMgr.GetQuestLocale(pQuest->GetQuestId());
         if (ql)
         {
-            if (ql->Title.size() > loc_idx && !ql->Title[loc_idx].empty())
-                Title=ql->Title[loc_idx];
-            if (ql->RequestItemsText.size() > loc_idx && !ql->RequestItemsText[loc_idx].empty())
-                RequestItemsText=ql->RequestItemsText[loc_idx];
+            if (ql->Title.size() > uloc_idx && !ql->Title[uloc_idx].empty())
+                Title=ql->Title[uloc_idx];
+            if (ql->RequestItemsText.size() > uloc_idx && !ql->RequestItemsText[uloc_idx].empty())
+                RequestItemsText=ql->RequestItemsText[uloc_idx];
         }
     }
 
