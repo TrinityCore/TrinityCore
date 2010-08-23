@@ -11905,15 +11905,21 @@ bool Unit::canAttack(Unit const* target, bool force) const
     {
         if (IsFriendlyTo(target))
             return false;
+
         if (GetTypeId()!=TYPEID_PLAYER)
-            if (!IsHostileTo(target))
+        {
+            if (isPet())
+            {
+                if (Unit *owner = GetOwner())
+                    if (!(owner->canAttack(target)))
+                        return false;
+            }
+            else if (!IsHostileTo(target))
                 return false;
+        }
     }
     else if (!IsHostileTo(target))
         return false;
-
-    //if (m_Vehicle && m_Vehicle == target->m_Vehicle)
-    //    return true;
 
     if (!target->isAttackableByAOE() || target->hasUnitState(UNIT_STAT_DIED))
         return false;
