@@ -1514,7 +1514,7 @@ struct BG_AV_NodeInfo
     uint16       PrevOwner;
     BG_AV_States State;
     BG_AV_States PrevState;
-    int          Timer;
+    uint         Timer;
     bool         Tower;
 };
 
