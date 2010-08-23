@@ -1314,7 +1314,7 @@ public:
             case GOSSIP_OPTION_LEARNDUALSPEC:
                 if (pPlayer->GetSpecsCount() == 1 && !(pPlayer->getLevel() < sWorld.getConfig(CONFIG_MIN_DUALSPEC_LEVEL)))
                 {
-                    if (pPlayer->GetMoney() < 10000000)
+                    if (!pPlayer->HasEnoughMoney(10000000))
                     {
                         pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
                         pPlayer->PlayerTalkClass->CloseGossip();
@@ -2582,7 +2582,7 @@ public:
         }
         if (doSwitch)
         {
-            if (pPlayer->GetMoney() < EXP_COST)
+            if (!pPlayer->HasEnoughMoney(EXP_COST))
                 pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
             else if (noXPGain)
             {

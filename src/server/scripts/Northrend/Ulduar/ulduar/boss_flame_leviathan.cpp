@@ -1151,12 +1151,12 @@ public:
             // Start encounter
             if (uiAction == 0)
             {
-                for(uint32 i = 0; i < (RAID_MODE(2,5)); ++i)
-                    DoSummon(VEHICLE_SIEGE, PosSiege[i],3000,TEMPSUMMON_CORPSE_TIMED_DESPAWN);
-                for(uint32 i = 0; i < (RAID_MODE(2,5)); ++i)
-                    DoSummon(VEHICLE_CHOPPER, PosChopper[i],3000,TEMPSUMMON_CORPSE_TIMED_DESPAWN);
-                for(uint32 i = 0; i < (RAID_MODE(2,5)); ++i)
-                    DoSummon(VEHICLE_DEMOLISHER,PosDemolisher[i],3000,TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                for (int32 i = 0; i < RAID_MODE(2, 5); ++i)
+                    DoSummon(VEHICLE_SIEGE, PosSiege[i], 3000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                for (int32 i = 0; i < RAID_MODE(2, 5); ++i)
+                    DoSummon(VEHICLE_CHOPPER, PosChopper[i], 3000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                for (int32 i = 0; i < RAID_MODE(2, 5); ++i)
+                    DoSummon(VEHICLE_DEMOLISHER, PosDemolisher[i], 3000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
                 return;
             }
         }

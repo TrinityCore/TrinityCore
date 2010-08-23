@@ -3367,7 +3367,7 @@ bool ChatHandler::HandleLookupCreatureCommand(const char *args)
         int loc_idx = GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
         {
-            uint8 uloc_idx = uint8(uloc_idx);
+            uint8 uloc_idx = uint8(loc_idx);
             CreatureLocale const *cl = sObjectMgr.GetCreatureLocale (id);
             if (cl)
             {
@@ -3438,7 +3438,7 @@ bool ChatHandler::HandleLookupObjectCommand(const char *args)
         int loc_idx = GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
         {
-            uint8 uloc_idx = uint8(uloc_idx);
+            uint8 uloc_idx = uint8(loc_idx);
             GameObjectLocale const *gl = sObjectMgr.GetGameObjectLocale(id);
             if (gl)
             {

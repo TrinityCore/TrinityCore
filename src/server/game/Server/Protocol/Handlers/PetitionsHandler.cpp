@@ -179,7 +179,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
         return;
     }
 
-    if (_player->GetMoney() < cost)
+    if (!_player->HasEnoughMoney(cost))
     {                                                       //player hasn't got enough money
         _player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, charterid, 0);
         return;
