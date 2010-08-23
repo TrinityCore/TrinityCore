@@ -771,7 +771,7 @@ void WorldSession::SendListInventory(uint64 vendorguid)
                 // `item_template`.`Faction` is actually `Team`.
                 // 1 == Horde / 2 == Alliance. Field will be renamed in later
                 // patch.
-                if (pProto->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY && _player->GetTeam() == ALLIANCE || pProto->Flags2 == ITEM_FLAGS_EXTRA_ALLIANCE_ONLY && _player->GetTeam() == HORDE && !_player->isGameMaster())
+                if (!_player->isGameMaster() && ((pProto->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY && _player->GetTeam() == ALLIANCE) || (pProto->Flags2 == ITEM_FLAGS_EXTRA_ALLIANCE_ONLY && _player->GetTeam() == HORDE)))
                     continue;
                 ++count;
 
