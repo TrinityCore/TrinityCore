@@ -1985,7 +1985,7 @@ bool Creature::_IsTargetAcceptable(const Unit *target) const
 
 void Creature::SaveRespawnTime()
 {
-    if (isSummon() || !m_DBTableGuid || m_creatureData && !m_creatureData->dbData)
+    if (isSummon() || !m_DBTableGuid || (m_creatureData && !m_creatureData->dbData))
         return;
 
     if (m_respawnTime > time(NULL))                          // dead (no corpse)
@@ -2321,7 +2321,7 @@ uint32 Creature::GetVendorItemCurrentCount(VendorItem const* vItem)
 
     time_t ptime = time(NULL);
 
-    if (vCount->lastIncrementTime + vItem->incrtime <= ptime)
+    if (time_t(vCount->lastIncrementTime + vItem->incrtime) <= ptime)
     {
         ItemPrototype const* pProto = sObjectMgr.GetItemPrototype(vItem->item);
 
@@ -2351,7 +2351,7 @@ uint32 Creature::UpdateVendorItemCurrentCount(VendorItem const* vItem, uint32 us
 
     if (itr == m_vendorItemCounts.end())
     {
-        int32 new_count = vItem->maxcount > used_count ? vItem->maxcount-used_count : 0;
+        uint32 new_count = vItem->maxcount > used_count ? vItem->maxcount-used_count : 0;
         m_vendorItemCounts.push_back(VendorItemCount(vItem->item,new_count));
         return new_count;
     }
@@ -2386,11 +2386,12 @@ const char* Creature::GetNameForLocaleIdx(int32 loc_idx) const
 {
     if (loc_idx >= 0)
     {
+        uint8 uloc_idx = uint8(loc_idx);
         CreatureLocale const *cl = sObjectMgr.GetCreatureLocale(GetEntry());
         if (cl)
         {
-            if (cl->Name.size() > loc_idx && !cl->Name[loc_idx].empty())
-                return cl->Name[loc_idx].c_str();
+            if (cl->Name.size() > uloc_idx && !cl->Name[uloc_idx].empty())
+                return cl->Name[uloc_idx].c_str();
         }
     }
 
