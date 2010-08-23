@@ -75,7 +75,7 @@ Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
                     uint64 banned_guid = atol((*iter).c_str());
                     if (banned_guid)
                     {
-                        sLog.outDebug("Channel(%s) loaded banned guid: %u",name.c_str(), banned_guid);
+                        sLog.outDebug("Channel(%s) loaded banned guid:" UI64FMTD "",name.c_str(), banned_guid);
                         banned.insert(banned_guid);
                     }
                 }
@@ -552,7 +552,7 @@ void Channel::List(Player* player)
 
             // PLAYER can't see MODERATOR, GAME MASTER, ADMINISTRATOR characters
             // MODERATOR, GAME MASTER, ADMINISTRATOR can see all
-            if (plr && (player->GetSession()->GetSecurity() > SEC_PLAYER || plr->GetSession()->GetSecurity() <= gmLevelInWhoList) &&
+            if (plr && (player->GetSession()->GetSecurity() > SEC_PLAYER || plr->GetSession()->GetSecurity() <= AccountTypes(gmLevelInWhoList)) &&
                 plr->IsVisibleGloballyFor(player))
             {
                 data << uint64(i->first);

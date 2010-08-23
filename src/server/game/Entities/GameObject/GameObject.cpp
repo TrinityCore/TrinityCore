@@ -1041,11 +1041,13 @@ void GameObject::Use(Unit* user)
                 return;
 
             if (!ChairListSlots.size())        // this is called once at first chair use to make list of available slots
+            {
                 if (info->chair.slots > 0)     // sometimes chairs in DB have error in fields and we dont know number of slots
                     for (uint32 i = 0; i < info->chair.slots; ++i)
                         ChairListSlots[i] = 0; // Last user of current slot set to 0 (none sit here yet)
                 else
                     ChairListSlots[0] = 0;     // error in DB, make one default slot
+            }
 
             Player* player = (Player*)user;
 
@@ -1071,6 +1073,7 @@ void GameObject::Use(Unit* user)
                 float y_i = GetPositionY() + relativeDistance * sin(orthogonalOrientation);
 
                 if (itr->second)
+                {
                     if (Player* ChairUser = sObjectMgr.GetPlayer(itr->second))
                         if (ChairUser->IsSitState() && ChairUser->getStandState() != UNIT_STAND_STATE_SIT && ChairUser->GetExactDist2d(x_i, y_i) < 0.1f)
                             continue;        // This seat is already occupied by ChairUser. NOTE: Not sure if the ChairUser->getStandState() != UNIT_STAND_STATE_SIT check is required.
@@ -1078,6 +1081,7 @@ void GameObject::Use(Unit* user)
                             itr->second = 0; // This seat is unoccupied.
                     else
                         itr->second = 0;     // The seat may of had an occupant, but they're offline.
+                }
 
                 found_free_slot = true;
 
@@ -1703,9 +1707,12 @@ void GameObject::EventInform(uint32 eventId)
 const char* GameObject::GetNameForLocaleIdx(int32 loc_idx) const
 {
     if (loc_idx >= 0)
+    {
+        uint8 uloc_idx = uint8(loc_idx);
         if (GameObjectLocale const *cl = sObjectMgr.GetGameObjectLocale(GetEntry()))
-            if (cl->Name.size() > loc_idx && !cl->Name[loc_idx].empty())
-                return cl->Name[loc_idx].c_str();
+            if (cl->Name.size() > uloc_idx && !cl->Name[uloc_idx].empty())
+                return cl->Name[uloc_idx].c_str();
+    }
 
     return GetName();
 }

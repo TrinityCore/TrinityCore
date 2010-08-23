@@ -781,7 +781,7 @@ void BattlegroundMgr::InitAutomaticArenaPointDistribution()
     if (!sWorld.getConfig(CONFIG_ARENA_AUTO_DISTRIBUTE_POINTS))
         return;
 
-    uint64 wstime = sWorld.getWorldState(WS_ARENA_DISTRIBUTION_TIME);
+    time_t wstime = time_t(sWorld.getWorldState(WS_ARENA_DISTRIBUTION_TIME));
     time_t curtime = time(NULL);
     sLog.outDebug("Initializing Automatic Arena Point Distribution");
     if (wstime < curtime)
@@ -790,7 +790,7 @@ void BattlegroundMgr::InitAutomaticArenaPointDistribution()
         sLog.outDebug("Battleground: Next arena point distribution time in the past, reseting it now.");
     }
     else
-        m_NextAutoDistributionTime = time_t(wstime);
+        m_NextAutoDistributionTime = wstime;
     sLog.outDebug("Automatic Arena Point Distribution initialized.");
 }
 

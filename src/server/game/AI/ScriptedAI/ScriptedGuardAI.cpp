@@ -68,6 +68,7 @@ void guardAI::UpdateAI(const uint32 diff)
 
     //Buff timer (only buff when we are alive and not in combat
     if (me->isAlive() && !me->isInCombat())
+    {
         if (BuffTimer <= diff)
         {
             //Find a spell that targets friendly and applies an aura (these are generally buffs)
@@ -86,6 +87,7 @@ void guardAI::UpdateAI(const uint32 diff)
             }                                                   //Try again in 30 seconds
             else BuffTimer = 30000;
         } else BuffTimer -= diff;
+    }
 
     //Return since we have no target
     if (!UpdateVictim())

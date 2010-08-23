@@ -805,7 +805,7 @@ const char *ChatHandler::GetTrinityString(int32 entry) const
 bool ChatHandler::isAvailable(ChatCommand const& cmd) const
 {
     // check security level only for simple  command (without child commands)
-    return m_session->GetSecurity() >= cmd.SecurityLevel;
+    return m_session->GetSecurity() >= AccountTypes(cmd.SecurityLevel);
 }
 
 bool ChatHandler::HasLowerSecurity(Player* target, uint64 guid, bool strong)
@@ -847,7 +847,8 @@ bool ChatHandler::HasLowerSecurityAccount(WorldSession* target, uint32 target_ac
     else
         return true;                                        // caller must report error for (target == NULL && target_account == 0)
 
-    if (m_session->GetSecurity() < target_sec || (strong && m_session->GetSecurity() <= target_sec))
+    AccountTypes target_ac_sec = AccountTypes(target_sec);
+    if (m_session->GetSecurity() < target_ac_sec || (strong && m_session->GetSecurity() <= target_ac_sec))
     {
         SendSysMessage(LANG_YOURS_SECURITY_IS_LOW);
         SetSentErrorMessage(true);
@@ -1658,10 +1659,10 @@ valid examples:
                             ItemLocale const *il = sObjectMgr.GetItemLocale(linkedItem->ItemId);
 
                             bool foundName = false;
-                            for (uint8 i=LOCALE_koKR; i<MAX_LOCALE; ++i)
+                            for (uint8 i = LOCALE_koKR; i < MAX_LOCALE; ++i)
                             {
                                 int8 dbIndex = sObjectMgr.GetIndexForLocale(LocaleConstant(i));
-                                if (dbIndex == -1 || il == NULL || dbIndex >= il->Name.size())
+                                if (dbIndex == -1 || il == NULL || uint8(dbIndex) >= il->Name.size())
                                     // using strange database/client combinations can lead to this case
                                     expectedName = linkedItem->Name1;
                                 else

@@ -241,7 +241,7 @@ extern int main(int argc, char **argv)
     Handler.register_handler(SIGTERM, &SignalTERM);
     #ifdef _WIN32
     Handler.register_handler(SIGBREAK, &SignalBREAK);
-    #endif /* _WIN32 */();
+    #endif /* _WIN32 */
 
     ///- Handle affinity for multiple processors and process priority on Windows
     #ifdef _WIN32

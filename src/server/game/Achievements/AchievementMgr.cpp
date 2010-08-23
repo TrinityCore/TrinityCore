@@ -323,7 +323,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
                 return false;
             return target->ToPlayer()->GetTeam() == team.team;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_DRUNK:
-            return Player::GetDrunkenstateByValue(source->GetDrunkValue()) >= drunk.state;
+            return Player::GetDrunkenstateByValue(source->GetDrunkValue()) >= DrunkenState(drunk.state);
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_HOLIDAY:
             return IsHolidayActive(HolidayIds(holiday.id));
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_BG_LOSS_TEAM_SCORE:

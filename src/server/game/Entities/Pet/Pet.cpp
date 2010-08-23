@@ -510,7 +510,7 @@ void Pet::Update(uint32 diff)
         {
             // unsummon pet that lost owner
             Player* owner = GetOwner();
-            if (!owner || (!IsWithinDistInMap(owner, GetMap()->GetVisibilityDistance()) && !isPossessed()) || isControlled() && !owner->GetPetGUID())
+            if (!owner || (!IsWithinDistInMap(owner, GetMap()->GetVisibilityDistance()) && !isPossessed()) || (isControlled() && !owner->GetPetGUID()))
             //if (!owner || (!IsWithinDistInMap(owner, GetMap()->GetVisibilityDistance()) && (owner->GetCharmGUID() && (owner->GetCharmGUID() != GetGUID()))) || (isControlled() && !owner->GetPetGUID()))
             {
                 Remove(PET_SAVE_NOT_IN_SLOT, true);
@@ -521,7 +521,7 @@ void Pet::Update(uint32 diff)
             {
                 if (owner->GetPetGUID() != GetGUID())
                 {
-                    sLog.outError("Pet %u is not pet of owner %u, removed", GetEntry(), m_owner->GetName());
+                    sLog.outError("Pet %u is not pet of owner %s, removed", GetEntry(), m_owner->GetName());
                     Remove(getPetType() == HUNTER_PET?PET_SAVE_AS_DELETED:PET_SAVE_NOT_IN_SLOT);
                     return;
                 }
@@ -529,7 +529,7 @@ void Pet::Update(uint32 diff)
 
             if (m_duration > 0)
             {
-                if (m_duration > diff)
+                if (uint32(m_duration) > diff)
                     m_duration -= diff;
                 else
                 {

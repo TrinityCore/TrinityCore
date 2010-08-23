@@ -1795,11 +1795,11 @@ Battleground.Random.ResetHour = 6
 #
 #    Arena.ArenaStartRating
 #     Start arena team command rating
-#     Default: 1500
+#     Default: 0
 #
 #    Arena.StartPersonalRating
 #     Start personal rating on entry in team
-#     Default: 1500
+#     Default: 0
 #
 ###############################################################################
 

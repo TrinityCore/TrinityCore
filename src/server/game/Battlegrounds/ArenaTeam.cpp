@@ -46,12 +46,15 @@ ArenaTeam::ArenaTeam()
     m_stats.games_week    = 0;
     m_stats.games_season  = 0;
     m_stats.rank          = 0;
+    /* warning: comparison of unsigned expression >= 0 is always true
     if (sWorld.getConfig(CONFIG_ARENA_START_RATING) >= 0)
     m_stats.rating = sWorld.getConfig(CONFIG_ARENA_START_RATING);
     else if (sWorld.getConfig(CONFIG_ARENA_SEASON_ID) >= 6)
         m_stats.rating    = 0;
     else
         m_stats.rating    = 1500;
+    */
+    m_stats.rating = sWorld.getConfig(CONFIG_ARENA_START_RATING);
     m_stats.wins_week     = 0;
     m_stats.wins_season   = 0;
 }
@@ -67,7 +70,8 @@ bool ArenaTeam::Create(uint64 captainGuid, uint32 type, std::string ArenaTeamNam
     if (sObjectMgr.GetArenaTeamByName(ArenaTeamName))            // arena team with this name already exist
         return false;
 
-    sLog.outDebug("GUILD: creating arena team %s to leader: %u", ArenaTeamName.c_str(), GUID_LOPART(captainGuid));
+    uint32 captainLowGuid = GUID_LOPART(captainGuid);
+    sLog.outDebug("GUILD: creating arena team %s to leader: %u", ArenaTeamName.c_str(), captainLowGuid);
 
     m_CaptainGuid = captainGuid;
     m_Name = ArenaTeamName;
@@ -83,14 +87,14 @@ bool ArenaTeam::Create(uint64 captainGuid, uint32 type, std::string ArenaTeamNam
     trans->PAppend("DELETE FROM arena_team_member WHERE arenateamid='%u'", m_TeamId);
     trans->PAppend("INSERT INTO arena_team (arenateamid,name,captainguid,type,BackgroundColor,EmblemStyle,EmblemColor,BorderStyle,BorderColor) "
         "VALUES('%u','%s','%u','%u','%u','%u','%u','%u','%u')",
-        m_TeamId, ArenaTeamName.c_str(), GUID_LOPART(m_CaptainGuid), m_Type, m_BackgroundColor, m_EmblemStyle, m_EmblemColor, m_BorderStyle, m_BorderColor);
+        m_TeamId, ArenaTeamName.c_str(), captainLowGuid, m_Type, m_BackgroundColor, m_EmblemStyle, m_EmblemColor, m_BorderStyle, m_BorderColor);
     trans->PAppend("INSERT INTO arena_team_stats (arenateamid, rating, games, wins, played, wins2, rank) VALUES "
         "('%u', '%u', '%u', '%u', '%u', '%u', '%u')", m_TeamId, m_stats.rating, m_stats.games_week, m_stats.wins_week, m_stats.games_season, m_stats.wins_season, m_stats.rank);
 
     CharacterDatabase.CommitTransaction(trans);
 
     AddMember(m_CaptainGuid);
-    sLog.outArena("New ArenaTeam created [Id: %u] [Type: %u] [Captain GUID: %u]", GetId(), GetType(), GetCaptain());
+    sLog.outArena("New ArenaTeam created [Id: %u] [Type: %u] [Captain low GUID: %u]", GetId(), GetType(), captainLowGuid);
     return true;
 }
 

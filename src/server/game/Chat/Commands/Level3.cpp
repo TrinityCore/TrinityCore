@@ -1171,7 +1171,11 @@ bool ChatHandler::HandleAccountSetGmLevelCommand(const char *args)
     // m_session == NULL only for console
     targetAccountId = (isAccountNameGiven) ? sAccountMgr.GetId(targetAccountName) : getSelectedPlayer()->GetSession()->GetAccountId();
     int32 gmRealmID = (isAccountNameGiven) ? atoi(arg3) : atoi(arg2);
-    uint32 plSecurity = m_session ? sAccountMgr.GetSecurity(m_session->GetAccountId(), gmRealmID) : SEC_CONSOLE;
+    uint32 plSecurity;
+    if (m_session)
+        plSecurity = sAccountMgr.GetSecurity(m_session->GetAccountId(), gmRealmID);
+    else
+        plSecurity = SEC_CONSOLE;
 
     // can set security level only for target with less security and to less security that we have
     // This is also reject self apply in fact
@@ -2943,12 +2947,13 @@ bool ChatHandler::HandleLookupItemCommand(const char *args)
         int loc_idx = GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
         {
+            uint8 uloc_idx = uint8(loc_idx);
             ItemLocale const *il = sObjectMgr.GetItemLocale(pProto->ItemId);
             if (il)
             {
-                if (il->Name.size() > loc_idx && !il->Name[loc_idx].empty())
+                if (il->Name.size() > uloc_idx && !il->Name[uloc_idx].empty())
                 {
-                    std::string name = il->Name[loc_idx];
+                    std::string name = il->Name[uloc_idx];
 
                     if (Utf8FitTo(name, wnamepart))
                     {
@@ -3257,12 +3262,13 @@ bool ChatHandler::HandleLookupQuestCommand(const char *args)
         int loc_idx = GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
         {
+            uint8 uloc_idx = uint8(loc_idx);
             QuestLocale const *il = sObjectMgr.GetQuestLocale(qinfo->GetQuestId());
             if (il)
             {
-                if (il->Title.size() > loc_idx && !il->Title[loc_idx].empty())
+                if (il->Title.size() > uloc_idx && !il->Title[uloc_idx].empty())
                 {
-                    std::string title = il->Title[loc_idx];
+                    std::string title = il->Title[uloc_idx];
 
                     if (Utf8FitTo(title, wnamepart))
                     {
@@ -3361,12 +3367,13 @@ bool ChatHandler::HandleLookupCreatureCommand(const char *args)
         int loc_idx = GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
         {
+            uint8 uloc_idx = uint8(uloc_idx);
             CreatureLocale const *cl = sObjectMgr.GetCreatureLocale (id);
             if (cl)
             {
-                if (cl->Name.size() > loc_idx && !cl->Name[loc_idx].empty ())
+                if (cl->Name.size() > uloc_idx && !cl->Name[uloc_idx].empty ())
                 {
-                    std::string name = cl->Name[loc_idx];
+                    std::string name = cl->Name[uloc_idx];
 
                     if (Utf8FitTo (name, wnamepart))
                     {
@@ -3431,12 +3438,13 @@ bool ChatHandler::HandleLookupObjectCommand(const char *args)
         int loc_idx = GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
         {
+            uint8 uloc_idx = uint8(uloc_idx);
             GameObjectLocale const *gl = sObjectMgr.GetGameObjectLocale(id);
             if (gl)
             {
-                if (gl->Name.size() > loc_idx && !gl->Name[loc_idx].empty())
+                if (gl->Name.size() > uloc_idx && !gl->Name[uloc_idx].empty())
                 {
-                    std::string name = gl->Name[loc_idx];
+                    std::string name = gl->Name[uloc_idx];
 
                     if (Utf8FitTo(name, wnamepart))
                     {
@@ -5149,7 +5157,7 @@ bool ChatHandler::HandleServerRestartCommand(const char *args)
     int32 time = atoi (time_str);
 
     ///- Prevent interpret wrong arg value as 0 secs shutdown time
-    if ((time == 0 && (time_str[0] != '0' || time_str[1] != '\0') || time < 0))
+    if ((time == 0 && (time_str[0] != '0' || time_str[1] != '\0')) || time < 0)
         return false;
 
     if (exitcode_str)
@@ -5184,7 +5192,7 @@ bool ChatHandler::HandleServerIdleRestartCommand(const char *args)
     int32 time = atoi (time_str);
 
     ///- Prevent interpret wrong arg value as 0 secs shutdown time
-    if ((time == 0 && (time_str[0] != '0' || time_str[1] != '\0') || time < 0))
+    if ((time == 0 && (time_str[0] != '0' || time_str[1] != '\0')) || time < 0)
         return false;
 
     if (exitcode_str)
@@ -5219,7 +5227,7 @@ bool ChatHandler::HandleServerIdleShutDownCommand(const char *args)
     int32 time = atoi (time_str);
 
     ///- Prevent interpret wrong arg value as 0 secs shutdown time
-    if (time == 0 && (time_str[0] != '0' || time_str[1] != '\0') || time < 0)
+    if ((time == 0 && (time_str[0] != '0' || time_str[1] != '\0')) || time < 0)
         return false;
 
     if (exitcode_str)
@@ -6719,7 +6727,7 @@ bool ChatHandler::HandleAccountSetAddonCommand(const char *args)
         return false;
 
     int expansion = atoi(szExp);                                    //get int anyway (0 if error)
-    if (expansion < 0 || expansion > sWorld.getConfig(CONFIG_EXPANSION))
+    if (expansion < 0 || uint8(expansion) > sWorld.getConfig(CONFIG_EXPANSION))
          return false;
 
     // No SQL injection

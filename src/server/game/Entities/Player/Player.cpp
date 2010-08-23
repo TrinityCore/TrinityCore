@@ -600,7 +600,7 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
 
     m_ChampioningFaction = 0;
 
-    for (int i = 0; i < MAX_POWERS; ++i)
+    for (uint8 i = 0; i < MAX_POWERS; ++i)
         m_powerFraction[i] = 0;
 
     m_globalCooldowns.clear();
@@ -880,7 +880,7 @@ bool Player::Create(uint32 guidlow, const std::string& name, uint8 race, uint8 c
                         count = 2;
                         break;
                 }
-                if (iProto->Stackable < count)
+                if (uint32(iProto->Stackable) < count)
                     count = iProto->Stackable;
             }
             StoreNewItemInBestSlots(item_id, count);
@@ -1041,7 +1041,7 @@ int32 Player::getMaxTimer(MirrorTimerType timer)
             return MINUTE*IN_MILLISECONDS;
         case BREATH_TIMER:
         {
-            if (!isAlive() || HasAuraType(SPELL_AURA_WATER_BREATHING) || GetSession()->GetSecurity() >= sWorld.getConfig(CONFIG_DISABLE_BREATHING))
+            if (!isAlive() || HasAuraType(SPELL_AURA_WATER_BREATHING) || GetSession()->GetSecurity() >= AccountTypes(sWorld.getConfig(CONFIG_DISABLE_BREATHING)))
                 return DISABLED_MIRROR_TIMER;
             int32 UnderWaterTime = 3*MINUTE*IN_MILLISECONDS;
             AuraEffectList const& mModWaterBreathing = GetAuraEffectsByType(SPELL_AURA_MOD_WATER_BREATHING);
@@ -2481,7 +2481,11 @@ void Player::SetGameMaster(bool on)
     {
         // restore phase
         AuraEffectList const& phases = GetAuraEffectsByType(SPELL_AURA_PHASE);
-        SetPhaseMask(!phases.empty() ? phases.front()->GetMiscValue() : PHASEMASK_NORMAL,false);
+        if (!phases.empty())
+            SetPhaseMask(phases.front()->GetMiscValue(), false);
+        else
+            SetPhaseMask(PHASEMASK_NORMAL, false);
+            
 
         m_ExtraFlags &= ~ PLAYER_EXTRA_GM_ON;
         setFactionForRace(getRace());
@@ -4593,7 +4597,7 @@ void Player::DeleteOldCharacters(uint32 keepDays)
     QueryResult_AutoPtr resultChars = CharacterDatabase.PQuery("SELECT guid, deleteInfos_Account FROM characters WHERE deleteDate IS NOT NULL AND deleteDate < '" UI64FMTD "'", uint64(time(NULL) - time_t(keepDays * DAY)));
     if (resultChars)
     {
-         sLog.outString("Player::DeleteOldChars: Found %u character(s) to delete",resultChars->GetRowCount());
+         sLog.outString("Player::DeleteOldChars: Found " UI64FMTD " character(s) to delete",resultChars->GetRowCount());
          do
          {
             Field *charFields = resultChars->Fetch();
@@ -6671,12 +6675,12 @@ void Player::RewardReputation(Quest const *pQuest)
 void Player::UpdateHonorFields()
 {
     /// called when rewarding honor and at each save
-    uint64 now = time(NULL);
-    uint64 today = uint64(time(NULL) / DAY) * DAY;
+    time_t now = time_t(time(NULL));
+    time_t today = time_t(time(NULL) / DAY) * DAY;
 
     if (m_lastHonorUpdateTime < today)
     {
-        uint64 yesterday = today - DAY;
+        time_t yesterday = today - DAY;
 
         uint16 kills_today = PAIR32_LOPART(GetUInt32Value(PLAYER_FIELD_KILLS));
 
@@ -10967,7 +10971,12 @@ uint8 Player::CanEquipItem(uint8 slot, uint16 &dest, Item *pItem, bool swap, boo
                 return EQUIP_ERR_NO_EQUIPMENT_SLOT_AVAILABLE;
 
             // if swap ignore item (equipped also)
-            if (uint8 res2 = CanEquipUniqueItem(pItem, swap ? eslot : NULL_SLOT))
+            uint8 res2 = 0;
+            if (swap)
+                res2 = CanEquipUniqueItem(pItem, eslot);
+            else
+                res2 = CanEquipUniqueItem(pItem, NULL_SLOT);
+            if (res2)
                 return res2;
 
             // check unique-equipped special item classes
@@ -12620,7 +12629,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
         if (IsBagPos(src))
         {
             Bag* bag = (Bag*)pSrcItem;
-            for (int i=0; i < bag->GetBagSize(); ++i)
+            for (uint32 i = 0; i < bag->GetBagSize(); ++i)
             {
                 if (Item *bagItem = bag->GetItemByPos(i))
                 {
@@ -12637,7 +12646,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
         if (!released && IsBagPos(dst) && pDstItem)
         {
             Bag* bag = (Bag*)pDstItem;
-            for (int i=0; i < bag->GetBagSize(); ++i)
+            for (uint32 i = 0; i < bag->GetBagSize(); ++i)
             {
                 if (Item *bagItem = bag->GetItemByPos(i))
                 {
@@ -13942,11 +13951,12 @@ void Player::SendPreparedQuest(uint64 guid)
                     int loc_idx = GetSession()->GetSessionDbLocaleIndex();
                     if (loc_idx >= 0)
                     {
+                        uint8 uloc_idx = uint8(loc_idx);
                         NpcTextLocale const *nl = sObjectMgr.GetNpcTextLocale(textid);
                         if (nl)
                         {
-                            if (nl->Text_0[0].size() > loc_idx && !nl->Text_0[0][loc_idx].empty())
-                                title = nl->Text_0[0][loc_idx];
+                            if (nl->Text_0[0].size() > uloc_idx && !nl->Text_0[0][uloc_idx].empty())
+                                title = nl->Text_0[0][uloc_idx];
                         }
                     }
                 }
@@ -13957,11 +13967,12 @@ void Player::SendPreparedQuest(uint64 guid)
                     int loc_idx = GetSession()->GetSessionDbLocaleIndex();
                     if (loc_idx >= 0)
                     {
+                        uint8 uloc_idx = uint8(loc_idx);
                         NpcTextLocale const *nl = sObjectMgr.GetNpcTextLocale(textid);
                         if (nl)
                         {
-                            if (nl->Text_1[0].size() > loc_idx && !nl->Text_1[0][loc_idx].empty())
-                                title = nl->Text_1[0][loc_idx];
+                            if (nl->Text_1[0].size() > uloc_idx && !nl->Text_1[0][uloc_idx].empty())
+                                title = nl->Text_1[0][uloc_idx];
                         }
                     }
                 }
@@ -18172,9 +18183,9 @@ void Player::_SaveStats(SQLTransaction& trans)
         "blockPct, dodgePct, parryPct, critPct, rangedCritPct, spellCritPct, attackPower, rangedAttackPower, spellPower) VALUES ("
         << GetGUIDLow() << ", "
         << GetMaxHealth() << ", ";
-    for (int i = 0; i < MAX_POWERS; ++i)
+    for (uint8 i = 0; i < MAX_POWERS; ++i)
         ss << GetMaxPower(Powers(i)) << ", ";
-    for (int i = 0; i < MAX_STATS; ++i)
+    for (uint8 i = 0; i < MAX_STATS; ++i)
         ss << GetStat(Stats(i)) << ", ";
     // armor + school resistances
     for (int i = 0; i < MAX_SPELL_SCHOOL; ++i)
@@ -19773,7 +19784,7 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
         }
     }
 
-    int32 price  = crItem->IsGoldRequired(pProto) ? pProto->BuyPrice * count : 0;
+    uint32 price  = crItem->IsGoldRequired(pProto) ? pProto->BuyPrice * count : 0;
 
     // reputation discount
     if (price)
@@ -21734,7 +21745,7 @@ bool Player::GetsRecruitAFriendBonus(bool forXP)
 
                     // level difference must be small enough to get RaF bonus, UNLESS we are lower level
                     if (pGroupGuy->getLevel() < getLevel())
-                        if ((getLevel() - pGroupGuy->getLevel()) > sWorld.getConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL_DIFFERENCE))
+                        if (uint8(getLevel() - pGroupGuy->getLevel()) > sWorld.getConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL_DIFFERENCE))
                             continue;
                 }
 
@@ -22797,7 +22808,7 @@ void Player::_LoadSkills(QueryResult_AutoPtr result)
 
             if (count >= PLAYER_MAX_SKILLS)                      // client limit
             {
-                sLog.outError("Character %u has more than %u skills.", PLAYER_MAX_SKILLS);
+                sLog.outError("Character %u has more than %u skills.", GetGUIDLow(), PLAYER_MAX_SKILLS);
                 break;
             }
         } while (result->NextRow());
