@@ -14803,7 +14803,10 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 47193, 'spell_warl_demonic_empowerment'),
 ( 47422, 'spell_warl_everlasting_affliction'),
 -- druid
-( 54846, 'spell_dru_glyph_of_starfire');
+( 54846, 'spell_dru_glyph_of_starfire'),
+-- example
+( 66244, 'spell_ex_66244'), 
+( 5581,  'spell_ex_5581');
 /*!40000 ALTER TABLE `spell_script_names` ENABLE KEYS */;
 UNLOCK TABLES;
 

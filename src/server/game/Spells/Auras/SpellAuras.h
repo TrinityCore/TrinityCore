@@ -32,6 +32,7 @@ struct ProcTriggerSpell;
 class AuraEffect;
 class Aura;
 class DynamicObject;
+class AuraScript;
 
 // update aura target map every 500 ms instead of every update - reduce amount of grid searcher calls
 #define UPDATE_TARGET_MAP_INTERVAL 500
@@ -150,7 +151,7 @@ class Aura
         // helpers for aura effects
         bool HasEffect(uint8 effIndex) const { return bool(GetEffect(effIndex)); }
         bool HasEffectType(AuraType type) const;
-        AuraEffect * GetEffect (uint8 effIndex) const { ASSERT (effIndex < MAX_SPELL_EFFECTS); return m_effects[effIndex]; }
+        AuraEffect * GetEffect(uint8 effIndex) const { ASSERT (effIndex < MAX_SPELL_EFFECTS); return m_effects[effIndex]; }
         uint8 GetEffectMask() const { uint8 effMask = 0; for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i) if (m_effects[i]) effMask |= 1<<i; return effMask; }
         void RecalculateAmountOfEffects();
         void HandleAllEffects(AuraApplication const * aurApp, uint8 mode, bool apply);
@@ -159,12 +160,23 @@ class Aura
         ApplicationMap const & GetApplicationMap() {return m_applications;}
         const AuraApplication * GetApplicationOfTarget (uint64 const & guid) const { ApplicationMap::const_iterator itr = m_applications.find(guid); if (itr != m_applications.end()) return itr->second; return NULL; }
         AuraApplication * GetApplicationOfTarget (uint64 const & guid) { ApplicationMap::iterator itr = m_applications.find(guid); if (itr != m_applications.end()) return itr->second; return NULL; }
-        bool IsAppliedOnTarget (uint64 const & guid) const { return m_applications.find(guid) != m_applications.end(); }
+        bool IsAppliedOnTarget(uint64 const & guid) const { return m_applications.find(guid) != m_applications.end(); }
 
         void SetNeedClientUpdateForTargets() const;
         void HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster, bool apply);
         bool CanBeAppliedOn(Unit *target);
         bool CheckAreaTarget(Unit *target);
+
+        // AuraScript
+        void LoadScripts();
+        bool CallScriptEffectApplyHandlers(AuraEffect const * aurEff, AuraApplication const * aurApp, AuraEffectHandleModes mode);
+        bool CallScriptEffectRemoveHandlers(AuraEffect const * aurEff, AuraApplication const * aurApp, AuraEffectHandleModes mode);
+        bool CallScriptEffectPeriodicHandlers(AuraEffect const * aurEff, AuraApplication const * aurApp);
+        void CallScriptEffectUpdatePeriodicHandlers(AuraEffect * aurEff);
+        void CallScriptEffectCalcAmountHandlers(AuraEffect const * aurEff, int32 & amount, bool & canBeRecalculated);
+        void CallScriptEffectCalcPeriodicHandlers(AuraEffect const * aurEff, bool & isPeriodic, int32 & amplitude);
+        void CallScriptEffectCalcSpellModHandlers(AuraEffect const * aurEff, SpellModifier *& spellMod);
+        std::list<AuraScript *> m_loadedScripts;
     private:
         void _DeleteRemovedApplications();
     protected:

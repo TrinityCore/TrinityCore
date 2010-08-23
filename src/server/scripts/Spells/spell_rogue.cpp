@@ -31,10 +31,10 @@ enum RogueSpells
     ROGUE_SPELL_GLYPH_OF_PREPARATION             = 56819,
 };
 
-class spell_rog_cheat_death : public SpellHandlerScript
+class spell_rog_cheat_death : public SpellScriptLoader
 {
     public:
-        spell_rog_cheat_death() : SpellHandlerScript("spell_rog_cheat_death") { }
+        spell_rog_cheat_death() : SpellScriptLoader("spell_rog_cheat_death") { }
 
         class spell_rog_cheat_death_SpellScript : public SpellScript
         {
@@ -54,7 +54,7 @@ class spell_rog_cheat_death : public SpellHandlerScript
             void Register()
             {
                 // add dummy effect spell handler to Cheat Death
-                EffectHandlers += EffectHandlerFn(spell_rog_cheat_death_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffect += SpellEffectFn(spell_rog_cheat_death_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -64,10 +64,10 @@ class spell_rog_cheat_death : public SpellHandlerScript
         }
 };
 
-class spell_rog_hunger_for_blood : public SpellHandlerScript
+class spell_rog_hunger_for_blood : public SpellScriptLoader
 {
     public:
-        spell_rog_hunger_for_blood() : SpellHandlerScript("spell_rog_hunger_for_blood") { }
+        spell_rog_hunger_for_blood() : SpellScriptLoader("spell_rog_hunger_for_blood") { }
 
         class spell_rog_hunger_for_blood_SpellScript : public SpellScript
         {
@@ -87,7 +87,7 @@ class spell_rog_hunger_for_blood : public SpellHandlerScript
             void Register()
             {
                 // add dummy effect spell handler to Hunger for Blood
-                EffectHandlers += EffectHandlerFn(spell_rog_hunger_for_blood_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffect += SpellEffectFn(spell_rog_hunger_for_blood_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -97,10 +97,10 @@ class spell_rog_hunger_for_blood : public SpellHandlerScript
         }
 };
 
-class spell_rog_preparation : public SpellHandlerScript
+class spell_rog_preparation : public SpellScriptLoader
 {
     public:
-        spell_rog_preparation() : SpellHandlerScript("spell_rog_preparation") { }
+        spell_rog_preparation() : SpellScriptLoader("spell_rog_preparation") { }
 
         class spell_rog_preparation_SpellScript : public SpellScript
         {
@@ -149,7 +149,7 @@ class spell_rog_preparation : public SpellHandlerScript
             void Register()
             {
                 // add dummy effect spell handler to Preparation
-                EffectHandlers += EffectHandlerFn(spell_rog_preparation_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffect += SpellEffectFn(spell_rog_preparation_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -159,10 +159,10 @@ class spell_rog_preparation : public SpellHandlerScript
         }
 };
 
-class spell_rog_shiv : public SpellHandlerScript
+class spell_rog_shiv : public SpellScriptLoader
 {
     public:
-        spell_rog_shiv() : SpellHandlerScript("spell_rog_shiv") { }
+        spell_rog_shiv() : SpellScriptLoader("spell_rog_shiv") { }
 
         class spell_rog_shiv_SpellScript : public SpellScript
         {
@@ -186,7 +186,7 @@ class spell_rog_shiv : public SpellHandlerScript
             void Register()
             {
                 // add dummy effect spell handler to Shiv
-                EffectHandlers += EffectHandlerFn(spell_rog_shiv_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffect += SpellEffectFn(spell_rog_shiv_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 

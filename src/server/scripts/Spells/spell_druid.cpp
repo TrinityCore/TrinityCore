@@ -31,10 +31,10 @@ enum DruidSpells
 };
 
 // 54846 Glyph of Starfire
-class spell_dru_glyph_of_starfire : public SpellHandlerScript
+class spell_dru_glyph_of_starfire : public SpellScriptLoader
 {
 public:
-    spell_dru_glyph_of_starfire() : SpellHandlerScript("spell_dru_glyph_of_starfire") { }
+    spell_dru_glyph_of_starfire() : SpellScriptLoader("spell_dru_glyph_of_starfire") { }
 
     class spell_dru_glyph_of_starfire_SpellScript : public SpellScript
     {
@@ -72,7 +72,7 @@ public:
 
         void Register()
         {
-            EffectHandlers += EffectHandlerFn(spell_dru_glyph_of_starfire_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffect += SpellEffectFn(spell_dru_glyph_of_starfire_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 

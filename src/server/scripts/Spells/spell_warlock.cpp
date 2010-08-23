@@ -37,10 +37,10 @@ enum WarlockSpells
 };
 
 // 47193 Demonic Empowerment
-class spell_warl_demonic_empowerment : public SpellHandlerScript
+class spell_warl_demonic_empowerment : public SpellScriptLoader
 {
 public:
-    spell_warl_demonic_empowerment() : SpellHandlerScript("spell_warl_demonic_empowerment") { }
+    spell_warl_demonic_empowerment() : SpellScriptLoader("spell_warl_demonic_empowerment") { }
 
     class spell_warl_demonic_empowerment_SpellScript : public SpellScript
     {
@@ -95,7 +95,7 @@ public:
 
         void Register()
         {
-            EffectHandlers += EffectHandlerFn(spell_warl_demonic_empowerment_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffect += SpellEffectFn(spell_warl_demonic_empowerment_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 
@@ -106,10 +106,10 @@ public:
 };
 
 // 47422 Everlasting Affliction
-class spell_warl_everlasting_affliction : public SpellHandlerScript
+class spell_warl_everlasting_affliction : public SpellScriptLoader
 {
 public:
-    spell_warl_everlasting_affliction() : SpellHandlerScript("spell_warl_everlasting_affliction") { }
+    spell_warl_everlasting_affliction() : SpellScriptLoader("spell_warl_everlasting_affliction") { }
 
     class spell_warl_everlasting_affliction_SpellScript : public SpellScript
     {
@@ -123,7 +123,7 @@ public:
 
         void Register()
         {
-            EffectHandlers += EffectHandlerFn(spell_warl_everlasting_affliction_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffect += SpellEffectFn(spell_warl_everlasting_affliction_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 
@@ -134,10 +134,10 @@ public:
 };
 
 // 6201 Create Healthstone (and ranks)
-class spell_warl_create_healthstone : public SpellHandlerScript
+class spell_warl_create_healthstone : public SpellScriptLoader
 {
 public:
-    spell_warl_create_healthstone() : SpellHandlerScript("spell_warl_create_healthstone") { }
+    spell_warl_create_healthstone() : SpellScriptLoader("spell_warl_create_healthstone") { }
 
     class spell_warl_create_healthstone_SpellScript : public SpellScript
     {
@@ -177,7 +177,7 @@ public:
 
         void Register()
         {
-            EffectHandlers += EffectHandlerFn(spell_warl_create_healthstone_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffect += SpellEffectFn(spell_warl_create_healthstone_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 
