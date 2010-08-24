@@ -1106,24 +1106,6 @@ uint32 ObjectMgr::ChooseDisplayId(uint32 /*team*/, const CreatureInfo *cinfo, co
     else
         return data->displayid;
 
-    /*if (!team)
-    {
-        switch(cinfo->Entry)
-        {
-            case 28511: // Eye of Acherus
-            case 33114: // Flame Leviathan Seat (model 24914 chair)
-            case 33167: // Salvaged Demolisher Mechanic Seat
-            case 33189: // Liquid Pryite
-                return cinfo->Modelid1;
-            case 33218: // Pyrite Safety Container
-                return cinfo->Modelid2;
-            case 33143: // Overload Control Device
-                return cinfo->Modelid3;
-            default:
-                return cinfo->GetRandomValidModelId();
-        }
-    }*/
-
     return display_id;
 }
 

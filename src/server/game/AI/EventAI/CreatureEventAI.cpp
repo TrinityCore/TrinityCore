@@ -826,6 +826,28 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
                 m_InvinceabilityHpLevel = action.invincibility_hp_level.hp_level;
             break;
         }
+        case ACTION_T_MOUNT_TO_ENTRY_OR_MODEL:
+        {
+            if (action.mount.creatureId || action.mount.modelId)
+            {
+                // set model based on entry from creature_template
+                if (action.mount.creatureId)
+                {
+                    if (CreatureInfo const* cInfo = GetCreatureTemplateStore(action.mount.creatureId))
+                    {
+                        uint32 display_id = sObjectMgr.ChooseDisplayId(0, cInfo);
+                        me->Mount(display_id);
+                    }
+                }
+                //if no param1, then use value from param2 (modelId)
+                else
+                    me->Mount(action.mount.modelId);
+            }
+            else
+                me->Unmount();
+
+            break;
+        }
     }
 }
 
