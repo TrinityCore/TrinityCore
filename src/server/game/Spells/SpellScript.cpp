@@ -17,9 +17,9 @@
  */
 
 #include <string>
-#include "SpellScript.h"
 #include "Spell.h"
 #include "SpellAuras.h"
+#include "SpellScript.h"
 
 bool _SpellScript::_Validate(SpellEntry const * entry, const char * scriptname)
 {
