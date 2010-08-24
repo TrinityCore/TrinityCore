@@ -358,7 +358,7 @@ public:
                 pInstance->SetData(TYPE_SARTHARION_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* /*pWho*/)
         {
             DoScriptText(SAY_SARTHARION_AGGRO,me);
             DoZoneInCombat();
@@ -370,7 +370,7 @@ public:
             }
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* /*pKiller*/)
         {
             DoScriptText(SAY_SARTHARION_DEATH,me);
 
@@ -404,7 +404,7 @@ public:
             }
         }
 
-        void KilledUnit(Unit* pVictim)
+        void KilledUnit(Unit* /*pVictim*/)
         {
             DoScriptText(RAND(SAY_SARTHARION_SLAY_1,SAY_SARTHARION_SLAY_2,SAY_SARTHARION_SLAY_3), me);
         }
@@ -920,7 +920,7 @@ struct dummy_dragonAI : public ScriptedAI
         //Refresh respawnTime so time again are set to 30secs?
     }
 
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit* /*pKiller*/)
     {
         if (!m_bCanLoot)
             me->SetLootRecipient(NULL);
@@ -1032,14 +1032,14 @@ public:
             m_bHasPortalOpen = false;
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* /*pWho*/)
         {
             DoScriptText(SAY_TENEBRON_AGGRO, me);
             DoZoneInCombat();
             DoCast(me, SPELL_POWER_OF_TENEBRON);
         }
 
-        void KilledUnit(Unit* pVictim)
+        void KilledUnit(Unit* /*pVictim*/)
         {
             DoScriptText(RAND(SAY_TENEBRON_SLAY_1,SAY_TENEBRON_SLAY_2), me);
         }
@@ -1133,14 +1133,14 @@ public:
             m_bHasPortalOpen = false;
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* /*pWho*/)
         {
             DoScriptText(SAY_SHADRON_AGGRO,me);
             DoZoneInCombat();
             DoCast(me, SPELL_POWER_OF_SHADRON);
         }
 
-        void KilledUnit(Unit* pVictim)
+        void KilledUnit(Unit* /*pVictim*/)
         {
             DoScriptText(RAND(SAY_SHADRON_SLAY_1,SAY_SHADRON_SLAY_2), me);
         }
@@ -1237,14 +1237,14 @@ public:
             m_bHasPortalOpen = false;
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* /*pWho*/)
         {
             DoScriptText(SAY_VESPERON_AGGRO,me);
             DoZoneInCombat();
             DoCast(me, SPELL_POWER_OF_VESPERON);
         }
 
-        void KilledUnit(Unit* pVictim)
+        void KilledUnit(Unit* /*pVictim*/)
         {
             DoScriptText(RAND(SAY_VESPERON_SLAY_1,SAY_VESPERON_SLAY_2), me);
         }
@@ -1339,19 +1339,21 @@ public:
                 //if not solo figth, buff main boss, else place debuff on mini-boss. both spells TARGET_SCRIPT
                 if (pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
                 {
-                    if(pTarget = (Unit::GetCreature((*me), pInstance->GetData64(DATA_SARTHARION))))
+                    pTarget = Unit::GetCreature((*me), pInstance->GetData64(DATA_SARTHARION));
+                    if (pTarget)
                         pTarget->AddAura(SPELL_GIFT_OF_TWILIGTH_SAR, pTarget);
                 }
                 else
                 {
-                    if(pTarget = (Unit::GetCreature((*me), pInstance->GetData64(DATA_SHADRON))))
+                    pTarget = Unit::GetCreature((*me), pInstance->GetData64(DATA_SHADRON));
+                    if (pTarget)
                         pTarget->AddAura(SPELL_GIFT_OF_TWILIGTH_SHA, pTarget);
                 }
              }
             me->AddAura(SPELL_TWILIGHT_SHIFT_ENTER,me);
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* /*killer*/)
         {
             if (pInstance)
             {
@@ -1448,7 +1450,7 @@ public:
             DoCast(me, SPELL_TWILIGHT_TORMENT_VESP_ACO);
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* /*pKiller*/)
         {
             me->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP_ACO);
 
@@ -1576,8 +1578,8 @@ public:
         }
 
 
-        void AttackStart(Unit* pWho) {}
-        void MoveInLineOfSight(Unit* pWho) {}
+        void AttackStart(Unit* /*pWho*/) {}
+        void MoveInLineOfSight(Unit* /*pWho*/) {}
     };
 
 };

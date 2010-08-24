@@ -76,14 +76,14 @@ enum Phases
 
 const Position SpawnPoint[2] =
 {
-    { 550.7f, 282.8f, 224.3f },
-    { 551.1f, 229.4f, 224.3f },
+    { 550.7f, 282.8f, 224.3f, 0.0f },
+    { 551.1f, 229.4f, 224.3f, 0.0f },
 };
 
 const Position SpawnPointGuardian[2] =
 {
-    { 550.348633f, 316.006805f, 234.2947f },
-    { 550.188660f, 324.264557f, 237.7412f },
+    { 550.348633f, 316.006805f, 234.2947f, 0.0f },
+    { 550.188660f, 324.264557f, 237.7412f, 0.0f },
 };
 
 class boss_anub_arak : public CreatureScript

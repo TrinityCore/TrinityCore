@@ -283,37 +283,39 @@ public:
             if (!UpdateVictim())
             {
                 if (Tapped)
-                    if (FlyTimer <= diff)
                 {
-                    Tapped = false;
-                    if (PlayerGUID)
+                    if (FlyTimer <= diff)
                     {
-                        Player* plr = Unit::GetPlayer(*me, PlayerGUID);
-                        if (plr && plr->GetQuestStatus(10854) == QUEST_STATUS_INCOMPLETE)
+                        Tapped = false;
+                        if (PlayerGUID)
                         {
-                            DoCast(plr, SPELL_FORCE_OF_NELTHARAKU, true);
-                            /*
-                            float x,y,z;
-                            me->GetPosition(x,y,z);
-
-                            float dx,dy,dz;
-                            me->GetRandomPoint(x, y, z, 20, dx, dy, dz);
-                            dz += 20; // so it's in the air, not ground*/
-
-                            Position pos;
-                            if (Unit* EscapeDummy = me->FindNearestCreature(CREATURE_ESCAPE_DUMMY, 30))
-                                EscapeDummy->GetPosition(&pos);
-                            else
+                            Player* plr = Unit::GetPlayer(*me, PlayerGUID);
+                            if (plr && plr->GetQuestStatus(10854) == QUEST_STATUS_INCOMPLETE)
                             {
-                                me->GetRandomNearPosition(pos, 20);
-                                pos.m_positionZ += 25;
-                            }
+                                DoCast(plr, SPELL_FORCE_OF_NELTHARAKU, true);
+                                /*
+                                float x,y,z;
+                                me->GetPosition(x,y,z);
 
-                            me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                            me->GetMotionMaster()->MovePoint(1, pos);
+                                float dx,dy,dz;
+                                me->GetRandomPoint(x, y, z, 20, dx, dy, dz);
+                                dz += 20; // so it's in the air, not ground*/
+
+                                Position pos;
+                                if (Unit* EscapeDummy = me->FindNearestCreature(CREATURE_ESCAPE_DUMMY, 30))
+                                    EscapeDummy->GetPosition(&pos);
+                                else
+                                {
+                                    me->GetRandomNearPosition(pos, 20);
+                                    pos.m_positionZ += 25;
+                                }
+
+                                me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                                me->GetMotionMaster()->MovePoint(1, pos);
+                            }
                         }
-                    }
-                } else FlyTimer -= diff;
+                    } else FlyTimer -= diff;
+                }
                 return;
             }
 
@@ -386,17 +388,19 @@ public:
         void UpdateAI(const uint32 diff)
         {
             if (PoisonTimer)
-                if (PoisonTimer <= diff)
             {
-                if (PlayerGUID)
+                if (PoisonTimer <= diff)
                 {
-                    Player* plr = Unit::GetPlayer(*me, PlayerGUID);
-                    if (plr && plr->GetQuestStatus(11020) == QUEST_STATUS_INCOMPLETE)
-                        plr->KilledMonsterCredit(23209, me->GetGUID());
-                }
-                PoisonTimer = 0;
-                me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-            } else PoisonTimer -= diff;
+                    if (PlayerGUID)
+                    {
+                        Player* plr = Unit::GetPlayer(*me, PlayerGUID);
+                        if (plr && plr->GetQuestStatus(11020) == QUEST_STATUS_INCOMPLETE)
+                            plr->KilledMonsterCredit(23209, me->GetGUID());
+                    }
+                    PoisonTimer = 0;
+                    me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                } else PoisonTimer -= diff;
+            }
         }
     };
 
@@ -1351,17 +1355,19 @@ public:
         {
             if (slayer)
                 switch(slayer->GetTypeId())
-            {
-                case TYPEID_UNIT:
-                    if (Unit *owner = slayer->GetOwner())
-                        if (owner->GetTypeId() == TYPEID_PLAYER)
-                            CAST_PLR(owner)->GroupEventHappens(QUEST_BATTLE_OF_THE_CRIMSON_WATCH, me);
-                    break;
+                {
+                    case TYPEID_UNIT:
+                        if (Unit *owner = slayer->GetOwner())
+                            if (owner->GetTypeId() == TYPEID_PLAYER)
+                                CAST_PLR(owner)->GroupEventHappens(QUEST_BATTLE_OF_THE_CRIMSON_WATCH, me);
+                        break;
 
-                case TYPEID_PLAYER:
-                    CAST_PLR(slayer)->GroupEventHappens(QUEST_BATTLE_OF_THE_CRIMSON_WATCH, me);
-                    break;
-            }
+                    case TYPEID_PLAYER:
+                        CAST_PLR(slayer)->GroupEventHappens(QUEST_BATTLE_OF_THE_CRIMSON_WATCH, me);
+                        break;
+                    default:
+                        break;
+                }
 
             if (Creature* LordIllidan = (Unit::GetCreature(*me, LordIllidanGUID)))
             {

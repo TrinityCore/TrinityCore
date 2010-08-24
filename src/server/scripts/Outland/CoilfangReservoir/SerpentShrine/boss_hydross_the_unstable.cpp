@@ -145,7 +145,7 @@ public:
                 beamer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 beams[0]=beamer->GetGUID();
             }
-            beamer = beamer = me->SummonCreature(ENTRY_BEAM_DUMMY,-219.918f,-371.308f,22.0042f,2.73072f,TEMPSUMMON_CORPSE_DESPAWN,0);
+            beamer = me->SummonCreature(ENTRY_BEAM_DUMMY,-219.918f,-371.308f,22.0042f,2.73072f,TEMPSUMMON_CORPSE_DESPAWN,0);
             if (beamer)
             {
                 beamer->CastSpell(me,SPELL_BLUE_BEAM,true);

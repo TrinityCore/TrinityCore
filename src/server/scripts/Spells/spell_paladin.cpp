@@ -45,7 +45,7 @@ public:
 
     class spell_pal_blessing_of_faith_SpellScript : public SpellScript
     {
-        bool Validate(SpellEntry const *spellEntry)
+        bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_BLESSING_OF_LOWER_CITY_DRUID))
                 return false;

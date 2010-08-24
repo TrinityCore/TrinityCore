@@ -220,7 +220,7 @@ struct GuildBankEventLogEntry
     uint8  DestTabId;
     uint64 TimeStamp;
 
-    const bool isMoneyEvent()
+    bool isMoneyEvent()
     {
         return EventType == GUILD_BANK_LOG_DEPOSIT_MONEY ||
             EventType == GUILD_BANK_LOG_WITHDRAW_MONEY ||

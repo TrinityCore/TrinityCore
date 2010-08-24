@@ -132,6 +132,7 @@ public:
             } else uiPlagueTimer -= diff;
 
             if (IsHeroic())
+            {
                 if (uiRagueTimer <= diff)
                 {
                     if (Creature *pSwarmer = me->FindNearestCreature(MOB_AHNKAHAR_SWARMER, 35))
@@ -140,6 +141,7 @@ public:
                         uiRagueTimer = 15*IN_MILLISECONDS;
                     }
                 } else uiRagueTimer -= diff;
+            }
 
             if (uiSwarmerSpawnTimer <= diff)
             {

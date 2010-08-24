@@ -169,12 +169,14 @@ public:
             else uiArcaneBarrageVolley_Timer -= uiDiff;
 
             if (uiArcaneBuffet_Timer)
+            {
                 if (uiArcaneBuffet_Timer < uiDiff)
                 {
                     DoCast(me->getVictim(), SPELL_ARCANE_BUFFET);
                     uiArcaneBuffet_Timer = 0;
                 }
                 else uiArcaneBuffet_Timer -= uiDiff;
+            }
 
             if (uiSummonEtherealSphere_Timer < uiDiff)
             {

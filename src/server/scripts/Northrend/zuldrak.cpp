@@ -86,7 +86,7 @@ public:
         {
             if (pSpell->Id == SPELL_UNLOCK_SHACKLE)
             {
-                if (Creature *Rageclaw = Unit::GetCreature(*me, RageclawGUID))
+                if (Unit::GetCreature(*me, RageclawGUID))
                     UnlockRageclaw(pCaster);
                 else
                     me->setDeathState(JUST_DIED);
@@ -353,7 +353,7 @@ public:
             bRemoveFlag = false;
         }
 
-        void SetGUID(const uint64 &guid, int32 id)
+        void SetGUID(const uint64 &guid, int32 /*id*/)
         {
             uiPlayerGUID = guid;
         }
@@ -401,6 +401,7 @@ public:
             ScriptedAI::UpdateAI(uiDiff);
 
             if (bRemoveFlag)
+            {
                 if (uiRemoveFlagTimer <= uiDiff)
                 {
                     me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
@@ -408,6 +409,7 @@ public:
 
                     uiRemoveFlagTimer = 10000;
                 } else uiRemoveFlagTimer -= uiDiff;
+            }
 
             if (uiPhase)
             {
@@ -607,7 +609,7 @@ public:
                 pWhisker->RemoveFromWorld();
         }
 
-        void MovementInform(uint32 uiType, uint32 uiId)
+        void MovementInform(uint32 uiType, uint32 /*uiId*/)
         {
             if (uiType != POINT_MOTION_TYPE)
                 return;
@@ -1209,12 +1211,14 @@ public:
                 return;
 
             if (me->GetPositionZ() >= 287.0f)
+            {
                 if (uiMissleTimer <= uiDiff)
                 {
                     DoCast(me,uiSpell); // this spell is not supported ... YET!
                     uiMissleTimer = urand(2000,7000);
 
                 } else uiMissleTimer -= uiDiff;
+            }
 
             DoMeleeAttackIfReady();
         }

@@ -237,7 +237,7 @@ class Group
         bool IsCreated()   const { return GetMembersCount() > 0; }
         const uint64& GetLeaderGUID() const { return m_leaderGuid; }
         const uint64& GetGUID() const { return m_guid; }
-        const uint32 GetLowGUID() const { return GUID_LOPART(m_guid); }
+        uint32 GetLowGUID() const { return GUID_LOPART(m_guid); }
         const char * GetLeaderName() const { return m_leaderName.c_str(); }
         LootMethod    GetLootMethod() const { return m_lootMethod; }
         const uint64& GetLooterGuid() const { return m_looterGuid; }
