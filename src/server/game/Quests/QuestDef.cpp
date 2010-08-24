@@ -212,5 +212,5 @@ bool Quest::IsAllowedInRaid() const
     if (IsRaidQuest())
         return true;
 
-    return sWorld.getConfig(CONFIG_QUEST_IGNORE_RAID);
+    return sWorld.getBoolConfig(CONFIG_QUEST_IGNORE_RAID);
 }

@@ -146,7 +146,7 @@ bool ChatHandler::HandleSaveCommand(const char* /*args*/)
     }
 
     // save if the player has last been saved over 20 seconds ago
-    uint32 save_interval = sWorld.getConfig(CONFIG_INTERVAL_SAVE);
+    uint32 save_interval = sWorld.getIntConfig(CONFIG_INTERVAL_SAVE);
     if (save_interval == 0 || (save_interval > 20*IN_MILLISECONDS && player->GetSaveTimer() <= save_interval - 20*IN_MILLISECONDS))
         player->SaveToDB();
 
@@ -162,7 +162,7 @@ bool ChatHandler::HandleGMListIngameCommand(const char* /*args*/)
     for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
     {
         AccountTypes itr_sec = itr->second->GetSession()->GetSecurity();
-        if ((itr->second->isGameMaster() || (itr_sec > SEC_PLAYER && itr_sec <= AccountTypes(sWorld.getConfig(CONFIG_GM_LEVEL_IN_GM_LIST)))) &&
+        if ((itr->second->isGameMaster() || (itr_sec > SEC_PLAYER && itr_sec <= AccountTypes(sWorld.getIntConfig(CONFIG_GM_LEVEL_IN_GM_LIST)))) &&
             (!m_session || itr->second->IsVisibleGloballyFor(m_session->GetPlayer())))
         {
             if (first)
@@ -252,7 +252,7 @@ bool ChatHandler::HandleAccountAddonCommand(const char* args)
     uint32 account_id = m_session->GetAccountId();
 
     int expansion = atoi(szExp);                                    //get int anyway (0 if error)
-    if (expansion < 0 || uint8(expansion) > sWorld.getConfig(CONFIG_EXPANSION))
+    if (expansion < 0 || uint8(expansion) > sWorld.getIntConfig(CONFIG_EXPANSION))
     {
         SendSysMessage(LANG_IMPROPER_VALUE);
         SetSentErrorMessage(true);

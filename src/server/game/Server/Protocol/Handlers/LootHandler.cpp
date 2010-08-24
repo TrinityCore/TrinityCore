@@ -223,7 +223,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket & /*recv_data*/)
                 Player* playerGroup = itr->getSource();
                 if (!playerGroup)
                     continue;
-                if (player->IsWithinDistInMap(playerGroup,(float)sWorld.getConfig(CONFIG_GROUP_XP_DISTANCE),false))
+                if (player->IsWithinDistInMap(playerGroup,sWorld.getFloatConfig(CONFIG_GROUP_XP_DISTANCE),false))
                     playersNear.push_back(playerGroup);
             }
 

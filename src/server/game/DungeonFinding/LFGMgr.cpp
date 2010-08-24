@@ -174,7 +174,7 @@ void LFGMgr::AddGuidToNewQueue(uint64 guid)
 
 void LFGMgr::Update(uint32 diff)
 {
-    if (!m_update || !sWorld.getConfig(CONFIG_DUNGEON_FINDER_ENABLE))
+    if (!m_update || !sWorld.getBoolConfig(CONFIG_DUNGEON_FINDER_ENABLE))
         return;
 
     m_update = false;
@@ -715,7 +715,7 @@ void LFGMgr::FindNewGroups(LfgGuidList &check, LfgGuidList all, LfgProposalList 
             if (plr->GetSocial()->HasIgnore((*itPlayer)->GetGUIDLow()) || (*itPlayer)->GetSocial()->HasIgnore(plr->GetGUIDLow()))
                 plr = NULL;
             // neither with diferent faction if it's not a mixed faction server
-            else if (plr->GetTeam() != (*itPlayer)->GetTeam() && !sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP))
+            else if (plr->GetTeam() != (*itPlayer)->GetTeam() && !sWorld.getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP))
                 plr = NULL;
         }
         if (plr)

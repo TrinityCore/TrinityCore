@@ -3947,7 +3947,7 @@ bool ChatHandler::HandleDieCommand(const char* /*args*/)
 
     if (target->isAlive())
     {
-        if (sWorld.getConfig(CONFIG_DIE_COMMAND_MODE))
+        if (sWorld.getBoolConfig(CONFIG_DIE_COMMAND_MODE))
             m_session->GetPlayer()->Kill(target);
         else
             m_session->GetPlayer()->DealDamage(target, target->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
@@ -4668,7 +4668,7 @@ bool ChatHandler::HandleChangeWeather(const char *args)
         return false;
 
     //Weather is OFF
-    if (!sWorld.getConfig(CONFIG_WEATHER))
+    if (!sWorld.getBoolConfig(CONFIG_WEATHER))
     {
         SendSysMessage(LANG_WEATHER_DISABLED);
         SetSentErrorMessage(true);
@@ -4941,8 +4941,8 @@ bool ChatHandler::HandleResetLevelCommand(const char * args)
 
     // set starting level
     uint32 start_level = target->getClass() != CLASS_DEATH_KNIGHT
-        ? sWorld.getConfig(CONFIG_START_PLAYER_LEVEL)
-        : sWorld.getConfig(CONFIG_START_HEROIC_PLAYER_LEVEL);
+        ? sWorld.getIntConfig(CONFIG_START_PLAYER_LEVEL)
+        : sWorld.getIntConfig(CONFIG_START_HEROIC_PLAYER_LEVEL);
 
     sScriptMgr.OnPlayerLevelChanged(target, start_level);
 
@@ -6727,7 +6727,7 @@ bool ChatHandler::HandleAccountSetAddonCommand(const char *args)
         return false;
 
     int expansion = atoi(szExp);                                    //get int anyway (0 if error)
-    if (expansion < 0 || uint8(expansion) > sWorld.getConfig(CONFIG_EXPANSION))
+    if (expansion < 0 || uint8(expansion) > sWorld.getIntConfig(CONFIG_EXPANSION))
          return false;
 
     // No SQL injection
