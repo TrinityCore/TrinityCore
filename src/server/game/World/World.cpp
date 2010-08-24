@@ -1359,6 +1359,9 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading Creature templates...");
     sObjectMgr.LoadCreatureTemplates();
 
+    sLog.outString("Loading Vehicle scaling information...");
+    sObjectMgr.LoadVehicleScaling();
+
     sLog.outString("Loading Reputation Reward Rates...");
     sObjectMgr.LoadReputationRewardRate();
 

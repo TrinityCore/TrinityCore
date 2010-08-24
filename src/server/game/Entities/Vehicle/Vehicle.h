@@ -46,8 +46,16 @@ struct VehicleAccessory
     uint32 bMinion;
 };
 
+struct VehicleScalingInfo
+{
+    uint32 ID;
+    float baseItemLevel;
+    float scalingFactor;
+};
+
 typedef std::vector<VehicleAccessory> VehicleAccessoryList;
 typedef std::map<uint32, VehicleAccessoryList> VehicleAccessoryMap;
+typedef std::map<uint32, VehicleScalingInfo> VehicleScalingMap;
 
 typedef std::map<int8, VehicleSeat> SeatMap;
 
@@ -82,6 +90,7 @@ class Vehicle
         Unit *me;
         VehicleEntry const *m_vehicleInfo;
         uint32 m_usableSeatNum;
+        uint32 m_bonusHP;
 
         void InstallAccessory(uint32 entry, int8 seatId, bool minion = true);
 };
