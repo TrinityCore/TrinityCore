@@ -703,6 +703,29 @@ struct ItemPrototype
         return 0;
     }
 
+    float GetItemLevelIncludingQuality() const
+    {
+        float itemLevel = (float)ItemLevel;
+        switch (Quality)
+        {
+            case ITEM_QUALITY_POOR:
+            case ITEM_QUALITY_NORMAL:
+            case ITEM_QUALITY_UNCOMMON:
+            case ITEM_QUALITY_ARTIFACT:
+            case ITEM_QUALITY_HEIRLOOM:
+                itemLevel -= 13; // leaving this as a separate statement since we do not know the real behavior in this case
+                break;
+            case ITEM_QUALITY_RARE:
+                itemLevel -= 13;
+                break;
+            case ITEM_QUALITY_EPIC:
+            case ITEM_QUALITY_LEGENDARY:
+            default:
+                break;
+        }
+        return itemLevel;
+    }
+
     bool IsPotion() const { return Class == ITEM_CLASS_CONSUMABLE && SubClass == ITEM_SUBCLASS_POTION; }
     bool IsWeaponVellum() const { return Class == ITEM_CLASS_TRADE_GOODS && SubClass == ITEM_SUBCLASS_WEAPON_ENCHANTMENT; }
     bool IsArmorVellum() const { return Class == ITEM_CLASS_TRADE_GOODS && SubClass == ITEM_SUBCLASS_ARMOR_ENCHANTMENT; }

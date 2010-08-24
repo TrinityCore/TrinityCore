@@ -27,7 +27,7 @@
 #include "CreatureAI.h"
 #include "ZoneScript.h"
 
-Vehicle::Vehicle(Unit *unit, VehicleEntry const *vehInfo) : me(unit), m_vehicleInfo(vehInfo), m_usableSeatNum(0)
+Vehicle::Vehicle(Unit *unit, VehicleEntry const *vehInfo) : me(unit), m_vehicleInfo(vehInfo), m_usableSeatNum(0), m_bonusHP(0)
 {
     for (uint32 i = 0; i < 8; ++i)
     {
@@ -306,8 +306,6 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
     if (seat->second.seatInfo->m_flags && !(seat->second.seatInfo->m_flags & 0x400))
         unit->addUnitState(UNIT_STAT_ONVEHICLE);
 
-    //SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
-
     unit->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     VehicleSeatEntry const *veSeat = seat->second.seatInfo;
     unit->m_movementInfo.t_pos.m_positionX = veSeat->m_attachmentOffsetX;
@@ -320,8 +318,23 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
     if (me->GetTypeId() == TYPEID_UNIT
         && unit->GetTypeId() == TYPEID_PLAYER
         && seat->first == 0 && seat->second.seatInfo->m_flags & 0x800) // not right
+    {
         if (!me->SetCharmedBy(unit, CHARM_TYPE_VEHICLE))
             ASSERT(false);
+
+        if (VehicleScalingInfo const *scalingInfo = sObjectMgr.GetVehicleScalingInfo(m_vehicleInfo->m_ID))
+        {
+            Player *plr = unit->ToPlayer();
+            float averageItemLevel = plr->GetAverageItemLevel();
+            if (averageItemLevel < scalingInfo->baseItemLevel)
+                averageItemLevel = scalingInfo->baseItemLevel;
+            averageItemLevel -= scalingInfo->baseItemLevel;
+
+            m_bonusHP = uint32(me->GetMaxHealth() * (averageItemLevel * scalingInfo->scalingFactor));
+            me->SetMaxHealth(me->GetMaxHealth() + m_bonusHP);
+            me->SetHealth(me->GetHealth() + m_bonusHP);
+        }
+    }
 
     if (me->IsInWorld())
     {
@@ -377,7 +390,16 @@ void Vehicle::RemovePassenger(Unit *unit)
     if (me->GetTypeId() == TYPEID_UNIT
         && unit->GetTypeId() == TYPEID_PLAYER
         && seat->first == 0 && seat->second.seatInfo->m_flags & 0x800)
+    {
         me->RemoveCharmedBy(unit);
+
+        if (m_bonusHP)
+        {
+            me->SetHealth(me->GetHealth() - m_bonusHP);
+            me->SetMaxHealth(me->GetMaxHealth() - m_bonusHP);
+            m_bonusHP = 0;
+        }
+    }
 
     if (me->GetTypeId() == TYPEID_UNIT && me->ToCreature()->IsAIEnabled)
         me->ToCreature()->AI()->PassengerBoarded(unit, seat->first, false);
