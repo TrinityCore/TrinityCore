@@ -285,7 +285,7 @@ static Yells RandomTaunts[]=
 
 static Yells MaievTaunts[]=
 {
-    {11493, "That is for Naisha!", MAIEV_SHADOWSONG, 0, false},
+    {11493, "That is for Naisha!", MAIEV_SHADOWSONG, 0, 0, false},
     {11494, "Bleed as I have bled!", MAIEV_SHADOWSONG, 0, 0, false},
     {11495, "There shall be no prison for you this time!", MAIEV_SHADOWSONG, 0, 0, false},
     {11500, "Meet your end, demon!", MAIEV_SHADOWSONG, 0, 0, false}
@@ -954,12 +954,14 @@ public:
             for (int32 i = 1; i <= MaxTimer[Phase]; ++i)
             {
                 if (Timer[i]) // Event is enabled
+                {
                     if (Timer[i] <= diff)
                     {
                         if (!Event) // No event with higher priority
                             Event = (EventIllidan)i;
                     }
                     else Timer[i] -= diff;
+                }
             }
 
             switch(Phase)
@@ -993,12 +995,14 @@ public:
                 if (Event == EVENT_TRANSFORM_SEQUENCE)
                     HandleTransformSequence();
                 break;
+            default:
+                break;
             }
 
             if (me->IsNonMeleeSpellCasted(false))
                 return;
 
-            if (Phase == PHASE_NORMAL || Phase == PHASE_NORMAL_2 || Phase == PHASE_NORMAL_MAIEV && !me->HasAura(SPELL_CAGED))
+            if (Phase == PHASE_NORMAL || Phase == PHASE_NORMAL_2 || (Phase == PHASE_NORMAL_MAIEV && !me->HasAura(SPELL_CAGED)))
             {
                 switch(Event)
                 {
@@ -2062,9 +2066,11 @@ public:
         void UpdateAI(const uint32 diff)
         {
             if (DespawnTimer)
+            {
                 if (DespawnTimer <= diff)
                     me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 else DespawnTimer -= diff;
+            }
 
                 //if (IllidanGUID && !SummonedBeams)
                 //{

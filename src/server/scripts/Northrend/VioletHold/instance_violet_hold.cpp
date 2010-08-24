@@ -75,14 +75,14 @@ const Position PortalLocation[] =
     {1908.31f, 809.657f, 38.7037f, 3.08701f}      // WP 6
 };
 
-const Position BossStartMove1  = {1894.684448f, 739.390503f, 47.668003f};
-const Position BossStartMove2  = {1875.173950f, 860.832703f, 43.333565f};
-const Position BossStartMove21 = {1858.854614f, 855.071411f, 43.333565f};
-const Position BossStartMove22 = {1891.926636f, 863.388977f, 43.333565f};
-const Position BossStartMove3  = {1916.138062f, 778.152222f, 35.772308f};
-const Position BossStartMove4  = {1853.618286f, 758.557617f, 38.657505f};
-const Position BossStartMove5  = {1906.683960f, 842.348022f, 38.637459f};
-const Position BossStartMove6  = {1928.207031f, 852.864441f, 47.200813f};
+const Position BossStartMove1  = {1894.684448f, 739.390503f, 47.668003f, 0.0f};
+const Position BossStartMove2  = {1875.173950f, 860.832703f, 43.333565f, 0.0f};
+const Position BossStartMove21 = {1858.854614f, 855.071411f, 43.333565f, 0.0f};
+const Position BossStartMove22 = {1891.926636f, 863.388977f, 43.333565f, 0.0f};
+const Position BossStartMove3  = {1916.138062f, 778.152222f, 35.772308f, 0.0f};
+const Position BossStartMove4  = {1853.618286f, 758.557617f, 38.657505f, 0.0f};
+const Position BossStartMove5  = {1906.683960f, 842.348022f, 38.637459f, 0.0f};
+const Position BossStartMove6  = {1928.207031f, 852.864441f, 47.200813f, 0.0f};
 
 const Position CyanigosasSpawnLocation = {1930.281250f, 804.407715f, 52.410946f, 3.139621f};
 const Position MiddleRoomLocation = {1892.291260f, 805.696838f, 38.438862f, 3.139621f};
@@ -793,7 +793,7 @@ public:
             }
         }
 
-        void ProcessEvent(GameObject* pGO, uint32 uiEventId)
+        void ProcessEvent(GameObject* /*pGO*/, uint32 uiEventId)
         {
             switch(uiEventId)
             {

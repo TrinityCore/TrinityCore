@@ -125,7 +125,7 @@ class Object
     public:
         virtual ~Object ();
 
-        const bool IsInWorld() const { return m_inWorld; }
+        const bool& IsInWorld() const { return m_inWorld; }
         virtual void AddToWorld()
         {
             if (m_inWorld)

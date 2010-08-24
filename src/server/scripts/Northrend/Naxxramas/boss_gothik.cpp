@@ -570,7 +570,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (gateClose && (!isOnSameSide(me) || me->getVictim() && !isOnSameSide(me->getVictim())))
+            if (gateClose && (!isOnSameSide(me) || (me->getVictim() && !isOnSameSide(me->getVictim()))))
             {
                 EnterEvadeMode();
                 return;

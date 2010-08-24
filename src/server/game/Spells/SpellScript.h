@@ -281,8 +281,8 @@ class AuraScript : public _SpellScript
         bool _Validate(SpellEntry const * entry, const char * scriptname);
         bool _Load(Aura * aura);
         void _ResetDefault() { m_default = true; }
-        bool _IsDefaultActionPrevented(SpellEffIndex effIndex) {return !m_default;};
-        bool PreventDefaultAction() { m_default = false; };
+        bool _IsDefaultActionPrevented(SpellEffIndex /*effIndex*/) {return !m_default;};
+        void PreventDefaultAction() { m_default = false; };
     private:
         Aura * m_aura;
         bool m_default;

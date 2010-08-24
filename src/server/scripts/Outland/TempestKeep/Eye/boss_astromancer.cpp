@@ -68,8 +68,9 @@ const float SMALL_PORTAL_RADIUS         = 12.6f;
 const float LARGE_PORTAL_RADIUS         = 26.0f;
 const float PORTAL_Z                    = 17.005f;
 
-                            // x,          y,      z,         o
+/* not used                        // x,          y,      z,         o
 static float SolarianPos[4] = {432.909f, -373.424f, 17.9608f, 1.06421f};
+*/
 
 class boss_high_astromancer_solarian : public CreatureScript
 {

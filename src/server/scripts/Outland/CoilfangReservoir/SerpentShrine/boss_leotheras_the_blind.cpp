@@ -417,6 +417,7 @@ public:
                 return;
             }
             if (me->HasAura(SPELL_WHIRLWIND))
+            {
                 if (Whirlwind_Timer <= diff)
                 {
                     Unit *newTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
@@ -428,6 +429,7 @@ public:
                     }
                     Whirlwind_Timer = 2000;
                 } else Whirlwind_Timer -= diff;
+            }
 
             // reseting after changing forms and after ending whirlwind
             if (NeedThreatReset && !me->HasAura(SPELL_WHIRLWIND))
@@ -468,6 +470,7 @@ public:
                 //Switch_Timer
 
                 if (!IsFinalForm)
+                {
                     if (SwitchToDemon_Timer <= diff)
                     {
                         //switch to demon form
@@ -480,6 +483,7 @@ public:
                         NeedThreatReset = true;
                         SwitchToDemon_Timer = 45000;
                     } else SwitchToDemon_Timer -= diff;
+                }
                 DoMeleeAttackIfReady();
             }
             else

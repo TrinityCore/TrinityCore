@@ -92,6 +92,8 @@ public:
                         pCreature->CastSpell(pPlayer, 31815, true);
                         DoScriptText(GOSSIP_REWARD_BLESS, pCreature);
                         break;
+                    default:
+                        break;
                 }
             }
 
@@ -114,6 +116,8 @@ public:
                     case REP_EXALTED:
                         pCreature->CastSpell(pPlayer, 31814, true);
                         DoScriptText(GOSSIP_REWARD_BLESS, pCreature);
+                        break;
+                    default:
                         break;
                 }
             }

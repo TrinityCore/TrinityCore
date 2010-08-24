@@ -129,12 +129,14 @@ public:
             } else uiUncontrollableEnergyTimer -= diff;
 
             if (IsHeroic())
+            {
                 if (uiManaDestructionTimer <= diff)
                 {
                     if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         DoCast(pTarget, SPELL_MANA_DESTRUCTION);
                     uiManaDestructionTimer = 30000;
                 } else uiManaDestructionTimer -= diff;
+            }
 
             DoMeleeAttackIfReady();
         }

@@ -40,20 +40,22 @@ struct Location
     float x, y, o, z;
 };
 
+/* Not used
 static Location ChannelerLocations[]=
 {
-    {463.161285f, 401.219757f, 3.141592f},
-    {457.377625f, 391.227661f, 2.106461f},
-    {446.012421f, 391.227661f, 1.071904f},
-    {439.533783f, 401.219757f, 0.000000f},
-    {446.012421f, 411.211853f, 5.210546f},
-    {457.377625f, 411.211853f, 4.177494f}
+    {463.161285f, 401.219757f, 3.141592f, 0.0f},
+    {457.377625f, 391.227661f, 2.106461f, 0.0f},
+    {446.012421f, 391.227661f, 1.071904f, 0.0f},
+    {439.533783f, 401.219757f, 0.000000f, 0.0f},
+    {446.012421f, 411.211853f, 5.210546f, 0.0f},
+    {457.377625f, 411.211853f, 4.177494f, 0.0f}
 };
+*/
 
 static Location SpawnLocations[]=
 {
-    {498.652740f, 461.728119f, 0.0f},
-    {498.505003f, 339.619324f, 0.0f}
+    {498.652740f, 461.728119f, 0.0f, 0.0f},
+    {498.505003f, 339.619324f, 0.0f, 0.0f}
 };
 
 static Location AkamaWP[]=
@@ -335,7 +337,7 @@ public:
             if (guid)
             {
                 if (Sorcerers.empty())
-                    sLog.outError("SD2 ERROR: Shade of Akama - attempt to remove guid %u from Sorcerers list but list is already empty", guid);
+                    sLog.outError("SD2 ERROR: Shade of Akama - attempt to remove guid " UI64FMTD " from Sorcerers list but list is already empty", guid);
                 else  Sorcerers.remove(guid);
             }
         }
@@ -387,7 +389,7 @@ public:
                 {
                     CAST_AI(mob_ashtongue_channeler::mob_ashtongue_channelerAI, (*itr)->AI())->ShadeGUID = me->GetGUID();
                     Channelers.push_back((*itr)->GetGUID());
-                    sLog.outDebug("TSCR: Shade of Akama Grid Search found channeler %u. Adding to list", (*itr)->GetGUID());
+                    sLog.outDebug("TSCR: Shade of Akama Grid Search found channeler " UI64FMTD ". Adding to list", (*itr)->GetGUID());
                 }
             }
             else sLog.outError("SD2 ERROR: Grid Search was unable to find any channelers. Shade of Akama encounter will be buggy");
@@ -573,7 +575,10 @@ public:
             ShadeHasDied = false;
             StartCombat = false;
             pInstance = c->GetInstanceScript();
-            ShadeGUID = pInstance ? pInstance->GetData64(DATA_SHADEOFAKAMA) : NOT_STARTED;
+            if (pInstance)
+                ShadeGUID = pInstance->GetData64(DATA_SHADEOFAKAMA);
+            else
+                ShadeGUID = NOT_STARTED;
             me->setActive(true);
             EventBegun = false;
             CastSoulRetrieveTimer = 0;
@@ -794,6 +799,7 @@ public:
             }
 
             if (SoulRetrieveTimer)
+            {
                 if (SoulRetrieveTimer <= diff)
                 {
                     switch(EndingTalkCount)
@@ -849,6 +855,7 @@ public:
                         break;
                     }
                 } else SoulRetrieveTimer -= diff;
+            }
 
             if (!UpdateVictim())
                 return;
