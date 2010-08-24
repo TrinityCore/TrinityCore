@@ -2647,6 +2647,51 @@ void ObjectMgr::LoadVehicleAccessories()
     sLog.outString(">> Loaded %u Vehicle Accessories", count);
 }
 
+void ObjectMgr::LoadVehicleScaling()
+{
+    m_VehicleScalingMap.clear();                           // needed for reload case
+
+    uint32 count = 0;
+
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT `entry`,`baseItemLevel`,`scalingFactor` FROM `vehicle_scaling_info`");
+
+    if (!result)
+    {
+        barGoLink bar(1);
+        bar.step();
+        sLog.outString();
+        sLog.outErrorDb(">> Loaded 0 vehicle scaling entries. DB table `vehicle_scaling_info` is empty.");
+        return;
+    }
+
+    barGoLink bar(result->GetRowCount());
+
+    do
+    {
+        Field *fields = result->Fetch();
+        bar.step();
+
+        uint32 vehicleEntry       = fields[0].GetUInt32();
+        float baseItemLevel       = fields[1].GetFloat();
+        float scalingFactor       = fields[2].GetFloat();
+
+        if (!sVehicleStore.LookupEntry(vehicleEntry))
+        {
+            sLog.outErrorDb("Table `vehicle_scaling_info`: vehicle entry %u does not exist.", vehicleEntry);
+            continue;
+        }
+
+        m_VehicleScalingMap[vehicleEntry].ID = vehicleEntry;
+        m_VehicleScalingMap[vehicleEntry].baseItemLevel = baseItemLevel;
+        m_VehicleScalingMap[vehicleEntry].scalingFactor = scalingFactor;
+
+        ++count;
+    } while (result->NextRow());
+
+    sLog.outString();
+    sLog.outString(">> Loaded %u vehicle scaling entries.", count);
+}
+
 void ObjectMgr::LoadPetLevelInfo()
 {
     // Loading levels data

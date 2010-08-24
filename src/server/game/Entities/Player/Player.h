@@ -238,7 +238,7 @@ typedef std::list<PlayerCreateInfoAction> PlayerCreateInfoActions;
 
 struct PlayerInfo
 {
-                                                            // existence checked by displayId != 0             // existence checked by displayId != 0
+                                                            // existence checked by displayId != 0
     PlayerInfo() : displayId_m(0),displayId_f(0),levelInfo(NULL)
     {
     }

@@ -13577,22 +13577,6 @@ void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId, bool showQue
             pMenu->GetGossipMenu().AddGossipMenuItemData(itr->second.action_menu_id, itr->second.action_poi_id, itr->second.action_script_id);
         }
     }
-
-    // some gossips aren't handled in normal way ... so we need to do it this way .. TODO: handle it in normal way ;-)
-    /*if (pMenu->Empty())
-    {
-        if (pCreature->HasFlag(UNIT_NPC_FLAGS,UNIT_NPC_FLAG_TRAINER))
-        {
-            // output error message if need
-            pCreature->isCanTrainingOf(this, true);
-        }
-
-        if (pCreature->HasFlag(UNIT_NPC_FLAGS,UNIT_NPC_FLAG_BATTLEMASTER))
-        {
-            // output error message if need
-            pCreature->isCanInteractWithBattleMaster(this, true);
-        }
-    }*/
 }
 
 void Player::SendPreparedGossip(WorldObject *pSource)
@@ -24137,7 +24121,7 @@ void Player::_LoadRandomBGStatus(QueryResult_AutoPtr result)
 
 float Player::GetAverageItemLevel()
 {
-    uint32 sum = 0;
+    float sum = 0;
     uint32 count = 0;
 
     for (int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
@@ -24147,7 +24131,7 @@ float Player::GetAverageItemLevel()
             continue;
 
         if (m_items[i] && m_items[i]->GetProto())
-            sum += m_items[i]->GetProto()->ItemLevel;
+            sum += m_items[i]->GetProto()->GetItemLevelIncludingQuality();
 
         count++;
     }
