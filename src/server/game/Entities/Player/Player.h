@@ -1272,6 +1272,8 @@ class Player : public Unit, public GridObject<Player>
         void LoadCorpse();
         void LoadPet();
 
+        bool AddItem(uint32 itemId, uint32 count);
+
         uint32 m_stableSlots;
 
         /*********************************************************/
