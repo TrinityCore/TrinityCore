@@ -281,7 +281,7 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
     }
 
     // not accept case incorrect money amount
-    if (trader->HasEnoughMoney(his_trade->GetMoney()))
+    if (!trader->HasEnoughMoney(his_trade->GetMoney()))
     {
         trader->GetSession()->SendNotification(LANG_NOT_ENOUGH_GOLD);
         his_trade->SetAccepted(false, true);
