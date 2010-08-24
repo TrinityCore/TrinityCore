@@ -99,49 +99,50 @@ Each event type has its own specific interpretation of it's params, like every e
 
 #    Internal name                     Param usage                     Description
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-0    ACTION_T_NONE                     No Action                       Does nothing.
-1    ACTION_T_TEXT                     -TextId1, -TextId2, -TextId3    Simply displays the specified -TextId. When -TextId2 and -TextId3 are specified, the selection will be randomized. Text types are defined, along with other options for the text, in a table below. All values needs to be negative.
-2    ACTION_T_SET_FACTION              FactionId                       Changes faction for a creature. When param1 is zero, creature will revert to it's default faction.
-3    ACTION_T_MORPH_TO_ENTRY_OR_MODEL  CreatureEntry, ModelId          Set either model from creature_template.entry (Param1) OR explicit modelId (Param2). If (Param1) AND (Param2) are both 0, demorph and revert to the default model.
-4    ACTION_T_SOUND                    SoundId                         Plays a sound
-5    ACTION_T_EMOTE                    EmoteId                         Does an emote
-6    ACTION_T_RANDOM_SAY                                               UNUSED
-7    ACTION_T_RANDOM_YELL                                              UNUSED
-8    ACTION_T_RANDOM_TEXTEMOTE                                         UNUSED
-9    ACTION_T_RANDOM_SOUND             SoundId1, SoundId2, SoundId3    Plays a random sound *
-10   ACTION_T_RANDOM_EMOTE             EmoteId1, EmoteId2, EmoteId3    Emotes a random emote
-11   ACTION_T_CAST                     SpellId, Target, CastFlags      Casts spell (Param1) on a target (Param2) using cast flags (specified below).
-12   ACTION_T_SUMMON                   CreatureID, Target, Duration    Summons a creature (Param1) for (Param3) duration and orders it to attach (Param2) target. Spawns on top of current creature.
-13   ACTION_T_THREAT_SINGLE_PCT        Threat%, Target                 Modifies a threat by (Param1) percent on a target (Param2).
-14   ACTION_T_THREAT_ALL_PCT           Threat%                         Modifies a threat by (Param1) on all targets in the threat list (using -100% here will result in full aggro dump).
-15   ACTION_T_QUEST_EVENT              QuestID, Target                 Calls AreaExploredOrEventHappens with (Param1) for a target in (Param2).
-16   ACTION_T_QUEST_CASTCREATUREGO     CreatureID, SpellId, Target     Sends CastCreatureOrGo for a creature specified by CreatureId (Param1) with provided spell id (Param2) for a target in (Param3).
-17   ACTION_T_SET_UNIT_FIELD           Field_Number, Value, Target     Sets a unit field (Param1) to provided value (Param2) on a target in (Param3).
-18   ACTION_T_SET_UNIT_FLAG            Flags, Target                   Sets flag (flags can be used together to modify multiple flags at once) on a target (Param2).
-19   ACTION_T_REMOVE_UNIT_FLAG         Flags, Target                   Removes flag on a target (Param2).
-20   ACTION_T_AUTO_ATTACK              AllowAutoAttack                 Stop melee attack when (Param1) is zero, otherwise continue attacking / allow melee attack.
-21   ACTION_T_COMBAT_MOVEMENT          AllowCombatMovement             Stop combat based movement when (Param1) is zero, otherwise continue/allow combat based movement (targeted movement generator).
-22   ACTION_T_SET_PHASE                Phase                           Sets the current phase to (Param1).
-23   ACTION_T_INC_PHASE                Value                           Increments the phase by (Param1). May be negative to decrement, but should not be zero.
-24   ACTION_T_EVADE                    No Params                       Forces the creature to evade, wiping all threat and dropping combat.
-25   ACTION_T_FLEE_FOR_ASSIST          No Params                       Causes the creature to flee for assistence (often at low health).
-26   ACTION_T_QUEST_EVENT_ALL          QuestId                         Calls GroupEventHappens with (Param1). Only used if it's _expected_ event should call quest completion for all players in a current party.
-27   ACTION_T_CASTCREATUREGO_ALL       QuestId, SpellId                Calls CastedCreatureOrGo for all players on the threat list with quest id specified in (Param1) and spell id in (Param2).
-28   ACTION_T_REMOVEAURASFROMSPELL     Target, Spellid                 Removes all auras on a target (Param1) caused by a spell (Param2).
-29   ACTION_T_RANGED_MOVEMENT          Distance, Angle                 Changes the movement generator to a ranged type. (note: default melee type can still be set by using 0 as angle and 0 as distance).
-30   ACTION_T_RANDOM_PHASE             PhaseId1, PhaseId2, PhaseId3    Sets a phase to a specified id(s)*
-31   ACTION_T_RANDOM_PHASE_RANGE       PhaseMin, PhaseMax              Sets a phase to a random id (Phase = PhaseMin + rnd % PhaseMin-PhaseMax). PhaseMax must be greater than PhaseMin.
-32   ACTION_T_SUMMON                   CreatureID, Target, SummonID    Summons a creature (Param1) to attack target (Param2) at location specified by EventAI_Summons (Param3).
-33   ACTION_T_KILLED_MONSTER           CreatureID, Target              Calls KilledMonster (Param1) for a target (Param2).
-34   ACTION_T_SET_INST_DATA            Field, Data                     Calls ScriptedInstance::SetData with field (Param1) and data (Param2).
-35   ACTION_T_SET_INST_DATA64          Field, Target                   Calls ScriptedInstance::SetData64 with field (Param1) and target's GUID (Param2).
-36   ACTION_T_UPDATE_TEMPLATE          TemplateId, Team                Changes a creature's template to (Param1) with team = Alliance or Horde when (Param2) is either false or true respectively.
-37   ACTION_T_DIE                      No Params                       Kills the creature
-38   ACTION_T_ZONE_COMBAT_PULSE        No Params                       Puts all players within an instance into combat with the creature. Only works when a creature is already in combat. Doesn't work outside instances.
-39   ACTION_T_CALL_FOR_HELP            Radius                          Call any friendly out-of-combat creatures in a radius (Param1) to attack current creature's target.
-40   ACTION_T_SET_SHEATH               Sheath                          Sets sheath state for a creature (0 = no weapon, 1 = melee weapon, 2 = ranged weapon).
-41   ACTION_T_FORCE_DESPAWN            No Params                       Despawns the creature
-42   ACTION_T_SET_INVINCIBILITY_HP_LEVEL hp_level, is_percent          Set min. health level for creature that can be set at damage as flat value or percent from max health
+0    ACTION_T_NONE                       No Action                       Does nothing.
+1    ACTION_T_TEXT                       -TextId1, -TextId2, -TextId3    Simply displays the specified -TextId. When -TextId2 and -TextId3 are specified, the selection will be randomized. Text types are defined, along with other options for the text, in a table below. All values needs to be negative.
+2    ACTION_T_SET_FACTION                FactionId                       Changes faction for a creature. When param1 is zero, creature will revert to it's default faction.
+3    ACTION_T_MORPH_TO_ENTRY_OR_MODEL    CreatureEntry, ModelId          Set either model from creature_template.entry (Param1) OR explicit modelId (Param2). If (Param1) AND (Param2) are both 0, demorph and revert to the default model.
+4    ACTION_T_SOUND                      SoundId                         Plays a sound
+5    ACTION_T_EMOTE                      EmoteId                         Does an emote
+6    ACTION_T_RANDOM_SAY                                                 UNUSED
+7    ACTION_T_RANDOM_YELL                                                UNUSED
+8    ACTION_T_RANDOM_TEXTEMOTE                                           UNUSED
+9    ACTION_T_RANDOM_SOUND               SoundId1, SoundId2, SoundId3    Plays a random sound *
+10   ACTION_T_RANDOM_EMOTE               EmoteId1, EmoteId2, EmoteId3    Emotes a random emote
+11   ACTION_T_CAST                       SpellId, Target, CastFlags      Casts spell (Param1) on a target (Param2) using cast flags (specified below).
+12   ACTION_T_SUMMON                     CreatureID, Target, Duration    Summons a creature (Param1) for (Param3) duration and orders it to attach (Param2) target. Spawns on top of current creature.
+13   ACTION_T_THREAT_SINGLE_PCT          Threat%, Target                 Modifies a threat by (Param1) percent on a target (Param2).
+14   ACTION_T_THREAT_ALL_PCT             Threat%                         Modifies a threat by (Param1) on all targets in the threat list (using -100% here will result in full aggro dump).
+15   ACTION_T_QUEST_EVENT                QuestID, Target                 Calls AreaExploredOrEventHappens with (Param1) for a target in (Param2).
+16   ACTION_T_QUEST_CASTCREATUREGO       CreatureID, SpellId, Target     Sends CastCreatureOrGo for a creature specified by CreatureId (Param1) with provided spell id (Param2) for a target in (Param3).
+17   ACTION_T_SET_UNIT_FIELD             Field_Number, Value, Target     Sets a unit field (Param1) to provided value (Param2) on a target in (Param3).
+18   ACTION_T_SET_UNIT_FLAG              Flags, Target                   Sets flag (flags can be used together to modify multiple flags at once) on a target (Param2).
+19   ACTION_T_REMOVE_UNIT_FLAG           Flags, Target                   Removes flag on a target (Param2).
+20   ACTION_T_AUTO_ATTACK                AllowAutoAttack                 Stop melee attack when (Param1) is zero, otherwise continue attacking / allow melee attack.
+21   ACTION_T_COMBAT_MOVEMENT            AllowCombatMovement             Stop combat based movement when (Param1) is zero, otherwise continue/allow combat based movement (targeted movement generator).
+22   ACTION_T_SET_PHASE                  Phase                           Sets the current phase to (Param1).
+23   ACTION_T_INC_PHASE                  Value                           Increments the phase by (Param1). May be negative to decrement, but should not be zero.
+24   ACTION_T_EVADE                      No Params                       Forces the creature to evade, wiping all threat and dropping combat.
+25   ACTION_T_FLEE_FOR_ASSIST            No Params                       Causes the creature to flee for assistence (often at low health).
+26   ACTION_T_QUEST_EVENT_ALL            QuestId                         Calls GroupEventHappens with (Param1). Only used if it's _expected_ event should call quest completion for all players in a current party.
+27   ACTION_T_CASTCREATUREGO_ALL         QuestId, SpellId                Calls CastedCreatureOrGo for all players on the threat list with quest id specified in (Param1) and spell id in (Param2).
+28   ACTION_T_REMOVEAURASFROMSPELL       Target, Spellid                 Removes all auras on a target (Param1) caused by a spell (Param2).
+29   ACTION_T_RANGED_MOVEMENT            Distance, Angle                 Changes the movement generator to a ranged type. (note: default melee type can still be set by using 0 as angle and 0 as distance).
+30   ACTION_T_RANDOM_PHASE               PhaseId1, PhaseId2, PhaseId3    Sets a phase to a specified id(s)*
+31   ACTION_T_RANDOM_PHASE_RANGE         PhaseMin, PhaseMax              Sets a phase to a random id (Phase = PhaseMin + rnd % PhaseMin-PhaseMax). PhaseMax must be greater than PhaseMin.
+32   ACTION_T_SUMMON                     CreatureID, Target, SummonID    Summons a creature (Param1) to attack target (Param2) at location specified by EventAI_Summons (Param3).
+33   ACTION_T_KILLED_MONSTER             CreatureID, Target              Calls KilledMonster (Param1) for a target (Param2).
+34   ACTION_T_SET_INST_DATA              Field, Data                     Calls ScriptedInstance::SetData with field (Param1) and data (Param2).
+35   ACTION_T_SET_INST_DATA64            Field, Target                   Calls ScriptedInstance::SetData64 with field (Param1) and target's GUID (Param2).
+36   ACTION_T_UPDATE_TEMPLATE            TemplateId, Team                Changes a creature's template to (Param1) with team = Alliance or Horde when (Param2) is either false or true respectively.
+37   ACTION_T_DIE                        No Params                       Kills the creature
+38   ACTION_T_ZONE_COMBAT_PULSE          No Params                       Puts all players within an instance into combat with the creature. Only works when a creature is already in combat. Doesn't work outside instances.
+39   ACTION_T_CALL_FOR_HELP              Radius                          Call any friendly out-of-combat creatures in a radius (Param1) to attack current creature's target.
+40   ACTION_T_SET_SHEATH                 Sheath                          Sets sheath state for a creature (0 = no weapon, 1 = melee weapon, 2 = ranged weapon).
+41   ACTION_T_FORCE_DESPAWN              No Params                       Despawns the creature
+42   ACTION_T_SET_INVINCIBILITY_HP_LEVEL hp_level, is_percent            Set min. health level for creature that can be set at damage as flat value or percent from max health
+43   ACTION_T_MOUNT_TO_ENTRY_OR_MODEL    CreatureEntry, ModelId          Set mount model from creature_template.entry (Param1) OR explicit modelId (Param2). If (Param1) AND (Param2) are both 0, unmount.
 
 * = Use -1 where the param is expected to do nothing. Random constant is generated for each event, so if you have a random yell and a random sound, they will be linked up with each other (ie. param2 with param2).
 
