@@ -2472,7 +2472,7 @@ void World::UpdateRealmCharCount(uint32 accountId)
 {
     m_realmCharCallback.SetParam(accountId);
     m_realmCharCallback.SetFutureResult(
-        LoginDatabase.AsyncPQuery("SELECT COUNT(guid) FROM characters WHERE account = '%u'", accountId)
+        CharacterDatabase.AsyncPQuery("SELECT COUNT(guid) FROM characters WHERE account = '%u'", accountId)
         );
 }
 
