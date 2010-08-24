@@ -6853,26 +6853,11 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, int32 honor, bool pvpt
                 || (MapType == 3 && !InBattleground()))
                 return true;
 
-            uint32 noSpaceForCount = 0;
             uint32 itemId = sWorld.getIntConfig(CONFIG_PVP_TOKEN_ID);
             int32 count = sWorld.getIntConfig(CONFIG_PVP_TOKEN_COUNT);
 
-            // check space and find places
-            ItemPosCountVec dest;
-            uint8 msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, count, &noSpaceForCount);
-            if (msg != EQUIP_ERR_OK)   // convert to possible store amount
-                count = noSpaceForCount;
-
-            if (count == 0 || dest.empty()) // can't add any
-            {
-                // -- TODO: Send to mailbox if no space
-                ChatHandler(this).PSendSysMessage("You don't have any space in your bags for a token.");
-                return true;
-            }
-
-            Item* item = StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
-            SendNewItem(item,count,true,false);
-            ChatHandler(this).PSendSysMessage("You have been awarded a token for slaying another player.");
+            if(AddItem(itemId, count))
+                ChatHandler(this).PSendSysMessage("You have been awarded a token for slaying another player.");
         }
     }
 
@@ -23995,6 +23980,29 @@ void Player::SendRefundInfo(Item *item)
     data << uint32(0);
     data << uint32(GetTotalPlayedTime() - item->GetPlayedTime());
     GetSession()->SendPacket(&data);
+}
+
+bool Player::AddItem(uint32 itemId, uint32 count)
+{
+    uint32 noSpaceForCount = 0;
+    ItemPosCountVec dest;
+    uint8 msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, count, &noSpaceForCount);
+    if (msg != EQUIP_ERR_OK)
+        count = noSpaceForCount;
+
+    if (count == 0 || dest.empty())
+    {
+        // -- TODO: Send to mailbox if no space
+        ChatHandler(this).PSendSysMessage("You don't have any space in your bags.");
+        return false;
+    }
+
+    Item* item = StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
+    if(item)
+        SendNewItem(item,count,true,false);
+    else
+        return false;
+    return true;
 }
 
 void Player::RefundItem(Item *item)
