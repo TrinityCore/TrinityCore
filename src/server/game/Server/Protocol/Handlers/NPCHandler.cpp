@@ -542,30 +542,37 @@ void WorldSession::SendStablePet(uint64 guid)
         ++num;
     }
 
-    //                                                     0      1   2      3      4
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT owner, id, entry, level, name FROM character_pet WHERE owner = '%u' AND slot >= '%u' AND slot <= '%u' ORDER BY slot",
-        _player->GetGUIDLow(),PET_SAVE_FIRST_STABLE_SLOT,PET_SAVE_LAST_STABLE_SLOT);
+    m_sendStabledPetCallback.SetFirstParam(&data);
+    m_sendStabledPetCallback.SetSecondParam(num);
+    m_sendStabledPetCallback.SetFutureResult(
+        CharacterDatabase.AsyncPQuery("SELECT owner, id, entry, level, name FROM character_pet WHERE owner = '%u' AND slot >= '%u' AND slot <= '%u' ORDER BY slot",
+            _player->GetGUIDLow(),PET_SAVE_FIRST_STABLE_SLOT,PET_SAVE_LAST_STABLE_SLOT)
+        );
+}
 
+void WorldSession::SendStablePetCallback(QueryResult_AutoPtr result, WorldPacket* data, uint8 num)
+{
     if (result)
     {
         do
         {
             Field *fields = result->Fetch();
 
-            data << uint32(fields[1].GetUInt32());          // petnumber
-            data << uint32(fields[2].GetUInt32());          // creature entry
-            data << uint32(fields[3].GetUInt32());          // level
-            data << fields[4].GetString();                  // name
-            data << uint8(2);                               // 1 = current, 2/3 = in stable (any from 4,5,... create problems with proper show)
+            *data << uint32(fields[1].GetUInt32());          // petnumber
+            *data << uint32(fields[2].GetUInt32());          // creature entry
+            *data << uint32(fields[3].GetUInt32());          // level
+            *data << fields[4].GetString();                  // name
+            *data << uint8(2);                               // 1 = current, 2/3 = in stable (any from 4,5,... create problems with proper show)
 
             ++num;
-        }while (result->NextRow());
+        }
+        while (result->NextRow());
     }
 
-    data.put<uint8>(wpos, num);                             // set real data to placeholder
-    SendPacket(&data);
-}
+    data->put<uint8>(4, num);                             // set real data to placeholder
+    SendPacket(data);
 
+}
 
 void WorldSession::SendStableResult(uint8 res)
 {
