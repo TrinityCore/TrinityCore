@@ -248,7 +248,7 @@ void LFGMgr::Update(uint32 diff)
     // Check if a proposal can be formed with the new groups being added
     LfgProposalList proposals;
     LfgGuidList firstNew;
-    while(!m_newToQueue.empty())
+    if (!m_newToQueue.empty())
     {
         firstNew.push_back(m_newToQueue.front());
         FindNewGroups(firstNew, m_currentQueue, &proposals);
