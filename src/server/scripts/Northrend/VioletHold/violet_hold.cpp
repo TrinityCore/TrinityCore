@@ -244,9 +244,9 @@ const float SaboteurFinalPos6[5][3] =
     {1931.063354f, 848.468445f, 47.190434f}
  };
 
-const Position MovePosition = {1806.955566f, 803.851807f, 44.363323f};
+const Position MovePosition = {1806.955566f, 803.851807f, 44.363323f, 0.0f};
 const Position playerTeleportPosition = {1830.531006f, 803.939758f, 44.340508f, 6.281611f};
-const Position sinclariOutsidePosition = {1817.315674f, 804.060608f, 44.363998f};
+const Position sinclariOutsidePosition = {1817.315674f, 804.060608f, 44.363998f, 0.0f};
 
 class npc_sinclari_vh : public CreatureScript
 {
@@ -479,7 +479,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (pInstance && pInstance->GetData(DATA_MAIN_EVENT_PHASE != IN_PROGRESS))
+            if (pInstance && pInstance->GetData(DATA_MAIN_EVENT_PHASE) != IN_PROGRESS)
                 me->CastStop();
 
             npc_escortAI::UpdateAI(diff);
@@ -723,8 +723,8 @@ struct violet_hold_trashAI : public npc_escortAI
 
     void UpdateAI(const uint32)
     {
-        if (pInstance && pInstance->GetData(DATA_MAIN_EVENT_PHASE != IN_PROGRESS))
-                me->CastStop();
+        if (pInstance && pInstance->GetData(DATA_MAIN_EVENT_PHASE) != IN_PROGRESS)
+            me->CastStop();
 
         if (!bHasGotMovingPoints)
         {
@@ -778,7 +778,7 @@ struct violet_hold_trashAI : public npc_escortAI
         }
     }
 
-    void JustDied(Unit *unit)
+    void JustDied(Unit * /*unit*/)
     {
         if (Creature* portal = Unit::GetCreature((*me),pInstance->GetData64(DATA_TELEPORTATION_PORTAL)))
             CAST_AI(npc_teleportation_portal_vh::npc_teleportation_portalAI,portal->AI())->SummonedMobDied(me);
@@ -786,7 +786,7 @@ struct violet_hold_trashAI : public npc_escortAI
             pInstance->SetData(DATA_NPC_PRESENCE_AT_DOOR_REMOVE,1);
     }
 
-    void CreatureStartAttackDoor(uint32 creature_guid)
+    void CreatureStartAttackDoor(uint32 /*creature_guid*/)
     {
         me->SetReactState(REACT_PASSIVE);
         DoCast(SPELL_DESTROY_DOOR_SEAL);

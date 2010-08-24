@@ -203,6 +203,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                     return;
 
                 if (Assassins_Timer)
+                {
                     if (Assassins_Timer <= diff)
                     {
                         SpawnAssassin();
@@ -210,10 +211,12 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                     }
                     else
                         Assassins_Timer -= diff;
+                }
 
                 if (InBlade)
                 {
                     if (Wait_Timer)
+                    {
                         if (Wait_Timer <= diff)
                         {
                             if (target_num <= 0)
@@ -241,10 +244,12 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                         }
                         else
                             Wait_Timer -= diff;
+                    }
                 }
                 else
                 {
                     if (Blade_Dance_Timer)
+                    {
                         if (Blade_Dance_Timer <= diff)
                         {
                             target_num = TARGET_NUM;
@@ -256,8 +261,10 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                         }
                         else
                             Blade_Dance_Timer -= diff;
+                    }
 
                     if (Charge_timer)
+                    {
                         if (Charge_timer <= diff)
                         {
                             DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), H_SPELL_CHARGE);
@@ -265,6 +272,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                         }
                         else
                             Charge_timer -= diff;
+                    }
 
                     if (Summon_Assistant_Timer <= diff)
                     {

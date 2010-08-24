@@ -281,11 +281,13 @@ public:
 
             //Enrage
             if (!me->HasAura(SPELL_BERSERK))
-                if (EnrageTimer <= diff)
             {
-                DoCast(me, SPELL_BERSERK);
-                DoScriptText(SAY_ENRAGE, me);
-            } else EnrageTimer -= diff;
+                if (EnrageTimer <= diff)
+                {
+                    DoCast(me, SPELL_BERSERK);
+                    DoScriptText(SAY_ENRAGE, me);
+                } else EnrageTimer -= diff;
+            }
 
             //Random taunts
             if (RandomYellTimer <= diff)

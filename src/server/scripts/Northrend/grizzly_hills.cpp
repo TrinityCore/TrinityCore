@@ -191,7 +191,7 @@ public:
                         MrfloppyGUID = Mrfloppy->GetGUID();
                     break;
                 case 10:
-                    if (Creature *Mrfloppy = Unit::GetCreature(*me, MrfloppyGUID))
+                    if (Unit::GetCreature(*me, MrfloppyGUID))
                     {
                         DoScriptText(SAY_WORGHAGGRO1, me);
                         me->SummonCreature(NPC_HUNGRY_WORG,me->GetPositionX()+5,me->GetPositionY()+2,me->GetPositionZ()+1,3.229f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,120000);
@@ -472,7 +472,7 @@ public:
         {
             if (m_uiPhase == 1)
             {
-                if (GameObject* haunch = me->FindNearestGameObject(OBJECT_HAUNCH, 2.0f))
+                if (me->FindNearestGameObject(OBJECT_HAUNCH, 2.0f))
                 {
                     me->SetStandState(UNIT_STAND_STATE_DEAD);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
@@ -517,7 +517,7 @@ public:
         void UpdateAI(const uint32 uiDiff)
         {
             // call this each update tick?
-            if (Creature* stag = me->FindNearestCreature(TALLHORN_STAG, 0.2f))
+            if (me->FindNearestCreature(TALLHORN_STAG, 0.2f))
             {
                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USESTANDING);
             }

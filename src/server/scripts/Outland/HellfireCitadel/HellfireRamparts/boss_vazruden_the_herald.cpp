@@ -179,6 +179,7 @@ class boss_nazan : public CreatureScript
                         ConeOfFire_Timer -= diff;
 
                     if (IsHeroic())
+                    {
                         if (BellowingRoar_Timer <= diff)
                         {
                             DoCast(me, SPELL_BELLOWING_ROAR);
@@ -186,6 +187,7 @@ class boss_nazan : public CreatureScript
                         }
                         else
                             BellowingRoar_Timer -= diff;
+                    }
 
                     DoMeleeAttackIfReady();
                 }
@@ -422,9 +424,9 @@ class boss_vazruden_the_herald : public CreatureScript
                     {
                         Creature *Nazan = Unit::GetCreature(*me, NazanGUID);
                         Creature *Vazruden = Unit::GetCreature(*me, VazrudenGUID);
-                        if (Nazan && Nazan->isAlive() || Vazruden && Vazruden->isAlive())
+                        if ((Nazan && Nazan->isAlive()) || (Vazruden && Vazruden->isAlive()))
                         {
-                            if (Nazan && Nazan->getVictim() || Vazruden && Vazruden->getVictim())
+                            if ((Nazan && Nazan->getVictim()) || (Vazruden && Vazruden->getVictim()))
                                 return;
                             else
                             {

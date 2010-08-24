@@ -43,7 +43,7 @@ class spell_ex_5581 : public SpellScriptLoader
 
             // function called on server startup
             // checks if script has data required for it to work
-            bool Validate(SpellEntry const * spellEntry)
+            bool Validate(SpellEntry const * /*spellEntry*/)
             {
                 // check if spellid 70522 exists in dbc, we will trigger it later
                 if (!sSpellStore.LookupEntry(SPELL_TRIGGERED))
@@ -71,11 +71,10 @@ class spell_ex_5581 : public SpellScriptLoader
                 delete localVariable2;
             }
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 // we're handling SPELL_EFFECT_DUMMY in effIndex 0 here
                 sLog.outString("SPELL_EFFECT_DUMMY is executed on target!");
-                sLog.outString(localVariable.c_str());
                 // make caster cast a spell on a unit target of effect
                 if (Unit * target = GetHitUnit())
                     GetCaster()->CastSpell(target, SPELL_TRIGGERED, true);
@@ -156,7 +155,7 @@ class spell_ex_66244 : public SpellScriptLoader
                 return false;
             }
 
-            void HandleEffectApply(AuraEffect const * aurEff, AuraApplication const * aurApp, AuraEffectHandleModes mode)
+            void HandleEffectApply(AuraEffect const * /*aurEff*/, AuraApplication const * aurApp, AuraEffectHandleModes /*mode*/)
             {
                 sLog.outString("Aura Effect is about to be applied on target!");
                 Unit * target = aurApp->GetTarget();
@@ -164,7 +163,7 @@ class spell_ex_66244 : public SpellScriptLoader
                 target->CastSpell(target, SPELL_TRIGGERED, true);
             }
 
-            void HandleEffectRemove(AuraEffect const * aurEff, AuraApplication const * aurApp, AuraEffectHandleModes mode)
+            void HandleEffectRemove(AuraEffect const * /*aurEff*/, AuraApplication const * aurApp, AuraEffectHandleModes /*mode*/)
             {
                 sLog.outString("Aura Effect is just removed on target!");
                 Unit * target = aurApp->GetTarget();
@@ -176,7 +175,7 @@ class spell_ex_66244 : public SpellScriptLoader
                 target->CastSpell(caster, SPELL_TRIGGERED, true);
             }
 
-            void HandleEffectPeriodic(AuraEffect const * aurEff, AuraApplication const * aurApp)
+            void HandleEffectPeriodic(AuraEffect const * /*aurEff*/, AuraApplication const * aurApp)
             {
                 sLog.outString("Perioidic Aura Effect is does a tick on target!");
                 Unit * target = aurApp->GetTarget();
@@ -191,7 +190,7 @@ class spell_ex_66244 : public SpellScriptLoader
                 aurEff->ChangeAmount(aurEff->GetAmount() * 2);
             }
 
-            void HandleEffectCalcAmount(AuraEffect const * aurEff, int32 & amount, bool & canBeRecalculated)
+            void HandleEffectCalcAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & canBeRecalculated)
             {
                 sLog.outString("Amount of Aura Effect is being calculated now!");
                 // we're setting amount to 0
@@ -200,7 +199,7 @@ class spell_ex_66244 : public SpellScriptLoader
                 canBeRecalculated = false;
             }
 
-            void HandleEffectCalcPeriodic(AuraEffect const * aurEff, bool & isPeriodic, int32 & amplitude)
+            void HandleEffectCalcPeriodic(AuraEffect const * /*aurEff*/, bool & isPeriodic, int32 & amplitude)
             {
                 sLog.outString("Periodic data of Aura Effect is being calculated now!");
                 // we're setting aura to be periodic and tick every 10 seconds
@@ -208,7 +207,7 @@ class spell_ex_66244 : public SpellScriptLoader
                 amplitude = 2 * IN_MILLISECONDS;
             }
 
-            void HandleEffectCalcSpellMod(AuraEffect * const aurEff, SpellModifier *& spellMod)
+            void HandleEffectCalcSpellMod(AuraEffect * const /*aurEff*/, SpellModifier *& spellMod)
             {
                 sLog.outString("SpellMod data of Aura Effect is being calculated now!");
                 // we don't want spellmod for example
