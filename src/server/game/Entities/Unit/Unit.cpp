@@ -2225,8 +2225,8 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
                 if (preventDeathSpell->SpellIconID == 2873)
                 {
                     int32 healAmount = pVictim->GetMaxHealth() * preventDeathAmount / 100;
-                    pVictim->CastCustomSpell(pVictim, 48153, &healAmount, NULL, NULL, true);
                     pVictim->RemoveAurasDueToSpell(preventDeathSpell->Id);
+                    pVictim->CastCustomSpell(pVictim, 48153, &healAmount, NULL, NULL, true);
                     RemainingDamage = 0;
                 }
                 break;
