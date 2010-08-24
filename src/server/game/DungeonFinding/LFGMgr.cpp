@@ -101,7 +101,7 @@ void LFGMgr::Cleaner()
             m_QueueInfoMap.erase(itQueue);
         }
     }
-   
+
     // Remove from NewToQueue those guids that do not exist in queueMap
     for (LfgGuidList::iterator it = m_newToQueue.begin(); it != m_newToQueue.end();)
     {
@@ -278,7 +278,7 @@ void LFGMgr::Update(uint32 diff)
                     SendUpdateProposal(plr, m_lfgProposalId, pProposal);
                 }
             }
-            
+
             if (pProposal->state == LFG_PROPOSAL_SUCCESS)
                 UpdateProposal(m_lfgProposalId, lowGuid, 1);
 
@@ -1185,7 +1185,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint32 lowGuid, uint8 accept)
                 else if (role & ROLE_DAMAGE)
                     m_WaitTimeDps = int32((m_WaitTimeDps * m_NumWaitTimeDps + waitTime) / ++m_NumWaitTimeDps);
             }
-                
+
             grp->SetLfgRoles(plr->GetGUID(), pProposal->players[plr->GetGUIDLow()]->role);
         }
 
@@ -1251,7 +1251,7 @@ void LFGMgr::RemoveProposal(LfgProposalMap::iterator itProposal, LfgUpdateType t
             updateType = type;
             plr->GetLfgDungeons()->clear();
             plr->SetLfgRoles(ROLE_NONE);
-            
+
             if (itQueue != m_QueueInfoMap.end())
                 m_QueueInfoMap.erase(itQueue);
         }
@@ -1656,7 +1656,7 @@ void LFGMgr::SendLfgPlayerReward(Player *plr)
     uint32 rdungeonId = 0;
     uint32 sdungeonId = 0;
     LFGDungeonEntry const *dungeon = sLFGDungeonStore.LookupEntry(*plr->GetLfgDungeons()->begin());
-    if (dungeon)        
+    if (dungeon)
         rdungeonId = dungeon->Entry();
     if (plr->GetGroup())
         sdungeonId = plr->GetGroup()->GetLfgDungeonEntry(false);
