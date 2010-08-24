@@ -11727,7 +11727,7 @@ float Unit::GetPPMProcChance(uint32 WeaponSpeed, float PPM, const SpellEntry * s
     return floor((WeaponSpeed * PPM) / 600.0f);   // result is chance in percents (probability = Speed_in_sec * (PPM / 60))
 }
 
-void Unit::Mount(uint32 mount, uint32 VehicleId)
+void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
 {
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOUNT);
 
@@ -11758,6 +11758,10 @@ void Unit::Mount(uint32 mount, uint32 VehicleId)
                 if (CreateVehicleKit(VehicleId))
                 {
                     GetVehicleKit()->Reset();
+
+                    // mounts can also have accessories
+                    GetVehicleKit()->GetBase()->SetEntry(creatureEntry); // set creature entry so InstallAllAccessories() can read correct accessories
+                    GetVehicleKit()->InstallAllAccessories();
 
                     // Send others that we now have a vehicle
                     WorldPacket data(SMSG_PLAYER_VEHICLE_DATA, GetPackGUID().size()+4);
