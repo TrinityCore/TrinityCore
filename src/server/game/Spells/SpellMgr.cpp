@@ -3168,34 +3168,7 @@ bool SpellMgr::CanAurasStack(SpellEntry const *spellInfo_1, SpellEntry const *sp
         return false;
     }
 
-    // use icon to check generic spells
-    if (!spellInfo_1->SpellFamilyName)
-    {
-        if (!spellInfo_1->SpellIconID || spellInfo_1->SpellIconID == 1
-            || spellInfo_1->SpellIconID != spellInfo_2->SpellIconID)
-            return true;
-    }
-    // use familyflag to check class spells
-    else
-    {
-        if (!spellInfo_1->SpellFamilyFlags
-            || spellInfo_1->SpellFamilyFlags != spellInfo_2->SpellFamilyFlags)
-            return true;
-    }
-
-    //use data of highest rank spell(needed for spells which ranks have different effects)
-    spellInfo_1 = sSpellStore.LookupEntry(spellId_1);
-    spellInfo_2 = sSpellStore.LookupEntry(spellId_2);
-
-    //if spells do not have the same effect or aura or miscvalue, they will stack
-    for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (spellInfo_1->Effect[i] != spellInfo_2->Effect[i]
-            || spellInfo_1->EffectApplyAuraName[i] != spellInfo_2->EffectApplyAuraName[i]
-            || spellInfo_1->EffectMiscValue[i] != spellInfo_2->EffectMiscValue[i]) // paladin resist aura
-            return true; // need itemtype check? need an example to add that check
-
-    // different spells with same effect
-    return false;
+    return true;
 }
 
 bool CanSpellDispelAura(SpellEntry const * dispelSpell, SpellEntry const * aura)

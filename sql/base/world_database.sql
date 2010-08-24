@@ -6008,7 +6008,16 @@ INSERT INTO `spell_group` (`id`, `spell_id`) VALUES
 -- mage freezing spells
 (1107, 122), -- Frost Nova
 (1107, 33395), -- Freeze
-(1107, 55080); -- Shattered Barrier
+(1107, 55080), -- Shattered Barrier
+-- Mark/Gift of the Wild
+(1108, 1126),
+(1108, 21849),
+-- Power Word/Prayer of Fortitude
+(1109, 1243),
+(1109, 21562),
+-- Prayer of/Shadow Protection
+(1110, 976),
+(1110, 27683);
 
 /*!40000 ALTER TABLE `spell_group` ENABLE KEYS */;
 UNLOCK TABLES;
