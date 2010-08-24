@@ -497,11 +497,6 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
         // change the data to server values
         switch(type)
         {
-            case DTT_CHAR_TABLE:
-                if (!changenth(line, 1, newguid))           // character_*.guid update
-                    ROLLBACK(DUMP_FILE_BROKEN);
-                break;
-
             case DTT_CHARACTER:
             {
                 if (!changenth(line, 1, newguid))           // characters.guid update
@@ -535,6 +530,20 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                     ROLLBACK(DUMP_FILE_BROKEN);
                 break;
             }
+            case DTT_CHAR_TABLE:
+            {
+                if (!changenth(line, 1, newguid))           // character_*.guid update
+                    ROLLBACK(DUMP_FILE_BROKEN);
+                break;
+            }
+            case DTT_EQSET_TABLE:
+            {
+                if (!changenth(line, 1, newguid))
+                    ROLLBACK(DUMP_FILE_BROKEN);             // character_equipmentsets.guid
+                if (!changenth(line, 2, sObjectMgr.GenerateEquipmentSetGuid()))
+                    ROLLBACK(DUMP_FILE_BROKEN);             // character_equipmentsets.setguid
+                break;
+            }
             case DTT_INVENTORY:
             {
                 if (!changenth(line, 1, newguid))           // character_inventory.guid update
@@ -544,6 +553,24 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                     ROLLBACK(DUMP_FILE_BROKEN);             // character_inventory.bag update
                 if (!changeGuid(line, 4, items, sObjectMgr.m_hiItemGuid))
                     ROLLBACK(DUMP_FILE_BROKEN);             // character_inventory.item update
+                break;
+            }
+            case DTT_MAIL:                                  // mail
+            {
+                if (!changeGuid(line, 1, mails, sObjectMgr.m_mailid))
+                    ROLLBACK(DUMP_FILE_BROKEN);             // mail.id update
+                if (!changenth(line, 6, newguid))           // mail.receiver update
+                    ROLLBACK(DUMP_FILE_BROKEN);
+                break;
+            }
+            case DTT_MAIL_ITEM:                             // mail_items
+            {
+                if (!changeGuid(line, 1, mails, sObjectMgr.m_mailid))
+                    ROLLBACK(DUMP_FILE_BROKEN);             // mail_items.id
+                if (!changeGuid(line, 2, items, sObjectMgr.m_hiItemGuid))
+                    ROLLBACK(DUMP_FILE_BROKEN);             // mail_items.item_guid
+                if (!changenth(line, 4, newguid))           // mail_items.receiver
+                    ROLLBACK(DUMP_FILE_BROKEN);
                 break;
             }
             case DTT_ITEM:
@@ -602,24 +629,6 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                 if (!changenth(line, 1, newpetid))
                     ROLLBACK(DUMP_FILE_BROKEN);
 
-                break;
-            }
-            case DTT_MAIL:                                  // mail
-            {
-                if (!changeGuid(line, 1, mails, sObjectMgr.m_mailid))
-                    ROLLBACK(DUMP_FILE_BROKEN);             // mail.id update
-                if (!changenth(line, 6, newguid))           // mail.receiver update
-                    ROLLBACK(DUMP_FILE_BROKEN);
-                break;
-            }
-            case DTT_MAIL_ITEM:                             // mail_items
-            {
-                if (!changeGuid(line, 1, mails, sObjectMgr.m_mailid))
-                    ROLLBACK(DUMP_FILE_BROKEN);             // mail_items.id
-                if (!changeGuid(line, 2, items, sObjectMgr.m_hiItemGuid))
-                    ROLLBACK(DUMP_FILE_BROKEN);             // mail_items.item_guid
-                if (!changenth(line, 4, newguid))           // mail_items.receiver
-                    ROLLBACK(DUMP_FILE_BROKEN);
                 break;
             }
             default:
