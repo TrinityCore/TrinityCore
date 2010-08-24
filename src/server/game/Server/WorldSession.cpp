@@ -1015,4 +1015,14 @@ void WorldSession::ProcessQueryCallbacks()
         HandleAddIgnoreOpcodeCallBack(result);
         m_addIgnoreCallback.cancel();
     }
+
+    //- SendStabledPet
+    if (m_sendStabledPetCallback.IsReady())
+    {
+        WorldPacket* param1 = m_sendStabledPetCallback.GetFirstParam();
+        uint8 param2 = m_sendStabledPetCallback.GetSecondParam();
+        m_sendStabledPetCallback.GetResult(result);
+        SendStablePetCallback(result, param1, param2);
+        m_sendStabledPetCallback.FreeResult();
+    }
 }
