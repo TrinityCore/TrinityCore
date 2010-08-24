@@ -187,6 +187,9 @@ void Vehicle::RemoveAllPassengers()
                 //ASSERT(!itr->second.passenger);
                 itr->second.passenger = NULL;
             }
+            // creature passengers mounted on player mounts should be despawned at dismount
+            if (GetBase()->GetTypeId() == TYPEID_PLAYER && passenger->GetEntry())
+                passenger->ToCreature()->ForcedDespawn();
         }
 }
 

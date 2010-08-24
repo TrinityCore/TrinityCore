@@ -659,6 +659,11 @@ void WorldSession::HandleEjectPasenger(WorldPacket &data)
             data >> guid;
             if (Player* Pl=ObjectAccessor::FindPlayer(guid))
                 Pl->ExitVehicle();
+            else if (Unit* Un = ObjectAccessor::GetUnit(*_player, guid)) // creatures can be ejected too from player mounts
+            {
+                Un->ExitVehicle();
+                Un->ToCreature()->ForcedDespawn(1000);
+            }
         }
     }
 }
