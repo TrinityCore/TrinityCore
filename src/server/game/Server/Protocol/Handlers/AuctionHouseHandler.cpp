@@ -56,9 +56,9 @@ void WorldSession::HandleAuctionHelloOpcode(WorldPacket & recv_data)
 //this void causes that auction window is opened
 void WorldSession::SendAuctionHello(uint64 guid, Creature* unit)
 {
-    if (GetPlayer()->getLevel() < sWorld.getConfig(CONFIG_AUCTION_LEVEL_REQ))
+    if (GetPlayer()->getLevel() < sWorld.getIntConfig(CONFIG_AUCTION_LEVEL_REQ))
     {
-        SendNotification(GetTrinityString(LANG_AUCTION_REQ), sWorld.getConfig(CONFIG_AUCTION_LEVEL_REQ));
+        SendNotification(GetTrinityString(LANG_AUCTION_REQ), sWorld.getIntConfig(CONFIG_AUCTION_LEVEL_REQ));
         return;
     }
 
@@ -204,7 +204,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
         return;
     }
 
-    if (GetSecurity() > SEC_PLAYER && sWorld.getConfig(CONFIG_GM_LOG_TRADE))
+    if (GetSecurity() > SEC_PLAYER && sWorld.getBoolConfig(CONFIG_GM_LOG_TRADE))
     {
         sLog.outCommand(GetAccountId(),"GM %s (Account: %u) create auction: %s (Entry: %u Count: %u)",
             GetPlayerName(),GetAccountId(),it->GetProto()->Name1,it->GetEntry(),it->GetCount());
@@ -216,7 +216,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
 
     AuctionEntry *AH = new AuctionEntry;
     AH->Id = sObjectMgr.GenerateAuctionID();
-    if (sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
+    if (sWorld.getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
         AH->auctioneer = 23442;
     else
         AH->auctioneer = GUID_LOPART(auctioneer);

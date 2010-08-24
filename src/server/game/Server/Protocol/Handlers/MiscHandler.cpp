@@ -224,8 +224,8 @@ void WorldSession::HandleWhoOpcode(WorldPacket & recv_data)
 
     uint32 team = _player->GetTeam();
     uint32 security = GetSecurity();
-    bool allowTwoSideWhoList = sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_WHO_LIST);
-    uint32 gmLevelInWhoList  = sWorld.getConfig(CONFIG_GM_LEVEL_IN_WHO_LIST);
+    bool allowTwoSideWhoList = sWorld.getBoolConfig(CONFIG_ALLOW_TWO_SIDE_WHO_LIST);
+    uint32 gmLevelInWhoList  = sWorld.getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST);
 
     WorldPacket data(SMSG_WHO, 50);                       // guess size
     data << uint32(clientcount);                            // clientcount place holder, listed count
@@ -336,7 +336,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket & recv_data)
 
         // 49 is maximum player count sent to client - can be overridden
         // through config, but is unstable
-        if ((++clientcount) == sWorld.getConfig(CONFIG_MAX_WHO))
+        if ((++clientcount) == sWorld.getIntConfig(CONFIG_MAX_WHO))
             break;
     }
 
@@ -376,7 +376,7 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket & /*recv_data*/)
 
     //instant logout in taverns/cities or on taxi or for admins, gm's, mod's if its enabled in worldserver.conf
     if (GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) || GetPlayer()->isInFlight() ||
-        GetSecurity() >= AccountTypes(sWorld.getConfig(CONFIG_INSTANT_LOGOUT)))
+        GetSecurity() >= AccountTypes(sWorld.getIntConfig(CONFIG_INSTANT_LOGOUT)))
     {
         WorldPacket data(SMSG_LOGOUT_RESPONSE, 1+4);
         data << uint8(0);
@@ -575,13 +575,13 @@ void WorldSession::HandleAddFriendOpcodeCallBack(QueryResult_AutoPtr result, std
         team = Player::TeamForRace((*result)[1].GetUInt8());
         friendAcctid = (*result)[2].GetUInt32();
 
-        if (GetSecurity() >= SEC_MODERATOR || sWorld.getConfig(CONFIG_ALLOW_GM_FRIEND) || sAccountMgr.GetSecurity(friendAcctid) < SEC_MODERATOR)
+        if (GetSecurity() >= SEC_MODERATOR || sWorld.getBoolConfig(CONFIG_ALLOW_GM_FRIEND) || sAccountMgr.GetSecurity(friendAcctid) < SEC_MODERATOR)
         {
             if (friendGuid)
             {
                 if (friendGuid == GetPlayer()->GetGUID())
                     friendResult = FRIEND_SELF;
-                else if (GetPlayer()->GetTeam() != team && !sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_ADD_FRIEND) && GetSecurity() < SEC_MODERATOR)
+                else if (GetPlayer()->GetTeam() != team && !sWorld.getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ADD_FRIEND) && GetSecurity() < SEC_MODERATOR)
                     friendResult = FRIEND_ENEMY;
                 else if (GetPlayer()->GetSocial()->HasFriend(GUID_LOPART(friendGuid)))
                     friendResult = FRIEND_ALREADY;
@@ -1216,7 +1216,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recv_data)
     WorldPacket data(SMSG_INSPECT_TALENT, guid_size+4+talent_points);
     data.append(plr->GetPackGUID());
 
-    if (sWorld.getConfig(CONFIG_TALENTS_INSPECTING) || _player->isGameMaster())
+    if (sWorld.getBoolConfig(CONFIG_TALENTS_INSPECTING) || _player->isGameMaster())
     {
         plr->BuildPlayerTalentsInfoData(&data);
     }

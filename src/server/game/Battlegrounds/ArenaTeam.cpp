@@ -47,14 +47,14 @@ ArenaTeam::ArenaTeam()
     m_stats.games_season  = 0;
     m_stats.rank          = 0;
     /* warning: comparison of unsigned expression >= 0 is always true
-    if (sWorld.getConfig(CONFIG_ARENA_START_RATING) >= 0)
-    m_stats.rating = sWorld.getConfig(CONFIG_ARENA_START_RATING);
-    else if (sWorld.getConfig(CONFIG_ARENA_SEASON_ID) >= 6)
+    if (sWorld.getIntConfig(CONFIG_ARENA_START_RATING) >= 0)
+    m_stats.rating = sWorld.getIntConfig(CONFIG_ARENA_START_RATING);
+    else if (sWorld.getIntConfig(CONFIG_ARENA_SEASON_ID) >= 6)
         m_stats.rating    = 0;
     else
         m_stats.rating    = 1500;
     */
-    m_stats.rating = sWorld.getConfig(CONFIG_ARENA_START_RATING);
+    m_stats.rating = sWorld.getIntConfig(CONFIG_ARENA_START_RATING);
     m_stats.wins_week     = 0;
     m_stats.wins_season   = 0;
 }
@@ -151,11 +151,11 @@ bool ArenaTeam::AddMember(const uint64& PlayerGuid)
     newmember.wins_week         = 0;
     newmember.personal_rating   = 0;
 
-    if (sWorld.getConfig(CONFIG_ARENA_START_PERSONAL_RATING) > 0)
-        newmember.personal_rating = sWorld.getConfig(CONFIG_ARENA_START_PERSONAL_RATING);
+    if (sWorld.getIntConfig(CONFIG_ARENA_START_PERSONAL_RATING) > 0)
+        newmember.personal_rating = sWorld.getIntConfig(CONFIG_ARENA_START_PERSONAL_RATING);
     else
     {
-        if (sWorld.getConfig(CONFIG_ARENA_SEASON_ID) < 6)
+        if (sWorld.getIntConfig(CONFIG_ARENA_SEASON_ID) < 6)
             newmember.personal_rating = 1500;
         else
             if (GetRating() >= 1000)
@@ -546,7 +546,7 @@ uint32 ArenaTeam::GetPoints(uint32 MemberRating)
 
     if (rating <= 1500)
     {
-        if (sWorld.getConfig(CONFIG_ARENA_SEASON_ID) < 6)
+        if (sWorld.getIntConfig(CONFIG_ARENA_SEASON_ID) < 6)
             points = (float)rating * 0.22f + 14.0f;
         else
             points = 344;
@@ -568,7 +568,7 @@ float ArenaTeam::GetChanceAgainst(uint32 own_rating, uint32 enemy_rating)
     // returns the chance to win against a team with the given rating, used in the rating adjustment calculation
     // ELO system
 
-    if (sWorld.getConfig(CONFIG_ARENA_SEASON_ID) >= 6)
+    if (sWorld.getIntConfig(CONFIG_ARENA_SEASON_ID) >= 6)
         if (enemy_rating < 1000)
             enemy_rating = 1000;
     return 1.0f/(1.0f+exp(log(10.0f)*(float)((float)enemy_rating - (float)own_rating)/400.0f));

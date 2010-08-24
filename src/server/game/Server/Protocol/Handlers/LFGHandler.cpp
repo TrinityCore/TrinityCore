@@ -25,7 +25,7 @@
 void WorldSession::HandleLfgJoinOpcode(WorldPacket &recv_data)
 {
     sLog.outDebug("CMSG_LFG_JOIN");
-    if (!sWorld.getConfig(CONFIG_DUNGEON_FINDER_ENABLE))
+    if (!sWorld.getBoolConfig(CONFIG_DUNGEON_FINDER_ENABLE))
     {
         recv_data.rpos(recv_data.wpos());
         return;

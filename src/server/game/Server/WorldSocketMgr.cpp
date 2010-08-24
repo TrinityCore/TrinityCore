@@ -159,13 +159,13 @@ class ReactorRunnable : protected ACE_Task_Base
             sLog.outStaticDebug ("Network Thread Starting");
 
             bool needInit = true;
-            if (!(sWorld.getConfig(CONFIG_MYSQL_BUNDLE_LOGINDB) & MYSQL_BUNDLE_RA))
+            if (!(sWorld.getIntConfig(CONFIG_MYSQL_BUNDLE_LOGINDB) & MYSQL_BUNDLE_RA))
             {
                 LoginDatabase.Init_MySQL_Connection();
                 needInit = false;
             }
 
-            if (!(sWorld.getConfig(CONFIG_MYSQL_BUNDLE_CHARDB) & MYSQL_BUNDLE_RA))
+            if (!(sWorld.getIntConfig(CONFIG_MYSQL_BUNDLE_CHARDB) & MYSQL_BUNDLE_RA))
             {
                 CharacterDatabase.Init_MySQL_Connection();
                 needInit = false;
@@ -210,9 +210,9 @@ class ReactorRunnable : protected ACE_Task_Base
             }
 
             ///- Free MySQL thread resources and deallocate lingering connections
-            if (!(sWorld.getConfig(CONFIG_MYSQL_BUNDLE_LOGINDB) & MYSQL_BUNDLE_RA))
+            if (!(sWorld.getIntConfig(CONFIG_MYSQL_BUNDLE_LOGINDB) & MYSQL_BUNDLE_RA))
                 LoginDatabase.End_MySQL_Connection();
-            if (!(sWorld.getConfig(CONFIG_MYSQL_BUNDLE_CHARDB) & MYSQL_BUNDLE_RA))
+            if (!(sWorld.getIntConfig(CONFIG_MYSQL_BUNDLE_CHARDB) & MYSQL_BUNDLE_RA))
                 CharacterDatabase.End_MySQL_Connection();
 
             if (needInit)

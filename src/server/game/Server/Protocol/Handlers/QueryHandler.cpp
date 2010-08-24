@@ -62,7 +62,7 @@ void WorldSession::SendNameQueryOpcodeFromDB(uint64 guid)
 {
     ACE_Future<QueryResult_AutoPtr> lFutureResult = 
         CharacterDatabase.AsyncPQuery(
-            !sWorld.getConfig(CONFIG_DECLINED_NAMES_USED) ?
+            !sWorld.getBoolConfig(CONFIG_DECLINED_NAMES_USED) ?
         //   ------- Query Without Declined Names --------
         //          0     1     2     3       4
             "SELECT guid, name, race, gender, class "
@@ -110,7 +110,7 @@ void WorldSession::SendNameQueryOpcodeFromDBCallBack(QueryResult_AutoPtr result)
     data << uint8(pClass);                                  // class
 
     // if the first declined name field (5) is empty, the rest must be too
-    if (sWorld.getConfig(CONFIG_DECLINED_NAMES_USED) && fields[5].GetCppString() != "")
+    if (sWorld.getBoolConfig(CONFIG_DECLINED_NAMES_USED) && fields[5].GetCppString() != "")
     {
         data << uint8(1);                                   // is declined
         for (int i = 5; i < MAX_DECLINED_NAME_CASES+5; ++i)

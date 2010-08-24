@@ -1199,7 +1199,7 @@ bool ChatHandler::HandleNpcChangeLevelCommand(const char* args)
         return false;
 
     uint8 lvl = (uint8) atoi((char*)args);
-    if (lvl < 1 || lvl > sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL) + 3)
+    if (lvl < 1 || lvl > sWorld.getIntConfig(CONFIG_MAX_PLAYER_LEVEL) + 3)
     {
         SendSysMessage(LANG_BAD_VALUE);
         SetSentErrorMessage(true);
@@ -2042,7 +2042,7 @@ bool ChatHandler::HandleKickPlayerCommand(const char *args)
         if (HasLowerSecurity(player, 0))
             return false;
 
-        if (sWorld.getConfig(CONFIG_SHOW_KICK_IN_WORLD) == 1)
+        if (sWorld.getIntConfig(CONFIG_SHOW_KICK_IN_WORLD) == 1)
         {
             sWorld.SendWorldText(LANG_COMMAND_KICKMESSAGE, player->GetName(), kicker.c_str(), reason.c_str());
         }
@@ -2089,7 +2089,7 @@ bool ChatHandler::HandleKickPlayerCommand(const char *args)
 
         if (sWorld.KickPlayer(name))
         {
-            if (sWorld.getConfig(CONFIG_SHOW_KICK_IN_WORLD) == 1)
+            if (sWorld.getIntConfig(CONFIG_SHOW_KICK_IN_WORLD) == 1)
             {
                 sWorld.SendWorldText(LANG_COMMAND_KICKMESSAGE, nameLink.c_str(), kicker.c_str(), reason.c_str());
             }

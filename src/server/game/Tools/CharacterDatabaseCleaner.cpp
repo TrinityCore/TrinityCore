@@ -26,7 +26,7 @@
 void CharacterDatabaseCleaner::CleanDatabase()
 {
     // config to disable
-    if(!sWorld.getConfig(CONFIG_CLEAN_CHARACTER_DB))
+    if(!sWorld.getBoolConfig(CONFIG_CLEAN_CHARACTER_DB))
         return;
 
     sLog.outString("Cleaning character database...");
