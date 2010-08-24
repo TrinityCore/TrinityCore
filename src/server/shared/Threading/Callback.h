@@ -76,4 +76,61 @@ class QueryCallback
         ParamType param;
 };
 
+template <typename ParamType1, typename ParamType2>
+class QueryCallback_2
+{
+    public:
+        QueryCallback_2() {}
+        
+        void SetFutureResult(QueryResultFuture value)
+        {
+            result = value;
+        }
+        
+        QueryResultFuture GetFutureResult()
+        {
+            return result;    
+        }
+        
+        int IsReady()
+        {
+            return result.ready();
+        }
+        
+        void GetResult(QueryResult_AutoPtr& res)
+        {
+            result.get(res);
+        }
+        
+        void FreeResult()
+        {
+            result.cancel();
+        }
+        
+        void SetFirstParam(ParamType1 value)
+        {
+            param_1 = value;
+        }
+
+        void SetSecondParam(ParamType2 value)
+        {
+            param_2 = value;
+        }
+        
+        ParamType1 GetFirstParam()
+        {
+            return param_1;
+        }
+
+        ParamType2 GetSecondParam()
+        {
+            return param_2;
+        }
+        
+    private:
+        QueryResultFuture result;
+        ParamType1 param_1;
+        ParamType2 param_2;
+};
+
 #endif
