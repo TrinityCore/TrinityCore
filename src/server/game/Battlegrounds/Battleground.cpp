@@ -457,7 +457,7 @@ void Battleground::Update(uint32 diff)
                     if (Player* plr = sObjectMgr.GetPlayer(itr->first))
                         plr->RemoveAurasDueToSpell(SPELL_PREPARATION);
                 //Announce BG starting
-                if (sWorld.getConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE))
+                if (sWorld.getBoolConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE))
                 {
                     sWorld.SendWorldText(LANG_BG_STARTED_ANNOUNCE_WORLD, GetName(), GetMinLevel(), GetMaxLevel());
                 }
@@ -1887,7 +1887,7 @@ void Battleground::SetBracket(PvPDifficultyEntry const* bracketEntry)
 
 void Battleground::RewardXPAtKill(Player* plr, Player* victim)
 {
-    if (!sWorld.getConfig(CONFIG_BG_XP_FOR_KILL) || !plr || !victim)
+    if (!sWorld.getBoolConfig(CONFIG_BG_XP_FOR_KILL) || !plr || !victim)
         return;
 
     uint32 xp = 0;

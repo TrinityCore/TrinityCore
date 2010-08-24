@@ -84,7 +84,7 @@ bool LoginQueryHolder::Initialize()
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADSOCIALLIST,      "SELECT friend,flags,note FROM character_social WHERE guid = '%u' LIMIT 255", GUID_LOPART(m_guid));
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADHOMEBIND,        "SELECT map,zone,position_x,position_y,position_z FROM character_homebind WHERE guid = '%u'", GUID_LOPART(m_guid));
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADSPELLCOOLDOWNS,  "SELECT spell,item,time FROM character_spell_cooldown WHERE guid = '%u'", GUID_LOPART(m_guid));
-    if (sWorld.getConfig(CONFIG_DECLINED_NAMES_USED))
+    if (sWorld.getBoolConfig(CONFIG_DECLINED_NAMES_USED))
         res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADDECLINEDNAMES,   "SELECT genitive, dative, accusative, instrumental, prepositional FROM character_declinedname WHERE guid = '%u'",GUID_LOPART(m_guid));
     // in other case still be dummy query
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADGUILD,           "SELECT guildid,rank FROM guild_member WHERE guid = '%u'", GUID_LOPART(m_guid));
@@ -132,7 +132,7 @@ void WorldSession::HandleCharEnumOpcode(WorldPacket & /*recv_data*/)
     /// get all the data necessary for loading all characters (along with their pets) on the account
     m_charEnumCallback =
         CharacterDatabase.AsyncPQuery(
-             !sWorld.getConfig(CONFIG_DECLINED_NAMES_USED) ?
+             !sWorld.getBoolConfig(CONFIG_DECLINED_NAMES_USED) ?
             //   ------- Query Without Declined Names --------
             //           0               1                2                3                 4                  5                       6                        7
                 "SELECT characters.guid, characters.name, characters.race, characters.class, characters.gender, characters.playerBytes, characters.playerBytes2, characters.level, "
@@ -173,7 +173,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
 
     if (GetSecurity() == SEC_PLAYER)
     {
-        if (uint32 mask = sWorld.getConfig(CONFIG_CHARACTERS_CREATING_DISABLED))
+        if (uint32 mask = sWorld.getIntConfig(CONFIG_CHARACTERS_CREATING_DISABLED))
         {
             bool disabled = false;
 
@@ -260,7 +260,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
         Field *fields=resultacct->Fetch();
         uint32 acctcharcount = fields[0].GetUInt32();
 
-        if (acctcharcount >= sWorld.getConfig(CONFIG_CHARACTERS_PER_ACCOUNT))
+        if (acctcharcount >= sWorld.getIntConfig(CONFIG_CHARACTERS_PER_ACCOUNT))
         {
             data << (uint8)CHAR_CREATE_ACCOUNT_LIMIT;
             SendPacket(&data);
@@ -275,7 +275,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
         Field *fields=result->Fetch();
         charcount = fields[0].GetUInt8();
 
-        if (charcount >= sWorld.getConfig(CONFIG_CHARACTERS_PER_REALM))
+        if (charcount >= sWorld.getIntConfig(CONFIG_CHARACTERS_PER_REALM))
         {
             data << (uint8)CHAR_CREATE_SERVER_LIMIT;
             SendPacket(&data);
@@ -284,7 +284,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
     }
 
     // speedup check for heroic class disabled case
-    uint32 heroic_free_slots = sWorld.getConfig(CONFIG_HEROIC_CHARACTERS_PER_REALM);
+    uint32 heroic_free_slots = sWorld.getIntConfig(CONFIG_HEROIC_CHARACTERS_PER_REALM);
     if (heroic_free_slots == 0 && GetSecurity() == SEC_PLAYER && class_ == CLASS_DEATH_KNIGHT)
     {
         data << (uint8)CHAR_CREATE_UNIQUE_CLASS_LIMIT;
@@ -293,16 +293,16 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
     }
 
     // speedup check for heroic class disabled case
-    uint32 req_level_for_heroic = sWorld.getConfig(CONFIG_MIN_LEVEL_FOR_HEROIC_CHARACTER_CREATING);
-    if (GetSecurity() == SEC_PLAYER && class_ == CLASS_DEATH_KNIGHT && req_level_for_heroic > sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL))
+    uint32 req_level_for_heroic = sWorld.getIntConfig(CONFIG_MIN_LEVEL_FOR_HEROIC_CHARACTER_CREATING);
+    if (GetSecurity() == SEC_PLAYER && class_ == CLASS_DEATH_KNIGHT && req_level_for_heroic > sWorld.getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
     {
         data << (uint8)CHAR_CREATE_LEVEL_REQUIREMENT;
         SendPacket(&data);
         return;
     }
 
-    bool AllowTwoSideAccounts = !sWorld.IsPvPRealm() || sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_ACCOUNTS) || GetSecurity() > SEC_PLAYER;
-    uint32 skipCinematics = sWorld.getConfig(CONFIG_SKIP_CINEMATICS);
+    bool AllowTwoSideAccounts = !sWorld.IsPvPRealm() || sWorld.getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ACCOUNTS) || GetSecurity() > SEC_PLAYER;
+    uint32 skipCinematics = sWorld.getIntConfig(CONFIG_SKIP_CINEMATICS);
 
     bool have_same_race = false;
 
@@ -615,7 +615,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
         sLog.outStaticDebug("WORLD: Sent motd (SMSG_MOTD)");
 
         // send server info
-        if (sWorld.getConfig(CONFIG_ENABLE_SINFO_LOGIN) == 1)
+        if (sWorld.getIntConfig(CONFIG_ENABLE_SINFO_LOGIN) == 1)
             chH.PSendSysMessage(_FULLVERSION);
 
         sLog.outStaticDebug("WORLD: Sent server info");
@@ -765,7 +765,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
     if (sWorld.IsShutdowning())
         sWorld.ShutdownMsg(true,pCurrChar);
 
-    if (sWorld.getConfig(CONFIG_ALL_TAXI_PATHS))
+    if (sWorld.getBoolConfig(CONFIG_ALL_TAXI_PATHS))
         pCurrChar->SetTaxiCheater(true);
 
     if (pCurrChar->isGameMaster())

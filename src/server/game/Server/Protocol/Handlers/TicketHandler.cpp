@@ -27,9 +27,9 @@
 
 void WorldSession::HandleGMTicketCreateOpcode(WorldPacket & recv_data)
 {
-    if (GetPlayer()->getLevel() < sWorld.getConfig(CONFIG_TICKET_LEVEL_REQ))
+    if (GetPlayer()->getLevel() < sWorld.getIntConfig(CONFIG_TICKET_LEVEL_REQ))
     {
-        SendNotification(GetTrinityString(LANG_TICKET_REQ), sWorld.getConfig(CONFIG_TICKET_LEVEL_REQ));
+        SendNotification(GetTrinityString(LANG_TICKET_REQ), sWorld.getIntConfig(CONFIG_TICKET_LEVEL_REQ));
         return;
     }
 

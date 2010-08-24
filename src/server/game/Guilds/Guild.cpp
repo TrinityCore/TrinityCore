@@ -880,7 +880,7 @@ void Guild::LoadGuildEventLogFromDB()
     if (!result)
         return;
     bool isNextLogGuidSet = false;
-    //uint32 configCount = sWorld.getConfig(CONFIG_GUILD_EVENT_LOG_COUNT);
+    //uint32 configCount = sWorld.getIntConfig(CONFIG_GUILD_EVENT_LOG_COUNT);
     // First event in list will be the oldest and the latest event is last event in list
     do
     {
@@ -919,7 +919,7 @@ void Guild::LogGuildEvent(uint8 EventType, uint32 PlayerGuid1, uint32 PlayerGuid
     NewEvent.NewRank = NewRank;
     NewEvent.TimeStamp = uint32(time(NULL));
     // Count new LogGuid
-    m_GuildEventLogNextGuid = (m_GuildEventLogNextGuid + 1) % sWorld.getConfig(CONFIG_GUILD_EVENT_LOG_COUNT);
+    m_GuildEventLogNextGuid = (m_GuildEventLogNextGuid + 1) % sWorld.getIntConfig(CONFIG_GUILD_EVENT_LOG_COUNT);
     // Check max records limit
     if (m_GuildEventLog.size() >= GUILD_EVENTLOG_MAX_RECORDS)
         m_GuildEventLog.pop_front();
@@ -1432,7 +1432,7 @@ void Guild::LoadGuildBankEventLogFromDB()
 {
     // Money log is in TabId = GUILD_BANK_MONEY_LOGS_TAB
 
-    //uint32 configCount = sWorld.getConfig(CONFIG_GUILD_BANK_EVENT_LOG_COUNT);
+    //uint32 configCount = sWorld.getIntConfig(CONFIG_GUILD_BANK_EVENT_LOG_COUNT);
     //cycle through all purchased guild bank item tabs
     for (uint32 tabId = 0; tabId < uint32(GetPurchasedTabs()); ++tabId)
     {
@@ -1569,7 +1569,7 @@ void Guild::LogBankEvent(SQLTransaction& trans, uint8 EventType, uint8 TabId, ui
     uint32 currentLogGuid = 0;
     if (NewEvent.isMoneyEvent())
     {
-        m_GuildBankEventLogNextGuid_Money = (m_GuildBankEventLogNextGuid_Money + 1) % sWorld.getConfig(CONFIG_GUILD_BANK_EVENT_LOG_COUNT);
+        m_GuildBankEventLogNextGuid_Money = (m_GuildBankEventLogNextGuid_Money + 1) % sWorld.getIntConfig(CONFIG_GUILD_BANK_EVENT_LOG_COUNT);
         currentLogGuid = m_GuildBankEventLogNextGuid_Money;
         currentTabId = GUILD_BANK_MONEY_LOGS_TAB;
         if (m_GuildBankEventLog_Money.size() >= GUILD_BANK_MAX_LOGS)
@@ -1579,7 +1579,7 @@ void Guild::LogBankEvent(SQLTransaction& trans, uint8 EventType, uint8 TabId, ui
     }
     else
     {
-        m_GuildBankEventLogNextGuid_Item[TabId] = ((m_GuildBankEventLogNextGuid_Item[TabId]) + 1) % sWorld.getConfig(CONFIG_GUILD_BANK_EVENT_LOG_COUNT);
+        m_GuildBankEventLogNextGuid_Item[TabId] = ((m_GuildBankEventLogNextGuid_Item[TabId]) + 1) % sWorld.getIntConfig(CONFIG_GUILD_BANK_EVENT_LOG_COUNT);
         currentLogGuid = m_GuildBankEventLogNextGuid_Item[TabId];
         if (m_GuildBankEventLog_Item[TabId].size() >= GUILD_BANK_MAX_LOGS)
             m_GuildBankEventLog_Item[TabId].pop_front();
@@ -2138,7 +2138,7 @@ void Guild::MoveFromBankToChar(Player * pl, uint8 BankTab, uint8 BankTabSlot, ui
             if (pItemChar)
             {
                 // logging item move to bank
-                if (pl->GetSession()->GetSecurity() > SEC_PLAYER && sWorld.getConfig(CONFIG_GM_LOG_TRADE))
+                if (pl->GetSession()->GetSecurity() > SEC_PLAYER && sWorld.getBoolConfig(CONFIG_GM_LOG_TRADE))
                 {
                     sLog.outCommand(pl->GetSession()->GetAccountId(), "GM %s (Account: %u) deposit item: %s (Entry: %d Count: %u) to guild bank (Guild ID: %u)",
                         pl->GetName(), pl->GetSession()->GetAccountId(),
@@ -2212,7 +2212,7 @@ void Guild::MoveFromCharToBank(Player * pl, uint8 PlayerBag, uint8 PlayerSlot, u
         }
 
         // logging item move to bank (before items merge
-        if (pl->GetSession()->GetSecurity() > SEC_PLAYER && sWorld.getConfig(CONFIG_GM_LOG_TRADE))
+        if (pl->GetSession()->GetSecurity() > SEC_PLAYER && sWorld.getBoolConfig(CONFIG_GM_LOG_TRADE))
         {
             sLog.outCommand(pl->GetSession()->GetAccountId(), "GM %s (Account: %u) deposit item: %s (Entry: %d Count: %u) to guild bank (Guild ID: %u)",
                 pl->GetName(), pl->GetSession()->GetAccountId(),
@@ -2238,7 +2238,7 @@ void Guild::MoveFromCharToBank(Player * pl, uint8 PlayerBag, uint8 PlayerSlot, u
         if (msg == EQUIP_ERR_OK)                            // merge
         {
             // logging item move to bank
-            if (pl->GetSession()->GetSecurity() > SEC_PLAYER && sWorld.getConfig(CONFIG_GM_LOG_TRADE))
+            if (pl->GetSession()->GetSecurity() > SEC_PLAYER && sWorld.getBoolConfig(CONFIG_GM_LOG_TRADE))
             {
                 sLog.outCommand(pl->GetSession()->GetAccountId(), "GM %s (Account: %u) deposit item: %s (Entry: %d Count: %u) to guild bank (Guild ID: %u)",
                     pl->GetName(), pl->GetSession()->GetAccountId(),
@@ -2288,7 +2288,7 @@ void Guild::MoveFromCharToBank(Player * pl, uint8 PlayerBag, uint8 PlayerSlot, u
             }
 
             // logging item move to bank
-            if (pl->GetSession()->GetSecurity() > SEC_PLAYER && sWorld.getConfig(CONFIG_GM_LOG_TRADE))
+            if (pl->GetSession()->GetSecurity() > SEC_PLAYER && sWorld.getBoolConfig(CONFIG_GM_LOG_TRADE))
             {
                 sLog.outCommand(pl->GetSession()->GetAccountId(), "GM %s (Account: %u) deposit item: %s (Entry: %d Count: %u) to guild bank (Guild ID: %u)",
                     pl->GetName(), pl->GetSession()->GetAccountId(),

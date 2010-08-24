@@ -710,7 +710,7 @@ void Pet::GivePetXP(uint32 xp)
     uint32 newXP = curXP + xp;
 
     // Check how much XP the pet should receive, and hand off have any left from previous levelups
-    while (newXP >= nextLvlXP && level < sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL))
+    while (newXP >= nextLvlXP && level < sWorld.getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
     {
         // Subtract newXP from amount needed for nextlevel
         newXP -= nextLvlXP;

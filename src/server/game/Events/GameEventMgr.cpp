@@ -1068,11 +1068,11 @@ uint32 GameEventMgr::Initialize()                           // return the next e
 
 void GameEventMgr::StartArenaSeason()
 {
-    QueryResult_AutoPtr result = WorldDatabase.PQuery("SELECT event FROM season_linked_event WHERE season = '%i'",sWorld.getConfig(CONFIG_ARENA_SEASON_ID));
+    QueryResult_AutoPtr result = WorldDatabase.PQuery("SELECT event FROM season_linked_event WHERE season = '%i'",sWorld.getIntConfig(CONFIG_ARENA_SEASON_ID));
 
     if (!result)
     {
-        sLog.outError("ArenaSeason (%i) must be an existant Arena Season",sWorld.getConfig(CONFIG_ARENA_SEASON_ID));
+        sLog.outError("ArenaSeason (%i) must be an existant Arena Season",sWorld.getIntConfig(CONFIG_ARENA_SEASON_ID));
         return;
     }
 
@@ -1081,7 +1081,7 @@ void GameEventMgr::StartArenaSeason()
     uint16 eventId = fields[0].GetUInt16();
 
     StartEvent(eventId,true);
-    sLog.outString("Arena Season %i started...",sWorld.getConfig(CONFIG_ARENA_SEASON_ID));
+    sLog.outString("Arena Season %i started...",sWorld.getIntConfig(CONFIG_ARENA_SEASON_ID));
 }
 
 uint32 GameEventMgr::Update()                               // return the next event delay in ms
@@ -1177,7 +1177,7 @@ void GameEventMgr::UnApplyEvent(uint16 event_id)
 
 void GameEventMgr::ApplyNewEvent(uint16 event_id)
 {
-    switch(sWorld.getConfig(CONFIG_EVENT_ANNOUNCE))
+    switch(sWorld.getIntConfig(CONFIG_EVENT_ANNOUNCE))
     {
         case 0:                                             // disable
             break;
