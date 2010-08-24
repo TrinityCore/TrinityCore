@@ -6017,7 +6017,10 @@ INSERT INTO `spell_group` (`id`, `spell_id`) VALUES
 (1109, 21562),
 -- Prayer of/Shadow Protection
 (1110, 976),
-(1110, 27683);
+(1110, 27683),
+(1006, 72586), -- Blessing of Forgotten Kings (Drums)
+(1108, 72588), -- Gift of the Wild (Drums)
+(1109, 72590); -- Fortitude (Scroll)
 
 /*!40000 ALTER TABLE `spell_group` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -7614,7 +7617,10 @@ INSERT INTO spell_group_stack_rules (`group_id`, `stack_rule`) VALUES
 (1099,1),
 (1103,1),
 (1046,1),
-(1107,1);
+(1107,1),
+(1108,1),
+(1109,1),
+(1110,1);
 
 /*!40000 ALTER TABLE `spell_group_stack_rules` ENABLE KEYS */;
 UNLOCK TABLES;
