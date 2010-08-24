@@ -6228,19 +6228,18 @@ bool ChatHandler::HandleServerPLimitCommand(const char *args)
         else if (strncmp(param,"administrator",l) == 0)
             sWorld.SetPlayerSecurityLimit(SEC_ADMINISTRATOR);
         else if (strncmp(param,"reset",l) == 0)
-            sWorld.SetPlayerLimit(sConfig.GetIntDefault("PlayerLimit", 100));
+        {
+            sWorld.SetPlayerAmountLimit(sConfig.GetIntDefault("PlayerLimit", 100));
+            sWorld.LoadDBAllowedSecurityLevel();
+        }
         else
         {
             int val = atoi(param);
             if (val < 0)
                 sWorld.SetPlayerSecurityLimit(AccountTypes(uint32(-val)));
             else
-                sWorld.SetPlayerLimit(val);
+                sWorld.SetPlayerAmountLimit(uint32(val));
         }
-
-        // kick all low security level players
-        if (sWorld.GetPlayerSecurityLimit() > SEC_PLAYER)
-            sWorld.KickAllLess(sWorld.GetPlayerSecurityLimit());
     }
 
     uint32 pLimit = sWorld.GetPlayerAmountLimit();

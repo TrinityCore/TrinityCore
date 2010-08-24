@@ -544,13 +544,14 @@ class World
         /// Close world
         void SetClosed(bool val);
 
-        /// Get the active session server limit (or security level limitations)
-        uint32 GetPlayerAmountLimit() const { return m_playerLimit >= 0 ? m_playerLimit : 0; }
-        AccountTypes GetPlayerSecurityLimit() const { return m_allowedSecurityLevel < 0 ? SEC_PLAYER : m_allowedSecurityLevel; }
-        void SetPlayerSecurityLimit(AccountTypes sec) { m_allowedSecurityLevel = (sec < SEC_PLAYER ? SEC_PLAYER : sec); }
+        /// Security level limitations
+        AccountTypes GetPlayerSecurityLimit() const { return m_allowedSecurityLevel; }
+        void SetPlayerSecurityLimit(AccountTypes sec);
+        void LoadDBAllowedSecurityLevel();
 
-        /// Set the active session server limit (or security level limitation)
-        void SetPlayerLimit(int32 limit, bool needUpdate = false);
+        /// Active session server limit
+        void SetPlayerAmountLimit(uint32 limit) { m_playerLimit = limit; }
+        uint32 GetPlayerAmountLimit() const { return m_playerLimit; }
 
         //player Queue
         typedef std::list<WorldSession*> Queue;
@@ -710,8 +711,6 @@ class World
 
         void UpdateRealmCharCount(uint32 accid);
 
-        void UpdateAllowedSecurity();
-
         LocaleConstant GetAvailableDbcLocale(LocaleConstant locale) const { if (m_availableDbcLocaleMask & (1 << locale)) return locale; else return m_defaultDbcLocale; }
 
         //used World DB version
@@ -778,7 +777,7 @@ class World
         float m_float_configs[FLOAT_CONFIG_VALUE_COUNT];
         typedef std::map<uint32,uint64> WorldStatesMap;
         WorldStatesMap m_worldstates;
-        int32 m_playerLimit;
+        uint32 m_playerLimit;
         AccountTypes m_allowedSecurityLevel;
         LocaleConstant m_defaultDbcLocale;                     // from config for one from loaded DBC locales
         uint32 m_availableDbcLocaleMask;                       // by loaded DBC
