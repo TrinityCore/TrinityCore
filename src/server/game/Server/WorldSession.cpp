@@ -1019,10 +1019,9 @@ void WorldSession::ProcessQueryCallbacks()
     //- SendStabledPet
     if (m_sendStabledPetCallback.IsReady())
     {
-        WorldPacket* param1 = m_sendStabledPetCallback.GetFirstParam();
-        uint8 param2 = m_sendStabledPetCallback.GetSecondParam();
+        uint64 param = m_sendStabledPetCallback.GetParam();
         m_sendStabledPetCallback.GetResult(result);
-        SendStablePetCallback(result, param1, param2);
+        SendStablePetCallback(result, param);
         m_sendStabledPetCallback.FreeResult();
     }
 }
