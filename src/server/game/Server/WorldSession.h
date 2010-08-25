@@ -218,7 +218,7 @@ class WorldSession
         // Pet
         void SendPetNameQuery(uint64 guid, uint32 petnumber);
         void SendStablePet(uint64 guid);
-        void SendStablePetCallback(QueryResult_AutoPtr result, WorldPacket* data, uint8 num);
+        void SendStablePetCallback(QueryResult_AutoPtr result, uint64 guid);
         void SendStableResult(uint8 guid);
         bool CheckStableMaster(uint64 guid);
 
@@ -806,7 +806,7 @@ class WorldSession
         QueryResultFuture m_addIgnoreCallback;
         QueryCallback<std::string> m_charRenameCallback;
         QueryCallback<std::string> m_addFriendCallback;
-        QueryCallback_2<WorldPacket*, uint8> m_sendStabledPetCallback;
+        QueryCallback<uint64> m_sendStabledPetCallback;
         QueryResultHolderFuture m_charLoginCallback;
 
     private:
