@@ -1273,6 +1273,7 @@ UPDATE `gameobject_template` SET `ScriptName`='kalecgos_teleporter' WHERE `entry
 UPDATE `creature_template` SET `ScriptName`='npc_blackhole' WHERE `entry`=25855;
 
 /* SWAMP OF SORROWS */
+UPDATE `creature_template` SET `ScriptName`='npc_galen_goodward' WHERE `entry`=5391;
 
 /* TANARIS */
 UPDATE `creature_template` SET `ScriptName`='mob_aquementas' WHERE `entry`=9453;
