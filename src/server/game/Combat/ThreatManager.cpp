@@ -27,6 +27,7 @@
 #include "ObjectAccessor.h"
 #include "UnitEvents.h"
 #include "SpellAuras.h"
+#include "SpellMgr.h"
 
 //==============================================================
 //================= ThreatCalcHelper ===========================
@@ -387,7 +388,7 @@ void ThreatManager::addThreat(Unit* pVictim, float fThreat, SpellSchoolMask scho
         Unit *unit = pVictim->GetMisdirectionTarget();
         if (unit)
             if (Aura* pAura = unit->GetAura(63326)) // Glyph of Vigilance
-                reducedThreadPercent += pAura->GetSpellProto()->EffectBasePoints[0];
+                reducedThreadPercent += SpellMgr::CalculateSpellEffectAmount(pAura->GetSpellProto(), 0);
 
         float reducedThreat = threat * reducedThreadPercent / 100;
         threat -= reducedThreat;
