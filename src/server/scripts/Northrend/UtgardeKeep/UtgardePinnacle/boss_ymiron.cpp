@@ -318,7 +318,7 @@ public:
                 } else m_uiAbility_TORGYN_Timer -= diff;
 
                 // Health check -----------------------------------------------------------------------------
-                if ((me->GetHealth()*100 / me->GetMaxHealth()) < (100-(m_uiHealthAmountMultipler * m_uiHealthAmountModifier)))
+                if (me->HealthBelowPct(100 - m_uiHealthAmountMultipler * m_uiHealthAmountModifier))
                 {
                    uint8 m_uiOrder = m_uiHealthAmountModifier - 1;
                    ++m_uiHealthAmountModifier;

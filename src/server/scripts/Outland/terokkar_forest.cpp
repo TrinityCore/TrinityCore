@@ -92,7 +92,7 @@ public:
         void DamageTaken(Unit *done_by, uint32 &damage)
         {
             if (done_by->GetTypeId() == TYPEID_PLAYER)
-                if ((me->GetHealth()-damage)*100 / me->GetMaxHealth() < 30)
+                if (me->HealthBelowPctDamaged(30, damage))
             {
                 if (Group* pGroup = CAST_PLR(done_by)->GetGroup())
                 {

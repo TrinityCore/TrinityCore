@@ -142,7 +142,7 @@ public:
                         if (minion && minion->isAlive())
                         {
                             minion->CastSpell(me, SPELL_OVERCHARGED, true);
-                            minion->SetHealth(minion->GetMaxHealth());
+                            minion->SetFullHealth();
                             DoScriptText(EMOTE_OVERCHARGE, me);
                             events.ScheduleEvent(EVENT_OVERCHARGE, 45000);
                         }

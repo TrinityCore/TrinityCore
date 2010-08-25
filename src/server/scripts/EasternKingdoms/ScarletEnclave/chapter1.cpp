@@ -393,9 +393,9 @@ public:
 
     bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
-        if (pPlayer->GetQuestStatus(QUEST_DEATH_CHALLENGE) == QUEST_STATUS_INCOMPLETE && pCreature->GetHealth() == pCreature->GetMaxHealth())
+        if (pPlayer->GetQuestStatus(QUEST_DEATH_CHALLENGE) == QUEST_STATUS_INCOMPLETE && pCreature->IsFullHealth())
         {
-            if (pPlayer->GetHealth() * 10 < pPlayer->GetMaxHealth())
+            if (pPlayer->HealthBelowPct(10))
                 return true;
 
             if (pPlayer->isInCombat() || pCreature->isInCombat())
@@ -496,8 +496,7 @@ public:
                         EnterEvadeMode();
                     return;
                 }
-                else if (me->getVictim()->GetTypeId() == TYPEID_PLAYER
-                    && me->getVictim()->GetHealth() * 10 < me->getVictim()->GetMaxHealth())
+                else if (me->getVictim()->GetTypeId() == TYPEID_PLAYER && me->getVictim()->HealthBelowPct(10))
                 {
                     me->getVictim()->CastSpell(me->getVictim(), 7267, true); // beg
                     me->getVictim()->RemoveGameObject(SPELL_DUEL_FLAG, true);

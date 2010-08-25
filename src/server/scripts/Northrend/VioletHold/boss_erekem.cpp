@@ -238,11 +238,11 @@ public:
                 return me->GetGUID();
 
             Creature *pGuard1 = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_1) : 0);
-            if (pGuard1 && pGuard1->isAlive() && (pGuard1->GetHealth()*100 <= pGuard1->GetMaxHealth() * 75))
+            if (pGuard1 && pGuard1->isAlive() && !pGuard1->HealthAbovePct(75))
                 return pGuard1->GetGUID();
 
             Creature *pGuard2 = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_2) : 0);
-            if (pGuard2 && pGuard2->isAlive() && (pGuard2->GetHealth()*100 <= pGuard2->GetMaxHealth() * 75))
+            if (pGuard2 && pGuard2->isAlive() && !pGuard2->HealthAbovePct(75))
                 return pGuard2->GetGUID();
 
             return 0;

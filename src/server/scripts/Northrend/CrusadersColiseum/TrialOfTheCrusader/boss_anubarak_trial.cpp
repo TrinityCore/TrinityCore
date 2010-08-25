@@ -107,7 +107,8 @@ enum SummonActions
     ACTION_SHADOW_STRIKE,
     ACTION_SCARAB_SUBMERGE,
 };
-const Position SphereSpawn[6] =
+
+const Position SphereSpawn[6] =
 {
     { 786.6439f, 108.2498f, 155.6701f, 0 },
     { 806.8429f, 150.5902f, 155.6701f, 0 },
@@ -115,7 +116,9 @@ enum SummonActions
     { 744.3701f, 119.5211f, 155.6701f, 0 },
     { 710.0211f, 120.8152f, 155.6701f, 0 },
     { 706.6383f, 161.5266f, 155.6701f, 0 },
-};class boss_anubarak_trial : public CreatureScript
+};
+
+class boss_anubarak_trial : public CreatureScript
 {
 public:
     boss_anubarak_trial() : CreatureScript("boss_anubarak_trial") { }
@@ -400,7 +403,8 @@ public:
 
 };
 
-class mob_swarm_scarab : public CreatureScript
+
+class mob_swarm_scarab : public CreatureScript
 {
 public:
     mob_swarm_scarab() : CreatureScript("mob_swarm_scarab") { }
@@ -467,7 +471,8 @@ public:
 
 };
 
-class mob_nerubian_burrower : public CreatureScript
+
+class mob_nerubian_burrower : public CreatureScript
 {
 public:
     mob_nerubian_burrower() : CreatureScript("mob_nerubian_burrower") { }
@@ -544,7 +549,8 @@ public:
 
 };
 
-class mob_frost_sphere : public CreatureScript
+
+class mob_frost_sphere : public CreatureScript
 {
 public:
     mob_frost_sphere() : CreatureScript("mob_frost_sphere") { }
@@ -624,7 +630,8 @@ public:
 
 };
 
-class mob_anubarak_spike : public CreatureScript
+
+class mob_anubarak_spike : public CreatureScript
 {
 public:
     mob_anubarak_spike() : CreatureScript("mob_anubarak_spike") { }

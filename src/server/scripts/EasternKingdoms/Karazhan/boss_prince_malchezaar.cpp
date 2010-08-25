@@ -397,7 +397,7 @@ public:
 
             if (phase == 1)
             {
-                if ((me->GetHealth()*100) / me->GetMaxHealth() < 60)
+                if (HealthBelowPct(60))
                 {
                     me->InterruptNonMeleeSpells(false);
 
@@ -432,7 +432,7 @@ public:
             }
             else if (phase == 2)
             {
-                if ((me->GetHealth()*100) / me->GetMaxHealth() < 30)
+                if (HealthBelowPct(30))
                 {
                     InfernalTimer = 15000;
 

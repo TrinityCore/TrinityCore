@@ -502,7 +502,7 @@ public:
                         me->RemoveAllAuras();
                         me->DeleteThreatList();
                         me->CombatStop();
-                        //me->SetHealth(me->GetMaxHealth());
+                        //me->SetFullHealth();
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->GetMotionMaster()->MoveTargetedHome();
                     }
@@ -713,7 +713,7 @@ public:
             if (!EventBegun)
                 return;
 
-            if ((me->GetHealth()*100 / me->GetMaxHealth()) < 15 && !HasYelledOnce)
+            if (HealthBelowPct(15) && !HasYelledOnce)
             {
                 DoScriptText(SAY_LOW_HEALTH, me);
                 HasYelledOnce = true;

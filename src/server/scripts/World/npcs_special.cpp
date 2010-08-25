@@ -723,15 +723,15 @@ public:
             {                                                   //lower max health
                 case 12923:
                 case 12938:                                     //Injured Soldier
-                    me->SetHealth(uint32(me->GetMaxHealth()*.75));
+                    me->SetHealth(me->CountPctFromMaxHealth(75));
                     break;
                 case 12924:
                 case 12936:                                     //Badly injured Soldier
-                    me->SetHealth(uint32(me->GetMaxHealth()*.50));
+                    me->SetHealth(me->CountPctFromMaxHealth(50));
                     break;
                 case 12925:
                 case 12937:                                     //Critically injured Soldier
-                    me->SetHealth(uint32(me->GetMaxHealth()*.25));
+                    me->SetHealth(me->CountPctFromMaxHealth(25));
                     break;
             }
         }
@@ -782,7 +782,7 @@ public:
             //lower HP on every world tick makes it a useful counter, not officlone though
             if (me->isAlive() && me->GetHealth() > 6)
             {
-                me->SetHealth(uint32(me->GetHealth()-5));
+                me->ModifyHealth(-5);
             }
 
             if (me->isAlive() && me->GetHealth() <= 6)
@@ -924,7 +924,7 @@ public:
 
             me->SetStandState(UNIT_STAND_STATE_KNEEL);
             //expect database to have RegenHealth=0
-            me->SetHealth(int(me->GetMaxHealth()*0.7f));
+            me->SetHealth(me->CountPctFromMaxHealth(70));
         }
 
         void EnterCombat(Unit * /*who*/) {}

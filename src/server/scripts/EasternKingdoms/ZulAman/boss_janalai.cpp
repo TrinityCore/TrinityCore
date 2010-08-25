@@ -344,7 +344,7 @@ class boss_janalai : public CreatureScript
                     return;
 
                 //enrage if under 25% hp before 5 min.
-                if (!enraged && me->GetHealth() * 4 < me->GetMaxHealth())
+                if (!enraged && HealthBelowPct(25))
                     EnrageTimer = 0;
 
                 if (EnrageTimer <= diff)
@@ -394,7 +394,7 @@ class boss_janalai : public CreatureScript
 
                 if (!noeggs)
                 {
-                    if (100 * me->GetHealth() < 35 * me->GetMaxHealth())
+                    if (HealthBelowPct(35))
                     {
                         DoScriptText(SAY_ALL_EGGS, me);
 

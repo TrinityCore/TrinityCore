@@ -140,7 +140,7 @@ class boss_nazan : public CreatureScript
                 if (flight) // phase 1 - the flight
                 {
                     Creature *Vazruden = Unit::GetCreature(*me,VazrudenGUID);
-                    if (Fly_Timer < diff || !(Vazruden && Vazruden->isAlive() && (Vazruden->GetHealth()*5 > Vazruden->GetMaxHealth())))
+                    if (Fly_Timer < diff || !(Vazruden && Vazruden->isAlive() && Vazruden->HealthAbovePct(20)))
                     {
                         flight = false;
                         BellowingRoar_Timer = 6000;

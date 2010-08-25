@@ -144,8 +144,7 @@ bool Condition::Meets(Player * player, Unit* targetOverride)
             if (targetOverride)
                 target = targetOverride;
             if (target)
-                if ((target->GetHealth()*100 / target->GetMaxHealth()) <= mConditionValue1)
-                    condMeets = true;
+                condMeets = !target->HealthAbovePct(mConditionValue1);
             break;
         }
         case CONDITION_TARGET_RANGE:

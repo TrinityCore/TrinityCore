@@ -293,7 +293,7 @@ public:
                 } else uiRenewTimer -= uiDiff;
 
 
-            if (!bHealth && me->GetHealth()*100 / me->GetMaxHealth() <= 25)
+            if (!bHealth && !HealthAbovePct(25))
             {
                 me->InterruptNonMeleeSpells(true);
                 DoCastAOE(SPELL_HOLY_NOVA,false);

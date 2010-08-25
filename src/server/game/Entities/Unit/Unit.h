@@ -1211,8 +1211,17 @@ class Unit : public WorldObject
 
         uint32 GetHealth()    const { return GetUInt32Value(UNIT_FIELD_HEALTH); }
         uint32 GetMaxHealth() const { return GetUInt32Value(UNIT_FIELD_MAXHEALTH); }
+
+        inline bool IsFullHealth() const { return GetHealth() == GetMaxHealth(); }
+        inline bool HealthBelowPct(int32 pct) const { return GetHealth() * 100 < GetMaxHealth() * pct; }
+        inline bool HealthBelowPctDamaged(int32 pct, uint32 damage) const { return (int32(GetHealth()) - damage) * 100 < GetMaxHealth() * pct; }
+        inline bool HealthAbovePct(int32 pct) const { return GetHealth() * 100 > GetMaxHealth() * pct; }
+        inline float GetHealthPct() const { return GetMaxHealth() ? 100.f * GetHealth() / GetMaxHealth() : 0.0f; }
+        inline uint32 CountPctFromMaxHealth(int32 pct) const { return uint32(float(pct) * GetMaxHealth() / 100.0f); }
+
         void SetHealth(uint32 val);
         void SetMaxHealth(uint32 val);
+        inline void SetFullHealth() { SetHealth(GetMaxHealth()); }
         int32 ModifyHealth(int32 val);
         int32 GetHealthGain(int32 dVal);
 

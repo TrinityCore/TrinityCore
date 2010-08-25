@@ -1102,7 +1102,7 @@ public:
                 return;
 
             //TODO: add more abilities
-            if (me->GetHealth()*100 / me->GetMaxHealth() <= 30)
+            if (!HealthAbovePct(30))
             {
                 if (m_uiHealingTimer <= uiDiff)
                 {

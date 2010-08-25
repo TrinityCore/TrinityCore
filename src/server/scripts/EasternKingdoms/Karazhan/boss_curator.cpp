@@ -169,7 +169,7 @@ public:
                     AddTimer = 10000;
                 } else AddTimer -= diff;
 
-                if (me->GetHealth()*100 / me->GetMaxHealth() <= 15)
+                if (!HealthAbovePct(15))
                 {
                     Enraged = true;
                     DoCast(me, SPELL_ENRAGE);

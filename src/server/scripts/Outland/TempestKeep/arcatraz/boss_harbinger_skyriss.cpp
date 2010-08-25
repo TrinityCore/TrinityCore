@@ -125,9 +125,9 @@ class boss_harbinger_skyriss : public CreatureScript
                 if (!summon)
                     return;
                 if (IsImage66)
-                    summon->SetHealth((summon->GetMaxHealth()*33)/100);
+                    summon->SetHealth(summon->CountPctFromMaxHealth(33));
                 else
-                    summon->SetHealth((summon->GetMaxHealth()*66)/100);
+                    summon->SetHealth(summon->CountPctFromMaxHealth(66));
                 if (me->getVictim())
                     if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                         summon->AI()->AttackStart(pTarget);
@@ -196,12 +196,12 @@ class boss_harbinger_skyriss : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (!IsImage66 && ((me->GetHealth()*100) / me->GetMaxHealth() <= 66))
+                if (!IsImage66 && !HealthAbovePct(66))
                 {
                     DoSplit(66);
                     IsImage66 = true;
                 }
-                if (!IsImage33 && ((me->GetHealth()*100) / me->GetMaxHealth() <= 33))
+                if (!IsImage33 && !HealthAbovePct(33))
                 {
                     DoSplit(33);
                     IsImage33 = true;

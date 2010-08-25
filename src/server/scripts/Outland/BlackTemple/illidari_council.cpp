@@ -439,7 +439,7 @@ struct boss_illidari_councilAI : public ScriptedAI
             if (Creature* pUnit = Unit::GetCreature(*me, Council[i]))
                 if (pUnit != me && damage < pUnit->GetHealth())
                 {
-                    pUnit->SetHealth(pUnit->GetHealth() - damage);
+                    pUnit->ModifyHealth(-int32(damage));
                     pUnit->LowerPlayerDamageReq(damage);
                 }
         }

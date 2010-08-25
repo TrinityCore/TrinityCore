@@ -271,7 +271,7 @@ public:
 
             // healer
             if (spellFlashLight)
-                if (me->GetHealth()*100 / me->GetMaxHealth() < 70)
+                if (HealthBelowPct(70))
                     if (timerFlashLight <= diff)
                     {
                         DoCast(me, SPELL_FLASH_OF_LIGHT);

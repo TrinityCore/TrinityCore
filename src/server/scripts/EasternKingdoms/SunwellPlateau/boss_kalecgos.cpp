@@ -166,7 +166,7 @@ public:
                 me->SetVisibility(VISIBILITY_ON);
                 me->SetStandState(UNIT_STAND_STATE_SLEEP);
             }
-            me->SetHealth(me->GetMaxHealth());//dunno why it does not resets health at evade..
+            me->SetFullHealth();//dunno why it does not resets health at evade..
             ArcaneBuffetTimer = 8000;
             FrostBreathTimer = 15000;
             WildMagicTimer = 10000;
@@ -598,7 +598,7 @@ public:
 
         void Reset()
         {
-            me->SetHealth(me->GetMaxHealth());//dunno why it does not resets health at evade..
+            me->SetFullHealth();//dunno why it does not resets health at evade..
             me->setActive(true);
             if (pInstance)
             {

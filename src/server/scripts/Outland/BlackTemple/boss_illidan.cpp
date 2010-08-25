@@ -29,7 +29,6 @@ EndScriptData */
 #define GETGO(obj, guid)      GameObject* obj = pInstance->instance->GetGameObject(guid)
 #define GETUNIT(unit, guid)   Unit* unit = Unit::GetUnit(*me, guid)
 #define GETCRE(cre, guid)     Creature* cre = Unit::GetCreature(*me, guid)
-#define HPPCT(unit)           unit->GetHealth()*100 / unit->GetMaxHealth()
 
 /************* Quotes and Sounds ***********************/
 // Gossip for when a player clicks Akama
@@ -967,17 +966,17 @@ public:
             switch(Phase)
             {
             case PHASE_NORMAL:
-                if (HPPCT(me) < 65)
+                if (HealthBelowPct(65))
                     EnterPhase(PHASE_FLIGHT_SEQUENCE);
                 break;
 
             case PHASE_NORMAL_2:
-                if (HPPCT(me) < 30)
+                if (HealthBelowPct(30))
                     EnterPhase(PHASE_TALK_SEQUENCE);
                 break;
 
             case PHASE_NORMAL_MAIEV:
-                if (HPPCT(me) < 1)
+                if (HealthBelowPct(1))
                     EnterPhase(PHASE_TALK_SEQUENCE);
                 break;
 
@@ -1193,7 +1192,7 @@ public:
             {
                 GETUNIT(Illidan, IllidanGUID);
                 if (Illidan && Illidan->getVictim() == me)
-                    damage = me->GetMaxHealth()/10;
+                    damage = me->CountPctFromMaxHealth(10);
                 if (damage >= me->GetHealth())
                     damage = 0;
             }
@@ -1230,7 +1229,7 @@ public:
             case PHASE_TALK_SEQUENCE:
                 if (Timer[EVENT_MAIEV_STEALTH])
                 {
-                    me->SetHealth(me->GetMaxHealth());
+                    me->SetFullHealth();
                     me->SetVisibility(VISIBILITY_ON);
                     Timer[EVENT_MAIEV_STEALTH] = 0;
                 }
@@ -1308,7 +1307,7 @@ public:
                 {
                 case EVENT_MAIEV_STEALTH:
                     {
-                        me->SetHealth(me->GetMaxHealth());
+                        me->SetFullHealth();
                         me->SetVisibility(VISIBILITY_ON);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         Timer[EVENT_MAIEV_STEALTH] = 0;
@@ -1349,7 +1348,7 @@ public:
                     break;
                 }
 
-                if (me->GetHealth()*100 / me->GetMaxHealth() < 50)
+                if (HealthBelowPct(50))
                 {
                     me->SetVisibility(VISIBILITY_OFF);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -1759,7 +1758,7 @@ public:
                 case PHASE_FIGHT_ILLIDAN:
                     {
                         GETUNIT(Illidan, IllidanGUID);
-                        if (Illidan && HPPCT(Illidan) < 90)
+                        if (Illidan && Illidan->HealthBelowPct(90))
                             EnterPhase(PHASE_TALK);
                         else
                         {
@@ -1783,7 +1782,7 @@ public:
                         }
                         Timer = 10000 + rand()%6000;
                         GETUNIT(Illidan, IllidanGUID);
-                        if (Illidan && HPPCT(Illidan) < 10)
+                        if (Illidan && Illidan->HealthBelowPct(10))
                             EnterPhase(PHASE_RETURN);
                     }
                     break;
@@ -1795,7 +1794,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (me->GetHealth()*100 / me->GetMaxHealth() < 20)
+            if (HealthBelowPct(20))
                 DoCast(me, SPELL_HEALING_POTION);
 
             DoMeleeAttackIfReady();

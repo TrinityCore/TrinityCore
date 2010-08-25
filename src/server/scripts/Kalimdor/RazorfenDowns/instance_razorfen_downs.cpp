@@ -41,7 +41,7 @@ public:
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
-        uint8 uiGongWaves;
+        uint16 uiGongWaves;
 
         std::string str_data;
 

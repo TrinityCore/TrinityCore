@@ -120,7 +120,7 @@ public:
 
             //Teleporting Random Target to one of the six pre boss rooms and spawn 3-4 skeletons near the gamer.
             //We will only telport if gandling has more than 3% of hp so teleported gamers can always loot.
-            if (me->GetHealth()*100 / me->GetMaxHealth() > 3)
+            if (HealthAbovePct(3))
             {
                 if (Teleport_Timer <= diff)
                 {

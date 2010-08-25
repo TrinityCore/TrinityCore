@@ -134,7 +134,7 @@ public:
                 if (me->IsWithinMeleeRange(me->getVictim()))
                 {
                     me->Kill(me->getVictim());
-                    me->ModifyHealth(me->GetMaxHealth() * 0.05f);
+                    me->ModifyHealth(int32(me->CountPctFromMaxHealth(5)));
                 }
             }
             else

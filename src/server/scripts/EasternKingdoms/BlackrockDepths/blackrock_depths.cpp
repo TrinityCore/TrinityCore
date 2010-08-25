@@ -418,7 +418,7 @@ public:
             } else ThunderClap_Timer -= diff;
 
             //FireballVolley_Timer
-            if (me->GetHealth()*100 / me->GetMaxHealth() < 51)
+            if (HealthBelowPct(51))
             {
                 if (FireballVolley_Timer <= diff)
                 {

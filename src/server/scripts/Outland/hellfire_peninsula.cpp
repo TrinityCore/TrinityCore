@@ -98,7 +98,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if ((me->GetHealth()*100) / me->GetMaxHealth() < 30)
+            if (HealthBelowPct(30))
             {
                 me->setFaction(FACTION_FRIENDLY);
                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);

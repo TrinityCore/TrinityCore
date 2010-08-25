@@ -54,7 +54,7 @@ public:
                 int32 bp = 0;
                 // Living ghoul as a target
                 if (unitTarget->isAlive())
-                    bp = unitTarget->GetMaxHealth() * 0.25f;
+                    bp = int32(unitTarget->CountPctFromMaxHealth(25));
                 // Some corpse
                 else
                     bp = GetEffectValue();

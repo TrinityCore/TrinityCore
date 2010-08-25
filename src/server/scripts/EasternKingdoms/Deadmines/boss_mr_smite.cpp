@@ -121,7 +121,7 @@ public:
             } else uiNimbleReflexesTimer -= uiDiff;
         /*END ACID-AI*/
 
-            if (uiHealth == 0 && me->GetHealth()*100 / me->GetMaxHealth() <= 66 || uiHealth == 1 && me->GetHealth()*100 / me->GetMaxHealth() <= 33)
+            if (uiHealth == 0 && !HealthAbovePct(66) || uiHealth == 1 && !HealthAbovePct(33))
             {
                 ++uiHealth;
                 DoCastAOE(SPELL_SMITE_STOMP,false);
@@ -130,7 +130,7 @@ public:
                     if (GameObject* pGo = GameObject::GetGameObject((*me),pInstance->GetData64(DATA_SMITE_CHEST)))
                     {
                         me->GetMotionMaster()->Clear();
-                        me->GetMotionMaster()->MovePoint(1,-3.00+pGo->GetPositionX(),pGo->GetPositionY(),pGo->GetPositionZ());
+                        me->GetMotionMaster()->MovePoint(1, pGo->GetPositionX() - 3.0f, pGo->GetPositionY(), pGo->GetPositionZ());
                     }
             }
 

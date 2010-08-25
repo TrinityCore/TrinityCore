@@ -273,9 +273,9 @@ void Unit::Update(uint32 p_time)
     // update abilities available only for fraction of time
     UpdateReactives(p_time);
 
-    ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, GetHealth() < GetMaxHealth()*0.20f);
-    ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, GetHealth() < GetMaxHealth()*0.35f);
-    ModifyAuraState(AURA_STATE_HEALTH_ABOVE_75_PERCENT, GetHealth() > GetMaxHealth()*0.75f);
+    ModifyAuraState(AURA_STATE_HEALTHLESS_20_PERCENT, HealthBelowPct(20));
+    ModifyAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, HealthBelowPct(35));
+    ModifyAuraState(AURA_STATE_HEALTH_ABOVE_75_PERCENT, HealthAbovePct(75));
 
     i_motionMaster.UpdateMotion(p_time);
 }
@@ -1922,7 +1922,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
                 if (spellProto->SpellIconID == 2135 && pVictim->GetTypeId() == TYPEID_PLAYER)
                 {
                     int32 remainingHealth = pVictim->GetHealth() - RemainingDamage;
-                    uint32 allowedHealth = uint32(pVictim->GetMaxHealth() * 0.35f);
+                    uint32 allowedHealth = pVictim->CountPctFromMaxHealth(35);
                     // If damage kills us
                     if (remainingHealth <= 0 && !pVictim->ToPlayer()->HasSpellCooldown(66235))
                     {
@@ -1937,7 +1937,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
                             ? 1.0f
                             : float(defenseSkillValue) / float(reqDefForMaxHeal);
 
-                        int32 healAmount = int32(pVictim->GetMaxHealth() * (*i)->GetAmount() / 100.0f * pctFromDefense);
+                        int32 healAmount = int32(pVictim->CountPctFromMaxHealth(uint32((*i)->GetAmount() * pctFromDefense)));
                         pVictim->CastCustomSpell(pVictim, 66235, &healAmount, NULL, NULL, true);
                         pVictim->ToPlayer()->AddSpellCooldown(66235,0,time(NULL) + 120);
                     }
@@ -1992,7 +1992,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
                         uint32 rank = sSpellMgr.GetSpellRank(spellProto->Id);
                         SpellEntry const * talentProto = sSpellStore.LookupEntry(sSpellMgr.GetSpellWithRank(49189, rank));
 
-                        int32 minHp = int32((float)pVictim->GetMaxHealth() * (float)SpellMgr::CalculateSpellEffectAmount(talentProto, 0, (*i)->GetCaster())  / 100.0f);
+                        int32 minHp = int32(pVictim->CountPctFromMaxHealth(SpellMgr::CalculateSpellEffectAmount(talentProto, 0, (*i)->GetCaster())));
                         // Damage that would take you below [effect0] health or taken while you are at [effect0]
                         if (remainingHp < minHp)
                         {
@@ -2215,7 +2215,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
                     pVictim->CastSpell(pVictim,31231,true);
                     pVictim->ToPlayer()->AddSpellCooldown(31231,0,time(NULL)+60);
                     // with health > 10% lost health until health == 10%, in other case no losses
-                    uint32 health10 = pVictim->GetMaxHealth()/10;
+                    uint32 health10 = pVictim->CountPctFromMaxHealth(10);
                     RemainingDamage = pVictim->GetHealth() > health10 ? pVictim->GetHealth() - health10 : 0;
                 }
                 break;
@@ -2225,7 +2225,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
                 // Guardian Spirit
                 if (preventDeathSpell->SpellIconID == 2873)
                 {
-                    int32 healAmount = pVictim->GetMaxHealth() * preventDeathAmount / 100;
+                    int32 healAmount = int32(pVictim->CountPctFromMaxHealth(preventDeathAmount));
                     pVictim->RemoveAurasDueToSpell(preventDeathSpell->Id);
                     pVictim->CastCustomSpell(pVictim, 48153, &healAmount, NULL, NULL, true);
                     RemainingDamage = 0;
@@ -6441,7 +6441,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     if (!target || !target->IsFriendlyTo(this))
                         return false;
 
-                    basepoints0 = int32(target->GetMaxHealth() * triggerAmount / 100);
+                    basepoints0 = int32(target->CountPctFromMaxHealth(triggerAmount));
                     triggered_spell_id = 56131;
                     break;
                 }
@@ -6556,7 +6556,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 {
                    if (triggerAmount <= 0)
                         return false;
-                    basepoints0 = triggerAmount * GetMaxHealth() / 100;
+                    basepoints0 = int32(CountPctFromMaxHealth(triggerAmount));
                     target = this;
                     triggered_spell_id = 34299;
                     if (triggeredByAura->GetCasterGUID() != GetGUID())
@@ -6580,7 +6580,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 // Glyph of Rejuvenation
                 case 54754:
                 {
-                    if (!pVictim || pVictim->GetHealth() >= triggerAmount * pVictim->GetMaxHealth()/100)
+                    if (!pVictim || !pVictim->HealthBelowPct(uint32(triggerAmount)))
                         return false;
                     basepoints0 = int32(triggerAmount * damage / 100);
                     triggered_spell_id = 54755;
@@ -6939,7 +6939,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     if (pVictim->getPowerType() == POWER_MANA)
                     {
                         // 2% of base mana
-                        basepoints0 = int32(pVictim->GetMaxHealth() * 2 / 100);
+                        basepoints0 = int32(pVictim->CountPctFromMaxHealth(2));
                         pVictim->CastCustomSpell(pVictim, 20267, &basepoints0, 0, 0, true, 0, triggeredByAura);
                     }
                         return true;
@@ -7662,7 +7662,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             // Vendetta
             if (dummySpell->SpellFamilyFlags[0] & 0x10000)
             {
-                basepoints0 = triggerAmount * GetMaxHealth() / 100;
+                basepoints0 = int32(CountPctFromMaxHealth(triggerAmount));
                 triggered_spell_id = 50181;
                 target = this;
                 break;
@@ -8516,13 +8516,13 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                         else if (auraSpellInfo->SpellIconID == 2013)
                         {
                             // Check health condition - should drop to less 30% (damage deal after this!)
-                            if (!(10*(int32(GetHealth() - damage)) < 3 * GetMaxHealth()))
+                            if (!HealthBelowPctDamaged(30, damage))
                                 return false;
 
                              if (pVictim && pVictim->isAlive())
                                  pVictim->getThreatManager().modifyThreatPercent(this,-10);
 
-                            basepoints0 = triggerAmount * GetMaxHealth() / 100;
+                            basepoints0 = int32(CountPctFromMaxHealth(triggerAmount));
                             trigger_spell_id = 31616;
                             target = this;
                         }
@@ -8603,8 +8603,8 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
         // Deflection
         case 52420:
         {
-            if (GetHealth()*100 / GetMaxHealth() >= 35)
-            return false;
+            if (!HealthBelowPct(35))
+                return false;
             break;
         }
 
@@ -8612,7 +8612,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
         case 28845:
         {
             // When your health drops below 20%
-            if (GetHealth() - damage > GetMaxHealth() / 5 || GetHealth() < GetMaxHealth() / 5)
+            if (HealthBelowPctDamaged(20, damage) || HealthBelowPct(20))
                 return false;
             break;
         }
@@ -8620,7 +8620,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
         case 31255:
         {
             // whenever you deal damage to a target who is below 20% health.
-            if (!pVictim || !pVictim->isAlive() || (pVictim->GetHealth() > pVictim->GetMaxHealth() / 5))
+            if (!pVictim || !pVictim->isAlive() || pVictim->HealthAbovePct(20))
                 return false;
 
             target = this;
@@ -8633,7 +8633,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                 return false;
 
             // Not give if target already have full health
-            if (pVictim->GetHealth() == pVictim->GetMaxHealth())
+            if (pVictim->IsFullHealth())
                 return false;
             // If your Greater Heal brings the target to full health, you gain $37595s1 mana.
             if (pVictim->GetHealth() + damage < pVictim->GetMaxHealth())
@@ -8644,7 +8644,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
         case 40971:
         {
             // If your target is below $s1% health
-            if (!pVictim || !pVictim->isAlive() || (pVictim->GetHealth() > pVictim->GetMaxHealth() * triggerAmount / 100))
+            if (!pVictim || !pVictim->isAlive() || pVictim->HealthAbovePct(triggerAmount))
                 return false;
             break;
         }
@@ -8756,7 +8756,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
         // Bloodthirst (($m/100)% of max health)
         case 23880:
         {
-            basepoints0 = int32(GetMaxHealth() * triggerAmount / 100);
+            basepoints0 = int32(CountPctFromMaxHealth(triggerAmount));
             break;
         }
         // Shamanistic Rage triggered spell
@@ -10276,7 +10276,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                 // Merciless Combat
                 if ((*i)->GetSpellProto()->SpellIconID == 2656)
                 {
-                    if ((pVictim->GetMaxHealth() * 35 / 100) >= pVictim->GetHealth())
+                    if (!pVictim->HealthAbovePct(35))
                         DoneTotalMod *= (100.0f+(*i)->GetAmount())/100.0f;
                 }
                 // Tundra Stalker
@@ -10750,7 +10750,7 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                         case   21: // Test of Faith
                         case 6935:
                         case 6918:
-                            if (pVictim->GetHealth() < pVictim->GetMaxHealth()/2)
+                            if (pVictim->HealthBelowPct(50))
                                 crit_chance+=(*i)->GetAmount();
                             break;
                         default:
@@ -10962,7 +10962,7 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
             case   21: // Test of Faith
             case 6935:
             case 6918:
-                if (pVictim->GetHealth() < pVictim->GetMaxHealth()/2)
+                if (pVictim->HealthBelowPct(50))
                     DoneTotalMod *=((*i)->GetAmount() + 100.0f)/100.0f;
                 break;
             case 7798: // Glyph of Regrowth
@@ -11500,7 +11500,7 @@ void Unit::MeleeDamageBonus(Unit *pVictim, uint32 *pdamage, WeaponAttackType att
                 // Merciless Combat
                 if ((*i)->GetSpellProto()->SpellIconID == 2656)
                 {
-                    if ((pVictim->GetMaxHealth() * 35 / 100) >= pVictim->GetHealth())
+                    if (!pVictim->HealthAbovePct(35))
                         DoneTotalMod *= (100.0f+(*i)->GetAmount())/100.0f;
                 }
                 // Tundra Stalker
@@ -13802,19 +13802,19 @@ void CharmInfo::LoadPetActionBar(const std::string& data)
     for (iter = tokens.begin(), index = ACTION_BAR_INDEX_START; index < ACTION_BAR_INDEX_END; ++iter, ++index)
     {
         // use unsigned cast to avoid sign negative format use at long-> ActiveStates (int) conversion
-        uint8 type  = atol((*iter).c_str());
+        ActiveStates type  = ActiveStates(atol(iter->c_str()));
         ++iter;
-        uint32 action = atol((*iter).c_str());
+        uint32 action = uint32(atol(iter->c_str()));
 
-        PetActionBar[index].SetActionAndType(action,ActiveStates(type));
+        PetActionBar[index].SetActionAndType(action, type);
 
         // check correctness
         if (PetActionBar[index].IsActionBarForSpell())
         {
             if (!sSpellStore.LookupEntry(PetActionBar[index].GetAction()))
-                SetActionBar(index,0,ACT_PASSIVE);
+                SetActionBar(index, 0, ACT_PASSIVE);
             else if (!IsAutocastableSpell(PetActionBar[index].GetAction()))
-                SetActionBar(index,PetActionBar[index].GetAction(),ACT_PASSIVE);
+                SetActionBar(index, PetActionBar[index].GetAction(), ACT_PASSIVE);
         }
     }
 }
@@ -14810,7 +14810,7 @@ bool Unit::InitTamedPet(Pet * pet, uint8 level, uint32 spell_id)
     // this enables pet details window (Shift+P)
     pet->InitPetCreateSpells();
     //pet->InitLevelupSpellsForLevel();
-    pet->SetHealth(pet->GetMaxHealth());
+    pet->SetFullHealth();
     return true;
 }
 

@@ -299,7 +299,7 @@ public:
             }
 
             //Cast Deep sleep when health is less than 50%
-            if (!m_bCanResurrectCheck && me->GetHealth()*100 / me->GetMaxHealth() <= 50)
+            if (!m_bCanResurrectCheck && !HealthAbovePct(50))
             {
                 if (me->IsNonMeleeSpellCasted(false))
                     me->InterruptNonMeleeSpells(false);
@@ -319,7 +319,7 @@ public:
             {
                 Creature* pTarget = NULL;
 
-                if (me->GetHealth() <= me->GetMaxHealth()*0.75f)
+                if (!HealthAbovePct(75))
                     pTarget = me;
 
                 if (m_pInstance)
@@ -327,7 +327,7 @@ public:
                     if (Creature* pMograine = Unit::GetCreature((*me), m_pInstance->GetData64(DATA_MOGRAINE)))
                     {
                         // checking m_bCanResurrectCheck prevents her healing Mograine while he is "faking death"
-                        if (m_bCanResurrectCheck && pMograine->isAlive() && pMograine->GetHealth() <= pMograine->GetMaxHealth()*0.75f)
+                        if (m_bCanResurrectCheck && pMograine->isAlive() && !pMograine->HealthAbovePct(75))
                             pTarget = pMograine;
                     }
                 }

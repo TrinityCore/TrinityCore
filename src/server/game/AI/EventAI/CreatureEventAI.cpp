@@ -141,7 +141,7 @@ bool CreatureEventAI::ProcessEvent(CreatureEventAIHolder& pHolder, Unit* pAction
             if (!me->isInCombat() || !me->GetMaxHealth())
                 return false;
 
-            uint32 perc = (me->GetHealth()*100) / me->GetMaxHealth();
+            uint32 perc = uint32(me->GetHealthPct());
 
             if (perc > event.percent_range.percentMax || perc < event.percent_range.percentMin)
                 return false;
@@ -195,7 +195,7 @@ bool CreatureEventAI::ProcessEvent(CreatureEventAIHolder& pHolder, Unit* pAction
             if (!me->isInCombat() || !me->getVictim() || !me->getVictim()->GetMaxHealth())
                 return false;
 
-            uint32 perc = (me->getVictim()->GetHealth()*100) / me->getVictim()->GetMaxHealth();
+            uint32 perc = uint32(me->getVictim()->GetHealthPct());
 
             if (perc > event.percent_range.percentMax || perc < event.percent_range.percentMin)
                 return false;
@@ -821,7 +821,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
         case ACTION_T_SET_INVINCIBILITY_HP_LEVEL:
         {
             if (action.invincibility_hp_level.is_percent)
-                m_InvinceabilityHpLevel = me->GetMaxHealth()*action.invincibility_hp_level.hp_level/100;
+                m_InvinceabilityHpLevel = me->CountPctFromMaxHealth(action.invincibility_hp_level.hp_level);
             else
                 m_InvinceabilityHpLevel = action.invincibility_hp_level.hp_level;
             break;

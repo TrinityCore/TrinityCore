@@ -451,7 +451,7 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
             m_canBeRecalculated = false;
             if (!m_spellProto->procFlags)
                 break;
-            amount = int32(GetBase()->GetUnitOwner()->GetMaxHealth()*0.10f);
+            amount = int32(GetBase()->GetUnitOwner()->CountPctFromMaxHealth(10));
             if (caster)
             {
                 // Glyphs increasing damage cap
@@ -717,7 +717,7 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
         case SPELL_AURA_MOD_INCREASE_HEALTH:
             // Vampiric Blood
             if (GetId() == 55233)
-                amount = GetBase()->GetUnitOwner()->GetMaxHealth() * amount / 100;
+                amount = GetBase()->GetUnitOwner()->CountPctFromMaxHealth(amount);
             break;
         case SPELL_AURA_MOD_INCREASE_ENERGY:
             // Hymn of Hope
@@ -1288,7 +1288,7 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
                 {
                     case 43093: case 31956: case 38801:  // Grievous Wound
                     case 35321: case 38363: case 39215:  // Gushing Wound
-                        if (target->GetHealth() == target->GetMaxHealth())
+                        if (target->IsFullHealth())
                         {
                             target->RemoveAurasDueToSpell(GetId());
                             return;
@@ -1300,7 +1300,7 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
                             GetEffIndex() < 2 && GetSpellProto()->Effect[GetEffIndex()] == SPELL_EFFECT_DUMMY ?
                             caster->CalculateSpellDamage(target, GetSpellProto(),GetEffIndex()+1) :
                             100;
-                        if (target->GetHealth()*100 >= target->GetMaxHealth()*percent)
+                            if (!target->HealthBelowPct(percent))
                         {
                             target->RemoveAurasDueToSpell(GetId());
                             return;
@@ -1358,7 +1358,7 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
                 }
             }
             else
-                damage = uint32(target->GetMaxHealth()*damage/100);
+                damage = uint32(target->CountPctFromMaxHealth(damage));
 
             bool crit = IsPeriodicTickCrit(target, caster);
             if (crit)
@@ -1523,7 +1523,7 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
             if (target != caster && GetSpellProto()->AttributesEx2 & SPELL_ATTR_EX2_HEALTH_FUNNEL && !caster->isAlive())
                 break;
 
-            if (GetBase()->GetDuration() == -1 && target->GetHealth() == target->GetMaxHealth())
+            if (GetBase()->GetDuration() == -1 && target->IsFullHealth())
                 break;
 
             // ignore non positive values (can be result apply spellmods to aura damage
@@ -1558,7 +1558,7 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
 
                 TakenTotalMod = TakenTotalMod > 0.0f ? TakenTotalMod : 0.0f;
 
-                damage = uint32(target->GetMaxHealth() * damage / 100);
+                damage = uint32(target->CountPctFromMaxHealth(damage));
                 damage = uint32(damage * TakenTotalMod);
             }
             else
@@ -1894,7 +1894,7 @@ void AuraEffect::PeriodicDummyTick(Unit * target, Unit * caster) const
             case 51687:
             case 51688:
             case 51689:
-                if (target->getVictim() && (target->GetHealth() * 100 / target->GetMaxHealth() > target->getVictim()->GetHealth() * 100 / target->getVictim()->GetMaxHealth())) {
+                if (target->getVictim() && (target->GetHealthPct() > target->getVictim()->GetHealthPct())) {
                     if (!target->HasAura(58670)) {
                         int32 basepoints = SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), 0);
                         target->CastCustomSpell(target, 58670, &basepoints, 0, 0, true);
@@ -2052,12 +2052,12 @@ void AuraEffect::PeriodicDummyTick(Unit * target, Unit * caster) const
             {
                 // Feeding Frenzy Rank 1
                 case 53511:
-                    if (target->getVictim() && target->getVictim()->GetHealth() * 100 < target->getVictim()->GetMaxHealth() * 35)
+                    if (target->getVictim() && target->getVictim()->HealthBelowPct(35))
                         target->CastSpell(target, 60096, true, 0, this);
                     return;
                 // Feeding Frenzy Rank 2
                 case 53512:
-                    if (target->getVictim() && target->getVictim()->GetHealth() * 100 < target->getVictim()->GetMaxHealth() * 35)
+                    if (target->getVictim() && target->getVictim()->HealthBelowPct(35))
                         target->CastSpell(target, 60097, true, 0, this);
                     return;
                 default:
@@ -2078,7 +2078,7 @@ void AuraEffect::PeriodicDummyTick(Unit * target, Unit * caster) const
             switch (GetId())
             {
                 case 49016: // Hysteria
-                    uint32 damage = uint32(target->GetMaxHealth()*0.01f);
+                    uint32 damage = uint32(target->CountPctFromMaxHealth(1));
                     target->DealDamage(target, damage, NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                     break;
             }
@@ -2153,7 +2153,7 @@ void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
                     case 24379:
                     case 23493:
                     {
-                        int32 heal = caster->GetMaxHealth() / 10;
+                        int32 heal = caster->CountPctFromMaxHealth(10);
                         caster->DealHeal(target, heal, auraSpellInfo);
 
                         int32 mana = caster->GetMaxPower(POWER_MANA);
@@ -2176,7 +2176,7 @@ void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
                         return;
                     // Frost Blast
                     case 27808:
-                        caster->CastCustomSpell(29879, SPELLVALUE_BASE_POINT0, int32((float)target->GetMaxHealth()*0.21f), target, true, NULL, this);
+                        caster->CastCustomSpell(29879, SPELLVALUE_BASE_POINT0, int32(target->CountPctFromMaxHealth(21)), target, true, NULL, this);
                         return;
                     // Detonate Mana
                     case 27819:
@@ -4735,9 +4735,7 @@ void AuraEffect::HandleModTotalPercentStat(AuraApplication const * aurApp, uint8
     //recalculate current HP/MP after applying aura modifications (only for spells with 0x10 flag)
     if ((GetMiscValue() == STAT_STAMINA) && (maxHPValue > 0) && (m_spellProto->Attributes & 0x10))
     {
-        // hmm... why is newHPValue a uint64 here?
-        // newHP = (curHP / maxHP) * newMaxHP = (newMaxHP * curHP) / maxHP -> which is better because no int -> double -> int conversion is needed
-        uint64 newHPValue = (target->GetMaxHealth() * curHPValue) / maxHPValue;
+        uint32 newHPValue = target->CountPctFromMaxHealth(int32(100.0f * curHPValue / maxHPValue));
         target->SetHealth(newHPValue);
     }
 }
@@ -4925,10 +4923,10 @@ void AuraEffect::HandleAuraModIncreaseHealthPercent(AuraApplication const * aurA
     Unit * target = aurApp->GetTarget();
 
     // Unit will keep hp% after MaxHealth being modified if unit is alive.
-    float percent = ((float)target->GetHealth()) / target->GetMaxHealth();
+    float percent = target->GetHealthPct();
     target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_PCT, float(GetAmount()), apply);
     if (target->isAlive())
-        target->SetHealth(uint32(target->GetMaxHealth()*percent));
+        target->SetHealth(target->CountPctFromMaxHealth(percent));
 }
 
 void AuraEffect::HandleAuraIncreaseBaseHealthPercent(AuraApplication const * aurApp, uint8 mode, bool apply) const
@@ -6085,7 +6083,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                         if (!target->IsInFeralForm())
                             break;
 
-                        int32 bp0 = int32(target->GetMaxHealth() * GetAmount() / 100);
+                        int32 bp0 = int32(target->CountPctFromMaxHealth(GetAmount()));
                         target->CastCustomSpell(target, 50322, &bp0, NULL, NULL, true);
                     }
                     else

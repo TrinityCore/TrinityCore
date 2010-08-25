@@ -139,7 +139,7 @@ class boss_watchkeeper_gargolmar : public CreatureScript
                 else
                     Surge_Timer -= diff;
 
-                if ((me->GetHealth()*100) / me->GetMaxHealth() < 20)
+                if (HealthBelowPct(20))
                 {
                     if (Retaliation_Timer <= diff)
                     {
@@ -152,7 +152,7 @@ class boss_watchkeeper_gargolmar : public CreatureScript
 
                 if (!YelledForHeal)
                 {
-                    if ((me->GetHealth()*100) / me->GetMaxHealth() < 40)
+                    if (HealthBelowPct(40))
                     {
                         DoScriptText(SAY_HEAL, me);
                         YelledForHeal = true;

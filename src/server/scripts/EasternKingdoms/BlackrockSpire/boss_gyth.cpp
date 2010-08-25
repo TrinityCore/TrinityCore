@@ -184,8 +184,7 @@ public:
                 } else Flamebreath_Timer -= diff;
 
                 //Summon Rend
-                if (!SummonedRend && me->GetHealth()*100 / me->GetMaxHealth() < 11
-                    && me->GetHealth() > 0)
+                if (!SummonedRend && HealthBelowPct(11) && me->GetHealth() > 0)
                 {
                     //summon Rend and Change model to normal Gyth
                     //Interrupt any spell casting

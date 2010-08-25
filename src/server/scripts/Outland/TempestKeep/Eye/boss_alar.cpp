@@ -265,7 +265,7 @@ class boss_alar : public CreatureScript
                                 return;
                             case WE_REVIVE:
                                 me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_STAND);
-                                me->SetHealth(me->GetMaxHealth());
+                                me->SetFullHealth();
                                 me->SetSpeed(MOVE_RUN, DefaultMoveSpeedRate);
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                 DoZoneInCombat();
@@ -502,7 +502,7 @@ class mob_ember_of_alar : public CreatureScript
                     {
                         if (Unit* Alar = Unit::GetUnit((*me), pInstance->GetData64(DATA_ALAR)))
                         {
-                            int AlarHealth = Alar->GetHealth() - Alar->GetMaxHealth()*0.03f;
+                            int32 AlarHealth = int32(Alar->GetHealth()) - int32(Alar->CountPctFromMaxHealth(3));
                             if (AlarHealth > 0)
                                 Alar->SetHealth(AlarHealth);
                             else

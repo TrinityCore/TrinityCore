@@ -77,7 +77,7 @@ public:
             } else GroundTremor_Timer -= diff;
 
             //Frenzy_Timer
-            if (me->GetHealth()*100 / me->GetMaxHealth() < 51)
+            if (HealthBelowPct(51))
             {
                 if (Frenzy_Timer <= diff)
                 {

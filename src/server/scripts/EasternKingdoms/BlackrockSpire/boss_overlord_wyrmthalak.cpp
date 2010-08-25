@@ -108,7 +108,7 @@ public:
             } else Knockaway_Timer -= diff;
 
             //Summon two Beserks
-            if (!Summoned && me->GetHealth()*100 / me->GetMaxHealth() < 51)
+            if (!Summoned && HealthBelowPct(51))
             {
                 Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0, 100, true);
 

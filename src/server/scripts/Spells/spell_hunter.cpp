@@ -184,7 +184,7 @@ public:
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             Unit *caster = GetCaster();
-            int32 healthModSpellBasePoints0 = int32(caster->GetMaxHealth()*0.3);
+            int32 healthModSpellBasePoints0 = int32(caster->CountPctFromMaxHealth(30));
             caster->CastCustomSpell(caster, HUNTER_PET_SPELL_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
         }
 

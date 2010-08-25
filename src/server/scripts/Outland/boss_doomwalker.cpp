@@ -113,7 +113,7 @@ public:
                 return;
 
             //Spell Enrage, when hp <= 20% gain enrage
-            if (((me->GetHealth()*100)/ me->GetMaxHealth()) <= 20)
+            if (!HealthAbovePct(20))
             {
                 if (Enrage_Timer <= diff)
                 {

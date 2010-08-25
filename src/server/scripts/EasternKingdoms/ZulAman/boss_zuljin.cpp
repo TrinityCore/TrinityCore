@@ -191,7 +191,7 @@ class boss_zuljin : public CreatureScript
 
                 Phase = 0;
 
-                health_20 = me->GetMaxHealth()*0.2f;
+                health_20 = me->CountPctFromMaxHealth(20);
 
                 Intro_Timer = 37000;
                 Berserk_Timer = 600000;

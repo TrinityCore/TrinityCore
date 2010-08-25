@@ -443,7 +443,7 @@ class boss_magtheridon : public CreatureScript
                 else
                     Blaze_Timer -= diff;
 
-                if (!Phase3 && me->GetHealth()*10 < me->GetMaxHealth()*3
+                if (!Phase3 && HealthBelowPct(30)
                     && !me->IsNonMeleeSpellCasted(false) // blast nova
                     && !me->hasUnitState(UNIT_STAT_STUNNED)) // shadow cage and earthquake
                 {
@@ -568,7 +568,7 @@ class mob_hellfire_channeler : public CreatureScript
 
                 if (DarkMending_Timer <= diff)
                 {
-                    if ((me->GetHealth()*100 / me->GetMaxHealth()) < 50)
+                    if (HealthBelowPct(50))
                         DoCast(me, SPELL_DARK_MENDING);
                     DarkMending_Timer = 10000 +(rand() % 10000);
                 }

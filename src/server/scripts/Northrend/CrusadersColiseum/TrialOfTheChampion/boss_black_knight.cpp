@@ -159,7 +159,7 @@ public:
             if (bEventInProgress)
                 if (uiResurrectTimer <= uiDiff)
                 {
-                    me->SetHealth(me->GetMaxHealth());
+                    me->SetFullHealth();
                     DoCast(me,SPELL_BLACK_KNIGHT_RES,true);
                     uiPhase++;
                     uiResurrectTimer = 4000;
@@ -257,7 +257,7 @@ public:
                 }
             }
 
-            if (!me->hasUnitState(UNIT_STAT_ROOT) && !me->GetHealth()*100 / me->GetMaxHealth() <= 0)
+            if (!me->hasUnitState(UNIT_STAT_ROOT) && !me->HealthBelowPct(1))
                 DoMeleeAttackIfReady();
         }
 

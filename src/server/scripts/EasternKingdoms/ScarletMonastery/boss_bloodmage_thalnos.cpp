@@ -82,7 +82,7 @@ public:
                 return;
 
             //If we are <35% hp
-            if (!HpYell && ((me->GetHealth()*100) / me->GetMaxHealth() <= 35))
+            if (!HpYell && !HealthAbovePct(35))
             {
                 DoScriptText(SAY_HEALTH, me);
                 HpYell = true;

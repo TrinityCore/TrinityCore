@@ -124,7 +124,7 @@ public:
             me->ExitVehicle();
 
             // restore health if any damage done during intro
-            me->SetHealth(me->GetMaxHealth());
+            me->SetFullHealth();
 
             if (pInstance)
                 pInstance->SetData(DATA_TYRANNUS_EVENT, IN_PROGRESS);

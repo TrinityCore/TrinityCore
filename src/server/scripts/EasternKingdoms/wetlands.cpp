@@ -113,7 +113,7 @@ public:
 
         void DamageTaken(Unit* /*pDoneBy*/, uint32& uiDamage)
         {
-            if (me->GetHealth()*100 < me->GetMaxHealth()*20)
+            if (HealthBelowPct(20))
             {
                 if (Player* pPlayer = GetPlayerForEscort())
                 {

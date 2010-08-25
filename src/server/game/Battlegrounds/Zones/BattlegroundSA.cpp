@@ -474,7 +474,7 @@ void BattlegroundSA::TeleportPlayers()
                 plr->SpawnCorpseBones();
             }
 
-            plr->SetHealth(plr->GetMaxHealth());
+            plr->SetFullHealth();
             plr->SetPower(POWER_MANA, plr->GetMaxPower(POWER_MANA));
             plr->CombatStopWithPets(true);
 

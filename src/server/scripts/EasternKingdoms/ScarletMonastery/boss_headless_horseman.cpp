@@ -267,11 +267,11 @@ public:
             switch(Phase)
             {
                 case 1:
-                    if (((me->GetHealth() - damage)*100)/me->GetMaxHealth() < 67)
+                    if (me->HealthBelowPctDamaged(67, damage))
                         Disappear();
                     break;
                 case 2:
-                    if (((me->GetHealth() - damage)*100)/me->GetMaxHealth() < 34)
+                    if (me->HealthBelowPctDamaged(34, damage))
                         Disappear();
                     break;
                 case 3:
@@ -280,7 +280,7 @@ public:
                         die = true;
                         withbody = true;
                         wait = 300;
-                        damage = me->GetHealth() - me->GetMaxHealth()/100;
+                        damage = me->GetHealth() - me->CountPctFromMaxHealth(1);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         me->StopMoving();
                         //me->GetMotionMaster()->MoveIdle();
@@ -585,7 +585,7 @@ public:
                 withhead = true;
                 me->RemoveAllAuras();
                 me->SetName("Headless Horseman");
-                me->SetHealth(me->GetMaxHealth());
+                me->SetFullHealth();
                 SaySound(SAY_REJOINED);
                 DoCast(me, SPELL_HEAD);
                 caster->GetMotionMaster()->Clear(false);
@@ -607,7 +607,7 @@ public:
             {
                 withhead = false;
                 returned = false;
-                damage = me->GetHealth() - me->GetMaxHealth()/100;
+                damage = me->GetHealth() - me->CountPctFromMaxHealth(1);
                 me->RemoveAllAuras();
                 me->SetName("Headless Horseman, Unhorsed");
 
@@ -727,7 +727,7 @@ public:
                 if (regen <= diff)
                 {
                     regen = 1000;                   //"body calls head"
-                    if (me->GetHealth()/me->GetMaxHealth() == 1 && !returned)
+                    if (me->IsFullHealth() && !returned)
                     {
                         if (Phase > 1)
                             --Phase;
@@ -891,7 +891,7 @@ void mob_head::mob_headAI::Disappear()
             me->RemoveAllAuras();
             body->RemoveAurasDueToSpell(SPELL_IMMUNE);//hack, SpellHit doesn't calls if body has immune aura
             DoCast(body, SPELL_FLYING_HEAD);
-            me->SetHealth(me->GetMaxHealth());
+            me->SetFullHealth();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->GetMotionMaster()->MoveIdle();
