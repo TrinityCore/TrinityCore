@@ -1825,8 +1825,9 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
                     spellProto->Id == 60218)   // Essence of Gossamer
                 {
                     // Max absorb stored in 1 dummy effect
-                    if (spellProto->EffectBasePoints[1] < currentAbsorb)
-                        currentAbsorb = spellProto->EffectBasePoints[1];
+                    int32 maxAbsorb = SpellMgr::CalculateSpellEffectAmount(spellProto, 1);
+                    if (maxAbsorb < currentAbsorb)
+                        currentAbsorb = maxAbsorb;
                     break;
                 }
                 break;
@@ -6496,7 +6497,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     if (procSpell->SpellIconID != 62)
                         return false;
 
-                    int32 mana_perc = triggeredByAura->GetSpellProto()->EffectBasePoints[triggeredByAura->GetEffIndex()]+1;
+                    int32 mana_perc = SpellMgr::CalculateSpellEffectAmount(triggeredByAura->GetSpellProto(), triggeredByAura->GetEffIndex());
                     basepoints0 = uint32((GetCreatePowers(POWER_MANA) * mana_perc / 100) / 10);
                     triggered_spell_id = 54833;
                     target = this;
@@ -6781,7 +6782,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             // Improved Mend Pet
             if (dummySpell->SpellIconID == 267)
             {
-                int32 chance = triggeredByAura->GetSpellProto()->EffectBasePoints[triggeredByAura->GetEffIndex()];
+                int32 chance = SpellMgr::CalculateSpellEffectAmount(triggeredByAura->GetSpellProto(), triggeredByAura->GetEffIndex());
                 if (!roll_chance_i(chance))
                     return false;
 
@@ -7100,7 +7101,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     for (uint8 i=0; i<MAX_SPELL_EFFECTS; i++)
                         if (procSpell->Effect[i] == SPELL_EFFECT_ENERGIZE)
                         {
-                            int32 mana = procSpell->EffectBasePoints[i];
+                            int32 mana = SpellMgr::CalculateSpellEffectAmount(procSpell, i);
                             CastCustomSpell(this, 54986, 0, &mana, 0, true, castItem, triggeredByAura);
                             break;
                         }
@@ -7435,8 +7436,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 if (GetTypeId() != TYPEID_PLAYER  || !pVictim || !pVictim->isAlive() || !castItem || !castItem->IsEquipped())
                     return false;
 
-                //  firehit =  dummySpell->EffectBasePoints[0] / ((4*19.25) * 1.3);
-                float fire_onhit = dummySpell->EffectBasePoints[0] / 100.0f;
+                float fire_onhit = (float)(SpellMgr::CalculateSpellEffectAmount(dummySpell, 0) / 100.0);
 
                 float add_spellpower = (float)(SpellBaseDamageBonus(SPELL_SCHOOL_MASK_FIRE)
                                      + SpellBaseDamageBonusForVictim(SPELL_SCHOOL_MASK_FIRE, pVictim));
@@ -8177,7 +8177,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                         break;
                     case 43820:             // Charm of the Witch Doctor (Amani Charm of the Witch Doctor trinket)
                         // Pct value stored in dummy
-                        basepoints0 = pVictim->GetCreateHealth() * auraSpellInfo->EffectBasePoints[1] / 100;
+                        basepoints0 = pVictim->GetCreateHealth() * SpellMgr::CalculateSpellEffectAmount(auraSpellInfo, 1) / 100;
                         target = pVictim;
                         break;
                     case 57345:             // Darkmoon Card: Greatness

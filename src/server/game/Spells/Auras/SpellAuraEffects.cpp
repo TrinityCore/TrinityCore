@@ -1896,7 +1896,7 @@ void AuraEffect::PeriodicDummyTick(Unit * target, Unit * caster) const
             case 51689:
                 if (target->getVictim() && (target->GetHealth() * 100 / target->GetMaxHealth() > target->getVictim()->GetHealth() * 100 / target->getVictim()->GetMaxHealth())) {
                     if (!target->HasAura(58670)) {
-                        int32 basepoints = GetSpellProto()->EffectBasePoints[0];
+                        int32 basepoints = SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), 0);
                         target->CastCustomSpell(target, 58670, &basepoints, 0, 0, true);
                     }
                 }

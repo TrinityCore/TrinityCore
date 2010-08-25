@@ -1477,7 +1477,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                         if (unholyPresenceAura)
                         {
                             // Not listed as any effect, only base points set
-                            int32 basePoints0 = unholyPresenceAura->GetSpellProto()->EffectBasePoints[1];
+                            int32 basePoints0 = SpellMgr::CalculateSpellEffectAmount(unholyPresenceAura->GetSpellProto(), 1)
                             target->CastCustomSpell(target,63622,&basePoints0 ,&basePoints0,&basePoints0,true,0,unholyPresenceAura);
                             target->CastCustomSpell(target,65095,&basePoints0 ,NULL,NULL,true,0,unholyPresenceAura);
                         }
