@@ -2098,6 +2098,10 @@ void Spell::EffectJump(uint32 i)
     if (m_caster->isInFlight())
         return;
 
+    // Instantly interrupt non melee spells being casted
+    if (m_caster->IsNonMeleeSpellCasted(true))
+        m_caster->InterruptNonMeleeSpells(true);
+
     float x,y,z,o;
     if (m_targets.getUnitTarget())
     {
@@ -2124,6 +2128,10 @@ void Spell::EffectJumpDest(uint32 i)
 {
     if (m_caster->isInFlight())
         return;
+
+    // Instantly interrupt non melee spells being casted
+    if (m_caster->IsNonMeleeSpellCasted(true))
+        m_caster->InterruptNonMeleeSpells(true);
 
     // Init dest coordinates
     float x,y,z,o;
@@ -6323,6 +6331,10 @@ void Spell::EffectKnockBack(uint32 i)
 {
     if (!unitTarget)
         return;
+
+    // Instantly interrupt non melee spells being casted
+    if (unitTarget->IsNonMeleeSpellCasted(true))
+        unitTarget->InterruptNonMeleeSpells(true);
 
     // Typhoon
     if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && m_spellInfo->SpellFamilyFlags[1] & 0x01000000)
