@@ -25,6 +25,7 @@
 #include "SharedDefines.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
+#include "SpellMgr.h"
 
 inline bool _ModifyUInt32(bool apply, uint32& baseValue, int32& amount) 
 {
@@ -961,7 +962,7 @@ bool Guardian::UpdateStats(Stats stat)
         if (aurEff)
         {
             SpellEntry const* sProto = aurEff->GetSpellProto();                                                       // Then get the SpellProto and add the dummy effect value
-            mod += mod * (sProto->EffectBasePoints[1] / 100.0f);                                                      // Ravenous Dead edits the original scale
+            mod += mod * (SpellMgr::CalculateSpellEffectAmount(sProto, 1) / 100.0f);                                                      // Ravenous Dead edits the original scale
         }
         // Glyph of the Ghoul
         aurEff = owner->GetAuraEffect(58686, 0);
@@ -987,7 +988,7 @@ bool Guardian::UpdateStats(Stats stat)
                 {
 
                     SpellEntry const* sProto = sSpellStore.LookupEntry(itr->first);       // Then get the SpellProto and add the dummy effect value
-                    mod += mod * (sProto->EffectBasePoints[0] / 100.0f);
+                    mod += mod * (SpellMgr::CalculateSpellEffectAmount(sProto, 0) / 100.0f);
                 }
             }
             value += float(owner->GetStat(stat)) * mod;
@@ -1153,7 +1154,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
           {
 
         SpellEntry const* sProto = sSpellStore.LookupEntry(itr->first);                                    // Then get the SpellProto and add the dummy effect value
-                mod += (sProto->EffectBasePoints[1] / 100.0f);
+                mod += (SpellMgr::CalculateSpellEffectAmount(sProto, 1) / 100.0f);
           }
         }
             bonusAP = owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.22f * mod;
