@@ -814,7 +814,7 @@ void World::LoadConfigSettings(bool reload)
         m_int_configs[CONFIG_START_HONOR_POINTS] = m_int_configs[CONFIG_MAX_HONOR_POINTS];
     }
 
-    m_int_configs[CONFIG_MAX_ARENA_POINTS] = sConfig.GetIntDefault("MaxArenaPoints", 5000);
+    m_int_configs[CONFIG_MAX_ARENA_POINTS] = sConfig.GetIntDefault("MaxArenaPoints", 10000);
     if (int32(m_int_configs[CONFIG_MAX_ARENA_POINTS]) < 0)
     {
         sLog.outError("MaxArenaPoints (%i) can't be negative. Set to 0.",m_int_configs[CONFIG_MAX_ARENA_POINTS]);
@@ -887,7 +887,7 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_GM_LOWER_SECURITY] = sConfig.GetBoolDefault("GM.LowerSecurity", false);
     m_bool_configs[CONFIG_GM_ALLOW_ACHIEVEMENT_GAINS] = sConfig.GetBoolDefault("GM.AllowAchievementGain", true);
 
-    m_int_configs[CONFIG_GROUP_VISIBILITY] = sConfig.GetIntDefault("Visibility.GroupMode",0);
+    m_int_configs[CONFIG_GROUP_VISIBILITY] = sConfig.GetIntDefault("Visibility.GroupMode", 1);
 
     m_int_configs[CONFIG_MAIL_DELIVERY_DELAY] = sConfig.GetIntDefault("MailDeliveryDelay",HOUR);
 
@@ -1042,7 +1042,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_ARENA_START_PERSONAL_RATING]                = sConfig.GetIntDefault ("Arena.ArenaStartPersonalRating", 0);
     m_bool_configs[CONFIG_ARENA_SEASON_IN_PROGRESS]                  = sConfig.GetBoolDefault("Arena.ArenaSeason.InProgress", true);
 
-    m_bool_configs[CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN]            = sConfig.GetBoolDefault("OffhandCheckAtSpellUnlearn", false);
+    m_bool_configs[CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN]            = sConfig.GetBoolDefault("OffhandCheckAtSpellUnlearn", true);
 
     if (int32 clientCacheId = sConfig.GetIntDefault("ClientCacheVersion", 0))
     {
