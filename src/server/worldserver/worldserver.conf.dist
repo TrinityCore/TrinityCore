@@ -771,7 +771,7 @@ ChatLogTimestamp = 0
 #
 #    MaxArenaPoints
 #        Max arena points that player can have.
-#        Default: 5000
+#        Default: 10000
 #
 #    StartArenaPoints
 #        Amount of arena points that new players will start with
@@ -915,8 +915,8 @@ ChatLogTimestamp = 0
 #    OffhandCheckAtSpellUnlearn
 #        Unlearning certain spells can change offhand weapon restrictions
 #         for equip slots.
-#        Default: 0 - recheck offhand slot weapon only at zone update
-#                 1 - recheck offhand slot weapon at unlearning a spell
+#        Default: 1 - recheck offhand slot weapon at unlearning a spell
+#                 0 - recheck offhand slot weapon only at zone update
 #
 #    ClientCacheVersion
 #        Client cache version for client cache data reset. Use any different
@@ -969,7 +969,7 @@ StartHeroicPlayerLevel = 55
 StartPlayerMoney = 0
 MaxHonorPoints = 75000
 StartHonorPoints = 0
-MaxArenaPoints = 5000
+MaxArenaPoints = 10000
 StartArenaPoints = 0
 RecruitAFriend.MaxLevel = 60
 RecruitAFriend.MaxDifference = 3
@@ -996,7 +996,7 @@ MaxRecruitAFriendBonusDistance = 100
 MailDeliveryDelay = 3600
 SkillChance.Prospecting = 0
 SkillChance.Milling = 0
-OffhandCheckAtSpellUnlearn = 0
+OffhandCheckAtSpellUnlearn = 1
 ClientCacheVersion = 0
 Event.Announce = 0
 BeepAtStart = 1
