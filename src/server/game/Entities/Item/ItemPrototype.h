@@ -22,6 +22,7 @@
 #define _ITEMPROTOTYPE_H
 
 #include "Common.h"
+#include "SharedDefines.h"
 
 enum ItemModType
 {
