@@ -154,7 +154,7 @@ class boss_archaedas : public CreatureScript
                 } else WallMinionTimer -= diff;
 
                 //If we are <66 summon the guardians
-                if (!guardiansAwake && me->GetHealth()*100 / me->GetMaxHealth() <= 66) {
+                if (!guardiansAwake && !HealthAbovePct(66)) {
                     ActivateMinion(pInstance->GetData64(5),true);   // EarthenGuardian1
                     ActivateMinion(pInstance->GetData64(6),true);   // EarthenGuardian2
                     ActivateMinion(pInstance->GetData64(7),true);   // EarthenGuardian3
@@ -167,7 +167,7 @@ class boss_archaedas : public CreatureScript
                 }
 
                 //If we are <33 summon the vault walkers
-                if (!vaultWalkersAwake && me->GetHealth()*100 / me->GetMaxHealth() <= 33) {
+                if (!vaultWalkersAwake && !HealthAbovePct(33)) {
                     ActivateMinion(pInstance->GetData64(1),true);    // VaultWalker1
                     ActivateMinion(pInstance->GetData64(2),true);    // VaultWalker2
                     ActivateMinion(pInstance->GetData64(3),true);    // VaultWalker3

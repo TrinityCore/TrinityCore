@@ -94,7 +94,7 @@ public:
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
-            me->SetHealth(int(me->GetMaxHealth()*.1));
+            me->SetHealth(me->CountPctFromMaxHealth(10));
             me->SetStandState(UNIT_STAND_STATE_SLEEP);
         }
 
@@ -309,7 +309,7 @@ public:
         void Reset()
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
-            me->SetHealth(int(me->GetMaxHealth()*.15));
+            me->SetHealth(me->CountPctFromMaxHealth(15));
             switch (rand()%2)
             {
                 case 0: me->SetStandState(UNIT_STAND_STATE_SIT); break;

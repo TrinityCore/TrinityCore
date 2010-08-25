@@ -177,7 +177,7 @@ class boss_omor_the_unscarred : public CreatureScript
                     else
                         OrbitalStrike_Timer -= diff;
 
-                if ((me->GetHealth()*100) / me->GetMaxHealth() < 20)
+                if (HealthBelowPct(20))
                 {
                     if (DemonicShield_Timer <= diff)
                     {

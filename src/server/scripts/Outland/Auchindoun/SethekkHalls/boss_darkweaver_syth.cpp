@@ -134,19 +134,19 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (((me->GetHealth()*100) / me->GetMaxHealth() < 90) && !summon90)
+            if (HealthBelowPct(90) && !summon90)
             {
                 SythSummoning();
                 summon90 = true;
             }
 
-            if (((me->GetHealth()*100) / me->GetMaxHealth() < 50) && !summon50)
+            if (HealthBelowPct(50) && !summon50)
             {
                 SythSummoning();
                 summon50 = true;
             }
 
-            if (((me->GetHealth()*100) / me->GetMaxHealth() < 10) && !summon10)
+            if (HealthBelowPct(10) && !summon10)
             {
                 SythSummoning();
                 summon10 = true;

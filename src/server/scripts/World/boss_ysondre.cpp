@@ -128,7 +128,7 @@ public:
                 m_uiLightningWave_Timer -= uiDiff;
 
             //Summon Druids
-            if ((me->GetHealth()*100 / me->GetMaxHealth()) <= (100-(25*m_uiSummonDruidModifier)))
+            if (!HealthAbovePct(100 - 25 * m_uiSummonDruidModifier))
             {
                 DoScriptText(SAY_SUMMONDRUIDS, me);
 

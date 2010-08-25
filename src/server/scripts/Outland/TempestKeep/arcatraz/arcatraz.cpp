@@ -190,7 +190,7 @@ class npc_millhouse_manastorm : public CreatureScript
 
                 if (!UpdateVictim())
                     return;
-                if (!LowHp && ((me->GetHealth()*100 / me->GetMaxHealth()) < 20))
+                if (!LowHp && HealthBelowPct(20))
                 {
                     DoScriptText(SAY_LOWHP, me);
                     LowHp = true;

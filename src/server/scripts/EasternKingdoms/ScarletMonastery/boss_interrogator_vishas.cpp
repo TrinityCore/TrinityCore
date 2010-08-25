@@ -91,13 +91,13 @@ public:
                 return;
 
             //If we are low on hp Do sayings
-            if (!Yell60 && ((me->GetHealth()*100) / me->GetMaxHealth() <= 60))
+            if (!Yell60 && !HealthAbovePct(60))
             {
                 DoScriptText(SAY_HEALTH1, me);
                 Yell60 = true;
             }
 
-            if (!Yell30 && ((me->GetHealth()*100) / me->GetMaxHealth() <= 30))
+            if (!Yell30 && !HealthAbovePct(30))
             {
                 DoScriptText(SAY_HEALTH2, me);
                 Yell30 = true;

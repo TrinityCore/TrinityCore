@@ -139,7 +139,7 @@ class boss_thekal : public CreatureScript
                                     pLorKhan->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                                     pLorKhan->setFaction(14);
                                     pLorKhan->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                    pLorKhan->SetHealth(int(pLorKhan->GetMaxHealth()*1.0));
+                                    pLorKhan->SetFullHealth();
 
                                     m_pInstance->SetData(TYPE_LORKHAN, DONE);
                                 }
@@ -154,7 +154,7 @@ class boss_thekal : public CreatureScript
                                     pZath->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                                     pZath->setFaction(14);
                                     pZath->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                    pZath->SetHealth(int(pZath->GetMaxHealth()*1.0));
+                                    pZath->SetFullHealth();
 
                                     m_pInstance->SetData(TYPE_ZATH, DONE);
                                 }
@@ -176,7 +176,7 @@ class boss_thekal : public CreatureScript
                         Silence_Timer = 20000 + rand()%5000;
                     } else Silence_Timer -= diff;
 
-                    if (!PhaseTwo && !WasDead && me->GetHealth() <= me->GetMaxHealth() * 0.05)
+                    if (!PhaseTwo && !WasDead && !HealthAbovePct(5))
                     {
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->SetStandState(UNIT_STAND_STATE_SLEEP);
@@ -197,7 +197,7 @@ class boss_thekal : public CreatureScript
                             me->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.00f);
                             me->SetStandState(UNIT_STAND_STATE_STAND);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            me->SetHealth(int(me->GetMaxHealth()*1.0));
+                            me->SetFullHealth();
                             const CreatureInfo *cinfo = me->GetCreatureInfo();
                             me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 40)));
                             me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 40)));
@@ -207,7 +207,7 @@ class boss_thekal : public CreatureScript
                         } else Resurrect_Timer -= diff;
                     }
 
-                    if ((me->GetHealth()*100 / me->GetMaxHealth() == 100) && WasDead)
+                    if (me->IsFullHealth() && WasDead)
                     {
                         WasDead = false;
                     }
@@ -244,7 +244,7 @@ class boss_thekal : public CreatureScript
                             SummonTigers_Timer = 10000 + rand()%4000;
                         } else SummonTigers_Timer -= diff;
 
-                        if ((me->GetHealth()*100 / me->GetMaxHealth() < 11) && !Enraged)
+                        if (HealthBelowPct(11) && !Enraged)
                         {
                             DoCast(me, SPELL_ENRAGE);
                             Enraged = true;
@@ -376,7 +376,7 @@ class mob_zealot_lorkhan : public CreatureScript
                                 pThekal->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                                 pThekal->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 pThekal->setFaction(14);
-                                pThekal->SetHealth(int(pThekal->GetMaxHealth()*1.0));
+                                pThekal->SetFullHealth();
                             }
                         }
 
@@ -388,7 +388,7 @@ class mob_zealot_lorkhan : public CreatureScript
                                 pZath->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                                 pZath->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 pZath->setFaction(14);
-                                pZath->SetHealth(int(pZath->GetMaxHealth()*1.0));
+                                pZath->SetFullHealth();
                             }
                         }
                     }
@@ -396,7 +396,7 @@ class mob_zealot_lorkhan : public CreatureScript
                     Check_Timer = 5000;
                 } else Check_Timer -= diff;
 
-                if (me->GetHealth() <= me->GetMaxHealth() * 0.05)
+                if (!HealthAbovePct(5))
                 {
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->SetStandState(UNIT_STAND_STATE_SLEEP);
@@ -526,7 +526,7 @@ class mob_zealot_zath : public CreatureScript
                                 pLorKhan->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                                 pLorKhan->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 pLorKhan->setFaction(14);
-                                pLorKhan->SetHealth(int(pLorKhan->GetMaxHealth()*1.0));
+                                pLorKhan->SetFullHealth();
                             }
                         }
 
@@ -538,7 +538,7 @@ class mob_zealot_zath : public CreatureScript
                                 pThekal->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                                 pThekal->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 pThekal->setFaction(14);
-                                pThekal->SetHealth(int(pThekal->GetMaxHealth()*1.0));
+                                pThekal->SetFullHealth();
                             }
                         }
                     }
@@ -546,7 +546,7 @@ class mob_zealot_zath : public CreatureScript
                     Check_Timer = 5000;
                 } else Check_Timer -= diff;
 
-                if (me->GetHealth() <= me->GetMaxHealth() * 0.05)
+                if (!HealthAbovePct(5))
                 {
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->SetStandState(UNIT_STAND_STATE_SLEEP);

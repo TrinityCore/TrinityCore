@@ -84,7 +84,7 @@ public:
                 m_uiBlastWave_Timer -= uiDiff;
 
             //Frenzy_Timer
-            if (me->GetHealth()*100 / me->GetMaxHealth() < 25)
+            if (HealthBelowPct(25))
             {
                 if (m_uiFrenzy_Timer <= uiDiff)
                 {

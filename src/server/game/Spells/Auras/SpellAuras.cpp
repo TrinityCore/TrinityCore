@@ -1516,7 +1516,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                     break;
                 if (apply)
                 {
-                    if (target != caster && target->GetHealth() <= target->GetMaxHealth() / 4)
+                    if (target != caster && !target->HealthAbovePct(25))
                         caster->CastSpell(caster, 200000, true);
                 }
                 else

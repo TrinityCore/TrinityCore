@@ -243,7 +243,7 @@ public:
                 return;
             }
 
-            if (!Enrage && me->GetHealth()*100 / me->GetMaxHealth() < 30)
+            if (!Enrage && HealthBelowPct(30))
             {
                 DoCast(me, SPELL_FRENZY);
                 Enrage = true;

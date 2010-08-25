@@ -86,7 +86,7 @@ public:
                 return;
 
             //If we are <50% hp cast Arcane Bubble
-            if (!bShielded && me->GetHealth()*100 / me->GetMaxHealth() <= 50)
+            if (!bShielded && !HealthAbovePct(50))
             {
                 //wait if we already casting
                 if (me->IsNonMeleeSpellCasted(false))

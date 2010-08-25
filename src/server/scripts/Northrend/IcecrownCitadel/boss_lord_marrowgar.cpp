@@ -498,8 +498,7 @@ class spell_marrowgar_bone_storm : public SpellScriptLoader
                     return;
 
                 float distVar = distance >= 20.0f ? 4 : (10.0f/3.0f);
-                dmg /= distance / distVar;
-                SetHitDamage(dmg);
+                SetHitDamage(int32(dmg * distVar / distance));
             }
 
             void Register()

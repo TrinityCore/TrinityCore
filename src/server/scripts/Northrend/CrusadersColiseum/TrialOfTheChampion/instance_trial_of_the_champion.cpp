@@ -43,8 +43,8 @@ public:
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
-        uint8 uiMovementDone;
-        uint8 uiGrandChampionsDeaths;
+        uint16 uiMovementDone;
+        uint16 uiGrandChampionsDeaths;
         uint8 uiArgentSoldierDeaths;
 
         uint64 uiAnnouncerGUID;

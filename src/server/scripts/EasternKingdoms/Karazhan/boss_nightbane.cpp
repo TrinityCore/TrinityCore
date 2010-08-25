@@ -341,8 +341,7 @@ public:
                     SearingCindersTimer = 10000;
                 } else SearingCindersTimer -= diff;
 
-                uint32 Prozent;
-                Prozent = (me->GetHealth()*100) / me->GetMaxHealth();
+                uint32 Prozent = uint32(me->GetHealthPct());
 
                 if (Prozent < 75 && FlyCount == 0) // first take off 75%
                     TakeOff();

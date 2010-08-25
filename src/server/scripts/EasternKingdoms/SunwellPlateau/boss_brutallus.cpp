@@ -244,7 +244,7 @@ public:
                 case 7:
                     me->Kill(Madrigosa);
                     DoScriptText(YELL_MADR_DEATH, Madrigosa);
-                    me->SetHealth(me->GetMaxHealth());
+                    me->SetFullHealth();
                     me->AttackStop();
                     IntroPhaseTimer = 4000;
                     ++IntroPhase;

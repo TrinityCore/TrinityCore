@@ -105,7 +105,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (!bHealth && HealthBelowPct(50) &&  !HealthBelowPct(5))
+            if (!bHealth && HealthBelowPct(50) && !HealthBelowPct(5))
             {
                 CreatureState(me, false);
                 DoCast(me,SPELL_FREEZE_ANIM);
@@ -140,7 +140,7 @@ public:
         void JustSummoned(Creature* pSummon)
         {
             if (HealthBelowPct(5))
-                pSummon->DealDamage(pSummon, pSummon->GetHealth() * 0.5 , NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                pSummon->DealDamage(pSummon, pSummon->GetHealth() * 0.5, NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             pSummon->AI()->AttackStart(me->getVictim());
         }
     };

@@ -151,7 +151,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (Phase == 1 && (me->GetHealth()*100)/me->GetMaxHealth() < 95)
+            if (Phase == 1 && HealthBelowPct(95))
             {
                 Phase = 2;
                 if (Creature* pAttumen = me->SummonCreature(SUMMON_ATTUMEN, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000))
@@ -162,7 +162,7 @@ public:
                     DoScriptText(RAND(SAY_APPEAR1,SAY_APPEAR2,SAY_APPEAR3), pAttumen);
                 }
             }
-            else if (Phase == 2 && (me->GetHealth()*100)/me->GetMaxHealth() < 25)
+            else if (Phase == 2 && HealthBelowPct(25))
             {
                 if (Unit *pAttumen = Unit::GetUnit(*me, Attumen))
                     Mount(pAttumen);
@@ -295,7 +295,7 @@ void boss_attumen::boss_attumenAI::UpdateAI(const uint32 diff)
     }
     else
     {
-        if ((me->GetHealth()*100)/me->GetMaxHealth() < 25)
+        if (HealthBelowPct(25))
         {
             Creature *pMidnight = Unit::GetCreature(*me, Midnight);
             if (pMidnight && pMidnight->GetTypeId() == TYPEID_UNIT)

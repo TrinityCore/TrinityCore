@@ -96,7 +96,7 @@ public:
                 m_uiPyroblastTimer -= uiDiff;
 
             // Enrage
-            if (!m_bEnraged && me->GetHealth()*100 < me->GetMaxHealth()*10)
+            if (!m_bEnraged && HealthBelowPct(10))
             {
                 DoCast(me, SPELL_ENRAGE);
                 m_bEnraged = true;
@@ -159,7 +159,7 @@ public:
 
         void DamageTaken(Unit* /*pDoneBy*/, uint32& uiDamage)
         {
-            if (me->GetHealth()*100 < me->GetMaxHealth()*50)
+            if (HealthBelowPct(50))
             {
                 if (m_pInstance)
                 {
@@ -168,7 +168,7 @@ public:
                         if (pGolemagg->isAlive())
                         {
                             DoScriptText(EMOTE_LOWHP, me);
-                            me->SetHealth(me->GetMaxHealth());
+                            me->SetFullHealth();
                         }
                         else
                             uiDamage = me->GetHealth();

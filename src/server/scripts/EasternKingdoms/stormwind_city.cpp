@@ -133,7 +133,7 @@ public:
 
         void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
         {
-            if (uiDamage > me->GetHealth() || ((me->GetHealth() - uiDamage)*100 / me->GetMaxHealth() < 15))
+            if (uiDamage > me->GetHealth() || me->HealthBelowPctDamaged(15, uiDamage))
             {
                 //Take 0 damage
                 uiDamage = 0;
@@ -207,7 +207,7 @@ public:
 
         void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
         {
-            if (uiDamage > me->GetHealth() || ((me->GetHealth() - uiDamage)*100 / me->GetMaxHealth() < 15))
+            if (uiDamage > me->GetHealth() || me->HealthBelowPctDamaged(15, uiDamage))
             {
                 uiDamage = 0;
 

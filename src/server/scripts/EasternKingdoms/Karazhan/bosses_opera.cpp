@@ -988,7 +988,7 @@ void PretendToDie(Creature* pCreature)
 void Resurrect(Creature *pTarget)
 {
     pTarget->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-    pTarget->SetHealth(pTarget->GetMaxHealth());
+    pTarget->SetFullHealth();
     pTarget->SetStandState(UNIT_STAND_STATE_STAND);
     pTarget->CastSpell(pTarget, SPELL_RES_VISUAL, true);
     if (pTarget->getVictim())

@@ -132,7 +132,7 @@ public:
 
             // Teleporting Random Target to one of the three tunnels and spawn 4 hatchlings near the gamer.
             //We will only telport if fankriss has more than 3% of hp so teleported gamers can always loot.
-            if (me->GetHealth()*100 / me->GetMaxHealth() > 3)
+            if (HealthAbovePct(3))
             {
                 if (SpawnHatchlings_Timer <= diff)
                 {

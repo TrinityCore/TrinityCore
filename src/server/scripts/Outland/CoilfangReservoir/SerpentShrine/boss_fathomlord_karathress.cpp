@@ -275,7 +275,7 @@ public:
             } else Enrage_Timer -= diff;
 
             //Blessing of Tides Trigger
-            if ((me->GetHealth()*100 / me->GetMaxHealth()) <= 75 && !BlessingOfTides)
+            if (!HealthAbovePct(75) && !BlessingOfTides)
             {
                 BlessingOfTides = true;
                 bool continueTriggering = false;

@@ -1757,7 +1757,7 @@ struct ChainHealingOrder : public std::binary_function<const Unit*, const Unit*,
         else*/ if (Target->GetTypeId() == TYPEID_PLAYER && MainTarget->GetTypeId() == TYPEID_PLAYER &&
            Target->ToPlayer()->IsInSameRaidWith(MainTarget->ToPlayer()))
         {
-            if (Target->GetHealth() == Target->GetMaxHealth())
+            if (Target->IsFullHealth())
                 return 40000;
             else
                 return 20000 - Target->GetMaxHealth() + Target->GetHealth();
@@ -1792,7 +1792,7 @@ void Spell::SearchChainTarget(std::list<Unit*> &TagUnitMap, float max_range, uin
     {
         SearchAreaTarget(tempUnitMap, max_range, PUSH_CHAIN, SPELL_TARGETS_ALLY);
         tempUnitMap.sort(ChainHealingOrder(m_caster));
-        //if (cur->GetHealth() == cur->GetMaxHealth() && tempUnitMap.size())
+        //if (cur->IsFullHealth() && tempUnitMap.size())
         //    cur = tempUnitMap.front();
     }
     else
@@ -6050,7 +6050,7 @@ SpellCastResult Spell::CheckItems()
 
                 if (m_spellInfo->Effect[i] == SPELL_EFFECT_HEAL)
                 {
-                    if (m_targets.getUnitTarget()->GetHealth() == m_targets.getUnitTarget()->GetMaxHealth())
+                    if (m_targets.getUnitTarget()->IsFullHealth())
                     {
                         failReason = SPELL_FAILED_ALREADY_AT_FULL_HEALTH;
                         continue;

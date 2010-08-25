@@ -102,20 +102,20 @@ public:
                 FrostNova_Timer = 15000;
             } else FrostNova_Timer -= diff;
 
-            if (!Spectrals60 && me->GetHealth()*100 / me->GetMaxHealth() < 60)
+            if (!Spectrals60 && HealthBelowPct(60))
             {
                 DoScriptText(SAY_SUMMON60, me);
                 DoCast(me->getVictim(), SPELL_FROST_SPECTRES);
                 Spectrals60 = true;
             }
 
-            if (!Hp && me->GetHealth()*100 / me->GetMaxHealth() < 50)
+            if (!Hp && HealthBelowPct(50))
             {
                 DoScriptText(SAY_HP, me);
                 Hp = true;
             }
 
-            if (!Spectrals30 && me->GetHealth()*100 / me->GetMaxHealth() < 30)
+            if (!Spectrals30 && HealthBelowPct(30))
             {
                 DoScriptText(SAY_SUMMON30, me);
                 DoCast(me->getVictim(), SPELL_FROST_SPECTRES);

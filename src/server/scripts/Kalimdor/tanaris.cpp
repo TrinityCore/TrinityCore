@@ -410,7 +410,7 @@ public:
         if (quest->GetQuestId() == Q_OOX17)
         {
             pCreature->setFaction(113);
-            pCreature->SetHealth(pCreature->GetMaxHealth());
+            pCreature->SetFullHealth();
             pCreature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
             pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
             DoScriptText(SAY_OOX_START, pCreature);

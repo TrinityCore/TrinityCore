@@ -85,7 +85,7 @@ public:
                         if (NewPet->getDeathState() == DEAD)
                             NewPet->setDeathState(ALIVE);
 
-                        NewPet->SetHealth(NewPet->GetMaxHealth());
+                        NewPet->SetFullHealth();
                         NewPet->SetPower(NewPet->getPowerType(),NewPet->GetMaxPower(NewPet->getPowerType()));
 
                         switch (NewPet->GetEntry())

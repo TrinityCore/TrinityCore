@@ -1986,7 +1986,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
             pet->SetUInt32Value(UNIT_FIELD_BYTES_0, 2048);
             pet->SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
             pet->SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, 1000);
-            pet->SetHealth(pet->GetMaxHealth());
+            pet->SetFullHealth();
             pet->SetPower(POWER_MANA, pet->GetMaxPower(POWER_MANA));
             pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, time(NULL));
             break;

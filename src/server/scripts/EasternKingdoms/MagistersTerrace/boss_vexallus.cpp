@@ -132,7 +132,7 @@ public:
             if (!Enraged)
             {
                 //used for check, when Vexallus cast adds 85%, 70%, 55%, 40%, 25%
-                if ((me->GetHealth()*100 / me->GetMaxHealth()) <= (100-(INTERVAL_MODIFIER*IntervalHealthAmount)))
+                if (!HealthAbovePct(100 - INTERVAL_MODIFIER * IntervalHealthAmount))
                 {
                     //increase amount, unless we're at 10%, then we switch and return
                     if (IntervalHealthAmount == INTERVAL_SWITCH)

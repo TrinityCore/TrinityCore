@@ -165,7 +165,7 @@ public:
             } else Sheep_Timer -= diff;
 
             //may not be correct time to cast
-            if (!ManaShield && ((me->GetHealth()*100) / me->GetMaxHealth() < 20))
+            if (!ManaShield && HealthBelowPct(20))
             {
                 DoCast(me, SPELL_MANA_SHIELD);
                 ManaShield = true;

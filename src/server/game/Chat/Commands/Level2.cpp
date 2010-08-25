@@ -3978,19 +3978,19 @@ bool ChatHandler::HandleCreatePetCommand(const char* /*args*/)
     // prepare visual effect for levelup
     pet->SetUInt32Value(UNIT_FIELD_LEVEL,creatureTarget->getLevel()-1);
 
-     pet->GetCharmInfo()->SetPetNumber(sObjectMgr.GeneratePetNumber(), true);
-     // this enables pet details window (Shift+P)
-     pet->InitPetCreateSpells();
-     pet->SetHealth(pet->GetMaxHealth());
+    pet->GetCharmInfo()->SetPetNumber(sObjectMgr.GeneratePetNumber(), true);
+    // this enables pet details window (Shift+P)
+    pet->InitPetCreateSpells();
+    pet->SetFullHealth();
 
-     pet->GetMap()->Add(pet->ToCreature());
+    pet->GetMap()->Add(pet->ToCreature());
 
-     // visual effect for levelup
-     pet->SetUInt32Value(UNIT_FIELD_LEVEL,creatureTarget->getLevel());
+    // visual effect for levelup
+    pet->SetUInt32Value(UNIT_FIELD_LEVEL,creatureTarget->getLevel());
 
-     player->SetMinion(pet, true);
-     pet->SavePetToDB(PET_SAVE_AS_CURRENT);
-     player->PetSpellInitialize();
+    player->SetMinion(pet, true);
+    pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+    player->PetSpellInitialize();
 
     return true;
 }

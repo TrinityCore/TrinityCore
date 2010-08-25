@@ -416,7 +416,7 @@ public:
                 SuperCastTimer = urand(35000,40000);
             } else SuperCastTimer -= diff;
 
-            if (!ElementalsSpawned && me->GetHealth()*100 / me->GetMaxHealth() < 40)
+            if (!ElementalsSpawned && HealthBelowPct(40))
             {
                 ElementalsSpawned = true;
 

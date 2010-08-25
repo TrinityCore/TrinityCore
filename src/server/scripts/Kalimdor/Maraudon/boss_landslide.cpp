@@ -78,7 +78,7 @@ public:
             } else Trample_Timer -= diff;
 
             //Landslide
-            if (me->GetHealth()*100 / me->GetMaxHealth() < 50)
+            if (HealthBelowPct(50))
             {
                 if (Landslide_Timer <= diff)
                 {

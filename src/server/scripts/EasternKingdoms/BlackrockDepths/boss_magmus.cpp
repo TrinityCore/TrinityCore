@@ -77,7 +77,7 @@ public:
             } else FieryBurst_Timer -= diff;
 
             //WarStomp_Timer
-            if (me->GetHealth()*100 / me->GetMaxHealth() < 51)
+            if (HealthBelowPct(51))
             {
                 if (WarStomp_Timer <= diff)
                 {

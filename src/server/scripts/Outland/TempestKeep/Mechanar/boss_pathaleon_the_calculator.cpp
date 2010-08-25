@@ -180,7 +180,7 @@ class boss_pathaleon_the_calculator : public CreatureScript
                         ArcaneExplosion_Timer -= diff;
                 }
 
-                if (!Enraged && me->GetHealth()*100 / me->GetMaxHealth() < 21)
+                if (!Enraged && HealthBelowPct(21))
                 {
                     DoCast(me, SPELL_FRENZY);
                     DoScriptText(SAY_ENRAGE, me);

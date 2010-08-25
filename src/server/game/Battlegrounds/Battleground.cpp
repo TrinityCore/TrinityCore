@@ -821,7 +821,7 @@ void Battleground::EndBattleground(uint32 winner)
         }
 
 
-        plr->SetHealth(plr->GetMaxHealth());
+        plr->SetFullHealth();
         plr->SetPower(POWER_MANA, plr->GetMaxPower(POWER_MANA));
         plr->CombatStopWithPets(true);
 
@@ -1113,7 +1113,7 @@ void Battleground::AddPlayer(Player *plr)
         {
             plr->CastSpell(plr, SPELL_ARENA_PREPARATION, true);
 
-            plr->SetHealth(plr->GetMaxHealth());
+            plr->SetFullHealth();
             plr->SetPower(POWER_MANA, plr->GetMaxPower(POWER_MANA));
         }
     }

@@ -92,7 +92,7 @@ public:
                 return;
 
             //If he is 70% start phase 2
-            if (phase == 1 && me->GetHealth()*100 / me->GetMaxHealth() <= 70 && !me->IsNonMeleeSpellCasted(false))
+            if (phase == 1 && !HealthAbovePct(70) && !me->IsNonMeleeSpellCasted(false))
             {
                 phase=2;
             }

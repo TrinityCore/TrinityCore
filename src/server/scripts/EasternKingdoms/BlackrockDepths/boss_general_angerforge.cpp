@@ -105,7 +105,7 @@ public:
             } else Cleave_Timer -= diff;
 
             //Adds_Timer
-            if (me->GetHealth()*100 / me->GetMaxHealth() < 21)
+            if (HealthBelowPct(21))
             {
                 if (Adds_Timer <= diff)
                 {
@@ -119,7 +119,7 @@ public:
             }
 
             //Summon Medics
-            if (!Medics && me->GetHealth()*100 / me->GetMaxHealth() < 21)
+            if (!Medics && HealthBelowPct(21))
             {
                 SummonMedics(me->getVictim());
                 SummonMedics(me->getVictim());

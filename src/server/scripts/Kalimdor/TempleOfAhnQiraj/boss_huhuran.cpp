@@ -132,7 +132,7 @@ public:
                 FrenzyBack_Timer = 15000;
             } else FrenzyBack_Timer -= diff;
 
-            if (!Berserk && me->GetHealth()*100 / me->GetMaxHealth() < 31)
+            if (!Berserk && HealthBelowPct(31))
             {
                 me->InterruptNonMeleeSpells(false);
                 DoScriptText(EMOTE_GENERIC_BERSERK, me);

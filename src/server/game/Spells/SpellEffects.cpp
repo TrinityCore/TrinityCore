@@ -415,13 +415,13 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     // Cataclysmic Bolt
                     case 38441:
                     {
-                        damage = unitTarget->GetMaxHealth() / 2;
+                        damage = unitTarget->CountPctFromMaxHealth(50);
                         break;
                     }
                     // Tympanic Tantrum
                     case 62775:
                     {
-                        damage = unitTarget->GetMaxHealth() / 10;
+                        damage = unitTarget->CountPctFromMaxHealth(10);
                         break;
                     }
                     // Gargoyle Strike
@@ -1264,11 +1264,11 @@ void Spell::EffectDummy(uint32 i)
                 }
                 case 47170:                                 // Impale Leviroth
                 {
-                    if (!unitTarget && unitTarget->GetEntry() != 26452 && ((unitTarget->GetHealth() / unitTarget->GetMaxHealth()) * 100.0f) > 95.0f)
-                    return;
+                    if (!unitTarget && unitTarget->GetEntry() != 26452 && unitTarget->HealthAbovePct(95))
+                        return;
 
-                    m_caster->DealDamage(unitTarget, uint32(unitTarget->GetMaxHealth()*0.93f));
-                    return;
+                    m_caster->DealDamage(unitTarget, unitTarget->CountPctFromMaxHealth(93));
+                        return;
                 }
                 case 49357:                                 // Brewfest Mount Transformation
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -1679,7 +1679,7 @@ void Spell::EffectDummy(uint32 i)
             if (m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_DK_DEATH_STRIKE)
             {
                 uint32 count = unitTarget->GetDiseasesByCaster(m_caster->GetGUID());
-                int32 bp = int32(count * m_caster->GetMaxHealth() * m_spellInfo->DmgMultiplier[0] / 100);
+                int32 bp = int32(count * m_caster->CountPctFromMaxHealth(m_spellInfo->DmgMultiplier[0]));
                 // Improved Death Strike
                 if (AuraEffect const * aurEff = m_caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_DEATHKNIGHT, 2751, 0))
                     bp = int32(bp * (m_caster->CalculateSpellDamage(m_caster, aurEff->GetSpellProto(), 2) + 100.0f) / 100.0f);
@@ -2557,7 +2557,7 @@ void Spell::SpellDamageHeal(uint32 /*i*/)
         }
         // Death Pact - return pct of max health to caster
         else if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && m_spellInfo->SpellFamilyFlags[0] & 0x00080000)
-            addhealth = caster->SpellHealingBonus(unitTarget, m_spellInfo, int32(caster->GetMaxHealth() * damage / 100.0f), HEAL);
+            addhealth = caster->SpellHealingBonus(unitTarget, m_spellInfo, int32(caster->CountPctFromMaxHealth(damage)), HEAL);
         else
             addhealth = caster->SpellHealingBonus(unitTarget, m_spellInfo, addhealth, HEAL);
 
@@ -2584,7 +2584,7 @@ void Spell::EffectHealPct(uint32 /*i*/)
         if (m_spellInfo->Id == 59754 && unitTarget == m_caster)
             return;
 
-        uint32 addhealth = caster->SpellHealingBonus(unitTarget, m_spellInfo, uint32(unitTarget->GetMaxHealth() * damage / 100.0f), HEAL);
+        uint32 addhealth = caster->SpellHealingBonus(unitTarget, m_spellInfo, unitTarget->CountPctFromMaxHealth(damage), HEAL);
         //if (Player *modOwner = m_caster->GetSpellModOwner())
         //    modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DAMAGE, addhealth, this);
 
@@ -4733,7 +4733,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 case 54426:
                     if (unitTarget)
                     {
-                        int32 damage = int32((int32)unitTarget->GetHealth() - (int32)unitTarget->GetMaxHealth() * 0.05f);
+                        int32 damage = int32(unitTarget->GetHealth()) - int32(unitTarget->CountPctFromMaxHealth(5));
                         if (damage > 0)
                             m_caster->CastCustomSpell(28375, SPELLVALUE_BASE_POINT0, damage, unitTarget);
                     }
@@ -6113,7 +6113,7 @@ void Spell::EffectResurrect(uint32 /*effIndex*/)
     if (pTarget->isRessurectRequested())       // already have one active request
         return;
 
-    uint32 health = pTarget->GetMaxHealth() * damage / 100;
+    uint32 health = pTarget->CountPctFromMaxHealth(damage);
     uint32 mana   = pTarget->GetMaxPower(POWER_MANA) * damage / 100;
 
     pTarget->setResurrectRequestData(m_caster->GetGUID(), m_caster->GetMapId(), m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ(), health, mana);
@@ -6241,7 +6241,7 @@ void Spell::EffectSelfResurrect(uint32 i)
     // percent case
     else
     {
-        health = uint32(damage/100.0f*unitTarget->GetMaxHealth());
+        health = unitTarget->CountPctFromMaxHealth(damage);
         if (unitTarget->GetMaxPower(POWER_MANA) > 0)
             mana = uint32(damage/100.0f*unitTarget->GetMaxPower(POWER_MANA));
     }
@@ -6495,7 +6495,7 @@ void Spell::EffectSummonDeadPet(uint32 /*i*/)
     pet->RemoveFlag (UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
     pet->setDeathState(ALIVE);
     pet->clearUnitState(UNIT_STAT_ALL_STATE);
-    pet->SetHealth(uint32(pet->GetMaxHealth()*(float(damage)/100)));
+    pet->SetHealth(pet->CountPctFromMaxHealth(damage));
 
     //pet->AIM_Initialize();
     //_player->PetSpellInitialize();

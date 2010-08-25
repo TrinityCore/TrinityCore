@@ -190,11 +190,11 @@ public:
             {
                 if (Creature* Brundir = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_STORMCALLER_BRUNDIR) : 0))
                     if (Brundir->isAlive())
-                        Brundir->SetHealth(Brundir->GetMaxHealth());
+                        Brundir->SetFullHealth();
 
                 if (Creature* Molgeim = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_RUNEMASTER_MOLGEIM) : 0))
                     if (Molgeim->isAlive())
-                        Molgeim->SetHealth(Molgeim->GetMaxHealth());
+                        Molgeim->SetFullHealth();
 
                 DoCast(SPELL_SUPERCHARGE);
             }
@@ -315,11 +315,11 @@ public:
             {
                 if (Creature* Steelbreaker = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_STEELBREAKER) : 0))
                     if (Steelbreaker->isAlive())
-                        Steelbreaker->SetHealth(Steelbreaker->GetMaxHealth());
+                        Steelbreaker->SetFullHealth();
 
                 if (Creature* Brundir = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_STORMCALLER_BRUNDIR) : 0))
                     if (Brundir->isAlive())
-                        Brundir->SetHealth(Brundir->GetMaxHealth());
+                        Brundir->SetFullHealth();
 
                 DoCast(me, SPELL_SUPERCHARGE);
             }
@@ -521,11 +521,11 @@ public:
             {
                 if (Creature* Steelbreaker = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_STEELBREAKER) : 0))
                     if (Steelbreaker->isAlive())
-                        Steelbreaker->SetHealth(Steelbreaker->GetMaxHealth());
+                        Steelbreaker->SetFullHealth();
 
                 if (Creature* Molgeim = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_RUNEMASTER_MOLGEIM) : 0))
                     if (Molgeim->isAlive())
-                        Molgeim->SetHealth(Molgeim->GetMaxHealth());
+                        Molgeim->SetFullHealth();
 
                 DoCast(SPELL_SUPERCHARGE);
             }
