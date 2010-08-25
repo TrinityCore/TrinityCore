@@ -327,6 +327,10 @@ void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float spee
     uint32 moveFlag = SPLINEFLAG_TRAJECTORY | SPLINEFLAG_WALKING;
     uint32 time = uint32(speedZ * 100);
 
+    // Instantly interrupt non melee spells being casted
+    if (i_owner->IsNonMeleeSpellCasted(true))
+        i_owner->InterruptNonMeleeSpells(true);
+
     i_owner->addUnitState(UNIT_STAT_CHARGING | UNIT_STAT_JUMPING);
     i_owner->m_TempSpeed = speedXY;
     if (i_owner->GetTypeId() == TYPEID_PLAYER)
