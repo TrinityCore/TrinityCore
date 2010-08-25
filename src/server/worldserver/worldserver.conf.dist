@@ -1369,10 +1369,10 @@ GM.AllowAchievementGain  = 1
 #
 #    Visibility.GroupMode
 #        Group visibility modes
-#        Default: 0 (standard setting: only members from same group can
-#                    100% auto detect invisible player)
-#                 1 (raid members 100% auto detect invisible player from
+#        Default: 1 (raid members 100% auto detect invisible player from
 #                    same raid)
+#                 0 (only members from same group can
+#                    100% auto detect invisible player)
 #                 2 (players from same team can 100% auto detect
 #                    invisible player)
 #
@@ -1408,7 +1408,7 @@ GM.AllowAchievementGain  = 1
 #
 ###############################################################################
 
-Visibility.GroupMode = 0
+Visibility.GroupMode = 1
 Visibility.Distance.Continents = 90
 Visibility.Distance.Instances = 120
 Visibility.Distance.BGArenas = 180
