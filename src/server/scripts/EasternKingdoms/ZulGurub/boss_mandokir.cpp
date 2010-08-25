@@ -244,7 +244,7 @@ class boss_mandokir : public CreatureScript
                         } else Fear_Timer -=diff;
 
                         //Mortal Strike if target below 50% hp
-                        if (me->getVictim() && me->getVictim()->GetHealth() < me->getVictim()->GetMaxHealth()*0.5)
+                        if (me->getVictim() && me->getVictim()->HealthBelowPct(50))
                         {
                             if (MortalStrike_Timer <= diff)
                             {

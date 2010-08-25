@@ -1620,7 +1620,7 @@ public:
 
         void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
         {
-            if (pSpell->Id == SPELL_ARCANE_CHAINS && pCaster->GetTypeId() == TYPEID_PLAYER && me->GetHealth()*100 / me->GetMaxHealth() <= 50 && !bEnslaved)
+            if (pSpell->Id == SPELL_ARCANE_CHAINS && pCaster->GetTypeId() == TYPEID_PLAYER && !HealthAbovePct(50) && !bEnslaved)
             {
                 EnterEvadeMode(); //We make sure that the npc is not attacking the player!
                 me->SetReactState(REACT_PASSIVE);

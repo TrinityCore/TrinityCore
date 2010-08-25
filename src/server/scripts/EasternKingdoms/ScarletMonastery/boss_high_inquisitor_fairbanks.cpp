@@ -78,7 +78,7 @@ public:
                 return;
 
             //If we are <25% hp cast Heal
-            if (me->GetHealth()*100 / me->GetMaxHealth() <= 25 && !me->IsNonMeleeSpellCasted(false) && Heal_Timer <= diff)
+            if (!HealthAbovePct(25) && !me->IsNonMeleeSpellCasted(false) && Heal_Timer <= diff)
             {
                 DoCast(me, SPELL_HEAL);
                 Heal_Timer = 30000;
@@ -103,7 +103,7 @@ public:
             } else Sleep_Timer -= diff;
 
             //PowerWordShield_Timer
-            if (!PowerWordShield && me->GetHealth()*100 / me->GetMaxHealth() <= 25)
+            if (!PowerWordShield && !HealthAbovePct(25))
             {
                 DoCast(me, SPELL_POWERWORDSHIELD);
                 PowerWordShield = true;

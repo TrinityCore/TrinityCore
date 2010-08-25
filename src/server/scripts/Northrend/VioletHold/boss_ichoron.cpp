@@ -162,7 +162,7 @@ public:
             switch(param)
             {
                 case ACTION_WATER_ELEMENT_HIT:
-                    me->SetHealth(me->GetHealth() + me->GetMaxHealth() * 0.01f);
+                    me->ModifyHealth(int32(me->CountPctFromMaxHealth(1)));
 
                     if (bIsExploded)
                         DoExplodeCompleted();
@@ -170,8 +170,8 @@ public:
                     bAchievement = false;
                     break;
                 case ACTION_WATER_ELEMENT_KILLED:
-                    uint32 damage = (me->GetMaxHealth()*3)/100;
-                    me->SetHealth(me->GetHealth() - damage);
+                    uint32 damage = me->CountPctFromMaxHealth(3);
+                    me->ModifyHealth(-int32(damage));
                     me->LowerPlayerDamageReq(damage);
                     break;
             }

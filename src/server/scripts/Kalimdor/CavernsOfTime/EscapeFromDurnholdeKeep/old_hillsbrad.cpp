@@ -551,7 +551,7 @@ public:
                 return;
 
                  //TODO: add his abilities'n-crap here
-                if (!LowHp && ((me->GetHealth()*100 / me->GetMaxHealth()) < 20))
+                if (!LowHp && HealthBelowPct(20))
                 {
                     DoScriptText(RAND(SAY_TH_RANDOM_LOW_HP1,SAY_TH_RANDOM_LOW_HP2), me);
                     LowHp = true;

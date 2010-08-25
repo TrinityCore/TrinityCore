@@ -142,7 +142,7 @@ public:
                     uiCrystalSpikesTimer2 = 200;
                 } else uiCrystalSpikesTimer2 -= diff;
 
-            if (!bFrenzy && (me->GetHealth() < me->GetMaxHealth() * 0.25))
+            if (!bFrenzy && HealthBelowPct(25))
             {
                 DoCast(me, SPELL_FRENZY);
                 bFrenzy = true;

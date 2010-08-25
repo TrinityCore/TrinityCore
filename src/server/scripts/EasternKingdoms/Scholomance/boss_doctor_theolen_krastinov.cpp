@@ -96,7 +96,7 @@ public:
                 m_uiBackhand_Timer -= uiDiff;
 
             //Frenzy_Timer
-            if (me->GetHealth()*100 / me->GetMaxHealth() < 26)
+            if (HealthBelowPct(26))
             {
                 if (m_uiFrenzy_Timer <= uiDiff)
                 {

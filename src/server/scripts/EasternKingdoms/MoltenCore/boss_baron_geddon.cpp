@@ -67,7 +67,7 @@ public:
                 return;
 
             //If we are <2% hp cast Armageddom
-            if (me->GetHealth()*100 / me->GetMaxHealth() <= 2)
+            if (!HealthAbovePct(2))
             {
                 me->InterruptNonMeleeSpells(true);
                 DoCast(me, SPELL_ARMAGEDDOM);

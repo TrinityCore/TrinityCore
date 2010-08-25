@@ -109,7 +109,7 @@ class boss_jeklik : public CreatureScript
 
                 if (me->getVictim() && me->isAlive())
                 {
-                    if ((me->GetHealth()*100 / me->GetMaxHealth() > 50))
+                    if (HealthAbovePct(50))
                     {
                         if (Charge_Timer <= diff)
                         {

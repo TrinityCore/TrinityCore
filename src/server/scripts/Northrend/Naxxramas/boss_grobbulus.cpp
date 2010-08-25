@@ -94,7 +94,7 @@ public:
                         if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1))
                             if (!pTarget->HasAura(SPELL_MUTATING_INJECTION))
                                 DoCast(pTarget, SPELL_MUTATING_INJECTION);
-                        events.ScheduleEvent(EVENT_INJECT, 8000 + 12000 * ((float)me->GetHealth() / me->GetMaxHealth()));
+                        events.ScheduleEvent(EVENT_INJECT, 8000 + uint32(120 * me->GetHealthPct()));
                         return;
                 }
             }

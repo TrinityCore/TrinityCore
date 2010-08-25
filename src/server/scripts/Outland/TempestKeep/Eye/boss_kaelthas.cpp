@@ -201,7 +201,7 @@ struct advisorbase_ai : public ScriptedAI
         // double health for phase 3
         me->SetMaxHealth(me->GetMaxHealth() * 2);
         m_bDoubled_Health = true;
-        me->SetHealth(me->GetMaxHealth());
+        me->SetFullHealth();
         me->SetStandState(UNIT_STAND_STATE_STAND);
 
         DoCast(me, SPELL_RES_VISUAL, false);
@@ -809,7 +809,7 @@ class boss_kaelthas : public CreatureScript
                         //Phase 4 specific spells
                         if (Phase == 4)
                         {
-                            if (me->GetHealth()*100 / me->GetMaxHealth() < 50)
+                            if (HealthBelowPct(50))
                             {
                                 if (m_pInstance)
                                     m_pInstance->SetData(DATA_KAELTHASEVENT, 4);
@@ -1501,7 +1501,7 @@ class mob_phoenix_tk : public CreatureScript
                     //spell Burn should possible do this, but it doesn't, so do this for now.
                     uint32 dmg = urand(4500,5500);
                     if (me->GetHealth() > dmg)
-                        me->SetHealth(uint32(me->GetHealth()-dmg));
+                        me->ModifyHealth(-int32(dmg));
                     Cycle_Timer = 2000;
                 }
                 else

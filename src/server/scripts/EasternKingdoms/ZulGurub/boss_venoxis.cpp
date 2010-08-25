@@ -100,7 +100,7 @@ class boss_venoxis : public CreatureScript
                   if (!UpdateVictim())
                     return;
 
-                    if ((me->GetHealth()*100 / me->GetMaxHealth() > 50))
+                    if (HealthAbovePct(50))
                     {
                         if (Dispell_Timer <= diff)
                         {
@@ -180,7 +180,7 @@ class boss_venoxis : public CreatureScript
                             VenomSpit_Timer = 15000 + rand()%5000;
                         } else VenomSpit_Timer -= diff;
 
-                        if (PhaseTwo && (me->GetHealth()*100 / me->GetMaxHealth() < 11))
+                        if (PhaseTwo && HealthBelowPct(11))
                         {
                             if (!InBerserk)
                             {

@@ -244,7 +244,7 @@ class boss_halazzi : public CreatureScript
                     if (Phase == PHASE_LYNX)
                         if (CheckTimer <= diff)
                         {
-                            if (me->GetHealth() * 4 < me->GetMaxHealth() * (3 - TransformCount))
+                            if (HealthBelowPct(25 * (3 - TransformCount)))
                                 EnterPhase(PHASE_SPLIT);
                             CheckTimer = 1000;
                         } else CheckTimer -= diff;
@@ -273,12 +273,12 @@ class boss_halazzi : public CreatureScript
                     if (Phase == PHASE_HUMAN)
                         if (CheckTimer <= diff)
                         {
-                            if (((me->GetHealth()*100) / me->GetMaxHealth() <= 20)/*me->GetHealth() * 10 < me->GetMaxHealth()*/)
+                            if (!HealthAbovePct(20) /*HealthBelowPct(10)*/)
                                 EnterPhase(PHASE_MERGE);
                             else
                             {
                                 Unit *Lynx = Unit::GetUnit(*me, LynxGUID);
-                                if (Lynx && ((Lynx->GetHealth()*100) / Lynx->GetMaxHealth() <= 20)/*Lynx->GetHealth() * 10 < Lynx->GetMaxHealth()*/)
+                                if (Lynx && !Lynx->HealthAbovePct(20) /*Lynx->HealthBelowPct(10)*/)
                                     EnterPhase(PHASE_MERGE);
                             }
                             CheckTimer = 1000;

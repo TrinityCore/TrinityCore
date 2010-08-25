@@ -57,7 +57,7 @@ public:
         uint64 uiAyamiss;
         uint64 uiOssirian;
 
-        uint8 m_auiEncounter[MAX_ENCOUNTER];
+        uint16 m_auiEncounter[MAX_ENCOUNTER];
         std::string str_data;
 
         void Initialize()

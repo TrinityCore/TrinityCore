@@ -646,7 +646,7 @@ public:
                 uiFishyScentTimer = 20000;
             } else uiFishyScentTimer -= uiDiff;
 
-            if (!bSummoned && me->GetHealth()*100 / me->GetMaxHealth() <= 50)
+            if (!bSummoned && !HealthAbovePct(50))
             {
                 DoScriptText(SAY_CALL_FOR_HELP ,me);
                 //DoCast(me->getVictim(), SPELL_SUMMON_WHISKER); petai is not working correctly???
@@ -771,7 +771,7 @@ public:
                 uiChargeTimer = 15000;
             } else uiChargeTimer -= uiDiff;
 
-            if (!bEnrage && me->GetHealth()*100 / me->GetMaxHealth() <= 20)
+            if (!bEnrage && !HealthAbovePct(20))
             {
                 DoCast(me, SPELL_ENRAGE);
                 bEnrage = true;
@@ -968,7 +968,7 @@ public:
                 }
             }
 
-            if (bThunderClap && me->GetHealth()*100 / me->GetMaxHealth() <= 10)
+            if (bThunderClap && !HealthAbovePct(10))
             {
                 DoCastAOE(SPELL_THUNDERCLAP);
                 bThunderClap = true;
@@ -994,7 +994,7 @@ public:
                 uiStinkyBeardTimer = 15000;
             } else uiStinkyBeardTimer -= uiDiff;
 
-           if (!bEnrage && me->GetHealth()*100 / me->GetMaxHealth() <= 20)
+            if (!bEnrage && !HealthAbovePct(20))
             {
                 DoCast(me, SPELL_ENRAGE_STINKBEARD);
                 bEnrage = true;
@@ -1119,7 +1119,7 @@ public:
                 uiElementalSpellTimer = urand(5000,8000);
             } else uiElementalSpellTimer -= uiDiff;
 
-            if (!bAddAttack && me->GetHealth()*100 / me->GetMaxHealth() <= 20)
+            if (!bAddAttack && !HealthAbovePct(20))
             {
                 if (!SummonList.empty())
                     for (std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)

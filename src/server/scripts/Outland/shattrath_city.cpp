@@ -167,7 +167,7 @@ public:
         void DamageTaken(Unit *done_by, uint32 &damage)
         {
             if (done_by->GetTypeId() == TYPEID_PLAYER)
-                if ((me->GetHealth()-damage)*100 / me->GetMaxHealth() < 20)
+                if (me->HealthBelowPctDamaged(20, damage))
             {
                 CAST_PLR(done_by)->GroupEventHappens(QUEST_10004,me);
                 damage = 0;
@@ -511,7 +511,7 @@ public:
                 Attack = false;
             }
 
-            if ((me->GetHealth()*100)/me->GetMaxHealth() < 5 && !Done)
+            if (HealthBelowPct(5) && !Done)
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->RemoveAllAuras();

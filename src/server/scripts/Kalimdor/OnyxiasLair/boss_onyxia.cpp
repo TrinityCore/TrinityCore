@@ -344,7 +344,7 @@ public:
                 //Specific to PHASE_START || PHASE_END
                 if (m_uiPhase == PHASE_START)
                 {
-                    if (me->GetHealth()*100 / me->GetMaxHealth() < 60)
+                    if (HealthBelowPct(60))
                     {
                         SetCombatMovement(false);
                         m_uiPhase = PHASE_BREATH;
@@ -406,7 +406,7 @@ public:
             }
             else
             {
-                if (me->GetHealth()*100 / me->GetMaxHealth() < 40)
+                if (HealthBelowPct(40))
                 {
                     m_uiPhase = PHASE_END;
                     if (m_pInstance)

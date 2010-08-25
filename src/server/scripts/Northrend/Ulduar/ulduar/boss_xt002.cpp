@@ -254,7 +254,7 @@ public:
                         enterHardMode = true;
 
                         // set max health
-                        me->SetHealth(me->GetMaxHealth());
+                        me->SetFullHealth();
 
                         // Get his heartbreak buff
                         me->CastSpell(me, RAID_MODE(SPELL_HEARTBREAK_10, SPELL_HEARTBREAK_25), true);
@@ -611,7 +611,7 @@ public:
                     // TODO Send raid message
 
                     // Increase health with 1 percent
-                    pXT002->ModifyHealth(pXT002->GetMaxHealth() * 0.01);
+                    pXT002->ModifyHealth(int32(pXT002->CountPctFromMaxHealth(1)));
 
                     // Despawns the scrapbot
                     me->ForcedDespawn();

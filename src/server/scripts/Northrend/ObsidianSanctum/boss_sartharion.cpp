@@ -569,7 +569,7 @@ public:
             Unit* pVesp = Unit::GetUnit(*me, pInstance ? pInstance->GetData64(DATA_VESPERON) : 0);
 
             //spell will target dragons, if they are still alive at 35%
-            if (!m_bIsBerserk && (me->GetHealth()*100 / me->GetMaxHealth()) <= 35
+            if (!m_bIsBerserk && !HealthAbovePct(35)
                 && ((pTene && pTene->isAlive()) || (pShad && pShad->isAlive()) || (pVesp && pVesp->isAlive())))
             {
                 DoScriptText(SAY_SARTHARION_BERSERK, me);

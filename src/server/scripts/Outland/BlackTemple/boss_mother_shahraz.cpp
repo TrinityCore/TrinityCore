@@ -180,7 +180,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (((me->GetHealth()*100 / me->GetMaxHealth()) < 10) && !Enraged)
+            if (HealthBelowPct(10) && !Enraged)
             {
                 Enraged = true;
                 DoCast(me, SPELL_ENRAGE, true);

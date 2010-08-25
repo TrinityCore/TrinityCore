@@ -110,7 +110,7 @@ public:
                 if (sacrificed)
                 {
                     me->AddAura(DUNGEON_MODE(SPELL_EMPOWERING_SHADOWS, H_SPELL_EMPOWERING_SHADOWS), Vorpil);
-                    Vorpil->SetHealth(Vorpil->GetHealth() + Vorpil->GetMaxHealth()/25);
+                    Vorpil->ModifyHealth(int32(Vorpil->CountPctFromMaxHealth(4)));
                     DoCast(me, SPELL_SHADOW_NOVA, true);
                     me->Kill(me);
                     return;
@@ -305,7 +305,7 @@ public:
                 spawnVoidTraveler();
                 summonTraveler_Timer = 10000;
                 //enrage at 20%
-                if ((me->GetHealth()*5) < me->GetMaxHealth())
+                if (HealthBelowPct(20))
                     summonTraveler_Timer = 5000;
             } else summonTraveler_Timer -=diff;
 

@@ -261,7 +261,7 @@ struct boss_twin_baseAI : public ScriptedAI
         if (caster->ToCreature() == me)
             if (spell->Effect[0] == 136) //Effect Heal
                 if (m_pInstance)
-                    m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetHealth() + me->GetMaxHealth()*spell->EffectBasePoints[0]/100);
+                    m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetHealth() + me->CountPctFromMaxHealth(spell->EffectBasePoints[0]));
     }
 
     void SummonColorballs(uint8 quantity)
@@ -270,7 +270,7 @@ struct boss_twin_baseAI : public ScriptedAI
         float y = y0;
         for (uint8 i = 0; i < quantity; i++)
         {
-            float x = urand(x0-r,x0+r);
+            float x = float(urand(uint32(x0 - r), uint32(x0 + r)));
             if (urand(0,1))
                 y = y0 + sqrt(pow(r,2) - pow((x-x0),2));
             else
@@ -420,7 +420,8 @@ struct boss_twin_baseAI : public ScriptedAI
 /*######
 ## boss_fjola
 ######*/
-class boss_fjola : public CreatureScript
+
+class boss_fjola : public CreatureScript
 {
 public:
     boss_fjola() : CreatureScript("boss_fjola") { }
@@ -479,7 +480,8 @@ public:
 /*######
 ## boss_eydis
 ######*/
-class boss_eydis : public CreatureScript
+
+class boss_eydis : public CreatureScript
 {
 public:
     boss_eydis() : CreatureScript("boss_eydis") { }
@@ -520,7 +522,8 @@ public:
 
 };
 
-class mob_essence_of_twin : public CreatureScript
+
+class mob_essence_of_twin : public CreatureScript
 {
 public:
     mob_essence_of_twin() : CreatureScript("mob_essence_of_twin") { }
@@ -560,7 +563,7 @@ struct mob_unleashed_ballAI : public ScriptedAI
     {
         float x0 = ToCCommonLoc[1].GetPositionX(), y0 = ToCCommonLoc[1].GetPositionY(), r = 47.0f;
         float y = y0;
-        float x = urand(x0-r,x0+r);
+        float x = float(urand(uint32(x0 - r), uint32(x0 + r)));
         if (urand(0,1))
             y = y0 + sqrt(pow(r,2) - pow((x-x0),2));
         else
@@ -594,7 +597,8 @@ struct mob_unleashed_ballAI : public ScriptedAI
         }
     }
 };
-class mob_unleashed_dark : public CreatureScript
+
+class mob_unleashed_dark : public CreatureScript
 {
 public:
     mob_unleashed_dark() : CreatureScript("mob_unleashed_dark") { }
@@ -627,7 +631,8 @@ public:
 
 };
 
-class mob_unleashed_light : public CreatureScript
+
+class mob_unleashed_light : public CreatureScript
 {
 public:
     mob_unleashed_light() : CreatureScript("mob_unleashed_light") { }

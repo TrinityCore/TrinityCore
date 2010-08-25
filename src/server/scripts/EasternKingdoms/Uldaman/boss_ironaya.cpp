@@ -67,7 +67,7 @@ class boss_ironaya : public CreatureScript
                     return;
 
                 //If we are <50% hp do knockaway ONCE
-                if (!hasCastedKnockaway && me->GetHealth()*2 < me->GetMaxHealth())
+                if (!hasCastedKnockaway && HealthBelowPct(50))
                 {
                     DoCast(me->getVictim(), SPELL_KNOCKAWAY, true);
 
@@ -91,7 +91,7 @@ class boss_ironaya : public CreatureScript
                     Arcing_Timer = 13000;
                 } else Arcing_Timer -= diff;
 
-                if (!hasCastedWstomp && me->GetHealth()*4 < me->GetMaxHealth())
+                if (!hasCastedWstomp && HealthBelowPct(25))
                 {
                     DoCast(me, SPELL_WSTOMP);
                     hasCastedWstomp = true;

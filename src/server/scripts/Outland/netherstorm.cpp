@@ -818,7 +818,7 @@ public:
 
             if (Player *pPlayer = Unit::GetPlayer(*me, PlayerGUID)) // start: support for quest 10190
             {
-                if (!Weak && me->GetHealth() < (me->GetMaxHealth() / 100 * WeakPercent)
+                if (!Weak && HealthBelowPct(WeakPercent)
                     && pPlayer->GetQuestStatus(QUEST_RECHARGING_THE_BATTERIES) == QUEST_STATUS_INCOMPLETE)
                 {
                     DoScriptText(EMOTE_WEAK, me);
@@ -827,11 +827,11 @@ public:
                 if (Weak && !Drained && me->HasAura(SPELL_RECHARGING_BATTERY))
                 {
                     Drained = true;
-                    HpPercent = float(me->GetHealth()) / float(me->GetMaxHealth());
+                    HpPercent = me->GetHealthPct();
 
                     me->UpdateEntry(NPC_DRAINED_PHASE_HUNTER_ENTRY);
 
-                    me->SetHealth(me->GetMaxHealth() * HpPercent);
+                    me->SetHealth(me->CountPctFromMaxHealth(HpPercent));
                     me->LowerPlayerDamageReq(me->GetMaxHealth() - me->GetHealth());
                     me->SetInCombatWith(pPlayer);
                 }

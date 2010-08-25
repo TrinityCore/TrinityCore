@@ -105,7 +105,7 @@ public:
             } else Minion_Timer -= diff;
 
             //Summon 2 Bone Mages
-            if (!Mages && me->GetHealth()*100 / me->GetMaxHealth() < 26)
+            if (!Mages && HealthBelowPct(26))
             {
                 //Cast
                 SummonMages(me->getVictim());

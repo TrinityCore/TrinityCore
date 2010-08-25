@@ -89,7 +89,7 @@ public:
                 return;
 
             //If we are <30% hp goes Enraged
-            if (!Enrage && me->GetHealth()*100 / me->GetMaxHealth() <= 30 && !me->IsNonMeleeSpellCasted(false))
+            if (!Enrage && !HealthAbovePct(30) && !me->IsNonMeleeSpellCasted(false))
             {
                 DoScriptText(EMOTE_ENRAGE, me);
                 DoScriptText(SAY_ENRAGE, me);

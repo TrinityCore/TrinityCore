@@ -174,15 +174,14 @@ public:
                 Blink_Timer= 20000 + rand()%20000;
             } else Blink_Timer -= diff;
 
-            int procent = (int) (me->GetHealth()*100 / me->GetMaxHealth() +0.5f);
+            int procent = (int) (me->GetHealthPct() + 0.5f);
 
             //Summoning 2 Images and teleporting to a random position on 75% health
             if ((!Images75 && !IsImage) && (procent <= 75 && procent > 70))
                 DoSplit(75);
 
             //Summoning 2 Images and teleporting to a random position on 50% health
-            if ((!Images50 && !IsImage) &&
-                (procent <= 50 && procent > 45))
+            if ((!Images50 && !IsImage) && (procent <= 50 && procent > 45))
                 DoSplit(50);
 
             //Summoning 2 Images and teleporting to a random position on 25% health

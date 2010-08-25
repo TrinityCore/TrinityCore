@@ -154,7 +154,7 @@ public:
 
             if (!Summon75)
             {
-                if ((me->GetHealth()*100 / me->GetMaxHealth()) < 75)
+                if (HealthBelowPct(75))
                 {
                     SummonMechanichs();
                     Summon75 = true;
@@ -163,7 +163,7 @@ public:
 
             if (!Summon50)
             {
-                if ((me->GetHealth()*100 / me->GetMaxHealth()) < 50)
+                if (HealthBelowPct(50))
                 {
                     SummonMechanichs();
                     Summon50 = true;
@@ -172,7 +172,7 @@ public:
 
             if (!Summon25)
             {
-                if ((me->GetHealth()*100 / me->GetMaxHealth()) < 25)
+                if (HealthBelowPct(25))
                 {
                     SummonMechanichs();
                     Summon25 = true;

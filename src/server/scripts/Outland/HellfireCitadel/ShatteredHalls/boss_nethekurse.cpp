@@ -293,7 +293,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                     else
                         DeathCoil_Timer -= diff;
 
-                    if ((me->GetHealth()*100) / me->GetMaxHealth() <= 20)
+                    if (!HealthAbovePct(20))
                         Phase = true;
 
                     DoMeleeAttackIfReady();

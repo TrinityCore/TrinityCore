@@ -423,7 +423,7 @@ public:
             pTarget->setFaction(14);
             pTarget->AI()->AttackStart(me->getThreatManager().getHostilTarget());
             pTarget->AddAura(SPELL_MUTATE_BUG, pTarget);
-            pTarget->SetHealth(pTarget->GetMaxHealth());
+            pTarget->SetFullHealth();
         }
 
         void UpdateAI(const uint32 diff)
@@ -512,7 +512,7 @@ public:
         {
             pTarget->setFaction(14);
             pTarget->AddAura(SPELL_EXPLODEBUG, pTarget);
-            pTarget->SetHealth(pTarget->GetMaxHealth());
+            pTarget->SetFullHealth();
         }
 
         void UpdateAI(const uint32 diff)

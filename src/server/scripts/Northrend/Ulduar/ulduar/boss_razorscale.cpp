@@ -131,13 +131,13 @@ public:
             if (me->getVictim() && !me->getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself())
                 me->Kill(me->getVictim());
 
-            if ((me->GetHealth()*100 / me->GetMaxHealth()) < 99 && Phase == 1) // TODO: Only land (exit Phase 1) if brought down with harpoon guns! This is important!
+            if (HealthBelowPct(99) && Phase == 1) // TODO: Only land (exit Phase 1) if brought down with harpoon guns! This is important!
             {
                 Phase = 2;
                 DoScriptText(SAY_PHASE_2_TRANS, me); // Audio: "Move quickly! She won't remain grounded for long!"
             }
 
-            if ((me->GetHealth()*100 / me->GetMaxHealth()) < 33 && Phase == 2) // Health under 33%, Razorscale can't fly anymore.
+            if (HealthBelowPct(33) && Phase == 2) // Health under 33%, Razorscale can't fly anymore.
             {
                 Phase = 3;
                 DoScriptText(SAY_PHASE_3_TRANS, me); // "Razorscale lands permanently!"

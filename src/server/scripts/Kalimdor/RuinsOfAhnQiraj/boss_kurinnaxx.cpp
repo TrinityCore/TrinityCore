@@ -93,7 +93,7 @@ public:
                 return;
 
             //If we are <30% cast enrage
-            if (!bIsEnraged && me->GetHealth()*100 / me->GetMaxHealth() <= 30 && !me->IsNonMeleeSpellCasted(false))
+            if (!bIsEnraged && !HealthAbovePct(30) && !me->IsNonMeleeSpellCasted(false))
             {
                 bIsEnraged = true;
                 DoCast(me, SPELL_ENRAGE);

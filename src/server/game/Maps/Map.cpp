@@ -3247,25 +3247,25 @@ void Map::ScriptsProcess()
                 }
                 else 
                 {
-					pTarget = source->ToPlayer();
-					if (pTarget)
-					{
-						if (target->GetTypeId() != TYPEID_UNIT && target->GetTypeId() != TYPEID_GAMEOBJECT && target->GetTypeId() != TYPEID_PLAYER)
-						{
-							sLog.outError("%s target is not unit, gameobject or player (TypeId: %u, Entry: %u, GUID: %u), skipping.",
-								step.script->GetDebugInfo().c_str(), target->GetTypeId(), target->GetEntry(), target->GetGUIDLow());
-							break;
-						}
-						worldObject =  dynamic_cast<WorldObject*>(target);
-					}
-					else
-					{
-						sLog.outError("%s neither source nor target is player (source: TypeId: %u, Entry: %u, GUID: %u; target: TypeId: %u, Entry: %u, GUID: %u), skipping.",
-							step.script->GetDebugInfo().c_str(), 
-							source ? source->GetTypeId() : 0, source ? source->GetEntry() : 0, source ? source->GetGUIDLow() : 0,
-							target ? target->GetTypeId() : 0, target ? target->GetEntry() : 0, target ? target->GetGUIDLow() : 0);
-						break;
-					}
+                    pTarget = source->ToPlayer();
+                    if (pTarget)
+                    {
+                        if (target->GetTypeId() != TYPEID_UNIT && target->GetTypeId() != TYPEID_GAMEOBJECT && target->GetTypeId() != TYPEID_PLAYER)
+                        {
+                            sLog.outError("%s target is not unit, gameobject or player (TypeId: %u, Entry: %u, GUID: %u), skipping.",
+                                step.script->GetDebugInfo().c_str(), target->GetTypeId(), target->GetEntry(), target->GetGUIDLow());
+                            break;
+                        }
+                        worldObject =  dynamic_cast<WorldObject*>(target);
+                    }
+                    else
+                    {
+                        sLog.outError("%s neither source nor target is player (source: TypeId: %u, Entry: %u, GUID: %u; target: TypeId: %u, Entry: %u, GUID: %u), skipping.",
+                            step.script->GetDebugInfo().c_str(), 
+                            source ? source->GetTypeId() : 0, source ? source->GetEntry() : 0, source ? source->GetGUIDLow() : 0,
+                            target ? target->GetTypeId() : 0, target ? target->GetEntry() : 0, target ? target->GetGUIDLow() : 0);
+                        break;
+                    }
                 }
 
                 // quest id and flags checked at script loading

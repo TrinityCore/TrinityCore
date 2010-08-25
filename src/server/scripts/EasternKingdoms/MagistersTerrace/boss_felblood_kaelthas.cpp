@@ -334,7 +334,7 @@ public:
                     } else FlameStrikeTimer -= diff;
 
                     // Below 50%
-                    if (me->GetMaxHealth() * 0.5f > me->GetHealth())
+                    if (HealthBelowPct(50))
                     {
                         me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
                         me->StopMoving();

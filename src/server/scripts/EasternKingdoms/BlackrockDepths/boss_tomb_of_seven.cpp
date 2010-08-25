@@ -240,7 +240,7 @@ public:
             } else DemonArmor_Timer -= diff;
 
             //Summon Voidwalkers
-            if (!Voidwalkers && me->GetHealth()*100 / me->GetMaxHealth() < 51)
+            if (!Voidwalkers && HealthBelowPct(51))
             {
                 DoCast(me->getVictim(), SPELL_SUMMON_VOIDWALKERS, true);
                 Voidwalkers = true;

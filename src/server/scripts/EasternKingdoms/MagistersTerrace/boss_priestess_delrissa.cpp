@@ -461,7 +461,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!UsedPotion && (me->GetHealth()*100 / me->GetMaxHealth()) < 25)
+        if (!UsedPotion && HealthBelowPct(25))
         {
             DoCast(me, SPELL_HEALING_POTION);
             UsedPotion = true;
@@ -803,7 +803,7 @@ public:
                 }
             } else Polymorph_Timer -= diff;
 
-            if (((me->GetHealth()*100 / me->GetMaxHealth()) < 35) && !HasIceBlocked)
+            if (HealthBelowPct(35) && !HasIceBlocked)
             {
                 DoCast(me, SPELL_ICE_BLOCK);
                 HasIceBlocked = true;

@@ -131,7 +131,7 @@ public:
 
             if (HolyLight_Timer <= diff)
             {
-                if (me->GetHealth()*5 < me->GetMaxHealth())
+                if (HealthBelowPct(20))
                 {
                     DoCast(me, SPELL_HOLY_LIGHT);
                     HolyLight_Timer = 20000;
@@ -140,7 +140,7 @@ public:
 
             if (DivineShield_Timer <= diff)
             {
-                if (me->GetHealth()*20 < me->GetMaxHealth())
+                if (HealthBelowPct(5))
                 {
                     DoCast(me, SPELL_DIVINE_SHIELD);
                     DivineShield_Timer = 40000;

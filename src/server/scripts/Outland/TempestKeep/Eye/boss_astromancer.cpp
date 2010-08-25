@@ -384,7 +384,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                                     VoidBolt_Timer -= diff;
                             }
                             //When Solarian reaches 20% she will transform into a huge void walker.
-                            if (Phase != 4 && ((me->GetHealth()*100 / me->GetMaxHealth())<20))
+                            if (Phase != 4 && me->HealthBelowPct(20))
                             {
                                 Phase = 4;
                                 //To make sure she wont be invisible or not selecatble

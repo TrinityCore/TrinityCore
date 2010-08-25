@@ -130,7 +130,7 @@ public:
             } else Immolate_Timer -= diff;
 
             //Cast Erruption and let them die
-            if (me->GetHealth() <= me->GetMaxHealth() * 0.10)
+            if (!HealthAbovePct(10))
             {
                 DoCast(me->getVictim(), SPELL_ERUPTION);
                 me->setDeathState(JUST_DIED);

@@ -47,7 +47,8 @@ enum eSpells
     SPELL_ANTI_AOE      = 68595,
     SPELL_PVP_TRINKET   = 65547,
 };
-class boss_toc_champion_controller : public CreatureScript
+
+class boss_toc_champion_controller : public CreatureScript
 {
 public:
     boss_toc_champion_controller() : CreatureScript("boss_toc_champion_controller") { }
@@ -447,7 +448,8 @@ enum eDruidSpells
     SPELL_THORNS            = 66068,
     SPELL_NATURE_GRASP      = 66071, //1 min cd, self buff
 };
-class mob_toc_druid : public CreatureScript
+
+class mob_toc_druid : public CreatureScript
 {
 public:
     mob_toc_druid() : CreatureScript("mob_toc_druid") { }
@@ -542,7 +544,8 @@ enum eShamanSpells
     AURA_EXHAUSTION             = 57723,
     AURA_SATED                  = 57724,
 };
-class mob_toc_shaman : public CreatureScript
+
+class mob_toc_shaman : public CreatureScript
 {
 public:
     mob_toc_shaman() : CreatureScript("mob_toc_shaman") { }
@@ -634,7 +637,8 @@ enum ePaladinSpells
     SPELL_HAND_OF_PROTECTION  = 66009,
     SPELL_HAMMER_OF_JUSTICE   = 66613,
 };
-class mob_toc_paladin : public CreatureScript
+
+class mob_toc_paladin : public CreatureScript
 {
 public:
     mob_toc_paladin() : CreatureScript("mob_toc_paladin") { }
@@ -682,7 +686,7 @@ public:
             if (m_uiHandOfProtectionTimer <= uiDiff)
             {
                 if (Unit *pTarget = DoSelectLowestHpFriendly(40.0f))
-                    if (pTarget->GetHealth() * 100 < pTarget->GetMaxHealth() * 15) // HealthBelowPct(15)
+                    if (pTarget->HealthBelowPct(15))
                         DoCast(pTarget,SPELL_HAND_OF_PROTECTION);
                 m_uiHandOfProtectionTimer = urand(0*IN_MILLISECONDS,360*IN_MILLISECONDS);
             } else m_uiHandOfProtectionTimer -= uiDiff;
@@ -739,7 +743,9 @@ enum ePriestSpells
     SPELL_DISPEL            = 65546,
     SPELL_PSYCHIC_SCREAM    = 65543,
     SPELL_MANA_BURN         = 66100,
-};class mob_toc_priest : public CreatureScript
+};
+
+class mob_toc_priest : public CreatureScript
 {
 public:
     mob_toc_priest() : CreatureScript("mob_toc_priest") { }
@@ -819,7 +825,8 @@ enum eShadowPriestSpells
     SPELL_DISPERSION        = 65544,
     SPELL_SHADOWFORM        = 16592,
 };
-class mob_toc_shadow_priest : public CreatureScript
+
+class mob_toc_shadow_priest : public CreatureScript
 {
 public:
     mob_toc_shadow_priest() : CreatureScript("mob_toc_shadow_priest") { }
@@ -930,7 +937,9 @@ enum eWarlockSpells
     SPELL_UNSTABLE_AFFLICTION   = 65812,
     SPELL_SUMMON_FELHUNTER      = 67514,
     H_SPELL_UNSTABLE_AFFLICTION  = 68155, //15s
-};class mob_toc_warlock : public CreatureScript
+};
+
+class mob_toc_warlock : public CreatureScript
 {
 public:
     mob_toc_warlock() : CreatureScript("mob_toc_warlock") { }
@@ -1035,7 +1044,9 @@ enum eMageSpells
     SPELL_FROSTBOLT         = 65807,
     SPELL_ICE_BLOCK         = 65802, //5min
     SPELL_POLYMORPH         = 65801, //15s
-};class mob_toc_mage : public CreatureScript
+};
+
+class mob_toc_mage : public CreatureScript
 {
 public:
     mob_toc_mage() : CreatureScript("mob_toc_mage") { }
@@ -1137,7 +1148,8 @@ enum eHunterSpells
     SPELL_WYVERN_STING      = 65877, //60s
     SPELL_CALL_PET          = 67777,
 };
-class mob_toc_hunter : public CreatureScript
+
+class mob_toc_hunter : public CreatureScript
 {
 public:
     mob_toc_hunter() : CreatureScript("mob_toc_hunter") { }
@@ -1251,7 +1263,9 @@ enum eBoomkinSpells
     SPELL_MOONFIRE          = 65856, //5s
     SPELL_STARFIRE          = 65854,
     SPELL_WRATH             = 65862,
-};class mob_toc_boomkin : public CreatureScript
+};
+
+class mob_toc_boomkin : public CreatureScript
 {
 public:
     mob_toc_boomkin() : CreatureScript("mob_toc_boomkin") { }
@@ -1353,7 +1367,9 @@ enum eWarriorSpells
     SPELL_SUNDER_ARMOR          = 65936,
     SPELL_SHATTERING_THROW      = 65940,
     SPELL_RETALIATION           = 65932,
-};class mob_toc_warrior : public CreatureScript
+};
+
+class mob_toc_warrior : public CreatureScript
 {
 public:
     mob_toc_warrior() : CreatureScript("mob_toc_warrior") { }
@@ -1465,7 +1481,9 @@ enum eDeathKnightSpells
     SPELL_ICEBOUND_FORTITUDE  = 66023, //1min
     SPELL_ICY_TOUCH           = 66021, //8sec
     SPELL_STRANGULATE         = 66018, //2min
-};class mob_toc_dk : public CreatureScript
+};
+
+class mob_toc_dk : public CreatureScript
 {
 public:
     mob_toc_dk() : CreatureScript("mob_toc_dk") { }
@@ -1565,7 +1583,9 @@ enum eRogueSpells
     SPELL_SHADOWSTEP            = 66178, //30sec
     SPELL_HEMORRHAGE            = 65954,
     SPELL_EVISCERATE            = 65957,
-};class mob_toc_rogue : public CreatureScript
+};
+
+class mob_toc_rogue : public CreatureScript
 {
 public:
     mob_toc_rogue() : CreatureScript("mob_toc_rogue") { }
@@ -1663,7 +1683,8 @@ enum eEnhShamanSpells
     SPELL_LAVA_LASH         = 65974,
     SPELL_STORMSTRIKE       = 65970,
 };
-class mob_toc_enh_shaman : public CreatureScript
+
+class mob_toc_enh_shaman : public CreatureScript
 {
 public:
     mob_toc_enh_shaman() : CreatureScript("mob_toc_enh_shaman") { }
@@ -1796,7 +1817,8 @@ enum eRetroPaladinSpells
     SPELL_REPENTANCE            = 66008, //60sec cd
     SPELL_SEAL_OF_COMMAND       = 66004, //no cd
 };
-class mob_toc_retro_paladin : public CreatureScript
+
+class mob_toc_retro_paladin : public CreatureScript
 {
 public:
     mob_toc_retro_paladin() : CreatureScript("mob_toc_retro_paladin") { }

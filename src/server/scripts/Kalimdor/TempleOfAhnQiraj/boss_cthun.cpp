@@ -357,9 +357,9 @@ public:
                         {
                             //Set angle and cast
                             if (ClockWise)
-                                me->SetOrientation(DarkGlareAngle + ((float)DarkGlareTick*PI/35));
+                                me->SetOrientation(DarkGlareAngle + DarkGlareTick * M_PI / 35);
                             else
-                                me->SetOrientation(DarkGlareAngle - ((float)DarkGlareTick*PI/35));
+                                me->SetOrientation(DarkGlareAngle - DarkGlareTick * M_PI / 35);
 
                             me->StopMoving();
 
@@ -666,7 +666,7 @@ public:
                         //Switch to c'thun model
                         me->InterruptNonMeleeSpells(false);
                         DoCast(me, SPELL_TRANSFORM, false);
-                        me->SetHealth(me->GetMaxHealth());
+                        me->SetFullHealth();
 
                         me->SetVisibility(VISIBILITY_ON);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);

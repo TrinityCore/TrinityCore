@@ -202,7 +202,7 @@ public:
                 m_uiLightningNova_Timer -= uiDiff;
 
             // Health check
-            if ((me->GetHealth()*100 / me->GetMaxHealth()) < (100-(25*m_uiHealthAmountModifier)))
+            if (HealthBelowPct(100 - 25 * m_uiHealthAmountModifier))
             {
                 switch(m_uiHealthAmountModifier)
                 {

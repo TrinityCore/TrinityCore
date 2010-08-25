@@ -286,12 +286,14 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_LESS_HEALTH:
             if (!target || target->GetTypeId() != TYPEID_PLAYER)
                 return false;
-            return target->GetHealth()*100 <= health.percent*target->GetMaxHealth();
+            return !target->HealthAbovePct(health.percent);
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_DEAD:
-            if (!target || target->GetTypeId() != TYPEID_PLAYER || target->isAlive() || target->ToPlayer()->GetDeathTimer() == 0)
-                return false;
-            // flag set == must be same team, not set == different team
-            return (target->ToPlayer()->GetTeam() == source->GetTeam()) == (player_dead.own_team_flag != 0);
+            if (target && !target->isAlive())
+                if (const Player* player = target->ToPlayer())
+                    if (player->GetDeathTimer() != 0)
+                        // flag set == must be same team, not set == different team
+                        return (player->GetTeam() == source->GetTeam()) == (player_dead.own_team_flag != 0);
+            return false;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AURA:
             return source->HasAuraEffect(aura.spell_id,aura.effect_idx);
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AREA:

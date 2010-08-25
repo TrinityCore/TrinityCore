@@ -246,7 +246,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (!Avatar_summoned && ((me->GetHealth()*100) / me->GetMaxHealth() < 25))
+            if (!Avatar_summoned && HealthBelowPct(25))
             {
                 if (me->IsNonMeleeSpellCasted(false))
                     me->InterruptNonMeleeSpells(true);

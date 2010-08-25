@@ -72,7 +72,7 @@ public:
             SonicBoom = false;
 
             //database should have `RegenHealth`=0 to prevent regen
-            uint32 hp = (me->GetMaxHealth()*40)/100;
+            uint32 hp = me->CountPctFromMaxHealth(40);
             if (hp) me->SetHealth(hp);
             me->ResetPlayerDamageReq();
         }
@@ -89,7 +89,7 @@ public:
                    if (pTarget->HasAura(SPELL_SONIC_BOOM_CAST) && me->IsWithinDistInMap(pTarget, 34.0f))
                    {
                        //This will be wrong calculation. Also, comments suggest it must deal damage
-                       pTarget->SetHealth(uint32(pTarget->GetMaxHealth() - pTarget->GetMaxHealth() * 0.8));
+                       pTarget->SetHealth(pTarget->CountPctFromMaxHealth(20));
                    }
                }
             }

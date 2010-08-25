@@ -141,7 +141,7 @@ public:
         {
             DoCast(me, SPELL_ESSENCEOFTHERED);
             DoZoneInCombat();
-            me->SetHealth(int(me->GetMaxHealth()*.3));
+            me->SetHealth(me->CountPctFromMaxHealth(30));
         }
 
         void UpdateAI(const uint32 diff)
@@ -184,7 +184,7 @@ public:
                 return;
 
             // Yell if hp lower than 15%
-            if (me->GetHealth()*100 / me->GetMaxHealth() < 15 && !HasYelled)
+            if (HealthBelowPct(15) && !HasYelled)
             {
                 DoScriptText(SAY_HALFLIFE, me);
                 HasYelled = true;

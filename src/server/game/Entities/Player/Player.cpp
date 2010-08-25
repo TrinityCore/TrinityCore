@@ -815,7 +815,7 @@ bool Player::Create(uint32 guidlow, const std::string& name, uint8 race, uint8 c
 
     // apply original stats mods before spell loading or item equipment that call before equip _RemoveStatsMods()
     UpdateMaxHealth();                                      // Update max Health (for add bonus from stamina)
-    SetHealth(GetMaxHealth());
+    SetFullHealth();
     if (getPowerType() == POWER_MANA)
     {
         UpdateMaxPower(POWER_MANA);                         // Update max Mana (for add bonus from intellect)
@@ -2047,7 +2047,7 @@ void Player::ProcessDelayedOperations()
         if (GetMaxHealth() > m_resurrectHealth)
             SetHealth(m_resurrectHealth);
         else
-            SetHealth(GetMaxHealth());
+            SetFullHealth();
 
         if (GetMaxPower(POWER_MANA) > m_resurrectMana)
             SetPower(POWER_MANA, m_resurrectMana);
@@ -2726,7 +2726,7 @@ void Player::GiveLevel(uint8 level)
         UpdateSkillsToMaxSkillsForLevel();
 
     // set current level health and mana/energy to maximum after applying all mods.
-    SetHealth(GetMaxHealth());
+    SetFullHealth();
     SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
     SetPower(POWER_ENERGY, GetMaxPower(POWER_ENERGY));
     if (GetPower(POWER_RAGE) > GetMaxPower(POWER_RAGE))
@@ -2937,7 +2937,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
         _ApplyAllStatBonuses();
 
     // set current level health and mana/energy to maximum after applying all mods.
-    SetHealth(GetMaxHealth());
+    SetFullHealth();
     SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
     SetPower(POWER_ENERGY, GetMaxPower(POWER_ENERGY));
     if (GetPower(POWER_RAGE) > GetMaxPower(POWER_RAGE))
@@ -6206,7 +6206,7 @@ void Player::SendActionButtons(uint32 state) const
     */
     if (state != 2)
     {
-        for (uint16 button = 0; button < MAX_ACTION_BUTTONS; ++button)
+        for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
         {
             ActionButtonList::const_iterator itr = m_actionButtons.find(button);
             if (itr != m_actionButtons.end() && itr->second.uState != ACTIONBUTTON_DELETED)
@@ -9601,7 +9601,7 @@ Item* Player::GetItemByPos(uint8 bag, uint8 slot) const
 
 Item* Player::GetWeaponForAttack(WeaponAttackType attackType, bool useable /*= false*/) const
 {
-    uint16 slot;
+    uint8 slot;
     switch (attackType)
     {
         case BASE_ATTACK:   slot = EQUIPMENT_SLOT_MAINHAND; break;
@@ -21932,7 +21932,7 @@ void Player::ResurectUsingRequestData()
     if (GetMaxHealth() > m_resurrectHealth)
         SetHealth(m_resurrectHealth);
     else
-        SetHealth(GetMaxHealth());
+        SetFullHealth();
 
     if (GetMaxPower(POWER_MANA) > m_resurrectMana)
         SetPower(POWER_MANA, m_resurrectMana);
