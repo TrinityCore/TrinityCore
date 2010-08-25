@@ -1024,4 +1024,30 @@ void WorldSession::ProcessQueryCallbacks()
         SendStablePetCallback(result, param);
         m_sendStabledPetCallback.FreeResult();
     }
+
+    //- HandleStablePet
+    if (m_stablePetCallback.ready())
+    {
+        m_stablePetCallback.get(result);
+        HandleStablePetCallback(result);
+        m_stablePetCallback.cancel();
+    }
+
+    //- HandleUnstablePet
+    if (m_unstablePetCallback.IsReady())
+    {
+        uint32 param = m_unstablePetCallback.GetParam();
+        m_unstablePetCallback.GetResult(result);
+        HandleUnstablePetCallback(result, param);
+        m_unstablePetCallback.FreeResult();
+    }
+
+    //- HandleStableSwapPet
+    if (m_stableSwapCallback.IsReady())
+    {
+        uint32 param = m_stableSwapCallback.GetParam();
+        m_stableSwapCallback.GetResult(result);
+        HandleStableSwapPetCallback(result, param);
+        m_stableSwapCallback.FreeResult();
+    }
 }
