@@ -733,22 +733,6 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 {
                     damage += int32(m_caster->GetShieldBlockValue() * 1.3f);
                 }
-                // Judgements
-                else switch (m_spellInfo->Id)
-                {
-                    case 20187:
-                    case 54158:
-                    case 31804:
-                        float attackPower = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
-                        float spellPower = (float)(m_caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellInfo)));
-                        if (m_spellInfo->Id == 20187) // Judgement of Righteousness
-                            damage += int32(0.2f * attackPower + 0.32f * spellPower);
-                        if (m_spellInfo->Id == 54158) // Judgement of Wisdom, Light, Justice
-                            damage += int32(0.16f * attackPower + 0.25f * spellPower);
-                        if (m_spellInfo->Id == 31804) // Judgement of Vengeance
-                            damage += int32(0.14f * attackPower + 0.22f * spellPower);
-                        break;
-                }
                 break;
             }
             case SPELLFAMILY_DEATHKNIGHT:
@@ -2100,10 +2084,6 @@ void Spell::EffectJump(uint32 i)
     if (m_caster->isInFlight())
         return;
 
-    // Instantly interrupt non melee spells being casted
-    if (m_caster->IsNonMeleeSpellCasted(true))
-        m_caster->InterruptNonMeleeSpells(true);
-
     float x,y,z,o;
     if (m_targets.getUnitTarget())
     {
@@ -2130,10 +2110,6 @@ void Spell::EffectJumpDest(uint32 i)
 {
     if (m_caster->isInFlight())
         return;
-
-    // Instantly interrupt non melee spells being casted
-    if (m_caster->IsNonMeleeSpellCasted(true))
-        m_caster->InterruptNonMeleeSpells(true);
 
     // Init dest coordinates
     float x,y,z,o;
