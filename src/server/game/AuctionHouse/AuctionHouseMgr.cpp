@@ -674,14 +674,8 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
 
             // local name
             if (loc_idx >= 0)
-            {
-            ItemLocale const *il = sObjectMgr.GetItemLocale(proto->ItemId);
-                if (il)
-                {
-                    if (il->Name.size() > size_t(loc_idx) && !il->Name[loc_idx].empty())
-                        name = il->Name[loc_idx];
-                }
-            }
+                if (ItemLocale const *il = sObjectMgr.GetItemLocale(proto->ItemId))
+                    sObjectMgr.GetLocaleString(il->Name, loc_idx, name);
 
             // DO NOT use GetItemEnchantMod(proto->RandomProperty) as it may return a result
             //  that matches the search but it may not equal item->GetItemRandomPropertyId()

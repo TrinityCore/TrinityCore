@@ -13543,18 +13543,13 @@ void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId, bool showQue
             std::string strBoxText = itr->second.box_text;
 
             int loc_idx = GetSession()->GetSessionDbLocaleIndex();
-
             if (loc_idx >= 0)
             {
                 uint32 idxEntry = MAKE_PAIR32(menuId, itr->second.id);
-
                 if (GossipMenuItemsLocale const *no = sObjectMgr.GetGossipMenuItemsLocale(idxEntry))
                 {
-                    if (no->OptionText.size() > (size_t)loc_idx && !no->OptionText[loc_idx].empty())
-                        strOptionText = no->OptionText[loc_idx];
-
-                    if (no->BoxText.size() > (size_t)loc_idx && !no->BoxText[loc_idx].empty())
-                        strBoxText = no->BoxText[loc_idx];
+                    sObjectMgr.GetLocaleString(no->OptionText, loc_idx, strOptionText);
+                    sObjectMgr.GetLocaleString(no->BoxText, loc_idx, strBoxText);
                 }
             }
 
@@ -13921,15 +13916,8 @@ void Player::SendPreparedQuest(uint64 guid)
 
                     int loc_idx = GetSession()->GetSessionDbLocaleIndex();
                     if (loc_idx >= 0)
-                    {
-                        uint8 uloc_idx = uint8(loc_idx);
-                        NpcTextLocale const *nl = sObjectMgr.GetNpcTextLocale(textid);
-                        if (nl)
-                        {
-                            if (nl->Text_0[0].size() > uloc_idx && !nl->Text_0[0][uloc_idx].empty())
-                                title = nl->Text_0[0][uloc_idx];
-                        }
-                    }
+                        if (NpcTextLocale const *nl = sObjectMgr.GetNpcTextLocale(textid))
+                            sObjectMgr.GetLocaleString(nl->Text_0[0], loc_idx, title);
                 }
                 else
                 {
@@ -13937,15 +13925,8 @@ void Player::SendPreparedQuest(uint64 guid)
 
                     int loc_idx = GetSession()->GetSessionDbLocaleIndex();
                     if (loc_idx >= 0)
-                    {
-                        uint8 uloc_idx = uint8(loc_idx);
-                        NpcTextLocale const *nl = sObjectMgr.GetNpcTextLocale(textid);
-                        if (nl)
-                        {
-                            if (nl->Text_1[0].size() > uloc_idx && !nl->Text_1[0][uloc_idx].empty())
-                                title = nl->Text_1[0][uloc_idx];
-                        }
-                    }
+                        if (NpcTextLocale const *nl = sObjectMgr.GetNpcTextLocale(textid))
+                            sObjectMgr.GetLocaleString(nl->Text_1[0], loc_idx, title);
                 }
             }
         }
@@ -15612,11 +15593,9 @@ void Player::SendQuestConfirmAccept(const Quest* pQuest, Player* pReceiver)
         std::string strTitle = pQuest->GetTitle();
 
         int loc_idx = pReceiver->GetSession()->GetSessionDbLocaleIndex();
-
         if (loc_idx >= 0)
             if (const QuestLocale* pLocale = sObjectMgr.GetQuestLocale(pQuest->GetQuestId()))
-                if (int(pLocale->Title.size()) > loc_idx && !pLocale->Title[loc_idx].empty())
-                    strTitle = pLocale->Title[loc_idx];
+                sObjectMgr.GetLocaleString(pLocale->Title, loc_idx, strTitle);
 
         WorldPacket data(SMSG_QUEST_CONFIRM_ACCEPT, (4 + strTitle.size() + 8));
         data << uint32(pQuest->GetQuestId());
