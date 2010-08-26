@@ -7084,7 +7084,6 @@ bool ChatHandler::HandleFreezeCommand(const char *args)
         if (player->IsNonMeleeSpellCasted(true))
             player->InterruptNonMeleeSpells(true);
         player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        player->SetUInt32Value(PLAYER_DUEL_TEAM, 1);
 
         //if player class = hunter || warlock remove pet if alive
         if ((player->getClass() == CLASS_HUNTER) || (player->getClass() == CLASS_WARLOCK))
