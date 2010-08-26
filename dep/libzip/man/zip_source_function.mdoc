@@ -1,0 +1,157 @@
+.\" $NiH: zip_source_function.mdoc,v 1.17 2006/12/16 10:12:58 wiz Exp $
+.\"
+.\" zip_source_function.mdoc -- create data source from function
+.\" Copyright (C) 2004-2006 Dieter Baron and Thomas Klausner
+.\"
+.\" This file is part of libzip, a library to manipulate ZIP archives.
+.\" The authors can be contacted at <libzip@nih.at>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in
+.\"    the documentation and/or other materials provided with the
+.\"    distribution.
+.\" 3. The names of the authors may not be used to endorse or promote
+.\"    products derived from this software without specific prior
+.\"    written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS
+.\" OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+.\" WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY
+.\" DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+.\" GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+.\" IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+.\" OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+.\" IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.Dd March 4, 2007
+.Dt ZIP_SOURCE_FUNCTION 3
+.Os
+.Sh NAME
+.Nm zip_source_function
+.Nd create data source from function
+.Sh LIBRARY
+libzip (-lzip)
+.Sh SYNOPSIS
+.In zip.h
+.Ft struct zip_source *
+.Fn zip_source_function "struct zip *archive" "zip_source_callback fn" "void *userdata"
+.Sh DESCRIPTION
+The function
+.Fn zip_source_function
+creates a zip source from the user-provided function
+.Ar fn ,
+which must be of the following type:
+.Bd -literal
+typedef ssize_t (*zip_source_callback)(void *state,
+    void *data, size_t len, enum zip_source_cmd cmd);
+.Ed
+.Pp
+When called by the library, the first argument is the
+.Ar userdata
+argument supplied to
+.Fn zip_source_function .
+The next two arguments are a buffer
+.Ar data
+of size
+.Ar len
+when data is expected to be returned, or else
+.Dv NULL
+and 0.
+The last argument,
+.Ar cmd ,
+specifies which action the function should perform:
+.Bl -tag -width XZIPXSOURCEXCLOSEXX -offset indent
+.It Dv ZIP_SOURCE_OPEN
+Prepare for reading.
+Return 0 on success, \-1 on error.
+.It Dv ZIP_SOURCE_READ
+Read data into the buffer
+.Ar data
+of size
+.Ar len .
+Return the number of bytes placed into
+.Ar data
+on success, \-1 on error.
+.It Dv ZIP_SOURCE_CLOSE
+Reading is done.
+.It Dv ZIP_SOURCE_STAT
+Get meta information for the input data.
+.Ar data
+points to a struct zip_stat, which should be filled in.
+(See
+.Xr zip_stat_init 3 . )
+Usually, for uncompressed data, after
+.Xr zip_stat_init 3 ,
+only the mtime and size struct members will need to be set.
+Return sizeof(struct zip_stat) on success, \-1 on error.
+.It Dv ZIP_SOURCE_ERROR
+Get error information.
+.Ar data
+points to an array of two ints, which should be filled with the libzip
+error code and the corresponding system error code for the error that
+occurred.
+See
+.Xr zip_errors 3
+for details on the error codes.
+Return return(2 * sizeof(int)).
+.It Dv ZIP_SOURCE_FREE
+Clean up and free all resources.
+Return 0.
+.El
+.Pp
+The library will always issue
+.Dv ZIP_SOURCE_OPEN
+before issuing
+.Dv ZIP_SOURCE_READ .
+When it no longer wishes to read from this source, it will issue
+.Dv ZIP_SOURCE_CLOSE .
+If the library wishes to read the data again, it will issue
+.Dv ZIP_SOURCE_OPEN
+a second time.
+If the function is unable to provide the data again, it should
+return \-1.
+.Pp
+.Dv ZIP_SOURCE_STAT
+can be issued at any time.
+.Dv ZIP_SOURCE_ERROR
+will only be issued in response to the function
+returning \-1.
+.Dv ZIP_SOURCE_FREE
+will be the last command issued.
+.Sh RETURN VALUES
+Upon successful completion, the created source is returned.
+Otherwise,
+.Dv NULL
+is returned and the error code in
+.Ar archive
+is set to indicate the error.
+.Sh ERRORS
+.Fn zip_source_function
+fails if:
+.Bl -tag -width Er
+.It Bq Er ZIP_ER_MEMORY
+Required memory could not be allocated.
+.El
+.Sh SEE ALSO
+.Xr libzip 3 ,
+.Xr zip_add 3 ,
+.Xr zip_replace 3 ,
+.Xr zip_source_buffer 3 ,
+.Xr zip_source_file 3 ,
+.Xr zip_source_filep 3 ,
+.Xr zip_source_free 3 ,
+.Xr zip_source_zip 3 ,
+.Xr zip_stat_init 3
+.Sh AUTHORS
+.An -nosplit
+.An Dieter Baron Aq dillo@giga.or.at
+and
+.An Thomas Klausner Aq tk@giga.or.at
