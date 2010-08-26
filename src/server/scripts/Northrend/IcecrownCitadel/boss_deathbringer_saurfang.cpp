@@ -954,7 +954,7 @@ class spell_deathbringer_blood_link_aura : public SpellScriptLoader
 
             void Register()
             {
-                PreventDefaultAction(EFFECT_1);
+                PreventDefaultEffect(EFFECT_1);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_deathbringer_blood_link_AuraScript::HandlePeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
             }
 
@@ -1040,13 +1040,13 @@ class spell_deathbringer_rune_of_blood : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
+                PreventHitDefaultEffect(EFFECT_1);  // make this the default handler
                 if (GetCaster()->GetPower(POWER_ENERGY) != GetCaster()->GetMaxPower(POWER_ENERGY))
                     GetHitUnit()->CastCustomSpell(SPELL_BLOOD_LINK_DUMMY, SPELLVALUE_BASE_POINT0, 1, GetCaster(), true);
             }
 
             void Register()
             {
-                PreventHitDefaultEffect(EFFECT_1);  // make this the default handler
                 OnEffect += SpellEffectFn(spell_deathbringer_rune_of_blood_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
@@ -1073,13 +1073,13 @@ class spell_deathbringer_blood_nova : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
+                PreventHitDefaultEffect(EFFECT_1);  // make this the default handler
                 if (GetCaster()->GetPower(POWER_ENERGY) != GetCaster()->GetMaxPower(POWER_ENERGY))
                     GetHitUnit()->CastCustomSpell(SPELL_BLOOD_LINK_DUMMY, SPELLVALUE_BASE_POINT0, 2, GetCaster(), true);
             }
 
             void Register()
             {
-                PreventHitDefaultEffect(EFFECT_1);  // make this the default handler
                 OnEffect += SpellEffectFn(spell_deathbringer_blood_nova_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };

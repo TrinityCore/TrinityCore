@@ -757,7 +757,6 @@ class spell_deathwhisper_mana_barrier : public SpellScriptLoader
         {
             void HandlePeriodicTick(AuraEffect const * aurEff, AuraApplication const * aurApp)
             {
-                PreventDefaultAction(EFFECT_0);
                 Unit* caster = GetCaster();
                 int32 missingHealth = caster->GetMaxHealth() - caster->GetHealth();
                 caster->ModifyHealth(missingHealth);
@@ -766,6 +765,7 @@ class spell_deathwhisper_mana_barrier : public SpellScriptLoader
 
             void Register()
             {
+                PreventDefaultEffect(EFFECT_0);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_deathwhisper_mana_barrier_AuraScript::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
