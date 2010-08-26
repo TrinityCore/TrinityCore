@@ -416,7 +416,7 @@ void ObjectMgr::AddLocaleString(std::string& s, LocaleConstant locale, StringVec
         int idx = GetOrNewIndexForLocale(locale);
         if (idx >= 0)
         {
-            if (int(data.size()) <= idx)
+            if (data.size() <= size_t(idx))
                 data.resize(idx + 1);
 
             data[idx] = s;
