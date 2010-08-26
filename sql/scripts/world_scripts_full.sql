@@ -829,6 +829,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_guardian_pavilion' WHERE `entry
 
 /* ICECROWN CITADEL */
 UPDATE `instance_template` SET `script`='instance_icecrown_citadel' WHERE `map`=631;
+UPDATE `gameobject_template` SET `ScriptName`='icecrown_citadel_teleport' WHERE `entry` IN (202223,202235,202242,202243,202244,202245,202246);
 UPDATE `creature_template` SET `ScriptName`='boss_lord_marrowgar' WHERE `entry`=36612;
 UPDATE `creature_template` SET `ScriptName`='npc_coldflame' WHERE `entry`=36672;
 UPDATE `creature_template` SET `ScriptName`='npc_bone_spike' WHERE `entry`=36619;

@@ -83,6 +83,7 @@ enum eGameobjects
     DEATHBRINGER_S_CACHE_25N        = 202240,
     DEATHBRINGER_S_CACHE_10H        = 202238,
     DEATHBRINGER_S_CACHE_25H        = 202241,
+    SCOURGE_TRANSPORTER_SAURFANG    = 202244,
 };
 
 enum eAchievementCriteria
