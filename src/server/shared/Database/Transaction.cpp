@@ -58,6 +58,7 @@ bool TransactionTask::Execute()
         sql = queries.front();
         if (!m_conn->Execute(sql))
         {
+            sLog.outSQLDriver("[Warning] Transaction aborted. %u queries not executed.", (uint32)queries.size());
             free((void*)const_cast<char*>(sql));
             queries.pop();
             m_conn->RollbackTransaction();

@@ -120,13 +120,13 @@ bool MySQLConnection::Open(const std::string& infoString)
     if (m_Mysql)
     {
         sLog.outDetail("Connected to MySQL database at %s", host.c_str());
-        sLog.outString("MySQL client library: %s", mysql_get_client_info());
-        sLog.outString("MySQL server ver: %s ", mysql_get_server_info( m_Mysql));
+        sLog.outSQLDriver("MySQL client library: %s", mysql_get_client_info());
+        sLog.outSQLDriver("MySQL server ver: %s ", mysql_get_server_info( m_Mysql));
 
         if (!mysql_autocommit(m_Mysql, 1))
-            sLog.outDetail("AUTOCOMMIT SUCCESSFULLY SET TO 1");
+            sLog.outSQLDriver("AUTOCOMMIT SUCCESSFULLY SET TO 1");
         else
-            sLog.outDetail("AUTOCOMMIT NOT SET TO 1");
+            sLog.outSQLDriver("AUTOCOMMIT NOT SET TO 1");
 
         // set connection properties to UTF8 to properly handle locales for different
         // server configs - core sends data in UTF8, so MySQL must expect UTF8 too
@@ -136,9 +136,9 @@ bool MySQLConnection::Open(const std::string& infoString)
     #if MYSQL_VERSION_ID >= 50003
         my_bool my_true = (my_bool)1;
         if (mysql_options(m_Mysql, MYSQL_OPT_RECONNECT, &my_true))
-            sLog.outDetail("Failed to turn on MYSQL_OPT_RECONNECT.");
+            sLog.outSQLDriver("Failed to turn on MYSQL_OPT_RECONNECT.");
         else
-           sLog.outDetail("Successfully turned on MYSQL_OPT_RECONNECT.");
+            sLog.outSQLDriver("Successfully turned on MYSQL_OPT_RECONNECT.");
     #else
         #warning "Your mySQL client lib version does not support reconnecting after a timeout.\nIf this causes you any trouble we advice you to upgrade your mySQL client libs to at least mySQL 5.0.13 to resolve this problem."
     #endif
@@ -166,14 +166,14 @@ bool MySQLConnection::Execute(const char* sql)
         #endif
         if (mysql_query(m_Mysql, sql))
         {
-            sLog.outErrorDb("SQL: %s", sql);
-            sLog.outErrorDb("SQL ERROR: %s", mysql_error(m_Mysql));
+            sLog.outSQLDriver("SQL: %s", sql);
+            sLog.outSQLDriver("SQL ERROR: %s", mysql_error(m_Mysql));
             return false;
         }
         else
         {
             #ifdef TRINITY_DEBUG
-            sLog.outDebug("[%u ms] SQL: %s", getMSTimeDiff(_s, getMSTime()), sql);
+            sLog.outSQLDriver("[%u ms] SQL: %s", getMSTimeDiff(_s, getMSTime()), sql);
             #endif
         }
     }
@@ -214,14 +214,14 @@ bool MySQLConnection::_Query(const char *sql, MYSQL_RES **pResult, MYSQL_FIELD *
         #endif
         if (mysql_query(m_Mysql, sql))
         {
-            sLog.outErrorDb("SQL: %s", sql);
-            sLog.outErrorDb("query ERROR: %s", mysql_error(m_Mysql));
+            sLog.outSQLDriver("SQL: %s", sql);
+            sLog.outSQLDriver("query ERROR: %s", mysql_error(m_Mysql));
             return false;
         }
         else
         {
             #ifdef TRINITY_DEBUG
-            sLog.outDebug("[%u ms] SQL: %s", getMSTimeDiff(_s,getMSTime()), sql);
+            sLog.outSQLDriver("[%u ms] SQL: %s", getMSTimeDiff(_s,getMSTime()), sql);
             #endif
         }
 
