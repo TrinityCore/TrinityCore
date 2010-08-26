@@ -168,13 +168,10 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket & recv_data)
         int loc_idx = GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
         {
-            CreatureLocale const *cl = sObjectMgr.GetCreatureLocale(entry);
-            if (cl)
+            if (CreatureLocale const *cl = sObjectMgr.GetCreatureLocale(entry))
             {
-                if (cl->Name.size() > size_t(loc_idx) && !cl->Name[loc_idx].empty())
-                    Name = cl->Name[loc_idx];
-                if (cl->SubName.size() > size_t(loc_idx) && !cl->SubName[loc_idx].empty())
-                    SubName = cl->SubName[loc_idx];
+                sObjectMgr.GetLocaleString(cl->Name, loc_idx, Name);
+                sObjectMgr.GetLocaleString(cl->SubName, loc_idx, SubName);
             }
         }
         sLog.outDetail("WORLD: CMSG_CREATURE_QUERY '%s' - Entry: %u.", ci->Name, entry);
@@ -237,13 +234,10 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket & recv_data)
         int loc_idx = GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
         {
-            GameObjectLocale const *gl = sObjectMgr.GetGameObjectLocale(entryID);
-            if (gl)
+            if (GameObjectLocale const *gl = sObjectMgr.GetGameObjectLocale(entryID))
             {
-                if (gl->Name.size() > size_t(loc_idx) && !gl->Name[loc_idx].empty())
-                    Name = gl->Name[loc_idx];
-                if (gl->CastBarCaption.size() > size_t(loc_idx) && !gl->CastBarCaption[loc_idx].empty())
-                    CastBarCaption = gl->CastBarCaption[loc_idx];
+                sObjectMgr.GetLocaleString(gl->Name, loc_idx, Name);
+                sObjectMgr.GetLocaleString(gl->CastBarCaption, loc_idx, CastBarCaption);
             }
         }
         sLog.outDetail("WORLD: CMSG_GAMEOBJECT_QUERY '%s' - Entry: %u. ", info->name, entryID);
@@ -369,15 +363,12 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recv_data)
         int loc_idx = GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
         {
-            NpcTextLocale const *nl = sObjectMgr.GetNpcTextLocale(textID);
-            if (nl)
+            if (NpcTextLocale const *nl = sObjectMgr.GetNpcTextLocale(textID))
             {
                 for (int i = 0; i < 8; ++i)
                 {
-                    if (nl->Text_0[i].size() > size_t(loc_idx) && !nl->Text_0[i][loc_idx].empty())
-                        Text_0[i]=nl->Text_0[i][loc_idx];
-                    if (nl->Text_1[i].size() > size_t(loc_idx) && !nl->Text_1[i][loc_idx].empty())
-                        Text_1[i]=nl->Text_1[i][loc_idx];
+                    sObjectMgr.GetLocaleString(nl->Text_0[i], loc_idx, Text_0[i]);
+                    sObjectMgr.GetLocaleString(nl->Text_1[i], loc_idx, Text_1[i]);
                 }
             }
         }
@@ -439,14 +430,8 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPacket & recv_data)
 
             int loc_idx = GetSessionDbLocaleIndex();
             if (loc_idx >= 0)
-            {
-                PageTextLocale const *pl = sObjectMgr.GetPageTextLocale(pageID);
-                if (pl)
-                {
-                    if (pl->Text.size() > size_t(loc_idx) && !pl->Text[loc_idx].empty())
-                        Text = pl->Text[loc_idx];
-                }
-            }
+                if (PageTextLocale const *pl = sObjectMgr.GetPageTextLocale(pageID))
+                    sObjectMgr.GetLocaleString(pl->Text, loc_idx, Text);
 
             data << Text;
             data << uint32(pPage->Next_Page);
