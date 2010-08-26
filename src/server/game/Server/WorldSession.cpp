@@ -531,7 +531,7 @@ void WorldSession::SendNotification(int32 string_id,...)
 
 const char * WorldSession::GetTrinityString(int32 entry) const
 {
-    return sObjectMgr.GetTrinityString(entry,GetSessionDbLocaleIndex());
+    return sObjectMgr.GetTrinityString(entry, GetSessionDbLocaleIndex());
 }
 
 void WorldSession::Handle_NULL(WorldPacket& recvPacket)
