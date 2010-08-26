@@ -600,7 +600,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 {
                     // converts each extra point of energy into ($f1+$AP/410) additional damage
                     float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
-                    float multiple = ap / 410 + m_spellInfo->DmgMultiplier[effect_idx];
+                    float multiple = ap / 410 + m_spellInfo->EffectDamageMultiplier[effect_idx];
                     int32 energy = -(m_caster->ModifyPower(POWER_ENERGY, -30));
                     damage += int32(energy * multiple);
                     damage += int32(m_caster->ToPlayer()->GetComboPoints() * ap * 7 / 100);
@@ -1511,7 +1511,7 @@ void Spell::EffectDummy(uint32 i)
                 if (rage > 300)
                     rage = 300;
 
-                bp = damage+int32(rage * m_spellInfo->DmgMultiplier[i] +
+                bp = damage+int32(rage * m_spellInfo->EffectDamageMultiplier[i] +
                     m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.2f);
                 break;
             }
@@ -1679,7 +1679,7 @@ void Spell::EffectDummy(uint32 i)
             if (m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_DK_DEATH_STRIKE)
             {
                 uint32 count = unitTarget->GetDiseasesByCaster(m_caster->GetGUID());
-                int32 bp = int32(count * m_caster->CountPctFromMaxHealth(m_spellInfo->DmgMultiplier[0]));
+                int32 bp = int32(count * m_caster->CountPctFromMaxHealth(m_spellInfo->EffectDamageMultiplier[0]));
                 // Improved Death Strike
                 if (AuraEffect const * aurEff = m_caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_DEATHKNIGHT, 2751, 0))
                     bp = int32(bp * (m_caster->CalculateSpellDamage(m_caster, aurEff->GetSpellProto(), 2) + 100.0f) / 100.0f);
@@ -2337,48 +2337,29 @@ void Spell::EffectPowerDrain(uint32 i)
     if (m_spellInfo->EffectMiscValue[i] < 0 || m_spellInfo->EffectMiscValue[i] >= MAX_POWERS)
         return;
 
-    Powers drain_power = Powers(m_spellInfo->EffectMiscValue[i]);
+    Powers powerType = Powers(m_spellInfo->EffectMiscValue[i]);
 
-    if (!unitTarget)
-        return;
-    if (!unitTarget->isAlive())
-        return;
-    if (unitTarget->getPowerType() != drain_power)
-        return;
-    if (damage < 0)
+    if (!unitTarget || !unitTarget->isAlive() || unitTarget->getPowerType() != powerType || damage < 0)
         return;
 
-    uint32 curPower = unitTarget->GetPower(drain_power);
-
-    //add spell damage bonus
-    damage=m_caster->SpellDamageBonus(unitTarget,m_spellInfo,uint32(damage),SPELL_DIRECT_DAMAGE);
+    // add spell damage bonus
+    damage = m_caster->SpellDamageBonus(unitTarget, m_spellInfo, uint32(damage), SPELL_DIRECT_DAMAGE);
 
     // resilience reduce mana draining effect at spell crit damage reduction (added in 2.4)
     uint32 power = damage;
-    if (drain_power == POWER_MANA)
+    if (powerType == POWER_MANA)
         power -= unitTarget->GetSpellCritDamageReduction(power);
 
-    int32 new_damage;
-    if (curPower < power)
-        new_damage = curPower;
-    else
-        new_damage = power;
-
-    unitTarget->ModifyPower(drain_power,-new_damage);
+    int32 newDamage = unitTarget->ModifyPower(powerType, -int32(power));
 
     // Don`t restore from self drain
-    if (drain_power == POWER_MANA && m_caster != unitTarget)
+    if (m_caster != unitTarget)
     {
-        float manaMultiplier = m_spellInfo->EffectMultipleValue[i];
-        if (manaMultiplier == 0)
-            manaMultiplier = 1;
+        float gainMultiplier = SpellMgr::CalculateSpellEffectValueMultiplier(m_spellInfo, i, m_originalCaster, this);
 
-        if (Player *modOwner = m_caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_MULTIPLE_VALUE, manaMultiplier);
+        int32 gain = int32(newDamage * gainMultiplier);
 
-        int32 gain = int32(new_damage * manaMultiplier);
-
-        m_caster->EnergizeBySpell(m_caster, m_spellInfo->Id, gain, POWER_MANA);
+        m_caster->EnergizeBySpell(m_caster, m_spellInfo->Id, gain, powerType);
     }
 }
 
@@ -2407,50 +2388,34 @@ void Spell::EffectPowerBurn(uint32 i)
     if (m_spellInfo->EffectMiscValue[i] < 0 || m_spellInfo->EffectMiscValue[i] >= MAX_POWERS)
         return;
 
-    Powers powertype = Powers(m_spellInfo->EffectMiscValue[i]);
+    Powers powerType = Powers(m_spellInfo->EffectMiscValue[i]);
 
-    if (!unitTarget)
+    if (!unitTarget || !unitTarget->isAlive() || unitTarget->getPowerType() != powerType || damage < 0)
         return;
-    if (!unitTarget->isAlive())
-        return;
-    if (unitTarget->getPowerType() != powertype)
-        return;
-    if (damage < 0)
-        return;
-
-    //Unit* caster = m_originalCaster ? m_originalCaster : m_caster;
 
     // burn x% of target's mana, up to maximum of 2x% of caster's mana (Mana Burn)
     if (m_spellInfo->ManaCostPercentage)
     {
-        int32 maxdamage = m_caster->GetMaxPower(powertype) * damage * 2 / 100;
-        damage = unitTarget->GetMaxPower(powertype) * damage / 100;
+        int32 maxdamage = m_caster->GetMaxPower(powerType) * damage * 2 / 100;
+        damage = unitTarget->GetMaxPower(powerType) * damage / 100;
         if (damage > maxdamage) damage = maxdamage;
     }
 
-    int32 curPower = int32(unitTarget->GetPower(powertype));
-
     int32 power = damage;
     // resilience reduce mana draining effect at spell crit damage reduction (added in 2.4)
-    if (powertype == POWER_MANA)
+    if (powerType == POWER_MANA)
         power -= unitTarget->GetSpellCritDamageReduction(power);
 
-    int32 new_damage = (curPower < power) ? curPower : power;
+    int32 newDamage = unitTarget->ModifyPower(powerType, -power);
 
-    unitTarget->ModifyPower(powertype, -new_damage);
-    float multiplier = m_spellInfo->EffectMultipleValue[i];
+    // NO - Not a typo - EffectPowerBurn uses effect value multiplier - not effect damage multiplier
+    float dmgMultiplier = SpellMgr::CalculateSpellEffectValueMultiplier(m_spellInfo, i, m_originalCaster, this);
 
-    if (Player *modOwner = m_caster->GetSpellModOwner())
-        modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_MULTIPLE_VALUE, multiplier);
+    newDamage = int32(newDamage * dmgMultiplier);
 
-    new_damage = int32(new_damage*multiplier);
-    //m_damage+=new_damage; should not apply spell bonus
     //TODO: no log
-    //unitTarget->ModifyHealth(-new_damage);
     if (m_originalCaster)
-        m_originalCaster->DealDamage(unitTarget, new_damage);
-
-    unitTarget->RemoveAurasByType(SPELL_AURA_MOD_FEAR);
+        m_originalCaster->DealDamage(unitTarget, newDamage);
 }
 
 void Spell::EffectHeal(uint32 /*i*/)
@@ -2614,45 +2579,25 @@ void Spell::EffectHealMechanical(uint32 /*i*/)
 
 void Spell::EffectHealthLeech(uint32 i)
 {
-    if (!unitTarget)
-        return;
-    if (!unitTarget->isAlive())
-        return;
-
-    if (damage < 0)
+    if (!unitTarget || !unitTarget->isAlive() || damage < 0)
         return;
 
     sLog.outDebug("HealthLeech :%i", damage);
 
-    float multiplier = m_spellInfo->EffectMultipleValue[i];
+    float healMultiplier = SpellMgr::CalculateSpellEffectValueMultiplier(m_spellInfo, i, m_originalCaster, this);
 
-    if (Player *modOwner = m_caster->GetSpellModOwner())
-        modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_MULTIPLE_VALUE, multiplier);
-
-    // Do not apply multiplier to damage if it's Death Coil
-    int32 new_damage;
-    if (m_spellInfo->SpellFamilyFlags[0] & 0x80000 ||
-        m_spellInfo->Id == 72409 || m_spellInfo->Id == 72447 || // ...or Deathbringer Saurfang's Rune of Blood
-        m_spellInfo->Id == 72448 || m_spellInfo->Id == 72449)
-        new_damage = damage;
-    else
-        new_damage = int32(damage * multiplier);
+    int32 newDamage = int32(damage * healMultiplier);
 
     uint32 curHealth = unitTarget->GetHealth();
-    new_damage = m_caster->SpellNonMeleeDamageLog(unitTarget, m_spellInfo->Id, new_damage);
-    if (int32(curHealth) < new_damage)
-        new_damage = curHealth;
+    newDamage = m_caster->SpellNonMeleeDamageLog(unitTarget, m_spellInfo->Id, newDamage);
+    if (int32(curHealth) < newDamage)
+        newDamage = curHealth;
 
     if (m_caster->isAlive())
     {
-        // Insead add it just to healing if it's Death Coil
-        if (m_spellInfo->SpellFamilyFlags[0] & 0x80000)
-            new_damage = int32(new_damage*multiplier);
-        new_damage = m_caster->SpellHealingBonus(m_caster, m_spellInfo, new_damage, HEAL);
-        m_caster->DealHeal(m_caster, uint32(new_damage), m_spellInfo);
+        newDamage = m_caster->SpellHealingBonus(m_caster, m_spellInfo, newDamage, HEAL);
+        m_caster->DealHeal(m_caster, uint32(newDamage), m_spellInfo);
     }
-//    m_healthLeech+=tmpvalue;
-//    m_damage+=new_damage;
 }
 
 void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
