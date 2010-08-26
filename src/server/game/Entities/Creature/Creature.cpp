@@ -1604,7 +1604,7 @@ void Creature::Respawn(bool force)
         if (IsAIEnabled)
             AI()->JustRespawned();
 
-        uint16 poolid = GetDBTableGUIDLow() ? sPoolMgr.IsPartOfAPool<Creature>(GetDBTableGUIDLow()) : 0;
+        uint32 poolid = GetDBTableGUIDLow() ? sPoolMgr.IsPartOfAPool<Creature>(GetDBTableGUIDLow()) : 0;
         if (poolid)
             sPoolMgr.UpdatePool<Creature>(poolid, GetDBTableGUIDLow());
 
