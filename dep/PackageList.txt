@@ -10,7 +10,7 @@ bzip2 (a freely available, patent free, high-quality data compressor)
 
 G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
   http://g3d.sourceforge.net/
-  Version: 6.09
+  Version: 8.0-Release
 
 jemalloc (a general-purpose scalable concurrent malloc-implementation)
   http://www.canonware.com/jemalloc/
@@ -35,10 +35,6 @@ sockets (a GPL licensed C++ class library wrapping the berkeley sockets C API)
 utf8-cpp (UTF-8 with C++ in a Portable Way)
   http://utfcpp.sourceforge.net/
   Version: 2.3
-
-vld (a free open-source memory leak detection system for Visual C++)
-  http://sites.google.com/site/dmoulding/vld
-  Version: 1.0
 
 zlib (A Massively Spiffy Yet Delicately Unobtrusive Compression Library)
   http://www.zlib.net/
