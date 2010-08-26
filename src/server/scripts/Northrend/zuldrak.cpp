@@ -29,7 +29,8 @@ enum eDrakuruShackles
     SPELL_UNLOCK_SHACKLE       = 55083,
     SPELL_FREE_RAGECLAW        = 55223,
 
-    NPC_RAGECLAW               = 29686
+    NPC_RAGECLAW               = 29686,
+    QUEST_TROLLS_IS_GONE_CRAZY = 12861,
 };
 
 class npc_drakuru_shackles : public CreatureScript
@@ -86,10 +87,17 @@ public:
         {
             if (pSpell->Id == SPELL_UNLOCK_SHACKLE)
             {
-                if (Unit::GetCreature(*me, RageclawGUID))
-                    UnlockRageclaw(pCaster);
-                else
-                    me->setDeathState(JUST_DIED);
+                if (pCaster->ToPlayer()->GetQuestStatus(QUEST_TROLLS_IS_GONE_CRAZY) == QUEST_STATUS_INCOMPLETE)
+                {
+                    if (Creature* pRageclaw = Unit::GetCreature(*me, RageclawGUID))
+                    {
+                        UnlockRageclaw(pCaster);
+                        pCaster->ToPlayer()->KilledMonster(pRageclaw->GetCreatureInfo(),RageclawGUID);
+                        me->DisappearAndDie();
+                    }
+                    else
+                        me->setDeathState(JUST_DIED);
+                }
             }
         }
     };
