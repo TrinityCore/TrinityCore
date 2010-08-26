@@ -34,6 +34,7 @@ npc_cassa_crimsonwing - handled by npc_taxi
 EndContentData */
 
 #include "ScriptPCH.h"
+#include "ScriptedEscortAI.h"
 
 /*######
 ## mobs_risen_husk_spirit
@@ -438,6 +439,133 @@ public:
 
 };
 
+/////////////////////
+/// npc_stinky
+/////////////////////
+
+enum eStinky
+{
+    QUEST_STINKYS_ESCAPE_H                       = 1270,
+    QUEST_STINKYS_ESCAPE_A                       = 1222,
+    SAY_QUEST_ACCEPTED                           = -1000507,
+    SAY_STAY_1                                   = -1000508,
+    SAY_STAY_2                                   = -1000509,
+    SAY_STAY_3                                   = -1000510,
+    SAY_STAY_4                                   = -1000511,
+    SAY_STAY_5                                   = -1000512,
+    SAY_STAY_6                                   = -1000513,
+    SAY_QUEST_COMPLETE                           = -1000514,
+    SAY_ATTACKED_1                               = -1000515,
+    EMOTE_DISAPPEAR                              = -1000516
+};
+
+class npc_stinky : public CreatureScript
+{
+public:
+   npc_stinky() : CreatureScript("npc_stinky") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_stinkyAI(pCreature);
+    }
+
+    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const *quest)
+    {
+         if (quest->GetQuestId() == QUEST_STINKYS_ESCAPE_H || QUEST_STINKYS_ESCAPE_A)
+         {
+             if (npc_stinkyAI* pEscortAI = CAST_AI(npc_stinky::npc_stinkyAI, pCreature->AI()))
+             {
+                 pCreature->setFaction(FACTION_ESCORT_N_NEUTRAL_ACTIVE);
+                 pCreature->SetStandState(UNIT_STAND_STATE_STAND);
+                 DoScriptText(SAY_QUEST_ACCEPTED, pCreature);
+                 pEscortAI->Start(false, false, pPlayer->GetGUID());
+             }
+         }
+         return true;
+    }
+
+    struct npc_stinkyAI : public npc_escortAI
+    {
+       npc_stinkyAI(Creature* pCreature) : npc_escortAI(pCreature) { }
+
+
+        void WaypointReached(uint32 i)
+        {
+            Player* pPlayer = GetPlayerForEscort();
+            if (!pPlayer)
+                return;
+
+            switch (i)
+            {
+            case 7:
+                DoScriptText(SAY_STAY_1, me, pPlayer);
+                break;
+            case 11:
+        	    DoScriptText(SAY_STAY_2, me, pPlayer);
+                break;
+            case 25:
+        	    DoScriptText(SAY_STAY_3, me, pPlayer);
+                break;
+            case 26:
+        	    DoScriptText(SAY_STAY_4, me, pPlayer);
+                break;
+            case 27:
+        	    DoScriptText(SAY_STAY_5, me, pPlayer);
+                break;
+            case 28:
+        	    DoScriptText(SAY_STAY_6, me, pPlayer);
+                me->SetStandState(UNIT_STAND_STATE_KNEEL);
+                break;
+            case 29:
+                me->SetStandState(UNIT_STAND_STATE_STAND);
+                break;
+            case 37:
+                DoScriptText(SAY_QUEST_COMPLETE, me, pPlayer);
+                me->SetSpeed(MOVE_RUN, 1.2f, true);
+                me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                if (pPlayer && pPlayer->GetQuestStatus(QUEST_STINKYS_ESCAPE_H))
+                    pPlayer->GroupEventHappens(QUEST_STINKYS_ESCAPE_H, me);
+                if (pPlayer && pPlayer->GetQuestStatus(QUEST_STINKYS_ESCAPE_A))
+                    pPlayer->GroupEventHappens(QUEST_STINKYS_ESCAPE_A, me);
+                break;
+            case 39:
+                DoScriptText(EMOTE_DISAPPEAR, me);
+                break;
+
+            }
+        }
+
+        void EnterCombat(Unit* pWho)
+        {
+            DoScriptText(SAY_ATTACKED_1, me, pWho);
+        }
+
+        void Reset() {}
+
+        void JustDied(Unit* /*pKiller*/)
+        {
+            Player* pPlayer = GetPlayerForEscort();
+            if (HasEscortState(STATE_ESCORT_ESCORTING) && pPlayer)
+            {
+                if (pPlayer->GetQuestStatus(QUEST_STINKYS_ESCAPE_H))
+                    pPlayer->FailQuest(QUEST_STINKYS_ESCAPE_H);
+                if (pPlayer->GetQuestStatus(QUEST_STINKYS_ESCAPE_A))
+                    pPlayer->FailQuest(QUEST_STINKYS_ESCAPE_A);
+            }
+        }
+
+       void UpdateAI(const uint32 uiDiff)
+        {
+            npc_escortAI::UpdateAI(uiDiff);
+
+            if (!UpdateVictim())
+                return;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+};
+
 
 void AddSC_dustwallow_marsh()
 {
@@ -448,4 +576,5 @@ void AddSC_dustwallow_marsh()
     new npc_nat_pagle();
     new npc_private_hendel();
     new npc_zelfrax();
+    new npc_stinky();
 }
