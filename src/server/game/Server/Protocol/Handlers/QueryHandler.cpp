@@ -484,7 +484,7 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& recv_data)
     WorldPacket data(SMSG_QUEST_POI_QUERY_RESPONSE, 4+(4+4)*count);
     data << uint32(count); // count
 
-    for (int i = 0; i < count; ++i)
+    for (uint32 i = 0; i < count; ++i)
     {
         uint32 questId;
         recv_data >> questId; // quest id
