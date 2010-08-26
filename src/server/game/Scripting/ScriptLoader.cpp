@@ -428,6 +428,7 @@ void AddSC_boss_marwyn();
 void AddSC_boss_lord_marrowgar();       // Icecrown Citadel
 void AddSC_boss_lady_deathwhisper();
 void AddSC_boss_deathbringer_saurfang();
+void AddSC_icecrown_citadel_teleport();
 void AddSC_instance_icecrown_citadel();
 
 void AddSC_dalaran();
@@ -1102,6 +1103,7 @@ void AddNorthrendScripts()
     AddSC_boss_lord_marrowgar();        // Icecrown Citadel
     AddSC_boss_lady_deathwhisper();
     AddSC_boss_deathbringer_saurfang();
+    AddSC_icecrown_citadel_teleport();
     AddSC_instance_icecrown_citadel();
 
     AddSC_dalaran();

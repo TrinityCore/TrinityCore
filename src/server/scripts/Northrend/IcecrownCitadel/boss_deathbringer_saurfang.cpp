@@ -102,7 +102,8 @@ enum eSpells
     SPELL_RESISTANT_SKIN                = 72723,
     SPELL_SCENT_OF_BLOOD                = 72769, // Heroic only
 
-    SPELL_RIDE_VEHICLE                  = 70640  // Outro
+    SPELL_RIDE_VEHICLE                  = 70640, // Outro
+    SPELL_ACHIEVEMENT                   = 72928
 };
 
 // Helper to get id of the aura on different modes (HasAura(baseId) wont work)
@@ -273,6 +274,7 @@ class boss_deathbringer_saurfang : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
+                DoCastAOE(SPELL_ACHIEVEMENT, true);
                 DoScriptText(SAY_DEATH, me);
 
                 if (pInstance)
