@@ -35,13 +35,13 @@ enum Spells
     SPELL_FLAME_VENTS                           = 62396,
     SPELL_MISSILE_BARRAGE                       = 62400,
     SPELL_SYSTEMS_SHUTDOWN                      = 62475,
-
     SPELL_OVERLOAD_CIRCUIT                      = 62399,
     SPELL_START_THE_ENGINE                      = 62472,
     SPELL_SEARING_FLAME                         = 62402,
     SPELL_BLAZE                                 = 62292,
     SPELL_SMOKE_TRAIL                           = 63575,
     SPELL_ELECTROSHOCK                          = 62522,
+    SPELL_NAPALM                                = 63666,
     //TOWER Additional SPELLS
     SPELL_THORIM_S_HAMMER                       = 62911, // Tower of Storms
     SPELL_MIMIRON_S_INFERNO                     = 62909, // Tower of Flames
@@ -99,6 +99,7 @@ enum Events
     EVENT_SPEED,
     EVENT_SUMMON,
     EVENT_SHUTDOWN,
+    EVENT_REPAIR,
     EVENT_THORIM_S_HAMMER, // Tower of Storms
     EVENT_MIMIRON_S_INFERNO, // Tower of Flames
     EVENT_HODIR_S_FURY,      // Tower of Frost
@@ -110,6 +111,7 @@ enum Seats
     SEAT_PLAYER                                 = 0,
     SEAT_TURRET                                 = 1,
     SEAT_DEVICE                                 = 2,
+    SEAT_CANNON                                 = 7,
 };
 
 enum Vehicles
@@ -145,8 +147,6 @@ enum Yells
 
 enum eAchievementData
 {
-    //ACHIEV_CHAMPION_OF_ULDUAR                   = 2903,
-    //ACHIEV_CONQUEROR_OF_ULDUAR                  = 2904,
     ACHIEV_10_NUKED_FROM_ORBIT                  = 2915,
     ACHIEV_25_NUKED_FROM_ORBIT                  = 2917,
     ACHIEV_10_ORBITAL_BOMBARDMENT               = 2913,
@@ -214,6 +214,7 @@ public:
             assert(vehicle);
             pInstance = me->GetInstanceScript();
             uiActiveTowers = 4;
+            uiShutdown = 0;
             ActiveTowers = false;
             towerOfStorms = false;
             towerOfLife = false;
@@ -221,7 +222,6 @@ public:
             towerOfFrost = false;
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); //deathgrip
-
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
             me->SetReactState(REACT_PASSIVE);
         }
@@ -230,6 +230,7 @@ public:
 
         Vehicle* vehicle;
         uint8 uiActiveTowers;
+        uint8 uiShutdown;
         bool ActiveTowers;
         bool towerOfStorms;
         bool towerOfLife;
@@ -243,11 +244,9 @@ public:
             me->SetLootMode(LOOT_MODE_HARD_MODE_3);
             me->SetLootMode(LOOT_MODE_HARD_MODE_2);
             me->SetLootMode(LOOT_MODE_HARD_MODE_1);*/
-            if (pInstance)
-                pInstance->SetData(TYPE_LEVIATHAN, NOT_STARTED);
-            assert(vehicle);
-            me->GetVehicleKit();
+            pInstance->SetData(TYPE_LEVIATHAN, NOT_STARTED);
             me->SetReactState(REACT_DEFENSIVE);
+            InstallAdds(true);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -255,47 +254,90 @@ public:
             _EnterCombat();
             pInstance->SetData(TYPE_LEVIATHAN, IN_PROGRESS); //_Reset doesnt do this correctly
             me->SetReactState(REACT_AGGRESSIVE);
-            events.ScheduleEvent(EVENT_PURSUE, 0);
+            events.ScheduleEvent(EVENT_PURSUE, 30*IN_MILLISECONDS);
             events.ScheduleEvent(EVENT_MISSILE, 1500);
-            events.ScheduleEvent(EVENT_VENT, 20000);
-            events.ScheduleEvent(EVENT_SPEED, 15000);
-            events.ScheduleEvent(EVENT_SUMMON, 0);
-            if (ActiveTowers)
+            events.ScheduleEvent(EVENT_VENT, 20*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_SPEED, 15*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_SUMMON, 1*IN_MILLISECONDS);
+            ActiveTower(false); //void ActiveTower
+            InstallAdds(false);
+        }
+
+        void ActiveTower(bool bReset = false)
+        {
+            if (!bReset)
             {
-                if (towerOfStorms)
+                if (ActiveTowers)
                 {
-                    me->AddAura(SPELL_BUFF_TOWER_OF_STORMS, me);
-                    events.ScheduleEvent(EVENT_THORIM_S_HAMMER, 35000);
-                }
+                    if (towerOfStorms)
+                    {
+                        me->AddAura(SPELL_BUFF_TOWER_OF_STORMS, me);
+                        events.ScheduleEvent(EVENT_THORIM_S_HAMMER, 35*IN_MILLISECONDS);
+                    }
 
-                if (towerOfFlames)
-                {
-                    me->AddAura(SPELL_BUFF_TOWER_OF_FLAMES, me);
-                    events.ScheduleEvent(EVENT_MIMIRON_S_INFERNO,70000);
-                }
+                    if (towerOfFlames)
+                    {
+                        me->AddAura(SPELL_BUFF_TOWER_OF_FLAMES, me);
+                        events.ScheduleEvent(EVENT_MIMIRON_S_INFERNO,70*IN_MILLISECONDS);
+                    }
 
-                if (towerOfFrost)
-                {
-                    me->AddAura(SPELL_BUFF_TOWER_OF_FR0ST, me);
-                    events.ScheduleEvent(EVENT_HODIR_S_FURY, 105000);
-                }
+                    if (towerOfFrost)
+                    {
+                        me->AddAura(SPELL_BUFF_TOWER_OF_FR0ST, me);
+                        events.ScheduleEvent(EVENT_HODIR_S_FURY, 105*IN_MILLISECONDS);
+                    }
 
-                if (towerOfLife)
-                {
-                    me->AddAura(SPELL_BUFF_TOWER_OF_LIFE, me);
-                    events.ScheduleEvent(EVENT_FREYA_S_WARD, 140000);
-                }
+                    if (towerOfLife)
+                    {
+                        me->AddAura(SPELL_BUFF_TOWER_OF_LIFE, me);
+                        events.ScheduleEvent(EVENT_FREYA_S_WARD, 140*IN_MILLISECONDS);
+                    }
 
-                if (!towerOfLife && !towerOfFrost && !towerOfFlames && !towerOfStorms)
-                    DoScriptText(SAY_TOWER_NONE, me);
+                    if (!towerOfLife && !towerOfFrost && !towerOfFlames && !towerOfStorms)
+                        DoScriptText(SAY_TOWER_NONE, me);
+                    else
+                        DoScriptText(SAY_HARDMODE, me);
+                }
                 else
-                    DoScriptText(SAY_HARDMODE, me);
+                    DoScriptText(SAY_AGGRO, me);
+            }
+        }
+
+        void InstallAdds(bool bReset = false)
+        {
+            if (!bReset)
+            {
+                std::list<Creature*> lSeats;
+                me->GetCreatureListWithEntryInGrid(lSeats, 33114,17.0f);
+                if (lSeats.empty())
+                    return;
+                for(std::list<Creature*>::const_iterator itr = lSeats.begin(); itr != lSeats.end(); itr++)
+                {
+                    Vehicle* pSeat = (*itr)->GetVehicleKit();
+                    if (Creature* pTurret = (me->SummonCreature(33142, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_MANUAL_DESPAWN)))
+                        pTurret->EnterVehicle(pSeat, SEAT_TURRET);
+
+                    if (Creature* pDevice = (me->SummonCreature(33143, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_MANUAL_DESPAWN)))
+                        pDevice->EnterVehicle(pSeat, SEAT_DEVICE);
+                }
             }
             else
-                DoScriptText(SAY_AGGRO, me);
+            {
+                std::list<Creature*> lSeats;
+                me->GetCreatureListWithEntryInGrid(lSeats, 33114,17.0f);
+                if (lSeats.empty())
+                    return;
+                for(std::list<Creature*>::const_iterator itr = lSeats.begin(); itr != lSeats.end(); itr++)
+                {
+                    Vehicle* pSeat = (*itr)->GetVehicleKit();
+                    if (Unit* pTurret = (pSeat->GetPassenger(SEAT_TURRET)))
+                        pTurret->RemoveFromWorld();
 
-            if (Creature *turret = CAST_CRE(vehicle->GetPassenger(SEAT_TURRET)))
-                turret->AI()->DoZoneInCombat();
+                    if (Unit* pDevice = (pSeat->GetPassenger(SEAT_DEVICE)))
+                        pDevice->RemoveFromWorld();
+
+                }
+            }
         }
 
         // TODO: effect 0 and effect 1 may be on different target
@@ -318,16 +360,12 @@ public:
                 {
                 case 4:
                     pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBIT_UARY, ACHIEV_25_ORBIT_UARY));
-                    break;
                 case 3:
                     pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_NUKED_FROM_ORBIT, ACHIEV_25_NUKED_FROM_ORBIT));
-                    break;
                 case 2:
                     pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBITAL_DEVASTATION, ACHIEV_25_ORBITAL_DEVASTATION));
-                    break;
                 case 1:
                     pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBITAL_BOMBARDMENT, ACHIEV_25_ORBITAL_BOMBARDMENT));
-                    break;
                 }
             }
         }
@@ -336,9 +374,12 @@ public:
         {
             if (pSpell->Id == SPELL_START_THE_ENGINE)
                 vehicle->InstallAllAccessories();
-            else
-                if (pSpell->Id == SPELL_ELECTROSHOCK)
-                    me->InterruptSpell(CURRENT_CHANNELED_SPELL);
+
+            if (pSpell->Id == SPELL_ELECTROSHOCK)
+                me->InterruptSpell(CURRENT_CHANNELED_SPELL);
+
+            if (pSpell->Id == SPELL_OVERLOAD_CIRCUIT)
+                uiShutdown++;
         }
 
         void UpdateAI(const uint32 diff)
@@ -352,7 +393,22 @@ public:
                 return;
             }
 
-            events.Update(diff);
+            if (uiShutdown == RAID_MODE(2,4))
+            {
+                uiShutdown = 0;
+                events.ScheduleEvent(EVENT_SHUTDOWN, 0);
+                events.ScheduleEvent(EVENT_REPAIR, 0);
+                me->RemoveAurasDueToSpell(SPELL_OVERLOAD_CIRCUIT);
+                me->InterruptNonMeleeSpells(true);
+                return;
+            }
+
+            if (me->HasAura(SPELL_SYSTEMS_SHUTDOWN))
+            {
+                me->SetReactState(REACT_PASSIVE);
+                me->addUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
+                return;
+            }
 
             if (me->hasUnitState(UNIT_STAT_CASTING))
                 return;
@@ -369,48 +425,60 @@ public:
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
             }
 
+            events.Update(diff);
+
             uint32 eventId = events.GetEvent();
             if (!me->getVictim())
-                eventId = EVENT_PURSUE;
+                UpdateVictim();
 
             switch(eventId)
             {
             case 0: break; // this is a must
             case EVENT_PURSUE:
-                DoCastAOE(SPELL_PURSUED, true);
                 DoScriptText(RAND(SAY_TARGET_1, SAY_TARGET_2, SAY_TARGET_3), me);
-                events.RescheduleEvent(EVENT_PURSUE, 30000);
-                UpdateVictim(); // begin to kill other things
-                if (me->getVictim())
-                    me->MonsterTextEmote(EMOTE_PURSUE, me->getVictim()->GetGUID(), true);
-                return;
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
+                {
+                    if (pTarget->GetTypeId() == TYPEID_PLAYER || pTarget->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE))
+                    {
+                        me->AddAura(SPELL_PURSUED, pTarget);
+                        me->MonsterTextEmote(EMOTE_PURSUE, pTarget->GetGUID(), true);
+                    }
+                }
+                events.RepeatEvent(30*IN_MILLISECONDS);
+                break;
             case EVENT_MISSILE:
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
                     DoCast(pTarget, SPELL_MISSILE_BARRAGE);
                 events.RepeatEvent(1500);
-                return;
+                break;
             case EVENT_VENT:
                 DoCastAOE(SPELL_FLAME_VENTS);
-                events.RepeatEvent(20000);
-                return;
+                events.RepeatEvent(20*IN_MILLISECONDS);
+                break;
             case EVENT_SPEED:
                 DoCastAOE(SPELL_GATHERING_SPEED);
-                events.RepeatEvent(15000);
+                events.RepeatEvent(15*IN_MILLISECONDS);
                 return;
             case EVENT_SUMMON:
                 if (summons.size() < 15) // 4seat+1turret+10lift
-                    if (Creature* pLift = DoSummonFlyer(MOB_MECHANOLIFT, me, urand(20,40), 50, 0))
+                    if (Creature* pLift = DoSummonFlyer(MOB_MECHANOLIFT, me, 30.0f, 50.0f, 0))
                         pLift->GetMotionMaster()->MoveRandom(100);
-                events.RepeatEvent(2000);
-                return;
+                events.RepeatEvent(2*IN_MILLISECONDS);
+                break;
             case EVENT_SHUTDOWN:
                 DoScriptText(RAND(SAY_OVERLOAD_1, SAY_OVERLOAD_2, SAY_OVERLOAD_3), me);
+                InstallAdds(true);
                 me->MonsterTextEmote(EMOTE_OVERLOAD, 0, true);
-                DoCast(SPELL_SYSTEMS_SHUTDOWN);
+                me->AddAura(SPELL_SYSTEMS_SHUTDOWN, me);
                 me->RemoveAurasDueToSpell(SPELL_GATHERING_SPEED);
-                me->MonsterTextEmote(EMOTE_REPAIR, 0, true);
                 events.CancelEvent(EVENT_SHUTDOWN);
-                return;
+                break;
+            case EVENT_REPAIR:
+                me->MonsterTextEmote(EMOTE_REPAIR, 0, true);
+                me->clearUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
+                InstallAdds(false);
+                events.CancelEvent(EVENT_REPAIR);
+                break;
             case EVENT_THORIM_S_HAMMER: // Tower of Storms
                 for (uint8 i = 0; i < 7; ++i)
                 {
@@ -419,12 +487,12 @@ public:
                 }
                 DoScriptText(SAY_TOWER_STORM, me);
                 events.CancelEvent(EVENT_THORIM_S_HAMMER);
-                return;
+                break;
             case EVENT_MIMIRON_S_INFERNO: // Tower of Flames
                 me->SummonCreature(MOB_MIMIRON_BEACON, 390.93f, -13.91f, 409.81f);
                 DoScriptText(SAY_TOWER_FLAME, me);
                 events.CancelEvent(EVENT_MIMIRON_S_INFERNO);
-                return;
+                break;
             case EVENT_HODIR_S_FURY:      // Tower of Frost
                 for (uint8 i = 0; i < 7; ++i)
                 {
@@ -433,20 +501,21 @@ public:
                 }
                 DoScriptText(SAY_TOWER_FROST, me);
                 events.CancelEvent(EVENT_HODIR_S_FURY);
-                return;
+                break;
             case EVENT_FREYA_S_WARD:    // Tower of Nature
                 DoScriptText(SAY_TOWER_NATURE, me);
                 StartFreyaEvent();
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
                     DoCast(pTarget, SPELL_FREYA_S_WARD);
                 events.CancelEvent(EVENT_FREYA_S_WARD);
-                return;
+                break;
             default:
                 events.PopEvent();
                 break;
             }
-            if (me->IsWithinMeleeRange(me->getVictim()))
-                DoSpellAttackIfReady(SPELL_BATTERING_RAM);
+            /*if (me->IsWithinMeleeRange(me->getVictim())) //bugged spell casts on units that are boarded on leviathan
+            DoSpellAttackIfReady(SPELL_BATTERING_RAM);*/
+            DoMeleeAttackIfReady();
         }
 
         void StartFreyaEvent()//summon these 4 on each corner wich wil spawn additional hostile mobs
@@ -466,7 +535,6 @@ public:
                 me->GetMotionMaster()->MoveCharge(354.8771f, -12.90240f, 409.803f); //position center
                 me->SetReactState(REACT_AGGRESSIVE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
-                DoZoneInCombat();
                 return;
             }
 
@@ -516,9 +584,6 @@ public:
             case 4: // Tower of Nature destroyed
                 towerOfLife = false;
                 break;
-            case 9: // Schedule event
-                events.ScheduleEvent(EVENT_SHUTDOWN, 0);
-                break;
             }
         }
     };
@@ -567,33 +632,83 @@ public:
             {
                 if (!apply)
                     return;
+                else
+                    DoScriptText(SAY_PLAYER_RIDING,me);
 
-                if (Creature* turret = CAST_CRE(vehicle->GetPassenger(SEAT_TURRET)))
+                if (Creature* pTurret = CAST_CRE(vehicle->GetPassenger(SEAT_TURRET)))
                 {
-                    turret->setFaction(me->GetVehicleBase()->getFaction());
-                    turret->SetUInt32Value(UNIT_FIELD_FLAGS, 0); // unselectable
-                    turret->AI()->AttackStart(who);
+                    pTurret->setFaction(me->GetVehicleBase()->getFaction());
+                    pTurret->SetUInt32Value(UNIT_FIELD_FLAGS, 0); // unselectable
+                    pTurret->AI()->AttackStart(who);
                 }
-                if (Unit* device = vehicle->GetPassenger(SEAT_DEVICE))
+                if (Unit* pDevice = CAST_CRE(vehicle->GetPassenger(SEAT_DEVICE)))
                 {
-                    device->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                    device->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    pDevice->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                    pDevice->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 }
             }
-            else
-                if (seatId == SEAT_TURRET)
-                {
-                    if (apply)
-                        return;
-                    if (Unit* device = vehicle->GetPassenger(SEAT_DEVICE))
-                    {
-                        device->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                        device->SetUInt32Value(UNIT_FIELD_FLAGS, 0); // unselectable
-                    }
-                }
+            //else //throw passenger bugged, when fixed uncomment this part.
+            //    if (seatId == SEAT_TURRET)
+            //    {
+            //        if (apply)
+            //            return;
+            //        if (Unit* device = vehicle->GetPassenger(SEAT_DEVICE))
+            //        {
+            //            device->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            //            device->SetUInt32Value(UNIT_FIELD_FLAGS, 0); // unselectable
+            //        }
+            //    }
         }
     };
 
+};
+
+class boss_flame_leviathan_defense_cannon : public CreatureScript
+{
+public:
+    boss_flame_leviathan_defense_cannon() : CreatureScript("boss_flame_leviathan_defense_cannon") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new boss_flame_leviathan_defense_cannonAI (pCreature);
+    }
+
+    struct boss_flame_leviathan_defense_cannonAI : public ScriptedAI
+    {
+        boss_flame_leviathan_defense_cannonAI(Creature* pCreature) : ScriptedAI(pCreature) { }
+
+        uint32 NapalmTimer;
+
+        void Reset ()
+        {
+            NapalmTimer = 5000;
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            if (NapalmTimer <= diff)
+            {
+                    if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                    {
+                        if(CanAIAttack(pTarget))
+                            DoCast(pTarget,SPELL_NAPALM,true);
+                    }
+                    NapalmTimer = 5000;
+            }
+            else
+                NapalmTimer-=diff;
+        }
+
+        bool CanAIAttack(const Unit *who) const
+        {
+            if (who->GetTypeId() != TYPEID_PLAYER || !who->GetVehicle() || who->GetVehicleBase()->GetEntry() != 33114)
+                return false;
+            return true;
+        }
+    };
 };
 
 class boss_flame_leviathan_defense_turret : public CreatureScript
@@ -649,17 +764,15 @@ public:
         {
             if (param == EVENT_SPELLCLICK)
             {
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                pInstance->instance->GetCreature(TYPE_LEVIATHAN)->AI()->DoAction(9);   //should be called if all 3 overload devices are active
                 if (me->GetVehicle())
                 {
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     if (Unit* pPlayer = me->GetVehicle()->GetPassenger(SEAT_PLAYER))
                     {
                         pPlayer->ExitVehicle();
                         me->GetVehicleBase()->CastSpell(pPlayer, SPELL_SMOKE_TRAIL, true);
-                        if (Unit* leviathan = me->GetVehicleBase()->GetVehicleBase())
-                            pPlayer->GetMotionMaster()->MoveKnockbackFrom(leviathan->GetPositionX(), leviathan->GetPositionY(), 30, 30);
+                        pPlayer->GetMotionMaster()->MoveKnockbackFrom(me->GetVehicleBase()->GetPositionX(), me->GetVehicleBase()->GetPositionY(), 30, 30);
                     }
                 }
             }
@@ -1104,7 +1217,6 @@ public:
                 CAST_AI(boss_flame_leviathan::boss_flame_leviathanAI, (pLeviathan->AI()))->DoAction(0); //enable hard mode activating the 4 additional events spawning additional vehicles
                 pCreature->SetVisibility(VISIBILITY_OFF);
                 pCreature->AI()->DoAction(0); // spawn the vehicles
-                pCreature->SetVisibility(VISIBILITY_OFF);
                 if (Creature* Delorah = pCreature->FindNearestCreature(NPC_DELORAH, 1000, true))
                 {
                     if (Creature* Branz = pCreature->FindNearestCreature(NPC_BRANZ_BRONZBEARD, 1000, true))
