@@ -409,6 +409,21 @@ CreatureInfo const* ObjectMgr::GetCreatureTemplate(uint32 id)
     return sCreatureStorage.LookupEntry<CreatureInfo>(id);
 }
 
+void ObjectMgr::AddLocaleString(std::string& s, LocaleConstant locale, StringVector& data)
+{
+    if (!s.empty())
+    {
+        int idx = GetOrNewIndexForLocale(locale);
+        if (idx >= 0)
+        {
+            if (int(data.size()) <= idx)
+                data.resize(idx + 1);
+
+            data[idx] = s;
+        }
+    }
+}
+
 void ObjectMgr::LoadCreatureLocales()
 {
     mCreatureLocaleMap.clear();                              // need for reload case
@@ -431,30 +446,12 @@ void ObjectMgr::LoadCreatureLocales()
 
         for (uint8 i = 1; i < MAX_LOCALE; ++i)
         {
-            std::string str = fields[1+2*(i-1)].GetCppString();
-            if (!str.empty())
-            {
-                int idx = GetOrNewIndexForLocale(LocaleConstant(i));
-                if (idx >= 0)
-                {
-                    if (data.Name.size() <= idx)
-                        data.Name.resize(idx+1);
+            LocaleConstant locale = (LocaleConstant) i;
+            std::string str = fields[1 + 2 * (i - 1)].GetCppString();
+            AddLocaleString(str, locale, data.Name);
 
-                    data.Name[idx] = str;
-                }
-            }
-            str = fields[1+2*(i-1)+1].GetCppString();
-            if (!str.empty())
-            {
-                int idx = GetOrNewIndexForLocale(LocaleConstant(i));
-                if (idx >= 0)
-                {
-                    if (data.SubName.size() <= idx)
-                        data.SubName.resize(idx+1);
-
-                    data.SubName[idx] = str;
-                }
-            }
+            str = fields[1 + 2 * (i - 1) + 1].GetCppString();
+            AddLocaleString(str, locale, data.SubName);
         }
     } while (result->NextRow());
 
@@ -490,30 +487,12 @@ void ObjectMgr::LoadGossipMenuItemsLocales()
 
         for (uint8 i = 1; i < MAX_LOCALE; ++i)
         {
-            std::string str = fields[2+2*(i-1)].GetCppString();
-            if (!str.empty())
-            {
-                int idx = GetOrNewIndexForLocale(LocaleConstant(i));
-                if (idx >= 0)
-                {
-                    if (data.OptionText.size() <= idx)
-                        data.OptionText.resize(idx+1);
+            LocaleConstant locale = (LocaleConstant) i;
+            std::string str = fields[2 + 2 * (i - 1)].GetCppString();
+            AddLocaleString(str, locale, data.OptionText);
 
-                    data.OptionText[idx] = str;
-                }
-            }
-            str = fields[2+2*(i-1)+1].GetCppString();
-            if (!str.empty())
-            {
-                int idx = GetOrNewIndexForLocale(LocaleConstant(i));
-                if (idx >= 0)
-                {
-                    if (data.BoxText.size() <= idx)
-                        data.BoxText.resize(idx+1);
-
-                    data.BoxText[idx] = str;
-                }
-            }
+            str = fields[2 + 2 * (i - 1) + 1].GetCppString();
+            AddLocaleString(str, locale, data.BoxText);
         }
     } while (result->NextRow());
 
@@ -544,17 +523,7 @@ void ObjectMgr::LoadPointOfInterestLocales()
         for (uint8 i = 1; i < MAX_LOCALE; ++i)
         {
             std::string str = fields[i].GetCppString();
-            if (str.empty())
-                continue;
-
-            int idx = GetOrNewIndexForLocale(LocaleConstant(i));
-            if (idx >= 0)
-            {
-                if (data.IconName.size() <= idx)
-                    data.IconName.resize(idx+1);
-
-                data.IconName[idx] = str;
-            }
+            AddLocaleString(str, LocaleConstant(i), data.IconName);
         }
     } while (result->NextRow());
 
@@ -1049,14 +1018,14 @@ void ObjectMgr::LoadEquipmentTemplates()
 {
     sEquipmentStorage.Load();
 
-    for (uint32 i=0; i< sEquipmentStorage.MaxEntry; ++i)
+    for (uint32 i = 0; i < sEquipmentStorage.MaxEntry; ++i)
     {
         EquipmentInfo const* eqInfo = sEquipmentStorage.LookupEntry<EquipmentInfo>(i);
 
         if (!eqInfo)
             continue;
 
-        for (uint8 j=0; j<3; j++)
+        for (uint8 j = 0; j < 3; ++j)
         {
             if (!eqInfo->equipentry[j])
                continue;
@@ -1976,31 +1945,12 @@ void ObjectMgr::LoadItemLocales()
 
         for (uint8 i = 1; i < MAX_LOCALE; ++i)
         {
-            std::string str = fields[1+2*(i-1)].GetCppString();
-            if (!str.empty())
-            {
-                int idx = GetOrNewIndexForLocale(LocaleConstant(i));
-                if (idx >= 0)
-                {
-                    if (data.Name.size() <= idx)
-                        data.Name.resize(idx+1);
+            LocaleConstant locale = (LocaleConstant) i;
+            std::string str = fields[1 + 2 * (i - 1)].GetCppString();
+            AddLocaleString(str, locale, data.Name);
 
-                    data.Name[idx] = str;
-                }
-            }
-
-            str = fields[1+2*(i-1)+1].GetCppString();
-            if (!str.empty())
-            {
-                int idx = GetOrNewIndexForLocale(LocaleConstant(i));
-                if (idx >= 0)
-                {
-                    if (data.Description.size() <= idx)
-                        data.Description.resize(idx+1);
-
-                    data.Description[idx] = str;
-                }
-            }
+            str = fields[1 + 2 * (i - 1) + 1].GetCppString();
+            AddLocaleString(str, locale, data.Description);
         }
     } while (result->NextRow());
 
@@ -2492,17 +2442,7 @@ void ObjectMgr::LoadItemSetNameLocales()
         for (uint8 i = 1; i < MAX_LOCALE; ++i)
         {
             std::string str = fields[i].GetCppString();
-            if (!str.empty())
-            {
-                int idx = GetOrNewIndexForLocale(LocaleConstant(i));
-                if (idx >= 0)
-                {
-                    if (data.Name.size() <= idx)
-                        data.Name.resize(idx+1);
-
-                    data.Name[idx] = str;
-                }
-            }
+            AddLocaleString(str, LocaleConstant(i), data.Name);
         }
     } while (result->NextRow());
 
@@ -3751,7 +3691,7 @@ void ObjectMgr::LoadGroups()
         }
 
         uint32 diff = fields[4].GetUInt8();
-        if (diff >= (mapEntry->IsRaid() ? MAX_RAID_DIFFICULTY : MAX_DUNGEON_DIFFICULTY))
+        if (diff >= uint32(mapEntry->IsRaid() ? MAX_RAID_DIFFICULTY : MAX_DUNGEON_DIFFICULTY))
         {
             sLog.outErrorDb("Wrong dungeon difficulty use in group_instance table: %d", diff + 1);
             diff = 0;                                   // default for both difficaly types
@@ -4495,105 +4435,32 @@ void ObjectMgr::LoadQuestLocales()
 
         for (uint8 i = 1; i < MAX_LOCALE; ++i)
         {
-            std::string str = fields[1+11*(i-1)].GetCppString();
-            if (!str.empty())
-            {
-                int idx = GetOrNewIndexForLocale(LocaleConstant(i));
-                if (idx >= 0)
-                {
-                    if (data.Title.size() <= idx)
-                        data.Title.resize(idx+1);
+            LocaleConstant locale = (LocaleConstant) i;
+            std::string str = fields[1 + 11 * (i - 1)].GetCppString();
+            AddLocaleString(str, locale, data.Title);
 
-                    data.Title[idx] = str;
-                }
-            }
-            str = fields[1+11*(i-1)+1].GetCppString();
-            if (!str.empty())
-            {
-                int idx = GetOrNewIndexForLocale(LocaleConstant(i));
-                if (idx >= 0)
-                {
-                    if (data.Details.size() <= idx)
-                        data.Details.resize(idx+1);
+            str = fields[1 + 11 * (i - 1) + 1].GetCppString();
+            AddLocaleString(str, locale, data.Details);
 
-                    data.Details[idx] = str;
-                }
-            }
-            str = fields[1+11*(i-1)+2].GetCppString();
-            if (!str.empty())
-            {
-                int idx = GetOrNewIndexForLocale(LocaleConstant(i));
-                if (idx >= 0)
-                {
-                    if (data.Objectives.size() <= idx)
-                        data.Objectives.resize(idx+1);
+            str = fields[1 + 11 * (i - 1) + 2].GetCppString();
+            AddLocaleString(str, locale, data.Objectives);
 
-                    data.Objectives[idx] = str;
-                }
-            }
-            str = fields[1+11*(i-1)+3].GetCppString();
-            if (!str.empty())
-            {
-                int idx = GetOrNewIndexForLocale(LocaleConstant(i));
-                if (idx >= 0)
-                {
-                    if (data.OfferRewardText.size() <= idx)
-                        data.OfferRewardText.resize(idx+1);
+            str = fields[1 + 11 * (i - 1) + 3].GetCppString();
+            AddLocaleString(str, locale, data.OfferRewardText);
 
-                    data.OfferRewardText[idx] = str;
-                }
-            }
-            str = fields[1+11*(i-1)+4].GetCppString();
-            if (!str.empty())
-            {
-                int idx = GetOrNewIndexForLocale(LocaleConstant(i));
-                if (idx >= 0)
-                {
-                    if (data.RequestItemsText.size() <= idx)
-                        data.RequestItemsText.resize(idx+1);
+            str = fields[1 + 11 * (i - 1) + 4].GetCppString();
+            AddLocaleString(str, locale, data.RequestItemsText);
 
-                    data.RequestItemsText[idx] = str;
-                }
-            }
-            str = fields[1+11*(i-1)+5].GetCppString();
-            if (!str.empty())
-            {
-                int idx = GetOrNewIndexForLocale(LocaleConstant(i));
-                if (idx >= 0)
-                {
-                    if (data.EndText.size() <= idx)
-                        data.EndText.resize(idx+1);
+            str = fields[1 + 11 * (i - 1) + 5].GetCppString();
+            AddLocaleString(str, locale, data.EndText);
 
-                    data.EndText[idx] = str;
-                }
-            }
-            str = fields[1+11*(i-1)+6].GetCppString();
-            if (!str.empty())
-            {
-                int idx = GetOrNewIndexForLocale(LocaleConstant(i));
-                if (idx >= 0)
-                {
-                    if (data.CompletedText.size() <= idx)
-                        data.CompletedText.resize(idx+1);
-
-                    data.CompletedText[idx] = str;
-                }
-            }
+            str = fields[1 + 11 * (i - 1) + 6].GetCppString();
+            AddLocaleString(str, locale, data.CompletedText);
 
             for (uint8 k = 0; k < 4; ++k)
             {
-                str = fields[1+11*(i-1)+7+k].GetCppString();
-                if (!str.empty())
-                {
-                    int idx = GetOrNewIndexForLocale(LocaleConstant(i));
-                    if (idx >= 0)
-                    {
-                        if (data.ObjectiveText[k].size() <= idx)
-                            data.ObjectiveText[k].resize(idx+1);
-
-                        data.ObjectiveText[k][idx] = str;
-                    }
-                }
+                str = fields[1 + 11 * (i - 1) + 7 + k].GetCppString();
+                AddLocaleString(str, locale, data.ObjectiveText[k]);
             }
         }
     } while (result->NextRow());
@@ -5243,17 +5110,7 @@ void ObjectMgr::LoadPageTextLocales()
         for (uint8 i = 1; i < MAX_LOCALE; ++i)
         {
             std::string str = fields[i].GetCppString();
-            if (str.empty())
-                continue;
-
-            int idx = GetOrNewIndexForLocale(LocaleConstant(i));
-            if (idx >= 0)
-            {
-                if (data.Text.size() <= idx)
-                    data.Text.resize(idx+1);
-
-                data.Text[idx] = str;
-            }
+            AddLocaleString(str, LocaleConstant(i), data.Text);
         }
 
     } while (result->NextRow());
@@ -5390,34 +5247,16 @@ void ObjectMgr::LoadNpcTextLocales()
 
         NpcTextLocale& data = mNpcTextLocaleMap[entry];
 
-        for (uint8 i=1; i<MAX_LOCALE; ++i)
+        for (uint8 i = 1; i < MAX_LOCALE; ++i)
         {
-            for (uint8 j=0; j<8; ++j)
+            LocaleConstant locale = (LocaleConstant) i;
+            for (uint8 j = 0; j < 8; ++j)
             {
-                std::string str0 = fields[1+8*2*(i-1)+2*j].GetCppString();
-                if (!str0.empty())
-                {
-                    int idx = GetOrNewIndexForLocale(LocaleConstant(i));
-                    if (idx >= 0)
-                    {
-                        if (data.Text_0[j].size() <= idx)
-                            data.Text_0[j].resize(idx+1);
+                std::string str0 = fields[1 + 8 * 2 * (i - 1) + 2 * j].GetCppString();
+                AddLocaleString(str0, locale, data.Text_0[j]);
 
-                        data.Text_0[j][idx] = str0;
-                    }
-                }
-                std::string str1 = fields[1+8*2*(i-1)+2*j+1].GetCppString();
-                if (!str1.empty())
-                {
-                    int idx = GetOrNewIndexForLocale(LocaleConstant(i));
-                    if (idx >= 0)
-                    {
-                        if (data.Text_1[j].size() <= idx)
-                            data.Text_1[j].resize(idx+1);
-
-                        data.Text_1[j][idx] = str1;
-                    }
-                }
+                std::string str1 = fields[1 + 8 * 2 * (i - 1) + 2 * j + 1].GetCppString();
+                AddLocaleString(str1, locale, data.Text_1[j]);
             }
         }
     } while (result->NextRow());
@@ -6462,33 +6301,13 @@ void ObjectMgr::LoadGameObjectLocales()
         for (uint8 i = 1; i < MAX_LOCALE; ++i)
         {
             std::string str = fields[i].GetCppString();
-            if (!str.empty())
-            {
-                int idx = GetOrNewIndexForLocale(LocaleConstant(i));
-                if (idx >= 0)
-                {
-                    if (data.Name.size() <= idx)
-                        data.Name.resize(idx+1);
-
-                    data.Name[idx] = str;
-                }
-            }
+            AddLocaleString(str, LocaleConstant(i), data.Name);
         }
 
         for (uint8 i = 1; i < MAX_LOCALE; ++i)
         {
-            std::string str = fields[i+(MAX_LOCALE-1)].GetCppString();
-            if (!str.empty())
-            {
-                int idx = GetOrNewIndexForLocale(LocaleConstant(i));
-                if (idx >= 0)
-                {
-                    if (data.CastBarCaption.size() <= idx)
-                        data.CastBarCaption.resize(idx+1);
-
-                    data.CastBarCaption[idx] = str;
-                }
-            }
+            std::string str = fields[i + (MAX_LOCALE - 1)].GetCppString();
+            AddLocaleString(str, LocaleConstant(i), data.CastBarCaption);
         }
 
     } while (result->NextRow());
@@ -6835,8 +6654,8 @@ void ObjectMgr::LoadPetNumber()
 
 std::string ObjectMgr::GeneratePetName(uint32 entry)
 {
-    std::vector<std::string> & list0 = PetHalfName0[entry];
-    std::vector<std::string> & list1 = PetHalfName1[entry];
+    StringVector & list0 = PetHalfName0[entry];
+    StringVector & list1 = PetHalfName1[entry];
 
     if (list0.empty() || list1.empty())
     {
@@ -7783,7 +7602,7 @@ int ObjectMgr::GetIndexForLocale(LocaleConstant loc)
 
 LocaleConstant ObjectMgr::GetLocaleForIndex(int i)
 {
-    if (i<0 || i >= m_LocalForIndex.size())
+    if (i < 0 || i >= int(m_LocalForIndex.size()))
         return LOCALE_enUS;
 
     return m_LocalForIndex[i];
@@ -7794,12 +7613,12 @@ int ObjectMgr::GetOrNewIndexForLocale(LocaleConstant loc)
     if (loc == LOCALE_enUS)
         return -1;
 
-    for (size_t i=0; i < m_LocalForIndex.size(); ++i)
+    for (size_t i = 0; i < m_LocalForIndex.size(); ++i)
         if (m_LocalForIndex[i] == loc)
             return i;
 
     m_LocalForIndex.push_back(loc);
-    return m_LocalForIndex.size()-1;
+    return m_LocalForIndex.size() - 1;
 }
 
 void ObjectMgr::LoadGameObjectForQuests()
@@ -7950,18 +7769,7 @@ bool ObjectMgr::LoadTrinityStrings(DatabaseType& db, char const* table, int32 mi
         for (uint8 i = 1; i < MAX_LOCALE; ++i)
         {
             std::string str = fields[i+1].GetCppString();
-            if (!str.empty())
-            {
-                int idx = GetOrNewIndexForLocale(LocaleConstant(i));
-                if (idx >= 0)
-                {
-                    // 0 -> default, idx in to idx+1
-                    if (data.Content.size() <= idx+1)
-                        data.Content.resize(idx+2);
-
-                    data.Content[idx+1] = str;
-                }
-            }
+            AddLocaleString(str, LocaleConstant(i), data.Content);
         }
     } while (result->NextRow());
 
@@ -7980,8 +7788,9 @@ const char *ObjectMgr::GetTrinityString(int32 entry, int locale_idx) const
     // Content[0] always exist if exist TrinityStringLocale
     if (TrinityStringLocale const *msl = GetTrinityStringLocale(entry))
     {
-        if (msl->Content.size() > locale_idx+1 && !msl->Content[locale_idx+1].empty())
-            return msl->Content[locale_idx+1].c_str();
+        int idx = locale_idx + 1;
+        if (int(msl->Content.size()) > idx && !msl->Content[idx].empty())
+            return msl->Content[idx].c_str();
         else
             return msl->Content[0].c_str();
     }

@@ -603,7 +603,7 @@ void Aura::UpdateOwner(uint32 diff, WorldObject * owner)
 
     Update(diff, caster);
 
-    if (m_updateTargetMapInterval <= diff)
+    if (m_updateTargetMapInterval <= int32(diff))
         UpdateTargetMap(caster);
     else
         m_updateTargetMapInterval -= diff;
@@ -631,7 +631,7 @@ void Aura::Update(uint32 diff, Unit * caster)
         // handle manaPerSecond/manaPerSecondPerLevel
         if (m_timeCla)
         {
-            if (m_timeCla > diff)
+            if (m_timeCla > int32(diff))
                 m_timeCla -= diff;
             else if (caster)
             {
@@ -642,7 +642,7 @@ void Aura::Update(uint32 diff, Unit * caster)
                     Powers powertype = Powers(m_spellProto->powerType);
                     if (powertype == POWER_HEALTH)
                     {
-                        if (caster->GetHealth() > manaPerSecond)
+                        if (int32(caster->GetHealth()) > manaPerSecond)
                             caster->ModifyHealth(-manaPerSecond);
                         else
                         {
@@ -652,7 +652,7 @@ void Aura::Update(uint32 diff, Unit * caster)
                     }
                     else
                     {
-                        if (caster->GetPower(powertype) >= manaPerSecond)
+                        if (int32(caster->GetPower(powertype)) >= manaPerSecond)
                             caster->ModifyPower(powertype, -manaPerSecond);
                         else
                         {
@@ -730,7 +730,7 @@ bool Aura::ModStackAmount(int32 num)
 
     // Modify stack but limit it
     int32 stackAmount = m_stackAmount + num;
-    if (stackAmount > m_spellProto->StackAmount)
+    if (stackAmount > int32(m_spellProto->StackAmount))
         stackAmount = m_spellProto->StackAmount;
     else if (stackAmount <= 0) // Last aura from stack removed
     {

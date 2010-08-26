@@ -110,9 +110,9 @@ namespace FactorySelector
         /* if (mv_factory == NULL)
         {
             int best_val = -1;
-            std::vector<std::string> l;
+            StringVector l;
             mv_registry.GetRegisteredItems(l);
-            for (std::vector<std::string>::iterator iter = l.begin(); iter != l.end(); ++iter)
+            for (StringVector::iterator iter = l.begin(); iter != l.end(); ++iter)
             {
             const MovementGeneratorCreator *factory = mv_registry.GetRegistryItem((*iter).c_str());
             const SelectableMovement *p = dynamic_cast<const SelectableMovement *>(factory);

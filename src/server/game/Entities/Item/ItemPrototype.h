@@ -735,8 +735,8 @@ struct ItemPrototype
 
 struct ItemLocale
 {
-    std::vector<std::string> Name;
-    std::vector<std::string> Description;
+    StringVector Name;
+    StringVector Description;
 };
 
 struct ItemSetNameEntry
@@ -747,7 +747,7 @@ struct ItemSetNameEntry
 
 struct ItemSetNameLocale
 {
-    std::vector<std::string> Name;
+    StringVector Name;
 };
 
 // GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform

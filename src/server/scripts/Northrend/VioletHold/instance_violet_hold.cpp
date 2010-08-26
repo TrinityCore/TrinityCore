@@ -155,7 +155,7 @@ public:
 
         uint8 uiDoorIntegrity;
 
-        uint8 m_auiEncounter[MAX_ENCOUNTER];
+        uint16 m_auiEncounter[MAX_ENCOUNTER];
         uint8 uiCountErekemGuards;
         uint8 uiCountActivationCrystals;
         uint8 uiCyanigosaEventPhase;
@@ -652,8 +652,8 @@ public:
                     if (m_auiEncounter[i] == IN_PROGRESS)
                         m_auiEncounter[i] = NOT_STARTED;
 
-                uiFirstBoss = data3;
-                uiSecondBoss = data4;
+                uiFirstBoss = uint8(data3);
+                uiSecondBoss = uint8(data4);
             } else OUT_LOAD_INST_DATA_FAIL;
 
             OUT_LOAD_INST_DATA_COMPLETE;

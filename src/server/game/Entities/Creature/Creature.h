@@ -205,19 +205,19 @@ typedef UNORDERED_MAP<uint16, CreatureBaseStats> CreatureBaseStatsMap;
 
 struct CreatureLocale
 {
-    std::vector<std::string> Name;
-    std::vector<std::string> SubName;
+    StringVector Name;
+    StringVector SubName;
 };
 
 struct GossipMenuItemsLocale
 {
-    std::vector<std::string> OptionText;
-    std::vector<std::string> BoxText;
+    StringVector OptionText;
+    StringVector BoxText;
 };
 
 struct PointOfInterestLocale
 {
-    std::vector<std::string> IconName;
+    StringVector IconName;
 };
 
 struct EquipmentInfo

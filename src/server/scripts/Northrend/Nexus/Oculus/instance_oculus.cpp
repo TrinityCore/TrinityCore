@@ -47,7 +47,7 @@ public:
 
         uint8 uiPlataformUrom;
 
-        uint8 m_auiEncounter[MAX_ENCOUNTER];
+        uint16 m_auiEncounter[MAX_ENCOUNTER];
         std::string str_data;
 
         std::list<uint64> GameObjectList;
