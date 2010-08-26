@@ -40,7 +40,6 @@
 #include <ace/Singleton.h>
 #include "SQLStorage.h"
 #include "Vehicle.h"
-#include "ObjectMgr.h"
 #include <string>
 #include <map>
 #include <limits>
