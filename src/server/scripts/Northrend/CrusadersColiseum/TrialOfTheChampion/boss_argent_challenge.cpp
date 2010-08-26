@@ -510,6 +510,7 @@ public:
 
 void AddSC_boss_argent_challenge()
 {
+    new boss_eadric();
     new boss_paletress();
     new npc_memory();
     new npc_argent_soldier();
