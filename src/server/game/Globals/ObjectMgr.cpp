@@ -1341,7 +1341,7 @@ void ObjectMgr::LoadCreatures()
         data.spawnMask      = fields[16].GetUInt8();
         data.phaseMask      = fields[17].GetUInt16();
         int16 gameEvent     = fields[18].GetInt16();
-        int32 PoolId        = fields[19].GetInt32();
+        uint32 PoolId        = fields[19].GetUInt32();
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
         if (!mapEntry)
@@ -1725,7 +1725,7 @@ void ObjectMgr::LoadGameobjects()
 
         data.phaseMask      = fields[15].GetUInt16();
         int16 gameEvent     = fields[16].GetInt16();
-        int32 PoolId        = fields[17].GetInt32();
+        uint32 PoolId        = fields[17].GetUInt32();
 
         if (data.rotation2 < -1.0f || data.rotation2 > 1.0f)
         {
