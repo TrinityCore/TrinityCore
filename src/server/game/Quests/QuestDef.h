@@ -161,14 +161,14 @@ struct QuestLocale
 {
     QuestLocale() { ObjectiveText.resize(QUEST_OBJECTIVES_COUNT); }
 
-    std::vector<std::string> Title;
-    std::vector<std::string> Details;
-    std::vector<std::string> Objectives;
-    std::vector<std::string> OfferRewardText;
-    std::vector<std::string> RequestItemsText;
-    std::vector<std::string> EndText;
-    std::vector<std::string> CompletedText;
-    std::vector< std::vector<std::string> > ObjectiveText;
+    StringVector Title;
+    StringVector Details;
+    StringVector Objectives;
+    StringVector OfferRewardText;
+    StringVector RequestItemsText;
+    StringVector EndText;
+    StringVector CompletedText;
+    std::vector< StringVector > ObjectiveText;
 };
 
 // This Quest class provides a convenient way to access a few pretotaled (cached) quest details,

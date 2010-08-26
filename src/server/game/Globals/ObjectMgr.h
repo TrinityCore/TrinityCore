@@ -174,7 +174,7 @@ typedef UNORDERED_MAP<uint64/*(instance,guid) pair*/,time_t> RespawnTimes;
 
 struct TrinityStringLocale
 {
-    std::vector<std::string> Content;                       // 0 -> default, i -> i-1 locale index
+    StringVector Content;                       // 0 -> default, i -> i-1 locale index
 };
 
 typedef std::map<uint32,uint32> CreatureLinkedRespawnMap;
@@ -1071,6 +1071,8 @@ class ObjectMgr
 
         int DBCLocaleIndex;
 
+        void AddLocaleString(std::string& s, LocaleConstant locale, StringVector& data);
+
     private:
         void LoadScripts(ScriptsType type);
         void CheckScripts(ScriptsType type, std::set<int32>& ids);
@@ -1101,7 +1103,7 @@ class ObjectMgr
         typedef std::map<uint32,int32> FishingBaseSkillMap; // [areaId][base skill level]
         FishingBaseSkillMap mFishingBaseForArea;
 
-        typedef std::map<uint32,std::vector<std::string> > HalfNameMap;
+        typedef std::map<uint32, StringVector> HalfNameMap;
         HalfNameMap PetHalfName0;
         HalfNameMap PetHalfName1;
 

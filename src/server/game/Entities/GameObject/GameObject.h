@@ -537,8 +537,8 @@ union GameObjectValue
 
 struct GameObjectLocale
 {
-    std::vector<std::string> Name;
-    std::vector<std::string> CastBarCaption;
+    StringVector Name;
+    StringVector CastBarCaption;
 };
 
 // client side GO show states

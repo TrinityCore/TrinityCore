@@ -40,7 +40,7 @@ inline bool _ModifyUInt32(bool apply, uint32& baseValue, int32& amount)
     else 
     {
         // Make sure we do not get uint32 overflow.
-        if (amount > baseValue)
+        if (amount > int32(baseValue))
             amount = baseValue;
         baseValue -= amount;
     }
