@@ -1946,10 +1946,8 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
         {
             if (AchievementRewardLocale const* loc = sAchievementMgr.GetAchievementRewardLocale(achievement))
             {
-                if (loc->subject.size() > size_t(loc_idx) && !loc->subject[loc_idx].empty())
-                    subject = loc->subject[loc_idx];
-                if (loc->text.size() > size_t(loc_idx) && !loc->text[loc_idx].empty())
-                    text = loc->text[loc_idx];
+                sObjectMgr.GetLocaleString(loc->subject, loc_idx, subject);
+                sObjectMgr.GetLocaleString(loc->text, loc_idx, text);
             }
         }
 
@@ -2420,30 +2418,12 @@ void AchievementGlobalMgr::LoadRewardLocales()
 
         for (int i = 1; i < MAX_LOCALE; ++i)
         {
-            std::string str = fields[1+2*(i-1)].GetCppString();
-            if (!str.empty())
-            {
-                int idx = sObjectMgr.GetOrNewIndexForLocale(LocaleConstant(i));
-                if (idx >= 0)
-                {
-                    if (data.subject.size() <= size_t(idx))
-                        data.subject.resize(idx+1);
+            LocaleConstant locale = (LocaleConstant) i;
+            std::string str = fields[1 + 2 * (i - 1)].GetCppString();
+            sObjectMgr.AddLocaleString(str, locale, data.subject);
 
-                    data.subject[idx] = str;
-                }
-            }
-            str = fields[1+2*(i-1)+1].GetCppString();
-            if (!str.empty())
-            {
-                int idx = sObjectMgr.GetOrNewIndexForLocale(LocaleConstant(i));
-                if (idx >= 0)
-                {
-                    if (data.text.size() <= size_t(idx))
-                        data.text.resize(idx+1);
-
-                    data.text[idx] = str;
-                }
-            }
+            str = fields[1 + 2 * (i - 1) + 1].GetCppString();
+            sObjectMgr.AddLocaleString(str, locale, data.text);
         }
     } while (result->NextRow());
 
