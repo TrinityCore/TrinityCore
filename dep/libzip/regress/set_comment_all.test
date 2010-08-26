@@ -1,0 +1,8 @@
+# change local and global comments in a zip archive
+# $NiH: set_comment.test,v 1.1 2006/04/23 00:39:58 wiz Exp $
+program set_comment_all
+return 0
+# need filename extension != zip to avoid using zipcmp,
+# which doesn't look at comments
+args testcomment.reg
+file testcomment.reg testcomment.zip testchanged.zip

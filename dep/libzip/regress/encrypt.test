@@ -1,0 +1,8 @@
+# test encryption support
+# $NiH$
+program encrypt
+return 0
+args encrypt.zip
+file encrypt.zip encrypt.zip encrypt.zip
+stdout 0: 1
+stdout 1: 0

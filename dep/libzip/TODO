@@ -1,0 +1,105 @@
++ [portability] no off_t in API
++ [portability] use _setmode(_fileno(fp), _O_BINARY); where present
++ [bug] _zip_u2d_time: handle localtime(3) failure
++ [bug] missing -Wl,-R in pkg-config file
++ [bug] check/cleanup flags bit 3 (streaming) support
+- [feature] zip_fdopen (read zip from file descriptor), ZIP_AFL_RDONLY
+- [feature] Windows support: (paritally fixed?)
+  . better mkstemp replacement function (no getpid; other problems?)
+  . snprintf replacement
+  . strcasecmp replacement
+  . ssize_t define
+  . mode_t define
+  . dll_export/dll_import support (to clarify)
+- [cleanup] remove now useless check of fseek 
+- [consistency check] check that local headers come before central dir
+- [bug] zip_open: consistency check: check data descriptor
+- [bug] do not compress if storing is smaller
+- [bug] zip_open: check whether file can be created and fail if not
+- [bug] check for limits imposed by format (central dir size, file size, ...)
+- [feature] handle zip_open/zip_close "race" for new files
+- [feature] support streaming output (creating new archive to e.g. stdout)
+- [feature] add functions to:
+  . set compression method for new/changed entry
+  . set last modification time for entry
+  . read/set EAs
+  . parse/create some EAs?
+  . read/set ASCII file flag
+- [test] rename deleted (fails)
+- [test] rename file to dir/ and vice versa (fails)
+------------------------------------------------ API ideas
+struct zip *zip_open_encrypted(const char *path, int flags,
+                               const char *password, int *errorp);
+void zip_set_default_password(struct zip *archive, const char *password);
+(NULL for unsetting)
+
+struct zip_file *zip_fopen_encrypted(struct zip *archive,
+                                     const char *fname, int flags,
+                                     const char *password);
+struct zip_file *zip_fopen_index_encrypted(struct zip *archive,
+                                           int index, int flags,
+                                           const char *password);
+
+int zip_set_encryption(struct zip *archive, int idx, int method,
+                       const char *password);
+void zip_set_archive_encryption(struct zip *archive, int encryption_method,
+                                const char *password);
+
+struct zip_source *zip_source_writable(struct zip *archive);
+zip_source_write(struct zip_source *, const void *data, size_t len);
+zip_source_printf(struct zip_source *, const char *fmt, ...);
+/* maybe
+zip_source_vprintf(struct zip_source *, const char *fmt, va_list ap);
+*/
+------------------------------------------------ others
+* regression tests (duplicate file names, unchange, .{200})
+* zip_commit
+* zip_replace_zip: allow rewinding
+* API for extracting and setting extra fields
+* zipcmp: add option for file content comparison
+* support for zip64 (large file)
+
+* append to files (for self-extracting files)
+* add custom compression function support
+* zip_replace_zip: remember compression method, recompress if different speced
+* close even if error...
+* support for old compression methods?????
+------------------------------------------------ regression tests
+* (add, replace)
+	add to empty zip
+	add to existing zip
+	add w/ existing file name [E]
+	replace ok
+	replace w/ illegal index [E]
+	replace w/ deleted name [E]
+	unchange added/replaced file
+* (close)
+	copy zip file
+	open copy
+	rename, delete, replace, add w/ new name, add w/ deleted name
+	close
+	zipcmp copy expected
+	remove copy
+* (delete)
+* (error_get)
+* (error_get_sys_type)
+* (error_to_str)
+* (file_error_get)
+* (file_strerror)
+* (fopen_index)
+	illegal index
+* (get_name)
+* (get_num_files)
+* (rename)
+* (replace)
+* (source_buffer)
+* (source_file)
+* (source_filep)
+* (source_free)
+* (source_function)
+* (source_zip)
+* (stat)
+* (stat_index)
+* (strerror)
+* (unchange)
+* (unchange_all)

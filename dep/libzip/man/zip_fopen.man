@@ -1,0 +1,136 @@
+.\" Converted with mdoc2man 0.2
+.\" from NiH: zip_fopen.mdoc,v 1.13 2005/06/09 21:13:12 wiz Exp 
+.\" $NiH: zip_fopen.mdoc,v 1.13 2005/06/09 21:13:12 wiz Exp $
+.\"
+.\" zip_fopen.mdoc \-- open file in zip archive for reading
+.\" Copyright (C) 2003, 2004, 2005 Dieter Baron and Thomas Klausner
+.\"
+.\" This file is part of libzip, a library to manipulate ZIP archives.
+.\" The authors can be contacted at <libzip@nih.at>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in
+.\"    the documentation and/or other materials provided with the
+.\"    distribution.
+.\" 3. The names of the authors may not be used to endorse or promote
+.\"    products derived from this software without specific prior
+.\"    written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS
+.\" OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+.\" WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY
+.\" DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+.\" GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+.\" IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+.\" OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+.\" IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.TH ZIP_FOPEN 3 "April 14, 2004" NiH
+.SH "NAME"
+zip_fopen , \- .Nm zip_fopen_index
+open file in zip archive for reading
+.SH "LIBRARY"
+libzip (-lzip)
+.SH "SYNOPSIS"
+#include <zip.h>
+.PP
+struct zip_file *
+zip_fopen(struct zip *archive, const char *fname, int flags);
+.PP
+struct zip_file *
+zip_fopen_index(struct zip *archive, int index, int flags);
+.SH "DESCRIPTION"
+The
+zip_fopen
+function opens the file name
+\fBfname\fR
+in
+\fBarchive.\fR
+The
+\fBflags\fR
+argument specifies how the name lookup should be done, according to
+the values are described in
+zip_name_locate(3).
+Also, the following values may be
+.I or'ed
+to it.
+.RS
+.TP 19
+\fBZIP_FL_COMPRESSED\fR
+Read the compressed data.
+Otherwise the data is uncompressed by
+zip_fread.
+.TP 19
+\fBZIP_FL_UNCHANGED\fR
+Read the original data from the zip archive, ignoring any changes made
+to the file.
+.RE
+.PP
+The
+zip_fopen_index
+function opens the file at position
+\fBindex.\fR
+.SH "RETURN VALUES"
+Upon successful completion, a
+.PP
+struct zip_file
+pointer is returned.
+Otherwise,
+\fBNULL\fR
+is returned and the error code in
+\fBarchive\fR
+is set to indicate the error.
+.SH "ERRORS"
+.RS
+.TP 4
+[ZIP_ER_CHANGED]
+The file data has been changed.
+.TP 4
+[ZIP_ER_COMPNOTSUPP]
+The compression method used is not supported.
+.TP 4
+[ZIP_ER_MEMORY]
+Required memory could not be allocated.
+.TP 4
+[ZIP_ER_READ]
+A file read error occurred.
+.TP 4
+[ZIP_ER_SEEK]
+A file seek error occurred.
+.TP 4
+[ZIP_ER_ZLIB]
+Initializing the zlib stream failed.
+.RE
+.PP
+The function
+zip_fopen
+may also fail and set
+.Va zip_err
+for any of the errors specified for the routine
+zip_name_locate(3).
+.PP
+The function
+zip_fopen_index
+may also fail with
+ZIP_ER_INVAL
+if
+\fBindex\fR
+is invalid.
+.SH "SEE ALSO"
+libzip(3),
+zip_fclose(3),
+zip_fread(3),
+zip_name_locate(3)
+.SH "AUTHORS"
+
+Dieter Baron <dillo@giga.or.at>
+and
+Thomas Klausner <tk@giga.or.at>

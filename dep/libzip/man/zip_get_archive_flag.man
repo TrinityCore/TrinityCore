@@ -1,0 +1,78 @@
+.\" zip_get_archive_flag.mdoc \-- get comment for file in zip
+.\" Copyright (C) 2008 Dieter Baron and Thomas Klausner
+.\"
+.\" This file is part of libzip, a library to manipulate ZIP files.
+.\" The authors can be contacted at <libzip@nih.at>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in
+.\"    the documentation and/or other materials provided with the
+.\"    distribution.
+.\" 3. The names of the authors may not be used to endorse or promote
+.\"    products derived from this software without specific prior
+.\"    written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS
+.\" OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+.\" WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY
+.\" DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+.\" GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+.\" IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+.\" OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+.\" IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.TH ZIP_GET_ARCHIVE_FLAG 3 "June 4, 2008" NiH
+.SH "NAME"
+zip_get_archive_flag \- get status flags for zip
+.SH "LIBRARY"
+libzip (-lzip)
+.SH "SYNOPSIS"
+#include <zip.h>
+.PP
+int
+zip_get_archive_flag(struct zip *archive, int flag, int flags);
+.SH "DESCRIPTION"
+The
+zip_get_archive_flag
+function returns if the flag
+\fBflag\fR
+is set for the archive
+\fBarchive.\fR
+The archive flags might have been changed with
+zip_set_archive_flag;
+if
+\fBflags\fR
+is set to
+\fBZIP_FL_UNCHANGED,\fR
+the original unchanged flags are tested.
+.PP
+Supported flags are:
+.RS
+.TP 21
+\fBZIP_AFL_TORRENT\fR
+The archive is torrent-zipped.
+.RE
+.SH "RETURN VALUES"
+zip_get_archive_flag
+returns 1 if
+\fBflag\fR
+is set for
+\fBarchive,\fR
+0 if not,
+and \-1 if an error occurred.
+.SH "SEE ALSO"
+libzip(3),
+zip_set_archive_flag(3)
+.SH "AUTHORS"
+
+Dieter Baron <dillo@giga.or.at>
+and
+Thomas Klausner <tk@giga.or.at>

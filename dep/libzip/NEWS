@@ -1,0 +1,57 @@
+0.9.3 [2010/02/01]
+
+* Include m4/ directory in distribution; some packagers need it.
+
+0.9.2 [2010/01/31]
+
+* Avoid passing uninitialized data to deflate().
+* Fix memory leak when closing zip archives.
+
+0.9.1 [2010/01/24]
+
+* Fix infinite loop on reading some broken files.
+* Optimization in time conversion (don't call localtime()).
+* Clear data descriptor flag in central directory, fixing Open Office files.
+* Allow more than 64k entries.
+
+0.9 [2008/07/25]
+
+* on Windows, explictly set dllimport/dllexport
+* remove erroneous references to GPL
+* add support for torrentzip
+* new functions: zip_get_archive_flag, zip_set_archive_flag
+* zip_source_zip: add flag to force recompression
+* zip_sorce_file: only keep file open while reading from it
+
+0.8 [2007/06/06]
+
+* fix for zip archives larger than 2GiB
+* fix zip_error_strerror to include libzip error string
+* add support for reading streamed zip files
+* new functions: zip_add_dir, zip_error_clear, zip_file_error_clear
+* add basic support for building with CMake (incomplete)
+
+0.7.1 [2006/05/18]
+
+* bugfix for zip_close
+
+0.7 [2006/05/06]
+
+* struct zip_stat increased for future encryption support
+* zip_add return value changed (now returns new index of added file)
+* shared library major bump because of previous two
+* added functions for reading and writing file and archive comments.
+  New functions: zip_get_archive_comment, zip_get_file_comment,
+  zip_set_archive_comment, zip_set_file_comment, zip_unchange_archive
+
+0.6.1 [2005/07/14]
+
+* various bug fixes
+
+0.6 [2005/06/09]
+
+* first standalone release
+* changed license to three-clause BSD
+* overhauled API
+* added man pages
+* install zipcmp and zipmerge

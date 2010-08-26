@@ -1,0 +1,10 @@
+# $NiH$
+
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/../lib
+  ${CMAKE_CURRENT_BINARY_DIR}/..)
+
+ADD_EXECUTABLE(zipcmp zipcmp.c)
+TARGET_LINK_LIBRARIES(zipcmp zip)
+
+ADD_EXECUTABLE(zipmerge zipmerge.c)
+TARGET_LINK_LIBRARIES(zipmerge zip)
