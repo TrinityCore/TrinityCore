@@ -2555,7 +2555,7 @@ void Spell::EffectHealPct(uint32 /*i*/)
         //if (Player *modOwner = m_caster->GetSpellModOwner())
         //    modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DAMAGE, addhealth, this);
 
-        int32 gain = caster->DealHeal(unitTarget, addhealth, m_spellInfo);
+        int32 gain = caster->HealBySpell(unitTarget, m_spellInfo, addhealth);
         unitTarget->getHostileRefManager().threatAssist(m_caster, float(gain) * 0.5f, m_spellInfo);
     }
 }
@@ -2573,7 +2573,7 @@ void Spell::EffectHealMechanical(uint32 /*i*/)
             return;
 
         uint32 addhealth = caster->SpellHealingBonus(unitTarget, m_spellInfo, uint32(damage), HEAL);
-        caster->DealHeal(unitTarget, addhealth, m_spellInfo);
+        caster->HealBySpell(unitTarget, m_spellInfo, addhealth);
     }
 }
 
@@ -2596,7 +2596,7 @@ void Spell::EffectHealthLeech(uint32 i)
     if (m_caster->isAlive())
     {
         newDamage = m_caster->SpellHealingBonus(m_caster, m_spellInfo, newDamage, HEAL);
-        m_caster->DealHeal(m_caster, uint32(newDamage), m_spellInfo);
+        m_caster->HealBySpell(m_caster, m_spellInfo, uint32(newDamage));
     }
 }
 
@@ -4434,7 +4434,7 @@ void Spell::EffectHealMaxHealth(uint32 /*i*/)
     if (m_originalCaster)
     {
          addhealth=m_originalCaster->SpellHealingBonus(unitTarget,m_spellInfo, addhealth, HEAL);
-         m_originalCaster->DealHeal(unitTarget, addhealth, m_spellInfo);
+         m_originalCaster->HealBySpell(unitTarget, m_spellInfo, addhealth);
     }
 }
 
