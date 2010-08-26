@@ -5142,8 +5142,7 @@ void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage *log)
     data << uint32(log->SpellID);
     data << uint32(log->damage);                            // damage amount
     int32 overkill = log->damage - log->target->GetHealth();
-    data << uint32(overkill > 0 ? overkill : 0);
-    //data << uint32(log->overkill);                          // overkill
+    data << uint32(overkill > 0 ? overkill : 0);            // overkill
     data << uint8 (log->schoolMask);                        // damage school
     data << uint32(log->absorb);                            // AbsorbedDamage
     data << uint32(log->resist);                            // resist
@@ -5205,7 +5204,7 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo *pInfo)
         case SPELL_AURA_OBS_MOD_HEALTH:
             data << uint32(pInfo->damage);                  // damage
             data << uint32(pInfo->overDamage);              // overheal
-            data << uint32(0);                              // absorb
+            data << uint32(pInfo->absorb);                  // absorb
             data << uint8(pInfo->critical);                 // new 3.1.2 critical tick
             break;
         case SPELL_AURA_OBS_MOD_POWER:
@@ -9924,11 +9923,8 @@ void Unit::SetCharm(Unit* charm, bool apply)
     }
 }
 
-int32 Unit::DealHeal(Unit *pVictim, uint32 addhealth, SpellEntry const *spellProto, bool critical)
+int32 Unit::DealHeal(Unit *pVictim, uint32 addhealth)
 {
-    uint32 absorb = 0;
-    // calculate heal absorb and reduce healing
-    CalcHealAbsorb(pVictim, spellProto, addhealth, absorb);
     int32 gain = 0;
 
     if (addhealth)
@@ -9941,9 +9937,6 @@ int32 Unit::DealHeal(Unit *pVictim, uint32 addhealth, SpellEntry const *spellPro
 
     if (unit->GetTypeId() == TYPEID_PLAYER)
     {
-        // overheal = addhealth - gain
-        unit->SendHealSpellLog(pVictim, spellProto->Id, addhealth, addhealth - gain, absorb, critical);
-
         if (Battleground *bg = unit->ToPlayer()->GetBattleground())
             bg->UpdatePlayerScore((Player*)unit, SCORE_HEALING_DONE, gain);
 
@@ -10159,6 +10152,17 @@ void Unit::SendHealSpellLog(Unit *pVictim, uint32 SpellID, uint32 Damage, uint32
     data << uint32(Absorb); // Absorb amount
     data << uint8(critical ? 1 : 0);
     SendMessageToSet(&data, true);
+}
+
+int32 Unit::HealBySpell(Unit * pVictim, SpellEntry const * spellInfo, uint32 addHealth, bool critical)
+{
+    uint32 absorb = 0;
+    // calculate heal absorb and reduce healing
+    CalcHealAbsorb(pVictim, spellInfo, addHealth, absorb);
+
+    int32 gain = DealHeal(pVictim, addHealth);
+    SendHealSpellLog(pVictim, spellInfo->Id, addHealth, uint32(addHealth - gain), absorb, critical);
+    return gain;
 }
 
 void Unit::SendEnergizeSpellLog(Unit *pVictim, uint32 SpellID, uint32 Damage, Powers powertype)
