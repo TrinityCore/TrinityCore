@@ -368,24 +368,6 @@ public:
     {
         boss_headless_horsemanAI(Creature *c) : ScriptedAI(c)
         {
-            SpellEntry *confl = GET_SPELL(SPELL_CONFLAGRATION);
-            if (confl)
-            {
-                confl->EffectApplyAuraName[0] = SPELL_AURA_PERIODIC_DAMAGE_PERCENT;
-                confl->EffectBasePoints[0] = 10;
-                //confl->EffectBaseDice[0] = 10;
-                confl->DmgMultiplier[0] = 1;
-            }
-    /*
-            if (SpellEntry *confl = GET_SPELL(SPELL_CONFLAGRATION))
-                confl->EffectTriggerSpell[1] = 22587;
-
-            if (SpellEntry *speed = GET_SPELL(22587))
-            {
-                speed->Effect[1] = SPELL_EFFECT_APPLY_AURA;
-                speed->EffectApplyAuraName[1] = SPELL_AURA_MOD_CONFUSE;
-            }
-    */
             pInstance = c->GetInstanceScript();
         }
 

@@ -1472,7 +1472,7 @@ struct SpellEntry
     uint32    EffectRadiusIndex[MAX_SPELL_EFFECTS];         // 92-94    m_effectRadiusIndex - spellradius.dbc
     uint32    EffectApplyAuraName[MAX_SPELL_EFFECTS];       // 95-97    m_effectAura
     uint32    EffectAmplitude[MAX_SPELL_EFFECTS];           // 98-100   m_effectAuraPeriod
-    float     EffectMultipleValue[MAX_SPELL_EFFECTS];       // 101-103  m_effectAmplitude
+    float     EffectValueMultiplier[MAX_SPELL_EFFECTS];      // 101-103
     uint32    EffectChainTarget[MAX_SPELL_EFFECTS];         // 104-106  m_effectChainTargets
     uint32    EffectItemType[MAX_SPELL_EFFECTS];            // 107-109  m_effectItemType
     int32     EffectMiscValue[MAX_SPELL_EFFECTS];           // 110-112  m_effectMiscValue
@@ -1502,7 +1502,7 @@ struct SpellEntry
     uint32    DmgClass;                                     // 213      m_defenseType
     uint32    PreventionType;                               // 214      m_preventionType
     //uint32    StanceBarOrder;                             // 215      m_stanceBarOrder not used
-    float     DmgMultiplier[3];                             // 216-218  m_effectChainAmplitude
+    float     EffectDamageMultiplier[MAX_SPELL_EFFECTS];    // 216-218  m_effectChainAmplitude
     //uint32    MinFactionId;                               // 219      m_minFactionID not used
     //uint32    MinReputation;                              // 220      m_minReputation not used
     //uint32    RequiredAuraVision;                         // 221      m_requiredAuraVision not used
@@ -1512,7 +1512,7 @@ struct SpellEntry
     uint32    runeCostID;                                   // 226      m_runeCostID
     //uint32    spellMissileID;                             // 227      m_spellMissileID not used
     //uint32  PowerDisplayId;                               // 228      PowerDisplay.dbc, new in 3.1
-    //float   unk_320_4[3];                                 // 229-231  3.2.0
+    float     EffectBonusMultiplier[MAX_SPELL_EFFECTS];     // 229-231  3.2.0
     //uint32  spellDescriptionVariableID;                   // 232      3.2.0
     //uint32  SpellDifficultyId;                            // 233      3.3.0
 

@@ -1476,12 +1476,9 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
                         if (spell->m_spellInfo->Id == GetId())
                             spell->cancel();
 
-            float multiplier = GetSpellProto()->EffectMultipleValue[GetEffIndex()];
+            float gainMultiplier = SpellMgr::CalculateSpellEffectValueMultiplier(GetSpellProto(), GetEffIndex(), caster);
 
-            if (Player *modOwner = caster->GetSpellModOwner())
-                modOwner->ApplySpellMod(GetSpellProto()->Id, SPELLMOD_MULTIPLE_VALUE, multiplier);
-
-            uint32 heal = uint32(caster->SpellHealingBonus(caster, GetSpellProto(), uint32(new_damage * multiplier), DOT, GetBase()->GetStackAmount()));
+            uint32 heal = uint32(caster->SpellHealingBonus(caster, GetSpellProto(), uint32(new_damage * gainMultiplier), DOT, GetBase()->GetStackAmount()));
 
             int32 gain = caster->DealHeal(caster, heal, GetSpellProto());
             caster->getHostileRefManager().threatAssist(caster, gain * 0.5f, GetSpellProto());
@@ -1503,12 +1500,9 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
             caster->ModifyHealth(-(int32)damage);
             sLog.outDebug("PeriodicTick: donator %u target %u damage %u.", target->GetEntry(), target->GetEntry(), damage);
 
-            float multiplier = GetSpellProto()->EffectMultipleValue[GetEffIndex()];
+            float gainMultiplier = SpellMgr::CalculateSpellEffectValueMultiplier(GetSpellProto(), GetEffIndex(), caster);
 
-            if (Player *modOwner = caster->GetSpellModOwner())
-                modOwner->ApplySpellMod(GetSpellProto()->Id, SPELLMOD_MULTIPLE_VALUE, multiplier);
-
-            damage = int32(damage * multiplier);
+            damage = int32(damage * gainMultiplier);
 
             caster->DealHeal(target, damage, GetSpellProto());
             break;
@@ -1667,12 +1661,7 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
             float gain_multiplier = 0.0f;
 
             if (caster->GetMaxPower(power) > 0)
-            {
-                gain_multiplier = GetSpellProto()->EffectMultipleValue[GetEffIndex()];
-
-                if (Player *modOwner = caster->GetSpellModOwner())
-                    modOwner->ApplySpellMod(GetId(), SPELLMOD_MULTIPLE_VALUE, gain_multiplier);
-            }
+                gain_multiplier = SpellMgr::CalculateSpellEffectValueMultiplier(GetSpellProto(), GetEffIndex(), caster);
 
             SpellPeriodicAuraLogInfo pInfo(this, drain_amount, 0, 0, 0, gain_multiplier, false);
             target->SendPeriodicAuraLog(&pInfo);
@@ -1806,13 +1795,13 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
 
             uint32 gain = uint32(-target->ModifyPower(powerType, -damage));
 
-            gain = uint32(gain * GetSpellProto()->EffectMultipleValue[GetEffIndex()]);
+            float dmgMultiplier = SpellMgr::CalculateSpellEffectValueMultiplier(GetSpellProto(), GetEffIndex(), caster);
 
             SpellEntry const* spellProto = GetSpellProto();
             //maybe has to be sent different to client, but not by SMSG_PERIODICAURALOG
             SpellNonMeleeDamage damageInfo(caster, target, spellProto->Id, spellProto->SchoolMask);
             //no SpellDamageBonus for burn mana
-            caster->CalculateSpellDamageTaken(&damageInfo, gain, spellProto);
+            caster->CalculateSpellDamageTaken(&damageInfo, gain * dmgMultiplier, spellProto);
 
             caster->DealDamageMods(damageInfo.target,damageInfo.damage,&damageInfo.absorb);
 
