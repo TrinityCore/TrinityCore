@@ -39,6 +39,11 @@
 #        Default: "realmd.log"
 #                 "" - Empty name disable creating log file
 #
+#    SQLDriverLogFile
+#        Log file of SQL driver events.
+#        For effective query logging you need to build in debug configuration.
+#        Default: "" - Empty name for disable
+#
 #    LogTimestamp
 #        Logfile with timestamp of server start in name
 #         in form Logname_YYYY-MM-DD_HH-MM-SS.Ext for Logname.Ext
@@ -123,6 +128,7 @@ BindIP = "0.0.0.0"
 PidFile = ""
 LogLevel = 0
 LogFile = "auth.log"
+SQLDriverLogFile = ""
 LogTimestamp = 0
 LogFileLevel = 0
 LogColors = ""

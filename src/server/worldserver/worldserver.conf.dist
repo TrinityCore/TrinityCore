@@ -412,6 +412,11 @@ CleanCharacterDB = 0
 #        Log file of arena fights and arena team creations
 #        Default: "" - do not create arena log file
 #
+#    SQLDriverLogFile
+#        Log file of SQL driver events.
+#        For effective query logging you need to build in debug configuration.
+#        Default: "" - Empty name for disable
+#
 #    LogColors
 #        Color for messages (format "normal basic detail debug")
 #        Default: "" - no colors
@@ -540,6 +545,7 @@ GmLogTimestamp = 0
 GmLogPerAccount = 0
 RaLogFile = "ra_commands.log"
 ArenaLogFile = ""
+SQLDriverLogFile = ""
 LogColors = ""
 EnableLogDB = 0
 DBLogLevel = 2
