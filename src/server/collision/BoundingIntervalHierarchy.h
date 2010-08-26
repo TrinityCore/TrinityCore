@@ -31,6 +31,10 @@
 #include <limits>
 #include <cmath>
 
+#ifdef __APPLE__
+  #define isnan(x) ( std::isnan(x) )
+#endif
+
 #define MAX_STACK_SIZE 64
 
 #ifdef _MSC_VER
