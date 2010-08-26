@@ -1,0 +1,150 @@
+.\" Converted with mdoc2man 0.2
+.\" from NiH: zip_open.mdoc,v 1.21 2005/06/09 21:13:12 wiz Exp 
+.\" $NiH: zip_open.mdoc,v 1.21 2005/06/09 21:13:12 wiz Exp $
+.\"
+.\" zip_open.mdoc \-- open zip archive
+.\" Copyright (C) 2003, 2005 Dieter Baron and Thomas Klausner
+.\"
+.\" This file is part of libzip, a library to manipulate ZIP archives.
+.\" The authors can be contacted at <libzip@nih.at>
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in
+.\"    the documentation and/or other materials provided with the
+.\"    distribution.
+.\" 3. The names of the authors may not be used to endorse or promote
+.\"    products derived from this software without specific prior
+.\"    written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS
+.\" OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+.\" WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY
+.\" DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+.\" GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+.\" IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+.\" OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+.\" IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.TH ZIP_OPEN 3 "December 27, 2003" NiH
+.SH "NAME"
+zip_open \- open zip archive
+.SH "LIBRARY"
+libzip (-lzip)
+.SH "SYNOPSIS"
+#include <zip.h>
+.PP
+struct zip *
+zip_open(const char *path, int flags, int *errorp);
+.SH "DESCRIPTION"
+The zip archive specified by
+\fBpath\fR
+is opened and a pointer to a
+.PP
+struct zip,
+used to manipulate the archive, is returned.
+The
+.Fa flags
+are specified by
+.I or'ing
+the following values, or 0 for none of them.
+.RS
+.TP 15
+\fBZIP_CREATE\fR
+Create the archive if it does not exist.
+.TP 15
+\fBZIP_EXCL\fR
+Error if archive already exists.
+.TP 15
+\fBZIP_CHECKCONS\fR
+Perform additional consistency checks on the archive, and error if
+they fail.
+.RE
+.PP
+If an error occurs and
+\fBerrorp\fR
+is non-NULL, it will be set to the corresponding error code.
+.SH "RETURN VALUES"
+Upon successful completion
+zip_open
+returns a
+.PP
+struct zip
+pointer.
+Otherwise,
+\fBNULL\fR
+is returned and
+\fB*errorp\fR
+is set to indicate the error.
+.SH "ERRORS"
+The archive specified by
+\fBpath\fR
+is opened unless:
+.RS
+.TP 4
+[ZIP_ER_EXISTS]
+The file specified by
+\fBpath\fR
+exists and
+\fBZIP_EXCL\fR
+is set.
+.TP 4
+[ZIP_ER_INCONS]
+Inconsistencies were found in the file specified by
+\fBpath\fR
+and
+\fBZIP_CHECKCONS\fR
+was specified.
+.TP 4
+[ZIP_ER_INVAL]
+The
+\fBpath\fR
+argument is
+\fBNULL.\fR
+.TP 4
+[ZIP_ER_MEMORY]
+Required memory could not be allocated.
+.TP 4
+[ZIP_ER_NOENT]
+The file specified by
+\fBpath\fR
+does not exist and
+\fBZIP_CREATE\fR
+is not set.
+.TP 4
+[ZIP_ER_NOZIP]
+The file specified by
+\fBpath\fR
+is not a zip archive.
+.TP 4
+[ZIP_ER_OPEN]
+The file specified by
+\fBpath\fR
+could not be opened.
+.TP 4
+[ZIP_ER_READ]
+A read error occurred; see
+.Va errno
+for details.
+.TP 4
+[ZIP_ER_SEEK]
+The file specified by
+\fBpath\fR
+does not allow seeks.
+.RE
+.SH "SEE ALSO"
+libzip(3),
+zip_close(3),
+zip_error_to_str(3)
+.SH "AUTHORS"
+
+Dieter Baron <dillo@giga.or.at>
+and
+Thomas Klausner <tk@giga.or.at>

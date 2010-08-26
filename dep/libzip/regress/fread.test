@@ -1,0 +1,6 @@
+# various tests for zip_fread
+# $NiH: fread.test,v 1.1 2005/07/16 17:14:32 wiz Exp $
+program fread
+args broken.zip
+return 0
+file broken.zip broken.zip broken.zip
