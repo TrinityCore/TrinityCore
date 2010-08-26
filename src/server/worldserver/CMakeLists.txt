@@ -156,7 +156,6 @@ if( UNIX )
 endif()
 
 if( CMAKE_SYSTEM_NAME MATCHES "Darwin" )
-  set(worldserver_LINK_FLAGS "-framework Carbon ${worldserver_LINK_FLAGS}")
   set(SCRIPT_LIB "")
 endif()
 

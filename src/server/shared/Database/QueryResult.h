@@ -28,10 +28,8 @@
 
 #ifdef _WIN32
   #include <winsock2.h>
-  #include <mysql.h>
-#else
-  #include <mysql/mysql.h>
 #endif
+#include <mysql.h>
 
 class QueryResult
 {
