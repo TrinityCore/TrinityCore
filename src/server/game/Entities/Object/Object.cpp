@@ -2093,7 +2093,7 @@ GameObject* WorldObject::FindNearestGameObject(uint32 entry, float range)
     GameObject *go = NULL;
     Trinity::NearestGameObjectEntryInObjectRangeCheck checker(*this, entry, range);
     Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck> searcher(this, go, checker);
-    VisitNearbyGridObject(range, searcher);
+    VisitNearbyWorldObject(range, searcher);
     return go;
 }
 
