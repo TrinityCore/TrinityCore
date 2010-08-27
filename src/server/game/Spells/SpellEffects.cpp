@@ -293,7 +293,13 @@ void Spell::EffectInstaKill(SpellEffIndex /*effIndex*/)
     if (m_caster == unitTarget)                              // prevent interrupt message
         finish();
 
-    m_caster->DealDamage(unitTarget, unitTarget->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+    WorldPacket data(SMSG_SPELLINSTAKILLLOG, 8+8+4);
+    data << uint64(m_caster->GetGUID());
+    data << uint64(unitTarget->GetGUID());
+    data << uint32(m_spellInfo->Id);
+    m_caster->SendMessageToSet(&data, true);
+
+    m_caster->DealDamage(unitTarget, unitTarget->GetHealth(), NULL, NODAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
 }
 
 void Spell::EffectEnvirinmentalDMG(SpellEffIndex effIndex)
@@ -1268,7 +1274,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     if (!unitTarget && unitTarget->GetEntry() != 26452 && unitTarget->HealthAbovePct(95))
                         return;
 
-                    m_caster->DealDamage(unitTarget, unitTarget->CountPctFromMaxHealth(93));
+                        m_caster->DealDamage(unitTarget, unitTarget->CountPctFromMaxHealth(93));
                         return;
                 }
                 case 49357:                                 // Brewfest Mount Transformation
