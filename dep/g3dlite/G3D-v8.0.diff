@@ -141,6 +141,36 @@ diff -urN g3d-beta4/include/G3D/System.h g3d-mangos/include/G3D/System.h
  
  } // namespace
  
+diff -urN g3d-beta4/source/BinaryInput.cpp g3d-mangos/source/BinaryInput.cpp
+--- g3d-beta4/source/BinaryInput.cpp	2010-02-07 23:39:20.000000000 +0100
++++ g3d-mangos/source/BinaryInput.cpp	2010-08-15 11:37:26.000000000 +0200
+@@ -39,7 +39,9 @@
+ #include "G3D/Log.h"
+ #include "G3D/FileSystem.h"
+ #include <zlib.h>
+-#include "zip.h"
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
++  #include "zip.h"
++#endif
+ #include <cstring>
+ 
+ namespace G3D {
+@@ -273,6 +275,7 @@ BinaryInput::BinaryInput(
+     _internal::currentFilesUsed.insert(m_filename);
+     
+ 
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
+     std::string zipfile;
+     if (FileSystem::inZipfile(m_filename, zipfile)) {
+         // Load from zipfile
+@@ -304,6 +307,7 @@ BinaryInput::BinaryInput(
+         m_freeBuffer = true;
+         return;
+     }
++#endif
+ 
+     // Figure out how big the file is and verify that it exists.
+     m_length = FileSystem::size(m_filename);
 diff -urN g3d-beta4/source/debugAssert.cpp g3d-mangos/source/debugAssert.cpp
 --- g3d-beta4/source/debugAssert.cpp	2010-02-07 23:39:20.000000000 +0100
 +++ g3d-mangos/source/debugAssert.cpp	2010-08-15 11:37:26.000000000 +0200
@@ -172,6 +202,56 @@ diff -urN g3d-beta4/source/debugAssert.cpp g3d-mangos/source/debugAssert.cpp
      #elif defined(G3D_OSX)
          // TODO: OS X
      #endif
+diff -urN g3d-beta4/source/FileSystem.cpp g3d-mangos/source/FileSystem.cpp
+--- g3d-beta4/source/FileSystem.cpp	2010-02-07 23:39:20.000000000 +0100
++++ g3d-mangos/source/FileSystem.cpp	2010-08-15 11:37:26.000000000 +0200
+@@ -12,7 +12,9 @@
+ #include "G3D/fileutils.h"
+ #include <sys/stat.h>
+ #include <sys/types.h>
+-#include "zip.h"
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
++    #include "zip.h"
++#endif
+ #include "G3D/g3dfnmatch.h"
+ #include "G3D/BinaryInput.h"
+ #include "G3D/BinaryOutput.h"
+@@ -78,6 +80,7 @@ bool FileSystem::Dir::contains(const std
+ }
+     
+ void FileSystem::Dir::computeZipListing(const std::string& zipfile, const std::string& pathInsideZipfile) {
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
+     struct zip* z = zip_open( FilePath::removeTrailingSlash(zipfile).c_str(), ZIP_CHECKCONS, NULL );
+     debugAssert(z);
+ 
+@@ -126,6 +129,7 @@ void FileSystem::Dir::computeZipListing(
+     
+     zip_close(z);
+     z = NULL;
++#endif
+ }
+ 
+ 
+@@ -522,6 +526,7 @@ int64 FileSystem::_size(const std::strin
+     int result = stat64(filename.c_str(), &st);
+     
+     if (result == -1) {
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
+         std::string zip, contents;
+         if (zipfileExists(filename, zip, contents)) {
+             int64 requiredMem;
+@@ -538,8 +543,11 @@ int64 FileSystem::_size(const std::strin
+             zip_close(z);
+             return requiredMem;
+         } else {
++#endif
+             return -1;
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
+         }
++#endif
+     }
+     
+     return st.st_size;
 diff -urN g3d-beta4/source/fileutils.cpp g3d-mangos/source/fileutils.cpp
 --- g3d-beta4/source/fileutils.cpp	2010-02-07 23:39:20.000000000 +0100
 +++ g3d-mangos/source/fileutils.cpp	2010-08-15 11:37:26.000000000 +0200
