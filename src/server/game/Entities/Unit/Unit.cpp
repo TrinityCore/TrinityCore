@@ -2320,7 +2320,7 @@ void Unit::CalcHealAbsorb(Unit *pVictim, const SpellEntry *healSpell, uint32 &he
     healAmount = RemainingHeal;
 }
 
-void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool /*extra*/)
+void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool extra)
 {
     if (hasUnitState(UNIT_STAT_CANNOT_AUTOATTACK) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
         return;
@@ -2339,36 +2339,46 @@ void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool /*
     else
         return;                                             // ignore ranged case
 
-    // melee attack spell casted at main hand attack only
+    // melee attack spell casted at main hand attack only - no normal melee dmg dealt
     if (attType == BASE_ATTACK && m_currentSpells[CURRENT_MELEE_SPELL])
     {
         m_currentSpells[CURRENT_MELEE_SPELL]->cast();
-        return;
+    }
+    else
+    {
+        // attack can be redirected to another target
+        pVictim = SelectMagnetTarget(pVictim);
+
+        CalcDamageInfo damageInfo;
+        CalculateMeleeDamage(pVictim, 0, &damageInfo, attType);
+        // Send log damage message to client
+        DealDamageMods(pVictim, damageInfo.damage, &damageInfo.absorb);
+        SendAttackStateUpdate(&damageInfo);
+
+        ProcDamageAndSpell(damageInfo.target, damageInfo.procAttacker, damageInfo.procVictim, damageInfo.procEx, damageInfo.damage, damageInfo.attackType);
+        DealMeleeDamage(&damageInfo,true);
+
+        if (GetTypeId() == TYPEID_PLAYER)
+            sLog.outStaticDebug("AttackerStateUpdate: (Player) %u attacked %u (TypeId: %u) for %u dmg, absorbed %u, blocked %u, resisted %u.",
+                GetGUIDLow(), pVictim->GetGUIDLow(), pVictim->GetTypeId(), damageInfo.damage, damageInfo.absorb, damageInfo.blocked_amount, damageInfo.resist);
+        else
+            sLog.outStaticDebug("AttackerStateUpdate: (NPC)    %u attacked %u (TypeId: %u) for %u dmg, absorbed %u, blocked %u, resisted %u.",
+                GetGUIDLow(), pVictim->GetGUIDLow(), pVictim->GetTypeId(), damageInfo.damage, damageInfo.absorb, damageInfo.blocked_amount, damageInfo.resist);
+
+        // if damage pVictim call AI reaction
+        //if (pVictim->GetTypeId() == TYPEID_UNIT && pVictim->ToCreature()->AI())
+        //    pVictim->ToCreature()->AI()->AttackedBy(this);
     }
 
-    // attack can be redirected to another target
-    pVictim = SelectMagnetTarget(pVictim);
-
-    CalcDamageInfo damageInfo;
-    CalculateMeleeDamage(pVictim, 0, &damageInfo, attType);
-    // Send log damage message to client
-    DealDamageMods(pVictim, damageInfo.damage, &damageInfo.absorb);
-    SendAttackStateUpdate(&damageInfo);
-
-    ProcDamageAndSpell(damageInfo.target, damageInfo.procAttacker, damageInfo.procVictim, damageInfo.procEx, damageInfo.damage, damageInfo.attackType);
-    DealMeleeDamage(&damageInfo,true);
-
-    if (GetTypeId() == TYPEID_PLAYER)
-        sLog.outStaticDebug("AttackerStateUpdate: (Player) %u attacked %u (TypeId: %u) for %u dmg, absorbed %u, blocked %u, resisted %u.",
-            GetGUIDLow(), pVictim->GetGUIDLow(), pVictim->GetTypeId(), damageInfo.damage, damageInfo.absorb, damageInfo.blocked_amount, damageInfo.resist);
-    else
-        sLog.outStaticDebug("AttackerStateUpdate: (NPC)    %u attacked %u (TypeId: %u) for %u dmg, absorbed %u, blocked %u, resisted %u.",
-            GetGUIDLow(), pVictim->GetGUIDLow(), pVictim->GetTypeId(), damageInfo.damage, damageInfo.absorb, damageInfo.blocked_amount, damageInfo.resist);
-
-    // if damage pVictim call AI reaction
-    //if (pVictim->GetTypeId() == TYPEID_UNIT && pVictim->ToCreature()->AI())
-    //    pVictim->ToCreature()->AI()->AttackedBy(this);
-
+    if(!extra && m_extraAttacks)
+    {
+        while(m_extraAttacks)
+        {
+            AttackerStateUpdate(pVictim, BASE_ATTACK, true);
+            if(m_extraAttacks > 0)
+                --m_extraAttacks;
+        }
+    }
 }
 
 MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(const Unit *pVictim, WeaponAttackType attType) const
