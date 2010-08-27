@@ -2221,7 +2221,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
             Unit *target = m_targets.getUnitTarget();
             if (!target)
             {
-                sLog.outError("SPELL: no unit target for spell ID %u\n", m_spellInfo->Id);
+                sLog.outError("SPELL: no unit target for spell ID %u", m_spellInfo->Id);
                 break;
             }
 
@@ -2264,7 +2264,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
         {
             if (!m_targets.HasDst())
             {
-                sLog.outError("SPELL: no destination for spell ID %u\n", m_spellInfo->Id);
+                sLog.outError("SPELL: no destination for spell ID %u", m_spellInfo->Id);
                 break;
             }
 

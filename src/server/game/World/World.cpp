@@ -1449,14 +1449,14 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading Graveyard-zone links...");
     sObjectMgr.LoadGraveyardZones();
 
-    sLog.outString("Loading Spell target coordinates...");
-    sSpellMgr.LoadSpellTargetPositions();
-
     sLog.outString("Loading spell pet auras...");
     sSpellMgr.LoadSpellPetAuras();
 
     sLog.outString("Loading spell extra attributes...");
     sSpellMgr.LoadSpellCustomAttr();
+
+    sLog.outString("Loading Spell target coordinates...");
+    sSpellMgr.LoadSpellTargetPositions();
 
     sLog.outString("Loading enchant custom attributes...");
     sSpellMgr.LoadEnchantCustomAttr();
