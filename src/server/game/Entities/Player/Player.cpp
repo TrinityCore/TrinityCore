@@ -15674,7 +15674,7 @@ void Player::_LoadDeclinedNames(QueryResult_AutoPtr result)
 
 void Player::_LoadArenaTeamInfo(QueryResult_AutoPtr result)
 {
-    // arenateamid, played_week, played_season, personal_rating
+    // arenateamid, played_week, played_season, personal_rating, matchmaker_rating
     memset((void*)&m_uint32Values[PLAYER_FIELD_ARENA_TEAM_INFO_1_1], 0, sizeof(uint32) * MAX_ARENA_SLOT * ARENA_TEAM_END);
     if (!result)
         return;
@@ -15683,11 +15683,10 @@ void Player::_LoadArenaTeamInfo(QueryResult_AutoPtr result)
     {
         Field *fields = result->Fetch();
 
-        uint32 arenateamid     = fields[0].GetUInt32();
-        uint32 played_week     = fields[1].GetUInt32();
-        uint32 played_season   = fields[2].GetUInt32();
-        uint32 wons_season     = fields[3].GetUInt32();
-        uint32 personal_rating = fields[4].GetUInt32();
+        uint32 arenateamid       = fields[0].GetUInt32();
+        uint32 played_week       = fields[1].GetUInt32();
+        uint32 played_season     = fields[2].GetUInt32();
+        uint32 wons_season       = fields[3].GetUInt32();
 
         ArenaTeam* aTeam = sObjectMgr.GetArenaTeamById(arenateamid);
         if (!aTeam)
@@ -15703,9 +15702,42 @@ void Player::_LoadArenaTeamInfo(QueryResult_AutoPtr result)
         SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_GAMES_WEEK, played_week);
         SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_GAMES_SEASON, played_season);
         SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_WINS_SEASON, wons_season);
-        SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_PERSONAL_RATING, personal_rating);
-
     }while (result->NextRow());
+}
+
+void Player::_LoadArenaStatsInfo(QueryResult_AutoPtr result)
+{
+    uint8 slot = 0;
+    if (!result)
+    {
+        for (; slot <= 2; ++slot)
+        {
+            CharacterDatabase.PExecute("INSERT INTO character_arena_stats (guid, slot, personal_rating, matchmaker_rating) VALUES (%u, %u, 0, 1500)", GetGUIDLow(), slot);
+            SetArenaTeamInfoField(slot, ARENA_TEAM_PERSONAL_RATING, 0);
+        }
+        return;
+    }
+
+    bool nextrow = true;
+    do
+    {
+        Field *fields = result->Fetch();
+        uint32 personalrating = 0;
+        uint32 matchmakerrating = 1500;
+        if (fields[0].GetUInt8() > slot)
+        {
+            CharacterDatabase.PExecute("INSERT INTO character_arena_stats (guid, slot, personal_rating, matchmaker_rating) VALUES (%u, %u, %u, %u)", GetGUIDLow(), slot, personalrating, matchmakerrating);
+            SetArenaTeamInfoField(slot, ARENA_TEAM_PERSONAL_RATING, personalrating);
+            slot++;
+            continue;
+        }
+
+        personalrating = fields[1].GetUInt32();
+        matchmakerrating = fields[2].GetUInt32();
+        SetArenaTeamInfoField(slot, ARENA_TEAM_PERSONAL_RATING, personalrating);
+        slot++;
+        nextrow = result->NextRow();
+    }while (nextrow);
 }
 
 void Player::_LoadEquipmentSets(QueryResult_AutoPtr result)
@@ -15936,6 +15968,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     _LoadGroup(holder->GetResult(PLAYER_LOGIN_QUERY_LOADGROUP));
 
     _LoadArenaTeamInfo(holder->GetResult(PLAYER_LOGIN_QUERY_LOADARENAINFO));
+    _LoadArenaStatsInfo(holder->GetResult(PLAYER_LOGIN_QUERY_LOADARENASTATS));
 
     uint32 arena_currency = fields[39].GetUInt32();
     if (arena_currency > sWorld.getIntConfig(CONFIG_MAX_ARENA_POINTS))
