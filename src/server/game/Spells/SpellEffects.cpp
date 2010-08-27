@@ -260,6 +260,7 @@ void Spell::EffectResurrectNew(uint32 i)
 
     uint32 health = damage;
     uint32 mana = m_spellInfo->EffectMiscValue[i];
+    ExecuteLogEffectResurrect(i, pTarget);
     pTarget->setResurrectRequestData(m_caster->GetGUID(), m_caster->GetMapId(), m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ(), health, mana);
     SendResurrectRequest(pTarget);
 }
@@ -2352,15 +2353,18 @@ void Spell::EffectPowerDrain(uint32 i)
 
     int32 newDamage = unitTarget->ModifyPower(powerType, -int32(power));
 
+    float gainMultiplier = 0.0f;
+
     // Don`t restore from self drain
     if (m_caster != unitTarget)
     {
-        float gainMultiplier = SpellMgr::CalculateSpellEffectValueMultiplier(m_spellInfo, i, m_originalCaster, this);
+        gainMultiplier = SpellMgr::CalculateSpellEffectValueMultiplier(m_spellInfo, i, m_originalCaster, this);
 
         int32 gain = int32(newDamage * gainMultiplier);
 
         m_caster->EnergizeBySpell(m_caster, m_spellInfo->Id, gain, powerType);
     }
+    ExecuteLogEffectTakeTargetPower(i, unitTarget, powerType, newDamage, gainMultiplier);
 }
 
 void Spell::EffectSendEvent(uint32 EffectIndex)
@@ -2413,7 +2417,8 @@ void Spell::EffectPowerBurn(uint32 i)
 
     newDamage = int32(newDamage * dmgMultiplier);
 
-    //TODO: no log
+    ExecuteLogEffectTakeTargetPower(i,unitTarget, powerType, newDamage, dmgMultiplier);
+
     if (m_originalCaster)
         m_originalCaster->DealDamage(unitTarget, newDamage);
 }
@@ -2714,6 +2719,7 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
 void Spell::EffectCreateItem(uint32 i)
 {
     DoCreateItem(i,m_spellInfo->EffectItemType[i]);
+    ExecuteLogEffectCreateItem(i, m_spellInfo->EffectItemType[i]);
 }
 
 void Spell::EffectCreateItem2(uint32 i)
@@ -2745,6 +2751,7 @@ void Spell::EffectCreateItem2(uint32 i)
         else
             player->AutoStoreLoot(m_spellInfo->Id, LootTemplates_Spell);    // create some random items
     }
+    // TODO: ExecuteLogEffectCreateItem(i, m_spellInfo->EffectItemType[i]);
 }
 
 void Spell::EffectCreateRandomItem(uint32 /*i*/)
@@ -2755,6 +2762,7 @@ void Spell::EffectCreateRandomItem(uint32 /*i*/)
 
     // create some random items
     player->AutoStoreLoot(m_spellInfo->Id, LootTemplates_Spell);
+    // TODO: ExecuteLogEffectCreateItem(i, m_spellInfo->EffectItemType[i]);
 }
 
 void Spell::EffectPersistentAA(uint32 i)
@@ -3069,6 +3077,7 @@ void Spell::EffectOpenLock(uint32 effIndex)
             }
         }
     }
+    ExecuteLogEffectOpenLock(effIndex, gameObjTarget ? (Object*)gameObjTarget : (Object*)itemTarget);
 }
 
 void Spell::EffectSummonChangeItem(uint32 i)
@@ -3328,8 +3337,9 @@ void Spell::EffectSummonType(uint32 i)
                             summon->setFaction(m_originalCaster->getFaction());
                             summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
                         }
+                        ExecuteLogEffectSummonObject(i, summon);
                     }
-                    break;
+                    return;
                 }
             }//switch
             break;
@@ -3363,6 +3373,7 @@ void Spell::EffectSummonType(uint32 i)
     {
         summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
         summon->SetCreatorGUID(m_originalCaster->GetGUID());
+        ExecuteLogEffectSummonObject(i, summon);
     }
 }
 
@@ -4032,6 +4043,8 @@ void Spell::EffectSummonPet(uint32 i)
     std::string new_name=sObjectMgr.GeneratePetName(petentry);
     if (!new_name.empty())
         pet->SetName(new_name);
+
+    ExecuteLogEffectSummonObject(i, pet);
 }
 
 void Spell::EffectLearnPetSpell(uint32 i)
@@ -4438,7 +4451,7 @@ void Spell::EffectHealMaxHealth(uint32 /*i*/)
     }
 }
 
-void Spell::EffectInterruptCast(uint32 /*i*/)
+void Spell::EffectInterruptCast(uint32 effIndex)
 {
     if (!unitTarget)
         return;
@@ -4462,6 +4475,7 @@ void Spell::EffectInterruptCast(uint32 /*i*/)
                     int32 duration = m_originalCaster->ModSpellDuration(m_spellInfo, unitTarget, m_originalCaster->CalcSpellDuration(m_spellInfo), false);
                     unitTarget->ProhibitSpellScholl(GetSpellSchoolMask(curSpellInfo), duration/*GetSpellDuration(m_spellInfo)*/);
                 }
+                ExecuteLogEffectInterruptCast(effIndex, unitTarget, curSpellInfo->Id);
                 unitTarget->InterruptSpell(CurrentSpellTypes(i), false);
             }
         }
@@ -4497,6 +4511,8 @@ void Spell::EffectSummonObjectWild(uint32 i)
 
     pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
     pGameObj->SetSpellId(m_spellInfo->Id);
+
+    ExecuteLogEffectSummonObject(i, pGameObj);
 
     // Wild object not have owner and check clickable by players
     map->Add(pGameObj);
@@ -4540,6 +4556,8 @@ void Spell::EffectSummonObjectWild(uint32 i)
         {
             linkedGO->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
             linkedGO->SetSpellId(m_spellInfo->Id);
+
+            ExecuteLogEffectSummonObject(i, linkedGO);
 
             // Wild object not have owner and check clickable by players
             map->Add(linkedGO);
@@ -5705,6 +5723,8 @@ void Spell::EffectDuel(uint32 i)
     pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
     pGameObj->SetSpellId(m_spellInfo->Id);
 
+    ExecuteLogEffectSummonObject(i, pGameObj);
+
     m_caster->AddGameObject(pGameObj);
     map->Add(pGameObj);
     //END
@@ -5940,10 +5960,12 @@ void Spell::EffectFeedPet(uint32 i)
     _player->DestroyItemCount(foodItem,count,true);
     // TODO: fix crash when a spell has two effects, both pointed at the same item target
 
+    ExecuteLogEffectDestroyItem(i, foodItem->GetEntry());
+
     m_caster->CastCustomSpell(pet, m_spellInfo->EffectTriggerSpell[i], &benefit, NULL, NULL, true);
 }
 
-void Spell::EffectDismissPet(uint32 /*i*/)
+void Spell::EffectDismissPet(uint32 i)
 {
     if (m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
@@ -5954,6 +5976,7 @@ void Spell::EffectDismissPet(uint32 /*i*/)
     if (!pet||!pet->isAlive())
         return;
 
+    ExecuteLogEffectUnsummonObject(i, pet);
     m_caster->ToPlayer()->RemovePet(pet, PET_SAVE_NOT_IN_SLOT);
 }
 
@@ -6012,12 +6035,14 @@ void Spell::EffectSummonObject(uint32 i)
     pGameObj->SetSpellId(m_spellInfo->Id);
     m_caster->AddGameObject(pGameObj);
 
+    ExecuteLogEffectSummonObject(i, pGameObj);
+
     map->Add(pGameObj);
 
     m_caster->m_ObjectSlot[slot] = pGameObj->GetGUID();
 }
 
-void Spell::EffectResurrect(uint32 /*effIndex*/)
+void Spell::EffectResurrect(uint32 effIndex)
 {
     if (!unitTarget)
         return;
@@ -6066,32 +6091,23 @@ void Spell::EffectResurrect(uint32 /*effIndex*/)
     uint32 health = pTarget->CountPctFromMaxHealth(damage);
     uint32 mana   = pTarget->GetMaxPower(POWER_MANA) * damage / 100;
 
+    ExecuteLogEffectResurrect(effIndex, pTarget);
+
     pTarget->setResurrectRequestData(m_caster->GetGUID(), m_caster->GetMapId(), m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ(), health, mana);
     SendResurrectRequest(pTarget);
 }
 
-void Spell::EffectAddExtraAttacks(uint32 /*i*/)
+void Spell::EffectAddExtraAttacks(uint32 i)
 {
-    if (!unitTarget || !unitTarget->isAlive())
+    if (!unitTarget || !unitTarget->isAlive() || !unitTarget->getVictim())
         return;
 
     if (unitTarget->m_extraAttacks)
         return;
 
-    Unit *victim = unitTarget->getVictim();
-
-    // attack prevented
-    // fixme, some attacks may not target current victim, this is right now not handled
-    if (!victim || !unitTarget->IsWithinMeleeRange(victim) || !unitTarget->HasInArc(static_cast<float>(2*M_PI/3), victim))
-        return;
-
-    // Only for proc/log informations
     unitTarget->m_extraAttacks = damage;
-    // Need to send log before attack is made
-    SendLogExecute();
-    m_needSpellLog = false;
 
-    unitTarget->AttackerStateUpdate(victim, BASE_ATTACK, true);
+    ExecuteLogEffectExtraAttacks(i, unitTarget->getVictim(), damage);
 }
 
 void Spell::EffectParry(uint32 /*i*/)
@@ -6500,6 +6516,8 @@ void Spell::EffectDurabilityDamage(uint32 i)
 
     if (Item* item = unitTarget->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
         unitTarget->ToPlayer()->DurabilityPointsLoss(item, damage);
+
+    ExecuteLogEffectDurabilityDamage(i, unitTarget, slot, damage);
 }
 
 void Spell::EffectDurabilityDamagePCT(uint32 i)
@@ -6646,6 +6664,8 @@ void Spell::EffectTransmitted(uint32 effIndex)
     //pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel());
     pGameObj->SetSpellId(m_spellInfo->Id);
 
+    ExecuteLogEffectSummonObject(effIndex, pGameObj);
+
     sLog.outStaticDebug("AddObject at SpellEfects.cpp EffectTransmitted");
     //m_caster->AddGameObject(pGameObj);
     //m_ObjToDel.push_back(pGameObj);
@@ -6662,6 +6682,8 @@ void Spell::EffectTransmitted(uint32 effIndex)
             //linkedGO->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel());
             linkedGO->SetSpellId(m_spellInfo->Id);
             linkedGO->SetOwnerGUID(m_caster->GetGUID());
+
+            ExecuteLogEffectSummonObject(effIndex, linkedGO);
 
             linkedGO->GetMap()->Add(linkedGO);
         }
@@ -7086,6 +7108,8 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const *
                 summon->SetDisplayId(1126);
 
         summon->AI()->EnterEvadeMode();
+
+        ExecuteLogEffectSummonObject(i, summon);
     }
 }
 
