@@ -73,6 +73,7 @@ bool ChatHandler::HandleReloadAllCommand(const char*)
     HandleReloadAllQuestCommand("");
     HandleReloadAllSpellCommand("");
     HandleReloadAllItemCommand("");
+    HandleReloadAllGossipsCommand("");
     HandleReloadAllLocalesCommand("");
 
     HandleReloadAccessRequirementCommand("");
@@ -111,9 +112,10 @@ bool ChatHandler::HandleReloadAllLootCommand(const char*)
     return true;
 }
 
-bool ChatHandler::HandleReloadAllNpcCommand(const char* /*args*/)
+bool ChatHandler::HandleReloadAllNpcCommand(const char* args)
 {
-    HandleReloadNpcGossipCommand("a");
+    if(*args != 'a')                                          // will be reloaded from all_gossips
+        HandleReloadNpcGossipCommand("a");
     HandleReloadNpcTrainerCommand("a");
     HandleReloadNpcVendorCommand("a");
     HandleReloadPointsOfInterestCommand("a");
@@ -124,6 +126,7 @@ bool ChatHandler::HandleReloadAllNpcCommand(const char* /*args*/)
 bool ChatHandler::HandleReloadAllQuestCommand(const char* /*args*/)
 {
     HandleReloadQuestAreaTriggersCommand("a");
+    HandleReloadQuestPOICommand("a");
     HandleReloadQuestTemplateCommand("a");
 
     sLog.outString("Re-Loading Quests Relations...");
@@ -180,6 +183,17 @@ bool ChatHandler::HandleReloadAllSpellCommand(const char*)
     return true;
 }
 
+bool ChatHandler::HandleReloadAllGossipsCommand(const char* args)
+{
+   HandleReloadGossipMenuCommand("a");
+   HandleReloadGossipMenuOptionCommand("a");
+   if(*args != 'a')                                          // already reload from all_scripts
+       HandleReloadGossipScriptsCommand("a");
+   HandleReloadNpcGossipCommand("a");
+   HandleReloadPointsOfInterestCommand("a");
+   return true;
+}	
+
 bool ChatHandler::HandleReloadAllItemCommand(const char*)
 {
     HandleReloadPageTextsCommand("a");
@@ -192,6 +206,7 @@ bool ChatHandler::HandleReloadAllLocalesCommand(const char* /*args*/)
     HandleReloadLocalesAchievementRewardCommand("a");
     HandleReloadLocalesCreatureCommand("a");
     HandleReloadLocalesGameobjectCommand("a");
+    HandleReloadLocalesGossipMenuOptionCommand("a");
     HandleReloadLocalesItemCommand("a");
     HandleReloadLocalesNpcTextCommand("a");
     HandleReloadLocalesPageTextCommand("a");
@@ -651,6 +666,14 @@ bool ChatHandler::HandleReloadPointsOfInterestCommand(const char*)
     return true;
 }
 
+bool ChatHandler::HandleReloadQuestPOICommand(const char*)
+{
+    sLog.outString( "Re-Loading Quest POI ..." );
+    sObjectMgr.LoadQuestPOI();
+    SendGlobalGMSysMessage("DB Table `quest_poi` and `quest_poi_points` reloaded.");
+    return true;
+}
+
 bool ChatHandler::HandleReloadSpellClickSpellsCommand(const char*)
 {
     sLog.outString("Re-Loading `npc_spellclick_spells` Table!");
@@ -1045,6 +1068,14 @@ bool ChatHandler::HandleReloadLocalesGameobjectCommand(const char* /*arg*/)
     sLog.outString("Re-Loading Locales Gameobject ... ");
     sObjectMgr.LoadGameObjectLocales();
     SendGlobalGMSysMessage("DB table `locales_gameobject` reloaded.");
+    return true;
+}
+
+bool ChatHandler::HandleReloadLocalesGossipMenuOptionCommand(const char* /*arg*/)
+{
+    sLog.outString( "Re-Loading Locales Gossip Menu Option ... ");
+    sObjectMgr.LoadGossipMenuItemsLocales();
+    SendGlobalGMSysMessage("DB table `locales_gossip_menu_option` reloaded.");
     return true;
 }
 
