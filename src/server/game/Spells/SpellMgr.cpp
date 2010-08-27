@@ -3862,6 +3862,19 @@ void SpellMgr::LoadSpellCustomAttr()
             mSpellCustomAttr[i] |= SPELL_ATTR_CU_IGNORE_ARMOR;
             count++;
             break;
+        // THESE SPELLS ARE WORKING CORRECTLY EVEN WITHOUT THIS HACK
+        // THE ONLY REASON ITS HERE IS THAT CURRENT GRID SYSTEM
+        // DOES NOT ALLOW FAR OBJECT SELECTION (dist > 333)
+        case 70781: // Light's Hammer Teleport
+        case 70856: // Oratory of the Damned Teleport
+        case 70857: // Rampart of Skulls Teleport
+        case 70858: // Deathbringer's Rise Teleport
+        case 70859: // Upper Spire Teleport
+        case 70860: // Frozen Throne Teleport
+        case 70861: // Sindragosa's Lair Teleport
+            spellInfo->EffectImplicitTargetA[0] = TARGET_DST_DB;
+            count++;
+            break;
         default:
             break;
         }

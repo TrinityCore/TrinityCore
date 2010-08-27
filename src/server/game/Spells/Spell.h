@@ -32,6 +32,7 @@ class DynamicObject;
 class WorldObject;
 class Aura;
 class SpellScript;
+class ByteBuffer;
 
 struct SpellEntry;
 
@@ -475,6 +476,16 @@ class Spell
         void SendSpellGo();
         void SendSpellCooldown();
         void SendLogExecute();
+        void ExecuteLogEffectTakeTargetPower(uint8 effIndex, Unit * target, uint32 powerType, uint32 powerTaken, float gainMultiplier);
+        void ExecuteLogEffectExtraAttacks(uint8 effIndex, Unit * victim, uint32 attCount);
+        void ExecuteLogEffectInterruptCast(uint8 effIndex, Unit * victim, uint32 spellId);
+        void ExecuteLogEffectDurabilityDamage(uint8 effIndex, Unit * victim, uint32 itemslot, uint32 damage);
+        void ExecuteLogEffectOpenLock(uint8 effIndex, Object * obj);
+        void ExecuteLogEffectCreateItem(uint8 effIndex, uint32 entry);
+        void ExecuteLogEffectDestroyItem(uint8 effIndex, uint32 entry);
+        void ExecuteLogEffectSummonObject(uint8 effIndex, WorldObject * obj);
+        void ExecuteLogEffectUnsummonObject(uint8 effIndex, WorldObject * obj);
+        void ExecuteLogEffectResurrect(uint8 effIndex, Unit * target);
         void SendInterrupted(uint8 result);
         void SendChannelUpdate(uint32 time);
         void SendChannelStart(uint32 duration);
@@ -573,7 +584,6 @@ class Spell
         // These vars are used in both delayed spell system and modified immediate spell system
         bool m_referencedFromCurrentSpell;                  // mark as references to prevent deleted and access by dead pointers
         bool m_executedCurrently;                           // mark as executed to prevent deleted and access by dead pointers
-        bool m_needSpellLog;                                // need to send spell log?
         bool m_needComboPoints;
 
         // Current targets, to be used in SpellEffects (MUST BE USED ONLY IN SPELL EFFECTS)
@@ -662,6 +672,14 @@ class Spell
         void SpellDamageWeaponDmg(uint32 i);
         void SpellDamageHeal(uint32 i);
 
+        void PrepareTargetProcessing();
+        void FinishTargetProcessing();
+
+        // spell execution log
+        void InitEffectExecuteData(uint8 effIndex);
+        void CleanupEffectExecuteData();
+        void CheckEffectExecuteData();
+
         // Scripting system
         void LoadScripts();
         void PrepareScriptHitHandlers();
@@ -697,6 +715,8 @@ class Spell
         bool m_skipCheck;
         uint32 m_effectMask;
         uint8 m_auraScaleMask;
+
+        ByteBuffer * m_effectExecuteData[MAX_SPELL_EFFECTS];
 
 #ifdef MAP_BASED_RAND_GEN
         int32 irand(int32 min, int32 max)       { return int32 (m_caster->GetMap()->mtRand.randInt(max - min)) + min; }
