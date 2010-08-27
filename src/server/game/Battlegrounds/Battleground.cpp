@@ -428,6 +428,13 @@ void Battleground::Update(uint32 diff)
                 for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
                     if (Player *plr = sObjectMgr.GetPlayer(itr->first))
                     {
+                        // BG Status packet
+                        WorldPacket status;
+                        BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr.BGQueueTypeId(m_eTypeID, GetArenaType());
+                        uint32 queueSlot = plr->GetBattlegroundQueueIndex(bgQueueTypeId);
+                        sBattlegroundMgr.BuildBattlegroundStatusPacket(&status, this, queueSlot, STATUS_IN_PROGRESS, 0, GetStartTime(), GetArenaType());
+                        plr->GetSession()->SendPacket(&status);
+
                         plr->RemoveAurasDueToSpell(SPELL_ARENA_PREPARATION);
                         // remove auras with duration lower than 30s
                         Unit::AuraApplicationMap & auraMap = plr->GetAppliedAuras();
@@ -1078,9 +1085,9 @@ void Battleground::AddPlayer(Player *plr)
 
     // BG Status packet
     WorldPacket status;
-    BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(m_TypeID, GetArenaType());
+    BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr.BGQueueTypeId(m_TypeID, GetArenaType());
     uint32 queueSlot = plr->GetBattlegroundQueueIndex(bgQueueTypeId);
-    sBattlegroundMgr.BuildBattlegroundStatusPacket(&status, this, queueSlot, STATUS_IN_PROGRESS, 0, GetStartTime(), GetArenaType());
+    sBattlegroundMgr.BuildBattlegroundStatusPacket(&status, this, queueSlot, STATUS_IN_PROGRESS, 0, GetStartTime(), GetArenaType(), isArena() ? 0 : 1);
     plr->GetSession()->SendPacket(&status);
 
     plr->RemoveAurasByType(SPELL_AURA_MOUNTED);
@@ -1116,6 +1123,10 @@ void Battleground::AddPlayer(Player *plr)
             plr->SetFullHealth();
             plr->SetPower(POWER_MANA, plr->GetMaxPower(POWER_MANA));
         }
+        WorldPacket teammate;
+        teammate.Initialize(SMSG_ARENA_OPPONENT_UPDATE, 8);
+        teammate << uint64(plr->GetGUID());
+        SendPacketToTeam(team, &teammate, plr, false);
     }
     else
     {
