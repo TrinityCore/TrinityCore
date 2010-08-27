@@ -207,8 +207,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                         switch (data)
                         {
                             case DONE:
-                                // TEMPORARY, UNCOMMMENT IF YOU WANT TO DO SAURFANG AND SKIP GUNSHIP
-                                //uiEncounterState[DATA_GUNSHIP_EVENT] = DONE;
+                                // TEMPORARY, SKIP GUNSHIP
+                                uiEncounterState[DATA_GUNSHIP_EVENT] = DONE;
                                 HandleGameObject(uiOratoryDoor, true);
                                 if (GameObject* elevator = instance->GetGameObject(uiLadyDeathwisperElevator))
                                 {
