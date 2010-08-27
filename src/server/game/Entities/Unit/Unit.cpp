@@ -1279,7 +1279,7 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
         case MELEE_HIT_MISS:
         {
             damageInfo->HitInfo    |= HITINFO_MISS;
-            damageInfo->TargetState = VICTIMSTATE_NORMAL;
+            damageInfo->TargetState = VICTIMSTATE_INTACT;
 
             damageInfo->procEx |= PROC_EX_MISS;
             damageInfo->damage  = 0;
@@ -1287,13 +1287,13 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
             break;
         }
         case MELEE_HIT_NORMAL:
-            damageInfo->TargetState = VICTIMSTATE_NORMAL;
+            damageInfo->TargetState = VICTIMSTATE_HIT;
             damageInfo->procEx|=PROC_EX_NORMAL_HIT;
             break;
         case MELEE_HIT_CRIT:
         {
             damageInfo->HitInfo     |= HITINFO_CRITICALHIT;
-            damageInfo->TargetState  = VICTIMSTATE_NORMAL;
+            damageInfo->TargetState  = VICTIMSTATE_HIT;
 
             damageInfo->procEx      |= PROC_EX_CRITICAL_HIT;
             // Crit bonus calc
@@ -1346,7 +1346,7 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
             break;
         case MELEE_HIT_BLOCK:
         {
-            damageInfo->TargetState = VICTIMSTATE_NORMAL;
+            damageInfo->TargetState = VICTIMSTATE_HIT;
             damageInfo->HitInfo    |= HITINFO_BLOCK;
             damageInfo->procEx     |= PROC_EX_BLOCK;
             damageInfo->blocked_amount = damageInfo->target->GetShieldBlockValue();
@@ -1368,7 +1368,7 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
         case MELEE_HIT_GLANCING:
         {
             damageInfo->HitInfo     |= HITINFO_GLANCING;
-            damageInfo->TargetState  = VICTIMSTATE_NORMAL;
+            damageInfo->TargetState  = VICTIMSTATE_HIT;
             damageInfo->procEx      |= PROC_EX_NORMAL_HIT;
             int32 leveldif = int32(pVictim->getLevel()) - int32(getLevel());
             if (leveldif > 3) leveldif = 3;
@@ -1380,7 +1380,7 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
         case MELEE_HIT_CRUSHING:
         {
             damageInfo->HitInfo     |= HITINFO_CRUSHING;
-            damageInfo->TargetState  = VICTIMSTATE_NORMAL;
+            damageInfo->TargetState  = VICTIMSTATE_HIT;
             damageInfo->procEx      |= PROC_EX_NORMAL_HIT;
             // 150% normal damage
             damageInfo->damage += (damageInfo->damage / 2);
