@@ -1,8 +1,0 @@
-# remove archive comment
-# $NiH: set_comment_revert.test,v 1.1 2006/04/23 13:21:19 wiz Exp $
-program set_comment_removeglobal
-return 0
-# need filename extension != zip to avoid using zipcmp,
-# which doesn't look at comments
-args testcomment.reg
-file testcomment.reg testcomment.zip testcommentremoved.zip

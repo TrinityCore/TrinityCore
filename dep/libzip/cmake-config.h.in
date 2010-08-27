@@ -1,9 +1,0 @@
-#ifndef HAD_CONFIG_H
-#define HAD_CONFIG_H
-#cmakedefine HAVE_FSEEKO
-#cmakedefine HAVE_MKSTEMP
-#cmakedefine HAVE_MOVEFILEEX
-#cmakedefine HAVE_UNISTD_H
-#define PACKAGE "@PACKAGE@"
-#define VERSION "@VERSION@"
-#endif /* HAD_CONFIG_H */

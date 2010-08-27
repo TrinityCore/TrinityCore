@@ -1,7 +1,0 @@
-# various tests for zip_open
-# $NiH: open.test,v 1.1 2005/07/16 17:14:32 wiz Exp $
-program open
-args test.zip Makefile.am
-return 0
-file test.zip test.zip test.zip
-file Makefile.am Makefile.am Makefile.am
