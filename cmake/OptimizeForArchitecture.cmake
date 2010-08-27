@@ -218,5 +218,7 @@ macro(OptimizeForArchitecture)
             endif(NOT GCC_4_5_2)
          endif(GCC_4_5_0)
       endif(CMAKE_COMPILER_IS_GNUCXX)
-   endif(CMAKE_C_COMPILER MATCHES "cl(.exe)?$")
+    endif(CMAKE_C_COMPILER MATCHES "cl(.exe)?$")
+
+  mark_as_advanced(USE_SSE2 USE_SSE3 USE_SSE4a USE_SSSE3)
 endmacro(OptimizeForArchitecture)
