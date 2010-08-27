@@ -446,7 +446,7 @@ class Spell
         SpellCastResult CheckRuneCost(uint32 runeCostID);
         SpellCastResult CheckCasterAuras() const;
 
-        int32 CalculateDamage(uint8 i, Unit* target) { return m_caster->CalculateSpellDamage(target, m_spellInfo, i, &m_currentBasePoints[i]); }
+        int32 CalculateDamage(uint8 i, Unit* target) { return m_caster->CalculateSpellDamage(target, m_spellInfo, i, &m_spellValue->EffectBasePoints[i]); }
 
         bool HaveTargetsForEffect(uint8 effect) const;
         void Delayed();
@@ -485,7 +485,6 @@ class Spell
         void HandleThreatSpells(uint32 spellId);
 
         const SpellEntry * const m_spellInfo;
-        int32 m_currentBasePoints[3]; // overrides SpellEntry::EffectBasePoints IMPORTANT: base points != points calculated
         Item* m_CastItem;
         uint64 m_castItemGUID;
         uint8 m_cast_count;
@@ -576,8 +575,6 @@ class Spell
         bool m_executedCurrently;                           // mark as executed to prevent deleted and access by dead pointers
         bool m_needSpellLog;                                // need to send spell log?
         bool m_needComboPoints;
-        uint8 m_applyMultiplierMask;                        // by effect: damage multiplier needed?
-        float m_damageMultipliers[3];                       // by effect: damage multiplier
 
         // Current targets, to be used in SpellEffects (MUST BE USED ONLY IN SPELL EFFECTS)
         Unit* unitTarget;
