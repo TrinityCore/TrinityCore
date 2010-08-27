@@ -700,14 +700,14 @@ enum InstanceResetWarningType
 // PLAYER_FIELD_ARENA_TEAM_INFO_1_1 offsets
 enum ArenaTeamInfoType
 {
-    ARENA_TEAM_ID               = 0,
-    ARENA_TEAM_TYPE             = 1,                        // new in 3.2 - team type?
-    ARENA_TEAM_MEMBER           = 2,                        // 0 - captain, 1 - member
-    ARENA_TEAM_GAMES_WEEK       = 3,
-    ARENA_TEAM_GAMES_SEASON     = 4,
-    ARENA_TEAM_WINS_SEASON      = 5,
-    ARENA_TEAM_PERSONAL_RATING  = 6,
-    ARENA_TEAM_END              = 7
+    ARENA_TEAM_ID                = 0,
+    ARENA_TEAM_TYPE              = 1,                       // new in 3.2 - team type?
+    ARENA_TEAM_MEMBER            = 2,                       // 0 - captain, 1 - member
+    ARENA_TEAM_GAMES_WEEK        = 3,
+    ARENA_TEAM_GAMES_SEASON      = 4,
+    ARENA_TEAM_WINS_SEASON       = 5,
+    ARENA_TEAM_PERSONAL_RATING   = 6,
+    ARENA_TEAM_END               = 7
 };
 
 class InstanceSave;
@@ -786,7 +786,8 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOADSKILLS               = 25,
     PLAYER_LOGIN_QUERY_LOADWEKLYQUESTSTATUS     = 26,
     PLAYER_LOGIN_QUERY_LOADRANDOMBG             = 27,
-    MAX_PLAYER_LOGIN_QUERY                      = 28
+    PLAYER_LOGIN_QUERY_LOADARENASTATS           = 28,
+    MAX_PLAYER_LOGIN_QUERY                      = 29
 };
 
 enum PlayerDelayedOperations
@@ -2429,6 +2430,7 @@ class Player : public Unit, public GridObject<Player>
         bool _LoadHomeBind(QueryResult_AutoPtr result);
         void _LoadDeclinedNames(QueryResult_AutoPtr result);
         void _LoadArenaTeamInfo(QueryResult_AutoPtr result);
+        void _LoadArenaStatsInfo(QueryResult_AutoPtr result);
         void _LoadEquipmentSets(QueryResult_AutoPtr result);
         void _LoadBGData(QueryResult_AutoPtr result);
         void _LoadGlyphs(QueryResult_AutoPtr result);
