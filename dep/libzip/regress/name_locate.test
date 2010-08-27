@@ -1,6 +1,0 @@
-# various tests for zip_name_locate
-# $NiH: name_locate.test,v 1.1 2005/07/16 17:14:32 wiz Exp $
-program name_locate
-args test.zip
-return 0
-file test.zip test.zip test.zip
