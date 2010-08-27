@@ -4683,7 +4683,7 @@ void Spell::HandleEffects(Unit *pUnitTarget,Item *pItemTarget,GameObject *pGOTar
 
     if (!preventDefault && eff < TOTAL_SPELL_EFFECTS)
     {
-        (this->*SpellEffects[eff])(i);
+        (this->*SpellEffects[eff])((SpellEffIndex)i);
     }
 }
 
@@ -6995,16 +6995,16 @@ int32 Spell::CalculateDamageDone(Unit *unit, const uint32 effectMask, float *mul
             switch(m_spellInfo->Effect[i])
             {
                 case SPELL_EFFECT_SCHOOL_DAMAGE:
-                    SpellDamageSchoolDmg(i);
+                    SpellDamageSchoolDmg((SpellEffIndex)i);
                     break;
                 case SPELL_EFFECT_WEAPON_DAMAGE:
                 case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
                 case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
                 case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
-                    SpellDamageWeaponDmg(i);
+                    SpellDamageWeaponDmg((SpellEffIndex)i);
                     break;
                 case SPELL_EFFECT_HEAL:
-                    SpellDamageHeal(i);
+                    SpellDamageHeal((SpellEffIndex)i);
                     break;
             }
 
