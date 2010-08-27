@@ -521,7 +521,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         damage += pdamage * aura->GetTotalTicks() * pct_dir / 100;
 
                         uint32 pct_dot = m_caster->CalculateSpellDamage(unitTarget, m_spellInfo, (effect_idx + 2)) / 3;
-                        m_currentBasePoints[1] = SpellMgr::CalculateSpellEffectBaseAmount(pdamage * aura->GetTotalTicks() * pct_dot / 100, m_spellInfo, 1);
+                        m_spellValue->EffectBasePoints[1] = SpellMgr::CalculateSpellEffectBaseAmount(pdamage * aura->GetTotalTicks() * pct_dot / 100, m_spellInfo, 1);
 
                         apply_direct_bonus = false;
                         // Glyph of Conflagrate
@@ -1759,7 +1759,7 @@ void Spell::EffectDummy(uint32 i)
 
         targets.setUnitTarget(unitTarget);
         Spell* spell = new Spell(m_caster, spellInfo, triggered, m_originalCasterGUID, true);
-        if (bp) spell->m_currentBasePoints[0] = SpellMgr::CalculateSpellEffectBaseAmount(bp, spellInfo, 0);
+        if (bp) spell->SetSpellValue(SPELLVALUE_BASE_POINT0, bp);
         spell->prepare(&targets);
     }
 
@@ -2778,7 +2778,7 @@ void Spell::EffectPersistentAA(uint32 i)
         caster->AddDynObject(dynObj);
         dynObj->GetMap()->Add(dynObj);
 
-        if (Aura * aura = Aura::TryCreate(m_spellInfo, dynObj, caster, &m_currentBasePoints[0]))
+        if (Aura * aura = Aura::TryCreate(m_spellInfo, dynObj, caster, &m_spellValue->EffectBasePoints[0]))
             m_spellAura = aura;
         else
         {
