@@ -12,7 +12,9 @@
 #include "G3D/fileutils.h"
 #include <sys/stat.h>
 #include <sys/types.h>
-#include "zip.h"
+#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
+    #include "zip.h"
+#endif
 #include "G3D/g3dfnmatch.h"
 #include "G3D/BinaryInput.h"
 #include "G3D/BinaryOutput.h"
@@ -78,6 +80,7 @@ bool FileSystem::Dir::contains(const std::string& f) const {
 }
     
 void FileSystem::Dir::computeZipListing(const std::string& zipfile, const std::string& pathInsideZipfile) {
+#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
     struct zip* z = zip_open( FilePath::removeTrailingSlash(zipfile).c_str(), ZIP_CHECKCONS, NULL );
     debugAssert(z);
 
@@ -126,6 +129,7 @@ void FileSystem::Dir::computeZipListing(const std::string& zipfile, const std::s
     
     zip_close(z);
     z = NULL;
+#endif
 }
 
 
@@ -522,6 +526,7 @@ int64 FileSystem::_size(const std::string& filename) {
     int result = stat64(filename.c_str(), &st);
     
     if (result == -1) {
+#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
         std::string zip, contents;
         if (zipfileExists(filename, zip, contents)) {
             int64 requiredMem;
@@ -538,8 +543,11 @@ int64 FileSystem::_size(const std::string& filename) {
             zip_close(z);
             return requiredMem;
         } else {
+#endif
             return -1;
+#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
         }
+#endif
     }
     
     return st.st_size;

@@ -22,6 +22,7 @@ set(g3dlib_STAT_SRCS
   source/Crypto.cpp
   source/Cylinder.cpp
   source/debugAssert.cpp
+  source/FileSystem.cpp
   source/fileutils.cpp
   source/format.cpp
   source/g3dfnmatch.cpp
@@ -32,6 +33,7 @@ set(g3dlib_STAT_SRCS
   source/Matrix3.cpp
   source/Matrix4.cpp
   source/MemoryManager.cpp
+  source/PhysicsFrame.cpp
   source/Plane.cpp
   source/prompt.cpp
   source/Quat.cpp
@@ -45,6 +47,7 @@ set(g3dlib_STAT_SRCS
   source/TextInput.cpp
   source/TextOutput.cpp
   source/Triangle.cpp
+  source/uint128.cpp
   source/UprightFrame.cpp
   source/Vector2.cpp
   source/Vector3.cpp
