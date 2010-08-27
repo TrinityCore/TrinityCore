@@ -172,7 +172,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recv_data)
 
         BattlegroundQueue& bgQueue = sBattlegroundMgr.m_BattlegroundQueues[bgQueueTypeId];
 
-        GroupQueueInfo * ginfo = bgQueue.AddGroup(_player, NULL, bgTypeId, bracketEntry, 0, false, isPremade, 0);
+        GroupQueueInfo * ginfo = bgQueue.AddGroup(_player, NULL, bgTypeId, bracketEntry, 0, false, isPremade, 0, 0);
         uint32 avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry->GetBracketId());
         // already checked if queueSlot is valid, now just get it
         uint32 queueSlot = _player->AddBattlegroundQueueId(bgQueueTypeId);
@@ -201,7 +201,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recv_data)
         if (err > 0)
         {
             sLog.outDebug("Battleground: the following players are joining as group:");
-            ginfo = bgQueue.AddGroup(_player, grp, bgTypeId, bracketEntry, 0, false, isPremade, 0);
+            ginfo = bgQueue.AddGroup(_player, grp, bgTypeId, bracketEntry, 0, false, isPremade, 0, 0);
             avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry->GetBracketId());
         }
 
@@ -472,7 +472,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recv_data)
                 if (at)
                 {
                     sLog.outDebug("UPDATING memberLost's personal arena rating for %u by opponents rating: %u, because he has left queue!", GUID_LOPART(_player->GetGUID()), ginfo.OpponentsTeamRating);
-                    at->MemberLost(_player, ginfo.OpponentsTeamRating);
+                    at->MemberLost(_player, ginfo.OpponentsMatchmakerRating);
                     at->SaveToDB();
                 }
             }
@@ -481,7 +481,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recv_data)
             bgQueue.RemovePlayer(_player->GetGUID(), true);
             // player left queue, we should update it - do not update Arena Queue
             if (!ginfo.ArenaType)
-                sBattlegroundMgr.ScheduleQueueUpdate(ginfo.ArenaTeamRating, ginfo.ArenaType, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
+                sBattlegroundMgr.ScheduleQueueUpdate(ginfo.ArenaMatchmakerRating, ginfo.ArenaType, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
             SendPacket(&data);
             sLog.outDebug("Battleground: player %s (%u) left queue for bgtype %u, queue type %u.", _player->GetName(), _player->GetGUIDLow(), bg->GetTypeID(), bgQueueTypeId);
             break;
@@ -641,6 +641,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recv_data)
 
     uint8 arenatype = 0;
     uint32 arenaRating = 0;
+    uint32 matchmakerRating = 0;
 
     switch(arenaslot)
     {
@@ -715,23 +716,8 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recv_data)
         }
         // get the team rating for queueing
         arenaRating = at->GetRating();
+        matchmakerRating = at->GetAverageMMR(grp);
         // the arenateam id must match for everyone in the group
-        // get the personal ratings for queueing
-        uint32 avg_pers_rating = 0;
-        for (GroupReference *itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
-        {
-            Player *member = itr->getSource();
-
-            // calc avg personal rating
-            avg_pers_rating += member->GetArenaPersonalRating(arenaslot);
-        }
-
-        if (arenatype)
-            avg_pers_rating /= arenatype;
-
-        // if avg personal rating is more than 150 points below the teams rating, the team will be queued against an opponent matching or similar to the average personal rating
-        if (avg_pers_rating + 150 < arenaRating)
-            arenaRating = avg_pers_rating;
 
         if (arenaRating <= 0)
             arenaRating = 1;
@@ -747,13 +733,13 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recv_data)
             sLog.outDebug("Battleground: arena join as group start");
             if (isRated)
             {
-                sLog.outDebug("Battleground: arena team id %u, leader %s queued with rating %u for type %u",_player->GetArenaTeamId(arenaslot),_player->GetName(),arenaRating,arenatype);
+                sLog.outDebug("Battleground: arena team id %u, leader %s queued with matchmaker rating %u for type %u",_player->GetArenaTeamId(arenaslot),_player->GetName(),matchmakerRating,arenatype);
                 bg->SetRated(true);
             }
             else
                 bg->SetRated(false);
 
-            GroupQueueInfo * ginfo = bgQueue.AddGroup(_player, grp, bgTypeId, bracketEntry, arenatype, isRated, false, arenaRating, ateamId);
+            GroupQueueInfo * ginfo = bgQueue.AddGroup(_player, grp, bgTypeId, bracketEntry, arenatype, isRated, false, arenaRating, matchmakerRating, ateamId);
             avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry->GetBracketId());
         }
 
@@ -785,7 +771,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recv_data)
     }
     else
     {
-        GroupQueueInfo * ginfo = bgQueue.AddGroup(_player, NULL, bgTypeId, bracketEntry, arenatype, isRated, false, arenaRating, ateamId);
+        GroupQueueInfo * ginfo = bgQueue.AddGroup(_player, NULL, bgTypeId, bracketEntry, arenatype, isRated, false, arenaRating, matchmakerRating, ateamId);
         uint32 avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry->GetBracketId());
         uint32 queueSlot = _player->AddBattlegroundQueueId(bgQueueTypeId);
 
@@ -795,7 +781,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recv_data)
         SendPacket(&data);
         sLog.outDebug("Battleground: player joined queue for arena, skirmish, bg queue type %u bg type %u: GUID %u, NAME %s",bgQueueTypeId,bgTypeId,_player->GetGUIDLow(), _player->GetName());
     }
-    sBattlegroundMgr.ScheduleQueueUpdate(arenaRating, arenatype, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
+    sBattlegroundMgr.ScheduleQueueUpdate(matchmakerRating, arenatype, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
 }
 
 void WorldSession::HandleReportPvPAFK(WorldPacket & recv_data)

@@ -513,6 +513,8 @@ class Battleground
         uint32 GetArenaTeamIdForTeam(uint32 Team) const             { return m_ArenaTeamIds[GetTeamIndexByTeamId(Team)]; }
         void SetArenaTeamRatingChangeForTeam(uint32 Team, int32 RatingChange) { m_ArenaTeamRatingChanges[GetTeamIndexByTeamId(Team)] = RatingChange; }
         int32 GetArenaTeamRatingChangeForTeam(uint32 Team) const    { return m_ArenaTeamRatingChanges[GetTeamIndexByTeamId(Team)]; }
+        void SetArenaMatchmakerRating(uint32 Team, uint32 MMR){ m_ArenaTeamMMR[GetTeamIndexByTeamId(Team)] = MMR; }
+        uint32 GetArenaMatchmakerRating(uint32 Team)                { return m_ArenaTeamMMR[GetTeamIndexByTeamId(Team)]; }
         void CheckArenaWinConditions();
         void UpdateArenaWorldState();
 
@@ -649,6 +651,7 @@ class Battleground
         uint32 m_ArenaTeamIds[BG_TEAMS_COUNT];
 
         int32 m_ArenaTeamRatingChanges[BG_TEAMS_COUNT];
+        uint32 m_ArenaTeamMMR[BG_TEAMS_COUNT];
 
         /* Limits */
         uint32 m_LevelMin;
