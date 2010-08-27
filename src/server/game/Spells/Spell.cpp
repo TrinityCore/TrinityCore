@@ -7269,7 +7269,7 @@ void Spell::InitEffectExecuteData(uint8 effIndex)
     ASSERT(effIndex < MAX_SPELL_EFFECTS);
     if (!m_effectExecuteData[effIndex])
     {
-        m_effectExecuteData[effIndex] = new ByteBuffer();
+        m_effectExecuteData[effIndex] = new ByteBuffer(0x20);
         // first dword - target counter
         *m_effectExecuteData[effIndex] << uint32(1);
     }
