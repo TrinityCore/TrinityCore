@@ -2347,11 +2347,12 @@ void Spell::EffectPowerDrain(SpellEffIndex effIndex)
     damage = m_caster->SpellDamageBonus(unitTarget, m_spellInfo, uint32(damage), SPELL_DIRECT_DAMAGE);
 
     // resilience reduce mana draining effect at spell crit damage reduction (added in 2.4)
-    uint32 power = damage;
+    int32 power = damage;
     if (powerType == POWER_MANA)
         power -= unitTarget->GetSpellCritDamageReduction(power);
+    power = std::min(0, power);
 
-    int32 newDamage = unitTarget->ModifyPower(powerType, -int32(power));
+    int32 newDamage = -(unitTarget->ModifyPower(powerType, -int32(power)));
 
     float gainMultiplier = 0.0f;
 
@@ -2400,24 +2401,25 @@ void Spell::EffectPowerBurn(SpellEffIndex effIndex)
     // burn x% of target's mana, up to maximum of 2x% of caster's mana (Mana Burn)
     if (m_spellInfo->ManaCostPercentage)
     {
-        int32 maxdamage = m_caster->GetMaxPower(powerType) * damage * 2 / 100;
+        int32 maxDamage = m_caster->GetMaxPower(powerType) * damage * 2 / 100;
         damage = unitTarget->GetMaxPower(powerType) * damage / 100;
-        if (damage > maxdamage) damage = maxdamage;
+        damage = std::min(damage, maxDamage);
     }
 
     int32 power = damage;
     // resilience reduce mana draining effect at spell crit damage reduction (added in 2.4)
     if (powerType == POWER_MANA)
         power -= unitTarget->GetSpellCritDamageReduction(power);
+    power = std::min(0, power);
 
-    int32 newDamage = unitTarget->ModifyPower(powerType, -power);
+    int32 newDamage = -(unitTarget->ModifyPower(powerType, -power));
 
     // NO - Not a typo - EffectPowerBurn uses effect value multiplier - not effect damage multiplier
     float dmgMultiplier = SpellMgr::CalculateSpellEffectValueMultiplier(m_spellInfo, effIndex, m_originalCaster, this);
 
     newDamage = int32(newDamage * dmgMultiplier);
 
-    ExecuteLogEffectTakeTargetPower(effIndex,unitTarget, powerType, newDamage, dmgMultiplier);
+    ExecuteLogEffectTakeTargetPower(effIndex, unitTarget, powerType, newDamage, dmgMultiplier);
 
     if (m_originalCaster)
         m_originalCaster->DealDamage(unitTarget, newDamage);
