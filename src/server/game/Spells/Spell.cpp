@@ -6196,6 +6196,7 @@ SpellCastResult Spell::CheckItems()
         switch (m_spellInfo->Effect[i])
         {
             case SPELL_EFFECT_CREATE_ITEM:
+            case SPELL_EFFECT_CREATE_ITEM_2:
             {
                 if (!m_IsTriggeredSpell && m_spellInfo->EffectItemType[i])
                 {
