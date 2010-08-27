@@ -20301,6 +20301,11 @@ bool Player::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList, bool
     if (m_mover == u || this == u)
         return true;
 
+    // Arena visibility before arena start
+    if (HasAura(32727)) // Arena Preparation
+        if (const Player* target = u->GetCharmerOrOwnerPlayerOrPlayerItself())
+            return GetBGTeam() == target->GetBGTeam();
+
     // phased visibility (both must phased in same way)
     if (!InSamePhase(u))
         return false;
