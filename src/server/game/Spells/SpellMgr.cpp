@@ -1902,7 +1902,7 @@ float SpellMgr::CalculateSpellEffectValueMultiplier(SpellEntry const * spellEntr
 
     if (caster)
         if (Player * modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(spellEntry->Id, SPELLMOD_VALUE_MULTIPLIER, multiplier);
+            modOwner->ApplySpellMod(spellEntry->Id, SPELLMOD_VALUE_MULTIPLIER, multiplier, spell);
     return multiplier;
 }
 
@@ -1912,7 +1912,7 @@ float SpellMgr::CalculateSpellEffectDamageMultiplier(SpellEntry const * spellEnt
 
     if (caster)
         if (Player * modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(spellEntry->Id, SPELLMOD_DAMAGE_MULTIPLIER, multiplier);
+            modOwner->ApplySpellMod(spellEntry->Id, SPELLMOD_DAMAGE_MULTIPLIER, multiplier, spell);
     return multiplier;
 }
 
