@@ -5579,7 +5579,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                 if (target->GetTypeId() != TYPEID_PLAYER)
                     return;
                 //  ..while they are casting
-                if (target->IsNonMeleeSpellCasted(false, false, true, false, true))
+                if (target->IsNonMeleeSpellCasted(false, false, true, false, false))
                     if (AuraEffect * aurEff = caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_WARRIOR, 2775, 0))
                         switch (aurEff->GetId())
                         {
