@@ -1,7 +1,0 @@
-zipcmp=${pc_top_builddir}/${pcfiledir}/src/zipcmp
-
-Name: libzip uninstalled
-Description: library for handling zip archvies, uninstalled
-Version: @VERSION@
-Libs: ${pc_top_builddir}/${pcfiledir}/lib/libzip.la @LIBS@
-Cflags: -I${pc_top_builddir}/${pcfiledir}/@srcdir@/lib

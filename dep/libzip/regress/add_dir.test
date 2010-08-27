@@ -1,5 +1,0 @@
-# add directories to zip
-program add_dir
-return 0
-args testdir.zip
-file-new testdir.zip testdir.zip

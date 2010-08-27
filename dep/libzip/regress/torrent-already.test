@@ -1,6 +1,0 @@
-# add directories to zip
-program ../src/ziptorrent
-return 0
-args -v test.zip
-file test.zip  testtorrent.tzip testtorrent.tzip
-stdout test.zip: already torrentzipped
