@@ -1754,7 +1754,7 @@ LfgLockStatusMap* LFGMgr::GetGroupLockStatusDungeons(PlayerSet *pPlayers, LfgDun
     {
         dungeonSet = GetPlayerLockStatusDungeons(*itr, dungeons);
         if (dungeonSet)
-            (*dungeonMap)[(*itr)->GetGUID()] = dungeonSet;
+            (*dungeonMap)[(*itr)->GetGUIDLow()] = dungeonSet;
     }
 
     if (!dungeonMap->size())
