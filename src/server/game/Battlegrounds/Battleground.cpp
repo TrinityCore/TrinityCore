@@ -430,7 +430,7 @@ void Battleground::Update(uint32 diff)
                     {
                         // BG Status packet
                         WorldPacket status;
-                        BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr.BGQueueTypeId(m_eTypeID, GetArenaType());
+                        BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr.BGQueueTypeId(m_TypeID, GetArenaType());
                         uint32 queueSlot = plr->GetBattlegroundQueueIndex(bgQueueTypeId);
                         sBattlegroundMgr.BuildBattlegroundStatusPacket(&status, this, queueSlot, STATUS_IN_PROGRESS, 0, GetStartTime(), GetArenaType());
                         plr->GetSession()->SendPacket(&status);
