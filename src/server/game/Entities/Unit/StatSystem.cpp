@@ -943,6 +943,8 @@ bool Guardian::UpdateStats(Stats stat)
 
     // value = ((base_value * base_pct) + total_value) * total_pct
     float value  = GetTotalStatValue(stat);
+    ApplyStatBuffMod(stat, m_statFromOwner[stat], false);
+    float ownersBonus = 0.0f;
 
     Unit *owner = GetOwner();
     // Handle Death Knight Glyphs and Talents
@@ -956,7 +958,7 @@ bool Guardian::UpdateStats(Stats stat)
             default: break;
         }
         // Ravenous Dead
-        AuraEffect const *aurEff;
+        AuraEffect const *aurEff = NULL;
         // Check just if owner has Ravenous Dead since it's effect is not an aura
         aurEff = owner->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, SPELLFAMILY_DEATHKNIGHT, 3010, 0);
         if (aurEff)
@@ -968,37 +970,43 @@ bool Guardian::UpdateStats(Stats stat)
         aurEff = owner->GetAuraEffect(58686, 0);
         if (aurEff)
             mod += (aurEff->GetAmount() / 100.0f);                                                                    // Glyph of the Ghoul adds a flat value to the scale mod
-        value += float(owner->GetStat(stat)) * mod;
+        ownersBonus = float(owner->GetStat(stat)) * mod;
+        value += ownersBonus;
     }
     else if (stat == STAT_STAMINA)
     {
         if (owner->getClass() == CLASS_WARLOCK && isPet())
-        value += float(owner->GetStat(STAT_STAMINA)) * 0.75f;
+        {
+            ownersBonus = float(owner->GetStat(STAT_STAMINA)) * 0.75f;
+            value += ownersBonus;
+        }
         else
         {
-            mod = 0.3f;
-            if (this->ToCreature()->isPet())
+            mod = 0.45f;
+            if (isPet())
             {
-                PetSpellMap::const_iterator itr = (((Pet*)this)->m_spells.find(62758));   // Wild Hunt rank 1
-                if (itr == ((Pet*)this)->m_spells.end())
-                {
-                    itr = ((Pet*)this)->m_spells.find(62762);                             // Wild Hunt rank 2
-                }
-                if (itr != ((Pet*)this)->m_spells.end())                                  // If pet has Wild Hunt
-                {
+                PetSpellMap::const_iterator itr = (ToPet()->m_spells.find(62758)); // Wild Hunt rank 1
+                if (itr == ToPet()->m_spells.end())
+                    itr = ToPet()->m_spells.find(62762);                            // Wild Hunt rank 2
 
-                    SpellEntry const* sProto = sSpellStore.LookupEntry(itr->first);       // Then get the SpellProto and add the dummy effect value
+                if (itr != ToPet()->m_spells.end())                                 // If pet has Wild Hunt
+                {
+                    SpellEntry const* sProto = sSpellStore.LookupEntry(itr->first); // Then get the SpellProto and add the dummy effect value
                     mod += mod * (SpellMgr::CalculateSpellEffectAmount(sProto, 0) / 100.0f);
                 }
             }
-            value += float(owner->GetStat(stat)) * mod;
+            ownersBonus = float(owner->GetStat(stat)) * mod;
+            value += ownersBonus;
         }
     }
                                                             //warlock's and mage's pets gain 30% of owner's intellect
     else if (stat == STAT_INTELLECT)
     {
         if (owner->getClass() == CLASS_WARLOCK || owner->getClass() == CLASS_MAGE)
-            value += float(owner->GetStat(stat)) * 0.3f;
+        {
+            ownersBonus = float(owner->GetStat(stat)) * 0.3f;
+            value += ownersBonus;
+        }
     }
 /*
     else if (stat == STAT_STRENGTH)
@@ -1009,6 +1017,8 @@ bool Guardian::UpdateStats(Stats stat)
 */
 
     SetStat(stat, int32(value));
+    m_statFromOwner[stat] = ownersBonus;
+    ApplyStatBuffMod(stat, m_statFromOwner[stat], true);
 
     switch (stat)
     {
@@ -1142,21 +1152,20 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
     {
         if (isHunterPet())                      //hunter pets benefit from owner's attack power
         {
-        float mod = 1.0f;                                                 //Hunter contribution modifier
-            if (this->ToCreature()->isPet())
-        {
-          PetSpellMap::const_iterator itr = ((Pet*)this)->m_spells.find(62758);                     //Wild Hunt rank 1
-          if (itr == ((Pet*)this)->m_spells.end())
-          {
-        itr = ((Pet*)this)->m_spells.find(62762);                                 //Wild Hunt rank 2
-          }
-          if (itr != ((Pet*)this)->m_spells.end())                                     // If pet has Wild Hunt
-          {
+            float mod = 1.0f;                                                 //Hunter contribution modifier
+            if (isPet())
+            {
+                PetSpellMap::const_iterator itr = ToPet()->m_spells.find(62758);    //Wild Hunt rank 1
+                if (itr == ToPet()->m_spells.end())
+                    itr = ToPet()->m_spells.find(62762);                            //Wild Hunt rank 2
 
-        SpellEntry const* sProto = sSpellStore.LookupEntry(itr->first);                                    // Then get the SpellProto and add the dummy effect value
-                mod += (SpellMgr::CalculateSpellEffectAmount(sProto, 1) / 100.0f);
-          }
-        }
+                if (itr != ToPet()->m_spells.end())                                 // If pet has Wild Hunt
+                {
+                    SpellEntry const* sProto = sSpellStore.LookupEntry(itr->first); // Then get the SpellProto and add the dummy effect value
+                    mod += (SpellMgr::CalculateSpellEffectAmount(sProto, 1) / 100.0f);
+                }
+            }
+
             bonusAP = owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.22f * mod;
             SetBonusDamage(int32(owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.1287f * mod));
         }
@@ -1246,7 +1255,7 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
     //  Pet's base damage changes depending on happiness
     if (isHunterPet() && attType == BASE_ATTACK)
     {
-        switch(((Pet*)this)->GetHappinessState())
+        switch(ToPet()->GetHappinessState())
         {
             case HAPPY:
                 // 125% of normal damage
@@ -1281,4 +1290,11 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
 
     SetStatFloatValue(UNIT_FIELD_MINDAMAGE, mindamage);
     SetStatFloatValue(UNIT_FIELD_MAXDAMAGE, maxdamage);
+}
+
+void Guardian::SetBonusDamage(int32 damage)
+{
+    m_bonusSpellDamage = damage;
+    if (GetOwner()->GetTypeId() == TYPEID_PLAYER)
+        GetOwner()->SetUInt32Value(PLAYER_PET_SPELL_POWER, damage);
 }
