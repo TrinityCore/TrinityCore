@@ -1194,6 +1194,7 @@ public:
 
     bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
     {
+        pPlayer->PlayerTalkClass->ClearMenus();
         InstanceScript* pInstance = pCreature->GetInstanceScript();
         switch(uiAction)
         {

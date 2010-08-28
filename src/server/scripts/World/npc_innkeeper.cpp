@@ -81,6 +81,7 @@ public:
 
     bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
     {
+        pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF+HALLOWEEN_EVENTID && IsEventActive(HALLOWEEN_EVENTID) && !pPlayer->HasAura(SPELL_TRICK_OR_TREATED))
         {
             pPlayer->CastSpell(pPlayer, SPELL_TRICK_OR_TREATED, true);
