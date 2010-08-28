@@ -107,7 +107,6 @@ CREATE TABLE `arena_team_member` (
   `wons_week` int(10) unsigned NOT NULL default '0',
   `played_season` int(10) unsigned NOT NULL default '0',
   `wons_season` int(10) unsigned NOT NULL default '0',
-  `personal_rating` int(10) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY  (`arenateamid`,`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -119,6 +118,31 @@ CREATE TABLE `arena_team_member` (
 LOCK TABLES `arena_team_member` WRITE;
 /*!40000 ALTER TABLE `arena_team_member` DISABLE KEYS */;
 /*!40000 ALTER TABLE `arena_team_member` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `character_arena_stats`
+--
+
+DROP TABLE IF EXISTS `character_arena_stats`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `character_arena_stats` (
+  `guid`  int(10) NOT NULL ,
+  `slot`  smallint(1) NOT NULL ,
+  `personal_rating`  int(10) NOT NULL ,
+  `matchmaker_rating`  int(10) NOT NULL ,
+  PRIMARY KEY (`guid`, `slot`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `character_arena_stats`
+--
+
+LOCK TABLES `character_arena_stats` WRITE;
+/*!40000 ALTER TABLE `character_arena_stats` DISABLE KEYS */;
+/*!40000 ALTER TABLE `character_arena_stats` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
