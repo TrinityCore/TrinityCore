@@ -2356,7 +2356,6 @@ void Spell::EffectPowerDrain(SpellEffIndex effIndex)
     int32 power = damage;
     if (powerType == POWER_MANA)
         power -= unitTarget->GetSpellCritDamageReduction(power);
-    power = std::min(0, power);
 
     int32 newDamage = -(unitTarget->ModifyPower(powerType, -int32(power)));
 
@@ -2416,7 +2415,6 @@ void Spell::EffectPowerBurn(SpellEffIndex effIndex)
     // resilience reduce mana draining effect at spell crit damage reduction (added in 2.4)
     if (powerType == POWER_MANA)
         power -= unitTarget->GetSpellCritDamageReduction(power);
-    power = std::min(0, power);
 
     int32 newDamage = -(unitTarget->ModifyPower(powerType, -power));
 
@@ -2551,43 +2549,30 @@ void Spell::SpellDamageHeal(SpellEffIndex /*effIndex*/)
 
 void Spell::EffectHealPct(SpellEffIndex /*effIndex*/)
 {
-    if (unitTarget && unitTarget->isAlive() && damage >= 0)
-    {
-        // Try to get original caster
-        Unit *caster = m_originalCasterGUID ? m_originalCaster : m_caster;
+    if (!unitTarget || !unitTarget->isAlive() || damage < 0)
+        return;
 
-        // Skip if m_originalCaster not available
-        if (!caster)
-            return;
+    // Skip if m_originalCaster not available
+    if (!m_originalCaster)
+        return;
 
-        // Rune Tap - Party
-        if (m_spellInfo->Id == 59754 && unitTarget == m_caster)
-            return;
+    // Rune Tap - Party
+    if (m_spellInfo->Id == 59754 && unitTarget == m_caster)
+        return;
 
-        uint32 addhealth = caster->SpellHealingBonus(unitTarget, m_spellInfo, unitTarget->CountPctFromMaxHealth(damage), HEAL);
-        //if (Player *modOwner = m_caster->GetSpellModOwner())
-        //    modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DAMAGE, addhealth, this);
-
-        int32 gain = caster->HealBySpell(unitTarget, m_spellInfo, addhealth);
-        unitTarget->getHostileRefManager().threatAssist(m_caster, float(gain) * 0.5f, m_spellInfo);
-    }
+    m_healing += m_originalCaster->SpellHealingBonus(unitTarget, m_spellInfo, unitTarget->CountPctFromMaxHealth(damage), HEAL);
 }
 
 void Spell::EffectHealMechanical(SpellEffIndex /*effIndex*/)
 {
-    // Mechanic creature type should be correctly checked by targetCreatureType field
-    if (unitTarget && unitTarget->isAlive() && damage >= 0)
-    {
-        // Try to get original caster
-        Unit *caster = m_originalCasterGUID ? m_originalCaster : m_caster;
+    if (!unitTarget || !unitTarget->isAlive() || damage < 0)
+        return;
 
-        // Skip if m_originalCaster not available
-        if (!caster)
-            return;
+    // Skip if m_originalCaster not available
+    if (!m_originalCaster)
+        return;
 
-        uint32 addhealth = caster->SpellHealingBonus(unitTarget, m_spellInfo, uint32(damage), HEAL);
-        caster->HealBySpell(unitTarget, m_spellInfo, addhealth);
-    }
+    m_healing += m_originalCaster->SpellHealingBonus(unitTarget, m_spellInfo, uint32(damage), HEAL);
 }
 
 void Spell::EffectHealthLeech(SpellEffIndex effIndex)
@@ -2600,11 +2585,7 @@ void Spell::EffectHealthLeech(SpellEffIndex effIndex)
     float healMultiplier = SpellMgr::CalculateSpellEffectValueMultiplier(m_spellInfo, effIndex, m_originalCaster, this);
 
     int32 newDamage = int32(damage * healMultiplier);
-
-    uint32 curHealth = unitTarget->GetHealth();
-    newDamage = m_caster->SpellNonMeleeDamageLog(unitTarget, m_spellInfo->Id, newDamage);
-    if (int32(curHealth) < newDamage)
-        newDamage = curHealth;
+    m_damage += newDamage;
 
     if (m_caster->isAlive())
     {
@@ -4433,37 +4414,33 @@ void Spell::EffectThreat(SpellEffIndex /*effIndex*/)
 
 void Spell::EffectHealMaxHealth(SpellEffIndex /*effIndex*/)
 {
-    if (!unitTarget)
-        return;
-    if (!unitTarget->isAlive())
+    if (!unitTarget || !unitTarget->isAlive())
         return;
 
     int32 addhealth;
     if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PALADIN) // Lay on Hands
     {
-        if (m_caster && m_caster->GetGUID() == unitTarget->GetGUID())
+        if (m_caster->GetGUID() == unitTarget->GetGUID())
         {
             m_caster->CastSpell(m_caster, 25771, true); // Forbearance
             m_caster->CastSpell(m_caster, 61988, true); // Immune shield marker (serverside)
             m_caster->CastSpell(m_caster, 61987, true); // Avenging Wrath marker
         }
-
-        addhealth = m_caster->GetMaxHealth();
     }
+
+    // damage == 0 - heal for caster max health
+    if (damage == 0)
+        addhealth = m_caster->GetMaxHealth();
     else
         addhealth = unitTarget->GetMaxHealth() - unitTarget->GetHealth();
+
     if (m_originalCaster)
-    {
-         addhealth=m_originalCaster->SpellHealingBonus(unitTarget,m_spellInfo, addhealth, HEAL);
-         m_originalCaster->HealBySpell(unitTarget, m_spellInfo, addhealth);
-    }
+         m_healing += m_originalCaster->SpellHealingBonus(unitTarget,m_spellInfo, addhealth, HEAL);
 }
 
 void Spell::EffectInterruptCast(SpellEffIndex effIndex)
 {
-    if (!unitTarget)
-        return;
-    if (!unitTarget->isAlive())
+    if (!unitTarget || !unitTarget->isAlive())
         return;
 
     // TODO: not all spells that used this effect apply cooldown at school spells
