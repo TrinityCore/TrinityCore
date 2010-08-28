@@ -621,9 +621,9 @@ float ArenaTeam::GetChanceAgainst(uint32 own_rating, uint32 enemy_rating)
     // returns the chance to win against a team with the given rating, used in the rating adjustment calculation
     // ELO system
 
-    if (sWorld.getIntConfig(CONFIG_ARENA_SEASON_ID) >= 6)
+/*    if (sWorld.getIntConfig(CONFIG_ARENA_SEASON_ID) >= 6)
         if (enemy_rating < 1000)
-            enemy_rating = 1000;
+            enemy_rating = 1000;*/
     return 1.0f/(1.0f+exp(log(10.0f)*(float)((float)enemy_rating - (float)own_rating)/400.0f));
 }
 
@@ -657,7 +657,7 @@ int32 ArenaTeam::WonAgainst(uint32 againstRating)
     if (m_stats.rating < 1000)
         mod = (int32)ceil(48.0f * (1.0f - chance));
     else if (m_stats.rating < 1300)
-        mod = (int32)ceil((24.0f + (24.0f * (1300 - m_stats.rating) / 300)) * (1.0f - chance));
+        mod = (int32)ceil((24.0f + (24.0f * (1300.0f - int32(m_stats.rating)) / 300.0f)) * (1.0f - chance));
     else
         mod = (int32)ceil(24.0f * (1.0f - chance));
 
@@ -678,13 +678,7 @@ int32 ArenaTeam::LostAgainst(uint32 againstRating)
 
     // calculate the rating lost
     // there is not much info on the formula, but this is a very good simulation
-    int32 mod;
-    if (m_stats.rating < 1000)
-        mod = (int32)floor(48.0f * (0.0f - chance));
-    else if (m_stats.rating < 1300)
-        mod = (int32)floor((24.0f + (24.0f * (1300 - m_stats.rating) / 300)) * (0.0f - chance));
-    else
-        mod = (int32)floor(24.0f * (0.0f - chance));
+    int32 mod = (int32)floor(24.0f * (0.0f - chance));
 
     // modify the team stats accordingly
     FinishGame(mod);
@@ -703,13 +697,7 @@ void ArenaTeam::MemberLost(Player * plr, uint32 againstMatchmakerRating)
             // update personal rating
             float chance = GetChanceAgainst(itr->personal_rating, m_stats.rating);
             // calculate the rating modification
-            int32 mod;
-            if (itr->personal_rating < 1000)
-                mod = (int32)floor(48.0f * (0.0f - chance));
-            else if (itr->personal_rating < 1300)
-                mod = (int32)floor((24.0f + (24.0f * (1300 - m_stats.rating) / 300)) * (0.0f - chance));
-            else
-                mod = (int32)floor(24.0f * (0.0f - chance));
+            int32 mod = (int32)floor(24.0f * (0.0f - chance));
             itr->ModifyPersonalRating(plr, mod, GetSlot());
             // update matchmaker rating
             chance = GetChanceAgainst(itr->matchmaker_rating, againstMatchmakerRating);
@@ -737,13 +725,7 @@ void ArenaTeam::OfflineMemberLost(uint64 guid, uint32 againstMatchmakerRating)
             // update personal rating
             float chance = GetChanceAgainst(itr->personal_rating, m_stats.rating);
             // calculate the rating modification
-            int32 mod;
-            if (itr->personal_rating < 1000)
-                mod = (int32)floor(48.0f * (0.0f - chance));
-            else if (itr->personal_rating < 1300)
-                mod = (int32)floor((24.0f + (24.0f * (1300 - m_stats.rating) / 300)) * (0.0f - chance));
-            else
-                mod = (int32)floor(24.0f * (0.0f - chance));
+            int32 mod = (int32)floor(24.0f * (0.0f - chance));
             itr->ModifyPersonalRating(NULL, mod, GetSlot());
             // update matchmaker rating
             chance = GetChanceAgainst(itr->matchmaker_rating, againstMatchmakerRating);
@@ -773,7 +755,7 @@ void ArenaTeam::MemberWon(Player * plr, uint32 againstMatchmakerRating)
             if (itr->personal_rating < 1000)
                 mod = (int32)ceil(48.0f * (1.0f - chance));
             else if (itr->personal_rating < 1300)
-                mod = (int32)ceil((24.0f + (24.0f * (1300 - m_stats.rating) / 300)) * (1.0f - chance));
+                mod = (int32)ceil((24.0f + (24.0f * (1300.0f - int32(itr->personal_rating)) / 300.0f)) * (1.0f - chance));
             else
                 mod = (int32)ceil(24.0f * (1.0f - chance));
             itr->ModifyPersonalRating(plr, mod, GetSlot());
