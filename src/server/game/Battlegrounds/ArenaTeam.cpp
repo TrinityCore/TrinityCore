@@ -654,8 +654,10 @@ int32 ArenaTeam::WonAgainst(uint32 againstRating)
     // calculate the rating modification
     // simulation on how it works. Not much info on how it really works
     int32 mod;
-    if (m_stats.rating < 1500)
-        mod = (int32)ceil(48.0f * (1.0f - chance) * (1.0f - chance));
+    if (m_stats.rating < 1000)
+        mod = (int32)ceil(48.0f * (1.0f - chance));
+    else if (m_stats.rating < 1300)
+        mod = (int32)ceil((24.0f + (24.0f * (1300 - m_stats.rating) / 300)) * (1.0f - chance));
     else
         mod = (int32)ceil(24.0f * (1.0f - chance));
 
@@ -668,21 +670,19 @@ int32 ArenaTeam::WonAgainst(uint32 againstRating)
     return mod;
 }
 
-int32 ArenaTeam::LostAgainst(uint32 againstRating, bool winnerlowrating)
+int32 ArenaTeam::LostAgainst(uint32 againstRating)
 {
     // called when the team has lost
     //'chance' calculation - to loose to the opponent
     float chance = GetChanceAgainst(m_stats.rating, againstRating);
-    if (m_stats.rating < 1000)
-    {
-        FinishGame(0);
-        return 0;
-    }
+
     // calculate the rating lost
     // there is not much info on the formula, but this is a very good simulation
     int32 mod;
-    if (winnerlowrating)
-        mod = (int32)floor(48.0f * chance * chance) * -1;
+    if (m_stats.rating < 1000)
+        mod = (int32)floor(48.0f * (0.0f - chance));
+    else if (m_stats.rating < 1300)
+        mod = (int32)floor((24.0f + (24.0f * (1300 - m_stats.rating) / 300)) * (0.0f - chance));
     else
         mod = (int32)floor(24.0f * (0.0f - chance));
 
@@ -703,7 +703,13 @@ void ArenaTeam::MemberLost(Player * plr, uint32 againstMatchmakerRating)
             // update personal rating
             float chance = GetChanceAgainst(itr->personal_rating, m_stats.rating);
             // calculate the rating modification
-            int32 mod = (int32)floor(24.0f * (0.0f - chance));
+            int32 mod;
+            if (itr->personal_rating < 1000)
+                mod = (int32)floor(48.0f * (0.0f - chance));
+            else if (itr->personal_rating < 1300)
+                mod = (int32)floor((24.0f + (24.0f * (1300 - m_stats.rating) / 300)) * (0.0f - chance));
+            else
+                mod = (int32)floor(24.0f * (0.0f - chance));
             itr->ModifyPersonalRating(plr, mod, GetSlot());
             // update matchmaker rating
             chance = GetChanceAgainst(itr->matchmaker_rating, againstMatchmakerRating);
@@ -731,7 +737,13 @@ void ArenaTeam::OfflineMemberLost(uint64 guid, uint32 againstMatchmakerRating)
             // update personal rating
             float chance = GetChanceAgainst(itr->personal_rating, m_stats.rating);
             // calculate the rating modification
-            int32 mod = (int32)ceil(24.0f * (0.0f - chance));
+            int32 mod;
+            if (itr->personal_rating < 1000)
+                mod = (int32)floor(48.0f * (0.0f - chance));
+            else if (itr->personal_rating < 1300)
+                mod = (int32)floor((24.0f + (24.0f * (1300 - m_stats.rating) / 300)) * (0.0f - chance));
+            else
+                mod = (int32)floor(24.0f * (0.0f - chance));
             itr->ModifyPersonalRating(NULL, mod, GetSlot());
             // update matchmaker rating
             chance = GetChanceAgainst(itr->matchmaker_rating, againstMatchmakerRating);
@@ -757,7 +769,13 @@ void ArenaTeam::MemberWon(Player * plr, uint32 againstMatchmakerRating)
             // update personal rating
             float chance = GetChanceAgainst(itr->personal_rating, m_stats.rating);
             // calculate the rating modification
-            int32 mod = (int32)ceil(24.0f * (1.0f - chance));
+            int32 mod;
+            if (itr->personal_rating < 1000)
+                mod = (int32)ceil(48.0f * (1.0f - chance) * (1.0f - chance));
+            else if (itr->personal_rating < 1300)
+                mod = (int32)ceil((24.0f + (24.0f * (1300 - m_stats.rating) / 300)) * (1.0f - chance));
+            else
+                mod = (int32)ceil(24.0f * (1.0f - chance));
             itr->ModifyPersonalRating(plr, mod, GetSlot());
             // update matchmaker rating
             chance = GetChanceAgainst(matchmakerrating, againstMatchmakerRating);
