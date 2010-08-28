@@ -79,10 +79,11 @@ class Guardian : public Minion
         void UpdateAttackPowerAndDamage(bool ranged = false);
         void UpdateDamagePhysical(WeaponAttackType attType);
 
-        int32 GetBonusDamage() { return m_bonusdamage; }
-        void SetBonusDamage(int32 damage) { m_bonusdamage = damage; }
+        int32 GetBonusDamage() { return m_bonusSpellDamage; }
+        void SetBonusDamage(int32 damage);
     protected:
-        int32   m_bonusdamage;
+        int32   m_bonusSpellDamage;
+        float   m_statFromOwner[MAX_STATS];
 };
 
 class Puppet : public Minion
