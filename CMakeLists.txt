@@ -32,14 +32,14 @@ endif()
 include(CheckCXXSourceRuns)
 include(CheckIncludeFiles)
 
+# set default buildoptions and print them
+include(cmake/options.cmake)
+
 # turn off PCH totally if enabled (hidden setting, mainly for devs)
 if( NOPCH )
   set(USE_COREPCH 0)
   set(USE_SCRIPTPCH 0)
 endif()
-
-# set default buildoptions and print them
-include(cmake/options.cmake)
 
 include(CheckPlatform)
 
