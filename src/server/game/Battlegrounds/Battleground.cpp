@@ -731,7 +731,7 @@ void Battleground::EndBattleground(uint32 winner)
             winner_team_rating = winner_arena_team->GetRating();
             winner_matchmaker_rating = winner_arena_team->GetAverageMMR(GetBgRaid(winner));
             int32 winner_change = winner_arena_team->WonAgainst(loser_matchmaker_rating);
-            int32 loser_change = loser_arena_team->LostAgainst(winner_matchmaker_rating, winner_team_rating < 1500);
+            int32 loser_change = loser_arena_team->LostAgainst(winner_matchmaker_rating);
             sLog.outDebug("--- Winner rating: %u, Loser rating: %u, Winner MMR: %u, Loser MMR: %u, Winner change: %u, Losser change: %u ---", winner_team_rating, loser_team_rating,
                 winner_matchmaker_rating, loser_matchmaker_rating, winner_change, loser_change);
             SetArenaTeamRatingChangeForTeam(winner, winner_change);
