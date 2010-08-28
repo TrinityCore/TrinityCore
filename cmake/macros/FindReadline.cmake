@@ -4,8 +4,6 @@
 # READLINE_LIBRARY     - full path to the READLINE library
 # READLINE_FOUND       - TRUE if READLINE was found
 
-MACRO(FIND_READLINE)
-
 FIND_PATH(READLINE_INCLUDE_DIR readline/readline.h)
 FIND_LIBRARY(READLINE_LIBRARY NAMES readline) 
 
@@ -18,5 +16,3 @@ ELSE (READLINE_INCLUDE_DIR AND READLINE_LIBRARY)
     SET(READLINE_FOUND FALSE)
     MESSAGE(FATAL_ERROR "** Readline library not found!\n** Your distro may provide a binary for Readline e.g. for ubuntu try apt-get install libreadline5-dev")
 ENDIF (READLINE_INCLUDE_DIR AND READLINE_LIBRARY)
-
-ENDMACRO(FIND_READLINE)
