@@ -61,6 +61,9 @@ execute_process(
   OUTPUT_VARIABLE HG_REVISION
 )
 
+# print out the results before continuing
+include(cmake/showoptions.cmake)
+
 # add and generate revision.h
 add_subdirectory(src/genrevision)
 
