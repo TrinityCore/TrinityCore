@@ -44,6 +44,7 @@ public:
 
     bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
     {
+        pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_SENDER_INFO)
         {
             pPlayer->CastSpell(pPlayer, 23123, false);

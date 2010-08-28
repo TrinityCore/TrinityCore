@@ -46,6 +46,7 @@ public:
 
     bool OnGossipSelect(Player *pPlayer, GameObject * /*pGO*/, uint32 sender, uint32 action)
     {
+        pPlayer->PlayerTalkClass->ClearMenus();
         if (sender != GOSSIP_SENDER_MAIN) return true;
         if (!pPlayer->getAttackers().empty()) return true;
 
