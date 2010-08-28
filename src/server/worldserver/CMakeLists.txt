@@ -14,11 +14,11 @@ file(GLOB_RECURSE sources_TCSoap TCSoap/*.cpp TCSoap/*.h)
 file(GLOB_RECURSE sources_WorldThread WorldThread/*.cpp WorldThread/*.h)
 file(GLOB sources_localdir *.cpp *.h)
 
-if( GAMEPCH )
+if( USE_COREPCH )
   include_directories(${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
-if ( GAMEPCH AND MSVC )
+if ( USE_COREPCH AND MSVC )
   set(worldserver_SRCS
     PrecompiledHeaders/worldPCH.cpp
     PrecompiledHeaders/worldPCH.h
@@ -220,7 +220,7 @@ elseif( WIN32 )
 endif()
 
 # Generate precompiled header
-if( GAMEPCH )
+if( USE_COREPCH )
   if(CMAKE_COMPILER_IS_GNUCXX)
     add_precompiled_header(worldserver ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/worldPCH.h)
   elseif(MSVC)

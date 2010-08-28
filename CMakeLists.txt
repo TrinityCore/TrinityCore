@@ -53,8 +53,8 @@ execute_process(
 
 # turn off PCH totally if enabled (hidden setting, mainly for devs)
 if( NOPCH )
-  set(WITH_COREPCH 0)
-  set(WITH_SCRIPTPCH 0)
+  set(USE_COREPCH 0)
+  set(USE_SCRIPTPCH 0)
 endif()
 
 # set default buildoptions and print them
