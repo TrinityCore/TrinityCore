@@ -43,6 +43,7 @@ public:
 
     bool OnGossipSelect(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
     {
+        pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
             pPlayer->GetSession()->SendDoFlight(6376, 881);
 
@@ -70,6 +71,7 @@ public:
 
     bool OnGossipSelect(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
     {
+        pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF + 4)
             pPlayer->GetSession()->SendDoFlight(6376, 878);
 
@@ -96,6 +98,7 @@ public:
 
     bool OnGossipSelect(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
     {
+        pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF + 5)
             pPlayer->GetSession()->SendDoFlight(6376, 879);
 

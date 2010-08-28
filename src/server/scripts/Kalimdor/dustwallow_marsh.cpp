@@ -218,6 +218,7 @@ public:
 
     bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
     {
+        pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_SENDER_INFO)
         {
             pPlayer->SEND_GOSSIP_MENU(7012, pCreature->GetGUID());
@@ -258,6 +259,7 @@ public:
 
     bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
     {
+        pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_TRADE)
             pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
 

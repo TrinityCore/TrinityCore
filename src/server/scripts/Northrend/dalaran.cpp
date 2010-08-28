@@ -147,6 +147,7 @@ public:
 
     bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
     {
+        pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_TRAIN)
             pPlayer->SEND_TRAINERLIST(pCreature->GetGUID());
 

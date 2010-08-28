@@ -232,6 +232,7 @@ public:
 
     bool OnGossipSelect(Player *pPlayer, Creature *pCreature, uint32 /*sender*/, uint32 action)
     {
+        pPlayer->PlayerTalkClass->ClearMenus();
         npc_arthasAI* pAI = CAST_AI(npc_arthas::npc_arthasAI,pCreature->AI());
 
         if (!pAI)
