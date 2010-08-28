@@ -31,6 +31,16 @@ endif()
 
 include(CheckCXXSourceRuns)
 include(CheckIncludeFiles)
+
+# turn off PCH totally if enabled (hidden setting, mainly for devs)
+if( NOPCH )
+  set(USE_COREPCH 0)
+  set(USE_SCRIPTPCH 0)
+endif()
+
+# set default buildoptions and print them
+include(cmake/options.cmake)
+
 include(CheckPlatform)
 
 # basic packagesearching and setup (further support will be needed, this is a preliminary release!)
@@ -50,15 +60,6 @@ execute_process(
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
   OUTPUT_VARIABLE HG_REVISION
 )
-
-# turn off PCH totally if enabled (hidden setting, mainly for devs)
-if( NOPCH )
-  set(USE_COREPCH 0)
-  set(USE_SCRIPTPCH 0)
-endif()
-
-# set default buildoptions and print them
-include(cmake/options.cmake)
 
 # add and generate revision.h
 add_subdirectory(src/genrevision)
