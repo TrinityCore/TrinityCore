@@ -771,7 +771,7 @@ void ArenaTeam::MemberWon(Player * plr, uint32 againstMatchmakerRating)
             // calculate the rating modification
             int32 mod;
             if (itr->personal_rating < 1000)
-                mod = (int32)ceil(48.0f * (1.0f - chance) * (1.0f - chance));
+                mod = (int32)ceil(48.0f * (1.0f - chance));
             else if (itr->personal_rating < 1300)
                 mod = (int32)ceil((24.0f + (24.0f * (1300 - m_stats.rating) / 300)) * (1.0f - chance));
             else
