@@ -26,21 +26,20 @@ if(${PLATFORM} STREQUAL "X64")
   message(STATUS "- MSVC: 64-bit platform, enforced -D_WIN64 parameter")
 endif()
 
-# Defining _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES as 1 eliminates the warning by changing the strcpy call to strcpy_s, which prevents buffer overruns
-# DISABLED UNTILL FURTHER, NEEDS TESTING AND VERIFICATION
-#add_definitions(-D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES)
-#message(STATUS "- MSVC: Overload standard names")
+# Define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES - eliminates the warning by changing the strcpy call to strcpy_s, which prevents buffer overruns
+add_definitions(-D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES)
+message(STATUS "- MSVC: Overloaded standard names")
+
+# Ignore warnings about older, less secure functions
+add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+message(STATUS "- MSVC: Disabled NON-SECURE warnings")
+
+#Ignore warnings about POSIX deprecation
+add_definitions(-D_CRT_NONSTDC_NO_WARNINGS)
+message(STATUS "- MSVC: Disabled POSIX warnings")
 
 # disable warnings in Visual Studio 8 and above if not wanted
 if(NOT WITH_WARNINGS)
-  # Ignore warnings about older, less secure functions
-  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-  message(STATUS "- MSVC: Disabled NON-SECURE warnings")
-
-  #Ignore warnings about POSIX deprecation
-  add_definitions(-D_CRT_NONSTDC_NO_WARNINGS)
-  message(STATUS "- MSVC: Disabled POSIX warnings")
-
   if(MSVC AND NOT CMAKE_GENERATOR MATCHES "Visual Studio 7")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4996 /wd4355 /wd4244 /wd4985 /wd4267 /wd4619")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4996 /wd4355 /wd4244 /wd4985 /wd4267 /wd4619")
