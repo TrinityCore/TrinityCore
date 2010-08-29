@@ -627,6 +627,34 @@ float ArenaTeam::GetChanceAgainst(uint32 own_rating, uint32 enemy_rating)
     return 1.0f/(1.0f+exp(log(10.0f)*(float)((float)enemy_rating - (float)own_rating)/400.0f));
 }
 
+int32 ArenaTeam::GetRatingMod(uint32 own_rating, uint32 enemy_rating, bool won, bool calculating_mmr)
+{
+    // 'chance' calculation - to beat the opponent
+    float chance = GetChanceAgainst(own_rating, enemy_rating);
+    float won_mod = (won) ? 1.0f : 0.0f;
+
+    // calculate the rating modification
+    // simulation on how it works. Not much info on how it really works
+    float mod;
+    
+    if (won && !calculating_mmr)
+    {
+        if (own_rating < 1000)
+            mod = 48.0f * (won_mod - chance);
+        else if (own_rating < 1300)
+            mod = (24.0f + (24.0f * (1300.0f - int32(own_rating)) / 300.0f)) * (won_mod - chance);
+        else
+            mod = 24.0f * (won_mod - chance);
+    }
+    else
+        mod = 24.0f * (won_mod - chance);
+
+    if (won)
+        return (int32)ceil(mod);
+    else
+        return (int32)floor(mod);
+}
+
 void ArenaTeam::FinishGame(int32 mod)
 {
     if (int32(m_stats.rating) + mod < 0)
@@ -649,17 +677,7 @@ void ArenaTeam::FinishGame(int32 mod)
 int32 ArenaTeam::WonAgainst(uint32 againstRating)
 {
     // called when the team has won
-    // 'chance' calculation - to beat the opponent
-    float chance = GetChanceAgainst(m_stats.rating, againstRating);
-    // calculate the rating modification
-    // simulation on how it works. Not much info on how it really works
-    int32 mod;
-    if (m_stats.rating < 1000)
-        mod = (int32)ceil(48.0f * (1.0f - chance));
-    else if (m_stats.rating < 1300)
-        mod = (int32)ceil((24.0f + (24.0f * (1300.0f - int32(m_stats.rating)) / 300.0f)) * (1.0f - chance));
-    else
-        mod = (int32)ceil(24.0f * (1.0f - chance));
+    int32 mod = GetRatingMod(m_stats.rating, againstRating, true);
 
     // modify the team stats accordingly
     FinishGame(mod);
@@ -673,12 +691,7 @@ int32 ArenaTeam::WonAgainst(uint32 againstRating)
 int32 ArenaTeam::LostAgainst(uint32 againstRating)
 {
     // called when the team has lost
-    //'chance' calculation - to loose to the opponent
-    float chance = GetChanceAgainst(m_stats.rating, againstRating);
-
-    // calculate the rating lost
-    // there is not much info on the formula, but this is a very good simulation
-    int32 mod = (int32)floor(24.0f * (0.0f - chance));
+    int32 mod = GetRatingMod(m_stats.rating, againstRating, false);
 
     // modify the team stats accordingly
     FinishGame(mod);
@@ -695,15 +708,13 @@ void ArenaTeam::MemberLost(Player * plr, uint32 againstMatchmakerRating)
         if (itr->guid == plr->GetGUID())
         {
             // update personal rating
-            float chance = GetChanceAgainst(itr->personal_rating, m_stats.rating);
-            // calculate the rating modification
-            int32 mod = (int32)floor(24.0f * (0.0f - chance));
+            int32 mod = GetRatingMod(itr->personal_rating, m_stats.rating, false);
             itr->ModifyPersonalRating(plr, mod, GetSlot());
+
             // update matchmaker rating
-            chance = GetChanceAgainst(itr->matchmaker_rating, againstMatchmakerRating);
-            // calculate the rating modification
-            mod = (int32)floor(24.0f * (0.0f - chance));
+            mod = GetRatingMod(itr->matchmaker_rating, againstMatchmakerRating, false, true);
             itr->ModifyMatchmakerRating(mod, GetSlot());
+
             // update personal played stats
             itr->games_week +=1;
             itr->games_season +=1;
@@ -723,15 +734,13 @@ void ArenaTeam::OfflineMemberLost(uint64 guid, uint32 againstMatchmakerRating)
         if (itr->guid == guid)
         {
             // update personal rating
-            float chance = GetChanceAgainst(itr->personal_rating, m_stats.rating);
-            // calculate the rating modification
-            int32 mod = (int32)floor(24.0f * (0.0f - chance));
+            int32 mod = GetRatingMod(itr->personal_rating, m_stats.rating, false);
             itr->ModifyPersonalRating(NULL, mod, GetSlot());
+
             // update matchmaker rating
-            chance = GetChanceAgainst(itr->matchmaker_rating, againstMatchmakerRating);
-            // calculate the rating modification
-            mod = (int32)ceil(24.0f * (0.0f - chance));
+            mod = GetRatingMod(itr->matchmaker_rating, againstMatchmakerRating, false, true);
             itr->ModifyMatchmakerRating(mod, GetSlot());
+
             // update personal played stats
             itr->games_week +=1;
             itr->games_season +=1;
@@ -747,22 +756,12 @@ void ArenaTeam::MemberWon(Player * plr, uint32 againstMatchmakerRating)
     {
         if (itr->guid == plr->GetGUID())
         {
-            uint32 matchmakerrating = itr->matchmaker_rating;
             // update personal rating
-            float chance = GetChanceAgainst(itr->personal_rating, m_stats.rating);
-            // calculate the rating modification
-            int32 mod;
-            if (itr->personal_rating < 1000)
-                mod = (int32)ceil(48.0f * (1.0f - chance));
-            else if (itr->personal_rating < 1300)
-                mod = (int32)ceil((24.0f + (24.0f * (1300.0f - int32(itr->personal_rating)) / 300.0f)) * (1.0f - chance));
-            else
-                mod = (int32)ceil(24.0f * (1.0f - chance));
-            itr->ModifyPersonalRating(plr, mod, GetSlot());
+            int32 mod = GetRatingMod(itr->personal_rating, m_stats.rating, true);
+            itr->ModifyPersonalRating(NULL, mod, GetSlot());
+
             // update matchmaker rating
-            chance = GetChanceAgainst(matchmakerrating, againstMatchmakerRating);
-            // calculate the rating modification
-            mod = (int32)ceil(24.0f * (1.0f - chance));
+            mod = GetRatingMod(itr->matchmaker_rating, againstMatchmakerRating, true, true);
             itr->ModifyMatchmakerRating(mod, GetSlot());
 
             // update personal stats
