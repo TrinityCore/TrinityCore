@@ -1238,12 +1238,8 @@ bool AuraEffect::IsPeriodicTickCrit(Unit * target, Unit const * caster) const
 
 void AuraEffect::SendTickImmune(Unit * target, Unit *caster) const
 {
-    WorldPacket data(SMSG_SPELLORDAMAGE_IMMUNE, 8+8+4+1);
-    data << uint64(caster ? caster->GetGUID() : target->GetGUID());
-    data << uint64(target->GetGUID());
-    data << uint32(m_spellProto->Id);
-    data << uint8(1);
-    target->SendMessageToSet(&data,true);
+    if (caster)
+        caster->SendSpellDamageImmune(target, m_spellProto->Id);
 }
 
 void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const

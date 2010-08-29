@@ -4153,8 +4153,8 @@ void Spell::ExecuteLogEffectTakeTargetPower(uint8 effIndex, Unit * target, uint3
 {
     InitEffectExecuteData(effIndex);
     m_effectExecuteData[effIndex]->append(target->GetPackGUID());
-    *m_effectExecuteData[effIndex] << uint32(powerType);
     *m_effectExecuteData[effIndex] << uint32(powerTaken);
+    *m_effectExecuteData[effIndex] << uint32(powerType);
     *m_effectExecuteData[effIndex] << float(gainMultiplier);
 }
 
@@ -4176,7 +4176,7 @@ void Spell::ExecuteLogEffectDurabilityDamage(uint8 effIndex, Unit * victim, uint
 {
     InitEffectExecuteData(effIndex);
     m_effectExecuteData[effIndex]->append(victim->GetPackGUID());
-    *m_effectExecuteData[effIndex] << uint32(itemslot);
+    *m_effectExecuteData[effIndex] << uint32(m_spellInfo->Id);
     *m_effectExecuteData[effIndex] << uint32(damage);
 }
 
