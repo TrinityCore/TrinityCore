@@ -14820,8 +14820,19 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 -- quest
 ( 45449, 'spell_q11587_arcane_prisoner_rescue'),
 ( 46023, 'spell_q11730_ultrasonic_screwdriver'),
+( 52308, 'spell_q12683_take_sputum_sample'),
+( 55804, 'spell_q12937_relief_for_the_fallen'),
+-- item
+(  8063, 'spell_item_deviate_fish'),
+( 67019, 'spell_item_flask_of_the_north'),
+( 13280, 'spell_item_gnomish_death_ray'),
+( 33060, 'spell_item_make_a_wish'),
+( 13120, 'spell_item_net_o_matic'),
+( 16589, 'spell_item_noggenfogger_elixir'),
+(  8213, 'spell_item_savory_deviate_delight'),
+( 59640, 'spell_item_underbelly_elixir'),
 -- warrior
-( 12975,'spell_warr_last_stand'),
+( 12975, 'spell_warr_last_stand'),
 -- paladin
 ( 20425, 'spell_pal_judgement_of_command'),
 ( 63521, 'spell_pal_guarded_by_the_light'),
@@ -14845,9 +14856,9 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 47948, 'spell_pri_pain_and_suffering_proc'),
 (-47540, 'spell_pri_penance'),
 -- death knight
-(-49158,'spell_dk_corpse_explosion'),
-( 50524,'spell_dk_runic_power_feed'),
-(-55090,'spell_dk_scourge_strike'),
+(-49158, 'spell_dk_corpse_explosion'),
+( 50524, 'spell_dk_runic_power_feed'),
+(-55090, 'spell_dk_scourge_strike'),
 -- shaman
 ( 39610, 'spell_sha_mana_tide_totem'),
 ( -1535, 'spell_sha_fire_nova'),
