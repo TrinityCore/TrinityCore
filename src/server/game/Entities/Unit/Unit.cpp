@@ -1514,7 +1514,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
             data << uint64(GetGUID());
             data << uint32(i_spellProto->Id);
             data << uint32(damage);                  // Damage
-            int32 overkill = damage - GetHealth();
+            int32 overkill = int32(damage) - int32(GetHealth());
             data << uint32(overkill > 0 ? overkill : 0); // Overkill
             data << uint32(i_spellProto->SchoolMask);
             pVictim->SendMessageToSet(&data, true);

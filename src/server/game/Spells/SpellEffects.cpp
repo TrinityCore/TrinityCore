@@ -2425,8 +2425,7 @@ void Spell::EffectPowerBurn(SpellEffIndex effIndex)
 
     ExecuteLogEffectTakeTargetPower(effIndex, unitTarget, powerType, newDamage, dmgMultiplier);
 
-    if (m_originalCaster)
-        m_originalCaster->DealDamage(unitTarget, newDamage);
+    m_damage += newDamage;
 }
 
 void Spell::EffectHeal(SpellEffIndex /*effIndex*/)
