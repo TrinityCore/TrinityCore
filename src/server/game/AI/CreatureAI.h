@@ -103,6 +103,9 @@ class CreatureAI : public UnitAI
         // for attack reaction use AttackedBy called for not DOT damage in Unit::DealDamage also
         virtual void DamageTaken(Unit * /*done_by*/, uint32 & /*damage*/) {}
 
+        // Called when the creature receives heal
+        virtual void HealReceived(Unit* /*done_by*/, uint32& /*addhealth*/) {}
+
         // Called when the creature is killed
         virtual void JustDied(Unit *) {}
 
