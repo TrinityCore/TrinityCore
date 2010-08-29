@@ -778,39 +778,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
         {
             switch (m_spellInfo->Id)
             {
-                case 8063:                                  // Deviate Fish
-                {
-                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    uint32 spell_id = 0;
-                    switch(urand(1,5))
-                    {
-                        case 1: spell_id = 8064; break;     // Sleepy
-                        case 2: spell_id = 8065; break;     // Invigorate
-                        case 3: spell_id = 8066; break;     // Shrink
-                        case 4: spell_id = 8067; break;     // Party Time!
-                        case 5: spell_id = 8068; break;     // Healthy Spirit
-                    }
-                    m_caster->CastSpell(m_caster, spell_id, true, NULL);
-                    return;
-                }
-                case 8213:          // Savory Deviate Delight
-                {
-                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    uint32 spell_id = 0;
-                    switch(urand(1,2))
-                    {
-                        // Flip Out - ninja
-                        case 1: spell_id = (m_caster->getGender() == GENDER_MALE ? 8219 : 8220); break;
-                        // Yaaarrrr - pirate
-                        case 2: spell_id = (m_caster->getGender() == GENDER_MALE ? 8221 : 8222); break;
-                    }
-                    m_caster->CastSpell(m_caster,spell_id,true,NULL);
-                    return;
-                }
                 case 8593:                                  // Symbol of life (restore creature to life)
                 case 31225:                                 // Shimmering Vessel (restore creature to life)
                 {
@@ -855,53 +822,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     // 1 tick/sec * 6 sec = 6 ticks
                     int32 deepWoundsDotBasePoints0 = int32(damage / 6);
                     m_caster->CastCustomSpell(unitTarget, 12721, &deepWoundsDotBasePoints0, NULL, NULL, true, NULL);
-                    return;
-                }
-                case 13120:                                 // net-o-matic
-                {
-                    if (!unitTarget)
-                        return;
-
-                    uint32 spell_id = 0;
-
-                    uint32 roll = urand(0, 99);
-
-                    if (roll < 2)                            // 2% for 30 sec self root (off-like chance unknown)
-                        spell_id = 16566;
-                    else if (roll < 4)                       // 2% for 20 sec root, charge to target (off-like chance unknown)
-                        spell_id = 13119;
-                    else                                    // normal root
-                        spell_id = 13099;
-
-                    m_caster->CastSpell(unitTarget,spell_id,true,NULL);
-                    return;
-                }
-                case 67019:                    // Flask of the North
-                {
-                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-                    uint32 spell_id;
-                    switch(urand(1, 3))
-                    {
-                        case 1: spell_id = 67016; break;
-                        case 2: spell_id = 67017; break;
-                        default:spell_id = 67018; break;
-                    }
-
-                    m_caster->CastSpell(m_caster, spell_id, true, NULL);
-                    return;
-                }
-                case 13280:                                 // Gnomish Death Ray
-                {
-                    if (!unitTarget)
-                        return;
-
-                    if (urand(0, 99) < 15)
-                        m_caster->CastSpell(m_caster, 13493, true, NULL);    // failure
-                    else
-                        m_caster->CastSpell(unitTarget, 13279, true, NULL);
-
                     return;
                 }
                 case 13567:                                 // Dummy Trigger
@@ -959,22 +879,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     }
 
                     m_caster->CastSpell(unitTarget, effect, true);
-                    return;
-                }
-                case 16589:                                 // Noggenfogger Elixir
-                {
-                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    uint32 spell_id = 0;
-                    switch (urand(1, 3))
-                    {
-                        case 1: spell_id = 16595; break;
-                        case 2: spell_id = 16593; break;
-                        default:spell_id = 16591; break;
-                    }
-
-                    m_caster->CastSpell(m_caster, spell_id, true, NULL);
                     return;
                 }
                 case 17251:                                 // Spirit Healer Res
@@ -1126,25 +1030,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     else                                    // Poultryized! - backfire 20%
                         m_caster->CastSpell(unitTarget, 30504, true, m_CastItem);
                     return;
-                case 33060:                                 // Make a Wish
-                {
-                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    uint32 spell_id = 0;
-
-                    switch(urand(1,5))
-                    {
-                        case 1: spell_id = 33053; break;    // Mr Pinchy's Blessing
-                        case 2: spell_id = 33057; break;    // Summon Mighty Mr. Pinchy
-                        case 3: spell_id = 33059; break;    // Summon Furious Mr. Pinchy
-                        case 4: spell_id = 33062; break;    // Tiny Magical Crawdad
-                        case 5: spell_id = 33064; break;    // Mr. Pinchy's Gift
-                    }
-
-                    m_caster->CastSpell(m_caster, spell_id, true, NULL);
-                    return;
-                }
                 case 34665:                                 //Administer Antidote
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT
@@ -1369,24 +1254,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     m_caster->CastSpell(m_caster, 30452, true, NULL);
                     return;
                 }
-                case 52308:                                 // Take Sputum Sample
-                {
-                    switch(effIndex)
-                    {
-                        case 0:
-                        {
-                            uint32 spellID = SpellMgr::CalculateSpellEffectAmount(m_spellInfo, 0);
-                            uint32 reqAuraID = SpellMgr::CalculateSpellEffectAmount(m_spellInfo, 1);
-
-                            if (m_caster->HasAuraEffect(reqAuraID,0))
-                                m_caster->CastSpell(m_caster,spellID,true,NULL);
-                            return;
-                        }
-                        case 1:
-                            return;                         // additional data for dummy[0]
-                    }
-                    return;
-                }
                 case 52759:                                 // Ancestral Awakening
                     if (!unitTarget)
                         return;
@@ -1400,21 +1267,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 case 58418:                                 // Portal to Orgrimmar
                 case 58420:                                 // Portal to Stormwind
                     return;                                 // implemented in EffectScript[0]
-                case 59640:                                 // Underbelly Elixir
-                {
-                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    uint32 spell_id = 0;
-                    switch(urand(1,3))
-                    {
-                        case 1: spell_id = 59645; break;
-                        case 2: spell_id = 59831; break;
-                        case 3: spell_id = 59843; break;
-                    }
-                    m_caster->CastSpell(m_caster,spell_id,true,NULL);
-                    return;
-                }
                 case 62324: // Throw Passenger
                 {
                     if (m_targets.HasTraj())

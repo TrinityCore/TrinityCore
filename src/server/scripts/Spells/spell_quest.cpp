@@ -158,8 +158,93 @@ public:
     }
 };
 
+// http://www.wowhead.com/quest=12683 Burning to Help
+// 52308 Take Sputum Sample
+class spell_q12683_take_sputum_sample : public SpellScriptLoader
+{
+public:
+    spell_q12683_take_sputum_sample() : SpellScriptLoader("spell_q12683_take_sputum_sample") { }
+
+    class spell_q12683_take_sputum_sample_SpellScript : public SpellScript
+    {
+    public:
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            uint32 reqAuraId = SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), 1);
+
+            Unit* pCaster = GetCaster();
+            if (pCaster->HasAuraEffect(reqAuraId, 0))
+            {
+                uint32 spellId = SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), 0);
+                pCaster->CastSpell(pCaster, spellId, true, NULL);
+            }
+        }
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_q12683_take_sputum_sample_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_q12683_take_sputum_sample_SpellScript();
+    }
+};
+
+enum eQuest12937Spells
+{
+    SPELL_TRIGGER_AID_OF_THE_EARTHEN    = 55809,
+    NPC_FALLEN_EARTHEN_DEFENDER         = 30035,
+};
+
+// http://www.wowhead.com/quest=12937 Relief for the Fallen
+// 55804 Healing Finished
+class spell_q12937_relief_for_the_fallen : public SpellScriptLoader
+{
+public:
+    spell_q12937_relief_for_the_fallen() : SpellScriptLoader("spell_q12937_relief_for_the_fallen") { }
+
+    class spell_q12937_relief_for_the_fallen_SpellScript : public SpellScript
+    {
+    public:
+        bool Validate(SpellEntry const * /*spellEntry*/)
+        {
+            if (!sSpellStore.LookupEntry(SPELL_TRIGGER_AID_OF_THE_EARTHEN))
+                return false;
+            return true;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            Unit* pCaster = GetCaster();
+            if (Player* pPlayer = pCaster->ToPlayer())
+            {
+                if(Creature* pTarget = GetHitCreature())
+                {
+                    pPlayer->CastSpell(pPlayer, SPELL_TRIGGER_AID_OF_THE_EARTHEN, true, NULL);
+                    pPlayer->KilledMonsterCredit(NPC_FALLEN_EARTHEN_DEFENDER, pTarget->GetGUID());
+                    pTarget->ForcedDespawn();
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_q12937_relief_for_the_fallen_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_q12937_relief_for_the_fallen_SpellScript();
+    }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q11587_arcane_prisoner_rescue();
     new spell_q11730_ultrasonic_screwdriver();
+    new spell_q12683_take_sputum_sample();
+    new spell_q12937_relief_for_the_fallen();
 }

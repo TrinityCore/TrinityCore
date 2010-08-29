@@ -24,40 +24,11 @@
 
 #include "ScriptPCH.h"
 
-
 enum NPCEntries
 {
     NPC_DOOMGUARD                                = 11859,
     NPC_INFERNAL                                 = 89,
     NPC_IMP                                      = 416,
-};
-
-class spell_gen_remove_flight_auras : public SpellScriptLoader
-{
-public:
-    spell_gen_remove_flight_auras() : SpellScriptLoader("spell_gen_remove_flight_auras") {}
-
-    class spell_gen_remove_flight_auras_SpellScript : public SpellScript
-    {
-        void HandleScript(SpellEffIndex /*effIndex*/)
-        {
-            Unit *target = GetHitUnit();
-            if (!target)
-                return;
-            target->RemoveAurasByType(SPELL_AURA_FLY);
-            target->RemoveAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
-        }
-
-        void Register()
-        {
-            OnEffect += SpellEffectFn(spell_gen_remove_flight_auras_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_gen_remove_flight_auras_SpellScript;
-    }
 };
 
 class spell_gen_pet_summoned : public SpellScriptLoader
@@ -112,12 +83,40 @@ public:
 
     SpellScript* GetSpellScript() const
     {
-        return new spell_gen_pet_summonedSpellScript;
+        return new spell_gen_pet_summonedSpellScript();
+    }
+};
+
+class spell_gen_remove_flight_auras : public SpellScriptLoader
+{
+public:
+    spell_gen_remove_flight_auras() : SpellScriptLoader("spell_gen_remove_flight_auras") {}
+
+    class spell_gen_remove_flight_auras_SpellScript : public SpellScript
+    {
+        void HandleScript(SpellEffIndex /*effIndex*/)
+        {
+            Unit *target = GetHitUnit();
+            if (!target)
+                return;
+            target->RemoveAurasByType(SPELL_AURA_FLY);
+            target->RemoveAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
+        }
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_gen_remove_flight_auras_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_gen_remove_flight_auras_SpellScript();
     }
 };
 
 void AddSC_generic_spell_scripts()
 {
-    new spell_gen_remove_flight_auras;
-    new spell_gen_pet_summoned;
+    new spell_gen_pet_summoned();
+    new spell_gen_remove_flight_auras();
 }

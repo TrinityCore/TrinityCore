@@ -537,6 +537,7 @@ void AddSC_shaman_spell_scripts();
 void AddSC_warlock_spell_scripts();
 void AddSC_warrior_spell_scripts();
 void AddSC_quest_spell_scripts();
+void AddSC_item_spell_scripts();
 void AddSC_example_spell_scripts();
 
 // battlegrounds
@@ -595,6 +596,7 @@ void AddSpellScripts()
     AddSC_warlock_spell_scripts();
     AddSC_warrior_spell_scripts();
     AddSC_quest_spell_scripts();
+    AddSC_item_spell_scripts();
     AddSC_example_spell_scripts();
 #endif
 }
