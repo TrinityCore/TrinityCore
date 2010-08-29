@@ -1400,12 +1400,7 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
 
 void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
 {
-    if (!damageInfo)
-        return;
     Unit *pVictim = damageInfo->target;
-
-    if (!pVictim)
-        return;
 
     if (!pVictim->isAlive() || pVictim->hasUnitState(UNIT_STAT_UNATTACKABLE) || (pVictim->GetTypeId() == TYPEID_UNIT && pVictim->ToCreature()->IsInEvadeMode()))
         return;
@@ -1492,43 +1487,39 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
     // Do effect if any damage done to target
     if (damageInfo->damage)
     {
-        // victim's damage shield
-        std::set<AuraEffect*> alreadyDone;
-        uint32 removedAuras = pVictim->m_removedAurasCount;
         AuraEffectList const& vDamageShields = pVictim->GetAuraEffectsByType(SPELL_AURA_DAMAGE_SHIELD);
-        for (AuraEffectList::const_iterator i = vDamageShields.begin(), next = vDamageShields.begin(); i != vDamageShields.end(); i = next)
+        for (AuraEffectList::const_iterator dmgShieldItr = vDamageShields.begin(); dmgShieldItr != vDamageShields.end(); ++dmgShieldItr)
         {
-           ++next;
-           if (alreadyDone.find(*i) == alreadyDone.end())
-           {
-               alreadyDone.insert(*i);
-               uint32 damage=(*i)->GetAmount();
-               SpellEntry const *i_spellProto = (*i)->GetSpellProto();
-               //Calculate absorb resist ??? no data in opcode for this possibly unable to absorb or resist?
-               //uint32 absorb;
-               //uint32 resist;
-               //CalcAbsorbResist(pVictim, SpellSchools(spellProto->School), SPELL_DIRECT_DAMAGE, damage, &absorb, &resist);
-               //damage-=absorb + resist;
+            SpellEntry const *i_spellProto = (*dmgShieldItr)->GetSpellProto();
+            // Damage shield can be resisted...
+            if (SpellMissInfo missInfo = pVictim->SpellHitResult(this, i_spellProto ,false))
+            {
+                pVictim->SendSpellMiss(this, i_spellProto->Id, missInfo);
+                continue;
+            }
+            // ...or immuned
+            if (IsImmunedToDamage(i_spellProto))
+            {
+                pVictim->SendSpellDamageImmune(this, i_spellProto->Id);
+                continue;
+            }
 
-               pVictim->DealDamageMods(this,damage,NULL);
+            uint32 damage = (*dmgShieldItr)->GetAmount();
 
-               WorldPacket data(SMSG_SPELLDAMAGESHIELD,(8+8+4+4+4+4));
-               data << uint64(pVictim->GetGUID());
-               data << uint64(GetGUID());
-               data << uint32(i_spellProto->Id);
-               data << uint32(damage);                  // Damage
-               data << uint32(0);                       // Overkill
-               data << uint32(i_spellProto->SchoolMask);
-               pVictim->SendMessageToSet(&data, true);
+            // No Unit::CalcAbsorbResist here - opcode doesn't send that data - this damage is probably not affected by that
+            pVictim->DealDamageMods(this,damage,NULL);
 
-               pVictim->DealDamage(this, damage, 0, SPELL_DIRECT_DAMAGE, GetSpellSchoolMask(i_spellProto), i_spellProto, true);
+            WorldPacket data(SMSG_SPELLDAMAGESHIELD,(8+8+4+4+4+4));
+            data << uint64(pVictim->GetGUID());
+            data << uint64(GetGUID());
+            data << uint32(i_spellProto->Id);
+            data << uint32(damage);                  // Damage
+            int32 overkill = damage - GetHealth();
+            data << uint32(overkill > 0 ? overkill : 0); // Overkill
+            data << uint32(i_spellProto->SchoolMask);
+            pVictim->SendMessageToSet(&data, true);
 
-               if (pVictim->m_removedAurasCount > removedAuras)
-               {
-                   removedAuras = pVictim->m_removedAurasCount;
-                   next = vDamageShields.begin();
-               }
-           }
+            pVictim->DealDamage(this, damage, 0, SPELL_DIRECT_DAMAGE, GetSpellSchoolMask(i_spellProto), i_spellProto, true);
         }
     }
 }
@@ -5221,6 +5212,16 @@ void Unit::SendSpellMiss(Unit *target, uint32 spellID, SpellMissInfo missInfo)
     data << uint8(missInfo);
     // end loop
     SendMessageToSet(&data, true);
+}
+
+void Unit::SendSpellDamageImmune(Unit * target, uint32 spellId)
+{
+    WorldPacket data(SMSG_SPELLORDAMAGE_IMMUNE, 8+8+4+1);
+    data << uint64(GetGUID());
+    data << uint64(target->GetGUID());
+    data << uint32(spellId);
+    data << uint8(0); // bool - log format: 0-default, 1-debug
+    SendMessageToSet(&data,true);
 }
 
 void Unit::SendAttackStateUpdate(CalcDamageInfo *damageInfo)
