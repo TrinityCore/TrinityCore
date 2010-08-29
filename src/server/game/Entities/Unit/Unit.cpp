@@ -9912,6 +9912,9 @@ int32 Unit::DealHeal(Unit *pVictim, uint32 addhealth)
 {
     int32 gain = 0;
 
+    if (pVictim->GetTypeId() == TYPEID_UNIT && pVictim->ToCreature()->IsAIEnabled)
+        pVictim->ToCreature()->AI()->HealReceived(this, addhealth);
+
     if (addhealth)
         gain = pVictim->ModifyHealth(int32(addhealth));
 
