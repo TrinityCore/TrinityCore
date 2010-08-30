@@ -155,10 +155,6 @@ if( UNIX )
   set(worldserver_LINK_FLAGS "-pthread -lncurses ${worldserver_LINK_FLAGS}")
 endif()
 
-if( CMAKE_SYSTEM_NAME MATCHES "Darwin" )
-  set(SCRIPT_LIB "")
-endif()
-
 set_target_properties(worldserver PROPERTIES LINK_FLAGS "${worldserver_LINK_FLAGS}")
 
 if( SCRIPTS )
