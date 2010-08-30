@@ -14824,6 +14824,19 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 72438, 'spell_deathbringer_blood_nova'),
 ( 72439, 'spell_deathbringer_blood_nova'),
 ( 72440, 'spell_deathbringer_blood_nova'),
+( 71123, 'spell_stinky_precious_decimate'),
+( 73032, 'spell_festergut_pungent_blight'),
+( 73031, 'spell_festergut_pungent_blight'),
+( 71219, 'spell_festergut_pungent_blight'),
+( 69195, 'spell_festergut_pungent_blight'),
+( 72219, 'spell_festergut_gastric_bloat'),
+( 72551, 'spell_festergut_gastric_bloat'),
+( 72552, 'spell_festergut_gastric_bloat'),
+( 72553, 'spell_festergut_gastric_bloat'),
+( 69290, 'spell_festergut_blighted_spores'),
+( 71222, 'spell_festergut_blighted_spores'),
+( 73033, 'spell_festergut_blighted_spores'),
+( 73034, 'spell_festergut_blighted_spores'),
 -- quest
 ( 45449, 'spell_q11587_arcane_prisoner_rescue'),
 ( 46023, 'spell_q11730_ultrasonic_screwdriver'),
@@ -15812,12 +15825,12 @@ DROP TABLE IF EXISTS `vehicle_accessory`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `vehicle_accessory` (
-        `entry` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT 0,
-        `accessory_entry` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT 0,
-        `seat_id` TINYINT(1) SIGNED NOT NULL DEFAULT 0,
-        `minion` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
-        `description` TEXT NOT NULL,
-        PRIMARY KEY (`entry`, `seat_id`)
+  `entry` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT 0,
+  `accessory_entry` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT 0,
+  `seat_id` TINYINT(1) SIGNED NOT NULL DEFAULT 0,
+  `minion` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
+  `description` TEXT NOT NULL,
+  PRIMARY KEY (`entry`, `seat_id`)
 )
 COLLATE=utf8_general_ci
 ENGINE=MyISAM
@@ -15831,6 +15844,9 @@ AVG_ROW_LENGTH=0;
 
 LOCK TABLES `vehicle_accessory` WRITE;
 /*!40000 ALTER TABLE `vehicle_accessory` DISABLE KEYS */;
+INSERT INTO `vehicle_accessory` VALUES
+(36678,38309,0,1, 'Professor Putricide - trigger'),
+(36678,38308,1,1, 'Professor Putricide - trigger');
 /*!40000 ALTER TABLE `vehicle_accessory` ENABLE KEYS */;
 UNLOCK TABLES;
 

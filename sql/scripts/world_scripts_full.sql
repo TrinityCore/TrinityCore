@@ -841,6 +841,9 @@ UPDATE `creature_template` SET `ScriptName`='boss_deathbringer_saurfang' WHERE `
 UPDATE `creature_template` SET `ScriptName`='npc_high_overlord_saurfang_icc' WHERE `entry`=37187;
 UPDATE `creature_template` SET `ScriptName`='npc_muradin_bronzebeard_icc' WHERE `entry`=37200;
 UPDATE `creature_template` SET `ScriptName`='npc_saurfang_event' WHERE `entry` IN (37920,37830);
+UPDATE `creature_template` SET `ScriptName`='boss_festergut' WHERE `entry`=36626;
+UPDATE `creature_template` SET `ScriptName`='npc_stinky_icc' WHERE `entry`=37025;
+UPDATE `creature_template` SET `ScriptName`='boss_professor_putricide' WHERE `entry`=36678;
 
 /* IRONFORGE */
 UPDATE `creature_template` SET `ScriptName`='npc_royal_historian_archesonus' WHERE `entry`=8879;
@@ -1721,7 +1724,7 @@ UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_si' WHERE `TypeId`=5;
 UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_ep' WHERE `TypeId`=6;
 
 /* ACHIEVEMENTS */
-DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (3693,6641,6642,6643,6644,3804,3805,3806,3807,3808,3809,3810,3811,3812,3813,1234,1239,5605,5606,12778,13036,13035,13037) AND `type` IN (0,11);
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (3693,6641,6642,6643,6644,3804,3805,3806,3807,3808,3809,3810,3811,3812,3813,1234,1239,5605,5606,12778,13036,13035,13037,12977,12967,12986,12982) AND `type` IN (0,11);
 INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,`ScriptName`) VALUES
 (3693,11,0,0, 'achievement_storm_glory'),
 (6641,11,0,0, 'achievement_school_of_hard_knocks'),
@@ -1745,6 +1748,10 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,
 (12778,11,0,0, 'achievement_ive_gone_and_made_a_mess'),
 (13036,11,0,0, 'achievement_ive_gone_and_made_a_mess'),
 (13035,11,0,0, 'achievement_ive_gone_and_made_a_mess'),
-(13037,11,0,0, 'achievement_ive_gone_and_made_a_mess');
+(13037,11,0,0, 'achievement_ive_gone_and_made_a_mess'),
+(12977,11,0,0, 'achievement_flu_shot_shortage'),
+(12967,11,0,0, 'achievement_flu_shot_shortage'),
+(12986,11,0,0, 'achievement_flu_shot_shortage'),
+(12982,11,0,0, 'achievement_flu_shot_shortage');
 
 /* EOF */
