@@ -50,6 +50,8 @@ class CharacterHandler;
 class SpellCastTargets;
 struct AreaTableEntry;
 
+struct GM_Ticket;
+
 enum AccountDataType
 {
     GLOBAL_CONFIG_CACHE             = 0,                    // 0x01 g
@@ -375,9 +377,11 @@ class WorldSession
         void HandleGMTicketDeleteOpcode(WorldPacket& recvPacket);
         void HandleGMTicketGetTicketOpcode(WorldPacket& recvPacket);
         void HandleGMTicketSystemStatusOpcode(WorldPacket& recvPacket);
-        void SendGMTicketGetTicket(uint32 status, char const* text);
-
-        //void HandleGMSurveySubmit(WorldPacket& recvPacket);
+        void SendGMTicketGetTicket(uint32 status, char const* text, GM_Ticket *ticket = NULL);
+        void SendGMTicketResponse(GM_Ticket *ticket);
+        void HandleGMSurveySubmit(WorldPacket& recvPacket);
+        void HandleReportLag(WorldPacket& recvPacket);
+        void HandleGMResponseResolve(WorldPacket& recvPacket);
 
         void HandleTogglePvP(WorldPacket& recvPacket);
 
