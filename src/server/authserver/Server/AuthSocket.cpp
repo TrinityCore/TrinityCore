@@ -907,7 +907,7 @@ bool AuthSocket::_HandleXferResume()
     uint64 start;
     socket().recv_skip(1);
     socket().recv((char*)&start,sizeof(start));
-    fseek(pPatch, start, 0);
+    fseek(pPatch, long(start), 0);
 
     ACE_Based::Thread u(new PatcherRunnable(this));
     return true;

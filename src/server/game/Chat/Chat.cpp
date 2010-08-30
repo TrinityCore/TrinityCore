@@ -659,6 +659,13 @@ ChatCommand * ChatHandler::getCommandTable()
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
 
+    static ChatCommand ticketResponseCommandTable[] = 
+    {
+        { "append",         SEC_MODERATOR,      false, &ChatHandler::HandleGMTicketResponseAppendCommand,   "", NULL },
+        { "appendln",       SEC_MODERATOR,      false, &ChatHandler::HandleGMTicketResponseAppendLnCommand, "", NULL },
+        { NULL,             0,                  false, NULL,                                                "", NULL }
+    };
+
     static ChatCommand ticketCommandTable[] =
     {
         { "list",           SEC_MODERATOR,      false, &ChatHandler::HandleGMTicketListCommand,             "", NULL },
@@ -667,10 +674,15 @@ ChatCommand * ChatHandler::getCommandTable()
         { "viewid",         SEC_MODERATOR,      false, &ChatHandler::HandleGMTicketGetByIdCommand,          "", NULL },
         { "close",          SEC_MODERATOR,      false, &ChatHandler::HandleGMTicketCloseByIdCommand,        "", NULL },
         { "closedlist",     SEC_MODERATOR,      false, &ChatHandler::HandleGMTicketListClosedCommand,       "", NULL },
+        { "escalatedlist",  SEC_GAMEMASTER,     false, &ChatHandler::HandleGMTicketListEscalatedCommand,    "", NULL },
         { "delete",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleGMTicketDeleteByIdCommand,       "", NULL },
-        { "assign",         SEC_MODERATOR,      false, &ChatHandler::HandleGMTicketAssignToCommand,         "", NULL },
-        { "unassign",       SEC_MODERATOR,      false, &ChatHandler::HandleGMTicketUnAssignCommand,         "", NULL },
+        { "assign",         SEC_GAMEMASTER,     false, &ChatHandler::HandleGMTicketAssignToCommand,         "", NULL },
+        { "unassign",       SEC_GAMEMASTER,     false, &ChatHandler::HandleGMTicketUnAssignCommand,         "", NULL },
         { "comment",        SEC_MODERATOR,      false, &ChatHandler::HandleGMTicketCommentCommand,          "", NULL },
+        { "togglesystem",   SEC_ADMINISTRATOR,  false, &ChatHandler::HandleToggleGMTicketSystem,            "", NULL },
+        { "escalate",       SEC_MODERATOR,      false, &ChatHandler::HandleGMTicketEscalateCommand,         "", NULL },
+        { "response",       SEC_MODERATOR,      false, NULL,                                                "", ticketResponseCommandTable },
+        { "complete",       SEC_MODERATOR,      false, &ChatHandler::HandleGMTicketCompleteCommand,         "", NULL },
         { NULL,             0,                  false, NULL,                                                "", NULL }
     };
 

@@ -1311,6 +1311,55 @@ LOCK TABLES `game_event_save` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `gm_subsurveys`
+--
+DROP TABLE IF EXISTS `gm_subsurveys`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `gm_subsurveys` (
+  `surveyid` int(10) NOT NULL,
+  `subsurveyid` int(11) UNSIGNED NOT NULL DEFAULT '0',
+  `rank` int(11) UNSIGNED NOT NULL DEFAULT '0',
+  `comment` longtext NOT NULL DEFAULT '',
+  PRIMARY KEY (`surveyid`,`subsurveyid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Player System';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `gm_subsurveys`
+--
+
+LOCK TABLES `gm_subsurveys` WRITE;
+/*!40000 ALTER TABLE `gm_subsurveys` DISABLE KEYS */;
+/*!40000 ALTER TABLE `gm_subsurveys` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `gm_surveys`
+--
+DROP TABLE IF EXISTS `gm_surveys`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `gm_surveys` (
+  `surveyid` int(10) NOT NULL auto_increment,
+  `player` int(11) UNSIGNED NOT NULL DEFAULT '0',
+  `mainSurvey` int(11) UNSIGNED NOT NULL DEFAULT '0',
+  `overall_comment` longtext NOT NULL DEFAULT '',
+  `timestamp` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`surveyid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Player System';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `gm_surveys`
+--
+
+LOCK TABLES `gm_surveys` WRITE;
+/*!40000 ALTER TABLE `gm_surveys` DISABLE KEYS */;
+/*!40000 ALTER TABLE `gm_surveys` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `gm_tickets`
 --
 
@@ -1331,6 +1380,9 @@ CREATE TABLE `gm_tickets` (
   `closed` int(10) NOT NULL default '0',
   `assignedto` int(10) NOT NULL default '0',
   `comment` text NOT NULL,
+  `completed` int(11) NOT NULL DEFAULT '0',
+  `escalated` int(11) NOT NULL DEFAULT '0',
+  `viewed` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY  (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1789,6 +1841,34 @@ CREATE TABLE `item_refund_instance` (
 LOCK TABLES `item_refund_instance` WRITE;
 /*!40000 ALTER TABLE `item_refund_instance` DISABLE KEYS */;
 /*!40000 ALTER TABLE `item_refund_instance` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `lag_reports`
+--
+
+DROP TABLE IF EXISTS `lag_reports`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `lag_reports` (
+  `report_id` int(10) NOT NULL auto_increment,
+  `player` int(11) UNSIGNED NOT NULL DEFAULT '0',
+  `lag_type` int(10) NOT NULL DEFAULT '0',
+  `map` int(11) NOT NULL DEFAULT '0',
+  `posX` float NOT NULL default '0',
+  `posY` float NOT NULL default '0',
+  `posZ` float NOT NULL default '0',
+  PRIMARY KEY  (`report_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Player System';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `lag_reports`
+--
+
+LOCK TABLES `lag_reports` WRITE;
+/*!40000 ALTER TABLE `lag_reports` DISABLE KEYS */;
+/*!40000 ALTER TABLE `lag_reports` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --

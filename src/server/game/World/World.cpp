@@ -39,6 +39,7 @@
 #include "AchievementMgr.h"
 #include "AuctionHouseMgr.h"
 #include "ObjectMgr.h"
+#include "TicketMgr.h"
 #include "CreatureEventAIMgr.h"
 #include "SpellMgr.h"
 #include "Chat.h"
@@ -886,6 +887,7 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_ALLOW_GM_FRIEND]      = sConfig.GetBoolDefault("GM.AllowFriend", false);
     m_bool_configs[CONFIG_GM_LOWER_SECURITY] = sConfig.GetBoolDefault("GM.LowerSecurity", false);
     m_bool_configs[CONFIG_GM_ALLOW_ACHIEVEMENT_GAINS] = sConfig.GetBoolDefault("GM.AllowAchievementGain", true);
+    m_float_configs[CONFIG_CHANCE_OF_GM_SURVEY] = sConfig.GetFloatDefault("GM.TicketSystem.ChanceOfGMSurvey", 50.0f);
 
     m_int_configs[CONFIG_GROUP_VISIBILITY] = sConfig.GetIntDefault("Visibility.GroupMode", 1);
 
@@ -1566,7 +1568,10 @@ void World::SetInitialWorldSettings()
     sConditionMgr.LoadConditions();
 
     sLog.outString("Loading GM tickets...");
-    sObjectMgr.LoadGMTickets();
+    sTicketMgr.LoadGMTickets();
+
+    sLog.outString("Loading GM surveys...");
+    sTicketMgr.LoadGMSurveys();
 
     sLog.outString("Loading client addons...");
     sAddonMgr.LoadFromDB();

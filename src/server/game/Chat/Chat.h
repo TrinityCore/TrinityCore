@@ -566,6 +566,7 @@ class ChatHandler
         bool HandleGMTicketListCommand(const char* args);
         bool HandleGMTicketListOnlineCommand(const char* args);
         bool HandleGMTicketListClosedCommand(const char* args);
+        bool HandleGMTicketListEscalatedCommand(const char* args);
         bool HandleGMTicketGetByIdCommand(const char* args);
         bool HandleGMTicketGetByNameCommand(const char* args);
         bool HandleGMTicketCloseByIdCommand(const char* args);
@@ -574,6 +575,11 @@ class ChatHandler
         bool HandleGMTicketCommentCommand(const char* args);
         bool HandleGMTicketDeleteByIdCommand(const char* args);
         bool HandleGMTicketReloadCommand(const char*);
+        bool HandleToggleGMTicketSystem(const char* args);
+        bool HandleGMTicketEscalateCommand(const char* args);
+        bool HandleGMTicketCompleteCommand(const char* args);
+        bool HandleGMTicketResponseAppendCommand(const char* args);
+        bool HandleGMTicketResponseAppendLnCommand(const char* args);
 
         bool HandleMaxSkillCommand(const char* args);
         bool HandleSetSkillCommand(const char* args);
