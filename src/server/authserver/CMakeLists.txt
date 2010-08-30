@@ -84,23 +84,13 @@ endif()
 
 set_target_properties(authserver PROPERTIES LINK_FLAGS "${authserver_LINK_FLAGS}")
 
-if( WIN32 )
-  target_link_libraries(
-    authserver
-    shared
-    ${MYSQL_LIBRARY}
-    ${OPENSSL_LIBRARIES}
-    ${OPENSSL_EXTRA_LIBRARIES}
-  )
-else()
-  target_link_libraries(
-    authserver
-    shared
-    ${MYSQL_LIBRARY}
-    ${OPENSSL_LIBRARIES}
-    ${OSX_LIBS}
-  )
-endif()
+target_link_libraries(authserver
+  shared
+  ${MYSQL_LIBRARY}
+  ${OPENSSL_LIBRARIES}
+  ${OPENSSL_EXTRA_LIBRARIES}
+  ${OSX_LIBS}
+)
 
 if( WIN32 )
   add_custom_command(TARGET authserver

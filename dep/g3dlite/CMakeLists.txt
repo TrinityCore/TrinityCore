@@ -67,12 +67,7 @@ endif()
 
 add_library(g3dlib STATIC ${g3dlib_STAT_SRCS})
 
-if(WIN32)
-  target_link_libraries(g3dlib
-    zlib
-  )
-else()
-  target_link_libraries(g3dlib
-    ${ZLIB_LIBRARIES}
-  )
+target_link_libraries(g3dlib
+  ${ZLIB_LIBRARIES}
+)
 endif()
