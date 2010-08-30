@@ -3786,11 +3786,6 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->SpellFamilyFlags[2] = 0x10;
             count++;
             break;
-        // cleansing totem pulse when it is spawned
-        case 8172:
-            spellInfo->AttributesEx5 |= SPELL_ATTR_EX5_START_PERIODIC_AT_APPLY;
-            count++;
-            break;
         case 41013:     // Parasitic Shadowfiend Passive
             spellInfo->EffectApplyAuraName[0] = 4; // proc debuff, and summon infinite fiends
             count++;
