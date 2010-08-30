@@ -25,6 +25,9 @@ static const DoorData doorData[8] =
     {GO_ICEWALL,                          DATA_LORD_MARROWGAR,        DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
     {GO_DOODAD_ICECROWN_ICEWALL02,        DATA_LORD_MARROWGAR,        DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
     {GO_ORATORY_OF_THE_DAMNED_ENTRANCE,   DATA_LADY_DEATHWHISPER,     DOOR_TYPE_ROOM,    BOUNDARY_N   },
+    {GO_ORANGE_PLAGUE_MONSTER_ENTRANCE,   DATA_FESTERGUT,             DOOR_TYPE_ROOM,    BOUNDARY_E   },
+    {GO_GREEN_PLAGUE_MONSTER_ENTRANCE,    DATA_ROTFACE,               DOOR_TYPE_ROOM,    BOUNDARY_E   },
+    {GO_SCIENTIST_ENTRANCE,               DATA_PROFESSOR_PUTRICIDE,   DOOR_TYPE_ROOM,    BOUNDARY_E   },
     {0,                                   0,                          DOOR_TYPE_ROOM,    BOUNDARY_NONE} // END
 };
 
@@ -45,6 +48,12 @@ class instance_icecrown_citadel : public InstanceMapScript
                 uiSaurfangEventNPC = 0;
                 uiDeathbringersCache = 0;
                 uiSaurfangTeleport = 0;
+                memset(uiPutricidePipes, 0, 2*sizeof(uint32));
+                memset(uiPutricideGates, 0, 2*sizeof(uint32));
+                uiPutricideCollision;
+                uiFestergut = 0;
+                uiRotface = 0;
+                uiProfessorPutricide = 0;
                 isBonedEligible = false;
             }
 
@@ -75,6 +84,15 @@ class instance_icecrown_citadel : public InstanceMapScript
                         if (TeamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_SE_SKYBREAKER_MARINE, ALLIANCE);
                         break;
+                    case NPC_FESTERGUT:
+                        uiFestergut = creature->GetGUID();
+                        break;
+                    case NPC_ROTFACE:
+                        uiRotface = creature->GetGUID();
+                        break;
+                    case NPC_PROFESSOR_PUTRICIDE:
+                        uiProfessorPutricide = creature->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -88,6 +106,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_ICEWALL:
                     case GO_LORD_MARROWGAR_S_ENTRANCE:
                     case GO_ORATORY_OF_THE_DAMNED_ENTRANCE:
+                    case GO_ORANGE_PLAGUE_MONSTER_ENTRANCE:
+                    case GO_GREEN_PLAGUE_MONSTER_ENTRANCE:
+                    case GO_SCIENTIST_ENTRANCE:
                         AddDoor(pGo, add);
                         break;
                     case GO_LADY_DEATHWHISPER_ELEVATOR:
@@ -110,6 +131,35 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_SCOURGE_TRANSPORTER_SAURFANG:
                         uiSaurfangTeleport = pGo->GetGUID();
                         break;
+                    case GO_SCIENTIST_AIRLOCK_DOOR_COLLISION:
+                        uiPutricideCollision = pGo->GetGUID();
+                        if (GetBossState(DATA_FESTERGUT) == DONE && GetBossState(DATA_ROTFACE) == DONE)
+                            HandleGameObject(uiPutricideCollision, true, pGo);
+                        break;
+                    case GO_SCIENTIST_AIRLOCK_DOOR_ORANGE:
+                        uiPutricideGates[0] = pGo->GetGUID();
+                        if (GetBossState(DATA_FESTERGUT) == DONE && GetBossState(DATA_ROTFACE) == DONE)
+                            pGo->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                        else if (GetBossState(DATA_FESTERGUT) == DONE)
+                            HandleGameObject(uiPutricideGates[1], false, pGo);
+                        break;
+                    case GO_SCIENTIST_AIRLOCK_DOOR_GREEN:
+                        uiPutricideGates[1] = pGo->GetGUID();
+                        if (GetBossState(DATA_ROTFACE) == DONE && GetBossState(DATA_FESTERGUT) == DONE)
+                            pGo->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                        else if (GetBossState(DATA_ROTFACE) == DONE)
+                            HandleGameObject(uiPutricideGates[1], false, pGo);
+                        break;
+                    case GO_DOODAD_ICECROWN_ORANGETUBES02:
+                        uiPutricidePipes[0] = pGo->GetGUID();
+                        if (GetBossState(DATA_FESTERGUT) == DONE)
+                            HandleGameObject(uiPutricidePipes[0], true, pGo);
+                        break;
+                    case GO_DOODAD_ICECROWN_GREENTUBES02:
+                        uiPutricidePipes[1] = pGo->GetGUID();
+                        if (GetBossState(DATA_ROTFACE) == DONE)
+                            HandleGameObject(uiPutricidePipes[1], true, pGo);
+                        break;
                     default:
                         break;
                 }
@@ -127,6 +177,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return uiSaurfangDoor;
                     case GO_SCOURGE_TRANSPORTER_SAURFANG:
                         return uiSaurfangTeleport;
+                    case DATA_FESTERGUT:
+                        return uiFestergut;
+                    case DATA_PROFESSOR_PUTRICIDE:
+                        return uiProfessorPutricide;
                     default:
                         break;
                 }
@@ -167,7 +221,35 @@ class instance_icecrown_citadel : public InstanceMapScript
                         }
                         break;
                     case DATA_FESTERGUT:
+                        if (state == DONE)
+                        {
+                            if (GetBossState(DATA_ROTFACE) == DONE)
+                                HandleGameObject(uiPutricideCollision, true);
+                            if (GetBossState(DATA_ROTFACE) == DONE)
+                            {
+                                if (GameObject* pGo = instance->GetGameObject(uiPutricideGates[0]))
+                                    pGo->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                            }
+                            else
+                                HandleGameObject(uiPutricideGates[0], false);
+                            HandleGameObject(uiPutricidePipes[0], true);
+                        }
+                        break;
                     case DATA_ROTFACE:
+                        if (state == DONE)
+                        {
+                            if (GetBossState(DATA_FESTERGUT) == DONE)
+                                HandleGameObject(uiPutricideCollision, true);
+                            if (GetBossState(DATA_FESTERGUT) == DONE)
+                            {
+                                if (GameObject* pGo = instance->GetGameObject(uiPutricideGates[1]))
+                                    pGo->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                            }
+                            else
+                                HandleGameObject(uiPutricideGates[1], false);
+                            HandleGameObject(uiPutricidePipes[1], true);
+                        }
+                        break;
                     case DATA_PROFESSOR_PUTRICIDE:
                     case DATA_BLOOD_PRINCE_COUNCIL:
                     case DATA_BLOOD_QUEEN_LANA_THEL:
@@ -256,6 +338,12 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 uiSaurfangEventNPC;  // Muradin Bronzebeard or High Overlord Saurfang
             uint64 uiDeathbringersCache;
             uint64 uiSaurfangTeleport;
+            uint64 uiPutricidePipes[2];
+            uint64 uiPutricideGates[2];
+            uint64 uiPutricideCollision;
+            uint64 uiFestergut;
+            uint64 uiRotface;
+            uint64 uiProfessorPutricide;
             bool isBonedEligible;
         };
 
