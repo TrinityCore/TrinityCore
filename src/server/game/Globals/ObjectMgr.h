@@ -337,23 +337,6 @@ enum SkillRangeType
     SKILL_RANGE_NONE,                                       // 0..0 always
 };
 
-struct GM_Ticket
-{
-    uint64 guid;
-    uint64 playerGuid;
-    std::string name;
-    float pos_x;
-    float pos_y;
-    float pos_z;
-    uint32 map;
-    std::string message;
-    uint64 createtime;
-    uint64 timestamp;
-    int64 closed; // 0 = Open, -1 = Console, playerGuid = player abandoned ticket, other = GM who closed it.
-    uint64 assignedToGM;
-    std::string comment;
-};
-typedef std::list<GM_Ticket*> GmTicketList;
 SkillRangeType GetSkillRangeType(SkillLineEntry const *pSkill, bool racial);
 
 #define MAX_PLAYER_NAME          12                         // max allowed by client name length
@@ -713,7 +696,6 @@ class ObjectMgr
         void LoadTrainerSpell();
         bool AddSpellToTrainer(uint32 entry, uint32 spell, Field *fields, std::set<uint32> *skip_trainers, std::set<uint32> *talentIds);
         int  LoadReferenceTrainer(uint32 trainer, int32 spell, std::set<uint32> *skip_trainers, std::set<uint32> *talentIds);
-        void LoadGMTickets();
 
         std::string GeneratePetName(uint32 entry);
         uint32 GetBaseXP(uint8 level);
@@ -950,23 +932,6 @@ class ObjectMgr
             return SpellClickInfoMapBounds(mSpellClickInfoMap.lower_bound(creature_id),mSpellClickInfoMap.upper_bound(creature_id));
         }
 
-        GM_Ticket *GetGMTicket(uint64 ticketGuid)
-        {
-            for (GmTicketList::const_iterator i = m_GMTicketList.begin(); i != m_GMTicketList.end(); ++i)
-                if ((*i) && (*i)->guid == ticketGuid)
-                    return (*i);
-
-            return NULL;
-        }
-        GM_Ticket *GetGMTicketByPlayer(uint64 playerGuid)
-        {
-            for (GmTicketList::const_iterator i = m_GMTicketList.begin(); i != m_GMTicketList.end(); ++i)
-                if ((*i) && (*i)->playerGuid == playerGuid && (*i)->closed == 0)
-                    return (*i);
-
-            return NULL;
-        }
-
         GossipMenusMapBounds GetGossipMenusMapBounds(uint32 uiMenuId) const
         {
             return GossipMenusMapBounds(m_mGossipMenusMap.lower_bound(uiMenuId),m_mGossipMenusMap.upper_bound(uiMenuId));
@@ -985,13 +950,6 @@ class ObjectMgr
         {
             return GossipMenuItemsMapBoundsNonConst(m_mGossipMenuItemsMap.lower_bound(uiMenuId),m_mGossipMenuItemsMap.upper_bound(uiMenuId));
         }
-
-        void AddOrUpdateGMTicket(GM_Ticket &ticket, bool create = false);
-        void _AddOrUpdateGMTicket(GM_Ticket &ticket);
-        void RemoveGMTicket(uint64 ticketGuid, int64 source = -1, bool permanently = false);
-        void RemoveGMTicket(GM_Ticket *ticket, int64 source = -1, bool permanently = false);
-        GmTicketList m_GMTicketList;
-        uint64 GenerateGMTicketId();
 
         // for wintergrasp only
         GraveYardMap        mGraveYardMap;
@@ -1013,7 +971,6 @@ class ObjectMgr
         uint32 m_ItemTextId;
         uint32 m_mailid;
         uint32 m_hiPetNumber;
-        uint64 m_GMticketid;
 
         // first free low guid for seelcted guid type
         uint32 m_hiCharGuid;
