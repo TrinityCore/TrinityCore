@@ -70,4 +70,3 @@ add_library(g3dlib STATIC ${g3dlib_STAT_SRCS})
 target_link_libraries(g3dlib
   ${ZLIB_LIBRARIES}
 )
-endif()
