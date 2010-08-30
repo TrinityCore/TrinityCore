@@ -65,7 +65,7 @@ public:
 
         void SummonIllusions(Unit* victim)
         {
-            if (Creature *Illusion = DoSpawnCreature(11439, irand(-9,9), irand(-9,9), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000))
+            if (Creature *Illusion = DoSpawnCreature(11439, float(irand(-9,9)), float(irand(-9,9)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000))
                 Illusion->AI()->AttackStart(victim);
         }
 

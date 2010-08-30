@@ -319,7 +319,7 @@ public:
                         if (Creature *pImpaleTarget = DoSummonImpaleTarget(target))
                             me->CastSpell(pImpaleTarget, DUNGEON_MODE(SPELL_POUND, SPELL_POUND_H), false);
                     }
-                    uiPoundTimer = 16.5f*IN_MILLISECONDS;
+                    uiPoundTimer = 16500;
                 } else uiPoundTimer -= diff;
 
                 DoMeleeAttackIfReady();

@@ -555,7 +555,7 @@ public:
 
                 if (SummonWispTimer <= diff)
                 {
-                    DoSpawnCreature(CREATURE_ANCIENT_WISP, rand()%40, rand()%40, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                    DoSpawnCreature(CREATURE_ANCIENT_WISP, float(rand()%40), float(rand()%40), 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                     SummonWispTimer = 1500;
                     ++WispCount;
                 } else SummonWispTimer -= diff;

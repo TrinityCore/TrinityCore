@@ -160,28 +160,28 @@ public:
                     case 0:
                         DoScriptText(SAY_DIALOG_WITH_ARTHAS_1, me);
                         ++uiIntroPhase;
-                        uiIntroTimer = 3.5f*IN_MILLISECONDS;
+                        uiIntroTimer = 3500;
                         break;
                     case 1:
                         DoScriptText(SAY_DIALOG_OF_ARTHAS_1, pArthas);
                         ++uiIntroPhase;
-                        uiIntroTimer = 3.5f*IN_MILLISECONDS;
+                        uiIntroTimer = 3500;
                         break;
                     case 2:
                         DoScriptText(SAY_DIALOG_WITH_ARTHAS_2, me);
                         ++uiIntroPhase;
-                        uiIntroTimer = 3.5f*IN_MILLISECONDS;
+                        uiIntroTimer = 3500;
                         break;
                     case 3:
                         DoScriptText(SAY_DIALOG_OF_ARTHAS_2, pArthas);
                         ++uiIntroPhase;
-                        uiIntroTimer = 3.5f*IN_MILLISECONDS;
+                        uiIntroTimer = 3500;
                         break;
                     case 4:
                         DoScriptText(SAY_DIALOG_WITH_ARTHAS_3, me);
                         DoCast(me, SPELL_SVALA_TRANSFORMING1);
                         ++uiIntroPhase;
-                        uiIntroTimer = 2.8f*IN_MILLISECONDS;
+                        uiIntroTimer = 2800;
                         break;
                     case 5:
                         DoCast(me, SPELL_SVALA_TRANSFORMING2);

@@ -223,8 +223,8 @@ class boss_akilzon : public CreatureScript
                     z = me->GetPositionZ();
                     for (uint8 i = 0; i < 5+rand()%5; ++i)
                     {
-                        x = 343+rand()%60;
-                        y = 1380+rand()%60;
+                        x = 343.0f+rand()%60;
+                        y = 1380.0f+rand()%60;
                         if (Unit *trigger = me->SummonTrigger(x, y, z, 0, 2000))
                         {
                             trigger->setFaction(35);
@@ -368,7 +368,7 @@ class boss_akilzon : public CreatureScript
                                 y = pTarget->GetPositionY() + irand(-10,10);
                                 z = pTarget->GetPositionZ() + urand(16,20);
                                 if (z > 95)
-                                    z = 95 - urand(0,5);
+                                    z = 95.0f - urand(0,5);
                             }
                             Creature *pCreature = me->SummonCreature(MOB_SOARING_EAGLE, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
                             if (pCreature)
@@ -407,7 +407,7 @@ class mob_akilzon_eagle : public CreatureScript
 
             uint32 EagleSwoop_Timer;
             bool arrived;
-            uint32 TargetGUID;
+            uint64 TargetGUID;
 
             void Reset()
             {
@@ -452,7 +452,7 @@ class mob_akilzon_eagle : public CreatureScript
                             y = pTarget->GetPositionY() + irand(-10,10);
                             z = pTarget->GetPositionZ() + urand(10,15);
                             if (z > 95)
-                                z = 95 - urand(0,5);
+                                z = 95.0f - urand(0,5);
                         }
                         else
                         {

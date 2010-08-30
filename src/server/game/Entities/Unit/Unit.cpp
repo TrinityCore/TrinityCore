@@ -11085,9 +11085,9 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
             scripted = true;
             int32 apBonus = int32(std::max(GetTotalAttackPowerValue(BASE_ATTACK), GetTotalAttackPowerValue(RANGED_ATTACK)));
             if (apBonus > DoneAdvertisedBenefit)
-                DoneTotal += apBonus * 0.22f; // 22% of AP per tick
+                DoneTotal += int32(apBonus * 0.22f); // 22% of AP per tick
             else
-                DoneTotal += DoneAdvertisedBenefit * 0.377f; //37.7% of BH per tick
+                DoneTotal += int32(DoneAdvertisedBenefit * 0.377f); //37.7% of BH per tick
         }
         // Earthliving - 0.45% of normal hot coeff
         else if (spellProto->SpellFamilyName == SPELLFAMILY_SHAMAN && spellProto->SpellFamilyFlags[1] & 0x80000)

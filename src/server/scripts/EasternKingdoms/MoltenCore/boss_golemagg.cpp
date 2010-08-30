@@ -67,7 +67,7 @@ public:
         {
             m_uiPyroblastTimer = 7*IN_MILLISECONDS;              // These timers are probably wrong
             m_uiEarthquakeTimer = 3*IN_MILLISECONDS;
-            m_uiBuffTimer = 2.5*IN_MILLISECONDS;
+            m_uiBuffTimer = 2500;
             m_bEnraged = false;
 
             DoCast(me, SPELL_MAGMASPLASH, true);

@@ -571,7 +571,7 @@ public:
                 SaySound(SAY_REJOINED);
                 DoCast(me, SPELL_HEAD);
                 caster->GetMotionMaster()->Clear(false);
-                caster->GetMotionMaster()->MoveFollow(me,6,urand(0,5));
+                caster->GetMotionMaster()->MoveFollow(me,6,float(urand(0,5)));
                 //DoResetThreat();//not sure if need
                 std::list<HostileReference*>::const_iterator itr;
                 for (itr = caster->getThreatManager().getThreatList().begin(); itr != caster->getThreatManager().getThreatList().end(); ++itr)
@@ -594,7 +594,7 @@ public:
                 me->SetName("Headless Horseman, Unhorsed");
 
                 if (!headGUID)
-                    headGUID = DoSpawnCreature(HEAD,rand()%6,rand()%6,0,0,TEMPSUMMON_DEAD_DESPAWN,0)->GetGUID();
+                    headGUID = DoSpawnCreature(HEAD, float(rand()%6), float(rand()%6),0,0,TEMPSUMMON_DEAD_DESPAWN,0)->GetGUID();
                 Unit* Head = Unit::GetUnit((*me), headGUID);
                 if (Head && Head->isAlive())
                 {

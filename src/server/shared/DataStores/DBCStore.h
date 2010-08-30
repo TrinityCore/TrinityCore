@@ -97,7 +97,7 @@ class DBCStorage
                 result = WorldDatabase.Query(query.c_str());
                 if (result)
                 {
-                    sqlRecordCount = result->GetRowCount();
+                    sqlRecordCount = uint32(result->GetRowCount());
                     if (sql->indexPos >= 0)
                     {
                         fields = result->Fetch();

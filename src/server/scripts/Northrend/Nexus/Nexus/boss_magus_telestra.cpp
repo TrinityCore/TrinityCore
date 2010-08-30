@@ -293,7 +293,7 @@ public:
                 if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(pTarget, SPELL_ICE_NOVA, false);
-                    uiCooldown = 1.5f*IN_MILLISECONDS;
+                    uiCooldown = 1500;
                 }
                 uiIceNovaTimer = 15*IN_MILLISECONDS;
             } else uiIceNovaTimer -= diff;

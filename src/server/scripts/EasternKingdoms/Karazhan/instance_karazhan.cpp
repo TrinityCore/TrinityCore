@@ -254,7 +254,6 @@ public:
                 case TYPE_NIGHTBANE:            return m_auiEncounter[11];
                 case DATA_OPERA_PERFORMANCE:    return m_uiOperaEvent;
                 case DATA_OPERA_OZ_DEATHCOUNT:  return m_uiOzDeathCount;
-                case DATA_IMAGE_OF_MEDIVH:      return ImageGUID;
             }
 
             return 0;
@@ -278,6 +277,7 @@ public:
                 case DATA_GO_NETHER_DOOR:           return m_uiNetherspaceDoor;
                 case DATA_MASTERS_TERRACE_DOOR_1:   return MastersTerraceDoor[0];
                 case DATA_MASTERS_TERRACE_DOOR_2:   return MastersTerraceDoor[1];
+                case DATA_IMAGE_OF_MEDIVH:          return ImageGUID;
             }
 
             return 0;

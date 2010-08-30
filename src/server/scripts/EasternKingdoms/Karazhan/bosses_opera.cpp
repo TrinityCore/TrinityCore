@@ -683,7 +683,7 @@ public:
 
             if (CycloneTimer <= diff)
             {
-                if (Creature* Cyclone = DoSpawnCreature(CREATURE_CYCLONE, urand(0,9), urand(0,9), 0, 0, TEMPSUMMON_TIMED_DESPAWN, 15000))
+                if (Creature* Cyclone = DoSpawnCreature(CREATURE_CYCLONE, float(urand(0,9)), float(urand(0,9)), 0, 0, TEMPSUMMON_TIMED_DESPAWN, 15000))
                     Cyclone->CastSpell(Cyclone, SPELL_CYCLONE_VISUAL, true);
                 CycloneTimer = 30000;
             } else CycloneTimer -= diff;
