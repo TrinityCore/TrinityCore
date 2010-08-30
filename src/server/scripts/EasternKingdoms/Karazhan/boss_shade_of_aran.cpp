@@ -287,15 +287,17 @@ public:
 
             //Drink Interrupt Timer
             if (Drinking && !DrinkInturrupted)
+            {
                 if (DrinkInterruptTimer >= diff)
                     DrinkInterruptTimer -= diff;
-            else
-            {
-                me->SetStandState(UNIT_STAND_STATE_STAND);
-                DoCast(me, SPELL_POTION, true);
-                DoCast(me, SPELL_AOE_PYROBLAST, false);
-                DrinkInturrupted = true;
-                Drinking = false;
+                else
+                {
+                    me->SetStandState(UNIT_STAND_STATE_STAND);
+                    DoCast(me, SPELL_POTION, true);
+                    DoCast(me, SPELL_AOE_PYROBLAST, false);
+                    DrinkInturrupted = true;
+                    Drinking = false;
+                }
             }
 
             //Don't execute any more code if we are drinking

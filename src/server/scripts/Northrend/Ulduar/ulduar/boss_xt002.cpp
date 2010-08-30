@@ -442,12 +442,14 @@ public:
 
             //Enrage stuff
             if (!enraged)
+            {
                 if (uiEnrageTimer <= diff)
                 {
                     DoScriptText(SAY_BERSERK, me);
                     DoCast(me, SPELL_ENRAGE);
                     enraged = true;
                 } else uiEnrageTimer -= diff;
+            }
         }
 
         void exposeHeart()
@@ -559,10 +561,10 @@ public:
                 if (pXT002->AI())
                 {
                     uint32 health = me->GetHealth();
-                    health -= damage;
-                    if (health < 0)
+                    if (health <= damage)
                         health = 0;
-
+                    else
+                        health -= damage;
                     pXT002->AI()->SetData(DATA_TRANSFERED_HEALTH, me->GetMaxHealth() - health);
                 }
         }

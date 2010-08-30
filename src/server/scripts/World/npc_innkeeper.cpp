@@ -46,7 +46,7 @@ public:
     {
         if (IsEventActive(HALLOWEEN_EVENTID) && !pPlayer->HasAura(SPELL_TRICK_OR_TREATED))
         {
-            char* localizedEntry;
+            const char* localizedEntry;
             switch (pPlayer->GetSession()->GetSessionDbcLocale())
             {
                 case LOCALE_frFR: localizedEntry = LOCALE_TRICK_OR_TREAT_2; break;
@@ -65,7 +65,7 @@ public:
 
         if (pCreature->isInnkeeper())
         {
-            char* localizedEntry;
+            const char* localizedEntry;
             switch (pPlayer->GetSession()->GetSessionDbcLocale())
             {
                 case LOCALE_deDE: localizedEntry = LOCALE_INNKEEPER_3; break;

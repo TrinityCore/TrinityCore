@@ -67,7 +67,7 @@ public:
                 pInstance->SetData(DATA_MARWYN_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
             if (pInstance)
@@ -79,7 +79,7 @@ public:
             events.ScheduleEvent(EVENT_SHARED_SUFFERING, 20000);    // TODO Check timer
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
 
@@ -87,7 +87,7 @@ public:
                 pInstance->SetData(DATA_MARWYN_EVENT, DONE);
         }
 
-        void KilledUnit(Unit *victim)
+        void KilledUnit(Unit * /*victim*/)
         {
             DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
         }

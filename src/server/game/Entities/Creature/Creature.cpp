@@ -2360,7 +2360,7 @@ uint32 Creature::UpdateVendorItemCurrentCount(VendorItem const* vItem, uint32 us
 
     time_t ptime = time(NULL);
 
-    if (vCount->lastIncrementTime + vItem->incrtime <= ptime)
+    if (time_t(vCount->lastIncrementTime + vItem->incrtime) <= ptime)
     {
         ItemPrototype const* pProto = sObjectMgr.GetItemPrototype(vItem->item);
 

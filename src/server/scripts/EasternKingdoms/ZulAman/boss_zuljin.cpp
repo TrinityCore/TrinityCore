@@ -317,7 +317,8 @@ class boss_zuljin : public CreatureScript
                     Unit* Temp = NULL;
                     if (SpiritGUID[i])
                     {
-                        if (Temp = Unit::GetUnit(*me, SpiritGUID[i]))
+                        Temp = Unit::GetUnit(*me, SpiritGUID[i]);
+                        if (Temp)
                         {
                             Temp->SetVisibility(VISIBILITY_OFF);
                             Temp->setDeathState(DEAD);

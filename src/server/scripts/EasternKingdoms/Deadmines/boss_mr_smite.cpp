@@ -121,7 +121,7 @@ public:
             } else uiNimbleReflexesTimer -= uiDiff;
         /*END ACID-AI*/
 
-            if (uiHealth == 0 && !HealthAbovePct(66) || uiHealth == 1 && !HealthAbovePct(33))
+            if ((uiHealth == 0 && !HealthAbovePct(66)) || (uiHealth == 1 && !HealthAbovePct(33)))
             {
                 ++uiHealth;
                 DoCastAOE(SPELL_SMITE_STOMP,false);

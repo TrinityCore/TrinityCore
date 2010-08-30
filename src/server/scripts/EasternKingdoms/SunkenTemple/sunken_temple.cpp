@@ -41,13 +41,9 @@ public:
 
     bool OnTrigger(Player* pPlayer, const AreaTriggerEntry * /*at*/)
     {
-        if (InstanceScript* pInstance = pPlayer->GetInstanceScript())
-        {
-            if (!pPlayer->FindNearestCreature(15362,15))
-                pPlayer->SummonCreature(15362, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), -1.52f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 100000);
-            return false;
-        }
-    return false;
+        if (pPlayer->GetInstanceScript() && !pPlayer->FindNearestCreature(15362, 15))
+            pPlayer->SummonCreature(15362, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), -1.52f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 100000);
+        return false;
     }
 
 };
@@ -62,10 +58,8 @@ public:
 
     bool OnGossipHello(Player* pPlayer, GameObject* pGo)
     {
-        InstanceScript* pInstance = pPlayer->GetInstanceScript();
-        if (!pInstance)
-            return false;
-        pInstance->SetData(EVENT_STATE,pGo->GetEntry());
+        if (InstanceScript* pInstance = pPlayer->GetInstanceScript())
+            pInstance->SetData(EVENT_STATE,pGo->GetEntry());
         return false;
     }
 

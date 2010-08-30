@@ -71,7 +71,7 @@ public:
                 pInstance->SetData(DATA_FALRIC_EVENT, NOT_STARTED);
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
             if (pInstance)
@@ -82,7 +82,7 @@ public:
             events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(25000,45000)); // TODO adjust timer.
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
 
@@ -90,7 +90,7 @@ public:
                 pInstance->SetData(DATA_FALRIC_EVENT, DONE);
         }
 
-        void KilledUnit(Unit *victim)
+        void KilledUnit(Unit * /*victim*/)
         {
             DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
         }

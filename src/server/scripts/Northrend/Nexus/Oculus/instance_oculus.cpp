@@ -76,11 +76,11 @@ public:
             }
         }
 
-        void OnGameObjectCreate(GameObject* pGO, bool bAdd)
+        void OnGameObjectCreate(GameObject* pGO, bool /*bAdd*/)
         {
             if (pGO->GetEntry() == GO_DRAGON_CAGE_DOOR)
             {
-                if (DATA_DRAKOS_EVENT == DONE)
+                if (GetData(DATA_DRAKOS_EVENT) == DONE)
                     pGO->SetGoState(GO_STATE_ACTIVE);
                 else
                     pGO->SetGoState(GO_STATE_READY);

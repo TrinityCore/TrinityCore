@@ -242,12 +242,14 @@ class boss_halazzi : public CreatureScript
                     } else FrenzyTimer -= diff;
 
                     if (Phase == PHASE_LYNX)
+                    {
                         if (CheckTimer <= diff)
                         {
                             if (HealthBelowPct(25 * (3 - TransformCount)))
                                 EnterPhase(PHASE_SPLIT);
                             CheckTimer = 1000;
                         } else CheckTimer -= diff;
+                    }
                 }
 
                 if (Phase == PHASE_HUMAN || Phase == PHASE_ENRAGE)
@@ -271,6 +273,7 @@ class boss_halazzi : public CreatureScript
                     } else ShockTimer -= diff;
 
                     if (Phase == PHASE_HUMAN)
+                    {
                         if (CheckTimer <= diff)
                         {
                             if (!HealthAbovePct(20) /*HealthBelowPct(10)*/)
@@ -283,6 +286,7 @@ class boss_halazzi : public CreatureScript
                             }
                             CheckTimer = 1000;
                         } else CheckTimer -= diff;
+                    }
                 }
 
                 if (Phase == PHASE_MERGE)

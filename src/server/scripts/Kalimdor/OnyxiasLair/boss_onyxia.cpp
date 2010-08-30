@@ -87,17 +87,17 @@ static sOnyxMove aMoveData[]=
     {7, 6, SPELL_BREATH_NORTH_TO_SOUTH,  22.8763f, -217.152f, -55.0548f},//north
 };
 
-const Position MiddleRoomLocation = {-23.6155f, -215.357f, -55.7344f};
+const Position MiddleRoomLocation = {-23.6155f, -215.357f, -55.7344f, 0.0f};
 
-const Position Phase2Location = {-80.924f, -214.299f, -82.942f};
+const Position Phase2Location = {-80.924f, -214.299f, -82.942f, 0.0f};
 
 static Position aSpawnLocations[3]=
 {
     //Whelps
-    {-30.127f, -254.463f, -89.440f},
-    {-30.817f, -177.106f, -89.258f},
+    {-30.127f, -254.463f, -89.440f, 0.0f},
+    {-30.817f, -177.106f, -89.258f, 0.0f},
     //Lair Guard
-    {-145.950f, -212.831f, -68.659f}
+    {-145.950f, -212.831f, -68.659f, 0.0f}
 };
 
 class boss_onyxia : public CreatureScript
@@ -177,7 +177,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* /*pWho*/)
         {
             DoScriptText(SAY_AGGRO, me);
             me->SetInCombatWithZone();
@@ -189,7 +189,7 @@ public:
             }
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* /*killer*/)
         {
             if (m_pInstance)
                 m_pInstance->SetData(DATA_ONYXIA, DONE);
@@ -220,12 +220,12 @@ public:
             Summons.Despawn(summon);
         }
 
-        void KilledUnit(Unit* pVictim)
+        void KilledUnit(Unit* /*pVictim*/)
         {
             DoScriptText(SAY_KILL, me);
         }
 
-        void SpellHit(Unit *pCaster, const SpellEntry* pSpell)
+        void SpellHit(Unit * /*pCaster*/, const SpellEntry* pSpell)
         {
             if (pSpell->Id == SPELL_BREATH_EAST_TO_WEST ||
                 pSpell->Id == SPELL_BREATH_WEST_TO_EAST ||
@@ -260,23 +260,23 @@ public:
                         me->GetMotionMaster()->MoveChase(me->getVictim());
                         m_uiBellowingRoarTimer = 1000;
                         break;
-    				case 10:
-    					me->SetFlying(true);
+                    case 10:
+                        me->SetFlying(true);
                         me->GetMotionMaster()->MovePoint(11, Phase2Location.GetPositionX(),Phase2Location.GetPositionY(),Phase2Location.GetPositionZ()+25);
-    					me->SetSpeed(MOVE_FLIGHT, 1.0f);
+                        me->SetSpeed(MOVE_FLIGHT, 1.0f);
                         DoScriptText(SAY_PHASE_2_TRANS, me);
                         if (m_pInstance)
                             m_pInstance->SetData(DATA_ONYXIA_PHASE, m_uiPhase);
                         m_uiWhelpTimer = 5000;
                         m_uiLairGuardTimer = 15000;
-    					break;
-    				case 11:
+                        break;
+                    case 11:
                         if (m_pPointData)
                             me->GetMotionMaster()->MovePoint(m_pPointData->uiLocId, m_pPointData->fX, m_pPointData->fY, m_pPointData->fZ);
-    					me->GetMotionMaster()->Clear(false);
+                        me->GetMotionMaster()->Clear(false);
                         me->GetMotionMaster()->MoveIdle();
     
-    					break;
+                        break;
 
                     default:
                         m_bIsMoving = false;

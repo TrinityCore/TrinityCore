@@ -207,7 +207,7 @@ public:
                     else
                         sLog.outError("npc_unworthy_initiateAI: unable to find prison!");
                 }
-                return;
+                break;
             case PHASE_TO_EQUIP:
                 if (wait_timer)
                 {
@@ -221,7 +221,7 @@ public:
                         wait_timer = 0;
                     }
                 }
-                return;
+                break;
             case PHASE_TO_ATTACK:
                 if (wait_timer)
                 {
@@ -238,7 +238,7 @@ public:
                         wait_timer = 0;
                     }
                 }
-                return;
+                break;
             case PHASE_ATTACKING:
                 if (!UpdateVictim())
                     return;
@@ -273,10 +273,12 @@ public:
                 }
 
                 DoMeleeAttackIfReady();
+                break;
+            default:
+                break;
             }
         }
     };
-
 };
 
 

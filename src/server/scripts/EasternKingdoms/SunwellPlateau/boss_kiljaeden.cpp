@@ -193,9 +193,9 @@ enum KilJaedenTimers
 // Locations of the Hand of Deceiver adds
 Position DeceiverLocations[3]=
 {
-    {1682.045f, 631.299f, 5.936f},
-    {1684.099f, 618.848f, 0.589f},
-    {1694.170f, 612.272f, 1.416f},
+    {1682.045f, 631.299f, 5.936f, 0.0f},
+    {1684.099f, 618.848f, 0.589f, 0.0f},
+    {1694.170f, 612.272f, 1.416f, 0.0f},
 };
 
 // Locations, where Shield Orbs will spawn
@@ -345,7 +345,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*diff*/)
         {
         }
 
@@ -612,7 +612,7 @@ public:
             summons.Summon(summoned);
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_KJ_DEATH, me);
             summons.DespawnAll();
@@ -621,7 +621,7 @@ public:
                 pInstance->SetData(DATA_KILJAEDEN_EVENT, DONE);
         }
 
-        void KilledUnit(Unit* victim)
+        void KilledUnit(Unit* /*victim*/)
         {
             DoScriptText(RAND(SAY_KJ_SLAY1,SAY_KJ_SLAY2), me);
         }
@@ -639,7 +639,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* /*who*/)
         {
             DoZoneInCombat();
         }
@@ -957,7 +957,7 @@ public:
             me->InterruptNonMeleeSpells(true);
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* /*killer*/)
         {
             if (!pInstance)
                 return;
@@ -1081,7 +1081,7 @@ public:
             bLockedTarget = false;
         }
 
-        void DamageTaken(Unit *done_by, uint32 &damage)
+        void DamageTaken(Unit * /*done_by*/, uint32 &damage)
         {
             if (damage > me->GetHealth())
                 DoCast(me, SPELL_FELFIRE_FISSION, true);
@@ -1248,7 +1248,7 @@ public:
             } else uiTimer -= diff;
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 type, uint32 /*id*/)
         {
             if (type != POINT_MOTION_TYPE)
                 return;

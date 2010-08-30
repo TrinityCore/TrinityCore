@@ -166,7 +166,7 @@ void WorldSession::LogUnprocessedTail(WorldPacket *packet)
     sLog.outError("SESSION: opcode %s (0x%.4X) have unprocessed tail data (read stop at %u from %u)",
         LookupOpcodeName(packet->GetOpcode()),
         packet->GetOpcode(),
-        packet->rpos(),packet->wpos());
+        uint32(packet->rpos()), uint32(packet->wpos()));
 
         packet->print_storage();
 }

@@ -545,16 +545,19 @@ public:
 
     bool OnGossipHello(Player* pPlayer, GameObject* pGo)
     {
-        uint32 SpectralPlayers = 0;
+        uint8 SpectralPlayers = 0;
         Map* pMap = pGo->GetMap();
-        if (!pMap->IsDungeon()) return true;
+        if (!pMap->IsDungeon())
+            return true;
+
         Map::PlayerList const &PlayerList = pMap->GetPlayers();
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
         {
             if (i->getSource() && i->getSource()->GetPositionZ() < DEMON_REALM_Z + 5)
                 ++SpectralPlayers;
         }
-        if (pPlayer->HasAura(AURA_SPECTRAL_EXHAUSTION) || (MAX_PLAYERS_IN_SPECTRAL_REALM && SpectralPlayers >= MAX_PLAYERS_IN_SPECTRAL_REALM))
+        uint8 MaxSpectralPlayers =  MAX_PLAYERS_IN_SPECTRAL_REALM;
+        if (pPlayer->HasAura(AURA_SPECTRAL_EXHAUSTION) || (MaxSpectralPlayers && SpectralPlayers >= MaxSpectralPlayers))
             pPlayer->GetSession()->SendNotification(GO_FAILED);
         else
             pPlayer->CastSpell(pPlayer, SPELL_TELEPORT_SPECTRAL, true);

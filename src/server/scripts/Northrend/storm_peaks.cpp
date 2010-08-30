@@ -518,16 +518,16 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action )
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*sender*/, uint32 action)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         switch(action)
         {
         case GOSSIP_ACTION_TRAIN:
-            pPlayer->SEND_TRAINERLIST( pCreature->GetGUID() );
+            pPlayer->SEND_TRAINERLIST(pCreature->GetGUID());
             break;
         case GOSSIP_ACTION_TRADE:
-            pPlayer->SEND_VENDORLIST( pCreature->GetGUID() );
+            pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
             break;
         }
         return true;

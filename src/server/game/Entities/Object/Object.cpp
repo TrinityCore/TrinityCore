@@ -2370,8 +2370,7 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
 
     float step = dist/10.0f;
 
-    int j = 0;
-    for (j; j < 10; j++)
+    for (uint8 j = 0; j < 10; ++j)
     {
         // do not allow too big z changes
         if (fabs(pos.m_positionZ - destz) > 6)

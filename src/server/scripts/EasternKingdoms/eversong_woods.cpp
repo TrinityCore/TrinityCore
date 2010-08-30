@@ -252,6 +252,7 @@ public:
         void UpdateAI(const uint32 diff)
         {
             if (questPhase == 1)
+            {
                 if (timer <= diff)
                 {
                     me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_STAND);
@@ -266,22 +267,25 @@ public:
                 }
                 else
                     timer -= diff;
+            }
 
             if (!UpdateVictim())
               return;
 
             // healer
-            if (spellFlashLight)
-                if (HealthBelowPct(70))
-                    if (timerFlashLight <= diff)
-                    {
-                        DoCast(me, SPELL_FLASH_OF_LIGHT);
-                        timerFlashLight = TIMER_FLASH_OF_LIGHT +  rand()%TIMER_FLASH_OF_LIGHT;
-                    }
-                    else
-                        timerFlashLight -= diff;
+            if (spellFlashLight && HealthBelowPct(70))
+            {
+                if (timerFlashLight <= diff)
+                {
+                    DoCast(me, SPELL_FLASH_OF_LIGHT);
+                    timerFlashLight = TIMER_FLASH_OF_LIGHT +  rand()%TIMER_FLASH_OF_LIGHT;
+                }
+                else
+                    timerFlashLight -= diff;
+            }
 
             if (spellJustice)
+            {
                 if (timerJustice <= diff)
                 {
                     DoCast(me, SPELL_SEAL_OF_JUSTICE);
@@ -289,8 +293,10 @@ public:
                 }
                 else
                     timerJustice -= diff;
+            }
 
             if (spellJudLight)
+            {
                 if (timerJudLight <= diff)
                 {
                     DoCast(me, SPELL_JUDGEMENT_OF_LIGHT);
@@ -298,8 +304,10 @@ public:
                 }
                 else
                     timerJudLight -= diff;
+            }
 
-              if (spellCommand)
+            if (spellCommand)
+            {
                   if (timerCommand <= diff)
                   {
                       DoCast(me, TIMER_SEAL_OF_COMMAND);
@@ -307,14 +315,15 @@ public:
                   }
                   else
                       timerCommand -= diff;
+            }
 
-              DoMeleeAttackIfReady();
+            DoMeleeAttackIfReady();
         }
 
         void Activate(uint64 summonerguid)
         {
-              questPhase = 1;
-              summonerGuid = summonerguid;
+            questPhase = 1;
+            summonerGuid = summonerguid;
         }
 
         void KilledUnit(Unit* Killed)

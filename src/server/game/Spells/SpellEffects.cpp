@@ -858,19 +858,19 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     uint32 effect = 0;
                     uint32 rand = urand(0, 100);
 
-                    if (rand >= 0 && rand < 25)         // Fireball (25% chance)
+                    if (rand < 25)                      // Fireball (25% chance)
                         effect = ClearSpellId[0];
-                    else if (rand >= 25 && rand < 50)   // Frostball (25% chance)
+                    else if (rand < 50)                 // Frostball (25% chance)
                         effect = ClearSpellId[1];
-                    else if (rand >=50 && rand < 70)    // Chain Lighting (25% chance)
+                    else if (rand < 70)                 // Chain Lighting (25% chance)
                         effect = ClearSpellId[2];
-                    else if (rand >= 70 && rand < 80)   // Polymorph (10% chance)
+                    else if (rand < 80)                 // Polymorph (10% chance)
                     {
                         effect = ClearSpellId[3];
                         if (urand(0, 100) <= 30)        // 30% chance to self-cast
                             unitTarget = m_caster;
                     }
-                    else if (rand >=80 && rand < 95)    // Enveloping Winds (15% chance)
+                    else if (rand < 95)                 // Enveloping Winds (15% chance)
                          effect = ClearSpellId[4];
                     else                                // Summon Felhund minion (5% chance)
                     {
@@ -1524,7 +1524,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 if (m_caster->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                if (Item *item = m_caster->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
+                if (m_caster->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
                 {
                     // Damage is increased by 25% if your off-hand weapon is enchanted with Flametongue.
                     if (m_caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, 0x200000, 0, 0))
@@ -2193,7 +2193,7 @@ void Spell::EffectUnlearnSpecialization(SpellEffIndex effIndex)
 
 void Spell::EffectPowerDrain(SpellEffIndex effIndex)
 {
-    if (m_spellInfo->EffectMiscValue[effIndex] < 0 || m_spellInfo->EffectMiscValue[effIndex] >= MAX_POWERS)
+    if (m_spellInfo->EffectMiscValue[effIndex] < 0 || m_spellInfo->EffectMiscValue[effIndex] >= int8(MAX_POWERS))
         return;
 
     Powers powerType = Powers(m_spellInfo->EffectMiscValue[effIndex]);
@@ -2247,7 +2247,7 @@ void Spell::EffectSendEvent(SpellEffIndex effIndex)
 
 void Spell::EffectPowerBurn(SpellEffIndex effIndex)
 {
-    if (m_spellInfo->EffectMiscValue[effIndex] < 0 || m_spellInfo->EffectMiscValue[effIndex] >= MAX_POWERS)
+    if (m_spellInfo->EffectMiscValue[effIndex] < 0 || m_spellInfo->EffectMiscValue[effIndex] >= int8(MAX_POWERS))
         return;
 
     Powers powerType = Powers(m_spellInfo->EffectMiscValue[effIndex]);
@@ -2647,7 +2647,7 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
     if (!unitTarget->isAlive())
         return;
 
-    if (m_spellInfo->EffectMiscValue[effIndex] < 0 || m_spellInfo->EffectMiscValue[effIndex] >= MAX_POWERS)
+    if (m_spellInfo->EffectMiscValue[effIndex] < 0 || m_spellInfo->EffectMiscValue[effIndex] >= int8(MAX_POWERS))
         return;
 
     Powers power = Powers(m_spellInfo->EffectMiscValue[effIndex]);
@@ -2749,7 +2749,7 @@ void Spell::EffectEnergizePct(SpellEffIndex effIndex)
     if (!unitTarget->isAlive())
         return;
 
-    if (m_spellInfo->EffectMiscValue[effIndex] < 0 || m_spellInfo->EffectMiscValue[effIndex] >= MAX_POWERS)
+    if (m_spellInfo->EffectMiscValue[effIndex] < 0 || m_spellInfo->EffectMiscValue[effIndex] >= int8(MAX_POWERS))
         return;
 
     Powers power = Powers(m_spellInfo->EffectMiscValue[effIndex]);
@@ -2837,8 +2837,8 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
     {
         GameObjectInfo const* goInfo = gameObjTarget->GetGOInfo();
         // Arathi Basin banner opening !
-        if (goInfo->type == GAMEOBJECT_TYPE_BUTTON && goInfo->button.noDamageImmune ||
-            goInfo->type == GAMEOBJECT_TYPE_GOOBER && goInfo->goober.losOK)
+        if ((goInfo->type == GAMEOBJECT_TYPE_BUTTON && goInfo->button.noDamageImmune) ||
+            (goInfo->type == GAMEOBJECT_TYPE_GOOBER && goInfo->goober.losOK))
         {
             //CanUseBattlegroundObject() already called in CheckCast()
             // in battleground check
@@ -4133,7 +4133,7 @@ void Spell::SpellDamageWeaponDmg(SpellEffIndex effIndex)
                 totalDamagePercentMod *= (float(unitTarget->GetDiseasesByCaster(m_caster->GetGUID())) * 12.5f + 100.0f) / 100.0f;
 
                 // Glyph of Blood Strike
-                if (AuraEffect * aurEff = m_caster->GetAuraEffect(59332,0))
+                if (m_caster->GetAuraEffect(59332,0))
                 {
                     if (unitTarget->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED))
                        totalDamagePercentMod *= float((20 + 100.0f) / 100.0f);
@@ -4143,7 +4143,7 @@ void Spell::SpellDamageWeaponDmg(SpellEffIndex effIndex)
             else if (m_spellInfo->SpellFamilyFlags[0] & 0x00000010)
             {
                 // Glyph of Death Strike
-                if (AuraEffect * aurEff = m_caster->GetAuraEffect(59336,0))
+                if (m_caster->GetAuraEffect(59336,0))
                 {
                     if (uint32 runic = m_caster->GetPower(POWER_RUNIC_POWER))
                     {
@@ -4304,7 +4304,7 @@ void Spell::EffectInterruptCast(SpellEffIndex effIndex)
             SpellEntry const* curSpellInfo = spell->m_spellInfo;
             // check if we can interrupt spell
             if ((spell->getState() == SPELL_STATE_CASTING
-                || spell->getState() == SPELL_STATE_PREPARING && spell->GetCastTime() > 0.0f)
+                || (spell->getState() == SPELL_STATE_PREPARING && spell->GetCastTime() > 0.0f))
                 && curSpellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_INTERRUPT && curSpellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE)
             {
                 if (m_originalCaster)
@@ -4691,7 +4691,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     uint8 slot = 0;
                     Item *item = NULL;
 
-                    while (bag < 256)
+                    while (bag) // 256 = 0 due to var type
                     {
                         item = m_caster->ToPlayer()->GetItemByPos(bag, slot);
                         if (item && item->GetEntry() == 38587) break;
@@ -4702,7 +4702,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                             ++bag;
                         }
                     }
-                    if (bag < 256)
+                    if (bag)
                     {
                         if (m_caster->ToPlayer()->GetItemByPos(bag,slot)->GetCount() == 1) m_caster->ToPlayer()->RemoveItem(bag,slot,true);
                         else m_caster->ToPlayer()->GetItemByPos(bag,slot)->SetCount(m_caster->ToPlayer()->GetItemByPos(bag,slot)->GetCount()-1);
@@ -4754,7 +4754,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                 case 47770:
                 {
                     char buf[128];
-                    char *gender = "his";
+                    const char *gender = "his";
                     if (m_caster->getGender() > 0)
                         gender = "her";
                     sprintf(buf, "%s rubs %s [Decahedral Dwarven Dice] between %s hands and rolls. One %u and one %u.", m_caster->GetName(), gender, gender, urand(1,10), urand(1,10));
@@ -4765,7 +4765,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                 case 47776:
                 {
                     char buf[128];
-                    char *gender = "his";
+                    const char *gender = "his";
                     if (m_caster->getGender() > 0)
                         gender = "her";
                     sprintf(buf, "%s causually tosses %s [Worn Troll Dice]. One %u and one %u.", m_caster->GetName(), gender, urand(1,6), urand(1,6));
@@ -6936,6 +6936,7 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const *
             ((Minion*)summon)->SetFollowAngle(m_caster->GetAngle(summon));
 
         if (summon->GetEntry() == 27893)
+        {
             if (uint32 weapon = m_caster->GetUInt32Value(PLAYER_VISIBLE_ITEM_16_ENTRYID))
             {
                 summon->SetDisplayId(11686);
@@ -6943,6 +6944,7 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const *
             }
             else
                 summon->SetDisplayId(1126);
+        }
 
         summon->AI()->EnterEvadeMode();
 

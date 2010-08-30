@@ -44,12 +44,12 @@ void SystemMgr::LoadVersion()
         Field* pFields = Result->Fetch();
 
         sLog.outString("TSCR: Database version is: %s", pFields[0].GetString());
-        sLog.outString("");
+        sLog.outString();
     }
     else
     {
         sLog.outError("TSCR: Missing `version`.`script_version` information.");
-        sLog.outString("");
+        sLog.outString();
     }
 }
 
@@ -107,14 +107,14 @@ void SystemMgr::LoadScriptTexts()
             ++uiCount;
         } while (Result->NextRow());
 
-        sLog.outString("");
+        sLog.outString();
         sLog.outString(">> Loaded %u additional Script Texts data.", uiCount);
     }
     else
     {
         barGoLink bar(1);
         bar.step();
-        sLog.outString("");
+        sLog.outString();
         sLog.outString(">> Loaded 0 additional Script Texts data. DB table `script_texts` is empty.");
     }
 }
@@ -173,14 +173,14 @@ void SystemMgr::LoadScriptTextsCustom()
             ++uiCount;
         } while (Result->NextRow());
 
-        sLog.outString("");
+        sLog.outString();
         sLog.outString(">> Loaded %u additional Custom Texts data.", uiCount);
     }
     else
     {
         barGoLink bar(1);
         bar.step();
-        sLog.outString("");
+        sLog.outString();
         sLog.outString(">> Loaded 0 additional Custom Texts data. DB table `custom_texts` is empty.");
     }
 }
@@ -197,7 +197,7 @@ void SystemMgr::LoadScriptWaypoints()
     if (Result)
         uiCreatureCount = Result->GetRowCount();
 
-    sLog.outString("TSCR: Loading Script Waypoints for %u creature(s)...", uiCreatureCount);
+    sLog.outString("TSCR: Loading Script Waypoints for " UI64FMTD " creature(s)...", uiCreatureCount);
 
     Result = WorldDatabase.Query("SELECT entry, pointid, location_x, location_y, location_z, waittime FROM script_waypoint ORDER BY pointid");
 
@@ -235,14 +235,14 @@ void SystemMgr::LoadScriptWaypoints()
             ++uiNodeCount;
         } while (Result->NextRow());
 
-        sLog.outString("");
+        sLog.outString();
         sLog.outString(">> Loaded %u Script Waypoint nodes.", uiNodeCount);
     }
     else
     {
         barGoLink bar(1);
         bar.step();
-        sLog.outString("");
+        sLog.outString();
         sLog.outString(">> Loaded 0 Script Waypoints. DB table `script_waypoint` is empty.");
     }
 }

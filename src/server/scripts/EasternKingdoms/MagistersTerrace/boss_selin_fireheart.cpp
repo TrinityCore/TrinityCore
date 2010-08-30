@@ -75,7 +75,7 @@ public:
                 for (uint8 i = 0; i < size; ++i)
                 {
                     uint64 guid = pInstance->GetData64(DATA_FEL_CRYSTAL);
-                    sLog.outDebug("TSCR: Selin: Adding Fel Crystal %u to list", guid);
+                    sLog.outDebug("TSCR: Selin: Adding Fel Crystal " UI64FMTD " to list", guid);
                     Crystals.push_back(guid);
                 }
             }

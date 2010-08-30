@@ -50,7 +50,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 return false;
             }
 
-            void OnCreatureCreate(Creature* creature, bool add)
+            void OnCreatureCreate(Creature* creature, bool /*add*/)
             {
                 Map::PlayerList const &players = instance->GetPlayers();
                 uint32 TeamInInstance = 0;
@@ -82,7 +82,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* pGo, bool add)
+            void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
             {
                 switch (pGo->GetEntry())
                 {

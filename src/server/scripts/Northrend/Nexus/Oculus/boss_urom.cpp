@@ -71,9 +71,9 @@ struct Summons
 
 static Summons Group[]=
 {
-    {NPC_PHANTASMAL_CLOUDSCRAPER,NPC_PHANTASMAL_CLOUDSCRAPER,NPC_PHANTASMAL_MAMMOTH,NPC_PHANTASMAL_WOLF},
-    {NPC_PHANTASMAL_AIR,NPC_PHANTASMAL_AIR,NPC_PHANTASMAL_WATER,NPC_PHANTASMAL_FIRE},
-    {NPC_PHANTASMAL_OGRE,NPC_PHANTASMAL_OGRE,NPC_PHANTASMAL_NAGAL,NPC_PHANTASMAL_MURLOC}
+    { {NPC_PHANTASMAL_CLOUDSCRAPER, NPC_PHANTASMAL_CLOUDSCRAPER, NPC_PHANTASMAL_MAMMOTH, NPC_PHANTASMAL_WOLF} },
+    { {NPC_PHANTASMAL_AIR, NPC_PHANTASMAL_AIR, NPC_PHANTASMAL_WATER, NPC_PHANTASMAL_FIRE} },
+    { {NPC_PHANTASMAL_OGRE, NPC_PHANTASMAL_OGRE, NPC_PHANTASMAL_NAGAL, NPC_PHANTASMAL_MURLOC} }
 };
 
 static uint32 TeleportSpells[]=
@@ -133,7 +133,8 @@ public:
                 uiGroup[2] = 0;
             }
 
-            x,y = 0.0f;
+            x = 0.0f;
+            y = 0.0f;
             bCanCast = false;
             bCanGoBack = false;
 
@@ -146,7 +147,7 @@ public:
             uiTimeBombTimer = urand(20000,25000);
         }
 
-        void EnterCombat(Unit* pWho)
+        void EnterCombat(Unit* /*pWho*/)
         {
             if (pInstance)
                 pInstance->SetData(DATA_UROM_EVENT, IN_PROGRESS);
@@ -325,7 +326,7 @@ public:
             me->DeleteThreatList();
         }
 
-        void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
+        void SpellHit(Unit* /*pCaster*/, const SpellEntry* pSpell)
         {
             switch(pSpell->Id)
             {

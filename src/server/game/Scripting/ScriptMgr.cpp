@@ -182,7 +182,7 @@ void ScriptMgr::Initialize()
     sLog.outString("Loading C++ scripts");
     barGoLink bar(1);
     bar.step();
-    sLog.outString("");
+    sLog.outString();
 
     FillSpellSummary();
     AddScripts();
@@ -855,7 +855,7 @@ bool ScriptMgr::OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger)
     return tmpscript->OnTrigger(player, trigger);
 }
 
-Battleground* ScriptMgr::CreateBattleground(BattlegroundTypeId typeId)
+Battleground* ScriptMgr::CreateBattleground(BattlegroundTypeId /*typeId*/)
 {
     // TODO: Implement script-side battlegrounds.
     ASSERT(false);

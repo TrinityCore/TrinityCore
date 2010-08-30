@@ -167,6 +167,7 @@ public:
             if (!ghost)
             {
                 if (Check_Timer)
+                {
                     if (Check_Timer <= diff)
                     {
                         Check_Timer = 5000;
@@ -178,15 +179,16 @@ public:
                             Check_Timer = 0;
                         }
                     } else Check_Timer -= diff;
+                }
+                if (Response_Timer && Dalronn_isDead)
+                {
+                    if (Response_Timer <= diff)
+                    {
+                        DoScriptText(YELL_SKARVALD_DAL_DIEDFIRST,me);
 
-                if (Response_Timer)
-                    if (Dalronn_isDead)
-                        if (Response_Timer <= diff)
-                        {
-                            DoScriptText(YELL_SKARVALD_DAL_DIEDFIRST,me);
-
-                            Response_Timer = 0;
-                        } else Response_Timer -= diff;
+                        Response_Timer = 0;
+                    } else Response_Timer -= diff;
+                }
             }
 
             if (Charge_Timer <= diff)
@@ -278,6 +280,7 @@ public:
             {
                 Unit* skarvald = Unit::GetUnit((*me),pInstance->GetData64(DATA_SKARVALD));
                 if (skarvald)
+                {
                     if (skarvald->isDead())
                     {
                         DoScriptText(YELL_DALRONN_SKA_DIED,me);
@@ -298,6 +301,7 @@ public:
                             temp->AI()->AttackStart(Killer);
                         }
                     }
+                }
             }
         }
 
@@ -321,16 +325,19 @@ public:
                 return;
 
             if (AggroYell_Timer)
+            {
                 if (AggroYell_Timer <= diff)
                 {
                     DoScriptText(YELL_DALRONN_AGGRO,me);
 
                     AggroYell_Timer = 0;
                 } else AggroYell_Timer -= diff;
+            }
 
             if (!ghost)
             {
                 if (Check_Timer)
+                {
                     if (Check_Timer <= diff)
                     {
                         Check_Timer = 5000;
@@ -342,15 +349,16 @@ public:
                             Check_Timer = 0;
                         }
                     } else Check_Timer -= diff;
+                }
 
-                if (Response_Timer)
-                    if (Skarvald_isDead)
-                        if (Response_Timer <= diff)
-                        {
-                            DoScriptText(YELL_DALRONN_SKA_DIEDFIRST,me);
-
-                            Response_Timer = 0;
-                        } else Response_Timer -= diff;
+                if (Response_Timer && Skarvald_isDead)
+                {
+                    if (Response_Timer <= diff)
+                    {
+                        DoScriptText(YELL_DALRONN_SKA_DIEDFIRST,me);
+                        Response_Timer = 0;
+                    } else Response_Timer -= diff;
+                }
             }
 
             if (ShadowBolt_Timer <= diff)
@@ -372,6 +380,7 @@ public:
             } else Debilitate_Timer -= diff;
 
             if (IsHeroic())
+            {
                 if (Summon_Timer <= diff)
                 {
                     if (!me->IsNonMeleeSpellCasted(false))
@@ -380,6 +389,7 @@ public:
                         Summon_Timer = (rand()%10000) + 20000;
                     }
                 } else Summon_Timer -= diff;
+            }
 
             DoMeleeAttackIfReady();
         }

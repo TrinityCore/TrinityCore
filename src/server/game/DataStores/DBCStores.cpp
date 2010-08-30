@@ -34,7 +34,7 @@ typedef std::map<uint32,uint32> AreaFlagByMapID;
 
 struct WMOAreaTableTripple
 {
-    WMOAreaTableTripple(int32 r, int32 a, int32 g) : rootId(r), adtId(a), groupId(g)
+    WMOAreaTableTripple(int32 r, int32 a, int32 g) :  groupId(g), rootId(r), adtId(a)
     {
     }
 

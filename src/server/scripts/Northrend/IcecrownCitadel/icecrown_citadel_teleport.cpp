@@ -61,7 +61,7 @@ class icecrown_citadel_teleport : public GameObjectScript
             return true;
         }
 
-        bool OnGossipSelect(Player* player, GameObject* go, uint32 sender, uint32 action)
+        bool OnGossipSelect(Player* player, GameObject* /*go*/, uint32 sender, uint32 action)
         {
             player->CLOSE_GOSSIP_MENU();
             SpellEntry const* spell = sSpellStore.LookupEntry(action);

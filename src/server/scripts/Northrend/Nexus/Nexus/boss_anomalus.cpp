@@ -51,12 +51,12 @@ enum Achievs
 
 const Position RiftLocation[6] =
 {
-    {652.64f, -273.70f, -8.75f},
-    {634.45f, -265.94f, -8.44f},
-    {620.73f, -281.17f, -9.02f},
-    {626.10f, -304.67f, -9.44f},
-    {639.87f, -314.11f, -9.49f},
-    {651.72f, -297.44f, -9.37f}
+    {652.64f, -273.70f, -8.75f, 0.0f},
+    {634.45f, -265.94f, -8.44f, 0.0f},
+    {620.73f, -281.17f, -9.02f, 0.0f},
+    {626.10f, -304.67f, -9.44f, 0.0f},
+    {639.87f, -314.11f, -9.49f, 0.0f},
+    {651.72f, -297.44f, -9.37f, 0.0f}
 };
 
 class boss_anomalus : public CreatureScript
@@ -229,10 +229,12 @@ public:
             {
                 Unit* pAnomalus = Unit::GetUnit(*me, pInstance ? pInstance->GetData64(DATA_ANOMALUS) : 0);
                 if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                {
                     if (pAnomalus && pAnomalus->HasAura(SPELL_RIFT_SHIELD))
                         DoCast(pTarget, SPELL_CHARGED_CHAOTIC_ENERGY_BURST);
                     else
                         DoCast(pTarget, SPELL_CHAOTIC_ENERGY_BURST);
+                }
                 uiChaoticEnergyBurstTimer = 1*IN_MILLISECONDS;
             } else uiChaoticEnergyBurstTimer -= diff;
 
