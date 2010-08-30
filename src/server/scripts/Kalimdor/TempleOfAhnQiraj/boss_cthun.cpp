@@ -162,7 +162,7 @@ const Position FleshTentaclePos[2] =
 };
 
 //Kick out position
-const Position KickPos = { -8545.0f, 1984.0f, -96.0f};
+const Position KickPos = { -8545.0f, 1984.0f, -96.0f, 0.0f};
 
 class boss_eye_of_cthun : public CreatureScript
 {
@@ -353,6 +353,7 @@ public:
 
                 case PHASE_EYE_RED_BEAM:
                     if (DarkGlareTick < 35)
+                    {
                         if (DarkGlareTickTimer <= diff)
                         {
                             //Set angle and cast
@@ -372,6 +373,7 @@ public:
                             //1 second per tick
                             DarkGlareTickTimer = 1000;
                         } else DarkGlareTickTimer -= diff;
+                    }
 
                     //PhaseTimer
                     if (PhaseTimer <= diff)
@@ -799,6 +801,7 @@ public:
                     } else StomachEnterTimer -= diff;
 
                     if (StomachEnterVisTimer && StomachEnterTarget)
+                    {
                         if (StomachEnterVisTimer <= diff)
                         {
                             //Check for valid player
@@ -812,6 +815,7 @@ public:
                             StomachEnterTarget = 0;
                             StomachEnterVisTimer = 0;
                         } else StomachEnterVisTimer -= diff;
+                    }
 
                     //GientClawTentacleTimer
                     if (GiantClawTentacleTimer <= diff)
@@ -1051,6 +1055,7 @@ public:
 
             //EvadeTimer
             if (!me->IsWithinMeleeRange(me->getVictim()))
+            {
                 if (EvadeTimer <= diff)
                 {
                     if (Unit* p = Unit::GetUnit(*me, Portal))
@@ -1083,6 +1088,7 @@ public:
 
                     me->SetVisibility(VISIBILITY_ON);
                 } else EvadeTimer -= diff;
+            }
 
             //GroundRuptureTimer
             if (GroundRuptureTimer <= diff)
@@ -1161,40 +1167,40 @@ public:
 
             //EvadeTimer
             if (!me->IsWithinMeleeRange(me->getVictim()))
-                if (EvadeTimer <= diff)
             {
-                if (Unit* p = Unit::GetUnit(*me, Portal))
-                    p->Kill(p);
-
-                //Dissapear and reappear at new position
-                me->SetVisibility(VISIBILITY_OFF);
-
-                Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                if (!pTarget)
+                if (EvadeTimer <= diff)
                 {
-                    me->Kill(me);
-                    return;
-                }
+                    if (Unit* p = Unit::GetUnit(*me, Portal))
+                        p->Kill(p);
 
-                if (!pTarget->HasAura(SPELL_DIGESTIVE_ACID))
-                {
-                    me->GetMap()->CreatureRelocation(me, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0);
-                    if (Creature* pPortal = me->SummonCreature(MOB_GIANT_PORTAL, *me, TEMPSUMMON_CORPSE_DESPAWN))
+                    //Dissapear and reappear at new position
+                    me->SetVisibility(VISIBILITY_OFF);
+
+                    Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                    if (!pTarget)
                     {
-                        pPortal->SetReactState(REACT_PASSIVE);
-                        Portal = pPortal->GetGUID();
+                        me->Kill(me);
+                        return;
                     }
 
-                    GroundRuptureTimer = 500;
-                    HamstringTimer = 2000;
-                    ThrashTimer = 5000;
-                    EvadeTimer = 5000;
-                    AttackStart(pTarget);
-                }
+                    if (!pTarget->HasAura(SPELL_DIGESTIVE_ACID))
+                    {
+                        me->GetMap()->CreatureRelocation(me, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0);
+                        if (Creature* pPortal = me->SummonCreature(MOB_GIANT_PORTAL, *me, TEMPSUMMON_CORPSE_DESPAWN))
+                        {
+                            pPortal->SetReactState(REACT_PASSIVE);
+                            Portal = pPortal->GetGUID();
+                        }
 
-                me->SetVisibility(VISIBILITY_ON);
-
-            } else EvadeTimer -= diff;
+                        GroundRuptureTimer = 500;
+                        HamstringTimer = 2000;
+                        ThrashTimer = 5000;
+                        EvadeTimer = 5000;
+                        AttackStart(pTarget);
+                    }
+                    me->SetVisibility(VISIBILITY_ON);
+                } else EvadeTimer -= diff;
+            }
 
             //GroundRuptureTimer
             if (GroundRuptureTimer <= diff)

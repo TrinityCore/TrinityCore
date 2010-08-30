@@ -192,12 +192,14 @@ public:
             if (bEventInProgress)
             {
                 if (uiSpawnResTimer)
+                {
                     if (uiSpawnResTimer <= diff)
                     {
                         DoCast(me, SPELL_SUMMON_BANSHEE); // Summons directly on caster position
                         // DoCast(me, SPELL_SCOURG_RESURRECTION, true); // Not needed ?
                         uiSpawnResTimer = 0;
                     } else uiSpawnResTimer -= diff;
+                }
 
                 return;
             }
@@ -356,6 +358,7 @@ public:
         void UpdateAI(const uint32 diff)
         {
             if (uiResurectTimer)
+            {
                 if (uiResurectTimer <= diff)
                 {
                     if (uiResurectPhase == 1)
@@ -383,11 +386,10 @@ public:
                             uiResurectTimer = 0;
                         }
                     }
-
                 } else uiResurectTimer -= diff;
+            }
         }
     };
-
 };
 
 

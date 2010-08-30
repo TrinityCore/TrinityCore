@@ -44,7 +44,7 @@ BattlegroundAV::~BattlegroundAV()
 {
 }
 
-const uint16 BattlegroundAV::GetBonusHonor(uint8 kills) //TODO: move this function to Battleground.cpp (needs to find a way to get m_MaxLevel)
+uint16 BattlegroundAV::GetBonusHonor(uint8 kills) //TODO: move this function to Battleground.cpp (needs to find a way to get m_MaxLevel)
 {
     return Trinity::Honor::hk_honor_at_level(m_MaxLevel, kills);
 }
@@ -795,7 +795,7 @@ void BattlegroundAV::DePopulateNode(BG_AV_Nodes node)
         DelCreature(node + 302);//NULL checks are in DelCreature! 0-302 spirit guides
 }
 
-const BG_AV_Nodes BattlegroundAV::GetNodeThroughObject(uint32 object)
+BG_AV_Nodes BattlegroundAV::GetNodeThroughObject(uint32 object)
 {
     sLog.outDebug("bg_AV getnodethroughobject %i",object);
     if (object <= BG_AV_OBJECT_FLAG_A_STONEHEART_BUNKER)
@@ -817,7 +817,7 @@ const BG_AV_Nodes BattlegroundAV::GetNodeThroughObject(uint32 object)
     return BG_AV_Nodes(0);
 }
 
-const uint32 BattlegroundAV::GetObjectThroughNode(BG_AV_Nodes node)
+uint32 BattlegroundAV::GetObjectThroughNode(BG_AV_Nodes node)
 { //this function is the counterpart to GetNodeThroughObject()
     sLog.outDebug("bg_AV GetObjectThroughNode %i",node);
     if (m_Nodes[node].Owner == ALLIANCE)
@@ -1101,7 +1101,7 @@ void BattlegroundAV::FillInitialWorldStates(WorldPacket& data)
     SendMineWorldStates(AV_SOUTH_MINE);
 }
 
-const uint8 BattlegroundAV::GetWorldStateType(uint8 state, uint16 team) //this is used for node worldstates and returns values which fit good into the worldstatesarray
+uint8 BattlegroundAV::GetWorldStateType(uint8 state, uint16 team) //this is used for node worldstates and returns values which fit good into the worldstatesarray
 {
     //neutral stuff cant get handled (currently its only snowfall)
     ASSERT(team != AV_NEUTRAL_TEAM);

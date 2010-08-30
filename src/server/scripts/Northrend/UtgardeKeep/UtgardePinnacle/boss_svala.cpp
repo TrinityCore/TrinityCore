@@ -77,9 +77,9 @@ enum CombatPhase
 
 static Position RitualChannelerPos[]=
 {
-    {296.42f, -355.01f, 90.94f},
-    {302.36f, -352.01f, 90.54f},
-    {291.39f, -350.89f, 90.54f}
+    {296.42f, -355.01f, 90.94f, 0.0f},
+    {302.36f, -352.01f, 90.54f, 0.0f},
+    {291.39f, -350.89f, 90.54f, 0.0f}
 };
 static Position ArthasPos = { 295.81f, -366.16f, 92.57f, 1.58f };
 static Position SvalaPos = { 296.632f, -346.075f, 90.6307f, 1.58f };
@@ -189,7 +189,7 @@ public:
                         uiIntroTimer = 200;
                         break;
                     case 6:
-                        if (Creature* pSvalaSorrowgrave = me->SummonCreature(CREATURE_SVALA_SORROWGRAVE, SvalaPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60*IN_MILLISECONDS))
+                        if (me->SummonCreature(CREATURE_SVALA_SORROWGRAVE, SvalaPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60*IN_MILLISECONDS))
                         {
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                             me->SetDisplayId(DATA_SVALA_DISPLAY_ID);
@@ -341,6 +341,7 @@ public:
                 } else uiCallFlamesTimer -= diff;
 
                 if (!bSacrificed)
+                {
                     if (uiRitualOfSwordTimer <= diff)
                     {
                         if (Unit* pSacrificeTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
@@ -364,6 +365,7 @@ public:
                             bSacrificed = true;
                         }
                     } else uiRitualOfSwordTimer -= diff;
+                }
 
                 DoMeleeAttackIfReady();
             }

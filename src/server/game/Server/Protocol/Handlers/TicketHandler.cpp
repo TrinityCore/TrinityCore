@@ -36,7 +36,7 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket & recv_data)
         return;
     }
 
-    if (GM_Ticket *ticket = sTicketMgr.GetGMTicketByPlayer(GetPlayer()->GetGUID()))
+    if (sTicketMgr.GetGMTicketByPlayer(GetPlayer()->GetGUID()))
     {
         WorldPacket data(SMSG_GMTICKET_CREATE, 4);
         data << uint32(GMTICKET_RESPONSE_FAILURE); // You already have GM ticket
@@ -291,7 +291,7 @@ void WorldSession::HandleReportLag(WorldPacket& recv_data)
     CharacterDatabase.Execute(os.str().c_str());
 }
 
-void WorldSession::HandleGMResponseResolve(WorldPacket& recvPacket)
+void WorldSession::HandleGMResponseResolve(WorldPacket& /*recvPacket*/)
 {
     // empty packet
     GM_Ticket* ticket = sTicketMgr.GetGMTicketByPlayer(GetPlayer()->GetGUID());

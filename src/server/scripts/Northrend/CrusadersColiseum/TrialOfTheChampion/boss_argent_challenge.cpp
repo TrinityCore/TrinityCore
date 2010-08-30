@@ -274,6 +274,7 @@ public:
             } else uiHolySmiteTimer -= uiDiff;
 
             if (me->HasAura(SPELL_SHIELD))
+            {
                 if (uiRenewTimer <= uiDiff)
                 {
                     me->InterruptNonMeleeSpells(true);
@@ -291,7 +292,7 @@ public:
                     }
                     uiRenewTimer = urand(15000,17000);
                 } else uiRenewTimer -= uiDiff;
-
+            }
 
             if (!bHealth && !HealthAbovePct(25))
             {

@@ -789,6 +789,7 @@ public:
                         case PHASE_MASSIVE_JORMUNGAR: pNext = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_MOB_MASSIVE_JORMUNGAR) : 0); break;
                         case PHASE_FEROCIOUS_RHINO: pNext = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_MOB_FEROCIOUS_RHINO) : 0); break;
                         case PHASE_GORTOK_PALEHOOF: pNext = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0); break;
+                        default: break;
                    }
 
                    if (pNext)
@@ -809,7 +810,7 @@ public:
         {
             if (type != POINT_MOTION_TYPE)
                 return;
-            if (id<0 || id>4)
+            if (id > 4)
                 return;
             Creature *pNext = NULL;
             switch(id)
@@ -819,6 +820,7 @@ public:
                 case PHASE_MASSIVE_JORMUNGAR: pNext = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_MOB_MASSIVE_JORMUNGAR) : 0); break;
                 case PHASE_FEROCIOUS_RHINO: pNext = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_MOB_FEROCIOUS_RHINO) : 0); break;
                 case PHASE_GORTOK_PALEHOOF: pNext = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0); break;
+                default: break;
             }
             if (pNext)
                 DoCast(pNext, SPELL_ORB_CHANNEL, false);

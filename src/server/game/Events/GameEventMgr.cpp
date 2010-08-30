@@ -79,7 +79,12 @@ uint32 GameEventMgr::NextCheck(uint16 entry) const
 
     // for CONDITIONS state world events, return the length of the wait period, so if the conditions are met, this check will be called again to set the timer as NEXTPHASE event
     if (mGameEvent[entry].state == GAMEEVENT_WORLD_CONDITIONS)
-        return mGameEvent[entry].length ? mGameEvent[entry].length * 60 : max_ge_check_delay;
+    {
+        if (mGameEvent[entry].length)
+            return mGameEvent[entry].length * 60 ;
+        else
+            return max_ge_check_delay;
+    }
 
     // outdated event: we return max
     if (currenttime > mGameEvent[entry].end)
@@ -1710,7 +1715,7 @@ bool IsHolidayActive(HolidayIds id)
     GameEventMgr::ActiveEvents const& ae = sGameEventMgr.GetActiveEventList();
 
     for (GameEventMgr::ActiveEvents::const_iterator itr = ae.begin(); itr != ae.end(); ++itr)
-        if (events[*itr].holiday_id == uint32(id))
+        if (events[*itr].holiday_id == id)
             return true;
 
     return false;

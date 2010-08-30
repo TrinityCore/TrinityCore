@@ -104,7 +104,7 @@ class boss_lord_marrowgar : public CreatureScript
                     pInstance->SetData(DATA_LORD_MARROWGAR, NOT_STARTED);
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 DoScriptText(SAY_AGGRO, me);
 
@@ -112,7 +112,7 @@ class boss_lord_marrowgar : public CreatureScript
                     pInstance->SetData(DATA_LORD_MARROWGAR, IN_PROGRESS);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 DoScriptText(SAY_DEATH, me);
 
@@ -354,14 +354,14 @@ class npc_bone_spike : public CreatureScript
                 uiTrappedGUID = 0;
             }
 
-            void JustDied(Unit *killer)
+            void JustDied(Unit * /*killer*/)
             {
                 events.Reset();
                 if (Unit* trapped = Unit::GetUnit((*me), uiTrappedGUID))
                     trapped->RemoveAurasDueToSpell(SPELL_IMPALED);
             }
 
-            void KilledUnit(Unit *pVictim)
+            void KilledUnit(Unit * /*pVictim*/)
             {
                 me->Kill(me);
             }
@@ -415,7 +415,7 @@ class spell_marrowgar_coldflame : public SpellScriptLoader
 
         class spell_marrowgar_coldflame_SpellScript : public SpellScript
         {
-            void HandleScriptEffect(SpellEffIndex effIndex)
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
                 uint8 count = 1;
@@ -463,7 +463,7 @@ class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
 
         class spell_marrowgar_bone_spike_graveyard_SpellScript : public SpellScript
         {
-            void HandleApplyAura(SpellEffIndex effIndex)
+            void HandleApplyAura(SpellEffIndex /*effIndex*/)
             {
                 CreatureAI* marrowgarAI = GetCaster()->ToCreature()->AI();
                 bool yell = false;
@@ -512,7 +512,7 @@ class spell_marrowgar_bone_storm : public SpellScriptLoader
 
         class spell_marrowgar_bone_storm_SpellScript : public SpellScript
         {
-            void RecalculateDamage(SpellEffIndex effIndex)
+            void RecalculateDamage(SpellEffIndex /*effIndex*/)
             {
                 int32 dmg = GetHitDamage();
                 float distance = GetHitUnit()->GetExactDist2d(GetCaster());

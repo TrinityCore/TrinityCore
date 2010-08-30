@@ -718,7 +718,7 @@ int WorldSocket::ProcessIncoming (WorldPacket* new_pct)
                 sScriptMgr.OnPacketReceive(this, WorldPacket(*new_pct));
                 return HandleAuthSession (*new_pct);
             case CMSG_KEEP_ALIVE:
-                sLog.outStaticDebug ("CMSG_KEEP_ALIVE ,size: %d", new_pct->size());
+                sLog.outStaticDebug ("CMSG_KEEP_ALIVE ,size: " UI64FMTD, uint64(new_pct->size()));
                 sScriptMgr.OnPacketReceive(this, WorldPacket(*new_pct));
                 return 0;
             default:

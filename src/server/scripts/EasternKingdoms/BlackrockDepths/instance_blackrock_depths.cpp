@@ -219,7 +219,7 @@ public:
 
         void SetData64(uint32 type, uint64 data)
         {
-            sLog.outDebug("TSCR: Instance Blackrock Depths: SetData64 update (Type: %u Data %u)", type, data);
+            sLog.outDebug("TSCR: Instance Blackrock Depths: SetData64 update (Type: %u Data " UI64FMTD ")", type, data);
 
             switch(type)
             {

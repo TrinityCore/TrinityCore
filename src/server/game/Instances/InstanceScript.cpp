@@ -64,7 +64,7 @@ void InstanceScript::LoadMinionData(const MinionData *data)
 
         ++data;
     }
-    sLog.outDebug("InstanceScript::LoadMinionData: %u minions loaded.", doors.size());
+    sLog.outDebug("InstanceScript::LoadMinionData: " UI64FMTD " minions loaded.", uint64(minions.size()));
 }
 
 void InstanceScript::LoadDoorData(const DoorData *data)
@@ -76,7 +76,7 @@ void InstanceScript::LoadDoorData(const DoorData *data)
 
         ++data;
     }
-    sLog.outDebug("InstanceScript::LoadDoorData: %u doors loaded.", doors.size());
+    sLog.outDebug("InstanceScript::LoadDoorData: " UI64FMTD " doors loaded.", uint64(doors.size()));
 }
 
 void InstanceScript::UpdateMinionState(Creature *minion, EncounterState state)
@@ -306,10 +306,17 @@ void InstanceScript::DoSendNotifyToInstance(const char *format, ...)
     InstanceMap::PlayerList::const_iterator i;
 
     if (!PlayerList.isEmpty())
+    {
+        va_list ap;
+        va_start(ap, format);
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+        {
             if (Player *pPlayer = i->getSource())
                 if (WorldSession *pSession = pPlayer->GetSession())
-                    pSession->SendNotification(format);
+                    pSession->SendNotification(format, ap);
+        }
+        va_end(ap);
+    }
 }
 
 // Complete Achievement for all players in instance

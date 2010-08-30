@@ -61,7 +61,7 @@ class npc_sergeant_bly : public CreatureScript
 public:
     npc_sergeant_bly() : CreatureScript("npc_sergeant_bly") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
@@ -179,7 +179,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void DoAction(const int32 param)
+        void DoAction(const int32 /*param*/)
         {
             postGossipStep=1;
             Text_Timer = 0;
@@ -219,7 +219,7 @@ class go_troll_cage : public GameObjectScript
 public:
     go_troll_cage() : GameObjectScript("go_troll_cage") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGo)
+    bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
     {
         if (InstanceScript* pInstance = pGo->GetInstanceScript())
         {
@@ -261,7 +261,7 @@ class npc_weegli_blastfuse : public CreatureScript
 public:
     npc_weegli_blastfuse() : CreatureScript("npc_weegli_blastfuse") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
@@ -356,7 +356,7 @@ public:
             }
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 /*type*/, uint32 /*id*/)
         {
             if (pInstance)
             {
@@ -376,7 +376,7 @@ public:
             }
         }
 
-        void DoAction(const int32 param)
+        void DoAction(const int32 /*param*/)
         {
             DestroyDoor();
         }
@@ -415,7 +415,7 @@ class go_shallow_grave : public GameObjectScript
 public:
     go_shallow_grave() : GameObjectScript("go_shallow_grave") { }
 
-    bool OnGossipHello(Player* pPlayer, GameObject* pGo)
+    bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
     {
         // randomly summon a zombie or dead hero the first time a grave is used
         if (pGo->GetUseCount() == 0)
@@ -448,7 +448,7 @@ class at_zumrah : public AreaTriggerScript
 public:
     at_zumrah() : AreaTriggerScript("at_zumrah") { }
 
-    bool OnTrigger(Player* pPlayer,const AreaTriggerEntry *at)
+    bool OnTrigger(Player* pPlayer,const AreaTriggerEntry * /*at*/)
     {
         Creature* pZumrah = pPlayer->FindNearestCreature(ZUMRAH_ID, 30.0f);
 

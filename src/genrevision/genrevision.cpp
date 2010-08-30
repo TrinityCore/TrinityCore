@@ -58,7 +58,7 @@ void extractDataFromSvn(FILE* EntriesFile, bool url, RawData& data)
         strcpy(data.rev_str,num_str);
 }
 
-void extractDataFromHG(FILE* EntriesFile, std::string path, bool url, RawData& data)
+void extractDataFromHG(FILE* EntriesFile, std::string /*path*/, bool /*url*/, RawData& data)
 {
     char buf[200];
 
@@ -98,7 +98,7 @@ void extractDataFromHG(FILE* EntriesFile, std::string path, bool url, RawData& d
     strcpy(data.time_str,"*");
 }
 
-void extractDataFromArchive(FILE* EntriesFile, std::string path, bool url, RawData& data)
+void extractDataFromArchive(FILE* EntriesFile, std::string /*path*/, bool /*url*/, RawData& data)
 {
     char buf[200];
 
@@ -320,7 +320,7 @@ std::string generateHeader(char const* rev_str, char const* date_str, char const
     newData << " #define STRPRODUCTVER  \"0, 0, " << rev_str << ", " << hash_str << "\""<< std::endl;
     newData << "#endif // __REVISION_H__" << std::endl;
 
-    return newData.str();
+        return newData.str();
 }
 
 int main(int argc, char **argv)
@@ -329,7 +329,6 @@ int main(int argc, char **argv)
     bool hg_prefered = true;
     bool git_prefered = false;
     bool svn_prefered = false;
-    bool debug = false;
     std::string path;
 
     // Call: tool {options} [path]

@@ -32,7 +32,7 @@ void ArenaTeamMember::ModifyPersonalRating(Player* plr, int32 mod, uint32 slot)
         plr->SetArenaTeamInfoField(slot, ARENA_TEAM_PERSONAL_RATING, personal_rating);
 }
 
-void ArenaTeamMember::ModifyMatchmakerRating(int32 mod, uint32 slot)
+void ArenaTeamMember::ModifyMatchmakerRating(int32 mod, uint32 /*slot*/)
 {
     if (int32(matchmaker_rating) + mod < 0)
         matchmaker_rating = 0;

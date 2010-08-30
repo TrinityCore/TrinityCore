@@ -189,7 +189,7 @@ class boss_archaedas : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void JustDied (Unit *pKiller) {
+            void JustDied (Unit * /*pKiller*/) {
                 if (pInstance)
                 {
                     pInstance->SetData(NULL,3);        // open the vault door

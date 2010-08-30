@@ -123,26 +123,30 @@ class boss_renataki : public CreatureScript
 
                 //Resetting some aggro so he attacks other gamers
                 if (!Invisible)
-                    if (Aggro_Timer <= diff)
                 {
-                    Unit *pTarget = NULL;
-                    pTarget = SelectUnit(SELECT_TARGET_RANDOM,1);
+                    if (Aggro_Timer <= diff)
+                    {
+                        Unit *pTarget = NULL;
+                        pTarget = SelectUnit(SELECT_TARGET_RANDOM,1);
 
-                    if (DoGetThreat(me->getVictim()))
-                        DoModifyThreatPercent(me->getVictim(),-50);
+                        if (DoGetThreat(me->getVictim()))
+                            DoModifyThreatPercent(me->getVictim(),-50);
 
-                    if (pTarget)
-                        AttackStart(pTarget);
+                        if (pTarget)
+                            AttackStart(pTarget);
 
-                    Aggro_Timer = 7000 + rand()%13000;
-                } else Aggro_Timer -= diff;
+                        Aggro_Timer = 7000 + rand()%13000;
+                    } else Aggro_Timer -= diff;
+                }
 
                 if (!Invisible)
-                    if (ThousandBlades_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_THOUSANDBLADES);
-                    ThousandBlades_Timer = 7000 + rand()%5000;
-                } else ThousandBlades_Timer -= diff;
+                    if (ThousandBlades_Timer <= diff)
+                    {
+                        DoCast(me->getVictim(), SPELL_THOUSANDBLADES);
+                        ThousandBlades_Timer = 7000 + rand()%5000;
+                    } else ThousandBlades_Timer -= diff;
+                }
 
                 DoMeleeAttackIfReady();
             }

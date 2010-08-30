@@ -1228,7 +1228,7 @@ bool AuraEffect::IsPeriodicTickCrit(Unit * target, Unit const * caster) const
             return true;
     }
     // Rupture - since 3.3.3 can crit
-    if (AuraEffect *AuraRupture = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, 0x100000, 0x0, 0x0, caster->GetGUID()))
+    if (target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_ROGUE, 0x100000, 0x0, 0x0, caster->GetGUID()))
     {
         if (caster->isSpellCrit(target, m_spellProto, GetSpellSchoolMask(m_spellProto)))
             return true;
@@ -1604,7 +1604,7 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
         }
         case SPELL_AURA_PERIODIC_MANA_LEECH:
         {
-            if (GetMiscValue() < 0 || GetMiscValue() >= MAX_POWERS)
+            if (GetMiscValue() < 0 || GetMiscValue() >= int8(MAX_POWERS))
                 break;
 
             Powers power = Powers(GetMiscValue());
@@ -1739,7 +1739,7 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
         case SPELL_AURA_PERIODIC_ENERGIZE:
         {
             // ignore non positive values (can be result apply spellmods to aura damage
-            if (m_amount < 0 || GetMiscValue() >= MAX_POWERS)
+            if (m_amount < 0 || GetMiscValue() >= int8(MAX_POWERS))
                 return;
 
             Powers power = Powers(GetMiscValue());
@@ -2599,7 +2599,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit * target, bool apply) const
             {
                 case FORM_CAT:
                     // Savage Roar
-                    if (AuraEffect const * aurEff = target->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_DRUID, 0 , 0x10000000, 0))
+                    if (target->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_DRUID, 0 , 0x10000000, 0))
                         target->CastSpell(target, 62071, true);
                     // Nurturing Instinct
                     if (AuraEffect const * aurEff = target->GetAuraEffect(SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT, SPELLFAMILY_DRUID, 2254, 0))
@@ -2859,12 +2859,22 @@ void AuraEffect::HandlePhase(AuraApplication const * aurApp, uint8 mode, bool ap
 
         // GM-mode have mask 0xFFFFFFFF
         if (!target->ToPlayer()->isGameMaster())
-            target->SetPhaseMask((apply) ? GetMiscValue() : PHASEMASK_NORMAL,false);
-
-        target->ToPlayer()->GetSession()->SendSetPhaseShift((apply) ? GetMiscValue() : PHASEMASK_NORMAL);
+        {
+            if (apply)
+                target->SetPhaseMask(GetMiscValue(), false);
+            else
+                target->SetPhaseMask(PHASEMASK_NORMAL, false);
+        }
+        
+        if (apply)
+            target->ToPlayer()->GetSession()->SendSetPhaseShift(GetMiscValue());
+        else
+            target->ToPlayer()->GetSession()->SendSetPhaseShift(PHASEMASK_NORMAL);
     }
+    else if (apply)
+        target->SetPhaseMask(GetMiscValue(), false);
     else
-        target->SetPhaseMask((apply) ? GetMiscValue() : PHASEMASK_NORMAL,false);
+        target->SetPhaseMask(PHASEMASK_NORMAL, false);
 
     // need triggering visibility update base at phase update of not GM invisible (other GMs anyway see in any phases)
     if (target->GetVisibility() != VISIBILITY_OFF)
@@ -6230,7 +6240,7 @@ void AuraEffect::HandleForceReaction(AuraApplication const * aurApp, uint8 mode,
     player->GetReputationMgr().SendForceReactions();
 
     // stop fighting if at apply forced rank friendly or at remove real rank friendly
-    if (apply && faction_rank >= REP_FRIENDLY || !apply && player->GetReputationRank(faction_id) >= REP_FRIENDLY)
+    if ((apply && faction_rank >= REP_FRIENDLY) || (!apply && player->GetReputationRank(faction_id) >= REP_FRIENDLY))
         player->StopAttackFaction(faction_id);
 }
 

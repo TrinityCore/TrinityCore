@@ -377,9 +377,9 @@ class boss_lady_deathwhisper : public CreatureScript
                             break;
                         case EVENT_DOMINATE_MIND_H:
                             DoScriptText(SAY_DOMINATE_MIND, me);
-				            for (uint8 i = 0; i < uiDominateMindCount; i++)
-					            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_DOMINATE_MIND_H))
-						            DoCast(target, SPELL_DOMINATE_MIND_H);
+                            for (uint8 i = 0; i < uiDominateMindCount; i++)
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_DOMINATE_MIND_H))
+                                    DoCast(target, SPELL_DOMINATE_MIND_H);
                             events.ScheduleEvent(EVENT_DOMINATE_MIND_H, urand(18000, 22000));
                             break;
                         case EVENT_P1_SUMMON_WAVE:
@@ -727,7 +727,7 @@ class npc_vengeful_shade : public CreatureScript
             npc_vengeful_shadeAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-		        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
             void Reset()
@@ -755,7 +755,7 @@ class spell_deathwhisper_mana_barrier : public SpellScriptLoader
 
         class spell_deathwhisper_mana_barrier_AuraScript : public AuraScript
         {
-            void HandlePeriodicTick(AuraEffect const * aurEff, AuraApplication const * aurApp)
+            void HandlePeriodicTick(AuraEffect const * /*aurEff*/, AuraApplication const * /*aurApp*/)
             {
                 Unit* caster = GetCaster();
                 int32 missingHealth = caster->GetMaxHealth() - caster->GetHealth();
@@ -783,7 +783,7 @@ class spell_cultist_dark_martyrdom : public SpellScriptLoader
 
         class spell_cultist_dark_martyrdom_SpellScript : public SpellScript
         {
-            bool Validate(SpellEntry const* spellEntry)
+            bool Validate(SpellEntry const* /*spellEntry*/)
             {
                 if (uint32 scriptId = sObjectMgr.GetScriptId("boss_lady_deathwhisper"))
                     if (CreatureInfo const* creInfo = ObjectMgr::GetCreatureTemplate(NPC_LADY_DEATHWHISPER))
@@ -793,7 +793,7 @@ class spell_cultist_dark_martyrdom : public SpellScriptLoader
                 return false;
             }
 
-            void HandleEffect(SpellEffIndex effIndex)
+            void HandleEffect(SpellEffIndex /*effIndex*/)
             {
                 if (GetCaster()->isSummon())
                     if (Unit* owner = GetCaster()->ToTempSummon()->GetSummoner())

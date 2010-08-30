@@ -848,7 +848,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
 
     if (cInfo->expansion > (MAX_CREATURE_BASE_HP - 1))
     {
-        sLog.outErrorDb("Table `creature_template` lists creature (Entry: %u) with expansion %u. Ignored and set to 0.", cInfo->expansion);
+        sLog.outErrorDb("Table `creature_template` lists creature (Entry: %u) with expansion %u. Ignored and set to 0.", cInfo->Entry, cInfo->expansion);
         const_cast<CreatureInfo*>(cInfo)->expansion = 0;
     }
 
@@ -1186,7 +1186,7 @@ void ObjectMgr::LoadCreatureLinkedRespawn()
 
         bar.step();
 
-        sLog.outString("");
+        sLog.outString();
         sLog.outErrorDb(">> Loaded 0 linked respawns. DB table `creature_linked_respawn` is empty.");
         return;
     }
@@ -1207,7 +1207,7 @@ void ObjectMgr::LoadCreatureLinkedRespawn()
     } while (result->NextRow());
 
     sLog.outString();
-    sLog.outString(">> Loaded %u linked respawns", mCreatureLinkedRespawnMap.size());
+    sLog.outString(">> Loaded " UI64FMTD " linked respawns", uint64(mCreatureLinkedRespawnMap.size()));
 }
 
 bool ObjectMgr::SetCreatureLinkedRespawn(uint32 guid, uint32 linkedGuid)
@@ -2447,7 +2447,7 @@ void ObjectMgr::LoadItemSetNameLocales()
     } while (result->NextRow());
 
     sLog.outString();
-    sLog.outString(">> Loaded %lu Item set name locale strings", (uint32)mItemSetNameLocaleMap.size());
+    sLog.outString(">> Loaded " UI64FMTD " Item set name locale strings", uint64(mItemSetNameLocaleMap.size()));
 }
 
 void ObjectMgr::LoadItemSetNames()
@@ -2764,7 +2764,7 @@ void ObjectMgr::PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint3
                     bool found = false;
                     for (uint8 x = 0; x < MAX_OUTFIT_ITEMS; ++x)
                     {
-                        if (entry->ItemId[x] == itemId)
+                        if (entry->ItemId[x] > 0 && uint32(entry->ItemId[x]) == itemId)
                         {
                             found = true;
                             const_cast<CharStartOutfitEntry*>(entry)->ItemId[x] = 0;
@@ -3103,16 +3103,11 @@ void ObjectMgr::LoadPlayerInfo()
                 continue;
             }
 
-            uint8 current_level = fields[1].GetUInt8();
+            uint8 current_level = fields[1].GetUInt8();      // Can't be > than STRONG_MAX_LEVEL (hardcoded level maximum) due to var type
             if (current_level > sWorld.getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
             {
-                if (current_level > STRONG_MAX_LEVEL)        // hardcoded level maximum
-                    sLog.outErrorDb("Wrong (> %u) level %u in `player_classlevelstats` table, ignoring.",STRONG_MAX_LEVEL,current_level);
-                else
-                {
-                    sLog.outDetail("Unused (> MaxPlayerLevel in worldserver.conf) level %u in `player_classlevelstats` table, ignoring.",current_level);
-                    ++count;                                // make result loading percent "expected" correct in case disabled detail mode for example.
-                }
+                sLog.outDetail("Unused (> MaxPlayerLevel in worldserver.conf) level %u in `player_classlevelstats` table, ignoring.",current_level);
+                ++count;                                    // make result loading percent "expected" correct in case disabled detail mode for example.
                 continue;
             }
 
@@ -4961,7 +4956,7 @@ void ObjectMgr::LoadSpellScriptNames()
 
         if (allRanks)
         {
-            if (sSpellMgr.GetFirstSpellInChain(spellId) != spellId)
+            if (sSpellMgr.GetFirstSpellInChain(spellId) != uint32(spellId))
             {
                 sLog.outErrorDb("Scriptname:`%s` spell (spell_id:%d) is not first rank of spell.",scriptName,fields[0].GetInt32());
                 continue;
@@ -5079,7 +5074,7 @@ void ObjectMgr::LoadPageTexts()
                     ss << *itr << " ";
                 ss << "create(s) a circular reference, which can cause the server to freeze. Changing Next_Page of page "
                     << pageItr->Page_ID <<" to 0";
-                sLog.outErrorDb(ss.str().c_str());
+                sLog.outErrorDb("%s", ss.str().c_str());
                 const_cast<PageText*>(pageItr)->Next_Page = 0;
                 break;
             }
@@ -6987,7 +6982,7 @@ void ObjectMgr::LoadReputationSpilloverTemplate()
 void ObjectMgr::LoadPointsOfInterest()
 {
     mPointsOfInterest.clear();                              // need for reload case
-	
+    
     uint32 count = 0;
 
     //                                                0      1  2  3      4     5     6
@@ -7039,7 +7034,7 @@ void ObjectMgr::LoadPointsOfInterest()
 void ObjectMgr::LoadQuestPOI()
 {
     mQuestPOIMap.clear();                              // need for reload case
-	
+    
     uint32 count = 0;
 
     // 0 1 2 3
@@ -8857,7 +8852,7 @@ void ObjectMgr::LoadCreatureClassLevelStats()
     {
         Field *fields = result->Fetch();
 
-        uint8 Level = fields[0].GetUInt32();
+        uint8 Level = fields[0].GetUInt8();
         uint8 Class = fields[1].GetUInt8();
 
         CreatureBaseStats stats;
@@ -8866,13 +8861,14 @@ void ObjectMgr::LoadCreatureClassLevelStats()
         stats.BaseMana = fields[5].GetUInt32();
         stats.BaseArmor = fields[6].GetUInt32();
 
+/* With uint8 Level can't be greater than STRONG_MAX_LEVEL
         if (Level > STRONG_MAX_LEVEL)
         {
             sLog.outErrorDb("Creature base stats for class %u has invalid level %u (max is %u) - set to %u",
                 Class, Level, STRONG_MAX_LEVEL, STRONG_MAX_LEVEL);
             Level = STRONG_MAX_LEVEL;
         }
-
+*/
         if (!Class || ((1 << (Class - 1)) & CLASSMASK_ALL_CREATURES) == 0)
             sLog.outErrorDb("Creature base stats for level %u has invalid class %u",
                 Level, Class);

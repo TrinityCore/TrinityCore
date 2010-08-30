@@ -331,11 +331,13 @@ public:
         void UpdateAI(const uint32 diff)
         {
             if (Must_Die)
+            {
                 if (Must_Die_Timer <= diff)
                 {
                     me->ForcedDespawn();
                     return;
                 } else Must_Die_Timer -= diff;
+            }
 
             if (!Escape)
             {
@@ -490,10 +492,12 @@ public:
         void UpdateAI(const uint32 diff)
         {
             if (we_must_die)
+            {
                 if (must_die_timer <= diff)
                 {
                     me->ForcedDespawn();
                 } else must_die_timer -= diff;
+            }
             return;
         }
 
