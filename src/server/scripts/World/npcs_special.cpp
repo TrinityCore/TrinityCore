@@ -1691,8 +1691,8 @@ public:
 
             //Add delta to make them not all hit the same time
             uint32 delta = (rand() % 7) * 100;
-            me->SetStatFloatValue(UNIT_FIELD_BASEATTACKTIME, Info->baseattacktime + delta);
-            me->SetStatFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER , Info->attackpower);
+            me->SetStatFloatValue(UNIT_FIELD_BASEATTACKTIME, float(Info->baseattacktime + delta));
+            me->SetStatFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER , float(Info->attackpower));
         }
 
         //Redefined for random target selection:

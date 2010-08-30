@@ -1858,7 +1858,7 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
             //maybe has to be sent different to client, but not by SMSG_PERIODICAURALOG
             SpellNonMeleeDamage damageInfo(caster, target, spellProto->Id, spellProto->SchoolMask);
             //no SpellDamageBonus for burn mana
-            caster->CalculateSpellDamageTaken(&damageInfo, gain * dmgMultiplier, spellProto);
+            caster->CalculateSpellDamageTaken(&damageInfo, int32(gain * dmgMultiplier), spellProto);
 
             caster->DealDamageMods(damageInfo.target,damageInfo.damage,&damageInfo.absorb);
 
@@ -4974,7 +4974,7 @@ void AuraEffect::HandleAuraModIncreaseHealthPercent(AuraApplication const * aurA
     float percent = target->GetHealthPct();
     target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_PCT, float(GetAmount()), apply);
     if (target->isAlive())
-        target->SetHealth(target->CountPctFromMaxHealth(percent));
+        target->SetHealth(target->CountPctFromMaxHealth(int32(percent)));
 }
 
 void AuraEffect::HandleAuraIncreaseBaseHealthPercent(AuraApplication const * aurApp, uint8 mode, bool apply) const

@@ -188,7 +188,7 @@ class boss_high_astromancer_solarian : public CreatureScript
 
             float Portal_Y(float x, float radius)
             {
-                float z = RAND(1, -1);
+                float z = RAND(1.0f, -1.0f);
 
                 return (z*sqrt(radius*radius - (x - CENTER_X)*(x - CENTER_X)) + CENTER_Y);
             }

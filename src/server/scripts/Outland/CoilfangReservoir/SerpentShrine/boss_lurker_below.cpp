@@ -271,7 +271,7 @@ public:
                         Map::PlayerList const &PlayerList = pMap->GetPlayers();
                         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                         {
-                            if (i->getSource() && i->getSource()->isAlive() && me->HasInArc((double)diff/20000*(double)M_PI*2,i->getSource()) && me->IsWithinDist(i->getSource(), SPOUT_DIST) && !i->getSource()->IsInWater())
+                            if (i->getSource() && i->getSource()->isAlive() && me->HasInArc(float(diff/20000*M_PI*2),i->getSource()) && me->IsWithinDist(i->getSource(), SPOUT_DIST) && !i->getSource()->IsInWater())
                                 DoCast(i->getSource(), SPELL_SPOUT, true);//only knock back palyers in arc, in 100yards, not in water
                         }
                     }

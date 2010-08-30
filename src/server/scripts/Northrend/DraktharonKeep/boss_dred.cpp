@@ -77,7 +77,7 @@ public:
 
             uiBellowingRoarTimer = 33*IN_MILLISECONDS;
             uiGrievousBiteTimer  = 20*IN_MILLISECONDS;
-            uiManglingSlashTimer = 18.5*IN_MILLISECONDS;
+            uiManglingSlashTimer = 18500;
             uiFearsomeRoarTimer  = urand(10*IN_MILLISECONDS,20*IN_MILLISECONDS);
             uiPiercingSlashTimer = 17*IN_MILLISECONDS;
             uiRaptorCallTimer    = urand(20*IN_MILLISECONDS,25*IN_MILLISECONDS);

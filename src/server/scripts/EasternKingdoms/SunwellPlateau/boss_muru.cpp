@@ -338,7 +338,7 @@ public:
                             break;
                         case TIMER_HUMANOIDES:
                             for (uint8 i = 0; i < 6; ++i)
-                                me->SummonCreature(Humanoides[i][0],Humanoides[i][1],Humanoides[i][2],Humanoides[i][3], Humanoides[i][4], TEMPSUMMON_CORPSE_DESPAWN, 0);
+                                me->SummonCreature(uint32(Humanoides[i][0]),Humanoides[i][1],Humanoides[i][2],Humanoides[i][3], Humanoides[i][4], TEMPSUMMON_CORPSE_DESPAWN, 0);
                             Timer[TIMER_HUMANOIDES] = 60000;
                             break;
                         case TIMER_PHASE:
@@ -547,7 +547,7 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             for (uint8 i = 0; i < 8; ++i)
-                me->SummonCreature(CREATURE_VOID_SPAWN, me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(), rand()%6, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000);
+                me->SummonCreature(CREATURE_VOID_SPAWN, me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(), float(rand()%6), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000);
         }
 
         void UpdateAI(const uint32 diff)

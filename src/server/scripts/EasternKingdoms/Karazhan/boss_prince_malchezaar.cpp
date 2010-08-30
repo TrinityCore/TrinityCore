@@ -205,7 +205,7 @@ public:
 
         uint64 axes[2];
         uint64 enfeeble_targets[5];
-        uint64 enfeeble_health[5];
+        uint32 enfeeble_health[5];
 
         uint32 phase;
 

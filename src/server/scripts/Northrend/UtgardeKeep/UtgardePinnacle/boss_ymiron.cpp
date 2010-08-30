@@ -271,7 +271,7 @@ public:
                 if (m_bIsActiveWithBJORN && m_uiAbility_BJORN_Timer <= diff)
                 {
                     //DoCast(me, SPELL_SUMMON_SPIRIT_FOUNT); // works fine, but using summon has better control
-                    if (Creature* pTemp = me->SummonCreature(CREATURE_SPIRIT_FOUNT, 385+rand()%10, -330+rand()%10, 104.756f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 180000))
+                    if (Creature* pTemp = me->SummonCreature(CREATURE_SPIRIT_FOUNT, 385.0f+rand()%10, -330.0f+rand()%10, 104.756f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 180000))
                     {
                         pTemp->SetSpeed(MOVE_RUN, 0.4f);
                         pTemp->CastSpell(pTemp, DUNGEON_MODE(SPELL_SPIRIT_FOUNT, H_SPELL_SPIRIT_FOUNT), true);

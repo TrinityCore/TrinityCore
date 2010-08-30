@@ -290,7 +290,7 @@ class boss_alar : public CreatureScript
                                     float dist = 3.0f;
                                     if (me->IsWithinDist3d(pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 5.0f))
                                         dist = 5.0f;
-                                    WaitTimer = 1000 + floor(dist / 80 * 1000.0f);
+                                    WaitTimer = 1000 + uint32(floor(dist / 80 * 1000.0f));
                                     me->GetMap()->CreatureRelocation(me, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0.0f);
                                     me->StopMoving();
                                     WaitEvent = WE_LAND;

@@ -223,8 +223,8 @@ class boss_janalai : public CreatureScript
                 float dx, dy;
                 for (int i(0); i < 40; ++i)
                 {
-                    dx = irand(-area_dx/2, area_dx/2);
-                    dy = irand(-area_dy/2, area_dy/2);
+                    dx = float(irand(-area_dx/2, area_dx/2));
+                    dy = float(irand(-area_dy/2, area_dy/2));
 
                     Creature* bomb = DoSpawnCreature(MOB_FIRE_BOMB, dx, dy, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 15000);
                     if (bomb) FireBombGUIDs[i] = bomb->GetGUID();
@@ -638,9 +638,9 @@ class mob_janalai_hatchling : public CreatureScript
             {
                 BuffetTimer = 7000;
                 if (me->GetPositionY() > 1150)
-                    me->GetMotionMaster()->MovePoint(0, hatcherway[0][3][0]+rand()%4-2,1150+rand()%4-2,hatcherway[0][3][2]);
+                    me->GetMotionMaster()->MovePoint(0, hatcherway[0][3][0]+rand()%4-2,1150.0f+rand()%4-2,hatcherway[0][3][2]);
                 else
-                    me->GetMotionMaster()->MovePoint(0,hatcherway[1][3][0]+rand()%4-2,1150+rand()%4-2,hatcherway[1][3][2]);
+                    me->GetMotionMaster()->MovePoint(0, hatcherway[1][3][0]+rand()%4-2,1150.0f+rand()%4-2,hatcherway[1][3][2]);
 
                 me->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
             }

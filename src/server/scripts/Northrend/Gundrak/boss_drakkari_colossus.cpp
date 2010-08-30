@@ -140,7 +140,7 @@ public:
         void JustSummoned(Creature* pSummon)
         {
             if (HealthBelowPct(5))
-                pSummon->DealDamage(pSummon, pSummon->GetHealth() * 0.5, NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                pSummon->DealDamage(pSummon, uint32(pSummon->GetHealth() * 0.5), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             pSummon->AI()->AttackStart(me->getVictim());
         }
     };
