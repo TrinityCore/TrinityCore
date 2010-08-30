@@ -823,6 +823,11 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
                                 "TARGET_GAMEOBJECT_AREA_SRC(51), TARGET_GAMEOBJECT_AREA_DST(52)", cond->mSourceEntry);
                 return false;
             }
+            if ((cond->mConditionValue1 == SPELL_TARGET_TYPE_DEAD) && !IsAllowingDeadTargetSpell(spellProto))
+            {
+                sLog.outErrorDb("SourceEntry %u in `condition` table does have SPELL_TARGET_TYPE_DEAD specified but spell does not have SPELL_ATTR_EX2_ALLOW_DEAD_TARGET", cond->mSourceEntry);
+                return false;
+            }
             break;
         }
         case CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE:

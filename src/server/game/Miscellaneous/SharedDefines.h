@@ -323,7 +323,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX_ENABLE_AT_DODGE             0x40000000            // 30 Overpower, Wolverine Bite
 #define SPELL_ATTR_EX_UNK31                       0x80000000            // 31
 
-#define SPELL_ATTR_EX2_UNK0                       0x00000001            // 0
+#define SPELL_ATTR_EX2_ALLOW_DEAD_TARGET          0x00000001            // 0
 #define SPELL_ATTR_EX2_UNK1                       0x00000002            // 1 ? many triggered spells have this flag
 #define SPELL_ATTR_EX2_CANT_REFLECTED             0x00000004            // 2 ? used for detect can or not spell reflected
 #define SPELL_ATTR_EX2_UNK3                       0x00000008            // 3
@@ -368,7 +368,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX3_TRIGGERED_CAN_TRIGGER_2    0x00000200            // 9 triggered from effect?
 #define SPELL_ATTR_EX3_MAIN_HAND                  0x00000400            // 10 Main hand weapon required
 #define SPELL_ATTR_EX3_BATTLEGROUND               0x00000800            // 11 Can casted only on battleground
-#define SPELL_ATTR_EX3_UNK12                      0x00001000            // 12
+#define SPELL_ATTR_EX3_REQUIRE_DEAD_TARGET        0x00001000            // 12
 #define SPELL_ATTR_EX3_UNK13                      0x00002000            // 13
 #define SPELL_ATTR_EX3_UNK14                      0x00004000            // 14 "Honorless Target" only this spells have this flag
 #define SPELL_ATTR_EX3_UNK15                      0x00008000            // 15 Auto Shoot, Shoot, Throw,  - this is autoshot flag

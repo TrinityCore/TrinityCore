@@ -12504,9 +12504,10 @@ void Unit::setDeathState(DeathState s)
 
     if (oldDeathState != ALIVE && s == ALIVE)
     {
-        //_ApplyAllAuraMods();
         // Reset display id on resurection - needed by corpse explosion to cleanup after display change
-        SetDisplayId(GetNativeDisplayId());
+        // TODO: fix this
+        if (!HasAuraType(SPELL_AURA_TRANSFORM))
+            SetDisplayId(GetNativeDisplayId());
     }
 }
 

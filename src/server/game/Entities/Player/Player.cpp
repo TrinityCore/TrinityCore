@@ -16388,6 +16388,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     // Do now before stats re-calculation cleanup for ghost state unexpected auras
     if (!isAlive())
         RemoveAllAurasOnDeath();
+    else
+        RemoveAllAurasRequiringDeadTarget();
 
     //apply all stat bonuses from items and auras
     SetCanModifyStats(true);
