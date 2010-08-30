@@ -102,7 +102,7 @@ bool ChatHandler::HandleGMTicketListClosedCommand(const char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleGMTicketListEscalatedCommand(const char* args)
+bool ChatHandler::HandleGMTicketListEscalatedCommand(const char* /*args*/)
 {
     SendSysMessage(LANG_COMMAND_TICKETSHOWESCALATEDLIST);
     for (GmTicketList::iterator itr = sTicketMgr.m_GMTicketList.begin(); itr != sTicketMgr.m_GMTicketList.end(); ++itr)

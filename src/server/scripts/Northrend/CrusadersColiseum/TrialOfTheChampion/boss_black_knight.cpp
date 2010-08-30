@@ -157,6 +157,7 @@ public:
                 return;
 
             if (bEventInProgress)
+            {
                 if (uiResurrectTimer <= uiDiff)
                 {
                     me->SetFullHealth();
@@ -166,6 +167,7 @@ public:
                     bEventInProgress = false;
                     me->clearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
                 } else uiResurrectTimer -= uiDiff;
+            }
 
             switch(uiPhase)
             {
@@ -211,12 +213,14 @@ public:
                                 DoCast(me, SPELL_ARMY_DEAD);
                             }
                             if (!bDeathArmyDone)
+                            {
                                 if (uiDeathArmyCheckTimer <= uiDiff)
                                 {
                                     me->clearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
                                     uiDeathArmyCheckTimer = 0;
                                     bDeathArmyDone = true;
                                 } else uiDeathArmyCheckTimer -= uiDiff;
+                            }
                             if (uiDesecration <= uiDiff)
                             {
                                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))

@@ -342,17 +342,17 @@ public:
             case GOSSIP_ACTION_INFO_DEF+3:
                 pPlayer->CLOSE_GOSSIP_MENU();
                 pBarnesAI->m_uiEventId = EVENT_OZ;
-                sLog.outString("TSCR: player (GUID %i) manually set Opera event to EVENT_OZ",pPlayer->GetGUID());
+                sLog.outString("TSCR: player (GUID " UI64FMTD ") manually set Opera event to EVENT_OZ",pPlayer->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+4:
                 pPlayer->CLOSE_GOSSIP_MENU();
                 pBarnesAI->m_uiEventId = EVENT_HOOD;
-                sLog.outString("TSCR: player (GUID %i) manually set Opera event to EVENT_HOOD",pPlayer->GetGUID());
+                sLog.outString("TSCR: player (GUID " UI64FMTD ") manually set Opera event to EVENT_HOOD",pPlayer->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+5:
                 pPlayer->CLOSE_GOSSIP_MENU();
                 pBarnesAI->m_uiEventId = EVENT_RAJ;
-                sLog.outString("TSCR: player (GUID %i) manually set Opera event to EVENT_RAJ",pPlayer->GetGUID());
+                sLog.outString("TSCR: player (GUID " UI64FMTD ") manually set Opera event to EVENT_RAJ",pPlayer->GetGUID());
                 break;
         }
 

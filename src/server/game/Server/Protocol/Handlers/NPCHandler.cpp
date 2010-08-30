@@ -569,7 +569,7 @@ void WorldSession::SendStablePetCallback(QueryResult_AutoPtr result, uint64 guid
         while (result->NextRow());
     }
 
-    data.put<uint8>(sizeof(uint64), num);                             // set real data to placeholder
+    data.put<uint8>(wpos, num);                             // set real data to placeholder
     SendPacket(&data);
 
 }

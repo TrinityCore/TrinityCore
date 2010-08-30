@@ -167,7 +167,7 @@ enum eAchievementData
 
 static Position Center[]=
 {
-    {354.8771f, -12.90240f, 409.803650f},
+    {354.8771f, -12.90240f, 409.803650f, 0.0f},
 };
 
 const Position PosSiege[5] =
@@ -806,7 +806,7 @@ public:
             me->GetMap()->CreatureRelocation(me, x,y,z,0);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*diff*/)
         {
         }
     };
@@ -851,7 +851,7 @@ public:
 
         }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 /*type*/, uint32 id)
         {
             if (id == 1)
             {
@@ -940,7 +940,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*diff*/)
         {
             if (!UpdateVictim())
                 return;
@@ -981,7 +981,7 @@ public:
         {
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*diff*/)
         {
             if (!me->HasAura(AURA_DUMMY_BLUE))
                 me->AddAura(AURA_DUMMY_BLUE, me);
@@ -1012,7 +1012,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void WaypointReached(uint32 i)
+        void WaypointReached(uint32 /*i*/)
         {
         }
 
@@ -1084,7 +1084,7 @@ public:
         {
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*diff*/)
         {
             if (!me->HasAura(AURA_DUMMY_GREEN))
                 me->AddAura(AURA_DUMMY_GREEN, me);
@@ -1331,7 +1331,7 @@ class go_ulduar_tower : public GameObjectScript
 public:
     go_ulduar_tower() : GameObjectScript("go_ulduar_tower") { }
 
-    void OnDestroyed(Player* pPlayer, GameObject* pGO, uint32 value)
+    void OnDestroyed(Player* /*pPlayer*/, GameObject* pGO, uint32 /*value*/)
     {
         InstanceScript* pInstance = pGO->GetInstanceScript();
         if (pGO->GetGOValue()->building.health == 0)
@@ -1361,7 +1361,7 @@ class at_RX_214_repair_o_matic_station : public AreaTriggerScript
 public:
     at_RX_214_repair_o_matic_station() : AreaTriggerScript("at_RX_214_repair_o_matic_station") { }
 
-    bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* pAt)
+    bool OnTrigger(Player* pPlayer, const AreaTriggerEntry* /*pAt*/)
     {
         if(Creature* vehicle = pPlayer->GetVehicleCreatureBase())
         {

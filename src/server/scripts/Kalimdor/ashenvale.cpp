@@ -456,7 +456,7 @@ class go_naga_brazier : public GameObjectScript
         {
         }
 
-        bool OnGossipHello(Player* player, GameObject* go)
+        bool OnGossipHello(Player* /*player*/, GameObject* go)
         {
             if (Creature* creature = GetClosestCreatureWithEntry(go, NPC_MUGLASH, INTERACTION_DISTANCE*2))
             {

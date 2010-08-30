@@ -122,16 +122,12 @@ public:
             {
                 Unit* Temp =  Unit::GetUnit((*me),pInstance->GetData64(DATA_ALYTHESS));
                 if (Temp)
+                {
                     if (Temp->isDead())
-                    {
                         CAST_CRE(Temp)->Respawn();
-                    }else
-                    {
-                        if (Temp->getVictim())
-                        {
-                            me->getThreatManager().addThreat(Temp->getVictim(),0.0f);
-                        }
-                    }
+                    else if (Temp->getVictim())
+                        me->getThreatManager().addThreat(Temp->getVictim(),0.0f);
+                }
             }
 
             if (!me->isInCombat())
@@ -389,16 +385,12 @@ public:
             {
                 Unit* Temp =  Unit::GetUnit((*me),pInstance->GetData64(DATA_SACROLASH));
                 if (Temp)
+                {
                     if (Temp->isDead())
-                    {
                         CAST_CRE(Temp)->Respawn();
-                    }else
-                    {
-                        if (Temp->getVictim())
-                        {
-                            me->getThreatManager().addThreat(Temp->getVictim(),0.0f);
-                        }
-                    }
+                    else if (Temp->getVictim())
+                        me->getThreatManager().addThreat(Temp->getVictim(),0.0f);
+                }
             }
 
             if (!me->isInCombat())

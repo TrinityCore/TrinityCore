@@ -212,6 +212,7 @@ public:
             } else ShadowboltTimer -= diff;
 
             if (!Skeletons)
+            {
                 if ((SummonSkeletonsTimer <= diff))
                 {
                     Creature* Skeleton;
@@ -229,6 +230,7 @@ public:
                     }
                     Skeletons = true;
                 } else SummonSkeletonsTimer -= diff;
+            }
 
             if (FrostTombTimer <= diff)
             {

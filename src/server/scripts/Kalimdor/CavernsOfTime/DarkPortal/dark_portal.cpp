@@ -245,9 +245,9 @@ struct Wave
 
 static Wave PortalWaves[]=
 {
-    {C_ASSAS, C_WHELP, C_CHRON, 0},
-    {C_EXECU, C_CHRON, C_WHELP, C_ASSAS},
-    {C_EXECU, C_VANQU, C_CHRON, C_ASSAS}
+    { {C_ASSAS, C_WHELP, C_CHRON, 0} },
+    { {C_EXECU, C_CHRON, C_WHELP, C_ASSAS} },
+    { {C_EXECU, C_VANQU, C_CHRON, C_ASSAS} }
 };
 
 class npc_time_rift : public CreatureScript

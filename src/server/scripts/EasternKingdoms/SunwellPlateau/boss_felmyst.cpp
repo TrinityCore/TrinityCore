@@ -270,6 +270,8 @@ public:
                 uiFlightCount = 0;
                 uiBreathCount = 0;
                 break;
+            default:
+                break;
             }
             phase = NextPhase;
         }
@@ -291,7 +293,7 @@ public:
                 break;
             case 2:
             {
-                Unit *pTarget = pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
+                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
                 if (!pTarget)
                     pTarget = Unit::GetUnit(*me, pInstance ? pInstance->GetData64(DATA_PLAYER_GUID) : 0);
 

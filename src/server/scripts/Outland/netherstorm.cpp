@@ -979,7 +979,7 @@ public:
                 case 17:
                 case 29:
                     //Find Object and "work"
-                    if ( GameObject* pGO = GetClosestGameObjectWithEntry(me,GO_DRAENEI_MACHINE,INTERACTION_DISTANCE))
+                    if (GetClosestGameObjectWithEntry(me,GO_DRAENEI_MACHINE,INTERACTION_DISTANCE))
                     {
                         // take the GO -> animation
                         me->HandleEmoteCommand(EMOTE_STATE_LOOT);
@@ -994,7 +994,7 @@ public:
             }
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* /*pKiller*/)
         {
             Player* pPlayer = GetPlayerForEscort();
             if (pPlayer)

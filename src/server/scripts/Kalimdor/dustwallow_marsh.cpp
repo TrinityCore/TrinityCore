@@ -368,7 +368,7 @@ public:
 ## npc_zelfrax
 ######*/
 
-const Position MovePosition = {-2967.030f,-3872.1799f,35.620f};
+const Position MovePosition = {-2967.030f,-3872.1799f,35.620f, 0.0f};
 
 enum eZelfrax
 {
@@ -503,19 +503,19 @@ public:
                 DoScriptText(SAY_STAY_1, me, pPlayer);
                 break;
             case 11:
-        	    DoScriptText(SAY_STAY_2, me, pPlayer);
+                DoScriptText(SAY_STAY_2, me, pPlayer);
                 break;
             case 25:
-        	    DoScriptText(SAY_STAY_3, me, pPlayer);
+                DoScriptText(SAY_STAY_3, me, pPlayer);
                 break;
             case 26:
-        	    DoScriptText(SAY_STAY_4, me, pPlayer);
+                DoScriptText(SAY_STAY_4, me, pPlayer);
                 break;
             case 27:
-        	    DoScriptText(SAY_STAY_5, me, pPlayer);
+                DoScriptText(SAY_STAY_5, me, pPlayer);
                 break;
             case 28:
-        	    DoScriptText(SAY_STAY_6, me, pPlayer);
+                DoScriptText(SAY_STAY_6, me, pPlayer);
                 me->SetStandState(UNIT_STAND_STATE_KNEEL);
                 break;
             case 29:

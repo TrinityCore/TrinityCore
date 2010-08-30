@@ -343,15 +343,14 @@ class boss_nalorakk : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (waitTimer)
+                if (waitTimer && inMove)
                 {
-                    if (inMove)
-                        if (waitTimer <= diff)
-                        {
-                            (*me).GetMotionMaster()->MovementExpired();
-                            (*me).GetMotionMaster()->MovePoint(MovePhase,NalorakkWay[MovePhase][0],NalorakkWay[MovePhase][1],NalorakkWay[MovePhase][2]);
-                            waitTimer = 0;
-                        } else waitTimer -= diff;
+                    if (waitTimer <= diff)
+                    {
+                        (*me).GetMotionMaster()->MovementExpired();
+                        (*me).GetMotionMaster()->MovePoint(MovePhase,NalorakkWay[MovePhase][0],NalorakkWay[MovePhase][1],NalorakkWay[MovePhase][2]);
+                        waitTimer = 0;
+                    } else waitTimer -= diff;
                 }
 
                 if (!UpdateVictim())

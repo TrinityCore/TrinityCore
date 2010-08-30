@@ -1582,23 +1582,23 @@ class BattlegroundAV : public Battleground
         void PopulateNode(BG_AV_Nodes node);
         void DePopulateNode(BG_AV_Nodes node);
 
-        const BG_AV_Nodes GetNodeThroughObject(uint32 object);
-        const uint32 GetObjectThroughNode(BG_AV_Nodes node);
+        BG_AV_Nodes GetNodeThroughObject(uint32 object);
+        uint32 GetObjectThroughNode(BG_AV_Nodes node);
         const char* GetNodeName(BG_AV_Nodes node);
-        const bool IsTower(BG_AV_Nodes node) {   return m_Nodes[node].Tower; }
+        bool IsTower(BG_AV_Nodes node) { return m_Nodes[node].Tower; }
 
         /*mine*/
         void ChangeMineOwner(uint8 mine, uint32 team, bool initial=false);
 
         /*worldstates*/
         void FillInitialWorldStates(WorldPacket& data);
-        const uint8 GetWorldStateType(uint8 state, uint16 team);
+        uint8 GetWorldStateType(uint8 state, uint16 team);
         void SendMineWorldStates(uint32 mine);
         void UpdateNodeWorldState(BG_AV_Nodes node);
 
         /*general */
         Creature* AddAVCreature(uint16 cinfoid, uint16 type);
-        const uint16 GetBonusHonor(uint8 kills); //TODO remove this when the core handles this right
+        uint16 GetBonusHonor(uint8 kills); //TODO remove this when the core handles this right
 
         /*variables */
         int32 m_Team_Scores[2];

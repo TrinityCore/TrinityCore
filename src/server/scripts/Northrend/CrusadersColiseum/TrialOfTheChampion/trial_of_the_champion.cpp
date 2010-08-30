@@ -308,7 +308,7 @@ public:
         {
             me->GetMotionMaster()->MovePoint(1,735.81f,661.92f,412.39f);
 
-            if (Creature* pBoss = me->SummonCreature(uiArgentChampion,SpawnPosition))
+            if (me->SummonCreature(uiArgentChampion,SpawnPosition))
             {
                 for (uint8 i = 0; i < 3; ++i)
                 {
@@ -366,8 +366,8 @@ public:
                         DoStartArgentChampionEncounter();
                 }
 
-               if (pInstance->GetData(BOSS_GRAND_CHAMPIONS) == DONE &&
-                   pInstance->GetData(BOSS_ARGENT_CHALLENGE_E) == DONE ||
+               if ((pInstance->GetData(BOSS_GRAND_CHAMPIONS) == DONE &&
+                   pInstance->GetData(BOSS_ARGENT_CHALLENGE_E) == DONE) ||
                    pInstance->GetData(BOSS_ARGENT_CHALLENGE_P) == DONE)
                     me->SummonCreature(VEHICLE_BLACK_KNIGHT,769.834f,651.915f,447.035f,0);
             }
@@ -472,10 +472,10 @@ public:
         InstanceScript* pInstance = pCreature->GetInstanceScript();
 
         if (pInstance &&
-            pInstance->GetData(BOSS_GRAND_CHAMPIONS) == DONE &&
+            ((pInstance->GetData(BOSS_GRAND_CHAMPIONS) == DONE &&
             pInstance->GetData(BOSS_BLACK_KNIGHT) == DONE &&
-            pInstance->GetData(BOSS_ARGENT_CHALLENGE_E) == DONE ||
-            pInstance->GetData(BOSS_ARGENT_CHALLENGE_P) == DONE)
+            pInstance->GetData(BOSS_ARGENT_CHALLENGE_E) == DONE) ||
+            pInstance->GetData(BOSS_ARGENT_CHALLENGE_P) == DONE))
             return false;
 
         if (pInstance &&

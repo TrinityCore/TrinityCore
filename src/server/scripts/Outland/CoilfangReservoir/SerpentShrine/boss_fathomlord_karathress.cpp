@@ -93,6 +93,7 @@ EndScriptData */
 #define OLUM_Z                     -7.54773f
 #define OLUM_O                     0.401581f
 
+#define MAX_ADVISORS 3
 //Fathom-Lord Karathress AI
 class boss_fathomlord_karathress : public CreatureScript
 {
@@ -122,7 +123,7 @@ public:
 
         bool BlessingOfTides;
 
-        uint64 Advisors[3];
+        uint64 Advisors[MAX_ADVISORS];
 
         void Reset()
         {
@@ -134,24 +135,23 @@ public:
 
             if (pInstance)
             {
-                uint64 RAdvisors[3];
+                uint64 RAdvisors[MAX_ADVISORS];
                 RAdvisors[0] = pInstance->GetData64(DATA_SHARKKIS);
                 RAdvisors[1] = pInstance->GetData64(DATA_TIDALVESS);
                 RAdvisors[2] = pInstance->GetData64(DATA_CARIBDIS);
                 //Respawn of the 3 Advisors
                 Creature* pAdvisor = NULL;
-                for (int i=0; i<3; ++i)
-
-                if (RAdvisors[i])
-                {
-                    pAdvisor = (Unit::GetCreature((*me), RAdvisors[i]));
-                    if (pAdvisor && !pAdvisor->isAlive())
+                for (int i=0; i<MAX_ADVISORS; ++i)
+                    if (RAdvisors[i])
                     {
-                        pAdvisor->Respawn();
-                        pAdvisor->AI()->EnterEvadeMode();
-                        pAdvisor->GetMotionMaster()->MoveTargetedHome();
+                        pAdvisor = (Unit::GetCreature((*me), RAdvisors[i]));
+                        if (pAdvisor && !pAdvisor->isAlive())
+                        {
+                            pAdvisor->Respawn();
+                            pAdvisor->AI()->EnterEvadeMode();
+                            pAdvisor->GetMotionMaster()->MoveTargetedHome();
+                        }
                     }
-                }
                 pInstance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
             }
 
@@ -280,7 +280,7 @@ public:
                 BlessingOfTides = true;
                 bool continueTriggering = false;
                 Creature* Advisor;
-                for (uint8 i = 0; i < 4; ++i)
+                for (uint8 i = 0; i < MAX_ADVISORS; ++i)
                     if (Advisors[i])
                     {
                         Advisor = (Unit::GetCreature(*me, Advisors[i]));

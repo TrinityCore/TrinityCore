@@ -128,8 +128,8 @@ enum Achievements
 
 static Position SpawnLocations[]=
 {
-    {946.992f, 397.016f, 208.374f},
-    {960.748f, 382.944f, 208.374f},
+    {946.992f, 397.016f, 208.374f, 0.0f},
+    {960.748f, 382.944f, 208.374f, 0.0f},
 };
 
 class mob_tribuna_controller : public CreatureScript

@@ -1109,7 +1109,6 @@ void Group::SendUpdate()
         data << uint8(citr->flags);
         if (isLFGGroup())
         {
-            uint32 lowguid = GetLowGUID();
             data << uint8(1);
             data << uint8(m_LfgStatus);
             data << uint32(m_LfgDungeonEntry);
@@ -1728,7 +1727,7 @@ void Group::ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo)
     {
         InstanceSave *p = itr->second.save;
         const MapEntry *entry = sMapStore.LookupEntry(itr->first);
-        if (!entry || entry->IsRaid() != isRaid || !p->CanReset() && method != INSTANCE_RESET_GROUP_DISBAND)
+        if (!entry || entry->IsRaid() != isRaid || (!p->CanReset() && method != INSTANCE_RESET_GROUP_DISBAND))
         {
             ++itr;
             continue;
@@ -1791,7 +1790,7 @@ InstanceGroupBind* Group::GetBoundInstance(Map* aMap)
     Difficulty difficulty = GetDifficulty(aMap->IsRaid());
 
     // some instances only have one difficulty
-    MapDifficulty const* mapDiff = GetDownscaledMapDifficultyData(aMap->GetId(),difficulty);
+    GetDownscaledMapDifficultyData(aMap->GetId(),difficulty);
 
     BoundInstancesMap::iterator itr = m_boundInstances[difficulty].find(aMap->GetId());
     if (itr != m_boundInstances[difficulty].end())
@@ -1808,7 +1807,7 @@ InstanceGroupBind* Group::GetBoundInstance(MapEntry const* mapEntry)
     Difficulty difficulty = GetDifficulty(mapEntry->IsRaid());
 
     // some instances only have one difficulty
-    MapDifficulty const* mapDiff = GetDownscaledMapDifficultyData(mapEntry->MapID,difficulty);
+    GetDownscaledMapDifficultyData(mapEntry->MapID,difficulty);
 
     BoundInstancesMap::iterator itr = m_boundInstances[difficulty].find(mapEntry->MapID);
     if (itr != m_boundInstances[difficulty].end())
@@ -1882,8 +1881,8 @@ void Group::ResetMaxEnchantingLevel()
     Player *pMember = NULL;
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
     {
-        if (pMember = sObjectMgr.GetPlayer(citr->guid))
-            if (m_maxEnchantingLevel < pMember->GetSkillValue(SKILL_ENCHANTING))
-                m_maxEnchantingLevel = pMember->GetSkillValue(SKILL_ENCHANTING);
+        pMember = sObjectMgr.GetPlayer(citr->guid);
+        if (pMember && m_maxEnchantingLevel < pMember->GetSkillValue(SKILL_ENCHANTING))
+            m_maxEnchantingLevel = pMember->GetSkillValue(SKILL_ENCHANTING);
     }
 }

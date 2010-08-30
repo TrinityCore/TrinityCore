@@ -59,9 +59,9 @@ enum Achievements
     ACHIEV_OH_NOVOS                               = 2057
 };
 
-static Position AddSpawnPoint = { -379.20f, -816.76f, 59.70f };
-static Position CrystalHandlerSpawnPoint = { -326.626343f, -709.956604f, 27.813314f };
-static Position AddDestinyPoint = { -379.314545f, -772.577637f, 28.58837f };
+static Position AddSpawnPoint = { -379.20f, -816.76f, 59.70f, 0.0f };
+static Position CrystalHandlerSpawnPoint = { -326.626343f, -709.956604f, 27.813314f, 0.0f };
+static Position AddDestinyPoint = { -379.314545f, -772.577637f, 28.58837f, 0.0f };
 
 class boss_novos : public CreatureScript
 {
@@ -168,6 +168,8 @@ public:
                                                          RAND(H_SPELL_ARCANE_BLAST,H_SPELL_BLIZZARD,H_SPELL_FROSTBOLT,H_SPELL_WRATH_OF_MISERY)));
                         uiTimer = urand(1*IN_MILLISECONDS,3*IN_MILLISECONDS);
                     } else uiTimer -= diff;
+                    break;
+                default:
                     break;
             }
         }
