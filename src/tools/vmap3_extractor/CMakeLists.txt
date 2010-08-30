@@ -33,19 +33,11 @@ endif()
 
 add_executable(vmap3extractor ${sources})
 
-if(WIN32)
-  target_link_libraries(vmap3extractor
-    bzip2
-    zlib
-    mpq
-  )
-else()
-  target_link_libraries(vmap3extractor
-    ${BZIP2_LIBRARIES}
-    ${ZLIB_LIBRARIES}
-    mpq
-  )
-endif()
+target_link_libraries(vmap3extractor
+  ${BZIP2_LIBRARIES}
+  ${ZLIB_LIBRARIES}
+  mpq
+)
 
 add_dependencies(vmap3extractor mpq)
 

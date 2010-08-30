@@ -25,19 +25,11 @@ add_executable(vmap3assembler VMapAssembler.cpp)
 
 add_dependencies(vmap3assembler mpq)
 
-if(WIN32)
-  target_link_libraries(vmap3assembler
-    collision
-    g3dlib
-    zlib
-  )
-else()
-  target_link_libraries(vmap3assembler
-    collision
-    g3dlib
-    ${ZLIB_LIBRARIES}
-  )
-endif()
+target_link_libraries(vmap3assembler
+  collision
+  g3dlib
+  ${ZLIB_LIBRARIES}
+)
 
 if( UNIX )
   install(TARGETS vmap3assembler DESTINATION bin)
