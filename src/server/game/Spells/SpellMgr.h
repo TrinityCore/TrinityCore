@@ -322,6 +322,21 @@ inline bool IsDeathPersistentSpell(SpellEntry const *spellInfo)
     return spellInfo->AttributesEx3 & SPELL_ATTR_EX3_DEATH_PERSISTENT;
 }
 
+inline bool IsRequiringDeadTargetSpell(SpellEntry const *spellInfo)
+{
+    return spellInfo->AttributesEx3 & SPELL_ATTR_EX3_REQUIRE_DEAD_TARGET;
+}
+
+inline bool IsAllowingDeadTargetSpell(SpellEntry const *spellInfo)
+{
+    return spellInfo->AttributesEx2 & SPELL_ATTR_EX2_ALLOW_DEAD_TARGET;
+}
+
+inline bool IsDeadTargetSpell(SpellEntry const *spellInfo)
+{
+    return IsAllowingDeadTargetSpell(spellInfo) || IsRequiringDeadTargetSpell(spellInfo);
+}
+
 inline bool IsNonCombatSpell(SpellEntry const *spellInfo)
 {
     return (spellInfo->Attributes & SPELL_ATTR_CANT_USED_IN_COMBAT) != 0;

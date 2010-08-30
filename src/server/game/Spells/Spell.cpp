@@ -507,7 +507,7 @@ m_caster(Caster), m_spellValue(new SpellValue(m_spellInfo))
     m_casttime = 0;                                         // setup to correct value in Spell::prepare, don't must be used before.
     m_timer = 0;                                            // will set to castime in prepare
 
-    m_needAliveTargetMask = 0;
+    m_channelTargetEffectMask = 0;
 
     // determine reflection
     m_canReflect = false;
@@ -789,7 +789,7 @@ void Spell::SelectSpellTargets()
             {
                 if (ihit->effectMask & mask)
                 {
-                    m_needAliveTargetMask |= mask;
+                    m_channelTargetEffectMask |= mask;
                     break;
                 }
             }
@@ -1682,19 +1682,19 @@ void Spell::DoAllEffectOnTarget(ItemTargetInfo *target)
 bool Spell::UpdateChanneledTargetList()
 {
     // Not need check return true
-    if (m_needAliveTargetMask == 0)
+    if (m_channelTargetEffectMask == 0)
         return true;
 
-    uint8 needAliveTargetMask = m_needAliveTargetMask;
-    uint8 needAuraMask = 0;
+    uint8 channelTargetEffectMask = m_channelTargetEffectMask;
+    uint8 channelAuraMask = 0;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (m_spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA)
-            needAuraMask |= 1<<i;
+            channelAuraMask |= 1<<i;
 
-    needAuraMask &= needAliveTargetMask;
+    channelAuraMask &= channelTargetEffectMask;
 
     float range = 0;
-    if (needAuraMask)
+    if (channelAuraMask)
     {
         range = GetSpellMaxRange(m_spellInfo, IsPositiveSpell(m_spellInfo->Id));
         if (Player * modOwner = m_caster->GetSpellModOwner())
@@ -1703,13 +1703,16 @@ bool Spell::UpdateChanneledTargetList()
 
     for (std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
     {
-        if (ihit->missCondition == SPELL_MISS_NONE && (needAliveTargetMask & ihit->effectMask))
+        if (ihit->missCondition == SPELL_MISS_NONE && (channelTargetEffectMask & ihit->effectMask))
         {
             Unit *unit = m_caster->GetGUID() == ihit->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID);
 
-            if (unit && unit->isAlive())
+            if (!unit)
+                continue;
+
+            if (IsValidDeadOrAliveTarget(unit))
             {
-                if (needAuraMask & ihit->effectMask)
+                if (channelAuraMask & ihit->effectMask)
                 {
                     if (AuraApplication * aurApp = unit->GetAuraApplication(m_spellInfo->Id, m_originalCasterGUID))
                     {
@@ -1724,13 +1727,13 @@ bool Spell::UpdateChanneledTargetList()
                         continue;
                 }
 
-                needAliveTargetMask &= ~ihit->effectMask;   // remove from need alive mask effect that have alive target
+                channelTargetEffectMask &= ~ihit->effectMask;   // remove from need alive mask effect that have alive target
             }
         }
     }
 
     // is all effects from m_needAliveTargetMask have alive targets
-    return needAliveTargetMask == 0;
+    return channelTargetEffectMask == 0;
 }
 
 // Helper for Chain Healing
@@ -4092,7 +4095,7 @@ void Spell::WriteSpellGoTargets(WorldPacket * data)
         if ((*ihit).missCondition == SPELL_MISS_NONE)       // Add only hits
         {
             *data << uint64(ihit->targetGUID);
-            m_needAliveTargetMask |=ihit->effectMask;
+            m_channelTargetEffectMask |=ihit->effectMask;
         }
     }
 
@@ -4112,7 +4115,7 @@ void Spell::WriteSpellGoTargets(WorldPacket * data)
     }
     // Reset m_needAliveTargetMask for non channeled spell
     if (!IsChanneledSpell(m_spellInfo))
-        m_needAliveTargetMask = 0;
+        m_channelTargetEffectMask = 0;
 }
 
 void Spell::SendLogExecute()
@@ -6913,6 +6916,15 @@ bool Spell::IsValidSingleTargetSpell(Unit const* target) const
         //    return false;
     }
     return true;
+}
+
+bool Spell::IsValidDeadOrAliveTarget(Unit const* target) const
+{
+    if (target->isAlive())
+        return !IsRequiringDeadTargetSpell(m_spellInfo);
+    if (IsAllowingDeadTargetSpell(m_spellInfo))
+        return true;
+    return false;
 }
 
 void Spell::CalculateDamageDoneForAllTargets()
