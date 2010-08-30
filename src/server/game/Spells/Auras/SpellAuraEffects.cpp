@@ -1244,15 +1244,6 @@ void AuraEffect::SendTickImmune(Unit * target, Unit *caster) const
 
 void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
 {
-    if (!target->isAlive())
-        return;
-
-    if (target->hasUnitState(UNIT_STAT_ISOLATED))
-    {
-        SendTickImmune(target, caster);
-        return;
-    }
-
     bool prevented = GetBase()->CallScriptEffectPeriodicHandlers(const_cast<AuraEffect const *>(this), GetBase()->GetApplicationOfTarget(target->GetGUID()));
     if (prevented)
         return;
@@ -1264,6 +1255,15 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
         {
             if (!caster)
                 break;
+
+            if (!target->isAlive())
+                return;
+
+            if (target->hasUnitState(UNIT_STAT_ISOLATED))
+            {
+                SendTickImmune(target, caster);
+                return;
+            }
 
             // Consecrate ticks can miss and will not show up in the combat log
             if (GetSpellProto()->Effect[GetEffIndex()] == SPELL_EFFECT_PERSISTENT_AREA_AURA &&
@@ -1405,6 +1405,15 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
             if (!caster->isAlive())
                 return;
 
+            if (!target->isAlive())
+                return;
+
+            if (target->hasUnitState(UNIT_STAT_ISOLATED))
+            {
+                SendTickImmune(target, caster);
+                return;
+            }
+
             if (GetSpellProto()->Effect[GetEffIndex()] == SPELL_EFFECT_PERSISTENT_AREA_AURA &&
                 caster->SpellHitResult(target,GetSpellProto(),false) != SPELL_MISS_NONE)
                 return;
@@ -1485,6 +1494,15 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
             if (!caster || !caster->GetHealth())
                 break;
 
+            if (!target->isAlive())
+                return;
+
+            if (target->hasUnitState(UNIT_STAT_ISOLATED))
+            {
+                SendTickImmune(target, caster);
+                return;
+            }
+
             uint32 damage = GetAmount();
             // do not kill health donator
             if (caster->GetHealth() < damage)
@@ -1508,6 +1526,15 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
         {
             if (!caster)
                 break;
+
+            if (!target->isAlive())
+                return;
+
+            if (target->hasUnitState(UNIT_STAT_ISOLATED))
+            {
+                SendTickImmune(target, caster);
+                return;
+            }
 
             // heal for caster damage (must be alive)
             if (target != caster && GetSpellProto()->AttributesEx2 & SPELL_ATTR_EX2_HEALTH_FUNNEL && !caster->isAlive())
@@ -1606,6 +1633,15 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
         {
             if (GetMiscValue() < 0 || GetMiscValue() >= int8(MAX_POWERS))
                 break;
+
+            if (!target->isAlive())
+                return;
+
+            if (target->hasUnitState(UNIT_STAT_ISOLATED))
+            {
+                SendTickImmune(target, caster);
+                return;
+            }
 
             Powers power = Powers(GetMiscValue());
 
@@ -1711,6 +1747,15 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
             if (GetMiscValue() < 0)
                 return;
 
+            if (!target->isAlive())
+                return;
+
+            if (target->hasUnitState(UNIT_STAT_ISOLATED))
+            {
+                SendTickImmune(target, caster);
+                return;
+            }
+
             Powers power;
             if (GetMiscValue() == POWER_ALL)
                 power = target->getPowerType();
@@ -1742,6 +1787,15 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
             if (m_amount < 0 || GetMiscValue() >= int8(MAX_POWERS))
                 return;
 
+            if (!target->isAlive())
+                return;
+
+            if (target->hasUnitState(UNIT_STAT_ISOLATED))
+            {
+                SendTickImmune(target, caster);
+                return;
+            }
+
             Powers power = Powers(GetMiscValue());
 
             if (target->GetMaxPower(power) == 0)
@@ -1768,6 +1822,15 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
         {
             if (!caster)
                 return;
+
+            if (!target->isAlive())
+                return;
+
+            if (target->hasUnitState(UNIT_STAT_ISOLATED))
+            {
+                SendTickImmune(target, caster);
+                return;
+            }
 
             // Check for immune (not use charges)
             if (target->IsImmunedToDamage(GetSpellProto()))

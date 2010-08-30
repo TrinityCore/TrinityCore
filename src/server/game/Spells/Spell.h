@@ -631,7 +631,7 @@ class Spell
             int32  damage;
         };
         std::list<TargetInfo> m_UniqueTargetInfo;
-        uint8 m_needAliveTargetMask;                        // Mask req. alive targets
+        uint8 m_channelTargetEffectMask;                        // Mask req. alive targets
 
         struct GOTargetInfo
         {
@@ -666,6 +666,7 @@ class Spell
         WorldObject* SearchNearbyTarget(float range, SpellTargets TargetType);
         bool IsValidSingleTargetEffect(Unit const* target, Targets type) const;
         bool IsValidSingleTargetSpell(Unit const* target) const;
+        bool IsValidDeadOrAliveTarget(Unit const* target) const;
         void CalculateDamageDoneForAllTargets();
         int32 CalculateDamageDone(Unit *unit, const uint32 effectMask, float *multiplier);
         void SpellDamageSchoolDmg(SpellEffIndex effIndex);
