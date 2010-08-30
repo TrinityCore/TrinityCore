@@ -263,14 +263,14 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket & recv_data)
 
     // result == NULL also correct in case no sign yet
     if (result)
-        signs = result->GetRowCount();
+        signs = uint8(result->GetRowCount());
 
     sLog.outDebug("CMSG_PETITION_SHOW_SIGNATURES petition entry: '%u'", petitionguid_low);
 
     WorldPacket data(SMSG_PETITION_SHOW_SIGNATURES, (8+8+4+1+signs*12));
     data << uint64(petitionguid);                           // petition guid
     data << uint64(_player->GetGUID());                     // owner guid
-    data << uint32(petitionguid_low);                       // guild guid (in mangos always same as GUID_LOPART(petitionguid)
+    data << uint32(petitionguid_low);                       // guild guid
     data << uint8(signs);                                   // sign's count
 
     for (uint8 i = 1; i <= signs; ++i)
@@ -279,7 +279,7 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket & recv_data)
         uint64 plguid = fields2[0].GetUInt64();
 
         data << uint64(plguid);                             // Player GUID
-        data << (uint32)0;                                  // there 0 ...
+        data << uint32(0);                                  // there 0 ...
 
         result->NextRow();
     }
@@ -664,12 +664,12 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recv_data)
     result = CharacterDatabase.PQuery("SELECT playerguid FROM petition_sign WHERE petitionguid = '%u'", GUID_LOPART(petitionguid));
     // result == NULL also correct charter without signs
     if (result)
-        signs = result->GetRowCount();
+        signs = uint8(result->GetRowCount());
 
     WorldPacket data(SMSG_PETITION_SHOW_SIGNATURES, (8+8+4+signs+signs*12));
     data << uint64(petitionguid);                           // petition guid
     data << uint64(_player->GetGUID());                     // owner guid
-    data << uint32(GUID_LOPART(petitionguid));              // guild guid (in mangos always same as GUID_LOPART(petition guid)
+    data << uint32(GUID_LOPART(petitionguid));              // guild guid
     data << uint8(signs);                                   // sign's count
 
     for (uint8 i = 1; i <= signs; ++i)
@@ -678,7 +678,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recv_data)
         plguid = fields2[0].GetUInt64();
 
         data << uint64(plguid);                             // Player GUID
-        data << (uint32)0;                                  // there 0 ...
+        data << uint32(0);                                  // there 0 ...
 
         result->NextRow();
     }
@@ -750,7 +750,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
     uint8 signs;
     result = CharacterDatabase.PQuery("SELECT playerguid FROM petition_sign WHERE petitionguid = '%u'", GUID_LOPART(petitionguid));
     if (result)
-        signs = result->GetRowCount();
+        signs = uint8(result->GetRowCount());
     else
         signs = 0;
 

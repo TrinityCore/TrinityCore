@@ -730,7 +730,7 @@ public:
                             if (pUnit && i->second == true)
                             {
                                 //Teleport each player out
-                                DoTeleportPlayer(pUnit, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()+10, rand()%6);
+                                DoTeleportPlayer(pUnit, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()+10, float(rand()%6));
 
                                 //Cast knockback on them
                                 DoCast(pUnit, SPELL_EXIT_STOMACH_KNOCKBACK, true);
@@ -767,7 +767,7 @@ public:
                                 if (pUnit->IsWithinDist3d(&KickPos, 15.0f))
                                 {
                                     //Teleport each player out
-                                    DoTeleportPlayer(pUnit, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()+10, rand()%6);
+                                    DoTeleportPlayer(pUnit, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()+10, float(rand()%6));
 
                                     //Cast knockback on them
                                     DoCast(pUnit, SPELL_EXIT_STOMACH_KNOCKBACK, true);

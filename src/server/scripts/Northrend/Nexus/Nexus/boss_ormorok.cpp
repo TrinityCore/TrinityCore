@@ -243,7 +243,7 @@ public:
 
         void Reset()
         {
-            SpellCrystalSpikeDamageTimer = 3.7*IN_MILLISECONDS;
+            SpellCrystalSpikeDamageTimer = 3700;
             SpellCrystalSpikePrevisualTimer = 1*IN_MILLISECONDS;
         }
 

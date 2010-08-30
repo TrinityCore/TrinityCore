@@ -234,8 +234,8 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                             {
                                 //move in bladedance
                                 float x,y,randx,randy;
-                                randx = (rand()%40);
-                                randy = (rand()%40);
+                                randx = 0.0f + rand()%40;
+                                randy = 0.0f + rand()%40;
                                 x = 210+ randx ;
                                 y = -60- randy ;
                                 me->GetMotionMaster()->MovePoint(1,x,y,me->GetPositionZ());

@@ -562,7 +562,7 @@ void WorldSession::HandleAddFriendOpcode(WorldPacket & recv_data)
 void WorldSession::HandleAddFriendOpcodeCallBack(QueryResult_AutoPtr result, std::string friendNote)
 {
     uint64 friendGuid;
-    uint64 friendAcctid;
+    uint32 friendAcctid;
     uint32 team;
     FriendsResult friendResult;
 
@@ -697,7 +697,7 @@ void WorldSession::HandleSetContactNotesOpcode(WorldPacket & recv_data)
     uint64 guid;
     std::string note;
     recv_data >> guid >> note;
-    _player->GetSocial()->SetFriendNote(guid, note);
+    _player->GetSocial()->SetFriendNote(GUID_LOPART(guid), note);
 }
 
 void WorldSession::HandleBugOpcode(WorldPacket & recv_data)

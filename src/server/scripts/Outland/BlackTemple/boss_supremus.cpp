@@ -70,7 +70,7 @@ public:
         void InitializeAI()
         {
             float x, y, z;
-            me->GetNearPoint(me, x, y, z, 1, 100, M_PI*2*rand_norm());
+            me->GetNearPoint(me, x, y, z, 1, 100, float(M_PI*2*rand_norm()));
             me->GetMotionMaster()->MovePoint(0, x, y, z);
             me->SetVisibility(VISIBILITY_OFF);
             me->CastSpell(me,SPELL_MOLTEN_FLAME,true);

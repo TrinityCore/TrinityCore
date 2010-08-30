@@ -482,7 +482,7 @@ public:
             case EVENT_THORIM_S_HAMMER: // Tower of Storms
                 for (uint8 i = 0; i < 7; ++i)
                 {
-                    if (Creature* pThorim = DoSummon(MOB_THORIM_BEACON, me, urand(20,60), 20000, TEMPSUMMON_TIMED_DESPAWN))
+                    if (Creature* pThorim = DoSummon(MOB_THORIM_BEACON, me, float(urand(20,60)), 20000, TEMPSUMMON_TIMED_DESPAWN))
                         pThorim->GetMotionMaster()->MoveRandom(100);
                 }
                 DoScriptText(SAY_TOWER_STORM, me);

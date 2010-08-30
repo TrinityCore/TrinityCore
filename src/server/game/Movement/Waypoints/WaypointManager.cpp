@@ -55,9 +55,8 @@ void WaypointStore::Load()
     }
 
     WaypointPath* path_data = NULL;
-    uint32 total_records = result->GetRowCount();
 
-    barGoLink bar(total_records);
+    barGoLink bar(result->GetRowCount());
     uint32 count = 0;
     Field *fields;
     uint32 last_id = 0;

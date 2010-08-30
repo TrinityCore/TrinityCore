@@ -697,27 +697,27 @@ struct violet_hold_trashAI : public npc_escortAI
         {
             case 0:
                 if (uiPointId == 5)
-                   CreatureStartAttackDoor(me->GetGUID());
+                   CreatureStartAttackDoor();
                 break;
             case 1:
                 if ((uiPointId == 8 && secondPortalRouteID == 0) || (uiPointId == 7 && secondPortalRouteID == 1))
-                    CreatureStartAttackDoor(me->GetGUID());
+                    CreatureStartAttackDoor();
                 break;
             case 2:
                 if (uiPointId == 7)
-                   CreatureStartAttackDoor(me->GetGUID());
+                   CreatureStartAttackDoor();
                 break;
             case 3:
                 if (uiPointId == 8)
-                    CreatureStartAttackDoor(me->GetGUID());
+                    CreatureStartAttackDoor();
                 break;
             case 4:
                 if (uiPointId == 5)
-                    CreatureStartAttackDoor(me->GetGUID());
+                    CreatureStartAttackDoor();
                 break;
             case 5:
                 if (uiPointId == 3)
-                    CreatureStartAttackDoor(me->GetGUID());
+                    CreatureStartAttackDoor();
                 break;
         }
     }
@@ -787,7 +787,7 @@ struct violet_hold_trashAI : public npc_escortAI
             pInstance->SetData(DATA_NPC_PRESENCE_AT_DOOR_REMOVE,1);
     }
 
-    void CreatureStartAttackDoor(uint32 /*creature_guid*/)
+    void CreatureStartAttackDoor()
     {
         me->SetReactState(REACT_PASSIVE);
         DoCast(SPELL_DESTROY_DOOR_SEAL);

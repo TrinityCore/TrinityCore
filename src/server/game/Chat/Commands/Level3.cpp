@@ -2573,10 +2573,11 @@ bool ChatHandler::HandleListItemCommand(const char *args)
     }
 
     char* c_count = strtok(NULL, " ");
-    int count = c_count ? atol(c_count) : 10;
+    int _count = c_count ? atol(c_count) : 10;
 
-    if (count < 0)
+    if (_count < 0)
         return false;
+    uint32 count = uint32(_count);
 
     QueryResult_AutoPtr result;
 
@@ -2591,7 +2592,7 @@ bool ChatHandler::HandleListItemCommand(const char *args)
         "SELECT ci.item, cibag.slot AS bag, ci.slot, ci.guid, characters.account,characters.name "
         "FROM character_inventory AS ci LEFT JOIN character_inventory AS cibag ON (cibag.item=ci.bag),characters "
         "WHERE ci.item_template='%u' AND ci.guid = characters.guid LIMIT %u ",
-        item_id,uint32(count));
+        item_id, count);
 
     if (result)
     {
@@ -2619,7 +2620,7 @@ bool ChatHandler::HandleListItemCommand(const char *args)
                 item_guid,owner_name.c_str(),owner_guid,owner_acc,item_pos);
         } while (result->NextRow());
 
-        int64 res_count = result->GetRowCount();
+        uint32 res_count = uint32(result->GetRowCount());
 
         if (count > res_count)
             count-=res_count;
@@ -2640,7 +2641,7 @@ bool ChatHandler::HandleListItemCommand(const char *args)
             "SELECT mail_items.item_guid, mail.sender, mail.receiver, char_s.account, char_s.name, char_r.account, char_r.name "
             "FROM mail,mail_items,characters as char_s,characters as char_r "
             "WHERE mail_items.item_template='%u' AND char_s.guid = mail.sender AND char_r.guid = mail.receiver AND mail.id=mail_items.mail_id LIMIT %u",
-            item_id,uint32(count));
+            item_id, count);
     }
     else
         result = QueryResult_AutoPtr(NULL);
@@ -2664,7 +2665,7 @@ bool ChatHandler::HandleListItemCommand(const char *args)
                 item_guid,item_s_name.c_str(),item_s,item_s_acc,item_r_name.c_str(),item_r,item_r_acc,item_pos);
         } while (result->NextRow());
 
-        int64 res_count = result->GetRowCount();
+        uint32 res_count = uint32(result->GetRowCount());
 
         if (count > res_count)
             count-=res_count;
@@ -2684,7 +2685,7 @@ bool ChatHandler::HandleListItemCommand(const char *args)
         //           0                      1                       2                   3
             "SELECT  auctionhouse.itemguid, auctionhouse.itemowner, characters.account, characters.name "
             "FROM auctionhouse,characters WHERE auctionhouse.item_template='%u' AND characters.guid = auctionhouse.itemowner LIMIT %u",
-            item_id,uint32(count));
+            item_id, count);
     }
     else
         result = QueryResult_AutoPtr(NULL);
@@ -2715,7 +2716,7 @@ bool ChatHandler::HandleListItemCommand(const char *args)
         //      0             1           2
         "SELECT gi.item_guid, gi.guildid, guild.name "
         "FROM guild_bank_item AS gi, guild WHERE gi.item_entry='%u' AND gi.guildid = guild.guildid LIMIT %u ",
-        item_id,uint32(count));
+        item_id, count);
 
     if (result)
     {
@@ -2731,7 +2732,7 @@ bool ChatHandler::HandleListItemCommand(const char *args)
             PSendSysMessage(LANG_ITEMLIST_GUILD,item_guid,guild_name.c_str(),guild_guid,item_pos);
         } while (result->NextRow());
 
-        int64 res_count = result->GetRowCount();
+        uint32 res_count = uint32(result->GetRowCount());
 
         if (count > res_count)
             count-=res_count;
@@ -6112,10 +6113,10 @@ bool ChatHandler::HandlePDumpWriteCommand(const char *args)
     if (!file || !p2)
         return false;
 
-    uint32 guid;
+    uint64 guid;
     // character name can't start from number
     if (isNumeric(p2))
-        guid = atoi(p2);
+        guid = MAKE_NEW_GUID(atoi(p2), 0, HIGHGUID_PLAYER);
     else
     {
         std::string name = extractPlayerNameFromLink(p2);

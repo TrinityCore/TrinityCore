@@ -78,7 +78,7 @@ public:
 
         void SummonHounds(Unit* pVictim)
         {
-            if (Creature *Hound = DoSpawnCreature(19207, irand(-9,9), irand(-9,9), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000))
+            if (Creature *Hound = DoSpawnCreature(19207, float(irand(-9,9)), float(irand(-9,9)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000))
                 Hound->AI()->AttackStart(pVictim);
         }
 

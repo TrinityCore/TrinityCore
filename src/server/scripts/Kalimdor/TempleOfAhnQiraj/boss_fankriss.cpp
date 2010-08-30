@@ -55,8 +55,8 @@ public:
         uint32 SpawnHatchlings_Timer;
         uint32 SpawnSpawns_Timer;
         int Rand;
-        int RandX;
-        int RandY;
+        float RandX;
+        float RandY;
 
         Creature* Hatchling;
         Creature* Spawn;
@@ -76,15 +76,15 @@ public:
             Rand = 10 + (rand()%10);
             switch (rand()%2)
             {
-                case 0: RandX = 0 - Rand; break;
-                case 1: RandX = 0 + Rand; break;
+                case 0: RandX = 0.0f - Rand; break;
+                case 1: RandX = 0.0f + Rand; break;
             }
             Rand = 0;
             Rand =  10 + (rand()%10);
             switch (rand()%2)
             {
-                case 0: RandY = 0 - Rand; break;
-                case 1: RandY = 0 + Rand; break;
+                case 0: RandY = 0.0f - Rand; break;
+                case 1: RandY = 0.0f + Rand; break;
             }
             Rand = 0;
             Spawn = DoSpawnCreature(15630, RandX, RandY, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
