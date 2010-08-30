@@ -49,3 +49,8 @@ if(NOT WITH_WARNINGS)
     message(STATUS "- MSVC: Disabled generic compiletime warnings")
   endif()
 endif()
+
+# Copy CMAKE_CX_FLAGS to CMAKE_C_FLAGS to avoid inconsistency
+set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS}")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+message(STATUS "- MSVC: Copied CXX_FLAGS to C_FLAGS (consistency)")
