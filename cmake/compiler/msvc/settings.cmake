@@ -38,10 +38,13 @@ message(STATUS "- MSVC: Disabled NON-SECURE warnings")
 add_definitions(-D_CRT_NONSTDC_NO_WARNINGS)
 message(STATUS "- MSVC: Disabled POSIX warnings")
 
+#Enable extended object support for debug compiles
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} /BIGOBJ")
+message(STATUS "- MSVC: Enabled extended object-support for debug-compiles")
+
 # disable warnings in Visual Studio 8 and above if not wanted
 if(NOT WITH_WARNINGS)
   if(MSVC AND NOT CMAKE_GENERATOR MATCHES "Visual Studio 7")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4996 /wd4355 /wd4244 /wd4985 /wd4267 /wd4619")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4996 /wd4355 /wd4244 /wd4985 /wd4267 /wd4619")
     message(STATUS "- MSVC: Disabled generic compiletime warnings")
   endif()
