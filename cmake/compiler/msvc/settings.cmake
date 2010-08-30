@@ -39,7 +39,7 @@ add_definitions(-D_CRT_NONSTDC_NO_WARNINGS)
 message(STATUS "- MSVC: Disabled POSIX warnings")
 
 #Enable extended object support for debug compiles
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} /BIGOBJ")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} /bigobj")
 message(STATUS "- MSVC: Enabled extended object-support for debug-compiles")
 
 # disable warnings in Visual Studio 8 and above if not wanted
