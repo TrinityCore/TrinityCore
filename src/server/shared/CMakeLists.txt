@@ -78,15 +78,9 @@ add_library(shared STATIC ${shared_STAT_SRCS})
 
 add_dependencies(shared genrev)
 
-if(WIN32)
-  target_link_libraries(shared
-    ace
-  )
-else()
-  target_link_libraries(shared
-    ${ACE_LIBRARY}
-  )
-endif()
+target_link_libraries(shared
+  ${ACE_LIBRARY}
+)
 
 # Generate precompiled header
 if( USE_COREPCH )

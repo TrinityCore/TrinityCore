@@ -167,42 +167,24 @@ else()
   set(SCRIPT_LIB "")
 endif()
 
-if( WIN32 )
-  target_link_libraries(
-    worldserver
-    game
-    shared
-    zlib
-    trinitysockets
-    collision
-    g3dlib
-    gsoap
-    ace
-    ${SCRIPT_LIB}
-    ${MYSQL_LIBRARY}
-    ${OPENSSL_LIBRARIES}
-    ${OPENSSL_EXTRA_LIBRARIES}
-  )
-else()
-  target_link_libraries(
-    worldserver
-    game
-    shared
-    trinitysockets
-    collision
-    g3dlib
-    gsoap
-    ${JEMALLOC_LIB}
-    ${SCRIPT_LIB}
-    ${READLINE_LIBRARY}
-    ${TERMCAP_LIBRARY}
-    ${ACE_LIBRARY}
-    ${MYSQL_LIBRARY}
-    ${OPENSSL_LIBRARIES}
-    ${ZLIB_LIBRARIES}
-    ${OSX_LIBS}
-  )
-endif()
+target_link_libraries(worldserver
+  game
+  shared
+  trinitysockets
+  collision
+  g3dlib
+  gsoap
+  ${JEMALLOC_LIB}
+  ${SCRIPT_LIB}
+  ${READLINE_LIBRARY}
+  ${TERMCAP_LIBRARY}
+  ${ACE_LIBRARY}
+  ${MYSQL_LIBRARY}
+  ${OPENSSL_LIBRARIES}
+  ${OPENSSL_EXTRA_LIBRARIES}
+  ${ZLIB_LIBRARIES}
+  ${OSX_LIBS}
+)
 
 if( WIN32 )
   add_custom_command(TARGET worldserver

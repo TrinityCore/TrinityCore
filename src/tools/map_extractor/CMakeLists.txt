@@ -32,19 +32,11 @@ add_executable(mapextractor
   ${sources}
 )
 
-if(WIN32)
-  target_link_libraries(mapextractor
-    bzip2
-    zlib
-    mpq
-  )
-else()
-  target_link_libraries(mapextractor
-    ${BZIP2_LIBRARIES}
-    ${ZLIB_LIBRARIES}
-    mpq
-  )
-endif()
+target_link_libraries(mapextractor
+  ${BZIP2_LIBRARIES}
+  ${ZLIB_LIBRARIES}
+  mpq
+)
 
 add_dependencies(mapextractor mpq)
 
