@@ -243,7 +243,7 @@ static EventIllidan MaxTimer[]=
 struct Yells
 {
     uint32 sound;
-    char* text;
+    std::string text;
     uint32 pCreature, timer, emote;
     bool Talk;
 };
@@ -629,8 +629,8 @@ public:
             {
                 if (Conversation[count].emote)
                     pCreature->HandleEmoteCommand(Conversation[count].emote); // Make the Creature do some animation!
-                if (Conversation[count].text)
-                    pCreature->MonsterYell(Conversation[count].text, LANG_UNIVERSAL, 0); // Have the Creature yell out some text
+                if (Conversation[count].text.size())
+                    pCreature->MonsterYell(Conversation[count].text.c_str(), LANG_UNIVERSAL, 0); // Have the Creature yell out some text
                 if (Conversation[count].sound)
                     DoPlaySoundToSet(pCreature, Conversation[count].sound); // Play some sound on the creature
             }
@@ -1016,10 +1016,9 @@ public:
                 case EVENT_TAUNT:
                     {
                         uint32 random = rand()%4;
-                        char* yell = RandomTaunts[random].text;
                         uint32 soundid = RandomTaunts[random].sound;
-                        if (yell)
-                            me->MonsterYell(yell, LANG_UNIVERSAL, 0);
+                        if (RandomTaunts[random].text.size())
+                            me->MonsterYell(RandomTaunts[random].text.c_str(), LANG_UNIVERSAL, 0);
                         if (soundid)
                             DoPlaySoundToSet(me, soundid);
                     }
@@ -1318,9 +1317,9 @@ public:
                 case EVENT_MAIEV_TAUNT:
                     {
                         uint32 random = rand()%4;
-                        char* text = MaievTaunts[random].text;
                         uint32 sound = MaievTaunts[random].sound;
-                        me->MonsterYell(text, LANG_UNIVERSAL, 0);
+                        if (MaievTaunts[random].text.size())
+                            me->MonsterYell(MaievTaunts[random].text.c_str(), LANG_UNIVERSAL, 0);
                         DoPlaySoundToSet(me, sound);
                         Timer[EVENT_MAIEV_TAUNT] = 22000 + rand()%21 * 1000;
                     }
