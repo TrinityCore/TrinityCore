@@ -227,7 +227,7 @@ enum EventMaiev
     EVENT_MAIEV_TRAP            =   4,
 };
 
-static EventIllidan MaxTimer[]=
+static const EventIllidan MaxTimer[9] =
 {
     EVENT_NULL,
     EVENT_DRAW_SOUL,
@@ -243,23 +243,23 @@ static EventIllidan MaxTimer[]=
 struct Yells
 {
     uint32 sound;
-    const char* text;
+    std::string text;
     uint32 pCreature, timer, emote;
     bool Talk;
 };
 
-static Yells Conversation[]=
+static const Yells Conversation[22] =
 {
     {11463, "Akama... your duplicity is hardly surprising. I should have slaughtered you and your malformed brethren long ago.", ILLIDAN_STORMRAGE, 8000, 0, true},
-    {0, NULL, ILLIDAN_STORMRAGE, 5000, 396, true},
+    {0,     "", ILLIDAN_STORMRAGE, 5000, 396, true},
     {11389, "We've come to end your reign, Illidan. My people and all of Outland shall be free!", AKAMA, 7000, 25, true},
-    {0, NULL, AKAMA, 5000, 66, true},
+    {0,     "", AKAMA, 5000, 66, true},
     {11464, "Boldly said. But I remain unconvinced.", ILLIDAN_STORMRAGE, 8000, 396, true},
     {11380, "The time has come! The moment is at hand!", AKAMA, 3000, 22, true},
-    {0, NULL, AKAMA, 2000, 15, true},
+    {0,     "", AKAMA, 2000, 15, true},
     {11466, "You are not prepared!", ILLIDAN_STORMRAGE, 3000, 406, true},
-    {0, NULL, EMPTY, 1000, 0, true},
-    {0, NULL, EMPTY, 0, 0, false},//9
+    {0,     "", EMPTY, 1000, 0, true},
+    {0,     "", EMPTY, 0, 0, false},//9
     {11476, "Is this it, mortals? Is this all the fury you can muster?", ILLIDAN_STORMRAGE, 8000, 0, true},
     {11491, "Their fury pales before mine, Illidan. We have some unsettled business between us.", MAIEV_SHADOWSONG, 8000, 5, true},
     {11477, "Maiev... How is this even possible?", ILLIDAN_STORMRAGE, 5000, 1, true},
@@ -268,13 +268,13 @@ static Yells Conversation[]=
     {11496, "Ahh... It is finished. You are beaten.", MAIEV_SHADOWSONG, 6000, 0, true},//15
     {11478, "You have won... Maiev...but the huntress... is nothing...without the hunt... you... are nothing... without me..", ILLIDAN_STORMRAGE, 30000, 65, true}, // Emote dead for now. Kill him later
     {11497, "He is right. I feel nothing... I am nothing... Farewell, champions.", MAIEV_SHADOWSONG, 9000, 0, true},
-    {11498, NULL, MAIEV_SHADOWSONG, 5000, 0, true},
-    {11498, NULL, EMPTY, 1000, 0, true},//19 Maiev disappear
+    {11498, "", MAIEV_SHADOWSONG, 5000, 0, true},
+    {11498, "", EMPTY, 1000, 0, true},//19 Maiev disappear
     {11387, "The Light will fill these dismal halls once again. I swear it.", AKAMA, 8000, 0, true},
-    {0, NULL, EMPTY, 1000, 0, false}//21
+    {0,     "", EMPTY, 1000, 0, false}//21
 };
 
-static Yells RandomTaunts[]=
+static const Yells RandomTaunts[4]=
 {
     {11467, "I can feel your hatred.", ILLIDAN_STORMRAGE, 0, 0, false},
     {11468, "Give in to your fear!", ILLIDAN_STORMRAGE, 0, 0, false},
@@ -282,7 +282,7 @@ static Yells RandomTaunts[]=
     {11471, "Such... arrogance!", ILLIDAN_STORMRAGE, 0, 0, false}
 };
 
-static Yells MaievTaunts[]=
+static const Yells MaievTaunts[4]=
 {
     {11493, "That is for Naisha!", MAIEV_SHADOWSONG, 0, 0, false},
     {11494, "Bleed as I have bled!", MAIEV_SHADOWSONG, 0, 0, false},
@@ -295,7 +295,7 @@ struct Locations
     float x, y, z;
 };
 
-static Locations HoverPosition[]=
+static const Locations HoverPosition[4]=
 {
     {657.0f, 340.0f, 355.0f},
     {657.0f, 275.0f, 355.0f},
@@ -303,7 +303,7 @@ static Locations HoverPosition[]=
     {705.0f, 340.0f, 355.0f}
 };
 
-static Locations GlaivePosition[]=
+static const Locations GlaivePosition[4]=
 {
     {695.105f, 305.303f, 354.256f},
     {659.338f, 305.303f, 354.256f},//the distance between two glaives is 36
@@ -311,13 +311,13 @@ static Locations GlaivePosition[]=
     {664.338f, 305.303f, 354.256f}
 };
 
-static Locations EyeBlast[]=
+static const Locations EyeBlast[2]=
 {
     {677.0f, 350.0f, 354.0f},//start point, pass through glaive point
     {677.0f, 260.0f, 354.0f}
 };
 
-static Locations AkamaWP[]=
+static const Locations AkamaWP[13]=
 {
     {770.01f, 304.50f, 312.29f}, // Bottom of the first stairs, at the doors
     {780.66f, 304.50f, 319.74f}, // Top of the first stairs
@@ -334,7 +334,7 @@ static Locations AkamaWP[]=
     {782.01f, 304.55f, 319.76f}  // Final location - back at the initial gates. This is where he will fight the minions! (12)
 };
 // 755.762f, 304.0747f, 312.1769f -- This is where Akama should be spawned
-static Locations SpiritSpawns[]=
+static const Locations SpiritSpawns[2]=
 {
     {755.5426f, 309.9156f, 312.2129f},
     {755.5426f, 298.7923f, 312.0834f}
@@ -346,7 +346,7 @@ struct Animation // For the demon transformation
     bool equip;
 };
 
-static Animation DemonTransformation[]=
+static const Animation DemonTransformation[10]=
 {
     {SPELL_DEMON_TRANSFORM_1, 0, 1000, 0, 0, 6, true},
     {SPELL_DEMON_TRANSFORM_2, SPELL_DEMON_TRANSFORM_1, 4000, 0, 0, 6, true},
@@ -629,8 +629,8 @@ public:
             {
                 if (Conversation[count].emote)
                     pCreature->HandleEmoteCommand(Conversation[count].emote); // Make the Creature do some animation!
-                if (Conversation[count].text)
-                    pCreature->MonsterYell(Conversation[count].text, LANG_UNIVERSAL, 0); // Have the Creature yell out some text
+                if (Conversation[count].text.size())
+                    pCreature->MonsterYell(Conversation[count].text.c_str(), LANG_UNIVERSAL, 0); // Have the Creature yell out some text
                 if (Conversation[count].sound)
                     DoPlaySoundToSet(pCreature, Conversation[count].sound); // Play some sound on the creature
             }
@@ -1017,8 +1017,8 @@ public:
                     {
                         uint32 random = rand()%4;
                         uint32 soundid = RandomTaunts[random].sound;
-                        if (RandomTaunts[random].text)
-                            me->MonsterYell(RandomTaunts[random].text, LANG_UNIVERSAL, 0);
+                        if (RandomTaunts[random].text.size())
+                            me->MonsterYell(RandomTaunts[random].text.c_str(), LANG_UNIVERSAL, 0);
                         if (soundid)
                             DoPlaySoundToSet(me, soundid);
                     }
@@ -1318,8 +1318,8 @@ public:
                     {
                         uint32 random = rand()%4;
                         uint32 sound = MaievTaunts[random].sound;
-                        if (MaievTaunts[random].text)
-                            me->MonsterYell(MaievTaunts[random].text, LANG_UNIVERSAL, 0);
+                        if (MaievTaunts[random].text.size())
+                            me->MonsterYell(MaievTaunts[random].text.c_str(), LANG_UNIVERSAL, 0);
                         DoPlaySoundToSet(me, sound);
                         Timer[EVENT_MAIEV_TAUNT] = 22000 + rand()%21 * 1000;
                     }

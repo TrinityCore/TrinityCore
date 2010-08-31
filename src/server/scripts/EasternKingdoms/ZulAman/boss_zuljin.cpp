@@ -26,16 +26,16 @@ EndScriptData */
 #include "zulaman.h"
 
 //Speech
-#define YELL_TRANSFORM_TO_LYNX "Let me introduce to you my new bruddahs: fang and claw!"
+const char* YELL_TRANSFORM_TO_LYNX = "Let me introduce to you my new bruddahs: fang and claw!";
 #define SOUND_TRANSFORM_TO_LYNX 12094
 
-#define YELL_TRANSFORM_TO_BEAR "Got me some new tricks...like me bruddah bear!"
+const char* YELL_TRANSFORM_TO_BEAR = "Got me some new tricks...like me bruddah bear!";
 #define SOUND_TRANSFORM_TO_BEAR 12092
 
-#define YELL_TRANSFORM_TO_DRAGONHAWK "Ya don' have to look to da sky to see da dragonhawk!"
+const char* YELL_TRANSFORM_TO_DRAGONHAWK = "Ya don' have to look to da sky to see da dragonhawk!";
 #define SOUND_TRANSFORM_TO_DRAGONHAWK 12095
 
-#define YELL_TRANSFORM_TO_EAGLE "Dere be no hidin' from da eagle!"
+const char* YELL_TRANSFORM_TO_EAGLE = "Dere be no hidin' from da eagle!";
 #define SOUND_TRANSFORM_TO_EAGLE 12093
 
 #define YELL_KILL_ONE "Da Amani de chuka!"
@@ -117,7 +117,7 @@ struct SpiritInfoStruct
     float x, y, z, orient;
 };
 
-static SpiritInfoStruct SpiritInfo[] =
+static SpiritInfoStruct SpiritInfo[4] =
 {
     {23878, 147.87f, 706.51f, 45.11f, 3.04f},
     {23880, 88.95f, 705.49f, 45.11f, 6.11f},
@@ -128,11 +128,11 @@ static SpiritInfoStruct SpiritInfo[] =
 struct TransformStruct
 {
     uint32 sound;
-    const char* text;
+    std::string text;
     uint32 spell, unaura;
 };
 
-static TransformStruct Transform[] =
+static TransformStruct Transform[4] =
 {
     {SOUND_TRANSFORM_TO_BEAR, YELL_TRANSFORM_TO_BEAR, SPELL_SHAPE_OF_THE_BEAR, SPELL_WHIRLWIND},
     {SOUND_TRANSFORM_TO_EAGLE, YELL_TRANSFORM_TO_EAGLE, SPELL_SHAPE_OF_THE_EAGLE, SPELL_SHAPE_OF_THE_BEAR},
@@ -353,7 +353,7 @@ class boss_zuljin : public CreatureScript
                     me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
                     me->RemoveAurasDueToSpell(Transform[Phase].unaura);
                     DoCast(me, Transform[Phase].spell);
-                    me->MonsterYell(Transform[Phase].text, LANG_UNIVERSAL, NULL);
+                    me->MonsterYell(Transform[Phase].text.c_str(), LANG_UNIVERSAL, NULL);
                     DoPlaySoundToSet(me, Transform[Phase].sound);
                     if (Phase > 0)
                     {
