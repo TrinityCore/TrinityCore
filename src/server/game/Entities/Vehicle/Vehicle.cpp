@@ -77,6 +77,7 @@ void Vehicle::Install()
         {
             case POWER_STEAM:
             case POWER_BLOOD:
+            case POWER_OOZE:
                 me->setPowerType(POWER_ENERGY);
                 me->SetMaxPower(POWER_ENERGY, 100);
                 break;
