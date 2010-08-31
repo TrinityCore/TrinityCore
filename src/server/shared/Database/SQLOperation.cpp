@@ -58,13 +58,13 @@ bool SQLQueryHolder::SetQuery(size_t index, const char *sql)
 {
     if (m_queries.size() <= index)
     {
-        sLog.outError("Query index (%u) out of range (size: %u) for query: %s", index, (uint32)m_queries.size(), sql);
+        sLog.outError("Query index (%zu) out of range (size: %u) for query: %s", index, (uint32)m_queries.size(), sql);
         return false;
     }
 
     if (m_queries[index].first != NULL)
     {
-        sLog.outError("Attempt assign query to holder index (%u) where other query stored (Old: [%s] New: [%s])",
+        sLog.outError("Attempt assign query to holder index (%zu) where other query stored (Old: [%s] New: [%s])",
             index, m_queries[index].first, sql);
         return false;
     }
@@ -78,7 +78,7 @@ bool SQLQueryHolder::SetPQuery(size_t index, const char *format, ...)
 {
     if (!format)
     {
-        sLog.outError("Query (index: %u) is empty.",index);
+        sLog.outError("Query (index: %zu) is empty.",index);
         return false;
     }
 
