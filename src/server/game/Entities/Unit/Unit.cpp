@@ -6651,6 +6651,20 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     triggered_spell_id = 32747;
                     break;
                 }
+                // Item - Druid T10 Balance 4P Bonus
+                case 70723:
+                {
+                    // Wrath & Starfire
+                    if ((procSpell->SpellFamilyFlags[0] & 0x5) && (procEx & PROC_EX_CRITICAL_HIT))
+                    {
+                        triggered_spell_id = 71023;
+                        SpellEntry const* triggeredSpell = sSpellStore.LookupEntry(triggered_spell_id);
+                        if (!triggeredSpell)
+                            return false;
+                        basepoints0 = int32(triggerAmount * damage / 100 / (GetSpellMaxDuration(triggeredSpell) / triggeredSpell->EffectAmplitude[0]));
+                    }
+                    break;
+                }
             }
             // Eclipse
             if (dummySpell->SpellIconID == 2856 && GetTypeId() == TYPEID_PLAYER)
@@ -7801,6 +7815,16 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                             break;
                     }
                 }
+            }
+            // Item - Death Knight T10 Melee 4P Bonus
+            if (dummySpell->Id == 70656)
+            {
+                if (!this->ToPlayer())
+                    return false;
+
+                for (uint32 i = 0; i < MAX_RUNES; ++i)
+                    if (this->ToPlayer()->GetRuneCooldown(i) == 0)
+                        return false;
             }
             break;
         }
