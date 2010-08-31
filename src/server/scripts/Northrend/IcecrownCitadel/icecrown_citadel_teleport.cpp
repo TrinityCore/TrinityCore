@@ -43,17 +43,17 @@ class icecrown_citadel_teleport : public GameObjectScript
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to Light's Hammer.", GOSSIP_SENDER_ICC_PORT, LIGHT_S_HAMMER_TELEPORT);
             if (InstanceScript* pInstance = go->GetInstanceScript())
             {
-                if (pInstance->GetData(DATA_LORD_MARROWGAR) == DONE)
+                if (pInstance->GetBossState(DATA_LORD_MARROWGAR) == DONE)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Oratory of the Damned.", GOSSIP_SENDER_ICC_PORT, ORATORY_OF_THE_DAMNED_TELEPORT);
-                if (pInstance->GetData(DATA_LADY_DEATHWHISPER) == DONE)
+                if (pInstance->GetBossState(DATA_LADY_DEATHWHISPER) == DONE)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Rampart of Skulls.", GOSSIP_SENDER_ICC_PORT, RAMPART_OF_SKULLS_TELEPORT);
-                if (pInstance->GetData(DATA_GUNSHIP_EVENT) == DONE)
+                if (pInstance->GetBossState(DATA_GUNSHIP_EVENT) == DONE)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Deathbringer's Rise.", GOSSIP_SENDER_ICC_PORT, DEATHBRINGER_S_RISE_TELEPORT);
-                if (pInstance->GetData(DATA_DEATHBRINGER_SAURFANG) == DONE)
+                if (pInstance->GetBossState(DATA_DEATHBRINGER_SAURFANG) == DONE)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Upper Spire.", GOSSIP_SENDER_ICC_PORT, UPPER_SPIRE_TELEPORT);
-                if (pInstance->GetData(DATA_VALITHRIA_DREAMWALKER) == DONE)
+                if (pInstance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == DONE)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Sindragosa's Lair", GOSSIP_SENDER_ICC_PORT, SINDRAGOSA_S_LAIR_TELEPORT);
-                if (pInstance->GetData(DATA_PROFESSOR_PUTRICIDE) == DONE && pInstance->GetData(DATA_BLOOD_QUEEN_LANA_THEL) == DONE && pInstance->GetData(DATA_SINDRAGOSA) == DONE)
+                if (pInstance->GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE && pInstance->GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE && pInstance->GetBossState(DATA_SINDRAGOSA) == DONE)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to The Frozen Throne", GOSSIP_SENDER_ICC_PORT, FROZEN_THRONE_TELEPORT);
             }
 
@@ -63,6 +63,7 @@ class icecrown_citadel_teleport : public GameObjectScript
 
         bool OnGossipSelect(Player* player, GameObject* /*go*/, uint32 sender, uint32 action)
         {
+            player->PlayerTalkClass->ClearMenus();
             player->CLOSE_GOSSIP_MENU();
             SpellEntry const* spell = sSpellStore.LookupEntry(action);
             if (!spell)

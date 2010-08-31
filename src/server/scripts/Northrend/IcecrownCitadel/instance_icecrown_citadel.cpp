@@ -19,6 +19,15 @@
 #include "ScriptPCH.h"
 #include "icecrown_citadel.h"
 
+static const DoorData doorData[8] =
+{
+    {GO_LORD_MARROWGAR_S_ENTRANCE,        DATA_LORD_MARROWGAR,        DOOR_TYPE_ROOM,    BOUNDARY_N   },
+    {GO_ICEWALL,                          DATA_LORD_MARROWGAR,        DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
+    {GO_DOODAD_ICECROWN_ICEWALL02,        DATA_LORD_MARROWGAR,        DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
+    {GO_ORATORY_OF_THE_DAMNED_ENTRANCE,   DATA_LADY_DEATHWHISPER,     DOOR_TYPE_ROOM,    BOUNDARY_N   },
+    {0,                                   0,                          DOOR_TYPE_ROOM,    BOUNDARY_NONE} // END
+};
+
 class instance_icecrown_citadel : public InstanceMapScript
 {
     public:
@@ -28,26 +37,15 @@ class instance_icecrown_citadel : public InstanceMapScript
         {
             instance_icecrown_citadel_InstanceMapScript(InstanceMap* pMap) : InstanceScript(pMap)
             {
-                memset(uiEncounterState, 0, MAX_ENCOUNTER*sizeof(uint32));
-                memset(uiIcewall, 0, 2*sizeof(uint32));
-                uiMarrowgarEntrance = 0;
+                SetBossNumber(MAX_ENCOUNTER);
+                LoadDoorData(doorData);
                 uiLadyDeathwisperElevator = 0;
-                uiOratoryDoor = 0;
                 uiDeathbringerSaurfang = 0;
                 uiSaurfangDoor = 0;
                 uiSaurfangEventNPC = 0;
                 uiDeathbringersCache = 0;
                 uiSaurfangTeleport = 0;
                 isBonedEligible = false;
-            }
-
-            bool IsEncounterInProgress() const
-            {
-                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                    if (uiEncounterState[i] == IN_PROGRESS)
-                        return true;
-
-                return false;
             }
 
             void OnCreatureCreate(Creature* creature, bool /*add*/)
@@ -82,82 +80,39 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
+            void OnGameObjectCreate(GameObject* pGo, bool add)
             {
                 switch (pGo->GetEntry())
                 {
-                    case DOODAD_ICECROWN_ICEWALL02:
-                        uiIcewall[0] = pGo->GetGUID();
-                        if (GetData(DATA_LORD_MARROWGAR) == DONE)
-                            HandleGameObject(uiIcewall[0], true, pGo);
+                    case GO_DOODAD_ICECROWN_ICEWALL02:
+                    case GO_ICEWALL:
+                    case GO_LORD_MARROWGAR_S_ENTRANCE:
+                    case GO_ORATORY_OF_THE_DAMNED_ENTRANCE:
+                        AddDoor(pGo, add);
                         break;
-                    case ICEWALL:
-                        uiIcewall[1] = pGo->GetGUID();
-                        if (GetData(DATA_LORD_MARROWGAR) == DONE)
-                            HandleGameObject(uiIcewall[1], true, pGo);
-                        break;
-                    case LORD_MARROWGAR_S_ENTRANCE:
-                        uiMarrowgarEntrance = pGo->GetGUID();
-                        if (GetData(DATA_LORD_MARROWGAR) == DONE)
-                            HandleGameObject(uiMarrowgarEntrance, true, pGo);
-                        break;
-                    case ORATORY_OF_THE_DAMNED_ENTRANCE:
-                        uiOratoryDoor = pGo->GetGUID();
-                        if (GetData(DATA_LADY_DEATHWHISPER) == DONE)
-                            HandleGameObject(uiOratoryDoor, true, pGo);
-                        break;
-                    case LADY_DEATHWHISPER_ELEVATOR:
+                    case GO_LADY_DEATHWHISPER_ELEVATOR:
                         uiLadyDeathwisperElevator = pGo->GetGUID();
-                        if (GetData(DATA_LADY_DEATHWHISPER) == DONE)
+                        if (GetBossState(DATA_LADY_DEATHWHISPER) == DONE)
                         {
                             pGo->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
                             pGo->SetGoState(GO_STATE_READY);
                         }
                         break;
-                    case SAURFANG_S_DOOR:
+                    case GO_SAURFANG_S_DOOR:
                         uiSaurfangDoor = pGo->GetGUID();
                         break;
-                    case DEATHBRINGER_S_CACHE_10N:
-                    case DEATHBRINGER_S_CACHE_25N:
-                    case DEATHBRINGER_S_CACHE_10H:
-                    case DEATHBRINGER_S_CACHE_25H:
+                    case GO_DEATHBRINGER_S_CACHE_10N:
+                    case GO_DEATHBRINGER_S_CACHE_25N:
+                    case GO_DEATHBRINGER_S_CACHE_10H:
+                    case GO_DEATHBRINGER_S_CACHE_25H:
                         uiDeathbringersCache = pGo->GetGUID();
                         break;
-                    case SCOURGE_TRANSPORTER_SAURFANG:
+                    case GO_SCOURGE_TRANSPORTER_SAURFANG:
                         uiSaurfangTeleport = pGo->GetGUID();
-                        if (GetData(DATA_DEATHBRINGER_SAURFANG) == DONE)
-                        {
-                            HandleGameObject(uiSaurfangTeleport, true, pGo);
-                            pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
-                        }
                         break;
                     default:
                         break;
                 }
-            }
-
-            uint32 GetData(uint32 type)
-            {
-                switch (type)
-                {
-                    case DATA_LORD_MARROWGAR:
-                    case DATA_LADY_DEATHWHISPER:
-                    case DATA_GUNSHIP_EVENT:
-                    case DATA_DEATHBRINGER_SAURFANG:
-                    case DATA_FESTERGUT:
-                    case DATA_ROTFACE:
-                    case DATA_PROFESSOR_PUTRICIDE:
-                    case DATA_BLOOD_PRINCE_COUNCIL:
-                    case DATA_BLOOD_QUEEN_LANA_THEL:
-                    case DATA_VALITHRIA_DREAMWALKER:
-                    case DATA_SINDRAGOSA:
-                    case DATA_THE_LICH_KING:
-                        return uiEncounterState[type];
-                    default:
-                        break;
-                }
-
-                return 0;
             }
 
             uint64 GetData64(uint32 type)
@@ -168,8 +123,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return uiDeathbringerSaurfang;
                     case DATA_SAURFANG_EVENT_NPC:
                         return uiSaurfangEventNPC;
-                    case DATA_SAURFANG_DOOR:
+                    case GO_SAURFANG_S_DOOR:
                         return uiSaurfangDoor;
+                    case GO_SCOURGE_TRANSPORTER_SAURFANG:
+                        return uiSaurfangTeleport;
                     default:
                         break;
                 }
@@ -177,78 +134,32 @@ class instance_icecrown_citadel : public InstanceMapScript
                 return 0;
             }
 
-            void SetData(uint32 type, uint32 data)
+            bool SetBossState(uint32 type, EncounterState state)
             {
+                if (!InstanceScript::SetBossState(type, state))
+                    return false;
+
                 switch (type)
                 {
-                    case DATA_LORD_MARROWGAR:
-                        uiEncounterState[type] = data;
-                        switch (data)
-                        {
-                            case DONE:
-                                HandleGameObject(uiIcewall[0], true);
-                                HandleGameObject(uiIcewall[1], true);
-                                HandleGameObject(uiMarrowgarEntrance, true);
-                                break;
-                            case NOT_STARTED:
-                                HandleGameObject(uiIcewall[0], false);
-                                HandleGameObject(uiIcewall[1], false);
-                                HandleGameObject(uiMarrowgarEntrance, true);
-                                break;
-                            case IN_PROGRESS:
-                                HandleGameObject(uiMarrowgarEntrance, false);
-                                break;
-                            default:
-                                break;
-                        }
-                        break;
                     case DATA_LADY_DEATHWHISPER:
-                        uiEncounterState[type] = data;
-                        switch (data)
-                        {
-                            case DONE:
-                                // TEMPORARY, SKIP GUNSHIP
-                                uiEncounterState[DATA_GUNSHIP_EVENT] = DONE;
-                                HandleGameObject(uiOratoryDoor, true);
-                                if (GameObject* elevator = instance->GetGameObject(uiLadyDeathwisperElevator))
-                                {
-                                    elevator->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
-                                    elevator->SetGoState(GO_STATE_READY);
-                                }
-                                break;
-                            case IN_PROGRESS:
-                                HandleGameObject(uiOratoryDoor, false);
-                                break;
-                            case NOT_STARTED:
-                                HandleGameObject(uiOratoryDoor, true);
-                                break;
-                            default:
-                                break;
-                        }
-                        break;
-                    case DATA_GUNSHIP_EVENT:
-                        uiEncounterState[type] = data;
+                        SetBossState(DATA_GUNSHIP_EVENT, state);    // TEMP HACK UNTIL GUNSHIP SCRIPTED
+                        if (state == DONE)
+                            if (GameObject* elevator = instance->GetGameObject(uiLadyDeathwisperElevator))
+                            {
+                                elevator->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
+                                elevator->SetGoState(GO_STATE_READY);
+                            }
                         break;
                     case DATA_DEATHBRINGER_SAURFANG:
-                        uiEncounterState[type] = data;
-                        switch (data)
+                        switch (state)
                         {
                             case DONE:
-                                if (GameObject* lootCache = instance->GetGameObject(uiDeathbringersCache))
-                                    if (!lootCache->isSpawned())
-                                        lootCache->SetRespawnTime(7*DAY);
+                                DoRespawnGameObject(uiDeathbringersCache, 7*DAY);
                             case NOT_STARTED:
                                 if (GameObject* teleporter = instance->GetGameObject(uiSaurfangTeleport))
                                 {
                                     HandleGameObject(uiSaurfangTeleport, true, teleporter);
                                     teleporter->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
-                                }
-                                break;
-                            case IN_PROGRESS:
-                                if (GameObject* teleporter = instance->GetGameObject(uiSaurfangTeleport))
-                                {
-                                    HandleGameObject(uiSaurfangTeleport, false, teleporter);
-                                    teleporter->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
                                 }
                                 break;
                             default:
@@ -263,18 +174,22 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case DATA_VALITHRIA_DREAMWALKER:
                     case DATA_SINDRAGOSA:
                     case DATA_THE_LICH_KING:
-                        uiEncounterState[type] = data;
                         break;
+                 }
 
+                 return true;
+            }
+
+            void SetData(uint32 type, uint32 data)
+            {
+                switch (type)
+                {
                     case COMMAND_FAIL_BONED:
                         isBonedEligible = data ? true : false;
                         break;
                     default:
                         break;
                 }
-
-                if (data == DONE && type < MAX_ENCOUNTER)
-                    SaveToDB();
             }
 
             bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/, uint32 /*miscvalue1*/)
@@ -298,9 +213,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 OUT_SAVE_INST_DATA;
 
                 std::ostringstream saveStream;
-                saveStream << "I C ";
-                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                    saveStream << uiEncounterState[i] << " ";
+                saveStream << "I C " << GetBossSaveData();
 
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return saveStream.str();
@@ -327,9 +240,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                     {
                         uint32 tmpState;
                         loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS)
+                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
                             tmpState = NOT_STARTED;
-                        uiEncounterState[i] = tmpState;
+                        SetBossState(i, EncounterState(tmpState));
                     }
                 } else OUT_LOAD_INST_DATA_FAIL;
 
@@ -337,11 +250,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             }
 
         private:
-            uint32 uiEncounterState[MAX_ENCOUNTER];
-            uint64 uiIcewall[2];
-            uint64 uiMarrowgarEntrance;
             uint64 uiLadyDeathwisperElevator;
-            uint64 uiOratoryDoor;
             uint64 uiDeathbringerSaurfang;
             uint64 uiSaurfangDoor;
             uint64 uiSaurfangEventNPC;  // Muradin Bronzebeard or High Overlord Saurfang
