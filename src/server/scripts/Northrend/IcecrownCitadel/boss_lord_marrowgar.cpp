@@ -78,14 +78,14 @@ class boss_lord_marrowgar : public CreatureScript
     public:
         boss_lord_marrowgar() : CreatureScript("boss_lord_marrowgar") { }
 
-        struct boss_lord_marrowgarAI : public ScriptedAI
+        struct boss_lord_marrowgarAI : public BossAI
         {
-            boss_lord_marrowgarAI(Creature *pCreature) : ScriptedAI(pCreature)
+            boss_lord_marrowgarAI(Creature *pCreature) : BossAI(pCreature, DATA_LORD_MARROWGAR)
             {
+                ASSERT(instance);
                 uiBoneStormDuration = RAID_MODE(20000,30000,20000,30000);
                 fBaseSpeed = pCreature->GetSpeedRate(MOVE_RUN);
                 bIntroDone = false;
-                pInstance = pCreature->GetInstanceScript();
                 coldflameLastPos.Relocate(pCreature);
             }
 
@@ -100,30 +100,26 @@ class boss_lord_marrowgar : public CreatureScript
                 events.ScheduleEvent(EVENT_COLDFLAME, urand(10000, 15000));
                 events.ScheduleEvent(EVENT_WARN_BONE_STORM, urand(35000, 50000));
                 events.ScheduleEvent(EVENT_ENRAGE, 600000);
-                if (pInstance)
-                    pInstance->SetData(DATA_LORD_MARROWGAR, NOT_STARTED);
+                instance->SetBossState(DATA_LORD_MARROWGAR, NOT_STARTED);
             }
 
             void EnterCombat(Unit* /*who*/)
             {
                 DoScriptText(SAY_AGGRO, me);
 
-                if (pInstance)
-                    pInstance->SetData(DATA_LORD_MARROWGAR, IN_PROGRESS);
+                instance->SetBossState(DATA_LORD_MARROWGAR, IN_PROGRESS);
             }
 
             void JustDied(Unit* /*killer*/)
             {
                 DoScriptText(SAY_DEATH, me);
 
-                if (pInstance)
-                    pInstance->SetData(DATA_LORD_MARROWGAR, DONE);
+                instance->SetBossState(DATA_LORD_MARROWGAR, DONE);
             }
 
             void JustReachedHome()
             {
-                if(pInstance)
-                    pInstance->SetData(DATA_LORD_MARROWGAR, FAIL);
+                instance->SetBossState(DATA_LORD_MARROWGAR, FAIL);
             }
 
             void KilledUnit(Unit *victim)
@@ -139,13 +135,11 @@ class boss_lord_marrowgar : public CreatureScript
                     DoScriptText(SAY_ENTER_ZONE, me);
                     bIntroDone = true;
                 }
-
-                ScriptedAI::MoveInLineOfSight(who);
             }
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim())
+                if (!UpdateVictim() || !CheckInRoom())
                     return;
 
                 events.Update(diff);
@@ -239,9 +233,6 @@ class boss_lord_marrowgar : public CreatureScript
             }
 
         private:
-
-            EventMap events;
-            InstanceScript* pInstance;
             bool bIntroDone;
             uint32 uiBoneStormDuration;
             float fBaseSpeed;

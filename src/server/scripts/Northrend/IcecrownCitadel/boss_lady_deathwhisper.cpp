@@ -157,11 +157,11 @@ class boss_lady_deathwhisper : public CreatureScript
     public:
         boss_lady_deathwhisper() : CreatureScript("boss_lady_deathwhisper") { }
 
-        struct boss_lady_deathwhisperAI : public ScriptedAI
+        struct boss_lady_deathwhisperAI : public BossAI
         {
-            boss_lady_deathwhisperAI(Creature* pCreature) : ScriptedAI(pCreature), summons(me)
+            boss_lady_deathwhisperAI(Creature* pCreature) : BossAI(pCreature, DATA_LADY_DEATHWHISPER)
             {
-                pInstance = pCreature->GetInstanceScript();
+                ASSERT(instance);
                 bIntroDone = false;
                 uiDominateMindCount = RAID_MODE(0,1,1,3);
             }
@@ -179,8 +179,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 me->RemoveAurasDueToSpell(SPELL_MANA_BARRIER);
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
-                if (pInstance)
-                    pInstance->SetData(DATA_LADY_DEATHWHISPER, NOT_STARTED);
+                instance->SetBossState(DATA_LADY_DEATHWHISPER, NOT_STARTED);
             }
 
             void MoveInLineOfSight(Unit* who)
@@ -229,16 +228,14 @@ class boss_lady_deathwhisper : public CreatureScript
                 me->RemoveAurasDueToSpell(SPELL_SHADOW_CHANNELING);
                 DoCast(me, SPELL_MANA_BARRIER, true);
 
-                if (pInstance)
-                    pInstance->SetData(DATA_LADY_DEATHWHISPER, IN_PROGRESS);
+                instance->SetBossState(DATA_LADY_DEATHWHISPER, IN_PROGRESS);
             }
 
             void JustDied(Unit* killer)
             {
                 DoScriptText(SAY_DEATH, me);
 
-                if (pInstance)
-                    pInstance->SetData(DATA_LADY_DEATHWHISPER, DONE);
+                instance->SetBossState(DATA_LADY_DEATHWHISPER, DONE);
 
                 std::set<uint32> livingAddEntries;
                 // Full House achievement
@@ -273,8 +270,7 @@ class boss_lady_deathwhisper : public CreatureScript
 
             void JustReachedHome()
             {
-                if(pInstance)
-                    pInstance->SetData(DATA_LADY_DEATHWHISPER, FAIL);
+                instance->SetBossState(DATA_LADY_DEATHWHISPER, FAIL);
 
                 summons.DespawnAll();
             }
@@ -337,7 +333,7 @@ class boss_lady_deathwhisper : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim() && !(events.GetPhaseMask() & PHASE_INTRO_MASK))
+                if ((!UpdateVictim() && !(events.GetPhaseMask() & PHASE_INTRO_MASK)) || !CheckInRoom())
                     return;
 
                 events.Update(diff);
@@ -538,12 +534,9 @@ class boss_lady_deathwhisper : public CreatureScript
             }
 
         private:
-            EventMap events;
-            InstanceScript* pInstance;
             bool bIntroDone;
             uint32 uiAddWaveCounter;
             uint64 uiNextVengefulShadeTarget;
-            SummonList summons;
             std::deque<uint64> reanimationQueue;
             uint8 uiDominateMindCount;
         };
