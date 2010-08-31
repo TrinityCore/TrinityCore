@@ -17,13 +17,16 @@ if((NOT USE_COREPCH) AND (NOT USE_SCRIPTPCH))
   message(STATUS "- MSVC: PCH not used - enabled multithreaded compiling")
 endif()
 
-# This definition is necessary to work around a bug with Intellisense described
-# here: http://tinyurl.com/2cb428.  Syntax highlighting is important for proper
-# debugger functionality.
-
 if(${PLATFORM} STREQUAL "X64")
+  # This definition is necessary to work around a bug with Intellisense described
+  # here: http://tinyurl.com/2cb428.  Syntax highlighting is important for proper
+  # debugger functionality.
   add_definitions("-D_WIN64")
   message(STATUS "- MSVC: 64-bit platform, enforced -D_WIN64 parameter")
+
+  #Enable extended object support for debug compiles on X64 (not required on X86)
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} /bigobj")
+  message(STATUS "- MSVC: Enabled extended object-support for debug-compiles")
 endif()
 
 # Define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES - eliminates the warning by changing the strcpy call to strcpy_s, which prevents buffer overruns
@@ -37,10 +40,6 @@ message(STATUS "- MSVC: Disabled NON-SECURE warnings")
 #Ignore warnings about POSIX deprecation
 add_definitions(-D_CRT_NONSTDC_NO_WARNINGS)
 message(STATUS "- MSVC: Disabled POSIX warnings")
-
-#Enable extended object support for debug compiles
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} /bigobj")
-message(STATUS "- MSVC: Enabled extended object-support for debug-compiles")
 
 # disable warnings in Visual Studio 8 and above if not wanted
 if(NOT WITH_WARNINGS)
