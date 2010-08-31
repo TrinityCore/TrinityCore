@@ -388,29 +388,33 @@ namespace VMAP
                     // update tree
                     uint32 referencedVal;
 
-                    fread(&referencedVal, sizeof(uint32), 1, tf);
-                    if (!iLoadedSpawns.count(referencedVal))
+                    if (fread(&referencedVal, sizeof(uint32), 1, tf) == 1)
                     {
-#ifdef VMAP_DEBUG
-                        if (referencedVal > iNTreeValues)
+                        if (!iLoadedSpawns.count(referencedVal))
                         {
-                            sLog.outDebug("StaticMapTree::LoadMapTile() : invalid tree element (%u/%u)", referencedVal, iNTreeValues);
-                            continue;
-                        }
+#ifdef VMAP_DEBUG
+                            if (referencedVal > iNTreeValues)
+                            {
+                                sLog.outDebug("StaticMapTree::LoadMapTile() : invalid tree element (%u/%u)", referencedVal, iNTreeValues);
+                                continue;
+                            }
 #endif
-                        iTreeValues[referencedVal] = ModelInstance(spawn, model);
-                        iLoadedSpawns[referencedVal] = 1;
+                            iTreeValues[referencedVal] = ModelInstance(spawn, model);
+                            iLoadedSpawns[referencedVal] = 1;
+                        }
+                        else
+                        {
+                            ++iLoadedSpawns[referencedVal];
+#ifdef VMAP_DEBUG
+                            if (iTreeValues[referencedVal].ID != spawn.ID)
+                                sLog.outDebug("StaticMapTree::LoadMapTile() : trying to load wrong spawn in node");
+                            else if (iTreeValues[referencedVal].name != spawn.name)
+                                sLog.outDebug("StaticMapTree::LoadMapTile() : name collision on GUID=%u", spawn.ID);
+#endif
+                        }
                     }
                     else
-                    {
-                        ++iLoadedSpawns[referencedVal];
-#ifdef VMAP_DEBUG
-                        if (iTreeValues[referencedVal].ID != spawn.ID)
-                            sLog.outDebug("StaticMapTree::LoadMapTile() : trying to load wrong spawn in node");
-                        else if (iTreeValues[referencedVal].name != spawn.name)
-                            sLog.outDebug("StaticMapTree::LoadMapTile() : name collision on GUID=%u", spawn.ID);
-#endif
-                    }
+                        result = false;
                 }
             }
             iLoadedTiles[packTileID(tileX, tileY)] = true;
@@ -458,15 +462,17 @@ namespace VMAP
                         // update tree
                         uint32 referencedNode;
 
-                        fread(&referencedNode, sizeof(uint32), 1, tf);
-                        if (!iLoadedSpawns.count(referencedNode))
+                        if (fread(&referencedNode, sizeof(uint32), 1, tf) != 1)
+                            result = false;
+                        else
                         {
+                            if (!iLoadedSpawns.count(referencedNode))
                             sLog.outError("StaticMapTree::UnloadMapTile() : trying to unload non-referenced model '%s' (ID:%u)", spawn.name.c_str(), spawn.ID);
-                        }
-                        else if (--iLoadedSpawns[referencedNode] == 0)
-                        {
-                            iTreeValues[referencedNode].setUnloaded();
-                            iLoadedSpawns.erase(referencedNode);
+                            else if (--iLoadedSpawns[referencedNode] == 0)
+                            {
+                                iTreeValues[referencedNode].setUnloaded();
+                                iLoadedSpawns.erase(referencedNode);
+                            }
                         }
                     }
                 }
