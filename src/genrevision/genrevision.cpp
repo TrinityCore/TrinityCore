@@ -34,28 +34,37 @@ struct RawData
     char time_str[200];
 };
 
-void extractDataFromSvn(FILE* EntriesFile, bool url, RawData& data)
+bool extractDataFromSvn(std::string filename, bool url, RawData& data)
 {
-    char buf[200];
+    FILE* EntriesFile = fopen(filename.c_str(), "r");
+    if (!EntriesFile)
+        return false;
 
+    char aux[800];
+    char buf[200];
     char repo_str[200];
     char num_str[200];
+    bool ret = false;
 
-    fgets(buf,200,EntriesFile);
-    fgets(buf,200,EntriesFile);
-    fgets(buf,200,EntriesFile);
-    fgets(buf,200,EntriesFile); sscanf(buf,"%s",num_str);
-    fgets(buf,200,EntriesFile); sscanf(buf,"%s",repo_str);
-    fgets(buf,200,EntriesFile);
-    fgets(buf,200,EntriesFile);
-    fgets(buf,200,EntriesFile);
-    fgets(buf,200,EntriesFile);
-    fgets(buf,200,EntriesFile); sscanf(buf,"%10sT%8s",data.date_str,data.time_str);
-
-    if(url)
-        sprintf(data.rev_str,"%s at %s",num_str,repo_str);
-    else
-        strcpy(data.rev_str,num_str);
+    if (fgets(aux, 600, EntriesFile) && fgets(buf, 200, EntriesFile))
+    {
+        sscanf(buf, "%s", num_str);
+        if (fgets(buf, 200, EntriesFile))
+        {
+            sscanf(buf, "%s", repo_str);
+            if (fgets(aux, 800, EntriesFile) && fgets(buf, 200, EntriesFile))
+            {
+                sscanf(buf, "%10sT%8s", data.date_str, data.time_str);
+                if (url)
+                    sprintf(data.rev_str,"%s at %s",num_str,repo_str);
+                else
+                    strcpy(data.rev_str,num_str);
+                ret = true;
+            }
+        }
+    }
+    fclose(EntriesFile);
+    return ret;
 }
 
 void extractDataFromHG(FILE* EntriesFile, std::string /*path*/, bool /*url*/, RawData& data)
@@ -66,16 +75,16 @@ void extractDataFromHG(FILE* EntriesFile, std::string /*path*/, bool /*url*/, Ra
     char revision_str[200];
 
     bool found = false;
-    while(fgets(buf,200,EntriesFile))
+    while (fgets(buf,200,EntriesFile))
     {
-        if(sscanf(buf,"%s %s",hash_str,revision_str)==2)
+        if (sscanf(buf,"%s %s",hash_str,revision_str)==2)
         {
             found = true;
             break;
         }
     }
 
-    if(!found)
+    if (!found)
     {
         strcpy(data.hash_str,"*");
         strcpy(data.rev_str,"*");
@@ -106,17 +115,19 @@ void extractDataFromArchive(FILE* EntriesFile, std::string /*path*/, bool /*url*
     char revision_str[200];
 
     bool found = false;
-    fgets(buf,200,EntriesFile);
-    while(fgets(buf,200,EntriesFile))
+    if (fgets(buf,200,EntriesFile))
     {
-        if(sscanf(buf,"%s %s",revision_str,hash_str)==2)
+        while (fgets(buf,200,EntriesFile))
         {
-            found = true;
-            break;
+            if (sscanf(buf,"%s %s",revision_str,hash_str)==2)
+            {
+                found = true;
+                break;
+            }
         }
     }
 
-    if(!found)
+    if (!found)
     {
         strcpy(data.hash_str,"*");
         strcpy(data.rev_str,"*");
@@ -148,16 +159,16 @@ void extractDataFromGit(FILE* EntriesFile, std::string path, bool url, RawData& 
     char url_str[200];
 
     bool found = false;
-    while(fgets(buf,200,EntriesFile))
+    while (fgets(buf,200,EntriesFile))
     {
-        if(sscanf(buf,"%s\t\tbranch %s of %s",hash_str,branch_str,url_str)==3)
+        if (sscanf(buf,"%s\t\tbranch %s of %s",hash_str,branch_str,url_str)==3)
         {
             found = true;
             break;
         }
     }
 
-    if(!found)
+    if (!found)
     {
         strcpy(data.hash_str,"*");
         strcpy(data.rev_str,"*");
@@ -166,7 +177,7 @@ void extractDataFromGit(FILE* EntriesFile, std::string path, bool url, RawData& 
         return;
     }
 
-    if(url)
+    if (url)
     {
         char* host_str = NULL;
         char* acc_str  = NULL;
@@ -175,7 +186,7 @@ void extractDataFromGit(FILE* EntriesFile, std::string path, bool url, RawData& 
         // parse URL like git@github.com:mangos/mangos
         char url_buf[200];
         int res = sscanf(url_str,"git@%s",url_buf);
-        if(res)
+        if (res)
         {
             host_str = strtok(url_buf,":");
             acc_str  = strtok(NULL,"/");
@@ -184,7 +195,7 @@ void extractDataFromGit(FILE* EntriesFile, std::string path, bool url, RawData& 
         else
         {
             res = sscanf(url_str,"git://%s",url_buf);
-            if(res)
+            if (res)
             {
                 host_str = strtok(url_buf,"/");
                 acc_str  = strtok(NULL,"/");
@@ -193,7 +204,7 @@ void extractDataFromGit(FILE* EntriesFile, std::string path, bool url, RawData& 
         }
 
         // can generate nice link
-        if(res)
+        if (res)
             sprintf(data.rev_str,"http://%s/%s/%s/commit/%s",host_str,acc_str,repo_str,hash_str);
         // unknonw URL format, use as-is
         else
@@ -207,18 +218,18 @@ void extractDataFromGit(FILE* EntriesFile, std::string path, bool url, RawData& 
     time_t rev_time = 0;
     // extracting date/time
     FILE* LogFile = fopen((path+".git/logs/HEAD").c_str(), "r");
-    if(LogFile)
+    if (LogFile)
     {
-        while(fgets(buf,200,LogFile))
+        while (fgets(buf,200,LogFile))
         {
             char buf2[200];
             char new_hash[200];
             int unix_time = 0;
             int res2 = sscanf(buf,"%s %s %s %s %i",buf2,new_hash,buf2,buf2,&unix_time);
-            if(res2!=5)
+            if (res2!=5)
                 continue;
 
-            if(strcmp(hash_str,new_hash))
+            if (strcmp(hash_str,new_hash))
                 continue;
 
             rev_time = unix_time;
@@ -227,7 +238,7 @@ void extractDataFromGit(FILE* EntriesFile, std::string path, bool url, RawData& 
 
         fclose(LogFile);
 
-        if(rev_time)
+        if (rev_time)
         {
             tm* aTm = localtime(&rev_time);
             //       YYYY   year
@@ -252,21 +263,10 @@ void extractDataFromGit(FILE* EntriesFile, std::string path, bool url, RawData& 
     }
 }
 
-bool extractDataFromSvn(std::string filename, bool url, RawData& data)
-{
-    FILE* EntriesFile = fopen(filename.c_str(), "r");
-    if(!EntriesFile)
-        return false;
-
-    extractDataFromSvn(EntriesFile,url,data);
-    fclose(EntriesFile);
-    return true;
-}
-
 bool extractDataFromGit(std::string filename, std::string path, bool url, RawData& data)
 {
     FILE* EntriesFile = fopen(filename.c_str(), "r");
-    if(!EntriesFile)
+    if (!EntriesFile)
         return false;
 
     extractDataFromGit(EntriesFile,path,url,data);
@@ -277,7 +277,7 @@ bool extractDataFromGit(std::string filename, std::string path, bool url, RawDat
 bool extractDataFromHG(std::string filename, std::string path, bool url, RawData& data)
 {
     FILE* EntriesFile = fopen(filename.c_str(), "r");
-    if(!EntriesFile)
+    if (!EntriesFile)
         return false;
 
     extractDataFromHG(EntriesFile,path,url,data);
@@ -288,7 +288,7 @@ bool extractDataFromHG(std::string filename, std::string path, bool url, RawData
 bool extractDataFromArchive(std::string filename, std::string path, bool url, RawData& data)
 {
     FILE* EntriesFile = fopen(filename.c_str(), "r");
-    if(!EntriesFile)
+    if (!EntriesFile)
         return false;
 
     extractDataFromArchive(EntriesFile,path,url,data);
@@ -340,13 +340,13 @@ int main(int argc, char **argv)
     //    -m build mode string
     for (int k = 1; k <= argc; ++k)
     {
-        if(!argv[k] || !*argv[k])
+        if (!argv[k] || !*argv[k])
             break;
 
-        if(argv[k][0]!='-')
+        if (argv[k][0]!='-')
         {
             path = argv[k];
-            if(path.size() > 0 && (path[path.size()-1]!='/' || path[path.size()-1]!='\\'))
+            if (path.size() > 0 && (path[path.size()-1]!='/' || path[path.size()-1]!='\\'))
                 path += '/';
             break;
         }
@@ -391,7 +391,7 @@ int main(int argc, char **argv)
 
         bool res = false;
 
-        if(svn_prefered)
+        if (svn_prefered)
         {
             /// SVN data
             res = extractDataFromSvn(path+".svn/entries",use_url,data);
@@ -417,7 +417,7 @@ int main(int argc, char **argv)
             if (!res)
                 res = extractDataFromArchive(path+"_hg_archival.txt",path,use_url,data);
         }
-        else if(git_prefered)
+        else if (git_prefered)
         {
             // GIT data
             res = extractDataFromGit(path+".git/FETCH_HEAD",path,use_url,data);
@@ -445,7 +445,7 @@ int main(int argc, char **argv)
         }
 
 
-        else if(hg_prefered)
+        else if (hg_prefered)
         {
             // HG data
             res = extractDataFromHG(path+".hg/branchheads.cache",path,use_url,data);
@@ -472,7 +472,7 @@ int main(int argc, char **argv)
                 res = extractDataFromArchive(path+"_hg_archival.txt",path,use_url,data);
         }
 
-        if(res)
+        if (res)
             newData = generateHeader(data.rev_str,data.date_str,data.time_str,data.hash_str);
         else
             newData = generateHeader("*", "*", "*", "*");
@@ -481,12 +481,12 @@ int main(int argc, char **argv)
     /// get existed header data for compare
     std::string oldData;
 
-    if(FILE* HeaderFile = fopen("revision.h","rb"))
+    if (FILE* HeaderFile = fopen("revision.h","rb"))
     {
-        while(!feof(HeaderFile))
+        while (!feof(HeaderFile))
         {
             int c = fgetc(HeaderFile);
-            if(c < 0)
+            if (c < 0)
                 break;
             oldData += (char)c;
         }
@@ -495,9 +495,9 @@ int main(int argc, char **argv)
     }
 
     /// update header only if different data
-    if(newData != oldData)
+    if (newData != oldData)
     {
-        if(FILE* OutputFile = fopen("revision.h","wb"))
+        if (FILE* OutputFile = fopen("revision.h","wb"))
         {
             fprintf(OutputFile,"%s",newData.c_str());
             fclose(OutputFile);

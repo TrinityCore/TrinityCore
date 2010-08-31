@@ -1188,7 +1188,7 @@ void MovementInfo::OutDebug()
     sLog.outString("guid " UI64FMTD, guid);
     sLog.outString("flags %u", flags);
     sLog.outString("flags2 %u", flags2);
-    sLog.outString("time %u current time %u", flags2, ::time(NULL));
+    sLog.outString("time %u current time " UI64FMTD "", flags2, uint64(::time(NULL)));
     sLog.outString("position: `%s`", pos.ToString().c_str());
     if (flags & MOVEMENTFLAG_ONTRANSPORT)
     {
