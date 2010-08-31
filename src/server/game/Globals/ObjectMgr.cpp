@@ -3645,7 +3645,10 @@ void ObjectMgr::LoadGroups()
             group = GetGroupByGUID(groupLowGuid);
             // group will never be NULL (we have run consistency sql's before loading)
         }
-        group->LoadMemberFromDB(fields[1].GetUInt32(), fields[2].GetUInt8(), fields[3].GetUInt8());
+        if (group)
+            group->LoadMemberFromDB(fields[1].GetUInt32(), fields[2].GetUInt8(), fields[3].GetUInt8());
+        else
+            sLog.outError("ObjectMgr::LoadGroups: Consistency failed, can't find group (lowguid %u)", groupLowGuid);
         ++count;
     }while (result->NextRow());
 
