@@ -128,7 +128,7 @@ static SpiritInfoStruct SpiritInfo[] =
 struct TransformStruct
 {
     uint32 sound;
-    std::string text;
+    const char* text;
     uint32 spell, unaura;
 };
 
@@ -353,7 +353,7 @@ class boss_zuljin : public CreatureScript
                     me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
                     me->RemoveAurasDueToSpell(Transform[Phase].unaura);
                     DoCast(me, Transform[Phase].spell);
-                    me->MonsterYell(Transform[Phase].text.c_str(), LANG_UNIVERSAL, NULL);
+                    me->MonsterYell(Transform[Phase].text, LANG_UNIVERSAL, NULL);
                     DoPlaySoundToSet(me, Transform[Phase].sound);
                     if (Phase > 0)
                     {
