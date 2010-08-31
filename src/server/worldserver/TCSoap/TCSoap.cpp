@@ -29,7 +29,7 @@ void TCSoapRunnable::run()
     pool.activate (THR_NEW_LWP | THR_JOINABLE, POOL_SIZE);
 
     struct soap soap;
-    SOCKET m, s;
+    int m, s;
     soap_init(&soap);
     soap_set_imode(&soap, SOAP_C_UTFSTRING);
     soap_set_omode(&soap, SOAP_C_UTFSTRING);
