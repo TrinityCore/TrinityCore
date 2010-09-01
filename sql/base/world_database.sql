@@ -1575,7 +1575,7 @@ CREATE TABLE `creature_respawn` (
   `instance` mediumint(8) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`instance`),
   KEY `instance` (`instance`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Grid Loading System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Grid Loading System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
