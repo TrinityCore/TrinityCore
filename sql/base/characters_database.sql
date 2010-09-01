@@ -301,7 +301,7 @@ CREATE TABLE `bugreport` (
   `type` longtext NOT NULL default '',
   `content` longtext NOT NULL default '',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Debug System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Debug System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -329,7 +329,7 @@ CREATE TABLE `channels` (
   `m_password` text,
   `BannedList` longtext,
   PRIMARY KEY  (`m_name`(10),`m_team`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Channel System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Channel System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
