@@ -941,7 +941,7 @@ CREATE TABLE `creature_classlevelstats` (
   `basehp2` smallint(2) NOT NULL,  
   `basemana` smallint(2) NOT NULL,
   `basearmor` smallint(2) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4880,7 +4880,7 @@ CREATE TABLE `season_linked_event` (
  `event` int(8) UNSIGNED NOT NULL default '0',
  PRIMARY KEY (`season`),
  UNIQUE (`season`,`event`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -7577,7 +7577,7 @@ CREATE TABLE `spell_group_stack_rules` (
   `group_id` INT(11) UNSIGNED NOT NULL DEFAULT 0,
   `stack_rule` TINYINT(3) NOT NULL DEFAULT 0,
   PRIMARY KEY (`group_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -7647,7 +7647,7 @@ CREATE TABLE `spell_ranks` (
   `rank` TINYINT UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY  (`first_spell_id`, `rank`),
   UNIQUE (`spell_id`)
-) ENGINE=MYISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Spell Rank Data';
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Spell Rank Data';
 
 --
 -- Dumping data for table `spell_ranks`
