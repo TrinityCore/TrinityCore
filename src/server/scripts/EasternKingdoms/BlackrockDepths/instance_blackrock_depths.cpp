@@ -116,6 +116,7 @@ public:
         uint64 GoGolemSGUID;
         uint64 GoThroneGUID;
         uint64 GoChestGUID;
+        uint64 GoSpectralChaliceGUID;
 
         uint32 BarAleCount;
         uint32 GhostKillCount;
@@ -152,6 +153,7 @@ public:
             GoGolemSGUID = 0;
             GoThroneGUID = 0;
             GoChestGUID = 0;
+            GoSpectralChaliceGUID = 0;
 
             BarAleCount = 0;
             GhostKillCount = 0;
@@ -214,6 +216,7 @@ public:
             case GO_GOLEM_ROOM_S: GoGolemSGUID = pGo->GetGUID(); break;
             case GO_THRONE_ROOM: GoThroneGUID = pGo->GetGUID(); break;
             case GO_CHEST_SEVEN: GoChestGUID = pGo->GetGUID(); break;
+            case GO_SPECTRAL_CHALICE: GoSpectralChaliceGUID = pGo->GetGUID(); break;
             }
         }
 
@@ -339,6 +342,8 @@ public:
                 return GoGolemNGUID;
             case DATA_GOLEM_DOOR_S:
                 return GoGolemSGUID;
+            case DATA_GO_CHALICE:
+                return GoSpectralChaliceGUID;
             }
             return 0;
         }
