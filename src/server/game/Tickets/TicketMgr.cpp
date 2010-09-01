@@ -156,7 +156,7 @@ void TicketMgr::_AddOrUpdateGMTicket(GM_Ticket &ticket)
     ss << ticket.assignedToGM << ", '";
     ss << comment << "', ";
     ss << (ticket.completed ? 1 : 0) << ", ";
-    ss << ticket.escalated << ", ";
+    ss << uint32(ticket.escalated) << ", ";
     ss << (ticket.viewed ? 1 : 0) << ");";
     
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
