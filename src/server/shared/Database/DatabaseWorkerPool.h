@@ -31,6 +31,9 @@
 #include "MySQLConnection.h"
 #include "DatabaseWorker.h"
 
+// TODO: Fixme
+#define sLog (*ACE_Singleton<Log, ACE_Thread_Mutex>::instance())
+
 enum MySQLThreadBundle
 {
     MYSQL_BUNDLE_NONE   = 0x00,     //- Each task will run their own MySQL connection
@@ -255,6 +258,17 @@ class DatabaseWorkerPool
             }
             #endif
             Enqueue(new TransactionTask(transaction));
+        }
+
+        PreparedStatement* GetPreparedStatement(uint32 index)
+        {
+            return new PreparedStatement(index);
+        }
+
+        void Execute(PreparedStatement* stmt)
+        {
+            PreparedStatementTask* task = new PreparedStatementTask(stmt);
+            Enqueue(task);
         }
 
         void escape_string(std::string& str)
