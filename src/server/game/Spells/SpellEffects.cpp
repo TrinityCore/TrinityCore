@@ -2436,14 +2436,14 @@ void Spell::EffectHealthLeech(SpellEffIndex effIndex)
 
     float healMultiplier = SpellMgr::CalculateSpellEffectValueMultiplier(m_spellInfo, effIndex, m_originalCaster, this);
 
-    int32 newDamage = int32(damage * healMultiplier);
-    newDamage = std::min(int32(unitTarget->GetHealth()), newDamage);
-    m_damage += newDamage;
+    m_damage += damage;
+    // get max possible damage, don't count overkill for heal
+    uint32 healthGain = uint32(-unitTarget->GetHealthGain(-damage) * healMultiplier);
 
     if (m_caster->isAlive())
     {
-        newDamage = m_caster->SpellHealingBonus(m_caster, m_spellInfo, newDamage, HEAL);
-        m_caster->HealBySpell(m_caster, m_spellInfo, uint32(newDamage));
+        healthGain = m_caster->SpellHealingBonus(m_caster, m_spellInfo, healthGain, HEAL);
+        m_caster->HealBySpell(m_caster, m_spellInfo, uint32(healthGain));
     }
 }
 
