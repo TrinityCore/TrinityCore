@@ -537,6 +537,10 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
             {
                 if (action == ACTION_START_EVENT)
                 {
+                    // Prevent crashes
+                    if (events.GetPhaseMask() & PHASE_INTRO_MASK)
+                        return;
+
                     GetCreatureListWithEntryInGrid(guardList, me, NPC_SE_KOR_KRON_REAVER, 20.0f);
                     guardList.sort(Trinity::ObjectDistanceOrderPred(me));
                     uint32 x = 1;
@@ -695,8 +699,10 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* /*pPlayer*/, Creature* pCreature, uint32 /*sender*/, uint32 action)
+        bool OnGossipSelect(Player* player, Creature* pCreature, uint32 /*sender*/, uint32 action)
         {
+            player->PlayerTalkClass->ClearMenus();
+            player->CLOSE_GOSSIP_MENU();
             if (action == -ACTION_START_EVENT)
                 pCreature->AI()->DoAction(ACTION_START_EVENT);
 
@@ -730,6 +736,11 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
             {
                 if (action == ACTION_START_EVENT)
                 {
+                    // Prevent crashes
+                    if (events.GetPhaseMask() & PHASE_INTRO_MASK)
+                        return;
+
+                    events.SetPhase(PHASE_INTRO_A);
                     GetCreatureListWithEntryInGrid(guardList, me, NPC_SE_SKYBREAKER_MARINE, 20.0f);
                     guardList.sort(Trinity::ObjectDistanceOrderPred(me));
                     uint32 x = 1;
@@ -739,7 +750,6 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
                     me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     DoScriptText(SAY_INTRO_ALLIANCE_1, me);
                     events.ScheduleEvent(EVENT_INTRO_ALLIANCE_4, 2500+17500+9500, 0, PHASE_INTRO_A);
-                    events.SetPhase(PHASE_INTRO_A);
                     if (pInstance)
                     {
                         uiDeathbringerSaurfangGUID = pInstance->GetData64(DATA_DEATHBRINGER_SAURFANG);
@@ -825,8 +835,10 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
             return true;
         }
 
-        bool OnGossipSelect(Player* /*pPlayer*/, Creature* pCreature, uint32 /*sender*/, uint32 action)
+        bool OnGossipSelect(Player* player, Creature* pCreature, uint32 /*sender*/, uint32 action)
         {
+            player->PlayerTalkClass->ClearMenus();
+            player->CLOSE_GOSSIP_MENU();
             if (action == -ACTION_START_EVENT+1)
                 pCreature->AI()->DoAction(ACTION_START_EVENT);
 

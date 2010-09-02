@@ -153,6 +153,14 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMa
 
     SetPhaseMask(phaseMask,false);
 
+    SetZoneScript();
+    if (m_zoneScript)
+    {
+        name_id = m_zoneScript->GetGameObjectEntry(guidlow, name_id);
+        if (!name_id)
+            return false;
+    }
+
     GameObjectInfo const* goinfo = sObjectMgr.GetGameObjectInfo(name_id);
     if (!goinfo)
     {
@@ -210,8 +218,6 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMa
             SetGoAnimProgress(animprogress);
             break;
     }
-
-    SetZoneScript();
 
     LastUsedScriptID = GetGOInfo()->ScriptId;
 
