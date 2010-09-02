@@ -28,6 +28,7 @@
 #include "Transaction.h"
 #include "DatabaseWorker.h"
 #include "PreparedStatement.h"
+#include "Log.h"
 
 enum MySQLThreadBundle
 {
