@@ -27,6 +27,7 @@
 #include "DatabaseEnv.h"
 #include "QueryResult.h"
 #include "SQLOperation.h"
+#include "PreparedStatement.h"
 #include "MySQLConnection.h"
 #include "DatabaseWorker.h"
 #include "Log.h"
@@ -49,6 +50,9 @@ m_Mysql(NULL)
 
 MySQLConnection::~MySQLConnection()
 {
+    for (size_t i = 0; i < m_stmts.size(); ++i)
+        delete m_stmts[i];
+
     MySQL::Thread_End();
     mysql_close(m_Mysql);
 }
@@ -181,6 +185,52 @@ bool MySQLConnection::Execute(const char* sql)
     return true;
 }
 
+bool MySQLConnection::Execute(PreparedStatement* stmt)
+{
+    if (!m_Mysql)
+        return false;
+
+    uint32 index = stmt->m_index;
+    MySQLPreparedStatement* m_mStmt = GetPreparedStatement(index);
+    m_mStmt->m_stmt = stmt;     // Cross reference them for debug output
+    stmt->m_stmt = m_mStmt;
+
+    {
+        // guarded block for thread-safe mySQL request
+        ACE_Guard<ACE_Thread_Mutex> query_connection_guard(m_Mutex);
+        
+        stmt->BindParameters();
+
+        MYSQL_STMT* msql_STMT = m_mStmt->GetSTMT();
+        MYSQL_BIND* msql_BIND = m_mStmt->GetBind();
+
+        #ifdef TRINITY_DEBUG
+        uint32 _s = getMSTime();
+        #endif
+        if (mysql_stmt_bind_param(msql_STMT, msql_BIND))
+        {
+            sLog.outSQLDriver("[ERROR]: PreparedStatement (id: %u) error binding params:  %s", index, mysql_stmt_error(msql_STMT));
+            m_mStmt->ClearParameters();
+            return false;
+        }
+
+        if (mysql_stmt_execute(msql_STMT))
+        {
+            sLog.outSQLDriver("[ERROR]: PreparedStatement (id: %u) error executing:  %s", index, mysql_stmt_error(msql_STMT));
+            m_mStmt->ClearParameters();
+            return false;
+        }
+        else
+        {
+            #ifdef TRINITY_DEBUG
+            sLog.outSQLDriver("[%u ms] Prepared SQL: %u", getMSTimeDiff(_s, getMSTime()), index);
+            #endif
+            m_mStmt->ClearParameters();
+            return true;
+        }
+    }
+}
+
 QueryResult_AutoPtr MySQLConnection::Query(const char* sql)
 {
     if (!sql)
@@ -257,3 +307,31 @@ void MySQLConnection::CommitTransaction()
 {
     Execute("COMMIT");
 }
+
+MySQLPreparedStatement* MySQLConnection::GetPreparedStatement(uint32 index)
+{
+    return m_stmts[index];
+}
+
+void MySQLConnection::PrepareStatement(uint32 index, const char* sql)
+{
+    MYSQL_STMT * stmt = mysql_stmt_init(m_Mysql);
+    if (!stmt)
+    {
+        sLog.outSQLDriver("[ERROR]: In mysql_stmt_init() id: %u, sql: \"%s\"", index, sql);
+        sLog.outSQLDriver("[ERROR]: %s", mysql_error(m_Mysql));
+        return;
+    }
+
+    if (mysql_stmt_prepare(stmt, sql, static_cast<unsigned long>(strlen(sql))))
+    {
+        mysql_stmt_close(stmt);
+        sLog.outSQLDriver("[ERROR]: In mysql_stmt_close() id: %u, sql: \"%s\"", index, sql);
+        sLog.outSQLDriver("[ERROR]: %s", mysql_error(m_Mysql));
+        return;
+    }
+
+    MySQLPreparedStatement* mStmt = new MySQLPreparedStatement(stmt);
+    m_stmts[index] = mStmt;
+}
+    
