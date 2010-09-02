@@ -20,11 +20,18 @@
 
 bool WorldDatabaseConnection::Open(const std::string& infoString)
 {
+    if (!MySQLConnection::Open(infoString))
+        return false;
+
+    m_stmts.resize(MAX_WORLDDATABASE_STATEMENTS);
+
     /*
         ##################################
         LOAD YOUR PREPARED STATEMENTS HERE
         ##################################
     */
+    PrepareStatement(WORLD_DEL_CRESPAWNTIME, "DELETE FROM creature_respawn WHERE guid = ? AND instance = ?");
+    PrepareStatement(WORLD_ADD_CRESPAWNTIME, "INSERT INTO creature_respawn VALUES (?, ?, ?)");
 
-    return MySQLConnection::Open(infoString);
+    return true;
 }

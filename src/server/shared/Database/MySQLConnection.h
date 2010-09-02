@@ -50,13 +50,13 @@ class MySQLConnection
         MYSQL* GetHandle()  { return m_Mysql; }
         MySQLPreparedStatement* GetPreparedStatement(uint32 index);
         void PrepareStatement(uint32 index, const char* sql);
+        std::vector<MySQLPreparedStatement*> m_stmts;       //! PreparedStatements storage
 
     private:
         ACE_Activation_Queue* m_queue;                      //! Queue shared with other asynchroneous connections.
         DatabaseWorker*       m_worker;                     //! Core worker task.
         MYSQL *               m_Mysql;                      //! MySQL Handle.
         ACE_Thread_Mutex      m_Mutex;
-        std::vector<MySQLPreparedStatement*> m_stmts;       //! PreparedStatements storage
 };
 
 #endif
