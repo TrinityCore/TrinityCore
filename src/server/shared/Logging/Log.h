@@ -23,7 +23,6 @@
 
 #include "Common.h"
 #include <ace/Singleton.h>
-#include "Database/DatabaseEnv.h"
 
 class Config;
 

@@ -23,6 +23,9 @@
 #include "Configuration/Config.h"
 #include "Util.h"
 
+#include "Implementation/LoginDatabase.h" // For logging
+extern LoginDatabaseWorkerPool LoginDatabase;
+
 #include <stdarg.h>
 #include <stdio.h>
 

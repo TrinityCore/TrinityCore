@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "DatabaseEnv.h"
+#include "Field.h"
 
 Field::Field() :
 mValue(NULL), mType(DB_TYPE_UNKNOWN)
