@@ -240,7 +240,7 @@ void InstanceSaveManager::_DelHelper(const char *fields, const char *table, cons
             for (size_t i = 0; i < fieldTokens.size(); i++)
             {
                 std::string fieldValue = fields[i].GetCppString();
-                db.escape_string(fieldValue);
+                CharacterDatabase.escape_string(fieldValue);
                 ss << (i != 0 ? " AND " : "") << fieldTokens[i] << " = '" << fieldValue << "'";
             }
             CharacterDatabase.PExecute("DELETE FROM %s WHERE %s", table, ss.str().c_str());
