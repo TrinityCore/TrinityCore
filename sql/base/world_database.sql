@@ -1998,7 +1998,16 @@ INSERT INTO `exploration_basexp` VALUES
 (67,1160),
 (68,1200),
 (69,1230),
-(70,1300);
+(70,1300),
+(71,1330),
+(72,1370),
+(73,1410),
+(74,1440),
+(75,1470),
+(76,1510),
+(77,1530),
+(78,1600),
+(79,1630);
 /*!40000 ALTER TABLE `exploration_basexp` ENABLE KEYS */;
 UNLOCK TABLES;
 
