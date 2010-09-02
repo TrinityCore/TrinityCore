@@ -40,18 +40,6 @@ enum MySQLThreadBundle
     MYSQL_BUNDLE_ALL    = MYSQL_BUNDLE_CLI | MYSQL_BUNDLE_RA | MYSQL_BUNDLE_RAR | MYSQL_BUNDLE_WORLD,
 };
 
-class DatabaseWorkerPoolEnd : public SQLOperation
-{
-    public:
-        DatabaseWorkerPoolEnd(ACE_Condition_Thread_Mutex &mtx)  : shutdown_Mtx(mtx) {} 
-        ~DatabaseWorkerPoolEnd() { shutdown_Mtx.broadcast(); }  //! Tells the Worker Pool to enqueue the next DatabaseWorkerPoolEnd operation.
-
-        int call() { return -1; }
-        bool Execute() { return false;}                         //! Not called - fool the compiler
-        
-        ACE_Condition_Thread_Mutex &shutdown_Mtx;
-};
-
 class DatabaseWorkerPool
 {
     public:
