@@ -261,6 +261,7 @@ ObjectMgr::ObjectMgr()
     m_hiCorpseGuid      = 1;
     m_hiPetNumber       = 1;
     m_hiGroupGuid       = 1;
+    m_hiMoTransGuid     = 1;
     m_ItemTextId        = 1;
     m_mailid            = 1;
     m_equipmentSetGuid  = 1;
@@ -6119,6 +6120,10 @@ void ObjectMgr::SetHighestGuids()
     if (result)
         m_hiGoGuid = (*result)[0].GetUInt32()+1;
 
+    result = WorldDatabase.Query("SELECT MAX(guid) FROM transports");
+    if (result)
+        m_hiMoTransGuid = (*result)[0].GetUInt32()+1;
+
     result = CharacterDatabase.Query("SELECT MAX(id) FROM auctionhouse");
     if (result)
         m_auctionid = (*result)[0].GetUInt32()+1;
@@ -6265,6 +6270,13 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
                 World::StopNow(ERROR_EXIT_CODE);
             }
             return m_hiGroupGuid++;
+        case HIGHGUID_MO_TRANSPORT:
+            if (m_hiMoTransGuid >= 0xFFFFFFFE)
+            {
+                sLog.outError("MO Transport guid overflow!! Can't continue, shutting down server. ");
+                World::StopNow(ERROR_EXIT_CODE);
+            }
+            return m_hiMoTransGuid++;
         default:
             ASSERT(0);
     }

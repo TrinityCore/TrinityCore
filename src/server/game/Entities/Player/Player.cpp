@@ -16066,10 +16066,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     // currently we do not support transport in bg
     else if (transGUID)
     {
-        // There are no transports on instances
-        instanceId = 0;
-
-        m_movementInfo.t_guid = MAKE_NEW_GUID(transGUID, 0, HIGHGUID_TRANSPORT);
+        m_movementInfo.t_guid = MAKE_NEW_GUID(transGUID, 0, HIGHGUID_MO_TRANSPORT);
         m_movementInfo.t_pos.Relocate(fields[26].GetFloat(), fields[27].GetFloat(), fields[28].GetFloat(), fields[29].GetFloat());
 
         if (!Trinity::IsValidMapCoord(
@@ -16078,7 +16075,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
             // transport size limited
             m_movementInfo.t_pos.m_positionX > 250 || m_movementInfo.t_pos.m_positionY > 250 || m_movementInfo.t_pos.m_positionZ > 250)
         {
-            sLog.outError("Player (guidlow %d) have invalid transport coordinates (X: %f Y: %f Z: %f O: %f). Teleport to default race/class locations.",
+            sLog.outError("Player (guidlow %d) have invalid transport coordinates (X: %f Y: %f Z: %f O: %f). Teleport to bind location.",
                 guid,GetPositionX()+m_movementInfo.t_pos.m_positionX,GetPositionY()+m_movementInfo.t_pos.m_positionY,
                 GetPositionZ()+m_movementInfo.t_pos.m_positionZ,GetOrientation()+m_movementInfo.t_pos.m_orientation);
 
@@ -16098,7 +16095,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
             }
             if (!m_transport)
             {
-                sLog.outError("Player (guidlow %d) have problems with transport guid (%u). Teleport to default race/class locations.",
+                sLog.outError("Player (guidlow %d) have problems with transport guid (%u). Teleport to bind location.",
                     guid,transGUID);
 
                 RelocateToHomebind();

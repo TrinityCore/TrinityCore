@@ -623,7 +623,7 @@ class TransportScript : public ScriptObject, public UpdatableScript<Transport>
         virtual void OnRemovePassenger(Transport* /*transport*/, Player* /*player*/) { }
 
         // Called when a transport moves.
-        virtual void OnRelocate(Transport* /*transport*/, uint32 /*mapId*/, float /*x*/, float /*y*/, float /*z*/) { }
+        virtual void OnRelocate(Transport* /*transport*/, uint32 /*waypointId*/, uint32 /*mapId*/, float /*x*/, float /*y*/, float /*z*/) { }
 };
 
 class AchievementCriteriaScript : public ScriptObject
@@ -870,7 +870,7 @@ class ScriptMgr
         void OnAddCreaturePassenger(Transport* transport, Creature* creature);
         void OnRemovePassenger(Transport* transport, Player* player);
         void OnTransportUpdate(Transport* transport, uint32 diff);
-        void OnRelocate(Transport* transport, uint32 mapId, float x, float y, float z);
+        void OnRelocate(Transport* transport, uint32 waypointId, uint32 mapId, float x, float y, float z);
 
     public: /* AchievementCriteriaScript */
 
