@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#if !defined(DATABASEENV_H)
+#ifndef DATABASEENV_H
 #define DATABASEENV_H
 
 #include "Common.h"
@@ -28,22 +28,22 @@
 #include "Field.h"
 #include "QueryResult.h"
 
-#include "DatabaseWorkerPool.h"
 #include "MySQLThreading.h"
 #include "Transaction.h"
 
-typedef DatabaseWorkerPool DatabaseType;
-
+#define MAX_QUERY_LEN 32*1024
 #define _LIKE_           "LIKE"
 #define _TABLE_SIM_      "`"
 #define _CONCAT3_(A,B,C) "CONCAT( " A " , " B " , " C " )"
 #define _OFFSET_         "LIMIT %d,1"
 
-extern DatabaseType WorldDatabase;
-extern DatabaseType CharacterDatabase;
-extern DatabaseType LoginDatabase;
+#include "Implementation/LoginDatabase.h"
+#include "Implementation/CharacterDatabase.h"
+#include "Implementation/WorldDatabase.h"
 
-#define MAX_QUERY_LEN 32*1024
+extern WorldDatabaseWorkerPool WorldDatabase;
+extern CharacterDatabaseWorkerPool CharacterDatabase;
+extern LoginDatabaseWorkerPool LoginDatabase;
 
 #endif
 

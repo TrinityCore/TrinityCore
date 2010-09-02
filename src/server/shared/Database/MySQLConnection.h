@@ -23,14 +23,14 @@ class DatabaseWorker;
 
 class MySQLConnection
 {
-    friend class DatabaseWorkerPool;
+    template <class T> friend class DatabaseWorkerPool;
 
     public:
         MySQLConnection();                                  //! Constructor for synchroneous connections.
         MySQLConnection(ACE_Activation_Queue* queue);       //! Constructor for asynchroneous connections.
         ~MySQLConnection();
 
-        bool Open(const std::string& infoString);           //! Connection details.
+        virtual bool Open(const std::string& infoString);   //! Connection details.
 
     public:
         bool Execute(const char* sql);

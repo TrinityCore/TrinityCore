@@ -19,6 +19,8 @@
 #ifndef _TRANSACTION_H
 #define _TRANSACTION_H
 
+#include "SQLOperation.h"
+
 /*! Transactions, high level class. */
 class Transaction
 {
@@ -43,7 +45,7 @@ typedef ACE_Refcounted_Auto_Ptr<Transaction, ACE_Null_Mutex> SQLTransaction;
 /*! Low level class*/
 class TransactionTask : public SQLOperation
 {
-    friend class DatabaseWorkerPool;
+    template <class T> friend class DatabaseWorkerPool;
     friend class DatabaseWorker;
 
     public:
