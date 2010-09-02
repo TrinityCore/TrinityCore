@@ -63,7 +63,7 @@ bool StartDB();
 
 bool stopEvent = false;                                     ///< Setting it to true stops the server
 
-DatabaseType LoginDatabase;                                 ///< Accessor to the realm server database
+LoginDatabaseWorkerPool LoginDatabase;                      ///< Accessor to the realm server database
 
 /// Handle realmd's termination signals
 class RealmdSignalHandler : public Trinity::SignalHandler

@@ -18,16 +18,12 @@
  */
 
 #include "DatabaseEnv.h"
-
-
 #include "AddonMgr.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "Util.h"
 #include "SHA1.h"
 #include "ProgressBar.h"
-
-extern DatabaseType LoginDatabase;
 
 AddonMgr::AddonMgr()
 {

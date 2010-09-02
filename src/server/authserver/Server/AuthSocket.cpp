@@ -34,8 +34,6 @@
 #include "SHA1.h"
 //#include "Util.h" -- for commented utf8ToUpperOnlyLatin
 
-extern DatabaseType LoginDatabase;
-
 #define ChunkSize 2048
 
 enum eAuthCmd

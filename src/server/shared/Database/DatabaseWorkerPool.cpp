@@ -22,233 +22,62 @@
 #include "MySQLConnection.h"
 #include "SQLOperation.h"
 
-DatabaseWorkerPool::DatabaseWorkerPool() :
-m_queue(new ACE_Activation_Queue(new ACE_Message_Queue<ACE_MT_SYNCH>)),
-m_connections(0)
-{
-    m_infoString = "";
+DatabaseWorkerPool::
+DatabaseWorkerPool::
 
-    mysql_library_init(-1, NULL, NULL);
-    WPFatal (mysql_thread_safe(), "Used MySQL library isn't thread-safe.");
-}
 
-DatabaseWorkerPool::~DatabaseWorkerPool()
-{
-    mysql_library_end();
-}
-
-bool DatabaseWorkerPool::Open(const std::string& infoString, uint8 num_threads)
-{
-    sLog.outSQLDriver("Creating bundled/master MySQL connection.");
-    m_bundle_conn = new MySQLConnection();
-    m_bundle_conn->Open(infoString);
-    ++m_connections;
-            
-    m_async_connections.resize(num_threads);
-
-    /// Open the Async pool
-    for (uint8 i = 0; i < num_threads; i++)
-    {
-        m_async_connections[i] = new MySQLConnection(m_queue);
-        m_async_connections[i]->Open(infoString);
-        ++m_connections;
-        sLog.outSQLDriver("Async database thread pool opened. Worker thread count: %u", num_threads);
-    }
-
-    m_infoString = infoString;
-    return true;
-}
 
 void DatabaseWorkerPool::Close()
-{
-    sLog.outSQLDriver("Closing down %u connections on this DatabaseWorkerPool", (uint32)m_connections.value());
-    /// Shuts down worker threads for this connection pool.
-    m_queue->queue()->deactivate();
-    
-    for (uint8 i = 0; i < m_async_connections.size(); i++)
-    {
-        m_async_connections[i]->m_worker->wait();
-        --m_connections;
-    }
-    
-    delete m_bundle_conn;
-    m_bundle_conn = NULL;
-    --m_connections;
-    sLog.outSQLDriver("Closed bundled connection.");
 
-    //- MySQL::Thread_End() should be called manually from the aborting calling threads
-    sLog.outSQLDriver("Waiting for %u synchroneous database threads to exit.", (uint32)m_connections.value());
-    while (!m_sync_connections.empty())
-    {
-    }
-    sLog.outSQLDriver("Synchroneous database threads exited succesfuly.");
-}
 
 /*! This function creates a new MySQL connection for every MapUpdate thread
     and every unbundled task.
  */
 void DatabaseWorkerPool::Init_MySQL_Connection()
-{
-    MySQLConnection* conn = new MySQLConnection();
-    conn->Open(m_infoString);
 
-    {
-        ACE_Guard<ACE_Thread_Mutex> guard(m_connectionMap_mtx);
-        ConnectionMap::const_iterator itr = m_sync_connections.find(ACE_Based::Thread::current());
-        #ifdef _DEBUG
-        if (itr != m_sync_connections.end())
-            sLog.outSQLDriver("Thread ["UI64FMTD"] already started a MySQL connection", (uint64)ACE_Based::Thread::currentId());
-        #endif
-        m_sync_connections[ACE_Based::Thread::current()] = conn;
-    }
-
-    sLog.outSQLDriver("Core thread with ID ["UI64FMTD"] initializing MySQL connection.",
-        (uint64)ACE_Based::Thread::currentId());
-
-    ++m_connections;
-}
 
 void DatabaseWorkerPool::End_MySQL_Connection()
-{
-    MySQLConnection* conn;
-    {
-        ACE_Guard<ACE_Thread_Mutex> guard(m_connectionMap_mtx);
-        ConnectionMap::iterator itr = m_sync_connections.find(ACE_Based::Thread::current());
-        #ifdef _DEBUG
-        if (itr == m_sync_connections.end())
-            sLog.outSQLDriver("Thread ["UI64FMTD"] already shut down their MySQL connection.", (uint64)ACE_Based::Thread::currentId());
-        #endif
-        conn = itr->second;
-        m_sync_connections.erase(itr);
-    }
-    delete conn;
-    conn = NULL;
-    --m_connections;
-}
+
 
 void DatabaseWorkerPool::Execute(const char* sql)
-{
-    if (!sql)
-        return;
 
-    BasicStatementTask* task = new BasicStatementTask(sql);
-    Enqueue(task);
-}
 
 void DatabaseWorkerPool::PExecute(const char* sql, ...)
 {
-    if (!sql)
-        return;
-
-    va_list ap;
-    char szQuery[MAX_QUERY_LEN];
-    va_start(ap, sql);
-    vsnprintf(szQuery, MAX_QUERY_LEN, sql, ap);
-    va_end(ap);
-
-    Execute(szQuery);
+    
 }
 
 void DatabaseWorkerPool::DirectExecute(const char* sql)
 {
-    if (sql)
-        GetConnection()->Execute(sql);
+    
 }
 
 void DatabaseWorkerPool::DirectPExecute(const char* sql, ...)
 {
-    if (!sql)
-        return;
-
-    va_list ap;
-    char szQuery[MAX_QUERY_LEN];
-    va_start(ap, sql);
-    vsnprintf(szQuery, MAX_QUERY_LEN, sql, ap);
-    va_end(ap);
-
-    return DirectExecute(szQuery);
+    
 }
 
 QueryResult_AutoPtr DatabaseWorkerPool::Query(const char* sql)
-{
-    return GetConnection()->Query(sql);
-}
+
 
 QueryResult_AutoPtr DatabaseWorkerPool::PQuery(const char* sql, ...)
-{
-    if (!sql)
-        return QueryResult_AutoPtr(NULL);
 
-    va_list ap;
-    char szQuery[MAX_QUERY_LEN];
-    va_start(ap, sql);
-    vsnprintf(szQuery, MAX_QUERY_LEN, sql, ap);
-    va_end(ap);
-
-    return Query(szQuery);
-}
 
 SQLTransaction DatabaseWorkerPool::BeginTransaction()
 {
-    return SQLTransaction(new Transaction);
+    
 }
 
 void DatabaseWorkerPool::CommitTransaction(SQLTransaction transaction)
-{
-    #ifdef _DEBUG
-    if (transaction->GetSize() == 0)
-    {
-        sLog.outSQLDriver("Transaction contains 0 queries. Not executing.");
-        return;
-    }
-    if (transaction->GetSize() == 1)
-    {
-        sLog.outSQLDriver("Warning: Transaction only holds 1 query, consider removing Transaction context in code.");
-    }
-    #endif
-    Enqueue(new TransactionTask(transaction));
-}
+
 
 ACE_Future<QueryResult_AutoPtr> DatabaseWorkerPool::AsyncQuery(const char* sql)
-{
-    QueryResultFuture res;
-    BasicStatementTask* task = new BasicStatementTask(sql, res);
-    Enqueue(task);
-    return res;         //! Fool compiler, has no use yet
-}
+
 
 ACE_Future<QueryResult_AutoPtr> DatabaseWorkerPool::AsyncPQuery(const char* sql, ...)
-{
-    va_list ap;
-    char szQuery[MAX_QUERY_LEN];
-    va_start(ap, sql);
-    vsnprintf(szQuery, MAX_QUERY_LEN, sql, ap);
-    va_end(ap);
 
-    return AsyncQuery(szQuery);
-}
 
 QueryResultHolderFuture DatabaseWorkerPool::DelayQueryHolder(SQLQueryHolder* holder)
-{
-    QueryResultHolderFuture res;
-    SQLQueryHolderTask* task = new SQLQueryHolderTask(holder, res);
-    Enqueue(task);
-    return res;     //! Fool compiler, has no use yet
-}
 
 MySQLConnection* DatabaseWorkerPool::GetConnection()
-{
-    MySQLConnection* conn;
-    ConnectionMap::const_iterator itr;
-    {
-        /*! MapUpdate + unbundled threads */
-        ACE_Guard<ACE_Thread_Mutex> guard(m_connectionMap_mtx);
-        itr = m_sync_connections.find(ACE_Based::Thread::current());
-        if (itr != m_sync_connections.end())
-            conn = itr->second;
-    }
-    /*! Bundled threads */
-    conn = m_bundle_conn;
-    ASSERT (conn);
-    return conn;
-}
+

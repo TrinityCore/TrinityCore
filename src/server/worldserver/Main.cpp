@@ -51,9 +51,9 @@ char serviceDescription[] = "Massive Network Game Object Server";
 int m_ServiceStatus = -1;
 #endif
 
-DatabaseType WorldDatabase;                                 ///< Accessor to the world database
-DatabaseType CharacterDatabase;                             ///< Accessor to the character database
-DatabaseType LoginDatabase;                                 ///< Accessor to the realm/login database
+WorldDatabaseWorkerPool WorldDatabase;                      ///< Accessor to the world database
+CharacterDatabaseWorkerPool CharacterDatabase;              ///< Accessor to the character database
+LoginDatabaseWorkerPool LoginDatabase;                      ///< Accessor to the realm/login database
 
 uint32 realmID;                                             ///< Id of the realm
 
