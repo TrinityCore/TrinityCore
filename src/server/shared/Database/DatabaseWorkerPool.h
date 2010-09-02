@@ -112,17 +112,18 @@ class DatabaseWorkerPool
             T* conn = new T();
             conn->Open(m_infoString);
 
+            // no idea why it doesn't accept sLog here
             {
                 ACE_Guard<ACE_Thread_Mutex> guard(m_connectionMap_mtx);
                 ConnectionMap::const_iterator itr = m_sync_connections.find(ACE_Based::Thread::current());
                 #ifdef _DEBUG
                 if (itr != m_sync_connections.end())
-                    sLog.outSQLDriver("Thread ["UI64FMTD"] already started a MySQL connection", (uint64)ACE_Based::Thread::currentId());
+                    ACE_Singleton<Log, ACE_Thread_Mutex>::instance()->outSQLDriver("Thread ["UI64FMTD"] already started a MySQL connection", (uint64)ACE_Based::Thread::currentId());
                 #endif
                 m_sync_connections[ACE_Based::Thread::current()] = conn;
             }
 
-            sLog.outSQLDriver("Core thread with ID ["UI64FMTD"] initializing MySQL connection.",
+            ACE_Singleton<Log, ACE_Thread_Mutex>::instance()->outSQLDriver("Core thread with ID ["UI64FMTD"] initializing MySQL connection.",
                 (uint64)ACE_Based::Thread::currentId());
 
             ++m_connections;
