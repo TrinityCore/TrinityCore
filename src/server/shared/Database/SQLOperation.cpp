@@ -19,6 +19,7 @@
 #include "Common.h"
 #include "SQLOperation.h"
 #include "MySQLConnection.h"
+#include "Log.h"
 
 /*! Basic, ad-hoc queries. */
 BasicStatementTask::BasicStatementTask(const char* sql) :

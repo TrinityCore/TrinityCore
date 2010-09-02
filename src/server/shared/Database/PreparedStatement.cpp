@@ -18,6 +18,7 @@
 
 #include "PreparedStatement.h"
 #include "MySQLConnection.h"
+#include "Log.h"
 
 PreparedStatement::PreparedStatement(uint32 index) :
 m_index(index),
