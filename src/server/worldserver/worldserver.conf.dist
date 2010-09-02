@@ -1721,9 +1721,9 @@ AutoBroadcast.Timer = 60000
 #                 1 (enable)
 #
 #    Battleground.QueueAnnouncer.PlayerOnly
-#        Enable queue announcer posting to chat
-#        Default: 0 (disable)
-#                 1 (enable)
+#        Queue announcer type
+#        Default: 0 (system message - all players can see it)
+#                 1 (private - only the queued player can see it)
 #
 #    Battleground.InvitationType
 #        Set Battleground invitation type
