@@ -5339,7 +5339,8 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (45055, 0, -1, -1, -1, 'Timbal''s Focusing Crystal - Shadow Bolt'),
 (60203, 0, -1, -1, -1, 'Darkmoon Card: Death'),
 (60488, 0, -1, -1, -1, 'Extract of Necromatic Power'),
-(45429, 0, -1, -1, -1, 'Shattered Sun Pendant of Acumen - Arcane Bolt');
+(45429, 0, -1, -1, -1, 'Shattered Sun Pendant of Acumen - Arcane Bolt'),
+(56161, 0, 0, 0, 0, 'Priest - Glyph of Prayer of Healing');
 /*!40000 ALTER TABLE `spell_bonus_data` ENABLE KEYS */;
 UNLOCK TABLES;
 
