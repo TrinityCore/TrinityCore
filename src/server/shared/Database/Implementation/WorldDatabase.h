@@ -37,6 +37,8 @@ typedef DatabaseWorkerPool<WorldDatabaseConnection> WorldDatabaseWorkerPool;
 
 enum WorldDatabaseStatements
 {
+    WORLD_DEL_CRESPAWNTIME,
+    WORLD_ADD_CRESPAWNTIME,
     MAX_WORLDDATABASE_STATEMENTS,
 };
 

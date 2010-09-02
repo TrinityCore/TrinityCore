@@ -25,7 +25,7 @@
 #include <mysql.h>
 
 #include "MySQLConnection.h"
-#include "MYSQLThreading.h"
+#include "MySQLThreading.h"
 #include "QueryResult.h"
 #include "SQLOperation.h"
 #include "PreparedStatement.h"
