@@ -20,11 +20,18 @@
 
 bool LoginDatabaseConnection::Open(const std::string& infoString)
 {
+    if (!MySQLConnection::Open(infoString))
+        return false;
+    
+    m_stmts.resize(MAX_LOGINDATABASE_STATEMENTS);
+
     /*
         ##################################
         LOAD YOUR PREPARED STATEMENTS HERE
         ##################################
     */
+    PrepareStatement(LOGIN_SET_VS, "UPDATE account SET v = ?, s = ? WHERE username = ?");
+    PrepareStatement(LOGIN_SET_LOGONPROOF, "UPDATE account SET sessionkey = ?, last_ip = ?, last_login = NOW(), locale = ?, failed_logins = 0 WHERE username = ?");
 
-    return MySQLConnection::Open(infoString);
+    return true;
 }
