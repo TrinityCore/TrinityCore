@@ -20,6 +20,8 @@
 
 #if !defined(FIELD_H)
 #define FIELD_H
+#include <iostream>
+#include "Common.h"
 
 class Field
 {

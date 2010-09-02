@@ -16,6 +16,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <ace/Activation_Queue.h>
+#include "DatabaseWorkerPool.h"
+
 #ifndef _MYSQLCONNECTION_H
 #define _MYSQLCONNECTION_H
 
