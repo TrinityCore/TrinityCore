@@ -59,6 +59,9 @@ struct PreparedStatementData
     std::string str;
 };
 
+//- Forward declare
+class MySQLPreparedStatement;
+
 //- Upper-level class that is used in code
 class PreparedStatement
 {

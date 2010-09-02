@@ -19,20 +19,14 @@
 #ifndef _DATABASEWORKERPOOL_H
 #define _DATABASEWORKERPOOL_H
 
-#include "Common.h"
-
 #include <ace/Atomic_Op_T.h>
 #include <ace/Thread_Mutex.h>
 
-#include "Log.h"
-#include "DatabaseEnv.h"
-#include "SQLOperation.h"
+#include "Common.h"
 #include "Callback.h"
 #include "MySQLConnection.h"
+#include "Transaction.h"
 #include "DatabaseWorker.h"
-
-// TODO: Fixme
-#define sLog (*ACE_Singleton<Log, ACE_Thread_Mutex>::instance())
 
 enum MySQLThreadBundle
 {
@@ -47,6 +41,10 @@ enum MySQLThreadBundle
 template <class T>
 class DatabaseWorkerPool
 {
+    private:
+        typedef UNORDERED_MAP<ACE_Based::Thread*, MySQLConnection*> ConnectionMap;
+        typedef ACE_Atomic_Op<ACE_SYNCH_MUTEX, uint32> AtomicUInt;
+
     public:
         DatabaseWorkerPool() :
         m_queue(new ACE_Activation_Queue(new ACE_Message_Queue<ACE_MT_SYNCH>)),
@@ -134,7 +132,7 @@ class DatabaseWorkerPool
 
         void End_MySQL_Connection()
         {
-            T* conn;
+            MySQLConnection* conn;
             {
                 ACE_Guard<ACE_Thread_Mutex> guard(m_connectionMap_mtx);
                 ConnectionMap::iterator itr = m_sync_connections.find(ACE_Based::Thread::current());
@@ -295,9 +293,9 @@ class DatabaseWorkerPool
             m_queue->enqueue(op);
         }
 
-        T* GetConnection()
+        MySQLConnection* GetConnection()
         {
-            T* conn;
+            MySQLConnection* conn;
             ConnectionMap::const_iterator itr;
             {
                 /*! MapUpdate + unbundled threads */
@@ -311,10 +309,6 @@ class DatabaseWorkerPool
             ASSERT (conn);
             return conn;
         }
-
-    private:
-        typedef UNORDERED_MAP<ACE_Based::Thread*, T*> ConnectionMap;
-        typedef ACE_Atomic_Op<ACE_SYNCH_MUTEX, uint32> AtomicUInt;
 
     private:
         ACE_Activation_Queue*           m_queue;             //! Queue shared by async worker threads.

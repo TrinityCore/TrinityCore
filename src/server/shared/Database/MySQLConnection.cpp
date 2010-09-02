@@ -24,13 +24,12 @@
 #endif
 #include <mysql.h>
 
-#include "DatabaseEnv.h"
+#include "MySQLConnection.h"
+#include "MYSQLThreading.h"
 #include "QueryResult.h"
 #include "SQLOperation.h"
 #include "PreparedStatement.h"
-#include "MySQLConnection.h"
 #include "DatabaseWorker.h"
-#include "Log.h"
 #include "Util.h"
 #include "Timer.h"
 
