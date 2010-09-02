@@ -37,6 +37,8 @@ typedef DatabaseWorkerPool<LoginDatabaseConnection> LoginDatabaseWorkerPool;
 
 enum LoginDatabaseStatements
 {
+    LOGIN_SET_VS,
+    LOGIN_SET_LOGONPROOF,
     MAX_LOGINDATABASE_STATEMENTS,
 };
 
