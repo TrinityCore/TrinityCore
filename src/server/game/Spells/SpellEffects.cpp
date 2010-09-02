@@ -5794,11 +5794,11 @@ void Spell::EffectFeedPet(SpellEffIndex effIndex)
     if (benefit <= 0)
         return;
 
-    uint32 count = 1;
-    _player->DestroyItemCount(foodItem,count,true);
-    // TODO: fix crash when a spell has two effects, both pointed at the same item target
-
     ExecuteLogEffectDestroyItem(effIndex, foodItem->GetEntry());
+
+    uint32 count = 1;
+    _player->DestroyItemCount(foodItem, count, true);
+    // TODO: fix crash when a spell has two effects, both pointed at the same item target
 
     m_caster->CastCustomSpell(pet, m_spellInfo->EffectTriggerSpell[effIndex], &benefit, NULL, NULL, true);
 }
