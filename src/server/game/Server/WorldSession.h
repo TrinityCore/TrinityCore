@@ -28,7 +28,7 @@
 #include "Common.h"
 #include "SharedDefines.h"
 #include "AddonMgr.h"
-#include "QueryResult.h"
+#include "DatabaseEnv.h"
 #include "World.h"
 
 struct ItemPrototype;
