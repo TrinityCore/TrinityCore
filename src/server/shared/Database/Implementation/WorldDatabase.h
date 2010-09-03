@@ -37,6 +37,12 @@ typedef DatabaseWorkerPool<WorldDatabaseConnection> WorldDatabaseWorkerPool;
 
 enum WorldDatabaseStatements
 {
+    /*  Naming standard for defines:
+        {DB}_{SET/DEL/ADD/REP}_{Summary of data changed}
+        When updating more than one field, consider looking at the calling function
+        name for a suiting suffix.
+    */
+
     WORLD_DEL_CRESPAWNTIME,
     WORLD_ADD_CRESPAWNTIME,
     MAX_WORLDDATABASE_STATEMENTS,
