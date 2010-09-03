@@ -59,6 +59,7 @@
 #include "Transport.h"
 #include "WeatherMgr.h"
 #include "ScriptMgr.h"
+#include "LFGMgr.h"
 
 //reload commands
 bool ChatHandler::HandleReloadAllCommand(const char*)
@@ -1052,6 +1053,22 @@ bool ChatHandler::HandleReloadLocalesAchievementRewardCommand(const char*)
     sLog.outString("Re-Loading Locales Achievement Reward Data...");
     sAchievementMgr.LoadRewardLocales();
     SendGlobalGMSysMessage("DB table `locales_achievement_reward` reloaded.");
+    return true;
+}
+
+bool ChatHandler::HandleReloadLfgEncountersCommand(const char*)
+{
+    sLog.outString("Re-Loading dungeon encounter lfg associations...");
+    sLFGMgr.LoadDungeonEncounters();
+    SendGlobalGMSysMessage("DB table `lfg_dungeon_encounters` reloaded.");
+    return true;
+}
+
+bool ChatHandler::HandleReloadLfgRewardsCommand(const char*)
+{
+    sLog.outString("Re-Loading lfg dungeon rewards...");
+    sLFGMgr.LoadRewards();
+    SendGlobalGMSysMessage("DB table `lfg_dungeon_rewards` reloaded.");
     return true;
 }
 

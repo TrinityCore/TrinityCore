@@ -483,6 +483,12 @@ struct AchievementCriteriaEntry
 
         struct
         {
+            uint32  unused;
+            uint32  dungeonsComplete;
+        } use_lfg;
+
+        struct
+        {
             uint32  field3;                                 // 3 main requirement
             uint32  count;                                  // 4 main requirement count
         } raw;

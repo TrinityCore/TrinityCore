@@ -1431,6 +1431,12 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading Quests Relations...");
     sObjectMgr.LoadQuestRelations();                            // must be after quest load
 
+    sLog.outString("Loading Dungeon boss data...");
+    sLFGMgr.LoadDungeonEncounters();
+
+    sLog.outString("Loading LFG rewards...");
+    sLFGMgr.LoadRewards();
+
     sLog.outString("Loading UNIT_NPC_FLAG_SPELLCLICK Data...");
     sObjectMgr.LoadNPCSpellClickSpells();
 

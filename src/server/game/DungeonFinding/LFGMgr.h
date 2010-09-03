@@ -131,62 +131,6 @@ enum LfgRoleCheckResult
     LFG_ROLECHECK_NO_ROLE      = 6,                         // Someone selected no role
 };
 
-// TODO: Remove me, will not be needed when Reward moved to quest system
-enum LfgRandomDungeonEntries
-{
-    LFG_ALL_DUNGEONS       = 0,
-    LFG_RANDOM_CLASSIC     = 258,
-    LFG_RANDOM_BC_NORMAL   = 259,
-    LFG_RANDOM_BC_HEROIC   = 260,
-    LFG_RANDOM_LK_NORMAL   = 261,
-    LFG_RANDOM_LK_HEROIC   = 262,
-};
-
-enum LfgRewardEnums
-{
-    LFG_REWARD_LEVEL0      = 10,
-    LFG_REWARD_LEVEL1      = 0,
-    LFG_REWARD_LEVEL2      = 1,
-    LFG_REWARD_LEVEL3      = 2,
-    LFG_REWARD_LEVEL4      = 3,
-    LFG_REWARD_LEVEL5      = 4,
-    LFG_REWARD_BC_NORMAL   = 5,
-    LFG_REWARD_BC_HEROIC   = 6,
-    LFG_REWARD_LK_NORMAL   = 7,
-    LFG_REWARD_LK_NORMAL80 = 7,
-    LFG_REWARD_LK_HEROIC   = 8,
-    LFG_REWARD_DATA_SIZE   = 10,
-};
-
-const uint32 RewardDungeonData[LFG_REWARD_DATA_SIZE+1][5] =
-{ // XP, money, item, item display, count
-    {310, 3500, 51999, 56915, 1},                           // Classic 15-23
-    {470, 7000, 52000, 56915, 1},                           // Classic 24-34
-    {825, 13000, 52001, 56915, 1},                          // Classic 35-45
-    {12250, 16500, 52002, 56915, 1},                        // Classic 46-55
-    {14300, 18000, 52003, 56915, 1},                        // Classic 56-60
-    {1600, 62000, 52004, 56915, 1},                         // BC Normal
-    {1900, 88000, 52005, 56915, 1},                         // BC Heroic
-    {33100, 148000, 47241, 62232, 2},                       // LK Normal
-    {0, 198600, 47241, 62232, 2},                           // LK Normal - Level 80
-    {0, 264600, 49426, 64062, 2},                           // LK Heroic
-    {0, 0, 0, 0, 0},                                        // Classic - No level
-};
-
-const uint32 RewardDungeonDoneData[LFG_REWARD_DATA_SIZE][5] =
-{ // XP, money, item, item display, count
-    {200, 1800, 51999, 56915, 1},                           // Classic 15-23
-    {310, 3500, 52000, 56915, 1},                           // Classic 24-34
-    {550, 6500, 52001, 56915, 1},                           // Classic 35-45
-    {8150, 8500, 52002, 56915, 1},                          // Classic 46-55
-    {9550, 9000, 52003, 56915, 1},                          // Classic 56-60
-    {1100, 31000, 52004, 56915, 1},                         // BC Normal
-    {12650, 44000, 52005, 56915, 1},                        // BC Heroic
-    {16550, 74000, 0, 0, 0},                                // LK Normal
-    {0, 99300, 0, 0, 0},                                    // LK Normal - Level 80
-    {0, 132300, 47241, 62232, 2},                           // LK Heroic
-};
-
 // Dungeon and reason why player can't join
 struct LfgLockStatus
 {
@@ -197,14 +141,24 @@ struct LfgLockStatus
 // Reward info
 struct LfgReward
 {
-    uint32 strangers;
-    uint32 baseMoney;
-    uint32 baseXP;
-    uint32 variableMoney;
-    uint32 variableXP;
-    uint32 itemId;
-    uint32 displayId;
-    uint32 stackCount;
+    uint32 maxLevel;
+    struct
+    {
+        uint32 questId;
+        uint32 variableMoney;
+        uint32 variableXP;
+    } reward[2];
+
+    LfgReward(uint32 _maxLevel, uint32 firstQuest, uint32 firstVarMoney, uint32 firstVarXp, uint32 otherQuest, uint32 otherVarMoney, uint32 otherVarXp)
+        : maxLevel(_maxLevel)
+    {
+        reward[0].questId = firstQuest;
+        reward[0].variableMoney = firstVarMoney;
+        reward[0].variableXP = firstVarXp;
+        reward[1].questId = otherQuest;
+        reward[1].variableMoney = otherVarMoney;
+        reward[1].variableXP = otherVarXp;
+    }
 };
 
 typedef std::map<uint32, uint8> LfgRolesMap;
@@ -279,14 +233,14 @@ struct LfgPlayerBoot
 
 typedef std::set<Player*> PlayerSet;
 typedef std::set<LfgLockStatus*> LfgLockStatusSet;
-typedef std::vector<LfgReward*> LfgRewardList;
-typedef std::map<uint32, LfgReward*> LfgRewardMap;
 typedef std::vector<LfgProposal*> LfgProposalList;
 typedef std::map<uint32, LfgLockStatusSet*> LfgLockStatusMap;
 typedef std::map<uint64, LfgQueueInfo*> LfgQueueInfoMap;
 typedef std::map<uint32, LfgRoleCheck*> LfgRoleCheckMap;
 typedef std::map<uint32, LfgProposal*> LfgProposalMap;
 typedef std::map<uint32, LfgPlayerBoot*> LfgPlayerBootMap;
+typedef std::multimap<uint32, LfgReward const*> LfgRewardMap;
+typedef std::pair<LfgRewardMap::const_iterator, LfgRewardMap::const_iterator> LfgRewardMapBounds;
 typedef std::list<Player *> LfgPlayerList;
 
 class LFGMgr
@@ -310,6 +264,18 @@ class LFGMgr
         void SendLfgPartyInfo(Player *plr);
         bool isRandomDungeon(uint32 dungeonId);
         void InitBoot(Group *grp, uint32 plowGuid, uint32 vlowGuid, std::string reason);
+
+        void LoadDungeonEncounters();
+        void LoadRewards();
+        void RewardDungeonDoneFor(const uint32 dungeonId, Player* player);
+        const uint32 GetDungeonIdForAchievement(uint32 achievementId)
+        {
+            std::map<uint32, uint32>::iterator itr = m_EncountersByAchievement.find(achievementId);
+            if (itr != m_EncountersByAchievement.end())
+                return itr->second;
+
+            return 0;
+        }
 
     private:
         void Cleaner();
@@ -337,11 +303,11 @@ class LFGMgr
         LfgDungeonSet* GetDungeonsByRandom(uint32 randomdungeon);
         LfgDungeonSet* GetRandomDungeons(uint8 level, uint8 expansion);
         LfgDungeonSet* GetAllDungeons();
-        LfgReward* GetRandomDungeonReward(uint32 dungeon, bool done, uint8 level);
+        LfgReward const* GetRandomDungeonReward(uint32 dungeon, uint8 level);
         uint8 GetDungeonGroupType(uint32 dungeon);
 
-        LfgRewardList m_RewardList;                         // TODO: Change it to list of quests
-        LfgRewardList m_RewardDoneList;                     // TODO: Change it to list of quests
+        LfgRewardMap m_RewardMap;                           // Stores rewards for random dungeons
+        std::map<uint32, uint32> m_EncountersByAchievement; // Stores dungeon ids associated with achievements (for rewards)
         LfgDungeonMap m_CachedDungeonMap;                   // Stores all dungeons by groupType
         LfgQueueInfoMap m_QueueInfoMap;                     // Queued groups
         LfgGuidList m_currentQueue;                         // Ordered list. Used to find groups
