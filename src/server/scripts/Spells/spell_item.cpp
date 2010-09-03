@@ -23,6 +23,50 @@
 
 #include "ScriptPCH.h"
 
+// Generic script for handling item dummy effects which trigger another spell.
+class spell_item_trigger_spell : public SpellScriptLoader
+{
+private:
+    uint32 _triggeredSpellId;
+
+public:
+    spell_item_trigger_spell(const char* name, uint32 triggeredSpellId) : SpellScriptLoader(name), _triggeredSpellId(triggeredSpellId) { }
+
+    class spell_item_trigger_spell_SpellScript : public SpellScript
+    {
+    private:
+        uint32 _triggeredSpellId;
+
+    public:
+        spell_item_trigger_spell_SpellScript(uint32 triggeredSpellId) : SpellScript(), _triggeredSpellId(triggeredSpellId) { }
+
+        bool Validate(SpellEntry const * /*spellEntry*/)
+        {
+            if (!sSpellStore.LookupEntry(_triggeredSpellId))
+                return false;
+            return true;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (Item* pItem = GetCastItem())
+                GetCaster()->CastSpell(GetCaster(), _triggeredSpellId, true, pItem);
+        }
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_item_trigger_spell_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_item_trigger_spell_SpellScript(_triggeredSpellId);
+    }
+};
+
+// http://www.wowhead.com/item=6522 Deviate Fish
+// 8063 Deviate Fish
 enum eDeviateFishSpells
 {
     SPELL_SLEEPY            = 8064,
@@ -32,7 +76,6 @@ enum eDeviateFishSpells
     SPELL_HEALTHY_SPIRIT    = 8068,
 };
 
-// 8063 Deviate Fish
 class spell_item_deviate_fish : public SpellScriptLoader
 {
 public:
@@ -71,6 +114,8 @@ public:
     }
 };
 
+// http://www.wowhead.com/item=47499 Flask of the North
+// 67019 Flask of the North
 enum eFlaskOfTheNorthSpells
 {
     SPELL_FLASK_OF_THE_NORTH_TRIGGERED1 = 67016,
@@ -78,7 +123,6 @@ enum eFlaskOfTheNorthSpells
     SPELL_FLASK_OF_THE_NORTH_TRIGGERED3 = 67018,
 };
 
-// 67019 Flask of the North
 class spell_item_flask_of_the_north : public SpellScriptLoader
 {
 public:
@@ -120,13 +164,14 @@ public:
     }
 };
 
+// http://www.wowhead.com/item=10645 Gnomish Death Ray
+// 13280 Gnomish Death Ray
 enum eGnomishDeathRay
 {
     SPELL_GNOMISH_DEATH_RAY_SELF = 13493,
     SPELL_GNOMISH_DEATH_RAY_TARGET = 13279,
 };
 
-// 13280 Gnomish Death Ray
 class spell_item_gnomish_death_ray : public SpellScriptLoader
 {
 public:
@@ -168,6 +213,8 @@ public:
     }
 };
 
+// http://www.wowhead.com/item=27388 Mr. Pinchy
+// 33060 Make a Wish
 enum eMakeAWish
 {
     SPELL_MR_PINCHYS_BLESSING       = 33053,
@@ -177,7 +224,6 @@ enum eMakeAWish
     SPELL_MR_PINCHYS_GIFT           = 33064,
 };
 
-// 33060 Make a Wish
 class spell_item_make_a_wish : public SpellScriptLoader
 {
 public:
@@ -230,6 +276,62 @@ public:
     }
 };
 
+// http://www.wowhead.com/item=32686 Mingo's Fortune Giblets
+// 40802 Mingo's Fortune Generator
+class spell_item_mingos_fortune_generator : public SpellScriptLoader
+{
+public:
+    spell_item_mingos_fortune_generator() : SpellScriptLoader("spell_item_mingos_fortune_generator") { }
+
+    class spell_item_mingos_fortune_generator_SpellScript : public SpellScript
+    {
+        void HandleDummy(SpellEffIndex effIndex)
+        {
+            // Selecting one from Bloodstained Fortune item
+            uint32 newitemid;
+            switch (urand(1, 20))
+            {
+                case 1:  newitemid = 32688; break;
+                case 2:  newitemid = 32689; break;
+                case 3:  newitemid = 32690; break;
+                case 4:  newitemid = 32691; break;
+                case 5:  newitemid = 32692; break;
+                case 6:  newitemid = 32693; break;
+                case 7:  newitemid = 32700; break;
+                case 8:  newitemid = 32701; break;
+                case 9:  newitemid = 32702; break;
+                case 10: newitemid = 32703; break;
+                case 11: newitemid = 32704; break;
+                case 12: newitemid = 32705; break;
+                case 13: newitemid = 32706; break;
+                case 14: newitemid = 32707; break;
+                case 15: newitemid = 32708; break;
+                case 16: newitemid = 32709; break;
+                case 17: newitemid = 32710; break;
+                case 18: newitemid = 32711; break;
+                case 19: newitemid = 32712; break;
+                case 20: newitemid = 32713; break;
+                default:
+                    return;
+            }
+
+            CreateItem(effIndex, newitemid);
+        }
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_item_mingos_fortune_generator_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_item_mingos_fortune_generator_SpellScript();
+    }
+};
+
+// http://www.wowhead.com/item=10720 Gnomish Net-o-Matic Projector
+// 13120 Net-o-Matic
 enum eNetOMaticSpells
 {
     SPELL_NET_O_MATIC_TRIGGERED1 = 16566,
@@ -237,7 +339,6 @@ enum eNetOMaticSpells
     SPELL_NET_O_MATIC_TRIGGERED3 = 13099,
 };
 
-// 13120 Net-o-Matic
 class spell_item_net_o_matic : public SpellScriptLoader
 {
 public:
@@ -284,6 +385,8 @@ public:
     }
 };
 
+// http://www.wowhead.com/item=8529 Noggenfogger Elixir
+// 16589 Noggenfogger Elixir
 enum eNoggenfoggerElixirSpells
 {
     SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED1 = 16595,
@@ -291,7 +394,6 @@ enum eNoggenfoggerElixirSpells
     SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED3 = 16591,
 };
 
-// 16589 Noggenfogger Elixir
 class spell_item_noggenfogger_elixir : public SpellScriptLoader
 {
 public:
@@ -339,6 +441,8 @@ public:
     }
 };
 
+// http://www.wowhead.com/item=6657 Savory Deviate Delight
+// 8213 Savory Deviate Delight
 enum eSavoryDeviateDelight
 {
     SPELL_FLIP_OUT_MALE     = 8219,
@@ -347,7 +451,6 @@ enum eSavoryDeviateDelight
     SPELL_YAAARRRR_FEMALE   = 8222,
 };
 
-// 8213 Savory Deviate Delight
 class spell_item_savory_deviate_delight : public SpellScriptLoader
 {
 public:
@@ -393,6 +496,89 @@ public:
     }
 };
 
+// http://www.wowhead.com/item=7734 Six Demon Bag
+// 14537 Six Demon Bag
+enum eSixDemonBagSpells
+{
+    SPELL_FROSTBOLT                 = 11538,
+    SPELL_POLYMORPH                 = 14621,
+    SPELL_SUMMON_FELHOUND_MINION    = 14642,
+    SPELL_FIREBALL                  = 15662,
+    SPELL_CHAIN_LIGHTNING           = 21179,
+    SPELL_ENVELOPING_WINDS          = 25189,
+};
+
+class spell_item_six_demon_bag : public SpellScriptLoader
+{
+public:
+    spell_item_six_demon_bag() : SpellScriptLoader("spell_item_six_demon_bag") { }
+
+    class spell_item_six_demon_bag_SpellScript : public SpellScript
+    {
+    public:
+        bool Validate(SpellEntry const * /*spellEntry*/)
+        {
+            if (!sSpellStore.LookupEntry(SPELL_FROSTBOLT))
+                return false;
+            if (!sSpellStore.LookupEntry(SPELL_POLYMORPH))
+                return false;
+            if (!sSpellStore.LookupEntry(SPELL_SUMMON_FELHOUND_MINION))
+                return false;
+            if (!sSpellStore.LookupEntry(SPELL_FIREBALL))
+                return false;
+            if (!sSpellStore.LookupEntry(SPELL_CHAIN_LIGHTNING))
+                return false;
+            if (!sSpellStore.LookupEntry(SPELL_ENVELOPING_WINDS))
+                return false;
+            return true;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* pTarget = GetHitUnit())
+            {
+                Unit* pCaster = GetCaster();
+
+                uint32 spellId = 0;
+                uint32 rand = urand(0, 100);
+                if (rand >= 0 && rand < 25)         // Fireball (25% chance)
+                    spellId = SPELL_FIREBALL;
+                else if (rand >= 25 && rand < 50)   // Frostball (25% chance)
+                    spellId = SPELL_FROSTBOLT;
+                else if (rand >= 50 && rand < 70)   // Chain Lighting (20% chance)
+                    spellId = SPELL_CHAIN_LIGHTNING;
+                else if (rand >= 70 && rand < 80)   // Polymorph (10% chance)
+                {
+                    spellId = SPELL_POLYMORPH;
+                    if (urand(0, 100) <= 30)        // 30% chance to self-cast
+                        pTarget = pCaster;
+                }
+                else if (rand >=80 && rand < 95)    // Enveloping Winds (15% chance)
+                    spellId = SPELL_ENVELOPING_WINDS;
+                else                                // Summon Felhund minion (5% chance)
+                {
+                    spellId = SPELL_SUMMON_FELHOUND_MINION;
+                    pTarget = pCaster;
+                }
+
+                pCaster->CastSpell(pTarget, spellId, true, GetCastItem());
+            }
+        }
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_item_six_demon_bag_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_item_six_demon_bag_SpellScript();
+    }
+};
+
+// http://www.wowhead.com/item=44012 Underbelly Elixir
+// 59640 Underbelly Elixir
 enum eUnderbellyElixirSpells
 {
     SPELL_UNDERBELLY_ELIXIR_TRIGGERED1 = 59645,
@@ -400,7 +586,6 @@ enum eUnderbellyElixirSpells
     SPELL_UNDERBELLY_ELIXIR_TRIGGERED3 = 59843,
 };
 
-// 59640 Underbelly Elixir
 class spell_item_underbelly_elixir : public SpellScriptLoader
 {
 public:
@@ -447,14 +632,33 @@ public:
     }
 };
 
+enum eGenericData
+{
+    SPELL_ARCANITE_DRAGONLING           = 19804,
+    SPELL_BATTLE_CHICKEN                = 13166,
+    SPELL_MECHANICAL_DRAGONLING         = 4073,
+    SPELL_MITHRIL_MECHANICAL_DRAGONLING = 12749,
+};
+
 void AddSC_item_spell_scripts()
 {
+    // 23074 Arcanite Dragonling
+    new spell_item_trigger_spell("spell_item_arcanite_dragonling", SPELL_ARCANITE_DRAGONLING);
+    // 23133 Gnomish Battle Chicken
+    new spell_item_trigger_spell("spell_item_gnomish_battle_chicken", SPELL_BATTLE_CHICKEN);
+    // 23076 Mechanical Dragonling
+    new spell_item_trigger_spell("spell_item_mechanical_dragonling", SPELL_MECHANICAL_DRAGONLING);
+    // 23075 Mithril Mechanical Dragonling
+    new spell_item_trigger_spell("spell_item_mithril_mechanical_dragonling", SPELL_MITHRIL_MECHANICAL_DRAGONLING);
+
     new spell_item_deviate_fish();
     new spell_item_flask_of_the_north();
     new spell_item_gnomish_death_ray();
     new spell_item_make_a_wish();
+    new spell_item_mingos_fortune_generator();
     new spell_item_net_o_matic();
     new spell_item_noggenfogger_elixir();
     new spell_item_savory_deviate_delight();
+    new spell_item_six_demon_bag();
     new spell_item_underbelly_elixir();
 }
