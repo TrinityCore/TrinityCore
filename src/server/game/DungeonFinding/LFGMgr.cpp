@@ -1523,6 +1523,69 @@ void LFGMgr::TeleportPlayer(Player *plr, bool out)
             }
 }
 
+/// <summary>
+/// Give completion reward to player
+/// </summary>
+/// <param name="const uint32">dungeonId</param>
+/// <param name="Player *">player</param>
+void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player *player)
+{
+    Group* group = player->GetGroup();
+    if (!group || !group->isLFGGroup())
+        return;
+
+    if (!group->isLfgDungeonComplete())
+        group->SetLfgStatus(LFG_STATUS_COMPLETE);
+
+    player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS, 1);
+
+    if (isRandomDungeon(dungeonId))
+        player->SetLfgDungeonDone(dungeonId);
+
+    LfgReward const* reward = GetRandomDungeonReward(dungeonId, player->getLevel());
+    if (!reward)
+        return;
+
+    uint8 index = player->isLfgDungeonDone(dungeonId) ? 1 : 0;
+    Quest const* qReward = sObjectMgr.GetQuestTemplate(reward->reward[index].questId);
+    if (!qReward)
+        return;
+
+    if (qReward->GetRewItemsCount() > 0)
+    {
+        for (uint32 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+        {
+            if (uint32 itemId = qReward->RewItemId[i])
+            {
+                ItemPosCountVec dest;
+                if (player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, qReward->RewItemCount[i]) == EQUIP_ERR_OK)
+                {
+                    Item* item = player->StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
+                    player->SendNewItem(item, qReward->RewItemCount[i], true, false);
+                }
+            }
+        }
+    }
+
+    // Not give XP in case already completed once repeatable quest
+    uint32 XP = qReward->XPValue(player) * sWorld.getRate(RATE_XP_QUEST);
+
+    XP += (5 - group->GetMembersCount()) * reward->reward[index].variableXP;
+
+    // Give player extra money if GetRewOrReqMoney > 0 and get ReqMoney if negative
+    int32 moneyRew = qReward->GetRewOrReqMoney();
+
+    if (player->getLevel() < sWorld.getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        player->GiveXP(XP, NULL);
+    else
+        moneyRew += int32(qReward->GetRewMoneyMaxLevel() * sWorld.getRate(RATE_DROP_MONEY));
+
+    moneyRew += (5 - group->GetMembersCount()) * reward->reward[index].variableMoney;
+
+    if (moneyRew)
+        player->ModifyMoney(moneyRew);
+}
+
 // --------------------------------------------------------------------------//
 // Packet Functions
 // --------------------------------------------------------------------------//
@@ -1875,65 +1938,6 @@ void LFGMgr::BuildPlayerLockDungeonBlock(WorldPacket &data, LfgLockStatusSet *lo
     }
     lockSet->clear();
     delete lockSet;
-}
-
-/// <summary>
-/// Give completion reward to player
-/// </summary>
-/// <param name="const uint32">dungeonId</param>
-/// <param name="Player *">player</param>
-void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player *player)
-{
-    player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS, 1);
-
-    if (isRandomDungeon(dungeonId))
-        player->SetLfgDungeonDone(dungeonId);
-
-    LfgReward const* reward = GetRandomDungeonReward(dungeonId, player->getLevel());
-    if (!reward)
-        return;
-
-    uint8 index = player->isLfgDungeonDone(dungeonId) ? 1 : 0;
-    Quest const* qReward = sObjectMgr.GetQuestTemplate(reward->reward[index].questId);
-    if (!qReward)
-        return;
-
-    if (qReward->GetRewItemsCount() > 0)
-    {
-        for (uint32 i = 0; i < QUEST_REWARDS_COUNT; ++i)
-        {
-            if (uint32 itemId = qReward->RewItemId[i])
-            {
-                ItemPosCountVec dest;
-                if (player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, qReward->RewItemCount[i]) == EQUIP_ERR_OK)
-                {
-                    Item* item = player->StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
-                    player->SendNewItem(item, qReward->RewItemCount[i], true, false);
-                }
-            }
-        }
-    }
-
-    // Not give XP in case already completed once repeatable quest
-    uint32 XP = qReward->XPValue(player) * sWorld.getRate(RATE_XP_QUEST);
-
-    Group* group = player->GetGroup();
-    if (group)
-        XP += (5 - group->GetMembersCount()) * reward->reward[index].variableXP;
-
-    // Give player extra money if GetRewOrReqMoney > 0 and get ReqMoney if negative
-    int32 moneyRew = qReward->GetRewOrReqMoney();
-
-    if (player->getLevel() < sWorld.getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
-        player->GiveXP(XP, NULL);
-    else
-        moneyRew += int32(qReward->GetRewMoneyMaxLevel() * sWorld.getRate(RATE_DROP_MONEY));
-
-    if (group)
-        moneyRew += (5 - group->GetMembersCount()) * reward->reward[index].variableMoney;
-
-    if (moneyRew)
-        player->ModifyMoney(moneyRew);
 }
 
 // --------------------------------------------------------------------------//
