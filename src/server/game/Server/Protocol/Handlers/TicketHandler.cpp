@@ -280,7 +280,7 @@ void WorldSession::HandleReportLag(WorldPacket& recv_data)
 
     // build and execute query
     std::ostringstream os;
-    os << "INSERT INTO lag_reports (player, lag_type, map, x, y, z) VALUES (";
+    os << "INSERT INTO lag_reports (player, lag_type, map, posX, posY, posZ) VALUES (";
     os << GetPlayer()->GetGUID() << ", ";
     os << lagType << ", ";
     os << mapId << ", ";
