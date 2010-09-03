@@ -45,18 +45,18 @@ void WorldRunnable::run()
 {
     ///- Init MySQL threads or connections
     bool needInit = true;
-    if (!(sWorld.getIntConfig(CONFIG_MYSQL_BUNDLE_WORLDDB) & MYSQL_BUNDLE_RA))
+    if (!(WorldDatabase.GetBundleMask() & MYSQL_BUNDLE_WORLD))
     {
         WorldDatabase.Init_MySQL_Connection();
         needInit = false;
     }
-    if (!(sWorld.getIntConfig(CONFIG_MYSQL_BUNDLE_LOGINDB) & MYSQL_BUNDLE_RA))
+    if (!(LoginDatabase.GetBundleMask() & MYSQL_BUNDLE_WORLD))
     {
         LoginDatabase.Init_MySQL_Connection();
         needInit = false;
     }
 
-    if (!(sWorld.getIntConfig(CONFIG_MYSQL_BUNDLE_CHARDB) & MYSQL_BUNDLE_RA))
+    if (!(CharacterDatabase.GetBundleMask() & MYSQL_BUNDLE_WORLD))
     {
         CharacterDatabase.Init_MySQL_Connection();
         needInit = false;
@@ -117,13 +117,13 @@ void WorldRunnable::run()
     sMapMgr.UnloadAll();                     // unload all grids (including locked in memory)
 
     ///- Free MySQL thread resources and deallocate lingering connections
-    if (!(sWorld.getIntConfig(CONFIG_MYSQL_BUNDLE_WORLDDB) & MYSQL_BUNDLE_RA))
+    if (!(WorldDatabase.GetBundleMask() & MYSQL_BUNDLE_WORLD))
         WorldDatabase.End_MySQL_Connection();
 
-    if (!(sWorld.getIntConfig(CONFIG_MYSQL_BUNDLE_LOGINDB) & MYSQL_BUNDLE_RA))
+    if (!(LoginDatabase.GetBundleMask() & MYSQL_BUNDLE_WORLD))
         LoginDatabase.End_MySQL_Connection();
 
-    if (!(sWorld.getIntConfig(CONFIG_MYSQL_BUNDLE_CHARDB) & MYSQL_BUNDLE_RA))
+    if (!(CharacterDatabase.GetBundleMask() & MYSQL_BUNDLE_WORLD))
         CharacterDatabase.End_MySQL_Connection();
 
     if (needInit)
