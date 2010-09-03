@@ -592,6 +592,8 @@ INSERT INTO `command` VALUES
 ('reload item_enchantment_template',3,'Syntax: .reload item_enchantment_template\nReload item_enchantment_template table.'),
 ('reload item_loot_template',3,'Syntax: .reload item_loot_template\nReload item_loot_template table.'),
 ('reload item_set_names',3,'Syntax: .reload item_set_names\nReload item_set_names table.'),
+('reload lfg_dungeon_encounters',3,'Syntax: .reload lfg_dungeon_encounters\nReload lfg_dungeon_encounters table.'),
+('reload lfg_dungeon_rewards',3,'Syntax: .reload lfg_dungeon_rewards\nReload lfg_dungeon_rewards table.'),
 ('reload locales_creature',3,'Syntax: .reload locales_creature\nReload locales_creature table.'),
 ('reload locales_gameobject',3,'Syntax: .reload locales_gameobject\nReload locales_gameobject table.'),
 ('reload locales_gossip_menu_option',3, 'Syntax: .reload locales_gossip_menu_option\nReload locales_gossip_menu_option table.'),
@@ -3088,6 +3090,52 @@ CREATE TABLE `item_template` (
 LOCK TABLES `item_template` WRITE;
 /*!40000 ALTER TABLE `item_template` DISABLE KEYS */;
 /*!40000 ALTER TABLE `item_template` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `lfg_dungeon_encounters`
+--
+
+DROP TABLE IF EXISTS `lfg_dungeon_encounters`;
+CREATE TABLE `lfg_dungeon_encounters` (
+  `achievementId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Achievement marking final boss completion',
+  `dungeonId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Dungeon entry from dbc',
+  PRIMARY KEY (`achievementId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `lfg_dungeon_encounters`
+--
+
+LOCK TABLES `lfg_dungeon_encounters` WRITE;
+/*!40000 ALTER TABLE `lfg_dungeon_encounters` DISABLE KEYS */;
+/*!40000 ALTER TABLE `lfg_dungeon_encounters` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `lfg_dungeon_rewards`
+--
+
+DROP TABLE IF EXISTS `lfg_dungeon_rewards`;
+CREATE TABLE `lfg_dungeon_rewards` (
+  `dungeonId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Dungeon entry from dbc',
+  `maxLevel` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT 'Max level at which this reward is rewarded',
+  `firstQuestId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Quest id with rewards for first dungeon this day',
+  `firstMoneyVar` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Money multiplier for completing the dungeon first time in a day with less players than max',
+  `firstXPVar` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Experience multiplier for completing the dungeon first time in a day with less players than max',
+  `otherQuestId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Quest id with rewards for Nth dungeon this day',
+  `otherMoneyVar` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Money multiplier for completing the dungeon Nth time in a day with less players than max',
+  `otherXPVar` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Experience multiplier for completing the dungeon Nth time in a day with less players than max',
+  PRIMARY KEY (`dungeonId`,`maxLevel`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `lfg_dungeon_rewards`
+--
+
+LOCK TABLES `lfg_dungeon_rewards` WRITE;
+/*!40000 ALTER TABLE `lfg_dungeon_rewards` DISABLE KEYS */;
+/*!40000 ALTER TABLE `lfg_dungeon_rewards` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --

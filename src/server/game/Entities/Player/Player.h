@@ -2251,6 +2251,7 @@ class Player : public Unit, public GridObject<Player>
         bool isLfgDungeonDone(const uint32 entry) { return m_LookingForGroup.donerandomDungeons.find(entry) != m_LookingForGroup.donerandomDungeons.end(); }  
         LfgDungeonSet *GetLfgDungeons() { return &m_LookingForGroup.applyDungeons; }
         LfgDungeonSet *GetLfgDungeonsDone() { return &m_LookingForGroup.donerandomDungeons; }
+        void SetLfgDungeonDone(const uint32 entry) { m_LookingForGroup.donerandomDungeons.insert(entry); }
         std::string GetLfgComment() { return m_LookingForGroup.comment; }
         void SetLfgComment(std::string _comment) { m_LookingForGroup.comment = _comment; }
         uint8 GetLfgRoles() { return m_LookingForGroup.roles; }
