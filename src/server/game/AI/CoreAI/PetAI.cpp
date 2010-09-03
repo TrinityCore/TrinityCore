@@ -328,9 +328,9 @@ Unit *PetAI::SelectNextTarget()
     // to owner
     if ((target = me->getAttackerForHelper()) && !_CheckTargetCC(target)) {}
     // Check owner's attackers if pet didn't have any
-    else if ((target = me->GetCharmerOrOwner()->getAttackerForHelper()) && !_CheckTargetCC(target)) {}
+    else if (me->GetCharmerOrOwner() && (target = me->GetCharmerOrOwner()->getAttackerForHelper()) && !_CheckTargetCC(target)) {}
     // 3.0.2 - Pets now start attacking their owners target in defensive mode as soon as the hunter does
-    else if ((target = me->GetCharmerOrOwner()->getVictim()) && !_CheckTargetCC(target)) {}
+    else if (me->GetCharmerOrOwner() && (target = me->GetCharmerOrOwner()->getVictim()) && !_CheckTargetCC(target)) {}
     // Default
     else return NULL;
 
