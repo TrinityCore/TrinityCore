@@ -25,6 +25,7 @@
 #include "ObjectMgr.h"
 #include "DisableMgr.h"
 #include "WorldPacket.h"
+#include "ProgressBar.h"
 
 LFGMgr::LFGMgr()
 {
@@ -43,15 +44,11 @@ LFGMgr::LFGMgr()
 
 LFGMgr::~LFGMgr()
 {
-    // FIXME: RewardList to be removed -> query quest system
-    for (LfgRewardList::iterator it = m_RewardList.begin(); it != m_RewardList.end(); ++it)
-        delete *it;
-    m_RewardList.clear();
+    for (LfgRewardMap::iterator itr = m_RewardMap.begin(); itr != m_RewardMap.end(); ++itr)
+        delete itr->second;
+    m_RewardMap.clear();
 
-    // FIXME: RewardDoneList to be removed -> query quest system
-    for (LfgRewardList::iterator it = m_RewardDoneList.begin(); it != m_RewardDoneList.end(); ++it)
-        delete *it;
-    m_RewardDoneList.clear();
+    m_EncountersByAchievement.clear();
 
     for (LfgQueueInfoMap::iterator it = m_QueueInfoMap.begin(); it != m_QueueInfoMap.end(); ++it)
         delete it->second;
@@ -363,37 +360,135 @@ void LFGMgr::Update(uint32 diff)
 /// </summary>
 void LFGMgr::InitLFG()
 {
-    // Fill reward data (to be removed -> query quest system)
-    LfgReward *reward;
-    for (uint8 i = 0; i <= LFG_REWARD_DATA_SIZE; ++i)
-    {
-        reward = new LfgReward();
-        reward->strangers = 0;
-        reward->baseXP = RewardDungeonData[i][0];
-        reward->baseMoney = RewardDungeonData[i][1];
-        reward->variableMoney = 0;
-        reward->variableXP = 0;
-        reward->itemId = RewardDungeonData[i][2];
-        reward->displayId = RewardDungeonData[i][3];
-        reward->stackCount = RewardDungeonData[i][4];
-        m_RewardList.push_back(reward);
-    }
-
-    for (uint8 i = 0; i < LFG_REWARD_DATA_SIZE; ++i)
-    {
-        reward = new LfgReward();
-        reward->strangers = 0;
-        reward->baseXP = RewardDungeonDoneData[i][0];
-        reward->baseMoney = RewardDungeonDoneData[i][1];
-        reward->variableMoney = 0;
-        reward->variableXP = 0;
-        reward->itemId = RewardDungeonDoneData[i][2];
-        reward->displayId = RewardDungeonDoneData[i][3];
-        reward->stackCount = RewardDungeonDoneData[i][4];
-        m_RewardDoneList.push_back(reward);
-    }
     // Initialize dungeonMap
     GetAllDungeons();
+}
+
+/// <summary>
+/// Load achievement <-> encounter associations
+/// </summary>
+void LFGMgr::LoadDungeonEncounters()
+{
+    m_EncountersByAchievement.clear();
+
+    uint32 count = 0;
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT achievementId, dungeonId FROM lfg_dungeon_encounters");
+
+    if (!result)
+    {
+        barGoLink bar(1);
+        bar.step();
+
+        sLog.outString();
+        sLog.outErrorDb(">> Loaded 0 dungeon encounter lfg associations. DB table `lfg_dungeon_encounters` is empty!");
+        return;
+    }
+
+    barGoLink bar(result->GetRowCount());
+
+    Field* fields = NULL;
+    do
+    {
+        fields = result->Fetch();
+        uint32 achievementId = fields[0].GetUInt32();
+        uint32 dungeonId = fields[1].GetUInt32();
+
+        if (AchievementEntry const* achievement = sAchievementStore.LookupEntry(achievementId))
+        {
+            if (!(achievement->flags & ACHIEVEMENT_FLAG_COUNTER))
+            {
+                sLog.outErrorDb("Achievement %u specified in table `lfg_dungeon_encounters` is not a statistic!", achievementId);
+                continue;
+            }
+        }
+        else
+        {
+            sLog.outErrorDb("Achievement %u specified in table `lfg_dungeon_encounters` does not exist!", achievementId);
+            continue;
+        }
+
+        if (!sLFGDungeonStore.LookupEntry(dungeonId))
+        {
+            sLog.outErrorDb("Dungeon %u specified in table `lfg_dungeon_encounters` does not exist!", dungeonId);
+            continue;
+        }
+
+        m_EncountersByAchievement[achievementId] = dungeonId;
+        ++count;
+    } while (result->NextRow());
+
+    sLog.outString();
+    sLog.outString(">> Loaded %u dungeon encounter lfg associations.", count);
+}
+
+/// <summary>
+/// Load rewards for completing dungeons
+/// </summary>
+void LFGMgr::LoadRewards()
+{
+    for (LfgRewardMap::iterator itr = m_RewardMap.begin(); itr != m_RewardMap.end(); ++itr)
+        delete itr->second;
+    m_RewardMap.clear();
+
+    uint32 count = 0;
+    // ORDER BY is very important for GetRandomDungeonReward!
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT dungeonId, maxLevel, firstQuestId, firstMoneyVar, firstXPVar, otherQuestId, otherMoneyVar, otherXPVar FROM lfg_dungeon_rewards ORDER BY dungeonId, maxLevel ASC");
+
+    if (!result)
+    {
+        barGoLink bar(1);
+        bar.step();
+
+        sLog.outString();
+        sLog.outErrorDb(">> Loaded 0 lfg dungeon rewards. DB table `lfg_dungeon_rewards` is empty!");
+        return;
+    }
+
+    barGoLink bar(result->GetRowCount());
+
+    Field* fields = NULL;
+    do
+    {
+        fields = result->Fetch();
+        uint32 dungeonId = fields[0].GetUInt32();
+        uint32 maxLevel = fields[1].GetUInt8();
+        uint32 firstQuestId = fields[2].GetUInt32();
+        uint32 firstMoneyVar = fields[3].GetUInt32();
+        uint32 firstXPVar = fields[4].GetUInt32();
+        uint32 otherQuestId = fields[5].GetUInt32();
+        uint32 otherMoneyVar = fields[6].GetUInt32();
+        uint32 otherXPVar = fields[7].GetUInt32();
+
+        if (!sLFGDungeonStore.LookupEntry(dungeonId))
+        {
+            sLog.outErrorDb("Dungeon %u specified in table `lfg_dungeon_rewards` does not exist!", dungeonId);
+            continue;
+        }
+
+        if (!maxLevel || maxLevel > sWorld.getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        {
+            sLog.outErrorDb("Level %u specified for dungeon %u in table `lfg_dungeon_rewards` can never be reached!", maxLevel, dungeonId);
+            maxLevel = sWorld.getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
+        }
+
+        if (firstQuestId && !sObjectMgr.GetQuestTemplate(firstQuestId))
+        {
+            sLog.outErrorDb("First quest %u specified for dungeon %u in table `lfg_dungeon_rewards` does not exist!", firstQuestId, dungeonId);
+            firstQuestId = 0;
+        }
+
+        if (otherQuestId && !sObjectMgr.GetQuestTemplate(otherQuestId))
+        {
+            sLog.outErrorDb("Other quest %u specified for dungeon %u in table `lfg_dungeon_rewards` does not exist!", otherQuestId, dungeonId);
+            otherQuestId = 0;
+        }
+
+        m_RewardMap.insert(LfgRewardMap::value_type(dungeonId, new LfgReward(maxLevel, firstQuestId, firstMoneyVar, firstXPVar, otherQuestId, otherMoneyVar, otherXPVar)));
+        ++count;
+    } while (result->NextRow());
+
+    sLog.outString();
+    sLog.outString(">> Loaded %u lfg dungeon rewards.", count);
 }
 
 /// <summary>
@@ -1566,24 +1661,47 @@ void LFGMgr::SendLfgPlayerInfo(Player *plr)
         data << uint8(0);
     else
     {
-        LfgReward *reward;
+        LfgReward const* reward = NULL;
+        Quest const* qRew = NULL;
+
         data << uint8(randomlist->size());                  // Random Dungeon count
         for (LfgDungeonSet::iterator it = randomlist->begin(); it != randomlist->end(); ++it)
         {
             done = plr->isLfgDungeonDone(*it);
-            reward = GetRandomDungeonReward(*it, done, plr->getLevel());
+            reward = GetRandomDungeonReward(*it, plr->getLevel());
             data << uint32(*it);                            // Entry
             data << uint8(done);
-            data << uint32(reward->baseMoney);
-            data << uint32(reward->baseXP);
-            data << uint32(reward->variableMoney);
-            data << uint32(reward->variableXP);
-            data << uint8(reward->itemId != 0);
-            if (reward->itemId)
+            if (reward)
             {
-                data << uint32(reward->itemId);
-                data << uint32(reward->displayId);
-                data << uint32(reward->stackCount);
+                qRew = sObjectMgr.GetQuestTemplate(reward->reward[done].questId);
+                data << uint32(qRew ? qRew->GetRewOrReqMoney() : 0);
+                data << uint32(qRew ? qRew->XPValue(plr) : 0);
+                data << uint32(reward->reward[done].variableMoney);
+                data << uint32(reward->reward[done].variableXP);
+                data << uint8(qRew ? qRew->GetRewItemsCount() : 0);
+                if (qRew && qRew->GetRewItemsCount())
+                {
+                    ItemPrototype const* iProto = NULL;
+                    for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+                    {
+                        if (!qRew->RewItemId[i])
+                            continue;
+
+                        iProto = ObjectMgr::GetItemPrototype(qRew->RewItemId[i]);
+
+                        data << uint32(qRew->RewItemId[i]);
+                        data << uint32(iProto ? iProto->DisplayInfoID : 0);
+                        data << uint32(qRew->RewItemCount[i]);
+                    }
+                }
+            }
+            else
+            {
+                data << uint32(0);
+                data << uint32(0);
+                data << uint32(0);
+                data << uint32(0);
+                data << uint8(0);
             }
         }
         randomlist->clear();
@@ -1661,29 +1779,55 @@ void LFGMgr::SendLfgPlayerReward(Player *plr)
     if (plr->GetGroup())
         sdungeonId = plr->GetGroup()->GetLfgDungeonEntry(false);
     bool done = plr->isLfgDungeonDone(rdungeonId);
-    LfgReward *reward = GetRandomDungeonReward(rdungeonId, done, plr->getLevel());
-    if (!reward)
-        return;
+    LfgReward const* reward = GetRandomDungeonReward(rdungeonId, plr->getLevel());
 
-    uint8 itemNum = uint8(reward->itemId != 0);
+    uint8 itemNum = 0;
+    Quest const* qRew = NULL;
+    if (reward)
+    {
+        qRew = sObjectMgr.GetQuestTemplate(reward->reward[done].questId);
+        if (qRew)
+            itemNum = qRew->GetRewItemsCount();
+    }
 
     sLog.outDebug("SMSG_LFG_PLAYER_REWARD");
     WorldPacket data(SMSG_LFG_PLAYER_REWARD, 4 + 4 + 1 + 4 + 4 + 4 + 4 + 4 + 1 + itemNum * (4 + 4 + 4));
     data << uint32(rdungeonId);                             // Random Dungeon Finished
     data << uint32(sdungeonId);                             // Dungeon Finished
     data << uint8(done);
-    data << uint32(reward->strangers);
-    data << uint32(reward->baseMoney);
-    data << uint32(reward->baseXP);
-    data << uint32(reward->variableMoney);
-    data << uint32(reward->variableXP);
-    data << uint8(itemNum);
-    if (itemNum)
+    data << uint32(reward ? 1 : 0);
+    if (reward)
     {
-        data << uint32(reward->itemId);
-        data << uint32(reward->displayId);
-        data << uint32(reward->stackCount);
+        data << uint32(qRew ? qRew->GetRewOrReqMoney() : 0);
+        data << uint32(qRew ? qRew->XPValue(plr) : 0);
+        data << uint32(reward->reward[done].variableMoney);
+        data << uint32(reward->reward[done].variableXP);
+        data << uint8(itemNum);
+        if (qRew && itemNum)
+        {
+            ItemPrototype const* iProto = NULL;
+            for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+            {
+                if (!qRew->RewItemId[i])
+                    continue;
+
+                iProto = ObjectMgr::GetItemPrototype(qRew->RewItemId[i]);
+
+                data << uint32(qRew->RewItemId[i]);
+                data << uint32(iProto ? iProto->DisplayInfoID : 0);
+                data << uint32(qRew->RewItemCount[i]);
+            }
+        }
     }
+    else
+    {
+        data << uint32(0);
+        data << uint32(0);
+        data << uint32(0);
+        data << uint32(0);
+        data << uint8(0);
+    }
+
     plr->GetSession()->SendPacket(&data);
 }
 
@@ -1731,6 +1875,65 @@ void LFGMgr::BuildPlayerLockDungeonBlock(WorldPacket &data, LfgLockStatusSet *lo
     }
     lockSet->clear();
     delete lockSet;
+}
+
+/// <summary>
+/// Give completion reward to player
+/// </summary>
+/// <param name="const uint32">dungeonId</param>
+/// <param name="Player *">player</param>
+void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player *player)
+{
+    player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS, 1);
+
+    if (isRandomDungeon(dungeonId))
+        player->SetLfgDungeonDone(dungeonId);
+
+    LfgReward const* reward = GetRandomDungeonReward(dungeonId, player->getLevel());
+    if (!reward)
+        return;
+
+    uint8 index = player->isLfgDungeonDone(dungeonId) ? 1 : 0;
+    Quest const* qReward = sObjectMgr.GetQuestTemplate(reward->reward[index].questId);
+    if (!qReward)
+        return;
+
+    if (qReward->GetRewItemsCount() > 0)
+    {
+        for (uint32 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+        {
+            if (uint32 itemId = qReward->RewItemId[i])
+            {
+                ItemPosCountVec dest;
+                if (player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, qReward->RewItemCount[i]) == EQUIP_ERR_OK)
+                {
+                    Item* item = player->StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
+                    player->SendNewItem(item, qReward->RewItemCount[i], true, false);
+                }
+            }
+        }
+    }
+
+    // Not give XP in case already completed once repeatable quest
+    uint32 XP = qReward->XPValue(player) * sWorld.getRate(RATE_XP_QUEST);
+
+    Group* group = player->GetGroup();
+    if (group)
+        XP += (5 - group->GetMembersCount()) * reward->reward[index].variableXP;
+
+    // Give player extra money if GetRewOrReqMoney > 0 and get ReqMoney if negative
+    int32 moneyRew = qReward->GetRewOrReqMoney();
+
+    if (player->getLevel() < sWorld.getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        player->GiveXP(XP, NULL);
+    else
+        moneyRew += int32(qReward->GetRewMoneyMaxLevel() * sWorld.getRate(RATE_DROP_MONEY));
+
+    if (group)
+        moneyRew += (5 - group->GetMembersCount()) * reward->reward[index].variableMoney;
+
+    if (moneyRew)
+        player->ModifyMoney(moneyRew);
 }
 
 // --------------------------------------------------------------------------//
@@ -1945,47 +2148,22 @@ LfgDungeonSet* LFGMgr::GetRandomDungeons(uint8 level, uint8 expansion)
 /// Get the reward of a given random dungeon at a certain level
 /// </summary>
 /// <param name="uint32">random dungeon id</param>
-/// <param name="bool">Dungeon previously done</param>
 /// <param name="uint8">Player level</param>
-/// <returns>LfgReward*</returns>
-LfgReward* LFGMgr::GetRandomDungeonReward(uint32 dungeon, bool done, uint8 level)
+/// <returns>LfgReward const*</returns>
+LfgReward const* LFGMgr::GetRandomDungeonReward(uint32 dungeon, uint8 level)
 {
+    LfgReward const* rew = NULL;
+    LfgRewardMapBounds bounds = m_RewardMap.equal_range(dungeon & 0x00FFFFFF);
     uint8 index = 0;
-    switch((dungeon & 0x00FFFFFF))                          // Get dungeon id from dungeon entry
+    for (LfgRewardMap::const_iterator itr = bounds.first; itr != bounds.second; ++itr)
     {
-    case LFG_RANDOM_CLASSIC:
-        if (level < 15)
-            index = LFG_REWARD_LEVEL0;
-        else if (level < 24)
-            index = LFG_REWARD_LEVEL1;
-        else if (level < 35)
-            index = LFG_REWARD_LEVEL2;
-        else if (level < 46)
-            index = LFG_REWARD_LEVEL3;
-        else if (level < 56)
-            index = LFG_REWARD_LEVEL4;
-        else
-            index = LFG_REWARD_LEVEL5;
-        break;
-    case LFG_RANDOM_BC_NORMAL:
-            index = LFG_REWARD_BC_NORMAL;
-        break;
-    case LFG_RANDOM_BC_HEROIC:
-            index = LFG_REWARD_BC_HEROIC;
-        break;
-    case LFG_RANDOM_LK_NORMAL:
-        index = level == 80 ? LFG_REWARD_LK_NORMAL80 : LFG_REWARD_LK_NORMAL;
-        break;
-    case LFG_RANDOM_LK_HEROIC:
-        index = LFG_REWARD_LK_HEROIC;
-        break;
-    default:                                                // This should never happen!
-        done = false;
-        index = LFG_REWARD_LEVEL0;
-        sLog.outError("LFGMgr::GetRandomDungeonReward: Dungeon %u is not random dungeon!", dungeon);
-        break;
+        rew = itr->second;
+        // ordered properly at loading
+        if (itr->second->maxLevel >= level)
+            break;
     }
-    return done ? m_RewardDoneList.at(index) : m_RewardList.at(index);
+
+    return rew;
 }
 
 /// <summary>
