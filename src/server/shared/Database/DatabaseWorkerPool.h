@@ -314,7 +314,6 @@ class DatabaseWorkerPool
 
     private:
         ACE_Activation_Queue*           m_queue;             //! Queue shared by async worker threads.
-        ACE_Thread_Mutex                m_queue_mtx;         //! For thread safe enqueues of delayed statements. 
         std::vector<T*>                 m_async_connections;
         ConnectionMap                   m_sync_connections;  //! Holds a mysql connection+thread per mapUpdate thread and unbundled runnnables.
         ACE_Thread_Mutex                m_connectionMap_mtx; //! For thread safe access to the synchroneous connection map
