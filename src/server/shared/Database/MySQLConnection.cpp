@@ -310,6 +310,7 @@ void MySQLConnection::CommitTransaction()
 
 MySQLPreparedStatement* MySQLConnection::GetPreparedStatement(uint32 index)
 {
+    ASSERT(index < m_stmts.size());
     return m_stmts[index];
 }
 

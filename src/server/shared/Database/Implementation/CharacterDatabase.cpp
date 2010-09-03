@@ -20,11 +20,15 @@
 
 bool CharacterDatabaseConnection::Open(const std::string& infoString)
 {
+    if (!MySQLConnection::Open(infoString))
+        return false;
+
+    m_stmts.resize(MAX_CHARACTERDATABASE_STATEMENTS);
     /*
         ##################################
         LOAD YOUR PREPARED STATEMENTS HERE
         ##################################
     */
 
-    return MySQLConnection::Open(infoString);
+    return true;
 }
