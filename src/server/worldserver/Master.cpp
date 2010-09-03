@@ -146,6 +146,7 @@ public:
         // Launch the RA listener socket
         ListenSocket<RASocket> RAListenSocket (h);
         bool usera = sConfig.GetBoolDefault ("Ra.Enable", false);
+        bool needInit = true;
 
         if (usera)
         {
@@ -163,7 +164,6 @@ public:
                 sLog.outString ("Starting Remote access listner on port %d on %s", raport, stringip.c_str ());
             }
 
-            bool needInit = true;
             if ((LoginDatabase.GetBundleMask() & MYSQL_BUNDLE_RA))
             {
                 LoginDatabase.Init_MySQL_Connection();
