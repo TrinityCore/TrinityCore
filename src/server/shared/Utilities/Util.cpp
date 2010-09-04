@@ -141,12 +141,12 @@ void stripLineInvisibleChars(std::string &str)
 
 }
 
-std::string secsToTimeString(uint32 timeInSecs, bool shortText, bool hoursOnly)
+std::string secsToTimeString(uint64 timeInSecs, bool shortText, bool hoursOnly)
 {
-    uint32 secs    = timeInSecs % MINUTE;
-    uint32 minutes = timeInSecs % HOUR / MINUTE;
-    uint32 hours   = timeInSecs % DAY  / HOUR;
-    uint32 days    = timeInSecs / DAY;
+    uint64 secs    = timeInSecs % MINUTE;
+    uint64 minutes = timeInSecs % HOUR / MINUTE;
+    uint64 hours   = timeInSecs % DAY  / HOUR;
+    uint64 days    = timeInSecs / DAY;
 
     std::ostringstream ss;
     if(days)

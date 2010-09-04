@@ -164,7 +164,7 @@ uint32 AccountMgr::GetSecurity(uint32 acc_id)
     return 0;
 }
 
-uint32 AccountMgr::GetSecurity(uint32 acc_id, int32 realm_id)
+uint32 AccountMgr::GetSecurity(uint64 acc_id, int32 realm_id)
 {
     QueryResult_AutoPtr result = (realm_id == -1)
         ? LoginDatabase.PQuery("SELECT gmlevel FROM account_access WHERE id = '%u' AND RealmID = '%d'", acc_id, realm_id)

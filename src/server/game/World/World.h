@@ -754,8 +754,8 @@ class World
         time_t m_startTime;
         time_t m_gameTime;
         IntervalTimer m_timers[WUPDATE_COUNT];
-        uint32 mail_timer;
-        uint32 mail_timer_expires;
+        time_t mail_timer;
+        time_t mail_timer_expires;
         uint32 m_updateTime, m_updateTimeSum;
         uint32 m_updateTimeCount;
         uint32 m_currentTime;
