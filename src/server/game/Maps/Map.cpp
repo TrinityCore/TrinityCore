@@ -3174,7 +3174,7 @@ void Map::ScriptsProcess()
                         float z = step.script->z;
                         float o = step.script->o;
 
-                        if (pSummoner->SummonCreature(step.script->datalong, x, y, z, o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, step.script->datalong2))
+                        if (!pSummoner->SummonCreature(step.script->datalong, x, y, z, o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, step.script->datalong2))
                             sLog.outError("%s creature was not spawned (entry: %u).", step.script->GetDebugInfo().c_str(), step.script->datalong);
                     }
                 }

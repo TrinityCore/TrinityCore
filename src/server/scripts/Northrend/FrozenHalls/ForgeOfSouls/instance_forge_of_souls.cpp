@@ -65,7 +65,7 @@ public:
 
             if (!players.isEmpty())
                 if (Player* pPlayer = players.begin()->getSource())
-                    uiTeamInInstance = pPlayer->GetTeam();
+                    uiTeamInInstance = pPlayer->GetTeamId();
 
             switch(pCreature->GetEntry())
             {
