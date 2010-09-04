@@ -240,10 +240,6 @@ public:
         void Reset()
         {
             _Reset();
-            /*me->SetLootMode(LOOT_MODE_HARD_MODE_4);
-            me->SetLootMode(LOOT_MODE_HARD_MODE_3);
-            me->SetLootMode(LOOT_MODE_HARD_MODE_2);
-            me->SetLootMode(LOOT_MODE_HARD_MODE_1);*/
             pInstance->SetData(TYPE_LEVIATHAN, NOT_STARTED);
             me->SetReactState(REACT_DEFENSIVE);
             InstallAdds(true);
@@ -252,7 +248,7 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-            pInstance->SetData(TYPE_LEVIATHAN, IN_PROGRESS); //_Reset doesnt do this correctly
+            pInstance->SetData(TYPE_LEVIATHAN, IN_PROGRESS);
             me->SetReactState(REACT_AGGRESSIVE);
             events.ScheduleEvent(EVENT_PURSUE, 30*IN_MILLISECONDS);
             events.ScheduleEvent(EVENT_MISSILE, 1500);
@@ -458,7 +454,7 @@ public:
             case EVENT_SPEED:
                 DoCastAOE(SPELL_GATHERING_SPEED);
                 events.RepeatEvent(15*IN_MILLISECONDS);
-                return;
+                break;
             case EVENT_SUMMON:
                 if (summons.size() < 15) // 4seat+1turret+10lift
                     if (Creature* pLift = DoSummonFlyer(MOB_MECHANOLIFT, me, 30.0f, 50.0f, 0))
@@ -770,9 +766,9 @@ public:
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     if (Unit* pPlayer = me->GetVehicle()->GetPassenger(SEAT_PLAYER))
                     {
-                        pPlayer->ExitVehicle();
                         me->GetVehicleBase()->CastSpell(pPlayer, SPELL_SMOKE_TRAIL, true);
                         pPlayer->GetMotionMaster()->MoveKnockbackFrom(me->GetVehicleBase()->GetPositionX(), me->GetVehicleBase()->GetPositionY(), 30, 30);
+                        pPlayer->ExitVehicle();
                     }
                 }
             }
@@ -937,6 +933,12 @@ public:
             {
                 if (pInstance)
                     pInstance->SetData(TYPE_COLOSSUS,pInstance->GetData(TYPE_COLOSSUS)+1);
+
+                if (pInstance)
+                {
+                    if (pInstance->GetData(TYPE_COLOSSUS == 2))
+                        pInstance->SetBossState(DATA_PRELEVIATHAN, DONE); // Unlocks the Teleport 2nd Location
+                }
             }
         }
 
