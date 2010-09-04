@@ -56,6 +56,7 @@ bool TransactionTask::Execute()
     while (!queries.empty())
     {
         sql = queries.front();
+        ASSERT(sql);
         if (!m_conn->Execute(sql))
         {
             sLog.outSQLDriver("[Warning] Transaction aborted. %u queries not executed.", (uint32)queries.size());
