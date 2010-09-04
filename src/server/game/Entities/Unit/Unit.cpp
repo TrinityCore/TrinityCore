@@ -93,13 +93,20 @@ static bool isAlwaysTriggeredAura[TOTAL_AURAS];
 // Prepare lists
 static bool procPrepared = InitTriggerAuraData();
 
+// we can disable this warning for this since it only 
+// causes undefined behavior when passed to the base class constructor
+#ifdef _MSC_VER
+#pragma warning(disable:4355)
+#endif
 Unit::Unit(): WorldObject(),
 m_movedPlayer(NULL), IsAIEnabled(false), NeedChangeAI(false), 
 m_ControlledByPlayer(false), i_AI(NULL), i_disabledAI(NULL), m_procDeep(0), 
-m_removedAurasCount(0), i_motionMaster(this), m_ThreatManager(this), 
-m_vehicle(NULL), m_vehicleKit(NULL), m_unitTypeMask(UNIT_MASK_NONE),
-m_HostileRefManager(this)
+m_removedAurasCount(0),  m_vehicle(NULL), m_vehicleKit(NULL), m_unitTypeMask(UNIT_MASK_NONE),
+m_ThreatManager(this), i_motionMaster(this), m_HostileRefManager(this)
 {
+#ifdef _MSC_VER
+#pragma warning(default:4355)
+#endif
     m_objectType |= TYPEMASK_UNIT;
     m_objectTypeId = TYPEID_UNIT;
 
@@ -15668,7 +15675,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type)
                             GetCharmInfo()->SetPetNumber(sObjectMgr.GeneratePetNumber(), true);
 
                         //if charmed two demons the same session, the 2nd gets the 1st one's name
-                        SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, time(NULL));
+                        SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(NULL))); // cast can't be helped
                     }
                 }
                 charmer->ToPlayer()->CharmSpellInitialize();

@@ -229,7 +229,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
             break;
     }
 
-    SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, time(NULL));
+    SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(NULL))); // cast can't be helped here
     SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, fields[5].GetUInt32());
     SetCreatorGUID(owner->GetGUID());
 
@@ -293,7 +293,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     m_resetTalentsTime = fields[16].GetUInt64();
     InitTalentForLevel();                                   // set original talents points before spell loading
 
-    uint32 timediff = (time(NULL) - fields[14].GetUInt32());
+    uint32 timediff = uint32(time(NULL) - fields[14].GetUInt32());
     _LoadAuras(timediff);
 
     // load action bar, if data broken will fill later by default spells.
@@ -1102,7 +1102,7 @@ void Pet::_LoadSpellCooldowns()
     {
         time_t curTime = time(NULL);
 
-        WorldPacket data(SMSG_SPELL_COOLDOWN, (8+1+result->GetRowCount()*8));
+        WorldPacket data(SMSG_SPELL_COOLDOWN, size_t(8+1+result->GetRowCount()*8));
         data << GetGUID();
         data << uint8(0x0);                                 // flags (0x1, 0x2)
 
@@ -1777,7 +1777,7 @@ void Pet::InitTalentForLevel()
 
 uint32 Pet::resetTalentsCost() const
 {
-    uint32 days = (sWorld.GetGameTime() - m_resetTalentsTime)/DAY;
+    int64 days = int64(sWorld.GetGameTime() - m_resetTalentsTime)/DAY;
 
     // The first time reset costs 10 silver; after 1 day cost is reset to 10 silver
     if (m_resetTalentsCost < 10*SILVER || days > 0)

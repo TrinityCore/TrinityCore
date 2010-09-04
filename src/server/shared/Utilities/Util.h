@@ -32,7 +32,7 @@ Tokens StrSplit(const std::string &src, const std::string &sep);
 
 void stripLineInvisibleChars(std::string &src);
 
-std::string secsToTimeString(uint32 timeInSecs, bool shortText = false, bool hoursOnly = false);
+std::string secsToTimeString(uint64 timeInSecs, bool shortText = false, bool hoursOnly = false);
 uint32 TimeStringToSecs(const std::string& timestring);
 std::string TimeToTimestampStr(time_t t);
 

@@ -1084,7 +1084,7 @@ class Player : public Unit, public GridObject<Player>
 
         void setDeathState(DeathState s);                   // overwrite Unit::setDeathState
 
-        void InnEnter (int time,uint32 mapid, float x,float y,float z)
+        void InnEnter (time_t time,uint32 mapid, float x,float y,float z)
         {
             inn_pos_mapid = mapid;
             inn_pos_x = x;
@@ -1104,8 +1104,8 @@ class Player : public Unit, public GridObject<Player>
         float GetInnPosY() const { return inn_pos_y; }
         float GetInnPosZ() const { return inn_pos_z; }
 
-        int GetTimeInnEnter() const { return time_inn_enter; }
-        void UpdateInnerTime (int time) { time_inn_enter = time; }
+        time_t GetTimeInnEnter() const { return time_inn_enter; }
+        void UpdateInnerTime (time_t time) { time_inn_enter = time; }
 
         Pet* GetPet() const;
         Pet* SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 despwtime);
@@ -1614,7 +1614,7 @@ class Player : public Unit, public GridObject<Player>
         {
             SpellCooldowns::const_iterator itr = m_spellCooldowns.find(spell_id);
             time_t t = time(NULL);
-            return itr != m_spellCooldowns.end() && itr->second.end > t ? itr->second.end - t : 0;
+            return uint32(itr != m_spellCooldowns.end() && itr->second.end > t ? itr->second.end - t : 0);
         }
         void AddSpellAndCategoryCooldowns(SpellEntry const* spellInfo, uint32 itemId, Spell* spell = NULL, bool infinityCooldown = false);
         void AddSpellCooldown(uint32 spell_id, uint32 itemid, time_t end_time);
@@ -2574,7 +2574,7 @@ class Player : public Unit, public GridObject<Player>
         float m_ammoDPS;
 
         ////////////////////Rest System/////////////////////
-        int time_inn_enter;
+        time_t time_inn_enter;
         uint32 inn_pos_mapid;
         float  inn_pos_x;
         float  inn_pos_y;

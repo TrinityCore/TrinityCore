@@ -1568,7 +1568,7 @@ void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player *player)
     }
 
     // Not give XP in case already completed once repeatable quest
-    uint32 XP = qReward->XPValue(player) * sWorld.getRate(RATE_XP_QUEST);
+    uint32 XP = uint32(qReward->XPValue(player) * sWorld.getRate(RATE_XP_QUEST));
 
     XP += (5 - group->GetMembersCount()) * reward->reward[index].variableXP;
 

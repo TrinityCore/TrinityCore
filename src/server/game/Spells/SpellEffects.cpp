@@ -866,7 +866,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
 
                     Creature* creatureTarget = unitTarget->ToCreature();
 
-                    m_caster->SummonGameObject(179644, creatureTarget->GetPositionX(), creatureTarget->GetPositionY(), creatureTarget->GetPositionZ(), creatureTarget->GetOrientation(), 0, 0, 0, 0, creatureTarget->GetRespawnTime()-time(NULL));
+                    m_caster->SummonGameObject(179644, creatureTarget->GetPositionX(), creatureTarget->GetPositionY(), creatureTarget->GetPositionZ(), creatureTarget->GetOrientation(), 0, 0, 0, 0, uint32(creatureTarget->GetRespawnTime()-time(NULL)));
                     sLog.outDebug("SummonGameObject at SpellEfects.cpp EffectDummy for Spell 23019");
 
                     creatureTarget->ForcedDespawn();
@@ -1424,7 +1424,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
             if (m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_DK_DEATH_STRIKE)
             {
                 uint32 count = unitTarget->GetDiseasesByCaster(m_caster->GetGUID());
-                int32 bp = int32(count * m_caster->CountPctFromMaxHealth(m_spellInfo->EffectDamageMultiplier[0]));
+                int32 bp = int32(count * m_caster->CountPctFromMaxHealth(int32(m_spellInfo->EffectDamageMultiplier[0])));
                 // Improved Death Strike
                 if (AuraEffect const * aurEff = m_caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_DEATHKNIGHT, 2751, 0))
                     bp = int32(bp * (m_caster->CalculateSpellDamage(m_caster, aurEff->GetSpellProto(), 2) + 100.0f) / 100.0f);
