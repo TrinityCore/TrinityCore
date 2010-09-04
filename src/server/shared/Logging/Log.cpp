@@ -547,16 +547,20 @@ void Log::outSQLDriver(const char* str, ...)
     va_end(ap);
 
     printf("\n");
+
     if (sqlLogFile)
     {
         outTimestamp(sqlLogFile);
+
+        va_list ap;
         va_start(ap, str);
         vfprintf(sqlLogFile, str, ap);
-        fprintf(sqlLogFile, "\n");
         va_end(ap);
 
+        fprintf(sqlLogFile, "\n");
         fflush(sqlLogFile);
     }
+
     fflush(stdout);
 }
 
