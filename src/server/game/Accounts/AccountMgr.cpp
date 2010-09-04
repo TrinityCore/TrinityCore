@@ -226,8 +226,13 @@ bool AccountMgr::normalizeString(std::string& utf8str)
     size_t wstr_len = MAX_ACCOUNT_STR;
     if (!Utf8toWStr(utf8str,wstr_buf,wstr_len))
         return false;
-
+#ifdef _MSC_VER
+#pragma warning(disable: 4996)
+#endif
     std::transform(&wstr_buf[0], wstr_buf+wstr_len, &wstr_buf[0], wcharToUpperOnlyLatin);
+#ifdef _MSC_VER
+#pragma warning(default: 4996)
+#endif
 
     return WStrToUtf8(wstr_buf,wstr_len,utf8str);
 }
