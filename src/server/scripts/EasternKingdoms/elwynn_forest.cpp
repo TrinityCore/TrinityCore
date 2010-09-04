@@ -32,8 +32,10 @@ EndContentData */
 /*######
 ## npc_henze_faulk
 ######*/
-
-#define SAY_HEAL -1100280
+enum eHenzeFaulkData
+{
+    SAY_HEAL = -1000187,
+};
 
 class npc_henze_faulk : public CreatureScript
 {
@@ -66,7 +68,6 @@ public:
 
         void MoveInLineOfSight(Unit * /*who*/)
         {
-            return;
         }
 
         void UpdateAI(const uint32 diff)

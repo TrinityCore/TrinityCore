@@ -321,8 +321,8 @@ public:
 
 enum eThreshwackonator
 {
-    EMOTE_START             = -1000413, //signed for 4966
-    SAY_AT_CLOSE            = -1000414, //signed for 4966
+    EMOTE_START             = -1000325, //signed for 4966
+    SAY_AT_CLOSE            = -1000326, //signed for 4966
     QUEST_GYROMAST_REV      = 2078,
     NPC_GELKAK              = 6667,
     FACTION_HOSTILE         = 14

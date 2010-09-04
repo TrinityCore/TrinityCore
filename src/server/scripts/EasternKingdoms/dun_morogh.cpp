@@ -34,7 +34,10 @@ EndContentData */
 ######*/
 
 // signed for 6172
-#define SAY_HEAL -1100280
+enum eNarmFaulkData
+{
+    SAY_HEAL = -1000187,
+};
 
 class npc_narm_faulk : public CreatureScript
 {

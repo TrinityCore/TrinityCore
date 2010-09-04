@@ -173,30 +173,31 @@ public:
 
         return true;
     }
-
 };
-
 
 /*####
 # mob_rizzle_sprysprocket
 ####*/
 
-#define MOB_DEPTH_CHARGE 23025
-#define SPELL_RIZZLE_BLACKJACK 39865
-#define SPELL_RIZZLE_ESCAPE 39871
-#define SPELL_RIZZLE_FROST_GRENADE 40525
-#define SPELL_DEPTH_CHARGE_TRAP 38576
-#define SPELL_PERIODIC_DEPTH_CHARGE 39912
-#define SPELL_GIVE_SOUTHFURY_MOONSTONE 39886
+enum eRizzleSprysprocketData
+{
+    MOB_DEPTH_CHARGE                = 23025,
+    SPELL_RIZZLE_BLACKJACK          = 39865,
+    SPELL_RIZZLE_ESCAPE             = 39871,
+    SPELL_RIZZLE_FROST_GRENADE      = 40525,
+    SPELL_DEPTH_CHARGE_TRAP         = 38576,
+    SPELL_PERIODIC_DEPTH_CHARGE     = 39912,
+    SPELL_GIVE_SOUTHFURY_MOONSTONE  = 39886,
 
-#define SAY_RIZZLE_START -1000245
-#define SAY_RIZZLE_GRENADE -1000246
-#define SAY_RIZZLE_FINAL -1000247
+    SAY_RIZZLE_START                = -1000351,
+    MSG_ESCAPE_NOTICE               = -1000352,
+    SAY_RIZZLE_GRENADE              = -1000353,
+    SAY_RIZZLE_GRENADE_BACKFIRE     = -1000354, // Not used
+    SAY_RIZZLE_FINAL                = -1000355,
+    SAY_RIZZLE_FINAL2               = -1000356, // Not used
+};
 
 #define GOSSIP_GET_MOONSTONE "Hand over the Southfury moonstone and I'll let you go."
-
-//next message must be send to player when Rizzle jump into river, not implemented
-#define MSG_ESCAPE_NOTICE "Rizzle Sprysprocket takes the Southfury moonstone and escapes into the river. Follow her!"
 
 float WPs[58][4] =
 {
@@ -414,12 +415,11 @@ public:
 
         }
 
-        void SendText(const char *text, Player* pPlayer)
+        void SendText(int32 iTextEntry, Player* pPlayer)
         {
-            WorldPacket data(SMSG_SERVER_MESSAGE, 0);              // guess size
-            data << text;
-            if (pPlayer)
-                pPlayer->GetSession()->SendPacket(&data);
+            int loc_idx = pPlayer->GetSession()->GetSessionDbLocaleIndex();
+            const char* text = sObjectMgr.GetTrinityString(iTextEntry, loc_idx);
+            sWorld.SendServerMessage(SERVER_MSG_STRING, text, pPlayer);
         }
 
         void AttackStart(Unit *who)
@@ -452,18 +452,12 @@ public:
             ++CurrWP;
             ContinueWP = true;
         }
-
     };
-
 };
-
-
-
 
 /*####
 # mob_depth_charge
 ####*/
-
 class mob_depth_charge : public CreatureScript
 {
 public:

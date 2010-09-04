@@ -112,7 +112,6 @@ public:
         boss_ymironAI(Creature *c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
-            srand(time(NULL));
             for (int i = 0; i < 4; ++i)
                 m_uiActiveOrder[i] = i;
             for (int i = 0; i < 3; ++i)
