@@ -491,7 +491,7 @@ bool ChatHandler::HandleGameObjectTargetCommand(const char* args)
 
     if (target)
     {
-        int32 curRespawnDelay = target->GetRespawnTimeEx()-time(NULL);
+        int32 curRespawnDelay = int32(target->GetRespawnTimeEx()-time(NULL));
         if (curRespawnDelay < 0)
             curRespawnDelay = 0;
 

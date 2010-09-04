@@ -485,11 +485,10 @@ void WorldSession::HandleZoneUpdateOpcode(WorldPacket & recv_data)
 
 void WorldSession::HandleSetTargetOpcode(WorldPacket & recv_data)
 {
-    // When this packet send?
-    uint64 guid ;
+    uint64 guid;
     recv_data >> guid;
 
-    _player->SetUInt32Value(UNIT_FIELD_TARGET, guid);
+    _player->SetUInt32Value(UNIT_FIELD_TARGET, uint32(guid));
 
     // update reputation list if need
     Unit* unit = ObjectAccessor::GetUnit(*_player, guid);
