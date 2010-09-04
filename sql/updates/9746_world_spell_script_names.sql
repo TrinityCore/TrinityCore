@@ -1,4 +1,4 @@
-﻿-- 14537 Six Demon Bag
+-- 14537 Six Demon Bag
 DELETE FROM `spell_script_names` WHERE `spell_id`=14537 AND `ScriptName`='spell_item_six_demon_bag';
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES (14537,'spell_item_six_demon_bag');
 
