@@ -1132,6 +1132,11 @@ void ScriptMgr::OnPlayerTextEmote(Player* player, uint32 text_emote, uint32 emot
     FOREACH_SCRIPT(PlayerScript)->OnTextEmote(player, text_emote, emoteNum, guid);
 }
 
+void ScriptMgr::OnPlayerSpellCast(Player *player, Spell *spell, bool skipCheck)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnSpellCast(player, spell, skipCheck);
+}
+
 void ScriptMgr::OnGuildAddMember(Guild *guild, Player *player, uint32& plRank)
 {
     FOREACH_SCRIPT(GuildScript)->OnAddMember(guild, player, plRank);
