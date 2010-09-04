@@ -250,7 +250,6 @@ class LFGMgr
         LFGMgr();
         ~LFGMgr();
 
-        void InitLFG();
         void Join(Player *plr);
         void Leave(Player *plr, Group *grp = NULL);
         void OfferContinue(Group *grp);
@@ -260,8 +259,6 @@ class LFGMgr
         void UpdateRoleCheck(Group *grp, Player *plr = NULL);
         void Update(uint32 diff);
 
-        void SendLfgPlayerInfo(Player *plr);
-        void SendLfgPartyInfo(Player *plr);
         bool isRandomDungeon(uint32 dungeonId);
         void InitBoot(Group *grp, uint32 plowGuid, uint32 vlowGuid, std::string reason);
 
@@ -275,35 +272,32 @@ class LFGMgr
                 return itr->second;
 
             return 0;
-        }
+        };
+
+        LfgLockStatusMap* GetPartyLockStatusDungeons(Player *plr, LfgDungeonSet *dungeons = NULL);
+        LfgDungeonSet* GetRandomDungeons(uint8 level, uint8 expansion);
+        LfgLockStatusSet* GetPlayerLockStatusDungeons(Player *plr, LfgDungeonSet *dungeons = NULL);
+        LfgReward const* GetRandomDungeonReward(uint32 dungeon, uint8 level);
+        void BuildPlayerLockDungeonBlock(WorldPacket &data, LfgLockStatusSet *lockSet);
+        void BuildPartyLockDungeonBlock(WorldPacket &data, LfgLockStatusMap *lockMap);
 
     private:
         void Cleaner();
         void AddGuidToNewQueue(uint64 guid);
-
-        void SendLfgBootPlayer(Player *plr, LfgPlayerBoot *pBoot);
-        void SendUpdateProposal(Player *plr, uint32 proposalId, LfgProposal *pProp);
-        void SendLfgPlayerReward(Player *plr);
+        void AddToQueue(uint64 guid, LfgRolesMap *roles, LfgDungeonSet *dungeons);
+        bool RemoveFromQueue(uint64 guid);
+        void RemoveProposal(LfgProposalMap::iterator itProposal, LfgUpdateType type);
+        void FindNewGroups(LfgGuidList &check, LfgGuidList all, LfgProposalList *proposals);
+        bool CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag = true);
 
         void BuildLfgRoleCheck(WorldPacket &data, LfgRoleCheck *pRoleCheck);
         void BuildAvailableRandomDungeonList(WorldPacket &data, Player *plr);
-        void BuildPlayerLockDungeonBlock(WorldPacket &data, LfgLockStatusSet *lockSet);
-        void BuildPartyLockDungeonBlock(WorldPacket &data, LfgLockStatusMap *lockMap);
         void BuildBootPlayerBlock(WorldPacket &data, LfgPlayerBoot *pBoot, uint32 lowGuid);
 
-        void AddToQueue(uint64 guid, LfgRolesMap *roles, LfgDungeonSet *dungeons);
-        bool RemoveFromQueue(uint64 guid);
-        void FindNewGroups(LfgGuidList &check, LfgGuidList all, LfgProposalList *proposals);
-        bool CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag = true);
-        void RemoveProposal(LfgProposalMap::iterator itProposal, LfgUpdateType type);
-
         LfgLockStatusMap* GetGroupLockStatusDungeons(PlayerSet *pPlayers, LfgDungeonSet *dungeons);
-        LfgLockStatusMap* GetPartyLockStatusDungeons(Player *plr, LfgDungeonSet *dungeons);
-        LfgLockStatusSet* GetPlayerLockStatusDungeons(Player *plr, LfgDungeonSet *dungeons);
         LfgDungeonSet* GetDungeonsByRandom(uint32 randomdungeon);
-        LfgDungeonSet* GetRandomDungeons(uint8 level, uint8 expansion);
+        
         LfgDungeonSet* GetAllDungeons();
-        LfgReward const* GetRandomDungeonReward(uint32 dungeon, uint8 level);
         uint8 GetDungeonGroupType(uint32 dungeon);
 
         LfgRewardMap m_RewardMap;                           // Stores rewards for random dungeons
