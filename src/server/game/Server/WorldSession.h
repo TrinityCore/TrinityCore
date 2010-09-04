@@ -42,6 +42,7 @@ class Object;
 class Player;
 class Unit;
 class GameObject;
+class Quest;
 class WorldPacket;
 class WorldSocket;
 class QueryResult;
@@ -49,8 +50,10 @@ class LoginQueryHolder;
 class CharacterHandler;
 class SpellCastTargets;
 struct AreaTableEntry;
-
 struct GM_Ticket;
+struct LfgPlayerBoot;
+struct LfgProposal;
+struct LfgReward;
 
 enum AccountDataType
 {
@@ -722,6 +725,9 @@ class WorldSession
         void SendLfgUpdateSearch(bool update);
         void SendLfgJoinResult(uint8 checkResult, uint8 checkValue);
         void SendLfgQueueStatus(uint32 dungeon, int32 waitTime, int32 avgWaitTime, int32 waitTimeTanks, int32 waitTimeHealer, int32 waitTimeDps, uint32 queuedTime, uint8 tanks, uint8 healers, uint8 dps);
+        void SendLfgPlayerReward(uint32 rdungeonEntry, uint32 sdungeonEntry, uint8 done, const LfgReward *reward, const Quest *qRew);
+        void SendLfgBootPlayer(LfgPlayerBoot *pBoot);
+        void SendUpdateProposal(uint32 proposalId, LfgProposal *pProp);
         void SendLfgDisabled();
         void SendLfgOfferContinue(uint32 dungeonEntry);
         void SendLfgTeleportError(uint8 err);

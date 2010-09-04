@@ -40,6 +40,7 @@ LFGMgr::LFGMgr()
     m_NumWaitTimeDps = 0;
     m_update = true;
     m_lfgProposalId = 1;
+    GetAllDungeons();
 }
 
 LFGMgr::~LFGMgr()
@@ -231,7 +232,7 @@ void LFGMgr::Update(uint32 diff)
             for (LfgAnswerMap::const_iterator itVotes = pBoot->votes.begin(); itVotes != pBoot->votes.end(); ++itVotes)
                 if (Player *plrg = sObjectMgr.GetPlayer(itVotes->first))
                     if (plrg->GetGUIDLow() != pBoot->victimLowGuid)
-                        SendLfgBootPlayer(plrg, pBoot);
+                        plrg->GetSession()->SendLfgBootPlayer(pBoot);
             if (grp)
                 grp->SetLfgKickActive(false);
             delete pBoot;
@@ -272,7 +273,7 @@ void LFGMgr::Update(uint32 diff)
                         plr->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_PROPOSAL_BEGIN);
                     else
                         plr->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_PROPOSAL_BEGIN);
-                    SendUpdateProposal(plr, m_lfgProposalId, pProposal);
+                    plr->GetSession()->SendUpdateProposal(m_lfgProposalId, pProposal);
                 }
             }
 
@@ -353,15 +354,6 @@ void LFGMgr::Update(uint32 diff)
     else
         m_QueueTimer += diff;
     m_update = true;
-}
-
-/// <summary>
-/// Initialize Looking For Group
-/// </summary>
-void LFGMgr::InitLFG()
-{
-    // Initialize dungeonMap
-    GetAllDungeons();
 }
 
 /// <summary>
@@ -1208,7 +1200,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint32 lowGuid, uint8 accept)
     if (!allAnswered)
     {
         for (LfgPlayerList::const_iterator it = players.begin(); it != players.end(); ++it)
-            SendUpdateProposal(*it, proposalId, pProposal);
+            (*it)->GetSession()->SendUpdateProposal(proposalId, pProposal);
     }
     else
     {
@@ -1226,7 +1218,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint32 lowGuid, uint8 accept)
         {
             plr = *it;
             if (sendUpdate)
-                SendUpdateProposal(plr, proposalId, pProposal);
+                plr->GetSession()->SendUpdateProposal(proposalId, pProposal);
             plr->SetLfgUpdate(false);
             if (plr->GetGroup())
             {
@@ -1338,7 +1330,7 @@ void LFGMgr::RemoveProposal(LfgProposalMap::iterator itProposal, LfgUpdateType t
             continue;
         guid = plr->GetGroup() ? plr->GetGroup()->GetGUID(): plr->GetGUID();
 
-        SendUpdateProposal(plr, itProposal->first, pProposal);
+        plr->GetSession()->SendUpdateProposal(itProposal->first, pProposal);
         // Remove members that didn't accept
         itQueue = m_QueueInfoMap.find(guid);
         if (!it->second->accept)
@@ -1416,7 +1408,7 @@ void LFGMgr::InitBoot(Group *grp, uint32 iLowGuid, uint32 vLowguid, std::string 
     }
 
     for (PlayerSet::const_iterator it = players.begin(); it != players.end(); ++it)
-        SendLfgBootPlayer(*it, pBoot);
+        (*it)->GetSession()->SendLfgBootPlayer(pBoot);
 
     grp->SetLfgKickActive(true);
     m_Boots[grp->GetLowGUID()] = pBoot;
@@ -1470,7 +1462,7 @@ void LFGMgr::UpdateBoot(Player *plr, uint8 accept)
         for (LfgAnswerMap::const_iterator itVotes = pBoot->votes.begin(); itVotes != pBoot->votes.end(); ++itVotes)
             if (Player *plrg = sObjectMgr.GetPlayer(itVotes->first))
                 if (plrg->GetGUIDLow() != pBoot->victimLowGuid)
-                    SendLfgBootPlayer(plrg, pBoot);
+                    plrg->GetSession()->SendLfgBootPlayer(pBoot);
 
         if (agreeNum == pBoot->votedNeeded)                 // Vote passed - Kick player
         {
@@ -1566,7 +1558,7 @@ void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player *player)
         return;
 
     // Give rewards
-    SendLfgPlayerReward(player);
+    player->GetSession()->SendLfgPlayerReward(dungeon->Entry(), group->GetLfgDungeonEntry(false), index, reward, qReward);
 
     if (qReward->GetRewItemsCount() > 0)
     {
@@ -1661,257 +1653,6 @@ void LFGMgr::BuildLfgRoleCheck(WorldPacket &data, LfgRoleCheck *pRoleCheck)
 }
 
 /// <summary>
-/// Build Proposal Update packet
-/// </summary>
-/// <param name="Player *">Player</param>
-/// <param name="uint32">ProposalID</param>
-/// <param name="LfgProposal *">Internal LFG Proposal</param>
-/// <returns></returns>
-void LFGMgr::SendUpdateProposal(Player *plr, uint32 proposalId, LfgProposal *pProp)
-{
-    if (!plr || !pProp)
-        return;
-
-    uint32 pLogGuid = plr->GetGUIDLow();
-    LfgProposalPlayerMap::const_iterator itPlayer = pProp->players.find(pLogGuid);
-    if (itPlayer == pProp->players.end())                   // Player MUST be in the proposal
-        return;
-
-    LfgProposalPlayer *ppPlayer = itPlayer->second;
-    uint32 pLowGroupGuid = ppPlayer->groupLowGuid;
-    uint32 dLowGuid = pProp->groupLowGuid;
-    uint32 dungeonId = pProp->dungeonId;
-    uint32 isSameDungeon = plr->GetGroup() && plr->GetGroup()->GetLfgDungeonEntry() == dungeonId;
-
-    sLog.outDebug("SMSG_LFG_PROPOSAL_UPDATE");
-    WorldPacket data(SMSG_LFG_PROPOSAL_UPDATE, 4 + 1 + 4 + 4 + 1 + 1 + pProp->players.size() * (4 + 1 + 1 + 1 + 1 +1));
-    if (!dLowGuid && plr->GetLfgDungeons()->size() == 1)    // New group - select the dungeon the player selected
-        dungeonId = *plr->GetLfgDungeons()->begin();
-    if (LFGDungeonEntry const *dungeon = sLFGDungeonStore.LookupEntry(dungeonId))
-        dungeonId = dungeon->Entry();
-    data << uint32(dungeonId);                              // Dungeon
-    data << uint8(pProp->state);                            // Result state
-    data << uint32(proposalId);                             // Internal Proposal ID
-    data << uint32(0);                                      // Bosses killed - FIXME
-    data << uint8(isSameDungeon);                           // Silent (show client window)
-    data << uint8(pProp->players.size());                   // Group size
-
-    for (itPlayer = pProp->players.begin(); itPlayer != pProp->players.end(); ++itPlayer)
-    {
-        ppPlayer = itPlayer->second;
-        data << uint32(ppPlayer->role);                     // Role
-        data << uint8(itPlayer->first == pLogGuid);         // Self player
-        if (!ppPlayer->groupLowGuid)                        // Player not it a group
-        {
-            data << uint8(0);                               // Not in dungeon
-            data << uint8(0);                               // Not same group
-        }
-        else
-        {
-            data << uint8(ppPlayer->groupLowGuid == dLowGuid);  // In dungeon (silent)
-            data << uint8(ppPlayer->groupLowGuid == pLowGroupGuid); // Same Group than player
-        }
-        data << uint8(ppPlayer->accept != -1);              // Answered
-        data << uint8(ppPlayer->accept == 1);               // Accepted
-    }
-    plr->GetSession()->SendPacket(&data);
-}
-
-/// <summary>
-/// Build and Send LFG lock player info and reward
-/// </summary>
-/// <param name="Player *">Player</param>
-void LFGMgr::SendLfgPlayerInfo(Player *plr)
-{
-    uint32 rsize = 0;
-    uint32 lsize = 0;
-    bool done;
-    LfgDungeonSet *randomlist = GetRandomDungeons(plr->getLevel(), plr->GetSession()->Expansion());
-    LfgLockStatusSet *lockSet = GetPlayerLockStatusDungeons(plr, GetAllDungeons());
-
-    if (randomlist)
-        rsize = randomlist->size();
-
-    if (lockSet)
-        lsize = lockSet->size();
-
-    sLog.outDebug("SMSG_LFG_PLAYER_INFO");
-    WorldPacket data(SMSG_LFG_PLAYER_INFO, 1 + rsize * (4 + 1 + 4 + 4 + 4 + 4 + 1 + 4 + 4 + 4) + 4 + lsize * (1 + 4 + 4 + 4 + 4 + 1 + 4 + 4 + 4));
-    if (!randomlist)
-        data << uint8(0);
-    else
-    {
-        LfgReward const* reward = NULL;
-        Quest const* qRew = NULL;
-
-        data << uint8(randomlist->size());                  // Random Dungeon count
-        for (LfgDungeonSet::iterator it = randomlist->begin(); it != randomlist->end(); ++it)
-        {
-            done = plr->isLfgDungeonDone(*it);
-            reward = GetRandomDungeonReward(*it, plr->getLevel());
-            data << uint32(*it);                            // Entry
-            data << uint8(done);
-            if (reward)
-            {
-                qRew = sObjectMgr.GetQuestTemplate(reward->reward[done].questId);
-                data << uint32(qRew ? qRew->GetRewOrReqMoney() : 0);
-                data << uint32(qRew ? qRew->XPValue(plr) : 0);
-                data << uint32(reward->reward[done].variableMoney);
-                data << uint32(reward->reward[done].variableXP);
-                data << uint8(qRew ? qRew->GetRewItemsCount() : 0);
-                if (qRew && qRew->GetRewItemsCount())
-                {
-                    ItemPrototype const* iProto = NULL;
-                    for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
-                    {
-                        if (!qRew->RewItemId[i])
-                            continue;
-
-                        iProto = ObjectMgr::GetItemPrototype(qRew->RewItemId[i]);
-
-                        data << uint32(qRew->RewItemId[i]);
-                        data << uint32(iProto ? iProto->DisplayInfoID : 0);
-                        data << uint32(qRew->RewItemCount[i]);
-                    }
-                }
-            }
-            else
-            {
-                data << uint32(0);
-                data << uint32(0);
-                data << uint32(0);
-                data << uint32(0);
-                data << uint8(0);
-            }
-        }
-        randomlist->clear();
-        delete randomlist;
-    }
-    BuildPlayerLockDungeonBlock(data, lockSet);
-    plr->GetSession()->SendPacket(&data);
-}
-
-/// <summary>
-/// Build and Send LFG lock party info and reward
-/// </summary>
-/// <param name="Player *">Player</param>
-void LFGMgr::SendLfgPartyInfo(Player *plr)
-{
-    if (LfgLockStatusMap *lockMap = GetPartyLockStatusDungeons(plr, GetAllDungeons()))
-    {
-        uint32 size = 0;
-        for (LfgLockStatusMap::const_iterator it = lockMap->begin(); it != lockMap->end(); ++it)
-            size += 8 + 4 + it->second->size() * (4 + 4);
-        sLog.outDebug("SMSG_LFG_PARTY_INFO");
-        WorldPacket data(SMSG_LFG_PARTY_INFO, 1 + size);
-        BuildPartyLockDungeonBlock(data, lockMap);
-        plr->GetSession()->SendPacket(&data);
-    }
-}
-
-/// <summary>
-/// Build and Send LFG boot player info
-/// </summary>
-/// <param name="Player *">Player</param>
-/// <param name="LfgPlayerBoot *">Boot info</param>
-void LFGMgr::SendLfgBootPlayer(Player *plr, LfgPlayerBoot *pBoot)
-{
-    sLog.outDebug("SMSG_LFG_BOOT_PLAYER");
-
-    int8 playerVote = pBoot->votes[plr->GetGUIDLow()];
-    uint8 votesNum = 0;
-    uint8 agreeNum = 0;
-    uint32 secsleft = uint8((pBoot->cancelTime - time(NULL)) / 1000);
-    for (LfgAnswerMap::const_iterator it = pBoot->votes.begin(); it != pBoot->votes.end(); ++it)
-    {
-        if (it->second != -1)
-        {
-            ++votesNum;
-            if (it->second == 1)
-                ++agreeNum;
-        }
-    }
-
-    WorldPacket data(SMSG_LFG_BOOT_PLAYER, 1 + 1 + 1 + 8 + 4 + 4 + 4 + 4 + pBoot->reason.length());
-    data << uint8(pBoot->inProgress);                       // Vote in progress
-    data << uint8(playerVote != -1);                        // Did Vote
-    data << uint8(playerVote == 1);                         // Agree
-    data << uint64(MAKE_NEW_GUID(pBoot->victimLowGuid, 0, HIGHGUID_PLAYER)); // Victim GUID
-    data << uint32(votesNum);                               // Total Votes
-    data << uint32(agreeNum);                               // Agree Count
-    data << uint32(secsleft);                               // Time Left
-    data << uint32(pBoot->votedNeeded);                     // Needed Votes
-    data << pBoot->reason.c_str();                          // Kick reason
-    plr->GetSession()->SendPacket(&data);
-}
-
-/// <summary>
-/// Build and Send LFG player reward
-/// </summary>
-/// <param name="Player *">Player</param>
-void LFGMgr::SendLfgPlayerReward(Player *plr)
-{
-    uint32 rdungeonId = 0;
-    uint32 sdungeonId = 0;
-    LFGDungeonEntry const *dungeon = sLFGDungeonStore.LookupEntry(*plr->GetLfgDungeons()->begin());
-    if (dungeon)
-        rdungeonId = dungeon->Entry();
-    if (plr->GetGroup())
-        sdungeonId = plr->GetGroup()->GetLfgDungeonEntry(false);
-    bool done = plr->isLfgDungeonDone(rdungeonId);
-    LfgReward const* reward = GetRandomDungeonReward(rdungeonId, plr->getLevel());
-
-    uint8 itemNum = 0;
-    Quest const* qRew = NULL;
-    if (reward)
-    {
-        qRew = sObjectMgr.GetQuestTemplate(reward->reward[done].questId);
-        if (qRew)
-            itemNum = qRew->GetRewItemsCount();
-    }
-
-    sLog.outDebug("SMSG_LFG_PLAYER_REWARD");
-    WorldPacket data(SMSG_LFG_PLAYER_REWARD, 4 + 4 + 1 + 4 + 4 + 4 + 4 + 4 + 1 + itemNum * (4 + 4 + 4));
-    data << uint32(rdungeonId);                             // Random Dungeon Finished
-    data << uint32(sdungeonId);                             // Dungeon Finished
-    data << uint8(done);
-    data << uint32(reward ? 1 : 0);
-    if (reward)
-    {
-        data << uint32(qRew ? qRew->GetRewOrReqMoney() : 0);
-        data << uint32(qRew ? qRew->XPValue(plr) : 0);
-        data << uint32(reward->reward[done].variableMoney);
-        data << uint32(reward->reward[done].variableXP);
-        data << uint8(itemNum);
-        if (qRew && itemNum)
-        {
-            ItemPrototype const* iProto = NULL;
-            for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
-            {
-                if (!qRew->RewItemId[i])
-                    continue;
-
-                iProto = ObjectMgr::GetItemPrototype(qRew->RewItemId[i]);
-
-                data << uint32(qRew->RewItemId[i]);
-                data << uint32(iProto ? iProto->DisplayInfoID : 0);
-                data << uint32(qRew->RewItemCount[i]);
-            }
-        }
-    }
-    else
-    {
-        data << uint32(0);
-        data << uint32(0);
-        data << uint32(0);
-        data << uint32(0);
-        data << uint8(0);
-    }
-
-    plr->GetSession()->SendPacket(&data);
-}
-
-/// <summary>
 /// Build Party Dungeon lock status packet
 /// </summary>
 /// <param name="WorldPacket &">WorldPacket</param>
@@ -1998,8 +1739,11 @@ LfgLockStatusMap* LFGMgr::GetGroupLockStatusDungeons(PlayerSet *pPlayers, LfgDun
 /// <returns>LfgLockStatusMap*</returns>
 LfgLockStatusMap* LFGMgr::GetPartyLockStatusDungeons(Player *plr, LfgDungeonSet *dungeons)
 {
-    if (!plr || !dungeons)
+    if (!plr)
         return NULL;
+
+    if (!dungeons)
+        dungeons = GetAllDungeons();
 
     Group *grp = plr->GetGroup();
     if (!grp)
@@ -2034,6 +1778,9 @@ LfgLockStatusSet* LFGMgr::GetPlayerLockStatusDungeons(Player *plr, LfgDungeonSet
     uint8 level = plr->getLevel();
     uint8 expansion = plr->GetSession()->Expansion();
     AccessRequirement const* ar;
+
+    if (!dungeons)
+        dungeons = GetAllDungeons();
 
     for (LfgDungeonSet::const_iterator it = dungeons->begin(); it != dungeons->end(); ++it)
     {
