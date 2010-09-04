@@ -3225,6 +3225,7 @@ void Spell::cast(bool skipCheck)
         else if (m_spellInfo->excludeTargetAuraSpell && !IsPositiveSpell(m_spellInfo->excludeTargetAuraSpell))
             m_preCastSpell = m_spellInfo->excludeTargetAuraSpell;
     }
+
     switch (m_spellInfo->SpellFamilyName)
     {
         case SPELLFAMILY_GENERIC:
@@ -3233,14 +3234,15 @@ void Spell::cast(bool skipCheck)
                 m_preCastSpell = 11196;                                // Recently Bandaged
             break;
         }
-    case SPELLFAMILY_MAGE:
-    {
-         // Permafrost
-         if (m_spellInfo->SpellFamilyFlags[1] & 0x00001000 ||  m_spellInfo->SpellFamilyFlags[0] & 0x00100220)
-          m_preCastSpell = 68391;
-         break;
+        case SPELLFAMILY_MAGE:
+        {
+             // Permafrost
+             if (m_spellInfo->SpellFamilyFlags[1] & 0x00001000 ||  m_spellInfo->SpellFamilyFlags[0] & 0x00100220)
+              m_preCastSpell = 68391;
+             break;
+        }
     }
-    }
+
     // traded items have trade slot instead of guid in m_itemTargetGUID
     // set to real guid to be sent later to the client
     m_targets.updateTradeSlotItem();

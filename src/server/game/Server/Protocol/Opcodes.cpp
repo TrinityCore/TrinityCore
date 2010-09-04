@@ -120,7 +120,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x059*/ { "SMSG_ITEM_QUERY_MULTIPLE_RESPONSE",            STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x05A*/ { "CMSG_PAGE_TEXT_QUERY",                         STATUS_LOGGEDIN, &WorldSession::HandlePageTextQueryOpcode       },
     /*0x05B*/ { "SMSG_PAGE_TEXT_QUERY_RESPONSE",                STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
-    /*0x05C*/ { "CMSG_QUEST_QUERY",                             STATUS_LOGGEDIN, &WorldSession::HandleQuestQueryOpcode          },
+    /*0x05C*/ { "CMSG_QUEST_QUERY",                             STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT, &WorldSession::HandleQuestQueryOpcode },
     /*0x05D*/ { "SMSG_QUEST_QUERY_RESPONSE",                    STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x05E*/ { "CMSG_GAMEOBJECT_QUERY",                        STATUS_LOGGEDIN, &WorldSession::HandleGameObjectQueryOpcode     },
     /*0x05F*/ { "SMSG_GAMEOBJECT_QUERY_RESPONSE",               STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
