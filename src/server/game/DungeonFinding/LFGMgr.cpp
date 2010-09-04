@@ -1534,22 +1534,39 @@ void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player *player)
     if (!group || !group->isLFGGroup())
         return;
 
+    // Mark dungeon as finished
     if (!group->isLfgDungeonComplete())
         group->SetLfgStatus(LFG_STATUS_COMPLETE);
 
-    player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS, 1);
+    // Clear player related lfg stuff
+    uint32 rDungeonId = *player->GetLfgDungeons()->begin();
+    player->GetLfgDungeons()->clear();
+    player->SetLfgRoles(ROLE_NONE);
+ 
+    // Give rewards only if its a random dungeon
+    LFGDungeonEntry const *dungeon = sLFGDungeonStore.LookupEntry(dungeonId);
+    if (!dungeon || dungeon->type != LFG_TYPE_RANDOM)
+        return;
 
-    if (isRandomDungeon(dungeonId))
-        player->SetLfgDungeonDone(dungeonId);
+    // Mark random dungeon as complete
+    uint8 index = player->isLfgDungeonDone(rDungeonId) ? 1 : 0;
+    if (!index)
+        player->SetLfgDungeonDone(rDungeonId);
 
-    LfgReward const* reward = GetRandomDungeonReward(dungeonId, player->getLevel());
+    // Update achievements
+    if (dungeon->difficulty == DUNGEON_DIFFICULTY_HEROIC)
+        player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS, 1);
+
+    LfgReward const* reward = GetRandomDungeonReward(rDungeonId, player->getLevel());
     if (!reward)
         return;
 
-    uint8 index = player->isLfgDungeonDone(dungeonId) ? 1 : 0;
     Quest const* qReward = sObjectMgr.GetQuestTemplate(reward->reward[index].questId);
     if (!qReward)
         return;
+
+    // Give rewards
+    SendLfgPlayerReward(player);
 
     if (qReward->GetRewItemsCount() > 0)
     {
@@ -1570,7 +1587,7 @@ void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player *player)
     // Not give XP in case already completed once repeatable quest
     uint32 XP = uint32(qReward->XPValue(player) * sWorld.getRate(RATE_XP_QUEST));
 
-    XP += (5 - group->GetMembersCount()) * reward->reward[index].variableXP;
+    XP += (MAXGROUPSIZE - group->GetMembersCount()) * reward->reward[index].variableXP;
 
     // Give player extra money if GetRewOrReqMoney > 0 and get ReqMoney if negative
     int32 moneyRew = qReward->GetRewOrReqMoney();
@@ -1580,7 +1597,7 @@ void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player *player)
     else
         moneyRew += int32(qReward->GetRewMoneyMaxLevel() * sWorld.getRate(RATE_DROP_MONEY));
 
-    moneyRew += (5 - group->GetMembersCount()) * reward->reward[index].variableMoney;
+    moneyRew += (MAXGROUPSIZE - group->GetMembersCount()) * reward->reward[index].variableMoney;
 
     if (moneyRew)
         player->ModifyMoney(moneyRew);
