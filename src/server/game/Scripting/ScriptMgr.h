@@ -688,6 +688,9 @@ public:
     // Both of the below are called on emote opcodes
     virtual void OnEmote(Player* /*player*/, uint32 /*emote*/) { }
     virtual void OnTextEmote(Player* /*player*/, uint32 /*text_emote*/, uint32 /*emoteNum*/, uint64 /*guid*/) { }
+
+    // Called in Spell::cast
+    virtual void OnSpellCast(Player *player, Spell *spell, bool skipCheck) { }
 };
 
 class GuildScript : public ScriptObject
@@ -887,6 +890,7 @@ class ScriptMgr
         void OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string msg, void* param = NULL);
         void OnPlayerEmote(Player* player, uint32 emote);
         void OnPlayerTextEmote(Player* player, uint32 text_emote, uint32 emoteNum, uint64 guid);
+        void OnPlayerSpellCast(Player *player, Spell *spell, bool skipCheck);
 
     public: /* GuildScript */
         void OnGuildAddMember(Guild *guild, Player *player, uint32& plRank);
