@@ -606,7 +606,7 @@ uint32 ArenaTeam::GetAverageMMR(Group *group) const
         return 0;
 
     uint32 matchmakerrating = 0;
-    uint32 player_divider = 1;
+    uint32 player_divider = 0;
     for (MemberList::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
     {
         // If player not online
@@ -620,6 +620,10 @@ uint32 ArenaTeam::GetAverageMMR(Group *group) const
         matchmakerrating += itr->matchmaker_rating;
         ++player_divider;
     }
+    
+    //- x/0 = crash
+    if (player_divider == 0)
+        player_divider = 1;
 
     matchmakerrating /= player_divider;
 
