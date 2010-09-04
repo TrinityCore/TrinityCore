@@ -32,19 +32,22 @@ EndContentData */
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
 
-#define SAY_READY -1100200
-#define SAY_AGGRO1 -1100201
-#define SAY_SEARCH -1100202
-#define SAY_AGGRO2 -1100203
-#define SAY_AGGRO3 -1100204
-#define SAY_FINISH -1100205
+enum eAMeData
+{
+    SAY_READY               = -1000517,
+    SAY_AGGRO1              = -1000518,
+    SAY_SEARCH              = -1000519,
+    SAY_AGGRO2              = -1000520,
+    SAY_AGGRO3              = -1000521,
+    SAY_FINISH              = -1000522,
 
-#define SPELL_DEMORALIZINGSHOUT  13730
+    SPELL_DEMORALIZINGSHOUT = 13730,
 
-#define QUEST_CHASING_AME 4245
-#define ENTRY_TARLORD 6519
-#define ENTRY_TARLORD1 6519
-#define ENTRY_STOMPER 6513
+    QUEST_CHASING_AME       = 4245,
+    ENTRY_TARLORD           = 6519,
+    ENTRY_TARLORD1          = 6519,
+    ENTRY_STOMPER           = 6513,
+};
 
 class npc_ame : public CreatureScript
 {
@@ -57,7 +60,7 @@ public:
         {
             CAST_AI(npc_escortAI, (pCreature->AI()))->Start(false, false, pPlayer->GetGUID());
             DoScriptText(SAY_READY, pCreature, pPlayer);
-            pCreature->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
+            pCreature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
             // Change faction so mobs attack
             pCreature->setFaction(113);
         }
@@ -84,34 +87,32 @@ public:
 
             switch (i)
             {
-
-             case 19:
-                me->SummonCreature(ENTRY_STOMPER, -6391.69f, -1730.49f, -272.83f, 4.96f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                DoScriptText(SAY_AGGRO1, me, pPlayer);
-                break;
+                case 19:
+                    me->SummonCreature(ENTRY_STOMPER, -6391.69f, -1730.49f, -272.83f, 4.96f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    DoScriptText(SAY_AGGRO1, me, pPlayer);
+                    break;
                 case 28:
-                DoScriptText(SAY_SEARCH, me, pPlayer);
-                break;
+                    DoScriptText(SAY_SEARCH, me, pPlayer);
+                    break;
                 case 38:
-                me->SummonCreature(ENTRY_TARLORD, -6370.75f, -1382.84f, -270.51f, 6.06f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                DoScriptText(SAY_AGGRO2, me, pPlayer);
-                break;
+                    me->SummonCreature(ENTRY_TARLORD, -6370.75f, -1382.84f, -270.51f, 6.06f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    DoScriptText(SAY_AGGRO2, me, pPlayer);
+                    break;
                 case 49:
-                me->SummonCreature(ENTRY_TARLORD1, -6324.44f, -1181.05f, -270.17f, 4.34f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                DoScriptText(SAY_AGGRO3, me, pPlayer);
-                break;
-             case 55:
-                DoScriptText(SAY_FINISH, me, pPlayer);
-                if (pPlayer)
-                    pPlayer->GroupEventHappens(QUEST_CHASING_AME,me);
-                break;
-
+                    me->SummonCreature(ENTRY_TARLORD1, -6324.44f, -1181.05f, -270.17f, 4.34f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    DoScriptText(SAY_AGGRO3, me, pPlayer);
+                    break;
+                case 55:
+                    DoScriptText(SAY_FINISH, me, pPlayer);
+                    if (pPlayer)
+                        pPlayer->GroupEventHappens(QUEST_CHASING_AME, me);
+                    break;
             }
         }
 
         void Reset()
         {
-          DEMORALIZINGSHOUT_Timer = 5000;
+            DEMORALIZINGSHOUT_Timer = 5000;
         }
 
         void JustSummoned(Creature* summoned)
@@ -136,13 +137,9 @@ public:
                 DoCast(me->getVictim(), SPELL_DEMORALIZINGSHOUT);
                 DEMORALIZINGSHOUT_Timer = 70000;
             } else DEMORALIZINGSHOUT_Timer -= diff;
-
         }
     };
-
 };
-
-
 
 /*####
 # npc_ringo
@@ -352,10 +349,7 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
-
-
 
 void AddSC_ungoro_crater()
 {

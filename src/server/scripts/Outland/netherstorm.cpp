@@ -39,28 +39,31 @@ EndContentData */
 ######*/
 
 //used by 20209,20417,20418,20440, signed for 20209
-#define EMOTE_START     -1000211
-#define EMOTE_60        -1000212
-#define EMOTE_30        -1000213
-#define EMOTE_10        -1000214
-#define EMOTE_COMPLETE  -1000215
-#define EMOTE_ABORT     -1000216
+enum eManaforgeConsoleData
+{
+    EMOTE_START                 = -1000211,
+    EMOTE_60                    = -1000212,
+    EMOTE_30                    = -1000213,
+    EMOTE_10                    = -1000214,
+    EMOTE_COMPLETE              = -1000215,
+    EMOTE_ABORT                 = -1000216,
 
-#define ENTRY_BNAAR_C_CONSOLE   20209
-#define ENTRY_CORUU_C_CONSOLE   20417
-#define ENTRY_DURO_C_CONSOLE    20418
-#define ENTRY_ARA_C_CONSOLE     20440
+    ENTRY_BNAAR_C_CONSOLE       = 20209,
+    ENTRY_CORUU_C_CONSOLE       = 20417,
+    ENTRY_DURO_C_CONSOLE        = 20418,
+    ENTRY_ARA_C_CONSOLE         = 20440,
 
-#define ENTRY_SUNFURY_TECH      20218
-#define ENTRY_SUNFURY_PROT      20436
+    ENTRY_SUNFURY_TECH          = 20218,
+    ENTRY_SUNFURY_PROT          = 20436,
 
-#define ENTRY_ARA_TECH          20438
-#define ENTRY_ARA_ENGI          20439
-#define ENTRY_ARA_GORKLONN      20460
+    ENTRY_ARA_TECH              = 20438,
+    ENTRY_ARA_ENGI              = 20439,
+    ENTRY_ARA_GORKLONN          = 20460,
 
-#define SPELL_DISABLE_VISUAL    35031
-#define SPELL_INTERRUPT_1       35016                       //ACID mobs should cast this
-#define SPELL_INTERRUPT_2       35176                       //ACID mobs should cast this (Manaforge Ara-version)
+    SPELL_DISABLE_VISUAL        = 35031,
+    SPELL_INTERRUPT_1           = 35016,                       //ACID mobs should cast this
+    SPELL_INTERRUPT_2           = 35176,                       //ACID mobs should cast this (Manaforge Ara-version)
+};
 
 class npc_manaforge_control_console : public CreatureScript
 {
@@ -354,20 +357,23 @@ public:
 ######*/
 
 // The Speech of Dawnforge, Ardonis & Pathaleon
-#define SAY_COMMANDER_DAWNFORGE_1           -1000128
-#define SAY_ARCANIST_ARDONIS_1              -1000129
-#define SAY_COMMANDER_DAWNFORGE_2           -1000130
-#define SAY_PATHALEON_CULATOR_IMAGE_1       -1000131
-#define SAY_COMMANDER_DAWNFORGE_3           -1000132
-#define SAY_PATHALEON_CULATOR_IMAGE_2       -1000133
-#define SAY_PATHALEON_CULATOR_IMAGE_2_1     -1000134
-#define SAY_PATHALEON_CULATOR_IMAGE_2_2     -1000135
-#define SAY_COMMANDER_DAWNFORGE_4           -1000136
-#define SAY_ARCANIST_ARDONIS_2              -1000136
-#define SAY_COMMANDER_DAWNFORGE_5           -1000137
+enum eCommanderDawnforgeData
+{
+    SAY_COMMANDER_DAWNFORGE_1       = -1000128,
+    SAY_ARCANIST_ARDONIS_1          = -1000129,
+    SAY_COMMANDER_DAWNFORGE_2       = -1000130,
+    SAY_PATHALEON_CULATOR_IMAGE_1   = -1000131,
+    SAY_COMMANDER_DAWNFORGE_3       = -1000132,
+    SAY_PATHALEON_CULATOR_IMAGE_2   = -1000133,
+    SAY_PATHALEON_CULATOR_IMAGE_2_1 = -1000134,
+    SAY_PATHALEON_CULATOR_IMAGE_2_2 = -1000135,
+    SAY_COMMANDER_DAWNFORGE_4       = -1000136,
+    SAY_ARCANIST_ARDONIS_2          = -1000136,
+    SAY_COMMANDER_DAWNFORGE_5       = -1000137,
 
-#define QUEST_INFO_GATHERING                10198
-#define SPELL_SUNFURY_DISGUISE              34603
+    QUEST_INFO_GATHERING            = 10198,
+    SPELL_SUNFURY_DISGUISE          = 34603,
+};
 
 // Entries of Arcanist Ardonis, Commander Dawnforge, Pathaleon the Curators Image
 const uint32 CreatureEntry[3] =
@@ -659,13 +665,17 @@ public:
 /*######
 ## npc_professor_dabiri
 ######*/
+enum eProfessorDabiriData
+{
+    SPELL_PHASE_DISTRUPTOR  = 35780,
 
-#define SPELL_PHASE_DISTRUPTOR  35780
+    WHISPER_DABIRI          = -1000522,
+
+    QUEST_DIMENSIUS         = 10439,
+    QUEST_ON_NETHERY_WINGS  = 10438,
+};
+
 #define GOSSIP_ITEM "I need a new phase distruptor, Professor"
-#define WHISPER_DABIRI -1000302
-
-#define QUEST_DIMENSIUS 10439
-#define QUEST_ON_NETHERY_WINGS 10438
 
 class npc_professor_dabiri : public CreatureScript
 {
@@ -713,19 +723,22 @@ public:
 ## mob_phase_hunter
 ######*/
 
-#define QUEST_RECHARGING_THE_BATTERIES  10190
+enum ePhaseHunterData
+{
+    QUEST_RECHARGING_THE_BATTERIES  = 10190,
 
-#define NPC_PHASE_HUNTER_ENTRY          18879
-#define NPC_DRAINED_PHASE_HUNTER_ENTRY  19595
+    NPC_PHASE_HUNTER_ENTRY          = 18879,
+    NPC_DRAINED_PHASE_HUNTER_ENTRY  = 19595,
 
-#define EMOTE_WEAK                      -1000303
+    EMOTE_WEAK                      = -1000303,
 
-// Spells
-#define SPELL_RECHARGING_BATTERY        34219
-#define SPELL_PHASE_SLIP                36574
-#define SPELL_MANA_BURN                 13321
-#define SPELL_MATERIALIZE               34804
-#define SPELL_DE_MATERIALIZE            34814
+    // Spells
+    SPELL_RECHARGING_BATTERY        = 34219,
+    SPELL_PHASE_SLIP                = 36574,
+    SPELL_MANA_BURN                 = 13321,
+    SPELL_MATERIALIZE               = 34804,
+    SPELL_DE_MATERIALIZE            = 34814,
+};
 
 class mob_phase_hunter : public CreatureScript
 {
@@ -745,7 +758,6 @@ public:
         bool Materialize;
         bool Drained;
         uint8 WeakPercent;
-        float HpPercent;
 
         Player *pPlayer;
         uint64 PlayerGUID;
@@ -758,7 +770,6 @@ public:
             Materialize = false;
             Drained = false;
             WeakPercent = 25 + (rand() % 16); // 25-40
-            HpPercent = 0.0f;
 
             PlayerGUID = 0;
 
@@ -829,11 +840,11 @@ public:
                 if (Weak && !Drained && me->HasAura(SPELL_RECHARGING_BATTERY))
                 {
                     Drained = true;
-                    HpPercent = me->GetHealthPct();
+                    int32 uHpPct = int32(me->GetHealthPct());
 
                     me->UpdateEntry(NPC_DRAINED_PHASE_HUNTER_ENTRY);
 
-                    me->SetHealth(me->CountPctFromMaxHealth(HpPercent));
+                    me->SetHealth(me->CountPctFromMaxHealth(uHpPct));
                     me->LowerPlayerDamageReq(me->GetMaxHealth() - me->GetHealth());
                     me->SetInCombatWith(pPlayer);
                 }
@@ -849,13 +860,15 @@ public:
 /*######
 ## npc_bessy
 ######*/
-
-#define Q_ALMABTRIEB    10337
-#define N_THADELL       20464
-#define SPAWN_FIRST     20512
-#define SPAWN_SECOND    19881
-#define SAY_THADELL_1   -1000304
-#define SAY_THADELL_2   -1000305
+enum eBessyData
+{
+    Q_ALMABTRIEB    = 10337,
+    N_THADELL       = 20464,
+    SPAWN_FIRST     = 20512,
+    SPAWN_SECOND    = 19881,
+    SAY_THADELL_1   = -1000524,
+    SAY_THADELL_2   = -1000525,
+};
 
 class npc_bessy : public CreatureScript
 {

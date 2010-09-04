@@ -448,16 +448,18 @@ public:
 /*######
 ## npc_isla_starmane
 ######*/
+enum eIslaStarmaneData
+{
+    SAY_PROGRESS_1  = -1000571,
+    SAY_PROGRESS_2  = -1000572,
+    SAY_PROGRESS_3  = -1000573,
+    SAY_PROGRESS_4  = -1000574,
 
-#define SAY_PROGRESS_1  -1100353
-#define SAY_PROGRESS_2  -1100354
-#define SAY_PROGRESS_3  -1100355
-#define SAY_PROGRESS_4  -1100356
-
-#define QUEST_EFTW_H    10052
-#define QUEST_EFTW_A    10051
-#define GO_CAGE         182794
-#define SPELL_CAT       32447
+    QUEST_EFTW_H    = 10052,
+    QUEST_EFTW_A    = 10051,
+    GO_CAGE         = 182794,
+    SPELL_CAT       = 32447,
+};
 
 class npc_isla_starmane : public CreatureScript
 {
