@@ -64,7 +64,6 @@ void DoScriptText(int32 textEntry, WorldObject* pSource, Unit *pTarget = NULL);
 /*
     TODO: Add more script type classes.
 
-    ChatScript
     MailScript
     SessionScript
     CollisionScript
