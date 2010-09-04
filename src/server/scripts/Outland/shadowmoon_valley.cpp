@@ -50,7 +50,7 @@ EndContentData */
 
 enum eMatureNetherwing
 {
-    SAY_JUST_EATEN              = -1000222,
+    SAY_JUST_EATEN              = -1000175,
 
     SPELL_PLACE_CARCASS         = 38439,
     SPELL_JUST_EATEN            = 38502,
@@ -722,36 +722,38 @@ public:
 /*####
 # npc_overlord_morghor
 ####*/
+enum eOverlordData
+{
+    QUEST_LORD_ILLIDAN_STORMRAGE    = 11108,
 
-#define QUEST_LORD_ILLIDAN_STORMRAGE 11108
+    C_ILLIDAN                       = 22083,
+    C_YARZILL                       = 23141,
 
-#define C_ILLIDAN 22083
-#define C_YARZILL 23141
+    SPELL_ONE                       = 39990, // Red Lightning Bolt
+    SPELL_TWO                       = 41528, // Mark of Stormrage
+    SPELL_THREE                     = 40216, // Dragonaw Faction
+    SPELL_FOUR                      = 42016, // Dragonaw Trasform
 
-#define SPELL_ONE 39990 // Red Lightning Bolt
-#define SPELL_TWO 41528 // Mark of Stormrage
-#define SPELL_THREE 40216 // Dragonaw Faction
-#define SPELL_FOUR 42016 // Dragonaw Trasform
+    OVERLORD_SAY_1                  = -1000606,
+    OVERLORD_SAY_2                  = -1000607,
+    OVERLORD_SAY_3                  = -1000608, //signed for 28315
+    OVERLORD_SAY_4                  = -1000609,
+    OVERLORD_SAY_5                  = -1000610,
+    OVERLORD_SAY_6                  = -1000611,
 
-#define OVERLORD_SAY_1 -1100206
-#define OVERLORD_SAY_2 -1100207
-#define OVERLORD_SAY_3 -1100208 //signed for 28315
-#define OVERLORD_SAY_4 -1100209
-#define OVERLORD_SAY_5 -1100210
-#define OVERLORD_SAY_6 -1100211
+    OVERLORD_YELL_1                 = -1000612,
+    OVERLORD_YELL_2                 = -1000613,
 
-#define OVERLORD_YELL_1 -1000212
-#define OVERLORD_YELL_2 -1000213
+    LORD_ILLIDAN_SAY_1              = -1000614,
+    LORD_ILLIDAN_SAY_2              = -1000615,
+    LORD_ILLIDAN_SAY_3              = -1000616,
+    LORD_ILLIDAN_SAY_4              = -1000617,
+    LORD_ILLIDAN_SAY_5              = -1000618,
+    LORD_ILLIDAN_SAY_6              = -1000619,
+    LORD_ILLIDAN_SAY_7              = -1000620,
 
-#define LORD_ILLIDAN_SAY_1 -1100214
-#define LORD_ILLIDAN_SAY_2 -1100215
-#define LORD_ILLIDAN_SAY_3 -1100216
-#define LORD_ILLIDAN_SAY_4 -1100217
-#define LORD_ILLIDAN_SAY_5 -1100218
-#define LORD_ILLIDAN_SAY_6 -1100219
-#define LORD_ILLIDAN_SAY_7 -1100220
-
-#define YARZILL_THE_MERC_SAY -1100221
+    YARZILL_THE_MERC_SAY            = -1000621,
+};
 
 class npc_overlord_morghor : public CreatureScript
 {
@@ -1655,7 +1657,6 @@ void npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI::SummonNextWave()
 {
     uint8 count = WavesInfo[WaveCount].SpawnCount;
     uint8 locIndex = WavesInfo[WaveCount].UsedSpawnPoint;
-    srand(time(NULL));//initializing random seed
     uint8 FelguardCount = 0;
     uint8 DreadlordCount = 0;
 

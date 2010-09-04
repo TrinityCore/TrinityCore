@@ -975,7 +975,6 @@ public:
         {
             //uint8 count = WavesInfo[WaveCount].SpawnCount;
             uint8 locIndex = WavesInfo[WaveCount].UsedSpawnPoint;
-            srand(time(NULL));//initializing random seed
             //uint8 KaldoreiSoldierCount = 0;
             //uint8 AnubisathConquerorCount = 0;
             //uint8 QirajiWaspCount = 0;

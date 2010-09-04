@@ -58,10 +58,8 @@ public:
     void OnChat(Player *player, uint32 type, uint32 lang, std::string msg, Player *receiver)
     {
         if (sWorld.getBoolConfig(CONFIG_CHATLOG_WHISPER))
-        {
             sLog.outChat("[WHISPER] Player %s tells %s: %s",
                 player->GetName(), receiver ? receiver->GetName() : "<unknown>", msg.c_str());
-        }
     }
 
     void OnChat(Player *player, uint32 type, uint32 lang, std::string msg, Group *group)
@@ -70,10 +68,8 @@ public:
         {
             case CHAT_MSG_PARTY:
                 if (sWorld.getBoolConfig(CONFIG_CHATLOG_PARTY))
-                {
                     sLog.outChat("[PARTY] Player %s tells group with leader %s: %s",
                         player->GetName(), group ? group->GetLeaderName() : "<unknown>", msg.c_str());
-                }
                 break;
 
             case CHAT_MSG_RAID_LEADER:
@@ -102,18 +98,14 @@ public:
 
             case CHAT_MSG_RAID:
                 if (sWorld.getBoolConfig(CONFIG_CHATLOG_RAID))
-                {
                     sLog.outChat("[RAID] Player %s tells raid with leader %s: %s",
                         player->GetName(), group ? group->GetLeaderName() : "<unknown>", msg.c_str());
-                }
                 break;
 
             case CHAT_MSG_BATTLEGROUND:
                 if (sWorld.getBoolConfig(CONFIG_CHATLOG_BGROUND))
-                {
                     sLog.outChat("[BATTLEGROUND] Player %s tells battleground with leader %s: %s",
                         player->GetName(), group ? group->GetLeaderName() : "<unknown>", msg.c_str());
-                }
                 break;
         }
     }
@@ -124,23 +116,17 @@ public:
         {
             case CHAT_MSG_GUILD:
                 if (lang != LANG_ADDON && sWorld.getBoolConfig(CONFIG_CHATLOG_GUILD))
-                {
                     sLog.outChat("[GUILD] Player %s tells guild %s: %s",
                         player->GetName(), guild ? guild->GetName().c_str() : "<unknown>", msg.c_str());
-                }
                 else if (lang == LANG_ADDON && sWorld.getBoolConfig(CONFIG_CHATLOG_ADDON))
-                {
                     sLog.outChat("[ADDON] Player %s sends to guild %s: %s",
                         player->GetName(), guild ? guild->GetName().c_str() : "<unknown>", msg.c_str());
-                }
                 break;
 
             case CHAT_MSG_OFFICER:
                 if (sWorld.getBoolConfig(CONFIG_CHATLOG_GUILD))
-                {
                     sLog.outChat("[OFFICER] Player %s tells guild %s officers: %s",
                         player->GetName(), guild ? guild->GetName().c_str() : "<unknown>", msg.c_str());
-                }
                 break;
         }
     }
@@ -164,5 +150,5 @@ public:
 
 void AddSC_chat_log()
 {
-    new ChatLogScript;
+    new ChatLogScript();
 }
