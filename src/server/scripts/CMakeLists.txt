@@ -25,8 +25,7 @@ endif()
 message(STATUS "SCRIPT PREPARATIONS")
 include(Spells/CMakeLists.txt)
 
-# Disabled, examples are not used in core
-#include(Examples/CMakeLists.txt)
+include(Examples/CMakeLists.txt)
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
