@@ -791,6 +791,10 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
             if (spellId == 34074)
                 return true;
             break;
+        case SPELLFAMILY_SHAMAN:
+            if (spellId == 30708)
+                return false;
+            break;
         default:
             break;
     }
