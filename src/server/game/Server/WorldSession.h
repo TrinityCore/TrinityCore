@@ -323,6 +323,7 @@ class WorldSession
         void HandlePlayerLoginOpcode(WorldPacket& recvPacket);
         void HandleCharEnum(QueryResult_AutoPtr result);
         void HandlePlayerLogin(LoginQueryHolder * holder);
+        void HandleCharFactionOrRaceChange(WorldPacket& recv_data);
 
         // played time
         void HandlePlayedTime(WorldPacket& recvPacket);
