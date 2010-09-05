@@ -190,14 +190,14 @@ bool MySQLConnection::Execute(PreparedStatement* stmt)
         return false;
 
     uint32 index = stmt->m_index;
-    MySQLPreparedStatement* m_mStmt = GetPreparedStatement(index);
-    ASSERT(m_mStmt);            // Can only be null if preparation failed, server side error or bad query
-    m_mStmt->m_stmt = stmt;     // Cross reference them for debug output
-    stmt->m_stmt = m_mStmt;
-
     {
         // guarded block for thread-safe mySQL request
         ACE_Guard<ACE_Thread_Mutex> query_connection_guard(m_Mutex);
+
+        MySQLPreparedStatement* m_mStmt = GetPreparedStatement(index);
+        ASSERT(m_mStmt);            // Can only be null if preparation failed, server side error or bad query
+        m_mStmt->m_stmt = stmt;     // Cross reference them for debug output
+        stmt->m_stmt = m_mStmt;     // TODO: Cleaner way
         
         stmt->BindParameters();
 
