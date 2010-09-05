@@ -1592,6 +1592,8 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
         {
             uint32 achiev_alliance = it->first;
             uint32 achiev_horde = it->second;
+            trans->PAppend("DELETE FROM `character_achievement WHERE `achievement`=%u AND `guid`=%u",
+                            team == BG_TEAM_ALLIANCE ? achiev_alliance : achiev_horde, GUID_LOPART(guid));
             trans->PAppend("UPDATE `character_achievement` SET achievement = '%u' where achievement = '%u' AND guid = '%u'",
                 team == BG_TEAM_ALLIANCE ? achiev_alliance : achiev_horde, team == BG_TEAM_ALLIANCE ? achiev_horde : achiev_alliance, GUID_LOPART(guid));
         }
@@ -1601,7 +1603,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
         {
             uint32 item_alliance = it->first;
             uint32 item_horde = it->second;
-            trans->PAppend("UPDATE `character_inventory` SET item = '%u' where item = '%u' AND guid = '%u'",
+            trans->PAppend("UPDATE `character_inventory` SET item_template = '%u' where item_template = '%u' AND guid = '%u'",
                 team == BG_TEAM_ALLIANCE ? item_alliance : item_horde, team == BG_TEAM_ALLIANCE ? item_horde : item_alliance, guid);
         }
 
