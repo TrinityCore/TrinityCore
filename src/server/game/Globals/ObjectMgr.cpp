@@ -8931,3 +8931,183 @@ void ObjectMgr::LoadCreatureClassLevelStats()
     sLog.outString();
     sLog.outString(">> Loaded %u creature base stats.", counter);
 }
+
+void ObjectMgr::LoadFactionChangeAchievements()
+{
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_achievement");
+
+    if (!result)
+    {
+        barGoLink bar(1);
+        bar.step();
+        sLog.outString();
+        sLog.outString(">> Loaded 0 faction change achievement pairs. DB table `player_factionchange_achievement` is empty.");
+        return;
+    }
+
+    barGoLink bar(result->GetRowCount());
+    uint32 counter = 0;
+
+    do
+    {
+        Field *fields = result->Fetch();
+
+        uint32 alliance = fields[0].GetUInt32();
+        uint32 horde = fields[1].GetUInt32();
+
+        if (!sAchievementStore.LookupEntry(alliance))
+        {
+            sLog.outErrorDb("Achievement %u referenced in `player_factionchange_achievement` does not exist, pair skipped!", alliance);
+        }
+        else if (!sAchievementStore.LookupEntry(horde))
+        {
+            sLog.outErrorDb("Achievement %u referenced in `player_factionchange_achievement` does not exist, pair skipped!", horde);
+        }
+        else
+        {
+            factionchange_achievements[alliance] = horde;
+        }
+
+        bar.step();
+        ++counter;
+    }
+    while (result->NextRow());
+
+    sLog.outString();
+    sLog.outString(">> Loaded %u faction change achievement pairs.", counter);
+}
+
+void ObjectMgr::LoadFactionChangeItems()
+{
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_items");
+
+    if (!result)
+    {
+        barGoLink bar(1);
+        bar.step();
+        sLog.outString();
+        sLog.outString(">> Loaded 0 faction change item pairs. DB table `player_factionchange_items` is empty.");
+        return;
+    }
+
+    barGoLink bar(result->GetRowCount());
+    uint32 counter = 0;
+
+    do
+    {
+        Field *fields = result->Fetch();
+
+        uint32 alliance = fields[0].GetUInt32();
+        uint32 horde = fields[1].GetUInt32();
+
+        if (!GetItemPrototype(alliance))
+        {
+            sLog.outErrorDb("Item %u referenced in `player_factionchange_items` does not exist, pair skipped!", alliance);
+        }
+        else if (!GetItemPrototype(horde))
+        {
+            sLog.outErrorDb("Item %u referenced in `player_factionchange_items` does not exist, pair skipped!", horde);
+        }
+        else
+        {
+            factionchange_items[alliance] = horde;
+        }
+
+        bar.step();
+        ++counter;
+    }
+    while (result->NextRow());
+
+    sLog.outString();
+    sLog.outString(">> Loaded %u faction change item pairs.", counter);
+}
+
+void ObjectMgr::LoadFactionChangeSpells()
+{
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_spells");
+
+    if (!result)
+    {
+        barGoLink bar(1);
+        bar.step();
+        sLog.outString();
+        sLog.outString(">> Loaded 0 faction change spell pairs. DB table `player_factionchange_spells` is empty.");
+        return;
+    }
+
+    barGoLink bar(result->GetRowCount());
+    uint32 counter = 0;
+
+    do
+    {
+        Field *fields = result->Fetch();
+
+        uint32 alliance = fields[0].GetUInt32();
+        uint32 horde = fields[1].GetUInt32();
+
+        if (!sSpellStore.LookupEntry(alliance))
+        {
+            sLog.outErrorDb("Spell %u referenced in `player_factionchange_spells` does not exist, pair skipped!", alliance);
+        }
+        else if (!sSpellStore.LookupEntry(horde))
+        {
+            sLog.outErrorDb("Spell %u referenced in `player_factionchange_spells` does not exist, pair skipped!", horde);
+        }
+        else
+        {
+            factionchange_spells[alliance] = horde;
+        }
+
+        bar.step();
+        ++counter;
+    }
+    while (result->NextRow());
+
+    sLog.outString();
+    sLog.outString(">> Loaded %u faction change spell pairs.", counter);
+}
+
+void ObjectMgr::LoadFactionChangeReputations()
+{
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_reputations");
+
+    if (!result)
+    {
+        barGoLink bar(1);
+        bar.step();
+        sLog.outString();
+        sLog.outString(">> Loaded 0 faction change reputation pairs. DB table `player_factionchange_reputations` is empty.");
+        return;
+    }
+
+    barGoLink bar(result->GetRowCount());
+    uint32 counter = 0;
+
+    do
+    {
+        Field *fields = result->Fetch();
+
+        uint32 alliance = fields[0].GetUInt32();
+        uint32 horde = fields[1].GetUInt32();
+
+        if (!sFactionStore.LookupEntry(alliance))
+        {
+            sLog.outErrorDb("Reputation %u referenced in `player_factionchange_reputations` does not exist, pair skipped!", alliance);
+        }
+        else if (!sFactionStore.LookupEntry(horde))
+        {
+            sLog.outErrorDb("Reputation %u referenced in `player_factionchange_reputations` does not exist, pair skipped!", horde);
+        }
+        else
+        {
+            factionchange_reputations[alliance] = horde;
+        }
+
+        bar.step();
+        ++counter;
+    }
+    while (result->NextRow());
+
+    sLog.outString();
+    sLog.outString(">> Loaded %u faction change reputation pairs.", counter);
+}

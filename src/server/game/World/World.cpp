@@ -1578,6 +1578,18 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading Conditions...");
     sConditionMgr.LoadConditions();
 
+    sLog.outString("Loading faction change achievement pairs...");
+    sObjectMgr.LoadFactionChangeAchievements();
+
+    sLog.outString("Loading faction change spell pairs...");
+    sObjectMgr.LoadFactionChangeSpells();
+
+    sLog.outString("Loading faction change item pairs...");
+    sObjectMgr.LoadFactionChangeItems();
+
+    sLog.outString("Loading faction change reputation pairs...");
+    sObjectMgr.LoadFactionChangeReputations();
+
     sLog.outString("Loading GM tickets...");
     sTicketMgr.LoadGMTickets();
 
