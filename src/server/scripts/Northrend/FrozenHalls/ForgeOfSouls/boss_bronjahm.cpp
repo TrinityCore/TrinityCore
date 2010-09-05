@@ -149,6 +149,7 @@ public:
                 me->GetMotionMaster()->Clear();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 events.CancelEvent(EVENT_CORRUPT_SOUL);
+                events.CancelEvent(EVENT_SHADOW_BOLT);
                 events.ScheduleEvent(EVENT_SOUL_STORM, 1000);
                 events.ScheduleEvent(EVENT_FEAR, urand(8000,12000));
                 return;
@@ -180,7 +181,8 @@ public:
                         events.ScheduleEvent(EVENT_FEAR, urand(8000,12000));
                         break;
                     case EVENT_SHADOW_BOLT:
-                        DoCastVictim(SPELL_SHADOW_BOLT);
+                        if (!me->IsWithinMeleeRange(me->getVictim()))
+                            DoCastVictim(SPELL_SHADOW_BOLT);
                         events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
                         break;
                     case EVENT_MAGIC_BANE:
