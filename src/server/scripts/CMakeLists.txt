@@ -8,15 +8,6 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-file(GLOB_RECURSE scripts_easternkingdoms EasternKingdoms/*.cpp EasternKingdoms/*.h)
-file(GLOB_RECURSE scripts_kalimdor Kalimdor/*.cpp Kalimdor/*.h)
-file(GLOB_RECURSE scripts_northrend Northrend/*.cpp Northrend/*.h)
-file(GLOB_RECURSE scripts_outland Outland/*.cpp Outland/*.h)
-file(GLOB_RECURSE scripts_world World/*.cpp World/*.h)
-file(GLOB_RECURSE scripts_spells Spells/*.cpp Spells/*.h)
-file(GLOB_RECURSE scripts_examples Examples/*.cpp Examples/*.h)
-file(GLOB_RECURSE scripts_outdoorpvp OutdoorPvP/*.cpp OutdoorPvP/*.h)
-
 # Enable precompiled headers when using the GCC compiler.
 if( USE_SCRIPTPCH )
   include_directories(
@@ -31,16 +22,14 @@ if( USE_SCRIPTPCH AND MSVC )
   )
 endif()
 
+message(STATUS "SCRIPT PREPARATIONS")
+include(Spells/CMakeLists.txt)
+
+# Disabled, examples are not used in core
+#include(Examples/CMakeLists.txt)
+
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
-  ${scripts_easternkingdoms}
-  ${scripts_kalimdor}
-  ${scripts_northrend}
-  ${scripts_outland}
-  ${scripts_world}
-  ${scripts_spells}
-  ${scripts_examples}
-  ${scripts_outdoorpvp}
   ../game/AI/ScriptedAI/ScriptedEscortAI.cpp
   ../game/AI/ScriptedAI/ScriptedCreature.cpp
   ../game/AI/ScriptedAI/ScriptedFollowerAI.cpp
@@ -48,7 +37,18 @@ set(scripts_STAT_SRCS
   ../game/AI/ScriptedAI/ScriptedSimpleAI.cpp
 )
 
-message("-- Added Script Library to SCRIPTS lib")
+if(SCRIPTS)
+  include(Custom/CMakeLists.txt)
+  include(World/CMakeLists.txt)
+  include(OutdoorPvP/CMakeLists.txt)
+  include(EasternKingdoms/CMakeLists.txt)
+  include(Kalimdor/CMakeLists.txt)
+  include(Outland/CMakeLists.txt)
+  include(Northrend/CMakeLists.txt)
+endif()
+
+message(STATUS "SCRIPT PREPARATION COMPLETE")
+message("")
 
 include_directories(
   ${CMAKE_BINARY_DIR}
