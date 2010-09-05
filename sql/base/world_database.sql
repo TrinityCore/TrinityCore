@@ -361,6 +361,8 @@ INSERT INTO `command` VALUES
 ('character rename',2,'Syntax: .character rename [$name]\r\n\r\nMark selected in game or by $name in command character for rename at next login.'),
 ('character reputation',2,'Syntax: .character reputation [$player_name]\r\n\r\nShow reputation information for selected player or player find by $player_name.'),
 ('character titles',2,'Syntax: .character titles [$player_name]\r\n\r\nShow known titles list for selected player or player find by $player_name.'),
+('character changefaction',2,'Syntax: .character changefaction $name\r\n\r\nChange character faction.'),
+('character changerace',2,'Syntax: .character changerace $name\r\n\r\nChange character race.'),
 ('channel set public', 3, 'Syntax: .channel set public  $channel $public\r\n\r\nChange password-changing ability for a channel. 1 for possible, 0 for GM only.'),
 ('combatstop',2,'Syntax: .combatstop [$playername]\r\nStop combat for selected character. If selected non-player then command applied to self. If $playername provided then attempt applied to online player $playername.'),
 ('cometome',3,'SYntax: .cometome $parameter\nMake selected creature come to your current location (new position not saved to DB).'),
@@ -436,7 +438,7 @@ INSERT INTO `command` VALUES
 ('instance listbinds',3,'Syntax: .instance listbinds\r\n  Lists the binds of the selected player.'),
 ('instance savedata',3,'Syntax: .instance savedata\r\n  Save the InstanceData for the current player''s map to the DB.'),
 ('instance stats',3,'Syntax: .instance stats\r\n  Shows statistics about instances.'),
-('instance unbind',3,'Syntax: .instance unbind <mapid|all> [difficulty]\r\n  Clear all/some of player\'s binds'),
+('instance unbind',3,'Syntax: .instance unbind <mapid|all> [difficulty]\r\n  Clear all/some of player''s binds'),
 ('itemmove',2,'Syntax: .itemmove #sourceslotid #destinationslotid\r\n\r\nMove an item from slots #sourceslotid to #destinationslotid in your inventory\r\n\r\nNot yet implemented'),
 ('kick',2,'Syntax: .kick [$charactername] [$reason]\r\n\r\nKick the given character name from the world with or without reason. If no character name is provided then the selected player (except for yourself) will be kicked. If no reason is provided, default is \"No Reason\".'),
 ('learn',3,'Syntax: .learn #spell [all]\r\n\r\nSelected character learn a spell of id #spell. If ''all'' provided then all ranks learned.'),
@@ -7738,6 +7740,102 @@ INSERT INTO `player_classlevelstats` VALUES
 (11,79,6902,3383),
 (11,80,7417,3496);
 /*!40000 ALTER TABLE `player_classlevelstats` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `player_factionchange_achievement`
+--
+
+DROP TABLE IF EXISTS `player_factionchange_achievement`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `player_factionchange_achievement` (
+ `alliance_id` int(8) NOT NULL,
+ `horde_id` int(8) NOT NULL,
+ PRIMARY KEY (`alliance_id`,`horde_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `player_factionchange_achievement`
+--
+
+LOCK TABLES `player_factionchange_achievement` WRITE;
+/*!40000 ALTER TABLE `player_factionchange_achievement` DISABLE KEYS */;
+/*!40000 ALTER TABLE `player_factionchange_achievement` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `player_factionchange_items`
+--
+
+DROP TABLE IF EXISTS `player_factionchange_items`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `player_factionchange_items` (
+ `race_A` int(8) NOT NULL,
+ `alliance_id` int(8) NOT NULL,
+ `commentA` text,
+ `race_H` int(8) NOT NULL,
+ `horde_id` int(8) NOT NULL,
+ `commentH` text,
+PRIMARY KEY (`alliance_id`,`horde_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `player_factionchange_items`
+--
+
+LOCK TABLES `player_factionchange_items` WRITE;
+/*!40000 ALTER TABLE `player_factionchange_items` DISABLE KEYS */;
+/*!40000 ALTER TABLE `player_factionchange_items` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `player_factionchange_reputations`
+--
+
+DROP TABLE IF EXISTS `player_factionchange_reputations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `player_factionchange_reputations` (
+ `alliance_id` int(8) NOT NULL,
+ `horde_id` int(8) NOT NULL,
+ PRIMARY KEY (`alliance_id`,`horde_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `player_factionchange_reputations`
+--
+
+LOCK TABLES `player_factionchange_reputations` WRITE;
+/*!40000 ALTER TABLE `player_factionchange_reputations` DISABLE KEYS */;
+/*!40000 ALTER TABLE `player_factionchange_reputations` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `player_factionchange_spells`
+--
+
+DROP TABLE IF EXISTS `player_factionchange_spells`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `player_factionchange_spells` (
+ `alliance_id` int(8) NOT NULL,
+ `horde_id` int(8) NOT NULL,
+ PRIMARY KEY (`alliance_id`,`horde_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `player_factionchange_spells`
+--
+
+LOCK TABLES `player_factionchange_spells` WRITE;
+/*!40000 ALTER TABLE `player_factionchange_spells` DISABLE KEYS */;
+/*!40000 ALTER TABLE `player_factionchange_spells` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --

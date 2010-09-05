@@ -390,6 +390,8 @@ class ObjectMgr
 
         typedef std::vector<std::string> ScriptNameMap;
 
+        typedef std::map<uint32, uint32> CharacterConversionMap;
+
         Player* GetPlayer(const char* name) const { return sObjectAccessor.FindPlayerByName(name);}
         Player* GetPlayer(uint64 guid) const { return ObjectAccessor::FindPlayer(guid); }
 
@@ -960,6 +962,16 @@ class ObjectMgr
             if (data.size() > size_t(loc_idx) && !data[loc_idx].empty())
                 value = data[loc_idx];
         }
+
+        CharacterConversionMap factionchange_achievements;
+        CharacterConversionMap factionchange_items;
+        CharacterConversionMap factionchange_spells;
+        CharacterConversionMap factionchange_reputations;
+
+        void LoadFactionChangeAchievements();
+        void LoadFactionChangeItems();
+        void LoadFactionChangeSpells();
+        void LoadFactionChangeReputations();
 
     protected:
 

@@ -42,6 +42,7 @@
 #include "UpdateMask.h"
 #include "Util.h"
 #include "ScriptMgr.h"
+#include "Battleground.h"
 
 class LoginQueryHolder : public SQLQueryHolder
 {
@@ -1325,5 +1326,321 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket &recv_data)
 
     WorldPacket data(SMSG_EQUIPMENT_SET_USE_RESULT, 1);
     data << uint8(0);                                       // 4 - equipment swap failed - inventory is full
+    SendPacket(&data);
+}
+
+void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
+{
+    uint64 guid;
+    std::string newname;
+    uint8 gender, skin, face, hairStyle, hairColor, facialHair, race;
+    recv_data >> guid;
+    recv_data >> newname;
+    recv_data >> gender >> skin >> hairColor >> hairStyle >> facialHair >> face >> race;
+
+    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT class, level, at_login FROM characters WHERE guid ='%u'", GUID_LOPART(guid));
+    if (!result)
+    {
+        WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 1);
+        data << uint8(CHAR_CREATE_ERROR);
+        SendPacket( &data );
+        return;
+    }
+
+    Field *fields = result->Fetch();
+    uint32 playerClass = fields[0].GetUInt32();
+    uint32 level = fields[1].GetUInt32();
+    uint32 at_loginFlags = fields[2].GetUInt32();
+    uint32 used_loginFlag = ((recv_data.GetOpcode() == CMSG_CHAR_RACE_CHANGE) ? AT_LOGIN_CHANGE_RACE : AT_LOGIN_CHANGE_FACTION);
+
+    if (!sObjectMgr.GetPlayerInfo(race, playerClass))
+    {
+        WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 1);
+        data << uint8(CHAR_CREATE_ERROR);
+        SendPacket( &data );
+        return;
+    }
+
+    if (!(at_loginFlags & used_loginFlag))
+    {
+        WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 1);
+        data << uint8(CHAR_CREATE_ERROR);
+        SendPacket( &data );
+        return;
+    }
+
+    // prevent character rename to invalid name
+    if (!normalizePlayerName(newname))
+    {
+        WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 1);
+        data << uint8(CHAR_NAME_NO_NAME);
+        SendPacket( &data );
+        return;
+    }
+
+    uint8 res = ObjectMgr::CheckPlayerName(newname,true);
+    if (res != CHAR_NAME_SUCCESS)
+    {
+        WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 1);
+        data << uint8(res);
+        SendPacket( &data );
+        return;
+    }
+
+    // check name limitations
+    if (GetSecurity() == SEC_PLAYER && sObjectMgr.IsReservedName(newname))
+    {
+        WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 1);
+        data << uint8(CHAR_NAME_RESERVED);
+        SendPacket( &data );
+        return;
+    }
+
+    // character with this name already exist
+    if (uint64 newguid = sObjectMgr.GetPlayerGUIDByName(newname))
+    {
+        if (newguid != guid)
+        {
+            WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 1);
+            data << uint8(CHAR_CREATE_NAME_IN_USE);
+            SendPacket( &data );
+            return;
+        }
+    }
+
+    CharacterDatabase.escape_string(newname);
+    Player::Customize(guid, gender, skin, face, hairStyle, hairColor, facialHair);
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    trans->PAppend("UPDATE `characters` SET name = '%s', race = '%u', at_login = at_login & ~ %u WHERE guid ='%u'", newname.c_str(), race, uint32(used_loginFlag), GUID_LOPART(guid));
+    trans->PAppend("DELETE FROM character_declinedname WHERE guid ='%u'", GUID_LOPART(guid));
+
+    BattlegroundTeamId team;
+
+    // Search each faction is targeted
+    switch(race)
+    {
+    case RACE_ORC:
+    case RACE_TAUREN:
+    case RACE_UNDEAD_PLAYER:
+    case RACE_TROLL:
+    case RACE_BLOODELF:
+        team = BG_TEAM_HORDE;
+        break;
+    default:
+        team = BG_TEAM_ALLIANCE;
+        break;
+    }
+
+    // Switch Languages
+    // delete all languages first
+    trans->PAppend("DELETE FROM `character_skills` WHERE `skill` IN (98, 113, 759, 111, 313, 109, 115, 315, 673, 137) AND `guid`='%u'", GUID_LOPART(guid));
+
+    // now add them back
+    if (team == BG_TEAM_ALLIANCE)
+    {
+        trans->PAppend("INSERT INTO `character_skills` (guid, skill, value, max) VALUES (%u, 98, 300, 300)", GUID_LOPART(guid));
+        switch (race)
+        {
+        case RACE_DWARF:
+            trans->PAppend("INSERT INTO `character_skills` (guid, skill, value, max) VALUES (%u, 111, 300, 300)", GUID_LOPART(guid));
+            break;
+        case RACE_DRAENEI:
+            trans->PAppend("INSERT INTO `character_skills` (guid, skill, value, max) VALUES (%u, 759, 300, 300)", GUID_LOPART(guid));
+            break;
+        case RACE_GNOME:
+            trans->PAppend("INSERT INTO `character_skills` (guid, skill, value, max) VALUES (%u, 313, 300, 300)", GUID_LOPART(guid));
+            break;
+        case RACE_NIGHTELF:
+            trans->PAppend("INSERT INTO `character_skills` (guid, skill, value, max) VALUES (%u, 113, 300, 300)", GUID_LOPART(guid));
+            break;
+        }
+    }
+    else if (team == BG_TEAM_HORDE)
+    {
+        trans->PAppend("INSERT INTO `character_skills` (guid, skill, value, max) VALUES (%u, 109, 300, 300)", GUID_LOPART(guid));
+        switch (race)
+        {
+        case RACE_UNDEAD_PLAYER:
+            trans->PAppend("INSERT INTO `character_skills` (guid, skill, value, max) VALUES (%u, 673, 300, 300)", GUID_LOPART(guid));
+            break;
+        case RACE_TAUREN:
+            trans->PAppend("INSERT INTO `character_skills` (guid, skill, value, max) VALUES (%u, 115, 300, 300)", GUID_LOPART(guid));
+            break;
+        case RACE_TROLL:
+            trans->PAppend("INSERT INTO `character_skills` (guid, skill, value, max) VALUES (%u, 315, 300, 300)", GUID_LOPART(guid));
+            break;
+        case RACE_BLOODELF:
+            trans->PAppend("INSERT INTO `character_skills` (guid, skill, value, max) VALUES (%u, 137, 300, 300)", GUID_LOPART(guid));
+            break;
+        }
+    }
+
+    if(recv_data.GetOpcode() == CMSG_CHAR_FACTION_CHANGE)
+    {
+        // Delete all Flypaths
+        trans->PAppend("UPDATE `characters` SET taxi_path = '' WHERE guid ='%u'",GUID_LOPART(guid));
+
+        if (level > 7)
+        {
+            // Update Taxi path
+            // this doesn't seem to be 100% blizzlike... but it can't really be helped.
+            std::ostringstream taximaskstream;
+            uint32 numFullTaximasks = level / 7;
+            if (numFullTaximasks > 11)
+                numFullTaximasks = 11;
+            if (team == BG_TEAM_ALLIANCE)
+            {
+                if (playerClass != CLASS_DEATH_KNIGHT)
+                {
+                    for (uint8 i = 0; i < numFullTaximasks; ++i)
+                        taximaskstream << uint32(sAllianceTaxiNodesMask[i]) << " ";
+                }
+                else
+                {
+                    for (uint8 i = 0; i < numFullTaximasks; ++i)
+                        taximaskstream << uint32(sAllianceTaxiNodesMask[i] | sDeathKnightTaxiNodesMask[i]) << " ";
+                }
+            }
+            else
+            {
+                if (playerClass != CLASS_DEATH_KNIGHT)
+                {
+                    for (uint8 i = 0; i < numFullTaximasks; ++i)
+                        taximaskstream << uint32(sHordeTaxiNodesMask[i]) << " ";
+                }
+                else
+                {
+                    for (uint8 i = 0; i < numFullTaximasks; ++i)
+                        taximaskstream << uint32(sHordeTaxiNodesMask[i] | sDeathKnightTaxiNodesMask[i]) << " ";
+                }
+            }
+
+            uint32 numEmptyTaximasks = 11 - numFullTaximasks;
+            for (uint8 i = 0; i < numEmptyTaximasks; ++i)
+                taximaskstream << "0 ";
+            taximaskstream << "0";
+            std::string taximask = taximaskstream.str();
+            trans->PAppend("UPDATE `characters` SET `taximask`= '%s' WHERE `guid` = '%u'", taximask.c_str(), GUID_LOPART(guid));
+        }
+
+        // Delete all current quests
+        trans->PAppend("DELETE FROM `character_queststatus` WHERE `status` = 3 AND guid ='%u'",GUID_LOPART(guid));
+
+        // Delete record of the faction old completed quests
+        {
+            std::ostringstream quests;
+            ObjectMgr::QuestMap const& qTemplates = sObjectMgr.GetQuestTemplates();
+            for (ObjectMgr::QuestMap::const_iterator iter = qTemplates.begin(); iter != qTemplates.end(); ++iter)
+            {
+                Quest *qinfo = iter->second;
+                uint32 requiredRaces = qinfo->GetRequiredRaces();
+                if (team == BG_TEAM_ALLIANCE)
+                {
+                    if (requiredRaces & RACEMASK_ALLIANCE)
+                    {
+                        quests << uint32(qinfo->GetQuestId());
+                        quests << ",";
+                    }
+                }
+                else // if (team == BG_TEAM_HORDE)
+                {
+                    if (requiredRaces & RACEMASK_HORDE)
+                    {
+                        quests << uint32(qinfo->GetQuestId());
+                        quests << ",";
+                    }
+                }
+            }
+
+            std::string questsStr = quests.str();
+            questsStr = questsStr.substr(0, questsStr.length() - 1);
+
+            trans->PAppend("DELETE FROM `character_queststatus` WHERE guid= '%u' AND quest IN (%s)",GUID_LOPART(guid),questsStr.c_str());
+        }
+
+        if (!sWorld.getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD))
+        {
+            // Reset guild
+            trans->PAppend("DELETE FROM `guild_member` WHERE `guid`= '%u'",GUID_LOPART(guid));
+        }
+
+        if (!sWorld.getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ADD_FRIEND))
+        {
+            // Delete Friend List
+            trans->PAppend("DELETE FROM `character_social` WHERE `guid`= '%u'",GUID_LOPART(guid));
+            trans->PAppend("DELETE FROM `character_social` WHERE `friend`= '%u'",GUID_LOPART(guid));
+        }
+
+        // Leave Arena Teams
+        Player::LeaveAllArenaTeams(GUID_LOPART(guid));
+
+        // Reset homebind and position
+        trans->PAppend("DELETE FROM `character_homebind` WHERE guid = '%u'",GUID_LOPART(guid));
+        if(team == BG_TEAM_ALLIANCE)
+        {
+            trans->PAppend("INSERT INTO `character_homebind` VALUES (%u,0,1519,-8867.68,673.373,97.9034)",GUID_LOPART(guid));
+            Player::SavePositionInDB(0, -8867.68f, 673.373f, 97.9034f, 0.0f, 1519, GUID_LOPART(guid));
+        }
+        else
+        {
+            trans->PAppend("INSERT INTO `character_homebind` VALUES (%u,1,1637,1633.33,-4439.11,15.7588)",GUID_LOPART(guid));
+            Player::SavePositionInDB(1, 1633.33f, -4439.11f, 15.7588f, 0.0f, 1637, GUID_LOPART(guid));
+        }
+
+        // Achievement conversion
+        for (std::map<uint32, uint32>::const_iterator it = sObjectMgr.factionchange_achievements.begin(); it != sObjectMgr.factionchange_achievements.end(); ++it)
+        {
+            uint32 achiev_alliance = it->first;
+            uint32 achiev_horde = it->second;
+            trans->PAppend("UPDATE `character_achievement` SET achievement = '%u' where achievement = '%u' AND guid = '%u'",
+                team == BG_TEAM_ALLIANCE ? achiev_alliance : achiev_horde, team == BG_TEAM_ALLIANCE ? achiev_horde : achiev_alliance, GUID_LOPART(guid));
+        }
+
+        // Item conversion
+        for (std::map<uint32, uint32>::const_iterator it = sObjectMgr.factionchange_items.begin(); it != sObjectMgr.factionchange_items.end(); ++it)
+        {
+            uint32 item_alliance = it->first;
+            uint32 item_horde = it->second;
+            trans->PAppend("UPDATE `character_inventory` SET item = '%u' where item = '%u' AND guid = '%u'",
+                team == BG_TEAM_ALLIANCE ? item_alliance : item_horde, team == BG_TEAM_ALLIANCE ? item_horde : item_alliance, guid);
+        }
+
+        // Spell conversion
+        for (std::map<uint32, uint32>::const_iterator it = sObjectMgr.factionchange_spells.begin(); it != sObjectMgr.factionchange_spells.end(); ++it)
+        {
+            uint32 spell_alliance = it->first;
+            uint32 spell_horde = it->second;
+            trans->PAppend("UPDATE `character_spell` SET spell = '%u' where spell = '%u' AND guid = '%u'",
+                team == BG_TEAM_ALLIANCE ? spell_alliance : spell_horde, team == BG_TEAM_ALLIANCE ? spell_horde : spell_alliance, GUID_LOPART(guid));
+        }
+
+        // Reputation conversion
+        for (std::map<uint32, uint32>::const_iterator it = sObjectMgr.factionchange_reputations.begin(); it != sObjectMgr.factionchange_reputations.end(); ++it)
+        {
+            uint32 reputation_alliance = it->first;
+            uint32 reputation_horde = it->second;
+            trans->PAppend("DELETE FROM character_reputation WHERE faction = '%u' AND guid = '%u'",
+                team == BG_TEAM_ALLIANCE ? reputation_alliance : reputation_horde, GUID_LOPART(guid));
+            trans->PAppend("UPDATE `character_reputation` SET faction = '%u' where faction = '%u' AND guid = '%u'",
+                team == BG_TEAM_ALLIANCE ? reputation_alliance : reputation_horde, team == BG_TEAM_ALLIANCE ? reputation_horde : reputation_alliance, GUID_LOPART(guid));
+        }
+    }
+
+    CharacterDatabase.CommitTransaction(trans);
+
+    std::string IP_str = GetRemoteAddress();
+    sLog.outDebug("Account: %d (IP: %s), Character guid: %u Change Race/Faction to: %s", GetAccountId(), IP_str.c_str(), GUID_LOPART(guid), newname.c_str());
+
+    WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 1 + 8 + (newname.size() + 1) + 1 + 1 + 1 + 1 + 1 + 1 + 1);
+    data << uint8(RESPONSE_SUCCESS);
+    data << uint64(guid);
+    data << newname;
+    data << uint8(gender);
+    data << uint8(skin);
+    data << uint8(face);
+    data << uint8(hairStyle);
+    data << uint8(hairColor);
+    data << uint8(facialHair);
+    data << uint8(race);
     SendPacket(&data);
 }

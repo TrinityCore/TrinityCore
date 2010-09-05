@@ -170,6 +170,9 @@ static uint32 sTalentTabPages[MAX_CLASSES][3];
 DBCStorage <TaxiNodesEntry> sTaxiNodesStore(TaxiNodesEntryfmt);
 TaxiMask sTaxiNodesMask;
 TaxiMask sOldContinentsNodesMask;
+TaxiMask sHordeTaxiNodesMask;
+TaxiMask sAllianceTaxiNodesMask;
+TaxiMask sDeathKnightTaxiNodesMask;
 
 // DBC used only for initialization sTaxiPathSetBySource at startup.
 TaxiPathSetBySource sTaxiPathSetBySource;
@@ -515,11 +518,14 @@ void LoadDBCStores(const std::string& dataPath)
         for (uint32 i = 1; i < sSpellStore.GetNumRows (); ++i)
             if (SpellEntry const* sInfo = sSpellStore.LookupEntry (i))
                 for (int j=0; j < 3; ++j)
-                    if (sInfo->Effect[j] == 123 /*SPELL_EFFECT_SEND_TAXI*/)
+                    if (sInfo->Effect[j] == SPELL_EFFECT_SEND_TAXI)
                         spellPaths.insert(sInfo->EffectMiscValue[j]);
 
         memset(sTaxiNodesMask,0,sizeof(sTaxiNodesMask));
-        memset(sOldContinentsNodesMask,0,sizeof(sTaxiNodesMask));
+        memset(sOldContinentsNodesMask,0,sizeof(sOldContinentsNodesMask));
+        memset(sHordeTaxiNodesMask,0,sizeof(sHordeTaxiNodesMask));
+        memset(sAllianceTaxiNodesMask,0,sizeof(sAllianceTaxiNodesMask));
+        memset(sDeathKnightTaxiNodesMask,0,sizeof(sDeathKnightTaxiNodesMask));
         for (uint32 i = 1; i < sTaxiNodesStore.GetNumRows(); ++i)
         {
             TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(i);
@@ -548,6 +554,13 @@ void LoadDBCStores(const std::string& dataPath)
             uint8  field   = (uint8)((i - 1) / 32);
             uint32 submask = 1<<((i-1)%32);
             sTaxiNodesMask[field] |= submask;
+
+            if (node->MountCreatureID[0] && node->MountCreatureID[0] != 32981)
+                sHordeTaxiNodesMask[field] |= submask;
+            if (node->MountCreatureID[1] && node->MountCreatureID[1] != 32981)
+                sAllianceTaxiNodesMask[field] |= submask;
+            if (node->MountCreatureID[0] == 32981 || node->MountCreatureID[1] == 32981)
+                sDeathKnightTaxiNodesMask[field] |= submask;
 
             // old continent node (+ nodes virtually at old continents, check explicitly to avoid loading map files for zone info)
             if (node->map_id < 2 || i == 82 || i == 83 || i == 93 || i == 94)
