@@ -1182,7 +1182,7 @@ void LFGMgr::RemoveFromCompatibles(uint64 guid)
 /// <param name="bool">compatibles or not</param>
 void LFGMgr::SetCompatibles(std::string key, bool compatibles)
 {
-    sLog.outDebug("SPP:LFGMgr::GetCompatibles: (%s): %d", key.c_str(), LfgAnswer(compatibles));
+    sLog.outDebug("LFGMgr::GetCompatibles: (%s): %d", key.c_str(), LfgAnswer(compatibles));
     m_CompatibleMap[key] = LfgAnswer(compatibles);
 }
 
@@ -1198,7 +1198,7 @@ LfgAnswer LFGMgr::GetCompatibles(std::string key)
     if (it != m_CompatibleMap.end())
         answer = it->second;
 
-    sLog.outDebug("SPP:LFGMgr::GetCompatibles: (%s): %d", key.c_str(), answer);
+    sLog.outDebug("LFGMgr::GetCompatibles: (%s): %d", key.c_str(), answer);
     return answer;
 }
 
