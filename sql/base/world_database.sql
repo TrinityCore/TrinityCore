@@ -436,7 +436,7 @@ INSERT INTO `command` VALUES
 ('instance listbinds',3,'Syntax: .instance listbinds\r\n  Lists the binds of the selected player.'),
 ('instance savedata',3,'Syntax: .instance savedata\r\n  Save the InstanceData for the current player''s map to the DB.'),
 ('instance stats',3,'Syntax: .instance stats\r\n  Shows statistics about instances.'),
-('instance unbind',3,'Syntax: .instance unbind all\r\n  All of the selected player''s binds will be cleared.'),
+('instance unbind',3,'Syntax: .instance unbind <mapid|all> [difficulty]\r\n  Clear all/some of player\'s binds'),
 ('itemmove',2,'Syntax: .itemmove #sourceslotid #destinationslotid\r\n\r\nMove an item from slots #sourceslotid to #destinationslotid in your inventory\r\n\r\nNot yet implemented'),
 ('kick',2,'Syntax: .kick [$charactername] [$reason]\r\n\r\nKick the given character name from the world with or without reason. If no character name is provided then the selected player (except for yourself) will be kicked. If no reason is provided, default is \"No Reason\".'),
 ('learn',3,'Syntax: .learn #spell [all]\r\n\r\nSelected character learn a spell of id #spell. If ''all'' provided then all ranks learned.'),
