@@ -7416,6 +7416,38 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     }
                     return false;
                 }
+                case 63280: // Glyph of Totem of Wrath
+                {
+                    if (procSpell->SpellIconID != 2019)
+                        return false;
+
+                    AuraEffect * aurEffA = NULL;
+                    AuraEffectList const& auras = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE);
+                    for (AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
+                    {
+                        SpellEntry const *spell = (*i)->GetSpellProto();
+                        if (spell->SpellFamilyName == uint32(SPELLFAMILY_SHAMAN) && spell->SpellFamilyFlags.HasFlag(0, 0x02000000, 0))
+                        {
+                            if ((*i)->GetCasterGUID() != GetGUID())
+                                continue;
+                            if (spell->Id == 63283)
+                                continue;
+                            aurEffA = (*i);
+                            break;
+                        }
+                    }
+                    if (aurEffA)
+                    {
+                        int32 bp0 = 0, bp1 = 0;
+                        bp0 = aurEffA->GetAmount() * triggerAmount / 100;
+                        if (AuraEffect * aurEffB = aurEffA->GetBase()->GetEffect(EFFECT_1))
+                            bp1 = aurEffB->GetAmount() * triggerAmount / 100;
+                        CastCustomSpell(this, 63283, &bp0, &bp1, NULL, true, NULL, triggeredByAura);
+                        return true;
+                    }
+                    return false;
+                }
+                break;
             }
             // Frozen Power
             if (dummySpell->SpellIconID == 3780)
