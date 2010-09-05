@@ -171,7 +171,7 @@ struct LfgReward
 typedef std::map<uint32, uint8> LfgRolesMap;
 typedef std::map<uint32, LfgAnswer> LfgAnswerMap;
 typedef std::list<uint64> LfgGuidList;
-typedef std::map<uint32, LfgDungeonSet*> LfgDungeonMap;
+typedef std::map<uint64, LfgDungeonSet*> LfgDungeonMap;
 
 // Stores player or group queue info
 struct LfgQueueInfo
@@ -249,6 +249,9 @@ typedef std::map<uint32, LfgPlayerBoot*> LfgPlayerBootMap;
 typedef std::multimap<uint32, LfgReward const*> LfgRewardMap;
 typedef std::pair<LfgRewardMap::const_iterator, LfgRewardMap::const_iterator> LfgRewardMapBounds;
 typedef std::list<Player *> LfgPlayerList;
+typedef std::set<uint64> LfgGuidSet;
+typedef std::map<std::string, LfgAnswer> LfgCompatibleMap;
+
 
 class LFGMgr
 {
@@ -299,6 +302,12 @@ class LFGMgr
         void FindNewGroups(LfgGuidList &check, LfgGuidList all, LfgProposalList *proposals);
 
         bool CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag = true);
+        bool CheckCompatibility(LfgGuidList check, LfgProposalList *proposals);
+        LfgDungeonSet* CheckCompatibleDungeons(LfgDungeonMap *dungeonsMap, PlayerSet *players);
+        void SetCompatibles(std::string concatenatedGuids, bool compatibles);
+        LfgAnswer GetCompatibles(std::string concatenatedGuids);
+        void RemoveFromCompatibles(uint64 guid);
+        std::string ConcatenateGuids(LfgGuidList check);
 
         void BuildLfgRoleCheck(WorldPacket &data, LfgRoleCheck *pRoleCheck);
         void BuildAvailableRandomDungeonList(WorldPacket &data, Player *plr);
@@ -315,6 +324,7 @@ class LFGMgr
         LfgQueueInfoMap m_QueueInfoMap;                     // Queued groups
         LfgGuidList m_currentQueue;                         // Ordered list. Used to find groups
         LfgGuidList m_newToQueue;                           // New groups to add to queue
+        LfgCompatibleMap m_CompatibleMap;                   // Compatible dungeons
         LfgProposalMap m_Proposals;                         // Current Proposals
         LfgPlayerBootMap m_Boots;                           // Current player kicks
         LfgRoleCheckMap m_RoleChecks;                       // Current Role checks

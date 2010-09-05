@@ -70,6 +70,8 @@ LFGMgr::~LFGMgr()
     for (LfgDungeonMap::iterator it = m_CachedDungeonMap.begin(); it != m_CachedDungeonMap.end(); ++it)
         delete it->second;
     m_CachedDungeonMap.clear();
+
+    m_CompatibleMap.clear();
     m_QueueInfoMap.clear();
     m_currentQueue.clear();
     m_newToQueue.clear();
@@ -343,10 +345,14 @@ void LFGMgr::Update(uint32 diff)
     // Check if a proposal can be formed with the new groups being added
     LfgProposalList proposals;
     LfgGuidList firstNew;
-    if (!m_newToQueue.empty())
+    while (!m_newToQueue.empty())
     {
         firstNew.push_back(m_newToQueue.front());
-        FindNewGroups(firstNew, m_currentQueue, &proposals);
+        if (IS_GROUP(firstNew.front()))
+            CheckCompatibility(firstNew, &proposals);       // Check if the group itself match
+        if (!proposals.size())
+            FindNewGroups(firstNew, m_currentQueue, &proposals);
+
         if (proposals.size())                               // Group found!
         {
             LfgProposal *pProposal = *proposals.begin();
@@ -538,6 +544,8 @@ bool LFGMgr::RemoveFromQueue(uint64 guid)
 
     m_currentQueue.remove(guid);
     m_newToQueue.remove(guid);
+    RemoveFromCompatibles(guid);
+
     LfgQueueInfoMap::iterator it = m_QueueInfoMap.find(guid);
     if (it != m_QueueInfoMap.end())
     {
@@ -727,9 +735,47 @@ void LFGMgr::OfferContinue(Group *grp)
 /// <param name="LfgProposalList *">Proposals found.</param>
 void LFGMgr::FindNewGroups(LfgGuidList &check, LfgGuidList all, LfgProposalList *proposals)
 {
+    ASSERT(proposals);
     if (!check.size() || check.size() > MAXGROUPSIZE)
         return;
 
+    sLog.outDebug("LFGMgr::FindNewGroup: (%s) - all(%s)", ConcatenateGuids(check).c_str(), ConcatenateGuids(all).c_str());
+    LfgGuidList compatibles;
+    // Check individual compatibilities
+    for (LfgGuidList::iterator it = all.begin(); it != all.end(); ++it)
+    {
+        check.push_back(*it);
+        if (CheckCompatibility(check, proposals))
+            compatibles.push_back(*it);
+        check.pop_back();
+    }
+
+    while (compatibles.size() > 1)
+    {
+        check.push_back(compatibles.front());
+        compatibles.pop_front();
+        FindNewGroups(check, compatibles, proposals);
+        check.pop_back();
+    }
+}
+
+/// <summary>
+/// Check compatibilities between groups.
+/// </summary>
+/// <param name="LfgGuidList &">Guids we checking compatibility</param>
+/// <returns>bool</returns>
+/// <param name="LfgProposalList *">Proposals found.</param>
+bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposalList *proposals)
+{
+    std::string strGuids = ConcatenateGuids(check);
+
+    if (check.size() > MAXGROUPSIZE || !check.size())
+    {
+        sLog.outDebug("LFGMgr::CheckCompatibility: (%s): Size wrong - Not compatibles", strGuids.c_str());
+        return false;
+    }
+   
+    // No previous check have been done, do it now
     uint8 numPlayers = 0;
     uint8 numLfgGroups = 0;
     uint32 groupLowGuid = 0;
@@ -740,8 +786,8 @@ void LFGMgr::FindNewGroups(LfgGuidList &check, LfgGuidList all, LfgProposalList 
         itQueue = m_QueueInfoMap.find(*it);
         if (itQueue == m_QueueInfoMap.end())
         {
-            sLog.outError("LFGMgr::FindNewGroups: " UI64FMTD " is not queued but listed as queued!", *it);
-            return;
+            sLog.outError("LFGMgr::CheckCompatibility: " UI64FMTD " is not queued but listed as queued!", *it);
+            return false;
         }
         pqInfoMap[*it] = itQueue->second;
         numPlayers += itQueue->second->roles.size();
@@ -759,24 +805,49 @@ void LFGMgr::FindNewGroups(LfgGuidList &check, LfgGuidList all, LfgProposalList 
         }
     }
 
-    // Do not match groups already in a lfgDungeon
+    if (check.size() == 1 && numPlayers != MAXGROUPSIZE) // Single group with less than MAXGROUPSIZE - Compatibles
+        return true;
+
+    if (check.size() > 1)
+    {
+        // Previously cached?
+        LfgAnswer answer = GetCompatibles(strGuids);
+        if (answer != LFG_ANSWER_PENDING)
+        {
+            if (numPlayers != MAXGROUPSIZE || answer == LFG_ANSWER_DENY)
+            {
+                sLog.outDebug("LFGMgr::CheckCompatibility: (%s) compatibles (cached): %d", strGuids.c_str(), answer);
+                return bool(answer);
+            }
+            // MAXGROUPSIZE + LFG_ANSWER_AGREE = Match - we don't have it cached so do calcs again
+        }
+        else if (check.size() > 2)
+        {
+            uint64 frontGuid = check.front();
+            check.pop_front();
+
+            // Check all-but-new compatibilities (New,A,B,C,D) --> check(A,B,C,D)
+            if (!CheckCompatibility(check, proposals))      // Group not compatible
+            {
+                sLog.outDebug("LFGMgr::CheckCompatibility: (%s) no compatibles (%s not compatibles)", strGuids.c_str(), ConcatenateGuids(check).c_str());
+                SetCompatibles(strGuids, false);
+                return false;
+            }
+            check.push_front(frontGuid);
+            // all-but-new compatibles, now check with new
+        }
+    }
+
+    // Do not match - groups already in a lfgDungeon or too much players
     if (numLfgGroups > 1 || numPlayers > MAXGROUPSIZE)
     {
         pqInfoMap.clear();
-        return;
-    }
-
-    if (numPlayers < MAXGROUPSIZE)
-    {
-        while (!all.empty() && !proposals->size())
-        {
-            check.push_back(all.front());
-            all.pop_front();
-            FindNewGroups(check, all, proposals);
-            check.pop_back();
-        }
-        pqInfoMap.clear();
-        return;
+        SetCompatibles(strGuids, false);
+        if (numLfgGroups > 1)
+            sLog.outDebug("LFGMgr::CheckCompatibility: (%s) More than one Lfggroup (%u)", strGuids.c_str(), numLfgGroups);
+        else
+            sLog.outDebug("LFGMgr::CheckCompatibility: (%s) Too much players (%u)", strGuids.c_str(), numPlayers);
+        return false;
     }
 
     // ----- Player checks -----
@@ -793,10 +864,12 @@ void LFGMgr::FindNewGroups(LfgGuidList &check, LfgGuidList all, LfgProposalList 
         }
     }
 
-    if (rolesMap.size() != MAXGROUPSIZE)
+    if (rolesMap.size() != numPlayers)
     {
-        sLog.outError("LFGMgr::FindNewGroups: There is a player multiple times in queue.");
-        return;
+        sLog.outError("LFGMgr::CheckCompatibility: There is a player multiple times in queue.");
+        pqInfoMap.clear();
+        rolesMap.clear();
+        return false;
     }
 
     Player *plr;
@@ -804,6 +877,9 @@ void LFGMgr::FindNewGroups(LfgGuidList &check, LfgGuidList all, LfgProposalList 
     for (LfgRolesMap::const_iterator it = rolesMap.begin(); it != rolesMap.end(); ++it)
     {
         plr = sObjectMgr.GetPlayer(it->first);
+        if (!plr)
+            sLog.outDebug("LFGMgr::CheckCompatibility: (%s) Warning! %u offline!", strGuids.c_str(), it->first);
+            
         for (PlayerSet::const_iterator itPlayer = players.begin(); itPlayer != players.end() && plr; ++itPlayer)
         {
             // Do not form a group with ignoring candidates
@@ -817,69 +893,53 @@ void LFGMgr::FindNewGroups(LfgGuidList &check, LfgGuidList all, LfgProposalList 
             players.insert(plr);
     }
 
-    // if we dont have MAXGROUPSIZE (5) then we have self ignoring candidates or different faction groups
+    // if we dont have the same ammount of players then we have self ignoring candidates or different faction groups
     // otherwise check if roles are compatible
-    if (players.size() != MAXGROUPSIZE || !CheckGroupRoles(rolesMap))
+    if (players.size() != numPlayers || !CheckGroupRoles(rolesMap))
     {
-        players.clear();
+        if (players.size() != numPlayers)
+            sLog.outDebug("LFGMgr::CheckCompatibility: (%s) Player offline, ignoring or diff teams", strGuids.c_str());
+        else
+            sLog.outDebug("LFGMgr::CheckCompatibility: (%s) Roles not compatible", strGuids.c_str());
         pqInfoMap.clear();
-        return;
+        rolesMap.clear();
+        players.clear();
+        SetCompatibles(strGuids, false);
+        return false;
     }
 
     // ----- Selected Dungeon checks -----
     // Check if there are any compatible dungeon from the selected dungeons
+    LfgDungeonMap dungeonMap;
+    for (LfgQueueInfoMap::const_iterator it = pqInfoMap.begin(); it != pqInfoMap.end(); ++it)
+        dungeonMap[it->first] = &it->second->dungeons;
 
-    LfgDungeonSet *compatibleDungeons = new LfgDungeonSet();
-    bool compatibleDungeon;
-    LfgQueueInfoMap::const_iterator itFirst = pqInfoMap.begin();
-    LfgQueueInfoMap::const_iterator itOther;
-    LfgDungeonSet::const_iterator itDungeon;
-
-    // Get the first group and compare with the others to select all common dungeons
-    for (itDungeon = itFirst->second->dungeons.begin(); itDungeon != itFirst->second->dungeons.end(); ++itDungeon)
-    {
-        itOther = itFirst;
-        compatibleDungeon = true;
-        for (++itOther; itOther != pqInfoMap.end() && compatibleDungeon; ++itOther)
-            if (itOther->second->dungeons.find(*itDungeon) == itOther->second->dungeons.end())
-                compatibleDungeon = false;
-        if (compatibleDungeon)
-            compatibleDungeons->insert(*itDungeon);
-    }
-
-    // now remove those with restrictions
-    LfgLockStatusMap *pLockDungeons = GetGroupLockStatusDungeons(&players, compatibleDungeons);
-    if (pLockDungeons) // Found dungeons not compatible, remove them from the set
-    {
-        LfgLockStatusSet *pLockSet = NULL;
-        for (LfgLockStatusMap::const_iterator itLockMap = pLockDungeons->begin(); itLockMap != pLockDungeons->end() && compatibleDungeons->size(); ++itLockMap)
-        {
-            pLockSet = itLockMap->second;
-            for(LfgLockStatusSet::const_iterator itLockSet = pLockSet->begin(); itLockSet != pLockSet->end(); ++itLockSet)
-            {
-                itDungeon = compatibleDungeons->find((*itLockSet)->dungeon);
-                if (itDungeon != compatibleDungeons->end())
-                     compatibleDungeons->erase(itDungeon);
-            }
-            pLockSet->clear();
-            delete pLockSet;
-        }
-        pLockDungeons->clear();
-        delete pLockDungeons;
-    }
-
+    LfgDungeonSet *compatibleDungeons = CheckCompatibleDungeons(&dungeonMap, &players);
+    dungeonMap.clear();
     pqInfoMap.clear();
-    // Any compatible dungeon after checking restrictions?
-    if (!compatibleDungeons->size())
+    SetCompatibles(strGuids, true);
+
+    if (!compatibleDungeons || !compatibleDungeons->size())
     {
-        delete compatibleDungeons;
-        compatibleDungeons = NULL;
+        if (compatibleDungeons)
+            delete compatibleDungeons;
         players.clear();
-        return;
+        rolesMap.clear();
+        return false;
     }
+
+    // ----- Group is compatible, if we have MAXGROUPSIZE members then match is found
+    if (numPlayers != MAXGROUPSIZE)
+    {
+        players.clear();
+        rolesMap.clear();
+        sLog.outDebug("LFGMgr::CheckCompatibility: (%s) Compatibles but not match. Players(%u)", strGuids.c_str(), numPlayers);
+        return true;
+    }
+    sLog.outDebug("LFGMgr::CheckCompatibility: (%s) MATCH! Group formed", strGuids.c_str());
 
     // Select a random dungeon from the compatible list
-    itDungeon = compatibleDungeons->begin();
+    LfgDungeonSet::iterator itDungeon = compatibleDungeons->begin();
     uint32 selectedDungeon = urand(0, compatibleDungeons->size() - 1);
     while (selectedDungeon > 0)
     {
@@ -933,7 +993,10 @@ void LFGMgr::FindNewGroups(LfgGuidList &check, LfgGuidList all, LfgProposalList 
     if (!proposals)
         proposals = new LfgProposalList();
     proposals->push_back(pProposal);
+
+    rolesMap.clear();
     players.clear();
+    return true;
 }
 
 /// <summary>
@@ -1087,6 +1150,117 @@ void LFGMgr::UpdateRoleCheck(Group *grp, Player *plr /* = NULL*/)
     }
     else if (newRoleCheck)
         m_RoleChecks[rolecheckId] = pRoleCheck;
+}
+
+/// <summary>
+/// Remove from cached compatible dungeons any entry that contains the given guid
+/// </summary>
+/// <param name="uint64">guid to remove from any list</param>
+void LFGMgr::RemoveFromCompatibles(uint64 guid)
+{
+    LfgGuidList lista;
+    lista.push_back(guid);
+    std::string strGuid = ConcatenateGuids(lista);
+    lista.clear();
+    
+    LfgCompatibleMap::iterator it;
+    for (LfgCompatibleMap::iterator itNext = m_CompatibleMap.begin(); itNext != m_CompatibleMap.end();)
+    {
+        it = itNext++;
+        if (it->first.find(strGuid) != std::string::npos)    // Found, remove it
+        {
+            sLog.outDebug("LFGMgr::RemoveFromCompatibles: Removing " UI64FMTD " from (%s)", guid, it->first.c_str());
+            m_CompatibleMap.erase(it);
+        }
+    }
+}
+
+/// <summary>
+/// Set the compatibility of a list of guids
+/// </summary>
+/// <param name="std::string">list of guids concatenated by |</param>
+/// <param name="bool">compatibles or not</param>
+void LFGMgr::SetCompatibles(std::string key, bool compatibles)
+{
+    sLog.outDebug("SPP:LFGMgr::GetCompatibles: (%s): %d", key.c_str(), LfgAnswer(compatibles));
+    m_CompatibleMap[key] = LfgAnswer(compatibles);
+}
+
+/// <summary>
+/// Get the compatible dungeons between two groups from cache
+/// </summary>
+/// <param name="std::string">list of guids concatenated by |</param>
+/// <returns>LfgAnswer, 
+LfgAnswer LFGMgr::GetCompatibles(std::string key)
+{
+    LfgAnswer answer = LFG_ANSWER_PENDING;
+    LfgCompatibleMap::iterator it = m_CompatibleMap.find(key);
+    if (it != m_CompatibleMap.end())
+        answer = it->second;
+
+    sLog.outDebug("SPP:LFGMgr::GetCompatibles: (%s): %d", key.c_str(), answer);
+    return answer;
+}
+
+/// <summary>
+/// Given a list of groups checks the compatible dungeons. If players is not null also check restictions
+/// </summary>
+/// <param name="LfgDungeonMap *">dungeons to check</param>
+/// <param name="PlayerSet *">Players to check restrictions</param>
+/// <returns>LfgDungeonSet*</returns>
+LfgDungeonSet* LFGMgr::CheckCompatibleDungeons(LfgDungeonMap *dungeonsMap, PlayerSet *players)
+{
+    if (!dungeonsMap || dungeonsMap->empty())
+        return NULL;
+
+    LfgDungeonMap::const_iterator itMap = ++dungeonsMap->begin();
+    LfgDungeonSet *compatibleDungeons = new LfgDungeonSet();
+    
+    bool compatibleDungeon;
+
+    // Get the first group and compare with the others to select all common dungeons
+    for (LfgDungeonSet::const_iterator itDungeon = dungeonsMap->begin()->second->begin(); itDungeon != dungeonsMap->begin()->second->end(); ++itDungeon)
+    {
+        compatibleDungeon = true;
+        for (LfgDungeonMap::const_iterator it = itMap; it != dungeonsMap->end() && compatibleDungeon; ++it)
+            if (it->second->find(*itDungeon) == it->second->end())
+                compatibleDungeon = false;
+        if (compatibleDungeon)
+            compatibleDungeons->insert(*itDungeon);
+    }
+
+    if (players && !players->empty())
+    {
+        // now remove those with restrictions
+        LfgLockStatusMap *pLockDungeons = GetGroupLockStatusDungeons(players, compatibleDungeons);
+        if (pLockDungeons) // Found dungeons not compatible, remove them from the set
+        {
+            LfgLockStatusSet *pLockSet = NULL;
+            LfgDungeonSet::iterator itDungeon;
+            for (LfgLockStatusMap::const_iterator itLockMap = pLockDungeons->begin(); itLockMap != pLockDungeons->end() && compatibleDungeons->size(); ++itLockMap)
+            {
+                pLockSet = itLockMap->second;
+                for(LfgLockStatusSet::const_iterator itLockSet = pLockSet->begin(); itLockSet != pLockSet->end(); ++itLockSet)
+                {
+                    itDungeon = compatibleDungeons->find((*itLockSet)->dungeon);
+                    if (itDungeon != compatibleDungeons->end())
+                         compatibleDungeons->erase(itDungeon);
+                }
+                pLockSet->clear();
+                delete pLockSet;
+            }
+            pLockDungeons->clear();
+            delete pLockDungeons;
+        }
+    }
+
+    // Any compatible dungeon after checking restrictions?
+    if (!compatibleDungeons->size())
+    {
+        delete compatibleDungeons;
+        compatibleDungeons = NULL;
+    }
+    return compatibleDungeons;
 }
 
 /// <summary>
@@ -1349,6 +1523,7 @@ void LFGMgr::RemoveProposal(LfgProposalMap::iterator itProposal, LfgUpdateType t
 
             if (itQueue != m_QueueInfoMap.end())
                 m_QueueInfoMap.erase(itQueue);
+            RemoveFromCompatibles(guid);
         }
         else                                                // Readd to queue
         {
@@ -1968,4 +2143,30 @@ bool LFGMgr::isRandomDungeon(uint32 dungeonId)
         return false;
 
     return dungeon->type == LFG_TYPE_RANDOM;
+}
+
+/// <summary>
+/// Given a list of guids returns the concatenation using | as delimiter
+/// </summary>
+/// <param name="LfgGuidList ">list of guids</param>
+/// <returns>std::string</returns>
+std::string LFGMgr::ConcatenateGuids(LfgGuidList check)
+{
+    if (check.empty())
+        return "";
+
+    LfgGuidSet guidSet;   
+    while (!check.empty())
+    {
+        guidSet.insert(check.front());
+        check.pop_front();
+    }
+
+    std::ostringstream o;
+    LfgGuidSet::iterator it = guidSet.begin();
+    o << *it;
+    for (++it; it != guidSet.end(); ++it)
+        o << "|" << *it;
+    guidSet.clear();
+    return o.str();
 }
