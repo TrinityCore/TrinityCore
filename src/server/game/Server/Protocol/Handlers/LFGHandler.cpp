@@ -92,12 +92,11 @@ void WorldSession::HandleLfgProposalResultOpcode(WorldPacket &recv_data)
     sLog.outDebug("CMSG_LFG_PROPOSAL_RESULT");
 
     uint32 lfgGroupID;                                      // Internal lfgGroupID
-    uint8 accept;                                           // Accept to join?
+    bool accept;                                            // Accept to join?
     recv_data >> lfgGroupID;
     recv_data >> accept;
 
-    if (accept < 2)
-        sLFGMgr.UpdateProposal(lfgGroupID, GetPlayer()->GetGUIDLow(), accept);
+    sLFGMgr.UpdateProposal(lfgGroupID, GetPlayer()->GetGUIDLow(), accept);
 }
 
 void WorldSession::HandleLfgSetRolesOpcode(WorldPacket &recv_data)
@@ -128,11 +127,10 @@ void WorldSession::HandleLfgSetBootVoteOpcode(WorldPacket &recv_data)
 {
     sLog.outDebug("CMSG_LFG_SET_BOOT_VOTE");
 
-    uint8 agree;                                             // Agree to kick player
+    bool agree;                                             // Agree to kick player
     recv_data >> agree;
 
-    if (agree < 2)
-        sLFGMgr.UpdateBoot(GetPlayer(), agree);
+    sLFGMgr.UpdateBoot(GetPlayer(), agree);
 }
 
 void WorldSession::HandleLfgTeleportOpcode(WorldPacket &recv_data)
@@ -429,10 +427,10 @@ void WorldSession::SendLfgBootPlayer(LfgPlayerBoot *pBoot)
     uint32 secsleft = uint8((pBoot->cancelTime - time(NULL)) / 1000);
     for (LfgAnswerMap::const_iterator it = pBoot->votes.begin(); it != pBoot->votes.end(); ++it)
     {
-        if (it->second != -1)
+        if (it->second != LFG_ANSWER_PENDING)
         {
             ++votesNum;
-            if (it->second == 1)
+            if (it->second == LFG_ANSWER_AGREE)
                 ++agreeNum;
         }
     }
@@ -494,8 +492,8 @@ void WorldSession::SendUpdateProposal(uint32 proposalId, LfgProposal *pProp)
             data << uint8(ppPlayer->groupLowGuid == dLowGuid);  // In dungeon (silent)
             data << uint8(ppPlayer->groupLowGuid == pLowGroupGuid); // Same Group than player
         }
-        data << uint8(ppPlayer->accept != -1);              // Answered
-        data << uint8(ppPlayer->accept == 1);               // Accepted
+        data << uint8(ppPlayer->accept != LFG_ANSWER_PENDING); // Answered
+        data << uint8(ppPlayer->accept == LFG_ANSWER_AGREE); // Accepted
     }
     SendPacket(&data);
 }

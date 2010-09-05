@@ -131,6 +131,13 @@ enum LfgRoleCheckResult
     LFG_ROLECHECK_NO_ROLE      = 6,                         // Someone selected no role
 };
 
+enum LfgAnswer
+{
+    LFG_ANSWER_PENDING = -1,
+    LFG_ANSWER_DENY    = 0,
+    LFG_ANSWER_AGREE   = 1,
+};
+
 // Dungeon and reason why player can't join
 struct LfgLockStatus
 {
@@ -162,7 +169,7 @@ struct LfgReward
 };
 
 typedef std::map<uint32, uint8> LfgRolesMap;
-typedef std::map<uint32, int8> LfgAnswerMap;
+typedef std::map<uint32, LfgAnswer> LfgAnswerMap;
 typedef std::list<uint64> LfgGuidList;
 typedef std::map<uint32, LfgDungeonSet*> LfgDungeonMap;
 
@@ -180,9 +187,9 @@ struct LfgQueueInfo
 
 struct LfgProposalPlayer
 {
-    LfgProposalPlayer(): role(0), accept(-1), groupLowGuid(0) {};
+    LfgProposalPlayer(): role(0), accept(LFG_ANSWER_PENDING), groupLowGuid(0) {};
     uint8 role;                                             // Proposed role
-    int8 accept;                                            // Accept status (-1 not answer | 0 Not agree | 1 agree)
+    LfgAnswer accept;                                       // Accept status (-1 not answer | 0 Not agree | 1 agree)
     uint32 groupLowGuid;                                    // Original group guid (Low guid) 0 if no original group
 };
 
@@ -254,8 +261,8 @@ class LFGMgr
         void Leave(Player *plr, Group *grp = NULL);
         void OfferContinue(Group *grp);
         void TeleportPlayer(Player *plr, bool out);
-        void UpdateProposal(uint32 proposalId, uint32 lowGuid, uint8 accept);
-        void UpdateBoot(Player *plr, uint8 accept);
+        void UpdateProposal(uint32 proposalId, uint32 lowGuid, bool accept);
+        void UpdateBoot(Player *plr, bool accept);
         void UpdateRoleCheck(Group *grp, Player *plr = NULL);
         void Update(uint32 diff);
 
@@ -285,9 +292,12 @@ class LFGMgr
         void Cleaner();
         void AddGuidToNewQueue(uint64 guid);
         void AddToQueue(uint64 guid, LfgRolesMap *roles, LfgDungeonSet *dungeons);
+
         bool RemoveFromQueue(uint64 guid);
         void RemoveProposal(LfgProposalMap::iterator itProposal, LfgUpdateType type);
+
         void FindNewGroups(LfgGuidList &check, LfgGuidList all, LfgProposalList *proposals);
+
         bool CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag = true);
 
         void BuildLfgRoleCheck(WorldPacket &data, LfgRoleCheck *pRoleCheck);
@@ -296,7 +306,6 @@ class LFGMgr
 
         LfgLockStatusMap* GetGroupLockStatusDungeons(PlayerSet *pPlayers, LfgDungeonSet *dungeons);
         LfgDungeonSet* GetDungeonsByRandom(uint32 randomdungeon);
-        
         LfgDungeonSet* GetAllDungeons();
         uint8 GetDungeonGroupType(uint32 dungeon);
 
@@ -305,7 +314,7 @@ class LFGMgr
         LfgDungeonMap m_CachedDungeonMap;                   // Stores all dungeons by groupType
         LfgQueueInfoMap m_QueueInfoMap;                     // Queued groups
         LfgGuidList m_currentQueue;                         // Ordered list. Used to find groups
-        LfgGuidList m_newToQueue;                           // New groups to add to queue;
+        LfgGuidList m_newToQueue;                           // New groups to add to queue
         LfgProposalMap m_Proposals;                         // Current Proposals
         LfgPlayerBootMap m_Boots;                           // Current player kicks
         LfgRoleCheckMap m_RoleChecks;                       // Current Role checks
