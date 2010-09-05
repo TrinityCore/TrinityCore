@@ -1387,7 +1387,8 @@ CREATE TABLE `groups` (
   `groupType` mediumint(8) unsigned NOT NULL,
   `difficulty` tinyint(3) unsigned NOT NULL default '0',
   `raiddifficulty` int(11) UNSIGNED NOT NULL default '0',
-  PRIMARY KEY  (`guid`)
+  PRIMARY KEY (`guid`),
+  KEY `leaderGuid` (`leaderGuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Groups';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1663,7 +1664,8 @@ CREATE TABLE `instance` (
   `data` longtext,
   PRIMARY KEY  (`id`),
   KEY `map` (`map`),
-  KEY `resettime` (`resettime`)
+  KEY `resettime` (`resettime`),
+  KEY `difficulty` (`difficulty`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1687,7 +1689,8 @@ CREATE TABLE `instance_reset` (
   `mapid` int(11) unsigned NOT NULL default '0',
   `difficulty` tinyint(1) unsigned NOT NULL default '0',
   `resettime` bigint(40) NOT NULL default '0',
-  PRIMARY KEY  (`mapid`,`difficulty`)
+  PRIMARY KEY (`mapid`,`difficulty`),
+  KEY `difficulty` (`difficulty`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
