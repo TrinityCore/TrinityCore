@@ -4413,12 +4413,8 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                 }
                 // Escape artist
                 case 20589:
-                {
-                    if (!unitTarget)
-                        return;
-                    unitTarget->RemoveMovementImpairingAuras();
+                    m_caster->RemoveMovementImpairingAuras();
                     return;
-                }
                 // Decimate
                 case 28374:
                 case 54426:
