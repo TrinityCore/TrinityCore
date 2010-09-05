@@ -8477,6 +8477,24 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                         target = pVictim;
                         break;
                     }
+                    //Item - Coliseum 25 Normal Caster Trinket
+                    case 67712:
+                    {
+                        if(!pVictim || !pVictim->isAlive())
+                            return false;
+                        // stacking
+                        CastSpell(this, 67713, true, NULL, triggeredByAura);
+
+                        Aura * dummy = GetAura(67713);
+                        // release at 3 aura in stack (cont contain in basepoint of trigger aura)
+                        if(!dummy || dummy->GetStackAmount() < triggerAmount)
+                            return false;
+
+                        RemoveAurasDueToSpell(67713);
+                        trigger_spell_id = 67714;
+                        target = pVictim;
+                        break;
+                    }
                     //Item - Coliseum 25 Heroic Caster Trinket
                     case 67758:
                     {
