@@ -7156,6 +7156,46 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     basepoints0 = triggerAmount*damage/100;
                     break;
                 }
+                case 71406: // Tiny Abomination in a Jar
+                {
+                    if (!pVictim || !pVictim->isAlive())
+                        return false;
+
+                    CastSpell(this, 71432, true, NULL, triggeredByAura);
+
+                    Aura const* dummy = GetAura(71432);
+                    if (!dummy || dummy->GetStackAmount() < 8)
+                        return false;
+
+                    RemoveAurasDueToSpell(71432);
+                    triggered_spell_id = 71433;  // default main hand attack
+                    // roll if offhand
+                    if (Player const* player = ToPlayer())
+                        if (player->GetWeaponForAttack(OFF_ATTACK, true) && urand(0, 1))
+                            triggered_spell_id = 71434;
+                    target = pVictim;
+                    break;
+                }
+                case 71545: // Tiny Abomination in a Jar (Heroic)
+                {
+                    if (!pVictim || !pVictim->isAlive())
+                        return false;
+
+                    CastSpell(this, 71432, true, NULL, triggeredByAura);
+
+                    Aura const* dummy = GetAura(71432);
+                    if (!dummy || dummy->GetStackAmount() < 7)
+                        return false;
+
+                    RemoveAurasDueToSpell(71432);
+                    triggered_spell_id = 71433;  // default main hand attack
+                    // roll if offhand
+                    if (Player const* player = ToPlayer())
+                        if (player->GetWeaponForAttack(OFF_ATTACK, true) && urand(0, 1))
+                            triggered_spell_id = 71434;
+                    target = pVictim;
+                    break;
+                }
             }
             break;
         }
