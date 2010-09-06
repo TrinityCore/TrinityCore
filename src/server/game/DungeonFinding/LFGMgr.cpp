@@ -1182,7 +1182,7 @@ void LFGMgr::RemoveFromCompatibles(uint64 guid)
 /// <param name="bool">compatibles or not</param>
 void LFGMgr::SetCompatibles(std::string key, bool compatibles)
 {
-    sLog.outDebug("LFGMgr::GetCompatibles: (%s): %d", key.c_str(), LfgAnswer(compatibles));
+    sLog.outDebug("LFGMgr::SetCompatibles: (%s): %d", key.c_str(), LfgAnswer(compatibles));
     m_CompatibleMap[key] = LfgAnswer(compatibles);
 }
 
@@ -1423,7 +1423,10 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint32 lowGuid, bool accept)
                 sObjectMgr.AddGroup(grp);
             }
             else if (plr->GetGroup() != grp)
+            {
+                grp->SetLfgQueued(false);
                 grp->AddMember(plr->GetGUID(), plr->GetName());
+            }
             plr->SetLfgUpdate(true);
             // Update timers
             role = plr->GetLfgRoles();
