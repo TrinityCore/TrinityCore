@@ -37,18 +37,18 @@ static Rates const qualityToRate[MAX_ITEM_QUALITY] = {
     RATE_DROP_ITEM_ARTIFACT,                                // ITEM_QUALITY_ARTIFACT
 };
 
-LootStore LootTemplates_Creature("creature_loot_template",     "creature entry",               true);
-LootStore LootTemplates_Disenchant("disenchant_loot_template",   "item disenchant id",           true);
-LootStore LootTemplates_Fishing("fishing_loot_template",      "area id",                      true);
-LootStore LootTemplates_Gameobject("gameobject_loot_template",   "gameobject entry",             true);
-LootStore LootTemplates_Item("item_loot_template",         "item entry",                   true);
-LootStore LootTemplates_Mail("mail_loot_template",         "mail template id",             false);
-LootStore LootTemplates_Milling("milling_loot_template",      "item entry (herb)",            true);
-LootStore LootTemplates_Pickpocketing("pickpocketing_loot_template","creature pickpocket lootid",   true);
-LootStore LootTemplates_Prospecting("prospecting_loot_template",  "item entry (ore)",             true);
-LootStore LootTemplates_Reference("reference_loot_template",    "reference id",                 false);
-LootStore LootTemplates_Skinning("skinning_loot_template",     "creature skinning id",         true);
-LootStore LootTemplates_Spell("spell_loot_template",        "spell id (random item creating)",false);
+LootStore LootTemplates_Creature("creature_loot_template",           "creature entry",                  true,  true);
+LootStore LootTemplates_Disenchant("disenchant_loot_template",       "item disenchant id",              true,  false);
+LootStore LootTemplates_Fishing("fishing_loot_template",             "area id",                         true,  false);
+LootStore LootTemplates_Gameobject("gameobject_loot_template",       "gameobject entry",                true,  true);
+LootStore LootTemplates_Item("item_loot_template",                   "item entry",                      true,  false);
+LootStore LootTemplates_Mail("mail_loot_template",                   "mail template id",                false, false);
+LootStore LootTemplates_Milling("milling_loot_template",             "item entry (herb)",               true,  false);
+LootStore LootTemplates_Pickpocketing("pickpocketing_loot_template", "creature pickpocket lootid",      true,  false);
+LootStore LootTemplates_Prospecting("prospecting_loot_template",     "item entry (ore)",                true,  false);
+LootStore LootTemplates_Reference("reference_loot_template",         "reference id",                    false, false);
+LootStore LootTemplates_Skinning("skinning_loot_template",           "creature skinning id",            true,  false);
+LootStore LootTemplates_Spell("spell_loot_template",                 "spell id (random item creating)", false, false);
 
 class LootTemplate::LootGroup                               // A set of loot definitions for items (refs are not allowed)
 {
@@ -57,7 +57,8 @@ class LootTemplate::LootGroup                               // A set of loot def
         bool HasQuestDrop() const;                          // True if group includes at least 1 quest drop entry
         bool HasQuestDropForPlayer(Player const * player) const;
                                                             // The same for active quests of the player
-        void Process(Loot& loot, uint16 lootMode) const;    // Rolls an item from the group (if any) and adds the item to the loot
+        void Process(Loot& loot, Player* lootOwner, uint16 lootMode, bool autoProcessCurrency) const;
+                                                            // Rolls an item from the group (if any) and adds the item to the loot
         float RawTotalChance() const;                       // Overall chance for the group (without equal chanced items)
         float TotalChance() const;                          // Overall chance for the group
 
@@ -410,31 +411,31 @@ void Loot::AddItem(LootStoreItem const & item)
 }
 
 // Calls processor of corresponding LootTemplate (which handles everything including references)
-bool Loot::FillLoot(uint32 loot_id, LootStore const& store, Player* loot_owner, bool personal, bool noEmptyError, uint16 lootMode /*= LOOT_MODE_DEFAULT*/)
+bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bool personal, bool noEmptyError, uint16 lootMode /*= LOOT_MODE_DEFAULT*/)
 {
     // Must be provided
-    if (!loot_owner)
+    if (!lootOwner)
         return false;
 
-    LootTemplate const* tab = store.GetLootFor(loot_id);
+    LootTemplate const* tab = store.GetLootFor(lootId);
 
     if (!tab)
     {
         if (!noEmptyError)
-            sLog.outErrorDb("Table '%s' loot id #%u used but it doesn't have records.",store.GetName(),loot_id);
+            sLog.outErrorDb("Table '%s' loot id #%u used but it doesn't have records.", store.GetName(), lootId);
         return false;
     }
 
     items.reserve(MAX_NR_LOOT_ITEMS);
     quest_items.reserve(MAX_NR_QUEST_ITEMS);
 
-    tab->Process(*this, store, store.IsRatesAllowed(), lootMode);     // Processing is done there, callback via Loot::AddItem()
+    tab->Process(*this, store, lootOwner, store.IsRatesAllowed(), lootMode);     // Processing is done there, callback via Loot::AddItem()
 
     // Setting access rights for group loot case
-    Group * pGroup = loot_owner->GetGroup();
+    Group * pGroup = lootOwner->GetGroup();
     if (!personal && pGroup)
     {
-        roundRobinPlayer = loot_owner->GetGUID();
+        roundRobinPlayer = lootOwner->GetGUID();
 
         for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
             if (Player* pl = itr->getSource())
@@ -449,7 +450,7 @@ bool Loot::FillLoot(uint32 loot_id, LootStore const& store, Player* loot_owner, 
     }
     // ... for personal loot
     else
-        FillNotNormalLootFor(loot_owner);
+        FillNotNormalLootFor(lootOwner);
 
     return true;
 }
@@ -991,7 +992,7 @@ void LootTemplate::LootGroup::CopyConditions(ConditionList /*conditions*/)
 }
 
 // Rolls an item from the group (if any takes its chance) and adds the item to the loot
-void LootTemplate::LootGroup::Process(Loot& loot, uint16 lootMode) const
+void LootTemplate::LootGroup::Process(Loot& loot, Player* lootOwner, uint16 lootMode, bool autoProcessCurrency) const
 {
     // build up list of possible drops
     LootStoreItemList EqualPossibleDrops = EqualChanced;
@@ -1047,8 +1048,16 @@ void LootTemplate::LootGroup::Process(Loot& loot, uint16 lootMode) const
             bool duplicate = false;
             if (ItemPrototype const *_proto = sItemStorage.LookupEntry<ItemPrototype>(item->itemid))
             {
+                LootItemList::const_iterator _item = loot.items.begin();
+                if (autoProcessCurrency)
+                    if (LootTemplate::ProcessCurrency(lootOwner, itr, _proto))
+                    {
+                        duplicate = true;                                          // don't add to loot
+                        _item = loot.items.end();                                  // skip next loop
+                    }
+
                 uint8 _item_counter = 0;
-                for (LootItemList::const_iterator _item = loot.items.begin(); _item != loot.items.end(); ++_item)
+                for (; _item != loot.items.end(); ++_item)
                     if (_item->itemid == item->itemid)                             // search through the items that have already dropped
                     {
                         ++_item_counter;
@@ -1166,14 +1175,15 @@ void LootTemplate::CopyConditions(ConditionList conditions)
 }
 
 // Rolls for every item in the template and adds the rolled items the the loot
-void LootTemplate::Process(Loot& loot, LootStore const& store, bool rate, uint16 lootMode, uint8 groupId) const
+void LootTemplate::Process(Loot& loot, LootStore const& store, Player* lootOwner, bool rate, uint16 lootMode, uint8 groupId) const
 {
+    bool autoProcessCurrency = store.IsCurrencyAutoDistributed();
     if (groupId)                                            // Group reference uses own processing of the group
     {
         if (groupId > Groups.size())
             return;                                         // Error message already printed at loading stage
 
-        Groups[groupId-1].Process(loot, lootMode);
+        Groups[groupId-1].Process(loot, lootOwner, lootMode, autoProcessCurrency);
         return;
     }
 
@@ -1188,6 +1198,10 @@ void LootTemplate::Process(Loot& loot, LootStore const& store, bool rate, uint16
 
         if (ItemPrototype const *_proto = sItemStorage.LookupEntry<ItemPrototype>(i->itemid))
         {
+            if (autoProcessCurrency)
+                if (ProcessCurrency(lootOwner, i, _proto))
+                    continue;                                                 // don't add to loot
+
             uint8 _item_counter = 0;
             LootItemList::const_iterator _item = loot.items.begin();
             for (; _item != loot.items.end(); ++_item)
@@ -1211,7 +1225,7 @@ void LootTemplate::Process(Loot& loot, LootStore const& store, bool rate, uint16
                 continue;                                     // Error message already printed at loading stage
 
             for (uint32 loop = 0; loop < i->maxcount; ++loop) // Ref multiplicator
-                Referenced->Process(loot, store, rate, lootMode, i->group);
+                Referenced->Process(loot, store, lootOwner, rate, lootMode, i->group);
         }
         else                                                  // Plain entries (not a reference, not grouped)
             loot.AddItem(*i);                                 // Chance is already checked, just add
@@ -1219,7 +1233,48 @@ void LootTemplate::Process(Loot& loot, LootStore const& store, bool rate, uint16
 
     // Now processing groups
     for (LootGroups::const_iterator i = Groups.begin(); i != Groups.end(); ++i)
-        i->Process(loot, lootMode);
+        i->Process(loot, lootOwner, lootMode, autoProcessCurrency);
+}
+
+bool LootTemplate::ProcessCurrency(Player* lootOwner, const LootStoreItemList::const_iterator& lootItem, ItemPrototype const* pProto)
+{
+    uint32 itemId = lootItem->itemid;
+    if (pProto->BagFamily & BAG_FAMILY_MASK_CURRENCY_TOKENS)  // Tokens appear in currency of player and remove from drop
+    {
+        uint32 count = urand(lootItem->mincountOrRef, lootItem->maxcount);
+        if (Group* pGroup = lootOwner->GetGroup())
+        {
+            for (GroupReference* itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+            {
+                if (Player* pGroupGuy = itr->getSource())
+                {
+                    if (!pGroupGuy->IsAtGroupRewardDistance(lootOwner))
+                        continue;
+
+                    ItemPosCountVec dest;
+                    uint8 msg = pGroupGuy->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, count);
+                    if (msg == EQUIP_ERR_OK)
+                    {
+                        Item* pItem = pGroupGuy->StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
+                        pGroupGuy->SendNewItem(pItem, count, true, false);
+                    }
+                }
+            }
+        }
+        else
+        {
+            ItemPosCountVec dest;
+            uint8 msg = lootOwner->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, count);
+            if (msg == EQUIP_ERR_OK)
+            {
+                Item* pItem = lootOwner->StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
+                lootOwner->SendNewItem(pItem, count, true, false);
+            }
+        }
+        return true;
+    }
+
+    return false;
 }
 
 // True if template includes at least 1 quest drop entry
