@@ -21,8 +21,12 @@ libMPQ (a library for reading MPQ files)
   Version: 1.0.4
 
 MersenneTwister (a very fast random number generator)
-    http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/emt.html
-    Version: 0.4.2
+  http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/emt.html
+  Version: 0.4.2
+
+MySQL (the world's most popular open source database software)
+  http://www.mysql.com/
+  Version: 5.1.50 (GA)
 
 SFMT (SIMD-oriented Fast Mersenne Twister)
   Based on http://agner.org/random/
