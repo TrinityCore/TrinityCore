@@ -25,7 +25,7 @@ if(${PLATFORM} STREQUAL "X64")
   message(STATUS "- MSVC: 64-bit platform, enforced -D_WIN64 parameter")
 
   #Enable extended object support for debug compiles on X64 (not required on X86)
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} /bigobj")
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /bigobj")
   message(STATUS "- MSVC: Enabled extended object-support for debug-compiles")
 endif()
 
