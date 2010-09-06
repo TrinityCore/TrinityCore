@@ -3874,6 +3874,10 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectImplicitTargetA[0] = TARGET_DST_DB;
             count++;
             break;
+        case 63675: // Improved Devouring Plague
+            spellInfo->AttributesEx3 |= SPELL_ATTR_EX3_NO_DONE_BONUS;
+            count++;
+            break;
         default:
             break;
         }
