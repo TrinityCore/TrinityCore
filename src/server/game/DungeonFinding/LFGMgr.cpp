@@ -1696,6 +1696,7 @@ void LFGMgr::TeleportPlayer(Player *plr, bool out)
             {
                 if (!plr->GetMap()->IsDungeon() && !plr->GetMap()->IsRaid())
                     plr->SetBattlegroundEntryPoint();
+                plr->RemoveAurasByType(SPELL_AURA_MOUNTED);
                 // TODO: Teleport to group
                 plr->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, at->target_Orientation);
             }
