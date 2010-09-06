@@ -1387,6 +1387,18 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
         SendPacket( &data );
         return;
     }
+    
+    if (GetSecurity() == SEC_PLAYER)
+    {
+        uint32 raceMaskDisabled = sWorld.getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED_RACEMASK);
+        if ((1 << (race - 1)) & raceMaskDisabled)
+        {
+            WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 1);
+            data << uint8(CHAR_CREATE_ERROR);
+            SendPacket( &data );
+            return;
+        }
+    }
 
     // prevent character rename to invalid name
     if (!normalizePlayerName(newname))
