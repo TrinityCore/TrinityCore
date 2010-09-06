@@ -50,7 +50,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 uiSaurfangTeleport = 0;
                 memset(uiPutricidePipes, 0, 2*sizeof(uint32));
                 memset(uiPutricideGates, 0, 2*sizeof(uint32));
-                uiPutricideCollision;
+                uiPutricideCollision = 0;
                 uiFestergut = 0;
                 uiRotface = 0;
                 uiProfessorPutricide = 0;
