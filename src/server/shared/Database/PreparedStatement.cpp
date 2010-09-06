@@ -200,7 +200,7 @@ void MySQLPreparedStatement::ClearParameters()
     {
         delete m_bind[i].length;
         m_bind[i].length = NULL;
-        delete[] m_bind[i].buffer;
+        delete[] (char*) m_bind[i].buffer;
         m_bind[i].buffer = NULL;
         m_paramsSet[i] = false;
     }
