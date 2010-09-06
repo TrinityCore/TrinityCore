@@ -917,16 +917,16 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposalList *proposals)
     LfgDungeonSet *compatibleDungeons = CheckCompatibleDungeons(&dungeonMap, &players);
     dungeonMap.clear();
     pqInfoMap.clear();
-    SetCompatibles(strGuids, true);
-
     if (!compatibleDungeons || !compatibleDungeons->size())
     {
         if (compatibleDungeons)
             delete compatibleDungeons;
         players.clear();
         rolesMap.clear();
+        SetCompatibles(strGuids, false);
         return false;
     }
+    SetCompatibles(strGuids, true);
 
     // ----- Group is compatible, if we have MAXGROUPSIZE members then match is found
     if (numPlayers != MAXGROUPSIZE)
