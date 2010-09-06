@@ -695,7 +695,11 @@ ChatLogTimestamp = 0
 #        Minimal name length (1..12)
 #        Default: 2
 #
-#    CharactersCreatingDisabled
+#    MaxWhoListReturns
+#        Set the max number of players returned in the /who list and interface.
+#        Default: 49 (stable)
+#
+#    CharacterCreating.Disabled
 #        Disable characters creating for specific team or any
 #         (non-player accounts not affected)
 #        Default: 0 - enabled
@@ -703,9 +707,19 @@ ChatLogTimestamp = 0
 #                 2 - disabled only for Horde
 #                 3 - disabled for both teams
 #
-#    MaxWhoListReturns
-#        Set the max number of players returned in the /who list and interface.
-#        Default: 49 (stable)
+#    CharacterCreating.Disabled.RaceMask
+#        Mask of races which cannot be created (ignored for GM accounts).
+#        Default: 0 - all races are enabled
+#                 Check http://www.trinitycore.info/index.php/Characters_tc2#race 
+#                 for race mask values.
+#        Example: 1536 = 1024 + 512 - Blood Elf and Draenei races are disabled.
+#
+#    CharacterCreating.Disabled.ClassMask
+#        Mask of classes which cannot be created (ignored for GM accounts).
+#        Default: 0 - all classes are enabled
+#                 Check http://www.trinitycore.info/index.php/Characters_tc2#class 
+#                 for class mask values.
+#        Example: 288 = 32 + 256 - Death Knight and Warlock classes are disabled.
 #
 #    CharactersPerAccount
 #        Limit numbers of characters per account (at all realms).
@@ -724,13 +738,12 @@ ChatLogTimestamp = 0
 #        Default: 1
 #                The number must be between 0 (not allowed) and 10
 #
-#    MinLevelForHeroicCharacterCreating
+#    CharacterCreating.MinLevelForHeroicCharacter
 #        Limit creating heroic characters only for account with another
 #         character of specific level (ignored for GM accounts)
 #                 0  - not require any existed chaarcter
 #                 1  - require at least any character existed
 #        Default: 55 - default requirement
-#
 #
 #    SkipCinematics
 #        Disable in-game script movie at first character's login
@@ -962,11 +975,13 @@ MaxWhoListReturns = 49
 MinPlayerName = 2
 MinCharterName = 2
 MinPetName = 2
-CharactersCreatingDisabled = 0
+CharacterCreating.Disabled = 0
+CharacterCreating.Disabled.RaceMask = 0
+CharacterCreating.Disabled.ClassMask = 0
 CharactersPerAccount = 50
 CharactersPerRealm = 10
 HeroicCharactersPerRealm = 1
-MinLevelForHeroicCharacterCreating = 55
+CharacterCreating.MinLevelForHeroicCharacter = 55
 SkipCinematics = 0
 MaxPlayerLevel = 80
 MinDualSpecLevel = 40
