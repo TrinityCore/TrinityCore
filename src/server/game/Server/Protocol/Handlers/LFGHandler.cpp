@@ -21,6 +21,7 @@
 #include "WorldSession.h"
 #include "WorldPacket.h"
 #include "Player.h"
+#include "ObjectMgr.h"
 
 void WorldSession::HandleLfgJoinOpcode(WorldPacket &recv_data)
 {
