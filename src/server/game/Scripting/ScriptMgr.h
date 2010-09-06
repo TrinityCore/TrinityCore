@@ -686,7 +686,7 @@ public:
     virtual void OnTextEmote(Player* /*player*/, uint32 /*text_emote*/, uint32 /*emoteNum*/, uint64 /*guid*/) { }
 
     // Called in Spell::cast
-    virtual void OnSpellCast(Player *player, Spell *spell, bool skipCheck) { }
+    virtual void OnSpellCast(Player * /*player*/, Spell * /*spell*/, bool /*skipCheck*/) { }
 };
 
 class GuildScript : public ScriptObject

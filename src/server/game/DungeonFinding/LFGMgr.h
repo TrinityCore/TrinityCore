@@ -275,7 +275,7 @@ class LFGMgr
         void LoadDungeonEncounters();
         void LoadRewards();
         void RewardDungeonDoneFor(const uint32 dungeonId, Player* player);
-        const uint32 GetDungeonIdForAchievement(uint32 achievementId)
+        uint32 GetDungeonIdForAchievement(uint32 achievementId)
         {
             std::map<uint32, uint32>::iterator itr = m_EncountersByAchievement.find(achievementId);
             if (itr != m_EncountersByAchievement.end())
