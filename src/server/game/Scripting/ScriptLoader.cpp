@@ -559,9 +559,9 @@ void AddSC_chat_log();
 
 void AddScripts()
 {
-#ifdef SCRIPTS
     AddExampleScripts();
     AddSpellScripts();
+#ifdef SCRIPTS
     AddWorldScripts();
     AddEasternKingdomsScripts();
     AddKalimdorScripts();
