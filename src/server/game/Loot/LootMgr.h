@@ -172,8 +172,9 @@ typedef std::set<uint32> LootIdSet;
 class LootStore
 {
     public:
-        explicit LootStore(char const* name, char const* entryName, bool ratesAllowed)
-            : m_name(name), m_entryName(entryName), m_ratesAllowed(ratesAllowed) {}
+        explicit LootStore(char const* name, char const* entryName, bool ratesAllowed, bool autoDistributeCurrency)
+            : m_name(name), m_entryName(entryName), m_ratesAllowed(ratesAllowed), m_autoDistributeCurrency(autoDistributeCurrency) {}
+
         virtual ~LootStore() { Clear(); }
 
         void Verify() const;
@@ -194,6 +195,7 @@ class LootStore
         char const* GetName() const { return m_name; }
         char const* GetEntryName() const { return m_entryName; }
         bool IsRatesAllowed() const { return m_ratesAllowed; }
+        bool IsCurrencyAutoDistributed() const { return m_autoDistributeCurrency; }
     protected:
         void LoadLootTable();
         void Clear();
@@ -202,6 +204,7 @@ class LootStore
         char const* m_name;
         char const* m_entryName;
         bool m_ratesAllowed;
+        bool m_autoDistributeCurrency;
 };
 
 class LootTemplate
@@ -213,7 +216,8 @@ class LootTemplate
         // Adds an entry to the group (at loading stage)
         void AddEntry(LootStoreItem& item);
         // Rolls for every item in the template and adds the rolled items the the loot
-        void Process(Loot& loot, LootStore const& store, bool rate, uint16 lootMode, uint8 groupId = 0) const;
+        void Process(Loot& loot, LootStore const& store, Player* lootOwner, bool rate, uint16 lootMode, uint8 groupId = 0) const;
+        static bool ProcessCurrency(Player* lootOwner, const LootStoreItemList::const_iterator& lootItem, ItemPrototype const* pProto);
         void CopyConditions(ConditionList conditions);
 
         // True if template includes at least 1 quest drop entry
@@ -321,7 +325,7 @@ struct Loot
     void RemoveLooter(uint64 GUID) { PlayersLooting.erase(GUID); }
 
     void generateMoneyLoot(uint32 minAmount, uint32 maxAmount);
-    bool FillLoot(uint32 loot_id, LootStore const& store, Player* loot_owner, bool personal, bool noEmptyError = false, uint16 lootMode = LOOT_MODE_DEFAULT);
+    bool FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bool personal, bool noEmptyError = false, uint16 lootMode = LOOT_MODE_DEFAULT);
 
     // Inserts the item into the loot (called by LootTemplate processors)
     void AddItem(LootStoreItem const & item);
