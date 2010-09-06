@@ -19283,6 +19283,8 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 72419, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  60), -- Item - Icecrown Reputation Ring Healer Trigger
 ( 71404, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002,   0,   0,  45), -- Item - Icecrown Dungeon Melee Trinket
 ( 71564, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Nevermelting Ice Crystal
+ (71545, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,  50,   0), -- Tiny Abomination in a Jar (Heroic)
+( 71406, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,  50,   0), -- Tiny Abomination in a Jar
 ( 75474, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Charred Twilight Scale (Heroic)
 ( 75465, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Charred Twilight Scale
 ( 75457, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Sharpened Twilight Scale (Heroic)
