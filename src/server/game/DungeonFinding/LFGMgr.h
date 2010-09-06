@@ -286,7 +286,7 @@ class LFGMgr
 
         LfgLockStatusMap* GetPartyLockStatusDungeons(Player *plr, LfgDungeonSet *dungeons = NULL);
         LfgDungeonSet* GetRandomDungeons(uint8 level, uint8 expansion);
-        LfgLockStatusSet* GetPlayerLockStatusDungeons(Player *plr, LfgDungeonSet *dungeons = NULL);
+        LfgLockStatusSet* GetPlayerLockStatusDungeons(Player *plr, LfgDungeonSet *dungeons = NULL, bool useEntry = true);
         LfgReward const* GetRandomDungeonReward(uint32 dungeon, uint8 level);
         void BuildPlayerLockDungeonBlock(WorldPacket &data, LfgLockStatusSet *lockSet);
         void BuildPartyLockDungeonBlock(WorldPacket &data, LfgLockStatusMap *lockMap);
@@ -313,7 +313,7 @@ class LFGMgr
         void BuildAvailableRandomDungeonList(WorldPacket &data, Player *plr);
         void BuildBootPlayerBlock(WorldPacket &data, LfgPlayerBoot *pBoot, uint32 lowGuid);
 
-        LfgLockStatusMap* GetGroupLockStatusDungeons(PlayerSet *pPlayers, LfgDungeonSet *dungeons);
+        LfgLockStatusMap* GetGroupLockStatusDungeons(PlayerSet *pPlayers, LfgDungeonSet *dungeons, bool useEntry = true);
         LfgDungeonSet* GetDungeonsByRandom(uint32 randomdungeon);
         LfgDungeonSet* GetAllDungeons();
         uint8 GetDungeonGroupType(uint32 dungeon);
