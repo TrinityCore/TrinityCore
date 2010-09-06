@@ -519,10 +519,34 @@ void LFGMgr::AddToQueue(uint64 guid, LfgRolesMap *roles, LfgDungeonSet *dungeons
     for (LfgRolesMap::const_iterator itRoles = roles->begin(); itRoles != roles->end(); ++itRoles)
         pqInfo->roles[itRoles->first] = itRoles->second;
 
-    // Expand random dungeons
+    
     LfgDungeonSet *expandedDungeons = dungeons;
-    if (isRandomDungeon(*dungeons->begin()))
-        expandedDungeons = GetDungeonsByRandom(*dungeons->begin());
+    if (isRandomDungeon(*dungeons->begin()))                // Expand random dungeons
+    {
+        LfgDungeonMap dungeonMap;
+        dungeonMap[guid] = GetDungeonsByRandom(*dungeons->begin());
+        PlayerSet players;
+        Player *plr;
+        for (LfgRolesMap::const_iterator it = roles->begin(); it != roles->end(); ++it)
+        {
+            plr = sObjectMgr.GetPlayer(it->first);
+            if (plr)
+                players.insert(plr);
+        }
+
+        if (players.size() != roles->size())
+        {
+            sLog.outError("LFGMgr::AddToQueue: " UI64FMTD " has players %d offline. Can't join queue", guid, uint8(roles->size() - players.size()));
+            pqInfo->dungeons.clear();
+            pqInfo->roles.clear();
+            players.clear();
+            delete pqInfo;
+            return;
+        }
+        // Check restrictions
+        expandedDungeons = CheckCompatibleDungeons(&dungeonMap, &players);
+        players.clear();
+    }
 
     for (LfgDungeonSet::const_iterator it = expandedDungeons->begin(); it != expandedDungeons->end(); ++it)
         pqInfo->dungeons.insert(*it);
@@ -1232,7 +1256,7 @@ LfgDungeonSet* LFGMgr::CheckCompatibleDungeons(LfgDungeonMap *dungeonsMap, Playe
     if (players && !players->empty())
     {
         // now remove those with restrictions
-        LfgLockStatusMap *pLockDungeons = GetGroupLockStatusDungeons(players, compatibleDungeons);
+        LfgLockStatusMap *pLockDungeons = GetGroupLockStatusDungeons(players, compatibleDungeons, false);
         if (pLockDungeons) // Found dungeons not compatible, remove them from the set
         {
             LfgLockStatusSet *pLockSet = NULL;
@@ -1894,8 +1918,9 @@ void LFGMgr::BuildPlayerLockDungeonBlock(WorldPacket &data, LfgLockStatusSet *lo
 /// </summary>
 /// <param name="PlayerSet *">Players to check lock status</param>
 /// <param name="LfgDungeonSet *">Dungeons to check</param>
+/// <param name="bool">Use dungeon entry (true) or id (false)</param>
 /// <returns>LfgLockStatusMap*</returns>
-LfgLockStatusMap* LFGMgr::GetGroupLockStatusDungeons(PlayerSet *pPlayers, LfgDungeonSet *dungeons)
+LfgLockStatusMap* LFGMgr::GetGroupLockStatusDungeons(PlayerSet *pPlayers, LfgDungeonSet *dungeons, bool useEntry /* = true */)
 {
     if (!pPlayers || !dungeons)
         return NULL;
@@ -1904,7 +1929,7 @@ LfgLockStatusMap* LFGMgr::GetGroupLockStatusDungeons(PlayerSet *pPlayers, LfgDun
     LfgLockStatusMap *dungeonMap = new LfgLockStatusMap();
     for (PlayerSet::const_iterator itr = pPlayers->begin(); itr != pPlayers->end(); ++itr)
     {
-        dungeonSet = GetPlayerLockStatusDungeons(*itr, dungeons);
+        dungeonSet = GetPlayerLockStatusDungeons(*itr, dungeons, useEntry);
         if (dungeonSet)
             (*dungeonMap)[(*itr)->GetGUIDLow()] = dungeonSet;
     }
@@ -1955,8 +1980,9 @@ LfgLockStatusMap* LFGMgr::GetPartyLockStatusDungeons(Player *plr, LfgDungeonSet 
 /// </summary>
 /// <param name="Player *">Player to check lock status</param>
 /// <param name="LfgDungeonSet *">Dungeons to check</param>
+/// <param name="bool">Use dungeon entry (true) or id (false)</param>
 /// <returns>LfgLockStatusSet*</returns>
-LfgLockStatusSet* LFGMgr::GetPlayerLockStatusDungeons(Player *plr, LfgDungeonSet *dungeons /* = NULL */)
+LfgLockStatusSet* LFGMgr::GetPlayerLockStatusDungeons(Player *plr, LfgDungeonSet *dungeons /* = NULL */, bool useEntry /* = true */)
 {
     LfgLockStatusSet *list = new LfgLockStatusSet();
     LfgLockStatus *lockstatus = NULL;
@@ -2016,7 +2042,7 @@ LfgLockStatusSet* LFGMgr::GetPlayerLockStatusDungeons(Player *plr, LfgDungeonSet
         if (locktype != LFG_LOCKSTATUS_OK)
         {
             lockstatus = new LfgLockStatus();
-            lockstatus->dungeon = dungeon->Entry();
+            lockstatus->dungeon = useEntry ? dungeon->Entry(): dungeon->ID;
             lockstatus->lockstatus = locktype;
             list->insert(lockstatus);
         }
