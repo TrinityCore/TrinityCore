@@ -541,19 +541,19 @@ public:
 
                 uint32 spellId = 0;
                 uint32 rand = urand(0, 100);
-                if (rand >= 0 && rand < 25)         // Fireball (25% chance)
+                if (rand < 25)                      // Fireball (25% chance)
                     spellId = SPELL_FIREBALL;
-                else if (rand >= 25 && rand < 50)   // Frostball (25% chance)
+                else if (rand < 50)                 // Frostball (25% chance)
                     spellId = SPELL_FROSTBOLT;
-                else if (rand >= 50 && rand < 70)   // Chain Lighting (20% chance)
+                else if (rand < 70)                 // Chain Lighting (20% chance)
                     spellId = SPELL_CHAIN_LIGHTNING;
-                else if (rand >= 70 && rand < 80)   // Polymorph (10% chance)
+                else if (rand < 80)                 // Polymorph (10% chance)
                 {
                     spellId = SPELL_POLYMORPH;
                     if (urand(0, 100) <= 30)        // 30% chance to self-cast
                         pTarget = pCaster;
                 }
-                else if (rand >=80 && rand < 95)    // Enveloping Winds (15% chance)
+                else if (rand < 95)                 // Enveloping Winds (15% chance)
                     spellId = SPELL_ENVELOPING_WINDS;
                 else                                // Summon Felhund minion (5% chance)
                 {
