@@ -1504,7 +1504,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_collapsing_star' WHERE `entry`=
 UPDATE `gameobject_template` SET `ScriptName`='ulduar_teleporter' WHERE `entry`=194569;
 UPDATE `creature_template` SET `ScriptName`= 'npc_thorims_hammer' WHERE `entry`=33365;
 UPDATE `creature_template` SET `ScriptName`= 'npc_mimirons_inferno' WHERE `entry`=33370;
-UPDATE `creature_template` SET `ScriptName`= 'npc_hodirs_fury' WHERE `entry`=33312;
+UPDATE `creature_template` SET `ScriptName`= 'npc_hodirs_fury' WHERE `entry`=33212;
 UPDATE `creature_template` SET `ScriptName`= 'npc_freyas_ward' WHERE `entry`=33367;
 UPDATE `creature_template` SET `ScriptName`= 'npc_lorekeeper' WHERE `entry`=33686;
 UPDATE `creature_template` SET `ScriptName`= 'npc_brann_bronzebeard' WHERE `entry`=33579;
