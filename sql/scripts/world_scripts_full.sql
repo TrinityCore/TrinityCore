@@ -1744,7 +1744,7 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,
 (1234,11,0,0, 'achievement_bg_control_all_nodes'),
 (1239,11,0,0, 'achievement_bg_control_all_nodes'),
 (5605,11,0,0, 'achievement_save_the_day'),
-(5606,11,0,0, 'achievement_save_the_day')
+(5606,11,0,0, 'achievement_save_the_day'),
 (12778,11,0,0, 'achievement_ive_gone_and_made_a_mess'),
 (13036,11,0,0, 'achievement_ive_gone_and_made_a_mess'),
 (13035,11,0,0, 'achievement_ive_gone_and_made_a_mess'),
