@@ -150,15 +150,14 @@ public:
                     {
                         DoScriptText(RAND(SAY_FLESH_1,SAY_FLESH_2),me);
                         me->SetDisplayId(MODEL_FLESH);
-                        std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
-                        for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+
+                        std::list<Unit *> playerList;
+                        SelectTargetList(playerList, 5, SELECT_TARGET_TOPAGGRO, 0, true);
+                        for (std::list<Unit*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
                         {
-                            Unit *pTemp = Unit::GetUnit((*me),(*itr)->getUnitGuid());
-                            if (pTemp && pTemp->GetTypeId() == TYPEID_PLAYER)
-                            {
-                                me->AddAura(SPELL_GIFT_OF_THARON_JA,pTemp);
-                                pTemp->SetDisplayId(MODEL_SKELETON);
-                            }
+                            Unit *pTemp = (*itr);
+                            me->AddAura(SPELL_GIFT_OF_THARON_JA,pTemp);
+                            pTemp->SetDisplayId(MODEL_SKELETON);
                         }
                         uiPhaseTimer = 20*IN_MILLISECONDS;
                         uiLightningBreathTimer = urand(3*IN_MILLISECONDS,4*IN_MILLISECONDS);
@@ -206,16 +205,15 @@ public:
                         uiCurseOfLifeTimer = 1*IN_MILLISECONDS;
                         uiRainOfFireTimer = urand(14*IN_MILLISECONDS,18*IN_MILLISECONDS);
                         uiShadowVolleyTimer = urand(8*IN_MILLISECONDS,10*IN_MILLISECONDS);
-                        std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
-                        for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+
+                        std::list<Unit *> playerList;
+                        SelectTargetList(playerList, 5, SELECT_TARGET_TOPAGGRO, 0, true);
+                        for (std::list<Unit*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
                         {
-                            Unit *pTemp = Unit::GetUnit((*me),(*itr)->getUnitGuid());
-                            if (pTemp && pTemp->GetTypeId() == TYPEID_PLAYER)
-                            {
-                                if (pTemp->HasAura(SPELL_GIFT_OF_THARON_JA))
-                                    pTemp->RemoveAura(SPELL_GIFT_OF_THARON_JA);
-                                pTemp->DeMorph();
-                            }
+                            Unit *pTemp = (*itr);
+                            if (pTemp->HasAura(SPELL_GIFT_OF_THARON_JA))
+                                pTemp->RemoveAura(SPELL_GIFT_OF_THARON_JA);
+                            pTemp->DeMorph();
                         }
                     } else uiPhaseTimer -= diff;
                     break;
