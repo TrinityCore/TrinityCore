@@ -540,7 +540,7 @@ public:
                 Unit* pCaster = GetCaster();
 
                 uint32 spellId = 0;
-                uint32 rand = urand(0, 100);
+                uint32 rand = urand(0, 99);
                 if (rand < 25)                      // Fireball (25% chance)
                     spellId = SPELL_FIREBALL;
                 else if (rand < 50)                 // Frostball (25% chance)
