@@ -20354,7 +20354,7 @@ bool Player::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList, bool
     // Arena visibility before arena start
     if (InArena() && GetBattleground()->GetStatus() == STATUS_WAIT_JOIN)
         if (const Player* target = u->GetCharmerOrOwnerPlayerOrPlayerItself())
-            return GetBGTeam() == target->GetBGTeam();
+            return GetBGTeam() == target->GetBGTeam() && target->isGMVisible();
 
     // phased visibility (both must phased in same way)
     if (!InSamePhase(u))
