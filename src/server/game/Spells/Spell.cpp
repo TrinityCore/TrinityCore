@@ -6436,7 +6436,10 @@ SpellCastResult Spell::CheckItems()
                         }
 
                         if (!m_caster->ToPlayer()->HasItemCount(ammo, 1))
+                        {
+                            m_caster->ToPlayer()->SetUInt32Value(PLAYER_AMMO_ID, 0);
                             return SPELL_FAILED_NO_AMMO;
+                        }
                     };  break;
                     case ITEM_SUBCLASS_WEAPON_WAND:
                         break;
