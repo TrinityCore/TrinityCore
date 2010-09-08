@@ -45,7 +45,7 @@ class instance_molten_core : public InstanceMapScript
 public:
     instance_molten_core() : InstanceMapScript("instance_molten_core", 409) { }
 
-    InstanceScript* GetInstanceScript(Map* pMap)
+    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
     {
         return new instance_molten_core_InstanceMapScript (pMap);
     }
