@@ -5732,6 +5732,13 @@ SpellCastResult Spell::CheckCast(bool strict)
     if (m_needComboPoints && m_caster->ToPlayer() && !m_caster->ToPlayer()->GetComboPoints())
         return SPELL_FAILED_NO_COMBO_POINTS;
 
+    // don't allow channeled spells / spells with cast time to be casted while moving
+    // (even if they are interrupted on moving, spells with almost immediate effect get to have their effect processed before movement interrupter kicks in)
+    if ((IsChanneledSpell(m_spellInfo) || GetSpellCastTime(m_spellInfo, this))
+        && m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->isMoving()
+        && m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_MOVEMENT)
+        return SPELL_FAILED_MOVING;
+
     // all ok
     return SPELL_CAST_OK;
 }
