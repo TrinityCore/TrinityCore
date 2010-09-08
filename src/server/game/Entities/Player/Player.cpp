@@ -15187,7 +15187,7 @@ void Player::KilledMonster(CreatureInfo const* cInfo, uint64 guid)
 
     for (uint8 i = 0; i < MAX_KILL_CREDIT; ++i)
         if (cInfo->KillCredit[i])
-            KilledMonsterCredit(cInfo->KillCredit[i], guid);
+            KilledMonsterCredit(cInfo->KillCredit[i], 0);
 }
 
 void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
