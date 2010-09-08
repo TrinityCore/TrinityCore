@@ -4771,6 +4771,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     {
         if ((*j)->IsAffectedOnSpell(m_spellInfo))
         {
+            m_needComboPoints = false;
             if ((*j)->GetMiscValue() == 1)
             {
                 reqCombat=false;
@@ -5733,8 +5734,10 @@ SpellCastResult Spell::CheckCast(bool strict)
     }
 
     // check if caster has at least 1 combo point for spells that require combo points
-    if (m_needComboPoints && m_caster->ToPlayer() && !m_caster->ToPlayer()->GetComboPoints())
-        return SPELL_FAILED_NO_COMBO_POINTS;
+    if (m_needComboPoints)
+        if (Player* plrCaster = m_caster->ToPlayer())
+            if (!m_caster->ToPlayer()->GetComboPoints())
+                return SPELL_FAILED_NO_COMBO_POINTS;
 
     // don't allow channeled spells / spells with cast time to be casted while moving
     // (even if they are interrupted on moving, spells with almost immediate effect get to have their effect processed before movement interrupter kicks in)
