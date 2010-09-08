@@ -47,7 +47,7 @@ include(CheckPlatform)
 find_package(PCHSupport)
 find_package(ACE REQUIRED)
 find_package(OpenSSL REQUIRED)
-if(NOT EXTERNAL_MYSQL)
+if( EXTERNAL_MYSQL )
   find_package(MySQL REQUIRED)
 endif()
 
