@@ -2985,6 +2985,8 @@ bool ChatHandler::HandleLookupItemCommand(const char *args)
     wstrToLower(wnamepart);
 
     bool found = false;
+    uint32 count = 0;
+    uint32 maxResults = sWorld.getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
     // Search in `item_template`
     for (uint32 id = 0; id < sItemStorage.MaxEntry; id++)
@@ -3005,6 +3007,12 @@ bool ChatHandler::HandleLookupItemCommand(const char *args)
 
                     if (Utf8FitTo(name, wnamepart))
                     {
+                        if (maxResults && count++ == maxResults)
+                        {
+                            PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                            return true;
+                        }
+
                         if (m_session)
                             PSendSysMessage(LANG_ITEM_LIST_CHAT, id, id, name.c_str());
                         else
@@ -3025,6 +3033,12 @@ bool ChatHandler::HandleLookupItemCommand(const char *args)
 
         if (Utf8FitTo(name, wnamepart))
         {
+            if (maxResults && count++ == maxResults)
+            {
+                PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                return true;
+            }
+
             if (m_session)
                 PSendSysMessage(LANG_ITEM_LIST_CHAT, id, id, name.c_str());
             else
@@ -3056,6 +3070,8 @@ bool ChatHandler::HandleLookupItemSetCommand(const char *args)
     wstrToLower(wnamepart);
 
     bool found = false;
+    uint32 count = 0;
+    uint32 maxResults = sWorld.getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
     // Search in ItemSet.dbc
     for (uint32 id = 0; id < sItemSetStore.GetNumRows(); id++)
@@ -3087,6 +3103,12 @@ bool ChatHandler::HandleLookupItemSetCommand(const char *args)
 
             if (loc < MAX_LOCALE)
             {
+                if (maxResults && count++ == maxResults)
+                {
+                    PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                    return true;
+                }
+
                 // send item set in "id - [namedlink locale]" format
                 if (m_session)
                     PSendSysMessage(LANG_ITEMSET_LIST_CHAT,id,id,name.c_str(),localeNames[loc]);
@@ -3121,6 +3143,8 @@ bool ChatHandler::HandleLookupSkillCommand(const char *args)
     wstrToLower(wnamepart);
 
     bool found = false;
+    uint32 count = 0;
+    uint32 maxResults = sWorld.getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
     // Search in SkillLine.dbc
     for (uint32 id = 0; id < sSkillLineStore.GetNumRows(); id++)
@@ -3152,6 +3176,12 @@ bool ChatHandler::HandleLookupSkillCommand(const char *args)
 
             if (loc < MAX_LOCALE)
             {
+                if (maxResults && count++ == maxResults)
+                {
+                    PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                    return true;
+                }
+
                 char valStr[50] = "";
                 char const* knownStr = "";
                 if (target && target->HasSkill(id))
@@ -3200,6 +3230,8 @@ bool ChatHandler::HandleLookupSpellCommand(const char *args)
     wstrToLower(wnamepart);
 
     bool found = false;
+    uint32 count = 0;
+    uint32 maxResults = sWorld.getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
     // Search in Spell.dbc
     for (uint32 id = 0; id < sSpellStore.GetNumRows(); id++)
@@ -3231,6 +3263,12 @@ bool ChatHandler::HandleLookupSpellCommand(const char *args)
 
             if (loc < MAX_LOCALE)
             {
+                if (maxResults && count++ == maxResults)
+                {
+                    PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                    return true;
+                }
+
                 bool known = target && target->HasSpell(id);
                 bool learn = (spellInfo->Effect[0] == SPELL_EFFECT_LEARN_SPELL);
 
@@ -3301,6 +3339,8 @@ bool ChatHandler::HandleLookupQuestCommand(const char *args)
     wstrToLower(wnamepart);
 
     bool found = false;
+    uint32 count = 0;
+    uint32 maxResults = sWorld.getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
     ObjectMgr::QuestMap const& qTemplates = sObjectMgr.GetQuestTemplates();
     for (ObjectMgr::QuestMap::const_iterator iter = qTemplates.begin(); iter != qTemplates.end(); ++iter)
@@ -3319,6 +3359,12 @@ bool ChatHandler::HandleLookupQuestCommand(const char *args)
 
                     if (Utf8FitTo(title, wnamepart))
                     {
+                        if (maxResults && count++ == maxResults)
+                        {
+                            PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                            return true;
+                        }
+
                         char const* statusStr = "";
 
                         if (target)
@@ -3356,6 +3402,12 @@ bool ChatHandler::HandleLookupQuestCommand(const char *args)
 
         if (Utf8FitTo(title, wnamepart))
         {
+            if (maxResults && count++ == maxResults)
+            {
+                PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                return true;
+            }
+
             char const* statusStr = "";
 
             if (target)
@@ -3404,6 +3456,8 @@ bool ChatHandler::HandleLookupCreatureCommand(const char *args)
     wstrToLower (wnamepart);
 
     bool found = false;
+    uint32 count = 0;
+    uint32 maxResults = sWorld.getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
     for (uint32 id = 0; id< sCreatureStorage.MaxEntry; ++id)
     {
@@ -3423,6 +3477,12 @@ bool ChatHandler::HandleLookupCreatureCommand(const char *args)
 
                     if (Utf8FitTo (name, wnamepart))
                     {
+                        if (maxResults && count++ == maxResults)
+                        {
+                            PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                            return true;
+                        }
+
                         if (m_session)
                             PSendSysMessage (LANG_CREATURE_ENTRY_LIST_CHAT, id, id, name.c_str ());
                         else
@@ -3443,6 +3503,12 @@ bool ChatHandler::HandleLookupCreatureCommand(const char *args)
 
         if (Utf8FitTo(name, wnamepart))
         {
+            if (maxResults && count++ == maxResults)
+            {
+                PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                return true;
+            }
+
             if (m_session)
                 PSendSysMessage (LANG_CREATURE_ENTRY_LIST_CHAT, id, id, name.c_str ());
             else
@@ -3474,6 +3540,8 @@ bool ChatHandler::HandleLookupObjectCommand(const char *args)
     wstrToLower(wnamepart);
 
     bool found = false;
+    uint32 count = 0;
+    uint32 maxResults = sWorld.getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
     for (uint32 id = 0; id< sGOStorage.MaxEntry; id++)
     {
@@ -3493,6 +3561,12 @@ bool ChatHandler::HandleLookupObjectCommand(const char *args)
 
                     if (Utf8FitTo(name, wnamepart))
                     {
+                        if (maxResults && count++ == maxResults)
+                        {
+                            PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                            return true;
+                        }
+
                         if (m_session)
                             PSendSysMessage(LANG_GO_ENTRY_LIST_CHAT, id, id, name.c_str());
                         else
@@ -3513,6 +3587,12 @@ bool ChatHandler::HandleLookupObjectCommand(const char *args)
 
         if (Utf8FitTo(name, wnamepart))
         {
+            if (maxResults && count++ == maxResults)
+            {
+                PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                return true;
+            }
+
             if (m_session)
                 PSendSysMessage(LANG_GO_ENTRY_LIST_CHAT, id, id, name.c_str());
             else
@@ -3547,6 +3627,8 @@ bool ChatHandler::HandleLookupFactionCommand(const char *args)
     wstrToLower (wnamepart);
 
     bool found = false;
+    uint32 count = 0;
+    uint32 maxResults = sWorld.getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
     for (uint32 id = 0; id < sFactionStore.GetNumRows(); ++id)
     {
@@ -3579,6 +3661,12 @@ bool ChatHandler::HandleLookupFactionCommand(const char *args)
 
             if (loc < MAX_LOCALE)
             {
+                if (maxResults && count++ == maxResults)
+                {
+                    PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                    return true;
+                }
+
                 // send faction in "id - [faction] rank reputation [visible] [at war] [own team] [unknown] [invisible] [inactive]" format
                 // or              "id - [faction] [no reputation]" format
                 std::ostringstream ss;
@@ -3638,6 +3726,8 @@ bool ChatHandler::HandleLookupTaxiNodeCommand(const char * args)
     wstrToLower(wnamepart);
 
     bool found = false;
+    uint32 count = 0;
+    uint32 maxResults = sWorld.getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
     // Search in TaxiNodes.dbc
     for (uint32 id = 0; id < sTaxiNodesStore.GetNumRows(); id++)
@@ -3669,6 +3759,12 @@ bool ChatHandler::HandleLookupTaxiNodeCommand(const char * args)
 
             if (loc < MAX_LOCALE)
             {
+                if (maxResults && count++ == maxResults)
+                {
+                    PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                    return true;
+                }
+
                 // send taxinode in "id - [name] (Map:m X:x Y:y Z:z)" format
                 if (m_session)
                     PSendSysMessage (LANG_TAXINODE_ENTRY_LIST_CHAT, id, id, name.c_str(),localeNames[loc],
