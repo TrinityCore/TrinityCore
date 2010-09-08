@@ -1199,6 +1199,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_INTERVAL_LOG_UPDATE] = sConfig.GetIntDefault("RecordUpdateTimeDiffInterval", 60000);
     m_int_configs[CONFIG_MIN_LOG_UPDATE] = sConfig.GetIntDefault("MinRecordUpdateTimeDiff", 100);
     m_int_configs[CONFIG_NUMTHREADS] = sConfig.GetIntDefault("MapUpdate.Threads", 1);
+    m_int_configs[CONFIG_MAX_RESULTS_LOOKUP_COMMANDS] = sConfig.GetIntDefault("Command.LookupMaxResults", 0);
 
     // chat logging
     m_bool_configs[CONFIG_CHATLOG_CHANNEL] = sConfig.GetBoolDefault("ChatLogs.Channel", false);
