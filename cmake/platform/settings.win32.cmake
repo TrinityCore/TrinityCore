@@ -7,12 +7,12 @@ set(ACE_LIBRARY "ace")
 set(BZIP2_LIBRARIES "bzip2")
 set(ZLIB_LIBRARIES "zlib")
 
-if( EXTERNAL_MYSQL )
+if( NOT EXTERNAL_MYSQL )
   set(MYSQL_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/dep/mysqllite/include)
   set(MYSQL_LIBRARY "libmysql")
   set( MYSQL_FOUND 1 )
   message(STATUS "Using internal MySQL.")
-endif( EXTERNAL_MYSQL )
+endif()
 
 # check the CMake preload parameters (commented out by default)
 
