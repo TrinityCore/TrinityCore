@@ -144,9 +144,59 @@ class spell_creature_permanent_feign_death : public SpellScriptLoader
     }
 };
 
+enum PvPTrinketTriggeredSpells
+{
+    SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER         = 72752,
+    SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER_WOTF    = 72757,
+};
+class spell_pvp_trinket_wotf_shared_cd : public SpellScriptLoader
+{
+public:
+    spell_pvp_trinket_wotf_shared_cd() : SpellScriptLoader("spell_pvp_trinket_wotf_shared_cd") {}
+
+    class spell_pvp_trinket_wotf_shared_cd_SpellScript : public SpellScript
+    {
+        bool Validate(SpellEntry const * /*spellEntry*/)
+        {
+            if (!sSpellStore.LookupEntry(SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER))
+                return false;
+            if (!sSpellStore.LookupEntry(SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER_WOTF))
+                return false;
+            return true;
+        }
+
+        void HandleScript(SpellEffIndex /*effIndex*/)
+        {
+            Player* pCaster = GetCaster()->ToPlayer();
+            if (!pCaster)
+                return;
+            const SpellEntry* m_spellInfo = GetSpellInfo();
+
+            pCaster->AddSpellCooldown(m_spellInfo->Id, NULL, time(NULL) + GetSpellRecoveryTime(sSpellStore.LookupEntry(SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER)) / IN_MILLISECONDS);
+            WorldPacket data(SMSG_SPELL_COOLDOWN, 8+1+4);
+            data << uint64(pCaster->GetGUID());
+            data << uint8(0);
+            data << uint32(m_spellInfo->Id);
+            data << uint32(0);
+            pCaster->GetSession()->SendPacket(&data);
+        }
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_pvp_trinket_wotf_shared_cd_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pvp_trinket_wotf_shared_cd_SpellScript();
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_pet_summoned();
     new spell_gen_remove_flight_auras();
     new spell_creature_permanent_feign_death();
+    new spell_pvp_trinket_wotf_shared_cd();
 }
