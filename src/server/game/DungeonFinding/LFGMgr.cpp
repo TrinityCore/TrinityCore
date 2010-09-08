@@ -540,7 +540,7 @@ void LFGMgr::AddToQueue(uint64 guid, LfgRolesMap *roles, LfgDungeonSet *dungeons
     }
     for (LfgRolesMap::const_iterator itRoles = roles->begin(); itRoles != roles->end(); ++itRoles)
         pqInfo->roles[itRoles->first] = itRoles->second;
-  
+
     for (LfgDungeonSet::const_iterator it = dungeons->begin(); it != dungeons->end(); ++it)
         pqInfo->dungeons.insert(*it);
 
@@ -920,7 +920,7 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposalList *proposals)
         plr = sObjectMgr.GetPlayer(it->first);
         if (!plr)
             sLog.outDebug("LFGMgr::CheckCompatibility: (%s) Warning! %u offline!", strGuids.c_str(), it->first);
-            
+
         for (PlayerSet::const_iterator itPlayer = players.begin(); itPlayer != players.end() && plr; ++itPlayer)
         {
             // Do not form a group with ignoring candidates
@@ -1229,7 +1229,7 @@ void LFGMgr::RemoveFromCompatibles(uint64 guid)
     lista.push_back(guid);
     std::string strGuid = ConcatenateGuids(lista);
     lista.clear();
-    
+
     LfgCompatibleMap::iterator it;
     for (LfgCompatibleMap::iterator itNext = m_CompatibleMap.begin(); itNext != m_CompatibleMap.end();)
     {
@@ -1322,7 +1322,7 @@ LfgDungeonSet* LFGMgr::CheckCompatibleDungeons(LfgDungeonMap *dungeonsMap, Playe
 
     LfgDungeonMap::const_iterator itMap = ++dungeonsMap->begin();
     LfgDungeonSet *compatibleDungeons = new LfgDungeonSet();
-    
+
     bool compatibleDungeon;
 
     // Get the first group and compare with the others to select all common dungeons
@@ -1807,7 +1807,7 @@ void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player *player)
     uint32 rDungeonId = *player->GetLfgDungeons()->begin();
     player->GetLfgDungeons()->clear();
     player->SetLfgRoles(ROLE_NONE);
- 
+
     // Give rewards only if its a random dungeon
     LFGDungeonEntry const *dungeon = sLFGDungeonStore.LookupEntry(dungeonId);
     if (!dungeon || dungeon->type != LFG_TYPE_RANDOM)
@@ -2253,7 +2253,7 @@ std::string LFGMgr::ConcatenateGuids(LfgGuidList check)
     if (check.empty())
         return "";
 
-    LfgGuidSet guidSet;   
+    LfgGuidSet guidSet;
     while (!check.empty())
     {
         guidSet.insert(check.front());

@@ -355,7 +355,7 @@ void WorldSession::SendLfgJoinResult(uint8 checkResult, uint8 checkValue)
 {
     sLog.outDebug("SMSG_LFG_JOIN_RESULT");
 
-    WorldPacket data(SMSG_LFG_JOIN_RESULT, 4 + 4);
+    WorldPacket data(SMSG_LFG_JOIN_RESULT, 4 + 4 + checkResult == LFG_JOIN_PARTY_NOT_MEET_REQS ? 1 : 0);
     data << uint32(checkResult);                            // Check Result
     data << uint32(checkValue);                             // Check Value
     if (checkResult == LFG_JOIN_PARTY_NOT_MEET_REQS)        // Should never happen - its handled in Mgr but just in case
@@ -387,7 +387,7 @@ void WorldSession::SendLfgPlayerReward(uint32 rdungeonEntry, uint32 sdungeonEntr
         return;
 
     uint8 itemNum = qRew ? qRew->GetRewItemsCount() : 0;
-    
+
     sLog.outDebug("SMSG_LFG_PLAYER_REWARD");
     WorldPacket data(SMSG_LFG_PLAYER_REWARD, 4 + 4 + 1 + 4 + 4 + 4 + 4 + 4 + 1 + itemNum * (4 + 4 + 4));
     data << uint32(rdungeonEntry);                          // Random Dungeon Finished
