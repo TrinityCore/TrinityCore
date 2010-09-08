@@ -115,8 +115,38 @@ public:
     }
 };
 
+class spell_creature_permanent_feign_death : public SpellScriptLoader
+{
+    public:
+        spell_creature_permanent_feign_death() : SpellScriptLoader("spell_creature_permanent_feign_death") { }
+
+        class spell_creature_permanent_feign_deathAuraScript : public AuraScript
+        {
+            void HandleEffectApply(AuraEffect const * /*aurEff*/, AuraApplication const * aurApp, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* pTarget = aurApp->GetTarget();
+                if (!pTarget)
+                    return;
+
+                pTarget->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+                pTarget->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_creature_permanent_feign_deathAuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+    AuraScript *GetAuraScript() const
+    {
+        return new spell_creature_permanent_feign_deathAuraScript();
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_pet_summoned();
     new spell_gen_remove_flight_auras();
+    new spell_creature_permanent_feign_death();
 }
