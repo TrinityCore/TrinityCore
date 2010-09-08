@@ -111,7 +111,7 @@ class instance_shattered_halls : public InstanceMapScript
             }
         };
 
-        InstanceScript* GetInstanceScript(Map* pMap) const
+        InstanceScript* GetInstanceScript(InstanceMap* pMap) const
         {
             return new instance_shattered_halls_InstanceMapScript(pMap);
         }

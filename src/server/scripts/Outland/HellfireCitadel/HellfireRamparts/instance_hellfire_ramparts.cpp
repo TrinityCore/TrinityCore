@@ -83,7 +83,7 @@ class instance_ramparts : public InstanceMapScript
             }
         };
 
-        InstanceScript* GetInstanceScript(Map* pMap) const
+        InstanceScript* GetInstanceScript(InstanceMap* pMap) const
         {
             return new instance_ramparts_InstanceMapScript(pMap);
         }
