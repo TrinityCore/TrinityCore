@@ -10,6 +10,15 @@ if( NOT LIBSDIR )
   message(STATUS "UNIX: Using default library directory")
 endif()
 
+# use internal MySQL headers if external is not forced
+if( NOT EXTERNAL_MYSQL )
+  set(MYSQL_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/dep/mysqllite/include)
+  set(MYSQL_LIBRARY "libmysql")
+  set( MYSQL_FOUND 1 )
+  message(STATUS "Using internal MySQL.")
+endif()
+
+
 # configure uninstaller
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
