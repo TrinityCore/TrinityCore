@@ -18109,7 +18109,11 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 ( 69377, 72590, 1, 'Runescroll of Fortitude'),
 ( 50141, 50001, 0, 'Blood Oath to Blood Oath Aura'),
 ( 61263, 61267, 0, 'Intravenous Healing Effect'),
-( 61263, 61268, 0, 'Intravenous Mana Regeneration Effect');
+( 61263, 61268, 0, 'Intravenous Mana Regeneration Effect'),
+-- PvP Trinket / Every Man for Himself / Will of the Forsaken
+(7744, 72757, 0, 'Will of the Forsaken Cooldown Trigger (WOTF)'),
+(42292, 72752, 0, 'Will of the Forsaken Cooldown Trigger'),
+(59752, 72752, 0, 'Will of the Forsaken Cooldown Trigger');
 /*!40000 ALTER TABLE `spell_linked_spell` ENABLE KEYS */;
 UNLOCK TABLES;
 
