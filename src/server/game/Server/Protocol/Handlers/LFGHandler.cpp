@@ -353,14 +353,13 @@ void WorldSession::SendLfgRoleChosen(uint64 guid, uint8 roles)
 
 void WorldSession::SendLfgJoinResult(uint8 checkResult, uint8 checkValue)
 {
-    if (checkResult == LFG_JOIN_PARTY_NOT_MEET_REQS)        // Should never happen - its handled in Mgr
-        return;
-
     sLog.outDebug("SMSG_LFG_JOIN_RESULT");
 
     WorldPacket data(SMSG_LFG_JOIN_RESULT, 4 + 4);
     data << uint32(checkResult);                            // Check Result
     data << uint32(checkValue);                             // Check Value
+    if (checkResult == LFG_JOIN_PARTY_NOT_MEET_REQS)        // Should never happen - its handled in Mgr but just in case
+        data << uint8(0);
     SendPacket(&data);
 }
 
