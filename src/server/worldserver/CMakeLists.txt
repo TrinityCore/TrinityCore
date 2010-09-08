@@ -157,21 +157,15 @@ endif()
 
 set_target_properties(worldserver PROPERTIES LINK_FLAGS "${worldserver_LINK_FLAGS}")
 
-if( SCRIPTS )
-  set(SCRIPT_LIB "scripts")
-else()
-  set(SCRIPT_LIB "")
-endif()
-
 target_link_libraries(worldserver
   game
   shared
+  scripts
   trinitysockets
   collision
   g3dlib
   gsoap
   ${JEMALLOC_LIB}
-  ${SCRIPT_LIB}
   ${READLINE_LIBRARY}
   ${TERMCAP_LIBRARY}
   ${ACE_LIBRARY}
