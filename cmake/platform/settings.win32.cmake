@@ -1,5 +1,5 @@
 # Platform-specfic options
-option(EXTERNAL_MYSQL "Use your own installed MySQL instead of the internal one" 0)
+option(USE_MYSQL_SOURCES "Use included MySQL-sources to build libraries" 1)
 
 # Package overloads
 set(ACE_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/dep/acelite)
@@ -7,11 +7,11 @@ set(ACE_LIBRARY "ace")
 set(BZIP2_LIBRARIES "bzip2")
 set(ZLIB_LIBRARIES "zlib")
 
-if( NOT EXTERNAL_MYSQL )
+if( USE_MYSQL_SOURCES )
   set(MYSQL_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/dep/mysqllite/include)
   set(MYSQL_LIBRARY "libmysql")
   set( MYSQL_FOUND 1 )
-  message(STATUS "Using internal MySQL.")
+  message(STATUS "Using supplied MySQL sources")
 endif()
 
 # check the CMake preload parameters (commented out by default)
