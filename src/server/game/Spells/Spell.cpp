@@ -5736,7 +5736,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     // check if caster has at least 1 combo point for spells that require combo points
     if (m_needComboPoints)
         if (Player* plrCaster = m_caster->ToPlayer())
-            if (!m_caster->ToPlayer()->GetComboPoints())
+            if (!plrCaster->GetComboPoints())
                 return SPELL_FAILED_NO_COMBO_POINTS;
 
     // don't allow channeled spells / spells with cast time to be casted while moving
