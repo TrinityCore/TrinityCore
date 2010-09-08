@@ -77,12 +77,11 @@ else()
 endif()
 
 if( WIN32 )
-  if( EXTERNAL_MYSQL )
-    message("* Use external MySQL     : Yes")
+  if( USE_MYSQL_SOURCES )
+    message("* Use MySQL sourcetree   : Yes (default)")
   else()
-    message("* Use external MySQL     : No  (default)")
+    message("* Use MySQL sourcetree   : No")
   endif()
 endif( WIN32 )
 
 message("")
-
