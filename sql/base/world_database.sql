@@ -17770,7 +17770,10 @@ INSERT INTO `spell_group` (`id`, `spell_id`) VALUES
 (1109, 72590), -- Fortitude (Scroll)
 -- Immolate / Unstable Affliction
 (1112, 348),
-(1112, 30108);
+(1112, 30108),
+-- Amplify Magic / Dampen Magic
+(1113, 1008),
+(1113, 604);
 
 /*!40000 ALTER TABLE `spell_group` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -19436,7 +19439,8 @@ INSERT INTO spell_group_stack_rules (`group_id`, `stack_rule`) VALUES
 (1108,1),
 (1109,1),
 (1110,1),
-(1112,2);
+(1112,2),
+(1113,1);
 
 /*!40000 ALTER TABLE `spell_group_stack_rules` ENABLE KEYS */;
 UNLOCK TABLES;
