@@ -62,75 +62,67 @@ if( UNIX )
   endif( MYSQL_CONFIG )
 endif( UNIX )
 
-if( EXTERNAL_MYSQL )
-  find_path(MYSQL_INCLUDE_DIR
-    NAMES
-      mysql.h
-    PATHS
-      ${MYSQL_ADD_INCLUDE_PATH}
-      /usr/include
-      /usr/include/mysql
-      /usr/local/include
-      /usr/local/include/mysql
-      /usr/local/mysql/include
-      "C:/Program Files/MySQL/include"
-      "C:/Program Files/MySQL/MySQL Server 5.0/include"
-      "C:/Program Files/MySQL/MySQL Server 5.1/include"
-      "C:/MySQL/include"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.0;Location]/include"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.1;Location]/include"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.0;Location]/include"
-      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.1;Location]/include"
-      "$ENV{ProgramFiles}/MySQL/*/include"
-      "$ENV{SystemDrive}/MySQL/*/include"
-      "c:/msys/local/include"
-    DOC
-      "Specify the directory containing mysql.h."
-  )
-else( EXTERNAL_MYSQL )
-  set(MYSQL_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/dep/mysqllite/include)
-endif( EXTERNAL_MYSQL )
+find_path(MYSQL_INCLUDE_DIR
+  NAMES
+    mysql.h
+  PATHS
+    ${MYSQL_ADD_INCLUDE_PATH}
+    /usr/include
+    /usr/include/mysql
+    /usr/local/include
+    /usr/local/include/mysql
+    /usr/local/mysql/include
+    "C:/Program Files/MySQL/include"
+    "C:/Program Files/MySQL/MySQL Server 5.0/include"
+    "C:/Program Files/MySQL/MySQL Server 5.1/include"
+    "C:/MySQL/include"
+    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.0;Location]/include"
+    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.1;Location]/include"
+    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.0;Location]/include"
+    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.1;Location]/include"
+    "$ENV{ProgramFiles}/MySQL/*/include"
+    "$ENV{SystemDrive}/MySQL/*/include"
+    "c:/msys/local/include"
+  DOC
+    "Specify the directory containing mysql.h."
+)
 
 if( UNIX )
-foreach(LIB ${MYSQL_ADD_LIBRARIES})
-  find_library( MYSQL_LIBRARY 
-    NAMES
-      mysql libmysql ${LIB}
-    PATHS
-      ${MYSQL_ADD_LIBRARIES_PATH}
-      /usr/lib
-      /usr/lib/mysql
-      /usr/local/lib
-      /usr/local/lib/mysql
-      /usr/local/mysql/lib
-    DOC "Specify the location of the mysql library here."
-  )
-endforeach(LIB ${MYSQL_ADD_LIBRARY})
+  foreach(LIB ${MYSQL_ADD_LIBRARIES})
+    find_library( MYSQL_LIBRARY 
+      NAMES
+        mysql libmysql ${LIB}
+      PATHS
+        ${MYSQL_ADD_LIBRARIES_PATH}
+        /usr/lib
+        /usr/lib/mysql
+        /usr/local/lib
+        /usr/local/lib/mysql
+        /usr/local/mysql/lib
+      DOC "Specify the location of the mysql library here."
+    )
+  endforeach(LIB ${MYSQL_ADD_LIBRARY})
 endif( UNIX )
 
 if( WIN32 )
-  if( EXTERNAL_MYSQL )
-    find_library( MYSQL_LIBRARY 
-      NAMES
-        libmysql
-      PATHS
-        ${MYSQL_ADD_LIBRARIES_PATH}
-        "C:/Program Files/MySQL/lib"
-        "C:/Program Files/MySQL/MySQL Server 5.0/lib/opt"
-        "C:/Program Files/MySQL/MySQL Server 5.1/lib/opt"
-        "C:/MySQL/lib/debug"
-        "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.0;Location]/lib/opt"
-        "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.1;Location]/lib/opt"
-        "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.0;Location]/lib/opt"
-        "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.1;Location]/lib/opt"
-        "$ENV{ProgramFiles}/MySQL/*/lib/opt"
-        "$ENV{SystemDrive}/MySQL/*/lib/opt"
-        "c:/msys/local/include"
-      DOC "Specify the location of the mysql library here."
-    )
-  else( EXTERNAL_MYSQL )
-    set(MYSQL_LIBRARY libmysql)
-  endif( EXTERNAL_MYSQL )
+  find_library( MYSQL_LIBRARY 
+    NAMES
+      libmysql
+    PATHS
+      ${MYSQL_ADD_LIBRARIES_PATH}
+      "C:/Program Files/MySQL/lib"
+      "C:/Program Files/MySQL/MySQL Server 5.0/lib/opt"
+      "C:/Program Files/MySQL/MySQL Server 5.1/lib/opt"
+      "C:/MySQL/lib/debug"
+      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.0;Location]/lib/opt"
+      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.1;Location]/lib/opt"
+      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.0;Location]/lib/opt"
+      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.1;Location]/lib/opt"
+      "$ENV{ProgramFiles}/MySQL/*/lib/opt"
+      "$ENV{SystemDrive}/MySQL/*/lib/opt"
+      "c:/msys/local/include"
+    DOC "Specify the location of the mysql library here."
+  )
 endif( WIN32 )
 
 # On Windows you typically don't need to include any extra libraries
@@ -150,20 +142,15 @@ else( NOT WIN32 )
   set( MYSQL_EXTRA_LIBRARIES "" )
 endif( NOT WIN32 )
 
-if( EXTERNAL_MYSQL )
-  if( MYSQL_LIBRARY )
-    if( MYSQL_INCLUDE_DIR )
-      set( MYSQL_FOUND 1 )
-      message(STATUS "Found MySQL library: ${MYSQL_LIBRARY}")
-      message(STATUS "Found MySQL headers: ${MYSQL_INCLUDE_DIR}")
-    else( MYSQL_INCLUDE_DIR )
-      message(FATAL_ERROR "Could not find MySQL headers! Please install the development libraries and headers or use internal MySQL.")
-    endif( MYSQL_INCLUDE_DIR )
-    mark_as_advanced( MYSQL_FOUND MYSQL_LIBRARY MYSQL_EXTRA_LIBRARIES MYSQL_INCLUDE_DIR )
-  else( MYSQL_LIBRARY )
-    message(FATAL_ERROR "Could not find the MySQL libraries! Please install the development libraries and headers or use internal MySQL.")
-  endif( MYSQL_LIBRARY )
-else( EXTERNAL_MYSQL )
-  set( MYSQL_FOUND 1 )
-  message(STATUS "Using internal MySQL.")
-endif( EXTERNAL_MYSQL )
+if( MYSQL_LIBRARY )
+  if( MYSQL_INCLUDE_DIR )
+    set( MYSQL_FOUND 1 )
+    message(STATUS "Found MySQL library: ${MYSQL_LIBRARY}")
+    message(STATUS "Found MySQL headers: ${MYSQL_INCLUDE_DIR}")
+  else( MYSQL_INCLUDE_DIR )
+    message(FATAL_ERROR "Could not find MySQL headers! Please install the development libraries and headers")
+  endif( MYSQL_INCLUDE_DIR )
+  mark_as_advanced( MYSQL_FOUND MYSQL_LIBRARY MYSQL_EXTRA_LIBRARIES MYSQL_INCLUDE_DIR )
+else( MYSQL_LIBRARY )
+  message(FATAL_ERROR "Could not find the MySQL libraries! Please install the development libraries and headers")
+endif( MYSQL_LIBRARY )
