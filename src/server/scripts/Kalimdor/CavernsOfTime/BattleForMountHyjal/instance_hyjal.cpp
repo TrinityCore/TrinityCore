@@ -46,7 +46,7 @@ class instance_hyjal : public InstanceMapScript
 public:
     instance_hyjal() : InstanceMapScript("instance_hyjal", 534) { }
 
-    InstanceScript* GetInstanceScript(Map* pMap)
+    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
     {
         return new instance_mount_hyjal_InstanceMapScript(pMap);
     }

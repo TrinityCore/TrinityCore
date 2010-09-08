@@ -251,7 +251,7 @@ class instance_magtheridons_lair : public InstanceMapScript
             }
         };
 
-        InstanceScript* GetInstanceScript(Map* pMap) const
+        InstanceScript* GetInstanceScript(InstanceMap* pMap) const
         {
             return new instance_magtheridons_lair_InstanceMapScript(pMap);
         }

@@ -41,7 +41,7 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
 public:
     instance_ruins_of_ahnqiraj() : InstanceMapScript("instance_ruins_of_ahnqiraj", 509) { }
 
-    InstanceScript* GetInstanceScript(Map* pMap)
+    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
     {
         return new instance_ruins_of_ahn_qiraj_InstanceMapScript(pMap);
     }
