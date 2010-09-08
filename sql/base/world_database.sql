@@ -26728,6 +26728,8 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 70592, 'spell_creature_permanent_feign_death'),
 ( 70628, 'spell_creature_permanent_feign_death'),
 ( 74490, 'spell_creature_permanent_feign_death'),
+( 72752, 'spell_pvp_trinket_wotf_shared_cd'),
+( 72757, 'spell_pvp_trinket_wotf_shared_cd'),
 -- instances
 ( 69057, 'spell_marrowgar_bone_spike_graveyard'),
 ( 69140, 'spell_marrowgar_coldflame'),
