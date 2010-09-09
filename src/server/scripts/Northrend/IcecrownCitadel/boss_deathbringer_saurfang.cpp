@@ -107,7 +107,7 @@ enum eSpells
 };
 
 // Helper to get id of the aura on different modes (HasAura(baseId) wont work)
-#define BOILING_BLOOD_HELPER RAID_MODE(72385,72441,72442,72443)
+#define BOILING_BLOOD_HELPER RAID_MODE<int32>(72385,72441,72442,72443)
 
 enum eEvents
 {
