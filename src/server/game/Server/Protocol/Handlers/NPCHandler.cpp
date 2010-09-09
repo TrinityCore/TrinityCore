@@ -526,6 +526,9 @@ void WorldSession::SendStablePet(uint64 guid)
 
 void WorldSession::SendStablePetCallback(QueryResult_AutoPtr result, uint64 guid)
 {
+    if (!GetPlayer())
+        return;
+
     sLog.outDebug("WORLD: Recv MSG_LIST_STABLED_PETS Send.");
 
     WorldPacket data(MSG_LIST_STABLED_PETS, 200);           // guess size
@@ -620,6 +623,9 @@ void WorldSession::HandleStablePet(WorldPacket & recv_data)
 
 void WorldSession::HandleStablePetCallback(QueryResult_AutoPtr result)
 {
+    if (!GetPlayer())
+        return;
+
     uint32 free_slot = 1;
     if (result)
     {
@@ -676,6 +682,9 @@ void WorldSession::HandleUnstablePet(WorldPacket & recv_data)
 
 void WorldSession::HandleUnstablePetCallback(QueryResult_AutoPtr result, uint32 petnumber)
 {
+    if (!GetPlayer())
+        return;
+
     uint32 creature_id = 0;
     if (result)
     {
@@ -797,6 +806,9 @@ void WorldSession::HandleStableSwapPet(WorldPacket & recv_data)
 
 void WorldSession::HandleStableSwapPetCallback(QueryResult_AutoPtr result, uint32 petnumber)
 {
+    if (!GetPlayer())
+        return;
+
     if (!result)
     {
         SendStableResult(STABLE_ERR_STABLE);
