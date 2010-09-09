@@ -18,14 +18,15 @@
 
 #include "Common.h"
 #include "SharedDefines.h"
-#include "Group.h"
-#include "Player.h"
+
+#include "DisableMgr.h"
+#include "ObjectMgr.h"
+#include "ProgressBar.h"
 #include "SocialMgr.h"
 #include "LFGMgr.h"
-#include "ObjectMgr.h"
-#include "DisableMgr.h"
-#include "WorldPacket.h"
-#include "ProgressBar.h"
+
+#include "Group.h"
+#include "Player.h"
 
 // --- Debug
 void DungeonDebug(uint64 guid, LfgDungeonSet *dungeons, std::string from)
@@ -304,16 +305,13 @@ void LFGMgr::Update(uint32 diff)
             continue;
         pRoleCheck->result = LFG_ROLECHECK_MISSING_ROLE;
 
-        WorldPacket data(SMSG_LFG_ROLE_CHECK_UPDATE, 4 + 1 + 1 + pRoleCheck->dungeons.size() * 4 + 1 + pRoleCheck->roles.size() * (8 + 1 + 4 + 1));
-        sLog.outDebug("SMSG_LFG_ROLE_CHECK_UPDATE");
-        BuildLfgRoleCheck(data, pRoleCheck);
         Player *plr = NULL;
         for (LfgRolesMap::const_iterator itRoles = pRoleCheck->roles.begin(); itRoles != pRoleCheck->roles.end(); ++itRoles)
         {
             plr = sObjectMgr.GetPlayer(itRoles->first);
             if (!plr)
                 continue;
-            plr->GetSession()->SendPacket(&data);
+            plr->GetSession()->SendLfgRoleCheckUpdate(pRoleCheck);
             plr->GetLfgDungeons()->clear();
             plr->SetLfgRoles(ROLE_NONE);
 
@@ -645,7 +643,7 @@ void LFGMgr::Join(Player *plr)
     {
         plr->GetLfgDungeons()->clear();
         plr->SetLfgRoles(ROLE_NONE);
-        plr->GetSession()->SendLfgJoinResult(result, 0);
+        plr->GetSession()->SendLfgJoinResult(result);
         plr->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_ROLECHECK_FAILED);
         return;
     }
@@ -675,12 +673,13 @@ void LFGMgr::Join(Player *plr)
 
         // Expand random dungeons
         LfgDungeonSet *dungeons = NULL;
+        LfgLockStatusMap *playersLockMap = NULL;
         if (plr->GetLfgDungeons()->size() == 1 && isRandomDungeon(*plr->GetLfgDungeons()->begin()))
         {
             PlayerSet players;
             players.insert(plr);
             dungeons = GetDungeonsByRandom(*plr->GetLfgDungeons()->begin());
-            CheckCompatibleDungeons(dungeons, &players);
+            playersLockMap = CheckCompatibleDungeons(dungeons, &players);
         }
         else
             dungeons = plr->GetLfgDungeons();
@@ -691,7 +690,7 @@ void LFGMgr::Join(Player *plr)
         {
             if (dungeons)
                 delete dungeons;
-            plr->GetSession()->SendLfgJoinResult(LFG_JOIN_NOT_MEET_REQS, 0);
+            plr->GetSession()->SendLfgJoinResult(LFG_JOIN_NOT_MEET_REQS, 0, playersLockMap);
         }
         else
         {
@@ -920,18 +919,20 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposalList *proposals)
         plr = sObjectMgr.GetPlayer(it->first);
         if (!plr)
             sLog.outDebug("LFGMgr::CheckCompatibility: (%s) Warning! %u offline!", strGuids.c_str(), it->first);
-
-        for (PlayerSet::const_iterator itPlayer = players.begin(); itPlayer != players.end() && plr; ++itPlayer)
+        else
         {
-            // Do not form a group with ignoring candidates
-            if (plr->GetSocial()->HasIgnore((*itPlayer)->GetGUIDLow()) || (*itPlayer)->GetSocial()->HasIgnore(plr->GetGUIDLow()))
-                plr = NULL;
-            // neither with diferent faction if it's not a mixed faction server
-            else if (plr->GetTeam() != (*itPlayer)->GetTeam() && !sWorld.getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP))
-                plr = NULL;
+            for (PlayerSet::const_iterator itPlayer = players.begin(); itPlayer != players.end() && plr; ++itPlayer)
+            {
+                // Do not form a group with ignoring candidates
+                if (plr->GetSocial()->HasIgnore((*itPlayer)->GetGUIDLow()) || (*itPlayer)->GetSocial()->HasIgnore(plr->GetGUIDLow()))
+                    plr = NULL;
+                // neither with diferent faction if it's not a mixed faction server
+                else if (plr->GetTeam() != (*itPlayer)->GetTeam() && !sWorld.getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP))
+                    plr = NULL;
+            }
+            if (plr)
+                players.insert(plr);
         }
-        if (plr)
-            players.insert(plr);
     }
 
     // if we dont have the same ammount of players then we have self ignoring candidates or different faction groups
@@ -1113,7 +1114,7 @@ void LFGMgr::UpdateRoleCheck(Group *grp, Player *plr /* = NULL*/)
                             if (Player *plr = sObjectMgr.GetPlayer(it->first))
                                 players.insert(plr);
 
-                        playersLockMap = CheckCompatibleDungeons(dungeons, &players, true);
+                        playersLockMap = CheckCompatibleDungeons(dungeons, &players);
                         DungeonDebug(plr->GetGUID(), dungeons, "UpdateRoleCheck");
 
                         pRoleCheck->dungeons.clear();
@@ -1149,10 +1150,6 @@ void LFGMgr::UpdateRoleCheck(Group *grp, Player *plr /* = NULL*/)
         pRoleCheck->result = LFG_ROLECHECK_ABORTED;
 
     WorldSession *session;
-    WorldPacket data(SMSG_LFG_ROLE_CHECK_UPDATE, 4 + 1 + 1 + pRoleCheck->dungeons.size() * 4 + 1 + pRoleCheck->roles.size() * (8 + 1 + 4 + 1));
-    sLog.outDebug("SMSG_LFG_ROLE_CHECK_UPDATE");
-    BuildLfgRoleCheck(data, pRoleCheck);
-
     Player *plrg = NULL;
     for (GroupReference *itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
     {
@@ -1163,7 +1160,7 @@ void LFGMgr::UpdateRoleCheck(Group *grp, Player *plr /* = NULL*/)
         session = plrg->GetSession();
         if (!newRoleCheck && plr)
             session->SendLfgRoleChosen(plr->GetGUID(), plr->GetLfgRoles());
-        session->SendPacket(&data);
+        session->SendLfgRoleCheckUpdate(pRoleCheck);
 
         switch(pRoleCheck->result)
         {
@@ -1175,17 +1172,7 @@ void LFGMgr::UpdateRoleCheck(Group *grp, Player *plr /* = NULL*/)
             else
             {
                 if (grp->GetLeaderGUID() == plrg->GetGUID())
-                {
-                    uint32 size = 0;
-                    for (LfgLockStatusMap::const_iterator it = playersLockMap->begin(); it != playersLockMap->end(); ++it)
-                        size += 8 + 4 + it->second->size() * (4 + 4);
-                    WorldPacket data(SMSG_LFG_JOIN_RESULT, 4 + 4 + size);
-                    sLog.outDebug("SMSG_LFG_JOIN_RESULT");
-                    data << uint32(LFG_JOIN_PARTY_NOT_MEET_REQS); // Check Result
-                    data << uint32(0);                      // Check Value (always 0 when PartyNotMeetReqs
-                    BuildPartyLockDungeonBlock(data, playersLockMap);
-                    session->SendPacket(&data);
-                }
+                    session->SendLfgJoinResult(LFG_JOIN_PARTY_NOT_MEET_REQS, 0, playersLockMap);
                 session->SendLfgUpdateParty(LFG_UPDATETYPE_ROLECHECK_FAILED);
                 plrg->GetLfgDungeons()->clear();
                 plrg->SetLfgRoles(ROLE_NONE);
@@ -1277,7 +1264,7 @@ LfgAnswer LFGMgr::GetCompatibles(std::string key)
 /// <param name="LfgLockStatusMap *">Used to return the lockStatusMap</param>
 /// <param name="boot">Return lockMap or discard it</param>
 /// <returns>LfgLockStatusMap*</returns>
-LfgLockStatusMap *LFGMgr::CheckCompatibleDungeons(LfgDungeonSet *dungeons, PlayerSet *players, bool returnLockMap /* = false */)
+LfgLockStatusMap *LFGMgr::CheckCompatibleDungeons(LfgDungeonSet *dungeons, PlayerSet *players, bool returnLockMap /* = true */)
 {
     if (!dungeons)
         return NULL;
@@ -1338,7 +1325,7 @@ LfgDungeonSet* LFGMgr::CheckCompatibleDungeons(LfgDungeonMap *dungeonsMap, Playe
 
     // if we have players remove restrictions
     if (players && !players->empty())
-        CheckCompatibleDungeons(compatibleDungeons, players);
+        CheckCompatibleDungeons(compatibleDungeons, players, false);
 
     // Any compatible dungeon after checking restrictions?
     if (compatibleDungeons && !compatibleDungeons->size())
@@ -1866,109 +1853,6 @@ void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player *player)
 
     if (moneyRew)
         player->ModifyMoney(moneyRew);
-}
-
-// --------------------------------------------------------------------------//
-// Packet Functions
-// --------------------------------------------------------------------------//
-
-/// <summary>
-/// Build lfgRolecheck packet
-/// </summary>
-/// <param name="WorldPacket &">WorldPacket</param>
-/// <param name="LfgRoleCheck *">RoleCheck info</param>
-void LFGMgr::BuildLfgRoleCheck(WorldPacket &data, LfgRoleCheck *pRoleCheck)
-{
-    ASSERT(pRoleCheck);
-
-    Player *plr;
-    uint8 roles;
-
-    data << uint32(pRoleCheck->result);                     // Check result
-    data << uint8(pRoleCheck->result == LFG_ROLECHECK_INITIALITING);
-    data << uint8(pRoleCheck->dungeons.size());             // Number of dungeons
-    LFGDungeonEntry const *dungeon;
-    for (LfgDungeonSet::iterator it = pRoleCheck->dungeons.begin(); it != pRoleCheck->dungeons.end(); ++it)
-    {
-        dungeon = sLFGDungeonStore.LookupEntry(*it);        // not null - been checked at join time
-        if (!dungeon)
-        {
-            sLog.outError("LFGMgr::BuildLfgRoleCheck: Dungeon %u does not exist in dbcs", *it);
-            data << uint32(0);
-        }
-        else
-            data << uint32(dungeon->Entry());               // Dungeon
-    }
-
-    data << uint8(pRoleCheck->roles.size());                // Players in group
-    // Leader info MUST be sent 1st :S
-    roles = pRoleCheck->roles[pRoleCheck->leader];
-    uint64 guid = MAKE_NEW_GUID(pRoleCheck->leader, 0, HIGHGUID_PLAYER);
-    data << uint64(guid);                                   // Guid
-    data << uint8(roles > 0);                               // Ready
-    data << uint32(roles);                                  // Roles
-    plr = sObjectMgr.GetPlayer(guid);
-    data << uint8(plr ? plr->getLevel() : 0);               // Level
-
-    for (LfgRolesMap::const_iterator itPlayers = pRoleCheck->roles.begin(); itPlayers != pRoleCheck->roles.end(); ++itPlayers)
-    {
-        if (itPlayers->first == pRoleCheck->leader)
-            continue;
-
-        roles = itPlayers->second;
-        guid = MAKE_NEW_GUID(itPlayers->first, 0, HIGHGUID_PLAYER);
-        data << uint64(guid);                               // Guid
-        data << uint8(roles > 0);                           // Ready
-        data << uint32(roles);                              // Roles
-        plr = sObjectMgr.GetPlayer(guid);
-        data << uint8(plr ? plr->getLevel() : 0);           // Level
-    }
-}
-
-/// <summary>
-/// Build Party Dungeon lock status packet
-/// </summary>
-/// <param name="WorldPacket &">WorldPacket</param>
-/// <param name="LfgLockStatusMap *">lock status map</param>
-void LFGMgr::BuildPartyLockDungeonBlock(WorldPacket &data, LfgLockStatusMap *lockMap)
-{
-    if (!lockMap || !lockMap->size())
-    {
-        data << uint8(0);
-        return;
-    }
-
-    data << uint8(lockMap->size());
-    for (LfgLockStatusMap::const_iterator it = lockMap->begin(); it != lockMap->end(); ++it)
-    {
-        data << uint64(MAKE_NEW_GUID(it->first, 0, HIGHGUID_PLAYER)); // Player guid
-        BuildPlayerLockDungeonBlock(data, it->second);
-    }
-    lockMap->clear();
-    delete lockMap;
-}
-
-/// <summary>
-/// Build Player Dungeon lock status packet
-/// </summary>
-/// <param name="WorldPacket &">WorldPacket</param>
-/// <param name="LfgLockStatusSet *">lock status list</param>
-void LFGMgr::BuildPlayerLockDungeonBlock(WorldPacket &data, LfgLockStatusSet *lockSet)
-{
-    if (!lockSet || !lockSet->size())
-    {
-        data << uint8(0);
-        return;
-    }
-    data << uint32(lockSet->size());                        // Size of lock dungeons
-    for (LfgLockStatusSet::iterator it = lockSet->begin(); it != lockSet->end(); ++it)
-    {
-        data << uint32((*it)->dungeon);                     // Dungeon entry + type
-        data << uint32((*it)->lockstatus);                  // Lock status
-        delete (*it);
-    }
-    lockSet->clear();
-    delete lockSet;
 }
 
 // --------------------------------------------------------------------------//

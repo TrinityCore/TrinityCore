@@ -19,9 +19,6 @@
 #ifndef _LFG_H
 #define _LFG_H
 
-#include "Define.h"
-#include "Object.h"
-
 enum LfgRoles
 {
     ROLE_NONE   = 0x00,

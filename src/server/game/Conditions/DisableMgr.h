@@ -21,6 +21,9 @@
 #ifndef TRINITY_DISABLEMGR_H
 #define TRINITY_DISABLEMGR_H
 
+#include <ace/Singleton.h>
+class Unit;
+
 enum DisableType
 {
     DISABLE_TYPE_SPELL                  = 0,
