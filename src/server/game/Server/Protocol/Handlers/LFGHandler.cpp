@@ -23,6 +23,42 @@
 #include "Player.h"
 #include "ObjectMgr.h"
 
+void BuildPlayerLockDungeonBlock(WorldPacket &data, LfgLockStatusSet *lockSet)
+{
+    if (!lockSet || !lockSet->size())
+    {
+        data << uint8(0);
+        return;
+    }
+    data << uint32(lockSet->size());                        // Size of lock dungeons
+    for (LfgLockStatusSet::iterator it = lockSet->begin(); it != lockSet->end(); ++it)
+    {
+        data << uint32((*it)->dungeon);                     // Dungeon entry + type
+        data << uint32((*it)->lockstatus);                  // Lock status
+        delete (*it);
+    }
+    lockSet->clear();
+    delete lockSet;
+}
+
+void BuildPartyLockDungeonBlock(WorldPacket &data, LfgLockStatusMap *lockMap)
+{
+    if (!lockMap || !lockMap->size())
+    {
+        data << uint8(0);
+        return;
+    }
+
+    data << uint8(lockMap->size());
+    for (LfgLockStatusMap::const_iterator it = lockMap->begin(); it != lockMap->end(); ++it)
+    {
+        data << uint64(MAKE_NEW_GUID(it->first, 0, HIGHGUID_PLAYER)); // Player guid
+        BuildPlayerLockDungeonBlock(data, it->second);
+    }
+    lockMap->clear();
+    delete lockMap;
+}
+
 void WorldSession::HandleLfgJoinOpcode(WorldPacket &recv_data)
 {
     sLog.outDebug("CMSG_LFG_JOIN");
@@ -211,11 +247,11 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket &/*recv_data
         randomlist->clear();
         delete randomlist;
     }
-    sLFGMgr.BuildPlayerLockDungeonBlock(data, lockSet);
+    BuildPlayerLockDungeonBlock(data, lockSet);
     SendPacket(&data);
 }
 
-void WorldSession::HandleLfgPartyLockInfoRequestOpcode(WorldPacket &/*recv_data*/)
+void WorldSession::HandleLfgPartyLockInfoRequestOpcode(WorldPacket & /*recv_data*/)
 {
     sLog.outDebug("CMSG_LFD_PARTY_LOCK_INFO_REQUEST");
 
@@ -226,7 +262,7 @@ void WorldSession::HandleLfgPartyLockInfoRequestOpcode(WorldPacket &/*recv_data*
             size += 8 + 4 + it->second->size() * (4 + 4);
         sLog.outDebug("SMSG_LFG_PARTY_INFO");
         WorldPacket data(SMSG_LFG_PARTY_INFO, 1 + size);
-        sLFGMgr.BuildPartyLockDungeonBlock(data, lockMap);
+        BuildPartyLockDungeonBlock(data, lockMap);
         SendPacket(&data);
     }
 }
@@ -351,15 +387,72 @@ void WorldSession::SendLfgRoleChosen(uint64 guid, uint8 roles)
     SendPacket(&data);
 }
 
-void WorldSession::SendLfgJoinResult(uint8 checkResult, uint8 checkValue)
+void WorldSession::SendLfgRoleCheckUpdate(LfgRoleCheck *pRoleCheck)
 {
-    sLog.outDebug("SMSG_LFG_JOIN_RESULT");
+    ASSERT(pRoleCheck);
 
-    WorldPacket data(SMSG_LFG_JOIN_RESULT, 4 + 4 + checkResult == LFG_JOIN_PARTY_NOT_MEET_REQS ? 1 : 0);
+    sLog.outDebug("SMSG_LFG_ROLE_CHECK_UPDATE");
+    WorldPacket data(SMSG_LFG_ROLE_CHECK_UPDATE, 4 + 1 + 1 + pRoleCheck->dungeons.size() * 4 + 1 + pRoleCheck->roles.size() * (8 + 1 + 4 + 1));
+
+    Player *plr;
+    uint8 roles;
+
+    data << uint32(pRoleCheck->result);                     // Check result
+    data << uint8(pRoleCheck->result == LFG_ROLECHECK_INITIALITING);
+    data << uint8(pRoleCheck->dungeons.size());             // Number of dungeons
+    LFGDungeonEntry const *dungeon;
+    for (LfgDungeonSet::iterator it = pRoleCheck->dungeons.begin(); it != pRoleCheck->dungeons.end(); ++it)
+    {
+        dungeon = sLFGDungeonStore.LookupEntry(*it);
+        if (!dungeon)
+        {
+            sLog.outError("BuildLfgRoleCheck: Dungeon %u does not exist in dbcs", *it);
+            data << uint32(0);
+        }
+        else
+            data << uint32(dungeon->Entry());               // Dungeon
+    }
+
+    data << uint8(pRoleCheck->roles.size());                // Players in group
+    // Leader info MUST be sent 1st :S
+    roles = pRoleCheck->roles[pRoleCheck->leader];
+    uint64 guid = MAKE_NEW_GUID(pRoleCheck->leader, 0, HIGHGUID_PLAYER);
+    data << uint64(guid);                                   // Guid
+    data << uint8(roles > 0);                               // Ready
+    data << uint32(roles);                                  // Roles
+    plr = sObjectMgr.GetPlayer(guid);
+    data << uint8(plr ? plr->getLevel() : 0);               // Level
+
+    for (LfgRolesMap::const_iterator itPlayers = pRoleCheck->roles.begin(); itPlayers != pRoleCheck->roles.end(); ++itPlayers)
+    {
+        if (itPlayers->first == pRoleCheck->leader)
+            continue;
+
+        roles = itPlayers->second;
+        guid = MAKE_NEW_GUID(itPlayers->first, 0, HIGHGUID_PLAYER);
+        data << uint64(guid);                               // Guid
+        data << uint8(roles > 0);                           // Ready
+        data << uint32(roles);                              // Roles
+        plr = sObjectMgr.GetPlayer(guid);
+        data << uint8(plr ? plr->getLevel() : 0);           // Level
+    }
+    SendPacket(&data);
+}
+
+void WorldSession::SendLfgJoinResult(uint8 checkResult, uint8 checkValue /* = 0 */, LfgLockStatusMap *playersLockMap /* = NULL */)
+{
+    uint32 size = 0;
+    if (playersLockMap)
+    {
+        for (LfgLockStatusMap::const_iterator it = playersLockMap->begin(); it != playersLockMap->end(); ++it)
+            size += 8 + 4 + it->second->size() * (4 + 4);
+    }
+    WorldPacket data(SMSG_LFG_JOIN_RESULT, 4 + 4 + size);
+    sLog.outDebug("SMSG_LFG_JOIN_RESULT");
     data << uint32(checkResult);                            // Check Result
     data << uint32(checkValue);                             // Check Value
-    if (checkResult == LFG_JOIN_PARTY_NOT_MEET_REQS)        // Should never happen - its handled in Mgr but just in case
-        data << uint8(0);
+    if (playersLockMap)
+        BuildPartyLockDungeonBlock(data, playersLockMap);
     SendPacket(&data);
 }
 

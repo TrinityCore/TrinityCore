@@ -51,9 +51,12 @@ class CharacterHandler;
 class SpellCastTargets;
 struct AreaTableEntry;
 struct GM_Ticket;
+struct LfgLockStatus;
 struct LfgPlayerBoot;
 struct LfgProposal;
 struct LfgReward;
+struct LfgRoleCheck;
+
 
 enum AccountDataType
 {
@@ -722,8 +725,9 @@ class WorldSession
         void SendLfgUpdatePlayer(uint8 updateType);
         void SendLfgUpdateParty(uint8 updateType);
         void SendLfgRoleChosen(uint64 guid, uint8 roles);
+        void SendLfgRoleCheckUpdate(LfgRoleCheck *pRoleCheck);
         void SendLfgUpdateSearch(bool update);
-        void SendLfgJoinResult(uint8 checkResult, uint8 checkValue);
+        void SendLfgJoinResult(uint8 checkResult, uint8 checkValue = 0, std::map<uint32, std::set<LfgLockStatus*>*> *playersLockMap = NULL /* LfgLockStatusMap *playersLockMap = NULL */);
         void SendLfgQueueStatus(uint32 dungeon, int32 waitTime, int32 avgWaitTime, int32 waitTimeTanks, int32 waitTimeHealer, int32 waitTimeDps, uint32 queuedTime, uint8 tanks, uint8 healers, uint8 dps);
         void SendLfgPlayerReward(uint32 rdungeonEntry, uint32 sdungeonEntry, uint8 done, const LfgReward *reward, const Quest *qRew);
         void SendLfgBootPlayer(LfgPlayerBoot *pBoot);
