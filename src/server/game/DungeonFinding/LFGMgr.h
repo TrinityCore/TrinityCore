@@ -21,8 +21,10 @@
 
 #include "Common.h"
 #include <ace/Singleton.h>
-#include "Group.h"
 #include "LFG.h"
+
+class Group;
+class Player;
 
 enum LFGenum
 {
@@ -103,7 +105,7 @@ enum LfgJoinResult
     LFG_JOIN_OK                    = 0,                     // Joined (no client msg)
     LFG_JOIN_FAILED                = 1,                     // RoleCheck Failed
     LFG_JOIN_GROUPFULL             = 2,                     // Your group is full
-    LFG_JOIN_UNK3                  = 3,                     // No client reaction
+    //LFG_JOIN_UNK3                = 3,                     // No client reaction
     LFG_JOIN_INTERNAL_ERROR        = 4,                     // Internal LFG Error
     LFG_JOIN_NOT_MEET_REQS         = 5,                     // You do not meet the requirements for the chosen dungeons
     LFG_JOIN_PARTY_NOT_MEET_REQS   = 6,                     // One or more party members do not meet the requirements for the chosen dungeons
@@ -118,7 +120,7 @@ enum LfgJoinResult
     LFG_JOIN_PARTY_RANDOM_COOLDOWN = 15,                    // One or more party members are on random dungeon cooldown
     LFG_JOIN_TOO_MUCH_MEMBERS      = 16,                    // You can not enter dungeons with more that 5 party members
     LFG_JOIN_USING_BG_SYSTEM       = 17,                    // You can not use the dungeon system while in BG or arenas
-    LFG_JOIN_FAILED2               = 18,                    // RoleCheck Failed
+    //LFG_JOIN_FAILED2             = 18,                    // RoleCheck Failed
 };
 
 enum LfgRoleCheckResult
@@ -288,8 +290,6 @@ class LFGMgr
         LfgDungeonSet* GetRandomDungeons(uint8 level, uint8 expansion);
         LfgLockStatusSet* GetPlayerLockStatusDungeons(Player *plr, LfgDungeonSet *dungeons = NULL, bool useEntry = true);
         LfgReward const* GetRandomDungeonReward(uint32 dungeon, uint8 level);
-        void BuildPlayerLockDungeonBlock(WorldPacket &data, LfgLockStatusSet *lockSet);
-        void BuildPartyLockDungeonBlock(WorldPacket &data, LfgLockStatusMap *lockMap);
 
     private:
         void Cleaner();
@@ -304,15 +304,11 @@ class LFGMgr
         bool CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag = true);
         bool CheckCompatibility(LfgGuidList check, LfgProposalList *proposals);
         LfgDungeonSet* CheckCompatibleDungeons(LfgDungeonMap *dungeonsMap, PlayerSet *players);
-        LfgLockStatusMap *CheckCompatibleDungeons(LfgDungeonSet *dungeons, PlayerSet *players, bool returnLockMap = false);
+        LfgLockStatusMap *CheckCompatibleDungeons(LfgDungeonSet *dungeons, PlayerSet *players, bool returnLockMap = true);
         void SetCompatibles(std::string concatenatedGuids, bool compatibles);
         LfgAnswer GetCompatibles(std::string concatenatedGuids);
         void RemoveFromCompatibles(uint64 guid);
         std::string ConcatenateGuids(LfgGuidList check);
-
-        void BuildLfgRoleCheck(WorldPacket &data, LfgRoleCheck *pRoleCheck);
-        void BuildAvailableRandomDungeonList(WorldPacket &data, Player *plr);
-        void BuildBootPlayerBlock(WorldPacket &data, LfgPlayerBoot *pBoot, uint32 lowGuid);
 
         LfgLockStatusMap* GetGroupLockStatusDungeons(PlayerSet *pPlayers, LfgDungeonSet *dungeons, bool useEntry = true);
         LfgDungeonSet* GetDungeonsByRandom(uint32 randomdungeon);
