@@ -560,6 +560,9 @@ void WorldSession::HandleAddFriendOpcode(WorldPacket & recv_data)
 
 void WorldSession::HandleAddFriendOpcodeCallBack(QueryResult_AutoPtr result, std::string friendNote)
 {
+    if (!GetPlayer())
+        return;
+
     uint64 friendGuid;
     uint32 friendAcctid;
     uint32 team;
@@ -643,6 +646,9 @@ void WorldSession::HandleAddIgnoreOpcode(WorldPacket & recv_data)
 
 void WorldSession::HandleAddIgnoreOpcodeCallBack(QueryResult_AutoPtr result)
 {
+    if (!GetPlayer())
+        return;
+
     uint64 IgnoreGuid;
     FriendsResult ignoreResult;
 
