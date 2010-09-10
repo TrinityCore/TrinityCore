@@ -214,6 +214,7 @@ public:
             bActive = false;
             bIsDoorSpellCasted = false;
             bCrystalActivated = false;
+            uiMainEventPhase = NOT_STARTED;
 
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
         }
