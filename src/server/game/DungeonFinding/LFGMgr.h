@@ -37,7 +37,6 @@ enum LFGenum
     LFG_QUEUEUPDATE_INTERVAL = 15000,
     LFG_SPELL_COOLDOWN       = 71328,
     LFG_SPELL_DESERTER       = 71041,
-    LFG_MAX_KICKS            = 3,
 };
 
 enum LfgType
@@ -55,20 +54,6 @@ enum LfgProposalState
     LFG_PROPOSAL_INITIATING = 0,
     LFG_PROPOSAL_FAILED     = 1,
     LFG_PROPOSAL_SUCCESS    = 2,
-};
-
-enum LfgGroupType
-{
-    LFG_GROUPTYPE_ALL          = 0,                         // Internal use, represents all groups.
-    LFG_GROUPTYPE_CLASSIC      = 1,
-    LFG_GROUPTYPE_BC_NORMAL    = 2,
-    LFG_GROUPTYPE_BC_HEROIC    = 3,
-    LFG_GROUPTYPE_WTLK_NORMAL  = 4,
-    LFG_GROUPTYPE_WTLK_HEROIC  = 5,
-    LFG_GROUPTYPE_CLASSIC_RAID = 6,
-    LFG_GROUPTYPE_BC_RAID      = 7,
-    LFG_GROUPTYPE_WTLK_RAID_10 = 8,
-    LFG_GROUPTYPE_WTLK_RAID_25 = 9,
 };
 
 enum LfgLockStatusType

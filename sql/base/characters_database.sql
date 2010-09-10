@@ -2,7 +2,7 @@
 --
 -- Host: localhost    Database: characters
 -- ------------------------------------------------------
--- Server version	5.0.45-Debian_1ubuntu3.1-log
+-- Server version   5.0.45-Debian_1ubuntu3.1-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -1452,7 +1452,7 @@ CREATE TABLE `guild_bank_eventlog` (
   `DestTabId` tinyint(1) unsigned NOT NULL default '0' COMMENT 'Destination Tab Id',
   `TimeStamp` bigint(20) unsigned NOT NULL default '0' COMMENT 'Event UNIX time',
   PRIMARY KEY  (`guildid`,`LogGuid`,`TabId`),
-  KEY `guildid_key` (`guildid`),	
+  KEY `guildid_key` (`guildid`),    
   INDEX `Idx_PlayerGuid`(`PlayerGuid`),
   INDEX `Idx_LogGuid`(`LogGuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -1481,7 +1481,7 @@ CREATE TABLE `guild_bank_item` (
   `item_guid` int(11) unsigned NOT NULL default '0',
   `item_entry` int(11) unsigned NOT NULL default '0',
   PRIMARY KEY  (`guildid`,`tabid`,`slotid`),
-  KEY `guildid_key` (`guildid`),	
+  KEY `guildid_key` (`guildid`),    
   INDEX `Idx_item_guid`(`item_guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1977,7 +1977,7 @@ CREATE TABLE `petition_sign` (
   `player_account` int(11) unsigned NOT NULL default '0',
   `type` int(10) unsigned NOT NULL default '0',
   PRIMARY KEY  (`petitionguid`,`playerguid`),
-  INDEX `Idx_playerguid`(`playerguid`),	
+  INDEX `Idx_playerguid`(`playerguid`), 
   INDEX `Idx_ownerguid`(`ownerguid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Guild System';
 /*!40101 SET character_set_client = @saved_cs_client */;

@@ -23,10 +23,8 @@
 
 #include "GroupReference.h"
 #include "GroupRefManager.h"
-#include "Battleground.h"
-#include "LootMgr.h"
 #include "DBCEnums.h"
-#include "Unit.h"
+#include "Battleground.h"
 
 #include <map>
 #include <vector>
@@ -37,6 +35,11 @@
 #define TARGETICONCOUNT 8
 #define GROUP_MAX_LFG_KICKS 3
 #define GROUP_LFG_KICK_VOTES_NEEDED 3
+
+class InstanceSave;
+class Player;
+class Unit;
+class WorldSession;
 
 enum RollVote
 {
@@ -86,8 +89,6 @@ enum GroupType
     // 0x10, leave/change group?, I saw this flag when leaving group and after leaving BG while in group
 };
 
-class Battleground;
-
 enum GroupUpdateFlags
 {
     GROUP_UPDATE_FLAG_NONE              = 0x00000000,       // nothing
@@ -119,8 +120,6 @@ enum GroupUpdateFlags
                                                                 // 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,17,18,19
 static const uint8 GroupUpdateLength[GROUP_UPDATE_FLAGS_COUNT] = { 0, 2, 2, 2, 1, 2, 2, 2, 2, 4, 8, 8, 1, 2, 2, 2, 1, 2, 2, 8};
 
-class InstanceSave;
-
 class Roll : public LootValidatorRef
 {
     public:
@@ -151,7 +150,7 @@ struct InstanceGroupBind
 {
     InstanceSave *save;
     bool perm;
-    /* permanent InstanceGroupBinds exist iff the leader has a permanent
+    /* permanent InstanceGroupBinds exist if the leader has a permanent
        PlayerInstanceBind for the same instance. */
     InstanceGroupBind() : save(NULL), perm(false) {}
 };

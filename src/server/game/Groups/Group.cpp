@@ -162,13 +162,15 @@ bool Group::LoadGroupFromDB(const uint32 &groupGuid, QueryResult_AutoPtr result,
 
     uint32 diff = fields[13].GetUInt8();
     if (diff >= MAX_DUNGEON_DIFFICULTY)
-        diff = DUNGEON_DIFFICULTY_NORMAL;
-    m_dungeonDifficulty = Difficulty(diff);
+        m_dungeonDifficulty = DUNGEON_DIFFICULTY_NORMAL;
+    else
+        m_dungeonDifficulty = Difficulty(diff);
 
     uint32 r_diff = fields[14].GetUInt8();
     if (r_diff >= MAX_RAID_DIFFICULTY)
-        r_diff = RAID_DIFFICULTY_10MAN_NORMAL;
-    m_raidDifficulty = Difficulty(r_diff);
+       m_raidDifficulty = RAID_DIFFICULTY_10MAN_NORMAL;
+    else
+       m_raidDifficulty = Difficulty(r_diff);
 
     if (loadMembers)
     {
@@ -340,7 +342,7 @@ bool Group::AddMember(const uint64 &guid, const char* name)
         player->SetGroupUpdateFlag(GROUP_UPDATE_FULL);
         UpdatePlayerOutOfRange(player);
 
-        // quest related GO state dependent from raid memebership
+        // quest related GO state dependent from raid membership
         if (isRaidGroup())
             player->UpdateForQuestWorldObjects();
 
@@ -431,7 +433,7 @@ void Group::ChangeLeader(const uint64 &guid)
     SendUpdate();
 }
 
-void Group::Disband(bool hideDestroy)
+void Group::Disband(bool hideDestroy /* = false */)
 {
     Player *player;
 
