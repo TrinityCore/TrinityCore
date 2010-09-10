@@ -52,8 +52,9 @@ enum ConditionType
     CONDITION_TARGET_HEALTH_BELOW_PCT = 20,                 // 0-100            0           +referenceID       true if target's health is below value1 percent, false if over or no target
     CONDITION_TARGET_RANGE          = 21,                   // minDistance      maxDist     +referenceID       true if target is closer then minDist and further then maxDist or if max is 0 then max dist is infinit
     CONDITION_MAPID                 = 22,                   // map_id           0           +referenceID       true if in map_id
-    CONDITION_AREAID                = 23,                   // area_id           0           +referenceID       true if in area_id
-    CONDITION_ITEM_TARGET           = 24                    // ItemRequiredTargetType,  TargetEntry,    0
+    CONDITION_AREAID                = 23,                   // area_id          0           +referenceID       true if in area_id
+    CONDITION_ITEM_TARGET           = 24,                   // ItemRequiredTargetType,  TargetEntry,    0
+    CONDITION_SPELL                 = 25                    // spell_id         0           +referenceID       true if knows spell
 };
 
 #define MAX_CONDITION                 25                    // maximum value in ConditionType enum
