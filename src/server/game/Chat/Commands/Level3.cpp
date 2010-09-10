@@ -7386,7 +7386,7 @@ bool ChatHandler::HandleGroupRemoveCommand(const char *args)
 
     if (GetPlayerGroupAndGUIDByName(cname, plr, group, guid, true))
         if (group)
-            group->RemoveMember(guid, 0);
+            group->RemoveMember(guid);
 
     return true;
 }
