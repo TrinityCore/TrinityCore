@@ -742,13 +742,7 @@ void Battleground::EndBattleground(uint32 winner)
             if (sWorld.getBoolConfig(CONFIG_ARENA_LOG_EXTENDED_INFO))
                 for (Battleground::BattlegroundScoreMap::const_iterator itr = GetPlayerScoresBegin(); itr != GetPlayerScoresEnd(); itr++)
                     if (Player* player = sObjectMgr.GetPlayer(itr->first))
-                    {
-                        std::string last_ip = "<unknown>";
-                        QueryResult_AutoPtr result = LoginDatabase.PQuery("SELECT last_ip FROM account WHERE id = %u", player->GetSession()->GetAccountId());
-                        if (result)
-                            last_ip = (result->Fetch())[0].GetCppString();
-                        sLog.outArena("Statistics for %s (GUID: %llu, Team: %d, IP: %s): %u damage, %u healing, %u killing blows", player->GetName(), itr->first, player->GetArenaTeamId(m_ArenaType == 5 ? 2 : m_ArenaType == 3), last_ip.c_str(), itr->second->DamageDone, itr->second->HealingDone, itr->second->KillingBlows);
-                    }
+                        sLog.outArena("Statistics for %s (GUID: %llu, Team: %d, IP: %s): %u damage, %u healing, %u killing blows", player->GetName(), itr->first, player->GetArenaTeamId(m_ArenaType == 5 ? 2 : m_ArenaType == 3), player->GetSession()->GetRemoteAddress().c_str(), itr->second->DamageDone, itr->second->HealingDone, itr->second->KillingBlows);
         }
         else
         {
