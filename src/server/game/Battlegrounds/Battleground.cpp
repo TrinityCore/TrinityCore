@@ -689,8 +689,10 @@ void Battleground::EndBattleground(uint32 winner)
     ArenaTeam * loser_arena_team = NULL;
     uint32 loser_team_rating = 0;
     uint32 loser_matchmaker_rating = 0;
+    int32  loser_change = 0;
     uint32 winner_team_rating = 0;
     uint32 winner_matchmaker_rating = 0;
+    int32  winner_change = 0;
     WorldPacket data;
     int32 winmsg_id = 0;
 
@@ -730,8 +732,8 @@ void Battleground::EndBattleground(uint32 winner)
             loser_matchmaker_rating = loser_arena_team->GetAverageMMR(GetBgRaid(GetOtherTeam(winner)));
             winner_team_rating = winner_arena_team->GetRating();
             winner_matchmaker_rating = winner_arena_team->GetAverageMMR(GetBgRaid(winner));
-            int32 winner_change = winner_arena_team->WonAgainst(loser_matchmaker_rating);
-            int32 loser_change = loser_arena_team->LostAgainst(winner_matchmaker_rating);
+            winner_change = winner_arena_team->WonAgainst(loser_matchmaker_rating);
+            loser_change = loser_arena_team->LostAgainst(winner_matchmaker_rating);
             sLog.outDebug("--- Winner rating: %u, Loser rating: %u, Winner MMR: %u, Loser MMR: %u, Winner change: %u, Losser change: %u ---", winner_team_rating, loser_team_rating,
                 winner_matchmaker_rating, loser_matchmaker_rating, winner_change, loser_change);
             SetArenaTeamRatingChangeForTeam(winner, winner_change);
@@ -761,9 +763,9 @@ void Battleground::EndBattleground(uint32 winner)
             if (isArena() && isRated() && winner_arena_team && loser_arena_team && winner_arena_team != loser_arena_team)
             {
                 if (team == winner)
-                    winner_arena_team->OfflineMemberLost(itr->first, loser_matchmaker_rating);
+                    winner_arena_team->OfflineMemberLost(itr->first, loser_matchmaker_rating, winner_change);
                 else
-                    loser_arena_team->OfflineMemberLost(itr->first, winner_matchmaker_rating);
+                    loser_arena_team->OfflineMemberLost(itr->first, winner_matchmaker_rating, loser_change);
             }
             continue;
         }
@@ -803,11 +805,11 @@ void Battleground::EndBattleground(uint32 winner)
                 if (member)
                     plr->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, member->personal_rating);
 
-                winner_arena_team->MemberWon(plr,loser_matchmaker_rating);
+                winner_arena_team->MemberWon(plr,loser_matchmaker_rating, winner_change);
             }
             else
             {
-                loser_arena_team->MemberLost(plr, winner_matchmaker_rating);
+                loser_arena_team->MemberLost(plr, winner_matchmaker_rating, loser_change);
 
                 // Arena lost => reset the win_rated_arena having the "no_loose" condition
                 plr->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, ACHIEVEMENT_CRITERIA_CONDITION_NO_LOOSE);
