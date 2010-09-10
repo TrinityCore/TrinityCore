@@ -174,14 +174,15 @@ bool Group::LoadGroupFromDB(const uint32 &groupGuid, QueryResult_AutoPtr result,
 
     if (loadMembers)
     {
-        result = CharacterDatabase.PQuery("SELECT memberGuid, memberFlags, subgroup FROM group_member WHERE guid=%u", groupGuid);
+        //                                        0           1            2         3
+        result = CharacterDatabase.PQuery("SELECT memberGuid, memberFlags, subgroup, roles FROM group_member WHERE guid=%u", groupGuid);
         if (!result)
             return false;
 
         do
         {
             fields = result->Fetch();
-            LoadMemberFromDB(fields[0].GetUInt32(), fields[1].GetUInt8(), fields[2].GetUInt8());
+            LoadMemberFromDB(fields[0].GetUInt32(), fields[1].GetUInt8(), fields[2].GetUInt8(), fields[3].GetUInt8());
         } while (result->NextRow());
 
         if (GetMembersCount() < 2)                          // group too small
@@ -191,7 +192,7 @@ bool Group::LoadGroupFromDB(const uint32 &groupGuid, QueryResult_AutoPtr result,
     return true;
 }
 
-bool Group::LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup)
+bool Group::LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles)
 {
     MemberSlot member;
     member.guid = MAKE_NEW_GUID(guidLow, 0, HIGHGUID_PLAYER);
@@ -205,7 +206,7 @@ bool Group::LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup)
 
     member.group = subgroup;
     member.flags = memberFlags;
-    member.roles = 0;
+    member.roles = roles;
 
     m_memberSlots.push_back(member);
 
@@ -1277,7 +1278,7 @@ bool Group::_addMember(const uint64 &guid, const char* name, uint8 group)
     if (!isBGGroup())
     {
         // insert into group table
-        CharacterDatabase.PExecute("INSERT INTO group_member(guid,memberGuid,memberFlags,subgroup) VALUES(%u,%u,%u,%u)", GUID_LOPART(m_guid), GUID_LOPART(member.guid), member.flags, member.group);
+        CharacterDatabase.PExecute("INSERT INTO group_member (guid, memberGuid, memberFlags, subgroup, roles) VALUES(%u, %u, %u, %u, %u)", GUID_LOPART(m_guid), GUID_LOPART(member.guid), member.flags, member.group, member.roles);
     }
 
     return true;

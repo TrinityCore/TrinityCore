@@ -3621,8 +3621,8 @@ void ObjectMgr::LoadGroups()
     sLog.outString(">> Loaded %u group definitions", count);
 
     // ----------------------- Load member
-    //                                       0     1           2            3
-    result = CharacterDatabase.Query("SELECT guid, memberGuid, memberFlags, subgroup FROM group_member ORDER BY guid");
+    //                                       0     1           2            3         4
+    result = CharacterDatabase.Query("SELECT guid, memberGuid, memberFlags, subgroup, roles FROM group_member ORDER BY guid");
     if (!result)
     {
         barGoLink bar2(1);
@@ -3644,10 +3644,9 @@ void ObjectMgr::LoadGroups()
         {
             groupLowGuid = fields[0].GetUInt32();
             group = GetGroupByGUID(groupLowGuid);
-            // group will never be NULL (we have run consistency sql's before loading)
         }
-        if (group)
-            group->LoadMemberFromDB(fields[1].GetUInt32(), fields[2].GetUInt8(), fields[3].GetUInt8());
+        if (group)                                         // Should never be null
+            group->LoadMemberFromDB(fields[1].GetUInt32(), fields[2].GetUInt8(), fields[3].GetUInt8(), fields[4].GetUInt8());
         else
             sLog.outError("ObjectMgr::LoadGroups: Consistency failed, can't find group (lowguid %u)", groupLowGuid);
         ++count;
