@@ -354,7 +354,7 @@ bool Group::AddMember(const uint64 &guid, const char* name)
     return true;
 }
 
-uint32 Group::RemoveMember(const uint64 &guid, const uint8 &method)
+uint32 Group::RemoveMember(const uint64 &guid, const RemoveMethod &method)
 {
     BroadcastGroupUpdate();
 
@@ -376,7 +376,7 @@ uint32 Group::RemoveMember(const uint64 &guid, const uint8 &method)
 
             WorldPacket data;
 
-            if (method == 1)
+            if (method == GROUP_REMOVEMETHOD_KICK)
             {
                 data.Initialize(SMSG_GROUP_UNINVITE, 0);
                 player->GetSession()->SendPacket(&data);
