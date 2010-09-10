@@ -1839,6 +1839,10 @@ Battleground.Random.ResetHour = 6
 #     Start personal rating on entry in team
 #     Default: 0
 #
+#    Arena.StartMatchmakerRating
+#     Start matchmaker rating for players
+#     Default: 1500
+#
 ###############################################################################
 
 Arena.MaxRatingDifference = 150
@@ -1851,6 +1855,7 @@ Arena.ArenaSeason.ID = 1
 Arena.ArenaSeason.InProgress = 1
 Arena.ArenaStartRating = 0
 Arena.ArenaStartPersonalRating = 0
+Arena.ArenaStartMatchmakerRating = 1500
 
 ###############################################################################
 # NETWORK CONFIG
