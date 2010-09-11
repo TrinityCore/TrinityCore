@@ -641,67 +641,69 @@ class AchievementCriteriaScript : public ScriptObject
 
 class PlayerScript : public ScriptObject
 {
-protected:
-    PlayerScript(const char* name);
+    protected:
 
-public:
-    bool IsDatabaseBound() const { return false; }
+        PlayerScript(const char* name);
 
-    // Called when a player kills another player
-    virtual void OnPVPKill(Player* /*killer*/, Player* /*killed*/) { }
+    public:
 
-    // Called when a player kills a creature
-    virtual void OnCreatureKill(Player* /*killer*/, Creature* /*killed*/) { }
+        // Called when a player kills another player
+        virtual void OnPVPKill(Player* /*killer*/, Player* /*killed*/) { }
 
-    // Called when a player is killed by a creature
-    virtual void OnPlayerKilledByCreature(Creature* /*killer*/, Player* /*killed*/) { }
+        // Called when a player kills a creature
+        virtual void OnCreatureKill(Player* /*killer*/, Creature* /*killed*/) { }
 
-    // Called when a player's level changes (right before the level is applied)
-    virtual void OnLevelChanged(Player* /*player*/, uint8 /*newLevel*/) { }
+        // Called when a player is killed by a creature
+        virtual void OnPlayerKilledByCreature(Creature* /*killer*/, Player* /*killed*/) { }
 
-    // Called when a player's free talent points change (right before the change is applied)
-    virtual void OnFreeTalentPointsChanged(Player* /*player*/, uint32 /*points*/) { }
+        // Called when a player's level changes (right before the level is applied)
+        virtual void OnLevelChanged(Player* /*player*/, uint8 /*newLevel*/) { }
 
-    // Called when a player's talent points are reset (right before the reset is done)
-    virtual void OnTalentsReset(Player* /*player*/, bool /*no_cost*/) { }
+        // Called when a player's free talent points change (right before the change is applied)
+        virtual void OnFreeTalentPointsChanged(Player* /*player*/, uint32 /*points*/) { }
 
-    // Called when a player's money is modified (before the modification is done)
-    virtual void OnMoneyChanged(Player* /*player*/, int32& /*amount*/) { }
+        // Called when a player's talent points are reset (right before the reset is done)
+        virtual void OnTalentsReset(Player* /*player*/, bool /*no_cost*/) { }
 
-    // Called when a player gains XP (before anything is given)
-    virtual void OnGiveXP(Player* /*player*/, uint32& /*amount*/, Unit* /*victim*/) { }
+        // Called when a player's money is modified (before the modification is done)
+        virtual void OnMoneyChanged(Player* /*player*/, int32& /*amount*/) { }
 
-    // Called when a player's reputation changes (before it is actually changed)
-    virtual void OnReputationChange(Player* /*player*/, uint32 /*factionID*/, int32& /*standing*/, bool /*incremental*/) { }
+        // Called when a player gains XP (before anything is given)
+        virtual void OnGiveXP(Player* /*player*/, uint32& /*amount*/, Unit* /*victim*/) { }
 
-    // The following methods are called when a player sends a chat message
-    virtual void OnChat(Player* /*player*/, uint32 /*type*/, uint32 /*lang*/, std::string /*msg*/) { }
-    virtual void OnChat(Player* /*player*/, uint32 /*type*/, uint32 /*lang*/, std::string /*msg*/, Player* /*receiver*/) { }
-    virtual void OnChat(Player* /*player*/, uint32 /*type*/, uint32 /*lang*/, std::string /*msg*/, Group* /*group*/) { }
-    virtual void OnChat(Player* /*player*/, uint32 /*type*/, uint32 /*lang*/, std::string /*msg*/, Guild* /*guild*/) { }
-    virtual void OnChat(Player* /*player*/, uint32 /*type*/, uint32 /*lang*/, std::string /*msg*/, Channel* /*channel*/) { }
+        // Called when a player's reputation changes (before it is actually changed)
+        virtual void OnReputationChange(Player* /*player*/, uint32 /*factionID*/, int32& /*standing*/, bool /*incremental*/) { }
 
-    // Both of the below are called on emote opcodes
-    virtual void OnEmote(Player* /*player*/, uint32 /*emote*/) { }
-    virtual void OnTextEmote(Player* /*player*/, uint32 /*text_emote*/, uint32 /*emoteNum*/, uint64 /*guid*/) { }
+        // The following methods are called when a player sends a chat message
+        virtual void OnChat(Player* /*player*/, uint32 /*type*/, uint32 /*lang*/, std::string /*msg*/) { }
+        virtual void OnChat(Player* /*player*/, uint32 /*type*/, uint32 /*lang*/, std::string /*msg*/, Player* /*receiver*/) { }
+        virtual void OnChat(Player* /*player*/, uint32 /*type*/, uint32 /*lang*/, std::string /*msg*/, Group* /*group*/) { }
+        virtual void OnChat(Player* /*player*/, uint32 /*type*/, uint32 /*lang*/, std::string /*msg*/, Guild* /*guild*/) { }
+        virtual void OnChat(Player* /*player*/, uint32 /*type*/, uint32 /*lang*/, std::string /*msg*/, Channel* /*channel*/) { }
 
-    // Called in Spell::cast
-    virtual void OnSpellCast(Player * /*player*/, Spell * /*spell*/, bool /*skipCheck*/) { }
+        // Both of the below are called on emote opcodes
+        virtual void OnEmote(Player* /*player*/, uint32 /*emote*/) { }
+        virtual void OnTextEmote(Player* /*player*/, uint32 /*text_emote*/, uint32 /*emoteNum*/, uint64 /*guid*/) { }
+
+        // Called in Spell::cast
+        virtual void OnSpellCast(Player * /*player*/, Spell * /*spell*/, bool /*skipCheck*/) { }
 };
 
 class GuildScript : public ScriptObject
 {
-protected:
-    GuildScript(const char* name);
+    protected:
 
-public:
-    bool IsDatabaseBound() const { return false; }
+        GuildScript(const char* name);
 
-    virtual void OnAddMember(Guild* /*guild*/, Player* /*player*/, uint32& /*plRank*/) { }
-    virtual void OnRemoveMember(Guild* /*guild*/, Player* /*player*/, bool /*isDisbanding*/, bool /*isKicked*/) { }
-    virtual void OnMOTDChanged(Guild* /*guild*/, std::string /*newMotd*/) { }
-    virtual void OnGInfoChanged(Guild* /*guild*/, std::string /*newGInfo*/) { }
-    virtual void OnDisband(Guild* /*guild*/) { }
+    public:
+
+        bool IsDatabaseBound() const { return false; }
+
+        virtual void OnAddMember(Guild* /*guild*/, Player* /*player*/, uint32& /*plRank*/) { }
+        virtual void OnRemoveMember(Guild* /*guild*/, Player* /*player*/, bool /*isDisbanding*/, bool /*isKicked*/) { }
+        virtual void OnMOTDChanged(Guild* /*guild*/, std::string /*newMotd*/) { }
+        virtual void OnGInfoChanged(Guild* /*guild*/, std::string /*newGInfo*/) { }
+        virtual void OnDisband(Guild* /*guild*/) { }
 };
 
 // Placed here due to ScriptRegistry::AddScript dependency.
