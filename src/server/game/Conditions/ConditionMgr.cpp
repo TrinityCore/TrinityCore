@@ -326,7 +326,7 @@ void ConditionMgr::LoadConditions(bool isReload)
     }
 
     uint32 count = 0;
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT SourceTypeOrReferenceId, SourceGroup, SourceEntry, ElseGroup, ConditionTypeOrReference, ConditionValue1, ConditionValue2, ConditionValue3, ErrorTextId, ScriptName FROM conditions");
+    QueryResult result = WorldDatabase.Query("SELECT SourceTypeOrReferenceId, SourceGroup, SourceEntry, ElseGroup, ConditionTypeOrReference, ConditionValue1, ConditionValue2, ConditionValue3, ErrorTextId, ScriptName FROM conditions");
 
     if (!result)
     {

@@ -108,7 +108,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
 
     uint32 ownerid = owner->GetGUIDLow();
 
-    QueryResult_AutoPtr result;
+    QueryResult result;
 
     if (petnumber)
         // known petnumber entry                  0   1      2(?)   3        4      5    6           7     8     9        10         11       12            13      14        15                 16                 17              18
@@ -1096,7 +1096,7 @@ void Pet::_LoadSpellCooldowns()
     m_CreatureSpellCooldowns.clear();
     m_CreatureCategoryCooldowns.clear();
 
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT spell,time FROM pet_spell_cooldown WHERE guid = '%u'",m_charmInfo->GetPetNumber());
+    QueryResult result = CharacterDatabase.PQuery("SELECT spell,time FROM pet_spell_cooldown WHERE guid = '%u'",m_charmInfo->GetPetNumber());
 
     if (result)
     {
@@ -1158,7 +1158,7 @@ void Pet::_SaveSpellCooldowns(SQLTransaction& trans)
 
 void Pet::_LoadSpells()
 {
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT spell,active FROM pet_spell WHERE guid = '%u'",m_charmInfo->GetPetNumber());
+    QueryResult result = CharacterDatabase.PQuery("SELECT spell,active FROM pet_spell WHERE guid = '%u'",m_charmInfo->GetPetNumber());
 
     if (result)
     {
@@ -1207,7 +1207,7 @@ void Pet::_LoadAuras(uint32 timediff)
 {
     sLog.outDebug("Loading auras for pet %u",GetGUIDLow());
 
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT caster_guid,spell,effect_mask,recalculate_mask,stackcount,amount0,amount1,amount2,base_amount0,base_amount1,base_amount2,maxduration,remaintime,remaincharges FROM pet_aura WHERE guid = '%u'",m_charmInfo->GetPetNumber());
+    QueryResult result = CharacterDatabase.PQuery("SELECT caster_guid,spell,effect_mask,recalculate_mask,stackcount,amount0,amount1,amount2,base_amount0,base_amount1,base_amount2,maxduration,remaintime,remaincharges FROM pet_aura WHERE guid = '%u'",m_charmInfo->GetPetNumber());
 
     if (result)
     {
@@ -1693,7 +1693,7 @@ void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* online_pet /*= NULL*/)
     // now need only reset for offline pets (all pets except online case)
     uint32 except_petnumber = online_pet ? online_pet->GetCharmInfo()->GetPetNumber() : 0;
 
-    QueryResult_AutoPtr resultPets = CharacterDatabase.PQuery(
+    QueryResult resultPets = CharacterDatabase.PQuery(
         "SELECT id FROM character_pet WHERE owner = '%u' AND id <> '%u'",
         owner->GetGUIDLow(),except_petnumber);
 
@@ -1701,7 +1701,7 @@ void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* online_pet /*= NULL*/)
     if (!resultPets)
         return;
 
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery(
+    QueryResult result = CharacterDatabase.PQuery(
         "SELECT DISTINCT pet_spell.spell FROM pet_spell, character_pet "
         "WHERE character_pet.owner = '%u' AND character_pet.id = pet_spell.guid AND character_pet.id <> %u",
         owner->GetGUIDLow(),except_petnumber);

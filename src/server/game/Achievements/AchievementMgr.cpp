@@ -555,7 +555,7 @@ void AchievementMgr::SaveToDB(SQLTransaction& trans)
     }
 }
 
-void AchievementMgr::LoadFromDB(QueryResult_AutoPtr achievementResult, QueryResult_AutoPtr criteriaResult)
+void AchievementMgr::LoadFromDB(QueryResult achievementResult, QueryResult criteriaResult)
 {
     if (achievementResult)
     {
@@ -2104,7 +2104,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
 {
     m_criteriaDataMap.clear();                              // need for reload case
 
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT criteria_id, type, value1, value2, ScriptName FROM achievement_criteria_data");
+    QueryResult result = WorldDatabase.Query("SELECT criteria_id, type, value1, value2, ScriptName FROM achievement_criteria_data");
 
     if (!result)
     {
@@ -2243,7 +2243,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
 
 void AchievementGlobalMgr::LoadCompletedAchievements()
 {
-    QueryResult_AutoPtr result = CharacterDatabase.Query("SELECT achievement FROM character_achievement GROUP BY achievement");
+    QueryResult result = CharacterDatabase.Query("SELECT achievement FROM character_achievement GROUP BY achievement");
 
     if (!result)
     {
@@ -2282,7 +2282,7 @@ void AchievementGlobalMgr::LoadRewards()
     m_achievementRewards.clear();                           // need for reload case
 
     //                                                0      1        2        3     4       5        6
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT entry, title_A, title_H, item, sender, subject, text FROM achievement_reward");
+    QueryResult result = WorldDatabase.Query("SELECT entry, title_A, title_H, item, sender, subject, text FROM achievement_reward");
 
     if (!result)
     {
@@ -2392,7 +2392,7 @@ void AchievementGlobalMgr::LoadRewardLocales()
 {
     m_achievementRewardLocales.clear();                       // need for reload case
 
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT entry,subject_loc1,text_loc1,subject_loc2,text_loc2,subject_loc3,text_loc3,subject_loc4,text_loc4,subject_loc5,text_loc5,subject_loc6,text_loc6,subject_loc7,text_loc7,subject_loc8,text_loc8 FROM locales_achievement_reward");
+    QueryResult result = WorldDatabase.Query("SELECT entry,subject_loc1,text_loc1,subject_loc2,text_loc2,subject_loc3,text_loc3,subject_loc4,text_loc4,subject_loc5,text_loc5,subject_loc6,text_loc6,subject_loc7,text_loc7,subject_loc8,text_loc8 FROM locales_achievement_reward");
 
     if (!result)
     {

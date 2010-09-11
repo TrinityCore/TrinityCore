@@ -165,7 +165,7 @@ void LFGMgr::LoadDungeonEncounters()
     m_EncountersByAchievement.clear();
 
     uint32 count = 0;
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT achievementId, dungeonId FROM lfg_dungeon_encounters");
+    QueryResult result = WorldDatabase.Query("SELECT achievementId, dungeonId FROM lfg_dungeon_encounters");
 
     if (!result)
     {
@@ -226,7 +226,7 @@ void LFGMgr::LoadRewards()
 
     uint32 count = 0;
     // ORDER BY is very important for GetRandomDungeonReward!
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT dungeonId, maxLevel, firstQuestId, firstMoneyVar, firstXPVar, otherQuestId, otherMoneyVar, otherXPVar FROM lfg_dungeon_rewards ORDER BY dungeonId, maxLevel ASC");
+    QueryResult result = WorldDatabase.Query("SELECT dungeonId, maxLevel, firstQuestId, firstMoneyVar, firstXPVar, otherQuestId, otherMoneyVar, otherXPVar FROM lfg_dungeon_rewards ORDER BY dungeonId, maxLevel ASC");
 
     if (!result)
     {

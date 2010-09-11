@@ -588,7 +588,7 @@ void WorldSession::LoadGlobalAccountData()
 );
 }
 
-void WorldSession::LoadAccountData(QueryResult_AutoPtr result, uint32 mask)
+void WorldSession::LoadAccountData(QueryResult result, uint32 mask)
 {
     for (uint32 i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)
         if (mask & (1 << i))
@@ -668,7 +668,7 @@ void WorldSession::LoadTutorialsData()
     for (int aX = 0 ; aX < 8 ; ++aX)
         m_Tutorials[ aX ] = 0;
 
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT tut0,tut1,tut2,tut3,tut4,tut5,tut6,tut7 FROM character_tutorial WHERE account = '%u'", GetAccountId());
+    QueryResult result = CharacterDatabase.PQuery("SELECT tut0,tut1,tut2,tut3,tut4,tut5,tut6,tut7 FROM character_tutorial WHERE account = '%u'", GetAccountId());
 
     if (result)
     {
@@ -699,7 +699,7 @@ void WorldSession::SaveTutorialsData(SQLTransaction& trans)
 
     uint32 Rows=0;
     // it's better than rebuilding indexes multiple times
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT count(*) AS r FROM character_tutorial WHERE account = '%u'", GetAccountId());
+    QueryResult result = CharacterDatabase.PQuery("SELECT count(*) AS r FROM character_tutorial WHERE account = '%u'", GetAccountId());
     if (result)
         Rows = result->Fetch()[0].GetUInt32();
 
@@ -959,7 +959,7 @@ void WorldSession::SetPlayer(Player *plr)
 
 void WorldSession::ProcessQueryCallbacks()
 {
-    QueryResult_AutoPtr result;
+    QueryResult result;
 
     //! HandleNameQueryOpcode
     while (!m_nameQueryCallbacks.is_empty())

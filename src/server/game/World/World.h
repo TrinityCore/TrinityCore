@@ -43,7 +43,6 @@ class WorldSession;
 class Player;
 struct ScriptAction;
 struct ScriptInfo;
-class QueryResult;
 class WorldSocket;
 class SystemMgr;
 
@@ -738,7 +737,7 @@ class World
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters
-        void _UpdateRealmCharCount(QueryResult_AutoPtr resultCharCount, uint32 accountId);
+        void _UpdateRealmCharCount(QueryResult resultCharCount, uint32 accountId);
 
         void InitDailyQuestResetTime();
         void InitWeeklyQuestResetTime();

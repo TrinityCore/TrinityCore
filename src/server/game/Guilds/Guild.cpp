@@ -147,7 +147,7 @@ bool Guild::AddMember(uint64 plGuid, uint32 plRank)
     }
     else
     {
-        QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT name,zone,level,class,account FROM characters WHERE guid = '%u'", GUID_LOPART(plGuid));
+        QueryResult result = CharacterDatabase.PQuery("SELECT name,zone,level,class,account FROM characters WHERE guid = '%u'", GUID_LOPART(plGuid));
         if (!result)
             return false;                                   // player doesn't exist
 
@@ -218,7 +218,7 @@ void Guild::SetGINFO(std::string ginfo)
     CharacterDatabase.PExecute("UPDATE guild SET info='%s' WHERE guildid='%u'", ginfo.c_str(), m_Id);
 }
 
-bool Guild::LoadGuildFromDB(QueryResult_AutoPtr guildDataResult)
+bool Guild::LoadGuildFromDB(QueryResult guildDataResult)
 {
     if (!guildDataResult)
         return false;
@@ -274,7 +274,7 @@ bool Guild::CheckGuildStructure()
     return true;
 }
 
-bool Guild::LoadRanksFromDB(QueryResult_AutoPtr guildRanksResult)
+bool Guild::LoadRanksFromDB(QueryResult guildRanksResult)
 {
     if (!guildRanksResult)
     {
@@ -351,7 +351,7 @@ bool Guild::LoadRanksFromDB(QueryResult_AutoPtr guildRanksResult)
     return true;
 }
 
-bool Guild::LoadMembersFromDB(QueryResult_AutoPtr guildMembersResult)
+bool Guild::LoadMembersFromDB(QueryResult guildMembersResult)
 {
     if (!guildMembersResult)
         return false;
@@ -876,7 +876,7 @@ void Guild::DisplayGuildEventLog(WorldSession *session)
 void Guild::LoadGuildEventLogFromDB()
 {
     //                                                     0        1          2            3            4        5
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT LogGuid, EventType, PlayerGuid1, PlayerGuid2, NewRank, TimeStamp FROM guild_eventlog WHERE guildid=%u ORDER BY TimeStamp DESC,LogGuid DESC LIMIT %u", m_Id, GUILD_EVENTLOG_MAX_RECORDS);
+    QueryResult result = CharacterDatabase.PQuery("SELECT LogGuid, EventType, PlayerGuid1, PlayerGuid2, NewRank, TimeStamp FROM guild_eventlog WHERE guildid=%u ORDER BY TimeStamp DESC,LogGuid DESC LIMIT %u", m_Id, GUILD_EVENTLOG_MAX_RECORDS);
     if (!result)
         return;
     bool isNextLogGuidSet = false;
@@ -1128,7 +1128,7 @@ uint32 Guild::GetBankRights(uint32 rankId, uint8 TabId) const
 void Guild::LoadGuildBankFromDB()
 {
     //                                                     0      1        2        3
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT TabId, TabName, TabIcon, TabText FROM guild_bank_tab WHERE guildid='%u' ORDER BY TabId", m_Id);
+    QueryResult result = CharacterDatabase.PQuery("SELECT TabId, TabName, TabIcon, TabText FROM guild_bank_tab WHERE guildid='%u' ORDER BY TabId", m_Id);
     if (!result)
     {
         m_TabListMap.clear();
@@ -1390,7 +1390,7 @@ uint32 Guild::GetBankSlotPerDay(uint32 rankId, uint8 TabId)
 // *************************************************
 // Rights per day related
 
-bool Guild::LoadBankRightsFromDB(QueryResult_AutoPtr guildBankTabRightsResult)
+bool Guild::LoadBankRightsFromDB(QueryResult guildBankTabRightsResult)
 {
     if (!guildBankTabRightsResult)
         return true;
@@ -1437,7 +1437,7 @@ void Guild::LoadGuildBankEventLogFromDB()
     for (uint32 tabId = 0; tabId < uint32(GetPurchasedTabs()); ++tabId)
     {
         //                                                     0        1          2           3            4               5          6
-        QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT LogGuid, EventType, PlayerGuid, ItemOrMoney, ItemStackCount, DestTabId, TimeStamp FROM guild_bank_eventlog WHERE guildid='%u' AND TabId='%u' ORDER BY TimeStamp DESC,LogGuid DESC LIMIT %u", m_Id, tabId, GUILD_BANK_MAX_LOGS);
+        QueryResult result = CharacterDatabase.PQuery("SELECT LogGuid, EventType, PlayerGuid, ItemOrMoney, ItemStackCount, DestTabId, TimeStamp FROM guild_bank_eventlog WHERE guildid='%u' AND TabId='%u' ORDER BY TimeStamp DESC,LogGuid DESC LIMIT %u", m_Id, tabId, GUILD_BANK_MAX_LOGS);
         if (!result)
             continue;
 
@@ -1478,7 +1478,7 @@ void Guild::LoadGuildBankEventLogFromDB()
 
     //special handle for guild bank money log
     //                                                     0        1          2           3            4               5          6
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT LogGuid, EventType, PlayerGuid, ItemOrMoney, ItemStackCount, DestTabId, TimeStamp FROM guild_bank_eventlog WHERE guildid='%u' AND TabId='%u' ORDER BY TimeStamp DESC,LogGuid DESC LIMIT %u", m_Id, GUILD_BANK_MONEY_LOGS_TAB, GUILD_BANK_MAX_LOGS);
+    QueryResult result = CharacterDatabase.PQuery("SELECT LogGuid, EventType, PlayerGuid, ItemOrMoney, ItemStackCount, DestTabId, TimeStamp FROM guild_bank_eventlog WHERE guildid='%u' AND TabId='%u' ORDER BY TimeStamp DESC,LogGuid DESC LIMIT %u", m_Id, GUILD_BANK_MONEY_LOGS_TAB, GUILD_BANK_MAX_LOGS);
     if (!result)
         return;
 

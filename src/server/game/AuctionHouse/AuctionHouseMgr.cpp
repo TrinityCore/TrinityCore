@@ -306,7 +306,7 @@ void AuctionHouseMgr::LoadAuctionItems()
 {
     // data needs to be at first place for Item::LoadFromDB
     //                                                                     0                1      2         3        4      5             6                 7           8           9    10        11             12
-    QueryResult_AutoPtr result = CharacterDatabase.Query("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text, itemguid, item_template FROM auctionhouse JOIN item_instance ON itemguid = guid");
+    QueryResult result = CharacterDatabase.Query("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text, itemguid, item_template FROM auctionhouse JOIN item_instance ON itemguid = guid");
 
     if (!result)
     {
@@ -356,7 +356,7 @@ void AuctionHouseMgr::LoadAuctionItems()
 
 void AuctionHouseMgr::LoadAuctions()
 {
-    QueryResult_AutoPtr result = CharacterDatabase.Query("SELECT COUNT(*) FROM auctionhouse");
+    QueryResult result = CharacterDatabase.Query("SELECT COUNT(*) FROM auctionhouse");
     if (!result)
     {
         barGoLink bar(1);
@@ -555,7 +555,7 @@ void AuctionHouseObject::Update()
     if (AuctionsMap.empty())
         return;
 
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT id FROM auctionhouse WHERE time <= %u ORDER BY TIME ASC", (uint32)curTime+60);
+    QueryResult result = CharacterDatabase.PQuery("SELECT id FROM auctionhouse WHERE time <= %u ORDER BY TIME ASC", (uint32)curTime+60);
 
     if (!result)
         return;

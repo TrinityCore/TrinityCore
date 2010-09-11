@@ -104,7 +104,7 @@ void LootStore::LoadLootTable()
     sLog.outString("%s :", GetName());
 
     //                                                        0      1     2                    3         4        5              6
-    QueryResult_AutoPtr result = WorldDatabase.PQuery("SELECT entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount FROM %s",GetName());
+    QueryResult result = WorldDatabase.PQuery("SELECT entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount FROM %s",GetName());
 
     if (result)
     {

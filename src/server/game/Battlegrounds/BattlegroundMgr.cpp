@@ -675,7 +675,7 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
     uint32 count = 0;
 
     //                                                       0   1                 2                 3      4      5                6              7             8           9      10
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT id, MinPlayersPerTeam,MaxPlayersPerTeam,MinLvl,MaxLvl,AllianceStartLoc,AllianceStartO,HordeStartLoc,HordeStartO,Weight,ScriptName FROM battleground_template");
+    QueryResult result = WorldDatabase.Query("SELECT id, MinPlayersPerTeam,MaxPlayersPerTeam,MinLvl,MaxLvl,AllianceStartLoc,AllianceStartO,HordeStartLoc,HordeStartO,Weight,ScriptName FROM battleground_template");
 
     if (!result)
     {
@@ -1116,7 +1116,7 @@ void BattlegroundMgr::LoadBattleMastersEntry()
 {
     mBattleMastersMap.clear();                              // need for reload case
 
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT entry,bg_template FROM battlemaster_entry");
+    QueryResult result = WorldDatabase.Query("SELECT entry,bg_template FROM battlemaster_entry");
 
     uint32 count = 0;
 

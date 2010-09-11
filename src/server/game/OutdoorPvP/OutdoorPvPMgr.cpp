@@ -77,7 +77,7 @@ void OutdoorPvPMgr::LoadTemplates()
     uint32 count = 0;
 
     //                                                       0       1
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT TypeId, ScriptName FROM outdoorpvp_template");
+    QueryResult result = WorldDatabase.Query("SELECT TypeId, ScriptName FROM outdoorpvp_template");
 
     if (!result)
     {

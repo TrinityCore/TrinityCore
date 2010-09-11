@@ -289,7 +289,7 @@ void SocialMgr::BroadcastToFriendListers(Player *player, WorldPacket *packet)
     }
 }
 
-PlayerSocial *SocialMgr::LoadFromDB(QueryResult_AutoPtr result, uint32 guid)
+PlayerSocial *SocialMgr::LoadFromDB(QueryResult result, uint32 guid)
 {
     PlayerSocial *social = &m_socialMap[guid];
     social->SetPlayerGUID(guid);

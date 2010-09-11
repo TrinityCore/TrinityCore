@@ -126,7 +126,7 @@ void RASocket::OnRead()
                     ///- Escape the Login to allow quotes in names
                     LoginDatabase.escape_string(login);
 
-                    QueryResult_AutoPtr result = LoginDatabase.PQuery("SELECT a.id, aa.gmlevel, aa.RealmID FROM account a LEFT JOIN account_access aa ON (a.id = aa.id) WHERE a.username = '%s'",login.c_str ());
+                    QueryResult result = LoginDatabase.PQuery("SELECT a.id, aa.gmlevel, aa.RealmID FROM account a LEFT JOIN account_access aa ON (a.id = aa.id) WHERE a.username = '%s'",login.c_str ());
 
                     ///- If the user is not found, deny access
                     if (!result)
@@ -175,7 +175,7 @@ void RASocket::OnRead()
                     LoginDatabase.escape_string(login);
                     LoginDatabase.escape_string(pw);
 
-                    QueryResult_AutoPtr check = LoginDatabase.PQuery(
+                    QueryResult check = LoginDatabase.PQuery(
                         "SELECT 1 FROM account WHERE username = '%s' AND sha_pass_hash=SHA1(CONCAT('%s',':','%s'))",
                         login.c_str(), login.c_str(), pw.c_str());
 
