@@ -35,10 +35,10 @@
 void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recv_data)
 {
     sLog.outDebug("WORLD: CMSG_AUTOSTORE_LOOT_ITEM");
-    Player  *player =   GetPlayer();
-    uint64   lguid =    player->GetLootGUID();
-    Loot    *loot;
-    uint8    lootSlot;
+    Player* player = GetPlayer();
+    uint64 lguid = player->GetLootGUID();
+    Loot* loot = NULL;
+    uint8 lootSlot = 0;
 
     recv_data >> lootSlot;
 
@@ -75,6 +75,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recv_data)
             player->SendLootRelease(lguid);
             return;
         }
+
         loot = &bones->loot;
     }
     else
@@ -92,70 +93,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recv_data)
         loot = &pCreature->loot;
     }
 
-    QuestItem *qitem = NULL;
-    QuestItem *ffaitem = NULL;
-    QuestItem *conditem = NULL;
-
-    LootItem *item = loot->LootItemInSlot(lootSlot,player,&qitem,&ffaitem,&conditem);
-
-    if (!item)
-    {
-        player->SendEquipError(EQUIP_ERR_ALREADY_LOOTED, NULL, NULL);
-        return;
-    }
-
-    // questitems use the blocked field for other purposes
-    if (!qitem && item->is_blocked)
-    {
-        player->SendLootRelease(lguid);
-        return;
-    }
-
-    ItemPosCountVec dest;
-    uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item->itemid, item->count);
-    if (msg == EQUIP_ERR_OK)
-    {
-        Item * newitem = player->StoreNewItem(dest, item->itemid, true, item->randomPropertyId);
-
-        if (qitem)
-        {
-            qitem->is_looted = true;
-            //freeforall is 1 if everyone's supposed to get the quest item.
-            if (item->freeforall || loot->GetPlayerQuestItems().size() == 1)
-                player->SendNotifyLootItemRemoved(lootSlot);
-            else
-                loot->NotifyQuestItemRemoved(qitem->index);
-        }
-        else
-        {
-            if (ffaitem)
-            {
-                //freeforall case, notify only one player of the removal
-                ffaitem->is_looted=true;
-                player->SendNotifyLootItemRemoved(lootSlot);
-            }
-            else
-            {
-                //not freeforall, notify everyone
-                if (conditem)
-                    conditem->is_looted=true;
-                loot->NotifyItemRemoved(lootSlot);
-            }
-        }
-
-        //if only one person is supposed to loot the item, then set it to looted
-        if (!item->freeforall)
-            item->is_looted = true;
-
-        --loot->unlootedCount;
-
-        player->SendNewItem(newitem, uint32(item->count), false, false, true);
-        player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item->itemid, item->count);
-        player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, loot->loot_type, item->count);
-        player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, item->itemid, item->count);
-    }
-    else
-        player->SendEquipError(msg, NULL, NULL, item->itemid);
+    player->StoreLootItem(lootSlot, loot);
 }
 
 void WorldSession::HandleLootMoneyOpcode(WorldPacket & /*recv_data*/)
@@ -516,7 +454,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket & recv_data)
 
     if (slotid > pLoot->items.size())
     {
-        sLog.outDebug("AutoLootItem: Player %s might be using a hack! (slot %d, size %lu)",GetPlayer()->GetName(), slotid, (unsigned long)pLoot->items.size());
+        sLog.outDebug("MasterLootItem: Player %s might be using a hack! (slot %d, size %lu)",GetPlayer()->GetName(), slotid, (unsigned long)pLoot->items.size());
         return;
     }
 

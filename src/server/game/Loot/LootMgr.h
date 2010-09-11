@@ -26,7 +26,6 @@
 #include "RefManager.h"
 #include "SharedDefines.h"
 #include "ConditionMgr.h"
-#include "ItemPrototype.h"
 
 #include <map>
 #include <vector>
@@ -173,8 +172,8 @@ typedef std::set<uint32> LootIdSet;
 class LootStore
 {
     public:
-        explicit LootStore(char const* name, char const* entryName, bool ratesAllowed, bool autoDistributeCurrency)
-            : m_name(name), m_entryName(entryName), m_ratesAllowed(ratesAllowed), m_autoDistributeCurrency(autoDistributeCurrency) {}
+        explicit LootStore(char const* name, char const* entryName, bool ratesAllowed)
+            : m_name(name), m_entryName(entryName), m_ratesAllowed(ratesAllowed) {}
 
         virtual ~LootStore() { Clear(); }
 
@@ -196,7 +195,6 @@ class LootStore
         char const* GetName() const { return m_name; }
         char const* GetEntryName() const { return m_entryName; }
         bool IsRatesAllowed() const { return m_ratesAllowed; }
-        bool IsCurrencyAutoDistributed() const { return m_autoDistributeCurrency; }
     protected:
         void LoadLootTable();
         void Clear();
@@ -205,7 +203,6 @@ class LootStore
         char const* m_name;
         char const* m_entryName;
         bool m_ratesAllowed;
-        bool m_autoDistributeCurrency;
 };
 
 class LootTemplate
@@ -217,8 +214,7 @@ class LootTemplate
         // Adds an entry to the group (at loading stage)
         void AddEntry(LootStoreItem& item);
         // Rolls for every item in the template and adds the rolled items the the loot
-        void Process(Loot& loot, LootStore const& store, Player* lootOwner, bool rate, uint16 lootMode, uint8 groupId = 0) const;
-        static bool ProcessCurrency(Player* lootOwner, const LootStoreItemList::const_iterator& lootItem, ItemPrototype const* pProto);
+        void Process(Loot& loot, LootStore const& store, bool rate, uint16 lootMode, uint8 groupId = 0) const;
         void CopyConditions(ConditionList conditions);
 
         // True if template includes at least 1 quest drop entry
