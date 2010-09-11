@@ -370,7 +370,7 @@ bool AuthSocket::_HandleLogonChallenge()
 
     std::string address(socket().get_remote_address().c_str());
     LoginDatabase.escape_string(address);
-    QueryResult_AutoPtr result = LoginDatabase.PQuery("SELECT * FROM ip_banned WHERE ip = '%s'",address.c_str());
+    QueryResult result = LoginDatabase.PQuery("SELECT * FROM ip_banned WHERE ip = '%s'",address.c_str());
     if (result)
     {
         pkt << (uint8)WOW_FAIL_BANNED;
@@ -380,21 +380,19 @@ bool AuthSocket::_HandleLogonChallenge()
     {
         ///- Get the account details from the account table
         // No SQL injection (escaped user name)
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_LOGONCHALLENGE);
+        stmt->setString(0, _safelogin.c_str());
 
-        result = LoginDatabase.PQuery("SELECT a.sha_pass_hash,a.id,a.locked,a.last_ip,aa.gmlevel,a.v,a.s "
-                                 "FROM account a "
-                                 "LEFT JOIN account_access aa "
-                                 "ON (a.id = aa.id) "
-                                 "WHERE a.username = '%s'",_safelogin.c_str ());
-        if (result)
+        PreparedQueryResult res2 = LoginDatabase.Query(stmt);
+        if (res2)
         {
             ///- If the IP is 'locked', check that the player comes indeed from the correct IP address
             bool locked = false;
-            if ((*result)[2].GetUInt8() == 1)            // if ip is locked
+            if (res2->GetUInt8(2) == 1)            // if ip is locked
             {
-                sLog.outStaticDebug("[AuthChallenge] Account '%s' is locked to IP - '%s'", _login.c_str(), (*result)[3].GetString());
+                sLog.outStaticDebug("[AuthChallenge] Account '%s' is locked to IP - '%s'", _login.c_str(), res2->GetString(3));
                 sLog.outStaticDebug("[AuthChallenge] Player address is '%s'", socket().get_remote_address().c_str());
-                if (strcmp((*result)[3].GetString(),socket().get_remote_address().c_str()))
+                if (strcmp(res2->GetString(3).c_str(),socket().get_remote_address().c_str()))
                 {
                     sLog.outStaticDebug("[AuthChallenge] Account IP differs");
                     pkt << (uint8) WOW_FAIL_SUSPENDED;
@@ -411,7 +409,7 @@ bool AuthSocket::_HandleLogonChallenge()
                 //set expired bans to inactive
                 LoginDatabase.Execute("UPDATE account_banned SET active = 0 WHERE unbandate<=UNIX_TIMESTAMP() AND unbandate<>bandate");
                 ///- If the account is banned, reject the logon attempt
-                QueryResult_AutoPtr banresult = LoginDatabase.PQuery("SELECT bandate,unbandate FROM account_banned WHERE id = %u AND active = 1", (*result)[1].GetUInt32());
+                QueryResult banresult = LoginDatabase.PQuery("SELECT bandate,unbandate FROM account_banned WHERE id = %u AND active = 1", res2->GetUInt32(1));
                 if (banresult)
                 {
                     if ((*banresult)[0].GetUInt64() == (*banresult)[1].GetUInt64())
@@ -428,11 +426,11 @@ bool AuthSocket::_HandleLogonChallenge()
                 else
                 {
                     ///- Get the password from the account table, upper it, and make the SRP6 calculation
-                    std::string rI = (*result)[0].GetCppString();
+                    std::string rI = res2->GetString(1);
 
                     ///- Don't calculate (v, s) if there are already some in the database
-                    std::string databaseV = (*result)[5].GetCppString();
-                    std::string databaseS = (*result)[6].GetCppString();
+                    std::string databaseV = res2->GetString(5);
+                    std::string databaseS = res2->GetString(6);
 
                     sLog.outDebug("database authentication values: v='%s' s='%s'", databaseV.c_str(), databaseS.c_str());
 
@@ -486,7 +484,7 @@ bool AuthSocket::_HandleLogonChallenge()
                     if (securityFlags & 0x04)                // Security token input
                         pkt << uint8(1);
 
-                    uint8 secLevel = (*result)[4].GetUInt8();
+                    uint8 secLevel = res2->GetUInt8(4);
                     _accountSecurityLevel = secLevel <= SEC_ADMINISTRATOR ? AccountTypes(secLevel) : SEC_ADMINISTRATOR;
 
                     _localizationName.resize(4);
@@ -666,7 +664,7 @@ bool AuthSocket::_HandleLogonProof()
             //Increment number of failed logins by one and if it reaches the limit temporarily ban that account or IP
             LoginDatabase.PExecute("UPDATE account SET failed_logins = failed_logins + 1 WHERE username = '%s'",_safelogin.c_str());
 
-            if (QueryResult_AutoPtr loginfail = LoginDatabase.PQuery("SELECT id, failed_logins FROM account WHERE username = '%s'", _safelogin.c_str()))
+            if (QueryResult loginfail = LoginDatabase.PQuery("SELECT id, failed_logins FROM account WHERE username = '%s'", _safelogin.c_str()))
             {
                 Field* fields = loginfail->Fetch();
                 uint32 failed_logins = fields[1].GetUInt32();
@@ -734,7 +732,7 @@ bool AuthSocket::_HandleReconnectChallenge()
     _login = (const char*)ch->I;
     _safelogin = _login;
 
-    QueryResult_AutoPtr result = LoginDatabase.PQuery ("SELECT sessionkey FROM account WHERE username = '%s'", _safelogin.c_str ());
+    QueryResult result = LoginDatabase.PQuery ("SELECT sessionkey FROM account WHERE username = '%s'", _safelogin.c_str ());
 
     // Stop if the account is not found
     if (!result)
@@ -813,7 +811,7 @@ bool AuthSocket::_HandleRealmList()
     ///- Get the user id (else close the connection)
     // No SQL injection (escaped user name)
 
-    QueryResult_AutoPtr result = LoginDatabase.PQuery("SELECT id FROM account WHERE username = '%s'",_safelogin.c_str());
+    QueryResult result = LoginDatabase.PQuery("SELECT id FROM account WHERE username = '%s'",_safelogin.c_str());
     if (!result)
     {
         sLog.outError("[ERROR] user %s tried to login and we cannot find him in the database.",_login.c_str());
