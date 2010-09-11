@@ -132,7 +132,7 @@ ChatCommand * ChatHandler::getCommandTable()
     static ChatCommand characterCommandTable[] =
     {
         { "customize",      SEC_GAMEMASTER,     true,  &ChatHandler::HandleCharacterCustomizeCommand,     "", NULL },
-        { "changefaction",  SEC_GAMEMASTER,     true,  &ChatHandler::HandleCharacterChangeFactionCommand, "", NULL }, 
+        { "changefaction",  SEC_GAMEMASTER,     true,  &ChatHandler::HandleCharacterChangeFactionCommand, "", NULL },
         { "changerace",     SEC_GAMEMASTER,     true,  &ChatHandler::HandleCharacterChangeRaceCommand,    "", NULL },
         { "deleted",        SEC_GAMEMASTER,     true,  NULL,                                              "", characterDeletedCommandTable},
         { "erase",          SEC_CONSOLE,        true,  &ChatHandler::HandleCharacterEraseCommand,         "", NULL },
@@ -663,7 +663,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
 
-    static ChatCommand ticketResponseCommandTable[] = 
+    static ChatCommand ticketResponseCommandTable[] =
     {
         { "append",         SEC_MODERATOR,      false, &ChatHandler::HandleGMTicketResponseAppendCommand,   "", NULL },
         { "appendln",       SEC_MODERATOR,      false, &ChatHandler::HandleGMTicketResponseAppendLnCommand, "", NULL },

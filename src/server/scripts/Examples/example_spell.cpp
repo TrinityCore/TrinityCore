@@ -229,7 +229,7 @@ class spell_ex_66244 : public SpellScriptLoader
                 */
             }
 
-            // function registering 
+            // function registering
             void Register()
             {
                 OnEffectApply += AuraEffectApplyFn(spell_ex_66244AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);

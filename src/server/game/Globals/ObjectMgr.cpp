@@ -124,7 +124,7 @@ std::string GetScriptCommandName(ScriptCommands command)
         case SCRIPT_COMMAND_MODEL: res = "SCRIPT_COMMAND_MODEL"; break;
         case SCRIPT_COMMAND_CLOSE_GOSSIP: res = "SCRIPT_COMMAND_CLOSE_GOSSIP"; break;
         case SCRIPT_COMMAND_PLAYMOVIE: res = "SCRIPT_COMMAND_PLAYMOVIE"; break;
-        default: 
+        default:
         {
             char sz[32];
             sprintf(sz, "Unknown command: %u", command);
@@ -6996,7 +6996,7 @@ void ObjectMgr::LoadReputationSpilloverTemplate()
 void ObjectMgr::LoadPointsOfInterest()
 {
     mPointsOfInterest.clear();                              // need for reload case
-    
+
     uint32 count = 0;
 
     //                                                0      1  2  3      4     5     6
@@ -7048,7 +7048,7 @@ void ObjectMgr::LoadPointsOfInterest()
 void ObjectMgr::LoadQuestPOI()
 {
     mQuestPOIMap.clear();                              // need for reload case
-    
+
     uint32 count = 0;
 
     // 0 1 2 3

@@ -198,7 +198,7 @@ bool MySQLConnection::Execute(PreparedStatement* stmt)
         ASSERT(m_mStmt);            // Can only be null if preparation failed, server side error or bad query
         m_mStmt->m_stmt = stmt;     // Cross reference them for debug output
         stmt->m_stmt = m_mStmt;     // TODO: Cleaner way
-        
+
         stmt->BindParameters();
 
         MYSQL_STMT* msql_STMT = m_mStmt->GetSTMT();

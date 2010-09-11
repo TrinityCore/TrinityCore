@@ -14,10 +14,10 @@ enum
     TYPE_LICH_KING              = 4,
     TYPE_ANUBARAK               = 5,
     MAX_ENCOUNTERS              = 6,
-    
+
     TYPE_COUNTER                = 8,
     TYPE_EVENT                  = 9,
-    
+
     TYPE_EVENT_TIMER            = 101,
     TYPE_EVENT_NPC              = 102,
     TYPE_NORTHREND_BEASTS       = 103,
@@ -45,7 +45,7 @@ const Position ToCCommonLoc[]=
     {563.833008f, 187.244995f, 394.5f, 0},      //  2 Backdoor
     {577.347839f, 195.338888f, 395.14f, 0},     //  3 - Right
     {550.955933f, 195.338888f, 395.14f, 0},     //  4 - Left
-    {563.833008f, 195.244995f, 394.585561f, 0}, //  5 - Center    
+    {563.833008f, 195.244995f, 394.585561f, 0}, //  5 - Center
     {573.5f, 180.5f, 395.14f, 0},               //  6 Move 0 Right
     {553.5f, 180.5f, 395.14f, 0},               //  7 Move 0 Left
     {585.5f, 170.0f, 395.14f, 0},               //  8 Move 1 Right

@@ -165,7 +165,7 @@ class ResultBind
                     return 64;
 
                 case MYSQL_TYPE_GEOMETRY:
-                /* 
+                /*
                 Following types are not sent over the wire:
                 MYSQL_TYPE_ENUM:
                 MYSQL_TYPE_SET:
@@ -212,10 +212,10 @@ class PreparedResultSet
 
     private:
         bool CheckFieldIndex(uint32 index)  const
-        {   
+        {
             if (!rbind->IsValidIndex(index))
                 return false;
-        
+
             if (rbind->m_isNull[index])
                 return false;
 

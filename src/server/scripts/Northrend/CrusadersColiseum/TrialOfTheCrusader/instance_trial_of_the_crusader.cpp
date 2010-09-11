@@ -97,7 +97,7 @@ public:
             m_uiMainGateDoorGUID = 0;
             m_uiEastPortcullisGUID = 0;
             m_uiWebDoorGUID = 0;
-        
+
             m_uiNorthrendBeasts = NOT_STARTED;
 
             m_uiEventTimer = 1000;
@@ -185,19 +185,19 @@ public:
             {
                 case GO_CRUSADERS_CACHE_10:
                     if (instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_NORMAL)
-                        m_uiCrusadersCacheGUID = pGO->GetGUID(); 
+                        m_uiCrusadersCacheGUID = pGO->GetGUID();
                     break;
                 case GO_CRUSADERS_CACHE_25:
                     if (instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_NORMAL)
-                        m_uiCrusadersCacheGUID = pGO->GetGUID(); 
+                        m_uiCrusadersCacheGUID = pGO->GetGUID();
                     break;
                 case GO_CRUSADERS_CACHE_10_H:
                     if (instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_HEROIC)
-                        m_uiCrusadersCacheGUID = pGO->GetGUID(); 
+                        m_uiCrusadersCacheGUID = pGO->GetGUID();
                     break;
                 case GO_CRUSADERS_CACHE_25_H:
                     if (instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_HEROIC)
-                        m_uiCrusadersCacheGUID = pGO->GetGUID(); 
+                        m_uiCrusadersCacheGUID = pGO->GetGUID();
                     break;
                 case GO_ARGENT_COLISEUM_FLOOR: m_uiFloorGUID = pGO->GetGUID(); break;
                 case GO_MAIN_GATE_DOOR:   m_uiMainGateDoorGUID = pGO->GetGUID(); break;
@@ -223,7 +223,7 @@ public:
                 case TYPE_JARAXXUS:
                     if (uiData == DONE) m_uiEvent = 2000;
                     break;
-                case TYPE_CRUSADERS: 
+                case TYPE_CRUSADERS:
                     switch (uiData)
                     {
                         case IN_PROGRESS: m_uiResilienceWillFixItTimer = 0; break;
@@ -242,7 +242,7 @@ public:
                             break;
                     }
                     break;
-                case TYPE_VALKIRIES: 
+                case TYPE_VALKIRIES:
                     switch (uiData)
                     {
                         case FAIL:
@@ -303,8 +303,8 @@ public:
                 case TYPE_COUNTER:   m_uiTrialCounter = uiData; uiData = DONE; break;
                 case TYPE_EVENT:     m_uiEvent = uiData; uiData = NOT_STARTED; break;
                 case TYPE_EVENT_TIMER:      m_uiEventTimer = uiData; uiData = NOT_STARTED; break;
-                case TYPE_NORTHREND_BEASTS: 
-                    m_uiNorthrendBeasts = uiData; 
+                case TYPE_NORTHREND_BEASTS:
+                    m_uiNorthrendBeasts = uiData;
                     switch (uiData)
                     {
                         case GORMOK_DONE:
@@ -314,7 +314,7 @@ public:
                             break;
                         case SNAKES_IN_PROGRESS: m_uiNotOneButTwoJormungarsTimer = 0; break;
                         case SNAKES_SPECIAL: m_uiNotOneButTwoJormungarsTimer = 10*IN_MILLISECONDS; break;
-                        case SNAKES_DONE: 
+                        case SNAKES_DONE:
                             if (m_uiNotOneButTwoJormungarsTimer > 0)
                                 DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_WORMS_KILLED_IN_10_SECONDS);
                             m_uiEvent = 300;
@@ -363,9 +363,9 @@ public:
             {
                 sLog.outBasic("[ToCr] m_auiEncounter[uiType %u] %u = uiData %u;",uiType,m_auiEncounter[uiType],uiData);
                 if (uiData == FAIL)
-                { 
-                    if (IsRaidWiped()) 
-                    { 
+                {
+                    if (IsRaidWiped())
+                    {
                         --m_uiTrialCounter;
                         m_bNeedSave = true;
                         m_uiEvent = (uiType == TYPE_BEASTS? 666 : 0);
@@ -425,8 +425,8 @@ public:
                 case TYPE_EVENT:     return m_uiEvent;
                 case TYPE_NORTHREND_BEASTS:    return m_uiNorthrendBeasts;
                 case TYPE_EVENT_TIMER:  return m_uiEventTimer;
-                case TYPE_EVENT_NPC: 
-                    switch (m_uiEvent) 
+                case TYPE_EVENT_NPC:
+                    switch (m_uiEvent)
                     {
                         case 110:
                         case 140:

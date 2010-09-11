@@ -2251,7 +2251,7 @@ class Player : public Unit, public GridObject<Player>
         void RemoveAtLoginFlag(AtLoginFlags f, bool in_db_also = false);
 
         // Dungeon Finder
-        bool isLfgDungeonDone(const uint32 entry) { return m_LookingForGroup.donerandomDungeons.find(entry) != m_LookingForGroup.donerandomDungeons.end(); }  
+        bool isLfgDungeonDone(const uint32 entry) { return m_LookingForGroup.donerandomDungeons.find(entry) != m_LookingForGroup.donerandomDungeons.end(); }
         LfgDungeonSet *GetLfgDungeons() { return &m_LookingForGroup.applyDungeons; }
         LfgDungeonSet *GetLfgDungeonsDone() { return &m_LookingForGroup.donerandomDungeons; }
         void SetLfgDungeonDone(const uint32 entry) { m_LookingForGroup.donerandomDungeons.insert(entry); }

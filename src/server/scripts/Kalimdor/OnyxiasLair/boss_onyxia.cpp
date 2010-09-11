@@ -275,7 +275,7 @@ public:
                             me->GetMotionMaster()->MovePoint(m_pPointData->uiLocId, m_pPointData->fX, m_pPointData->fY, m_pPointData->fZ);
                         me->GetMotionMaster()->Clear(false);
                         me->GetMotionMaster()->MoveIdle();
-    
+
                         break;
 
                     default:

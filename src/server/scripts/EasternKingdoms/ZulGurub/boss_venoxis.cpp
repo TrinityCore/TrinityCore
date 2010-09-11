@@ -192,7 +192,7 @@ class boss_venoxis : public CreatureScript
                     }
                     DoMeleeAttackIfReady();
             }
-        };        
+        };
 
         CreatureAI* GetAI(Creature* creature) const
         {

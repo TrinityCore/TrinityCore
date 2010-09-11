@@ -115,7 +115,7 @@ public:
         uint32 m_uiSummonNetherPortalTimer;
         uint32 m_uiSummonInfernalEruptionTimer;
 
-        void Reset() 
+        void Reset()
         {
             if (m_pInstance)
                 m_pInstance->SetData(TYPE_JARAXXUS, NOT_STARTED);
@@ -341,7 +341,7 @@ public:
             {
                 if (m_CountMax && m_CountMax == m_Count)
                     me->ForcedDespawn();
-                else 
+                else
                 {
                     DoCast(SPELL_INFERNAL_ERUPTION);
                     ++m_Count;
@@ -403,7 +403,7 @@ public:
                     DoCast(pTarget,SPELL_FEL_STREAK);
                 m_uiFelStreakTimer = 30*IN_MILLISECONDS;
             } else m_uiFelStreakTimer -= uiDiff;
-        
+
             DoMeleeAttackIfReady();
         }
     };
@@ -441,7 +441,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
             m_Timer = 10*IN_MILLISECONDS;
             m_Count = 0;
-            if (!IsHeroic()) 
+            if (!IsHeroic())
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
                 m_CountMax = 1;
@@ -466,14 +466,14 @@ public:
             {
                 if (m_CountMax && m_CountMax == m_Count)
                     me->ForcedDespawn();
-                else 
+                else
                 {
                     DoCast(SPELL_NETHER_PORTAL);
                     ++m_Count;
                 }
                 m_Timer = 15*IN_MILLISECONDS;
             } else m_Timer -= uiDiff;
-        
+
             if (!UpdateVictim())
                 return;
         }

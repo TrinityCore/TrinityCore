@@ -86,7 +86,7 @@ void RealmList::UpdateRealms(bool init)
     {
         do
         {
-            uint32 realmId = result->GetUInt32(0); 
+            uint32 realmId = result->GetUInt32(0);
             const std::string& name = result->GetString(1);
             const std::string& address = result->GetString(2);
             uint32 port = result->GetUInt32(3);
@@ -96,7 +96,7 @@ void RealmList::UpdateRealms(bool init)
             uint8 allowedSecurityLevel = result->GetUInt8(7);
             float pop = result->GetFloat(8);
             uint32 build = result->GetUInt32(9);
-                        
+
             UpdateRealm(realmId, name, address, port, icon, color, timezone, (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop, build);
 
             if (init)

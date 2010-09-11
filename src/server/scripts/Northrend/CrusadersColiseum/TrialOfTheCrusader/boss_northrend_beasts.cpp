@@ -15,7 +15,7 @@
  */
 /* ScriptData
 SDName: northrend_beasts
-SD%Complete: 90% 
+SD%Complete: 90%
 SDComment: based on /dev/rsa
 SDCategory:
 EndScriptData */
@@ -131,16 +131,16 @@ public:
         uint32 m_uiSummonTimer;
         uint32 m_uiSummonCount;
 
-        void Reset() 
+        void Reset()
         {
             m_uiImpaleTimer = urand(8*IN_MILLISECONDS,10*IN_MILLISECONDS);
             m_uiStaggeringStompTimer = 15*IN_MILLISECONDS;
             m_uiSummonTimer = urand(15*IN_MILLISECONDS,30*IN_MILLISECONDS);;
 
-            if (getDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL || 
+            if (getDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL ||
                 getDifficulty() == RAID_DIFFICULTY_25MAN_HEROIC)
                 m_uiSummonCount = 5;
-            else 
+            else
                 m_uiSummonCount = 4;
 
             Summons.DespawnAll();
@@ -180,7 +180,7 @@ public:
             Summons.Summon(pSummoned);
         }
 
-        void SummonedCreatureDespawn(Creature* pSummoned) 
+        void SummonedCreatureDespawn(Creature* pSummoned)
         {
             switch(pSummoned->GetEntry())
             {
@@ -216,7 +216,7 @@ public:
                 }
                 m_uiSummonTimer = urand(15*IN_MILLISECONDS,30*IN_MILLISECONDS);
             } else m_uiSummonTimer -= uiDiff;
-        
+
             DoMeleeAttackIfReady();
         }
     };
@@ -332,7 +332,7 @@ public:
                 m_uiFireBombTimer = 20000;
             }
             else m_uiFireBombTimer -= uiDiff;
-            
+
             if (m_uiBatterTimer < uiDiff)
             {
                 if (Unit *pTarget = Unit::GetPlayer(*me,m_uiTargetGUID))
@@ -340,7 +340,7 @@ public:
                 m_uiBatterTimer = 10000;
             }
             else m_uiBatterTimer -= uiDiff;
-        
+
             if (m_uiHeadCrackTimer < uiDiff)
             {
                 if (Unit *pTarget = Unit::GetPlayer(*me,m_uiTargetGUID))
@@ -348,7 +348,7 @@ public:
                 m_uiHeadCrackTimer = 35000;
             }
             else m_uiHeadCrackTimer -= uiDiff;
-        
+
             DoMeleeAttackIfReady();
         }
     };
@@ -404,7 +404,7 @@ struct boss_jormungarAI : public ScriptedAI
             {
                 if (!pSister->isAlive())
                     m_pInstance->SetData(TYPE_NORTHREND_BEASTS, SNAKES_DONE);
-                else 
+                else
                     m_pInstance->SetData(TYPE_NORTHREND_BEASTS, SNAKES_SPECIAL);
             }
         }
@@ -447,8 +447,8 @@ struct boss_jormungarAI : public ScriptedAI
             DoScriptText(SAY_BERSERK,me);
             switch (m_uiStage)
             {
-                case 0: break;    
-                case 4: 
+                case 0: break;
+                case 4:
                     m_uiStage = 5;
                     m_uiSubmergeTimer = 5*IN_MILLISECONDS;
                 default:
@@ -456,7 +456,7 @@ struct boss_jormungarAI : public ScriptedAI
             }
         }
 
-        switch (m_uiStage) 
+        switch (m_uiStage)
         {
             case 0: // Mobile
                 if (m_uiBiteTimer <= uiDiff)
@@ -693,7 +693,7 @@ public:
         uint8  m_uiStage;
         Unit*  pTarget;
 
-        void Reset() 
+        void Reset()
         {
             m_uiFerociousButtTimer = urand(15*IN_MILLISECONDS,30*IN_MILLISECONDS);
             m_uiArticBreathTimer = urand(25*IN_MILLISECONDS,40*IN_MILLISECONDS);
@@ -727,7 +727,7 @@ public:
                     {
                         // Middle of the room
                         m_uiStage = 1;
-                    } 
+                    }
                     else
                     {
                         // Landed from Hop backwards (start trample)
@@ -783,7 +783,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            switch (m_uiStage) 
+            switch (m_uiStage)
             {
                 case 0:
                     if (m_uiFerociousButtTimer <= uiDiff)
@@ -798,13 +798,13 @@ public:
                             DoCast(pTarget,SPELL_ARCTIC_BREATH);
                         m_uiArticBreathTimer = urand(25*IN_MILLISECONDS,40*IN_MILLISECONDS);
                     } else m_uiArticBreathTimer -= uiDiff;
-                
+
                     if (m_uiWhirlTimer <= uiDiff)
                     {
                         DoCastAOE(SPELL_WHIRL);
                         m_uiWhirlTimer = urand(15*IN_MILLISECONDS,30*IN_MILLISECONDS);
                     } else m_uiWhirlTimer -= uiDiff;
-                
+
                     if (m_uiMassiveCrashTimer <= uiDiff)
                     {
                         me->GetMotionMaster()->MoveJump(ToCCommonLoc[1].GetPositionX(),ToCCommonLoc[1].GetPositionY(),ToCCommonLoc[1].GetPositionZ(),10.0f,20.0f); // 1: Middle of the room
@@ -850,13 +850,13 @@ public:
                         } else m_uiStage = 6;
                     } else m_uiTrampleTimer -= uiDiff;
                     break;
-                case 4: 
+                case 4:
                     DoScriptText(SAY_TRAMPLE_START,me);
                     me->GetMotionMaster()->MoveCharge(m_fTrampleTargetX,m_fTrampleTargetY,m_fTrampleTargetZ+2, 42, 1);
                     me->SetUInt64Value(UNIT_FIELD_TARGET, 0);
                     m_uiStage = 5;
                     break;
-                case 5: 
+                case 5:
                     if (m_bMovementFinish)
                     {
                         if (m_uiTrampleTimer <= uiDiff) DoCastAOE(SPELL_TRAMPLE);
@@ -869,14 +869,14 @@ public:
                         Map::PlayerList const &lPlayers = me->GetMap()->GetPlayers();
                         for (Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
                         {
-                            if (Unit* pPlayer = itr->getSource()) 
-                                if (pPlayer->isAlive() && pPlayer->IsWithinDistInMap(me, 6.0f)) 
+                            if (Unit* pPlayer = itr->getSource())
+                                if (pPlayer->isAlive() && pPlayer->IsWithinDistInMap(me, 6.0f))
                                 {
                                     DoCastAOE(SPELL_TRAMPLE);
                                     m_uiTrampleTimer = IN_MILLISECONDS;
                                     break;
                                 }
-                        } 
+                        }
                     } else m_uiTrampleTimer -= uiDiff;
                     break;
                 case 6:

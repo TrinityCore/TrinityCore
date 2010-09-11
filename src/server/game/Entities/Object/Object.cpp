@@ -1215,7 +1215,7 @@ void MovementInfo::OutDebug()
     }
 }
 
-WorldObject::WorldObject(): WorldLocation(), 
+WorldObject::WorldObject(): WorldLocation(),
 m_isWorldObject(false), m_name(""), m_isActive(false), m_zoneScript(NULL),
 m_transport(NULL), m_currMap(NULL), m_InstanceId(0),
 m_phaseMask(PHASEMASK_NORMAL), m_notifyflags(0), m_executed_notifies(0)
@@ -1436,7 +1436,7 @@ bool WorldObject::IsInRange3d(float x, float y, float z, float minRange, float m
     return distsq < maxdist * maxdist;
 }
 
-void Position::RelocateOffset(const Position & offset) 
+void Position::RelocateOffset(const Position & offset)
 {
     m_positionX = GetPositionX() + (offset.GetPositionX() * cos(GetOrientation()) + offset.GetPositionY() * sin(GetOrientation() + M_PI));
     m_positionY = GetPositionY() + (offset.GetPositionY() * cos(GetOrientation()) + offset.GetPositionX() * sin(GetOrientation()));
