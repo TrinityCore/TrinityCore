@@ -32,11 +32,11 @@
 #endif
 #include <mysql.h>
 
-class QueryResult
+class ResultSet
 {
     public:
-        QueryResult(MYSQL_RES *result, MYSQL_FIELD *fields, uint64 rowCount, uint32 fieldCount);
-        ~QueryResult();
+        ResultSet(MYSQL_RES *result, MYSQL_FIELD *fields, uint64 rowCount, uint32 fieldCount);
+        ~ResultSet();
 
         bool NextRow();
 
@@ -59,17 +59,17 @@ class QueryResult
 
 };
 
-typedef ACE_Refcounted_Auto_Ptr<QueryResult, ACE_Null_Mutex> QueryResult_AutoPtr;
+typedef ACE_Refcounted_Auto_Ptr<ResultSet, ACE_Null_Mutex> QueryResult;
 
 typedef std::vector<std::string> QueryFieldNames;
 
 class QueryNamedResult
 {
     public:
-        explicit QueryNamedResult(QueryResult* query, QueryFieldNames const& names) : mQuery(query), mFieldNames(names) {}
+        explicit QueryNamedResult(ResultSet* query, QueryFieldNames const& names) : mQuery(query), mFieldNames(names) {}
         ~QueryNamedResult() { delete mQuery; }
 
-        // compatible interface with QueryResult
+        // compatible interface with ResultSet
         bool NextRow() { return mQuery->NextRow(); }
         Field *Fetch() const { return mQuery->Fetch(); }
         uint32 GetFieldCount() const { return mQuery->GetFieldCount(); }
@@ -92,7 +92,7 @@ class QueryNamedResult
         }
 
     protected:
-        QueryResult *mQuery;
+        ResultSet *mQuery;
         QueryFieldNames mFieldNames;
 };
 
@@ -205,22 +205,7 @@ class PreparedResultSet
         float GetFloat(uint32 index);
         std::string GetString(uint32 index);
 
-        bool NextRow()
-        {
-            if (row_position >= num_rows)
-                return false;
-
-            int retval = mysql_stmt_fetch( rbind->m_stmt );
-                
-            if (!retval || retval == MYSQL_DATA_TRUNCATED)
-                retval = true;
-
-            if (retval == MYSQL_NO_DATA)
-                retval = false;
-
-            ++row_position;
-            return retval;
-        }
+        bool NextRow();
 
     private:
         bool CheckFieldIndex(uint32 index)  const
@@ -238,6 +223,8 @@ class PreparedResultSet
         uint32 row_position;
         uint32 num_rows;
 };
+
+typedef ACE_Refcounted_Auto_Ptr<PreparedResultSet*, ACE_Null_Mutex> PreparedQueryResult;
 
 #endif
 

@@ -81,7 +81,7 @@ void WeatherMgr::LoadWeatherData()
     uint32 count = 0;
 
     //                                                0     1                   2                   3                    4                   5                   6                    7                 8                 9                  10                  11                  12                                13
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT zone, spring_rain_chance, spring_snow_chance, spring_storm_chance, summer_rain_chance, summer_snow_chance, summer_storm_chance, fall_rain_chance, fall_snow_chance, fall_storm_chance, winter_rain_chance, winter_snow_chance, winter_storm_chance, ScriptName FROM game_weather");
+    QueryResult result = WorldDatabase.Query("SELECT zone, spring_rain_chance, spring_snow_chance, spring_storm_chance, summer_rain_chance, summer_snow_chance, summer_storm_chance, fall_rain_chance, fall_snow_chance, fall_storm_chance, winter_rain_chance, winter_snow_chance, winter_storm_chance, ScriptName FROM game_weather");
 
     if (!result)
     {

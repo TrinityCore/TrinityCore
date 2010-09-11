@@ -185,7 +185,7 @@ bool ChatHandler::HandleAccountDeleteCommand(const char* args)
  */
 bool ChatHandler::GetDeletedCharacterInfoList(DeletedInfoList& foundList, std::string searchString)
 {
-    QueryResult_AutoPtr resultChar;
+    QueryResult resultChar;
     if (!searchString.empty())
     {
         // search by GUID
@@ -546,7 +546,7 @@ bool ChatHandler::HandleServerExitCommand(const char* /*args*/)
 bool ChatHandler::HandleAccountOnlineListCommand(const char* /*args*/)
 {
     ///- Get the list of accounts ID logged to the realm
-    QueryResult_AutoPtr resultDB = CharacterDatabase.Query("SELECT name,account,map,zone FROM characters WHERE online > 0");
+    QueryResult resultDB = CharacterDatabase.Query("SELECT name,account,map,zone FROM characters WHERE online > 0");
     if (!resultDB)
     {
         SendSysMessage(LANG_ACCOUNT_LIST_EMPTY);
@@ -567,7 +567,7 @@ bool ChatHandler::HandleAccountOnlineListCommand(const char* /*args*/)
 
         ///- Get the username, last IP and GM level of each account
         // No SQL injection. account is uint32.
-        QueryResult_AutoPtr resultLogin =
+        QueryResult resultLogin =
             LoginDatabase.PQuery("SELECT a.username, a.last_ip, aa.gmlevel, a.expansion "
                                  "FROM account a "
                                  "LEFT JOIN account_access aa "

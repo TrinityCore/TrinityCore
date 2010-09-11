@@ -32,7 +32,7 @@ void CharacterDatabaseCleaner::CleanDatabase()
     sLog.outString("Cleaning character database...");
 
     // check flags which clean ups are necessary
-    QueryResult_AutoPtr result = CharacterDatabase.Query("SELECT value FROM worldstates WHERE entry=20004");
+    QueryResult result = CharacterDatabase.Query("SELECT value FROM worldstates WHERE entry=20004");
     if(!result)
         return;
     uint32 flags = (*result)[0].GetUInt32();
@@ -52,7 +52,7 @@ void CharacterDatabaseCleaner::CleanDatabase()
 void CharacterDatabaseCleaner::CheckUnique(const char* column, const
 char* table, bool (*check)(uint32))
 {
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT DISTINCT %s FROM %s", column, table);
+    QueryResult result = CharacterDatabase.PQuery("SELECT DISTINCT %s FROM %s", column, table);
     if(!result)
     {
         sLog.outString( "Table %s is empty.", table );

@@ -132,7 +132,7 @@ bool ArenaTeam::AddMember(const uint64& PlayerGuid)
     else
     {
         //                                                     0     1
-        QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT name, class FROM characters WHERE guid='%u'", GUID_LOPART(PlayerGuid));
+        QueryResult result = CharacterDatabase.PQuery("SELECT name, class FROM characters WHERE guid='%u'", GUID_LOPART(PlayerGuid));
         if (!result)
             return false;
 
@@ -161,7 +161,7 @@ bool ArenaTeam::AddMember(const uint64& PlayerGuid)
                 plPRating = 1000;
     }
 
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT matchmaker_rating FROM character_arena_stats WHERE guid='%u' AND slot='%u'", GUID_LOPART(PlayerGuid), GetSlot());
+    QueryResult result = CharacterDatabase.PQuery("SELECT matchmaker_rating FROM character_arena_stats WHERE guid='%u' AND slot='%u'", GUID_LOPART(PlayerGuid), GetSlot());
     if (result)
         plMMRating = (*result)[0].GetUInt32();
 
@@ -197,7 +197,7 @@ bool ArenaTeam::AddMember(const uint64& PlayerGuid)
     return true;
 }
 
-bool ArenaTeam::LoadArenaTeamFromDB(QueryResult_AutoPtr arenaTeamDataResult)
+bool ArenaTeam::LoadArenaTeamFromDB(QueryResult arenaTeamDataResult)
 {
     if (!arenaTeamDataResult)
         return false;
@@ -224,7 +224,7 @@ bool ArenaTeam::LoadArenaTeamFromDB(QueryResult_AutoPtr arenaTeamDataResult)
     return true;
 }
 
-bool ArenaTeam::LoadMembersFromDB(QueryResult_AutoPtr arenaTeamMembersResult)
+bool ArenaTeam::LoadMembersFromDB(QueryResult arenaTeamMembersResult)
 {
     if (!arenaTeamMembersResult)
         return false;
@@ -252,7 +252,7 @@ bool ArenaTeam::LoadMembersFromDB(QueryResult_AutoPtr arenaTeamMembersResult)
 
         uint32 player_guid = fields[1].GetUInt32();
 
-        QueryResult_AutoPtr result = CharacterDatabase.PQuery(
+        QueryResult result = CharacterDatabase.PQuery(
             "SELECT personal_rating, matchmaker_rating FROM character_arena_stats WHERE guid = '%u' AND slot = '%u'", player_guid, GetSlot());
 
         uint32 personalrating = 0;

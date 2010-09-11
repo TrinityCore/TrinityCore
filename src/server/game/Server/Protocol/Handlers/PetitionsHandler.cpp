@@ -207,7 +207,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
     // a petition is invalid, if both the owner and the type matches
     // we checked above, if this player is in an arenateam, so this must be
     // datacorruption
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT petitionguid FROM petition WHERE ownerguid = '%u'  AND type = '%u'", _player->GetGUIDLow(), type);
+    QueryResult result = CharacterDatabase.PQuery("SELECT petitionguid FROM petition WHERE ownerguid = '%u'  AND type = '%u'", _player->GetGUIDLow(), type);
 
     std::ostringstream ssInvalidPetitionGUIDs;
 
@@ -246,7 +246,7 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket & recv_data)
     // solve (possible) some strange compile problems with explicit use GUID_LOPART(petitionguid) at some GCC versions (wrong code optimization in compiler?)
     uint32 petitionguid_low = GUID_LOPART(petitionguid);
 
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT type FROM petition WHERE petitionguid = '%u'", petitionguid_low);
+    QueryResult result = CharacterDatabase.PQuery("SELECT type FROM petition WHERE petitionguid = '%u'", petitionguid_low);
     if (!result)
     {
         sLog.outError("Petition %u is not found for player %u %s", GUID_LOPART(petitionguid), GetPlayer()->GetGUIDLow(), GetPlayer()->GetName());
@@ -307,7 +307,7 @@ void WorldSession::SendPetitionQueryOpcode(uint64 petitionguid)
     std::string name = "NO_NAME_FOR_GUID";
     uint8 signs = 0;
 
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery(
+    QueryResult result = CharacterDatabase.PQuery(
         "SELECT ownerguid, name, "
         "  (SELECT COUNT(playerguid) FROM petition_sign WHERE petition_sign.petitionguid = '%u') AS signs, "
         "  type "
@@ -382,7 +382,7 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recv_data)
     if (!item)
         return;
 
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT type FROM petition WHERE petitionguid = '%u'", GUID_LOPART(petitionguid));
+    QueryResult result = CharacterDatabase.PQuery("SELECT type FROM petition WHERE petitionguid = '%u'", GUID_LOPART(petitionguid));
 
     if (result)
     {
@@ -445,7 +445,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
     recv_data >> petitionguid;                              // petition guid
     recv_data >> unk;
 
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery(
+    QueryResult result = CharacterDatabase.PQuery(
         "SELECT ownerguid, "
         "  (SELECT COUNT(playerguid) FROM petition_sign WHERE petition_sign.petitionguid = '%u') AS signs, "
         "  type "
@@ -569,7 +569,7 @@ void WorldSession::HandlePetitionDeclineOpcode(WorldPacket & recv_data)
     recv_data >> petitionguid;                              // petition guid
     sLog.outDebug("Petition %u declined by %u", GUID_LOPART(petitionguid), _player->GetGUIDLow());
 
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT ownerguid FROM petition WHERE petitionguid = '%u'", GUID_LOPART(petitionguid));
+    QueryResult result = CharacterDatabase.PQuery("SELECT ownerguid FROM petition WHERE petitionguid = '%u'", GUID_LOPART(petitionguid));
     if (!result)
         return;
 
@@ -602,7 +602,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recv_data)
     if (!player)
         return;
 
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT type FROM petition WHERE petitionguid = '%u'", GUID_LOPART(petitionguid));
+    QueryResult result = CharacterDatabase.PQuery("SELECT type FROM petition WHERE petitionguid = '%u'", GUID_LOPART(petitionguid));
     if (!result)
         return;
 
@@ -703,7 +703,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
     sLog.outDebug("Petition %u turned in by %u", GUID_LOPART(petitionguid), _player->GetGUIDLow());
 
     // data
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT ownerguid, name, type FROM petition WHERE petitionguid = '%u'", GUID_LOPART(petitionguid));
+    QueryResult result = CharacterDatabase.PQuery("SELECT ownerguid, name, type FROM petition WHERE petitionguid = '%u'", GUID_LOPART(petitionguid));
     if (result)
     {
         Field *fields = result->Fetch();

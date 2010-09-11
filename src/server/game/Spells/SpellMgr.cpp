@@ -1120,7 +1120,7 @@ void SpellMgr::LoadSpellTargetPositions()
     uint32 count = 0;
 
     //                                                0   1           2                  3                  4                  5
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT id, target_map, target_position_x, target_position_y, target_position_z, target_orientation FROM spell_target_position");
+    QueryResult result = WorldDatabase.Query("SELECT id, target_map, target_position_x, target_position_y, target_position_z, target_orientation FROM spell_target_position");
     if (!result)
     {
 
@@ -1265,7 +1265,7 @@ void SpellMgr::LoadSpellProcEvents()
     uint32 count = 0;
 
     //                                                0      1           2                3                 4                 5                 6          7       8        9             10
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT entry, SchoolMask, SpellFamilyName, SpellFamilyMask0, SpellFamilyMask1, SpellFamilyMask2, procFlags, procEx, ppmRate, CustomChance, Cooldown FROM spell_proc_event");
+    QueryResult result = WorldDatabase.Query("SELECT entry, SchoolMask, SpellFamilyName, SpellFamilyMask0, SpellFamilyMask1, SpellFamilyMask2, procFlags, procEx, ppmRate, CustomChance, Cooldown FROM spell_proc_event");
     if (!result)
     {
         barGoLink bar(1);
@@ -1331,7 +1331,7 @@ void SpellMgr::LoadSpellBonusess()
     mSpellBonusMap.clear();                             // need for reload case
     uint32 count = 0;
     //                                                0      1             2          3         4
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT entry, direct_bonus, dot_bonus, ap_bonus, ap_dot_bonus FROM spell_bonus_data");
+    QueryResult result = WorldDatabase.Query("SELECT entry, direct_bonus, dot_bonus, ap_bonus, ap_dot_bonus FROM spell_bonus_data");
     if (!result)
     {
         barGoLink bar(1);
@@ -1507,7 +1507,7 @@ void SpellMgr::LoadSpellGroups()
     uint32 count = 0;
 
     //                                                       0   1
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT id, spell_id FROM spell_group");
+    QueryResult result = WorldDatabase.Query("SELECT id, spell_id FROM spell_group");
     if (!result)
     {
 
@@ -1597,7 +1597,7 @@ void SpellMgr::LoadSpellGroupStackRules()
     uint32 count = 0;
 
     //                                                       0         1
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT group_id, stack_rule FROM spell_group_stack_rules");
+    QueryResult result = WorldDatabase.Query("SELECT group_id, stack_rule FROM spell_group_stack_rules");
     if (!result)
     {
 
@@ -1650,7 +1650,7 @@ void SpellMgr::LoadSpellThreats()
     uint32 count = 0;
 
     //                                                0      1
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT entry, Threat FROM spell_threat");
+    QueryResult result = WorldDatabase.Query("SELECT entry, Threat FROM spell_threat");
     if (!result)
     {
 
@@ -2004,7 +2004,7 @@ void SpellMgr::LoadSpellLearnSpells()
     mSpellLearnSpells.clear();                              // need for reload case
 
     //                                                  0      1        2
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT entry, SpellID, Active FROM spell_learn_spell");
+    QueryResult result = WorldDatabase.Query("SELECT entry, SpellID, Active FROM spell_learn_spell");
     if (!result)
     {
         barGoLink bar(1);
@@ -2114,7 +2114,7 @@ void SpellMgr::LoadSpellPetAuras()
     uint32 count = 0;
 
     //                                                  0       1       2    3
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT spell, effectId, pet, aura FROM spell_pet_auras");
+    QueryResult result = WorldDatabase.Query("SELECT spell, effectId, pet, aura FROM spell_pet_auras");
     if (!result)
     {
         barGoLink bar(1);
@@ -2469,7 +2469,7 @@ void SpellMgr::LoadSpellAreas()
     uint32 count = 0;
 
     //                                                  0     1         2              3               4           5          6        7       8
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT spell, area, quest_start, quest_start_active, quest_end, aura_spell, racemask, gender, autocast FROM spell_area");
+    QueryResult result = WorldDatabase.Query("SELECT spell, area, quest_start, quest_start_active, quest_end, aura_spell, racemask, gender, autocast FROM spell_area");
 
     if (!result)
     {
@@ -3238,7 +3238,7 @@ void SpellMgr::LoadSpellEnchantProcData()
     uint32 count = 0;
 
     //                                                  0         1           2         3
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT entry, customChance, PPMChance, procEx FROM spell_enchant_proc_data");
+    QueryResult result = WorldDatabase.Query("SELECT entry, customChance, PPMChance, procEx FROM spell_enchant_proc_data");
     if (!result)
     {
         barGoLink bar(1);
@@ -3286,7 +3286,7 @@ void SpellMgr::LoadSpellRequired()
     mSpellsReqSpell.clear();                                   // need for reload case
     mSpellReq.clear();                                         // need for reload case
 
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT spell_id, req_spell from spell_required");
+    QueryResult result = WorldDatabase.Query("SELECT spell_id, req_spell from spell_required");
 
     if (!result)
     {
@@ -3345,7 +3345,7 @@ void SpellMgr::LoadSpellRanks()
 {
     mSpellChains.clear();                                   // need for reload case
 
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT first_spell_id, spell_id, rank from spell_ranks ORDER BY first_spell_id , rank");
+    QueryResult result = WorldDatabase.Query("SELECT first_spell_id, spell_id, rank from spell_ranks ORDER BY first_spell_id , rank");
 
     if (!result)
     {
@@ -3978,7 +3978,7 @@ void SpellMgr::LoadSpellLinked()
     uint32 count = 0;
 
     //                                                0              1             2
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT spell_trigger, spell_effect, type FROM spell_linked_spell");
+    QueryResult result = WorldDatabase.Query("SELECT spell_trigger, spell_effect, type FROM spell_linked_spell");
     if (!result)
     {
         barGoLink bar(1);
