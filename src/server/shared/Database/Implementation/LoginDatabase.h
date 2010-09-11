@@ -43,8 +43,10 @@ enum LoginDatabaseStatements
         name for a suiting suffix.
     */
 
+    LOGIN_GET_REALMLIST,
     LOGIN_SET_VS,
     LOGIN_SET_LOGONPROOF,
+    LOGIN_GET_LOGONCHALLENGE,
     MAX_LOGINDATABASE_STATEMENTS,
 };
 

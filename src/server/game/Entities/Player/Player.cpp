@@ -1587,7 +1587,7 @@ void Player::setDeathState(DeathState s)
     }
 }
 
-bool Player::BuildEnumData(QueryResult_AutoPtr result, WorldPacket * p_data)
+bool Player::BuildEnumData(QueryResult result, WorldPacket * p_data)
 {
     //             0               1                2                3                 4                  5                       6                        7
     //    "SELECT characters.guid, characters.name, characters.race, characters.class, characters.gender, characters.playerBytes, characters.playerBytes2, characters.level, "
@@ -3919,7 +3919,7 @@ void Player::RemoveAllSpellCooldown()
     }
 }
 
-void Player::_LoadSpellCooldowns(QueryResult_AutoPtr result)
+void Player::_LoadSpellCooldowns(QueryResult result)
 {
     // some cooldowns can be already set at aura loading...
 
@@ -4436,7 +4436,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
     LeaveAllArenaTeams(playerguid);
 
     // the player was uninvited already on logout so just remove from group
-    QueryResult_AutoPtr resultGroup = CharacterDatabase.PQuery("SELECT guid FROM group_member WHERE memberGuid=%u", guid);
+    QueryResult resultGroup = CharacterDatabase.PQuery("SELECT guid FROM group_member WHERE memberGuid=%u", guid);
     if (resultGroup)
         if (Group* group = sObjectMgr.GetGroupByGUID((*resultGroup)[0].GetUInt32()))
             RemoveFromGroup(group, playerguid);
@@ -4451,7 +4451,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
         {
             SQLTransaction trans = CharacterDatabase.BeginTransaction();
             // Return back all mails with COD and Item                 0  1           2              3      4       5          6     7
-            QueryResult_AutoPtr resultMail = CharacterDatabase.PQuery("SELECT id,messageType,mailTemplateId,sender,subject,body,money,has_items FROM mail WHERE receiver='%u' AND has_items<>0 AND cod<>0", guid);
+            QueryResult resultMail = CharacterDatabase.PQuery("SELECT id,messageType,mailTemplateId,sender,subject,body,money,has_items FROM mail WHERE receiver='%u' AND has_items<>0 AND cod<>0", guid);
             if (resultMail)
             {
                 do
@@ -4486,7 +4486,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
                     if (has_items)
                     {
                         // Data needs to be at first place for Item::LoadFromDB
-                        QueryResult_AutoPtr resultItems = CharacterDatabase.PQuery("SELECT creatorGuid,giftCreatorGuid,count,duration,charges,flags,enchantments,randomPropertyId,durability,playedTime,text,item_guid,item_template FROM mail_items JOIN item_instance ON item_guid = guid WHERE mail_id='%u'", mail_id);
+                        QueryResult resultItems = CharacterDatabase.PQuery("SELECT creatorGuid,giftCreatorGuid,count,duration,charges,flags,enchantments,randomPropertyId,durability,playedTime,text,item_guid,item_template FROM mail_items JOIN item_instance ON item_guid = guid WHERE mail_id='%u'", mail_id);
                         if (resultItems)
                         {
                             do
@@ -4528,7 +4528,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
 
             // Unsummon and delete for pets in world is not required: player deleted from CLI or character list with not loaded pet.
             // Get guids of character's pets, will deleted in transaction
-            QueryResult_AutoPtr resultPets = CharacterDatabase.PQuery("SELECT id FROM character_pet WHERE owner = '%u'",guid);
+            QueryResult resultPets = CharacterDatabase.PQuery("SELECT id FROM character_pet WHERE owner = '%u'",guid);
 
             // NOW we can finally clear other DB data related to character
             if (resultPets)
@@ -4615,7 +4615,7 @@ void Player::DeleteOldCharacters(uint32 keepDays)
 {
     sLog.outString("Player::DeleteOldChars: Deleting all characters which have been deleted %u days before...", keepDays);
 
-    QueryResult_AutoPtr resultChars = CharacterDatabase.PQuery("SELECT guid, deleteInfos_Account FROM characters WHERE deleteDate IS NOT NULL AND deleteDate < '" UI64FMTD "'", uint64(time(NULL) - time_t(keepDays * DAY)));
+    QueryResult resultChars = CharacterDatabase.PQuery("SELECT guid, deleteInfos_Account FROM characters WHERE deleteDate IS NOT NULL AND deleteDate < '" UI64FMTD "'", uint64(time(NULL) - time_t(keepDays * DAY)));
     if (resultChars)
     {
          sLog.outString("Player::DeleteOldChars: Found " UI64FMTD " character(s) to delete",resultChars->GetRowCount());
@@ -6911,7 +6911,7 @@ void Player::ModifyArenaPoints(int32 value)
 
 uint32 Player::GetGuildIdFromDB(uint64 guid)
 {
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT guildid FROM guild_member WHERE guid='%u'", GUID_LOPART(guid));
+    QueryResult result = CharacterDatabase.PQuery("SELECT guildid FROM guild_member WHERE guid='%u'", GUID_LOPART(guid));
     if (!result)
         return 0;
 
@@ -6921,7 +6921,7 @@ uint32 Player::GetGuildIdFromDB(uint64 guid)
 
 uint32 Player::GetRankFromDB(uint64 guid)
 {
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT rank FROM guild_member WHERE guid='%u'", GUID_LOPART(guid));
+    QueryResult result = CharacterDatabase.PQuery("SELECT rank FROM guild_member WHERE guid='%u'", GUID_LOPART(guid));
     if (result)
     {
         uint32 v = result->Fetch()[0].GetUInt32();
@@ -6933,7 +6933,7 @@ uint32 Player::GetRankFromDB(uint64 guid)
 
 uint32 Player::GetArenaTeamIdFromDB(uint64 guid, uint8 type)
 {
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT arena_team_member.arenateamid FROM arena_team_member JOIN arena_team ON arena_team_member.arenateamid = arena_team.arenateamid WHERE guid='%u' AND type='%u' LIMIT 1", GUID_LOPART(guid), type);
+    QueryResult result = CharacterDatabase.PQuery("SELECT arena_team_member.arenateamid FROM arena_team_member JOIN arena_team ON arena_team_member.arenateamid = arena_team.arenateamid WHERE guid='%u' AND type='%u' LIMIT 1", GUID_LOPART(guid), type);
     if (!result)
         return 0;
 
@@ -6944,7 +6944,7 @@ uint32 Player::GetArenaTeamIdFromDB(uint64 guid, uint8 type)
 uint32 Player::GetZoneIdFromDB(uint64 guid)
 {
     uint32 guidLow = GUID_LOPART(guid);
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT zone FROM characters WHERE guid='%u'", guidLow);
+    QueryResult result = CharacterDatabase.PQuery("SELECT zone FROM characters WHERE guid='%u'", guidLow);
     if (!result)
         return 0;
     Field* fields = result->Fetch();
@@ -6973,7 +6973,7 @@ uint32 Player::GetZoneIdFromDB(uint64 guid)
 
 uint32 Player::GetLevelFromDB(uint64 guid)
 {
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT level FROM characters WHERE guid='%u'", GUID_LOPART(guid));
+    QueryResult result = CharacterDatabase.PQuery("SELECT level FROM characters WHERE guid='%u'", GUID_LOPART(guid));
     if (!result)
         return 0;
 
@@ -15679,7 +15679,7 @@ void Player::Initialize(uint32 guid)
     Object::_Create(guid, 0, HIGHGUID_PLAYER);
 }
 
-void Player::_LoadDeclinedNames(QueryResult_AutoPtr result)
+void Player::_LoadDeclinedNames(QueryResult result)
 {
     if (!result)
         return;
@@ -15691,7 +15691,7 @@ void Player::_LoadDeclinedNames(QueryResult_AutoPtr result)
         m_declinedname->name[i] = fields[i].GetCppString();
 }
 
-void Player::_LoadArenaTeamInfo(QueryResult_AutoPtr result)
+void Player::_LoadArenaTeamInfo(QueryResult result)
 {
     // arenateamid, played_week, played_season, personal_rating, matchmaker_rating
     memset((void*)&m_uint32Values[PLAYER_FIELD_ARENA_TEAM_INFO_1_1], 0, sizeof(uint32) * MAX_ARENA_SLOT * ARENA_TEAM_END);
@@ -15724,7 +15724,7 @@ void Player::_LoadArenaTeamInfo(QueryResult_AutoPtr result)
     }while (result->NextRow());
 }
 
-void Player::_LoadArenaStatsInfo(QueryResult_AutoPtr result)
+void Player::_LoadArenaStatsInfo(QueryResult result)
 {
     uint8 slot = 0;
     if (!result)
@@ -15759,7 +15759,7 @@ void Player::_LoadArenaStatsInfo(QueryResult_AutoPtr result)
     }while (nextrow);
 }
 
-void Player::_LoadEquipmentSets(QueryResult_AutoPtr result)
+void Player::_LoadEquipmentSets(QueryResult result)
 {
     // SetPQuery(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS,   "SELECT setguid, setindex, name, iconname, item0, item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12, item13, item14, item15, item16, item17, item18 FROM character_equipmentsets WHERE guid = '%u' ORDER BY setindex", GUID_LOPART(m_guid));
     if (!result)
@@ -15790,7 +15790,7 @@ void Player::_LoadEquipmentSets(QueryResult_AutoPtr result)
     } while (result->NextRow());
 }
 
-void Player::_LoadBGData(QueryResult_AutoPtr result)
+void Player::_LoadBGData(QueryResult result)
 {
     if (!result)
         return;
@@ -15812,7 +15812,7 @@ void Player::_LoadBGData(QueryResult_AutoPtr result)
 
 bool Player::LoadPositionFromDB(uint32& mapid, float& x,float& y,float& z,float& o, bool& in_flight, uint64 guid)
 {
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT position_x,position_y,position_z,orientation,map,taxi_path FROM characters WHERE guid = '%u'",GUID_LOPART(guid));
+    QueryResult result = CharacterDatabase.PQuery("SELECT position_x,position_y,position_z,orientation,map,taxi_path FROM characters WHERE guid = '%u'",GUID_LOPART(guid));
     if (!result)
         return false;
 
@@ -15870,7 +15870,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     //"arenaPoints, totalHonorPoints, todayHonorPoints, yesterdayHonorPoints, totalKills, todayKills, yesterdayKills, chosenTitle, knownCurrencies, watchedFaction, drunk,"
     // 50      51      52      53      54      55      56      57      58           59         60          61             62              63      64           65
     //"health, power1, power2, power3, power4, power5, power6, power7, instance_id, speccount, activespec, exploredZones, equipmentCache, ammoId, knownTitles, actionBars FROM characters WHERE guid = '%u'", guid);
-    QueryResult_AutoPtr result = holder->GetResult(PLAYER_LOGIN_QUERY_LOADFROM);
+    QueryResult result = holder->GetResult(PLAYER_LOGIN_QUERY_LOADFROM);
 
     if (!result)
     {
@@ -16543,7 +16543,7 @@ bool Player::isAllowedToLoot(const Creature* creature)
     return false;
 }
 
-void Player::_LoadActions(QueryResult_AutoPtr result)
+void Player::_LoadActions(QueryResult result)
 {
     m_actionButtons.clear();
 
@@ -16571,7 +16571,7 @@ void Player::_LoadActions(QueryResult_AutoPtr result)
     }
 }
 
-void Player::_LoadAuras(QueryResult_AutoPtr result, uint32 timediff)
+void Player::_LoadAuras(QueryResult result, uint32 timediff)
 {
     sLog.outDebug("Loading auras for player %u",GetGUIDLow());
 
@@ -16687,7 +16687,7 @@ void Player::LoadCorpse()
     }
 }
 
-void Player::_LoadInventory(QueryResult_AutoPtr result, uint32 timediff)
+void Player::_LoadInventory(QueryResult result, uint32 timediff)
 {
     //QueryResult *result = CharacterDatabase.PQuery("SELECT data,text,bag,slot,item,item_template FROM character_inventory JOIN item_instance ON character_inventory.item = item_instance.guid WHERE character_inventory.guid = '%u' ORDER BY bag,slot", GetGUIDLow());
     std::map<uint64, Bag*> bagMap;                          // fast guid lookup for bags
@@ -16762,7 +16762,7 @@ void Player::_LoadInventory(QueryResult_AutoPtr result, uint32 timediff)
                 }
                 else
                 {
-                    QueryResult_AutoPtr result2 = CharacterDatabase.PQuery(
+                    QueryResult result2 = CharacterDatabase.PQuery(
                     "SELECT player_guid,paidMoney,paidExtendedCost FROM `item_refund_instance` WHERE item_guid = '%u' AND player_guid = '%u' LIMIT 1",
                     item->GetGUIDLow(), GetGUIDLow());
                     if (!result2)
@@ -16885,7 +16885,7 @@ void Player::_LoadInventory(QueryResult_AutoPtr result, uint32 timediff)
 void Player::_LoadMailedItems(Mail *mail)
 {
     // data needs to be at first place for Item::LoadFromDB
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text, item_guid, item_template, owner_guid FROM mail_items JOIN item_instance ON item_guid = guid WHERE mail_id='%u'", mail->messageID);
+    QueryResult result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text, item_guid, item_template, owner_guid FROM mail_items JOIN item_instance ON item_guid = guid WHERE mail_id='%u'", mail->messageID);
     if (!result)
         return;
 
@@ -16925,7 +16925,7 @@ void Player::_LoadMailedItems(Mail *mail)
     CharacterDatabase.CommitTransaction(trans);
 }
 
-void Player::_LoadMailInit(QueryResult_AutoPtr resultUnread, QueryResult_AutoPtr resultDelivery)
+void Player::_LoadMailInit(QueryResult resultUnread, QueryResult resultDelivery)
 {
     //set a count of unread mails
     //QueryResult *resultMails = CharacterDatabase.PQuery("SELECT COUNT(id) FROM mail WHERE receiver = '%u' AND (checked & 1)=0 AND deliver_time <= '" UI64FMTD "'", GUID_LOPART(playerGuid),(uint64)cTime);
@@ -16948,7 +16948,7 @@ void Player::_LoadMail()
 {
     m_mail.clear();
     //mails are in right order                             0  1           2      3        4       5          6         7           8            9     10  11      12         13
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT id,messageType,sender,receiver,subject,body,has_items,expire_time,deliver_time,money,cod,checked,stationery,mailTemplateId FROM mail WHERE receiver = '%u' ORDER BY id DESC",GetGUIDLow());
+    QueryResult result = CharacterDatabase.PQuery("SELECT id,messageType,sender,receiver,subject,body,has_items,expire_time,deliver_time,money,cod,checked,stationery,mailTemplateId FROM mail WHERE receiver = '%u' ORDER BY id DESC",GetGUIDLow());
     if (result)
     {
         do
@@ -16999,7 +16999,7 @@ void Player::LoadPet()
     }
 }
 
-void Player::_LoadQuestStatus(QueryResult_AutoPtr result)
+void Player::_LoadQuestStatus(QueryResult result)
 {
     mQuestStatus.clear();
 
@@ -17108,7 +17108,7 @@ void Player::_LoadQuestStatus(QueryResult_AutoPtr result)
         SetQuestSlot(i, 0);
 }
 
-void Player::_LoadDailyQuestStatus(QueryResult_AutoPtr result)
+void Player::_LoadDailyQuestStatus(QueryResult result)
 {
     for (uint32 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
         SetUInt32Value(PLAYER_FIELD_DAILY_QUESTS_1+quest_daily_idx,0);
@@ -17149,7 +17149,7 @@ void Player::_LoadDailyQuestStatus(QueryResult_AutoPtr result)
     m_DailyQuestChanged = false;
 }
 
-void Player::_LoadWeeklyQuestStatus(QueryResult_AutoPtr result)
+void Player::_LoadWeeklyQuestStatus(QueryResult result)
 {
     m_weeklyquests.clear();
 
@@ -17176,7 +17176,7 @@ void Player::_LoadWeeklyQuestStatus(QueryResult_AutoPtr result)
     m_WeeklyQuestChanged = false;
 }
 
-void Player::_LoadSpells(QueryResult_AutoPtr result)
+void Player::_LoadSpells(QueryResult result)
 {
     //QueryResult *result = CharacterDatabase.PQuery("SELECT spell,active,disabled FROM character_spell WHERE guid = '%u'",GetGUIDLow());
 
@@ -17192,7 +17192,7 @@ void Player::_LoadSpells(QueryResult_AutoPtr result)
     }
 }
 
-void Player::_LoadGroup(QueryResult_AutoPtr result)
+void Player::_LoadGroup(QueryResult result)
 {
     //QueryResult *result = CharacterDatabase.PQuery("SELECT guid FROM group_member WHERE memberGuid=%u", GetGUIDLow());
     if (result)
@@ -17211,7 +17211,7 @@ void Player::_LoadGroup(QueryResult_AutoPtr result)
     }
 }
 
-void Player::_LoadBoundInstances(QueryResult_AutoPtr result)
+void Player::_LoadBoundInstances(QueryResult result)
 {
     for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
         m_boundInstances[i].clear();
@@ -17562,7 +17562,7 @@ bool Player::CheckInstanceLoginValid()
     return sMapMgr.CanPlayerEnter(GetMap()->GetId(), this, true);
 }
 
-bool Player::_LoadHomeBind(QueryResult_AutoPtr result)
+bool Player::_LoadHomeBind(QueryResult result)
 {
     PlayerInfo const *info = sObjectMgr.GetPlayerInfo(getRace(), getClass());
     if (!info)
@@ -18291,7 +18291,7 @@ void Player::SetUInt32ValueInArray(Tokens& tokens,uint16 index, uint32 value)
 void Player::Customize(uint64 guid, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair)
 {
     //                                                     0
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT playerBytes2 FROM characters WHERE guid = '%u'", GUID_LOPART(guid));
+    QueryResult result = CharacterDatabase.PQuery("SELECT playerBytes2 FROM characters WHERE guid = '%u'", GUID_LOPART(guid));
     if (!result)
         return;
 
@@ -19093,7 +19093,7 @@ void Player::SendProficiency(ItemClass itemClass, uint32 itemSubclassMask)
 
 void Player::RemovePetitionsAndSigns(uint64 guid, uint32 type)
 {
-    QueryResult_AutoPtr result = QueryResult_AutoPtr(NULL);
+    QueryResult result = QueryResult(NULL);
     if (type == 10)
         result = CharacterDatabase.PQuery("SELECT ownerguid,petitionguid FROM petition_sign WHERE playerguid = '%u'", GUID_LOPART(guid));
     else
@@ -19135,7 +19135,7 @@ void Player::RemovePetitionsAndSigns(uint64 guid, uint32 type)
 
 void Player::LeaveAllArenaTeams(uint64 guid)
 {
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT arena_team_member.arenateamid FROM arena_team_member JOIN arena_team ON arena_team_member.arenateamid = arena_team.arenateamid WHERE guid='%u'", GUID_LOPART(guid));
+    QueryResult result = CharacterDatabase.PQuery("SELECT arena_team_member.arenateamid FROM arena_team_member JOIN arena_team ON arena_team_member.arenateamid = arena_team.arenateamid WHERE guid='%u'", GUID_LOPART(guid));
     if (!result)
         return;
 
@@ -22754,7 +22754,7 @@ void Player::learnSpellHighRank(uint32 spellid)
         learnSpellHighRank(next);
 }
 
-void Player::_LoadSkills(QueryResult_AutoPtr result)
+void Player::_LoadSkills(QueryResult result)
 {
     //                                                           0      1      2
     // SetPQuery(PLAYER_LOGIN_QUERY_LOADSKILLS,          "SELECT skill, value, max FROM character_skills WHERE guid = '%u'", GUID_LOPART(m_guid));
@@ -23664,7 +23664,7 @@ void Player::SetMap(Map * map)
     m_mapRef.link(map, this);
 }
 
-void Player::_LoadGlyphs(QueryResult_AutoPtr result)
+void Player::_LoadGlyphs(QueryResult result)
 {
     // SetPQuery(PLAYER_LOGIN_QUERY_LOADGLYPHS, "SELECT spec, glyph1, glyph2, glyph3, glyph4, glyph5, glyph6 from character_glyphs WHERE guid = '%u'", GUID_LOPART(m_guid));
     if (!result)
@@ -23698,7 +23698,7 @@ void Player::_SaveGlyphs(SQLTransaction& trans)
     }
 }
 
-void Player::_LoadTalents(QueryResult_AutoPtr result)
+void Player::_LoadTalents(QueryResult result)
 {
     // SetPQuery(PLAYER_LOGIN_QUERY_LOADTALENTS, "SELECT spell, spec FROM character_talent WHERE guid = '%u'", GUID_LOPART(m_guid));
     if (result)
@@ -23901,7 +23901,7 @@ void Player::ActivateSpec(uint8 spec)
     m_usedTalentCount = spentTalents;
     InitTalentForLevel();
 
-    if (QueryResult_AutoPtr result =
+    if (QueryResult result =
         CharacterDatabase.PQuery("SELECT button,action,type FROM character_action WHERE guid = '%u' AND spec = '%u' ORDER BY button", GetGUIDLow(), m_activeSpec))
         _LoadActions(result);
 
@@ -24149,9 +24149,9 @@ void Player::SetRandomWinner(bool isWinner)
         CharacterDatabase.PExecute("INSERT INTO character_battleground_random (guid) VALUES ('%u')", GetGUIDLow());
 }
 
-void Player::_LoadRandomBGStatus(QueryResult_AutoPtr result)
+void Player::_LoadRandomBGStatus(QueryResult result)
 {
-    //QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT guid FROM character_battleground_random WHERE guid = '%u'", GetGUIDLow());
+    //QueryResult result = CharacterDatabase.PQuery("SELECT guid FROM character_battleground_random WHERE guid = '%u'", GetGUIDLow());
 
     if (result)
         m_IsBGRandomWinner = true;

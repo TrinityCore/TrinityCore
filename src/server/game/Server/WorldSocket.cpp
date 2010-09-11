@@ -812,7 +812,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     LoginDatabase.escape_string (safe_account);
     // No SQL injection, username escaped.
 
-    QueryResult_AutoPtr result =
+    QueryResult result =
           LoginDatabase.PQuery ("SELECT "
                                 "id, "                      //0
                                 "sessionkey, "              //1
@@ -913,7 +913,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     }
 
     // Re-check account ban (same check as in realmd)
-    QueryResult_AutoPtr banresult =
+    QueryResult banresult =
           LoginDatabase.PQuery ("SELECT 1 FROM account_banned WHERE id = %u AND active = 1 "
                                 "UNION "
                                 "SELECT 1 FROM ip_banned WHERE ip = '%s'",

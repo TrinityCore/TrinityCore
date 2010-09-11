@@ -54,7 +54,7 @@ void LoadSkillDiscoveryTable()
     uint32 count = 0;
 
     //                                                0        1         2              3
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT spellId, reqSpell, reqSkillValue, chance FROM skill_discovery_template");
+    QueryResult result = WorldDatabase.Query("SELECT spellId, reqSpell, reqSkillValue, chance FROM skill_discovery_template");
 
     if (!result)
     {

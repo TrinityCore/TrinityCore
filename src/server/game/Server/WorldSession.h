@@ -45,7 +45,6 @@ class GameObject;
 class Quest;
 class WorldPacket;
 class WorldSocket;
-class QueryResult;
 class LoginQueryHolder;
 class CharacterHandler;
 class SpellCastTargets;
@@ -200,7 +199,7 @@ class WorldSession
         //void SendTestCreatureQueryOpcode(uint32 entry, uint64 guid, uint32 testvalue);
         void SendNameQueryOpcode(Player* p);
         void SendNameQueryOpcodeFromDB(uint64 guid);
-        void SendNameQueryOpcodeFromDBCallBack(QueryResult_AutoPtr result);
+        void SendNameQueryOpcodeFromDBCallBack(QueryResult result);
 
         void SendTrainerList(uint64 guid);
         void SendTrainerList(uint64 guid, const std::string& strTitle);
@@ -226,7 +225,7 @@ class WorldSession
         // Pet
         void SendPetNameQuery(uint64 guid, uint32 petnumber);
         void SendStablePet(uint64 guid);
-        void SendStablePetCallback(QueryResult_AutoPtr result, uint64 guid);
+        void SendStablePetCallback(QueryResult result, uint64 guid);
         void SendStableResult(uint8 guid);
         bool CheckStableMaster(uint64 guid);
 
@@ -235,7 +234,7 @@ class WorldSession
         void SetAccountData(AccountDataType type, time_t time_, std::string data);
         void SendAccountDataTimes(uint32 mask);
         void LoadGlobalAccountData();
-        void LoadAccountData(QueryResult_AutoPtr result, uint32 mask);
+        void LoadAccountData(QueryResult result, uint32 mask);
         void LoadTutorialsData();
         void SendTutorialsData();
         void SaveTutorialsData(SQLTransaction& trans);
@@ -327,7 +326,7 @@ class WorldSession
         void HandleCharDeleteOpcode(WorldPacket& recvPacket);
         void HandleCharCreateOpcode(WorldPacket& recvPacket);
         void HandlePlayerLoginOpcode(WorldPacket& recvPacket);
-        void HandleCharEnum(QueryResult_AutoPtr result);
+        void HandleCharEnum(QueryResult result);
         void HandlePlayerLogin(LoginQueryHolder * holder);
         void HandleCharFactionOrRaceChange(WorldPacket& recv_data);
 
@@ -399,10 +398,10 @@ class WorldSession
         void HandleEmoteOpcode(WorldPacket& recvPacket);
         void HandleContactListOpcode(WorldPacket& recvPacket);
         void HandleAddFriendOpcode(WorldPacket& recvPacket);
-        void HandleAddFriendOpcodeCallBack(QueryResult_AutoPtr result, std::string friendNote);
+        void HandleAddFriendOpcodeCallBack(QueryResult result, std::string friendNote);
         void HandleDelFriendOpcode(WorldPacket& recvPacket);
         void HandleAddIgnoreOpcode(WorldPacket& recvPacket);
-        void HandleAddIgnoreOpcodeCallBack(QueryResult_AutoPtr result);
+        void HandleAddIgnoreOpcodeCallBack(QueryResult result);
         void HandleDelIgnoreOpcode(WorldPacket& recvPacket);
         void HandleSetContactNotesOpcode(WorldPacket& recvPacket);
         void HandleBugOpcode(WorldPacket& recvPacket);
@@ -519,13 +518,13 @@ class WorldSession
         void HandleBinderActivateOpcode(WorldPacket& recvPacket);
         void HandleListStabledPetsOpcode(WorldPacket& recvPacket);
         void HandleStablePet(WorldPacket& recvPacket);
-        void HandleStablePetCallback(QueryResult_AutoPtr result);
+        void HandleStablePetCallback(QueryResult result);
         void HandleUnstablePet(WorldPacket& recvPacket);
-        void HandleUnstablePetCallback(QueryResult_AutoPtr result, uint32 petnumber);
+        void HandleUnstablePetCallback(QueryResult result, uint32 petnumber);
         void HandleBuyStableSlot(WorldPacket& recvPacket);
         void HandleStableRevivePet(WorldPacket& recvPacket);
         void HandleStableSwapPet(WorldPacket& recvPacket);
-        void HandleStableSwapPetCallback(QueryResult_AutoPtr result, uint32 petnumber);
+        void HandleStableSwapPetCallback(QueryResult result, uint32 petnumber);
 
         void HandleDuelAcceptedOpcode(WorldPacket& recvPacket);
         void HandleDuelCancelledOpcode(WorldPacket& recvPacket);
@@ -678,7 +677,7 @@ class WorldSession
         void HandleSetActionBarToggles(WorldPacket& recv_data);
 
         void HandleCharRenameOpcode(WorldPacket& recv_data);
-        void HandleChangePlayerNameOpcodeCallBack(QueryResult_AutoPtr result, std::string newname);
+        void HandleChangePlayerNameOpcodeCallBack(QueryResult result, std::string newname);
         void HandleSetPlayerDeclinedNames(WorldPacket& recv_data);
 
         void HandleTotemDestroyed(WorldPacket& recv_data);
@@ -819,7 +818,7 @@ class WorldSession
     private:
         void ProcessQueryCallbacks();
 
-        ACE_Future_Set<QueryResult_AutoPtr> m_nameQueryCallbacks;    
+        ACE_Future_Set<QueryResult> m_nameQueryCallbacks;    
         QueryResultFuture m_charEnumCallback;
         QueryResultFuture m_addIgnoreCallback;
         QueryResultFuture m_stablePetCallback;

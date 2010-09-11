@@ -23,7 +23,7 @@
 #include <ace/Future_Set.h>
 #include "QueryResult.h"
 
-typedef ACE_Future<QueryResult_AutoPtr> QueryResultFuture;
+typedef ACE_Future<QueryResult> QueryResultFuture;
 
 /*! A simple template using ACE_Future to manage callbacks from the thread and object that
     issued the request. <ParamType> is variable type of parameter that is used as parameter
@@ -50,7 +50,7 @@ class QueryCallback
             return result.ready();
         }
         
-        void GetResult(QueryResult_AutoPtr& res)
+        void GetResult(QueryResult& res)
         {
             result.get(res);
         }
@@ -96,7 +96,7 @@ class QueryCallback_2
             return result.ready();
         }
         
-        void GetResult(QueryResult_AutoPtr& res)
+        void GetResult(QueryResult& res)
         {
             result.get(res);
         }

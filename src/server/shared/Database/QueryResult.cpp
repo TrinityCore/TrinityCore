@@ -19,8 +19,9 @@
  */
 
 #include "DatabaseEnv.h"
+#include "Log.h"
 
-QueryResult::QueryResult(MYSQL_RES *result, MYSQL_FIELD *fields, uint64 rowCount, uint32 fieldCount)
+ResultSet::ResultSet(MYSQL_RES *result, MYSQL_FIELD *fields, uint64 rowCount, uint32 fieldCount)
 : mFieldCount(fieldCount)
 , mRowCount(rowCount)
 , mResult(result)
@@ -32,12 +33,12 @@ QueryResult::QueryResult(MYSQL_RES *result, MYSQL_FIELD *fields, uint64 rowCount
          mCurrentRow[i].SetType(ConvertNativeType(fields[i].type));
 }
 
-QueryResult::~QueryResult()
+ResultSet::~ResultSet()
 {
     EndQuery();
 }
 
-bool QueryResult::NextRow()
+bool ResultSet::NextRow()
 {
     MYSQL_ROW row;
 
@@ -57,7 +58,7 @@ bool QueryResult::NextRow()
     return true;
 }
 
-void QueryResult::EndQuery()
+void ResultSet::EndQuery()
 {
     if (mCurrentRow)
     {
@@ -72,7 +73,7 @@ void QueryResult::EndQuery()
     }
 }
 
-enum Field::DataTypes QueryResult::ConvertNativeType(enum_field_types mysqlType) const
+enum Field::DataTypes ResultSet::ConvertNativeType(enum_field_types mysqlType) const
 {
     switch (mysqlType)
     {
@@ -144,7 +145,7 @@ void ResultBind::BindResult(uint32& num_rows)
         m_rBind[i].buffer_length = size;
         m_rBind[i].length = &m_length[i];
         m_rBind[i].is_null = &m_isNull[i];
-        m_rBind[i].error = NULL;//&m_error[i];
+        m_rBind[i].error = NULL;
         m_rBind[i].is_unsigned = field->flags & UNSIGNED_FLAG;
     
         ++i;
@@ -238,7 +239,22 @@ std::string PreparedResultSet::GetString(uint32 index)
     if (!CheckFieldIndex(index))
         return std::string("");
 
-    const char* temp = static_cast<char const*>(rbind->m_rBind[index].buffer);
-    size_t len = *rbind->m_rBind[index].length;
-    return std::string(temp, len );
+    return std::string(static_cast<char const*>(rbind->m_rBind[index].buffer), *rbind->m_rBind[index].length);
+}
+
+bool PreparedResultSet::NextRow()
+{
+    if (row_position >= num_rows)
+        return false;
+
+    int retval = mysql_stmt_fetch( rbind->m_stmt );
+                
+    if (!retval || retval == MYSQL_DATA_TRUNCATED)
+        retval = true;
+
+    if (retval == MYSQL_NO_DATA)
+        retval = false;
+
+    ++row_position;
+    return retval;
 }

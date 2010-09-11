@@ -52,7 +52,7 @@ void TicketMgr::LoadGMTickets()
     m_GMticketid = 0;
     m_openTickets = 0;
 
-    QueryResult_AutoPtr result = CharacterDatabase.Query("SELECT guid, playerGuid, name, message, createtime, map, posX, posY, posZ, timestamp, closed, assignedto, comment, completed, escalated, viewed FROM gm_tickets");
+    QueryResult result = CharacterDatabase.Query("SELECT guid, playerGuid, name, message, createtime, map, posX, posY, posZ, timestamp, closed, assignedto, comment, completed, escalated, viewed FROM gm_tickets");
 
     if (!result)
     {
@@ -110,7 +110,7 @@ void TicketMgr::LoadGMTickets()
 void TicketMgr::LoadGMSurveys()
 {
     // we don't actually load anything into memory here as there's no reason to
-    QueryResult_AutoPtr result = CharacterDatabase.Query("SELECT MAX(surveyid) FROM gm_surveys");
+    QueryResult result = CharacterDatabase.Query("SELECT MAX(surveyid) FROM gm_surveys");
     if (result)
     {
         Field *fields = result->Fetch();

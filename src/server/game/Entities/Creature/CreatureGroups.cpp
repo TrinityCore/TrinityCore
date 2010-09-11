@@ -76,7 +76,7 @@ void CreatureGroupManager::LoadCreatureFormations()
     CreatureGroupMap.clear();
 
     //Check Integrity of the table
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT MAX(leaderGUID) FROM creature_formations");
+    QueryResult result = WorldDatabase.Query("SELECT MAX(leaderGUID) FROM creature_formations");
 
     if (!result)
     {
@@ -123,7 +123,7 @@ void CreatureGroupManager::LoadCreatureFormations()
 
         // check data correctness
         {
-            QueryResult_AutoPtr result = WorldDatabase.PQuery("SELECT guid FROM creature WHERE guid = %u", group_member->leaderGUID);
+            QueryResult result = WorldDatabase.PQuery("SELECT guid FROM creature WHERE guid = %u", group_member->leaderGUID);
             if (!result)
             {
                 sLog.outErrorDb("creature_formations table leader guid %u incorrect (not exist)", group_member->leaderGUID);

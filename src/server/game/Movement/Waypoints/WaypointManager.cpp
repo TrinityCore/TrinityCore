@@ -38,7 +38,7 @@ void WaypointStore::Free()
 
 void WaypointStore::Load()
 {
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT COUNT(id) FROM waypoint_data");
+    QueryResult result = WorldDatabase.Query("SELECT COUNT(id) FROM waypoint_data");
     if (!result)
     {
         sLog.outError("an error occured while loading the table `waypoint_data` (maybe it doesn't exist ?)");
@@ -107,7 +107,7 @@ void WaypointStore::UpdatePath(uint32 id)
     if (waypoint_map.find(id)!= waypoint_map.end())
         waypoint_map[id]->clear();
 
-    QueryResult_AutoPtr result;
+    QueryResult result;
 
     result = WorldDatabase.PQuery("SELECT point,position_x,position_y,position_z,move_flag,delay,action,action_chance FROM waypoint_data WHERE id = %u ORDER BY point", id);
 
