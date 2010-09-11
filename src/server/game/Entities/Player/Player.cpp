@@ -384,7 +384,7 @@ void TradeData::SetAccepted(bool state, bool crosssend /*= false*/)
 
 UpdateMask Player::updateVisualBits;
 
-// we can disable this warning for this since it only 
+// we can disable this warning for this since it only
 // causes undefined behavior when passed to the base class constructor
 #ifdef _MSC_VER
 #pragma warning(disable:4355)
@@ -2503,7 +2503,7 @@ void Player::SetGameMaster(bool on)
             SetPhaseMask(phases.front()->GetMiscValue(), false);
         else
             SetPhaseMask(PHASEMASK_NORMAL, false);
-            
+
 
         m_ExtraFlags &= ~ PLAYER_EXTRA_GM_ON;
         setFactionForRace(getRace());
@@ -19615,7 +19615,7 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
 {
     ItemPosCountVec vDest;
     uint16 uiDest;
-    uint8 msg = bStore ? 
+    uint8 msg = bStore ?
         CanStoreNewItem(bag, slot, vDest, item, pProto->BuyCount * count) :
         CanEquipNewItem(slot, uiDest, item, false);
     if (msg != EQUIP_ERR_OK)
@@ -21556,7 +21556,7 @@ void Player::AutoUnequipOffhandIfNeed(bool force /*= false*/)
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
         offItem->DeleteFromInventoryDB(trans);                   // deletes item from character's inventory
         offItem->SaveToDB(trans);                                // recursive and not have transaction guard into self, item not in inventory and can be save standalone
-        
+
         std::string subject = GetSession()->GetTrinityString(LANG_NOT_EQUIPPED_ITEM);
         MailDraft(subject, "There were problems with equipping one or several items").AddItem(offItem).SendMailTo(trans, this, MailSender(this, MAIL_STATIONERY_GM), MAIL_CHECK_MASK_COPIED);
 
@@ -23834,7 +23834,7 @@ void Player::UpdateSpecCount(uint8 count)
         trans->PAppend("DELETE FROM character_action WHERE spec<>'%u' AND guid='%u'",m_activeSpec, GetGUIDLow());
         m_activeSpec = 0;
     }
-    
+
     CharacterDatabase.CommitTransaction(trans);
 
     SetSpecsCount(count);

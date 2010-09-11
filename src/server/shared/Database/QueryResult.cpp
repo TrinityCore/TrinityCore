@@ -129,7 +129,7 @@ void ResultBind::BindResult(uint32& num_rows)
         sLog.outSQLDriver("%s:mysql_stmt_store_result, cannot bind result from MySQL server. Error: %s", __FUNCTION__, mysql_stmt_error(m_stmt));
         return;
     }
-        
+
     //- This is where we prepare the buffer based on metadata
     uint32 i = 0;
     MYSQL_FIELD* field;
@@ -147,17 +147,17 @@ void ResultBind::BindResult(uint32& num_rows)
         m_rBind[i].is_null = &m_isNull[i];
         m_rBind[i].error = NULL;
         m_rBind[i].is_unsigned = field->flags & UNSIGNED_FLAG;
-    
+
         ++i;
     }
-        
+
     //- This is where we bind the bind the buffer to the statement
     if (mysql_stmt_bind_result(m_stmt, m_rBind))
     {
         sLog.outSQLDriver("%s:mysql_stmt_bind_result, cannot bind result from MySQL server. Error: %s", __FUNCTION__, mysql_stmt_error(m_stmt));
         return;
     }
-    
+
     num_rows = mysql_stmt_num_rows(m_stmt);
 }
 
@@ -181,7 +181,7 @@ void ResultBind::CleanUp()
 uint8 PreparedResultSet::GetUInt8(uint32 index)
 {
     if (!CheckFieldIndex(index))
-        return 0;            
+        return 0;
 
     return *reinterpret_cast<uint8*>(rbind->m_rBind[index].buffer);
 }
@@ -189,7 +189,7 @@ uint8 PreparedResultSet::GetUInt8(uint32 index)
 int8 PreparedResultSet::GetInt8(uint32 index)
 {
     if (!CheckFieldIndex(index))
-        return 0;            
+        return 0;
 
     return *reinterpret_cast<int8*>(rbind->m_rBind[index].buffer);
 }
@@ -197,7 +197,7 @@ int8 PreparedResultSet::GetInt8(uint32 index)
 uint16 PreparedResultSet::GetUInt16(uint32 index)
 {
     if (!CheckFieldIndex(index))
-        return 0;            
+        return 0;
 
     return *reinterpret_cast<uint16*>(rbind->m_rBind[index].buffer);
 }
@@ -205,7 +205,7 @@ uint16 PreparedResultSet::GetUInt16(uint32 index)
 int16 PreparedResultSet::GetInt16(uint32 index)
 {
     if (!CheckFieldIndex(index))
-        return 0;            
+        return 0;
 
     return *reinterpret_cast<int16*>(rbind->m_rBind[index].buffer);
 }
@@ -213,7 +213,7 @@ int16 PreparedResultSet::GetInt16(uint32 index)
 uint32 PreparedResultSet::GetUInt32(uint32 index)
 {
     if (!CheckFieldIndex(index))
-        return 0;            
+        return 0;
 
     return *reinterpret_cast<uint32*>(rbind->m_rBind[index].buffer);
 }
@@ -221,7 +221,7 @@ uint32 PreparedResultSet::GetUInt32(uint32 index)
 int32 PreparedResultSet::GetInt32(uint32 index)
 {
     if (!CheckFieldIndex(index))
-        return 0;            
+        return 0;
 
     return *reinterpret_cast<int32*>(rbind->m_rBind[index].buffer);
 }
@@ -229,7 +229,7 @@ int32 PreparedResultSet::GetInt32(uint32 index)
 float PreparedResultSet::GetFloat(uint32 index)
 {
     if (!CheckFieldIndex(index))
-        return 0;            
+        return 0;
 
     return *reinterpret_cast<float*>(rbind->m_rBind[index].buffer);
 }
@@ -248,7 +248,7 @@ bool PreparedResultSet::NextRow()
         return false;
 
     int retval = mysql_stmt_fetch( rbind->m_stmt );
-                
+
     if (!retval || retval == MYSQL_DATA_TRUNCATED)
         retval = true;
 

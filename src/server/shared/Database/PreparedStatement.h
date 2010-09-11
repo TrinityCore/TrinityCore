@@ -117,7 +117,7 @@ class MySQLPreparedStatement
         void setInt64(const uint8 index, const int64 value);
         void setDouble(const uint8 index, const double value);
         void setString(const uint8 index, const char* value);
-    
+
     protected:
         MYSQL_STMT* GetSTMT() { return m_Mstmt; }
         MYSQL_BIND* GetBind() { return m_bind; }

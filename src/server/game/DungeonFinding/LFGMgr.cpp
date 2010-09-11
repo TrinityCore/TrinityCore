@@ -814,7 +814,7 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposalList *proposals)
         sLog.outDebug("LFGMgr::CheckCompatibility: (%s): Size wrong - Not compatibles", strGuids.c_str());
         return false;
     }
-   
+
     // No previous check have been done, do it now
     uint8 numPlayers = 0;
     uint8 numLfgGroups = 0;
@@ -1244,7 +1244,7 @@ void LFGMgr::SetCompatibles(std::string key, bool compatibles)
 /// Get the compatible dungeons between two groups from cache
 /// </summary>
 /// <param name="std::string">list of guids concatenated by |</param>
-/// <returns>LfgAnswer, 
+/// <returns>LfgAnswer,
 LfgAnswer LFGMgr::GetCompatibles(std::string key)
 {
     LfgAnswer answer = LFG_ANSWER_PENDING;

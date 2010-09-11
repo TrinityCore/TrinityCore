@@ -4165,7 +4165,7 @@ void Spell::SendLogExecute()
         data << uint32(m_spellInfo->Effect[i]);             // spell effect
 
         data.append(*m_effectExecuteData[i]);
-        
+
         delete m_effectExecuteData[i];
         m_effectExecuteData[i] = NULL;
     }

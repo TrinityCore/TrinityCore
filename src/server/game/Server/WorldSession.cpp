@@ -968,11 +968,11 @@ void WorldSession::ProcessQueryCallbacks()
         ACE_Time_Value timeout = ACE_Time_Value::zero;
         if (m_nameQueryCallbacks.next_readable(lResult, &timeout) != 1)
            break;
- 
+
         lResult.get(result);
         SendNameQueryOpcodeFromDBCallBack(result);
     }
-    
+
     //! HandleCharEnumOpcode
     if (m_charEnumCallback.ready())
     {
@@ -1007,7 +1007,7 @@ void WorldSession::ProcessQueryCallbacks()
         HandleChangePlayerNameOpcodeCallBack(result, param);
         m_charRenameCallback.FreeResult();
     }
-    
+
     //- HandleCharAddIgnoreOpcode
     if (m_addIgnoreCallback.ready())
     {

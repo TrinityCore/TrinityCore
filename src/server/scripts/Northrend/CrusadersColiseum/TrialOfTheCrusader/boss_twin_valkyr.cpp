@@ -162,7 +162,7 @@ struct boss_twin_baseAI : public ScriptedAI
 
     void JustReachedHome()
     {
-        if (m_pInstance) 
+        if (m_pInstance)
         {
             m_pInstance->SetData(TYPE_VALKIRIES, FAIL);
             m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetMaxHealth());
@@ -210,7 +210,7 @@ struct boss_twin_baseAI : public ScriptedAI
         Summons.Summon(pSummoned);
     }
 
-    void SummonedCreatureDespawn(Creature* pSummoned) 
+    void SummonedCreatureDespawn(Creature* pSummoned)
     {
         switch(pSummoned->GetEntry())
         {
@@ -282,7 +282,7 @@ struct boss_twin_baseAI : public ScriptedAI
     void JustDied(Unit* /*pKiller*/)
     {
         DoScriptText(SAY_DEATH,me);
-        if (m_pInstance) 
+        if (m_pInstance)
         {
             m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, 0);
             if (Creature* pSister = GetSister())
@@ -299,7 +299,7 @@ struct boss_twin_baseAI : public ScriptedAI
     }
 
     // Called when sister pointer needed
-    Creature* GetSister() 
+    Creature* GetSister()
     {
         return Unit::GetCreature((*me),m_pInstance->GetData64(m_uiSisterNpcId));
     }
@@ -337,7 +337,7 @@ struct boss_twin_baseAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
-        if (!m_pInstance || !UpdateVictim()) 
+        if (!m_pInstance || !UpdateVictim())
             return;
 
         if (m_pInstance->GetData(DATA_HEALTH_TWIN_SHARED) != 0)
@@ -397,7 +397,7 @@ struct boss_twin_baseAI : public ScriptedAI
             {
                 SummonColorballs(12);
                 m_uiWaveCount = 0;
-            } 
+            }
             else
             {
                 SummonColorballs(2);
@@ -434,7 +434,7 @@ public:
     struct boss_fjolaAI : public boss_twin_baseAI
     {
         boss_fjolaAI(Creature* pCreature) : boss_twin_baseAI(pCreature) {}
-        
+
         void Reset() {
             boss_twin_baseAI::Reset();
             SetEquipmentSlots(false, EQUIP_MAIN_1, EQUIP_OFFHAND_1, EQUIP_RANGED_1);
@@ -551,7 +551,7 @@ public:
 
 struct mob_unleashed_ballAI : public ScriptedAI
 {
-    mob_unleashed_ballAI(Creature *pCreature) : ScriptedAI(pCreature) 
+    mob_unleashed_ballAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
         m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
     }
@@ -577,7 +577,7 @@ struct mob_unleashed_ballAI : public ScriptedAI
         me->SetReactState(REACT_PASSIVE);
         me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
         me->SetFlying(true);
-        SetCombatMovement(false); 
+        SetCombatMovement(false);
         MoveToNextPoint();
         m_uiRangeCheckTimer = IN_MILLISECONDS;
     }
@@ -591,7 +591,7 @@ struct mob_unleashed_ballAI : public ScriptedAI
             case 0:
                 if (urand(0,3) == 0)
                     MoveToNextPoint();
-                else 
+                else
                     me->DisappearAndDie();
                 break;
         }

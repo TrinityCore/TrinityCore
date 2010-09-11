@@ -212,7 +212,7 @@ BattlegroundMap* MapInstanced::CreateBattleground(uint32 InstanceId, Battlegroun
     PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(),bg->GetMinLevel());
 
     uint8 spawnMode;
-    
+
     if (bracketEntry)
         spawnMode = bracketEntry->difficulty;
     else

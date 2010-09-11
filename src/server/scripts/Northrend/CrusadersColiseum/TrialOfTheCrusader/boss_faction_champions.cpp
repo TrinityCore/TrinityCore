@@ -97,7 +97,7 @@ public:
             vOtherEntries.push_back(playerTeam == ALLIANCE ? NPC_HORDE_ROGUE : NPC_ALLIANCE_ROGUE);
             vOtherEntries.push_back(playerTeam == ALLIANCE ? NPC_HORDE_WARLOCK : NPC_ALLIANCE_WARLOCK);
             vOtherEntries.push_back(playerTeam == ALLIANCE ? NPC_HORDE_WARRIOR : NPC_ALLIANCE_WARRIOR);
-        
+
             uint8 healersSubtracted = 2;
             if (m_pInstance->instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_NORMAL || m_pInstance->instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_HEROIC)
                 healersSubtracted = 1;
@@ -176,8 +176,8 @@ public:
         {
             switch(uiType)
             {
-                case 0: 
-                    SummonChampions((Team)uiData); 
+                case 0:
+                    SummonChampions((Team)uiData);
                     break;
                 case 1:
                     for (std::list<uint64>::iterator i = Summons.begin(); i != Summons.end(); ++i)
@@ -192,7 +192,7 @@ public:
                 case 2:
                     switch(uiData)
                     {
-                        case FAIL: 
+                        case FAIL:
                             m_uiChampionsFailed++;
                             if (m_uiChampionsFailed + m_uiChampionsKilled >= Summons.size())
                             {
@@ -209,7 +209,7 @@ public:
                                 m_uiChampionsKilled = 0;
                                 m_bInProgress = true;
                                 Summons.DoZoneInCombat();
-                                m_pInstance->SetData(TYPE_CRUSADERS, IN_PROGRESS); 
+                                m_pInstance->SetData(TYPE_CRUSADERS, IN_PROGRESS);
                             }
                             break;
                         case DONE:
@@ -234,7 +234,7 @@ public:
 
 struct boss_faction_championsAI : public ScriptedAI
 {
-    boss_faction_championsAI(Creature* pCreature, uint32 aitype) : ScriptedAI(pCreature) 
+    boss_faction_championsAI(Creature* pCreature, uint32 aitype) : ScriptedAI(pCreature)
     {
         m_pInstance = (InstanceScript *) pCreature->GetInstanceScript();
         mAIType = aitype;
@@ -256,7 +256,7 @@ struct boss_faction_championsAI : public ScriptedAI
 
     void JustReachedHome()
     {
-        if (m_pInstance) 
+        if (m_pInstance)
             if (Creature* pChampionController = Unit::GetCreature((*me),m_pInstance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
                 pChampionController->AI()->SetData(2, FAIL);
         me->ForcedDespawn();
@@ -312,7 +312,7 @@ struct boss_faction_championsAI : public ScriptedAI
     void JustDied(Unit* /*killer*/)
     {
         if (mAIType != AI_PET)
-            if (m_pInstance) 
+            if (m_pInstance)
                 if (Creature* pChampionController = Unit::GetCreature((*me),m_pInstance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
                     pChampionController->AI()->SetData(2, DONE);
     }
@@ -321,7 +321,7 @@ struct boss_faction_championsAI : public ScriptedAI
     {
         DoCast(me, SPELL_ANTI_AOE, true);
         me->SetInCombatWithZone();
-        if (m_pInstance) 
+        if (m_pInstance)
             if (Creature* pChampionController = Unit::GetCreature((*me),m_pInstance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
                 pChampionController->AI()->SetData(2, IN_PROGRESS);
     }
@@ -344,7 +344,7 @@ struct boss_faction_championsAI : public ScriptedAI
                     if (Creature* pTemp = Unit::GetCreature(*me,m_pInstance->GetData64(NPC_VARIAN)))
                         DoScriptText(SAY_VARIAN_KILL_HORDE_PLAYER4+urand(0,3), pTemp); // + cause we are on negative
                 }
-                else 
+                else
                     if (Creature* pTemp = me->FindNearestCreature(NPC_GARROSH, 300.f))
                         DoScriptText(SAY_GARROSH_KILL_ALLIANCE_PLAYER4+urand(0,3), pTemp); // + cause we are on negative
 
@@ -357,7 +357,7 @@ struct boss_faction_championsAI : public ScriptedAI
     {
         std::list<Creature *> lst = DoFindFriendlyMissingBuff(40.0f, spell);
         std::list<Creature *>::const_iterator itr = lst.begin();
-        if (lst.empty()) 
+        if (lst.empty())
             return NULL;
         advance(itr, rand()%lst.size());
         return (*itr);
@@ -462,7 +462,7 @@ public:
     struct mob_toc_druidAI : public boss_faction_championsAI
     {
         mob_toc_druidAI(Creature* pCreature) : boss_faction_championsAI(pCreature, AI_HEALER) {}
-    
+
         uint32 m_uiNatureGraspTimer;
         uint32 m_uiTranquilityTimer;
         uint32 m_uiBarkskinTimer;
@@ -558,7 +558,7 @@ public:
     struct mob_toc_shamanAI : public boss_faction_championsAI
     {
         mob_toc_shamanAI(Creature *pCreature) : boss_faction_championsAI(pCreature, AI_HEALER) {}
-    
+
         uint32 m_uiHeroismOrBloodlustTimer;
         uint32 m_uiHexTimer;
         uint32 m_uiCommonTimer;
@@ -580,11 +580,11 @@ public:
             {
                 if (me->getFaction()) //Am i alliance?
                 {
-                    if (!me->HasAura(AURA_EXHAUSTION)) 
+                    if (!me->HasAura(AURA_EXHAUSTION))
                         DoCastAOE(SPELL_HEROISM);
                 }
-                else 
-                    if (!me->HasAura(AURA_SATED)) 
+                else
+                    if (!me->HasAura(AURA_SATED))
                         DoCastAOE(SPELL_BLOODLUST);
                 m_uiHeroismOrBloodlustTimer = urand(30*IN_MILLISECONDS,60*IN_MILLISECONDS);
             } else m_uiHeroismOrBloodlustTimer -= uiDiff;
@@ -758,7 +758,7 @@ public:
     struct mob_toc_priestAI : public boss_faction_championsAI
     {
         mob_toc_priestAI(Creature *pCreature) : boss_faction_championsAI(pCreature, AI_HEALER) {}
-    
+
         uint32 m_uiPsychicScreamTimer;
         uint32 m_uiCommonTimer;
 
@@ -1097,7 +1097,7 @@ public:
                 }
                 m_uiBlinkTimer = urand(7*IN_MILLISECONDS,25*IN_MILLISECONDS);
             } else m_uiBlinkTimer -= uiDiff;
-        
+
             if (m_uiIceBlockTimer <= uiDiff)
             {
                 if (HealthBelowPct(20))
@@ -1198,7 +1198,7 @@ public:
                     DoCast(SPELL_DISENGAGE);
                 m_uiDisengageTimer = urand(12*IN_MILLISECONDS,20*IN_MILLISECONDS);
             } else m_uiDisengageTimer -= uiDiff;
-        
+
             if (m_uiDeterrenceTimer <= uiDiff)
             {
                 if (HealthBelowPct(20))
@@ -1229,7 +1229,7 @@ public:
             {
                 m_uiSummonPetTimer = urand(15*IN_MILLISECONDS,30*IN_MILLISECONDS);
             } else m_uiSummonPetTimer -= uiDiff;
-        
+
             if (m_uiCommonTimer <= uiDiff)
             {
                 switch(urand(0,3))
@@ -1441,7 +1441,7 @@ public:
                 DoCastVictim(SPELL_CHARGE);
                 m_uiChargeTimer = urand(3*IN_MILLISECONDS,25*IN_MILLISECONDS);
             } else m_uiChargeTimer -= uiDiff;
-        
+
             if (m_uiRetaliationTimer <= uiDiff)
             {
                 DoCastVictim(SPELL_RETALIATION);
@@ -1528,7 +1528,7 @@ public:
                     DoCast(me,SPELL_ICEBOUND_FORTITUDE);
                 m_uiIceboundFortitudeTimer = urand(5*IN_MILLISECONDS,90*IN_MILLISECONDS);
             } else m_uiIceboundFortitudeTimer -= uiDiff;
-        
+
             if (m_uiChainsOfIceTimer <= uiDiff)
             {
                 if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
@@ -1548,7 +1548,7 @@ public:
                     DoCast(pTarget,SPELL_STRANGULATE);
                 m_uiStrangulateTimer = urand(10*IN_MILLISECONDS,90*IN_MILLISECONDS);
             } else m_uiStrangulateTimer -= uiDiff;
-        
+
             if (m_uiFrostStrikeTimer <= uiDiff)
             {
                 DoCastVictim(SPELL_FROST_STRIKE);
@@ -1560,14 +1560,14 @@ public:
                 DoCastVictim(SPELL_ICY_TOUCH);
                 m_uiIcyTouchTimer = urand(8*IN_MILLISECONDS,12*IN_MILLISECONDS);
             } else m_uiIcyTouchTimer -= uiDiff;
-        
+
             if (m_uiDeathGripTimer <= uiDiff)
             {
                 if (me->IsInRange(me->getVictim(), 10.0f, 30.0f, false))
-                    DoCastVictim(SPELL_DEATH_GRIP); 
+                    DoCastVictim(SPELL_DEATH_GRIP);
                 m_uiDeathGripTimer = urand(5*IN_MILLISECONDS,15*IN_MILLISECONDS);
             } else m_uiDeathGripTimer -= uiDiff;
-        
+
             boss_faction_championsAI::UpdateAI(uiDiff);
         }
     };
@@ -1630,7 +1630,7 @@ public:
                     DoCastAOE(SPELL_FAN_OF_KNIVES);
                 m_uiFanOfKnivesTimer = urand(8*IN_MILLISECONDS,10*IN_MILLISECONDS);
             } else m_uiFanOfKnivesTimer -= uiDiff;
-        
+
             if (m_uiHemorrhageTimer <= uiDiff)
             {
                 DoCastVictim(SPELL_HEMORRHAGE);
@@ -1727,8 +1727,8 @@ public:
         {
             Summons.Summon(pSummoned);
         }
-    
-        void SummonedCreatureDespawn(Creature* /*pSummoned*/) 
+
+        void SummonedCreatureDespawn(Creature* /*pSummoned*/)
         {
             --m_uiTotemCount;
         }
@@ -1765,11 +1765,11 @@ public:
             {
                 if (me->getFaction()) //Am i alliance?
                 {
-                    if (!me->HasAura(AURA_EXHAUSTION)) 
+                    if (!me->HasAura(AURA_EXHAUSTION))
                         DoCastAOE(SPELL_HEROISM);
                 }
-                else 
-                    if (!me->HasAura(AURA_SATED)) 
+                else
+                    if (!me->HasAura(AURA_SATED))
                         DoCastAOE(SPELL_BLOODLUST);
                 m_uiHeroismOrBloodlustTimer = urand(25*IN_MILLISECONDS,60*IN_MILLISECONDS);
             } else m_uiHeroismOrBloodlustTimer -= uiDiff;
@@ -1867,7 +1867,7 @@ public:
                     DoCast(pTarget,SPELL_REPENTANCE);
                 m_uiRepeteanceTimer = 60*IN_MILLISECONDS;
             } else m_uiRepeteanceTimer -= uiDiff;
-            
+
             if (m_uiCrusaderStrikeTimer <= uiDiff)
             {
                 DoCastVictim(SPELL_CRUSADER_STRIKE);
@@ -1898,7 +1898,7 @@ public:
                 DoCastVictim(SPELL_JUDGEMENT_OF_COMMAND);
                 m_uiJudgementOfCommandTimer = urand(8*IN_MILLISECONDS,15*IN_MILLISECONDS);
             } else m_uiJudgementOfCommandTimer -= uiDiff;
-            
+
             boss_faction_championsAI::UpdateAI(uiDiff);
         }
     };
@@ -1944,7 +1944,7 @@ public:
                 DoCastVictim(SPELL_DEVOUR_MAGIC);
                 m_uiDevourMagicTimer = urand(15*IN_MILLISECONDS,30*IN_MILLISECONDS);
             } else m_uiDevourMagicTimer -= uiDiff;
-        
+
             if (m_uiSpellLockTimer <= uiDiff)
             {
                 DoCastVictim(SPELL_SPELL_LOCK);

@@ -411,7 +411,7 @@ class mob_zealot_lorkhan : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
-        };        
+        };
 
         CreatureAI* GetAI(Creature* creature) const
         {

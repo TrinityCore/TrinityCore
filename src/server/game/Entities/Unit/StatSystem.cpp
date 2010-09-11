@@ -27,7 +27,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 
-inline bool _ModifyUInt32(bool apply, uint32& baseValue, int32& amount) 
+inline bool _ModifyUInt32(bool apply, uint32& baseValue, int32& amount)
 {
     // If amount is negative, change sign and value of apply.
     if (amount < 0)
@@ -37,7 +37,7 @@ inline bool _ModifyUInt32(bool apply, uint32& baseValue, int32& amount)
     }
     if (apply)
         baseValue += amount;
-    else 
+    else
     {
         // Make sure we do not get uint32 overflow.
         if (amount > int32(baseValue))

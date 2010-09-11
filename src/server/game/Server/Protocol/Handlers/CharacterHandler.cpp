@@ -1387,7 +1387,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
         SendPacket( &data );
         return;
     }
-    
+
     if (GetSecurity() == SEC_PLAYER)
     {
         uint32 raceMaskDisabled = sWorld.getIntConfig(CONFIG_CHARACTER_CREATING_DISABLED_RACEMASK);

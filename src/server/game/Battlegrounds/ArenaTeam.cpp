@@ -615,7 +615,7 @@ uint32 ArenaTeam::GetAverageMMR(Group *group) const
         matchmakerrating += itr->matchmaker_rating;
         ++player_divider;
     }
-    
+
     //- x/0 = crash
     if (player_divider == 0)
         player_divider = 1;
@@ -645,7 +645,7 @@ int32 ArenaTeam::GetRatingMod(uint32 own_rating, uint32 enemy_rating, bool won, 
     // calculate the rating modification
     // simulation on how it works. Not much info on how it really works
     float mod;
-    
+
     if (won && !calculating_mmr)
     {
         if (own_rating < 1000)

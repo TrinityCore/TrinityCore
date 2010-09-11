@@ -818,7 +818,7 @@ class WorldSession
     private:
         void ProcessQueryCallbacks();
 
-        ACE_Future_Set<QueryResult> m_nameQueryCallbacks;    
+        ACE_Future_Set<QueryResult> m_nameQueryCallbacks;
         QueryResultFuture m_charEnumCallback;
         QueryResultFuture m_addIgnoreCallback;
         QueryResultFuture m_stablePetCallback;
