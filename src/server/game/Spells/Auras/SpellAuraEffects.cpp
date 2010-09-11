@@ -376,7 +376,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
 AuraEffect::AuraEffect(Aura * base, uint8 effIndex, int32 *baseAmount, Unit * caster):
 m_base(base), m_spellProto(base->GetSpellProto()), m_effIndex(effIndex),
 m_baseAmount(baseAmount ? *baseAmount : m_spellProto->EffectBasePoints[m_effIndex]),
-m_canBeRecalculated(true), m_spellmod(NULL), m_isPeriodic(false), 
+m_canBeRecalculated(true), m_spellmod(NULL), m_isPeriodic(false),
 m_periodicTimer(0), m_tickNumber(0)
 {
     CalculatePeriodic(caster, true);
@@ -2928,7 +2928,7 @@ void AuraEffect::HandlePhase(AuraApplication const * aurApp, uint8 mode, bool ap
             else
                 target->SetPhaseMask(PHASEMASK_NORMAL, false);
         }
-        
+
         if (apply)
             target->ToPlayer()->GetSession()->SendSetPhaseShift(GetMiscValue());
         else
@@ -4095,7 +4095,7 @@ void AuraEffect::HandleModPossessPet(AuraApplication const * aurApp, uint8 mode,
 
         if (!pet->IsWithinDistInMap(caster, pet->GetMap()->GetVisibilityDistance()))
             pet->Remove(PET_SAVE_NOT_IN_SLOT, true);
-        else 
+        else
         {
             // Reinitialize the pet bar and make the pet come back to the owner
             caster->ToPlayer()->PetSpellInitialize();

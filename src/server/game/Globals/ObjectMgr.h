@@ -845,7 +845,7 @@ class ObjectMgr
         void DeleteCorpseCellData(uint32 mapid, uint32 cellid, uint32 player_guid);
 
         time_t GetCreatureRespawnTime(uint32 loguid, uint32 instance)
-        { 
+        {
             ACE_GUARD_RETURN(ACE_Thread_Mutex, guard, m_CreatureRespawnTimesMtx, 0);
             return mCreatureRespawnTimes[MAKE_PAIR64(loguid,instance)];
         }

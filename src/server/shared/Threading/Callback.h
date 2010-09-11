@@ -34,42 +34,42 @@ class QueryCallback
 {
     public:
         QueryCallback() {}
-        
+
         void SetFutureResult(QueryResultFuture value)
         {
             result = value;
         }
-        
+
         QueryResultFuture GetFutureResult()
         {
-            return result;    
+            return result;
         }
-        
+
         int IsReady()
         {
             return result.ready();
         }
-        
+
         void GetResult(QueryResult& res)
         {
             result.get(res);
         }
-        
+
         void FreeResult()
         {
             result.cancel();
         }
-        
+
         void SetParam(ParamType value)
         {
             param = value;
         }
-        
+
         ParamType GetParam()
         {
             return param;
         }
-        
+
     private:
         QueryResultFuture result;
         ParamType param;
@@ -80,32 +80,32 @@ class QueryCallback_2
 {
     public:
         QueryCallback_2() {}
-        
+
         void SetFutureResult(QueryResultFuture value)
         {
             result = value;
         }
-        
+
         QueryResultFuture GetFutureResult()
         {
-            return result;    
+            return result;
         }
-        
+
         int IsReady()
         {
             return result.ready();
         }
-        
+
         void GetResult(QueryResult& res)
         {
             result.get(res);
         }
-        
+
         void FreeResult()
         {
             result.cancel();
         }
-        
+
         void SetFirstParam(ParamType1 value)
         {
             param_1 = value;
@@ -115,7 +115,7 @@ class QueryCallback_2
         {
             param_2 = value;
         }
-        
+
         ParamType1 GetFirstParam()
         {
             return param_1;
@@ -125,7 +125,7 @@ class QueryCallback_2
         {
             return param_2;
         }
-        
+
     private:
         QueryResultFuture result;
         ParamType1 param_1;

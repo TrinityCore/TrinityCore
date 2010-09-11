@@ -55,7 +55,7 @@ class Transaction
         void Append(PreparedStatement* statement);
         void Append(const char* sql);
         void PAppend(const char* sql, ...);
-    
+
         size_t GetSize() { return m_queries.size(); }
 
     protected:

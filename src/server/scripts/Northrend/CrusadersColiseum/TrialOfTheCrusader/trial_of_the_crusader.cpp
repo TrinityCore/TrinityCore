@@ -97,7 +97,7 @@ enum
 class npc_announcer_toc10 : public CreatureScript
 {
     public:
-    
+
         npc_announcer_toc10() : CreatureScript("npc_announcer_toc10") { }
 
         struct npc_announcer_toc10AI : public ScriptedAI
@@ -126,10 +126,10 @@ class npc_announcer_toc10 : public CreatureScript
             InstanceScript* m_pInstance;
             m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
             if (!m_pInstance) return false;
-            
+
             char const* _message = "We are ready!";
 
-            if (!pPlayer->getAttackers().empty() || m_pInstance->IsEncounterInProgress() || m_pInstance->GetData(TYPE_EVENT)) 
+            if (!pPlayer->getAttackers().empty() || m_pInstance->IsEncounterInProgress() || m_pInstance->GetData(TYPE_EVENT))
                 return true;
 
             uint8 i;
@@ -174,7 +174,7 @@ class npc_announcer_toc10 : public CreatureScript
                     }
                     else
                     {
-                        if (m_pInstance->GetData(TYPE_JARAXXUS) != DONE) 
+                        if (m_pInstance->GetData(TYPE_JARAXXUS) != DONE)
                         {
                             m_pInstance->SetData(TYPE_EVENT,1010);
                             m_pInstance->SetData(TYPE_JARAXXUS,NOT_STARTED);
@@ -230,7 +230,7 @@ class npc_announcer_toc10 : public CreatureScript
 class boss_lich_king_toc : public CreatureScript
 {
     public:
-    
+
         boss_lich_king_toc() : CreatureScript("boss_lich_king_toc") { }
 
         struct boss_lich_king_tocAI : public ScriptedAI
@@ -304,7 +304,7 @@ class boss_lich_king_toc : public CreatureScript
                             m_uiUpdateTimer = 3000;
                             m_pInstance->SetData(TYPE_EVENT,5060);
                             break;
-                        case 5060: 
+                        case 5060:
                             DoScriptText(SAY_STAGE_4_05,me);
                             me->HandleEmoteCommand(EMOTE_ONESHOT_KNEEL);
                             m_uiUpdateTimer = 2500;
@@ -342,7 +342,7 @@ class boss_lich_king_toc : public CreatureScript
 class npc_fizzlebang_toc : public CreatureScript
 {
     public:
-    
+
         npc_fizzlebang_toc() : CreatureScript("npc_fizzlebang_toc") { }
 
         struct npc_fizzlebang_tocAI : public ScriptedAI
@@ -394,7 +394,7 @@ class npc_fizzlebang_toc : public CreatureScript
                         break;
                 }
             }
-            
+
             void JustSummoned(Creature* pSummoned)
             {
                 Summons.Summon(pSummoned);
@@ -467,17 +467,17 @@ class npc_fizzlebang_toc : public CreatureScript
                             m_uiUpdateTimer = 5000;
                             break;
                         case 1142:
-                            if (Creature* pTemp = Unit::GetCreature(*me,m_pInstance->GetData64(NPC_JARAXXUS))) 
+                            if (Creature* pTemp = Unit::GetCreature(*me,m_pInstance->GetData64(NPC_JARAXXUS)))
                                 pTemp->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
-                            if (Creature* pTrigger = Unit::GetCreature(*me,m_uiTriggerGUID)) 
+                            if (Creature* pTrigger = Unit::GetCreature(*me,m_uiTriggerGUID))
                                 pTrigger->ForcedDespawn();
-                            if (Creature* pPortal = Unit::GetCreature(*me,m_uiPortalGUID)) 
+                            if (Creature* pPortal = Unit::GetCreature(*me,m_uiPortalGUID))
                                 pPortal->ForcedDespawn();
                             m_pInstance->SetData(TYPE_EVENT, 1144);
                             m_uiUpdateTimer = 10000;
                             break;
                         case 1144:
-                            if (Creature* pTemp = Unit::GetCreature(*me,m_pInstance->GetData64(NPC_JARAXXUS))) 
+                            if (Creature* pTemp = Unit::GetCreature(*me,m_pInstance->GetData64(NPC_JARAXXUS)))
                                 DoScriptText(SAY_STAGE_1_05,pTemp);
                             m_pInstance->SetData(TYPE_EVENT, 1150);
                             m_uiUpdateTimer = 5000;
@@ -509,7 +509,7 @@ class npc_fizzlebang_toc : public CreatureScript
 class npc_tirion_toc : public CreatureScript
 {
     public:
-    
+
         npc_tirion_toc() : CreatureScript("npc_tirion_toc") { }
 
         struct npc_tirion_tocAI : public ScriptedAI
@@ -752,7 +752,7 @@ class npc_tirion_toc : public CreatureScript
                                 me->SetReactState(REACT_PASSIVE);
                             }
                             me->SummonCreature(NPC_DARKBANE, ToCCommonLoc[4].GetPositionX(), ToCCommonLoc[4].GetPositionY(), ToCCommonLoc[4].GetPositionZ(), 5, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
-                            if (Creature* pTemp = Unit::GetCreature((*me),m_pInstance->GetData64(NPC_DARKBANE))) 
+                            if (Creature* pTemp = Unit::GetCreature((*me),m_pInstance->GetData64(NPC_DARKBANE)))
                             {
                                 pTemp->GetMotionMaster()->MovePoint(0, ToCCommonLoc[7].GetPositionX(), ToCCommonLoc[7].GetPositionY(), ToCCommonLoc[7].GetPositionZ());
                                 pTemp->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
@@ -823,7 +823,7 @@ class npc_tirion_toc : public CreatureScript
 class npc_garrosh_toc : public CreatureScript
 {
     public:
-    
+
         npc_garrosh_toc() : CreatureScript("npc_garrosh_toc") { }
 
         struct npc_garrosh_tocAI : public ScriptedAI
@@ -901,7 +901,7 @@ class npc_garrosh_toc : public CreatureScript
 class npc_varian_toc : public CreatureScript
 {
     public:
-    
+
         npc_varian_toc() : CreatureScript("npc_varian_toc") { }
 
         struct npc_varian_tocAI : public ScriptedAI

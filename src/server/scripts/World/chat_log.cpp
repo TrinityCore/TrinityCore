@@ -54,7 +54,7 @@ public:
                 break;
         }
     }
-    
+
     void OnChat(Player *player, uint32 /*type*/, uint32 /*lang*/, std::string msg, Player *receiver)
     {
         if (sWorld.getBoolConfig(CONFIG_CHATLOG_WHISPER))

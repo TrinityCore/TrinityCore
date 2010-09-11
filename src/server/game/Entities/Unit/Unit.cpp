@@ -93,14 +93,14 @@ static bool isAlwaysTriggeredAura[TOTAL_AURAS];
 // Prepare lists
 static bool procPrepared = InitTriggerAuraData();
 
-// we can disable this warning for this since it only 
+// we can disable this warning for this since it only
 // causes undefined behavior when passed to the base class constructor
 #ifdef _MSC_VER
 #pragma warning(disable:4355)
 #endif
 Unit::Unit(): WorldObject(),
-m_movedPlayer(NULL), IsAIEnabled(false), NeedChangeAI(false), 
-m_ControlledByPlayer(false), i_AI(NULL), i_disabledAI(NULL), m_procDeep(0), 
+m_movedPlayer(NULL), IsAIEnabled(false), NeedChangeAI(false),
+m_ControlledByPlayer(false), i_AI(NULL), i_disabledAI(NULL), m_procDeep(0),
 m_removedAurasCount(0),  m_vehicle(NULL), i_motionMaster(this), m_vehicleKit(NULL),
 m_ThreatManager(this), m_unitTypeMask(UNIT_MASK_NONE), m_HostileRefManager(this)
 {
@@ -6494,7 +6494,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     break;
                 }
                 // Priest T10 Healer 2P Bonus
-                case 70770: 
+                case 70770:
                     // Flash Heal
                     if (procSpell->SpellFamilyFlags[0] & 0x800)
                     {

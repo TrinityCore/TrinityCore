@@ -68,14 +68,14 @@ enum BossSpells
     SPELL_EMERGE_ANUBARAK   = 65982,
     SPELL_SUMMON_BEATLES    = 66339,
     SPELL_SUMMON_BURROWER   = 66332,
-    
+
     // Burrow
     SPELL_CHURNING_GROUND   = 66969,
 
     // Scarab
     SPELL_DETERMINATION     = 66092,
     SPELL_ACID_MANDIBLE     = 65774, //Passive - Triggered
-    
+
     // Burrower
     SPELL_SPIDER_FRENZY     = 66128,
     SPELL_EXPOSE_WEAKNESS   = 67720, //Passive - Triggered
@@ -136,7 +136,7 @@ public:
         }
 
         InstanceScript* m_pInstance;
-    
+
         SummonList Summons;
         std::list<uint64> m_vBurrowGUID;
         uint64 m_aSphereGUID[6];
@@ -157,7 +157,7 @@ public:
         uint64 m_uiTargetGUID;
         uint8  m_uiScarabSummoned;
 
-        void Reset() 
+        void Reset()
         {
             m_uiFreezeSlashTimer = 15*IN_MILLISECONDS;
             m_uiPenetratingColdTimer = 20*IN_MILLISECONDS;
@@ -214,7 +214,7 @@ public:
         {
             Summons.DespawnAll();
             DoScriptText(SAY_DEATH,me);
-            if (m_pInstance) 
+            if (m_pInstance)
                 m_pInstance->SetData(TYPE_ANUBARAK, DONE);
         }
 
@@ -236,7 +236,7 @@ public:
             Summons.Summon(pSummoned);
         }
 
-        void SummonedCreatureDespawn(Creature* pSummoned) 
+        void SummonedCreatureDespawn(Creature* pSummoned)
         {
             switch(pSummoned->GetEntry())
             {
@@ -318,10 +318,10 @@ public:
                         // Just to make sure it won't happen again in this phase
                         m_uiPursuingSpikeTimer = 90*IN_MILLISECONDS;
                     } else m_uiPursuingSpikeTimer -= uiDiff;
-                
+
                     if (m_uiSummonScarabTimer <= uiDiff)
                     {
-                        /* WORKAROUND 
+                        /* WORKAROUND
                          * - The correct implementation is more likely the comment below but it needs spell knowledge
                          */
                         std::list<uint64>::iterator i = m_vBurrowGUID.begin();
@@ -347,7 +347,7 @@ public:
                         m_uiSubmergeTimer = 80*IN_MILLISECONDS;
                     } else m_uiSubmergeTimer -= uiDiff;
                     break;
-                case 3: 
+                case 3:
                     m_uiStage = 0;
                     DoCast(SPELL_SPIKE_TELE);
                     Summons.DespawnEntry(NPC_SPIKE);
@@ -384,7 +384,7 @@ public:
                 } else m_uiSummonFrostSphereTimer -= uiDiff;
             }
 
-            if (HealthBelowPct(30) && m_uiStage == 0 && !m_bReachedPhase3) 
+            if (HealthBelowPct(30) && m_uiStage == 0 && !m_bReachedPhase3)
             {
                 m_bReachedPhase3 = true;
                 DoCastAOE(SPELL_LEECHING_SWARM);
@@ -530,15 +530,15 @@ public:
                     DoCast(me,SPELL_EMERGE_EFFECT);
                     me->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                     me->CombatStart(me->SelectNearestTarget());
-                } 
-                else 
+                }
+                else
                 {
                     if (!me->HasAura(SPELL_PERMAFROST))
                     {
                         DoCast(me,SPELL_SUBMERGE_EFFECT);
                         me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                         me->CombatStop();
-                    }   
+                    }
                 }
                 m_uiSubmergeTimer = 20*IN_MILLISECONDS;
             } else m_uiSubmergeTimer -= uiDiff;
@@ -611,7 +611,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 uiDiff) 
+        void UpdateAI(const uint32 uiDiff)
         {
             if (m_uiPermafrostTimer)
             {
@@ -688,7 +688,7 @@ public:
 
             if (m_uiIncreaseSpeedTimer)
             {
-                if (m_uiIncreaseSpeedTimer <= uiDiff) 
+                if (m_uiIncreaseSpeedTimer <= uiDiff)
                 {
                     switch (m_uiSpeed)
                     {

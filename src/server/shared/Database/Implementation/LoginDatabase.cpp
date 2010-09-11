@@ -22,7 +22,7 @@ bool LoginDatabaseConnection::Open(const std::string& infoString)
 {
     if (!MySQLConnection::Open(infoString))
         return false;
-    
+
     m_stmts.resize(MAX_LOGINDATABASE_STATEMENTS);
 
     /*

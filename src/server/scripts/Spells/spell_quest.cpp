@@ -34,8 +34,8 @@ private:
     uint32 _despawnTime;
 
 public:
-    spell_generic_quest_update_entry_SpellScript(uint32 spellEffect, uint8 effIndex, uint32 originalEntry, uint32 newEntry, bool shouldAttack, uint32 despawnTime = 0) : 
-        SpellScript(), _spellEffect(spellEffect), _effIndex(effIndex), _originalEntry(originalEntry), 
+    spell_generic_quest_update_entry_SpellScript(uint32 spellEffect, uint8 effIndex, uint32 originalEntry, uint32 newEntry, bool shouldAttack, uint32 despawnTime = 0) :
+        SpellScript(), _spellEffect(spellEffect), _effIndex(effIndex), _originalEntry(originalEntry),
         _newEntry(newEntry), _shouldAttack(shouldAttack), _despawnTime(despawnTime) { }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)

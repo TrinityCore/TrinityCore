@@ -27,7 +27,7 @@ public:
         libmpq__file_unpacked_size(mpq_a, filenum, &size);
 
         char *buffer = new char[size];
-        
+
         libmpq__file_read(mpq_a, filenum, (unsigned char*)buffer, size, &transferred);
 
         char seps[] = "\n";
