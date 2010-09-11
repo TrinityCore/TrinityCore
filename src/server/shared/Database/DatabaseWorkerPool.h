@@ -287,6 +287,16 @@ class DatabaseWorkerPool
 
         MySQLThreadBundle GetBundleMask() { return m_bundleMask; } 
 
+        PreparedResultSet* Query(PreparedStatement* stmt)
+        {
+            PreparedResultSet* ret = GetConnection()->Query(stmt);
+            if (!ret || !ret->num_rows)
+                return NULL;
+
+            ret->NextRow();
+            return ret;
+        }
+
     private:
         unsigned long escape_string(char *to, const char *from, unsigned long length)
         {

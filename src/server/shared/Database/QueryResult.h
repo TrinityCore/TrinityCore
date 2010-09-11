@@ -95,5 +95,148 @@ class QueryNamedResult
         QueryFieldNames mFieldNames;
 };
 
+class ResultBind
+{
+    friend class PreparedResultSet;
+    public:
+
+        ResultBind(MYSQL_STMT* stmt) : m_stmt(stmt), m_fieldCount(NULL), m_isNull(NULL), m_length(NULL), m_rBind(NULL) {}
+        ~ResultBind()
+        {
+            if (!m_fieldCount)
+                return;
+
+            CleanUp();  // Clean up buffer
+            mysql_stmt_free_result(m_stmt);
+        }
+
+        void BindResult(uint32& num_rows);
+
+    protected:
+        MYSQL_BIND* m_rBind;
+        MYSQL_STMT* m_stmt;
+        MYSQL_RES* m_res;
+
+        void FreeBindBuffer();
+        bool IsValidIndex(uint32 index) { return index < m_fieldCount; }
+
+    private:
+
+        void CleanUp();
+
+        size_t SizeForType(MYSQL_FIELD* field)
+        {
+            switch (field->type)
+            {
+                case MYSQL_TYPE_NULL:
+                    return 0;
+                case MYSQL_TYPE_TINY:
+                    return 1;
+                case MYSQL_TYPE_YEAR:
+                case MYSQL_TYPE_SHORT:
+                    return 2;
+                case MYSQL_TYPE_INT24:
+                case MYSQL_TYPE_LONG:
+                case MYSQL_TYPE_FLOAT:
+                    return 4;
+                case MYSQL_TYPE_DOUBLE:
+                case MYSQL_TYPE_LONGLONG:
+                case MYSQL_TYPE_BIT:
+                    return 8;
+
+                case MYSQL_TYPE_TIMESTAMP:
+                case MYSQL_TYPE_DATE:
+                case MYSQL_TYPE_TIME:
+                case MYSQL_TYPE_DATETIME:
+                    return sizeof(MYSQL_TIME);
+
+                case MYSQL_TYPE_TINY_BLOB:
+                case MYSQL_TYPE_MEDIUM_BLOB:
+                case MYSQL_TYPE_LONG_BLOB:
+                case MYSQL_TYPE_BLOB:
+                case MYSQL_TYPE_STRING:
+                case MYSQL_TYPE_VAR_STRING:
+                    return field->max_length + 1;
+
+                case MYSQL_TYPE_DECIMAL:
+                case MYSQL_TYPE_NEWDECIMAL:
+                    return 64;
+
+                case MYSQL_TYPE_GEOMETRY:
+                /* 
+                Following types are not sent over the wire:
+                MYSQL_TYPE_ENUM:
+                MYSQL_TYPE_SET:
+                */
+                default:
+                    sLog.outSQLDriver("ResultBind::SizeForType(): invalid field type %u", uint32(field->type));
+                    return 0;
+            }
+        }
+
+        my_bool* m_isNull;
+        unsigned long* m_length;
+        uint32 m_fieldCount;
+};
+
+class PreparedResultSet
+{
+    template<class T> friend class DatabaseWorkerPool;
+    public:
+        PreparedResultSet(MYSQL_STMT* stmt) : num_rows(0), row_position(0)
+        {
+            rbind = new ResultBind(stmt);
+            rbind->BindResult(num_rows);
+        }
+        ~PreparedResultSet()
+        {
+            delete rbind;
+        }
+
+        operator bool() { return num_rows > 0; }
+
+        uint8 GetUInt8(uint32 index);
+        int8 GetInt8(uint32 index);
+        uint16 GetUInt16(uint32 index);
+        int16 GetInt16(uint32 index);
+        uint32 GetUInt32(uint32 index);
+        int32 GetInt32(uint32 index);
+        float GetFloat(uint32 index);
+        std::string GetString(uint32 index);
+
+        bool NextRow()
+        {
+            if (row_position >= num_rows)
+                return false;
+
+            int retval = mysql_stmt_fetch( rbind->m_stmt );
+                
+            if (!retval || retval == MYSQL_DATA_TRUNCATED)
+                retval = true;
+
+            if (retval == MYSQL_NO_DATA)
+                retval = false;
+
+            ++row_position;
+            return retval;
+        }
+
+    private:
+        bool CheckFieldIndex(uint32 index)  const
+        {   
+            if (!rbind->IsValidIndex(index))
+                return false;
+        
+            if (rbind->m_isNull[index])
+                return false;
+
+            return true;
+        }
+
+        ResultBind* rbind;
+        uint32 row_position;
+        uint32 num_rows;
+};
+
 #endif
 
