@@ -335,4 +335,13 @@ void MySQLConnection::PrepareStatement(uint32 index, const char* sql)
     MySQLPreparedStatement* mStmt = new MySQLPreparedStatement(stmt);
     m_stmts[index] = mStmt;
 }
-    
+
+PreparedResultSet* MySQLConnection::Query(PreparedStatement* stmt)
+{
+    this->Execute(stmt);
+    if (mysql_more_results(m_Mysql))
+    {
+        mysql_next_result(m_Mysql);
+    }
+    return new PreparedResultSet(stmt->m_stmt->GetSTMT());
+}
