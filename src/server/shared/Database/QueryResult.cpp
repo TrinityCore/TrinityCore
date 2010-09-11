@@ -133,7 +133,7 @@ void ResultBind::BindResult(uint32& num_rows)
     //- This is where we prepare the buffer based on metadata
     uint32 i = 0;
     MYSQL_FIELD* field;
-    while (field = mysql_fetch_field(m_res))
+    while ((field = mysql_fetch_field(m_res)))
     {
         size_t size = SizeForType(field);
         if (size == 0)

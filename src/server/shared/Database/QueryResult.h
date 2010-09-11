@@ -101,7 +101,8 @@ class ResultBind
     friend class PreparedResultSet;
     public:
 
-        ResultBind(MYSQL_STMT* stmt) : m_stmt(stmt), m_fieldCount(NULL), m_isNull(NULL), m_length(NULL), m_rBind(NULL) {}
+        ResultBind(MYSQL_STMT* stmt) : m_rBind(NULL), m_stmt(stmt), m_isNull(NULL), m_length(NULL), m_fieldCount(0) {}
+
         ~ResultBind()
         {
             if (!m_fieldCount)
