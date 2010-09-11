@@ -822,7 +822,6 @@ uint32 ScriptMgr::GetDialogStatus(Player* player, GameObject* go)
 
 void ScriptMgr::OnGameObjectDestroyed(Player* player, GameObject* go, uint32 eventId)
 {
-    ASSERT(player);
     ASSERT(go);
 
     GET_SCRIPT(GameObjectScript, go->GetScriptId(), tmpscript);
