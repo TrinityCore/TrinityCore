@@ -185,8 +185,10 @@ class PreparedResultSet
 {
     template<class T> friend class DatabaseWorkerPool;
     public:
-        PreparedResultSet(MYSQL_STMT* stmt) : num_rows(0), row_position(0)
+        PreparedResultSet(MYSQL_STMT* stmt)
         {
+            num_rows = 0;
+            row_position = 0;
             rbind = new ResultBind(stmt);
             rbind->BindResult(num_rows);
         }
