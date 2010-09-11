@@ -224,7 +224,7 @@ class PreparedResultSet
         uint32 num_rows;
 };
 
-typedef ACE_Refcounted_Auto_Ptr<PreparedResultSet*, ACE_Null_Mutex> PreparedQueryResult;
+typedef ACE_Refcounted_Auto_Ptr<PreparedResultSet, ACE_Null_Mutex> PreparedQueryResult;
 
 #endif
 

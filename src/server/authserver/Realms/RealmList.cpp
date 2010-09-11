@@ -78,20 +78,30 @@ void RealmList::UpdateRealms(bool init)
 {
     sLog.outDetail("Updating Realm List...");
 
-    QueryResult_AutoPtr result = LoginDatabase.Query("SELECT id, name, address, port, icon, color, timezone, allowedSecurityLevel, population, gamebuild FROM realmlist WHERE color <> 3 ORDER BY name");
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_REALMLIST);
+    PreparedQueryResult result = LoginDatabase.Query(stmt);
 
     ///- Circle through results and add them to the realm map
     if (result)
     {
         do
         {
-            Field *fields = result->Fetch();
+            uint32 realmId = result->GetUInt32(0); 
+            const std::string& name = result->GetString(1);
+            const std::string& address = result->GetString(2);
+            uint32 port = result->GetUInt32(3);
+            uint8 icon = result->GetUInt8(4);
+            uint8 color = result->GetUInt8(5);
+            uint8 timezone = result->GetUInt8(6);
+            uint8 allowedSecurityLevel = result->GetUInt8(7);
+            float pop = result->GetFloat(8);
+            uint32 build = result->GetUInt32(9);
+                        
+            UpdateRealm(realmId, name, address, port, icon, color, timezone, (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop, build);
 
-            uint8 allowedSecurityLevel = fields[7].GetUInt8();
-
-            UpdateRealm(fields[0].GetUInt32(), fields[1].GetCppString(),fields[2].GetCppString(),fields[3].GetUInt32(),fields[4].GetUInt8(), fields[5].GetUInt8(), fields[6].GetUInt8(), (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), fields[8].GetFloat(), fields[9].GetUInt32());
             if (init)
-                sLog.outString("Added realm \"%s\".", fields[1].GetString());
-        } while(result->NextRow());
+                sLog.outString("Added realm \"%s\".", result->GetString(1).c_str());
+        }
+        while (result->NextRow());
     }
 }
