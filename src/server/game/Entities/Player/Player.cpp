@@ -22723,6 +22723,74 @@ void Player::AutoStoreLoot(uint8 bag, uint8 slot, uint32 loot_id, LootStore cons
     }
 }
 
+void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
+{
+    QuestItem *qitem = NULL;
+    QuestItem *ffaitem = NULL;
+    QuestItem *conditem = NULL;
+
+    LootItem *item = loot->LootItemInSlot(lootSlot, this, &qitem, &ffaitem, &conditem);
+
+    if (!item)
+    {
+        SendEquipError(EQUIP_ERR_ALREADY_LOOTED, NULL, NULL);
+        return;
+    }
+
+    // questitems use the blocked field for other purposes
+    if (!qitem && item->is_blocked)
+    {
+        SendLootRelease(GetLootGUID());
+        return;
+    }
+
+    ItemPosCountVec dest;
+    uint8 msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item->itemid, item->count);
+    if (msg == EQUIP_ERR_OK)
+    {
+        Item * newitem = StoreNewItem(dest, item->itemid, true, item->randomPropertyId);
+
+        if (qitem)
+        {
+            qitem->is_looted = true;
+            //freeforall is 1 if everyone's supposed to get the quest item.
+            if (item->freeforall || loot->GetPlayerQuestItems().size() == 1)
+                SendNotifyLootItemRemoved(lootSlot);
+            else
+                loot->NotifyQuestItemRemoved(qitem->index);
+        }
+        else
+        {
+            if (ffaitem)
+            {
+                //freeforall case, notify only one player of the removal
+                ffaitem->is_looted = true;
+                SendNotifyLootItemRemoved(lootSlot);
+            }
+            else
+            {
+                //not freeforall, notify everyone
+                if (conditem)
+                    conditem->is_looted = true;
+                loot->NotifyItemRemoved(lootSlot);
+            }
+        }
+
+        //if only one person is supposed to loot the item, then set it to looted
+        if (!item->freeforall)
+            item->is_looted = true;
+
+        --loot->unlootedCount;
+
+        SendNewItem(newitem, uint32(item->count), false, false, true);
+        GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item->itemid, item->count);
+        GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, loot->loot_type, item->count);
+        GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, item->itemid, item->count);
+    }
+    else
+        SendEquipError(msg, NULL, NULL, item->itemid);
+}
+
 uint32 Player::CalculateTalentsPoints() const
 {
     uint32 base_talent = getLevel() < 10 ? 0 : getLevel()-9;
