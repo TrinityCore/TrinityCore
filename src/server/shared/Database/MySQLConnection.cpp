@@ -122,10 +122,12 @@ bool MySQLConnection::Open(const std::string& infoString)
 
     if (m_Mysql)
     {
-        sLog.outDetail("Connected to MySQL database at %s", host.c_str());
         sLog.outSQLDriver("MySQL client library: %s", mysql_get_client_info());
-        sLog.outSQLDriver("MySQL server ver: %s ", mysql_get_server_info( m_Mysql));
+        sLog.outSQLDriver("MySQL server ver: %s ", mysql_get_server_info(m_Mysql));
+        if (mysql_get_server_version(m_Mysql) != mysql_get_client_version())
+            sLog.outSQLDriver("[WARNING] MySQL client/server version mismatch; may conflict with behaviour of prepared statements.");
 
+        sLog.outDetail("Connected to MySQL database at %s", host.c_str());
         if (!mysql_autocommit(m_Mysql, 1))
             sLog.outSQLDriver("AUTOCOMMIT SUCCESSFULLY SET TO 1");
         else
