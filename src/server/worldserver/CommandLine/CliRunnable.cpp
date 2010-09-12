@@ -106,7 +106,7 @@ void utf8print(void* /*arg*/, const char* str)
     printf(temp_buf);
 #else
 {
-    va_list v = NULL;
+    va_list v;
     vprintf(str, v);
     va_end(v);
     fflush(stdout);
