@@ -3738,7 +3738,7 @@ void Spell::finish(bool ok)
         }
     }
 
-    if (IsMeleeAttackResetSpell())
+    if (IsAutoActionResetSpell())
     {
         bool found = false;
         Unit::AuraEffectList const& vIgnoreReset = m_caster->GetAuraEffectsByType(SPELL_AURA_IGNORE_MELEE_RESET);
@@ -3750,13 +3750,12 @@ void Spell::finish(bool ok)
                 break;
             }
         }
-        if (!found)
+        if (!found && !(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_NOT_RESET_AUTO_ACTIONS))
         {
             m_caster->resetAttackTimer(BASE_ATTACK);
             if (m_caster->haveOffhandWeapon())
                 m_caster->resetAttackTimer(OFF_ATTACK);
-            if (!(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_NOT_RESET_AUTOSHOT))
-                m_caster->resetAttackTimer(RANGED_ATTACK);
+            m_caster->resetAttackTimer(RANGED_ATTACK);
         }
     }
 
