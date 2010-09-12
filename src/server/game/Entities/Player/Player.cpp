@@ -7173,6 +7173,8 @@ void Player::DuelComplete(DuelCompleteType type)
         SendMessageToSet(&data,true);
     }
 
+    sScriptMgr.OnPlayerDuelEnd(duel->opponent, this, type);
+
     switch (type)
     {
         case DUEL_FLED:
@@ -18475,6 +18477,8 @@ void Player::UpdateDuelFlag(time_t currTime)
 {
     if (!duel || duel->startTimer == 0 ||currTime < duel->startTimer + 3)
         return;
+
+    sScriptMgr.OnPlayerDuelStart(this, duel->opponent);
 
     SetUInt32Value(PLAYER_DUEL_TEAM, 1);
     duel->opponent->SetUInt32Value(PLAYER_DUEL_TEAM, 2);
