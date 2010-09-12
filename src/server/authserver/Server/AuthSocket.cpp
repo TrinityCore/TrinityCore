@@ -298,7 +298,7 @@ void AuthSocket::_SetVSFields(const std::string& rI)
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SET_VS);
     stmt->setString(0, v_hex);
     stmt->setString(1, s_hex);
-    stmt->setString(2, _safelogin);
+    stmt->setString(2, _login);
     LoginDatabase.Execute(stmt);
 
     OPENSSL_free((void*)v_hex);
@@ -618,7 +618,7 @@ bool AuthSocket::_HandleLogonProof()
         stmt->setString(0, K_hex);
         stmt->setString(1, socket().get_remote_address().c_str());
         stmt->setUInt32(2, GetLocaleByName(_localizationName));
-        stmt->setString(3, _safelogin);
+        stmt->setString(3, _login);
         LoginDatabase.Execute(stmt);
 
         OPENSSL_free((void*)K_hex);
