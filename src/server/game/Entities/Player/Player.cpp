@@ -889,8 +889,8 @@ bool Player::Create(uint32 guidlow, const std::string& name, uint8 race, uint8 c
                         count = 2;
                         break;
                 }
-                if (uint32(iProto->Stackable) < count)
-                    count = iProto->Stackable;
+                if (iProto->GetMaxStackSize() < count)
+                    count = iProto->GetMaxStackSize();
             }
             StoreNewItemInBestSlots(item_id, count);
         }
@@ -15526,7 +15526,7 @@ bool Player::HasQuestForItem(uint32 itemid) const
                     {
                         if (GetItemCount(itemid, true) < qinfo->ReqSourceCount[j])
                             return true;
-                    } else if (int32(GetItemCount(itemid, true)) < pProto->Stackable)
+                    } else if (GetItemCount(itemid, true) < pProto->GetMaxStackSize())
                         return true;
                 }
             }
