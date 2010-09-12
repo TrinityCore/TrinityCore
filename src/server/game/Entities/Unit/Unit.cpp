@@ -101,8 +101,8 @@ static bool procPrepared = InitTriggerAuraData();
 Unit::Unit(): WorldObject(),
 m_movedPlayer(NULL), IsAIEnabled(false), NeedChangeAI(false),
 m_ControlledByPlayer(false), i_AI(NULL), i_disabledAI(NULL), m_procDeep(0),
-m_removedAurasCount(0),  m_vehicle(NULL), i_motionMaster(this), m_vehicleKit(NULL),
-m_ThreatManager(this), m_unitTypeMask(UNIT_MASK_NONE), m_HostileRefManager(this)
+m_removedAurasCount(0), i_motionMaster(this), m_ThreatManager(this), m_vehicle(NULL),
+m_vehicleKit(NULL), m_unitTypeMask(UNIT_MASK_NONE), m_HostileRefManager(this)
 {
 #ifdef _MSC_VER
 #pragma warning(default:4355)
