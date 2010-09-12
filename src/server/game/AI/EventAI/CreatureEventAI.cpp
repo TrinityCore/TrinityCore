@@ -697,13 +697,13 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
         case ACTION_T_KILLED_MONSTER:
             //first attempt player who tapped creature
             if (Player* pPlayer = me->GetLootRecipient())
-                pPlayer->RewardPlayerAndGroupAtEvent(action.killed_monster.creatureId, me);
+                pPlayer->RewardPlayerAndGroupAtEvent(action.killed_monster.creatureId, pPlayer);    // pPlayer as param is a hacky solution not to use GUID
             else
             {
                 //if not available, use pActionInvoker
                 if (Unit* pTarget = GetTargetByType(action.killed_monster.target, pActionInvoker))
                     if (Player* pPlayer2 = pTarget->GetCharmerOrOwnerPlayerOrPlayerItself())
-                        pPlayer2->RewardPlayerAndGroupAtEvent(action.killed_monster.creatureId, me);
+                        pPlayer2->RewardPlayerAndGroupAtEvent(action.killed_monster.creatureId, pPlayer);
             }
             break;
         case ACTION_T_SET_INST_DATA:
