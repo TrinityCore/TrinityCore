@@ -1116,6 +1116,21 @@ void ScriptMgr::OnPlayerReputationChange(Player *player, uint32 factionID, int32
     FOREACH_SCRIPT(PlayerScript)->OnReputationChange(player, factionID, standing, incremental);
 }
 
+void ScriptMgr::OnPlayerDuelRequest(Player *target, Player *challenger)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnDuelRequest(target, challenger);
+}
+
+void ScriptMgr::OnPlayerDuelStart(Player *player1, Player *player2)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnDuelStart(player1, player2);
+}
+
+void ScriptMgr::OnPlayerDuelEnd(Player *winner, Player *looser, DuelCompleteType type)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnDuelEnd(winner, looser, type);
+}
+
 void ScriptMgr::OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string msg)
 {
     FOREACH_SCRIPT(PlayerScript)->OnChat(player, type, lang, msg);
