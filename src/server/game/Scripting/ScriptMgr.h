@@ -674,6 +674,15 @@ class PlayerScript : public ScriptObject
         // Called when a player's reputation changes (before it is actually changed)
         virtual void OnReputationChange(Player* /*player*/, uint32 /*factionID*/, int32& /*standing*/, bool /*incremental*/) { }
 
+        // Called when a duel is requested
+        virtual void OnDuelRequest(Player* /*target*/, Player* /*challenger*/) { }
+
+        // Called when a duel starts (after 3s countdown)
+        virtual void OnDuelStart(Player* /*player1*/, Player* /*player2*/) { }
+        
+        // Called when a duel ends
+        virtual void OnDuelEnd(Player* /*winner*/, Player* /*looser*/, DuelCompleteType /*type*/) { }
+
         // The following methods are called when a player sends a chat message
         virtual void OnChat(Player* /*player*/, uint32 /*type*/, uint32 /*lang*/, std::string /*msg*/) { }
         virtual void OnChat(Player* /*player*/, uint32 /*type*/, uint32 /*lang*/, std::string /*msg*/, Player* /*receiver*/) { }
@@ -885,6 +894,9 @@ class ScriptMgr
         void OnPlayerMoneyChanged(Player *player, int32& amount);
         void OnGivePlayerXP(Player *player, uint32& amount, Unit *victim);
         void OnPlayerReputationChange(Player *player, uint32 factionID, int32& standing, bool incremental);
+        void OnPlayerDuelRequest(Player* target, Player* challenger);
+        void OnPlayerDuelStart(Player* player1, Player* player2);
+        void OnPlayerDuelEnd(Player* winner, Player* looser, DuelCompleteType type);
         void OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string msg);
         void OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string msg, Player* receiver);
         void OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string msg, Group* group);
