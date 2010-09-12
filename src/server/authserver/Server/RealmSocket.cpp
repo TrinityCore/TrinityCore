@@ -107,7 +107,7 @@ int RealmSocket::close(int)
     return 0;
 }
 
-const ACE_CString& RealmSocket::get_remote_address(void) const
+const std::string& RealmSocket::get_remote_address(void) const
 {
     return remote_address_;
 }
