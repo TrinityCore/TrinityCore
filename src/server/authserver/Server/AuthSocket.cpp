@@ -389,7 +389,7 @@ bool AuthSocket::_HandleLogonChallenge()
             {
                 sLog.outStaticDebug("[AuthChallenge] Account '%s' is locked to IP - '%s'", _login.c_str(), res2->GetString(3));
                 sLog.outStaticDebug("[AuthChallenge] Player address is '%s'", ip_address.c_str());
-                if (strcmp(res2->GetString(3).c_str(), ip_address.c_str()))
+                if (strcmp(res2->GetCString(3), ip_address.c_str()))
                 {
                     sLog.outStaticDebug("[AuthChallenge] Account IP differs");
                     pkt << (uint8) WOW_FAIL_SUSPENDED;
@@ -753,7 +753,7 @@ bool AuthSocket::_HandleReconnectChallenge()
         return false;
     }
 
-    K.SetHexStr (result->GetString(0).c_str());
+    K.SetHexStr (result->GetCString(0));
 
     ///- Sending response
     ByteBuffer pkt;
