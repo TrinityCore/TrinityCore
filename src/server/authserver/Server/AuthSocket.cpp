@@ -426,7 +426,7 @@ bool AuthSocket::_HandleLogonChallenge()
                 else
                 {
                     ///- Get the password from the account table, upper it, and make the SRP6 calculation
-                    std::string rI = res2->GetString(1);
+                    std::string rI = res2->GetString(0);
 
                     ///- Don't calculate (v, s) if there are already some in the database
                     std::string databaseV = res2->GetString(5);
