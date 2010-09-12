@@ -211,6 +211,7 @@ class PreparedResultSet
         int64 GetInt64(uint32 index);
         float GetFloat(uint32 index);
         std::string GetString(uint32 index);
+        const char* GetCString(uint32 index);
 
         bool NextRow();
 

@@ -260,6 +260,14 @@ std::string PreparedResultSet::GetString(uint32 index)
     return std::string(static_cast<char const*>(rbind->m_rBind[index].buffer), *rbind->m_rBind[index].length);
 }
 
+const char* PreparedResultSet::GetCString(uint32 index)
+{
+    if (!CheckFieldIndex(index))
+        return '\0';
+
+    return static_cast<char const*>(rbind->m_rBind[index].buffer);
+}
+
 bool PreparedResultSet::NextRow()
 {
     if (row_position >= num_rows)
