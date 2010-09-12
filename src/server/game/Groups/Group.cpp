@@ -1607,10 +1607,6 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
     // check for min / max count
     uint32 memberscount = GetMembersCount();
 
-    // only check for MinPlayerCount since MinPlayerCount == MaxPlayerCount for arenas...
-    if (bgOrTemplate->isArena() && memberscount != MinPlayerCount)
-        return ERR_ARENA_TEAM_PARTY_SIZE;
-
     if (memberscount > bgEntry->maxGroupSize)                // no MinPlayerCount for battlegrounds
         return ERR_BATTLEGROUND_NONE;                        // ERR_GROUP_JOIN_BATTLEGROUND_TOO_MANY handled on client side
 
@@ -1630,7 +1626,8 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
     BattlegroundQueueTypeId bgQueueTypeIdRandom = BattlegroundMgr::BGQueueTypeId(BATTLEGROUND_RB, 0);
 
     // check every member of the group to be able to join
-    for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
+    memberscount = 1;
+    for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next(), ++memberscount)
     {
         Player *member = itr->getSource();
         // offline member? don't let join
@@ -1662,6 +1659,11 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
         if (!member->HasFreeBattlegroundQueueId())
             return ERR_BATTLEGROUND_TOO_MANY_QUEUES;        // not blizz-like
     }
+
+    // only check for MinPlayerCount since MinPlayerCount == MaxPlayerCount for arenas...
+    if (bgOrTemplate->isArena() && memberscount != MinPlayerCount)
+        return ERR_ARENA_TEAM_PARTY_SIZE;
+
     return GroupJoinBattlegroundResult(bgOrTemplate->GetTypeID());
 }
 
