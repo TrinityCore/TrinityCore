@@ -108,20 +108,26 @@ enum Field::DataTypes ResultSet::ConvertNativeType(enum_field_types mysqlType) c
 void ResultBind::BindResult(uint32& num_rows)
 {
     FreeBindBuffer();
-    m_fieldCount = mysql_stmt_field_count(m_stmt);
-    if (!m_fieldCount)
-        return;
-
-    m_rBind = new MYSQL_BIND[m_fieldCount];
-    memset(m_rBind, 0, sizeof(MYSQL_BIND) * m_fieldCount);
-
-    m_isNull = new my_bool[m_fieldCount];
-    memset(m_isNull, 0, sizeof(my_bool) * m_fieldCount);
-
-    m_length = new unsigned long[m_fieldCount];
-    memset(m_length, 0, sizeof(unsigned long) * m_fieldCount);
 
     m_res = mysql_stmt_result_metadata(m_stmt);
+    if (!m_res)
+        return;
+
+    m_fieldCount = mysql_stmt_field_count(m_stmt);
+
+    if (m_stmt->bind_result_done)
+    {
+        delete[] m_stmt->bind->length;
+        delete[] m_stmt->bind->is_null;
+    }
+
+    m_rBind = new MYSQL_BIND[m_fieldCount];
+    m_isNull = new my_bool[m_fieldCount];
+    m_length = new unsigned long[m_fieldCount];
+    
+    memset(m_isNull, 0, sizeof(my_bool) * m_fieldCount);
+    memset(m_rBind, 0, sizeof(MYSQL_BIND) * m_fieldCount);
+    memset(m_length, 0, sizeof(unsigned long) * m_fieldCount);
 
     //- This is where we store the (entire) resultset
     if (mysql_stmt_store_result(m_stmt))
@@ -136,11 +142,9 @@ void ResultBind::BindResult(uint32& num_rows)
     while ((field = mysql_fetch_field(m_res)))
     {
         size_t size = SizeForType(field);
-        if (size == 0)
-            size = field->max_length + 1;
 
         m_rBind[i].buffer_type = field->type;
-        m_rBind[i].buffer = new char[size];
+        m_rBind[i].buffer = malloc(size);
         memset(m_rBind[i].buffer, 0, size);
         m_rBind[i].buffer_length = size;
         m_rBind[i].length = &m_length[i];
@@ -155,6 +159,9 @@ void ResultBind::BindResult(uint32& num_rows)
     if (mysql_stmt_bind_result(m_stmt, m_rBind))
     {
         sLog.outSQLDriver("%s:mysql_stmt_bind_result, cannot bind result from MySQL server. Error: %s", __FUNCTION__, mysql_stmt_error(m_stmt));
+        delete[] m_rBind;
+        delete[] m_isNull;
+        delete[] m_length;
         return;
     }
 
@@ -164,18 +171,13 @@ void ResultBind::BindResult(uint32& num_rows)
 void ResultBind::FreeBindBuffer()
 {
     for (uint32 i = 0; i < m_fieldCount; ++i)
-    {
-        delete[] (char *) m_rBind[i].buffer;
-        m_rBind[i].buffer = NULL;
-    }
-    m_rBind = NULL;
+        free (m_rBind[i].buffer);
 }
 
 void ResultBind::CleanUp()
 {
     FreeBindBuffer();
-    delete[] m_isNull;
-    delete[] m_length;
+    mysql_stmt_free_result(m_stmt);
 }
 
 uint8 PreparedResultSet::GetUInt8(uint32 index)
@@ -232,6 +234,22 @@ float PreparedResultSet::GetFloat(uint32 index)
         return 0;
 
     return *reinterpret_cast<float*>(rbind->m_rBind[index].buffer);
+}
+
+uint64 PreparedResultSet::GetUInt64(uint32 index)
+{
+    if (!CheckFieldIndex(index))
+        return 0;            
+
+    return *reinterpret_cast<uint64*>(rbind->m_rBind[index].buffer);
+}
+
+int64 PreparedResultSet::GetInt64(uint32 index)
+{
+    if (!CheckFieldIndex(index))
+        return 0;            
+
+    return *reinterpret_cast<int64*>(rbind->m_rBind[index].buffer);
 }
 
 std::string PreparedResultSet::GetString(uint32 index)
