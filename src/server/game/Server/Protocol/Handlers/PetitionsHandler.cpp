@@ -31,6 +31,8 @@
 #include "GossipDef.h"
 #include "SocialMgr.h"
 
+#define CHARTER_DISPLAY_ID 16161
+
 /*enum PetitionType // dbc data
 {
     PETITION_TYPE_GUILD      = 1,
@@ -38,33 +40,28 @@
 };*/
 
 // Charters ID in item_template
-
-enum GuildCharters
+enum CharterItemIDs
 {
     GUILD_CHARTER                                 = 5863,
-    GUILD_CHARTER_TYPE                            = 9,
-    GUILD_CHARTER_COST                            = 1000
-};
-
-enum ArenaTeam2v2
-{
     ARENA_TEAM_CHARTER_2v2                        = 23560,
-    ARENA_TEAM_CHARTER_2v2_COST                   = 800000,
-    ARENA_TEAM_CHARTER_2v2_TYPE                   = 2
-};
-
-enum ArenaTeam3v3
-{
     ARENA_TEAM_CHARTER_3v3                        = 23561,
-    ARENA_TEAM_CHARTER_3v3_COST                   = 1200000,
-    ARENA_TEAM_CHARTER_3v3_TYPE                   = 3
+    ARENA_TEAM_CHARTER_5v5                        = 23562
 };
 
-enum ArenaTeam5v5
+enum CharterTypes
 {
-    ARENA_TEAM_CHARTER_5v5                        = 23562,
-    ARENA_TEAM_CHARTER_5v5_COST                   = 2000000,
+    GUILD_CHARTER_TYPE                            = 9,
+    ARENA_TEAM_CHARTER_2v2_TYPE                   = 2,
+    ARENA_TEAM_CHARTER_3v3_TYPE                   = 3,
     ARENA_TEAM_CHARTER_5v5_TYPE                   = 5
+};
+
+enum CharterCosts
+{
+    GUILD_CHARTER_COST                            = 1000,
+    ARENA_TEAM_CHARTER_2v2_COST                   = 800000,
+    ARENA_TEAM_CHARTER_3v3_COST                   = 1200000,
+    ARENA_TEAM_CHARTER_5v5_COST                   = 2000000
 };
 
 void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
@@ -915,7 +912,7 @@ void WorldSession::SendPetitionShowList(uint64 guid)
     {
         data << uint32(1);                                  // index
         data << uint32(GUILD_CHARTER);                      // charter entry
-        data << uint32(16161);                              // charter display id
+        data << uint32(CHARTER_DISPLAY_ID);                 // charter display id
         data << uint32(GUILD_CHARTER_COST);                 // charter cost
         data << uint32(0);                                  // unknown
         data << uint32(9);                                  // required signs?
@@ -925,21 +922,21 @@ void WorldSession::SendPetitionShowList(uint64 guid)
         // 2v2
         data << uint32(1);                                  // index
         data << uint32(ARENA_TEAM_CHARTER_2v2);             // charter entry
-        data << uint32(16161);                              // charter display id
+        data << uint32(CHARTER_DISPLAY_ID);                 // charter display id
         data << uint32(ARENA_TEAM_CHARTER_2v2_COST);        // charter cost
         data << uint32(2);                                  // unknown
         data << uint32(2);                                  // required signs?
         // 3v3
         data << uint32(2);                                  // index
         data << uint32(ARENA_TEAM_CHARTER_3v3);             // charter entry
-        data << uint32(16161);                              // charter display id
+        data << uint32(CHARTER_DISPLAY_ID);                 // charter display id
         data << uint32(ARENA_TEAM_CHARTER_3v3_COST);        // charter cost
         data << uint32(3);                                  // unknown
         data << uint32(3);                                  // required signs?
         // 5v5
         data << uint32(3);                                  // index
         data << uint32(ARENA_TEAM_CHARTER_5v5);             // charter entry
-        data << uint32(16161);                              // charter display id
+        data << uint32(CHARTER_DISPLAY_ID);                 // charter display id
         data << uint32(ARENA_TEAM_CHARTER_5v5_COST);        // charter cost
         data << uint32(5);                                  // unknown
         data << uint32(5);                                  // required signs?
@@ -948,7 +945,7 @@ void WorldSession::SendPetitionShowList(uint64 guid)
     //{
     //    data << uint32(i);                      // index
     //    data << uint32(GUILD_CHARTER);          // charter entry
-    //    data << uint32(16161);                  // charter display id
+    //    data << uint32(CHARTER_DISPLAY_ID);     // charter display id
     //    data << uint32(GUILD_CHARTER_COST+i);   // charter cost
     //    data << uint32(0);                      // unknown
     //    data << uint32(9);                      // required signs?
