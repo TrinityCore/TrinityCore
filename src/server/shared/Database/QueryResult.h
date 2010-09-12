@@ -101,15 +101,17 @@ class ResultBind
     friend class PreparedResultSet;
     public:
 
-        ResultBind(MYSQL_STMT* stmt) : m_rBind(NULL), m_stmt(stmt), m_isNull(NULL), m_length(NULL), m_fieldCount(0) {}
+        ResultBind(MYSQL_STMT* stmt) : m_rBind(NULL), m_stmt(stmt), m_isNull(NULL), m_length(NULL), m_res(NULL), m_fieldCount(0) {}
 
         ~ResultBind()
         {
+            if (m_res)
+                mysql_free_result(m_res); // metadata
+
             if (!m_fieldCount)
                 return;
 
             CleanUp();  // Clean up buffer
-            mysql_stmt_free_result(m_stmt);
         }
 
         void BindResult(uint32& num_rows);
@@ -205,6 +207,8 @@ class PreparedResultSet
         int16 GetInt16(uint32 index);
         uint32 GetUInt32(uint32 index);
         int32 GetInt32(uint32 index);
+        uint64 GetUInt64(uint32 index);
+        int64 GetInt64(uint32 index);
         float GetFloat(uint32 index);
         std::string GetString(uint32 index);
 
