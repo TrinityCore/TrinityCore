@@ -361,7 +361,7 @@ public:
                 if(Creature* pTarget = GetHitCreature())
                 {
                     pPlayer->CastSpell(pPlayer, SPELL_TRIGGER_AID_OF_THE_EARTHEN, true, NULL);
-                    pPlayer->KilledMonsterCredit(NPC_FALLEN_EARTHEN_DEFENDER, pTarget->GetGUID());
+                    pPlayer->KilledMonsterCredit(NPC_FALLEN_EARTHEN_DEFENDER, 0);
                     pTarget->ForcedDespawn();
                 }
             }
