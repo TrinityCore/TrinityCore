@@ -703,7 +703,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
                 //if not available, use pActionInvoker
                 if (Unit* pTarget = GetTargetByType(action.killed_monster.target, pActionInvoker))
                     if (Player* pPlayer2 = pTarget->GetCharmerOrOwnerPlayerOrPlayerItself())
-                        pPlayer2->RewardPlayerAndGroupAtEvent(action.killed_monster.creatureId, pPlayer);
+                        pPlayer2->RewardPlayerAndGroupAtEvent(action.killed_monster.creatureId, pPlayer2);
             }
             break;
         case ACTION_T_SET_INST_DATA:
