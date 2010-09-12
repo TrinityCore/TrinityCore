@@ -166,7 +166,7 @@ public:
             case GOSSIP_ACTION_INFO_DEF + 6:
                 pPlayer->SEND_GOSSIP_MENU(7761, pCreature->GetGUID());
                                                                 //'kill' our trigger to update quest status
-                pPlayer->KilledMonsterCredit(TRIGGER_RUTGAR, pCreature->GetGUID());
+                pPlayer->KilledMonsterCredit(TRIGGER_RUTGAR, 0);
                 break;
 
             case GOSSIP_ACTION_INFO_DEF + 9:
@@ -192,7 +192,7 @@ public:
             case GOSSIP_ACTION_INFO_DEF + 14:
                 pPlayer->SEND_GOSSIP_MENU(7767, pCreature->GetGUID());
                                                                 //'kill' our trigger to update quest status
-                pPlayer->KilledMonsterCredit(TRIGGER_FRANKAL, pCreature->GetGUID());
+                pPlayer->KilledMonsterCredit(TRIGGER_FRANKAL, 0);
                 break;
         }
         return true;

@@ -763,10 +763,8 @@ public:
                     if (owner->GetTypeId() == TYPEID_PLAYER)
                     {
                         if (CAST_PLR(owner)->GetQuestStatus(12698) == QUEST_STATUS_INCOMPLETE)
-                        {
-                            //CAST_CRE(who)->CastSpell(owner, 52517, true);
-                            CAST_PLR(owner)->KilledMonsterCredit(GHOULS, me->GetGUID());
-                        }
+                            CAST_CRE(who)->CastSpell(owner, 52517, true);
+
                         //Todo: Creatures must not be removed, but, must instead
                         //      stand next to Gothik and be commanded into the pit
                         //      and dig into the ground.

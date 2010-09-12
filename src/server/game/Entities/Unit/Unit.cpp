@@ -16117,12 +16117,12 @@ void Unit::SetAuraStack(uint32 spellId, Unit *target, uint32 stack)
         aura->SetStackAmount(stack);
 }
 
-void Unit::ApplyResilience(const Unit * pVictim, float * crit, int32 * damage, bool isCrit, CombatRating type) const
+void Unit::ApplyResilience(const Unit *pVictim, float *crit, int32 *damage, bool isCrit, CombatRating type) const
 {
     if (IsVehicle() || pVictim->IsVehicle())
         return;
 
-    const Unit * source = ToPlayer();
+    const Unit *source = ToPlayer();
     if (!source)
     {
         source = ToCreature();
@@ -16134,7 +16134,7 @@ void Unit::ApplyResilience(const Unit * pVictim, float * crit, int32 * damage, b
         }
     }
 
-    const Unit * target = pVictim->ToPlayer();
+    const Unit *target = pVictim->ToPlayer();
     if (!target)
     {
         target = pVictim->ToCreature();
@@ -16145,6 +16145,7 @@ void Unit::ApplyResilience(const Unit * pVictim, float * crit, int32 * damage, b
                 target = target->ToPlayer();
         }
     }
+
     if (!target)
         return;
 
@@ -16152,29 +16153,35 @@ void Unit::ApplyResilience(const Unit * pVictim, float * crit, int32 * damage, b
     {
         case CR_CRIT_TAKEN_MELEE:
             // Crit chance reduction works against nonpets
-            if (crit) (*crit) -= target->ToPlayer()->GetMeleeCritChanceReduction();
+            if (crit)
+                *crit -= target->ToPlayer()->GetMeleeCritChanceReduction();
             if (source && damage)
             {
-                if (isCrit) (*damage) -= target->ToPlayer()->GetMeleeCritDamageReduction((*damage));
-                (*damage) -= target->ToPlayer()->GetMeleeDamageReduction((*damage));
+                if (isCrit)
+                    *damage -= target->ToPlayer()->GetMeleeCritDamageReduction(*damage);
+                *damage -= target->ToPlayer()->GetMeleeDamageReduction(*damage);
             }
             break;
         case CR_CRIT_TAKEN_RANGED:
             // Crit chance reduction works against nonpets
-            if (crit) (*crit) -= target->ToPlayer()->GetRangedCritChanceReduction();
+            if (crit)
+                *crit -= target->ToPlayer()->GetRangedCritChanceReduction();
             if (source && damage)
             {
-                if (isCrit) (*damage) -= target->ToPlayer()->GetRangedCritDamageReduction((*damage));
-                (*damage) -= target->ToPlayer()->GetRangedDamageReduction((*damage));
+                if (isCrit)
+                    *damage -= target->ToPlayer()->GetRangedCritDamageReduction(*damage);
+                *damage -= target->ToPlayer()->GetRangedDamageReduction(*damage);
             }
             break;
         case CR_CRIT_TAKEN_SPELL:
             // Crit chance reduction works against nonpets
-            if (crit) (*crit) -= target->ToPlayer()->GetSpellCritChanceReduction();
+            if (crit)
+                *crit -= target->ToPlayer()->GetSpellCritChanceReduction();
             if (source && damage)
             {
-                if (isCrit) (*damage) -= target->ToPlayer()->GetSpellCritDamageReduction((*damage));
-                (*damage) -= target->ToPlayer()->GetSpellDamageReduction((*damage));
+                if (isCrit)
+                    *damage -= target->ToPlayer()->GetSpellCritDamageReduction(*damage);
+                *damage -= target->ToPlayer()->GetSpellDamageReduction(*damage);
             }
             break;
         default:

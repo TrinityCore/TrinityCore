@@ -105,7 +105,7 @@ enum Field::DataTypes ResultSet::ConvertNativeType(enum_field_types mysqlType) c
     }
 }
 
-void ResultBind::BindResult(uint32& num_rows)
+void ResultBind::BindResult(uint64& num_rows)
 {
     FreeBindBuffer();
 

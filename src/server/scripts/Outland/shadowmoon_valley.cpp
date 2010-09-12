@@ -151,7 +151,7 @@ public:
 
                         if (Player* pPlr = Unit::GetPlayer(*me, uiPlayerGUID))
                         {
-                            pPlr->KilledMonsterCredit(NPC_EVENT_PINGER, me->GetGUID());
+                            pPlr->KilledMonsterCredit(NPC_EVENT_PINGER, 0);
 
                             if (GameObject* pGo = pPlr->FindNearestGameObject(GO_CARCASS, 10))
                                 pGo->Delete();
@@ -395,7 +395,7 @@ public:
                     {
                         Player* plr = Unit::GetPlayer(*me, PlayerGUID);
                         if (plr && plr->GetQuestStatus(11020) == QUEST_STATUS_INCOMPLETE)
-                            plr->KilledMonsterCredit(23209, me->GetGUID());
+                            plr->KilledMonsterCredit(23209, 0);
                     }
                     PoisonTimer = 0;
                     me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
