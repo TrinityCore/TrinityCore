@@ -38,14 +38,34 @@
 };*/
 
 // Charters ID in item_template
-#define GUILD_CHARTER               5863
-#define GUILD_CHARTER_COST          1000                    // 10 S
-#define ARENA_TEAM_CHARTER_2v2      23560
-#define ARENA_TEAM_CHARTER_2v2_COST 800000                  // 80 G
-#define ARENA_TEAM_CHARTER_3v3      23561
-#define ARENA_TEAM_CHARTER_3v3_COST 1200000                 // 120 G
-#define ARENA_TEAM_CHARTER_5v5      23562
-#define ARENA_TEAM_CHARTER_5v5_COST 2000000                 // 200 G
+
+enum GuildCharters
+{
+    GUILD_CHARTER                                 = 5863,
+    GUILD_CHARTER_TYPE                            = 9,
+    GUILD_CHARTER_COST                            = 1000
+};
+
+enum ArenaTeam2v2
+{
+    ARENA_TEAM_CHARTER_2v2                        = 23560,
+    ARENA_TEAM_CHARTER_2v2_COST                   = 800000,
+    ARENA_TEAM_CHARTER_2v2_TYPE                   = 2
+};
+
+enum ArenaTeam3v3
+{
+    ARENA_TEAM_CHARTER_3v3                        = 23561,
+    ARENA_TEAM_CHARTER_3v3_COST                   = 1200000,
+    ARENA_TEAM_CHARTER_3v3_TYPE                   = 3
+};
+
+enum ArenaTeam5v5
+{
+    ARENA_TEAM_CHARTER_5v5                        = 23562,
+    ARENA_TEAM_CHARTER_5v5_COST                   = 2000000,
+    ARENA_TEAM_CHARTER_5v5_TYPE                   = 5
+};
 
 void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
 {
@@ -105,7 +125,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
 
         charterid = GUILD_CHARTER;
         cost = GUILD_CHARTER_COST;
-        type = 9;
+        type = GUILD_CHARTER_TYPE;
     }
     else
     {
@@ -121,17 +141,17 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
             case 1:
                 charterid = ARENA_TEAM_CHARTER_2v2;
                 cost = ARENA_TEAM_CHARTER_2v2_COST;
-                type = 2;                                   // 2v2
+                type = ARENA_TEAM_CHARTER_2v2_TYPE;
                 break;
             case 2:
                 charterid = ARENA_TEAM_CHARTER_3v3;
                 cost = ARENA_TEAM_CHARTER_3v3_COST;
-                type = 3;                                   // 3v3
+                type = ARENA_TEAM_CHARTER_3v3_TYPE;
                 break;
             case 3:
                 charterid = ARENA_TEAM_CHARTER_5v5;
                 cost = ARENA_TEAM_CHARTER_5v5_COST;
-                type = 5;                                   // 5v5
+                type = ARENA_TEAM_CHARTER_5v5_TYPE;
                 break;
             default:
                 sLog.outDebug("unknown selection at buy arena petition: %u", clientIndex);
@@ -145,7 +165,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
         }
     }
 
-    if (type == 9)
+    if (type == GUILD_CHARTER_TYPE)
     {
         if (sObjectMgr.GetGuildByName(name))
         {
@@ -256,7 +276,7 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket & recv_data)
     uint32 type = fields[0].GetUInt32();
 
     // if guild petition and has guild => error, return;
-    if (type == 9 && _player->GetGuildId())
+    if (type == GUILD_CHARTER_TYPE && _player->GetGuildId())
         return;
 
     result = CharacterDatabase.PQuery("SELECT playerguid FROM petition_sign WHERE petitionguid = '%u'", petitionguid_low);
@@ -332,7 +352,7 @@ void WorldSession::SendPetitionQueryOpcode(uint64 petitionguid)
     data << uint64(ownerguid);                              // charter owner guid
     data << name;                                           // name (guild/arena team)
     data << uint8(0);                                       // some string
-    if (type == 9)
+    if (type == GUILD_CHARTER_TYPE)
     {
         data << uint32(9);
         data << uint32(9);
@@ -358,7 +378,7 @@ void WorldSession::SendPetitionQueryOpcode(uint64 petitionguid)
 
     data << uint32(0);                                      // 14
 
-    if (type == 9)
+    if (type == GUILD_CHARTER_TYPE)
         data << uint32(0);                                  // 15 0 - guild, 1 - arena team
     else
         data << uint32(1);
@@ -395,7 +415,7 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recv_data)
         return;
     }
 
-    if (type == 9)
+    if (type == GUILD_CHARTER_TYPE)
     {
         if (sObjectMgr.GetGuildByName(newname))
         {
@@ -717,7 +737,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
         return;
     }
 
-    if (type == 9)
+    if (type == GUILD_CHARTER_TYPE)
     {
         if (_player->GetGuildId())
         {
@@ -756,7 +776,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
 
     uint32 count;
     //if (signs < sWorld.getIntConfig(CONFIG_MIN_PETITION_SIGNS))
-    if (type == 9)
+    if (type == GUILD_CHARTER_TYPE)
         count = sWorld.getIntConfig(CONFIG_MIN_PETITION_SIGNS);
     else
         count = type-1;
@@ -768,7 +788,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
         return;
     }
 
-    if (type == 9)
+    if (type == GUILD_CHARTER_TYPE)
     {
         if (sObjectMgr.GetGuildByName(name))
         {
@@ -795,7 +815,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
     // delete charter item
     _player->DestroyItem(item->GetBagSlot(),item->GetSlot(), true);
 
-    if (type == 9)                                           // create guild
+    if (type == GUILD_CHARTER_TYPE)                         // create guild
     {
         Guild* guild = new Guild;
         if (!guild->Create(_player, name))
