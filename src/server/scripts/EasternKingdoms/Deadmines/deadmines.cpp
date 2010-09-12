@@ -36,13 +36,13 @@ class item_defias_gunpowder : public ItemScript
 public:
     item_defias_gunpowder() : ItemScript("item_defias_gunpowder") { }
 
-    bool ItemUse(Player* pPlayer, Item* pItem, SpellCastTargets const& targets)
+    bool OnUse(Player* player, Item* item, SpellCastTargets const& targets)
     {
-        InstanceScript *pInstance = pPlayer->GetInstanceScript();
+        InstanceScript *pInstance = player->GetInstanceScript();
 
         if (!pInstance)
         {
-            pPlayer->GetSession()->SendNotification("Instance script not initialized");
+            player->GetSession()->SendNotification("Instance script not initialized");
             return true;
         }
         if (pInstance->GetData(EVENT_STATE)!= CANNON_NOT_USED)
@@ -53,7 +53,7 @@ public:
             pInstance->SetData(EVENT_STATE, CANNON_GUNPOWDER_USED);
         }
 
-        pPlayer->DestroyItemCount(pItem->GetEntry(), 1, true);
+        player->DestroyItemCount(item->GetEntry(), 1, true);
         return true;
     }
 
