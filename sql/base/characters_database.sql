@@ -1449,7 +1449,7 @@ CREATE TABLE `guild_bank_eventlog` (
   `EventType` tinyint(3) unsigned NOT NULL default '0' COMMENT 'Event type',
   `PlayerGuid` int(11) unsigned NOT NULL default '0',
   `ItemOrMoney` int(11) unsigned NOT NULL default '0',
-  `ItemStackCount` tinyint(3) unsigned NOT NULL default '0',
+  `ItemStackCount` smallint(4) unsigned NOT NULL default '0',
   `DestTabId` tinyint(1) unsigned NOT NULL default '0' COMMENT 'Destination Tab Id',
   `TimeStamp` bigint(20) unsigned NOT NULL default '0' COMMENT 'Event UNIX time',
   PRIMARY KEY  (`guildid`,`LogGuid`,`TabId`),
