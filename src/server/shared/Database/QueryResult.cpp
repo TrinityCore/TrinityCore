@@ -176,8 +176,13 @@ void ResultBind::FreeBindBuffer()
 
 void ResultBind::CleanUp()
 {
+    if (m_res)
+        mysql_free_result(m_res);
+
     FreeBindBuffer();
     mysql_stmt_free_result(m_stmt);
+
+    delete[] m_rBind;    
 }
 
 uint8 PreparedResultSet::GetUInt8(uint32 index)
