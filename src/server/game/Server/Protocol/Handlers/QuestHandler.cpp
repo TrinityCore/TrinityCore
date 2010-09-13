@@ -572,21 +572,21 @@ uint32 WorldSession::getDialogStatus(Player *pPlayer, Object* questgiver, uint32
 {
     uint32 result = defstatus;
 
-    QuestRelations const* qir;
-    QuestRelations const* qr;
+    QuestRelationBounds qr;
+    QuestRelationBounds qir;
 
     switch(questgiver->GetTypeId())
     {
         case TYPEID_GAMEOBJECT:
         {
-            qir = &sObjectMgr.mGOQuestInvolvedRelations;
-            qr  = &sObjectMgr.mGOQuestRelations;
+            qr  = sObjectMgr.GetGOQuestRelationBounds(questgiver->GetEntry());
+            qir = sObjectMgr.GetGOQuestInvolvedRelationBounds(questgiver->GetEntry());
             break;
         }
         case TYPEID_UNIT:
         {
-            qir = &sObjectMgr.mCreatureQuestInvolvedRelations;
-            qr  = &sObjectMgr.mCreatureQuestRelations;
+            qr  = sObjectMgr.GetCreatureQuestRelationBounds(questgiver->GetEntry());
+            qir = sObjectMgr.GetCreatureQuestInvolvedRelationBounds(questgiver->GetEntry());
             break;
         }
         default:
@@ -595,7 +595,7 @@ uint32 WorldSession::getDialogStatus(Player *pPlayer, Object* questgiver, uint32
             return DIALOG_STATUS_NONE;
     }
 
-    for (QuestRelations::const_iterator i = qir->lower_bound(questgiver->GetEntry()); i != qir->upper_bound(questgiver->GetEntry()); ++i)
+    for (QuestRelations::const_iterator i = qir.first; i != qir.second; ++i)
     {
         uint32 result2 = 0;
         uint32 quest_id = i->second;
@@ -618,7 +618,7 @@ uint32 WorldSession::getDialogStatus(Player *pPlayer, Object* questgiver, uint32
             result = result2;
     }
 
-    for (QuestRelations::const_iterator i = qr->lower_bound(questgiver->GetEntry()); i != qr->upper_bound(questgiver->GetEntry()); ++i)
+    for (QuestRelations::const_iterator i = qr.first; i != qr.second; ++i)
     {
         uint32 result2 = 0;
         uint32 quest_id = i->second;
