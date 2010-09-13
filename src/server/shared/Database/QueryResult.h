@@ -105,12 +105,6 @@ class ResultBind
 
         ~ResultBind()
         {
-            if (m_res)
-                mysql_free_result(m_res); // metadata
-
-            if (!m_fieldCount)
-                return;
-
             CleanUp();  // Clean up buffer
         }
 
