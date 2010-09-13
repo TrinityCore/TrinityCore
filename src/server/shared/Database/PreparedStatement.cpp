@@ -289,6 +289,7 @@ void MySQLPreparedStatement::setString(const uint8 index, const char* value)
     MYSQL_BIND* param = &m_bind[index];
     size_t len = strlen(value) + 1;
     param->buffer_type = MYSQL_TYPE_VAR_STRING;
+    delete [] static_cast<char *>(param->buffer);
     param->buffer = new char[len];
     param->buffer_length = len;
     param->is_null_value = 0;
@@ -300,6 +301,7 @@ void MySQLPreparedStatement::setString(const uint8 index, const char* value)
 void MySQLPreparedStatement::setValue(MYSQL_BIND* param, enum_field_types type, const void* value, uint32 len, bool isUnsigned)
 {
     param->buffer_type = type;
+    delete [] static_cast<char *>(param->buffer);
     param->buffer = new char[len];
     param->buffer_length = 0;
     param->is_null_value = 0;
