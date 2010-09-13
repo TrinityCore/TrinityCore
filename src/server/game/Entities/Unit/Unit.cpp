@@ -15279,7 +15279,7 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
         // only if not player and not controlled by player pet. And not at BG
         if ((durabilityLoss && !player && !pVictim->ToPlayer()->InBattleground()) || (player && sWorld.getBoolConfig(CONFIG_DURABILITY_LOSS_IN_PVP)))
         {
-            sLog.outStaticDebug("We are dead, loosing %f percent durability", sWorld.getRate(RATE_DURABILITY_LOSS_ON_DEATH));
+            sLog.outStaticDebug("We are dead, losing %f percent durability", sWorld.getRate(RATE_DURABILITY_LOSS_ON_DEATH));
             pVictim->ToPlayer()->DurabilityLossAll(sWorld.getRate(RATE_DURABILITY_LOSS_ON_DEATH),false);
             // durability lost message
             WorldPacket data(SMSG_DURABILITY_DAMAGE_DEATH, 0);
