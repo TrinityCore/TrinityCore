@@ -308,7 +308,7 @@ void LFGMgr::Update(uint32 diff)
         Player *plr = NULL;
         for (LfgRolesMap::const_iterator itRoles = pRoleCheck->roles.begin(); itRoles != pRoleCheck->roles.end(); ++itRoles)
         {
-            plr = sObjectMgr.GetPlayer(itRoles->first);
+            plr = sObjectMgr.GetPlayerByLowGUID(itRoles->first);
             if (!plr)
                 continue;
             plr->GetSession()->SendLfgRoleCheckUpdate(pRoleCheck);
@@ -343,7 +343,7 @@ void LFGMgr::Update(uint32 diff)
             Group *grp = sObjectMgr.GetGroupByGUID(itBoot->first);
             pBoot->inProgress = false;
             for (LfgAnswerMap::const_iterator itVotes = pBoot->votes.begin(); itVotes != pBoot->votes.end(); ++itVotes)
-                if (Player *plrg = sObjectMgr.GetPlayer(itVotes->first))
+                if (Player *plrg = sObjectMgr.GetPlayerByLowGUID(itVotes->first))
                     if (plrg->GetGUIDLow() != pBoot->victimLowGuid)
                         plrg->GetSession()->SendLfgBootPlayer(pBoot);
             if (grp)
@@ -384,7 +384,7 @@ void LFGMgr::Update(uint32 diff)
             for (LfgProposalPlayerMap::const_iterator itPlayers = pProposal->players.begin(); itPlayers != pProposal->players.end(); ++itPlayers)
             {
                 lowGuid = itPlayers->first;
-                if (Player *plr = sObjectMgr.GetPlayer(itPlayers->first))
+                if (Player *plr = sObjectMgr.GetPlayerByLowGUID(itPlayers->first))
                 {
                     if (plr->GetGroup())
                         plr->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_PROPOSAL_BEGIN);
@@ -461,7 +461,7 @@ void LFGMgr::Update(uint32 diff)
                 waitTime = m_WaitTimeDps;
 
             for (LfgRolesMap::const_iterator itPlayer = queue->roles.begin(); itPlayer != queue->roles.end(); ++itPlayer)
-                if (Player * plr = sObjectMgr.GetPlayer(itPlayer->first))
+                if (Player * plr = sObjectMgr.GetPlayerByLowGUID(itPlayer->first))
                     plr->GetSession()->SendLfgQueueStatus(dungeonId, waitTime, m_WaitTimeAvg, m_WaitTimeTank, m_WaitTimeHealer, m_WaitTimeDps, queuedTime, queue->tanks, queue->healers, queue->dps);
         }
     }
@@ -768,7 +768,7 @@ void LFGMgr::OfferContinue(Group *grp)
 }
 
 /// <summary>
-/// Check the queue to try to match groups. Returns all the posible matches
+/// Check the queue to try to match groups. Returns all the possible matches
 /// </summary>
 /// <param name="LfgGuidList &">Guids we trying to match with the rest of groups</param>
 /// <param name="LfgGuidList">All guids in queue</param>
@@ -916,7 +916,7 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposalList *proposals)
     PlayerSet players;
     for (LfgRolesMap::const_iterator it = rolesMap.begin(); it != rolesMap.end(); ++it)
     {
-        plr = sObjectMgr.GetPlayer(it->first);
+        plr = sObjectMgr.GetPlayerByLowGUID(it->first);
         if (!plr)
             sLog.outDebug("LFGMgr::CheckCompatibility: (%s) Warning! %u offline!", strGuids.c_str(), it->first);
         else
@@ -1111,7 +1111,7 @@ void LFGMgr::UpdateRoleCheck(Group *grp, Player *plr /* = NULL*/)
                         LfgDungeonSet *dungeons = GetDungeonsByRandom(*pRoleCheck->dungeons.begin());
                         PlayerSet players;
                         for (LfgRolesMap::const_iterator it = pRoleCheck->roles.begin(); it != pRoleCheck->roles.end(); ++it)
-                            if (Player *plr = sObjectMgr.GetPlayer(it->first))
+                            if (Player *plr = sObjectMgr.GetPlayerByLowGUID(it->first))
                                 players.insert(plr);
 
                         playersLockMap = CheckCompatibleDungeons(dungeons, &players);
@@ -1438,7 +1438,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint32 lowGuid, bool accept)
     bool allAnswered = true;
     for (LfgProposalPlayerMap::const_iterator itPlayers = pProposal->players.begin(); itPlayers != pProposal->players.end(); ++itPlayers)
     {
-        plr = sObjectMgr.GetPlayer(itPlayers->first);
+        plr = sObjectMgr.GetPlayerByLowGUID(itPlayers->first);
 
         if (plr)
         {
@@ -1583,7 +1583,7 @@ void LFGMgr::RemoveProposal(LfgProposalMap::iterator itProposal, LfgUpdateType t
     // Inform players
     for (LfgProposalPlayerMap::const_iterator it = pProposal->players.begin(); it != pProposal->players.end(); ++it)
     {
-        plr = sObjectMgr.GetPlayer(it->first);
+        plr = sObjectMgr.GetPlayerByLowGUID(it->first);
         if (!plr)
             continue;
         guid = plr->GetGroup() ? plr->GetGroup()->GetGUID(): plr->GetGUID();
@@ -1719,14 +1719,14 @@ void LFGMgr::UpdateBoot(Player *plr, bool accept)
         // Send update info to all players
         pBoot->inProgress = false;
         for (LfgAnswerMap::const_iterator itVotes = pBoot->votes.begin(); itVotes != pBoot->votes.end(); ++itVotes)
-            if (Player *plrg = sObjectMgr.GetPlayer(itVotes->first))
+            if (Player *plrg = sObjectMgr.GetPlayerByLowGUID(itVotes->first))
                 if (plrg->GetGUIDLow() != pBoot->victimLowGuid)
                     plrg->GetSession()->SendLfgBootPlayer(pBoot);
 
         if (agreeNum == pBoot->votedNeeded)                 // Vote passed - Kick player
         {
             Player::RemoveFromGroup(grp, MAKE_NEW_GUID(pBoot->victimLowGuid, 0, HIGHGUID_PLAYER));
-            if (Player *victim = sObjectMgr.GetPlayer(pBoot->victimLowGuid))
+            if (Player *victim = sObjectMgr.GetPlayerByLowGUID(pBoot->victimLowGuid))
                 victim->TeleportToBGEntryPoint();
             OfferContinue(grp);
             grp->SetLfgKicks(grp->GetLfgKicks() + 1);
