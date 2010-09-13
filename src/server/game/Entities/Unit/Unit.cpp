@@ -650,29 +650,6 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
         return 0;
     }
 
-    // no xp,health if type 8 /critters/
-    if (pVictim->GetTypeId() != TYPEID_PLAYER && pVictim->GetCreatureType() == CREATURE_TYPE_CRITTER)
-    {
-        // allow loot only if has loot_id in creature_template
-        if (damage >= pVictim->GetHealth())
-        {
-            pVictim->setDeathState(JUST_DIED);
-
-            CreatureInfo const* cInfo = pVictim->ToCreature()->GetCreatureInfo();
-            if (cInfo && cInfo->lootid)
-                pVictim->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-
-            // some critters required for quests (need normal entry instead possible heroic in any cases)
-            if (GetTypeId() == TYPEID_PLAYER)
-                if (CreatureInfo const* normalInfo = sObjectMgr.GetCreatureTemplate(pVictim->GetEntry()))
-                    this->ToPlayer()->KilledMonster(normalInfo,pVictim->GetGUID());
-        }
-        else
-            pVictim->ModifyHealth(- (int32)damage);
-
-        return damage;
-    }
-
     sLog.outStaticDebug("DealDamageStart");
 
     uint32 health = pVictim->GetHealth();
@@ -15254,7 +15231,8 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
         if (Unit *owner = GetOwner())
             owner->ProcDamageAndSpell(pVictim, PROC_FLAG_KILL, PROC_FLAG_NONE, PROC_EX_NONE, 0);
 
-    ProcDamageAndSpell(pVictim, PROC_FLAG_KILL, PROC_FLAG_KILLED, PROC_EX_NONE, 0);
+    if (pVictim->GetCreatureType() != CREATURE_TYPE_CRITTER)
+        ProcDamageAndSpell(pVictim, PROC_FLAG_KILL, PROC_FLAG_KILLED, PROC_EX_NONE, 0);
 
     // Proc auras on death - must be before aura/combat remove
     pVictim->ProcDamageAndSpell(NULL, PROC_FLAG_DEATH, PROC_FLAG_NONE, PROC_EX_NONE, 0, BASE_ATTACK, 0);
@@ -15302,7 +15280,7 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
         // only if not player and not controlled by player pet. And not at BG
         if ((durabilityLoss && !player && !pVictim->ToPlayer()->InBattleground()) || (player && sWorld.getBoolConfig(CONFIG_DURABILITY_LOSS_IN_PVP)))
         {
-            sLog.outStaticDebug("We are dead, losing %f percent durability", sWorld.getRate(RATE_DURABILITY_LOSS_ON_DEATH));
+            sLog.outStaticDebug("We are dead, loosing %f percent durability", sWorld.getRate(RATE_DURABILITY_LOSS_ON_DEATH));
             pVictim->ToPlayer()->DurabilityLossAll(sWorld.getRate(RATE_DURABILITY_LOSS_ON_DEATH),false);
             // durability lost message
             WorldPacket data(SMSG_DURABILITY_DAMAGE_DEATH, 0);
