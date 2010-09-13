@@ -1450,7 +1450,7 @@ void Guild::LoadGuildBankEventLogFromDB()
             NewEvent.EventType = fields[1].GetUInt8();
             NewEvent.PlayerGuid = fields[2].GetUInt32();
             NewEvent.ItemOrMoney = fields[3].GetUInt32();
-            NewEvent.ItemStackCount = fields[4].GetUInt8();
+            NewEvent.ItemStackCount = fields[4].GetUInt16();
             NewEvent.DestTabId = fields[5].GetUInt8();
             NewEvent.TimeStamp = fields[6].GetUInt64();
 
@@ -1497,7 +1497,7 @@ void Guild::LoadGuildBankEventLogFromDB()
         NewEvent.EventType = fields[1].GetUInt8();
         NewEvent.PlayerGuid = fields[2].GetUInt32();
         NewEvent.ItemOrMoney = fields[3].GetUInt32();
-        NewEvent.ItemStackCount = fields[4].GetUInt8();
+        NewEvent.ItemStackCount = fields[4].GetUInt16();
         NewEvent.DestTabId = fields[5].GetUInt8();
         NewEvent.TimeStamp = fields[6].GetUInt64();
 
@@ -1553,7 +1553,7 @@ void Guild::DisplayGuildBankLogs(WorldSession *session, uint8 TabId)
     sLog.outDebug("WORLD: Sent (MSG_GUILD_BANK_LOG_QUERY)");
 }
 
-void Guild::LogBankEvent(SQLTransaction& trans, uint8 EventType, uint8 TabId, uint32 PlayerGuidLow, uint32 ItemOrMoney, uint8 ItemStackCount, uint8 DestTabId)
+void Guild::LogBankEvent(SQLTransaction& trans, uint8 EventType, uint8 TabId, uint32 PlayerGuidLow, uint32 ItemOrMoney, uint16 ItemStackCount, uint8 DestTabId)
 {
     //create Event
     GuildBankEventLogEntry NewEvent;
