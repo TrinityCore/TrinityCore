@@ -827,6 +827,7 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposalList *proposals)
         if (itQueue == m_QueueInfoMap.end())
         {
             sLog.outError("LFGMgr::CheckCompatibility: [" UI64FMTD "] is not queued but listed as queued!", *it);
+            RemoveFromQueue(*it);
             return false;
         }
         pqInfoMap[*it] = itQueue->second;
