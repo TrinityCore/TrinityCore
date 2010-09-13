@@ -15062,7 +15062,6 @@ bool Unit::HandleAuraRaidProcFromChargeWithValue(AuraEffect *triggeredByAura)
                 CastCustomSpell(target, spellProto->Id, &heal, NULL, NULL, true, NULL, triggeredByAura, caster_guid);
                 if (Aura * aura = target->GetAura(spellProto->Id, caster->GetGUID()))
                     aura->SetCharges(jumps);
-                heal = caster->SpellHealingBonus(this, spellProto, heal, HEAL);
             }
         }
     }
