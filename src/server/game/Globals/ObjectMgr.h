@@ -192,6 +192,7 @@ typedef UNORDERED_MAP<uint32,GossipMenuItemsLocale> GossipMenuItemsLocaleMap;
 typedef UNORDERED_MAP<uint32,PointOfInterestLocale> PointOfInterestLocaleMap;
 
 typedef std::multimap<uint32,uint32> QuestRelations;
+typedef std::pair<QuestRelations::const_iterator, QuestRelations::const_iterator> QuestRelationBounds;
 typedef std::multimap<uint32,ItemRequiredTarget> ItemRequiredTargetMap;
 typedef std::pair<ItemRequiredTargetMap::const_iterator, ItemRequiredTargetMap::const_iterator>  ItemRequiredTargetMapBounds;
 
@@ -612,10 +613,35 @@ class ObjectMgr
         void LoadCreatureQuestRelations();
         void LoadCreatureInvolvedRelations();
 
-        QuestRelations mGOQuestRelations;
-        QuestRelations mGOQuestInvolvedRelations;
-        QuestRelations mCreatureQuestRelations;
-        QuestRelations mCreatureQuestInvolvedRelations;
+        QuestRelations* GetGOQuestRelationMap()
+        {
+            return &mGOQuestRelations;
+        }
+
+        QuestRelationBounds GetGOQuestRelationBounds(uint32 go_entry)
+        {
+            return mGOQuestRelations.equal_range(go_entry);
+        }
+
+        QuestRelationBounds GetGOQuestInvolvedRelationBounds(uint32 go_entry)
+        {
+            return mGOQuestInvolvedRelations.equal_range(go_entry);
+        }
+
+        QuestRelations* GetCreatureQuestRelationMap()
+        {
+            return &mCreatureQuestRelations;
+        }
+
+        QuestRelationBounds GetCreatureQuestRelationBounds(uint32 creature_entry)
+        {
+            return mCreatureQuestRelations.equal_range(creature_entry);
+        }
+
+        QuestRelationBounds GetCreatureQuestInvolvedRelationBounds(uint32 creature_entry)
+        {
+            return mCreatureQuestInvolvedRelations.equal_range(creature_entry);
+        }
 
         void LoadGameObjectScripts();
         void LoadQuestEndScripts();
@@ -1025,6 +1051,11 @@ class ObjectMgr
         PointOfInterestMap  mPointsOfInterest;
 
         QuestPOIMap         mQuestPOIMap;
+
+        QuestRelations mGOQuestRelations;
+        QuestRelations mGOQuestInvolvedRelations;
+        QuestRelations mCreatureQuestRelations;
+        QuestRelations mCreatureQuestInvolvedRelations;
 
         //character reserved names
         typedef std::set<std::wstring> ReservedNamesMap;
