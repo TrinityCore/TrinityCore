@@ -1842,8 +1842,8 @@ void ObjectMgr::LoadGameobjectRespawnTimes()
 
 Player* ObjectMgr::GetPlayerByLowGUID(uint32 lowguid) const
 {
-	uint64 guid = MAKE_NEW_GUID(lowguid, 0, HIGHGUID_PLAYER);
-	return ObjectAccessor::FindPlayer(guid);
+    uint64 guid = MAKE_NEW_GUID(lowguid, 0, HIGHGUID_PLAYER);
+    return ObjectAccessor::FindPlayer(guid);
 }
 
 // name must be checked to correctness (if received) before call this function
