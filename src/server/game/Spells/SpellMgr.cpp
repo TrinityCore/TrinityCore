@@ -3702,6 +3702,10 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->MaxAffectedTargets = 10;
             count++;
             break;
+        case 50312: // Unholy Frenzy
+            spellInfo->MaxAffectedTargets = 15;
+            count++;
+            break;
         case 38794: case 33711: //Murmur's Touch
             spellInfo->MaxAffectedTargets = 1;
             spellInfo->EffectTriggerSpell[0] = 33760;
