@@ -312,7 +312,7 @@ Group * ObjectMgr::GetGroupByGUID(uint32 guid) const
     return NULL;
 }
 
-Guild * ObjectMgr::GetGuildById(uint32 GuildId) const
+Guild* ObjectMgr::GetGuildById(uint32 GuildId) const
 {
     GuildMap::const_iterator itr = mGuildMap.find(GuildId);
     if (itr != mGuildMap.end())
@@ -321,7 +321,7 @@ Guild * ObjectMgr::GetGuildById(uint32 GuildId) const
     return NULL;
 }
 
-Guild * ObjectMgr::GetGuildByName(const std::string& guildname) const
+Guild* ObjectMgr::GetGuildByName(const std::string& guildname) const
 {
     std::string search = guildname;
     std::transform(search.begin(), search.end(), search.begin(), ::toupper);
@@ -1838,6 +1838,12 @@ void ObjectMgr::LoadGameobjectRespawnTimes()
 
     sLog.outString(">> Loaded %lu gameobject respawn times", (unsigned long)mGORespawnTimes.size());
     sLog.outString();
+}
+
+Player* ObjectMgr::GetPlayerByLowGUID(uint32 lowguid) const
+{
+	uint64 guid = MAKE_NEW_GUID(lowguid, 0, HIGHGUID_PLAYER);
+	return ObjectAccessor::FindPlayer(guid);
 }
 
 // name must be checked to correctness (if received) before call this function
