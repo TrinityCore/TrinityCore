@@ -360,7 +360,7 @@ uint32 Group::RemoveMember(const uint64 &guid, const RemoveMethod &method)
 
     if (isLfgQueued())
         sLFGMgr.Leave(NULL, this);
-    else if (isLFGGroup())
+    else if (isLFGGroup() && !isLfgDungeonComplete())
         sLFGMgr.OfferContinue(this);
 
     // remove member and change leader (if need) only if strong more 2 members _before_ member remove
