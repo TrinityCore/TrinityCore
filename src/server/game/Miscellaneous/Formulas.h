@@ -166,7 +166,8 @@ namespace Trinity
 
             if (u->GetTypeId() == TYPEID_UNIT &&
                 (((Creature*)u)->isTotem() || ((Creature*)u)->isPet() ||
-                (((Creature*)u)->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL)))
+                (((Creature*)u)->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL) ||
+                ((Creature*)u)->GetCreatureInfo()->type == CREATURE_TYPE_CRITTER))
                 gain = 0;
             else
             {
@@ -180,9 +181,10 @@ namespace Trinity
                     else
                         gain *= 2;
                 }
+
+                gain = uint32(gain * sWorld.getRate(RATE_XP_KILL));
             }
 
-            gain = uint32(gain * sWorld.getRate(RATE_XP_KILL));
             sScriptMgr.OnGainCalculation(gain, pl, u);
             return gain;
         }
