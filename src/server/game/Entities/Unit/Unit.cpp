@@ -11843,9 +11843,9 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
     SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_MOUNT);
 
     // unsummon pet
-    if (GetTypeId() == TYPEID_PLAYER)
+    if (Player* plr = ToPlayer())
     {
-        Pet* pet = this->ToPlayer()->GetPet();
+        Pet* pet = plr->GetPet();
         if (pet)
         {
             Battleground *bg = ToPlayer()->GetBattleground();
@@ -11853,31 +11853,26 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
             if (bg && bg->isArena())
                 pet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
             else
-                this->ToPlayer()->UnsummonPetTemporaryIfAny();
+                plr->UnsummonPetTemporaryIfAny();
         }
 
-        if (VehicleId != 0)
+        if (VehicleId)
         {
-            if (sVehicleStore.LookupEntry(VehicleId))
+            if (CreateVehicleKit(VehicleId))
             {
+                GetVehicleKit()->Reset();
 
-                if (CreateVehicleKit(VehicleId))
-                {
-                    GetVehicleKit()->Reset();
+                // mounts can also have accessories
+                GetVehicleKit()->InstallAllAccessories(creatureEntry);
 
-                    // mounts can also have accessories
-                    GetVehicleKit()->GetBase()->SetEntry(creatureEntry); // set creature entry so InstallAllAccessories() can read correct accessories
-                    GetVehicleKit()->InstallAllAccessories();
+                // Send others that we now have a vehicle
+                WorldPacket data(SMSG_PLAYER_VEHICLE_DATA, GetPackGUID().size()+4);
+                data.appendPackGUID(GetGUID());
+                data << uint32(VehicleId);
+                SendMessageToSet(&data,true);
 
-                    // Send others that we now have a vehicle
-                    WorldPacket data(SMSG_PLAYER_VEHICLE_DATA, GetPackGUID().size()+4);
-                    data.appendPackGUID(GetGUID());
-                    data << uint32(VehicleId);
-                    SendMessageToSet(&data,true);
-
-                    data.Initialize(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
-                    this->ToPlayer()->GetSession()->SendPacket(&data);
-                }
+                data.Initialize(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
+                plr->GetSession()->SendPacket(&data);
             }
         }
     }
@@ -16668,21 +16663,20 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId)
         }
     }
 
-    if (GetTypeId() == TYPEID_PLAYER)
+    if (Player* plr = ToPlayer())
     {
-        if (vehicle->GetBase()->GetTypeId() == TYPEID_PLAYER && this->ToPlayer()->isInCombat())
+        if (vehicle->GetBase()->GetTypeId() == TYPEID_PLAYER && plr->isInCombat())
             return;
 
-        this->ToPlayer()->InterruptNonMeleeSpells(false);
-        this->ToPlayer()->StopCastingCharm();
-        this->ToPlayer()->StopCastingBindSight();
-        this->ToPlayer()->Unmount();
-        this->ToPlayer()->RemoveAurasByType(SPELL_AURA_MOUNTED);
+        InterruptNonMeleeSpells(false);
+        plr->StopCastingCharm();
+        plr->StopCastingBindSight();
+        Unmount();
+        RemoveAurasByType(SPELL_AURA_MOUNTED);
 
         // drop flag at invisible in bg
-        if (this->ToPlayer()->InBattleground())
-            if (Battleground *bg = this->ToPlayer()->GetBattleground())
-          bg->EventPlayerDroppedFlag(this->ToPlayer());
+        if (Battleground *bg = plr->GetBattleground())
+            bg->EventPlayerDroppedFlag(plr);
     }
 
     ASSERT(!m_vehicle);

@@ -139,19 +139,19 @@ class PoolMgr
         void SpawnPool(uint32 pool_id, uint32 db_guid_or_pool_id);
 
         uint32 max_pool_id;
-        typedef std::vector<PoolTemplateData> PoolTemplateDataMap;
+        typedef std::vector<PoolTemplateData>       PoolTemplateDataMap;
         typedef std::vector<PoolGroup<Creature> >   PoolGroupCreatureMap;
         typedef std::vector<PoolGroup<GameObject> > PoolGroupGameObjectMap;
         typedef std::vector<PoolGroup<Pool> >       PoolGroupPoolMap;
         typedef std::vector<PoolGroup<Quest> >      PoolGroupQuestMap;
-        typedef std::pair<uint32, uint32> SearchPair;
-        typedef std::map<uint32, uint32> SearchMap;
+        typedef std::pair<uint32, uint32>           SearchPair;
+        typedef std::map<uint32, uint32>            SearchMap;
 
-        PoolTemplateDataMap mPoolTemplate;
-        PoolGroupCreatureMap mPoolCreatureGroups;
+        PoolTemplateDataMap    mPoolTemplate;
+        PoolGroupCreatureMap   mPoolCreatureGroups;
         PoolGroupGameObjectMap mPoolGameobjectGroups;
-        PoolGroupPoolMap mPoolPoolGroups;
-        PoolGroupQuestMap mPoolQuestGroups;
+        PoolGroupPoolMap       mPoolPoolGroups;
+        PoolGroupQuestMap      mPoolQuestGroups;
         SearchMap mCreatureSearchMap;
         SearchMap mGameobjectSearchMap;
         SearchMap mPoolSearchMap;

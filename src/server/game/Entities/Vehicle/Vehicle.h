@@ -71,7 +71,7 @@ class Vehicle
         void Uninstall();
         void Reset();
         void Die();
-        void InstallAllAccessories();
+        void InstallAllAccessories(uint32 entry);
 
         Unit *GetBase() const { return me; }
         VehicleEntry const *GetVehicleInfo() { return m_vehicleInfo; }
