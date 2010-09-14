@@ -21,7 +21,9 @@
 
 #include <ace/Singleton.h>
 
-#include "SharedDefines.h"
+#include "Common.h"
+#include "DatabaseEnv.h"
+#include "DBCStructure.h"
 
 class Item;
 class Player;
