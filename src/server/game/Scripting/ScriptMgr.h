@@ -726,6 +726,21 @@ class GuildScript : public ScriptObject
         virtual void OnDisband(Guild* /*guild*/) { }
 };
 
+class GroupScript : public ScriptObject
+{
+protected:
+	GroupScript(const char* name);
+
+public:
+    bool IsDatabaseBound() const { return false; }
+
+    virtual void OnAddMember(Group* /*group*/, uint64 /*guid*/) { }
+    virtual void OnInviteMember(Group* /*group*/, uint64 /*guid*/) { }
+    virtual void OnRemoveMember(Group* /*group*/, uint64 /*guid*/, RemoveMethod& /*method*/) { }
+    virtual void OnChangeLeader(Group* /*group*/, uint64 /*newLeaderGuid*/, uint64 /*oldLeaderGuid*/) { }
+    virtual void OnDisband(Group* /*group*/) { }
+};
+
 // Placed here due to ScriptRegistry::AddScript dependency.
 #define sScriptMgr (*ACE_Singleton<ScriptMgr, ACE_Null_Mutex>::instance())
 
@@ -923,6 +938,13 @@ class ScriptMgr
         void OnGuildMOTDChanged(Guild *guild, std::string newMotd);
         void OnGuildInfoChanged(Guild *guild, std::string newGInfo);
         void OnGuildDisband(Guild *guild);
+
+    public: /* GroupScript */
+        void OnGroupAddMember(Group* group, uint64 guid);
+        void OnGroupInviteMember(Group* group, uint64 guid);
+        void OnGroupRemoveMember(Group* group, uint64 guid, RemoveMethod method);
+        void OnGroupChangeLeader(Group* group, uint64 newLeaderGuid, uint64 oldLeaderGuid);
+        void OnGroupDisband(Group* group);
 
     public: /* ScriptRegistry */
 
