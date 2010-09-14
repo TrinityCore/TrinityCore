@@ -333,7 +333,7 @@ struct Loot
     bool hasOverThresholdItem() const;
 
     private:
-        void FillNotNormalLootFor(Player* player);
+        void FillNotNormalLootFor(Player* player, bool withCurrency);
         QuestItemList* FillFFALoot(Player* player);
         QuestItemList* FillQuestLoot(Player* player);
         QuestItemList* FillNonQuestNonFFAConditionalLoot(Player* player);
