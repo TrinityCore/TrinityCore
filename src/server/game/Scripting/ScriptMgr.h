@@ -22,38 +22,50 @@
 #define SC_SCRIPTMGR_H
 
 #include "Common.h"
-#include "CompilerDefs.h"
-#include "DBCStructure.h"
-#include "Config.h"
-#include "ObjectMgr.h"
-#include "Battleground.h"
-#include "OutdoorPvPMgr.h"
-#include "SharedDefines.h"
-#include "Chat.h"
-#include "Weather.h"
-#include "AuctionHouseMgr.h"
-#include "ConditionMgr.h"
-#include "Vehicle.h"
-#include "Transport.h"
-#include "AchievementMgr.h"
+#include <ace/Singleton.h>
 
-class Player;
+#include "DBCStores.h"
+#include "Player.h"
+#include "SharedDefines.h"
+#include "World.h"
+#include "Weather.h"
+
+class AuctionHouseObject;
+class AuraScript;
+class Battleground;
+class BattlegroundMap;
+class Channel;
+class ChatCommand;
 class Creature;
 class CreatureAI;
-class InstanceScript;
-class SpellScript;
-class AuraScript;
-class Quest;
-class Item;
+class DynamicObject;
 class GameObject;
-class SpellCastTargets;
+class Guild;
+class GridMap;
+class Group;
+class InstanceMap;
+class InstanceScript;
+class Item;
 class Map;
-class Unit;
-class WorldObject;
-struct ItemPrototype;
-class Spell;
+class OutdoorPvP;
+class Player;
+class Quest;
 class ScriptMgr;
+class Spell;
+class SpellScript;
+class SpellCastTargets;
+class Transport;
+class Unit;
+class Vehicle;
+class WorldPacket;
 class WorldSocket;
+class WorldObject;
+
+struct AchievementCriteriaData;
+struct AuctionEntry;
+struct Condition;
+struct ItemPrototype;
+struct OutdoorPvPData;
 
 #define VISIBLE_RANGE       (166.0f)                        //MAX visible range (size of grid)
 #define DEFAULT_TEXT        "<Trinity Script Text Entry Missing!>"
@@ -67,7 +79,6 @@ void DoScriptText(int32 textEntry, WorldObject* pSource, Unit *pTarget = NULL);
     MailScript
     SessionScript
     CollisionScript
-    GroupScript
     ArenaTeamScript
 
 */
@@ -744,7 +755,7 @@ class ScriptMgr
 
         void CreateSpellScripts(uint32 spell_id, std::list<SpellScript*>& script_vector);
         void CreateAuraScripts(uint32 spell_id, std::list<AuraScript*>& script_vector);
-        void CreateSpellScriptLoaders(uint32 spell_id, std::vector<std::pair<SpellScriptLoader*, SpellScriptsMap::iterator> >& script_vector);
+        void CreateSpellScriptLoaders(uint32 spell_id, std::vector<std::pair<SpellScriptLoader*, std::multimap<uint32, uint32>::iterator> >& script_vector);
 
     public: /* ServerScript */
 
