@@ -23,9 +23,12 @@
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
 #include "ObjectMgr.h"
+#include "OutdoorPvPMgr.h"
 #include "ProgressBar.h"
 #include "ScriptLoader.h"
 #include "ScriptSystem.h"
+#include "Transport.h"
+
 
 // Utility macros to refer to the script registry.
 #define SCR_REG_MAP(T) ScriptRegistry<T>::ScriptMap
@@ -1369,6 +1372,8 @@ template class ScriptMgr::ScriptRegistry<VehicleScript>;
 template class ScriptMgr::ScriptRegistry<DynamicObjectScript>;
 template class ScriptMgr::ScriptRegistry<TransportScript>;
 template class ScriptMgr::ScriptRegistry<AchievementCriteriaScript>;
+template class ScriptMgr::ScriptRegistry<PlayerScript>;
+template class ScriptMgr::ScriptRegistry<GuildScript>;
 
 // Undefine utility macros.
 #undef GET_SCRIPT_RET
