@@ -1771,16 +1771,13 @@ bool Creature::IsVisibleInGridForPlayer(Player const* pl) const
         return (isAlive() || m_deathTimer > 0 || (m_isDeadByDefault && m_deathState == CORPSE));
     }
 
-    // Dead player see live creatures near own corpse
-    if (isAlive())
+    // Dead player see creatures near own corpse
+    Corpse *corpse = pl->GetCorpse();
+    if (corpse)
     {
-        Corpse *corpse = pl->GetCorpse();
-        if (corpse)
-        {
-            // 20 - aggro distance for same level, 25 - max additional distance if player level less that creature level
-            if (corpse->IsWithinDistInMap(this,(20+25)*sWorld.getRate(RATE_CREATURE_AGGRO)))
-                return true;
-        }
+        // 20 - aggro distance for same level, 25 - max additional distance if player level less that creature level
+        if (corpse->IsWithinDistInMap(this,(20+25)*sWorld.getRate(RATE_CREATURE_AGGRO)))
+            return true;
     }
 
     // Dead player see Spirit Healer or Spirit Guide
