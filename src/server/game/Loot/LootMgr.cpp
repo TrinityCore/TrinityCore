@@ -437,8 +437,8 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
         roundRobinPlayer = lootOwner->GetGUID();
 
         for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
-            if (Player* pl = itr->getSource())
-                FillNotNormalLootFor(pl);
+            if (Player* pl = itr->getSource())   // should actually be looted object instead of lootOwner but looter has to be really close so doesnt really matter
+                FillNotNormalLootFor(pl, pl->IsAtGroupRewardDistance(lootOwner));
 
         for (uint8 i = 0; i < items.size(); ++i)
         {
@@ -449,12 +449,12 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
     }
     // ... for personal loot
     else
-        FillNotNormalLootFor(lootOwner);
+        FillNotNormalLootFor(lootOwner, true);
 
     return true;
 }
 
-void Loot::FillNotNormalLootFor(Player* pl)
+void Loot::FillNotNormalLootFor(Player* pl, bool withCurrency)
 {
     uint32 plguid = pl->GetGUIDLow();
 
@@ -469,6 +469,10 @@ void Loot::FillNotNormalLootFor(Player* pl)
     qmapitr = PlayerNonQuestNonFFAConditionalItems.find(plguid);
     if (qmapitr == PlayerNonQuestNonFFAConditionalItems.end())
         FillNonQuestNonFFAConditionalLoot(pl);
+
+    // if not auto-processed player will have to come and pick it up manually
+    if (!withCurrency)
+        return;
 
     // Process currency items
     uint32 max_slot = GetMaxSlotInLootFor(pl);
