@@ -208,6 +208,7 @@ class PreparedResultSet
         const char* GetCString(uint32 index);
 
         bool NextRow();
+        uint64 GetRowCount() const { return num_rows; }
 
     private:
         bool CheckFieldIndex(uint32 index)  const

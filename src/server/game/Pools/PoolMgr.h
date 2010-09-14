@@ -23,6 +23,7 @@
 #include <ace/Singleton.h>
 #include "Creature.h"
 #include "GameObject.h"
+#include "QuestDef.h"
 
 struct PoolTemplateData
 {
@@ -40,26 +41,29 @@ class Pool                                                  // for Pool of Pool 
 {
 };
 
-typedef std::set<uint32> SpawnedPoolObjects;
-typedef std::map<uint32,uint32> SpawnedPoolPools;
+typedef std::set<uint32> ActivePoolObjects;
+typedef std::map<uint32,uint32> ActivePoolPools;
 
-class SpawnedPoolData
+class ActivePoolData
 {
     public:
         template<typename T>
-        bool IsSpawnedObject(uint32 db_guid_or_pool_id) const;
+        bool IsActiveObject(uint32 db_guid_or_pool_id) const;
 
-        uint32 GetSpawnedObjects(uint32 pool_id) const;
-
-        template<typename T>
-        void AddSpawn(uint32 db_guid_or_pool_id, uint32 pool_id);
+        uint32 GetActiveObjectCount(uint32 pool_id) const;
 
         template<typename T>
-        void RemoveSpawn(uint32 db_guid_or_pool_id, uint32 pool_id);
+        void ActivateObject(uint32 db_guid_or_pool_id, uint32 pool_id);
+
+        template<typename T>
+        void RemoveObject(uint32 db_guid_or_pool_id, uint32 pool_id);
+
+        ActivePoolObjects GetActiveQuests() { return mActiveQuests; } // a copy of the set
     private:
-        SpawnedPoolObjects mSpawnedCreatures;
-        SpawnedPoolObjects mSpawnedGameobjects;
-        SpawnedPoolPools   mSpawnedPools;
+        ActivePoolObjects mSpawnedCreatures;
+        ActivePoolObjects mSpawnedGameobjects;
+        ActivePoolObjects mActiveQuests;
+        ActivePoolPools   mSpawnedPools;
 };
 
 template <class T>
@@ -73,19 +77,30 @@ class PoolGroup
         bool isEmpty() const { return ExplicitlyChanced.empty() && EqualChanced.empty(); }
         void AddEntry(PoolObject& poolitem, uint32 maxentries);
         bool CheckPool() const;
-        PoolObject* RollOne(SpawnedPoolData& spawns, uint32 triggerFrom);
-        void DespawnObject(SpawnedPoolData& spawns, uint32 guid=0);
+        PoolObject* RollOne(ActivePoolData& spawns, uint32 triggerFrom);
+        void DespawnObject(ActivePoolData& spawns, uint32 guid=0);
         void Despawn1Object(uint32 guid);
-        void SpawnObject(SpawnedPoolData& spawns, uint32 limit, uint32 triggerFrom);
+        void SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 triggerFrom);
 
         void Spawn1Object(PoolObject* obj);
         void ReSpawn1Object(PoolObject* obj);
         void RemoveOneRelation(uint32 child_pool_id);
+        uint32 GetFirstEqualChancedObjectId()
+        {
+            if (EqualChanced.empty())
+                return 0;
+            return EqualChanced.front().guid;
+        }
+        uint32 GetPoolId() const { return poolId; }
     private:
         uint32 poolId;
         PoolObjectList ExplicitlyChanced;
         PoolObjectList EqualChanced;
 };
+
+typedef std::multimap<uint32, uint32> PooledQuestRelation;
+typedef std::pair<PooledQuestRelation::const_iterator, PooledQuestRelation::const_iterator> PooledQuestRelationBounds;
+typedef std::pair<PooledQuestRelation::iterator, PooledQuestRelation::iterator> PooledQuestRelationBoundsNC;
 
 class PoolMgr
 {
@@ -95,13 +110,16 @@ class PoolMgr
 
     public:
         void LoadFromDB();
+        void LoadQuestPools();
+        void SaveQuestsToDB();
+
         void Initialize();
 
         template<typename T>
         uint32 IsPartOfAPool(uint32 db_guid_or_pool_id) const;
 
         template<typename T>
-        bool IsSpawnedObject(uint32 db_guid_or_pool_id) const { return mSpawnedData.IsSpawnedObject<T>(db_guid_or_pool_id); }
+        bool IsSpawnedObject(uint32 db_guid_or_pool_id) const { return mSpawnedData.IsActiveObject<T>(db_guid_or_pool_id); }
 
         bool CheckPool(uint32 pool_id) const;
 
@@ -111,6 +129,11 @@ class PoolMgr
         template<typename T>
         void UpdatePool(uint32 pool_id, uint32 db_guid_or_pool_id);
 
+        void ChangeDailyQuests();
+        void ChangeWeeklyQuests();
+
+        PooledQuestRelation mQuestCreatureRelation;
+        PooledQuestRelation mQuestGORelation;
     protected:
         template<typename T>
         void SpawnPool(uint32 pool_id, uint32 db_guid_or_pool_id);
@@ -120,6 +143,7 @@ class PoolMgr
         typedef std::vector<PoolGroup<Creature> >   PoolGroupCreatureMap;
         typedef std::vector<PoolGroup<GameObject> > PoolGroupGameObjectMap;
         typedef std::vector<PoolGroup<Pool> >       PoolGroupPoolMap;
+        typedef std::vector<PoolGroup<Quest> >      PoolGroupQuestMap;
         typedef std::pair<uint32, uint32> SearchPair;
         typedef std::map<uint32, uint32> SearchMap;
 
@@ -127,12 +151,14 @@ class PoolMgr
         PoolGroupCreatureMap mPoolCreatureGroups;
         PoolGroupGameObjectMap mPoolGameobjectGroups;
         PoolGroupPoolMap mPoolPoolGroups;
+        PoolGroupQuestMap mPoolQuestGroups;
         SearchMap mCreatureSearchMap;
         SearchMap mGameobjectSearchMap;
         SearchMap mPoolSearchMap;
+        SearchMap mQuestSearchMap;
 
         // dynamic data
-        SpawnedPoolData mSpawnedData;
+        ActivePoolData mSpawnedData;
 };
 
 #define sPoolMgr (*ACE_Singleton<PoolMgr, ACE_Null_Mutex>::instance())
@@ -154,6 +180,17 @@ inline uint32 PoolMgr::IsPartOfAPool<GameObject>(uint32 db_guid) const
 {
     SearchMap::const_iterator itr = mGameobjectSearchMap.find(db_guid);
     if (itr != mGameobjectSearchMap.end())
+        return itr->second;
+
+    return 0;
+}
+
+// Method that tell if the quest is part of another pool and return the pool id if yes
+template<>
+inline uint32 PoolMgr::IsPartOfAPool<Quest>(uint32 pool_id) const
+{
+    SearchMap::const_iterator itr = mQuestSearchMap.find(pool_id);
+    if (itr != mQuestSearchMap.end())
         return itr->second;
 
     return 0;
