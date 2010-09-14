@@ -2603,6 +2603,7 @@ void Player::RemoveFromGroup(Group* group, uint64 guid, RemoveMethod method /* =
             // group->Disband(); already disbanded in RemoveMember
             sObjectMgr.RemoveGroup(group);
             delete group;
+            group = NULL;
             // removemember sets the player's group pointer to NULL
         }
     }
