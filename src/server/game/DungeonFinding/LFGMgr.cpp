@@ -1463,10 +1463,20 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint32 lowGuid, bool accept)
         bool sendUpdate = pProposal->state != LFG_PROPOSAL_SUCCESS;
         pProposal->state = LFG_PROPOSAL_SUCCESS;
         time_t joinTime = time_t(time(NULL));
-        uint8 role = 0;
-        int32 waitTime = -1;
-        LfgQueueInfoMap::iterator itQueue;
-        uint64 guid = 0;
+        std::map<uint64, int32> waitTimesMap;
+        // Save wait times before redoing groups
+        for (LfgPlayerList::const_iterator it = players.begin(); it != players.end(); ++it)
+        {
+            uint64 guid = (*it)->GetGroup() ? (*it)->GetGroup()->GetGUID() : (*it)->GetGUID();
+            LfgQueueInfoMap::iterator itQueue = m_QueueInfoMap.find(guid);
+            if (itQueue == m_QueueInfoMap.end())
+            {
+                sLog.outError("LFGMgr::UpdateProposal: Queue info for guid [" UI64FMTD "] not found!", guid);
+                waitTimesMap[(*it)->GetGUID()] = -1;
+            }
+            else
+                waitTimesMap[(*it)->GetGUID()] = int32(joinTime - itQueue->second->joinTime);
+        }
 
         // Create a new group (if needed)
         Group *grp = sObjectMgr.GetGroupByGUID(pProposal->groupLowGuid);
@@ -1478,16 +1488,15 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint32 lowGuid, bool accept)
             plr->SetLfgUpdate(false);
             if (plr->GetGroup())
             {
-                guid = plr->GetGroup()->GetGUID();
                 plr->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_GROUP_FOUND);
                 if (plr->GetGroup() != grp)
+                {
+                    plr->GetGroup()->SetLfgQueued(false);
                     plr->RemoveFromGroup();
+                }
             }
             else
-            {
-                guid = plr->GetGUID();
                 plr->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_GROUP_FOUND);
-            }
 
             if (!grp)
             {
@@ -1502,35 +1511,25 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint32 lowGuid, bool accept)
                 grp->AddMember(plr->GetGUID(), plr->GetName());
             }
             plr->SetLfgUpdate(true);
-            // Update timers
-            role = plr->GetLfgRoles();
-            itQueue = m_QueueInfoMap.find(guid);
-            if (itQueue == m_QueueInfoMap.end())
-            {
-                sLog.outError("LFGMgr::UpdateProposal: Queue info for guid [" UI64FMTD "] not found!", guid);
-                waitTime = -1;
-            }
-            else
-            {
-                waitTime = int32(joinTime - itQueue->second->joinTime);
 
-                if (role & ROLE_TANK)
-                {
-                    if (role & ROLE_HEALER || role & ROLE_DAMAGE)
-                        m_WaitTimeAvg = int32((m_WaitTimeAvg * m_NumWaitTimeAvg + waitTime) / ++m_NumWaitTimeAvg);
-                    else
-                        m_WaitTimeTank = int32((m_WaitTimeTank * m_NumWaitTimeTank + waitTime) / ++m_NumWaitTimeTank);
-                }
-                else if (role & ROLE_HEALER)
-                {
-                    if (role & ROLE_DAMAGE)
-                        m_WaitTimeAvg = int32((m_WaitTimeAvg * m_NumWaitTimeAvg + waitTime) / ++m_NumWaitTimeAvg);
-                    else
-                        m_WaitTimeHealer = int32((m_WaitTimeHealer * m_NumWaitTimeHealer + waitTime) / ++m_NumWaitTimeHealer);
-                }
-                else if (role & ROLE_DAMAGE)
-                    m_WaitTimeDps = int32((m_WaitTimeDps * m_NumWaitTimeDps + waitTime) / ++m_NumWaitTimeDps);
+            // Update timers
+            uint8 role = plr->GetLfgRoles();
+            if (role & ROLE_TANK)
+            {
+                if (role & ROLE_HEALER || role & ROLE_DAMAGE)
+                    m_WaitTimeAvg = int32((m_WaitTimeAvg * m_NumWaitTimeAvg + waitTimesMap[plr->GetGUID()]) / ++m_NumWaitTimeAvg);
+                else
+                    m_WaitTimeTank = int32((m_WaitTimeTank * m_NumWaitTimeTank + waitTimesMap[plr->GetGUID()]) / ++m_NumWaitTimeTank);
             }
+            else if (role & ROLE_HEALER)
+            {
+                if (role & ROLE_DAMAGE)
+                    m_WaitTimeAvg = int32((m_WaitTimeAvg * m_NumWaitTimeAvg + waitTimesMap[plr->GetGUID()]) / ++m_NumWaitTimeAvg);
+                else
+                    m_WaitTimeHealer = int32((m_WaitTimeHealer * m_NumWaitTimeHealer + waitTimesMap[plr->GetGUID()]) / ++m_NumWaitTimeHealer);
+            }
+            else if (role & ROLE_DAMAGE)
+                m_WaitTimeDps = int32((m_WaitTimeDps * m_NumWaitTimeDps + waitTimesMap[plr->GetGUID()]) / ++m_NumWaitTimeDps);
 
             grp->SetLfgRoles(plr->GetGUID(), pProposal->players[plr->GetGUIDLow()]->role);
         }
