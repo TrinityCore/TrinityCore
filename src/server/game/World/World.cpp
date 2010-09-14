@@ -1437,6 +1437,9 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading Quests Relations...");
     sObjectMgr.LoadQuestRelations();                            // must be after quest load
 
+    sLog.outString("Loading Quest Pooling Data...");
+    sPoolMgr.LoadQuestPools();
+
     sLog.outString("Loading Dungeon boss data...");
     sLFGMgr.LoadDungeonEncounters();
 
@@ -1720,6 +1723,9 @@ void World::SetInitialWorldSettings()
     sLog.outString("Deleting expired bans...");
     LoginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate");
 
+    sLog.outString("Starting objects Pooling system...");
+    sPoolMgr.Initialize();
+
     sLog.outString("Calculate next daily quest reset time...");
     InitDailyQuestResetTime();
 
@@ -1728,9 +1734,6 @@ void World::SetInitialWorldSettings()
 
     sLog.outString("Calculate random battleground reset time..." );
     InitRandomBGResetTime();
-
-    sLog.outString("Starting objects Pooling system...");
-    sPoolMgr.Initialize();
 
     // possibly enable db logging; avoid massive startup spam by doing it here.
     if (sLog.GetLogDBLater())
@@ -2597,6 +2600,9 @@ void World::ResetDailyQuests()
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         if (itr->second->GetPlayer())
             itr->second->GetPlayer()->ResetDailyQuestStatus();
+
+    // change available dailies
+    sPoolMgr.ChangeDailyQuests();
 }
 
 void World::LoadDBAllowedSecurityLevel()
@@ -2624,6 +2630,9 @@ void World::ResetWeeklyQuests()
 
     m_NextWeeklyQuestReset = time_t(m_NextWeeklyQuestReset + WEEK);
     sWorld.setWorldState(WS_WEEKLY_QUEST_RESET_TIME, uint64(m_NextWeeklyQuestReset));
+
+    // change available weeklies
+    sPoolMgr.ChangeWeeklyQuests();
 }
 
 void World::ResetRandomBG()

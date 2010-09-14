@@ -48,6 +48,7 @@
 #include "DisableMgr.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
+#include "PoolMgr.h"
 
 ScriptMapMap sQuestEndScripts;
 ScriptMapMap sQuestStartScripts;
@@ -7331,13 +7332,13 @@ void ObjectMgr::DeleteCorpseCellData(uint32 mapid, uint32 cellid, uint32 player_
     cell_guids.corpses.erase(player_guid);
 }
 
-void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map,char const* table)
+void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, std::string table, bool starter, bool go)
 {
     map.clear();                                            // need for reload case
 
     uint32 count = 0;
 
-    QueryResult result = WorldDatabase.PQuery("SELECT id,quest FROM %s",table);
+    QueryResult result = WorldDatabase.PQuery("SELECT id, quest, pool_entry FROM %s qr LEFT JOIN pool_quest pq ON qr.quest = pq.entry", table.c_str());
 
     if (!result)
     {
@@ -7346,38 +7347,45 @@ void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map,char const* table)
         bar.step();
 
         sLog.outString();
-        sLog.outErrorDb(">> Loaded 0 quest relations from %s. DB table `%s` is empty.",table,table);
+        sLog.outErrorDb(">> Loaded 0 quest relations from %s, table is empty.", table.c_str());
         return;
     }
 
     barGoLink bar(result->GetRowCount());
 
+    PooledQuestRelation* poolRelationMap = go ? &sPoolMgr.mQuestGORelation : &sPoolMgr.mQuestCreatureRelation;
+    if (starter)
+        poolRelationMap->clear();
+
     do
     {
-        Field *fields = result->Fetch();
         bar.step();
 
-        uint32 id    = fields[0].GetUInt32();
-        uint32 quest = fields[1].GetUInt32();
+        uint32 id     = result->Fetch()[0].GetUInt32();
+        uint32 quest  = result->Fetch()[1].GetUInt32();
+        uint32 poolId = result->Fetch()[2].GetUInt32();
 
         if (mQuestTemplates.find(quest) == mQuestTemplates.end())
         {
-            sLog.outErrorDb("Table `%s: Quest %u listed for entry %u does not exist.",table,quest,id);
+            sLog.outErrorDb("Table `%s: Quest %u listed for entry %u does not exist.", table.c_str(), quest, id);
             continue;
         }
 
-        map.insert(QuestRelations::value_type(id,quest));
+        if (!poolId || !starter)
+            map.insert(QuestRelations::value_type(id, quest));
+        else if (starter)
+            poolRelationMap->insert(PooledQuestRelation::value_type(quest, id));
 
         ++count;
     } while (result->NextRow());
 
     sLog.outString();
-    sLog.outString(">> Loaded %u quest relations from %s", count,table);
+    sLog.outString(">> Loaded %u quest relations from %s", count, table.c_str());
 }
 
 void ObjectMgr::LoadGameobjectQuestRelations()
 {
-    LoadQuestRelationsHelper(mGOQuestRelations,"gameobject_questrelation");
+    LoadQuestRelationsHelper(mGOQuestRelations, "gameobject_questrelation", true, true);
 
     for (QuestRelations::iterator itr = mGOQuestRelations.begin(); itr != mGOQuestRelations.end(); ++itr)
     {
@@ -7391,7 +7399,7 @@ void ObjectMgr::LoadGameobjectQuestRelations()
 
 void ObjectMgr::LoadGameobjectInvolvedRelations()
 {
-    LoadQuestRelationsHelper(mGOQuestInvolvedRelations,"gameobject_involvedrelation");
+    LoadQuestRelationsHelper(mGOQuestInvolvedRelations, "gameobject_involvedrelation", false, true);
 
     for (QuestRelations::iterator itr = mGOQuestInvolvedRelations.begin(); itr != mGOQuestInvolvedRelations.end(); ++itr)
     {
@@ -7405,7 +7413,7 @@ void ObjectMgr::LoadGameobjectInvolvedRelations()
 
 void ObjectMgr::LoadCreatureQuestRelations()
 {
-    LoadQuestRelationsHelper(mCreatureQuestRelations,"creature_questrelation");
+    LoadQuestRelationsHelper(mCreatureQuestRelations, "creature_questrelation", true, false);
 
     for (QuestRelations::iterator itr = mCreatureQuestRelations.begin(); itr != mCreatureQuestRelations.end(); ++itr)
     {
@@ -7419,7 +7427,7 @@ void ObjectMgr::LoadCreatureQuestRelations()
 
 void ObjectMgr::LoadCreatureInvolvedRelations()
 {
-    LoadQuestRelationsHelper(mCreatureQuestInvolvedRelations,"creature_involvedrelation");
+    LoadQuestRelationsHelper(mCreatureQuestInvolvedRelations, "creature_involvedrelation", false, false);
 
     for (QuestRelations::iterator itr = mCreatureQuestInvolvedRelations.begin(); itr != mCreatureQuestInvolvedRelations.end(); ++itr)
     {

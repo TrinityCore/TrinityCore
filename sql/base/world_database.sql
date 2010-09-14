@@ -16106,6 +16106,31 @@ LOCK TABLES `pool_pool` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `pool_quest`
+--
+
+DROP TABLE IF EXISTS `pool_quest`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pool_quest` (
+  `entry` int(10) unsigned NOT NULL DEFAULT '0',
+  `pool_entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `description` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`entry`),
+  KEY `idx_guid` (`entry`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `pool_quest`
+--
+
+LOCK TABLES `pool_quest` WRITE;
+/*!40000 ALTER TABLE `pool_quest` DISABLE KEYS */;
+/*!40000 ALTER TABLE `pool_quest` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `pool_template`
 --
 
