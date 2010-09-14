@@ -293,7 +293,7 @@ void WorldSession::HandleGroupUninviteGuidOpcode(WorldPacket & recv_data)
         if (grp->isLFGGroup())
             sLFGMgr.InitBoot(grp, GUID_LOPART(GetPlayer()->GetGUID()), GUID_LOPART(guid), reason);
         else
-            Player::RemoveFromGroup(grp,guid);
+            Player::RemoveFromGroup(grp, guid, GROUP_REMOVEMETHOD_KICK);
         return;
     }
 
@@ -338,7 +338,7 @@ void WorldSession::HandleGroupUninviteOpcode(WorldPacket & recv_data)
         if (grp->isLFGGroup())
             sLFGMgr.InitBoot(grp, GUID_LOPART(GetPlayer()->GetGUID()), GUID_LOPART(guid), "");
         else
-            Player::RemoveFromGroup(grp,guid);
+            Player::RemoveFromGroup(grp, guid, GROUP_REMOVEMETHOD_KICK);
         return;
     }
 

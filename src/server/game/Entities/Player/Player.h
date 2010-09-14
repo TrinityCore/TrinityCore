@@ -1708,7 +1708,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsInSameGroupWith(Player const* p) const;
         bool IsInSameRaidWith(Player const* p) const { return p == this || (GetGroup() != NULL && GetGroup() == p->GetGroup()); }
         void UninviteFromGroup();
-        static void RemoveFromGroup(Group* group, uint64 guid);
+        static void RemoveFromGroup(Group* group, uint64 guid, RemoveMethod method = GROUP_REMOVEMETHOD_DEFAULT);
         void RemoveFromGroup() { RemoveFromGroup(GetGroup(),GetGUID()); }
         void SendUpdateToOutOfRangeGroupMembers();
 
