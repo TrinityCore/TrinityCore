@@ -1600,7 +1600,9 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
             // damage caster for heal amount
             if (target != caster && GetSpellProto()->AttributesEx2 & SPELL_ATTR_EX2_HEALTH_FUNNEL)
             {
-                uint32 damage = gain;
+                uint32 damage = SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), 0); // damage is not affected by spell power
+                if ((int32)damage > gain)
+                    damage = gain;
                 uint32 absorb = 0;
                 caster->DealDamageMods(caster,damage,&absorb);
                 caster->SendSpellNonMeleeDamageLog(caster, GetId(), damage, GetSpellSchoolMask(GetSpellProto()), absorb, 0, false, 0, false);
