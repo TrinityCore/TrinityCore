@@ -1993,6 +1993,29 @@ LOCK TABLES `petition_sign` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `pool_quest_save`
+--
+
+DROP TABLE IF EXISTS `pool_quest_save`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pool_quest_save` (
+  `pool_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `quest_id` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`pool_id`,`quest_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `pool_quest_save`
+--
+
+LOCK TABLES `pool_quest_save` WRITE;
+/*!40000 ALTER TABLE `pool_quest_save` DISABLE KEYS */;
+/*!40000 ALTER TABLE `pool_quest_save` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `worldstates`
 --
 
