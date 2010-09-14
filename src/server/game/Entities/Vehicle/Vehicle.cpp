@@ -115,9 +115,9 @@ void Vehicle::Install()
         sScriptMgr.OnInstall(this);
 }
 
-void Vehicle::InstallAllAccessories()
+void Vehicle::InstallAllAccessories(uint32 entry)
 {
-    VehicleAccessoryList const* mVehicleList = sObjectMgr.GetVehicleAccessoryList(me->GetEntry());
+    VehicleAccessoryList const* mVehicleList = sObjectMgr.GetVehicleAccessoryList(entry);
     if (!mVehicleList)
         return;
 
@@ -163,7 +163,7 @@ void Vehicle::Reset()
     }
     else
     {
-        InstallAllAccessories();
+        InstallAllAccessories(me->GetEntry());
         if (m_usableSeatNum)
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
     }
