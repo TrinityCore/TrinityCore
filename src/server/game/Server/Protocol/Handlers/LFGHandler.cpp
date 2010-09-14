@@ -286,6 +286,12 @@ void WorldSession::HandleLfrLeaveOpcode(WorldPacket &recv_data)
 
 void WorldSession::SendLfgUpdatePlayer(uint8 updateType)
 {
+    if (!GetPlayer()->GetLfgUpdate())
+    {
+        sLog.outDebug("SMSG_LFG_UPDATE_PLAYER [" UI64FMTD "] updatetype: %u not sent! player flag: false", GetPlayer()->GetGUID(), updateType);
+        return;
+    }
+
     bool queued = false;
     bool extrainfo = false;
 
@@ -326,6 +332,12 @@ void WorldSession::SendLfgUpdatePlayer(uint8 updateType)
 
 void WorldSession::SendLfgUpdateParty(uint8 updateType)
 {
+    if (!GetPlayer()->GetLfgUpdate())
+    {
+        sLog.outDebug("SMSG_LFG_UPDATE_PARTY [" UI64FMTD "] updatetype: %u not sent! player flag: false", GetPlayer()->GetGUID(), updateType);
+        return;
+    }
+
     bool join = false;
     bool extrainfo = false;
     bool queued = false;
