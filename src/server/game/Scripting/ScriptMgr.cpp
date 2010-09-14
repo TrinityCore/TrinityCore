@@ -29,7 +29,6 @@
 #include "ScriptSystem.h"
 #include "Transport.h"
 
-
 // Utility macros to refer to the script registry.
 #define SCR_REG_MAP(T) ScriptRegistry<T>::ScriptMap
 #define SCR_REG_ITR(T) ScriptRegistry<T>::ScriptMapIterator
