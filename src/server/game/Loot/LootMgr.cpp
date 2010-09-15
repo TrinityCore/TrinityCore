@@ -476,18 +476,19 @@ void Loot::FillNotNormalLootFor(Player* pl, bool withCurrency)
 
     // Process currency items
     uint32 max_slot = GetMaxSlotInLootFor(pl);
-    uint32 itemId = 0;
+    LootItem const *item = NULL;
     uint32 itemsSize = uint32(items.size());
     for (uint32 i = 0; i < max_slot; ++i)
     {
         if (i < items.size())
-            itemId = items[i].itemid;
+            item = &items[i];
         else
-            itemId = quest_items[i-itemsSize].itemid;
+            item = &quest_items[i-itemsSize];
 
-        if (ItemPrototype const* proto = ObjectMgr::GetItemPrototype(itemId))
-            if (proto->BagFamily & BAG_FAMILY_MASK_CURRENCY_TOKENS)
-                pl->StoreLootItem(i, this);
+        if (!item->is_looted && item->freeforall && item->AllowedForPlayer(pl))
+            if (ItemPrototype const* proto = ObjectMgr::GetItemPrototype(item->itemid))
+                if (proto->BagFamily & BAG_FAMILY_MASK_CURRENCY_TOKENS)
+                    pl->StoreLootItem(i, this);
     }
 }
 
