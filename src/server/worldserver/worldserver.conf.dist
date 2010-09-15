@@ -1489,6 +1489,10 @@ Visibility.Notify.Period.InBGArenas   = 1000
 #        Drop rates (items by quality and money)
 #        Default: 1
 #
+#    Rate.Drop.Item.ReferencedAmount
+#        Multiplier for referenced loot
+#        Default: 1
+#
 #    Rate.Drop.Money
 #        Drop rates
 #        Default: 1

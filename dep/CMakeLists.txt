@@ -11,7 +11,7 @@
 if( CMAKE_COMPILER_IS_GNUCXX )
   add_definitions(--no-warnings)
 elseif( MSVC )
-  add_definitions( /w )
+  add_definitions(/W0)
 endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
