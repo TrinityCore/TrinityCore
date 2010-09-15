@@ -498,14 +498,14 @@ void MotionMaster::Mutate(MovementGenerator *m, MovementSlot slot)
         i_top = slot;
     }
 
+    Impl[slot] = m;
     if (i_top > slot)
         needInit[slot] = true;
     else
     {
-        m->Initialize(*i_owner);
         needInit[slot] = false;
+        m->Initialize(*i_owner);
     }
-    Impl[slot] = m;
 }
 
 void MotionMaster::MovePath(uint32 path_id, bool repeatable)
