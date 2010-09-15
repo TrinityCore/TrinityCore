@@ -845,7 +845,7 @@ void PoolMgr::LoadQuestPools()
         QUEST_WEEKLY = 2
     };
 
-    std::map<uint32, uint32> poolTypeMap;
+    std::map<uint32, eQuestTypes> poolTypeMap;
 
     do
     {
