@@ -471,8 +471,9 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
     SendPacket(&data);
 
     std::string IP_str = GetRemoteAddress();
-    sLog.outBasic("Account: %d (IP: %s) Create Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), pNewChar->GetGUIDLow());
+    sLog.outDetail("Account: %d (IP: %s) Create Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), pNewChar->GetGUIDLow());
     sLog.outChar("Account: %d (IP: %s) Create Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), pNewChar->GetGUIDLow());
+    sScriptMgr.OnPlayerCreate(pNewChar);
     delete pNewChar;                                        // created only to call SaveToDB()
 
 }
@@ -522,6 +523,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket & recv_data)
     std::string IP_str = GetRemoteAddress();
     sLog.outDetail("Account: %d (IP: %s) Delete Character:[%s] (GUID: %u)",GetAccountId(),IP_str.c_str(),name.c_str(),GUID_LOPART(guid));
     sLog.outChar("Account: %d (IP: %s) Delete Character:[%s] (GUID: %u)",GetAccountId(),IP_str.c_str(),name.c_str(),GUID_LOPART(guid));
+    sScriptMgr.OnPlayerDelete(guid);
 
     if (sLog.IsOutCharDump())                                // optimize GetPlayerDump call
     {
@@ -801,6 +803,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
 
     m_playerLoading = false;
 
+    sScriptMgr.OnPlayerLogin(pCurrChar);
     delete holder;
 }
 

@@ -1174,6 +1174,26 @@ void ScriptMgr::OnPlayerSpellCast(Player *player, Spell *spell, bool skipCheck)
     FOREACH_SCRIPT(PlayerScript)->OnSpellCast(player, spell, skipCheck);
 }
 
+void ScriptMgr::OnPlayerLogin(Player *player)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnLogin(player);
+}
+
+void ScriptMgr::OnPlayerLogout(Player *player)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnLogout(player);
+}
+
+void ScriptMgr::OnPlayerCreate(Player *player)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnCreate(player);
+}
+
+void ScriptMgr::OnPlayerDelete(uint64 guid)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnDelete(guid);
+}
+
 void ScriptMgr::OnGuildAddMember(Guild *guild, Player *player, uint32& plRank)
 {
     FOREACH_SCRIPT(GuildScript)->OnAddMember(guild, player, plRank);
