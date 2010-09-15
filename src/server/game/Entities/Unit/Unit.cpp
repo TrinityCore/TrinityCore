@@ -12094,9 +12094,9 @@ bool Unit::canAttack(Unit const* target, bool force) const
     return true;
 }
 
-bool Unit::isAttackableByAOE() const
+bool Unit::isAttackableByAOE(bool requireDeadTarget) const
 {
-    if (!isAlive())
+    if (isAlive() == requireDeadTarget)
         return false;
 
     if (HasFlag(UNIT_FIELD_FLAGS,
