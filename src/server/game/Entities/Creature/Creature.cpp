@@ -140,7 +140,7 @@ bool ForcedDespawnDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 
 Creature::Creature(): Unit(),
 lootForPickPocketed(false), lootForBody(false), m_groupLootTimer(0), lootingGroupLowGUID(0),
-m_PlayerDamageReq(0), m_lootMoney(0), m_lootRecipient(0), m_deathTimer(0), m_respawnTime(0),
+m_PlayerDamageReq(0), m_lootMoney(0), m_lootRecipient(0), m_corpseRemoveTime(0), m_respawnTime(0),
 m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_reactState(REACT_AGGRESSIVE),
 m_defaultMovementType(IDLE_MOTION_TYPE), m_DBTableGuid(0), m_equipmentId(0), m_AlreadyCallAssistance(false),
 m_AlreadySearchedAssistance(false), m_regenHealth(true), m_AI_locked(false), m_isDeadByDefault(false),
@@ -212,7 +212,7 @@ void Creature::DisappearAndDie()
     //ObjectAccessor::UpdateObjectVisibility(this);
     if (isAlive())
         setDeathState(JUST_DIED);
-    RemoveCorpse();
+    RemoveCorpse(false);
 }
 
 void Creature::SearchFormation()
@@ -229,12 +229,12 @@ void Creature::SearchFormation()
         formation_mgr.AddCreatureToGroup(frmdata->second->leaderGUID, this);
 }
 
-void Creature::RemoveCorpse()
+void Creature::RemoveCorpse(bool setSpawnTime)
 {
     if ((getDeathState() != CORPSE && !m_isDeadByDefault) || (getDeathState() != ALIVE && m_isDeadByDefault))
         return;
 
-    m_deathTimer = 0;
+    m_corpseRemoveTime = time(NULL);
     setDeathState(DEAD);
     UpdateObjectVisibility();
     loot.clear();
@@ -242,7 +242,9 @@ void Creature::RemoveCorpse()
     if (IsAIEnabled)
         AI()->CorpseRemoved(respawnDelay);
 
-    m_respawnTime = time(NULL) + m_respawnDelay;
+    // Should get removed later, just keep "compatibility" with scripts
+    if(setSpawnTime)
+        m_respawnTime = time(NULL) + respawnDelay;
 
     float x,y,z,o;
     GetRespawnCoord(x, y, z, &o);
@@ -485,16 +487,15 @@ void Creature::Update(uint32 diff)
                 }
                 else m_groupLootTimer -= diff;
             }
-            else if (m_deathTimer <= diff)
+            else if (m_corpseRemoveTime <= time(NULL))
             {
-                RemoveCorpse();
+                RemoveCorpse(false);
                 sLog.outStaticDebug("Removing corpse... %u ", GetUInt32Value(OBJECT_FIELD_ENTRY));
             }
             else
             {
                 // for delayed spells
                 m_Events.Update(diff);
-                m_deathTimer -= diff;
             }
 
             break;
@@ -503,14 +504,10 @@ void Creature::Update(uint32 diff)
         {
             if (m_isDeadByDefault)
             {
-                if (m_deathTimer <= diff)
+                if (m_corpseRemoveTime <= time(NULL))
                 {
-                    RemoveCorpse();
+                    RemoveCorpse(false);
                     sLog.outStaticDebug("Removing alive corpse... %u ", GetUInt32Value(OBJECT_FIELD_ENTRY));
-                }
-                else
-                {
-                    m_deathTimer -= diff;
                 }
             }
 
@@ -1476,7 +1473,8 @@ void Creature::setDeathState(DeathState s)
 {
     if ((s == JUST_DIED && !m_isDeadByDefault)||(s == JUST_ALIVED && m_isDeadByDefault))
     {
-        m_deathTimer = m_corpseDelay*IN_MILLISECONDS;
+        m_corpseRemoveTime = time(NULL) + m_corpseDelay;
+        m_respawnTime = time(NULL) + m_respawnDelay + m_corpseDelay;
 
         // always save boss respawn time at death to prevent crash cheating
         if (sWorld.getBoolConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY) || isWorldBoss())
@@ -1565,7 +1563,7 @@ void Creature::Respawn(bool force)
             setDeathState(CORPSE);
     }
 
-    RemoveCorpse();
+    RemoveCorpse(false);
 
     if (getDeathState() == DEAD)
     {
@@ -1631,7 +1629,7 @@ void Creature::ForcedDespawn(uint32 timeMSToDespawn)
     if (isAlive())
         setDeathState(JUST_DIED);
 
-    RemoveCorpse();
+    RemoveCorpse(false);
 }
 
 bool Creature::IsImmunedToSpell(SpellEntry const* spellInfo)
@@ -1768,7 +1766,7 @@ bool Creature::IsVisibleInGridForPlayer(Player const* pl) const
     {
         if (GetEntry() == VISUAL_WAYPOINT)
             return false;
-        return (isAlive() || m_deathTimer > 0 || (m_isDeadByDefault && m_deathState == CORPSE));
+        return (isAlive() || m_corpseRemoveTime > time(NULL) || (m_isDeadByDefault && m_deathState == CORPSE));
     }
 
     // Dead player see creatures near own corpse
@@ -1988,10 +1986,7 @@ void Creature::SaveRespawnTime()
     if (isSummon() || !m_DBTableGuid || (m_creatureData && !m_creatureData->dbData))
         return;
 
-    if (m_respawnTime > time(NULL))                          // dead (no corpse)
-        sObjectMgr.SaveCreatureRespawnTime(m_DBTableGuid,GetInstanceId(),m_respawnTime);
-    else if (m_deathTimer > 0)                               // dead (corpse)
-        sObjectMgr.SaveCreatureRespawnTime(m_DBTableGuid,GetInstanceId(),time(NULL)+m_respawnDelay+m_deathTimer/IN_MILLISECONDS);
+    sObjectMgr.SaveCreatureRespawnTime(m_DBTableGuid,GetInstanceId(),m_respawnTime);
 }
 
 // this should not be called by petAI or
@@ -2215,10 +2210,8 @@ bool Creature::HasSpell(uint32 spellID) const
 time_t Creature::GetRespawnTimeEx() const
 {
     time_t now = time(NULL);
-    if (m_respawnTime > now)                                 // dead (no corpse)
+    if (m_respawnTime > now)
         return m_respawnTime;
-    else if (m_deathTimer > 0)                               // dead (corpse)
-        return now+m_respawnDelay+m_deathTimer/IN_MILLISECONDS;
     else
         return now;
 }
@@ -2254,20 +2247,24 @@ void Creature::AllLootRemovedFromCorpse()
 {
     if (!HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE))
     {
-        uint32 nDeathTimer;
+        time_t now = time(NULL);
+        if(m_corpseRemoveTime <= now)
+            return;
 
+        float decayRate;
         CreatureInfo const *cinfo = GetCreatureInfo();
 
         // corpse was not skinnable -> apply corpse looted timer
         if (!cinfo || !cinfo->SkinLootId)
-            nDeathTimer = (uint32)((m_corpseDelay * IN_MILLISECONDS) * sWorld.getRate(RATE_CORPSE_DECAY_LOOTED));
+            decayRate = sWorld.getRate(RATE_CORPSE_DECAY_LOOTED);
         // corpse skinnable, but without skinning flag, and then skinned, corpse will despawn next update
         else
-            nDeathTimer = 0;
+            decayRate = 0.0f;
 
-        // update death timer only if looted timer is shorter
-        if (m_deathTimer > nDeathTimer)
-            m_deathTimer = nDeathTimer;
+        uint32 diff = (m_corpseRemoveTime - now) * decayRate;
+
+        m_corpseRemoveTime -= diff;
+        m_respawnTime -= diff;
     }
 }
 
