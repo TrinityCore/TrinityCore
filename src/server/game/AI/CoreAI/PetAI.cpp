@@ -42,6 +42,7 @@ PetAI::PetAI(Creature *c) : CreatureAI(c), i_tracker(TIME_INTERVAL_LOOK)
 {
     m_AllySet.clear();
     UpdateAllies();
+    targetHasCC = false;
 }
 
 void PetAI::EnterEvadeMode()
@@ -54,7 +55,7 @@ bool PetAI::_needToStop()
     if (me->isCharmed() && me->getVictim() == me->GetCharmer())
         return true;
 
-    if (_CheckTargetCC(me->getVictim()) != targetHasCC)
+    if (_CheckTargetCC(me->getVictim()) && !targetHasCC)
         return true;
 
     return !me->canAttack(me->getVictim());
@@ -100,6 +101,7 @@ void PetAI::UpdateAI(const uint32 diff)
             _stopAttack();
             return;
         }
+        targetHasCC = _CheckTargetCC(me->getVictim());
 
         DoMeleeAttackIfReady();
     }
@@ -107,10 +109,10 @@ void PetAI::UpdateAI(const uint32 diff)
     {
         Unit *nextTarget = SelectNextTarget();
 
-        if (nextTarget)
-            AttackStart(nextTarget);
         if (me->HasReactState(REACT_PASSIVE))
             _stopAttack();
+        else if (nextTarget)
+            AttackStart(nextTarget);
         else
             HandleReturnMovement();
     }
@@ -300,19 +302,9 @@ void PetAI::AttackStart(Unit *target)
     if (!_CanAttack(target))
         return;
 
-    if (_CheckTargetCC(target))
-        targetHasCC = true;
+    targetHasCC = _CheckTargetCC(target);
 
-    // We can attack, should we chase or not?
-    if (me->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW))
-        DoAttack(target,true); // FOLLOW, attack with chase
-    else
-    {
-        if (me->GetCharmInfo()->IsCommandAttack())
-            DoAttack(target,true); // STAY or FOLLOW, player clicked "attack" so attack with chase
-        else
-            DoAttack(target,false); // STAY, target in range, attack not clicked so attack without chase
-    }
+    DoAttack(target, true);
 }
 
 Unit *PetAI::SelectNextTarget()
@@ -479,7 +471,7 @@ bool PetAI::_CanAttack(Unit *target)
 
 bool PetAI::_CheckTargetCC(Unit *target)
 {
-    if (me->GetOwnerGUID() && target->HasNegativeAuraWithInterruptFlag(AURA_INTERRUPT_FLAG_TAKE_DAMAGE, me->GetOwnerGUID()))
+    if (target->HasCCAura())
         return true;
 
     return false;
