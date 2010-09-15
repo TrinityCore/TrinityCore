@@ -541,7 +541,8 @@ class Creature : public Unit, public GridObject<Creature>
         bool lootForPickPocketed;
         bool lootForBody;
         Player *GetLootRecipient() const;
-        bool hasLootRecipient() const { return m_lootRecipient != 0; }
+        Group *GetLootRecipientGroup() const;
+        bool hasLootRecipient() const { return m_lootRecipient || m_lootRecipientGroup; }
         bool isTappedBy(Player *player) const;                          // return true if the creature is tapped by the player or a member of his party.
 
         void SetLootRecipient (Unit* unit);
@@ -682,6 +683,7 @@ class Creature : public Unit, public GridObject<Creature>
 
         uint32 m_lootMoney;
         uint64 m_lootRecipient;
+        uint32 m_lootRecipientGroup;
 
         /// Timers
         time_t m_corpseRemoveTime;                          // (msecs)timer for death or corpse disappearance

@@ -946,8 +946,16 @@ void Creature::AI_SendMoveToPacket(float x, float y, float z, uint32 time, uint3
 
 Player *Creature::GetLootRecipient() const
 {
-    if (!m_lootRecipient) return NULL;
-    else return ObjectAccessor::FindPlayer(m_lootRecipient);
+    if (!m_lootRecipient)
+        return NULL;
+    return ObjectAccessor::FindPlayer(m_lootRecipient);
+}
+
+Group *Creature::GetLootRecipientGroup() const
+{
+    if (!m_lootRecipientGroup)
+        return NULL;
+    return sObjectMgr.GetGroupByGUID(m_lootRecipientGroup);
 }
 
 void Creature::SetLootRecipient(Unit *unit)
@@ -971,6 +979,9 @@ void Creature::SetLootRecipient(Unit *unit)
         return;
 
     m_lootRecipient = player->GetGUID();
+    if (Group *group = player->GetGroup())
+        m_lootRecipientGroup = group->GetLowGUID();
+
     SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_TAPPED);
 }
 
@@ -980,17 +991,9 @@ bool Creature::isTappedBy(Player *player) const
     if (player->GetGUID() == m_lootRecipient)
         return true;
 
-    Player* recipient = GetLootRecipient();
-    if (!recipient)
-        return false; // recipient exist but is offline. can't check any further.
-
-    Group* recipientGroup = recipient->GetGroup();
-    if (!recipientGroup)
-        return (player == recipient);
-
     Group* playerGroup = player->GetGroup();
-    if (!playerGroup || playerGroup != recipientGroup)
-        return false;
+    if (!playerGroup || playerGroup != GetLootRecipientGroup()) // if we dont have a group we arent the recipient
+        return false;                                           // if creature doesnt have group bound it means it was solo killed by someone else
 
     return true;
 }
