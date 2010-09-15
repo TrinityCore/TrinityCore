@@ -845,7 +845,7 @@ void PoolMgr::LoadQuestPools()
         QUEST_WEEKLY = 2
     };
 
-    std::map<uint32, eQuestTypes> poolTypeMap;
+    std::map<uint32, int32> poolTypeMap;
 
     do
     {
@@ -877,7 +877,7 @@ void PoolMgr::LoadQuestPools()
         if (poolTypeMap[pool_id] == QUEST_NONE)
             poolTypeMap[pool_id] = pQuest->IsDaily() ? QUEST_DAILY : QUEST_WEEKLY;
 
-        eQuestTypes currType = pQuest->IsDaily() ? QUEST_DAILY : QUEST_WEEKLY;
+        int32 currType = pQuest->IsDaily() ? QUEST_DAILY : QUEST_WEEKLY;
 
         if (poolTypeMap[pool_id] != currType)
         {
