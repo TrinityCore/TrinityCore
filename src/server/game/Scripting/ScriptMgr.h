@@ -706,7 +706,15 @@ class PlayerScript : public ScriptObject
         virtual void OnTextEmote(Player* /*player*/, uint32 /*text_emote*/, uint32 /*emoteNum*/, uint64 /*guid*/) { }
 
         // Called in Spell::cast
-        virtual void OnSpellCast(Player * /*player*/, Spell * /*spell*/, bool /*skipCheck*/) { }
+        virtual void OnSpellCast(Player* /*player*/, Spell * /*spell*/, bool /*skipCheck*/) { }
+
+        // Called when a player logs in or out
+        virtual void OnLogin(Player* /*player*/) { }
+        virtual void OnLogout(Player* /*player*/) { }
+
+        // Called when a player is created/deleted
+        virtual void OnCreate(Player* /*player*/) { }
+        virtual void OnDelete(uint64 /*guid*/) { }
 };
 
 class GuildScript : public ScriptObject
@@ -930,7 +938,11 @@ class ScriptMgr
         void OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string msg, Channel* channel);
         void OnPlayerEmote(Player* player, uint32 emote);
         void OnPlayerTextEmote(Player* player, uint32 text_emote, uint32 emoteNum, uint64 guid);
-        void OnPlayerSpellCast(Player *player, Spell *spell, bool skipCheck);
+        void OnPlayerSpellCast(Player* player, Spell *spell, bool skipCheck);
+        void OnPlayerLogin(Player* player);
+        void OnPlayerLogout(Player* player);
+        void OnPlayerCreate(Player* player);
+        void OnPlayerDelete(uint64 guid);
 
     public: /* GuildScript */
         void OnGuildAddMember(Guild *guild, Player *player, uint32& plRank);

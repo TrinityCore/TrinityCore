@@ -479,6 +479,7 @@ void WorldSession::LogoutPlayer(bool Save)
         CharacterDatabase.PExecute("UPDATE characters SET online = 0 WHERE account = '%u'",
             GetAccountId());
         sLog.outDebug("SESSION: Sent SMSG_LOGOUT_COMPLETE Message");
+        sScriptMgr.OnPlayerLogout(GetPlayer());
     }
 
     m_playerLogout = false;
