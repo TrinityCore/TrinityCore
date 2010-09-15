@@ -738,11 +738,12 @@ namespace Trinity
         const Unit * const i_source;
         uint32 i_entry;
         const Position * const i_pos;
+        bool i_requireDeadTarget;
 
         SpellNotifierCreatureAndPlayer(Unit *source, std::list<Unit*> &data, float radius, SpellNotifyPushType type,
-            SpellTargets TargetType = SPELL_TARGETS_ENEMY, const Position *pos = NULL, uint32 entry = 0)
+            SpellTargets TargetType = SPELL_TARGETS_ENEMY, const Position *pos = NULL, uint32 entry = 0, bool requireDeadTarget = false)
             : i_data(&data), i_push_type(type), i_radius(radius), i_TargetType(TargetType),
-            i_source(source), i_entry(entry), i_pos(pos)
+            i_source(source), i_entry(entry), i_pos(pos), i_requireDeadTarget(requireDeadTarget)
         {
             ASSERT(i_source);
         }
@@ -761,7 +762,7 @@ namespace Trinity
                     case SPELL_TARGETS_ENEMY:
                         if (target->isTotem())
                             continue;
-                        if (!target->isAttackableByAOE())
+                        if (!target->isAttackableByAOE(i_requireDeadTarget))
                             continue;
                         if (i_source->IsControlledByPlayer())
                         {
@@ -777,7 +778,13 @@ namespace Trinity
                     case SPELL_TARGETS_ALLY:
                         if (target->isTotem())
                             continue;
-                        if (!target->isAttackableByAOE() || !i_source->IsFriendlyTo(target))
+                        if (!i_source->IsFriendlyTo(target))
+                            continue;
+                        if (target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+                            continue;
+                        if (target->GetTypeId() == TYPEID_PLAYER && target->ToPlayer()->isGameMaster())
+                            continue;
+                        if (target->isAlive() == i_requireDeadTarget)
                             continue;
                         break;
                     case SPELL_TARGETS_ENTRY:
