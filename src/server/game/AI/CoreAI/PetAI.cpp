@@ -471,7 +471,7 @@ bool PetAI::_CanAttack(Unit *target)
 
 bool PetAI::_CheckTargetCC(Unit *target)
 {
-    if (target->HasCCAura())
+    if (target->HasCrowdControl())
         return true;
 
     return false;
