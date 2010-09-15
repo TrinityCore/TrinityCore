@@ -383,7 +383,6 @@ void WorldSession::DoLootRelease(uint64 lguid)
                 pCreature->AllLootRemovedFromCorpse();
 
             pCreature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-            pCreature->SetLootRecipient(NULL);
             loot->clear();
         }
         else
