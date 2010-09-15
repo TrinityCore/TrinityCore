@@ -480,7 +480,8 @@ void PoolGroup<Quest>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 
             ActivePoolObjects::iterator itr = currentQuests.begin();
             std::advance(itr, urand(0, currentQuests.size()-1));
             newQuests.insert(*itr);
-        } while (newQuests.size() < limit);
+            currentQuests.erase(*itr);
+        } while (newQuests.size() < limit && !currentQuests.empty()); // failsafe
     }
 
     if (newQuests.empty())
@@ -842,7 +843,9 @@ void PoolMgr::LoadQuestPools()
         QUEST_NONE   = 0,
         QUEST_DAILY  = 1,
         QUEST_WEEKLY = 2
-    } pooledType = QUEST_NONE;
+    };
+
+    std::map<uint32, uint32> poolTypeMap;
 
     do
     {
@@ -871,14 +874,14 @@ void PoolMgr::LoadQuestPools()
             continue;
         }
 
-        if (!pooledType)
-            pooledType = pQuest->IsDaily() ? QUEST_DAILY : QUEST_WEEKLY;
+        if (poolTypeMap[pool_id] == QUEST_NONE)
+            poolTypeMap[pool_id] = pQuest->IsDaily() ? QUEST_DAILY : QUEST_WEEKLY;
 
         eQuestTypes currType = pQuest->IsDaily() ? QUEST_DAILY : QUEST_WEEKLY;
 
-        if (pooledType != currType)
+        if (poolTypeMap[pool_id] != currType)
         {
-            sLog.outErrorDb("`pool_quest` quest %u is %s but pool (%u) is specified for %s, mixing not allowed, skipped.", entry, currType == QUEST_DAILY ? "QUEST_DAILY" : "QUEST_WEEKLY", pool_id, pooledType == QUEST_DAILY ? "QUEST_DAILY" : "QUEST_WEEKLY");
+            sLog.outErrorDb("`pool_quest` quest %u is %s but pool (%u) is specified for %s, mixing not allowed, skipped.", entry, currType == QUEST_DAILY ? "QUEST_DAILY" : "QUEST_WEEKLY", pool_id, poolTypeMap[pool_id] == QUEST_DAILY ? "QUEST_DAILY" : "QUEST_WEEKLY");
             continue;
         }
 

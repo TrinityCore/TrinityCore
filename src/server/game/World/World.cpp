@@ -1407,20 +1407,17 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading Vehicle Accessories...");
     sObjectMgr.LoadVehicleAccessories();                        // must be after LoadCreatureTemplates()
 
-    sLog.outString("Loading Creature Respawn Data...");     // must be after PackInstances()
+    sLog.outString("Loading Creature Respawn Data...");         // must be after PackInstances()
     sObjectMgr.LoadCreatureRespawnTimes();
 
     sLog.outString("Loading Gameobject Data...");
     sObjectMgr.LoadGameobjects();
 
-    sLog.outString("Loading Gameobject Respawn Data...");   // must be after PackInstances()
+    sLog.outString("Loading Gameobject Respawn Data...");       // must be after PackInstances()
     sObjectMgr.LoadGameobjectRespawnTimes();
 
     sLog.outString("Loading Objects Pooling Data...");
     sPoolMgr.LoadFromDB();
-
-    sLog.outString("Loading Game Event Data...");
-    sGameEventMgr.LoadFromDB();
 
     sLog.outString("Loading Weather Data...");
     sWeatherMgr.LoadWeatherData();
@@ -1429,7 +1426,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr.LoadQuests();                                    // must be loaded after DBCs, creature_template, item_template, gameobject tables
 
     sLog.outString("Checking Quest Disables");
-    sDisableMgr.CheckQuestDisables();                       // must be after loading quests
+    sDisableMgr.CheckQuestDisables();                           // must be after loading quests
 
     sLog.outString("Loading Quest POI");
     sObjectMgr.LoadQuestPOI();
@@ -1439,6 +1436,9 @@ void World::SetInitialWorldSettings()
 
     sLog.outString("Loading Quest Pooling Data...");
     sPoolMgr.LoadQuestPools();
+
+    sLog.outString("Loading Game Event Data...");               // must be after loading pools fully
+    sGameEventMgr.LoadFromDB();
 
     sLog.outString("Loading Dungeon boss data...");
     sLFGMgr.LoadDungeonEncounters();
