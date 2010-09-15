@@ -684,7 +684,7 @@ class Creature : public Unit, public GridObject<Creature>
         uint64 m_lootRecipient;
 
         /// Timers
-        uint32 m_corpseRemoveTime;                          // (msecs)timer for death or corpse disappearance
+        time_t m_corpseRemoveTime;                          // (msecs)timer for death or corpse disappearance
         time_t m_respawnTime;                               // (secs) time of next respawn
         uint32 m_respawnDelay;                              // (secs) delay between corpse disappearance and respawning
         uint32 m_corpseDelay;                               // (secs) delay between death and corpse disappearance
