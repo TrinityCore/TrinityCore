@@ -1231,7 +1231,8 @@ void LootTemplate::Process(Loot& loot, LootStore const& store, bool rate, uint16
             if (!Referenced)
                 continue;                                     // Error message already printed at loading stage
 
-            for (uint32 loop = 0; loop < i->maxcount; ++loop) // Ref multiplicator
+            uint32 maxcount = uint32(float(i->maxcount) * sWorld.getRate(RATE_DROP_ITEM_REFERENCED_AMOUNT));
+            for (uint32 loop = 0; loop < maxcount; ++loop)    // Ref multiplicator
                 Referenced->Process(loot, store, rate, lootMode, i->group);
         }
         else                                                  // Plain entries (not a reference, not grouped)

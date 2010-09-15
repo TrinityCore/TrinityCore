@@ -1665,6 +1665,7 @@ Rate.Drop.Item.Epic = 1
 Rate.Drop.Item.Legendary = 1
 Rate.Drop.Item.Artifact = 1
 Rate.Drop.Item.Referenced = 1
+Rate.Drop.Item.ReferencedAmount = 1
 Rate.Drop.Money = 1
 Rate.XP.Kill    = 1
 Rate.XP.Quest   = 1
