@@ -2550,7 +2550,7 @@ void Unit::SendMeleeAttackStop(Unit* victim)
     if (!victim)
         return;
 
-    WorldPacket data(SMSG_ATTACKSTOP, (4+16));            // we guess size
+    WorldPacket data(SMSG_ATTACKSTOP, (8+8+4));            // we guess size
     data.append(GetPackGUID());
     data.append(victim->GetPackGUID());                     // can be 0x00...
     data << uint32(0);                                      // can be 0x1
