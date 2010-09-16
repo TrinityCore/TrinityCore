@@ -155,6 +155,7 @@ LFGMgr::~LFGMgr()
     m_QueueInfoMap.clear();
     m_currentQueue.clear();
     m_newToQueue.clear();
+    m_JoinQueue.clear();
 }
 
 /// <summary>
