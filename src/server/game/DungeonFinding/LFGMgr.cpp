@@ -1462,6 +1462,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint32 lowGuid, bool accept)
     LfgProposalPlayer *ppPlayer = itProposalPlayer->second;
 
     ppPlayer->accept = LfgAnswer(accept);
+    sLog.outDebug("LFGMgr::UpdateProposal: Player [" UI64FMTD "] of proposal %u selected: %u", MAKE_NEW_GUID(lowGuid, 0, HIGHGUID_PLAYER), proposalId, accept);
     if (!accept)
     {
         RemoveProposal(itProposal, LFG_UPDATETYPE_PROPOSAL_DECLINED);
@@ -1615,6 +1616,7 @@ void LFGMgr::RemoveProposal(LfgProposalMap::iterator itProposal, LfgUpdateType t
     LfgProposal *pProposal = itProposal->second;
     pProposal->state = LFG_PROPOSAL_FAILED;
 
+    sLog.outDebug("LFGMgr::RemovalProposal: Proposal %u, state FAILED, UpdateType %u", itProposal->first, type);
     // Mark all people that didn't answered as no accept
     if (type == LFG_UPDATETYPE_PROPOSAL_FAILED)
         for (LfgProposalPlayerMap::const_iterator it = pProposal->players.begin(); it != pProposal->players.end(); ++it)
@@ -1627,7 +1629,7 @@ void LFGMgr::RemoveProposal(LfgProposalMap::iterator itProposal, LfgUpdateType t
         plr = sObjectMgr.GetPlayerByLowGUID(it->first);
         if (!plr)
             continue;
-        guid = plr->GetGroup() ? plr->GetGroup()->GetGUID(): plr->GetGUID();
+        guid = it->second->groupLowGuid ? MAKE_NEW_GUID(it->second->groupLowGuid, 0, HIGHGUID_GROUP) : plr->GetGUID();
 
         plr->GetSession()->SendUpdateProposal(itProposal->first, pProposal);
         // Remove members that didn't accept
@@ -1638,6 +1640,7 @@ void LFGMgr::RemoveProposal(LfgProposalMap::iterator itProposal, LfgUpdateType t
             plr->GetLfgDungeons()->clear();
             plr->SetLfgRoles(ROLE_NONE);
 
+            sLog.outError("LFGMgr::RemoveProposal: [" UI64FMTD "] didn't accept. Removing from queue and compatible cache", guid);
             if (itQueue != m_QueueInfoMap.end())
                 m_QueueInfoMap.erase(itQueue);
             RemoveFromCompatibles(guid);
@@ -1645,9 +1648,13 @@ void LFGMgr::RemoveProposal(LfgProposalMap::iterator itProposal, LfgUpdateType t
         else                                                // Readd to queue
         {
             if (itQueue == m_QueueInfoMap.end())            // Can't readd! misssing queue info!
+            {
+                sLog.outError("LFGMgr::RemoveProposal: Imposible to readd [" UI64FMTD "] to queue. Missing queue info!", guid);
                 updateType = LFG_UPDATETYPE_REMOVED_FROM_QUEUE;
+            }
             else
             {
+                sLog.outError("LFGMgr::RemoveProposal: Readding [" UI64FMTD "] to queue.", guid);
                 itQueue->second->joinTime = time_t(time(NULL));
                 AddGuidToNewQueue(guid);
                 updateType = LFG_UPDATETYPE_ADDED_TO_QUEUE;
