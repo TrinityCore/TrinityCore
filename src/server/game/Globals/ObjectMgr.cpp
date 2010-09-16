@@ -7090,7 +7090,7 @@ void ObjectMgr::LoadQuestPOI()
 
         QuestPOI POI(id, objIndex, mapId, WorldMapAreaId, FloorId, unk3, unk4);
 
-        QueryResult points = WorldDatabase.PQuery("SELECT x, y FROM quest_poi_points WHERE questId='%u' AND id='%i'", questId, id);
+        QueryResult points = WorldDatabase.PQuery("SELECT x, y FROM quest_poi_points WHERE questId='%u' AND id='%i' ORDER BY idx", questId, id);
 
         if (points)
         {
