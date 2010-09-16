@@ -4510,6 +4510,9 @@ bool ChatHandler::HandleTitlesSetMaskCommand(const char* args)
 
 bool ChatHandler::HandleCharacterTitlesCommand(const char* args)
 {
+    if (!*args)
+        return false;
+
     Player* target;
     if (!extractPlayerTarget((char*)args,&target))
         return false;
