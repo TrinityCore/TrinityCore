@@ -276,6 +276,23 @@ class LFGMgr
         LfgLockStatusSet* GetPlayerLockStatusDungeons(Player *plr, LfgDungeonSet *dungeons = NULL, bool useEntry = true);
         LfgReward const* GetRandomDungeonReward(uint32 dungeon, uint8 level);
 
+        bool isJoining(uint64 guid)
+        {
+            return m_JoinQueue.find(guid) != m_JoinQueue.end();
+        };
+
+        void SetJoining(uint64 guid, bool add)
+        {
+            if (add)
+                m_JoinQueue.insert(guid);
+            else
+            {
+                LfgGuidSet::const_iterator it = m_JoinQueue.find(guid);
+                if (it != m_JoinQueue.end())
+                    m_JoinQueue.erase(it);
+            }
+        };
+
     private:
         void Cleaner();
         void AddGuidToNewQueue(uint64 guid);
@@ -306,6 +323,7 @@ class LFGMgr
         LfgQueueInfoMap m_QueueInfoMap;                     // Queued groups
         LfgGuidList m_currentQueue;                         // Ordered list. Used to find groups
         LfgGuidList m_newToQueue;                           // New groups to add to queue
+        LfgGuidSet m_JoinQueue;                             // Stores guids being joined (to avoid duplicate tries to join)
         LfgCompatibleMap m_CompatibleMap;                   // Compatible dungeons
         LfgProposalMap m_Proposals;                         // Current Proposals
         LfgPlayerBootMap m_Boots;                           // Current player kicks

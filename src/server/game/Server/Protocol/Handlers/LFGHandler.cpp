@@ -68,6 +68,15 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket &recv_data)
         return;
     }
 
+    if (sLFGMgr.isJoining(GetPlayer()->GetGUID()))
+    {
+        recv_data.rpos(recv_data.wpos());
+        sLog.outDebug("CMSG_LFG_JOIN [" UI64FMTD "] already Joining. Ignoring", GetPlayer()->GetGUID());
+        return;
+    }
+
+    sLFGMgr.SetJoining(GetPlayer()->GetGUID(), true);
+
     uint8 numDungeons;
     uint32 dungeon;
     uint32 roles;
@@ -82,6 +91,7 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket &recv_data)
     {
         sLog.outDebug("CMSG_LFG_JOIN [" UI64FMTD "] no dungeons selected", GetPlayer()->GetGUID());
         recv_data.rpos(recv_data.wpos());
+        sLFGMgr.SetJoining(GetPlayer()->GetGUID(), false);
         return;
     }
 
@@ -113,6 +123,7 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket &recv_data)
     sLog.outDebug("CMSG_LFG_JOIN [" UI64FMTD "] as group: %u - Dungeons: %u", GetPlayer()->GetGUID(), grp ? 1 : 0, uint8(newDungeons.size()));
     newDungeons.clear();
     sLFGMgr.Join(GetPlayer());
+    sLFGMgr.SetJoining(GetPlayer()->GetGUID(), false);
 }
 
 void WorldSession::HandleLfgLeaveOpcode(WorldPacket & /*recv_data*/)
