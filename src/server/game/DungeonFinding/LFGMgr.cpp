@@ -779,9 +779,22 @@ void LFGMgr::FindNewGroups(LfgGuidList &check, LfgGuidList all, LfgProposalList 
     if (!check.size() || check.size() > MAXGROUPSIZE)
         return;
 
+    if (check.size() == 1)                                  // Consistency check
+    {
+        uint64 guid = *check.begin();
+        LfgQueueInfoMap::iterator itQueue = m_QueueInfoMap.find(guid);
+        if (itQueue == m_QueueInfoMap.end())
+        {
+            sLog.outError("LFGMgr::FindNewGroups: [" UI64FMTD "] is not queued but listed as queued!", guid);
+            RemoveFromQueue(guid);
+            return;
+        }
+    }
+
     sLog.outDebug("LFGMgr::FindNewGroup: (%s) - all(%s)", ConcatenateGuids(check).c_str(), ConcatenateGuids(all).c_str());
-    LfgGuidList compatibles;
+
     // Check individual compatibilities
+    LfgGuidList compatibles;
     for (LfgGuidList::iterator it = all.begin(); it != all.end(); ++it)
     {
         check.push_back(*it);
