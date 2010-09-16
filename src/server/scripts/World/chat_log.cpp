@@ -72,6 +72,18 @@ public:
                         player->GetName(), group ? group->GetLeaderName() : "<unknown>", msg.c_str());
                 break;
 
+            case CHAT_MSG_PARTY_LEADER:
+                if (sWorld.getBoolConfig(CONFIG_CHATLOG_PARTY))
+                    sLog.outChat("[PARTY] Leader %s tells group: %s",
+                        player->GetName(), msg.c_str());
+                break;
+
+            case CHAT_MSG_RAID:
+                if (sWorld.getBoolConfig(CONFIG_CHATLOG_RAID))
+                    sLog.outChat("[RAID] Player %s tells raid with leader %s: %s",
+                        player->GetName(), group ? group->GetLeaderName() : "<unknown>", msg.c_str());
+                break;
+
             case CHAT_MSG_RAID_LEADER:
                 if (sWorld.getBoolConfig(CONFIG_CHATLOG_RAID))
                     sLog.outChat("[RAID] Leader player %s tells raid: %s",
@@ -84,28 +96,16 @@ public:
                         player->GetName(), msg.c_str());
                 break;
 
-            case CHAT_MSG_PARTY_LEADER:
-                if (sWorld.getBoolConfig(CONFIG_CHATLOG_PARTY))
-                    sLog.outChat("[PARTY] Leader %s tells group: %s",
-                        player->GetName(), msg.c_str());
-                break;
-
-            case CHAT_MSG_BATTLEGROUND_LEADER:
-                if (sWorld.getBoolConfig(CONFIG_CHATLOG_BGROUND))
-                    sLog.outChat("[RAID] Leader player %s tells battleground: %s",
-                        player->GetName(), msg.c_str());
-                break;
-
-            case CHAT_MSG_RAID:
-                if (sWorld.getBoolConfig(CONFIG_CHATLOG_RAID))
-                    sLog.outChat("[RAID] Player %s tells raid with leader %s: %s",
-                        player->GetName(), group ? group->GetLeaderName() : "<unknown>", msg.c_str());
-                break;
-
             case CHAT_MSG_BATTLEGROUND:
                 if (sWorld.getBoolConfig(CONFIG_CHATLOG_BGROUND))
                     sLog.outChat("[BATTLEGROUND] Player %s tells battleground with leader %s: %s",
                         player->GetName(), group ? group->GetLeaderName() : "<unknown>", msg.c_str());
+                break;
+
+            case CHAT_MSG_BATTLEGROUND_LEADER:
+                if (sWorld.getBoolConfig(CONFIG_CHATLOG_BGROUND))
+                    sLog.outChat("[BATTLEGROUND] Leader player %s tells battleground: %s",
+                        player->GetName(), msg.c_str());
                 break;
         }
     }

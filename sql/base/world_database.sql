@@ -26793,10 +26793,13 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 -- quest
 (  8913, 'spell_q55_sacred_cleansing'),
 ( 17271, 'spell_q5206_test_fetid_skull'),
+( 19512, 'spell_q6124_6129_apply_salve'),
 ( 34665, 'spell_q10255_administer_antidote'),
 ( 44936, 'spell_q11515_fel_siphon_dummy'),
 ( 45449, 'spell_q11587_arcane_prisoner_rescue'),
 ( 46023, 'spell_q11730_ultrasonic_screwdriver'),
+( 49587, 'spell_q12459_seeds_of_natures_wrath'),
+( 51840, 'spell_q12634_despawn_fruit_tosser'),
 ( 52308, 'spell_q12683_take_sputum_sample'),
 ( 55804, 'spell_q12937_relief_for_the_fallen'),
 -- item
