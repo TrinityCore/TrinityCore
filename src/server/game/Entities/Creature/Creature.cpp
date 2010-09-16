@@ -2267,7 +2267,7 @@ void Creature::AllLootRemovedFromCorpse()
         else
             decayRate = 0.0f;
 
-        uint32 diff = (m_corpseRemoveTime - now) * decayRate;
+        uint32 diff = uint32((m_corpseRemoveTime - now) * decayRate);
 
         m_corpseRemoveTime -= diff;
         m_respawnTime -= diff;
