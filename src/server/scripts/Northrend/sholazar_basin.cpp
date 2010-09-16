@@ -446,11 +446,84 @@ public:
     }
 };
 
+/*######
+## npc_adventurous_dwarf
+######*/
+
+#define GOSSIP_OPTION_ORANGE    "Can you spare an orange?"
+#define GOSSIP_OPTION_BANANAS   "Have a spare bunch of bananas?"
+#define GOSSIP_OPTION_PAPAYA    "I could really use a papaya."
+
+enum eAdventurousDwarf
+{
+    QUEST_12634         = 12634,
+
+    ITEM_BANANAS        = 38653,
+    ITEM_PAPAYA         = 38655,
+    ITEM_ORANGE         = 38656,
+
+    SPELL_ADD_ORANGE    = 52073,
+    SPELL_ADD_BANANAS   = 52074,
+    SPELL_ADD_PAPAYA    = 52076,
+
+    GOSSIP_MENU_DWARF   = 13307,
+
+    SAY_DWARF_OUCH      = -1571042,
+    SAY_DWARF_HELP      = -1571043
+};
+
+class npc_adventurous_dwarf : public CreatureScript
+{
+public:
+    npc_adventurous_dwarf() : CreatureScript("npc_adventurous_dwarf") { }
+
+    CreatureAI *GetAI(Creature *pCreature) const
+    {
+        DoScriptText(SAY_DWARF_OUCH, pCreature);
+        return NULL;
+    }
+
+    bool OnGossipHello(Player *pPlayer, Creature *pCreature)
+    {
+        if (pPlayer->GetQuestStatus(QUEST_12634) != QUEST_STATUS_INCOMPLETE)
+            return false;
+
+        if (pPlayer->GetItemCount(ITEM_ORANGE) < 1)
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_OPTION_ORANGE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+        if (pPlayer->GetItemCount(ITEM_BANANAS) < 2)
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_OPTION_BANANAS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+
+        if (pPlayer->GetItemCount(ITEM_PAPAYA) < 1)
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_OPTION_PAPAYA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+
+        pPlayer->PlayerTalkClass->SendGossipMenu(GOSSIP_MENU_DWARF, pCreature->GetGUID());
+        return true;
+    }
+
+    bool OnGossipSelect(Player *pPlayer, Creature *pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    {
+        uint32 spellId = 0;
+        switch (uiAction)
+        {
+            case GOSSIP_ACTION_INFO_DEF + 1: spellId = SPELL_ADD_ORANGE;     break;
+            case GOSSIP_ACTION_INFO_DEF + 2: spellId = SPELL_ADD_BANANAS;    break;
+            case GOSSIP_ACTION_INFO_DEF + 3: spellId = SPELL_ADD_PAPAYA;     break;
+        }
+        if (spellId) 
+            pPlayer->CastSpell(pPlayer, spellId, true);
+        DoScriptText(SAY_DWARF_HELP, pCreature);
+        pCreature->ForcedDespawn();
+        return true;
+    }
+};
+
 void AddSC_sholazar_basin()
 {
-    new npc_injured_rainspeaker_oracle;
-    new npc_vekjik;
-    new npc_avatar_of_freya;
-    new npc_bushwhacker;
-    new npc_engineer_helice;
+    new npc_injured_rainspeaker_oracle();
+    new npc_vekjik();
+    new npc_avatar_of_freya();
+    new npc_bushwhacker();
+    new npc_engineer_helice();
+    new npc_adventurous_dwarf();
 }

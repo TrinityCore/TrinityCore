@@ -1841,6 +1841,8 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (30014,-1571039,'Yggdras emerges!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,3,0,0,''),
    (30017,-1571040,'Stinkbeard comin'' for you, little ones!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
    (30007,-1571041,'Do you fell that folks? The air is cracking with energy! Than can only mean one thing...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
+   (28604,-1571042,'Ouch! Watch where you''re tugging!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'adventurous dwarf SAY_DWARF_OUCH'),
+   (28604,-1571043,'Glad I could help!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'adventurous dwarf SAY_DWARF_HELP'),
 
 -- -1 574 000 UTGARDE KEEP
    (23953,-1574000,'Your blood is mine!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13221,1,0,0,'keleseth SAY_AGGRO'),

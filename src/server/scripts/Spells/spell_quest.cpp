@@ -60,7 +60,7 @@ public:
 
 // http://www.wowhead.com/quest=55 Morbent Fel
 // 8913 Sacred Cleansing
-enum Quest55Data
+enum eQuest55Data
 {
     NPC_MORBENT             = 1200,
     NPC_WEAKENED_MORBENT    = 24782,
@@ -79,7 +79,7 @@ public:
 
 // http://www.wowhead.com/quest=5206 Marauders of Darrowshire
 // 17271 Test Fetid Skull
-enum Quest5206Data
+enum eQuest5206Data
 {
     SPELL_CREATE_RESONATING_SKULL = 17269,
     SPELL_CREATE_BONE_DUST = 17270
@@ -123,9 +123,66 @@ public:
     }
 };
 
+// http://www.wowhead.com/quest=6124 Curing the Sick (A)
+// http://www.wowhead.com/quest=6129 Curing the Sick (H)
+// 19512 Apply Salve
+enum eQuests6124_6129Data
+{
+    NPC_SICKLY_GAZELLE  = 12296,
+    NPC_CURED_GAZELLE   = 12297,
+    NPC_SICKLY_DEER     = 12298,
+    NPC_CURED_DEER      = 12299,
+    DESPAWN_TIME        = 30000
+};
+
+class spell_q6124_6129_apply_salve : public SpellScriptLoader
+{
+public:
+    spell_q6124_6129_apply_salve() : SpellScriptLoader("spell_q6124_6129_apply_salve") { }
+
+    class spell_q6124_6129_apply_salve_SpellScript : public SpellScript
+    {
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (GetCastItem())
+                if (Player* pCaster = GetCaster()->ToPlayer())
+                    if (Creature* pCreatureTarget = GetHitCreature())
+                    {
+                        uint32 uiNewEntry = 0;
+                        switch (pCaster->GetTeam())
+                        {
+                            case HORDE:
+                                if (pCreatureTarget->GetEntry() == NPC_SICKLY_GAZELLE)
+                                    uiNewEntry = NPC_CURED_GAZELLE;
+                                break;
+                            case ALLIANCE:
+                                if (pCreatureTarget->GetEntry() == NPC_SICKLY_DEER)
+                                    uiNewEntry = NPC_CURED_DEER;
+                                break;
+                        }
+                        if (uiNewEntry)
+                        {
+                            pCreatureTarget->UpdateEntry(uiNewEntry);
+                            pCreatureTarget->ForcedDespawn(DESPAWN_TIME);
+                        }
+                    }
+        }
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_q6124_6129_apply_salve_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_q6124_6129_apply_salve_SpellScript();
+    }
+};
+
 // http://www.wowhead.com/quest=10255 Testing the Antidote
 // 34665 Administer Antidote
-enum Quest10255Data
+enum eQuest10255Data
 {
     NPC_HELBOAR     = 16880,
     NPC_DREADTUSK   = 16992,
@@ -144,7 +201,7 @@ public:
 
 // http://www.wowhead.com/quest=11515 Blood for Blood
 // 44936 Quest - Fel Siphon Dummy
-enum Quest11515Data
+enum eQuest11515Data
 {
     NPC_FELBLOOD_INITIATE   = 24918,
     NPC_EMACIATED_FELBLOOD  = 24955
@@ -163,7 +220,7 @@ public:
 
 // http://www.wowhead.com/quest=11587 Prison Break
 // 45449 Arcane Prisoner Rescue
-enum Quest11587Data
+enum eQuest11587Data
 {
     SPELL_SUMMON_ARCANE_PRISONER_MALE    = 45446,    // Summon Arcane Prisoner - Male
     SPELL_SUMMON_ARCANE_PRISONER_FEMALE  = 45448,    // Summon Arcane Prisoner - Female
@@ -215,7 +272,7 @@ public:
 
 // http://www.wowhead.com/quest=11730 Master and Servant
 // 46023 The Ultrasonic Screwdriver
-enum Quest11730Data
+enum eQuest11730Data
 {
     SPELL_SUMMON_SCAVENGEBOT_004A8  = 46063,
     SPELL_SUMMON_SENTRYBOT_57K      = 46068,
@@ -293,6 +350,113 @@ public:
     SpellScript * GetSpellScript() const
     {
         return new spell_q11730_ultrasonic_screwdriver_SpellScript();
+    }
+};
+
+// http://www.wowhead.com/quest=12459 That Which Creates Can Also Destroy
+// 49587 Seeds of Nature's Wrath
+enum eQuest12459Data
+{
+    NPC_REANIMATED_FROSTWYRM        = 26841,
+    NPC_WEAK_REANIMATED_FROSTWYRM   = 27821,
+
+    NPC_TURGID                      = 27808,
+    NPC_WEAK_TURGID                 = 27809,
+
+    NPC_DEATHGAZE                   = 27122,
+    NPC_WEAK_DEATHGAZE              = 27807,
+};
+
+class spell_q12459_seeds_of_natures_wrath : public SpellScriptLoader
+{
+public:
+    spell_q12459_seeds_of_natures_wrath() : SpellScriptLoader("spell_q12459_seeds_of_natures_wrath") { }
+
+    class spell_q12459_seeds_of_natures_wrath_SpellScript : public SpellScript
+    {
+    public:
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            if (Creature* pCreatureTarget = GetHitCreature())
+            {
+                uint32 uiNewEntry = 0;
+                switch (pCreatureTarget->GetEntry())
+                {
+                    case NPC_REANIMATED_FROSTWYRM:  uiNewEntry = NPC_WEAK_REANIMATED_FROSTWYRM; break;
+                    case NPC_TURGID:                uiNewEntry = NPC_WEAK_TURGID;               break;
+                    case NPC_DEATHGAZE:             uiNewEntry = NPC_WEAK_DEATHGAZE;            break;
+                }
+                if (uiNewEntry)
+                    pCreatureTarget->UpdateEntry(uiNewEntry);
+            }
+        }
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_q12459_seeds_of_natures_wrath_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_q12459_seeds_of_natures_wrath_SpellScript();
+    }
+};
+
+// http://www.wowhead.com/quest=12634 Some Make Lemonade, Some Make Liquor
+// 51840 Despawn Fruit Tosser
+enum eQuest12634Data
+{
+    SPELL_BANANAS_FALL_TO_GROUND    = 51836,
+    SPELL_ORANGE_FALLS_TO_GROUND    = 51837,
+    SPELL_PAPAYA_FALLS_TO_GROUND    = 51839,
+    SPELL_SUMMON_ADVENTUROUS_DWARF  = 52070
+};
+
+class spell_q12634_despawn_fruit_tosser : public SpellScriptLoader
+{
+public:
+    spell_q12634_despawn_fruit_tosser() : SpellScriptLoader("spell_q12634_despawn_fruit_tosser") { }
+
+    class spell_q12634_despawn_fruit_tosser_SpellScript : public SpellScript
+    {
+    public:
+        bool Validate(SpellEntry const * /*spellEntry*/)
+        {
+            if (!sSpellStore.LookupEntry(SPELL_BANANAS_FALL_TO_GROUND))
+                return false;
+            if (!sSpellStore.LookupEntry(SPELL_ORANGE_FALLS_TO_GROUND))
+                return false;
+            if (!sSpellStore.LookupEntry(SPELL_PAPAYA_FALLS_TO_GROUND))
+                return false;
+            if (!sSpellStore.LookupEntry(SPELL_SUMMON_ADVENTUROUS_DWARF))
+                return false;
+            return true;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            uint32 spellId = SPELL_BANANAS_FALL_TO_GROUND;
+            switch (urand(0, 3))
+            {
+                case 1: spellId = SPELL_ORANGE_FALLS_TO_GROUND; break;
+                case 2: spellId = SPELL_PAPAYA_FALLS_TO_GROUND; break;
+            }
+            // sometimes, if you're lucky, you get a dwarf
+            if (roll_chance_i(5))
+                spellId = SPELL_SUMMON_ADVENTUROUS_DWARF;
+            GetCaster()->CastSpell(GetCaster(), spellId, true, NULL);
+        }
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_q12634_despawn_fruit_tosser_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_q12634_despawn_fruit_tosser_SpellScript();
     }
 };
 
@@ -383,10 +547,13 @@ void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
     new spell_q5206_test_fetid_skull();
+    new spell_q6124_6129_apply_salve();
     new spell_q10255_administer_antidote();
     new spell_q11515_fel_siphon_dummy();
     new spell_q11587_arcane_prisoner_rescue();
     new spell_q11730_ultrasonic_screwdriver();
+    new spell_q12459_seeds_of_natures_wrath();
+    new spell_q12634_despawn_fruit_tosser();
     new spell_q12683_take_sputum_sample();
     new spell_q12937_relief_for_the_fallen();
 }

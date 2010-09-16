@@ -174,7 +174,8 @@ typedef UNORDERED_MAP<uint64/*(instance,guid) pair*/,time_t> RespawnTimes;
 
 struct TrinityStringLocale
 {
-    StringVector Content;                       // 0 -> default, i -> i-1 locale index
+    std::string Default;
+    StringVector Content;
 };
 
 typedef std::map<uint32,uint32> CreatureLinkedRespawnMap;
