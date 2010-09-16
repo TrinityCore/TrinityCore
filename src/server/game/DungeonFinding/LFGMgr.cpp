@@ -914,13 +914,35 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposalList *proposals)
             // Assign new leader
             if (itRoles->second & ROLE_LEADER && (!newLeaderLowGuid || urand(0, 1)))
                 newLeaderLowGuid = itRoles->first;
+            if (rolesMap[itRoles->first])                   // Player already added!
+            {
+                // Find the other guid
+                uint64 guid1 = it->first;
+                uint64 guid2 = 0;
+                for (LfgQueueInfoMap::const_iterator it2 = pqInfoMap.begin(); it2 != it && !guid2; ++it2)
+                {
+                    if (it2->second->roles.find(itRoles->first) != it2->second->roles.end())
+                        guid2 = it2->first;
+                }
+                uint64 playerguid;
+
+                // store in guid2 the obsolete group
+                if (pqInfoMap[guid2]->joinTime > it->second->joinTime)
+                {
+                    playerguid = guid2;
+                    guid2 = guid1;
+                    guid1 = playerguid;
+                }
+                playerguid = MAKE_NEW_GUID(itRoles->first, 0, HIGHGUID_PLAYER);
+                sLog.outError("LFGMgr::CheckCompatibility: check(%s) player [" UI64FMTD "] in queue with [" UI64FMTD "] and OBSOLETE! [" UI64FMTD "]", 
+                    strGuids.c_str(), playerguid, guid1, guid2);
+            }
             rolesMap[itRoles->first] = itRoles->second;
         }
     }
 
     if (rolesMap.size() != numPlayers)
     {
-        sLog.outError("LFGMgr::CheckCompatibility: There is a player multiple times in queue.");
         pqInfoMap.clear();
         rolesMap.clear();
         return false;
