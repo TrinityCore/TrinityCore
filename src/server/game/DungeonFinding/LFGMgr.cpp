@@ -1480,7 +1480,12 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint32 lowGuid, bool accept)
         // Save wait times before redoing groups
         for (LfgPlayerList::const_iterator it = players.begin(); it != players.end(); ++it)
         {
-            uint64 guid = (*it)->GetGroup() ? (*it)->GetGroup()->GetGUID() : (*it)->GetGUID();
+            LfgProposalPlayer *pPlayer = pProposal->players[(*it)->GetGUIDLow()];
+            uint32 lowgroupguid = (*it)->GetGroup() ? (*it)->GetGroup()->GetLowGUID() : 0;
+            if (pPlayer->groupLowGuid != lowgroupguid)
+                sLog.outError("LFGMgr::UpdateProposal: [" UI64FMTD "] group mismatch: actual (%u) - queued (%u)", (*it)->GetGUID(), lowgroupguid, pPlayer->groupLowGuid);
+
+            uint64 guid = pPlayer->groupLowGuid ? MAKE_NEW_GUID(pPlayer->groupLowGuid, 0, HIGHGUID_GROUP) : (*it)->GetGUID();
             LfgQueueInfoMap::iterator itQueue = m_QueueInfoMap.find(guid);
             if (itQueue == m_QueueInfoMap.end())
             {
