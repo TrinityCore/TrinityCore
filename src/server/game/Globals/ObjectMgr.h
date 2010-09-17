@@ -866,7 +866,7 @@ class ObjectMgr
         const char *GetTrinityString(int32 entry, LocaleConstant locale_idx) const;
         const char *GetTrinityStringForDBCLocale(int32 entry) const { return GetTrinityString(entry,DBCLocaleIndex); }
         LocaleConstant GetDBCLocaleIndex() const { return DBCLocaleIndex; }
-        void SetDBCLocaleIndex(uint32 lang) { DBCLocaleIndex = GetIndexForLocale(LocaleConstant(lang)); }
+        void SetDBCLocaleIndex(LocaleConstant locale) { DBCLocaleIndex = locale; }
 
         void AddCorpseCellData(uint32 mapid, uint32 cellid, uint32 player_guid, uint32 instance);
         void DeleteCorpseCellData(uint32 mapid, uint32 cellid, uint32 player_guid);
@@ -904,9 +904,6 @@ class ObjectMgr
         static bool IsValidCharterName(const std::string& name);
 
         static bool CheckDeclinedNames(std::wstring mainpart, DeclinedName const& names);
-
-        LocaleConstant GetIndexForLocale(LocaleConstant loc);
-        LocaleConstant GetLocaleForIndex(int i);
 
         GameTele const* GetGameTele(uint32 id) const
         {
@@ -953,8 +950,6 @@ class ObjectMgr
         ScriptNameMap &GetScriptNames() { return m_scriptNames; }
         const char * GetScriptName(uint32 id) { return id < m_scriptNames.size() ? m_scriptNames[id].c_str() : ""; }
         uint32 GetScriptId(const char *name);
-
-        int GetOrNewIndexForLocale(LocaleConstant loc);
 
         SpellClickInfoMapBounds GetSpellClickInfoMapBounds(uint32 creature_id) const
         {

@@ -1678,9 +1678,8 @@ valid examples:
                             ItemLocale const *il = sObjectMgr.GetItemLocale(linkedItem->ItemId);
 
                             bool foundName = false;
-                            for (uint8 i = LOCALE_koKR; i < MAX_LOCALE; ++i)
+                            for (uint8 dbIndex = LOCALE_koKR; dbIndex < MAX_LOCALE; ++dbIndex)
                             {
-                                int8 dbIndex = sObjectMgr.GetIndexForLocale(LocaleConstant(i));
                                 if (dbIndex == -1 || il == NULL || uint8(dbIndex) >= il->Name.size())
                                     // using strange database/client combinations can lead to this case
                                     expectedName = linkedItem->Name1;
@@ -1689,7 +1688,7 @@ valid examples:
                                 if (suffix)
                                 {
                                     expectedName += " ";
-                                    expectedName += suffix[i];
+                                    expectedName += suffix[dbIndex];
                                 }
                                 if (expectedName == buffer)
                                 {
