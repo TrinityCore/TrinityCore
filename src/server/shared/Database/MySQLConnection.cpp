@@ -166,7 +166,7 @@ bool MySQLConnection::Execute(const char* sql)
         // guarded block for thread-safe mySQL request
         ACE_Guard<ACE_Thread_Mutex> query_connection_guard(m_Mutex);
 
-        #ifdef TRINITY_DEBUG
+        #ifdef SQLQUERY_LOG
         uint32 _s = getMSTime();
         #endif
         if (mysql_query(m_Mysql, sql))
@@ -177,7 +177,7 @@ bool MySQLConnection::Execute(const char* sql)
         }
         else
         {
-            #ifdef TRINITY_DEBUG
+            #ifdef SQLQUERY_LOG
             sLog.outSQLDriver("[%u ms] SQL: %s", getMSTimeDiff(_s, getMSTime()), sql);
             #endif
         }
@@ -206,7 +206,7 @@ bool MySQLConnection::Execute(PreparedStatement* stmt)
         MYSQL_STMT* msql_STMT = m_mStmt->GetSTMT();
         MYSQL_BIND* msql_BIND = m_mStmt->GetBind();
 
-        #ifdef TRINITY_DEBUG
+        #ifdef SQLQUERY_LOG
         uint32 _s = getMSTime();
         #endif
         if (mysql_stmt_bind_param(msql_STMT, msql_BIND))
@@ -224,7 +224,7 @@ bool MySQLConnection::Execute(PreparedStatement* stmt)
         }
         else
         {
-            #ifdef TRINITY_DEBUG
+            #ifdef SQLQUERY_LOG
             sLog.outSQLDriver("[%u ms] Prepared SQL: %u", getMSTimeDiff(_s, getMSTime()), index);
             #endif
             m_mStmt->ClearParameters();
@@ -261,7 +261,7 @@ bool MySQLConnection::_Query(const char *sql, MYSQL_RES **pResult, MYSQL_FIELD *
     {
         // guarded block for thread-safe mySQL request
         ACE_Guard<ACE_Thread_Mutex> query_connection_guard(m_Mutex);
-        #ifdef TRINITY_DEBUG
+        #ifdef SQLQUERY_LOG
         uint32 _s = getMSTime();
         #endif
         if (mysql_query(m_Mysql, sql))
@@ -272,7 +272,7 @@ bool MySQLConnection::_Query(const char *sql, MYSQL_RES **pResult, MYSQL_FIELD *
         }
         else
         {
-            #ifdef TRINITY_DEBUG
+            #ifdef SQLQUERY_LOG
             sLog.outSQLDriver("[%u ms] SQL: %s", getMSTimeDiff(_s,getMSTime()), sql);
             #endif
         }
