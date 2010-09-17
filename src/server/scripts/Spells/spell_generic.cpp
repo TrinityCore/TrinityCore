@@ -115,6 +115,47 @@ public:
     }
 };
 
+// 24751 Trick or Treat
+enum eTrickOrTreatSpells
+{
+    SPELL_TRICK = 24714,
+    SPELL_TREAT = 24715
+};
+
+class spell_gen_trick_or_treat : public SpellScriptLoader
+{
+public:
+    spell_gen_trick_or_treat() : SpellScriptLoader("spell_gen_trick_or_treat") {}
+
+    class spell_gen_trick_or_treat_SpellScript : public SpellScript
+    {
+        bool Validate(SpellEntry const * /*spellEntry*/)
+        {
+            if (!sSpellStore.LookupEntry(SPELL_TRICK))
+                return false;
+            if (!sSpellStore.LookupEntry(SPELL_TREAT))
+                return false;
+            return true;
+        }
+
+        void HandleScript(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit* pTarget = GetHitUnit())
+                GetCaster()->CastSpell(pTarget, roll_chance_i(50) ? SPELL_TRICK : SPELL_TREAT, true, NULL);
+        }
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_gen_trick_or_treat_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_gen_trick_or_treat_SpellScript();
+    }
+};
+
 class spell_creature_permanent_feign_death : public SpellScriptLoader
 {
     public:
@@ -149,6 +190,7 @@ enum PvPTrinketTriggeredSpells
     SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER         = 72752,
     SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER_WOTF    = 72757,
 };
+
 class spell_pvp_trinket_wotf_shared_cd : public SpellScriptLoader
 {
 public:
@@ -197,6 +239,7 @@ void AddSC_generic_spell_scripts()
 {
     new spell_gen_pet_summoned();
     new spell_gen_remove_flight_auras();
+    new spell_gen_trick_or_treat();
     new spell_creature_permanent_feign_death();
     new spell_pvp_trinket_wotf_shared_cd();
 }
