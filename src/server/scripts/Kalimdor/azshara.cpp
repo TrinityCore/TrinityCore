@@ -417,7 +417,7 @@ public:
 
         void SendText(int32 iTextEntry, Player* pPlayer)
         {
-            int loc_idx = pPlayer->GetSession()->GetSessionDbLocaleIndex();
+            LocaleConstant loc_idx = pPlayer->GetSession()->GetSessionDbLocaleIndex();
             const char* text = sObjectMgr.GetTrinityString(iTextEntry, loc_idx);
             sWorld.SendServerMessage(SERVER_MSG_STRING, text, pPlayer);
         }

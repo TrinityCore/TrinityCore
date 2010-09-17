@@ -291,7 +291,7 @@ class Guild
         ~Guild();
 
         bool Create(Player* leader, std::string gname);
-        void CreateDefaultGuildRanks(int locale_idx);
+        void CreateDefaultGuildRanks(LocaleConstant locale_idx);
         void Disband();
 
         void DeleteGuildBankItems(SQLTransaction& trans, bool alsoInDB = false);

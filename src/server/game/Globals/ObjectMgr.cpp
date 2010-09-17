@@ -7640,31 +7640,25 @@ PetNameInvalidReason ObjectMgr::CheckPetName(const std::string& name)
     return PET_NAME_SUCCESS;
 }
 
-int ObjectMgr::GetIndexForLocale(LocaleConstant loc)
+LocaleConstant ObjectMgr::GetIndexForLocale(LocaleConstant loc)
 {
-    if (loc == LOCALE_enUS)
-        return -1;
-
     for (size_t i=0; i < m_LocalForIndex.size(); ++i)
         if (m_LocalForIndex[i] == loc)
-            return i;
+            return loc;
 
-    return -1;
+    return DEFAULT_LOCALE;
 }
 
 LocaleConstant ObjectMgr::GetLocaleForIndex(int i)
 {
     if (i < 0 || i >= int(m_LocalForIndex.size()))
-        return LOCALE_enUS;
+        return DEFAULT_LOCALE;
 
     return m_LocalForIndex[i];
 }
 
 int ObjectMgr::GetOrNewIndexForLocale(LocaleConstant loc)
 {
-    if (loc == LOCALE_enUS)
-        return -1;
-
     for (size_t i = 0; i < m_LocalForIndex.size(); ++i)
         if (m_LocalForIndex[i] == loc)
             return i;
@@ -7815,8 +7809,7 @@ bool ObjectMgr::LoadTrinityStrings(char const* table, int32 min_value, int32 max
         data.Content.resize(1);
         ++count;
 
-        data.Default = fields[1].GetCppString();
-        for (uint8 i = 1; i < MAX_LOCALE; ++i)
+        for (uint8 i = 0; i < MAX_LOCALE; ++i)
         {
             std::string str = fields[i + 1].GetCppString();
             AddLocaleString(str, LocaleConstant(i), data.Content);
@@ -7832,13 +7825,14 @@ bool ObjectMgr::LoadTrinityStrings(char const* table, int32 min_value, int32 max
     return true;
 }
 
-const char *ObjectMgr::GetTrinityString(int32 entry, int locale_idx) const
+const char *ObjectMgr::GetTrinityString(int32 entry, LocaleConstant locale_idx) const
 {
     if (TrinityStringLocale const *msl = GetTrinityStringLocale(entry))
     {
-        std::string s = msl->Default;
-        GetLocaleString(msl->Content, locale_idx, s);
-        return s.c_str();
+        if (msl->Content.size() > size_t(locale_idx) && !msl->Content[locale_idx].empty())
+            return msl->Content[locale_idx].c_str();
+
+        return msl->Content[DEFAULT_LOCALE].c_str();
     }
 
     if (entry > 0)
