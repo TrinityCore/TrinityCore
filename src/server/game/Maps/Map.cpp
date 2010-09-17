@@ -3040,7 +3040,7 @@ void Map::ScriptsProcess()
                     if (Player *pSource = _GetScriptPlayerSourceOrTarget(source, target, step.script))
                     {
                         uint64 targetGUID = target ? target->GetGUID() : 0;
-                        int loc_idx = pSource->GetSession()->GetSessionDbLocaleIndex();
+                        LocaleConstant loc_idx = pSource->GetSession()->GetSessionDbLocaleIndex();
                         const std::string text(sObjectMgr.GetTrinityString(step.script->dataint, loc_idx));
 
                         switch (step.script->datalong)

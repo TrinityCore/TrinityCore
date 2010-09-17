@@ -174,7 +174,6 @@ typedef UNORDERED_MAP<uint64/*(instance,guid) pair*/,time_t> RespawnTimes;
 
 struct TrinityStringLocale
 {
-    std::string Default;
     StringVector Content;
 };
 
@@ -864,9 +863,9 @@ class ObjectMgr
             if (itr == mTrinityStringLocaleMap.end()) return NULL;
             return &itr->second;
         }
-        const char *GetTrinityString(int32 entry, int locale_idx) const;
+        const char *GetTrinityString(int32 entry, LocaleConstant locale_idx) const;
         const char *GetTrinityStringForDBCLocale(int32 entry) const { return GetTrinityString(entry,DBCLocaleIndex); }
-        int32 GetDBCLocaleIndex() const { return DBCLocaleIndex; }
+        LocaleConstant GetDBCLocaleIndex() const { return DBCLocaleIndex; }
         void SetDBCLocaleIndex(uint32 lang) { DBCLocaleIndex = GetIndexForLocale(LocaleConstant(lang)); }
 
         void AddCorpseCellData(uint32 mapid, uint32 cellid, uint32 player_guid, uint32 instance);
@@ -906,7 +905,7 @@ class ObjectMgr
 
         static bool CheckDeclinedNames(std::wstring mainpart, DeclinedName const& names);
 
-        int GetIndexForLocale(LocaleConstant loc);
+        LocaleConstant GetIndexForLocale(LocaleConstant loc);
         LocaleConstant GetLocaleForIndex(int i);
 
         GameTele const* GetGameTele(uint32 id) const
@@ -1080,7 +1079,7 @@ class ObjectMgr
         typedef             std::vector<LocaleConstant> LocalForIndex;
         LocalForIndex        m_LocalForIndex;
 
-        int DBCLocaleIndex;
+        LocaleConstant DBCLocaleIndex;
 
     private:
         void LoadScripts(ScriptsType type);

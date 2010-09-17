@@ -598,7 +598,7 @@ namespace Trinity
             EmoteChatBuilder(Player const& pl, uint32 text_emote, uint32 emote_num, Unit const* target)
                 : i_player(pl), i_text_emote(text_emote), i_emote_num(emote_num), i_target(target) {}
 
-            void operator()(WorldPacket& data, int32 loc_idx)
+            void operator()(WorldPacket& data, LocaleConstant loc_idx)
             {
                 char const* nam = i_target ? i_target->GetNameForLocaleIdx(loc_idx) : NULL;
                 uint32 namlen = (nam ? strlen(nam) : 0) + 1;

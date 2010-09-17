@@ -102,7 +102,7 @@ bool Guild::Create(Player* leader, std::string gname)
     return AddMember(m_LeaderGuid, (uint32)GR_GUILDMASTER);
 }
 
-void Guild::CreateDefaultGuildRanks(int locale_idx)
+void Guild::CreateDefaultGuildRanks(LocaleConstant locale_idx)
 {
     CharacterDatabase.PExecute("DELETE FROM guild_rank WHERE guildid='%u'", m_Id);
     CharacterDatabase.PExecute("DELETE FROM guild_bank_right WHERE guildid = '%u'", m_Id);
@@ -279,7 +279,7 @@ bool Guild::LoadRanksFromDB(QueryResult guildRanksResult)
     if (!guildRanksResult)
     {
         sLog.outError("Guild %u has broken `guild_rank` data, creating new...",m_Id);
-        CreateDefaultGuildRanks(0);
+        CreateDefaultGuildRanks(DEFAULT_LOCALE);
         return true;
     }
 
@@ -329,7 +329,7 @@ bool Guild::LoadRanksFromDB(QueryResult guildRanksResult)
     {
         m_Ranks.clear();
         sLog.outError("Guild %u has broken `guild_rank` data, creating new...", m_Id);
-        CreateDefaultGuildRanks(0);                         // 0 is default locale_idx
+        CreateDefaultGuildRanks(DEFAULT_LOCALE);
         broken_ranks = false;
     }
     // guild_rank have wrong numbered ranks, repair
