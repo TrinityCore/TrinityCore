@@ -43,6 +43,8 @@ enum CharacterDatabaseStatements
         name for a suiting suffix.
     */
 
+    CHAR_DEL_QUEST_POOL_SAVE,
+    CHAR_ADD_QUEST_POOL_SAVE,
     MAX_CHARACTERDATABASE_STATEMENTS,
 };
 
