@@ -250,7 +250,7 @@ class DatabaseWorkerPool
 
         void CommitTransaction(SQLTransaction transaction)
         {
-            #ifdef TRINITY_DEBUG
+            #ifdef SQLQUERY_LOG
             if (transaction->GetSize() == 0)
             {
                 sLog.outSQLDriver("Transaction contains 0 queries. Not executing.");
