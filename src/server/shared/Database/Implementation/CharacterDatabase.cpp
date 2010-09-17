@@ -29,6 +29,8 @@ bool CharacterDatabaseConnection::Open(const std::string& infoString)
         LOAD YOUR PREPARED STATEMENTS HERE
         ##################################
     */
+    PrepareStatement(CHAR_DEL_QUEST_POOL_SAVE, "DELETE FROM pool_quest_save WHERE pool_id = ?");
+    PrepareStatement(CHAR_ADD_QUEST_POOL_SAVE, "INSERT INTO pool_quest_save (pool_id, quest_id) VALUES (?, ?)");
 
     return true;
 }
