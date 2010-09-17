@@ -404,7 +404,7 @@ void Trinity::PlayerSearcher<Check>::Visit(PlayerMapType &m)
 template<class Builder>
 void Trinity::LocalizedPacketDo<Builder>::operator()(Player* p)
 {
-    int32 loc_idx = p->GetSession()->GetSessionDbLocaleIndex();
+    LocaleConstant loc_idx = p->GetSession()->GetSessionDbLocaleIndex();
     uint32 cache_idx = loc_idx+1;
     WorldPacket* data;
 
@@ -429,7 +429,7 @@ void Trinity::LocalizedPacketDo<Builder>::operator()(Player* p)
 template<class Builder>
 void Trinity::LocalizedPacketListDo<Builder>::operator()(Player* p)
 {
-    int32 loc_idx = p->GetSession()->GetSessionDbLocaleIndex();
+    LocaleConstant loc_idx = p->GetSession()->GetSessionDbLocaleIndex();
     uint32 cache_idx = loc_idx+1;
     WorldPacketList* data_list;
 

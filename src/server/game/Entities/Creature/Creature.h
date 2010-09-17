@@ -526,7 +526,7 @@ class Creature : public Unit, public GridObject<Creature>
         void YellToZone(int32 textId, uint32 language, uint64 TargetGuid) { MonsterYellToZone(textId,language,TargetGuid); }
 
         // overwrite WorldObject function for proper name localization
-        const char* GetNameForLocaleIdx(int32 locale_idx) const;
+        const char* GetNameForLocaleIdx(LocaleConstant locale_idx) const;
 
         void setDeathState(DeathState s);                   // overwrite virtual Unit::setDeathState
         bool FallGround();

@@ -179,6 +179,7 @@ enum LocaleConstant
 };
 
 const uint8 MAX_LOCALE = 9;
+const LocaleConstant DEFAULT_LOCALE = LOCALE_enUS;
 
 extern char const* localeNames[MAX_LOCALE];
 
