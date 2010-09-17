@@ -387,7 +387,7 @@ bool AuthSocket::_HandleLogonChallenge()
             bool locked = false;
             if (res2->GetUInt8(2) == 1)            // if ip is locked
             {
-                sLog.outStaticDebug("[AuthChallenge] Account '%s' is locked to IP - '%s'", _login.c_str(), res2->GetString(3));
+                sLog.outStaticDebug("[AuthChallenge] Account '%s' is locked to IP - '%s'", _login.c_str(), res2->GetCString(3));
                 sLog.outStaticDebug("[AuthChallenge] Player address is '%s'", ip_address.c_str());
                 if (strcmp(res2->GetCString(3), ip_address.c_str()))
                 {
