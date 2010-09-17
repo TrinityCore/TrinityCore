@@ -7058,7 +7058,7 @@ void ObjectMgr::LoadQuestPOI()
 
     uint32 count = 0;
 
-    // 0 1 2 3
+    //                                               0        1   2         3      4               5        6     7
     QueryResult result = WorldDatabase.Query("SELECT questId, id, objIndex, mapid, WorldMapAreaId, FloorId, unk3, unk4 FROM quest_poi order by questId");
 
     if (!result)
@@ -7070,6 +7070,34 @@ void ObjectMgr::LoadQuestPOI()
         sLog.outString();
         sLog.outErrorDb(">> Loaded 0 quest POI definitions. DB table `quest_poi` is empty.");
         return;
+    }
+
+    std::vector<std::vector<std::vector<QuestPOIPoint> > > POIs;
+
+    //                                                0        1   2  3
+    QueryResult points = WorldDatabase.PQuery("SELECT questId, id, x, y FROM quest_poi_points ORDER BY questId DESC, idx");
+    if (points)
+    {
+        // The first result should have the highest questId
+        Field *fields = points->Fetch();
+        uint32 questId = fields[0].GetUInt32();
+        POIs.resize(questId + 1);
+
+        do
+        {
+            Field *fields = points->Fetch();
+
+            uint32 questId            = fields[0].GetUInt32();
+            uint32 id                 = fields[1].GetUInt32();
+            int32  x                  = fields[2].GetInt32();
+            int32  y                  = fields[3].GetInt32();
+
+            if(POIs[questId].size() <= id + 1)
+                POIs[questId].resize(id + 10);
+
+            QuestPOIPoint point(x, y);
+            POIs[questId][id].push_back(point);
+        } while (points->NextRow());
     }
 
     barGoLink bar(result->GetRowCount());
@@ -7089,20 +7117,7 @@ void ObjectMgr::LoadQuestPOI()
         uint32 unk4               = fields[7].GetUInt32();
 
         QuestPOI POI(id, objIndex, mapId, WorldMapAreaId, FloorId, unk3, unk4);
-
-        QueryResult points = WorldDatabase.PQuery("SELECT x, y FROM quest_poi_points WHERE questId='%u' AND id='%i' ORDER BY idx", questId, id);
-
-        if (points)
-        {
-            do
-            {
-                Field *pointFields = points->Fetch();
-                int32 x = pointFields[0].GetInt32();
-                int32 y = pointFields[1].GetInt32();
-                QuestPOIPoint point(x, y);
-                POI.points.push_back(point);
-            } while (points->NextRow());
-        }
+        POI.points = POIs[questId][id];
 
         mQuestPOIMap[questId].push_back(POI);
 
