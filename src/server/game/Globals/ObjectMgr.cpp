@@ -7072,10 +7072,13 @@ void ObjectMgr::LoadQuestPOI()
         return;
     }
 
-    std::vector<std::vector<std::vector<QuestPOIPoint> > > POIs;
-
     //                                                0        1   2  3
     QueryResult points = WorldDatabase.PQuery("SELECT questId, id, x, y FROM quest_poi_points ORDER BY questId DESC, idx");
+
+    barGoLink bar(result->GetRowCount() + (points ? points->GetRowCount() : 0));
+
+    std::vector<std::vector<std::vector<QuestPOIPoint> > > POIs;
+
     if (points)
     {
         // The first result should have the highest questId
@@ -7085,6 +7088,8 @@ void ObjectMgr::LoadQuestPOI()
 
         do
         {
+            bar.step();
+
             Field *fields = points->Fetch();
 
             uint32 questId            = fields[0].GetUInt32();
@@ -7099,8 +7104,6 @@ void ObjectMgr::LoadQuestPOI()
             POIs[questId][id].push_back(point);
         } while (points->NextRow());
     }
-
-    barGoLink bar(result->GetRowCount());
 
     do
     {
