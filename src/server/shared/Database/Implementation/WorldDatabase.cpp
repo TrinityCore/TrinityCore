@@ -32,6 +32,7 @@ bool WorldDatabaseConnection::Open(const std::string& infoString)
     */
     PrepareStatement(WORLD_DEL_CRESPAWNTIME, "DELETE FROM creature_respawn WHERE guid = ? AND instance = ?");
     PrepareStatement(WORLD_ADD_CRESPAWNTIME, "INSERT INTO creature_respawn VALUES (?, ?, ?)");
+    PrepareStatement(WORLD_LOAD_QUEST_POOLS, "SELECT entry, pool_entry FROM pool_quest");
 
     return true;
 }
