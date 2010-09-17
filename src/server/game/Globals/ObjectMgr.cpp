@@ -415,14 +415,10 @@ void ObjectMgr::AddLocaleString(std::string& s, LocaleConstant locale, StringVec
 {
     if (!s.empty())
     {
-        int idx = GetOrNewIndexForLocale(locale);
-        if (idx >= 0)
-        {
-            if (data.size() <= size_t(idx))
-                data.resize(idx + 1);
+        if (data.size() <= size_t(locale))
+            data.resize(locale + 1);
 
-            data[idx] = s;
-        }
+        data[locale] = s;
     }
 }
 
@@ -7641,33 +7637,6 @@ PetNameInvalidReason ObjectMgr::CheckPetName(const std::string& name)
         return PET_NAME_MIXED_LANGUAGES;
 
     return PET_NAME_SUCCESS;
-}
-
-LocaleConstant ObjectMgr::GetIndexForLocale(LocaleConstant loc)
-{
-    for (size_t i=0; i < m_LocalForIndex.size(); ++i)
-        if (m_LocalForIndex[i] == loc)
-            return loc;
-
-    return DEFAULT_LOCALE;
-}
-
-LocaleConstant ObjectMgr::GetLocaleForIndex(int i)
-{
-    if (i < 0 || i >= int(m_LocalForIndex.size()))
-        return DEFAULT_LOCALE;
-
-    return m_LocalForIndex[i];
-}
-
-int ObjectMgr::GetOrNewIndexForLocale(LocaleConstant loc)
-{
-    for (size_t i = 0; i < m_LocalForIndex.size(); ++i)
-        if (m_LocalForIndex[i] == loc)
-            return i;
-
-    m_LocalForIndex.push_back(loc);
-    return m_LocalForIndex.size() - 1;
 }
 
 void ObjectMgr::LoadGameObjectForQuests()
