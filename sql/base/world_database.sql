@@ -26745,10 +26745,11 @@ LOCK TABLES `spell_script_names` WRITE;
 /*!40000 ALTER TABLE `spell_script_names` DISABLE KEYS */;
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 -- generic
-( 58601, 'spell_gen_remove_flight_auras'),
 (  6962, 'spell_gen_pet_summoned'),
+( 24751, 'spell_gen_trick_or_treat'),
 ( 29266, 'spell_creature_permanent_feign_death'),
 ( 57685, 'spell_creature_permanent_feign_death'),
+( 58601, 'spell_gen_remove_flight_auras'),
 ( 58951, 'spell_creature_permanent_feign_death'),
 ( 70592, 'spell_creature_permanent_feign_death'),
 ( 70628, 'spell_creature_permanent_feign_death'),
