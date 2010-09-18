@@ -3450,33 +3450,47 @@ void ObjectMgr::BuildPlayerLevelInfo(uint8 race, uint8 _class, uint8 level, Play
 void ObjectMgr::LoadGuilds()
 {
     Guild *newGuild;
-    uint32 count = 0;
+
+    QueryCallback<int> callback[MAX_OBJMGR_QUERY_CALLBACK];
+
+    SQLQueryHolder generalHolder;
+    generalHolder.SetSize(MAX_OBJMGR_QUERY_CALLBACK);
+
+    SQLQueryHolder guildEventHolder;
+    guildEventHolder.SetSize(MAX_OBJMGR_QUERY_CALLBACK);
+
+    SQLQueryHolder guildBankEventHolder;
+    guildBankEventHolder.SetSize(MAX_OBJMGR_QUERY_CALLBACK);
+
+    SQLQueryHolder guildBankHolder;
+    guildBankHolder.SetSize(MAX_OBJMGR_QUERY_CALLBACK);
+
+
+    //                                                                   0        1          2            3            4        5          6
+    guildEventHolder.SetQuery(OBJMGR_QUERY_CALLBACK_GUILDEVENTS, "SELECT LogGuid, EventType, PlayerGuid1, PlayerGuid2, NewRank, TimeStamp, guildid FROM guild_eventlog ORDER BY TimeStamp DESC, LogGuid DESC");
+
+    //                                                                           0        1          2           3            4               5          6          7        8
+    guildBankEventHolder.SetQuery(OBJMGR_QUERY_CALLBACK_GUILDBANKEVENTS, "SELECT LogGuid, EventType, PlayerGuid, ItemOrMoney, ItemStackCount, DestTabId, TimeStamp, guildid, TabId FROM guild_bank_eventlog ORDER BY TimeStamp DESC,LogGuid DESC");
+
+    //                                                                 0      1        2        3        4
+    guildBankHolder.SetQuery(OBJMGR_QUERY_CALLBACK_GUILDBANKS, "SELECT TabId, TabName, TabIcon, TabText, guildid FROM guild_bank_tab ORDER BY TabId");
+    //                                                                      0            1                2      3         4        5      6             7                 8           9           10    11     12      13         14          15
+    guildBankHolder.SetQuery(OBJMGR_QUERY_CALLBACK_GUILDBANK_ITEMS, "SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text, TabId, SlotId, item_guid, item_entry, guildid FROM guild_bank_item JOIN item_instance ON item_guid = guid");
+
 
     //                                                    0             1          2          3           4           5           6
-    QueryResult result = CharacterDatabase.Query("SELECT guild.guildid,guild.name,leaderguid,EmblemStyle,EmblemColor,BorderStyle,BorderColor,"
+    generalHolder.SetQuery(OBJMGR_QUERY_CALLBACK_GUILDS, "SELECT guild.guildid,guild.name,leaderguid,EmblemStyle,EmblemColor,BorderStyle,BorderColor,"
     //   7               8    9    10         11        12
         "BackgroundColor,info,motd,createdate,BankMoney,COUNT(guild_bank_tab.guildid) "
         "FROM guild LEFT JOIN guild_bank_tab ON guild.guildid = guild_bank_tab.guildid GROUP BY guild.guildid ORDER BY guildid ASC");
 
-    if (!result)
-    {
-
-        barGoLink bar(1);
-
-        bar.step();
-
-        sLog.outString();
-        sLog.outString(">> Loaded %u guild definitions", count);
-        return;
-    }
-
     // load guild ranks
     //                                                                0       1   2     3      4
-    QueryResult guildRanksResult   = CharacterDatabase.Query("SELECT guildid,rid,rname,rights,BankMoneyPerDay FROM guild_rank ORDER BY guildid ASC, rid ASC");
+    generalHolder.SetQuery(OBJMGR_QUERY_CALLBACK_GUILDRANKS, "SELECT guildid,rid,rname,rights,BankMoneyPerDay FROM guild_rank ORDER BY guildid ASC, rid ASC");
 
     // load guild members
     //                                                                0       1                 2    3     4       5                  6
-    QueryResult guildMembersResult = CharacterDatabase.Query("SELECT guildid,guild_member.guid,rank,pnote,offnote,BankResetTimeMoney,BankRemMoney,"
+    generalHolder.SetQuery(OBJMGR_QUERY_CALLBACK_GUILDMEMBERS, "SELECT guildid,guild_member.guid,rank,pnote,offnote,BankResetTimeMoney,BankRemMoney,"
     //   7                 8                9                 10               11                12
         "BankResetTimeTab0,BankRemSlotsTab0,BankResetTimeTab1,BankRemSlotsTab1,BankResetTimeTab2,BankRemSlotsTab2,"
     //   13                14               15                16               17                18
@@ -3487,16 +3501,42 @@ void ObjectMgr::LoadGuilds()
 
     // load guild bank tab rights
     //                                                                      0       1     2   3       4
-    QueryResult guildBankTabRightsResult = CharacterDatabase.Query("SELECT guildid,TabId,rid,gbright,SlotPerDay FROM guild_bank_right ORDER BY guildid ASC, TabId ASC");
+    generalHolder.SetQuery(OBJMGR_QUERY_CALLBACK_GUILDBANKTABRIGHTS, "SELECT guildid,TabId,rid,gbright,SlotPerDay FROM guild_bank_right ORDER BY guildid ASC, TabId ASC");
+
+
+
+    QueryResultHolderFuture generalHolderFuture = CharacterDatabase.DelayQueryHolder(&generalHolder);
+    QueryResultHolderFuture guildEventHolderFuture = CharacterDatabase.DelayQueryHolder(&guildEventHolder);
+    QueryResultHolderFuture guildBankEventHolderFuture = CharacterDatabase.DelayQueryHolder(&guildBankEventHolder);
+    QueryResultHolderFuture guildBankHolderFuture = CharacterDatabase.DelayQueryHolder(&guildBankHolder);
+
+    while(!generalHolderFuture.ready())
+        Sleep(5);
+
+    QueryResult result = generalHolder.GetResult(OBJMGR_QUERY_CALLBACK_GUILDS);
+    QueryResult guildRanksResult = generalHolder.GetResult(OBJMGR_QUERY_CALLBACK_GUILDRANKS);
+    QueryResult guildMembersResult = generalHolder.GetResult(OBJMGR_QUERY_CALLBACK_GUILDMEMBERS);
+    QueryResult guildBankTabRightsResult = generalHolder.GetResult(OBJMGR_QUERY_CALLBACK_GUILDBANKTABRIGHTS);
+
+    if (!result)
+    {
+        barGoLink bar(1);
+
+        bar.step();
+
+        sLog.outString();
+        sLog.outString(">> Loaded 0 guild definitions");
+        return;
+    }
 
     barGoLink bar(result->GetRowCount());
 
+    uint32 maxid = 0;
     do
     {
         //Field *fields = result->Fetch();
 
         bar.step();
-        ++count;
 
         newGuild = new Guild;
         if (!newGuild->LoadGuildFromDB(result) ||
@@ -3510,12 +3550,68 @@ void ObjectMgr::LoadGuilds()
             delete newGuild;
             continue;
         }
-        newGuild->LoadGuildEventLogFromDB();
-        newGuild->LoadGuildBankEventLogFromDB();
-        newGuild->LoadGuildBankFromDB();
+
+        newGuild->m_TabListMap.resize(newGuild->GetPurchasedTabs());
+
         AddGuild(newGuild);
 
+        if(maxid < newGuild->GetId())
+            maxid = newGuild->GetId();
+
     } while (result->NextRow());
+
+    std::vector<Guild*> GuildVector(maxid + 1);
+
+    for(GuildMap::iterator itr = mGuildMap.begin(); itr != mGuildMap.end(); ++itr)
+        GuildVector[itr->second->GetId()] = (*itr).second;
+
+    UNORDERED_MAP<ObjectMgrQueryCallbacks, QueryResultHolderFuture*> callbackMap;
+    callbackMap[OBJMGR_QUERY_CALLBACK_GUILDEVENTS]     = &guildEventHolderFuture;
+    callbackMap[OBJMGR_QUERY_CALLBACK_GUILDBANKEVENTS] = &guildBankEventHolderFuture;
+    callbackMap[OBJMGR_QUERY_CALLBACK_GUILDBANKS]      = &guildBankHolderFuture;
+
+    UNORDERED_MAP<ObjectMgrQueryCallbacks, QueryResultHolderFuture*>::iterator callbackItr = callbackMap.begin();
+    while(!callbackMap.empty())
+    {
+        if(callbackItr->second->ready())
+        {
+            switch(callbackItr->first)
+            {
+                case OBJMGR_QUERY_CALLBACK_GUILDEVENTS:
+                {
+                    QueryResult result = guildEventHolder.GetResult(OBJMGR_QUERY_CALLBACK_GUILDEVENTS);
+
+                    LoadGuildEvents(GuildVector, result);
+                    break;
+                }
+                case OBJMGR_QUERY_CALLBACK_GUILDBANKEVENTS:
+                {
+                    QueryResult result = guildBankEventHolder.GetResult(OBJMGR_QUERY_CALLBACK_GUILDBANKEVENTS);
+
+                    LoadGuildBankEvents(GuildVector, result);
+                    break;
+                }
+                case OBJMGR_QUERY_CALLBACK_GUILDBANKS:
+                {
+                    QueryResult result = guildBankHolder.GetResult(OBJMGR_QUERY_CALLBACK_GUILDBANKS);
+                    QueryResult itemResult = guildBankHolder.GetResult(OBJMGR_QUERY_CALLBACK_GUILDBANK_ITEMS);
+
+                    LoadGuildBanks(GuildVector, result, itemResult);
+                    break;
+                }
+            }
+
+            callbackMap.erase(callbackItr++);
+        }
+        else
+            ++callbackItr;
+
+        if(callbackItr == callbackMap.end())
+        {
+            callbackItr = callbackMap.begin();
+            Sleep(5);
+        }
+    }
 
     //delete unused LogGuid records in guild_eventlog and guild_bank_eventlog table
     //you can comment these lines if you don't plan to change CONFIG_GUILD_EVENT_LOG_COUNT and CONFIG_GUILD_BANK_EVENT_LOG_COUNT
@@ -3523,7 +3619,173 @@ void ObjectMgr::LoadGuilds()
     CharacterDatabase.PQuery("DELETE FROM guild_bank_eventlog WHERE LogGuid > '%u'", sWorld.getIntConfig(CONFIG_GUILD_BANK_EVENT_LOG_COUNT));
 
     sLog.outString();
-    sLog.outString(">> Loaded %u guild definitions", count);
+    sLog.outString(">> Loaded %u guild definitions", mGuildMap.size());
+}
+
+void ObjectMgr::LoadGuildEvents(std::vector<Guild*>& GuildVector, QueryResult& result)
+{
+    if(result)
+    {
+        do
+        {
+            Field *fields = result->Fetch();
+            uint32 guildid = fields[6].GetUInt32();
+
+            if(!GuildVector[guildid]->m_GuildEventLogNextGuid)
+                GuildVector[guildid]->m_GuildEventLogNextGuid = fields[0].GetUInt32();
+
+            if(GuildVector[guildid]->m_GuildEventLog.size() < GUILD_EVENTLOG_MAX_RECORDS)
+            {
+                GuildEventLogEntry NewEvent;
+                NewEvent.EventType = fields[1].GetUInt8();
+                NewEvent.PlayerGuid1 = fields[2].GetUInt32();
+                NewEvent.PlayerGuid2 = fields[3].GetUInt32();
+                NewEvent.NewRank = fields[4].GetUInt8();
+                NewEvent.TimeStamp = fields[5].GetUInt64();
+
+                GuildVector[guildid]->m_GuildEventLog.push_front(NewEvent);
+            }
+        }
+        while(result->NextRow());
+    }
+}
+
+void ObjectMgr::LoadGuildBankEvents(std::vector<Guild*>& GuildVector, QueryResult& result)
+{
+    if(result)
+    {
+        do
+        {
+            Field *fields = result->Fetch();
+            uint32 logGuid = fields[0].GetUInt32();
+            uint32 guildid = fields[7].GetUInt32();
+            uint8 TabId = fields[8].GetUInt8();
+
+            if(TabId < GuildVector[guildid]->GetPurchasedTabs() || TabId == GUILD_BANK_MONEY_LOGS_TAB)
+            {
+                bool canInsert;
+
+                if(TabId != GUILD_BANK_MONEY_LOGS_TAB)
+                {
+                    if(!GuildVector[guildid]->m_GuildBankEventLogNextGuid_Item[TabId])
+                        GuildVector[guildid]->m_GuildBankEventLogNextGuid_Item[TabId] = logGuid;
+                }
+                else
+                {
+                    if(!GuildVector[guildid]->m_GuildBankEventLogNextGuid_Money)
+                        GuildVector[guildid]->m_GuildBankEventLogNextGuid_Money = logGuid;
+                }
+
+                if(TabId != GUILD_BANK_MONEY_LOGS_TAB)
+                    canInsert = GuildVector[guildid]->m_GuildBankEventLog_Item[TabId].size() < GUILD_BANK_MAX_LOGS;
+                else
+                    canInsert = GuildVector[guildid]->m_GuildBankEventLog_Money.size() < GUILD_BANK_MAX_LOGS;
+
+                if(canInsert)
+                {
+                    GuildBankEventLogEntry NewEvent;
+                    NewEvent.EventType = fields[1].GetUInt8();
+                    NewEvent.PlayerGuid = fields[2].GetUInt32();
+                    NewEvent.ItemOrMoney = fields[3].GetUInt32();
+                    NewEvent.ItemStackCount = fields[4].GetUInt8();
+                    NewEvent.DestTabId = fields[5].GetUInt8();
+                    NewEvent.TimeStamp = fields[6].GetUInt64();
+
+                    if(TabId != GUILD_BANK_MONEY_LOGS_TAB)
+                    {
+                        if(NewEvent.isMoneyEvent())
+                        {
+                            CharacterDatabase.PExecute("UPDATE guild_bank_eventlog SET TabId='%u' WHERE guildid='%u' AND TabId='%u' AND LogGuid='%u'", GUILD_BANK_MONEY_LOGS_TAB, guildid, TabId, logGuid);
+                            sLog.outError("GuildBankEventLog ERROR: MoneyEvent LogGuid %u for Guild %u had incorrectly set its TabId to %u, correcting it to %u TabId", logGuid, guildid, TabId, GUILD_BANK_MONEY_LOGS_TAB);
+                            continue;
+                        }
+                        else
+                            GuildVector[guildid]->m_GuildBankEventLog_Item[TabId].push_front(NewEvent);
+                    }
+                    else
+                    {
+                        if(!NewEvent.isMoneyEvent())
+                            sLog.outError("GuildBankEventLog ERROR: MoneyEvent LogGuid %u for Guild %u is not MoneyEvent - ignoring...", logGuid, guildid);
+                        else
+                            GuildVector[guildid]->m_GuildBankEventLog_Money.push_front(NewEvent);
+                    }
+                }
+            }
+        }
+        while(result->NextRow());
+    }
+}
+
+void ObjectMgr::LoadGuildBanks(std::vector<Guild*>& GuildVector, QueryResult& result, QueryResult& itemResult)
+{
+    if(result)
+    {
+        do
+        {
+            Field *fields = result->Fetch();
+            uint32 TabId = fields[0].GetUInt32();
+            uint32 guildid = fields[4].GetUInt32();
+
+            if(TabId < GuildVector[guildid]->GetPurchasedTabs())
+            {
+                GuildBankTab *NewTab = new GuildBankTab;
+
+                NewTab->Name = fields[1].GetCppString();
+                NewTab->Icon = fields[2].GetCppString();
+                NewTab->Text = fields[3].GetCppString();
+
+                GuildVector[guildid]->m_TabListMap[TabId] = NewTab;
+            }
+        }
+        while(result->NextRow());
+    }
+
+    if(itemResult)
+    {
+        do
+        {
+            Field *itemfields = itemResult->Fetch();
+
+            uint8 TabId = itemfields[11].GetUInt8();
+            uint8 SlotId = itemfields[12].GetUInt8();
+            uint32 ItemGuid = itemfields[13].GetUInt32();
+            uint32 ItemEntry = itemfields[14].GetUInt32();
+            uint32 guildid = itemfields[15].GetUInt32();
+
+            if (TabId >= GuildVector[guildid]->GetPurchasedTabs())
+            {
+                sLog.outError("Guild::LoadGuildBankFromDB: Invalid tab for item (GUID: %u id: #%u) in guild bank, skipped.", ItemGuid,ItemEntry);
+                continue;
+            }
+
+            if (SlotId >= GUILD_BANK_MAX_SLOTS)
+            {
+                sLog.outError("Guild::LoadGuildBankFromDB: Invalid slot for item (GUID: %u id: #%u) in guild bank, skipped.", ItemGuid,ItemEntry);
+                continue;
+            }
+
+            ItemPrototype const *proto = sObjectMgr.GetItemPrototype(ItemEntry);
+
+            if (!proto)
+            {
+                sLog.outError("Guild::LoadGuildBankFromDB: Unknown item (GUID: %u id: #%u) in guild bank, skipped.", ItemGuid,ItemEntry);
+                continue;
+            }
+
+            Item *pItem = NewItemOrBag(proto);
+            if (!pItem->LoadFromDB(ItemGuid, 0, itemResult, ItemEntry))
+            {
+                CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE guildid='%u' AND TabId='%u' AND SlotId='%u'", guildid, uint32(TabId), uint32(SlotId));
+                sLog.outError("Item GUID %u not found in item_instance, deleting from Guild Bank!", ItemGuid);
+                delete pItem;
+                continue;
+            }
+
+            pItem->AddToWorld();
+            GuildVector[guildid]->m_TabListMap[TabId]->Slots[SlotId] = pItem;
+        }
+        while(itemResult->NextRow());
+    }
 }
 
 void ObjectMgr::LoadArenaTeams()
