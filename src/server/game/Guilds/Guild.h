@@ -286,6 +286,7 @@ struct RankInfo
 
 class Guild
 {
+    friend class ObjectMgr;
     public:
         Guild();
         ~Guild();
@@ -385,7 +386,6 @@ class Guild
 
         void   UpdateLogoutTime(uint64 guid);
         // Guild EventLog
-        void   LoadGuildEventLogFromDB();
         void   DisplayGuildEventLog(WorldSession *session);
         void   LogGuildEvent(uint8 EventType, uint32 PlayerGuid1, uint32 PlayerGuid2, uint8 NewRank);
 
@@ -408,8 +408,6 @@ class Guild
         uint32 GetBankRights(uint32 rankId, uint8 TabId) const;
         bool   IsMemberHaveRights(uint32 LowGuid, uint8 TabId,uint32 rights) const;
         bool   CanMemberViewTab(uint32 LowGuid, uint8 TabId) const;
-        // Load
-        void   LoadGuildBankFromDB();
         // Money deposit/withdraw
         void   SendMoneyInfo(WorldSession *session, uint32 LowGuid);
         bool   MemberMoneyWithdraw(uint32 amount, uint32 LowGuid, SQLTransaction& trans);
@@ -426,7 +424,6 @@ class Guild
         // rights per day
         bool   LoadBankRightsFromDB(QueryResult guildBankTabRightsResult);
         // Guild Bank Event Logs
-        void   LoadGuildBankEventLogFromDB();
         void   DisplayGuildBankLogs(WorldSession *session, uint8 TabId);
         void   LogBankEvent(SQLTransaction& trans, uint8 EventType, uint8 TabId, uint32 PlayerGuidLow, uint32 ItemOrMoney, uint16 ItemStackCount=0, uint8 DestTabId=0);
         bool   AddGBankItemToDB(uint32 GuildId, uint32 BankTab , uint32 BankTabSlot , uint32 GUIDLow, uint32 Entry, SQLTransaction& trans);
