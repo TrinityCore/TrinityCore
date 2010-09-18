@@ -3451,46 +3451,19 @@ void ObjectMgr::LoadGuilds()
 {
     Guild *newGuild;
 
-    QueryCallback<int> callback[MAX_OBJMGR_QUERY_CALLBACK];
-
-    SQLQueryHolder generalHolder;
-    generalHolder.SetSize(MAX_OBJMGR_QUERY_CALLBACK);
-
-    SQLQueryHolder guildEventHolder;
-    guildEventHolder.SetSize(MAX_OBJMGR_QUERY_CALLBACK);
-
-    SQLQueryHolder guildBankEventHolder;
-    guildBankEventHolder.SetSize(MAX_OBJMGR_QUERY_CALLBACK);
-
-    SQLQueryHolder guildBankHolder;
-    guildBankHolder.SetSize(MAX_OBJMGR_QUERY_CALLBACK);
-
-
-    //                                                                   0        1          2            3            4        5          6
-    guildEventHolder.SetQuery(OBJMGR_QUERY_CALLBACK_GUILDEVENTS, "SELECT LogGuid, EventType, PlayerGuid1, PlayerGuid2, NewRank, TimeStamp, guildid FROM guild_eventlog ORDER BY TimeStamp DESC, LogGuid DESC");
-
-    //                                                                           0        1          2           3            4               5          6          7        8
-    guildBankEventHolder.SetQuery(OBJMGR_QUERY_CALLBACK_GUILDBANKEVENTS, "SELECT LogGuid, EventType, PlayerGuid, ItemOrMoney, ItemStackCount, DestTabId, TimeStamp, guildid, TabId FROM guild_bank_eventlog ORDER BY TimeStamp DESC,LogGuid DESC");
-
-    //                                                                 0      1        2        3        4
-    guildBankHolder.SetQuery(OBJMGR_QUERY_CALLBACK_GUILDBANKS, "SELECT TabId, TabName, TabIcon, TabText, guildid FROM guild_bank_tab ORDER BY TabId");
-    //                                                                      0            1                2      3         4        5      6             7                 8           9           10    11     12      13         14          15
-    guildBankHolder.SetQuery(OBJMGR_QUERY_CALLBACK_GUILDBANK_ITEMS, "SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text, TabId, SlotId, item_guid, item_entry, guildid FROM guild_bank_item JOIN item_instance ON item_guid = guid");
-
-
-    //                                                    0             1          2          3           4           5           6
-    generalHolder.SetQuery(OBJMGR_QUERY_CALLBACK_GUILDS, "SELECT guild.guildid,guild.name,leaderguid,EmblemStyle,EmblemColor,BorderStyle,BorderColor,"
+    //                                                   0             1          2          3           4           5           6
+    QueryResult result = CharacterDatabase.Query("SELECT guild.guildid,guild.name,leaderguid,EmblemStyle,EmblemColor,BorderStyle,BorderColor,"
     //   7               8    9    10         11        12
         "BackgroundColor,info,motd,createdate,BankMoney,COUNT(guild_bank_tab.guildid) "
         "FROM guild LEFT JOIN guild_bank_tab ON guild.guildid = guild_bank_tab.guildid GROUP BY guild.guildid ORDER BY guildid ASC");
 
     // load guild ranks
-    //                                                                0       1   2     3      4
-    generalHolder.SetQuery(OBJMGR_QUERY_CALLBACK_GUILDRANKS, "SELECT guildid,rid,rname,rights,BankMoneyPerDay FROM guild_rank ORDER BY guildid ASC, rid ASC");
+    //                                                             0       1   2     3      4
+    QueryResult guildRanksResult = CharacterDatabase.Query("SELECT guildid,rid,rname,rights,BankMoneyPerDay FROM guild_rank ORDER BY guildid ASC, rid ASC");
 
     // load guild members
-    //                                                                0       1                 2    3     4       5                  6
-    generalHolder.SetQuery(OBJMGR_QUERY_CALLBACK_GUILDMEMBERS, "SELECT guildid,guild_member.guid,rank,pnote,offnote,BankResetTimeMoney,BankRemMoney,"
+    //                                                               0       1                 2    3     4       5                  6
+    QueryResult guildMembersResult = CharacterDatabase.Query("SELECT guildid,guild_member.guid,rank,pnote,offnote,BankResetTimeMoney,BankRemMoney,"
     //   7                 8                9                 10               11                12
         "BankResetTimeTab0,BankRemSlotsTab0,BankResetTimeTab1,BankRemSlotsTab1,BankResetTimeTab2,BankRemSlotsTab2,"
     //   13                14               15                16               17                18
@@ -3500,23 +3473,9 @@ void ObjectMgr::LoadGuilds()
         "FROM guild_member LEFT JOIN characters ON characters.guid = guild_member.guid ORDER BY guildid ASC");
 
     // load guild bank tab rights
-    //                                                                      0       1     2   3       4
-    generalHolder.SetQuery(OBJMGR_QUERY_CALLBACK_GUILDBANKTABRIGHTS, "SELECT guildid,TabId,rid,gbright,SlotPerDay FROM guild_bank_right ORDER BY guildid ASC, TabId ASC");
+    //                                                                     0       1     2   3       4
+    QueryResult guildBankTabRightsResult = CharacterDatabase.Query("SELECT guildid,TabId,rid,gbright,SlotPerDay FROM guild_bank_right ORDER BY guildid ASC, TabId ASC");
 
-
-
-    QueryResultHolderFuture generalHolderFuture = CharacterDatabase.DelayQueryHolder(&generalHolder);
-    QueryResultHolderFuture guildEventHolderFuture = CharacterDatabase.DelayQueryHolder(&guildEventHolder);
-    QueryResultHolderFuture guildBankEventHolderFuture = CharacterDatabase.DelayQueryHolder(&guildBankEventHolder);
-    QueryResultHolderFuture guildBankHolderFuture = CharacterDatabase.DelayQueryHolder(&guildBankHolder);
-
-    while(!generalHolderFuture.ready())
-        Sleep(5);
-
-    QueryResult result = generalHolder.GetResult(OBJMGR_QUERY_CALLBACK_GUILDS);
-    QueryResult guildRanksResult = generalHolder.GetResult(OBJMGR_QUERY_CALLBACK_GUILDRANKS);
-    QueryResult guildMembersResult = generalHolder.GetResult(OBJMGR_QUERY_CALLBACK_GUILDMEMBERS);
-    QueryResult guildBankTabRightsResult = generalHolder.GetResult(OBJMGR_QUERY_CALLBACK_GUILDBANKTABRIGHTS);
 
     if (!result)
     {
@@ -3565,53 +3524,20 @@ void ObjectMgr::LoadGuilds()
     for(GuildMap::iterator itr = mGuildMap.begin(); itr != mGuildMap.end(); ++itr)
         GuildVector[itr->second->GetId()] = (*itr).second;
 
-    UNORDERED_MAP<ObjectMgrQueryCallbacks, QueryResultHolderFuture*> callbackMap;
-    callbackMap[OBJMGR_QUERY_CALLBACK_GUILDEVENTS]     = &guildEventHolderFuture;
-    callbackMap[OBJMGR_QUERY_CALLBACK_GUILDBANKEVENTS] = &guildBankEventHolderFuture;
-    callbackMap[OBJMGR_QUERY_CALLBACK_GUILDBANKS]      = &guildBankHolderFuture;
+    //                                                             0        1          2            3            4        5          6
+    QueryResult guildEventResult = CharacterDatabase.Query("SELECT LogGuid, EventType, PlayerGuid1, PlayerGuid2, NewRank, TimeStamp, guildid FROM guild_eventlog ORDER BY TimeStamp DESC, LogGuid DESC");
 
-    UNORDERED_MAP<ObjectMgrQueryCallbacks, QueryResultHolderFuture*>::iterator callbackItr = callbackMap.begin();
-    while(!callbackMap.empty())
-    {
-        if(callbackItr->second->ready())
-        {
-            switch(callbackItr->first)
-            {
-                case OBJMGR_QUERY_CALLBACK_GUILDEVENTS:
-                {
-                    QueryResult result = guildEventHolder.GetResult(OBJMGR_QUERY_CALLBACK_GUILDEVENTS);
+    //                                                                 0        1          2           3            4               5          6          7        8
+    QueryResult guildBankEventResult = CharacterDatabase.Query("SELECT LogGuid, EventType, PlayerGuid, ItemOrMoney, ItemStackCount, DestTabId, TimeStamp, guildid, TabId FROM guild_bank_eventlog ORDER BY TimeStamp DESC,LogGuid DESC");
 
-                    LoadGuildEvents(GuildVector, result);
-                    break;
-                }
-                case OBJMGR_QUERY_CALLBACK_GUILDBANKEVENTS:
-                {
-                    QueryResult result = guildBankEventHolder.GetResult(OBJMGR_QUERY_CALLBACK_GUILDBANKEVENTS);
+    //                                                               0      1        2        3        4
+    QueryResult guildBankTabResult = CharacterDatabase.Query("SELECT TabId, TabName, TabIcon, TabText, guildid FROM guild_bank_tab ORDER BY TabId");
+    //                                                                0            1                2      3         4        5      6             7                 8           9           10    11     12      13         14          15
+    QueryResult guildBankItemResult = CharacterDatabase.Query("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text, TabId, SlotId, item_guid, item_entry, guildid FROM guild_bank_item JOIN item_instance ON item_guid = guid");
 
-                    LoadGuildBankEvents(GuildVector, result);
-                    break;
-                }
-                case OBJMGR_QUERY_CALLBACK_GUILDBANKS:
-                {
-                    QueryResult result = guildBankHolder.GetResult(OBJMGR_QUERY_CALLBACK_GUILDBANKS);
-                    QueryResult itemResult = guildBankHolder.GetResult(OBJMGR_QUERY_CALLBACK_GUILDBANK_ITEMS);
-
-                    LoadGuildBanks(GuildVector, result, itemResult);
-                    break;
-                }
-            }
-
-            callbackMap.erase(callbackItr++);
-        }
-        else
-            ++callbackItr;
-
-        if(callbackItr == callbackMap.end())
-        {
-            callbackItr = callbackMap.begin();
-            Sleep(5);
-        }
-    }
+    LoadGuildEvents(GuildVector, guildEventResult);
+    LoadGuildBankEvents(GuildVector, guildBankEventResult);
+    LoadGuildBanks(GuildVector, guildBankTabResult, guildBankItemResult);
 
     //delete unused LogGuid records in guild_eventlog and guild_bank_eventlog table
     //you can comment these lines if you don't plan to change CONFIG_GUILD_EVENT_LOG_COUNT and CONFIG_GUILD_BANK_EVENT_LOG_COUNT
