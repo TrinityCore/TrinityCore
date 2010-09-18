@@ -26746,6 +26746,7 @@ LOCK TABLES `spell_script_names` WRITE;
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 -- generic
 (  6962, 'spell_gen_pet_summoned'),
+( 24750, 'spell_gen_trick'),
 ( 24751, 'spell_gen_trick_or_treat'),
 ( 29266, 'spell_creature_permanent_feign_death'),
 ( 57685, 'spell_creature_permanent_feign_death'),

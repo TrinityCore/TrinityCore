@@ -115,11 +115,89 @@ public:
     }
 };
 
+// 24750 Trick
+enum eTrickSpells
+{
+    SPELL_PIRATE_COSTUME_MALE           = 24708,
+    SPELL_PIRATE_COSTUME_FEMALE         = 24709,
+    SPELL_NINJA_COSTUME_MALE            = 24710,
+    SPELL_NINJA_COSTUME_FEMALE          = 24711,
+    SPELL_LEPER_GNOME_COSTUME_MALE      = 24712,
+    SPELL_LEPER_GNOME_COSTUME_FEMALE    = 24713,
+    SPELL_SKELETON_COSTUME              = 24723,
+    SPELL_GHOST_COSTUME_MALE            = 24735,
+    SPELL_GHOST_COSTUME_FEMALE          = 24736,
+    SPELL_TRICK_BUFF                    = 24753,
+};
+
+class spell_gen_trick : public SpellScriptLoader
+{
+public:
+    spell_gen_trick() : SpellScriptLoader("spell_gen_trick") {}
+
+    class spell_gen_trick_SpellScript : public SpellScript
+    {
+        bool Validate(SpellEntry const * /*spellEntry*/)
+        {
+            if (!sSpellStore.LookupEntry(SPELL_PIRATE_COSTUME_MALE))
+                return false;
+            if (!sSpellStore.LookupEntry(SPELL_PIRATE_COSTUME_FEMALE))
+                return false;
+            if (!sSpellStore.LookupEntry(SPELL_NINJA_COSTUME_MALE))
+                return false;
+            if (!sSpellStore.LookupEntry(SPELL_NINJA_COSTUME_FEMALE))
+                return false;
+            if (!sSpellStore.LookupEntry(SPELL_LEPER_GNOME_COSTUME_MALE))
+                return false;
+            if (!sSpellStore.LookupEntry(SPELL_LEPER_GNOME_COSTUME_FEMALE))
+                return false;
+            if (!sSpellStore.LookupEntry(SPELL_SKELETON_COSTUME))
+                return false;
+            if (!sSpellStore.LookupEntry(SPELL_GHOST_COSTUME_MALE))
+                return false;
+            if (!sSpellStore.LookupEntry(SPELL_GHOST_COSTUME_FEMALE))
+                return false;
+            if (!sSpellStore.LookupEntry(SPELL_TRICK_BUFF))
+                return false;
+            return true;
+        }
+
+        void HandleScript(SpellEffIndex /*effIndex*/)
+        {
+            if (Player* pTarget = GetHitPlayer())
+            {
+                uint8 gender = pTarget->getGender();
+                uint32 spellId = SPELL_TRICK_BUFF;
+                switch (urand(0, 5))
+                {
+                    case 1: spellId = gender ? SPELL_LEPER_GNOME_COSTUME_FEMALE : SPELL_LEPER_GNOME_COSTUME_MALE; break;
+                    case 2: spellId = gender ? SPELL_PIRATE_COSTUME_FEMALE : SPELL_PIRATE_COSTUME_MALE; break;
+                    case 3: spellId = gender ? SPELL_GHOST_COSTUME_FEMALE : SPELL_GHOST_COSTUME_MALE; break;
+                    case 4: spellId = gender ? SPELL_NINJA_COSTUME_FEMALE : SPELL_NINJA_COSTUME_MALE; break;
+                    case 5: spellId = SPELL_SKELETON_COSTUME; break;
+                }
+                GetCaster()->CastSpell(pTarget, spellId, true, NULL);
+            }
+        }
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_gen_trick_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_gen_trick_SpellScript();
+    }
+};
+
 // 24751 Trick or Treat
 enum eTrickOrTreatSpells
 {
-    SPELL_TRICK = 24714,
-    SPELL_TREAT = 24715
+    SPELL_TRICK                 = 24714,
+    SPELL_TREAT                 = 24715,
+    SPELL_TRICKED_OR_TREATED    = 24755
 };
 
 class spell_gen_trick_or_treat : public SpellScriptLoader
@@ -135,13 +213,18 @@ public:
                 return false;
             if (!sSpellStore.LookupEntry(SPELL_TREAT))
                 return false;
+            if (!sSpellStore.LookupEntry(SPELL_TRICKED_OR_TREATED))
+                return false;
             return true;
         }
 
         void HandleScript(SpellEffIndex /*effIndex*/)
         {
-            if (Unit* pTarget = GetHitUnit())
+            if (Player* pTarget = GetHitPlayer())
+            {
                 GetCaster()->CastSpell(pTarget, roll_chance_i(50) ? SPELL_TRICK : SPELL_TREAT, true, NULL);
+                GetCaster()->CastSpell(pTarget, SPELL_TRICKED_OR_TREATED, true, NULL);
+            }
         }
 
         void Register()
@@ -239,6 +322,7 @@ void AddSC_generic_spell_scripts()
 {
     new spell_gen_pet_summoned();
     new spell_gen_remove_flight_auras();
+    new spell_gen_trick();
     new spell_gen_trick_or_treat();
     new spell_creature_permanent_feign_death();
     new spell_pvp_trinket_wotf_shared_cd();
