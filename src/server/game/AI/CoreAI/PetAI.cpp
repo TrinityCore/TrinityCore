@@ -471,7 +471,7 @@ bool PetAI::_CanAttack(Unit *target)
 
 bool PetAI::_CheckTargetCC(Unit *target)
 {
-    if (target->HasCrowdControl())
+    if (me->GetCharmerOrOwnerGUID() && target->HasNegativeAuraWithAttribute(SPELL_ATTR_BREAKABLE_BY_DAMAGE, me->GetCharmerOrOwnerGUID()))
         return true;
 
     return false;
