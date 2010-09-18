@@ -4641,6 +4641,17 @@ bool Unit::HasNegativeAuraWithInterruptFlag(uint32 flag, uint64 guid)
     return false;
 }
 
+bool Unit::HasNegativeAuraWithAttribute(uint32 flag, uint64 guid)
+{
+    for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
+    {
+        Aura const *aura = iter->second->GetBase();
+        if (!iter->second->IsPositive() && aura->GetSpellProto()->Attributes & flag && (!guid || aura->GetCasterGUID() == guid))
+            return true;
+    }
+    return false;
+}
+
 AuraEffect * Unit::IsScriptOverriden(SpellEntry const * spell, int32 script) const
 {
     AuraEffectList const& auras = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
