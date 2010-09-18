@@ -25,7 +25,7 @@ add_dependencies(vmap3assembler mpq)
 
 if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
   set_target_properties(vmap3assembler PROPERTIES LINK_FLAGS "-framework Carbon")
-endi()
+endif()
 
 target_link_libraries(vmap3assembler
   collision
