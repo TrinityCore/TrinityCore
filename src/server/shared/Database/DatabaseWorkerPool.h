@@ -30,6 +30,8 @@
 #include "PreparedStatement.h"
 #include "Log.h"
 #include "QueryResult.h"
+#include "QueryHolder.h"
+#include "AdhocStatement.h"
 
 enum MySQLThreadBundle
 {

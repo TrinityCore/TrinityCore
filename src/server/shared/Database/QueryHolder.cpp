@@ -16,47 +16,10 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "Common.h"
-#include "SQLOperation.h"
+#include "QueryHolder.h"
+#include "PreparedStatement.h"
 #include "MySQLConnection.h"
 #include "Log.h"
-
-/*! Basic, ad-hoc queries. */
-BasicStatementTask::BasicStatementTask(const char* sql) :
-m_has_result(false)
-{
-    m_sql = strdup(sql);
-}
-
-BasicStatementTask::BasicStatementTask(const char* sql, QueryResultFuture result) :
-m_has_result(true),
-m_result(result)
-{
-    m_sql = strdup(sql);
-}
-
-BasicStatementTask::~BasicStatementTask()
-{
-    free((void*)m_sql);
-}
-
-bool BasicStatementTask::Execute()
-{
-    if (m_has_result)
-    {
-        ResultSet* result = m_conn->Query(m_sql);
-        if (!result || !result->GetRowCount())
-        {
-            m_result.set(QueryResult(NULL));
-            return false;
-        }
-        result->NextRow();
-        m_result.set(QueryResult(result));
-        return true;
-    }
-
-    return m_conn->Execute(m_sql);
-}
 
 bool SQLQueryHolder::SetQuery(size_t index, const char *sql)
 {
@@ -92,7 +55,7 @@ bool SQLQueryHolder::SetPQuery(size_t index, const char *format, ...)
     int res = vsnprintf(szQuery, MAX_QUERY_LEN, format, ap);
     va_end(ap);
 
-    if (res==-1)
+    if (res == -1)
     {
         sLog.outError("SQL Query truncated (and not execute) for format: %s",format);
         return false;
@@ -103,7 +66,7 @@ bool SQLQueryHolder::SetPQuery(size_t index, const char *format, ...)
 
 QueryResult SQLQueryHolder::GetResult(size_t index)
 {
-    // Don't call to this function if the index is of a prepared statement
+    // Don't call to this function if the index is of an ad-hoc statement
     if (index < m_queries.size())
     {
         /// the query strings are freed on the first GetResult or in the destructor
