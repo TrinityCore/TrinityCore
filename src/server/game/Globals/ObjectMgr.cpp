@@ -3464,6 +3464,17 @@ void ObjectMgr::LoadGuilds()
         "BackgroundColor,info,motd,createdate,BankMoney,COUNT(guild_bank_tab.guildid) "
         "FROM guild LEFT JOIN guild_bank_tab ON guild.guildid = guild_bank_tab.guildid GROUP BY guild.guildid ORDER BY guildid ASC");
 
+    if (!result)
+    {
+        barGoLink bar(1);
+
+        bar.step();
+
+        sLog.outString();
+        sLog.outString(">> Loaded 0 guild definitions");
+        return;
+    }
+
     // load guild ranks
     //                                                             0       1   2     3      4
     QueryResult guildRanksResult = CharacterDatabase.Query("SELECT guildid,rid,rname,rights,BankMoneyPerDay FROM guild_rank ORDER BY guildid ASC, rid ASC");
@@ -3483,17 +3494,6 @@ void ObjectMgr::LoadGuilds()
     //                                                                     0       1     2   3       4
     QueryResult guildBankTabRightsResult = CharacterDatabase.Query("SELECT guildid,TabId,rid,gbright,SlotPerDay FROM guild_bank_right ORDER BY guildid ASC, TabId ASC");
 
-
-    if (!result)
-    {
-        barGoLink bar(1);
-
-        bar.step();
-
-        sLog.outString();
-        sLog.outString(">> Loaded 0 guild definitions");
-        return;
-    }
 
     barGoLink bar(result->GetRowCount());
 
@@ -3521,14 +3521,15 @@ void ObjectMgr::LoadGuilds()
 
         AddGuild(newGuild);
 
-        if(maxid < newGuild->GetId())
+        if (maxid < newGuild->GetId())
             maxid = newGuild->GetId();
 
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
     std::vector<Guild*> GuildVector(maxid + 1);
 
-    for(GuildMap::iterator itr = mGuildMap.begin(); itr != mGuildMap.end(); ++itr)
+    for (GuildMap::iterator itr = mGuildMap.begin(); itr != mGuildMap.end(); ++itr)
         GuildVector[itr->second->GetId()] = (*itr).second;
 
     //                                                             0        1          2            3            4        5          6
@@ -3562,17 +3563,19 @@ void ObjectMgr::LoadGuilds()
 
 void ObjectMgr::LoadGuildEvents(std::vector<Guild*>& GuildVector, QueryResult& result)
 {
-    if(result)
+    if (result)
     {
         do
         {
             Field *fields = result->Fetch();
             uint32 guildid = fields[6].GetUInt32();
-
-            if(!GuildVector[guildid]->m_GuildEventLogNextGuid)
+            if (guildid >= GuildVector.size())
+                return;
+            
+            if (!GuildVector[guildid]->m_GuildEventLogNextGuid)
                 GuildVector[guildid]->m_GuildEventLogNextGuid = fields[0].GetUInt32();
 
-            if(GuildVector[guildid]->m_GuildEventLog.size() < GUILD_EVENTLOG_MAX_RECORDS)
+            if (GuildVector[guildid]->m_GuildEventLog.size() < GUILD_EVENTLOG_MAX_RECORDS)
             {
                 GuildEventLogEntry NewEvent;
                 NewEvent.EventType = fields[1].GetUInt8();
@@ -3584,26 +3587,29 @@ void ObjectMgr::LoadGuildEvents(std::vector<Guild*>& GuildVector, QueryResult& r
                 GuildVector[guildid]->m_GuildEventLog.push_front(NewEvent);
             }
         }
-        while(result->NextRow());
+        while (result->NextRow());
     }
 }
 
 void ObjectMgr::LoadGuildBankEvents(std::vector<Guild*>& GuildVector, QueryResult& result)
 {
-    if(result)
+    if (result)
     {
         do
         {
             Field *fields = result->Fetch();
             uint32 logGuid = fields[0].GetUInt32();
             uint32 guildid = fields[7].GetUInt32();
+            if (guildid >= GuildVector.size())
+                return;
+
             uint8 TabId = fields[8].GetUInt8();
 
-            if(TabId < GuildVector[guildid]->GetPurchasedTabs() || TabId == GUILD_BANK_MONEY_LOGS_TAB)
+            if (TabId < GuildVector[guildid]->GetPurchasedTabs() || TabId == GUILD_BANK_MONEY_LOGS_TAB)
             {
                 bool canInsert;
 
-                if(TabId != GUILD_BANK_MONEY_LOGS_TAB)
+                if (TabId != GUILD_BANK_MONEY_LOGS_TAB)
                 {
                     if(!GuildVector[guildid]->m_GuildBankEventLogNextGuid_Item[TabId])
                         GuildVector[guildid]->m_GuildBankEventLogNextGuid_Item[TabId] = logGuid;
@@ -3614,12 +3620,12 @@ void ObjectMgr::LoadGuildBankEvents(std::vector<Guild*>& GuildVector, QueryResul
                         GuildVector[guildid]->m_GuildBankEventLogNextGuid_Money = logGuid;
                 }
 
-                if(TabId != GUILD_BANK_MONEY_LOGS_TAB)
+                if (TabId != GUILD_BANK_MONEY_LOGS_TAB)
                     canInsert = GuildVector[guildid]->m_GuildBankEventLog_Item[TabId].size() < GUILD_BANK_MAX_LOGS;
                 else
                     canInsert = GuildVector[guildid]->m_GuildBankEventLog_Money.size() < GUILD_BANK_MAX_LOGS;
 
-                if(canInsert)
+                if (canInsert)
                 {
                     GuildBankEventLogEntry NewEvent;
                     NewEvent.EventType = fields[1].GetUInt8();
@@ -3629,9 +3635,9 @@ void ObjectMgr::LoadGuildBankEvents(std::vector<Guild*>& GuildVector, QueryResul
                     NewEvent.DestTabId = fields[5].GetUInt8();
                     NewEvent.TimeStamp = fields[6].GetUInt64();
 
-                    if(TabId != GUILD_BANK_MONEY_LOGS_TAB)
+                    if (TabId != GUILD_BANK_MONEY_LOGS_TAB)
                     {
-                        if(NewEvent.isMoneyEvent())
+                        if (NewEvent.isMoneyEvent())
                         {
                             CharacterDatabase.PExecute("UPDATE guild_bank_eventlog SET TabId='%u' WHERE guildid='%u' AND TabId='%u' AND LogGuid='%u'", GUILD_BANK_MONEY_LOGS_TAB, guildid, TabId, logGuid);
                             sLog.outError("GuildBankEventLog ERROR: MoneyEvent LogGuid %u for Guild %u had incorrectly set its TabId to %u, correcting it to %u TabId", logGuid, guildid, TabId, GUILD_BANK_MONEY_LOGS_TAB);
@@ -3642,7 +3648,7 @@ void ObjectMgr::LoadGuildBankEvents(std::vector<Guild*>& GuildVector, QueryResul
                     }
                     else
                     {
-                        if(!NewEvent.isMoneyEvent())
+                        if (!NewEvent.isMoneyEvent())
                             sLog.outError("GuildBankEventLog ERROR: MoneyEvent LogGuid %u for Guild %u is not MoneyEvent - ignoring...", logGuid, guildid);
                         else
                             GuildVector[guildid]->m_GuildBankEventLog_Money.push_front(NewEvent);
@@ -3650,21 +3656,23 @@ void ObjectMgr::LoadGuildBankEvents(std::vector<Guild*>& GuildVector, QueryResul
                 }
             }
         }
-        while(result->NextRow());
+        while (result->NextRow());
     }
 }
 
 void ObjectMgr::LoadGuildBanks(std::vector<Guild*>& GuildVector, QueryResult& result, QueryResult& itemResult)
 {
-    if(result)
+    if (result)
     {
         do
         {
             Field *fields = result->Fetch();
             uint32 TabId = fields[0].GetUInt32();
             uint32 guildid = fields[4].GetUInt32();
+            if (guildid >= GuildVector.size())
+                return;
 
-            if(TabId < GuildVector[guildid]->GetPurchasedTabs())
+            if (TabId < GuildVector[guildid]->GetPurchasedTabs())
             {
                 GuildBankTab *NewTab = new GuildBankTab;
 
@@ -3675,10 +3683,10 @@ void ObjectMgr::LoadGuildBanks(std::vector<Guild*>& GuildVector, QueryResult& re
                 GuildVector[guildid]->m_TabListMap[TabId] = NewTab;
             }
         }
-        while(result->NextRow());
+        while (result->NextRow());
     }
 
-    if(itemResult)
+    if (itemResult)
     {
         do
         {
@@ -3689,6 +3697,8 @@ void ObjectMgr::LoadGuildBanks(std::vector<Guild*>& GuildVector, QueryResult& re
             uint32 ItemGuid = itemfields[13].GetUInt32();
             uint32 ItemEntry = itemfields[14].GetUInt32();
             uint32 guildid = itemfields[15].GetUInt32();
+            if (guildid >= GuildVector.size())
+                return;
 
             if (TabId >= GuildVector[guildid]->GetPurchasedTabs())
             {
@@ -3727,7 +3737,7 @@ void ObjectMgr::LoadGuildBanks(std::vector<Guild*>& GuildVector, QueryResult& re
             pItem->AddToWorld();
             GuildVector[guildid]->m_TabListMap[TabId]->Slots[SlotId] = pItem;
         }
-        while(itemResult->NextRow());
+        while (itemResult->NextRow());
     }
 }
 
