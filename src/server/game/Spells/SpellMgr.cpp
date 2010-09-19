@@ -3791,6 +3791,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 51735: // Ebon Plague
         case 51734:
         case 51726:
+            spellInfo->AttributesEx3 |= SPELL_ATTR_EX3_STACK_FOR_DIFF_CASTERS;
             spellInfo->SpellFamilyFlags[2] = 0x10;
             count++;
             break;
