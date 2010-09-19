@@ -1322,6 +1322,7 @@ class Player : public Unit, public GridObject<Player>
         bool SatisfyQuestRace(Quest const* qInfo, bool msg);
         bool SatisfyQuestReputation(Quest const* qInfo, bool msg);
         bool SatisfyQuestStatus(Quest const* qInfo, bool msg);
+        bool SatisfyQuestConditions(Quest const* qInfo, bool msg);
         bool SatisfyQuestTimed(Quest const* qInfo, bool msg);
         bool SatisfyQuestExclusiveGroup(Quest const* qInfo, bool msg);
         bool SatisfyQuestNextChain(Quest const* qInfo, bool msg);
