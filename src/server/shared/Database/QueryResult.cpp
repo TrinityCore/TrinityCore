@@ -185,6 +185,12 @@ void ResultBind::CleanUp()
     delete[] m_rBind;    
 }
 
+bool PreparedResultSet::GetBool(uint32 index)
+{
+    // TODO: Perhaps start storing data in genuine bool formats in tables
+    return GetUInt8(index) == 1 ? true : false;
+}
+
 uint8 PreparedResultSet::GetUInt8(uint32 index)
 {
     if (!CheckFieldIndex(index))

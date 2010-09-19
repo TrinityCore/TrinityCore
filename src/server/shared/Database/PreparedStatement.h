@@ -33,7 +33,8 @@ union PreparedStatementDataUnion
     int32 i32;
     uint64 ui64;
     int64 i64;
-    double f;   // TODO: Maybe split it up in double and float types
+    float f;
+    double d;
 };
 
 //- This enum helps us differ data held in above union
@@ -49,6 +50,7 @@ enum PreparedStatementValueType
     TYPE_I32,
     TYPE_I64,
     TYPE_FLOAT,
+    TYPE_DOUBLE,
     TYPE_STRING
 };
 
@@ -82,6 +84,7 @@ class PreparedStatement
         void setInt16(const uint8 index, const int16 value);
         void setInt32(const uint8 index, const int32 value);
         void setInt64(const uint8 index, const int64 value);
+        void setFloat(const uint8 index, const float value);
         void setDouble(const uint8 index, const double value);
         void setString(const uint8 index, const std::string& value);
 
@@ -115,6 +118,7 @@ class MySQLPreparedStatement
         void setInt16(const uint8 index, const int16 value);
         void setInt32(const uint8 index, const int32 value);
         void setInt64(const uint8 index, const int64 value);
+        void setFloat(const uint8 index, const float value);
         void setDouble(const uint8 index, const double value);
         void setString(const uint8 index, const char* value);
 
