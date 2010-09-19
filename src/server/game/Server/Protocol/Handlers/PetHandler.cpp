@@ -735,8 +735,8 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
 
     caster->clearUnitState(UNIT_STAT_FOLLOW);
 
-    Spell *spell = new Spell(caster, spellInfo, spellId == 33395); // water elemental can cast freeze as triggered
-    spell->m_cast_count = spellId == 33395 ? 0 : castCount;                       // probably pending spell cast
+    Spell *spell = new Spell(caster, spellInfo, false); // water elemental can cast freeze as triggered
+    spell->m_cast_count = castCount;                    // probably pending spell cast
     spell->m_targets = targets;
 
     // TODO: need to check victim?
