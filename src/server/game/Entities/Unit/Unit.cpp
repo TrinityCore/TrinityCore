@@ -14357,6 +14357,14 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit * pTarget, uint32 procFlag,
                         takeCharges = true;
                     else
                     {
+                        // Spell own direct damage at apply wont break the CC
+                        if (procSpell && (procSpell->Id == triggeredByAura->GetId()))
+                        {
+                            Aura * aura = triggeredByAura->GetBase();
+                            // called from spellcast, should not have ticked yet
+                            if (aura->GetDuration() == aura->GetMaxDuration())
+                                break;
+                        }
                         int32 damageLeft = triggeredByAura->GetAmount();
                         // No damage left
                         if (damageLeft < int32(damage))
@@ -14364,8 +14372,8 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit * pTarget, uint32 procFlag,
                         else
                             triggeredByAura->SetAmount(damageLeft - damage);
                     }
-                }
                     break;
+                }
                 //case SPELL_AURA_ADD_FLAT_MODIFIER:
                 //case SPELL_AURA_ADD_PCT_MODIFIER:
                     // HandleSpellModAuraProc
