@@ -291,7 +291,7 @@ void MySQLPreparedStatement::setFloat(const uint8 index, const float value)
     CheckValidIndex(index);
     m_paramsSet[index] = true;
     MYSQL_BIND* param = &m_bind[index];
-    setValue(param, MYSQL_TYPE_FLOAT, &value, sizeof(double), (value > 0.0f));
+    setValue(param, MYSQL_TYPE_FLOAT, &value, sizeof(float), (value > 0.0f));
 }
 
 void MySQLPreparedStatement::setDouble(const uint8 index, const double value)
