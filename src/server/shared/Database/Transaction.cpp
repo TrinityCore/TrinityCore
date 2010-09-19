@@ -22,8 +22,8 @@
 //- Append a raw ad-hoc query to the transaction
 void Transaction::Append(const char* sql)
 {
-    TransactionElementData data;
-    data.type = TRANSACTION_ELEMENT_RAW;
+    SQLElementData data;
+    data.type = SQL_ELEMENT_RAW;
     data.element.query = strdup(sql);
     m_queries.push(data);
 }
@@ -42,8 +42,8 @@ void Transaction::PAppend(const char* sql, ...)
 //- Append a prepared statement to the transaction
 void Transaction::Append(PreparedStatement* stmt)
 {
-    TransactionElementData data;
-    data.type = TRANSACTION_ELEMENT_PREPARED;
+    SQLElementData data;
+    data.type = SQL_ELEMENT_PREPARED;
     data.element.stmt = stmt;
     m_queries.push(data);
 }
@@ -52,13 +52,13 @@ void Transaction::Cleanup()
 {
     while (!m_queries.empty())
     {
-        TransactionElementData data = m_queries.front();
+        SQLElementData data = m_queries.front();
         switch (data.type)
         {
-            case TRANSACTION_ELEMENT_PREPARED:
+            case SQL_ELEMENT_PREPARED:
                 delete data.element.stmt;
             break;
-            case TRANSACTION_ELEMENT_RAW:
+            case SQL_ELEMENT_RAW:
                 free((void*)(data.element.query));
             break;
         }
@@ -68,17 +68,17 @@ void Transaction::Cleanup()
 
 bool TransactionTask::Execute()
 {
-    std::queue<TransactionElementData> &queries = m_trans->m_queries;
+    std::queue<SQLElementData> &queries = m_trans->m_queries;
     if (queries.empty())
         return false;
 
     m_conn->BeginTransaction();
     while (!queries.empty())
     {
-        TransactionElementData data = queries.front();
+        SQLElementData data = queries.front();
         switch (data.type)
         {
-            case TRANSACTION_ELEMENT_PREPARED:
+            case SQL_ELEMENT_PREPARED:
             {
                 PreparedStatement* stmt = data.element.stmt;
                 ASSERT(stmt);
@@ -91,7 +91,7 @@ bool TransactionTask::Execute()
                 delete data.element.stmt;
             }
             break;
-            case TRANSACTION_ELEMENT_RAW:
+            case SQL_ELEMENT_RAW:
             {
                 const char* sql = data.element.query;
                 ASSERT(sql);
