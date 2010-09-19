@@ -575,6 +575,8 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
 {
     if (pVictim->GetTypeId() == TYPEID_UNIT && pVictim->ToCreature()->IsAIEnabled)
         pVictim->ToCreature()->AI()->DamageTaken(this, damage);
+    else if (pVictim->GetTypeId() == TYPEID_PLAYER && pVictim->ToPlayer()->isGameMaster())
+        return 0;
 
     if (GetTypeId() == TYPEID_UNIT && this->ToCreature()->IsAIEnabled)
         this->ToCreature()->AI()->DamageDealt(pVictim, damage);
@@ -720,12 +722,8 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
         pVictim->ModifyHealth(- (int32)damage);
 
         if (damagetype == DIRECT_DAMAGE || damagetype == SPELL_DIRECT_DAMAGE)
-        {
-            //TODO: This is from procflag, I do not know which spell needs this
-            //Maim?
-            //if (!spellProto || !(spellProto->AuraInterruptFlags&AURA_INTERRUPT_FLAG_DIRECT_DAMAGE))
-                pVictim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_DIRECT_DAMAGE, spellProto ? spellProto->Id : 0);
-        }
+            pVictim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_DIRECT_DAMAGE, spellProto ? spellProto->Id : 0);
+
         if (pVictim->GetTypeId() != TYPEID_PLAYER)
         {
             if (spellProto && IsDamageToThreatSpell(spellProto))
