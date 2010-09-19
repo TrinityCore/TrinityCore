@@ -1227,7 +1227,7 @@ bool ObjectMgr::SetCreatureLinkedRespawn(uint32 guid, uint32 linkedGuid)
         mCreatureLinkedRespawnMap[guid] = linkedGuid;
         PreparedStatement *stmt = WorldDatabase.GetPreparedStatement(WORLD_REP_CRELINKED_RESPAWN);
         stmt->setUInt32(0, guid);
-        stmt->setUInt64(1, linkedGuid);
+        stmt->setUInt32(1, linkedGuid);
         WorldDatabase.Execute(stmt);
         return true;
     }
