@@ -1806,7 +1806,8 @@ void ObjectMgr::LoadCreatureRespawnTimes()
 void ObjectMgr::LoadGameobjectRespawnTimes()
 {
     // remove outdated data
-    WorldDatabase.DirectExecute("DELETE FROM gameobject_respawn WHERE respawntime <= UNIX_TIMESTAMP(NOW())");
+    PreparedStatement *stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAMEOBJECT_RESPAWN_TIMES);
+    WorldDatabase.Execute(stmt);
 
     uint32 count = 0;
 
@@ -3547,8 +3548,13 @@ void ObjectMgr::LoadGuilds()
 
     //delete unused LogGuid records in guild_eventlog and guild_bank_eventlog table
     //you can comment these lines if you don't plan to change CONFIG_GUILD_EVENT_LOG_COUNT and CONFIG_GUILD_BANK_EVENT_LOG_COUNT
-    CharacterDatabase.PQuery("DELETE FROM guild_eventlog WHERE LogGuid > '%u'", sWorld.getIntConfig(CONFIG_GUILD_EVENT_LOG_COUNT));
-    CharacterDatabase.PQuery("DELETE FROM guild_bank_eventlog WHERE LogGuid > '%u'", sWorld.getIntConfig(CONFIG_GUILD_BANK_EVENT_LOG_COUNT));
+    PreparedStatement *guildEventLogStmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_OLD_GUILD_EVENT_LOGS);
+    guildEventLogStmt->setUInt32(0, sWorld.getIntConfig(CONFIG_GUILD_EVENT_LOG_COUNT));
+    CharacterDatabase.Execute(guildEventLogStmt);
+
+    PreparedStatement *guildBankEventLogStmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_OLD_GUILD_BANK_EVENT_LOGS);
+    guildBankEventLogStmt->setUInt32(0, sWorld.getIntConfig(CONFIG_GUILD_BANK_EVENT_LOG_COUNT));
+    CharacterDatabase.Execute(guildBankEventLogStmt);
 
     sLog.outString();
     sLog.outString(">> Loaded %u guild definitions", mGuildMap.size());
@@ -3707,7 +3713,12 @@ void ObjectMgr::LoadGuildBanks(std::vector<Guild*>& GuildVector, QueryResult& re
             Item *pItem = NewItemOrBag(proto);
             if (!pItem->LoadFromDB(ItemGuid, 0, itemResult, ItemEntry))
             {
-                CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE guildid='%u' AND TabId='%u' AND SlotId='%u'", guildid, uint32(TabId), uint32(SlotId));
+                PreparedStatement *stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_NONEXISTENT_GUILD_BANK_ITEM);
+                stmt->setUInt32(0, guildid);
+                stmt->setUInt32(1, uint32(TabId));
+                stmt->setUInt32(2, uint32(SlotId));
+                CharacterDatabase.Execute(stmt);
+
                 sLog.outError("Item GUID %u not found in item_instance, deleting from Guild Bank!", ItemGuid);
                 delete pItem;
                 continue;
@@ -3780,14 +3791,14 @@ void ObjectMgr::LoadGroups()
 
     // Consistency cleaning before load to avoid having to do some checks later
     // Delete all members that does not exist
-    CharacterDatabase.PExecute("DELETE FROM group_member WHERE NOT EXISTS (SELECT guid FROM characters WHERE guid=memberGuid)");
+    CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_DEL_NONEXISTENT_CHARACTER_GROUP_MEMBERS));
     // Delete all groups whose leader does not exist
-    CharacterDatabase.PExecute("DELETE FROM groups WHERE NOT EXISTS (SELECT guid FROM characters WHERE guid=leaderGuid)");
+    CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_DEL_LEADERLESS_GROUPS));
     // Delete all groups with less than 2 members
-    CharacterDatabase.PExecute("DELETE FROM groups WHERE guid NOT IN (SELECT guid FROM group_member GROUP BY guid HAVING COUNT(guid) > 1)");
+    CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_DEL_TINY_GROUPS));
     // Delete all rows from group_member or group_instance with no group
-    CharacterDatabase.PExecute("DELETE FROM group_member WHERE guid NOT IN (SELECT guid FROM groups)");
-    CharacterDatabase.PExecute("DELETE FROM group_instance WHERE guid NOT IN (SELECT guid FROM groups)");
+    CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_DEL_NONEXISTENT_GROUP_MEMBERS));
+    CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_DEL_NONEXISTENT_GROUP_INSTANCES));
 
     // ----------------------- Load Group definitions
     //                                                            0           1           2           3              4      5      6      7      8      9      10     11     12         13          14              15
@@ -5479,11 +5490,6 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
         return;                                             // any mails need to be returned or deleted
     }
 
-    //std::ostringstream delitems, delmails; //will be here for optimization
-    //bool deletemail = false, deleteitem = false;
-    //delitems << "DELETE FROM item_instance WHERE guid IN (";
-    //delmails << "DELETE FROM mail WHERE id IN ("
-
     barGoLink bar(result->GetRowCount());
     uint32 count = 0;
     Field *fields;
@@ -5505,15 +5511,17 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
         m->checked = fields[7].GetUInt32();
         m->mailTemplateId = fields[8].GetInt16();
 
-        Player *pl = 0;
+        Player *pl = NULL;
         if (serverUp)
             pl = GetPlayer((uint64)m->receiver);
+
         if (pl && pl->m_mailsLoaded)
         {                                                   //this code will run very improbably (the time is between 4 and 5 am, in game is online a player, who has old mail
             //his in mailbox and he has already listed his mails)
             delete m;
             continue;
         }
+
         //delete or return mail:
         if (has_items)
         {
@@ -5547,8 +5555,6 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
             }
         }
 
-        //deletemail = true;
-        //delmails << m->messageID << ", ";
         CharacterDatabase.PExecute("DELETE FROM mail WHERE id = '%u'", m->messageID);
         delete m;
         ++count;
@@ -6548,11 +6554,6 @@ inline void CheckGOLinkedTrapId(GameObjectInfo const* goInfo,uint32 dataN,uint32
             sLog.outErrorDb("Gameobject (Entry: %u GoType: %u) have data%d=%u but GO (Entry %u) have not GAMEOBJECT_TYPE_TRAP (%u) type.",
             goInfo->id,goInfo->type,N,dataN,dataN,GAMEOBJECT_TYPE_TRAP);
     }
-    /* disable check for while (too many error reports baout not existed in trap templates
-    else
-        sLog.outErrorDb("Gameobject (Entry: %u GoType: %u) have data%d=%u but trap GO (Entry %u) not exist in `gameobject_template`.",
-            goInfo->id,goInfo->type,N,dataN,dataN);
-    */
 }
 
 inline void CheckGOSpellId(GameObjectInfo const* goInfo,uint32 dataN,uint32 N)
@@ -6648,10 +6649,6 @@ void ObjectMgr::LoadGameobjectInfo()
             {
                 if (goInfo->trap.lockId)
                     CheckGOLockId(goInfo,goInfo->trap.lockId,0);
-                /* disable check for while, too many not existed spells
-                if (goInfo->trap.spellId)                   // spell
-                    CheckGOSpellId(goInfo,goInfo->trap.spellId,3);
-                */
                 break;
             }
             case GAMEOBJECT_TYPE_CHAIR:                     //7
@@ -6683,10 +6680,6 @@ void ObjectMgr::LoadGameobjectInfo()
                         sLog.outErrorDb("Gameobject (Entry: %u GoType: %u) have data7=%u but PageText (Entry %u) not exist.",
                             id,goInfo->type,goInfo->goober.pageId,goInfo->goober.pageId);
                 }
-                /* disable check for while, too many not existed spells
-                if (goInfo->goober.spellId)                 // spell
-                    CheckGOSpellId(goInfo,goInfo->goober.spellId,10);
-                */
                 CheckGONoDamageImmuneId(goInfo,goInfo->goober.noDamageImmune,11);
                 if (goInfo->goober.linkedTrapId)            // linked trap
                     CheckGOLinkedTrapId(goInfo,goInfo->goober.linkedTrapId,12);
@@ -6715,13 +6708,7 @@ void ObjectMgr::LoadGameobjectInfo()
                 break;
             }
             case GAMEOBJECT_TYPE_SUMMONING_RITUAL:          //18
-            {
-                /* disable check for while, too many not existed spells
-                // always must have spell
-                CheckGOSpellId(goInfo,goInfo->summoningRitual.spellId,1);
-                */
                 break;
-            }
             case GAMEOBJECT_TYPE_SPELLCASTER:               //22
             {
                 // always must have spell
@@ -9068,14 +9055,6 @@ void ObjectMgr::LoadCreatureClassLevelStats()
         stats.BaseMana = fields[5].GetUInt32();
         stats.BaseArmor = fields[6].GetUInt32();
 
-/* With uint8 Level can't be greater than STRONG_MAX_LEVEL
-        if (Level > STRONG_MAX_LEVEL)
-        {
-            sLog.outErrorDb("Creature base stats for class %u has invalid level %u (max is %u) - set to %u",
-                Class, Level, STRONG_MAX_LEVEL, STRONG_MAX_LEVEL);
-            Level = STRONG_MAX_LEVEL;
-        }
-*/
         if (!Class || ((1 << (Class - 1)) & CLASSMASK_ALL_CREATURES) == 0)
             sLog.outErrorDb("Creature base stats for level %u has invalid class %u",
                 Level, Class);
@@ -9138,17 +9117,11 @@ void ObjectMgr::LoadFactionChangeAchievements()
         uint32 horde = fields[1].GetUInt32();
 
         if (!sAchievementStore.LookupEntry(alliance))
-        {
             sLog.outErrorDb("Achievement %u referenced in `player_factionchange_achievement` does not exist, pair skipped!", alliance);
-        }
         else if (!sAchievementStore.LookupEntry(horde))
-        {
             sLog.outErrorDb("Achievement %u referenced in `player_factionchange_achievement` does not exist, pair skipped!", horde);
-        }
         else
-        {
             factionchange_achievements[alliance] = horde;
-        }
 
         bar.step();
         ++counter;
@@ -9183,17 +9156,11 @@ void ObjectMgr::LoadFactionChangeItems()
         uint32 horde = fields[1].GetUInt32();
 
         if (!GetItemPrototype(alliance))
-        {
             sLog.outErrorDb("Item %u referenced in `player_factionchange_items` does not exist, pair skipped!", alliance);
-        }
         else if (!GetItemPrototype(horde))
-        {
             sLog.outErrorDb("Item %u referenced in `player_factionchange_items` does not exist, pair skipped!", horde);
-        }
         else
-        {
             factionchange_items[alliance] = horde;
-        }
 
         bar.step();
         ++counter;
@@ -9228,17 +9195,11 @@ void ObjectMgr::LoadFactionChangeSpells()
         uint32 horde = fields[1].GetUInt32();
 
         if (!sSpellStore.LookupEntry(alliance))
-        {
             sLog.outErrorDb("Spell %u referenced in `player_factionchange_spells` does not exist, pair skipped!", alliance);
-        }
         else if (!sSpellStore.LookupEntry(horde))
-        {
             sLog.outErrorDb("Spell %u referenced in `player_factionchange_spells` does not exist, pair skipped!", horde);
-        }
         else
-        {
             factionchange_spells[alliance] = horde;
-        }
 
         bar.step();
         ++counter;
@@ -9273,17 +9234,11 @@ void ObjectMgr::LoadFactionChangeReputations()
         uint32 horde = fields[1].GetUInt32();
 
         if (!sFactionStore.LookupEntry(alliance))
-        {
             sLog.outErrorDb("Reputation %u referenced in `player_factionchange_reputations` does not exist, pair skipped!", alliance);
-        }
         else if (!sFactionStore.LookupEntry(horde))
-        {
             sLog.outErrorDb("Reputation %u referenced in `player_factionchange_reputations` does not exist, pair skipped!", horde);
-        }
         else
-        {
             factionchange_reputations[alliance] = horde;
-        }
 
         bar.step();
         ++counter;
