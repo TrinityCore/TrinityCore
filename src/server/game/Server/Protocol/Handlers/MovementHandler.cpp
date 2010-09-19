@@ -179,6 +179,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     // honorless target
     if (GetPlayer()->pvpInfo.inHostileArea)
         GetPlayer()->CastSpell(GetPlayer(), 2479, true);
+
     // in friendly area
     else if (GetPlayer()->IsPvP() && !GetPlayer()->HasFlag(PLAYER_FLAGS,PLAYER_FLAGS_IN_PVP))
         GetPlayer()->UpdatePvP(false, false);
@@ -229,6 +230,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recv_data)
         // honorless target
         if (plMover->pvpInfo.inHostileArea)
             plMover->CastSpell(plMover, 2479, true);
+
         // in friendly area
         else if (plMover->IsPvP() && !plMover->HasFlag(PLAYER_FLAGS,PLAYER_FLAGS_IN_PVP))
             plMover->UpdatePvP(false, false);
@@ -244,7 +246,6 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recv_data)
 void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
 {
     uint16 opcode = recv_data.GetOpcode();
-    //sLog.outDebug("WORLD: Recvd %s (%u, 0x%X) opcode", LookupOpcodeName(opcode), opcode, opcode);
     recv_data.hexlike();
 
     Unit *mover = _player->m_mover;
@@ -268,15 +269,8 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
     MovementInfo movementInfo;
     movementInfo.guid = guid;
     ReadMovementInfo(recv_data, &movementInfo);
-    /*----------------*/
 
-   /* if (recv_data.size() != recv_data.rpos())
-    {
-        sLog.outError("MovementHandler: player %s (guid %d, account %u) sent a packet (opcode %u) that is " SIZEFMTD " bytes larger than it should be. Kicked as cheater.", _player->GetName(), _player->GetGUIDLow(), _player->GetSession()->GetAccountId(), recv_data.GetOpcode(), recv_data.size() - recv_data.rpos());
-        KickPlayer();*/
-        recv_data.rpos(recv_data.wpos());                   // prevent warnings spam
-    /*    return;
-    }*/
+    recv_data.rpos(recv_data.wpos());                   // prevent warnings spam
 
     // prevent tampered movement data
     if (guid != mover->GetGUID())
@@ -373,13 +367,9 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
 
         if (movementInfo.pos.GetPositionZ() < -500.0f)
         {
-            if (plMover->InBattleground()
+            if (!(plMover->InBattleground()
                 && plMover->GetBattleground()
-                && plMover->GetBattleground()->HandlePlayerUnderMap(_player))
-            {
-                // do nothing, the handle already did if returned true
-            }
-            else
+                && plMover->GetBattleground()->HandlePlayerUnderMap(_player)))
             {
                 // NOTE: this is actually called many times while falling
                 // even after the player has been teleported away
@@ -402,18 +392,6 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
             }
         }
     }
-    /*else                                                    // creature charmed
-    {
-        if (mover->canFly())
-        {
-            bool flying = mover->IsFlying();
-            if (flying != ((mover->GetByteValue(UNIT_FIELD_BYTES_1, 3) & 0x02) ? true : false))
-                mover->SetFlying(flying);
-        }
-    }*/
-
-    //sLog.outString("Receive Movement Packet %s:", opcodeTable[recv_data.GetOpcode()]);
-    //mover->OutMovementInfo();
 }
 
 void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recv_data)
@@ -530,18 +508,10 @@ void WorldSession::HandleMoveNotActiveMover(WorldPacket &recv_data)
     uint64 old_mover_guid;
     recv_data.readPackGUID(old_mover_guid);
 
-    /*if (_player->m_mover->GetGUID() == old_mover_guid)
-    {
-        sLog.outError("HandleMoveNotActiveMover: incorrect mover guid: mover is " UI64FMTD " and should be " UI64FMTD " instead of " UI64FMTD, _player->m_mover->GetGUID(), _player->GetGUID(), old_mover_guid);
-        recv_data.rpos(recv_data.wpos());                   // prevent warnings spam
-        return;
-    }*/
-
     MovementInfo mi;
     mi.guid = old_mover_guid;
     ReadMovementInfo(recv_data, &mi);
 
-    //ReadMovementInfo(recv_data, &_player->m_mover->m_movementInfo);
     _player->m_movementInfo = mi;
 }
 
@@ -568,8 +538,6 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recv_data)
 
     _player->m_movementInfo = mi;
 
-    /*
-    ReadMovementInfo(recv_data, &_player->m_mover->m_movementInfo);*/
     _player->ExitVehicle();
 }
 
@@ -584,56 +552,56 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
 
     switch (recv_data.GetOpcode())
     {
-    case CMSG_REQUEST_VEHICLE_PREV_SEAT:
-        GetPlayer()->ChangeSeat(-1, false);
-        break;
-    case CMSG_REQUEST_VEHICLE_NEXT_SEAT:
-        GetPlayer()->ChangeSeat(-1, true);
-        break;
-    case CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE:
-        {
-            uint64 guid;        // current vehicle guid
-            recv_data.readPackGUID(guid);
-
-            ReadMovementInfo(recv_data, &vehicle_base->m_movementInfo);
-
-            uint64 accessory;        //  accessory guid
-            recv_data.readPackGUID(accessory);
-
-            int8 seatId;
-            recv_data >> seatId;
-
-            if (vehicle_base->GetGUID() != guid)
-                return;
-
-            if (!accessory)
-                GetPlayer()->ChangeSeat(-1, seatId > 0); // prev/next
-            else if (Unit *vehUnit = Unit::GetUnit(*GetPlayer(), accessory))
+        case CMSG_REQUEST_VEHICLE_PREV_SEAT:
+            GetPlayer()->ChangeSeat(-1, false);
+            break;
+        case CMSG_REQUEST_VEHICLE_NEXT_SEAT:
+            GetPlayer()->ChangeSeat(-1, true);
+            break;
+        case CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE:
             {
-                if (Vehicle *vehicle = vehUnit->GetVehicleKit())
-                    if (vehicle->HasEmptySeat(seatId))
-                        GetPlayer()->EnterVehicle(vehicle, seatId);
+                uint64 guid;        // current vehicle guid
+                recv_data.readPackGUID(guid);
+
+                ReadMovementInfo(recv_data, &vehicle_base->m_movementInfo);
+
+                uint64 accessory;        //  accessory guid
+                recv_data.readPackGUID(accessory);
+
+                int8 seatId;
+                recv_data >> seatId;
+
+                if (vehicle_base->GetGUID() != guid)
+                    return;
+
+                if (!accessory)
+                    GetPlayer()->ChangeSeat(-1, seatId > 0); // prev/next
+                else if (Unit *vehUnit = Unit::GetUnit(*GetPlayer(), accessory))
+                {
+                    if (Vehicle *vehicle = vehUnit->GetVehicleKit())
+                        if (vehicle->HasEmptySeat(seatId))
+                            GetPlayer()->EnterVehicle(vehicle, seatId);
+                }
             }
-        }
-        break;
-    case CMSG_REQUEST_VEHICLE_SWITCH_SEAT:
-        {
-            uint64 guid;        // current vehicle guid
-            recv_data.readPackGUID(guid);
+            break;
+        case CMSG_REQUEST_VEHICLE_SWITCH_SEAT:
+            {
+                uint64 guid;        // current vehicle guid
+                recv_data.readPackGUID(guid);
 
-            int8 seatId;
-            recv_data >> seatId;
+                int8 seatId;
+                recv_data >> seatId;
 
-            if (vehicle_base->GetGUID() == guid)
-                GetPlayer()->ChangeSeat(seatId);
-            else if (Unit *vehUnit = Unit::GetUnit(*GetPlayer(), guid))
-                if (Vehicle *vehicle = vehUnit->GetVehicleKit())
-                    if (vehicle->HasEmptySeat(seatId))
-                        GetPlayer()->EnterVehicle(vehicle, seatId);
-        }
-        break;
-    default:
-        break;
+                if (vehicle_base->GetGUID() == guid)
+                    GetPlayer()->ChangeSeat(seatId);
+                else if (Unit *vehUnit = Unit::GetUnit(*GetPlayer(), guid))
+                    if (Vehicle *vehicle = vehUnit->GetVehicleKit())
+                        if (vehicle->HasEmptySeat(seatId))
+                            GetPlayer()->EnterVehicle(vehicle, seatId);
+            }
+            break;
+        default:
+            break;
     }
 }
 
@@ -657,19 +625,16 @@ void WorldSession::HandleEnterPlayerVehicle(WorldPacket &data)
 
 void WorldSession::HandleEjectPasenger(WorldPacket &data)
 {
-    if (data.GetOpcode() == CMSG_EJECT_PASSENGER)
+    if (_player->GetVehicleKit())
     {
-        if (_player->GetVehicleKit())
+        uint64 guid;
+        data >> guid;
+        if (Player *plr = ObjectAccessor::FindPlayer(guid))
+            plr->ExitVehicle();
+        else if (Unit *unit = ObjectAccessor::GetUnit(*_player, guid)) // creatures can be ejected too from player mounts
         {
-            uint64 guid;
-            data >> guid;
-            if (Player* Pl=ObjectAccessor::FindPlayer(guid))
-                Pl->ExitVehicle();
-            else if (Unit* Un = ObjectAccessor::GetUnit(*_player, guid)) // creatures can be ejected too from player mounts
-            {
-                Un->ExitVehicle();
-                Un->ToCreature()->ForcedDespawn(1000);
-            }
+            unit->ExitVehicle();
+            unit->ToCreature()->ForcedDespawn(1000);
         }
     }
 }
@@ -681,10 +646,8 @@ void WorldSession::HandleRequestVehicleExit(WorldPacket &recv_data)
     GetPlayer()->ExitVehicle();
 }
 
-void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvdata*/)
+void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recv_data*/)
 {
-    //sLog.outDebug("WORLD: Recvd CMSG_MOUNTSPECIAL_ANIM");
-
     WorldPacket data(SMSG_MOUNTSPECIAL_ANIM, 8);
     data << uint64(GetPlayer()->GetGUID());
 
