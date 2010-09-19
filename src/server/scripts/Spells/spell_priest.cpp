@@ -31,6 +31,39 @@ enum PriestSpells
     PRIEST_SPELL_PENANCE_R1_HEAL                 = 47757,
 };
 
+class spell_pri_mana_burn : public SpellScriptLoader
+{
+    public:
+        spell_pri_mana_burn() : SpellScriptLoader("spell_pri_mana_burn") { }
+
+        class spell_pri_mana_burn_SpellScript : public SpellScript
+        {
+            bool Validate(SpellEntry const * spellEntry)
+            {
+                return true;
+            }
+
+            void HandleAfterHit()
+            {
+                Unit * unitTarget = GetHitUnit();
+                if (!unitTarget)
+                    return;
+
+                unitTarget->RemoveAurasWithMechanic((1 << MECHANIC_FEAR) | (1 << MECHANIC_POLYMORPH));
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_pri_mana_burn_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript * GetSpellScript() const
+        {
+            return new spell_pri_mana_burn_SpellScript;
+        }
+};
+
 class spell_pri_pain_and_suffering_proc : public SpellScriptLoader
 {
     public:
@@ -114,6 +147,7 @@ class spell_pri_penance : public SpellScriptLoader
 
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_mana_burn;
     new spell_pri_pain_and_suffering_proc;
     new spell_pri_penance;
 }
