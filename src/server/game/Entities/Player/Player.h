@@ -789,7 +789,8 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOADWEKLYQUESTSTATUS     = 26,
     PLAYER_LOGIN_QUERY_LOADRANDOMBG             = 27,
     PLAYER_LOGIN_QUERY_LOADARENASTATS           = 28,
-    MAX_PLAYER_LOGIN_QUERY                      = 29
+    PLAYER_LOGIN_QUERY_LOADBANNED               = 29,
+    MAX_PLAYER_LOGIN_QUERY                      = 30
 };
 
 enum PlayerDelayedOperations

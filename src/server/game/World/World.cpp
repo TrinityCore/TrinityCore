@@ -2301,6 +2301,72 @@ bool World::RemoveBanAccount(BanMode mode, std::string nameOrIP)
     return true;
 }
 
+/// Ban an account or ban an IP address, duration will be parsed using TimeStringToSecs if it is positive, otherwise permban
+BanReturn World::BanCharacter(std::string name, std::string duration, std::string reason, std::string author)
+{
+    Player *pBanned = sObjectMgr.GetPlayer(name.c_str());
+    uint32 guid = 0;
+
+    uint32 duration_secs = TimeStringToSecs(duration);
+
+    /// Pick a player to ban if not online
+    if (!pBanned)
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_GUID_BY_NAME);
+        stmt->setString(0, name);
+        PreparedQueryResult resultCharacter = CharacterDatabase.Query(stmt);
+
+        if (!resultCharacter)
+            return BAN_NOTFOUND;                                    // Nobody to ban
+
+        guid = resultCharacter->GetUInt32(0);
+    }
+    else
+        guid = pBanned->GetGUIDLow();
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_BAN);
+    stmt->setUInt32(0, guid);
+    stmt->setUInt32(1, duration_secs);
+    stmt->setString(2, author);
+    stmt->setString(3, reason);
+    CharacterDatabase.Execute(stmt);
+
+    if (pBanned)
+        pBanned->GetSession()->KickPlayer();
+
+    return BAN_SUCCESS;
+}
+
+/// Remove a ban from a character
+bool World::RemoveBanCharacter(std::string name)
+{
+    Player *pBanned = sObjectMgr.GetPlayer(name.c_str());
+    uint32 guid = 0;
+
+    /// Pick a player to ban if not online
+    if (!pBanned)
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_GUID_BY_NAME);
+        stmt->setString(0, name);
+        PreparedQueryResult resultCharacter = CharacterDatabase.Query(stmt);
+
+        if (!resultCharacter)
+            return false;
+
+        guid = resultCharacter->GetUInt32(0);
+    }
+    else
+        guid = pBanned->GetGUIDLow();
+
+    if (!guid)
+        return false;
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SET_NOT_BANNED);
+    stmt->setUInt32(0, guid);
+    CharacterDatabase.Execute(stmt);
+    return true;
+}
+
 /// Update the game time
 void World::_UpdateGameTime()
 {

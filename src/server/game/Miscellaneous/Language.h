@@ -794,7 +794,10 @@ enum TrinityStrings
     LANG_TAXINODE_ENTRY_LIST_CHAT       = 1128,
     LANG_TAXINODE_ENTRY_LIST_CONSOLE    = 1129,
     LANG_COMMAND_EXPORT_DELETED_CHAR    = 1130,
-    // Room for more level 3              1131-1199 not used
+    LANG_BANLIST_MATCHINGCHARACTER      = 1131,
+    LANG_BANLIST_CHARACTERS             = 1132,
+    LANG_BANLIST_CHARACTERS_HEADER      = 1133,
+    // Room for more level 3              1134-1199 not used
 
     // Debug commands
     LANG_CINEMATIC_NOT_EXIST            = 1200,
