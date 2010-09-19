@@ -40,7 +40,7 @@ class MySQLConnection
     public:
         bool Execute(const char* sql);
         bool Execute(PreparedStatement* stmt);
-        QueryResult Query(const char* sql);
+        ResultSet* Query(const char* sql);
         PreparedResultSet* Query(PreparedStatement* stmt);
         bool _Query(const char *sql, MYSQL_RES **pResult, MYSQL_FIELD **pFields, uint64* pRowCount, uint32* pFieldCount);
 
