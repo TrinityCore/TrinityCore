@@ -59,7 +59,10 @@ void PreparedStatement::BindParameters()
                 m_stmt->setInt64(i, statement_data[i].data.i64);
                 break;
             case TYPE_FLOAT:
-                m_stmt->setDouble(i, statement_data[i].data.f);
+                m_stmt->setFloat(i, statement_data[i].data.f);
+                break;
+            case TYPE_DOUBLE:
+                m_stmt->setDouble(i, statement_data[i].data.d);
                 break;
             case TYPE_STRING:
                 m_stmt->setString(i, statement_data[i].str.c_str());
@@ -154,13 +157,22 @@ void PreparedStatement::setInt64(const uint8 index, const int64 value)
     statement_data[index].type = TYPE_I64;
 }
 
-void PreparedStatement::setDouble(const uint8 index, const double value)
+void PreparedStatement::setFloat(const uint8 index, const float value)
 {
     if (index >= statement_data.size())
         statement_data.resize(index+1);
 
     statement_data[index].data.f = value;
     statement_data[index].type = TYPE_FLOAT;
+}
+
+void PreparedStatement::setDouble(const uint8 index, const double value)
+{
+    if (index >= statement_data.size())
+        statement_data.resize(index+1);
+
+    statement_data[index].data.d = value;
+    statement_data[index].type = TYPE_DOUBLE;
 }
 
 void PreparedStatement::setString(const uint8 index, const std::string& value)
@@ -272,6 +284,14 @@ void MySQLPreparedStatement::setInt64(const uint8 index, const int64 value)
     m_paramsSet[index] = true;
     MYSQL_BIND* param = &m_bind[index];
     setValue(param, MYSQL_TYPE_LONGLONG, &value, sizeof(int64), false);
+}
+
+void MySQLPreparedStatement::setFloat(const uint8 index, const float value)
+{
+    CheckValidIndex(index);
+    m_paramsSet[index] = true;
+    MYSQL_BIND* param = &m_bind[index];
+    setValue(param, MYSQL_TYPE_FLOAT, &value, sizeof(double), (value > 0.0f));
 }
 
 void MySQLPreparedStatement::setDouble(const uint8 index, const double value)
