@@ -905,6 +905,16 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
             break;
         }
+        case CONDITION_SOURCE_TYPE_QUEST_ACCEPT:
+            {
+                Quest const *Quest = sObjectMgr.GetQuestTemplate(cond->mSourceEntry);
+                if (!Quest)
+                {
+                    sLog.outErrorDb("CONDITION_SOURCE_TYPE_QUESTID specifies non-existing quest (%u), skipped", cond->mSourceEntry);
+                    return false;
+                }
+            }
+            break;
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU:
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
         case CONDITION_SOURCE_TYPE_NONE:
