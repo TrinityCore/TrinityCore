@@ -100,6 +100,7 @@ bool LoginQueryHolder::Initialize()
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADSKILLS,          "SELECT skill, value, max FROM character_skills WHERE guid = '%u'", GUID_LOPART(m_guid));
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADRANDOMBG,        "SELECT guid FROM character_battleground_random WHERE guid = '%u'", GUID_LOPART(m_guid));
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADARENASTATS,      "SELECT slot, personal_rating, matchmaker_rating FROM character_arena_stats WHERE guid = '%u' ORDER BY slot ASC", GUID_LOPART(m_guid));
+    res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADBANNED,          "SELECT guid FROM character_banned WHERE id = %u AND active = 1", GUID_LOPART(m_guid));
 
     return res;
 }
@@ -131,6 +132,10 @@ void WorldSession::HandleCharEnum(QueryResult result)
 
 void WorldSession::HandleCharEnumOpcode(WorldPacket & /*recv_data*/)
 {
+    // remove expired bans
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EXPIRED_BANS);
+    CharacterDatabase.Execute(stmt);
+
     /// get all the data necessary for loading all characters (along with their pets) on the account
     m_charEnumCallback =
         CharacterDatabase.AsyncPQuery(
@@ -140,10 +145,11 @@ void WorldSession::HandleCharEnumOpcode(WorldPacket & /*recv_data*/)
                 "SELECT characters.guid, characters.name, characters.race, characters.class, characters.gender, characters.playerBytes, characters.playerBytes2, characters.level, "
             //   8                9               10                     11                     12                     13                    14
                 "characters.zone, characters.map, characters.position_x, characters.position_y, characters.position_z, guild_member.guildid, characters.playerFlags, "
-            //  15                    16                   17                     18                   19
-                "characters.at_login, character_pet.entry, character_pet.modelid, character_pet.level, characters.equipmentCache "
+            //  15                    16                   17                     18                   19                         20
+                "characters.at_login, character_pet.entry, character_pet.modelid, character_pet.level, characters.equipmentCache, character_banned.guid "
                 "FROM characters LEFT JOIN character_pet ON characters.guid=character_pet.owner AND character_pet.slot='%u' "
                 "LEFT JOIN guild_member ON characters.guid = guild_member.guid "
+                "LEFT JOIN character_banned ON characters.guid = character_banned.guid AND character_banned.active = 1 "
                 "WHERE characters.account = '%u' ORDER BY characters.guid"
                 :
             //   --------- Query With Declined Names ---------
@@ -151,11 +157,12 @@ void WorldSession::HandleCharEnumOpcode(WorldPacket & /*recv_data*/)
                 "SELECT characters.guid, characters.name, characters.race, characters.class, characters.gender, characters.playerBytes, characters.playerBytes2, characters.level, "
             //   8                9               10                     11                     12                     13                    14
                 "characters.zone, characters.map, characters.position_x, characters.position_y, characters.position_z, guild_member.guildid, characters.playerFlags, "
-            //  15                    16                   17                     18                   19               20
-                "characters.at_login, character_pet.entry, character_pet.modelid, character_pet.level, characters.equipmentCache, character_declinedname.genitive "
+            //  15                    16                   17                     18                   19                         20                     21
+                "characters.at_login, character_pet.entry, character_pet.modelid, character_pet.level, characters.equipmentCache, character_banned.guid, character_declinedname.genitive "
                 "FROM characters LEFT JOIN character_pet ON characters.guid = character_pet.owner AND character_pet.slot='%u' "
                 "LEFT JOIN character_declinedname ON characters.guid = character_declinedname.guid "
                 "LEFT JOIN guild_member ON characters.guid = guild_member.guid "
+                "LEFT JOIN character_banned ON characters.guid = character_banned.guid AND character_banned.active = 1 "
                 "WHERE characters.account = '%u' ORDER BY characters.guid",
                 PET_SAVE_AS_CURRENT, GetAccountId()
             );

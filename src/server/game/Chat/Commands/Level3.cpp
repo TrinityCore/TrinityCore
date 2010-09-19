@@ -5601,9 +5601,56 @@ bool ChatHandler::HandleBanAccountCommand(const char *args)
     return HandleBanHelper(BAN_ACCOUNT,args);
 }
 
-bool ChatHandler::HandleBanCharacterCommand(const char *args)
+bool ChatHandler::HandleBanAccountByCharCommand(const char *args)
 {
     return HandleBanHelper(BAN_CHARACTER,args);
+}
+
+bool ChatHandler::HandleBanCharacterCommand(const char *args)
+{
+    if (!*args)
+        return false;
+
+    char* cname = strtok((char*)args, " ");
+    if (!cname)
+        return false;
+
+    std::string name = cname;
+
+    char* duration = strtok(NULL," ");
+    if (!duration || !atoi(duration))
+        return false;
+
+   char* reason = strtok(NULL,"");
+    if (!reason)
+        return false;
+
+    if (!normalizePlayerName(name))
+    {
+        SendSysMessage(LANG_PLAYER_NOT_FOUND);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    switch (sWorld.BanCharacter(name, duration, reason, m_session ? m_session->GetPlayerName() : ""))
+    {
+        case BAN_SUCCESS:
+        {
+            if (atoi(duration) > 0)
+                PSendSysMessage(LANG_BAN_YOUBANNED, name.c_str(), secsToTimeString(TimeStringToSecs(duration), true).c_str(), reason);
+            else
+                PSendSysMessage(LANG_BAN_YOUPERMBANNED, name.c_str(), reason);
+            break;
+        }
+        case BAN_NOTFOUND:
+        {
+            PSendSysMessage(LANG_BAN_NOTFOUND, "character", name.c_str());
+            SetSentErrorMessage(true);
+            return false;
+        }
+    }
+
+    return true;
 }
 
 bool ChatHandler::HandleBanIPCommand(const char *args)
@@ -5686,17 +5733,45 @@ bool ChatHandler::HandleBanHelper(BanMode mode, const char *args)
 
 bool ChatHandler::HandleUnBanAccountCommand(const char *args)
 {
-    return HandleUnBanHelper(BAN_ACCOUNT,args);
+    return HandleUnBanHelper(BAN_ACCOUNT, args);
+}
+
+bool ChatHandler::HandleUnBanAccountByCharCommand(const char *args)
+{
+    return HandleUnBanHelper(BAN_CHARACTER, args);
 }
 
 bool ChatHandler::HandleUnBanCharacterCommand(const char *args)
 {
-    return HandleUnBanHelper(BAN_CHARACTER,args);
+    if (!*args)
+        return false;
+
+    char* cname = strtok((char*)args, " ");
+    if (!cname)
+        return false;
+
+    std::string name = cname;
+
+    if (!normalizePlayerName(name))
+    {
+        SendSysMessage(LANG_PLAYER_NOT_FOUND);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    if (!sWorld.RemoveBanCharacter(name))
+    {
+        SendSysMessage(LANG_PLAYER_NOT_FOUND);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    return true;
 }
 
 bool ChatHandler::HandleUnBanIPCommand(const char *args)
 {
-    return HandleUnBanHelper(BAN_IP,args);
+    return HandleUnBanHelper(BAN_IP, args);
 }
 
 bool ChatHandler::HandleUnBanHelper(BanMode mode, const char *args)
@@ -5771,21 +5846,50 @@ bool ChatHandler::HandleBanInfoAccountCommand(const char *args)
 
 bool ChatHandler::HandleBanInfoCharacterCommand(const char *args)
 {
-    Player* target;
-    uint64 target_guid;
-    if (!extractPlayerTarget((char*)args,&target,&target_guid))
+    if (!*args)
         return false;
 
-    uint32 accountid = target ? target->GetSession()->GetAccountId() : sObjectMgr.GetPlayerAccountIdByGUID(target_guid);
+    Player* target = sObjectMgr.GetPlayer(args);
+    uint32 target_guid = 0;
+    std::string name(args);
 
-    std::string accountname;
-    if (!sAccountMgr.GetName(accountid,accountname))
+    if (!target)
     {
-        PSendSysMessage(LANG_BANINFO_NOCHARACTER);
-        return true;
-    }
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_GUID_BY_NAME);
+        stmt->setString(0, name);
+        PreparedQueryResult resultCharacter = CharacterDatabase.Query(stmt);
 
-    return HandleBanInfoHelper(accountid,accountname.c_str());
+        if (!resultCharacter)
+        {
+            PSendSysMessage(LANG_BANINFO_NOCHARACTER);
+            return false;
+        }
+
+        target_guid = resultCharacter->GetUInt32(0);
+    }
+    else
+        target_guid = target->GetGUIDLow();
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_BANINFO);
+    stmt->setUInt32(0, target_guid);
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+    if (!result)
+        return true;
+
+    PSendSysMessage(LANG_BANINFO_BANHISTORY, name.c_str());
+    do
+    {
+        time_t unbandate = time_t(result->GetUInt64(3));
+        bool active = false;
+        if (result->GetUInt8(2) && (!result->GetUInt64(1) || unbandate >= time(NULL)))
+            active = true;
+        bool permanent = (result->GetUInt64(1) == uint64(0));
+        std::string bantime = permanent ? GetTrinityString(LANG_BANINFO_INFINITE) : secsToTimeString(result->GetUInt64(1), true);
+        PSendSysMessage(LANG_BANINFO_HISTORYENTRY,
+            result->GetCString(0), bantime.c_str(), active ? GetTrinityString(LANG_BANINFO_YES) : GetTrinityString(LANG_BANINFO_NO), result->GetCString(4), result->GetCString(5));
+    } while (result->NextRow());
+
+    return true;
 }
 
 bool ChatHandler::HandleBanInfoHelper(uint32 accountid, char const* accountname)
@@ -5797,7 +5901,7 @@ bool ChatHandler::HandleBanInfoHelper(uint32 accountid, char const* accountname)
         return true;
     }
 
-    PSendSysMessage(LANG_BANINFO_BANHISTORY,accountname);
+    PSendSysMessage(LANG_BANINFO_BANHISTORY, accountname);
     do
     {
         Field* fields = result->Fetch();
@@ -5807,10 +5911,10 @@ bool ChatHandler::HandleBanInfoHelper(uint32 accountid, char const* accountname)
         if (fields[2].GetBool() && (fields[1].GetUInt64() == (uint64)0 ||unbandate >= time(NULL)))
             active = true;
         bool permanent = (fields[1].GetUInt64() == (uint64)0);
-        std::string bantime = permanent ? GetTrinityString(LANG_BANINFO_INFINITE) : secsToTimeString(fields[1].GetUInt64(), true);
+        std::string bantime = permanent?GetTrinityString(LANG_BANINFO_INFINITE):secsToTimeString(fields[1].GetUInt64(), true);
         PSendSysMessage(LANG_BANINFO_HISTORYENTRY,
             fields[0].GetString(), bantime.c_str(), active ? GetTrinityString(LANG_BANINFO_YES):GetTrinityString(LANG_BANINFO_NO), fields[4].GetString(), fields[5].GetString());
-    }while (result->NextRow());
+    } while (result->NextRow());
 
     return true;
 }
@@ -5848,22 +5952,83 @@ bool ChatHandler::HandleBanInfoIPCommand(const char *args)
 
 bool ChatHandler::HandleBanListCharacterCommand(const char *args)
 {
-    LoginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate");
+    if (!*args)
+        return false;
 
-    char* cFilter = strtok ((char*)args, " ");
+    char* cFilter = strtok((char*)args, " ");
     if (!cFilter)
         return false;
 
-    std::string filter = cFilter;
-    LoginDatabase.escape_string(filter);
-    QueryResult result = CharacterDatabase.PQuery("SELECT account FROM characters WHERE name "_LIKE_" "_CONCAT3_("'%%'","'%s'","'%%'"),filter.c_str());
+    std::string filter(cFilter);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_GUID_BY_NAME_FILTER);
+    stmt->setString(0, filter.c_str());
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (!result)
     {
         PSendSysMessage(LANG_BANLIST_NOCHARACTER);
         return true;
     }
 
-    return HandleBanListHelper(result);
+    PSendSysMessage(LANG_BANLIST_MATCHINGCHARACTER);
+
+    // Chat short output
+    if (m_session)
+    {
+        do
+        {
+            PreparedStatement* stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_GET_BANNED_NAME);
+            stmt2->setUInt32(0, result->GetUInt32(0));
+            PreparedQueryResult banresult = CharacterDatabase.Query(stmt2);
+            if (banresult)
+                PSendSysMessage("%s", banresult->GetCString(0));
+        } while (result->NextRow());
+    }
+    // Console wide output
+    else
+    {
+        SendSysMessage(LANG_BANLIST_CHARACTERS);
+        SendSysMessage(" =============================================================================== ");
+        SendSysMessage(LANG_BANLIST_CHARACTERS_HEADER);
+        do
+        {
+            SendSysMessage("-------------------------------------------------------------------------------");
+
+            std::string char_name;
+
+            char_name = result->GetString(1);
+
+            PreparedStatement* stmt2 = CharacterDatabase.GetPreparedStatement(CHAR_GET_BANINFO_LIST);
+            stmt2->setUInt32(0, result->GetUInt32(0));
+            PreparedQueryResult banInfo = CharacterDatabase.Query(stmt2);
+            if (banInfo)
+            {
+                do
+                {
+                    time_t t_ban = banInfo->GetUInt64(0);
+                    tm* aTm_ban = localtime(&t_ban);
+
+                    if (banInfo->GetUInt64(0) == banInfo->GetUInt64(1))
+                    {
+                        PSendSysMessage("|%-15.15s|%02d-%02d-%02d %02d:%02d|   permanent  |%-15.15s|%-15.15s|",
+                            char_name.c_str(), aTm_ban->tm_year%100, aTm_ban->tm_mon+1, aTm_ban->tm_mday, aTm_ban->tm_hour, aTm_ban->tm_min,
+                            banInfo->GetCString(2), banInfo->GetCString(3));
+                    }
+                    else
+                    {
+                        time_t t_unban = banInfo->GetUInt64(1);
+                        tm* aTm_unban = localtime(&t_unban);
+                        PSendSysMessage("|%-15.15s|%02d-%02d-%02d %02d:%02d|%02d-%02d-%02d %02d:%02d|%-15.15s|%-15.15s|",
+                            char_name.c_str(), aTm_ban->tm_year%100, aTm_ban->tm_mon+1, aTm_ban->tm_mday, aTm_ban->tm_hour, aTm_ban->tm_min,
+                            aTm_unban->tm_year%100, aTm_unban->tm_mon+1, aTm_unban->tm_mday, aTm_unban->tm_hour, aTm_unban->tm_min,
+                            banInfo->GetCString(2), banInfo->GetCString(3));
+                    }
+                } while (banInfo->NextRow());
+            }
+        } while (result->NextRow());
+        SendSysMessage(" =============================================================================== ");
+    }
+
+    return true;
 }
 
 bool ChatHandler::HandleBanListAccountCommand(const char *args)

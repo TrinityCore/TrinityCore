@@ -90,6 +90,7 @@ ChatCommand * ChatHandler::getCommandTable()
     {
         { "account",        SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleBanAccountCommand,          "", NULL },
         { "character",      SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleBanCharacterCommand,        "", NULL },
+        { "playeraccount",  SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleBanAccountByCharCommand,    "", NULL },
         { "ip",             SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleBanIPCommand,               "", NULL },
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
@@ -646,10 +647,11 @@ ChatCommand * ChatHandler::getCommandTable()
 
     static ChatCommand unbanCommandTable[] =
     {
-        { "account",        SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleUnBanAccountCommand,      "", NULL },
-        { "character",      SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleUnBanCharacterCommand,    "", NULL },
-        { "ip",             SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleUnBanIPCommand,           "", NULL },
-        { NULL,             0,                  false, NULL,                                           "", NULL }
+        { "account",        SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleUnBanAccountCommand,       "", NULL },
+        { "character",      SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleUnBanCharacterCommand,     "", NULL },
+        { "playeraccount",  SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleUnBanAccountByCharCommand, "", NULL },
+        { "ip",             SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleUnBanIPCommand,            "", NULL },
+        { NULL,             0,                  false, NULL,                                          "", NULL }
     };
 
     static ChatCommand wpCommandTable[] =
