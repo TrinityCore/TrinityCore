@@ -887,7 +887,7 @@ public:
         npc_scarlet_miner_cartAI(Creature *c) : PassiveAI(c), minerGUID(0)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-            me->SetDisplayId(me->GetCreatureInfo()->Modelid1); // H0 is horse
+            me->SetDisplayId(me->GetCreatureInfo()->Modelid2); // Modelid1 is a horse.
         }
 
         uint64 minerGUID;
@@ -901,10 +901,12 @@ public:
         {
             if (Creature *miner = Unit::GetCreature(*me, minerGUID))
             {
-                // very bad visual effect
                 me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                //me->SetSpeed(MOVE_WALK, miner->GetSpeed(MOVE_WALK));
-                me->SetSpeed(MOVE_RUN, miner->GetSpeed(MOVE_RUN));
+
+                //Not 100% correct, but movement is smooth. Sometimes miner walks faster
+                //than normal, this speed is fast enough to keep up at those times.
+                me->SetSpeed(MOVE_RUN, 1.25f);
+
                 me->GetMotionMaster()->MoveFollow(miner, 1.0f, 0);
             }
         }
@@ -1016,10 +1018,8 @@ public:
                     {
                         me->SetInFront(car);
                         me->SendMovementFlagUpdate();
-                        car->Relocate(car->GetPositionX(), car->GetPositionY(), me->GetPositionZ());
+                        car->Relocate(car->GetPositionX(), car->GetPositionY(), me->GetPositionZ() + 1);
                         car->SendMonsterStop();
-                        //this make player fall under ground, dunno why
-                        //car->GetMotionMaster()->MovePoint(0, car->GetPositionX(), car->GetPositionY(), me->GetPositionZ());
                         car->RemoveAura(SPELL_CART_DRAG);
                     }
                     me->MonsterSay(SAY_SCARLET_MINER2,LANG_UNIVERSAL,NULL);
