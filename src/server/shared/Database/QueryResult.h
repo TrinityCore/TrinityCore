@@ -195,6 +195,7 @@ class PreparedResultSet
 
         operator bool() { return num_rows > 0; }
 
+        bool GetBool(uint32 index);
         uint8 GetUInt8(uint32 index);
         int8 GetInt8(uint32 index);
         uint16 GetUInt16(uint32 index);
