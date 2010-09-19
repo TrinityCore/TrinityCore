@@ -1,8 +1,8 @@
 add_definitions(-fno-delete-null-pointer-checks)
 
 if( USE_SFMT)
-  add_definitions(-msse2)
-  message(STATUS "- GCC: SFMT enabled, SSE2 flag forced")
+  add_definitions(-msse2 -mfpmath=sse -DHAVE_SSE2 -D__SSE2__)
+  message(STATUS "- GCC: SFMT enabled, SSE2 flags forced")
 endif()
 
 if( WITH_WARNINGS )
