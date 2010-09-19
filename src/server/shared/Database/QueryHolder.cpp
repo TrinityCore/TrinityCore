@@ -16,9 +16,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "MySQLConnection.h"
 #include "QueryHolder.h"
 #include "PreparedStatement.h"
-#include "MySQLConnection.h"
 #include "Log.h"
 
 bool SQLQueryHolder::SetQuery(size_t index, const char *sql)
