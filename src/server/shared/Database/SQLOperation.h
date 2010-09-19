@@ -25,6 +25,37 @@
 #include "Common.h"
 #include "Callback.h"
 
+//- Forward declare (don't include header to prevent circular includes)
+class PreparedStatement;
+
+//- Union that holds element data
+union SQLElementUnion
+{
+    PreparedStatement* stmt;
+    const char* query;
+};
+
+//- Type specifier of our element data
+enum SQLElementDataType
+{
+    SQL_ELEMENT_RAW,
+    SQL_ELEMENT_PREPARED,
+};
+
+//- The element
+struct SQLElementData
+{
+    SQLElementUnion element;
+    SQLElementDataType type;
+};
+
+//- For ambigious resultsets
+union SQLResultSetUnion
+{
+    PreparedResultSet* presult;
+    ResultSet* qresult;
+};
+
 class MySQLConnection;
 
 class SQLOperation : public ACE_Method_Request
@@ -65,16 +96,19 @@ class SQLQueryHolder
 {
     friend class SQLQueryHolderTask;
     private:
-        typedef std::pair<const char*, QueryResult> SQLResultPair;
+        typedef std::pair<SQLElementData, SQLResultSetUnion> SQLResultPair;
         std::vector<SQLResultPair> m_queries;
     public:
         SQLQueryHolder() {}
         ~SQLQueryHolder();
         bool SetQuery(size_t index, const char *sql);
         bool SetPQuery(size_t index, const char *format, ...) ATTR_PRINTF(3,4);
+        bool SetPreparedQuery(size_t index, PreparedStatement* stmt);
         void SetSize(size_t size);
         QueryResult GetResult(size_t index);
-        void SetResult(size_t index, QueryResult result);
+        PreparedQueryResult GetPreparedResult(size_t index);
+        void SetResult(size_t index, ResultSet* result);
+        void SetPreparedResult(size_t index, PreparedResultSet* result);
 };
 
 typedef ACE_Future<SQLQueryHolder*> QueryResultHolderFuture;

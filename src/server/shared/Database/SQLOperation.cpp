@@ -44,10 +44,14 @@ bool BasicStatementTask::Execute()
 {
     if (m_has_result)
     {
-        m_result.set(
-            m_conn->Query(m_sql)
-            );
-
+        ResultSet* result = m_conn->Query(m_sql);
+        if (!result || !result->GetRowCount())
+        {
+            m_result.set(QueryResult(NULL));
+            return false;
+        }
+        result->NextRow();
+        m_result.set(QueryResult(result));
         return true;
     }
 
@@ -62,15 +66,15 @@ bool SQLQueryHolder::SetQuery(size_t index, const char *sql)
         return false;
     }
 
-    if (m_queries[index].first != NULL)
-    {
-        sLog.outError("Attempt assign query to holder index (%zu) where other query stored (Old: [%s] New: [%s])",
-            index, m_queries[index].first, sql);
-        return false;
-    }
-
     /// not executed yet, just stored (it's not called a holder for nothing)
-    m_queries[index] = SQLResultPair(strdup(sql), QueryResult(NULL));
+    SQLElementData element;
+    element.type = SQL_ELEMENT_RAW;
+    element.element.query = strdup(sql);
+    
+    SQLResultSetUnion result;
+    result.qresult = NULL;
+
+    m_queries[index] = SQLResultPair(element, result);
     return true;
 }
 
@@ -99,26 +103,62 @@ bool SQLQueryHolder::SetPQuery(size_t index, const char *format, ...)
 
 QueryResult SQLQueryHolder::GetResult(size_t index)
 {
+    // Don't call to this function if the index is of a prepared statement
     if (index < m_queries.size())
     {
         /// the query strings are freed on the first GetResult or in the destructor
-        if (m_queries[index].first != NULL)
+        if (SQLElementData* data = &m_queries[index].first)
         {
-            free((void*)(const_cast<char*>(m_queries[index].first)));
-            m_queries[index].first = NULL;
+            free((void*)(const_cast<char*>(data->element.query)));
+            data->element.query = NULL;
         }
-        /// when you get a result aways remember to delete it!
-        return m_queries[index].second;
+
+        ResultSet* result = m_queries[index].second.qresult;
+        if (!result || !result->GetRowCount())
+            return QueryResult(NULL);
+
+        result->NextRow();
+        return QueryResult(result);
     }
     else
         return QueryResult(NULL);
 }
 
-void SQLQueryHolder::SetResult(size_t index, QueryResult result)
+PreparedQueryResult SQLQueryHolder::GetPreparedResult(size_t index)
+{
+    // Don't call to this function if the index is of a prepared statement
+    if (index < m_queries.size())
+    {
+        /// the query strings are freed on the first GetResult or in the destructor
+        if (SQLElementData* data = &m_queries[index].first)
+        {
+            delete data->element.stmt;
+            data->element.stmt = NULL;
+        }
+
+        PreparedResultSet* result = m_queries[index].second.presult;
+        if (!result || !result->GetRowCount())
+            return PreparedQueryResult(NULL);
+
+        result->NextRow();
+        return PreparedQueryResult(result);
+    }
+    else
+        return PreparedQueryResult(NULL);
+}
+
+void SQLQueryHolder::SetResult(size_t index, ResultSet* result)
 {
     /// store the result in the holder
     if (index < m_queries.size())
-        m_queries[index].second = result;
+        m_queries[index].second.qresult = result;
+}
+
+void SQLQueryHolder::SetPreparedResult(size_t index, PreparedResultSet* result)
+{
+    /// store the result in the holder
+    if (index < m_queries.size())
+        m_queries[index].second.presult = result;
 }
 
 SQLQueryHolder::~SQLQueryHolder()
@@ -127,8 +167,18 @@ SQLQueryHolder::~SQLQueryHolder()
     {
         /// if the result was never used, free the resources
         /// results used already (getresult called) are expected to be deleted
-        if (m_queries[i].first != NULL)
-            free((void*)(const_cast<char*>(m_queries[i].first)));
+        if (SQLElementData* data = &m_queries[i].first)
+        {
+            switch (data->type)
+            {
+                case SQL_ELEMENT_RAW:
+                    free((void*)(const_cast<char*>(data->element.query)));
+                    break;
+                case SQL_ELEMENT_PREPARED:
+                    delete data->element.stmt;
+                    break;
+            }
+        }
     }
 }
 
@@ -149,9 +199,26 @@ bool SQLQueryHolderTask::Execute()
     for (size_t i = 0; i < queries.size(); i++)
     {
         /// execute all queries in the holder and pass the results
-        char const *sql = queries[i].first;
-        if (sql)
-            m_holder->SetResult(i, m_conn->Query(sql));
+        if (SQLElementData* data = &queries[i].first)
+        {
+            switch (data->type)
+            {
+                case SQL_ELEMENT_RAW:
+                {
+                    char const *sql = data->element.query;
+                    if (sql)
+                        m_holder->SetResult(i, m_conn->Query(sql));
+                    break;
+                }
+                case SQL_ELEMENT_PREPARED:
+                {
+                    PreparedStatement* stmt = data->element.stmt;
+                    if (stmt)
+                        m_holder->SetPreparedResult(i, m_conn->Query(stmt));
+                    break;
+                }
+            }
+        }
     }
 
     m_result.set(m_holder);
