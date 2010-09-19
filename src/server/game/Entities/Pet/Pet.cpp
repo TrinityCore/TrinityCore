@@ -953,8 +953,9 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                 {
                     if (!pInfo)
                         SetCreateHealth(30 + 30*petlevel);
-                    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel * 2.5f - (petlevel / 2)));
-                    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel * 2.5f + (petlevel / 2)));
+                    float bonusDmg = m_owner->SpellBaseDamageBonus(SPELL_SCHOOL_MASK_NATURE) * 0.15f;
+                    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel * 2.5f - (petlevel / 2) + bonusDmg));
+                    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel * 2.5f + (petlevel / 2) + bonusDmg));
                     break;
                 }
                 case 15352: //earth elemental 36213
