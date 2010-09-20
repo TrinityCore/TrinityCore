@@ -13,7 +13,7 @@
   set(OPENSSL_FOUND 0)
 
   if( MSVC )
-    if(PLATFORM MATCHES X64)
+    if(PLATFORM EQUAL 64)
       set(TMP_OPENSSL_INCLUDE_DIR
         "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (64-bit)_is1;InstallLocation]/include"
       )
