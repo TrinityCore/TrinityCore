@@ -5648,6 +5648,8 @@ bool ChatHandler::HandleBanCharacterCommand(const char *args)
             SetSentErrorMessage(true);
             return false;
         }
+        default:
+            break;
     }
 
     return true;
