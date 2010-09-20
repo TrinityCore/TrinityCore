@@ -4745,7 +4745,7 @@ void ObjectMgr::LoadScripts(ScriptsType type)
         {
             case SCRIPT_COMMAND_TALK:
             {
-                if (tmp.datalong > CHAT_TYPE_WHISPER)
+                if (tmp.datalong > CHAT_TYPE_WHISPER && tmp.datalong != CHAT_MSG_RAID_BOSS_WHISPER)
                 {
                     sLog.outErrorDb("Table `%s` has invalid talk type (datalong = %u) in SCRIPT_COMMAND_TALK for script id %u",
                         tableName.c_str(),tmp.datalong,tmp.id);
