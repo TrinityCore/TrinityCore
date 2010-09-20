@@ -54,10 +54,9 @@ enum ConditionType
     CONDITION_MAPID                 = 22,                   // map_id           0           +referenceID       true if in map_id
     CONDITION_AREAID                = 23,                   // area_id          0           +referenceID       true if in area_id
     CONDITION_ITEM_TARGET           = 24,                   // ItemRequiredTargetType,  TargetEntry,    0
-    CONDITION_SPELL                 = 25                    // spell_id         0           +referenceID       true if knows spell
+    CONDITION_SPELL                 = 25,                   // spell_id         0           +referenceID       true if knows spell
+    CONDITION_MAX                   = 26                    // MAX
 };
-
-#define MAX_CONDITION                 25                    // maximum value in ConditionType enum
 
 enum ConditionSourceType
 {
@@ -81,10 +80,9 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_SPELL                          = 17,//DONE
     CONDITION_SOURCE_TYPE_ITEM_REQUIRED_TARGET           = 18,//DONE
     CONDITION_SOURCE_TYPE_QUEST_ACCEPT                   = 19,//DONE
-    CONDITION_SOURCE_TYPE_QUEST_SHOW_MARK                = 20//DONE
+    CONDITION_SOURCE_TYPE_QUEST_SHOW_MARK                = 20,//DONE
+    CONDITION_SOURCE_TYPE_MAX                            = 21//MAX
 };
-
-#define MAX_CONDITIONSOURCETYPE                            21
 
 struct Condition
 {
