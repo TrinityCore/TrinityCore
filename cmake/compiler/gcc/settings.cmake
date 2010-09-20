@@ -1,7 +1,11 @@
 add_definitions(-fno-delete-null-pointer-checks)
 
 if( USE_SFMT)
-  add_definitions(-msse2 -mfpmath=sse -DHAVE_SSE2 -D__SSE2__)
+  if(PLATFORM EQUAL 32)
+    # Required on 32-bit systems to enable SSE2 (standard on x64)
+    add_definitions(-msse2 -mfpmath=sse)
+  endif()
+  add_definitions(-DHAVE_SSE2 -D__SSE2__)
   message(STATUS "- GCC: SFMT enabled, SSE2 flags forced")
 endif()
 

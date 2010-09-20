@@ -5,19 +5,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 #set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 #set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-# mark 32 bit executables large address aware so they can use > 2GB address space
-if(CMAKE_SIZEOF_VOID_P MATCHES 4)
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE")
-  message(STATUS "- MSVC: Enabled large address awareness")
-endif()
-
-# multithreaded compiling on VS
-if((NOT USE_COREPCH) AND (NOT USE_SCRIPTPCH))
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
-  message(STATUS "- MSVC: PCH not used - enabled multithreaded compiling")
-endif()
-
-if(${PLATFORM} STREQUAL "X64")
+if(PLATFORM EQUAL 64)
   # This definition is necessary to work around a bug with Intellisense described
   # here: http://tinyurl.com/2cb428.  Syntax highlighting is important for proper
   # debugger functionality.
@@ -27,6 +15,22 @@ if(${PLATFORM} STREQUAL "X64")
   #Enable extended object support for debug compiles on X64 (not required on X86)
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /bigobj")
   message(STATUS "- MSVC: Enabled extended object-support for debug-compiles")
+else()
+  # mark 32 bit executables large address aware so they can use > 2GB address space
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE")
+  message(STATUS "- MSVC: Enabled large address awareness")
+
+  # Test if we need SSE2-support
+  if(USE_SFMT)
+    add_definitions(/arch:SSE2)
+    message(STATUS "- MSVC: Enabled SSE2 support")
+  endif()
+endif()
+
+# multithreaded compiling on VS
+if((NOT USE_COREPCH) AND (NOT USE_SCRIPTPCH))
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+  message(STATUS "- MSVC: PCH not used - enabled multithreaded compiling")
 endif()
 
 # Define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES - eliminates the warning by changing the strcpy call to strcpy_s, which prevents buffer overruns
