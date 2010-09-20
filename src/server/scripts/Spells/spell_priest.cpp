@@ -38,7 +38,7 @@ class spell_pri_mana_burn : public SpellScriptLoader
 
         class spell_pri_mana_burn_SpellScript : public SpellScript
         {
-            bool Validate(SpellEntry const * spellEntry)
+            bool Validate(SpellEntry const * /*spellEntry*/)
             {
                 return true;
             }
