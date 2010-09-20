@@ -137,6 +137,8 @@ enum __QuestFlags
     QUEST_FLAGS_AUTO_REWARDED  = 0x00000400,                // These quests are automatically rewarded on quest complete and they will never appear in quest log client side.
     QUEST_FLAGS_TBC_RACES      = 0x00000800,                // Not used currently: Blood elf/Draenei starting zone quests
     QUEST_FLAGS_DAILY          = 0x00001000,                // Used to know quest is Daily one
+    QUEST_FLAGS_REPEATABLE     = 0x00002000,                // Used on repeatable quests (3.0.0+)
+    QUEST_FLAGS_UNAVAILABLE    = 0x00004000,                // Used on quests that are not generically available
     QUEST_FLAGS_WEEKLY         = 0x00008000,
     QUEST_FLAGS_AUTOCOMPLETE   = 0x00010000,                // auto complete
     QUEST_FLAGS_SPECIAL_ITEM   = 0x00020000,                // has something to do with ReqItemId and SrcItemId
