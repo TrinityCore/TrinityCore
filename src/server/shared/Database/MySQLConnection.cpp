@@ -319,15 +319,15 @@ void MySQLConnection::PrepareStatement(uint32 index, const char* sql)
     {
         sLog.outSQLDriver("[ERROR]: In mysql_stmt_init() id: %u, sql: \"%s\"", index, sql);
         sLog.outSQLDriver("[ERROR]: %s", mysql_error(m_Mysql));
-        ASSERT(false);
+        exit(1);
     }
 
     if (mysql_stmt_prepare(stmt, sql, static_cast<unsigned long>(strlen(sql))))
     {
-        mysql_stmt_close(stmt);
         sLog.outSQLDriver("[ERROR]: In mysql_stmt_prepare() id: %u, sql: \"%s\"", index, sql);
-        sLog.outSQLDriver("[ERROR]: %s", mysql_error(m_Mysql));
-        ASSERT(false);
+        sLog.outSQLDriver("[ERROR]: %s", mysql_stmt_error(stmt));
+        mysql_stmt_close(stmt);
+        exit(1);
     }
 
     MySQLPreparedStatement* mStmt = new MySQLPreparedStatement(stmt);
