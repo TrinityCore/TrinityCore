@@ -31,6 +31,7 @@ enum LFGenum
     LFG_TIME_ROLECHECK       = 2*MINUTE,
     LFG_TIME_BOOT            = 2*MINUTE,
     LFG_TIME_PROPOSAL        = 2*MINUTE,
+    LFG_TIME_JOIN_WARNING    = 1*IN_MILLISECONDS,
     LFG_TANKS_NEEDED         = 1,
     LFG_HEALERS_NEEDED       = 1,
     LFG_DPS_NEEDED           = 3,
@@ -235,7 +236,7 @@ typedef std::map<uint32, LfgProposal*> LfgProposalMap;
 typedef std::map<uint32, LfgPlayerBoot*> LfgPlayerBootMap;
 typedef std::multimap<uint32, LfgReward const*> LfgRewardMap;
 typedef std::pair<LfgRewardMap::const_iterator, LfgRewardMap::const_iterator> LfgRewardMapBounds;
-typedef std::list<Player *> LfgPlayerList;
+typedef std::list<Player*> LfgPlayerList;
 typedef std::set<uint64> LfgGuidSet;
 typedef std::map<std::string, LfgAnswer> LfgCompatibleMap;
 
@@ -247,72 +248,51 @@ class LFGMgr
         LFGMgr();
         ~LFGMgr();
 
-        void Join(Player *plr);
-        void Leave(Player *plr, Group *grp = NULL);
-        void OfferContinue(Group *grp);
-        void TeleportPlayer(Player *plr, bool out);
+        void Join(Player* plr);
+        void Leave(Player* plr, Group* grp = NULL);
+        void OfferContinue(Group* grp);
+        void TeleportPlayer(Player* plr, bool out);
         void UpdateProposal(uint32 proposalId, uint32 lowGuid, bool accept);
-        void UpdateBoot(Player *plr, bool accept);
-        void UpdateRoleCheck(Group *grp, Player *plr = NULL);
+        void UpdateBoot(Player* plr, bool accept);
+        void UpdateRoleCheck(Group* grp, Player* plr = NULL);
         void Update(uint32 diff);
 
         bool isRandomDungeon(uint32 dungeonId);
-        void InitBoot(Group *grp, uint32 plowGuid, uint32 vlowGuid, std::string reason);
+        void InitBoot(Group* grp, uint32 plowGuid, uint32 vlowGuid, std::string reason);
 
         void LoadDungeonEncounters();
         void LoadRewards();
         void RewardDungeonDoneFor(const uint32 dungeonId, Player* player);
-        uint32 GetDungeonIdForAchievement(uint32 achievementId)
-        {
-            std::map<uint32, uint32>::iterator itr = m_EncountersByAchievement.find(achievementId);
-            if (itr != m_EncountersByAchievement.end())
-                return itr->second;
+        uint32 GetDungeonIdForAchievement(uint32 achievementId);
 
-            return 0;
-        };
-
-        LfgLockStatusMap* GetPartyLockStatusDungeons(Player *plr, LfgDungeonSet *dungeons = NULL);
+        LfgLockStatusMap* GetPartyLockStatusDungeons(Player* plr, LfgDungeonSet* dungeons = NULL);
         LfgDungeonSet* GetRandomDungeons(uint8 level, uint8 expansion);
-        LfgLockStatusSet* GetPlayerLockStatusDungeons(Player *plr, LfgDungeonSet *dungeons = NULL, bool useEntry = true);
+        LfgLockStatusSet* GetPlayerLockStatusDungeons(Player* plr, LfgDungeonSet* dungeons = NULL, bool useEntry = true);
         LfgReward const* GetRandomDungeonReward(uint32 dungeon, uint8 level);
 
-        bool isJoining(uint64 guid)
-        {
-            return m_JoinQueue.find(guid) != m_JoinQueue.end();
-        };
-
-        void SetJoining(uint64 guid, bool add)
-        {
-            if (add)
-                m_JoinQueue.insert(guid);
-            else
-            {
-                LfgGuidSet::const_iterator it = m_JoinQueue.find(guid);
-                if (it != m_JoinQueue.end())
-                    m_JoinQueue.erase(it);
-            }
-        };
+        bool isJoining(uint64 guid);
 
     private:
         void Cleaner();
         void AddGuidToNewQueue(uint64 guid);
-        void AddToQueue(uint64 guid, LfgRolesMap *roles, LfgDungeonSet *dungeons);
+        void AddToQueue(uint64 guid, LfgRolesMap* roles, LfgDungeonSet* dungeons);
 
         bool RemoveFromQueue(uint64 guid);
         void RemoveProposal(LfgProposalMap::iterator itProposal, LfgUpdateType type);
 
-        void FindNewGroups(LfgGuidList &check, LfgGuidList all, LfgProposalList *proposals);
+        void FindNewGroups(LfgGuidList &check, LfgGuidList all, LfgProposalList* proposals);
 
         bool CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag = true);
-        bool CheckCompatibility(LfgGuidList check, LfgProposalList *proposals);
-        LfgDungeonSet* CheckCompatibleDungeons(LfgDungeonMap *dungeonsMap, PlayerSet *players);
-        LfgLockStatusMap *CheckCompatibleDungeons(LfgDungeonSet *dungeons, PlayerSet *players, bool returnLockMap = true);
+        bool CheckCompatibility(LfgGuidList check, LfgProposalList* proposals);
+        LfgDungeonSet* CheckCompatibleDungeons(LfgDungeonMap* dungeonsMap, PlayerSet* players);
+        LfgLockStatusMap* CheckCompatibleDungeons(LfgDungeonSet* dungeons, PlayerSet* players, bool returnLockMap = true);
         void SetCompatibles(std::string concatenatedGuids, bool compatibles);
         LfgAnswer GetCompatibles(std::string concatenatedGuids);
         void RemoveFromCompatibles(uint64 guid);
         std::string ConcatenateGuids(LfgGuidList check);
+        std::string ConcatenateDungeons(LfgDungeonSet* dungeons);
 
-        LfgLockStatusMap* GetGroupLockStatusDungeons(PlayerSet *pPlayers, LfgDungeonSet *dungeons, bool useEntry = true);
+        LfgLockStatusMap* GetGroupLockStatusDungeons(PlayerSet* pPlayers, LfgDungeonSet* dungeons, bool useEntry = true);
         LfgDungeonSet* GetDungeonsByRandom(uint32 randomdungeon);
         LfgDungeonSet* GetAllDungeons();
         uint8 GetDungeonGroupType(uint32 dungeon);
@@ -323,7 +303,6 @@ class LFGMgr
         LfgQueueInfoMap m_QueueInfoMap;                     // Queued groups
         LfgGuidList m_currentQueue;                         // Ordered list. Used to find groups
         LfgGuidList m_newToQueue;                           // New groups to add to queue
-        LfgGuidSet m_JoinQueue;                             // Stores guids being joined (to avoid duplicate tries to join)
         LfgCompatibleMap m_CompatibleMap;                   // Compatible dungeons
         LfgProposalMap m_Proposals;                         // Current Proposals
         LfgPlayerBootMap m_Boots;                           // Current player kicks
