@@ -68,7 +68,7 @@ class ReputationMgr
         ~ReputationMgr() {}
 
         void SaveToDB(SQLTransaction& trans);
-        void LoadFromDB(QueryResult result);
+        void LoadFromDB(PreparedQueryResult result);
     public:                                                 // statics
         static const int32 PointsInRank[MAX_REPUTATION_RANK];
         static const int32 Reputation_Cap    =  42999;

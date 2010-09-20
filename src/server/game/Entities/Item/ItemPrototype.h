@@ -150,40 +150,40 @@ enum ItemProtoFlags
 
 enum ItemFieldFlags
 {
-    ITEM_FLAG_SOULBOUND     = 0x00000001, // Item is soulbound and cannot be traded
+    ITEM_FLAG_SOULBOUND     = 0x00000001, // Item is soulbound and cannot be traded <<--
     ITEM_FLAG_UNK1          = 0x00000002, // ?
     ITEM_FLAG_UNLOCKED      = 0x00000004, // Item had lock but can be opened now
     ITEM_FLAG_WRAPPED       = 0x00000008, // Item is wrapped and contains another item
-    ITEM_FLAG_UNK3          = 0x00000010, // ?
-    ITEM_FLAG_UNK4          = 0x00000020, // ?
-    ITEM_FLAG_UNK5          = 0x00000040, // ?
-    ITEM_FLAG_UNK6          = 0x00000080, // ?
-    ITEM_FLAG_UNK7          = 0x00000100, // ?
+    ITEM_FLAG_UNK2          = 0x00000010, // ?
+    ITEM_FLAG_UNK3          = 0x00000020, // ?
+    ITEM_FLAG_UNK4          = 0x00000040, // ?
+    ITEM_FLAG_UNK5          = 0x00000080, // ?
+    ITEM_FLAG_BOP_TRADEABLE = 0x00000100, // Allows trading soulbound items
     ITEM_FLAG_READABLE      = 0x00000200, // Opens text page when right clicked
-    ITEM_FLAG_UNK9          = 0x00000400, // ?
-    ITEM_FLAG_UNK10         = 0x00000800, // ?
+    ITEM_FLAG_UNK6          = 0x00000400, // ?
+    ITEM_FLAG_UNK7          = 0x00000800, // ?
     ITEM_FLAG_REFUNDABLE    = 0x00001000, // Item can be returned to vendor for its original cost (extended cost)
-    ITEM_FLAG_UNK11         = 0x00002000, // ?
-    ITEM_FLAG_UNK12         = 0x00004000, // ?
-    ITEM_FLAG_UNK13         = 0x00008000, // ?
-    ITEM_FLAG_UNK14         = 0x00010000, // ?
-    ITEM_FLAG_UNK15         = 0x00020000, // ?
-    ITEM_FLAG_UNK16         = 0x00040000, // ?
-    ITEM_FLAG_UNK17         = 0x00080000, // ?
-    ITEM_FLAG_UNK18         = 0x00100000, // ?
-    ITEM_FLAG_UNK19         = 0x00200000, // ?
-    ITEM_FLAG_UNK20         = 0x00400000, // ?
-    ITEM_FLAG_UNK21         = 0x00800000, // ?
-    ITEM_FLAG_UNK22         = 0x01000000, // ?
-    ITEM_FLAG_UNK23         = 0x02000000, // ?
-    ITEM_FLAG_UNK24         = 0x04000000, // ?
-    ITEM_FLAG_UNK25         = 0x08000000, // ?
-    ITEM_FLAG_UNK26         = 0x10000000, // ?
-    ITEM_FLAG_UNK27         = 0x20000000, // ?
-    ITEM_FLAG_UNK28         = 0x40000000, // ?
-    ITEM_FLAG_BOP_TRADEABLE = 0x80000000, // ?
+    ITEM_FLAG_UNK8          = 0x00002000, // ?
+    ITEM_FLAG_UNK9          = 0x00004000, // ?
+    ITEM_FLAG_UNK10         = 0x00008000, // ?
+    ITEM_FLAG_UNK11         = 0x00010000, // ?
+    ITEM_FLAG_UNK12         = 0x00020000, // ?
+    ITEM_FLAG_UNK13         = 0x00040000, // ?
+    ITEM_FLAG_UNK14         = 0x00080000, // ?
+    ITEM_FLAG_UNK15         = 0x00100000, // ?
+    ITEM_FLAG_UNK16         = 0x00200000, // ?
+    ITEM_FLAG_UNK17         = 0x00400000, // ?
+    ITEM_FLAG_UNK18         = 0x00800000, // ?
+    ITEM_FLAG_UNK19         = 0x01000000, // ?
+    ITEM_FLAG_UNK20         = 0x02000000, // ?
+    ITEM_FLAG_UNK21         = 0x04000000, // ?
+    ITEM_FLAG_UNK22         = 0x08000000, // ?
+    ITEM_FLAG_UNK23         = 0x10000000, // ?
+    ITEM_FLAG_UNK24         = 0x20000000, // ?
+    ITEM_FLAG_UNK25         = 0x40000000, // ?
+    ITEM_FLAG_UNK26         = 0x80000000, // ?
 
-    ITEM_FLAG_MAIL_TEXT_MASK = ITEM_FLAG_READABLE | ITEM_FLAG_UNK13 | ITEM_FLAG_UNK14
+    ITEM_FLAG_MAIL_TEXT_MASK = ITEM_FLAG_READABLE | ITEM_FLAG_UNK13 | ITEM_FLAG_UNK14,
 };
 
 enum ItemFlagsExtra

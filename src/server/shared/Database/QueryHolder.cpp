@@ -64,6 +64,26 @@ bool SQLQueryHolder::SetPQuery(size_t index, const char *format, ...)
     return SetQuery(index, szQuery);
 }
 
+bool SQLQueryHolder::SetPreparedQuery(size_t index, PreparedStatement* stmt)
+{
+    if (m_queries.size() <= index)
+    {
+        sLog.outError("Query index (%zu) out of range (size: %u) for prepared statement", index, (uint32)m_queries.size());
+        return false;
+    }
+
+    /// not executed yet, just stored (it's not called a holder for nothing)
+    SQLElementData element;
+    element.type = SQL_ELEMENT_PREPARED;
+    element.element.stmt = stmt;
+    
+    SQLResultSetUnion result;
+    result.presult = NULL;
+
+    m_queries[index] = SQLResultPair(element, result);
+    return true;
+}
+
 QueryResult SQLQueryHolder::GetResult(size_t index)
 {
     // Don't call to this function if the index is of an ad-hoc statement

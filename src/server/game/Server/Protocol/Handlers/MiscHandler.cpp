@@ -1071,7 +1071,7 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recv_data)
                 sLog.outError("MISC: Unknown action button type %u for action %u into button %u", type, action, button);
                 return;
         }
-        GetPlayer()->addActionButton(button, action, type);
+        GetPlayer()->addActionButton(button, action, type, uint8(GetPlayer()->GetActiveSpec()));
     }
 }
 

@@ -1632,7 +1632,7 @@ class Player : public Unit, public GridObject<Player>
         void RemoveCategoryCooldown(uint32 cat);
         void RemoveArenaSpellCooldowns();
         void RemoveAllSpellCooldown();
-        void _LoadSpellCooldowns(QueryResult result);
+        void _LoadSpellCooldowns(PreparedQueryResult result);
         void _SaveSpellCooldowns(SQLTransaction& trans);
         void SetLastPotionId(uint32 item_id) { m_lastPotionId = item_id; }
         void UpdatePotionCooldown(Spell* spell = NULL);
@@ -1657,16 +1657,16 @@ class Player : public Unit, public GridObject<Player>
         bool isRessurectRequested() const { return m_resurrectGUID != 0; }
         void ResurectUsingRequestData();
 
-        int getCinematic()
+        uint8 getCinematic()
         {
             return m_cinematic;
         }
-        void setCinematic(int cine)
+        void setCinematic(uint8 cine)
         {
             m_cinematic = cine;
         }
 
-        ActionButton* addActionButton(uint8 button, uint32 action, uint8 type);
+        ActionButton* addActionButton(uint8 button, uint32 action, uint8 type, uint8 spec = 0);
         void removeActionButton(uint8 button);
         ActionButton const* GetActionButton(uint8 button);
         void SendInitialActionButtons() const { SendActionButtons(1); }
@@ -2417,30 +2417,30 @@ class Player : public Unit, public GridObject<Player>
         /***                   LOAD SYSTEM                     ***/
         /*********************************************************/
 
-        void _LoadActions(QueryResult result);
-        void _LoadAuras(QueryResult result, uint32 timediff);
+        void _LoadActions(PreparedQueryResult result);
+        void _LoadAuras(PreparedQueryResult result, uint32 timediff);
         void _LoadGlyphAuras();
-        void _LoadBoundInstances(QueryResult result);
-        void _LoadInventory(QueryResult result, uint32 timediff);
-        void _LoadMailInit(QueryResult resultUnread, QueryResult resultDelivery);
+        void _LoadBoundInstances(PreparedQueryResult result);
+        void _LoadInventory(PreparedQueryResult result, uint32 timediff);
+        void _LoadMailInit(PreparedQueryResult resultUnread, PreparedQueryResult resultDelivery);
         void _LoadMail();
         void _LoadMailedItems(Mail *mail);
-        void _LoadQuestStatus(QueryResult result);
-        void _LoadDailyQuestStatus(QueryResult result);
-        void _LoadWeeklyQuestStatus(QueryResult result);
-        void _LoadRandomBGStatus(QueryResult result);
-        void _LoadGroup(QueryResult result);
-        void _LoadSkills(QueryResult result);
-        void _LoadSpells(QueryResult result);
-        void _LoadFriendList(QueryResult result);
-        bool _LoadHomeBind(QueryResult result);
-        void _LoadDeclinedNames(QueryResult result);
-        void _LoadArenaTeamInfo(QueryResult result);
-        void _LoadArenaStatsInfo(QueryResult result);
-        void _LoadEquipmentSets(QueryResult result);
-        void _LoadBGData(QueryResult result);
-        void _LoadGlyphs(QueryResult result);
-        void _LoadTalents(QueryResult result);
+        void _LoadQuestStatus(PreparedQueryResult result);
+        void _LoadDailyQuestStatus(PreparedQueryResult result);
+        void _LoadWeeklyQuestStatus(PreparedQueryResult result);
+        void _LoadRandomBGStatus(PreparedQueryResult result);
+        void _LoadGroup(PreparedQueryResult result);
+        void _LoadSkills(PreparedQueryResult result);
+        void _LoadSpells(PreparedQueryResult result);
+        void _LoadFriendList(PreparedQueryResult result);
+        bool _LoadHomeBind(PreparedQueryResult result);
+        void _LoadDeclinedNames(PreparedQueryResult result);
+        void _LoadArenaTeamInfo(PreparedQueryResult result);
+        void _LoadArenaStatsInfo(PreparedQueryResult result);
+        void _LoadEquipmentSets(PreparedQueryResult result);
+        void _LoadBGData(PreparedQueryResult result);
+        void _LoadGlyphs(PreparedQueryResult result);
+        void _LoadTalents(PreparedQueryResult result);
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/
@@ -2520,7 +2520,7 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 m_Glyphs[MAX_TALENT_SPECS][MAX_GLYPH_SLOT_INDEX];
 
-        ActionButtonList m_actionButtons;
+        ActionButtonList m_actionButtons[MAX_TALENT_SPECS];
 
         float m_auraBaseMod[BASEMOD_END][MOD_END];
         int16 m_baseRatingValue[MAX_COMBAT_RATING];
@@ -2549,7 +2549,7 @@ class Player : public Unit, public GridObject<Player>
         typedef std::list<Channel*> JoinedChannelsList;
         JoinedChannelsList m_channels;
 
-        int m_cinematic;
+        uint8 m_cinematic;
 
         TradeData* m_trade;
 

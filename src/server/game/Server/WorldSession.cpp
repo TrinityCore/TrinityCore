@@ -583,13 +583,12 @@ void WorldSession::SendAuthWaitQue(uint32 position)
 
 void WorldSession::LoadGlobalAccountData()
 {
-    LoadAccountData(
-        CharacterDatabase.PQuery("SELECT type, time, data FROM account_data WHERE account='%u'", GetAccountId()),
-        GLOBAL_CACHE_MASK
-);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_ACCOUNT_DATA);
+    stmt->setUInt32(0, GetAccountId());
+    LoadAccountData(CharacterDatabase.Query(stmt), GLOBAL_CACHE_MASK);
 }
 
-void WorldSession::LoadAccountData(QueryResult result, uint32 mask)
+void WorldSession::LoadAccountData(PreparedQueryResult result, uint32 mask)
 {
     for (uint32 i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)
         if (mask & (1 << i))
@@ -600,9 +599,7 @@ void WorldSession::LoadAccountData(QueryResult result, uint32 mask)
 
     do
     {
-        Field *fields = result->Fetch();
-
-        uint32 type = fields[0].GetUInt32();
+        uint32 type = result->GetUInt32(0);
         if (type >= NUM_ACCOUNT_DATA_TYPES)
         {
             sLog.outError("Table `%s` have invalid account data type (%u), ignore.",
@@ -617,8 +614,8 @@ void WorldSession::LoadAccountData(QueryResult result, uint32 mask)
             continue;
         }
 
-        m_accountData[type].Time = fields[1].GetUInt32();
-        m_accountData[type].Data = fields[2].GetCppString();
+        m_accountData[type].Time = result->GetUInt32(1);
+        m_accountData[type].Data = result->GetString(2);
 
     } while (result->NextRow());
 }

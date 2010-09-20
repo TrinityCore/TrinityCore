@@ -555,22 +555,20 @@ void AchievementMgr::SaveToDB(SQLTransaction& trans)
     }
 }
 
-void AchievementMgr::LoadFromDB(QueryResult achievementResult, QueryResult criteriaResult)
+void AchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult)
 {
     if (achievementResult)
     {
         do
         {
-            Field *fields = achievementResult->Fetch();
-
-            uint32 achievement_id = fields[0].GetUInt32();
+            uint32 achievement_id = achievementResult->GetUInt32(0);
 
             // don't must happen: cleanup at server startup in sAchievementMgr.LoadCompletedAchievements()
             if (!sAchievementStore.LookupEntry(achievement_id))
                 continue;
 
             CompletedAchievementData& ca = m_completedAchievements[achievement_id];
-            ca.date = time_t(fields[1].GetUInt64());
+            ca.date = time_t(achievementResult->GetUInt64(1));
             ca.changed = false;
         } while (achievementResult->NextRow());
     }
@@ -579,11 +577,9 @@ void AchievementMgr::LoadFromDB(QueryResult achievementResult, QueryResult crite
     {
         do
         {
-            Field *fields = criteriaResult->Fetch();
-
-            uint32 id      = fields[0].GetUInt32();
-            uint32 counter = fields[1].GetUInt32();
-            time_t date    = time_t(fields[2].GetUInt64());
+            uint32 id      = criteriaResult->GetUInt32(0);
+            uint32 counter = criteriaResult->GetUInt32(1);
+            time_t date    = time_t(criteriaResult->GetUInt64(2));
 
             AchievementCriteriaEntry const* criteria = sAchievementCriteriaStore.LookupEntry(id);
             if (!criteria)
