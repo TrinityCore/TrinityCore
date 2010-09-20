@@ -3030,7 +3030,7 @@ void Map::ScriptsProcess()
         switch (step.script->command)
         {
             case SCRIPT_COMMAND_TALK:
-                if (step.script->datalong > CHAT_TYPE_WHISPER)
+                if (step.script->datalong > CHAT_TYPE_WHISPER && step.script->datalong != CHAT_MSG_RAID_BOSS_WHISPER)
                 {
                     sLog.outError("%s invalid chat type (%u) specified, skipping.", step.script->GetDebugInfo().c_str(), step.script->datalong);
                     break;
@@ -3095,6 +3095,14 @@ void Map::ScriptsProcess()
                                     break;
                                 }
                                 cSource->Whisper(step.script->dataint, targetGUID);
+                                break;
+                            case CHAT_MSG_RAID_BOSS_WHISPER: //42
+                                if (!targetGUID || !IS_PLAYER_GUID(targetGUID))
+                                {
+                                    sLog.outError("%s attempt to raidbosswhisper to non-player unit, skipping.", step.script->GetDebugInfo().c_str());
+                                    break;
+                                }
+                                cSource->MonsterWhisper(step.script->dataint, targetGUID, true);
                                 break;
                             default:
                                 break;                              // must be already checked at load
