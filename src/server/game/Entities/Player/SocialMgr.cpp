@@ -289,7 +289,7 @@ void SocialMgr::BroadcastToFriendListers(Player *player, WorldPacket *packet)
     }
 }
 
-PlayerSocial *SocialMgr::LoadFromDB(QueryResult result, uint32 guid)
+PlayerSocial *SocialMgr::LoadFromDB(PreparedQueryResult result, uint32 guid)
 {
     PlayerSocial *social = &m_socialMap[guid];
     social->SetPlayerGUID(guid);
@@ -303,19 +303,17 @@ PlayerSocial *SocialMgr::LoadFromDB(QueryResult result, uint32 guid)
 
     do
     {
-        Field *fields  = result->Fetch();
-
-        friend_guid = fields[0].GetUInt32();
-        flags = fields[1].GetUInt32();
-        note = fields[2].GetCppString();
+        friend_guid = result->GetUInt32(0);
+        flags = result->GetUInt32(1);
+        note = result->GetString(2);
 
         social->m_playerSocialMap[friend_guid] = FriendInfo(flags, note);
 
         // client's friends list and ignore list limit
         if (social->m_playerSocialMap.size() >= (SOCIALMGR_FRIEND_LIMIT + SOCIALMGR_IGNORE_LIMIT))
             break;
-    }
-    while (result->NextRow());
+    } while (result->NextRow());
+
     return social;
 }
 

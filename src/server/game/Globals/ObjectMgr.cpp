@@ -3540,8 +3540,9 @@ void ObjectMgr::LoadGuilds()
 
     //                                                               0      1        2        3        4
     QueryResult guildBankTabResult = CharacterDatabase.Query("SELECT TabId, TabName, TabIcon, TabText, guildid FROM guild_bank_tab ORDER BY TabId");
-    //                                                                0            1                2      3         4        5      6             7                 8           9           10    11     12      13         14          15
-    QueryResult guildBankItemResult = CharacterDatabase.Query("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text, TabId, SlotId, item_guid, item_entry, guildid FROM guild_bank_item JOIN item_instance ON item_guid = guid");
+
+    PreparedStatement* guildBankItemStmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_BANK_ITEMS);
+    PreparedQueryResult guildBankItemResult = CharacterDatabase.Query(guildBankItemStmt);
 
     LoadGuildEvents(GuildVector, guildEventResult);
     LoadGuildBankEvents(GuildVector, guildBankEventResult);
@@ -3660,7 +3661,7 @@ void ObjectMgr::LoadGuildBankEvents(std::vector<Guild*>& GuildVector, QueryResul
     }
 }
 
-void ObjectMgr::LoadGuildBanks(std::vector<Guild*>& GuildVector, QueryResult& result, QueryResult& itemResult)
+void ObjectMgr::LoadGuildBanks(std::vector<Guild*>& GuildVector, QueryResult& result, PreparedQueryResult& itemResult)
 {
     if (result)
     {
@@ -3690,38 +3691,36 @@ void ObjectMgr::LoadGuildBanks(std::vector<Guild*>& GuildVector, QueryResult& re
     {
         do
         {
-            Field *itemfields = itemResult->Fetch();
-
-            uint8 TabId = itemfields[11].GetUInt8();
-            uint8 SlotId = itemfields[12].GetUInt8();
-            uint32 ItemGuid = itemfields[13].GetUInt32();
-            uint32 ItemEntry = itemfields[14].GetUInt32();
-            uint32 guildid = itemfields[15].GetUInt32();
+            uint8 TabId = itemResult->GetUInt8(11);
+            uint8 SlotId = itemResult->GetUInt8(12);
+            uint32 ItemGuid = itemResult->GetUInt32(13);
+            uint32 ItemId = itemResult->GetUInt32(14);
+            uint32 guildid = itemResult->GetUInt32(15);
             if (guildid >= GuildVector.size() || GuildVector[guildid] == NULL)
                 return;
 
             if (TabId >= GuildVector[guildid]->GetPurchasedTabs())
             {
-                sLog.outError("Guild::LoadGuildBankFromDB: Invalid tab for item (GUID: %u id: #%u) in guild bank, skipped.", ItemGuid,ItemEntry);
+                sLog.outError("Guild::LoadGuildBankFromDB: Invalid tab for item (GUID: %u id: #%u) in guild bank, skipped.", ItemGuid, ItemId);
                 continue;
             }
 
             if (SlotId >= GUILD_BANK_MAX_SLOTS)
             {
-                sLog.outError("Guild::LoadGuildBankFromDB: Invalid slot for item (GUID: %u id: #%u) in guild bank, skipped.", ItemGuid,ItemEntry);
+                sLog.outError("Guild::LoadGuildBankFromDB: Invalid slot for item (GUID: %u id: #%u) in guild bank, skipped.", ItemGuid, ItemId);
                 continue;
             }
 
-            ItemPrototype const *proto = sObjectMgr.GetItemPrototype(ItemEntry);
+            ItemPrototype const *proto = sObjectMgr.GetItemPrototype(ItemId);
 
             if (!proto)
             {
-                sLog.outError("Guild::LoadGuildBankFromDB: Unknown item (GUID: %u id: #%u) in guild bank, skipped.", ItemGuid,ItemEntry);
+                sLog.outError("Guild::LoadGuildBankFromDB: Unknown item (GUID: %u id: #%u) in guild bank, skipped.", ItemGuid, ItemId);
                 continue;
             }
 
             Item *pItem = NewItemOrBag(proto);
-            if (!pItem->LoadFromDB(ItemGuid, 0, itemResult, ItemEntry))
+            if (!pItem->LoadFromDB(ItemGuid, 0, itemResult, ItemId))
             {
                 PreparedStatement *stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_NONEXISTENT_GUILD_BANK_ITEM);
                 stmt->setUInt32(0, guildid);
