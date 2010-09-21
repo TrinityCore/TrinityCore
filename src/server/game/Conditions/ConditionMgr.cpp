@@ -272,7 +272,7 @@ bool ConditionMgr::IsPlayerMeetToConditions(Player* player, ConditionList condit
     sLog.outDebug("ConditionMgr::IsPlayerMeetToConditions");
     bool result = IsPlayerMeetToConditionList(player, conditions, targetOverride);
 
-    if (player && player->m_ConditionErrorMsgId && player->GetSession())
+    if (player && player->m_ConditionErrorMsgId && player->GetSession() && !result)
             player->GetSession()->SendNotification(player->m_ConditionErrorMsgId);//m_ConditionErrorMsgId is set only if a condition was not met
 
     return result;
