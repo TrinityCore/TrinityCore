@@ -371,7 +371,9 @@ void Item::SaveToDB(SQLTransaction& trans)
         }break;
         case ITEM_REMOVED:
         {
-            trans->PAppend("DELETE FROM item_instance WHERE guid = '%u'", guid);
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
+            stmt->setUInt32(0, guid);
+            trans->Append(stmt);
             if (HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED))
                 trans->PAppend("DELETE FROM character_gifts WHERE item_guid = '%u'", GetGUIDLow());
             delete this;
@@ -437,7 +439,7 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, PreparedQueryResult result
         need_save = true;
     }
 
-    _LoadIntoDataField(result->GetCString(6), ITEM_FIELD_ENCHANTMENT_1_1, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET);
+    _LoadIntoDataField(result->GetString(6).c_str(), ITEM_FIELD_ENCHANTMENT_1_1, MAX_ENCHANTMENT_SLOT * MAX_ENCHANTMENT_OFFSET);
     SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID, result->GetInt32(7));
     // recalculate suffix factor
     if (GetItemRandomPropertyId() < 0)
@@ -472,12 +474,16 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, PreparedQueryResult result
 
 void Item::DeleteFromDB(SQLTransaction& trans)
 {
-    trans->PAppend("DELETE FROM item_instance WHERE guid = '%u'", GetGUIDLow());
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
+    stmt->setUInt32(0, GetGUIDLow());
+    trans->Append(stmt);
 }
 
 void Item::DeleteFromInventoryDB(SQLTransaction& trans)
 {
-    trans->PAppend("DELETE FROM character_inventory WHERE item = '%u'", GetGUIDLow());
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVENTORY_ITEM);
+    stmt->setUInt32(0, GetGUIDLow());
+    trans->Append(stmt);
 }
 
 ItemPrototype const *Item::GetProto() const
@@ -736,12 +742,12 @@ bool Item::IsEquipped() const
     return !IsInBag() && m_slot < EQUIPMENT_SLOT_END;
 }
 
-bool Item::CanBeTraded(bool mail) const
+bool Item::CanBeTraded(bool mail, bool trade) const
 {
     if (m_lootGenerated)
         return false;
 
-    if ((!mail || !IsBoundAccountWide()) && IsSoulBound())
+    if ((!mail || !IsBoundAccountWide()) && (IsSoulBound() && !HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_BOP_TRADEABLE) || !trade))
         return false;
 
     if (IsBag() && (Player::IsBagPos(GetPos()) || !((Bag const*)this)->IsEmpty()))
@@ -1067,6 +1073,10 @@ bool Item::IsBindedNotWith(Player const* player) const
     if (GetOwnerGUID() == player->GetGUID())
         return false;
 
+    if (HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_BOP_TRADEABLE))
+        if (allowedGUIDs.find(player->GetGUIDLow()) != allowedGUIDs.end())
+            return false;
+
     // BOA item case
     if (IsBoundAccountWide())
         return false;
@@ -1170,4 +1180,37 @@ uint32 Item::GetPlayedTime()
 bool Item::IsRefundExpired()
 {
     return (GetPlayedTime() > 2*HOUR);
+}
+
+void Item::SetSoulboundTradeable(AllowedLooterSet* allowedLooters, Player* currentOwner, bool apply)
+{
+    if (apply)
+    {
+        SetFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_BOP_TRADEABLE);
+        allowedGUIDs = *allowedLooters;
+    }
+    else
+    {
+        RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_BOP_TRADEABLE);
+        if (allowedGUIDs.empty())
+            return;
+
+        allowedGUIDs.clear();
+        SetState(ITEM_CHANGED, currentOwner);
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_BOP_TRADE);
+        stmt->setUInt32(0, GetGUIDLow());
+        CharacterDatabase.Execute(stmt);
+    }
+}
+
+bool Item::CheckSoulboundTradeExpire()
+{
+    // called from owner's update - GetOwner() MUST be valid
+    if (GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME) + 2*HOUR < GetOwner()->GetTotalPlayedTime())
+    {
+        SetSoulboundTradeable(NULL, GetOwner(), false);
+        return true; // remove from tradeable list
+    }
+
+    return false;
 }

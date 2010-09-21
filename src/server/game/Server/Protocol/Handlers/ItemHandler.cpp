@@ -1338,6 +1338,8 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recv_data)
     }
 
     _player->ToggleMetaGemsActive(slot, true);              //turn on all metagems (except for target item)
+
+    itemTarget->SetSoulboundTradeable(NULL, _player, false); // clear tradeable flag
 }
 
 void WorldSession::HandleCancelTempEnchantmentOpcode(WorldPacket& recv_data)

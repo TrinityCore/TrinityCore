@@ -5553,7 +5553,11 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
             {
                 // mail open and then not returned
                 for (std::vector<MailItemInfo>::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
-                    CharacterDatabase.PExecute("DELETE FROM item_instance WHERE guid = '%u'", itr2->item_guid);
+                {
+                    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
+                    stmt->setUInt32(0, itr2->item_guid);
+                    CharacterDatabase.Execute(stmt);
+                }
             }
             else
             {

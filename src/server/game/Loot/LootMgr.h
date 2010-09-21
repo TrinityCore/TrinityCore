@@ -124,12 +124,15 @@ struct LootStoreItem
                                                             // Checks correctness of values
 };
 
+typedef std::set<uint32> AllowedLooterSet;
+
 struct LootItem
 {
     uint32  itemid;
     uint32  randomSuffix;
     int32   randomPropertyId;
     ConditionList conditions;                               // additional loot condition
+    AllowedLooterSet allowedGUIDs;
     uint8   count             : 8;
     bool    is_looted         : 1;
     bool    is_blocked        : 1;
@@ -144,6 +147,9 @@ struct LootItem
 
     // Basic checks for player/item compatibility - if false no chance to see the item in the loot
     bool AllowedForPlayer(Player const * player) const;
+
+    void AddAllowedLooter(Player const* player);
+    AllowedLooterSet* GetAllowedLooters() { return &allowedGUIDs; }
 };
 
 struct QuestItem
