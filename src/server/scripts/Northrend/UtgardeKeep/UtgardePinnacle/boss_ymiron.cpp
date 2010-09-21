@@ -23,9 +23,6 @@ SDComment:
 SDCategory:
 Script Data End */
 
-/*** SQL START ***
-update creature_template set scriptname = 'boss_ymiron' where entry = '';
-*** SQL END ***/
 #include "ScriptPCH.h"
 #include "utgarde_pinnacle.h"
 
@@ -116,7 +113,7 @@ public:
                 m_uiActiveOrder[i] = i;
             for (int i = 0; i < 3; ++i)
             {
-                int r = i + (rand()%(4-i));
+                int r = i + (rand() % (4 - i));
                 int temp = m_uiActiveOrder[i];
                 m_uiActiveOrder[i] = m_uiActiveOrder[r];
                 m_uiActiveOrder[r] = temp;
@@ -160,10 +157,10 @@ public:
             m_bIsActiveWithRANULF = false;
             m_bIsActiveWithTORGYN = false;
 
-            m_uiFetidRot_Timer            = urand(8000,13000);
-            m_uiBane_Timer                = urand(18000,23000);
-            m_uiDarkSlash_Timer           = urand(28000,33000);
-            m_uiAncestors_Vengeance_Timer = DUNGEON_MODE(60000,45000);
+            m_uiFetidRot_Timer            = urand(8000, 13000);
+            m_uiBane_Timer                = urand(18000, 23000);
+            m_uiDarkSlash_Timer           = urand(28000, 33000);
+            m_uiAncestors_Vengeance_Timer = DUNGEON_MODE(60000, 45000);
             m_uiPause_Timer               = 0;
 
             m_uiAbility_BJORN_Timer  = 0;
@@ -173,7 +170,7 @@ public:
 
             m_uiActivedNumber        = 0;
             m_uiHealthAmountModifier = 1;
-            m_uiHealthAmountMultipler = DUNGEON_MODE(20,25);
+            m_uiHealthAmountMultipler = DUNGEON_MODE(20, 25);
 
             DespawnBoatGhosts(m_uiActivedCreatureGUID);
             DespawnBoatGhosts(m_uiOrbGUID);
@@ -202,8 +199,7 @@ public:
                     {
                         m_uiActivedCreatureGUID = pTemp->GetGUID();
                         pTemp->CastSpell(me, SPELL_CHANNEL_SPIRIT_TO_YMIRON, true);
-                        pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                         pTemp->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                         switch(m_uiActiveOrder[m_uiActivedNumber])
                         {
@@ -245,39 +241,37 @@ public:
                 if (m_uiBane_Timer <= diff)
                 {
                     DoCast(me, SPELL_BANE);
-                    m_uiBane_Timer = urand(20000,25000);
+                    m_uiBane_Timer = urand(20000, 25000);
                 } else m_uiBane_Timer -= diff;
 
                 if (m_uiFetidRot_Timer <= diff)
                 {
                     DoCast(me->getVictim(), SPELL_FETID_ROT);
-                    m_uiFetidRot_Timer = urand(10000,15000);
+                    m_uiFetidRot_Timer = urand(10000, 15000);
                 } else m_uiFetidRot_Timer -= diff;
 
                 if (m_uiDarkSlash_Timer <= diff)
                 {
                     DoCast(me->getVictim(), SPELL_DARK_SLASH);
-                    m_uiDarkSlash_Timer = urand(30000,35000);
+                    m_uiDarkSlash_Timer = urand(30000, 35000);
                 } else m_uiDarkSlash_Timer -= diff;
 
                 if (m_uiAncestors_Vengeance_Timer <= diff)
                 {
                     DoCast(me, SPELL_ANCESTORS_VENGEANCE);
-                    m_uiAncestors_Vengeance_Timer = DUNGEON_MODE(urand(60000,65000),urand(45000,50000));
+                    m_uiAncestors_Vengeance_Timer = DUNGEON_MODE(urand(60000, 65000), urand(45000, 50000));
                 } else m_uiAncestors_Vengeance_Timer -= diff;
 
                 // Abilities ------------------------------------------------------------------------------
                 if (m_bIsActiveWithBJORN && m_uiAbility_BJORN_Timer <= diff)
                 {
                     //DoCast(me, SPELL_SUMMON_SPIRIT_FOUNT); // works fine, but using summon has better control
-                    if (Creature* pTemp = me->SummonCreature(CREATURE_SPIRIT_FOUNT, 385.0f+rand()%10, -330.0f+rand()%10, 104.756f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 180000))
+                    if (Creature* pTemp = me->SummonCreature(CREATURE_SPIRIT_FOUNT, 385.0f + rand() % 10, -330.0f + rand() % 10, 104.756f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 180000))
                     {
                         pTemp->SetSpeed(MOVE_RUN, 0.4f);
                         pTemp->CastSpell(pTemp, DUNGEON_MODE(SPELL_SPIRIT_FOUNT, H_SPELL_SPIRIT_FOUNT), true);
-                        pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                         pTemp->SetDisplayId(11686);
-                        //pTemp->GetMotionMaster()->MoveChase(me->getVictim());
                         m_uiOrbGUID = pTemp->GetGUID();
                     }
                     m_bIsActiveWithBJORN = false; // only one orb
@@ -304,7 +298,7 @@ public:
                     for (uint8 i = 0; i < 4; ++i)
                     {
                         //DoCast(me, SPELL_SUMMON_AVENGING_SPIRIT); // works fine, but using summon has better control
-                        if (Creature* pTemp = me->SummonCreature(CREATURE_AVENGING_SPIRIT, x+rand()%10, y+rand()%10, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
+                        if (Creature* pTemp = me->SummonCreature(CREATURE_AVENGING_SPIRIT, x + rand() % 10, y + rand() % 10, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
                         {
                             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                             {
@@ -319,8 +313,8 @@ public:
                 // Health check -----------------------------------------------------------------------------
                 if (me->HealthBelowPct(100 - m_uiHealthAmountMultipler * m_uiHealthAmountModifier))
                 {
-                   uint8 m_uiOrder = m_uiHealthAmountModifier - 1;
-                   ++m_uiHealthAmountModifier;
+                    uint8 m_uiOrder = m_uiHealthAmountModifier - 1;
+                    ++m_uiHealthAmountModifier;
 
                     me->InterruptNonMeleeSpells(true);
                     DoCast(me, SPELL_SCREAMS_OF_THE_DEAD);
@@ -364,7 +358,7 @@ public:
 
         void KilledUnit(Unit * /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3,SAY_SLAY_4), me);
+            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3, SAY_SLAY_4), me);
         }
 
         void DespawnBoatGhosts(uint64& m_uiCreatureGUID)
@@ -378,7 +372,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_ymiron()
 {

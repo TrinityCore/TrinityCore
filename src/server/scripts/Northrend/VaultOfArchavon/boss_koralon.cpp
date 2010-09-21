@@ -15,11 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*** SQL START ***
-UPDATE `creature_template` SET `ScriptName`='boss_koralon' WHERE `entry`='35013';
-UPDATE `creature_template` SET `ScriptName`='mob_flame_warder' WHERE `entry`='35143';
-*** SQL END ***/
-
 #include "ScriptPCH.h"
 #include "vault_of_archavon.h"
 
