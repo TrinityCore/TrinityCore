@@ -700,8 +700,9 @@ void LFGMgr::Join(Player* plr)
 /// <param name="Group*">Group (could be NULL)</param>
 void LFGMgr::Leave(Player* plr, Group* grp /* = NULL*/)
 {
-    if (plr && !plr->GetLfgUpdate())
+    if ((plr && !plr->GetLfgUpdate()) || !sWorld.getBoolConfig(CONFIG_DUNGEON_FINDER_ENABLE))
         return;
+
     uint64 guid = grp ? grp->GetGUID() : plr ? plr->GetGUID() : 0;
     sLog.outError("DEBUG:LFGMgr::Leave: [" UI64FMTD "]", guid);
 
@@ -763,6 +764,9 @@ void LFGMgr::Leave(Player* plr, Group* grp /* = NULL*/)
 /// <param name="Group*">Group than needs new players</param>
 void LFGMgr::OfferContinue(Group* grp)
 {
+    if (!sWorld.getBoolConfig(CONFIG_DUNGEON_FINDER_ENABLE))
+        return;
+
     ASSERT(grp);
     if (Player* leader = sObjectMgr.GetPlayer(grp->GetLeaderGUID()))
         leader->GetSession()->SendLfgOfferContinue(grp->GetLfgDungeonEntry(false));
@@ -1832,7 +1836,7 @@ void LFGMgr::TeleportPlayer(Player* plr, bool out)
 void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player* player)
 {
     Group* group = player->GetGroup();
-    if (!group || !group->isLFGGroup())
+    if ((!group || !group->isLFGGroup()) || !sWorld.getBoolConfig(CONFIG_DUNGEON_FINDER_ENABLE))
         return;
 
     // Mark dungeon as finished
