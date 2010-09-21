@@ -23031,9 +23031,9 @@ void Player::UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 mis
     GetAchievementMgr().UpdateAchievementCriteria(type, miscvalue1, miscvalue2, unit, time);
 }
 
-void Player::CompletedAchievement(AchievementEntry const* entry)
+void Player::CompletedAchievement(AchievementEntry const* entry, bool ignoreGMAllowAchievementConfig)
 {
-    GetAchievementMgr().CompletedAchievement(entry);
+    GetAchievementMgr().CompletedAchievement(entry, ignoreGMAllowAchievementConfig);
 }
 
 void Player::LearnTalent(uint32 talentId, uint32 talentRank)
