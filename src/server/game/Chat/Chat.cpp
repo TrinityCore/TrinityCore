@@ -1689,7 +1689,7 @@ valid examples:
                             bool foundName = false;
                             for (uint8 dbIndex = LOCALE_koKR; dbIndex < MAX_LOCALE; ++dbIndex)
                             {
-                                if (dbIndex == -1 || il == NULL || uint8(dbIndex) >= il->Name.size())
+                                if (il == NULL || dbIndex >= il->Name.size())
                                     // using strange database/client combinations can lead to this case
                                     expectedName = linkedItem->Name1;
                                 else
