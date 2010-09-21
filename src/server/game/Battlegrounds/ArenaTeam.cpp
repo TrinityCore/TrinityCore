@@ -54,15 +54,7 @@ ArenaTeam::ArenaTeam()
     m_stats.games_week    = 0;
     m_stats.games_season  = 0;
     m_stats.rank          = 0;
-    /* warning: comparison of unsigned expression >= 0 is always true
-    if (sWorld.getIntConfig(CONFIG_ARENA_START_RATING) >= 0)
-    m_stats.rating = sWorld.getIntConfig(CONFIG_ARENA_START_RATING);
-    else if (sWorld.getIntConfig(CONFIG_ARENA_SEASON_ID) >= 6)
-        m_stats.rating    = 0;
-    else
-        m_stats.rating    = 1500;
-    */
-    m_stats.rating = sWorld.getIntConfig(CONFIG_ARENA_START_RATING);
+    m_stats.rating        = sWorld.getIntConfig(CONFIG_ARENA_START_RATING);
     m_stats.wins_week     = 0;
     m_stats.wins_season   = 0;
 }
@@ -148,18 +140,7 @@ bool ArenaTeam::AddMember(const uint64& PlayerGuid)
     }
 
     plMMRating = sWorld.getIntConfig(CONFIG_ARENA_START_MATCHMAKER_RATING);
-    plPRating = 0;
-
-    if (sWorld.getIntConfig(CONFIG_ARENA_START_PERSONAL_RATING) > 0)
-        plPRating = sWorld.getIntConfig(CONFIG_ARENA_START_PERSONAL_RATING);
-    else
-    {
-        if (sWorld.getIntConfig(CONFIG_ARENA_SEASON_ID) < 6)
-            plPRating = 1500;
-        else
-            if (GetRating() >= 1000)
-                plPRating = 1000;
-    }
+    plPRating = sWorld.getIntConfig(CONFIG_ARENA_START_PERSONAL_RATING);
 
     QueryResult result = CharacterDatabase.PQuery("SELECT matchmaker_rating FROM character_arena_stats WHERE guid='%u' AND slot='%u'", GUID_LOPART(PlayerGuid), GetSlot());
     if (result)
