@@ -254,7 +254,7 @@ class Item : public Object
         bool IsLocked() const { return !HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_UNLOCKED); }
         bool IsBag() const { return GetProto()->InventoryType == INVTYPE_BAG; }
         bool IsBroken() const { return GetUInt32Value(ITEM_FIELD_MAXDURABILITY) > 0 && GetUInt32Value(ITEM_FIELD_DURABILITY) == 0; }
-        bool CanBeTraded(bool mail = false) const;
+        bool CanBeTraded(bool mail = false, bool trade = false) const;
         void SetInTrade(bool b = true) { mb_in_trade = b; }
         bool IsInTrade() const { return mb_in_trade; }
 
@@ -345,6 +345,10 @@ class Item : public Object
         uint32 GetPlayedTime();
         bool IsRefundExpired();
 
+        // Soulbound trade system
+        void SetSoulboundTradeable(AllowedLooterSet* allowedLooters, Player* currentOwner, bool apply);
+        bool CheckSoulboundTradeExpire();
+
         void BuildUpdate(UpdateDataMapType&);
 
         uint32 GetScriptId() const { return GetProto()->ScriptId; }
@@ -359,5 +363,6 @@ class Item : public Object
         uint32 m_refundRecipient;
         uint32 m_paidMoney;
         uint32 m_paidExtendedCost;
+        AllowedLooterSet allowedGUIDs;
 };
 #endif

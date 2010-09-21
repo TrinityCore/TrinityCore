@@ -1792,6 +1792,29 @@ LOCK TABLES `item_refund_instance` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `item_soulbound_trade_data`
+--
+
+DROP TABLE IF EXISTS `item_soulbound_trade_data`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `item_soulbound_trade_data` (
+  `itemGuid` int(11) unsigned NOT NULL COMMENT 'Item GUID',
+  `allowedPlayers` text NOT NULL COMMENT 'Space separated GUID list of players who can receive this item in trade',
+  PRIMARY KEY (`itemGuid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Item Refund System';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `item_soulbound_trade_data`
+--
+
+LOCK TABLES `item_soulbound_trade_data` WRITE;
+/*!40000 ALTER TABLE `item_soulbound_trade_data` DISABLE KEYS */;
+/*!40000 ALTER TABLE `item_soulbound_trade_data` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `lag_reports`
 --
 

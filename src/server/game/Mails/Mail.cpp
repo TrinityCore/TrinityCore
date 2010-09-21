@@ -110,7 +110,11 @@ void MailDraft::deleteIncludedItems(SQLTransaction& trans, bool inDB /*= false*/
         Item* item = mailItemIter->second;
 
         if (inDB)
-            trans->PAppend("DELETE FROM item_instance WHERE guid='%u'", item->GetGUIDLow());
+        {
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
+            stmt->setUInt32(0, item->GetGUIDLow());
+            trans->Append(stmt);
+        }
 
         delete item;
     }
