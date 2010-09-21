@@ -6904,10 +6904,10 @@ bool ChatHandler::HandleInstanceUnbindCommand(const char *args)
     if (pDiff)
         diff = atoi(pDiff);
     uint16 counter = 0;
-    int16 MapId = 0;
+    uint16 MapId = 0;
 
     if (strcmp(pMap, "all"))
-        if (!(MapId = atoi(pMap)))
+        if (!(MapId = uint16(atoi(pMap))))
             return false;
 
     for(uint8 i = 0; i < MAX_DIFFICULTY; ++i)
