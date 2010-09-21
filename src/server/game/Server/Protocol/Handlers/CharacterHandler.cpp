@@ -742,7 +742,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
     if (PreparedQueryResult resultGuild = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADGUILD))
     {
         pCurrChar->SetInGuild(resultGuild->GetUInt32(0));
-        pCurrChar->SetRank(resultGuild->GetUInt32(1));
+        pCurrChar->SetRank(resultGuild->GetUInt8(1));
     }
     else if (pCurrChar->GetGuildId())                        // clear guild related fields in case wrong data about non existed membership
     {
