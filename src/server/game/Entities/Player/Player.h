@@ -1187,7 +1187,7 @@ class Player : public Unit, public GridObject<Player>
         bool HasItemTotemCategory(uint32 TotemCategory) const;
         uint8 CanUseItem(ItemPrototype const *pItem) const;
         uint8 CanUseAmmo(uint32 item) const;
-        Item* StoreNewItem(ItemPosCountVec const& pos, uint32 item, bool update,int32 randomPropertyId = 0);
+        Item* StoreNewItem(ItemPosCountVec const& pos, uint32 item, bool update, int32 randomPropertyId = 0, AllowedLooterSet* allowedLooters = NULL);
         Item* StoreItem(ItemPosCountVec const& pos, Item *pItem, bool update);
         Item* EquipNewItem(uint16 pos, uint32 item, bool update);
         Item* EquipItem(uint16 pos, Item *pItem, bool update);
@@ -1261,13 +1261,15 @@ class Player : public Unit, public GridObject<Player>
         void TradeCancel(bool sendback);
 
         void UpdateEnchantTime(uint32 time);
-        void UpdateItemDuration(uint32 time, bool realtimeonly=false);
+        void UpdateSoulboundTradeItems();
+        void RemoveTradeableItem(uint32 guid);
+        void UpdateItemDuration(uint32 time, bool realtimeonly = false);
         void AddEnchantmentDurations(Item *item);
         void RemoveEnchantmentDurations(Item *item);
         void RemoveArenaEnchantments(EnchantmentSlot slot);
-        void AddEnchantmentDuration(Item *item,EnchantmentSlot slot,uint32 duration);
-        void ApplyEnchantment(Item *item,EnchantmentSlot slot,bool apply, bool apply_dur = true, bool ignore_condition = false);
-        void ApplyEnchantment(Item *item,bool apply);
+        void AddEnchantmentDuration(Item *item, EnchantmentSlot slot, uint32 duration);
+        void ApplyEnchantment(Item *item, EnchantmentSlot slot, bool apply, bool apply_dur = true, bool ignore_condition = false);
+        void ApplyEnchantment(Item *item, bool apply);
         void UpdateSkillEnchantments(uint16 skill_id, uint16 curr_value, uint16 new_value);
         void SendEnchantmentDurations();
         void BuildEnchantmentsInfoData(WorldPacket *data);
@@ -2535,6 +2537,7 @@ class Player : public Unit, public GridObject<Player>
 
         EnchantDurationList m_enchantDuration;
         ItemDurationList m_itemDuration;
+        ItemDurationList m_itemSoulboundTradeable;
 
         void ResetTimeSync();
         void SendTimeSync();
