@@ -23,9 +23,6 @@ SDComment:
 SDCategory:
 Script Data End */
 
-/*** SQL START ***
-update creature_template set scriptname = 'boss_palehoof' where entry = '';
-*** SQL END ***/
 #include "ScriptPCH.h"
 #include "utgarde_pinnacle.h"
 
@@ -120,11 +117,11 @@ public:
 
             me->GetMotionMaster()->MoveTargetedHome();
 
-            for (uint32 i=0;i<4;i++)
-                DoneAdds[i]=false;
-            AddCount=0;
+            for (uint32 i = 0; i < 4; i++)
+                DoneAdds[i] = false;
+            AddCount = 0;
 
-            currentPhase=PHASE_NONE;
+            currentPhase = PHASE_NONE;
 
             if (pInstance)
             {
@@ -181,6 +178,7 @@ public:
         {
             if (currentPhase != PHASE_GORTOK_PALEHOOF)
                 return;
+
             //Return since we have no target
             if (!UpdateVictim())
                 return;
@@ -223,7 +221,7 @@ public:
 
         void KilledUnit(Unit * /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
+            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
         }
 
         void NextPhase()
@@ -231,35 +229,37 @@ public:
             if (currentPhase == PHASE_NONE)
             {
                 pInstance->SetData(DATA_GORTOK_PALEHOOF_EVENT, IN_PROGRESS);
-                me->SummonCreature(MOB_STASIS_CONTROLLER,moveLocs[5].x,moveLocs[5].y,moveLocs[5].z,0,TEMPSUMMON_CORPSE_DESPAWN);
+                me->SummonCreature(MOB_STASIS_CONTROLLER, moveLocs[5].x, moveLocs[5].y, moveLocs[5].z, 0, TEMPSUMMON_CORPSE_DESPAWN);
             }
             Phase move = PHASE_NONE;
-            if (AddCount >= DUNGEON_MODE(2,4))
+            if (AddCount >= DUNGEON_MODE(2, 4))
                 move = PHASE_GORTOK_PALEHOOF;
             else
             {
                 //select random not yet defeated add
-                uint8 next = urand(0,3);
-                for (uint8 i=0; i < 16; i++)
+                uint8 next = urand(0, 3);
+                for (uint8 i = 0; i < 16; i++)
                 {
-                    if (!DoneAdds[i%4] && next == 0)
-                    {
-                        move = (Phase)(i%4);
-                        break;
-                    } else if (!DoneAdds[i%4] && next > 0)
-                        --next;
+                    if (!DoneAdds[i % 4])
+                        if (next == 0)
+                        {
+                            move = (Phase)(i % 4);
+                            break;
+                        }
+                        else if (next > 0)
+                            --next;
                 }
                 ++AddCount;
                 DoneAdds[move] = true;
-                move = (Phase)(move%4);
+                move = (Phase)(move % 4);
             }
             //send orb to summon spot
             Creature *pOrb = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_MOB_ORB) : 0);
             if (pOrb && pOrb->isAlive())
             {
                 if (currentPhase == PHASE_NONE)
-                    pOrb->CastSpell(me,SPELL_ORB_VISUAL,true);
-                pOrb->GetMotionMaster()->MovePoint(move,moveLocs[move].x,moveLocs[move].y,moveLocs[move].z);
+                    pOrb->CastSpell(me, SPELL_ORB_VISUAL, true);
+                pOrb->GetMotionMaster()->MovePoint(move, moveLocs[move].x, moveLocs[move].y, moveLocs[move].z);
             }
             currentPhase = move;
         }
@@ -333,19 +333,19 @@ public:
             if (uiChainLightingTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_CHAIN_LIGHTING);
-                uiChainLightingTimer = 5000 + rand()%5000;
+                uiChainLightingTimer = 5000 + rand() % 5000;
             } else uiChainLightingTimer -=  diff;
 
             if (uiCrazedTimer <= diff)
             {
                 DoCast(me, SPELL_CRAZED);
-                uiCrazedTimer = 8000 + rand()%4000;
+                uiCrazedTimer = 8000 + rand() % 4000;
             } else uiCrazedTimer -=  diff;
 
             if (uiTerrifyingRoarTimer <= diff)
             {
                 DoCast(me, SPELL_TERRIFYING_ROAR);
-                uiTerrifyingRoarTimer = 10000 + rand()%10000;
+                uiTerrifyingRoarTimer = 10000 + rand() % 10000;
             } else uiTerrifyingRoarTimer -=  diff;
 
             DoMeleeAttackIfReady();
@@ -380,7 +380,7 @@ public:
 
         void JustReachedHome()
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NOT_ATTACKABLE_1|UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_OOC_NOT_ATTACKABLE);
             me->SetStandState(UNIT_STAND_STATE_STAND);
             DoCast(me, SPELL_FREEZE);
         }
@@ -447,7 +447,7 @@ public:
             if (uiMortalWoundTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_MORTAL_WOUND);
-                uiMortalWoundTimer = 3000 + rand()%4000;
+                uiMortalWoundTimer = 3000 + rand() % 4000;
             } else uiMortalWoundTimer -= diff;
 
             if (uiEnrage1Timer <= diff)
@@ -496,7 +496,7 @@ public:
 
         void JustReachedHome()
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NOT_ATTACKABLE_1|UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_OOC_NOT_ATTACKABLE);
             me->SetStandState(UNIT_STAND_STATE_STAND);
             DoCast(me, SPELL_FREEZE);
         }
@@ -564,20 +564,20 @@ public:
             if (uiStompTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_STOMP);
-                uiStompTimer = 8000 + rand()%4000;
+                uiStompTimer = 8000 + rand() % 4000;
             } else uiStompTimer -= diff;
 
             if (uiGoreTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_GORE);
-                uiGoreTimer = 13000 + rand()%4000;
+                uiGoreTimer = 13000 + rand() % 4000;
             } else uiGoreTimer -= diff;
 
             if (uiGrievousWoundTimer <= diff)
             {
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(pTarget, SPELL_GRIEVOUS_WOUND);
-                uiGrievousWoundTimer = 18000 + rand()%4000;
+                uiGrievousWoundTimer = 18000 + rand() % 4000;
             } else uiGrievousWoundTimer -= diff;
 
             DoMeleeAttackIfReady();
@@ -612,7 +612,7 @@ public:
 
         void JustReachedHome()
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NOT_ATTACKABLE_1|UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_OOC_NOT_ATTACKABLE);
             me->SetStandState(UNIT_STAND_STATE_STAND);
             DoCast(me, SPELL_FREEZE);
         }
@@ -686,20 +686,20 @@ public:
             {
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(pTarget, SPELL_ACID_SPIT);
-                uiAcidSpitTimer = 2000 + rand()%2000;
+                uiAcidSpitTimer = 2000 + rand() % 2000;
             } else uiAcidSpitTimer -= diff;
 
             if (uiAcidSplatterTimer <= diff)
             {
                 DoCast(me, SPELL_POISON_BREATH);
-                uiAcidSplatterTimer = 10000 + rand()%4000;
+                uiAcidSplatterTimer = 10000 + rand() % 4000;
             } else uiAcidSplatterTimer -= diff;
 
             if (uiPoisonBreathTimer <= diff)
             {
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(pTarget, SPELL_POISON_BREATH);
-                uiPoisonBreathTimer = 8000 + rand()%4000;
+                uiPoisonBreathTimer = 8000 + rand() % 4000;
             } else uiPoisonBreathTimer -= diff;
 
             DoMeleeAttackIfReady();
@@ -734,7 +734,7 @@ public:
 
         void JustReachedHome()
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NOT_ATTACKABLE_1|UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_OOC_NOT_ATTACKABLE);
             me->SetStandState(UNIT_STAND_STATE_STAND);
             DoCast(me, SPELL_FREEZE);
         }
@@ -765,11 +765,11 @@ public:
 
         void Reset()
         {
-            currentPhase=PHASE_NONE;
-            SummonTimer=5000;
+            currentPhase = PHASE_NONE;
+            SummonTimer = 5000;
             me->AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
             me->RemoveAurasDueToSpell(SPELL_ORB_VISUAL);
-            me->SetSpeed(MOVE_FLIGHT , 0.5f);
+            me->SetSpeed(MOVE_FLIGHT, 0.5f);
         }
 
         void UpdateAI(const uint32 diff)
@@ -795,15 +795,15 @@ public:
                    if (pNext)
                    {
                         pNext->RemoveAurasDueToSpell(SPELL_FREEZE);
-                        pNext->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_ATTACKABLE_1|UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                        pNext->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_OOC_NOT_ATTACKABLE);
                         pNext->SetStandState(UNIT_STAND_STATE_STAND);
                         pNext->SetInCombatWithZone();
                         pNext->Attack(pNext->SelectNearestTarget(100),true);
 
                    }
-                   currentPhase=PHASE_NONE;
+                   currentPhase = PHASE_NONE;
                 }
-            } else SummonTimer-=diff;
+            } else SummonTimer -= diff;
         }
 
         void MovementInform(uint32 type, uint32 id)
@@ -824,8 +824,8 @@ public:
             }
             if (pNext)
                 DoCast(pNext, SPELL_ORB_CHANNEL, false);
-            currentPhase=(Phase)id;
-            SummonTimer=5000;
+            currentPhase = (Phase)id;
+            SummonTimer = 5000;
         }
     };
 
@@ -843,7 +843,6 @@ public:
         Creature *pPalehoof = Unit::GetCreature(*pGO, pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
         if (pPalehoof && pPalehoof->isAlive())
         {
-            // maybe these are hacks :(
             pGO->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
             pGO->SetGoState(GO_STATE_ACTIVE);
 

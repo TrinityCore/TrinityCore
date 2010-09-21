@@ -18,8 +18,6 @@
 #include "ScriptPCH.h"
 #include "azjol_nerub.h"
 
-//SQL: UPDATE creature_template SET mechanic_immune_mask = 1073741823 WHERE  name like "anub'arak%";
-
 enum Spells
 {
     SPELL_CARRION_BEETLES                         = 53520,

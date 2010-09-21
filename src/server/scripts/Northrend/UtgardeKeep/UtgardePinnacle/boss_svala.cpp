@@ -115,7 +115,7 @@ public:
         void Reset()
         {
             Phase = IDLE;
-            uiIntroTimer = 1*IN_MILLISECONDS;
+            uiIntroTimer = 1 * IN_MILLISECONDS;
             uiIntroPhase = 0;
             uiArthasGUID = 0;
 
@@ -135,7 +135,7 @@ public:
 
                 if (Creature *pArthas = me->SummonCreature(CREATURE_ARTHAS, ArthasPos, TEMPSUMMON_MANUAL_DESPAWN))
                 {
-                    pArthas->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+                    pArthas->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     pArthas->SetFloatValue(OBJECT_FIELD_SCALE_X, 5);
                     uiArthasGUID = pArthas->GetGUID();
                 }
@@ -191,7 +191,7 @@ public:
                     case 6:
                         if (me->SummonCreature(CREATURE_SVALA_SORROWGRAVE, SvalaPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60*IN_MILLISECONDS))
                         {
-                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                             me->SetDisplayId(DATA_SVALA_DISPLAY_ID);
                             pArthas->ToTempSummon()->UnSummon();
                             uiArthasGUID = 0;
@@ -278,10 +278,10 @@ public:
 
         void Reset()
         {
-            uiSinsterStrikeTimer = 7*IN_MILLISECONDS;
-            uiCallFlamesTimer = 10*IN_MILLISECONDS;
-            uiRitualOfSwordTimer = 20*IN_MILLISECONDS;
-            uiSacrificeTimer = 8*IN_MILLISECONDS;
+            uiSinsterStrikeTimer = 7 * IN_MILLISECONDS;
+            uiCallFlamesTimer = 10 * IN_MILLISECONDS;
+            uiRitualOfSwordTimer = 20 * IN_MILLISECONDS;
+            uiSacrificeTimer = 8 * IN_MILLISECONDS;
 
             bSacrificed = false;
 
@@ -328,7 +328,7 @@ public:
                 if (uiSinsterStrikeTimer <= diff)
                 {
                     DoCast(me->getVictim(), SPELL_SINSTER_STRIKE);
-                    uiSinsterStrikeTimer = urand(5*IN_MILLISECONDS,9*IN_MILLISECONDS);
+                    uiSinsterStrikeTimer = urand(5 * IN_MILLISECONDS, 9 * IN_MILLISECONDS);
                 } else uiSinsterStrikeTimer -= diff;
 
                 if (uiCallFlamesTimer <= diff)
@@ -336,7 +336,7 @@ public:
                     if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     {
                         DoCast(pTarget, SPELL_CALL_FLAMES);
-                        uiCallFlamesTimer = urand(8*IN_MILLISECONDS,12*IN_MILLISECONDS);
+                        uiCallFlamesTimer = urand(8 * IN_MILLISECONDS, 12 * IN_MILLISECONDS);
                     }
                 } else uiCallFlamesTimer -= diff;
 
@@ -346,7 +346,7 @@ public:
                     {
                         if (Unit* pSacrificeTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         {
-                            DoScriptText(RAND(SAY_SACRIFICE_PLAYER_1,SAY_SACRIFICE_PLAYER_2,SAY_SACRIFICE_PLAYER_3,SAY_SACRIFICE_PLAYER_4,SAY_SACRIFICE_PLAYER_5),me);
+                            DoScriptText(RAND(SAY_SACRIFICE_PLAYER_1, SAY_SACRIFICE_PLAYER_2, SAY_SACRIFICE_PLAYER_3, SAY_SACRIFICE_PLAYER_4, SAY_SACRIFICE_PLAYER_5), me);
                             DoCast(pSacrificeTarget, SPELL_RITUAL_OF_THE_SWORD);
                             //Spell doesn't teleport
                             DoTeleportPlayer(pSacrificeTarget, 296.632f, -346.075f, 90.63f, 4.6f);
@@ -384,7 +384,7 @@ public:
                     if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         me->GetMotionMaster()->MoveChase(pTarget);
 
-                    uiSacrificeTimer = 8*IN_MILLISECONDS;
+                    uiSacrificeTimer = 8 * IN_MILLISECONDS;
                 }
                 else uiSacrificeTimer -= diff;
             }
@@ -392,7 +392,7 @@ public:
 
         void KilledUnit(Unit* /*pVictim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
+            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
         }
 
         void JustDied(Unit* pKiller)
@@ -410,9 +410,6 @@ public:
     };
 
 };
-
-
-
 
 void AddSC_boss_svala()
 {

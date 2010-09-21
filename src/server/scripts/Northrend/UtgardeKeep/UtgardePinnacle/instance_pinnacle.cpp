@@ -125,17 +125,17 @@ public:
             {
                 case ENTRY_SKADI_THE_RUTHLESS_DOOR:
                     uiSkadiTheRuthlessDoor = pGo->GetGUID();
-                    if (m_auiEncounter[2] == DONE) HandleGameObject(NULL,true,pGo);
+                    if (m_auiEncounter[2] == DONE) HandleGameObject(NULL, true, pGo);
                     break;
                 case ENTRY_KING_YMIRON_DOOR:
                     uiKingYmironDoor = pGo->GetGUID();
-                    if (m_auiEncounter[3] == DONE) HandleGameObject(NULL,true,pGo);
+                    if (m_auiEncounter[3] == DONE) HandleGameObject(NULL, true, pGo);
                     break;
                 case ENTRY_GORK_PALEHOOF_SPHERE:
                     uiGortokPalehoofSphere = pGo->GetGUID();
                     if (m_auiEncounter[1] == DONE)
                     {
-                        HandleGameObject(NULL,true,pGo);
+                        HandleGameObject(NULL, true, pGo);
                         pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                     }
                     break;
@@ -154,12 +154,12 @@ public:
                     break;
                 case DATA_SKADI_THE_RUTHLESS_EVENT:
                     if (data == DONE)
-                        HandleGameObject(uiSkadiTheRuthlessDoor,true);
+                        HandleGameObject(uiSkadiTheRuthlessDoor, true);
                     m_auiEncounter[2] = data;
                     break;
                 case DATA_KING_YMIRON_EVENT:
                     if (data == DONE)
-                        HandleGameObject(uiKingYmironDoor,true);
+                        HandleGameObject(uiKingYmironDoor, true);
                     m_auiEncounter[3] = data;
                     break;
             }
