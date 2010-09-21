@@ -23,9 +23,6 @@ SDComment: TODO: Intro & outro
 SDCategory:
 Script Data End */
 
-/*** SQL START ***
-update creature_template set scriptname = 'boss_mal_ganis' where entry = '';
-*** SQL END ***/
 #include "ScriptPCH.h"
 #include "culling_of_stratholme.h"
 

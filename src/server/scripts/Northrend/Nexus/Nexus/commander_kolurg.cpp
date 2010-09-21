@@ -23,9 +23,6 @@ SDComment:  Only Alliance Heroic
 SDCategory:
 Script Data End */
 
-/*** SQL START ***
-update creature_template set scriptname = 'boss_commander_kolurg' where entry = '';
-*** SQL END ***/
 #include "ScriptPCH.h"
 
 #define SPELL_BATTLE_SHOUT                                    31403

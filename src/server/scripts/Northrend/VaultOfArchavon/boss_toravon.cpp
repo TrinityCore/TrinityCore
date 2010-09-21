@@ -15,13 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*** SQL START ***
-UPDATE `creature_template` SET `ScriptName`='boss_toravon' WHERE `entry`='38433';
-UPDATE `creature_template` SET `ScriptName`='mob_frost_warder' WHERE `entry`='38482';
-UPDATE `creature_template` SET `ScriptName`='mob_frozen_orb_stalker' WHERE `entry`='38461';
-UPDATE `creature_template` SET `ScriptName`='mob_frozen_orb' WHERE `entry`='38456';
-*** SQL END ***/
-
 #include "ScriptPCH.h"
 #include "vault_of_archavon.h"
 

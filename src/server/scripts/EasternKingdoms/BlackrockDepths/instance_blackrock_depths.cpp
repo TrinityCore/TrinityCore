@@ -23,14 +23,6 @@ SDComment:
 SDCategory: Blackrock Depths
 EndScriptData */
 
-/*
-update `creature_template` set `npcflag`='1',`ScriptName`='npc_dughal_stormwing' where `entry`='9022';
-update `creature_template` set `ScriptName`='npc_marshal_windsor' where `entry`='9023';
-update `creature_template` set `ScriptName`='npc_marshal_reginald_windsor' where `entry`='9682';
-update `creature_template` set `npcflag`='1',`ScriptName`='npc_tobias_seecher' where `entry`='9679';
-update `instance_template` set `script`='instance_blackrock_depths' where `map`='230';
-*/
-
 #include "ScriptPCH.h"
 #include "blackrock_depths.h"
 

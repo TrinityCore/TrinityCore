@@ -32,10 +32,6 @@ there is no difference here (except that default text is chosen with `gameobject
 - It's possible blacksmithing still require some tweaks and adjustments due to the way we _have_ to use reputation.
 */
 
-/*
--- UPDATE `gameobject_template` SET `ScriptName` = 'go_soothsaying_for_dummies' WHERE `entry` = 177226;
-*/
-
 /*###
 # to be removed from here (->ncp_text). This is data for database projects.
 ###*/
