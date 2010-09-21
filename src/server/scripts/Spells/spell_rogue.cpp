@@ -25,76 +25,9 @@
 
 enum RogueSpells
 {
-    ROGUE_SPELL_HUNGER_FOR_BLOOD_BUFF            = 63848,
     ROGUE_SPELL_SHIV_TRIGGERED                   = 5940,
-    ROGUE_SPELL_CHEATING_DEATH                   = 45182,
     ROGUE_SPELL_GLYPH_OF_PREPARATION             = 56819,
-};
-
-class spell_rog_cheat_death : public SpellScriptLoader
-{
-    public:
-        spell_rog_cheat_death() : SpellScriptLoader("spell_rog_cheat_death") { }
-
-        class spell_rog_cheat_death_SpellScript : public SpellScript
-        {
-            bool Validate(SpellEntry const * /*spellEntry*/)
-            {
-                if (!sSpellStore.LookupEntry(ROGUE_SPELL_CHEATING_DEATH))
-                    return false;
-                return true;
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                Unit *caster = GetCaster();
-                caster->CastSpell(caster, ROGUE_SPELL_CHEATING_DEATH, true);
-            }
-
-            void Register()
-            {
-                // add dummy effect spell handler to Cheat Death
-                OnEffect += SpellEffectFn(spell_rog_cheat_death_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript *GetSpellScript() const
-        {
-            return new spell_rog_cheat_death_SpellScript;
-        }
-};
-
-class spell_rog_hunger_for_blood : public SpellScriptLoader
-{
-    public:
-        spell_rog_hunger_for_blood() : SpellScriptLoader("spell_rog_hunger_for_blood") { }
-
-        class spell_rog_hunger_for_blood_SpellScript : public SpellScript
-        {
-            bool Validate(SpellEntry const * /*spellEntry*/)
-            {
-                if (!sSpellStore.LookupEntry(ROGUE_SPELL_HUNGER_FOR_BLOOD_BUFF))
-                    return false;
-                return true;
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                Unit *caster = GetCaster();
-                caster->CastSpell(caster, ROGUE_SPELL_HUNGER_FOR_BLOOD_BUFF, true);
-            }
-
-            void Register()
-            {
-                // add dummy effect spell handler to Hunger for Blood
-                OnEffect += SpellEffectFn(spell_rog_hunger_for_blood_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript *GetSpellScript() const
-        {
-            return new spell_rog_hunger_for_blood_SpellScript();
-        }
+    ROGUE_SPELL_PREY_ON_THE_WEAK                 = 58670,
 };
 
 class spell_rog_preparation : public SpellScriptLoader
@@ -159,6 +92,52 @@ class spell_rog_preparation : public SpellScriptLoader
         }
 };
 
+// 51685-51689 Prey on the Weak
+class spell_rog_prey_on_the_weak : public SpellScriptLoader
+{
+public:
+    spell_rog_prey_on_the_weak() : SpellScriptLoader("spell_rog_prey_on_the_weak") { }
+
+    class spell_rog_prey_on_the_weak_AuraScript : public AuraScript
+    {
+        bool Validate(SpellEntry const * /*spellEntry*/)
+        {
+            if (!sSpellStore.LookupEntry(ROGUE_SPELL_PREY_ON_THE_WEAK))
+                return false;
+            return true;
+        }
+
+        void HandleEffectPeriodic(AuraEffect const * /*aurEff*/, AuraApplication const * aurApp)
+        {
+            if (Unit* pTarget = aurApp->GetTarget())
+            {
+                Unit* pVictim = pTarget->getVictim();
+                if (pVictim && (pTarget->GetHealthPct() > pVictim->GetHealthPct()))
+                {
+                    if (!pTarget->HasAura(ROGUE_SPELL_PREY_ON_THE_WEAK))
+                    {
+                        int32 bp = SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), 0);
+                        pTarget->CastCustomSpell(pTarget, ROGUE_SPELL_PREY_ON_THE_WEAK, &bp, 0, 0, true);
+                    }
+                }
+                else
+                    pTarget->RemoveAurasDueToSpell(ROGUE_SPELL_PREY_ON_THE_WEAK);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_prey_on_the_weak_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        }
+    };
+
+    AuraScript *GetAuraScript() const
+    {
+        return new spell_rog_prey_on_the_weak_AuraScript();
+    }
+};
+
+
 class spell_rog_shiv : public SpellScriptLoader
 {
     public:
@@ -198,8 +177,7 @@ class spell_rog_shiv : public SpellScriptLoader
 
 void AddSC_rogue_spell_scripts()
 {
-    new spell_rog_cheat_death;
-    new spell_rog_hunger_for_blood;
-    new spell_rog_preparation;
-    new spell_rog_shiv;
+    new spell_rog_preparation();
+    new spell_rog_prey_on_the_weak();
+    new spell_rog_shiv();
 }

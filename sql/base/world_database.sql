@@ -26752,8 +26752,12 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 24750, 'spell_gen_trick'),
 ( 24751, 'spell_gen_trick_or_treat'),
 ( 29266, 'spell_creature_permanent_feign_death'),
+( 41337, 'spell_gen_aura_of_anger'),
+( 45472, 'spell_gen_parachute'),
+( 46394, 'spell_gen_burn_brutallus'),
 ( 57685, 'spell_creature_permanent_feign_death'),
 ( 58601, 'spell_gen_remove_flight_auras'),
+( 66118, 'spell_gen_leeching_swarm'),
 ( 58951, 'spell_creature_permanent_feign_death'),
 ( 70592, 'spell_creature_permanent_feign_death'),
 ( 70628, 'spell_creature_permanent_feign_death'),
@@ -26829,6 +26833,8 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 20425, 'spell_pal_judgement_of_command'),
 ( 63521, 'spell_pal_guarded_by_the_light'),
 (-20473, 'spell_pal_holy_shock'),
+( 20911, 'spell_pal_blessing_of_sanctuary'),
+( 25899, 'spell_pal_blessing_of_sanctuary')
 ( 37877, 'spell_pal_blessing_of_faith'),
 -- hunter
 ( 53209, 'spell_hun_chimera_shot'),
@@ -26837,13 +26843,13 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 53478, 'spell_hun_last_stand_pet'),
 ( 23989, 'spell_hun_readiness'),
 ( 37506, 'spell_hun_scatter_shot'),
+(-53302, 'spell_hun_sniper_training'),
 ( 55709, 'spell_hun_pet_heart_of_the_phoenix'),
 ( 54044, 'spell_hun_pet_carrion_feeder'),
 -- rogue
 (  5938, 'spell_rog_shiv'),
 ( 14185, 'spell_rog_preparation'),
-( 31231, 'spell_rog_cheat_death'),
-( 51662, 'spell_rog_hunger_for_blood'),
+(-51685, 'spell_rog_prey_on_the_weak'),
 -- priest
 ( 47948, 'spell_pri_pain_and_suffering_proc'),
 (-47540, 'spell_pri_penance'),

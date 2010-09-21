@@ -329,6 +329,72 @@ public:
     }
 };
 
+// 53302, 53303, 53304 Sniper Training
+enum eSniperTrainingSpells
+{
+    SPELL_SNIPER_TRAINING_R1        = 53302,
+    SPELL_SNIPER_TRAINING_BUFF_R1   = 64418,
+};
+
+class spell_hun_sniper_training : public SpellScriptLoader
+{
+public:
+    spell_hun_sniper_training() : SpellScriptLoader("spell_hun_sniper_training") { }
+
+    class spell_hun_sniper_training_AuraScript : public AuraScript
+    {
+        bool Validate(SpellEntry const * entry)
+        {
+            if (!sSpellStore.LookupEntry(SPELL_SNIPER_TRAINING_R1))
+                return false;
+            if (!sSpellStore.LookupEntry(SPELL_SNIPER_TRAINING_BUFF_R1))
+                return false;
+            return true;
+        }
+
+        void HandlePeriodic(AuraEffect const * aurEff, AuraApplication const * aurApp)
+        {
+            if (aurEff->GetAmount() > 0)
+                return;
+
+            if (Unit* pTarget = aurApp->GetTarget())
+            {
+                uint32 spellId = SPELL_SNIPER_TRAINING_BUFF_R1 + GetId() - SPELL_SNIPER_TRAINING_R1;
+                if (!pTarget->HasAura(spellId))
+                {
+                    const SpellEntry* triggeredSpellInfo = sSpellStore.LookupEntry(spellId);
+                    Unit* triggerCaster = GetTriggeredSpellCaster(triggeredSpellInfo, GetCaster(), pTarget);
+                    triggerCaster->CastSpell(pTarget, triggeredSpellInfo, true, 0, aurEff);
+                }
+            }
+        }
+
+        void HandleUpdatePeriodic(AuraEffect * aurEff)
+        {
+            if (Unit* pTarget = GetUnitOwner())
+                if (Player* pPlayerTarget = pTarget->ToPlayer())
+                {
+                    int32 baseAmount = aurEff->GetBaseAmount();
+                    int32 amount = pPlayerTarget->isMoving() ?
+                        pTarget->CalculateSpellDamage(pTarget, GetSpellProto(), aurEff->GetEffIndex(), &baseAmount) :
+                        aurEff->GetAmount() - 1;
+                    aurEff->SetAmount(amount);
+                }
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_sniper_training_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_hun_sniper_training_AuraScript::HandleUpdatePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript *GetAuraScript() const
+    {
+        return new spell_hun_sniper_training_AuraScript();
+    }
+};
+
 class spell_hun_pet_heart_of_the_phoenix : public SpellScriptLoader
 {
 public:
@@ -424,6 +490,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_masters_call();
     new spell_hun_readiness();
     new spell_hun_scatter_shot();
+    new spell_hun_sniper_training();
     new spell_hun_pet_heart_of_the_phoenix();
     new spell_hun_pet_carrion_feeder();
 }
