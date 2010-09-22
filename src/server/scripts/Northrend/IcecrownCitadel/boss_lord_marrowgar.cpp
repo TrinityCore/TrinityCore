@@ -83,9 +83,10 @@ class boss_lord_marrowgar : public CreatureScript
             boss_lord_marrowgarAI(Creature *pCreature) : BossAI(pCreature, DATA_LORD_MARROWGAR)
             {
                 ASSERT(instance);
+                bIntroDone = false;
                 uiBoneStormDuration = RAID_MODE(20000,30000,20000,30000);
                 fBaseSpeed = pCreature->GetSpeedRate(MOVE_RUN);
-                bIntroDone = false;
+                bBoneSlice = false;
                 coldflameLastPos.Relocate(pCreature);
             }
 
@@ -159,7 +160,7 @@ class boss_lord_marrowgar : public CreatureScript
                         case EVENT_COLDFLAME:
                             coldflameLastPos.Relocate(me);
                             if (!me->HasAura(SPELL_BONE_STORM))
-                                DoCast(me, SPELL_COLDFLAME_NORMAL);
+                                me->CastCustomSpell(SPELL_COLDFLAME_NORMAL, SPELLVALUE_MAX_TARGETS, 1, me);
                             else
                                 DoCast(me, SPELL_COLDFLAME_BONE_STORM);
                             events.ScheduleEvent(EVENT_COLDFLAME, urand(10000, 15000));
@@ -413,19 +414,8 @@ class spell_marrowgar_coldflame : public SpellScriptLoader
                 if (GetSpellInfo()->Id == 72705)
                     count = 4;
 
-                SpellCastTargets targets;
-                targets.setUnitTarget(caster);
-                targets.setDst(*caster);
-
-                Spell* spell = NULL;
-                SpellEntry const* spellInfo = NULL;
-
                 for (uint8 i = 0; i < count; ++i)
-                {
-                    spellInfo = sSpellStore.LookupEntry(GetEffectValue()+i);
-                    spell = new Spell(caster, spellInfo, true);
-                    spell->prepare(&targets);
-                }
+                    caster->CastSpell(caster, GetEffectValue()+i, true);
             }
 
             void Register()
