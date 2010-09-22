@@ -11595,12 +11595,11 @@ Item* Player::_StoreItem(uint16 pos, Item *pItem, uint32 count, bool clone, bool
 
             pItem->SetOwnerGUID(GetGUID());                 // prevent error at next SetState in case trade/mail/buy from vendor
             pItem->SetNotRefundable(this);
-            pItem->SetState(ITEM_REMOVED, this);
             pItem->SetSoulboundTradeable(NULL, this, false);
             RemoveTradeableItem(pItem->GetGUIDLow());
+            pItem->SetState(ITEM_REMOVED, this);
         }
 
-        // AddItemDurations(pItem2); - pItem2 already have duration listed for player
         AddEnchantmentDurations(pItem2);
 
         pItem2->SetState(ITEM_CHANGED, this);
