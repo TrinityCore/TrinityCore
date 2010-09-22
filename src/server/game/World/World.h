@@ -41,7 +41,6 @@ class Object;
 class WorldPacket;
 class WorldSession;
 class Player;
-struct ScriptAction;
 struct ScriptInfo;
 class WorldSocket;
 class SystemMgr;
