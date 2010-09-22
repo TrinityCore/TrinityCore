@@ -53,6 +53,14 @@ class Battleground;
 class MapInstanced;
 class InstanceMap;
 
+struct ScriptAction
+{
+    uint64 sourceGUID;
+    uint64 targetGUID;
+    uint64 ownerGUID;                                       // owner of source if source is item
+    ScriptInfo const* script;                               // pointer to static script data
+};
+
 //******************************************
 // Map file format defines
 //******************************************
