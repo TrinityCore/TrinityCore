@@ -88,19 +88,223 @@ enum ScriptsType
     SCRIPTS_LAST
 };
 
+enum eScriptFlags
+{
+    // Talk Flags
+    SF_TALK_USE_PLAYER          = 0x1,
+
+    // Emote flags
+    SF_EMOTE_USE_STATE          = 0x1,
+
+    // TeleportTo flags
+    SF_TELEPORT_USE_CREATURE    = 0x1,
+
+    // KillCredit flags
+    SF_KILLCREDIT_REWARD_GROUP  = 0x1,
+
+    // RemoveAura flags
+    SF_REMOVEAURA_REVERSE       = 0x1,
+
+    // CastSpell flags
+    SF_CASTSPELL_SOURCE_TO_TARGET = 0,
+    SF_CASTSPELL_SOURCE_TO_SOURCE = 1,
+    SF_CASTSPELL_TARGET_TO_TARGET = 2,
+    SF_CASTSPELL_TARGET_TO_SOURCE = 3,
+    SF_CASTSPELL_SEARCH_CREATURE  = 4,
+    SF_CASTSPELL_TRIGGERED      = 0x1,
+
+    // PlaySound flags
+    SF_PLAYSOUND_TARGET_PLAYER  = 0x1,
+    SF_PLAYSOUND_DISTANCE_SOUND = 0x2,
+
+    // Orientation flags
+    SF_ORIENTATION_FACE_TARGET  = 0x1,
+};
+
 struct ScriptInfo
 {
+    ScriptsType type;
     uint32 id;
     uint32 delay;
     ScriptCommands command;
-    uint32 datalong;
-    uint32 datalong2;
-    int32  dataint;
-    float x;
-    float y;
-    float z;
-    float o;
-    ScriptsType type;
+
+    union
+    {
+        struct
+        {
+            uint32 nData[3];
+            float  fData[4];
+        } Raw;
+
+        struct                      // SCRIPT_COMMAND_TALK (0)
+        {
+            uint32 ChatType;        // datalong
+            uint32 Flags;           // datalong2
+            int32  TextID;          // dataint
+        } Talk;
+
+        struct                      // SCRIPT_COMMAND_EMOTE (1)
+        {
+            uint32 EmoteID;         // datalong
+            uint32 Flags;           // datalong2
+        } Emote;
+
+        struct                      // SCRIPT_COMMAND_FIELD_SET (2)
+        {
+            uint32 FieldID;         // datalong
+            uint32 FieldValue;      // datalong2
+        } FieldSet;
+
+        struct                      // SCRIPT_COMMAND_MOVE_TO (3)
+        {
+            uint32 Unused1;         // datalong
+            uint32 TravelTime;      // datalong2
+            int32  Unused2;         // dataint
+
+            float DestX;
+            float DestY;
+            float DestZ;
+        } MoveTo;
+
+        struct                      // SCRIPT_COMMAND_FLAG_SET (4)
+                                    // SCRIPT_COMMAND_FLAG_REMOVE (5)
+        {
+            uint32 FieldID;         // datalong
+            uint32 FieldValue;      // datalong2
+        } FlagToggle;
+
+        struct                      // SCRIPT_COMMAND_TELEPORT_TO (6)
+        {
+            uint32 MapID;           // datalong
+            uint32 Flags;           // datalong2
+            int32  Unused1;         // dataint
+
+            float DestX;
+            float DestY;
+            float DestZ;
+            float Orientation;
+        } TeleportTo;
+
+        struct                      // SCRIPT_COMMAND_QUEST_EXPLORED (7)
+        {
+            uint32 QuestID;         // datalong
+            uint32 Distance;        // datalong2
+        } QuestExplored;
+
+        struct                      // SCRIPT_COMMAND_KILL_CREDIT (8)
+        {
+            uint32 CreatureEntry;   // datalong
+            uint32 Flags;           // datalong2
+        } KillCredit;
+
+        struct                      // SCRIPT_COMMAND_RESPAWN_GAMEOBJECT (9)
+        {
+            uint32 GOGuid;          // datalong
+            uint32 DespawnDelay;    // datalong2
+        } RespawnGameobject;
+
+        struct                      // SCRIPT_COMMAND_TEMP_SUMMON_CREATURE (10)
+        {
+            uint32 CreatureEntry;   // datalong
+            uint32 DespawnDelay;    // datalong2
+            int32  Unused1;         // dataint
+
+            float PosX;
+            float PosY;
+            float PosZ;
+            float Orientation;
+        } TempSummonCreature;
+
+        struct                      // SCRIPT_COMMAND_CLOSE_DOOR (12)
+                                    // SCRIPT_COMMAND_OPEN_DOOR (11)
+        {
+            uint32 GOGuid;          // datalong
+            uint32 ResetDelay;      // datalong2
+        } ToggleDoor;
+
+                                    // SCRIPT_COMMAND_ACTIVATE_OBJECT (13)
+
+        struct                      // SCRIPT_COMMAND_REMOVE_AURA (14)
+        {
+            uint32 SpellID;         // datalong
+            uint32 Flags;           // datalong2
+        } RemoveAura;
+
+        struct                      // SCRIPT_COMMAND_CAST_SPELL (15)
+        {
+            uint32 SpellID;         // datalong
+            uint32 Flags;           // datalong2
+            int32  CreatureEntry;   // dataint
+
+            float SearchRadius;
+        } CastSpell;
+
+        struct                      // SCRIPT_COMMAND_PLAY_SOUND (16)
+        {
+            uint32 SoundID;         // datalong
+            uint32 Flags;           // datalong2
+        } PlaySound;
+
+        struct                      // SCRIPT_COMMAND_CREATE_ITEM (17)
+        {
+            uint32 ItemEntry;       // datalong
+            uint32 Amount;          // datalong2
+        } CreateItem;
+
+        struct                      // SCRIPT_COMMAND_DESPAWN_SELF (18)
+        {
+            uint32 DespawnDelay;    // datalong
+        } DespawnSelf;
+
+        struct                      // SCRIPT_COMMAND_LOAD_PATH (20)
+        {
+            uint32 PathID;          // datalong
+            uint32 IsRepeatable;    // datalong2
+        } LoadPath;
+
+        struct                      // SCRIPT_COMMAND_CALLSCRIPT_TO_UNIT (21)
+        {
+            uint32 CreatureEntry;   // datalong
+            uint32 ScriptID;        // datalong2
+            uint32 ScriptType;      // dataint
+        } CallScript;
+
+        struct                      // SCRIPT_COMMAND_KILL (22)
+        {
+            uint32 Unused1;         // datalong
+            uint32 Unused2;         // datalong2
+            int32  RemoveCorpse;    // dataint
+        } Kill;
+
+        struct                      // SCRIPT_COMMAND_ORIENTATION (30)
+        {
+            uint32 Flags;           // datalong
+            uint32 Unused1;         // datalong2
+            int32  Unused2;         // dataint
+
+            float Unused3;
+            float Unused4;
+            float Unused5;
+            float Orientation;
+        } Orientation;
+
+        struct                      // SCRIPT_COMMAND_EQUIP (31)
+        {
+            uint32 EquipmentID;     // datalong
+        } Equip;
+
+        struct                      // SCRIPT_COMMAND_MODEL (32)
+        {
+            uint32 ModelID;         // datalong
+        } Model;
+
+                                    // SCRIPT_COMMAND_CLOSE_GOSSIP (33)
+
+        struct                      // SCRIPT_COMMAND_PLAYMOVIE (34)
+        {
+            uint32 MovieID;         // datalong
+        } PlayMovie;
+    };
 
     std::string GetDebugInfo() const;
 };
