@@ -873,7 +873,7 @@ void AuraEffect::CalculateSpellMod()
                 default:
                     break;
             }
-        case SPELL_AURA_PROC_TRIGGER_SPELL:
+        case SPELL_AURA_MOD_SPELL_CRIT_CHANCE:
             switch(GetId())
             {
                 case 51466: // Elemental oath
