@@ -135,7 +135,7 @@ public:
         {
             loopCounter = 0;
             sLog.outDetail ("Ping MySQL to keep connection alive");
-            LoginDatabase.Query ("SELECT 1 FROM realmlist LIMIT 1");
+            LoginDatabase.KeepAlive();
         }
     }
 

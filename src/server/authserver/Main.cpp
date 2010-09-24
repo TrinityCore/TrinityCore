@@ -314,7 +314,7 @@ extern int main(int argc, char **argv)
         {
             loopCounter = 0;
             sLog.outDetail("Ping MySQL to keep connection alive");
-            LoginDatabase.Query("SELECT 1 FROM realmlist");
+            LoginDatabase.KeepAlive();
         }
 #ifdef _WIN32
         if (m_ServiceStatus == 0) stopEvent = true;
