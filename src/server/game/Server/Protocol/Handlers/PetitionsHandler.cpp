@@ -334,7 +334,7 @@ void WorldSession::SendPetitionQueryOpcode(uint64 petitionguid)
     {
         Field* fields = result->Fetch();
         ownerguid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER);
-        name      = fields[1].GetCppString();
+        name      = fields[1].GetString();
         signs     = fields[2].GetUInt8();
         type      = fields[3].GetUInt32();
     }
@@ -725,7 +725,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
     {
         Field *fields = result->Fetch();
         ownerguidlo = fields[0].GetUInt32();
-        name = fields[1].GetCppString();
+        name = fields[1].GetString();
         type = fields[2].GetUInt32();
     }
     else

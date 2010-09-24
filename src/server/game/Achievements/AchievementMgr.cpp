@@ -559,27 +559,30 @@ void AchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, PreparedQ
 {
     if (achievementResult)
     {
+        Field* fields = achievementResult->Fetch();
         do
         {
-            uint32 achievement_id = achievementResult->GetUInt32(0);
+            uint32 achievement_id = fields[0].GetUInt32();
 
             // don't must happen: cleanup at server startup in sAchievementMgr.LoadCompletedAchievements()
             if (!sAchievementStore.LookupEntry(achievement_id))
                 continue;
 
             CompletedAchievementData& ca = m_completedAchievements[achievement_id];
-            ca.date = time_t(achievementResult->GetUInt64(1));
+            ca.date = time_t(fields[1].GetUInt64());
             ca.changed = false;
-        } while (achievementResult->NextRow());
+        }
+        while (achievementResult->NextRow());
     }
 
     if (criteriaResult)
     {
+        Field* fields = criteriaResult->Fetch();
         do
         {
-            uint32 id      = criteriaResult->GetUInt32(0);
-            uint32 counter = criteriaResult->GetUInt32(1);
-            time_t date    = time_t(criteriaResult->GetUInt64(2));
+            uint32 id      = fields[0].GetUInt32();
+            uint32 counter = fields[1].GetUInt32();
+            time_t date    = time_t(fields[2].GetUInt64());
 
             AchievementCriteriaEntry const* criteria = sAchievementCriteriaStore.LookupEntry(id);
             if (!criteria)
@@ -597,9 +600,9 @@ void AchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, PreparedQ
             progress.counter = counter;
             progress.date    = date;
             progress.changed = false;
-        } while (criteriaResult->NextRow());
+        } 
+        while (criteriaResult->NextRow());
     }
-
 }
 
 void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement)
@@ -2129,7 +2132,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
         }
 
         uint32 dataType = fields[1].GetUInt32();
-        const char* scriptName = fields[4].GetString();
+        const char* scriptName = fields[4].GetCString();
         uint32 scriptId = 0;
         if (strcmp(scriptName, "")) // not empty
         {
@@ -2312,8 +2315,8 @@ void AchievementGlobalMgr::LoadRewards()
         reward.titleId[1] = fields[2].GetUInt32();
         reward.itemId     = fields[3].GetUInt32();
         reward.sender     = fields[4].GetUInt32();
-        reward.subject    = fields[5].GetCppString();
-        reward.text       = fields[6].GetCppString();
+        reward.subject    = fields[5].GetString();
+        reward.text       = fields[6].GetString();
 
         // must be title or mail at least
         if (!reward.titleId[0] && !reward.titleId[1] && !reward.sender)
@@ -2422,10 +2425,10 @@ void AchievementGlobalMgr::LoadRewardLocales()
         for (int i = 1; i < MAX_LOCALE; ++i)
         {
             LocaleConstant locale = (LocaleConstant) i;
-            std::string str = fields[1 + 2 * (i - 1)].GetCppString();
+            std::string str = fields[1 + 2 * (i - 1)].GetString();
             sObjectMgr.AddLocaleString(str, locale, data.subject);
 
-            str = fields[1 + 2 * (i - 1) + 1].GetCppString();
+            str = fields[1 + 2 * (i - 1) + 1].GetString();
             sObjectMgr.AddLocaleString(str, locale, data.text);
         }
     } while (result->NextRow());

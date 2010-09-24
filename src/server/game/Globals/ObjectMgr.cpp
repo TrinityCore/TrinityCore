@@ -445,10 +445,10 @@ void ObjectMgr::LoadCreatureLocales()
         for (uint8 i = 1; i < MAX_LOCALE; ++i)
         {
             LocaleConstant locale = (LocaleConstant) i;
-            std::string str = fields[1 + 2 * (i - 1)].GetCppString();
+            std::string str = fields[1 + 2 * (i - 1)].GetString();
             AddLocaleString(str, locale, data.Name);
 
-            str = fields[1 + 2 * (i - 1) + 1].GetCppString();
+            str = fields[1 + 2 * (i - 1) + 1].GetString();
             AddLocaleString(str, locale, data.SubName);
         }
     } while (result->NextRow());
@@ -486,10 +486,10 @@ void ObjectMgr::LoadGossipMenuItemsLocales()
         for (uint8 i = 1; i < MAX_LOCALE; ++i)
         {
             LocaleConstant locale = (LocaleConstant) i;
-            std::string str = fields[2 + 2 * (i - 1)].GetCppString();
+            std::string str = fields[2 + 2 * (i - 1)].GetString();
             AddLocaleString(str, locale, data.OptionText);
 
-            str = fields[2 + 2 * (i - 1) + 1].GetCppString();
+            str = fields[2 + 2 * (i - 1) + 1].GetString();
             AddLocaleString(str, locale, data.BoxText);
         }
     } while (result->NextRow());
@@ -520,7 +520,7 @@ void ObjectMgr::LoadPointOfInterestLocales()
 
         for (uint8 i = 1; i < MAX_LOCALE; ++i)
         {
-            std::string str = fields[i].GetCppString();
+            std::string str = fields[i].GetString();
             AddLocaleString(str, LocaleConstant(i), data.IconName);
         }
     } while (result->NextRow());
@@ -1878,7 +1878,7 @@ bool ObjectMgr::GetPlayerNameByGUID(const uint64 &guid, std::string &name) const
 
     if (result)
     {
-        name = (*result)[0].GetCppString();
+        name = (*result)[0].GetString();
         return true;
     }
 
@@ -1957,10 +1957,10 @@ void ObjectMgr::LoadItemLocales()
         for (uint8 i = 1; i < MAX_LOCALE; ++i)
         {
             LocaleConstant locale = (LocaleConstant) i;
-            std::string str = fields[1 + 2 * (i - 1)].GetCppString();
+            std::string str = fields[1 + 2 * (i - 1)].GetString();
             AddLocaleString(str, locale, data.Name);
 
-            str = fields[1 + 2 * (i - 1) + 1].GetCppString();
+            str = fields[1 + 2 * (i - 1) + 1].GetString();
             AddLocaleString(str, locale, data.Description);
         }
     } while (result->NextRow());
@@ -2452,7 +2452,7 @@ void ObjectMgr::LoadItemSetNameLocales()
 
         for (uint8 i = 1; i < MAX_LOCALE; ++i)
         {
-            std::string str = fields[i].GetCppString();
+            std::string str = fields[i].GetString();
             AddLocaleString(str, LocaleConstant(i), data.Name);
         }
     } while (result->NextRow());
@@ -2498,7 +2498,7 @@ void ObjectMgr::LoadItemSetNames()
             }
 
             ItemSetNameEntry &data = mItemSetNameMap[entry];
-            data.name = fields[1].GetCppString();
+            data.name = fields[1].GetString();
 
             uint32 invType = fields[2].GetUInt32();
             if (invType >= MAX_INVTYPE)
@@ -3677,9 +3677,9 @@ void ObjectMgr::LoadGuildBanks(std::vector<Guild*>& GuildVector, QueryResult& re
             {
                 GuildBankTab *NewTab = new GuildBankTab;
 
-                NewTab->Name = fields[1].GetCppString();
-                NewTab->Icon = fields[2].GetCppString();
-                NewTab->Text = fields[3].GetCppString();
+                NewTab->Name = fields[1].GetString();
+                NewTab->Icon = fields[2].GetString();
+                NewTab->Text = fields[3].GetString();
 
                 GuildVector[guildid]->m_TabListMap[TabId] = NewTab;
             }
@@ -3691,11 +3691,12 @@ void ObjectMgr::LoadGuildBanks(std::vector<Guild*>& GuildVector, QueryResult& re
     {
         do
         {
-            uint8 TabId = itemResult->GetUInt8(11);
-            uint8 SlotId = itemResult->GetUInt8(12);
-            uint32 ItemGuid = itemResult->GetUInt32(13);
-            uint32 ItemId = itemResult->GetUInt32(14);
-            uint32 guildid = itemResult->GetUInt32(15);
+            Field *fields = itemResult->Fetch();
+            uint8 TabId = fields[11].GetUInt8();
+            uint8 SlotId = fields[12].GetUInt8();
+            uint32 ItemGuid = fields[13].GetUInt32();
+            uint32 ItemId = fields[14].GetUInt32();
+            uint32 guildid = fields[15].GetUInt32();
             if (guildid >= GuildVector.size() || GuildVector[guildid] == NULL)
                 return;
 
@@ -4651,30 +4652,30 @@ void ObjectMgr::LoadQuestLocales()
         for (uint8 i = 1; i < MAX_LOCALE; ++i)
         {
             LocaleConstant locale = (LocaleConstant) i;
-            std::string str = fields[1 + 11 * (i - 1)].GetCppString();
+            std::string str = fields[1 + 11 * (i - 1)].GetString();
             AddLocaleString(str, locale, data.Title);
 
-            str = fields[1 + 11 * (i - 1) + 1].GetCppString();
+            str = fields[1 + 11 * (i - 1) + 1].GetString();
             AddLocaleString(str, locale, data.Details);
 
-            str = fields[1 + 11 * (i - 1) + 2].GetCppString();
+            str = fields[1 + 11 * (i - 1) + 2].GetString();
             AddLocaleString(str, locale, data.Objectives);
 
-            str = fields[1 + 11 * (i - 1) + 3].GetCppString();
+            str = fields[1 + 11 * (i - 1) + 3].GetString();
             AddLocaleString(str, locale, data.OfferRewardText);
 
-            str = fields[1 + 11 * (i - 1) + 4].GetCppString();
+            str = fields[1 + 11 * (i - 1) + 4].GetString();
             AddLocaleString(str, locale, data.RequestItemsText);
 
-            str = fields[1 + 11 * (i - 1) + 5].GetCppString();
+            str = fields[1 + 11 * (i - 1) + 5].GetString();
             AddLocaleString(str, locale, data.EndText);
 
-            str = fields[1 + 11 * (i - 1) + 6].GetCppString();
+            str = fields[1 + 11 * (i - 1) + 6].GetString();
             AddLocaleString(str, locale, data.CompletedText);
 
             for (uint8 k = 0; k < 4; ++k)
             {
-                str = fields[1 + 11 * (i - 1) + 7 + k].GetCppString();
+                str = fields[1 + 11 * (i - 1) + 7 + k].GetString();
                 AddLocaleString(str, locale, data.ObjectiveText[k]);
             }
         }
@@ -5162,7 +5163,7 @@ void ObjectMgr::LoadSpellScriptNames()
         Field *fields = result->Fetch();
 
         int32 spellId         = fields[0].GetInt32();
-        const char *scriptName = fields[1].GetString();
+        const char *scriptName = fields[1].GetCString();
 
         bool allRanks = false;
         if (spellId <=0)
@@ -5328,7 +5329,7 @@ void ObjectMgr::LoadPageTextLocales()
 
         for (uint8 i = 1; i < MAX_LOCALE; ++i)
         {
-            std::string str = fields[i].GetCppString();
+            std::string str = fields[i].GetString();
             AddLocaleString(str, LocaleConstant(i), data.Text);
         }
 
@@ -5419,8 +5420,8 @@ void ObjectMgr::LoadGossipText()
 
         for (int i=0; i< 8; i++)
         {
-            gText.Options[i].Text_0           = fields[cic++].GetCppString();
-            gText.Options[i].Text_1           = fields[cic++].GetCppString();
+            gText.Options[i].Text_0           = fields[cic++].GetString();
+            gText.Options[i].Text_1           = fields[cic++].GetString();
 
             gText.Options[i].Language         = fields[cic++].GetUInt32();
             gText.Options[i].Probability      = fields[cic++].GetFloat();
@@ -5471,10 +5472,10 @@ void ObjectMgr::LoadNpcTextLocales()
             LocaleConstant locale = (LocaleConstant) i;
             for (uint8 j = 0; j < 8; ++j)
             {
-                std::string str0 = fields[1 + 8 * 2 * (i - 1) + 2 * j].GetCppString();
+                std::string str0 = fields[1 + 8 * 2 * (i - 1) + 2 * j].GetString();
                 AddLocaleString(str0, locale, data.Text_0[j]);
 
-                std::string str1 = fields[1 + 8 * 2 * (i - 1) + 2 * j + 1].GetCppString();
+                std::string str1 = fields[1 + 8 * 2 * (i - 1) + 2 * j + 1].GetString();
                 AddLocaleString(str1, locale, data.Text_1[j]);
             }
         }
@@ -5714,7 +5715,7 @@ void ObjectMgr::LoadAreaTriggerScripts()
         Field *fields = result->Fetch();
 
         uint32 Trigger_ID      = fields[0].GetUInt32();
-        const char *scriptName = fields[1].GetString();
+        const char *scriptName = fields[1].GetCString();
 
         AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(Trigger_ID);
         if (!atEntry)
@@ -6209,7 +6210,7 @@ void ObjectMgr::LoadAccessRequirements()
         ar.quest_A                  = fields[6].GetUInt32();
         ar.quest_H                  = fields[7].GetUInt32();
         ar.achievement              = fields[8].GetUInt32();
-        ar.questFailedText          = fields[9].GetCppString();
+        ar.questFailedText          = fields[9].GetString();
 
         if (ar.item)
         {
@@ -6529,13 +6530,13 @@ void ObjectMgr::LoadGameObjectLocales()
 
         for (uint8 i = 1; i < MAX_LOCALE; ++i)
         {
-            std::string str = fields[i].GetCppString();
+            std::string str = fields[i].GetString();
             AddLocaleString(str, LocaleConstant(i), data.Name);
         }
 
         for (uint8 i = 1; i < MAX_LOCALE; ++i)
         {
-            std::string str = fields[i + (MAX_LOCALE - 1)].GetCppString();
+            std::string str = fields[i + (MAX_LOCALE - 1)].GetString();
             AddLocaleString(str, LocaleConstant(i), data.CastBarCaption);
         }
 
@@ -7229,7 +7230,7 @@ void ObjectMgr::LoadPointsOfInterest()
         POI.icon                 = fields[3].GetUInt32();
         POI.flags                = fields[4].GetUInt32();
         POI.data                 = fields[5].GetUInt32();
-        POI.icon_name            = fields[6].GetCppString();
+        POI.icon_name            = fields[6].GetString();
 
         if (!Trinity::IsValidMapCoord(POI.x,POI.y))
         {
@@ -7676,7 +7677,7 @@ void ObjectMgr::LoadReservedPlayersNames()
     {
         bar.step();
         fields = result->Fetch();
-        std::string name= fields[0].GetCppString();
+        std::string name= fields[0].GetString();
 
         std::wstring wstr;
         if (!Utf8toWStr (name,wstr))
@@ -7981,7 +7982,7 @@ bool ObjectMgr::LoadTrinityStrings(char const* table, int32 min_value, int32 max
 
         for (uint8 i = 0; i < MAX_LOCALE; ++i)
         {
-            std::string str = fields[i + 1].GetCppString();
+            std::string str = fields[i + 1].GetString();
             AddLocaleString(str, LocaleConstant(i), data.Content);
         }
     } while (result->NextRow());
@@ -8150,7 +8151,7 @@ void ObjectMgr::LoadGameTele()
         gt.position_z     = fields[3].GetFloat();
         gt.orientation    = fields[4].GetFloat();
         gt.mapId          = fields[5].GetUInt32();
-        gt.name           = fields[6].GetCppString();
+        gt.name           = fields[6].GetString();
 
         if (!MapManager::IsValidMapCoord(gt.mapId,gt.position_x,gt.position_y,gt.position_z,gt.orientation))
         {
@@ -8697,7 +8698,7 @@ void ObjectMgr::LoadGossipMenuItems()
         gMenuItem.menu_id               = fields[0].GetUInt32();
         gMenuItem.id                    = fields[1].GetUInt32();
         gMenuItem.option_icon           = fields[2].GetUInt8();
-        gMenuItem.option_text           = fields[3].GetCppString();
+        gMenuItem.option_text           = fields[3].GetString();
         gMenuItem.option_id             = fields[4].GetUInt32();
         gMenuItem.npc_option_npcflag    = fields[5].GetUInt32();
         gMenuItem.action_menu_id        = fields[6].GetUInt32();
@@ -8705,7 +8706,7 @@ void ObjectMgr::LoadGossipMenuItems()
         gMenuItem.action_script_id      = fields[8].GetUInt32();
         gMenuItem.box_coded             = fields[9].GetUInt8() != 0;
         gMenuItem.box_money             = fields[10].GetUInt32();
-        gMenuItem.box_text              = fields[11].GetCppString();
+        gMenuItem.box_text              = fields[11].GetString();
 
         if (gMenuItem.option_icon >= GOSSIP_ICON_MAX)
         {

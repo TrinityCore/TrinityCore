@@ -21,105 +21,28 @@
 #include "DatabaseEnv.h"
 #include "Log.h"
 
-ResultSet::ResultSet(MYSQL_RES *result, MYSQL_FIELD *fields, uint64 rowCount, uint32 fieldCount)
-: mFieldCount(fieldCount)
-, mRowCount(rowCount)
-, mResult(result)
+ResultSet::ResultSet(MYSQL_RES *result, MYSQL_FIELD *fields, uint64 rowCount, uint32 fieldCount) :
+m_result(result),
+m_fields(fields),
+m_rowCount(rowCount),
+m_fieldCount(fieldCount)
 {
-    mCurrentRow = new Field[mFieldCount];
-    ASSERT(mCurrentRow);
-
-    for (uint32 i = 0; i < mFieldCount; i++)
-         mCurrentRow[i].SetType(ConvertNativeType(fields[i].type));
+    m_currentRow = new Field[m_fieldCount];
+    ASSERT(m_currentRow);
 }
 
-ResultSet::~ResultSet()
+PreparedResultSet::PreparedResultSet(MYSQL_STMT* stmt, MYSQL_RES *result, MYSQL_FIELD *fields, uint64 rowCount, uint32 fieldCount) :
+m_rBind(NULL),
+m_stmt(stmt),
+m_res(result),
+m_isNull(NULL),
+m_length(NULL),
+m_rowCount(rowCount),
+m_fieldCount(fieldCount),
+m_rowPosition(0)
 {
-    EndQuery();
-}
-
-bool ResultSet::NextRow()
-{
-    MYSQL_ROW row;
-
-    if (!mResult)
-        return false;
-
-    row = mysql_fetch_row(mResult);
-    if (!row)
-    {
-        EndQuery();
-        return false;
-    }
-
-    for (uint32 i = 0; i < mFieldCount; i++)
-        mCurrentRow[i].SetValue(row[i]);
-
-    return true;
-}
-
-void ResultSet::EndQuery()
-{
-    if (mCurrentRow)
-    {
-        delete [] mCurrentRow;
-        mCurrentRow = 0;
-    }
-
-    if (mResult)
-    {
-        mysql_free_result(mResult);
-        mResult = 0;
-    }
-}
-
-enum Field::DataTypes ResultSet::ConvertNativeType(enum_field_types mysqlType) const
-{
-    switch (mysqlType)
-    {
-        case FIELD_TYPE_TIMESTAMP:
-        case FIELD_TYPE_DATE:
-        case FIELD_TYPE_TIME:
-        case FIELD_TYPE_DATETIME:
-        case FIELD_TYPE_YEAR:
-        case FIELD_TYPE_STRING:
-        case FIELD_TYPE_VAR_STRING:
-        case FIELD_TYPE_BLOB:
-        case FIELD_TYPE_SET:
-        case FIELD_TYPE_NULL:
-            return Field::DB_TYPE_STRING;
-        case FIELD_TYPE_TINY:
-
-        case FIELD_TYPE_SHORT:
-        case FIELD_TYPE_LONG:
-        case FIELD_TYPE_INT24:
-        case FIELD_TYPE_LONGLONG:
-        case FIELD_TYPE_ENUM:
-            return Field::DB_TYPE_INTEGER;
-        case FIELD_TYPE_DECIMAL:
-        case FIELD_TYPE_FLOAT:
-        case FIELD_TYPE_DOUBLE:
-            return Field::DB_TYPE_FLOAT;
-        default:
-            return Field::DB_TYPE_UNKNOWN;
-    }
-}
-
-void ResultBind::BindResult(uint64& num_rows)
-{
-    FreeBindBuffer();
-
-    m_res = mysql_stmt_result_metadata(m_stmt);
     if (!m_res)
         return;
-
-    m_fieldCount = mysql_stmt_field_count(m_stmt);
-
-    if (m_stmt->bind_result_done)
-    {
-        delete[] m_stmt->bind->length;
-        delete[] m_stmt->bind->is_null;
-    }
 
     m_rBind = new MYSQL_BIND[m_fieldCount];
     m_isNull = new my_bool[m_fieldCount];
@@ -141,7 +64,7 @@ void ResultBind::BindResult(uint64& num_rows)
     MYSQL_FIELD* field;
     while ((field = mysql_fetch_field(m_res)))
     {
-        size_t size = SizeForType(field);
+        size_t size = Field::SizeForType(field);
 
         m_rBind[i].buffer_type = field->type;
         m_rBind[i].buffer = malloc(size);
@@ -165,17 +88,125 @@ void ResultBind::BindResult(uint64& num_rows)
         return;
     }
 
-    num_rows = mysql_stmt_num_rows(m_stmt);
+    m_rowCount = mysql_stmt_num_rows(m_stmt);
+
+    m_rows.resize(m_rowCount);
+    while (_NextRow())
+    {
+        m_rows[m_rowPosition] = new Field[m_fieldCount];
+        for (uint64 fIndex = 0; fIndex < m_fieldCount; ++fIndex)
+        {
+            if (!*m_rBind[fIndex].is_null)
+                m_rows[m_rowPosition][fIndex].SetByteValue( m_rBind[fIndex].buffer,
+                                                            m_rBind[fIndex].buffer_length,
+                                                            m_rBind[fIndex].buffer_type,
+                                                           *m_rBind[fIndex].length );
+            else
+                switch (m_rBind[fIndex].buffer_type)
+                {
+                    case MYSQL_TYPE_TINY_BLOB:
+                    case MYSQL_TYPE_MEDIUM_BLOB:
+                    case MYSQL_TYPE_LONG_BLOB:
+                    case MYSQL_TYPE_BLOB:
+                    case MYSQL_TYPE_STRING:
+                    case MYSQL_TYPE_VAR_STRING:
+                    m_rows[m_rowPosition][fIndex].SetByteValue( "",
+                                                            m_rBind[fIndex].buffer_length,
+                                                            m_rBind[fIndex].buffer_type,
+                                                           *m_rBind[fIndex].length );
+                    break;
+                    default:
+                    m_rows[m_rowPosition][fIndex].SetByteValue( 0,
+                                                            m_rBind[fIndex].buffer_length,
+                                                            m_rBind[fIndex].buffer_type,
+                                                           *m_rBind[fIndex].length );
+                }
+        }
+        m_rowPosition++;
+    }
+    m_rowPosition = 0;
+
+    /// All data is buffered, let go of mysql c api structures
+    CleanUp();
 }
 
-void ResultBind::FreeBindBuffer()
+ResultSet::~ResultSet()
 {
-    for (uint32 i = 0; i < m_fieldCount; ++i)
-        free (m_rBind[i].buffer);
+    CleanUp();
 }
 
-void ResultBind::CleanUp()
+PreparedResultSet::~PreparedResultSet()
 {
+    for (uint64 i = 0; i < m_rowCount; ++i)
+        delete[] m_rows[i];
+}
+
+bool ResultSet::NextRow()
+{
+    MYSQL_ROW row;
+
+    if (!m_result)
+        return false;
+
+    row = mysql_fetch_row(m_result);
+    if (!row)
+    {
+        CleanUp();
+        return false;
+    }
+
+    for (uint32 i = 0; i < m_fieldCount; i++)
+        m_currentRow[i].SetStructuredValue(row[i], m_fields[i].type, Field::SizeForType(&m_fields[i]));
+
+    return true;
+}
+
+bool PreparedResultSet::NextRow()
+{
+    /// Only updates the m_rowPosition so upper level code knows in which element
+    /// of the rows vector to look
+    if (++m_rowPosition >= m_rowCount)
+        return false;
+
+    return true;
+}
+
+bool PreparedResultSet::_NextRow()
+{
+    /// Only called in low-level code, namely the constructor
+    /// Will iterate over every row of data and buffer it
+    if (m_rowPosition >= m_rowCount)
+        return false;
+
+    int retval = mysql_stmt_fetch( m_stmt );
+
+    if (!retval || retval == MYSQL_DATA_TRUNCATED)
+        retval = true;
+
+    if (retval == MYSQL_NO_DATA)
+        retval = false;
+
+    return retval;
+}
+
+void ResultSet::CleanUp()
+{
+    if (m_currentRow)
+    {
+        delete [] m_currentRow;
+        m_currentRow = NULL;
+    }
+
+    if (m_result)
+    {
+        mysql_free_result(m_result);
+        m_result = NULL;
+    }
+}
+
+void PreparedResultSet::CleanUp()
+{
+    /// More of the in our code allocated sources are deallocated by the poorly documented mysql c api
     if (m_res)
         mysql_free_result(m_res);
 
@@ -185,113 +216,8 @@ void ResultBind::CleanUp()
     delete[] m_rBind;    
 }
 
-bool PreparedResultSet::GetBool(uint32 index)
+void PreparedResultSet::FreeBindBuffer()
 {
-    // TODO: Perhaps start storing data in genuine bool formats in tables
-    return GetUInt8(index) == 1 ? true : false;
-}
-
-uint8 PreparedResultSet::GetUInt8(uint32 index)
-{
-    if (!CheckFieldIndex(index))
-        return 0;
-
-    return *reinterpret_cast<uint8*>(rbind->m_rBind[index].buffer);
-}
-
-int8 PreparedResultSet::GetInt8(uint32 index)
-{
-    if (!CheckFieldIndex(index))
-        return 0;
-
-    return *reinterpret_cast<int8*>(rbind->m_rBind[index].buffer);
-}
-
-uint16 PreparedResultSet::GetUInt16(uint32 index)
-{
-    if (!CheckFieldIndex(index))
-        return 0;
-
-    return *reinterpret_cast<uint16*>(rbind->m_rBind[index].buffer);
-}
-
-int16 PreparedResultSet::GetInt16(uint32 index)
-{
-    if (!CheckFieldIndex(index))
-        return 0;
-
-    return *reinterpret_cast<int16*>(rbind->m_rBind[index].buffer);
-}
-
-uint32 PreparedResultSet::GetUInt32(uint32 index)
-{
-    if (!CheckFieldIndex(index))
-        return 0;
-
-    return *reinterpret_cast<uint32*>(rbind->m_rBind[index].buffer);
-}
-
-int32 PreparedResultSet::GetInt32(uint32 index)
-{
-    if (!CheckFieldIndex(index))
-        return 0;
-
-    return *reinterpret_cast<int32*>(rbind->m_rBind[index].buffer);
-}
-
-float PreparedResultSet::GetFloat(uint32 index)
-{
-    if (!CheckFieldIndex(index))
-        return 0;
-
-    return *reinterpret_cast<float*>(rbind->m_rBind[index].buffer);
-}
-
-uint64 PreparedResultSet::GetUInt64(uint32 index)
-{
-    if (!CheckFieldIndex(index))
-        return 0;            
-
-    return *reinterpret_cast<uint64*>(rbind->m_rBind[index].buffer);
-}
-
-int64 PreparedResultSet::GetInt64(uint32 index)
-{
-    if (!CheckFieldIndex(index))
-        return 0;            
-
-    return *reinterpret_cast<int64*>(rbind->m_rBind[index].buffer);
-}
-
-std::string PreparedResultSet::GetString(uint32 index)
-{
-    if (!CheckFieldIndex(index))
-        return std::string("");
-
-    return std::string(static_cast<char const*>(rbind->m_rBind[index].buffer), *rbind->m_rBind[index].length);
-}
-
-const char* PreparedResultSet::GetCString(uint32 index)
-{
-    if (!CheckFieldIndex(index))
-        return '\0';
-
-    return static_cast<char const*>(rbind->m_rBind[index].buffer);
-}
-
-bool PreparedResultSet::NextRow()
-{
-    if (row_position >= num_rows)
-        return false;
-
-    int retval = mysql_stmt_fetch( rbind->m_stmt );
-
-    if (!retval || retval == MYSQL_DATA_TRUNCATED)
-        retval = true;
-
-    if (retval == MYSQL_NO_DATA)
-        retval = false;
-
-    ++row_position;
-    return retval;
+    for (uint32 i = 0; i < m_fieldCount; ++i)
+        free (m_rBind[i].buffer);
 }

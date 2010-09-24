@@ -52,7 +52,7 @@ void AddonMgr::LoadFromDB()
         bar.step();
         count++;
 
-        std::string name = fields[0].GetCppString();
+        std::string name = fields[0].GetString();
         uint32 crc = fields[1].GetUInt32();
 
         SavedAddon addon(name, crc);

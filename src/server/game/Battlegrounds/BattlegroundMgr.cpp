@@ -774,7 +774,7 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
         }
 
         selectionWeight = fields[9].GetUInt8();
-        scriptId = sObjectMgr.GetScriptId(fields[10].GetString());
+        scriptId = sObjectMgr.GetScriptId(fields[10].GetCString());
         //sLog.outDetail("Creating battleground %s, %u-%u", bl->name[sWorld.GetDBClang()], MinLvl, MaxLvl);
         if (!CreateBattleground(bgTypeID, IsArena, MinPlayersPerTeam, MaxPlayersPerTeam, MinLvl, MaxLvl, bl->name[sWorld.GetDefaultDbcLocale()], bl->mapid[0], AStartLoc[0], AStartLoc[1], AStartLoc[2], AStartLoc[3], HStartLoc[0], HStartLoc[1], HStartLoc[2], HStartLoc[3], scriptId))
             continue;

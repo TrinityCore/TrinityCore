@@ -207,7 +207,7 @@ std::string CreateDumpString(char const* tableName, QueryResult result)
         if (i == 0) ss << "'";
         else ss << ", '";
 
-        std::string s = fields[i].GetCppString();
+        std::string s = fields[i].GetString();
         CharacterDatabase.escape_string(s);
         ss << s;
 
@@ -257,7 +257,7 @@ void StoreGUID(QueryResult result,uint32 field,std::set<uint32>& guids)
 void StoreGUID(QueryResult result,uint32 data,uint32 field, std::set<uint32>& guids)
 {
     Field* fields = result->Fetch();
-    std::string dataStr = fields[data].GetCppString();
+    std::string dataStr = fields[data].GetString();
     uint32 guid = atoi(gettoknth(dataStr, field).c_str());
     if (guid)
         guids.insert(guid);

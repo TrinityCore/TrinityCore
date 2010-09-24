@@ -198,7 +198,7 @@ void SQLStorageLoaderBase<T>::Load(SQLStorage &store)
                 case FT_FLOAT:
                     storeValue((float)fields[x].GetFloat(), store, p, x, offset); break;
                 case FT_STRING:
-                    storeValue((char*)fields[x].GetString(), store, p, x, offset); break;
+                    storeValue((char*)fields[x].GetCString(), store, p, x, offset); break;
             }
         ++count;
     }while( result->NextRow() );
