@@ -276,6 +276,11 @@ bool WorldSession::Update(uint32 diff)
                             packet->GetOpcode());
                         */
                         break;
+                    case STATUS_UNHANDLED:
+                        sLog.outDebug("SESSION: received not handled opcode %s (0x%.4X)",
+                            LookupOpcodeName(packet->GetOpcode()),
+                            packet->GetOpcode());
+                        break;
                 }
             }
             catch(ByteBufferException &)
