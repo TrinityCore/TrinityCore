@@ -55,7 +55,8 @@ enum ConditionType
     CONDITION_AREAID                = 23,                   // area_id          0           +referenceID       true if in area_id
     CONDITION_ITEM_TARGET           = 24,                   // ItemRequiredTargetType,  TargetEntry,    0
     CONDITION_SPELL                 = 25,                   // spell_id         0           +referenceID       true if knows spell
-    CONDITION_MAX                   = 26                    // MAX
+    CONDITION_GUID                  = 26,                   // guid             0           0                  true if creature's guid is equal to 'guid'
+    CONDITION_MAX                   = 27                    // MAX
 };
 
 enum ConditionSourceType
@@ -113,7 +114,7 @@ struct Condition
         mScriptId           = 0;
     }
 
-    bool Meets(Player * player, Unit* targetOverride = NULL);
+    bool Meets(Player * player, Unit* invoker = NULL);
     bool isLoaded() { return mConditionType > CONDITION_NONE || mReferenceId; }
 };
 
@@ -135,7 +136,7 @@ class ConditionMgr
         bool isConditionTypeValid(Condition* cond);
         ConditionList GetConditionReferences(uint32 refId);
 
-        bool IsPlayerMeetToConditions(Player* player, ConditionList conditions, Unit* targetOverride = NULL);
+        bool IsPlayerMeetToConditions(Player* player, ConditionList conditions, Unit* invoker = NULL);
         ConditionList GetConditionsForNotGroupedEntry(ConditionSourceType sType, uint32 uEntry);
 
     protected:
@@ -149,7 +150,7 @@ class ConditionMgr
         bool addToLootTemplate(Condition* cond, LootTemplate* loot);
         bool addToGossipMenus(Condition* cond);
         bool addToGossipMenuItems(Condition* cond);
-        bool IsPlayerMeetToConditionList(Player* player,const ConditionList& conditions, Unit* targetOverride = NULL);
+        bool IsPlayerMeetToConditionList(Player* player,const ConditionList& conditions, Unit* invoker = NULL);
 
         bool isGroupable(ConditionSourceType sourceType)
         {

@@ -930,14 +930,14 @@ void ScriptMgr::OnAuctionExpire(AuctionHouseObject* ah, AuctionEntry* entry)
     FOREACH_SCRIPT(AuctionHouseScript)->OnAuctionExpire(ah, entry);
 }
 
-bool ScriptMgr::OnConditionCheck(Condition* condition, Player* player, Unit* targetOverride)
+bool ScriptMgr::OnConditionCheck(Condition* condition, Player* player, Unit* invoker)
 {
     ASSERT(condition);
     ASSERT(player);
-    // targetOverride can be NULL.
+    // invoker can be NULL.
 
     GET_SCRIPT_RET(ConditionScript, condition->mScriptId, tmpscript, true);
-    return tmpscript->OnConditionCheck(condition, player, targetOverride);
+    return tmpscript->OnConditionCheck(condition, player, invoker);
 }
 
 void ScriptMgr::OnInstall(Vehicle* veh)

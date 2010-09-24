@@ -32,7 +32,7 @@
 
 // Checks if player meets the condition
 // Can have CONDITION_SOURCE_TYPE_NONE && !mReferenceId if called from a special event (ie: eventAI)
-bool Condition::Meets(Player * player, Unit* targetOverride)
+bool Condition::Meets(Player * player, Unit* invoker)
 {
     if (!player)
     {
@@ -130,8 +130,6 @@ bool Condition::Meets(Player * player, Unit* targetOverride)
         case CONDITION_CREATURE_TARGET:
         {
             Unit* target = player->GetSelectedUnit();
-            if (targetOverride)
-                target = targetOverride;
             if (target)
                 if (Creature* cTarget = target->ToCreature())
                     if (cTarget->GetEntry() == mConditionValue1)
@@ -141,8 +139,6 @@ bool Condition::Meets(Player * player, Unit* targetOverride)
         case CONDITION_TARGET_HEALTH_BELOW_PCT:
         {
             Unit* target = player->GetSelectedUnit();
-            if (targetOverride)
-                target = targetOverride;
             if (target)
                 condMeets = !target->HealthAbovePct(mConditionValue1);
             break;
@@ -196,7 +192,7 @@ bool Condition::Meets(Player * player, Unit* targetOverride)
     if (sendErrorMsg && ErrorTextd && (!condMeets || !refMeets))//send special error from DB
         player->m_ConditionErrorMsgId = ErrorTextd;
 
-    bool script = sScriptMgr.OnConditionCheck(this, player, targetOverride); // Returns true by default.
+    bool script = sScriptMgr.OnConditionCheck(this, player, invoker); // Returns true by default.
     return condMeets && refMeets && script;
 }
 
@@ -218,7 +214,7 @@ ConditionList ConditionMgr::GetConditionReferences(uint32 refId)
     return conditions;
 }
 
-bool ConditionMgr::IsPlayerMeetToConditionList(Player* player,const ConditionList& conditions, Unit* targetOverride)
+bool ConditionMgr::IsPlayerMeetToConditionList(Player* player,const ConditionList& conditions, Unit* invoker)
 {
     std::map<uint32, bool>ElseGroupMap;
     for (ConditionList::const_iterator i = conditions.begin(); i != conditions.end(); ++i)
@@ -237,7 +233,7 @@ bool ConditionMgr::IsPlayerMeetToConditionList(Player* player,const ConditionLis
                 ConditionReferenceMap::const_iterator ref = m_ConditionReferenceMap.find((*i)->mReferenceId);
                 if (ref != m_ConditionReferenceMap.end())
                 {
-                    if(!IsPlayerMeetToConditionList(player, (*ref).second, targetOverride))
+                    if(!IsPlayerMeetToConditionList(player, (*ref).second, invoker))
                         ElseGroupMap[(*i)->mElseGroup] = false;
                 }
                 else
@@ -249,7 +245,7 @@ bool ConditionMgr::IsPlayerMeetToConditionList(Player* player,const ConditionLis
             }
             else //handle normal condition
             {
-                if (!(*i)->Meets(player, targetOverride))
+                if (!(*i)->Meets(player, invoker))
                     ElseGroupMap[(*i)->mElseGroup] = false;
             }
         }
@@ -261,7 +257,7 @@ bool ConditionMgr::IsPlayerMeetToConditionList(Player* player,const ConditionLis
     return false;
 }
 
-bool ConditionMgr::IsPlayerMeetToConditions(Player* player, ConditionList conditions, Unit* targetOverride)
+bool ConditionMgr::IsPlayerMeetToConditions(Player* player, ConditionList conditions, Unit* invoker)
 {
     if (conditions.empty())
         return true;
@@ -270,7 +266,7 @@ bool ConditionMgr::IsPlayerMeetToConditions(Player* player, ConditionList condit
         player->m_ConditionErrorMsgId = 0;
 
     sLog.outDebug("ConditionMgr::IsPlayerMeetToConditions");
-    bool result = IsPlayerMeetToConditionList(player, conditions, targetOverride);
+    bool result = IsPlayerMeetToConditionList(player, conditions, invoker);
 
     if (player && player->m_ConditionErrorMsgId && player->GetSession() && !result)
             player->GetSession()->SendNotification(player->m_ConditionErrorMsgId);//m_ConditionErrorMsgId is set only if a condition was not met
