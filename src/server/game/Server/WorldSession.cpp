@@ -226,9 +226,7 @@ bool WorldSession::Update(uint32 diff)
                         break;
                     case STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT:
                         if (!_player && !m_playerRecentlyLogout)
-                        {
                             LogUnexpectedOpcode(packet, "the player has not logged in yet and not recently logout");
-                        }
                         else
                         {
                             // not expected _player or must checked in packet hanlder
@@ -270,11 +268,9 @@ bool WorldSession::Update(uint32 diff)
                             LogUnprocessedTail(packet);
                         break;
                     case STATUS_NEVER:
-                        /*
                         sLog.outError("SESSION: received not allowed opcode %s (0x%.4X)",
                             LookupOpcodeName(packet->GetOpcode()),
                             packet->GetOpcode());
-                        */
                         break;
                     case STATUS_UNHANDLED:
                         sLog.outDebug("SESSION: received not handled opcode %s (0x%.4X)",
