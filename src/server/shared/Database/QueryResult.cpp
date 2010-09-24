@@ -44,6 +44,12 @@ m_rowPosition(0)
     if (!m_res)
         return;
 
+    if (m_stmt->bind_result_done)
+    {
+        delete[] m_stmt->bind->length;
+        delete[] m_stmt->bind->is_null;
+    }
+
     m_rBind = new MYSQL_BIND[m_fieldCount];
     m_isNull = new my_bool[m_fieldCount];
     m_length = new unsigned long[m_fieldCount];
