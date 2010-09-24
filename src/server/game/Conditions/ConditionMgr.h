@@ -55,8 +55,7 @@ enum ConditionType
     CONDITION_AREAID                = 23,                   // area_id          0           +referenceID       true if in area_id
     CONDITION_ITEM_TARGET           = 24,                   // ItemRequiredTargetType,  TargetEntry,    0
     CONDITION_SPELL                 = 25,                   // spell_id         0           +referenceID       true if knows spell
-    CONDITION_GUID                  = 26,                   // guid             0           0                  true if creature's guid is equal to 'guid'
-    CONDITION_MAX                   = 27                    // MAX
+    CONDITION_MAX                   = 26                    // MAX
 };
 
 enum ConditionSourceType
