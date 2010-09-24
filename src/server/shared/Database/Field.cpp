@@ -30,7 +30,7 @@ Field::~Field()
     CleanUp();
 }
 
-void Field::SetByteValue(void* newValue, const size_t newSize, enum_field_types newType, uint32 length)
+void Field::SetByteValue(const void* newValue, const size_t newSize, enum_field_types newType, uint32 length)
 {
     // This value stores raw bytes that have to be explicitly casted later
     if (newValue)
@@ -50,7 +50,7 @@ void Field::SetStructuredValue(char* newValue, enum_field_types newType, const s
     {
         size_t size = strlen(newValue);
         data.value = new char [size+1];
-        memcpy(data.value, newValue, size);
+        strcpy((char*)data.value, newValue);
         data.length = size;
     }
 
