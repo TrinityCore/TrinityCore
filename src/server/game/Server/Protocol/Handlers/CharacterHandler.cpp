@@ -607,7 +607,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket & recv_data)
     {
         Field *fields = result->Fetch();
         accountId = fields[0].GetUInt32();
-        name = fields[1].GetCppString();
+        name = fields[1].GetString();
     }
 
     // prevent deleting other players' characters using cheating tools
@@ -741,8 +741,9 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
     //QueryResult *result = CharacterDatabase.PQuery("SELECT guildid,rank FROM guild_member WHERE guid = '%u'",pCurrChar->GetGUIDLow());
     if (PreparedQueryResult resultGuild = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADGUILD))
     {
-        pCurrChar->SetInGuild(resultGuild->GetUInt32(0));
-        pCurrChar->SetRank(resultGuild->GetUInt8(1));
+        Field* fields = resultGuild->Fetch();
+        pCurrChar->SetInGuild(fields[0].GetUInt32());
+        pCurrChar->SetRank(fields[1].GetUInt8());
     }
     else if (pCurrChar->GetGuildId())                        // clear guild related fields in case wrong data about non existed membership
     {
@@ -1067,7 +1068,7 @@ void WorldSession::HandleChangePlayerNameOpcodeCallBack(QueryResult result, std:
 
     uint32 guidLow = result->Fetch()[0].GetUInt32();
     uint64 guid = MAKE_NEW_GUID(guidLow, 0, HIGHGUID_PLAYER);
-    std::string oldname = result->Fetch()[1].GetCppString();
+    std::string oldname = result->Fetch()[1].GetString();
 
     CharacterDatabase.PExecute("UPDATE characters set name = '%s', at_login = at_login & ~ %u WHERE guid ='%u'", newname.c_str(), uint32(AT_LOGIN_RENAME), guidLow);
     CharacterDatabase.PExecute("DELETE FROM character_declinedname WHERE guid ='%u'", guidLow);
@@ -1318,7 +1319,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recv_data)
     CharacterDatabase.escape_string(newname);
     if (QueryResult result = CharacterDatabase.PQuery("SELECT name FROM characters WHERE guid ='%u'", GUID_LOPART(guid)))
     {
-        std::string oldname = result->Fetch()[0].GetCppString();
+        std::string oldname = result->Fetch()[0].GetString();
         std::string IP_str = GetRemoteAddress();
         sLog.outChar("Account: %d (IP: %s), Character[%s] (guid:%u) Customized to: %s", GetAccountId(), IP_str.c_str(), oldname.c_str(), GUID_LOPART(guid), newname.c_str());
     }

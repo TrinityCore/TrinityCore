@@ -814,9 +814,9 @@ ChatCommand * ChatHandler::getCommandTable()
             do
             {
                 Field *fields = result->Fetch();
-                std::string name = fields[0].GetCppString();
+                std::string name = fields[0].GetString();
 
-                SetDataForCommandInTable(commandTable, name.c_str(), fields[1].GetUInt16(), fields[2].GetCppString(), name);
+                SetDataForCommandInTable(commandTable, name.c_str(), fields[1].GetUInt16(), fields[2].GetString(), name);
 
             } while (result->NextRow());
         }

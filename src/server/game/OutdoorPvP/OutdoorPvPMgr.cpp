@@ -111,7 +111,7 @@ void OutdoorPvPMgr::LoadTemplates()
         OutdoorPvPData* data = new OutdoorPvPData();
         OutdoorPvPTypes realTypeId = OutdoorPvPTypes(typeId);
         data->TypeId = realTypeId;
-        data->ScriptId = sObjectMgr.GetScriptId(fields[1].GetString());
+        data->ScriptId = sObjectMgr.GetScriptId(fields[1].GetCString());
         m_OutdoorPvPDatas[realTypeId] = data;
 
         ++count;

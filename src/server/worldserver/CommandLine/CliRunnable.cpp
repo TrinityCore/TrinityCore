@@ -212,7 +212,7 @@ bool ChatHandler::GetDeletedCharacterInfoList(DeletedInfoList& foundList, std::s
             DeletedInfo info;
 
             info.lowguid    = fields[0].GetUInt32();
-            info.name       = fields[1].GetCppString();
+            info.name       = fields[1].GetString();
             info.accountId  = fields[2].GetUInt32();
 
             // account name will be empty for not existed account
@@ -562,7 +562,7 @@ bool ChatHandler::HandleAccountOnlineListCommand(const char* /*args*/)
     do
     {
         Field *fieldsDB = resultDB->Fetch();
-        std::string name = fieldsDB[0].GetCppString();
+        std::string name = fieldsDB[0].GetString();
         uint32 account = fieldsDB[1].GetUInt32();
 
         ///- Get the username, last IP and GM level of each account

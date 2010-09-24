@@ -239,7 +239,7 @@ void InstanceSaveManager::_DelHelper(const char *fields, const char *table, cons
             std::ostringstream ss;
             for (size_t i = 0; i < fieldTokens.size(); i++)
             {
-                std::string fieldValue = fields[i].GetCppString();
+                std::string fieldValue = fields[i].GetString();
                 CharacterDatabase.escape_string(fieldValue);
                 ss << (i != 0 ? " AND " : "") << fieldTokens[i] << " = '" << fieldValue << "'";
             }

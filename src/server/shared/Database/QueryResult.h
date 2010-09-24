@@ -39,193 +39,70 @@ class ResultSet
         ~ResultSet();
 
         bool NextRow();
+        uint64 GetRowCount() const { return m_rowCount; }
+        uint32 GetFieldCount() const { return m_fieldCount; }
 
-        Field *Fetch() const { return mCurrentRow; }
-
-        const Field & operator [] (int index) const { return mCurrentRow[index]; }
-
-        uint32 GetFieldCount() const { return mFieldCount; }
-        uint64 GetRowCount() const { return mRowCount; }
+        Field *Fetch() const { return m_currentRow; }
+        const Field & operator [] (uint32 index) const
+        { 
+            ASSERT(index < m_rowCount); 
+            return m_currentRow[index];
+        }
 
     protected:
-        Field *mCurrentRow;
-        uint32 mFieldCount;
-        uint64 mRowCount;
+        Field *m_currentRow;
+        uint64 m_rowCount;
+        uint32 m_fieldCount;
 
     private:
-        enum Field::DataTypes ConvertNativeType(enum_field_types mysqlType) const;
-        void EndQuery();
-        MYSQL_RES *mResult;
-
+        void CleanUp();
+        MYSQL_RES *m_result;
+        MYSQL_FIELD *m_fields;
 };
 
 typedef ACE_Refcounted_Auto_Ptr<ResultSet, ACE_Null_Mutex> QueryResult;
 
-typedef std::vector<std::string> QueryFieldNames;
-
-class QueryNamedResult
+class PreparedResultSet
 {
     public:
-        explicit QueryNamedResult(ResultSet* query, QueryFieldNames const& names) : mQuery(query), mFieldNames(names) {}
-        ~QueryNamedResult() { delete mQuery; }
+        PreparedResultSet(MYSQL_STMT* stmt, MYSQL_RES *result, MYSQL_FIELD *fields, uint64 rowCount, uint32 fieldCount);
+        ~PreparedResultSet();
 
-        // compatible interface with ResultSet
-        bool NextRow() { return mQuery->NextRow(); }
-        Field *Fetch() const { return mQuery->Fetch(); }
-        uint32 GetFieldCount() const { return mQuery->GetFieldCount(); }
-        uint64 GetRowCount() const { return mQuery->GetRowCount(); }
-        Field const& operator[] (int index) const { return (*mQuery)[index]; }
+        bool NextRow();
+        uint64 GetRowCount() const { return m_rowCount; }
+        uint32 GetFieldCount() const { return m_fieldCount; }
 
-        // named access
-        Field const& operator[] (const std::string &name) const { return mQuery->Fetch()[GetField_idx(name)]; }
-        QueryFieldNames const& GetFieldNames() const { return mFieldNames; }
-
-        uint32 GetField_idx(const std::string &name) const
+        Field* Fetch() const
         {
-            for (size_t idx = 0; idx < mFieldNames.size(); ++idx)
-            {
-                if(mFieldNames[idx] == name)
-                    return idx;
-            }
-            ASSERT(false && "unknown field name");
-            return uint32(-1);
+            ASSERT(m_rowPosition < m_rowCount);
+            return m_rows[m_rowPosition];
+        }
+
+        const Field & operator [] (uint32 index) const
+        {
+            ASSERT(m_rowPosition < m_rowCount);
+            ASSERT(index < m_fieldCount);
+            return m_rows[m_rowPosition][index];
         }
 
     protected:
-        ResultSet *mQuery;
-        QueryFieldNames mFieldNames;
-};
-
-class ResultBind
-{
-    friend class PreparedResultSet;
-    public:
-
-        ResultBind(MYSQL_STMT* stmt) : m_rBind(NULL), m_stmt(stmt), m_res(NULL), m_isNull(NULL), m_length(NULL), m_fieldCount(0) {}
-
-        ~ResultBind()
-        {
-            CleanUp();  // Clean up buffer
-        }
-
-        void BindResult(uint64& num_rows);
-
-    protected:
+        uint64 m_rowCount;
+        uint64 m_rowPosition;
+        std::vector<Field*> m_rows;
+        uint32 m_fieldCount;
+      
+    private:
         MYSQL_BIND* m_rBind;
         MYSQL_STMT* m_stmt;
         MYSQL_RES* m_res;
 
-        void FreeBindBuffer();
-        bool IsValidIndex(uint32 index) { return index < m_fieldCount; }
-
-    private:
-
-        void CleanUp();
-
-        size_t SizeForType(MYSQL_FIELD* field)
-        {
-            switch (field->type)
-            {
-                case MYSQL_TYPE_NULL:
-                    return 0;
-                case MYSQL_TYPE_TINY:
-                    return 1;
-                case MYSQL_TYPE_YEAR:
-                case MYSQL_TYPE_SHORT:
-                    return 2;
-                case MYSQL_TYPE_INT24:
-                case MYSQL_TYPE_LONG:
-                case MYSQL_TYPE_FLOAT:
-                    return 4;
-                case MYSQL_TYPE_DOUBLE:
-                case MYSQL_TYPE_LONGLONG:
-                case MYSQL_TYPE_BIT:
-                    return 8;
-
-                case MYSQL_TYPE_TIMESTAMP:
-                case MYSQL_TYPE_DATE:
-                case MYSQL_TYPE_TIME:
-                case MYSQL_TYPE_DATETIME:
-                    return sizeof(MYSQL_TIME);
-
-                case MYSQL_TYPE_TINY_BLOB:
-                case MYSQL_TYPE_MEDIUM_BLOB:
-                case MYSQL_TYPE_LONG_BLOB:
-                case MYSQL_TYPE_BLOB:
-                case MYSQL_TYPE_STRING:
-                case MYSQL_TYPE_VAR_STRING:
-                    return field->max_length + 1;
-
-                case MYSQL_TYPE_DECIMAL:
-                case MYSQL_TYPE_NEWDECIMAL:
-                    return 64;
-
-                case MYSQL_TYPE_GEOMETRY:
-                /*
-                Following types are not sent over the wire:
-                MYSQL_TYPE_ENUM:
-                MYSQL_TYPE_SET:
-                */
-                default:
-                    sLog.outSQLDriver("ResultBind::SizeForType(): invalid field type %u", uint32(field->type));
-                    return 0;
-            }
-        }
-
         my_bool* m_isNull;
         unsigned long* m_length;
-        uint32 m_fieldCount;
-};
 
-class PreparedResultSet
-{
-    template<class T> friend class DatabaseWorkerPool;
-    public:
-        PreparedResultSet(MYSQL_STMT* stmt)
-        {
-            num_rows = 0;
-            row_position = 0;
-            rbind = new ResultBind(stmt);
-            rbind->BindResult(num_rows);
-        }
-        ~PreparedResultSet()
-        {
-            delete rbind;
-        }
+        void FreeBindBuffer();
+        void CleanUp();
+        bool _NextRow();
 
-        operator bool() { return num_rows > 0; }
-
-        bool GetBool(uint32 index);
-        uint8 GetUInt8(uint32 index);
-        int8 GetInt8(uint32 index);
-        uint16 GetUInt16(uint32 index);
-        int16 GetInt16(uint32 index);
-        uint32 GetUInt32(uint32 index);
-        int32 GetInt32(uint32 index);
-        uint64 GetUInt64(uint32 index);
-        int64 GetInt64(uint32 index);
-        float GetFloat(uint32 index);
-        std::string GetString(uint32 index);
-        const char* GetCString(uint32 index);
-
-        bool NextRow();
-        uint64 GetRowCount() const { return num_rows; }
-
-    private:
-        bool CheckFieldIndex(uint32 index)  const
-        {
-            if (!rbind->IsValidIndex(index))
-                return false;
-
-            if (rbind->m_isNull[index])
-                return false;
-
-            return true;
-        }
-
-        ResultBind* rbind;
-        uint64 row_position;
-        uint64 num_rows;
 };
 
 typedef ACE_Refcounted_Auto_Ptr<PreparedResultSet, ACE_Null_Mutex> PreparedQueryResult;

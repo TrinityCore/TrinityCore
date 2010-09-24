@@ -89,7 +89,7 @@ void WorldSession::SendNameQueryOpcodeFromDBCallBack(QueryResult result)
 
     Field *fields = result->Fetch();
     uint32 guid      = fields[0].GetUInt32();
-    std::string name = fields[1].GetCppString();
+    std::string name = fields[1].GetString();
     uint8 pRace = 0, pGender = 0, pClass = 0;
     if (name == "")
         name         = GetTrinityString(LANG_NON_EXIST_CHARACTER);
@@ -110,11 +110,11 @@ void WorldSession::SendNameQueryOpcodeFromDBCallBack(QueryResult result)
     data << uint8(pClass);                                  // class
 
     // if the first declined name field (5) is empty, the rest must be too
-    if (sWorld.getBoolConfig(CONFIG_DECLINED_NAMES_USED) && fields[5].GetCppString() != "")
+    if (sWorld.getBoolConfig(CONFIG_DECLINED_NAMES_USED) && fields[5].GetString() != "")
     {
         data << uint8(1);                                   // is declined
         for (int i = 5; i < MAX_DECLINED_NAME_CASES+5; ++i)
-            data << fields[i].GetCppString();
+            data << fields[i].GetString();
     }
     else
         data << uint8(0);                                   // is not declined
