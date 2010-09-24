@@ -43,7 +43,7 @@ void SystemMgr::LoadVersion()
     {
         Field* pFields = Result->Fetch();
 
-        sLog.outString("TSCR: Database version is: %s", pFields[0].GetString());
+        sLog.outString("TSCR: Database version is: %s", pFields[0].GetCString());
         sLog.outString();
     }
     else

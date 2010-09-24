@@ -45,7 +45,7 @@ class ResultSet
         Field *Fetch() const { return m_currentRow; }
         const Field & operator [] (uint32 index) const
         { 
-            ASSERT(index < m_rowCount); 
+            ASSERT(index < m_fieldCount); 
             return m_currentRow[index];
         }
 
