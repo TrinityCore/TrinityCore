@@ -248,7 +248,7 @@ class Field
             uint32 length;          // Length (prepared strings only)
         } data;
 
-        void SetByteValue(void* newValue, const size_t newSize, enum_field_types newType, uint32 length);
+        void SetByteValue(const void* newValue, const size_t newSize, enum_field_types newType, uint32 length);
         void SetStructuredValue(char* newValue, enum_field_types newType, const size_t newSize);
         
         void CleanUp()
