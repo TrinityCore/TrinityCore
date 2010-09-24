@@ -50,7 +50,7 @@ void Field::SetStructuredValue(char* newValue, enum_field_types newType, const s
     {
         size_t size = strlen(newValue);
         data.value = new char [size+1];
-        strcpy(data.value, newValue);
+        memcpy(data.value, newValue, size);
         data.length = size;
     }
 
