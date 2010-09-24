@@ -222,14 +222,63 @@ bool MySQLConnection::Execute(PreparedStatement* stmt)
             m_mStmt->ClearParameters();
             return false;
         }
-        else
+
+        #ifdef SQLQUERY_LOG
+        sLog.outSQLDriver("[%u ms] Prepared SQL: %u", getMSTimeDiff(_s, getMSTime()), index);
+        #endif
+        m_mStmt->ClearParameters();
+        return true;
+    }
+}
+
+bool MySQLConnection::_Query(PreparedStatement* stmt, MYSQL_RES **pResult, MYSQL_FIELD **pFields, uint64* pRowCount, uint32* pFieldCount)
+{
+    if (!m_Mysql)
+        return false;
+
+    uint32 index = stmt->m_index;
+    {
+        // guarded block for thread-safe mySQL request
+        ACE_Guard<ACE_Thread_Mutex> query_connection_guard(m_Mutex);
+
+        MySQLPreparedStatement* m_mStmt = GetPreparedStatement(index);
+        ASSERT(m_mStmt);            // Can only be null if preparation failed, server side error or bad query
+        m_mStmt->m_stmt = stmt;     // Cross reference them for debug output
+        stmt->m_stmt = m_mStmt;     // TODO: Cleaner way
+
+        stmt->BindParameters();
+
+        MYSQL_STMT* msql_STMT = m_mStmt->GetSTMT();
+        MYSQL_BIND* msql_BIND = m_mStmt->GetBind();
+
+        #ifdef SQLQUERY_LOG
+        uint32 _s = getMSTime();
+        #endif
+        if (mysql_stmt_bind_param(msql_STMT, msql_BIND))
         {
-            #ifdef SQLQUERY_LOG
-            sLog.outSQLDriver("[%u ms] Prepared SQL: %u", getMSTimeDiff(_s, getMSTime()), index);
-            #endif
+            sLog.outSQLDriver("[ERROR]: PreparedStatement (id: %u) error binding params:  %s", index, mysql_stmt_error(msql_STMT));
             m_mStmt->ClearParameters();
-            return true;
+            return false;
         }
+
+        if (mysql_stmt_execute(msql_STMT))
+        {
+            sLog.outSQLDriver("[ERROR]: PreparedStatement (id: %u) error executing:  %s", index, mysql_stmt_error(msql_STMT));
+            m_mStmt->ClearParameters();
+            return false;
+        }
+
+        #ifdef SQLQUERY_LOG
+        sLog.outSQLDriver("[%u ms] Prepared SQL: %u", getMSTimeDiff(_s, getMSTime()), index);
+        #endif
+        m_mStmt->ClearParameters();
+
+        *pResult = mysql_stmt_result_metadata(msql_STMT);
+        *pRowCount = /*mysql_affected_rows(m_Mysql); //* or*/ mysql_stmt_num_rows(msql_STMT);
+        *pFieldCount = mysql_stmt_field_count(msql_STMT);
+
+        return true;
+
     }
 }
 
@@ -336,10 +385,17 @@ void MySQLConnection::PrepareStatement(uint32 index, const char* sql)
 
 PreparedResultSet* MySQLConnection::Query(PreparedStatement* stmt)
 {
-    this->Execute(stmt);
+    MYSQL_RES *result = NULL;
+    MYSQL_FIELD *fields = NULL;
+    uint64 rowCount = 0;
+    uint32 fieldCount = 0;
+
+    if (!_Query(stmt, &result, &fields, &rowCount, &fieldCount))
+        return NULL;
+
     if (mysql_more_results(m_Mysql))
     {
         mysql_next_result(m_Mysql);
     }
-    return new PreparedResultSet(stmt->m_stmt->GetSTMT());
+    return new PreparedResultSet(stmt->m_stmt->GetSTMT(), result, fields, rowCount, fieldCount);
 }

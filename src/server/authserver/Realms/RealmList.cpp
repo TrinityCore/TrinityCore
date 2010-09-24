@@ -86,21 +86,22 @@ void RealmList::UpdateRealms(bool init)
     {
         do
         {
-            uint32 realmId = result->GetUInt32(0);
-            const std::string& name = result->GetString(1);
-            const std::string& address = result->GetString(2);
-            uint32 port = result->GetUInt32(3);
-            uint8 icon = result->GetUInt8(4);
-            uint8 color = result->GetUInt8(5);
-            uint8 timezone = result->GetUInt8(6);
-            uint8 allowedSecurityLevel = result->GetUInt8(7);
-            float pop = result->GetFloat(8);
-            uint32 build = result->GetUInt32(9);
+            Field* fields = result->Fetch();
+            uint32 realmId = fields[0].GetUInt32();
+            const std::string& name = fields[1].GetString();
+            const std::string& address = fields[2].GetString();
+            uint32 port = fields[3].GetUInt32();
+            uint8 icon = fields[4].GetUInt8();
+            uint8 color = fields[5].GetUInt8();
+            uint8 timezone = fields[6].GetUInt8();
+            uint8 allowedSecurityLevel = fields[7].GetUInt8();
+            float pop = fields[8].GetFloat();
+            uint32 build = fields[9].GetUInt32();
 
             UpdateRealm(realmId, name, address, port, icon, color, timezone, (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop, build);
 
             if (init)
-                sLog.outString("Added realm \"%s\".", result->GetString(1).c_str());
+                sLog.outString("Added realm \"%s\".", fields[1].GetCString());
         }
         while (result->NextRow());
     }

@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
  * Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -20,58 +18,42 @@
 
 #include "Field.h"
 
-Field::Field() :
-mValue(NULL), mType(DB_TYPE_UNKNOWN)
+Field::Field()
 {
-}
-
-Field::Field(Field &f)
-{
-    const char *value;
-
-    value = f.GetString();
-
-    if (value)
-    {
-        mValue = new char[strlen(value) + 1];
-        if (mValue)
-            strcpy(mValue, value);
-    }
-    else
-        mValue = NULL;
-
-    mType = f.GetType();
-}
-
-Field::Field(const char *value, enum Field::DataTypes type) :
-mType(type)
-{
-    if (value)
-    {
-        mValue = new char[strlen(value) + 1];
-        if (mValue)
-            strcpy(mValue, value);
-    }
-    else
-        mValue = NULL;
+    data.value = NULL;
+    data.type = MYSQL_TYPE_NULL;
+    data.length = 0;
 }
 
 Field::~Field()
 {
-    if (mValue)
-        delete [] mValue;
+    CleanUp();
 }
 
-void Field::SetValue(const char *value)
+void Field::SetByteValue(void* newValue, const size_t newSize, enum_field_types newType, uint32 length)
 {
-    if (mValue)
-        delete [] mValue;
-
-    if (value)
+    // This value stores raw bytes that have to be explicitly casted later
+    if (newValue)
     {
-        mValue = new char[strlen(value) + 1];
-        strcpy(mValue, value);
+        data.value = new char [newSize];
+        memcpy(data.value, newValue, newSize);
+        data.length = length;
     }
-    else
-        mValue = NULL;
+    data.type = newType;
+    data.raw = true;
+}
+
+void Field::SetStructuredValue(char* newValue, enum_field_types newType, const size_t newSize)
+{
+    // This value stores somewhat structured data that needs function style casting
+    if (newValue)
+    {
+        size_t size = strlen(newValue);
+        data.value = new char [size+1];
+        strcpy(data.value, newValue);
+        data.length = size;
+    }
+
+    data.type = newType;
+    data.raw = false;
 }

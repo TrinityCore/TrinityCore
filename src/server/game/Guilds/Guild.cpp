@@ -152,7 +152,7 @@ bool Guild::AddMember(uint64 plGuid, uint32 plRank)
             return false;                                   // player doesn't exist
 
         Field *fields       = result->Fetch();
-        newmember.Name      = fields[0].GetCppString();
+        newmember.Name      = fields[0].GetString();
         newmember.ZoneId    = fields[1].GetUInt32();
         newmember.Level     = fields[2].GetUInt8();
         newmember.Class     = fields[3].GetUInt8();
@@ -226,15 +226,15 @@ bool Guild::LoadGuildFromDB(QueryResult guildDataResult)
     Field *fields = guildDataResult->Fetch();
 
     m_Id              = fields[0].GetUInt32();
-    m_Name            = fields[1].GetCppString();
+    m_Name            = fields[1].GetString();
     m_LeaderGuid      = MAKE_NEW_GUID(fields[2].GetUInt32(), 0, HIGHGUID_PLAYER);
     m_EmblemStyle     = fields[3].GetUInt32();
     m_EmblemColor     = fields[4].GetUInt32();
     m_BorderStyle     = fields[5].GetUInt32();
     m_BorderColor     = fields[6].GetUInt32();
     m_BackgroundColor = fields[7].GetUInt32();
-    GINFO             = fields[8].GetCppString();
-    MOTD              = fields[9].GetCppString();
+    GINFO             = fields[8].GetString();
+    MOTD              = fields[9].GetString();
     m_CreatedDate     = fields[10].GetUInt64();
     m_GuildBankMoney  = fields[11].GetUInt64();
 
@@ -311,7 +311,7 @@ bool Guild::LoadRanksFromDB(QueryResult guildRanksResult)
             //we loaded all ranks for this guild already, break cycle
             break;
         uint32 rankID        = fields[1].GetUInt32();
-        std::string rankName = fields[2].GetCppString();
+        std::string rankName = fields[2].GetString();
         uint32 rankRights    = fields[3].GetUInt32();
         uint32 rankMoney     = fields[4].GetUInt32();
 
@@ -385,8 +385,8 @@ bool Guild::LoadMembersFromDB(QueryResult guildMembersResult)
         if (newmember.RankId >= m_Ranks.size())
             newmember.RankId = GetLowestRank();
 
-        newmember.Pnote                 = fields[3].GetCppString();
-        newmember.OFFnote               = fields[4].GetCppString();
+        newmember.Pnote                 = fields[3].GetString();
+        newmember.OFFnote               = fields[4].GetString();
         newmember.BankResetTimeMoney    = fields[5].GetUInt32();
         newmember.BankRemMoney          = fields[6].GetUInt32();
         for (uint8 i = 0; i < GUILD_BANK_MAX_TABS; ++i)
@@ -395,7 +395,7 @@ bool Guild::LoadMembersFromDB(QueryResult guildMembersResult)
             newmember.BankRemSlotsTab[i]  = fields[8+(2*i)].GetUInt32();
         }
 
-        newmember.Name                  = fields[19].GetCppString();
+        newmember.Name                  = fields[19].GetString();
         newmember.Level                 = fields[20].GetUInt8();
         newmember.Class                 = fields[21].GetUInt8();
         newmember.ZoneId                = fields[22].GetUInt32();

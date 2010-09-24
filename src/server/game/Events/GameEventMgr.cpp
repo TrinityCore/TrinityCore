@@ -266,7 +266,7 @@ void GameEventMgr::LoadFromDB()
                 }
             }
 
-            pGameEvent.description  = fields[6].GetCppString();
+            pGameEvent.description  = fields[6].GetString();
 
         } while (result->NextRow());
 

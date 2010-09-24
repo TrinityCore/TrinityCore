@@ -2210,17 +2210,17 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     if (result)
     {
         Field* fields = result->Fetch();
-        username = fields[0].GetCppString();
+        username = fields[0].GetString();
         security = fields[1].GetUInt32();
-        email = fields[2].GetCppString();
+        email = fields[2].GetString();
 
         if (email.empty())
             email = "-";
 
         if (!m_session || m_session->GetSecurity() >= AccountTypes(security))
         {
-            last_ip = fields[3].GetCppString();
-            last_login = fields[4].GetCppString();
+            last_ip = fields[3].GetString();
+            last_login = fields[4].GetString();
         }
         else
         {
@@ -2528,7 +2528,7 @@ bool ChatHandler::HandleWpEventCommand(const char* args)
             a4 = fields[2].GetUInt32();
             a5 = fields[3].GetUInt32();
             a6 = fields[4].GetUInt32();
-            a7 = fields[5].GetString();
+            a7 = fields[5].GetCString();
             a8 = fields[6].GetFloat();
             a9 = fields[7].GetFloat();
             a10 = fields[8].GetFloat();
@@ -3856,7 +3856,7 @@ bool ChatHandler::LookupPlayerSearchCommand(QueryResult result, int32 limit)
 
         Field* fields = result->Fetch();
         uint32 acc_id = fields[0].GetUInt32();
-        std::string acc_name = fields[1].GetCppString();
+        std::string acc_name = fields[1].GetString();
 
         QueryResult chars = CharacterDatabase.PQuery("SELECT guid,name FROM characters WHERE account = '%u'", acc_id);
         if (chars)
@@ -3870,7 +3870,7 @@ bool ChatHandler::LookupPlayerSearchCommand(QueryResult result, int32 limit)
             {
                 Field* charfields = chars->Fetch();
                 guid = charfields[0].GetUInt64();
-                name = charfields[1].GetCppString();
+                name = charfields[1].GetString();
 
                 PSendSysMessage(LANG_LOOKUP_PLAYER_CHARACTER,name.c_str(),guid);
                 ++i;

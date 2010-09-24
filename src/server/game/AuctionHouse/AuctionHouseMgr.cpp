@@ -324,9 +324,11 @@ void AuctionHouseMgr::LoadAuctionItems()
     do
     {
         bar.step();
+    
+        Field* fields = result->Fetch();
 
-        uint32 item_guid        = result->GetUInt32(11);
-        uint32 item_template    = result->GetUInt32(12);
+        uint32 item_guid        = fields[11].GetUInt32();
+        uint32 item_template    = fields[12].GetUInt32();
 
         ItemPrototype const *proto = sObjectMgr.GetItemPrototype(item_template);
 
@@ -346,7 +348,8 @@ void AuctionHouseMgr::LoadAuctionItems()
         AddAItem(item);
 
         ++count;
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
     sLog.outString();
     sLog.outString(">> Loaded %u auction items", count);

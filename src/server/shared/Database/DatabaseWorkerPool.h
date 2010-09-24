@@ -301,7 +301,6 @@ class DatabaseWorkerPool
             if (!ret || !ret->GetRowCount())
                 return PreparedQueryResult(NULL);
 
-            ret->NextRow();
             return PreparedQueryResult(ret);
         }
 

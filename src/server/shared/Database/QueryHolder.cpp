@@ -89,13 +89,6 @@ QueryResult SQLQueryHolder::GetResult(size_t index)
     // Don't call to this function if the index is of an ad-hoc statement
     if (index < m_queries.size())
     {
-        /// the query strings are freed on the first GetResult or in the destructor
-        if (SQLElementData* data = &m_queries[index].first)
-        {
-            free((void*)(const_cast<char*>(data->element.query)));
-            data->element.query = NULL;
-        }
-
         ResultSet* result = m_queries[index].second.qresult;
         if (!result || !result->GetRowCount())
             return QueryResult(NULL);
@@ -112,18 +105,10 @@ PreparedQueryResult SQLQueryHolder::GetPreparedResult(size_t index)
     // Don't call to this function if the index is of a prepared statement
     if (index < m_queries.size())
     {
-        /// the query strings are freed on the first GetResult or in the destructor
-        if (SQLElementData* data = &m_queries[index].first)
-        {
-            delete data->element.stmt;
-            data->element.stmt = NULL;
-        }
-
         PreparedResultSet* result = m_queries[index].second.presult;
         if (!result || !result->GetRowCount())
             return PreparedQueryResult(NULL);
 
-        result->NextRow();
         return PreparedQueryResult(result);
     }
     else

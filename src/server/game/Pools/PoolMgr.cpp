@@ -852,8 +852,10 @@ void PoolMgr::LoadQuestPools()
     {
         bar.step();
 
-        uint32 entry   = result->GetUInt32(0);
-        uint32 pool_id = result->GetUInt32(1);
+        Field* fields = result->Fetch();
+
+        uint32 entry   = fields[0].GetUInt32();
+        uint32 pool_id = fields[1].GetUInt32();
 
         Quest const* pQuest = sObjectMgr.GetQuestTemplate(entry);
         if (!pQuest)
@@ -905,7 +907,9 @@ void PoolMgr::LoadQuestPools()
         SearchPair p(entry, pool_id);
         mQuestSearchMap.insert(p);
 
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
+    
     sLog.outString();
     sLog.outString(">> Loaded %u quests in pools", count);
 }

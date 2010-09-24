@@ -1652,7 +1652,7 @@ bool Player::BuildEnumData(QueryResult result, WorldPacket * p_data)
         char_flags |= CHARACTER_FLAG_LOCKED_BY_BILLING;
     if (sWorld.getBoolConfig(CONFIG_DECLINED_NAMES_USED))
     {
-        if (!fields[21].GetCppString().empty())
+        if (!fields[21].GetString().empty())
             char_flags |= CHARACTER_FLAG_DECLINED;
     }
     else
@@ -1697,7 +1697,7 @@ bool Player::BuildEnumData(QueryResult result, WorldPacket * p_data)
         *p_data << uint32(petFamily);
     }
 
-    Tokens data = StrSplit(fields[19].GetCppString(), " ");
+    Tokens data = StrSplit(fields[19].GetString(), " ");
     for (uint8 slot = 0; slot < EQUIPMENT_SLOT_END; ++slot)
     {
         uint32 visualbase = slot * 2;
@@ -3940,13 +3940,14 @@ void Player::_LoadSpellCooldowns(PreparedQueryResult result)
 
         do
         {
-            uint32 spell_id = result->GetUInt32(0);
-            uint32 item_id  = result->GetUInt32(1);
-            time_t db_time  = (time_t)result->GetUInt64(2);
+            Field* fields = result->Fetch();
+            uint32 spell_id = fields[0].GetUInt32();
+            uint32 item_id  = fields[1].GetUInt32();
+            time_t db_time  = (time_t)fields[2].GetUInt64();
 
             if (!sSpellStore.LookupEntry(spell_id))
             {
-                sLog.outError("Player %u has unknown spell %u in `character_spell_cooldown`, skipping.",GetGUIDLow(),spell_id);
+                sLog.outError("Player %u has unknown spell %u in `character_spell_cooldown`, skipping.", GetGUIDLow(), spell_id);
                 continue;
             }
 
@@ -4469,8 +4470,8 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
                     uint16 mailType      = fields[1].GetUInt16();
                     uint16 mailTemplateId= fields[2].GetUInt16();
                     uint32 sender        = fields[3].GetUInt32();
-                    std::string subject  = fields[4].GetCppString();
-                    std::string body     = fields[5].GetCppString();
+                    std::string subject  = fields[4].GetString();
+                    std::string body     = fields[5].GetString();
                     uint32 money         = fields[6].GetUInt32();
                     bool has_items       = fields[7].GetBool();
 
@@ -4500,8 +4501,8 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
                         {
                             do
                             {
-                                uint32 item_guidlow = resultItems->GetUInt32(11);
-                                uint32 item_template = resultItems->GetUInt32(12);
+                                uint32 item_guidlow = (*resultItems)[11].GetUInt32();
+                                uint32 item_template = (*resultItems)[12].GetUInt32();
 
                                 ItemPrototype const* itemProto = sObjectMgr.GetItemPrototype(item_template);
                                 if (!itemProto)
@@ -15768,7 +15769,7 @@ void Player::_LoadDeclinedNames(PreparedQueryResult result)
     delete m_declinedname;
     m_declinedname = new DeclinedName;
     for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-        m_declinedname->name[i] = result->GetString(i);
+        m_declinedname->name[i] = (*result)[i].GetString();
 }
 
 void Player::_LoadArenaTeamInfo(PreparedQueryResult result)
@@ -15780,10 +15781,12 @@ void Player::_LoadArenaTeamInfo(PreparedQueryResult result)
 
     do
     {
-        uint32 arenateamid       = result->GetUInt32(0);
-        uint32 played_week       = result->GetUInt32(1);
-        uint32 played_season     = result->GetUInt32(2);
-        uint32 wons_season       = result->GetUInt32(3);
+        Field* fields = result->Fetch();
+
+        uint32 arenateamid       = fields[0].GetUInt32();
+        uint32 played_week       = fields[1].GetUInt32();
+        uint32 played_season     = fields[2].GetUInt32();
+        uint32 wons_season       = fields[3].GetUInt32();
 
         ArenaTeam* aTeam = sObjectMgr.GetArenaTeamById(arenateamid);
         if (!aTeam)
@@ -15800,7 +15803,8 @@ void Player::_LoadArenaTeamInfo(PreparedQueryResult result)
         SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_GAMES_WEEK, played_week);
         SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_GAMES_SEASON, played_season);
         SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_WINS_SEASON, wons_season);
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 }
 
 void Player::_LoadArenaStatsInfo(PreparedQueryResult result)
@@ -15818,9 +15822,11 @@ void Player::_LoadArenaStatsInfo(PreparedQueryResult result)
 
     do
     {
+        Field* fields = result->Fetch();
+
         uint32 personalrating = 0;
         uint32 matchmakerrating = 1500;
-        if (result->GetUInt8(0) > slot)
+        if (fields[0].GetUInt8() > slot)
         {
             CharacterDatabase.PExecute("INSERT INTO character_arena_stats (guid, slot, personal_rating, matchmaker_rating) VALUES (%u, %u, %u, %u)", GetGUIDLow(), slot, personalrating, matchmakerrating);
             SetArenaTeamInfoField(slot, ARENA_TEAM_PERSONAL_RATING, personalrating);
@@ -15828,11 +15834,12 @@ void Player::_LoadArenaStatsInfo(PreparedQueryResult result)
             continue;
         }
 
-        personalrating = result->GetUInt32(1);
-        matchmakerrating = result->GetUInt32(2);
+        personalrating = fields[1].GetUInt32();
+        matchmakerrating = fields[2].GetUInt32();
         SetArenaTeamInfoField(slot, ARENA_TEAM_PERSONAL_RATING, personalrating);
         slot++;
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 }
 
 void Player::_LoadEquipmentSets(PreparedQueryResult result)
@@ -15844,16 +15851,17 @@ void Player::_LoadEquipmentSets(PreparedQueryResult result)
     uint32 count = 0;
     do
     {
+        Field* fields = result->Fetch();
         EquipmentSet eqSet;
 
-        eqSet.Guid      = result->GetUInt64(0);
-        uint32 index    = result->GetUInt32(1);
-        eqSet.Name      = result->GetString(2);
-        eqSet.IconName  = result->GetString(3);
+        eqSet.Guid      = fields[0].GetUInt64();
+        uint32 index    = fields[1].GetUInt32();
+        eqSet.Name      = fields[2].GetString();
+        eqSet.IconName  = fields[3].GetString();
         eqSet.state     = EQUIPMENT_SET_UNCHANGED;
 
         for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
-            eqSet.Items[i] = result->GetUInt32(4+i);
+            eqSet.Items[i] = fields[4+i].GetUInt32();
 
         m_EquipmentSets[index] = eqSet;
 
@@ -15861,7 +15869,8 @@ void Player::_LoadEquipmentSets(PreparedQueryResult result)
 
         if (count >= MAX_EQUIPMENT_SET_INDEX)                // client limit
             break;
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 }
 
 void Player::_LoadBGData(PreparedQueryResult result)
@@ -15869,18 +15878,19 @@ void Player::_LoadBGData(PreparedQueryResult result)
     if (!result)
         return;
 
+    Field* fields = result->Fetch();
     // Expecting only one row
     /* bgInstanceID, bgTeam, x, y, z, o, map, taxi[0], taxi[1], mountSpell */
-    m_bgData.bgInstanceID = result->GetUInt32(0);
-    m_bgData.bgTeam       = result->GetUInt32(1);
-    m_bgData.joinPos      = WorldLocation(result->GetUInt32(6),    // Map
-                                          result->GetFloat(2),     // X
-                                          result->GetFloat(3),     // Y
-                                          result->GetFloat(4),     // Z
-                                          result->GetFloat(5));    // Orientation
-    m_bgData.taxiPath[0]  = result->GetUInt32(7);
-    m_bgData.taxiPath[1]  = result->GetUInt32(8);
-    m_bgData.mountSpell   = result->GetUInt32(9);
+    m_bgData.bgInstanceID = fields[0].GetUInt32();
+    m_bgData.bgTeam       = fields[1].GetUInt32();
+    m_bgData.joinPos      = WorldLocation(fields[6].GetUInt32(),    // Map
+                                          fields[2].GetFloat(),     // X
+                                          fields[3].GetFloat(),     // Y
+                                          fields[4].GetFloat(),     // Z
+                                          fields[5].GetFloat());    // Orientation
+    m_bgData.taxiPath[0]  = fields[7].GetUInt32();
+    m_bgData.taxiPath[1]  = fields[8].GetUInt32();
+    m_bgData.mountSpell   = fields[9].GetUInt32();
 }
 
 bool Player::LoadPositionFromDB(uint32& mapid, float& x,float& y,float& z,float& o, bool& in_flight, uint64 guid)
@@ -15896,7 +15906,7 @@ bool Player::LoadPositionFromDB(uint32& mapid, float& x,float& y,float& z,float&
     z = fields[2].GetFloat();
     o = fields[3].GetFloat();
     mapid = fields[4].GetUInt32();
-    in_flight = !fields[5].GetCppString().empty();
+    in_flight = !fields[5].GetString().empty();
 
     return true;
 }
@@ -15950,8 +15960,10 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
         sLog.outError("Player (GUID: %u) not found in table `characters`, can't load. ",guid);
         return false;
     }
+    
+    Field* fields = result->Fetch();
 
-    uint32 dbAccountId = result->GetUInt32(1);
+    uint32 dbAccountId = fields[1].GetUInt32();
 
     // check if the character's account in the db and the logged in account match.
     // player should be able to load/delete character only with correct account!
@@ -15969,7 +15981,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 
     Object::_Create(guid, 0, HIGHGUID_PLAYER);
 
-    m_name = result->GetString(2);
+    m_name = fields[2].GetString();
 
     // check name limitations
     if (ObjectMgr::CheckPlayerName(m_name) != CHAR_NAME_SUCCESS ||
@@ -15984,38 +15996,38 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 
     // overwrite some data fields
     uint32 bytes0 = 0;
-    bytes0 |= result->GetUInt8(3);                         // race
-    bytes0 |= result->GetUInt8(4) << 8;                    // class
-    bytes0 |= result->GetUInt8(5) << 16;                   // gender
+    bytes0 |= fields[3].GetUInt8();                         // race
+    bytes0 |= fields[4].GetUInt8() << 8;                    // class
+    bytes0 |= fields[5].GetUInt8() << 16;                   // gender
     SetUInt32Value(UNIT_FIELD_BYTES_0, bytes0);
 
-    SetUInt32Value(UNIT_FIELD_LEVEL, result->GetUInt8(6));
-    SetUInt32Value(PLAYER_XP, result->GetUInt32(7));
+    SetUInt32Value(UNIT_FIELD_LEVEL, fields[6].GetUInt8());
+    SetUInt32Value(PLAYER_XP, fields[7].GetUInt32());
 
-    _LoadIntoDataField(result->GetString(61).c_str(), PLAYER_EXPLORED_ZONES_1, PLAYER_EXPLORED_ZONES_SIZE);
-    _LoadIntoDataField(result->GetString(64).c_str(), PLAYER__FIELD_KNOWN_TITLES, KNOWN_TITLES_SIZE*2);
+    _LoadIntoDataField(fields[61].GetCString(), PLAYER_EXPLORED_ZONES_1, PLAYER_EXPLORED_ZONES_SIZE);
+    _LoadIntoDataField(fields[64].GetCString(), PLAYER__FIELD_KNOWN_TITLES, KNOWN_TITLES_SIZE*2);
 
     SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, DEFAULT_WORLD_OBJECT_SIZE);
     SetFloatValue(UNIT_FIELD_COMBATREACH, 1.5f);
     SetFloatValue(UNIT_FIELD_HOVERHEIGHT, 1.0f);
 
-    uint32 money = result->GetUInt32(8);
+    uint32 money = fields[8].GetUInt32();
     if (money > MAX_MONEY_AMOUNT)
         money = MAX_MONEY_AMOUNT;
     SetMoney(money);
 
-    SetUInt32Value(PLAYER_BYTES, result->GetUInt32(9));
-    SetUInt32Value(PLAYER_BYTES_2, result->GetUInt32(10));
-    SetUInt32Value(PLAYER_BYTES_3, (result->GetUInt16(49) & 0xFFFE) | result->GetUInt8(5));
-    SetUInt32Value(PLAYER_FLAGS, result->GetUInt32(11));
-    SetInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, result->GetUInt32(48));
+    SetUInt32Value(PLAYER_BYTES, fields[9].GetUInt32());
+    SetUInt32Value(PLAYER_BYTES_2, fields[10].GetUInt32());
+    SetUInt32Value(PLAYER_BYTES_3, (fields[49].GetUInt16() & 0xFFFE) | fields[5].GetUInt8());
+    SetUInt32Value(PLAYER_FLAGS, fields[11].GetUInt32());
+    SetInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, fields[48].GetUInt32());
 
-    SetUInt64Value(PLAYER_FIELD_KNOWN_CURRENCIES, result->GetUInt64(47));
+    SetUInt64Value(PLAYER_FIELD_KNOWN_CURRENCIES, fields[47].GetUInt64());
 
-    SetUInt32Value(PLAYER_AMMO_ID, result->GetUInt32(63));
+    SetUInt32Value(PLAYER_AMMO_ID, fields[63].GetUInt32());
 
     // set which actionbars the client has active - DO NOT REMOVE EVER AGAIN (can be changed though, if it does change fieldwise)
-    SetByteValue(PLAYER_FIELD_BYTES, 2, result->GetUInt8(65));
+    SetByteValue(PLAYER_FIELD_BYTES, 2, fields[65].GetUInt8());
 
     InitDisplayIds();
 
@@ -16043,21 +16055,21 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     InitPrimaryProfessions();                               // to max set before any spell loaded
 
     // init saved position, and fix it later if problematic
-    uint32 transGUID = uint32(result->GetUInt64(30));   // field type is uint64 but lowguid is saved
-    Relocate(result->GetFloat(12), result->GetFloat(13), result->GetFloat(14), result->GetFloat(16));
-    uint32 mapId = result->GetUInt32(15);
-    uint32 instanceId = result->GetUInt8(58);
+    uint32 transGUID = uint32(fields[30].GetUInt64());   // field type is uint64 but lowguid is saved
+    Relocate(fields[12].GetFloat(), fields[13].GetFloat(), fields[14].GetFloat(), fields[16].GetFloat());
+    uint32 mapId = fields[15].GetUInt32();
+    uint32 instanceId = fields[58].GetUInt8();
 
-    uint32 dungeonDiff = result->GetUInt32(38) & 0x0F;
+    uint32 dungeonDiff = fields[38].GetUInt32() & 0x0F;
     if (dungeonDiff >= MAX_DUNGEON_DIFFICULTY)
         dungeonDiff = DUNGEON_DIFFICULTY_NORMAL;
-    uint32 raidDiff = (result->GetUInt8(38) >> 4) & 0x0F;
+    uint32 raidDiff = (fields[38].GetUInt8() >> 4) & 0x0F;
     if (raidDiff >= MAX_RAID_DIFFICULTY)
         raidDiff = RAID_DIFFICULTY_10MAN_NORMAL;
     SetDungeonDifficulty(Difficulty(dungeonDiff));          // may be changed in _LoadGroup
     SetRaidDifficulty(Difficulty(raidDiff));                // may be changed in _LoadGroup
 
-    std::string taxi_nodes = result->GetString(37);
+    std::string taxi_nodes = fields[37].GetString();
 
 #define RelocateToHomebind(){ mapId = m_homebindMapId; instanceId = 0; Relocate(m_homebindX, m_homebindY, m_homebindZ); }
 
@@ -16066,7 +16078,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     _LoadArenaTeamInfo(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADARENAINFO));
     _LoadArenaStatsInfo(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADARENASTATS));
 
-    uint32 arena_currency = result->GetUInt32(39);
+    uint32 arena_currency = fields[39].GetUInt32();
     if (arena_currency > sWorld.getIntConfig(CONFIG_MAX_ARENA_POINTS))
         arena_currency = sWorld.getIntConfig(CONFIG_MAX_ARENA_POINTS);
 
@@ -16088,12 +16100,12 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
             SetArenaTeamInfoField(arena_slot, ArenaTeamInfoType(j), 0);
     }
 
-    SetHonorPoints(result->GetUInt32(40));
-    SetUInt32Value(PLAYER_FIELD_TODAY_CONTRIBUTION, result->GetUInt32(41));
-    SetUInt32Value(PLAYER_FIELD_YESTERDAY_CONTRIBUTION, result->GetUInt32(42));
-    SetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, result->GetUInt32(43));
-    SetUInt16Value(PLAYER_FIELD_KILLS, 0, result->GetUInt16(44));
-    SetUInt16Value(PLAYER_FIELD_KILLS, 1, result->GetUInt16(45));
+    SetHonorPoints(fields[40].GetUInt32());
+    SetUInt32Value(PLAYER_FIELD_TODAY_CONTRIBUTION, fields[41].GetUInt32());
+    SetUInt32Value(PLAYER_FIELD_YESTERDAY_CONTRIBUTION, fields[42].GetUInt32());
+    SetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, fields[43].GetUInt32());
+    SetUInt16Value(PLAYER_FIELD_KILLS, 0, fields[44].GetUInt16());
+    SetUInt16Value(PLAYER_FIELD_KILLS, 1, fields[45].GetUInt16());
 
     _LoadBoundInstances(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADBOUNDINSTANCES));
     _LoadBGData(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADBGDATA));
@@ -16153,7 +16165,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     else if (transGUID)
     {
         m_movementInfo.t_guid = MAKE_NEW_GUID(transGUID, 0, HIGHGUID_MO_TRANSPORT);
-        m_movementInfo.t_pos.Relocate(result->GetFloat(26), result->GetFloat(27), result->GetFloat(28), result->GetFloat(29));
+        m_movementInfo.t_pos.Relocate(fields[26].GetFloat(), fields[27].GetFloat(), fields[28].GetFloat(), fields[29].GetFloat());
 
         if (!Trinity::IsValidMapCoord(
             GetPositionX()+m_movementInfo.t_pos.m_positionX,GetPositionY()+m_movementInfo.t_pos.m_positionY,
@@ -16312,7 +16324,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     SaveRecallPosition();
 
     time_t now = time(NULL);
-    time_t logoutTime = time_t(result->GetUInt64(22));
+    time_t logoutTime = time_t(fields[22].GetUInt64());
 
     // since last logout (in seconds)
     uint32 time_diff = uint32(now - logoutTime); //uint64 is excessive for a time_diff in seconds.. uint32 allows for 136~ year difference.
@@ -16327,12 +16339,12 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     uint16 newDrunkenValue = uint16(soberFactor*(GetUInt32Value(PLAYER_BYTES_3) & 0xFFFE));
     SetDrunkValue(newDrunkenValue);
 
-    m_cinematic = result->GetUInt8(18);
-    m_Played_time[PLAYED_TIME_TOTAL]= result->GetUInt32(19);
-    m_Played_time[PLAYED_TIME_LEVEL]= result->GetUInt32(20);
+    m_cinematic = fields[18].GetUInt8();
+    m_Played_time[PLAYED_TIME_TOTAL]= fields[19].GetUInt32();
+    m_Played_time[PLAYED_TIME_LEVEL]= fields[20].GetUInt32();
 
-    m_resetTalentsCost = result->GetUInt32(24);
-    m_resetTalentsTime = time_t(result->GetUInt64(25));
+    m_resetTalentsCost = fields[24].GetUInt32();
+    m_resetTalentsTime = time_t(fields[25].GetUInt64());
 
     // reserve some flags
     uint32 old_safe_flags = GetUInt32Value(PLAYER_FLAGS) & (PLAYER_FLAGS_HIDE_CLOAK | PLAYER_FLAGS_HIDE_HELM);
@@ -16340,25 +16352,25 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     if (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GM))
         SetUInt32Value(PLAYER_FLAGS, 0 | old_safe_flags);
 
-    m_taxi.LoadTaxiMask(result->GetString(17).c_str());            // must be before InitTaxiNodesForLevel
+    m_taxi.LoadTaxiMask(fields[17].GetCString());            // must be before InitTaxiNodesForLevel
 
-    uint32 extraflags = result->GetUInt32(31);
+    uint32 extraflags = fields[31].GetUInt32();
 
-    m_stableSlots = result->GetUInt8(32);
+    m_stableSlots = fields[32].GetUInt8();
     if (m_stableSlots > MAX_PET_STABLES)
     {
         sLog.outError("Player can have not more %u stable slots, but have in DB %u",MAX_PET_STABLES,uint32(m_stableSlots));
         m_stableSlots = MAX_PET_STABLES;
     }
 
-    m_atLoginFlags = result->GetUInt32(33);
+    m_atLoginFlags = fields[33].GetUInt32();
 
     // Honor system
     // Update Honor kills data
     m_lastHonorUpdateTime = logoutTime;
     UpdateHonorFields();
 
-    m_deathExpireTime = (time_t)result->GetUInt64(36);
+    m_deathExpireTime = (time_t)fields[36].GetUInt64();
     if (m_deathExpireTime > now+MAX_DEATH_COUNT*DEATH_EXPIRE_STEP)
         m_deathExpireTime = now+MAX_DEATH_COUNT*DEATH_EXPIRE_STEP-1;
 
@@ -16394,7 +16406,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     InitRunes();
 
     // rest bonus can only be calculated after InitStatsForLevel()
-    m_rest_bonus = result->GetFloat(21);
+    m_rest_bonus = fields[21].GetFloat();
 
     if (time_diff > 0)
     {
@@ -16402,7 +16414,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
         float bubble0 = 0.031f;
         //speed collect rest bonus in offline, in logout, in tavern, city (section/in hour)
         float bubble1 = 0.125f;
-        float bubble = result->GetUInt32(23) > 0
+        float bubble = fields[23].GetUInt32() > 0
             ? bubble1*sWorld.getRate(RATE_REST_OFFLINE_IN_TAVERN_OR_CITY)
             : bubble0*sWorld.getRate(RATE_REST_OFFLINE_IN_WILDERNESS);
 
@@ -16418,8 +16430,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     //mails are loaded only when needed ;-) - when player in game click on mailbox.
     //_LoadMail();
 
-    m_specsCount = result->GetUInt8(59);
-    m_activeSpec = result->GetUInt8(60);
+    m_specsCount = fields[59].GetUInt8();
+    m_activeSpec = fields[60].GetUInt8();
 
     // sanity check
     if (m_specsCount > MAX_TALENT_SPECS || m_activeSpec > MAX_TALENT_SPEC || m_specsCount < MIN_TALENT_SPECS)
@@ -16465,7 +16477,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 
     // check PLAYER_CHOSEN_TITLE compatibility with PLAYER__FIELD_KNOWN_TITLES
     // note: PLAYER__FIELD_KNOWN_TITLES updated at quest status loaded
-    uint32 curTitle = result->GetUInt32(46);
+    uint32 curTitle = fields[46].GetUInt32();
     if (curTitle && !HasTitle(curTitle))
         curTitle = 0;
 
@@ -16488,11 +16500,11 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     UpdateAllStats();
 
     // restore remembered power/health values (but not more max values)
-    uint32 savedHealth = result->GetUInt32(50);
+    uint32 savedHealth = fields[50].GetUInt32();
     SetHealth(savedHealth > GetMaxHealth() ? GetMaxHealth() : savedHealth);
     for (uint8 i = 0; i < MAX_POWERS; ++i)
     {
-        uint32 savedPower = result->GetUInt32(51+i);
+        uint32 savedPower = fields[51+i].GetUInt32();
         SetPower(Powers(i),savedPower > GetMaxPower(Powers(i)) ? GetMaxPower(Powers(i)) : savedPower);
     }
 
@@ -16621,10 +16633,11 @@ void Player::_LoadActions(PreparedQueryResult result)
     {
         do
         {
-            uint8 button = result->GetUInt8(0);
-            uint32 action = result->GetUInt32(1);
-            uint8 type = result->GetUInt8(2);
-            uint8 spec = result->GetUInt8(3);
+            Field* fields = result->Fetch();
+            uint8 button = fields[0].GetUInt8();
+            uint32 action = fields[1].GetUInt32();
+            uint8 type = fields[2].GetUInt8();
+            uint8 spec = fields[3].GetUInt8();
 
             if (spec >= MAX_TALENT_SPECS)
                 continue;
@@ -16638,7 +16651,8 @@ void Player::_LoadActions(PreparedQueryResult result)
                 // Will deleted in DB at next save (it can create data until save but marked as deleted)
                 m_actionButtons[spec][button].uState = ACTIONBUTTON_DELETED;
             }
-        } while (result->NextRow());
+        }
+        while (result->NextRow());
     }
 }
 
@@ -16652,22 +16666,23 @@ void Player::_LoadAuras(PreparedQueryResult result, uint32 timediff)
     {
         do
         {
+            Field* fields = result->Fetch();
             int32 damage[3];
             int32 baseDamage[3];
-            uint64 caster_guid = result->GetUInt64(0);
-            uint32 spellid = result->GetUInt32(1);
-            uint8 effmask = result->GetUInt8(2);
-            uint8 recalculatemask = result->GetUInt8(3);
-            uint8 stackcount = result->GetUInt8(4);
-            damage[0] = result->GetInt32(5);
-            damage[1] = result->GetInt32(6);
-            damage[2] = result->GetInt32(7);
-            baseDamage[0] = result->GetInt32(8);
-            baseDamage[1] = result->GetInt32(9);
-            baseDamage[2] = result->GetInt32(10);
-            int32 maxduration = result->GetInt32(11);
-            int32 remaintime = result->GetInt32(12);
-            uint8 remaincharges = result->GetUInt8(13);
+            uint64 caster_guid = fields[0].GetUInt64();
+            uint32 spellid = fields[1].GetUInt32();
+            uint8 effmask = fields[2].GetUInt8();
+            uint8 recalculatemask = fields[3].GetUInt8();
+            uint8 stackcount = fields[4].GetUInt8();
+            damage[0] = fields[5].GetInt32();
+            damage[1] = fields[6].GetInt32();
+            damage[2] = fields[7].GetInt32();
+            baseDamage[0] = fields[8].GetInt32();
+            baseDamage[1] = fields[9].GetInt32();
+            baseDamage[2] = fields[10].GetInt32();
+            int32 maxduration = fields[11].GetInt32();
+            int32 remaintime = fields[12].GetInt32();
+            uint8 remaincharges = fields[13].GetUInt8();
 
             SpellEntry const* spellproto = sSpellStore.LookupEntry(spellid);
             if (!spellproto)
@@ -16777,10 +16792,12 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timediff)
         m_itemUpdateQueueBlocked = true;
         do
         {
-            uint32 bag_guid  = result->GetUInt32(11);
-            uint8  slot      = result->GetUInt8(12);
-            uint32 item_guid = result->GetUInt32(13);
-            uint32 item_id   = result->GetUInt32(14);
+            Field* fields = result->Fetch();
+
+            uint32 bag_guid  = fields[11].GetUInt32();
+            uint8  slot      = fields[12].GetUInt8();
+            uint32 item_guid = fields[13].GetUInt32();
+            uint32 item_id   = fields[14].GetUInt32();
 
             ItemPrototype const * proto = sObjectMgr.GetItemPrototype(item_id);
 
@@ -16852,9 +16869,10 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timediff)
                     }
                     else
                     {
-                        item->SetRefundRecipient(result2->GetUInt32(0));
-                        item->SetPaidMoney(result2->GetUInt32(1));
-                        item->SetPaidExtendedCost(result2->GetUInt32(2));
+                        Field* fields2 = result2->Fetch();
+                        item->SetRefundRecipient(fields2[0].GetUInt32());
+                        item->SetPaidMoney(fields2[1].GetUInt32());
+                        item->SetPaidExtendedCost(fields2[2].GetUInt32());
                         AddRefundReference(item->GetGUIDLow());
                     }
                 }
@@ -16871,7 +16889,8 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timediff)
                 }
                 else
                 {
-                    std::string strGUID = result2->GetString(0);
+                    Field* fields2 = result2->Fetch();
+                    std::string strGUID = fields[2].GetString();
                     Tokens GUIDlist = StrSplit(strGUID, " ");
                     AllowedLooterSet looters;
                     for (Tokens::iterator itr = GUIDlist.begin(); itr != GUIDlist.end(); ++itr)
@@ -16994,8 +17013,10 @@ void Player::_LoadMailedItems(Mail *mail)
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     do
     {
-        uint32 item_guid_low = result->GetUInt32(11);
-        uint32 item_template = result->GetUInt32(12);
+        Field* fields = result->Fetch();
+
+        uint32 item_guid_low = fields[11].GetUInt32();
+        uint32 item_template = fields[12].GetUInt32();
 
         mail->AddItem(item_guid_low, item_template);
 
@@ -17013,7 +17034,7 @@ void Player::_LoadMailedItems(Mail *mail)
 
         Item *item = NewItemOrBag(proto);
 
-        if (!item->LoadFromDB(item_guid_low, MAKE_NEW_GUID(result->GetUInt32(13), 0, HIGHGUID_PLAYER), result, item_template))
+        if (!item->LoadFromDB(item_guid_low, MAKE_NEW_GUID(fields[13].GetUInt32(), 0, HIGHGUID_PLAYER), result, item_template))
         {
             sLog.outError("Player::_LoadMailedItems - Item in mail (%u) doesn't exist !!!! - item guid: %u, deleted from mail", mail->messageID, item_guid_low);
             CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid = '%u'", item_guid_low);
@@ -17023,7 +17044,8 @@ void Player::_LoadMailedItems(Mail *mail)
         }
 
         AddMItem(item);
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
     CharacterDatabase.CommitTransaction(trans);
 }
@@ -17033,12 +17055,12 @@ void Player::_LoadMailInit(PreparedQueryResult resultUnread, PreparedQueryResult
     //set a count of unread mails
     //QueryResult *resultMails = CharacterDatabase.PQuery("SELECT COUNT(id) FROM mail WHERE receiver = '%u' AND (checked & 1)=0 AND deliver_time <= '" UI64FMTD "'", GUID_LOPART(playerGuid),(uint64)cTime);
     if (resultUnread)
-        unReadMails = resultUnread->GetUInt8(0);
+        unReadMails = (*resultUnread)[0].GetUInt8();
 
     // store nearest delivery time (it > 0 and if it < current then at next player update SendNewMaill will be called)
     //resultMails = CharacterDatabase.PQuery("SELECT MIN(deliver_time) FROM mail WHERE receiver = '%u' AND (checked & 1)=0", GUID_LOPART(playerGuid));
     if (resultDelivery)
-        m_nextMailDelivereTime = (time_t)resultDelivery->GetUInt64(0);
+        m_nextMailDelivereTime = (time_t)(*resultDelivery)[0].GetUInt64();
 }
 
 void Player::_LoadMail()
@@ -17056,8 +17078,8 @@ void Player::_LoadMail()
             m->messageType = fields[1].GetUInt8();
             m->sender = fields[2].GetUInt32();
             m->receiver = fields[3].GetUInt32();
-            m->subject = fields[4].GetCppString();
-            m->body = fields[5].GetCppString();
+            m->subject = fields[4].GetString();
+            m->body = fields[5].GetString();
             bool has_items = fields[6].GetBool();
             m->expire_time = (time_t)fields[7].GetUInt64();
             m->deliver_time = (time_t)fields[8].GetUInt64();
@@ -17109,7 +17131,9 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
     {
         do
         {
-            uint32 quest_id = result->GetUInt32(0);
+            Field* fields = result->Fetch();
+
+            uint32 quest_id = fields[0].GetUInt32();
                                                             // used to be new, no delete?
             Quest const* pQuest = sObjectMgr.GetQuestTemplate(quest_id);
             if (pQuest)
@@ -17117,7 +17141,7 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
                 // find or create
                 QuestStatusData& questStatusData = mQuestStatus[quest_id];
 
-                uint32 qstatus = result->GetUInt32(1);
+                uint32 qstatus = fields[1].GetUInt32();
                 if (qstatus < MAX_QUEST_STATUS)
                     questStatusData.m_status = QuestStatus(qstatus);
                 else
@@ -17126,10 +17150,10 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
                     sLog.outError("Player %s have invalid quest %d status (%d), replaced by QUEST_STATUS_NONE(0).",GetName(),quest_id,qstatus);
                 }
 
-                questStatusData.m_rewarded = (result->GetUInt8(2) > 0);
-                questStatusData.m_explored = (result->GetUInt8(3) > 0);
+                questStatusData.m_rewarded = (fields[2].GetUInt8() > 0);
+                questStatusData.m_explored = (fields[3].GetUInt8() > 0);
 
-                time_t quest_time = time_t(result->GetUInt64(4));
+                time_t quest_time = time_t(fields[4].GetUInt64());
 
                 if (pQuest->HasFlag(QUEST_TRINITY_FLAGS_TIMED) && !GetQuestRewardStatus(quest_id) &&  questStatusData.m_status != QUEST_STATUS_NONE)
                 {
@@ -17143,14 +17167,14 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
                 else
                     quest_time = 0;
 
-                questStatusData.m_creatureOrGOcount[0] = result->GetUInt32(5);
-                questStatusData.m_creatureOrGOcount[1] = result->GetUInt32(6);
-                questStatusData.m_creatureOrGOcount[2] = result->GetUInt32(7);
-                questStatusData.m_creatureOrGOcount[3] = result->GetUInt32(8);
-                questStatusData.m_itemcount[0] = result->GetUInt32(9);
-                questStatusData.m_itemcount[1] = result->GetUInt32(10);
-                questStatusData.m_itemcount[2] = result->GetUInt32(11);
-                questStatusData.m_itemcount[3] = result->GetUInt32(12);
+                questStatusData.m_creatureOrGOcount[0] = fields[5].GetUInt32();
+                questStatusData.m_creatureOrGOcount[1] = fields[6].GetUInt32();
+                questStatusData.m_creatureOrGOcount[2] = fields[7].GetUInt32();
+                questStatusData.m_creatureOrGOcount[3] = fields[8].GetUInt32();
+                questStatusData.m_itemcount[0] = fields[9].GetUInt32();
+                questStatusData.m_itemcount[1] = fields[10].GetUInt32();
+                questStatusData.m_itemcount[2] = fields[11].GetUInt32();
+                questStatusData.m_itemcount[3] = fields[12].GetUInt32();
 
                 questStatusData.uState = QUEST_UNCHANGED;
 
@@ -17222,10 +17246,12 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
                 break;
             }
 
-            uint32 quest_id = result->GetUInt32(0);
+            Field* fields = result->Fetch();
+
+            uint32 quest_id = fields[0].GetUInt32();
 
             // save _any_ from daily quest times (it must be after last reset anyway)
-            m_lastDailyQuestTime = (time_t)result->GetUInt64(1);
+            m_lastDailyQuestTime = (time_t)fields[1].GetUInt64();
 
             Quest const* pQuest = sObjectMgr.GetQuestTemplate(quest_id);
             if (!pQuest)
@@ -17235,7 +17261,8 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
             ++quest_daily_idx;
 
             sLog.outDebug("Daily quest (%u) cooldown for player (GUID: %u)", quest_id, GetGUIDLow());
-        } while (result->NextRow());
+        }
+        while (result->NextRow());
     }
 
     m_DailyQuestChanged = false;
@@ -17249,14 +17276,15 @@ void Player::_LoadWeeklyQuestStatus(PreparedQueryResult result)
     {
         do
         {
-            uint32 quest_id = result->GetUInt32(0);
+            uint32 quest_id = (*result)[0].GetUInt32();
             Quest const* pQuest = sObjectMgr.GetQuestTemplate(quest_id);
             if (!pQuest)
                 continue;
 
             m_weeklyquests.insert(quest_id);
             sLog.outDebug("Weekly quest {%u} cooldown for player (GUID: %u)", quest_id, GetGUIDLow());
-        } while (result->NextRow());
+        }
+        while (result->NextRow());
     }
 
     m_WeeklyQuestChanged = false;
@@ -17269,7 +17297,7 @@ void Player::_LoadSpells(PreparedQueryResult result)
     if (result)
     {
         do
-            addSpell(result->GetUInt32(0), result->GetBool(1), false, false, result->GetBool(2));
+            addSpell((*result)[0].GetUInt32(), (*result)[1].GetBool(), false, false, (*result)[2].GetBool());
         while (result->NextRow());
     }
 }
@@ -17279,7 +17307,7 @@ void Player::_LoadGroup(PreparedQueryResult result)
     //QueryResult *result = CharacterDatabase.PQuery("SELECT guid FROM group_member WHERE memberGuid=%u", GetGUIDLow());
     if (result)
     {
-        if (Group* group = sObjectMgr.GetGroupByGUID(result->GetUInt32(0)))
+        if (Group* group = sObjectMgr.GetGroupByGUID((*result)[0].GetUInt32()))
         {
             uint8 subgroup = group->GetMemberGroup(GetGUID());
             SetGroup(group, subgroup);
@@ -17305,12 +17333,14 @@ void Player::_LoadBoundInstances(PreparedQueryResult result)
     {
         do
         {
-            bool perm = result->GetBool(1);
-            uint32 mapId = result->GetUInt32(2);
-            uint32 instanceId = result->GetUInt32(0);
-            uint8 difficulty = result->GetUInt8(3);
+            Field* fields = result->Fetch();
 
-            time_t resetTime = (time_t)result->GetUInt64(4);
+            bool perm = fields[1].GetBool();
+            uint32 mapId = fields[2].GetUInt32();
+            uint32 instanceId = fields[0].GetUInt32();
+            uint8 difficulty = fields[3].GetUInt8();
+
+            time_t resetTime = (time_t)fields[4].GetUInt64();
             // the resettime for normal instances is only saved when the InstanceSave is unloaded
             // so the value read from the DB may be wrong here but only if the InstanceSave is loaded
             // and in that case it is not used
@@ -17338,7 +17368,6 @@ void Player::_LoadBoundInstances(PreparedQueryResult result)
                 continue;
             }
 
-
             if (!perm && group)
             {
                 sLog.outError("_LoadBoundInstances: player %s(%d) is in group %d but has a non-permanent character bind to map %d,%d,%d", GetName(), GetGUIDLow(), GUID_LOPART(group->GetGUID()), mapId, instanceId, difficulty);
@@ -17349,7 +17378,8 @@ void Player::_LoadBoundInstances(PreparedQueryResult result)
             // since non permanent binds are always solo bind, they can always be reset
             if (InstanceSave *save = sInstanceSaveMgr.AddInstanceSave(mapId, instanceId, Difficulty(difficulty), resetTime, !perm, true))
                BindToInstance(save, perm, true);
-        } while (result->NextRow());
+        }
+        while (result->NextRow());
     }
 }
 
@@ -17656,11 +17686,13 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
     //QueryResult *result = CharacterDatabase.PQuery("SELECT map,zone,position_x,position_y,position_z FROM character_homebind WHERE guid = '%u'", GUID_LOPART(playerGuid));
     if (result)
     {
-        m_homebindMapId = result->GetUInt32(0);
-        m_homebindAreaId = result->GetUInt16(1);
-        m_homebindX = result->GetFloat(2);
-        m_homebindY = result->GetFloat(3);
-        m_homebindZ = result->GetFloat(4);
+        Field* fields = result->Fetch();
+
+        m_homebindMapId = fields[0].GetUInt32();
+        m_homebindAreaId = fields[1].GetUInt16();
+        m_homebindX = fields[2].GetFloat();
+        m_homebindY = fields[3].GetFloat();
+        m_homebindZ = fields[4].GetFloat();
 
         MapEntry const* bindMapEntry = sMapStore.LookupEntry(m_homebindMapId);
 
@@ -22927,9 +22959,10 @@ void Player::_LoadSkills(PreparedQueryResult result)
     {
         do
         {
-            uint16 skill    = result->GetUInt16(0);
-            uint16 value    = result->GetUInt16(1);
-            uint16 max      = result->GetUInt16(2);
+            Field* fields = result->Fetch();
+            uint16 skill    = fields[0].GetUInt16();
+            uint16 value    = fields[1].GetUInt16();
+            uint16 max      = fields[2].GetUInt16();
 
             SkillLineEntry const *pSkill = sSkillLineStore.LookupEntry(skill);
             if (!pSkill)
@@ -22977,7 +23010,8 @@ void Player::_LoadSkills(PreparedQueryResult result)
                 sLog.outError("Character %u has more than %u skills.", GetGUIDLow(), PLAYER_MAX_SKILLS);
                 break;
             }
-        } while (result->NextRow());
+        }
+        while (result->NextRow());
     }
 
     for (; count < PLAYER_MAX_SKILLS; ++count)
@@ -23061,7 +23095,7 @@ uint8 Player::CanEquipUniqueItem(Item* pItem, uint8 eslot, uint32 limit_count) c
         uint32 gem_limit_count = !pItem->IsEquipped() && pGem->ItemLimitCategory
             ? pItem->GetGemCountWithLimitCategory(pGem->ItemLimitCategory) : 1;
 
-        if (uint8 res = CanEquipUniqueItem(pGem, eslot,gem_limit_count))
+        if (uint8 res = CanEquipUniqueItem(pGem, eslot, gem_limit_count))
             return res;
     }
 
@@ -23074,7 +23108,7 @@ uint8 Player::CanEquipUniqueItem(ItemPrototype const* itemProto, uint8 except_sl
     if (itemProto->Flags & ITEM_PROTO_FLAG_UNIQUE_EQUIPPED)
     {
         // there is an equip limit on this item
-        if (HasItemOrGemWithIdEquipped(itemProto->ItemId,1,except_slot))
+        if (HasItemOrGemWithIdEquipped(itemProto->ItemId, 1, except_slot))
             return EQUIP_ERR_ITEM_UNIQUE_EQUIPABLE;
     }
 
@@ -23092,7 +23126,7 @@ uint8 Player::CanEquipUniqueItem(ItemPrototype const* itemProto, uint8 except_sl
 
         // there is an equip limit on this item
         if (HasItemOrGemWithLimitCategoryEquipped(itemProto->ItemLimitCategory, limitEntry->maxCount - limit_count + 1, except_slot))
-            return EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_EQUIPPED_EXCEEDED;
+            return EQUIP_ERR_ITEM_MAX_COUNT_EQUIPPED_SOCKETED;
     }
 
     return EQUIP_ERR_OK;
@@ -23833,17 +23867,20 @@ void Player::_LoadGlyphs(PreparedQueryResult result)
 
     do
     {
-        uint8 spec = result->GetUInt8(0);
+        Field* fields = result->Fetch();
+
+        uint8 spec = fields[0].GetUInt8();
         if (spec >= m_specsCount)
             continue;
 
-        m_Glyphs[spec][0] = result->GetUInt32(1);
-        m_Glyphs[spec][1] = result->GetUInt32(2);
-        m_Glyphs[spec][2] = result->GetUInt32(3);
-        m_Glyphs[spec][3] = result->GetUInt32(4);
-        m_Glyphs[spec][4] = result->GetUInt32(5);
-        m_Glyphs[spec][5] = result->GetUInt32(6);
-    } while (result->NextRow());
+        m_Glyphs[spec][0] = fields[1].GetUInt32();
+        m_Glyphs[spec][1] = fields[2].GetUInt32();
+        m_Glyphs[spec][2] = fields[3].GetUInt32();
+        m_Glyphs[spec][3] = fields[4].GetUInt32();
+        m_Glyphs[spec][4] = fields[5].GetUInt32();
+        m_Glyphs[spec][5] = fields[6].GetUInt32();
+    }
+    while (result->NextRow());
 }
 
 void Player::_SaveGlyphs(SQLTransaction& trans)
@@ -23862,7 +23899,7 @@ void Player::_LoadTalents(PreparedQueryResult result)
     if (result)
     {
         do
-            AddTalent(result->GetUInt32(0), result->GetUInt32(1), false);
+            AddTalent((*result)[0].GetUInt32(), (*result)[1].GetUInt32(), false);
         while (result->NextRow());
     }
 }

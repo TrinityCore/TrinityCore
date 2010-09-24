@@ -58,16 +58,16 @@ Quest::Quest(Field * questRecord)
     SrcItemId = questRecord[31].GetUInt32();
     SrcItemCount = questRecord[32].GetUInt32();
     SrcSpell = questRecord[33].GetUInt32();
-    Title = questRecord[34].GetCppString();
-    Details = questRecord[35].GetCppString();
-    Objectives = questRecord[36].GetCppString();
-    OfferRewardText = questRecord[37].GetCppString();
-    RequestItemsText = questRecord[38].GetCppString();
-    EndText = questRecord[39].GetCppString();
-    CompletedText = questRecord[40].GetCppString();
+    Title = questRecord[34].GetString();
+    Details = questRecord[35].GetString();
+    Objectives = questRecord[36].GetString();
+    OfferRewardText = questRecord[37].GetString();
+    RequestItemsText = questRecord[38].GetString();
+    EndText = questRecord[39].GetString();
+    CompletedText = questRecord[40].GetString();
 
     for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
-        ObjectiveText[i] = questRecord[41+i].GetCppString();
+        ObjectiveText[i] = questRecord[41+i].GetString();
 
     for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
         ReqItemId[i] = questRecord[45+i].GetUInt32();

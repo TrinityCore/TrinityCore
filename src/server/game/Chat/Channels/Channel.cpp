@@ -62,7 +62,7 @@ Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
             m_moderate = fields[1].GetBool();
             m_public = fields[2].GetBool();
             m_password  = fields[3].GetString();
-            const char* db_BannedList = fields[4].GetString();
+            const char* db_BannedList = fields[4].GetCString();
 
             m_IsSaved = true;
 

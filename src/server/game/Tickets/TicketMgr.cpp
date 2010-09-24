@@ -72,8 +72,8 @@ void TicketMgr::LoadGMTickets()
         ticket = new GM_Ticket;
         ticket->guid = fields[0].GetUInt64();
         ticket->playerGuid = fields[1].GetUInt64();
-        ticket->name = fields[2].GetCppString();
-        ticket->message = fields[3].GetCppString();
+        ticket->name = fields[2].GetString();
+        ticket->message = fields[3].GetString();
         ticket->createtime = fields[4].GetUInt64();
         ticket->map = fields[5].GetUInt32();
         ticket->pos_x = fields[6].GetFloat();
@@ -85,7 +85,7 @@ void TicketMgr::LoadGMTickets()
             m_openTickets++;
 
         ticket->assignedToGM = fields[11].GetUInt64();
-        ticket->comment = fields[12].GetCppString();
+        ticket->comment = fields[12].GetString();
         ticket->completed = fields[13].GetBool();
         ticket->escalated = fields[14].GetUInt8();
         ticket->viewed = fields[15].GetBool();
