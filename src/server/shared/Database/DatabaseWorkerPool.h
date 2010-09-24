@@ -43,6 +43,16 @@ enum MySQLThreadBundle
     MYSQL_BUNDLE_ALL    = MYSQL_BUNDLE_RA | MYSQL_BUNDLE_RAR | MYSQL_BUNDLE_WORLD,
 };
 
+class PingOperation : public SQLOperation
+{
+    /// Operation for idle delaythreads
+    bool Execute()
+    {
+        m_conn->Ping();
+        return true;
+    }
+};
+
 template <class T>
 class DatabaseWorkerPool
 {
@@ -303,6 +313,27 @@ class DatabaseWorkerPool
 
             return PreparedQueryResult(ret);
         }
+
+        void KeepAlive()
+        {
+            ConnectionMap::const_iterator itr;
+            {
+                /*! MapUpdate + unbundled threads */
+                ACE_Guard<ACE_Thread_Mutex> guard(m_connectionMap_mtx);
+                itr = m_sync_connections.find(ACE_Based::Thread::current());
+                if (itr != m_sync_connections.end())
+                    itr->second->Ping();
+            }
+
+            if (m_bundle_conn)
+                m_bundle_conn->Ping();
+
+            /// Assuming all worker threads are free, every worker thread will receive 1 ping operation request
+            /// If one or more worker threads are busy, the ping operations will not be split evenly, but this doesn't matter 
+            /// as the sole purpose is to prevent connections from idling.
+            for (size_t i = 0; i < m_async_connections.size(); ++i)
+                Enqueue(new PingOperation);
+        }        
 
     private:
         unsigned long escape_string(char *to, const char *from, unsigned long length)

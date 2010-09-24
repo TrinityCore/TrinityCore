@@ -50,6 +50,7 @@ class MySQLConnection
         void CommitTransaction();
 
         operator bool () const { return m_Mysql != NULL; }
+        void Ping() { mysql_ping(m_Mysql); }
 
     protected:
         MYSQL* GetHandle()  { return m_Mysql; }
