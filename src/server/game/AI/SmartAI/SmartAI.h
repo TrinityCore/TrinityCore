@@ -81,7 +81,7 @@ enum SMARTAI_EVENT
     SMART_EVENT_BUFFED                  = 23,                   // Param1 = SpellID, Param2 = Number of Time STacked, Param3/4 Repeat Min/Max
     SMART_EVENT_TARGET_BUFFED           = 24,                   // Param1 = SpellID, Param2 = Number of Time STacked, Param3/4 Repeat Min/Max
     SMART_EVENT_RESET                   = 35,                   // Is it called after combat, when the creature respawn and spawn. -- TRINITY ONLY
-    
+
     SMART_EVENT_END                     = 36,
 };
 
@@ -201,7 +201,7 @@ struct SMARTAI_EVENT_HOLDER
     uint32 event_flags;
     int32 event_param[SMARTAI_EVENT_PARAM_COUNT];
 
-    SMARTAI_ACTION action_type; 
+    SMARTAI_ACTION action_type;
     int32 action_param[SMARTAI_ACTION_PARAM_COUNT];
 
     float param_x;
@@ -253,7 +253,7 @@ class SmartAI : public CreatureAI
     public:
         ~SmartAI(){};
         explicit SmartAI(Creature *c);
-        
+
         // Called when creature is spawned or respawned
         void JustRespawned();
 

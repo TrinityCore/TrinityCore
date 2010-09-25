@@ -46,6 +46,6 @@ bool LoginDatabaseConnection::Open(const std::string& infoString)
 
     PrepareStatement(LOGIN_GET_ACCIDBYNAME, "SELECT id FROM account WHERE username = ?");
     PrepareStatement(LOGIN_GET_NUMCHARSONREALM, "SELECT numchars FROM realmcharacters WHERE realmid = ? AND acctid= ?");
-    
+
     return true;
 }
