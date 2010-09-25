@@ -162,7 +162,7 @@ bool ResultSet::NextRow()
     }
 
     for (uint32 i = 0; i < m_fieldCount; i++)
-        m_currentRow[i].SetStructuredValue(row[i], m_fields[i].type, Field::SizeForType(&m_fields[i]));
+        m_currentRow[i].SetStructuredValue(row[i], m_fields[i].type);
 
     return true;
 }
