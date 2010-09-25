@@ -71,6 +71,7 @@
 #include "CharacterDatabaseCleaner.h"
 #include "ScriptMgr.h"
 #include "WeatherMgr.h"
+#include "CreatureTextMgr.h"
 
 volatile bool World::m_stopEvent = false;
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
@@ -1641,6 +1642,9 @@ void World::SetInitialWorldSettings()
 
     sLog.outString("Loading spell script names...");
     sObjectMgr.LoadSpellScriptNames();
+
+    sLog.outString("Loading Creature Texts...");
+    sCreatureTextMgr.LoadCreatureTexts();
 
     sLog.outString("Initializing Scripts...");
     sScriptMgr.Initialize();
