@@ -249,11 +249,11 @@ class Field
         } data;
 
         void SetByteValue(const void* newValue, const size_t newSize, enum_field_types newType, uint32 length);
-        void SetStructuredValue(char* newValue, enum_field_types newType, const size_t newSize);
+        void SetStructuredValue(char* newValue, enum_field_types newType);
         
         void CleanUp()
         {
-            delete[] (data.value);
+            delete[] ((char*)data.value);
             data.value = NULL;
         }
 
