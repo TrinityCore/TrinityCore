@@ -50,6 +50,8 @@ void setinhabittype
 
 event change flags
 
+need a local SendChat()
+
 */
 
 //temp copied from eai, will be modded
@@ -247,9 +249,6 @@ class SmartAIMgr
 
 class SmartAI : public CreatureAI
 {
-    protected:
-        Creature * const me;
-
     public:
         ~SmartAI(){};
         explicit SmartAI(Creature *c);
@@ -363,6 +362,7 @@ class SmartAI : public CreatureAI
         void SetMovePathEndAction(SMARTAI_ACTION action = SMART_ACTION_FORCE_DESPAWN);
 
     private:
+        uint32 mTestTimer;
 };
 
 #define sSmartAIMgr (*ACE_Singleton<SmartAIMgr, ACE_Null_Mutex>::instance())
