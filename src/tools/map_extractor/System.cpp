@@ -913,6 +913,7 @@ void ExtractMapsFromMpq(uint32 build)
             printf("Processing........................%d%%\r", (100 * (y+1)) / WDT_MAP_SIZE);
         }
     }
+    printf("\n");
     delete [] areas;
     delete [] map_ids;
 }
