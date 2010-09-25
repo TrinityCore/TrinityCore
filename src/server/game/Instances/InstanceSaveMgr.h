@@ -19,8 +19,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef __InstanceSaveMgr_H
-#define __InstanceSaveMgr_H
+#ifndef _INSTANCESAVEMGR_H
+#define _INSTANCESAVEMGR_H
 
 #include "Define.h"
 #include <ace/Singleton.h>
@@ -175,6 +175,9 @@ class InstanceSaveManager
         uint32 GetNumInstanceSaves() { return m_instanceSaveById.size(); }
         uint32 GetNumBoundPlayersTotal();
         uint32 GetNumBoundGroupsTotal();
+
+    protected:
+        static uint16 ResetTimeDelay[];
 
     private:
 
