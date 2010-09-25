@@ -142,6 +142,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
                 switch(type)
                 {
                     case CHAT_MSG_PARTY:
+                    case CHAT_MSG_PARTY_LEADER:
                     case CHAT_MSG_RAID:
                     case CHAT_MSG_RAID_LEADER:
                     case CHAT_MSG_RAID_WARNING:
