@@ -6987,8 +6987,9 @@ bool ChatHandler::HandleGMListFullCommand(const char* /*args*/)
         do
         {
             Field *fields = result->Fetch();
-            PSendSysMessage("|%15s|%6s|", fields[0].GetString(),fields[1].GetString());
-        }while (result->NextRow());
+            PSendSysMessage("|%15s|%6s|", fields[0].GetCString(),fields[1].GetCString());
+        }
+        while (result->NextRow());
 
         PSendSysMessage(" ======================== ");
     }
