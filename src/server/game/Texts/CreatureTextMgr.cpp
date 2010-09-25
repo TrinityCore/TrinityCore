@@ -29,7 +29,7 @@ void CreatureTextMgr::LoadCreatureTexts()
 
     PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_LOAD_CRETEXT);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
-    
+
     if (!result)
     {
         barGoLink bar(1);
@@ -38,7 +38,7 @@ void CreatureTextMgr::LoadCreatureTexts()
         sLog.outString(">> Loaded 0 Creature Texts. DB table `creature_texts` is empty.");
         return;
     }
-    
+
     barGoLink bar(result->GetRowCount());
     uint32 TextCount = 0;
     uint32 CreatureCount = 0;
@@ -100,7 +100,7 @@ void CreatureTextMgr::LoadCreatureTexts()
         }
         //add the text into our entry's group
         mTextMap[temp.entry][temp.group].push_back(temp);
-        
+
         ++TextCount;
     } while (result->NextRow());
 

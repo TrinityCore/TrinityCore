@@ -548,7 +548,7 @@ void WorldSession::SendLfgBootPlayer(LfgPlayerBoot* pBoot)
     }
     uint64 victimguid = MAKE_NEW_GUID(pBoot->victimLowGuid, 0, HIGHGUID_PLAYER);
 
-    sLog.outDebug("SMSG_LFG_BOOT_PLAYER [" UI64FMTD "] inProgress: %u - didVote: %u - agree: %u - victim: [" UI64FMTD "] votes: %u - agrees: %u - left: %u - needed: %u - reason %s", 
+    sLog.outDebug("SMSG_LFG_BOOT_PLAYER [" UI64FMTD "] inProgress: %u - didVote: %u - agree: %u - victim: [" UI64FMTD "] votes: %u - agrees: %u - left: %u - needed: %u - reason %s",
         GetPlayer()->GetGUID(), uint8(pBoot->inProgress), uint8(playerVote != LFG_ANSWER_PENDING), uint8(playerVote == LFG_ANSWER_AGREE), victimguid, votesNum, agreeNum, secsleft, pBoot->votedNeeded, pBoot->reason.c_str());
     WorldPacket data(SMSG_LFG_BOOT_PLAYER, 1 + 1 + 1 + 8 + 4 + 4 + 4 + 4 + pBoot->reason.length());
     data << uint8(pBoot->inProgress);                       // Vote in progress
