@@ -530,7 +530,7 @@ void WorldSession::HandleContactListOpcode(WorldPacket & recv_data)
     uint32 unk;
     recv_data >> unk;
     sLog.outDebug("unk value is %u", unk);
-    _player->GetSocial()->SendSocialList();
+    _player->GetSocial()->SendSocialList(_player);
 }
 
 void WorldSession::HandleAddFriendOpcode(WorldPacket & recv_data)

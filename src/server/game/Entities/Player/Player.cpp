@@ -20978,7 +20978,8 @@ void Player::SetGroup(Group *group, int8 subgroup)
 
 void Player::SendInitialPacketsBeforeAddToMap()
 {
-    GetSocial()->SendSocialList();
+    /// Pass 'this' as argument because we're not stored in ObjectAccessor yet
+    GetSocial()->SendSocialList(this);
 
     // guild bank list wtf?
 
