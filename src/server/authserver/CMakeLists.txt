@@ -68,7 +68,7 @@ add_executable(authserver
   ${authserver_SRCS}
 )
 
-add_dependencies(authserver genrev)
+add_dependencies(authserver revision.h)
 
 if( NOT WIN32 )
   add_definitions(-D_TRINITY_REALM_CONFIG='"${CONF_DIR}/authserver.conf"')
