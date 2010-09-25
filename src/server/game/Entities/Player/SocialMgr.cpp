@@ -115,9 +115,8 @@ void PlayerSocial::SetFriendNote(uint32 friend_guid, std::string note)
     m_playerSocialMap[friend_guid].Note = note;
 }
 
-void PlayerSocial::SendSocialList()
+void PlayerSocial::SendSocialList(Player* plr)
 {
-    Player *plr = sObjectMgr.GetPlayer(GetPlayerGUID());
     if (!plr)
         return;
 
