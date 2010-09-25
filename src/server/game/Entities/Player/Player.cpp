@@ -11597,7 +11597,7 @@ Item* Player::_StoreItem(uint16 pos, Item *pItem, uint32 count, bool clone, bool
             pItem->SetOwnerGUID(GetGUID());                 // prevent error at next SetState in case trade/mail/buy from vendor
             pItem->SetNotRefundable(this);
             pItem->SetSoulboundTradeable(NULL, this, false);
-            RemoveTradeableItem(pItem->GetGUIDLow());
+            RemoveTradeableItem(pItem);
             pItem->SetState(ITEM_REMOVED, this);
         }
 
@@ -11716,7 +11716,7 @@ Item* Player::EquipItem(uint16 pos, Item *pItem, bool update)
         pItem->SetOwnerGUID(GetGUID());                     // prevent error at next SetState in case trade/mail/buy from vendor
         pItem->SetNotRefundable(this);
         pItem->SetSoulboundTradeable(NULL, this, false);
-        RemoveTradeableItem(pItem->GetGUIDLow());
+        RemoveTradeableItem(pItem);
         pItem->SetState(ITEM_REMOVED, this);
         pItem2->SetState(ITEM_CHANGED, this);
 
@@ -11806,6 +11806,7 @@ void Player::RemoveItem(uint8 bag, uint8 slot, bool update)
 
         RemoveEnchantmentDurations(pItem);
         RemoveItemDurations(pItem);
+        RemoveTradeableItem(pItem);
 
         if (bag == INVENTORY_SLOT_BAG_0)
         {
@@ -11888,15 +11889,6 @@ void Player::MoveItemFromInventory(uint8 bag, uint8 slot, bool update)
             it->RemoveFromWorld();
             it->DestroyForPlayer(this);
         }
-        for (ItemDurationList::iterator itr = m_itemSoulboundTradeable.begin(); itr != m_itemSoulboundTradeable.end();)
-        {
-            if ((*itr)->GetGUID() == it->GetGUID())
-            {
-                m_itemSoulboundTradeable.erase(itr++);
-                break;
-            }
-            ++itr;
-        }
     }
 }
 
@@ -11948,7 +11940,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
 
         pItem->SetNotRefundable(this);
         pItem->SetSoulboundTradeable(NULL, this, false);
-        RemoveTradeableItem(pItem->GetGUIDLow());
+        RemoveTradeableItem(pItem);
 
         ItemRemovedQuestCheck(pItem->GetEntry(), pItem->GetCount());
 
@@ -12915,16 +12907,15 @@ void Player::UpdateSoulboundTradeItems()
     }
 }
 
-void Player::RemoveTradeableItem(uint32 lowGuid)
+void Player::RemoveTradeableItem(Item* item)
 {
-    for (ItemDurationList::iterator itr = m_itemSoulboundTradeable.begin(); itr != m_itemSoulboundTradeable.end();)
+    for (ItemDurationList::iterator itr = m_itemSoulboundTradeable.begin(); itr != m_itemSoulboundTradeable.end(); ++itr)
     {
-        if ((*itr)->GetGUIDLow() == lowGuid)
+        if ((*itr) == item)
         {
-            m_itemSoulboundTradeable.erase(itr++);
+            m_itemSoulboundTradeable.erase(itr);
             break;
         }
-        ++itr;
     }
 }
 

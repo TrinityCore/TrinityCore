@@ -1262,7 +1262,7 @@ class Player : public Unit, public GridObject<Player>
 
         void UpdateEnchantTime(uint32 time);
         void UpdateSoulboundTradeItems();
-        void RemoveTradeableItem(uint32 guid);
+        void RemoveTradeableItem(Item* item);
         void UpdateItemDuration(uint32 time, bool realtimeonly = false);
         void AddEnchantmentDurations(Item *item);
         void RemoveEnchantmentDurations(Item *item);
