@@ -559,9 +559,9 @@ void AchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, PreparedQ
 {
     if (achievementResult)
     {
-        Field* fields = achievementResult->Fetch();
         do
         {
+            Field* fields = achievementResult->Fetch();
             uint32 achievement_id = fields[0].GetUInt32();
 
             // don't must happen: cleanup at server startup in sAchievementMgr.LoadCompletedAchievements()
@@ -577,9 +577,9 @@ void AchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, PreparedQ
 
     if (criteriaResult)
     {
-        Field* fields = criteriaResult->Fetch();
         do
         {
+            Field* fields = criteriaResult->Fetch();
             uint32 id      = fields[0].GetUInt32();
             uint32 counter = fields[1].GetUInt32();
             time_t date    = time_t(fields[2].GetUInt64());
