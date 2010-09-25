@@ -32,10 +32,13 @@ Field::~Field()
 
 void Field::SetByteValue(const void* newValue, const size_t newSize, enum_field_types newType, uint32 length)
 {
+    if (data.value)
+        CleanUp();
+
     // This value stores raw bytes that have to be explicitly casted later
     if (newValue)
     {
-        data.value = new char [newSize];
+        data.value = new char[newSize];
         memcpy(data.value, newValue, newSize);
         data.length = length;
     }
@@ -43,8 +46,11 @@ void Field::SetByteValue(const void* newValue, const size_t newSize, enum_field_
     data.raw = true;
 }
 
-void Field::SetStructuredValue(char* newValue, enum_field_types newType, const size_t newSize)
+void Field::SetStructuredValue(char* newValue, enum_field_types newType)
 {
+    if (data.value)
+        CleanUp();
+
     // This value stores somewhat structured data that needs function style casting
     if (newValue)
     {
