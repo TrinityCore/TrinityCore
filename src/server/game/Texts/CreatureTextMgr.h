@@ -41,6 +41,16 @@ struct CreatureTextEntry
     uint32 sound;
 };
 
+enum TextRange
+{
+    TEXT_RANGE_NORMAL   = 0,
+    TEXT_RANGE_AREA     = 1,
+    TEXT_RANGE_ZONE     = 2,
+    TEXT_RANGE_MAP      = 3,
+    TEXT_RANGE_WORLD    = 4
+};
+
+
 
 typedef std::vector<CreatureTextEntry> CreatureTextGroup;               //texts in a group
 typedef UNORDERED_MAP<uint32, CreatureTextGroup> CreatureTextHolder;    //groups for a creature
@@ -55,8 +65,12 @@ class CreatureTextMgr
         void LoadCreatureTexts();
         CreatureTextMap  const& GetTextMap() const { return mTextMap; }
 
+        void SendChat(WorldObject* source, char const* text, ChatType msgtype = CHAT_TYPE_SAY, Language language = LANG_UNIVERSAL, uint64 whisperGuid = 0, TextRange range = TEXT_RANGE_NORMAL) const;
+        
     private:
         CreatureTextMap mTextMap;
+        void BuildMonsterChat(WorldPacket *data, WorldObject* source, ChatType msgtype, char const* text, Language language, uint64 whisperGuid) const;
+        void SendChatPacket(WorldPacket *data, WorldObject* source, ChatType msgtype, uint64 whisperGuid, TextRange range) const;
 };
 
 #define sCreatureTextMgr (*ACE_Singleton<CreatureTextMgr, ACE_Null_Mutex>::instance())

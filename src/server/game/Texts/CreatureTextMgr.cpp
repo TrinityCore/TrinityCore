@@ -107,3 +107,136 @@ void CreatureTextMgr::LoadCreatureTexts()
     sLog.outString();
     sLog.outString(">> Loaded %u Creature Texts for %u Creatures.", TextCount, CreatureCount);
 }
+
+void CreatureTextMgr::SendChat(WorldObject* source, char const* text, ChatType msgtype, Language language, uint64 whisperGuid, TextRange range) const
+{
+    WorldPacket data(SMSG_MESSAGECHAT, 200);
+    BuildMonsterChat(&data, source, msgtype, text, language, whisperGuid);//build our packet
+    SendChatPacket(&data, source, msgtype, whisperGuid, range);//send our packet
+}
+
+void CreatureTextMgr::BuildMonsterChat(WorldPacket *data, WorldObject* source, ChatType msgtype, char const* text, Language language, uint64 whisperGuid) const
+{
+    ChatMsg sendType = CHAT_MSG_MONSTER_SAY;
+    switch (msgtype)
+    {
+        case CHAT_TYPE_YELL:
+            sendType = CHAT_MSG_MONSTER_YELL;
+            break;
+        case CHAT_TYPE_TEXT_EMOTE:
+            sendType = CHAT_MSG_MONSTER_EMOTE;
+            break;
+        case CHAT_TYPE_BOSS_EMOTE:
+            sendType = CHAT_MSG_RAID_BOSS_EMOTE;
+            break;
+        case CHAT_TYPE_WHISPER:
+            if (whisperGuid)
+                sendType = CHAT_MSG_MONSTER_WHISPER;
+            else
+            {
+                sLog.outError("CreatureTextMgr: WorldObject(%s) TypeId %u GuidLow %u sent CHAT_TYPE_WHISPER with targetGuid 0. Ignoring.",source->GetName(), uint32(source->GetTypeId()), source->GetGUIDLow());
+                return;
+            }
+            break;
+        case CHAT_TYPE_BOSS_WHISPER:
+            if (whisperGuid)
+                sendType = CHAT_MSG_RAID_BOSS_WHISPER;
+            else
+            {
+                sLog.outError("CreatureTextMgr: WorldObject(%s) TypeId %u GuidLow %u sent CHAT_TYPE_BOSS_WHISPER with targetGuid 0. Ignoring.",source->GetName(), uint32(source->GetTypeId()), source->GetGUIDLow());
+                return;
+            }
+            break;
+        case CHAT_TYPE_SAY://default type
+        default:
+            break;
+    }
+    *data << (uint8)sendType;
+    *data << (uint32)language;
+    *data << (uint64)source->GetGUID();
+    *data << (uint32)0;                                     // 2.1.0
+    *data << (uint32)(strlen(source->GetName())+1);
+    *data << source->GetName();
+    *data << (uint64)whisperGuid;                           // Unit Target
+    if (whisperGuid && !IS_PLAYER_GUID(whisperGuid))        //can only whisper players 
+    {
+        sLog.outError("CreatureTextMgr: WorldObject(%s) TypeId %u GuidLow %u sent WHISPER msg to Non-Player target. Ignoring.",source->GetName(), uint32(source->GetTypeId()), source->GetGUIDLow());
+        return;
+        //*data << (uint32)1;                                 // target name length
+        //*data << (uint8)0;                                  // target name
+    }
+    *data << (uint32)(strlen(text)+1);
+    *data << text;
+    *data << (uint8)0;                                      // ChatTag
+}
+
+void CreatureTextMgr::SendChatPacket(WorldPacket *data, WorldObject* source, ChatType msgtype, uint64 whisperGuid, TextRange range) const
+{
+    float dist = sWorld.getFloatConfig(CONFIG_LISTEN_RANGE_SAY);
+    
+    switch (msgtype)
+    {
+        case CHAT_TYPE_YELL:
+            dist = sWorld.getFloatConfig(CONFIG_LISTEN_RANGE_YELL);
+            break;
+        case CHAT_TYPE_BOSS_EMOTE:
+        case CHAT_TYPE_TEXT_EMOTE:
+            dist = sWorld.getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE);
+            break;
+        case CHAT_TYPE_WHISPER:
+        case CHAT_TYPE_BOSS_WHISPER:
+            {
+                    if (range != TEXT_RANGE_NORMAL)
+                {
+                    sLog.outError("CreatureTextMgr: WorldObject(%s) TypeId %u GuidLow %u sent WHISPER msg with TextRange set. Ignoring.",source->GetName(), uint32(source->GetTypeId()), source->GetGUIDLow());
+                    return;
+                }
+                Player *player = sObjectMgr.GetPlayer(whisperGuid);
+                if (!player || !player->GetSession())
+                    return;
+                player->GetSession()->SendPacket(data);
+            }
+            return;
+        case CHAT_TYPE_SAY://default dist
+        default:
+            break;
+    }
+
+    switch (range)
+    {
+        case TEXT_RANGE_AREA:
+            {
+                uint32 areaId = source->GetAreaId();
+                Map::PlayerList const& pList = source->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
+                    if (itr->getSource()->GetAreaId() == areaId)
+                        (itr->getSource())->GetSession()->SendPacket(data);
+            }
+            return;
+        case TEXT_RANGE_ZONE:
+            {
+                uint32 zoneId = source->GetZoneId();
+                Map::PlayerList const& pList = source->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
+                    if (itr->getSource()->GetZoneId() == zoneId)
+                        (itr->getSource())->GetSession()->SendPacket(data);
+            }
+            return;
+        case TEXT_RANGE_MAP:
+            {
+                Map::PlayerList const& pList = source->GetMap()->GetPlayers();
+                for (Map::PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
+                        (itr->getSource())->GetSession()->SendPacket(data);
+            }
+            return;
+        case TEXT_RANGE_WORLD:
+            {
+                sWorld.SendGlobalMessage(data);
+            }
+            return;
+        case TEXT_RANGE_NORMAL:
+        default:
+            break;
+    }
+    source->SendMessageToSetInRange(data, dist, true);
+}

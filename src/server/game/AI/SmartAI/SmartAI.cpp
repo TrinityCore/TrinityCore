@@ -25,15 +25,17 @@
 #include "ObjectDefines.h"
 #include "GridDefines.h"
 #include "ConditionMgr.h"
+#include "CreatureTextMgr.h"
 
 void SmartAIMgr::LoadSmartAIFromDB()
 {
     //Drop Existing SmartAI List
 }
 
-SmartAI::SmartAI(Creature *c) : CreatureAI(c), me(c)
+SmartAI::SmartAI(Creature *c) : CreatureAI(c)
 {
     // copy script to local (pretection for table reload)
+    mTestTimer = 0;
 }
 
 int SmartAI::Permissible(const Creature *creature)
@@ -45,6 +47,11 @@ int SmartAI::Permissible(const Creature *creature)
 
 void SmartAI::UpdateAI(const uint32 diff)
 {
+    if (mTestTimer < diff)
+    {
+        mTestTimer = 60000;
+        sCreatureTextMgr.SendChat(me,"CHAT_TYPE_SAY", CHAT_TYPE_SAY);
+    } else mTestTimer -= diff;
 }
 
 void SmartAI::JustRespawned()
