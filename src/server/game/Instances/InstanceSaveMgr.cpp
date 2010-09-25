@@ -40,6 +40,7 @@
 #include "InstanceScript.h"
 #include "ProgressBar.h"
 
+uint16 InstanceSaveManager::ResetTimeDelay[] = {3600, 900, 300, 60};
 
 InstanceSaveManager::~InstanceSaveManager()
 {
@@ -516,17 +517,16 @@ void InstanceSaveManager::LoadResetTimes()
 
         // schedule the global reset/warning
         uint8 type = 1;
-        static int tim[4] = {3600, 900, 300, 60};
         for (; type < 4; type++)
-            if (t - tim[type-1] > now)
+            if (t - ResetTimeDelay[type-1] > now)
                 break;
 
-        ScheduleReset(true, t - tim[type-1], InstResetEvent(type, mapid, difficulty, 0));
+        ScheduleReset(true, t - ResetTimeDelay[type-1], InstResetEvent(type, mapid, difficulty, 0));
 
         for (ResetTimeMapDiffInstances::const_iterator in_itr = mapDiffResetInstances.lower_bound(map_diff_pair);
             in_itr != mapDiffResetInstances.upper_bound(map_diff_pair); ++in_itr)
         {
-            ScheduleReset(true, t - tim[type-1], InstResetEvent(type, mapid, difficulty, in_itr->second));
+            ScheduleReset(true, t - ResetTimeDelay[type-1], InstResetEvent(type, mapid, difficulty, in_itr->second));
         }
     }
 }
@@ -574,8 +574,7 @@ void InstanceSaveManager::Update()
             {
                 // schedule the next warning/reset
                 event.type++;
-                static int tim[4] = {3600, 900, 300, 60};
-                ScheduleReset(true, resetTime - tim[event.type-1], event);
+                ScheduleReset(true, resetTime - ResetTimeDelay[event.type-1], event);
             }
             m_resetTimeQueue.erase(m_resetTimeQueue.begin());
         }
