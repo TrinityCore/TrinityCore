@@ -1732,6 +1732,38 @@ LOCK TABLES `creature_template_addon` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `creature_text`
+--
+
+DROP TABLE IF EXISTS `creature_text`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `creature_text` (
+  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `groupid` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `id` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `text` longtext,
+  `type` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `language` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `probability` float NOT NULL DEFAULT '0',
+  `emote` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `duration` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `sound` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `comment` varchar(255) DEFAULT '',
+  PRIMARY KEY (`entry`,`groupid`,`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `creature_text`
+--
+
+LOCK TABLES `creature_text` WRITE;
+/*!40000 ALTER TABLE `creature_text` DISABLE KEYS */;
+/*!40000 ALTER TABLE `creature_text` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `creature_transport`
 --
 
