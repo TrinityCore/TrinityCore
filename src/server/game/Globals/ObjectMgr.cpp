@@ -3572,7 +3572,7 @@ void ObjectMgr::LoadGuildEvents(std::vector<Guild*>& GuildVector, QueryResult& r
             uint32 guildid = fields[6].GetUInt32();
             if (guildid >= GuildVector.size() || GuildVector[guildid] == NULL)
                 return;
-            
+
             if (!GuildVector[guildid]->m_GuildEventLogNextGuid)
                 GuildVector[guildid]->m_GuildEventLogNextGuid = fields[0].GetUInt32();
 

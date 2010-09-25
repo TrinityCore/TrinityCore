@@ -660,7 +660,7 @@ void LFGMgr::Join(Player* plr)
         LfgRolesMap roles;
         roles[plr->GetGUIDLow()] = plr->GetLfgRoles();
 
-        // Expand random dungeons        
+        // Expand random dungeons
         LfgLockStatusMap* playersLockMap = NULL;
         if (plr->GetLfgDungeons()->size() == 1 && isRandomDungeon(*plr->GetLfgDungeons()->begin()))
         {
@@ -671,7 +671,7 @@ void LFGMgr::Join(Player* plr)
         }
         else
             dungeons = plr->GetLfgDungeons();
-        
+
         if (!dungeons || !dungeons->size())
         {
             if (dungeons)
@@ -940,7 +940,7 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposalList* proposals)
                     guid1 = playerguid;
                 }
                 playerguid = MAKE_NEW_GUID(itRoles->first, 0, HIGHGUID_PLAYER);
-                sLog.outError("LFGMgr::CheckCompatibility: check(%s) player [" UI64FMTD "] in queue with [" UI64FMTD "] and OBSOLETE! [" UI64FMTD "]", 
+                sLog.outError("LFGMgr::CheckCompatibility: check(%s) player [" UI64FMTD "] in queue with [" UI64FMTD "] and OBSOLETE! [" UI64FMTD "]",
                     strGuids.c_str(), playerguid, guid1, guid2);
             }
             rolesMap[itRoles->first] = itRoles->second;

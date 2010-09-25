@@ -15951,7 +15951,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
         sLog.outError("Player (GUID: %u) not found in table `characters`, can't load. ",guid);
         return false;
     }
-    
+
     Field* fields = result->Fetch();
 
     uint32 dbAccountId = fields[1].GetUInt32();

@@ -600,7 +600,7 @@ void AchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, PreparedQ
             progress.counter = counter;
             progress.date    = date;
             progress.changed = false;
-        } 
+        }
         while (criteriaResult->NextRow());
     }
 }

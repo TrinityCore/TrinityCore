@@ -510,7 +510,7 @@ public:
             case GOSSIP_ACTION_INFO_DEF + 2: spellId = SPELL_ADD_BANANAS;    break;
             case GOSSIP_ACTION_INFO_DEF + 3: spellId = SPELL_ADD_PAPAYA;     break;
         }
-        if (spellId) 
+        if (spellId)
             pPlayer->CastSpell(pPlayer, spellId, true);
         DoScriptText(SAY_DWARF_HELP, pCreature);
         pCreature->ForcedDespawn();

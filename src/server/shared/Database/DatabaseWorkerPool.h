@@ -329,11 +329,11 @@ class DatabaseWorkerPool
                 m_bundle_conn->Ping();
 
             /// Assuming all worker threads are free, every worker thread will receive 1 ping operation request
-            /// If one or more worker threads are busy, the ping operations will not be split evenly, but this doesn't matter 
+            /// If one or more worker threads are busy, the ping operations will not be split evenly, but this doesn't matter
             /// as the sole purpose is to prevent connections from idling.
             for (size_t i = 0; i < m_async_connections.size(); ++i)
                 Enqueue(new PingOperation);
-        }        
+        }
 
     private:
         unsigned long escape_string(char *to, const char *from, unsigned long length)

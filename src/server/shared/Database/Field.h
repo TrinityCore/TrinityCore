@@ -30,7 +30,7 @@ class Field
     friend class PreparedResultSet;
 
     public:
-        
+
         bool GetBool() const // Wrapper, actually gets integer
         {
             return GetUInt8() == 1 ? true : false;
@@ -137,7 +137,7 @@ class Field
                 return *reinterpret_cast<int32*>(data.value);
             return static_cast<int32>(atol((char*)data.value));
         }
-    
+
         uint64 GetUInt64() const
         {
             if (!data.value)
@@ -233,14 +233,14 @@ class Field
                     string = "";
                 return std::string(string, data.length);
             }
-            return std::string((char*)data.value);            
+            return std::string((char*)data.value);
         }
-    
+
     protected:
         Field();
         ~Field();
 
-        struct 
+        struct
         {
             enum_field_types type;  // Field type
             void* value;            // Actual data in memory
@@ -250,7 +250,7 @@ class Field
 
         void SetByteValue(const void* newValue, const size_t newSize, enum_field_types newType, uint32 length);
         void SetStructuredValue(char* newValue, enum_field_types newType);
-        
+
         void CleanUp()
         {
             delete[] ((char*)data.value);

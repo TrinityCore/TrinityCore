@@ -33,7 +33,7 @@ bool SQLQueryHolder::SetQuery(size_t index, const char *sql)
     SQLElementData element;
     element.type = SQL_ELEMENT_RAW;
     element.element.query = strdup(sql);
-    
+
     SQLResultSetUnion result;
     result.qresult = NULL;
 
@@ -76,7 +76,7 @@ bool SQLQueryHolder::SetPreparedQuery(size_t index, PreparedStatement* stmt)
     SQLElementData element;
     element.type = SQL_ELEMENT_PREPARED;
     element.element.stmt = stmt;
-    
+
     SQLResultSetUnion result;
     result.presult = NULL;
 

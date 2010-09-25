@@ -909,7 +909,7 @@ void PoolMgr::LoadQuestPools()
 
     }
     while (result->NextRow());
-    
+
     sLog.outString();
     sLog.outString(">> Loaded %u quests in pools", count);
 }

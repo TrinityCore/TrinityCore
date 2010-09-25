@@ -755,8 +755,8 @@ void Map::ScriptsProcess()
                     break;
                 }
 
-                bool triggered = (step.script->CastSpell.Flags != 4) ? 
-                    step.script->CastSpell.CreatureEntry & SF_CASTSPELL_TRIGGERED : 
+                bool triggered = (step.script->CastSpell.Flags != 4) ?
+                    step.script->CastSpell.CreatureEntry & SF_CASTSPELL_TRIGGERED :
                     step.script->CastSpell.CreatureEntry < 0;
                 uSource->CastSpell(uTarget, step.script->CastSpell.SpellID, triggered);
                 break;
