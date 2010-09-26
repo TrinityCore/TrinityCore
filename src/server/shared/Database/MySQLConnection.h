@@ -25,10 +25,12 @@
 class DatabaseWorker;
 class PreparedStatement;
 class MySQLPreparedStatement;
+class PingOperation;
 
 class MySQLConnection
 {
     template <class T> friend class DatabaseWorkerPool;
+    friend class PingOperation;
 
     public:
         MySQLConnection();                                  //! Constructor for synchroneous connections.
@@ -36,6 +38,7 @@ class MySQLConnection
         ~MySQLConnection();
 
         virtual bool Open(const std::string& infoString);   //! Connection details.
+        void Close();
 
     public:
         bool Execute(const char* sql);
@@ -57,6 +60,19 @@ class MySQLConnection
         MySQLPreparedStatement* GetPreparedStatement(uint32 index);
         void PrepareStatement(uint32 index, const char* sql);
         std::vector<MySQLPreparedStatement*> m_stmts;       //! PreparedStatements storage
+
+        bool LockIfReady()
+        {
+            /// Tries to acquire lock. If lock is acquired by another thread
+            /// the calling parent will just try another connection
+            return m_Mutex.tryacquire() != -1;
+        }
+
+        void Unlock()
+        {
+            /// Called by parent databasepool. Will let other threads access this connection
+            m_Mutex.release();
+        }
 
     private:
         ACE_Activation_Queue* m_queue;                      //! Queue shared with other asynchroneous connections.

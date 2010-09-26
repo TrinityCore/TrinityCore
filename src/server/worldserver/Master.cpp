@@ -163,14 +163,6 @@ public:
 
                 sLog.outString ("Starting Remote access listner on port %d on %s", raport, stringip.c_str ());
             }
-
-            if ((LoginDatabase.GetBundleMask() & MYSQL_BUNDLE_RA))
-            {
-                LoginDatabase.Init_MySQL_Connection();
-                needInit = false;
-            }
-            if (needInit)
-                MySQL::Thread_Init();
         }
 
         // Socket Selet time is in microseconds , not miliseconds!!
@@ -184,11 +176,6 @@ public:
                 h.Select (0, socketSelecttime);
                 checkping ();
             }
-
-            if (!needInit)
-                LoginDatabase.End_MySQL_Connection();
-            else
-                MySQL::Thread_End();
         }
         else
         {
@@ -452,8 +439,7 @@ bool Master::_StartDB()
 {
     sLog.SetLogDB(false);
     std::string dbstring;
-    uint8 num_threads;
-    int32 mask;
+    uint8 async_threads, synch_threads;
 
     dbstring = sConfig.GetStringDefault("WorldDatabaseInfo", "");
     if (dbstring.empty())
@@ -462,18 +448,18 @@ bool Master::_StartDB()
         return false;
     }
 
-    num_threads = sConfig.GetIntDefault("WorldDatabase.WorkerThreads", 1);
-    if (num_threads < 1 || num_threads > 32)
+    async_threads = sConfig.GetIntDefault("WorldDatabase.WorkerThreads", 1);
+    if (async_threads < 1 || async_threads > 32)
     {
         sLog.outError("World database: invalid number of worker threads specified. "
             "Please pick a value between 1 and 32.");
         return false;
     }
 
-    mask = sConfig.GetIntDefault("WorldDatabase.ThreadBundleMask", MYSQL_BUNDLE_ALL);
+    synch_threads = sConfig.GetIntDefault("WorldDatabase.SynchThreads", 1);
 
     ///- Initialise the world database
-    if (!WorldDatabase.Open(dbstring, num_threads, MySQLThreadBundle(mask)))
+    if (!WorldDatabase.Open(dbstring, async_threads, synch_threads))
     {
         sLog.outError("Cannot connect to world database %s", dbstring.c_str());
         return false;
@@ -486,18 +472,18 @@ bool Master::_StartDB()
         return false;
     }
 
-    num_threads = sConfig.GetIntDefault("CharacterDatabase.WorkerThreads", 1);
-    if (num_threads < 1 || num_threads > 32)
+    async_threads = sConfig.GetIntDefault("CharacterDatabase.WorkerThreads", 1);
+    if (async_threads < 1 || async_threads > 32)
     {
         sLog.outError("Character database: invalid number of worker threads specified. "
             "Please pick a value between 1 and 32.");
         return false;
     }
 
-    mask = sConfig.GetIntDefault("CharacterDatabase.ThreadBundleMask", MYSQL_BUNDLE_ALL);
+    synch_threads = sConfig.GetIntDefault("CharacterDatabase.SynchThreads", 2);
 
     ///- Initialise the Character database
-    if (!CharacterDatabase.Open(dbstring, num_threads, MySQLThreadBundle(mask)))
+    if (!CharacterDatabase.Open(dbstring, async_threads, synch_threads))
     {
         sLog.outError("Cannot connect to Character database %s", dbstring.c_str());
         return false;
@@ -511,18 +497,18 @@ bool Master::_StartDB()
         return false;
     }
 
-    num_threads = sConfig.GetIntDefault("LoginDatabase.WorkerThreads", 1);
-    if (num_threads < 1 || num_threads > 32)
+    async_threads = sConfig.GetIntDefault("LoginDatabase.WorkerThreads", 1);
+    if (async_threads < 1 || async_threads > 32)
     {
         sLog.outError("Login database: invalid number of worker threads specified. "
             "Please pick a value between 1 and 32.");
         return false;
     }
 
-    mask = sConfig.GetIntDefault("LoginDatabase.ThreadBundleMask", MYSQL_BUNDLE_ALL);
+    synch_threads = sConfig.GetIntDefault("LoginDatabase.SynchThreads", 1);
 
     ///- Initialise the login database
-    if (!LoginDatabase.Open(dbstring, num_threads, MySQLThreadBundle(mask)))
+    if (!LoginDatabase.Open(dbstring, async_threads, synch_threads))
     {
         sLog.outError("Cannot connect to login database %s", dbstring.c_str());
         return false;

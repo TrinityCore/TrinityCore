@@ -43,28 +43,6 @@ extern int m_ServiceStatus;
 /// Heartbeat for the World
 void WorldRunnable::run()
 {
-    ///- Init MySQL threads or connections
-    bool needInit = true;
-    if (!(WorldDatabase.GetBundleMask() & MYSQL_BUNDLE_WORLD))
-    {
-        WorldDatabase.Init_MySQL_Connection();
-        needInit = false;
-    }
-    if (!(LoginDatabase.GetBundleMask() & MYSQL_BUNDLE_WORLD))
-    {
-        LoginDatabase.Init_MySQL_Connection();
-        needInit = false;
-    }
-
-    if (!(CharacterDatabase.GetBundleMask() & MYSQL_BUNDLE_WORLD))
-    {
-        CharacterDatabase.Init_MySQL_Connection();
-        needInit = false;
-    }
-
-    if (needInit)
-        MySQL::Thread_Init();
-
     uint32 realCurrTime = 0;
     uint32 realPrevTime = getMSTime();
 
@@ -116,16 +94,4 @@ void WorldRunnable::run()
 
     sMapMgr.UnloadAll();                     // unload all grids (including locked in memory)
 
-    ///- Free MySQL thread resources and deallocate lingering connections
-    if (!(WorldDatabase.GetBundleMask() & MYSQL_BUNDLE_WORLD))
-        WorldDatabase.End_MySQL_Connection();
-
-    if (!(LoginDatabase.GetBundleMask() & MYSQL_BUNDLE_WORLD))
-        LoginDatabase.End_MySQL_Connection();
-
-    if (!(CharacterDatabase.GetBundleMask() & MYSQL_BUNDLE_WORLD))
-        CharacterDatabase.End_MySQL_Connection();
-
-    if (needInit)
-        MySQL::Thread_End();
 }

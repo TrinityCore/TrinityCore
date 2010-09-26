@@ -24,7 +24,7 @@
 
 class MySQLConnection;
 
-class DatabaseWorker : protected ACE_Task_Base
+class DatabaseWorker : public ACE_Task_Base
 {
     public:
         DatabaseWorker(ACE_Activation_Queue* new_queue, MySQLConnection* con);
