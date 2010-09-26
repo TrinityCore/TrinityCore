@@ -586,9 +586,9 @@ void LFGMgr::Join(Player* plr)
     }
     else if (plr->InBattleground() || plr->InArena())
         result = LFG_JOIN_USING_BG_SYSTEM;
-    else if (plr->HasAura(LFG_SPELL_DESERTER))
+    else if (plr->HasAura(LFG_SPELL_DUNGEON_DESERTER))
         result = LFG_JOIN_DESERTER;
-    else if (plr->HasAura(LFG_SPELL_COOLDOWN))
+    else if (plr->HasAura(LFG_SPELL_DUNGEON_COOLDOWN))
         result = LFG_JOIN_RANDOM_COOLDOWN;
     else
     {
@@ -617,9 +617,9 @@ void LFGMgr::Join(Player* plr)
                 plrg = itr->getSource();
                 if (plrg)
                 {
-                    if (plrg->HasAura(LFG_SPELL_DESERTER))
+                    if (plrg->HasAura(LFG_SPELL_DUNGEON_DESERTER))
                         result = LFG_JOIN_PARTY_DESERTER;
-                    else if (plrg->HasAura(LFG_SPELL_COOLDOWN))
+                    else if (plrg->HasAura(LFG_SPELL_DUNGEON_COOLDOWN))
                         result = LFG_JOIN_PARTY_RANDOM_COOLDOWN;
                     ++memberCount;
                 }
@@ -763,6 +763,7 @@ void LFGMgr::Leave(Player* plr, Group* grp /* = NULL*/)
         plr->GetLfgDungeons()->clear();
         plr->SetLfgRoles(ROLE_NONE);
         plr->SetLfgState(LFG_STATE_NONE);
+        plr->RemoveAurasDueToSpell(LFG_SPELL_LUCK_OF_THE_DRAW);
     }
 }
 
@@ -1608,7 +1609,10 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint32 lowGuid, bool accept)
 
         // Teleport Player
         for (LfgPlayerList::const_iterator it = players.begin(); it != players.end(); ++it)
+        {
+            (*it)->CastSpell(*it, LFG_SPELL_DUNGEON_COOLDOWN, false);
             TeleportPlayer(*it, false);
+        }
 
         for (LfgProposalPlayerMap::const_iterator it = pProposal->players.begin(); it != pProposal->players.end(); ++it)
             delete it->second;
@@ -1813,6 +1817,7 @@ void LFGMgr::TeleportPlayer(Player* plr, bool out)
     sLog.outError("DEBUG:LFGMgr::TeleportPlayer: [" UI64FMTD "] is being teleported %s", plr->GetGUID(), out ? "out" : "in");
     if (out)
     {
+        plr->RemoveAurasDueToSpell(LFG_SPELL_LUCK_OF_THE_DRAW);
         plr->TeleportToBGEntryPoint();
         return;
     }
@@ -1837,8 +1842,11 @@ void LFGMgr::TeleportPlayer(Player* plr, bool out)
                 if (!plr->GetMap()->IsDungeon() && !plr->GetMap()->IsRaid())
                     plr->SetBattlegroundEntryPoint();
                 plr->RemoveAurasByType(SPELL_AURA_MOUNTED);
-                // TODO: Teleport to group
-                plr->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, at->target_Orientation);
+                // TODO: Teleport to group 
+                if (plr->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, at->target_Orientation))
+                    plr->CastSpell(plr, LFG_SPELL_LUCK_OF_THE_DRAW, false);
+                else
+                    sLog.outError("LfgMgr::TeleportPlayer: Failed to teleport [" UI64FMTD "] to map %u: ", plr->GetGUID(), at->target_mapId);
             }
 }
 
