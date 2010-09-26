@@ -15240,7 +15240,7 @@ void Player::ItemRemovedQuestCheck(uint32 entry, uint32 count)
                 if (curitemcount < reqitemcount + count)
                 {
                     uint16 remitemcount = curitemcount <= reqitemcount ? count : count + reqitemcount - curitemcount;
-                    q_status.m_itemcount[j] = curitemcount - remitemcount;
+                    q_status.m_itemcount[j] = (curitemcount <= remitemcount) ? 0 : curitemcount - remitemcount;
                     if (q_status.uState != QUEST_NEW)
                         q_status.uState = QUEST_CHANGED;
 
