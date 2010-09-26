@@ -52,9 +52,14 @@ enum TextRange
 
 
 
-typedef std::vector<CreatureTextEntry> CreatureTextGroup;               //texts in a group
-typedef UNORDERED_MAP<uint32, CreatureTextGroup> CreatureTextHolder;    //groups for a creature
-typedef UNORDERED_MAP<uint32, CreatureTextHolder> CreatureTextMap;      //all creatures
+typedef std::vector<CreatureTextEntry> CreatureTextGroup;              //texts in a group
+typedef UNORDERED_MAP<uint8, CreatureTextGroup> CreatureTextHolder;    //groups for a creature by groupid
+typedef UNORDERED_MAP<uint32, CreatureTextHolder> CreatureTextMap;     //all creatures by entry
+
+//used for handling non-repeatable random texts
+typedef std::vector<uint8> CreatureTextRepeatIds;
+typedef UNORDERED_MAP<uint8, CreatureTextRepeatIds> CreatureTextRepeatGroup;
+typedef UNORDERED_MAP<uint64, CreatureTextRepeatGroup> CreatureTextRepeatMap;//guid based
 
 class CreatureTextMgr
 {
@@ -65,12 +70,17 @@ class CreatureTextMgr
         void LoadCreatureTexts();
         CreatureTextMap  const& GetTextMap() const { return mTextMap; }
 
-        void SendChat(WorldObject* source, char const* text, ChatType msgtype = CHAT_TYPE_SAY, Language language = LANG_UNIVERSAL, uint64 whisperGuid = 0, TextRange range = TEXT_RANGE_NORMAL) const;
-        
+        void SendChat(Creature* source, uint8 textGroup, uint64 whisperGuid = 0, ChatType msgtype = CHAT_TYPE_SAY, Language language = LANG_UNIVERSAL, TextRange range = TEXT_RANGE_NORMAL);
+        void SendChatString(WorldObject* source, char const* text, ChatType msgtype = CHAT_TYPE_SAY, Language language = LANG_UNIVERSAL, uint64 whisperGuid = 0, TextRange range = TEXT_RANGE_NORMAL) const;
+
     private:
-        CreatureTextMap mTextMap;
+        CreatureTextRepeatIds GetRepeatGroup(Creature* source, uint8 textGroup);
+        void SetRepeatId(Creature* source, uint8 textGroup, uint8 id);
         void BuildMonsterChat(WorldPacket *data, WorldObject* source, ChatType msgtype, char const* text, Language language, uint64 whisperGuid) const;
         void SendChatPacket(WorldPacket *data, WorldObject* source, ChatType msgtype, uint64 whisperGuid, TextRange range) const;
+
+        CreatureTextMap mTextMap;
+        CreatureTextRepeatMap mTextRepeatMap;
 };
 
 #define sCreatureTextMgr (*ACE_Singleton<CreatureTextMgr, ACE_Null_Mutex>::instance())
