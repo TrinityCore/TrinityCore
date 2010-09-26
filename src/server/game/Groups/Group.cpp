@@ -370,7 +370,7 @@ uint32 Group::RemoveMember(const uint64 &guid, const RemoveMethod &method)
     sScriptMgr.OnGroupRemoveMember(this, guid, method);
 
     // remove member and change leader (if need) only if strong more 2 members _before_ member remove
-    if (GetMembersCount() > (isBGGroup() ? 1u : 2u))           // in BG group case allow 1 members group
+    if (GetMembersCount() > (isBGGroup() || isLFGGroup()) ? 1u : 2u)           // in BG group case allow 1 members group
     {
         bool leaderChanged = _removeMember(guid);
 
