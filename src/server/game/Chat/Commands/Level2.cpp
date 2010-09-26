@@ -814,7 +814,7 @@ bool ChatHandler::HandleGameObjectNearCommand(const char* args)
             if (!gInfo)
                 continue;
 
-            PSendSysMessage(LANG_GO_LIST_CHAT, guid, guid, gInfo->name, x, y, z, mapid);
+            PSendSysMessage(LANG_GO_LIST_CHAT, guid, entry, guid, gInfo->name, x, y, z, mapid);
 
             ++count;
         } while (result->NextRow());
