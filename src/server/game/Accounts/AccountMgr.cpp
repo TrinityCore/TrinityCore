@@ -19,19 +19,14 @@
  */
 
 #include "DatabaseEnv.h"
-
-
 #include "AccountMgr.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
 #include "Util.h"
 #include "SHA1.h"
 
-AccountMgr::AccountMgr()
-{}
-
-AccountMgr::~AccountMgr()
-{}
+AccountMgr::AccountMgr() {}
+AccountMgr::~AccountMgr() {}
 
 AccountOpResult AccountMgr::CreateAccount(std::string username, std::string password)
 {
