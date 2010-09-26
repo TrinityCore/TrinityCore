@@ -44,10 +44,9 @@ uint64 TicketMgr::GenerateGMTicketId()
 void TicketMgr::LoadGMTickets()
 {
     if (!m_GMTicketList.empty())
-    {
         for (GmTicketList::const_iterator itr = m_GMTicketList.begin(); itr != m_GMTicketList.end(); ++itr)
             delete *itr;
-    }
+
     m_GMTicketList.clear();
     m_GMticketid = 0;
     m_openTickets = 0;
@@ -64,7 +63,7 @@ void TicketMgr::LoadGMTickets()
     }
 
     uint16 count = 0;
-    barGoLink bar ((*result).GetRowCount());
+    barGoLink bar(result->GetRowCount());
     GM_Ticket *ticket;
     do
     {
@@ -93,7 +92,6 @@ void TicketMgr::LoadGMTickets()
         bar.step();
 
         m_GMTicketList.push_back(ticket);
-
     } while (result->NextRow());
 
     result = CharacterDatabase.Query("SELECT MAX(guid) from gm_tickets");

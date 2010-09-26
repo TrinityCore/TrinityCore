@@ -133,10 +133,7 @@ public:
     bool GetStatus() const { return status; }
     void SetStatus(bool newStatus) { status = newStatus; }
     uint64 GetOpenTicketCount() { return m_openTickets; }
-    uint64 GetNextSurveyID()
-    {
-        return ++m_GMSurveyID;
-    }
+    uint64 GetNextSurveyID() { return ++m_GMSurveyID; }
 
     GM_Ticket *GetOldestOpenGMTicket()
     {
@@ -147,15 +144,8 @@ public:
         return NULL;
     }
 
-    time_t GetLastChange()
-    {
-        return lastChange;
-    }
-
-    void UpdateLastChange()
-    {
-        lastChange = time(NULL);
-    }
+    time_t GetLastChange() { return lastChange; }
+    void UpdateLastChange() { lastChange = time(NULL); }
 
     GmTicketList m_GMTicketList;
 
