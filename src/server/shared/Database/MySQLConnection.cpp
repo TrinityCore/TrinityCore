@@ -49,11 +49,20 @@ m_Mysql(NULL)
 
 MySQLConnection::~MySQLConnection()
 {
+    ASSERT (m_Mysql); /// MySQL context must be present at this point
+
+    sLog.outSQLDriver("MySQLConnection::~MySQLConnection()");
     for (size_t i = 0; i < m_stmts.size(); ++i)
         delete m_stmts[i];
 
-    MySQL::Thread_End();
     mysql_close(m_Mysql);
+    Unlock();   /// Unlock while we die, how ironic
+}
+
+void MySQLConnection::Close()
+{
+    /// Only close us if we're not operating
+    delete this;
 }
 
 bool MySQLConnection::Open(const std::string& infoString)
@@ -163,9 +172,6 @@ bool MySQLConnection::Execute(const char* sql)
         return false;
 
     {
-        // guarded block for thread-safe mySQL request
-        ACE_Guard<ACE_Thread_Mutex> query_connection_guard(m_Mutex);
-
         #ifdef SQLQUERY_LOG
         uint32 _s = getMSTime();
         #endif
@@ -193,9 +199,6 @@ bool MySQLConnection::Execute(PreparedStatement* stmt)
 
     uint32 index = stmt->m_index;
     {
-        // guarded block for thread-safe mySQL request
-        ACE_Guard<ACE_Thread_Mutex> query_connection_guard(m_Mutex);
-
         MySQLPreparedStatement* m_mStmt = GetPreparedStatement(index);
         ASSERT(m_mStmt);            // Can only be null if preparation failed, server side error or bad query
         m_mStmt->m_stmt = stmt;     // Cross reference them for debug output
@@ -238,9 +241,6 @@ bool MySQLConnection::_Query(PreparedStatement* stmt, MYSQL_RES **pResult, MYSQL
 
     uint32 index = stmt->m_index;
     {
-        // guarded block for thread-safe mySQL request
-        ACE_Guard<ACE_Thread_Mutex> query_connection_guard(m_Mutex);
-
         MySQLPreparedStatement* m_mStmt = GetPreparedStatement(index);
         ASSERT(m_mStmt);            // Can only be null if preparation failed, server side error or bad query
         m_mStmt->m_stmt = stmt;     // Cross reference them for debug output
@@ -304,8 +304,6 @@ bool MySQLConnection::_Query(const char *sql, MYSQL_RES **pResult, MYSQL_FIELD *
         return false;
 
     {
-        // guarded block for thread-safe mySQL request
-        ACE_Guard<ACE_Thread_Mutex> query_connection_guard(m_Mutex);
         #ifdef SQLQUERY_LOG
         uint32 _s = getMSTime();
         #endif
