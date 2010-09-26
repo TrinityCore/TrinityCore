@@ -362,7 +362,6 @@ class SmartAI : public CreatureAI
         void SetMovePathEndAction(SMARTAI_ACTION action = SMART_ACTION_FORCE_DESPAWN);
 
     private:
-        uint32 mTestTimer;
 };
 
 #define sSmartAIMgr (*ACE_Singleton<SmartAIMgr, ACE_Null_Mutex>::instance())

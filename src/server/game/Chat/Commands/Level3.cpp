@@ -60,6 +60,7 @@
 #include "WeatherMgr.h"
 #include "ScriptMgr.h"
 #include "LFGMgr.h"
+#include "CreatureTextMgr.h"
 
 //reload commands
 bool ChatHandler::HandleReloadAllCommand(const char*)
@@ -1167,6 +1168,14 @@ bool ChatHandler::HandleReloadConditions(const char* /*args*/)
     sLog.outString("Re-Loading Conditions...");
     sConditionMgr.LoadConditions(true);
     SendGlobalGMSysMessage("Conditions reloaded.");
+    return true;
+}
+
+bool ChatHandler::HandleReloadCreatureText(const char* /*args*/)
+{
+    sLog.outString("Re-Loading Creature Texts...");
+    sCreatureTextMgr.LoadCreatureTexts();
+    SendGlobalGMSysMessage("Creature Texts reloaded.");
     return true;
 }
 
