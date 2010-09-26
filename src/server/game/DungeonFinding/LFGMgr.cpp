@@ -1233,7 +1233,7 @@ void LFGMgr::UpdateRoleCheck(Group* grp, Player* plr /* = NULL*/)
                 plrg->GetLfgDungeons()->clear();
                 plrg->SetLfgRoles(ROLE_NONE);
                 if (!grp->isLFGGroup())
-                    plr->SetLfgState(LFG_STATE_NONE);
+                    plrg->SetLfgState(LFG_STATE_NONE);
             }
             break;
         default:
@@ -1243,7 +1243,7 @@ void LFGMgr::UpdateRoleCheck(Group* grp, Player* plr /* = NULL*/)
             plrg->GetLfgDungeons()->clear();
             if (grp->isLFGGroup())
                 plrg->SetLfgRoles(ROLE_NONE);
-            plr->SetLfgState(LFG_STATE_NONE);
+            plrg->SetLfgState(LFG_STATE_NONE);
             break;
         }
     }
