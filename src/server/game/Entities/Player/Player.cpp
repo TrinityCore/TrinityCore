@@ -6237,8 +6237,8 @@ void Player::SendActionButtons(uint32 state) const
     {
         for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
         {
-            ActionButtonList::const_iterator itr = m_actionButtons[m_activeSpec].find(button);
-            if (itr != m_actionButtons[m_activeSpec].end() && itr->second.uState != ACTIONBUTTON_DELETED)
+            ActionButtonList::const_iterator itr = m_actionButtons.find(button);
+            if (itr != m_actionButtons.end() && itr->second.uState != ACTIONBUTTON_DELETED)
                 data << uint32(itr->second.packedData);
             else
                 data << uint32(0);
@@ -6292,13 +6292,13 @@ bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type)
     return true;
 }
 
-ActionButton* Player::addActionButton(uint8 button, uint32 action, uint8 type, uint8 spec /*= 0*/)
+ActionButton* Player::addActionButton(uint8 button, uint32 action, uint8 type)
 {
     if (!IsActionButtonDataValid(button, action, type))
         return NULL;
 
     // it create new button (NEW state) if need or return existed
-    ActionButton& ab = m_actionButtons[spec][button];
+    ActionButton& ab = m_actionButtons[button];
 
     // set data and update to CHANGED if not NEW
     ab.SetActionAndType(action,ActionButtonType(type));
@@ -6309,12 +6309,12 @@ ActionButton* Player::addActionButton(uint8 button, uint32 action, uint8 type, u
 
 void Player::removeActionButton(uint8 button)
 {
-    ActionButtonList::iterator buttonItr = m_actionButtons[m_activeSpec].find(button);
-    if (buttonItr == m_actionButtons[m_activeSpec].end() || buttonItr->second.uState == ACTIONBUTTON_DELETED)
+    ActionButtonList::iterator buttonItr = m_actionButtons.find(button);
+    if (buttonItr == m_actionButtons.end() || buttonItr->second.uState == ACTIONBUTTON_DELETED)
         return;
 
     if (buttonItr->second.uState == ACTIONBUTTON_NEW)
-        m_actionButtons[m_activeSpec].erase(buttonItr);     // new and not saved
+        m_actionButtons.erase(buttonItr);                   // new and not saved
     else
         buttonItr->second.uState = ACTIONBUTTON_DELETED;    // saved, will deleted at next save
 
@@ -6323,8 +6323,8 @@ void Player::removeActionButton(uint8 button)
 
 ActionButton const* Player::GetActionButton(uint8 button)
 {
-    ActionButtonList::iterator buttonItr = m_actionButtons[m_activeSpec].find(button);
-    if (buttonItr == m_actionButtons[m_activeSpec].end() || buttonItr->second.uState == ACTIONBUTTON_DELETED)
+    ActionButtonList::iterator buttonItr = m_actionButtons.find(button);
+    if (buttonItr == m_actionButtons.end() || buttonItr->second.uState == ACTIONBUTTON_DELETED)
         return NULL;
 
     return &buttonItr->second;
@@ -16617,8 +16617,7 @@ bool Player::isAllowedToLoot(const Creature* creature)
 
 void Player::_LoadActions(PreparedQueryResult result)
 {
-    m_actionButtons[0].clear();
-    m_actionButtons[1].clear();
+    m_actionButtons.clear();
 
     if (result)
     {
@@ -16628,22 +16627,17 @@ void Player::_LoadActions(PreparedQueryResult result)
             uint8 button = fields[0].GetUInt8();
             uint32 action = fields[1].GetUInt32();
             uint8 type = fields[2].GetUInt8();
-            uint8 spec = fields[3].GetUInt8();
 
-            if (spec >= MAX_TALENT_SPECS)
-                continue;
-
-            if (ActionButton* ab = addActionButton(button, action, type, spec))
+            if (ActionButton* ab = addActionButton(button, action, type))
                 ab->uState = ACTIONBUTTON_UNCHANGED;
             else
             {
                 sLog.outError("  ...at loading, and will deleted in DB also");
 
                 // Will deleted in DB at next save (it can create data until save but marked as deleted)
-                m_actionButtons[spec][button].uState = ACTIONBUTTON_DELETED;
+                m_actionButtons[button].uState = ACTIONBUTTON_DELETED;
             }
-        }
-        while (result->NextRow());
+        } while (result->NextRow());
     }
 }
 
@@ -17925,32 +17919,29 @@ void Player::SaveGoldToDB(SQLTransaction& trans)
 
 void Player::_SaveActions(SQLTransaction& trans)
 {
-    for (uint8 i = 0; i < MAX_TALENT_SPECS; ++i)
+    for (ActionButtonList::iterator itr = m_actionButtons.begin(); itr != m_actionButtons.end();)
     {
-        for (ActionButtonList::iterator itr = m_actionButtons[i].begin(); itr != m_actionButtons[i].end();)
+        switch (itr->second.uState)
         {
-            switch (itr->second.uState)
-            {
-                case ACTIONBUTTON_NEW:
-                    trans->PAppend("INSERT INTO character_action (guid,spec,button,action,type) VALUES ('%u', '%u', '%u', '%u', '%u')",
-                        GetGUIDLow(), i, (uint32)itr->first, (uint32)itr->second.GetAction(), (uint32)itr->second.GetType());
-                    itr->second.uState = ACTIONBUTTON_UNCHANGED;
-                    ++itr;
-                    break;
-                case ACTIONBUTTON_CHANGED:
-                    trans->PAppend("UPDATE character_action SET action = '%u', type = '%u' WHERE guid = '%u' AND button = '%u' AND spec = '%u'",
-                        (uint32)itr->second.GetAction(), (uint32)itr->second.GetType(), GetGUIDLow(), (uint32)itr->first, i);
-                    itr->second.uState = ACTIONBUTTON_UNCHANGED;
-                    ++itr;
-                    break;
-                case ACTIONBUTTON_DELETED:
-                    trans->PAppend("DELETE FROM character_action WHERE guid = '%u' and button = '%u' and spec = '%u'", GetGUIDLow(), (uint32)itr->first, i);
-                    m_actionButtons[i].erase(itr++);
-                    break;
-                default:
-                    ++itr;
-                    break;
-            }
+            case ACTIONBUTTON_NEW:
+                trans->PAppend("INSERT INTO character_action (guid,spec,button,action,type) VALUES ('%u', '%u', '%u', '%u', '%u')",
+                    GetGUIDLow(), m_activeSpec, (uint32)itr->first, (uint32)itr->second.GetAction(), (uint32)itr->second.GetType());
+                itr->second.uState = ACTIONBUTTON_UNCHANGED;
+                ++itr;
+                break;
+            case ACTIONBUTTON_CHANGED:
+                trans->PAppend("UPDATE character_action SET action = '%u', type = '%u' WHERE guid = '%u' AND button = '%u' AND spec = '%u'",
+                    (uint32)itr->second.GetAction(), (uint32)itr->second.GetType(), GetGUIDLow(), (uint32)itr->first, m_activeSpec);
+                itr->second.uState = ACTIONBUTTON_UNCHANGED;
+                ++itr;
+                break;
+            case ACTIONBUTTON_DELETED:
+                trans->PAppend("DELETE FROM character_action WHERE guid = '%u' and button = '%u' and spec = '%u'", GetGUIDLow(), (uint32)itr->first, m_activeSpec);
+                m_actionButtons.erase(itr++);
+                break;
+            default:
+                ++itr;
+                break;
         }
     }
 }
@@ -23937,7 +23928,7 @@ void Player::UpdateSpecCount(uint8 count)
     if (count > curCount)
     {
         _SaveActions(trans); // make sure the button list is cleaned up
-        for (ActionButtonList::iterator itr = m_actionButtons[m_activeSpec].begin(); itr != m_actionButtons[m_activeSpec].end(); ++itr)
+        for (ActionButtonList::iterator itr = m_actionButtons.begin(); itr != m_actionButtons.end(); ++itr)
             trans->PAppend("INSERT INTO character_action (guid,button,action,type,spec) VALUES ('%u', '%u', '%u', '%u', '%u')",
             GetGUIDLow(), uint32(itr->first), uint32(itr->second.GetAction()), uint32(itr->second.GetType()), 1);
 
@@ -24083,6 +24074,14 @@ void Player::ActivateSpec(uint8 spec)
 
     m_usedTalentCount = spentTalents;
     InitTalentForLevel();
+
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_PLAYER_ACTIONS_SPEC);
+        stmt->setUInt32(0, GetGUIDLow());
+        stmt->setUInt8(1, m_activeSpec);
+        if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+            _LoadActions(result);
+    }
 
     ResummonPetTemporaryUnSummonedIfAny();
     if (Pet* pPet = GetPet())
