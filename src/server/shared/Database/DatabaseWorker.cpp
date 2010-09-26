@@ -35,8 +35,6 @@ int DatabaseWorker::svc()
     if (!m_queue)
         return -1;
 
-    MySQL::Thread_Init();
-
     SQLOperation *request = NULL;
     while (1)
     {
@@ -50,8 +48,7 @@ int DatabaseWorker::svc()
         delete request;
     }
 
-    MySQL::Thread_End();
-    delete m_conn;
+    m_conn->Close();
     return 0;
 }
 
