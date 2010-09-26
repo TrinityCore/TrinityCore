@@ -160,6 +160,9 @@ class WorldSession
         void SendSetPhaseShift(uint32 phaseShift);
         void SendQueryTimeResponse();
 
+        void SendAuthResponse(uint8 code, bool shortForm, uint32 queuePos = 0);
+        void SendClientCacheVersion(uint32 version);
+
         AccountTypes GetSecurity() const { return _security; }
         uint32 GetAccountId() const { return _accountId; }
         Player* GetPlayer() const { return _player; }

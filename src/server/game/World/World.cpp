@@ -218,7 +218,7 @@ void World::AddSession(WorldSession* s)
 }
 
 void
-World::AddSession_ (WorldSession* s)
+World::AddSession_(WorldSession* s)
 {
     ASSERT (s);
 
@@ -270,19 +270,11 @@ World::AddSession_ (WorldSession* s)
         return;
     }
 
-    WorldPacket packet(SMSG_AUTH_RESPONSE, 1 + 4 + 1 + 4 + 1);
-    packet << uint8(AUTH_OK);
-    packet << uint32(0);                                   // BillingTimeRemaining
-    packet << uint8(0);                                    // BillingPlanFlags
-    packet << uint32(0);                                   // BillingTimeRested
-    packet << uint8(s->Expansion());                       // 0 - normal, 1 - TBC, 2 - WOTLK, must be set in database manually for each account
-    s->SendPacket(&packet);
+    s->SendAuthResponse(AUTH_OK, true);
 
     s->SendAddonsInfo();
 
-    WorldPacket pkt(SMSG_CLIENTCACHE_VERSION, 4);
-    pkt << uint32(sWorld.getIntConfig(CONFIG_CLIENTCACHE_VERSION));
-    s->SendPacket(&pkt);
+    s->SendClientCacheVersion(sWorld.getIntConfig(CONFIG_CLIENTCACHE_VERSION));
 
     s->SendTutorialsData();
 
@@ -337,15 +329,7 @@ void World::AddQueuedPlayer(WorldSession* sess)
     m_QueuedPlayer.push_back(sess);
 
     // The 1st SMSG_AUTH_RESPONSE needs to contain other info too.
-    WorldPacket packet(SMSG_AUTH_RESPONSE, 1+4+1+4+1+4+1);
-    packet << uint8(AUTH_WAIT_QUEUE);
-    packet << uint32(0);                                    // BillingTimeRemaining
-    packet << uint8(0);                                     // BillingPlanFlags
-    packet << uint32(0);                                    // BillingTimeRested
-    packet << uint8(sess->Expansion());                     // 0 - normal, 1 - TBC, 2 - WOTLK, must be set in database manually for each account
-    packet << uint32(GetQueuePos(sess));                    // Queue position
-    packet << uint8(0);                                     // Unk 3.3.0
-    sess->SendPacket(&packet);
+    sess->SendAuthResponse(AUTH_WAIT_QUEUE, false, GetQueuePos(sess));
 }
 
 bool World::RemoveQueuedPlayer(WorldSession* sess)
@@ -387,10 +371,7 @@ bool World::RemoveQueuedPlayer(WorldSession* sess)
         pop_sess->SendAuthWaitQue(0);
         pop_sess->SendAddonsInfo();
 
-        WorldPacket pkt(SMSG_CLIENTCACHE_VERSION, 4);
-        pkt << uint32(sWorld.getIntConfig(CONFIG_CLIENTCACHE_VERSION));
-        pop_sess->SendPacket(&pkt);
-
+        pop_sess->SendClientCacheVersion(sWorld.getIntConfig(CONFIG_CLIENTCACHE_VERSION));
         pop_sess->SendAccountDataTimes(GLOBAL_CACHE_MASK);
         pop_sess->SendTutorialsData();
 
