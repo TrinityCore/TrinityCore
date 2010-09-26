@@ -299,6 +299,8 @@ void LFGMgr::Update(uint32 diff)
             plr->GetSession()->SendLfgRoleCheckUpdate(pRoleCheck);
             plr->GetLfgDungeons()->clear();
             plr->SetLfgRoles(ROLE_NONE);
+            if (!plr->GetGroup() || !plr->GetGroup()->isLFGGroup())
+                plr->SetLfgState(LFG_STATE_NONE);
 
             if (itRoles->first == pRoleCheck->leader)
                 plr->GetSession()->SendLfgJoinResult(LFG_JOIN_FAILED, pRoleCheck->result);
@@ -632,6 +634,8 @@ void LFGMgr::Join(Player* plr)
         sLog.outError("DEBUG:LFGMgr::Join: [" UI64FMTD "] joining with %u members. result: %u", guid, grp ? grp->GetMembersCount() : 1, result);
         plr->GetLfgDungeons()->clear();
         plr->SetLfgRoles(ROLE_NONE);
+        if (grp && !grp->isLFGGroup())
+            plr->SetLfgState(LFG_STATE_NONE);
         plr->GetSession()->SendLfgJoinResult(result);
         plr->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_ROLECHECK_FAILED);
         return;
@@ -644,6 +648,7 @@ void LFGMgr::Join(Player* plr)
         for (GroupReference* itr = plr->GetGroup()->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             plrg = itr->getSource();                        // Not null, checked earlier
+            plrg->SetLfgState(LFG_STATE_LFG);
             if (plrg != plr)
             {
                 dungeons = plrg->GetLfgDungeons();
@@ -657,6 +662,7 @@ void LFGMgr::Join(Player* plr)
     }
     else
     {
+        plr->SetLfgState(LFG_STATE_LFG);
         LfgRolesMap roles;
         roles[plr->GetGUIDLow()] = plr->GetLfgRoles();
 
@@ -700,7 +706,7 @@ void LFGMgr::Join(Player* plr)
 /// <param name="Group*">Group (could be NULL)</param>
 void LFGMgr::Leave(Player* plr, Group* grp /* = NULL*/)
 {
-    if ((plr && !plr->GetLfgUpdate()) || !sWorld.getBoolConfig(CONFIG_DUNGEON_FINDER_ENABLE))
+    if ((plr && (!plr->GetLfgUpdate() || !plr->isUsingLfg())) || !sWorld.getBoolConfig(CONFIG_DUNGEON_FINDER_ENABLE))
         return;
 
     uint64 guid = grp ? grp->GetGUID() : plr ? plr->GetGUID() : 0;
@@ -748,6 +754,7 @@ void LFGMgr::Leave(Player* plr, Group* grp /* = NULL*/)
                 plrg->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_REMOVED_FROM_QUEUE);
                 plrg->GetLfgDungeons()->clear();
                 plrg->SetLfgRoles(ROLE_NONE);
+                plrg->SetLfgState(LFG_STATE_NONE);
             }
     }
     else
@@ -755,6 +762,7 @@ void LFGMgr::Leave(Player* plr, Group* grp /* = NULL*/)
         plr->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_REMOVED_FROM_QUEUE);
         plr->GetLfgDungeons()->clear();
         plr->SetLfgRoles(ROLE_NONE);
+        plr->SetLfgState(LFG_STATE_NONE);
     }
 }
 
@@ -1223,6 +1231,8 @@ void LFGMgr::UpdateRoleCheck(Group* grp, Player* plr /* = NULL*/)
                 session->SendLfgUpdateParty(LFG_UPDATETYPE_ROLECHECK_FAILED);
                 plrg->GetLfgDungeons()->clear();
                 plrg->SetLfgRoles(ROLE_NONE);
+                if (!grp->isLFGGroup())
+                    plr->SetLfgState(LFG_STATE_NONE);
             }
             break;
         default:
@@ -1230,7 +1240,9 @@ void LFGMgr::UpdateRoleCheck(Group* grp, Player* plr /* = NULL*/)
                 session->SendLfgJoinResult(LFG_JOIN_FAILED, pRoleCheck->result);
             session->SendLfgUpdateParty(LFG_UPDATETYPE_ROLECHECK_FAILED);
             plrg->GetLfgDungeons()->clear();
-            plrg->SetLfgRoles(ROLE_NONE);
+            if (grp->isLFGGroup())
+                plrg->SetLfgRoles(ROLE_NONE);
+            plr->SetLfgState(LFG_STATE_NONE);
             break;
         }
     }
@@ -1644,6 +1656,8 @@ void LFGMgr::RemoveProposal(LfgProposalMap::iterator itProposal, LfgUpdateType t
             updateType = type;
             plr->GetLfgDungeons()->clear();
             plr->SetLfgRoles(ROLE_NONE);
+            if (!plr->GetGroup() || !plr->GetGroup()->isLFGGroup())
+                plr->SetLfgState(LFG_STATE_NONE);
 
             sLog.outError("DEBUG:LFGMgr::RemoveProposal: [" UI64FMTD "] didn't accept. Removing from queue and compatible cache", guid);
             RemoveFromQueue(guid);

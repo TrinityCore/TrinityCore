@@ -28,6 +28,13 @@ enum LfgRoles
     ROLE_DAMAGE = 0x08,
 };
 
+enum LfgState
+{
+    LFG_STATE_NONE = 0,                                     // Not using LFG / LFR
+    LFG_STATE_LFG  = 1,                                     // Using Dungeon finder
+    LFG_STATE_LFR  = 2,                                     // Using Raid finder
+};
+
 enum LfgUpdateType
 {
     LFG_UPDATETYPE_LEADER               = 1,
@@ -49,9 +56,10 @@ typedef std::set<uint32> LfgDungeonSet;
 
 struct LookingForGroup
 {
-    LookingForGroup(): roles(0), update(true) {}
+    LookingForGroup(): roles(0), update(true), state(LFG_STATE_NONE) {}
     uint8 roles;
     bool update;
+    LfgState state;
     LfgDungeonSet applyDungeons;                            // Dungeons the player have applied for
     LfgDungeonSet donerandomDungeons;                       // Finished random Dungeons (to calculate the bonus);
     std::string comment;
