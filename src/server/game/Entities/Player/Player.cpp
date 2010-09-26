@@ -15090,7 +15090,7 @@ void Player::SetQuestStatus(uint32 quest_id, QuestStatus status)
 }
 
 // not used in Trinity, but used in scripting code
-uint32 Player::GetReqKillOrCastCurrentCount(uint32 quest_id, int32 entry)
+uint16 Player::GetReqKillOrCastCurrentCount(uint32 quest_id, int32 entry)
 {
     Quest const* qInfo = sObjectMgr.GetQuestTemplate(quest_id);
     if (!qInfo)
@@ -15193,10 +15193,10 @@ void Player::ItemAddedQuestCheck(uint32 entry, uint32 count)
             if (reqitem == entry)
             {
                 uint32 reqitemcount = qInfo->ReqItemCount[j];
-                uint32 curitemcount = q_status.m_itemcount[j];
+                uint16 curitemcount = q_status.m_itemcount[j];
                 if (curitemcount < reqitemcount)
                 {
-                    uint32 additemcount = curitemcount + count <= reqitemcount ? count : reqitemcount - curitemcount;
+                    uint16 additemcount = curitemcount + count <= reqitemcount ? count : reqitemcount - curitemcount;
                     q_status.m_itemcount[j] += additemcount;
                     if (q_status.uState != QUEST_NEW) q_status.uState = QUEST_CHANGED;
 
@@ -15232,14 +15232,14 @@ void Player::ItemRemovedQuestCheck(uint32 entry, uint32 count)
                 QuestStatusData& q_status = mQuestStatus[questid];
 
                 uint32 reqitemcount = qInfo->ReqItemCount[j];
-                uint32 curitemcount;
+                uint16 curitemcount;
                 if (q_status.m_status != QUEST_STATUS_COMPLETE)
                     curitemcount = q_status.m_itemcount[j];
                 else
                     curitemcount = GetItemCount(entry,true);
                 if (curitemcount < reqitemcount + count)
                 {
-                    uint32 remitemcount = curitemcount <= reqitemcount ? count : count + reqitemcount - curitemcount;
+                    uint16 remitemcount = curitemcount <= reqitemcount ? count : count + reqitemcount - curitemcount;
                     q_status.m_itemcount[j] = curitemcount - remitemcount;
                     if (q_status.uState != QUEST_NEW)
                         q_status.uState = QUEST_CHANGED;
@@ -15265,7 +15265,7 @@ void Player::KilledMonster(CreatureInfo const* cInfo, uint64 guid)
 
 void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
 {
-    uint32 addkillcount = 1;
+    uint16 addkillcount = 1;
     uint32 real_entry = entry;
     if (guid)
     {
@@ -15307,7 +15307,7 @@ void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
                     if (reqkill == real_entry)
                     {
                         uint32 reqkillcount = qInfo->ReqCreatureOrGOCount[j];
-                        uint32 curkillcount = q_status.m_creatureOrGOcount[j];
+                        uint16 curkillcount = q_status.m_creatureOrGOcount[j];
                         if (curkillcount < reqkillcount)
                         {
                             q_status.m_creatureOrGOcount[j] = curkillcount + addkillcount;
@@ -15332,7 +15332,7 @@ void Player::CastedCreatureOrGO(uint32 entry, uint64 guid, uint32 spell_id)
 {
     bool isCreature = IS_CRE_OR_VEH_GUID(guid);
 
-    uint32 addCastCount = 1;
+    uint16 addCastCount = 1;
     for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
     {
         uint32 questid = GetQuestSlotQuestId(i);
@@ -15386,7 +15386,7 @@ void Player::CastedCreatureOrGO(uint32 entry, uint64 guid, uint32 spell_id)
                         continue;
 
                     uint32 reqCastCount = qInfo->ReqCreatureOrGOCount[j];
-                    uint32 curCastCount = q_status.m_creatureOrGOcount[j];
+                    uint16 curCastCount = q_status.m_creatureOrGOcount[j];
                     if (curCastCount < reqCastCount)
                     {
                         q_status.m_creatureOrGOcount[j] = curCastCount + addCastCount;
@@ -15409,7 +15409,7 @@ void Player::CastedCreatureOrGO(uint32 entry, uint64 guid, uint32 spell_id)
 
 void Player::TalkedToCreature(uint32 entry, uint64 guid)
 {
-    uint32 addTalkCount = 1;
+    uint16 addTalkCount = 1;
     for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
     {
         uint32 questid = GetQuestSlotQuestId(i);
@@ -15443,7 +15443,7 @@ void Player::TalkedToCreature(uint32 entry, uint64 guid)
                     if (reqTarget == entry)
                     {
                         uint32 reqTalkCount = qInfo->ReqCreatureOrGOCount[j];
-                        uint32 curTalkCount = q_status.m_creatureOrGOcount[j];
+                        uint16 curTalkCount = q_status.m_creatureOrGOcount[j];
                         if (curTalkCount < reqTalkCount)
                         {
                             q_status.m_creatureOrGOcount[j] = curTalkCount + addTalkCount;
@@ -15711,7 +15711,7 @@ void Player::SendPushToPartyResponse(Player *pPlayer, uint32 msg)
     }
 }
 
-void Player::SendQuestUpdateAddItem(Quest const* /*pQuest*/, uint32 /*item_idx*/, uint32 /*count*/)
+void Player::SendQuestUpdateAddItem(Quest const* /*pQuest*/, uint32 /*item_idx*/, uint16 /*count*/)
 {
     WorldPacket data(SMSG_QUESTUPDATE_ADD_ITEM, 0);
     sLog.outDebug("WORLD: Sent SMSG_QUESTUPDATE_ADD_ITEM");
@@ -15720,7 +15720,7 @@ void Player::SendQuestUpdateAddItem(Quest const* /*pQuest*/, uint32 /*item_idx*/
     GetSession()->SendPacket(&data);
 }
 
-void Player::SendQuestUpdateAddCreatureOrGo(Quest const* pQuest, uint64 guid, uint32 creatureOrGO_idx, uint32 old_count, uint32 add_count)
+void Player::SendQuestUpdateAddCreatureOrGo(Quest const* pQuest, uint64 guid, uint32 creatureOrGO_idx, uint16 old_count, uint16 add_count)
 {
     ASSERT(old_count + add_count < 65536 && "mob/GO count store in 16 bits 2^16 = 65536 (0..65536)");
 
@@ -17126,13 +17126,13 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
                 // find or create
                 QuestStatusData& questStatusData = mQuestStatus[quest_id];
 
-                uint32 qstatus = fields[1].GetUInt32();
+                uint8 qstatus = fields[1].GetUInt8();
                 if (qstatus < MAX_QUEST_STATUS)
                     questStatusData.m_status = QuestStatus(qstatus);
                 else
                 {
                     questStatusData.m_status = QUEST_STATUS_NONE;
-                    sLog.outError("Player %s have invalid quest %d status (%d), replaced by QUEST_STATUS_NONE(0).",GetName(),quest_id,qstatus);
+                    sLog.outError("Player %s have invalid quest %d status (%u), replaced by QUEST_STATUS_NONE(0).",GetName(),quest_id,qstatus);
                 }
 
                 questStatusData.m_rewarded = (fields[2].GetUInt8() > 0);
@@ -17152,14 +17152,14 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
                 else
                     quest_time = 0;
 
-                questStatusData.m_creatureOrGOcount[0] = fields[5].GetUInt32();
-                questStatusData.m_creatureOrGOcount[1] = fields[6].GetUInt32();
-                questStatusData.m_creatureOrGOcount[2] = fields[7].GetUInt32();
-                questStatusData.m_creatureOrGOcount[3] = fields[8].GetUInt32();
-                questStatusData.m_itemcount[0] = fields[9].GetUInt32();
-                questStatusData.m_itemcount[1] = fields[10].GetUInt32();
-                questStatusData.m_itemcount[2] = fields[11].GetUInt32();
-                questStatusData.m_itemcount[3] = fields[12].GetUInt32();
+                questStatusData.m_creatureOrGOcount[0] = fields[5].GetUInt16();
+                questStatusData.m_creatureOrGOcount[1] = fields[6].GetUInt16();
+                questStatusData.m_creatureOrGOcount[2] = fields[7].GetUInt16();
+                questStatusData.m_creatureOrGOcount[3] = fields[8].GetUInt16();
+                questStatusData.m_itemcount[0] = fields[9].GetUInt16();
+                questStatusData.m_itemcount[1] = fields[10].GetUInt16();
+                questStatusData.m_itemcount[2] = fields[11].GetUInt16();
+                questStatusData.m_itemcount[3] = fields[12].GetUInt16();
 
                 questStatusData.uState = QUEST_UNCHANGED;
 
