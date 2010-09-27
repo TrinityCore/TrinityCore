@@ -54,12 +54,16 @@ flags like
     USE_SFMT            Use SFMT as random numbergenerator
     WITH_WARNINGS       Show all warnings during compile
     WITH_COREDEBUG      Include additional debug-code in core
+    WITH_SQLDEBUG       Output SQL-queries to dedicated logfile
     WITH_SQL            Copy SQL files during installation
     PREFIX              Set installation directory
     CONF_DIR            Set configuration directory
     LIBSDIR             Set library directory
     CMAKE_C_FLAGS       Set C_FLAGS for compile (advanced users only)
     CMAKE_CXX_FLAGS     Set CXX_FLAGS for compile (advanced users only)
+
+    CMAKE_BUILD_TYPE    Set buildtype - the supported modes are :
+                        Release, MinSizeRel, RelWithDebInfo, Debug
 
 Of course, replace the paths in prefix, conf_dir with the directories 
 you wish to install TrinityCore to. The datadir is where maps, DBCs, and 
