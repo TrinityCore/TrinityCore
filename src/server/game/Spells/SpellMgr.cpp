@@ -3721,7 +3721,6 @@ void SpellMgr::LoadSpellCustomAttr()
         case 54741:    // Firestarter
         case 57761:    // Fireball!
         case 39805:    // Lightning Overload
-        case 52437:    // Sudden Death
         case 64823:    // Item - Druid T8 Balance 4P Bonus
         case 44401:
             spellInfo->procCharges = 1;
@@ -3732,8 +3731,12 @@ void SpellMgr::LoadSpellCustomAttr()
             count++;
             break;
         case 44544:    // Fingers of Frost
+            spellInfo->EffectSpellClassMask[0] = flag96(685904631, 1151048, 0);
+            count++;
+            break;
+        case 74396:    // Fingers of Frost visual buff
             spellInfo->procCharges = 2;
-            spellInfo->EffectSpellClassMask[0] = flag96(685904631,1151048,0);
+            spellInfo->StackAmount = 0;
             count++;
             break;
         case 28200:    // Ascendance (Talisman of Ascendance trinket)
