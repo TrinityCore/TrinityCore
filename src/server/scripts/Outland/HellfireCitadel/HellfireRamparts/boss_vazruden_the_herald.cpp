@@ -293,6 +293,7 @@ class boss_vazruden_the_herald : public CreatureScript
             {
                 summoned = false;
                 sentryDown = false;
+                lootSpawned = false;
                 NazanGUID = 0;
                 VazrudenGUID = 0;
             }
@@ -304,6 +305,7 @@ class boss_vazruden_the_herald : public CreatureScript
             uint64 NazanGUID;
             uint64 VazrudenGUID;
             bool summoned;
+            bool lootSpawned;
 
             void Reset()
             {
@@ -435,11 +437,12 @@ class boss_vazruden_the_herald : public CreatureScript
                                 return;
                             }
                         }
-                        else
+                        else if (!lootSpawned)
                         {
                             me->SummonGameObject(DUNGEON_MODE(ENTRY_REINFORCED_FEL_IRON_CHEST, ENTRY_REINFORCED_FEL_IRON_CHEST_H),VazrudenMiddle[0],VazrudenMiddle[1],VazrudenMiddle[2],0,0,0,0,0,0);
                             me->SetLootRecipient(NULL); // don't think this is necessary..
                             //me->Kill(me);
+                            lootSpawned = true;
                         }
                         check = 2000;
                     }
