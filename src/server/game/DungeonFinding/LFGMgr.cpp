@@ -468,32 +468,24 @@ void LFGMgr::Update(uint32 diff)
 void LFGMgr::AddGuidToNewQueue(uint64 guid)
 {
     // Consistency check
-    LfgGuidList::const_iterator it;
-    for (it = m_newToQueue.begin(); it != m_newToQueue.end(); ++it)
+    LfgGuidList::iterator it = std::find(m_newToQueue.begin(), m_newToQueue.end(), guid);
+
+    if (it != m_newToQueue.end())
     {
-        if (*it == guid)
-        {
-            sLog.outError("LFGMgr::AddGuidToNewQueue: [" UI64FMTD "] being added to queue and it was already added. ignoring", guid);
-            break;
-        }
+        sLog.outError("LFGMgr::AddGuidToNewQueue: [" UI64FMTD "] being added to queue and it was already added. ignoring", guid);
+        return;
     }
-    if (it == m_newToQueue.end())
+
+    it = std::find(m_currentQueue.begin(), m_currentQueue.end(), guid);
+    if (it != m_currentQueue.end())
     {
-        LfgGuidList::iterator itRemove;
-        for (LfgGuidList::iterator it = m_currentQueue.begin(); it != m_currentQueue.end() && (*it) != guid;)
-        {
-            itRemove = it++;
-            if (*itRemove == guid)
-            {
-                sLog.outError("LFGMgr::AddGuidToNewQueue: [" UI64FMTD "] being added to queue and already in current queue (removing to readd)", guid);
-                m_currentQueue.erase(itRemove);
-                break;
-            }
-        }
-        // Add to queue
-        m_newToQueue.push_back(guid);
-        sLog.outError("DEBUG:LFGMgr::AddGuidToNewQueue: [" UI64FMTD "] added to m_newToQueue (size: %u)", guid, m_newToQueue.size());
+        sLog.outError("LFGMgr::AddGuidToNewQueue: [" UI64FMTD "] being added to queue and already in current queue (removing to readd)", guid);
+        m_currentQueue.erase(it);
     }
+
+    // Add to queue
+    m_newToQueue.push_back(guid);
+    sLog.outError("DEBUG:LFGMgr::AddGuidToNewQueue: [" UI64FMTD "] added to m_newToQueue (size: %u)", guid, m_newToQueue.size());
 }
 
 /// <summary>
@@ -726,8 +718,8 @@ void LFGMgr::Leave(Player* plr, Group* grp /* = NULL*/)
 
     // Remove from Proposals
     bool proposalFound = false;
-    LfgProposalMap::iterator it;
-    for (it = m_Proposals.begin(); it != m_Proposals.end() && !proposalFound; ++it)
+    LfgProposalMap::iterator it = m_Proposals.begin();
+    while (it != m_Proposals.end() && !proposalFound)
     {
         // Mark the player/leader of group who left as didn't accept the proposal
         for (LfgProposalPlayerMap::iterator itPlayer = it->second->players.begin(); itPlayer != it->second->players.end(); ++itPlayer)
@@ -738,6 +730,8 @@ void LFGMgr::Leave(Player* plr, Group* grp /* = NULL*/)
                 proposalFound = true;
             }
         }
+        if (!proposalFound)
+            ++it;
     }
 
     // Remove from queue - if proposal is found, RemoveProposal will call RemoveFromQueue
