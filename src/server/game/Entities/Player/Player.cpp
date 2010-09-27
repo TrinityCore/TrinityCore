@@ -19111,34 +19111,7 @@ void Player::RemoveSpellMods(Spell * spell)
 {
     if (!spell)
         return;
-    std::set <Aura *> checkedSpells;
-
-    AuraEffectList const & auraList = GetAuraEffectsByType(SPELL_AURA_ABILITY_IGNORE_AURASTATE);
-    for (AuraEffectList::const_iterator itr = auraList.begin(); itr != auraList.end();)
-    {
-        AuraEffect * aurEff = *itr;
-        Aura * aura = aurEff->GetBase();
-        ++itr;
-        if (!aura->GetCharges())
-            continue;
-
-        SpellEntry const * spellInfo = aura->GetSpellProto();
-
-        if (spellInfo->SpellFamilyName != spell->m_spellInfo->SpellFamilyName ||
-            checkedSpells.find(aura) != checkedSpells.end())
-            continue;
-
-        if (spell->m_spellInfo->SpellFamilyFlags & spellInfo->EffectSpellClassMask[aurEff->GetEffIndex()]
-        // this is for fingers of frost, look at spell::finish part, a charge will be taken by the triggering spell
-            && aura->GetDuration() != aura->GetMaxDuration())
-        {
-            checkedSpells.insert(aura);
-            spell->m_appliedMods.erase(aura);
-            if (aura->DropCharge())
-                itr = auraList.begin();
-        }
-    }
-
+    
     if (spell->m_appliedMods.empty())
         return;
 

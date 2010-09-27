@@ -959,6 +959,20 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                                 caster->CastSpell(caster, spellId, true);
                         }
                         break;
+                    case 44544: // Fingers of Frost
+                    {
+                        // See if we already have the indicator aura. If not, create one.
+                        if (Aura *aur = target->GetAura(74396))
+                        {
+                            // Aura already there. Refresh duration and set original charges
+                            aur->SetCharges(2);
+                            aur->RefreshDuration();
+                        }
+                        else
+                            target->AddAura(74396, target);
+                    }
+                    default:
+                        break;
                 }
                 break;
             case SPELLFAMILY_WARLOCK:
@@ -1125,6 +1139,10 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                             break;
                         target->CastSpell(target, 32612, true, NULL, GetEffect(1));
                         break;
+                    case 74396: // Fingers of Frost
+                        // Remove the IGNORE_AURASTATE aura
+                        target->RemoveAurasDueToSpell(44544);
+                        break;
                     case 44401: //Missile Barrage
                     case 48108: //Hot Streak
                     case 57761: //Fireball!
@@ -1132,6 +1150,8 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                             break;
                         if (target->HasAura(70752)) //Item - Mage T10 2P Bonus
                             target->CastSpell(target, 70753, true);
+                        break;
+                    default:
                         break;
                 }
                 if (!caster)
