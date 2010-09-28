@@ -497,7 +497,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX7_UNK0                       0x00000001            // 0  Shaman's new spells (Call of the ...), Feign Death.
 #define SPELL_ATTR_EX7_UNK1                       0x00000002            // 1  Not set in 3.2.2a.
 #define SPELL_ATTR_EX7_REACTIVATE_AT_RESURRECT    0x00000004            // 2  Paladin's auras and 65607 only.
-#define SPELL_ATTR_EX7_UNK3                       0x00000008            // 3  Only 43574 test spell.
+#define SPELL_ATTR_EX7_DISABLED_CLIENT_SIDE       0x00000008            // 3  used only by client to disable spells client-side. some sort of special player flag (0x40000) bypasses that restriction
 #define SPELL_ATTR_EX7_UNK4                       0x00000010            // 4  Only 66109 test spell.
 #define SPELL_ATTR_EX7_SUMMON_PLAYER_TOTEM        0x00000020            // 5  Only Shaman player totems.
 #define SPELL_ATTR_EX7_UNK6                       0x00000040            // 6  Dark Surge, Surge of Light, Burning Breath triggers (boss spells).
