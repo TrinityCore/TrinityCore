@@ -234,7 +234,7 @@ bool MySQLConnection::Execute(PreparedStatement* stmt)
     }
 }
 
-bool MySQLConnection::_Query(PreparedStatement* stmt, MYSQL_RES **pResult, MYSQL_FIELD **pFields, uint64* pRowCount, uint32* pFieldCount)
+bool MySQLConnection::_Query(PreparedStatement* stmt, MYSQL_RES **pResult, uint64* pRowCount, uint32* pFieldCount)
 {
     if (!m_Mysql)
         return false;
@@ -274,7 +274,7 @@ bool MySQLConnection::_Query(PreparedStatement* stmt, MYSQL_RES **pResult, MYSQL
         m_mStmt->ClearParameters();
 
         *pResult = mysql_stmt_result_metadata(msql_STMT);
-        *pRowCount = /*mysql_affected_rows(m_Mysql); //* or*/ mysql_stmt_num_rows(msql_STMT);
+        *pRowCount = mysql_stmt_num_rows(msql_STMT);
         *pFieldCount = mysql_stmt_field_count(msql_STMT);
 
         return true;
@@ -384,16 +384,15 @@ void MySQLConnection::PrepareStatement(uint32 index, const char* sql)
 PreparedResultSet* MySQLConnection::Query(PreparedStatement* stmt)
 {
     MYSQL_RES *result = NULL;
-    MYSQL_FIELD *fields = NULL;
     uint64 rowCount = 0;
     uint32 fieldCount = 0;
 
-    if (!_Query(stmt, &result, &fields, &rowCount, &fieldCount))
+    if (!_Query(stmt, &result, &rowCount, &fieldCount))
         return NULL;
 
     if (mysql_more_results(m_Mysql))
     {
         mysql_next_result(m_Mysql);
     }
-    return new PreparedResultSet(stmt->m_stmt->GetSTMT(), result, fields, rowCount, fieldCount);
+    return new PreparedResultSet(stmt->m_stmt->GetSTMT(), result, rowCount, fieldCount);
 }
