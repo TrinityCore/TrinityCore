@@ -859,7 +859,7 @@ class WorldSession
         LocaleConstant m_sessionDbLocaleIndex;
         uint32 m_latency;
         AccountData m_accountData[NUM_ACCOUNT_DATA_TYPES];
-        uint32 m_Tutorials[8];
+        uint32 m_Tutorials[MAX_CHARACTER_TUTORIAL_VALUES];
         bool   m_TutorialsChanged;
         AddonsList m_addonsList;
         uint32 recruiterId;

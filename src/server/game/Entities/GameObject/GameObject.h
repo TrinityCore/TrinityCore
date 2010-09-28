@@ -34,6 +34,8 @@
 #pragma pack(push,1)
 #endif
 
+#define MAX_GAMEOBJECT_QUEST_ITEMS 6
+
 // from `gameobject_template`
 struct GameObjectInfo
 {
@@ -47,7 +49,7 @@ struct GameObjectInfo
     uint32  faction;
     uint32  flags;
     float   size;
-    uint32  questItems[6];
+    uint32  questItems[MAX_GAMEOBJECT_QUEST_ITEMS];
     union                                                   // different GO types have different data field
     {
         //0 GAMEOBJECT_TYPE_DOOR

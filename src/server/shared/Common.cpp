@@ -20,7 +20,7 @@
 
 #include "Common.h"
 
-char const* localeNames[MAX_LOCALE] = {
+char const* localeNames[TOTAL_LOCALES] = {
   "enUS",
   "koKR",
   "frFR",
@@ -34,7 +34,7 @@ char const* localeNames[MAX_LOCALE] = {
 
 LocaleConstant GetLocaleByName(const std::string& name)
 {
-    for (uint32 i = 0; i < MAX_LOCALE; ++i)
+    for (uint32 i = 0; i < TOTAL_LOCALES; ++i)
         if(name==localeNames[i])
             return LocaleConstant(i);
 

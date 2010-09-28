@@ -223,7 +223,7 @@ void ScriptMgr::FillSpellSummary()
         if (!pTempSpell)
             continue;
 
-        for (uint32 j = 0; j < 3; ++j)
+        for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
         {
             //Spell targets self
             if (pTempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_CASTER)

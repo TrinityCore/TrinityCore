@@ -666,7 +666,7 @@ void WorldSession::SendAccountDataTimes(uint32 mask)
 
 void WorldSession::LoadTutorialsData()
 {
-    for (int aX = 0 ; aX < 8 ; ++aX)
+    for (int aX = 0 ; aX < MAX_CHARACTER_TUTORIAL_VALUES ; ++aX)
         m_Tutorials[ aX ] = 0;
 
     QueryResult result = CharacterDatabase.PQuery("SELECT tut0,tut1,tut2,tut3,tut4,tut5,tut6,tut7 FROM character_tutorial WHERE account = '%u'", GetAccountId());
@@ -677,7 +677,7 @@ void WorldSession::LoadTutorialsData()
         {
             Field *fields = result->Fetch();
 
-            for (int iI = 0; iI < 8; ++iI)
+            for (int iI = 0; iI < MAX_CHARACTER_TUTORIAL_VALUES; ++iI)
                 m_Tutorials[iI] = fields[iI].GetUInt32();
         }
         while (result->NextRow());
@@ -687,8 +687,8 @@ void WorldSession::LoadTutorialsData()
 
 void WorldSession::SendTutorialsData()
 {
-    WorldPacket data(SMSG_TUTORIAL_FLAGS, 4*8);
-    for (uint32 i = 0; i < 8; ++i)
+    WorldPacket data(SMSG_TUTORIAL_FLAGS, 4 * MAX_CHARACTER_TUTORIAL_VALUES);
+    for (uint32 i = 0; i < MAX_CHARACTER_TUTORIAL_VALUES; ++i)
         data << m_Tutorials[i];
     SendPacket(&data);
 }

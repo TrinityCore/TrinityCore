@@ -889,7 +889,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     time_t mutetime = time_t (fields[7].GetUInt64());
 
     locale = LocaleConstant (fields[8].GetUInt8());
-    if (locale >= MAX_LOCALE)
+    if (locale >= TOTAL_LOCALES)
         locale = LOCALE_enUS;
 
     uint32 recruiter = fields[9].GetUInt32();

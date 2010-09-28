@@ -1678,7 +1678,7 @@ SpellEntry const *Creature::reachWithSpellAttack(Unit *pVictim)
         }
 
         bool bcontinue = true;
-        for (uint32 j=0; j<3; j++)
+        for (uint32 j = 0; j < MAX_SPELL_EFFECTS; j++)
         {
             if ((spellInfo->Effect[j] == SPELL_EFFECT_SCHOOL_DAMAGE)       ||
                 (spellInfo->Effect[j] == SPELL_EFFECT_INSTAKILL)            ||
@@ -1728,7 +1728,7 @@ SpellEntry const *Creature::reachWithSpellCure(Unit *pVictim)
         }
 
         bool bcontinue = true;
-        for (uint32 j=0; j<3; j++)
+        for (uint32 j = 0; j < MAX_SPELL_EFFECTS; j++)
         {
             if ((spellInfo->Effect[j] == SPELL_EFFECT_HEAL))
             {

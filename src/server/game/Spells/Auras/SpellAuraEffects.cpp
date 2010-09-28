@@ -418,12 +418,12 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
                         ItemRandomSuffixEntry const *item_rand_suffix = sItemRandomSuffixStore.LookupEntry(abs(castItem->GetItemRandomPropertyId()));
                         if (item_rand_suffix)
                         {
-                            for (int k=0; k<MAX_SPELL_EFFECTS; k++)
+                            for (int k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; k++)
                             {
                                 SpellItemEnchantmentEntry const *pEnchant = sSpellItemEnchantmentStore.LookupEntry(item_rand_suffix->enchant_id[k]);
                                 if (pEnchant)
                                 {
-                                    for (int t=0; t<MAX_SPELL_EFFECTS; t++)
+                                    for (int t = 0; t < MAX_ITEM_ENCHANTMENT_EFFECTS; t++)
                                         if (pEnchant->spellid[t] == m_spellProto->Id)
                                     {
                                         amount = uint32((item_rand_suffix->prefix[k]*castItem->GetItemSuffixFactor()) / 10000);
@@ -2525,7 +2525,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit * target, bool apply) const
                 if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->disabled) continue;
                 if (itr->first == spellId || itr->first == spellId2) continue;
                 SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
-                if (!spellInfo || !(spellInfo->Attributes & (SPELL_ATTR_PASSIVE | (1<<7)))) continue;
+                if (!spellInfo || !(spellInfo->Attributes & (SPELL_ATTR_PASSIVE | SPELL_ATTR_UNK7))) continue;
                 if (spellInfo->Stances & (1<<(GetMiscValue()-1)))
                     target->CastSpell(target, itr->first, true, NULL, this);
             }
@@ -4680,8 +4680,8 @@ void AuraEffect::HandleModTotalPercentStat(AuraApplication const * aurApp, uint8
         }
     }
 
-    //recalculate current HP/MP after applying aura modifications (only for spells with 0x10 flag)
-    if ((GetMiscValue() == STAT_STAMINA) && (maxHPValue > 0) && (m_spellProto->Attributes & 0x10))
+    //recalculate current HP/MP after applying aura modifications (only for spells with SPELL_ATTR_UNK4 0x00000010 flag)
+    if ((GetMiscValue() == STAT_STAMINA) && (maxHPValue > 0) && (m_spellProto->Attributes & SPELL_ATTR_UNK4))
     {
         uint32 newHPValue = target->CountPctFromMaxHealth(int32(100.0f * curHPValue / maxHPValue));
         target->SetHealth(newHPValue);

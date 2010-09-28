@@ -68,6 +68,8 @@ enum CreatureFlagsExtra
 #define MAX_KILL_CREDIT 2
 #define CREATURE_REGEN_INTERVAL 2 * IN_MILLISECONDS
 
+#define MAX_CREATURE_QUEST_ITEMS 6
+
 // from `creature_template` table
 struct CreatureInfo
 {
@@ -133,7 +135,7 @@ struct CreatureInfo
     float   ModMana;
     float   ModArmor;
     bool    RacialLeader;
-    uint32  questItems[6];
+    uint32  questItems[MAX_CREATURE_QUEST_ITEMS];
     uint32  movementId;
     bool    RegenHealth;
     uint32  equipmentId;

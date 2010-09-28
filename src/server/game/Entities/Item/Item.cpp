@@ -76,7 +76,7 @@ void AddItemsSetItem(Player*player,Item *item)
 
     ++eff->item_count;
 
-    for (uint32 x=0; x<8; x++)
+    for (uint32 x = 0; x < MAX_ITEM_SET_SPELLS; x++)
     {
         if (!set->spells [x])
             continue;
@@ -84,16 +84,16 @@ void AddItemsSetItem(Player*player,Item *item)
         if (set->items_to_triggerspell[x] > eff->item_count)
             continue;
 
-        uint32 z=0;
-        for (; z<8; z++)
+        uint32 z = 0;
+        for (; z < MAX_ITEM_SET_SPELLS; z++)
             if (eff->spells[z] && eff->spells[z]->Id == set->spells[x])
                 break;
 
-        if (z < 8)
+        if (z < MAX_ITEM_SET_SPELLS)
             continue;
 
         //new spell
-        for (uint32 y=0; y<8; y++)
+        for (uint32 y = 0; y < MAX_ITEM_SET_SPELLS; y++)
         {
             if (!eff->spells[y])                             // free slot
             {
@@ -142,7 +142,7 @@ void RemoveItemsSetItem(Player*player,ItemPrototype const *proto)
 
     --eff->item_count;
 
-    for (uint32 x=0; x<8; x++)
+    for (uint32 x = 0; x < MAX_ITEM_SET_SPELLS; x++)
     {
         if (!set->spells[x])
             continue;
@@ -151,7 +151,7 @@ void RemoveItemsSetItem(Player*player,ItemPrototype const *proto)
         if (set->items_to_triggerspell[x] <= eff->item_count)
             continue;
 
-        for (uint32 z=0; z<8; z++)
+        for (uint32 z = 0; z < MAX_ITEM_SET_SPELLS; z++)
         {
             if (eff->spells[z] && eff->spells[z]->Id == set->spells[x])
             {
@@ -918,7 +918,7 @@ void Item::ClearEnchantment(EnchantmentSlot slot)
     if (!GetEnchantmentId(slot))
         return;
 
-    for (uint8 x = 0; x < 3; ++x)
+    for (uint8 x = 0; x < MAX_ITEM_ENCHANTMENT_EFFECTS; ++x)
         SetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1 + slot*MAX_ENCHANTMENT_OFFSET + x, 0);
     SetState(ITEM_CHANGED, GetOwner());
 }

@@ -264,7 +264,7 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
                 if (pet->ToCreature()->GetGlobalCooldown() > 0)
                     return;
 
-            for (uint32 i = 0; i < 3; ++i)
+            for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             {
                 if (spellInfo->EffectImplicitTargetA[i] == TARGET_UNIT_AREA_ENEMY_SRC || spellInfo->EffectImplicitTargetA[i] == TARGET_UNIT_AREA_ENEMY_DST || spellInfo->EffectImplicitTargetA[i] == TARGET_DEST_DYNOBJ_ENEMY)
                     return;
