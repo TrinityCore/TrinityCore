@@ -6287,12 +6287,12 @@ SpellCastResult Spell::CheckItems()
                     return SPELL_FAILED_LOWLEVEL;
 
                 bool isItemUsable = false;
-                for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+                for (uint8 e = 0; e < MAX_ITEM_PROTO_SPELLS; ++e)
                 {
                     ItemPrototype const *proto = targetItem->GetProto();
-                    if (proto->Spells[i].SpellId && (
-                        proto->Spells[i].SpellTrigger == ITEM_SPELLTRIGGER_ON_USE ||
-                        proto->Spells[i].SpellTrigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE))
+                    if (proto->Spells[e].SpellId && (
+                        proto->Spells[e].SpellTrigger == ITEM_SPELLTRIGGER_ON_USE ||
+                        proto->Spells[e].SpellTrigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE))
                     {
                         isItemUsable = true;
                         break;
