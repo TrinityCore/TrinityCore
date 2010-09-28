@@ -4222,10 +4222,6 @@ void AuraEffect::HandleModStateImmunityMask(AuraApplication const * aurApp, uint
         immunity_list.pop_back(); // delete Disarm
         target->RemoveAurasByType(SPELL_AURA_MOD_ROOT);
         target->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
-        // also drop flag
-        if (Player* player = target->ToPlayer())
-            if (Battleground* bg = player->GetBattleground())
-                bg->EventPlayerDroppedFlag(player);
     }
 
     if (apply && GetSpellProto()->AttributesEx & SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY)
