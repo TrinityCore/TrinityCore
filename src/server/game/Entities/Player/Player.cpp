@@ -16875,7 +16875,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timediff)
                 else
                 {
                     Field* fields2 = result2->Fetch();
-                    std::string strGUID = fields[2].GetString();
+                    std::string strGUID = fields2[0].GetString();
                     Tokens GUIDlist = StrSplit(strGUID, " ");
                     AllowedLooterSet looters;
                     for (Tokens::iterator itr = GUIDlist.begin(); itr != GUIDlist.end(); ++itr)

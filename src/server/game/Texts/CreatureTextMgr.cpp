@@ -109,7 +109,7 @@ void CreatureTextMgr::LoadCreatureTexts()
     sLog.outString(">> Loaded %u Creature Texts for %u Creatures.", TextCount, CreatureCount);
 }
 
-void CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, uint64 whisperGuid, ChatType msgtype, Language language, TextRange range)
+void CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, uint64 whisperGuid, ChatType /*msgtype*/, Language /*language*/, TextRange /*range*/)
 {
     if (!source)
         return;

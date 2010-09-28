@@ -146,7 +146,6 @@ public:
         // Launch the RA listener socket
         ListenSocket<RASocket> RAListenSocket (h);
         bool usera = sConfig.GetBoolDefault ("Ra.Enable", false);
-        bool needInit = true;
 
         if (usera)
         {

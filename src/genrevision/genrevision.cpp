@@ -22,8 +22,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#pragma warning(disable:4996)
-
 std::string build_directive = "Unknown";
 
 struct RawData
@@ -110,25 +108,43 @@ void extractDataFromArchive(FILE* EntriesFile, std::string /*path*/, bool /*url*
     char latesttag_str[200];
     char latesttagdistance_str[200];
 
-    fgets(buf,200,EntriesFile);
-    sscanf(buf,"repo: %s",repo_str);
-    fgets(buf,200,EntriesFile);
-    sscanf(buf,"node: %s",hash_str);
-    fgets(buf,200,EntriesFile);
-    sscanf(buf,"branch: %s",branch_str);
-    fgets(buf,200,EntriesFile);
-    sscanf(buf,"latesttag: %[^\n]",latesttag_str);
-    fgets(buf,200,EntriesFile);
-    sscanf(buf,"latesttagdistance: %s",latesttagdistance_str);
-
-    char thash_str[200];
-    for (int i = 11; i >= 0; --i)
+    bool error = true;
+    if (fgets(buf,200,EntriesFile))
     {
-        thash_str[i] = hash_str[i];
+        sscanf(buf,"repo: %s",repo_str);
+        if (fgets(buf,200,EntriesFile))
+        {
+            sscanf(buf,"node: %s",hash_str);
+            if (fgets(buf,200,EntriesFile))
+            {
+                sscanf(buf,"branch: %s",branch_str);
+                if (fgets(buf,200,EntriesFile))
+                {
+                    sscanf(buf,"latesttag: %[^\n]",latesttag_str);
+                    if (fgets(buf,200,EntriesFile))
+                    {
+                        sscanf(buf,"latesttagdistance: %s",latesttagdistance_str);
+                        error = false;
+                    }
+                }
+            }
+        }
     }
-    thash_str[12] = '\0';
-    strcpy(data.hash_str,thash_str);
-    strcpy(data.rev_str,"Archive");
+
+    if (!error)
+    {
+        char thash_str[200];
+        for (int i = 11; i >= 0; --i)
+            thash_str[i] = hash_str[i];
+        thash_str[12] = '\0';
+        strcpy(data.hash_str,thash_str);
+        strcpy(data.rev_str,"Archive");
+    }
+    else
+    {
+        strcpy(data.hash_str,"*");
+        strcpy(data.rev_str,"*");
+    }
 
     strcpy(data.date_str,"*");
     strcpy(data.time_str,"*");
