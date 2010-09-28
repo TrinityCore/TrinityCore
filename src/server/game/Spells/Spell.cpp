@@ -6285,11 +6285,30 @@ SpellCastResult Spell::CheckItems()
 
                 if (targetItem->GetProto()->ItemLevel < m_spellInfo->baseLevel)
                     return SPELL_FAILED_LOWLEVEL;
+
+                bool isItemUsable = false;
+                for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+                {
+                    ItemPrototype const *proto = targetItem->GetProto();
+                    if (proto->Spells[i].SpellId && (
+                        proto->Spells[i].SpellTrigger == ITEM_SPELLTRIGGER_ON_USE ||
+                        proto->Spells[i].SpellTrigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE))
+                    {
+                        isItemUsable = true;
+                        break;
+                    }
+                }
+
+                SpellItemEnchantmentEntry const *pEnchant = sSpellItemEnchantmentStore.LookupEntry(m_spellInfo->EffectMiscValue[i]);
+                // do not allow adding usable enchantments to items that have use effect already
+                if (pEnchant && isItemUsable)
+                    for (uint8 s = 0; s < MAX_ITEM_ENCHANTMENT_EFFECTS; ++s)
+                        if (pEnchant->type[s] == ITEM_ENCHANTMENT_TYPE_USE_SPELL)
+                            return SPELL_FAILED_ON_USE_ENCHANT;
+
                 // Not allow enchant in trade slot for some enchant type
                 if (targetItem->GetOwner() != m_caster)
                 {
-                    uint32 enchant_id = m_spellInfo->EffectMiscValue[i];
-                    SpellItemEnchantmentEntry const *pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
                     if (!pEnchant)
                         return SPELL_FAILED_ERROR;
                     if (pEnchant->slot & ENCHANTMENT_CAN_SOULBOUND)
