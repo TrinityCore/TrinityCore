@@ -26,6 +26,7 @@
 #include "Define.h"
 #include "Path.h"
 #include "Util.h"
+#include "Vehicle.h"
 
 #include <map>
 #include <set>
@@ -533,10 +534,12 @@ struct AreaTableEntry
     }
 };
 
+#define MAX_GROUP_AREA_IDS 6
+
 struct AreaGroupEntry
 {
     uint32  AreaGroupId;                                    // 0
-    uint32  AreaId[6];                                      // 1-6
+    uint32  AreaId[MAX_GROUP_AREA_IDS];                     // 1-6
     uint32  nextGroup;                                      // 7 index of next group
 };
 
@@ -831,6 +834,8 @@ struct FactionEntry
                                                             // 56 string flags
 };
 
+#define MAX_FACTION_RELATIONS 4
+
 struct FactionTemplateEntry
 {
     uint32      ID;                                         // 0        m_ID
@@ -839,8 +844,8 @@ struct FactionTemplateEntry
     uint32      ourMask;                                    // 3        m_factionGroup
     uint32      friendlyMask;                               // 4        m_friendGroup
     uint32      hostileMask;                                // 5        m_enemyGroup
-    uint32      enemyFaction[4];                            // 6        m_enemies[4]
-    uint32      friendFaction[4];                           // 10       m_friend[4]
+    uint32      enemyFaction[MAX_FACTION_RELATIONS];        // 6        m_enemies[MAX_FACTION_RELATIONS]
+    uint32      friendFaction[MAX_FACTION_RELATIONS];       // 10       m_friend[MAX_FACTION_RELATIONS]
     //-------------------------------------------------------  end structure
 
     // helpers
@@ -850,10 +855,10 @@ struct FactionTemplateEntry
             return true;
         if (entry.faction)
         {
-            for (int i = 0; i < 4; ++i)
+            for (int i = 0; i < MAX_FACTION_RELATIONS; ++i)
                 if (enemyFaction[i] == entry.faction)
                     return false;
-            for (int i = 0; i < 4; ++i)
+            for (int i = 0; i < MAX_FACTION_RELATIONS; ++i)
                 if (friendFaction[i] == entry.faction)
                     return true;
         }
@@ -865,10 +870,10 @@ struct FactionTemplateEntry
             return false;
         if (entry.faction)
         {
-            for (int i = 0; i < 4; ++i)
+            for (int i = 0; i < MAX_FACTION_RELATIONS; ++i)
                 if (enemyFaction[i] == entry.faction)
                     return true;
-            for (int i = 0; i < 4; ++i)
+            for (int i = 0; i < MAX_FACTION_RELATIONS; ++i)
                 if (friendFaction[i] == entry.faction)
                     return false;
         }
@@ -877,7 +882,7 @@ struct FactionTemplateEntry
     bool IsHostileToPlayers() const { return (hostileMask & FACTION_MASK_PLAYER) !=0; }
     bool IsNeutralToAll() const
     {
-        for (int i = 0; i < 4; ++i)
+        for (int i = 0; i < MAX_FACTION_RELATIONS; ++i)
             if (enemyFaction[i] != 0)
                 return false;
         return hostileMask == 0 && friendlyMask == 0;
@@ -1052,15 +1057,17 @@ struct ItemDisplayInfoEntry
 //    uint32      arenaseason;                              // arena season number(1-4)
 //};
 
+#define MAX_ITEM_EXTENDED_COST_REQUIREMENTS 5
+
 struct ItemExtendedCostEntry
 {
-    uint32      ID;                                         // 0 extended-cost entry id
-    uint32      reqhonorpoints;                             // 1 required honor points
-    uint32      reqarenapoints;                             // 2 required arena points
-    uint32      reqarenaslot;                               // 4 arena slot restrctions (min slot value)
-    uint32      reqitem[5];                                 // 5-8 required item id
-    uint32      reqitemcount[5];                            // 9-13 required count of 1st item
-    uint32      reqpersonalarenarating;                     // 14 required personal arena rating};
+    uint32      ID;                                                 // 0 extended-cost entry id
+    uint32      reqhonorpoints;                                     // 1 required honor points
+    uint32      reqarenapoints;                                     // 2 required arena points
+    uint32      reqarenaslot;                                       // 3 arena slot restrctions (min slot value)
+    uint32      reqitem[MAX_ITEM_EXTENDED_COST_REQUIREMENTS];       // 4-8 required item id
+    uint32      reqitemcount[MAX_ITEM_EXTENDED_COST_REQUIREMENTS];  // 9-14 required count of 1st item
+    uint32      reqpersonalarenarating;                             // 15 required personal arena rating};
 };
 
 struct ItemLimitCategoryEntry
@@ -1072,12 +1079,15 @@ struct ItemLimitCategoryEntry
     uint32      mode;                                       // 19, 0 = have, 1 = equip (enum ItemLimitCategoryMode)
 };
 
+#define MAX_ITEM_ENCHANTMENT_EFFECTS 3
+
 struct ItemRandomPropertiesEntry
 {
     uint32    ID;                                           // 0        m_ID
     //char*     internalName                                // 1        m_Name
-    uint32    enchant_id[5];                                // 2-6      m_Enchantment
-    char*     nameSuffix[16];                              // 7-22     m_name_lang
+    uint32    enchant_id[MAX_ITEM_ENCHANTMENT_EFFECTS];     // 2-4      m_Enchantment
+                                                            // 5-6      unused
+    char*     nameSuffix[16];                               // 7-22     m_name_lang
                                                             // 23 name flags
 };
 
@@ -1087,11 +1097,15 @@ struct ItemRandomSuffixEntry
     char*     nameSuffix[16];                               // 1-16     m_name_lang
                                                             // 17, name flags
                                                             // 18       m_internalName
-    uint32    enchant_id[5];                                // 19-21    m_enchantment
-    uint32    prefix[5];                                    // 22-24    m_allocationPct
+    uint32    enchant_id[MAX_ITEM_ENCHANTMENT_EFFECTS];     // 19-21    m_enchantment
+    //uint32    unk1[2]                                     // 22-23    unknown
+    uint32    prefix[MAX_ITEM_ENCHANTMENT_EFFECTS];         // 24-26    m_allocationPct
+    //uint32    unk2[2]                                     // 27-28    unknown
 };
 
 #define MAX_ITEM_SET_ITEMS 10
+#define MAX_ITEM_SET_SPELLS 8
+
 struct ItemSetEntry
 {
     //uint32    id                                          // 0        m_ID
@@ -1099,8 +1113,8 @@ struct ItemSetEntry
                                                             // 17 string flags, unused
     uint32    itemId[MAX_ITEM_SET_ITEMS];                   // 18-27    m_itemID
     //uint32    unknown[7];                                 // 28-34    unk, all 0
-    uint32    spells[8];                                    // 35-42    m_setSpellID
-    uint32    items_to_triggerspell[8];                     // 43-50    m_setThreshold
+    uint32    spells[MAX_ITEM_SET_SPELLS];                  // 35-42    m_setSpellID
+    uint32    items_to_triggerspell[MAX_ITEM_SET_SPELLS];   // 43-50    m_setThreshold
     uint32    required_skill_id;                            // 51       m_requiredSkill
     uint32    required_skill_value;                         // 52       m_requiredSkillRank
 };
@@ -1409,6 +1423,7 @@ struct SoundEntriesEntry
 
 #define MAX_SPELL_EFFECTS 3
 #define MAX_EFFECT_MASK 7
+#define MAX_SPELL_REAGENTS 8
 
 struct SpellEntry
 {
@@ -1463,8 +1478,8 @@ struct SpellEntry
     //uint32    modalNextSpell;                             // 48       m_modalNextSpell not used
     uint32    StackAmount;                                  // 49       m_cumulativeAura
     uint32    Totem[2];                                     // 50-51    m_totem
-    int32     Reagent[8];                                   // 52-59    m_reagent
-    uint32    ReagentCount[8];                              // 60-67    m_reagentCount
+    int32     Reagent[MAX_SPELL_REAGENTS];                  // 52-59    m_reagent
+    uint32    ReagentCount[MAX_SPELL_REAGENTS];             // 60-67    m_reagentCount
     int32     EquippedItemClass;                            // 68       m_equippedItemClass (value)
     int32     EquippedItemSubClassMask;                     // 69       m_equippedItemSubclass (mask)
     int32     EquippedItemInventoryTypeMask;                // 70       m_equippedItemInvTypes (mask)
@@ -1614,10 +1629,10 @@ struct SpellItemEnchantmentEntry
 {
     uint32      ID;                                         // 0        m_ID
     //uint32      charges;                                  // 1        m_charges
-    uint32      type[3];                                    // 2-4      m_effect[3]
-    uint32      amount[3];                                  // 5-7      m_effectPointsMin[3]
-    //uint32      amount2[3]                                // 8-10     m_effectPointsMax[3]
-    uint32      spellid[3];                                 // 11-13    m_effectArg[3]
+    uint32      type[MAX_ITEM_ENCHANTMENT_EFFECTS];         // 2-4      m_effect[MAX_ITEM_ENCHANTMENT_EFFECTS]
+    uint32      amount[MAX_ITEM_ENCHANTMENT_EFFECTS];       // 5-7      m_effectPointsMin[MAX_ITEM_ENCHANTMENT_EFFECTS]
+    //uint32      amount2[MAX_ITEM_ENCHANTMENT_EFFECTS]     // 8-10     m_effectPointsMax[MAX_ITEM_ENCHANTMENT_EFFECTS]
+    uint32      spellid[MAX_ITEM_ENCHANTMENT_EFFECTS];      // 11-13    m_effectArg[MAX_ITEM_ENCHANTMENT_EFFECTS]
     char*       description[16];                            // 14-29    m_name_lang[16]
     //uint32      descriptionFlags;                         // 30 name flags
     uint32      aura_id;                                    // 31       m_itemVisual
@@ -1660,6 +1675,7 @@ struct SummonPropertiesEntry
 
 #define MAX_TALENT_RANK 5
 #define MAX_PET_TALENT_RANK 3                               // use in calculations, expected <= MAX_TALENT_RANK
+#define MAX_TALENT_TABS 3
 
 struct TalentEntry
 {
@@ -1735,6 +1751,8 @@ struct TotemCategoryEntry
     uint32    categoryMask;                                 // 19 (compatibility mask for same type: different for totems, compatible from high to low for rods)
 };
 
+#define MAX_VEHICLE_SEATS 8
+
 struct VehicleEntry
 {
     uint32  m_ID;                                           // 0
@@ -1743,7 +1761,7 @@ struct VehicleEntry
     float   m_pitchSpeed;                                   // 3
     float   m_pitchMin;                                     // 4
     float   m_pitchMax;                                     // 5
-    uint32  m_seatID[8];                                    // 6-13
+    uint32  m_seatID[MAX_VEHICLE_SEATS];                    // 6-13
     float   m_mouseLookOffsetPitch;                         // 14
     float   m_cameraFadeDistScalarMin;                      // 15
     float   m_cameraFadeDistScalarMax;                      // 16
@@ -1822,7 +1840,7 @@ struct VehicleSeatEntry
     uint32  m_flagsB;                                       // 45
                                                             // 46-57 added in 3.1, floats mostly
 
-    bool IsUsable() const { return m_flags & 0x2000000; }
+    bool IsUsable() const { return m_flags & VEHICLE_SEAT_FLAG_USABLE; }
 };
 
 struct WMOAreaTableEntry

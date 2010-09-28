@@ -205,7 +205,7 @@ void SimpleAI::UpdateAI(const uint32 diff)
         return;
 
     //Spells
-    for (uint32 i = 0; i < 10; ++i)
+    for (uint32 i = 0; i < MAX_SIMPLEAI_SPELLS; ++i)
     {
         //Spell not valid
         if (!Spell[i].Enabled || !Spell[i].Spell_Id)

@@ -33,6 +33,25 @@ enum PowerType
     POWER_BLOOD     = 141
 };
 
+enum VehicleFlags
+{
+    VEHICLE_FLAG_ADJUST_AIM_ANGLE   = 0x00000400,           // Lua_IsVehicleAimAngleAdjustable
+    VEHICLE_FLAG_ADJUST_AIM_POWER   = 0x00000800,           // Lua_IsVehicleAimPowerAdjustable
+    VEHICLE_FLAG_CUSTOM_PITCH       = 0x00000040,           // If set use pitchMin and pitchMax from DBC, otherwise pitchMin = -pi/2, pitchMax = pi/2
+};
+
+enum VehicleSeatFlags
+{
+    VEHICLE_SEAT_FLAG_HIDE_PASSENGER        = 0x00000200,           // Passenger is hidden
+    VEHICLE_SEAT_FLAG_UNK11                 = 0x00000400,
+    VEHICLE_SEAT_FLAG_CAN_CONTROL           = 0x00000800,           // Lua_UnitInVehicleControlSeat
+    VEHICLE_SEAT_FLAG_CAN_ATTACK            = 0x00004000,           // Can attack, cast spells and use items from vehicle?
+    VEHICLE_SEAT_FLAG_USABLE                = 0x02000000,           // Lua_CanExitVehicle
+    VEHICLE_SEAT_FLAG_CAN_SWITCH            = 0x04000000,           // Lua_CanSwitchVehicleSeats
+    VEHICLE_SEAT_FLAG_CAN_CAST              = 0x20000000,           // Lua_UnitHasVehicleUI
+};
+  
+
 struct VehicleSeat
 {
     explicit VehicleSeat(VehicleSeatEntry const *_seatInfo) : seatInfo(_seatInfo), passenger(NULL) {}

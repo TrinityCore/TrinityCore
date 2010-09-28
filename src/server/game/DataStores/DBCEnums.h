@@ -77,7 +77,7 @@ enum AchievementCriteriaCondition
     ACHIEVEMENT_CRITERIA_CONDITION_NO_DEATH  = 1,           // reset progress on death
     ACHIEVEMENT_CRITERIA_CONDITION_UNK1      = 2,           // only used in "Complete a daily quest every day for five consecutive days"
     ACHIEVEMENT_CRITERIA_CONDITION_MAP       = 3,           // requires you to be on specific map, reset at change
-    ACHIEVEMENT_CRITERIA_CONDITION_NO_LOOSE  = 4,           // only used in "Win 10 arenas without losing"
+    ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE   = 4,           // only used in "Win 10 arenas without losing"
     ACHIEVEMENT_CRITERIA_CONDITION_UNK2      = 9,           // unk
     ACHIEVEMENT_CRITERIA_CONDITION_UNK3      = 13,          // unk
 };

@@ -681,8 +681,8 @@ enum MovementFlags
 enum MovementFlags2
 {
     MOVEMENTFLAG2_NONE                     = 0x00000000,
-    MOVEMENTFLAG2_UNK1                     = 0x00000001,
-    MOVEMENTFLAG2_UNK2                     = 0x00000002,
+    MOVEMENTFLAG2_NO_STRAFE                = 0x00000001,
+    MOVEMENTFLAG2_NO_JUMPING               = 0x00000002,
     MOVEMENTFLAG2_UNK3                     = 0x00000004,
     MOVEMENTFLAG2_FULL_SPEED_TURNING       = 0x00000008,
     MOVEMENTFLAG2_FULL_SPEED_PITCHING      = 0x00000010,

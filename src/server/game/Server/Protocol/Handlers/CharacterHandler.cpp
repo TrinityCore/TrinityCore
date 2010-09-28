@@ -967,13 +967,13 @@ void WorldSession::HandleTutorialFlag(WorldPacket & recv_data)
 
 void WorldSession::HandleTutorialClear(WorldPacket & /*recv_data*/)
 {
-    for (int i = 0; i < 8; ++i)
+    for (int i = 0; i < MAX_CHARACTER_TUTORIAL_VALUES; ++i)
         SetTutorialInt(i, 0xFFFFFFFF);
 }
 
 void WorldSession::HandleTutorialReset(WorldPacket & /*recv_data*/)
 {
-    for (int i = 0; i < 8; ++i)
+    for (int i = 0; i < MAX_CHARACTER_TUTORIAL_VALUES; ++i)
         SetTutorialInt(i, 0x00000000);
 }
 
