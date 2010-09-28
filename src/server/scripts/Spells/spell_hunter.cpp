@@ -343,7 +343,7 @@ public:
 
     class spell_hun_sniper_training_AuraScript : public AuraScript
     {
-        bool Validate(SpellEntry const * entry)
+        bool Validate(SpellEntry const * /*entry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_SNIPER_TRAINING_R1))
                 return false;

@@ -37,14 +37,14 @@ SmartAI::SmartAI(Creature *c) : CreatureAI(c)
     // copy script to local (pretection for table reload)
 }
 
-int SmartAI::Permissible(const Creature *creature)
+int SmartAI::Permissible(const Creature* creature)
 {
     if (creature->GetAIName() == "SmartAI")
         return PERMIT_BASE_SPECIAL;
     return PERMIT_BASE_NO;
 }
 
-void SmartAI::UpdateAI(const uint32 diff)
+void SmartAI::UpdateAI(const uint32 /*diff*/)
 {
 }
 
@@ -60,7 +60,7 @@ void SmartAI::JustReachedHome()
 {
 }
 
-void SmartAI::EnterCombat(Unit *enemy)
+void SmartAI::EnterCombat(Unit* /*enemy*/)
 {
 }
 
@@ -68,74 +68,74 @@ void SmartAI::EnterEvadeMode()
 {
 }
 
-void SmartAI::JustDied(Unit* killer)
+void SmartAI::JustDied(Unit* /*killer*/)
 {
 }
 
-void SmartAI::KilledUnit(Unit* victim)
+void SmartAI::KilledUnit(Unit* /*victim*/)
 {
 }
 
-void SmartAI::JustSummoned(Creature* pUnit)
+void SmartAI::JustSummoned(Creature* /*pUnit*/)
 {
 }
 
-void SmartAI::AttackStart(Unit *who)
+void SmartAI::AttackStart(Unit* who)
 {
     if (who && me->Attack(who, true))
         me->GetMotionMaster()->MoveChase(who);
 }
 
-void SmartAI::MoveInLineOfSight(Unit *who)
+void SmartAI::MoveInLineOfSight(Unit* /*who*/)
 {
     //CanAIAttack
 }
 
-void SmartAI::SpellHit(Unit* pUnit, const SpellEntry* pSpell)
+void SmartAI::SpellHit(Unit* /*pUnit*/, const SpellEntry* /*pSpell*/)
 {
 }
 
-void SmartAI::SpellHitTarget(Unit* target, const SpellEntry*)
+void SmartAI::SpellHitTarget(Unit* /*target*/, const SpellEntry* /*pSpell*/)
 {
 }
 
-void SmartAI::DamageTaken(Unit* done_by, uint32& damage)
+void SmartAI::DamageTaken(Unit* /*done_by*/, uint32& /*damage*/)
 {
 }
 
-void SmartAI::HealReceived(Unit* done_by, uint32& addhealth)
+void SmartAI::HealReceived(Unit* /*done_by*/, uint32& /*addhealth*/)
 {
 }
 
-void SmartAI::ReceiveEmote(Player* pPlayer, uint32 text_emote)
+void SmartAI::ReceiveEmote(Player* /*pPlayer*/, uint32 /*text_emote*/)
 {
 }
 
-void SmartAI::MovementInform(uint32 MovementType, uint32 Data)
+void SmartAI::MovementInform(uint32 /*MovementType*/, uint32 /*Data*/)
 {
 }
 
-void SmartAI::IsSummonedBy(Unit* summoner)
+void SmartAI::IsSummonedBy(Unit* /*summoner*/)
 {
 }
 
-void SmartAI::DamageDealt(Unit * done_to, uint32 & damage)
+void SmartAI::DamageDealt(Unit* /*done_to*/, uint32& /*damage*/)
 {
 }
 
-void SmartAI::SummonedCreatureDespawn(Creature* unit)
+void SmartAI::SummonedCreatureDespawn(Creature* /*unit*/)
 {
 }
 
-void SmartAI::UpdateAIWhileCharmed(const uint32 diff)
+void SmartAI::UpdateAIWhileCharmed(const uint32 /*diff*/)
 {
 }
 
-void SmartAI::CorpseRemoved(uint32 & respawnDelay)
+void SmartAI::CorpseRemoved(uint32& /*respawnDelay*/)
 {
 }
 
-void SmartAI::PassengerBoarded(Unit* who, int8 seatId, bool apply)
+void SmartAI::PassengerBoarded(Unit* /*who*/, int8 /*seatId*/, bool /*apply*/)
 {
 }
 
@@ -143,49 +143,49 @@ void SmartAI::InitializeAI()
 {
 }
 
-void SmartAI::OnCharmed(bool apply)
+void SmartAI::OnCharmed(bool /*apply*/)
 {
 }
 
-bool SmartAI::CanAIAttack(const Unit* who) const
+bool SmartAI::CanAIAttack(const Unit* /*who*/) const
 {
     return true;
 }
 
-void SmartAI::DoAction(const int32 param)
+void SmartAI::DoAction(const int32 /*param*/)
 {
 }
 
-uint32 SmartAI::GetData(uint32 id)
-{
-    return 0;
-}
-
-void SmartAI::SetData(uint32 id, uint32 value)
-{
-}
-
-void SmartAI::SetGUID(const uint64 &guid, int32 id)
-{
-}
-
-uint64 SmartAI::GetGUID(int32 id)
+uint32 SmartAI::GetData(uint32 /*id*/)
 {
     return 0;
 }
 
-void SmartAI::MovepointReached(uint32 id)
+void SmartAI::SetData(uint32 /*id*/, uint32 /*value*/)
 {
 }
 
-void SmartAI::MovepointStart(uint32 id)
+void SmartAI::SetGUID(const uint64& /*guid*/, int32 /*id*/)
 {
 }
 
-void SmartAI::SetRun(bool run)
+uint64 SmartAI::GetGUID(int32 /*id*/)
+{
+    return 0;
+}
+
+void SmartAI::MovepointReached(uint32 /*id*/)
 {
 }
 
-void SmartAI::SetMovePathEndAction(SMARTAI_ACTION action)
+void SmartAI::MovepointStart(uint32 /*id*/)
+{
+}
+
+void SmartAI::SetRun(bool /*run*/)
+{
+}
+
+void SmartAI::SetMovePathEndAction(SMARTAI_ACTION /*action*/)
 {
 }
