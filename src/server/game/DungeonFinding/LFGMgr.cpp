@@ -576,7 +576,7 @@ void LFGMgr::Join(Player* plr)
         sLog.outError("LFGMgr::Join: [" UI64FMTD "] trying to join but is already in queue! Forcing leave before readding", guid);
         Leave(plr, grp);
     }
-    else if (plr->InBattleground() || plr->InArena())
+    else if (plr->InBattleground() || plr->InArena() || plr->InBattlegroundQueue())
         result = LFG_JOIN_USING_BG_SYSTEM;
     else if (plr->HasAura(LFG_SPELL_DUNGEON_DESERTER))
         result = LFG_JOIN_DESERTER;
