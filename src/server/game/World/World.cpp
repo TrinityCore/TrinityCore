@@ -2202,29 +2202,36 @@ void World::KickAllLess(AccountTypes sec)
 /// Ban an account or ban an IP address, duration will be parsed using TimeStringToSecs if it is positive, otherwise permban
 BanReturn World::BanAccount(BanMode mode, std::string nameOrIP, std::string duration, std::string reason, std::string author)
 {
-    LoginDatabase.escape_string(nameOrIP);
-    LoginDatabase.escape_string(reason);
-    std::string safe_author = author;
-    LoginDatabase.escape_string(safe_author);
-
     uint32 duration_secs = TimeStringToSecs(duration);
-    QueryResult resultAccounts = QueryResult(NULL);                     //used for kicking
+    PreparedQueryResult resultAccounts = PreparedQueryResult(NULL); //used for kicking
+    PreparedStatement* stmt = NULL;
 
     ///- Update the database with ban information
     switch(mode)
     {
         case BAN_IP:
-            //No SQL injection as strings are escaped
-            resultAccounts = LoginDatabase.PQuery("SELECT id FROM account WHERE last_ip = '%s'", nameOrIP.c_str());
-            LoginDatabase.PExecute("INSERT INTO ip_banned VALUES ('%s',UNIX_TIMESTAMP(),UNIX_TIMESTAMP()+%u,'%s','%s')", nameOrIP.c_str(), duration_secs, safe_author.c_str(), reason.c_str());
+            // No SQL injection with prepared statements
+            stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_ACCOUNT_BY_IP);
+            stmt->setString(0, nameOrIP);
+            resultAccounts = LoginDatabase.Query(stmt);
+            stmt = LoginDatabase.GetPreparedStatement(LOGIN_SET_IP_BANNED);
+            stmt->setString(0, nameOrIP);
+            stmt->setUInt32(1, duration_secs);
+            stmt->setString(2, author);
+            stmt->setString(3, reason);
+            LoginDatabase.Execute(stmt);
             break;
         case BAN_ACCOUNT:
-            //No SQL injection as string is escaped
-            resultAccounts = LoginDatabase.PQuery("SELECT id FROM account WHERE username = '%s'", nameOrIP.c_str());
+            // No SQL injection with prepared statements
+            stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_ACCIDBYNAME);
+            stmt->setString(0, nameOrIP);
+            resultAccounts = LoginDatabase.Query(stmt);
             break;
         case BAN_CHARACTER:
-            //No SQL injection as string is escaped
-            resultAccounts = CharacterDatabase.PQuery("SELECT account FROM characters WHERE name = '%s'", nameOrIP.c_str());
+            // No SQL injection with prepared statements
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_ACCOUNT_BY_NAME);
+            stmt->setString(0, nameOrIP);
+            resultAccounts = CharacterDatabase.Query(stmt);
             break;
         default:
             return BAN_SYNTAX_ERROR;
@@ -2235,10 +2242,11 @@ BanReturn World::BanAccount(BanMode mode, std::string nameOrIP, std::string dura
         if (mode == BAN_IP)
             return BAN_SUCCESS;                             // ip correctly banned but nobody affected (yet)
         else
-            return BAN_NOTFOUND;                                // Nobody to ban
+            return BAN_NOTFOUND;                            // Nobody to ban
     }
 
     ///- Disconnect all affected players (for IP it can be several)
+    SQLTransaction trans = LoginDatabase.BeginTransaction();
     do
     {
         Field* fieldsAccount = resultAccounts->Fetch();
@@ -2246,9 +2254,17 @@ BanReturn World::BanAccount(BanMode mode, std::string nameOrIP, std::string dura
 
         if (mode != BAN_IP)
         {
-            //No SQL injection as strings are escaped
-            LoginDatabase.PExecute("INSERT INTO account_banned VALUES ('%u', UNIX_TIMESTAMP(), UNIX_TIMESTAMP()+%u, '%s', '%s', '1')",
-                account,duration_secs,safe_author.c_str(),reason.c_str());
+            // make sure there is only one active ban
+            stmt = LoginDatabase.GetPreparedStatement(LOGIN_SET_ACCOUNT_NOT_BANNED);
+            stmt->setUInt32(0, account);
+            trans->Append(stmt);
+            // No SQL injection with prepared statements
+            stmt = LoginDatabase.GetPreparedStatement(LOGIN_SET_ACCOUNT_BANNED);
+            stmt->setUInt32(0, account);
+            stmt->setUInt32(1, duration_secs);
+            stmt->setString(2, author);
+            stmt->setString(3, reason);
+            trans->Append(stmt);
         }
 
         if (WorldSession* sess = FindSession(account))
@@ -2256,30 +2272,36 @@ BanReturn World::BanAccount(BanMode mode, std::string nameOrIP, std::string dura
                 sess->KickPlayer();
     } while (resultAccounts->NextRow());
 
+    LoginDatabase.CommitTransaction(trans);
+
     return BAN_SUCCESS;
 }
 
 /// Remove a ban from an account or IP address
 bool World::RemoveBanAccount(BanMode mode, std::string nameOrIP)
 {
+    PreparedStatement* stmt = NULL;
     if (mode == BAN_IP)
     {
-        LoginDatabase.escape_string(nameOrIP);
-        LoginDatabase.PExecute("DELETE FROM ip_banned WHERE ip = '%s'",nameOrIP.c_str());
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SET_IP_NOT_BANNED);
+        stmt->setString(0, nameOrIP);
+        LoginDatabase.Execute(stmt);
     }
     else
     {
         uint32 account = 0;
         if (mode == BAN_ACCOUNT)
-            account = sAccountMgr.GetId (nameOrIP);
+            account = sAccountMgr.GetId(nameOrIP);
         else if (mode == BAN_CHARACTER)
-            account = sObjectMgr.GetPlayerAccountIdByPlayerName (nameOrIP);
+            account = sObjectMgr.GetPlayerAccountIdByPlayerName(nameOrIP);
 
         if (!account)
             return false;
 
         //NO SQL injection as account is uint32
-        LoginDatabase.PExecute("UPDATE account_banned SET active = '0' WHERE id = '%u'",account);
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SET_ACCOUNT_NOT_BANNED);
+        stmt->setUInt32(0, account);
+        LoginDatabase.Execute(stmt);
     }
     return true;
 }
@@ -2307,7 +2329,12 @@ BanReturn World::BanCharacter(std::string name, std::string duration, std::strin
     else
         guid = pBanned->GetGUIDLow();
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_BAN);
+    // make sure there is only one active ban
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SET_NOT_BANNED);
+    stmt->setUInt32(0, guid);
+    CharacterDatabase.Execute(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_BAN);
     stmt->setUInt32(0, guid);
     stmt->setUInt32(1, duration_secs);
     stmt->setString(2, author);
