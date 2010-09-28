@@ -195,7 +195,7 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket & recv_data)
         data << float(ci->ModHealth);                       // dmg/hp modifier
         data << float(ci->ModMana);                         // dmg/mana modifier
         data << uint8(ci->RacialLeader);
-        for (uint32 i = 0; i < 6; ++i)
+        for (uint32 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
             data << uint32(ci->questItems[i]);              // itemId[6], quest drop
         data << uint32(ci->movementId);                     // CreatureMovementInfo.dbc
         SendPacket(&data);
@@ -252,7 +252,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket & recv_data)
         data << info->unk1;                                 // 2.0.3, string
         data.append(info->raw.data, 24);
         data << float(info->size);                          // go size
-        for (uint32 i = 0; i < 6; ++i)
+        for (uint32 i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
             data << uint32(info->questItems[i]);              // itemId[6], quest drop
         SendPacket(&data);
         sLog.outDebug("WORLD: Sent SMSG_GAMEOBJECT_QUERY_RESPONSE");
@@ -337,7 +337,7 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recv_data)
 
     if (!pGossip)
     {
-        for (uint32 i = 0; i < 8; ++i)
+        for (uint32 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
         {
             data << float(0);
             data << "Greetings $N";
@@ -353,8 +353,8 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recv_data)
     }
     else
     {
-        std::string Text_0[8], Text_1[8];
-        for (int i = 0; i < 8; ++i)
+        std::string Text_0[MAX_LOCALES], Text_1[MAX_LOCALES];
+        for (int i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
         {
             Text_0[i]=pGossip->Options[i].Text_0;
             Text_1[i]=pGossip->Options[i].Text_1;
@@ -365,7 +365,7 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recv_data)
         {
             if (NpcTextLocale const *nl = sObjectMgr.GetNpcTextLocale(textID))
             {
-                for (int i = 0; i < 8; ++i)
+                for (int i = 0; i < MAX_LOCALES; ++i)
                 {
                     sObjectMgr.GetLocaleString(nl->Text_0[i], loc_idx, Text_0[i]);
                     sObjectMgr.GetLocaleString(nl->Text_1[i], loc_idx, Text_1[i]);
@@ -373,7 +373,7 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recv_data)
             }
         }
 
-        for (int i = 0; i < 8; ++i)
+        for (int i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
         {
             data << pGossip->Options[i].Probability;
 
@@ -389,7 +389,7 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recv_data)
 
             data << pGossip->Options[i].Language;
 
-            for (int j = 0; j < 3; ++j)
+            for (int j = 0; j < MAX_GOSSIP_TEXT_EMOTES; ++j)
             {
                 data << pGossip->Options[i].Emotes[j]._Delay;
                 data << pGossip->Options[i].Emotes[j]._Emote;

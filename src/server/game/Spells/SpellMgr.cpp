@@ -514,7 +514,7 @@ SpellSpecific GetSpellSpecific(SpellEntry const * spellInfo)
             {
                 bool food = false;
                 bool drink = false;
-                for (int i = 0; i < 3; ++i)
+                for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
                 {
                     switch(spellInfo->EffectApplyAuraName[i])
                     {
@@ -650,7 +650,7 @@ SpellSpecific GetSpellSpecific(SpellEntry const * spellInfo)
             break;
     }
 
-    for (int i = 0; i < 3; ++i)
+    for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         if (spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA)
         {
@@ -869,7 +869,7 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
                         if (spellTriggeredProto)
                         {
                             // non-positive targets of main spell return early
-                            for (int i = 0; i < 3; ++i)
+                            for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
                             {
                                 if (!spellTriggeredProto->Effect[i])
                                     continue;
@@ -909,7 +909,7 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
                     if (spellproto->EffectImplicitTargetA[effIndex] != TARGET_UNIT_CASTER)
                         return false;
                     // but not this if this first effect (didn't find better check)
-                    if (spellproto->Attributes & 0x4000000 && effIndex == 0)
+                    if (spellproto->Attributes & SPELL_ATTR_NEGATIVE_1 && effIndex == 0)
                         return false;
                     break;
                 case SPELL_AURA_MECHANIC_IMMUNITY:
@@ -1010,7 +1010,7 @@ bool SpellMgr::_isPositiveSpell(uint32 spellId, bool deep) const
 
     // spells with at least one negative effect are considered negative
     // some self-applied spells have negative effects but in self casting case negative check ignored.
-    for (int i = 0; i < 3; ++i)
+    for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (!_isPositiveEffect(spellId, i, deep))
             return false;
     return true;
@@ -1172,7 +1172,7 @@ void SpellMgr::LoadSpellTargetPositions()
         }
 
         bool found = false;
-        for (int i = 0; i < 3; ++i)
+        for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
             if (spellInfo->EffectImplicitTargetA[i] == TARGET_DST_DB || spellInfo->EffectImplicitTargetB[i] == TARGET_DST_DB)
             {
@@ -1210,7 +1210,7 @@ void SpellMgr::LoadSpellTargetPositions()
             continue;
 
         bool found = false;
-        for (int j = 0; j < 3; ++j)
+        for (int j = 0; j < MAX_SPELL_EFFECTS; ++j)
         {
             switch(spellInfo->EffectImplicitTargetA[j])
             {
@@ -1711,7 +1711,7 @@ bool SpellMgr::canStackSpellRanks(SpellEntry const *spellInfo)
         return false;
 
     // All stance spells. if any better way, change it.
-    for (int i = 0; i < 3; ++i)
+    for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         switch(spellInfo->SpellFamilyName)
         {
@@ -1927,7 +1927,7 @@ SpellEntry const* SpellMgr::SelectAuraRankForPlayerLevel(SpellEntry const* spell
         return spellInfo;
 
     bool needRankSelection = false;
-    for (int i=0; i<3; ++i)
+    for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         if (IsPositiveEffect(spellInfo->Id, i) && (
             spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA ||
@@ -2375,7 +2375,7 @@ bool SpellMgr::IsSpellValid(SpellEntry const *spellInfo, Player *pl, bool msg)
     bool need_check_reagents = false;
 
     // check effects
-    for (uint8 i = 0; i < 3; ++i)
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         switch (spellInfo->Effect[i])
         {
@@ -2439,7 +2439,7 @@ bool SpellMgr::IsSpellValid(SpellEntry const *spellInfo, Player *pl, bool msg)
 
     if (need_check_reagents)
     {
-        for (uint8 j = 0; j < 8; ++j)
+        for (uint8 j = 0; j < MAX_SPELL_REAGENTS; ++j)
         {
             if (spellInfo->Reagent[j] > 0 && !ObjectMgr::GetItemPrototype(spellInfo->Reagent[j]))
             {
@@ -2674,7 +2674,7 @@ SpellCastResult SpellMgr::GetSpellAllowedInLocationError(SpellEntry const *spell
         AreaGroupEntry const* groupEntry = sAreaGroupStore.LookupEntry(spellInfo->AreaGroupId);
         while (groupEntry)
         {
-            for (uint8 i = 0; i < 6; ++i)
+            for (uint8 i = 0; i < MAX_GROUP_AREA_IDS; ++i)
                 if (groupEntry->AreaId[i] == zone_id || groupEntry->AreaId[i] == area_id)
                     found = true;
             if (found || !groupEntry->nextGroup)

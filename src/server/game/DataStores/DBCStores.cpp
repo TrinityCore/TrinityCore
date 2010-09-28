@@ -214,7 +214,7 @@ inline void LoadDBC(uint32& availableDbcLocales,barGoLink& bar, StoreProblemList
     if (storage.Load(dbc_filename.c_str(), sql))
     {
         bar.step();
-        for (uint8 i = 0; i < MAX_LOCALE; ++i)
+        for (uint8 i = 0; i < TOTAL_LOCALES; ++i)
         {
             if (!(availableDbcLocales & (1 << i)))
                 continue;
@@ -517,7 +517,7 @@ void LoadDBCStores(const std::string& dataPath)
         std::set<uint32> spellPaths;
         for (uint32 i = 1; i < sSpellStore.GetNumRows (); ++i)
             if (SpellEntry const* sInfo = sSpellStore.LookupEntry (i))
-                for (int j=0; j < 3; ++j)
+                for (int j = 0; j < MAX_SPELL_EFFECTS; ++j)
                     if (sInfo->Effect[j] == SPELL_EFFECT_SEND_TAXI)
                         spellPaths.insert(sInfo->EffectMiscValue[j]);
 

@@ -3424,9 +3424,8 @@ void Spell::EffectEnchantItemPerm(SpellEffIndex effIndex)
         if (!pEnchant)
             return;
         
-        // Prevent applying enchanements with Use: spell on items that already have a Use: effect, this is usually blocked from client side and 
-        // can only be bypassed with memory manipulation.
-        for (int s = 0; s < 3; ++s)
+        // Prevent applying enchantments with Use: spell on items that already have an Use: effect, client-side check is not enough
+        for (int s = 0; s < MAX_ITEM_ENCHANTMENT_EFFECTS; ++s)
         {
             if (pEnchant->type[s] == ITEM_ENCHANTMENT_TYPE_USE_SPELL)
             {
@@ -3488,7 +3487,7 @@ void Spell::EffectEnchantItemPrismatic(SpellEffIndex effIndex)
     // support only enchantings with add socket in this slot
     {
         bool add_socket = false;
-        for (uint8 i = 0; i < 3; ++i)
+        for (uint8 i = 0; i < MAX_ITEM_ENCHANTMENT_EFFECTS; ++i)
         {
             if (pEnchant->type[i] == ITEM_ENCHANTMENT_TYPE_PRISMATIC_SOCKET)
             {
@@ -3868,7 +3867,7 @@ void Spell::SpellDamageWeaponDmg(SpellEffIndex effIndex)
     // multiple weapon dmg effect workaround
     // execute only the last weapon damage
     // and handle all effects at once
-    for (uint32 j = effIndex + 1; j < 3; ++j)
+    for (uint32 j = effIndex + 1; j < MAX_SPELL_EFFECTS; ++j)
     {
         switch (m_spellInfo->Effect[j])
         {
@@ -4077,7 +4076,7 @@ void Spell::SpellDamageWeaponDmg(SpellEffIndex effIndex)
 
     bool normalized = false;
     float weaponDamagePercentMod = 1.0;
-    for (int j = 0; j < 3; ++j)
+    for (int j = 0; j < MAX_SPELL_EFFECTS; ++j)
     {
         switch(m_spellInfo->Effect[j])
         {
@@ -4122,7 +4121,7 @@ void Spell::SpellDamageWeaponDmg(SpellEffIndex effIndex)
     int32 weaponDamage = m_caster->CalculateDamage(m_attackType, normalized, true);
 
     // Sequence is important
-    for (int j = 0; j < 3; ++j)
+    for (int j = 0; j < MAX_SPELL_EFFECTS; ++j)
     {
         // We assume that a spell have at most one fixed_bonus
         // and at most one weaponDamagePercentMod

@@ -102,7 +102,7 @@ bool Condition::Meets(Player * player, Unit* invoker)
         {
             Unit::AuraApplicationMap const& auras = player->GetAppliedAuras();
             for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
-                if ((itr->second->GetBase()->GetSpellProto()->Attributes & 0x1000010) && itr->second->GetBase()->GetSpellProto()->SpellVisual[0] == 3580)
+                if ((itr->second->GetBase()->GetSpellProto()->Attributes & (SPELL_ATTR_UNK4 | SPELL_ATTR_CASTABLE_WHILE_MOUNTED)) && itr->second->GetBase()->GetSpellProto()->SpellVisual[0] == 3580)
                 {
                     condMeets = true;
                     break;
@@ -792,7 +792,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
 
             bool targetfound = false;
-            for (uint8 i = 0; i < 3; ++i)
+            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             {
                 if (spellProto->EffectImplicitTargetA[i] == TARGET_UNIT_AREA_ENTRY_SRC ||
                     spellProto->EffectImplicitTargetB[i] == TARGET_UNIT_AREA_ENTRY_SRC ||
@@ -875,7 +875,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
                         if (!conditions.empty())
                             break;
 
-                        for (int j = 0; j < 3; ++j)
+                        for (int j = 0; j < MAX_SPELL_EFFECTS; ++j)
                         {
                             if (pSpellInfo->EffectImplicitTargetA[j] == TARGET_UNIT_TARGET_ENEMY ||
                                 pSpellInfo->EffectImplicitTargetB[j] == TARGET_UNIT_TARGET_ENEMY ||

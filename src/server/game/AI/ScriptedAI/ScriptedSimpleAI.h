@@ -19,6 +19,8 @@ enum CastTarget
     CAST_JUSTDIED_KILLER,           //Only works within JustDied function
 };
 
+#define MAX_SIMPLEAI_SPELLS 10
+
 struct SimpleAI : public ScriptedAI
 {
     SimpleAI(Creature *c);// : ScriptedAI(c);
@@ -61,10 +63,10 @@ public:
         //3 texts to many?
         int32 TextId[3];
         uint32 Text_Sound[3];
-    }Spell[10];
+    }Spell[MAX_SIMPLEAI_SPELLS];
 
 protected:
-    uint32 Spell_Timer[10];
+    uint32 Spell_Timer[MAX_SIMPLEAI_SPELLS];
 };
 
 #endif

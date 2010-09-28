@@ -29,7 +29,7 @@
 
 Vehicle::Vehicle(Unit *unit, VehicleEntry const *vehInfo) : me(unit), m_vehicleInfo(vehInfo), m_usableSeatNum(0), m_bonusHP(0)
 {
-    for (uint32 i = 0; i < 8; ++i)
+    for (uint32 i = 0; i < MAX_VEHICLE_SEATS; ++i)
     {
         if (uint32 seatId = m_vehicleInfo->m_seatID[i])
             if (VehicleSeatEntry const *veSeat = sVehicleSeatStore.LookupEntry(seatId))
@@ -305,7 +305,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
         }
     }
 
-    if (seat->second.seatInfo->m_flags && !(seat->second.seatInfo->m_flags & 0x400))
+    if (seat->second.seatInfo->m_flags && !(seat->second.seatInfo->m_flags & VEHICLE_SEAT_FLAG_UNK11))
         unit->addUnitState(UNIT_STAT_ONVEHICLE);
 
     unit->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
@@ -319,7 +319,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
 
     if (me->GetTypeId() == TYPEID_UNIT
         && unit->GetTypeId() == TYPEID_PLAYER
-        && seat->first == 0 && seat->second.seatInfo->m_flags & 0x800) // not right
+        && seat->first == 0 && seat->second.seatInfo->m_flags & VEHICLE_SEAT_FLAG_CAN_CONTROL)
     {
         if (!me->SetCharmedBy(unit, CHARM_TYPE_VEHICLE))
             ASSERT(false);
@@ -391,7 +391,7 @@ void Vehicle::RemovePassenger(Unit *unit)
 
     if (me->GetTypeId() == TYPEID_UNIT
         && unit->GetTypeId() == TYPEID_PLAYER
-        && seat->first == 0 && seat->second.seatInfo->m_flags & 0x800)
+        && seat->first == 0 && seat->second.seatInfo->m_flags & VEHICLE_SEAT_FLAG_CAN_CONTROL)
     {
         me->RemoveCharmedBy(unit);
 
