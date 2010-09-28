@@ -892,48 +892,11 @@ void Spell::prepareDataForTriggerSystem(AuraEffect const * /*triggeredByAura*/)
         to prevent chain proc of these spells
     */
 
-    switch (m_spellInfo->SpellFamilyName)
+    // Hellfire Effect - trigger as DOT
+    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellInfo->SpellFamilyFlags[0] & 0x00000040)
     {
-        case SPELLFAMILY_MAGE:
-        {
-            // Blizzard - trigger as DOT
-            if (m_spellInfo->SpellFamilyFlags[0] & 0x80)
-            {
-                m_procAttacker = PROC_FLAG_ON_DO_PERIODIC;
-                m_procVictim   = PROC_FLAG_ON_TAKE_PERIODIC;
-            }
-            break;
-        }
-        case SPELLFAMILY_WARLOCK:
-        {
-            // For Hellfire Effect / Rain of Fire - trigger as DOT
-            if (m_spellInfo->SpellFamilyFlags[0] & 0x60)
-            {
-                m_procAttacker = PROC_FLAG_ON_DO_PERIODIC;
-                m_procVictim   = PROC_FLAG_ON_TAKE_PERIODIC;
-            }
-            break;
-        }
-        case SPELLFAMILY_HUNTER:
-        {
-            // Volley - trigger as DOT
-            if (m_spellInfo->SpellFamilyFlags[0] & 0x0002000)
-            {
-                m_procAttacker = PROC_FLAG_ON_DO_PERIODIC;
-                m_procVictim   = PROC_FLAG_ON_TAKE_PERIODIC;
-            }
-            break;
-        }
-        case SPELLFAMILY_DRUID:
-        {
-            // Hurricane - trigger as DOT
-            if (m_spellInfo->SpellFamilyFlags[0] & 0x0400000)
-            {
-                m_procAttacker = PROC_FLAG_ON_DO_PERIODIC;
-                m_procVictim   = PROC_FLAG_ON_TAKE_PERIODIC;
-            }
-            break;
-        }
+        m_procAttacker = PROC_FLAG_ON_DO_PERIODIC;
+        m_procVictim   = PROC_FLAG_ON_TAKE_PERIODIC;
     }
 
     // Ranged autorepeat attack is set as triggered spell - ignore it
