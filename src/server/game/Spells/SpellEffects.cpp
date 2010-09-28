@@ -3424,24 +3424,6 @@ void Spell::EffectEnchantItemPerm(SpellEffIndex effIndex)
         if (!pEnchant)
             return;
         
-        // Prevent applying enchantments with Use: spell on items that already have an Use: effect, client-side check is not enough
-        for (int s = 0; s < MAX_ITEM_ENCHANTMENT_EFFECTS; ++s)
-        {
-            if (pEnchant->type[s] == ITEM_ENCHANTMENT_TYPE_USE_SPELL)
-            {
-                for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
-                {
-                    ItemPrototype const *proto = itemTarget->GetProto();
-                    if (proto->Spells[i].SpellId && proto->Spells[i].SpellTrigger == ITEM_SPELLTRIGGER_ON_USE)
-                    {
-                        sLog.outError("Exploiting attempt: Player %s(GUID: %u) tried to apply an enchanement with Use: spell on an item that already has a Use: effect,"
-                                      " this should be blocked from client side.", p_caster->GetName(), p_caster->GetGUIDLow());
-                        return;
-                    }
-                }
-            }
-        }
-
         // item can be in trade slot and have owner diff. from caster
         Player* item_owner = itemTarget->GetOwner();
         if (!item_owner)
