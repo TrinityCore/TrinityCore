@@ -632,6 +632,81 @@ public:
     }
 };
 
+enum eShadowmourneVisuals
+{
+    SPELL_SHADOWMOURNE_VISUAL_LOW       = 72521,
+    SPELL_SHADOWMOURNE_VISUAL_HIGH      = 72523,
+    SPELL_SHADOWMOURNE_CHAOS_BANE_BUFF  = 73422,
+};
+
+class spell_item_shadowmourne : public SpellScriptLoader
+{
+public:
+    spell_item_shadowmourne() : SpellScriptLoader("spell_item_shadowmourne") { }
+
+    class spell_item_shadowmourne_AuraScript : public AuraScript
+    {
+    public:
+        spell_item_shadowmourne_AuraScript() : AuraScript(), prevStackCount(0) { }
+
+        bool Validate(SpellEntry const* /*spellEntry*/)
+        {
+            if (!sSpellStore.LookupEntry(SPELL_SHADOWMOURNE_VISUAL_LOW))
+                return false;
+            if (!sSpellStore.LookupEntry(SPELL_SHADOWMOURNE_VISUAL_HIGH))
+                return false;
+            if (!sSpellStore.LookupEntry(SPELL_SHADOWMOURNE_CHAOS_BANE_BUFF))
+                return false;
+            return true;
+        }
+
+        void OnStackChange(AuraEffect const* /*aurEff*/, AuraApplication const* aurApp, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* target = aurApp->GetTarget();
+            if (!target)
+                return;
+            switch (GetStackAmount())
+            {
+                case 1:
+                    target->CastSpell(target, SPELL_SHADOWMOURNE_VISUAL_LOW, true);
+                    break;
+                case 6:
+                    target->RemoveAurasDueToSpell(SPELL_SHADOWMOURNE_VISUAL_LOW);
+                    target->CastSpell(target, SPELL_SHADOWMOURNE_VISUAL_HIGH, true);
+                    break;
+                case 10:
+                    target->RemoveAurasDueToSpell(SPELL_SHADOWMOURNE_VISUAL_HIGH);
+                    target->CastSpell(target, SPELL_SHADOWMOURNE_CHAOS_BANE_BUFF, true);
+                    break;
+            }
+        }
+
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraApplication const* aurApp, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* target = aurApp->GetTarget();
+            if (!target)
+                return;
+            if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_STACK)
+                return;
+            target->RemoveAurasDueToSpell(SPELL_SHADOWMOURNE_VISUAL_LOW);
+            target->RemoveAurasDueToSpell(SPELL_SHADOWMOURNE_VISUAL_HIGH);
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_item_shadowmourne_AuraScript::OnStackChange, EFFECT_0, SPELL_AURA_MOD_STAT, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(spell_item_shadowmourne_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_STAT, AURA_EFFECT_HANDLE_REAL);
+        }
+
+        uint8 prevStackCount;
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_item_shadowmourne_AuraScript();
+    }
+};
+
 enum eGenericData
 {
     SPELL_ARCANITE_DRAGONLING           = 19804,
@@ -661,4 +736,5 @@ void AddSC_item_spell_scripts()
     new spell_item_savory_deviate_delight();
     new spell_item_six_demon_bag();
     new spell_item_underbelly_elixir();
+    new spell_item_shadowmourne();
 }
