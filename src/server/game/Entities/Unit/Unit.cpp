@@ -5676,6 +5676,31 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     }
                     break;
                 }
+                // Item - Shadowmourne Legendary
+                case 71903:
+                {
+                    if (!pVictim || !pVictim->isAlive() || HasAura(73422))  // cant collect shards while under effect of Chaos Bane buff
+                        return false;
+
+                    CastSpell(this, 71905, true, NULL, triggeredByAura);
+
+                    // this can't be handled in AuraScript because we need to know pVictim
+                    Aura const* dummy = GetAura(71905);
+                    if (!dummy || dummy->GetStackAmount() < 10)
+                        return false;
+
+                    RemoveAurasDueToSpell(71905);
+                    triggered_spell_id = 71904;
+                    target = pVictim;
+                    break;
+                }
+                // Shadow's Fate (Shadowmourne questline)
+                case 71169:
+                {
+                    triggered_spell_id = 71203;
+                    target = triggeredByAura->GetCaster();
+                    break;
+                }
             }
             break;
         }
@@ -8753,6 +8778,18 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
         // Deathbringer Saurfang - Blood Link
         case 72202:
             target = FindNearestCreature(37813, 75.0f); // NPC_DEATHBRINGER_SAURFANG = 37813
+            break;
+        // Shadow's Fate (Shadowmourne questline)
+        case 71169:
+            if (GetTypeId() != TYPEID_PLAYER)
+                return false;
+            if (ToPlayer()->GetQuestStatus(24547) != QUEST_STATUS_INCOMPLETE)   // A Feast of Souls
+                return false;
+            if (pVictim->GetTypeId() != TYPEID_UNIT)
+                return false;
+            // critters are not allowed
+            if (pVictim->GetCreatureType() == CREATURE_TYPE_CRITTER)
+                return false;
             break;
     }
 
