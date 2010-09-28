@@ -34,17 +34,12 @@ struct RawData
     char time_str[200];
 };
 
-bool extractDataFromSvn(std::string filename, bool url, RawData& data)
+void extractDataFromSvn(FILE* EntriesFile, std::string /*path*/, bool url, RawData& data)
 {
-    FILE* EntriesFile = fopen(filename.c_str(), "r");
-    if (!EntriesFile)
-        return false;
-
     char aux[800];
     char buf[200];
     char repo_str[200];
     char num_str[200];
-    bool ret = false;
 
     if (fgets(aux, 600, EntriesFile) && fgets(buf, 200, EntriesFile))
     {
@@ -59,12 +54,9 @@ bool extractDataFromSvn(std::string filename, bool url, RawData& data)
                     sprintf(data.rev_str,"%s at %s",num_str,repo_str);
                 else
                     strcpy(data.rev_str,num_str);
-                ret = true;
             }
         }
     }
-    fclose(EntriesFile);
-    return ret;
 }
 
 void extractDataFromHG(FILE* EntriesFile, std::string /*path*/, bool /*url*/, RawData& data)
@@ -112,29 +104,22 @@ void extractDataFromArchive(FILE* EntriesFile, std::string /*path*/, bool /*url*
     char buf[200];
 
     char hash_str[200];
-    char revision_str[200];
+    //char revision_str[200];
+    char repo_str[200];
+    char branch_str[200];
+    char latesttag_str[200];
+    char latesttagdistance_str[200];
 
-    bool found = false;
-    if (fgets(buf,200,EntriesFile))
-    {
-        while (fgets(buf,200,EntriesFile))
-        {
-            if (sscanf(buf,"%s %s",revision_str,hash_str)==2)
-            {
-                found = true;
-                break;
-            }
-        }
-    }
-
-    if (!found)
-    {
-        strcpy(data.hash_str,"*");
-        strcpy(data.rev_str,"*");
-        strcpy(data.date_str,"*");
-        strcpy(data.time_str,"*");
-        return;
-    }
+    fgets(buf,200,EntriesFile);
+    sscanf(buf,"repo: %s",repo_str);
+    fgets(buf,200,EntriesFile);
+    sscanf(buf,"node: %s",hash_str);
+    fgets(buf,200,EntriesFile);
+    sscanf(buf,"branch: %s",branch_str);
+    fgets(buf,200,EntriesFile);
+    sscanf(buf,"latesttag: %[^\n]",latesttag_str);
+    fgets(buf,200,EntriesFile);
+    sscanf(buf,"latesttagdistance: %s",latesttagdistance_str);
 
     char thash_str[200];
     for (int i = 11; i >= 0; --i)
@@ -142,7 +127,6 @@ void extractDataFromArchive(FILE* EntriesFile, std::string /*path*/, bool /*url*
         thash_str[i] = hash_str[i];
     }
     thash_str[12] = '\0';
-
     strcpy(data.hash_str,thash_str);
     strcpy(data.rev_str,"Archive");
 
@@ -296,6 +280,17 @@ bool extractDataFromArchive(std::string filename, std::string path, bool url, Ra
     return true;
 }
 
+bool extractDataFromSvn(std::string filename, std::string path, bool url, RawData& data)
+{
+    FILE* EntriesFile = fopen(filename.c_str(), "r");
+    if (!EntriesFile)
+        return false;
+
+    extractDataFromSvn(EntriesFile,path,url,data);
+    fclose(EntriesFile);
+    return true;
+}
+
 std::string generateHeader(char const* rev_str, char const* date_str, char const* time_str, char const* hash_str)
 {
     std::ostringstream newData;
@@ -326,13 +321,15 @@ std::string generateHeader(char const* rev_str, char const* date_str, char const
 int main(int argc, char **argv)
 {
     bool use_url = false;
-    bool hg_prefered = true;
+    bool file_prefered = true;
+    bool hg_prefered = false;
     bool git_prefered = false;
     bool svn_prefered = false;
     std::string path;
 
     // Call: tool {options} [path]
-    //    -h use hg prefered (default)
+    //    -f use cmake generated file (default)
+    //    -h use hg prefered
     //    -g use git prefered
     //    -s use svn prefered
     //    -r use only revision (without repo URL) (default)
@@ -353,12 +350,20 @@ int main(int argc, char **argv)
 
         switch(argv[k][1])
         {
+            case 'f':
+                file_prefered = true;
+                hg_prefered = false;
+                git_prefered = false;
+                svn_prefered = false;
+                continue;
             case 'h':
+                file_prefered = false;
                 hg_prefered = true;
                 git_prefered = false;
                 svn_prefered = false;
                 continue;
             case 'g':
+                file_prefered = false;
                 hg_prefered = false;
                 git_prefered = true;
                 svn_prefered = false;
@@ -367,6 +372,7 @@ int main(int argc, char **argv)
                 use_url = false;
                 continue;
             case 's':
+                file_prefered = false;
                 hg_prefered = false;
                 git_prefered = false;
                 svn_prefered = true;
@@ -394,9 +400,9 @@ int main(int argc, char **argv)
         if (svn_prefered)
         {
             /// SVN data
-            res = extractDataFromSvn(path+".svn/entries",use_url,data);
+            res = extractDataFromSvn(path+".svn/entries",path,use_url,data);
             if (!res)
-                res = extractDataFromSvn(path+"_svn/entries",use_url,data);
+                res = extractDataFromSvn(path+"_svn/entries",path,use_url,data);
             // HG data
             if (!res)
                 res = extractDataFromHG(path+".hg/branchheads.cache",path,use_url,data);
@@ -411,11 +417,6 @@ int main(int argc, char **argv)
                 res = extractDataFromGit(path+".git/FETCH_HEAD",path,use_url,data);
             if (!res)
                 res = extractDataFromGit(path+"_git/FETCH_HEAD",path,use_url,data);
-            // Archive data
-            if (!res)
-                res = extractDataFromArchive(path+".hg_archival.txt",path,use_url,data);
-            if (!res)
-                res = extractDataFromArchive(path+"_hg_archival.txt",path,use_url,data);
         }
         else if (git_prefered)
         {
@@ -434,17 +435,10 @@ int main(int argc, char **argv)
                 res = extractDataFromHG(path+"_hg/branch.cache",path,use_url,data);
            /// SVN data
             if (!res)
-                res = extractDataFromSvn(path+".svn/entries",use_url,data);
+                res = extractDataFromSvn(path+".svn/entries",path,use_url,data);
             if (!res)
-                res = extractDataFromSvn(path+"_svn/entries",use_url,data);
-            // Archive data
-            if (!res)
-                res = extractDataFromArchive(path+".hg_archival.txt",path,use_url,data);
-            if (!res)
-                res = extractDataFromArchive(path+"_hg_archival.txt",path,use_url,data);
+                res = extractDataFromSvn(path+"_svn/entries",path,use_url,data);
         }
-
-
         else if (hg_prefered)
         {
             // HG data
@@ -457,21 +451,42 @@ int main(int argc, char **argv)
                 res = extractDataFromHG(path+"_hg/branch.cache",path,use_url,data);
             /// SVN data
             if (!res)
-                res = extractDataFromSvn(path+".svn/entries",use_url,data);
+                res = extractDataFromSvn(path+".svn/entries",path,use_url,data);
             if (!res)
-                res = extractDataFromSvn(path+"_svn/entries",use_url,data);
+                res = extractDataFromSvn(path+"_svn/entries",path,use_url,data);
             // GIT data
             if (!res)
                 res = extractDataFromGit(path+".git/FETCH_HEAD",path,use_url,data);
             if (!res)
                 res = extractDataFromGit(path+"_git/FETCH_HEAD",path,use_url,data);
-            // Archive data
-            if (!res)
-                res = extractDataFromArchive(path+".hg_archival.txt",path,use_url,data);
-            if (!res)
-                res = extractDataFromArchive(path+"_hg_archival.txt",path,use_url,data);
         }
-
+        else if (file_prefered)
+        {
+            res = extractDataFromHG("hg_revision","/",use_url,data);
+            // HG data
+            if (!res)
+                res = extractDataFromHG(path+".hg/branchheads.cache",path,use_url,data);
+            if (!res)
+                res = extractDataFromHG(path+"_hg/branchheads.cache",path,use_url,data);
+            if (!res)
+                res = extractDataFromHG(path+".hg/branch.cache",path,use_url,data);
+            if (!res)
+                res = extractDataFromHG(path+"_hg/branch.cache",path,use_url,data);
+            /// SVN data
+            if (!res)
+                res = extractDataFromSvn(path+".svn/entries",path,use_url,data);
+            if (!res)
+                res = extractDataFromSvn(path+"_svn/entries",path,use_url,data);
+            // GIT data
+            if (!res)
+                res = extractDataFromGit(path+".git/FETCH_HEAD",path,use_url,data);
+            if (!res)
+                res = extractDataFromGit(path+"_git/FETCH_HEAD",path,use_url,data);
+        }
+        if (!res)
+            res = extractDataFromArchive(path+".hg_archival.txt",path,use_url,data);
+        if (!res)
+            res = extractDataFromArchive(path+"_hg_archival.txt",path,use_url,data);
         if (res)
             newData = generateHeader(data.rev_str,data.date_str,data.time_str,data.hash_str);
         else
@@ -506,4 +521,3 @@ int main(int argc, char **argv)
 
     return 0;
 }
-
