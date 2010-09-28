@@ -61,7 +61,6 @@ struct LookingForGroup
     bool update;
     LfgState state;
     LfgDungeonSet applyDungeons;                            // Dungeons the player have applied for
-    LfgDungeonSet donerandomDungeons;                       // Finished random Dungeons (to calculate the bonus);
     std::string comment;
 };
 
