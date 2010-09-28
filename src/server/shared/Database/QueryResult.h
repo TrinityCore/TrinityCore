@@ -65,7 +65,7 @@ typedef ACE_Refcounted_Auto_Ptr<ResultSet, ACE_Null_Mutex> QueryResult;
 class PreparedResultSet
 {
     public:
-        PreparedResultSet(MYSQL_STMT* stmt, MYSQL_RES *result, MYSQL_FIELD *fields, uint64 rowCount, uint32 fieldCount);
+        PreparedResultSet(MYSQL_STMT* stmt, MYSQL_RES *result, uint64 rowCount, uint32 fieldCount);
         ~PreparedResultSet();
 
         bool NextRow();
