@@ -26898,6 +26898,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 39610, 'spell_sha_mana_tide_totem'),
 ( -1535, 'spell_sha_fire_nova'),
 -- mage
+(-11113, 'spell_mage_blast_wave'),
 ( 11958, 'spell_mage_cold_snap'),
 ( 31687, 'spell_mage_summon_water_elemental'),
 ( 32826, 'spell_mage_polymorph_visual'),
