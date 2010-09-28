@@ -99,7 +99,7 @@ public:
 
     class spell_pal_blessing_of_sanctuary_AuraScript : public AuraScript
     {
-        bool Validate(SpellEntry const * entry)
+        bool Validate(SpellEntry const* /*entry*/)
         {
             if (!sSpellStore.LookupEntry(PALADIN_SPELL_BLESSING_OF_SANCTUARY_BUFF))
                 return false;
