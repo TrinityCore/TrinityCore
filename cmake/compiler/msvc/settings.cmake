@@ -10,46 +10,49 @@ if(PLATFORM EQUAL 64)
   # here: http://tinyurl.com/2cb428.  Syntax highlighting is important for proper
   # debugger functionality.
   add_definitions("-D_WIN64")
-  message(STATUS "- MSVC: 64-bit platform, enforced -D_WIN64 parameter")
+  message(STATUS "MSVC: 64-bit platform, enforced -D_WIN64 parameter")
 
   #Enable extended object support for debug compiles on X64 (not required on X86)
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /bigobj")
-  message(STATUS "- MSVC: Enabled extended object-support for debug-compiles")
+  message(STATUS "MSVC: Enabled extended object-support for debug-compiles")
 else()
   # mark 32 bit executables large address aware so they can use > 2GB address space
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE")
-  message(STATUS "- MSVC: Enabled large address awareness")
+  message(STATUS "MSVC: Enabled large address awareness")
 
   # Test if we need SSE2-support
   if(USE_SFMT)
     add_definitions(/arch:SSE2)
-    message(STATUS "- MSVC: Enabled SSE2 support")
+    message(STATUS "MSVC: Enabled SSE2 support")
   endif()
 endif()
+
+# Set build-directive (used in core to tell which buildtype we used)
+add_definitions(-D_BUILD_DIRECTIVE="$(ConfigurationName)")
 
 # multithreaded compiling on VS
 if((NOT USE_COREPCH) AND (NOT USE_SCRIPTPCH))
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
-  message(STATUS "- MSVC: PCH not used - enabled multithreaded compiling")
+  message(STATUS "MSVC: PCH not used - enabled multithreaded compiling")
 endif()
 
 # Define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES - eliminates the warning by changing the strcpy call to strcpy_s, which prevents buffer overruns
 add_definitions(-D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES)
-message(STATUS "- MSVC: Overloaded standard names")
+message(STATUS "MSVC: Overloaded standard names")
 
 # Ignore warnings about older, less secure functions
 add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-message(STATUS "- MSVC: Disabled NON-SECURE warnings")
+message(STATUS "MSVC: Disabled NON-SECURE warnings")
 
 #Ignore warnings about POSIX deprecation
 add_definitions(-D_CRT_NONSTDC_NO_WARNINGS)
-message(STATUS "- MSVC: Disabled POSIX warnings")
+message(STATUS "MSVC: Disabled POSIX warnings")
 
 # disable warnings in Visual Studio 8 and above if not wanted
 if(NOT WITH_WARNINGS)
   if(MSVC AND NOT CMAKE_GENERATOR MATCHES "Visual Studio 7")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4996 /wd4355 /wd4244 /wd4985 /wd4267 /wd4619")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4996 /wd4355 /wd4244 /wd4985 /wd4267 /wd4619")
-    message(STATUS "- MSVC: Disabled generic compiletime warnings")
+    message(STATUS "MSVC: Disabled generic compiletime warnings")
   endif()
 endif()
