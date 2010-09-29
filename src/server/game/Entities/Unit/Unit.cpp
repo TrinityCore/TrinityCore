@@ -12763,8 +12763,23 @@ int32 Unit::ModSpellDuration(SpellEntry const* spellProto, Unit const* target, i
         if (durationMod != 0)
             duration = int32(float(duration) * float(100.0f+durationMod) / 100.0f);
     }
-    //else positive mods here, there are no currently
-    //when there will be, change GetTotalAuraModifierByMiscValue to GetTotalPositiveAuraModifierByMiscValue
+    else
+    {
+        //else positive mods here, there are no currently
+        //when there will be, change GetTotalAuraModifierByMiscValue to GetTotalPositiveAuraModifierByMiscValue
+
+        // Mixology - duration boost
+        if (target->GetTypeId() == TYPEID_PLAYER)
+        {
+            if (spellProto->SpellFamilyName == SPELLFAMILY_POTION && (
+                sSpellMgr.IsSpellMemberOfSpellGroup(spellProto->Id, SPELL_GROUP_ELIXIR_BATTLE) ||
+                sSpellMgr.IsSpellMemberOfSpellGroup(spellProto->Id, SPELL_GROUP_ELIXIR_GUARDIAN)))
+            {
+                if (target->HasAura(53042) && target->HasSpell(spellProto->EffectTriggerSpell[0]))
+                    duration *= 2;
+            }
+        }
+    }
 
     // Glyphs which increase duration of selfcasted buffs
     if (target == this)
