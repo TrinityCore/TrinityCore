@@ -333,7 +333,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX2_UNK1                       0x00000002            // 1 ? many triggered spells have this flag
 #define SPELL_ATTR_EX2_CANT_REFLECTED             0x00000004            // 2 ? used for detect can or not spell reflected
 #define SPELL_ATTR_EX2_UNK3                       0x00000008            // 3
-#define SPELL_ATTR_EX2_UNK4                       0x00000010            // 4
+#define SPELL_ATTR_EX2_ALWAYS_APPLY_MODIFIERS     0x00000010            // 4 ? spell modifiers are applied dynamically (even if aura is not passive)
 #define SPELL_ATTR_EX2_AUTOREPEAT_FLAG            0x00000020            // 5
 #define SPELL_ATTR_EX2_UNK6                       0x00000040            // 6
 #define SPELL_ATTR_EX2_UNK7                       0x00000080            // 7
