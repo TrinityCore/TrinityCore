@@ -30,7 +30,7 @@ class LoginDatabaseConnection : public MySQLConnection
         LoginDatabaseConnection(ACE_Activation_Queue* q) : MySQLConnection(q) {}
 
         //- Loads databasetype specific prepared statements
-        bool Open(const std::string& infoString);
+        bool Open(const MySQLConnectionInfo& connInfo);
 };
 
 typedef DatabaseWorkerPool<LoginDatabaseConnection> LoginDatabaseWorkerPool;

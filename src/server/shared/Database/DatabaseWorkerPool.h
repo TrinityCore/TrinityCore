@@ -61,7 +61,6 @@ class DatabaseWorkerPool
         m_queue(new ACE_Activation_Queue(new ACE_Message_Queue<ACE_MT_SYNCH>)),
         m_connections(0)
         {
-            m_infoString = "";
             m_connections.resize(IDX_SIZE);
 
             mysql_library_init(-1, NULL, NULL);
@@ -70,20 +69,22 @@ class DatabaseWorkerPool
 
         ~DatabaseWorkerPool()
         {
-            sLog.outSQLDriver("~DatabaseWorkerPool for '%s'.", "missingname");
+            sLog.outSQLDriver("~DatabaseWorkerPool for '%s'.", m_connectionDetails.database.c_str());
             mysql_library_end();
         }
 
         bool Open(const std::string& infoString, uint8 async_threads, uint8 synch_threads)
         {
-            sLog.outSQLDriver("Opening databasepool '%s'. Async threads: %u, synch threads: %u", "nonameyet", async_threads, synch_threads);
+            m_connectionDetails = MySQLConnectionInfo(infoString);
+
+            sLog.outSQLDriver("Opening databasepool '%s'. Async threads: %u, synch threads: %u", m_connectionDetails.database.c_str(), async_threads, synch_threads);
 
             /// Open asynchronous connections (delayed operations)
             m_connections[IDX_ASYNC].resize(async_threads);
             for (uint8 i = 0; i < async_threads; ++i)
             {
                 T* t = new T(m_queue);
-                t->Open(infoString);
+                t->Open(m_connectionDetails);
                 m_connections[IDX_ASYNC][i] = t;
                 ++m_connectionCount;
             }
@@ -93,13 +94,10 @@ class DatabaseWorkerPool
             for (uint8 i = 0; i < synch_threads; ++i) 
             {
                 T* t = new T();
-                t->Open(infoString);
+                t->Open(m_connectionDetails);
                 m_connections[IDX_SYNCH][i] = t;
                 ++m_connectionCount;
             }
-
-            /// TODO: Connection details in a struct
-            m_infoString = infoString;
 
             sLog.outSQLDriver("Databasepool opened succesfuly. %u connections running.", (uint32)m_connectionCount.value());
             return true;
@@ -107,7 +105,7 @@ class DatabaseWorkerPool
 
         void Close()
         {
-            sLog.outSQLDriver("Closing down databasepool '%s'.", "missingname");
+            sLog.outSQLDriver("Closing down databasepool '%s'.", m_connectionDetails.database.c_str());
 
             /// Shuts down delaythreads for this connection pool.
             m_queue->queue()->deactivate();
@@ -120,7 +118,7 @@ class DatabaseWorkerPool
                 --m_connectionCount;
             }
 
-            sLog.outSQLDriver("Asynchronous connections on databasepool '%s' terminated. Proceeding with synchronous connections.", "missingname");
+            sLog.outSQLDriver("Asynchronous connections on databasepool '%s' terminated. Proceeding with synchronous connections.", m_connectionDetails.database.c_str());
 
             /// Shut down the synchronous connections
             for (uint8 i = 0; i < m_connections[IDX_SYNCH].size(); ++i)
@@ -132,7 +130,7 @@ class DatabaseWorkerPool
                 --m_connectionCount;
             }
             
-            sLog.outSQLDriver("All connections on databasepool 'missingname' closed.");
+            sLog.outSQLDriver("All connections on databasepool %s closed.", m_connectionDetails.database.c_str());
         }
 
         void Execute(const char* sql)
@@ -362,7 +360,7 @@ class DatabaseWorkerPool
         ACE_Activation_Queue*           m_queue;             //! Queue shared by async worker threads.
         std::vector< std::vector<T*> >  m_connections;
         AtomicUInt                      m_connectionCount;       //! Counter of MySQL connections;
-        std::string                     m_infoString;        //! Infostring that is passed on to child connections.
+        MySQLConnectionInfo             m_connectionDetails;
 };
 
 #endif

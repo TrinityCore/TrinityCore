@@ -30,7 +30,6 @@
 #include "SQLOperation.h"
 #include "PreparedStatement.h"
 #include "DatabaseWorker.h"
-#include "Util.h"
 #include "Timer.h"
 
 MySQLConnection::MySQLConnection() :
@@ -65,7 +64,7 @@ void MySQLConnection::Close()
     delete this;
 }
 
-bool MySQLConnection::Open(const std::string& infoString)
+bool MySQLConnection::Open(const MySQLConnectionInfo& connInfo)
 {
     MYSQL *mysqlInit;
     mysqlInit = mysql_init(NULL);
@@ -75,30 +74,12 @@ bool MySQLConnection::Open(const std::string& infoString)
         return false;
     }
 
-    Tokens tokens = StrSplit(infoString, ";");
-
-    Tokens::iterator iter;
-
-    std::string host, port_or_socket, user, password, database;
     int port;
-    char const* unix_socket;
-
-    iter = tokens.begin();
-
-    if (iter != tokens.end())
-        host = *iter++;
-    if (iter != tokens.end())
-        port_or_socket = *iter++;
-    if (iter != tokens.end())
-        user = *iter++;
-    if (iter != tokens.end())
-        password = *iter++;
-    if (iter != tokens.end())
-        database = *iter++;
+    char* unix_socket;
 
     mysql_options(mysqlInit, MYSQL_SET_CHARSET_NAME, "utf8");
     #ifdef _WIN32
-    if (host==".")                                           // named pipe use option (Windows)
+    if (connInfo.host == ".")                                           // named pipe use option (Windows)
     {
         unsigned int opt = MYSQL_PROTOCOL_PIPE;
         mysql_options(mysqlInit, MYSQL_OPT_PROTOCOL, (char const*)&opt);
@@ -107,17 +88,17 @@ bool MySQLConnection::Open(const std::string& infoString)
     }
     else                                                    // generic case
     {
-        port = atoi(port_or_socket.c_str());
+        port = atoi(connInfo.port_or_socket.c_str());
         unix_socket = 0;
     }
     #else
-    if (host==".")                                           // socket use option (Unix/Linux)
+    if (connInfo.host == ".")                                           // socket use option (Unix/Linux)
     {
         unsigned int opt = MYSQL_PROTOCOL_SOCKET;
         mysql_options(mysqlInit, MYSQL_OPT_PROTOCOL, (char const*)&opt);
-        host = "localhost";
+        connInfo.host = "localhost";
         port = 0;
-        unix_socket = port_or_socket.c_str();
+        unix_socket = connInfo.port_or_socket.c_str();
     }
     else                                                    // generic case
     {
@@ -126,8 +107,8 @@ bool MySQLConnection::Open(const std::string& infoString)
     }
     #endif
 
-    m_Mysql = mysql_real_connect(mysqlInit, host.c_str(), user.c_str(),
-        password.c_str(), database.c_str(), port, unix_socket, 0);
+    m_Mysql = mysql_real_connect(mysqlInit, connInfo.host.c_str(), connInfo.user.c_str(),
+        connInfo.password.c_str(), connInfo.database.c_str(), port, unix_socket, 0);
 
     if (m_Mysql)
     {
@@ -136,7 +117,7 @@ bool MySQLConnection::Open(const std::string& infoString)
         if (mysql_get_server_version(m_Mysql) != mysql_get_client_version())
             sLog.outSQLDriver("[WARNING] MySQL client/server version mismatch; may conflict with behaviour of prepared statements.");
 
-        sLog.outDetail("Connected to MySQL database at %s", host.c_str());
+        sLog.outDetail("Connected to MySQL database at %s", connInfo.host.c_str());
         if (!mysql_autocommit(m_Mysql, 1))
             sLog.outSQLDriver("AUTOCOMMIT SUCCESSFULLY SET TO 1");
         else
@@ -160,7 +141,7 @@ bool MySQLConnection::Open(const std::string& infoString)
     }
     else
     {
-        sLog.outError("Could not connect to MySQL database at %s: %s\n", host.c_str(), mysql_error(mysqlInit));
+        sLog.outError("Could not connect to MySQL database at %s: %s\n", connInfo.host.c_str(), mysql_error(mysqlInit));
         mysql_close(mysqlInit);
         return false;
     }
