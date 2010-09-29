@@ -32,14 +32,16 @@
 #include "DatabaseWorker.h"
 #include "Timer.h"
 
-MySQLConnection::MySQLConnection() :
+MySQLConnection::MySQLConnection(const MySQLConnectionInfo& connInfo) :
+m_connectionInfo(connInfo),
 m_queue(NULL),
 m_worker(NULL),
 m_Mysql(NULL)
 {
 }
 
-MySQLConnection::MySQLConnection(ACE_Activation_Queue* queue) :
+MySQLConnection::MySQLConnection(ACE_Activation_Queue* queue, const MySQLConnectionInfo& connInfo) :
+m_connectionInfo(connInfo),
 m_queue(queue),
 m_Mysql(NULL)
 {
@@ -64,13 +66,13 @@ void MySQLConnection::Close()
     delete this;
 }
 
-bool MySQLConnection::Open(const MySQLConnectionInfo& connInfo)
+bool MySQLConnection::Open()
 {
     MYSQL *mysqlInit;
     mysqlInit = mysql_init(NULL);
     if (!mysqlInit)
     {
-        sLog.outError("Could not initialize Mysql connection");
+        sLog.outError("Could not initialize Mysql connection to database `%s`", m_connectionInfo.database.c_str());
         return false;
     }
 
@@ -79,7 +81,7 @@ bool MySQLConnection::Open(const MySQLConnectionInfo& connInfo)
 
     mysql_options(mysqlInit, MYSQL_SET_CHARSET_NAME, "utf8");
     #ifdef _WIN32
-    if (connInfo.host == ".")                                           // named pipe use option (Windows)
+    if (m_connectionInfo.host == ".")                                           // named pipe use option (Windows)
     {
         unsigned int opt = MYSQL_PROTOCOL_PIPE;
         mysql_options(mysqlInit, MYSQL_OPT_PROTOCOL, (char const*)&opt);
@@ -88,27 +90,27 @@ bool MySQLConnection::Open(const MySQLConnectionInfo& connInfo)
     }
     else                                                    // generic case
     {
-        port = atoi(connInfo.port_or_socket.c_str());
+        port = atoi(m_connectionInfo.port_or_socket.c_str());
         unix_socket = 0;
     }
     #else
-    if (connInfo.host == ".")                                           // socket use option (Unix/Linux)
+    if (m_connectionInfo.host == ".")                                           // socket use option (Unix/Linux)
     {
         unsigned int opt = MYSQL_PROTOCOL_SOCKET;
         mysql_options(mysqlInit, MYSQL_OPT_PROTOCOL, (char const*)&opt);
-        connInfo.ChangeHost("localhost");
+        m_connectionInfo.ChangeHost("localhost");
         port = 0;
-        unix_socket = connInfo.port_or_socket.c_str();
+        unix_socket = m_connectionInfo.port_or_socket.c_str();
     }
     else                                                    // generic case
     {
-        port = atoi(connInfo.port_or_socket.c_str());
+        port = atoi(m_connectionInfo.port_or_socket.c_str());
         unix_socket = 0;
     }
     #endif
 
-    m_Mysql = mysql_real_connect(mysqlInit, connInfo.host.c_str(), connInfo.user.c_str(),
-        connInfo.password.c_str(), connInfo.database.c_str(), port, unix_socket, 0);
+    m_Mysql = mysql_real_connect(mysqlInit, m_connectionInfo.host.c_str(), m_connectionInfo.user.c_str(),
+        m_connectionInfo.password.c_str(), m_connectionInfo.database.c_str(), port, unix_socket, 0);
 
     if (m_Mysql)
     {
@@ -117,7 +119,7 @@ bool MySQLConnection::Open(const MySQLConnectionInfo& connInfo)
         if (mysql_get_server_version(m_Mysql) != mysql_get_client_version())
             sLog.outSQLDriver("[WARNING] MySQL client/server version mismatch; may conflict with behaviour of prepared statements.");
 
-        sLog.outDetail("Connected to MySQL database at %s", connInfo.host.c_str());
+        sLog.outDetail("Connected to MySQL database at %s", m_connectionInfo.host.c_str());
         if (!mysql_autocommit(m_Mysql, 1))
             sLog.outSQLDriver("AUTOCOMMIT SUCCESSFULLY SET TO 1");
         else
@@ -141,7 +143,7 @@ bool MySQLConnection::Open(const MySQLConnectionInfo& connInfo)
     }
     else
     {
-        sLog.outError("Could not connect to MySQL database at %s: %s\n", connInfo.host.c_str(), mysql_error(mysqlInit));
+        sLog.outError("Could not connect to MySQL database at %s: %s\n", m_connectionInfo.host.c_str(), mysql_error(mysqlInit));
         mysql_close(mysqlInit);
         return false;
     }
@@ -195,20 +197,23 @@ bool MySQLConnection::Execute(PreparedStatement* stmt)
         #endif
         if (mysql_stmt_bind_param(msql_STMT, msql_BIND))
         {
-            sLog.outSQLDriver("[ERROR]: PreparedStatement (id: %u) error binding params:  %s", index, mysql_stmt_error(msql_STMT));
+            sLog.outSQLDriver("[ERROR]: PreparedStatement (id: %u, database: `%s`) error binding params:  %s", 
+                index, m_connectionInfo.database.c_str(), mysql_stmt_error(msql_STMT));
             m_mStmt->ClearParameters();
             return false;
         }
 
         if (mysql_stmt_execute(msql_STMT))
         {
-            sLog.outSQLDriver("[ERROR]: PreparedStatement (id: %u) error executing:  %s", index, mysql_stmt_error(msql_STMT));
+            sLog.outSQLDriver("[ERROR]: PreparedStatement (id: %u, database: `%s`) error executing:  %s", 
+                index, m_connectionInfo.database.c_str(), mysql_stmt_error(msql_STMT));
             m_mStmt->ClearParameters();
             return false;
         }
 
         #ifdef SQLQUERY_LOG
-        sLog.outSQLDriver("[%u ms] Prepared SQL: %u", getMSTimeDiff(_s, getMSTime()), index);
+        sLog.outSQLDriver("[%u ms] Prepared SQL: %u on database `%s`", 
+            getMSTimeDiff(_s, getMSTime()), index, m_connectionInfo.database.c_str());
         #endif
         m_mStmt->ClearParameters();
         return true;
@@ -237,20 +242,23 @@ bool MySQLConnection::_Query(PreparedStatement* stmt, MYSQL_RES **pResult, uint6
         #endif
         if (mysql_stmt_bind_param(msql_STMT, msql_BIND))
         {
-            sLog.outSQLDriver("[ERROR]: PreparedStatement (id: %u) error binding params:  %s", index, mysql_stmt_error(msql_STMT));
+            sLog.outSQLDriver("[ERROR]: PreparedStatement (id: %u, database: `%s`) error binding params:  %s", 
+                index, m_connectionInfo.database.c_str(), mysql_stmt_error(msql_STMT));
             m_mStmt->ClearParameters();
             return false;
         }
 
         if (mysql_stmt_execute(msql_STMT))
         {
-            sLog.outSQLDriver("[ERROR]: PreparedStatement (id: %u) error executing:  %s", index, mysql_stmt_error(msql_STMT));
+            sLog.outSQLDriver("[ERROR]: PreparedStatement (id: %u, database: `%s`) error executing:  %s", 
+                index, m_connectionInfo.database.c_str(), mysql_stmt_error(msql_STMT));
             m_mStmt->ClearParameters();
             return false;
         }
 
         #ifdef SQLQUERY_LOG
-        sLog.outSQLDriver("[%u ms] Prepared SQL: %u", getMSTimeDiff(_s, getMSTime()), index);
+        sLog.outSQLDriver("[%u ms] Prepared SQL: %u on database `%s`", 
+            getMSTimeDiff(_s, getMSTime()), index, m_connectionInfo.database.c_str());
         #endif
         m_mStmt->ClearParameters();
 
