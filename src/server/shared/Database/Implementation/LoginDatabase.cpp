@@ -18,9 +18,9 @@
 
 #include "LoginDatabase.h"
 
-bool LoginDatabaseConnection::Open(const MySQLConnectionInfo& connInfo)
+bool LoginDatabaseConnection::Open()
 {
-    if (!MySQLConnection::Open(connInfo))
+    if (!MySQLConnection::Open())
         return false;
 
     m_stmts.resize(MAX_LOGINDATABASE_STATEMENTS);

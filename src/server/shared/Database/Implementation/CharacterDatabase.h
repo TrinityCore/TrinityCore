@@ -26,11 +26,11 @@ class CharacterDatabaseConnection : public MySQLConnection
 {
     public:
         //- Constructors for sync and async connections
-        CharacterDatabaseConnection() : MySQLConnection() {}
-        CharacterDatabaseConnection(ACE_Activation_Queue* q) : MySQLConnection(q) {}
+        CharacterDatabaseConnection(const MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo) {}
+        CharacterDatabaseConnection(ACE_Activation_Queue* q, const MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) {}
 
         //- Loads databasetype specific prepared statements
-        bool Open(const MySQLConnectionInfo& connInfo);
+        bool Open();
 };
 
 typedef DatabaseWorkerPool<CharacterDatabaseConnection> CharacterDatabaseWorkerPool;

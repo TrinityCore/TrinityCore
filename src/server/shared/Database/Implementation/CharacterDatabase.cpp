@@ -18,9 +18,9 @@
 
 #include "CharacterDatabase.h"
 
-bool CharacterDatabaseConnection::Open(const MySQLConnectionInfo& connInfo)
+bool CharacterDatabaseConnection::Open()
 {
-    if (!MySQLConnection::Open(connInfo))
+    if (!MySQLConnection::Open())
         return false;
 
     m_stmts.resize(MAX_CHARACTERDATABASE_STATEMENTS);
