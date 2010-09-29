@@ -13,7 +13,7 @@ project(TrinityCore)
 
 # CMake policies (can not be handled elsewhere)
 cmake_minimum_required(VERSION 2.6)
-cmake_policy(SET CMP0005 OLD)
+cmake_policy(SET CMP0005 NEW)
 
 # Set RPATH-handing (CMake parameters)
 set(CMAKE_SKIP_BUILD_RPATH 0)
@@ -57,18 +57,50 @@ if( UNIX )
   find_package(BZip2)
 endif()
 
-# Find current revision of downloaded sourcetree
-execute_process(
-  COMMAND hg tip --template {rev}
-  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-  OUTPUT_VARIABLE HG_REVISION
+if(EXISTS ${CMAKE_SOURCE_DIR}/.hg_archival.txt)
+  set(hg_rev_id_str "Archive")
+  file(READ
+    ${CMAKE_SOURCE_DIR}/.hg_archival.txt hg_rev_hash_str
+    LIMIT 10
+    OFFSET 7
+    NEWLINE_CONSUME
+  )
+  string(STRIP ${hg_rev_id_str} hg_rev_id_str)
+  string(STRIP ${hg_rev_hash_str} hg_rev_hash_str)
+  set(hg_rev_id "0")
+  set(hg_rev_hash ${hg_rev_hash_str})
+
+else()
+  # Find revision ID and hash of the sourcetree
+  execute_process(
+    COMMAND hg id -n
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    OUTPUT_VARIABLE hg_rev_id_str
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+  )
+  execute_process(
+    COMMAND hg id -i
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    OUTPUT_VARIABLE hg_rev_hash_str
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+  )
+  # Strip off excess strings (shows when the source is actually modified)
+  string(REPLACE "+" "" hg_rev_id ${hg_rev_id_str})
+  string(REPLACE "+" "" hg_rev_hash ${hg_rev_hash_str})
+endif()
+
+# Create the actual revision.h file from the above params
+configure_file(
+  "${CMAKE_SOURCE_DIR}/revision.h.in.cmake"
+  "${CMAKE_BINARY_DIR}/revision.h"
+  @ONLY
 )
+message(STATUS "Created revision.h")
 
 # print out the results before continuing
 include(cmake/showoptions.cmake)
-
-# add and generate revision.h
-add_subdirectory(src/genrevision)
 
 # add dependencies
 add_subdirectory(dep)

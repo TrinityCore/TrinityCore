@@ -141,8 +141,6 @@ include_directories(
 
 add_library(scripts STATIC ${scripts_STAT_SRCS})
 
-add_dependencies(scripts genrev)
-
 # Generate precompiled header
 if( USE_SCRIPTPCH )
   if(CMAKE_COMPILER_IS_GNUCXX)

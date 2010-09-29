@@ -198,8 +198,6 @@ include_directories(
 
 add_library(game STATIC ${game_STAT_SRCS})
 
-add_dependencies(game revision.h)
-
 # Generate precompiled header
 if( USE_COREPCH )
   if(CMAKE_COMPILER_IS_GNUCXX)
