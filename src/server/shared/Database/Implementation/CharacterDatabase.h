@@ -30,7 +30,7 @@ class CharacterDatabaseConnection : public MySQLConnection
         CharacterDatabaseConnection(ACE_Activation_Queue* q) : MySQLConnection(q) {}
 
         //- Loads databasetype specific prepared statements
-        bool Open(const std::string& infoString);
+        bool Open(const MySQLConnectionInfo& connInfo);
 };
 
 typedef DatabaseWorkerPool<CharacterDatabaseConnection> CharacterDatabaseWorkerPool;

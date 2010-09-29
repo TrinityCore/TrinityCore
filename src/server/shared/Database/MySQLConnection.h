@@ -18,6 +18,7 @@
 
 #include <ace/Activation_Queue.h>
 #include "DatabaseWorkerPool.h"
+#include "Util.h"
 
 #ifndef _MYSQLCONNECTION_H
 #define _MYSQLCONNECTION_H
@@ -26,6 +27,33 @@ class DatabaseWorker;
 class PreparedStatement;
 class MySQLPreparedStatement;
 class PingOperation;
+
+struct MySQLConnectionInfo
+{
+    MySQLConnectionInfo() {}
+    MySQLConnectionInfo(const std::string& infoString)
+    {
+        Tokens tokens = StrSplit(infoString, ";");
+        Tokens::iterator iter = tokens.begin();
+
+        if (iter != tokens.end())
+            host = *iter++;
+        if (iter != tokens.end())
+            port_or_socket = *iter++;
+        if (iter != tokens.end())
+            user = *iter++;
+        if (iter != tokens.end())
+            password = *iter++;
+        if (iter != tokens.end())
+            database = *iter++;
+    }
+
+    std::string user;
+    std::string password;
+    std::string database;
+    std::string host;
+    std::string port_or_socket;
+};
 
 class MySQLConnection
 {
@@ -37,7 +65,7 @@ class MySQLConnection
         MySQLConnection(ACE_Activation_Queue* queue);       //! Constructor for asynchroneous connections.
         ~MySQLConnection();
 
-        virtual bool Open(const std::string& infoString);   //! Connection details.
+        virtual bool Open(const MySQLConnectionInfo& connInfo);   //! Connection details.
         void Close();
 
     public:
