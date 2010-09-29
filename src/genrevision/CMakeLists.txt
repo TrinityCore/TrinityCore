@@ -22,7 +22,7 @@ if( CMAKE_GENERATOR MATCHES "Visual Studio" )
     DEPENDS genrev
   )
 elseif( CMAKE_GENERATOR MATCHES "Xcode" )
-  add_custom_command(revision.h ALL
+  add_custom_target(revision.h ALL
     COMMAND ${CMAKE_BINARY_DIR}/src/genrevision/$(CONFIGURATION)/genrev -m ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     DEPENDS genrev
