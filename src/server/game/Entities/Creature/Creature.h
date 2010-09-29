@@ -296,7 +296,8 @@ enum ChatType
     CHAT_TYPE_BOSS_EMOTE        = 3,
     CHAT_TYPE_WHISPER           = 4,
     CHAT_TYPE_BOSS_WHISPER      = 5,
-    CHAT_TYPE_ZONE_YELL         = 6
+    CHAT_TYPE_ZONE_YELL         = 6,
+    CHAT_TYPE_END               = 255
 };
 
 // GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform
