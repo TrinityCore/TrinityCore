@@ -647,7 +647,7 @@ public:
     class spell_item_shadowmourne_AuraScript : public AuraScript
     {
     public:
-        spell_item_shadowmourne_AuraScript() : AuraScript(), prevStackCount(0) { }
+        spell_item_shadowmourne_AuraScript() : AuraScript() { }
 
         bool Validate(SpellEntry const* /*spellEntry*/)
         {
