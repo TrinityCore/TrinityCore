@@ -26,11 +26,11 @@ class WorldDatabaseConnection : public MySQLConnection
 {
     public:
         //- Constructors for sync and async connections
-        WorldDatabaseConnection() : MySQLConnection() {}
-        WorldDatabaseConnection(ACE_Activation_Queue* q) : MySQLConnection(q) {}
+        WorldDatabaseConnection(const MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo) {}
+        WorldDatabaseConnection(ACE_Activation_Queue* q, const MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) {}
 
         //- Loads databasetype specific prepared statements
-        bool Open(const MySQLConnectionInfo& connInfo);
+        bool Open();
 };
 
 typedef DatabaseWorkerPool<WorldDatabaseConnection> WorldDatabaseWorkerPool;

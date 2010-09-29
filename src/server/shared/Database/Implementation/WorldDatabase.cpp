@@ -18,9 +18,9 @@
 
 #include "WorldDatabase.h"
 
-bool WorldDatabaseConnection::Open(const MySQLConnectionInfo& connInfo)
+bool WorldDatabaseConnection::Open()
 {
-    if (!MySQLConnection::Open(connInfo))
+    if (!MySQLConnection::Open())
         return false;
 
     m_stmts.resize(MAX_WORLDDATABASE_STATEMENTS);
