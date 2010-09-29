@@ -53,6 +53,11 @@ struct MySQLConnectionInfo
     std::string database;
     std::string host;
     std::string port_or_socket;
+
+    void ChangeHost(const std::string& newHost) /// Needed for unix socket case
+    {
+        host = newHost;
+    }
 };
 
 class MySQLConnection

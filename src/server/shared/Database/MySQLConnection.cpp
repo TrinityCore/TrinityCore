@@ -75,7 +75,7 @@ bool MySQLConnection::Open(const MySQLConnectionInfo& connInfo)
     }
 
     int port;
-    char* unix_socket;
+    char const* unix_socket;
 
     mysql_options(mysqlInit, MYSQL_SET_CHARSET_NAME, "utf8");
     #ifdef _WIN32
@@ -96,13 +96,13 @@ bool MySQLConnection::Open(const MySQLConnectionInfo& connInfo)
     {
         unsigned int opt = MYSQL_PROTOCOL_SOCKET;
         mysql_options(mysqlInit, MYSQL_OPT_PROTOCOL, (char const*)&opt);
-        connInfo.host = "localhost";
+        connInfo.ChangeHost("localhost");
         port = 0;
         unix_socket = connInfo.port_or_socket.c_str();
     }
     else                                                    // generic case
     {
-        port = atoi(port_or_socket.c_str());
+        port = atoi(connInfo.port_or_socket.c_str());
         unix_socket = 0;
     }
     #endif
