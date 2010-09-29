@@ -76,8 +76,6 @@ include_directories(
 
 add_library(shared STATIC ${shared_STAT_SRCS})
 
-add_dependencies(shared revision.h)
-
 target_link_libraries(shared
   ${ACE_LIBRARY}
 )
