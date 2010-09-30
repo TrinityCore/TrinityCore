@@ -55,7 +55,8 @@ enum ConditionType
     CONDITION_AREAID                = 23,                   // area_id          0           +referenceID       true if in area_id
     CONDITION_ITEM_TARGET           = 24,                   // ItemRequiredTargetType,  TargetEntry,    0
     CONDITION_SPELL                 = 25,                   // spell_id         0           +referenceID       true if knows spell
-    CONDITION_MAX                   = 26                    // MAX
+    CONDITION_NOITEM                = 26,                   // item_id          bank        +referenceID       true if player does not have any of the item (if 'bank' is set it searches in bank slots too)
+    CONDITION_MAX                   = 27                    // MAX
 };
 
 enum ConditionSourceType
