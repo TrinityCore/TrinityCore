@@ -615,6 +615,8 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     m_globalCooldowns.clear();
 
     m_ConditionErrorMsgId = 0;
+
+    isDebugAreaTriggers = false;
 }
 
 Player::~Player ()

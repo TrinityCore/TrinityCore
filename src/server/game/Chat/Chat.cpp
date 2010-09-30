@@ -205,6 +205,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "uws",            SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugUpdateWorldStateCommand,    "", NULL },
         { "update",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugUpdateCommand,              "", NULL },
         { "itemexpire",     SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugItemExpireCommand,          "", NULL },
+        { "areatriggers",   SEC_ADMINISTRATOR,  false, &ChatHandler::HandleDebugAreaTriggers,               "", NULL },
         { NULL,             0,                  false, NULL,                                                "", NULL }
     };
 
