@@ -26,8 +26,8 @@ class LoginDatabaseConnection : public MySQLConnection
 {
     public:
         //- Constructors for sync and async connections
-        LoginDatabaseConnection(const MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo) {}
-        LoginDatabaseConnection(ACE_Activation_Queue* q, const MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) {}
+        LoginDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo) {}
+        LoginDatabaseConnection(ACE_Activation_Queue* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) {}
 
         //- Loads databasetype specific prepared statements
         bool Open();
