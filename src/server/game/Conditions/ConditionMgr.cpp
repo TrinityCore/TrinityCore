@@ -165,6 +165,9 @@ bool Condition::Meets(Player * player, Unit* invoker)
         case CONDITION_SPELL:
             condMeets = player->HasSpell(mConditionValue1);
             break;
+        case CONDITION_NOITEM:
+            condMeets = !player->HasItemCount(mConditionValue1, 1, mConditionValue2 ? true : false);
+            break;
         default:
             condMeets = false;
             refId = 0;
@@ -1247,6 +1250,16 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
 
             if (cond->mConditionValue2)
                 sLog.outErrorDb("Spell condition has useless data in value2 (%u)!", cond->mConditionValue2);
+            break;
+        }
+        case CONDITION_NOITEM:
+        {
+            ItemPrototype const *proto = sObjectMgr.GetItemPrototype(cond->mConditionValue1);
+            if (!proto)
+            {
+                sLog.outErrorDb("NoItem condition has non existing item (%u), skipped", cond->mConditionValue1);
+                return false;
+            }
             break;
         }
         case CONDITION_AREAID:
