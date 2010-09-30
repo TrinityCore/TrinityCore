@@ -32,7 +32,7 @@
 #include "DatabaseWorker.h"
 #include "Timer.h"
 
-MySQLConnection::MySQLConnection(const MySQLConnectionInfo& connInfo) :
+MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo) :
 m_connectionInfo(connInfo),
 m_queue(NULL),
 m_worker(NULL),
@@ -40,7 +40,7 @@ m_Mysql(NULL)
 {
 }
 
-MySQLConnection::MySQLConnection(ACE_Activation_Queue* queue, const MySQLConnectionInfo& connInfo) :
+MySQLConnection::MySQLConnection(ACE_Activation_Queue* queue, MySQLConnectionInfo& connInfo) :
 m_connectionInfo(connInfo),
 m_queue(queue),
 m_Mysql(NULL)
@@ -98,7 +98,7 @@ bool MySQLConnection::Open()
     {
         unsigned int opt = MYSQL_PROTOCOL_SOCKET;
         mysql_options(mysqlInit, MYSQL_OPT_PROTOCOL, (char const*)&opt);
-        m_connectionInfo.ChangeHost("localhost");
+        m_connectionInfo.host = "localhost";
         port = 0;
         unix_socket = m_connectionInfo.port_or_socket.c_str();
     }

@@ -53,11 +53,6 @@ struct MySQLConnectionInfo
     std::string database;
     std::string host;
     std::string port_or_socket;
-
-    void ChangeHost(const std::string& newHost) /// Needed for unix socket case
-    {
-        host = newHost;
-    }
 };
 
 class MySQLConnection
@@ -66,8 +61,8 @@ class MySQLConnection
     friend class PingOperation;
 
     public:
-        MySQLConnection(const MySQLConnectionInfo& connInfo);                               //! Constructor for synchroneous connections.
-        MySQLConnection(ACE_Activation_Queue* queue, const MySQLConnectionInfo& connInfo);  //! Constructor for asynchroneous connections.
+        MySQLConnection(MySQLConnectionInfo& connInfo);                               //! Constructor for synchroneous connections.
+        MySQLConnection(ACE_Activation_Queue* queue, MySQLConnectionInfo& connInfo);  //! Constructor for asynchroneous connections.
         ~MySQLConnection();
 
         virtual bool Open();
@@ -111,7 +106,7 @@ class MySQLConnection
         ACE_Activation_Queue* m_queue;                      //! Queue shared with other asynchroneous connections.
         DatabaseWorker*       m_worker;                     //! Core worker task.
         MYSQL *               m_Mysql;                      //! MySQL Handle.
-        const MySQLConnectionInfo& m_connectionInfo;        //! Connection info (used for logging)
+        MySQLConnectionInfo& m_connectionInfo;        //! Connection info (used for logging)
         ACE_Thread_Mutex      m_Mutex;
 };
 
