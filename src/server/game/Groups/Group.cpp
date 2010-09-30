@@ -1114,14 +1114,12 @@ void Group::SendUpdate()
         data << uint8(m_groupType);                         // group type (flags in 3.3)
         data << uint8(citr->group);
         data << uint8(citr->flags);
+        data << uint8(citr->roles);
         if (isLFGGroup())
-        {
-            data << uint8(1);
+        {            
             data << uint8(m_LfgStatus);
             data << uint32(m_LfgDungeonEntry);
         }
-        else
-            data << uint8(isBGGroup() ? 1 : 0);             // 2.0.x, isBattlegroundGroup?
 
         data << uint64(m_guid);
         data << uint32(m_counter++);                        // 3.3, value increases every time this packet gets sent
