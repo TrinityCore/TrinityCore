@@ -271,6 +271,20 @@ bool ChatHandler::HandleDebugUpdateWorldStateCommand(const char* args)
     return true;
 }
 
+bool ChatHandler::HandleDebugAreaTriggers(const char* args)
+{
+    Player* plr = m_session->GetPlayer();
+    if (!plr->isDebugAreaTriggers)
+    {
+        PSendSysMessage(LANG_DEBUG_AREATRIGGER_ON);
+        plr->isDebugAreaTriggers = true;
+    } else {
+        PSendSysMessage(LANG_DEBUG_AREATRIGGER_OFF);
+        plr->isDebugAreaTriggers = false;
+    }
+    return true;
+}
+
 bool ChatHandler::HandleDebugPlayCinematicCommand(const char* args)
 {
     // USAGE: .debug play cinematic #cinematicid

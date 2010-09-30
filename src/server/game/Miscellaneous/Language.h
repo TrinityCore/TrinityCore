@@ -802,7 +802,10 @@ enum TrinityStrings
     // Debug commands
     LANG_CINEMATIC_NOT_EXIST            = 1200,
     LANG_MOVIE_NOT_EXIST                = 1201,
-    // Room for more debug                1202-1299 not used
+    LANG_DEBUG_AREATRIGGER_ON           = 1202,
+    LANG_DEBUG_AREATRIGGER_OFF          = 1203,
+    LANG_DEBUG_AREATRIGGER_REACHED      = 1204,
+    // Room for more debug                1205-1299 not used
 
     // FREE IDS                           1300-9999
 
