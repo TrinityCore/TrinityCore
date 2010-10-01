@@ -271,7 +271,7 @@ bool ChatHandler::HandleDebugUpdateWorldStateCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleDebugAreaTriggers(const char* args)
+bool ChatHandler::HandleDebugAreaTriggers(const char* /*args*/)
 {
     Player* plr = m_session->GetPlayer();
     if (!plr->isDebugAreaTriggers)
