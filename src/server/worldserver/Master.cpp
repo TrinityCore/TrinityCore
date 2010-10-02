@@ -119,25 +119,7 @@ public:
 class RARunnable : public ACE_Based::Runnable
 {
 public:
-    uint32 numLoops, loopCounter;
-
-    RARunnable ()
-    {
-        uint32 socketSelecttime = sWorld.getIntConfig(CONFIG_SOCKET_SELECTTIME);
-        numLoops = (sConfig.GetIntDefault ("MaxPingTime", 30) * (MINUTE * 1000000 / socketSelecttime));
-        loopCounter = 0;
-    }
-
-    void checkping ()
-    {
-        // ping if need
-        if ((++loopCounter) == numLoops)
-        {
-            loopCounter = 0;
-            sLog.outDetail ("Ping MySQL to keep connection alive");
-            LoginDatabase.KeepAlive();
-        }
-    }
+    RARunnable () {}
 
     void run ()
     {
@@ -171,18 +153,12 @@ public:
         if (usera)
         {
             while (!World::IsStopped())
-            {
                 h.Select (0, socketSelecttime);
-                checkping ();
-            }
         }
         else
         {
             while (!World::IsStopped())
-            {
                 ACE_Based::Thread::Sleep(static_cast<unsigned long> (socketSelecttime / 1000));
-                // checkping (); -- What?
-            }
         }
     }
 };
