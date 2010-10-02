@@ -14959,7 +14959,7 @@ bool Player::SatisfyQuestDay(Quest const* qInfo, bool msg)
         if (!m_DFQuests.empty())
             return false;
 
-        return true
+        return true;
     }
 
     bool have_slot = false;
@@ -17240,12 +17240,13 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
 
         do
         {
-            if (Quest const* qQuest = sObjectMgr.GetQuestTemplate(result->GetUInt32(0)))
+            Field* fields = result->Fetch();
+            if (Quest const* qQuest = sObjectMgr.GetQuestTemplate(fields[0].GetUInt32()))
             {
                 if (qQuest->IsDFQuest())
                 {
                     m_DFQuests.insert(qQuest->GetQuestId());
-                    m_lastDailyQuestTime = (time_t)result->GetUInt64(1);
+                    m_lastDailyQuestTime = (time_t)fields[1].GetUInt64();
                     continue;
                 }
             }
@@ -17255,8 +17256,6 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
                 sLog.outError("Player (GUID: %u) have more 25 daily quest records in `charcter_queststatus_daily`",GetGUIDLow());
                 break;
             }
-
-            Field* fields = result->Fetch();
 
             uint32 quest_id = fields[0].GetUInt32();
 
