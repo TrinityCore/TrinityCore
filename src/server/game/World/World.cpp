@@ -1206,6 +1206,9 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_AUTOBROADCAST_CENTER] = sConfig.GetIntDefault("AutoBroadcast.Center", 0);
     m_int_configs[CONFIG_AUTOBROADCAST_INTERVAL] = sConfig.GetIntDefault("AutoBroadcast.Timer", 60000);
 
+    // MySQL ping time interval
+    m_int_configs[CONFIG_DB_PING_INTERVAL] = sConfig.GetIntDefault("MaxPingTime", 1800);
+
     sScriptMgr.OnConfigLoad(reload);
 }
 
@@ -1663,6 +1666,8 @@ void World::SetInitialWorldSettings()
     m_timers[WUPDATE_AUTOBROADCAST].SetInterval(getIntConfig(CONFIG_AUTOBROADCAST_INTERVAL));
     m_timers[WUPDATE_DELETECHARS].SetInterval(DAY*IN_MILLISECONDS); // check for chars to delete every day
 
+    m_timers[WUPDATE_PINGDB].SetInterval(getIntConfig(CONFIG_DB_PING_INTERVAL)*IN_MILLISECONDS);    // Mysql ping time in seconds
+
     //to set mailtimer to return mails every day between 4 and 5 am
     //mailtimer is increased when updating auctions
     //one second is 1000 -(tested on win system)
@@ -1984,6 +1989,16 @@ void World::Update(uint32 diff)
         uint32 nextGameEvent = sGameEventMgr.Update();
         m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);
         m_timers[WUPDATE_EVENTS].Reset();
+    }
+
+    ///- Ping to keep MySQL connections alive
+    if (m_timers[WUPDATE_PINGDB].Passed())
+    {
+        m_timers[WUPDATE_PINGDB].Reset();
+        sLog.outDetail("Ping MySQL to keep connection alive");
+        CharacterDatabase.KeepAlive();
+        LoginDatabase.KeepAlive();
+        WorldDatabase.KeepAlive();
     }
 
     // update the instance reset times

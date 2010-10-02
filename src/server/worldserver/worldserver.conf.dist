@@ -53,7 +53,8 @@
 #        Default: 1, 1, 2
 #
 #    MaxPingTime
-#        Settings for maximum database-ping interval (minutes between pings)
+#        Settings for maximum database-ping interval (seconds between pings)
+#        Default: 1800 (30 minutes)
 #
 #    WorldServerPort
 #        Default WorldServerPort
@@ -75,7 +76,7 @@ CharacterDatabase.WorkerThreads = 1
 LoginDatabase.SynchThreads = 1
 WorldDatabase.SynchThreads = 1
 CharacterDatabase.SynchThreads = 2
-MaxPingTime = 30
+MaxPingTime = 1800
 WorldServerPort = 8085
 BindIP = "0.0.0.0"
 
