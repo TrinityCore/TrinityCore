@@ -590,7 +590,7 @@ void LFGMgr::Join(Player* plr)
     else
     {
         dungeons = plr->GetLfgDungeons();
-        if (!dungeons || dungeons->size())
+        if (!dungeons || !dungeons->size())
             result = LFG_JOIN_NOT_MEET_REQS;
         else // Check if all dungeons are valid
             for (LfgDungeonSet::const_iterator it = dungeons->begin(); it != dungeons->end(); ++it)
