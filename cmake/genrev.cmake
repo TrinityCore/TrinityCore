@@ -56,6 +56,11 @@ if(NOT hg_rev_id_str MATCHES "Archive")
 endif()
 string(REPLACE "+" "" hg_rev_hash ${hg_rev_hash_str})
 
+# Its not set during initial run
+if(NOT BUILDDIR)
+  set(BUILDDIR ${CMAKE_BINARY_DIR})
+endif()
+
 # Create the actual revision.h file from the above params
 configure_file(
   "${CMAKE_SOURCE_DIR}/revision.h.in.cmake"
