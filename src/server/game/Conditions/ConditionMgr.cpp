@@ -1047,15 +1047,6 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                 sLog.outErrorDb("Quest condition has useless data in value2 (%u)!", cond->mConditionValue2);
             break;
         }
-        case CONDITION_AD_COMMISSION_AURA:
-        {
-            if (cond->mConditionValue1)
-                sLog.outErrorDb("Quest condition has useless data in value1 (%u)!", cond->mConditionValue1);
-
-            if (cond->mConditionValue2)
-                sLog.outErrorDb("Quest condition has useless data in value2 (%u)!", cond->mConditionValue2);
-            break;
-        }
         case CONDITION_NO_AURA:
         {
             if (!sSpellStore.LookupEntry(cond->mConditionValue1))
