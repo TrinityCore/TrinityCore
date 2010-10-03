@@ -173,7 +173,6 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Movement/MovementGenerators
   ${CMAKE_CURRENT_SOURCE_DIR}/Movement/Waypoints
   ${CMAKE_CURRENT_SOURCE_DIR}/OutdoorPvP
-  ${CMAKE_CURRENT_SOURCE_DIR}/OutdoorPvP/Zones
   ${CMAKE_CURRENT_SOURCE_DIR}/Pools
   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders
   ${CMAKE_CURRENT_SOURCE_DIR}/Quests
@@ -197,6 +196,8 @@ include_directories(
 )
 
 add_library(game STATIC ${game_STAT_SRCS})
+
+add_dependencies(game revision.h)
 
 # Generate precompiled header
 if( USE_COREPCH )
