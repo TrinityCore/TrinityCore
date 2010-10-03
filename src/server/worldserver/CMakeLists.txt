@@ -116,7 +116,6 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Movement/MovementGenerators
   ${CMAKE_SOURCE_DIR}/src/server/game/Movement/Waypoints
   ${CMAKE_SOURCE_DIR}/src/server/game/OutdoorPvP
-  ${CMAKE_SOURCE_DIR}/src/server/game/OutdoorPvP/Zones
   ${CMAKE_SOURCE_DIR}/src/server/game/Pools
   ${CMAKE_SOURCE_DIR}/src/server/game/PrecompiledHeaders
   ${CMAKE_SOURCE_DIR}/src/server/game/Quests
@@ -148,6 +147,8 @@ add_executable(worldserver ${worldserver_SRCS})
 if( NOT WIN32 )
   add_definitions(-D_TRINITY_CORE_CONFIG="${CONF_DIR}/worldserver.conf")
 endif()
+
+add_dependencies(worldserver revision.h)
 
 if( UNIX )
   set(worldserver_LINK_FLAGS "-pthread -lncurses ${worldserver_LINK_FLAGS}")
