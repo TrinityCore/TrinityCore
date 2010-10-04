@@ -74,6 +74,7 @@ public:
 
         void Initialize()
         {
+            SetBossNumber(MAX_ENCOUNTER);
             uiIgnisGUID           = 0;
             uiRazorscaleGUID      = 0;
             uiXT002GUID           = 0;
@@ -211,7 +212,6 @@ public:
                 switch(uiEventId)
                 {
                     case EVENT_TOWER_OF_STORM_DESTROYED:
-                        //pGO->GetInstanceScript()->SetData(DATA_TOWER_STORMS,DESTROYED);
                         pFlameLeviathan->AI()->DoAction(1);
                         break;
                     case EVENT_TOWER_OF_FROST_DESTROYED:
@@ -226,21 +226,15 @@ public:
                 }
         }
 
-        void SetData(uint32 type, uint32 data)
-        {
-            switch(type)
+        bool SetBossState(uint32 type, EncounterState state)
             {
-                /*case TYPE_IGNIS:
-                case TYPE_RAZORSCALE:
-                case TYPE_XT002:
-                case TYPE_ASSEMBLY:
-                case TYPE_AURIAYA:
-                case TYPE_MIMIRON:
-                case TYPE_VEZAX:
-                case TYPE_YOGGSARON:
-                    break;*/
+                if (!InstanceScript::SetBossState(type, state))
+                    return false;
+
+                switch (type)
+                {
                 case TYPE_LEVIATHAN:
-                    if (data == IN_PROGRESS)
+                    if (state == IN_PROGRESS)
                     {
                         for (uint8 uiI = 0; uiI < 7; ++uiI)
                             HandleGameObject(uiLeviathanDoor[uiI],false);
@@ -251,26 +245,44 @@ public:
                             HandleGameObject(uiLeviathanDoor[uiI],true);
                     }
                     break;
+                case TYPE_IGNIS:
+                case TYPE_RAZORSCALE:
+                case TYPE_XT002:
+                case TYPE_ASSEMBLY:
+                case TYPE_AURIAYA:
+                case TYPE_MIMIRON:
+                case TYPE_VEZAX:
+                case TYPE_YOGGSARON:
+                    break;
                 case TYPE_KOLOGARN:
-                    if (data == DONE)
+                    if (state == DONE)
                         if (GameObject* pGO = instance->GetGameObject(uiKologarnChestGUID))
                             pGO->SetRespawnTime(pGO->GetRespawnDelay());
                     break;
                 case TYPE_HODIR:
-                    if (data == DONE)
+                    if (state == DONE)
                         if (GameObject* pGO = instance->GetGameObject(uiHodirChestGUID))
                             pGO->SetRespawnTime(pGO->GetRespawnDelay());
                     break;
                 case TYPE_THORIM:
-                    if (data == DONE)
+                    if (state == DONE)
                         if (GameObject* pGO = instance->GetGameObject(uiThorimChestGUID))
                             pGO->SetRespawnTime(pGO->GetRespawnDelay());
                     break;
                 case TYPE_FREYA:
-                    if (data == DONE)
+                    if (state == DONE)
                         if (GameObject* pGO = instance->GetGameObject(uiFreyaChestGUID))
                             pGO->SetRespawnTime(pGO->GetRespawnDelay());
                     break;
+                 }
+
+                 return true;
+            }
+
+        void SetData(uint32 type, uint32 data)
+        {
+            switch(type)
+            {
                 case TYPE_COLOSSUS:
                     uiEncounter[TYPE_COLOSSUS] = data;
                     if (data == 2)
@@ -279,14 +291,12 @@ public:
                             pBoss->AI()->DoAction(10);
                         if (GameObject* pGate = instance->GetGameObject(uiLeviathanGateGUID))
                             pGate->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                        SaveToDB();
                     }
                     break;
                 default:
                     break;
             }
-
-            if (data == DONE)
-                SaveToDB();
         }
 
         uint64 GetData64(uint32 data)
@@ -320,20 +330,6 @@ public:
         {
             switch(type)
             {
-                case TYPE_LEVIATHAN:
-                case TYPE_IGNIS:
-                case TYPE_RAZORSCALE:
-                case TYPE_XT002:
-                case TYPE_ASSEMBLY:
-                case TYPE_KOLOGARN:
-                case TYPE_AURIAYA:
-                case TYPE_MIMIRON:
-                case TYPE_HODIR:
-                case TYPE_THORIM:
-                case TYPE_FREYA:
-                case TYPE_VEZAX:
-                case TYPE_YOGGSARON:
-                case TYPE_ALGALON:
                 case TYPE_COLOSSUS:
                     return uiEncounter[type];
             }
@@ -346,15 +342,10 @@ public:
             OUT_SAVE_INST_DATA;
 
             std::ostringstream saveStream;
-            saveStream << "U U " << uiEncounter[0] << " " << uiEncounter[1] << " " << uiEncounter[2] << " " << uiEncounter[3]
-                       << " " << uiEncounter[4] << " " << uiEncounter[5] << " " << uiEncounter[6] << " " << uiEncounter[7]
-                       << " " << uiEncounter[8] << " " << uiEncounter[9] << " " << uiEncounter[10] << " " << uiEncounter[11]
-                       << " " << uiEncounter[12] << " " << uiEncounter[13] << " " << uiEncounter[14];
-
-            m_strInstData = saveStream.str();
+            saveStream << "U U " << GetBossSaveData() << " " << uiEncounter[14];
 
             OUT_SAVE_INST_DATA_COMPLETE;
-            return m_strInstData;
+            return saveStream.str();
         }
 
         void Load(const char* strIn)
@@ -368,21 +359,21 @@ public:
             OUT_LOAD_INST_DATA(strIn);
 
             char dataHead1, dataHead2;
-            uint32 data0, data1, data2, data3, data4, data5, data6,
-                data7, data8, data9, data10, data11, data12, data13, data14;
+            uint32 data14;
 
             std::istringstream loadStream(strIn);
-            loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3 >> data4 >> data5 >> data6
-                >> data7 >> data8 >> data9 >> data10 >> data11 >> data12 >> data13 >> data14;
+            loadStream >> dataHead1 >> dataHead2 >> data14;
 
             if (dataHead1 == 'U' && dataHead2 == 'U')
             {
                 for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 {
-                    loadStream >> uiEncounter[i];
-
-                    if (uiEncounter[i] == IN_PROGRESS)
-                        uiEncounter[i] = NOT_STARTED;
+                    uint32 tmpState;
+                    loadStream >> tmpState;
+                    loadStream >> uiEncounter[data14]; //colossus pre leviathan
+                    if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                        tmpState = NOT_STARTED;
+                    SetBossState(i, EncounterState(tmpState));
                 }
             }
             OUT_LOAD_INST_DATA_COMPLETE;
