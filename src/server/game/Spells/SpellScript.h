@@ -192,8 +192,19 @@ class SpellScript : public _SpellScript
         SpellEntry const * GetSpellInfo();
 
         // methods useable after spell targets are set
-        // returns: destination of the spell if exists, otherwise NULL
-        WorldLocation * GetDest();
+        // accessors to the "focus" targets of the spell
+        // note: do not confuse these with spell hit targets
+        // returns: WorldLocation which was selected as a spell destination or NULL
+        WorldLocation * GetTargetDest();
+
+        // returns: Unit which was selected as a spell target or NULL
+        Unit * GetTargetUnit();
+
+        // returns: GameObject which was selected as a spell target or NULL
+        GameObject * GetTargetGObj();
+
+        // returns: Item which was selected as a spell target or NULL
+        Item * GetTargetItem();
 
         // methods useable only during spell hit on target phase:
 
