@@ -210,11 +210,26 @@ SpellEntry const * SpellScript::GetSpellInfo()
     return m_spell->GetSpellInfo();
 }
 
-WorldLocation * SpellScript::GetDest()
+WorldLocation * SpellScript::GetTargetDest()
 {
     if (m_spell->m_targets.HasDst())
         return &m_spell->m_targets.m_dstPos;
     return NULL;
+}
+
+Unit * SpellScript::GetTargetUnit()
+{
+    return m_spell->m_targets.getUnitTarget();
+}
+
+GameObject * SpellScript::GetTargetGObj()
+{
+    return m_spell->m_targets.getGOTarget();
+}
+
+Item * SpellScript::GetTargetItem()
+{
+    return m_spell->m_targets.getItemTarget();
 }
 
 Unit * SpellScript::GetHitUnit()
