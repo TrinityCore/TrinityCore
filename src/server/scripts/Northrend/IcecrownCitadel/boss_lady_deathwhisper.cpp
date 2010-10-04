@@ -754,11 +754,11 @@ class spell_deathwhisper_mana_barrier : public SpellScriptLoader
                 int32 missingHealth = caster->GetMaxHealth() - caster->GetHealth();
                 caster->ModifyHealth(missingHealth);
                 caster->ModifyPower(POWER_MANA, -missingHealth);
+                PreventDefaultAction();
             }
 
             void Register()
             {
-                PreventDefaultEffect(EFFECT_0);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_deathwhisper_mana_barrier_AuraScript::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };

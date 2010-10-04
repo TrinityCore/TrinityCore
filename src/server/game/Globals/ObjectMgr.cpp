@@ -5234,15 +5234,17 @@ void ObjectMgr::ValidateSpellScripts()
             }
             if (spellScript)
             {
-                spellScript->Register();
-                if (!spellScript->_Validate(spellEntry, sObjectMgr.GetScriptName(sitr->second->second)))
+                spellScript->_Init(&sitr->first->GetName(), spellEntry->Id);
+                spellScript->_Register();
+                if (!spellScript->_Validate(spellEntry))
                     valid = false;
                 delete spellScript;
             }
             if (auraScript)
             {
-                auraScript->Register();
-                if (!auraScript->_Validate(spellEntry, sObjectMgr.GetScriptName(sitr->second->second)))
+                auraScript->_Init(&sitr->first->GetName(), spellEntry->Id);
+                auraScript->_Register();
+                if (!auraScript->_Validate(spellEntry))
                     valid = false;
                 delete auraScript;
             }

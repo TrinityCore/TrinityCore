@@ -41,13 +41,26 @@ class WorldObject;
 #define SPELL_EFFECT_ANY (uint16)-1
 #define SPELL_AURA_ANY (uint16)-1
 
+enum SpellScriptState
+{
+    SPELL_SCRIPT_STATE_NONE = 0,
+    SPELL_SCRIPT_STATE_REGISTRATION,
+    SPELL_SCRIPT_STATE_LOADING,
+    SPELL_SCRIPT_STATE_UNLOADING,
+};
+#define SPELL_SCRIPT_STATE_END SPELL_SCRIPT_STATE_UNLOADING + 1
+
 // helper class from which SpellScript and SpellAura derive, use these classes instead
 class _SpellScript
 {
     // internal use classes & functions
     // DO NOT OVERRIDE THESE IN SCRIPTS
     protected:
-        virtual bool _Validate(SpellEntry const * entry, const char * scriptname);
+        virtual bool _Validate(SpellEntry const * entry);
+    public:
+        virtual void _Register();
+        virtual void _Unload();
+        virtual void _Init(const std::string * scriptname, uint32 spellId);
     protected:
         class EffectHook
         {
@@ -78,6 +91,10 @@ class _SpellScript
             private:
                 uint16 effAurName;
         };
+
+        uint8 m_currentScriptState;
+        const std::string * m_scriptName;
+        uint32 m_scriptSpellId;
     public:
         //
         // SpellScript/AuraScript interface base
@@ -116,7 +133,7 @@ class SpellScript : public _SpellScript
         };
         typedef SpellHitFnType HitHandler;
     public:
-        bool _Validate(SpellEntry const * entry, const char * scriptname);
+        bool _Validate(SpellEntry const * entry);
         bool _Load(Spell * spell);
         void _InitHit();
         bool _IsEffectPrevented(SpellEffIndex effIndex) {return m_hitPreventEffectMask & (1<<effIndex);};
@@ -209,6 +226,23 @@ class SpellScript : public _SpellScript
         void CreateItem(uint32 effIndex, uint32 itemId);
 };
 
+// AuraScript interface - enum used for manipulations on hooks by their type
+enum AuraScriptHookType
+{
+    AURA_SCRIPT_HOOK_EFFECT_APPLY = SPELL_SCRIPT_STATE_END,
+    AURA_SCRIPT_HOOK_EFFECT_REMOVE,
+    AURA_SCRIPT_HOOK_EFFECT_PERIODIC,
+    AURA_SCRIPT_HOOK_EFFECT_UPDATE_PERIODIC,
+    AURA_SCRIPT_HOOK_EFFECT_CALC_AMOUNT,
+    AURA_SCRIPT_HOOK_EFFECT_CALC_PERIODIC,
+    AURA_SCRIPT_HOOK_EFFECT_CALC_SPELLMOD,
+    /*AURA_SCRIPT_HOOK_APPLY,
+    AURA_SCRIPT_HOOK_REMOVE,*/
+};
+#define HOOK_AURA_EFFECT_START HOOK_AURA_EFFECT_APPLY
+#define HOOK_AURA_EFFECT_END HOOK_AURA_EFFECT_CALC_SPELLMOD + 1
+#define HOOK_AURA_EFFECT_COUNT HOOK_AURA_EFFECT_END - HOOK_AURA_EFFECT_START
+
 class AuraScript : public _SpellScript
 {
     // internal use classes & functions
@@ -278,20 +312,14 @@ class AuraScript : public _SpellScript
                 AuraEffectHandleModes mode;
         };
     public:
-        bool _Validate(SpellEntry const * entry, const char * scriptname);
+        bool _Validate(SpellEntry const * entry);
         bool _Load(Aura * aura);
-        void _ResetDefault() { m_defaultPreventedActionsMask = 0; }
-        bool _IsDefaultActionPrevented(SpellEffIndex effIndex)
-        {
-            uint8 effIndexMask = 1 << effIndex;
-            return (m_defaultPreventedActionsMask & effIndexMask) || (m_defaultPreventedEffectsMask & effIndexMask);
-        }
-        void PreventDefaultAction(SpellEffIndex effIndex) { m_defaultPreventedActionsMask |= 1 << effIndex; }
-        void PreventDefaultEffect(SpellEffIndex effIndex) { m_defaultPreventedEffectsMask |= 1 << effIndex; }
+        void _PrepareScriptCall(AuraScriptHookType hookType);
+        void _FinishScriptCall();
+        bool _IsDefaultActionPrevented();
     private:
         Aura * m_aura;
-        uint8 m_defaultPreventedActionsMask;
-        uint8 m_defaultPreventedEffectsMask;
+        bool m_defaultActionPrevented;
     public:
         //
         // AuraScript interface
@@ -337,6 +365,11 @@ class AuraScript : public _SpellScript
         // where function is: void function (AuraEffect const * aurEff, SpellModifier *& spellMod);
         HookList<EffectCalcSpellModHandler> OnEffectCalcSpellMod;
         #define AuraEffectCalcSpellModFn(F, I, N) EffectCalcSpellModHandler((AuraEffectCalcSpellModFnType)&F, I, N)
+
+        // AuraScript interface - hook/effect execution manipulators
+
+        // prevents default action of a hook from being executed (works only while called in a hook which default action can be prevented)
+        void PreventDefaultAction();
 
         // AuraScript interface - functions which are redirecting to Aura class
 
