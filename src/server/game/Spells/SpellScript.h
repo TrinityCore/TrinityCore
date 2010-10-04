@@ -113,6 +113,20 @@ class _SpellScript
         virtual void Unload() {};
 };
 
+// SpellScript interface - enum used for runtime checks of script function calls
+enum SpellScriptHookType
+{
+    SPELL_SCRIPT_HOOK_EFFECT = SPELL_SCRIPT_STATE_END,
+    SPELL_SCRIPT_HOOK_BEFORE_HIT,
+    SPELL_SCRIPT_HOOK_HIT,
+    SPELL_SCRIPT_HOOK_AFTER_HIT,
+};
+#define HOOK_SPELL_HIT_START SPELL_SCRIPT_HOOK_EFFECT
+#define HOOK_SPELL_HIT_END SPELL_SCRIPT_HOOK_AFTER_HIT + 1
+#define HOOK_SPELL_START SPELL_SCRIPT_HOOK_EFFECT
+#define HOOK_SPELL_END SPELL_SCRIPT_HOOK_AFTER_HIT + 1
+#define HOOK_SPELL_COUNT HOOK_SPELL_END - HOOK_SPELL_START
+
 class SpellScript : public _SpellScript
 {
     // internal use classes & functions
@@ -138,6 +152,8 @@ class SpellScript : public _SpellScript
         void _InitHit();
         bool _IsEffectPrevented(SpellEffIndex effIndex) {return m_hitPreventEffectMask & (1<<effIndex);};
         bool _IsDefaultEffectPrevented(SpellEffIndex effIndex) {return m_hitPreventDefaultEffectMask & (1<<effIndex);};
+        bool IsInHitPhase() { return (m_currentScriptState >= HOOK_SPELL_HIT_START && m_currentScriptState < HOOK_SPELL_HIT_END); };
+        bool IsInEffectHook() { return (m_currentScriptState == SPELL_SCRIPT_HOOK_EFFECT); };
     private:
         Spell * m_spell;
         uint8 m_hitPreventEffectMask;
@@ -226,7 +242,7 @@ class SpellScript : public _SpellScript
         void CreateItem(uint32 effIndex, uint32 itemId);
 };
 
-// AuraScript interface - enum used for manipulations on hooks by their type
+// AuraScript interface - enum used for runtime checks of script function calls
 enum AuraScriptHookType
 {
     AURA_SCRIPT_HOOK_EFFECT_APPLY = SPELL_SCRIPT_STATE_END,

@@ -219,11 +219,21 @@ WorldLocation * SpellScript::GetDest()
 
 Unit * SpellScript::GetHitUnit()
 {
+    if (!IsInHitPhase())
+    {
+        sLog.outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::GetHitUnit was called while spell not in hit phase!", m_scriptName, m_scriptSpellId);
+        return NULL;
+    }
     return m_spell->unitTarget;
 }
 
 Creature * SpellScript::GetHitCreature()
 {
+    if (!IsInHitPhase())
+    {
+        sLog.outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::GetHitCreature was called while spell not in hit phase!", m_scriptName, m_scriptSpellId);
+        return NULL;
+    }
     if (m_spell->unitTarget)
         return m_spell->unitTarget->ToCreature();
     else
@@ -232,6 +242,11 @@ Creature * SpellScript::GetHitCreature()
 
 Player * SpellScript::GetHitPlayer()
 {
+    if (!IsInHitPhase())
+    {
+        sLog.outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::GetHitPlayer was called while spell not in hit phase!", m_scriptName, m_scriptSpellId);
+        return NULL;
+    }
     if (m_spell->unitTarget)
         return m_spell->unitTarget->ToPlayer();
     else
@@ -240,36 +255,71 @@ Player * SpellScript::GetHitPlayer()
 
 Item * SpellScript::GetHitItem()
 {
+    if (!IsInHitPhase())
+    {
+        sLog.outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::GetHitItem was called while spell not in hit phase!", m_scriptName, m_scriptSpellId);
+        return NULL;
+    }
     return m_spell->itemTarget;
 }
 
 GameObject * SpellScript::GetHitGObj()
 {
+    if (!IsInHitPhase())
+    {
+        sLog.outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::GetHitGObj was called while spell not in hit phase!", m_scriptName, m_scriptSpellId);
+        return NULL;
+    }
     return m_spell->gameObjTarget;
 }
 
 int32 SpellScript::GetHitDamage()
 {
+    if (!IsInHitPhase())
+    {
+        sLog.outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::GetHitDamage was called while spell not in hit phase!", m_scriptName, m_scriptSpellId);
+        return NULL;
+    }
     return m_spell->m_damage;
 }
 
 void SpellScript::SetHitDamage(int32 damage)
 {
+    if (!IsInHitPhase())
+    {
+        sLog.outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::SetHitDamage was called while spell not in hit phase!", m_scriptName, m_scriptSpellId);
+        return;
+    }
     m_spell->m_damage = damage;
 }
 
 int32 SpellScript::GetHitHeal()
 {
+    if (!IsInHitPhase())
+    {
+        sLog.outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::GetHitHeal was called while spell not in hit phase!", m_scriptName, m_scriptSpellId);
+        return NULL;
+    }
     return m_spell->m_healing;
 }
 
 void SpellScript::SetHitHeal(int32 heal)
 {
+    if (!IsInHitPhase())
+    {
+        sLog.outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::SetHitHeal was called while spell not in hit phase!", m_scriptName, m_scriptSpellId);
+        return;
+    }
     m_spell->m_healing = heal;
 }
 
 Aura* SpellScript::GetHitAura()
 {
+    if (!IsInHitPhase())
+    {
+        sLog.outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::GetHitAura was called while spell not in hit phase!", m_scriptName, m_scriptSpellId);
+        return NULL;
+    }
     if (!m_spell->m_spellAura)
         return NULL;
     if (m_spell->m_spellAura->IsRemoved())
@@ -279,23 +329,43 @@ Aura* SpellScript::GetHitAura()
 
 void SpellScript::PreventHitAura()
 {
+    if (!IsInHitPhase())
+    {
+        sLog.outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::PreventHitAura was called while spell not in hit phase!", m_scriptName, m_scriptSpellId);
+        return;
+    }
     if (m_spell->m_spellAura)
         m_spell->m_spellAura->Remove();
 }
 
 void SpellScript::PreventHitEffect(SpellEffIndex effIndex)
 {
+    if (!IsInHitPhase())
+    {
+        sLog.outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::PreventHitEffect was called while spell not in hit phase!", m_scriptName, m_scriptSpellId);
+        return;
+    }
     m_hitPreventEffectMask |= 1 << effIndex;
     PreventHitDefaultEffect(effIndex);
 }
 
 void SpellScript::PreventHitDefaultEffect(SpellEffIndex effIndex)
 {
+    if (!IsInHitPhase())
+    {
+        sLog.outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::PreventHitDefaultEffect was called while spell not in hit phase!", m_scriptName, m_scriptSpellId);
+        return;
+    }
     m_hitPreventDefaultEffectMask |= 1 << effIndex;
 }
 
 int32 SpellScript::GetEffectValue()
 {
+    if (!IsInEffectHook())
+    {
+        sLog.outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::PreventHitDefaultEffect was called while spell not in hit phase!", m_scriptName, m_scriptSpellId);
+        return 0;
+    }
     return m_spell->damage;
 }
 
