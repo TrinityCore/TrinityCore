@@ -211,40 +211,36 @@ public:
 
     class spell_hun_masters_call_SpellScript : public SpellScript
     {
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        bool Validate(SpellEntry const * spellEntry)
         {
             if (!sSpellStore.LookupEntry(HUNTER_SPELL_MASTERS_CALL_TRIGGERED))
+                return false;
+            if (!sSpellStore.LookupEntry(SpellMgr::CalculateSpellEffectAmount(spellEntry, EFFECT_0)))
+                return false;
+            if (!sSpellStore.LookupEntry(SpellMgr::CalculateSpellEffectAmount(spellEntry, EFFECT_1)))
                 return false;
             return true;
         }
 
-        void HandleDummy(SpellEffIndex effIndex)
-        {
-            Unit *caster = GetCaster();
-            Unit *unitTarget = GetHitUnit();
-
-            if (caster->GetTypeId() != TYPEID_PLAYER || !unitTarget)
-                return;
-
-            if (Pet *pet = caster->ToPlayer()->GetPet())
-                if (pet->isAlive())
-                    pet->CastSpell(unitTarget, SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), effIndex), true);
-        }
-
         void HandleScriptEffect(SpellEffIndex /*effIndex*/)
         {
-            Unit* caster = GetCaster();
-            if (caster->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            if (Pet *pet = caster->ToPlayer()->GetPet())
-                if (pet->isAlive())
-                    caster->CastSpell(pet, HUNTER_SPELL_MASTERS_CALL_TRIGGERED, true);
+            if (Unit * target = GetHitUnit())
+            {
+                target->CastSpell(target, GetEffectValue(), true);
+                target->CastSpell(target, HUNTER_SPELL_MASTERS_CALL_TRIGGERED, true);
+                // there is a possibility that this effect should access effect 0 (dummy) target, but i dubt that
+                // it's more likely that on on retail it's possible to call target selector based on dbc values
+                // anyways, we're using GetTargetUnit() here and it's ok
+                if (Unit * ally = GetTargetUnit())
+                {
+                    target->CastSpell(ally, GetEffectValue(), true);
+                    target->CastSpell(ally, SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), EFFECT_0), true);
+                }
+            }
         }
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_hun_masters_call_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             OnEffect += SpellEffectFn(spell_hun_masters_call_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
