@@ -961,11 +961,12 @@ class spell_deathbringer_blood_link_aura : public SpellScriptLoader
                 if (GetUnitOwner()->getPowerType() == POWER_ENERGY && GetUnitOwner()->GetPower(POWER_ENERGY) == GetUnitOwner()->GetMaxPower(POWER_ENERGY))
                     if (Creature* saurfang = GetUnitOwner()->ToCreature())
                         saurfang->AI()->DoAction(ACTION_MARK_OF_THE_FALLEN_CHAMPION);
+
+                PreventDefaultAction();
             }
 
             void Register()
             {
-                PreventDefaultEffect(EFFECT_1);
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_deathbringer_blood_link_AuraScript::HandlePeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
             }
 

@@ -307,6 +307,8 @@ void ScriptMgr::CreateSpellScripts(uint32 spell_id, std::list<SpellScript *> & s
         if (!script)
             continue;
 
+        script->_Init(&tmpscript->GetName(), spell_id);
+
         script_vector.push_back(script);
     }
 }
@@ -325,6 +327,8 @@ void ScriptMgr::CreateAuraScripts(uint32 spell_id, std::list<AuraScript *> & scr
 
         if (!script)
             continue;
+
+        script->_Init(&tmpscript->GetName(), spell_id);
 
         script_vector.push_back(script);
     }
