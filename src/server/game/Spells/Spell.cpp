@@ -541,10 +541,11 @@ Spell::~Spell()
     while(!m_loadedScripts.empty())
     {
         std::list<SpellScript *>::iterator itr = m_loadedScripts.begin();
-        (*itr)->Unload();
+        (*itr)->_Unload();
         delete (*itr);
         m_loadedScripts.erase(itr);
     }
+
     if (m_referencedFromCurrentSpell && m_selfContainer && *m_selfContainer == this)
     {
         // Clean the reference to avoid later crash.
