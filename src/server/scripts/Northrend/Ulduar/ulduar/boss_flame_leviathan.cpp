@@ -212,7 +212,6 @@ public:
         boss_flame_leviathanAI(Creature* pCreature) : BossAI(pCreature, TYPE_LEVIATHAN), vehicle(pCreature->GetVehicleKit())
         {
             assert(vehicle);
-            pInstance = me->GetInstanceScript();
             uiActiveTowers = 4;
             uiShutdown = 0;
             ActiveTowers = false;
@@ -220,13 +219,12 @@ public:
             towerOfLife = false;
             towerOfFlames = false;
             towerOfFrost = false;
+
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); //deathgrip
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
             me->SetReactState(REACT_PASSIVE);
         }
-
-        InstanceScript* pInstance;
 
         Vehicle* vehicle;
         uint8 uiActiveTowers;
@@ -240,7 +238,6 @@ public:
         void Reset()
         {
             _Reset();
-            pInstance->SetData(TYPE_LEVIATHAN, NOT_STARTED);
             me->SetReactState(REACT_DEFENSIVE);
             InstallAdds(true);
         }
@@ -248,7 +245,6 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-            pInstance->SetData(TYPE_LEVIATHAN, IN_PROGRESS);
             me->SetReactState(REACT_AGGRESSIVE);
             events.ScheduleEvent(EVENT_PURSUE, 30*IN_MILLISECONDS);
             events.ScheduleEvent(EVENT_MISSILE, 1500);
@@ -347,7 +343,6 @@ public:
         void JustDied(Unit* /*victim*/)
         {
             _JustDied();
-            pInstance->SetData(TYPE_LEVIATHAN, DONE); //_Reset doesnt do this correctly
             DoScriptText(SAY_DEATH, me);
 
             if (ActiveTowers)
@@ -355,13 +350,13 @@ public:
                 switch (uiActiveTowers)
                 {
                 case 4:
-                    pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBIT_UARY, ACHIEV_25_ORBIT_UARY));
+                    instance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBIT_UARY, ACHIEV_25_ORBIT_UARY));
                 case 3:
-                    pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_NUKED_FROM_ORBIT, ACHIEV_25_NUKED_FROM_ORBIT));
+                    instance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_NUKED_FROM_ORBIT, ACHIEV_25_NUKED_FROM_ORBIT));
                 case 2:
-                    pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBITAL_DEVASTATION, ACHIEV_25_ORBITAL_DEVASTATION));
+                    instance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBITAL_DEVASTATION, ACHIEV_25_ORBITAL_DEVASTATION));
                 case 1:
-                    pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBITAL_BOMBARDMENT, ACHIEV_25_ORBITAL_BOMBARDMENT));
+                    instance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBITAL_BOMBARDMENT, ACHIEV_25_ORBITAL_BOMBARDMENT));
                 }
             }
         }
@@ -751,10 +746,10 @@ public:
     {
         boss_flame_leviathan_overload_deviceAI(Creature* pCreature) : PassiveAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript *instance;
 
         void DoAction(const int32 param)
         {
@@ -922,24 +917,15 @@ public:
     {
         npc_colossusAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript *instance;
 
         void JustDied(Unit* /*Who*/)
         {
             if (me->GetHomePosition().IsInDist(Center,50.f))
-            {
-                if (pInstance)
-                    pInstance->SetData(TYPE_COLOSSUS,pInstance->GetData(TYPE_COLOSSUS)+1);
-
-                if (pInstance)
-                {
-                    if (pInstance->GetData(TYPE_COLOSSUS == 2))
-                        pInstance->SetBossState(DATA_PRELEVIATHAN, DONE); // Unlocks the Teleport 2nd Location
-                }
-            }
+                instance->SetData(TYPE_COLOSSUS,instance->GetData(TYPE_COLOSSUS)+1);
         }
 
         void UpdateAI(const uint32 /*diff*/)
@@ -1197,14 +1183,14 @@ public:
     bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
-        InstanceScript* pInstance = pCreature->GetInstanceScript();
+        InstanceScript* instance = pCreature->GetInstanceScript();
         switch(uiAction)
         {
         case GOSSIP_ACTION_INFO_DEF+1:
             if (pPlayer)
             {
                 pPlayer->PrepareGossipMenu(pCreature);
-                pInstance->instance->LoadGrid(364,-16); //make sure leviathan is loaded
+                instance->instance->LoadGrid(364,-16); //make sure leviathan is loaded
 
 
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_ITEM_2,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+2);
@@ -1215,7 +1201,7 @@ public:
             if (pPlayer)
                 pPlayer->CLOSE_GOSSIP_MENU();
 
-            if (Creature* pLeviathan = pInstance->instance->GetCreature(pInstance->GetData64(TYPE_LEVIATHAN)))
+            if (Creature* pLeviathan = instance->instance->GetCreature(instance->GetData64(TYPE_LEVIATHAN)))
             {
                 CAST_AI(boss_flame_leviathan::boss_flame_leviathanAI, (pLeviathan->AI()))->DoAction(0); //enable hard mode activating the 4 additional events spawning additional vehicles
                 pCreature->SetVisibility(VISIBILITY_OFF);
@@ -1236,8 +1222,8 @@ public:
 
     bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
-        InstanceScript* pInstance = pCreature->GetInstanceScript();
-        if (pInstance && pInstance->GetData(TYPE_LEVIATHAN) !=DONE && pPlayer)
+        InstanceScript* instance = pCreature->GetInstanceScript();
+        if (instance && instance->GetData(TYPE_LEVIATHAN) !=DONE && pPlayer)
         {
             pPlayer->PrepareGossipMenu(pCreature);
 
@@ -1256,10 +1242,10 @@ public:
     {
         npc_lorekeeperAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = pCreature->GetInstanceScript();
+            instance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void DoAction(const int32 uiAction)
         {
@@ -1314,8 +1300,8 @@ public:
     //}
     //bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     //{
-    //    InstanceScript* pInstance = pCreature->GetInstanceScript();
-    //    if (pInstance && pInstance->GetData(TYPE_LEVIATHAN) !=DONE)
+    //    InstanceScript* instance = pCreature->GetInstanceScript();
+    //    if (instance && instance->GetData(TYPE_LEVIATHAN) !=DONE)
     //    {
     //        pPlayer->PrepareGossipMenu(pCreature);
     //
@@ -1335,22 +1321,22 @@ public:
 
     void OnDestroyed(Player* /*pPlayer*/, GameObject* pGO, uint32 /*value*/)
     {
-        InstanceScript* pInstance = pGO->GetInstanceScript();
+        InstanceScript* instance = pGO->GetInstanceScript();
         if (pGO->GetGOValue()->building.health == 0)
         {
             switch(pGO->GetEntry())
             {
             case GO_TOWER_OF_STORMS:
-                pInstance->ProcessEvent(pGO, EVENT_TOWER_OF_STORM_DESTROYED);
+                instance->ProcessEvent(pGO, EVENT_TOWER_OF_STORM_DESTROYED);
                 break;
             case GO_TOWER_OF_FLAMES:
-                pInstance->ProcessEvent(pGO, EVENT_TOWER_OF_FLAMES_DESTROYED);
+                instance->ProcessEvent(pGO, EVENT_TOWER_OF_FLAMES_DESTROYED);
                 break;
             case GO_TOWER_OF_FROST:
-                pInstance->ProcessEvent(pGO, EVENT_TOWER_OF_FROST_DESTROYED);
+                instance->ProcessEvent(pGO, EVENT_TOWER_OF_FROST_DESTROYED);
                 break;
             case GO_TOWER_OF_LIFE:
-                pInstance->ProcessEvent(pGO, EVENT_TOWER_OF_LIFE_DESTROYED);
+                instance->ProcessEvent(pGO, EVENT_TOWER_OF_LIFE_DESTROYED);
                 break;
             }
         }
