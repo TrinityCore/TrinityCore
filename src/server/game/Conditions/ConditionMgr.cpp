@@ -156,6 +156,28 @@ bool Condition::Meets(Player * player, Unit* invoker)
         case CONDITION_NOITEM:
             condMeets = !player->HasItemCount(mConditionValue1, 1, mConditionValue2 ? true : false);
             break;
+        case CONDITION_LEVEL:
+            {
+                switch (mConditionValue2)
+                {
+                    case 0:
+                        condMeets = player->getLevel() == mConditionValue1;
+                        break;
+                    case 1:
+                        condMeets = player->getLevel() > mConditionValue1;
+                        break;
+                    case 2:
+                        condMeets = player->getLevel() < mConditionValue1;
+                        break;
+                    case 3:
+                        condMeets = player->getLevel() >= mConditionValue1;
+                        break;
+                    case 4:
+                        condMeets = player->getLevel() <= mConditionValue1;
+                        break;
+                }
+                break;
+            }
         default:
             condMeets = false;
             refId = 0;
@@ -1241,6 +1263,15 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
             }
             break;
         }
+        case CONDITION_LEVEL:
+            {
+                if (cond->mConditionValue2 > 4)
+                {
+                    sLog.outErrorDb("Level condition has invalid option (%u), skipped", cond->mConditionValue2);
+                    return false;
+                }
+                break;
+            }
         case CONDITION_AREAID:
         case CONDITION_INSTANCE_DATA:
             break;
