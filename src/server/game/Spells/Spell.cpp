@@ -7219,6 +7219,7 @@ bool Spell::CallScriptEffectHandlers(SpellEffIndex effIndex)
     bool preventDefault = false;
     for(std::list<SpellScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
     {
+        (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_EFFECT);
         std::list<SpellScript::EffectHandler>::iterator effEndItr = (*scritr)->OnEffect.end(), effItr = (*scritr)->OnEffect.begin();
         for(; effItr != effEndItr ; ++effItr)
         {
@@ -7228,6 +7229,7 @@ bool Spell::CallScriptEffectHandlers(SpellEffIndex effIndex)
         }
         if (!preventDefault)
             preventDefault = (*scritr)->_IsDefaultEffectPrevented(effIndex);
+        (*scritr)->_FinishScriptCall();
     }
     return preventDefault;
 }
@@ -7236,11 +7238,13 @@ void Spell::CallScriptBeforeHitHandlers()
 {
     for(std::list<SpellScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
     {
+        (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_BEFORE_HIT);
         std::list<SpellScript::HitHandler>::iterator hookItrEnd = (*scritr)->BeforeHit.end(), hookItr = (*scritr)->BeforeHit.begin();
         for(; hookItr != hookItrEnd ; ++hookItr)
         {
             ((*scritr)->*(*hookItr))();
         }
+        (*scritr)->_FinishScriptCall();
     }
 }
 
@@ -7248,11 +7252,13 @@ void Spell::CallScriptOnHitHandlers()
 {
     for(std::list<SpellScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
     {
+        (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_HIT);
         std::list<SpellScript::HitHandler>::iterator hookItrEnd = (*scritr)->OnHit.end(), hookItr = (*scritr)->OnHit.begin();
         for(; hookItr != hookItrEnd ; ++hookItr)
         {
             ((*scritr)->*(*hookItr))();
         }
+        (*scritr)->_FinishScriptCall();
     }
 }
 
@@ -7260,10 +7266,12 @@ void Spell::CallScriptAfterHitHandlers()
 {
     for(std::list<SpellScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
     {
+        (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_AFTER_HIT);
         std::list<SpellScript::HitHandler>::iterator hookItrEnd = (*scritr)->AfterHit.end(), hookItr = (*scritr)->AfterHit.begin();
         for(; hookItr != hookItrEnd ; ++hookItr)
         {
             ((*scritr)->*(*hookItr))();
         }
+        (*scritr)->_FinishScriptCall();
     }
 }
