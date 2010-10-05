@@ -60,6 +60,16 @@ enum ConditionType
     CONDITION_MAX                   = 28                    // MAX
 };
 
+enum LevelConditionType
+{
+    LVL_COND_EQ = 0,
+    LVL_COND_HIGH = 1,
+    LVL_COND_LOW = 2,
+    LVL_COND_HIGH_EQ = 3,
+    LVL_COND_LOW_EQ = 4,
+    LVL_COND_MAX = 5,
+};
+
 enum ConditionSourceType
 {
     CONDITION_SOURCE_TYPE_NONE                           = 0,//DONE
