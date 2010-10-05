@@ -160,19 +160,19 @@ bool Condition::Meets(Player * player, Unit* invoker)
             {
                 switch (mConditionValue2)
                 {
-                    case 0:
+                    case LVL_COND_EQ:
                         condMeets = player->getLevel() == mConditionValue1;
                         break;
-                    case 1:
+                    case LVL_COND_HIGH:
                         condMeets = player->getLevel() > mConditionValue1;
                         break;
-                    case 2:
+                    case LVL_COND_LOW:
                         condMeets = player->getLevel() < mConditionValue1;
                         break;
-                    case 3:
+                    case LVL_COND_HIGH_EQ:
                         condMeets = player->getLevel() >= mConditionValue1;
                         break;
-                    case 4:
+                    case LVL_COND_LOW_EQ:
                         condMeets = player->getLevel() <= mConditionValue1;
                         break;
                 }
@@ -1265,7 +1265,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_LEVEL:
             {
-                if (cond->mConditionValue2 > 4)
+                if (cond->mConditionValue2 >= LVL_COND_MAX)
                 {
                     sLog.outErrorDb("Level condition has invalid option (%u), skipped", cond->mConditionValue2);
                     return false;
