@@ -152,6 +152,8 @@ class SpellScript : public _SpellScript
         void _InitHit();
         bool _IsEffectPrevented(SpellEffIndex effIndex) {return m_hitPreventEffectMask & (1<<effIndex);};
         bool _IsDefaultEffectPrevented(SpellEffIndex effIndex) {return m_hitPreventDefaultEffectMask & (1<<effIndex);};
+        void _PrepareScriptCall(SpellScriptHookType hookType);
+        void _FinishScriptCall();
         bool IsInHitPhase() { return (m_currentScriptState >= HOOK_SPELL_HIT_START && m_currentScriptState < HOOK_SPELL_HIT_END); };
         bool IsInEffectHook() { return (m_currentScriptState == SPELL_SCRIPT_HOOK_EFFECT); };
     private:

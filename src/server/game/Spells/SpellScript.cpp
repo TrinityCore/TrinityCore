@@ -195,6 +195,16 @@ void SpellScript::_InitHit()
     m_hitPreventDefaultEffectMask = 0;
 }
 
+void SpellScript::_PrepareScriptCall(SpellScriptHookType hookType)
+{
+    m_currentScriptState = hookType;
+}
+
+void SpellScript::_FinishScriptCall()
+{
+    m_currentScriptState = SPELL_SCRIPT_STATE_NONE;
+}
+
 Unit * SpellScript::GetCaster()
 {
      return m_spell->GetCaster();
