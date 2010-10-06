@@ -122,6 +122,8 @@ m_vehicleKit(NULL), m_unitTypeMask(UNIT_MASK_NONE), m_HostileRefManager(this)
     m_extraAttacks = 0;
     m_canDualWield = false;
 
+    m_rootTimes = 0;
+
     m_state = 0;
     m_form = FORM_NONE;
     m_deathState = ALIVE;
@@ -15354,11 +15356,14 @@ void Unit::SetRooted(bool apply)
 {
     if (apply)
     {
+        if (m_rootTimes > 0) //blizzard internal check?
+            m_rootTimes++;
+
 //        AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
 
         WorldPacket data(SMSG_FORCE_MOVE_ROOT, 10);
         data.append(GetPackGUID());
-        data << (uint32)2;
+        data << m_rootTimes;
         SendMessageToSet(&data,true);
 
         if (GetTypeId() != TYPEID_PLAYER)
@@ -15368,9 +15373,11 @@ void Unit::SetRooted(bool apply)
     {
         if (!hasUnitState(UNIT_STAT_STUNNED))      // prevent allow move if have also stun effect
         {
+            m_rootTimes++; //blizzard internal check?
+
             WorldPacket data(SMSG_FORCE_MOVE_UNROOT, 10);
             data.append(GetPackGUID());
-            data << (uint32)2;
+            data << m_rootTimes;
             SendMessageToSet(&data,true);
 
 //            RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
