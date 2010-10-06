@@ -118,9 +118,9 @@ public:
 // 67019 Flask of the North
 enum eFlaskOfTheNorthSpells
 {
-    SPELL_FLASK_OF_THE_NORTH_TRIGGERED1 = 67016,
-    SPELL_FLASK_OF_THE_NORTH_TRIGGERED2 = 67017,
-    SPELL_FLASK_OF_THE_NORTH_TRIGGERED3 = 67018,
+    SPELL_FLASK_OF_THE_NORTH_SP = 67016,
+    SPELL_FLASK_OF_THE_NORTH_AP = 67017,
+    SPELL_FLASK_OF_THE_NORTH_STR = 67018,
 };
 
 class spell_item_flask_of_the_north : public SpellScriptLoader
@@ -133,11 +133,11 @@ public:
     public:
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
-            if (!sSpellStore.LookupEntry(SPELL_FLASK_OF_THE_NORTH_TRIGGERED1))
+            if (!sSpellStore.LookupEntry(SPELL_FLASK_OF_THE_NORTH_SP))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_FLASK_OF_THE_NORTH_TRIGGERED2))
+            if (!sSpellStore.LookupEntry(SPELL_FLASK_OF_THE_NORTH_AP))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_FLASK_OF_THE_NORTH_TRIGGERED3))
+            if (!sSpellStore.LookupEntry(SPELL_FLASK_OF_THE_NORTH_STR))
                 return false;
             return true;
         }
@@ -147,9 +147,35 @@ public:
             Unit* pCaster = GetCaster();
             if (pCaster->GetTypeId() != TYPEID_PLAYER)
                 return;
+            
+            std::vector<uint32> possibleSpells;
+            switch (pCaster->getClass())
+            {
+                case CLASS_WARLOCK:
+                case CLASS_MAGE:
+                case CLASS_PRIEST:
+                    possibleSpells.push_back(SPELL_FLASK_OF_THE_NORTH_SP);
+                    break;
+                case CLASS_DEATH_KNIGHT:
+                case CLASS_WARRIOR:
+                    possibleSpells.push_back(SPELL_FLASK_OF_THE_NORTH_STR);
+                    break;
+                case CLASS_ROGUE:
+                case CLASS_HUNTER:
+                    possibleSpells.push_back(SPELL_FLASK_OF_THE_NORTH_AP);
+                    break;
+                case CLASS_DRUID:
+                case CLASS_PALADIN:
+                    possibleSpells.push_back(SPELL_FLASK_OF_THE_NORTH_SP);
+                    possibleSpells.push_back(SPELL_FLASK_OF_THE_NORTH_STR);
+                    break;
+                case CLASS_SHAMAN:
+                    possibleSpells.push_back(SPELL_FLASK_OF_THE_NORTH_SP);
+                    possibleSpells.push_back(SPELL_FLASK_OF_THE_NORTH_AP);
+                    break;
+            }
 
-            uint32 spellId = urand(SPELL_FLASK_OF_THE_NORTH_TRIGGERED1, SPELL_FLASK_OF_THE_NORTH_TRIGGERED3);
-            pCaster->CastSpell(pCaster, spellId, true, NULL);
+            pCaster->CastSpell(pCaster, possibleSpells[irand(0, (possibleSpells.size() - 1))], true, NULL);
         }
 
         void Register()
