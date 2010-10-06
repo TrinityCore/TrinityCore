@@ -186,7 +186,7 @@ void WorldSession::HandleLfgTeleportOpcode(WorldPacket &recv_data)
     recv_data >> out;
 
     sLog.outDebug("CMSG_LFG_TELEPORT [" UI64FMTD "] out: %u", GetPlayer()->GetGUID(), out ? 1 : 0);
-    sLFGMgr.TeleportPlayer(GetPlayer(), out);
+    sLFGMgr.TeleportPlayer(GetPlayer(), out, true);
 }
 
 void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket &/*recv_data*/)
