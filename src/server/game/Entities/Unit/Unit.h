@@ -2092,6 +2092,8 @@ class Unit : public WorldObject
         void SetStunned(bool apply);
         void SetRooted(bool apply);
 
+        uint32 m_rootTimes;
+
         uint32 m_state;                                     // Even derived shouldn't modify
         uint32 m_CombatTimer;
         uint32 m_lastManaUse;                               // msecs
