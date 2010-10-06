@@ -348,7 +348,7 @@ void LFGMgr::Update(uint32 diff)
     LfgGuidList firstNew;
     while (!m_newToQueue.empty())
     {
-        sLog.outError("DEBUG:LFGMgr::Update: checking [" UI64FMTD "] m_newToQueue(%u), m_currentQueue(%u)", m_newToQueue.front(), m_newToQueue.size(), m_currentQueue.size());
+        sLog.outDebug("LFGMgr::Update: checking [" UI64FMTD "] m_newToQueue(%u), m_currentQueue(%u)", m_newToQueue.front(), m_newToQueue.size(), m_currentQueue.size());
 
         firstNew.push_back(m_newToQueue.front());
 
@@ -360,6 +360,7 @@ void LFGMgr::Update(uint32 diff)
 
         if (proposals.size())                               // Group found!
         {
+            sLog.outDebug("LFGMgr::Update: Found %u size proposals for [" UI64FMTD "]", m_newToQueue.front());
             LfgProposal* pProposal = (*proposals.begin());
             // TODO: Create algorithm to select better group based on GS (uses to be good tank with bad healer and viceversa)
 
@@ -551,7 +552,7 @@ bool LFGMgr::RemoveFromQueue(uint64 guid)
         m_QueueInfoMap.erase(it);
         ret = true;
     }
-    sLog.outError("DEBUG:LFGMgr::RemoveFromQueue: [" UI64FMTD "] %s - Queue(%u)", guid, before != m_QueueInfoMap.size() ? "Removed": "Not in queue", m_QueueInfoMap.size());
+    sLog.outDebug("LFGMgr::RemoveFromQueue: [" UI64FMTD "] %s - Queue(%u)", guid, before != m_QueueInfoMap.size() ? "Removed": "Not in queue", m_QueueInfoMap.size());
     return ret;
 }
 
@@ -631,7 +632,7 @@ void LFGMgr::Join(Player* plr)
 
     if (result != LFG_JOIN_OK)                              // Someone can't join. Clear all stuf
     {
-        sLog.outError("DEBUG:LFGMgr::Join: [" UI64FMTD "] joining with %u members. result: %u", guid, grp ? grp->GetMembersCount() : 1, result);
+        sLog.outDebug("LFGMgr::Join: [" UI64FMTD "] joining with %u members. result: %u", guid, grp ? grp->GetMembersCount() : 1, result);
         plr->GetLfgDungeons()->clear();
         plr->SetLfgRoles(ROLE_NONE);
         if (grp && !grp->isLFGGroup())
@@ -693,7 +694,7 @@ void LFGMgr::Join(Player* plr)
         roles.clear();
     }
     std::string dungeonsstr = ConcatenateDungeons(dungeons);
-    sLog.outError("DEBUG:LFGMgr::Join: [" UI64FMTD "] joined with %u members. dungeons: %s", guid, grp ? grp->GetMembersCount() : 1, dungeonsstr.c_str());
+    sLog.outDebug("LFGMgr::Join: [" UI64FMTD "] joined with %u members. dungeons: %s", guid, grp ? grp->GetMembersCount() : 1, dungeonsstr.c_str());
 }
 
 /// <summary>
@@ -707,7 +708,7 @@ void LFGMgr::Leave(Player* plr, Group* grp /* = NULL*/)
         return;
 
     uint64 guid = grp ? grp->GetGUID() : plr ? plr->GetGUID() : 0;
-    sLog.outError("DEBUG:LFGMgr::Leave: [" UI64FMTD "]", guid);
+    sLog.outDebug("LFGMgr::Leave: [" UI64FMTD "]", guid);
 
     // Remove from Role Checks
     if (grp)
@@ -804,7 +805,7 @@ void LFGMgr::FindNewGroups(LfgGuidList& check, LfgGuidList all, LfgProposalList*
         }
     }
 
-    sLog.outError("DEBUG:LFGMgr::FindNewGroup: (%s) - all(%s)", ConcatenateGuids(check).c_str(), ConcatenateGuids(all).c_str());
+    sLog.outDebug("LFGMgr::FindNewGroup: (%s) - all(%s)", ConcatenateGuids(check).c_str(), ConcatenateGuids(all).c_str());
 
     // Check individual compatibilities
     LfgGuidList compatibles;
@@ -1032,7 +1033,7 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposalList* proposals)
         sLog.outDebug("LFGMgr::CheckCompatibility: (%s) Compatibles but not match. Players(%u)", strGuids.c_str(), numPlayers);
         return true;
     }
-    sLog.outError("DEBUG:LFGMgr::CheckCompatibility: (%s) MATCH! Group formed", strGuids.c_str());
+    sLog.outDebug("LFGMgr::CheckCompatibility: (%s) MATCH! Group formed", strGuids.c_str());
 
     // Select a random dungeon from the compatible list
     LfgDungeonSet::iterator itDungeon = compatibleDungeons->begin();
@@ -1170,7 +1171,7 @@ void LFGMgr::UpdateRoleCheck(Group* grp, Player* plr /* = NULL*/)
 
                         playersLockMap = CheckCompatibleDungeons(dungeons, &players);
                         std::string dungeonstr = ConcatenateDungeons(dungeons);
-                        sLog.outError("DEBUG:LFGMgr::UpdateRoleCheck: [" UI64FMTD "] done. Dungeons: %s", plr->GetGUID(), dungeonstr.c_str());
+                        sLog.outDebug("LFGMgr::UpdateRoleCheck: [" UI64FMTD "] done. Dungeons: %s", plr->GetGUID(), dungeonstr.c_str());
 
                         pRoleCheck->dungeons.clear();
                         if (dungeons)
@@ -1814,7 +1815,7 @@ void LFGMgr::UpdateBoot(Player* plr, bool accept)
 /// <param name="bool">Automatic or manual teleport</param>
 void LFGMgr::TeleportPlayer(Player* plr, bool out, bool fromOpcode /*= false*/)
 {
-    sLog.outError("DEBUG:LFGMgr::TeleportPlayer: [" UI64FMTD "] is being teleported %s", plr->GetGUID(), out ? "out" : "in");
+    sLog.outDebug("LFGMgr::TeleportPlayer: [" UI64FMTD "] is being teleported %s", plr->GetGUID(), out ? "out" : "in");
     if (out)
     {
         plr->RemoveAurasDueToSpell(LFG_SPELL_LUCK_OF_THE_DRAW);
