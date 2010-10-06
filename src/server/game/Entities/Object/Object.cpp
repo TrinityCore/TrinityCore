@@ -686,6 +686,10 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                                 *data << uint16(9);
                                 *data << uint16(-1);
                                 break;
+                            case GAMEOBJECT_TYPE_GENERIC:
+                                *data << uint16(8);
+                                *data << uint16(-1);
+                                break;
                             case GAMEOBJECT_TYPE_GOOBER:
                                 *data << uint16(9);
                                 *data << uint16(-1);

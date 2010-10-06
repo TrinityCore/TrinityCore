@@ -7876,6 +7876,15 @@ void ObjectMgr::LoadGameObjectForQuests()
                 }
                 break;
             }
+            case GAMEOBJECT_TYPE_GENERIC:
+            {
+                if (goInfo->_generic.questID)               //quests objects
+                {
+                    mGameObjectForQuestSet.insert(go_entry);
+                    count++;
+                }
+                break;
+            }
             case GAMEOBJECT_TYPE_GOOBER:
             {
                 if (goInfo->goober.questId)                  //quests objects
