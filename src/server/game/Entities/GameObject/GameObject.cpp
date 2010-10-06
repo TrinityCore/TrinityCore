@@ -852,6 +852,9 @@ void GameObject::Respawn()
 
 bool GameObject::ActivateToQuest(Player *pTarget) const
 {
+    if (pTarget->HasQuestForGO(GetEntry()))
+        return true;
+
     if (!sObjectMgr.IsGameObjectForQuests(GetEntry()))
         return false;
 
