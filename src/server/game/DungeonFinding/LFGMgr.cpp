@@ -1811,7 +1811,8 @@ void LFGMgr::UpdateBoot(Player* plr, bool accept)
 /// </summary>
 /// <param name="Player*">Player</param>
 /// <param name="bool">Teleport out</param>
-void LFGMgr::TeleportPlayer(Player* plr, bool out)
+/// <param name="bool">Automatic or manual teleport</param>
+void LFGMgr::TeleportPlayer(Player* plr, bool out, bool fromOpcode /*= false*/)
 {
     sLog.outError("DEBUG:LFGMgr::TeleportPlayer: [" UI64FMTD "] is being teleported %s", plr->GetGUID(), out ? "out" : "in");
     if (out)
@@ -1821,32 +1822,84 @@ void LFGMgr::TeleportPlayer(Player* plr, bool out)
         return;
     }
 
-    if (!plr->isAlive())
-    {
-        plr->GetSession()->SendLfgTeleportError(LFG_TELEPORTERROR_PLAYER_DEAD);
-        return;
-    }
+    // TODO Add support for LFG_TELEPORTERROR_FATIGUE
+    LfgTeleportError error = LFG_TELEPORTERROR_OK;
+    Group* grp = plr->GetGroup();
 
-    if (plr->IsFalling() || plr->hasUnitState(UNIT_STAT_JUMPING))
+    if (!grp || !grp->isLFGGroup()) // should never happen, but just in case...
+        error = LFG_TELEPORTERROR_INVALID_LOCATION;
+    else if (!plr->isAlive())
+        error = LFG_TELEPORTERROR_PLAYER_DEAD;
+    else if (plr->IsFalling() || plr->hasUnitState(UNIT_STAT_JUMPING))
+        error = LFG_TELEPORTERROR_FALLING;
+    else
     {
-        plr->GetSession()->SendLfgTeleportError(LFG_TELEPORTERROR_FALLING);
-        return;
-    }
+        LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(grp->GetLfgDungeonEntry());
 
-    // TODO Add support for LFG_TELEPORTERROR_FATIGUE and LFG_TELEPORTERROR_INVALID_LOCATION
-    if (Group* grp = plr->GetGroup())
-        if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(grp->GetLfgDungeonEntry()))
-            if (AreaTrigger const* at = sObjectMgr.GetMapEntranceTrigger(dungeon->map))
+        if (!dungeon)
+            error = LFG_TELEPORTERROR_INVALID_LOCATION;
+        else if (plr->GetMapId() != uint32(dungeon->map))    // Do not teleport players in dungeon to the entrance
+        {
+            uint32 mapid = 0;
+            float x = 0;
+            float y = 0;
+            float z = 0;
+            float orientation = 0;
+
+            if (!fromOpcode)
+            {
+                Player *plrg;
+                // Select a player inside to be teleported to
+                for (GroupReference* itr = grp->GetFirstMember(); itr != NULL && !mapid; itr = itr->next())
+                {
+                    plrg = itr->getSource();
+                    if (plrg && plrg != plr && plrg->GetMapId() == uint32(dungeon->map))
+                    {
+                        mapid = plrg->GetMapId();
+                        x = plrg->GetPositionX();
+                        y = plrg->GetPositionY();
+                        z = plrg->GetPositionZ();
+                        orientation = plrg->GetOrientation();
+                    }
+                }
+            }
+
+            if (!mapid)
+            {
+                AreaTrigger const* at = sObjectMgr.GetMapEntranceTrigger(dungeon->map);
+                if (!at)
+                    error = LFG_TELEPORTERROR_INVALID_LOCATION;
+                else
+                {
+                    mapid = at->target_mapId;
+                    x = at->target_X;
+                    y = at->target_Y;
+                    z = at->target_Z;
+                    orientation = at->target_Orientation;
+                }
+            }
+           
+            if (error == LFG_TELEPORTERROR_OK)
             {
                 if (!plr->GetMap()->IsDungeon() && !plr->GetMap()->IsRaid())
                     plr->SetBattlegroundEntryPoint();
-                plr->RemoveAurasByType(SPELL_AURA_MOUNTED);
-                // TODO: Teleport to group 
-                if (plr->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, at->target_Orientation))
+
+                if (plr->TeleportTo(mapid, x, y, z, orientation))
+                {
+                    plr->RemoveAurasByType(SPELL_AURA_MOUNTED);
                     plr->CastSpell(plr, LFG_SPELL_LUCK_OF_THE_DRAW, false);
+                }
                 else
-                    sLog.outError("LfgMgr::TeleportPlayer: Failed to teleport [" UI64FMTD "] to map %u: ", plr->GetGUID(), at->target_mapId);
+                {
+                    error = LFG_TELEPORTERROR_INVALID_LOCATION;
+                    sLog.outError("LfgMgr::TeleportPlayer: Failed to teleport [" UI64FMTD "] to map %u: ", plr->GetGUID(), mapid);            
+                }
             }
+        }
+    }
+
+    if (error != LFG_TELEPORTERROR_OK)
+        plr->GetSession()->SendLfgTeleportError(error);
 }
 
 /// <summary>

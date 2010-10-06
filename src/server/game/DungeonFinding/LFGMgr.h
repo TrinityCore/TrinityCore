@@ -76,7 +76,7 @@ enum LfgLockStatusType
 
 enum LfgTeleportError
 {
-    //LFG_TELEPORTERROR_UNK1           = 0,                 // No reaction
+    LFG_TELEPORTERROR_OK               = 0,                 // Internal use
     LFG_TELEPORTERROR_PLAYER_DEAD      = 1,
     LFG_TELEPORTERROR_FALLING          = 2,
     //LFG_TELEPORTERROR_UNK2           = 3,                 // You can't do that right now
@@ -252,7 +252,7 @@ class LFGMgr
         void Join(Player* plr);
         void Leave(Player* plr, Group* grp = NULL);
         void OfferContinue(Group* grp);
-        void TeleportPlayer(Player* plr, bool out);
+        void TeleportPlayer(Player* plr, bool out, bool fromOpcode = false);
         void UpdateProposal(uint32 proposalId, uint32 lowGuid, bool accept);
         void UpdateBoot(Player* plr, bool accept);
         void UpdateRoleCheck(Group* grp, Player* plr = NULL);
