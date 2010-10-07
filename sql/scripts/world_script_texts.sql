@@ -608,9 +608,9 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
 
 -- -1 048 000 BLACKFATHOM DEEPS
    (4832,-1048000,'Just...Dust...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,5803,1,0,0,''), (4832,-1048001,'Sleep...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,5804,1,0,0,''),
-(4832,-1048002,'Who dares disturb my meditation!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,5805,1,0,0,''),
-(6729,-1048003,'Aku''mai is dead! At last, I can leave this wretched place.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
-(6729,-1048004,'Speak with me to hear my tale',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (4832,-1048002,'Who dares disturb my meditation!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,5805,1,0,0,''),
+   (6729,-1048003,'Aku''mai is dead! At last, I can leave this wretched place.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
+   (6729,-1048004,'Speak with me to hear my tale',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
 
 -- -1 060 000 863_world_scripts.sql
    (0,-1060005,'REUSE',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'REUSE'),
@@ -694,10 +694,10 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (3974,-1189021,'Release the hounds!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,5841,1,0,0,'loksey SAY_AGGRO'),
 
 -- -1 209 000 ZUL'FARRAK
-   ('7607','-1209000','Oh no! Here they come!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'0','0','1','0','Weegli Blastfuse SAY_WEEGLI_OHNO'),
-   ('7607','-1209001','OK. Here I go.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'0','0','1','0','Weegli Blastfuse SAY_WEEGLI_OK_I_GO'),
-   ('7604','-1209002','Placeholder 1',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'0','0','1','0','Sergeant Bly SAY_1'),
-   ('7604','-1209003','Placeholder 2',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'0','0','1','0','Sergeant Bly SAY_2'),
+   (7607,-1209000,'Oh no! Here they come!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,1,0,'Weegli Blastfuse SAY_WEEGLI_OHNO'),
+   (7607,-1209001,'OK. Here I go.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,1,0,'Weegli Blastfuse SAY_WEEGLI_OK_I_GO'),
+   (7604,-1209002,'Placeholder 1',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,1,0,'Sergeant Bly SAY_1'),
+   (7604,-1209003,'Placeholder 2',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,1,0,'Sergeant Bly SAY_2'),
 
 -- -1 229 000 BLACKROCK SPIRE
 
@@ -1868,7 +1868,9 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (24201,-1574020,'Skarvald, you incompetent slug! Return and make yourself useful!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13203,1,0,0,'dalronn YELL_DALRONN_SKA_DIEDFIRST'),
 
 -- -1 575 000 UTGARDE PINNACLE
--- Skadi the Ruthless voice
+   (26687,-1575000,'What this place? I will destroy you!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Gortok Palehoof SAY_AGGRO'),
+   (26687,-1575001,'You die! That what master wants!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Gortok Palehoof SAY_SLAY_1'),
+   (26687,-1575002,'An easy task!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Gortok Palehoof SAY_SLAY_2'),
    (26693,-1575004,'What mongrels dare intrude here? Look alive, my brothers! A feast for the one that brings me their heads!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13497,1,0,0,'Skadi - SAY_AGGRO'),
    (26693,-1575005,'Not so brash now, are you?',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13504,1,0,0,'Skadi - SAY_KILL_1'),
    (26693,-1575006,'I''ll mount your skull from the highest tower!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13505,1,0,0,'Skadi - SAY_KILL_2'),
@@ -1879,6 +1881,11 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (26693,-1575011,'Sear them to the bone!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13498,1,0,0,'Skadi - SAY_DRAKE_BREATH_1'),
    (26693,-1575012,'Go now! Leave nothing but ash in your wake!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13499,1,0,0,'Skadi - SAY_DRAKE_BREATH_2'),
    (26693,-1575013,'Cleanse our sacred halls with flame!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13500,1,0,0,'Skadi - SAY_DRAKE_BREATH_3'),
+   (29281,-1575015,'My liege! I have done as you asked, and now beseech you for your blessing!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Svala Sorrowgrave SAY_DIALOG_WITH_ARTHAS_1'),
+   (29281,-1575016,'The sensation is... beyond my imagining. I am yours to command, my king.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Svala Sorrowgrave SAY_DIALOG_WITH_ARTHAS_2'),
+   (29281,-1575017,'I will be happy to slaughter them in your name! Come, enemies of the Scourge! I will show you the might of the Lich King!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Svala Sorrowgrave SAY_DIALOG_WITH_ARTHAS_3'),
+   (26668,-1575018,'I will vanquish your soul!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Svala Sorrowgrave SAY_AGGRO'),
+   (26668,-1575022,'Nooo! I did not come this far... to...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Svala Sorrowgrave SAY_DEATH'),
    (26861,-1575028,'You invade my home and then dare to challenge me? I will tear the hearts from your chests and offer them as gifts to the death god! Rualg nja gaborr!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13609,1,0,0,'King Ymirom - SAY_AGGRO'),
    (26861,-1575029,'Your death is only the beginning!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13614,1,0,0,'King Ymirom - SAY_SLAY_1'),
    (26861,-1575030,'You have failed your people!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13615,1,0,0,'King Ymirom - SAY_SLAY_2'),
@@ -2200,6 +2207,7 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (27978,-1599011,'Soft, vulnerable shells. Brief, fragile lives. You can not escape the curse of flesh!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14180,1,0,0,'Sjonnir SAY_AGGRO'),
    (27978,-1599012,'Flesh is no match for iron!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14182,1,0,0,'Sjonnir SAY_SLAY_1'),
    (27978,-1599013,'Armies of iron will smother the world!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14183,1,0,0,'Sjonnir SAY_SLAY_2'),
+   (27978,-1599014,'Folvynn buul hrom onn!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Sjonnir The Ironshaper SAY_SLAY_3'),
    (27978,-1599015,'Loken will not rest, until the forge is retaken. You changed nothing!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14184,1,0,0,'Sjonnir SAY_DEATH'),
 /* Brann and Tribunal Event */
    (28070,-1599016,'Now that''s owning your supper!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14244,1,0,0,'brann SAY_KILL_1'),
@@ -2591,6 +2599,24 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (29305,-1604016,'Da ground gonna swallow you up',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,'SAY_QUAKE boss_moorabi'),
    (29305,-1604017,'%s begins to transform!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,3,0,0,'EMOTE_TRANSFORM boss_moorabi'),
 
+/* Slad'ran */   
+   (29304,-1604018,'Ye not breathin''! Good.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Slad''ran SAY_SLAY_1'),
+   (29304,-1604019,'You ssscared now?',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Slad''ran SAY_SLAY_2'),
+   (29304,-1604020,'I''ll eat you next, mon!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Slad''ran SAY_SLAY_3'),
+   (29304,-1604021,'I sssee now... Ssscourge wasss not... our greatessst enemy...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Slad''ran SAY_DEATH'),
+   (29304,-1604022,'Minionsss of the scale, heed my call!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Slad''ran SAY_SUMMON_SNAKES'),
+   (29304,-1604023,'A thousssand fangs gonna rend your flesh!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Slad''ran SAY_SUMMON_CONSTRICTORS'),
+
+/* Gal'darah */
+   (29306,-1604000,'I''m gonna spill your guts, mon!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Gal''darah SAY_AGGRO'),
+   (29306,-1604001,'What a rush!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Gal''darah SAY_SLAY_1'),
+   (29306,-1604003,'I told ya so!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Gal''darah SAY_SLAY_3'),
+   (29306,-1604004,'Even the mighty... can fall.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Gal''darah SAY_DEATH'),
+   (29306,-1604005,'Gut them! Impale them!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Gal''darah SAY_SUMMON_RHINO_1'),
+   (29306,-1604006,'KILL THEM ALL!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Gal''darah SAY_SUMMON_RHINO_2'),
+   (29306,-1604007,'Say hello to my BIG friend!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Gal''darah SAY_SUMMON_RHINO_3'),
+   (29306,-1604008,'Ain''t gonna be nottin'' left after this!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Gal''darah SAY_TRANSFORM_1'),
+
 -- -1 608 000 VIOLET HOLD
 /* Cyanigosa */
    (31134,-1608000,'We finish this now, champions of Kirin Tor!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13947,1,0,0,'cyanigosa SAY_AGGRO'),
@@ -2696,6 +2722,11 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (28860,-1615042,'%s begins to open a Twilight Portal!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,5,0,0,'sartharion drake WHISPER_OPEN_PORTAL'),
 
 -- -1 619 000 AHN'KAHET: THE OLD KINGDOM
+   (29310,-1619000,'These are sacred halls! Your intrusion will be met with death.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Jedoga Shadowseeker SAY_AGGRO'),
+   (29310,-1619001,'Who among you is devoted?',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Jedoga Shadowseeker SAY_SACRIFICE_1_1'),
+   (29310,-1619002,'You there! Step forward!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Jedoga Shadowseeker SAY_SACRIFICE_1_2'),
+   (29310,-1619008,'Do not expect your sacrilege... to go unpunished.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Jedoga Shadowseeker SAY_DEATH'),
+   (29310,-1619009,'The elements themselves will rise up against the civilized world! Only the faithful will be spared!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Jedoga Shadowseeker SAY_PREACHING_1'),
    (29308,-1619021,'I will feast on your remains.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'prince taldaram SAY_AGGRO'),
    (29308,-1619022,'I will drink no blood before it''s time.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'prince taldaram SAY_SLAY_1'),
    (29308,-1619023,'One final embrace.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'prince taldaram SAY_SLAY_2'),
@@ -2704,6 +2735,11 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (29308,-1619026,'Fresh, warm blood. It has been too long.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'prince taldaram SAY_FEED2'),
    (29308,-1619027,'Your heartbeat is music to my ears.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'prince taldaram SAY_VANISH1'),
    (29308,-1619028,'I am nowhere. I am everywhere. I am the watcher, unseen.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'prince taldaram SAY_VANISH2'),
+   (29309,-1619017,'Perhaps we will be allies soon.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Elder Nadox SAY_SLAY_3'),
+   (29309,-1619018,'Master, is my service complete?',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Elder Nadox SAY_DEATH'),
+   (29309,-1619019,'The young must not grow hungry...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Elder Nadox SAY_EGG_SAC_1'),
+   (29311,-1619030,'Shgla''yos plahf mh''naus.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Herald Volazj SAY_AGGRO'),
+   (29311,-1619034,'Iilth vwah, uhn''agth fhssh za.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Herald Volazj SAY_DEATH_1'),
 
 -- -1 631 000 ICECROWN CITADEL: RAID
 -- Lord Marrowgar
