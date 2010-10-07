@@ -3421,7 +3421,7 @@ void Spell::EffectEnchantItemPerm(SpellEffIndex effIndex)
         SpellItemEnchantmentEntry const *pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
         if (!pEnchant)
             return;
-        
+
         // item can be in trade slot and have owner diff. from caster
         Player* item_owner = itemTarget->GetOwner();
         if (!item_owner)

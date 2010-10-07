@@ -18213,7 +18213,7 @@ void Player::_SaveDailyQuestStatus(SQLTransaction& trans)
         for (DFQuestsDoneList::iterator itr = m_DFQuests.begin(); itr != m_DFQuests.end(); ++itr)
         {
             trans->PAppend("INSERT INTO character_queststatus_daily (guid,quest,time) VALUES ('%u', '%u','" UI64FMTD "')",
-            GetGUIDLow(),(*itr),uint64(m_lastDailyQuestTime)); 
+            GetGUIDLow(),(*itr),uint64(m_lastDailyQuestTime));
         }
     }
 }
@@ -19142,7 +19142,7 @@ void Player::RemoveSpellMods(Spell * spell)
 {
     if (!spell)
         return;
-    
+
     if (spell->m_appliedMods.empty())
         return;
 
@@ -21423,7 +21423,7 @@ void Player::SetDailyQuestStatus(uint32 quest_id)
         } else
         {
             m_DFQuests.insert(quest_id);
-            m_lastDailyQuestTime = time(NULL); 
+            m_lastDailyQuestTime = time(NULL);
             m_DailyQuestChanged = true;
         }
     }
