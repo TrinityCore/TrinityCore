@@ -16,7 +16,7 @@ endif()
 
 # configure uninstaller
 configure_file(
-  "${CMAKE_SOURCE_DIR}/cmake/platform/cmake_uninstall.cmake.in"
+  "${CMAKE_SOURCE_DIR}/cmake/platform/cmake_uninstall.in.cmake"
   "${CMAKE_BINARY_DIR}/cmake_uninstall.cmake"
   IMMEDIATE @ONLY
 )
