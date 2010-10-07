@@ -147,7 +147,7 @@ public:
             Unit* pCaster = GetCaster();
             if (pCaster->GetTypeId() != TYPEID_PLAYER)
                 return;
-            
+
             std::vector<uint32> possibleSpells;
             switch (pCaster->getClass())
             {

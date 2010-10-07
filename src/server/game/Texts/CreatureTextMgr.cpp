@@ -168,7 +168,7 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, uint64 whisp
             uint32 r = urand(0, 100);
             offset++;
             if (r <= chance)
-                break;        
+                break;
         }
     }
     uint32 pos = 0;
@@ -304,7 +304,7 @@ void CreatureTextMgr::BuildMonsterChat(WorldPacket *data, WorldObject* source, C
     *data << (uint32)(strlen(source->GetName())+1);
     *data << source->GetName();
     *data << (uint64)whisperGuid;                           // Unit Target
-    if (whisperGuid && !IS_PLAYER_GUID(whisperGuid))        //can only whisper players 
+    if (whisperGuid && !IS_PLAYER_GUID(whisperGuid))        //can only whisper players
     {
         sLog.outError("CreatureTextMgr: WorldObject(%s) TypeId %u GuidLow %u sent WHISPER msg to Non-Player target. Ignoring.",source->GetName(), uint32(source->GetTypeId()), source->GetGUIDLow());
         return;
@@ -322,7 +322,7 @@ void CreatureTextMgr::SendChatPacket(WorldPacket *data, WorldObject* source, Cha
         return;
 
     float dist = sWorld.getFloatConfig(CONFIG_LISTEN_RANGE_SAY);
-    
+
     switch (msgtype)
     {
         case CHAT_TYPE_YELL:
