@@ -196,7 +196,7 @@ bool MySQLConnection::Execute(PreparedStatement* stmt)
         #endif
         if (mysql_stmt_bind_param(msql_STMT, msql_BIND))
         {
-            sLog.outSQLDriver("[ERROR]: PreparedStatement (id: %u, database: `%s`) error binding params:  %s", 
+            sLog.outSQLDriver("[ERROR]: PreparedStatement (id: %u, database: `%s`) error binding params:  %s",
                 index, m_connectionInfo.database.c_str(), mysql_stmt_error(msql_STMT));
             m_mStmt->ClearParameters();
             return false;
@@ -204,14 +204,14 @@ bool MySQLConnection::Execute(PreparedStatement* stmt)
 
         if (mysql_stmt_execute(msql_STMT))
         {
-            sLog.outSQLDriver("[ERROR]: PreparedStatement (id: %u, database: `%s`) error executing:  %s", 
+            sLog.outSQLDriver("[ERROR]: PreparedStatement (id: %u, database: `%s`) error executing:  %s",
                 index, m_connectionInfo.database.c_str(), mysql_stmt_error(msql_STMT));
             m_mStmt->ClearParameters();
             return false;
         }
 
         #ifdef SQLQUERY_LOG
-        sLog.outSQLDriver("[%u ms] Prepared SQL: %u on database `%s`", 
+        sLog.outSQLDriver("[%u ms] Prepared SQL: %u on database `%s`",
             getMSTimeDiff(_s, getMSTime()), index, m_connectionInfo.database.c_str());
         #endif
         m_mStmt->ClearParameters();
@@ -241,7 +241,7 @@ bool MySQLConnection::_Query(PreparedStatement* stmt, MYSQL_RES **pResult, uint6
         #endif
         if (mysql_stmt_bind_param(msql_STMT, msql_BIND))
         {
-            sLog.outSQLDriver("[ERROR]: PreparedStatement (id: %u, database: `%s`) error binding params:  %s", 
+            sLog.outSQLDriver("[ERROR]: PreparedStatement (id: %u, database: `%s`) error binding params:  %s",
                 index, m_connectionInfo.database.c_str(), mysql_stmt_error(msql_STMT));
             m_mStmt->ClearParameters();
             return false;
@@ -249,14 +249,14 @@ bool MySQLConnection::_Query(PreparedStatement* stmt, MYSQL_RES **pResult, uint6
 
         if (mysql_stmt_execute(msql_STMT))
         {
-            sLog.outSQLDriver("[ERROR]: PreparedStatement (id: %u, database: `%s`) error executing:  %s", 
+            sLog.outSQLDriver("[ERROR]: PreparedStatement (id: %u, database: `%s`) error executing:  %s",
                 index, m_connectionInfo.database.c_str(), mysql_stmt_error(msql_STMT));
             m_mStmt->ClearParameters();
             return false;
         }
 
         #ifdef SQLQUERY_LOG
-        sLog.outSQLDriver("[%u ms] Prepared SQL: %u on database `%s`", 
+        sLog.outSQLDriver("[%u ms] Prepared SQL: %u on database `%s`",
             getMSTimeDiff(_s, getMSTime()), index, m_connectionInfo.database.c_str());
         #endif
         m_mStmt->ClearParameters();

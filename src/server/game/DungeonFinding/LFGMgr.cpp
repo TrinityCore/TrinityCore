@@ -1881,7 +1881,7 @@ void LFGMgr::TeleportPlayer(Player* plr, bool out, bool fromOpcode /*= false*/)
                     orientation = at->target_Orientation;
                 }
             }
-           
+
             if (error == LFG_TELEPORTERROR_OK)
             {
                 if (!plr->GetMap()->IsDungeon() && !plr->GetMap()->IsRaid())

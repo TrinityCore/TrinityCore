@@ -1114,7 +1114,7 @@ void Group::SendUpdate()
         data << uint8(citr->flags);
         data << uint8(citr->roles);
         if (isLFGGroup())
-        {            
+        {
             data << uint8(m_LfgStatus);
             data << uint32(m_LfgDungeonEntry);
         }

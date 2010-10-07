@@ -536,7 +536,7 @@ void AuraScript::_PrepareScriptCall(AuraScriptHookType hookType)
         case AURA_SCRIPT_HOOK_EFFECT_APPLY:
         case AURA_SCRIPT_HOOK_EFFECT_REMOVE:
         case AURA_SCRIPT_HOOK_EFFECT_PERIODIC:
-            m_defaultActionPrevented = false; 
+            m_defaultActionPrevented = false;
             break;
         default:
             break;
@@ -561,7 +561,7 @@ bool AuraScript::_IsDefaultActionPrevented()
     }
 }
 
-void AuraScript::PreventDefaultAction() 
+void AuraScript::PreventDefaultAction()
 {
     switch (m_currentScriptState)
     {
