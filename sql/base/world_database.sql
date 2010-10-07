@@ -26873,7 +26873,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 63521, 'spell_pal_guarded_by_the_light'),
 (-20473, 'spell_pal_holy_shock'),
 ( 20911, 'spell_pal_blessing_of_sanctuary'),
-( 25899, 'spell_pal_blessing_of_sanctuary')
+( 25899, 'spell_pal_blessing_of_sanctuary'),
 ( 37877, 'spell_pal_blessing_of_faith'),
 -- hunter
 ( 53209, 'spell_hun_chimera_shot'),
