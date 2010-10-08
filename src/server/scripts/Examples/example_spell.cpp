@@ -135,6 +135,7 @@ class spell_ex_66244 : public SpellScriptLoader
 
         class spell_ex_66244AuraScript : public AuraScript
         {
+            PrepareAuraScript(spell_ex_66244AuraScript)
             enum Spells
             {
                 SPELL_TRIGGERED = 18282
@@ -297,6 +298,7 @@ class spell_ex : public SpellScriptLoader
 
         class spell_ex_AuraScript : public AuraScript
         {
+            PrepareAuraScript(spell_ex)
             //bool Validate(SpellEntry const * spellEntry){return true;}
             //bool Load(){return true;}
             //void Unload(){}

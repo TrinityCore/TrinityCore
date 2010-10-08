@@ -747,6 +747,7 @@ class spell_deathwhisper_mana_barrier : public SpellScriptLoader
 
         class spell_deathwhisper_mana_barrier_AuraScript : public AuraScript
         {
+            PrepareAuraScript(spell_deathwhisper_mana_barrier_AuraScript)
             void HandlePeriodicTick(AuraEffect const * /*aurEff*/, AuraApplication const * /*aurApp*/)
             {
                 Unit* caster = GetCaster();
