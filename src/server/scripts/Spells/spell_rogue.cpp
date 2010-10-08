@@ -101,6 +101,7 @@ public:
 
     class spell_rog_prey_on_the_weak_AuraScript : public AuraScript
     {
+        PrepareAuraScript(spell_rog_prey_on_the_weak_AuraScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(ROGUE_SPELL_PREY_ON_THE_WEAK))

@@ -400,6 +400,7 @@ class spell_festergut_blighted_spores : public SpellScriptLoader
 
         class spell_festergut_blighted_spores_AuraScript : public AuraScript
         {
+            PrepareAuraScript(spell_festergut_blighted_spores_AuraScript)
             void ExtraEffect(AuraEffect const* /*aurEff*/, AuraApplication const* aurApp, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetCaster()->IsAIEnabled || GetCaster()->GetTypeId() != TYPEID_UNIT)

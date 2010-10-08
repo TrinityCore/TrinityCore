@@ -949,6 +949,7 @@ class spell_deathbringer_blood_link_aura : public SpellScriptLoader
 
         class spell_deathbringer_blood_link_AuraScript : public AuraScript
         {
+            PrepareAuraScript(spell_deathbringer_blood_link_AuraScript)
             bool Validate(SpellEntry const* /*spellInfo*/)
             {
                 if (!sSpellStore.LookupEntry(SPELL_MARK_OF_THE_FALLEN_CHAMPION))
@@ -1006,6 +1007,7 @@ class spell_deathbringer_blood_power : public SpellScriptLoader
 
         class spell_deathbringer_blood_power_AuraScript : public AuraScript
         {
+            PrepareAuraScript(spell_deathbringer_blood_power_AuraScript)
             void RecalculateHook(AuraEffect const* /*aurEffect*/, int32& amount, bool& canBeRecalculated)
             {
                 amount = GetUnitOwner()->GetPower(POWER_ENERGY);
