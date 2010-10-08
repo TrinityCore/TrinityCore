@@ -182,6 +182,7 @@ class spell_stinky_precious_decimate : public SpellScriptLoader
 
         class spell_stinky_precious_decimate_SpellScript : public SpellScript
         {
+            PrepareSpellScript(spell_stinky_precious_decimate_SpellScript)
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (GetHitUnit()->GetHealthPct() > float(GetEffectValue()))

@@ -406,6 +406,7 @@ class spell_marrowgar_coldflame : public SpellScriptLoader
 
         class spell_marrowgar_coldflame_SpellScript : public SpellScript
         {
+            PrepareSpellScript(spell_marrowgar_coldflame_SpellScript)
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
@@ -443,6 +444,7 @@ class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
 
         class spell_marrowgar_bone_spike_graveyard_SpellScript : public SpellScript
         {
+            PrepareSpellScript(spell_marrowgar_bone_spike_graveyard_SpellScript)
             void HandleApplyAura(SpellEffIndex /*effIndex*/)
             {
                 CreatureAI* marrowgarAI = GetCaster()->ToCreature()->AI();
@@ -492,6 +494,7 @@ class spell_marrowgar_bone_storm : public SpellScriptLoader
 
         class spell_marrowgar_bone_storm_SpellScript : public SpellScript
         {
+            PrepareSpellScript(spell_marrowgar_bone_storm_SpellScript)
             void RecalculateDamage(SpellEffIndex /*effIndex*/)
             {
                 int32 dmg = GetHitDamage();

@@ -138,6 +138,7 @@ public:
 
     class spell_gen_pet_summonedSpellScript : public SpellScript
     {
+        PrepareSpellScript(spell_gen_pet_summonedSpellScript)
         void HandleScript(SpellEffIndex /*effIndex*/)
         {
             Unit *caster = GetCaster();
@@ -194,6 +195,7 @@ public:
 
     class spell_gen_remove_flight_auras_SpellScript : public SpellScript
     {
+        PrepareSpellScript(spell_gen_remove_flight_auras_SpellScript)
         void HandleScript(SpellEffIndex /*effIndex*/)
         {
             Unit *target = GetHitUnit();
@@ -287,6 +289,7 @@ public:
 
     class spell_gen_trick_SpellScript : public SpellScript
     {
+        PrepareSpellScript(spell_gen_trick_SpellScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_PIRATE_COSTUME_MALE))
@@ -357,6 +360,7 @@ public:
 
     class spell_gen_trick_or_treat_SpellScript : public SpellScript
     {
+        PrepareSpellScript(spell_gen_trick_or_treat_SpellScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_TRICK))
@@ -431,6 +435,7 @@ public:
 
     class spell_pvp_trinket_wotf_shared_cd_SpellScript : public SpellScript
     {
+        PrepareSpellScript(spell_pvp_trinket_wotf_shared_cd_SpellScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER))

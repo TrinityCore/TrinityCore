@@ -45,6 +45,7 @@ class spell_mage_cold_snap : public SpellScriptLoader
 
         class spell_mage_cold_snap_SpellScript : public SpellScript
         {
+            PrepareSpellScript(spell_mage_cold_snap_SpellScript)
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Unit *caster = GetCaster();
@@ -89,6 +90,7 @@ class spell_mage_polymorph_cast_visual : public SpellScriptLoader
 
         class spell_mage_polymorph_cast_visual_SpellScript : public SpellScript
         {
+            PrepareSpellScript(spell_mage_polymorph_cast_visual_SpellScript)
             static const uint32 spell_list[6];
 
             bool Validate(SpellEntry const * /*spellEntry*/)
@@ -137,6 +139,7 @@ class spell_mage_summon_water_elemental : public SpellScriptLoader
 
         class spell_mage_summon_water_elemental_SpellScript : public SpellScript
         {
+            PrepareSpellScript(spell_mage_summon_water_elemental_SpellScript)
             bool Validate(SpellEntry const * /*spellEntry*/)
             {
                 if (!sSpellStore.LookupEntry(SPELL_MAGE_GLYPH_OF_ETERNAL_WATER))
@@ -180,6 +183,7 @@ class spell_mage_blast_wave : public SpellScriptLoader
 
         class spell_mage_blast_wave_SpellScript : public SpellScript
         {
+            PrepareSpellScript(spell_mage_blast_wave_SpellScript)
             bool Validate(SpellEntry const * /*spellEntry*/)
             {
                 if (!sSpellStore.LookupEntry(SPELL_MAGE_GLYPH_OF_BLAST_WAVE))

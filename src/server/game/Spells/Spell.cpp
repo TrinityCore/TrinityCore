@@ -7242,7 +7242,7 @@ void Spell::CallScriptBeforeHitHandlers()
         std::list<SpellScript::HitHandler>::iterator hookItrEnd = (*scritr)->BeforeHit.end(), hookItr = (*scritr)->BeforeHit.begin();
         for(; hookItr != hookItrEnd ; ++hookItr)
         {
-            ((*scritr)->*(*hookItr))();
+            (*hookItr).Call(*scritr);
         }
         (*scritr)->_FinishScriptCall();
     }
@@ -7256,7 +7256,7 @@ void Spell::CallScriptOnHitHandlers()
         std::list<SpellScript::HitHandler>::iterator hookItrEnd = (*scritr)->OnHit.end(), hookItr = (*scritr)->OnHit.begin();
         for(; hookItr != hookItrEnd ; ++hookItr)
         {
-            ((*scritr)->*(*hookItr))();
+            (*hookItr).Call(*scritr);
         }
         (*scritr)->_FinishScriptCall();
     }
@@ -7270,7 +7270,7 @@ void Spell::CallScriptAfterHitHandlers()
         std::list<SpellScript::HitHandler>::iterator hookItrEnd = (*scritr)->AfterHit.end(), hookItr = (*scritr)->AfterHit.begin();
         for(; hookItr != hookItrEnd ; ++hookItr)
         {
-            ((*scritr)->*(*hookItr))();
+            (*hookItr).Call(*scritr);
         }
         (*scritr)->_FinishScriptCall();
     }

@@ -775,6 +775,7 @@ class spell_cultist_dark_martyrdom : public SpellScriptLoader
 
         class spell_cultist_dark_martyrdom_SpellScript : public SpellScript
         {
+            PrepareSpellScript(spell_cultist_dark_martyrdom_SpellScript)
             bool Validate(SpellEntry const* /*spellEntry*/)
             {
                 if (uint32 scriptId = sObjectMgr.GetScriptId("boss_lady_deathwhisper"))

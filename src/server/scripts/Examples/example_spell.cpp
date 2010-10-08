@@ -33,6 +33,10 @@ class spell_ex_5581 : public SpellScriptLoader
 
         class spell_ex_5581SpellScript : public SpellScript
         {
+            // initialize script, this macro does compile time check for type of the function - prevents possible issues
+            // if you have assigned wrong type of function to a hook you'll receive type conversion error during build
+            // this line is required, otherwise you'll get XXXHandlerFunction - identifier not found errors
+            PrepareSpellScript(spell_ex_5581SpellScript)
             enum Spells
             {
                 SPELL_TRIGGERED = 18282
@@ -100,6 +104,7 @@ class spell_ex_5581 : public SpellScriptLoader
             {
                 // we're registering our function here
                 // function HandleDummy will be called when unit is hit by spell, just before default effect 0 handler
+                //OnEffect += SpellEffectFn(spell_ex_5581SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
                 OnEffect += SpellEffectFn(spell_ex_5581SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
                 // this will prompt an error on startup because effect 0 of spell 49375 is set to SPELL_EFFECT_DUMMY, not SPELL_EFFECT_APPLY_AURA
                 //OnEffect += SpellEffectFn(spell_gen_49375SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
@@ -265,6 +270,7 @@ class spell_ex : public SpellScriptLoader
 
         class spell_ex_SpellScript : public SpellScript
         {
+            PrepareSpellScript(spell_ex_SpellScript)
             //bool Validate(SpellEntry const * spellEntry){return true;}
             //bool Load(){return true;}
             //void Unload(){}
