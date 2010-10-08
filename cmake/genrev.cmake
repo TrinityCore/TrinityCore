@@ -67,4 +67,3 @@ configure_file(
   "${BUILDDIR}/revision.h"
   @ONLY
 )
-message(STATUS "Created revision.h")
