@@ -682,17 +682,34 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                         switch(((GameObject*)this)->GetGoType())
                         {
                             case GAMEOBJECT_TYPE_CHEST:
-                                // enable quest object. Represent 9, but 1 for client before 2.3.0
-                                *data << uint16(9);
-                                *data << uint16(-1);
+                                if (target->isGameMaster())
+                                {
+                                    *data << uint16(1);
+                                    *data << uint16(-1);
+                                }
+                                else
+                                    *data << uint16(9);
+                                    *data << uint16(-1);
                                 break;
                             case GAMEOBJECT_TYPE_GENERIC:
-                                *data << uint16(8);
-                                *data << uint16(-1);
+                                if (target->isGameMaster())
+                                {
+                                    *data << uint16(0);
+                                    *data << uint16(-1);
+                                }
+                                else
+                                    *data << uint16(8);
+                                    *data << uint16(-1);
                                 break;
                             case GAMEOBJECT_TYPE_GOOBER:
-                                *data << uint16(9);
-                                *data << uint16(-1);
+                                if (target->isGameMaster())
+                                {
+                                    *data << uint16(1);
+                                    *data << uint16(-1);
+                                }
+                                else
+                                    *data << uint16(9);
+                                    *data << uint16(-1);
                                 break;
                             default:
                                 // unknown, not happen.
