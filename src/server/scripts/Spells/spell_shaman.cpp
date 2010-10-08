@@ -40,6 +40,7 @@ public:
 
     class spell_sha_fire_nova_SpellScript : public SpellScript
     {
+        PrepareSpellScript(spell_sha_fire_nova_SpellScript)
         bool Validate(SpellEntry const * spellEntry)
         {
             if (!sSpellStore.LookupEntry(SHAMAN_SPELL_FIRE_NOVA_R1))
@@ -89,6 +90,7 @@ public:
 
     class spell_sha_mana_tide_totem_SpellScript : public SpellScript
     {
+        PrepareSpellScript(spell_sha_mana_tide_totem_SpellScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SHAMAN_SPELL_GLYPH_OF_MANA_TIDE))

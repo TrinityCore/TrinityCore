@@ -131,8 +131,11 @@ class SpellScript : public _SpellScript
     // internal use classes & functions
     // DO NOT OVERRIDE THESE IN SCRIPTS
     public:
-        typedef void(SpellScript::*SpellEffectFnType)(SpellEffIndex);
-        typedef void(SpellScript::*SpellHitFnType)();
+        #define SPELLSCRIPT_FUNCTION_TYPE_DEFINES(CLASSNAME) \
+            typedef void(CLASSNAME::*SpellEffectFnType)(SpellEffIndex); \
+            typedef void(CLASSNAME::*SpellHitFnType)(); \
+
+        SPELLSCRIPT_FUNCTION_TYPE_DEFINES(SpellScript)
 
         class EffectHandler : public  _SpellScript::EffectNameCheck, public _SpellScript::EffectHook
         {
@@ -144,7 +147,21 @@ class SpellScript : public _SpellScript
             private:
                 SpellEffectFnType pEffectHandlerScript;
         };
-        typedef SpellHitFnType HitHandler;
+
+        class HitHandler
+        {
+            public:
+                HitHandler(SpellHitFnType _pHitHandlerScript);
+                void Call(SpellScript * spellScript);
+            private:
+                SpellHitFnType pHitHandlerScript;
+        };
+
+        #define SPELLSCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME) \
+        class EffectHandlerFunction : public SpellScript::EffectHandler { public: EffectHandlerFunction(SpellEffectFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName) : SpellScript::EffectHandler((SpellScript::SpellEffectFnType)_pEffectHandlerScript, _effIndex, _effName) {} }; \
+        class HitHandlerFunction : public SpellScript::HitHandler { public: HitHandlerFunction(SpellHitFnType _pHitHandlerScript) : SpellScript::HitHandler((SpellScript::SpellHitFnType)_pHitHandlerScript) {} }; \
+
+        #define PrepareSpellScript(CLASSNAME) SPELLSCRIPT_FUNCTION_TYPE_DEFINES(CLASSNAME) SPELLSCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME)
     public:
         bool _Validate(SpellEntry const * entry);
         bool _Load(Spell * spell);
@@ -167,7 +184,7 @@ class SpellScript : public _SpellScript
         // example: OnEffect += SpellEffectFn(class::function, EffectIndexSpecifier, EffectNameSpecifier);
         // where function is void function(SpellEffIndex effIndex)
         HookList<EffectHandler> OnEffect;
-        #define SpellEffectFn(F, I, N) EffectHandler((SpellEffectFnType)&F, I, N)
+        #define SpellEffectFn(F, I, N) EffectHandlerFunction(&F, I, N)
 
         // example: BeforeHit += SpellHitFn(class::function);
         HookList<HitHandler> BeforeHit;
@@ -176,7 +193,7 @@ class SpellScript : public _SpellScript
         // example: AfterHit += SpellHitFn(class::function);
         HookList<HitHandler> AfterHit;
         // where function is: void function()
-        #define SpellHitFn(F) (SpellHitFnType)&F
+        #define SpellHitFn(F) HitHandlerFunction(&F)
 
         // hooks are executed in following order, at specified event of spell:
         // 1. BeforeHit - executed just before spell hits a target
@@ -276,12 +293,16 @@ class AuraScript : public _SpellScript
     // internal use classes & functions
     // DO NOT OVERRIDE THESE IN SCRIPTS
     public:
-        typedef void(AuraScript::*AuraEffectApplicationModeFnType)(AuraEffect const *, AuraApplication const *, AuraEffectHandleModes mode);
-        typedef void(AuraScript::*AuraEffectPeriodicFnType)(AuraEffect const *, AuraApplication const *);
-        typedef void(AuraScript::*AuraEffectUpdatePeriodicFnType)(AuraEffect *);
-        typedef void(AuraScript::*AuraEffectCalcAmountFnType)(AuraEffect const *, int32 &, bool &);
-        typedef void(AuraScript::*AuraEffectCalcPeriodicFnType)(AuraEffect const *, bool &, int32 &);
-        typedef void(AuraScript::*AuraEffectCalcSpellModFnType)(AuraEffect const *, SpellModifier *&);
+
+    #define AURASCRIPT_FUNCTION_TYPE_DEFINES(CLASSNAME) \
+        typedef void(CLASSNAME::*AuraEffectApplicationModeFnType)(AuraEffect const *, AuraApplication const *, AuraEffectHandleModes mode); \
+        typedef void(CLASSNAME::*AuraEffectPeriodicFnType)(AuraEffect const *, AuraApplication const *); \
+        typedef void(CLASSNAME::*AuraEffectUpdatePeriodicFnType)(AuraEffect *); \
+        typedef void(CLASSNAME::*AuraEffectCalcAmountFnType)(AuraEffect const *, int32 &, bool &); \
+        typedef void(CLASSNAME::*AuraEffectCalcPeriodicFnType)(AuraEffect const *, bool &, int32 &); \
+        typedef void(CLASSNAME::*AuraEffectCalcSpellModFnType)(AuraEffect const *, SpellModifier *&); \
+
+        AURASCRIPT_FUNCTION_TYPE_DEFINES(AuraScript)
 
         class EffectBase : public  _SpellScript::EffectAuraNameCheck, public _SpellScript::EffectHook
         {

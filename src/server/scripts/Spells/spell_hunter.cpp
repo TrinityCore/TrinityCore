@@ -48,6 +48,7 @@ public:
 
     class spell_hun_chimera_shot_SpellScript : public SpellScript
     {
+        PrepareSpellScript(spell_hun_chimera_shot_SpellScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(HUNTER_SPELL_CHIMERA_SHOT_SERPENT))
@@ -143,6 +144,7 @@ public:
 
     class spell_hun_invigoration_SpellScript : public SpellScript
     {
+        PrepareSpellScript(spell_hun_invigoration_SpellScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(HUNTER_SPELL_INVIGORATION_TRIGGERED))
@@ -177,6 +179,7 @@ public:
 
     class spell_hun_last_stand_pet_SpellScript : public SpellScript
     {
+        PrepareSpellScript(spell_hun_last_stand_pet_SpellScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(HUNTER_PET_SPELL_LAST_STAND_TRIGGERED))
@@ -211,6 +214,7 @@ public:
 
     class spell_hun_masters_call_SpellScript : public SpellScript
     {
+        PrepareSpellScript(spell_hun_masters_call_SpellScript)
         bool Validate(SpellEntry const * spellEntry)
         {
             if (!sSpellStore.LookupEntry(HUNTER_SPELL_MASTERS_CALL_TRIGGERED))
@@ -258,6 +262,7 @@ public:
 
     class spell_hun_readiness_SpellScript : public SpellScript
     {
+        PrepareSpellScript(spell_hun_readiness_SpellScript)
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             Unit *caster = GetCaster();
@@ -301,6 +306,7 @@ public:
 
     class spell_hun_scatter_shot_SpellScript : public SpellScript
     {
+        PrepareSpellScript(spell_hun_scatter_shot_SpellScript)
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             Unit* caster = GetCaster();
@@ -398,6 +404,7 @@ public:
 
     class spell_hun_pet_heart_of_the_phoenix_SpellScript : public SpellScript
     {
+        PrepareSpellScript(spell_hun_pet_heart_of_the_phoenix_SpellScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED))
@@ -443,6 +450,7 @@ public:
 
     class spell_hun_pet_carrion_feeder_SpellScript : public SpellScript
     {
+        PrepareSpellScript(spell_hun_pet_carrion_feeder_SpellScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(HUNTER_PET_SPELL_CARRION_FEEDER_TRIGGERED))

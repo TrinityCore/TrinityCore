@@ -38,6 +38,7 @@ class spell_pri_mana_burn : public SpellScriptLoader
 
         class spell_pri_mana_burn_SpellScript : public SpellScript
         {
+            PrepareSpellScript(spell_pri_mana_burn_SpellScript)
             bool Validate(SpellEntry const * /*spellEntry*/)
             {
                 return true;
@@ -72,6 +73,7 @@ class spell_pri_pain_and_suffering_proc : public SpellScriptLoader
         // 47948 Pain and Suffering (proc)
         class spell_pri_pain_and_suffering_proc_SpellScript : public SpellScript
         {
+            PrepareSpellScript(spell_pri_pain_and_suffering_proc_SpellScript)
             void HandleEffectScriptEffect(SpellEffIndex /*effIndex*/)
             {
                 // Refresh Shadow Word: Pain on target
@@ -99,6 +101,7 @@ class spell_pri_penance : public SpellScriptLoader
 
         class spell_pri_penance_SpellScript : public SpellScript
         {
+            PrepareSpellScript(spell_pri_penance_SpellScript)
             bool Validate(SpellEntry const * spellEntry)
             {
                 if (!sSpellStore.LookupEntry(PRIEST_SPELL_PENANCE_R1))

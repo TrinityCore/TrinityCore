@@ -25,6 +25,7 @@
 
 class spell_generic_quest_update_entry_SpellScript : public SpellScript
 {
+    PrepareSpellScript(spell_generic_quest_update_entry_SpellScript)
 private:
     uint32 _spellEffect;
     uint8 _effIndex;
@@ -92,6 +93,7 @@ public:
 
     class spell_q5206_test_fetid_skull_SpellScript : public SpellScript
     {
+        PrepareSpellScript(spell_q5206_test_fetid_skull_SpellScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_CREATE_RESONATING_SKULL))
@@ -142,6 +144,7 @@ public:
 
     class spell_q6124_6129_apply_salve_SpellScript : public SpellScript
     {
+        PrepareSpellScript(spell_q6124_6129_apply_salve_SpellScript)
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             if (GetCastItem())
@@ -234,6 +237,7 @@ public:
 
     class spell_q11587_arcane_prisoner_rescue_SpellScript : public SpellScript
     {
+        PrepareSpellScript(spell_q11587_arcane_prisoner_rescue_SpellScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_SUMMON_ARCANE_PRISONER_MALE))
@@ -294,6 +298,7 @@ public:
 
     class spell_q11730_ultrasonic_screwdriver_SpellScript : public SpellScript
     {
+        PrepareSpellScript(spell_q11730_ultrasonic_screwdriver_SpellScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_SUMMON_SCAVENGEBOT_004A8))
@@ -375,6 +380,7 @@ public:
     class spell_q12459_seeds_of_natures_wrath_SpellScript : public SpellScript
     {
     public:
+        PrepareSpellScript(spell_q12459_seeds_of_natures_wrath_SpellScript)
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             if (Creature* pCreatureTarget = GetHitCreature())
@@ -421,6 +427,7 @@ public:
     class spell_q12634_despawn_fruit_tosser_SpellScript : public SpellScript
     {
     public:
+        PrepareSpellScript(spell_q12634_despawn_fruit_tosser_SpellScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_BANANAS_FALL_TO_GROUND))
@@ -470,6 +477,7 @@ public:
     class spell_q12683_take_sputum_sample_SpellScript : public SpellScript
     {
     public:
+        PrepareSpellScript(spell_q12683_take_sputum_sample_SpellScript)
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             uint32 reqAuraId = SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), 1);
@@ -510,6 +518,7 @@ public:
     class spell_q12937_relief_for_the_fallen_SpellScript : public SpellScript
     {
     public:
+        PrepareSpellScript(spell_q12937_relief_for_the_fallen_SpellScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_TRIGGER_AID_OF_THE_EARTHEN))

@@ -328,6 +328,7 @@ class spell_festergut_pungent_blight : public SpellScriptLoader
 
         class spell_festergut_pungent_blight_SpellScript : public SpellScript
         {
+            PrepareSpellScript(spell_festergut_pungent_blight_SpellScript)
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 SpellEntry const* spellInfo = sSpellStore.LookupEntry(GetEffectValue());
@@ -361,6 +362,7 @@ class spell_festergut_gastric_bloat : public SpellScriptLoader
 
         class spell_festergut_gastric_bloat_SpellScript : public SpellScript
         {
+            PrepareSpellScript(spell_festergut_gastric_bloat_SpellScript)
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 Aura const* aura = GetHitUnit()->GetAura(GetSpellInfo()->Id);

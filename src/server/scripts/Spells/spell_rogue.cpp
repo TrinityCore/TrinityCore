@@ -37,6 +37,7 @@ class spell_rog_preparation : public SpellScriptLoader
 
         class spell_rog_preparation_SpellScript : public SpellScript
         {
+            PrepareSpellScript(spell_rog_preparation_SpellScript)
             bool Validate(SpellEntry const * /*spellEntry*/)
             {
                 if (!sSpellStore.LookupEntry(ROGUE_SPELL_GLYPH_OF_PREPARATION))
@@ -145,6 +146,7 @@ class spell_rog_shiv : public SpellScriptLoader
 
         class spell_rog_shiv_SpellScript : public SpellScript
         {
+            PrepareSpellScript(spell_rog_shiv_SpellScript)
             bool Validate(SpellEntry const * /*spellEntry*/)
             {
                 if (!sSpellStore.LookupEntry(ROGUE_SPELL_SHIV_TRIGGERED))
