@@ -1392,33 +1392,33 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
 
     */
 
-    if (procFlags & PROC_FLAG_ON_DO_PERIODIC)
+    if (procFlags & PROC_FLAG_DONE_PERIODIC)
     {
-        if (EventProcFlag & PROC_FLAG_SUCCESSFUL_NEGATIVE_MAGIC_SPELL)
+        if (EventProcFlag & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG)
         {
             if (!(procExtra & PROC_EX_INTERNAL_DOT))
                 return false;
         }
         else if (procExtra & PROC_EX_INTERNAL_HOT)
             procExtra |= PROC_EX_INTERNAL_REQ_FAMILY;
-        else if (EventProcFlag & PROC_FLAG_SUCCESSFUL_POSITIVE_MAGIC_SPELL)
+        else if (EventProcFlag & PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS)
             return false;
     }
 
-    if (procFlags & PROC_FLAG_ON_TAKE_PERIODIC)
+    if (procFlags & PROC_FLAG_TAKEN_PERIODIC)
     {
-        if (EventProcFlag & PROC_FLAG_TAKEN_NEGATIVE_MAGIC_SPELL)
+        if (EventProcFlag & PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS)
         {
             if (!(procExtra & PROC_EX_INTERNAL_DOT))
                 return false;
         }
         else if (procExtra & PROC_EX_INTERNAL_HOT)
             procExtra |= PROC_EX_INTERNAL_REQ_FAMILY;
-        else if (EventProcFlag & PROC_FLAG_TAKEN_POSITIVE_MAGIC_SPELL)
+        else if (EventProcFlag & PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_POS)
             return false;
     }
     // Trap casts are active by default
-    if (procFlags & PROC_FLAG_ON_TRAP_ACTIVATION)
+    if (procFlags & PROC_FLAG_DONE_TRAP_ACTIVATION)
         active = true;
 
     // Always trigger for this

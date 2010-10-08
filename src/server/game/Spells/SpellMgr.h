@@ -552,53 +552,53 @@ enum ProcFlags
 {
    PROC_FLAG_NONE                            = 0x00000000,
 
-   PROC_FLAG_KILLED                          = 0x00000001,    // 00 Killed by agressor
+   PROC_FLAG_KILLED                          = 0x00000001,    // 00 Killed by agressor - not sure about this flag
    PROC_FLAG_KILL                            = 0x00000002,    // 01 Kill target (in most cases need XP/Honor reward)
 
-   PROC_FLAG_SUCCESSFUL_MELEE_HIT            = 0x00000004,    // 02 Successful melee auto attack
-   PROC_FLAG_TAKEN_MELEE_HIT                 = 0x00000008,    // 03 Taken damage from melee auto attack hit
+   PROC_FLAG_DONE_MELEE_AUTO_ATTACK          = 0x00000004,    // 02 Done melee auto attack
+   PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK         = 0x00000008,    // 03 Taken melee auto attack
 
-   PROC_FLAG_SUCCESSFUL_MELEE_SPELL_HIT      = 0x00000010,    // 04 Successful attack by Spell that use melee weapon
-   PROC_FLAG_TAKEN_MELEE_SPELL_HIT           = 0x00000020,    // 05 Taken damage by Spell that use melee weapon
+   PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS      = 0x00000010,    // 04 Done attack by Spell that has dmg class melee
+   PROC_FLAG_TAKEN_SPELL_MELEE_DMG_CLASS     = 0x00000020,    // 05 Taken damage by Spell that has dmg class melee
 
-   PROC_FLAG_SUCCESSFUL_RANGED_HIT           = 0x00000040,    // 06 Successful Ranged auto attack
-   PROC_FLAG_TAKEN_RANGED_HIT                = 0x00000080,    // 07 Taken damage from ranged auto attack
+   PROC_FLAG_DONE_RANGED_AUTO_ATTACK         = 0x00000040,    // 06 Done ranged auto attack
+   PROC_FLAG_TAKEN_RANGED_AUTO_ATTACK        = 0x00000080,    // 07 Taken ranged auto attack
 
-   PROC_FLAG_SUCCESSFUL_RANGED_SPELL_HIT     = 0x00000100,    // 08 Successful Ranged attack by Spell that use ranged weapon
-   PROC_FLAG_TAKEN_RANGED_SPELL_HIT          = 0x00000200,    // 09 Taken damage by Spell that use ranged weapon
+   PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS     = 0x00000100,    // 08 Done attack by Spell that has dmg class ranged
+   PROC_FLAG_TAKEN_SPELL_RANGED_DMG_CLASS    = 0x00000200,    // 09 Taken attack by Spell that has dmg class ranged
 
-   PROC_FLAG_SUCCESSFUL_POSITIVE_SPELL_HIT   = 0x00000400,    // 10 Successful Positive spell hit
-   PROC_FLAG_TAKEN_POSITIVE_SPELL            = 0x00000800,    // 11 Taken Positive spell hit
-
-   PROC_FLAG_SUCCESSFUL_NEGATIVE_SPELL_HIT   = 0x00001000,    // 12 Successful Negative spell hit
-   PROC_FLAG_TAKEN_NEGATIVE_SPELL_HIT        = 0x00002000,    // 13 Taken Negative spell hit
-
-   PROC_FLAG_SUCCESSFUL_POSITIVE_MAGIC_SPELL = 0x00004000,    // 14 Successful Positive Magic spell hit
-   PROC_FLAG_TAKEN_POSITIVE_MAGIC_SPELL      = 0x00008000,    // 15 Taken Positive Magic spell hit
-
-   PROC_FLAG_SUCCESSFUL_NEGATIVE_MAGIC_SPELL = 0x00010000,    // 16 Successful Negative Magic spell hit
-   PROC_FLAG_TAKEN_NEGATIVE_MAGIC_SPELL      = 0x00020000,    // 17 Taken Negative Magic spell hit
-
-   PROC_FLAG_ON_DO_PERIODIC                  = 0x00040000,    // 18 Successful do periodic (damage / healing, determined from 14,16 flags)
-   PROC_FLAG_ON_TAKE_PERIODIC                = 0x00080000,    // 19 Taken spell periodic (damage / healing, determined from 15,17 flags)
-
-   PROC_FLAG_TAKEN_ANY_DAMAGE                = 0x00100000,    // 20 Taken any damage
-   PROC_FLAG_ON_TRAP_ACTIVATION              = 0x00200000,    // 21 On trap activation (possibly needs name change to ON_GAMEOBJECT_CAST or USE)
-
-   PROC_FLAG_TAKEN_OFFHAND_HIT               = 0x00400000,    // 22 Taken off-hand melee attacks (this is probably wrong)
-   PROC_FLAG_SUCCESSFUL_OFFHAND_HIT          = 0x00800000,    // 23 Successful off-hand melee attacks (this is probably wrong)
+   PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_POS   = 0x00000400,    // 10 Done positive spell that has dmg class none
+   PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_POS  = 0x00000800,    // 11 Taken positive spell that has dmg class none
+ 
+   PROC_FLAG_DONE_SPELL_NONE_DMG_CLASS_NEG   = 0x00001000,    // 12 Done negative spell that has dmg class none
+   PROC_FLAG_TAKEN_SPELL_NONE_DMG_CLASS_NEG  = 0x00002000,    // 13 Taken negative spell that has dmg class none
+ 
+   PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_POS  = 0x00004000,    // 14 Done positive spell that has dmg class magic
+   PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS = 0x00008000,    // 15 Taken positive spell that has dmg class magic
+ 
+   PROC_FLAG_DONE_SPELL_MAGIC_DMG_CLASS_NEG  = 0x00010000,    // 16 Done negative spell that has dmg class magic
+   PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG = 0x00020000,    // 17 Taken negative spell that has dmg class magic
+ 
+   PROC_FLAG_DONE_PERIODIC                   = 0x00040000,    // 18 Successful do periodic (damage / healing)
+   PROC_FLAG_TAKEN_PERIODIC                  = 0x00080000,    // 19 Taken spell periodic (damage / healing)
+ 
+   PROC_FLAG_TAKEN_DAMAGE                    = 0x00100000,    // 20 Taken any damage
+   PROC_FLAG_DONE_TRAP_ACTIVATION            = 0x00200000,    // 21 On trap activation (possibly needs name change to ON_GAMEOBJECT_CAST or USE)
+ 
+   PROC_FLAG_DONE_MAINHAND_ATTACK            = 0x00400000,    // 22 Done main-hand melee attacks (spell and autoattack)
+   PROC_FLAG_DONE_OFFHAND_ATTACK             = 0x00800000,    // 23 Done off-hand melee attacks (spell and autoattack)
 
    PROC_FLAG_DEATH                           = 0x01000000     // 24 Died in any way
 };
 
-#define MELEE_BASED_TRIGGER_MASK (PROC_FLAG_SUCCESSFUL_MELEE_HIT        | \
-                                  PROC_FLAG_TAKEN_MELEE_HIT             | \
-                                  PROC_FLAG_SUCCESSFUL_MELEE_SPELL_HIT  | \
-                                  PROC_FLAG_TAKEN_MELEE_SPELL_HIT       | \
-                                  PROC_FLAG_SUCCESSFUL_RANGED_HIT       | \
-                                  PROC_FLAG_TAKEN_RANGED_HIT            | \
-                                  PROC_FLAG_SUCCESSFUL_RANGED_SPELL_HIT | \
-                                  PROC_FLAG_TAKEN_RANGED_SPELL_HIT)
+#define MELEE_BASED_TRIGGER_MASK (PROC_FLAG_DONE_MELEE_AUTO_ATTACK      | \
+                                  PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK     | \
+                                  PROC_FLAG_DONE_SPELL_MELEE_DMG_CLASS  | \
+                                  PROC_FLAG_TAKEN_SPELL_MELEE_DMG_CLASS | \
+                                  PROC_FLAG_DONE_RANGED_AUTO_ATTACK     | \
+                                  PROC_FLAG_TAKEN_RANGED_AUTO_ATTACK    | \
+                                  PROC_FLAG_DONE_SPELL_RANGED_DMG_CLASS | \
+                                  PROC_FLAG_TAKEN_SPELL_RANGED_DMG_CLASS)
 
 enum ProcFlagsEx
 {

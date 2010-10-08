@@ -1336,12 +1336,12 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
             caster->DealDamageMods(target,damage,&absorb);
 
             // Set trigger flag
-            uint32 procAttacker = PROC_FLAG_ON_DO_PERIODIC;
-            uint32 procVictim   = PROC_FLAG_ON_TAKE_PERIODIC;
+            uint32 procAttacker = PROC_FLAG_DONE_PERIODIC;
+            uint32 procVictim   = PROC_FLAG_TAKEN_PERIODIC;
             uint32 procEx = PROC_EX_NORMAL_HIT | PROC_EX_INTERNAL_DOT;
             damage = (damage <= absorb+resist) ? 0 : (damage-absorb-resist);
             if (damage)
-                procVictim|=PROC_FLAG_TAKEN_ANY_DAMAGE;
+                procVictim|=PROC_FLAG_TAKEN_DAMAGE;
 
             int32 overkill = damage - target->GetHealth();
             if (overkill < 0)
@@ -1418,12 +1418,12 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
             caster->SendSpellNonMeleeDamageLog(target, GetId(), damage, GetSpellSchoolMask(GetSpellProto()), absorb, resist, false, 0, crit);
 
             // Set trigger flag
-            uint32 procAttacker = PROC_FLAG_ON_DO_PERIODIC;
-            uint32 procVictim   = PROC_FLAG_ON_TAKE_PERIODIC;
+            uint32 procAttacker = PROC_FLAG_DONE_PERIODIC;
+            uint32 procVictim   = PROC_FLAG_TAKEN_PERIODIC;
             uint32 procEx = PROC_EX_NORMAL_HIT | PROC_EX_INTERNAL_DOT;
             damage = (damage <= absorb+resist) ? 0 : (damage-absorb-resist);
             if (damage)
-                procVictim|=PROC_FLAG_TAKEN_ANY_DAMAGE;
+                procVictim|=PROC_FLAG_TAKEN_DAMAGE;
             caster->ProcDamageAndSpell(target, procAttacker, procVictim, procEx, damage, BASE_ATTACK, GetSpellProto());
             int32 new_damage = caster->DealDamage(target, damage, &cleanDamage, DOT, GetSpellSchoolMask(GetSpellProto()), GetSpellProto(), false);
 
@@ -1575,8 +1575,8 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
                 caster->DealDamage(caster, damage, &cleanDamage, NODAMAGE, GetSpellSchoolMask(GetSpellProto()), GetSpellProto(), true);
             }
 
-            uint32 procAttacker = PROC_FLAG_ON_DO_PERIODIC;
-            uint32 procVictim   = PROC_FLAG_ON_TAKE_PERIODIC;
+            uint32 procAttacker = PROC_FLAG_DONE_PERIODIC;
+            uint32 procVictim   = PROC_FLAG_TAKEN_PERIODIC;
             uint32 procEx = PROC_EX_NORMAL_HIT | PROC_EX_INTERNAL_HOT;
             // ignore item heals
             if (!haveCastItem)
@@ -1819,11 +1819,11 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
             caster->SendSpellNonMeleeDamageLog(&damageInfo);
 
             // Set trigger flag
-            uint32 procAttacker = PROC_FLAG_ON_DO_PERIODIC;
-            uint32 procVictim   = PROC_FLAG_ON_TAKE_PERIODIC;
+            uint32 procAttacker = PROC_FLAG_DONE_PERIODIC;
+            uint32 procVictim   = PROC_FLAG_TAKEN_PERIODIC;
             uint32 procEx       = createProcExtendMask(&damageInfo, SPELL_MISS_NONE) | PROC_EX_INTERNAL_DOT;
             if (damageInfo.damage)
-                procVictim|=PROC_FLAG_TAKEN_ANY_DAMAGE;
+                procVictim|=PROC_FLAG_TAKEN_DAMAGE;
 
             caster->ProcDamageAndSpell(damageInfo.target, procAttacker, procVictim, procEx, damageInfo.damage, BASE_ATTACK, spellProto);
 
