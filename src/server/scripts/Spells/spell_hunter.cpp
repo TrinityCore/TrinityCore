@@ -345,6 +345,7 @@ public:
 
     class spell_hun_sniper_training_AuraScript : public AuraScript
     {
+        PrepareAuraScript(spell_hun_sniper_training_AuraScript)
         bool Validate(SpellEntry const * /*entry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_SNIPER_TRAINING_R1))

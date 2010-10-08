@@ -439,6 +439,7 @@ class spell_ignis_slag_pot : public SpellScriptLoader
 
         class spell_ignis_slag_pot_AuraScript : public AuraScript
         {
+            PrepareAuraScript(spell_ignis_slag_pot_AuraScript)
             bool Validate(SpellEntry const * /*spellEntry*/)
             {
                 if (!sSpellStore.LookupEntry(SPELL_SLAG_POT_DAMAGE))

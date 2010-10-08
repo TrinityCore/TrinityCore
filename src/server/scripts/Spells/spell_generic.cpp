@@ -33,6 +33,7 @@ public:
 
     class spell_gen_aura_of_anger_AuraScript : public AuraScript
     {
+        PrepareAuraScript(spell_gen_aura_of_anger_AuraScript)
         void HandleEffectPeriodicUpdate(AuraEffect * aurEff)
         {
             if (AuraEffect * aurEff1 = aurEff->GetBase()->GetEffect(EFFECT_1))
@@ -60,6 +61,7 @@ public:
 
     class spell_gen_burn_brutallus_AuraScript : public AuraScript
     {
+        PrepareAuraScript(spell_gen_burn_brutallus_AuraScript)
         void HandleEffectPeriodicUpdate(AuraEffect * aurEff)
         {
             if (aurEff->GetTickNumber() % 11 == 0)
@@ -92,6 +94,7 @@ public:
 
     class spell_gen_parachute_AuraScript : public AuraScript
     {
+        PrepareAuraScript(spell_gen_parachute_AuraScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_PARACHUTE))
@@ -231,6 +234,7 @@ public:
 
     class spell_gen_leeching_swarm_AuraScript : public AuraScript
     {
+        PrepareAuraScript(spell_gen_leeching_swarm_AuraScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_LEECHING_SWARM_DMG))
@@ -400,6 +404,7 @@ class spell_creature_permanent_feign_death : public SpellScriptLoader
 
         class spell_creature_permanent_feign_deathAuraScript : public AuraScript
         {
+            PrepareAuraScript(spell_creature_permanent_feign_deathAuraScript)
             void HandleEffectApply(AuraEffect const * /*aurEff*/, AuraApplication const * aurApp, AuraEffectHandleModes /*mode*/)
             {
                 Unit* pTarget = aurApp->GetTarget();
