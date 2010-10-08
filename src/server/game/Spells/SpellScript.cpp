@@ -167,6 +167,16 @@ void SpellScript::EffectHandler::Call(SpellScript * spellScript, SpellEffIndex e
     (spellScript->*pEffectHandlerScript)(effIndex);
 }
 
+SpellScript::HitHandler::HitHandler(SpellHitFnType _pHitHandlerScript)
+{
+    pHitHandlerScript = _pHitHandlerScript;
+}
+
+void SpellScript::HitHandler::Call(SpellScript * spellScript)
+{
+    (spellScript->*pHitHandlerScript)();
+}
+
 bool SpellScript::_Validate(SpellEntry const * entry)
 {
     for (std::list<EffectHandler>::iterator itr = OnEffect.begin(); itr != OnEffect.end();  ++itr)

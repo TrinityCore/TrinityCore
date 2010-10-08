@@ -903,6 +903,7 @@ class spell_deathbringer_blood_link : public SpellScriptLoader
 
         class spell_deathbringer_blood_link_SpellScript : public SpellScript
         {
+            PrepareSpellScript(spell_deathbringer_blood_link_SpellScript)
             bool Validate(SpellEntry const* /*spellInfo*/)
             {
                 if (!sSpellStore.LookupEntry(SPELL_BLOOD_LINK_POWER))
@@ -990,6 +991,7 @@ class spell_deathbringer_blood_power : public SpellScriptLoader
 
         class spell_deathbringer_blood_power_SpellScript : public SpellScript
         {
+            PrepareSpellScript(spell_deathbringer_blood_power_SpellScript)
             void ModAuraValue()
             {
                 if (Aura* aura = GetHitAura())
@@ -1042,6 +1044,7 @@ class spell_deathbringer_rune_of_blood : public SpellScriptLoader
 
         class spell_deathbringer_rune_of_blood_SpellScript : public SpellScript
         {
+            PrepareSpellScript(spell_deathbringer_rune_of_blood_SpellScript)
             bool Validate(SpellEntry const* /*spellInfo*/)
             {
                 if (!sSpellStore.LookupEntry(SPELL_BLOOD_LINK_DUMMY))
@@ -1075,6 +1078,7 @@ class spell_deathbringer_blood_nova : public SpellScriptLoader
 
         class spell_deathbringer_blood_nova_SpellScript : public SpellScript
         {
+            PrepareSpellScript(spell_deathbringer_blood_nova_SpellScript)
             bool Validate(SpellEntry const* /*spellInfo*/)
             {
                 if (!sSpellStore.LookupEntry(SPELL_BLOOD_LINK_DUMMY))

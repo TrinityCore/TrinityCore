@@ -44,6 +44,7 @@ public:
 
     class spell_warl_demonic_empowerment_SpellScript : public SpellScript
     {
+        PrepareSpellScript(spell_warl_demonic_empowerment_SpellScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(WARLOCK_DEMONIC_EMPOWERMENT_SUCCUBUS))
@@ -113,6 +114,7 @@ public:
 
     class spell_warl_everlasting_affliction_SpellScript : public SpellScript
     {
+        PrepareSpellScript(spell_warl_everlasting_affliction_SpellScript)
         void HandleScriptEffect(SpellEffIndex /*effIndex*/)
         {
             if (Unit* unitTarget = GetHitUnit())
@@ -141,6 +143,7 @@ public:
 
     class spell_warl_create_healthstone_SpellScript : public SpellScript
     {
+        PrepareSpellScript(spell_warl_create_healthstone_SpellScript)
         static uint32 const iTypes[8][3];
 
         bool Validate(SpellEntry const * /*spellEntry*/)

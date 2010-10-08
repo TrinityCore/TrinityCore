@@ -34,6 +34,7 @@ public:
 
     class spell_item_trigger_spell_SpellScript : public SpellScript
     {
+        PrepareSpellScript(spell_item_trigger_spell_SpellScript)
     private:
         uint32 _triggeredSpellId;
 
@@ -83,6 +84,7 @@ public:
 
     class spell_item_deviate_fish_SpellScript : public SpellScript
     {
+        PrepareSpellScript(spell_item_deviate_fish_SpellScript)
     public:
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
@@ -131,6 +133,7 @@ public:
     class spell_item_flask_of_the_north_SpellScript : public SpellScript
     {
     public:
+        PrepareSpellScript(spell_item_flask_of_the_north_SpellScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_FLASK_OF_THE_NORTH_SP))
@@ -206,6 +209,7 @@ public:
     class spell_item_gnomish_death_ray_SpellScript : public SpellScript
     {
     public:
+        PrepareSpellScript(spell_item_gnomish_death_ray_SpellScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_GNOMISH_DEATH_RAY_SELF))
@@ -258,6 +262,7 @@ public:
     class spell_item_make_a_wish_SpellScript : public SpellScript
     {
     public:
+        PrepareSpellScript(spell_item_make_a_wish_SpellScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_MR_PINCHYS_BLESSING))
@@ -311,6 +316,7 @@ public:
 
     class spell_item_mingos_fortune_generator_SpellScript : public SpellScript
     {
+        PrepareSpellScript(spell_item_mingos_fortune_generator_SpellScript)
         void HandleDummy(SpellEffIndex effIndex)
         {
             // Selecting one from Bloodstained Fortune item
@@ -373,6 +379,7 @@ public:
     class spell_item_net_o_matic_SpellScript : public SpellScript
     {
     public:
+        PrepareSpellScript(spell_item_net_o_matic_SpellScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_NET_O_MATIC_TRIGGERED1))
@@ -428,6 +435,7 @@ public:
     class spell_item_noggenfogger_elixir_SpellScript : public SpellScript
     {
     public:
+        PrepareSpellScript(spell_item_noggenfogger_elixir_SpellScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED1))
@@ -485,6 +493,7 @@ public:
     class spell_item_savory_deviate_delight_SpellScript : public SpellScript
     {
     public:
+        PrepareSpellScript(spell_item_savory_deviate_delight_SpellScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
             for (uint32 spellId = SPELL_FLIP_OUT_MALE; spellId <= SPELL_YAAARRRR_FEMALE; ++spellId)
@@ -542,6 +551,7 @@ public:
     class spell_item_six_demon_bag_SpellScript : public SpellScript
     {
     public:
+        PrepareSpellScript(spell_item_six_demon_bag_SpellScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_FROSTBOLT))
@@ -620,6 +630,7 @@ public:
     class spell_item_underbelly_elixir_SpellScript : public SpellScript
     {
     public:
+        PrepareSpellScript(spell_item_underbelly_elixir_SpellScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_UNDERBELLY_ELIXIR_TRIGGERED1))

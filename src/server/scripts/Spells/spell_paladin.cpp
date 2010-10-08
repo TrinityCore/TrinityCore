@@ -46,6 +46,7 @@ public:
 
     class spell_pal_blessing_of_faith_SpellScript : public SpellScript
     {
+        PrepareSpellScript(spell_pal_blessing_of_faith_SpellScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(SPELL_BLESSING_OF_LOWER_CITY_DRUID))
@@ -141,6 +142,7 @@ public:
 
     class spell_pal_guarded_by_the_light_SpellScript : public SpellScript
     {
+        PrepareSpellScript(spell_pal_guarded_by_the_light_SpellScript)
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
             if (!sSpellStore.LookupEntry(PALADIN_SPELL_DIVINE_PLEA))
@@ -174,6 +176,7 @@ public:
 
     class spell_pal_holy_shock_SpellScript : public SpellScript
     {
+        PrepareSpellScript(spell_pal_holy_shock_SpellScript)
         bool Validate(SpellEntry const *spellEntry)
         {
             if (!sSpellStore.LookupEntry(PALADIN_SPELL_HOLY_SHOCK_R1))
@@ -227,6 +230,7 @@ public:
 
     class spell_pal_judgement_of_command_SpellScript : public SpellScript
     {
+        PrepareSpellScript(spell_pal_judgement_of_command_SpellScript)
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             if (Unit *unitTarget = GetHitUnit())
