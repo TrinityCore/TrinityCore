@@ -66,4 +66,10 @@ enum eTypes
     EVENT_TOWER_OF_FLAMES_DESTROYED    = 21033,
     EVENT_TOWER_OF_LIFE_DESTROYED      = 21030
 };
+
+enum eAchievementCriteria
+{
+    ACHIEVEMENT_CRITERIA_HOT_POCKET_10                   = 10430, //ignis
+    ACHIEVEMENT_CRITERIA_HOT_POCKET_25                   = 10431,
+};
 #endif

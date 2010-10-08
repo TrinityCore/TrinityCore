@@ -2485,6 +2485,7 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (33118,-1603226,'Let the inferno consume you!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15567,1,0,0,'Ignis SAY_SCORCH_1'),
    (33118,-1603227,'BURN! Burn in the makers fire!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15568,1,0,0,'Ignis SAY_SCORCH_2'),
    (33118,-1603228,'Let it be finished!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15571,1,0,0,'Ignis SAY_BERSERK'),
+   (33118,-1603229,'Ignis the Furnace Master begins to cast Flame Jets!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,3,0,0,'IGNIS EMOTE_JETS'),
 
 -- Kologarn
    (32930,-1603230,'None shall pass!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15586,1,0,0,'Kologarn SAY_AGGRO'),

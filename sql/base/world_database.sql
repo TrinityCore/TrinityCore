@@ -26838,6 +26838,8 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 71222, 'spell_festergut_blighted_spores'),
 ( 73033, 'spell_festergut_blighted_spores'),
 ( 73034, 'spell_festergut_blighted_spores'),
+( 62717, 'spell_ignis_slag_pot'),
+( 63477, 'spell_ignis_slag_pot'),
 -- quest
 (  8913, 'spell_q55_sacred_cleansing'),
 ( 17271, 'spell_q5206_test_fetid_skull'),

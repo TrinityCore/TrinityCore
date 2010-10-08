@@ -326,6 +326,20 @@ public:
             return 0;
         }
 
+        bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/, uint32 /*miscvalue1*/)
+        {
+            switch (criteria_id)
+            {
+                case ACHIEVEMENT_CRITERIA_HOT_POCKET_10:
+                    return true;
+                case ACHIEVEMENT_CRITERIA_HOT_POCKET_25:
+                    return true;
+                default:
+                    break;
+            }
+            return false;
+        }
+
         uint32 GetData(uint32 type)
         {
             switch(type)

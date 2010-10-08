@@ -1486,6 +1486,8 @@ UPDATE `creature_template` SET `ScriptName`='boss_flame_leviathan_overload_devic
 UPDATE `creature_template` SET `ScriptName`='npc_colossus' WHERE `entry`=33237;
 UPDATE `creature_template` SET `ScriptName`='spell_pool_of_tar' WHERE `entry`=33090;
 UPDATE `creature_template` SET `ScriptName`='boss_ignis' WHERE `entry`=33118;
+UPDATE `creature_template` SET `ScriptName`='npc_iron_construct' WHERE `entry`=33121;
+UPDATE `creature_template` SET `ScriptName`='npc_scorch_ground' WHERE `entry`=33221;
 UPDATE `creature_template` SET `ScriptName`='boss_razorscale' WHERE `entry`=33186;
 UPDATE `creature_template` SET `ScriptName`='boss_xt002' WHERE `entry`=33293;
 UPDATE `creature_template` SET `ScriptName`='mob_xt002_heart' WHERE `entry`=33329;
