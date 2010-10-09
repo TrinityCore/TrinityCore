@@ -120,7 +120,7 @@ struct DefaultTargetSelector : public std::unary_function<Unit *, bool>
             }
             else
             {
-                if (pTarget->HasAura(m_aura))
+                if (pTarget->HasAura(-m_aura))
                     return false;
             }
         }
