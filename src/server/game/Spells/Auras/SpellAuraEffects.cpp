@@ -2344,9 +2344,18 @@ void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
                 return;
             // Beacon of Light
             case 53563:
+            {
                 Unit * triggerCaster = (Unit *)(GetBase()->GetOwner());
-                triggerCaster->CastSpell(triggerTarget, triggeredSpellInfo, true, 0, this,triggerCaster->GetGUID());
+                triggerCaster->CastSpell(triggerTarget, triggeredSpellInfo, true, 0, this, triggerCaster->GetGUID());
                 return;
+            }
+            // Slime Spray - temporary here until preventing default effect works again
+            // added on 9.10.2010
+            case 69508:
+            {
+                caster->CastSpell(triggerTarget, triggerSpellId, true, NULL, NULL, caster->GetGUID());
+                return;
+            }
         }
     }
 
@@ -2356,7 +2365,7 @@ void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
     if (triggeredSpellInfo)
     {
         Unit * triggerCaster = GetTriggeredSpellCaster(triggeredSpellInfo, caster, triggerTarget);
-        triggerCaster->CastSpell(triggerTarget, triggeredSpellInfo, true, 0, this);
+        triggerCaster->CastSpell(triggerTarget, triggeredSpellInfo, true, NULL, this);
         sLog.outDebug("AuraEffect::TriggerSpell: Spell %u Trigger %u",GetId(), triggeredSpellInfo->Id);
     }
     else if (target->GetTypeId() != TYPEID_UNIT || !sScriptMgr.OnDummyEffect(caster, GetId(), SpellEffIndex(GetEffIndex()), triggerTarget->ToCreature()))
