@@ -1060,7 +1060,9 @@ Item* Item::CloneItem(uint32 count, Player const* player) const
     newItem->SetUInt32Value(ITEM_FIELD_GIFTCREATOR,  GetUInt32Value(ITEM_FIELD_GIFTCREATOR));
     newItem->SetUInt32Value(ITEM_FIELD_FLAGS,        GetUInt32Value(ITEM_FIELD_FLAGS));
     newItem->SetUInt32Value(ITEM_FIELD_DURATION,     GetUInt32Value(ITEM_FIELD_DURATION));
-    newItem->SetItemRandomProperties(GetItemRandomPropertyId());
+    // player CAN be NULL in which case we must not update random properties because that accesses player's item update queue
+    if (player)
+        newItem->SetItemRandomProperties(GetItemRandomPropertyId());
     return newItem;
 }
 
