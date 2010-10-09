@@ -628,6 +628,7 @@ class ObjectMgr
         CreatureModelInfo const *GetCreatureModelInfo(uint32 modelid);
         CreatureModelInfo const* GetCreatureModelRandomGender(uint32 display_id);
         uint32 ChooseDisplayId(uint32 team, const CreatureInfo *cinfo, const CreatureData *data = NULL);
+        static void ChooseCreatureFlags(const CreatureInfo *cinfo, uint32& npcflag, uint32& unit_flags, uint32& dynamicflags, const CreatureData *data = NULL);
         EquipmentInfo const *GetEquipmentInfo(uint32 entry);
         static CreatureDataAddon const *GetCreatureAddon(uint32 lowguid)
         {
