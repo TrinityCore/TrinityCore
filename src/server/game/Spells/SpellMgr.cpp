@@ -3874,6 +3874,14 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->AttributesEx3 |= SPELL_ATTR_EX3_NO_DONE_BONUS;
             count++;
             break;
+        case 53241: // Marked for Death (Rank 1)
+        case 53243: // Marked for Death (Rank 2)
+        case 53244: // Marked for Death (Rank 3)
+        case 53245: // Marked for Death (Rank 4)
+        case 53246: // Marked for Death (Rank 5)
+            spellInfo->EffectSpellClassMask[0] = flag96(423937, 276955137, 2049);
+            count++;
+            break;
         default:
             break;
         }
