@@ -89,12 +89,6 @@ namespace VMAP
 
             virtual std::string getDirFileName(unsigned int pMapId, int x, int y) const =0;
             /**
-            Block maps from being used.
-            parameter: String of map ids. Delimiter = ","
-            e.g.: "0,1,530"
-            */
-            virtual void preventMapsFromBeingUsed(const char* pMapIdString) =0;
-            /**
             Query world model area info.
             \param z gets adjusted to the ground height for which this are info is valid
             */
