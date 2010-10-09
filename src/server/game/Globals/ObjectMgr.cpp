@@ -1074,6 +1074,25 @@ uint32 ObjectMgr::ChooseDisplayId(uint32 /*team*/, const CreatureInfo *cinfo, co
     return display_id;
 }
 
+void ObjectMgr::ChooseCreatureFlags(const CreatureInfo *cinfo, uint32& npcflag, uint32& unit_flags, uint32& dynamicflags, const CreatureData *data /*= NULL*/)
+{
+    npcflag = cinfo->npcflag;
+    unit_flags = cinfo->unit_flags;
+    dynamicflags = cinfo->dynamicflags;
+
+    if (data)
+    {
+        if (data->npcflag)
+            npcflag = data->npcflag;
+
+        if (data->unit_flags)
+            unit_flags = data->unit_flags;
+
+        if (data->dynamicflags)
+            dynamicflags = data->dynamicflags;
+    }
+}
+
 CreatureModelInfo const* ObjectMgr::GetCreatureModelRandomGender(uint32 display_id)
 {
     CreatureModelInfo const *minfo = GetCreatureModelInfo(display_id);
@@ -1241,7 +1260,9 @@ void ObjectMgr::LoadCreatures()
     //   4             5           6           7           8            9              10         11
         "equipment_id, position_x, position_y, position_z, orientation, spawntimesecs, spawndist, currentwaypoint,"
     //   12         13       14          15            16         17         18     19
-        "curhealth, curmana, DeathState, MovementType, spawnMask, phaseMask, event, pool_entry "
+        "curhealth, curmana, DeathState, MovementType, spawnMask, phaseMask, event, pool_entry,"
+    //   20                21                   22
+        "creature.npcflag, creature.unit_flags, creature.dynamicflags "
         "FROM creature LEFT OUTER JOIN game_event_creature ON creature.guid = game_event_creature.guid "
         "LEFT OUTER JOIN pool_creature ON creature.guid = pool_creature.guid");
 
@@ -1312,7 +1333,10 @@ void ObjectMgr::LoadCreatures()
         data.spawnMask      = fields[16].GetUInt8();
         data.phaseMask      = fields[17].GetUInt16();
         int16 gameEvent     = fields[18].GetInt16();
-        uint32 PoolId        = fields[19].GetUInt32();
+        uint32 PoolId       = fields[19].GetUInt32();
+        data.npcflag        = fields[20].GetUInt32();
+        data.unit_flags     = fields[21].GetUInt32();
+        data.dynamicflags   = fields[22].GetUInt32();
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
         if (!mapEntry)
@@ -1359,19 +1383,19 @@ void ObjectMgr::LoadCreatures()
         if (cInfo->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
         {
             if (!mapEntry || !mapEntry->IsDungeon())
-                sLog.outErrorDb("Table `creature` have creature (GUID: %u Entry: %u) with `creature_template`.`flags_extra` including CREATURE_FLAG_EXTRA_INSTANCE_BIND but creature are not in instance.",guid,data.id);
+                sLog.outErrorDb("Table `creature` have creature (GUID: %u Entry: %u) with `creature_template`.`flags_extra` including CREATURE_FLAG_EXTRA_INSTANCE_BIND but creature are not in instance.", guid, data.id);
         }
 
         if (data.spawndist < 0.0f)
         {
-            sLog.outErrorDb("Table `creature` have creature (GUID: %u Entry: %u) with `spawndist`< 0, set to 0.",guid,data.id);
+            sLog.outErrorDb("Table `creature` have creature (GUID: %u Entry: %u) with `spawndist`< 0, set to 0.", guid, data.id);
             data.spawndist = 0.0f;
         }
         else if (data.movementType == RANDOM_MOTION_TYPE)
         {
             if (data.spawndist == 0.0f)
             {
-                sLog.outErrorDb("Table `creature` have creature (GUID: %u Entry: %u) with `MovementType`=1 (random movement) but with `spawndist`=0, replace by idle movement type (0).",guid,data.id);
+                sLog.outErrorDb("Table `creature` have creature (GUID: %u Entry: %u) with `MovementType`=1 (random movement) but with `spawndist`=0, replace by idle movement type (0).", guid, data.id);
                 data.movementType = IDLE_MOTION_TYPE;
             }
             else if (cInfo->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
@@ -1381,15 +1405,21 @@ void ObjectMgr::LoadCreatures()
         {
             if (data.spawndist != 0.0f)
             {
-                sLog.outErrorDb("Table `creature` have creature (GUID: %u Entry: %u) with `MovementType`=0 (idle) have `spawndist`<>0, set to 0.",guid,data.id);
+                sLog.outErrorDb("Table `creature` have creature (GUID: %u Entry: %u) with `MovementType`=0 (idle) have `spawndist`<>0, set to 0.", guid, data.id);
                 data.spawndist = 0.0f;
             }
         }
 
         if (data.phaseMask == 0)
         {
-            sLog.outErrorDb("Table `creature` have creature (GUID: %u Entry: %u) with `phaseMask`=0 (not visible for anyone), set to 1.",guid,data.id);
+            sLog.outErrorDb("Table `creature` have creature (GUID: %u Entry: %u) with `phaseMask`=0 (not visible for anyone), set to 1.", guid, data.id);
             data.phaseMask = 1;
+        }
+
+        if (data.npcflag & UNIT_NPC_FLAG_SPELLCLICK)
+        {
+            sLog.outErrorDb("Table `creature` have creature (GUID: %u Entry: %u) with npcflag UNIT_NPC_FLAG_SPELLCLICK (%u) set, it is expected to be set by code handling `npc_spellclick_spells` content.", guid, data.id, UNIT_NPC_FLAG_SPELLCLICK);
+            data.npcflag &= ~UNIT_NPC_FLAG_SPELLCLICK;
         }
 
         //if (entry == 32307 || entry == 32308)
@@ -1414,7 +1444,7 @@ void ObjectMgr::LoadCreatures()
     } while (result->NextRow());
 
     sLog.outString();
-    sLog.outString(">> Loaded %lu creatures", (unsigned long)mCreatureDataMap.size());
+    sLog.outString(">> Loaded %u creatures", (uint32)mCreatureDataMap.size());
 }
 
 void ObjectMgr::AddCreatureToGrid(uint32 guid, CreatureData const* data)
@@ -1563,6 +1593,10 @@ uint32 ObjectMgr::AddCreData(uint32 entry, uint32 /*team*/, uint32 mapId, float 
     data.spawnMask = 1;
     data.phaseMask = PHASEMASK_NORMAL;
     data.dbData = false;
+    data.npcflag = cInfo->npcflag;
+    data.unit_flags = cInfo->unit_flags;
+    data.dynamicflags = cInfo->dynamicflags;
+
 
     AddCreatureToGrid(guid, &data);
 
