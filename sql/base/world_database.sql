@@ -781,6 +781,9 @@ CREATE TABLE `creature` (
   `curmana` int(10) unsigned NOT NULL DEFAULT '0',
   `DeathState` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `MovementType` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `npcflag` int(10) unsigned NOT NULL DEFAULT '0',
+  `unit_flags` int(10) unsigned NOT NULL DEFAULT '0',
+  `dynamicflags` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`),
   KEY `idx_map` (`map`),
   KEY `idx_id` (`id`)
