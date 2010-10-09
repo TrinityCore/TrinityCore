@@ -143,13 +143,14 @@ set(scripts_STAT_SRCS
   Northrend/VioletHold/boss_erekem.cpp
   Northrend/VioletHold/violet_hold.cpp
   Northrend/IcecrownCitadel/instance_icecrown_citadel.cpp
-  Northrend/IcecrownCitadel/boss_deathbringer_saurfang.cpp
-  Northrend/IcecrownCitadel/boss_lady_deathwhisper.cpp
-  Northrend/IcecrownCitadel/boss_professor_putricide.cpp
   Northrend/IcecrownCitadel/icecrown_citadel.h
   Northrend/IcecrownCitadel/icecrown_citadel_teleport.cpp
-  Northrend/IcecrownCitadel/boss_festergut.cpp
   Northrend/IcecrownCitadel/boss_lord_marrowgar.cpp
+  Northrend/IcecrownCitadel/boss_lady_deathwhisper.cpp
+  Northrend/IcecrownCitadel/boss_deathbringer_saurfang.cpp
+  Northrend/IcecrownCitadel/boss_festergut.cpp
+  Northrend/IcecrownCitadel/boss_rotface.cpp
+  Northrend/IcecrownCitadel/boss_professor_putricide.cpp
   Northrend/zuldrak.cpp
   Northrend/icecrown.cpp
   Northrend/Gundrak/boss_slad_ran.cpp

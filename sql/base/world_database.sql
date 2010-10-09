@@ -18154,6 +18154,11 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 ( 67623,-67620, 1, 'Remove Paralytic Toxin when hit by Burning Bite'),
 (-66683, 68667, 0, 'Icehowl - Surge of Adrenaline'),
 (-67661, 68667, 0, 'Icehowl - Surge of Adrenaline'),
+-- Icecrown Citadel
+(-69674, 69706, 0, 'Rotface: Mutated Infection Summon'),
+(-71224, 69706, 0, 'Rotface: Mutated Infection Summon'),
+(-73022, 69706, 0, 'Rotface: Mutated Infection Summon'),
+(-73023, 69706, 0, 'Rotface: Mutated Infection Summon'),
 -- Warsong Gulch
 ( 54861,-23335, 0, 'Drop Flag on Nitro Boost WSG'),
 ( 54861,-23333, 0, 'Drop Flag on Nitro Boost WSG'),
@@ -26838,6 +26843,16 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 71222, 'spell_festergut_blighted_spores'),
 ( 73033, 'spell_festergut_blighted_spores'),
 ( 73034, 'spell_festergut_blighted_spores'),
+( 69782, 'spell_rotface_ooze_flood'),
+( 69796, 'spell_rotface_ooze_flood'),
+( 69798, 'spell_rotface_ooze_flood'),
+( 69801, 'spell_rotface_ooze_flood'),
+( 69538, 'spell_rotface_little_ooze_combine'),
+( 69553, 'spell_rotface_large_ooze_combine'),
+( 69610, 'spell_rotface_large_ooze_buff_combine'),
+( 69839, 'spell_rotface_unstable_ooze_explosion_init'),
+( 69832, 'spell_rotface_unstable_ooze_explosion'),
+( 71441, 'spell_rotface_unstable_ooze_explosion_suicide'),
 ( 62717, 'spell_ignis_slag_pot'),
 ( 63477, 'spell_ignis_slag_pot'),
 -- quest

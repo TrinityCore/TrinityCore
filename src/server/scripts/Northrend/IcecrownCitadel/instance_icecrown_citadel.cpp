@@ -53,7 +53,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                 uiFestergut = 0;
                 uiRotface = 0;
                 uiProfessorPutricide = 0;
-                isBonedEligible = false;
+                isBonedEligible = true;
+                isOozeDanceEligible = true;
             }
 
             void OnCreatureCreate(Creature* creature, bool /*add*/)
@@ -178,6 +179,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return uiSaurfangTeleport;
                     case DATA_FESTERGUT:
                         return uiFestergut;
+                    case DATA_ROTFACE:
+                        return uiRotface;
                     case DATA_PROFESSOR_PUTRICIDE:
                         return uiProfessorPutricide;
                     default:
@@ -265,9 +268,11 @@ class instance_icecrown_citadel : public InstanceMapScript
             {
                 switch (type)
                 {
-                    case COMMAND_FAIL_BONED:
+                    case DATA_BONED_ACHIEVEMENT:
                         isBonedEligible = data ? true : false;
                         break;
+                    case DATA_OOZE_DANCE_ACHIEVEMENT:
+                        isOozeDanceEligible = data ? true : false;
                     default:
                         break;
                 }
@@ -282,6 +287,11 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case CRITERIA_BONED_10H:
                     case CRITERIA_BONED_25H:
                         return isBonedEligible;
+                    case CRITERIA_DANCES_WITH_OOZES_10N:
+                    case CRITERIA_DANCES_WITH_OOZES_25N:
+                    case CRITERIA_DANCES_WITH_OOZES_10H:
+                    case CRITERIA_DANCES_WITH_OOZES_25H:
+                        return isOozeDanceEligible;
                     default:
                         break;
                 }
@@ -344,6 +354,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 uiRotface;
             uint64 uiProfessorPutricide;
             bool isBonedEligible;
+            bool isOozeDanceEligible;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* pMap) const

@@ -2778,6 +2778,17 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                                 ++itr;
                         }
                         break;
+                    case 69782: case 69796:                 // Ooze Flood
+                    case 69798: case 69801:                 // Ooze Flood
+                        // get 2 targets except 2 nearest
+                        unitList.sort(Trinity::ObjectDistanceOrderPred(m_caster));
+                        unitList.resize(4);
+                        while (unitList.size() > 2)
+                            unitList.pop_front();
+                        // crashfix
+                        if (unitList.empty())
+                            return;
+                        break;
                 }
                 // Death Pact
                 if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && m_spellInfo->SpellFamilyFlags[0] & 0x00080000)
