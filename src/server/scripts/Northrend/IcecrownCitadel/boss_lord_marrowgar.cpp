@@ -120,6 +120,7 @@ class boss_lord_marrowgar : public CreatureScript
             void JustReachedHome()
             {
                 instance->SetBossState(DATA_LORD_MARROWGAR, FAIL);
+                instance->SetData(DATA_BONED_ACHIEVEMENT, uint32(true));    // reset
             }
 
             void KilledUnit(Unit *victim)
@@ -369,7 +370,7 @@ class npc_bone_spike : public CreatureScript
 
                 if (events.ExecuteEvent() == EVENT_FAIL_BONED)
                     if (InstanceScript* instance = me->GetInstanceScript())
-                        instance->SetData(COMMAND_FAIL_BONED, 0);
+                        instance->SetData(DATA_BONED_ACHIEVEMENT, uint32(false));
             }
 
             void SetTrappedUnit(Unit* unit)

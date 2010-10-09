@@ -3618,6 +3618,9 @@ void SpellMgr::LoadSpellCustomAttr()
         case 27820:                             // Mana Detonation
         //case 28062: case 39090:                 // Positive/Negative Charge
         //case 28085: case 39093:
+        case 69782: case 69796:                 // Ooze Flood
+        case 69798: case 69801:                 // Ooze Flood
+        case 69538: case 69553: case 69610:     // Ooze Combine
             mSpellCustomAttr[i] |= SPELL_ATTR_CU_EXCLUDE_SELF;
             count++;
             break;

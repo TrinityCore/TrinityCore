@@ -307,7 +307,8 @@ class npc_stinky_icc : public CreatureScript
             {
                 uint64 festergutGUID = pInstance ? pInstance->GetData64(DATA_FESTERGUT) : 0;
                 if (Creature *festergut = me->GetCreature(*me, festergutGUID))
-                    DoScriptText(SAY_STINKY_DEAD, festergut);
+                    if (festergut->isAlive())
+                        DoScriptText(SAY_STINKY_DEAD, festergut);
             }
 
         private:
@@ -368,8 +369,6 @@ class spell_festergut_gastric_bloat : public SpellScriptLoader
                 Aura const* aura = GetHitUnit()->GetAura(GetSpellInfo()->Id);
                 if (!(aura && aura->GetStackAmount() == 10))
                     return;
-
-                //PreventHitAura();
 
                 SpellEntry const* spellInfo = sSpellStore.LookupEntry(SPELL_GASTRIC_EXPLOSION);
                 if (!spellInfo)
