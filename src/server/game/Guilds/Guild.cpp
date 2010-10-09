@@ -1977,6 +1977,13 @@ void Guild::MoveFromCharToBank(Player * pl, uint8 PlayerBag, uint8 PlayerSlot, u
     if (!pItemChar)                                         // Problem to get item from player
         return;
 
+    // prevent storing non-empty bags
+    if (pItemChar && pItemChar->IsBag() && !((Bag*)pItemChar)->IsEmpty())
+    {
+        pl->SendEquipError(EQUIP_ERR_CAN_ONLY_DO_WITH_EMPTY_BAGS, pItemChar, NULL);
+        return;
+    }
+
     if (!pItemChar->CanBeTraded())
     {
         pl->SendEquipError(EQUIP_ERR_ITEMS_CANT_BE_SWAPPED, pItemChar, NULL);
