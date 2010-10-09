@@ -683,30 +683,21 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                         {
                             case GAMEOBJECT_TYPE_CHEST:
                                 if (target->isGameMaster())
-                                {
                                     *data << uint16(1);
-                                    *data << uint16(-1);
-                                }
                                 else
                                     *data << uint16(9);
                                     *data << uint16(-1);
                                 break;
                             case GAMEOBJECT_TYPE_GENERIC:
                                 if (target->isGameMaster())
-                                {
                                     *data << uint16(0);
-                                    *data << uint16(-1);
-                                }
                                 else
                                     *data << uint16(8);
                                     *data << uint16(-1);
                                 break;
                             case GAMEOBJECT_TYPE_GOOBER:
                                 if (target->isGameMaster())
-                                {
                                     *data << uint16(1);
-                                    *data << uint16(-1);
-                                }
                                 else
                                     *data << uint16(9);
                                     *data << uint16(-1);
