@@ -1608,10 +1608,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint32 lowGuid, bool accept)
 
         // Teleport Player
         for (LfgPlayerList::const_iterator it = players.begin(); it != players.end(); ++it)
-        {
-            (*it)->CastSpell(*it, LFG_SPELL_DUNGEON_COOLDOWN, false);
             TeleportPlayer(*it, false);
-        }
 
         for (LfgProposalPlayerMap::const_iterator it = pProposal->players.begin(); it != pProposal->players.end(); ++it)
             delete it->second;
@@ -1888,10 +1885,7 @@ void LFGMgr::TeleportPlayer(Player* plr, bool out, bool fromOpcode /*= false*/)
                     plr->SetBattlegroundEntryPoint();
 
                 if (plr->TeleportTo(mapid, x, y, z, orientation))
-                {
                     plr->RemoveAurasByType(SPELL_AURA_MOUNTED);
-                    plr->CastSpell(plr, LFG_SPELL_LUCK_OF_THE_DRAW, false);
-                }
                 else
                 {
                     error = LFG_TELEPORTERROR_INVALID_LOCATION;
