@@ -26,7 +26,6 @@
 #include "ObjectDefines.h"
 #include "GridDefines.h"
 #include "Map.h"
-//#include "SharedDefines.h"
 
 #include <set>
 #include <string>
