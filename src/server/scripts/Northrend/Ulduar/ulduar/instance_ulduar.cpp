@@ -53,6 +53,7 @@ public:
         uint64 uiLeviathanGUID;
         uint64 uiIgnisGUID;
         uint64 uiRazorscaleGUID;
+        uint64 uiExpCommanderGUID;
         uint64 uiXT002GUID;
         uint64 uiAssemblyGUIDs[3];
         uint64 uiKologarnGUID;
@@ -77,6 +78,7 @@ public:
             SetBossNumber(MAX_ENCOUNTER);
             uiIgnisGUID           = 0;
             uiRazorscaleGUID      = 0;
+            uiExpCommanderGUID    = 0;
             uiXT002GUID           = 0;
             uiKologarnGUID        = 0;
             uiAuriayaGUID         = 0;
@@ -123,6 +125,9 @@ public:
                 case NPC_RAZORSCALE:
                     uiRazorscaleGUID = pCreature->GetGUID();
                     break;
+                case NPC_EXPEDITION_COMMANDER:
+                    uiExpCommanderGUID = pCreature->GetGUID();
+                    return;
                 case NPC_XT002:
                     uiXT002GUID = pCreature->GetGUID();
                     break;
@@ -227,57 +232,57 @@ public:
         }
 
         bool SetBossState(uint32 type, EncounterState state)
+        {
+            if (!InstanceScript::SetBossState(type, state))
+                return false;
+
+            switch (type)
             {
-                if (!InstanceScript::SetBossState(type, state))
-                    return false;
-
-                switch (type)
+            case TYPE_LEVIATHAN:
+                if (state == IN_PROGRESS)
                 {
-                case TYPE_LEVIATHAN:
-                    if (state == IN_PROGRESS)
-                    {
-                        for (uint8 uiI = 0; uiI < 7; ++uiI)
-                            HandleGameObject(uiLeviathanDoor[uiI],false);
-                    }
-                    else
-                    {
-                        for (uint8 uiI = 0; uiI < 7; ++uiI)
-                            HandleGameObject(uiLeviathanDoor[uiI],true);
-                    }
-                    break;
-                case TYPE_IGNIS:
-                case TYPE_RAZORSCALE:
-                case TYPE_XT002:
-                case TYPE_ASSEMBLY:
-                case TYPE_AURIAYA:
-                case TYPE_MIMIRON:
-                case TYPE_VEZAX:
-                case TYPE_YOGGSARON:
-                    break;
-                case TYPE_KOLOGARN:
-                    if (state == DONE)
-                        if (GameObject* pGO = instance->GetGameObject(uiKologarnChestGUID))
-                            pGO->SetRespawnTime(pGO->GetRespawnDelay());
-                    break;
-                case TYPE_HODIR:
-                    if (state == DONE)
-                        if (GameObject* pGO = instance->GetGameObject(uiHodirChestGUID))
-                            pGO->SetRespawnTime(pGO->GetRespawnDelay());
-                    break;
-                case TYPE_THORIM:
-                    if (state == DONE)
-                        if (GameObject* pGO = instance->GetGameObject(uiThorimChestGUID))
-                            pGO->SetRespawnTime(pGO->GetRespawnDelay());
-                    break;
-                case TYPE_FREYA:
-                    if (state == DONE)
-                        if (GameObject* pGO = instance->GetGameObject(uiFreyaChestGUID))
-                            pGO->SetRespawnTime(pGO->GetRespawnDelay());
-                    break;
-                 }
+                    for (uint8 uiI = 0; uiI < 7; ++uiI)
+                        HandleGameObject(uiLeviathanDoor[uiI],false);
+                }
+                else
+                {
+                    for (uint8 uiI = 0; uiI < 7; ++uiI)
+                        HandleGameObject(uiLeviathanDoor[uiI],true);
+                }
+                break;
+            case TYPE_IGNIS:
+            case TYPE_RAZORSCALE:
+            case TYPE_XT002:
+            case TYPE_ASSEMBLY:
+            case TYPE_AURIAYA:
+            case TYPE_MIMIRON:
+            case TYPE_VEZAX:
+            case TYPE_YOGGSARON:
+                break;
+            case TYPE_KOLOGARN:
+                if (state == DONE)
+                    if (GameObject* pGO = instance->GetGameObject(uiKologarnChestGUID))
+                        pGO->SetRespawnTime(pGO->GetRespawnDelay());
+                break;
+            case TYPE_HODIR:
+                if (state == DONE)
+                    if (GameObject* pGO = instance->GetGameObject(uiHodirChestGUID))
+                        pGO->SetRespawnTime(pGO->GetRespawnDelay());
+                break;
+            case TYPE_THORIM:
+                if (state == DONE)
+                    if (GameObject* pGO = instance->GetGameObject(uiThorimChestGUID))
+                        pGO->SetRespawnTime(pGO->GetRespawnDelay());
+                break;
+            case TYPE_FREYA:
+                if (state == DONE)
+                    if (GameObject* pGO = instance->GetGameObject(uiFreyaChestGUID))
+                        pGO->SetRespawnTime(pGO->GetRespawnDelay());
+                break;
+             }
 
-                 return true;
-            }
+             return true;
+        }
 
         void SetData(uint32 type, uint32 data)
         {
@@ -317,6 +322,8 @@ public:
                 case TYPE_YOGGSARON:            return uiYoggSaronGUID;
                 case TYPE_ALGALON:              return uiAlgalonGUID;
 
+                // razorscale expedition commander
+                case DATA_EXP_COMMANDER:        return uiExpCommanderGUID;
                 // Assembly of Iron
                 case DATA_STEELBREAKER:         return uiAssemblyGUIDs[0];
                 case DATA_MOLGEIM:              return uiAssemblyGUIDs[1];

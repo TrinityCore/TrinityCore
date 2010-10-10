@@ -43,10 +43,13 @@ enum eTypes
     DATA_BRUNDIR                = 22,
     DATA_RUNEMASTER_MOLGEIM     = 23,
     DATA_STORMCALLER_BRUNDIR    = 24,
+    DATA_EXP_COMMANDER          = 25,
+
 
     NPC_LEVIATHAN               = 33113,
     NPC_IGNIS                   = 33118,
     NPC_RAZORSCALE              = 33186,
+    NPC_EXPEDITION_COMMANDER    = 33210,
     NPC_XT002                   = 33293,
     NPC_STEELBREAKER            = 32867,
     NPC_MOLGEIM                 = 32927,

@@ -2523,8 +2523,16 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (33350,-1603259,'Combat matrix enhanced. Behold wonderous rapidity!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15630,1,0,0,'Mimiron SAY_YS_HELP'),
 
 -- Razorscale encounter
-   (33210,-1603260,'',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15647,1,0,0,'Exp. Commander SAY_INTRO'),
-   (33210,-1603261,'',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15648,1,0,0,'Exp. Commander SAY_GROUND'),
+
+   (33186,-1603268, 'Razorscale grounded permanently!', NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0, 'EMOTE_PERMA'),
+   (33186,-1603267, 'Razorscale takes a deep breath...', NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0, 'EMOTE_BREATH'),
+   (33287,-1603266, 'Harpoon Turret is ready for use!', NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0, 'EMOTE_HARPOON'),
+   (33287,-1603265, 'Fires out! Let''s rebuild those turrets!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0, 'SAY_TURRETS'),
+   (33287,-1603264, 'Ready to move out, keep those dwarves off of our backs!', NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0, 'SAY_AGGRO_3'),
+   (33287,-1603263, 'Be on the lookout! Mole machines will be surfacing soon with those nasty Iron dwarves aboard!', NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0, 'SAY_AGGRO_2'),
+   (33287,-1603262, 'Give us a moment to prepare to build the turrets.', NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0, 'SAY_AGGRO_1'),
+   (33210,-1603260, 'Welcome, champions! All of our attempts at grounding her have failed. We could use a hand in bring her down with these harpoon guns.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15647,0,0,0,'Exp. Commander SAY_INTRO'),
+   (33210,-1603261, 'Move! Quickly! She won''t remain grounded for long.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15648,1,0,0,'Exp. Commander SAY_GROUND'),
 
 -- Thorim
    (33413,-1603270,'Interlopers! You mortals who dare to interfere with my sport will pay... Wait--you...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15733,1,0,0,'Thorim SAY_AGGRO_1'),
