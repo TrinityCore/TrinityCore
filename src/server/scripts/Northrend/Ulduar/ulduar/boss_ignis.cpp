@@ -133,7 +133,7 @@ public:
         std::vector<Creature*> triggers;
 
         bool Shattered;
-        uint32 SlagPotGUID;
+        uint64 SlagPotGUID;
         uint32 EncounterTime;
         uint32 ConstructTimer;
 
