@@ -400,7 +400,7 @@ bool ConvertADT(char *filename, char *filename2, int cell_y, int cell_x, uint32 
                     area_flags[i][j] = areas[areaid];
                     continue;
                 }
-                printf("File: filename\nCan't find area flag for areaid %u [%d, %d].\n", filename, areaid, cell->ix, cell->iy);
+                printf("File: %s\nCan't find area flag for areaid %u [%d, %d].\n", filename, areaid, cell->ix, cell->iy);
             }
             area_flags[i][j] = 0xffff;
         }
