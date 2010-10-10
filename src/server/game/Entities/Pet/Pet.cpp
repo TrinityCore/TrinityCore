@@ -229,11 +229,13 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
 
     SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(NULL))); // cast can't be helped here
     SetCreatorGUID(owner->GetGUID());
+
+    SetLevel(petlevel);
     SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, fields[5].GetUInt32());
+
     SynchronizeLevelWithOwner();
 
     SetReactState(ReactStates(fields[6].GetUInt8()));
-
     SetCanModifyStats(true);
 
     if (getPetType() == SUMMON_PET && !current)              //all (?) summon pets come with full health when called, but not when they are current
