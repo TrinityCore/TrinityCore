@@ -34,6 +34,8 @@ DELETE FROM `script_texts` WHERE entry BETWEEN -1999925 AND -1000000;
 INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`,`content_loc2`,`content_loc3`,`content_loc4`,`content_loc5`,`content_loc6`,`content_loc7`,`content_loc8`,`sound`,`type`,`language`,`emote`,`comment`) VALUES
    (0,-1000000,'<TrinityScript Text Entry Missing!>',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'DEFAULT_TEXT'),
    (0,-1000001,'%s goes into a killing frenzy!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'EMOTE_GENERIC_FRENZY_KILL'),
+   (0,-1000002,'%s goes into a frenzy!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'EMOTE_GENERIC_FRENZY'),
+   (0,-1000003,'%s becomes enraged!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'EMOTE_GENERIC_ENRAGED'),
    (0,-1000004,'goes into a berserker rage!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'EMOTE_GENERIC_BERSERK'),
    (0,-1000005,'UNUSED',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'REUSE ME'),
 
@@ -1888,6 +1890,11 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (26668,-1575019,'You were a fool to challenge the power of the Lich King!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Svala Sorrowgrave SAY_SLAY_1'),
    (26668,-1575020,'Your will is done, my king.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Svala Sorrowgrave SAY_SLAY_2'),
    (26668,-1575022,'Nooo! I did not come this far... to...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Svala Sorrowgrave SAY_DEATH'),
+   (26668,-1575023,'Your death approaches.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13850,1,0,0,'svala SAY_SACRIFICE_1'),
+   (26668,-1575024,'Go now to my master.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13851,1,0,0,'svala SAY_SACRIFICE_2'),
+   (26668,-1575025,'Your end is inevitable.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13852,1,0,0,'svala SAY_SACRIFICE_3'),
+   (26668,-1575026,'Yor-guul mak!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13853,1,0,0,'svala SAY_SACRIFICE_4'),
+   (26668,-1575027,'Any last words?',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13854,1,0,0,'svala SAY_SACRIFICE_5'),
    (26861,-1575028,'You invade my home and then dare to challenge me? I will tear the hearts from your chests and offer them as gifts to the death god! Rualg nja gaborr!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13609,1,0,0,'King Ymirom - SAY_AGGRO'),
    (26861,-1575029,'Your death is only the beginning!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13614,1,0,0,'King Ymirom - SAY_SLAY_1'),
    (26861,-1575030,'You have failed your people!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13615,1,0,0,'King Ymirom - SAY_SLAY_2'),
