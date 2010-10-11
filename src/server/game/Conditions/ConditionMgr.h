@@ -37,7 +37,7 @@ enum ConditionType
     CONDITION_SKILL                 = 7,                    // skill_id         skill_value +referenceID       true if has skill_value for skill_id
     CONDITION_QUESTREWARDED         = 8,                    // quest_id         0           +referenceID       true if quest_id was rewarded before
     CONDITION_QUESTTAKEN            = 9,                    // quest_id         0,          +referenceID       true while quest active
-    CONDITION_UNUSED_1              = 10,                   // currently unused
+    CONDITION_DRUNKENSTATE          = 10,                   // DrunkenState     0,          +referenceID       true if player is drunk enough
     CONDITION_NO_AURA               = 11,                   // spell_id         effindex    +referenceID       true if does not have aura of spell_id with effect effindex
     CONDITION_ACTIVE_EVENT          = 12,                   // event_id         0           +referenceID       true if event is active
     CONDITION_INSTANCE_DATA         = 13,                   // entry            data        +referenceID       true if data is set in current instance
