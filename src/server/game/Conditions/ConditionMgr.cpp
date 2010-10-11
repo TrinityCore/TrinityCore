@@ -176,6 +176,11 @@ bool Condition::Meets(Player * player, Unit* invoker)
                 }
                 break;
             }
+        case CONDITION_DRUNKENSTATE:
+            {
+                condMeets = (uint32)Player::GetDrunkenstateByValue(player->GetDrunkValue()) >= mConditionValue1;
+                break;
+            }
         default:
             condMeets = false;
             refId = 0;
@@ -1266,6 +1271,15 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                 if (cond->mConditionValue2 >= LVL_COND_MAX)
                 {
                     sLog.outErrorDb("Level condition has invalid option (%u), skipped", cond->mConditionValue2);
+                    return false;
+                }
+                break;
+            }
+        case CONDITION_DRUNKENSTATE:
+            {
+                if (cond->mConditionValue1 > DRUNKEN_SMASHED)
+                {
+                    sLog.outErrorDb("DrunkState condition has invalid state (%u), skipped", cond->mConditionValue1);
                     return false;
                 }
                 break;
