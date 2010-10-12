@@ -437,8 +437,11 @@ void World::LoadConfigSettings(bool reload)
         sLog.outError("Rate.RunicPower.Loss (%f) must be > 0. Using 1 instead.",rate_values[RATE_POWER_RUNICPOWER_LOSS]);
         rate_values[RATE_POWER_RUNICPOWER_LOSS] = 1;
     }
-    rate_values[RATE_POWER_FOCUS] = sConfig.GetFloatDefault("Rate.Focus", 1.0f);
-    rate_values[RATE_SKILL_DISCOVERY] = sConfig.GetFloatDefault("Rate.Skill.Discovery", 1.0f);
+    rate_values[RATE_POWER_FOCUS]  = sConfig.GetFloatDefault("Rate.Focus", 1.0f);
+    rate_values[RATE_POWER_ENERGY] = sConfig.GetFloatDefault("Rate.Energy", 1.0f);
+
+    rate_values[RATE_SKILL_DISCOVERY]      = sConfig.GetFloatDefault("Rate.Skill.Discovery", 1.0f);
+
     rate_values[RATE_DROP_ITEM_POOR]       = sConfig.GetFloatDefault("Rate.Drop.Item.Poor", 1.0f);
     rate_values[RATE_DROP_ITEM_NORMAL]     = sConfig.GetFloatDefault("Rate.Drop.Item.Normal", 1.0f);
     rate_values[RATE_DROP_ITEM_UNCOMMON]   = sConfig.GetFloatDefault("Rate.Drop.Item.Uncommon", 1.0f);
