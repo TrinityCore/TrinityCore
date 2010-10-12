@@ -26797,6 +26797,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 24750, 'spell_gen_trick'),
 ( 24751, 'spell_gen_trick_or_treat'),
 ( 29266, 'spell_creature_permanent_feign_death'),
+( 31261, 'spell_creature_permanent_feign_death'),
 ( 41337, 'spell_gen_aura_of_anger'),
 ( 45472, 'spell_gen_parachute'),
 ( 46394, 'spell_gen_burn_brutallus'),
