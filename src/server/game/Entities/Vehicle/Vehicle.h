@@ -29,8 +29,10 @@ enum PowerType
 {
     POWER_STEAM     = 61,
     POWER_PYRITE    = 41,
+    POWER_HEAT      = 101,
     POWER_OOZE      = 121,
-    POWER_BLOOD     = 141
+    POWER_BLOOD     = 141,
+    POWER_WRATH     = 142
 };
 
 enum VehicleFlags
