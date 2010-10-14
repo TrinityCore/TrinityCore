@@ -68,5 +68,5 @@ if(NOT ("${rev_id_cached}" MATCHES "${rev_id_str}"))
     "${BUILDDIR}/revision.h"
     @ONLY
   )
-  set(rev_id_cached "${rev_id_str}" CACHE TYPE INTERNAL)
+  set(rev_id_cached "${rev_id_str}" CACHE INTERNAL "Cached revision ID")
 endif()
