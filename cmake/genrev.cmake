@@ -11,7 +11,7 @@
 execute_process(
   COMMAND hg id -n
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-  OUTPUT_VARIABLE hg_rev_id_str
+  OUTPUT_VARIABLE rev_id_str
   OUTPUT_STRIP_TRAILING_WHITESPACE
   ERROR_QUIET
 )
@@ -19,42 +19,42 @@ execute_process(
 execute_process(
   COMMAND hg id -i
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-  OUTPUT_VARIABLE hg_rev_hash_str
+  OUTPUT_VARIABLE rev_hash_str
   OUTPUT_STRIP_TRAILING_WHITESPACE
   ERROR_QUIET
 )
 
 if(EXISTS ${CMAKE_SOURCE_DIR}/.hg_archival.txt)
   file(READ
-    ${CMAKE_SOURCE_DIR}/.hg_archival.txt hg_rev_hash_str
+    ${CMAKE_SOURCE_DIR}/.hg_archival.txt rev_hash_str
     LIMIT 10
     OFFSET 7
     NEWLINE_CONSUME
   )
-  string(STRIP ${hg_rev_hash_str} hg_rev_hash_str)
-  set(hg_rev_id_str "Archive")
-  set(hg_rev_id "0")
-  set(hg_rev_hash ${hg_rev_hash_str})
+  string(STRIP ${rev_hash_str} rev_hash_str)
+  set(rev_id_str "Archive")
+  set(rev_id "0")
+  set(rev_hash ${rev_hash_str})
 endif()
 
 # Last minute check - ensure that we have a proper revision
 # If everything above fails (means the user has erased the mercurial revisional control directory, or runs archive and erased their .hg_archival.txt)
-if(NOT hg_rev_id_str)
+if(NOT rev_id_str)
   message("")
   message(STATUS "WARNING - No revision-information found - have you been tampering with the sources?")
 
   # Ok, since we have no valid ways of finding/setting the revision, let's force some defaults
-  set(hg_rev_hash_str "Archive")
-  set(hg_rev_hash "0")
-  set(hg_rev_id_str "0")
-  set(hg_rev_id "0")
+  set(rev_hash_str "Archive")
+  set(rev_hash "0")
+  set(rev_id_str "0")
+  set(rev_id "0")
 endif()
 
 # Strip off excess strings (shows when the source is actually modified)
-if(NOT hg_rev_id_str MATCHES "Archive")
-  string(REPLACE "+" "" hg_rev_id ${hg_rev_id_str})
+if(NOT rev_id_str MATCHES "Archive")
+  string(REPLACE "+" "" rev_id ${rev_id_str})
 endif()
-string(REPLACE "+" "" hg_rev_hash ${hg_rev_hash_str})
+string(REPLACE "+" "" rev_hash ${rev_hash_str})
 
 # Its not set during initial run
 if(NOT BUILDDIR)
@@ -62,12 +62,11 @@ if(NOT BUILDDIR)
 endif()
 
 # Create the actual revision.h file from the above params
-
-if(NOT hg_rev_id MATCHES "${hg_rev_id_cached}")
+if(NOT ("${rev_id_cached}" MATCHES "${rev_id_str}"))
   configure_file(
     "${CMAKE_SOURCE_DIR}/revision.h.in.cmake"
     "${BUILDDIR}/revision.h"
     @ONLY
   )
-  set(hg_rev_id_cached ${hg_rev_id} CACHE TYPE STRING)
+  set(rev_id_cached "${rev_id_str}" CACHE TYPE INTERNAL)
 endif()
