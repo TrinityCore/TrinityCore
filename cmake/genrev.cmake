@@ -62,8 +62,12 @@ if(NOT BUILDDIR)
 endif()
 
 # Create the actual revision.h file from the above params
-configure_file(
-  "${CMAKE_SOURCE_DIR}/revision.h.in.cmake"
-  "${BUILDDIR}/revision.h"
-  @ONLY
-)
+
+if(NOT hg_rev_id MATCHES "${hg_rev_id_cached}")
+  configure_file(
+    "${CMAKE_SOURCE_DIR}/revision.h.in.cmake"
+    "${BUILDDIR}/revision.h"
+    @ONLY
+  )
+  set(hg_rev_id_cached ${hg_rev_id} CACHE TYPE STRING)
+endif()
