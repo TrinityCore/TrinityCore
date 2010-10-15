@@ -2014,6 +2014,12 @@ public:
     }
 };
 
+enum eTrainingDummy
+{
+    NPC_ADVANCED_TARGET_DUMMY                  = 2674,
+    NPC_TARGET_DUMMY                           = 2673
+};
+
 class npc_training_dummy : public CreatureScript
 {
 public:
@@ -2021,21 +2027,22 @@ public:
 
     struct npc_training_dummyAI : Scripted_NoMovementAI
     {
-        npc_training_dummyAI(Creature *c) : Scripted_NoMovementAI(c)
+        npc_training_dummyAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
         {
-            m_Entry = c->GetEntry();
+            uiEntry = pCreature->GetEntry();
         }
 
-        uint64 m_Entry;
-        uint32 ResetTimer;
-        uint32 DespawnTimer;
+        uint32 uiEntry;
+        uint32 uiResetTimer;
+        uint32 uiDespawnTimer;
+
         void Reset()
         {
             me->SetControlled(true,UNIT_STAT_STUNNED);//disable rotate
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);//imune to knock aways like blast wave
-            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
-            ResetTimer = 10000;
-            DespawnTimer = 15000;
+
+            uiResetTimer = 5000;
+            uiDespawnTimer = 15000;
         }
 
         void EnterEvadeMode()
@@ -2048,48 +2055,49 @@ public:
 
         void DamageTaken(Unit * /*done_by*/, uint32 &damage)
         {
-            ResetTimer = 10000;
+            uiResetTimer = 5000;
             damage = 0;
         }
 
         void EnterCombat(Unit * /*who*/)
         {
-            if (m_Entry != 2674 && m_Entry != 2673)
+            if (uiEntry != NPC_ADVANCED_TARGET_DUMMY && uiEntry != NPC_TARGET_DUMMY)
                 return;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 uiDiff)
         {
             if (!UpdateVictim())
                 return;
+
             if (!me->hasUnitState(UNIT_STAT_STUNNED))
                 me->SetControlled(true,UNIT_STAT_STUNNED);//disable rotate
 
-            if (m_Entry != 2674 && m_Entry != 2673)
+            if (uiEntry != NPC_ADVANCED_TARGET_DUMMY && uiEntry != NPC_TARGET_DUMMY)
             {
-                if (ResetTimer <= diff)
+                if (uiResetTimer <= uiDiff)
                 {
                     EnterEvadeMode();
-                    ResetTimer = 10000;
+                    uiResetTimer = 5000;
                 }
                 else
-                    ResetTimer -= diff;
+                    uiResetTimer -= uiDiff;
                 return;
             }
             else
             {
-                if (DespawnTimer <= diff)
+                if (uiDespawnTimer <= uiDiff)
                     me->ForcedDespawn();
                 else
-                    DespawnTimer -= diff;
+                    uiDespawnTimer -= uiDiff;
             }
         }
         void MoveInLineOfSight(Unit * /*who*/){return;}
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        return new npc_training_dummyAI(creature);
+        return new npc_training_dummyAI(pCreature);
     }
 };
 
