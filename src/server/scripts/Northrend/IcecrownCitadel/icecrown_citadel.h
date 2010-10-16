@@ -43,43 +43,73 @@ enum eData
 
     DATA_BONED_ACHIEVEMENT      = 13,
     DATA_OOZE_DANCE_ACHIEVEMENT = 14,
+    DATA_PUTRICIDE_TABLE        = 15,
+    DATA_NAUSEA___ACHIEVEMENT   = 16,
 };
 
 #define MAX_ENCOUNTER 12
 
 enum eCreatures
 {
-    NPC_LORD_MARROWGAR              = 36612,
-    NPC_COLDFLAME                   = 36672,
-    NPC_BONE_SPIKE                  = 36619,
+    // At Light's Hammer
+    NPC_KOR_KRON_GENERAL                        = 37189,
+    NPC_ALLIANCE_COMMANDER                      = 37190,
+    NPC_TORTUNOK                                = 37992,    // Druid Armor H
+    NPC_ALANA_MOONSTRIKE                        = 37999,    // Druid Armor A
+    NPC_GERARDO_THE_SUAVE                       = 37993,    // Hunter Armor H
+    NPC_TALAN_MOONSTRIKE                        = 37998,    // Hunter Armor A
+    NPC_UVLUS_BANEFIRE                          = 38284,    // Mage Armor H
+    NPC_MALFUS_GRIMFROST                        = 38283,    // Mage Armor A
+    NPC_IKFIRUS_THE_VILE                        = 37991,    // Rogue Armor H
+    NPC_YILI                                    = 37997,    // Rogue Armor A
+    NPC_VOL_GUK                                 = 38841,    // Shaman Armor H
+    NPC_JEDEBIA                                 = 38840,    // Shaman Armor A
+    NPC_HARAGG_THE_UNSEEN                       = 38181,    // Warlock Armor H
+    NPC_NIBY_THE_ALMIGHTY                       = 38182,    // Warlock Armor N
 
-    NPC_LADY_DEATHWHISPER           = 36855,
-    NPC_CULT_FANATIC                = 37890,
-    NPC_DEFORMED_FANATIC            = 38135,
-    NPC_REANIMATED_FANATIC          = 38009,
-    NPC_CULT_ADHERENT               = 37949,
-    NPC_EMPOWERED_ADHERENT          = 38136,
-    NPC_REANIMATED_ADHERENT         = 38010,
-    NPC_VENGEFUL_SHADE              = 38222,
+    // Lord Marrowgar
+    NPC_LORD_MARROWGAR                          = 36612,
+    NPC_COLDFLAME                               = 36672,
+    NPC_BONE_SPIKE                              = 36619,
 
-    NPC_DEATHBRINGER_SAURFANG       = 37813,
-    NPC_BLOOD_BEAST                 = 38508,
-    NPC_SE_JAINA_PROUDMOORE         = 37188,    // SE means Saurfang Event
-    NPC_SE_MURADIN_BRONZEBEARD      = 37200,
-    NPC_SE_KING_VARIAN_WRYNN        = 37879,
-    NPC_SE_HIGH_OVERLORD_SAURFANG   = 37187,
-    NPC_SE_KOR_KRON_REAVER          = 37920,
-    NPC_SE_SKYBREAKER_MARINE        = 37830,
+    // Lady Deathwhisper
+    NPC_LADY_DEATHWHISPER                       = 36855,
+    NPC_CULT_FANATIC                            = 37890,
+    NPC_DEFORMED_FANATIC                        = 38135,
+    NPC_REANIMATED_FANATIC                      = 38009,
+    NPC_CULT_ADHERENT                           = 37949,
+    NPC_EMPOWERED_ADHERENT                      = 38136,
+    NPC_REANIMATED_ADHERENT                     = 38010,
+    NPC_VENGEFUL_SHADE                          = 38222,
 
-    NPC_FESTERGUT                   = 36626,
-    NPC_GAS_DUMMY                   = 36659,
+    // Deathbringer Saurfang
+    NPC_DEATHBRINGER_SAURFANG                   = 37813,
+    NPC_BLOOD_BEAST                             = 38508,
+    NPC_SE_JAINA_PROUDMOORE                     = 37188,    // SE means Saurfang Event
+    NPC_SE_MURADIN_BRONZEBEARD                  = 37200,
+    NPC_SE_KING_VARIAN_WRYNN                    = 37879,
+    NPC_SE_HIGH_OVERLORD_SAURFANG               = 37187,
+    NPC_SE_KOR_KRON_REAVER                      = 37920,
+    NPC_SE_SKYBREAKER_MARINE                    = 37830,
 
-    NPC_ROTFACE                     = 36627,
-    NPC_OOZE_SPRAY_STALKER          = 37986,
-    NPC_PUDDLE_STALKER              = 37013,
-    NPC_UNSTABLE_EXPLOSION_STALKER  = 38107,
+    // Festergut
+    NPC_FESTERGUT                               = 36626,
+    NPC_GAS_DUMMY                               = 36659,
 
-    NPC_PROFESSOR_PUTRICIDE         = 36678,
+    // Rotface
+    NPC_ROTFACE                                 = 36627,
+    NPC_OOZE_SPRAY_STALKER                      = 37986,
+    NPC_PUDDLE_STALKER                          = 37013,
+    NPC_UNSTABLE_EXPLOSION_STALKER              = 38107,
+
+    // Professor Putricide
+    NPC_PROFESSOR_PUTRICIDE                     = 36678,
+    NPC_ABOMINATION_WING_MAD_SCIENTIST_STALKER  = 37824,
+    NPC_GROWING_OOZE_PUDDLE                     = 37690,
+    NPC_GAS_CLOUD                               = 37562,
+    NPC_VOLATILE_OOZE                           = 37697,
+    NPC_CHOKING_GAS_BOMB                        = 38159,
+    NPC_TEAR_GAS_TARGET_STALKER                 = 38317,
 };
 
 enum eGameobjects
@@ -103,18 +133,23 @@ enum eGameobjects
     GO_DOODAD_ICECROWN_ORANGETUBES02    = 201617,
     GO_DOODAD_ICECROWN_GREENTUBES02     = 201618,
     GO_SCIENTIST_ENTRANCE               = 201372,
+    GO_DRINK_ME                         = 201584,
 };
 
 enum eAchievementCriteria
 {
-    CRITERIA_BONED_10N  = 12775,
-    CRITERIA_BONED_25N  = 12962,
-    CRITERIA_BONED_10H  = 13393,
-    CRITERIA_BONED_25H  = 13394,
+    CRITERIA_BONED_10N              = 12775,
+    CRITERIA_BONED_25N              = 12962,
+    CRITERIA_BONED_10H              = 13393,
+    CRITERIA_BONED_25H              = 13394,
     CRITERIA_DANCES_WITH_OOZES_10N  = 12984,
     CRITERIA_DANCES_WITH_OOZES_25N  = 12966,
     CRITERIA_DANCES_WITH_OOZES_10H  = 12985,
     CRITERIA_DANCES_WITH_OOZES_25H  = 12983,
+    CRITERIA_NAUSEA_10N             = 12987,
+    CRITERIA_NAUSEA_25N             = 12968,
+    CRITERIA_NAUSEA_10H             = 12988,
+    CRITERIA_NAUSEA_25H             = 12981,
 };
 
 enum ePutricideActions
@@ -125,6 +160,7 @@ enum ePutricideActions
     ACTION_ROTFACE_COMBAT       = -366270,
     ACTION_ROTFACE_OOZE         = -366271,
     ACTION_ROTFACE_DEATH        = -366272,
+    ACTION_CHANGE_PHASE         = -366780
 };
 
 #endif // DEF_ICECROWN_CITADEL_H
