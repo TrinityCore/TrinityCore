@@ -708,6 +708,7 @@ class WorldSession
         void HandleTimeSyncResp(WorldPacket& recv_data);
         void HandleWhoisOpcode(WorldPacket& recv_data);
         void HandleResetInstancesOpcode(WorldPacket& recv_data);
+        void HandleHearthAndResurrect(WorldPacket& recv_data);
 
         // Looking for Dungeon/Raid
         void HandleSetLfgCommentOpcode(WorldPacket & recv_data);
