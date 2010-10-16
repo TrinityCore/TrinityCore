@@ -1878,6 +1878,8 @@ class Player : public Unit, public GridObject<Player>
 
         void SetMovement(PlayerMovementType pType);
 
+        bool CanJoinConstantChannelInZone(ChatChannelsEntry const* channel, AreaTableEntry const* zone);
+
         void JoinedChannel(Channel *c);
         void LeftChannel(Channel *c);
         void CleanupChannels();
