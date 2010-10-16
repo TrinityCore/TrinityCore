@@ -53,8 +53,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                 uiFestergut = 0;
                 uiRotface = 0;
                 uiProfessorPutricide = 0;
+                uiPutricideTable;
                 isBonedEligible = true;
                 isOozeDanceEligible = true;
+                isNauseaEligible = true;
             }
 
             void OnCreatureCreate(Creature* creature, bool /*add*/)
@@ -70,6 +72,34 @@ class instance_icecrown_citadel : public InstanceMapScript
 
                 switch (creature->GetEntry())
                 {
+                    case NPC_KOR_KRON_GENERAL:
+                        if (TeamInInstance == ALLIANCE)
+                            creature->UpdateEntry(NPC_ALLIANCE_COMMANDER, ALLIANCE);
+                        break;
+                    case NPC_TORTUNOK:
+                        if (TeamInInstance == ALLIANCE)
+                            creature->UpdateEntry(NPC_ALANA_MOONSTRIKE, ALLIANCE);
+                        break;
+                    case NPC_GERARDO_THE_SUAVE:
+                        if (TeamInInstance == ALLIANCE)
+                            creature->UpdateEntry(NPC_TALAN_MOONSTRIKE, ALLIANCE);
+                        break;
+                    case NPC_UVLUS_BANEFIRE:
+                        if (TeamInInstance == ALLIANCE)
+                            creature->UpdateEntry(NPC_MALFUS_GRIMFROST, ALLIANCE);
+                        break;
+                    case NPC_IKFIRUS_THE_VILE:
+                        if (TeamInInstance == ALLIANCE)
+                            creature->UpdateEntry(NPC_YILI, ALLIANCE);
+                        break;
+                    case NPC_VOL_GUK:
+                        if (TeamInInstance == ALLIANCE)
+                            creature->UpdateEntry(NPC_JEDEBIA, ALLIANCE);
+                        break;
+                    case NPC_HARAGG_THE_UNSEEN:
+                        if (TeamInInstance == ALLIANCE)
+                            creature->UpdateEntry(NPC_NIBY_THE_ALMIGHTY, ALLIANCE);
+                        break;
                     case NPC_DEATHBRINGER_SAURFANG:
                         uiDeathbringerSaurfang = creature->GetGUID();
                         break;
@@ -160,6 +190,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                         if (GetBossState(DATA_ROTFACE) == DONE)
                             HandleGameObject(uiPutricidePipes[1], true, pGo);
                         break;
+                    case GO_DRINK_ME:
+                        uiPutricideTable = pGo->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -183,6 +216,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return uiRotface;
                     case DATA_PROFESSOR_PUTRICIDE:
                         return uiProfessorPutricide;
+                    case DATA_PUTRICIDE_TABLE:
+                        return uiPutricideTable;
+                        break;
                     default:
                         break;
                 }
@@ -226,10 +262,11 @@ class instance_icecrown_citadel : public InstanceMapScript
                         if (state == DONE)
                         {
                             if (GetBossState(DATA_ROTFACE) == DONE)
-                                HandleGameObject(uiPutricideCollision, true);
-                            if (GetBossState(DATA_ROTFACE) == DONE)
                             {
+                                HandleGameObject(uiPutricideCollision, true);
                                 if (GameObject* pGo = instance->GetGameObject(uiPutricideGates[0]))
+                                    pGo->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                                if (GameObject* pGo = instance->GetGameObject(uiPutricideGates[1]))
                                     pGo->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
                             }
                             else
@@ -241,9 +278,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                         if (state == DONE)
                         {
                             if (GetBossState(DATA_FESTERGUT) == DONE)
-                                HandleGameObject(uiPutricideCollision, true);
-                            if (GetBossState(DATA_FESTERGUT) == DONE)
                             {
+                                HandleGameObject(uiPutricideCollision, true);
+                                if (GameObject* pGo = instance->GetGameObject(uiPutricideGates[0]))
+                                    pGo->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
                                 if (GameObject* pGo = instance->GetGameObject(uiPutricideGates[1]))
                                     pGo->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
                             }
@@ -273,6 +311,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case DATA_OOZE_DANCE_ACHIEVEMENT:
                         isOozeDanceEligible = data ? true : false;
+                        break;
+                    case DATA_NAUSEA___ACHIEVEMENT:
+                        isNauseaEligible = data ? true : false;
+                        break;
                     default:
                         break;
                 }
@@ -292,6 +334,11 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case CRITERIA_DANCES_WITH_OOZES_10H:
                     case CRITERIA_DANCES_WITH_OOZES_25H:
                         return isOozeDanceEligible;
+                    case CRITERIA_NAUSEA_10N:
+                    case CRITERIA_NAUSEA_25N:
+                    case CRITERIA_NAUSEA_10H:
+                    case CRITERIA_NAUSEA_25H:
+                        return isNauseaEligible;
                     default:
                         break;
                 }
@@ -353,8 +400,10 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 uiFestergut;
             uint64 uiRotface;
             uint64 uiProfessorPutricide;
+            uint64 uiPutricideTable;
             bool isBonedEligible;
             bool isOozeDanceEligible;
+            bool isNauseaEligible;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* pMap) const

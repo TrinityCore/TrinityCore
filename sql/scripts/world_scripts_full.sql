@@ -848,6 +848,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_little_ooze' WHERE `entry`=3689
 UPDATE `creature_template` SET `ScriptName`='npc_big_ooze' WHERE `entry`=36899;
 UPDATE `creature_template` SET `ScriptName`='npc_precious_icc' WHERE `entry`=37217;
 UPDATE `creature_template` SET `ScriptName`='boss_professor_putricide' WHERE `entry`=36678;
+UPDATE `creature_template` SET `ScriptName`='npc_volatile_ooze' WHERE `entry`=37697;
 
 /* IRONFORGE */
 UPDATE `creature_template` SET `ScriptName`='npc_royal_historian_archesonus' WHERE `entry`=8879;
