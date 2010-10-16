@@ -1630,7 +1630,7 @@ class Player : public Unit, public GridObject<Player>
         void SendClearCooldown(uint32 spell_id, Unit* target);
 
         void RemoveCategoryCooldown(uint32 cat);
-        void RemoveArenaSpellCooldowns();
+        void RemoveArenaSpellCooldowns(bool removeActivePetCooldowns = false);
         void RemoveAllSpellCooldown();
         void _LoadSpellCooldowns(PreparedQueryResult result);
         void _SaveSpellCooldowns(SQLTransaction& trans);

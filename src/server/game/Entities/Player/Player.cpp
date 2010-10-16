@@ -1981,6 +1981,10 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
                     LeaveBattleground(false);                   // don't teleport to entry point
             }
 
+            // remove arena spell coldowns now to also remove pet's cooldowns before it's temporarily unsummoned
+            if (mEntry->IsBattleArena())
+                RemoveArenaSpellCooldowns(true);
+
             // remove pet on map change
             if (pet)
                 UnsummonPetTemporaryIfAny();
@@ -3896,17 +3900,17 @@ void Player::RemoveSpellCategoryCooldown(uint32 cat, bool update /* = false */)
     }
 }
 
-void Player::RemoveArenaSpellCooldowns()
+void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
 {
-    // remove cooldowns on spells that has < 15 min CD
+    // remove cooldowns on spells that have <= 10 min CD
+
     SpellCooldowns::iterator itr, next;
-    // iterate spell cooldowns
     for (itr = m_spellCooldowns.begin(); itr != m_spellCooldowns.end(); itr = next)
     {
         next = itr;
         ++next;
         SpellEntry const * entry = sSpellStore.LookupEntry(itr->first);
-        // check if spellentry is present and if the cooldown is less than 10 mins
+        // check if spellentry is present and if the cooldown is less or equal to 10 min
         if (entry &&
             entry->RecoveryTime <= 10 * MINUTE * IN_MILLISECONDS &&
             entry->CategoryRecoveryTime <= 10 * MINUTE * IN_MILLISECONDS)
@@ -3915,6 +3919,18 @@ void Player::RemoveArenaSpellCooldowns()
             RemoveSpellCooldown(itr->first, true);
         }
     }
+
+    // pet cooldowns
+    if (removeActivePetCooldowns)
+        if (Pet *pet = GetPet())
+        {
+            // notify player
+            for (CreatureSpellCooldowns::const_iterator itr = pet->m_CreatureSpellCooldowns.begin(); itr != pet->m_CreatureSpellCooldowns.end(); ++itr)
+                SendClearCooldown(itr->first, pet);
+
+            // actually clear cooldowns
+            pet->m_CreatureSpellCooldowns.clear();
+        }
 }
 
 void Player::RemoveAllSpellCooldown()
