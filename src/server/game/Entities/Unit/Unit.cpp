@@ -5701,6 +5701,16 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     target = triggeredByAura->GetCaster();
                     break;
                 }
+                // Gaseous Bloat (Professor Putricide add)
+                case 70215:
+                case 72858:
+                case 72859:
+                case 72860:
+                {
+                    target = getVictim();
+                    triggered_spell_id = 70701;
+                    break;
+                }
             }
             break;
         }
