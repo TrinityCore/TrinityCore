@@ -1104,7 +1104,6 @@ void Battleground::AddPlayer(Player *plr)
     // add arena specific auras
     if (isArena())
     {
-        plr->RemoveArenaSpellCooldowns();
         plr->RemoveArenaAuras();
         plr->RemoveArenaEnchantments(TEMP_ENCHANTMENT_SLOT);
         if (team == ALLIANCE)                                // gold
