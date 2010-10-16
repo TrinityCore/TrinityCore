@@ -241,6 +241,7 @@ public:
                 for (uint8 i = 0; i < 16; i++)
                 {
                     if (!DoneAdds[i % 4])
+                    {
                         if (next == 0)
                         {
                             move = (Phase)(i % 4);
@@ -248,6 +249,7 @@ public:
                         }
                         else if (next > 0)
                             --next;
+                    }
                 }
                 ++AddCount;
                 DoneAdds[move] = true;

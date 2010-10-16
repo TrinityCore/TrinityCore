@@ -73,14 +73,14 @@ class PreparedResultSet
         Field* Fetch() const
         {
             ASSERT(m_rowPosition < m_rowCount);
-            return m_rows[m_rowPosition];
+            return m_rows[uint32(m_rowPosition)];
         }
 
         const Field & operator [] (uint32 index) const
         {
             ASSERT(m_rowPosition < m_rowCount);
             ASSERT(index < m_fieldCount);
-            return m_rows[m_rowPosition][index];
+            return m_rows[uint32(m_rowPosition)][index];
         }
 
     protected:
