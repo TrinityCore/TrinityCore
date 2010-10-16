@@ -6933,14 +6933,6 @@ void Spell::EffectSpecCount(SpellEffIndex /*effIndex*/)
 
 void Spell::EffectActivateSpec(SpellEffIndex /*effIndex*/)
 {
-    // can't change during already started arena/battleground
-    if (Battleground const* bg = m_caster->ToPlayer()->GetBattleground())
-        if (bg->GetStatus() == STATUS_IN_PROGRESS)
-        {
-            SendCastResult(SPELL_FAILED_NOT_IN_BATTLEGROUND);
-            return;
-        }
-
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
