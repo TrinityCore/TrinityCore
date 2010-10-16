@@ -1716,3 +1716,17 @@ void WorldSession::SendSetPhaseShift(uint32 PhaseShift)
     data << uint32(PhaseShift);
     SendPacket(&data);
 }
+
+void WorldSession::HandleHearthAndResurrect(WorldPacket &recv_data)
+{
+    if (_player->isInFlight())
+        return;
+
+    AreaTableEntry const *atEntry = sAreaStore.LookupEntry(_player->GetAreaId());
+    if (!atEntry || !(atEntry->flags & AREA_FLAG_OUTDOOR_PVP2))
+        return;
+
+    _player->BuildPlayerRepop();
+    _player->ResurrectPlayer(100);
+    _player->TeleportTo(_player->m_homebindMapId, _player->m_homebindX, _player->m_homebindY, _player->m_homebindZ, _player->GetOrientation());
+}

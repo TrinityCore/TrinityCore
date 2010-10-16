@@ -1206,7 +1206,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x499*/ { "SMSG_PET_LEARNED_SPELL",                       STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x49A*/ { "SMSG_PET_REMOVED_SPELL",                       STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x49B*/ { "CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE",      STATUS_LOGGEDIN, &WorldSession::HandleChangeSeatsOnControlledVehicle},
-    /*0x49C*/ { "CMSG_HEARTH_AND_RESURRECT",                    STATUS_NEVER,    &WorldSession::Handle_NULL                     },
+    /*0x49C*/ { "CMSG_HEARTH_AND_RESURRECT",                    STATUS_LOGGEDIN, &WorldSession::HandleHearthAndResurrect,       },
     /*0x49D*/ { "SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA",    STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x49E*/ { "SMSG_CRITERIA_DELETED",                        STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x49F*/ { "SMSG_ACHIEVEMENT_DELETED",                     STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
