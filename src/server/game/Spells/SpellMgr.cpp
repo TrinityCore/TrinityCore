@@ -3605,6 +3605,8 @@ void SpellMgr::LoadSpellCustomAttr()
         case 64422: case 64688:                 // Sonic Screech
         case 72373:                             // Shared Suffering
         case 71904:                             // Chaos Bane
+        case 70492: case 72505:                 // Ooze Eruption
+        case 72624: case 72625:                 // Ooze Eruption
             // ONLY SPELLS WITH SPELLFAMILY_GENERIC and EFFECT_SCHOOL_DAMAGE
             mSpellCustomAttr[i] |= SPELL_ATTR_CU_SHARE_DAMAGE;
             count++;
@@ -3880,6 +3882,44 @@ void SpellMgr::LoadSpellCustomAttr()
         case 53245: // Marked for Death (Rank 4)
         case 53246: // Marked for Death (Rank 5)
             spellInfo->EffectSpellClassMask[0] = flag96(423937, 276955137, 2049);
+            count++;
+            break;
+        // this is here until targetAuraSpell and alike support SpellDifficulty.dbc
+        case 70459: // Ooze Eruption Search Effect
+            spellInfo->targetAuraSpell = 0;
+            count++;
+            break;
+        case 71413: // Green Ooze Summon
+        case 71414: // Orange Ooze Summon
+            spellInfo->EffectImplicitTargetA[0] = TARGET_DEST_DEST;
+            count++;
+            break;
+        // THIS IS HERE BECAUSE COOLDOWN ON CREATURE PROCS IS NOT IMPLEMENTED
+        case 71604: // Mutated Strength
+        case 72673: // Mutated Strength
+        case 72674: // Mutated Strength
+        case 72675: // Mutated Strength
+            spellInfo->Effect[1] = 0;
+            count++;
+            break;
+        case 70447: // Volatile Ooze Adhesive
+        case 72836: // Volatile Ooze Adhesive
+        case 72837: // Volatile Ooze Adhesive
+        case 72838: // Volatile Ooze Adhesive
+        case 70672: // Gaseous Bloat
+        case 72455: // Gaseous Bloat
+        case 72832: // Gaseous Bloat
+        case 72833: // Gaseous Bloat
+            spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ENEMY;
+            spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_TARGET_ENEMY;
+            spellInfo->EffectImplicitTargetB[2] = TARGET_UNIT_TARGET_ENEMY;
+            count++;
+            break;
+        case 70911: // Unbound Plague
+        case 72854: // Unbound Plague
+        case 72855: // Unbound Plague
+        case 72856: // Unbound Plague
+            spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ENEMY;
             count++;
             break;
         default:
