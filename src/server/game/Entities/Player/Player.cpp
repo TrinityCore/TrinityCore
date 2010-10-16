@@ -24059,11 +24059,6 @@ void Player::ActivateSpec(uint8 spec)
     if (spec > GetSpecsCount())
         return;
 
-    // TODO:
-    // HACK: this shouldn't be checked at such a low level function but rather at the moment the spell is casted
-    if (GetMap()->IsBattleground() && !HasAura(44521)) // In Battleground with no Preparation buff
-        return;
-
     if (IsNonMeleeSpellCasted(false))
         InterruptNonMeleeSpells(false);
 
