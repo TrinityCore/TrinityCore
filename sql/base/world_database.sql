@@ -19363,9 +19363,13 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 72419, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  60), -- Item - Icecrown Reputation Ring Healer Trigger
 ( 71404, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002,   0,   0,  45), -- Item - Icecrown Dungeon Melee Trinket
 ( 71564, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000002,   0,   0,   0), -- Nevermelting Ice Crystal
- (71545, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,  50,   0), -- Tiny Abomination in a Jar (Heroic)
+( 71545, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,  50,   0), -- Tiny Abomination in a Jar (Heroic)
 ( 71406, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,  50,   0), -- Tiny Abomination in a Jar
 ( 71903, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,  20,   0), -- Item - Shadowmourne Legendary
+( 70215, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000004, 0x00000000,   0, 100,   0), -- Gaseous Bloat
+( 72858, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000004, 0x00000000,   0, 100,   0), -- Gaseous Bloat
+( 72859, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000004, 0x00000000,   0, 100,   0), -- Gaseous Bloat
+( 72860, 0x00,   0, 0x00000000, 0x00000000, 0x00000000 ,0x00000004, 0x00000000,   0, 100,   0), -- Gaseous Bloat
 ( 75474, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Charred Twilight Scale (Heroic)
 ( 75465, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Charred Twilight Scale
 ( 75457, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  45), -- Sharpened Twilight Scale (Heroic)
@@ -26825,6 +26829,38 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 69839, 'spell_rotface_unstable_ooze_explosion_init'),
 ( 69832, 'spell_rotface_unstable_ooze_explosion'),
 ( 71441, 'spell_rotface_unstable_ooze_explosion_suicide'),
+( 70701, 'spell_putricide_expunged_gas'),
+( 70343, 'spell_putricide_slime_puddle'),
+( 70351, 'spell_putricide_unstable_experiment'),
+( 71966, 'spell_putricide_unstable_experiment'),
+( 71967, 'spell_putricide_unstable_experiment'),
+( 71968, 'spell_putricide_unstable_experiment'),
+( 71412, 'spell_putricide_ooze_summon'),
+( 71415, 'spell_putricide_ooze_summon'),
+( 70672, 'spell_putricide_gaseous_bloat'),
+( 72455, 'spell_putricide_gaseous_bloat'),
+( 72832, 'spell_putricide_gaseous_bloat'),
+( 72833, 'spell_putricide_gaseous_bloat'),
+( 70459, 'spell_putricide_ooze_eruption_searcher'),
+( 71255, 'spell_putricide_choking_gas_bomb'),
+( 70920, 'spell_putricide_unbound_plague'),
+( 70360, 'spell_putricide_eat_ooze'),
+( 72527, 'spell_putricide_eat_ooze'),
+( 72451, 'spell_putricide_mutated_plague'),
+( 72463, 'spell_putricide_mutated_plague'),
+( 72671, 'spell_putricide_mutated_plague'),
+( 72672, 'spell_putricide_mutated_plague'),
+( 70308, 'spell_putricide_mutation_init'),
+( 70311, 'spell_putricide_mutated_transformation'),
+( 71503, 'spell_putricide_mutated_transformation'),
+( 70405, 'spell_putricide_mutated_transformation_dismiss'),
+( 72508, 'spell_putricide_mutated_transformation_dismiss'),
+( 72509, 'spell_putricide_mutated_transformation_dismiss'),
+( 72510, 'spell_putricide_mutated_transformation_dismiss'),
+( 70539, 'spell_putricide_regurgitated_ooze'),
+( 72457, 'spell_putricide_regurgitated_ooze'),
+( 72875, 'spell_putricide_regurgitated_ooze'),
+( 72876, 'spell_putricide_regurgitated_ooze'),
 ( 62717, 'spell_ignis_slag_pot'),
 ( 63477, 'spell_ignis_slag_pot'),
 -- quest
