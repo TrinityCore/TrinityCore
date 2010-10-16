@@ -729,18 +729,6 @@ ContentLevels GetContentLevelsForMapAndZone(uint32 mapid, uint32 zoneId)
     }
 }
 
-ChatChannelsEntry const* GetChannelEntryFor(uint32 channel_id)
-{
-    // not sorted, numbering index from 0
-    for (uint32 i = 0; i < sChatChannelsStore.GetNumRows(); ++i)
-    {
-        ChatChannelsEntry const* ch = sChatChannelsStore.LookupEntry(i);
-        if (ch && ch->ChannelID == channel_id)
-            return ch;
-    }
-    return NULL;
-}
-
 bool IsTotemCategoryCompatiableWith(uint32 itemTotemCategoryId, uint32 requiredTotemCategoryId)
 {
     if (requiredTotemCategoryId == 0)
