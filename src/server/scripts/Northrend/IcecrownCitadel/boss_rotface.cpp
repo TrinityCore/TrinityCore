@@ -186,15 +186,13 @@ class boss_rotface : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_SLIME_SPRAY:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0/*1*/, 0.0f, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                             {
                                 Position pos;
                                 target->GetPosition(&pos);
-                                if (DoSummon(NPC_OOZE_SPRAY_STALKER, pos, 8000, TEMPSUMMON_TIMED_DESPAWN))
-                                {
-                                    DoScriptText(EMOTE_SLIME_SPRAY, me);
-                                    DoCastAOE(SPELL_SLIME_SPRAY);
-                                }
+                                DoSummon(NPC_OOZE_SPRAY_STALKER, pos, 8000, TEMPSUMMON_TIMED_DESPAWN);
+                                DoScriptText(EMOTE_SLIME_SPRAY, me);
+                                DoCastAOE(SPELL_SLIME_SPRAY);
                             }
                             events.ScheduleEvent(EVENT_SLIME_SPRAY, 20000);
                             break;
