@@ -144,7 +144,7 @@ public:
                 vehicle->RemoveAllPassengers();
         }
 
-        void EnterCombat(Unit *who)
+        void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
             DoScriptText(SAY_AGGRO, me);
@@ -160,7 +160,7 @@ public:
             Shattered = false;
         }
 
-        void JustDied(Unit *victim)
+        void JustDied(Unit* /*victim*/)
         {
             _JustDied();
             DoScriptText(SAY_DEATH, me);
@@ -267,7 +267,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void KilledUnit(Unit* Victim)
+        void KilledUnit(Unit* /*victim*/)
         {
             if (!(rand()%5))
                 DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
@@ -329,7 +329,7 @@ public:
             Brittled = false;
         }
 
-        void DamageTaken(Unit *attacker, uint32 &damage)
+        void DamageTaken(Unit* /*attacker*/, uint32& damage)
         {
             if (me->HasAura(SPELL_BRITTLE) && damage >= 5000)
             {
@@ -342,7 +342,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(const uint32 /*uiDiff*/)
         {
             if (!UpdateVictim())
                 return;

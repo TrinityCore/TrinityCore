@@ -160,7 +160,7 @@ class boss_professor_putricide : public CreatureScript
                     }
                     case ACTION_ROTFACE_OOZE:
                         DoScriptText(RAND(SAY_ROTFACE_OOZE_FLOOD1, SAY_ROTFACE_OOZE_FLOOD2), me);
-                        if (Creature* rotface = Unit::GetCreature(*me, instance->GetData64(DATA_ROTFACE)))
+                        if (Unit::GetCreature(*me, instance->GetData64(DATA_ROTFACE)))
                             if (Creature* dummy = Unit::GetCreature(*me, oozeFloodDummy[oozeFloodStage]))
                                 dummy->CastSpell(dummy, oozeFloodSpells[oozeFloodStage], true, NULL, NULL, me->GetGUID()); // cast from self for LoS (with prof's GUID for logs)
                         if (++oozeFloodStage == 4)
