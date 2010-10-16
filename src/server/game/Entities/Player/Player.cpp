@@ -1981,9 +1981,14 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
                     LeaveBattleground(false);                   // don't teleport to entry point
             }
 
-            // remove arena spell coldowns now to also remove pet's cooldowns before it's temporarily unsummoned
+            // remove arena spell coldowns/buffs now to also remove pet's cooldowns before it's temporarily unsummoned
             if (mEntry->IsBattleArena())
+            {
                 RemoveArenaSpellCooldowns(true);
+                RemoveArenaAuras();
+                if (pet)
+                    pet->RemoveArenaAuras();
+            }
 
             // remove pet on map change
             if (pet)
