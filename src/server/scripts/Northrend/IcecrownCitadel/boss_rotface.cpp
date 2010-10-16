@@ -141,7 +141,7 @@ class boss_rotface : public CreatureScript
                     professor->AI()->EnterEvadeMode();
             }
 
-            void SpellHitTarget(Unit* target, SpellEntry const* spell)
+            void SpellHitTarget(Unit* /*target*/, SpellEntry const* spell)
             {
                 if (spell->Id == SPELL_SLIME_SPRAY)
                     DoScriptText(SAY_SLIME_SPRAY, me);
@@ -190,7 +190,7 @@ class boss_rotface : public CreatureScript
                             {
                                 Position pos;
                                 target->GetPosition(&pos);
-                                if (Creature* dummy = DoSummon(NPC_OOZE_SPRAY_STALKER, pos, 8000, TEMPSUMMON_TIMED_DESPAWN))
+                                if (DoSummon(NPC_OOZE_SPRAY_STALKER, pos, 8000, TEMPSUMMON_TIMED_DESPAWN))
                                 {
                                     DoScriptText(EMOTE_SLIME_SPRAY, me);
                                     DoCastAOE(SPELL_SLIME_SPRAY);
@@ -680,7 +680,7 @@ class spell_rotface_unstable_ooze_explosion : public SpellScriptLoader
                 // let Rotface handle the cast - caster dies before this executes
                 if (InstanceScript* script = GetTargetUnit()->GetInstanceScript())
                     if (Creature* rotface = script->instance->GetCreature(script->GetData64(DATA_ROTFACE)))
-                        rotface->CastSpell(x, y, z, GetSpellInfo()->EffectTriggerSpell[effIndex], true, NULL, NULL, GetCaster()->GetGUID(), GetTargetUnit());
+                        rotface->CastSpell(x, y, z, triggered_spell_id, true, NULL, NULL, GetCaster()->GetGUID(), GetTargetUnit());
             }
 
             void Register()

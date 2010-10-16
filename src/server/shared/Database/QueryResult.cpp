@@ -94,14 +94,14 @@ m_length(NULL)
 
     m_rowCount = mysql_stmt_num_rows(m_stmt);
 
-    m_rows.resize(m_rowCount);
+    m_rows.resize(uint32(m_rowCount));
     while (_NextRow())
     {
-        m_rows[m_rowPosition] = new Field[m_fieldCount];
+        m_rows[uint32(m_rowPosition)] = new Field[m_fieldCount];
         for (uint64 fIndex = 0; fIndex < m_fieldCount; ++fIndex)
         {
             if (!*m_rBind[fIndex].is_null)
-                m_rows[m_rowPosition][fIndex].SetByteValue( m_rBind[fIndex].buffer,
+                m_rows[uint32(m_rowPosition)][fIndex].SetByteValue( m_rBind[fIndex].buffer,
                                                             m_rBind[fIndex].buffer_length,
                                                             m_rBind[fIndex].buffer_type,
                                                            *m_rBind[fIndex].length );
@@ -114,13 +114,13 @@ m_length(NULL)
                     case MYSQL_TYPE_BLOB:
                     case MYSQL_TYPE_STRING:
                     case MYSQL_TYPE_VAR_STRING:
-                    m_rows[m_rowPosition][fIndex].SetByteValue( "",
+                    m_rows[uint32(m_rowPosition)][fIndex].SetByteValue( "",
                                                             m_rBind[fIndex].buffer_length,
                                                             m_rBind[fIndex].buffer_type,
                                                            *m_rBind[fIndex].length );
                     break;
                     default:
-                    m_rows[m_rowPosition][fIndex].SetByteValue( 0,
+                    m_rows[uint32(m_rowPosition)][fIndex].SetByteValue( 0,
                                                             m_rBind[fIndex].buffer_length,
                                                             m_rBind[fIndex].buffer_type,
                                                            *m_rBind[fIndex].length );
@@ -141,7 +141,7 @@ ResultSet::~ResultSet()
 
 PreparedResultSet::~PreparedResultSet()
 {
-    for (uint64 i = 0; i < m_rowCount; ++i)
+    for (uint32 i = 0; i < uint32(m_rowCount); ++i)
         delete[] m_rows[i];
 }
 
