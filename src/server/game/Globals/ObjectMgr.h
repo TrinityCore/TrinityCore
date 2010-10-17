@@ -797,9 +797,6 @@ class ObjectMgr
         }
 
         void LoadGuilds();
-        void LoadGuildEvents(std::vector<Guild*>& GuildVector, QueryResult& result);
-        void LoadGuildBankEvents(std::vector<Guild*>& GuildVector, QueryResult& result);
-        void LoadGuildBanks(std::vector<Guild*>& GuildVector, QueryResult& result, PreparedQueryResult& itemResult);
         void LoadArenaTeams();
         void LoadGroups();
         void LoadQuests();

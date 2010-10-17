@@ -1076,6 +1076,7 @@ bool ScriptMgr::OnCriteriaCheck(AchievementCriteriaData const* data, Player* sou
     return tmpscript->OnCheck(source, target);
 }
 
+// Player
 void ScriptMgr::OnPVPKill(Player *killer, Player *killed)
 {
     FOREACH_SCRIPT(PlayerScript)->OnPVPKill(killer, killed);
@@ -1196,7 +1197,8 @@ void ScriptMgr::OnPlayerDelete(uint64 guid)
     FOREACH_SCRIPT(PlayerScript)->OnDelete(guid);
 }
 
-void ScriptMgr::OnGuildAddMember(Guild *guild, Player *player, uint32& plRank)
+// Guild
+void ScriptMgr::OnGuildAddMember(Guild *guild, Player *player, uint8& plRank)
 {
     FOREACH_SCRIPT(GuildScript)->OnAddMember(guild, player, plRank);
 }
@@ -1206,14 +1208,19 @@ void ScriptMgr::OnGuildRemoveMember(Guild *guild, Player *player, bool isDisband
     FOREACH_SCRIPT(GuildScript)->OnRemoveMember(guild, player, isDisbanding, isKicked);
 }
 
-void ScriptMgr::OnGuildMOTDChanged(Guild *guild, std::string newMotd)
+void ScriptMgr::OnGuildMOTDChanged(Guild *guild, const std::string& newMotd)
 {
     FOREACH_SCRIPT(GuildScript)->OnMOTDChanged(guild, newMotd);
 }
 
-void ScriptMgr::OnGuildInfoChanged(Guild *guild, std::string newGInfo)
+void ScriptMgr::OnGuildInfoChanged(Guild *guild, const std::string& newInfo)
 {
-    FOREACH_SCRIPT(GuildScript)->OnGInfoChanged(guild, newGInfo);
+    FOREACH_SCRIPT(GuildScript)->OnInfoChanged(guild, newInfo);
+}
+
+void ScriptMgr::OnGuildCreate(Guild *guild, Player* leader, const std::string& name)
+{
+    FOREACH_SCRIPT(GuildScript)->OnCreate(guild, leader, name);
 }
 
 void ScriptMgr::OnGuildDisband(Guild *guild)
@@ -1221,6 +1228,33 @@ void ScriptMgr::OnGuildDisband(Guild *guild)
     FOREACH_SCRIPT(GuildScript)->OnDisband(guild);
 }
 
+void ScriptMgr::OnGuildMemberWitdrawMoney(Guild* guild, Player* player, uint32 &amount, bool isRepair)
+{
+    FOREACH_SCRIPT(GuildScript)->OnMemberWitdrawMoney(guild, player, amount, isRepair);
+}
+
+void ScriptMgr::OnGuildMemberDepositMoney(Guild* guild, Player* player, uint32 &amount)
+{
+    FOREACH_SCRIPT(GuildScript)->OnMemberDepositMoney(guild, player, amount);
+}
+
+void ScriptMgr::OnGuildItemMove(Guild* guild, Player* player, Item* pItem, bool isSrcBank, uint8 srcContainer, uint8 srcSlotId, 
+            bool isDestBank, uint8 destContainer, uint8 destSlotId)
+{
+    FOREACH_SCRIPT(GuildScript)->OnItemMove(guild, player, pItem, isSrcBank, srcContainer, srcSlotId, isDestBank, destContainer, destSlotId);
+}
+
+void ScriptMgr::OnGuildEvent(Guild* guild, uint8 eventType, uint32 playerGuid1, uint32 playerGuid2, uint8 newRank)
+{
+    FOREACH_SCRIPT(GuildScript)->OnEvent(guild, eventType, playerGuid1, playerGuid2, newRank);
+}
+
+void ScriptMgr::OnGuildBankEvent(Guild* guild, uint8 eventType, uint8 tabId, uint32 playerGuid, uint32 itemOrMoney, uint16 itemStackCount, uint8 destTabId)
+{
+    FOREACH_SCRIPT(GuildScript)->OnBankEvent(guild, eventType, tabId, playerGuid, itemOrMoney, itemStackCount, destTabId);
+}
+
+// Group
 void ScriptMgr::OnGroupAddMember(Group* group, uint64 guid)
 {
     ASSERT(group);
