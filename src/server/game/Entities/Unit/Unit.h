@@ -1454,7 +1454,6 @@ class Unit : public WorldObject
         void JumpTo(float speedXY, float speedZ, bool forward = true);
         void JumpTo(WorldObject *obj, float speedZ);
 
-        void SetFacing(WorldObject* obj) { SetFacing(0, obj); }
         void SetFacing(float ori, WorldObject* obj);
         void SendMonsterStop(bool on_death = false);
         void SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 Time, Player* player = NULL);
