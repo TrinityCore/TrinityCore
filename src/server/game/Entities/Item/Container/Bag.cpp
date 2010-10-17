@@ -105,9 +105,9 @@ void Bag::SaveToDB(SQLTransaction& trans)
     Item::SaveToDB(trans);
 }
 
-bool Bag::LoadFromDB(uint32 guid, uint64 owner_guid, PreparedQueryResult result, uint32 entry)
+bool Bag::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entry)
 {
-    if (!Item::LoadFromDB(guid, owner_guid, result, entry))
+    if (!Item::LoadFromDB(guid, owner_guid, fields, entry))
         return false;
 
     ItemPrototype const* itemProto = GetProto(); // checked in Item::LoadFromDB

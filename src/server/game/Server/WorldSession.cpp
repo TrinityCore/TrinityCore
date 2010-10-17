@@ -410,14 +410,8 @@ void WorldSession::LogoutPlayer(bool Save)
             HandleMoveWorldportAckOpcode();
 
         ///- If the player is in a guild, update the guild roster and broadcast a logout message to other guild members
-        Guild *guild = sObjectMgr.GetGuildById(_player->GetGuildId());
-        if (guild)
-        {
-            guild->SetMemberStats(_player->GetGUID());
-            guild->UpdateLogoutTime(_player->GetGUID());
-
-            guild->BroadcastEvent(GE_SIGNED_OFF, _player->GetGUID(), 1, _player->GetName(), "", "");
-        }
+        if (Guild *pGuild = sObjectMgr.GetGuildById(_player->GetGuildId()))
+            pGuild->HandleMemberLogout(this);
 
         ///- Remove pet
         _player->RemovePet(NULL,PET_SAVE_AS_CURRENT, true);

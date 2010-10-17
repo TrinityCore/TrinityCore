@@ -751,24 +751,12 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
 
     if (pCurrChar->GetGuildId() != 0)
     {
-        Guild* guild = sObjectMgr.GetGuildById(pCurrChar->GetGuildId());
-        if (guild)
-        {
-            data.Initialize(SMSG_GUILD_EVENT, (1+1+guild->GetMOTD().size()+1));
-            data << uint8(GE_MOTD);
-            data << uint8(1);
-            data << guild->GetMOTD();
-            SendPacket(&data);
-            sLog.outStaticDebug("WORLD: Sent guild-motd (SMSG_GUILD_EVENT)");
-
-            guild->DisplayGuildBankTabsInfo(this);
-
-            guild->BroadcastEvent(GE_SIGNED_ON, pCurrChar->GetGUID(), 1, pCurrChar->GetName(), "", "");
-        }
+        if (Guild* pGuild = sObjectMgr.GetGuildById(pCurrChar->GetGuildId()))
+            pGuild->SendLoginInfo(this);
         else
         {
             // remove wrong guild data
-            sLog.outError("Player %s (GUID: %u) marked as member not existed guild (id: %u), removing guild membership for player.",pCurrChar->GetName(),pCurrChar->GetGUIDLow(),pCurrChar->GetGuildId());
+            sLog.outError("Player %s (GUID: %u) marked as member of not existing guild (id: %u), removing guild membership for player.",pCurrChar->GetName(),pCurrChar->GetGUIDLow(),pCurrChar->GetGuildId());
             pCurrChar->SetInGuild(0);
         }
     }

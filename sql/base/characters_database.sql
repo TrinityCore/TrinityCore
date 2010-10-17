@@ -1533,7 +1533,7 @@ DROP TABLE IF EXISTS `guild_bank_right`;
 CREATE TABLE `guild_bank_right` (
   `guildid` int(11) unsigned NOT NULL default '0',
   `TabId` tinyint(1) unsigned NOT NULL default '0',
-  `rid` int(11) unsigned NOT NULL default '0',
+  `rid` tinyint(1) unsigned NOT NULL default '0',
   `gbright` tinyint(3) unsigned NOT NULL default '0',
   `SlotPerDay` int(11) unsigned NOT NULL default '0',
   PRIMARY KEY  (`guildid`,`TabId`,`rid`),
@@ -1659,7 +1659,7 @@ DROP TABLE IF EXISTS `guild_rank`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `guild_rank` (
   `guildid` int(6) unsigned NOT NULL default '0',
-  `rid` int(11) unsigned NOT NULL,
+  `rid` tinyint(1) unsigned NOT NULL,
   `rname` varchar(255) NOT NULL default '',
   `rights` int(3) unsigned NOT NULL default '0',
   `BankMoneyPerDay` int(11) unsigned NOT NULL default '0',

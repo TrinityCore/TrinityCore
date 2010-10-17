@@ -46,14 +46,6 @@ enum CharterItemIDs
     ARENA_TEAM_CHARTER_5v5                        = 23562
 };
 
-enum CharterTypes
-{
-    GUILD_CHARTER_TYPE                            = 9,
-    ARENA_TEAM_CHARTER_2v2_TYPE                   = 2,
-    ARENA_TEAM_CHARTER_3v3_TYPE                   = 3,
-    ARENA_TEAM_CHARTER_5v5_TYPE                   = 5
-};
-
 enum CharterCosts
 {
     GUILD_CHARTER_COST                            = 1000,
@@ -164,12 +156,12 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
     {
         if (sObjectMgr.GetGuildByName(name))
         {
-            SendGuildCommandResult(GUILD_CREATE_S, name, ERR_GUILD_NAME_EXISTS_S);
+            Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_NAME_EXISTS_S, name);
             return;
         }
         if (sObjectMgr.IsReservedName(name) || !ObjectMgr::IsValidCharterName(name))
         {
-            SendGuildCommandResult(GUILD_CREATE_S, name, ERR_GUILD_NAME_INVALID);
+            Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_NAME_INVALID, name);
             return;
         }
     }
@@ -414,12 +406,12 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recv_data)
     {
         if (sObjectMgr.GetGuildByName(newname))
         {
-            SendGuildCommandResult(GUILD_CREATE_S, newname, ERR_GUILD_NAME_EXISTS_S);
+            Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_NAME_EXISTS_S, newname);
             return;
         }
         if (sObjectMgr.IsReservedName(newname) || !ObjectMgr::IsValidCharterName(newname))
         {
-            SendGuildCommandResult(GUILD_CREATE_S, newname, ERR_GUILD_NAME_INVALID);
+            Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_NAME_INVALID, newname);
             return;
         }
     }
@@ -484,14 +476,14 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
     // not let enemies sign guild charter
     if (!sWorld.getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD) && GetPlayer()->GetTeam() != sObjectMgr.GetPlayerTeamByGUID(ownerguid))
     {
-        if (type != 9)
+        if (type != GUILD_CHARTER_TYPE)
             SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", "", ERR_ARENA_TEAM_NOT_ALLIED);
         else
-            SendGuildCommandResult(GUILD_CREATE_S, "", ERR_GUILD_NOT_ALLIED);
+            Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_NOT_ALLIED);
         return;
     }
 
-    if (type != 9)
+    if (type != GUILD_CHARTER_TYPE)
     {
         if (_player->getLevel() < sWorld.getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         {
@@ -519,12 +511,12 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
     {
         if (_player->GetGuildId())
         {
-            SendGuildCommandResult(GUILD_INVITE_S, _player->GetName(), ERR_ALREADY_IN_GUILD_S);
+            Guild::SendCommandResult(this, GUILD_INVITE_S, ERR_ALREADY_IN_GUILD_S, _player->GetName());
             return;
         }
         if (_player->GetGuildIdInvited())
         {
-            SendGuildCommandResult(GUILD_INVITE_S, _player->GetName(), ERR_ALREADY_INVITED_TO_GUILD_S);
+            Guild::SendCommandResult(this, GUILD_INVITE_S, ERR_ALREADY_INVITED_TO_GUILD_S, _player->GetName());
             return;
         }
     }
@@ -628,14 +620,14 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recv_data)
 
     if (!sWorld.getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD) && GetPlayer()->GetTeam() != player->GetTeam())
     {
-        if (type != 9)
+        if (type != GUILD_CHARTER_TYPE)
             SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", "", ERR_ARENA_TEAM_NOT_ALLIED);
         else
-            SendGuildCommandResult(GUILD_CREATE_S, "", ERR_GUILD_NOT_ALLIED);
+            Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_NOT_ALLIED);
         return;
     }
 
-    if (type != 9)
+    if (type != GUILD_CHARTER_TYPE)
     {
         if (player->getLevel() < sWorld.getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         {
@@ -665,13 +657,13 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recv_data)
     {
         if (player->GetGuildId())
         {
-            SendGuildCommandResult(GUILD_INVITE_S, _player->GetName(), ERR_ALREADY_IN_GUILD_S);
+            Guild::SendCommandResult(this, GUILD_INVITE_S, ERR_ALREADY_IN_GUILD_S, _player->GetName());
             return;
         }
 
         if (player->GetGuildIdInvited())
         {
-            SendGuildCommandResult(GUILD_INVITE_S, _player->GetName(), ERR_ALREADY_INVITED_TO_GUILD_S);
+            Guild::SendCommandResult(this, GUILD_INVITE_S, ERR_ALREADY_INVITED_TO_GUILD_S, _player->GetName());
             return;
         }
     }
@@ -787,7 +779,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
     {
         if (sObjectMgr.GetGuildByName(name))
         {
-            SendGuildCommandResult(GUILD_CREATE_S, name, ERR_GUILD_NAME_EXISTS_S);
+            Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_NAME_EXISTS_S, name);
             return;
         }
     }
@@ -826,7 +818,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
         for (uint8 i = 0; i < signs; ++i)
         {
             Field* fields = result->Fetch();
-            guild->AddMember(fields[0].GetUInt64(), guild->GetLowestRank());
+            guild->AddMember(fields[0].GetUInt64());
             result->NextRow();
         }
     }

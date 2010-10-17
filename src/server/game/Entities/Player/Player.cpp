@@ -4458,8 +4458,8 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
     sObjectAccessor.ConvertCorpseForPlayer(playerguid);
 
     if (uint32 guildId = GetGuildIdFromDB(playerguid))
-        if (Guild* guild = sObjectMgr.GetGuildById(guildId))
-            guild->DelMember(guid);
+        if (Guild* pGuild = sObjectMgr.GetGuildById(guildId))
+            pGuild->DeleteMember(guid);
 
     // remove from arena teams
     LeaveAllArenaTeams(playerguid);
@@ -4522,8 +4522,9 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
                         {
                             do
                             {
-                                uint32 item_guidlow = (*resultItems)[11].GetUInt32();
-                                uint32 item_template = (*resultItems)[12].GetUInt32();
+                                Field* fields = resultItems->Fetch();
+                                uint32 item_guidlow = fields[11].GetUInt32();
+                                uint32 item_template = fields[12].GetUInt32();
 
                                 ItemPrototype const* itemProto = sObjectMgr.GetItemPrototype(item_template);
                                 if (!itemProto)
@@ -4535,7 +4536,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
                                 }
 
                                 Item *pItem = NewItemOrBag(itemProto);
-                                if (!pItem->LoadFromDB(item_guidlow, MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER), resultItems, item_template))
+                                if (!pItem->LoadFromDB(item_guidlow, MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER), fields, item_template))
                                 {
                                     pItem->FSetState(ITEM_REMOVED);
                                     pItem->SaveToDB(trans);              // it also deletes item object!
@@ -5117,28 +5118,8 @@ uint32 Player::DurabilityRepair(uint16 pos, bool cost, float discountMod, bool g
                 if (!pGuild)
                     return TotalCost;
 
-                if (!pGuild->HasRankRight(GetRank(), GR_RIGHT_WITHDRAW_REPAIR))
-                {
-                    sLog.outStaticDebug("You do not have rights to withdraw for repairs");
+                if (!pGuild->HandleMemberWithdrawMoney(GetSession(), costs, true))
                     return TotalCost;
-                }
-
-                if (pGuild->GetMemberMoneyWithdrawRem(GetGUIDLow()) < costs)
-                {
-                    sLog.outStaticDebug("You do not have enough money withdraw amount remaining");
-                    return TotalCost;
-                }
-
-                if (pGuild->GetGuildBankMoney() < costs)
-                {
-                    sLog.outStaticDebug("There is not enough money in bank");
-                    return TotalCost;
-                }
-
-                //- TODO: Fix bad function call design
-                SQLTransaction trans = CharacterDatabase.BeginTransaction();
-                pGuild->MemberMoneyWithdraw(costs, GetGUIDLow(), trans);
-                CharacterDatabase.CommitTransaction(trans);
 
                 TotalCost = costs;
             }
@@ -7004,12 +6985,12 @@ uint32 Player::GetGuildIdFromDB(uint64 guid)
     return id;
 }
 
-uint32 Player::GetRankFromDB(uint64 guid)
+uint8 Player::GetRankFromDB(uint64 guid)
 {
     QueryResult result = CharacterDatabase.PQuery("SELECT rank FROM guild_member WHERE guid='%u'", GUID_LOPART(guid));
     if (result)
     {
-        uint32 v = result->Fetch()[0].GetUInt32();
+        uint32 v = result->Fetch()[0].GetUInt8();
         return v;
     }
     else
@@ -16896,7 +16877,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timediff)
 
             Item *item = NewItemOrBag(proto);
 
-            if (!item->LoadFromDB(item_guid, GetGUID(), result, item_id))
+            if (!item->LoadFromDB(item_guid, GetGUID(), fields, item_id))
             {
                 sLog.outError("Player::_LoadInventory: Player %s has broken item (id: #%u) in inventory, deleted.", GetName(),item_id);
                 PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVENTORY_ITEM);
@@ -17115,7 +17096,7 @@ void Player::_LoadMailedItems(Mail *mail)
 
         Item *item = NewItemOrBag(proto);
 
-        if (!item->LoadFromDB(item_guid_low, MAKE_NEW_GUID(fields[13].GetUInt32(), 0, HIGHGUID_PLAYER), result, item_template))
+        if (!item->LoadFromDB(item_guid_low, MAKE_NEW_GUID(fields[13].GetUInt32(), 0, HIGHGUID_PLAYER), fields, item_template))
         {
             sLog.outError("Player::_LoadMailedItems - Item in mail (%u) doesn't exist !!!! - item guid: %u, deleted from mail", mail->messageID, item_guid_low);
             CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid = '%u'", item_guid_low);

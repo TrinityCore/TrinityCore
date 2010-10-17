@@ -725,11 +725,18 @@ class GuildScript : public ScriptObject
 
         bool IsDatabaseBound() const { return false; }
 
-        virtual void OnAddMember(Guild* /*guild*/, Player* /*player*/, uint32& /*plRank*/) { }
+        virtual void OnAddMember(Guild* /*guild*/, Player* /*player*/, uint8& /*plRank*/) { }
         virtual void OnRemoveMember(Guild* /*guild*/, Player* /*player*/, bool /*isDisbanding*/, bool /*isKicked*/) { }
-        virtual void OnMOTDChanged(Guild* /*guild*/, std::string /*newMotd*/) { }
-        virtual void OnGInfoChanged(Guild* /*guild*/, std::string /*newGInfo*/) { }
+        virtual void OnMOTDChanged(Guild* /*guild*/, const std::string& /*newMotd*/) { }
+        virtual void OnInfoChanged(Guild* /*guild*/, const std::string& /*newInfo*/) { }
+        virtual void OnCreate(Guild* /*guild*/, Player* /*leader*/, const std::string& /*name*/) { }
         virtual void OnDisband(Guild* /*guild*/) { }
+        virtual void OnMemberWitdrawMoney(Guild* /*guild*/, Player* /*player*/, uint32& /*amount*/, bool /*isRepair*/) { }
+        virtual void OnMemberDepositMoney(Guild* /*guild*/, Player* /*player*/, uint32& /*amount*/) { }
+        virtual void OnItemMove(Guild* /*guild*/, Player* /*player*/, Item* /*pItem*/, bool /*isSrcBank*/, uint8 /*srcContainer*/, uint8 /*srcSlotId*/,
+            bool /*isDestBank*/, uint8 /*destContainer*/, uint8 /*destSlotId*/) { }
+        virtual void OnEvent(Guild* /*guild*/, uint8 /*eventType*/, uint32 /*playerGuid1*/, uint32 /*playerGuid2*/, uint8 /*newRank*/) { }
+        virtual void OnBankEvent(Guild* /*guild*/, uint8 /*eventType*/, uint8 /*tabId*/, uint32 /*playerGuid*/, uint32 /*itemOrMoney*/, uint16 /*itemStackCount*/, uint8 /*destTabId*/) { }
 };
 
 class GroupScript : public ScriptObject
@@ -943,11 +950,18 @@ class ScriptMgr
         void OnPlayerDelete(uint64 guid);
 
     public: /* GuildScript */
-        void OnGuildAddMember(Guild *guild, Player *player, uint32& plRank);
+        void OnGuildAddMember(Guild *guild, Player *player, uint8& plRank);
         void OnGuildRemoveMember(Guild *guild, Player *player, bool isDisbanding, bool isKicked);
-        void OnGuildMOTDChanged(Guild *guild, std::string newMotd);
-        void OnGuildInfoChanged(Guild *guild, std::string newGInfo);
+        void OnGuildMOTDChanged(Guild *guild, const std::string& newMotd);
+        void OnGuildInfoChanged(Guild *guild, const std::string& newInfo);
+        void OnGuildCreate(Guild *guild, Player* leader, const std::string& name);
         void OnGuildDisband(Guild *guild);
+        void OnGuildMemberWitdrawMoney(Guild* guild, Player* player, uint32 &amount, bool isRepair);
+        void OnGuildMemberDepositMoney(Guild* guild, Player* player, uint32 &amount);
+        void OnGuildItemMove(Guild* guild, Player* player, Item* pItem, bool isSrcBank, uint8 srcContainer, uint8 srcSlotId, 
+            bool isDestBank, uint8 destContainer, uint8 destSlotId);
+        void OnGuildEvent(Guild* guild, uint8 eventType, uint32 playerGuid1, uint32 playerGuid2, uint8 newRank);
+        void OnGuildBankEvent(Guild* guild, uint8 eventType, uint8 tabId, uint32 playerGuid, uint32 itemOrMoney, uint16 itemStackCount, uint8 destTabId);
 
     public: /* GroupScript */
         void OnGroupAddMember(Group* group, uint64 guid);
