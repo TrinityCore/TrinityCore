@@ -383,7 +383,7 @@ void Item::SaveToDB(SQLTransaction& trans)
     SetState(ITEM_UNCHANGED);
 }
 
-bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, PreparedQueryResult result, uint32 entry)
+bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entry)
 {
     //                                                    0                1      2         3        4      5             6                 7           8           9    10
     //result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text FROM item_instance WHERE guid = '%u'", guid);
@@ -399,14 +399,6 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, PreparedQueryResult result
     ItemPrototype const* proto = GetProto();
     if (!proto)
         return false;
-
-    if (!result)
-    {
-        sLog.outError("Item (GUID: %u owner: %u) not found in table `item_instance`, can't load. ", guid, GUID_LOPART(owner_guid));
-        return false;
-    }
-
-    Field* fields = result->Fetch();
 
     // set owner (not if item is only loaded for gbank/auction/mail
     if (owner_guid != 0)

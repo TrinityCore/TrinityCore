@@ -331,7 +331,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
                 {
                     sScriptMgr.OnPlayerChat(GetPlayer(), type, lang, msg, guild);
 
-                    guild->BroadcastToGuild(this, msg, lang == LANG_ADDON ? LANG_ADDON : LANG_UNIVERSAL);
+                    guild->BroadcastToGuild(this, false, msg, lang == LANG_ADDON ? LANG_ADDON : LANG_UNIVERSAL);
                 }
             }
 
@@ -360,7 +360,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
                 {
                     sScriptMgr.OnPlayerChat(GetPlayer(), type, lang, msg, guild);
 
-                    guild->BroadcastToOfficers(this, msg, lang == LANG_ADDON ? LANG_ADDON : LANG_UNIVERSAL);
+                    guild->BroadcastToGuild(this, true, msg, lang == LANG_ADDON ? LANG_ADDON : LANG_UNIVERSAL);
                 }
             }
             break;

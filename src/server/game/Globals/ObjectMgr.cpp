@@ -346,7 +346,7 @@ std::string ObjectMgr::GetGuildNameById(uint32 GuildId) const
 Guild* ObjectMgr::GetGuildByLeader(const uint64 &guid) const
 {
     for (GuildMap::const_iterator itr = mGuildMap.begin(); itr != mGuildMap.end(); ++itr)
-        if (itr->second->GetLeader() == guid)
+        if (itr->second->GetLeaderGUID() == guid)
             return itr->second;
 
     return NULL;
@@ -3488,288 +3488,282 @@ void ObjectMgr::BuildPlayerLevelInfo(uint8 race, uint8 _class, uint8 level, Play
 
 void ObjectMgr::LoadGuilds()
 {
-    Guild *newGuild;
+    PreparedStatement* stmt = NULL;
+    PreparedQueryResult result;
 
-    //                                                   0             1          2          3           4           5           6
-    QueryResult result = CharacterDatabase.Query("SELECT guild.guildid,guild.name,leaderguid,EmblemStyle,EmblemColor,BorderStyle,BorderColor,"
-    //   7               8    9    10         11        12
-        "BackgroundColor,info,motd,createdate,BankMoney,COUNT(guild_bank_tab.guildid) "
-        "FROM guild LEFT JOIN guild_bank_tab ON guild.guildid = guild_bank_tab.guildid GROUP BY guild.guildid ORDER BY guildid ASC");
-
+    sLog.outString("Loading Guilds...");
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILDS);
+    result = CharacterDatabase.Query(stmt);
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
 
-        sLog.outString();
         sLog.outString(">> Loaded 0 guild definitions");
+        sLog.outString();
         return;
     }
-
-    // load guild ranks
-    //                                                             0       1   2     3      4
-    QueryResult guildRanksResult = CharacterDatabase.Query("SELECT guildid,rid,rname,rights,BankMoneyPerDay FROM guild_rank ORDER BY guildid ASC, rid ASC");
-
-    // load guild members
-    //                                                               0       1                 2    3     4       5                  6
-    QueryResult guildMembersResult = CharacterDatabase.Query("SELECT guildid,guild_member.guid,rank,pnote,offnote,BankResetTimeMoney,BankRemMoney,"
-    //   7                 8                9                 10               11                12
-        "BankResetTimeTab0,BankRemSlotsTab0,BankResetTimeTab1,BankRemSlotsTab1,BankResetTimeTab2,BankRemSlotsTab2,"
-    //   13                14               15                16               17                18
-        "BankResetTimeTab3,BankRemSlotsTab3,BankResetTimeTab4,BankRemSlotsTab4,BankResetTimeTab5,BankRemSlotsTab5,"
-    //   19               20                21                22               23                24
-        "characters.name, characters.level, characters.class, characters.zone, characters.logout_time, characters.account "
-        "FROM guild_member LEFT JOIN characters ON characters.guid = guild_member.guid ORDER BY guildid ASC");
-
-    // load guild bank tab rights
-    //                                                                     0       1     2   3       4
-    QueryResult guildBankTabRightsResult = CharacterDatabase.Query("SELECT guildid,TabId,rid,gbright,SlotPerDay FROM guild_bank_right ORDER BY guildid ASC, TabId ASC");
-
-
+    // 1. Load all guilds
     barGoLink bar(result->GetRowCount());
-
-    uint32 maxid = 0;
     do
     {
-        //Field *fields = result->Fetch();
-
         bar.step();
 
-        newGuild = new Guild;
-        if (!newGuild->LoadGuildFromDB(result) ||
-            !newGuild->LoadRanksFromDB(guildRanksResult) ||
-            !newGuild->LoadMembersFromDB(guildMembersResult) ||
-            !newGuild->LoadBankRightsFromDB(guildBankTabRightsResult) ||
-            !newGuild->CheckGuildStructure()
-            )
+        Field* fields = result->Fetch();
+        Guild* pNewGuild = new Guild();
+        if (!pNewGuild->LoadFromDB(fields))
         {
-            newGuild->Disband();
-            delete newGuild;
+            delete pNewGuild;
             continue;
         }
-
-        AddGuild(newGuild);
-
-        if (maxid < newGuild->GetId())
-            maxid = newGuild->GetId();
-
+        AddGuild(pNewGuild);
     }
     while (result->NextRow());
+    sLog.outString();
+    sLog.outString(">> Loaded " UI64FMTD " guilds definitions", result->GetRowCount());
+    sLog.outString();
 
-    std::vector<Guild*> GuildVector(maxid + 1);
+    uint64 rowCount = 0;
+    // 2. Load all guild ranks
+    sLog.outString("Loading guild ranks...");
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_RANKS);
+    result = CharacterDatabase.Query(stmt);
+    if (result)
+    {
+        rowCount = result->GetRowCount();
+        barGoLink bar(rowCount);
+        do
+        {
+            bar.step();
 
-    for (GuildMap::iterator itr = mGuildMap.begin(); itr != mGuildMap.end(); ++itr)
-        GuildVector[itr->second->GetId()] = (*itr).second;
+            Field* fields = result->Fetch();
+            uint32 guildId = fields[0].GetUInt32();
+            if (Guild* pGuild = GetGuildById(guildId))
+                pGuild->LoadRankFromDB(fields);
+        }
+        while (result->NextRow());
+    }
+    else
+    {
+        barGoLink bar(1);
+        bar.step();
+    }
+    sLog.outString(">> Loaded " UI64FMTD " ranks for all the guilds", rowCount);
+    sLog.outString();
 
-    //                                                             0        1          2            3            4        5          6
-    QueryResult guildEventResult = CharacterDatabase.Query("SELECT LogGuid, EventType, PlayerGuid1, PlayerGuid2, NewRank, TimeStamp, guildid FROM guild_eventlog ORDER BY TimeStamp DESC, LogGuid DESC");
+    // 3. Load all guild members
+    sLog.outString("Loading guild members...");
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_MEMBERS);
+    result = CharacterDatabase.Query(stmt);
+    if (result)
+    {
+        rowCount = result->GetRowCount();
+        barGoLink bar(rowCount);
+        do
+        {
+            bar.step();
 
-    //                                                                 0        1          2           3            4               5          6          7        8
-    QueryResult guildBankEventResult = CharacterDatabase.Query("SELECT LogGuid, EventType, PlayerGuid, ItemOrMoney, ItemStackCount, DestTabId, TimeStamp, guildid, TabId FROM guild_bank_eventlog ORDER BY TimeStamp DESC,LogGuid DESC");
+            Field* fields = result->Fetch();
+            uint32 guildId = fields[0].GetUInt32();
+            if (Guild* pGuild = GetGuildById(guildId))
+                pGuild->LoadMemberFromDB(fields);
+        }
+        while (result->NextRow());
+    }
+    else
+    {
+        rowCount = 0;
+        barGoLink bar(1);
+        bar.step();
+    }
+    sLog.outString(">> Loaded " UI64FMTD " members from all the guilds", rowCount);
+    sLog.outString();
 
-    //                                                               0      1        2        3        4
-    QueryResult guildBankTabResult = CharacterDatabase.Query("SELECT TabId, TabName, TabIcon, TabText, guildid FROM guild_bank_tab");
+    // 4. Load all guild bank tab rights
+    sLog.outString("Loading bank tab rights...");
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_BANK_RIGHTS);
+    result = CharacterDatabase.Query(stmt);
+    if (result)
+    {
+        rowCount = result->GetRowCount();
+        barGoLink bar(rowCount);
+        do
+        {
+            bar.step();
 
-    PreparedStatement* guildBankItemStmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_BANK_ITEMS);
-    PreparedQueryResult guildBankItemResult = CharacterDatabase.Query(guildBankItemStmt);
+            Field* fields = result->Fetch();
+            uint32 guildId = fields[0].GetUInt32();
+            if (Guild* pGuild = GetGuildById(guildId))
+                pGuild->LoadBankRightFromDB(fields);
+        }
+        while (result->NextRow());
+    }
+    else
+    {
+        rowCount = 0;
+        barGoLink bar(1);
+        bar.step();
+    }
+    sLog.outString(">> Loaded " UI64FMTD " bank tab rights for all the guilds", rowCount);
+    sLog.outString();
 
-    LoadGuildEvents(GuildVector, guildEventResult);
-    LoadGuildBankEvents(GuildVector, guildBankEventResult);
-    LoadGuildBanks(GuildVector, guildBankTabResult, guildBankItemResult);
+    // 5. Load all event logs
+    sLog.outString("Loading guild event logs...");
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_EVENTLOGS);
+    result = CharacterDatabase.Query(stmt);
+    if (result)
+    {
+        rowCount = result->GetRowCount();
+        barGoLink bar(rowCount);
+        do
+        {
+            bar.step();
 
-    //delete unused LogGuid records in guild_eventlog and guild_bank_eventlog table
-    //you can comment these lines if you don't plan to change CONFIG_GUILD_EVENT_LOG_COUNT and CONFIG_GUILD_BANK_EVENT_LOG_COUNT
-    PreparedStatement *guildEventLogStmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_OLD_GUILD_EVENT_LOGS);
-    guildEventLogStmt->setUInt32(0, sWorld.getIntConfig(CONFIG_GUILD_EVENT_LOG_COUNT));
-    CharacterDatabase.Execute(guildEventLogStmt);
+            Field* fields = result->Fetch();
+            uint32 guildId = fields[0].GetUInt32();
+            if (Guild* pGuild = GetGuildById(guildId))
+                pGuild->LoadEventLogFromDB(fields);
+        }
+        while (result->NextRow());
+    }
+    else
+    {
+        rowCount = 0;
+        barGoLink bar(1);
+        bar.step();
+    }
+    sLog.outString(">> Loaded " UI64FMTD " event logs for all the guilds", rowCount);
+    sLog.outString();
 
-    PreparedStatement *guildBankEventLogStmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_OLD_GUILD_BANK_EVENT_LOGS);
-    guildBankEventLogStmt->setUInt32(0, sWorld.getIntConfig(CONFIG_GUILD_BANK_EVENT_LOG_COUNT));
-    CharacterDatabase.Execute(guildBankEventLogStmt);
+    // 6. Load all bank event logs
+    sLog.outString("Loading guild bank event logs...");
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_BANK_EVENTLOGS);
+    result = CharacterDatabase.Query(stmt);
+    if (result)
+    {
+        rowCount = result->GetRowCount();
+        barGoLink bar(rowCount);
+        do
+        {
+            bar.step();
+
+            Field* fields = result->Fetch();
+            uint32 guildId = fields[0].GetUInt32();
+            if (Guild* pGuild = GetGuildById(guildId))
+                pGuild->LoadBankEventLogFromDB(fields);
+        }
+        while (result->NextRow());
+    }
+    else
+    {
+        rowCount = 0;
+        barGoLink bar(1);
+        bar.step();
+    }
+    sLog.outString(">> Loaded " UI64FMTD " bank event logs for all the guilds", rowCount);
+    sLog.outString();
+
+    // 7. Load all guild bank tabs
+    sLog.outString("Loading guild bank tabs...");
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_BANK_TABS);
+    result = CharacterDatabase.Query(stmt);
+    if (result)
+    {
+        rowCount = result->GetRowCount();
+        barGoLink bar(rowCount);
+        do
+        {
+            bar.step();
+
+            Field* fields = result->Fetch();
+            uint32 guildId = fields[0].GetUInt32();
+            if (Guild* pGuild = GetGuildById(guildId))
+                pGuild->LoadBankTabFromDB(fields);
+        }
+        while (result->NextRow());
+    }
+    else
+    {
+        rowCount = 0;
+        barGoLink bar(1);
+        bar.step();
+    }
+    sLog.outString(">> Loaded " UI64FMTD " bank tabs for all the guilds", rowCount);
+    sLog.outString();
+
+    // 8. Fill all guild bank tabs
+    sLog.outString("Filling bank tabs with items...");
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_BANK_ITEMS);
+    result = CharacterDatabase.Query(stmt);
+    if (result)
+    {
+        rowCount = result->GetRowCount();
+        barGoLink bar(rowCount);
+        do
+        {
+            bar.step();
+
+            Field* fields = result->Fetch();
+            uint32 guildId = fields[11].GetUInt32();
+            if (Guild* pGuild = GetGuildById(guildId))
+                pGuild->LoadBankItemFromDB(fields);
+        }
+        while (result->NextRow());
+    }
+    else
+    {
+        rowCount = 0;
+        barGoLink bar(1);
+        bar.step();
+    }
+    sLog.outString(">> Filled bank tabs with " UI64FMTD " items for all the guilds", rowCount);
+    sLog.outString();
+
+    // 9. Validate loaded guild data
+    sLog.outString("Validating data of loaded guilds...");
+    barGoLink barGuilds(mGuildMap.size());
+    for (GuildMap::iterator itr = mGuildMap.begin(); itr != mGuildMap.end(); )
+    {
+        barGuilds.step();
+        Guild* pGuild = itr->second;
+        if (!pGuild->Validate())
+        {
+            ++itr;
+            mGuildMap.erase(pGuild->GetId());
+            delete pGuild;
+        }
+        else
+             ++itr;
+    }
+    // Cleanup
+    // Delete orphan guild ranks
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_CLEAN_GUILD_RANKS);
+    CharacterDatabase.Execute(stmt);
+    // Delete orphan guild members
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_CLEAN_GUILD_MEMBERS);
+    CharacterDatabase.Execute(stmt);
+    // Delete orphan guild bank rights
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_CLEAN_GUILD_BANK_RIGHTS);
+    CharacterDatabase.Execute(stmt);
+    // Delete orphan guild bank tabs
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_CLEAN_GUILD_BANK_TABS);
+    CharacterDatabase.Execute(stmt);
+    // Delete orphan guild bank items
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_CLEAN_GUILD_BANK_ITEMS);
+    CharacterDatabase.Execute(stmt);
+
+    // Delete unused LogGuid records in guild_eventlog and guild_bank_eventlog table.
+    // You can comment these lines if you don't plan to change CONFIG_GUILD_EVENT_LOG_COUNT and CONFIG_GUILD_BANK_EVENT_LOG_COUNT
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_OLD_GUILD_EVENT_LOGS);
+    stmt->setUInt32(0, sWorld.getIntConfig(CONFIG_GUILD_EVENT_LOG_COUNT));
+    CharacterDatabase.Execute(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_OLD_GUILD_BANK_EVENT_LOGS);
+    stmt->setUInt32(0, sWorld.getIntConfig(CONFIG_GUILD_BANK_EVENT_LOG_COUNT));
+    CharacterDatabase.Execute(stmt);
 
     sLog.outString();
-    sLog.outString(">> Loaded %u guild definitions", mGuildMap.size());
-}
-
-void ObjectMgr::LoadGuildEvents(std::vector<Guild*>& GuildVector, QueryResult& result)
-{
-    if (result)
-    {
-        do
-        {
-            Field *fields = result->Fetch();
-            uint32 guildid = fields[6].GetUInt32();
-            if (guildid >= GuildVector.size() || GuildVector[guildid] == NULL)
-                continue;
-
-            if (!GuildVector[guildid]->m_GuildEventLogNextGuid)
-                GuildVector[guildid]->m_GuildEventLogNextGuid = fields[0].GetUInt32();
-
-            if (GuildVector[guildid]->m_GuildEventLog.size() < GUILD_EVENTLOG_MAX_RECORDS)
-            {
-                GuildEventLogEntry NewEvent;
-                NewEvent.EventType = fields[1].GetUInt8();
-                NewEvent.PlayerGuid1 = fields[2].GetUInt32();
-                NewEvent.PlayerGuid2 = fields[3].GetUInt32();
-                NewEvent.NewRank = fields[4].GetUInt8();
-                NewEvent.TimeStamp = fields[5].GetUInt64();
-
-                GuildVector[guildid]->m_GuildEventLog.push_front(NewEvent);
-            }
-        }
-        while (result->NextRow());
-    }
-}
-
-void ObjectMgr::LoadGuildBankEvents(std::vector<Guild*>& GuildVector, QueryResult& result)
-{
-    if (result)
-    {
-        do
-        {
-            Field *fields = result->Fetch();
-            uint32 logGuid = fields[0].GetUInt32();
-            uint32 guildid = fields[7].GetUInt32();
-            if (guildid >= GuildVector.size() || GuildVector[guildid] == NULL)
-                continue;
-
-            uint8 TabId = fields[8].GetUInt8();
-
-            if (TabId < GuildVector[guildid]->GetPurchasedTabs() || TabId == GUILD_BANK_MONEY_LOGS_TAB)
-            {
-                bool canInsert;
-
-                if (TabId != GUILD_BANK_MONEY_LOGS_TAB)
-                {
-                    if (!GuildVector[guildid]->m_GuildBankEventLogNextGuid_Item[TabId])
-                        GuildVector[guildid]->m_GuildBankEventLogNextGuid_Item[TabId] = logGuid;
-                }
-                else
-                {
-                    if (!GuildVector[guildid]->m_GuildBankEventLogNextGuid_Money)
-                        GuildVector[guildid]->m_GuildBankEventLogNextGuid_Money = logGuid;
-                }
-
-                if (TabId != GUILD_BANK_MONEY_LOGS_TAB)
-                    canInsert = GuildVector[guildid]->m_GuildBankEventLog_Item[TabId].size() < GUILD_BANK_MAX_LOGS;
-                else
-                    canInsert = GuildVector[guildid]->m_GuildBankEventLog_Money.size() < GUILD_BANK_MAX_LOGS;
-
-                if (canInsert)
-                {
-                    GuildBankEventLogEntry NewEvent;
-                    NewEvent.EventType = fields[1].GetUInt8();
-                    NewEvent.PlayerGuid = fields[2].GetUInt32();
-                    NewEvent.ItemOrMoney = fields[3].GetUInt32();
-                    NewEvent.ItemStackCount = fields[4].GetUInt8();
-                    NewEvent.DestTabId = fields[5].GetUInt8();
-                    NewEvent.TimeStamp = fields[6].GetUInt64();
-
-                    if (TabId != GUILD_BANK_MONEY_LOGS_TAB)
-                    {
-                        if (NewEvent.isMoneyEvent())
-                        {
-                            CharacterDatabase.PExecute("UPDATE guild_bank_eventlog SET TabId='%u' WHERE guildid='%u' AND TabId='%u' AND LogGuid='%u'", GUILD_BANK_MONEY_LOGS_TAB, guildid, TabId, logGuid);
-                            sLog.outError("GuildBankEventLog ERROR: MoneyEvent LogGuid %u for Guild %u had incorrectly set its TabId to %u, correcting it to %u TabId", logGuid, guildid, TabId, GUILD_BANK_MONEY_LOGS_TAB);
-                            continue;
-                        }
-                        else
-                            GuildVector[guildid]->m_GuildBankEventLog_Item[TabId].push_front(NewEvent);
-                    }
-                    else
-                    {
-                        if (!NewEvent.isMoneyEvent())
-                            sLog.outError("GuildBankEventLog ERROR: MoneyEvent LogGuid %u for Guild %u is not MoneyEvent - ignoring...", logGuid, guildid);
-                        else
-                            GuildVector[guildid]->m_GuildBankEventLog_Money.push_front(NewEvent);
-                    }
-                }
-            }
-        }
-        while (result->NextRow());
-    }
-}
-
-void ObjectMgr::LoadGuildBanks(std::vector<Guild*>& GuildVector, QueryResult& result, PreparedQueryResult& itemResult)
-{
-    if (result)
-    {
-        do
-        {
-            Field *fields = result->Fetch();
-            uint8 TabId = fields[0].GetUInt8();
-            uint32 guildid = fields[4].GetUInt32();
-
-            if (guildid >= GuildVector.size() || GuildVector[guildid] == NULL)
-                continue;
-
-            if (TabId < GuildVector[guildid]->GetPurchasedTabs())
-            {
-                GuildBankTab *NewTab = new GuildBankTab;
-
-                NewTab->Name = fields[1].GetString();
-                NewTab->Icon = fields[2].GetString();
-                NewTab->Text = fields[3].GetString();
-
-                GuildVector[guildid]->m_TabListMap[TabId] = NewTab;
-            }
-        }
-        while (result->NextRow());
-    }
-
-    if (itemResult)
-    {
-        do
-        {
-            Field *fields = itemResult->Fetch();
-            uint8 TabId = fields[11].GetUInt8();
-            uint8 SlotId = fields[12].GetUInt8();
-            uint32 ItemGuid = fields[13].GetUInt32();
-            uint32 ItemId = fields[14].GetUInt32();
-            uint32 guildid = fields[15].GetUInt32();
-            if (guildid >= GuildVector.size() || GuildVector[guildid] == NULL)
-                continue;
-
-            if (TabId >= GuildVector[guildid]->GetPurchasedTabs())
-            {
-                sLog.outError("Guild::LoadGuildBankFromDB: Invalid tab for item (GUID: %u id: #%u) in guild bank, skipped.", ItemGuid, ItemId);
-                continue;
-            }
-
-            if (SlotId >= GUILD_BANK_MAX_SLOTS)
-            {
-                sLog.outError("Guild::LoadGuildBankFromDB: Invalid slot for item (GUID: %u id: #%u) in guild bank, skipped.", ItemGuid, ItemId);
-                continue;
-            }
-
-            ItemPrototype const *proto = sObjectMgr.GetItemPrototype(ItemId);
-
-            if (!proto)
-            {
-                sLog.outError("Guild::LoadGuildBankFromDB: Unknown item (GUID: %u id: #%u) in guild bank, skipped.", ItemGuid, ItemId);
-                continue;
-            }
-
-            Item *pItem = NewItemOrBag(proto);
-            if (!pItem->LoadFromDB(ItemGuid, 0, itemResult, ItemId))
-            {
-                PreparedStatement *stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_NONEXISTENT_GUILD_BANK_ITEM);
-                stmt->setUInt32(0, guildid);
-                stmt->setUInt32(1, uint32(TabId));
-                stmt->setUInt32(2, uint32(SlotId));
-                CharacterDatabase.Execute(stmt);
-
-                sLog.outError("Item GUID %u not found in item_instance, deleting from Guild Bank!", ItemGuid);
-                delete pItem;
-                continue;
-            }
-
-            pItem->AddToWorld();
-            GuildVector[guildid]->m_TabListMap[TabId]->Slots[SlotId] = pItem;
-        }
-        while (itemResult->NextRow());
-    }
+    sLog.outString(">> Successfully loaded %u guilds", uint32(mGuildMap.size()));
 }
 
 void ObjectMgr::LoadArenaTeams()

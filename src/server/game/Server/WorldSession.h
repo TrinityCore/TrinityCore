@@ -129,6 +129,14 @@ enum ChatRestrictionType
     ERR_YELL_RESTRICTED = 3
 };
 
+enum CharterTypes
+{
+    GUILD_CHARTER_TYPE                            = 9,
+    ARENA_TEAM_CHARTER_2v2_TYPE                   = 2,
+    ARENA_TEAM_CHARTER_3v3_TYPE                   = 3,
+    ARENA_TEAM_CHARTER_5v5_TYPE                   = 5
+};
+
 /// Player session in the World
 class WorldSession
 {
@@ -272,11 +280,9 @@ class WorldSession
         void SendDiscoverNewTaxiNode(uint32 nodeid);
 
         // Guild/Arena Team
-        void SendGuildCommandResult(uint32 typecmd, const std::string& str, uint32 cmdresult);
         void SendArenaTeamCommandResult(uint32 team_action, const std::string& team, const std::string& player, uint32 error_id);
         void SendNotInArenaTeamPacket(uint8 type);
         void SendPetitionShowList(uint64 guid);
-        void SendSaveGuildEmblem(uint32 msg);
 
         void BuildPartyMemberStatsChangedPacket(Player *player, WorldPacket *data);
 
