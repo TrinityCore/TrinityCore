@@ -4408,7 +4408,7 @@ uint32 Unit::GetAuraCount(uint32 spellId) const
     uint32 count = 0;
     for (AuraApplicationMap::const_iterator itr = m_appliedAuras.lower_bound(spellId); itr != m_appliedAuras.upper_bound(spellId); ++itr)
     {
-        if (itr->second->GetBase()->GetStackAmount())
+        if (!itr->second->GetBase()->GetStackAmount())
             count++;
         else
             count += (uint32)itr->second->GetBase()->GetStackAmount();
