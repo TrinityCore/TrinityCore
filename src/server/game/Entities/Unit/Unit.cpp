@@ -315,6 +315,32 @@ void Unit::SendMonsterMoveWithSpeed(float x, float y, float z, uint32 transitTim
     SendMonsterMove(x, y, z, transitTime, player);
 }
 
+void Unit::SetFacing(float ori, WorldObject* obj)
+{
+    SetOrientation(obj ? GetAngle(obj) : ori);
+
+    WorldPacket data(SMSG_MONSTER_MOVE, (1+12+4+1+(obj ? 8 : 4)+4+4+4+12+GetPackGUID().size()));
+    data.append(GetPackGUID());
+    data << uint8(0);//unk
+    data << GetPositionX() << GetPositionY() << GetPositionZ();
+    data << getMSTime();
+    if (obj)
+    {
+        data << uint8(SPLINETYPE_FACING_TARGET);
+        data << uint64(obj->GetGUID());
+    }
+    else
+    {
+        data << uint8(SPLINETYPE_FACING_ANGLE);
+        data << ori;
+    }
+    data << uint32(SPLINEFLAG_NONE);
+    data << uint32(0);//move time 0
+    data << uint32(1);//one point
+    data << GetPositionX() << GetPositionY() << GetPositionZ();
+    SendMessageToSet(&data, true);
+}
+
 void Unit::SendMonsterStop(bool on_death)
 {
     WorldPacket data(SMSG_MONSTER_MOVE, (17 + GetPackGUID().size()));
@@ -4375,6 +4401,19 @@ bool Unit::HasAuraEffect(uint32 spellId, uint8 effIndex, uint64 caster) const
         if (itr->second->HasEffect(effIndex) && (!caster || itr->second->GetBase()->GetCasterGUID() == caster))
             return true;
     return false;
+}
+
+uint32 Unit::GetAuraCount(uint32 spellId) const
+{
+    uint32 count = 0;
+    for (AuraApplicationMap::const_iterator itr = m_appliedAuras.lower_bound(spellId); itr != m_appliedAuras.upper_bound(spellId); ++itr)
+    {
+        if (itr->second->GetBase()->GetStackAmount())
+            count++;
+        else
+            count += (uint32)itr->second->GetBase()->GetStackAmount();
+    }
+    return count;
 }
 
 bool Unit::HasAura(uint32 spellId, uint64 caster, uint8 reqEffMask) const
