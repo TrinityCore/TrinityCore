@@ -18156,6 +18156,8 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 ( 67623,-67620, 1, 'Remove Paralytic Toxin when hit by Burning Bite'),
 (-66683, 68667, 0, 'Icehowl - Surge of Adrenaline'),
 (-67661, 68667, 0, 'Icehowl - Surge of Adrenaline'),
+-- Forge of Souls
+(-68839, 68846, 0, 'Bronjahm: Corrupt Soul Summon'),
 -- Icecrown Citadel
 (-69674, 69706, 0, 'Rotface: Mutated Infection Summon'),
 (-71224, 69706, 0, 'Rotface: Mutated Infection Summon'),
@@ -26784,6 +26786,13 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 72752, 'spell_pvp_trinket_wotf_shared_cd'),
 ( 72757, 'spell_pvp_trinket_wotf_shared_cd'),
 -- instances
+-- Forge of Souls
+( 68793, 'spell_bronjahm_magic_bane'),
+( 69050, 'spell_bronjahm_magic_bane'),
+( 68861, 'spell_bronjahm_consume_soul'),
+( 69008, 'spell_bronjahm_soulstorm_channel'),
+( 68870, 'spell_bronjahm_soulstorm_visual'),
+-- Icecrown Citadel
 ( 69057, 'spell_marrowgar_bone_spike_graveyard'),
 ( 69140, 'spell_marrowgar_coldflame'),
 ( 72705, 'spell_marrowgar_coldflame'),
@@ -26861,6 +26870,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 72457, 'spell_putricide_regurgitated_ooze'),
 ( 72875, 'spell_putricide_regurgitated_ooze'),
 ( 72876, 'spell_putricide_regurgitated_ooze'),
+-- Ulduar
 ( 62717, 'spell_ignis_slag_pot'),
 ( 63477, 'spell_ignis_slag_pot'),
 -- quest

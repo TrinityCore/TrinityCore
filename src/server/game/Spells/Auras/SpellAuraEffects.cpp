@@ -5792,9 +5792,6 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                             if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
                                 target->CastSpell(target, 58601, true);
                             break;
-                        case 68839: // Corrupt Soul
-                            target->CastSpell(target, 68846, true, NULL, this, GetCasterGUID());
-                            break;
                     }
                     break;
                 case SPELLFAMILY_MAGE:
