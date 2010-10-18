@@ -40,6 +40,7 @@ enum Spells
     SPELL_SOULSTORM             = 68872,
     SPELL_SOULSTORM_CHANNEL     = 69008,    // pre-fight
     SPELL_SOULSTORM_VISUAL      = 68870,    // pre-cast soulstorm
+    SPELL_PURPLE_BANISH_VISUAL  = 68862     // Used by Soul Fragment (Aura)
 };
 
 enum Events
@@ -122,6 +123,7 @@ class boss_bronjahm : public CreatureScript
                 summon->SetReactState(REACT_PASSIVE);
                 summon->GetMotionMaster()->Clear();
                 summon->GetMotionMaster()->MoveFollow(me, me->GetObjectSize(), 0.0f);
+                summon->CastSpell(summon, SPELL_PURPLE_BANISH_VISUAL, true);
             }
 
             void UpdateAI(const uint32 diff)
