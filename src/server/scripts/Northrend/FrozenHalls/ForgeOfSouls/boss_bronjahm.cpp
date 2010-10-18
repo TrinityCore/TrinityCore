@@ -16,190 +16,168 @@
  */
 
 #include "ScriptPCH.h"
+#include "SpellAuraEffects.h"
 #include "forge_of_souls.h"
-
-/*
- * TODO:
- * - Fix Soul Storm spell and remove work around.
- */
 
 enum Yells
 {
-    SAY_AGGRO                                     = -1632001,
-    SAY_SLAY_1                                    = -1632002,
-    SAY_SLAY_2                                    = -1632003,
-    SAY_DEATH                                     = -1632004,
-    SAY_SOUL_STORM                                = -1632005,
-    SAY_CORRUPT_SOUL                              = -1632006,
+    SAY_AGGRO           = -1632001,
+    SAY_SLAY_1          = -1632002,
+    SAY_SLAY_2          = -1632003,
+    SAY_DEATH           = -1632004,
+    SAY_SOUL_STORM      = -1632005,
+    SAY_CORRUPT_SOUL    = -1632006,
 };
 
 enum Spells
 {
-    SPELL_MAGIC_S_BANE                            = 68793,
-    SPELL_CORRUPT_SOUL                            = 68839,
-    SPELL_CONSUME_SOUL                            = 68858,
-    SPELL_TELEPORT                                = 68988,
-    SPELL_FEAR                                    = 68950,
-    SPELL_SOULSTORM                               = 68872,
-    SPELL_SOULSTORM_AURA                          = 68921,
-    SPELL_SHADOW_BOLT                             = 70043,
+    SPELL_MAGIC_S_BANE          = 68793,
+    SPELL_SHADOW_BOLT           = 70043,
+    SPELL_CORRUPT_SOUL          = 68839,
+    SPELL_CONSUME_SOUL          = 68861,
+    SPELL_TELEPORT              = 68988,
+    SPELL_FEAR                  = 68950,
+    SPELL_SOULSTORM             = 68872,
+    SPELL_SOULSTORM_CHANNEL     = 69008,    // pre-fight
+    SPELL_SOULSTORM_VISUAL      = 68870,    // pre-cast soulstorm
 };
 
 enum Events
 {
-    EVENT_NONE,
-    EVENT_SHADOW_BOLT,
-    EVENT_MAGIC_BANE,
-    EVENT_CORRUPT_SOUL,
-    EVENT_SOUL_STORM,
-    EVENT_SOUL_STORM_AURA,
-    EVENT_FEAR,
+    EVENT_MAGIC_BANE    = 1,
+    EVENT_SHADOW_BOLT   = 2,
+    EVENT_CORRUPT_SOUL  = 3,
+    EVENT_SOULSTORM     = 4,
+    EVENT_FEAR          = 5,
 };
 
 enum CombatPhases
 {
-    PHASE_1,
-    PHASE_2
+    PHASE_1 = 1,
+    PHASE_2 = 2
 };
 
 class boss_bronjahm : public CreatureScript
 {
-public:
-    boss_bronjahm() : CreatureScript("boss_bronjahm") { }
+    public:
+        boss_bronjahm() : CreatureScript("boss_bronjahm") { }
 
-    struct boss_bronjahmAI : public ScriptedAI
-    {
-        boss_bronjahmAI(Creature *c) : ScriptedAI(c)
+        struct boss_bronjahmAI : public BossAI
         {
-            pInstance = me->GetInstanceScript();
-        }
-
-        InstanceScript* pInstance;
-        EventMap events;
-
-        CombatPhases phase;
-
-        void Reset()
-        {
-            phase = PHASE_1;
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-
-            events.Reset();
-            events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
-            events.ScheduleEvent(EVENT_MAGIC_BANE, urand(8000,15000));
-            events.ScheduleEvent(EVENT_CORRUPT_SOUL, urand(25000,35000));
-
-            if (pInstance)
-                pInstance->SetData(DATA_BRONJAHM_EVENT, NOT_STARTED);
-        }
-
-        void EnterCombat(Unit* /*who*/)
-        {
-            DoScriptText(SAY_AGGRO, me);
-
-            if (pInstance)
-                pInstance->SetData(DATA_BRONJAHM_EVENT, IN_PROGRESS);
-        }
-
-        void JustDied(Unit* /*killer*/)
-        {
-            DoScriptText(SAY_DEATH, me);
-
-            if (pInstance)
-                pInstance->SetData(DATA_BRONJAHM_EVENT, DONE);
-        }
-
-        void KilledUnit(Unit * /*who*/)
-        {
-            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
-        }
-
-        // Cast aura spell on all players farther than 10y
-        void ApplySoulStorm()
-        {
-            std::list<Unit*> targetList;
-
-            SelectTargetList(targetList, 100, SELECT_TARGET_TOPAGGRO, -10.0f);
-            if (targetList.empty())
-                return;
-
-            for (std::list<Unit *>::const_iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
+            boss_bronjahmAI(Creature* pCreature) : BossAI(pCreature, DATA_BRONJAHM)
             {
-                Unit* pUnit = (*itr);
-                if (pUnit && pUnit->isAlive())
-                    me->CastSpell(pUnit, SPELL_SOULSTORM_AURA, true);
-            }
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            //Return since we have no target
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (me->hasUnitState(UNIT_STAT_CASTING))
-                return;
-
-            if (phase == PHASE_1 && HealthBelowPct(30))
-            {
-                phase = PHASE_2;
-                DoCast(me,SPELL_TELEPORT);
-                me->GetMotionMaster()->Clear();
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                events.CancelEvent(EVENT_CORRUPT_SOUL);
-                events.CancelEvent(EVENT_SHADOW_BOLT);
-                events.ScheduleEvent(EVENT_SOUL_STORM, 1000);
-                events.ScheduleEvent(EVENT_FEAR, urand(8000,12000));
-                return;
+                // disable AI outside of instance
+                if (!instance)
+                    me->IsAIEnabled = false;
             }
 
-            while (uint32 eventId = events.ExecuteEvent())
+            void Reset()
             {
-                switch(eventId)
+                events.Reset();
+                events.SetPhase(PHASE_1);
+                events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
+                events.ScheduleEvent(EVENT_MAGIC_BANE, urand(8000, 15000));
+                events.ScheduleEvent(EVENT_CORRUPT_SOUL, urand(25000, 35000), 0, PHASE_1);
+
+                me->CastSpell(me, SPELL_SOULSTORM_CHANNEL, true);
+
+                instance->SetBossState(DATA_BRONJAHM, NOT_STARTED);
+            }
+
+            void EnterCombat(Unit* /*who*/)
+            {
+                DoScriptText(SAY_AGGRO, me);
+                me->RemoveAurasDueToSpell(SPELL_SOULSTORM_CHANNEL);
+
+                instance->SetBossState(DATA_BRONJAHM, IN_PROGRESS);
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                DoScriptText(SAY_DEATH, me);
+
+                instance->SetBossState(DATA_BRONJAHM, DONE);
+            }
+
+            void KilledUnit(Unit * who)
+            {
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+            }
+
+            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            {
+                if (events.GetPhaseMask() & (1 << PHASE_1) && !HealthAbovePct(30))
                 {
-                    case EVENT_CORRUPT_SOUL:
-                        if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
-                        {
-                            DoScriptText(SAY_CORRUPT_SOUL, me);
-                            DoCast(pTarget,SPELL_CORRUPT_SOUL);
-                        }
-                        events.ScheduleEvent(EVENT_CORRUPT_SOUL, urand(25000,35000));
-                        break;
-                    case EVENT_SOUL_STORM:
-                        DoScriptText(SAY_SOUL_STORM, me);
-                        events.ScheduleEvent(EVENT_SOUL_STORM_AURA, 1000);
-                        break;
-                    case EVENT_SOUL_STORM_AURA:
-                        ApplySoulStorm();
-                        events.ScheduleEvent(EVENT_SOUL_STORM_AURA, 1000);
-                        break;
-                    case EVENT_FEAR:
-                        if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
-                            DoCast(pTarget,SPELL_FEAR);
-                        events.ScheduleEvent(EVENT_FEAR, urand(8000,12000));
-                        break;
-                    case EVENT_SHADOW_BOLT:
-                        if (!me->IsWithinMeleeRange(me->getVictim()))
-                            DoCastVictim(SPELL_SHADOW_BOLT);
-                        events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
-                        break;
-                    case EVENT_MAGIC_BANE:
-                        DoCastVictim(SPELL_MAGIC_S_BANE);
-                        events.ScheduleEvent(EVENT_MAGIC_BANE, urand(8000,15000));
-                        break;
+                    events.SetPhase(PHASE_2);
+                    DoCast(me, SPELL_TELEPORT);
+                    events.ScheduleEvent(EVENT_FEAR, urand(12000, 16000), 0, PHASE_2);
+                    events.ScheduleEvent(EVENT_SOULSTORM, 700, 0, PHASE_2);
                 }
             }
 
-            DoMeleeAttackIfReady();
-        }
-    };
+            void JustSummoned(Creature* summon)
+            {
+                summons.Summon(summon);
+                summon->SetReactState(REACT_PASSIVE);
+                summon->GetMotionMaster()->Clear();
+                summon->GetMotionMaster()->MoveFollow(me, me->GetObjectSize(), 0.0f);
+            }
 
-    CreatureAI *GetAI(Creature *creature) const
-    {
-        return new boss_bronjahmAI(creature);
-    }
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->hasUnitState(UNIT_STAT_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch(eventId)
+                    {
+                        case EVENT_MAGIC_BANE:
+                            DoCastVictim(SPELL_MAGIC_S_BANE);
+                            events.ScheduleEvent(EVENT_MAGIC_BANE, urand(8000, 15000));
+                            break;
+                        case EVENT_SHADOW_BOLT:
+                            if (!me->IsWithinMeleeRange(me->getVictim()))
+                                DoCastVictim(SPELL_SHADOW_BOLT);
+                            events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
+                            break;
+                        case EVENT_CORRUPT_SOUL:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                            {
+                                DoScriptText(SAY_CORRUPT_SOUL, me);
+                                DoCast(target, SPELL_CORRUPT_SOUL);
+                            }
+                            events.ScheduleEvent(EVENT_CORRUPT_SOUL, urand(25000, 35000), 0, PHASE_1);
+                            break;
+                        case EVENT_SOULSTORM:
+                            DoScriptText(SAY_SOUL_STORM, me);
+                            me->CastSpell(me, SPELL_SOULSTORM_VISUAL, true);
+                            me->CastSpell(me, SPELL_SOULSTORM, false);
+                            break;
+                        case EVENT_FEAR:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
+                                me->CastCustomSpell(SPELL_FEAR, SPELLVALUE_MAX_TARGETS, 1, target, false);
+                            events.ScheduleEvent(EVENT_FEAR, urand(8000, 12000), 0, PHASE_2);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI *GetAI(Creature* pCreature) const
+        {
+            return new boss_bronjahmAI(pCreature);
+        }
 };
 
 class mob_corrupted_soul_fragment : public CreatureScript
@@ -209,60 +187,170 @@ public:
 
     struct mob_corrupted_soul_fragmentAI : public ScriptedAI
     {
-        mob_corrupted_soul_fragmentAI(Creature *c) : ScriptedAI(c)
+        mob_corrupted_soul_fragmentAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = me->GetInstanceScript();
+            instance = me->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
-
-        uint32 uiCheckTimer;
-
-        void Reset()
+        void MovementInform(uint32 type, uint32 id)
         {
-            uiCheckTimer = 0; // first check is immediate
-        }
+            if (type != TARGETED_MOTION_TYPE)
+                return;
 
-        void UpdateAI(const uint32 diff)
-        {
-            if (uiCheckTimer <= diff)
+            uint64 BronjahmGUID = 0;
+            if (instance)
             {
-                if (pInstance)
+                if (TempSummon* summ = me->ToTempSummon())
                 {
-                    Creature* pBronjham = Unit::GetCreature(*me, pInstance->GetData64(DATA_BRONJAHM));
-                    if (pBronjham && pBronjham->isAlive())
-                    {
-                        if (me->IsWithinMeleeRange(pBronjham))
-                        {
-                            pBronjham->CastSpell(pBronjham, SPELL_CONSUME_SOUL, true);
-                            me->ForcedDespawn();
-                        }
-                        else
-                        {
-                            Position pos;
-                            pBronjham->GetPosition(&pos);
-                            me->GetMotionMaster()->Clear();
-                            me->GetMotionMaster()->MovePoint(0, pos);
-                        }
-                    }
-                    else
-                        me->ForcedDespawn();
+                    BronjahmGUID = instance->GetData64(DATA_BRONJAHM);
+                    if (GUID_LOPART(BronjahmGUID) != id)
+                        return;
+
+                    if (Creature* bronjahm = ObjectAccessor::GetCreature(*me, BronjahmGUID))
+                        me->CastSpell(bronjahm, SPELL_CONSUME_SOUL, true);
+
+                    summ->GetMotionMaster()->MoveIdle();
+                    summ->UnSummon();
                 }
-                uiCheckTimer = 500;
             }
-            else
-                uiCheckTimer -= diff;
         }
+
+    private:
+        InstanceScript* instance;
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* pCreature) const
     {
-        return new mob_corrupted_soul_fragmentAI(creature);
+        return new mob_corrupted_soul_fragmentAI(pCreature);
     }
+};
+
+class spell_bronjahm_magic_bane : public SpellScriptLoader
+{
+    public:
+        spell_bronjahm_magic_bane() :  SpellScriptLoader("spell_bronjahm_magic_bane") { }
+
+        class spell_bronjahm_magic_bane_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_bronjahm_magic_bane_SpellScript);
+
+            void RecalculateDamage()
+            {
+                if (GetHitUnit()->getPowerType() != POWER_MANA)
+                    return;
+
+                const int32 maxDamage = GetCaster()->GetMap()->GetSpawnMode() == 1 ? 15000 : 10000;
+                int32 newDamage = GetHitDamage();
+                newDamage += GetHitUnit()->GetMaxPower(POWER_MANA)/2;
+                newDamage = std::min<int32>(maxDamage, newDamage);
+
+                SetHitDamage(newDamage);
+            }
+
+            void Register()
+            {
+                OnHit += SpellHitFn(spell_bronjahm_magic_bane_SpellScript::RecalculateDamage);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_bronjahm_magic_bane_SpellScript();
+        }
+};
+
+class spell_bronjahm_consume_soul : public SpellScriptLoader
+{
+    public:
+        spell_bronjahm_consume_soul() :  SpellScriptLoader("spell_bronjahm_consume_soul") { }
+
+        class spell_bronjahm_consume_soul_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_bronjahm_consume_soul_SpellScript);
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                GetHitUnit()->CastSpell(GetHitUnit(), GetEffectValue(), true);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_bronjahm_consume_soul_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_bronjahm_consume_soul_SpellScript();
+        }
+};
+
+class spell_bronjahm_soulstorm_channel : public SpellScriptLoader
+{
+    public:
+        spell_bronjahm_soulstorm_channel() : SpellScriptLoader("spell_bronjahm_soulstorm_channel") { }
+
+        class spell_bronjahm_soulstorm_channel_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_bronjahm_soulstorm_channel_AuraScript);
+
+            void HandlePeriodicTick(AuraEffect const* /*aurEff*/, AuraApplication const* aurApp)
+            {
+                PreventDefaultAction();
+                for (uint32 i = 68904; i <= 68907; ++i)
+                    aurApp->GetTarget()->CastSpell(aurApp->GetTarget(), i, true);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_bronjahm_soulstorm_channel_AuraScript::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_bronjahm_soulstorm_channel_AuraScript();
+        }
+};
+
+class spell_bronjahm_soulstorm_visual : public SpellScriptLoader
+{
+    public:
+        spell_bronjahm_soulstorm_visual() : SpellScriptLoader("spell_bronjahm_soulstorm_visual") { }
+
+        class spell_bronjahm_soulstorm_visual_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_bronjahm_soulstorm_visual_AuraScript);
+
+            void HandlePeriodicTick(AuraEffect const* aurEff, AuraApplication const* aurApp)
+            {
+                PreventDefaultAction();
+                if (aurEff->GetTickNumber()%5)
+                    return;
+                aurApp->GetTarget()->CastSpell(aurApp->GetTarget(), 68886, true);
+                for (uint32 i = 68896; i <= 68898; ++i)
+                    aurApp->GetTarget()->CastSpell(aurApp->GetTarget(), i, true);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_bronjahm_soulstorm_visual_AuraScript::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_bronjahm_soulstorm_visual_AuraScript();
+        }
 };
 
 void AddSC_boss_bronjahm()
 {
-    new boss_bronjahm;
-    new mob_corrupted_soul_fragment;
+    new boss_bronjahm();
+    new mob_corrupted_soul_fragment();
+    new spell_bronjahm_magic_bane();
+    new spell_bronjahm_consume_soul();
+    new spell_bronjahm_soulstorm_channel();
+    new spell_bronjahm_soulstorm_visual();
 }
