@@ -202,7 +202,7 @@ class boss_festergut : public CreatureScript
                             return;
                         }
                         case EVENT_VILE_GAS:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, -5.0f, true))
                                 DoCast(target, SPELL_VILE_GAS);
                             events.ScheduleEvent(EVENT_VILE_GAS, urand(28000, 35000));
                             break;
