@@ -122,9 +122,9 @@ class boss_devourer_of_souls : public CreatureScript
 public:
     boss_devourer_of_souls() : CreatureScript("boss_devourer_of_souls") { }
 
-    struct boss_devourer_of_soulsAI : public ScriptedAI
+    struct boss_devourer_of_soulsAI : public BossAI
     {
-        boss_devourer_of_soulsAI(Creature *c) : ScriptedAI(c)
+        boss_devourer_of_soulsAI(Creature *c) : BossAI(c, DATA_DEVOURER_EVENT)
         {
             pInstance = c->GetInstanceScript();
         }
@@ -132,7 +132,6 @@ public:
         bool bThreeFaceAchievement;
 
         InstanceScript* pInstance;
-        EventMap events;
 
         // wailing soul event
         float beamAngle;

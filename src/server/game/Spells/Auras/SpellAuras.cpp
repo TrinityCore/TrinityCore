@@ -1098,7 +1098,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                             if (*itr < 0)
                                 target->RemoveAurasDueToSpell(-(*itr));
                             else if (removeMode != AURA_REMOVE_BY_DEFAULT)
-                                target->CastSpell(target, *itr, true, 0, 0, GetCasterGUID());
+                                target->CastSpell(target, *itr, true, NULL, NULL, GetCasterGUID());
                         }
                 }
                 if (customAttr & SPELL_ATTR_CU_LINK_AURA)

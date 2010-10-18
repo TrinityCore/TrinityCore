@@ -27,145 +27,118 @@
 
 class instance_forge_of_souls : public InstanceMapScript
 {
-public:
-    instance_forge_of_souls() : InstanceMapScript("instance_forge_of_souls", 632) { }
+    public:
+        instance_forge_of_souls() : InstanceMapScript("instance_forge_of_souls", 632) { }
 
-    struct instance_forge_of_souls_InstanceScript : public InstanceScript
-    {
-        instance_forge_of_souls_InstanceScript(Map* pMap) : InstanceScript(pMap) {};
-
-        uint64 uiBronjahm;
-        uint64 uiDevourer;
-
-        uint32 uiEncounter[MAX_ENCOUNTER];
-        uint32 uiTeamInInstance;
-
-        void Initialize()
+        struct instance_forge_of_souls_InstanceScript : public InstanceScript
         {
-            uiBronjahm = 0;
-            uiDevourer = 0;
-
-            uiTeamInInstance = 0;
-
-            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                uiEncounter[i] = NOT_STARTED;
-        }
-
-        bool IsEncounterInProgress() const
-        {
-            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                if (uiEncounter[i] == IN_PROGRESS) return true;
-
-            return false;
-        }
-
-        void OnCreatureCreate(Creature* pCreature, bool /*add*/)
-        {
-            Map::PlayerList const &players = instance->GetPlayers();
-
-            if (!players.isEmpty())
-                if (Player* pPlayer = players.begin()->getSource())
-                    uiTeamInInstance = pPlayer->GetTeamId();
-
-            switch(pCreature->GetEntry())
+            instance_forge_of_souls_InstanceScript(Map* pMap) : InstanceScript(pMap)
             {
-                case CREATURE_BRONJAHM:
-                    uiBronjahm = pCreature->GetGUID();
-                    break;
-                case CREATURE_DEVOURER:
-                    uiDevourer = pCreature->GetGUID();
-                    break;
-            }
-        }
+                SetBossNumber(MAX_ENCOUNTER);
+                uiBronjahm = 0;
+                uiDevourer = 0;
 
-        void SetData(uint32 type, uint32 data)
-        {
-            switch(type)
-            {
-                case DATA_BRONJAHM_EVENT:
-                    uiEncounter[0] = data;
-                    break;
-                case DATA_DEVOURER_EVENT:
-                    uiEncounter[1] = data;
-                    break;
+                uiTeamInInstance = 0;
             }
 
-            if (data == DONE)
-                SaveToDB();
-        }
-
-        uint32 GetData(uint32 type)
-        {
-            switch(type)
+            void OnCreatureCreate(Creature* pCreature, bool /*add*/)
             {
-                case DATA_BRONJAHM_EVENT:    return uiEncounter[0];
-                case DATA_DEVOURER_EVENT:    return uiEncounter[1];
-                case DATA_TEAM_IN_INSTANCE:  return uiTeamInInstance;
+                Map::PlayerList const &players = instance->GetPlayers();
+
+                if (!players.isEmpty())
+                    if (Player* pPlayer = players.begin()->getSource())
+                        uiTeamInInstance = pPlayer->GetTeamId();
+
+                switch(pCreature->GetEntry())
+                {
+                    case CREATURE_BRONJAHM:
+                        uiBronjahm = pCreature->GetGUID();
+                        break;
+                    case CREATURE_DEVOURER:
+                        uiDevourer = pCreature->GetGUID();
+                        break;
+                }
             }
 
-            return 0;
-        }
-
-        uint64 GetData64(uint32 identifier)
-        {
-            switch(identifier)
+            uint32 GetData(uint32 type)
             {
-                case DATA_BRONJAHM:         return uiBronjahm;
-                case DATA_DEVOURER:         return uiBronjahm;
+                switch(type)
+                {
+                    case DATA_TEAM_IN_INSTANCE:
+                        return uiTeamInInstance;
+                    default:
+                        break;
+                }
+
+                return 0;
             }
 
-            return 0;
-        }
-
-        std::string GetSaveData()
-        {
-            OUT_SAVE_INST_DATA;
-
-            std::ostringstream saveStream;
-            saveStream << "F S " << uiEncounter[0] << " " << uiEncounter[1];
-
-            OUT_SAVE_INST_DATA_COMPLETE;
-            return saveStream.str();
-        }
-
-        void Load(const char* in)
-        {
-            if (!in)
+            uint64 GetData64(uint32 identifier)
             {
-                OUT_LOAD_INST_DATA_FAIL;
-                return;
+                switch(identifier)
+                {
+                    case DATA_BRONJAHM:         return uiBronjahm;
+                    case DATA_DEVOURER:         return uiBronjahm;
+                }
+
+                return 0;
             }
 
-            OUT_LOAD_INST_DATA(in);
-
-            char dataHead1, dataHead2;
-            uint16 data0, data1;
-
-            std::istringstream loadStream(in);
-            loadStream >> dataHead1 >> dataHead2 >> data0 >> data1;
-
-            if (dataHead1 == 'F' && dataHead2 == 'S')
+            std::string GetSaveData()
             {
-                uiEncounter[0] = data0;
-                uiEncounter[1] = data1;
+                OUT_SAVE_INST_DATA;
 
-                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                    if (uiEncounter[i] == IN_PROGRESS)
-                        uiEncounter[i] = NOT_STARTED;
+                std::ostringstream saveStream;
+                saveStream << "F S " << GetBossSaveData();
 
-            } else OUT_LOAD_INST_DATA_FAIL;
+                OUT_SAVE_INST_DATA_COMPLETE;
+                return saveStream.str();
+            }
 
-            OUT_LOAD_INST_DATA_COMPLETE;
+            void Load(const char* in)
+            {
+                if (!in)
+                {
+                    OUT_LOAD_INST_DATA_FAIL;
+                    return;
+                }
+
+                OUT_LOAD_INST_DATA(in);
+
+                char dataHead1, dataHead2;
+
+                std::istringstream loadStream(in);
+                loadStream >> dataHead1 >> dataHead2;
+
+                if (dataHead1 == 'F' && dataHead2 == 'S')
+                {
+                    for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+                    {
+                        uint32 tmpState;
+                        loadStream >> tmpState;
+                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                            tmpState = NOT_STARTED;
+                        SetBossState(i, EncounterState(tmpState));
+                    }
+                } else OUT_LOAD_INST_DATA_FAIL;
+
+                OUT_LOAD_INST_DATA_COMPLETE;
+            }
+
+        private:
+            uint64 uiBronjahm;
+            uint64 uiDevourer;
+
+            uint32 uiTeamInInstance;
+        };
+
+        InstanceScript* GetInstanceScript(InstanceMap *map) const
+        {
+            return new instance_forge_of_souls_InstanceScript(map);
         }
-    };
-
-    InstanceScript* GetInstanceScript(InstanceMap *map) const
-    {
-        return new instance_forge_of_souls_InstanceScript(map);
-    }
 };
 
 void AddSC_instance_forge_of_souls()
 {
-    new instance_forge_of_souls;
+    new instance_forge_of_souls();
 }

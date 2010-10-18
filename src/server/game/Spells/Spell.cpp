@@ -2776,7 +2776,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     case 72444:
                     case 72445:
                     case 72446:
-                        for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end();)
+                        for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end();)
                         {
                             if (!(*itr)->HasAura(72293))
                                 itr = unitList.erase(itr);
@@ -2794,6 +2794,17 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                         // crashfix
                         if (unitList.empty())
                             return;
+                        break;
+                    case 68921: case 69049:                 // Soulstorm
+                        for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end();)
+                        {
+                            Position pos;
+                            (*itr)->GetPosition(&pos);
+                            if (m_caster->GetExactDist2d(&pos) <= 10.0f)
+                                itr = unitList.erase(itr);
+                            else
+                                ++itr;
+                        }
                         break;
                 }
                 // Death Pact

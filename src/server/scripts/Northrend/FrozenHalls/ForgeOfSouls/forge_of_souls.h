@@ -20,9 +20,8 @@
 
 enum Data
 {
-    DATA_BRONJAHM_EVENT,
-    DATA_DEVOURER_EVENT,
-    DATA_TEAM_IN_INSTANCE,
+    DATA_DEVOURER_EVENT     = 1,
+    DATA_TEAM_IN_INSTANCE   = 2,
 };
 
 enum Data64
