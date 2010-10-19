@@ -233,7 +233,7 @@ class Group
         }
 
         // properties accessories
-        bool IsFull() const { return (m_groupType == GROUPTYPE_NORMAL) ? (m_memberSlots.size() >= MAXGROUPSIZE) : (m_memberSlots.size() >= MAXRAIDSIZE); }
+        bool IsFull() const { return isRaidGroup() ? (m_memberSlots.size() >= MAXRAIDSIZE) : (m_memberSlots.size() >= MAXGROUPSIZE); }
         bool isLFGGroup()  const { return m_groupType & GROUPTYPE_LFG; }
         bool isRaidGroup() const { return m_groupType & GROUPTYPE_RAID; }
         bool isBGGroup()   const { return m_bgGroup != NULL; }
