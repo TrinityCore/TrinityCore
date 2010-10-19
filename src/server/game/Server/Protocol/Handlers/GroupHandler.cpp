@@ -387,7 +387,7 @@ void WorldSession::HandleGroupDisbandOpcode(WorldPacket & /*recv_data*/)
     // everything's fine, do it
     SendPartyResult(PARTY_OP_LEAVE, GetPlayer()->GetName(), ERR_PARTY_RESULT_OK);
 
-    GetPlayer()->RemoveFromGroup();
+    GetPlayer()->RemoveFromGroup(GROUP_REMOVEMETHOD_LEAVE);
 }
 
 void WorldSession::HandleLootMethodOpcode(WorldPacket & recv_data)
