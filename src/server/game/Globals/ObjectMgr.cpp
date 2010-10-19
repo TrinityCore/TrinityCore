@@ -3739,13 +3739,16 @@ void ObjectMgr::LoadGuilds()
     {
         barGuilds.step();
         Guild* pGuild = *itr;
-        if (pGuild && !pGuild->Validate())
+        if (pGuild)
         {
-            RemoveGuild(pGuild->GetId());
-            delete pGuild;
+            if (!pGuild->Validate())
+            {
+                RemoveGuild(pGuild->GetId());
+                delete pGuild;
+            }
+            else
+                ++totalGuilds;
         }
-        else
-            ++totalGuilds;
     }
     // Cleanup
     // Delete orphan guild ranks
