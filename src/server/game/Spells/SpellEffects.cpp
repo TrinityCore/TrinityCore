@@ -6760,11 +6760,15 @@ void Spell::EffectWMODamage(SpellEffIndex /*effIndex*/)
         if (!caster)
             return;
 
+        // Do not allow damage if hp is 0
+        if (gameObjTarget->GetGOValue()->building.health == 0)
+            return;
+
         FactionTemplateEntry const *casterft, *goft;
         casterft = caster->getFactionTemplateEntry();
         goft = sFactionTemplateStore.LookupEntry(gameObjTarget->GetUInt32Value(GAMEOBJECT_FACTION));
-        // Do not allow to damage GO's of friendly factions (ie: Wintergrasp Walls)
-        if (casterft && goft && !casterft->IsFriendlyTo(*goft))
+        // Do not allow to damage GO's of friendly factions (ie: Wintergrasp Walls/Ulduar Storm Beacons)
+        if ((casterft && goft && !casterft->IsFriendlyTo(*goft)) || !goft)
         {
             gameObjTarget->TakenDamage(uint32(damage), caster);
             WorldPacket data(SMSG_DESTRUCTIBLE_BUILDING_DAMAGE, 8+8+8+4+4);
