@@ -431,7 +431,6 @@ void Group::ChangeLeader(const uint64 &guid)
     if (slot == m_memberSlots.end())
         return;
 
-    sScriptMgr.OnGroupChangeLeader(this, m_leaderGuid, guid);
     _setLeader(guid);
 
     WorldPacket data(SMSG_GROUP_SET_LEADER, slot->name.size()+1);
@@ -1331,6 +1330,8 @@ void Group::_setLeader(const uint64 &guid)
     member_witerator slot = _getMemberWSlot(guid);
     if (slot == m_memberSlots.end())
         return;
+
+    sScriptMgr.OnGroupChangeLeader(this, m_leaderGuid, guid);
 
     if (!isBGGroup())
     {
