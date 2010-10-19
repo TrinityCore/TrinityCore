@@ -573,7 +573,7 @@ class ObjectMgr
 
         typedef std::set<Group *> GroupSet;
 
-        typedef UNORDERED_MAP<uint32, Guild *> GuildMap;
+        typedef std::vector <Guild *> GuildMap;
 
         typedef UNORDERED_MAP<uint32, ArenaTeam*> ArenaTeamMap;
 
@@ -610,11 +610,11 @@ class ObjectMgr
         void RemoveGroup(Group* group) { mGroupSet.erase(group); }
 
         Guild* GetGuildByLeader(uint64 const&guid) const;
-        Guild* GetGuildById(uint32 GuildId) const;
+        Guild* GetGuildById(uint32 guildId) const;
         Guild* GetGuildByName(const std::string& guildname) const;
-        std::string GetGuildNameById(uint32 GuildId) const;
-        void AddGuild(Guild* guild);
-        void RemoveGuild(uint32 Id);
+        std::string GetGuildNameById(uint32 guildId) const;
+        void AddGuild(Guild* pGuild);
+        void RemoveGuild(uint32 guildId);
 
         ArenaTeam* GetArenaTeamById(uint32 arenateamid) const;
         ArenaTeam* GetArenaTeamByName(const std::string& arenateamname) const;

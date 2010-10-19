@@ -1128,7 +1128,7 @@ class spell_putricide_mutated_plague : public SpellScriptLoader
                     multiplier = 3.0f;
 
                 damage *= int32(pow(multiplier, aurApp->GetBase()->GetStackAmount()));
-                damage *= 1.5;
+                damage  = int32(damage * 1.5f);
 
                 aurApp->GetTarget()->CastCustomSpell(triggerSpell, SPELLVALUE_BASE_POINT0, damage, aurApp->GetTarget(), true, NULL, aurEff, GetCasterGUID());
             }
