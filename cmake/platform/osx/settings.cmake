@@ -27,3 +27,5 @@ add_custom_target(uninstall
   "${CMAKE_COMMAND}" -P "${CMAKE_BINARY_DIR}/cmake_uninstall.cmake"
 )
 message(STATUS "OSX: Created uninstall target")
+
+include(${CMAKE_SOURCE_DIR}/cmake/compiler/xcode/settings.cmake)
