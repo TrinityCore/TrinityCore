@@ -44,15 +44,15 @@ class boss_ironaya : public CreatureScript
         {
             boss_ironayaAI(Creature *c) : ScriptedAI(c) {}
 
-            uint32 Arcing_Timer;
-            bool hasCastedWstomp;
-            bool hasCastedKnockaway;
+            uint32 uiArcingTimer;
+            bool bHasCastedWstomp;
+            bool bHasCastedKnockaway;
 
             void Reset()
             {
-                Arcing_Timer = 3000;
-                hasCastedKnockaway = false;
-                hasCastedWstomp = false;
+                uiArcingTimer = 3000;
+                bHasCastedKnockaway = false;
+                bHasCastedWstomp = false;
             }
 
             void EnterCombat(Unit * /*who*/)
@@ -67,7 +67,7 @@ class boss_ironaya : public CreatureScript
                     return;
 
                 //If we are <50% hp do knockaway ONCE
-                if (!hasCastedKnockaway && HealthBelowPct(50))
+                if (!bHasCastedKnockaway && HealthBelowPct(50))
                 {
                     DoCast(me->getVictim(), SPELL_KNOCKAWAY, true);
 
@@ -81,20 +81,20 @@ class boss_ironaya : public CreatureScript
                         me->TauntApply(Target);
 
                     //Shouldn't cast this agian
-                    hasCastedKnockaway = true;
+                    bHasCastedKnockaway = true;
                 }
 
-                //Arcing_Timer
-                if (Arcing_Timer <= diff)
+                //uiArcingTimer
+                if (uiArcingTimer <= diff)
                 {
                     DoCast(me, SPELL_ARCINGSMASH);
-                    Arcing_Timer = 13000;
-                } else Arcing_Timer -= diff;
+                    uiArcingTimer = 13000;
+                } else uiArcingTimer -= diff;
 
-                if (!hasCastedWstomp && HealthBelowPct(25))
+                if (!bHasCastedWstomp && HealthBelowPct(25))
                 {
                     DoCast(me, SPELL_WSTOMP);
-                    hasCastedWstomp = true;
+                    bHasCastedWstomp = true;
                 }
 
                 DoMeleeAttackIfReady();
