@@ -764,17 +764,13 @@ bool Object::LoadValues(const char* data)
 {
     if (!m_uint32Values) _InitValues();
 
-    Tokens tokens = StrSplit(data, " ");
+    Tokens tokens(data, ' ');
 
     if (tokens.size() != m_valuesCount)
         return false;
 
-    Tokens::iterator iter;
-    int index;
-    for (iter = tokens.begin(), index = 0; index < m_valuesCount; ++iter, ++index)
-    {
-        m_uint32Values[index] = atol((*iter).c_str());
-    }
+    for (uint16 index = 0; index < m_valuesCount; ++index)
+        m_uint32Values[index] = atol(tokens[index]);
 
     return true;
 }
@@ -784,17 +780,13 @@ void Object::_LoadIntoDataField(const char* data, uint32 startOffset, uint32 cou
     if (!data)
         return;
 
-    Tokens tokens = StrSplit(data, " ");
+    Tokens tokens(data, ' ', count);
 
     if (tokens.size() != count)
         return;
 
-    Tokens::iterator iter;
-    uint32 index;
-    for (iter = tokens.begin(), index = 0; index < count; ++iter, ++index)
-    {
-        m_uint32Values[startOffset + index] = atol((*iter).c_str());
-    }
+    for (uint32 index = 0; index < count; ++index)
+        m_uint32Values[startOffset + index] = atol(tokens[index]);
 }
 
 void Object::_SetUpdateBits(UpdateMask *updateMask, Player* /*target*/) const

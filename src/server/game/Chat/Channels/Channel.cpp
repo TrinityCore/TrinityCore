@@ -65,11 +65,11 @@ Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
 
             if (db_BannedList)
             {
-                Tokens tokens = StrSplit(db_BannedList, " ");
+                Tokens tokens(db_BannedList, ' ');
                 Tokens::iterator iter;
                 for (iter = tokens.begin(); iter != tokens.end(); ++iter)
                 {
-                    uint64 banned_guid = atol((*iter).c_str());
+                    uint64 banned_guid = atol(*iter);
                     if (banned_guid)
                     {
                         sLog.outDebug("Channel(%s) loaded banned guid:" UI64FMTD "",name.c_str(), banned_guid);
