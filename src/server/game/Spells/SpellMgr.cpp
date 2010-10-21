@@ -3890,6 +3890,7 @@ void SpellMgr::LoadSpellCustomAttr()
             count++;
             break;
         case 70728: // Exploit Weakness
+        case 70840: // Devious Minds
             spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_PET;
             count++;
             break;
