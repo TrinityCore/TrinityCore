@@ -503,6 +503,7 @@ public:
 
     bool OnGossipSelect(Player *pPlayer, Creature *pCreature, uint32 /*uiSender*/, uint32 uiAction)
     {
+        pPlayer->PlayerTalkClass->ClearMenus();
         uint32 spellId = 0;
         switch (uiAction)
         {

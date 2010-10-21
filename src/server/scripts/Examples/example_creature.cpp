@@ -258,27 +258,28 @@ class example_creature : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* pCreature) const
         {
-            return new example_creatureAI(creature);
+            return new example_creatureAI(pCreature);
         }
 
-        bool OnGossipHello(Player* player, Creature* creature)
+        bool OnGossipHello(Player* pPlayer, Creature* pCreature)
         {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            player->SEND_GOSSIP_MENU(907, creature->GetGUID());
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            pPlayer->SEND_GOSSIP_MENU(907, pCreature->GetGUID());
 
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+        bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
         {
-            if (action == GOSSIP_ACTION_INFO_DEF+1)
+            pPlayer->PlayerTalkClass->ClearMenus();
+            if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
             {
-                player->CLOSE_GOSSIP_MENU();
+                pPlayer->CLOSE_GOSSIP_MENU();
                 //Set our faction to hostile towards all
-                creature->setFaction(FACTION_WORGEN);
-                creature->AI()->AttackStart(player);
+                pCreature->setFaction(FACTION_WORGEN);
+                pCreature->AI()->AttackStart(pPlayer);
             }
 
             return true;
