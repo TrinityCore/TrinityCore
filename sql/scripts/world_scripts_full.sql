@@ -9,9 +9,10 @@ UPDATE `gameobject_template` SET `ScriptName`='';
 UPDATE `outdoorpvp_template` SET `ScriptName`='';
 
 /* AREA TRIGGERS */
-DELETE FROM `areatrigger_scripts` WHERE `entry` IN (5284,5285,5286,5287,4871,4872,4873,5108,5332,5338,5334,5340,5369,5423);
+DELETE FROM `areatrigger_scripts` WHERE `entry` IN (822,5284,5285,5286,5287,4871,4872,4873,5108,5332,5338,5334,5340,5369,5423);
 DELETE FROM `areatrigger_scripts` WHERE `entry` BETWEEN 1726 AND 1740;
 INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES 
+(822, 'at_map_chamber'),
 (5284, 'at_aldurthar_gate'),
 (5285, 'at_aldurthar_gate'),
 (5286, 'at_aldurthar_gate'),
@@ -1479,6 +1480,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_archaedas_minions' WHERE `entry
 UPDATE `creature_template` SET `ScriptName`='mob_stonekeepers' WHERE `entry`=4857;
 UPDATE `gameobject_template` SET `ScriptName`='go_altar_of_the_keepers' WHERE `entry`=130511;
 UPDATE `gameobject_template` SET `ScriptName`='go_altar_of_archaedas' WHERE `entry`=133234;
+UPDATE `gameobject_template` SET `ScriptName`='go_keystone_chamber' WHERE `entry`=124371;
 
 /* ULDUAR */
 UPDATE `instance_template` SET `script`='instance_ulduar' WHERE `map`=603;
