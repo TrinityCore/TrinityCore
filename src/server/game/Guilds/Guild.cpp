@@ -699,7 +699,7 @@ uint32 Guild::Member::GetBankRemainingValue(uint8 tabId, const Guild* pGuild) co
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(
             tabId == GUILD_BANK_MAX_TABS ?
-            CHAR_SET_GUILD_MEMBER_BANK_REM_MONEY : 
+            CHAR_SET_GUILD_MEMBER_BANK_TIME_MONEY : 
             CHAR_SET_GUILD_MEMBER_BANK_TIME_REM_SLOTS0 + tabId);
         stmt->setUInt32(0, m_bankRemaining[tabId].resetTime);
         stmt->setUInt32(1, m_bankRemaining[tabId].value);
