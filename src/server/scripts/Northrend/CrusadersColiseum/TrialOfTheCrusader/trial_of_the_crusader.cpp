@@ -151,6 +151,7 @@ class npc_announcer_toc10 : public CreatureScript
 
         bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
         {
+            pPlayer->PlayerTalkClass->ClearMenus();
             InstanceScript* m_pInstance;
             m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
             if (!m_pInstance) return false;

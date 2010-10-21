@@ -178,48 +178,49 @@ class example_escort : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* pCreature) const
         {
-            return new example_escortAI(creature);
+            return new example_escortAI(pCreature);
         }
 
-        bool OnGossipHello(Player* player, Creature* creature)
+        bool OnGossipHello(Player* pPlayer, Creature* pCreature)
         {
-            player->TalkedToCreature(creature->GetEntry(), creature->GetGUID());
-            player->PrepareGossipMenu(creature, 0);
+            pPlayer->TalkedToCreature(pCreature->GetEntry(), pCreature->GetGUID());
+            pPlayer->PrepareGossipMenu(pCreature, 0);
 
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
 
-            player->SendPreparedGossip(creature);
+            pPlayer->SendPreparedGossip(pCreature);
 
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+        bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
         {
-            npc_escortAI* pEscortAI = CAST_AI(example_escort::example_escortAI, creature->AI());
+            pPlayer->PlayerTalkClass->ClearMenus();
+            npc_escortAI* pEscortAI = CAST_AI(example_escort::example_escortAI, pCreature->AI());
 
-            switch(action)
+            switch(uiAction)
             {
                 case GOSSIP_ACTION_INFO_DEF+1:
-                    player->CLOSE_GOSSIP_MENU();
+                    pPlayer->CLOSE_GOSSIP_MENU();
 
                     if (pEscortAI)
-                        pEscortAI->Start(true, true, player->GetGUID());
+                        pEscortAI->Start(true, true, pPlayer->GetGUID());
                     break;
                 case GOSSIP_ACTION_INFO_DEF+2:
-                    player->CLOSE_GOSSIP_MENU();
+                    pPlayer->CLOSE_GOSSIP_MENU();
 
                     if (pEscortAI)
-                        pEscortAI->Start(false, false, player->GetGUID());
+                        pEscortAI->Start(false, false, pPlayer->GetGUID());
                     break;
                 case GOSSIP_ACTION_INFO_DEF+3:
-                    player->CLOSE_GOSSIP_MENU();
+                    pPlayer->CLOSE_GOSSIP_MENU();
 
                     if (pEscortAI)
-                        pEscortAI->Start(false, true, player->GetGUID());
+                        pEscortAI->Start(false, true, pPlayer->GetGUID());
                     break;
                 default:
                     return false;                                   // nothing defined      -> trinity core handling

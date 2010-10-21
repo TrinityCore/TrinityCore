@@ -48,45 +48,47 @@ class example_gossip_codebox : public CreatureScript
         {
         }
 
-        bool OnGossipHello(Player* player, Creature* creature)
+        bool OnGossipHello(Player* pPlayer, Creature* pCreature)
         {
-            player->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1, "", 0, true);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1, "", 0, true);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
 
-            player->PlayerTalkClass->SendGossipMenu(907, creature->GetGUID());
+            pPlayer->PlayerTalkClass->SendGossipMenu(907, pCreature->GetGUID());
 
             return true;
         }
 
-        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+        bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
         {
-            if (action == GOSSIP_ACTION_INFO_DEF+2)
+            pPlayer->PlayerTalkClass->ClearMenus();
+            if (uiAction == GOSSIP_ACTION_INFO_DEF+2)
             {
-                DoScriptText(SAY_NOT_INTERESTED, creature);
-                player->CLOSE_GOSSIP_MENU();
+                DoScriptText(SAY_NOT_INTERESTED, pCreature);
+                pPlayer->CLOSE_GOSSIP_MENU();
             }
 
             return true;
         }
 
-        bool OnGossipSelectCode(Player* player, Creature* creature, uint32 sender, uint32 action, const char* code)
+        bool OnGossipSelectCode(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction, const char* code)
         {
-            if (sender == GOSSIP_SENDER_MAIN)
+            pPlayer->PlayerTalkClass->ClearMenus();
+            if (uiSender == GOSSIP_SENDER_MAIN)
             {
-                switch (action)
+                switch (uiAction)
                 {
                 case GOSSIP_ACTION_INFO_DEF+1:
-                    if (std::strcmp(code, player->GetName()) != 0)
+                    if (std::strcmp(code, pPlayer->GetName()) != 0)
                     {
-                        DoScriptText(SAY_WRONG, creature);
-                        creature->CastSpell(player, SPELL_POLYMORPH, true);
+                        DoScriptText(SAY_WRONG, pCreature);
+                        pCreature->CastSpell(pPlayer, SPELL_POLYMORPH, true);
                     }
                     else
                     {
-                        DoScriptText(SAY_CORRECT, creature);
-                        creature->CastSpell(player, SPELL_MARK_OF_THE_WILD, true);
+                        DoScriptText(SAY_CORRECT, pCreature);
+                        pCreature->CastSpell(pPlayer, SPELL_MARK_OF_THE_WILD, true);
                     }
-                    player->CLOSE_GOSSIP_MENU();
+                    pPlayer->CLOSE_GOSSIP_MENU();
 
                     return true;
                 }
