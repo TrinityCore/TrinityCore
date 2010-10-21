@@ -27,6 +27,7 @@ On his death the vault door opens.
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "uldaman.h"
 
 #define SAY_AGGRO           "Who dares awaken Archaedas? Who dares the wrath of the makers!"
 #define SOUND_AGGRO         5855
@@ -67,10 +68,10 @@ class boss_archaedas : public CreatureScript
                 pInstance = me->GetInstanceScript();
             }
 
-            uint32 Tremor_Timer;
-            int32  Awaken_Timer;
+            uint32 uiTremorTimer;
+            int32  iAwakenTimer;
             uint32 WallMinionTimer;
-            bool wakingUp;
+            bool bWakingUp;
 
             bool guardiansAwake;
             bool vaultWalkersAwake;
@@ -78,11 +79,11 @@ class boss_archaedas : public CreatureScript
 
             void Reset()
             {
-                Tremor_Timer = 60000;
-                Awaken_Timer = 0;
+                uiTremorTimer = 60000;
+                iAwakenTimer = 0;
                 WallMinionTimer = 10000;
 
-                wakingUp = false;
+                bWakingUp = false;
                 guardiansAwake = false;
                 vaultWalkersAwake = false;
 
@@ -117,8 +118,8 @@ class boss_archaedas : public CreatureScript
                 if (spell == GetSpellStore()->LookupEntry(SPELL_ARCHAEDAS_AWAKEN)) {
                     me->MonsterYell(SAY_AGGRO,LANG_UNIVERSAL,NULL);
                     DoPlaySoundToSet(me,SOUND_AGGRO);
-                    Awaken_Timer = 4000;
-                    wakingUp = true;
+                    iAwakenTimer = 4000;
+                    bWakingUp = true;
                 }
             }
 
@@ -133,11 +134,11 @@ class boss_archaedas : public CreatureScript
                 if (!pInstance)
                     return;
                 // we're still doing awaken animation
-                if (wakingUp && Awaken_Timer >= 0) {
-                    Awaken_Timer -= diff;
+                if (bWakingUp && iAwakenTimer >= 0) {
+                    iAwakenTimer -= diff;
                     return;        // dont do anything until we are done
-                } else if (wakingUp && Awaken_Timer <= 0) {
-                    wakingUp = false;
+                } else if (bWakingUp && iAwakenTimer <= 0) {
+                    bWakingUp = false;
                     AttackStart(Unit::GetUnit(*me, pInstance->GetData64(0)));
                     return;     // dont want to continue until we finish the AttackStart method
                 }
@@ -148,7 +149,7 @@ class boss_archaedas : public CreatureScript
 
                 // wake a wall minion
                 if (WallMinionTimer <= diff) {
-                    pInstance->SetData (NULL, 2);
+                    pInstance->SetData (DATA_MINIONS, IN_PROGRESS);
 
                     WallMinionTimer = 10000;
                 } else WallMinionTimer -= diff;
@@ -177,14 +178,14 @@ class boss_archaedas : public CreatureScript
                     vaultWalkersAwake = true;
                 }
 
-                if (Tremor_Timer <= diff)
+                if (uiTremorTimer <= diff)
                 {
                     //Cast
                     DoCast(me->getVictim(), SPELL_GROUND_TREMOR);
 
                     //45 seconds until we should cast this agian
-                    Tremor_Timer  = 45000;
-                } else Tremor_Timer  -= diff;
+                    uiTremorTimer  = 45000;
+                } else uiTremorTimer  -= diff;
 
                 DoMeleeAttackIfReady();
             }
@@ -192,8 +193,8 @@ class boss_archaedas : public CreatureScript
             void JustDied (Unit * /*pKiller*/) {
                 if (pInstance)
                 {
-                    pInstance->SetData(NULL,3);        // open the vault door
-                    pInstance->SetData(NULL,4);        // deactivate his minions
+                    pInstance->SetData(DATA_ANCIENT_DOOR, DONE);      // open the vault door
+                    pInstance->SetData(DATA_MINIONS, SPECIAL);        // deactivate his minions
                 }
             }
         };
@@ -229,20 +230,20 @@ class mob_archaedas_minions : public CreatureScript
                 pInstance = me->GetInstanceScript();
             }
 
-            uint32 Arcing_Timer;
-            int32 Awaken_Timer;
-            bool wakingUp;
+            uint32 uiArcing_Timer;
+            int32 iAwakenTimer;
+            bool bWakingUp;
 
-            bool amIAwake;
+            bool bAmIAwake;
             InstanceScript* pInstance;
 
             void Reset()
             {
-                Arcing_Timer = 3000;
-                Awaken_Timer = 0;
+                uiArcing_Timer = 3000;
+                iAwakenTimer = 0;
 
-                wakingUp = false;
-                amIAwake = false;
+                bWakingUp = false;
+                bAmIAwake = false;
 
                 me->setFaction(35);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -256,32 +257,32 @@ class mob_archaedas_minions : public CreatureScript
                 me->RemoveAllAuras();
                 me->RemoveFlag (UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveFlag (UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                amIAwake = true;
+                bAmIAwake = true;
             }
 
             void SpellHit (Unit* /*caster*/, const SpellEntry *spell) {
                 // time to wake up, start animation
                 if (spell == GetSpellStore()->LookupEntry(SPELL_ARCHAEDAS_AWAKEN)){
-                    Awaken_Timer = 5000;
-                    wakingUp = true;
+                    iAwakenTimer = 5000;
+                    bWakingUp = true;
                 }
             }
 
             void MoveInLineOfSight(Unit *who)
             {
-                if (amIAwake)
+                if (bAmIAwake)
                     ScriptedAI::MoveInLineOfSight(who);
             }
 
             void UpdateAI(const uint32 diff)
             {
                 // we're still in the awaken animation
-                if (wakingUp && Awaken_Timer >= 0) {
-                    Awaken_Timer -= diff;
+                if (bWakingUp && iAwakenTimer >= 0) {
+                    iAwakenTimer -= diff;
                     return;        // dont do anything until we are done
-                } else if (wakingUp && Awaken_Timer <= 0) {
-                    wakingUp = false;
-                    amIAwake = true;
+                } else if (bWakingUp && iAwakenTimer <= 0) {
+                    bWakingUp = false;
+                    bAmIAwake = true;
                     // AttackStart(Unit::GetUnit(*me, pInstance->GetData64(0))); // whoWokeArchaedasGUID
                     return;     // dont want to continue until we finish the AttackStart method
                 }
@@ -355,7 +356,7 @@ class mob_stonekeepers : public CreatureScript
             {
                 DoCast (me, SPELL_SELF_DESTRUCT,true);
                 if (pInstance)
-                    pInstance->SetData(NULL, 1);    // activate next stonekeeper
+                    pInstance->SetData(DATA_STONE_KEEPERS, IN_PROGRESS);    // activate next stonekeeper
             }
         };
 
@@ -383,7 +384,7 @@ class go_altar_of_archaedas : public GameObjectScript
         {
         }
 
-        bool OnGossipHello(Player* pPlayer, GameObject* /*pGo*/)
+        bool OnGossipHello(Player* pPlayer, GameObject* /*pGO*/)
         {
             InstanceScript* pInstance = pPlayer->GetInstanceScript();
             if (!pInstance)
@@ -391,7 +392,6 @@ class go_altar_of_archaedas : public GameObjectScript
 
             pPlayer->CastSpell (pPlayer, SPELL_BOSS_OBJECT_VISUAL, false);
 
-            pInstance->SetData(NULL,0);
             pInstance->SetData64(0,pPlayer->GetGUID());     // activate archaedas
             return false;
         }
@@ -423,7 +423,7 @@ class go_altar_of_the_keepers : public GameObjectScript
 
             pPlayer->CastSpell (pPlayer, SPELL_BOSS_OBJECT_VISUAL, false);
 
-            pInstance->SetData(NULL,1); // activate the Stone Keepers
+            pInstance->SetData(DATA_STONE_KEEPERS, IN_PROGRESS); // activate the Stone Keepers
             return false;
         }
 };
