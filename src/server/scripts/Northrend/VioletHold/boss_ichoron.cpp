@@ -29,6 +29,7 @@ enum Spells
     SPELL_WATER_BOLT_VOLLEY                     = 54241,
     SPELL_WATER_BOLT_VOLLEY_H                   = 59521,
     SPELL_SPLASH                                = 59516,
+    SPELL_WATER_GLOBULE                         = 54268
 };
 
 enum IchoronCreatures
@@ -355,6 +356,7 @@ public:
         void Reset()
         {
             uiRangeCheck_Timer = 1000;
+            DoCast(me,SPELL_WATER_GLOBULE);
         }
 
         void AttackStart(Unit* /*pWho*/)
