@@ -24,9 +24,13 @@
 #include <string>
 #include <vector>
 
-typedef std::vector<std::string> Tokens;
+struct Tokens: public std::vector<char*>
+{
+    Tokens(const std::string &src, const char sep, uint32 vectorReserve = 0);
+    ~Tokens() { delete m_str; }
 
-Tokens StrSplit(const std::string &src, const std::string &sep);
+    char* m_str;
+};
 
 void stripLineInvisibleChars(std::string &src);
 
