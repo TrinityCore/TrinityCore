@@ -100,6 +100,33 @@ void WorldSession::HandlePetAction(WorldPacket & recv_data)
     }
 }
 
+void WorldSession::HandlePetStopAttack(WorldPacket &recv_data)
+{
+    uint64 guid;
+    recv_data >> guid;
+
+    sLog.outDebug("WORLD: Received CMSG_PET_STOP_ATTACK for GUID " UI64FMTD "", guid);
+
+    Unit* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
+
+    if (!pet)
+    {
+        sLog.outError("HandlePetStopAttack: Pet %u does not exist", uint32(GUID_LOPART(guid)));
+        return;
+    }
+
+    if (pet != GetPlayer()->GetPet() && pet != GetPlayer()->GetCharm())
+    {
+        sLog.outError("HandlePetStopAttack: Pet GUID %u isn't a pet or charmed creature of player %s", uint32(GUID_LOPART(guid)), GetPlayer()->GetName());
+        return;
+    }
+
+    if (!pet->isAlive())
+        return;
+
+    pet->AttackStop();
+}
+
 void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid, uint16 flag, uint64 guid2)
 {
     CharmInfo *charmInfo = pet->GetCharmInfo();
