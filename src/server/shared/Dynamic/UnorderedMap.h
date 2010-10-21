@@ -42,12 +42,9 @@ using std::hash_map;
 #elif COMPILER == COMPILER_MICROSOFT && _MSC_VER >= 1300
 #define UNORDERED_MAP stdext::hash_map
 using stdext::hash_map;
-#elif COMPILER == COMPILER_INTEL
-#define UNORDERED_MAP std::hash_map
-using std::hash_map;
 #elif COMPILER == COMPILER_GNU && (__GNUC__ > 4 || __GNUC__ == 4 && __GNUC_MINOR__ >= 3)
 #define UNORDERED_MAP std::tr1::unordered_map
-#elif COMPILER == COMPILER_GNU && __GNUC__ >= 3
+#elif (COMPILER == COMPILER_GNU && __GNUC__ >= 3) || COMPILER == COMPILER_INTEL
 #define UNORDERED_MAP __gnu_cxx::hash_map
 
 namespace __gnu_cxx

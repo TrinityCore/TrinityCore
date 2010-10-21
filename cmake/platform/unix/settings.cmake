@@ -24,4 +24,8 @@ add_custom_target(uninstall
 )
 message(STATUS "UNIX: Created uninstall target")
 
-include(${CMAKE_SOURCE_DIR}/cmake/compiler/gcc/settings.cmake)
+if(CMAKE_C_COMPILER MATCHES "gcc")
+  include(${CMAKE_SOURCE_DIR}/cmake/compiler/gcc/settings.cmake)
+elseif(CMAKE_C_COMPILER MATCHES "icc")
+  include(${CMAKE_SOURCE_DIR}/cmake/compiler/icc/settings.cmake)
+endif()
