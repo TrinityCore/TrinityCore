@@ -3891,6 +3891,7 @@ void SpellMgr::LoadSpellCustomAttr()
             break;
         case 70728: // Exploit Weakness
         case 70840: // Devious Minds
+            spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
             spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_PET;
             count++;
             break;
