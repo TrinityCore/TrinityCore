@@ -85,24 +85,38 @@ double rand_chance(void)
 }
 #endif
 
-Tokens StrSplit(const std::string &src, const std::string &sep)
+Tokens::Tokens(const std::string &src, const char sep, uint32 vectorReserve)
 {
-    Tokens r;
-    std::string s;
-    for (std::string::const_iterator i = src.begin(); i != src.end(); i++)
+    m_str = new char[src.length() + 1];
+    memcpy(m_str, src.c_str(), src.length() + 1);
+
+    if (vectorReserve)
+        reserve(vectorReserve);
+
+    char* posold = m_str;
+    char* posnew = m_str;
+
+    for (;;)
     {
-        if (sep.find(*i) != std::string::npos)
+        if (*posnew == sep)
         {
-            if (s.length()) r.push_back(s);
-            s = "";
+            push_back(posold);
+            posold = posnew + 1;
+
+            *posnew = 0x00;
         }
-        else
+        else if (*posnew == 0x00)
         {
-            s += *i;
+            // Hack like, but the old code accepted these kind of broken strings,
+            // so changing it would break other things
+            if (posold != posnew)
+                push_back(posold);
+
+            break;
         }
+
+        ++posnew;
     }
-    if (s.length()) r.push_back(s);
-    return r;
 }
 
 void stripLineInvisibleChars(std::string &str)

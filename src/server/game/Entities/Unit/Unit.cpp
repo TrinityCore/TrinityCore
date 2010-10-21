@@ -13806,7 +13806,7 @@ void CharmInfo::LoadPetActionBar(const std::string& data)
 {
     InitPetActionBar();
 
-    Tokens tokens = StrSplit(data, " ");
+    Tokens tokens(data, ' ');
 
     if (tokens.size() != (ACTION_BAR_INDEX_END-ACTION_BAR_INDEX_START)*2)
         return;                                             // non critical, will reset to default
@@ -13816,9 +13816,9 @@ void CharmInfo::LoadPetActionBar(const std::string& data)
     for (iter = tokens.begin(), index = ACTION_BAR_INDEX_START; index < ACTION_BAR_INDEX_END; ++iter, ++index)
     {
         // use unsigned cast to avoid sign negative format use at long-> ActiveStates (int) conversion
-        ActiveStates type  = ActiveStates(atol(iter->c_str()));
+        ActiveStates type  = ActiveStates(atol(*iter));
         ++iter;
-        uint32 action = uint32(atol(iter->c_str()));
+        uint32 action = uint32(atol(*iter));
 
         PetActionBar[index].SetActionAndType(action, type);
 

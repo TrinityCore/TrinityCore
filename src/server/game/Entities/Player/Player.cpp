@@ -183,7 +183,7 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
 
 void PlayerTaxi::LoadTaxiMask(const char* data)
 {
-    Tokens tokens = StrSplit(data, " ");
+    Tokens tokens(data, ' ');
 
     uint8 index;
     Tokens::iterator iter;
@@ -191,7 +191,7 @@ void PlayerTaxi::LoadTaxiMask(const char* data)
         (index < TaxiMaskSize) && (iter != tokens.end()); ++iter, ++index)
     {
         // load and set bits only for existed taxi nodes
-        m_taximask[index] = sTaxiNodesMask[index] & uint32(atol((*iter).c_str()));
+        m_taximask[index] = sTaxiNodesMask[index] & uint32(atol(*iter));
     }
 }
 
@@ -213,11 +213,11 @@ bool PlayerTaxi::LoadTaxiDestinationsFromString(const std::string& values, uint3
 {
     ClearTaxiDestinations();
 
-    Tokens tokens = StrSplit(values," ");
+    Tokens tokens(values,' ');
 
     for (Tokens::iterator iter = tokens.begin(); iter != tokens.end(); ++iter)
     {
-        uint32 node = uint32(atol(iter->c_str()));
+        uint32 node = uint32(atol(*iter));
         AddTaxiDestination(node);
     }
 
@@ -1697,7 +1697,7 @@ bool Player::BuildEnumData(QueryResult result, WorldPacket * p_data)
         *p_data << uint32(petFamily);
     }
 
-    Tokens data = StrSplit(fields[19].GetString(), " ");
+    Tokens data(fields[19].GetString(), ' ');
     for (uint8 slot = 0; slot < EQUIPMENT_SLOT_END; ++slot)
     {
         uint32 visualbase = slot * 2;
@@ -15997,7 +15997,7 @@ uint32 Player::GetUInt32ValueFromArray(Tokens const& data, uint16 index)
     if (index >= data.size())
         return 0;
 
-    return (uint32)atoi(data[index].c_str());
+    return (uint32)atoi(data[index]);
 }
 
 float Player::GetFloatValueFromArray(Tokens const& data, uint16 index)
@@ -16953,10 +16953,10 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timediff)
                 {
                     Field* fields2 = result2->Fetch();
                     std::string strGUID = fields2[0].GetString();
-                    Tokens GUIDlist = StrSplit(strGUID, " ");
+                    Tokens GUIDlist(strGUID, ' ');
                     AllowedLooterSet looters;
                     for (Tokens::iterator itr = GUIDlist.begin(); itr != GUIDlist.end(); ++itr)
-                        looters.insert(atol((*itr).c_str()));
+                        looters.insert(atol(*itr));
                     item->SetSoulboundTradeable(&looters, this, true);
                     m_itemSoulboundTradeable.push_back(item);
                 }
