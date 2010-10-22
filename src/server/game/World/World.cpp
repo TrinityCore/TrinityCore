@@ -2568,18 +2568,15 @@ void World::SendAutoBroadcast()
     uint32 abcenter = sWorld.getIntConfig(CONFIG_AUTOBROADCAST_CENTER);
 
     if (abcenter == 0)
-    {
         sWorld.SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
-        sLog.outString("AutoBroadcast: '%s'",msg.c_str());
-    }
+
     else if (abcenter == 1)
     {
         WorldPacket data(SMSG_NOTIFICATION, (msg.size()+1));
         data << msg;
         sWorld.SendGlobalMessage(&data);
-
-        sLog.outString("AutoBroadcast: '%s'",msg.c_str());
     }
+
     else if (abcenter == 2)
     {
         sWorld.SendWorldText(LANG_AUTO_BROADCAST, msg.c_str());
@@ -2588,8 +2585,8 @@ void World::SendAutoBroadcast()
         data << msg;
         sWorld.SendGlobalMessage(&data);
 
-        sLog.outString("AutoBroadcast: '%s'",msg.c_str());
     }
+    sLog.outDebug("AutoBroadcast: '%s'",msg.c_str());
 }
 
 void World::UpdateRealmCharCount(uint32 accountId)
