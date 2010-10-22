@@ -253,7 +253,7 @@ void Unit::Update(uint32 p_time)
         {
             // m_CombatTimer set at aura start and it will be freeze until aura removing
             if (m_CombatTimer <= p_time)
-                CombatStop();
+                ClearInCombat();
             else
                 m_CombatTimer -= p_time;
         }
