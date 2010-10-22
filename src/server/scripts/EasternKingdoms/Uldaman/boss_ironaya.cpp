@@ -42,7 +42,7 @@ class boss_ironaya : public CreatureScript
 
         struct boss_ironayaAI : public ScriptedAI
         {
-            boss_ironayaAI(Creature *c) : ScriptedAI(c) {}
+            boss_ironayaAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
             uint32 uiArcingTimer;
             bool bHasCastedWstomp;
@@ -60,7 +60,7 @@ class boss_ironaya : public CreatureScript
                 DoScriptText(SAY_AGGRO, me);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 uiDiff)
             {
                 //Return since we have no target
                 if (!UpdateVictim())
@@ -72,24 +72,24 @@ class boss_ironaya : public CreatureScript
                     DoCast(me->getVictim(), SPELL_KNOCKAWAY, true);
 
                     // current aggro target is knocked away pick new target
-                    Unit* Target = SelectUnit(SELECT_TARGET_TOPAGGRO, 0);
+                    Unit* pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO, 0);
 
-                    if (!Target || Target == me->getVictim())
-                        Target = SelectUnit(SELECT_TARGET_TOPAGGRO, 1);
+                    if (!pTarget || pTarget == me->getVictim())
+                        pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO, 1);
 
-                    if (Target)
-                        me->TauntApply(Target);
+                    if (pTarget)
+                        me->TauntApply(pTarget);
 
                     //Shouldn't cast this agian
                     bHasCastedKnockaway = true;
                 }
 
                 //uiArcingTimer
-                if (uiArcingTimer <= diff)
+                if (uiArcingTimer <= uiDiff)
                 {
                     DoCast(me, SPELL_ARCINGSMASH);
                     uiArcingTimer = 13000;
-                } else uiArcingTimer -= diff;
+                } else uiArcingTimer -= uiDiff;
 
                 if (!bHasCastedWstomp && HealthBelowPct(25))
                 {
