@@ -91,7 +91,8 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_ITEM_REQUIRED_TARGET           = 18,//DONE
     CONDITION_SOURCE_TYPE_QUEST_ACCEPT                   = 19,//DONE
     CONDITION_SOURCE_TYPE_QUEST_SHOW_MARK                = 20,//DONE
-    CONDITION_SOURCE_TYPE_MAX                            = 21//MAX
+    CONDITION_SOURCE_TYPE_VEHICLE_SPELL                  = 21,//DONE
+    CONDITION_SOURCE_TYPE_MAX                            = 22//MAX
 };
 
 struct Condition
@@ -129,7 +130,8 @@ struct Condition
 
 typedef std::list<Condition*> ConditionList;
 typedef std::map<uint32, ConditionList > ConditionTypeMap;
-typedef std::map<ConditionSourceType, ConditionTypeMap > ConditionMap;//used for all conditions, except references
+typedef std::map<ConditionSourceType, ConditionTypeMap > ConditionMap;
+typedef std::map<uint32, ConditionTypeMap > VehicleSpellConditionMap;
 
 typedef std::map<uint32, ConditionList > ConditionReferenceMap;//only used for references
 
@@ -147,11 +149,13 @@ class ConditionMgr
 
         bool IsPlayerMeetToConditions(Player* player, ConditionList conditions, Unit* invoker = NULL);
         ConditionList GetConditionsForNotGroupedEntry(ConditionSourceType sType, uint32 uEntry);
+        ConditionList GetConditionsForVehicleSpell(uint32 creatureID, uint32 spellID);
 
     protected:
 
-        ConditionMap            m_ConditionMap;
-        ConditionReferenceMap   m_ConditionReferenceMap;
+        ConditionMap                m_ConditionMap;
+        ConditionReferenceMap       m_ConditionReferenceMap;
+        VehicleSpellConditionMap    m_VehicleSpellConditions;
 
     private:
 
@@ -176,7 +180,8 @@ class ConditionMgr
                     sourceType == CONDITION_SOURCE_TYPE_SKINNING_LOOT_TEMPLATE ||
                     sourceType == CONDITION_SOURCE_TYPE_SPELL_LOOT_TEMPLATE ||
                     sourceType == CONDITION_SOURCE_TYPE_GOSSIP_MENU ||
-                    sourceType == CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION);
+                    sourceType == CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION ||
+                    sourceType == CONDITION_SOURCE_TYPE_VEHICLE_SPELL);
         }
 
         void Clean(); // free up resources
