@@ -760,7 +760,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
 
     caster->clearUnitState(UNIT_STAT_FOLLOW);
 
-    Spell *spell = new Spell(caster, spellInfo, false); // water elemental can cast freeze as triggered
+    Spell *spell = new Spell(caster, spellInfo, false);
     spell->m_cast_count = castCount;                    // probably pending spell cast
     spell->m_targets = targets;
 
