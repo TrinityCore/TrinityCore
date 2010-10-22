@@ -360,7 +360,7 @@ void ObjectMgr::AddGuild(Guild* pGuild)
     // Allocate space if necessary
     if (guildId >= uint32(mGuildMap.size()))
         // Reserve a bit more space than necessary
-        mGuildMap.resize(guildId + 512, NULL);
+        mGuildMap.resize(guildId+1);
     mGuildMap[guildId] = pGuild;
 }
 
