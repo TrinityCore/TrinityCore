@@ -126,39 +126,42 @@ public:
 ## Quest 9686 Second Trial
 ######*/
 
-#define QUEST_SECOND_TRIAL 9686
+enum SeconTrial
+{
+    QUEST_SECOND_TRIAL                = 9686,
+    OFFSET_NEXT_ATTACK                = 750,
+};
 
-#define MASTER_KELERUN_BLOODMOURN 17807
+enum eSpells
+{
+    SPELL_FLASH_OF_LIGHT              = 19939,
+    SPELL_SEAL_OF_JUSTICE             = 20164,
+    SPELL_JUDGEMENT_OF_LIGHT          = 20271,
+    SPELL_SEAL_OF_COMMAND             = 20375,
+};
 
-#define CHAMPION_BLOODWRATH 17809
-#define CHAMPION_LIGHTREND  17810
-#define CHAMPION_SWIFTBLADE 17811
-#define CHAMPION_SUNSTRIKER 17812
+enum eNpc
+{
+    MASTER_KELERUN_BLOODMOURN         = 17807,
+    CHAMPION_BLOODWRATH               = 17809,
+    CHAMPION_LIGHTREND                = 17810,
+    CHAMPION_SWIFTBLADE               = 17811,
+    CHAMPION_SUNSTRIKER               = 17812,
+};
 
-#define HARBINGER_OF_THE_SECOND_TRIAL 182052
+enum eFaction
+{
+    FACTION_HOSTILE                   = 45,
+    FACTION_FRIENDLY                  = 7,
+};
 
-#define SPELL_FLASH_OF_LIGHT 19939
-#define TIMER_FLASH_OF_LIGHT 3225
-
-#define SPELL_SEAL_OF_JUSTICE 20164
-#define TIMER_SEAL_OF_JUSTICE 10000
-
-#define SPELL_JUDGEMENT_OF_LIGHT 20271
-#define TIMER_JUDGEMENT_OF_LIGHT 10000
-
-#define SPELL_SEAL_OF_COMMAND 20375
-#define TIMER_SEAL_OF_COMMAND 20000
-
-#define OFFSET_NEXT_ATTACK 750
-
-#define FACTION_HOSTILE    45
-#define FACTION_FRIENDLY   7
-
-// missing from db
-#define TEXT_SECOND_TRIAL_1 -1645006
-#define TEXT_SECOND_TRIAL_2 -1645007
-#define TEXT_SECOND_TRIAL_3 -1645008
-#define TEXT_SECOND_TRIAL_4 -1645009
+enum eSays
+{
+    TEXT_SECOND_TRIAL_1               = -1000637,
+    TEXT_SECOND_TRIAL_2               = -1000638,
+    TEXT_SECOND_TRIAL_3               = -1000639,
+    TEXT_SECOND_TRIAL_4               = -1000640,
+};
 
 struct Locations
 {
@@ -191,7 +194,7 @@ public:
 
     struct npc_secondTrialAI : public ScriptedAI
     {
-        npc_secondTrialAI(Creature *c) : ScriptedAI(c) {}
+        npc_secondTrialAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
         uint32 timer;
         uint8  questPhase;
@@ -226,7 +229,7 @@ public:
           {
               case CHAMPION_BLOODWRATH:
                   spellFlashLight = true;
-                  timerFlashLight = TIMER_FLASH_OF_LIGHT;
+                  timerFlashLight = 3225;
               break;
               case CHAMPION_LIGHTREND:
                   spellJustice    = true;
@@ -240,7 +243,7 @@ public:
                   spellFlashLight = true;
                   spellJudLight   = false;  // Misses Script Effect // http://www.wowhead.com/?spell=20271
                   spellCommand    = false;  // Misses Dummy // http://www.wowhead.com/?spell=20375
-                  timerFlashLight = TIMER_FLASH_OF_LIGHT;
+                  timerFlashLight = 3225;
                   timerJudLight   = 500;
                   timerCommand    = 1500;
               break;
@@ -278,7 +281,7 @@ public:
                 if (timerFlashLight <= diff)
                 {
                     DoCast(me, SPELL_FLASH_OF_LIGHT);
-                    timerFlashLight = TIMER_FLASH_OF_LIGHT +  rand()%TIMER_FLASH_OF_LIGHT;
+                    timerFlashLight = 3225 +  rand()%3225;
                 }
                 else
                     timerFlashLight -= diff;
@@ -289,7 +292,7 @@ public:
                 if (timerJustice <= diff)
                 {
                     DoCast(me, SPELL_SEAL_OF_JUSTICE);
-                    timerJustice = TIMER_SEAL_OF_JUSTICE + rand()%TIMER_SEAL_OF_JUSTICE;
+                    timerJustice = 10000 + rand()%10000;
                 }
                 else
                     timerJustice -= diff;
@@ -300,7 +303,7 @@ public:
                 if (timerJudLight <= diff)
                 {
                     DoCast(me, SPELL_JUDGEMENT_OF_LIGHT);
-                    timerJudLight = TIMER_JUDGEMENT_OF_LIGHT + rand()%TIMER_JUDGEMENT_OF_LIGHT;
+                    timerJudLight = 10000 + rand()%10000;
                 }
                 else
                     timerJudLight -= diff;
@@ -310,8 +313,8 @@ public:
             {
                   if (timerCommand <= diff)
                   {
-                      DoCast(me, TIMER_SEAL_OF_COMMAND);
-                      timerCommand = TIMER_SEAL_OF_COMMAND + rand()%TIMER_SEAL_OF_COMMAND;
+                      DoCast(me, SPELL_SEAL_OF_COMMAND);
+                      timerCommand = 20000 + rand()%20000;
                   }
                   else
                       timerCommand -= diff;
