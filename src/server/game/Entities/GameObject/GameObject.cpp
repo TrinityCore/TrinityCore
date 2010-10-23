@@ -38,8 +38,9 @@
 #include "OutdoorPvPMgr.h"
 #include "BattlegroundAV.h"
 #include "ScriptMgr.h"
+#include "CreatureAISelector.h"
 
-GameObject::GameObject() : WorldObject(), m_goValue(new GameObjectValue)
+GameObject::GameObject() : WorldObject(), m_goValue(new GameObjectValue), m_AI(NULL)
 {
     m_objectType |= TYPEMASK_GAMEOBJECT;
     m_objectTypeId = TYPEID_GAMEOBJECT;
@@ -72,6 +73,20 @@ GameObject::~GameObject()
     delete m_goValue;
     //if (m_uint32Values)                                      // field array can be not exist if GameOBject not loaded
     //    CleanupsBeforeDelete();
+}
+
+bool GameObject::AIM_Initialize()
+{
+
+    m_AI = FactorySelector::SelectGameObjectAI(this);
+    if (!m_AI) return false;
+    m_AI->InitializeAI();
+    return true;
+}
+
+std::string GameObject::GetAIName() const
+{
+    return ObjectMgr::GetGameObjectInfo(GetEntry())->AIName;
 }
 
 void GameObject::CleanupsBeforeDelete(bool /*finalCleanup*/)
@@ -224,6 +239,10 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMa
 
 void GameObject::Update(uint32 diff)
 {
+    if(!m_AI)
+        if (!AIM_Initialize())
+            sLog.outError("Could not initialize GameObjectAI");
+
     if (IS_MO_TRANSPORT(GetGUID()))
     {
         //((Transport*)this)->Update(p_time);
@@ -531,7 +550,7 @@ void GameObject::Update(uint32 diff)
             break;
         }
     }
-
+    AI()->UpdateAI(diff);
     sScriptMgr.OnGameObjectUpdate(this, diff);
 }
 
