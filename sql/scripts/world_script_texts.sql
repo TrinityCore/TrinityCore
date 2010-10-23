@@ -486,7 +486,11 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (0,-1000634,'Our Bloodmyst scouts have located our contact. The fool, Velen, will soon leave himself open and defenseless -- long enough for us to strike! Now get out of my sight before I vaporize you...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'geezle - SPARK_SAY_6'),
    (0,-1000635,'Yes, sir. It won''t happen again...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'geezle - GEEZLE_SAY_7'),
    (0,-1000636,'picks up the naga flag.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'geezle - EMOTE_SPARK'),
-   
+   (17807,-1000637,'Let the trial begin, Bloodwrath, attack!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'npc_second_trial_controller TEXT_SECOND_TRIAL_1'),
+   (17807,-1000638,'Champion Lightrend, make me proud!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'npc_second_trial_controller TEXT_SECOND_TRIAL_2'),
+   (17807,-1000639,'Show this upstart how a real Blood Knight fights, Swiftblade!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'npc_second_trial_controller TEXT_SECOND_TRIAL_3'),
+   (17807,-1000640,'Show $n the meaning of pain, Sunstriker!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'npc_second_trial_controller TEXT_SECOND_TRIAL_4'),
+
    (26588,-1800001,'Um... I think one of those wolves is back...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'12027'),
    (26588,-1800002,'He''s going for Mr. Floppy! ',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'12027'),
    (26588,-1800003,'Oh, no! Look, it''s another wolf, and it''s a biiiiiig one!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'12027'),
