@@ -24,6 +24,7 @@
 #include "Object.h"
 #include "LootMgr.h"
 #include "DatabaseEnv.h"
+#include "GameObjectAI.h"
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push,N), also any gcc version not support it at some platform
 #if defined(__GNUC__)
@@ -398,6 +399,7 @@ struct GameObjectInfo
             uint32 data[24];
         } raw;
     };
+    char const* AIName;
     uint32 ScriptId;
 
     // helpers
@@ -745,6 +747,9 @@ class GameObject : public WorldObject, public GridObject<GameObject>
 
         uint64 GetRotation() const { return m_rotation; }
         virtual uint32 GetScriptId() const { return GetGOInfo()->ScriptId; }
+        GameObjectAI* AI() const { return (GameObjectAI*)m_AI; }
+
+        std::string GetAIName() const;
     protected:
         uint32      m_spellId;
         time_t      m_respawnTime;                          // (secs) time of next respawn (or despawn if GO have owner()),
@@ -772,5 +777,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         uint16 m_LootMode;                                  // bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
     private:
         void SwitchDoorOrButton(bool activate, bool alternative = false);
+        GameObjectAI* m_AI;
+        bool AIM_Initialize();
 };
 #endif

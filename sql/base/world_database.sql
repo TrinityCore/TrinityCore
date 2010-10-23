@@ -2736,6 +2736,7 @@ CREATE TABLE `gameobject_template` (
   `data21` int(10) unsigned NOT NULL DEFAULT '0',
   `data22` int(10) unsigned NOT NULL DEFAULT '0',
   `data23` int(10) unsigned NOT NULL DEFAULT '0',
+  `AIName` char(64) NOT NULL DEFAULT '',
   `ScriptName` varchar(64) NOT NULL DEFAULT '',
   `WDBVerified` smallint(5) signed DEFAULT '1',
   PRIMARY KEY (`entry`),

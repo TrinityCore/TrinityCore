@@ -16,18 +16,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_CREATUREAISELECTOR_H
-#define TRINITY_CREATUREAISELECTOR_H
+#include "GameObjectAI.h"
 
-class CreatureAI;
-class Creature;
-class MovementGenerator;
-
-namespace FactorySelector
+//GameObjectAI::GameObjectAI(GameObject *g) : go(g) {}
+int GameObjectAI::Permissible(const GameObject* go)
 {
-    CreatureAI* selectAI(Creature *);
-    MovementGenerator* selectMovementGenerator(Creature *);
-    GameObjectAI* SelectGameObjectAI(GameObject *go);
+    if (go->GetAIName() == "GameObjectAI")
+        return PERMIT_BASE_SPECIAL;
+    return PERMIT_BASE_NO;
 }
-#endif
 
+NullGameObjectAI::NullGameObjectAI(GameObject *g) : GameObjectAI(g) {}
