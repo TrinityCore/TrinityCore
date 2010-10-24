@@ -22,12 +22,14 @@
 class CreatureAI;
 class Creature;
 class MovementGenerator;
+class GameObjectAI;
+class GameObject;
 
 namespace FactorySelector
 {
     CreatureAI* selectAI(Creature *);
     MovementGenerator* selectMovementGenerator(Creature *);
-    GameObjectAI* SelectGameObjectAI(GameObject *go);
+    GameObjectAI* SelectGameObjectAI(GameObject *);
 }
 #endif
 
