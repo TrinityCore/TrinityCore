@@ -90,6 +90,12 @@ bool Condition::Meets(Player * player, Unit* invoker)
             condMeets = (status == QUEST_STATUS_INCOMPLETE);
             break;
         }
+        case CONDITION_QUEST_COMPLETE:
+        {
+            QuestStatus status = player->GetQuestStatus(mConditionValue1);
+            condMeets = (status == QUEST_STATUS_COMPLETE);
+            break;
+        }
         case CONDITION_QUEST_NONE:
         {
             QuestStatus status = player->GetQuestStatus(mConditionValue1);
@@ -1116,6 +1122,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         case CONDITION_QUESTREWARDED:
         case CONDITION_QUESTTAKEN:
         case CONDITION_QUEST_NONE:
+        case CONDITION_QUEST_COMPLETE:
         {
             Quest const *Quest = sObjectMgr.GetQuestTemplate(cond->mConditionValue1);
             if (!Quest)
