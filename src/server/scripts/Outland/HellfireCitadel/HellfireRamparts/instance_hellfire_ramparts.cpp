@@ -41,6 +41,7 @@ class instance_ramparts : public InstanceMapScript
             uint32 m_auiEncounter[MAX_ENCOUNTER];
             uint64 m_uiChestNGUID;
             uint64 m_uiChestHGUID;
+            bool spawned;
 
             void Initialize()
             {
@@ -70,13 +71,19 @@ class instance_ramparts : public InstanceMapScript
                 switch(uiType)
                 {
                     case TYPE_VAZRUDEN:
-                        if (uiData == DONE && m_auiEncounter[1] == DONE)
+                        if (uiData == DONE && m_auiEncounter[1] == DONE && !spawned)
+                        {
                             DoRespawnGameObject(instance->IsHeroic() ? m_uiChestHGUID : m_uiChestNGUID, HOUR*IN_MILLISECONDS);
+                            spawned = true;
+                        }
                         m_auiEncounter[0] = uiData;
                         break;
                     case TYPE_NAZAN:
-                        if (uiData == DONE && m_auiEncounter[0] == DONE)
+                        if (uiData == DONE && m_auiEncounter[0] == DONE && !spawned)
+                        {
                             DoRespawnGameObject(instance->IsHeroic() ? m_uiChestHGUID : m_uiChestNGUID, HOUR*IN_MILLISECONDS);
+                            spawned = true;
+                        }
                         m_auiEncounter[1] = uiData;
                         break;
                 }
