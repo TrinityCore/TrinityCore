@@ -55,7 +55,8 @@ enum ConditionType
     CONDITION_SPELL                 = 25,                   // spell_id         0           +referenceID       true if knows spell
     CONDITION_NOITEM                = 26,                   // item_id          bank        +referenceID       true if player does not have any of the item (if 'bank' is set it searches in bank slots too)
     CONDITION_LEVEL                 = 27,                   // level            opt         +referenceID       true if player's level is equal to param1 (param2 can modify the statement)
-    CONDITION_MAX                   = 28                    // MAX
+    CONDITION_QUEST_COMPLETE        = 28,                   // quest_id         0           +referenceID       true if player has quest_id with all objectives complete, but not yet rewarded
+    CONDITION_MAX                   = 29                    // MAX
 };
 
 enum LevelConditionType
