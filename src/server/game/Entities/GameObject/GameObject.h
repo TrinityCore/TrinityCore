@@ -24,7 +24,8 @@
 #include "Object.h"
 #include "LootMgr.h"
 #include "DatabaseEnv.h"
-#include "GameObjectAI.h"
+
+class GameObjectAI;
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push,N), also any gcc version not support it at some platform
 #if defined(__GNUC__)
