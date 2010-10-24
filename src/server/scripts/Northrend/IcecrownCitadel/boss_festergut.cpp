@@ -80,10 +80,17 @@ class boss_festergut : public CreatureScript
         {
             boss_festergutAI(Creature* pCreature) : BossAI(pCreature, DATA_FESTERGUT)
             {
-                ASSERT(instance);
                 uiMaxInoculatedStack = 0;
                 uiInhaleCounter = 0;
                 gasDummyGUID = 0;
+            }
+
+            void InitializeAI()
+            {
+                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != GetScriptId(ICCScriptName))
+                    me->IsAIEnabled = false;
+                else if (!me->isDead())
+                    Reset();
             }
 
             void Reset()
@@ -115,7 +122,6 @@ class boss_festergut : public CreatureScript
                 DoScriptText(SAY_AGGRO, me);
                 if (Creature* gasDummy = GetClosestCreatureWithEntry(me, NPC_GAS_DUMMY, 100.0f, true))
                     gasDummyGUID = gasDummy->GetGUID();
-                instance->SetBossState(DATA_FESTERGUT, IN_PROGRESS);
                 if (Creature* professor = Unit::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
                     professor->AI()->DoAction(ACTION_FESTERGUT_COMBAT);
 
@@ -202,10 +208,19 @@ class boss_festergut : public CreatureScript
                             return;
                         }
                         case EVENT_VILE_GAS:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, -5.0f, true))
+                        {
+                            std::list<Unit*> targets;
+                            uint32 minTargets = RAID_MODE(3,8,3,8);
+                            SelectTargetList(targets, minTargets, SELECT_TARGET_RANDOM, -5.0f, true);
+                            float minDist = 0.0f;
+                            if (targets.size() >= minTargets)
+                                minDist = -5.0f;
+
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, minDist, true))
                                 DoCast(target, SPELL_VILE_GAS);
                             events.ScheduleEvent(EVENT_VILE_GAS, urand(28000, 35000));
                             break;
+                        }
                         case EVENT_GAS_SPORE:
                             DoScriptText(EMOTE_WARN_GAS_SPORE, me);
                             me->CastCustomSpell(SPELL_GAS_SPORE, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2,3,2,3), me);

@@ -233,10 +233,17 @@ class boss_deathbringer_saurfang : public CreatureScript
         {
             boss_deathbringer_saurfangAI(Creature* pCreature) : BossAI(pCreature, DATA_DEATHBRINGER_SAURFANG)
             {
-                ASSERT(instance);
                 ASSERT(pCreature->GetVehicleKit()); // we dont actually use it, just check if exists
                 bIntroDone = false;
                 uiFallenChampionCount = 0;
+            }
+
+            void InitializeAI()
+            {
+                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != GetScriptId(ICCScriptName))
+                    me->IsAIEnabled = false;
+                else if (!me->isDead())
+                    Reset();
             }
 
             void Reset()

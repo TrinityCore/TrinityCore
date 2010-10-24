@@ -187,7 +187,7 @@ class boss_janalai : public CreatureScript
         //        DoZoneInCombat();
             }
 
-            void DamageDealt(Unit *pTarget, uint32 &damage)
+            void DamageDealt(Unit *pTarget, uint32 &damage, DamageEffectType /*damagetype*/)
             {
                 if (isFlameBreathing)
                 {

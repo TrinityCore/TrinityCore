@@ -549,7 +549,7 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
         pVictim->ToCreature()->AI()->DamageTaken(this, damage);
 
     if (GetTypeId() == TYPEID_UNIT && this->ToCreature()->IsAIEnabled)
-        this->ToCreature()->AI()->DamageDealt(pVictim, damage);
+        this->ToCreature()->AI()->DamageDealt(pVictim, damage, damagetype);
 
     if (damagetype != NODAMAGE)
     {
@@ -7928,6 +7928,13 @@ bool Unit::HandleAuraProc(Unit * pVictim, uint32 damage, Aura * triggeredByAura,
                 // Nevermelting Ice Crystal
                 case 71564:
                     RemoveAuraFromStack(71564);
+                    *handled = true;
+                    break;
+                case 71756:
+                case 72782:
+                case 72783:
+                case 72784:
+                    RemoveAuraFromStack(dummySpell->Id);
                     *handled = true;
                     break;
             }

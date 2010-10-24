@@ -3928,6 +3928,13 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ENEMY;
             count++;
             break;
+        case 71708: // Empowered Flare
+        case 72785: // Empowered Flare
+        case 72786: // Empowered Flare
+        case 72787: // Empowered Flare
+            spellInfo->AttributesEx3 |= SPELL_ATTR_EX3_NO_DONE_BONUS;
+            count++;
+            break;
         default:
             break;
         }

@@ -94,7 +94,7 @@ class CreatureAI : public UnitAI
         virtual void EnterCombat(Unit* /*enemy*/) {}
 
         // Called at any Damage to any victim (before damage apply)
-        virtual void DamageDealt(Unit * /*done_to*/, uint32 & /*damage*/) { }
+        virtual void DamageDealt(Unit * /*done_to*/, uint32 & /*damage*/, DamageEffectType /*damagetype*/) { }
 
         // Called at any Damage from any attacker (before damage apply)
         // Note: it for recalculation damage or special reaction at damage

@@ -81,12 +81,19 @@ class boss_lord_marrowgar : public CreatureScript
         {
             boss_lord_marrowgarAI(Creature *pCreature) : BossAI(pCreature, DATA_LORD_MARROWGAR)
             {
-                ASSERT(instance);
                 bIntroDone = false;
                 uiBoneStormDuration = RAID_MODE(20000,30000,20000,30000);
                 fBaseSpeed = pCreature->GetSpeedRate(MOVE_RUN);
                 bBoneSlice = false;
                 coldflameLastPos.Relocate(pCreature);
+            }
+
+            void InitializeAI()
+            {
+                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != GetScriptId(ICCScriptName))
+                    me->IsAIEnabled = false;
+                else if (!me->isDead())
+                    Reset();
             }
 
             void Reset()
@@ -349,7 +356,7 @@ class npc_bone_spike : public CreatureScript
             void JustDied(Unit * /*killer*/)
             {
                 events.Reset();
-                if (Unit* trapped = Unit::GetUnit((*me), uiTrappedGUID))
+                if (Player* trapped = ObjectAccessor::GetPlayer(*me, uiTrappedGUID))
                     trapped->RemoveAurasDueToSpell(SPELL_IMPALED);
             }
 
@@ -364,7 +371,7 @@ class npc_bone_spike : public CreatureScript
                     return;
 
                 events.Update(diff);
-                Unit* trapped = Unit::GetUnit(*me, uiTrappedGUID);
+                Player* trapped = ObjectAccessor::GetPlayer(*me, uiTrappedGUID);
                 if ((trapped && trapped->isAlive() && !trapped->HasAura(SPELL_IMPALED)) || !trapped)
                     me->Kill(me);
 
@@ -373,10 +380,11 @@ class npc_bone_spike : public CreatureScript
                         instance->SetData(DATA_BONED_ACHIEVEMENT, uint32(false));
             }
 
-            void SetTrappedUnit(Unit* unit)
+            void SetGUID(const uint64& guid, int32 /*type = 0*/)
             {
-                unit->EnterVehicle(vehicle, 0);
-                uiTrappedGUID = unit->GetGUID();
+                uiTrappedGUID = guid;
+                if (Player* target = ObjectAccessor::GetPlayer(*me, guid))
+                    target->EnterVehicle(vehicle, 0);
             }
 
             void PassengerBoarded(Unit * who, int8 /*seatId*/, bool apply)
@@ -460,9 +468,9 @@ class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
                     if (!target)
                         break;
                     yell = true;
-                    //marrowgarAI->DoCast(*itr, SPELL_IMPALE);    // this is the proper spell but if we use it we dont have any way to assign a victim to it
+                    //GetCaster()->CastSpell(target, SPELL_IMPALE, true); // this is the proper spell but if we use it we dont have any way to assign a victim to it
                     Creature* pBone = GetCaster()->SummonCreature(NPC_BONE_SPIKE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_CORPSE_DESPAWN);
-                    CAST_AI(npc_bone_spike::npc_bone_spikeAI, pBone->AI())->SetTrappedUnit(target);
+                    pBone->AI()->SetGUID(target->GetGUID());
                 }
 
                 if (yell)
