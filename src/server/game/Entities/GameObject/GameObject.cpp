@@ -18,7 +18,7 @@
 
 #include "Common.h"
 #include "QuestDef.h"
-#include "GameObject.h"
+#include "GameObjectAI.h"
 #include "ObjectMgr.h"
 #include "PoolMgr.h"
 #include "SpellMgr.h"
