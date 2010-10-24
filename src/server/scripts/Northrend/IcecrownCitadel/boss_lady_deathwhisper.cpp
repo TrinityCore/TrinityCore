@@ -160,9 +160,16 @@ class boss_lady_deathwhisper : public CreatureScript
         {
             boss_lady_deathwhisperAI(Creature* pCreature) : BossAI(pCreature, DATA_LADY_DEATHWHISPER)
             {
-                ASSERT(instance);
                 bIntroDone = false;
                 uiDominateMindCount = RAID_MODE(0,1,1,3);
+            }
+
+            void InitializeAI()
+            {
+                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != GetScriptId(ICCScriptName))
+                    me->IsAIEnabled = false;
+                else if (!me->isDead())
+                    Reset();
             }
 
             void Reset()

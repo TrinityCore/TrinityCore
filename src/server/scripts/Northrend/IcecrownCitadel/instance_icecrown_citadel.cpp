@@ -18,22 +18,27 @@
 #include "ScriptPCH.h"
 #include "icecrown_citadel.h"
 
-static const DoorData doorData[8] =
+static const DoorData doorData[] =
 {
-    {GO_LORD_MARROWGAR_S_ENTRANCE,        DATA_LORD_MARROWGAR,        DOOR_TYPE_ROOM,    BOUNDARY_N   },
-    {GO_ICEWALL,                          DATA_LORD_MARROWGAR,        DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
-    {GO_DOODAD_ICECROWN_ICEWALL02,        DATA_LORD_MARROWGAR,        DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
-    {GO_ORATORY_OF_THE_DAMNED_ENTRANCE,   DATA_LADY_DEATHWHISPER,     DOOR_TYPE_ROOM,    BOUNDARY_N   },
-    {GO_ORANGE_PLAGUE_MONSTER_ENTRANCE,   DATA_FESTERGUT,             DOOR_TYPE_ROOM,    BOUNDARY_E   },
-    {GO_GREEN_PLAGUE_MONSTER_ENTRANCE,    DATA_ROTFACE,               DOOR_TYPE_ROOM,    BOUNDARY_E   },
-    {GO_SCIENTIST_ENTRANCE,               DATA_PROFESSOR_PUTRICIDE,   DOOR_TYPE_ROOM,    BOUNDARY_E   },
-    {0,                                   0,                          DOOR_TYPE_ROOM,    BOUNDARY_NONE} // END
+    {GO_LORD_MARROWGAR_S_ENTRANCE,           DATA_LORD_MARROWGAR,        DOOR_TYPE_ROOM,    BOUNDARY_N   },
+    {GO_ICEWALL,                             DATA_LORD_MARROWGAR,        DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
+    {GO_DOODAD_ICECROWN_ICEWALL02,           DATA_LORD_MARROWGAR,        DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
+    {GO_ORATORY_OF_THE_DAMNED_ENTRANCE,      DATA_LADY_DEATHWHISPER,     DOOR_TYPE_ROOM,    BOUNDARY_N   },
+    {GO_ORANGE_PLAGUE_MONSTER_ENTRANCE,      DATA_FESTERGUT,             DOOR_TYPE_ROOM,    BOUNDARY_E   },
+    {GO_GREEN_PLAGUE_MONSTER_ENTRANCE,       DATA_ROTFACE,               DOOR_TYPE_ROOM,    BOUNDARY_E   },
+    {GO_SCIENTIST_ENTRANCE,                  DATA_PROFESSOR_PUTRICIDE,   DOOR_TYPE_ROOM,    BOUNDARY_E   },
+    {GO_CRIMSON_HALL_DOOR,                   DATA_BLOOD_PRINCE_COUNCIL,  DOOR_TYPE_ROOM,    BOUNDARY_S   },
+    {GO_BLOOD_ELF_COUNCIL_DOOR,              DATA_BLOOD_PRINCE_COUNCIL,  DOOR_TYPE_PASSAGE, BOUNDARY_W   },
+    {GO_BLOOD_ELF_COUNCIL_DOOR_RIGHT,        DATA_BLOOD_PRINCE_COUNCIL,  DOOR_TYPE_PASSAGE, BOUNDARY_E   },
+    {GO_DOODAD_ICECROWN_BLOODPRINCE_DOOR_01, DATA_BLOOD_QUEEN_LANA_THEL, DOOR_TYPE_ROOM,    BOUNDARY_S   },
+    {GO_DOODAD_ICECROWN_GRATE_01,            DATA_BLOOD_QUEEN_LANA_THEL, DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
+    {0,                                      0,                          DOOR_TYPE_ROOM,    BOUNDARY_NONE} // END
 };
 
 class instance_icecrown_citadel : public InstanceMapScript
 {
     public:
-        instance_icecrown_citadel() : InstanceMapScript("instance_icecrown_citadel", 631) { }
+        instance_icecrown_citadel() : InstanceMapScript(ICCScriptName, 631) { }
 
         struct instance_icecrown_citadel_InstanceMapScript : public InstanceScript
         {
@@ -47,16 +52,19 @@ class instance_icecrown_citadel : public InstanceMapScript
                 uiSaurfangEventNPC = 0;
                 uiDeathbringersCache = 0;
                 uiSaurfangTeleport = 0;
-                memset(uiPutricidePipes, 0, 2*sizeof(uint32));
-                memset(uiPutricideGates, 0, 2*sizeof(uint32));
+                memset(uiPutricidePipes, 0, 2*sizeof(uint64));
+                memset(uiPutricideGates, 0, 2*sizeof(uint64));
                 uiPutricideCollision = 0;
                 uiFestergut = 0;
                 uiRotface = 0;
                 uiProfessorPutricide = 0;
-                uiPutricideTable;
+                uiPutricideTable = 0;
+                memset(uiBloodCouncil, 0, 3*sizeof(uint64));
+                uiBloodCouncilController = 0;
                 isBonedEligible = true;
                 isOozeDanceEligible = true;
                 isNauseaEligible = true;
+                isOrbWhispererEligible = true;
             }
 
             void OnCreatureCreate(Creature* creature, bool /*add*/)
@@ -123,6 +131,18 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case NPC_PROFESSOR_PUTRICIDE:
                         uiProfessorPutricide = creature->GetGUID();
                         break;
+                    case NPC_PRINCE_KELESETH:
+                        uiBloodCouncil[0] = creature->GetGUID();
+                        break;
+                    case NPC_PRINCE_TALDARAM:
+                        uiBloodCouncil[1] = creature->GetGUID();
+                        break;
+                    case NPC_PRINCE_VALANAR:
+                        uiBloodCouncil[2] = creature->GetGUID();
+                        break;
+                    case NPC_BLOOD_ORB_CONTROLLER:
+                        uiBloodCouncilController = creature->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -139,6 +159,11 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_ORANGE_PLAGUE_MONSTER_ENTRANCE:
                     case GO_GREEN_PLAGUE_MONSTER_ENTRANCE:
                     case GO_SCIENTIST_ENTRANCE:
+                    case GO_CRIMSON_HALL_DOOR:
+                    case GO_BLOOD_ELF_COUNCIL_DOOR:
+                    case GO_BLOOD_ELF_COUNCIL_DOOR_RIGHT:
+                    case GO_DOODAD_ICECROWN_BLOODPRINCE_DOOR_01:
+                    case GO_DOODAD_ICECROWN_GRATE_01:
                         AddDoor(pGo, add);
                         break;
                     case GO_LADY_DEATHWHISPER_ELEVATOR:
@@ -218,7 +243,14 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return uiProfessorPutricide;
                     case DATA_PUTRICIDE_TABLE:
                         return uiPutricideTable;
-                        break;
+                    case DATA_PRINCE_KELESETH_GUID:
+                        return uiBloodCouncil[0];
+                    case DATA_PRINCE_TALDARAM_GUID:
+                        return uiBloodCouncil[1];
+                    case DATA_PRINCE_VALANAR_GUID:
+                        return uiBloodCouncil[2];
+                    case DATA_BLOOD_PRINCES_CONTROL:
+                        return uiBloodCouncilController;
                     default:
                         break;
                 }
@@ -290,12 +322,13 @@ class instance_icecrown_citadel : public InstanceMapScript
                             HandleGameObject(uiPutricidePipes[1], true);
                         }
                         break;
-                    case DATA_PROFESSOR_PUTRICIDE:
                     case DATA_BLOOD_PRINCE_COUNCIL:
                     case DATA_BLOOD_QUEEN_LANA_THEL:
                     case DATA_VALITHRIA_DREAMWALKER:
                     case DATA_SINDRAGOSA:
                     case DATA_THE_LICH_KING:
+                        break;
+                    default:
                         break;
                  }
 
@@ -312,8 +345,11 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case DATA_OOZE_DANCE_ACHIEVEMENT:
                         isOozeDanceEligible = data ? true : false;
                         break;
-                    case DATA_NAUSEA___ACHIEVEMENT:
+                    case DATA_NAUSEA_ACHIEVEMENT:
                         isNauseaEligible = data ? true : false;
+                        break;
+                    case DATA_ORB_WHISPERER_ACHIEVEMENT:
+                        isOrbWhispererEligible = data ? true : false;
                         break;
                     default:
                         break;
@@ -339,6 +375,11 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case CRITERIA_NAUSEA_10H:
                     case CRITERIA_NAUSEA_25H:
                         return isNauseaEligible;
+                    case CRITERIA_ORB_WHISPERER_10N:
+                    case CRITERIA_ORB_WHISPERER_25N:
+                    case CRITERIA_ORB_WHISPERER_10H:
+                    case CRITERIA_ORB_WHISPERER_25H:
+                        return isOrbWhispererEligible;
                     default:
                         break;
                 }
@@ -401,9 +442,12 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 uiRotface;
             uint64 uiProfessorPutricide;
             uint64 uiPutricideTable;
+            uint64 uiBloodCouncil[3];
+            uint64 uiBloodCouncilController;
             bool isBonedEligible;
             bool isOozeDanceEligible;
             bool isNauseaEligible;
+            bool isOrbWhispererEligible;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* pMap) const
