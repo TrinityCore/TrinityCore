@@ -50,8 +50,6 @@ enum EP_EastwallTowerWorldStates
 {
     EP_EWT_A = 2354,
     EP_EWT_H = 2356,
-    EP_EWT_A_P = 2357, // ally progressing
-    EP_EWT_H_P = 2358,
     EP_EWT_N_A = 2359, // ally conquested
     EP_EWT_N_H = 2360,
     EP_EWT_N = 2361
@@ -62,8 +60,6 @@ enum EP_NorthpassTowerWorldStates
     EP_NPT_N = 2352,
     EP_NPT_N_A = 2362,
     EP_NPT_N_H = 2363,
-    EP_NPT_A_P = 2364,
-    EP_NPT_H_P = 2365,
     EP_NPT_A = 2372,
     EP_NPT_H = 2373
 };
@@ -72,8 +68,6 @@ enum EP_PlagewoodTowerWorldStates
 {
     EP_PWT_N_A = 2366,
     EP_PWT_N_H = 2353, //2367 not present! use neutral!
-    EP_PWT_A_P = 2368,
-    EP_PWT_H_P = 2369,
     EP_PWT_A = 2370,
     EP_PWT_H = 2371,
     EP_PWT_N = 2353
@@ -83,8 +77,6 @@ enum EP_CrownGuardTowerWorldStates
 {
     EP_CGT_N_A = 2374,
     EP_CGT_N_H = 2375,
-    EP_CGT_A_P = 2376,
-    EP_CGT_H_P = 2377,
     EP_CGT_A = 2378,
     EP_CGT_H = 2379,
     EP_CGT_N = 2355
