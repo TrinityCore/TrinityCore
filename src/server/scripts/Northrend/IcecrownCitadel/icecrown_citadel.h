@@ -18,6 +18,8 @@
 #ifndef DEF_ICECROWN_CITADEL_H
 #define DEF_ICECROWN_CITADEL_H
 
+static const char* ICCScriptName = "instance_icecrown_citadel";
+
 enum eSharedSpells
 {
     SPELL_BERSERK   = 26662,
@@ -26,25 +28,29 @@ enum eSharedSpells
 
 enum eData
 {
-    DATA_LORD_MARROWGAR         = 0,
-    DATA_LADY_DEATHWHISPER      = 1,
-    DATA_GUNSHIP_EVENT          = 2,
-    DATA_DEATHBRINGER_SAURFANG  = 3,
-    DATA_FESTERGUT              = 4,
-    DATA_ROTFACE                = 5,
-    DATA_PROFESSOR_PUTRICIDE    = 6,
-    DATA_BLOOD_PRINCE_COUNCIL   = 7,
-    DATA_BLOOD_QUEEN_LANA_THEL  = 8,
-    DATA_VALITHRIA_DREAMWALKER  = 9,
-    DATA_SINDRAGOSA             = 10,
-    DATA_THE_LICH_KING          = 11,
+    DATA_LORD_MARROWGAR             = 0,
+    DATA_LADY_DEATHWHISPER          = 1,
+    DATA_GUNSHIP_EVENT              = 2,
+    DATA_DEATHBRINGER_SAURFANG      = 3,
+    DATA_FESTERGUT                  = 4,
+    DATA_ROTFACE                    = 5,
+    DATA_PROFESSOR_PUTRICIDE        = 6,
+    DATA_BLOOD_PRINCE_COUNCIL       = 7,
+    DATA_BLOOD_QUEEN_LANA_THEL      = 8,
+    DATA_VALITHRIA_DREAMWALKER      = 9,
+    DATA_SINDRAGOSA                 = 10,
+    DATA_THE_LICH_KING              = 11,
 
-    DATA_SAURFANG_EVENT_NPC     = 12,
-
-    DATA_BONED_ACHIEVEMENT      = 13,
-    DATA_OOZE_DANCE_ACHIEVEMENT = 14,
-    DATA_PUTRICIDE_TABLE        = 15,
-    DATA_NAUSEA___ACHIEVEMENT   = 16,
+    DATA_SAURFANG_EVENT_NPC         = 12,
+    DATA_BONED_ACHIEVEMENT          = 13,
+    DATA_OOZE_DANCE_ACHIEVEMENT     = 14,
+    DATA_PUTRICIDE_TABLE            = 15,
+    DATA_NAUSEA_ACHIEVEMENT         = 16,
+    DATA_ORB_WHISPERER_ACHIEVEMENT  = 17,
+    DATA_PRINCE_KELESETH_GUID       = 18,
+    DATA_PRINCE_TALDARAM_GUID       = 19,
+    DATA_PRINCE_VALANAR_GUID        = 20,
+    DATA_BLOOD_PRINCES_CONTROL      = 21,
 };
 
 #define MAX_ENCOUNTER 12
@@ -110,30 +116,48 @@ enum eCreatures
     NPC_VOLATILE_OOZE                           = 37697,
     NPC_CHOKING_GAS_BOMB                        = 38159,
     NPC_TEAR_GAS_TARGET_STALKER                 = 38317,
+
+    // Blood Prince Council
+    NPC_PRINCE_KELESETH                         = 37972,
+    NPC_PRINCE_TALDARAM                         = 37973,
+    NPC_PRINCE_VALANAR                          = 37970,
+    NPC_BLOOD_ORB_CONTROLLER                    = 38008,
+    NPC_FLOATING_TRIGGER                        = 30298,
+    NPC_DARK_NUCLEUS                            = 38369,
+    NPC_BALL_OF_FLAME                           = 38332,
+    NPC_BALL_OF_INFERNO_FLAME                   = 38451,
+    NPC_KINETIC_BOMB_TARGET                     = 38458,
+    NPC_KINETIC_BOMB                            = 38454,
+    NPC_SHOCK_VORTEX                            = 38422,
 };
 
 enum eGameobjects
 {
-    GO_DOODAD_ICECROWN_ICEWALL02        = 201910,
-    GO_ICEWALL                          = 201911,
-    GO_LORD_MARROWGAR_S_ENTRANCE        = 201857,
-    GO_ORATORY_OF_THE_DAMNED_ENTRANCE   = 201563,
-    GO_LADY_DEATHWHISPER_ELEVATOR       = 202220,
-    GO_SAURFANG_S_DOOR                  = 201825,
-    GO_DEATHBRINGER_S_CACHE_10N         = 202239,
-    GO_DEATHBRINGER_S_CACHE_25N         = 202240,
-    GO_DEATHBRINGER_S_CACHE_10H         = 202238,
-    GO_DEATHBRINGER_S_CACHE_25H         = 202241,
-    GO_SCOURGE_TRANSPORTER_SAURFANG     = 202244,
-    GO_ORANGE_PLAGUE_MONSTER_ENTRANCE   = 201371,
-    GO_GREEN_PLAGUE_MONSTER_ENTRANCE    = 201370,
-    GO_SCIENTIST_AIRLOCK_DOOR_COLLISION = 201612,
-    GO_SCIENTIST_AIRLOCK_DOOR_ORANGE    = 201613,
-    GO_SCIENTIST_AIRLOCK_DOOR_GREEN     = 201614,
-    GO_DOODAD_ICECROWN_ORANGETUBES02    = 201617,
-    GO_DOODAD_ICECROWN_GREENTUBES02     = 201618,
-    GO_SCIENTIST_ENTRANCE               = 201372,
-    GO_DRINK_ME                         = 201584,
+    GO_DOODAD_ICECROWN_ICEWALL02            = 201910,
+    GO_ICEWALL                              = 201911,
+    GO_LORD_MARROWGAR_S_ENTRANCE            = 201857,
+    GO_ORATORY_OF_THE_DAMNED_ENTRANCE       = 201563,
+    GO_LADY_DEATHWHISPER_ELEVATOR           = 202220,
+    GO_SAURFANG_S_DOOR                      = 201825,
+    GO_DEATHBRINGER_S_CACHE_10N             = 202239,
+    GO_DEATHBRINGER_S_CACHE_25N             = 202240,
+    GO_DEATHBRINGER_S_CACHE_10H             = 202238,
+    GO_DEATHBRINGER_S_CACHE_25H             = 202241,
+    GO_SCOURGE_TRANSPORTER_SAURFANG         = 202244,
+    GO_ORANGE_PLAGUE_MONSTER_ENTRANCE       = 201371,
+    GO_GREEN_PLAGUE_MONSTER_ENTRANCE        = 201370,
+    GO_SCIENTIST_AIRLOCK_DOOR_COLLISION     = 201612,
+    GO_SCIENTIST_AIRLOCK_DOOR_ORANGE        = 201613,
+    GO_SCIENTIST_AIRLOCK_DOOR_GREEN         = 201614,
+    GO_DOODAD_ICECROWN_ORANGETUBES02        = 201617,
+    GO_DOODAD_ICECROWN_GREENTUBES02         = 201618,
+    GO_SCIENTIST_ENTRANCE                   = 201372,
+    GO_DRINK_ME                             = 201584,
+    GO_CRIMSON_HALL_DOOR                    = 201376,
+    GO_BLOOD_ELF_COUNCIL_DOOR               = 201378,
+    GO_BLOOD_ELF_COUNCIL_DOOR_RIGHT         = 201377,
+    GO_DOODAD_ICECROWN_BLOODPRINCE_DOOR_01  = 201746,
+    GO_DOODAD_ICECROWN_GRATE_01             = 201755,
 };
 
 enum eAchievementCriteria
@@ -150,6 +174,10 @@ enum eAchievementCriteria
     CRITERIA_NAUSEA_25N             = 12968,
     CRITERIA_NAUSEA_10H             = 12988,
     CRITERIA_NAUSEA_25H             = 12981,
+    CRITERIA_ORB_WHISPERER_10N      = 13033,
+    CRITERIA_ORB_WHISPERER_25N      = 12969,
+    CRITERIA_ORB_WHISPERER_10H      = 13034,
+    CRITERIA_ORB_WHISPERER_25H      = 13032,
 };
 
 enum ePutricideActions

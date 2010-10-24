@@ -2207,7 +2207,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
             dist = (float)target->GetSpellRadiusForTarget(target, sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
             if (dist < objSize)
                 dist = objSize;
-            else if (cur == TARGET_DEST_CASTER_RANDOM)
+            else if (cur == TARGET_DEST_TARGET_RANDOM)
                 dist = objSize + (dist - objSize) * (float)rand_norm();
 
             switch(cur)

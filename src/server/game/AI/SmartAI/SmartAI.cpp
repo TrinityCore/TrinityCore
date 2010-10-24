@@ -98,7 +98,7 @@ void SmartAI::SpellHitTarget(Unit* /*target*/, const SpellEntry* /*pSpell*/)
 {
 }
 
-void SmartAI::DamageTaken(Unit* /*done_by*/, uint32& /*damage*/)
+void SmartAI::DamageTaken(Unit* /*done_by*/, uint32& /*damage*/, DamageEffectType /*damagetype*/)
 {
 }
 

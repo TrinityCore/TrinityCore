@@ -5259,7 +5259,6 @@ void ObjectMgr::ValidateSpellScripts()
         SpellEntry const * spellEntry = sSpellStore.LookupEntry(itr->first);
         std::vector<std::pair<SpellScriptLoader *, SpellScriptsMap::iterator> > SpellScriptLoaders;
         sScriptMgr.CreateSpellScriptLoaders(itr->first, SpellScriptLoaders);
-        SpellScriptsMap::iterator bitr;
         itr = mSpellScripts.upper_bound(itr->first);
 
         for (std::vector<std::pair<SpellScriptLoader *, SpellScriptsMap::iterator> >::iterator sitr = SpellScriptLoaders.begin(); sitr != SpellScriptLoaders.end(); ++sitr)
