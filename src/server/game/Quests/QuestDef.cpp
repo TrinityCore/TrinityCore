@@ -109,7 +109,7 @@ Quest::Quest(Field * questRecord)
     for (int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
         RewRepValue[i] = questRecord[107+i].GetInt32();
 
-    RewHonorableKills = questRecord[112].GetUInt32();
+    RewHonorAddition = questRecord[112].GetUInt32();
     RewHonorMultiplier = questRecord[113].GetFloat();
     RewOrReqMoney = questRecord[114].GetInt32();
     RewMoneyMaxLevel = questRecord[115].GetUInt32();
