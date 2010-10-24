@@ -132,11 +132,6 @@ class MapManager
         typedef std::map<uint32, TransportSet> TransportMap;
         TransportMap m_TransportsByMap;
 
-        typedef std::set<TransportCreatureProto *> TransportNPCSet;
-        TransportNPCSet m_TransportNPCs;
-        typedef std::map<uint32, TransportNPCSet> TransportNPCMap;
-        TransportNPCMap m_TransportNPCMap;
-
         bool CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck = false);
         uint32 GenerateInstanceId() { return ++i_MaxInstanceId; }
         void InitMaxInstanceId();

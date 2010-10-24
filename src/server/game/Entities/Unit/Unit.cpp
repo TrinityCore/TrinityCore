@@ -13564,6 +13564,10 @@ void Unit::CleanupsBeforeDelete(bool finalCleanup)
     DeleteThreatList();
     getHostileRefManager().setOnlineOfflineState(false);
     GetMotionMaster()->Clear(false);                    // remove different non-standard movement generators.
+
+    if (Creature* thisCreature = ToCreature())
+        if (GetTransport())
+            GetTransport()->RemovePassenger(thisCreature);
 }
 
 void Unit::UpdateCharmAI()

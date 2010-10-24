@@ -2454,3 +2454,20 @@ time_t Creature::GetLinkedCreatureRespawnTime() const
 
     return 0;
 }
+
+void Creature::FarTeleportTo(Map* map, float X, float Y, float Z, float O)
+{
+    InterruptNonMeleeSpells(true);
+    CombatStop();
+    ClearComboPointHolders();
+    DeleteThreatList();
+    GetMotionMaster()->Clear(false);
+    DestroyForNearbyPlayers();
+
+    RemoveFromWorld();
+    ResetMap();
+    SetMap(map);
+    AddToWorld();
+    
+    SetPosition(X, Y, Z, O, true);
+}
