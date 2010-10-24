@@ -66,6 +66,14 @@ class UnitAI
         Unit* SelectTarget(SelectAggroTarget targetType, uint32 position = 0, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
         void SelectTargetList(std::list<Unit*> &targetList, uint32 num, SelectAggroTarget targetType, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
 
+        // Called at any Damage to any victim (before damage apply)
+        virtual void DamageDealt(Unit* /*victim*/, uint32& /*damage*/, DamageEffectType /*damageType*/) { }
+
+        // Called at any Damage from any attacker (before damage apply)
+        // Note: it for recalculation damage or special reaction at damage
+        // for attack reaction use AttackedBy called for not DOT damage in Unit::DealDamage also
+        virtual void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) {}
+
         // Select the targets satifying the predicate.
         // predicate shall extend std::unary_function<Unit *, bool>
         template<class PREDICATE> Unit* SelectTarget(SelectAggroTarget targetType, uint32 position, PREDICATE predicate)
