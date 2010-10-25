@@ -33,7 +33,7 @@ class GameObjectAI
         explicit GameObjectAI(GameObject *g) : go(g) {}
         virtual ~GameObjectAI() {}
 
-        virtual void UpdateAI(const uint32 diff) {}
+        virtual void UpdateAI(const uint32 /*diff*/) {}
 
         virtual void InitializeAI() { Reset(); }
 
@@ -47,8 +47,8 @@ class NullGameObjectAI : public GameObjectAI
     public:
         explicit NullGameObjectAI(GameObject *g);
 
-        void UpdateAI(const uint32) {}
+        void UpdateAI(const uint32 /*diff*/) {}
 
-        static int Permissible(const GameObject* go) { return PERMIT_BASE_IDLE;  }
+        static int Permissible(const GameObject* /*go*/) { return PERMIT_BASE_IDLE; }
 };
 #endif

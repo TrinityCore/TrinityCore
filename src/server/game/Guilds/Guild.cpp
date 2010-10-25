@@ -2674,7 +2674,7 @@ void Guild::_SendBankContentUpdate(MoveItemData* pSrc, MoveItemData* pDest) cons
 {
     ASSERT(pSrc->IsBank() || pDest->IsBank());
 
-    uint8 tabId;
+    uint8 tabId = 0;
     SlotIds slots;
     if (pSrc->IsBank()) // B ->
     {
