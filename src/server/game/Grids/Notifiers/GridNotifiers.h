@@ -1214,6 +1214,19 @@ namespace Trinity
         uint32 entry;
     };
 
+    class AllWorldObjectsInRange
+    {
+    public:
+        AllWorldObjectsInRange(const WorldObject* pObject, float fMaxRange) : m_pObject(pObject), m_fRange(fMaxRange) {}
+        bool operator() (WorldObject* pGo)
+        {
+            return m_pObject->IsWithinDist(pGo, m_fRange, false);
+        }
+    private:
+        const WorldObject* m_pObject;
+        float m_fRange;
+    };
+
     // Player checks and do
 
     // Prepare using Builder localized packets with caching and send to player
