@@ -91,6 +91,21 @@ void CreatureGroupManager::LoadCreatureFormations()
         return;
     }
 
+    std::set<uint32> guidSet;
+
+    QueryResult guidResult = WorldDatabase.PQuery("SELECT guid FROM creature");
+    if (guidResult)
+    {
+        do 
+        {
+            Field *fields = guidResult->Fetch();
+            uint32 guid = fields[0].GetUInt32();
+
+            guidSet.insert(guid);
+
+        } while (guidResult->NextRow());
+    }
+
     uint64 total_records = result->GetRowCount();
     barGoLink bar(total_records);
     Field *fields;
@@ -121,16 +136,14 @@ void CreatureGroupManager::LoadCreatureFormations()
 
         // check data correctness
         {
-            QueryResult result = WorldDatabase.PQuery("SELECT guid FROM creature WHERE guid = %u", group_member->leaderGUID);
-            if (!result)
+            if (guidSet.find(group_member->leaderGUID) == guidSet.end())
             {
                 sLog.outErrorDb("creature_formations table leader guid %u incorrect (not exist)", group_member->leaderGUID);
                 delete group_member;
                 continue;
             }
 
-            result = WorldDatabase.PQuery("SELECT guid FROM creature WHERE guid = %u", memberGUID);
-            if (!result)
+            if (guidSet.find(memberGUID) == guidSet.end())
             {
                 sLog.outErrorDb("creature_formations table member guid %u incorrect (not exist)", memberGUID);
                 delete group_member;
