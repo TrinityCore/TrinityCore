@@ -779,7 +779,7 @@ Map::PlayerRelocation(Player *player, float x, float y, float z, float orientati
 }
 
 void
-Map::CreatureRelocation(Creature *creature, float x, float y, float z, float ang)
+Map::CreatureRelocation(Creature *creature, float x, float y, float z, float ang, bool respawnRelocationOnFail)
 {
     ASSERT(CheckGridIntegrity(creature,false));
 
@@ -787,6 +787,9 @@ Map::CreatureRelocation(Creature *creature, float x, float y, float z, float ang
 
     CellPair new_val = Trinity::ComputeCellPair(x, y);
     Cell new_cell(new_val);
+
+    if (!respawnRelocationOnFail && !getNGrid(new_cell.GridX(), new_cell.GridY()))
+        return;
 
     // delay creature move for grid/cell to grid/cell moves
     if (old_cell.DiffCell(new_cell) || old_cell.DiffGrid(new_cell))

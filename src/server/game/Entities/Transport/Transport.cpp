@@ -236,8 +236,6 @@ bool Transport::Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, floa
     if (dynflags)
         SetUInt32Value(GAMEOBJECT_DYNAMIC, MAKE_PAIR32(0, dynflags));
 
-    setActive(true);
-
     SetName(goinfo->name);
 
     SetZoneScript();
@@ -516,8 +514,6 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
     ASSERT (GetMap());
     AddToWorld();
 
-    setActive(true);
-
     if (oldMap != newMap)
     {
         UpdateForMap(oldMap);
@@ -526,8 +522,6 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
 
     for (CreatureSet::iterator itr = m_NPCPassengerSet.begin(); itr != m_NPCPassengerSet.end(); ++itr)
         (*itr)->FarTeleportTo(newMap, x, y, z, (*itr)->GetOrientation());
-
-    UpdateNPCPositions();
 }
 
 bool Transport::AddPassenger(Player* passenger)
@@ -708,10 +702,9 @@ void Transport::UpdatePosition(MovementInfo* mi)
 
 void Transport::UpdateNPCPositions()
 {
-    // We update the positions of all NPCs
-    for(CreatureSet::iterator itr = m_NPCPassengerSet.begin(); itr != m_NPCPassengerSet.end();)
+    for (CreatureSet::iterator itr = m_NPCPassengerSet.begin(); itr != m_NPCPassengerSet.end(); ++itr)
     {
-        Creature* npc = *(itr++);
+        Creature* npc = *itr;
 
         float x, y, z, o;
         o = GetOrientation() + npc->m_movementInfo.t_pos.m_orientation;
@@ -719,6 +712,6 @@ void Transport::UpdateNPCPositions()
         y = GetPositionY() + (npc->m_movementInfo.t_pos.m_positionY * cos(GetOrientation()) + npc->m_movementInfo.t_pos.m_positionX * sin(GetOrientation()));
         z = GetPositionZ() + npc->m_movementInfo.t_pos.m_positionZ;
         npc->SetHomePosition(x, y, z, o);
-        GetMap()->CreatureRelocation(npc, x, y, z, o);
+        GetMap()->CreatureRelocation(npc, x, y, z, o, false);
     }
 }
