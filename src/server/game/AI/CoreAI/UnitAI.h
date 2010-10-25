@@ -74,6 +74,12 @@ class UnitAI
         // for attack reaction use AttackedBy called for not DOT damage in Unit::DealDamage also
         virtual void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) {}
 
+        // Called when the creature receives heal
+        virtual void HealReceived(Unit* /*done_by*/, uint32& /*addhealth*/) {}
+
+        // Called when the unit heals
+        virtual void HealDone(Unit* /*done_to*/, uint32& /*addhealth*/) {}
+
         // Select the targets satifying the predicate.
         // predicate shall extend std::unary_function<Unit *, bool>
         template<class PREDICATE> Unit* SelectTarget(SelectAggroTarget targetType, uint32 position, PREDICATE predicate)
