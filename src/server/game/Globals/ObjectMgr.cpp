@@ -5960,6 +5960,10 @@ WorldSafeLocsEntry const *ObjectMgr::GetClosestGraveYard(float x, float y, float
     // search for zone associated closest graveyard
     uint32 zoneId = sMapMgr.GetZoneId(MapId,x,y,z);
 
+    if (!zoneId && z > -500)
+        sLog.outError("Bad zoneId: Map = %u  (%f, %f, %f)", MapId, x, y, z);
+
+
     // Simulate std. algorithm:
     //   found some graveyard associated to (ghost_zone,ghost_map)
     //
