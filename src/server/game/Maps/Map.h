@@ -276,7 +276,7 @@ class Map : public GridRefManager<NGridType>
         virtual void InitVisibilityDistance();
 
         void PlayerRelocation(Player *, float x, float y, float z, float orientation);
-        void CreatureRelocation(Creature *creature, float x, float y, float z, float ang);
+        void CreatureRelocation(Creature *creature, float x, float y, float z, float ang, bool respawnRelocationOnFail = true);
 
         template<class T, class CONTAINER> void Visit(const Cell& cell, TypeContainerVisitor<T, CONTAINER> &visitor);
 
