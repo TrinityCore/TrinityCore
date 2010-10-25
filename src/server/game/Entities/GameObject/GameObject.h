@@ -120,7 +120,7 @@ struct GameObjectInfo
             uint32 serverOnly;                              //2
             uint32 large;                                   //3
             uint32 floatOnWater;                            //4
-            uint32 questID;                                 //5
+            int32 questID;                                  //5
         } _generic;
         //6 GAMEOBJECT_TYPE_TRAP
         struct
