@@ -30,10 +30,10 @@ public:
     void OnAddMember(Group* group, uint64 guid)
     {
         uint64 gguid = group->GetGUID();
-        sLog.outError("OnAddMember [" UI64FMTD "]: added [" UI64FMTD "]", gguid, guid);
+        sLog.outDebug("OnAddMember [" UI64FMTD "]: added [" UI64FMTD "]", gguid, guid);
         if (!gguid)
             return;
-    
+
         for (GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             if (Player *plrg = itr->getSource())
@@ -42,34 +42,34 @@ public:
                 plrg->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_CLEAR_LOCK_LIST);
             }
         }
-    
+
         if (group->isLfgQueued())
             sLFGMgr.Leave(NULL, group);
-    
+
         Player *plr = sObjectMgr.GetPlayer(guid);
         if (plr && plr->isUsingLfg())
             sLFGMgr.Leave(plr);
     }
-    
+
     void OnRemoveMember(Group* group, uint64 guid, RemoveMethod& method)
     {
         uint64 gguid = group->GetGUID();
-        sLog.outError("OnRemoveMember [" UI64FMTD "]: remove [" UI64FMTD "] Method: %d", gguid, guid, method);
+        sLog.outDebug("OnRemoveMember [" UI64FMTD "]: remove [" UI64FMTD "] Method: %d", gguid, guid, method);
         if (!gguid)
             return;
-    
+
         if (group->isLfgQueued())
         {
             // TODO - Do not remove, just remove the one leaving and rejoin queue with all other data
             sLFGMgr.Leave(NULL, group);
         }
-    
+
         if (!group->isLFGGroup())
             return;
-    
+
         if (!group->isLfgDungeonComplete())                 // Need more players to finish the dungeon
             sLFGMgr.OfferContinue(group);
-    
+
         if (method == GROUP_REMOVEMETHOD_KICK)              // Player have been kicked
         {
             // TODO - Update internal kick cooldown
@@ -78,7 +78,7 @@ public:
         {
             // Deserter flag
         }
-    
+
         if (Player *plr = sObjectMgr.GetPlayer(guid))
         {
             plr->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_LEADER);
@@ -90,13 +90,13 @@ public:
     void OnDisband(Group* group)
     {
         uint64 gguid = group->GetGUID();
-        sLog.outError("OnDisband [" UI64FMTD "]", gguid);
+        sLog.outDebug("OnDisband [" UI64FMTD "]", gguid);
         if (!gguid)
             return;
-    
+
         if (group->isLfgQueued())
             sLFGMgr.Leave(NULL, group);
-    
+
         for (GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             if (Player *plrg = itr->getSource())
@@ -112,28 +112,28 @@ public:
     void OnChangeLeader(Group* group, uint64 newLeaderGuid, uint64 oldLeaderGuid)
     {
         uint64 gguid = group->GetGUID();
-        sLog.outError("OnChangeLeader [" UI64FMTD "]: old [" UI64FMTD "] new [" UI64FMTD "]", gguid, newLeaderGuid, oldLeaderGuid);
+        sLog.outDebug("OnChangeLeader [" UI64FMTD "]: old [" UI64FMTD "] new [" UI64FMTD "]", gguid, newLeaderGuid, oldLeaderGuid);
         if (!gguid)
             return;
-    
+
         Player *plr = sObjectMgr.GetPlayer(newLeaderGuid);
         if (plr)
             plr->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_LEADER);
-    
+
         plr = sObjectMgr.GetPlayer(oldLeaderGuid);
         if (plr)
             plr->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_GROUP_DISBAND);
     }
-    
+
     void OnInviteMember(Group* group, uint64 guid)
     {
         uint64 gguid = group->GetGUID();
-        sLog.outError("OnInviteMember [" UI64FMTD "]: invite [" UI64FMTD "] leader [" UI64FMTD "]", gguid, guid, group->GetLeaderGUID());
+        sLog.outDebug("OnInviteMember [" UI64FMTD "]: invite [" UI64FMTD "] leader [" UI64FMTD "]", gguid, guid, group->GetLeaderGUID());
         if (!gguid)
             return;
-    
+
         sLFGMgr.Leave(NULL, group);
-    }    
+    }
 
     void OnLevelChanged(Player* /*player*/, uint8 /*newLevel*/)
     {
