@@ -93,7 +93,7 @@ bool Condition::Meets(Player * player, Unit* invoker)
         case CONDITION_QUEST_COMPLETE:
         {
             QuestStatus status = player->GetQuestStatus(mConditionValue1);
-            condMeets = (status == QUEST_STATUS_COMPLETE);
+            condMeets = (status == QUEST_STATUS_COMPLETE && !player->GetQuestRewardStatus(mConditionValue1));
             break;
         }
         case CONDITION_QUEST_NONE:
