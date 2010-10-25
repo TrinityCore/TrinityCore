@@ -5168,12 +5168,26 @@ void ObjectMgr::LoadWaypointScripts()
 {
     LoadScripts(SCRIPTS_WAYPOINT);
 
+    std::set<uint32> actionSet;
+
     for (ScriptMapMap::const_iterator itr = sWaypointScripts.begin(); itr != sWaypointScripts.end(); ++itr)
+        actionSet.insert(itr->first);
+
+    QueryResult result = WorldDatabase.PQuery("SELECT DISTINCT(`action`) FROM waypoint_data");
+    if (result)
     {
-        QueryResult query = WorldDatabase.PQuery("SELECT * FROM waypoint_data WHERE action = %u", itr->first);
-        if (!query || !query->GetRowCount())
-            sLog.outErrorDb("There is no waypoint which links to the waypoint script %u", itr->first);
+        do 
+        {
+            Field *fields = result->Fetch();
+            uint32 action = fields[0].GetUInt32();
+
+            actionSet.erase(action);
+
+        } while (result->NextRow());
     }
+
+    for (std::set<uint32>::iterator itr = actionSet.begin(); itr != actionSet.end(); ++itr)
+        sLog.outErrorDb("There is no waypoint which links to the waypoint script %u", *itr);
 }
 
 void ObjectMgr::LoadSpellScriptNames()
