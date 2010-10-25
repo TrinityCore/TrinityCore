@@ -685,6 +685,9 @@ void LFGMgr::Leave(Player* plr, Group* grp /* = NULL*/)
 
     uint64 guid = grp ? grp->GetGUID() : plr ? plr->GetGUID() : 0;
     sLog.outDebug("LFGMgr::Leave: [" UI64FMTD "]", guid);
+    
+    if (!guid)
+        return;
 
     // Remove from Role Checks
     if (grp)
