@@ -239,9 +239,12 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMa
 
 void GameObject::Update(uint32 diff)
 {
-    if(!m_AI)
+    if(!AI())
+    {
         if (!AIM_Initialize())
             sLog.outError("Could not initialize GameObjectAI");
+    } else
+        AI()->UpdateAI(diff);
 
     if (IS_MO_TRANSPORT(GetGUID()))
     {
@@ -550,7 +553,6 @@ void GameObject::Update(uint32 diff)
             break;
         }
     }
-    AI()->UpdateAI(diff);
     sScriptMgr.OnGameObjectUpdate(this, diff);
 }
 
