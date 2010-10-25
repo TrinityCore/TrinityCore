@@ -16935,7 +16935,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (2136, 0.4286, -1, -1, -1, 'Mage - Fire Blast'),
 (543, 0.1, -1, -1, -1, 'Mage - Fire Ward'),
 (2120, 0.2357, 0.122, -1, -1, 'Mage - Flamestrike'),
-(116, 0.8143, -1, -1, -1, 'Mage - Frost Bolt'),
+(116, 0.857, -1, -1, -1, 'Mage - Frostbolt'),
 (122, 0.193, -1, -1, -1, 'Mage - Frost Nova'),
 (6143, 0.1, -1, -1, -1, 'Mage - Frost Ward'),
 (44614, 0.8571, -1, -1, -1, 'Mage - Frostfire Bolt'),
