@@ -1106,6 +1106,9 @@ class Unit : public WorldObject
 
         virtual ~Unit ();
 
+        UnitAI* GetAI() { return i_AI; }
+        void SetAI(UnitAI* newAI) { i_AI = newAI; }
+
         void AddToWorld();
         void RemoveFromWorld();
 

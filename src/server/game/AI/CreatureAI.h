@@ -93,9 +93,6 @@ class CreatureAI : public UnitAI
         // Called for reaction at enter to combat if not in combat yet (enemy can be NULL)
         virtual void EnterCombat(Unit* /*enemy*/) {}
 
-        // Called when the creature receives heal
-        virtual void HealReceived(Unit* /*done_by*/, uint32& /*addhealth*/) {}
-
         // Called when the creature is killed
         virtual void JustDied(Unit *) {}
 
