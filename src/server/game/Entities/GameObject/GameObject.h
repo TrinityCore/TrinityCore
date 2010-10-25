@@ -752,6 +752,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
 
         std::string GetAIName() const;
     protected:
+        bool AIM_Initialize();
         uint32      m_spellId;
         time_t      m_respawnTime;                          // (secs) time of next respawn (or despawn if GO have owner()),
         uint32      m_respawnDelayTime;                     // (secs) if 0 then current GO state no dependent from timer
@@ -779,6 +780,5 @@ class GameObject : public WorldObject, public GridObject<GameObject>
     private:
         void SwitchDoorOrButton(bool activate, bool alternative = false);
         GameObjectAI* m_AI;
-        bool AIM_Initialize();
 };
 #endif

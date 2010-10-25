@@ -137,7 +137,7 @@ namespace FactorySelector
 
         //future goAI types go here
 
-        std::string ainame = (ai_factory == NULL) ? "NullGameObjectAI" : ai_factory->key();
+        std::string ainame = (ai_factory == NULL || go->GetScriptId()) ? "NullGameObjectAI" : ai_factory->key();
 
         sLog.outStaticDebug("GameObject %u used AI is %s.", go->GetGUIDLow(), ainame.c_str());
 

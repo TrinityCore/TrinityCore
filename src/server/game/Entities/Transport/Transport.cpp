@@ -26,6 +26,7 @@
 #include "DBCStores.h"
 #include "ProgressBar.h"
 #include "World.h"
+#include "GameObjectAI.h"
 
 void MapManager::LoadTransports()
 {
@@ -544,6 +545,13 @@ bool Transport::RemovePassenger(Player* passenger)
 
 void Transport::Update(uint32 p_diff)
 {
+    if(!AI())
+    {
+        if (!AIM_Initialize())
+            sLog.outError("Could not initialize GameObjectAI for Transport");
+    } else
+        AI()->UpdateAI(p_diff);
+
     if (m_WayPoints.size() <= 1)
         return;
 
