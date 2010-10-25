@@ -7934,7 +7934,7 @@ void ObjectMgr::LoadGameObjectForQuests()
             }
             case GAMEOBJECT_TYPE_GENERIC:
             {
-                if (goInfo->_generic.questID)               //quests objects
+                if (goInfo->_generic.questID > 0)            //quests objects
                 {
                     mGameObjectForQuestSet.insert(go_entry);
                     count++;
@@ -7943,7 +7943,7 @@ void ObjectMgr::LoadGameObjectForQuests()
             }
             case GAMEOBJECT_TYPE_GOOBER:
             {
-                if (goInfo->goober.questId)                  //quests objects
+                if (goInfo->goober.questId > 0)              //quests objects
                 {
                     mGameObjectForQuestSet.insert(go_entry);
                     count++;
