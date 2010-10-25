@@ -19,8 +19,7 @@
 #include "pit_of_saron.h"
 
 /*
- * SDComment: TODO:
- *  - implement aura for spell Overlord Brand.
+ * TODO:
  *  - Intro/Outro
  *  - improve script of Rimefang
  */
@@ -56,6 +55,8 @@ enum Spells
     SPELL_FORCEFUL_SMASH                        = 69155,
     H_SPELL_FORCEFUL_SMASH                      = 69627,
     SPELL_OVERLORDS_BRAND                       = 69172,
+    SPELL_OVERLORD_BRAND_DAMAGE                 = 69189,
+    SPELL_OVERLORD_BRAND_HEAL                   = 69190,
     SPELL_DARK_MIGHT                            = 69167,
     H_SPELL_DARK_MIGHT                          = 69629,
     SPELL_HOARFROST                             = 69246,
@@ -273,10 +274,84 @@ public:
 
 };
 
+class player_overlord_brandAI : public PlayerAI
+{
+    public:
+        player_overlord_brandAI(Player* pPlayer) : PlayerAI(pPlayer)
+        {
+            tyrannus = NULL;
+        }
 
+        void SetGUID(const uint64& guid, int32 /*type*/)
+        {
+            tyrannus = ObjectAccessor::GetCreature(*me, guid);
+            if (!tyrannus)
+                me->IsAIEnabled = false;
+        }
+
+        void DamageDealt(Unit* /*victim*/, uint32& damage, DamageEffectType /*damageType*/)
+        {
+            me->CastCustomSpell(SPELL_OVERLORD_BRAND_DAMAGE, SPELLVALUE_BASE_POINT0, damage, tyrannus->getVictim(), true, NULL, NULL, tyrannus->GetGUID());
+        }
+
+        void HealDone(Unit* /*target*/, uint32& addHealth)
+        {
+            me->CastCustomSpell(SPELL_OVERLORD_BRAND_HEAL, SPELLVALUE_BASE_POINT0, int32(addHealth*5.5f), tyrannus, true, NULL, NULL, tyrannus->GetGUID());
+        }
+
+        void UpdateAI(const uint32 diff) { }
+
+    private:
+        Creature* tyrannus;
+};
+
+class spell_tyrannus_overlord_brand : public SpellScriptLoader
+{
+    public:
+        spell_tyrannus_overlord_brand() : SpellScriptLoader("spell_tyrannus_overlord_brand") { }
+
+        class spell_tyrannus_overlord_brand_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_tyrannus_overlord_brand_AuraScript);
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraApplication const* aurApp, AuraEffectHandleModes /*mode*/)
+            {
+                if (aurApp->GetTarget()->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                oldAI = aurApp->GetTarget()->GetAI();
+                aurApp->GetTarget()->SetAI(new player_overlord_brandAI(aurApp->GetTarget()->ToPlayer()));
+                aurApp->GetTarget()->GetAI()->SetGUID(GetCasterGUID());
+                oldAIState = aurApp->GetTarget()->IsAIEnabled;
+                aurApp->GetTarget()->IsAIEnabled = true;
+            }
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraApplication const* aurApp, AuraEffectHandleModes /*mode*/)
+            {
+                delete aurApp->GetTarget()->GetAI();
+                aurApp->GetTarget()->SetAI(oldAI);
+                aurApp->GetTarget()->IsAIEnabled = oldAIState;
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_tyrannus_overlord_brand_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_tyrannus_overlord_brand_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+
+            UnitAI* oldAI;
+            bool oldAIState;
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_tyrannus_overlord_brand_AuraScript();
+        }
+};
 
 void AddSC_boss_tyrannus()
 {
     new boss_tyrannus();
     new boss_rimefang();
+    new spell_tyrannus_overlord_brand();
 }

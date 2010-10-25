@@ -26793,6 +26793,8 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 68861, 'spell_bronjahm_consume_soul'),
 ( 69008, 'spell_bronjahm_soulstorm_channel'),
 ( 68870, 'spell_bronjahm_soulstorm_visual'),
+-- Pit of Saron
+( 69172, 'spell_tyrannus_overlord_brand'),
 -- Icecrown Citadel
 ( 69057, 'spell_marrowgar_bone_spike_graveyard'),
 ( 69140, 'spell_marrowgar_coldflame'),
