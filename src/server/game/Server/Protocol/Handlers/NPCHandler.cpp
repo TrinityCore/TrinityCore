@@ -34,6 +34,7 @@
 #include "BattlegroundMgr.h"
 #include "Battleground.h"
 #include "ScriptMgr.h"
+#include "CreatureAI.h"
 
 enum StableResultCode
 {
@@ -343,6 +344,7 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket & recv_data)
         _player->PrepareGossipMenu(unit, unit->GetCreatureInfo()->GossipMenuId, true);
         _player->SendPreparedGossip(unit);
     }
+    unit->AI()->sGossipHello(_player);
 }
 
 /*void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket & recv_data)
