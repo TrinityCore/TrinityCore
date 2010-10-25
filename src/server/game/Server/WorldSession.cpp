@@ -40,7 +40,6 @@
 #include "SocialMgr.h"
 #include "zlib.h"
 #include "ScriptMgr.h"
-#include "LFGMgr.h"
 #include "Transport.h"
 
 /// WorldSession constructor
@@ -324,11 +323,6 @@ void WorldSession::LogoutPlayer(bool Save)
 
     if (_player)
     {
-        sLFGMgr.Leave(_player);
-        GetPlayer()->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_REMOVED_FROM_QUEUE);
-        GetPlayer()->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_REMOVED_FROM_QUEUE);
-        GetPlayer()->GetSession()->SendLfgUpdateSearch(false);
-
         if (uint64 lguid = GetPlayer()->GetLootGUID())
             DoLootRelease(lguid);
 
