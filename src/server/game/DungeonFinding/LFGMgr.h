@@ -228,7 +228,6 @@ struct LfgPlayerBoot
 
 typedef std::set<Player*> PlayerSet;
 typedef std::set<LfgLockStatus*> LfgLockStatusSet;
-typedef std::vector<LfgProposal*> LfgProposalList;
 typedef std::map<uint32, LfgLockStatusSet*> LfgLockStatusMap;
 typedef std::map<uint64, LfgQueueInfo*> LfgQueueInfoMap;
 typedef std::map<uint32, LfgRoleCheck*> LfgRoleCheckMap;
@@ -280,10 +279,10 @@ class LFGMgr
         bool RemoveFromQueue(uint64 guid);
         void RemoveProposal(LfgProposalMap::iterator itProposal, LfgUpdateType type);
 
-        void FindNewGroups(LfgGuidList &check, LfgGuidList all, LfgProposalList* proposals);
+        LfgProposal* FindNewGroups(LfgGuidList check, LfgGuidList all);
 
         bool CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag = true);
-        bool CheckCompatibility(LfgGuidList check, LfgProposalList* proposals);
+        bool CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal);
         LfgDungeonSet* CheckCompatibleDungeons(LfgDungeonMap* dungeonsMap, PlayerSet* players);
         LfgLockStatusMap* CheckCompatibleDungeons(LfgDungeonSet* dungeons, PlayerSet* players, bool returnLockMap = true);
         void SetCompatibles(std::string concatenatedGuids, bool compatibles);
