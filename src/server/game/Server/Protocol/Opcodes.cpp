@@ -1240,7 +1240,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x4BB*/ { "SMSG_CALENDAR_ACTION_PENDING",                 STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x4BC*/ { "SMSG_EQUIPMENT_SET_LIST",                      STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x4BD*/ { "CMSG_EQUIPMENT_SET_SAVE",                      STATUS_LOGGEDIN, &WorldSession::HandleEquipmentSetSave          },
-    /*0x4BE*/ { "CMSG_UPDATE_PROJECTILE_POSITION",              STATUS_NEVER,    &WorldSession::Handle_NULL                     },
+    /*0x4BE*/ { "CMSG_UPDATE_PROJECTILE_POSITION",              STATUS_UNHANDLED,&WorldSession::Handle_NULL                     },
     /*0x4BF*/ { "SMSG_SET_PROJECTILE_POSITION",                 STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x4C0*/ { "SMSG_TALENTS_INFO",                            STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x4C1*/ { "CMSG_LEARN_PREVIEW_TALENTS",                   STATUS_LOGGEDIN, &WorldSession::HandleLearnPreviewTalents       },
