@@ -359,8 +359,10 @@ void ObjectMgr::AddGuild(Guild* pGuild)
     uint32 guildId = pGuild->GetId();
     // Allocate space if necessary
     if (guildId >= uint32(mGuildMap.size()))
-        // Reserve a bit more space than necessary
-        mGuildMap.resize(guildId+1);
+        // Reserve a bit more space than necessary.
+        // 16 is intentional and it will allow creation of next 16 guilds happen 
+        // without reallocation.
+        mGuildMap.resize(guildId + 16);
     mGuildMap[guildId] = pGuild;
 }
 
@@ -3513,9 +3515,9 @@ void ObjectMgr::LoadGuilds()
         sLog.outString();
         return;
     }
+    mGuildMap.resize(m_guildId, NULL);         // Reserve space and initialize storage for loading guilds
     // 1. Load all guilds
     uint64 rowCount = result->GetRowCount();
-    mGuildMap.resize(uint32(rowCount), NULL);         // Reserve space and initialize storage for loading guilds
     barGoLink bar(rowCount);
     do
     {
