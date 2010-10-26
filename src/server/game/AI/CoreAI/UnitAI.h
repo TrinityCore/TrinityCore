@@ -152,13 +152,13 @@ class UnitAI
         static AISpellInfoType *AISpellInfo;
         static void FillAISpellInfo();
 
-        virtual void sGossipHello(Player* player){ }
-        virtual void sGossipSelect(Player* player, uint32 sender, uint32 action){ }
-        virtual void sGossipSelectCode(Player* player, uint32 sender, uint32 action, const char* code){ }
-        virtual void sQuestAccept(Player* player, Quest const* quest){ }
-        virtual void sQuestSelect(Player* player, Quest const* quest){ }
-        virtual void sQuestComplete(Player* player, Quest const* quest){ }
-        virtual void sQuestReward(Player* player, Quest const* quest, uint32 opt){ }
+        virtual void sGossipHello(Player* /*player*/) {}
+        virtual void sGossipSelect(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/) {}
+        virtual void sGossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) {}
+        virtual void sQuestAccept(Player* /*player*/, Quest const* /*quest*/) {}
+        virtual void sQuestSelect(Player* /*player*/, Quest const* /*quest*/) {}
+        virtual void sQuestComplete(Player* /*player*/, Quest const* /*quest*/) {}
+        virtual void sQuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) {}
 };
 
 class PlayerAI : public UnitAI
