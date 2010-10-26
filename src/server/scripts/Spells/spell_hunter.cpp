@@ -357,6 +357,7 @@ public:
 
         void HandlePeriodic(AuraEffect const * aurEff, AuraApplication const * aurApp)
         {
+            PreventDefaultAction();
             if (aurEff->GetAmount() > 0)
                 return;
 
