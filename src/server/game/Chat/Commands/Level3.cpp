@@ -59,6 +59,7 @@
 #include "ScriptMgr.h"
 #include "LFGMgr.h"
 #include "CreatureTextMgr.h"
+#include "SmartAI.h"
 
 //reload commands
 bool ChatHandler::HandleReloadAllCommand(const char*)
@@ -1174,6 +1175,14 @@ bool ChatHandler::HandleReloadCreatureText(const char* /*args*/)
     sLog.outString("Re-Loading Creature Texts...");
     sCreatureTextMgr.LoadCreatureTexts();
     SendGlobalGMSysMessage("Creature Texts reloaded.");
+    return true;
+}
+
+bool ChatHandler::HandleReloadSmartAI(const char* /*args*/)
+{
+    sLog.outString("Re-Loading SmartAI Scripts...");
+    sSmartScriptMgr.LoadSmartAIFromDB();
+    SendGlobalGMSysMessage("SmartAI Scripts reloaded.");
     return true;
 }
 

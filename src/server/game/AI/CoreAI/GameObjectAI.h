@@ -40,6 +40,15 @@ class GameObjectAI
         virtual void Reset() {};
         
         static int Permissible(const GameObject* go);
+
+        virtual bool GossipHello(Player* player) {return false;}
+        virtual bool GossipSelect(Player* player, uint32 sender, uint32 action) {return false;}
+        virtual bool GossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) {return false;}
+        virtual bool QuestAccept(Player* player, Quest const* quest) {return false;}
+        virtual bool QuestReward(Player* player, Quest const* quest, uint32 opt) {return false;}
+        uint32 GetDialogStatus(Player* /*player*/) {return 100;}
+        virtual void Destroyed(Player* player, uint32 eventId) {}
+        virtual void SetData(uint32 id, uint32 value) {}
 };
 
 class NullGameObjectAI : public GameObjectAI
