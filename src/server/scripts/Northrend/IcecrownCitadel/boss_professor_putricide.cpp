@@ -338,7 +338,6 @@ class boss_professor_putricide : public CreatureScript
                     case POINT_TABLE:
                         // stop attack
                         me->GetMotionMaster()->MoveIdle();
-                        me->Attack(me->getVictim(), false);
                         me->SetSpeed(MOVE_RUN, fBaseSpeed, true);
                         if (GameObject* table = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_PUTRICIDE_TABLE)))
                             me->SetFacingToObject(table);
@@ -443,6 +442,7 @@ class boss_professor_putricide : public CreatureScript
                     case ACTION_CHANGE_PHASE:
                         me->SetSpeed(MOVE_RUN, fBaseSpeed*2.0f, true);
                         events.DelayEvents(30000);
+                        me->AttackStop();
                         if (!IsHeroic())
                         {
                             DoCast(me, SPELL_TEAR_GAS);
