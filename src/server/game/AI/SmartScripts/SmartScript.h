@@ -179,7 +179,12 @@ class SmartScript
         }
 
     private:
-        void IncPhase(int32 p = 1) { p >= 0 ? mEventPhase += (uint32)p : DecPhase(abs(p)); }
+        void IncPhase(int32 p = 1) { 
+            if(p >= 0)
+                mEventPhase += (uint32)p;
+            else
+                DecPhase(abs(p)); 
+        }
         void DecPhase(int32 p = 1) { mEventPhase  -= (mEventPhase < (uint32)p ? (uint32)p - mEventPhase : (uint32)p); }
         bool IsInPhase(uint32 p) { return mEventPhase & p; }
         void SetPhase(uint32 p = 0) { mEventPhase = p; }
