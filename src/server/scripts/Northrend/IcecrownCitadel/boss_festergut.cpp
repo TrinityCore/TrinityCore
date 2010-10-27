@@ -122,7 +122,7 @@ class boss_festergut : public CreatureScript
                 DoScriptText(SAY_AGGRO, me);
                 if (Creature* gasDummy = GetClosestCreatureWithEntry(me, NPC_GAS_DUMMY, 100.0f, true))
                     gasDummyGUID = gasDummy->GetGUID();
-                if (Creature* professor = Unit::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
+                if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
                     professor->AI()->DoAction(ACTION_FESTERGUT_COMBAT);
 
                 DoZoneInCombat(me);
@@ -132,8 +132,15 @@ class boss_festergut : public CreatureScript
             {
                 DoScriptText(SAY_DEATH, me);
                 instance->SetBossState(DATA_FESTERGUT, DONE);
-                if (Creature* professor = Unit::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
+                if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
                     professor->AI()->DoAction(ACTION_FESTERGUT_DEATH);
+
+                if (Creature* gasDummy = ObjectAccessor::GetCreature(*me, gasDummyGUID))
+                    for (uint8 i = 0; i < 3; ++i)
+                    {
+                        gasDummy->RemoveAurasDueToSpell(gaseousBlight[i]);
+                        gasDummy->RemoveAurasDueToSpell(gaseousBlightVisual[i]);
+                    }
             }
 
             void JustReachedHome()
@@ -144,7 +151,7 @@ class boss_festergut : public CreatureScript
             void EnterEvadeMode()
             {
                 ScriptedAI::EnterEvadeMode();
-                if (Creature* professor = Unit::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
+                if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
                     professor->AI()->EnterEvadeMode();
             }
 
@@ -181,7 +188,7 @@ class boss_festergut : public CreatureScript
                     {
                         case EVENT_INHALE_BLIGHT:
                         {
-                            if (Creature* gasDummy = Unit::GetCreature(*me, gasDummyGUID))
+                            if (Creature* gasDummy = ObjectAccessor::GetCreature(*me, gasDummyGUID))
                                 for (uint8 i = 0; i < 3; ++i)
                                 {
                                     gasDummy->RemoveAurasDueToSpell(gaseousBlight[i]);
@@ -193,7 +200,7 @@ class boss_festergut : public CreatureScript
                                 DoScriptText(SAY_PUNGENT_BLIGHT, me);
                                 DoCast(me, SPELL_PUNGENT_BLIGHT);
                                 uiInhaleCounter = 0;
-                                if (Creature* professor = Unit::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
+                                if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
                                     professor->AI()->DoAction(ACTION_FESTERGUT_GAS);
                             }
                             else
