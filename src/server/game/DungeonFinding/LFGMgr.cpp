@@ -1072,13 +1072,13 @@ void LFGMgr::UpdateRoleCheck(Group* grp, Player* plr /* = NULL*/)
     LfgRoleCheck* pRoleCheck = NULL;
     LfgRolesMap check_roles;
     LfgRoleCheckMap::iterator itRoleCheck = m_RoleChecks.find(rolecheckId);
-    LfgDungeonSet* dungeons = plr->GetLfgDungeons();
     bool newRoleCheck = itRoleCheck == m_RoleChecks.end();
     if (newRoleCheck)
     {
-        if (grp->GetLeaderGUID() != plr->GetGUID())
+        if (!plr || grp->GetLeaderGUID() != plr->GetGUID())
             return;
 
+        LfgDungeonSet* dungeons = plr->GetLfgDungeons();
         pRoleCheck = new LfgRoleCheck();
         pRoleCheck->cancelTime = time_t(time(NULL)) + LFG_TIME_ROLECHECK;
         pRoleCheck->result = LFG_ROLECHECK_INITIALITING;
