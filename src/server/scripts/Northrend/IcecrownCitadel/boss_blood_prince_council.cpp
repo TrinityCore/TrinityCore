@@ -1476,8 +1476,9 @@ class spell_blood_council_shadow_prison : public SpellScriptLoader
 
             void HandleDummyTick(AuraEffect const* aurEff, AuraApplication const* aurApp)
             {
-                if (aurApp->GetTarget()->isMoving())
-                    aurApp->GetTarget()->CastSpell(aurApp->GetTarget(), SPELL_SHADOW_PRISON_DAMAGE, true, NULL, aurEff);
+                if (aurApp)
+                    if (aurApp->GetTarget()->isMoving())
+                        aurApp->GetTarget()->CastSpell(aurApp->GetTarget(), SPELL_SHADOW_PRISON_DAMAGE, true, NULL, aurEff);
             }
 
             void Register()
