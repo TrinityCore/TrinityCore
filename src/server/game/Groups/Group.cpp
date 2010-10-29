@@ -270,16 +270,19 @@ bool Group::AddLeaderInvite(Player *player)
 
 uint32 Group::RemoveInvite(Player *player)
 {
-    m_invitees.erase(player);
-
-    player->SetGroupInvite(NULL);
+    if (player)
+    {
+        m_invitees.erase(player);
+        player->SetGroupInvite(NULL);
+    }
     return GetMembersCount();
 }
 
 void Group::RemoveAllInvites()
 {
     for (InvitesList::iterator itr=m_invitees.begin(); itr != m_invitees.end(); ++itr)
-        (*itr)->SetGroupInvite(NULL);
+        if (*itr)
+            (*itr)->SetGroupInvite(NULL);
 
     m_invitees.clear();
 }
@@ -288,7 +291,7 @@ Player* Group::GetInvited(const uint64& guid) const
 {
     for (InvitesList::const_iterator itr = m_invitees.begin(); itr != m_invitees.end(); ++itr)
     {
-        if ((*itr)->GetGUID() == guid)
+        if ((*itr) && (*itr)->GetGUID() == guid)
             return (*itr);
     }
     return NULL;
@@ -298,7 +301,7 @@ Player* Group::GetInvited(const std::string& name) const
 {
     for (InvitesList::const_iterator itr = m_invitees.begin(); itr != m_invitees.end(); ++itr)
     {
-        if ((*itr)->GetName() == name)
+        if ((*itr) && (*itr)->GetName() == name)
             return (*itr);
     }
     return NULL;

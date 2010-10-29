@@ -236,18 +236,18 @@ void WorldSession::HandleGroupDeclineOpcode(WorldPacket & /*recv_data*/)
     Group  *group  = GetPlayer()->GetGroupInvite();
     if (!group) return;
 
-    // remember leader if online
-    Player *leader = sObjectMgr.GetPlayer(group->GetLeaderGUID());
-
     // uninvite, group can be deleted
     GetPlayer()->UninviteFromGroup();
 
+    // remember leader if online
+    Player *leader = sObjectMgr.GetPlayer(group->GetLeaderGUID());
     if (!leader || !leader->GetSession())
         return;
 
     // report
-    WorldPacket data(SMSG_GROUP_DECLINE, 10);             // guess size
-    data << GetPlayer()->GetName();
+    std::string name = std::string(GetPlayer()->GetName());
+    WorldPacket data(SMSG_GROUP_DECLINE, name.length());
+    data << name.c_str();
     leader->GetSession()->SendPacket(&data);
 }
 
