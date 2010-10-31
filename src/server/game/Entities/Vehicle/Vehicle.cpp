@@ -353,6 +353,8 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
             RelocatePassengers(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
         }
     }
+    unit->DestroyForNearbyPlayers();
+    unit->UpdateObjectVisibility(false);
 
     if (GetBase()->GetTypeId() == TYPEID_UNIT)
         sScriptMgr.OnAddPassenger(this, unit, seatId);
