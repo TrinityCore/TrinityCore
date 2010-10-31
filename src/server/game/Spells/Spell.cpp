@@ -1886,7 +1886,7 @@ WorldObject* Spell::SearchNearbyTarget(float range, SpellTargets TargetType, Spe
             ConditionList conditions = sConditionMgr.GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_SPELL_SCRIPT_TARGET, m_spellInfo->Id);
             if (conditions.empty())
             {
-                sLog.outDebug("Spell (ID: %u) (caster Entry: %u) does not have record in `conditions` for spell script target (ConditionSourceType 14)", m_spellInfo->Id, m_caster->GetEntry());
+                sLog.outDebug("Spell (ID: %u) (caster Entry: %u) does not have record in `conditions` for spell script target (ConditionSourceType 13)", m_spellInfo->Id, m_caster->GetEntry());
                 if (IsPositiveSpell(m_spellInfo->Id))
                     return SearchNearbyTarget(range, SPELL_TARGETS_ALLY, effIndex);
                 else
