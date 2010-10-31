@@ -910,6 +910,21 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
         case SMART_ACTION_CALL_SCRIPT_RESET:
             OnReset();
             break;
+        case SMART_ACTION_ENTER_VEHICLE:
+            {
+                if (!me) return;
+                ObjectList* targets = GetTargets(e, unit);
+                if (!targets) return;
+                for (ObjectList::iterator itr = targets->begin(); itr != targets->end(); itr++)
+                {
+                    if (IsUnit(*itr) && (*itr)->ToUnit()->GetVehicleKit())
+                    {
+                        me->EnterVehicle((*itr)->ToUnit()->GetVehicleKit(), e.action.enterVehicle.seat);
+                        return;
+                    }
+                }
+                break;
+            }
         default:
             sLog.outErrorDb("SmartScript::ProcessAction: Unhandled Action type %u", e.GetActionType());
             break;
@@ -1060,6 +1075,12 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder e, Unit* invoker)
             if (invoker)
             {
                 l->push_back(invoker);
+            }
+            break;
+        case SMART_TARGET_ACTION_INVOKER_VEHICLE:
+            if (invoker && invoker->GetVehicle() && invoker->GetVehicle()->GetBase())
+            {
+                l->push_back(invoker->GetVehicle()->GetBase());
             }
             break;
         case SMART_TARGET_INVOKER_PARTY:
