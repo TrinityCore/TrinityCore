@@ -424,7 +424,8 @@ enum SMART_ACTION
     SMART_ACTION_OVERRIDE_SCRIPT_BASE_OBJECT        = 76,     //1           // target(first found used), WARNING: CAN CRASH CORE, do not use if you dont know what you are doing
     SMART_ACTION_RESET_SCRIPT_BASE_OBJECT           = 77,     //1           // none
     SMART_ACTION_CALL_SCRIPT_RESET                  = 78,     //1           // none
-    SMART_ACTION_END                                = 79,
+    SMART_ACTION_ENTER_VEHICLE                      = 79,     //1           // seatID, first vehicle target is used
+    SMART_ACTION_END                                = 80,
 };
 
 struct SmartAction
@@ -763,6 +764,11 @@ struct SmartAction
         {
             uint32 flag;
         } unitFlag;
+        
+        struct
+        {
+            uint32 seat;
+        } enterVehicle;
 
         struct
         {
@@ -811,7 +817,8 @@ enum SMARTAI_TARGETS
     SMART_TARGET_CLOSEST_CREATURE               = 19,   // CreatureEntry(0any)
     SMART_TARGET_CLOSEST_GAMEOBJECT             = 20,   // entry(0any)
     SMART_TARGET_CLOSEST_PLAYER                 = 21,   // none
-    SMART_TARGET_END                            = 22,
+    SMART_TARGET_ACTION_INVOKER_VEHICLE         = 22,   // Unit's vehicle who caused this Event to occur
+    SMART_TARGET_END                            = 23,
 };
 
 struct SmartTarget

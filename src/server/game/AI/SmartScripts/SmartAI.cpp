@@ -466,7 +466,6 @@ void SmartAI::MoveInLineOfSight(Unit* who)
 {
     if (!who) return;
     GetScript()->OnMoveInLineOfSight(who);
-    //HasEscortState(SMART_ESCORT_ESCORTING) ||
     if (me->HasReactState(REACT_PASSIVE) || AssistPlayerInCombat(who))
         return;
 
