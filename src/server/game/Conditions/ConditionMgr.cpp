@@ -27,6 +27,7 @@
 #include "InstanceScript.h"
 #include "ConditionMgr.h"
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 
 // Checks if player meets the condition
 // Can have CONDITION_SOURCE_TYPE_NONE && !mReferenceId if called from a special event (ie: eventAI)
@@ -185,6 +186,16 @@ bool Condition::Meets(Player * player, Unit* invoker)
         case CONDITION_DRUNKENSTATE:
             {
                 condMeets = (uint32)Player::GetDrunkenstateByValue(player->GetDrunkValue()) >= mConditionValue1;
+                break;
+            }
+        case CONDITION_NEAR_CREATURE:
+            {
+                condMeets = GetClosestCreatureWithEntry(player, mConditionValue1, (float)mConditionValue2) ? true : false;
+                break;
+            }
+        case CONDITION_NEAR_GAMEOBJECT:
+            {
+                condMeets = GetClosestGameObjectWithEntry(player, mConditionValue1, (float)mConditionValue2) ? true : false;
                 break;
             }
         default:
@@ -1344,6 +1355,24 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                 }
                 break;
             }
+        case CONDITION_NEAR_CREATURE:
+        {
+            if (!sCreatureStorage.LookupEntry<CreatureInfo>(cond->mConditionValue1))
+            {
+                sLog.outErrorDb("NearCreature condition has non existing creature template entry (%u), skipped", cond->mConditionValue1);
+                return false;
+            }
+            break;
+        }
+        case CONDITION_NEAR_GAMEOBJECT:
+        {
+            if (!sGOStorage.LookupEntry<GameObjectInfo>(cond->mConditionValue1))
+            {
+                sLog.outErrorDb("NearGameObject condition has non existing gameobject template entry (%u), skipped", cond->mConditionValue1);
+                return false;
+            }
+            break;
+        }
         case CONDITION_AREAID:
         case CONDITION_INSTANCE_DATA:
             break;
