@@ -37,13 +37,12 @@ class PingOperation : public SQLOperation
     /// Operation for idle delaythreads
     bool Execute()
     {
-        for (;;)
-            if (m_conn->LockIfReady())
-            {
-                m_conn->Ping();
-                m_conn->Unlock();
-                return true;
-            }
+        if (m_conn->LockIfReady())
+        {
+            m_conn->Ping();
+            m_conn->Unlock();
+            return true;
+        }
 
         return false;
     }
@@ -305,10 +304,17 @@ class DatabaseWorkerPool
 
         void KeepAlive()
         {
-            /// Ping syncrhonous connections
+            /// Ping synchronous connections
             for (uint8 i = 0; i < m_connections[IDX_SYNCH].size(); ++i)
-                m_connections[IDX_SYNCH][i]->Ping();
-
+            {
+                T* t = m_connections[IDX_SYNCH][i];
+                if (t->LockIfReady())
+                {
+                    t->Ping();
+                    t->Unlock();
+                }
+            }
+ 
             /// Assuming all worker threads are free, every worker thread will receive 1 ping operation request
             /// If one or more worker threads are busy, the ping operations will not be split evenly, but this doesn't matter
             /// as the sole purpose is to prevent connections from idling.
