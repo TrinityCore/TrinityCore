@@ -1408,10 +1408,11 @@ void SmartScript::ProcessEvent(SmartScriptHolder &e, Unit* unit, uint32 var0, ui
         {
             if (!me) return;
             uint32 count = me->GetAuraCount(e.event.aura.spell);
-            if (count < e.event.aura.count)
-                return;
-            ProcessAction(e);
-            RecalcTimer(e, e.event.aura.repeatMin, e.event.aura.repeatMax);
+            if ((!e.event.aura.count && !count) || (e.event.aura.count && count >= e.event.aura.count))
+            {
+                ProcessAction(e);
+                RecalcTimer(e, e.event.aura.repeatMin, e.event.aura.repeatMax);
+            }
             break;
         }
         case SMART_EVENT_TARGET_BUFFED:
