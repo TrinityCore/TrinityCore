@@ -2883,15 +2883,16 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const * triggere
             return;
         }
     }
-    if (m_caster->ToPlayer())
+    if (Player* plrCaster = m_caster->GetCharmerOrOwnerPlayerOrPlayerItself())
     {
         //check for special spell conditions
         ConditionList conditions = sConditionMgr.GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_SPELL, m_spellInfo->Id);
         if (!conditions.empty())
         {
-            if (!sConditionMgr.IsPlayerMeetToConditions(m_caster->ToPlayer(), conditions))
+            if (!sConditionMgr.IsPlayerMeetToConditions(plrCaster, conditions))
             {
-                SendCastResult(SPELL_FAILED_DONT_REPORT);
+                //SendCastResult(SPELL_FAILED_DONT_REPORT);
+                SendCastResult(plrCaster, m_spellInfo, m_cast_count, SPELL_FAILED_DONT_REPORT);
                 finish(false);
                 return;
             }
