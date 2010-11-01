@@ -1178,11 +1178,11 @@ bool ChatHandler::HandleReloadCreatureText(const char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleReloadSmartAI(const char* /*args*/)
+bool ChatHandler::HandleReloadSmartScripts(const char* /*args*/)
 {
-    sLog.outString("Re-Loading SmartAI Scripts...");
+    sLog.outString("Re-Loading Smart Scripts...");
     sSmartScriptMgr.LoadSmartAIFromDB();
-    SendGlobalGMSysMessage("SmartAI Scripts reloaded.");
+    SendGlobalGMSysMessage("Smart Scripts reloaded.");
     return true;
 }
 
