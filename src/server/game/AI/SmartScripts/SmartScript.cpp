@@ -47,6 +47,7 @@ SmartScript::SmartScript()
     mLastTextID = 0;
     mTextGUID = 0;
     mUseTextTimer = false;
+    talker = NULL;
     mTemplate = SMARTAI_TEMPLATE_BASIC;
     meOrigGUID = 0;
     goOrigGUID = 0;
@@ -101,18 +102,28 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
     switch (e.GetActionType())
     {
         case SMART_ACTION_TALK:
-            if (!me) return;
-            mLastTextID = e.action.talk.textGroupID1;
-            mTextTimer = sCreatureTextMgr.SendChat(me, uint8(e.action.talk.textGroupID1), IsPlayer(unit)? unit->GetGUID() : NULL);
-            mTextGUID = IsPlayer(unit)? unit->GetGUID() : NULL;
-            if (e.action.talk.textGroupID2) mTextIDs.push_back(e.action.talk.textGroupID2);
-            if (e.action.talk.textGroupID3) mTextIDs.push_back(e.action.talk.textGroupID3);
-            if (e.action.talk.textGroupID4) mTextIDs.push_back(e.action.talk.textGroupID4);
-            if (e.action.talk.textGroupID5) mTextIDs.push_back(e.action.talk.textGroupID5);
-            if (e.action.talk.textGroupID6) mTextIDs.push_back(e.action.talk.textGroupID6);
-            if (!mTextIDs.empty())
+            {
+                ObjectList* targets = GetTargets(e, unit);
+                talker = me;
+                if (targets)
+                {
+                    for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); itr++)
+                    {
+                        if (IsCreature((*itr)))
+                        {
+                            talker = (*itr)->ToCreature();
+                            break;
+                        }
+                    }
+                }
+                mLastTextID = e.action.talk.textGroupID;
+                mTextTimer = e.action.talk.duration;
+                mTextGUID = IsPlayer(unit)? unit->GetGUID() : NULL;//invoker, used for $vars in texts
                 mUseTextTimer = true;
-            break;
+                sCreatureTextMgr.SendChat(talker, uint8(e.action.talk.textGroupID), mTextGUID);
+                return;
+                break;
+            }
         case SMART_ACTION_PLAY_EMOTE:
             if (me)
                 me->HandleEmoteCommand(e.action.emote.emote);
@@ -1605,7 +1616,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder &e, Unit* unit, uint32 var0, ui
         }
         case SMART_EVENT_TEXT_OVER:
         {
-            if (e.event.textOver.textGroupID && var0 != e.event.textOver.textGroupID)
+            if (var0 != e.event.textOver.textGroupID || (e.event.textOver.creatureEntry && e.event.textOver.creatureEntry != var1))
                 return;
             ProcessAction(e, unit, var0);
             break;
@@ -1743,17 +1754,13 @@ void SmartScript::OnUpdate(const uint32 diff)
     {
         if (mTextTimer < diff)
         {
-            ProcessEventsFor(SMART_EVENT_TEXT_OVER, NULL, mLastTextID);
-            if (!mTextIDs.empty())
-            {
-                mLastTextID = (*mTextIDs.begin());
-                mTextIDs.erase(mTextIDs.begin());
-                mTextTimer = sCreatureTextMgr.SendChat(me, (uint8)mLastTextID, mTextGUID);
-            }else{
-                mLastTextID = 0;
-                mTextTimer = 0;
-                mUseTextTimer = false;
-            }
+            uint32 temp = mLastTextID;
+            mLastTextID = 0;
+            mTextTimer = 0;
+            mUseTextTimer = false;
+            uint32 tempEntry = talker?talker->GetEntry():0;
+            talker = NULL;
+            ProcessEventsFor(SMART_EVENT_TEXT_OVER, NULL, temp, tempEntry);
         } else mTextTimer -= diff;
     }
 }
