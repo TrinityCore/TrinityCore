@@ -136,7 +136,7 @@ enum SMART_EVENT
     SMART_EVENT_QUEST_COMPLETION         = 49,      //1             // none
     SMART_EVENT_QUEST_REWARDED           = 50,      //1             // none
     SMART_EVENT_QUEST_FAIL               = 51,      //1             // none
-    SMART_EVENT_TEXT_OVER                = 52,      //1             // GroupId from creature_text (0 any)
+    SMART_EVENT_TEXT_OVER                = 52,      //1             // GroupId from creature_text,  creature entry who talks (0 any)
     SMART_EVENT_RECEIVE_HEAL             = 53,      //1             // MinHeal, MaxHeal, CooldownMin, CooldownMax
     SMART_EVENT_JUST_SUMMONED            = 54,      //1             // none
     SMART_EVENT_WAYPOINT_PAUSED          = 55,      //1             // PointId(0any), pathID(0any)
@@ -310,6 +310,7 @@ struct SmartEvent
         struct
         {
             uint32 textGroupID;
+            uint32 creatureEntry;
         } textOver;
 
         struct
@@ -436,12 +437,8 @@ struct SmartAction
     {
         struct
         {
-            uint32 textGroupID1;
-            uint32 textGroupID2;
-            uint32 textGroupID3;
-            uint32 textGroupID4;
-            uint32 textGroupID5;
-            uint32 textGroupID6;
+            uint32 textGroupID;
+            uint32 duration;
         } talk;
 
         struct
