@@ -107,9 +107,12 @@ class SmartScript
         }
         bool IsSmart(Creature* c = NULL)
         {
-            if (c && c->GetAIName() != "SmartAI") return false;
-            if (!me || me->GetAIName() != "SmartAI") return false;
-            return true;
+            bool smart = true;
+            if (c && c->GetAIName() != "SmartAI") smart = false;
+            if (!me || me->GetAIName() != "SmartAI") smart = false;
+            if (!smart)
+                sLog.outErrorDb("SmartScript: Action target creature(entry: %u) is not using SmartAI, action skipped to prevent crash.", c?c->GetEntry():(me?me->GetEntry():0));
+            return smart;
         }
         ObjectList* GetTargetList(uint32 id)
         {
