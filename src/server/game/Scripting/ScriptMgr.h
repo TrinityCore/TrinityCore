@@ -1043,7 +1043,7 @@ class ScriptMgr
                         else
                         {
                             // The script uses a script name from database, but isn't assigned to anything.
-                            if (script->GetName().find("example") == std::string::npos)
+                            if (script->GetName().find("example") == std::string::npos && script->GetName().find("smart") == std::string::npos)
                                 sLog.outErrorDb("Script named '%s' does not have a script name assigned in database.",
                                     script->GetName().c_str());
                         }
