@@ -125,61 +125,97 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                 break;
             }
         case SMART_ACTION_PLAY_EMOTE:
-            if (me)
-                me->HandleEmoteCommand(e.action.emote.emote);
-            break;
+            {
+                ObjectList* targets = GetTargets(e, unit);
+                if (targets)
+                    for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); itr++)
+                        if (IsUnit((*itr)))
+                            (*itr)->ToUnit()->HandleEmoteCommand(e.action.emote.emote);
+                break;
+            }
         case SMART_ACTION_SOUND:
-            if (me)
-                sCreatureTextMgr.SendSound(me, e.action.sound.sound, CHAT_TYPE_SAY, 0, TextRange(e.action.sound.range), Team(NULL), false);
-            break;
+            {
+                ObjectList* targets = GetTargets(e, unit);
+                if (targets)
+                    for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); itr++)
+                        if (IsCreature((*itr)))
+                            sCreatureTextMgr.SendSound((*itr)->ToCreature(), e.action.sound.sound, CHAT_TYPE_SAY, 0, TextRange(e.action.sound.range), Team(NULL), false);
+                break;
+            }
         case SMART_ACTION_SET_FACTION:
         {
-            if (!me) return;
-            if (e.action.faction.factionID)
-                me->setFaction(e.action.faction.factionID);
-            else
+            ObjectList* targets = GetTargets(e, unit);
+            if (targets)
             {
-                if (CreatureInfo const* ci = GetCreatureTemplateStore(me->GetEntry()))
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); itr++)
                 {
-                    if (me->getFaction() != ci->faction_A)
-                        me->setFaction(ci->faction_A);
+                    if (IsCreature((*itr)))
+                    {
+                        if (e.action.faction.factionID)
+                            (*itr)->ToCreature()->setFaction(e.action.faction.factionID);
+                        else
+                        {
+                            if (CreatureInfo const* ci = GetCreatureTemplateStore((*itr)->ToCreature()->GetEntry()))
+                            {
+                                if ((*itr)->ToCreature()->getFaction() != ci->faction_A)
+                                    (*itr)->ToCreature()->setFaction(ci->faction_A);
+                            }
+                        }
+                    }
                 }
             }
             break;
         }
         case SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL:
         {
-            if (!me) return;
-            if (e.action.morphOrMount.creature || e.action.morphOrMount.model)
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets) return;
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); itr++)
             {
-                //set model based on entry from creature_template
-                if (e.action.morphOrMount.creature)
+                if (!IsCreature((*itr)))
+                    continue;
+            
+                if (e.action.morphOrMount.creature || e.action.morphOrMount.model)
                 {
-                    if (CreatureInfo const* ci = GetCreatureTemplateStore(e.action.morphOrMount.creature))
+                    //set model based on entry from creature_template
+                    if (e.action.morphOrMount.creature)
                     {
-                        uint32 display_id = sObjectMgr.ChooseDisplayId(0, ci);
-                        me->SetDisplayId(display_id);
+                        if (CreatureInfo const* ci = GetCreatureTemplateStore(e.action.morphOrMount.creature))
+                        {
+                            uint32 display_id = sObjectMgr.ChooseDisplayId(0, ci);
+                            (*itr)->ToCreature()->SetDisplayId(display_id);
+                        }
                     }
+                    //if no param1, then use value from param2 (modelId)
+                    else
+                        (*itr)->ToCreature()->SetDisplayId(e.action.morphOrMount.model);
                 }
-                //if no param1, then use value from param2 (modelId)
                 else
-                    me->SetDisplayId(e.action.morphOrMount.model);
+                    (*itr)->ToCreature()->DeMorph();
             }
-            else
-                me->DeMorph();
             break;
         }
         case SMART_ACTION_FAIL_QUEST:
         {
-            if (!unit || !unit->ToPlayer()) return;//return if no player
-            unit->ToPlayer()->FailQuest(e.action.quest.quest);
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets) return;
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); itr++)
+            {
+                if (IsPlayer((*itr)))
+                    (*itr)->ToPlayer()->FailQuest(e.action.quest.quest);
+            }
             break;
         }
         case SMART_ACTION_ADD_QUEST:
         {
-            if (!unit || !unit->ToPlayer()) return;//return if no player
-            if (const Quest* q = sObjectMgr.GetQuestTemplate(e.action.quest.quest))
-                unit->ToPlayer()->AddQuest(q, NULL);
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets) return;
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); itr++)
+            {
+                if (IsPlayer((*itr)))
+                    if (const Quest* q = sObjectMgr.GetQuestTemplate(e.action.quest.quest))
+                        (*itr)->ToPlayer()->AddQuest(q, NULL);
+            }
             break;
         }
         case SMART_ACTION_SET_REACT_STATE:
@@ -190,7 +226,8 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_RANDOM_EMOTE:
             {
-                if (!me) return;
+                ObjectList* targets = GetTargets(e, unit);
+                if (!targets) return;
                 uint32 emotes[SMART_ACTION_PARAM_COUNT];
                 emotes[0] = e.action.randomEmote.emote1;
                 emotes[1] = e.action.randomEmote.emote2;
@@ -208,7 +245,9 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                         count++;
                     }
                 }
-                me->HandleEmoteCommand(temp[urand(0, count)]);
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); itr++)
+                    if (IsUnit((*itr)))
+                        (*itr)->ToUnit()->HandleEmoteCommand(temp[urand(0, count)]);
                 break;
             }
         case SMART_ACTION_THREAT_ALL_PCT:
@@ -242,12 +281,12 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
             }
         case SMART_ACTION_SEND_CASTCREATUREORGO:
             {
-                if (!me) return;
+                if (!GetBaseObject()) return;
                 ObjectList* targets = GetTargets(e, unit);
                 if (!targets) return;
                 for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); itr++)
                     if (IsPlayer((*itr)))
-                        (*itr)->ToPlayer()->CastedCreatureOrGO(e.action.castedCreatureOrGO.creature, me->GetGUID(), e.action.castedCreatureOrGO.spell);
+                        (*itr)->ToPlayer()->CastedCreatureOrGO(e.action.castedCreatureOrGO.creature, GetBaseObject()->GetGUID(), e.action.castedCreatureOrGO.spell);
                 break;
             }
         case SMART_ACTION_CAST:
@@ -299,20 +338,29 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
             }
         case SMART_ACTION_SET_EMOTE_STATE:
             {
-                if (!me) return;
-                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, e.action.emote.emote);
+                ObjectList* targets = GetTargets(e, unit);
+                if (!targets) return;
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); itr++)
+                    if (IsUnit((*itr)))
+                        (*itr)->ToUnit()->SetUInt32Value(UNIT_NPC_EMOTESTATE, e.action.emote.emote);
                 break;
             }
         case SMART_ACTION_SET_UNIT_FLAG:
             {
-                if (!me) return;
-                me->SetFlag(UNIT_FIELD_FLAGS, e.action.unitFlag.flag);
+                ObjectList* targets = GetTargets(e, unit);
+                if (!targets) return;
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); itr++)
+                    if (IsUnit((*itr)))
+                        (*itr)->ToUnit()->SetFlag(UNIT_FIELD_FLAGS, e.action.unitFlag.flag);
                 break;
             }
         case SMART_ACTION_REMOVE_UNIT_FLAG:
             {
-                if (!me) return;
-                me->RemoveFlag(UNIT_FIELD_FLAGS, e.action.unitFlag.flag);
+                ObjectList* targets = GetTargets(e, unit);
+                if (!targets) return;
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); itr++)
+                    if (IsUnit((*itr)))
+                        (*itr)->ToUnit()->RemoveFlag(UNIT_FIELD_FLAGS, e.action.unitFlag.flag);
                 break;
             }
         case SMART_ACTION_AUTO_ATTACK:
@@ -523,22 +571,27 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
             }
         case SMART_ACTION_MOUNT_TO_ENTRY_OR_MODEL:
             {
-                if (!me) return;
-                if (e.action.morphOrMount.creature || e.action.morphOrMount.model)
+                ObjectList* targets = GetTargets(e, unit);
+                if (!targets) return;
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); itr++)
                 {
-                    if (e.action.morphOrMount.creature > 0)
+                    if(!IsUnit((*itr))) continue;
+                    if (e.action.morphOrMount.creature || e.action.morphOrMount.model)
                     {
-                        if (CreatureInfo const* cInfo = GetCreatureTemplateStore(e.action.morphOrMount.creature))
+                        if (e.action.morphOrMount.creature > 0)
                         {
-                            uint32 display_id = sObjectMgr.ChooseDisplayId(0, cInfo);
-                            me->Mount(display_id);
+                            if (CreatureInfo const* cInfo = GetCreatureTemplateStore(e.action.morphOrMount.creature))
+                            {
+                                uint32 display_id = sObjectMgr.ChooseDisplayId(0, cInfo);
+                                (*itr)->ToUnit()->Mount(display_id);
+                            }
                         }
+                        else
+                            (*itr)->ToUnit()->Mount(e.action.morphOrMount.model);
                     }
                     else
-                        me->Mount(e.action.morphOrMount.model);
+                        (*itr)->ToUnit()->Unmount();
                 }
-                else
-                    me->Unmount();
                 break;
             }
         case SMART_ACTION_SET_INVINCIBILITY_HP_LEVEL:
