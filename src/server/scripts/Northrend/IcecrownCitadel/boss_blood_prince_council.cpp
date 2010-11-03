@@ -941,8 +941,14 @@ class npc_blood_queen_lana_thel : public CreatureScript
             void Reset()
             {
                 events.Reset();
-                me->SetVisibility(VISIBILITY_ON);
                 me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                if (instance->GetBossState(DATA_BLOOD_PRINCE_COUNCIL) == DONE)
+                {
+                    me->SetVisibility(VISIBILITY_OFF);
+                    bIntroDone = true;
+                }
+                else
+                    me->SetVisibility(VISIBILITY_ON);
             }
 
             void MoveInLineOfSight(Unit* who)
