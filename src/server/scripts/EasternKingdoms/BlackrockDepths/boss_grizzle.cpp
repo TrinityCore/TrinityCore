@@ -25,11 +25,6 @@ EndScriptData */
 
 #include "ScriptPCH.h"
 
-enum Yells
-{
-    EMOTE_GENERIC_FRENZY_KILL                              = -1000001
-};
-
 enum Spells
 {
     SPELL_GROUNDTREMOR                                     = 6524,

@@ -27,8 +27,6 @@ EndScriptData */
 
 enum eEnums
 {
-    EMOTE_GENERIC_FRENZY_KILL   = -1000001,
-
     SPELL_FLAMESTRIKE            = 18399,
     SPELL_BLAST_WAVE             = 16046,
     SPELL_FIRESHIELD             = 19626,
