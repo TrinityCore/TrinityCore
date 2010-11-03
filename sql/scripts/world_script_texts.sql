@@ -36,8 +36,8 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (0,-1000001,'%s goes into a killing frenzy!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'EMOTE_GENERIC_FRENZY_KILL'),
    (0,-1000002,'%s goes into a frenzy!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'EMOTE_GENERIC_FRENZY'),
    (0,-1000003,'%s becomes enraged!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'EMOTE_GENERIC_ENRAGED'),
-   (0,-1000004,'goes into a berserker rage!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'EMOTE_GENERIC_BERSERK'),
-   (0,-1000005,'UNUSED',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'REUSE ME'),
+   (0,-1000004,'%s goes into a berserker rage!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'EMOTE_GENERIC_BERSERK'),
+   (0,-1000005,'%s goes into a berserker rage!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,3,0,0,'EMOTE_GENERIC_BERSERK_RAID'),
 
 --
 -- Normal text entries. Say/Yell/Whisper/Emote for any regular world object.

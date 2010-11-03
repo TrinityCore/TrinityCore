@@ -22,4 +22,3 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (72087,'spell_valanar_kinetic_bomb_knockback'),
 (73001,'spell_blood_council_shadow_prison'),
 (72999,'spell_blood_council_shadow_prison_damage');
-

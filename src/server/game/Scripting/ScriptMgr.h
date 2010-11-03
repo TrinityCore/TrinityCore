@@ -66,7 +66,6 @@ struct ItemPrototype;
 struct OutdoorPvPData;
 
 #define VISIBLE_RANGE       (166.0f)                        //MAX visible range (size of grid)
-#define DEFAULT_TEXT        "<Trinity Script Text Entry Missing!>"
 
 // Generic scripting text function.
 void DoScriptText(int32 textEntry, WorldObject* pSource, Unit *pTarget = NULL);
