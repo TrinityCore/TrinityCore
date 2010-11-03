@@ -1303,12 +1303,12 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder e, Unit* invoker)
                     target = HashMapHolder<Creature>::Find(guid);
                 } else 
                 {
-                    if (!invoker)
+                    if (!invoker && !GetBaseObject())
                     {
-                        sLog.outError("SMART_TARGET_CREATURE_GUID can not be used without invoker and without entry");
+                        sLog.outErrorDb("SMART_TARGET_CREATURE_GUID can not be used without invoker and without entry");
                         return NULL;
                     }
-                    target = FindCreatureNear(invoker, e.target.unitGUID.guid);
+                    target = FindCreatureNear(invoker?invoker:GetBaseObject(), e.target.unitGUID.guid);
                 }
                 if (target)
                 {
@@ -1325,12 +1325,12 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder e, Unit* invoker)
                     target = HashMapHolder<GameObject>::Find(guid);
                 } else 
                 {
-                    if (!invoker)
+                    if (!invoker && !GetBaseObject())
                     {
-                        sLog.outError("SMART_TARGET_GAMEOBJECT_GUID can not be used without invoker and without entry");
+                        sLog.outErrorDb("SMART_TARGET_GAMEOBJECT_GUID can not be used without invoker and without entry");
                         return NULL;
                     }
-                    target = FindGameObjectNear(invoker, e.target.goGUID.guid);
+                    target = FindGameObjectNear(invoker?invoker:GetBaseObject(), e.target.goGUID.guid);
                 }
                 if (target)
                 {
