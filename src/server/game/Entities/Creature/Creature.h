@@ -732,6 +732,7 @@ class Creature : public Unit, public GridObject<Creature>
 
         //Formation var
         CreatureGroup *m_formation;
+        bool TriggerJustRespawned;
 };
 
 class AssistDelayEvent : public BasicEvent
