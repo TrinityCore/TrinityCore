@@ -161,6 +161,7 @@ m_formation(NULL)
     m_CombatDistance = 0;//MELEE_RANGE;
 
     ResetLootMode(); // restore default loot mode
+    TriggerJustRespawned = false;
 }
 
 Creature::~Creature()
@@ -436,6 +437,12 @@ void Creature::Update(uint32 diff)
         m_GlobalCooldown = 0;
     else
         m_GlobalCooldown -= diff;
+
+    if (IsAIEnabled && TriggerJustRespawned)
+    {
+        TriggerJustRespawned = false;
+        AI()->JustRespawned();
+    }
 
     switch(m_deathState)
     {
@@ -1630,7 +1637,7 @@ void Creature::Respawn(bool force)
 
         //Call AI respawn virtual function
         if (IsAIEnabled)
-            AI()->JustRespawned();
+            TriggerJustRespawned = true;//delay event to next tick so all creatures are created on the map before processing
 
         uint32 poolid = GetDBTableGUIDLow() ? sPoolMgr.IsPartOfAPool<Creature>(GetDBTableGUIDLow()) : 0;
         if (poolid)
