@@ -233,6 +233,7 @@ class boss_festergut : public CreatureScript
                             me->CastCustomSpell(SPELL_GAS_SPORE, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2,3,2,3), me);
                             DoScriptText(EMOTE_GAS_SPORE, me);
                             events.ScheduleEvent(EVENT_GAS_SPORE, urand(40000, 45000));
+                            break;
                         case EVENT_GASTRIC_BLOAT:
                             DoCastVictim(SPELL_GASTRIC_BLOAT);
                             events.ScheduleEvent(EVENT_GASTRIC_BLOAT, urand(15000, 17500));
