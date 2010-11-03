@@ -68,6 +68,26 @@ bool OldHandler(ChatHandler* chatHandler, const char* args)
     return (chatHandler->*F)(args);
 }
 
+// get number of commands in table
+static size_t getCommandTableSize(const ChatCommand* commands)
+{
+    if (!commands)
+        return 0;
+    size_t count = 0;
+    while (commands[count].Name != NULL)
+        count++;
+    return count;
+}
+
+// append source command table to target, return number of appended commands
+static size_t appendCommandTable(ChatCommand* target, const ChatCommand* source)
+{
+    const size_t count = getCommandTableSize(source);
+    if (count)
+        memcpy(target, source, count * sizeof(ChatCommand));
+    return count;
+}
+
 ChatCommand * ChatHandler::getCommandTable()
 {
     static ChatCommand accountSetCommandTable[] =
@@ -812,9 +832,31 @@ ChatCommand * ChatHandler::getCommandTable()
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
 
+    // cache for commands, needed because some commands are loaded dynamically through ScriptMgr
+    // cache is never freed and will show as a memory leak in diagnostic tools
+    // can't use vector as vector storage is implementation-dependent, eg, there can be alignment gaps between elements
+    static ChatCommand* commandTableCache = 0;
+
     if (load_command_table)
     {
         load_command_table = false;
+
+        {
+            // count total number of top-level commands
+            size_t total = getCommandTableSize(commandTable);
+            std::vector<ChatCommand*> const& dynamic = sScriptMgr.GetChatCommands();
+            for (std::vector<ChatCommand*>::const_iterator it = dynamic.begin(); it != dynamic.end(); ++it)
+                total += getCommandTableSize(*it);
+            total += 1; // ending zero
+
+            // cache top-level commands
+            commandTableCache = (ChatCommand*)malloc(sizeof(ChatCommand) * total);
+            memset(commandTableCache, 0, sizeof(ChatCommand) * total);
+            ACE_ASSERT(commandTableCache);
+            size_t added = appendCommandTable(commandTableCache, commandTable);
+            for (std::vector<ChatCommand*>::const_iterator it = dynamic.begin(); it != dynamic.end(); ++it)
+                added += appendCommandTable(commandTableCache + added, *it);
+        }
 
         QueryResult result = WorldDatabase.Query("SELECT name,security,help FROM command");
         if (result)
@@ -824,13 +866,13 @@ ChatCommand * ChatHandler::getCommandTable()
                 Field *fields = result->Fetch();
                 std::string name = fields[0].GetString();
 
-                SetDataForCommandInTable(commandTable, name.c_str(), fields[1].GetUInt16(), fields[2].GetString(), name);
+                SetDataForCommandInTable(commandTableCache, name.c_str(), fields[1].GetUInt16(), fields[2].GetString(), name);
 
             } while (result->NextRow());
         }
     }
 
-    return commandTable;
+    return commandTableCache;
 }
 
 const char *ChatHandler::GetTrinityString(int32 entry) const
@@ -997,15 +1039,6 @@ void ChatHandler::PSendSysMessage(const char *format, ...)
     SendSysMessage(str);
 }
 
-bool ChatHandler::ExecuteCommandInTables(std::vector<ChatCommand*> const& tables, const char* text, const std::string& fullcmd)
-{
-    for (std::vector<ChatCommand*>::const_iterator it = tables.begin(); it != tables.end(); ++it)
-        if (ExecuteCommandInTable((*it), text, fullcmd))
-            return true;
-
-    return false;
-}
-
 bool ChatHandler::ExecuteCommandInTable(ChatCommand *table, const char* text, const std::string& fullcmd)
 {
     char const* oldtext = text;
@@ -1163,14 +1196,10 @@ int ChatHandler::ParseCommands(const char* text)
 
     if (!ExecuteCommandInTable(getCommandTable(), text, fullcmd))
     {
-        std::vector<ChatCommand*> const& tables = sScriptMgr.GetChatCommands();
-        if (!ExecuteCommandInTables(tables, text, fullcmd))
-        {
-            if (m_session && m_session->GetSecurity() == SEC_PLAYER)
-                return 0;
+        if (m_session && m_session->GetSecurity() == SEC_PLAYER)
+            return 0;
 
-            SendSysMessage(LANG_NO_CMD);
-        }
+        SendSysMessage(LANG_NO_CMD);
     }
     return 1;
 }
