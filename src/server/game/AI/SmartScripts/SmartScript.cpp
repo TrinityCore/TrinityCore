@@ -1477,19 +1477,13 @@ void SmartScript::ProcessEvent(SmartScriptHolder &e, Unit* unit, uint32 var0, ui
             }
         case SMART_EVENT_RANGE:
             {
-                if (!GetBaseObject()) return;
-                ObjectList* targets = GetTargets(e, unit);
-                if (!targets) return;
-                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); itr++)
+                if (!me || !me->isInCombat() || !me->getVictim())
+                    return;
+
+                if (me->IsInRange(me->getVictim(),(float)e.event.minMaxRepeat.min,(float)e.event.minMaxRepeat.max))
                 {
-                    if (!IsUnit((*itr)))
-                        continue;
-                    if (GetBaseObject()->IsInMap((*itr)))
-                    if (GetBaseObject()->IsInRange((*itr),(float)e.event.minMaxRepeat.min,(float)e.event.minMaxRepeat.max))
-                    {
-                        ProcessAction(e, (*itr)->ToUnit());
-                        RecalcTimer(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax);
-                    }
+                    ProcessAction(e, me->getVictim());
+                    RecalcTimer(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax);
                 }
                 break;
             }
