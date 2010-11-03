@@ -345,7 +345,7 @@ enum SMART_SCRIPT_RESPAWN_CONDITION
 enum SMART_ACTION
 {
     SMART_ACTION_NONE                               = 0,      // No action
-    SMART_ACTION_TALK                               = 1,      // groupID from creature_text
+    SMART_ACTION_TALK                               = 1,      // groupID from creature_text, duration to wait before TEXT_OVER event is triggered
     SMART_ACTION_SET_FACTION                        = 2,      // FactionId (or 0 for default)
     SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL            = 3,      // Creature_template entry(param1) OR ModelId (param2) (or 0 for both to demorph)
     SMART_ACTION_SOUND                              = 4,      // SoundId, TextRange
@@ -426,7 +426,12 @@ enum SMART_ACTION
     SMART_ACTION_RESET_SCRIPT_BASE_OBJECT           = 77,     // none
     SMART_ACTION_CALL_SCRIPT_RESET                  = 78,     // none
     SMART_ACTION_ENTER_VEHICLE                      = 79,     // seatID
-    SMART_ACTION_END                                = 80,
+    SMART_ACTION_CALL_TIMED_ACTIONLIST              = 80,     // ID (overwrites already running actionlist), stop after combat?(0/1), timer update type(0-OOC, 1-IC, 2-ALWAYS)
+    SMART_ACTION_SET_NPC_FLAG                       = 81,     // Flags
+    SMART_ACTION_ADD_NPC_FLAG                       = 82,     // Flags
+    SMART_ACTION_REMOVE_NPC_FLAG                    = 83,     // Flags
+    
+    SMART_ACTION_END                                = 84,
 };
 
 struct SmartAction
@@ -766,6 +771,13 @@ struct SmartAction
         {
             uint32 seat;
         } enterVehicle;
+        
+        struct
+        {
+            uint32 id;
+            uint32 dontResume;
+            uint32 timerType;
+        } timedActionList;
 
         struct
         {
@@ -927,7 +939,8 @@ enum SmartScriptType
     SMART_SCRIPT_TYPE_SPELL = 6,//
     SMART_SCRIPT_TYPE_TRANSPORT = 7,//
     SMART_SCRIPT_TYPE_INSTANCE = 8,//
-    SMART_SCRIPT_TYPE_MAX = 9
+    SMART_SCRIPT_TYPE_TIMED_ACTIONLIST = 9,//
+    SMART_SCRIPT_TYPE_MAX = 10
 };
 
 enum SmartAITypeMaskId
@@ -941,24 +954,26 @@ enum SmartAITypeMaskId
     SMART_SCRIPT_TYPE_MASK_SPELL = 64,
     SMART_SCRIPT_TYPE_MASK_TRANSPORT = 128,
     SMART_SCRIPT_TYPE_MASK_INSTANCE = 256,
+    SMART_SCRIPT_TYPE_MASK_TIMED_ACTIONLIST = 512,
 };
 
 const uint32 SmartAITypeMask[SMART_SCRIPT_TYPE_MAX][2] =
 {
-    {SMART_SCRIPT_TYPE_CREATURE,      SMART_SCRIPT_TYPE_MASK_CREATURE },
-    {SMART_SCRIPT_TYPE_GAMEOBJECT,    SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
-    {SMART_SCRIPT_TYPE_AREATRIGGER,   SMART_SCRIPT_TYPE_MASK_AREATRIGGER },
-    {SMART_SCRIPT_TYPE_EVENT,         SMART_SCRIPT_TYPE_MASK_EVENT },
-    {SMART_SCRIPT_TYPE_GOSSIP,        SMART_SCRIPT_TYPE_MASK_GOSSIP },
-    {SMART_SCRIPT_TYPE_QUEST,         SMART_SCRIPT_TYPE_MASK_QUEST },
-    {SMART_SCRIPT_TYPE_SPELL,         SMART_SCRIPT_TYPE_MASK_SPELL },
-    {SMART_SCRIPT_TYPE_TRANSPORT,     SMART_SCRIPT_TYPE_MASK_TRANSPORT },
-    {SMART_SCRIPT_TYPE_INSTANCE,      SMART_SCRIPT_TYPE_MASK_INSTANCE }
+    {SMART_SCRIPT_TYPE_CREATURE,            SMART_SCRIPT_TYPE_MASK_CREATURE },
+    {SMART_SCRIPT_TYPE_GAMEOBJECT,          SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
+    {SMART_SCRIPT_TYPE_AREATRIGGER,         SMART_SCRIPT_TYPE_MASK_AREATRIGGER },
+    {SMART_SCRIPT_TYPE_EVENT,               SMART_SCRIPT_TYPE_MASK_EVENT },
+    {SMART_SCRIPT_TYPE_GOSSIP,              SMART_SCRIPT_TYPE_MASK_GOSSIP },
+    {SMART_SCRIPT_TYPE_QUEST,               SMART_SCRIPT_TYPE_MASK_QUEST },
+    {SMART_SCRIPT_TYPE_SPELL,               SMART_SCRIPT_TYPE_MASK_SPELL },
+    {SMART_SCRIPT_TYPE_TRANSPORT,           SMART_SCRIPT_TYPE_MASK_TRANSPORT },
+    {SMART_SCRIPT_TYPE_INSTANCE,            SMART_SCRIPT_TYPE_MASK_INSTANCE },
+    {SMART_SCRIPT_TYPE_TIMED_ACTIONLIST,    SMART_SCRIPT_TYPE_MASK_TIMED_ACTIONLIST }
 };
 
 const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
 {
-    {SMART_EVENT_UPDATE_IC,                 SMART_SCRIPT_TYPE_MASK_CREATURE },
+    {SMART_EVENT_UPDATE_IC,                 SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_TIMED_ACTIONLIST},
     {SMART_EVENT_UPDATE_OOC,                SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT + SMART_SCRIPT_TYPE_MASK_INSTANCE },
     {SMART_EVENT_HEALT_PCT,                 SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_MANA_PCT,                  SMART_SCRIPT_TYPE_MASK_CREATURE },
@@ -1062,6 +1077,7 @@ struct SmartScriptHolder
         entryOrGuid = 0;
         link = 0;
         event_id = 0;
+        enableTimed = false;
     }
     int32 entryOrGuid;
     SmartScriptType source_type;
@@ -1081,7 +1097,7 @@ struct SmartScriptHolder
     uint32 timer;
     bool active;
     bool runOnce;
-    
+    bool enableTimed;
     
 };
 
@@ -1133,7 +1149,7 @@ class SmartAIMgr
             else 
             {
                 if(entry > 0)//first search is for guid (negative), do not drop error if not found
-                    sLog.outError("SmartAIMgr::GetScript: Could not load Script for Entry %d AIType %u.", entry, uint32(type));
+                    sLog.outError("SmartAIMgr::GetScript: Could not load Script for Entry %d ScriptType %u.", entry, uint32(type));
                 return temp;
             }
         }
@@ -1142,7 +1158,7 @@ class SmartAIMgr
         //event stores
         SmartAIEventMap mEventMap[SMART_SCRIPT_TYPE_MAX];
 
-        bool IsEventValid(SmartScriptHolder e);
+        bool IsEventValid(SmartScriptHolder &e);
         bool IsTargetValid(SmartScriptHolder e);
         /*inline bool IsTargetValid(SmartScriptHolder e, int32 target)
         {

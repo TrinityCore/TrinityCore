@@ -51,6 +51,7 @@ SmartScript::SmartScript()
     mTemplate = SMARTAI_TEMPLATE_BASIC;
     meOrigGUID = 0;
     goOrigGUID = 0;
+    mResumeActionList = true;
 }
 
 void SmartScript::OnReset()
@@ -59,8 +60,7 @@ void SmartScript::OnReset()
     ResetBaseObject();
     for (SmartAIEventList::iterator i = mEvents.begin(); i != mEvents.end(); ++i)
     {
-        if ((*i).GetEventType() == SMART_EVENT_UPDATE_OOC || (*i).GetEventType() == SMART_EVENT_UPDATE)
-            RecalcTimer((*i), (*i).event.minMaxRepeat.min, (*i).event.minMaxRepeat.max);
+        InitTimer((*i));
         (*i).runOnce = false;
     }
     ProcessEventsFor(SMART_EVENT_RESET);
@@ -68,10 +68,27 @@ void SmartScript::OnReset()
 
 void SmartScript::ProcessEventsFor(SMART_EVENT e, Unit* unit, uint32 var0, uint32 var1, bool bvar, const SpellEntry* spell, GameObject* gob)
 {
+    if (e == SMART_EVENT_AGGRO)
+    {
+        if (!mResumeActionList)
+            mTimedActionList.clear();//clear action list if it is not resumable
+        else
+        {
+            for (SmartAIEventList::iterator itr = mTimedActionList.begin(); itr != mTimedActionList.end(); ++itr)
+            {
+                if (itr->enableTimed)
+                {
+                    InitTimer((*itr));//re-init the currently enabled timer, so it restarts the timer when resumed
+                    break;
+                }
+            }
+        }
+    }
     for (SmartAIEventList::iterator i = mEvents.begin(); i != mEvents.end(); ++i)
     {
         if ((*i).GetEventType() == SMART_EVENT_LINK)//special handling
             continue;
+        
         if ((*i).GetEventType() == e/* && (!(*i).event.event_phase_mask || IsInPhase((*i).event.event_phase_mask)) && !((*i).event.event_flags & SMART_EVENT_FLAG_NOT_REPEATABLE && (*i).runOnce)*/)
             ProcessEvent(*i, unit, var0, var1, bvar, spell, gob);
     }
@@ -989,6 +1006,57 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                 }
                 break;
             }
+        case SMART_ACTION_CALL_TIMED_ACTIONLIST:
+            {
+                mTimedActionList.clear();
+                mTimedActionList = sSmartScriptMgr.GetScript(e.action.timedActionList.id, SMART_SCRIPT_TYPE_TIMED_ACTIONLIST);
+                if (mTimedActionList.empty())
+                    return;
+                for (SmartAIEventList::iterator i = mTimedActionList.begin(); i != mTimedActionList.end(); ++i)
+                {
+                    if (i == mTimedActionList.begin())
+                    {
+                        i->enableTimed = true;//enable processing only for the first action
+                    }
+                    else i->enableTimed = false;
+                    
+                    //i->event.type = SMART_EVENT_UPDATE_IC;//default value
+                    if (e.action.timedActionList.timerType == 1)
+                        i->event.type = SMART_EVENT_UPDATE_IC;
+                    else if (e.action.timedActionList.timerType > 1)
+                        i->event.type = SMART_EVENT_UPDATE;
+                    mResumeActionList = e.action.timedActionList.dontResume ? false : true;
+                    InitTimer((*i));
+                }
+                break;
+            }
+        case SMART_ACTION_SET_NPC_FLAG:
+            {
+                ObjectList* targets = GetTargets(e, unit);
+                if (!targets) return;
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); itr++)
+                    if (IsUnit((*itr)))
+                        (*itr)->ToUnit()->SetUInt32Value(UNIT_NPC_FLAGS, e.action.unitFlag.flag);
+                break;
+            }
+        case SMART_ACTION_ADD_NPC_FLAG:
+            {
+                ObjectList* targets = GetTargets(e, unit);
+                if (!targets) return;
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); itr++)
+                    if (IsUnit((*itr)))
+                        (*itr)->ToUnit()->SetFlag(UNIT_NPC_FLAGS, e.action.unitFlag.flag);
+                break;
+            }
+        case SMART_ACTION_REMOVE_NPC_FLAG:
+            {
+                ObjectList* targets = GetTargets(e, unit);
+                if (!targets) return;
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); itr++)
+                    if (IsUnit((*itr)))
+                        (*itr)->ToUnit()->RemoveFlag(UNIT_NPC_FLAGS, e.action.unitFlag.flag);
+                break;
+            }
         default:
             sLog.outErrorDb("SmartScript::ProcessAction: Unhandled Action type %u", e.GetActionType());
             break;
@@ -1738,6 +1806,11 @@ void SmartScript::UpdateTimer(SmartScriptHolder &e, const uint32 diff)
         return;
     if (e.event.event_phase_mask && !IsInPhase(e.event.event_phase_mask))
         return;
+    
+    if (e.GetEventType() == SMART_EVENT_UPDATE_IC && (!me || !me->isInCombat()))
+        return;
+    if (e.GetEventType() == SMART_EVENT_UPDATE_OOC && (me && me->isInCombat()))//can be used with me=NULL (go script)
+        return;
     if (e.timer < diff)
     {
         e.active = true;//activate events with cooldown
@@ -1757,8 +1830,23 @@ void SmartScript::UpdateTimer(SmartScriptHolder &e, const uint32 diff)
             case SMART_EVENT_FRIENDLY_MISSING_BUFF:        
             case SMART_EVENT_HAS_AURA:
             case SMART_EVENT_TARGET_BUFFED:
+            {
                 ProcessEvent(e);
+                if (e.GetScriptType() == SMART_SCRIPT_TYPE_TIMED_ACTIONLIST)
+                {
+                    e.enableTimed = false;//disable event if it is in an ActionList and was processed once
+                    for (SmartAIEventList::iterator i = mTimedActionList.begin(); i != mTimedActionList.end(); ++i)
+                    {
+                        //find the first event which is not the current one and enable it
+                        if (i->event_id > e.event_id)
+                        {
+                            i->enableTimed = true;
+                            break;
+                        }
+                    }
+                }
                 break;
+            }
         }
     } else e.timer -= diff;
 }
@@ -1796,6 +1884,21 @@ void SmartScript::OnUpdate(const uint32 diff)
              UpdateTimer((*i), diff);
         }
     }
+    bool needCleanup = true;
+    if (!mTimedActionList.empty())
+    {
+        for (SmartAIEventList::iterator i = mTimedActionList.begin(); i != mTimedActionList.end(); ++i)
+        {
+            if ((*i).enableTimed)
+            {
+                UpdateTimer((*i), diff);
+                needCleanup = false;
+            }
+        }
+    }
+    if (needCleanup)
+        mTimedActionList.clear();
+
     if (!mRemIDs.empty())
     {
         for (std::list<uint32>::iterator i = mRemIDs.begin(); i != mRemIDs.end(); ++i)
