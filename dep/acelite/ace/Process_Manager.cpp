@@ -1,4 +1,4 @@
-// $Id: Process_Manager.cpp 89454 2010-03-11 09:35:25Z johnnyw $
+// $Id: Process_Manager.cpp 91688 2010-09-09 11:21:50Z johnnyw $
 
 // Process_Manager.cpp
 #include "ace/Process_Manager.h"
@@ -21,10 +21,6 @@
 #include "ace/OS_NS_sys_time.h"
 #include "ace/os_include/os_typeinfo.h"
 #include "ace/Truncate.h"
-
-ACE_RCSID (ace,
-           Process_Manager,
-           "$Id: Process_Manager.cpp 89454 2010-03-11 09:35:25Z johnnyw $")
 
 #if defined (ACE_HAS_SIG_C_FUNC)
 extern "C" void
@@ -972,22 +968,6 @@ ACE_Process_Manager::wait (pid_t pid,
     }
 
   return pid;
-}
-
-// Legacy method:
-
-int
-ACE_Process_Manager::reap (pid_t pid,
-                           ACE_exitcode *stat_loc,
-                           int options)
-{
-  ACE_TRACE ("ACE_Process_Manager::reap");
-
-  return this->wait (pid,
-                     (ACE_BIT_ENABLED (options, WNOHANG)
-                      ? ACE_Time_Value::zero
-                      : ACE_Time_Value::max_time),
-                     stat_loc);
 }
 
 // Notify either the process-specific handler or the generic handler.

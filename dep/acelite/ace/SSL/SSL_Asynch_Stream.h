@@ -4,7 +4,7 @@
 /**
  *  @file   SSL_Asynch_Stream.h
  *
- *  $Id: SSL_Asynch_Stream.h 84181 2009-01-16 22:37:49Z shuston $
+ *  $Id: SSL_Asynch_Stream.h 91743 2010-09-13 18:24:51Z johnnyw $
  *
  *  @author Alexander Libman <alibman@baltimore.com>
  */
@@ -306,13 +306,13 @@ protected:
    *
    * Check 1:
    *
-   * SSL clients that require a peer certificate must specify SSL_VERIFY_PEER 
+   * SSL clients that require a peer certificate must specify SSL_VERIFY_PEER
    * via ACE_SSL_Context::default_verify_mode.  If the peer sends an invalid
    * certificate, the SSL handshake will fail; however, if the peer does not
-   * send a certificate, the SSL handshake will complete successfully which 
+   * send a certificate, the SSL handshake will complete successfully which
    * may not be acceptable.  In this case, you must override this method in a
    * subclass and return false if the call to SSL_get_peer_certificate returns
-   * null.  
+   * null.
    *
    * Check 2:
    *
@@ -322,10 +322,10 @@ protected:
    * by your CA to usurp your session.  For further info on this check, see
    * the post_connection_check method in Example 5-8 of 'Network Security with
    * OpenSSL' by Viega, et. al.
-   * 
+   *
    * Return:
-   * 
-   * false - Terminate the connection.  Outstanding IO complete with ERR_CANCELED.   
+   *
+   * false - Terminate the connection.  Outstanding IO complete with ERR_CANCELED.
    *
    * true  - Proceed with connection.  The default implementation returns true.
    */

@@ -1,4 +1,4 @@
-// $Id: Stats.cpp 83735 2008-11-14 09:41:52Z johnnyw $
+// $Id: Stats.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/Stats.h"
 
@@ -9,7 +9,7 @@
 #include "ace/OS_NS_stdio.h"
 #include "ace/OS_NS_string.h"
 
-ACE_RCSID(ace, Stats, "$Id: Stats.cpp 83735 2008-11-14 09:41:52Z johnnyw $")
+
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

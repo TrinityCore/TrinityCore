@@ -1,4 +1,4 @@
-// $Id: FIFO.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: FIFO.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/FIFO.h"
 
@@ -12,7 +12,7 @@
 #include "ace/OS_NS_sys_stat.h"
 #include "ace/OS_NS_fcntl.h"
 
-ACE_RCSID(ace, FIFO, "$Id: FIFO.cpp 80826 2008-03-04 14:51:23Z wotte $")
+
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

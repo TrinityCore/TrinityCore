@@ -1,8 +1,8 @@
-// $Id: OS_NS_time.cpp 86094 2009-07-17 19:04:11Z schmidt $
+// $Id: OS_NS_time.cpp 91683 2010-09-09 09:07:49Z johnnyw $
 
 #include "ace/OS_NS_time.h"
 
-ACE_RCSID(ace, OS_NS_time, "$Id: OS_NS_time.cpp 86094 2009-07-17 19:04:11Z schmidt $")
+
 
 #if !defined (ACE_HAS_INLINED_OSCALLS)
 # include "ace/OS_NS_time.inl"
@@ -226,11 +226,7 @@ ACE_OS::localtime_r (const time_t *t, struct tm *res)
 {
   ACE_OS_TRACE ("ACE_OS::localtime_r");
 #if defined (ACE_HAS_REENTRANT_FUNCTIONS)
-# if defined (DIGITAL_UNIX)
-  ACE_OSCALL_RETURN (::_Plocaltime_r (t, res), struct tm *, 0);
-# else
   ACE_OSCALL_RETURN (::localtime_r (t, res), struct tm *, 0);
-# endif /* DIGITAL_UNIX */
 #elif defined (ACE_HAS_TR24731_2005_CRT)
   ACE_SECURECRTCALL (localtime_s (res, t), struct tm *, 0, res);
   return res;

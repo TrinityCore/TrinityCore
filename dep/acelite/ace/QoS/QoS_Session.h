@@ -4,7 +4,7 @@
 /**
  *  @file    QoS_Session.h
  *
- *  $Id: QoS_Session.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: QoS_Session.h 91743 2010-09-13 18:24:51Z johnnyw $
  *
  *  @author Vishal Kachroo <vishal@cs.wustl.edu>
  */
@@ -52,7 +52,7 @@ public:
     RSVP_RESV_EVENT,
     RSVP_RESV_CONFIRM,
     RSVP_RESV_ERROR,
-    RSVP_PATH_ERROR    
+    RSVP_PATH_ERROR
   };
 
   /// A flag to indicate if this endpoint is a sender or a receiver or
@@ -64,7 +64,7 @@ public:
     ACE_QOS_BOTH
   };
 
-  
+
   /// to shutup g++.
   virtual ~ACE_QoS_Session (void) {};
 
@@ -118,7 +118,7 @@ public:
 
   virtual void  rsvp_event_type (RSVP_Event_Type event_type) = 0;
   ///Set the RAPI event that last occured
-  
+
   virtual RSVP_Event_Type rsvp_event_type (void) = 0;
   ///Get the RAPI event that last occured
 
@@ -137,10 +137,10 @@ public:
 
   //Set the source host
   virtual ACE_INET_Addr* source_addr (void) const = 0;
-  
+
   /// Set the source port for this session.
   virtual void source_addr (ACE_INET_Addr* source_addr) = 0;
-  
+
 
   /**
    * Returns the version of the underlying RSVP implementation. Is

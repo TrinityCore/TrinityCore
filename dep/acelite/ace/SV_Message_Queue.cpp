@@ -1,4 +1,4 @@
-// $Id: SV_Message_Queue.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: SV_Message_Queue.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/SV_Message_Queue.h"
 #include "ace/Log_Msg.h"
@@ -7,7 +7,7 @@
 #include "ace/SV_Message_Queue.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, SV_Message_Queue, "$Id: SV_Message_Queue.cpp 80826 2008-03-04 14:51:23Z wotte $")
+
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

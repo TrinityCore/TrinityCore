@@ -1,13 +1,11 @@
+// $Id: Token_Invariants.cpp 91287 2010-08-05 10:30:49Z johnnyw $
+
 #include "ace/Token_Invariants.h"
 
 #if defined (ACE_HAS_TOKENS_LIBRARY)
 
 #include "ace/Object_Manager.h"
 #include "ace/os_include/os_typeinfo.h"
-
-ACE_RCSID (ace,
-           Token_Invariants,
-           "$Id: Token_Invariants.cpp 84179 2009-01-16 07:26:45Z johnnyw $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

@@ -1,4 +1,4 @@
-// $Id: Thread_Manager.cpp 85341 2009-05-14 11:07:37Z johnnyw $
+// $Id: Thread_Manager.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
 
 #include "ace/TSS_T.h"
 #include "ace/Thread_Manager.h"
@@ -14,10 +14,6 @@
 #if !defined (__ACE_INLINE__)
 #include "ace/Thread_Manager.inl"
 #endif /* __ACE_INLINE__ */
-
-ACE_RCSID (ace,
-           Thread_Manager,
-           "$Id: Thread_Manager.cpp 85341 2009-05-14 11:07:37Z johnnyw $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

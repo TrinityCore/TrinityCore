@@ -4,7 +4,7 @@
 /**
  *  @file    Task.h
  *
- *  $Id: Task.h 91058 2010-07-12 08:20:09Z johnnyw $
+ *  $Id: Task.h 91688 2010-09-09 11:21:50Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -286,7 +286,6 @@ protected:
 
   /// Holds the thread ID of the last thread to exit svc() in this object.
   ACE_thread_t  last_thread_id_;
-
 private:
 
   // = Disallow these operations.

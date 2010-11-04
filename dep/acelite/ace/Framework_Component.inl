@@ -1,6 +1,5 @@
 // -*- C++ -*-
-//
-// $Id: Framework_Component.inl 80826 2008-03-04 14:51:23Z wotte $
+// $Id: Framework_Component.inl 92208 2010-10-13 06:20:39Z johnnyw $
 
 #include "ace/ACE.h"
 #include "ace/Guard_T.h"
@@ -24,7 +23,7 @@ ACE_INLINE int
 ACE_Framework_Repository::current_size (void) const
 {
   ACE_TRACE ("ACE_Framework_Repository::current_size");
-  ACE_MT (ACE_GUARD_RETURN (ACE_Thread_Mutex, ace_mon, (ACE_Thread_Mutex &) this->lock_, -1));
+  ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, ace_mon, const_cast <ACE_SYNCH_MUTEX&>(this->lock_), -1);
   return this->current_size_;
 }
 
@@ -32,7 +31,7 @@ ACE_INLINE int
 ACE_Framework_Repository::total_size (void) const
 {
   ACE_TRACE ("ACE_Framework_Repository::total_size");
-  ACE_MT (ACE_GUARD_RETURN (ACE_Thread_Mutex, ace_mon, (ACE_Thread_Mutex &) this->lock_, -1));
+  ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, ace_mon, const_cast <ACE_SYNCH_MUTEX&>(this->lock_), -1);
   return this->total_size_;
 }
 

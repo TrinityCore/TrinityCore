@@ -4,7 +4,7 @@
 /**
  *  @file    Atomic_Op.h
  *
- *  $Id: Atomic_Op.h 89936 2010-04-20 13:04:53Z johnnyw $
+ *  $Id: Atomic_Op.h 91523 2010-08-27 14:18:02Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@uci.edu>
  */
@@ -142,9 +142,9 @@ public:
 
 private:
 
-  // This function cannot be supported by this template specialization.
-  // If you need access to an underlying lock, use the ACE_Atomic_Op_Ex
-  // template instead.
+  /// This function cannot be supported by this template specialization.
+  /// If you need access to an underlying lock, use the ACE_Atomic_Op_Ex
+  /// template instead.
   ACE_Thread_Mutex &mutex (void);
 
 private:
@@ -152,7 +152,7 @@ private:
   /// Current object decorated by the atomic op.
   volatile long value_;
 
-  // Pointers to selected atomic op implementations.
+  /// Pointers to selected atomic op implementations.
   static long (*increment_fn_) (volatile long *);
   static long (*decrement_fn_) (volatile long *);
   static long (*exchange_fn_) (volatile long *, long);

@@ -1,11 +1,11 @@
-// $Id: LSOCK_Connector.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: LSOCK_Connector.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/LSOCK_Connector.h"
 #if !defined (ACE_LACKS_UNIX_DOMAIN_SOCKETS)
 
 #include "ace/Log_Msg.h"
 
-ACE_RCSID(ace, LSOCK_Connector, "$Id: LSOCK_Connector.cpp 80826 2008-03-04 14:51:23Z wotte $")
+
 
 #if !defined (__ACE_INLINE__)
 #include "ace/LSOCK_Connector.inl"

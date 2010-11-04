@@ -4,7 +4,7 @@
 /**
  *  @file    Caching_Strategies_T.h
  *
- *  $Id: Caching_Strategies_T.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Caching_Strategies_T.h 92097 2010-09-30 05:41:49Z msmit $
  *
  *  @author Kirthika Parameswaran <kirthika@cs.wustl.edu>
  */
@@ -191,7 +191,7 @@ private:
  * The ATTRIBUTES are the deciding factor for purging of entries
  * and should logically be included with the VALUE. Some ways of
  * doing this are: As being a member of the VALUE or VALUE being
- * ACE_Pair<x, ATTRIBUTES>. The CACHING_UTILITY is the
+ * std::pair<x, ATTRIBUTES>. The CACHING_UTILITY is the
  * class which can be plugged in and which decides the entries
  * to purge.
  */
@@ -291,7 +291,7 @@ private:
  * The ATTRIBUTES are the deciding factor for purging of entries
  * and should logically be included with the VALUE. Some ways of
  * doing this are: As being a member of the VALUE or VALUE being
- * ACE_Pair<x, ATTRIBUTES>. The CACHING_UTILITY is the
+ * std::pair<x, ATTRIBUTES>. The CACHING_UTILITY is the
  * class which can be plugged in and which decides the entries
  * to purge.
  */
@@ -384,7 +384,7 @@ private:
  * The ATTRIBUTES are the deciding factor for purging of entries
  * and should logically be included with the VALUE. Some ways of
  * doing this are: As being a member of the VALUE or VALUE being
- * ACE_Pair<x, ATTRIBUTES>. The CACHING_UTILITY is the
+ * std::pair<x, ATTRIBUTES>. The CACHING_UTILITY is the
  * class which can be plugged in and which decides the entries
  * to purge.
  */

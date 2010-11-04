@@ -1,4 +1,4 @@
-// $Id: Containers_T.cpp 82588 2008-08-11 13:37:41Z johnnyw $
+// $Id: Containers_T.cpp 92069 2010-09-28 11:38:59Z johnnyw $
 
 #ifndef ACE_CONTAINERS_T_CPP
 #define ACE_CONTAINERS_T_CPP
@@ -796,35 +796,6 @@ ACE_Double_Linked_List<T>::dump (void) const
 #endif /* ACE_HAS_DUMP */
 }
 
-#if 0
-template <class T> T *
-ACE_Double_Linked_List<T>::find (const T &item)
-{
-  for (ACE_Double_Linked_List_Iterator<T> iter (*this);
-       !iter.done ();
-       iter.advance ())
-    {
-      T *temp = iter.next ();
-
-      if (*temp == item)
-        return temp;
-    }
-
-  return 0;
-}
-
-template <class T> int
-ACE_Double_Linked_List<T>::remove (const T &item)
-{
-  T *temp = this->find (item);
-
-  if (temp != 0)
-    return this->remove (temp);
-  else
-    return -1;
-}
-#endif /* 0 */
-
 template <class T> int
 ACE_Double_Linked_List<T>::remove (T *n)
 {
@@ -1621,7 +1592,7 @@ template <class T> int
 ACE_Ordered_MultiSet<T>::find (const T &item,
                                ITERATOR &iter) const
 {
-  // search an occurance of item, using iterator's current position as a hint
+  // search an occurrence of item, using iterator's current position as a hint
   ACE_DNode<T> *node = iter.current_;
   int const result = locate (item, node, node);
 
@@ -1779,7 +1750,7 @@ ACE_Ordered_MultiSet<T>::locate (const T &item, ACE_DNode<T> *start_position,
     return 0;
 }
 
-// Looks for first occurance of <item> in the ordered set, using the
+// Looks for first occurrence of <item> in the ordered set, using the
 // passed starting position as a hint: if there is such an instance,
 // it updates the new_position pointer to point to one such node and
 // returns 0; if there is no such node, then if there is a node before

@@ -4,7 +4,7 @@
 /**
  *  @file     Arg_Shifter.h
  *
- *  $Id: Arg_Shifter.h 83891 2008-11-28 11:01:50Z johnnyw $
+ *  $Id: Arg_Shifter.h 91459 2010-08-25 09:51:01Z mcorino $
  *
  *  @author Seth Widoff
  */
@@ -33,13 +33,23 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
  * @a argv vector, so deeper levels of argument parsing can locate the yet
  * unprocessed arguments at the beginning of the vector.
  *
+ * Nomenclature:
+ *   argument - a member of the argv array
+ *   option - an argument starting with '-'
+ *   flag - synonym for "option"
+ *   parameter value - an argument not starting with '-'
+ *   parameter - synonym for "parameter value"
+ *
  * The @c ACE_Arg_Shifter copies the pointers of the @a argv vector
- * into a temporary array. As the @c ACE_Arg_Shifter iterates over
- * the copied vector, it places known arguments in the rear of the
- * vector, leaving the unknown ones in the beginning. So, after having
- * visited all the arguments in the temporary vector, @c ACE_Arg_Shifter
- * has placed all the unknown arguments in their original order at
- * the front of original @a argv.
+ * into a temporary array, emptying the original.  As the @c ACE_Arg_Shifter
+ * iterates over the temporary array, it places known arguments in the rear
+ * of the original array and places the unknown ones in the beginning of the
+ * original array.  It modifies argc to be the number of unknown arguments,
+ * so it looks to the caller as if the original array contains only unknown
+ * arguments.  So, after @c ACE_Arg_Shifter has visited all the arguments
+ * in the temporary array, the original @a argv array appears to contain
+ * only the unknown arguments in their original order (but it actually has
+ * all the known arguments, too, beyond argc).
  */
 template <typename CHAR_TYPE>
 class ACE_Arg_Shifter_T
@@ -202,6 +212,9 @@ private:
   /// The index of <argv_> in which we'll stick the next known
   /// argument.
   int front_;
+  /* This is not really the "front" at all.  It's the point after
+   * which the unknown arguments end and at which the known arguments begin.
+   */
 };
 
 typedef ACE_Arg_Shifter_T<ACE_TCHAR> ACE_Arg_Shifter;

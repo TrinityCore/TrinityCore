@@ -1,14 +1,10 @@
-// $Id: Argv_Type_Converter.cpp 85772 2009-06-23 20:14:18Z mitza $
+// $Id: Argv_Type_Converter.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/Argv_Type_Converter.h"
 
 #if !defined (__ACE_INLINE__)
 #include "ace/Argv_Type_Converter.inl"
 #endif  /* __ACE_INLINE__ */
-
-ACE_RCSID (ace,
-           Argv_Type_Converter,
-           "$Id: Argv_Type_Converter.cpp 85772 2009-06-23 20:14:18Z mitza $")
 
 #include "ace/OS_NS_string.h"
 #include "ace/OS_Errno.h"

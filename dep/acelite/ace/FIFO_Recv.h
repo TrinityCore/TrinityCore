@@ -4,7 +4,7 @@
 /**
  *  @file    FIFO_Recv.h
  *
- *  $Id: FIFO_Recv.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: FIFO_Recv.h 91574 2010-08-30 16:52:24Z shuston $
  *
  *  @author Doug Schmidt
  */
@@ -36,7 +36,17 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 class ACE_Export ACE_FIFO_Recv : public ACE_FIFO
 {
 public:
-  // = Initialization methods.
+  /// @name Initialization methods.
+  ///
+  /// Note that @c ACE_NONBLOCK will be added to any @a flags value passed.
+  /// This causes the open to succeed even if no writer has yet opened the
+  /// fifo. There is no way to disable this behavior.
+  ///
+  /// @arg persistent  Means "open fifo for writing, as well as
+  /// reading."  This ensures that the fifo never gets EOF, even if there
+  /// aren't any writers at the moment!
+  //@{
+
   /// Default constructor.
   ACE_FIFO_Recv (void);
 
@@ -53,8 +63,9 @@ public:
             mode_t perms = ACE_DEFAULT_FILE_PERMS,
             int persistent = 1,
             LPSECURITY_ATTRIBUTES sa = 0);
+  //@}
 
-  /// Close down the named pipe.
+  /// Close down the fifo.
   int close (void);
 
   /// Recv @a buf of up to @a len bytes.

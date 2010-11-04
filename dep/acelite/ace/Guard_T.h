@@ -4,7 +4,7 @@
 /**
  *  @file    Guard_T.h
  *
- *  $Id: Guard_T.h 83306 2008-10-17 12:19:53Z johnnyw $
+ *  $Id: Guard_T.h 91626 2010-09-07 10:59:20Z johnnyw $
  *
  *   Moved from Synch.h.
  *
@@ -25,18 +25,43 @@
 #include "ace/Global_Macros.h"
 #include "ace/OS_NS_Thread.h"
 
+// FUZZ: disable check_for_ACE_Guard
+
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 /**
  * @class ACE_Guard
  *
  * @brief This data structure is meant to be used within a method or
- * function...  It performs automatic aquisition and release of
+ * function...  It performs automatic acquisition and release of
  * a parameterized synchronization object ACE_LOCK.
  *
- * The <ACE_LOCK> class given as an actual parameter must provide at
+ * The <ACE_LOCK> class given as an actual parameter must provide, at
  * the very least the <acquire>, <tryacquire>, <release>, and
  * <remove> methods.
+ *
+ * @warning A successfully constructed ACE_Guard does NOT mean that the
+ * lock was acquired!  It is the caller's responsibility, after
+ * constructing an ACE_Guard, to check whether the lock was successfully
+ * acquired.  Code like this is dangerous:
+ *   {
+ *     ACE_Guard<ACE_Lock> g(lock);
+ *     ... perform critical operation requiring lock to be held ...
+ *   }
+ * Instead, one must do something like this:
+ *   {
+ *     ACE_Guard<ACE_Lock> g(lock);
+ *     if (! g.locked())
+ *       {
+ *         ... handle error ...
+ *       }
+ *     else
+ *       {
+ *         ... perform critical operation requiring lock to be held ...
+ *       }
+ *   }
+ * The ACE_GUARD_RETURN() and ACE_GUARD_REACTION() macros are designed to
+ * to help with this.
  */
 template <class ACE_LOCK>
 class ACE_Guard
@@ -114,6 +139,8 @@ private:
  * acquires/releases a write lock automatically (naturally, the
  * <ACE_LOCK> it is instantiated with must support the appropriate
  * API).
+ *
+ * @warning See important "WARNING" in comments at top of ACE_Guard.
  */
 template <class ACE_LOCK>
 class ACE_Write_Guard : public ACE_Guard<ACE_LOCK>
@@ -158,6 +185,8 @@ public:
  * acquires/releases a read lock automatically (naturally, the
  * <ACE_LOCK> it is instantiated with must support the appropriate
  * API).
+ *
+ * @warning See important "WARNING" in comments at top of ACE_Guard.
  */
 template <class ACE_LOCK>
 class ACE_Read_Guard : public ACE_Guard<ACE_LOCK>
@@ -214,7 +243,7 @@ public:
  * is released even if a thread exits via <thr_exit>!
  */
 template <class ACE_LOCK>
-class ACE_TSS_Guard
+class ACE_TSS_Guard : private ACE_Copy_Disabled
 {
 public:
   // = Initialization and termination methods.
@@ -261,9 +290,9 @@ protected:
   ACE_thread_key_t key_;
 
 private:
-  // = Prevent assignment and initialization.
-  ACE_UNIMPLEMENTED_FUNC (void operator= (const ACE_TSS_Guard<ACE_LOCK> &))
-  ACE_UNIMPLEMENTED_FUNC (ACE_TSS_Guard (const ACE_TSS_Guard<ACE_LOCK> &))
+  // FUZZ: disable check_for_ACE_Guard
+  typedef ACE_Guard<ACE_LOCK> Guard_Type;
+  // FUZZ: enable check_for_ACE_Guard
 };
 
 /**
@@ -304,6 +333,11 @@ public:
 
   // ACE_ALLOC_HOOK_DECLARE;
   // Declare the dynamic allocation hooks.
+private:
+  // FUZZ: disable check_for_ACE_Guard
+  typedef ACE_Guard<ACE_LOCK> Guard_Type;
+  typedef ACE_Write_Guard<ACE_LOCK> Write_Guard_Type;
+  // FUZZ: enable check_for_ACE_Guard
 };
 
 /**
@@ -343,6 +377,11 @@ public:
 
   // ACE_ALLOC_HOOK_DECLARE;
   // Declare the dynamic allocation hooks.
+private:
+  // FUZZ: disable check_for_ACE_Guard
+  typedef ACE_Guard<ACE_LOCK> Guard_Type;
+  typedef ACE_Read_Guard<ACE_LOCK> Read_Guard_Type;
+  // FUZZ: enable check_for_ACE_Guard
 };
 
 #endif /* !(defined (ACE_HAS_THREADS) && (defined (ACE_HAS_THREAD_SPECIFIC_STORAGE) || defined (ACE_HAS_TSS_EMULATION))) */

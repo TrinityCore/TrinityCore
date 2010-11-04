@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: MEM_Acceptor.inl 82723 2008-09-16 09:35:44Z johnnyw $
+// $Id: MEM_Acceptor.inl 91688 2010-09-09 11:21:50Z johnnyw $
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -89,15 +89,6 @@ ACE_INLINE void
 ACE_MEM_Acceptor::init_buffer_size (ACE_OFF_T bytes)
 {
   this->malloc_options_.minimum_bytes_ = bytes;
-}
-
-ACE_INLINE ACE_MEM_SAP::MALLOC_OPTIONS &
-ACE_MEM_Acceptor::malloc_options (void)
-{
-  // @@ This function has been deprecated and will be removed in the
-  // future.
-
-  return this->malloc_options_;
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL

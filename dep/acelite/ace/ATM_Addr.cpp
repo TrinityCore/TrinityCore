@@ -1,4 +1,4 @@
-// $Id: ATM_Addr.cpp 84565 2009-02-23 08:20:39Z johnnyw $
+// $Id: ATM_Addr.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 // Defines the Internet domain address family address format.
 
@@ -15,7 +15,7 @@
 #include "ace/ATM_Addr.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, ATM_Addr, "$Id: ATM_Addr.cpp 84565 2009-02-23 08:20:39Z johnnyw $")
+
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

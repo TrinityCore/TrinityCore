@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: Signal.inl 80826 2008-03-04 14:51:23Z wotte $
+// $Id: Signal.inl 92069 2010-09-28 11:38:59Z johnnyw $
 
 #include "ace/OS_NS_signal.h"
 #include "ace/config-all.h"
@@ -149,22 +149,6 @@ ACE_Sig_Action::handler (ACE_SignalHandler handler)
   this->sa_.sa_handler = (void (*)()) ACE_SignalHandlerV (handler);
 #endif /* !ACE_HAS_TANDEM_SIGNALS */
 }
-
-#if 0
-ACE_INLINE ACE_SignalHandler
-ACE_Sig_Action::sigaction (void)
-{
-  ACE_TRACE ("ACE_Sig_Action::sigaction");
-  return ACE_SignalHandler (this->sa_.sa_sigaction);
-}
-
-ACE_INLINE void
-ACE_Sig_Action::sigaction (ACE_SignalHandler handler)
-{
-  ACE_TRACE ("ACE_Sig_Action::sigaction");
-  this->sa_.sa_sigaction = (void (*)()) ACE_SignalHandlerV (handler);
-}
-#endif /* 0 */
 
 ACE_INLINE void
 ACE_Sig_Action::set (struct sigaction *sa)

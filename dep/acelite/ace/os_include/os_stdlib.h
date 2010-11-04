@@ -6,7 +6,7 @@
  *
  *  standard library definitions
  *
- *  $Id: os_stdlib.h 83948 2008-12-02 13:55:34Z jtc $
+ *  $Id: os_stdlib.h 91683 2010-09-09 09:07:49Z johnnyw $
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -52,10 +52,6 @@ extern "C"
    int rand_r (ACE_RANDR_TYPE seed);
 #else
 #endif /* ACE_HAS_BROKEN_RANDR */
-
-#if defined (DIGITAL_UNIX)
-  extern int _Prand_r (unsigned int *seedptr);
-#endif /* DIGITAL_UNIX */
 
 #if defined (ACE_LACKS_PUTENV_PROTOTYPE)
   int putenv (char *);

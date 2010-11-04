@@ -1,4 +1,4 @@
-// $Id: Profile_Timer.cpp 82208 2008-06-26 20:44:51Z jtc $
+// $Id: Profile_Timer.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/Profile_Timer.h"
 
@@ -14,7 +14,7 @@
 #include "ace/OS_NS_unistd.h"
 #endif
 
-ACE_RCSID(ace, Profile_Timer, "$Id: Profile_Timer.cpp 82208 2008-06-26 20:44:51Z jtc $")
+
 
 #if (defined (ACE_HAS_PRUSAGE_T) || defined (ACE_HAS_GETRUSAGE)) && !defined (ACE_WIN32)
 

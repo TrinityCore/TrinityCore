@@ -1,4 +1,4 @@
-// $Id: Monitor_Point_Registry.cpp 81833 2008-06-04 14:44:53Z parsons $
+// $Id: Monitor_Point_Registry.cpp 91813 2010-09-17 07:52:52Z johnnyw $
 
 #include "ace/Monitor_Point_Registry.h"
 
@@ -42,7 +42,7 @@ namespace ACE
         type->add_ref ();
 
         status = this->map_.bind (type->name (), type);
-        
+
         /// Temporary debugging code.
 //        ACE_DEBUG ((LM_DEBUG, "adding %s\n", type->name ()));
       }
@@ -75,7 +75,7 @@ namespace ACE
 
         ACE_CString name_str (name, 0, false);
         status = this->map_.unbind (name_str, mp);
-        
+
         /// Temporary debugging code.
 //        ACE_DEBUG ((LM_DEBUG, "removing %s\n", name_str.c_str ()));
       }

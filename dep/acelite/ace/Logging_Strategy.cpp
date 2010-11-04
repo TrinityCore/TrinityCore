@@ -1,4 +1,4 @@
-// $Id: Logging_Strategy.cpp 90712 2010-06-18 20:01:29Z shuston $
+// $Id: Logging_Strategy.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
 
 #include "ace/Logging_Strategy.h"
 #include "ace/Service_Config.h"
@@ -15,10 +15,6 @@
 #include "ace/OS_NS_string.h"
 #include "ace/OS_NS_stdio.h"
 #include "ace/OS_NS_unistd.h"
-
-ACE_RCSID (ace,
-           Logging_Strategy,
-           "$Id: Logging_Strategy.cpp 90712 2010-06-18 20:01:29Z shuston $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

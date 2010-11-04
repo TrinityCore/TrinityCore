@@ -1,4 +1,4 @@
-//$Id: Cached_Connect_Strategy_T.cpp 82771 2008-09-17 18:47:48Z johnnyw $
+//$Id: Cached_Connect_Strategy_T.cpp 92097 2010-09-30 05:41:49Z msmit $
 
 #ifndef ACE_CACHED_CONNECT_STRATEGY_T_CPP
 #define ACE_CACHED_CONNECT_STRATEGY_T_CPP
@@ -14,7 +14,6 @@
 #include "ace/Service_Types.h"
 #include "ace/Thread_Manager.h"
 #include "ace/WFMO_Reactor.h"
-#include "ace/Pair_T.h"
 
 #define ACE_T1 class SVC_HANDLER, ACE_PEER_CONNECTOR_1, class CACHING_STRATEGY, class ATTRIBUTES, class MUTEX
 #define ACE_T2 SVC_HANDLER, ACE_PEER_CONNECTOR_2, CACHING_STRATEGY, ATTRIBUTES, MUTEX
@@ -54,7 +53,7 @@ ACE_Cached_Connect_Strategy_Ex<ACE_T2>::check_hint_i
  bool reuse_addr,
  int flags,
  int perms,
- ACE_Hash_Map_Entry<ACE_Refcounted_Hash_Recyclable<ACE_PEER_CONNECTOR_ADDR>, ACE_Pair<SVC_HANDLER *, ATTRIBUTES> > *&entry,
+ ACE_Hash_Map_Entry<ACE_Refcounted_Hash_Recyclable<ACE_PEER_CONNECTOR_ADDR>, std::pair<SVC_HANDLER *, ATTRIBUTES> > *&entry,
  int &found)
 {
   ACE_UNUSED_ARG (remote_addr);
@@ -77,8 +76,8 @@ ACE_Cached_Connect_Strategy_Ex<ACE_T2>::check_hint_i
       if (possible_entry->ext_id_.decrement () == 0)
         {
           // If refcount goes to zero, close down the svc_handler
-          possible_entry->int_id_.first ()->recycler (0, 0);
-          possible_entry->int_id_.first ()->close ();
+          possible_entry->int_id_.first->recycler (0, 0);
+          possible_entry->int_id_.first->close ();
           this->purge_i (possible_entry);
         }
 
@@ -111,7 +110,7 @@ ACE_Cached_Connect_Strategy_Ex<ACE_T2>::check_hint_i
       int find_result = 0;
 
       int result = this->caching_strategy ().notify_find (find_result,
-                                                          possible_entry->int_id_.second ());
+                                                          possible_entry->int_id_.second);
 
       if (result == -1)
         return result;
@@ -144,7 +143,7 @@ ACE_Cached_Connect_Strategy_Ex<ACE_T2>::find_or_create_svc_handler_i
  bool reuse_addr,
  int flags,
  int perms,
- ACE_Hash_Map_Entry<ACE_Refcounted_Hash_Recyclable<ACE_PEER_CONNECTOR_ADDR>, ACE_Pair<SVC_HANDLER *, ATTRIBUTES> > *&entry,
+ ACE_Hash_Map_Entry<ACE_Refcounted_Hash_Recyclable<ACE_PEER_CONNECTOR_ADDR>, std::pair<SVC_HANDLER *, ATTRIBUTES> > *&entry,
  int &found)
 {
   REFCOUNTED_HASH_RECYCLABLE_ADDRESS search_addr (remote_addr);
@@ -155,7 +154,7 @@ ACE_Cached_Connect_Strategy_Ex<ACE_T2>::find_or_create_svc_handler_i
   {
     // We found a cached svc_handler.
     // Get the cached <svc_handler>
-    sh = entry->int_id_.first ();
+    sh = entry->int_id_.first;
 
     // Is the connection clean?
     int state_result =
@@ -450,8 +449,8 @@ ACE_Cached_Connect_Strategy_Ex<ACE_T2>::cleanup_hint_i (const void *recycling_ac
   if (entry->ext_id_.recycle_state () == ACE_RECYCLABLE_CLOSED &&
       refcount == 0)
     {
-      entry->int_id_.first ()->recycler (0, 0);
-      entry->int_id_.first ()->close ();
+      entry->int_id_.first->recycler (0, 0);
+      entry->int_id_.first->close ();
       this->purge_i (entry);
     }
 
@@ -472,10 +471,10 @@ ACE_Cached_Connect_Strategy_Ex<ACE_T2>::caching_strategy (void)
 
 template <ACE_T1> int
 ACE_Cached_Connect_Strategy_Ex<ACE_T2>::find (ACE_Refcounted_Hash_Recyclable<ACE_PEER_CONNECTOR_ADDR> &search_addr,
-                                              ACE_Hash_Map_Entry<ACE_Refcounted_Hash_Recyclable<ACE_PEER_CONNECTOR_ADDR>, ACE_Pair<SVC_HANDLER *, ATTRIBUTES> > *&entry)
+                                              ACE_Hash_Map_Entry<ACE_Refcounted_Hash_Recyclable<ACE_PEER_CONNECTOR_ADDR>, std::pair<SVC_HANDLER *, ATTRIBUTES> > *&entry)
 {
   typedef ACE_Hash_Map_Bucket_Iterator<REFCOUNTED_HASH_RECYCLABLE_ADDRESS,
-                                       ACE_Pair<SVC_HANDLER *, ATTRIBUTES>,
+                                       std::pair<SVC_HANDLER *, ATTRIBUTES>,
                                        ACE_Hash<REFCOUNTED_HASH_RECYCLABLE_ADDRESS>,
                                        ACE_Equal_To<REFCOUNTED_HASH_RECYCLABLE_ADDRESS>,
                                        ACE_Null_Mutex>
@@ -512,7 +511,7 @@ ACE_Cached_Connect_Strategy_Ex<ACE_T2>::find (ACE_Refcounted_Hash_Recyclable<ACE
       int find_result = 0;
 
       int result = this->caching_strategy ().notify_find (find_result,
-                                                          entry->int_id_.second ());
+                                                          entry->int_id_.second);
 
       if (result == -1)
         return result;
@@ -591,7 +590,7 @@ ACE_Bounded_Cached_Connect_Strategy<ACE_T2>::find_or_create_svc_handler_i
  int flags,
  int perms,
  ACE_Hash_Map_Entry<ACE_Refcounted_Hash_Recyclable<ACE_PEER_CONNECTOR_ADDR>,
- ACE_Pair<SVC_HANDLER *, ATTRIBUTES> > *&entry,
+ std::pair<SVC_HANDLER *, ATTRIBUTES> > *&entry,
  int &found)
 {
 

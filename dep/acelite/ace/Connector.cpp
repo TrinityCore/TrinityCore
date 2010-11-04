@@ -1,4 +1,4 @@
-// $Id: Connector.cpp 89510 2010-03-17 12:21:14Z vzykov $
+// $Id: Connector.cpp 91527 2010-08-27 15:03:31Z shuston $
 
 #ifndef ACE_CONNECTOR_CPP
 #define ACE_CONNECTOR_CPP
@@ -121,9 +121,9 @@ ACE_NonBlocking_Connect_Handler<SVC_HANDLER>::close (SVC_HANDLER *&sh)
       return false;
 
     // Remove from Reactor.
-    if (this->reactor ()->remove_handler (
+    if (-1 == this->reactor ()->remove_handler (
           h,
-          ACE_Event_Handler::ALL_EVENTS_MASK) == -1)
+          ACE_Event_Handler::ALL_EVENTS_MASK | ACE_Event_Handler::DONT_CALL))
       return false;
   }
 
@@ -171,6 +171,20 @@ ACE_NonBlocking_Connect_Handler<SVC_HANDLER>::handle_input (ACE_HANDLE)
     }
 
   return retval;
+}
+
+template <class SVC_HANDLER> int
+ACE_NonBlocking_Connect_Handler<SVC_HANDLER>::handle_close (ACE_HANDLE handle,
+                                                            ACE_Reactor_Mask m)
+{
+  // epoll on Linux will, at least sometimes, return EPOLLERR when a connect
+  // fails, triggering a total removal from the reactor. This is different from
+  // select()-based systems which select the fd for read on a connect failure.
+  // So just call handle_input() to rejoin common handling for a failed
+  // connect.
+  if (m == ACE_Event_Handler::ALL_EVENTS_MASK)
+    return this->handle_input (handle);
+  return -1;
 }
 
 template <class SVC_HANDLER> int

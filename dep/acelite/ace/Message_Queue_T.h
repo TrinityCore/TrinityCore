@@ -4,7 +4,7 @@
 /**
  *  @file    Message_Queue_T.h
  *
- *  $Id: Message_Queue_T.h 82289 2008-07-11 08:12:09Z hillj $
+ *  $Id: Message_Queue_T.h 91626 2010-09-07 10:59:20Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -557,12 +557,10 @@ protected:
   // = Helper methods to factor out common #ifdef code.
 
   /// Wait for the queue to become non-full.
-  virtual int wait_not_full_cond (ACE_Guard<ACE_SYNCH_MUTEX_T> &mon,
-                                  ACE_Time_Value *timeout);
+  virtual int wait_not_full_cond (ACE_Time_Value *timeout);
 
   /// Wait for the queue to become non-empty.
-  virtual int wait_not_empty_cond (ACE_Guard<ACE_SYNCH_MUTEX_T> &mon,
-                                   ACE_Time_Value *timeout);
+  virtual int wait_not_empty_cond (ACE_Time_Value *timeout);
 
   /// Inform any threads waiting to enqueue that they can procede.
   virtual int signal_enqueue_waiters (void);

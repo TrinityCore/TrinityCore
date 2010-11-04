@@ -1,4 +1,4 @@
-// $Id: Filecache.cpp 83735 2008-11-14 09:41:52Z johnnyw $
+// $Id: Filecache.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
 
 #include "ace/Filecache.h"
 #include "ace/Object_Manager.h"
@@ -10,10 +10,6 @@
 #include "ace/OS_NS_unistd.h"
 #include "ace/OS_NS_fcntl.h"
 #include "ace/Truncate.h"
-
-ACE_RCSID (ace,
-           Filecache,
-           "$Id: Filecache.cpp 83735 2008-11-14 09:41:52Z johnnyw $")
 
 #if defined (ACE_WIN32)
 // Specifies no sharing flags.

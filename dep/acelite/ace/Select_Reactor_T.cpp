@@ -1,4 +1,4 @@
-// $Id: Select_Reactor_T.cpp 85505 2009-06-04 10:14:56Z johnnyw $
+// $Id: Select_Reactor_T.cpp 92201 2010-10-11 19:07:59Z johnnyw $
 
 #ifndef ACE_SELECT_REACTOR_T_CPP
 #define ACE_SELECT_REACTOR_T_CPP
@@ -31,10 +31,6 @@
 #if !defined (__ACE_INLINE__)
 #include "ace/Select_Reactor_T.inl"
 #endif /* __ACE_INLINE__ */
-
-ACE_RCSID (ace,
-           Select_Reactor_T,
-           "$Id: Select_Reactor_T.cpp 85505 2009-06-04 10:14:56Z johnnyw $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -1397,12 +1393,12 @@ ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN>::handle_events
 {
   ACE_TRACE ("ACE_Select_Reactor_T::handle_events");
 
-#if defined (ACE_MT_SAFE) && (ACE_MT_SAFE != 0)
-
   // Stash the current time -- the destructor of this object will
   // automatically compute how much time elapsed since this method was
   // called.
   ACE_Countdown_Time countdown (max_wait_time);
+
+#if defined (ACE_MT_SAFE) && (ACE_MT_SAFE != 0)
 
   ACE_GUARD_RETURN (ACE_SELECT_REACTOR_TOKEN, ace_mon, this->token_, -1);
 

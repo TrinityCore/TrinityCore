@@ -1,4 +1,4 @@
-// $Id: SOCK_Acceptor.cpp 82723 2008-09-16 09:35:44Z johnnyw $
+// $Id: SOCK_Acceptor.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/SOCK_Acceptor.h"
 
@@ -16,7 +16,7 @@
 #include "ace/OS_QoS.h"
 #endif  // ACE_HAS_WINCE
 
-ACE_RCSID(ace, SOCK_Acceptor, "$Id: SOCK_Acceptor.cpp 82723 2008-09-16 09:35:44Z johnnyw $")
+
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

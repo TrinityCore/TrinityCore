@@ -4,7 +4,7 @@
 /**
  * @file    ACE.h
  *
- * $Id: ACE.h 88193 2009-12-16 09:14:06Z mcorino $
+ * $Id: ACE.h 92060 2010-09-27 18:08:48Z johnnyw $
  *
  * This file contains value added ACE functions that extend the
  * behavior of the UNIX and Win32 OS calls.
@@ -90,7 +90,7 @@ namespace ACE
 
   /// Simple wildcard matching function supporting '*' and '?'
   /// return true if string s matches pattern.
-  /// If character_classes is true, '[' is treated as a wildcard character
+  /// If @a character_classes is true, '[' is treated as a wildcard character
   /// as described in the fnmatch() POSIX API.  The following POSIX "bracket
   /// expression" features are not implemented: collating symbols, equivalence
   /// class expressions, and character class expressions.  The POSIX locale is
@@ -642,6 +642,14 @@ namespace ACE
   /// Computes the base 2 logarithm of {num}.
   ACE_NAMESPACE_INLINE_FUNCTION u_long log2 (u_long num);
 
+  /// Helper to avoid comparing floating point values with ==
+  /// (uses < and > operators).
+  template <typename T>
+  bool is_equal (const T& a, const T& b)
+  {
+    return !((a < b) || (a > b));
+  }
+
   /// Hex conversion utility.
   extern ACE_Export ACE_TCHAR nibble2hex (u_int n);
 
@@ -666,21 +674,33 @@ namespace ACE
                                 const ACE_Time_Value *timeout = 0);
 
   /// Timed wait for handle to get read ready.
+  /// @retval -1 for error
+  /// @retval 0 for timeout
+  /// @retval 1 the handle is ready
   ACE_NAMESPACE_INLINE_FUNCTION
   int handle_read_ready (ACE_HANDLE handle,
                          const ACE_Time_Value *timeout);
 
   /// Timed wait for handle to get write ready.
+  /// @retval -1 for error
+  /// @retval 0 for timeout
+  /// @retval 1 the handle is ready
   ACE_NAMESPACE_INLINE_FUNCTION
   int handle_write_ready (ACE_HANDLE handle,
                           const ACE_Time_Value *timeout);
 
   /// Timed wait for handle to get exception ready.
+  /// @retval -1 for error
+  /// @retval 0 for timeout
+  /// @retval 1 the handle is ready
   ACE_NAMESPACE_INLINE_FUNCTION
   int handle_exception_ready (ACE_HANDLE handle,
                               const ACE_Time_Value *timeout);
 
   /// Timed wait for handle to get read, write, or exception ready.
+  /// @retval -1 for error
+  /// @retval 0 for timeout
+  /// @retval 1 the handle is ready
   extern ACE_Export int handle_ready (ACE_HANDLE handle,
                                       const ACE_Time_Value *timeout,
                                       int read_ready,

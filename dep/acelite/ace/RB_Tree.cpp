@@ -1,4 +1,4 @@
-// $Id: RB_Tree.cpp 81768 2008-05-23 12:45:54Z sma $
+// $Id: RB_Tree.cpp 91813 2010-09-17 07:52:52Z johnnyw $
 
 #ifndef ACE_RB_TREE_CPP
 #define ACE_RB_TREE_CPP
@@ -1076,7 +1076,7 @@ ACE_RB_Tree<EXT_ID, INT_ID, COMPARE_KEYS, ACE_LOCK>::remove_i (ACE_RB_Tree_Node<
       y->color (z->color ());
       z->color (yColor);
 
-      //Reassign the y pointer to z because the node that y points to will be 
+      //Reassign the y pointer to z because the node that y points to will be
       //deleted
       y = z;
     }

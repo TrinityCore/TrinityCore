@@ -1,4 +1,4 @@
-// $Id: SString.cpp 85547 2009-06-07 17:57:11Z johnnyw $
+// $Id: SString.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
 
 #include "ace/Malloc_T.h"
 #include "ace/OS_Memory.h"
@@ -15,11 +15,6 @@
 #if !defined (__ACE_INLINE__)
 #include "ace/SString.inl"
 #endif /* __ACE_INLINE__ */
-
-
-ACE_RCSID (ace,
-           SString,
-           "SString.cpp,v 4.61 2001/03/04 00:55:30 brunsch Exp")
 
 
 // ************************************************************

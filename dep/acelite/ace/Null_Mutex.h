@@ -4,7 +4,7 @@
 /**
  *  @file    Null_Mutex.h
  *
- *  $Id: Null_Mutex.h 86731 2009-09-17 12:23:48Z johnnyw $
+ *  $Id: Null_Mutex.h 91626 2010-09-07 10:59:20Z johnnyw $
  *
  *   Moved from Synch.h.
  *
@@ -15,12 +15,6 @@
 #ifndef ACE_NULL_MUTEX_H
 #define ACE_NULL_MUTEX_H
 #include /**/ "ace/pre.h"
-
-// All methods in this class are inline, so there is no
-// need to import or export on Windows. -- CAE 12/18/2003
-// Update... leaving off the ACE_Export causes compile warnings in some
-// cases with Microsoft Visual Studio .NET 2005, so I added the ACE_Export
-// to these class declarations.  Steve Huston, 12/8/2006.
 
 #include "ace/os_include/os_errno.h"
 
@@ -90,35 +84,7 @@ public:
   int lock_; // A dummy lock.
 };
 
-#if defined (ACE_USES_OBSOLETE_GUARD_CLASSES)
-/**
- * @class ACE_Null_Mutex_Guard
- *
- * @brief This data structure is meant to be used within a method or
- * function...  It performs automatic aquisition and release of
- * an ACE_Null_Mutex.
- *
- * This class is obsolete and should be replaced by
- * ACE_Guard<ACE_Null_Mutex>.
- */
-class ACE_Export ACE_Null_Mutex_Guard
-{
-public:
-  ACE_Null_Mutex_Guard (ACE_Null_Mutex &) {}
-  ~ACE_Null_Mutex_Guard (void) {}
-  int remove (void) {return 0;}
-  int locked (void) {return 1;}
-  int acquire (void) {return 0;}
-  int tryacquire (void) {return 0;}
-  int release (void) {return 0:}
-  void dump (void) const {}
-
-private:
-  // = Prevent assignment and initialization.
-  void operator= (const ACE_Null_Mutex_Guard &);
-  ACE_Null_Mutex_Guard (const ACE_Null_Mutex_Guard &);
-};
-#endif /* ACE_USES_OBSOLETE_GUARD_CLASSES */
+// FUZZ: disable check_for_ACE_Guard
 
 template <class ACE_LOCK>
 class ACE_Guard;
@@ -205,6 +171,8 @@ public:
   int tryacquire (void) { return 0; }
   void dump (void) const {}
 };
+
+// FUZZ: enable check_for_ACE_Guard
 
 template <class T> class ACE_Malloc_Lock_Adapter_T;
 

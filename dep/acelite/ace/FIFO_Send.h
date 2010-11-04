@@ -4,7 +4,7 @@
 /**
  *  @file    FIFO_Send.h
  *
- *  $Id: FIFO_Send.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: FIFO_Send.h 91574 2010-08-30 16:52:24Z shuston $
  *
  *  @author Doug Schmidt
  */
@@ -35,7 +35,12 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 class ACE_Export ACE_FIFO_Send : public ACE_FIFO
 {
 public:
-  // = Initialization methods.
+  /// @name Initialization methods.
+  ///
+  /// Note that @c O_WRONLY will be added to any @a flags value passed.
+  /// Default behavior is to block until a receiver also opens the fifo.
+  /// To use non-blocking behavior include ACE_NONBLOCK in @a flags.
+  //@{
   /// Default constructor.
   ACE_FIFO_Send (void);
 
@@ -50,6 +55,7 @@ public:
             int flags = O_WRONLY,
             mode_t perms = ACE_DEFAULT_FILE_PERMS,
             LPSECURITY_ATTRIBUTES sa = 0);
+  //@}
 
   /// Send @a buf of up to @a len bytes.
   ssize_t send (const void *buf, size_t len);

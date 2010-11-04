@@ -4,7 +4,7 @@
 /**
  *  @file    FIFO.h
  *
- *  $Id: FIFO.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: FIFO.h 91574 2010-08-30 16:52:24Z shuston $
  *
  *  @author Doug Schmidt
  */
@@ -32,15 +32,24 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
  * @brief Abstract base class for UNIX FIFOs
  *
  * UNIX FIFOs are also known Named Pipes, which are totally
- * unrelated to Win32 Named Pipes.  If you want to use a local
- * IPC mechanism that will be portable to both UNIX and Win32,
- * take a look at the <ACE_SPIPE_*> classes.
+ * unrelated to Windows Named Pipes.  If you want to use a local
+ * IPC mechanism that will be portable to both UNIX and Windows,
+ * take a look at the ACE_Pipe or ACE_SPIPE_Stream classes.
  */
 class ACE_Export ACE_FIFO : public ACE_IPC_SAP
 {
 public:
-  /// Open up the named pipe on the <rendezvous> in accordance with the
-  /// flags.
+  /**
+   * Open up the named pipe (FIFO) on the @a rendezvous point in accordance
+   * with the @a flags.
+   *
+   * If @a flags contains @c O_CREAT open() will attempt to call mkfifo()
+   * to create the FIFO before opening it. In this case, this method
+   * will not fail simply because the fifo already exists.
+   *
+   * @retval 0 for success
+   * @retval -1 for error; errno contains the error code.
+   */
   int open (const ACE_TCHAR *rendezvous, int flags, mode_t perms,
             LPSECURITY_ATTRIBUTES sa = 0);
 
@@ -61,14 +70,19 @@ public:
   ACE_ALLOC_HOOK_DECLARE;
 
 protected:
-  // = Make these protected to ensure that the class is "abstract."
+  /**
+   * Protected constructors ensure this class cannot be used directly.
+   * User code must use ACE_FIFO_Send and/or ACE_FIFO_Recv.
+   */
+  //@{
   /// Default constructor.
   ACE_FIFO (void);
 
-  /// Open up the named pipe on the <rendezvous> in accordance with the
+  /// Open up the named pipe on the @a rendezvous in accordance with the
   /// flags.
   ACE_FIFO (const ACE_TCHAR *rendezvous, int flags, mode_t perms,
             LPSECURITY_ATTRIBUTES sa = 0);
+  //@}
 
 private:
   /// Rendezvous point in the file system.

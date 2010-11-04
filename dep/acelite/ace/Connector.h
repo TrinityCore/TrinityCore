@@ -4,7 +4,7 @@
 /**
  *  @file    Connector.h
  *
- *  $Id: Connector.h 91058 2010-07-12 08:20:09Z johnnyw $
+ *  $Id: Connector.h 91527 2010-08-27 15:03:31Z shuston $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -101,6 +101,9 @@ public:
 
   /// Called by ACE_Reactor when asynchronous connections fail.
   virtual int handle_input (ACE_HANDLE);
+
+  /// Called by ACE_Dev_Poll_Reactor when asynchronous connections fail.
+  virtual int handle_close (ACE_HANDLE, ACE_Reactor_Mask);
 
   /// Called by ACE_Reactor when asynchronous connections succeed.
   virtual int handle_output (ACE_HANDLE);

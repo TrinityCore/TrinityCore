@@ -1,8 +1,8 @@
-// $Id: Sig_Adapter.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: Sig_Adapter.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/Sig_Adapter.h"
 
-ACE_RCSID(ace, Sig_Adapter, "$Id: Sig_Adapter.cpp 80826 2008-03-04 14:51:23Z wotte $")
+
 
 
 ACE_Sig_Adapter::ACE_Sig_Adapter (ACE_Sig_Action &sa, int sigkey)

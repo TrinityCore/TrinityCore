@@ -4,7 +4,7 @@
 /**
  *  @file    Pair_T.h
  *
- *  $Id: Pair_T.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Pair_T.h 92097 2010-09-30 05:41:49Z msmit $
  *
  *  @author Irfan Pyarali <irfan@cs.wustl.edu>
  */
@@ -22,55 +22,6 @@
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
-/**
- * @class ACE_Pair
- *
- * @brief Defines a pair.
- *
- * Similar to the STL pair.
- */
-template <class T1, class T2>
-class ACE_Pair
-{
-public:
-
-  // = Traits.
-  typedef T1 first_type;
-  typedef T2 second_type;
-
-  // = Initialization and termination methods.
-  /// Constructor.
-  ACE_Pair (const T1 &t1,
-            const T2 &t2);
-
-  /// Default constructor.
-  ACE_Pair (void);
-
-  /// Get first.
-  T1 &first (void);
-  const T1 &first (void) const;
-
-  /// Set first.
-  void first (const T1 &t1);
-
-  /// Get second.
-  T2 &second (void);
-  const T2 &second (void) const;
-
-  /// Set second.
-  void second (const T2 &t2);
-
-  // Compare pairs.
-  bool operator== (const ACE_Pair<T1, T2> &rhs) const;
-
-protected:
-  /// First.
-  T1 first_;
-
-  /// Second.
-  T2 second_;
-};
 
 /**
  * @class ACE_Reference_Pair

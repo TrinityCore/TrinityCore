@@ -1,7 +1,7 @@
 /**
  * @file RW_Mutex.cpp
  *
- * $Id: RW_Mutex.cpp 83934 2008-12-01 13:47:06Z johnnyw $
+ * $Id: RW_Mutex.cpp 91286 2010-08-05 09:04:31Z johnnyw $
  *
  * Originally in Synch.cpp
  *
@@ -18,7 +18,7 @@
 
 #include "ace/Log_Msg.h"
 
-ACE_RCSID(ace, RW_Mutex, "$Id: RW_Mutex.cpp 83934 2008-12-01 13:47:06Z johnnyw $")
+
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

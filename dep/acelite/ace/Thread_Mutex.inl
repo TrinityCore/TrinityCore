@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: Thread_Mutex.inl 89127 2010-02-22 19:58:18Z schmidt $
+// $Id: Thread_Mutex.inl 91813 2010-09-17 07:52:52Z johnnyw $
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -12,7 +12,7 @@ ACE_Thread_Mutex::lock (void) const
 }
 
 ACE_INLINE ACE_thread_mutex_t &
-ACE_Thread_Mutex::lock (void) 
+ACE_Thread_Mutex::lock (void)
 {
 // ACE_TRACE ("ACE_Thread_Mutex::lock");
   return this->lock_;

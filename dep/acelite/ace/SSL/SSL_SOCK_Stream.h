@@ -4,7 +4,7 @@
 /**
  *  @file    SSL_SOCK_Stream.h
  *
- *  $Id: SSL_SOCK_Stream.h 91103 2010-07-15 12:36:57Z mcorino $
+ *  $Id: SSL_SOCK_Stream.h 91743 2010-09-13 18:24:51Z johnnyw $
  *
  *  @author Ossama Othman <ossama@uci.edu>
  *  @author Carlos O'Ryan <coryan@uci.edu>
@@ -233,7 +233,7 @@ public:
                   int flags,
                   const ACE_Time_Value *timeout,
                   size_t *bytes_transferred = 0) const;
-                  
+
   /**
    * Try to receive exactly len bytes into buf (uses the recv() call).
    * The ACE_Time_Value indicates how long to blocking trying to

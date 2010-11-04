@@ -4,7 +4,7 @@
 /**
  *  @file    Multihomed_INET_Addr.h
  *
- *  $Id: Multihomed_INET_Addr.h 84325 2009-02-04 22:46:30Z shuston $
+ *  $Id: Multihomed_INET_Addr.h 91626 2010-09-07 10:59:20Z johnnyw $
  *
  *  @author Edward R. Mulholland <emulholl@atl.lmco.com>
  */
@@ -51,7 +51,7 @@ public:
 
   /**
    * Constructs an ACE_Multihomed_INET_Addr from a @a port_number, a
-   * @a primary_host_name, and an array of <secondary_host_names>.
+   * @a primary_host_name, and an array of @a secondary_host_names.
    * @a size is taken to be the length of the array.  If @a encode is
    * non-zero, then @a port_number is converted into network byte
    * order; otherwise it is assumed to be in network byte order
@@ -105,7 +105,7 @@ public:
 
   /// Use compiler-generated assignment operator.
 
-  /// Default dtor.
+  /// Default destructor.
   ~ACE_Multihomed_INET_Addr (void);
 
   // = Direct initialization methods.
@@ -114,7 +114,7 @@ public:
 
   /**
    * Initializes an ACE_Multihomed_INET_Addr from a @a port_number, a
-   * @a primary_host_name, and an array of <secondary_host_names>.
+   * @a primary_host_name, and an array of @a secondary_host_names.
    * @a size is taken to be the length of the array.  If @a encode is
    * non-zero, then @a port_number is converted into network byte
    * order; otherwise it is assumed to be in network byte order
@@ -174,14 +174,12 @@ public:
    * primary and secondary addresses.  @a size is taken as the size of
    * this array.
    */
-  void get_addresses(sockaddr_in *addrs,
-                     size_t size) const;
+  void get_addresses(sockaddr_in *addrs, size_t size) const;
 
 #if defined (ACE_HAS_IPV6)
 
   /// IPV6 version of the above.
-  void get_addresses(sockaddr_in6 *addrs,
-                     size_t size) const;
+  void get_addresses(sockaddr_in6 *addrs, size_t size) const;
 #endif /* ACE_HAS_IPV6 */
 
 private:

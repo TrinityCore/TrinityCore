@@ -4,7 +4,7 @@
 /**
  *  @file    FILE.h
  *
- *  $Id: FILE.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: FILE.h 91685 2010-09-09 09:35:14Z johnnyw $
  *
  *  @author Gerhard Lenzer
  */
@@ -21,19 +21,6 @@
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 #include "ace/FILE_Addr.h"
-
-// The following is necessary since many C++ compilers don't support
-// typedef'd types inside of classes used as formal template
-// arguments... ;-(.  Luckily, using the C++ preprocessor I can hide
-// most of this nastiness!
-
-#if defined (ACE_HAS_TEMPLATE_TYPEDEFS)
-#define ACE_FILE_CONNECTOR ACE_FILE_Connector
-#define ACE_FILE_STREAM ACE_FILE_IO
-#else /* TEMPLATES are broken (must be a cfront-based compiler...) */
-#define ACE_FILE_CONNECTOR ACE_FILE_Connector, ACE_FILE_Addr
-#define ACE_FILE_STREAM ACE_FILE_IO, ACE_FILE_Addr
-#endif /* ACE_TEMPLATE_TYPEDEFS */
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -85,13 +72,13 @@ public:
 
   /**
    * Sets the file pointer as follows:
-   *    o If <whence> is <SEEK_SET>, the pointer is set to @a offset
+   *    o If @ whence is @c SEEK_SET, the pointer is set to @a offset
    *      bytes.
    *
-   *    o  If <whence> is <SEEK_CUR>, the pointer is set to its
-   *       current location plus @a offset.
+   *    o If @a whence> is @c SEEK_CUR, the pointer is set to its
+   *      current location plus @a offset.
    *
-   *    o  If <whence> is <SEEK_END>, the pointer is set to the size
+   *    o If @a whence is @c SEEK_END, the pointer is set to the size
    *       of the file plus offset.
    */
   ACE_OFF_T seek (ACE_OFF_T offset,

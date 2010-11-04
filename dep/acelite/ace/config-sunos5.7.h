@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// $Id: config-sunos5.7.h 80826 2008-03-04 14:51:23Z wotte $
+// $Id: config-sunos5.7.h 91581 2010-08-31 13:18:11Z shuston $
 
 // The following configuration file is designed to work for SunOS 5.7
 // (Solaris 7) platforms using the SunC++ 4.x, 5.x, or g++ compilers.
@@ -53,10 +53,6 @@
 #if !defined (ACE_HAS_AIO_CALLS)
 #define ACE_HAS_AIO_CALLS
 #endif /* !ACE_HAS_AIO_CALLS */
-
-#ifdef ACE_HAS_LIMITED_SELECT
-#undef ACE_HAS_LIMITED_SELECT
-#endif /* ACE_HAS_LIMITED_SELECT */
 
 // SunOS 5.7 has socklen_t
 #define ACE_HAS_SOCKLEN_T

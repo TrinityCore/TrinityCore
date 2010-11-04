@@ -4,7 +4,7 @@
 /**
  *  @file    Auto_Event.h
  *
- *  $Id: Auto_Event.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Auto_Event.h 91781 2010-09-15 12:49:15Z johnnyw $
  *
  *   Moved from Synch.h.
  *
@@ -32,7 +32,7 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
  * @brief Auto Events.
  *
  * Specialization of Event mechanism which wakes up one waiting
- * thread on <signal>.  All platforms support process-scope locking
+ * thread on @c signal.  All platforms support process-scope locking
  * support.  However, only Win32 platforms support global naming and
  * system-scope locking support.
  */

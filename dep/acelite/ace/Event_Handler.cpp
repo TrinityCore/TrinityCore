@@ -1,5 +1,5 @@
 // Event_Handler.cpp
-// $Id: Event_Handler.cpp 85236 2009-05-01 11:43:56Z johnnyw $
+// $Id: Event_Handler.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/Event_Handler.h"
 #include "ace/OS_Errno.h"
@@ -14,7 +14,7 @@
 
 #include <algorithm>
 
-ACE_RCSID(ace, Event_Handler, "$Id: Event_Handler.cpp 85236 2009-05-01 11:43:56Z johnnyw $")
+
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

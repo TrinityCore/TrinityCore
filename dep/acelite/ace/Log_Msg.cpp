@@ -1,4 +1,4 @@
-// $Id: Log_Msg.cpp 88331 2009-12-24 09:54:25Z johnnyw $
+// $Id: Log_Msg.cpp 92052 2010-09-27 14:20:22Z vzykov $
 
 // We need this to get the status of ACE_NTRACE...
 #include "ace/config-all.h"
@@ -40,12 +40,13 @@
 #include "ace/Log_Record.h"
 #include "ace/Recursive_Thread_Mutex.h"
 #include "ace/Stack_Trace.h"
+#include "ace/Atomic_Op.h"
 
 #if !defined (__ACE_INLINE__)
 #include "ace/Log_Msg.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, Log_Msg, "$Id: Log_Msg.cpp 88331 2009-12-24 09:54:25Z johnnyw $")
+
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -1649,7 +1650,7 @@ ACE_Log_Msg::log (const ACE_TCHAR *format_str,
                           // Weekday Month day year hour:minute:sec.usec
                   {
                     ACE_TCHAR day_and_time[35];
-                    // Did we find the flag indicating a time value argument 
+                    // Did we find the flag indicating a time value argument
                     if (format[1] == ACE_TEXT('#'))
                     {
                       ACE_Time_Value* time_value = va_arg (argp, ACE_Time_Value*);
@@ -1685,15 +1686,15 @@ ACE_Log_Msg::log (const ACE_TCHAR *format_str,
 #else
                     ACE_OS::strcpy (fp, ACE_TEXT ("s"));
 #endif
-                    // Did we find the flag indicating a time value argument 
+                    // Did we find the flag indicating a time value argument
                     if (format[1] == ACE_TEXT('#'))
                     {
                       ACE_Time_Value* time_value = va_arg (argp, ACE_Time_Value*);
                       if (can_check)
                         this_len = ACE_OS::snprintf
                           (bp, bspace, format,
-                          ACE::timestamp (*time_value, 
-                                         day_and_time, 
+                          ACE::timestamp (*time_value,
+                                         day_and_time,
                                          sizeof day_and_time / sizeof (ACE_TCHAR)));
                       else
                         this_len = ACE_OS::sprintf
@@ -1728,24 +1729,9 @@ ACE_Log_Msg::log (const ACE_TCHAR *format_str,
                       ACE_OS::sprintf (bp,
                                        format,
                                        static_cast <unsigned> (ACE_Thread::self ()));
-#elif defined (DIGITAL_UNIX)
-                  ACE_OS::strcpy (fp, ACE_TEXT ("u"));
-                  {
-                    int id =
-#  if defined (ACE_HAS_THREADS)
-                      pthread_getselfseq_np ();
-#  else
-                      ACE_Thread::self ();
-#  endif /* ACE_HAS_THREADS */
-
-                      if (can_check)
-                        this_len = ACE_OS::snprintf (bp, bspace, format, id);
-                      else
-                        this_len = ACE_OS::sprintf (bp, format, id);
-                  }
 #else
                   ACE_hthread_t t_id;
-                  ACE_Thread::self (t_id);
+                  ACE_OS::thr_self (t_id);
 
 #  if defined (ACE_MVS) || defined (ACE_TANDEM_T1248_PTHREADS)
                   // MVS's pthread_t is a struct... yuck. So use the ACE 5.0
@@ -2483,32 +2469,6 @@ ACE_Log_Msg::thr_desc (ACE_Thread_Descriptor *td)
   if (td != 0)
     td->acquire_release ();
 }
-
-#if defined (ACE_HAS_WIN32_STRUCTURAL_EXCEPTIONS) && defined(ACE_LEGACY_MODE)
-ACE_SEH_EXCEPT_HANDLER
-ACE_Log_Msg::seh_except_selector (void)
-{
-  return ACE_OS_Object_Manager::seh_except_selector ();
-}
-
-ACE_SEH_EXCEPT_HANDLER
-ACE_Log_Msg::seh_except_selector (ACE_SEH_EXCEPT_HANDLER n)
-{
-  return ACE_OS_Object_Manager::seh_except_selector (n);
-}
-
-ACE_SEH_EXCEPT_HANDLER
-ACE_Log_Msg::seh_except_handler (void)
-{
-  return ACE_OS_Object_Manager::seh_except_handler ();
-}
-
-ACE_SEH_EXCEPT_HANDLER
-ACE_Log_Msg::seh_except_handler (ACE_SEH_EXCEPT_HANDLER n)
-{
-  return ACE_OS_Object_Manager::seh_except_handler (n);
-}
-#endif /* ACE_HAS_WIN32_STRUCTURAL_EXCEPTIONS && ACE_LEGACY_MODE */
 
 ACE_Log_Msg_Backend *
 ACE_Log_Msg::msg_backend (ACE_Log_Msg_Backend *b)

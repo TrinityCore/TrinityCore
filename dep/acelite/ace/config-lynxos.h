@@ -1,4 +1,4 @@
-// $Id: config-lynxos.h 89494 2010-03-15 20:11:18Z olli $
+// $Id: config-lynxos.h 91683 2010-09-09 09:07:49Z johnnyw $
 
 // The following configuration file is designed to work for LynxOS,
 // version 4.0.0 and later, using the GNU g++ compiler.
@@ -145,11 +145,6 @@
 #   define ACE_LACKS_PTHREAD_ATTR_SETSTACKADDR
 # endif
 #endif /* ACE_MT_SAFE */
-
-// By default, don't include RCS Id strings in object code.
-#if !defined (ACE_USE_RCSID)
-# define ACE_USE_RCSID 0
-#endif /* ! ACE_USE_RCSID */
 
 #if ACE_LYNXOS_MAJOR == 4 && ACE_LYNXOS_MINOR == 0
 # define ACE_LACKS_GETOPT_PROTOTYPE

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-//$Id: config-win32-borland.h 89292 2010-03-04 08:06:15Z johnnyw $
+//$Id: config-win32-borland.h 92102 2010-09-30 08:14:15Z johnnyw $
 
 // The following configuration file contains defines for Borland compilers.
 
@@ -33,12 +33,10 @@
 # define ACE_CC_MINOR_VERSION (__BORLANDC__ % 0x100)
 # define ACE_CC_BETA_VERSION (0)
 
-#ifndef ACE_USING_MCPP_PREPROCESSOR
-# if (__BORLANDC__ >= 0x620)
-#  define ACE_CC_PREPROCESSOR_ARGS "-q -Sl -o%s"
-# else
-#  define ACE_CC_PREPROCESSOR_ARGS "-q -P- -o%s"
-# endif
+#if (__BORLANDC__ >= 0x620)
+# define ACE_CC_PREPROCESSOR_ARGS "-q -Sl -o%s"
+#else
+# define ACE_CC_PREPROCESSOR_ARGS "-q -P- -o%s"
 #endif
 
 // Automatically define WIN32 macro if the compiler tells us it is our
@@ -110,13 +108,11 @@
 
 #define ACE_EXPORT_NESTED_CLASSES 1
 #define ACE_HAS_CPLUSPLUS_HEADERS 1
-#define ACE_HAS_EXCEPTIONS
 #define ACE_HAS_NONCONST_SELECT_TIMEVAL
 #define ACE_HAS_SIG_ATOMIC_T
 #define ACE_HAS_STANDARD_CPP_LIBRARY 1
 #define ACE_HAS_STDCPP_STL_INCLUDES 1
 #define ACE_HAS_STRING_CLASS 1
-#define ACE_HAS_TEMPLATE_TYPEDEFS 1
 #define ACE_HAS_USER_MODE_MASKS 1
 #define ACE_LACKS_ACE_IOSTREAM 1
 #define ACE_LACKS_LINEBUFFERED_STREAMBUF 1
@@ -146,8 +142,10 @@
 # define ACE_LACKS_PRAGMA_ONCE 1
 #endif
 
-#define ACE_LACKS_ISWCTYPE
-#define ACE_LACKS_ISCTYPE
+#if (__BORLANDC__ < 0x630)
+# define ACE_LACKS_ISWCTYPE
+# define ACE_LACKS_ISCTYPE
+#endif
 
 #if (__BORLANDC__ < 0x620)
 // Older Borland compilers can't handle assembly in inline methods or

@@ -1,11 +1,9 @@
-// $Id: Asynch_Pseudo_Task.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: Asynch_Pseudo_Task.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/Asynch_Pseudo_Task.h"
 
 #include "ace/OS_NS_errno.h"
 #include "ace/OS_NS_signal.h"
-
-ACE_RCSID(ace, Asynch_Pseudo_Task, "$Id: Asynch_Pseudo_Task.cpp 80826 2008-03-04 14:51:23Z wotte $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

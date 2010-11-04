@@ -4,7 +4,7 @@
 /**
  *  @file    MEM_Acceptor.h
  *
- *  $Id: MEM_Acceptor.h 84834 2009-03-16 12:28:51Z johnnyw $
+ *  $Id: MEM_Acceptor.h 91688 2010-09-09 11:21:50Z johnnyw $
  *
  *  @author Nanbor Wang <nanbor@cs.wustl.edu>
  */
@@ -119,10 +119,6 @@ public:
   /// Return the local endpoint address in the referenced <ACE_Addr>.
   /// Returns 0 if successful, else -1.
   int get_local_addr (ACE_MEM_Addr &) const;
-
-  /// Accessor to the mmap options.
-  /// @deprecated This method has been deprecated.
-  ACE_MEM_SAP::MALLOC_OPTIONS& malloc_options (void);
 
   // = Meta-type info
   typedef ACE_MEM_Addr PEER_ADDR;

@@ -4,7 +4,7 @@
 /**
  *  @file   Default_Constants.h
  *
- *  $Id: Default_Constants.h 87487 2009-11-12 07:54:39Z johnnyw $
+ *  $Id: Default_Constants.h 91688 2010-09-09 11:21:50Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -555,21 +555,6 @@
 #if !defined (ACE_DEFAULT_GLOBALNAME_A)
 #  define ACE_DEFAULT_GLOBALNAME_A "globalnames"
 #endif /* ACE_DEFAULT_GLOBALNAME_A */
-
-// ACE_DEFAULT_NAMESPACE_DIR is for legacy mode apps.  A better
-// way of doing this is something like ACE_Lib_Find::get_temp_dir, since
-// this directory may not exist
-#if defined (ACE_LEGACY_MODE)
-#  if defined (ACE_WIN32)
-#    define ACE_DEFAULT_NAMESPACE_DIR_A "C:\\temp"
-#  else /* ACE_WIN32 */
-#    define ACE_DEFAULT_NAMESPACE_DIR_A "/tmp"
-#  endif /* ACE_WIN32 */
-#  if defined (ACE_HAS_WCHAR)
-#    define ACE_DEFAULT_NAMESPACE_DIR_W ACE_TEXT_WIDE(ACE_DEFAULT_NAMESPACE_DIR_A)
-#  endif /* ACE_HAS_WCHAR */
-#    define ACE_DEFAULT_NAMESPACE_DIR ACE_TEXT(ACE_DEFAULT_NAMESPACE_DIR_A)
-#endif /* ACE_LEGACY_MODE */
 
 #if defined (ACE_HAS_WCHAR)
 #  define ACE_DEFAULT_LOCALNAME_W ACE_TEXT_WIDE(ACE_DEFAULT_LOCALNAME_A)

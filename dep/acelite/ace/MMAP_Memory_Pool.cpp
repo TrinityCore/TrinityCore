@@ -1,4 +1,4 @@
-// $Id: MMAP_Memory_Pool.cpp 87823 2009-11-30 12:38:34Z johnnyw $
+// $Id: MMAP_Memory_Pool.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 // MMAP_Memory_Pool.cpp
 #include "ace/MMAP_Memory_Pool.h"
@@ -17,10 +17,6 @@
 #if !defined (__ACE_INLINE__)
 #include "ace/MMAP_Memory_Pool.inl"
 #endif /* __ACE_INLINE__ */
-
-ACE_RCSID(ace,
-          MMAP_Memory_Pool,
-          "$Id: MMAP_Memory_Pool.cpp 87823 2009-11-30 12:38:34Z johnnyw $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

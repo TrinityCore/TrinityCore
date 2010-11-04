@@ -4,7 +4,7 @@
 /**
  *  @file    Condition_Thread_Mutex.h
  *
- *  $Id: Condition_Thread_Mutex.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Condition_Thread_Mutex.h 92069 2010-09-28 11:38:59Z johnnyw $
  *
  *   Moved from Synch.h.
  *
@@ -153,30 +153,6 @@ private:
   void operator= (const ACE_Condition_Thread_Mutex &);
   ACE_Condition_Thread_Mutex (const ACE_Condition_Thread_Mutex &);
 };
-
-#if 0
-// The following class is commented out since there doesn't
-// appear to be a portable and robust means of implementing this
-// functionality across platforms.  If you know of a portable and
-// robust way to implement this functionality please let us know.
-
-/**
- * @class ACE_Process_Condition
- *
- * @brief ACE_Condition variable wrapper that works across processes.
- */
-class ACE_Export ACE_Process_Condition
-{
-public:
-  ACE_Process_Condition (MUTEX &m, const ACE_TCHAR *name = 0, void *arg = 0);
-
-  /// Dump the state of an object.
-  void dump (void) const;
-
-  // ACE_ALLOC_HOOK_DECLARE;
-  // Declare the dynamic allocation hooks.
-};
-#endif /* 0 */
 
 ACE_END_VERSIONED_NAMESPACE_DECL
 

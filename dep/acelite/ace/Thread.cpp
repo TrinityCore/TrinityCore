@@ -1,10 +1,6 @@
-// $Id: Thread.cpp 84163 2009-01-15 07:57:27Z johnnyw $
+// $Id: Thread.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/Thread.h"
-
-ACE_RCSID(ace,
-          Thread,
-          "$Id: Thread.cpp 84163 2009-01-15 07:57:27Z johnnyw $")
 
 #if !defined (__ACE_INLINE__)
 #include "ace/Thread.inl"

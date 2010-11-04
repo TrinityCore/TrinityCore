@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// $Id: Asynch_Acceptor.cpp 85213 2009-04-29 16:34:20Z shuston $
+// $Id: Asynch_Acceptor.cpp 91693 2010-09-09 12:57:54Z johnnyw $
 
 #ifndef ACE_ASYNCH_ACCEPTOR_C
 #define ACE_ASYNCH_ACCEPTOR_C
@@ -9,8 +9,6 @@
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
-ACE_RCSID(ace, Asynch_Acceptor, "$Id: Asynch_Acceptor.cpp 85213 2009-04-29 16:34:20Z shuston $")
 
 #if defined (ACE_HAS_WIN32_OVERLAPPED_IO) || defined (ACE_HAS_AIO_CALLS)
 // This only works on platforms that support async i/o.
@@ -445,13 +443,6 @@ ACE_Asynch_Acceptor<HANDLER>::make_handler (void)
                   HANDLER,
                   0);
   return handler;
-}
-
-/* static */
-template <class HANDLER> size_t
-ACE_Asynch_Acceptor<HANDLER>::address_size (void)
-{
-  return sizeof (sockaddr) + sizeof (sockaddr_in);
 }
 
 template <class HANDLER> bool

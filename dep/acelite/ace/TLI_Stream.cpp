@@ -1,4 +1,4 @@
-// $Id: TLI_Stream.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: TLI_Stream.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 /* Defines the member functions for the base class of the ACE_TLI_Stream
    abstraction. */
@@ -7,7 +7,7 @@
 #include "ace/ACE.h"
 #include "ace/OS_NS_unistd.h"
 
-ACE_RCSID(ace, TLI_Stream, "$Id: TLI_Stream.cpp 80826 2008-03-04 14:51:23Z wotte $")
+
 
 #if defined (ACE_HAS_TLI)
 

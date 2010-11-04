@@ -1,3 +1,5 @@
+// $Id: Acceptor.cpp 91623 2010-09-06 09:30:59Z sma $
+
 #ifndef ACE_ACCEPTOR_CPP
 #define ACE_ACCEPTOR_CPP
 
@@ -8,16 +10,10 @@
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 #include "ace/Acceptor.h"
-#include "ace/Handle_Set.h"
 #include "ace/Svc_Handler.h"
 #include "ace/WFMO_Reactor.h"
 #include "ace/OS_NS_stdio.h"
 #include "ace/OS_NS_string.h"
-#include "ace/OS_NS_sys_select.h"
-
-ACE_RCSID (ace,
-           Acceptor,
-           "$Id: Acceptor.cpp 84935 2009-03-22 19:21:58Z schmidt $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -367,17 +363,9 @@ template <class SVC_HANDLER, ACE_PEER_ACCEPTOR_1> int
 ACE_Acceptor<SVC_HANDLER, ACE_PEER_ACCEPTOR_2>::handle_input (ACE_HANDLE listener)
 {
   ACE_TRACE ("ACE_Acceptor<SVC_HANDLER, ACE_PEER_ACCEPTOR_2>::handle_input");
-  ACE_Handle_Set conn_handle;
 
   // Default is "timeout (0, 0)," which means "poll."
   ACE_Time_Value timeout;
-#  if defined (ACE_WIN32)
-  // This arg is ignored on Windows and causes pointer truncation
-  // warnings on 64-bit compiles
-  int select_width = 0;
-#  else
-  int select_width = int (listener) + 1;
-#  endif /* ACE_WIN32 */
 
   // Accept connections from clients.  Note that a loop is used for two
   // reasons:
@@ -388,6 +376,11 @@ ACE_Acceptor<SVC_HANDLER, ACE_PEER_ACCEPTOR_2>::handle_input (ACE_HANDLE listene
   //
   // 2. It allows the TLI_SAP::ACE_Acceptor class to work correctly (don't
   //    ask -- TLI is *horrible*...).
+
+  // Ensure that errno is preserved in case the ACE::handle_read_ready()
+  // method resets it in the loop bellow. We are actually supposed to
+  // ignore any errors from this loop, hence the return 0 following it.
+  ACE_Errno_Guard error (errno);
 
   // @@ What should we do if any of the substrategies fail?  Right
   // now, we just print out a diagnostic message if <ACE::debug>
@@ -403,9 +396,11 @@ ACE_Acceptor<SVC_HANDLER, ACE_PEER_ACCEPTOR_2>::handle_input (ACE_HANDLE listene
       if (this->make_svc_handler (svc_handler) == -1)
         {
           if (ACE::debug ())
-            ACE_DEBUG ((LM_DEBUG,
-                        ACE_TEXT ("%p\n"),
-                        ACE_TEXT ("make_svc_handler")));
+            {
+              ACE_DEBUG ((LM_DEBUG,
+                          ACE_TEXT ("%p\n"),
+                          ACE_TEXT ("make_svc_handler")));
+            }
           return 0;
         }
       // Accept connection into the Svc_Handler.
@@ -414,10 +409,18 @@ ACE_Acceptor<SVC_HANDLER, ACE_PEER_ACCEPTOR_2>::handle_input (ACE_HANDLE listene
           // Note that <accept_svc_handler> closes the <svc_handler>
           // on failure.
           if (ACE::debug ())
-            ACE_DEBUG ((LM_DEBUG,
-                        ACE_TEXT ("%p\n"),
-                        ACE_TEXT ("accept_svc_handler")));
-          return this->handle_accept_error ();
+            {
+              ACE_DEBUG ((LM_DEBUG,
+                          ACE_TEXT ("%p\n"),
+                          ACE_TEXT ("accept_svc_handler")));
+            }
+          const int ret = this->handle_accept_error ();
+          if (ret == -1)
+            {
+              // Ensure that the errno from the above call propegates.
+              error = errno;
+            }
+          return ret;
         }
       // Activate the <svc_handler> using the designated concurrency
       // strategy (note that this method becomes responsible for
@@ -429,23 +432,17 @@ ACE_Acceptor<SVC_HANDLER, ACE_PEER_ACCEPTOR_2>::handle_input (ACE_HANDLE listene
           // on failure.
 
           if (ACE::debug ())
-            ACE_DEBUG ((LM_DEBUG,
-                        ACE_TEXT ("%p\n"),
-                        ACE_TEXT ("activate_svc_handler")));
+            {
+              ACE_DEBUG ((LM_DEBUG,
+                          ACE_TEXT ("%p\n"),
+                          ACE_TEXT ("activate_svc_handler")));
+            }
           return 0;
         }
-
-      conn_handle.set_bit (listener);
-    }
-
-  // Now, check to see if there is another connection pending and
-  // break out of the loop if there is none.
-  while (this->use_select_
-         && ACE_OS::select (select_width,
-                            conn_handle,
-                            0,
-                            0,
-                            &timeout) == 1);
+      // Now, check to see if there is another connection pending and
+      // break out of the loop if there is none.
+    } while (this->use_select_ &&
+             ACE::handle_read_ready (listener, &timeout) == 1);
   return 0;
 }
 

@@ -1,3 +1,5 @@
+// $Id: Capabilities.cpp 91287 2010-08-05 10:30:49Z johnnyw $
+
 #include "ace/Capabilities.h"
 #include "ace/OS_NS_ctype.h"
 #include "ace/OS_Memory.h"
@@ -8,11 +10,6 @@
 #endif /* !__ACE_INLINE__ */
 
 #include "ace/OS_NS_stdio.h"
-
-ACE_RCSID (ace,
-           Capabilities,
-           "$Id: Capabilities.cpp 80826 2008-03-04 14:51:23Z wotte $")
-
 
 #define ACE_ESC ((ACE_TCHAR)0x1b)
 

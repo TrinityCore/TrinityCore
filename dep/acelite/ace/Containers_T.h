@@ -4,7 +4,7 @@
 /**
  *  @file    Containers_T.h
  *
- *  $Id: Containers_T.h 88975 2010-02-12 19:19:38Z johnnyw $
+ *  $Id: Containers_T.h 91995 2010-09-24 12:45:24Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -1920,7 +1920,7 @@ private:
                    ACE_DNode<T> **new_position);
 
   /**
-   * Looks for first occurance of @a item in the ordered set, using the
+   * Looks for first occurrence of @a item in the ordered set, using the
    * passed starting position as a hint: if there is such an instance, it
    * updates the new_position pointer to point to this node and returns 0;
    * if there is no such node, then if there is a node before where the
@@ -1994,7 +1994,7 @@ public:
   // Define a "trait"
   typedef T TYPE;
   typedef ACE_Array_Iterator<T> ITERATOR;
-  
+
   /// Dynamically create an uninitialized array.
   /**
    * Initialize an empty array of the specified size using the provided

@@ -4,7 +4,7 @@
 /**
  *  @file    IOStream.h
  *
- *  $Id: IOStream.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: IOStream.h 92102 2010-09-30 08:14:15Z johnnyw $
  *
  *  @author James CE Johnson <jcej@lads.com>
  *  @author Jim Crossley <jim@lads.com>
@@ -63,14 +63,6 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 #        endif /* ACE_USES_STD_NAMESPACE_FOR_STDCPP_LIB */
 #      endif /* ! ACE_HAS_STDCPP_STL_INCLUDES */
 #    endif /* ACE_WIN32 && defined (_MSC_VER) */
-
-#    if defined (__DECCXX_VER)
-#      if __DECCXX_VER < 50700000
-#        include /**/ <stl_macros>
-#      else
-#        include /**/ <stdcomp>
-#      endif /* __DECCXX_VER < 50700000 */
-#    endif /* __DECCXX_VER */
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

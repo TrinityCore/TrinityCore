@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: config-win32-interix.h 87578 2009-11-16 14:41:47Z olli $
+// $Id: config-win32-interix.h 91285 2010-08-05 08:29:30Z johnnyw $
 
 // The following configuration file is designed to work for Interix
 // platforms using GNU g++ (Interix == Microsoft's Services for Unix)
@@ -18,7 +18,6 @@
 #define ACE_HAS_BROKEN_T_ERROR
 #define ACE_HAS_CONSISTENT_SIGNAL_PROTOTYPES
 #define ACE_HAS_DIRENT
-#define ACE_HAS_EXCEPTIONS
 #define ACE_HAS_GETPAGESIZE
 #define ACE_HAS_GETRUSAGE
 #define ACE_HAS_GETRUSAGE_PROTOTYPE

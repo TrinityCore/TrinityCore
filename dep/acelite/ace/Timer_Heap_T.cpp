@@ -1,4 +1,4 @@
-// $Id: Timer_Heap_T.cpp 84962 2009-03-24 15:16:25Z johnnyw $
+// $Id: Timer_Heap_T.cpp 92069 2010-09-28 11:38:59Z johnnyw $
 
 #ifndef ACE_TIMER_HEAP_T_CPP
 #define ACE_TIMER_HEAP_T_CPP
@@ -522,21 +522,7 @@ ACE_Timer_Heap_T<TYPE, FUNCTOR, ACE_LOCK>::grow_heap (void)
   // All the containers will double in size from max_size_.
   size_t new_size = this->max_size_ * 2;
 
-#if 0
-  // Yikes - there's no way to flag a failure of going out of range of
-  // a 'long' - this is a problem that should be addressed at some point.
-  if (new_size > ACE_Numeric_Limits<long>::max ())
-    new_size = ACE_Numeric_Limits<long>::max ();
-
-  if (new_size <= this->max_size_)   // We are already at the limit
-    {
-      errno = ENOMEM;
-      return -1;
-    }
-#endif /* 0 */
-
-   // First grow the heap itself.
-
+  // First grow the heap itself.
   ACE_Timer_Node_T<TYPE> **new_heap = 0;
 
   ACE_NEW (new_heap,

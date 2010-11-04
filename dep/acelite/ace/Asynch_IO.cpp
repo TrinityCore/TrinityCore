@@ -1,8 +1,6 @@
-// $Id: Asynch_IO.cpp 82559 2008-08-07 20:23:07Z parsons $
+// $Id: Asynch_IO.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/Asynch_IO.h"
-
-ACE_RCSID(ace, Asynch_IO, "$Id: Asynch_IO.cpp 82559 2008-08-07 20:23:07Z parsons $")
 
 #if defined (ACE_HAS_WIN32_OVERLAPPED_IO) || defined (ACE_HAS_AIO_CALLS)
 // This only works on platforms with Asynchronous IO

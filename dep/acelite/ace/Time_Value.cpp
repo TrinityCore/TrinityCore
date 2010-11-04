@@ -1,8 +1,6 @@
-#include "ace/Time_Value.h"
+// $Id: Time_Value.cpp 92069 2010-09-28 11:38:59Z johnnyw $
 
-ACE_RCSID (ace,
-           Time_Value,
-           "$Id: Time_Value.cpp 89791 2010-04-07 14:36:21Z schmidt $")
+#include "ace/Time_Value.h"
 
 #if !defined (__ACE_INLINE__)
 #include "ace/Time_Value.inl"
@@ -156,15 +154,6 @@ ACE_Time_Value::operator FILETIME () const
 void
 ACE_Time_Value::dump (void) const
 {
-#if defined (ACE_HAS_DUMP)
-  // ACE_OS_TRACE ("ACE_Time_Value::dump");
-#if 0
-  ACE_DEBUG ((LM_DEBUG, ACE_BEGIN_DUMP, this));
-  ACE_DEBUG ((LM_DEBUG, ACE_TEXT ("\ntv_sec_ = %d"), this->tv_.tv_sec));
-  ACE_DEBUG ((LM_DEBUG, ACE_TEXT ("\ntv_usec_ = %d\n"), this->tv_.tv_usec));
-  ACE_DEBUG ((LM_DEBUG, ACE_END_DUMP));
-#endif /* 0 */
-#endif /* ACE_HAS_DUMP */
 }
 
 void

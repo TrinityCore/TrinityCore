@@ -4,7 +4,7 @@
 /**
  *  @file    QoS_Session_Impl.h
  *
- *  $Id: QoS_Session_Impl.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: QoS_Session_Impl.h 91743 2010-09-13 18:24:51Z johnnyw $
  *
  *  @author Vishal Kachroo <vishal@cs.wustl.edu>
  */
@@ -115,7 +115,7 @@ public:
 
   //Set the source host
   virtual ACE_INET_Addr* source_addr (void) const;
-  
+
   /// Set the source port for this session.
   virtual void source_addr (ACE_INET_Addr* source_addr);
 
@@ -221,7 +221,7 @@ public:
 
   //Set the source host
   virtual ACE_INET_Addr* source_addr (void) const;
-  
+
   /// Set the source port for this session.
   virtual void source_addr (ACE_INET_Addr* source_addr);
 

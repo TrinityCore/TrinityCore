@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: Service_Config.inl 83302 2008-10-16 19:28:11Z mesnier_p $
+// $Id: Service_Config.inl 91813 2010-09-17 07:52:52Z johnnyw $
 
 #include "ace/OS_NS_string.h"
 
@@ -50,7 +50,7 @@ ACE_Service_Config::open (int argc,
                            ignore_default_svc_conf,
                            ignore_debug_flag) == -1)
     return -1;
-  
+
   return current()->open (argc,
                           argv,
                           logger_key,

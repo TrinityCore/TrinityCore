@@ -1,10 +1,6 @@
-// $Id: Registry.cpp 88568 2010-01-15 10:23:25Z olli $
+// $Id: Registry.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/Registry.h"
-
-ACE_RCSID (ace,
-           Registry,
-           "$Id: Registry.cpp 88568 2010-01-15 10:23:25Z olli $")
 
 #if defined (ACE_WIN32) && !defined (ACE_LACKS_WIN32_REGISTRY)
 

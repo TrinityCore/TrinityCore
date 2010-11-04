@@ -1,11 +1,9 @@
 // QoS_Session_Factory.cpp
-// $Id: QoS_Session_Factory.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: QoS_Session_Factory.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
 
 #include "QoS_Session_Factory.h"
 #include "QoS_Session_Impl.h"
 #include "ace/Log_Msg.h"
-
-ACE_RCSID(ace, QoS_Session_Factory, "$Id: QoS_Session_Factory.cpp 80826 2008-03-04 14:51:23Z wotte $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

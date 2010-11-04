@@ -1,13 +1,9 @@
-// $Id: OS_NS_string.cpp 88331 2009-12-24 09:54:25Z johnnyw $
+// $Id: OS_NS_string.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
 
 #include "ace/ACE.h"
 #include "ace/OS_NS_string.h"
 #include "ace/OS_NS_stdio.h"
 #include "ace/OS_NS_stdlib.h"
-
-ACE_RCSID (ace,
-           OS_NS_string,
-           "$Id: OS_NS_string.cpp 88331 2009-12-24 09:54:25Z johnnyw $")
 
 #if !defined (ACE_HAS_INLINED_OSCALLS)
 # include "ace/OS_NS_string.inl"

@@ -3,7 +3,7 @@
 /**
  *  @file   config-win32-msvc-7.h
  *
- *  $Id: config-win32-msvc-7.h 87251 2009-10-28 12:00:12Z olli $
+ *  $Id: config-win32-msvc-7.h 91685 2010-09-09 09:35:14Z johnnyw $
  *
  *  @brief  Microsoft Visual C++ 7.0 configuration file.
  *
@@ -46,10 +46,6 @@
 #define ACE_STRNCASECMP_EQUIVALENT ::_strnicmp
 #define ACE_WCSDUP_EQUIVALENT ::_wcsdup
 
-#if !defined (ACE_HAS_WINCE) && !defined (ACE_HAS_EXCEPTIONS)
-#define ACE_HAS_EXCEPTIONS
-#endif /* ACE_HAS_WINCE */
-
 #define ACE_LACKS_STRPTIME
 
 #define ACE_HAS_SIG_ATOMIC_T
@@ -57,7 +53,6 @@
 #define ACE_LACKS_STRRECVFD
 #define ACE_HAS_CPLUSPLUS_HEADERS
 
-#define ACE_HAS_TEMPLATE_TYPEDEFS
 #define ACE_TEMPLATES_REQUIRE_SOURCE
 
 // Platform provides ACE_TLI function prototypes.

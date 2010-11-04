@@ -4,7 +4,7 @@
 /**
  *  @file    Cached_Connect_Strategy_T.h
  *
- *  $Id: Cached_Connect_Strategy_T.h 91077 2010-07-13 14:33:08Z johnnyw $
+ *  $Id: Cached_Connect_Strategy_T.h 92097 2010-09-30 05:41:49Z msmit $
  *
  *  @author Kirthika Parameswaran <kirthika@cs.wustl.edu>
  */
@@ -90,9 +90,9 @@ public:
   typedef typename CONNECTION_CACHE::mapped_type VALUE;
 
   typedef ACE_Recyclable_Handler_Cleanup_Strategy<REFCOUNTED_HASH_RECYCLABLE_ADDRESS,
-                                                  ACE_Pair<SVC_HANDLER *, ATTRIBUTES>,
+                                                  std::pair<SVC_HANDLER *, ATTRIBUTES>,
                                                   ACE_Hash_Map_Manager_Ex<REFCOUNTED_HASH_RECYCLABLE_ADDRESS,
-                                                                          ACE_Pair<SVC_HANDLER *, ATTRIBUTES>,
+                                                                          std::pair<SVC_HANDLER *, ATTRIBUTES>,
                                                                           ACE_Hash<REFCOUNTED_HASH_RECYCLABLE_ADDRESS>,
                                                                           ACE_Equal_To<REFCOUNTED_HASH_RECYCLABLE_ADDRESS>,
                                                                           MUTEX> >
@@ -108,7 +108,7 @@ protected:
 
   /// Find an idle handle.
   int find (ACE_Refcounted_Hash_Recyclable<ACE_PEER_CONNECTOR_ADDR> &search_addr,
-            ACE_Hash_Map_Entry<ACE_Refcounted_Hash_Recyclable<ACE_PEER_CONNECTOR_ADDR>, ACE_Pair<SVC_HANDLER *, ATTRIBUTES> > *&entry);
+            ACE_Hash_Map_Entry<ACE_Refcounted_Hash_Recyclable<ACE_PEER_CONNECTOR_ADDR>, std::pair<SVC_HANDLER *, ATTRIBUTES> > *&entry);
 
   /// Remove from cache (non-locking version).
   virtual int purge_i (const void *recycling_act);
@@ -133,7 +133,7 @@ protected:
                     bool reuse_addr,
                     int flags,
                     int perms,
-                    ACE_Hash_Map_Entry<ACE_Refcounted_Hash_Recyclable<ACE_PEER_CONNECTOR_ADDR>, ACE_Pair<SVC_HANDLER *, ATTRIBUTES> > *&entry,
+                    ACE_Hash_Map_Entry<ACE_Refcounted_Hash_Recyclable<ACE_PEER_CONNECTOR_ADDR>, std::pair<SVC_HANDLER *, ATTRIBUTES> > *&entry,
                     int &found);
 
   virtual int find_or_create_svc_handler_i (SVC_HANDLER *&sh,
@@ -143,7 +143,7 @@ protected:
                                     bool reuse_addr,
                                     int flags,
                                     int perms,
-                                    ACE_Hash_Map_Entry<ACE_Refcounted_Hash_Recyclable<ACE_PEER_CONNECTOR_ADDR>, ACE_Pair<SVC_HANDLER *, ATTRIBUTES> > *&entry,
+                                    ACE_Hash_Map_Entry<ACE_Refcounted_Hash_Recyclable<ACE_PEER_CONNECTOR_ADDR>, std::pair<SVC_HANDLER *, ATTRIBUTES> > *&entry,
                                     int &found);
 
   virtual int connect_svc_handler_i (SVC_HANDLER *&sh,
@@ -240,7 +240,7 @@ protected:
                                             int flags,
                                             int perms,
                                             ACE_Hash_Map_Entry<ACE_Refcounted_Hash_Recyclable<ACE_PEER_CONNECTOR_ADDR>,
-                                            ACE_Pair<SVC_HANDLER *, ATTRIBUTES> > *&entry,
+                                            std::pair<SVC_HANDLER *, ATTRIBUTES> > *&entry,
                                             int &found);
 
 protected:

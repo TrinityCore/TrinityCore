@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: Map_Manager.inl 80826 2008-03-04 14:51:23Z wotte $
+// $Id: Map_Manager.inl 91809 2010-09-17 07:20:41Z johnnyw $
 
 #include "ace/Guard_T.h"
 #include "ace/Log_Msg.h"
@@ -725,5 +725,32 @@ ACE_Map_Reverse_Iterator<EXT_ID, INT_ID, ACE_LOCK>::operator-- (int)
   --*this;
   return retv;
 }
+
+template <class EXT_ID, class INT_ID, class ACE_LOCK> ACE_INLINE
+ACE_Map_Entry<EXT_ID, INT_ID>&
+ACE_Map_Iterator_Base<EXT_ID, INT_ID, ACE_LOCK>::operator* (void) const
+{
+  ACE_Map_Entry<EXT_ID, INT_ID> *retv = 0;
+
+  int const result = this->next (retv);
+  ACE_ASSERT (result != 0);
+  ACE_UNUSED_ARG (result);
+
+  return *retv;
+}
+
+template <class EXT_ID, class INT_ID, class ACE_LOCK> ACE_INLINE
+ACE_Map_Entry<EXT_ID, INT_ID>&
+ACE_Map_Const_Iterator_Base<EXT_ID, INT_ID, ACE_LOCK>::operator* (void) const
+{
+  ACE_Map_Entry<EXT_ID, INT_ID> *retv = 0;
+
+  int const result = this->next (retv);
+  ACE_ASSERT (result != 0);
+  ACE_UNUSED_ARG (result);
+
+  return *retv;
+}
+
 
 ACE_END_VERSIONED_NAMESPACE_DECL

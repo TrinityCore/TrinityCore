@@ -4,7 +4,7 @@
 /**
  *  @file    SSL_SOCK.h
  *
- *  $Id: SSL_SOCK.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: SSL_SOCK.h 91685 2010-09-09 09:35:14Z johnnyw $
  *
  *  @author Ossama Othman <ossama@ece.uci.edu>
  */
@@ -23,16 +23,6 @@
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 #include "ace/SOCK.h"
-
-#if defined (ACE_HAS_TEMPLATE_TYPEDEFS)
-# define ACE_SSL_SOCK_ACCEPTOR ACE_SSL_SOCK_Acceptor
-# define ACE_SSL_SOCK_CONNECTOR ACE_SSL_SOCK_Connector
-# define ACE_SSL_SOCK_STREAM ACE_SSL_SOCK_Stream
-#else
-# define ACE_SSL_SOCK_ACCEPTOR ACE_SSL_SOCK_Acceptor, ACE_INET_Addr
-# define ACE_SSL_SOCK_CONNECTOR ACE_SSL_SOCK_Connector, ACE_INET_Addr
-# define ACE_SSL_SOCK_STREAM ACE_SSL_SOCK_Stream, ACE_INET_Addr
-#endif /* ACE_HAS_TEMPLATE_TYPEDEFS */
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

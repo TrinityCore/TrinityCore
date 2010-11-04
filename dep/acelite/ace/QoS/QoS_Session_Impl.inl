@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: QoS_Session_Impl.inl 80826 2008-03-04 14:51:23Z wotte $
+// $Id: QoS_Session_Impl.inl 91813 2010-09-17 07:52:52Z johnnyw $
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -100,13 +100,13 @@ ACE_RAPI_Session::source_port (const u_short &source_port)
   this->source_port_ = source_port;
 }
 
-ACE_INLINE ACE_INET_Addr* 
+ACE_INLINE ACE_INET_Addr*
 ACE_RAPI_Session::source_addr (void) const
 {
   return this->src_addr_;
 }
-  
-ACE_INLINE void 
+
+ACE_INLINE void
 ACE_RAPI_Session::source_addr (ACE_INET_Addr* source_addr)
 {
   this->src_addr_ = source_addr;
@@ -207,13 +207,13 @@ ACE_GQoS_Session::source_port (const u_short &source_port)
   this->source_port_ = source_port;
 }
 
-ACE_INLINE ACE_INET_Addr* 
+ACE_INLINE ACE_INET_Addr*
 ACE_GQoS_Session::source_addr (void) const
 {
   return this->src_addr_;
 }
-  
-ACE_INLINE void 
+
+ACE_INLINE void
 ACE_GQoS_Session::source_addr (ACE_INET_Addr* source_addr)
 {
   this->src_addr_ = source_addr;

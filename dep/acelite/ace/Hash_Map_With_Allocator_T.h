@@ -4,7 +4,7 @@
 /**
  *  @file   Hash_Map_With_Allocator_T.h
  *
- *  $Id: Hash_Map_With_Allocator_T.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Hash_Map_With_Allocator_T.h 91743 2010-09-13 18:24:51Z johnnyw $
  *
  *  @author Marina Spivak <marina@cs.wustl.edu>
  *  @author Irfan Pyarali <irfan@cs.wustl.edu>
@@ -42,7 +42,7 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
  *     is meaningful!  That is why we need this wrapper, which
  *     insures that appropriate allocator pointer is in place for
  *     each call.
- * 
+ *
  *     At some point it would be a good idea to update this class to
  *     use the new "two allocator" technique provided by @c
  *     ACE_Hash_Map_Manager_Ex.

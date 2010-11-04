@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: Map_T.inl 80826 2008-03-04 14:51:23Z wotte $
+// $Id: Map_T.inl 92097 2010-09-30 05:41:49Z msmit $
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -300,7 +300,7 @@ ACE_Active_Map_Manager_Adapter<KEY, VALUE, KEY_ADAPTER>::ACE_Active_Map_Manager_
 {
 }
 
-template <class KEY, class VALUE, class KEY_ADAPTER> ACE_INLINE ACE_Active_Map_Manager<ACE_Pair<KEY, VALUE> > &
+template <class KEY, class VALUE, class KEY_ADAPTER> ACE_INLINE ACE_Active_Map_Manager<std::pair<KEY, VALUE> > &
 ACE_Active_Map_Manager_Adapter<KEY, VALUE, KEY_ADAPTER>::impl (void)
 {
   return this->implementation_;

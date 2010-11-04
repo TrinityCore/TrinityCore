@@ -1,4 +1,4 @@
-// $Id: INET_Addr.cpp 84183 2009-01-19 08:50:16Z johnnyw $
+// $Id: INET_Addr.cpp 91683 2010-09-09 09:07:49Z johnnyw $
 
 // Defines the Internet domain address family address format.
 
@@ -17,10 +17,6 @@
 #include "ace/OS_NS_netdb.h"
 #include "ace/OS_NS_unistd.h"
 #include "ace/OS_NS_sys_socket.h"
-
-ACE_RCSID (ace,
-           INET_Addr,
-           "$Id: INET_Addr.cpp 84183 2009-01-19 08:50:16Z johnnyw $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -875,10 +871,6 @@ ACE_INET_Addr::get_host_name_i (char hostname[], size_t len) const
         }
 #  endif /* ACE_HAS_IPV6 */
 
-#  if defined (DIGITAL_UNIX) && defined (__GNUC__)
-      hostent * const hp =
-        ACE_OS::gethostbyaddr (static_cast <char *> (addr), size, type);
-#  else
       int h_error;  // Not the same as errno!
       hostent hentry;
       ACE_HOSTENT_DATA buf;
@@ -889,7 +881,6 @@ ACE_INET_Addr::get_host_name_i (char hostname[], size_t len) const
                                  &hentry,
                                  buf,
                                  &h_error);
-#  endif /* DIGITAL_UNIX */
 
       if (hp == 0 || hp->h_name == 0)
         return -1;

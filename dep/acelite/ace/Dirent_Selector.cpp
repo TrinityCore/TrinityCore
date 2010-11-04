@@ -1,4 +1,4 @@
-// $Id: Dirent_Selector.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: Dirent_Selector.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/Dirent_Selector.h"
 
@@ -8,10 +8,6 @@
 
 #include "ace/OS_NS_dirent.h"
 #include "ace/OS_NS_stdlib.h"
-
-ACE_RCSID (ace,
-           Dirent_Selector,
-           "$Id: Dirent_Selector.cpp 80826 2008-03-04 14:51:23Z wotte $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

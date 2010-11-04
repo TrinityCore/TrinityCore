@@ -1,5 +1,5 @@
 // QoS_Session_Impl.cpp
-// $Id: QoS_Session_Impl.cpp 84565 2009-02-23 08:20:39Z johnnyw $
+// $Id: QoS_Session_Impl.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
 
 #include "ace/OS_NS_arpa_inet.h"
 #include "ace/SOCK.h"
@@ -10,8 +10,6 @@
 #if !defined (__ACE_INLINE__)
 #include "QoS_Session_Impl.inl"
 #endif /* __ACE_INLINE__ */
-
-ACE_RCSID(ace, QoS_Session_Impl, "$Id: QoS_Session_Impl.cpp 84565 2009-02-23 08:20:39Z johnnyw $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

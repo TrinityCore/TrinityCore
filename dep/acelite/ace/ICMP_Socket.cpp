@@ -1,4 +1,4 @@
-// $Id: ICMP_Socket.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: ICMP_Socket.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/ICMP_Socket.h"
 
@@ -8,12 +8,6 @@
 #include "ace/Log_Msg.h"
 #include "ace/OS_NS_netdb.h"
 #include "ace/OS_NS_sys_socket.h"
-
-
-ACE_RCSID (ace,
-           ICMP_Socket,
-           "$Id: ICMP_Socket.cpp 80826 2008-03-04 14:51:23Z wotte $")
-
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

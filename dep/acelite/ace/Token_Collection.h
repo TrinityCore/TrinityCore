@@ -4,7 +4,7 @@
 /**
  *  @file    Token_Collection.h
  *
- *  $Id: Token_Collection.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Token_Collection.h 91688 2010-09-09 11:21:50Z johnnyw $
  *
  *  The ACE_Token class offers methods for acquiring, renewing,
  *  and releasing a synchronization token on a per-token basis.  The
@@ -203,18 +203,6 @@ protected:
   /// COLLECTION maintains a mapping from token names to ACE_Tokens*
   typedef ACE_Map_Manager<TOKEN_NAME, ACE_Token_Proxy *, ACE_Null_Mutex>
     COLLECTION;
-
-  /// Allows iterations through collection_
-  /**
-   * @deprecated Deprecated typedef.  Use COLLECTION::ITERATOR trait instead.
-   */
-  typedef COLLECTION::ITERATOR COLLECTION_ITERATOR;
-
-  /// Allows iterations through collection_
-  /**
-   * @deprecated Deprecated typedef.  Use COLLECTION::ENTRY trait instead.
-   */
-  typedef COLLECTION::ENTRY COLLECTION_ENTRY;
 
   /// COLLECTION maintains a mapping from token names to ACE_Tokens*.
   COLLECTION collection_;

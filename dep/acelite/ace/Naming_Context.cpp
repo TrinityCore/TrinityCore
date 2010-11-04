@@ -1,4 +1,4 @@
-// $Id: Naming_Context.cpp 84565 2009-02-23 08:20:39Z johnnyw $
+// $Id: Naming_Context.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/Get_Opt.h"
 #include "ace/Naming_Context.h"
@@ -14,7 +14,7 @@
 # include "ace/Trace.h"
 #endif /* ACE_HAS_TRACE */
 
-ACE_RCSID(ace, Naming_Context, "$Id: Naming_Context.cpp 84565 2009-02-23 08:20:39Z johnnyw $")
+
 
 #if !defined (__ACE_INLINE__)
 #include "ace/Naming_Context.inl"

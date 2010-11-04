@@ -1,3 +1,4 @@
+// $Id: SSL_Context.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
 #include "SSL_Context.h"
 
 #include "sslconf.h"
@@ -25,11 +26,6 @@
 #include <openssl/err.h>
 #include <openssl/rand.h>
 #include <openssl/safestack.h>
-
-ACE_RCSID (ACE_SSL,
-           SSL_Context,
-           "$Id: SSL_Context.cpp 85202 2009-04-28 18:52:57Z johnnyw $")
-
 
 namespace
 {

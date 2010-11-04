@@ -4,7 +4,7 @@
 /**
  *  @file    Null_Condition.h
  *
- *  $Id: Null_Condition.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Null_Condition.h 91626 2010-09-07 10:59:20Z johnnyw $
  *
  *   Moved from Synch.h.
  *
@@ -16,8 +16,6 @@
 #define ACE_NULL_CONDITION_H
 #include /**/ "ace/pre.h"
 
-// All methods in this class are inline, so there is no
-// need to import or export on Windows. -- CAE 12/18/2003
 #include "ace/Null_Mutex.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
