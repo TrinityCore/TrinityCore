@@ -4,7 +4,7 @@
 /**
  *  @file    Hash_Cache_Map_Manager_T.h
  *
- *  $Id: Hash_Cache_Map_Manager_T.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Hash_Cache_Map_Manager_T.h 92097 2010-09-30 05:41:49Z msmit $
  *
  *  @author Kirthika Parameswaran <kirthika@cs.wustl.edu>
  */
@@ -33,9 +33,9 @@ class ACE_Allocator;
 #define ACE_CACHE_MAP_MANAGER \
         ACE_Cache_Map_Manager<KEY, \
                               VALUE, \
-                              ACE_Hash_Map_Manager_Ex<KEY, ACE_Pair<VALUE, ATTRIBUTES>, HASH_KEY, COMPARE_KEYS, ACE_Null_Mutex>, \
-                              ACE_Hash_Map_Iterator_Ex<KEY, ACE_Pair<VALUE, ATTRIBUTES>, HASH_KEY, COMPARE_KEYS, ACE_Null_Mutex>, \
-                              ACE_Hash_Map_Reverse_Iterator_Ex<KEY, ACE_Pair<VALUE, ATTRIBUTES>, HASH_KEY, COMPARE_KEYS, ACE_Null_Mutex>, \
+                              ACE_Hash_Map_Manager_Ex<KEY, std::pair<VALUE, ATTRIBUTES>, HASH_KEY, COMPARE_KEYS, ACE_Null_Mutex>, \
+                              ACE_Hash_Map_Iterator_Ex<KEY, std::pair<VALUE, ATTRIBUTES>, HASH_KEY, COMPARE_KEYS, ACE_Null_Mutex>, \
+                              ACE_Hash_Map_Reverse_Iterator_Ex<KEY, std::pair<VALUE, ATTRIBUTES>, HASH_KEY, COMPARE_KEYS, ACE_Null_Mutex>, \
                               CACHING_STRATEGY, \
                               ATTRIBUTES>
 
@@ -71,7 +71,7 @@ class ACE_Hash_Cache_Map_Manager : public ACE_CACHE_MAP_MANAGER
    * are used by the strategy and is transparent to the user of this
    * class.
    */
-  typedef ACE_Pair<VALUE, ATTRIBUTES> CACHE_VALUE;
+  typedef std::pair<VALUE, ATTRIBUTES> CACHE_VALUE;
   typedef ACE_Hash_Map_Manager_Ex<KEY, CACHE_VALUE, HASH_KEY, COMPARE_KEYS, ACE_Null_Mutex> HASH_MAP;
   typedef ACE_Hash_Map_Entry<KEY, CACHE_VALUE> CACHE_ENTRY;
   typedef KEY key_type;

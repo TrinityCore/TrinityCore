@@ -1,5 +1,4 @@
-// SV_Semaphore_Complex.cpp
-// $Id: SV_Semaphore_Complex.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: SV_Semaphore_Complex.cpp 91321 2010-08-09 06:38:18Z johnnyw $
 
 #include "ace/SV_Semaphore_Complex.h"
 #include "ace/Log_Msg.h"
@@ -8,8 +7,6 @@
 #if !defined (__ACE_INLINE__)
 #include "ace/SV_Semaphore_Complex.inl"
 #endif /* __ACE_INLINE__ */
-
-ACE_RCSID(ace, SV_Semaphore_Complex, "$Id: SV_Semaphore_Complex.cpp 80826 2008-03-04 14:51:23Z wotte $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

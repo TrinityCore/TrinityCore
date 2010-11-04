@@ -1,8 +1,8 @@
-// $Id: UPIPE_Acceptor.cpp 82723 2008-09-16 09:35:44Z johnnyw $
+// $Id: UPIPE_Acceptor.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/UPIPE_Acceptor.h"
 
-ACE_RCSID(ace, UPIPE_Acceptor, "$Id: UPIPE_Acceptor.cpp 82723 2008-09-16 09:35:44Z johnnyw $")
+
 
 #if defined (ACE_HAS_THREADS)
 

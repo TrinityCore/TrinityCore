@@ -6,7 +6,7 @@
  *
  *  time types
  *
- *  $Id: os_time.h 87270 2009-10-29 21:47:47Z olli $
+ *  $Id: os_time.h 91683 2010-09-09 09:07:49Z johnnyw $
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -103,13 +103,6 @@ typedef struct timespec * ACE_TIMESPEC_PTR;
 #else
 typedef const struct timespec * ACE_TIMESPEC_PTR;
 #endif /* ACE_LACKS_CONST_TIMESPEC_PTR */
-
-#if defined (DIGITAL_UNIX)
-  extern char *_Pctime_r (const time_t *, char *);
-  extern struct tm *_Plocaltime_r (const time_t *, struct tm *);
-  extern struct tm *_Pgmtime_r (const time_t *, struct tm *);
-  extern char *_Pasctime_r (const struct tm *, char *);
-#endif /* DIGITAL_UNIX */
 
 #ifdef __cplusplus
 }

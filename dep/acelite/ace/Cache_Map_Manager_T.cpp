@@ -1,4 +1,4 @@
-// $Id: Cache_Map_Manager_T.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: Cache_Map_Manager_T.cpp 92097 2010-09-30 05:41:49Z msmit $
 
 #ifndef ACE_CACHE_MAP_MANAGER_T_CPP
 #define ACE_CACHE_MAP_MANAGER_T_CPP
@@ -77,7 +77,7 @@ ACE_Cache_Map_Manager<ACE_T2>::bind (const KEY &key,
     {
 
       int result = this->caching_strategy_.notify_bind (bind_result,
-                                                        cache_value.second ());
+                                                        cache_value.second);
 
       if (result == -1)
         {
@@ -285,7 +285,7 @@ ACE_Cache_Map_Manager<ACE_T2>::find (const KEY &key,
     {
 
       int result = this->caching_strategy_.notify_find (find_result,
-                                                        cache_value.second ());
+                                                        cache_value.second);
 
       // Unless the find and notification operations go thru, this
       // method is not successful.
@@ -301,7 +301,7 @@ ACE_Cache_Map_Manager<ACE_T2>::find (const KEY &key,
           if (rebind_result == -1)
             find_result = -1;
           else
-            value = cache_value.first ();
+            value = cache_value.first;
 
         }
 
@@ -361,7 +361,7 @@ ACE_Cache_Map_Manager<ACE_T2>::unbind (const KEY &key)
     {
 
       int result = this->caching_strategy_.notify_unbind (unbind_result,
-                                                          cache_value.second ());
+                                                          cache_value.second);
 
       if (result == -1)
         unbind_result = -1;

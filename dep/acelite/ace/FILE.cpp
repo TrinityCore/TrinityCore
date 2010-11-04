@@ -1,4 +1,4 @@
-// $Id: FILE.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: FILE.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 /* Defines the member functions for the base class of the ACE_IO_SAP
    ACE_FILE abstraction. */
@@ -12,7 +12,7 @@
 #include "ace/FILE.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, FILE, "$Id: FILE.cpp 80826 2008-03-04 14:51:23Z wotte $")
+
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

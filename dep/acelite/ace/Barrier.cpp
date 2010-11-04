@@ -1,4 +1,4 @@
-// $Id: Barrier.cpp 84282 2009-01-30 15:04:29Z msmit $
+// $Id: Barrier.cpp 92069 2010-09-28 11:38:59Z johnnyw $
 
 #include "ace/Barrier.h"
 
@@ -14,10 +14,6 @@
 #if defined (ACE_HAS_DUMP)
 #  include "ace/Log_Msg.h"
 #endif /* ACE_HAS_DUMP */
-
-ACE_RCSID (ace,
-           Barrier,
-           "$Id: Barrier.cpp 84282 2009-01-30 15:04:29Z msmit $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -170,26 +166,6 @@ ACE_Thread_Barrier::dump (void) const
   ACE_Barrier::dump ();
 #endif /* ACE_HAS_DUMP */
 }
-
-#if 0
-ACE_ALLOC_HOOK_DEFINE(ACE_Process_Barrier)
-
-ACE_Process_Barrier::ACE_Process_Barrier (u_int count,
-                                          const ACE_TCHAR *name)
-  : ACE_Barrier (count, USYNC_PROCESS, name)
-{
-// ACE_TRACE ("ACE_Process_Barrier::ACE_Process_Barrier");
-}
-
-void
-ACE_Process_Barrier::dump (void) const
-{
-#if defined (ACE_HAS_DUMP)
-// ACE_TRACE ("ACE_Process_Barrier::dump");
-  ACE_Barrier::dump ();
-#endif /* ACE_HAS_DUMP */
-}
-#endif /* 0 */
 
 ACE_END_VERSIONED_NAMESPACE_DECL
 

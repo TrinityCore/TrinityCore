@@ -1,4 +1,4 @@
-// $Id: Service_Repository.cpp 90337 2010-05-28 20:00:49Z cbeaulac $
+// $Id: Service_Repository.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/Service_Repository.h"
 
@@ -14,11 +14,7 @@
 #include "ace/OS_NS_errno.h"
 #include "ace/OS_NS_string.h"
 
-ACE_RCSID (ace,
-           Service_Repository,
-           "$Id: Service_Repository.cpp 90337 2010-05-28 20:00:49Z cbeaulac $")
-
-  ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Service_Repository)
 

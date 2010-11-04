@@ -1,4 +1,4 @@
-// $Id: SOCK_SEQPACK_Association.cpp 83832 2008-11-18 10:30:32Z johnnyw $
+// $Id: SOCK_SEQPACK_Association.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/SOCK_SEQPACK_Association.h"
 
@@ -11,7 +11,7 @@
 #include "ace/SOCK_SEQPACK_Association.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, SOCK_SEQPACK_Association, "$Id: SOCK_SEQPACK_Association.cpp 83832 2008-11-18 10:30:32Z johnnyw $")
+
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

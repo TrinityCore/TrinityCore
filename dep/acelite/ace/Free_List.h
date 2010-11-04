@@ -4,7 +4,7 @@
 /**
  *  @file    Free_List.h
  *
- *  $Id: Free_List.h 84619 2009-02-26 12:26:16Z johnnyw $
+ *  $Id: Free_List.h 92298 2010-10-21 11:15:17Z johnnyw $
  *
  *  @author Darrell Brunsch (brunsch@cs.wustl.edu)
  */
@@ -61,7 +61,7 @@ public:
  * @brief Implements a free list.
  *
  * This class maintains a free list of nodes of type T.  It
- * depends on the type T having a <get_next> and <set_next>
+ * depends on the type T having a get_next() and set_next()
  * method.  It maintains a mutex so the freelist can be used in
  * a multithreaded program .
  */

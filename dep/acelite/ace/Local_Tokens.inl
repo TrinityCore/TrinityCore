@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: Local_Tokens.inl 80826 2008-03-04 14:51:23Z wotte $
+// $Id: Local_Tokens.inl 92069 2010-09-28 11:38:59Z johnnyw $
 
 #if defined (ACE_HAS_TOKENS_LIBRARY)
 
@@ -139,20 +139,6 @@ ACE_Tokens::name (void)
   ACE_TRACE ("ACE_Tokens::name");
   return this->token_name_;
 }
-
-#if 0
-ACE_INLINE ACE_Token_Proxy *
-ACE_Tokens::current_owner (void)
-{
-  ACE_TRACE ("ACE_Tokens::current_owner");
-  // ACE_GUARD_RETURN ???
-
-  if (this->owner () == 0)
-    return 0;
-  else
-    return this->owner ()->proxy ();
-}
-#endif /* 0 */
 
 // ************************************************************
 

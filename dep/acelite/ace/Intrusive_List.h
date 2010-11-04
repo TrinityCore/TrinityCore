@@ -4,7 +4,7 @@
 /**
  *  @file Intrusive_List.h
  *
- *  $Id: Intrusive_List.h 83968 2008-12-04 08:11:41Z johnnyw $
+ *  $Id: Intrusive_List.h 91688 2010-09-09 11:21:50Z johnnyw $
  *
  *  @author Carlos O'Ryan <coryan@uci.edu>
  */
@@ -70,10 +70,6 @@ public:
 
   /// Returns true if the container is empty, otherwise returns false.
   bool is_empty (void) const;
-
-  /// Returns true if the container is empty, otherwise returns false.
-  /// @deprecated Use is_empty() instead.
-  bool empty (void) const;
 
   /// Insert an element at the beginning of the list
   void push_front (T *node);

@@ -4,7 +4,7 @@
 /**
  *  @file    Functor.h
  *
- *  $Id: Functor.h 86698 2009-09-13 15:58:17Z johnnyw $
+ *  $Id: Functor.h 92069 2010-09-28 11:38:59Z johnnyw $
  *
  *   Non-templatized classes and class template specializations for
  *   implementing function objects that are used in  various places
@@ -120,67 +120,6 @@ public:
   /// Simply returns t
   unsigned long operator () (unsigned char t) const;
 };
-
-#if 0
-// @@ ADD HASHES FOR ACE TYPES
-
-/**
- * @brief Function object for hashing a 16-bit signed number
- */
-template<>
-class ACE_Export ACE_Hash<ACE_INT16>
-{
-public:
-  /// Simply returns t
-  unsigned long operator () (ACE_INT16 t) const;
-};
-
-/**
- * @brief Function object for hashing a 16-bit unsigned number
- */
-template<>
-class ACE_Export ACE_Hash<ACE_UINT16>
-{
-public:
-  /// Simply returns t
-  unsigned long operator () (ACE_UINT16 t) const;
-};
-
-/**
- * @brief Function object for hashing a 32-bit signed number
- */
-template<>
-class ACE_Export ACE_Hash<ACE_INT32>
-{
-public:
-  /// Simply returns t
-  unsigned long operator () (ACE_INT32 t) const;
-};
-
-/**
- * @brief Function object for hashing a 32-bit unsigned number
- */
-template<>
-class ACE_Export ACE_Hash<ACE_UINT32>
-{
-public:
-  /// Simply returns t
-  unsigned long operator () (ACE_UINT32 t) const;
-};
-
-/**
- * @brief Function object for hashing a 64-bit unsigned number
- */
-template<>
-class ACE_Export ACE_Hash<ACE_UINT64>
-{
-public:
-  /// Simply returns t
-  unsigned long operator () (ACE_UINT64 t) const;
-};
-
-// @@ DONE ADDING HASHES FOR ACE TYPES
-#endif
 
 /**
  * @brief Function object for hashing a short number

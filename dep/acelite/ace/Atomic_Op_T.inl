@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: Atomic_Op_T.inl 80826 2008-03-04 14:51:23Z wotte $
+// $Id: Atomic_Op_T.inl 91688 2010-09-09 11:21:50Z johnnyw $
 
 #include "ace/Guard_T.h"
 
@@ -322,14 +322,6 @@ ACE_Atomic_Op<ACE_LOCK, TYPE>::dump (void) const
 #endif /* ACE_HAS_DUMP */
   return;
 }
-
-template <class ACE_LOCK, class TYPE>
-ACE_INLINE ACE_LOCK &
-ACE_Atomic_Op<ACE_LOCK, TYPE>::mutex (void)
-{
-  return this->own_mutex_;
-}
-
 template <class ACE_LOCK, class TYPE>
 ACE_INLINE TYPE &
 ACE_Atomic_Op<ACE_LOCK, TYPE>::value_i (void)

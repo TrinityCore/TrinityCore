@@ -1,10 +1,6 @@
-// $Id: Trace.cpp 87823 2009-11-30 12:38:34Z johnnyw $
+// $Id: Trace.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/Trace.h"
-
-ACE_RCSID (ace,
-           Trace,
-           "$Id: Trace.cpp 87823 2009-11-30 12:38:34Z johnnyw $")
 
 // Turn off tracing for the duration of this file.
 #if defined (ACE_NTRACE)

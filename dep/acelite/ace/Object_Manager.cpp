@@ -1,4 +1,4 @@
-// $Id: Object_Manager.cpp 84218 2009-01-22 19:21:39Z mitza $
+// $Id: Object_Manager.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/Object_Manager.h"
 #if !defined (ACE_LACKS_ACE_TOKEN)
@@ -36,7 +36,7 @@
   #include "ace/OS_NS_stdlib.h"
 #endif // ACE_DISABLE_WIN32_ERROR_WINDOWS && ACE_WIN32 && !ACE_HAS_WINCE && (_MSC_VER >= 1400)
 
-ACE_RCSID(ace, Object_Manager, "$Id: Object_Manager.cpp 84218 2009-01-22 19:21:39Z mitza $")
+
 
 #if ! defined (ACE_APPLICATION_PREALLOCATED_OBJECT_DEFINITIONS)
 # define ACE_APPLICATION_PREALLOCATED_OBJECT_DEFINITIONS

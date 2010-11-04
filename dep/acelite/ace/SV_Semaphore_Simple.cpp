@@ -1,3 +1,5 @@
+// $Id: SV_Semaphore_Simple.cpp 91287 2010-08-05 10:30:49Z johnnyw $
+
 #include "ace/SV_Semaphore_Simple.h"
 #include "ace/Log_Msg.h"
 #include "ace/ACE.h"
@@ -6,10 +8,6 @@
 #if !defined (__ACE_INLINE__)
 #include "ace/SV_Semaphore_Simple.inl"
 #endif /* !__ACE_INLINE__ */
-
-ACE_RCSID (ace,
-           SV_Semaphore_Simple,
-           "$Id: SV_Semaphore_Simple.cpp 85110 2009-04-20 09:18:43Z msmit $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

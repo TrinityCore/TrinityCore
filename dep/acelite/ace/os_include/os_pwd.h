@@ -6,7 +6,7 @@
  *
  *  password structure
  *
- *  $Id: os_pwd.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: os_pwd.h 91683 2010-09-09 09:07:49Z johnnyw $
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -44,11 +44,6 @@ extern "C"
                                int, struct passwd **);
 #  endif /* AIX and VAC++ 4 */
 #endif /* !ACE_WIN32 */
-
-#if defined (DIGITAL_UNIX)
-  extern int _Pgetpwnam_r (const char *, struct passwd *,
-                           char *, size_t, struct passwd **);
-#endif /* DIGITAL_UNIX */
 
 #ifdef __cplusplus
 }

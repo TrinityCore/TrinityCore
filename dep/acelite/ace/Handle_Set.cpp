@@ -1,5 +1,5 @@
 // Handle_Set.cpp
-// $Id: Handle_Set.cpp 83306 2008-10-17 12:19:53Z johnnyw $
+// $Id: Handle_Set.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/Handle_Set.h"
 
@@ -9,7 +9,7 @@
 
 #include "ace/OS_NS_string.h"
 
-ACE_RCSID(ace, Handle_Set, "$Id: Handle_Set.cpp 83306 2008-10-17 12:19:53Z johnnyw $")
+
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

@@ -1,9 +1,9 @@
 // MEM_Connector.cpp
-// $Id: MEM_Connector.cpp 83170 2008-10-13 07:21:38Z johnnyw $
+// $Id: MEM_Connector.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/MEM_Connector.h"
 
-ACE_RCSID(ace, MEM_Connector, "$Id: MEM_Connector.cpp 83170 2008-10-13 07:21:38Z johnnyw $")
+
 
 #if (ACE_HAS_POSITION_INDEPENDENT_POINTERS == 1)
 

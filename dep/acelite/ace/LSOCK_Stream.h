@@ -4,7 +4,7 @@
 /**
  *  @file    LSOCK_Stream.h
  *
- *  $Id: LSOCK_Stream.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: LSOCK_Stream.h 92140 2010-10-04 12:37:52Z johnnyw $
  *
  *  @author Doug Schmidt
  */
@@ -38,12 +38,12 @@ class ACE_Export ACE_LSOCK_Stream : public ACE_SOCK_Stream, public ACE_LSOCK
 {
 public:
   // = Send/recv methods.
-  /// Send iovecs via <::writev>.
+  /// Send iovecs via ::writev().
   ssize_t send_msg (const iovec iov[],
                     size_t n,
                     ACE_HANDLE handle);
 
-  /// Send iovecs via <::writev>.
+  /// Send iovecs via ::writev().
   ssize_t recv_msg (iovec iov[],
                     size_t n,
                     ACE_HANDLE &handle);
@@ -51,7 +51,7 @@ public:
   /// Get handle.
   ACE_HANDLE get_handle (void) const;
 
-  /// Overrides set_handle from the base classes.
+  /// Overrides set_handle() from the base classes.
   void set_handle (ACE_HANDLE fd);
 
   // = Meta-type info

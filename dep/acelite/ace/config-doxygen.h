@@ -6,7 +6,7 @@
  *
  * @file config-doxygen.h
  *
- * $Id: config-doxygen.h 91101 2010-07-15 09:49:28Z johnnyw $
+ * $Id: config-doxygen.h 91685 2010-09-09 09:35:14Z johnnyw $
  *
  * @author Carlos O'Ryan <coryan@uci.edu>
  * @author Darrell Brunsch <brunsch@uci.edu>
@@ -58,9 +58,6 @@
 /// Enable support for the SSL wrappers
 #define ACE_HAS_SSL 1
 
-/// Enable exceptions
-#define ACE_HAS_EXCEPTIONS
-
 /// Enable timeprobes
 #define ACE_COMPILE_TIMEPROBES
 
@@ -93,17 +90,11 @@
 /// Generate ACE_Dev_Poll_Reactor documentation
 #define ACE_HAS_DEV_POLL
 
-/// Generate ACE_Event_Handler_T documentation
-#define ACE_HAS_TEMPLATE_TYPEDEFS
-
 /// Generate ACE_Log_Msg_NT_Event_Log documentation
 #define ACE_HAS_LOG_MSG_NT_EVENT_LOG
 
 /// Generate icmp documentation
 #define ACE_HAS_ICMP_SUPPORT 1
-
-/// Don't expand ACE_RCSID macro
-#define ACE_USE_RCSID 0
 
 /// Parse some ACE_SSL classes that depend on recent versions of
 /// OpenSSL.

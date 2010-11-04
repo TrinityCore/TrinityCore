@@ -1,8 +1,8 @@
-// $Id: TLI_Connector.cpp 83735 2008-11-14 09:41:52Z johnnyw $
+// $Id: TLI_Connector.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/TLI_Connector.h"
 
-ACE_RCSID(ace, TLI_Connector, "$Id: TLI_Connector.cpp 83735 2008-11-14 09:41:52Z johnnyw $")
+
 
 #if defined (ACE_HAS_TLI)
 

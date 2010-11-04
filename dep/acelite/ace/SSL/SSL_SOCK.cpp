@@ -1,4 +1,4 @@
-// $Id: SSL_SOCK.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: SSL_SOCK.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
 
 #include "SSL_SOCK.h"
 
@@ -8,11 +8,6 @@
 
 #include "ace/OS_NS_errno.h"
 #include "ace/os_include/os_signal.h"
-
-ACE_RCSID (ACE_SSL,
-           SSL_SOCK,
-           "$Id: SSL_SOCK.cpp 80826 2008-03-04 14:51:23Z wotte $")
-
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

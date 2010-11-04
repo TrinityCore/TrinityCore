@@ -1,4 +1,4 @@
-// $Id: Remote_Tokens.cpp 84455 2009-02-13 13:31:02Z johnnyw $
+// $Id: Remote_Tokens.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/Remote_Tokens.h"
 
@@ -9,12 +9,6 @@
 #if !defined (__ACE_INLINE__)
 #include "ace/Remote_Tokens.inl"
 #endif /* __ACE_INLINE__ */
-
-
-ACE_RCSID (ace,
-           Remote_Tokens,
-           "$Id: Remote_Tokens.cpp 84455 2009-02-13 13:31:02Z johnnyw $")
-
 
 #if defined (ACE_MT_SAFE) && (ACE_MT_SAFE != 0)
 #define ACE_TSS_CONNECTION_MUTEX ACE_Thread_Mutex

@@ -1,4 +1,4 @@
-// $Id: SOCK_Dgram_Mcast.cpp 85421 2009-05-22 11:12:30Z johnnyw $
+// $Id: SOCK_Dgram_Mcast.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/SOCK_Dgram_Mcast.h"
 
@@ -19,10 +19,6 @@
 #if !defined (__ACE_INLINE__)
 #include "ace/SOCK_Dgram_Mcast.inl"
 #endif /* __ACE_INLINE__ */
-
-ACE_RCSID (ace,
-           SOCK_Dgram_Mcast,
-           "$Id: SOCK_Dgram_Mcast.cpp 85421 2009-05-22 11:12:30Z johnnyw $")
 
 #include "ace/Log_Msg.h"
 

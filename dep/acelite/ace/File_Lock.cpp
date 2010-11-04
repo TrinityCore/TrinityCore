@@ -1,4 +1,4 @@
-// $Id: File_Lock.cpp 87213 2009-10-23 13:11:34Z johnnyw $
+// $Id: File_Lock.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/File_Lock.h"
 #include "ace/Log_Msg.h"
@@ -7,7 +7,7 @@
 #include "ace/File_Lock.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, File_Lock, "$Id: File_Lock.cpp 87213 2009-10-23 13:11:34Z johnnyw $")
+
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

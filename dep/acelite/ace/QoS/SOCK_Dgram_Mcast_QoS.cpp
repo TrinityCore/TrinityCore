@@ -1,4 +1,4 @@
-// $Id: SOCK_Dgram_Mcast_QoS.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: SOCK_Dgram_Mcast_QoS.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
 
 #include "SOCK_Dgram_Mcast_QoS.h"
 #include "ace/Log_Msg.h"
@@ -18,10 +18,6 @@
 #define IMR_MULTIADDR imr_multiaddr
 #endif /* ! defined (IMR_MULTIADDR) */
 
-
-ACE_RCSID (QoS,
-           SOCK_Dgram_Mcast_QoS,
-           "$Id: SOCK_Dgram_Mcast_QoS.cpp 80826 2008-03-04 14:51:23Z wotte $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

@@ -1,4 +1,4 @@
-// $Id: TP_Reactor.cpp 85604 2009-06-11 13:26:00Z johnnyw $
+// $Id: TP_Reactor.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/TP_Reactor.h"
 #include "ace/Thread.h"
@@ -10,10 +10,6 @@
 #if !defined (__ACE_INLINE__)
 #include "ace/TP_Reactor.inl"
 #endif /* __ACE_INLINE__ */
-
-ACE_RCSID (ace,
-           TP_Reactor,
-           "$Id: TP_Reactor.cpp 85604 2009-06-11 13:26:00Z johnnyw $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

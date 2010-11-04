@@ -1,4 +1,4 @@
-// $Id: Timer_Queue_Adapters.cpp 89482 2010-03-15 07:58:50Z johnnyw $
+// $Id: Timer_Queue_Adapters.cpp 92285 2010-10-20 16:34:57Z shuston $
 
 #ifndef ACE_TIMER_QUEUE_ADAPTERS_CPP
 #define ACE_TIMER_QUEUE_ADAPTERS_CPP
@@ -17,6 +17,7 @@
 #  include "ace/Timer_Queue_Adapters.inl"
 # endif /* __ACE_INLINE__ */
 
+#include "ace/Reverse_Lock_T.h"
 #include "ace/Signal.h"
 #include "ace/OS_NS_unistd.h"
 #include "ace/OS_NS_sys_time.h"
@@ -278,8 +279,15 @@ ACE_Thread_Timer_Queue_Adapter<TQ, TYPE>::svc (void)
             }
         }
 
-      // Expire timers anyway, at worst this is a no-op.
-      this->timer_queue_->expire ();
+      // Expire timers anyway, at worst this is a no-op. Release the lock
+      // while dispatching; the timer queue has its own lock to protect
+      // itself.
+      {
+        ACE_Reverse_Lock<ACE_SYNCH_RECURSIVE_MUTEX> rel (this->mutex_);
+        ACE_GUARD_RETURN (ACE_Reverse_Lock<ACE_SYNCH_RECURSIVE_MUTEX>,
+                          rmon, rel, -1);
+        this->timer_queue_->expire ();
+      }
     }
 
    // Thread cancellation point, if ACE supports it.

@@ -1,4 +1,4 @@
-// $Id: Log_Msg_NT_Event_Log.cpp 87683 2009-11-20 18:14:36Z schmidt $
+// $Id: Log_Msg_NT_Event_Log.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/config-all.h"
 
@@ -10,7 +10,7 @@
 #include "ace/OS_NS_stdio.h"
 #include "ace/OS_NS_string.h"
 
-ACE_RCSID(ace, Log_Msg_NT_Event_Log, "$Id: Log_Msg_NT_Event_Log.cpp 87683 2009-11-20 18:14:36Z schmidt $")
+
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

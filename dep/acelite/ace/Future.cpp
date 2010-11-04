@@ -1,4 +1,4 @@
- // $Id: Future.cpp 85358 2009-05-17 10:34:33Z johnnyw $
+ // $Id: Future.cpp 91626 2010-09-07 10:59:20Z johnnyw $
 
 #ifndef ACE_FUTURE_CPP
 #define ACE_FUTURE_CPP
@@ -8,8 +8,6 @@
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
-ACE_RCSID (ace, Future, "$Id: Future.cpp 85358 2009-05-17 10:34:33Z johnnyw $")
 
 #if defined (ACE_HAS_THREADS)
 
@@ -100,7 +98,7 @@ ACE_Future_Rep<T>::attach (ACE_Future_Rep<T>*& rep)
 {
   ACE_ASSERT (rep != 0);
   // Use value_ready_mutex_ for both condition and ref count management
-  ACE_MT (ACE_Guard<ACE_Recursive_Thread_Mutex> r_mon (rep->value_ready_mutex_));
+//   ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, r_mon, rep->value_ready_mutex_, 0);
   ++rep->ref_count_;
   return rep;
 }
@@ -110,7 +108,7 @@ ACE_Future_Rep<T>::detach (ACE_Future_Rep<T>*& rep)
 {
   ACE_ASSERT (rep != 0);
   // Use value_ready_mutex_ for both condition and ref count management
-  ACE_MT (ACE_GUARD (ACE_Recursive_Thread_Mutex, r_mon, rep->value_ready_mutex_));
+  ACE_GUARD (ACE_SYNCH_RECURSIVE_MUTEX, r_mon, rep->value_ready_mutex_);
 
   if (rep->ref_count_-- == 0)
     {
@@ -128,7 +126,7 @@ ACE_Future_Rep<T>::assign (ACE_Future_Rep<T>*& rep, ACE_Future_Rep<T>* new_rep)
   ACE_ASSERT (rep != 0);
   ACE_ASSERT (new_rep != 0);
   // Use value_ready_mutex_ for both condition and ref count management
-  ACE_MT (ACE_GUARD (ACE_Recursive_Thread_Mutex, r_mon, rep->value_ready_mutex_));
+  ACE_GUARD (ACE_SYNCH_RECURSIVE_MUTEX, r_mon, rep->value_ready_mutex_);
 
   ACE_Future_Rep<T>* old = rep;
   rep = new_rep;
@@ -171,10 +169,10 @@ ACE_Future_Rep<T>::set (const T &r,
   // If the value is already produced, ignore it...
   if (this->value_ == 0)
     {
-      ACE_MT (ACE_GUARD_RETURN (ACE_Recursive_Thread_Mutex,
-                                ace_mon,
-                                this->value_ready_mutex_,
-                                -1));
+      ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX,
+                        ace_mon,
+                        this->value_ready_mutex_,
+                        -1);
       // Otherwise, create a new result value.  Note the use of the
       // Double-checked locking pattern to avoid multiple allocations.
 
@@ -212,9 +210,9 @@ ACE_Future_Rep<T>::get (T &value,
   // If the value is already produced, return it.
   if (this->value_ == 0)
     {
-      ACE_MT (ACE_GUARD_RETURN (ACE_Recursive_Thread_Mutex, ace_mon,
-                                this->value_ready_mutex_,
-                                -1));
+      ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, ace_mon,
+                        this->value_ready_mutex_,
+                        -1);
       // If the value is not yet defined we must block until the
       // producer writes to it.
 
@@ -234,7 +232,7 @@ template <class T> int
 ACE_Future_Rep<T>::attach (ACE_Future_Observer<T> *observer,
                           ACE_Future<T> &caller)
 {
-  ACE_MT (ACE_GUARD_RETURN (ACE_Recursive_Thread_Mutex, ace_mon, this->value_ready_mutex_, -1));
+  ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, ace_mon, this->value_ready_mutex_, -1);
 
   // Otherwise, create a new result value.  Note the use of the
   // Double-checked locking pattern to avoid corrupting the list.
@@ -253,7 +251,7 @@ ACE_Future_Rep<T>::attach (ACE_Future_Observer<T> *observer,
 template <class T> int
 ACE_Future_Rep<T>::detach (ACE_Future_Observer<T> *observer)
 {
-  ACE_MT (ACE_GUARD_RETURN (ACE_Recursive_Thread_Mutex, ace_mon, this->value_ready_mutex_, -1));
+  ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, ace_mon, this->value_ready_mutex_, -1);
 
   // Remove all occurrences of the specified observer from this
   // objects hash map.
@@ -267,7 +265,7 @@ ACE_Future_Rep<T>::operator T ()
   if (this->value_ == 0)
     {
       // Constructor of ace_mon acquires the mutex.
-      ACE_MT (ACE_GUARD_RETURN (ACE_Recursive_Thread_Mutex, ace_mon, this->value_ready_mutex_, 0));
+      ACE_GUARD_RETURN (ACE_SYNCH_RECURSIVE_MUTEX, ace_mon, this->value_ready_mutex_, 0);
 
       // If the value is not yet defined we must block until the
       // producer writes to it.

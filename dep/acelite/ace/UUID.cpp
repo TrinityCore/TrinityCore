@@ -1,4 +1,4 @@
-//$Id: UUID.cpp 88515 2010-01-13 08:47:38Z johnnyw $
+//$Id: UUID.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/UUID.h"
 #include "ace/Guard_T.h"
@@ -14,11 +14,6 @@
 #include "ace/OS_NS_netdb.h"
 #include "ace/OS_NS_unistd.h"
 #include "ace/ACE.h"
-
-ACE_RCSID (ace,
-           UUID,
-           "$Id: UUID.cpp 88515 2010-01-13 08:47:38Z johnnyw $")
-
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

@@ -1,5 +1,4 @@
-// Framework_Component.cpp
-// $Id: Framework_Component.cpp 84128 2009-01-09 15:07:40Z johnnyw $
+// $Id: Framework_Component.cpp 92208 2010-10-13 06:20:39Z johnnyw $
 
 #include "ace/Framework_Component.h"
 
@@ -12,8 +11,6 @@
 #include "ace/DLL_Manager.h"
 #include "ace/Recursive_Thread_Mutex.h"
 #include "ace/OS_NS_string.h"
-
-ACE_RCSID(ace, Framework_Component, "$Id: Framework_Component.cpp 84128 2009-01-09 15:07:40Z johnnyw $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -60,7 +57,7 @@ int
 ACE_Framework_Repository::close (void)
 {
   ACE_TRACE ("ACE_Framework_Repository::close");
-  ACE_MT (ACE_GUARD_RETURN (ACE_Thread_Mutex, ace_mon, this->lock_, -1));
+  ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, ace_mon, this->lock_, -1);
 
   this->shutting_down_ = 1;
 
@@ -128,7 +125,7 @@ int
 ACE_Framework_Repository::register_component (ACE_Framework_Component *fc)
 {
   ACE_TRACE ("ACE_Framework_Repository::register_component");
-  ACE_MT (ACE_GUARD_RETURN (ACE_Thread_Mutex, ace_mon, this->lock_, -1));
+  ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, ace_mon, this->lock_, -1);
   int i;
 
   // Check to see if it's already registered
@@ -155,7 +152,7 @@ int
 ACE_Framework_Repository::remove_component (const ACE_TCHAR *name)
 {
   ACE_TRACE ("ACE_Framework_Repository::remove_component");
-  ACE_MT (ACE_GUARD_RETURN (ACE_Thread_Mutex, ace_mon, this->lock_, -1));
+  ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, ace_mon, this->lock_, -1);
   int i;
 
   for (i = 0; i < this->current_size_; i++)
@@ -178,7 +175,7 @@ ACE_Framework_Repository::remove_dll_components (const ACE_TCHAR *dll_name)
 
   if (this->shutting_down_)
     return this->remove_dll_components_i (dll_name);
-  ACE_MT (ACE_GUARD_RETURN (ACE_Thread_Mutex, ace_mon, this->lock_, -1));
+  ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, ace_mon, this->lock_, -1);
 
   return this->remove_dll_components_i (dll_name);
 }

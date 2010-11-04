@@ -4,7 +4,7 @@
 /**
  *  @file    Dev_Poll_Reactor.h
  *
- *  $Id: Dev_Poll_Reactor.h 91066 2010-07-12 11:05:04Z johnnyw $
+ *  $Id: Dev_Poll_Reactor.h 91462 2010-08-25 20:29:17Z shuston $
  *
  *  @c /dev/poll (or Linux @c sys_epoll) based Reactor implementation.
  *
@@ -160,6 +160,14 @@ public:
   /// Dump the state of an object.
   virtual void dump (void) const;
 
+  /// Method called by ACE_Dev_Poll_Reactor to obtain one notification.
+  /// THIS METHOD MUST BE CALLED WITH THE REACTOR TOKEN HELD!
+  ///
+  /// @return -1 on error, else 0 and @arg nb has the notify to
+  ///            dispatch. Note that the contained event handler may be
+  ///            0 if there were only wake-ups (no handlers to dispatch).
+  int dequeue_one (ACE_Notification_Buffer &nb);
+
 protected:
 
   /**
@@ -199,11 +207,6 @@ protected:
    */
   ACE_Notification_Queue notification_queue_;
 #endif /* ACE_HAS_REACTOR_NOTIFICATION_QUEUE */
-
-  /// Lock and flag to say whether we're already dispatching notifies.
-  /// Purpose is to only dispatch notifies from one thread at a time.
-  ACE_SYNCH_MUTEX dispatching_lock_;
-  volatile bool dispatching_;
 };
 
 // ---------------------------------------------------------------------

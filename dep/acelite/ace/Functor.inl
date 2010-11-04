@@ -4,7 +4,7 @@
 /**
  *  @file    Functor.inl
  *
- *  $Id: Functor.inl 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Functor.inl 92069 2010-09-28 11:38:59Z johnnyw $
  *
  *  Inlinable method definitions for non-templatized classes
  *  and template specializations implementing the GOF Command Pattern,
@@ -70,42 +70,6 @@ ACE_Hash<unsigned char>::operator () (unsigned char t) const
 {
   return t;
 }
-
-#if 0
-ACE_INLINE unsigned long
-ACE_Hash<ACE_INT16>::operator () (ACE_INT16 t) const
-{
-  return t;
-}
-
-ACE_INLINE unsigned long
-ACE_Hash<ACE_UINT16>::operator () (ACE_UINT16 t) const
-{
-  return t;
-}
-
-ACE_INLINE unsigned long
-ACE_Hash<ACE_INT32>::operator () (ACE_INT32 t) const
-{
-  return static_cast<unsigned long> (t);
-}
-
-ACE_INLINE unsigned long
-ACE_Hash<ACE_UINT32>::operator () (ACE_UINT32 t) const
-{
-  return t;
-}
-
-ACE_INLINE unsigned long
-ACE_Hash<ACE_UINT64>::operator () (ACE_UINT64 t) const
-{
-#if (ACE_SIZEOF_LONG == 4)
-  return ACE_U64_TO_U32 (t);
-#else
-  return static_cast<unsigned long> (t);
-#endif /* ACE_SIZEOF_LONG */
-}
-#endif
 
 ACE_INLINE unsigned long
 ACE_Hash<short>::operator () (short t) const

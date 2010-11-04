@@ -1,4 +1,4 @@
-//$Id: Hashable.cpp 80826 2008-03-04 14:51:23Z wotte $
+//$Id: Hashable.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
 
 #include "ace/Hashable.h"
 
@@ -6,10 +6,6 @@
 #include "ace/Hashable.inl"
 #endif /* __ACE_INLINE __ */
 
-
-ACE_RCSID (ace,
-           Hashable,
-           "$Id: Hashable.cpp 80826 2008-03-04 14:51:23Z wotte $")
 
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL

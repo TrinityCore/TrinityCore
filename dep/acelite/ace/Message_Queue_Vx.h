@@ -4,7 +4,7 @@
 /**
  *  @file    Message_Queue_Vx.h
  *
- *  $Id: Message_Queue_Vx.h 85579 2009-06-08 18:46:54Z mitza $
+ *  $Id: Message_Queue_Vx.h 91743 2010-09-13 18:24:51Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -107,6 +107,7 @@ public:
    * the message block sizes.
    */
   virtual void message_bytes (size_t new_size);
+
   /**
    * New value of the number of total length on the queue, i.e., sum
    * of the message block lengths.
@@ -136,10 +137,10 @@ public:
   ACE_ALLOC_HOOK_DECLARE;
 
 protected:
-  /// Enqueue an <ACE_Message_Block *> in accordance with its priority.
+  /// Enqueue an ACE_Message_Block * in accordance with its priority.
   virtual int enqueue_i (ACE_Message_Block *new_item);
 
-  /// Enqueue an <ACE_Message_Block *> in accordance with its deadline time.
+  /// Enqueue an ACE_Message_Block * in accordance with its deadline time.
   virtual int enqueue_deadline_i (ACE_Message_Block *new_item);
 
   /// Enqueue an <ACE_Message_Block *> at the end of the queue.
@@ -177,12 +178,10 @@ protected:
 
   // = Helper methods to factor out common #ifdef code.
   /// Wait for the queue to become non-full.
-  virtual int wait_not_full_cond (ACE_Guard<ACE_Null_Mutex> &mon,
-                                  ACE_Time_Value *tv);
+  virtual int wait_not_full_cond (ACE_Time_Value *tv);
 
   /// Wait for the queue to become non-empty.
-  virtual int wait_not_empty_cond (ACE_Guard<ACE_Null_Mutex> &mon,
-                                   ACE_Time_Value *tv);
+  virtual int wait_not_empty_cond (ACE_Time_Value *tv);
 
   /// Inform any threads waiting to enqueue that they can procede.
   virtual int signal_enqueue_waiters (void);

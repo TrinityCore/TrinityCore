@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: OS_NS_pwd.inl 80826 2008-03-04 14:51:23Z wotte $
+// $Id: OS_NS_pwd.inl 91781 2010-09-15 12:49:15Z johnnyw $
 
 #include "ace/OS_NS_errno.h"
 
@@ -57,13 +57,9 @@ ACE_OS::getpwnam_r (const char *name, struct passwd *pwent,
 #   if !defined (ACE_LACKS_PWD_REENTRANT_FUNCTIONS)
 #     if defined (ACE_HAS_PTHREADS) && \
       !defined (ACE_HAS_STHREADS) || \
-      defined (HPUX_11)  || \
-      defined (__USLC__) // Added by Roland Gigler for SCO UnixWare 7.
-  struct passwd *result;
+      defined (HPUX_11)
+  struct passwd *result = 0;
   int status;
-#       if defined (DIGITAL_UNIX)
-  ::_Pgetpwnam_r (name, pwent, buffer, buflen, &result);
-#       else
   // VAC++ doesn't correctly grok the ::getpwnam_r - the function is redefined
   // in pwd.h, and that redefinition is used here
 #         if defined (__IBMCPP__) && (__IBMCPP__ >= 400)   /* VAC++ 4 */
@@ -76,7 +72,6 @@ ACE_OS::getpwnam_r (const char *name, struct passwd *pwent,
       errno = status;
       result = 0;
     }
-#       endif /* (DIGITAL_UNIX) */
   return result;
 #     elif defined (AIX)
   if (::getpwnam_r (name, pwent, buffer, buflen) == -1)

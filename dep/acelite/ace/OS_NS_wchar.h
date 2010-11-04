@@ -4,7 +4,7 @@
 /**
  *  @file   OS_NS_wchar.h
  *
- *  $Id: OS_NS_wchar.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: OS_NS_wchar.h 91995 2010-09-24 12:45:24Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -136,12 +136,12 @@ namespace ACE_OS
 #endif /* ACE_HAS_WCHAR && ACE_LACKS_WCSPBRK */
 
 #if defined (ACE_HAS_WCHAR) && defined (ACE_LACKS_WCSRCHR)
-  /// Emulated wcsrchr (wchar_t version) - Finds the last occurance of a
+  /// Emulated wcsrchr (wchar_t version) - Finds the last occurrence of a
   /// character in a string.
   extern ACE_Export
   wchar_t *wcsrchr_emulation (wchar_t *string, wint_t c);
 
-  /// Emulated wcsrchr (const wchar_t version) - Finds the last occurance of a
+  /// Emulated wcsrchr (const wchar_t version) - Finds the last occurrence of a
   /// character in a string.
   extern ACE_Export
   const wchar_t *wcsrchr_emulation (const wchar_t *string, wint_t c);

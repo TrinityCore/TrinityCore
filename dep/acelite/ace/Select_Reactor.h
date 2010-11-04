@@ -4,7 +4,7 @@
 /**
  *  @file    Select_Reactor.h
  *
- *  $Id: Select_Reactor.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Select_Reactor.h 91626 2010-09-07 10:59:20Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -26,10 +26,15 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 //@@ TAO_REACTOR_SPL_COMMENT_HOOK_START
 typedef ACE_Reactor_Token_T<ACE_SELECT_TOKEN> ACE_Select_Reactor_Token;
 
+#if defined (_MSC_VER) && (_MSC_VER >= 1600)
+template class ACE_Export ACE_Select_Reactor_T<ACE_Select_Reactor_Token>;
+#endif /* _MSC_VER */
+
 typedef ACE_Select_Reactor_T<ACE_Select_Reactor_Token> ACE_Select_Reactor;
 //@@ TAO_REACTOR_SPL_COMMENT_HOOK_END
 
 #if defined (ACE_MT_SAFE) && (ACE_MT_SAFE == 0)
+// FUZZ: disable check_for_ACE_Guard
 /**
  * @class ACE_Guard< ACE_Reactor_Token_T<ACE_Noop_Token> >
  *
@@ -61,6 +66,7 @@ private:
   void operator= (const ACE_Guard< ACE_Reactor_Token_T<ACE_Noop_Token> > &);
 
 };
+// FUZZ: enable check_for_ACE_Guard
 #endif /* ACE_MT_SAFE && ACE_MT_SAFE == 0 */
 
 ACE_END_VERSIONED_NAMESPACE_DECL

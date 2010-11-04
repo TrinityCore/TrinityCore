@@ -4,7 +4,7 @@
 /**
  *  @file    Map_Manager.h
  *
- *  $Id: Map_Manager.h 91066 2010-07-12 11:05:04Z johnnyw $
+ *  $Id: Map_Manager.h 91626 2010-09-07 10:59:20Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -569,8 +569,8 @@ protected:
  * ACE_Map_Manager it is iterating upon since locking is
  * inherently inefficient and/or error-prone within an STL-style
  * iterator.  If you require locking, you can explicitly use an
- * ACE_Guard or ACE_Read_Guard on the ACE_Map_Manager's
- * internal lock, which is accessible via its <mutex> method.
+ * ACE_GUARD or ACE_READ_GUARD on the ACE_Map_Manager's
+ * internal lock, which is accessible via its mutex() method.
  */
 template <class EXT_ID, class INT_ID, class ACE_LOCK>
 class ACE_Map_Iterator : public ACE_Map_Iterator_Base<EXT_ID, INT_ID, ACE_LOCK>
@@ -616,8 +616,8 @@ public:
  * ACE_Map_Manager it is iterating upon since locking is
  * inherently inefficient and/or error-prone within an STL-style
  * iterator.  If you require locking, you can explicitly use an
- * ACE_Guard or ACE_Read_Guard on the ACE_Map_Manager's
- * internal lock, which is accessible via its <mutex> method.
+ * ACE_GUARD or ACE_READ_GUARD on the ACE_Map_Manager's
+ * internal lock, which is accessible via its mutex() method.
  */
 template <class EXT_ID, class INT_ID, class ACE_LOCK>
 class ACE_Map_Const_Iterator : public ACE_Map_Const_Iterator_Base<EXT_ID, INT_ID, ACE_LOCK>
@@ -663,8 +663,8 @@ public:
  * ACE_Map_Manager it is iterating upon since locking is
  * inherently inefficient and/or error-prone within an STL-style
  * iterator.  If you require locking, you can explicitly use an
- * ACE_Guard or ACE_Read_Guard on the ACE_Map_Manager's
- * internal lock, which is accessible via its <mutex> method.
+ * ACE_GUARD or ACE_READ_GUARD on the ACE_Map_Manager's
+ * internal lock, which is accessible via its mutex() method.
  */
 template <class EXT_ID, class INT_ID, class ACE_LOCK>
 class ACE_Map_Reverse_Iterator : public ACE_Map_Iterator_Base<EXT_ID, INT_ID, ACE_LOCK>

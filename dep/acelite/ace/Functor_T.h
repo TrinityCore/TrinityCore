@@ -4,7 +4,7 @@
 /**
  *  @file    Functor_T.h
  *
- *  $Id: Functor_T.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Functor_T.h 91396 2010-08-19 12:37:24Z johnnyw $
  *
  *   Templatized classes for implementing function objects that are
  *   used in various places in ACE.  There are currently two major
@@ -47,7 +47,8 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 /**
  * @class ACE_Command_Callback
  *
- * @brief Defines a class template that allows us to invoke a GOF
+ * @brief
+ * Defines a class template that allows us to invoke a GOF
  * command style callback to an object without knowing anything
  * about the object except its type.
  *
@@ -60,14 +61,14 @@ template <class RECEIVER, class ACTION>
 class ACE_Command_Callback : public ACE_Command_Base
 {
 public:
-  /// Constructor: sets the <receiver_> of the Command to recvr, and the
-  /// <action_> of the Command to <action>.
+  /// Constructor: sets the @c receiver_ of the Command to @a recvr, and the
+  /// @c action_ of the Command to @a action.
   ACE_Command_Callback (RECEIVER &recvr, ACTION action);
 
   /// Virtual destructor.
   virtual ~ACE_Command_Callback (void);
 
-  /// Invokes the method <action_> from the object <receiver_>.
+  /// Invokes the method @c action_ from the object @c receiver_.
   virtual int execute (void *arg = 0);
 
 private:
@@ -98,7 +99,8 @@ public:
 /**
  * @class ACE_Pointer_Hash
  *
- * @brief Function object for hashing pointers
+ * @brief
+ * Function object for hashing pointers
  */
 template <class TYPE>
 class ACE_Pointer_Hash
@@ -111,7 +113,8 @@ public:
 /**
  * @class ACE_Equal_To
  *
- * @brief Function object for comparing two objects of
+ * @brief
+ * Function object for comparing two objects of
  * the given type for equality.
  */
 template <class TYPE>
@@ -126,7 +129,8 @@ public:
 /**
  * @class ACE_Less_Than
  *
- * @brief Function object for determining whether the first object of
+ * @brief
+ * Function object for determining whether the first object of
  * the given type is less than the second object of the same
  * type.
  */

@@ -4,7 +4,7 @@
 /**
  *  @file    SOCK_Connector.h
  *
- *  $Id: SOCK_Connector.h 84816 2009-03-13 08:16:32Z johnnyw $
+ *  $Id: SOCK_Connector.h 91626 2010-09-07 10:59:20Z johnnyw $
  *
  *  @author Doug Schmidt <schmidt@cs.wustl.edu>
  */
@@ -43,7 +43,6 @@ class ACE_Time_Value;
 class ACE_Export ACE_SOCK_Connector
 {
 public:
-  // = Initialization and termination methods.
   /// Default constructor.
   ACE_SOCK_Connector (void);
 
@@ -249,7 +248,7 @@ public:
                int perms = 0);
 #endif  // ACE_HAS_WINCE
 
-  /// Default dtor.
+  /// Default destructor.
   ~ACE_SOCK_Connector (void);
 
   // = Completion routine.

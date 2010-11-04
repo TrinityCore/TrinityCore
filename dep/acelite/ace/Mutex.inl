@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: Mutex.inl 80826 2008-03-04 14:51:23Z wotte $
+// $Id: Mutex.inl 91626 2010-09-07 10:59:20Z johnnyw $
 
 
 #include "ace/OS_NS_sys_mman.h"
@@ -42,6 +42,17 @@ ACE_Mutex::tryacquire_read (void)
 
 ACE_INLINE const ACE_mutex_t &
 ACE_Mutex::lock (void) const
+{
+// ACE_TRACE ("ACE_Mutex::lock");
+#if defined (ACE_HAS_PTHREADS) || defined(ACE_HAS_STHREADS)
+  if (this->process_lock_)
+    return *this->process_lock_;
+#endif /* ACE_HAS_PTHREADS || ACE_HAS_STHREADS */
+  return this->lock_;
+}
+
+ACE_INLINE ACE_mutex_t &
+ACE_Mutex::lock (void)
 {
 // ACE_TRACE ("ACE_Mutex::lock");
 #if defined (ACE_HAS_PTHREADS) || defined(ACE_HAS_STHREADS)

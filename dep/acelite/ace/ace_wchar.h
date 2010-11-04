@@ -4,7 +4,7 @@
 /**
  *  @file    ace_wchar.h
  *
- *  $Id: ace_wchar.h 82441 2008-07-28 13:04:13Z johnnyw $
+ *  $Id: ace_wchar.h 91688 2010-09-09 11:21:50Z johnnyw $
  *
  *  @author Darrell Brunsch <brunsch@uci.edu>
  */
@@ -18,38 +18,6 @@
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
-// These macros have been deprecated and should be replaced by their
-// ACE_TEXT_* equivalents.  These macros are just hacks and may not
-// completely provide the old functionality.
-#if defined (ACE_LEGACY_MODE)
-// Convert the old unicode indicators
-# if defined (ACE_HAS_MOSTLY_UNICODE_APIS)
-#   define ACE_USES_WCHAR
-# endif /* ACE_HAS_MOSTLY_UNICODE_APIS */
-# if defined (ACE_HAS_UNICODE)
-#   define ACE_HAS_WCHAR
-# endif /* ACE_HAS_UNICODE */
-
-// These are defined to get older stuff to compile
-// FUZZ: disable check_for_tchar
-# define ASYS_TCHAR ACE_TCHAR
-# define ASYS_TEXT ACE_TEXT
-# define ASYS_ONLY_MULTIBYTE_STRING ACE_TEXT_ALWAYS_CHAR
-# define ASYS_MULTIBYTE_STRING ACE_TEXT_CHAR_TO_TCHAR
-# define ASYS_WIDE_STRING ACE_TEXT_CHAR_TO_TCHAR
-# define ACE_WIDE_STRING ACE_TEXT_CHAR_TO_TCHAR
-
-# if defined (ACE_USES_WCHAR)
-#   define ASYS_ONLY_WIDE_STRING(STRING) STRING
-# else /* ACE_USES_WCHAR */
-#   define ASYS_ONLY_WIDE_STRING(STRING) \
-           ACE_Ascii_To_Wide (STRING).wchar_rep ()
-# endif /* ACE_USES_WCHAR */
-
-# define ACE_TEXT_STRING ACE_TString
-
-#endif /* ACE_LEGACY_MODE */
 
 #if defined (ACE_HAS_XPG4_MULTIBYTE_CHAR)
 #  if !defined (ACE_HAS_WCHAR)
@@ -123,9 +91,6 @@ using std::size_t;
 typedef wchar_t ACE_TCHAR;
 typedef char ACE_ANTI_TCHAR;
 # define ACE_TEXT(STRING) ACE_TEXT_WIDE (STRING)
-# if !defined (ACE_LACKS_DEPRECATED_MACROS)
-#  define ACE_LIB_TEXT(STRING) ACE_TEXT_WIDE (STRING)
-# endif
 # define ACE_TEXT_ALWAYS_CHAR(STRING) ACE_Wide_To_Ascii (STRING).char_rep ()
 # define ACE_TEXT_ALWAYS_WCHAR(STRING) STRING
 # define ACE_TEXT_CHAR_TO_TCHAR(STRING) ACE_Ascii_To_Wide (STRING).wchar_rep ()
@@ -135,9 +100,6 @@ typedef char ACE_ANTI_TCHAR;
 typedef char ACE_TCHAR;
 typedef wchar_t ACE_ANTI_TCHAR;
 # define ACE_TEXT(STRING) STRING
-# if !defined (ACE_LACKS_DEPRECATED_MACROS)
-#  define ACE_LIB_TEXT(STRING) STRING
-# endif
 # define ACE_TEXT_ALWAYS_CHAR(STRING) STRING
 # define ACE_TEXT_ALWAYS_WCHAR(STRING) ACE_Ascii_To_Wide (STRING).wchar_rep ()
 # define ACE_TEXT_CHAR_TO_TCHAR(STRING) STRING
@@ -249,11 +211,6 @@ private:
   ACE_Ascii_To_Wide (ACE_Ascii_To_Wide &);
   ACE_Ascii_To_Wide operator= (ACE_Ascii_To_Wide &);
 };
-
-#if defined (ACE_LEGACY_MODE)
-typedef ACE_Ascii_To_Wide ACE_OS_CString;
-typedef ACE_Wide_To_Ascii ACE_OS_WString;
-#endif /* ACE_LEGACY_MODE */
 
 ACE_END_VERSIONED_NAMESPACE_DECL
 

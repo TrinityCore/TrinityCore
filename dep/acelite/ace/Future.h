@@ -4,7 +4,7 @@
 /**
  *  @file    Future.h
  *
- *  $Id: Future.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Future.h 91626 2010-09-07 10:59:20Z johnnyw $
  *
  *  @author Andres Kruse <Andres.Kruse@cern.ch>
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
@@ -27,6 +27,7 @@
 
 #if defined (ACE_HAS_THREADS)
 
+#include "ace/Synch_Traits.h"
 #include "ace/Recursive_Thread_Mutex.h"
 #include "ace/Condition_Recursive_Thread_Mutex.h"
 
@@ -107,7 +108,7 @@ private:
   friend class ACE_Future<T>;
 
   /**
-   * Set the result value.  The specified <caller> represents the
+   * Set the result value.  The specified @a caller represents the
    * future that invoked this <set> method, which is used to notify
    * the list of future observers. Returns 0 for success, -1 on error.
    * This function only has an effect the first time it is called for
@@ -214,8 +215,8 @@ private:
   OBSERVER_COLLECTION observer_collection_;
 
   // = Condition variable and mutex that protect the <value_>.
-  mutable ACE_Recursive_Thread_Mutex value_ready_mutex_;
-  mutable ACE_Condition_Recursive_Thread_Mutex value_ready_;
+  mutable ACE_SYNCH_RECURSIVE_MUTEX value_ready_mutex_;
+  mutable ACE_SYNCH_RECURSIVE_CONDITION value_ready_;
 
 private:
 
@@ -303,8 +304,7 @@ public:
    * @retval  0   Success; @a value contains the value of the ACE_Future.
    * @retval -1   Error; check ACE_OS::last_error() for an error code.
    */
-  int get (T &value,
-           ACE_Time_Value *tv = 0) const;
+  int get (T &value, ACE_Time_Value *tv = 0) const;
 
   /**
    * @deprecated  Note that this method is going away in a subsequent
@@ -364,7 +364,7 @@ public:
 
 private:
 
-  // the ACE_Future_Rep
+  /// The ACE_Future_Rep
   /// Protect operations on the <Future>.
   typedef ACE_Future_Rep<T> FUTURE_REP;
   FUTURE_REP *future_rep_;

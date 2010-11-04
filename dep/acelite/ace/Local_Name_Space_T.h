@@ -4,7 +4,7 @@
 /**
  *  @file    Local_Name_Space_T.h
  *
- *  $Id: Local_Name_Space_T.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Local_Name_Space_T.h 91688 2010-09-09 11:21:50Z johnnyw $
  *
  *  @author Prashant Jain <pjain@cs.wustl.edu>
  *  @author Irfan Pyarali <irfan@wuerl.wustl.edu> and
@@ -35,25 +35,12 @@ typedef ACE_Unbounded_Set<ACE_NS_WString> ACE_WSTRING_SET;
 
 ACE_END_VERSIONED_NAMESPACE_DECL
 
-// Simplify later usage by defining typedefs.
-#if (1)
 # include "ace/Hash_Map_Manager_T.h"
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 typedef ACE_Hash_Map_Manager_Ex<ACE_NS_String, ACE_NS_Internal, ACE_Hash<ACE_NS_String>, ACE_Equal_To<ACE_NS_String>, ACE_Null_Mutex> MAP_MANAGER;
 ACE_END_VERSIONED_NAMESPACE_DECL
-#else
-# include "ace/Map_Manager.h"
-ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-typedef ACE_Map_Manager<ACE_NS_String, ACE_NS_Internal, ACE_Null_Mutex> MAP_MANAGER;
-ACE_END_VERSIONED_NAMESPACE_DECL
-#endif /* 0 */
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
-/// @deprecated Deprecated typedefs.  Use the map's traits instead.
-typedef MAP_MANAGER::ITERATOR MAP_ITERATOR;
-typedef MAP_MANAGER::ENTRY MAP_ENTRY;
-
 
 /**
  * @class ACE_Name_Space_Map

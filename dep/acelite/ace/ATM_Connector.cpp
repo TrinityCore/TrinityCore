@@ -1,12 +1,12 @@
 // ATM_Connector.cpp
-// $Id: ATM_Connector.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: ATM_Connector.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/ATM_Connector.h"
 #if defined (ACE_HAS_ATM)
 
 #include "ace/Handle_Set.h"
 
-ACE_RCSID(ace, ATM_Connector, "$Id: ATM_Connector.cpp 80826 2008-03-04 14:51:23Z wotte $")
+
 
 #if !defined (__ACE_INLINE__)
 #include "ace/ATM_Connector.inl"

@@ -4,7 +4,7 @@
 /**
  *  @file    Registry_Name_Space.h
  *
- *  $Id: Registry_Name_Space.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Registry_Name_Space.h 92345 2010-10-24 12:39:33Z johnnyw $
  *
  *  @author Irfan Pyarali (irfan@cs.wustl.edu)
  */
@@ -78,7 +78,7 @@ public:
   int unbind (const ACE_NS_WString &name_in);
 
   /// Get value and type of a given name binding (Wide chars).  The
-  /// caller is responsible for deleting both <value_out> and <type_out>!
+  /// caller is responsible for deleting both @a value_out and @a type_out!
   int resolve (const ACE_NS_WString &name_in,
                ACE_NS_WString &value_out,
                char *&type_out);

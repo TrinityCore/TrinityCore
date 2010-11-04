@@ -4,7 +4,7 @@
 /**
  *  @file    Recursive_Thread_Mutex.h
  *
- *  $Id: Recursive_Thread_Mutex.h 91066 2010-07-12 11:05:04Z johnnyw $
+ *  $Id: Recursive_Thread_Mutex.h 91688 2010-09-09 11:21:50Z johnnyw $
  *
  *   Moved from Synch.h.
  *
@@ -152,9 +152,6 @@ public:
 
   /// Returns a reference to the recursive mutex;
   ACE_recursive_thread_mutex_t &lock (void);
-
-  /// @deprecated Returns a reference to the recursive mutex;
-  ACE_recursive_thread_mutex_t &mutex (void);
 
   /// Returns a reference to the recursive mutex's internal mutex;
   ACE_thread_mutex_t &get_nesting_mutex (void);

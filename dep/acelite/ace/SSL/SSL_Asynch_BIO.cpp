@@ -1,5 +1,5 @@
 // -*- C++ -*-
-
+// $Id: SSL_Asynch_BIO.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
 #include "SSL_Asynch_BIO.h"
 
 #if OPENSSL_VERSION_NUMBER > 0x0090581fL && ((defined (ACE_WIN32) && !defined (ACE_HAS_WINCE)) || (defined (ACE_HAS_AIO_CALLS)))
@@ -7,10 +7,6 @@
 #include "SSL_Asynch_Stream.h"
 #include "ace/OS_NS_string.h"
 #include "ace/Truncate.h"
-
-ACE_RCSID (ACE_SSL,
-           SSL_Asynch_BIO,
-           "$Id: SSL_Asynch_BIO.cpp 82574 2008-08-08 19:35:06Z parsons $")
 
 #if (defined (ACE_HAS_VERSIONED_NAMESPACE) && ACE_HAS_VERSIONED_NAMESPACE == 1)
 # define ACE_ASYNCH_BIO_WRITE_NAME ACE_PREPROC_CONCATENATE(ACE_VERSIONED_NAMESPACE_NAME, _ACE_Asynch_BIO_write)

@@ -4,7 +4,7 @@
 /**
  *  @file   OS_NS_string.h
  *
- *  $Id: OS_NS_string.h 87481 2009-11-11 11:46:10Z olli $
+ *  $Id: OS_NS_string.h 91995 2010-09-24 12:45:24Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -97,24 +97,24 @@ namespace ACE_OS {
   wchar_t *strcat (wchar_t *s, const wchar_t *t);
 #endif /* ACE_HAS_WCHAR */
 
-  /// Finds the first occurance of a character in a string (const char
+  /// Finds the first occurrence of a character in a string (const char
   /// version).
   ACE_NAMESPACE_INLINE_FUNCTION
   const char *strchr (const char *s, int c);
 
 #if defined (ACE_HAS_WCHAR)
-  /// Finds the first occurance of a character in a string (const wchar_t
+  /// Finds the first occurrence of a character in a string (const wchar_t
   /// version).
   ACE_NAMESPACE_INLINE_FUNCTION
   const wchar_t *strchr (const wchar_t *s, wchar_t c);
 #endif /* ACE_HAS_WCHAR */
 
-  /// Finds the first occurance of a character in a string (char version).
+  /// Finds the first occurrence of a character in a string (char version).
   ACE_NAMESPACE_INLINE_FUNCTION
   char *strchr (char *s, int c);
 
 #if defined (ACE_HAS_WCHAR)
-  /// Finds the first occurance of a character in a string (wchar_t version).
+  /// Finds the first occurrence of a character in a string (wchar_t version).
   ACE_NAMESPACE_INLINE_FUNCTION
   wchar_t *strchr (wchar_t *s, wchar_t c);
 #endif /* ACE_HAS_WCHAR */
@@ -197,7 +197,7 @@ namespace ACE_OS {
 
 
   /// Returns a string describing the signal number passed in the
-  /// argument signum. If the supplied signal number is out of range,
+  /// argument @a signum. If the supplied signal number is out of range,
   /// a string of the form "Unknown signal %d" is used to format the string
   /// whose pointer is returned.
   extern ACE_Export
@@ -219,21 +219,21 @@ namespace ACE_OS {
   ACE_NAMESPACE_INLINE_FUNCTION
   ACE_WCHAR_T *strncat (ACE_WCHAR_T *s, const ACE_WCHAR_T *t, size_t len);
 
-  /// Finds the first occurance of a character in an array (const char
+  /// Finds the first occurrence of a character in an array (const char
   /// version).
   extern ACE_Export
   const char *strnchr (const char *s, int c, size_t len);
 
-  /// Finds the first occurance of a character in an array (const ACE_WCHAR_T
+  /// Finds the first occurrence of a character in an array (const ACE_WCHAR_T
   /// version).
   extern ACE_Export
   const ACE_WCHAR_T *strnchr (const ACE_WCHAR_T *s, ACE_WCHAR_T c, size_t len);
 
-  /// Finds the first occurance of a character in an array (char version).
+  /// Finds the first occurrence of a character in an array (char version).
   ACE_NAMESPACE_INLINE_FUNCTION
   char *strnchr (char *s, int c, size_t len);
 
-  /// Finds the first occurance of a character in an array (ACE_WCHAR_T version).
+  /// Finds the first occurrence of a character in an array (ACE_WCHAR_T version).
   ACE_NAMESPACE_INLINE_FUNCTION
   ACE_WCHAR_T *strnchr (ACE_WCHAR_T *s, ACE_WCHAR_T c, size_t len);
 
@@ -277,23 +277,23 @@ namespace ACE_OS {
   ACE_NAMESPACE_INLINE_FUNCTION
   size_t strnlen (const ACE_WCHAR_T *s, size_t maxlen);
 
-  /// Finds the first occurance of a substring in an array (const char
+  /// Finds the first occurrence of a substring in an array (const char
   /// version).
   extern ACE_Export
   const char *strnstr (const char *s, const char *t, size_t len);
 
-  /// Finds the first occurance of a substring in an array (const wchar_t
+  /// Finds the first occurrence of a substring in an array (const wchar_t
   /// version).
   extern ACE_Export
   const ACE_WCHAR_T *strnstr (const ACE_WCHAR_T *s,
                               const ACE_WCHAR_T *t,
                               size_t len);
 
-  /// Finds the first occurance of a substring in an array (char version).
+  /// Finds the first occurrence of a substring in an array (char version).
   ACE_NAMESPACE_INLINE_FUNCTION
   char *strnstr (char *s, const char *t, size_t len);
 
-  /// Finds the first occurance of a substring in an array (wchar_t version).
+  /// Finds the first occurrence of a substring in an array (wchar_t version).
   ACE_NAMESPACE_INLINE_FUNCTION
   ACE_WCHAR_T *strnstr (ACE_WCHAR_T *s, const ACE_WCHAR_T *t, size_t len);
 
@@ -317,35 +317,35 @@ namespace ACE_OS {
   wchar_t *strpbrk (wchar_t *s1, const wchar_t *s2);
 #endif /* ACE_HAS_WCHAR */
 
-  /// Finds the last occurance of a character in a string (const char
+  /// Finds the last occurrence of a character in a string (const char
   /// version).
   ACE_NAMESPACE_INLINE_FUNCTION
   const char *strrchr (const char *s, int c);
 
 #if defined (ACE_HAS_WCHAR)
-  /// Finds the last occurance of a character in a string (const wchar_t
+  /// Finds the last occurrence of a character in a string (const wchar_t
   /// version).
   ACE_NAMESPACE_INLINE_FUNCTION
   const wchar_t *strrchr (const wchar_t *s, wchar_t c);
 #endif /* ACE_HAS_WCHAR */
 
-  /// Finds the last occurance of a character in a string (char version).
+  /// Finds the last occurrence of a character in a string (char version).
   ACE_NAMESPACE_INLINE_FUNCTION
   char *strrchr (char *s, int c);
 
 #if defined (ACE_HAS_WCHAR)
-  /// Finds the last occurance of a character in a string (wchar_t version).
+  /// Finds the last occurrence of a character in a string (wchar_t version).
   ACE_NAMESPACE_INLINE_FUNCTION
   wchar_t *strrchr (wchar_t *s, wchar_t c);
 #endif /* ACE_HAS_WCHAR */
 
 #if defined (ACE_LACKS_STRRCHR)
-  /// Emulated strrchr (char version) - Finds the last occurance of a
+  /// Emulated strrchr (char version) - Finds the last occurrence of a
   /// character in a string.
   extern ACE_Export
   char *strrchr_emulation (char *s, int c);
 
-  /// Emulated strrchr (const char version) - Finds the last occurance of a
+  /// Emulated strrchr (const char version) - Finds the last occurrence of a
   /// character in a string.
   extern ACE_Export
   const char *strrchr_emulation (const char *s, int c);
@@ -405,24 +405,24 @@ namespace ACE_OS {
   size_t strspn (const wchar_t *s1, const wchar_t *s2);
 #endif /* ACE_HAS_WCHAR */
 
-  /// Finds the first occurance of a substring in a string (const char
+  /// Finds the first occurrence of a substring in a string (const char
   /// version).
   ACE_NAMESPACE_INLINE_FUNCTION
   const char *strstr (const char *s, const char *t);
 
 #if defined (ACE_HAS_WCHAR)
-  /// Finds the first occurance of a substring in a string (const wchar_t
+  /// Finds the first occurrence of a substring in a string (const wchar_t
   /// version).
   ACE_NAMESPACE_INLINE_FUNCTION
   const wchar_t *strstr (const wchar_t *s, const wchar_t *t);
 #endif /* ACE_HAS_WCHAR */
 
-  /// Finds the first occurance of a substring in a string (char version).
+  /// Finds the first occurrence of a substring in a string (char version).
   ACE_NAMESPACE_INLINE_FUNCTION
   char *strstr (char *s, const char *t);
 
 #if defined (ACE_HAS_WCHAR)
-  /// Finds the first occurance of a substring in a string (wchar_t version).
+  /// Finds the first occurrence of a substring in a string (wchar_t version).
   ACE_NAMESPACE_INLINE_FUNCTION
   wchar_t *strstr (wchar_t *s, const wchar_t *t);
 #endif /* ACE_HAS_WCHAR */

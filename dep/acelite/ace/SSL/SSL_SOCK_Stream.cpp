@@ -1,4 +1,4 @@
-// $Id: SSL_SOCK_Stream.cpp 82577 2008-08-09 17:43:11Z mitza $
+// $Id: SSL_SOCK_Stream.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
 
 #include "ace/Handle_Set.h"
 #include "ace/Log_Msg.h"
@@ -14,10 +14,6 @@
 #if !defined (__ACE_INLINE__)
 #include "SSL_SOCK_Stream.inl"
 #endif /* __ACE_INLINE__ */
-
-ACE_RCSID (ACE_SSL,
-           SSL_SOCK_Stream,
-           "$Id: SSL_SOCK_Stream.cpp 82577 2008-08-09 17:43:11Z mitza $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

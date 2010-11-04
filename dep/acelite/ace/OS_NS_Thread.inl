@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: OS_NS_Thread.inl 87220 2009-10-24 12:20:03Z olli $
+// $Id: OS_NS_Thread.inl 92069 2010-09-28 11:38:59Z johnnyw $
 
 #include "ace/OS_NS_macros.h"
 // for timespec_t, perhaps move it to os_time.h
@@ -2500,27 +2500,17 @@ ACE_OS::sigwait (sigset_t *sset, int *sig)
      return *sig;
    #endif /* _POSIX_C_SOURCE - 0 >= 199506L || _POSIX_PTHREAD_SEMANTICS */
 # elif defined (ACE_HAS_PTHREADS)
-  // Digital UNIX has own hoops to jump through.
-#   if defined (DIGITAL_UNIX) && defined (__DECCXX_VER)
-      // DEC cxx (but not g++) needs this direct call to its internal
-      // sigwait ().  This allows us to #undef sigwait, so that we can
-      // have ACE_OS::sigwait.  cxx gets confused by ACE_OS::sigwait
-      // if sigwait is _not_ #undef'ed.
-      errno = ::_Psigwait (sset, sig);
+#   if defined (CYGWIN32)
+      // Cygwin has sigwait definition, but it is not implemented
+      ACE_UNUSED_ARG (sset);
+      ACE_NOTSUP_RETURN (-1);
+#   elif defined (ACE_TANDEM_T1248_PTHREADS)
+      errno = ::spt_sigwait (sset, sig);
       return errno == 0  ?  *sig  :  -1;
-#   else /* !(DIGITAL_UNIX && __DECCXX_VER) */
-#     if defined (CYGWIN32)
-        // Cygwin has sigwait definition, but it is not implemented
-        ACE_UNUSED_ARG (sset);
-        ACE_NOTSUP_RETURN (-1);
-#     elif defined (ACE_TANDEM_T1248_PTHREADS)
-        errno = ::spt_sigwait (sset, sig);
-        return errno == 0  ?  *sig  :  -1;
-#     else   /* this is draft 7 or std */
-        errno = ::sigwait (sset, sig);
-        return errno == 0  ?  *sig  :  -1;
-#     endif /* CYGWIN32 */
-#   endif /* !(DIGITAL_UNIX && __DECCXX_VER) */
+#   else   /* this is draft 7 or std */
+      errno = ::sigwait (sset, sig);
+      return errno == 0  ?  *sig  :  -1;
+#   endif /* CYGWIN32 */
 # elif defined (ACE_HAS_WTHREADS)
     ACE_UNUSED_ARG (sset);
     ACE_NOTSUP_RETURN (-1);
@@ -3166,14 +3156,6 @@ ACE_OS::thr_sigsetmask (int how,
   //FUZZ: enable check_for_lack_ACE_OS
 #   endif /* !ACE_LACKS_PTHREAD_SIGMASK */
 
-#if 0
-  /* Don't know if any platform actually needs this... */
-  // as far as I can tell, this is now pthread_sigaction() -- jwr
-  int result;
-  ACE_OSCALL_RETURN (ACE_ADAPT_RETVAL (pthread_sigaction (how, nsm, osm),
-                                       result), int, -1);
-#endif /* 0 */
-
 # elif defined (ACE_HAS_WTHREADS)
   ACE_UNUSED_ARG (osm);
   ACE_UNUSED_ARG (nsm);
@@ -3597,6 +3579,18 @@ ACE_Thread_ID::ACE_Thread_ID (const ACE_Thread_ID &id)
   : thread_id_ (id.thread_id_),
     thread_handle_ (id.thread_handle_)
 {
+}
+
+ACE_INLINE
+ACE_Thread_ID&
+ACE_Thread_ID::operator= (const ACE_Thread_ID &id)
+{
+  if (this != &id)
+    {
+      this->thread_id_ = id.thread_id_;
+      this->thread_handle_ = id.thread_handle_;
+    }
+  return *this;
 }
 
 ACE_INLINE

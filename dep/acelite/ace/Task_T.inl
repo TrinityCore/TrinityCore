@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: Task_T.inl 80826 2008-03-04 14:51:23Z wotte $
+// $Id: Task_T.inl 91688 2010-09-09 11:21:50Z johnnyw $
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -20,13 +20,6 @@ ACE_Task<ACE_SYNCH_USE>::getq (ACE_Message_Block *&mb, ACE_Time_Value *tv)
 {
   ACE_TRACE ("ACE_Task<ACE_SYNCH_USE>::getq");
   return this->msg_queue_->dequeue_head (mb, tv);
-}
-
-template <ACE_SYNCH_DECL> ACE_INLINE int
-ACE_Task<ACE_SYNCH_USE>::can_put (ACE_Message_Block *)
-{
-  ACE_TRACE ("ACE_Task<ACE_SYNCH_USE>::can_put");
-  ACE_NOTSUP_RETURN (-1);
 }
 
 template <ACE_SYNCH_DECL> ACE_INLINE int

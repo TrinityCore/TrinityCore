@@ -6,7 +6,7 @@
  *
  *  definitions for network database operations
  *
- *  $Id: os_netdb.h 84660 2009-03-01 20:22:37Z olli $
+ *  $Id: os_netdb.h 91743 2010-09-13 18:24:51Z johnnyw $
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -40,7 +40,7 @@ extern "C"
 #if !defined (ACE_LACKS_NETDB_H)
 #  include /**/ <netdb.h>
 #endif /* !ACE_LACKS_NETDB_H */
-  
+
 #if defined (ACE_LACKS_HOSTENT)
 struct  hostent {
         char    *h_name;        /* official name of host */

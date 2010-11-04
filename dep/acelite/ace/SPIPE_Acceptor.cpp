@@ -1,4 +1,4 @@
-// $Id: SPIPE_Acceptor.cpp 82723 2008-09-16 09:35:44Z johnnyw $
+// $Id: SPIPE_Acceptor.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/SPIPE_Acceptor.h"
 #include "ace/Log_Msg.h"
@@ -9,7 +9,7 @@
 #  include "ace/OS_NS_unistd.h"
 #endif  // ACE_HAS_STREAM_PIPES
 
-ACE_RCSID(ace, SPIPE_Acceptor, "$Id: SPIPE_Acceptor.cpp 82723 2008-09-16 09:35:44Z johnnyw $")
+
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

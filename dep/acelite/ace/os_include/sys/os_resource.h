@@ -6,7 +6,7 @@
  *
  *  definitions for XSI resource operations
  *
- *  $Id: os_resource.h 81697 2008-05-14 18:33:11Z johnnyw $
+ *  $Id: os_resource.h 91781 2010-09-15 12:49:15Z johnnyw $
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -52,13 +52,13 @@ extern "C"
 
 // There must be a better way to do this...
 #if !defined (RLIMIT_NOFILE) && !defined (ACE_LACKS_RLIMIT_NOFILE)
-#  if defined (linux) || defined (AIX) || defined (SCO)
+#  if defined (linux) || defined (AIX)
 #    if defined (RLIMIT_OFILE)
 #      define RLIMIT_NOFILE RLIMIT_OFILE
 #    else
 #      define RLIMIT_NOFILE 200
 #    endif /* RLIMIT_OFILE */
-#  endif /* defined (linux) || defined (AIX) || defined (SCO) */
+#  endif /* defined (linux) || defined (AIX) */
 #endif /* RLIMIT_NOFILE */
 
 #if defined (ACE_WIN32)

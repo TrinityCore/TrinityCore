@@ -1,4 +1,4 @@
-// $Id: Service_Gestalt.cpp 91158 2010-07-21 15:54:12Z mesnier_p $
+// $Id: Service_Gestalt.cpp 92357 2010-10-25 14:11:44Z mesnier_p $
 
 #include "ace/Svc_Conf.h"
 #include "ace/Get_Opt.h"
@@ -28,10 +28,6 @@
 #include "ace/Service_Gestalt.h"
 
 #include "ace/Svc_Conf_Param.h"
-
-ACE_RCSID (ace,
-           Service_Gestalt,
-           "$Id: Service_Gestalt.cpp 91158 2010-07-21 15:54:12Z mesnier_p $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -205,6 +201,9 @@ ACE_Service_Gestalt::~ACE_Service_Gestalt (void)
 
   delete this->svc_conf_file_queue_;
   this->svc_conf_file_queue_ = 0;
+
+  delete this->svc_queue_;
+  this->svc_queue_ = 0;
 }
 
 ACE_Service_Gestalt::ACE_Service_Gestalt (size_t size,
@@ -1063,7 +1062,7 @@ ACE_Service_Gestalt::open_i (const ACE_TCHAR program_name[],
   if (!ignore_default_svc_conf_file)
     {
       bool add_default = true;
-      bool has_files = this->svc_conf_file_queue_ && 
+      bool has_files = this->svc_conf_file_queue_ &&
         !this->svc_conf_file_queue_->is_empty ();
       bool has_cmdline = this->svc_queue_ && !this->svc_queue_->is_empty ();
       if (has_files || has_cmdline)
@@ -1112,8 +1111,13 @@ ACE_Service_Gestalt::open_i (const ACE_TCHAR program_name[],
   else
     {
       result = this->process_directives ();
-      if (result != -1 || errno == ENOENT)
-        result = this->process_commandline_directives ();
+      if (result != -1)
+        {
+          int temp = this->process_commandline_directives ();
+          if (temp == -1)
+            result = -1;
+          else result += temp;
+        }
     }
 
   // Reset debugging back to the way it was when we came into

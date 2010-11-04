@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: Atomic_Op.inl 89905 2010-04-16 13:04:47Z johnnyw $
+// $Id: Atomic_Op.inl 91813 2010-09-17 07:52:52Z johnnyw $
 
 #if defined (ACE_HAS_INTRINSIC_INTERLOCKED)
 # include "ace/os_include/os_intrin.h"
@@ -13,7 +13,7 @@
 
 #if defined (ACE_HAS_SOLARIS_ATOMIC_LIB)
 # include <atomic.h>
-#endif 
+#endif
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

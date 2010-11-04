@@ -1,4 +1,4 @@
-// $Id: Message_Queue_NT.cpp 88560 2010-01-15 05:02:05Z schmidt $
+// $Id: Message_Queue_NT.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/Message_Queue.h"
 #include "ace/Message_Queue_NT.h"
@@ -7,10 +7,6 @@
 #if !defined (__ACE_INLINE__)
 #include "ace/Message_Queue_NT.inl"
 #endif /* __ACE_INLINE__ */
-
-ACE_RCSID (ace,
-           Message_Queue_NT,
-           "$Id: Message_Queue_NT.cpp 88560 2010-01-15 05:02:05Z schmidt $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

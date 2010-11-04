@@ -1,4 +1,4 @@
-// $Id: Malloc.cpp 84282 2009-01-30 15:04:29Z msmit $
+// $Id: Malloc.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
 
 #include "ace/Malloc.h"
 
@@ -9,11 +9,6 @@
 #include "ace/Object_Manager.h"
 #include "ace/Malloc_Base.h"
 #include "ace/OS_NS_string.h"
-
-
-ACE_RCSID (ace,
-           Malloc,
-           "$Id: Malloc.cpp 84282 2009-01-30 15:04:29Z msmit $")
 
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL

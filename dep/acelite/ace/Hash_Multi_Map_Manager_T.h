@@ -4,7 +4,7 @@
 /**
  * @file    Hash_Multi_Map_Manager_T.h
  *
- * $Id: Hash_Multi_Map_Manager_T.h 80826 2008-03-04 14:51:23Z wotte $
+ * $Id: Hash_Multi_Map_Manager_T.h 91693 2010-09-09 12:57:54Z johnnyw $
  *
  * The code in Hash_Multi_Map_Manager_T.* was based on the code in
  * Hash_Map_Manager_T.*.
@@ -65,10 +65,8 @@ public:
   ACE_Hash_Multi_Map_Entry (ACE_Hash_Multi_Map_Entry<EXT_ID, INT_ID> *next,
                             ACE_Hash_Multi_Map_Entry<EXT_ID, INT_ID> *prev);
 
-  # if ! defined (ACE_HAS_BROKEN_NOOP_DTORS)
   /// Destructor.
   ~ACE_Hash_Multi_Map_Entry (void);
-  #endif /* ! defined (ACE_HAS_BROKEN_NOOP_DTORS) */
 
   /// Key accessor.
   EXT_ID& key (void);
@@ -76,12 +74,13 @@ public:
   /// Item accessor.
   ACE_Unbounded_Set<INT_ID>& item (void);
 
+public:
   /// Key used to look up an entry.
-  /// @deprecated Use key()
+  /// @todo Should be private
   EXT_ID ext_id_;
 
   /// The contents of the entry itself.
-  /// @deprecated Use item()
+  /// @todo Should be private
   ACE_Unbounded_Set<INT_ID> int_id_set_;
 
   /// Pointer to the next item in the bucket of overflow nodes.
@@ -553,7 +552,7 @@ protected:
   ACE_Allocator *table_allocator_;
 
   /// Addidtional allocator for entries, so it should be able to
-  /// allocate 'size' / chunks of sizeof 
+  /// allocate 'size' / chunks of sizeof
   /// (@c ACE_Hash_Multi_Map_Entry<@c EXT_ID, @c INT_ID>) bytes each.
   ACE_Allocator *entry_allocator_;
 
@@ -744,7 +743,7 @@ protected:
  * @c ACE_Hash_Multi_Map_Manager it is iterating upon since locking is
  * inherently inefficient and/or error-prone within an STL-style
  * iterator.  If you require locking, you can explicitly use an
- * @c ACE_Guard or @c ACE_Read_Guard on the @c ACE_Hash_Multi_Map_Manager's
+ * @c ACE_GUARD or @c ACE_READ_GUARD on the @c ACE_Hash_Multi_Map_Manager's
  * internal lock, which is accessible via its @c mutex method.
  */
 template <class EXT_ID, class INT_ID, class HASH_KEY, class COMPARE_KEYS, class ACE_LOCK>
@@ -790,8 +789,8 @@ public:
  * @c ACE_Hash_Multi_Map_Manager it is iterating upon since locking is
  * inherently inefficient and/or error-prone within an STL-style
  * iterator.  If you require locking, you can explicitly use an
- * @c ACE_Guard or @c ACE_Read_Guard on the @c ACE_Hash_Multi_Map_Manager's
- * internal lock, which is accessible via its @c mutex method.
+ * @c ACE_GUARD or @c ACE_READ_GUARD on the @c ACE_Hash_Multi_Map_Manager's
+ * internal lock, which is accessible via its @c mutex() method.
  */
 template <class EXT_ID, class INT_ID, class HASH_KEY, class COMPARE_KEYS, class ACE_LOCK>
 class ACE_Hash_Multi_Map_Const_Iterator : public ACE_Hash_Multi_Map_Const_Iterator_Base<EXT_ID, INT_ID, HASH_KEY, COMPARE_KEYS, ACE_LOCK>
@@ -838,7 +837,7 @@ public:
  * @c ACE_Hash_Multi_Map_Manager it is iterating upon since locking is
  * inherently inefficient and/or error-prone within an STL-style
  * iterator.  If you require locking, you can explicitly use an
- * @c ACE_Guard or @c ACE_Read_Guard on the @c ACE_Hash_Multi_Map_Manager's
+ * @c ACE_GUARD or @c ACE_READ_GUARD on the @c ACE_Hash_Multi_Map_Manager's
  * internal lock, which is accessible via its @c mutex method.
  *
  * Note that a creation method for this new iterator cannot be added
@@ -912,7 +911,7 @@ protected:
  * @c ACE_Hash_Multi_Map_Manager it is iterating upon since locking is
  * inherently inefficient and/or error-prone within an STL-style
  * iterator.  If you require locking, you can explicitly use an
- * @c ACE_Guard or @c ACE_Read_Guard on the @c ACE_Hash_Multi_Map_Manager's
+ * @c ACE_GUARD or @c ACE_READ_GUARD on the @c ACE_Hash_Multi_Map_Manager's
  * internal lock, which is accessible via its @c mutex method.
  */
 template <class EXT_ID, class INT_ID, class HASH_KEY, class COMPARE_KEYS, class ACE_LOCK>

@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// $Id: config-linux-common.h 88663 2010-01-22 10:49:22Z mcorino $
+// $Id: config-linux-common.h 92183 2010-10-08 08:44:15Z olli $
 
 // Do not use this configuration file directly since it's designed to
 // be included by another, specific configuration file, such as
@@ -147,7 +147,6 @@
 
 #if __GLIBC__ > 1 && __GLIBC_MINOR__ >= 1
 # define ACE_HAS_P_READ_WRITE
-# define ACE_LACKS_PREAD_PROTOTYPE
 // Use ACE's alternate cuserid() implementation since the use of the
 // system cuserid() is discouraged.
 # define ACE_HAS_ALT_CUSERID
@@ -168,20 +167,12 @@
   // this must appear before its #include.
 # define ACE_HAS_STRING_CLASS
 # include "ace/config-g++-common.h"
-#define ACE_CC_NAME ACE_TEXT ("g++")
-#define ACE_CC_MAJOR_VERSION __GNUC__
-#define ACE_CC_MINOR_VERSION __GNUC_MINOR__
-//#define ACE_CC_BETA_VERSION 0 /* ??? */
-#elif defined (__DECCXX)
-# define ACE_CONFIG_INCLUDE_CXX_COMMON
-# include "ace/config-cxx-common.h"
 #elif defined (__SUNCC_PRO) || defined (__SUNPRO_CC)
 # include "ace/config-suncc-common.h"
 #elif defined (__PGI)
 // Portable group compiler
 # define ACE_HAS_CPLUSPLUS_HEADERS
 # define ACE_HAS_STDCPP_STL_INCLUDES
-# define ACE_HAS_TEMPLATE_TYPEDEFS
 # define ACE_HAS_STANDARD_CPP_LIBRARY 1
 # define ACE_USES_STD_NAMESPACE_FOR_STDCPP_LIB 1
 # define ACE_LACKS_SWAB
@@ -432,23 +423,6 @@
 #    define ACE_GETNAME_RETURNS_RANDOM_SIN_ZERO 1
 #  endif  /* (LINUX_VERSION_CODE <= KERNEL_VERSION(2,5,47)) */
 #endif  /* ACE_GETNAME_RETURNS_RANDOM_SIN_ZERO */
-
-#if defined (ACE_HAS_EVENT_POLL)
-// The sys_epoll interface was introduced in Linux kernel 2.5.45.
-// Don't support backported versions since they appear to be buggy.
-// The obsolete ioctl()-based interface is no longer supported.
-#if 0
-// linux/version.h may not be accurate. It's not for Fedora Core 2...
-# if !defined (ACE_LACKS_LINUX_VERSION_H)
-#   include <linux/version.h>
-# endif /* !ACE_LACKS_LINUX_VERSION_H */
-# if (LINUX_VERSION_CODE < KERNEL_VERSION (2,5,45))
-#   undef ACE_HAS_EVENT_POLL
-#   error Disabling Linux epoll support.  Kernel used in C library is too old.
-#   error Linux kernel 2.5.45 or better is required.
-# endif  /* LINUX_VERSION_CODE < KERNEL_VERSION (2,5,45) */
-#endif  /* ACE_HAS_EVENT_POLL */
-#endif
 
 #if !defined (ACE_HAS_EVENT_POLL) && !defined (ACE_HAS_DEV_POLL)
 # if !defined (ACE_LACKS_LINUX_VERSION_H)

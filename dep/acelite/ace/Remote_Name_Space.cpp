@@ -1,12 +1,9 @@
+// $Id: Remote_Name_Space.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
 #include "ace/Remote_Name_Space.h"
 #include "ace/Auto_Ptr.h"
 #include "ace/Log_Msg.h"
 #include "ace/SString.h"
 #include "ace/OS_NS_string.h"
-
-ACE_RCSID (ace,
-           Remote_Name_Space,
-           "$Id: Remote_Name_Space.cpp 80826 2008-03-04 14:51:23Z wotte $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

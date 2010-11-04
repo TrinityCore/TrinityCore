@@ -1,4 +1,4 @@
-// $Id: README 88535 2010-01-13 21:22:15Z olli $
+// $Id: README 92182 2010-10-08 08:21:27Z olli $
 
 ACE Portability Macros
 ----------------------
@@ -366,8 +366,6 @@ ACE_HAS_THR_MINSTACK                    Platform calls thr_minstack()
                                         (e.g., Tandem).
 ACE_HAS_LIMITED_RUSAGE_T                The rusage_t structure has
                                         only two fields.
-ACE_HAS_LIMITED_SELECT                  The select is unable to deal with
-                                        large file descriptors.
 ACE_HAS_LINUX_NPTL                      Linux platform (with kernel >= 2.6.x)
                                         with GLibc including new NPTL (Native
                                         POSIX Thread Library).
@@ -835,8 +833,6 @@ ACE_LACKS_AUTO_MMAP_REPLACEMENT         No system support for replacing any
 ACE_LACKS_BSEARCH                       Compiler/platform lacks the
                                         standard C library bsearch()
                                         function
-ACE_LACKS_CLEARERR                      Platform lacks the clearerr system
-                                        call.
 ACE_LACKS_CLOSEDIR                      Platform lacks closedir and the closedir
                                         emulation must be used
 ACE_LACKS_OPENDIR                       Platform lacks opendir and the opendir
@@ -892,8 +888,6 @@ ACE_LACKS_INET_ATON                     Platform lacks the inet_aton()
 ACE_LACKS_INET_ATON_PROTOTYPE           Platform/compiler lacks the
                                         inet_aton() prototype (e.g.,
                                         LynxOS)
-ACE_LACKS_IOSTREAMS_TOTALLY             Iostreams are not supported
-                                        adequately on the given platform.
 ACE_LACKS_IOSTREAM_FX                   iostream header does not
                                         declare ipfx (), opfx (),
                                         etc.
@@ -979,7 +973,6 @@ ACE_LACKS_RAND_REENTRANT_FUNCTIONS      Platform lacks rand_r()
 ACE_LACKS_READLINK                      Platform lacks the readlink() function.
 ACE_LACKS_READV                         Platform doesn't define readv,
                                         so use our own
-ACE_LACKS_RENAME                        Platform lacks rename().
 ACE_LACKS_RLIMIT                        Platform/compiler lacks
                                         {get,set}rlimit() function
                                         (e.g., VxWorks, Chorus, and

@@ -1,4 +1,4 @@
-// $Id: Timer_List_T.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: Timer_List_T.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #ifndef ACE_TIMER_LIST_T_C
 #define ACE_TIMER_LIST_T_C
@@ -11,7 +11,7 @@
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-ACE_RCSID(ace, Timer_List_T, "$Id: Timer_List_T.cpp 80826 2008-03-04 14:51:23Z wotte $")
+
 
 // Default Constructor
 

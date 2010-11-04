@@ -3,7 +3,7 @@
 /**
  *  @file    Functor.cpp
  *
- *  $Id: Functor.cpp 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Functor.cpp 91286 2010-08-05 09:04:31Z johnnyw $
  *
  *  Non-inlinable method definitions for non-templatized classes
  *  and template specializations implementing the GOF Command Pattern,
@@ -32,7 +32,7 @@
 #include "ace/Functor.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, Functor, "$Id: Functor.cpp 80826 2008-03-04 14:51:23Z wotte $")
+
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

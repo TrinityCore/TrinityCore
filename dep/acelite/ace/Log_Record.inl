@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: Log_Record.inl 84183 2009-01-19 08:50:16Z johnnyw $
+// $Id: Log_Record.inl 91764 2010-09-14 13:04:37Z johnnyw $
 
 #include "ace/Global_Macros.h"
 #include "ace/os_include/arpa/os_inet.h"
@@ -14,37 +14,6 @@ ACE_Log_Record::~ACE_Log_Record (void)
 {
   if (this->msg_data_)
     delete [] this->msg_data_;
-}
-
-ACE_INLINE void
-ACE_Log_Record::encode (void)
-{
-  ACE_TRACE ("ACE_Log_Record::encode");
-  this->length_ = ACE_HTONL (this->length_);
-  this->type_ = ACE_HTONL (this->type_);
-  // Make sure we don't enclose the sec() and usec() fields until
-  // they've been normalized.
-  // secs_ is commented out because it can be 64 bits. This method is
-  // deprecated; use the CDR operations instead.
-  //  this->secs_ = ACE_HTONL (this->secs_);
-  this->usecs_ = ACE_HTONL (this->usecs_);
-  this->pid_ = ACE_HTONL (this->pid_);
-}
-
-ACE_INLINE void
-ACE_Log_Record::decode (void)
-{
-  ACE_TRACE ("ACE_Log_Record::decode");
-#if !defined (ACE_LACKS_NTOHL)
-  ACE_Time_Value tv (this->secs_,
-                     ntohl (this->usecs_));
-
-  this->secs_ = tv.sec ();
-  this->usecs_ = tv.usec ();
-  this->type_ = ntohl (this->type_);
-  this->pid_ = ntohl (this->pid_);
-  this->length_ = ntohl (this->length_);
-#endif /* ACE_LACKS_NTOHL */
 }
 
 ACE_INLINE ACE_UINT32

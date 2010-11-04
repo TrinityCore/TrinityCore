@@ -1,11 +1,7 @@
-// $Id: Atomic_Op.cpp 89905 2010-04-16 13:04:47Z johnnyw $
+// $Id: Atomic_Op.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/Atomic_Op.h"
 #include "ace/OS_NS_unistd.h"
-
-ACE_RCSID (ace,
-           Atomic_Op,
-           "$Id: Atomic_Op.cpp 89905 2010-04-16 13:04:47Z johnnyw $")
 
 #if !defined (__ACE_INLINE__)
 #include "ace/Atomic_Op.inl"

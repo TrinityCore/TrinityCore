@@ -1,3 +1,5 @@
+// $Id: Activation_Queue.cpp 91286 2010-08-05 09:04:31Z johnnyw $
+
 #include "ace/Activation_Queue.h"
 
 #if !defined (__ACE_INLINE__)
@@ -8,10 +10,6 @@
 #include "ace/Method_Request.h"
 #include "ace/Malloc_Base.h"
 #include "ace/Time_Value.h"
-
-ACE_RCSID (ace,
-           Activation_Queue,
-           "$Id: Activation_Queue.cpp 84565 2009-02-23 08:20:39Z johnnyw $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

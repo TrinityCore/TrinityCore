@@ -1,8 +1,8 @@
-// $Id: OS_NS_sys_utsname.cpp 86433 2009-08-09 19:19:12Z johnnyw $
+// $Id: OS_NS_sys_utsname.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/OS_NS_sys_utsname.h"
 
-ACE_RCSID(ace, OS_NS_sys_utsname, "$Id: OS_NS_sys_utsname.cpp 86433 2009-08-09 19:19:12Z johnnyw $")
+
 
 #include "ace/OS_NS_string.h"
 #include "ace/OS_NS_stdio.h"

@@ -1,3 +1,5 @@
+// $Id: CDR_Stream.cpp 91373 2010-08-17 07:35:27Z mhengstmengel $
+
 #include "ace/CDR_Stream.h"
 #include "ace/SString.h"
 #include "ace/Auto_Ptr.h"
@@ -6,10 +8,6 @@
 #if !defined (__ACE_INLINE__)
 # include "ace/CDR_Stream.inl"
 #endif /* ! __ACE_INLINE__ */
-
-ACE_RCSID (ace,
-           CDR_Stream,
-           "$Id: CDR_Stream.cpp 88653 2010-01-21 23:19:50Z sowayaa $")
 
 // ****************************************************************
 

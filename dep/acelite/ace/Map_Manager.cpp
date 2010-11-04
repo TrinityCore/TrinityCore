@@ -1,4 +1,4 @@
-// $Id: Map_Manager.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: Map_Manager.cpp 91809 2010-09-17 07:20:41Z johnnyw $
 
 #ifndef ACE_MAP_MANAGER_CPP
 #define ACE_MAP_MANAGER_CPP
@@ -638,38 +638,6 @@ ACE_Map_Const_Iterator_Base<EXT_ID, INT_ID, ACE_LOCK>::dump_i (void) const
   ACE_DEBUG ((LM_DEBUG,  ACE_TEXT ("next_ = %d"), this->next_));
   ACE_DEBUG ((LM_DEBUG, ACE_END_DUMP));
 #endif /* ACE_HAS_DUMP */
-}
-
-template <class EXT_ID, class INT_ID, class ACE_LOCK>
-ACE_Map_Entry<EXT_ID, INT_ID>&
-ACE_Map_Iterator_Base<EXT_ID, INT_ID, ACE_LOCK>::operator* (void) const
-{
-  // @@ This function should be inlined.  We moved it here to avoid a
-  // compiler bug in SunCC 4.2.  Once we know the correct patch to fix
-  // the compiler problem, it should be moved back to .i file again.
-  ACE_Map_Entry<EXT_ID, INT_ID> *retv = 0;
-
-  int result = this->next (retv);
-  ACE_ASSERT (result != 0);
-  ACE_UNUSED_ARG (result);
-
-  return *retv;
-}
-
-template <class EXT_ID, class INT_ID, class ACE_LOCK>
-ACE_Map_Entry<EXT_ID, INT_ID>&
-ACE_Map_Const_Iterator_Base<EXT_ID, INT_ID, ACE_LOCK>::operator* (void) const
-{
-  // @@ This function should be inlined.  We moved it here to avoid a
-  // compiler bug in SunCC 4.2.  Once we know the correct patch to fix
-  // the compiler problem, it should be moved back to .i file again.
-  ACE_Map_Entry<EXT_ID, INT_ID> *retv = 0;
-
-  int result = this->next (retv);
-  ACE_ASSERT (result != 0);
-  ACE_UNUSED_ARG (result);
-
-  return *retv;
 }
 
 template <class EXT_ID, class INT_ID, class ACE_LOCK> void

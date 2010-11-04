@@ -1,4 +1,4 @@
-// $Id: POSIX_Proactor.cpp 86102 2009-07-18 04:15:48Z wotte $
+// $Id: POSIX_Proactor.cpp 92069 2010-09-28 11:38:59Z johnnyw $
 
 #include "ace/POSIX_Proactor.h"
 
@@ -81,10 +81,6 @@ ACE_POSIX_Proactor::ACE_POSIX_Proactor (void)
 #elif defined(HPUX)
 
   os_id_ = ACE_OS_HPUX;   // set family
-
-#elif defined(__sgi)
-
-  os_id_ = ACE_OS_IRIX;   // set family
 
 #elif defined(__OpenBSD)
 
@@ -519,39 +515,6 @@ ACE_POSIX_Proactor::create_asynch_timer
                   0);
   return implementation;
 }
-
-#if 0
-int
-ACE_POSIX_Proactor::handle_signal (int, siginfo_t *, ucontext_t *)
-{
-  // Perform a non-blocking "poll" for all the I/O events that have
-  // completed in the I/O completion queue.
-
-  ACE_Time_Value timeout (0, 0);
-  int result = 0;
-
-  for (;;)
-    {
-      result = this->handle_events (timeout);
-      if (result != 0 || errno == ETIME)
-        break;
-    }
-
-  // If our handle_events failed, we'll report a failure to the
-  // Reactor.
-  return result == -1 ? -1 : 0;
-}
-
-int
-ACE_POSIX_Proactor::handle_close (ACE_HANDLE handle,
-                                  ACE_Reactor_Mask close_mask)
-{
-  ACE_UNUSED_ARG (close_mask);
-  ACE_UNUSED_ARG (handle);
-
-  return this->close ();
-}
-#endif /* 0 */
 
 void
 ACE_POSIX_Proactor::application_specific_code (ACE_POSIX_Asynch_Result *asynch_result,
@@ -1428,7 +1391,7 @@ ACE_POSIX_AIOCB_Proactor::start_aio_i (ACE_POSIX_Asynch_Result *result)
   const ACE_TCHAR *ptype = 0;
 
   // Start IO
-  // The following aio_ptr anathema is required to work around a bug in 
+  // The following aio_ptr anathema is required to work around a bug in
   // the optimizer for GCC 4.1.2
   aiocb * aio_ptr (result);
   switch (result->aio_lio_opcode )

@@ -4,7 +4,7 @@
 /**
  *  @file    Cache_Map_Manager_T.h
  *
- *  $Id: Cache_Map_Manager_T.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Cache_Map_Manager_T.h 92097 2010-09-30 05:41:49Z msmit $
  *
  *  @author Kirthika Parameswaran <kirthika@cs.wustl.edu>
  */
@@ -91,7 +91,7 @@ public:
    * are used by the strategy and is transparent to the user of this
    * class.
    */
-  typedef ACE_Pair<VALUE, ATTRIBUTES> CACHE_VALUE;
+  typedef std::pair<VALUE, ATTRIBUTES> CACHE_VALUE;
 
   // = Initialization and termination methods.
 
@@ -251,10 +251,10 @@ public:
 
   // = Traits.
   /// The actual value mapped to the key in the cache. The <attributes>
-  /// are used by the strategy and is transperant to the cache user.
+  /// are used by the strategy and is transparent to the cache user.
   typedef ACE_Reference_Pair<KEY, VALUE>
           value_type;
-  typedef ACE_Pair <VALUE, ATTRIBUTES>
+  typedef std::pair <VALUE, ATTRIBUTES>
           CACHE_VALUE;
 
   // = Initialisation and termination methods.
@@ -274,7 +274,7 @@ public:
       (const ACE_Cache_Map_Iterator<KEY, VALUE, IMPLEMENTATION,
                                     CACHING_STRATEGY, ATTRIBUTES> &rhs);
 
-  /// Comparision operators.
+  /// Comparison operators.
   bool operator== (const ACE_Cache_Map_Iterator<KEY, VALUE, IMPLEMENTATION, CACHING_STRATEGY, ATTRIBUTES> &rhs) const;
   bool operator!= (const ACE_Cache_Map_Iterator<KEY, VALUE, IMPLEMENTATION, CACHING_STRATEGY, ATTRIBUTES> &rhs) const;
 
@@ -327,9 +327,9 @@ public:
 
   // = Traits.
   /// The actual value mapped to the key in the cache. The <attributes>
-  /// are used by the strategy and is transperant to the cache user.
+  /// are used by the strategy and is transparent to the cache user.
   typedef ACE_Reference_Pair<KEY, VALUE> value_type;
-  typedef ACE_Pair <VALUE, ATTRIBUTES> CACHE_VALUE;
+  typedef std::pair <VALUE, ATTRIBUTES> CACHE_VALUE;
 
   // = Initialisation and termination methods.
 
@@ -348,7 +348,7 @@ public:
      (const ACE_Cache_Map_Reverse_Iterator<KEY, VALUE, REVERSE_IMPLEMENTATION,
                                            CACHING_STRATEGY, ATTRIBUTES> &rhs);
 
-  /// Comparision operators.
+  /// Comparison operators.
   bool operator== (const ACE_Cache_Map_Reverse_Iterator<KEY, VALUE, REVERSE_IMPLEMENTATION, CACHING_STRATEGY, ATTRIBUTES> &rhs) const;
   bool operator!= (const ACE_Cache_Map_Reverse_Iterator<KEY, VALUE, REVERSE_IMPLEMENTATION, CACHING_STRATEGY, ATTRIBUTES> &rhs) const;
 

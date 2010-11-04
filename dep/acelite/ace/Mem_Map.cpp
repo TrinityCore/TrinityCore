@@ -1,4 +1,4 @@
-// $Id: Mem_Map.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: Mem_Map.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 // Defines the member functions for the memory mapping facility.
 
@@ -13,7 +13,7 @@
 #include "ace/Log_Msg.h"
 #include "ace/Truncate.h"
 
-ACE_RCSID(ace, Mem_Map, "Mem_Map.cpp,v 4.39 2003/11/01 11:15:13 dhinton Exp")
+
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

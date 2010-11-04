@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: Condition_Thread_Mutex.inl 80826 2008-03-04 14:51:23Z wotte $
+// $Id: Condition_Thread_Mutex.inl 92069 2010-09-28 11:38:59Z johnnyw $
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -49,26 +49,5 @@ ACE_Condition_Thread_Mutex::mutex (void)
 // ACE_TRACE ("ACE_Condition_Thread_Mutex::mutex");
   return this->mutex_;
 }
-
-#if 0
-template <class MUTEX> void
-ACE_Process_Condition<MUTEX>::dump (void) const
-{
-#if defined (ACE_HAS_DUMP)
-// ACE_TRACE ("ACE_Process_Condition<MUTEX>::dump");
-
-  ACE_Condition<MUTEX>::dump ();
-#endif /* ACE_HAS_DUMP */
-}
-
-template <class MUTEX>
-ACE_Process_Condition<MUTEX>::ACE_Process_Condition (MUTEX &m,
-                                                     const ACE_TCHAR *name,
-                                                     void *arg)
-  : ACE_Condition<MUTEX> (m, USYNC_PROCESS, name, arg)
-{
-// ACE_TRACE ("ACE_Process_Condition<MUTEX>::ACE_Process_Condition");
-}
-#endif /* 0 */
 
 ACE_END_VERSIONED_NAMESPACE_DECL

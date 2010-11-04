@@ -4,7 +4,7 @@
 /**
  *  @file Unbounded_Set.h
  *
- *  $Id: Unbounded_Set.h 81642 2008-05-07 19:30:35Z shuston $
+ *  $Id: Unbounded_Set.h 91743 2010-09-13 18:24:51Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -50,7 +50,7 @@ public:
 
   // = Initialization method.
   ACE_Unbounded_Set_Iterator (ACE_Unbounded_Set<T> &s, bool end = false);
-  
+
   ACE_Unbounded_Set_Iterator (const base_type &s);
 };
 
@@ -63,13 +63,13 @@ class ACE_Unbounded_Set_Const_Iterator : public
   ACE_Unbounded_Set_Ex_Const_Iterator<T, ACE_Unbounded_Set_Default_Comparator<T> >
 {
 public:
-  
+
   typedef ACE_Unbounded_Set_Ex_Const_Iterator<T, ACE_Unbounded_Set_Default_Comparator<T> > base_type;
-  
+
   // = Initialization method.
   ACE_Unbounded_Set_Const_Iterator (const ACE_Unbounded_Set<T> &s,
                                     bool end = false);
-  
+
   ACE_Unbounded_Set_Const_Iterator (const base_type &s);
 };
 

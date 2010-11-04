@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: Unbounded_Set.inl 81642 2008-05-07 19:30:35Z shuston $
+// $Id: Unbounded_Set.inl 91813 2010-09-17 07:52:52Z johnnyw $
 
 #include "ace/Global_Macros.h"
 
@@ -13,7 +13,7 @@ ACE_Unbounded_Set_Default_Comparator<T>::operator () (const T  &lhs, const T &rh
 }
 
 template<typename T>
-ACE_Unbounded_Set_Iterator<T>::ACE_Unbounded_Set_Iterator (ACE_Unbounded_Set<T> &s, 
+ACE_Unbounded_Set_Iterator<T>::ACE_Unbounded_Set_Iterator (ACE_Unbounded_Set<T> &s,
                                                            bool end)
   : base_type (s, end)
 {

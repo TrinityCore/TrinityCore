@@ -1,4 +1,4 @@
-// $Id: Get_Opt.cpp 81840 2008-06-05 13:46:45Z sma $
+// $Id: Get_Opt.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/Get_Opt.h"
 
@@ -13,10 +13,6 @@
 #include "ace/OS_NS_string.h"
 #include "ace/OS_NS_ctype.h"
 #include "ace/OS_NS_stdlib.h"
-
-ACE_RCSID (ace,
-           Get_Opt,
-           "$Id: Get_Opt.cpp 81840 2008-06-05 13:46:45Z sma $")
 
 /*
  * Copyright (c) 1987, 1993, 1994

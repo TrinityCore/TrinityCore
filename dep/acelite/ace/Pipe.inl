@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: Pipe.inl 80826 2008-03-04 14:51:23Z wotte $
+// $Id: Pipe.inl 92010 2010-09-24 14:54:19Z shuston $
 
 #include "ace/Global_Macros.h"
 #include "ace/ACE.h"
@@ -183,6 +183,21 @@ ACE_Pipe::recv (void *buf, size_t n,
   ACE_TRACE ("ACE_Pipe::recv");
   return ACE_OS::read (this->read_handle (), static_cast <char *> (buf), n,
                        overlapped);
+}
+
+ACE_INLINE int
+ACE_Pipe::close_handle (int which)
+{
+  int result = 0;
+
+  // Note that the following will work even if we aren't closing down
+  // sockets because <ACE_OS::closesocket> will just call <::close> in
+  // that case!
+
+  if (this->handles_[which] != ACE_INVALID_HANDLE)
+    result = ACE_OS::closesocket (this->handles_[which]);
+  this->handles_[which] = ACE_INVALID_HANDLE;
+  return result;
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL

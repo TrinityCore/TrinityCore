@@ -1,4 +1,4 @@
-// $Id: Tokenizer_T.cpp 88793 2010-02-01 17:50:34Z cleeland $
+// $Id: Tokenizer_T.cpp 91813 2010-09-17 07:52:52Z johnnyw $
 
 #ifndef ACE_TOKENIZER_T_CPP
 #define ACE_TOKENIZER_T_CPP
@@ -124,7 +124,7 @@ ACE_Tokenizer_T<ACE_CHAR_T>::next (void)
       index_ = 0;
       return 0;
     }
- 
+
   // Check if a buffer has been passed
   if (!buffer_)
     {

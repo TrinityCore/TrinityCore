@@ -1,4 +1,4 @@
-//$Id: Cleanup_Strategies_T.cpp 80826 2008-03-04 14:51:23Z wotte $
+//$Id: Cleanup_Strategies_T.cpp 92097 2010-09-30 05:41:49Z msmit $
 
 #ifndef ACE_CLEANUP_STRATEGIES_T_CPP
 #define ACE_CLEANUP_STRATEGIES_T_CPP
@@ -39,9 +39,9 @@ ACE_Recyclable_Handler_Cleanup_Strategy<KEY, VALUE, CONTAINER>::cleanup (
   if (container.unbind (*key, value) == -1)
     return -1;
 
-  value.first ()->recycler (0, 0);
+  value.first->recycler (0, 0);
 
-  value.first ()->close ();
+  value.first->close ();
 
   return 0;
 }

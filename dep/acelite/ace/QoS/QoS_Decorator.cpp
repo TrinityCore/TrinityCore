@@ -1,9 +1,7 @@
 // QoS_Decorator.cpp
-// $Id: QoS_Decorator.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: QoS_Decorator.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
 
 #include "QoS_Decorator.h"
-
-ACE_RCSID(ace, QoS_Decorator, "$Id: QoS_Decorator.cpp 80826 2008-03-04 14:51:23Z wotte $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

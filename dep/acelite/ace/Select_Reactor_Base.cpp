@@ -1,4 +1,4 @@
-// $Id: Select_Reactor_Base.cpp 90989 2010-07-05 11:22:50Z johnnyw $
+// $Id: Select_Reactor_Base.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
 
 #include "ace/Select_Reactor_Base.h"
 #include "ace/Reactor.h"
@@ -17,11 +17,6 @@
 #ifndef ACE_WIN32
 # include <algorithm>
 #endif  /* !ACE_WIN32 */
-
-ACE_RCSID (ace,
-           Select_Reactor_Base,
-           "$Id: Select_Reactor_Base.cpp 90989 2010-07-05 11:22:50Z johnnyw $")
-
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

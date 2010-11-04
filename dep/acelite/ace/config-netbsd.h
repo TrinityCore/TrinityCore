@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// $Id: config-netbsd.h 89494 2010-03-15 20:11:18Z olli $
+// $Id: config-netbsd.h 91285 2010-08-05 08:29:30Z johnnyw $
 
 #ifndef ACE_CONFIG_H
 #define ACE_CONFIG_H
@@ -35,7 +35,6 @@
 #define ACE_HAS_CLOCK_GETTIME 1
 #define ACE_HAS_CONSISTENT_SIGNAL_PROTOTYPES 1
 #define ACE_HAS_DIRENT 1
-#define ACE_HAS_EXCEPTIONS 1
 #define ACE_HAS_GETIFADDRS 1
 #define ACE_HAS_GETPAGESIZE 1
 #define ACE_HAS_GETPROGNAME 1

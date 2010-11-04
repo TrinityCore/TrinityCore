@@ -1,3 +1,4 @@
+// $Id: Message_Block.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
 #include "ace/Message_Block.h"
 
 #if !defined (__ACE_INLINE__)
@@ -11,10 +12,6 @@
 
 //#define ACE_ENABLE_TIMEPROBES
 #include "ace/Timeprobe.h"
-
-ACE_RCSID (ace,
-           Message_Block,
-           "$Id: Message_Block.cpp 84527 2009-02-19 14:01:42Z johnnyw $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

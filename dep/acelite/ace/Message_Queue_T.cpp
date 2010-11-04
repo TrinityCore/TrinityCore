@@ -1,4 +1,4 @@
-// $Id: Message_Queue_T.cpp 91016 2010-07-06 11:29:50Z johnnyw $
+// $Id: Message_Queue_T.cpp 91633 2010-09-07 14:27:13Z johnnyw $
 
 #ifndef ACE_MESSAGE_QUEUE_T_CPP
 #define ACE_MESSAGE_QUEUE_T_CPP
@@ -1699,7 +1699,7 @@ ACE_Message_Queue<ACE_SYNCH_USE>::peek_dequeue_head (ACE_Message_Block *&first_i
 
   // Wait for at least one item to become available.
 
-  if (this->wait_not_empty_cond (ace_mon, timeout) == -1)
+  if (this->wait_not_empty_cond (timeout) == -1)
     return -1;
 
   first_item = this->head_;
@@ -1707,8 +1707,7 @@ ACE_Message_Queue<ACE_SYNCH_USE>::peek_dequeue_head (ACE_Message_Block *&first_i
 }
 
 template <ACE_SYNCH_DECL> int
-ACE_Message_Queue<ACE_SYNCH_USE>::wait_not_full_cond (ACE_Guard<ACE_SYNCH_MUTEX_T> &,
-                                                      ACE_Time_Value *timeout)
+ACE_Message_Queue<ACE_SYNCH_USE>::wait_not_full_cond (ACE_Time_Value *timeout)
 {
   int result = 0;
 
@@ -1734,8 +1733,7 @@ ACE_Message_Queue<ACE_SYNCH_USE>::wait_not_full_cond (ACE_Guard<ACE_SYNCH_MUTEX_
 }
 
 template <ACE_SYNCH_DECL> int
-ACE_Message_Queue<ACE_SYNCH_USE>::wait_not_empty_cond
-    (ACE_Guard<ACE_SYNCH_MUTEX_T> &, ACE_Time_Value *timeout)
+ACE_Message_Queue<ACE_SYNCH_USE>::wait_not_empty_cond (ACE_Time_Value *timeout)
 {
   int result = 0;
 
@@ -1779,7 +1777,7 @@ ACE_Message_Queue<ACE_SYNCH_USE>::enqueue_head (ACE_Message_Block *new_item,
         return -1;
       }
 
-    if (this->wait_not_full_cond (ace_mon, timeout) == -1)
+    if (this->wait_not_full_cond (timeout) == -1)
       return -1;
 
     queue_count = this->enqueue_head_i (new_item);
@@ -1817,7 +1815,7 @@ ACE_Message_Queue<ACE_SYNCH_USE>::enqueue_prio (ACE_Message_Block *new_item,
         return -1;
       }
 
-    if (this->wait_not_full_cond (ace_mon, timeout) == -1)
+    if (this->wait_not_full_cond (timeout) == -1)
       return -1;
 
     queue_count = this->enqueue_i (new_item);
@@ -1855,7 +1853,7 @@ ACE_Message_Queue<ACE_SYNCH_USE>::enqueue_deadline (ACE_Message_Block *new_item,
         return -1;
       }
 
-    if (this->wait_not_full_cond (ace_mon, timeout) == -1)
+    if (this->wait_not_full_cond (timeout) == -1)
       return -1;
 
     queue_count = this->enqueue_deadline_i (new_item);
@@ -1900,7 +1898,7 @@ ACE_Message_Queue<ACE_SYNCH_USE>::enqueue_tail (ACE_Message_Block *new_item,
         return -1;
       }
 
-    if (this->wait_not_full_cond (ace_mon, timeout) == -1)
+    if (this->wait_not_full_cond (timeout) == -1)
       return -1;
 
     queue_count = this->enqueue_tail_i (new_item);
@@ -1935,7 +1933,7 @@ ACE_Message_Queue<ACE_SYNCH_USE>::dequeue_head (ACE_Message_Block *&first_item,
       return -1;
     }
 
-  if (this->wait_not_empty_cond (ace_mon, timeout) == -1)
+  if (this->wait_not_empty_cond (timeout) == -1)
     return -1;
 
   return this->dequeue_head_i (first_item);
@@ -1958,7 +1956,7 @@ ACE_Message_Queue<ACE_SYNCH_USE>::dequeue_prio (ACE_Message_Block *&dequeued,
       return -1;
     }
 
-  if (this->wait_not_empty_cond (ace_mon, timeout) == -1)
+  if (this->wait_not_empty_cond (timeout) == -1)
     return -1;
 
   return this->dequeue_prio_i (dequeued);
@@ -1981,7 +1979,7 @@ ACE_Message_Queue<ACE_SYNCH_USE>::dequeue_tail (ACE_Message_Block *&dequeued,
       return -1;
     }
 
-  if (this->wait_not_empty_cond (ace_mon, timeout) == -1)
+  if (this->wait_not_empty_cond (timeout) == -1)
     return -1;
 
   return this->dequeue_tail_i (dequeued);
@@ -2004,7 +2002,7 @@ ACE_Message_Queue<ACE_SYNCH_USE>::dequeue_deadline (ACE_Message_Block *&dequeued
       return -1;
     }
 
-  if (this->wait_not_empty_cond (ace_mon, timeout) == -1)
+  if (this->wait_not_empty_cond (timeout) == -1)
     return -1;
 
   return this->dequeue_deadline_i (dequeued);
@@ -2215,7 +2213,7 @@ ACE_Dynamic_Message_Queue<ACE_SYNCH_USE>::dequeue_head (ACE_Message_Block *&firs
     return result;
 
   // *now* it's appropriate to wait for an enqueued item
-  result = this->wait_not_empty_cond (ace_mon, timeout);
+  result = this->wait_not_empty_cond (timeout);
   if (result == -1)
     return result;
 

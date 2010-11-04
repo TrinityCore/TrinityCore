@@ -1,4 +1,4 @@
-// $Id: MEM_Addr.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: MEM_Addr.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
 
 // Defines the Internet domain address family address format.
 
@@ -14,10 +14,6 @@
 #include "ace/OS_NS_stdlib.h"
 #include "ace/OS_NS_unistd.h"
 #include "ace/os_include/os_netdb.h"
-
-ACE_RCSID (ace,
-           MEM_Addr,
-           "$Id: MEM_Addr.cpp 80826 2008-03-04 14:51:23Z wotte $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: config-win32-cegcc.h 87167 2009-10-19 19:33:53Z olli $
+// $Id: config-win32-cegcc.h 92102 2010-09-30 08:14:15Z johnnyw $
 
 //
 // The following configuration file is designed to work for win32
@@ -14,14 +14,8 @@
 #  error Use config-win32.h in config.h instead of this header
 #endif /* ACE_CONFIG_WIN32_H */
 
-#define ACE_CC_NAME ACE_TEXT ("g++")
 #define ACE_CC_PREPROCESSOR "cpp"
 #define ACE_CC_PREPROCESOR_ARGS ""
-
-// Why all this is not in config-g++-common.h?
-#define ACE_CC_MAJOR_VERSION __GNUC__
-#define ACE_CC_MINOR_VERSION __GNUC_MINOR__
-#define ACE_CC_BETA_VERSION (0)
 
 #if !defined (ACE_HAS_CEGCC)
 #  error You do not seem to be using cegcc

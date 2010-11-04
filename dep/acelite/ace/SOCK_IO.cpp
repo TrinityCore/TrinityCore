@@ -1,9 +1,7 @@
-// $Id: SOCK_IO.cpp 84213 2009-01-22 15:45:13Z johnnyw $
+// $Id: SOCK_IO.cpp 91622 2010-09-06 08:26:30Z sma $
 
 #include "ace/SOCK_IO.h"
 
-#include "ace/Handle_Set.h"
-#include "ace/OS_NS_sys_select.h"
 #include "ace/OS_NS_sys_socket.h"
 #include "ace/OS_Memory.h"
 #include "ace/Truncate.h"
@@ -12,7 +10,7 @@
 #include "ace/SOCK_IO.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, SOCK_IO, "$Id: SOCK_IO.cpp 84213 2009-01-22 15:45:13Z johnnyw $")
+
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -37,35 +35,10 @@ ACE_SOCK_IO::recvv (iovec *io_vec,
 {
   ACE_TRACE ("ACE_SOCK_IO::recvv");
 #if defined (FIONREAD)
-  ACE_Handle_Set handle_set;
-  handle_set.reset ();
-  handle_set.set_bit (this->get_handle ());
-
   io_vec->iov_base = 0;
-
-  // Check the status of the current socket.
-#  if defined (ACE_WIN32)
-  // This arg is ignored on Windows and causes pointer truncation
-  // warnings on 64-bit compiles.
-  int select_width = 0;
-#  else
-  int select_width = int (this->get_handle ()) + 1;
-#  endif /* ACE_WIN32 */
-  switch (ACE_OS::select (select_width,
-                          handle_set,
-                          0, 0,
-                          timeout))
+  if( ACE::handle_read_ready (this->get_handle (), timeout) != 1 )
     {
-    case -1:
       return -1;
-      /* NOTREACHED */
-    case 0:
-      errno = ETIME;
-      return -1;
-      /* NOTREACHED */
-    default:
-      // Goes fine, fallthrough to get data
-      break;
     }
 
   int inlen = 0;
