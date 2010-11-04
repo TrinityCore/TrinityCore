@@ -21,7 +21,11 @@
 #ifndef ACE_CONFIG_MACROS_H
 #define ACE_CONFIG_MACROS_H
 
-#include "ace/config.h"
+#ifdef _WIN32
+  #include "ace/config-win32.h"
+#else
+  #include "ace/config.h"
+#endif
 
 #include "ace/Version.h"
 #include "ace/Versioned_Namespace.h"
