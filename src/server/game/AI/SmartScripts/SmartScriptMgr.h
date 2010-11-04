@@ -146,7 +146,7 @@ enum SMART_EVENT
     SMART_EVENT_TIMED_EVENT_TRIGGERED    = 59,      //1             // id
     SMART_EVENT_UPDATE                   = 60,      //1             // InitialMin, InitialMax, RepeatMin, RepeatMax
     SMART_EVENT_LINK                     = 61,      //1             // INTERNAL USAGE, no params, used to link together multiple events, does not use any extra resources to iterate event lists needlessly
-    SMART_EVENT_GOSSIP_SELECT            = 62,      //1             // actionID, menuID
+    SMART_EVENT_GOSSIP_SELECT            = 62,      //1             // menuID, actionID
     SMART_EVENT_JUST_CREATED             = 63,      //1             // none
     SMART_EVENT_GOSSIP_HELLO             = 64,      //1             // none
     SMART_EVENT_FOLLOW_COPMLETE          = 65,      //1             // none

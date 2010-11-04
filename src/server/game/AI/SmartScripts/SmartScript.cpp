@@ -1768,7 +1768,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder &e, Unit* unit, uint32 var0, ui
             }
         case SMART_EVENT_GOSSIP_SELECT:
             {
-                sLog.outDebug("SmartScript: Gossip Select: action %u menu %u", var0, var1);
+                sLog.outString("SmartScript: Gossip Select:  menu %u action %u", var0, var1);//little help for scripters
                 if (e.event.gossip.sender != var0 || e.event.gossip.action != var1)
                     return;
                 ProcessAction(e, unit, var0, var1);
