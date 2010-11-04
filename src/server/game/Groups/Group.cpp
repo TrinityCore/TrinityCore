@@ -119,7 +119,8 @@ bool Group::Create(const uint64 &guid, const char * name)
         // store group in database
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
         trans->PAppend("DELETE FROM groups WHERE guid ='%u'", lowguid);
-        trans->PAppend("DELETE FROM group_member WHERE guid ='%u'", lowguid);
+        trans->PAppend("DELETE FROM group_member WHERE guid = %u OR memberGuid = %u", lowguid, GUID_LOPART(guid));
+        trans->PAppend("INSERT INTO group_member (guid, memberGuid, subgroup) VALUES (%u, %u, 0)", lowguid, GUID_LOPART(guid));
         trans->PAppend("INSERT INTO groups (guid,leaderGuid,lootMethod,looterGuid,lootThreshold,icon1,icon2,icon3,icon4,icon5,icon6,icon7,icon8,groupType,difficulty,raiddifficulty) "
             "VALUES ('%u','%u','%u','%u','%u','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','%u','%u','%u')",
             lowguid, GUID_LOPART(m_leaderGuid), uint32(m_lootMethod),
