@@ -214,6 +214,7 @@ class SmartScript
         uint64 mTextGUID;
         Creature* talker;
         bool mUseTextTimer;
+        Unit* mLastInvoker;
 
         SMARTAI_TEMPLATE mTemplate;
         void InstallEvents();
