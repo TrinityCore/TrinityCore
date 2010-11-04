@@ -1,4 +1,4 @@
-// $Id: FILE_IO.cpp 82559 2008-08-07 20:23:07Z parsons $
+// $Id: FILE_IO.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/FILE_IO.h"
 
@@ -11,7 +11,7 @@
 #include "ace/FILE_IO.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, FILE_IO, "$Id: FILE_IO.cpp 82559 2008-08-07 20:23:07Z parsons $")
+
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

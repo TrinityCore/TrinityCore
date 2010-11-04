@@ -4,7 +4,7 @@
 /**
  *  @file    MEM_SAP.h
  *
- *  $Id: MEM_SAP.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: MEM_SAP.h 92090 2010-09-29 14:10:45Z johnnyw $
  *
  *  @author Nanbor Wang <nanbor@cs.wustl.edu>
  */
@@ -42,11 +42,6 @@ class ACE_MEM_IO;
 class ACE_MEM_SAP_Node
 {
 public:
-//    friend class ACE_MEM_SAP;
-//    friend class ACE_Reactive_MEM_IO;
-//    friend class ACE_MT_MEM_IO;
-//    friend class ACE_MEM_IO;
-
   typedef ACE_Based_Pointer<ACE_MEM_SAP_Node> ACE_MEM_SAP_NODE_PTR;
 
   /// Initialize the node with its capacity.

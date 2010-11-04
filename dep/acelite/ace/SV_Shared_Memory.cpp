@@ -1,4 +1,4 @@
-// $Id: SV_Shared_Memory.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: SV_Shared_Memory.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/SV_Shared_Memory.h"
 #include "ace/Log_Msg.h"
@@ -7,7 +7,7 @@
 #include "ace/SV_Shared_Memory.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, SV_Shared_Memory, "$Id: SV_Shared_Memory.cpp 80826 2008-03-04 14:51:23Z wotte $")
+
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

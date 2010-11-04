@@ -6,7 +6,7 @@
  *
  *  STREAMS interface (STREAMS)
  *
- *  $Id: os_stropts.h 84660 2009-03-01 20:22:37Z olli $
+ *  $Id: os_stropts.h 92179 2010-10-08 07:50:07Z olli $
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -34,7 +34,7 @@
 
 #if !defined (ACE_LACKS_SYS_IOCTL_H)
 #  include /**/ <sys/ioctl.h>
-#endif /* !ACE_LACKS_IOCTL_H */
+#endif /* !ACE_LACKS_SYS_IOCTL_H */
 
 #if defined (ACE_HAS_SYS_FILIO_H)
 #  include /**/ <sys/filio.h>

@@ -1,7 +1,9 @@
-// $Id: Guard_T.cpp 85141 2009-04-22 08:48:30Z johnnyw $
+// $Id: Guard_T.cpp 92052 2010-09-27 14:20:22Z vzykov $
 
 #ifndef ACE_GUARD_T_CPP
 #define ACE_GUARD_T_CPP
+
+// FUZZ: disable check_for_ACE_Guard
 
 #include "ace/Guard_T.h"
 
@@ -32,7 +34,7 @@ ACE_Guard<ACE_LOCK>::dump (void) const
   ACE_DEBUG ((LM_DEBUG, ACE_BEGIN_DUMP, this));
   ACE_DEBUG ((LM_DEBUG, ACE_TEXT ("mutex_ = %x\n"), this->lock_));
   ACE_DEBUG ((LM_DEBUG, ACE_TEXT ("owner_ = %d\n"), this->owner_));
-  ACE_DEBUG ((LM_DEBUG, ACE_END_DUMP, this));
+  ACE_DEBUG ((LM_DEBUG, ACE_END_DUMP));
 #endif /* ACE_HAS_DUMP */
 }
 

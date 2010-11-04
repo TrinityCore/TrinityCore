@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: config-g++-common.h 89454 2010-03-11 09:35:25Z johnnyw $
+// $Id: config-g++-common.h 92120 2010-10-01 12:00:01Z johnnyw $
 
 // This configuration file is designed to be included by another,
 // specific configuration file.  It provides config information common
@@ -10,9 +10,15 @@
 #define ACE_GNUG_COMMON_H
 #include /**/ "ace/pre.h"
 
+#if !defined (ACE_CC_NAME)
+# define ACE_CC_NAME ACE_TEXT ("g++")
+#endif
+#define ACE_CC_MAJOR_VERSION __GNUC__
+#define ACE_CC_MINOR_VERSION __GNUC_MINOR__
+#define ACE_CC_BETA_VERSION (0)
+
 #define ACE_HAS_CPLUSPLUS_HEADERS
 #define ACE_HAS_STDCPP_STL_INCLUDES
-#define ACE_HAS_TEMPLATE_TYPEDEFS
 #define ACE_HAS_STANDARD_CPP_LIBRARY 1
 #define ACE_HAS_WORKING_EXPLICIT_TEMPLATE_DESTRUCTOR
 #define ACE_USES_STD_NAMESPACE_FOR_STDCPP_LIB 1
@@ -32,22 +38,11 @@
 # define ACE_LACKS_NUMERIC_LIMITS
 #endif /* __GNUC__ < 3 */
 
-// __EXCEPTIONS is defined with -fexceptions, the egcs default.  It
-// is not defined with -fno-exceptions, the ACE default for g++.
-// ACE_HAS_EXCEPTIONS is defined in
-// include/makeinclude/wrapper_macros.GNU, so this really isn't
-// necessary.  Just in case . . .
-#if defined (__EXCEPTIONS) && !defined (ACE_HAS_EXCEPTIONS)
-#  define ACE_HAS_EXCEPTIONS
-#endif /* __EXCEPTIONS && ! ACE_HAS_EXCEPTIONS */
-
-#if defined (ACE_HAS_EXCEPTIONS)
-#  define ACE_NEW_THROWS_EXCEPTIONS
-#  if (__GNUC__ >= 4 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 3))
+#define ACE_NEW_THROWS_EXCEPTIONS
+#if (__GNUC__ >= 4 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 3))
 // Versions of g++ prior to 3.3 had a buggy operator // new(nothrow)[]().
-#    define ACE_HAS_NEW_NOTHROW
-#  endif /* __GNUC__ >= 3.3 */
-#endif /* ACE_HAS_EXCEPTIONS */
+#  define ACE_HAS_NEW_NOTHROW
+#endif /* __GNUC__ >= 3.3 */
 
 #if (defined (i386) || defined (__i386__)) && !defined (ACE_SIZEOF_LONG_DOUBLE)
 # define ACE_SIZEOF_LONG_DOUBLE 12
@@ -151,6 +146,7 @@
 
 // GCC >= 4.1 provides __sync_XXXX builtins for use in atomic operations
 // although the builtins are provided globally they are not supported on all platforms
+#if defined (ACE_HAS_THREADS)
 #if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 1))
 # if defined (__powerpc__)
 // The builtins seem to be provided for all powerpc platforms
@@ -170,14 +166,7 @@
 #   define ACE_HAS_GCC_ATOMIC_BUILTINS 1
 # endif
 #endif
-
-#if defined (ACE_HAS_GNU_REPO)
-  // -frepo causes unresolved symbols of basic_string left- and
-  // right-shift operators with ACE_HAS_STRING_CLASS.
-# if defined (ACE_HAS_STRING_CLASS)
-#   undef ACE_HAS_STRING_CLASS
-# endif /* ACE_HAS_STRING_CLASS */
-#endif /* ! ACE_HAS_GNU_REPO */
+#endif /* ACE_HAS_THREADS */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_GNUG_COMMON_H */

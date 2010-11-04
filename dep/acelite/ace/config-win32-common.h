@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// $Id: config-win32-common.h 88567 2010-01-15 10:21:49Z olli $
+// $Id: config-win32-common.h 92120 2010-10-01 12:00:01Z johnnyw $
 
 
 #ifndef ACE_CONFIG_WIN32_COMMON_H
@@ -114,7 +114,10 @@
 //  #endif
 
 // Define the special export macros needed to export symbols outside a dll
-#if !defined(__BORLANDC__) && !defined (ACE_HAS_CUSTOM_EXPORT_MACROS)
+#if !defined(__BORLANDC__) && (!defined (ACE_HAS_CUSTOM_EXPORT_MACROS) || (ACE_HAS_CUSTOM_EXPORT_MACROS == 0))
+#if defined (ACE_HAS_CUSTOM_EXPORT_MACROS)
+#undef ACE_HAS_CUSTOM_EXPORT_MACROS
+#endif
 #define ACE_HAS_CUSTOM_EXPORT_MACROS 1
 #define ACE_Proper_Export_Flag __declspec (dllexport)
 #define ACE_Proper_Import_Flag __declspec (dllimport)
@@ -162,11 +165,6 @@
 #endif /* ACE_HAS_NONSTATIC_OBJECT_MANAGER */
 
 #define ACE_HAS_GPERF
-
-// By default, don't include RCS Id strings in object code.
-#if !defined (ACE_USE_RCSID)
-# define ACE_USE_RCSID 0
-#endif /* ! ACE_USE_RCSID */
 
 // ---------------- platform features or lack of them -------------
 
@@ -302,12 +300,11 @@
 #define ACE_MKDIR_LACKS_MODE
 
 #define ACE_SIZEOF_LONG_LONG 8
-// Green Hills Native x86 does not support __int64 keyword
-// Neither does mingw32.
+
 #if !defined (ACE_LACKS_LONGLONG_T) && !defined (__MINGW32__)
 #define ACE_INT64_TYPE  signed __int64
 #define ACE_UINT64_TYPE unsigned __int64
-#endif /* (ghs) */
+#endif
 
 #if defined (__MINGW32__)
 #define ACE_INT64_TYPE  signed long long
@@ -323,40 +320,12 @@
 #define ACE_HAS_WTOI
 #define ACE_HAS_WTOL
 
-// Compiler/platform correctly calls init()/fini() for shared
-// libraries. - applied for DLLs ?
-//define ACE_HAS_AUTOMATIC_INIT_FINI
-
-// Platform supports POSIX O_NONBLOCK semantics.
-//define ACE_HAS_POSIX_NONBLOCK
-
-// Platform contains <poll.h>.
-//define ACE_HAS_POLL
-
-// Platform supports the /proc file system.
-//define ACE_HAS_PROC_FS
-
 // Platform supports the rusage struct.
 #define ACE_HAS_GETRUSAGE
-
-// Compiler/platform supports SVR4 signal typedef.
-//define ACE_HAS_SVR4_SIGNAL_T
-
-// Platform provides <sys/filio.h> header.
-//define ACE_HAS_SYS_FILIO_H
-
-// Platform supports ACE_TLI timod STREAMS module.
-//define ACE_HAS_TIMOD_H
-
-// Platform supports ACE_TLI tiuser header.
-//define ACE_HAS_TIUSER_H
 
 // Platform provides ACE_TLI function prototypes.
 // For Win32, this is not really true, but saves a lot of hassle!
 #define ACE_HAS_TLI_PROTOTYPES
-
-// Platform supports ACE_TLI.
-//define ACE_HAS_TLI
 
 // I'm pretty sure NT lacks these
 #define ACE_LACKS_UNIX_DOMAIN_SOCKETS

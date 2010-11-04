@@ -4,7 +4,7 @@
 /**
  *  @file    Synch_Traits.h
  *
- *  $Id: Synch_Traits.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Synch_Traits.h 91626 2010-09-07 10:59:20Z johnnyw $
  *
  *   Moved from Synch.h.
  *
@@ -37,8 +37,6 @@ class ACE_RW_Thread_Mutex;
 class ACE_Condition_Thread_Mutex;
 class ACE_Condition_Recursive_Thread_Mutex;
 class ACE_Thread_Semaphore;
-
-#if defined (ACE_HAS_TEMPLATE_TYPEDEFS)
 
 /**
  * @class ACE_NULL_SYNCH
@@ -100,41 +98,6 @@ public:
 #define ACE_SYNCH_RECURSIVE_CONDITION ACE_SYNCH::RECURSIVE_CONDITION
 #define ACE_SYNCH_NULL_SEMAPHORE ACE_SYNCH::NULL_SEMAPHORE
 #define ACE_SYNCH_SEMAPHORE ACE_SYNCH::SEMAPHORE
-
-#else /* !ACE_HAS_TEMPLATE_TYPEDEFS */
-
-#if defined (ACE_HAS_OPTIMIZED_MESSAGE_QUEUE)
-#define ACE_NULL_SYNCH ACE_Null_Mutex, ACE_Null_Condition, ACE_Null_Mutex
-#define ACE_MT_SYNCH ACE_Thread_Mutex, ACE_Condition_Thread_Mutex, ACE_Thread_Semaphore
-#else
-#define ACE_NULL_SYNCH ACE_Null_Mutex, ACE_Null_Condition
-#define ACE_MT_SYNCH ACE_Thread_Mutex, ACE_Condition_Thread_Mutex
-#endif /* ACE_HAS_OPTIMIZED_MESSAGE_QUEUE */
-
-#if defined (ACE_HAS_THREADS)
-
-#define ACE_SYNCH_MUTEX ACE_Thread_Mutex
-#define ACE_SYNCH_NULL_MUTEX  ACE_Null_Mutex
-#define ACE_SYNCH_RECURSIVE_MUTEX ACE_Recursive_Thread_Mutex
-#define ACE_SYNCH_RW_MUTEX ACE_RW_Thread_Mutex
-#define ACE_SYNCH_CONDITION ACE_Condition_Thread_Mutex
-#define ACE_SYNCH_RECURSIVE_CONDITION ACE_Condition_Recursive_Thread_Mutex
-#define ACE_SYNCH_SEMAPHORE ACE_Thread_Semaphore
-#define ACE_SYNCH_NULL_SEMAPHORE  ACE_Null_Semaphore
-
-#else /* ACE_HAS_THREADS */
-
-#define ACE_SYNCH_MUTEX ACE_Null_Mutex
-#define ACE_SYNCH_NULL_MUTEX ACE_Null_Mutex
-#define ACE_SYNCH_RECURSIVE_MUTEX ACE_Null_Mutex
-#define ACE_SYNCH_RW_MUTEX ACE_Null_Mutex
-#define ACE_SYNCH_CONDITION ACE_Null_Condition
-#define ACE_SYNCH_RECURSIVE_CONDITION ACE_Null_Condition
-#define ACE_SYNCH_SEMAPHORE ACE_Null_Semaphore
-#define ACE_SYNCH_NULL_SEMAPHORE ACE_Null_Mutex
-
-#endif /* ACE_HAS_THREADS */
-#endif /* ACE_HAS_TEMPLATE_TYPEDEFS */
 
 // These are available on *all* platforms
 #define ACE_SYNCH_PROCESS_SEMAPHORE ACE_Process_Semaphore

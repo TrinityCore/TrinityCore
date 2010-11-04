@@ -1,10 +1,6 @@
-// $Id: WIN32_Asynch_IO.cpp 89454 2010-03-11 09:35:25Z johnnyw $
+// $Id: WIN32_Asynch_IO.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
 
 #include "ace/WIN32_Asynch_IO.h"
-
-ACE_RCSID (ace,
-           Win32_Asynch_IO,
-           "$Id: WIN32_Asynch_IO.cpp 89454 2010-03-11 09:35:25Z johnnyw $")
 
 #if defined (ACE_HAS_WIN32_OVERLAPPED_IO) && \
     (defined (ACE_HAS_WINSOCK2) && (ACE_HAS_WINSOCK2 == 1))

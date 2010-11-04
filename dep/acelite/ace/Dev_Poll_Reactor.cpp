@@ -1,13 +1,9 @@
-// $Id: Dev_Poll_Reactor.cpp 90177 2010-05-19 11:44:22Z vzykov $
+// $Id: Dev_Poll_Reactor.cpp 92199 2010-10-11 11:58:35Z johnnyw $
 
 #include "ace/OS_NS_errno.h"
 #include "ace/Dev_Poll_Reactor.h"
 #include "ace/Signal.h"
 #include "ace/Sig_Handler.h"
-
-ACE_RCSID (ace,
-           Dev_Poll_Reactor,
-           "$Id: Dev_Poll_Reactor.cpp 90177 2010-05-19 11:44:22Z vzykov $")
 
 #if defined (ACE_HAS_EVENT_POLL) || defined (ACE_HAS_DEV_POLL)
 
@@ -53,7 +49,6 @@ ACE_Dev_Poll_Reactor_Notify::ACE_Dev_Poll_Reactor_Notify (void)
 #if defined (ACE_HAS_REACTOR_NOTIFICATION_QUEUE)
   , notification_queue_ ()
 #endif  /* ACE_HAS_REACTOR_NOTIFICATION_QUEUE */
-  , dispatching_ (false)
 {
 }
 
@@ -135,11 +130,11 @@ ACE_Dev_Poll_Reactor_Notify::notify (ACE_Event_Handler *eh,
   ACE_UNUSED_ARG (timeout);
   ACE_Dev_Poll_Handler_Guard eh_guard (eh);
 
-  // When using the queue, the push call indicates whether or not a pipe
-  // write is needed. If it's not, don't waste pipe space.
-  int push_result = this->notification_queue_.push_new_notification (buffer);
-  if (-1 == push_result || 1 == push_result)
-    return -1 == push_result ? -1 : 0; // Also decrement eh's reference count
+  // When using the queue, always try to write to the notify pipe. If it
+  // fills up, ignore it safely because the already-written bytes will
+  // eventually cause the notify handler to be dispatched.
+  if (-1 == this->notification_queue_.push_new_notification (buffer))
+    return -1;             // Also decrement eh's reference count
 
   // The notification has been queued, so it will be delivered at some
   // point (and may have been already); release the refcnt guard.
@@ -223,12 +218,20 @@ ACE_Dev_Poll_Reactor_Notify::read_notify_pipe (ACE_HANDLE handle,
 
   bool more_messages_queued = false;
   ACE_Notification_Buffer next;
-  int result = notification_queue_.pop_next_notification (buffer,
+  int result = 1;
+  while (result == 1)
+    {
+      result = notification_queue_.pop_next_notification (buffer,
                                                           more_messages_queued,
                                                           next);
 
-  if (result <= 0)   // Nothing dequeued or error
-    return result;
+      if (result <= 0)   // Nothing dequeued or error
+        return result;
+
+      // If it's just a wake-up, toss it and see if there's anything else.
+      if (buffer.eh_ != 0)
+        break;
+    }
 
   // If there are more messages, ensure there's a byte in the pipe
   // in case the notification limit stops dequeuing notifies before
@@ -272,45 +275,10 @@ ACE_Dev_Poll_Reactor_Notify::read_notify_pipe (ACE_HANDLE handle,
 
 
 int
-ACE_Dev_Poll_Reactor_Notify::handle_input (ACE_HANDLE handle)
+ACE_Dev_Poll_Reactor_Notify::handle_input (ACE_HANDLE /*handle*/)
 {
   ACE_TRACE ("ACE_Dev_Poll_Reactor_Notify::handle_input");
-
-  {
-    ACE_MT (ACE_GUARD_RETURN (ACE_SYNCH_MUTEX, mon, this->dispatching_lock_, -1));
-    if (this->dispatching_)
-      return 0;
-    this->dispatching_ = true;
-  }
-
-  int number_dispatched = 0;
-  int result = 0;
-  ACE_Notification_Buffer buffer;
-
-  while ((result = this->read_notify_pipe (handle, buffer)) > 0)
-    {
-      // Dispatch the buffer
-      // NOTE: We count only if we made any dispatches ie. upcalls.
-      if (this->dispatch_notify (buffer) > 0)
-        ++number_dispatched;
-
-      // Bail out if we've reached the <notify_threshold_>.  Note that
-      // by default <notify_threshold_> is -1, so we'll loop until all
-      // the available notifications have been dispatched.
-      if (number_dispatched == this->max_notify_iterations_)
-        break;
-    }
-
-  if (result == -1)
-    {
-      // Reassign number_dispatched to -1 if things have gone
-      // seriously wrong.
-      number_dispatched = -1;
-    }
-
-  this->dispatching_ = false;
-
-  return number_dispatched;
+  ACE_ERROR_RETURN ((LM_ERROR, ACE_TEXT ("SHOULD NOT BE HERE.\n")), -1);
 }
 
 ACE_HANDLE
@@ -425,6 +393,15 @@ ACE_Dev_Poll_Reactor_Notify::dump (void) const
   ACE_DEBUG ((LM_DEBUG, ACE_END_DUMP));
 #endif /* ACE_HAS_DUMP */
 }
+
+int
+ACE_Dev_Poll_Reactor_Notify::dequeue_one (ACE_Notification_Buffer &nb)
+{
+  nb.eh_ = 0;
+  nb.mask_ = 0;
+  return this->read_notify_pipe (this->notify_handle (), nb);
+}
+
 
 // -----------------------------------------------------------------
 
@@ -1020,7 +997,7 @@ ACE_Dev_Poll_Reactor::handle_events (ACE_Time_Value *max_wait_time)
   //
   // The destructor of this object will automatically compute how much
   // time elapsed since this method was called.
-  ACE_MT (ACE_Countdown_Time countdown (max_wait_time));
+  ACE_Countdown_Time countdown (max_wait_time);
 
   Token_Guard guard (this->token_);
   int const result = guard.acquire_quietly (max_wait_time);
@@ -1309,6 +1286,22 @@ ACE_Dev_Poll_Reactor::dispatch_io_event (Token_Guard &guard)
 #endif /* ACE_HAS_DEV_POLL */
 
       int status = 0;   // gets callback status, below.
+
+      // Dispatch notifies directly. The notify dispatcher locates a
+      // notification then releases the token prior to dispatching it.
+      // NOTE: If notify_handler_->dispatch_one() returns a fail condition
+      // it has not releases the guard. Else, it has.
+      if (eh == this->notify_handler_)
+        {
+          ACE_Notification_Buffer b;
+          status =
+            dynamic_cast<ACE_Dev_Poll_Reactor_Notify *>(notify_handler_)->dequeue_one (b);
+          if (status == -1)
+            return status;
+          guard.release_token ();
+          return notify_handler_->dispatch_notify (b);
+        }
+
       {
         // Modify the reference count in an exception-safe way.
         // Note that eh could be the notify handler. It's not strictly
@@ -1326,9 +1319,6 @@ ACE_Dev_Poll_Reactor::dispatch_io_event (Token_Guard &guard)
         // re-callback requested). If anything other than the notify, come
         // back with either 0 or < 0.
         status = this->upcall (eh, callback, handle);
-
-        if (eh == this->notify_handler_)
-          return status;
 
         // If the callback returned 0, epoll-based needs to resume the
         // suspended handler but dev/poll doesn't.

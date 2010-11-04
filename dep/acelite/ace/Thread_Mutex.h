@@ -4,7 +4,7 @@
 /**
  *  @file    Thread_Mutex.h
  *
- *  $Id: Thread_Mutex.h 89127 2010-02-22 19:58:18Z schmidt $
+ *  $Id: Thread_Mutex.h 92060 2010-09-27 18:08:48Z johnnyw $
  *
  *   Moved from Synch.h.
  *
@@ -78,7 +78,7 @@ public:
   int acquire (ACE_Time_Value &tv);
 
   /**
-   * If @a tv == 0 the call <acquire()> directly.  Otherwise, Block the
+   * If @a tv == 0 the call acquire() directly.  Otherwise, Block the
    * thread until we acquire the mutex or until @a tv times out, in
    * which case -1 is returned with @c errno == @c ETIME.  Note that
    * @a tv is assumed to be in "absolute" rather than "relative" time.

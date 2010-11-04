@@ -4,7 +4,7 @@
 /**
  *  @file    Task_T.h
  *
- *  $Id: Task_T.h 91016 2010-07-06 11:29:50Z johnnyw $
+ *  $Id: Task_T.h 91688 2010-09-09 11:21:50Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -110,13 +110,6 @@ public: // Should be protected:
    * time.
    */
   int put_next (ACE_Message_Block *msg, ACE_Time_Value *timeout = 0);
-
-  /**
-   * Tests whether we can enqueue a message without blocking.  
-   *
-   * @deprecated This method is deprecated and will go away in the future.
-   */
-  int can_put (ACE_Message_Block *);
 
   // = ACE_Task utility routines to identify names et al.
   /// Return the name of the enclosing Module if there's one associated

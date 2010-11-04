@@ -1,10 +1,6 @@
-// $Id: OS_NS_stdlib.cpp 85363 2009-05-18 07:48:11Z johnnyw $
+// $Id: OS_NS_stdlib.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/OS_NS_stdlib.h"
-
-ACE_RCSID (ace,
-           OS_NS_stdlib,
-           "$Id: OS_NS_stdlib.cpp 85363 2009-05-18 07:48:11Z johnnyw $")
 
 #include "ace/Default_Constants.h"
 

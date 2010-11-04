@@ -1,18 +1,12 @@
 /**
  * @file Copy_Disabled.cpp
  *
- * $Id: Copy_Disabled.cpp 80826 2008-03-04 14:51:23Z wotte $
+ * $Id: Copy_Disabled.cpp 91286 2010-08-05 09:04:31Z johnnyw $
  *
  * @author Carlos O'Ryan <coryan@uci.edu>
  */
 
 #include "ace/Copy_Disabled.h"
-
-
-ACE_RCSID (ace,
-           Copy_Disabled,
-           "$Id: Copy_Disabled.cpp 80826 2008-03-04 14:51:23Z wotte $")
-
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

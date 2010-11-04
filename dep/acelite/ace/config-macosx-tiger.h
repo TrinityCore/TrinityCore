@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// $Id: config-macosx-tiger.h 87167 2009-10-19 19:33:53Z olli $
+// $Id: config-macosx-tiger.h 91693 2010-09-09 12:57:54Z johnnyw $
 
 // This configuration file is designed to work with the MacOS X operating system.
 
@@ -86,7 +86,6 @@
 
 #define ACE_NEEDS_SCHED_H
 
-// Use of <malloc.h> is deprecated.
 #define ACE_LACKS_MALLOC_H
 
 #define ACE_HAS_ALT_CUSERID

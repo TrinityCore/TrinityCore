@@ -1,4 +1,4 @@
-// $Id: TTY_IO.cpp 86739 2009-09-21 07:33:22Z olli $
+// $Id: TTY_IO.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/TTY_IO.h"
 #include "ace/OS_NS_errno.h"
@@ -10,10 +10,6 @@
 #elif  defined (ACE_HAS_TERMIO)
 # include <termio.h>
 #endif
-
-ACE_RCSID (ace,
-           TTY_IO,
-           "$Id: TTY_IO.cpp 86739 2009-09-21 07:33:22Z olli $")
 
 namespace
 {

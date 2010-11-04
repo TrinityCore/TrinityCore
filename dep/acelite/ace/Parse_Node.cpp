@@ -1,3 +1,4 @@
+// $Id: Parse_Node.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
 #include "ace/Parse_Node.h"
 
 #if (ACE_USES_CLASSIC_SVC_CONF == 1)
@@ -12,10 +13,6 @@
 #include "ace/ARGV.h"
 
 #include <list>
-
-ACE_RCSID (ace,
-           Parse_Node,
-           "$Id: Parse_Node.cpp 86389 2009-08-05 23:35:46Z shuston $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

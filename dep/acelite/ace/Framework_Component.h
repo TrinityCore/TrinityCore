@@ -4,7 +4,7 @@
 /**
  *  @file    Framework_Component.h
  *
- *  $Id: Framework_Component.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Framework_Component.h 92208 2010-10-13 06:20:39Z johnnyw $
  *
  * A prototype mechanism that allows framework components, singletons
  * such as ACE_Reactor, ACE_Proactor, etc, to be registered with a
@@ -45,6 +45,8 @@
 
 #include "ace/os_include/os_signal.h"
 #include "ace/Thread_Mutex.h"
+#include "ace/Copy_Disabled.h"
+#include "ace/Synch_Traits.h"
 
 #define ACE_DEFAULT_FRAMEWORK_REPOSITORY_SIZE 1024
 
@@ -56,7 +58,7 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
  * @brief Base class that defines a uniform interface for all managed
  * framework components.
  */
-class ACE_Export ACE_Framework_Component
+class ACE_Export ACE_Framework_Component : private ACE_Copy_Disabled
 {
 public:
   friend class ACE_Framework_Repository;
@@ -72,11 +74,6 @@ public:
 protected:
   /// Destructor.
   virtual ~ACE_Framework_Component (void);
-
-private:
-  // No copy possible
-  ACE_Framework_Component (const ACE_Framework_Component &);
-  void operator= (const ACE_Framework_Component &);
 
 private:
   /// Pointer to the actual component.
@@ -98,7 +95,7 @@ private:
  * destruction, framework components are destroyed in the reverse order
  * that they were added originally.
  */
-class ACE_Export ACE_Framework_Repository
+class ACE_Export ACE_Framework_Repository : private ACE_Copy_Disabled
 {
 public:
   // This is just to silence a compiler warning about no public ctors
@@ -166,10 +163,6 @@ private:
   /// order.
   void compact (void);
 
-  /// Disallow copying and assignment.
-  ACE_Framework_Repository (const ACE_Framework_Repository &);
-  ACE_Framework_Repository &operator= (const ACE_Framework_Repository &);
-
 private:
 
   /// Contains all the framework components.
@@ -190,11 +183,8 @@ private:
   /// unload their components, e.g., ACE_DLL_Manager.
   static sig_atomic_t shutting_down_;
 
-#if defined (ACE_MT_SAFE) && (ACE_MT_SAFE != 0)
-  /// Synchronization variable for the MT_SAFE Repository
-  ACE_Thread_Mutex lock_;
-#endif /* ACE_MT_SAFE */
-
+  /// Synchronization variable for the repository
+  ACE_SYNCH_MUTEX lock_;
 };
 
 ACE_END_VERSIONED_NAMESPACE_DECL

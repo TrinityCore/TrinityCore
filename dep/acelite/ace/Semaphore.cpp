@@ -1,4 +1,4 @@
-// $Id: Semaphore.cpp 84282 2009-01-30 15:04:29Z msmit $
+// $Id: Semaphore.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/Semaphore.h"
 
@@ -8,10 +8,6 @@
 
 #include "ace/Log_Msg.h"
 #include "ace/ACE.h"
-
-ACE_RCSID (ace,
-           Semaphore,
-           "$Id: Semaphore.cpp 84282 2009-01-30 15:04:29Z msmit $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

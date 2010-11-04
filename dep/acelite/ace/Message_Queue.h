@@ -4,7 +4,7 @@
 /**
  *  @file    Message_Queue.h
  *
- *  $Id: Message_Queue.h 88560 2010-01-15 05:02:05Z schmidt $
+ *  $Id: Message_Queue.h 91688 2010-09-09 11:21:50Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -64,13 +64,9 @@ public:
     // and WAS_INACTIVE are defined to match previous semantics for
     // applications that don't use the PULSED state.
 
-    /// @deprecated Use ACTIVATED instead.
-    WAS_ACTIVE = 1,
     /// Message queue is active and processing normally
     ACTIVATED = 1,
 
-    /// @deprecated Use DEACTIVATED instead.
-    WAS_INACTIVE = 2,
     /// Queue is deactivated; no enqueue or dequeue operations allowed.
     DEACTIVATED = 2,
 

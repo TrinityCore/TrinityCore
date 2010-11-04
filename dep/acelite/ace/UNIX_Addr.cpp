@@ -1,8 +1,8 @@
-// $Id: UNIX_Addr.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: UNIX_Addr.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/UNIX_Addr.h"
 
-ACE_RCSID(ace, UNIX_Addr, "$Id: UNIX_Addr.cpp 80826 2008-03-04 14:51:23Z wotte $")
+
 
 #if !defined (ACE_LACKS_UNIX_DOMAIN_SOCKETS)
 

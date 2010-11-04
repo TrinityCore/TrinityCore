@@ -4,7 +4,7 @@
 /**
  *  @file    Process.h
  *
- *  $Id: Process.h 91233 2010-07-29 14:47:16Z shuston $
+ *  $Id: Process.h 92218 2010-10-14 13:18:15Z mcorino $
  *
  *  @author Tim Harrison <harrison@cs.wustl.edu>
  */
@@ -84,7 +84,8 @@ public:
   ACE_Process_Options (bool inherit_environment = true,
                        size_t command_line_buf_len = DEFAULT_COMMAND_LINE_BUF_LEN,
                        size_t env_buf_len = ENVIRONMENT_BUFFER,
-                       size_t max_env_args = MAX_ENVIRONMENT_ARGS);
+                       size_t max_env_args = MAX_ENVIRONMENT_ARGS,
+                       size_t max_cmdline_args = MAX_COMMAND_LINE_OPTIONS);
 
   /// Destructor.
   ~ACE_Process_Options (void);
@@ -100,6 +101,11 @@ public:
    * a duplicate of the current associated handle. For example, passing
    * ACE_INVALID_HANDLE for @a std_in will cause ACE_STDIN to be
    * duplicated and set in this object.
+   *
+   * @note Windows: The implementation of set_handles() uses DuplicateHandle
+   *       on Windows. DuplicateHandle cannot be used to pass a socket handle
+   *       on Windows. Socket handles require an alternate mechanism to pass;
+   *       see http://msdn.microsoft.com/en-us/library/ms741565(v=VS.85).aspx
    *
    * @return 0 on success, -1 on failure.
    */
@@ -227,6 +233,13 @@ public:
   pid_t setgroup (pid_t pgrp);
 
   /// Allows disabling of handle inheritance, default is TRUE.
+  ///
+  /// @remarks @b Windows: the handle_inheritance value is passed as the
+  /// bInheritHandles value to the CreateProcess() system function. Therefore,
+  /// if you redirect standard input, output, or error via
+  /// ACE_Process_Options::set_handles() you must not call
+  /// handle_inheritance(false). Doing so will prevent the duplicated handles
+  /// from surviving in the created process.
   int handle_inheritance (void);
   void handle_inheritance (int);
 
@@ -428,8 +441,11 @@ protected:
   /// Max length of command_line_buf_
   size_t command_line_buf_len_;
 
+  /// Maximum number of command-line arguments. Configurable
+  size_t max_command_line_args_;
+
   /// Argv-style command-line arguments.
-  ACE_TCHAR *command_line_argv_[MAX_COMMAND_LINE_OPTIONS];
+  ACE_TCHAR **command_line_argv_;
 
   /// Process-group on Unix; unused on Win32.
   pid_t process_group_;

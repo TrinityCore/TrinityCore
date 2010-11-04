@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: OS_NS_sys_socket.inl 85632 2009-06-12 19:28:00Z mitza $
+// $Id: OS_NS_sys_socket.inl 91626 2010-09-07 10:59:20Z johnnyw $
 
 #include "ace/OS_NS_errno.h"
 #include "ace/OS_NS_macros.h"
@@ -104,7 +104,7 @@ ACE_OS::bind (ACE_HANDLE handle, struct sockaddr *addr, int addrlen)
   ACE_UNUSED_ARG (addrlen);
   ACE_NOTSUP_RETURN (-1);
 #elif defined (ACE_VXWORKS) && (ACE_VXWORKS <= 0x640)
-  // VxWorks clears the sin_port member after a succesfull bind when
+  // VxWorks clears the sin_port member after a successful bind when
   // sin_addr != INADDR_ANY, so after the bind we do retrieve the
   // original address so that user code can safely check the addr
   // after the bind. See bugzilla 3107 for more details

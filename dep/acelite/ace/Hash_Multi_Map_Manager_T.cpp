@@ -3,7 +3,7 @@
 /**
  *  @file    Hash_Multi_Map_Manager_T.cpp
  *
- *  $Id: Hash_Multi_Map_Manager_T.cpp 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Hash_Multi_Map_Manager_T.cpp 91688 2010-09-09 11:21:50Z johnnyw $
  *
  *  @author Shanshan Jiang <shanshan.jiang@vanderbilt.edu>
  */
@@ -48,12 +48,10 @@ ACE_Hash_Multi_Map_Entry<EXT_ID, INT_ID>::ACE_Hash_Multi_Map_Entry (const EXT_ID
 {
 }
 
-# if ! defined (ACE_HAS_BROKEN_NOOP_DTORS)
 template <class EXT_ID, class INT_ID>
 ACE_Hash_Multi_Map_Entry<EXT_ID, INT_ID>::~ACE_Hash_Multi_Map_Entry (void)
 {
 }
-# endif /* ! defined (ACE_HAS_BROKEN_NOOP_DTORS) */
 
 template <class EXT_ID, class INT_ID> EXT_ID &
 ACE_Hash_Multi_Map_Entry<EXT_ID, INT_ID>::key ()

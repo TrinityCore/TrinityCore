@@ -1,4 +1,4 @@
-// $Id: POSIX_Asynch_IO.cpp 84565 2009-02-23 08:20:39Z johnnyw $
+// $Id: POSIX_Asynch_IO.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
 
 #include "ace/POSIX_Asynch_IO.h"
 
@@ -13,11 +13,6 @@
 #include "ace/OS_NS_errno.h"
 #include "ace/OS_NS_sys_socket.h"
 #include "ace/OS_NS_sys_stat.h"
-
-ACE_RCSID (ace,
-           POSIX_Asynch_IO,
-           "$Id: POSIX_Asynch_IO.cpp 84565 2009-02-23 08:20:39Z johnnyw $")
-
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

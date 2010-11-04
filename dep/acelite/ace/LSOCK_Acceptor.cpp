@@ -1,4 +1,4 @@
-// $Id: LSOCK_Acceptor.cpp 82723 2008-09-16 09:35:44Z johnnyw $
+// $Id: LSOCK_Acceptor.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/LSOCK_Acceptor.h"
 
@@ -8,7 +8,7 @@
 #include "ace/OS_NS_unistd.h"
 #include "ace/OS_NS_sys_socket.h"
 
-ACE_RCSID(ace, LSOCK_Acceptor, "$Id: LSOCK_Acceptor.cpp 82723 2008-09-16 09:35:44Z johnnyw $")
+
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

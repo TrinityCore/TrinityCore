@@ -4,7 +4,7 @@
 /**
  *  @file    Null_Barrier.h
  *
- *  $Id: Null_Barrier.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Null_Barrier.h 91626 2010-09-07 10:59:20Z johnnyw $
  *
  *   Moved from Synch.h.
  *
@@ -17,9 +17,6 @@
 #include /**/ "ace/pre.h"
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
-
-// All methods in this class are inline, so there is no
-// need to import or export on Windows. -- CAE 12/18/2003
 
 /**
  * @class ACE_Null_Barrier

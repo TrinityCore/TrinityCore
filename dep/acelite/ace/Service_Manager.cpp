@@ -1,4 +1,4 @@
-// $Id: Service_Manager.cpp 82723 2008-09-16 09:35:44Z johnnyw $
+// $Id: Service_Manager.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/Service_Manager.h"
 
@@ -11,10 +11,6 @@
 #include "ace/WFMO_Reactor.h"
 #include "ace/OS_NS_stdio.h"
 #include "ace/OS_NS_string.h"
-
-ACE_RCSID (ace,
-           Service_Manager,
-           "$Id: Service_Manager.cpp 82723 2008-09-16 09:35:44Z johnnyw $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

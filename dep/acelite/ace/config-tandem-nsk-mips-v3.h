@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: config-tandem-nsk-mips-v3.h 87167 2009-10-19 19:33:53Z olli $
+// $Id: config-tandem-nsk-mips-v3.h 91685 2010-09-09 09:35:14Z johnnyw $
 
 
 #ifndef ACE_CONFIG_NSK_H
@@ -371,9 +371,6 @@ typedef enum CMA_T_SCHED_POLICY {
 // Compiler specific parts
 //=========================================================================
 
-// Compiler supports C++ exception handling
-#define ACE_HAS_EXCEPTIONS 1
-
 // Compiler/platform has correctly prototyped header files
 #define ACE_HAS_CPLUSPLUS_HEADERS
 
@@ -389,10 +386,6 @@ typedef enum CMA_T_SCHED_POLICY {
 // Compiler's template mechanism must see source code (i.e.,
 // .cpp files).
 #define ACE_TEMPLATES_REQUIRE_SOURCE
-
-// Compiler implements templates that support typedefs inside
-// of classes used as formal arguments to a template class.
-#define ACE_HAS_TEMPLATE_TYPEDEFS
 
 // Platform/Compiler supports a String class
 #define ACE_HAS_STRING_CLASS
@@ -437,9 +430,6 @@ typedef enum CMA_T_SCHED_POLICY {
 //=========================================================================
 // Build options
 //=========================================================================
-
-// Disable the inclusion of RCS ids in the generated code.
-#define ACE_USE_RCSID 0
 
 // For debugging problems in os calls (but this doesn't work too well
 // since output is not interleaved properly with output from ACE_TRACE

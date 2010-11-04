@@ -1,4 +1,4 @@
-// $Id: config-aix-5.x.h 87268 2009-10-29 21:06:06Z olli $
+// $Id: config-aix-5.x.h 91685 2010-09-09 09:35:14Z johnnyw $
 //
 // Config file for AIX 5.1 and higher.
 
@@ -78,7 +78,6 @@
 #  define ACE_HAS_STANDARD_CPP_LIBRARY 1
 #  define ACE_USES_STD_NAMESPACE_FOR_STDCPP_LIB 1
 
-#  define ACE_HAS_TEMPLATE_TYPEDEFS
 #  define ACE_HAS_CUSTOM_EXPORT_MACROS
 #  define ACE_Proper_Export_Flag
 #  define ACE_Proper_Import_Flag

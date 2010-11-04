@@ -1,4 +1,4 @@
-// $Id: Intrusive_List.cpp 84273 2009-01-30 12:55:25Z johnnyw $
+// $Id: Intrusive_List.cpp 92069 2010-09-28 11:38:59Z johnnyw $
 
 #ifndef ACE_INTRUSIVE_LIST_CPP
 #define ACE_INTRUSIVE_LIST_CPP
@@ -116,41 +116,6 @@ ACE_Intrusive_List<T>::unsafe_remove (T *node)
   node->next (0);
   node->prev (0);
 }
-
-#if 0
-template<class T> void
-ACE_Intrusive_List_Node<T>::check_invariants (void)
-{
-  ACE_ASSERT ((this->next () == 0) || (this->next ()->prev () == this));
-  ACE_ASSERT ((this->prev () == 0) || (this->prev ()->next () == this));
-}
-
-template<class T> void
-ACE_Intrusive_List<T>::check_invariants (void)
-{
-  ACE_ASSERT ((this->tail_ == 0) || (this->tail_->next () == 0));
-  ACE_ASSERT ((this->head_ == 0) || (this->head_->prev () == 0));
-  ACE_ASSERT (!((this->head_ == 0) ^ (this->tail_ == 0)));
-
-  int found_tail = 0;
-  for (T *i = this->head_; i != 0; i = i->next ())
-    {
-      if (i == this->tail_)
-        found_tail = 1;
-      i->check_invariants ();
-    }
-  ACE_ASSERT (this->tail_ == 0 || found_tail == 1);
-
-  int found_head = 0;
-  for (T *j = this->tail_; j != 0; j = j->prev ())
-    {
-      if (j == this->head_)
-        found_head = 1;
-      j->check_invariants ();
-    }
-  ACE_ASSERT (this->head_ == 0 || found_head == 1);
-}
-#endif /* 0 */
 
 ACE_END_VERSIONED_NAMESPACE_DECL
 

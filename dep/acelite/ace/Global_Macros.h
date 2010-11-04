@@ -4,7 +4,7 @@
 /**
  *  @file   Global_Macros.h
  *
- *  $Id: Global_Macros.h 82442 2008-07-28 13:11:29Z johnnyw $
+ *  $Id: Global_Macros.h 91685 2010-09-09 09:35:14Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -104,90 +104,92 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 #   define ACE_UNIMPLEMENTED_FUNC(f) f;
 # endif /* ACE_NEEDS_FUNC_DEFINITIONS */
 
-#if !defined (ACE_LACKS_DEPRECATED_MACROS)
-  // Easy way to designate that a class is used as a pseudo-namespace.
-  // Insures that g++ "friendship" anamolies are properly handled.
-  # define ACE_CLASS_IS_NAMESPACE(CLASSNAME) \
-  private: \
-  CLASSNAME (void); \
-  CLASSNAME (const CLASSNAME&); \
-  friend class ace_dewarn_gplusplus
-#endif /* ACE_LACKS_DEPRECATED_MACROS */
-
 // ----------------------------------------------------------------
 
-//FUZZ: disable check_for_exception_sepc
-#if !defined (ACE_LACKS_DEPRECATED_MACROS)
-  #if defined (ACE_HAS_NO_THROW_SPEC)
-  #  define ACE_THROW_SPEC(X)
-  #else
-  #  if defined (ACE_HAS_EXCEPTIONS)
-  #    if defined (ACE_WIN32) && defined (_MSC_VER) && \
-          (_MSC_VER >= 1400) && (_MSC_VER <= 1500)
-  #      define ACE_THROW_SPEC(X) throw(...)
-  #    else
-  #      define ACE_THROW_SPEC(X) throw X
-  #    endif /* ACE_WIN32 && VC8 */
-  #  else  /* ! ACE_HAS_EXCEPTIONS */
-  #    define ACE_THROW_SPEC(X)
-  #  endif /* ! ACE_HAS_EXCEPTIONS */
-  #endif /*ACE_HAS_NO_THROW_SPEC*/
-#endif /* ACE_LACKS_DEPRECATED_MACROS */
-//FUZZ: enable check_for_exception_sepc
-
-// ----------------------------------------------------------------
-
-#if !defined (ACE_LACKS_DEPRECATED_MACROS)
-  /**
-   * This macro is deprecated
-   */
-  #define ACE_NESTED_CLASS(TYPE, NAME) TYPE::NAME
-#endif /* ACE_LACKS_DEPRECATED_MACROS */
-
-#if !defined (ACE_LACKS_DEPRECATED_MACROS)
-  /**
-   * @name CORBA namespace macros.
-   *
-   * CORBA namespace macros.
-   *
-   * @deprecated These macros were formerly used by TAO but are now
-   *             deprecated, and only remain to retain some backward
-   *             compatibility.  They will be removed in a future ACE
-   *             release.
-   */
-  //@{
-  #define ACE_CORBA_1(NAME) CORBA::NAME
-  #define ACE_CORBA_2(TYPE, NAME) CORBA::TYPE::NAME
-  #define ACE_CORBA_3(TYPE, NAME) CORBA::TYPE::NAME
-  //@}
-#endif /* ACE_LACKS_DEPRECATED_MACROS */
-
-// ----------------------------------------------------------------
+// FUZZ: disable check_for_ACE_Guard
 
 // Convenient macro for testing for deadlock, as well as for detecting
 // when mutexes fail.
+/* @warning
+ *   Use of ACE_GUARD() is rarely correct.  ACE_GUARD() causes the current
+ *   function to return if the lock is not acquired.  Since merely returning
+ *   (no value) almost certainly fails to handle the acquisition failure
+ *   and almost certainly fails to communicate the failure to the caller
+ *   for the caller to handle, ACE_GUARD() is almost always the wrong
+ *   thing to do.  The same goes for ACE_WRITE_GUARD() and ACE_READ_GUARD() .
+ *   ACE_GUARD_REACTION() is better because it lets you specify error
+ *   handling code.
+ */
+#if !defined (ACE_GUARD_ACTION)
 #define ACE_GUARD_ACTION(MUTEX, OBJ, LOCK, ACTION, REACTION) \
    ACE_Guard< MUTEX > OBJ (LOCK); \
    if (OBJ.locked () != 0) { ACTION; } \
    else { REACTION; }
+#endif /* !ACE_GUARD_ACTION */
+#if !defined (ACE_GUARD_REACTION)
 #define ACE_GUARD_REACTION(MUTEX, OBJ, LOCK, REACTION) \
   ACE_GUARD_ACTION(MUTEX, OBJ, LOCK, ;, REACTION)
+#endif /* !ACE_GUARD_REACTION */
+#if !defined (ACE_GUARD)
 #define ACE_GUARD(MUTEX, OBJ, LOCK) \
   ACE_GUARD_REACTION(MUTEX, OBJ, LOCK, return)
+#endif /* !ACE_GUARD */
+#if !defined (ACE_GUARD_RETURN)
 #define ACE_GUARD_RETURN(MUTEX, OBJ, LOCK, RETURN) \
   ACE_GUARD_REACTION(MUTEX, OBJ, LOCK, return RETURN)
+#endif /* !ACE_GUARD_RETURN */
+#if !defined (ACE_WRITE_GUARD)
 # define ACE_WRITE_GUARD(MUTEX,OBJ,LOCK) \
   ACE_Write_Guard< MUTEX > OBJ (LOCK); \
     if (OBJ.locked () == 0) return;
+#endif /* !ACE_WRITE_GUARD */
+#if !defined (ACE_WRITE_GUARD_RETURN)
 # define ACE_WRITE_GUARD_RETURN(MUTEX,OBJ,LOCK,RETURN) \
   ACE_Write_Guard< MUTEX > OBJ (LOCK); \
     if (OBJ.locked () == 0) return RETURN;
+#endif /* ACE_WRITE_GUARD_RETURN */
+#if !defined (ACE_READ_GUARD)
 # define ACE_READ_GUARD(MUTEX,OBJ,LOCK) \
   ACE_Read_Guard< MUTEX > OBJ (LOCK); \
     if (OBJ.locked () == 0) return;
+#endif /* !ACE_READ_GUARD */
+#if !defined (ACE_READ_GUARD_RETURN)
 # define ACE_READ_GUARD_RETURN(MUTEX,OBJ,LOCK,RETURN) \
   ACE_Read_Guard< MUTEX > OBJ (LOCK); \
     if (OBJ.locked () == 0) return RETURN;
+#endif /* !ACE_READ_GUARD_RETURN */
+// FUZZ: enable check_for_ACE_Guard
+
+// ----------------------------------------------------------------
+
+#if defined(ACE_UNEXPECTED_RETURNS)
+
+/* Using ACE_UNEXPECTED_RETURNS is ill-advised because, in many cases,
+ *   it fails to inform callers of the error condition.
+ * It exists mainly to provide back-compatibility with old, dangerous,
+ *   incorrect behavior.
+ * Code that previously used ACE_GUARD() or ACE_GUARD_RETURN() to return
+ *   upon failure to acquire a lock can now use:
+ *     ACE_GUARD_REACTION(..., ACE_UNEXPECTED(...))
+ *   The behavior of this depends on whether or not ACE_UNEXPECTED_RETURNS
+ *     is defined.  If so, it just returns upon failure (as in the original),
+ *     which is usually dangerous because it usually fails to handle the
+ *     error.  If not, it calls std::unexpected(), which does whatever the
+ *     std::unexpected handler does (which is to abort, by default).
+ */
+#  define ACE_UNEXPECTED(RETVAL) \
+  do { \
+    return RETVAL; \
+  } while (0)
+
+#else
+
+#  define ACE_UNEXPECTED(RETVAL) \
+  do { \
+    std::unexpected(); \
+  } while (0)
+
+#endif
 
 // ----------------------------------------------------------------
 
@@ -925,15 +927,6 @@ ACE_MAKE_SVC_CONFIG_FACTORY_NAME(ACE_VERSIONED_NAMESPACE_NAME,SERVICE_CLASS) (AC
 # define ACE_SEH_FINALLY if (1)
 #endif /* ACE_WIN32 */
 
-// These should probably be put into a seperate header.
-
-// The following is necessary since many C++ compilers don't support
-// typedef'd types inside of classes used as formal template
-// arguments... ;-(.  Luckily, using the C++ preprocessor I can hide
-// most of this nastiness!
-
-# if defined (ACE_HAS_TEMPLATE_TYPEDEFS)
-
 // Handle ACE_Message_Queue.
 #   define ACE_SYNCH_DECL class _ACE_SYNCH
 #   define ACE_SYNCH_USE _ACE_SYNCH
@@ -1004,10 +997,6 @@ ACE_MAKE_SVC_CONFIG_FACTORY_NAME(ACE_VERSIONED_NAMESPACE_NAME,SERVICE_CLASS) (AC
 #   define ACE_UPIPE_CONNECTOR ACE_UPIPE_Connector
 #   define ACE_UPIPE_STREAM ACE_UPIPE_Stream
 
-// Handle ACE_FILE_*
-#   define ACE_FILE_CONNECTOR ACE_FILE_Connector
-#   define ACE_FILE_STREAM ACE_FILE_IO
-
 // Handle ACE_*_Memory_Pool.
 #   define ACE_MMAP_MEMORY_POOL ACE_MMAP_Memory_Pool
 #   define ACE_LITE_MMAP_MEMORY_POOL ACE_Lite_MMAP_Memory_Pool
@@ -1015,96 +1004,6 @@ ACE_MAKE_SVC_CONFIG_FACTORY_NAME(ACE_VERSIONED_NAMESPACE_NAME,SERVICE_CLASS) (AC
 #   define ACE_SHARED_MEMORY_POOL ACE_Shared_Memory_Pool
 #   define ACE_LOCAL_MEMORY_POOL ACE_Local_Memory_Pool
 #   define ACE_PAGEFILE_MEMORY_POOL ACE_Pagefile_Memory_Pool
-
-# else /* TEMPLATES are broken in some form or another (i.e., most C++ compilers) */
-
-// Handle ACE_Message_Queue.
-#   if defined (ACE_HAS_OPTIMIZED_MESSAGE_QUEUE)
-#     define ACE_SYNCH_DECL class _ACE_SYNCH_MUTEX_T, class _ACE_SYNCH_CONDITION_T, class _ACE_SYNCH_SEMAPHORE_T
-#     define ACE_SYNCH_USE _ACE_SYNCH_MUTEX_T, _ACE_SYNCH_CONDITION_T, _ACE_SYNCH_SEMAPHORE_T
-#   else
-#     define ACE_SYNCH_DECL class _ACE_SYNCH_MUTEX_T, class _ACE_SYNCH_CONDITION_T
-#     define ACE_SYNCH_USE _ACE_SYNCH_MUTEX_T, _ACE_SYNCH_CONDITION_T
-#   endif /* ACE_HAS_OPTIMIZED_MESSAGE_QUEUE */
-#   define ACE_SYNCH_MUTEX_T _ACE_SYNCH_MUTEX_T
-#   define ACE_SYNCH_CONDITION_T _ACE_SYNCH_CONDITION_T
-#   define ACE_SYNCH_SEMAPHORE_T _ACE_SYNCH_SEMAPHORE_T
-
-// Handle ACE_Malloc*
-#   define ACE_MEM_POOL_1 class _ACE_MEM_POOL, class _ACE_MEM_POOL_OPTIONS
-#   define ACE_MEM_POOL_2 _ACE_MEM_POOL, _ACE_MEM_POOL_OPTIONS
-#   define ACE_MEM_POOL _ACE_MEM_POOL
-#   define ACE_MEM_POOL_OPTIONS _ACE_MEM_POOL_OPTIONS
-
-// Handle ACE_Svc_Handler
-#   define ACE_PEER_STREAM_1 class _ACE_PEER_STREAM, class _ACE_PEER_ADDR
-#   define ACE_PEER_STREAM_2 _ACE_PEER_STREAM, _ACE_PEER_ADDR
-#   define ACE_PEER_STREAM _ACE_PEER_STREAM
-#   define ACE_PEER_STREAM_ADDR _ACE_PEER_ADDR
-
-// Handle ACE_Acceptor
-#   define ACE_PEER_ACCEPTOR_1 class _ACE_PEER_ACCEPTOR, class _ACE_PEER_ADDR
-#   define ACE_PEER_ACCEPTOR_2 _ACE_PEER_ACCEPTOR, _ACE_PEER_ADDR
-#   define ACE_PEER_ACCEPTOR _ACE_PEER_ACCEPTOR
-#   define ACE_PEER_ACCEPTOR_ADDR _ACE_PEER_ADDR
-
-// Handle ACE_Connector
-#   define ACE_PEER_CONNECTOR_1 class _ACE_PEER_CONNECTOR, class _ACE_PEER_ADDR
-#   define ACE_PEER_CONNECTOR_2 _ACE_PEER_CONNECTOR, _ACE_PEER_ADDR
-#   define ACE_PEER_CONNECTOR _ACE_PEER_CONNECTOR
-#   define ACE_PEER_CONNECTOR_ADDR _ACE_PEER_ADDR
-#   define ACE_PEER_CONNECTOR_ADDR_ANY ACE_PEER_CONNECTOR_ADDR::sap_any
-
-// Handle ACE_SOCK_*
-#   define ACE_SOCK_ACCEPTOR ACE_SOCK_Acceptor, ACE_INET_Addr
-#   define ACE_SOCK_CONNECTOR ACE_SOCK_Connector, ACE_INET_Addr
-#   define ACE_SOCK_STREAM ACE_SOCK_Stream, ACE_INET_Addr
-#   define ACE_SOCK_DGRAM ACE_SOCK_Dgram, ACE_INET_Addr
-#   define ACE_SOCK_DGRAM_BCAST ACE_SOCK_Dgram_Bcast, ACE_INET_Addr
-#   define ACE_SOCK_DGRAM_MCAST ACE_SOCK_Dgram_Mcast, ACE_INET_Addr
-
-// Handle ACE_SOCK_SEQPACK_*
-#   define ACE_SOCK_SEQPACK_ACCEPTOR ACE_SOCK_SEQPACK_Acceptor, ACE_Multihomed_INET_Addr
-#   define ACE_SOCK_SEQPACK_CONNECTOR ACE_SOCK_SEQPACK_Connector, ACE_Multihomed_INET_Addr
-#   define ACE_SOCK_SEQPACK_ASSOCIATION ACE_SOCK_SEQPACK_Association, ACE_Multihomed_INET_Addr
-
-// Handle ACE_MEM_*
-#   define ACE_MEM_ACCEPTOR ACE_MEM_Acceptor, ACE_MEM_Addr
-#   define ACE_MEM_CONNECTOR ACE_MEM_Connector, ACE_INET_Addr
-#   define ACE_MEM_STREAM ACE_MEM_Stream, ACE_INET_Addr
-
-// Handle ACE_LSOCK_*
-#   define ACE_LSOCK_ACCEPTOR ACE_LSOCK_Acceptor, ACE_UNIX_Addr
-#   define ACE_LSOCK_CONNECTOR ACE_LSOCK_Connector, ACE_UNIX_Addr
-#   define ACE_LSOCK_STREAM ACE_LSOCK_Stream, ACE_UNIX_Addr
-
-// Handle ACE_TLI_*
-#   define ACE_TLI_ACCEPTOR ACE_TLI_Acceptor, ACE_INET_Addr
-#   define ACE_TLI_CONNECTOR ACE_TLI_Connector, ACE_INET_Addr
-#   define ACE_TLI_STREAM ACE_TLI_Stream, ACE_INET_Addr
-
-// Handle ACE_SPIPE_*
-#   define ACE_SPIPE_ACCEPTOR ACE_SPIPE_Acceptor, ACE_SPIPE_Addr
-#   define ACE_SPIPE_CONNECTOR ACE_SPIPE_Connector, ACE_SPIPE_Addr
-#   define ACE_SPIPE_STREAM ACE_SPIPE_Stream, ACE_SPIPE_Addr
-
-// Handle ACE_UPIPE_*
-#   define ACE_UPIPE_ACCEPTOR ACE_UPIPE_Acceptor, ACE_SPIPE_Addr
-#   define ACE_UPIPE_CONNECTOR ACE_UPIPE_Connector, ACE_SPIPE_Addr
-#   define ACE_UPIPE_STREAM ACE_UPIPE_Stream, ACE_SPIPE_Addr
-
-// Handle ACE_FILE_*
-#   define ACE_FILE_CONNECTOR ACE_FILE_Connector, ACE_FILE_Addr
-#   define ACE_FILE_STREAM ACE_FILE_IO, ACE_FILE_Addr
-
-// Handle ACE_*_Memory_Pool.
-#   define ACE_MMAP_MEMORY_POOL ACE_MMAP_Memory_Pool, ACE_MMAP_Memory_Pool_Options
-#   define ACE_LITE_MMAP_MEMORY_POOL ACE_Lite_MMAP_Memory_Pool, ACE_MMAP_Memory_Pool_Options
-#   define ACE_SBRK_MEMORY_POOL ACE_Sbrk_Memory_Pool, ACE_Sbrk_Memory_Pool_Options
-#   define ACE_SHARED_MEMORY_POOL ACE_Shared_Memory_Pool, ACE_Shared_Memory_Pool_Options
-#   define ACE_LOCAL_MEMORY_POOL ACE_Local_Memory_Pool, ACE_Local_Memory_Pool_Options
-#   define ACE_PAGEFILE_MEMORY_POOL ACE_Pagefile_Memory_Pool, ACE_Pagefile_Memory_Pool_Options
-# endif /* ACE_HAS_TEMPLATE_TYPEDEFS */
 
 // Work around compilers that don't like in-class static integral
 // constants.  Constants in this case are meant to be compile-time

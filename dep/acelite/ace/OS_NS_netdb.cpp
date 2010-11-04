@@ -1,9 +1,9 @@
 // -*- C++ -*-
-// $Id: OS_NS_netdb.cpp 89812 2010-04-08 21:27:21Z sowayaa $
+// $Id: OS_NS_netdb.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/OS_NS_netdb.h"
 
-ACE_RCSID(ace, OS_NS_netdb, "$Id: OS_NS_netdb.cpp 89812 2010-04-08 21:27:21Z sowayaa $")
+
 
 #if !defined (ACE_HAS_INLINED_OSCALLS)
 # include "ace/OS_NS_netdb.inl"

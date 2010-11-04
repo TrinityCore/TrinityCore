@@ -4,7 +4,7 @@
 /**
  *  @file    Vector_T.h
  *
- *  $Id: Vector_T.h 84477 2009-02-16 13:30:38Z johnnyw $
+ *  $Id: Vector_T.h 92069 2010-09-28 11:38:59Z johnnyw $
  *
  *  @author Craig L. Ching <cching@mqsoftware.com>
  *  @author Gonzalo Diethelm <gonzalo.diethelm@aditiva.com>
@@ -16,7 +16,7 @@
 
 #include /**/ "ace/pre.h"
 
-#include "ace/Array.h"
+#include "ace/Containers_T.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
@@ -201,58 +201,6 @@ protected:
 
   friend class ACE_Vector_Iterator<T, DEFAULT_SIZE>;
 };
-
-#if 0
-/*
- * Not sure about including these functions, if for no other reason,
- * because they polute the global namespace!
- */
-
-/**
- * Compare two vectors in the range of [from_ndx..to_ndx].  This
- * template function requires class T to have the bool operator!=()
- * declared in the class.  It is safe to define vectors of scalar data
- * types, like int, double, etc., including class ACE_TString.
- *
- * @param v1 The first vector (out of the two) to be compared.
- * @param v2 The Second vector (out of the two) to be compared.
- * @param from_ndx Compare vector v1 and v2, starting with the
- *                 "from_ndx" index .
- * @param to_ndx Compare vector v1 and v2, from "from_ndx" to
- *               "to_ndx".
- * @return Returns true if v1==v2 in the specified index range,
- *          returns false otherwise.  Also, returns false in case if
- *          v1's size is not equal to v2's size.
- */
-template<class T>
-int compare (const ACE_Vector<T>& v1,
-              const ACE_Vector<T>& v2,
-              const size_t from_ndx,
-              const size_t to_ndx);
-
-/**
- * Does a partial comparison of two vectors in the range of
- * [from_ndx..to_ndx].  The only difference between this function and
- * the template compare&lt;T&gt; function is that this function does
- * not require v1 and v2 to be of equal size.
- *
- * @param v1 The first vector (out of the two) to be compared.
- * @param v2 The Second vector (out of the two) to be compared.
- * @param from_ndx Compare vector v1 and v2, starting with the
- *                 "from_ndx" index .
- * @param to_ndx Compare vector v1 and v2, from "from_ndx" to
- *               "to_ndx".
- * @return Returns true if vector v1 and v2 are equal in the specified
- *         index range.
- */
-
-template<class T>
-int partial_compare (const ACE_Vector<T>& v1,
-                      const ACE_Vector<T>& v2,
-                      const size_t from_ndx,
-                      const size_t to_ndx);
-#endif /* 0 */
-// ****************************************************************
 
 /**
  * @class ACE_Vector_Iterator

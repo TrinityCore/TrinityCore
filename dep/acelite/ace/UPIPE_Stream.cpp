@@ -1,8 +1,8 @@
-// $Id: UPIPE_Stream.cpp 82559 2008-08-07 20:23:07Z parsons $
+// $Id: UPIPE_Stream.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/UPIPE_Stream.h"
 
-ACE_RCSID(ace, UPIPE_Stream, "$Id: UPIPE_Stream.cpp 82559 2008-08-07 20:23:07Z parsons $")
+
 
 #if defined (ACE_HAS_THREADS)
 
@@ -215,7 +215,7 @@ ACE_UPIPE_Stream::recv_n (char *buf,
       len = this->recv (buf + bytes_read,
                         n - bytes_read,
                         timeout);
-                        
+
       if (len == -1)
         {
           return -1;

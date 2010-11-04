@@ -1,8 +1,6 @@
-// $Id: OS_NS_unistd.cpp 85906 2009-07-06 20:52:40Z mitza $
+// $Id: OS_NS_unistd.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/OS_NS_unistd.h"
-
-ACE_RCSID (ace, OS_NS_unistd, "$Id: OS_NS_unistd.cpp 85906 2009-07-06 20:52:40Z mitza $")
 
 #if !defined (ACE_HAS_INLINED_OSCALLS)
 # include "ace/OS_NS_unistd.inl"

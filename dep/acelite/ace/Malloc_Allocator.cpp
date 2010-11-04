@@ -1,4 +1,4 @@
-// $Id: Malloc_Allocator.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: Malloc_Allocator.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/Malloc_Allocator.h"
 #include "ace/Object_Manager.h"
@@ -11,8 +11,6 @@
 #include "ace/Recursive_Thread_Mutex.h"
 #include "ace/Log_Msg.h"  // for ACE_ASSERT
 #include "ace/OS_NS_string.h"
-
-ACE_RCSID (ace, Malloc_Allocator, "$Id: Malloc_Allocator.cpp 80826 2008-03-04 14:51:23Z wotte $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

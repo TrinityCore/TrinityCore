@@ -1,4 +1,4 @@
-// $Id: gethrtime.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: gethrtime.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 //
 // Build this file with g++.  It can be linked in to a ACE application
 // that was compiled with GreenHills.  It wouldn't be necessary if I
@@ -7,7 +7,7 @@
 
 #include "ace/config-all.h"
 
-ACE_RCSID(ace, gethrtime, "$Id: gethrtime.cpp 80826 2008-03-04 14:51:23Z wotte $")
+
 
 #if defined (ghs) && (defined (i386) || defined(__i386__))
 

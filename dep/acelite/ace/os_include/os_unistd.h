@@ -6,7 +6,7 @@
  *
  *  standard symbolic constants and types
  *
- *  $Id: os_unistd.h 87125 2009-10-15 17:34:25Z wotte $
+ *  $Id: os_unistd.h 92183 2010-10-08 08:44:15Z olli $
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -129,21 +129,6 @@ extern "C"
 #if defined (ACE_LACKS_UALARM_PROTOTYPE)
    u_int ualarm (u_int usecs, u_int interval);
 #endif /* ACE_LACKS_UALARM_PROTOTYPE */
-
-#if defined (ACE_LACKS_PREAD_PROTOTYPE) && (_XOPEN_SOURCE - 0) < 500
-   // _XOPEN_SOURCE == 500    Single Unix conformance
-   // It seems that _XOPEN_SOURCE == 500 means that the prototypes are
-   // already defined in the system headers.
-   ssize_t pread (int fd,
-                  void *buf,
-                  size_t nbytes,
-                  ACE_OFF_T offset);
-
-   ssize_t pwrite (int fd,
-                   const void *buf,
-                   size_t n,
-                   ACE_OFF_T offset);
-#endif  /* ACE_LACKS_PREAD_PROTOTYPE && (_XOPEN_SOURCE - 0) < 500 */
 
 #if defined (ACE_LACKS_GETPGID_PROTOTYPE) && \
     !defined (_XOPEN_SOURCE) && !defined (_XOPEN_SOURCE_EXTENDED)

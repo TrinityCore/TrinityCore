@@ -4,7 +4,7 @@
 /**
  *  @file    Pipe.h
  *
- *  $Id: Pipe.h 87240 2009-10-27 15:54:10Z schmidt $
+ *  $Id: Pipe.h 92010 2010-09-24 14:54:19Z shuston $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -65,6 +65,8 @@ public:
 
   /// Close down the pipe HANDLEs;
   int close (void);
+  int close_read (void);
+  int close_write (void);
 
   // = Accessors.
 
@@ -152,6 +154,7 @@ public:
 
 private:
   ACE_HANDLE handles_[2];
+  int close_handle (int which);
 };
 
 ACE_END_VERSIONED_NAMESPACE_DECL

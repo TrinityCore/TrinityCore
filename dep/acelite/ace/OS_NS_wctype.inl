@@ -1,6 +1,5 @@
 // -*- C++ -*-
-//
-// $Id: OS_NS_wctype.inl 83891 2008-11-28 11:01:50Z johnnyw $
+// $Id: OS_NS_wctype.inl 91781 2010-09-15 12:49:15Z johnnyw $
 
 #if defined (ACE_LACKS_ISWCTYPE)
 #include "ace/OS_NS_errno.h"

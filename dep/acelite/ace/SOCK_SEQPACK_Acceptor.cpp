@@ -1,4 +1,4 @@
-// $Id: SOCK_SEQPACK_Acceptor.cpp 82723 2008-09-16 09:35:44Z johnnyw $
+// $Id: SOCK_SEQPACK_Acceptor.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/SOCK_SEQPACK_Acceptor.h"
 
@@ -13,7 +13,7 @@
 #include "ace/SOCK_SEQPACK_Acceptor.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, SOCK_SEQPACK_Acceptor, "SOCK_SEQPACK_Acceptor.cpp,v 4.30 2002/03/08 23:18:09 spark Exp")
+
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

@@ -1,8 +1,8 @@
-// $Id: OS_NS_wchar.cpp 88331 2009-12-24 09:54:25Z johnnyw $
+// $Id: OS_NS_wchar.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/OS_NS_wchar.h"
 
-ACE_RCSID(ace, OS_NS_wchar, "$Id: OS_NS_wchar.cpp 88331 2009-12-24 09:54:25Z johnnyw $")
+
 
 #if !defined (ACE_HAS_INLINED_OSCALLS)
 # include "ace/OS_NS_wchar.inl"

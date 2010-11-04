@@ -2,7 +2,7 @@
 /**
  *  @file   config-win32-msvc.h
  *
- *  $Id: config-win32-msvc.h 85785 2009-06-24 18:20:42Z mitza $
+ *  $Id: config-win32-msvc.h 92120 2010-10-01 12:00:01Z johnnyw $
  *
  *  @brief  Microsoft Visual C++ configuration file.
  *
@@ -22,10 +22,8 @@
 #endif /* ACE_CONFIG_WIN32_H */
 
 #define ACE_CC_NAME ACE_TEXT ("Visual C++")
-#ifndef ACE_USING_MCPP_PREPROCESSOR
-# define ACE_CC_PREPROCESSOR "CL.EXE"
-# define ACE_CC_PREPROCESSOR_ARGS "-nologo -E"
-#endif
+#define ACE_CC_PREPROCESSOR "CL.EXE"
+#define ACE_CC_PREPROCESSOR_ARGS "-nologo -E"
 
 #define ACE_CC_MAJOR_VERSION (_MSC_VER / 100 - 6)
 #define ACE_CC_MINOR_VERSION (_MSC_VER % 100)
@@ -140,7 +138,7 @@
 // To resume any of these warning: #pragma warning(default: 4xxx)
 // which should be placed after these defines
 
-#if !defined (ALL_WARNINGS) && defined(_MSC_VER) && !defined(ghs) && !defined(__MINGW32__)
+#if !defined (ALL_WARNINGS) && defined(_MSC_VER) && !defined(__MINGW32__)
 #     pragma warning(disable: 4127)  /* constant expression for TRACE/ASSERT */
 #     pragma warning(disable: 4134)  /* message map member fxn casts */
 #     pragma warning(disable: 4511)  /* private copy constructors are good to have */

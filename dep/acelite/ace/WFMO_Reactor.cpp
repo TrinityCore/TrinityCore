@@ -1,4 +1,4 @@
-// $Id: WFMO_Reactor.cpp 85125 2009-04-20 16:47:38Z johnnyw $
+// $Id: WFMO_Reactor.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/WFMO_Reactor.h"
 
@@ -14,7 +14,7 @@
 #include "ace/WFMO_Reactor.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, WFMO_Reactor, "$Id: WFMO_Reactor.cpp 85125 2009-04-20 16:47:38Z johnnyw $")
+
 
 #include "ace/Auto_Ptr.h"
 

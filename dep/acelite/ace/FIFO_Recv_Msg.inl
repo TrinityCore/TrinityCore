@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: FIFO_Recv_Msg.inl 82559 2008-08-07 20:23:07Z parsons $
+// $Id: FIFO_Recv_Msg.inl 91813 2010-09-17 07:52:52Z johnnyw $
 
 #include "ace/Min_Max.h"
 #include "ace/OS_NS_stropts.h"
@@ -43,12 +43,12 @@ ACE_FIFO_Recv_Msg::recv (ACE_Str_Buf &recv_msg)
       ssize_t recv_len = ACE_OS::read (this->get_handle (),
                                        (char *) recv_msg.buf,
                                        ACE_MIN (remaining, requested));
-                                       
+
       if (recv_len == -1)
         {
           return -1;
         }
-        
+
       // Tell caller what's really in the buffer.
       recv_msg.len = static_cast<int> (recv_len);
 
@@ -60,7 +60,7 @@ ACE_FIFO_Recv_Msg::recv (ACE_Str_Buf &recv_msg)
       // saving the indication here either to read the remainder later.
       size_t total_msg_size = remaining;
       remaining -= recv_len;
-      
+
       while (remaining > 0)
         {
           const size_t throw_away = 1024;
@@ -68,15 +68,15 @@ ACE_FIFO_Recv_Msg::recv (ACE_Str_Buf &recv_msg)
           recv_len = ACE_OS::read (this->get_handle (),
                                    dev_null,
                                    ACE_MIN (remaining, throw_away));
-                                   
+
           if (recv_len == -1)
             {
               break;
             }
-            
+
           remaining -= recv_len;
         }
-        
+
       return ACE_Utils::truncate_cast<ssize_t> (total_msg_size);
     }
 #endif /* ACE_HAS_STREAM_PIPES */
@@ -118,7 +118,7 @@ ACE_FIFO_Recv_Msg::recv (int *band,
                          int *flags)
 {
   ACE_TRACE ("ACE_FIFO_Recv_Msg::recv");
-  
+
   if (ACE_OS::getpmsg (this->get_handle (),
                        (strbuf *) cntl,
                        (strbuf *) data,

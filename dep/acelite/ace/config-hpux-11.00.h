@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// $Id: config-hpux-11.00.h 89494 2010-03-15 20:11:18Z olli $
+// $Id: config-hpux-11.00.h 92102 2010-09-30 08:14:15Z johnnyw $
 
 // The following configuration file is designed to work for HP
 // platforms running HP-UX 11.00 using aC++ or gcc (2.95 and up).
@@ -24,15 +24,7 @@
 // aC++...
 
 // Precompiler needs extra flags to ignore "invalid #pragma directive"
-#    ifndef ACE_USING_MCPP_PREPROCESSOR
-#     define ACE_CC_PREPROCESSOR_ARGS "-E +W 67"
-#    endif
-// Compiler supports C++ exception handling. It's on by default. If the
-// +noeh compiler option is used to disable exceptions, the compiler defines
-// __HPACC_NOEH.
-#    if !defined (__HPACC_NOEH)
-#      define ACE_HAS_EXCEPTIONS 1
-#    endif
+#  define ACE_CC_PREPROCESSOR_ARGS "-E +W 67"
 
 // If the -AA compile option is used, the compiler defines _HP_NAMESPACE_STD.
 // The -AA option enables the 2.0 standard C++ library. If not used, then
@@ -56,10 +48,6 @@
        // aren't in std::
 #      define ACE_LACKS_NUMERIC_LIMITS
 #    endif /* _HP_NAMESPACE_STD */
-
-// Compiler implements templates that support typedefs inside of classes
-// used as formal arguments to a template class.
-#    define ACE_HAS_TEMPLATE_TYPEDEFS
 
 #    define ACE_HAS_WORKING_EXPLICIT_TEMPLATE_DESTRUCTOR
 

@@ -4,7 +4,7 @@
 /**
  *  @file    String_Base.h
  *
- *  $Id: String_Base.h 88793 2010-02-01 17:50:34Z cleeland $
+ *  $Id: String_Base.h 92057 2010-09-27 14:52:00Z johnnyw $
  *
  *  @author Douglas C. Schmidt (schmidt@cs.wustl.edu)
  *  @author Nanbor Wang <nanbor@cs.wustl.edu>
@@ -99,7 +99,7 @@ public:
    *
    * @param s Zero terminated input string
    * @param the_allocator ACE_Allocator associated with string
-   * @param release Allocator responsible(true)/not reponsible(false) for
+   * @param release Allocator responsible(true)/not responsible(false) for
    *    freeing memory.
    * @return ACE_String_Base containing const ACE_CHAR_T *s
    */
@@ -120,7 +120,7 @@ public:
    * @param s Non-zero terminated input string
    * @param len Length of non-zero terminated input string
    * @param the_allocator ACE_Allocator associated with string
-   * @param release Allocator responsible(true)/not reponsible(false) for
+   * @param release Allocator responsible(true)/not responsible(false) for
    *    freeing memory.
    * @return ACE_String_Base containing const ACE_CHAR_T *s
    */
@@ -224,7 +224,7 @@ public:
    *   used, and instead the internal buffer is set to NULL_String_.
    *
    * @param s Null terminated input string
-   * @param release Allocator responsible(true)/not reponsible(false) for
+   * @param release Allocator responsible(true)/not responsible(false) for
    *    freeing memory.
    */
   void set (const ACE_CHAR_T * s, bool release = true);
@@ -244,7 +244,7 @@ public:
    *
    *  @param s Non-zero terminated input string
    *  @param len Length of input string 's'
-   *  @param release Allocator responsible(true)/not reponsible(false) for
+   *  @param release Allocator responsible(true)/not responsible(false) for
    *    freeing memory.
    */
   void set (const ACE_CHAR_T * s, size_type len, bool release);
@@ -400,7 +400,7 @@ public:
   const ACE_CHAR_T *fast_rep (void) const;
 
   /**
-   *  Same as STL String's <c_str> and <fast_rep>.
+   *  Same as STL String's c_str() and fast_rep().
    */
   const ACE_CHAR_T *c_str (void) const;
 
@@ -415,7 +415,7 @@ public:
   size_type strstr (const ACE_String_Base<ACE_CHAR_T> &s) const;
 
   /**
-   *  Find <str> starting at pos.  Returns the slot of the first
+   *  Find @a str starting at pos.  Returns the slot of the first
    *  location that matches (will be >= pos), else @c npos.
    *
    *  @param str Input ACE_String_Base string to search for in stored string.
@@ -426,7 +426,7 @@ public:
   size_type find (const ACE_String_Base<ACE_CHAR_T> &str, size_type pos = 0) const;
 
   /**
-   *  Find @a s starting at pos.  Returns the slot of the first
+   *  Find @a s starting at @a pos.  Returns the slot of the first
    *  location that matches (will be >= pos), else @c npos.
    *
    *  @param s non-zero input string to search for in stored string.
@@ -437,7 +437,7 @@ public:
   size_type find (const ACE_CHAR_T *s, size_type pos = 0) const;
 
   /**
-   *  Find @a c starting at pos.  Returns the slot of the first
+   *  Find @a c starting at @a pos.  Returns the slot of the first
    *  location that matches (will be >= pos), else @c npos.
    *
    *  @param c Input character to search for in stored string.
@@ -448,7 +448,7 @@ public:
   size_type find (ACE_CHAR_T c, size_type pos = 0) const;
 
   /**
-   *  Find @a c starting at pos (counting from the end).  Returns the
+   *  Find @a c starting at @a pos (counting from the end).  Returns the
    *  slot of the first location that matches, else @c npos.
    *
    *  @param c Input character to search for in stored string.

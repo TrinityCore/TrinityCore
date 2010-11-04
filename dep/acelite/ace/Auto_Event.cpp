@@ -1,14 +1,10 @@
-// $Id: Auto_Event.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: Auto_Event.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
 
 #include "ace/Auto_Event.h"
 
 #if !defined (__ACE_INLINE__)
 #include "ace/Auto_Event.inl"
 #endif /* __ACE_INLINE__ */
-
-ACE_RCSID (ace,
-           Auto_Event,
-           "$Id: Auto_Event.cpp 80826 2008-03-04 14:51:23Z wotte $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

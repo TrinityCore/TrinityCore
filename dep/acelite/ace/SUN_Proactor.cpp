@@ -1,4 +1,4 @@
-// $Id: SUN_Proactor.cpp 84455 2009-02-13 13:31:02Z johnnyw $
+// $Id: SUN_Proactor.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/SUN_Proactor.h"
 
@@ -7,12 +7,6 @@
 #include "ace/Task_T.h"
 #include "ace/Log_Msg.h"
 #include "ace/Object_Manager.h"
-
-
-ACE_RCSID (ace,
-           POSIX_CB_Proactor,
-           "$Id: SUN_Proactor.cpp 84455 2009-02-13 13:31:02Z johnnyw $")
-
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

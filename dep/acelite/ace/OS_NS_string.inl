@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: OS_NS_string.inl 80826 2008-03-04 14:51:23Z wotte $
+// $Id: OS_NS_string.inl 92069 2010-09-28 11:38:59Z johnnyw $
 
 // OS_NS_wchar.h is only needed to get the emulation methods.
 // Perhaps they should be moved.  dhinton
@@ -259,12 +259,7 @@ ACE_OS::strlen (const ACE_WCHAR_T *s)
 ACE_INLINE char *
 ACE_OS::strncat (char *s, const char *t, size_t len)
 {
-#if 0 /* defined (ACE_HAS_TR24731_2005_CRT) */
-  strncat_s (s, len + 1, t, _TRUNCATE);
-  return s;
-#else
   return ::strncat (s, t, len);
-#endif /* ACE_HAS_TR24731_2005_CRT */
 }
 
 ACE_INLINE ACE_WCHAR_T *

@@ -1,8 +1,8 @@
-// $Id: OS_NS_sys_socket.cpp 85460 2009-05-29 13:38:50Z msmit $
+// $Id: OS_NS_sys_socket.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/OS_NS_sys_socket.h"
 
-ACE_RCSID(ace, OS_NS_sys_socket, "$Id: OS_NS_sys_socket.cpp 85460 2009-05-29 13:38:50Z msmit $")
+
 
 #if !defined (ACE_HAS_INLINED_OSCALLS)
 # include "ace/OS_NS_sys_socket.inl"

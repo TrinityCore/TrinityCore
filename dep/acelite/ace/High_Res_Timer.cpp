@@ -1,4 +1,4 @@
-// $Id: High_Res_Timer.cpp 89483 2010-03-15 09:48:01Z johnnyw $
+// $Id: High_Res_Timer.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 // Be very carefull before changing the calculations inside
 // ACE_High_Res_Timer.  The precision matters and we are using integer
@@ -22,7 +22,7 @@
 #include "ace/OS_NS_stdlib.h"
 #include "ace/Truncate.h"
 
-ACE_RCSID(ace, High_Res_Timer, "$Id: High_Res_Timer.cpp 89483 2010-03-15 09:48:01Z johnnyw $")
+
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

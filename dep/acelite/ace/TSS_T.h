@@ -4,7 +4,7 @@
 /**
  *  @file    TSS_T.h
  *
- *  $Id: TSS_T.h 91124 2010-07-19 11:54:35Z vzykov $
+ *  $Id: TSS_T.h 91703 2010-09-10 11:05:38Z msmit $
  *
  *   Moved from Synch.h.
  *
@@ -36,6 +36,7 @@
 # endif /* ACE_HAS_THREADS && (ACE_HAS_THREAD_SPECIFIC_STORAGE || ACE_HAS_TSS_EMULATION) */
 
 #include "ace/Thread_Mutex.h"
+#include "ace/Copy_Disabled.h"
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -76,7 +77,7 @@ class ACE_TSS_Adapter;
  *
  */
 template <class TYPE>
-class ACE_TSS
+class ACE_TSS : private ACE_Copy_Disabled
 {
 public:
   /**
@@ -212,9 +213,6 @@ protected:
   int ts_value (TYPE *new_ts_obj) const;
 # endif /* ACE_HAS_THR_C_DEST */
 #endif /* defined (ACE_HAS_THREADS) && (defined (ACE_HAS_THREAD_SPECIFIC_STORAGE) || defined (ACE_HAS_TSS_EMULATION)) */
-  // = Disallow copying...
-  ACE_UNIMPLEMENTED_FUNC (void operator= (const ACE_TSS<TYPE> &))
-  ACE_UNIMPLEMENTED_FUNC (ACE_TSS (const ACE_TSS<TYPE> &))
 };
 
 /**

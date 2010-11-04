@@ -1,8 +1,6 @@
-// $Id: ATM_Stream.cpp 84262 2009-01-29 10:34:33Z johnnyw $
+// $Id: ATM_Stream.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/ATM_Stream.h"
-
-ACE_RCSID (ace, ATM_Stream, "$Id: ATM_Stream.cpp 84262 2009-01-29 10:34:33Z johnnyw $")
 
 #if defined (ACE_HAS_ATM)
 

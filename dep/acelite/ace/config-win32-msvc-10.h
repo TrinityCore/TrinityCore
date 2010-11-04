@@ -3,7 +3,7 @@
 /**
  *  @file   config-win32-msvc-10.h
  *
- *  $Id: config-win32-msvc-10.h 87224 2009-10-26 07:49:31Z olli $
+ *  $Id: config-win32-msvc-10.h 91685 2010-09-09 09:35:14Z johnnyw $
  *
  *  @brief  Microsoft Visual C++ 10.0 configuration file.
  *
@@ -57,10 +57,6 @@
 # define ACE_FILENO_EQUIVALENT(X) (_get_osfhandle (::_fileno (X)))
 #endif
 
-#ifndef ACE_HAS_EXCEPTIONS
-# define ACE_HAS_EXCEPTIONS
-#endif
-
 // Windows Mobile 6 doesn't do sig_atomic_t, but maybe future versions will.
 #  if !defined (_WIN32_WCE) || (_WIN32_WCE > 0x601)
 #    define ACE_HAS_SIG_ATOMIC_T
@@ -82,7 +78,6 @@
 #define ACE_LACKS_STRRECVFD
 #define ACE_HAS_CPLUSPLUS_HEADERS
 
-#define ACE_HAS_TEMPLATE_TYPEDEFS
 #define ACE_TEMPLATES_REQUIRE_SOURCE
 
 // Platform provides ACE_TLI function prototypes.

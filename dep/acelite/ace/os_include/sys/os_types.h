@@ -6,7 +6,7 @@
  *
  *  data types
  *
- *  $Id: os_types.h 88515 2010-01-13 08:47:38Z johnnyw $
+ *  $Id: os_types.h 91683 2010-09-09 09:07:49Z johnnyw $
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -74,7 +74,7 @@ typedef double ACE_timer_t;
 #elif defined (ACE_HAS_RTEMS) || defined (__FreeBSD__) || defined (__NetBSD__) || defined (__OpenBSD__) || defined (__APPLE__) || defined(ACE_MVS) || defined(__INTERIX) || \
   (defined (ACE_OPENVMS) && defined (_LARGEFILE))
    typedef off_t ACE_LOFF_T;
-#elif defined (__sgi) || defined (AIX) || defined (HPUX) || defined (__QNX__)
+#elif defined (AIX) || defined (HPUX) || defined (__QNX__)
    typedef off64_t ACE_LOFF_T;
 #elif defined (__sun)
    typedef offset_t ACE_LOFF_T;

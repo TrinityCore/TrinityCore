@@ -1,4 +1,4 @@
-// $Id: Process.cpp 87826 2009-11-30 14:02:40Z johnnyw $
+// $Id: Process.cpp 92218 2010-10-14 13:18:15Z mcorino $
 
 #include "ace/Process.h"
 
@@ -29,7 +29,7 @@
 # include <taskLib.h>
 #endif
 
-ACE_RCSID (ace, Process, "$Id: Process.cpp 87826 2009-11-30 14:02:40Z johnnyw $")
+
 
 // This function acts as a signal handler for SIGCHLD. We don't really want
 // to do anything with the signal - it's just needed to interrupt a sleep.
@@ -796,7 +796,8 @@ ACE_Process::convert_env_buffer (const char* env) const
 ACE_Process_Options::ACE_Process_Options (bool inherit_environment,
                                           size_t command_line_buf_len,
                                           size_t env_buf_len,
-                                          size_t max_env_args)
+                                          size_t max_env_args,
+                                          size_t max_cmdline_args)
   :
 #if !defined (ACE_HAS_WINCE)
     inherit_environment_ (inherit_environment),
@@ -830,6 +831,8 @@ ACE_Process_Options::ACE_Process_Options (bool inherit_environment,
     command_line_buf_ (0),
     command_line_copy_ (0),
     command_line_buf_len_ (command_line_buf_len),
+    max_command_line_args_ (max_cmdline_args),
+    command_line_argv_ (0),
     process_group_ (ACE_INVALID_PID),
     use_unicode_environment_ (false)
 {
@@ -859,6 +862,8 @@ ACE_Process_Options::ACE_Process_Options (bool inherit_environment,
   this->startup_info_.cb = sizeof this->startup_info_;
 #endif /* ACE_WIN32 */
 #endif /* !ACE_HAS_WINCE */
+  ACE_NEW (command_line_argv_,
+           ACE_TCHAR *[max_cmdline_args]);
 }
 
 #if !defined (ACE_HAS_WINCE)
@@ -1178,6 +1183,7 @@ ACE_Process_Options::~ACE_Process_Options (void)
 #endif /* !ACE_HAS_WINCE */
   delete [] command_line_buf_;
   ACE::strdelete (command_line_copy_);
+  delete [] command_line_argv_;
 }
 
 int
@@ -1315,12 +1321,12 @@ ACE_Process_Options::command_line_argv (void)
       parser.preserve_designators ('\"', '\"'); // "
       parser.preserve_designators ('\'', '\'');
 
-      int x = 0;
+      unsigned int x = 0;
       do
         command_line_argv_[x] = parser.next ();
       while (command_line_argv_[x] != 0
              // substract one for the ending zero.
-             && ++x < MAX_COMMAND_LINE_OPTIONS - 1);
+             && ++x < max_command_line_args_ - 1);
 
       command_line_argv_[x] = 0;
     }

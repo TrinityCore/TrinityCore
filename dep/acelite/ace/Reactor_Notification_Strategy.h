@@ -4,7 +4,7 @@
 /**
  *  @file   Reactor_Notification_Strategy.h
  *
- *  $Id: Reactor_Notification_Strategy.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Reactor_Notification_Strategy.h 92345 2010-10-24 12:39:33Z johnnyw $
  *
  *  @author Doug Schmidt
  */
@@ -28,7 +28,7 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
  * @brief Used to notify an ACE_Reactor
  *
  * Integrates the ACE_Message_Queue notification into the
- * <ACE_Reactor::notify> method.
+ * ACE_Reactor::notify() method.
  */
 class ACE_Export ACE_Reactor_Notification_Strategy : public ACE_Notification_Strategy
 {
@@ -37,7 +37,7 @@ public:
                                      ACE_Event_Handler *eh,
                                      ACE_Reactor_Mask mask);
 
-  /// Default dtor.
+  /// Default destructor.
   virtual ~ACE_Reactor_Notification_Strategy (void);
 
   virtual int notify (void);

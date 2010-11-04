@@ -4,7 +4,7 @@
 /**
  *  @file   OS_Memory.h
  *
- *  $Id: OS_Memory.h 86400 2009-08-06 13:52:28Z schmidt $
+ *  $Id: OS_Memory.h 91688 2010-09-09 11:21:50Z johnnyw $
  *
  *  @author Doug Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -58,11 +58,7 @@
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
-#if defined (ACE_HAS_OLD_MALLOC)
-typedef char * ACE_MALLOC_T;
-#else
 typedef void * ACE_MALLOC_T;
-#endif /* ACE_HAS_OLD_MALLOC */
 
 ACE_END_VERSIONED_NAMESPACE_DECL
 

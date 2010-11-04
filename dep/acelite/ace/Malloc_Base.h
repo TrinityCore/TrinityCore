@@ -4,7 +4,7 @@
 /**
  *  @file    Malloc_Base.h
  *
- *  $Id: Malloc_Base.h 91058 2010-07-12 08:20:09Z johnnyw $
+ *  $Id: Malloc_Base.h 92085 2010-09-29 12:23:13Z johnnyw $
  *
  *  @author Doug Schmidt and Irfan Pyarali
  */
@@ -85,7 +85,7 @@ public:
    * Associate @a name with @a pointer.  If @a duplicates == 0 then do
    * not allow duplicate @a name/@a pointer associations, else if
    * @a duplicates != 0 then allow duplicate @a name/@a pointer
-   * assocations.  Returns 0 if successfully binds (1) a previously
+   * associations.  Returns 0 if successfully binds (1) a previously
    * unbound @a name or (2) @a duplicates != 0, returns 1 if trying to
    * bind a previously bound @a name and @a duplicates == 0, else
    * returns -1 if a resource failure occurs.

@@ -8,7 +8,7 @@
  * Integrity RTOS with SCA from Green Hills Software
  * http://www.ghs.com/products/rtos/integrity.html
  *
- * $Id: config-integritySCA.h 88501 2010-01-12 19:41:53Z olli $
+ * $Id: config-integritySCA.h 92181 2010-10-08 07:52:54Z olli $
  */
 
 #define ghs
@@ -26,13 +26,9 @@
 #define ACE_LACKS_GETEGID
 #define ACE_LACKS_GETGID
 
-#ifndef ACE_HAS_EXCEPTIONS
-  #define ACE_HAS_EXCEPTIONS
-#endif
 #define ACE_NEW_THROWS_EXCEPTIONS
 #define ACE_HAS_STANDARD_CPP_LIBRARY 1
 #define ACE_TEMPLATES_REQUIRE_SOURCE 1
-#define ACE_HAS_TEMPLATE_TYPEDEFS
 #define TAO_USE_SEQUENCE_TEMPLATES
 #define ACE_NEEDS_FUNC_DEFINITIONS
 #define _REENTRANT
@@ -109,7 +105,6 @@
 #define ACE_LACKS_MSYNC
 #define ACE_LACKS_PID_STUFF
 #define ACE_LACKS_NETDB_REENTRANT_FUNCTIONS
-#define ACE_LACKS_IPC_H
 #define ACE_LACKS_SETGID
 #define ACE_LACKS_PIPE
 #define ACE_LACKS_SYS_PARAM_H
@@ -189,7 +184,6 @@ extern "C"
 #define ACE_LACKS_GETPPID
 #define NSIG (SIGRTMAX+1)
 #define ACE_USES_STD_NAMESPACE_FOR_STDCPP_LIB 1
-#define ACE_USE_RCSID 0
 #define ACE_LACKS_CUSERID
 #define ACE_NEEDS_HUGE_THREAD_STACKSIZE 0x5000
 #define fileno(file) ((file)->io_channel) //Hack to get Svc_Conf_l.cpp compiled

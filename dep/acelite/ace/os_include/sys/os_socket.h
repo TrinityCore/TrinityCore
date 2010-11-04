@@ -6,7 +6,7 @@
  *
  *  main sockets header
  *
- *  $Id: os_socket.h 85015 2009-04-03 12:27:59Z johnnyw $
+ *  $Id: os_socket.h 91781 2010-09-15 12:49:15Z johnnyw $
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -40,7 +40,7 @@ extern "C"
 {
 #endif /* __cplusplus */
 
-#if !defined (ACE_HAS_MSG) && !defined (SCO)
+#if !defined (ACE_HAS_MSG)
    struct msghdr {};
 #endif /* ACE_HAS_MSG */
 

@@ -4,7 +4,7 @@
 /**
  *  @file    Event_Handler_T.h
  *
- *  $Id: Event_Handler_T.h 83891 2008-11-28 11:01:50Z johnnyw $
+ *  $Id: Event_Handler_T.h 91626 2010-09-07 10:59:20Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -19,8 +19,6 @@
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
-#if defined (ACE_HAS_TEMPLATE_TYPEDEFS)
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -186,6 +184,5 @@ ACE_END_VERSIONED_NAMESPACE_DECL
 #pragma implementation ("Event_Handler_T.cpp")
 #endif /* ACE_TEMPLATES_REQUIRE_PRAGMA */
 
-#endif /* ACE_HAS_TEMPLATE_TYPEDEFS */
 #include /**/ "ace/post.h"
 #endif /* ACE_EVENT_HANDLER_H */

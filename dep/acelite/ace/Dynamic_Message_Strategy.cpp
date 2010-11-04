@@ -1,3 +1,5 @@
+// $Id: Dynamic_Message_Strategy.cpp 91287 2010-08-05 10:30:49Z johnnyw $
+
 #include "ace/Dynamic_Message_Strategy.h"
 
 #if !defined (__ACE_INLINE__)
@@ -8,10 +10,6 @@
 #include "ace/Log_Msg.h"
 #include "ace/Malloc_Base.h"
 #include "ace/OS_NS_string.h"
-
-ACE_RCSID (ace,
-           Dynamic_Message_Strategy,
-           "$Id: Dynamic_Message_Strategy.cpp 84565 2009-02-23 08:20:39Z johnnyw $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

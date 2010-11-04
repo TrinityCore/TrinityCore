@@ -6,7 +6,7 @@
  *
  *  signals
  *
- *  $Id: os_signal.h 87480 2009-11-11 11:38:15Z olli $
+ *  $Id: os_signal.h 91781 2010-09-15 12:49:15Z johnnyw $
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -31,12 +31,6 @@
 #  include /**/ <signal.h>
    }
 #endif /* !ACE_LACKS_SIGNAL_H */
-
-// This must come after signal.h is #included.
-#if defined (SCO)
-#  define SIGIO SIGPOLL
-#  include /**/ <sys/regset.h>
-#endif /* SCO */
 
 #if defined (ACE_HAS_SIGINFO_T)
 #  if !defined (ACE_LACKS_SIGINFO_H)
@@ -175,9 +169,6 @@ extern "C"
 #elif defined (ACE_WIN32)
    typedef void (__cdecl *ACE_SignalHandler)(int);
    typedef void (__cdecl *ACE_SignalHandlerV)(int);
-#elif defined (ACE_HAS_UNIXWARE_SVR4_SIGNAL_T)
-   typedef void (*ACE_SignalHandler)(int);
-   typedef void (*ACE_SignalHandlerV)(...);
 #elif defined (INTEGRITY)
    typedef void (*ACE_SignalHandler)();
    typedef void (*ACE_SignalHandlerV)(int);
@@ -214,26 +205,6 @@ extern "C"
 #    define ACE_SIGRTMAX 0
 #  endif /* ACE_SIGRTMAX */
 #endif /* ACE_HAS_POSIX_REALTIME_SIGNALS */
-
-#if defined (DIGITAL_UNIX)
-   // sigwait is yet another macro on Digital UNIX 4.0, just causing
-   // trouble when introducing member functions with the same name.
-   // Thanks to Thilo Kielmann" <kielmann@informatik.uni-siegen.de> for
-   // this fix.
-#  if defined  (__DECCXX_VER)
-#    undef sigwait
-     // cxx on Digital Unix 4.0 needs this declaration.  With it,
-     // <::_Psigwait> works with cxx -pthread.  g++ does _not_ need
-     // it.
-     int _Psigwait __((const sigset_t *set, int *sig));
-#  endif /* __DECCXX_VER */
-#elif !defined (ACE_HAS_SIGWAIT)
-#  if defined(ACE_HAS_RTEMS)
-     int sigwait (const sigset_t *set, int *sig);
-#  else
-     int sigwait (sigset_t *set);
-#  endif /* ACE_HAS_RTEMS */
-#endif /* ! DIGITAL_UNIX && ! ACE_HAS_SIGWAIT */
 
 #if !defined (ACE_HAS_PTHREAD_SIGMASK_PROTOTYPE)
   int pthread_sigmask(int, const sigset_t *, sigset_t *);

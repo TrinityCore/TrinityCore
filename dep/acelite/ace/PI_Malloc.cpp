@@ -1,11 +1,9 @@
+// $Id: PI_Malloc.cpp 91287 2010-08-05 10:30:49Z johnnyw $
+
 #ifndef ACE_PI_MALLOC_CPP
 #define ACE_PI_MALLOC_CPP
 
 #include "ace/PI_Malloc.h"
-
-ACE_RCSID (ace,
-           PI_Malloc,
-           "$Id: PI_Malloc.cpp 80826 2008-03-04 14:51:23Z wotte $")
 
 #if (ACE_HAS_POSITION_INDEPENDENT_POINTERS == 1)
 

@@ -1,4 +1,4 @@
-// $Id: SOCK_SEQPACK_Connector.cpp 83735 2008-11-14 09:41:52Z johnnyw $
+// $Id: SOCK_SEQPACK_Connector.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/SOCK_SEQPACK_Connector.h"
 
@@ -18,7 +18,7 @@
 #include "ace/SOCK_SEQPACK_Connector.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, SOCK_SEQPACK_Connector, "SOCK_SEQPACK_Connector.cpp,v 4.35 2002/03/08 23:18:09 spark Exp")
+
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

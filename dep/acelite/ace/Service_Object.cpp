@@ -1,4 +1,4 @@
-// $Id: Service_Object.cpp 90077 2010-05-05 16:19:16Z cbeaulac $
+// $Id: Service_Object.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/config-all.h"
 
@@ -16,10 +16,6 @@
 #if defined (ACE_OPENVMS)
 # include "ace/Lib_Find.h"
 #endif
-
-ACE_RCSID (ace,
-           Service_Object,
-           "$Id: Service_Object.cpp 90077 2010-05-05 16:19:16Z cbeaulac $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

@@ -1,8 +1,8 @@
-// $Id: LSOCK.cpp 88869 2010-02-06 11:29:56Z mcorino $
+// $Id: LSOCK.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/LSOCK.h"
 
-ACE_RCSID(ace, LSOCK, "$Id: LSOCK.cpp 88869 2010-02-06 11:29:56Z mcorino $")
+
 
 #if !defined (ACE_LACKS_UNIX_DOMAIN_SOCKETS)
 

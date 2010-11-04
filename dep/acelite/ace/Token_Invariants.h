@@ -4,7 +4,7 @@
 /**
  *  @file    Token_Invariants.h
  *
- *  $Id: Token_Invariants.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Token_Invariants.h 91688 2010-09-09 11:21:50Z johnnyw $
  *
  *  @author Tim Harrison (harrison@cs.wustl.edu)
  *
@@ -195,40 +195,12 @@ protected:
   typedef ACE_Map_Manager<TOKEN_NAME, ACE_Mutex_Invariants *, ACE_Null_Mutex>
     MUTEX_COLLECTION;
 
-  /// Allows iterations through collection.
-  /**
-   * @deprecated Deprecated typedef.  Use MUTEX_COLLECTION::ITERATOR trait
-   * instead.
-   */
-  typedef MUTEX_COLLECTION::ITERATOR MUTEX_COLLECTION_ITERATOR;
-
-  /// Allows iterations through collection.
-  /**
-   * @deprecated Deprecated typedef.  Use MUTEX_COLLECTION::ENTRY trait
-   * instead.
-   */
-  typedef MUTEX_COLLECTION::ENTRY MUTEX_COLLECTION_ENTRY;
-
   /// MUTEX_COLLECTION maintains a mapping from token names to mutexes.
   MUTEX_COLLECTION mutex_collection_;
 
   /// COLLECTION maintains a mapping from token names to mutexes.
   typedef ACE_Map_Manager<TOKEN_NAME, ACE_RWLock_Invariants *, ACE_Null_Mutex>
     RWLOCK_COLLECTION;
-
-  /// Allows iterations through collection.
-  /**
-   * @deprecated Deprecated typedef.  Use RWLOCK_COLLECTION::ITERATOR trait
-   * instead.
-   */
-  typedef RWLOCK_COLLECTION::ITERATOR RWLOCK_COLLECTION_ITERATOR;
-
-  /// Allows iterations through collection.
-  /**
-   * @deprecated Deprecated typedef.  Use RWLOCK_COLLECTION::ENTRY trait
-   * instead.
-   */
-  typedef RWLOCK_COLLECTION::ENTRY RWLOCK_COLLECTION_ENTRY;
 
   /// MUTEX_COLLECTION maintains a mapping from token names to mutexes.
   RWLOCK_COLLECTION rwlock_collection_;

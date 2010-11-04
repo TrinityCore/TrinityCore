@@ -1,3 +1,5 @@
+// $Id: Name_Request_Reply.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
+
 #include "ace/Name_Request_Reply.h"
 #include "ace/Basic_Types.h"
 #include "ace/CDR_Base.h"
@@ -6,10 +8,6 @@
 #include "ace/Truncate.h"
 #include "ace/OS_NS_string.h"
 #include "ace/os_include/arpa/os_inet.h"
-
-ACE_RCSID (ace,
-           Name_Request_Reply,
-           "$Id: Name_Request_Reply.cpp 80826 2008-03-04 14:51:23Z wotte $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

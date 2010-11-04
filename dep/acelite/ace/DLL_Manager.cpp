@@ -1,4 +1,4 @@
-// $Id: DLL_Manager.cpp 90712 2010-06-18 20:01:29Z shuston $
+// $Id: DLL_Manager.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/DLL_Manager.h"
 
@@ -14,13 +14,7 @@
 #include "ace/OS_NS_dlfcn.h"
 #include "ace/OS_NS_string.h"
 
-ACE_RCSID (ace,
-           DLL_Manager,
-           "DLL_Manager.cpp,v 4.23 2003/11/05 23:30:46 shuston Exp")
-
-/******************************************************************/
-
-  ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 sig_atomic_t ACE_DLL_Handle::open_called_ = 0;
 

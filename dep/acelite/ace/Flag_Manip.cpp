@@ -1,4 +1,4 @@
-// $Id: Flag_Manip.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: Flag_Manip.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
 
 #include "ace/Flag_Manip.h"
 
@@ -14,10 +14,6 @@
 #if defined (CYGWIN32)
 #  include "ace/os_include/os_termios.h"
 #endif /* CYGWIN32 */
-
-ACE_RCSID (ace,
-           Flag_Manip,
-           "$Id: Flag_Manip.cpp 80826 2008-03-04 14:51:23Z wotte $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

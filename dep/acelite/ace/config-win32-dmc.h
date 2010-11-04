@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: config-win32-dmc.h 87268 2009-10-29 21:06:06Z olli $
+// $Id: config-win32-dmc.h 92102 2010-09-30 08:14:15Z johnnyw $
 
 // The following configuration file contains defines for Digital Mars compilers.
 
@@ -28,10 +28,8 @@
 # define ACE_CC_MAJOR_VERSION (1)
 # define ACE_CC_MINOR_VERSION (8)
 # define ACE_CC_BETA_VERSION (9)
-# ifndef ACE_USING_MCPP_PREPROCESSOR
-#  define ACE_CC_PREPROCESSOR "DMC.EXE"
-#  define ACE_CC_PREPROCESSOR_ARGS "-E"
-# endif
+# define ACE_CC_PREPROCESSOR "DMC.EXE"
+# define ACE_CC_PREPROCESSOR_ARGS "-E"
 
 // Microsoft's standard cpp library auto_ptr doesn't have reset ().
 # define ACE_AUTO_PTR_LACKS_RESET
@@ -46,25 +44,19 @@
 #define ACE_WCSDUP_EQUIVALENT ::_wcsdup
 //  This section above was extracted from config-win32-msvc
 
-# define ACE_EXPORT_NESTED_CLASSES 1
-# define ACE_HAS_CPLUSPLUS_HEADERS 1
-//# define ACE_HAS_EXCEPTIONS 1
-# define ACE_HAS_NONCONST_SELECT_TIMEVAL 1
-# define ACE_HAS_SIG_ATOMIC_T 1
-# define ACE_HAS_STANDARD_CPP_LIBRARY 0
-# define ACE_HAS_STDCPP_STL_INCLUDES 1
-# define ACE_HAS_STRING_CLASS 1
-# define ACE_HAS_TEMPLATE_TYPEDEFS 1
-# define ACE_HAS_USER_MODE_MASKS 1
-//# define ACE_LACKS_LINEBUFFERED_STREAMBUF 1
-# define ACE_LACKS_STRPTIME 1
-//# define ACE_LACKS_PRAGMA_ONCE 1
-//# define ACE_NEW_THROWS_EXCEPTIONS 1
-# define ACE_SIZEOF_LONG_DOUBLE 10
-# define ACE_TEMPLATES_REQUIRE_SOURCE 1
-// Changed ACE_TEXT to ACE_TEXT in the following two lines
-# define ACE_USES_STD_NAMESPACE_FOR_STDCPP_LIB 1
-# define ACE_HAS_STRBUF_T
+#define ACE_EXPORT_NESTED_CLASSES 1
+#define ACE_HAS_CPLUSPLUS_HEADERS 1
+#define ACE_HAS_NONCONST_SELECT_TIMEVAL 1
+#define ACE_HAS_SIG_ATOMIC_T 1
+#define ACE_HAS_STANDARD_CPP_LIBRARY 0
+#define ACE_HAS_STDCPP_STL_INCLUDES 1
+#define ACE_HAS_STRING_CLASS 1
+#define ACE_HAS_USER_MODE_MASKS 1
+#define ACE_LACKS_STRPTIME 1
+#define ACE_SIZEOF_LONG_DOUBLE 10
+#define ACE_TEMPLATES_REQUIRE_SOURCE 1
+#define ACE_USES_STD_NAMESPACE_FOR_STDCPP_LIB 1
+#define ACE_HAS_STRBUF_T
 #define ACE_HAS_3_PARAM_WCSTOK
 #define ACE_USES_OLD_IOSTREAMS
 #define ACE_LACKS_UCONTEXT_H

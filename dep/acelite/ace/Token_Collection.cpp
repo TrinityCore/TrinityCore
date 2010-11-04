@@ -1,3 +1,4 @@
+// $Id: Token_Collection.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
 #include "ace/Token_Collection.h"
 
 #if defined (ACE_HAS_TOKENS_LIBRARY)
@@ -6,10 +7,6 @@
 #include "ace/Token_Collection.inl"
 #endif /* __ACE_INLINE__ */
 
-
-ACE_RCSID (ace,
-           Token_Collection,
-           "$Id: Token_Collection.cpp 80826 2008-03-04 14:51:23Z wotte $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

@@ -1,4 +1,4 @@
-// $Id: TLI_Acceptor.cpp 82723 2008-09-16 09:35:44Z johnnyw $
+// $Id: TLI_Acceptor.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/TLI_Acceptor.h"
 #include "ace/Log_Msg.h"
@@ -6,7 +6,7 @@
 #include "ace/OS_NS_string.h"
 #include "ace/OS_Memory.h"
 
-ACE_RCSID(ace, TLI_Acceptor, "$Id: TLI_Acceptor.cpp 82723 2008-09-16 09:35:44Z johnnyw $")
+
 
 #if defined (ACE_HAS_TLI)
 

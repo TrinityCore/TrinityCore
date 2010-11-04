@@ -1,4 +1,4 @@
-// $Id: Obchunk.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: Obchunk.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/Obchunk.h"
 
@@ -6,7 +6,7 @@
 #include "ace/Obchunk.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, Obchunk, "$Id: Obchunk.cpp 80826 2008-03-04 14:51:23Z wotte $")
+
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

@@ -4,7 +4,7 @@
 /**
  *  @file    Read_Buffer.h
  *
- *  $Id: Read_Buffer.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Read_Buffer.h 92345 2010-10-24 12:39:33Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Seth Widoff
@@ -32,7 +32,7 @@ class ACE_Allocator;
 /**
  * @class ACE_Read_Buffer
  *
- * @brief Efficiently reads an artibrarily large buffer from an input
+ * @brief Efficiently reads an arbitrarily large buffer from an input
  * stream up to and including a termination character.  Also
  * performs search/replace on single occurrences a character in
  * the buffer using the principles of Integrated Layer
@@ -66,13 +66,13 @@ public:
 
   /**
    * Returns a pointer dynamically allocated with
-   * ACE_Allocator::malloc to data from the input stream up to (and
+   * ACE_Allocator::malloc() to data from the input stream up to (and
    * including) the @a terminator.  If @a search is >= 0 then all
    * occurrences of the @a search value are substituted with the
    * @a replace value.  The last of the byte of data is a 0, so that
    * @c strlen can be used on it.  The caller is responsible for
    * freeing the pointer returned from this method using the
-   * ACE_Allocator::free.
+   * ACE_Allocator::free().
    */
   char *read (int terminator = EOF,
               int search = '\n',

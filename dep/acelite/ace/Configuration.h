@@ -4,7 +4,7 @@
 /**
  *  @file    Configuration.h
  *
- *  $Id: Configuration.h 86348 2009-08-04 14:45:29Z shuston $
+ *  $Id: Configuration.h 91688 2010-09-09 11:21:50Z johnnyw $
  *
  *  @author Chris Hafey <chafey@stentor.com>
  *
@@ -360,22 +360,6 @@ public:
                    int create = 1);
 
   /**
-   * @deprecated Exports the configuration database to filename.
-   * If @a filename is already present, it is overwritten. This function is
-   * deprecated and will be removed in a future version of ACE. Please use
-   * either ACE_Registry_ImpExp or ACE_Ini_ImpExp instead.
-   */
-  int export_config (const ACE_TCHAR* filename);
-
-  /**
-   * @deprecated Imports the configuration database from filename.  Any
-   * existing data is not removed. This function is deprecated and will be
-   * removed in a future version of ACE. Please use ACE_Registry_ImpExp
-   * or ACE_Ini_ImpExp instead.
-   */
-  int import_config (const ACE_TCHAR* filename);
-
-  /**
    * Determine if the contents of this object is the same as the
    * contents of the object on the right hand side.
    * Returns true if they are equal and false if they are not equal
@@ -618,9 +602,6 @@ typedef ACE_Hash_Map_Manager_Ex<ACE_Configuration_ExtId,
                                 ACE_Equal_To<ACE_Configuration_ExtId>,
                                 ACE_Null_Mutex>
         SUBSECTION_HASH;
-
-/// @deprecated Deprecated typedef.  Use the SUBSECTION_HASH::ENTRY trait instead.
-typedef SUBSECTION_HASH::ENTRY SUBSECTION_ENTRY;
 
 /**
  * @class ACE_Configuration_Value_IntId

@@ -1,4 +1,4 @@
-// $Id: Message_Queue_Vx.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: Message_Queue_Vx.cpp 91626 2010-09-07 10:59:20Z johnnyw $
 
 #include "ace/Message_Queue_Vx.h"
 #include "ace/Log_Msg.h"
@@ -6,11 +6,6 @@
 #if !defined (__ACE_INLINE__)
 #include "ace/Message_Queue_Vx.inl"
 #endif /* __ACE_INLINE__ */
-
-ACE_RCSID (ace,
-           Message_Queue_Vx,
-           "$Id: Message_Queue_Vx.cpp 80826 2008-03-04 14:51:23Z wotte $")
-
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -333,24 +328,16 @@ ACE_Message_Queue_Vx::dequeue_deadline_i (ACE_Message_Block *& /*dequeued*/)
 // Take a look at the first item without removing it.
 
 int
-ACE_Message_Queue_Vx::wait_not_full_cond (ACE_Guard<ACE_Null_Mutex> &mon,
-                                          ACE_Time_Value *tv)
+ACE_Message_Queue_Vx::wait_not_full_cond (ACE_Time_Value *)
 {
   // Always return here, and let the VxWorks message queue handle blocking.
-  ACE_UNUSED_ARG (mon);
-  ACE_UNUSED_ARG (tv);
-
   return 0;
 }
 
 int
-ACE_Message_Queue_Vx::wait_not_empty_cond (ACE_Guard<ACE_Null_Mutex> &mon,
-                                           ACE_Time_Value *tv)
+ACE_Message_Queue_Vx::wait_not_empty_cond (ACE_Time_Value *)
 {
   // Always return here, and let the VxWorks message queue handle blocking.
-  ACE_UNUSED_ARG (mon);
-  ACE_UNUSED_ARG (tv);
-
   return 0;
 }
 

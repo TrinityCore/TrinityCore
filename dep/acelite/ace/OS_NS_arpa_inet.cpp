@@ -1,9 +1,7 @@
 // -*- C++ -*-
-// $Id: OS_NS_arpa_inet.cpp 88515 2010-01-13 08:47:38Z johnnyw $
+// $Id: OS_NS_arpa_inet.cpp 91781 2010-09-15 12:49:15Z johnnyw $
 
 #include "ace/OS_NS_arpa_inet.h"
-
-ACE_RCSID(ace, OS_NS_arpa_inet, "$Id: OS_NS_arpa_inet.cpp 88515 2010-01-13 08:47:38Z johnnyw $")
 
 #if !defined (ACE_HAS_INLINED_OSCALLS)
 # include "ace/OS_NS_arpa_inet.inl"

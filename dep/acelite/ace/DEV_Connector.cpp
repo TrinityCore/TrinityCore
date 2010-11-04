@@ -1,4 +1,4 @@
-// $Id: DEV_Connector.cpp 80826 2008-03-04 14:51:23Z wotte $
+// $Id: DEV_Connector.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/DEV_Connector.h"
 
@@ -7,12 +7,6 @@
 #if !defined (__ACE_INLINE__)
 #include "ace/DEV_Connector.inl"
 #endif /* __ACE_INLINE__ */
-
-
-ACE_RCSID (ace,
-           DEV_Connector,
-           "$Id: DEV_Connector.cpp 80826 2008-03-04 14:51:23Z wotte $")
-
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

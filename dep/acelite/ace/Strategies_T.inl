@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: Strategies_T.inl 81503 2008-04-28 18:28:15Z johnnyw $
+// $Id: Strategies_T.inl 91688 2010-09-09 11:21:50Z johnnyw $
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -183,7 +183,7 @@ ACE_Schedule_All_Threaded_Strategy<SVC_HANDLER>::ACE_Schedule_All_Threaded_Strat
 
 template <class T> ACE_INLINE
 ACE_Refcounted_Hash_Recyclable<T>::ACE_Refcounted_Hash_Recyclable (void)
-  : ACE_Refcountable (0),
+  : ACE_Refcountable_T<ACE_Null_Mutex> (0),
     ACE_Hashable (),
     ACE_Recyclable (ACE_RECYCLABLE_UNKNOWN),
     t_ ()
@@ -194,7 +194,7 @@ template <class T> ACE_INLINE
 ACE_Refcounted_Hash_Recyclable<T>::ACE_Refcounted_Hash_Recyclable (const T &t,
                                                                    long refcount,
                                                                    ACE_Recyclable_State state)
-  : ACE_Refcountable (refcount),
+  : ACE_Refcountable_T<ACE_Null_Mutex> (refcount),
     ACE_Hashable (),
     ACE_Recyclable (state),
     t_ (t)

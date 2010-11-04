@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: OS_NS_netdb.inl 86295 2009-07-30 10:41:49Z shuston $
+// $Id: OS_NS_netdb.inl 91683 2010-09-09 09:07:49Z johnnyw $
 
 #include "ace/OS_NS_macros.h"
 #include "ace/OS_NS_string.h"
@@ -107,12 +107,12 @@ ACE_OS::gethostbyaddr_r (const char *addr,
   ACE_UNUSED_ARG (buffer);
   ACE_UNUSED_ARG (h_errnop);
   ACE_NOTSUP_RETURN (0);
-# elif defined (ACE_HAS_REENTRANT_FUNCTIONS) && !defined (UNIXWARE)
+# elif defined (ACE_HAS_REENTRANT_FUNCTIONS)
 
   if (0 == addr || '\0' == addr[0])
       return 0;
 
-#   if defined (AIX) || defined (DIGITAL_UNIX)
+#   if defined (AIX)
   ACE_OS::memset (buffer, 0, sizeof (ACE_HOSTENT_DATA));
 
   //FUZZ: disable check_for_lack_ACE_OS
@@ -206,7 +206,7 @@ ACE_OS::gethostbyaddr_r (const char *addr,
                        struct hostent *, 0);
   //FUZZ: enable check_for_lack_ACE_OS
 #     endif /* ACE_LACKS_NETDB_REENTRANT_FUNCTIONS */
-#   endif /* defined (AIX) || defined (DIGITAL_UNIX) */
+#   endif /* defined (AIX) */
 # elif defined (ACE_HAS_NONCONST_GETBY)
   ACE_UNUSED_ARG (result);
   ACE_UNUSED_ARG (buffer);
@@ -290,13 +290,12 @@ ACE_OS::gethostbyname_r (const char *name,
   ACE_UNUSED_ARG (buffer);
   ACE_UNUSED_ARG (h_errnop);
   ACE_NOTSUP_RETURN (0);
-# elif defined (ACE_HAS_REENTRANT_FUNCTIONS) && !defined (UNIXWARE)
+# elif defined (ACE_HAS_REENTRANT_FUNCTIONS)
 
   if (0 == name || '\0' == name[0])
       return (struct hostent *)0;
 
-#   if defined (DIGITAL_UNIX) || \
-       (defined (ACE_AIX_MINOR_VERS) && (ACE_AIX_MINOR_VERS > 2))
+# if (defined (ACE_AIX_MINOR_VERS) && (ACE_AIX_MINOR_VERS > 2))
   ACE_UNUSED_ARG (result);
   ACE_UNUSED_ARG (buffer);
   ACE_UNUSED_ARG (h_errnop);
@@ -397,7 +396,7 @@ ACE_OS::gethostbyname_r (const char *name,
                        0);
   //FUZZ: enable check_for_lack_ACE_OS
 #     endif /* ACE_LACKS_NETDB_REENTRANT_FUNCTIONS */
-#   endif /* defined (AIX) || defined (DIGITAL_UNIX) */
+#   endif /* defined (AIX) */
 # elif defined (ACE_HAS_NONCONST_GETBY)
   ACE_UNUSED_ARG (result);
   ACE_UNUSED_ARG (buffer);
@@ -421,7 +420,7 @@ ACE_OS::gethostbyname_r (const char *name,
     *h_errnop = errno;
   return result2;
   //FUZZ: enable check_for_lack_ACE_OS
-# endif /* defined (ACE_HAS_REENTRANT_FUNCTIONS) && !defined (UNIXWARE) */
+# endif /* defined (ACE_HAS_REENTRANT_FUNCTIONS) */
 }
 
 #endif
@@ -524,8 +523,8 @@ ACE_OS::getprotobyname_r (const char *name,
   ACE_UNUSED_ARG (result);
   ACE_UNUSED_ARG (buffer);
   ACE_NOTSUP_RETURN (0);
-#elif defined (ACE_HAS_REENTRANT_FUNCTIONS) && !defined (UNIXWARE)
-# if defined (AIX) || defined (DIGITAL_UNIX)
+#elif defined (ACE_HAS_REENTRANT_FUNCTIONS)
+# if defined (AIX)
   //FUZZ: disable check_for_lack_ACE_OS
   if (::getprotobyname_r (name, result, (struct protoent_data *) buffer) == 0)
     return result;
@@ -561,7 +560,7 @@ ACE_OS::getprotobyname_r (const char *name,
                        struct protoent *, 0);
     //FUZZ: enable check_for_lack_ACE_OS
 #   endif /* ACE_LACKS_NETDB_REENTRANT_FUNCTIONS */
-# endif /* defined (AIX) || defined (DIGITAL_UNIX) */
+# endif /* defined (AIX) */
 #elif defined (ACE_HAS_NONCONST_GETBY)
   ACE_UNUSED_ARG (result);
   ACE_UNUSED_ARG (buffer);
@@ -578,7 +577,7 @@ ACE_OS::getprotobyname_r (const char *name,
                        struct protoent *,
                        0);
   //FUZZ: enable check_for_lack_ACE_OS
-#endif /* defined (ACE_HAS_REENTRANT_FUNCTIONS) !defined (UNIXWARE) */
+#endif /* defined (ACE_HAS_REENTRANT_FUNCTIONS) */
 }
 
 ACE_INLINE struct protoent *
@@ -605,8 +604,8 @@ ACE_OS::getprotobynumber_r (int proto,
   ACE_UNUSED_ARG (result);
   ACE_UNUSED_ARG (buffer);
   ACE_NOTSUP_RETURN (0);
-#elif defined (ACE_HAS_REENTRANT_FUNCTIONS) && !defined (UNIXWARE)
-# if defined (AIX) || defined (DIGITAL_UNIX)
+#elif defined (ACE_HAS_REENTRANT_FUNCTIONS)
+# if defined (AIX)
   //FUZZ: disable check_for_lack_ACE_OS
   if (::getprotobynumber_r (proto, result, (struct protoent_data *) buffer) == 0)
     return result;
@@ -639,7 +638,7 @@ ACE_OS::getprotobynumber_r (int proto,
                        struct protoent *, 0);
   //FUZZ: enable check_for_lack_ACE_OS
 #   endif /* ACE_LACKS_NETDB_REENTRANT_FUNCTIONS */
-# endif /* defined (AIX) || defined (DIGITAL_UNIX) */
+# endif /* defined (AIX) */
 #else
   ACE_UNUSED_ARG (buffer);
   ACE_UNUSED_ARG (result);
@@ -648,7 +647,7 @@ ACE_OS::getprotobynumber_r (int proto,
   ACE_SOCKCALL_RETURN (::getprotobynumber (proto),
                        struct protoent *, 0);
   //FUZZ: enable check_for_lack_ACE_OS
-#endif /* defined (ACE_HAS_REENTRANT_FUNCTIONS) && !defined (UNIXWARE) */
+#endif /* defined (ACE_HAS_REENTRANT_FUNCTIONS) */
 }
 
 ACE_INLINE struct servent *
@@ -689,8 +688,8 @@ ACE_OS::getservbyname_r (const char *svc,
   ACE_UNUSED_ARG (result);
   ACE_UNUSED_ARG (buf);
   ACE_NOTSUP_RETURN (0);
-#elif defined (ACE_HAS_REENTRANT_FUNCTIONS) && !defined (UNIXWARE)
-# if defined (AIX) || defined (DIGITAL_UNIX)
+#elif defined (ACE_HAS_REENTRANT_FUNCTIONS)
+# if defined (AIX)
   ACE_OS::memset (buf, 0, sizeof (ACE_SERVENT_DATA));
 
   //FUZZ: disable check_for_lack_ACE_OS
@@ -729,7 +728,7 @@ ACE_OS::getservbyname_r (const char *svc,
                        struct servent *, 0);
   //FUZZ: enable check_for_lack_ACE_OS
 #   endif /* ACE_LACKS_NETDB_REENTRANT_FUNCTIONS */
-# endif /* defined (AIX) || defined (DIGITAL_UNIX) */
+# endif /* defined (AIX) */
 #elif defined (ACE_HAS_NONCONST_GETBY)
   ACE_UNUSED_ARG (buf);
   ACE_UNUSED_ARG (result);
@@ -748,7 +747,7 @@ ACE_OS::getservbyname_r (const char *svc,
                        struct servent *,
                        0);
   //FUZZ: enable check_for_lack_ACE_OS
-#endif /* defined (ACE_HAS_REENTRANT_FUNCTIONS) && !defined (UNIXWARE) */
+#endif /* defined (ACE_HAS_REENTRANT_FUNCTIONS) */
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL

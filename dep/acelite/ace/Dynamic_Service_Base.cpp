@@ -1,3 +1,5 @@
+// $Id: Dynamic_Service_Base.cpp 91813 2010-09-17 07:52:52Z johnnyw $
+
 #include "ace/Dynamic_Service_Base.h"
 #include "ace/ACE.h"
 #include "ace/Service_Config.h"
@@ -6,11 +8,7 @@
 #include "ace/Log_Msg.h"
 
 
-ACE_RCSID (ace,
-           Dynamic_Service_Base,
-           "$Id: Dynamic_Service_Base.cpp 84282 2009-01-30 15:04:29Z msmit $")
-
-  ACE_BEGIN_VERSIONED_NAMESPACE_DECL
+ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
 
 void
@@ -80,7 +78,7 @@ ACE_Dynamic_Service_Base::instance (const ACE_Service_Gestalt* repo,
 
   if (ACE::debug ())
     {
-      ACE_Guard <ACE_Log_Msg> log_guard (*ACE_Log_Msg::instance ());
+      ACE_GUARD_RETURN (ACE_Log_Msg, log_guard, *ACE_Log_Msg::instance (), 0);
 
       if (repo->repo_ != repo_found->repo_)
         {
@@ -88,7 +86,7 @@ ACE_Dynamic_Service_Base::instance (const ACE_Service_Gestalt* repo,
                     ACE_TEXT ("ACE (%P|%t) DSB::instance, repo=%@, name=%s")
                     ACE_TEXT (" type=%@ => %@")
                     ACE_TEXT (" [in repo=%@]\n"),
-                    repo->repo_, name, type, obj, 
+                    repo->repo_, name, type, obj,
                     repo_found->repo_));
         }
       else

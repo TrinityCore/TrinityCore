@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: MEM_IO.inl 82559 2008-08-07 20:23:07Z parsons $
+// $Id: MEM_IO.inl 91813 2010-09-17 07:52:52Z johnnyw $
 
 #include "ace/OS_NS_string.h"
 #include "ace/Truncate.h"
@@ -129,7 +129,7 @@ ACE_MEM_IO::send (const void *buf,
                   const ACE_Time_Value *timeout)
 {
   ACE_TRACE ("ACE_MEM_IO::send");
-  
+
   if (this->deliver_strategy_ == 0)
     {
       return 0;
@@ -138,12 +138,12 @@ ACE_MEM_IO::send (const void *buf,
   ACE_MEM_SAP_Node *sbuf =
     this->deliver_strategy_->acquire_buffer (
       ACE_Utils::truncate_cast<ssize_t> (len));
-  
+
   if (sbuf == 0)
     {
       return -1;                  // Memory buffer not initialized.
     }
-    
+
   ACE_OS::memcpy (sbuf->data (), buf, len);
 
   ///
@@ -166,17 +166,17 @@ ACE_MEM_IO::recv (void *buf,
   size_t count = 0;
 
   size_t buf_len = this->buf_size_ - this->cur_offset_;
-  
+
   if (buf_len == 0)
     {
       ssize_t blen =         // Buffer length
         this->fetch_recv_buf (flags, timeout);
-        
+
       if (blen <= 0)
         {
           return blen;
         }
-        
+
       buf_len = this->buf_size_;
     }
 

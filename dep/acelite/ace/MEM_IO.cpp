@@ -1,5 +1,5 @@
 // MEM_IO.cpp
-// $Id: MEM_IO.cpp 88708 2010-01-25 18:58:54Z johnnyw $
+// $Id: MEM_IO.cpp 92069 2010-09-28 11:38:59Z johnnyw $
 
 #include "ace/MEM_IO.h"
 #include "ace/Handle_Set.h"
@@ -10,7 +10,7 @@
 #include "ace/MEM_IO.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, MEM_IO, "$Id: MEM_IO.cpp 88708 2010-01-25 18:58:54Z johnnyw $")
+
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -89,7 +89,7 @@ ACE_Reactive_MEM_IO::send_buf (ACE_MEM_SAP_Node *buf,
                  flags,
                  timeout) != static_cast <ssize_t> (sizeof (offset)))
     {
-      // unsucessful send, release the memory in the shared-memory.
+      // unsuccessful send, release the memory in the shared-memory.
       this->release_buffer (buf);
 
       return -1;
@@ -280,12 +280,12 @@ ACE_MT_MEM_IO::recv_buf (ACE_MEM_SAP_Node *&buf,
     ACE_GUARD_RETURN (ACE_SYNCH_PROCESS_MUTEX, ace_mon, *this->recv_channel_.lock_, -1);
 
     buf = this->recv_channel_.queue_.read ();
-    
+
     if (buf != 0)
       {
         return ACE_Utils::truncate_cast<ssize_t> (buf->size ());
       }
-      
+
     return -1;
   }
 }
@@ -403,9 +403,9 @@ ACE_MEM_IO::send (const ACE_Message_Block *message_block,
         reinterpret_cast<ACE_MEM_SAP_Node *> (
           this->deliver_strategy_->acquire_buffer (
             ACE_Utils::truncate_cast<ssize_t> (len)));
-          
+
       size_t n = 0;
-      
+
       while (message_block != 0)
         {
           ACE_OS::memcpy (static_cast<char *> (buf->data ()) + n,
@@ -429,145 +429,9 @@ ACE_MEM_IO::send (const ACE_Message_Block *message_block,
                                                 0,
                                                 timeout);
     }
-    
+
   return 0;
 }
-
-
-#if 0
-ssize_t
-ACE_MEM_IO::recvv (iovec *io_vec,
-                   const ACE_Time_Value *timeout)
-{
-  ACE_TRACE ("ACE_MEM_IO::recvv");
-#if defined (FIONREAD)
-  ACE_Handle_Set handle_set;
-  handle_set.reset ();
-  handle_set.set_bit (this->get_handle ());
-
-  io_vec->iov_base = 0;
-
-  // Check the status of the current socket.
-  switch (ACE_OS::select (int (this->get_handle ()) + 1,
-                          handle_set,
-                          0, 0,
-                          timeout))
-    {
-    case -1:
-      return -1;
-      /* NOTREACHED */
-    case 0:
-      errno = ETIME;
-      return -1;
-      /* NOTREACHED */
-    default:
-      // Goes fine, fallthrough to get data
-      break;
-    }
-
-  int inlen;
-
-  if (ACE_OS::ioctl (this->get_handle (),
-                     FIONREAD,
-                     &inlen) == -1)
-    return -1;
-  else if (inlen > 0)
-    {
-      ACE_NEW_RETURN (io_vec->iov_base,
-                      char[inlen],
-                      -1);
-      io_vec->iov_len = this->recv (io_vec->iov_base,
-                                    inlen);
-      return io_vec->iov_len;
-    }
-  else
-    return 0;
-#else
-  ACE_UNUSED_ARG (io_vec);
-  ACE_UNUSED_ARG (timeout);
-  ACE_NOTSUP_RETURN (-1);
-#endif /* FIONREAD */
-}
-
-// Send N char *ptrs and int lengths.  Note that the char *'s precede
-// the ints (basically, an varargs version of writev).  The count N is
-// the *total* number of trailing arguments, *not* a couple of the
-// number of tuple pairs!
-
-ssize_t
-ACE_MEM_IO::send (size_t n, ...) const
-{
-  ACE_TRACE ("ACE_MEM_IO::send");
-
-  va_list argp;
-  size_t total_tuples = n / 2;
-  iovec *iovp;
-#if defined (ACE_HAS_ALLOCA)
-  iovp = (iovec *) alloca (total_tuples * sizeof (iovec));
-#else
-  ACE_NEW_RETURN (iovp,
-                  iovec[total_tuples],
-                  -1);
-#endif /* !defined (ACE_HAS_ALLOCA) */
-
-  va_start (argp, n);
-
-  for (size_t i = 0; i < total_tuples; i++)
-    {
-      iovp[i].iov_base = va_arg (argp, char *);
-      iovp[i].iov_len = va_arg (argp, ssize_t);
-    }
-
-  ssize_t result = ACE_OS::sendv (this->get_handle (),
-                                  iovp,
-                                  total_tuples);
-#if !defined (ACE_HAS_ALLOCA)
-  delete [] iovp;
-#endif /* !defined (ACE_HAS_ALLOCA) */
-  va_end (argp);
-  return result;
-}
-
-// This is basically an interface to ACE_OS::readv, that doesn't use
-// the struct iovec_Base explicitly.  The ... can be passed as an arbitrary
-// number of (char *ptr, int len) tuples.  However, the count N is the
-// *total* number of trailing arguments, *not* a couple of the number
-// of tuple pairs!
-
-ssize_t
-ACE_MEM_IO::recv (size_t n, ...) const
-{
-  ACE_TRACE ("ACE_MEM_IO::recv");
-
-  va_list argp;
-  size_t total_tuples = n / 2;
-  iovec *iovp;
-#if defined (ACE_HAS_ALLOCA)
-  iovp = (iovec *) alloca (total_tuples * sizeof (iovec));
-#else
-  ACE_NEW_RETURN (iovp,
-                  iovec[total_tuples],
-                  -1);
-#endif /* !defined (ACE_HAS_ALLOCA) */
-
-  va_start (argp, n);
-
-  for (size_t i = 0; i < total_tuples; i++)
-    {
-      iovp[i].iov_base = va_arg (argp, char *);
-      iovp[i].iov_len = va_arg (argp, ssize_t);
-    }
-
-  ssize_t result = ACE_OS::recvv (this->get_handle (),
-                                  iovp,
-                                  total_tuples);
-#if !defined (ACE_HAS_ALLOCA)
-  delete [] iovp;
-#endif /* !defined (ACE_HAS_ALLOCA) */
-  va_end (argp);
-  return result;
-}
-#endif /* 0 */
 
 ACE_END_VERSIONED_NAMESPACE_DECL
 

@@ -1,10 +1,6 @@
-// $Id: Atomic_Op_GCC_T.cpp 89345 2010-03-05 13:04:51Z johnnyw $
+// $Id: Atomic_Op_GCC_T.cpp 91286 2010-08-05 09:04:31Z johnnyw $
 
 #include "ace/OS_NS_unistd.h"
-
-ACE_RCSID (ace,
-           Atomic_Op_GCC,
-           "$Id: Atomic_Op_GCC_T.cpp 89345 2010-03-05 13:04:51Z johnnyw $")
 
 #if defined (ACE_HAS_GCC_ATOMIC_BUILTINS) && (ACE_HAS_GCC_ATOMIC_BUILTINS == 1)
 

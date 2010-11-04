@@ -1,13 +1,11 @@
+// $Id: Local_Name_Space.cpp 91287 2010-08-05 10:30:49Z johnnyw $
+
 #include "ace/Local_Name_Space.h"
 #include "ace/ACE.h"
 #include "ace/RW_Process_Mutex.h"
 #include "ace/SString.h"
 #include "ace/OS_NS_string.h"
 #include "ace/Truncate.h"
-
-ACE_RCSID (ace,
-           Local_Name_Space,
-           "$Id: Local_Name_Space.cpp 80826 2008-03-04 14:51:23Z wotte $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

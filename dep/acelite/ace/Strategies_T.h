@@ -4,7 +4,7 @@
 /**
  *  @file   Strategies_T.h
  *
- *  $Id: Strategies_T.h 84316 2009-02-03 19:46:05Z johnnyw $
+ *  $Id: Strategies_T.h 91688 2010-09-09 11:21:50Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -24,7 +24,7 @@
 #include "ace/Reactor.h"
 #include "ace/Thread_Manager.h"
 #include "ace/Connection_Recycling_Strategy.h"
-#include "ace/Refcountable.h"
+#include "ace/Refcountable_T.h"
 #include "ace/Hashable.h"
 #include "ace/Recyclable.h"
 #include "ace/Reverse_Lock_T.h"
@@ -785,7 +785,7 @@ public:
 };
 
 template <class T>
-class ACE_Refcounted_Hash_Recyclable :  public ACE_Refcountable,
+class ACE_Refcounted_Hash_Recyclable :  public ACE_Refcountable_T<ACE_Null_Mutex>,
                                         public ACE_Hashable,
                                         public ACE_Recyclable
 {

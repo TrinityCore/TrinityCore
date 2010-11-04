@@ -4,7 +4,7 @@
 /**
  *  @file   Refcountable_T.h
  *
- *  $Id: Refcountable_T.h 81409 2008-04-24 08:30:48Z johnnyw $
+ *  $Id: Refcountable_T.h 91688 2010-09-09 11:21:50Z johnnyw $
  *
  * @author Doug Schmidt
  * @author Johnny Willemsen
@@ -22,6 +22,7 @@
 
 #include "ace/Atomic_Op.h"
 #include "ace/Synch_Traits.h"
+#include "ace/Null_Mutex.h"
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -32,8 +33,10 @@ public:
   /// Destructor.
   virtual ~ACE_Refcountable_T (void);
 
-  // = Increment/Decrement refcount
+  /// Increment refcount
   long increment (void);
+
+  /// Decrement refcount
   long decrement (void);
 
   /// Returns the current refcount.
@@ -46,8 +49,6 @@ protected:
   /// Current refcount.
   ACE_Atomic_Op <ACE_LOCK, long> refcount_;
 };
-
-typedef ACE_Refcountable_T<ACE_Null_Mutex> ACE_Refcountable;
 
 ACE_END_VERSIONED_NAMESPACE_DECL
 

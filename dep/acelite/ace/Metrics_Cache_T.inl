@@ -1,9 +1,11 @@
 // -*- C++ -*-
 //
-// $Id: Metrics_Cache_T.inl 83735 2008-11-14 09:41:52Z johnnyw $
+// $Id: Metrics_Cache_T.inl 92090 2010-09-29 14:10:45Z johnnyw $
 
 #ifndef ACE_METRICS_CACHE_T_INL
 #define ACE_METRICS_CACHE_T_INL
+
+#if defined (ACE_COMPILE_TIMEPROBES)
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -236,5 +238,7 @@ ACE_Metrics_Cache<ACE_LOCK, ALLOCATOR>::metrics_enabled(void) const
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
+
+#endif
 
 #endif /* ACE_METRICS_CACHE_T_INL */

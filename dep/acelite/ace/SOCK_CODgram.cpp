@@ -1,4 +1,4 @@
-// $Id: SOCK_CODgram.cpp 82540 2008-08-06 13:02:53Z johnnyw $
+// $Id: SOCK_CODgram.cpp 91287 2010-08-05 10:30:49Z johnnyw $
 
 #include "ace/SOCK_CODgram.h"
 #include "ace/Log_Msg.h"
@@ -7,8 +7,6 @@
 #if !defined (__ACE_INLINE__)
 #include "ace/SOCK_CODgram.inl"
 #endif /* __ACE_INLINE__ */
-
-ACE_RCSID(ace, SOCK_CODgram, "$Id: SOCK_CODgram.cpp 82540 2008-08-06 13:02:53Z johnnyw $")
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

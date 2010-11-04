@@ -4,7 +4,7 @@
 /**
  *  @file    Throughput_Stats.h
  *
- *  $Id: Throughput_Stats.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Throughput_Stats.h 92069 2010-09-28 11:38:59Z johnnyw $
  *
  *  @author David L. Levine
  */
@@ -65,18 +65,6 @@ public:
 private:
   /// The last throughput measurement.
   ACE_UINT64 throughput_last_;
-
-#if 0
-  /// These are the fields that we should keep to perform linear
-  /// regression
-  //@{
-  ///@}
-  ACE_UINT64 throughput_sum_x_;
-  ACE_UINT64 throughput_sum_x2_;
-  ACE_UINT64 throughput_sum_y_;
-  ACE_UINT64 throughput_sum_y2_;
-  ACE_UINT64 throughput_sum_xy_;
-#endif /* 0 */
 };
 
 ACE_END_VERSIONED_NAMESPACE_DECL

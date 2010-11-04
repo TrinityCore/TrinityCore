@@ -4,7 +4,7 @@
 /**
  *  @file    Thread.h
  *
- *  $Id: Thread.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Thread.h 92060 2010-09-27 18:08:48Z johnnyw $
  *
  *  @author Douglas Schmidt <schmidt@cs.wustl.edu>
  */
@@ -53,9 +53,9 @@ class ACE_Export ACE_Thread
 public:
   /**
    * Creates a new thread having @a flags attributes and running @a func
-   * with <args> (if <thread_adapter> is non-0 then @a func and <args>
-   * are ignored and are obtained from <thread_adapter>).  <thr_id>
-   * and <t_handle> are set to the thread's ID and handle (?),
+   * with @a args (if @a thread_adapter is non-0 then @a func and @a args
+   * are ignored and are obtained from @a thread_adapter>.  @a thr_id
+   * and @a t_handle are set to the thread's ID and handle (?),
    * respectively.  The thread runs at @a priority priority (see
    * below).
    *
@@ -70,15 +70,15 @@ public:
    *
    * By default, or if @a priority is set to
    * ACE_DEFAULT_THREAD_PRIORITY, an "appropriate" priority value for
-   * the given scheduling policy (specified in <flags}>, e.g.,
-   * <THR_SCHED_DEFAULT>) is used.  This value is calculated
+   * the given scheduling policy (specified in @a flags, e.g.,
+   * @c THR_SCHED_DEFAULT is used.  This value is calculated
    * dynamically, and is the median value between the minimum and
    * maximum priority values for the given policy.  If an explicit
    * value is given, it is used.  Note that actual priority values are
-   * EXTREMEMLY implementation-dependent, and are probably best
+   * EXTREMELY implementation-dependent, and are probably best
    * avoided.
    *
-   * Note that <thread_adapter> is always deleted when <spawn>
+   * Note that @a thread_adapter is always deleted when @a spawn
    * is called, so it must be allocated with global operator new.
    */
   static int spawn (ACE_THR_FUNC func,
@@ -120,7 +120,7 @@ public:
    * Spawn @a n new threads, which execute @a func with argument @a arg
    * (if @a thread_adapter is non-0 then @a func and @a args are ignored
    * and are obtained from @a thread_adapter).  The thread_ids of
-   * successfully spawned threads will be placed into the <thread_ids>
+   * successfully spawned threads will be placed into the @a thread_ids
    * buffer (which must be the same size as @a n).  If @a stack != 0 it
    * is assumed to be an array of @a n pointers to the base of the
    * stacks to use for the threads being spawned.  If @a stack_size !=
@@ -226,11 +226,11 @@ public:
    */
   static int keycreate (ACE_thread_key_t *keyp,
 #if defined (ACE_HAS_THR_C_DEST)
-                        ACE_THR_C_DEST destructor,
+                        ACE_THR_C_DEST destructor
 #else
-                        ACE_THR_DEST destructor,
+                        ACE_THR_DEST destructor
 #endif /* ACE_HAS_THR_C_DEST */
-                        void * = 0);
+                        );
 
   /// Free up the key so that other threads can reuse it.
   static int keyfree (ACE_thread_key_t key);
