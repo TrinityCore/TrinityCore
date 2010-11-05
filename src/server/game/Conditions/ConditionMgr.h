@@ -28,7 +28,7 @@ class LootTemplate;
 enum ConditionType
 {                                                           // value1           value2      value3
     CONDITION_NONE                  = 0,                    // 0                0           0                  always true
-    CONDITION_AURA                  = 1,                    // spell_id         effindex    +referenceID       true if has aura of spell_id with effect effindex
+    CONDITION_AURA                  = 1,                    // spell_id         effindex    use target?        true if player (or target, if value3) has aura of spell_id with effect effindex
     CONDITION_ITEM                  = 2,                    // item_id          count       +referenceID       true if has #count of item_ids
     CONDITION_ITEM_EQUIPPED         = 3,                    // item_id          0           +referenceID       true if has item_id equipped
     CONDITION_ZONEID                = 4,                    // zone_id          0           +referenceID       true if in zone_id
