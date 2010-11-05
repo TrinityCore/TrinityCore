@@ -48,7 +48,7 @@ bool Condition::Meets(Player * player, Unit* invoker)
             break;
         case CONDITION_AURA:
             refId = 0;
-            if (!mConditionValue2)
+            if (!mConditionValue3)
                 condMeets = player->HasAuraEffect(mConditionValue1, mConditionValue2);
             else if (Unit* target = player->GetSelectedUnit())
                 condMeets = target->HasAuraEffect(mConditionValue1, mConditionValue2);
