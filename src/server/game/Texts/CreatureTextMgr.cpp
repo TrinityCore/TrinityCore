@@ -108,7 +108,7 @@ void CreatureTextMgr::LoadCreatureTexts()
     sLog.outString(">> Loaded %u Creature Texts for %u Creatures.", TextCount, CreatureCount);
 }
 
-uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, uint64 whisperGuid, ChatType msgtype, Language language, TextRange range, uint32 sound, Team team, bool gmOnly)
+uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, uint64 whisperGuid, ChatType msgtype, Language language, TextRange range, uint32 sound, Team team, bool gmOnly, Player* srcPlr)
 {
     if (!source)
         return 0;
@@ -186,9 +186,9 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, uint64 whisp
         SendSound(source, finalSound, finalType, whisperGuid, range, team, gmOnly);
 
     if ((*iter).emote)
-        SendEmote(source, (*iter).emote);
+        SendEmote(srcPlr ? srcPlr->ToUnit() : source, (*iter).emote);
 
-    SendChatString(source, (*iter).text.c_str(), finalType, finalLang, whisperGuid, range, team, gmOnly);
+    SendChatString(srcPlr ? srcPlr->ToUnit() : source, (*iter).text.c_str(), finalType, finalLang, whisperGuid, range, team, gmOnly);
     if (isEqualChanced || (!isEqualChanced && totalChance == 100.0f))
         SetRepeatId(source, textGroup, (*iter).id);
 
@@ -203,8 +203,9 @@ void CreatureTextMgr::SendSound(Creature* source,uint32 sound, ChatType msgtype,
     data << uint32(sound);
     SendChatPacket(&data, source, msgtype, whisperGuid, range, team, gmOnly);
 }
-void CreatureTextMgr::SendEmote(Creature* source, uint32 emote)
+void CreatureTextMgr::SendEmote(Unit* source, uint32 emote)
 {
+    if (!source) return;
     source->HandleEmoteCommand(emote);
 }
 
