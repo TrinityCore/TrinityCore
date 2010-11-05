@@ -80,8 +80,6 @@ class ChatHandler
         bool isValidChatMessage(const char* msg);
         bool HasSentErrorMessage() { return sentErrorMessage;}
         void SendGlobalSysMessage(const char *str);
-    protected:
-        explicit ChatHandler() : m_session(NULL) {}      // for CLI subclass
 
         bool hasStringAbbr(const char* name, const char* part);
 
@@ -96,7 +94,34 @@ class ChatHandler
         bool HasLowerSecurityAccount(WorldSession* target, uint32 account, bool strong = false);
 
         void SendGlobalGMSysMessage(const char *str);
+        Player*   getSelectedPlayer();
+        Creature* getSelectedCreature();
+        Unit*     getSelectedUnit();
+        WorldObject* getSelectedObject();
 
+        char*     extractKeyFromLink(char* text, char const* linkType, char** something1 = NULL);
+        char*     extractKeyFromLink(char* text, char const* const* linkTypes, int* found_idx, char** something1 = NULL);
+
+        // if args have single value then it return in arg2 and arg1 == NULL
+        void      extractOptFirstArg(char* args, char** arg1, char** arg2);
+        char*     extractQuotedArg(char* args);
+
+        uint32    extractSpellIdFromLink(char* text);
+        uint64    extractGuidFromLink(char* text);
+        GameTele const* extractGameTeleFromLink(char* text);
+        bool GetPlayerGroupAndGUIDByName(const char* cname, Player* &plr, Group* &group, uint64 &guid, bool offline = false);
+        std::string extractPlayerNameFromLink(char* text);
+        // select by arg (name/link) or in-game selection online/offline player
+        bool extractPlayerTarget(char* args, Player** player, uint64* player_guid = NULL, std::string* player_name = NULL);
+
+        std::string playerLink(std::string const& name) const { return m_session ? "|cffffffff|Hplayer:"+name+"|h["+name+"]|h|r" : name; }
+        std::string GetNameLink(Player* chr) const { return playerLink(chr->GetName()); }
+
+        GameObject* GetNearbyGameObject();
+        GameObject* GetObjectGlobalyWithGuidOrNearWithDbGuid(uint32 lowguid,uint32 entry);
+
+    protected:
+        explicit ChatHandler() : m_session(NULL) {}      // for CLI subclass
         static bool SetDataForCommandInTable(ChatCommand *table, const char* text, uint32 security, std::string const& help, std::string const& fullcommand);
         bool ExecuteCommandInTable(ChatCommand *table, const char* text, const std::string& fullcmd);
         bool ShowHelpForCommand(ChatCommand *table, const char* cmd);
@@ -614,32 +639,6 @@ class ChatHandler
 
         //bool HandleSet32Bit(const char* args);
         bool HandleSaveAllCommand(const char* args);
-
-        Player*   getSelectedPlayer();
-        Creature* getSelectedCreature();
-        Unit*     getSelectedUnit();
-        WorldObject* getSelectedObject();
-
-        char*     extractKeyFromLink(char* text, char const* linkType, char** something1 = NULL);
-        char*     extractKeyFromLink(char* text, char const* const* linkTypes, int* found_idx, char** something1 = NULL);
-
-        // if args have single value then it return in arg2 and arg1 == NULL
-        void      extractOptFirstArg(char* args, char** arg1, char** arg2);
-        char*     extractQuotedArg(char* args);
-
-        uint32    extractSpellIdFromLink(char* text);
-        uint64    extractGuidFromLink(char* text);
-        GameTele const* extractGameTeleFromLink(char* text);
-        bool GetPlayerGroupAndGUIDByName(const char* cname, Player* &plr, Group* &group, uint64 &guid, bool offline = false);
-        std::string extractPlayerNameFromLink(char* text);
-        // select by arg (name/link) or in-game selection online/offline player
-        bool extractPlayerTarget(char* args, Player** player, uint64* player_guid = NULL, std::string* player_name = NULL);
-
-        std::string playerLink(std::string const& name) const { return m_session ? "|cffffffff|Hplayer:"+name+"|h["+name+"]|h|r" : name; }
-        std::string GetNameLink(Player* chr) const { return playerLink(chr->GetName()); }
-
-        GameObject* GetNearbyGameObject();
-        GameObject* GetObjectGlobalyWithGuidOrNearWithDbGuid(uint32 lowguid,uint32 entry);
 
         // Utility methods for commands
         bool LookupPlayerSearchCommand(QueryResult result, int32 limit);
