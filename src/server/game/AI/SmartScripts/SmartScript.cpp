@@ -870,7 +870,9 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
             {
                 if (!me) return;
                 ObjectList* targets = GetTargets(e, unit);
-                if (e.GetTargetType() == SMART_TARGET_POSITION)
+                if (e.GetTargetType() == SMART_TARGET_SELF)
+                    me->SetFacing(me->GetCreatureData()->orientation, NULL);
+                else if (e.GetTargetType() == SMART_TARGET_POSITION)
                     me->SetFacing(e.target.o, NULL);
                 else if (targets && !targets->empty())
                     me->SetFacing(0, (*targets->begin()));
