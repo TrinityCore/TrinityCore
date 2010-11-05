@@ -47,7 +47,11 @@ bool Condition::Meets(Player * player, Unit* invoker)
             condMeets = true;                                    // empty condition, always met
             break;
         case CONDITION_AURA:
-            condMeets = player->HasAuraEffect(mConditionValue1, mConditionValue2);
+            refId = 0;
+            if (!mConditionValue2)
+                condMeets = player->HasAuraEffect(mConditionValue1, mConditionValue2);
+            else if (Unit* target = player->GetSelectedUnit())
+                condMeets = target->HasAuraEffect(mConditionValue1, mConditionValue2);
             break;
         case CONDITION_ITEM:
             condMeets = player->HasItemCount(mConditionValue1, mConditionValue2);
