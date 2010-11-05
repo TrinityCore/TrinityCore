@@ -488,9 +488,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder &e)
 
     switch (e.GetActionType())
     {
-        case SMART_ACTION_TALK:
-            //if (!IsTextValid(e, e.action.talk.textGroupID)) return false;//can use other creatures texts too!
-            break;
         case SMART_ACTION_SET_FACTION:
             if (e.action.faction.factionID && !sFactionStore.LookupEntry(e.action.faction.factionID))
             {
@@ -752,6 +749,8 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder &e)
         case SMART_ACTION_SET_NPC_FLAG:
         case SMART_ACTION_ADD_NPC_FLAG:
         case SMART_ACTION_REMOVE_NPC_FLAG:
+        case SMART_ACTION_TALK:
+        case SMART_ACTION_SIMPLE_TALK:
             break;
         default:
             sLog.outErrorDb("SmartAIMgr: Not handled action_type(%u), Entry %d SourceType %u Event %u, skipped.", e.GetActionType(), e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id);
