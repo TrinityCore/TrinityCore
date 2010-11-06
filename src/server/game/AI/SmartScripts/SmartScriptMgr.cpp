@@ -546,6 +546,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder &e)
             break;
         case SMART_ACTION_ADD_AURA:
         case SMART_ACTION_CAST:
+        case SMART_ACTION_INVOKER_CAST:
             if (!IsSpellValid(e, e.action.cast.spell)) return false;
             break;
         case SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS:
