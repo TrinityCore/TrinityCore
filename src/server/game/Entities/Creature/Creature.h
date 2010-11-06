@@ -507,6 +507,7 @@ class Creature : public Unit, public GridObject<Creature>
         void UpdateAttackPowerAndDamage(bool ranged = false);
         void UpdateDamagePhysical(WeaponAttackType attType);
         uint32 GetCurrentEquipmentId() { return m_equipmentId; }
+        void SetCurrentEquipmentId(uint32 entry) { m_equipmentId = entry; }
         float GetSpellDamageMod(int32 Rank);
 
         VendorItemData const* GetVendorItems() const;
