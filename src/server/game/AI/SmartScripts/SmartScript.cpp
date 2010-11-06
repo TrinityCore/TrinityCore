@@ -342,6 +342,20 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                     }
                 break;
             }
+        case SMART_ACTION_INVOKER_CAST:
+            {
+                if (!mLastInvoker) return;
+                ObjectList* targets = GetTargets(e, unit);
+                if (!targets) return;
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); itr++)
+                    if (IsUnit((*itr)))
+                    {
+                        if (e.action.cast.flags & SMARTCAST_INTERRUPT_PREVIOUS)
+                            mLastInvoker->InterruptNonMeleeSpells(false);
+                        mLastInvoker->CastSpell((*itr)->ToUnit(), e.action.cast.spell,(e.action.cast.flags & SMARTCAST_TRIGGERED) ? true : false);
+                    }
+                break;
+            }
         case SMART_ACTION_ADD_AURA:
             {
                 ObjectList* targets = GetTargets(e, unit);
