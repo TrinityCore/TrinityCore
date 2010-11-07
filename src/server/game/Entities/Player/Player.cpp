@@ -11190,6 +11190,15 @@ uint8 Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest, Item *pI
     if (pItem->IsBindedNotWith(this))
         return EQUIP_ERR_DONT_OWN_THAT_ITEM;
 
+    // Currency tokens are not supposed to be swapped out of their hidden bag
+    uint8 pItemslot = pItem->GetSlot();
+    if (pItemslot >= CURRENCYTOKEN_SLOT_START && pItemslot < CURRENCYTOKEN_SLOT_END)
+    {
+        sLog.outError("Possible hacking attempt: Player %s [guid: %u] tried to move token [guid: %u, entry: %u] out of the currency bag!",
+                GetName(), GetGUIDLow(), pItem->GetGUIDLow(), pProto->ItemId);
+        return EQUIP_ERR_ITEMS_CANT_BE_SWAPPED;
+    }
+
     // check count of items (skip for auto move for same player from bank)
     uint8 res = CanTakeMoreSimilarItems(pItem);
     if (res != EQUIP_ERR_OK)
