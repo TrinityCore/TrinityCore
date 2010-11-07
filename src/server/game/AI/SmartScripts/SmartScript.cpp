@@ -1064,26 +1064,7 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
             }
         case SMART_ACTION_CALL_TIMED_ACTIONLIST:
             {
-                mTimedActionList.clear();
-                mTimedActionList = sSmartScriptMgr.GetScript(e.action.timedActionList.id, SMART_SCRIPT_TYPE_TIMED_ACTIONLIST);
-                if (mTimedActionList.empty())
-                    return;
-                for (SmartAIEventList::iterator i = mTimedActionList.begin(); i != mTimedActionList.end(); ++i)
-                {
-                    if (i == mTimedActionList.begin())
-                    {
-                        i->enableTimed = true;//enable processing only for the first action
-                    }
-                    else i->enableTimed = false;
-                    
-                    //i->event.type = SMART_EVENT_UPDATE_IC;//default value
-                    if (e.action.timedActionList.timerType == 1)
-                        i->event.type = SMART_EVENT_UPDATE_IC;
-                    else if (e.action.timedActionList.timerType > 1)
-                        i->event.type = SMART_EVENT_UPDATE;
-                    mResumeActionList = e.action.timedActionList.dontResume ? false : true;
-                    InitTimer((*i));
-                }
+                SetScript9(e, e.action.timedActionList.id);
                 break;
             }
         case SMART_ACTION_SET_NPC_FLAG:
@@ -1134,6 +1115,33 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                         }
                     }
                 }
+                break;
+            }
+        case SMART_ACTION_CALL_RANDOM_TIMED_ACTIONLIST:
+            {
+                uint32 actions[SMART_ACTION_PARAM_COUNT];
+                actions[0] = e.action.randTimedActionList.entry1;
+                actions[1] = e.action.randTimedActionList.entry2;
+                actions[2] = e.action.randTimedActionList.entry3;
+                actions[3] = e.action.randTimedActionList.entry4;
+                actions[4] = e.action.randTimedActionList.entry5;
+                actions[5] = e.action.randTimedActionList.entry6;
+                uint32 temp[SMART_ACTION_PARAM_COUNT];
+                uint32 count = 0;
+                for (uint8 i = 0; i < SMART_ACTION_PARAM_COUNT; i++)
+                {
+                    if (actions[i] > 0)
+                    {
+                        temp[count] = actions[i];
+                        count++;
+                    }
+                }
+                SetScript9(e, temp[urand(0, count)]);
+                break;
+            }
+        case SMART_ACTION_CALL_RANDOM_RANGE_TIMED_ACTIONLIST:
+            {
+                SetScript9(e, urand(e.action.randTimedActionList.entry1, e.action.randTimedActionList.entry2));
                 break;
             }
         default:
@@ -2216,4 +2224,27 @@ void SmartScript::DoFindFriendlyMissingBuff(std::list<Creature*>& _list, float r
     TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::FriendlyMissingBuffInRange>, GridTypeMapContainer >  grid_creature_searcher(searcher);
 
     cell.Visit(p, grid_creature_searcher, *me->GetMap());
+}
+
+void SmartScript::SetScript9(SmartScriptHolder &e, uint32 entry)
+{
+    mTimedActionList.clear();
+    mTimedActionList = sSmartScriptMgr.GetScript(entry, SMART_SCRIPT_TYPE_TIMED_ACTIONLIST);
+    if (mTimedActionList.empty())
+        return;
+    for (SmartAIEventList::iterator i = mTimedActionList.begin(); i != mTimedActionList.end(); ++i)
+    {
+        if (i == mTimedActionList.begin())
+        {
+            i->enableTimed = true;//enable processing only for the first action
+        }
+        else i->enableTimed = false;
+                    
+        if (e.action.timedActionList.timerType == 1)
+            i->event.type = SMART_EVENT_UPDATE_IC;
+        else if (e.action.timedActionList.timerType > 1)
+            i->event.type = SMART_EVENT_UPDATE;
+        mResumeActionList = e.action.timedActionList.dontResume ? false : true;
+        InitTimer((*i));
+    }
 }

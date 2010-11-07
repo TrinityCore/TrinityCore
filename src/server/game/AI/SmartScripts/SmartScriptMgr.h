@@ -433,8 +433,10 @@ enum SMART_ACTION
     SMART_ACTION_SIMPLE_TALK                        = 84,     // groupID, can be used to make players say groupID, Text_over event is not triggered, whisper can not be used (Target units will say the text)
     SMART_ACTION_INVOKER_CAST                       = 85,     // spellID, castFlags,   if avaliable, last used invoker will cast spellId with castFlags on targets
     SMART_ACTION_CROSS_CAST                         = 86,     // spellID, castFlags, CasterTargetType, CasterTarget param1, CasterTarget param2, CasterTarget param3, ( + the origonal target fields as Destination target),   CasterTargets will cast spellID on all Targets (use with caution if targeting multiple * multiple units)
+    SMART_ACTION_CALL_RANDOM_TIMED_ACTIONLIST       = 87,     // script9 ids 1-9
+    SMART_ACTION_CALL_RANDOM_RANGE_TIMED_ACTIONLIST = 88,     // script9 id min, max
  
-    SMART_ACTION_END                                = 87,
+    SMART_ACTION_END                                = 89,
 };
 
 struct SmartAction
@@ -786,6 +788,16 @@ struct SmartAction
             uint32 dontResume;
             uint32 timerType;
         } timedActionList;
+
+        struct
+        {
+            uint32 entry1;
+            uint32 entry2;
+            uint32 entry3;
+            uint32 entry4;
+            uint32 entry5;
+            uint32 entry6;
+        } randTimedActionList;
 
         struct
         {
