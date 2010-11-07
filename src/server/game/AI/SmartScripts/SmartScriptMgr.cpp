@@ -278,6 +278,7 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder e)
         case SMART_TARGET_CLOSEST_GAMEOBJECT:
         case SMART_TARGET_CLOSEST_PLAYER:
         case SMART_TARGET_ACTION_INVOKER_VEHICLE:
+        case SMART_TARGET_OWNER_OR_SUMMONER:
             break;
         default:
             sLog.outErrorDb("SmartAIMgr: Not handled target_type(%u), Entry %d SourceType %u Event %u Action %u, skipped.", e.GetTargetType(), e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());

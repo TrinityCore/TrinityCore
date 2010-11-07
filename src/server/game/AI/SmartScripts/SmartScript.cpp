@@ -1440,6 +1440,14 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder e, Unit* invoker)
                     l->push_back(target);
                 break;
             }
+        case SMART_TARGET_OWNER_OR_SUMMONER:
+            {
+                if (!me) return NULL;
+                uint64 guid = me->GetCharmerOrOwnerGUID();
+                if (Unit* owner = ObjectAccessor::GetUnit(*me, guid))
+                    l->push_back(owner);
+                break;
+            }
         case SMART_TARGET_POSITION:
         default:
             return NULL;
