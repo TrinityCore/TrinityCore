@@ -1113,6 +1113,29 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                         (*itr)->ToUnit()->RemoveFlag(UNIT_NPC_FLAGS, e.action.unitFlag.flag);
                 break;
             }
+        case SMART_ACTION_CROSS_CAST:
+            {
+                ObjectList* casters = GetTargets(CreateEvent(SMART_EVENT_UPDATE_IC,0,0,0,0,0,SMART_ACTION_NONE,0,0,0,0,0,0,(SMARTAI_TARGETS)e.action.cast.targetType,e.action.cast.targetParam1,e.action.cast.targetParam2,e.action.cast.targetParam3,0), unit);
+                ObjectList* targets = GetTargets(e, unit);
+                if (!targets || !casters) return;
+                for (ObjectList::const_iterator itr = casters->begin(); itr != casters->end(); itr++)
+                {
+                    if (IsUnit((*itr)))
+                    {
+                        if (e.action.cast.flags & SMARTCAST_INTERRUPT_PREVIOUS)
+                            (*itr)->ToUnit()->InterruptNonMeleeSpells(false);
+
+                        for (ObjectList::const_iterator it = targets->begin(); it != targets->end(); it++)
+                        {
+                            if (IsUnit((*it)))
+                            {
+                                (*itr)->ToUnit()->CastSpell((*it)->ToUnit(), e.action.cast.spell,(e.action.cast.flags & SMARTCAST_TRIGGERED) ? true : false);
+                            }
+                        }
+                    }
+                }
+                break;
+            }
         default:
             sLog.outErrorDb("SmartScript::ProcessAction: Unhandled Action type %u", e.GetActionType());
             break;
