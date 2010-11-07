@@ -11992,7 +11992,8 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
         sLog.outDebug("STORAGE: DestroyItem bag = %u, slot = %u, item = %u", bag, slot, pItem->GetEntry());
         // Also remove all contained items if the item is a bag. 
         // This if() prevents item saving crashes if the condition for a bag to be empty before being destroyed was bypassed somehow.
-        if (pItem->IsBag() && !((Bag*)pItem)->IsEmpty())        {
+        if (pItem->IsBag() && !((Bag*)pItem)->IsEmpty())
+        {
             for (uint8 i = 0; i < MAX_BAG_SIZE; ++i)
                 DestroyItem(slot, i, update);
         }
