@@ -1263,22 +1263,13 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recv_data)
                 {
                     if (Gems[j])
                     {
-                        // destroyed gem
-                        if (OldEnchants[j])
-                        {
-                            if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(OldEnchants[j]))
-                                if (ItemPrototype const* jProto = ObjectMgr::GetItemPrototype(enchantEntry->GemID))
-                                    if (iGemProto->ItemLimitCategory == jProto->ItemLimitCategory)
-                                        --limit_newcount;
-                        }
-
                         // new gem
                         if (iGemProto->ItemLimitCategory == Gems[j]->GetProto()->ItemLimitCategory)
                             ++limit_newcount;
                     }
-                    // existed gem
                     else if (OldEnchants[j])
                     {
+                        // existing gem
                         if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(OldEnchants[j]))
                             if (ItemPrototype const* jProto = ObjectMgr::GetItemPrototype(enchantEntry->GemID))
                                 if (iGemProto->ItemLimitCategory == jProto->ItemLimitCategory)
