@@ -840,6 +840,7 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
                 case SPELL_AURA_MOD_DAMAGE_DONE:            // dependent from bas point sign (negative -> negative)
                 case SPELL_AURA_MOD_STAT:
                 case SPELL_AURA_MOD_SKILL:
+                case SPELL_AURA_MOD_DODGE_PERCENT:
                 case SPELL_AURA_MOD_HEALING_PCT:
                 case SPELL_AURA_MOD_HEALING_DONE:
                 case SPELL_AURA_MOD_DAMAGE_PERCENT_DONE:
