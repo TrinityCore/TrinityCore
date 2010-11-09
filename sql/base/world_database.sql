@@ -16981,6 +16981,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (25742, 0.07, -1, 0.039, -1, 'Paladin - Seal of Righteousness Dummy Proc'),
 (53719, 0, 0, 0, 0, 'Paladin - Seal of the Martyr Proc Enemy'),
 (53718, 0, 0, 0, 0, 'Paladin - Seal of the Martyr Proc Self'),
+(53600, 0, 0, 0, 0 ,'Paladin - Shield of Righteousness'),
 (20267, 0, 0, 0, 0, 'Paladin - Judgement of Light Proc'),
 (25997, 0, 0, 0, 0, 'Paladin - Eye for an Eye'),
 (50256, -1, -1, 0.08, -1, 'Pet Skills - Bear (Swipe)'),
