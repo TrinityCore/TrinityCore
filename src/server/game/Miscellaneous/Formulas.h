@@ -204,10 +204,13 @@ namespace Trinity
                     case 1:
                     case 2:
                         rate = 1.0f;
+                        break;
                     case 3:
                         rate = 1.166f;
+                        break;
                     case 4:
                         rate = 1.3f;
+                        break;
                     case 5:
                     default:
                         rate = 1.4f;
