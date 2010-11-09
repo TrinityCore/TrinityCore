@@ -221,7 +221,7 @@ class npc_millhouse_manastorm : public CreatureScript
             }
         };
 
-        CreatureAI* OnGetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new npc_millhouse_manastormAI(creature);
         }
@@ -514,7 +514,7 @@ class npc_warden_mellichar : public CreatureScript
             }
         };
 
-        CreatureAI* OnGetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new npc_warden_mellicharAI(creature);
         }
@@ -550,7 +550,7 @@ class mob_zerekethvoidzone : public CreatureScript
             void EnterCombat(Unit* /*who*/) {}
         };
 
-        CreatureAI* OnGetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new mob_zerekethvoidzoneAI(creature);
         }
