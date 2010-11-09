@@ -7546,7 +7546,7 @@ void ObjectMgr::SaveGORespawnTime(uint32 loguid, uint32 instance, time_t t)
 {
     // This function can be called from different map threads concurrently
     {
-        ACE_GUARD(ACE_Thread_Mutex, guard, m_CreatureRespawnTimesMtx);
+        ACE_GUARD(ACE_Thread_Mutex, guard, m_GORespawnTimesMtx);
         mGORespawnTimes[MAKE_PAIR64(loguid,instance)] = t;
     }
 
