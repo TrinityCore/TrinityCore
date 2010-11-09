@@ -1,6 +1,6 @@
 -- Rename changed learn commands
 DELETE FROM `command` WHERE `name` LIKE 'learn%';
-INSERT INTO `command` (`name`, `security`, `help`) VALUES (
+INSERT INTO `command` (`name`, `security`, `help`) VALUES
 ('learn',3,'Syntax: .learn #spell [all]\r\n\r\nSelected character learn a spell of id #spell. If ''all'' provided then all ranks learned.'),
 ('learn all',3,'Syntax: .learn all\r\n\r\nLearn all big set different spell maybe useful for Administaror.'),
 ('learn all crafts',2,'Syntax: .learn crafts\r\n\r\nLearn all professions and recipes.'),
@@ -11,11 +11,11 @@ INSERT INTO `command` (`name`, `security`, `help`) VALUES (
 ('learn all my pettalents',3,'Syntax: .learn all my pettalents\r\n\r\nLearn all talents for your pet available for his creature type (only for hunter pets).'),
 ('learn all my spells',3,'Syntax: .learn all my spells\r\n\r\nLearn all spells (except talents and spells with first rank learned as talent) available for his class.'),
 ('learn all my talents',3,'Syntax: .learn all my talents\r\n\r\nLearn all talents (and spells with first rank learned as talent) available for his class.'),
-('learn all recipes',2,'Syntax: .learn all recipes [$profession]\r\rLearns all recipes of specified profession and sets skill level to max.\rExample: .learn all recipes enchanting')
-);
+('learn all recipes',2,'Syntax: .learn all recipes [$profession]\r\rLearns all recipes of specified profession and sets skill level to max.\rExample: .learn all recipes enchanting');
+
 -- Rename changed npc commands
 DELETE FROM `command` WHERE `name` LIKE 'npc%';
-INSERT INTO `command` (`name`, `security`, `help`) VALUES (
+INSERT INTO `command` (`name`, `security`, `help`) VALUES
 ('npc',1,'Syntax: .npc $subcommand\nType .npc to see the list of possible subcommands or .help npc $subcommand to see info on subcommands'),
 ('npc add',2,'Syntax: .npc add #creatureid\r\n\r\nSpawn a creature by the given template id of #creatureid.'),
 ('npc add formation',1,'Syntax: .npc add formation $leader\nAdd selected creature to a leader''s formation.'),
@@ -44,5 +44,5 @@ INSERT INTO `command` (`name`, `security`, `help`) VALUES (
 ('npc add temp',2,'Syntax: .npc add temp\r\n\r\nAdds temporary NPC, not saved to database.'),
 ('npc textemote',1,'Syntax: .npc textemote #emoteid\r\n\r\nMake the selected creature to do textemote with an emote of id #emoteid.'),
 ('npc whisper',1,'Syntax: .npc whisper #playerguid #text\r\nMake the selected npc whisper #text to  #playerguid.'),
-('npc yell',1,'Syntax: .npc yell $message\nMake selected creature yell specified message.')
-);
+('npc yell',1,'Syntax: .npc yell $message\nMake selected creature yell specified message.');
+
