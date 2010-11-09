@@ -3577,6 +3577,52 @@ bool ChatHandler::HandleChangeWeather(const char *args)
     return true;
 }
 
+bool ChatHandler::HandleTeleCommand(const char* args)
+{
+    if (!*args)
+        return false;
+
+    Player* me = GetSession()->GetPlayer();
+
+    // id, or string, or [name] Shift-click form |color|Htele:id|h[name]|h|r
+    GameTele const* tele = extractGameTeleFromLink((char*)args);
+
+    if (!tele)
+    {
+        SendSysMessage(LANG_COMMAND_TELE_NOTFOUND);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    if (me->isInCombat())
+    {
+        SendSysMessage(LANG_YOU_IN_COMBAT);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    MapEntry const * map = sMapStore.LookupEntry(tele->mapId);
+    if (!map || map->IsBattlegroundOrArena())
+    {
+        SendSysMessage(LANG_CANNOT_TELE_TO_BG);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    // stop flight if need
+    if (me->isInFlight())
+    {
+        me->GetMotionMaster()->MovementExpired();
+        me->CleanupAfterTaxiFlight();
+    }
+    // save only in non-flight case
+    else
+        me->SaveRecallPosition();
+
+    me->TeleportTo(tele->mapId, tele->position_x, tele->position_y, tele->position_z, tele->orientation);
+    return true;
+}
+
 bool ChatHandler::HandleTeleAddCommand(const char * args)
 {
     if (!*args)

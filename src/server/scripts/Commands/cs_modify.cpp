@@ -1114,52 +1114,6 @@ class modify_commandscript : public CommandScript
             return true;
         }
 
-        static bool HandleTeleCommand(ChatHandler* handler, const char* args)
-        {
-            if (!*args)
-                return false;
-
-            Player* me = handler->GetSession()->GetPlayer();
-
-            // id, or string, or [name] Shift-click form |color|Htele:id|h[name]|h|r
-            GameTele const* tele = handler->extractGameTeleFromLink((char*)args);
-
-            if (!tele)
-            {
-                handler->SendSysMessage(LANG_COMMAND_TELE_NOTFOUND);
-                handler->SetSentErrorMessage(true);
-                return false;
-            }
-
-            if (me->isInCombat())
-            {
-                handler->SendSysMessage(LANG_YOU_IN_COMBAT);
-                handler->SetSentErrorMessage(true);
-                return false;
-            }
-
-            MapEntry const * map = sMapStore.LookupEntry(tele->mapId);
-            if (!map || map->IsBattlegroundOrArena())
-            {
-                handler->SendSysMessage(LANG_CANNOT_TELE_TO_BG);
-                handler->SetSentErrorMessage(true);
-                return false;
-            }
-
-            // stop flight if need
-            if (me->isInFlight())
-            {
-                me->GetMotionMaster()->MovementExpired();
-                me->CleanupAfterTaxiFlight();
-            }
-            // save only in non-flight case
-            else
-                me->SaveRecallPosition();
-
-            me->TeleportTo(tele->mapId, tele->position_x, tele->position_y, tele->position_z, tele->orientation);
-            return true;
-        }
-
         static bool HandleModifyDrunkCommand(ChatHandler* handler, const char* args)
         {
             if (!*args)    return false;
