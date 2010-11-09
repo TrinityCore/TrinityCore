@@ -352,12 +352,13 @@ class npc_muglash : public CreatureScript
 
             void EnterCombat(Unit* /*pWho*/)
             {
-                if (HasEscortState(STATE_ESCORT_PAUSED))
-                {
-                    if (urand(0, 1))
-                    DoScriptText(SAY_MUG_ON_GUARD, me);
-                    return;
-                }
+                if (Player* pPlayer = GetPlayerForEscort())
+                    if (HasEscortState(STATE_ESCORT_PAUSED))
+                    {
+                        if (urand(0, 1))
+                            DoScriptText(SAY_MUG_ON_GUARD, me, pPlayer);
+                        return;
+                    }
             }
 
             void Reset()
