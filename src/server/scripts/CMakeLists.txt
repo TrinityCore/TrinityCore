@@ -25,6 +25,8 @@ endif()
 message(STATUS "SCRIPT PREPARATIONS")
 include(Spells/CMakeLists.txt)
 
+include(Commands/CMakeLists.txt)
+
 include(Examples/CMakeLists.txt)
 
 set(scripts_STAT_SRCS
@@ -72,7 +74,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/collision/Management
   ${CMAKE_SOURCE_DIR}/src/server/shared
   ${CMAKE_SOURCE_DIR}/src/server/shared/Database
-  ${CMAKE_SOURCE_DIR}/src/server/game/Account
+  ${CMAKE_SOURCE_DIR}/src/server/game/Accounts
   ${CMAKE_SOURCE_DIR}/src/server/game/Achievements
   ${CMAKE_SOURCE_DIR}/src/server/game/Addons
   ${CMAKE_SOURCE_DIR}/src/server/game/AI
@@ -117,6 +119,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Miscellaneous
   ${CMAKE_SOURCE_DIR}/src/server/game/Maps
   ${CMAKE_SOURCE_DIR}/src/server/game/Movement
+  ${CMAKE_SOURCE_DIR}/src/server/game/Movement/MovementGenerators
   ${CMAKE_SOURCE_DIR}/src/server/game/Movement/Waypoints
   ${CMAKE_SOURCE_DIR}/src/server/game/Opcodes
   ${CMAKE_SOURCE_DIR}/src/server/game/OutdoorPvP
@@ -131,6 +134,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Skills
   ${CMAKE_SOURCE_DIR}/src/server/game/Spells
   ${CMAKE_SOURCE_DIR}/src/server/game/Spells/Auras
+  ${CMAKE_SOURCE_DIR}/src/server/game/Tickets
   ${CMAKE_SOURCE_DIR}/src/server/game/Tools
   ${CMAKE_SOURCE_DIR}/src/server/game/Weather
   ${CMAKE_SOURCE_DIR}/src/server/game/World
