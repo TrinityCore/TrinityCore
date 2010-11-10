@@ -108,6 +108,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                         if (TeamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_NIBY_THE_ALMIGHTY, ALLIANCE);
                         break;
+                    case NPC_GARROSH_HELLSCREAM:
+                        if (TeamInInstance == ALLIANCE)
+                            creature->UpdateEntry(NPC_KING_VARIAN_WRYNN, ALLIANCE);
+                        break;
                     case NPC_DEATHBRINGER_SAURFANG:
                         uiDeathbringerSaurfang = creature->GetGUID();
                         break;
