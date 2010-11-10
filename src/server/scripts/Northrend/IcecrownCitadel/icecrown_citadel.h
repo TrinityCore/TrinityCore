@@ -72,6 +72,8 @@ enum eCreatures
     NPC_JEDEBIA                                 = 38840,    // Shaman Armor A
     NPC_HARAGG_THE_UNSEEN                       = 38181,    // Warlock Armor H
     NPC_NIBY_THE_ALMIGHTY                       = 38182,    // Warlock Armor N
+    NPC_GARROSH_HELLSCREAM                      = 39372,
+    NPC_KING_VARIAN_WRYNN                       = 39371,
 
     // Lord Marrowgar
     NPC_LORD_MARROWGAR                          = 36612,
