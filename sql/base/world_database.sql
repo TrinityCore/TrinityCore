@@ -26793,6 +26793,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 74490, 'spell_creature_permanent_feign_death'),
 ( 72752, 'spell_pvp_trinket_wotf_shared_cd'),
 ( 72757, 'spell_pvp_trinket_wotf_shared_cd'),
+( 46221, 'spell_gen_animal_blood'),
 -- instances
 -- Forge of Souls
 ( 68793, 'spell_bronjahm_magic_bane'),

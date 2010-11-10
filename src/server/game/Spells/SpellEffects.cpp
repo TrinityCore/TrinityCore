@@ -6335,7 +6335,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
     }
 
     Map *cMap = m_caster->GetMap();
-    if (goinfo->type == GAMEOBJECT_TYPE_FISHINGNODE)
+    if (goinfo->type == GAMEOBJECT_TYPE_FISHINGNODE || goinfo->type == GAMEOBJECT_TYPE_FISHINGHOLE)
     {
         LiquidData liqData;
         if ( !cMap->IsInWater(fx, fy, fz + 1.f/* -0.5f */, &liqData))             // Hack to prevent fishing bobber from failing to land on fishing hole
@@ -6391,8 +6391,8 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
         {
             if (m_caster->GetTypeId() == TYPEID_PLAYER)
             {
-          pGameObj->AddUniqueUse(m_caster->ToPlayer());
-          m_caster->AddGameObject(pGameObj);          // will removed at spell cancel
+                pGameObj->AddUniqueUse(m_caster->ToPlayer());
+                m_caster->AddGameObject(pGameObj);      // will removed at spell cancel
             }
             break;
         }
