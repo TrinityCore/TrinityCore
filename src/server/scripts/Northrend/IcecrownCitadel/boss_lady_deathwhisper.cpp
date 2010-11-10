@@ -295,8 +295,8 @@ class boss_lady_deathwhisper : public CreatureScript
                     DoScriptText(SAY_PHASE_2, me);
                     DoScriptText(SAY_PHASE_2_EMOTE, me);
                     DoStartMovement(me->getVictim());
-                    me->SetPower(POWER_MANA, 0);
                     uiDamage -= me->GetPower(POWER_MANA);
+                    me->SetPower(POWER_MANA, 0);
                     me->RemoveAurasDueToSpell(SPELL_MANA_BARRIER);
                     events.SetPhase(PHASE_TWO);
                     events.ScheduleEvent(EVENT_P2_FROSTBOLT, urand(10000, 12000), 0, PHASE_TWO);
@@ -736,8 +736,17 @@ class npc_vengeful_shade : public CreatureScript
 
             void SpellHitTarget(Unit * /*pTarget*/, const SpellEntry * spell)
             {
-                if (spell->Id == SPELL_VENGEFUL_BLAST)
-                    me->Kill(me);
+                switch (spell->Id)
+                {
+                    case SPELL_VENGEFUL_BLAST:
+                    case 72010:
+                    case 72011:
+                    case 72012:
+                        me->Kill(me);
+                        break;
+                    default:
+                        break;
+                }
             }
         };
 

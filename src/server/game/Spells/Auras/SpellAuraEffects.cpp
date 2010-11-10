@@ -6348,3 +6348,35 @@ void AuraEffect::HandleAuraOpenStable(AuraApplication const * aurApp, uint8 mode
 
      // client auto close stable dialog at !apply aura
 }
+
+void AuraEffect::HandleAuraSetVehicle(AuraApplication const * aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Unit * target = aurApp->GetTarget();
+
+    if (target->GetTypeId() != TYPEID_PLAYER || !target->IsInWorld())
+        return;
+
+    uint32 vehicleId = GetMiscValue();
+
+    if (apply)
+    {
+        if (!target->CreateVehicleKit(vehicleId))
+            return;
+    }
+    else if (target->GetVehicleKit())
+        target->RemoveVehicleKit();
+
+    WorldPacket data(SMSG_PLAYER_VEHICLE_DATA, target->GetPackGUID().size()+4);
+    data.appendPackGUID(target->GetGUID());
+    data << uint32(apply ? vehicleId : 0);
+    target->SendMessageToSet(&data, true);
+
+    if (apply)
+    {
+        data.Initialize(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
+        target->ToPlayer()->GetSession()->SendPacket(&data);
+    }
+}

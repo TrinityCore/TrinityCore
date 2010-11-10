@@ -256,6 +256,7 @@ class AuraEffect
         void HandleAuraConvertRune(AuraApplication const * aurApp, uint8 mode, bool apply) const;
         void HandleAuraLinked(AuraApplication const * aurApp, uint8 mode, bool apply) const;
         void HandleAuraOpenStable(AuraApplication const * aurApp, uint8 mode, bool apply) const;
+        void HandleAuraSetVehicle(AuraApplication const * aurApp, uint8 mode, bool apply) const;
 };
 
 #endif
