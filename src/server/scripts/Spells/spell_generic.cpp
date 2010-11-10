@@ -478,6 +478,45 @@ public:
     }
 };
 
+enum AnimalBloodPoolSpell
+{
+    SPELL_SPAWN_BLOOD_POOL  = 63471,
+};
+
+class spell_gen_animal_blood : public SpellScriptLoader
+{
+    public:
+        spell_gen_animal_blood() : SpellScriptLoader("spell_gen_animal_blood") { }
+
+        class spell_gen_animal_blood_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_animal_blood_AuraScript);
+
+            bool Validate(SpellEntry const* /*spell*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_SPAWN_BLOOD_POOL))
+                    return false;
+                return true;
+            }
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraApplication const* aurApp, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetUnitOwner()->IsInWater())
+                    GetUnitOwner()->CastSpell(GetUnitOwner(), SPELL_SPAWN_BLOOD_POOL, true);
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_gen_animal_blood_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_animal_blood_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_aura_of_anger();
@@ -490,4 +529,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_trick_or_treat();
     new spell_creature_permanent_feign_death();
     new spell_pvp_trinket_wotf_shared_cd();
+    new spell_gen_animal_blood();
 }
