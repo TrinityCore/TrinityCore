@@ -1445,7 +1445,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 GetSummonPosition(effIndex, pos);
                 if (Unit *unit = unitTarget->GetVehicleBase()) // what is this for?
                     unit->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), damage, true);
-                else
+                else if (!unitTarget->HasAuraType(SPELL_AURA_DEFLECT_SPELLS)) // Deterrence
                     unitTarget->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), damage, true);
                 return;
             case 46584: // Raise Dead
