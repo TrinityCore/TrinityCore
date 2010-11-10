@@ -25,7 +25,8 @@ endif()
 message(STATUS "SCRIPT PREPARATIONS")
 include(Spells/CMakeLists.txt)
 
-include(Commands/CMakeLists.txt)
+# temporarily disabled
+# include(Commands/CMakeLists.txt)
 
 include(Examples/CMakeLists.txt)
 
