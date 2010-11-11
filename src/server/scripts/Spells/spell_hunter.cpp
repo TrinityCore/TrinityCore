@@ -419,9 +419,10 @@ public:
         void HandleScript(SpellEffIndex /*effIndex*/)
         {
             Unit *caster = GetCaster();
-            if (caster->HasAura(HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF))
+            Unit *owner = caster->GetOwner();
+            if (!owner || caster->HasAura(HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF))
                 return;
-            caster->CastCustomSpell(HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED, SPELLVALUE_BASE_POINT0, 100, caster, true);
+            owner->CastCustomSpell(HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED, SPELLVALUE_BASE_POINT0, 100, caster, true);
             caster->CastSpell(caster, HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF, true);
         }
 
