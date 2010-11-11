@@ -1387,12 +1387,11 @@ const char* BattlegroundAV::GetNodeName(BG_AV_Nodes node)
         case BG_AV_NODES_FROSTWOLF_WTOWER:  return GetTrinityString(LANG_BG_AV_NODE_TOWER_FROST_W);
         case BG_AV_NODES_FROSTWOLF_HUT:     return GetTrinityString(LANG_BG_AV_NODE_GRAVE_FROST_HUT);
         default:
-            {
             sLog.outError("tried to get name for node %u",node);
-            return "Unknown";
             break;
-            }
     }
+
+    return "Unknown";
 }
 
 void BattlegroundAV::AssaultNode(BG_AV_Nodes node, uint16 team)
