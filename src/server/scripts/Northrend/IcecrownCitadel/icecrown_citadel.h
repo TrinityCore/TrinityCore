@@ -60,6 +60,8 @@ enum eCreatures
     // At Light's Hammer
     NPC_KOR_KRON_GENERAL                        = 37189,
     NPC_ALLIANCE_COMMANDER                      = 37190,
+    NPC_KOR_KRON_LIEUTENANT                     = 38491,
+    NPC_SKYBREAKER_LIEUTENANT                   = 38492,
     NPC_TORTUNOK                                = 37992,    // Druid Armor H
     NPC_ALANA_MOONSTRIKE                        = 37999,    // Druid Armor A
     NPC_GERARDO_THE_SUAVE                       = 37993,    // Hunter Armor H
