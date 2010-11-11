@@ -84,6 +84,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                         if (TeamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_ALLIANCE_COMMANDER, ALLIANCE);
                         break;
+                    case NPC_KOR_KRON_LIEUTENANT:
+                        if (TeamInInstance == ALLIANCE)
+                            creature->UpdateEntry(NPC_SKYBREAKER_LIEUTENANT, ALLIANCE);
+                        break;
                     case NPC_TORTUNOK:
                         if (TeamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_ALANA_MOONSTRIKE, ALLIANCE);
