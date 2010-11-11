@@ -80,7 +80,13 @@ void WorldSession::HandlePetAction(WorldPacket & recv_data)
     }
 
     if (!pet->isAlive())
-        return;
+    {
+        SpellEntry const* spell = (flag == ACT_ENABLED || flag == ACT_PASSIVE) ? sSpellStore.LookupEntry(spellid) : NULL;
+        if (!spell)
+            return;
+        if (!(spell->Attributes & SPELL_ATTR_CASTABLE_WHILE_DEAD))
+            return;
+    }
 
     //TODO: allow control charmed player?
     if (pet->GetTypeId() == TYPEID_PLAYER && !(flag == ACT_COMMAND && spellid == COMMAND_ATTACK))
