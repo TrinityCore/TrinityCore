@@ -1669,12 +1669,15 @@ bool Guild::HandleMemberWithdrawMoney(WorldSession* session, uint32 amount, bool
     if (!remainingMoney)
         return false;
 
+    if (remainingMoney < amount)
+        return false;
+
     // Call script after validation and before money transfer.
     sScriptMgr.OnGuildMemberWitdrawMoney(this, player, amount, repair);
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     // Update remaining money amount
-    if (remainingMoney >= amount && remainingMoney < GUILD_WITHDRAW_MONEY_UNLIMITED)
+    if (remainingMoney < GUILD_WITHDRAW_MONEY_UNLIMITED)
         if (Member* pMember = GetMember(player->GetGUID()))
             pMember->DecreaseBankRemainingValue(trans, GUILD_BANK_MAX_TABS, amount);
     // Remove money from bank
