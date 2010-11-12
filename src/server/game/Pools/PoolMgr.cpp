@@ -956,6 +956,8 @@ void PoolMgr::SaveQuestsToDB()
 
     for (PoolGroupQuestMap::iterator itr = mPoolQuestGroups.begin(); itr != mPoolQuestGroups.end(); ++itr)
     {
+        if (itr->isEmpty())
+            continue;
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_POOL_SAVE);
         stmt->setUInt32(0, itr->GetPoolId());
         trans->Append(stmt);
