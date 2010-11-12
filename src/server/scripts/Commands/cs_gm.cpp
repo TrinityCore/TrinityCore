@@ -43,7 +43,7 @@ class gm_commandscript : public CommandScript
             };
             static ChatCommand commandTable[] =
             {
-                { "gm",             SEC_MODERATOR,      true,  NULL,                     "", gmCommandTable },
+                { "gm",             SEC_MODERATOR,      false, NULL,                     "", gmCommandTable },
                 { NULL,             0,                  false, NULL,                               "", NULL }
             };
             return commandTable;
@@ -111,6 +111,7 @@ class gm_commandscript : public CommandScript
         static bool HandleGMListIngameCommand(ChatHandler* handler, const char* /*args*/)
         {
             bool first = true;
+            bool footer = false;
 
             ACE_GUARD_RETURN(ACE_Thread_Mutex, guard, *HashMapHolder<Player>::GetLock(), true);
             HashMapHolder<Player>::MapType &m = sObjectAccessor.GetPlayers();
@@ -122,17 +123,24 @@ class gm_commandscript : public CommandScript
                 {
                     if (first)
                     {
-                        handler->SendSysMessage(LANG_GMS_ON_SRV);
                         first = false;
+                        footer = true;
+                        handler->SendSysMessage(LANG_GMS_ON_SRV);
+                        handler->SendSysMessage("========================");
                     }
-
-                    handler->SendSysMessage(handler->GetNameLink(itr->second).c_str());
+                    const char* name = itr->second->GetName();
+                    uint8 security = itr_sec;
+                    uint8 max = ((16 - strlen(name)) / 2);
+                    if (handler->GetSession())
+                        handler->PSendSysMessage("|%s GMLevel %u", name, security);
+                    else
+                        handler->PSendSysMessage("|%*s%s%*s|   %u  |", max, " ", name, max, " ", security);
                 }
             }
-
+            if (footer)
+                handler->SendSysMessage("========================");
             if (first)
                 handler->SendSysMessage(LANG_GMS_NOT_LOGGED);
-
             return true;
         }
 
@@ -144,19 +152,22 @@ class gm_commandscript : public CommandScript
             if (result)
             {
                 handler->SendSysMessage(LANG_GMLIST);
-                handler->SendSysMessage(" ======================== ");
-                handler->SendSysMessage(LANG_GMLIST_HEADER);
-                handler->SendSysMessage(" ======================== ");
-
+                handler->SendSysMessage("========================");
                 ///- Cycle through them. Display username and GM level
                 do
                 {
                     Field *fields = result->Fetch();
-                    handler->PSendSysMessage("|%15s|%6s|", fields[0].GetCString(),fields[1].GetCString());
+                    const char* name = fields[0].GetCString();
+                    uint8 security = fields[1].GetUInt8();
+                    uint8 max = ((16 - strlen(name)) / 2);
+                    if (handler->GetSession())
+                        handler->PSendSysMessage("|%s GMLevel %u", name, security);
+                    else
+                        handler->PSendSysMessage("|%*s%s%*s|   %u  |", max, " ", name, max, " ", security);
                 }
                 while (result->NextRow());
 
-                handler->PSendSysMessage(" ======================== ");
+                handler->SendSysMessage("========================");
             }
             else
                 handler->PSendSysMessage(LANG_GMLIST_EMPTY);
