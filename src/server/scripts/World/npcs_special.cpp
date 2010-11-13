@@ -1673,13 +1673,11 @@ public:
 
         uint32 SpellTimer;
         bool IsViper;
-        bool Spawn;
 
         void EnterCombat(Unit * /*who*/) {}
 
         void Reset()
         {
-            Spawn = true;
             SpellTimer = 0;
 
             CreatureInfo const *Info = me->GetCreatureInfo();
@@ -1694,6 +1692,12 @@ public:
             uint32 delta = (rand() % 7) * 100;
             me->SetStatFloatValue(UNIT_FIELD_BASEATTACKTIME, float(Info->baseattacktime + delta));
             me->SetStatFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER , float(Info->attackpower));
+
+            // Start attacking attacker of owner on first ai update after spawn - move in line of sight may choose better target
+            if (!me->getVictim() && me->isSummon())
+                if (Unit * Owner = CAST_SUM(me)->GetSummoner())
+                    if (Owner->getAttackerForHelper())
+                        AttackStart(Owner->getAttackerForHelper());
         }
 
         //Redefined for random target selection:
@@ -1719,22 +1723,8 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (Spawn)
-            {
-                Spawn = false;
-                // Start attacking attacker of owner on first ai update after spawn - move in line of sight may choose better target
-                if (!me->getVictim() && me->isSummon())
-                    if (Unit * Owner = CAST_SUM(me)->GetSummoner())
-                        if (Owner->getAttackerForHelper())
-                            AttackStart(Owner->getAttackerForHelper());
-            }
-
-            if (!me->getVictim())
-            {
-                if (me->isInCombat())
-                    DoStopAttack();
+            if (!UpdateVictim())
                 return;
-            }
 
             if (SpellTimer <= diff)
             {
