@@ -210,11 +210,6 @@ bool Corpse::LoadFromDB(uint32 guid, Field *fields)
     return true;
 }
 
-bool Corpse::isVisibleForInState(Player const* u, bool inVisibleList) const
-{
-    return IsInWorld() && u->IsInWorld() && IsWithinDistInMap(u->m_seer, World::GetMaxVisibleDistanceForObject() + (inVisibleList ? World::GetVisibleObjectGreyDistance() : 0.0f), false);
-}
-
 bool Corpse::IsExpired(time_t t) const
 {
     if (m_type == CORPSE_BONES)

@@ -752,7 +752,7 @@ namespace Trinity
             {
                 Unit *target = (Unit*)itr->getSource();
 
-                if (!target->InSamePhase(i_source))
+                if (!i_source->canSeeOrDetect(target, true))
                     continue;
 
                 switch (i_TargetType)

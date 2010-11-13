@@ -5327,9 +5327,9 @@ void Spell::EffectSanctuary(SpellEffIndex /*effIndex*/)
         return;
 
     std::list<Unit*> targets;
-    Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(unitTarget, unitTarget, m_caster->GetMap()->GetVisibilityDistance());
+    Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(unitTarget, unitTarget, m_caster->GetMap()->GetVisibilityRange());
     Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(unitTarget, targets, u_check);
-    unitTarget->VisitNearbyObject(m_caster->GetMap()->GetVisibilityDistance(), searcher);
+    unitTarget->VisitNearbyObject(m_caster->GetMap()->GetVisibilityRange(), searcher);
     for (std::list<Unit*>::iterator iter = targets.begin(); iter != targets.end(); ++iter)
     {
         if (!(*iter)->hasUnitState(UNIT_STAT_CASTING))

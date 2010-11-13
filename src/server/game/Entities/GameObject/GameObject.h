@@ -136,7 +136,7 @@ struct GameObjectInfo
             uint32 serverOnly;                              //8
             uint32 stealthed;                               //9
             uint32 large;                                   //10
-            uint32 stealthAffected;                         //11
+            uint32 invisible;                               //11
             uint32 openTextID;                              //12 can be used to replace castBarCaption?
             uint32 closeTextID;                             //13
             uint32 ignoreTotems;                            //14
@@ -733,8 +733,16 @@ class GameObject : public WorldObject, public GridObject<GameObject>
 
         void TriggeringLinkedGameObject(uint32 trapEntry, Unit* target);
 
-        bool isVisibleForInState(Player const* u, bool inVisibleList) const;
-        bool canDetectTrap(Player const* u, float distance) const;
+        bool isAlwaysVisibleFor(WorldObject const* seer) const;
+        bool isVisibleForInState(WorldObject const* seer) const;
+
+        uint8 getLevelForTarget(WorldObject const* target) const
+        {
+            if (Unit* owner = GetOwner())
+                return owner->getLevelForTarget(target);
+
+            return 1;
+        }
 
         GameObject* LookupFishingHoleAround(float range);
 

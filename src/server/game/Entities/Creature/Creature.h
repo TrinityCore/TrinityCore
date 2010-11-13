@@ -437,7 +437,7 @@ class Creature : public Unit, public GridObject<Creature>
         bool HasReactState(ReactStates state) const { return (m_reactState == state); }
         void InitializeReactState()
         {
-            if (isTotem() || isTrigger() || GetCreatureType() == CREATURE_TYPE_CRITTER)
+            if (isTotem() || isTrigger() || GetCreatureType() == CREATURE_TYPE_CRITTER || isSpiritService())
                 SetReactState(REACT_PASSIVE);
             else
                 SetReactState(REACT_AGGRESSIVE);
@@ -568,7 +568,6 @@ class Creature : public Unit, public GridObject<Creature>
         CreatureSpellCooldowns m_CreatureCategoryCooldowns;
         uint32 m_GlobalCooldown;
 
-        bool canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList = false, bool is3dDistance = true) const;
         bool canStartAttack(Unit const* u, bool force) const;
         float GetAttackDistance(Unit const* pl) const;
 
@@ -592,8 +591,6 @@ class Creature : public Unit, public GridObject<Creature>
         // for use only in LoadHelper, Map::Add Map::CreatureCellRelocation
         Cell const& GetCurrentCell() const { return m_currentCell; }
         void SetCurrentCell(Cell const& cell) { m_currentCell = cell; }
-
-        bool IsVisibleInGridForPlayer(Player const* pl) const;
 
         void RemoveCorpse(bool setSpawnTime = true);
         bool isDeadByDefault() const { return m_isDeadByDefault; };
@@ -726,6 +723,8 @@ class Creature : public Unit, public GridObject<Creature>
 
         uint16 m_LootMode;                                  // bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
         uint32 guid_transport;
+
+        bool isVisibleForInState(WorldObject const* seer) const;
     private:
         //WaypointMovementGenerator vars
         uint32 m_waypointID;

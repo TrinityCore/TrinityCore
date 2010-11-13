@@ -73,8 +73,6 @@ class Corpse : public WorldObject, public GridObject<Corpse>
         GridPair const& GetGrid() const { return m_grid; }
         void SetGrid(GridPair const& grid) { m_grid = grid; }
 
-        bool isVisibleForInState(Player const* u, bool inVisibleList) const;
-
         Loot loot;                                          // remove insignia ONLY at BG
         Player* lootRecipient;
         bool lootForBody;
