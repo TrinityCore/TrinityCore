@@ -1774,6 +1774,7 @@ class Unit : public WorldObject
         void UpdateObjectVisibility(bool forced = true);
 
         SpellImmuneList m_spellImmune[MAX_SPELL_IMMUNITY];
+        uint32 m_lastSanctuaryTime;
 
         // Threat related methods
         bool CanHaveThreatList() const;
