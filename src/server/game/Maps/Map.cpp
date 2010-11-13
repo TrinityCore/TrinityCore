@@ -415,7 +415,7 @@ bool Map::Add(Player *player)
     SendInitTransports(player);
 
     player->m_clientGUIDs.clear();
-    player->UpdateObjectVisibility(true);
+    player->UpdateObjectVisibility(false);
 
     sScriptMgr.OnPlayerEnterMap(this, player);
     return true;
@@ -466,16 +466,43 @@ bool Map::loaded(const GridPair &p) const
     return (getNGrid(p.x_coord, p.y_coord) && isGridObjectDataLoaded(p.x_coord, p.y_coord));
 }
 
+void Map::VisitNearbyCellsOf(WorldObject* obj, TypeContainerVisitor<Trinity::ObjectUpdater, GridTypeMapContainer> &gridVisitor, TypeContainerVisitor<Trinity::ObjectUpdater, WorldTypeMapContainer> &worldVisitor)
+{
+    CellPair standing_cell(Trinity::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY()));
+
+    // Check for correctness of standing_cell, it also avoids problems with update_cell
+    if (standing_cell.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || standing_cell.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
+        return;
+
+    // the overloaded operators handle range checking
+    // so there's no need for range checking inside the loop
+    CellPair begin_cell(standing_cell), end_cell(standing_cell);
+    //lets update mobs/objects in ALL visible cells around object!
+    CellArea area = Cell::CalculateCellArea(*obj, obj->GetGridActivationRange());
+    area.ResizeBorders(begin_cell, end_cell);
+
+    for (uint32 x = begin_cell.x_coord; x <= end_cell.x_coord; ++x)
+    {
+        for (uint32 y = begin_cell.y_coord; y <= end_cell.y_coord; ++y)
+        {
+            // marked cells are those that have been visited
+            // don't visit the same cell twice
+            uint32 cell_id = (y * TOTAL_NUMBER_OF_CELLS_PER_MAP) + x;
+            if (isCellMarked(cell_id))
+                continue;
+
+            markCell(cell_id);
+            CellPair pair(x,y);
+            Cell cell(pair);
+            cell.data.Part.reserved = CENTER_DISTRICT;
+            cell.Visit(pair, gridVisitor,  *this);
+            cell.Visit(pair, worldVisitor, *this);
+        }
+    }
+}
+
 void Map::Update(const uint32 &t_diff)
 {
-    /// update players at tick
-    for (m_mapRefIter = m_mapRefManager.begin(); m_mapRefIter != m_mapRefManager.end(); ++m_mapRefIter)
-    {
-        Player* plr = m_mapRefIter->getSource();
-        if (plr && plr->IsInWorld())
-            plr->Update(t_diff);
-    }
-
     /// update active cells around players and active objects
     resetMarkedCells();
 
@@ -494,87 +521,22 @@ void Map::Update(const uint32 &t_diff)
         if (!plr->IsInWorld())
             continue;
 
-        CellPair standing_cell(Trinity::ComputeCellPair(plr->GetPositionX(), plr->GetPositionY()));
+        // update players at tick
+        plr->Update(t_diff);
 
-        // Check for correctness of standing_cell, it also avoids problems with update_cell
-        if (standing_cell.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || standing_cell.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
-            continue;
-
-        // the overloaded operators handle range checking
-        // so ther's no need for range checking inside the loop
-        CellPair begin_cell(standing_cell), end_cell(standing_cell);
-        //lets update mobs/objects in ALL visible cells around player!
-        CellArea area = Cell::CalculateCellArea(*plr, GetVisibilityDistance());
-        area.ResizeBorders(begin_cell, end_cell);
-
-        for (uint32 x = begin_cell.x_coord; x <= end_cell.x_coord; ++x)
-        {
-            for (uint32 y = begin_cell.y_coord; y <= end_cell.y_coord; ++y)
-            {
-                // marked cells are those that have been visited
-                // don't visit the same cell twice
-                uint32 cell_id = (y * TOTAL_NUMBER_OF_CELLS_PER_MAP) + x;
-                if (!isCellMarked(cell_id))
-                {
-                    markCell(cell_id);
-                    CellPair pair(x,y);
-                    Cell cell(pair);
-                    cell.data.Part.reserved = CENTER_DISTRICT;
-                    //cell.SetNoCreate();
-                    cell.Visit(pair, grid_object_update,  *this);
-                    cell.Visit(pair, world_object_update, *this);
-                }
-            }
-        }
+        VisitNearbyCellsOf(plr, grid_object_update, world_object_update);
     }
 
-    // non-player active objects
-    if (!m_activeNonPlayers.empty())
+    // non-player active objects, increasing iterator in the loop in case of object removal
+    for (m_activeNonPlayersIter = m_activeNonPlayers.begin(); m_activeNonPlayersIter != m_activeNonPlayers.end();)
     {
-        for (m_activeNonPlayersIter = m_activeNonPlayers.begin(); m_activeNonPlayersIter != m_activeNonPlayers.end();)
-        {
-            // skip not in world
-            WorldObject* obj = *m_activeNonPlayersIter;
+        WorldObject* obj = *m_activeNonPlayersIter;
+        ++m_activeNonPlayersIter;
 
-            // step before processing, in this case if Map::Remove remove next object we correctly
-            // step to next-next, and if we step to end() then newly added objects can wait next update.
-            ++m_activeNonPlayersIter;
+        if (!obj->IsInWorld())
+            continue;
 
-            if (!obj->IsInWorld())
-                continue;
-
-            CellPair standing_cell(Trinity::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY()));
-
-            // Check for correctness of standing_cell, it also avoids problems with update_cell
-            if (standing_cell.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || standing_cell.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
-                continue;
-
-            // the overloaded operators handle range checking
-            // so ther's no need for range checking inside the loop
-            CellPair begin_cell(standing_cell), end_cell(standing_cell);
-            begin_cell << 1; begin_cell -= 1;               // upper left
-            end_cell >> 1; end_cell += 1;                   // lower right
-
-            for (uint32 x = begin_cell.x_coord; x <= end_cell.x_coord; ++x)
-            {
-                for (uint32 y = begin_cell.y_coord; y <= end_cell.y_coord; ++y)
-                {
-                    // marked cells are those that have been visited
-                    // don't visit the same cell twice
-                    uint32 cell_id = (y * TOTAL_NUMBER_OF_CELLS_PER_MAP) + x;
-                    if (!isCellMarked(cell_id))
-                    {
-                        markCell(cell_id);
-                        CellPair pair(x,y);
-                        Cell cell(pair);
-                        cell.data.Part.reserved = CENTER_DISTRICT;
-                        //cell.SetNoCreate();
-                        cell.Visit(pair, grid_object_update,  *this);
-                        cell.Visit(pair, world_object_update, *this);
-                    }
-                }
-            }
-        }
+        VisitNearbyCellsOf(obj, grid_object_update, world_object_update);
     }
 
     ///- Process necessary scripts
@@ -635,7 +597,7 @@ void Map::ProcessRelocationNotifies(const uint32 & diff)
                 Cell cell(pair);
                 cell.SetNoCreate();
 
-                Trinity::DelayedUnitRelocation cell_relocation(cell, pair, *this, GetVisibilityDistance());
+                Trinity::DelayedUnitRelocation cell_relocation(cell, pair, *this, MAX_VISIBILITY_DISTANCE);
                 TypeContainerVisitor<Trinity::DelayedUnitRelocation, GridTypeMapContainer  > grid_object_relocation(cell_relocation);
                 TypeContainerVisitor<Trinity::DelayedUnitRelocation, WorldTypeMapContainer > world_object_relocation(cell_relocation);
                 Visit(cell, grid_object_relocation);
@@ -1881,7 +1843,7 @@ void Map::UpdateObjectVisibility(WorldObject* obj, Cell cell, CellPair cellpair)
     cell.SetNoCreate();
     Trinity::VisibleChangesNotifier notifier(*obj);
     TypeContainerVisitor<Trinity::VisibleChangesNotifier, WorldTypeMapContainer > player_notifier(notifier);
-    cell.Visit(cellpair, player_notifier, *this, *obj, GetVisibilityDistance());
+    cell.Visit(cellpair, player_notifier, *this, *obj, obj->GetVisibilityRange());
 }
 
 void Map::UpdateObjectsVisibilityFor(Player* player, Cell cell, CellPair cellpair)
@@ -1892,8 +1854,8 @@ void Map::UpdateObjectsVisibilityFor(Player* player, Cell cell, CellPair cellpai
     cell.SetNoCreate();
     TypeContainerVisitor<Trinity::VisibleNotifier, WorldTypeMapContainer > world_notifier(notifier);
     TypeContainerVisitor<Trinity::VisibleNotifier, GridTypeMapContainer  > grid_notifier(notifier);
-    cell.Visit(cellpair, world_notifier, *this, *player, GetVisibilityDistance());
-    cell.Visit(cellpair, grid_notifier,  *this, *player, GetVisibilityDistance());
+    cell.Visit(cellpair, world_notifier, *this, *player, player->GetVisibilityRange());
+    cell.Visit(cellpair, grid_notifier,  *this, *player, player->GetVisibilityRange());
 
     // send data
     notifier.SendToSelf();
@@ -2117,7 +2079,7 @@ bool Map::ActiveObjectsNearGrid(uint32 x, uint32 y) const
     CellPair cell_max(cell_min.x_coord + MAX_NUMBER_OF_CELLS, cell_min.y_coord+MAX_NUMBER_OF_CELLS);
 
     //we must find visible range in cells so we unload only non-visible cells...
-    float viewDist = GetVisibilityDistance();
+    float viewDist = GetVisibilityRange();
     int cell_range = (int)ceilf(viewDist / SIZE_OF_GRID_CELL) + 1;
 
     cell_min << cell_range;

@@ -108,9 +108,11 @@ class AuraEffect
             // aura type not have immediate effect at add/remove and handled by ID in other code place
         }
         //  visibility & phases
-        void HandleInvisibilityDetect(AuraApplication const * aurApp, uint8 mode, bool apply) const;
-        void HandleInvisibility(AuraApplication const * aurApp, uint8 mode, bool apply) const;
+        void HandleModInvisibilityDetect(AuraApplication const * aurApp, uint8 mode, bool apply) const;
+        void HandleModInvisibility(AuraApplication const * aurApp, uint8 mode, bool apply) const;
         void HandleModStealth(AuraApplication const * aurApp, uint8 mode, bool apply) const;
+        void HandleModStealthLevel(AuraApplication const * aurApp, uint8 mode, bool apply) const;
+        void HandleModStealthDetect(AuraApplication const * aurApp, uint8 mode, bool apply) const;
         void HandleSpiritOfRedemption(AuraApplication const * aurApp, uint8 mode, bool apply) const;
         void HandleAuraGhost(AuraApplication const * aurApp, uint8 mode, bool apply) const;
         void HandlePhase(AuraApplication const * aurApp, uint8 mode, bool apply) const;
@@ -257,6 +259,7 @@ class AuraEffect
         void HandleAuraLinked(AuraApplication const * aurApp, uint8 mode, bool apply) const;
         void HandleAuraOpenStable(AuraApplication const * aurApp, uint8 mode, bool apply) const;
         void HandleAuraSetVehicle(AuraApplication const * aurApp, uint8 mode, bool apply) const;
+        void HandleAuraModFakeInebriation(AuraApplication const * aurApp, uint8 mode, bool apply) const;
 };
 
 #endif

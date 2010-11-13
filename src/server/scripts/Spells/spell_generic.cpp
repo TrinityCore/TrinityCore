@@ -517,6 +517,46 @@ class spell_gen_animal_blood : public SpellScriptLoader
         }
 };
 
+class spell_gen_shroud_of_death : public SpellScriptLoader
+{
+    public:
+        spell_gen_shroud_of_death() : SpellScriptLoader("spell_gen_shroud_of_death") { }
+
+        class spell_gen_shroud_of_deathAuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_shroud_of_deathAuraScript)
+
+            void HandleEffectApply(AuraEffect const * /*aurEff*/, AuraApplication const * aurApp, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* target = aurApp->GetTarget())
+                {
+                    target->m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_GHOST);
+                    target->m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_GHOST);
+                }
+            }
+
+            void HandleEffectRemove(AuraEffect const * /*aurEff*/, AuraApplication const * aurApp, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* target = aurApp->GetTarget())
+                {
+                    target->m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
+                    target->m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_gen_shroud_of_deathAuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_gen_shroud_of_deathAuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript *GetAuraScript() const
+        {
+            return new spell_gen_shroud_of_deathAuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_aura_of_anger();
@@ -530,4 +570,5 @@ void AddSC_generic_spell_scripts()
     new spell_creature_permanent_feign_death();
     new spell_pvp_trinket_wotf_shared_cd();
     new spell_gen_animal_blood();
+    new spell_gen_shroud_of_death();
 }

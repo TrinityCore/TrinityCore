@@ -42,8 +42,8 @@ Trinity::VisibleNotifier::Visit(GridRefManager<T> &m)
 inline void
 Trinity::ObjectUpdater::Visit(CreatureMapType &m)
 {
-    for (CreatureMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
-        if (iter->getSource()->IsInWorld() && !iter->getSource()->isSpiritService())
+    for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+        if (iter->getSource()->IsInWorld())
             iter->getSource()->Update(i_timeDiff);
 }
 
