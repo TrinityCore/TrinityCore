@@ -3896,6 +3896,11 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_PET;
             count++;
             break;
+        case 70893: // Culling The Herd
+            spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
+            spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_MASTER;
+            count++;
+            break;
         case 71413: // Green Ooze Summon
         case 71414: // Orange Ooze Summon
             spellInfo->EffectImplicitTargetA[0] = TARGET_DEST_DEST;

@@ -8831,6 +8831,17 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                 return false;
             break;
         }
+        // Culling the Herd
+        case 70893:
+        {
+            // check if we're doing a critical hit
+            if (!(procSpell->SpellFamilyFlags[1] & 0x10000000) && (procEx != PROC_EX_CRITICAL_HIT) )
+                return false;
+            // check if we're procced by Claw, Bite or Smack (need to use the spell icon ID to detect it)
+            if (!(procSpell->SpellIconID == 262 || procSpell->SpellIconID == 1680 || procSpell->SpellIconID == 473 ))
+                return false;
+            break;
+        }
         // Deathbringer Saurfang - Blood Link
         case 72202:
             target = FindNearestCreature(37813, 75.0f); // NPC_DEATHBRINGER_SAURFANG = 37813
