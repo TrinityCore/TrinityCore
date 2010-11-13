@@ -212,7 +212,7 @@ class boss_festergut : public CreatureScript
                                     me->CastSpell(me, gaseousBlight[uiInhaleCounter], true, NULL, NULL, me->GetGUID());
                             }
                             events.ScheduleEvent(EVENT_INHALE_BLIGHT, urand(33500, 35000));
-                            return;
+                            break;
                         }
                         case EVENT_VILE_GAS:
                         {
