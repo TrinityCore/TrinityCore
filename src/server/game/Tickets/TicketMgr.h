@@ -28,7 +28,7 @@
 // from blizzard lua
 enum GMTicketSystemStatus
 {
-    GMTICKET_QUEUE_STATUS_DISABLED = -1,
+    GMTICKET_QUEUE_STATUS_DISABLED = 0,
     GMTICKET_QUEUE_STATUS_ENABLED = 1,
 };
 
@@ -133,6 +133,11 @@ public:
     void SetStatus(bool newStatus) { status = newStatus; }
     uint64 GetOpenTicketCount() { return m_openTickets; }
     uint64 GetNextSurveyID() { return ++m_GMSurveyID; }
+
+    void Initialize()
+    {
+        SetStatus(sWorld.getBoolConfig(CONFIG_ALLOW_TICKETS));
+    }
 
     GM_Ticket *GetOldestOpenGMTicket()
     {
