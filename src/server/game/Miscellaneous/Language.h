@@ -797,7 +797,9 @@ enum TrinityStrings
     LANG_BANLIST_MATCHINGCHARACTER      = 1131,
     LANG_BANLIST_CHARACTERS             = 1132,
     LANG_BANLIST_CHARACTERS_HEADER      = 1133,
-    // Room for more level 3              1134-1199 not used
+    LANG_ALLOW_TICKETS                  = 1134,
+    LANG_DISALLOW_TICKETS               = 1135,
+    // Room for more level 3              1136-1199 not used
 
     // Debug commands
     LANG_CINEMATIC_NOT_EXIST            = 1200,

@@ -957,6 +957,11 @@ ChatLogTimestamp = 0
 #        The maximum number of results a .lookup command can return
 #        Default: 0 - unlimited
 #
+#    AllowTickets
+#        Allow/disallow sending new tickets.
+#        Default: 1 (true)
+#                 0 (false)
+#
 ###############################################################################
 
 GameType = 0
@@ -1020,6 +1025,7 @@ BeepAtStart = 1
 Motd = "Welcome to a Trinity Core server."
 Server.LoginInfo = 0
 Command.LookupMaxResults = 0
+AllowTickets = 1
 
 ###############################################################################
 # PLAYER INTERACTION

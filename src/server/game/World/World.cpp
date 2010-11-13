@@ -400,6 +400,9 @@ void World::LoadConfigSettings(bool reload)
     SetPlayerAmountLimit(sConfig.GetIntDefault("PlayerLimit", 100));
     SetMotd(sConfig.GetStringDefault("Motd", "Welcome to a Trinity Core Server."));
 
+    ///- Read ticket system setting from the config file
+    m_bool_configs[CONFIG_ALLOW_TICKETS] = sConfig.GetBoolDefault("AllowTickets", true);
+
     ///- Get string for new logins (newly created characters)
     SetNewCharString(sConfig.GetStringDefault("PlayerStart.String", ""));
 
@@ -1669,6 +1672,8 @@ void World::SetInitialWorldSettings()
 
     sLog.outString("Starting Arena Season...");
     sGameEventMgr.StartArenaSeason();
+
+    sTicketMgr.Initialize();
 
     sLog.outString("Loading World States...");              // must be loaded before battleground and outdoor PvP
     LoadWorldStates();

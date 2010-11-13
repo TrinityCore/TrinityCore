@@ -436,6 +436,11 @@ bool ChatHandler::HandleGMTicketReloadCommand(const char* /* args */)
 bool ChatHandler::HandleToggleGMTicketSystem(const char* /* args */)
 {
     sTicketMgr.SetStatus(!sTicketMgr.GetStatus());
+    if(sTicketMgr.GetStatus())
+        PSendSysMessage(LANG_ALLOW_TICKETS);
+    else
+        PSendSysMessage(LANG_DISALLOW_TICKETS);
+
     return true;
 }
 
