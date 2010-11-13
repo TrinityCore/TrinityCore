@@ -66,6 +66,8 @@ class HostileRefManager : public RefManager<Unit, ThreatManager>
 
         // delete one reference, defined by Unit
         void deleteReference(Unit *pCreature);
+
+        void UpdateVisibility();
 };
 //=================================================
 #endif

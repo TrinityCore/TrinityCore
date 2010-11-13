@@ -1138,6 +1138,9 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
     if (unit->isAlive() != target->alive)
         return;
 
+    if (getState() == SPELL_STATE_DELAYED && !IsPositiveSpell(m_spellInfo->Id) && (getMSTime() - target->timeDelay) <= unit->m_lastSanctuaryTime)
+        return;                                             // No missinfo in that case
+
     // Get original caster (if exist) and calculate damage/healing from him data
     Unit *caster = m_originalCaster ? m_originalCaster : m_caster;
 
@@ -3414,7 +3417,10 @@ uint64 Spell::handle_delayed(uint64 t_offset)
         if (ihit->processed == false)
         {
             if (single_missile || ihit->timeDelay <= t_offset)
+            {
+                ihit->timeDelay = t_offset;
                 DoAllEffectOnTarget(&(*ihit));
+            }
             else if (next_time == 0 || ihit->timeDelay < next_time)
                 next_time = ihit->timeDelay;
         }
