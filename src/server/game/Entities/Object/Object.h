@@ -733,16 +733,16 @@ class WorldObject : public Object, public WorldLocation
 
         virtual bool isValid() const;
 
-        virtual bool isAlwaysVisibleFor(WorldObject const* seer) const { return false; }
-        virtual bool canSeeAlways(WorldObject const* obj) const { return false; }
+        virtual bool isAlwaysVisibleFor(WorldObject const* /*seer*/) const { return false; }
+        virtual bool canSeeAlways(WorldObject const* /*obj*/) const { return false; }
         bool canDetect(WorldObject const* obj, bool ignoreStealth) const;
 
-        virtual bool isVisibleForInState(WorldObject const* seer) const { return true; }
+        virtual bool isVisibleForInState(WorldObject const* /*seer*/) const { return true; }
 
         bool canDetectInvisibilityOf(WorldObject const* obj) const;
         bool canDetectStealthOf(WorldObject const* obj) const;
 
-        virtual bool isAlwaysDetectableFor(WorldObject const* seer) const { return false; }
+        virtual bool isAlwaysDetectableFor(WorldObject const* /*seer*/) const { return false; }
 
         float GetGridActivationRange() const;
         float GetVisibilityRange() const;
