@@ -386,8 +386,7 @@ class boss_professor_putricide : public CreatureScript
                         break;
                     case ACTION_FESTERGUT_GAS:
                         DoScriptText(SAY_FESTERGUT_GASEOUS_BLIGHT, me);
-                        if (Creature* festergut = Unit::GetCreature(*me, instance->GetData64(DATA_FESTERGUT)))
-                            festergut->CastSpell(festergut, SPELL_RELEASE_GAS_VISUAL, false, NULL, NULL, me->GetGUID()); // cast from festergut for LoS (with prof's GUID for logs)
+                        DoCast(me, SPELL_RELEASE_GAS_VISUAL, true);
                         break;
                     case ACTION_FESTERGUT_DEATH:
                         events.ScheduleEvent(EVENT_FESTERGUT_DIES, 4000, 0, PHASE_FESTERGUT);
