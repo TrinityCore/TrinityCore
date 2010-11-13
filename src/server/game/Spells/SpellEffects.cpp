@@ -1648,41 +1648,20 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
             unitTarget->RemoveMovementImpairingAuras();
             unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
 
-            // if this spell is given to NPC it must handle rest by it's own AI
+            // If this spell is given to an NPC, it must handle the rest using its own AI
             if (unitTarget->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            // get highest rank of the Stealth spell
-            uint32 spellId = 0;
-            SpellEntry const *spellInfo;
-            const PlayerSpellMap& sp_list = unitTarget->ToPlayer()->GetSpellMap();
-            for (PlayerSpellMap::const_iterator itr = sp_list.begin(); itr != sp_list.end(); ++itr)
-            {
-                // only highest rank is shown in spell book, so simply check if shown in spell book
-                if (!itr->second->active || itr->second->disabled || itr->second->state == PLAYERSPELL_REMOVED)
-                    continue;
-
-                spellInfo = sSpellStore.LookupEntry(itr->first);
-                if (!spellInfo)
-                    continue;
-
-                if (spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE && spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_STEALTH)
-                {
-                    spellId = spellInfo->Id;
-                    break;
-                }
-            }
-
-            // no Stealth spell found
-            if (!spellId)
+            // See if we already are stealthed. If so, we're done.
+            if (unitTarget->HasAura(1784))
                 return;
 
-            // reset cooldown on it if needed
-            if (unitTarget->ToPlayer()->HasSpellCooldown(spellId))
-                unitTarget->ToPlayer()->RemoveSpellCooldown(spellId);
+            // Reset cooldown on stealth if needed
+            if (unitTarget->ToPlayer()->HasSpellCooldown(1784))
+                unitTarget->ToPlayer()->RemoveSpellCooldown(1784);
 
-            triggered_spell_id =  spellId;
-            return;
+            triggered_spell_id = 1784;
+            break;
         }
         // Demonic Empowerment -- succubus
         case 54437:
