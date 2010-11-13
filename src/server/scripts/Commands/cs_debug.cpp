@@ -24,10 +24,13 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ObjectMgr.h"
-#include "GossipDef.h"
-#include "GridNotifiers.h"
 #include "BattlegroundMgr.h"
 #include "Chat.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "GossipDef.h"
 
 #include <fstream>
 
