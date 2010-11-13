@@ -32,6 +32,11 @@ static const DoorData doorData[] =
     {GO_BLOOD_ELF_COUNCIL_DOOR_RIGHT,        DATA_BLOOD_PRINCE_COUNCIL,  DOOR_TYPE_PASSAGE, BOUNDARY_E   },
     {GO_DOODAD_ICECROWN_BLOODPRINCE_DOOR_01, DATA_BLOOD_QUEEN_LANA_THEL, DOOR_TYPE_ROOM,    BOUNDARY_S   },
     {GO_DOODAD_ICECROWN_GRATE_01,            DATA_BLOOD_QUEEN_LANA_THEL, DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
+    {GO_GREEN_DRAGON_BOSS_ENTRANCE,          DATA_VALITHRIA_DREAMWALKER, DOOR_TYPE_ROOM,    BOUNDARY_N   },
+    {GO_GREEN_DRAGON_BOSS_EXIT,              DATA_VALITHRIA_DREAMWALKER, DOOR_TYPE_PASSAGE, BOUNDARY_S   },
+    {GO_SINDRAGOSA_ENTRANCE_DOOR,            DATA_SINDRAGOSA,            DOOR_TYPE_ROOM,    BOUNDARY_S   },
+    {GO_SINDRAGOSA_SHORTCUT_ENTRANCE_DOOR,   DATA_SINDRAGOSA,            DOOR_TYPE_ROOM,    BOUNDARY_E   },
+    {GO_SINDRAGOSA_SHORTCUT_EXIT_DOOR,       DATA_SINDRAGOSA,            DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
     {0,                                      0,                          DOOR_TYPE_ROOM,    BOUNDARY_NONE} // END
 };
 
@@ -172,6 +177,11 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_BLOOD_ELF_COUNCIL_DOOR_RIGHT:
                     case GO_DOODAD_ICECROWN_BLOODPRINCE_DOOR_01:
                     case GO_DOODAD_ICECROWN_GRATE_01:
+                    case GO_GREEN_DRAGON_BOSS_ENTRANCE:
+                    case GO_GREEN_DRAGON_BOSS_EXIT:
+                    case GO_SINDRAGOSA_ENTRANCE_DOOR:
+                    case GO_SINDRAGOSA_SHORTCUT_ENTRANCE_DOOR:
+                    case GO_SINDRAGOSA_SHORTCUT_EXIT_DOOR:
                         AddDoor(pGo, add);
                         break;
                     case GO_LADY_DEATHWHISPER_ELEVATOR:
