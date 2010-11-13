@@ -5327,6 +5327,16 @@ void Spell::EffectSanctuary(SpellEffIndex /*effIndex*/)
         return;
 
     unitTarget->getHostileRefManager().UpdateVisibility();
+
+    Unit::AttackerSet const& attackers = unitTarget->getAttackers();
+    for (Unit::AttackerSet::const_iterator itr = attackers.begin(); itr != attackers.end();)
+    {
+        if (!(*itr)->canSeeOrDetect(unitTarget))
+            (*(itr++))->AttackStop();
+        else
+            ++itr;
+    }
+
     unitTarget->m_lastSanctuaryTime = getMSTime();
 
     // Vanish allows to remove all threat and cast regular stealth so other spells can be used
