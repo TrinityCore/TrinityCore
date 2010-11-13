@@ -802,6 +802,18 @@ bool Creature::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, 
         LastUsedScriptID = GetCreatureInfo()->ScriptID;
     }
 
+    // TODO: Replace with spell, handle from DB
+    if (isSpiritHealer())
+    {
+        m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_GHOST);
+        m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_GHOST);
+    }
+    else if(isSpiritGuide())
+        m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_GHOST | GHOST_VISIBILITY_ALIVE);
+
+    if (Entry == VISUAL_WAYPOINT)
+        SetVisibility(VISIBILITY_OFF);
+
     return bResult;
 }
 
@@ -1385,50 +1397,15 @@ void Creature::DeleteFromDB()
     WorldDatabase.CommitTransaction(trans);
 }
 
-bool Creature::canSeeOrDetect(Unit const* u, bool detect, bool /*inVisibleList*/, bool /*is3dDistance*/) const
+bool Creature::isVisibleForInState(WorldObject const* seer) const
 {
-    // not in world
-    if (!IsInWorld() || !u->IsInWorld())
+    if (!Unit::isVisibleForInState(seer))
         return false;
 
-    // all dead creatures/players not visible for any creatures
-    if (!u->isAlive() || !isAlive())
-        return false;
-
-    // Always can see self
-    if (u == this)
+    if (isAlive() || (m_isDeadByDefault && m_deathState == CORPSE) || m_corpseRemoveTime > time(NULL))
         return true;
 
-    // phased visibility (both must phased in same way)
-    if (!InSamePhase(u))
-        return false;
-
-    // always seen by owner
-    if (GetGUID() == u->GetCharmerOrOwnerGUID())
-        return true;
-
-    if (u->GetVisibility() == VISIBILITY_OFF) //GM
-        return false;
-
-    // invisible aura
-    if ((m_invisibilityMask || u->m_invisibilityMask) && !canDetectInvisibilityOf(u))
-        return false;
-
-    // unit got in stealth in this moment and must ignore old detected state
-    //if (m_Visibility == VISIBILITY_GROUP_NO_DETECT)
-    //    return false;
-
-    // GM invisibility checks early, invisibility if any detectable, so if not stealth then visible
-    if (u->GetVisibility() == VISIBILITY_GROUP_STEALTH)
-    {
-        //do not know what is the use of this detect
-        if (!detect || !canDetectStealthOf(u, GetDistance(u)))
-            return false;
-    }
-
-    // Now check is target visible with LoS
-    //return u->IsWithinLOS(GetPositionX(),GetPositionY(),GetPositionZ());
-    return true;
+    return false;
 }
 
 bool Creature::canStartAttack(Unit const* who, bool force) const
@@ -1784,43 +1761,6 @@ SpellEntry const *Creature::reachWithSpellCure(Unit *pVictim)
     return NULL;
 }
 
-bool Creature::IsVisibleInGridForPlayer(Player const* pl) const
-{
-    // gamemaster in GM mode see all, including ghosts
-    if (pl->isGameMaster())
-        return true;
-
-    // Trigger shouldn't be visible for players
-    //if (isTrigger())
-    //    return false;
-    // Rat: this makes no sense, triggers are always sent to players, but with invisible model and can not be attacked or targeted!
-
-    // Live player (or with not release body see live creatures or death creatures with corpse disappearing time > 0
-    if (pl->isAlive() || pl->GetDeathTimer() > 0)
-    {
-        if (GetEntry() == VISUAL_WAYPOINT)
-            return false;
-        return (isAlive() || m_corpseRemoveTime > time(NULL) || (m_isDeadByDefault && m_deathState == CORPSE));
-    }
-
-    // Dead player see creatures near own corpse
-    Corpse *corpse = pl->GetCorpse();
-    if (corpse)
-    {
-        // 20 - aggro distance for same level, 25 - max additional distance if player level less that creature level
-        if (corpse->IsWithinDistInMap(this,(20+25)*sWorld.getRate(RATE_CREATURE_AGGRO)))
-            return true;
-    }
-
-    // Dead player see Spirit Healer or Spirit Guide
-    if (isSpiritService())
-        return true;
-
-    // and not see any other
-    return false;
-}
-
-
 // select nearest hostile unit within the given distance (regardless of threat list).
 Unit* Creature::SelectNearestTarget(float dist) const
 {
@@ -1832,7 +1772,7 @@ Unit* Creature::SelectNearestTarget(float dist) const
     Unit *target = NULL;
 
     {
-        if (dist == 0.0f || dist > MAX_VISIBILITY_DISTANCE)
+        if (dist == 0.0f)
             dist = MAX_VISIBILITY_DISTANCE;
 
         Trinity::NearestHostileUnitCheck u_check(this, dist);

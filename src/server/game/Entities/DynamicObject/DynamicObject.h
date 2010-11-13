@@ -44,7 +44,6 @@ class DynamicObject : public WorldObject, public GridObject<DynamicObject>
         uint64 GetCasterGUID() const { return GetUInt64Value(DYNAMICOBJECT_CASTER); }
         float GetRadius() const { return GetFloatValue(DYNAMICOBJECT_RADIUS); }
         Unit* GetCaster() const;
-        bool isVisibleForInState(Player const* u, bool inVisibleList) const;
 
         void Say(int32 textId, uint32 language, uint64 TargetGuid) { MonsterSay(textId,language,TargetGuid); }
         void Yell(int32 textId, uint32 language, uint64 TargetGuid) { MonsterYell(textId,language,TargetGuid); }
