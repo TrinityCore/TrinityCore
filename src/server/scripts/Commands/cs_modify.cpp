@@ -22,7 +22,9 @@ Comment: All modify related commands
 Category: commandscripts
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ObjectMgr.h"
+#include "Chat.h"
 
 class modify_commandscript : public CommandScript
 {

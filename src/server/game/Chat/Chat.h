@@ -171,11 +171,6 @@ class ChatHandler
         bool HandleBindSightCommand(const char* args);
         bool HandleUnbindSightCommand(const char* args);
 
-        bool HandleEventActiveListCommand(const char* args);
-        bool HandleEventStartCommand(const char* args);
-        bool HandleEventStopCommand(const char* args);
-        bool HandleEventInfoCommand(const char* args);
-
         bool HandleGameObjectAddCommand(const char* args);
         bool HandleGameObjectDeleteCommand(const char* args);
         bool HandleGameObjectInfoCommand(const char* args);
@@ -365,12 +360,6 @@ class ChatHandler
 
         bool HandleServerSetLogFileLevelCommand(const char* args);
         bool HandleServerSetDiffTimeCommand(const char* args);
-
-        bool HandleTeleCommand(const char * args);
-        bool HandleTeleAddCommand(const char * args);
-        bool HandleTeleDelCommand(const char * args);
-        bool HandleTeleGroupCommand(const char* args);
-        bool HandleTeleNameCommand(const char* args);
 
         bool HandleTitlesAddCommand(const char* args);
         bool HandleTitlesCurrentCommand(const char* args);
