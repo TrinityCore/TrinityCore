@@ -21,6 +21,7 @@
 
 #include "Common.h"
 #include "SharedDefines.h"
+#include "Unit.h"
 #include "Object.h"
 #include "LootMgr.h"
 #include "DatabaseEnv.h"
