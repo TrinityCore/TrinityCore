@@ -22,7 +22,10 @@ Comment: All learn related commands
 Category: commandscripts
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ObjectMgr.h"
+#include "SpellMgr.h"
+#include "Chat.h"
 
 class learn_commandscript : public CommandScript
 {
