@@ -22,9 +22,14 @@ Comment: All debug related commands
 Category: commandscripts
 EndScriptData */
 
-#include "ScriptPCH.h"
-#include <fstream>
+#include "ScriptMgr.h"
+#include "ObjectMgr.h"
+#include "GossipDef.h"
+#include "GridNotifiers.h"
 #include "BattlegroundMgr.h"
+#include "Chat.h"
+
+#include <fstream>
 
 class debug_commandscript : public CommandScript
 {

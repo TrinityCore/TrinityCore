@@ -22,7 +22,9 @@ Comment: All npc related commands
 Category: commandscripts
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ObjectMgr.h"
+#include "Chat.h"
 #include "Transport.h"
 #include "CreatureGroups.h"
 #include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand

@@ -22,9 +22,11 @@ Comment: All go related commands
 Category: commandscripts
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ObjectMgr.h"
 #include "MapManager.h"
 #include "TicketMgr.h"
+#include "Chat.h"
 
 class go_commandscript : public CommandScript
 {
