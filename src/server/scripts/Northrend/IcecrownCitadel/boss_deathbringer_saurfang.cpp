@@ -254,11 +254,11 @@ class boss_deathbringer_saurfang : public CreatureScript
                 me->SetPower(POWER_ENERGY, 0);
                 DoCast(me, SPELL_ZERO_POWER, true);
                 DoCast(me, SPELL_BLOOD_LINK, true);
+                DoCast(me, SPELL_BLOOD_POWER, true);
                 DoCast(me, SPELL_MARK_OF_THE_FALLEN_CHAMPION_S, true);
                 DoCast(me, SPELL_RUNE_OF_BLOOD_S, true);
                 me->RemoveAurasDueToSpell(SPELL_BERSERK);
                 me->RemoveAurasDueToSpell(SPELL_FRENZY);
-                me->RemoveAurasDueToSpell(SPELL_BLOOD_POWER);
                 summons.DespawnAll();
                 instance->SetBossState(DATA_DEATHBRINGER_SAURFANG, NOT_STARTED);
             }
@@ -273,6 +273,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 events.ScheduleEvent(EVENT_RUNE_OF_BLOOD, 20000, 0, PHASE_COMBAT);
 
                 uiFallenChampionCount = 0;
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MARK_OF_THE_FALLEN_CHAMPION);
                 instance->SetBossState(DATA_DEATHBRINGER_SAURFANG, IN_PROGRESS);
             }
 
@@ -310,6 +311,7 @@ class boss_deathbringer_saurfang : public CreatureScript
             void JustReachedHome()
             {
                 instance->SetBossState(DATA_DEATHBRINGER_SAURFANG, FAIL);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MARK_OF_THE_FALLEN_CHAMPION);
             }
 
             void KilledUnit(Unit *victim)
@@ -466,47 +468,49 @@ class boss_deathbringer_saurfang : public CreatureScript
             // intro setup
             void DoAction(const int32 action)
             {
-                if (action == PHASE_INTRO_A || action == PHASE_INTRO_H)
+                switch (action)
                 {
-                    if (GameObject* teleporter = GameObject::GetGameObject(*me, instance->GetData64(GO_SCOURGE_TRANSPORTER_SAURFANG)))
-                    {
-                        instance->HandleGameObject(0, false, teleporter);
-                        teleporter->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
-                    }
+                    case PHASE_INTRO_A:
+                    case PHASE_INTRO_H:
+                        if (GameObject* teleporter = GameObject::GetGameObject(*me, instance->GetData64(GO_SCOURGE_TRANSPORTER_SAURFANG)))
+                        {
+                            instance->HandleGameObject(0, false, teleporter);
+                            teleporter->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+                        }
 
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    // controls what events will execute
-                    events.SetPhase(uint32(action));
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        // controls what events will execute
+                        events.SetPhase(uint32(action));
 
-                    me->SetHomePosition(deathbringerPos.GetPositionX(), deathbringerPos.GetPositionY(), deathbringerPos.GetPositionZ(), me->GetOrientation());
-                    me->GetMotionMaster()->MovePoint(POINT_SAURFANG, deathbringerPos.GetPositionX(), deathbringerPos.GetPositionY(), deathbringerPos.GetPositionZ());
+                        me->SetHomePosition(deathbringerPos.GetPositionX(), deathbringerPos.GetPositionY(), deathbringerPos.GetPositionZ(), me->GetOrientation());
+                        me->GetMotionMaster()->MovePoint(POINT_SAURFANG, deathbringerPos.GetPositionX(), deathbringerPos.GetPositionY(), deathbringerPos.GetPositionZ());
 
-                    events.ScheduleEvent(EVENT_INTRO_ALLIANCE_2, 2500, 0, PHASE_INTRO_A);
-                    events.ScheduleEvent(EVENT_INTRO_ALLIANCE_3, 20000, 0, PHASE_INTRO_A);
+                        events.ScheduleEvent(EVENT_INTRO_ALLIANCE_2, 2500, 0, PHASE_INTRO_A);
+                        events.ScheduleEvent(EVENT_INTRO_ALLIANCE_3, 20000, 0, PHASE_INTRO_A);
 
-                    events.ScheduleEvent(EVENT_INTRO_HORDE_2, 5000, 0, PHASE_INTRO_H);
+                        events.ScheduleEvent(EVENT_INTRO_HORDE_2, 5000, 0, PHASE_INTRO_H);
+                        break;
+                    case ACTION_CONTINUE_INTRO:
+                        events.ScheduleEvent(EVENT_INTRO_ALLIANCE_6, 6500+500, 0, PHASE_INTRO_A);
+                        events.ScheduleEvent(EVENT_INTRO_FINISH, 8000, 0, PHASE_INTRO_A);
+
+                        events.ScheduleEvent(EVENT_INTRO_HORDE_4, 6500, 0, PHASE_INTRO_H);
+                        events.ScheduleEvent(EVENT_INTRO_HORDE_9, 46700+1000+500, 0, PHASE_INTRO_H);
+                        events.ScheduleEvent(EVENT_INTRO_FINISH,  46700+1000+8000, 0, PHASE_INTRO_H);
+                        break;
+                    case ACTION_MARK_OF_THE_FALLEN_CHAMPION:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -SPELL_MARK_OF_THE_FALLEN_CHAMPION))
+                        {
+                            ++uiFallenChampionCount;
+                            DoCast(target, SPELL_MARK_OF_THE_FALLEN_CHAMPION);
+                            me->SetPower(POWER_ENERGY, 0);
+                            if (Aura* bloodPower = me->GetAura(SPELL_BLOOD_POWER))
+                                bloodPower->RecalculateAmountOfEffects();
+                        }
+                        break;
+                    default:
+                        break;
                 }
-                else if (action == ACTION_CONTINUE_INTRO)
-                {
-                    events.ScheduleEvent(EVENT_INTRO_ALLIANCE_6, 6500+500, 0, PHASE_INTRO_A);
-                    events.ScheduleEvent(EVENT_INTRO_FINISH, 8000, 0, PHASE_INTRO_A);
-
-                    events.ScheduleEvent(EVENT_INTRO_HORDE_4, 6500, 0, PHASE_INTRO_H);
-                    events.ScheduleEvent(EVENT_INTRO_HORDE_9, 46700+1000+500, 0, PHASE_INTRO_H);
-                    events.ScheduleEvent(EVENT_INTRO_FINISH,  46700+1000+8000, 0, PHASE_INTRO_H);
-                }
-                else if (action == ACTION_MARK_OF_THE_FALLEN_CHAMPION)
-                {
-                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -SPELL_MARK_OF_THE_FALLEN_CHAMPION))
-                    {
-                        ++uiFallenChampionCount;
-                        me->RemoveAurasDueToSpell(SPELL_BLOOD_POWER);
-                        DoCast(target, SPELL_MARK_OF_THE_FALLEN_CHAMPION);
-                        me->SetPower(POWER_ENERGY, 0);
-                    }
-                }
-                else
-                    ASSERT(false);
             }
 
         private:
@@ -923,9 +927,7 @@ class spell_deathbringer_blood_link : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 GetHitUnit()->CastCustomSpell(SPELL_BLOOD_LINK_POWER, SPELLVALUE_BASE_POINT0, GetEffectValue(), GetHitUnit(), true);
-                if (!GetHitUnit()->HasAura(SPELL_BLOOD_POWER))
-                    GetHitUnit()->CastSpell(GetHitUnit(), SPELL_BLOOD_POWER, true);
-                else if (Aura* bloodPower = GetHitUnit()->GetAura(SPELL_BLOOD_POWER))
+                if (Aura* bloodPower = GetHitUnit()->GetAura(SPELL_BLOOD_POWER))
                     bloodPower->RecalculateAmountOfEffects();
                 PreventHitDefaultEffect(EFFECT_0);
             }
@@ -1121,9 +1123,10 @@ class achievement_ive_gone_and_made_a_mess : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {
-            if (Creature* saurfang = target->ToCreature())
-                if (saurfang->AI()->GetData(DATA_MADE_A_MESS))
-                    return true;
+            if (target)
+                if (Creature* saurfang = target->ToCreature())
+                    if (saurfang->AI()->GetData(DATA_MADE_A_MESS))
+                        return true;
 
             return false;
         }
