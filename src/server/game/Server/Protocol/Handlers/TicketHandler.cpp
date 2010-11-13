@@ -28,6 +28,10 @@
 
 void WorldSession::HandleGMTicketCreateOpcode(WorldPacket & recv_data)
 {
+    // Don't accept tickets if the ticket queue is disabled. (Ticket UI is greyed out but not fully dependable)
+    if (sTicketMgr.GetStatus() == GMTICKET_QUEUE_STATUS_DISABLED)
+        return;
+
     if (GetPlayer()->getLevel() < sWorld.getIntConfig(CONFIG_TICKET_LEVEL_REQ))
     {
         SendNotification(GetTrinityString(LANG_TICKET_REQ), sWorld.getIntConfig(CONFIG_TICKET_LEVEL_REQ));
@@ -144,6 +148,7 @@ void WorldSession::HandleGMTicketGetTicketOpcode(WorldPacket & /*recv_data*/)
 void WorldSession::HandleGMTicketSystemStatusOpcode(WorldPacket & /*recv_data*/)
 {
     WorldPacket data(SMSG_GMTICKET_SYSTEMSTATUS, 4);
+    // Note: This only disables the ticket UI at client side and is not fully reliable
     // are we sure this is a uint32? Should ask Zor
     data << uint32(sTicketMgr.GetStatus() ? GMTICKET_QUEUE_STATUS_ENABLED : GMTICKET_QUEUE_STATUS_DISABLED);
     SendPacket(&data);
