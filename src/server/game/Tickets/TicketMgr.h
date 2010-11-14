@@ -24,6 +24,7 @@
 #include "DatabaseEnv.h"
 #include "SQLStorage.h"
 #include "SQLStorageImpl.h"
+#include "World.h"
 
 // from blizzard lua
 enum GMTicketSystemStatus
