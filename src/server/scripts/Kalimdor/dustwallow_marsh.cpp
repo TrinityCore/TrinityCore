@@ -151,16 +151,19 @@ public:
 
 };
 
-
 /*######
 ## npc_deserter_agitator
 ######*/
 
-enum eAgitator
+enum eDeserter
 {
-    QUEST_TRAITORS_AMONG_US = 11126,
-    FACTION_THER_DESERTER   = 1883
+    QUEST_TRAITORS_AMONG_US                      = 11126,
+    NPC_THERAMORE_DESERTER                       = 23602,
 };
+
+const Position DeserterDisappearPos = {-3609.03f, -4332.91f, 9.39354f, 3.73862f};
+
+#define GOSSIP_ITEM_DESERTER "Your propaganda wont`t work on me. Spout your treasonous filth elsewhere traitor!" 
 
 class npc_deserter_agitator : public CreatureScript
 {
@@ -170,19 +173,45 @@ public:
     bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
         if (pPlayer->GetQuestStatus(QUEST_TRAITORS_AMONG_US) == QUEST_STATUS_INCOMPLETE)
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_DESERTER, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
+            
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+
+        return true;
+    }
+
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+    {
+        pPlayer->PlayerTalkClass->ClearMenus();
+        
+        if (uiAction == GOSSIP_SENDER_INFO)
         {
-            pCreature->setFaction(FACTION_THER_DESERTER);
-            pPlayer->TalkedToCreature(pCreature->GetEntry(), pCreature->GetGUID());
+            pPlayer->CLOSE_GOSSIP_MENU();
+            switch (urand(0,1))
+            {
+                case 0:
+                    pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    pCreature->setFaction(14);
+                    pCreature->AI()->AttackStart(pPlayer);
+                    break;
+                case 1:
+                    pPlayer->KilledMonsterCredit(NPC_THERAMORE_DESERTER, 0);
+                    pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    pCreature->SetSpeed(MOVE_RUN, pCreature->GetSpeedRate(MOVE_RUN), true);
+                    pCreature->setFaction(35);
+                    pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NON_ATTACKABLE);
+                    pCreature->SetReactState(REACT_PASSIVE);
+                    pCreature->GetMotionMaster()->MovePoint(1, DeserterDisappearPos);
+                    break;
+            }
         }
-        else
-            pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
 
         return true;
     }
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
-        return new npc_deserter_agitatorAI (pCreature);
+        return new npc_deserter_agitatorAI(pCreature);
     }
 
     struct npc_deserter_agitatorAI : public ScriptedAI
@@ -192,12 +221,127 @@ public:
         void Reset()
         {
             me->RestoreFaction();
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NON_ATTACKABLE);
+            me->SetReactState(REACT_AGGRESSIVE);
+            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        }
+
+        void MovementInform(uint32 uiType, uint32 uiId)
+        {
+            if (uiType != POINT_MOTION_TYPE)
+                return;
+
+            if (uiId == 1)
+                me->DisappearAndDie();
         }
     };
-
 };
 
+/*######
+## npc_deserter_agitator
+######*/
 
+enum eTheramoreGuard
+{
+    SAY_QUEST1                                   = -1000641,
+    SAY_QUEST2                                   = -1000642,
+    SAY_QUEST3                                   = -1000643,
+    SAY_QUEST4                                   = -1000644,
+    SAY_QUEST5                                   = -1000645,
+    SAY_QUEST6                                   = -1000646,
+    SAY_QUEST7                                   = -1000647,
+    SAY_QUEST8                                   = -1000648,
+    SAY_QUEST9                                   = -1000649,
+
+    QUEST_DISCREDITING_THE_DESERTERS             = 11133,
+
+    NPC_THERAMORE_GUARD                          = 4979,
+
+    SPELL_DOCTORED_LEAFLET                       = 42725,
+    SPELL_PROPAGANDIZED                          = 42246,
+};
+
+#define GOSSIP_ITEM_THERAMORE_GUARD "You look like an intelligent person. Why don't you read one of these leaflets and give it some thought?"
+
+class npc_theramore_guard : public CreatureScript
+{
+public:
+    npc_theramore_guard() : CreatureScript("npc_theramore_guard") { }
+
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    {
+        if (pPlayer->GetQuestStatus(QUEST_DISCREDITING_THE_DESERTERS) == QUEST_STATUS_INCOMPLETE)
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_THERAMORE_GUARD, GOSSIP_SENDER_MAIN, GOSSIP_SENDER_INFO);
+            
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+
+        return true;
+    }
+
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+    {
+        pPlayer->PlayerTalkClass->ClearMenus();
+        
+        if (uiAction == GOSSIP_SENDER_INFO)
+        {
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->KilledMonsterCredit(NPC_THERAMORE_GUARD, 0);
+            DoScriptText(SAY_QUEST1, pCreature);
+            pCreature->CastSpell(pCreature, SPELL_DOCTORED_LEAFLET, false);
+            pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            CAST_AI(npc_theramore_guard::npc_theramore_guardAI, pCreature->AI())->uiYellTimer = 4000;
+            CAST_AI(npc_theramore_guard::npc_theramore_guardAI, pCreature->AI())->bYellTimer = true;
+        }
+
+        return true;
+    }
+
+    CreatureAI *GetAI(Creature *pCreature) const
+    {
+        return new npc_theramore_guardAI(pCreature);
+    }
+
+    struct npc_theramore_guardAI : public ScriptedAI
+    {
+        npc_theramore_guardAI(Creature *pCreature) : ScriptedAI(pCreature) { }
+
+        uint32 uiYellTimer;
+        uint32 uiStep;
+        bool bYellTimer;
+
+        void Reset()
+        {
+            bYellTimer = false;
+            uiStep = 0;
+        }
+
+        void UpdateAI(const uint32 uiDiff)
+        {
+            if (!me->HasAura(SPELL_PROPAGANDIZED))
+                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+
+            if (bYellTimer && uiYellTimer <= uiDiff)
+            {
+                switch(uiStep)
+                {
+                    case 0:
+                        DoScriptText(RAND(SAY_QUEST2, SAY_QUEST3, SAY_QUEST4, SAY_QUEST5, SAY_QUEST6), me);
+                        uiYellTimer = 3000;
+                        ++uiStep;
+                        break;
+                    case 1:
+                        DoScriptText(RAND(SAY_QUEST7, SAY_QUEST8, SAY_QUEST9), me);
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
+                        uiStep = 0;
+                        bYellTimer = false;
+                        break;
+                }
+            }
+            else
+                uiYellTimer -= uiDiff;
+        }
+    };
+};
 
 /*######
 ## npc_lady_jaina_proudmoore
@@ -573,10 +717,11 @@ void AddSC_dustwallow_marsh()
 {
     new mobs_risen_husk_spirit();
     new npc_restless_apparition();
-    new npc_deserter_agitator();
     new npc_lady_jaina_proudmoore();
     new npc_nat_pagle();
     new npc_private_hendel();
     new npc_zelfrax();
     new npc_stinky();
+    new npc_theramore_guard();
+    new npc_deserter_agitator();
 }
