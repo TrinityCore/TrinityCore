@@ -29,8 +29,8 @@ EndScriptData */
 enum eSpells
 {
     SPELL_FLAME_BUFFET           = 34121, // Flame Buffet - every 1,5 secs in phase 1 if there is no victim in melee range and after Dive Bomb in phase 2 with same conditions
-    SPELL_FLAME_QUILLS           = 34229, // Randomly after changing position in phase after watching tonns of movies, set probability 20%
-    SPELL_REBIRTH                = 34342, // Rebirth - beginning of second phase(after loose all health in phase 1)
+    SPELL_FLAME_QUILLS           = 34229, // Randomly after changing position in phase after watching tons of movies, set probability 20%
+    SPELL_REBIRTH                = 34342, // Rebirth - beginning of second phase(after losing all health in phase 1)
     SPELL_REBIRTH_2              = 35369, // Rebirth(another, without healing to full HP) - after Dive Bomb in phase 2
     SPELL_MELT_ARMOR             = 35410, // Melt Armor - every 60 sec in phase 2
     SPELL_CHARGE                 = 35412, // Charge - 30 sec cooldown
@@ -38,7 +38,7 @@ enum eSpells
     SPELL_DIVE_BOMB              = 35181, // after watching tonns of movies, set cooldown to 40+rand()%5.
     SPELL_BERSERK                = 45078, // 10 minutes after phase 2 starts(id is wrong, but proper id is unknown)
 
-    CREATURE_EMBER_OF_ALAR       = 19551, // Al'ar summons one Ember of Al'ar every position change in phase 1 and two after Dive Bomb. Also in phase 2 when Ember of Al'ar dies, boss loose 3% health.
+    CREATURE_EMBER_OF_ALAR       = 19551, // Al'ar summons one Ember of Al'ar every position change in phase 1 and two after Dive Bomb. Also in phase 2 when Ember of Al'ar dies, boss loses 3% health.
     SPELL_EMBER_BLAST            = 34133, // When Ember of Al'ar dies, it casts Ember Blast
 
     CREATURE_FLAME_PATCH_ALAR    = 20602, // Flame Patch - every 30 sec in phase 2

@@ -158,7 +158,7 @@ class Pet : public Guardian
                 return m_autospells[pos];
         }
 
-        void LooseHappiness();
+        void LoseHappiness();
         HappinessState GetHappinessState();
         void GivePetXP(uint32 xp);
         void GivePetLevel(uint8 level);
