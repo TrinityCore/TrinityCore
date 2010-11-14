@@ -48,11 +48,13 @@ void AddSC_SmartSCripts();
 void AddSC_account_commandscript();
 void AddSC_achievement_commandscript();
 void AddSC_debug_commandscript();
+void AddSc event_commandscript();
 void AddSC_gm_commandscript();
 void AddSC_go_commandscript();
 void AddSC_learn_commandscript();
 void AddSC_modify_commandscript();
 void AddSC_npc_commandscript();
+void AddSC_tele_commandscript();
 
 #ifdef SCRIPTS
 //world
@@ -624,11 +626,13 @@ void AddCommandScripts()
     AddSC_account_commandscript();
     AddSC_achievement_commandscript();
     AddSC_debug_commandscript();
+    AddSC_event_commandscript();
     AddSC_gm_commandscript();
     AddSC_go_commandscript();
     AddSC_learn_commandscript();
     AddSC_modify_commandscript();
     AddSC_npc_commandscript();
+    AddSC_tele_commandscript();
 }
 
 void AddWorldScripts()
