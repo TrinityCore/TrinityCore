@@ -357,7 +357,7 @@ void BattlegroundQueue::RemovePlayer(const uint64& guid, bool decreaseInvitedCou
             sWorld.SendWorldText(LANG_ARENA_QUEUE_ANNOUNCE_WORLD_EXIT, Team->GetName().c_str(), group->ArenaType, group->ArenaType, group->ArenaTeamRating);
     }
 
-    //if player leaves queue and he is invited to rated arena match, then he have to loose
+    //if player leaves queue and he is invited to rated arena match, then he have to lose
     if (group->IsInvitedToBGInstanceGUID && group->IsRated && decreaseInvitedCount)
     {
         ArenaTeam * at = sObjectMgr.GetArenaTeamById(group->ArenaTeamId);

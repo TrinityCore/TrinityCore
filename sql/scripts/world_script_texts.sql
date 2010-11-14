@@ -1219,7 +1219,7 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (16807,-1540012,'I''m already bored.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,10271,1,0,0,'nethekurse SAY_AGGRO_1'),
    (16807,-1540013,'Come on! ... Show me a real fight.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,10272,1,0,0,'nethekurse SAY_AGGRO_2'),
    (16807,-1540014,'I had more fun torturing the peons.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,10273,1,0,0,'nethekurse SAY_AGGRO_3'),
-   (16807,-1540015,'You Loose.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,10274,1,0,0,'nethekurse SAY_SLAY_1'),
+   (16807,-1540015,'You Lose.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,10274,1,0,0,'nethekurse SAY_SLAY_1'),
    (16807,-1540016,'Ohh! Just die.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,10275,1,0,0,'nethekurse SAY_SLAY_2'),
    (16807,-1540017,'What a ... a shame.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,10276,1,0,0,'nethekurse SAY_DIE'),
    (16809,-1540018,'Smash!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,10306,1,0,0,'omrogg GoCombat_1'),

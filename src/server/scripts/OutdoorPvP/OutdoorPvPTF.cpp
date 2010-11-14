@@ -250,14 +250,14 @@ void OPvPCapturePointTF::ChangeState()
     {
         if (((OutdoorPvPTF*)m_PvP)->m_AllianceTowersControlled)
             ((OutdoorPvPTF*)m_PvP)->m_AllianceTowersControlled--;
-        sWorld.SendZoneText(OutdoorPvPTFBuffZones[0],sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_TF_LOOSE_A));
+        sWorld.SendZoneText(OutdoorPvPTFBuffZones[0],sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_TF_LOSE_A));
     }
     // if changing from controlling horde to alliance
     else if (m_OldState == OBJECTIVESTATE_HORDE)
     {
         if (((OutdoorPvPTF*)m_PvP)->m_HordeTowersControlled)
             ((OutdoorPvPTF*)m_PvP)->m_HordeTowersControlled--;
-        sWorld.SendZoneText(OutdoorPvPTFBuffZones[0],sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_TF_LOOSE_H));
+        sWorld.SendZoneText(OutdoorPvPTFBuffZones[0],sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_TF_LOSE_H));
     }
 
     uint32 artkit = 21;

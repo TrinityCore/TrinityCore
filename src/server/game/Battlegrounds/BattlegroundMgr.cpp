@@ -861,12 +861,12 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket *data, const uint6
     if (!plr)
         return;
 
-    uint32 win_kills = plr->GetRandomWinner() ? BG_REWARD_WINNER_HONOR_LAST : BG_REWARD_WINNER_HONOR_FIRST;
-    uint32 win_arena = plr->GetRandomWinner() ? BG_REWARD_WINNER_ARENA_LAST : BG_REWARD_WINNER_ARENA_FIRST;
-    uint32 loos_kills = plr->GetRandomWinner() ? BG_REWARD_LOOSER_HONOR_LAST : BG_REWARD_LOOSER_HONOR_FIRST;
+    uint32 winner_kills = plr->GetRandomWinner() ? BG_REWARD_WINNER_HONOR_LAST : BG_REWARD_WINNER_HONOR_FIRST;
+    uint32 winner_arena = plr->GetRandomWinner() ? BG_REWARD_WINNER_ARENA_LAST : BG_REWARD_WINNER_ARENA_FIRST;
+    uint32 loser_kills = plr->GetRandomWinner() ? BG_REWARD_LOSER_HONOR_LAST : BG_REWARD_LOSER_HONOR_FIRST;
 
-    win_kills = Trinity::Honor::hk_honor_at_level(plr->getLevel(), win_kills);
-    loos_kills = Trinity::Honor::hk_honor_at_level(plr->getLevel(), loos_kills);
+    winner_kills = Trinity::Honor::hk_honor_at_level(plr->getLevel(), winner_kills);
+    loser_kills = Trinity::Honor::hk_honor_at_level(plr->getLevel(), loser_kills);
 
     data->Initialize(SMSG_BATTLEFIELD_LIST);
     *data << uint64(guid);                                  // battlemaster guid
@@ -877,9 +877,9 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket *data, const uint6
 
     // Rewards
     *data << uint8(plr->GetRandomWinner());               // 3.3.3 hasWin
-    *data << uint32(win_kills);                           // 3.3.3 winHonor
-    *data << uint32(win_arena);                           // 3.3.3 winArena
-    *data << uint32(loos_kills);                          // 3.3.3 lossHonor
+    *data << uint32(winner_kills);                           // 3.3.3 winHonor
+    *data << uint32(winner_arena);                           // 3.3.3 winArena
+    *data << uint32(loser_kills);                          // 3.3.3 lossHonor
 
     uint8 isRandom = bgTypeId == BATTLEGROUND_RB;
 
@@ -888,9 +888,9 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket *data, const uint6
     {
         // Rewards (random)
         *data << uint8(plr->GetRandomWinner());           // 3.3.3 hasWin_Random
-        *data << uint32(win_kills);                       // 3.3.3 winHonor_Random
-        *data << uint32(win_arena);                       // 3.3.3 winArena_Random
-        *data << uint32(loos_kills);                      // 3.3.3 lossHonor_Random
+        *data << uint32(winner_kills);                       // 3.3.3 winHonor_Random
+        *data << uint32(winner_arena);                       // 3.3.3 winArena_Random
+        *data << uint32(loser_kills);                      // 3.3.3 lossHonor_Random
     }
 
     if (bgTypeId == BATTLEGROUND_AA)                         // arena
@@ -937,7 +937,7 @@ void BattlegroundMgr::SendToBattleground(Player *pl, uint32 instanceId, Battlegr
     }
     else
     {
-        sLog.outError("player %u trying to port to non-existent bg instance %u",pl->GetGUIDLow(), instanceId);
+        sLog.outError("player %u is trying to port to non-existent bg instance %u",pl->GetGUIDLow(), instanceId);
     }
 }
 
