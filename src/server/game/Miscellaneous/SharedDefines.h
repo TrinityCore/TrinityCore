@@ -307,7 +307,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX_NO_THREAT                   0x00000400            // 10 no generates threat on cast 100% (old NO_INITIAL_AGGRO)
 #define SPELL_ATTR_EX_UNK11                       0x00000800            // 11 aura
 #define SPELL_ATTR_EX_UNK12                       0x00001000            // 12
-#define SPELL_ATTR_EX_UNK13                       0x00002000            // 13
+#define SPELL_ATTR_EX_USE_RADIUS_AS_MAX_DISTANCE  0x00002000            // 13
 #define SPELL_ATTR_EX_STACK_FOR_DIFF_CASTERS      0x00004000            // 14
 #define SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY    0x00008000            // 15 remove auras on immunity
 #define SPELL_ATTR_EX_UNAFFECTED_BY_SCHOOL_IMMUNE 0x00010000            // 16 on immuniy

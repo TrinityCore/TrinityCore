@@ -2145,7 +2145,10 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
             float angle, dist;
 
             float objSize = m_caster->GetObjectSize();
-            dist = GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+            if (m_spellInfo->AttributesEx & SPELL_ATTR_EX_USE_RADIUS_AS_MAX_DISTANCE)
+                dist = 0.0f;
+            else
+                dist = GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
             if (modOwner) modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, dist, this);
             if (dist < objSize)
                 dist = objSize;
