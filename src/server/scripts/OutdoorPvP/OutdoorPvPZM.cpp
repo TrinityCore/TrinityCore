@@ -78,14 +78,14 @@ void OPvPCapturePointZM_Beacon::ChangeState()
     {
         if (((OutdoorPvPZM*)m_PvP)->m_AllianceTowersControlled)
             ((OutdoorPvPZM*)m_PvP)->m_AllianceTowersControlled--;
-        sWorld.SendZoneText(ZM_GRAVEYARD_ZONE,sObjectMgr.GetTrinityStringForDBCLocale(ZMBeaconLooseA[m_TowerType]));
+        sWorld.SendZoneText(ZM_GRAVEYARD_ZONE,sObjectMgr.GetTrinityStringForDBCLocale(ZMBeaconLoseA[m_TowerType]));
     }
     // if changing from controlling horde to alliance
     else if (m_OldState == OBJECTIVESTATE_HORDE)
     {
         if (((OutdoorPvPZM*)m_PvP)->m_HordeTowersControlled)
             ((OutdoorPvPZM*)m_PvP)->m_HordeTowersControlled--;
-        sWorld.SendZoneText(ZM_GRAVEYARD_ZONE,sObjectMgr.GetTrinityStringForDBCLocale(ZMBeaconLooseH[m_TowerType]));
+        sWorld.SendZoneText(ZM_GRAVEYARD_ZONE,sObjectMgr.GetTrinityStringForDBCLocale(ZMBeaconLoseH[m_TowerType]));
     }
 
     switch(m_State)
@@ -216,7 +216,7 @@ int32 OPvPCapturePointZM_GraveYard::HandleOpenGo(Player *plr, uint64 guid)
         if (plr->HasAura(ZM_BATTLE_STANDARD_A) && m_GraveYardState != ZM_GRAVEYARD_A)
         {
             if (m_GraveYardState == ZM_GRAVEYARD_H)
-                sWorld.SendZoneText(ZM_GRAVEYARD_ZONE,sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_ZM_LOOSE_GY_H));
+                sWorld.SendZoneText(ZM_GRAVEYARD_ZONE,sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_ZM_LOSE_GY_H));
             m_GraveYardState = ZM_GRAVEYARD_A;
             DelObject(0);   // only one gotype is used in the whole outdoor pvp, no need to call it a constant
             AddObject(0,ZM_Banner_A.entry,ZM_Banner_A.map,ZM_Banner_A.x,ZM_Banner_A.y,ZM_Banner_A.z,ZM_Banner_A.o,ZM_Banner_A.rot0,ZM_Banner_A.rot1,ZM_Banner_A.rot2,ZM_Banner_A.rot3);
@@ -229,7 +229,7 @@ int32 OPvPCapturePointZM_GraveYard::HandleOpenGo(Player *plr, uint64 guid)
         else if (plr->HasAura(ZM_BATTLE_STANDARD_H) && m_GraveYardState != ZM_GRAVEYARD_H)
         {
             if (m_GraveYardState == ZM_GRAVEYARD_A)
-                sWorld.SendZoneText(ZM_GRAVEYARD_ZONE,sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_ZM_LOOSE_GY_A));
+                sWorld.SendZoneText(ZM_GRAVEYARD_ZONE,sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_ZM_LOSE_GY_A));
             m_GraveYardState = ZM_GRAVEYARD_H;
             DelObject(0);   // only one gotype is used in the whole outdoor pvp, no need to call it a constant
             AddObject(0,ZM_Banner_H.entry,ZM_Banner_H.map,ZM_Banner_H.x,ZM_Banner_H.y,ZM_Banner_H.z,ZM_Banner_H.o,ZM_Banner_H.rot0,ZM_Banner_H.rot1,ZM_Banner_H.rot2,ZM_Banner_H.rot3);

@@ -807,23 +807,23 @@ void Battleground::EndBattleground(uint32 winner)
             {
                 loser_arena_team->MemberLost(plr, winner_matchmaker_rating, loser_change);
 
-                // Arena lost => reset the win_rated_arena having the "no_loose" condition
+                // Arena lost => reset the win_rated_arena having the "no_lose" condition
                 plr->GetAchievementMgr().ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE);
             }
         }
 
-        uint32 win_kills = plr->GetRandomWinner() ? BG_REWARD_WINNER_HONOR_LAST : BG_REWARD_WINNER_HONOR_FIRST;
-        uint32 loos_kills = plr->GetRandomWinner() ? BG_REWARD_LOOSER_HONOR_LAST : BG_REWARD_LOOSER_HONOR_FIRST;
-        uint32 win_arena = plr->GetRandomWinner() ? BG_REWARD_WINNER_ARENA_LAST : BG_REWARD_WINNER_ARENA_FIRST;
+        uint32 winner_kills = plr->GetRandomWinner() ? BG_REWARD_WINNER_HONOR_LAST : BG_REWARD_WINNER_HONOR_FIRST;
+        uint32 loser_kills = plr->GetRandomWinner() ? BG_REWARD_LOSER_HONOR_LAST : BG_REWARD_LOSER_HONOR_FIRST;
+        uint32 winner_arena = plr->GetRandomWinner() ? BG_REWARD_WINNER_ARENA_LAST : BG_REWARD_WINNER_ARENA_FIRST;
 
         // Reward winner team
         if (team == winner)
         {
             if (IsRandom() || BattlegroundMgr::IsBGWeekend(GetTypeID()))
             {
-                UpdatePlayerScore(plr, SCORE_BONUS_HONOR, GetBonusHonorFromKill(win_kills));
+                UpdatePlayerScore(plr, SCORE_BONUS_HONOR, GetBonusHonorFromKill(winner_kills));
                 if (CanAwardArenaPoints())
-                    plr->ModifyArenaPoints(win_arena);
+                    plr->ModifyArenaPoints(winner_arena);
                 if (!plr->GetRandomWinner())
                     plr->SetRandomWinner(true);
             }
@@ -833,7 +833,7 @@ void Battleground::EndBattleground(uint32 winner)
         else
         {
             if (IsRandom() || BattlegroundMgr::IsBGWeekend(GetTypeID()))
-                UpdatePlayerScore(plr, SCORE_BONUS_HONOR, GetBonusHonorFromKill(loos_kills));
+                UpdatePlayerScore(plr, SCORE_BONUS_HONOR, GetBonusHonorFromKill(loser_kills));
         }
 
 

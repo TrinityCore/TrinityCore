@@ -139,9 +139,9 @@ void OPvPCapturePointNA::FactionTakeOver(uint32 team)
     if (m_ControllingFaction)
         sObjectMgr.RemoveGraveYardLink(NA_HALAA_GRAVEYARD,NA_HALAA_GRAVEYARD_ZONE,m_ControllingFaction,false);
     if (m_ControllingFaction == ALLIANCE)
-        sWorld.SendZoneText(NA_HALAA_GRAVEYARD_ZONE,sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_NA_LOOSE_A));
+        sWorld.SendZoneText(NA_HALAA_GRAVEYARD_ZONE,sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_NA_LOSE_A));
     else if (m_ControllingFaction == HORDE)
-        sWorld.SendZoneText(NA_HALAA_GRAVEYARD_ZONE,sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_NA_LOOSE_H));
+        sWorld.SendZoneText(NA_HALAA_GRAVEYARD_ZONE,sObjectMgr.GetTrinityStringForDBCLocale(LANG_OPVP_NA_LOSE_H));
 
     m_ControllingFaction = team;
     if (m_ControllingFaction)

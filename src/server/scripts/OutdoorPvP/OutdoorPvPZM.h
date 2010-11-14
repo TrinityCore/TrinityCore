@@ -104,16 +104,16 @@ const uint32 ZMBeaconCaptureH[ZM_NUM_BEACONS] =
     LANG_OPVP_ZM_CAPTURE_WEST_H
 };
 
-const uint32 ZMBeaconLooseA[ZM_NUM_BEACONS] =
+const uint32 ZMBeaconLoseA[ZM_NUM_BEACONS] =
 {
-    LANG_OPVP_ZM_LOOSE_EAST_A,
-    LANG_OPVP_ZM_LOOSE_WEST_A
+    LANG_OPVP_ZM_LOSE_EAST_A,
+    LANG_OPVP_ZM_LOSE_WEST_A
 };
 
-const uint32 ZMBeaconLooseH[ZM_NUM_BEACONS] =
+const uint32 ZMBeaconLoseH[ZM_NUM_BEACONS] =
 {
-    LANG_OPVP_ZM_LOOSE_EAST_H,
-    LANG_OPVP_ZM_LOOSE_WEST_H
+    LANG_OPVP_ZM_LOSE_EAST_H,
+    LANG_OPVP_ZM_LOSE_WEST_H
 };
 
 const go_type ZMCapturePoints[ZM_NUM_BEACONS] =

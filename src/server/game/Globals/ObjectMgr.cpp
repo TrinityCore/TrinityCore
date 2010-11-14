@@ -1687,14 +1687,14 @@ void ObjectMgr::LoadGameobjects()
                 case GAMEOBJECT_TYPE_SPELL_FOCUS:
                     break;
                 default:
-                    sLog.outErrorDb("Gameobject (GUID: %u Entry %u GoType: %u) doesn't have displayId (%u), not loaded.", guid, entry, gInfo->type, gInfo->displayId);
+                    sLog.outErrorDb("Gameobject (GUID: %u Entry %u GoType: %u) doesn't have a displayId (%u), not loaded.", guid, entry, gInfo->type, gInfo->displayId);
                     break;
             }
         }
 
         if (gInfo->displayId && !sGameObjectDisplayInfoStore.LookupEntry(gInfo->displayId))
         {
-            sLog.outErrorDb("Gameobject (GUID: %u Entry %u GoType: %u) have invalid displayId (%u), not loaded.",guid, entry, gInfo->type, gInfo->displayId);
+            sLog.outErrorDb("Gameobject (GUID: %u Entry %u GoType: %u) has an invalid displayId (%u), not loaded.",guid, entry, gInfo->type, gInfo->displayId);
             continue;
         }
 
@@ -1715,13 +1715,13 @@ void ObjectMgr::LoadGameobjects()
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
         if (!mapEntry)
         {
-            sLog.outErrorDb("Table `gameobject` have gameobject (GUID: %u Entry: %u) that spawned at not existed map (Id: %u), skip", guid, data.id, data.mapid);
+            sLog.outErrorDb("Table `gameobject` has gameobject (GUID: %u Entry: %u) spawned on a non-existed map (Id: %u), skip", guid, data.id, data.mapid);
             continue;
         }
 
         if (data.spawntimesecs == 0 && gInfo->IsDespawnAtAction())
         {
-            sLog.outErrorDb("Table `gameobject` have gameobject (GUID: %u Entry: %u) with `spawntimesecs` (0) value, but gameobejct marked as despawnable at action.",guid,data.id);
+            sLog.outErrorDb("Table `gameobject` has gameobject (GUID: %u Entry: %u) with `spawntimesecs` (0) value, but the gameobejct is marked as despawnable at action.",guid,data.id);
         }
 
         data.animprogress   = fields[12].GetUInt32();
@@ -1730,7 +1730,7 @@ void ObjectMgr::LoadGameobjects()
         uint32 go_state     = fields[13].GetUInt32();
         if (go_state >= MAX_GO_STATE)
         {
-            sLog.outErrorDb("Table `gameobject` have gameobject (GUID: %u Entry: %u) with invalid `state` (%u) value, skip",guid,data.id,go_state);
+            sLog.outErrorDb("Table `gameobject` has gameobject (GUID: %u Entry: %u) with invalid `state` (%u) value, skip",guid,data.id,go_state);
             continue;
         }
         data.go_state       = GOState(go_state);
@@ -1738,7 +1738,7 @@ void ObjectMgr::LoadGameobjects()
         data.spawnMask      = fields[14].GetUInt8();
 
         if (data.spawnMask & ~spawnMasks[data.mapid])
-            sLog.outErrorDb("Table `gameobject` have gameobject (GUID: %u Entry: %u) that have wrong spawn mask %u including not supported difficulty modes for map (Id: %u), skip", guid, data.id, data.spawnMask, data.mapid);
+            sLog.outErrorDb("Table `gameobject` has gameobject (GUID: %u Entry: %u) that has wrong spawn mask %u including not supported difficulty modes for map (Id: %u), skip", guid, data.id, data.spawnMask, data.mapid);
 
         data.phaseMask      = fields[15].GetUInt16();
         int16 gameEvent     = fields[16].GetInt16();
@@ -1746,25 +1746,25 @@ void ObjectMgr::LoadGameobjects()
 
         if (data.rotation2 < -1.0f || data.rotation2 > 1.0f)
         {
-            sLog.outErrorDb("Table `gameobject` have gameobject (GUID: %u Entry: %u) with invalid rotation2 (%f) value, skip",guid,data.id,data.rotation2);
+            sLog.outErrorDb("Table `gameobject` has gameobject (GUID: %u Entry: %u) with invalid rotation2 (%f) value, skip",guid,data.id,data.rotation2);
             continue;
         }
 
         if (data.rotation3 < -1.0f || data.rotation3 > 1.0f)
         {
-            sLog.outErrorDb("Table `gameobject` have gameobject (GUID: %u Entry: %u) with invalid rotation3 (%f) value, skip",guid,data.id,data.rotation3);
+            sLog.outErrorDb("Table `gameobject` has gameobject (GUID: %u Entry: %u) with invalid rotation3 (%f) value, skip",guid,data.id,data.rotation3);
             continue;
         }
 
         if (!MapManager::IsValidMapCoord(data.mapid,data.posX,data.posY,data.posZ,data.orientation))
         {
-            sLog.outErrorDb("Table `gameobject` have gameobject (GUID: %u Entry: %u) with invalid coordinates, skip",guid,data.id);
+            sLog.outErrorDb("Table `gameobject` has gameobject (GUID: %u Entry: %u) with invalid coordinates, skip",guid,data.id);
             continue;
         }
 
         if (data.phaseMask == 0)
         {
-            sLog.outErrorDb("Table `gameobject` have gameobject (GUID: %u Entry: %u) with `phaseMask`=0 (not visible for anyone), set to 1.",guid,data.id);
+            sLog.outErrorDb("Table `gameobject` has gameobject (GUID: %u Entry: %u) with `phaseMask`=0 (not visible for anyone), set to 1.",guid,data.id);
             data.phaseMask = 1;
         }
 
@@ -2047,8 +2047,8 @@ void ObjectMgr::LoadItemPrototypes()
         {
             if (proto->Class != dbcitem->Class)
             {
-                sLog.outErrorDb("Item (Entry: %u) not correct class %u, must be %u (still using DB value).",i,proto->Class,dbcitem->Class);
-                // It safe let use Class from DB
+                sLog.outErrorDb("Item (Entry: %u) does not have a correct class %u, must be %u (still using DB value).",i,proto->Class,dbcitem->Class);
+                // It is safe to use Class from DB
             }
             /* disabled: have some strange wrong cases for Subclass values.
                for enable also uncomment Subclass field in ItemEntry structure and in Itemfmt[]
@@ -2061,35 +2061,35 @@ void ObjectMgr::LoadItemPrototypes()
 
             if (proto->Unk0 != dbcitem->Unk0)
             {
-                sLog.outErrorDb("Item (Entry: %u) not correct %i Unk0, must be %i (still using DB value).",i,proto->Unk0,dbcitem->Unk0);
-                // It safe let use Unk0 from DB
+                sLog.outErrorDb("Item (Entry: %u) does not have a correct Unk0 (%i) , must be %i (still using DB value).",i,proto->Unk0,dbcitem->Unk0);
+                // It is safe to use Unk0 from DB
             }
 
             if (proto->Material != dbcitem->Material)
             {
-                sLog.outErrorDb("Item (Entry: %u) not correct %i material, must be %i (still using DB value).",i,proto->Material,dbcitem->Material);
-                // It safe let use Material from DB
+                sLog.outErrorDb("Item (Entry: %u) does not have a correct material (%i), must be %i (still using DB value).",i,proto->Material,dbcitem->Material);
+                // It is safe to use Material from DB
             }
 
             if (proto->InventoryType != dbcitem->InventoryType)
             {
-                sLog.outErrorDb("Item (Entry: %u) not correct %u inventory type, must be %u (still using DB value).",i,proto->InventoryType,dbcitem->InventoryType);
-                // It safe let use InventoryType from DB
+                sLog.outErrorDb("Item (Entry: %u) does not have a correct inventory type (%u), must be %u (still using DB value).",i,proto->InventoryType,dbcitem->InventoryType);
+                // It is safe to use InventoryType from DB
             }
 
             if (proto->DisplayInfoID != dbcitem->DisplayId)
             {
-                sLog.outErrorDb("Item (Entry: %u) not correct %u display id, must be %u (using it).",i,proto->DisplayInfoID,dbcitem->DisplayId);
+                sLog.outErrorDb("Item (Entry: %u) does not have a correct display id (%u), must be %u (using it).",i,proto->DisplayInfoID,dbcitem->DisplayId);
                 const_cast<ItemPrototype*>(proto)->DisplayInfoID = dbcitem->DisplayId;
             }
             if (proto->Sheath != dbcitem->Sheath)
             {
-                sLog.outErrorDb("Item (Entry: %u) not correct %u sheath, must be %u  (using it).",i,proto->Sheath,dbcitem->Sheath);
+                sLog.outErrorDb("Item (Entry: %u) does not have a correct sheathid (%u), must be %u  (using it).",i,proto->Sheath,dbcitem->Sheath);
                 const_cast<ItemPrototype*>(proto)->Sheath = dbcitem->Sheath;
             }
         }
         else
-            sLog.outErrorDb("Item (Entry: %u) not correct (not listed in list of existed items).",i);
+            sLog.outErrorDb("Item (Entry: %u) does not exist in item.dbc! (not correct id?).",i);
 
         if (proto->Class >= MAX_ITEM_CLASS)
         {
@@ -2113,18 +2113,18 @@ void ObjectMgr::LoadItemPrototypes()
         {
             if (FactionEntry const* faction = sFactionStore.LookupEntry(HORDE))
                 if ((proto->AllowableRace & faction->BaseRepRaceMask[0]) == 0)
-                    sLog.outErrorDb("Item (Entry: %u) have in `AllowableRace` races (%u) only not compatible with ITEM_FLAGS_EXTRA_HORDE_ONLY (%u) in Flags field, item any way will can't be equipped or use by this races.",
+                    sLog.outErrorDb("Item (Entry: %u) has value (%u) in `AllowableRace` races, not compatible with ITEM_FLAGS_EXTRA_HORDE_ONLY (%u) in Flags field, item cannot be equipped or used by these races.",
                         i, proto->AllowableRace, ITEM_FLAGS_EXTRA_HORDE_ONLY);
 
             if (proto->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY)
-                sLog.outErrorDb("Item (Entry: %u) have in `Flags2` flags ITEM_FLAGS_EXTRA_ALLIANCE_ONLY (%u) and ITEM_FLAGS_EXTRA_HORDE_ONLY (%u) in Flags field, this is wrong combination.",
+                sLog.outErrorDb("Item (Entry: %u) has value (%u) in `Flags2` flags (ITEM_FLAGS_EXTRA_ALLIANCE_ONLY) and ITEM_FLAGS_EXTRA_HORDE_ONLY (%u) in Flags field, this is a wrong combination.",
                     i, ITEM_FLAGS_EXTRA_ALLIANCE_ONLY, ITEM_FLAGS_EXTRA_HORDE_ONLY);
         }
         else if (proto->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY)
         {
             if (FactionEntry const* faction = sFactionStore.LookupEntry(ALLIANCE))
                 if ((proto->AllowableRace & faction->BaseRepRaceMask[0]) == 0)
-                    sLog.outErrorDb("Item (Entry: %u) have in `AllowableRace` races (%u) only not compatible with ITEM_FLAGS_EXTRA_ALLIANCE_ONLY (%u) in Flags field, item any way will can't be equipped or use by this races.",
+                    sLog.outErrorDb("Item (Entry: %u) has value (%u) in `AllowableRace` races, not compatible with ITEM_FLAGS_EXTRA_ALLIANCE_ONLY (%u) in Flags field, item cannot be equipped or used by these races.",
                         i, proto->AllowableRace, ITEM_FLAGS_EXTRA_ALLIANCE_ONLY);
         }
 
@@ -2162,16 +2162,16 @@ void ObjectMgr::LoadItemPrototypes()
             if (req)
             {
                 if (!(proto->AllowableClass & CLASSMASK_ALL_PLAYABLE))
-                    sLog.outErrorDb("Item (Entry: %u) not have in `AllowableClass` any playable classes (%u) and can't be equipped or use.",i,proto->AllowableClass);
+                    sLog.outErrorDb("Item (Entry: %u) does not have any playable classes (%u) in `AllowableClass` and can't be equipped or used.",i,proto->AllowableClass);
 
                 if (!(proto->AllowableRace & RACEMASK_ALL_PLAYABLE))
-                    sLog.outErrorDb("Item (Entry: %u) not have in `AllowableRace` any playable races (%u) and can't be equipped or use.",i,proto->AllowableRace);
+                    sLog.outErrorDb("Item (Entry: %u) does not have any playable races (%u) in `AllowableRace` and can't be equipped or used.",i,proto->AllowableRace);
             }
         }
 
         if (proto->RequiredSpell && !sSpellStore.LookupEntry(proto->RequiredSpell))
         {
-            sLog.outErrorDb("Item (Entry: %u) have wrong (non-existed) spell in RequiredSpell (%u)",i,proto->RequiredSpell);
+            sLog.outErrorDb("Item (Entry: %u) has a wrong (non-existing) spell in RequiredSpell (%u)",i,proto->RequiredSpell);
             const_cast<ItemPrototype*>(proto)->RequiredSpell = 0;
         }
 
@@ -2224,7 +2224,7 @@ void ObjectMgr::LoadItemPrototypes()
             // for ItemStatValue != 0
             if (proto->ItemStat[j].ItemStatValue && proto->ItemStat[j].ItemStatType >= MAX_ITEM_MOD)
             {
-                sLog.outErrorDb("Item (Entry: %u) has wrong stat_type%d (%u)",i,j+1,proto->ItemStat[j].ItemStatType);
+                sLog.outErrorDb("Item (Entry: %u) has wrong (non-existing?) stat_type%d (%u)",i,j+1,proto->ItemStat[j].ItemStatType);
                 const_cast<ItemPrototype*>(proto)->ItemStat[j].ItemStatType = 0;
             }
 
@@ -2271,7 +2271,7 @@ void ObjectMgr::LoadItemPrototypes()
             }
             else if (!proto->Spells[1].SpellId)
             {
-                sLog.outErrorDb("Item (Entry: %u) not has expected spell in spellid_%d in special learning format.",i,1+1);
+                sLog.outErrorDb("Item (Entry: %u) does not have an expected spell in spellid_%d in special learning format.",i,1+1);
                 const_cast<ItemPrototype*>(proto)->Spells[0].SpellId = 0;
                 const_cast<ItemPrototype*>(proto)->Spells[1].SpellTrigger = ITEM_SPELLTRIGGER_ON_USE;
             }
@@ -2471,7 +2471,7 @@ void ObjectMgr::LoadItemPrototypes()
     }
 
     for (std::set<uint32>::const_iterator itr = notFoundOutfit.begin(); itr != notFoundOutfit.end(); ++itr)
-        sLog.outErrorDb("Item (Entry: %u) not exist in `item_template` but referenced in `CharStartOutfit.dbc`", *itr);
+        sLog.outErrorDb("Item (Entry: %u) does not exist in `item_template` but is referenced in `CharStartOutfit.dbc`", *itr);
 }
 
 void ObjectMgr::LoadItemSetNameLocales()
@@ -5926,26 +5926,26 @@ void ObjectMgr::LoadGraveyardZones()
         WorldSafeLocsEntry const* entry = sWorldSafeLocsStore.LookupEntry(safeLocId);
         if (!entry)
         {
-            sLog.outErrorDb("Table `game_graveyard_zone` has record for not existing graveyard (WorldSafeLocs.dbc id) %u, skipped.",safeLocId);
+            sLog.outErrorDb("Table `game_graveyard_zone` has a record for not existing graveyard (WorldSafeLocs.dbc id) %u, skipped.",safeLocId);
             continue;
         }
 
         AreaTableEntry const *areaEntry = GetAreaEntryByAreaID(zoneId);
         if (!areaEntry)
         {
-            sLog.outErrorDb("Table `game_graveyard_zone` has record for not existing zone id (%u), skipped.",zoneId);
+            sLog.outErrorDb("Table `game_graveyard_zone` has a record for not existing zone id (%u), skipped.",zoneId);
             continue;
         }
 
         if (areaEntry->zone != 0)
         {
-            sLog.outErrorDb("Table `game_graveyard_zone` has record subzone id (%u) instead of zone, skipped.",zoneId);
+            sLog.outErrorDb("Table `game_graveyard_zone` has a record for subzone id (%u) instead of zone, skipped.",zoneId);
             continue;
         }
 
         if (team != 0 && team != HORDE && team != ALLIANCE)
         {
-            sLog.outErrorDb("Table `game_graveyard_zone` has record for non player faction (%u), skipped.",team);
+            sLog.outErrorDb("Table `game_graveyard_zone` has a record for non player faction (%u), skipped.",team);
             continue;
         }
 

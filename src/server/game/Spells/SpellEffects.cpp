@@ -2812,8 +2812,8 @@ void Spell::EffectSummonChangeItem(SpellEffIndex effIndex)
 
     if (m_CastItem->GetUInt32Value(ITEM_FIELD_DURABILITY) < m_CastItem->GetUInt32Value(ITEM_FIELD_MAXDURABILITY))
     {
-        double loosePercent = 1 - m_CastItem->GetUInt32Value(ITEM_FIELD_DURABILITY) / double(m_CastItem->GetUInt32Value(ITEM_FIELD_MAXDURABILITY));
-        player->DurabilityLoss(pNewItem, loosePercent);
+        double lossPercent = 1 - m_CastItem->GetUInt32Value(ITEM_FIELD_DURABILITY) / double(m_CastItem->GetUInt32Value(ITEM_FIELD_MAXDURABILITY));
+        player->DurabilityLoss(pNewItem, lossPercent);
     }
 
     if (player->IsInventoryPos(pos))
