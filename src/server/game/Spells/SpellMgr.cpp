@@ -3782,6 +3782,11 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->Targets |= TARGET_FLAG_UNIT_CASTER;
             count++;
             break;
+        case 16834: // Natural shapeshifter
+        case 16835:
+            spellInfo->DurationIndex = 21;
+            count++;
+            break;
         case 51735: // Ebon Plague
         case 51734:
         case 51726:
