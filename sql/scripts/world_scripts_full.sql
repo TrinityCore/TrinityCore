@@ -611,7 +611,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_restless_apparition' WHERE `ent
 UPDATE `creature_template` SET `ScriptName`='npc_private_hendel' WHERE `entry`=4966;
 UPDATE `creature_template` SET `ScriptName`='npc_zelfrax' WHERE `entry`=23864;
 UPDATE `creature_template` SET `ScriptName`='npc_stinky' WHERE `entry`=4880;
-
+UPDATE `creature_template` SET `ScriptName`='npc_theramore_guard' WHERE `entry`=4979;
 /* EASTERN PLAGUELANDS */
 UPDATE `creature_template` SET `ScriptName`='mobs_ghoul_flayer' WHERE `entry` IN (8530,8531,8532);
 UPDATE `creature_template` SET `ScriptName`='npc_augustus_the_touched' WHERE `entry`=12384;
