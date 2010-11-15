@@ -835,12 +835,6 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                 CAST_AI(SmartAI, me->AI())->SetSwimm(e.action.setSwimm.swimm ? true : false);
                 break;
             }
-        case SMART_ACTION_WP_LOAD:
-            {
-                if (!me) return;
-                uint32 entry = e.action.wpLoad.id;
-                break;
-            }
         case SMART_ACTION_WP_START:
             {
                 if (!IsSmart()) return;
