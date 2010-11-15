@@ -657,13 +657,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder &e)
         case SMART_ACTION_SUMMON_GO:
             if (!IsGameObjectValid(e, e.action.summonGO.entry)) return false;
             break;
-        case SMART_ACTION_WP_LOAD:
-            if (!sSmartWaypointMgr.GetPath(e.action.wpLoad.id))
-            {
-                sLog.outErrorDb("SmartAIMgr: Creature %d Event %u Action %u uses non-existent WaypointPath id %u, skipped.", e.entryOrGuid, e.event_id, e.GetActionType(), e.action.wpLoad.id);
-                return false;
-            }
-            break;
         case SMART_ACTION_ADD_ITEM:
         case SMART_ACTION_REMOVE_ITEM:
             if (!IsItemValid(e, e.action.item.entry)) return false;
@@ -688,6 +681,11 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder &e)
             break;
         case SMART_ACTION_WP_START:
             {
+                if (!sSmartWaypointMgr.GetPath(e.action.wpStart.pathID))
+                {
+                    sLog.outErrorDb("SmartAIMgr: Creature %d Event %u Action %u uses non-existent WaypointPath id %u, skipped.", e.entryOrGuid, e.event_id, e.GetActionType(), e.action.wpStart.pathID);
+                    return false;
+                }
                 if (e.action.wpStart.quest && !IsQuestValid(e, e.action.wpStart.quest)) return false;
                 if (e.action.wpStart.reactState > REACT_AGGRESSIVE)
                 {
