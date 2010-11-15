@@ -54,7 +54,7 @@ bool Condition::Meets(Player * player, Unit* invoker)
                 condMeets = target->HasAuraEffect(mConditionValue1, mConditionValue2);
             break;
         case CONDITION_ITEM:
-            condMeets = player->HasItemCount(mConditionValue1, mConditionValue2);
+            condMeets = (mConditionValue2 && player->HasItemCount(mConditionValue1, mConditionValue2)) || (!mConditionValue2 && !player->HasItemCount(mConditionValue1, mConditionValue2));//HasItemCount returns false if 0 count is used
             break;
         case CONDITION_ITEM_EQUIPPED:
             condMeets = player->HasItemOrGemWithIdEquipped(mConditionValue1,1);
