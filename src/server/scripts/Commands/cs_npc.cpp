@@ -38,7 +38,6 @@ class npc_commandscript : public CommandScript
         {
             static ChatCommand npcAddCommandTable[] =
             {
-                { "",               SEC_GAMEMASTER,     false, &HandleNpcAddCommand,               "", NULL },
                 { "formation",      SEC_MODERATOR,      false, &HandleNpcAddFormationCommand,      "", NULL },
                 { "item",           SEC_GAMEMASTER,     false, &HandleNpcAddVendorItemCommand,     "", NULL },
                 { "move",           SEC_GAMEMASTER,     false, &HandleNpcAddMoveCommand,           "", NULL },
@@ -46,18 +45,19 @@ class npc_commandscript : public CommandScript
                 //{ TODO: fix or remove this commands
                 { "weapon",         SEC_ADMINISTRATOR,  false, &HandleNpcAddWeaponCommand,         "", NULL },
                 //}
+                { "",               SEC_GAMEMASTER,     false, &HandleNpcAddCommand,               "", NULL },
                 { NULL,             0,                  false, NULL,                               "", NULL }
             };
             static ChatCommand npcDeleteCommandTable[] =
             {
-                { "",               SEC_GAMEMASTER,     false, &HandleNpcDeleteCommand,            "", NULL },
                 { "item",           SEC_GAMEMASTER,     false, &HandleNpcDeleteVendorItemCommand,  "", NULL },
+                { "",               SEC_GAMEMASTER,     false, &HandleNpcDeleteCommand,            "", NULL },
                 { NULL,             0,                  false, NULL,                               "", NULL }
             };
             static ChatCommand npcFollowCommandTable[] =
             {
-                { "",               SEC_GAMEMASTER,     false, &HandleNpcFollowCommand,            "", NULL },
                 { "stop",           SEC_GAMEMASTER,     false, &HandleNpcUnFollowCommand,          "", NULL },
+                { "",               SEC_GAMEMASTER,     false, &HandleNpcFollowCommand,            "", NULL },
                 { NULL,             0,                  false, NULL,                               "", NULL }
             };
             static ChatCommand npcSetCommandTable[] =
@@ -183,8 +183,13 @@ class npc_commandscript : public CommandScript
 
             char* fextendedcost = strtok(NULL, " ");                //add ExtendedCost, default: 0
             uint32 extendedcost = fextendedcost ? atol(fextendedcost) : 0;
-
             Creature* vendor = handler->getSelectedCreature();
+            if (!vendor)
+            {
+                handler->SendSysMessage(LANG_SELECT_CREATURE);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
 
             uint32 vendor_entry = vendor ? vendor->GetEntry() : 0;
 
