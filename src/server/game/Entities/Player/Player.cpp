@@ -20908,6 +20908,8 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
 void Player::SendInitialPacketsAfterAddToMap()
 {
+    UpdateVisibilityForPlayer();
+
     // update zone
     uint32 newzone, newarea;
     GetZoneAndAreaId(newzone,newarea);
