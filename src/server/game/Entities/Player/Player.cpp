@@ -20698,17 +20698,15 @@ void Player::UpdateObjectVisibility(bool forced)
     else
     {
         Unit::UpdateObjectVisibility(true);
-        // updates visibility of all objects around point of view for current player
-        Trinity::VisibleNotifier notifier(*this);
-        m_seer->VisitNearbyObject(GetVisibilityRange(), notifier);
-        notifier.SendToSelf();   // send gathered data
+        UpdateVisibilityForPlayer();
     }
 }
 
 void Player::UpdateVisibilityForPlayer()
 {
+    // updates visibility of all objects around point of view for current player
     Trinity::VisibleNotifier notifier(*this);
-    m_seer->VisitNearbyObject(GetVisibilityRange(), notifier);
+    m_seer->VisitNearbyObject(GetSightRange(), notifier);
     notifier.SendToSelf();   // send gathered data
 }
 
