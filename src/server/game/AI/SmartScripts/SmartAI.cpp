@@ -90,7 +90,8 @@ void SmartAI::UpdateDespawn(const uint32 diff)
 
 void SmartAI::Reset()
 {
-    SetRun(true);
+    if (!HasEscortState(SMART_ESCORT_ESCORTING))//dont mess up escort movement after combat
+        SetRun(true);
     GetScript()->OnReset();
 }
 
@@ -413,7 +414,7 @@ bool SmartAI::IsEscortInvokerInRange()
             }
         }
     }
-    return false;
+    return true;//escort targets were not set, ignore range check
 }
 
 void SmartAI::MovepointReached(uint32 id)
