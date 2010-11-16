@@ -626,6 +626,178 @@ public:
     }
 };
 
+/*Lightning Sentry - if you kill it when you have your Minion with you, you will get a quest credit*/
+enum eSentry
+{
+    QUEST_OR_MAYBE_WE_DONT_A                     = 12138,
+    QUEST_OR_MAYBE_WE_DONT_H                     = 12198,
+
+    NPC_LIGHTNING_SENTRY                         = 26407,
+    NPC_WAR_GOLEM                                = 27017,
+
+    SPELL_CHARGED_SENTRY_TOTEM                   = 52703,
+};
+
+class npc_lightning_sentry : public CreatureScript
+{
+public:
+    npc_lightning_sentry() : CreatureScript("npc_lightning_sentry") { }
+
+    CreatureAI *GetAI(Creature *pCreature) const
+    {
+        return new npc_lightning_sentryAI(pCreature);
+    }
+
+    struct npc_lightning_sentryAI : public ScriptedAI
+    {
+        npc_lightning_sentryAI(Creature *pCreature) : ScriptedAI(pCreature) { }
+        
+        uint32 uiChargedSentryTotem;
+
+        void Reset()
+        {
+            uiChargedSentryTotem = urand(10000,12000);
+        }
+
+        void UpdateAI(const uint32 uiDiff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            if (uiChargedSentryTotem <= uiDiff)
+            {
+                DoCast(SPELL_CHARGED_SENTRY_TOTEM);
+                uiChargedSentryTotem = urand(10000,12000);
+            }
+            else
+                uiChargedSentryTotem -= uiDiff;
+
+            DoMeleeAttackIfReady();
+        }
+
+        void JustDied(Unit * pKiller)
+        {
+            if (pKiller->ToPlayer() && pKiller->ToPlayer()->GetTypeId() == TYPEID_PLAYER)
+            {
+                if (me->FindNearestCreature(NPC_WAR_GOLEM, 10.0f, true))
+                {
+                    if (pKiller->ToPlayer()->GetQuestStatus(QUEST_OR_MAYBE_WE_DONT_A) == QUEST_STATUS_INCOMPLETE ||
+                        pKiller->ToPlayer()->GetQuestStatus(QUEST_OR_MAYBE_WE_DONT_H) == QUEST_STATUS_INCOMPLETE)
+                        pKiller->ToPlayer()->KilledMonsterCredit(NPC_WAR_GOLEM, 0);
+                }
+            }
+        }
+    };
+};
+
+/*Venture co. Straggler - when you cast Smoke Bomb, he will yell and run away*/
+enum eSmokeEmOut
+{
+    SAY_SEO1                                     = -1603535,
+    SAY_SEO2                                     = -1603536,
+    SAY_SEO3                                     = -1603537,
+    SAY_SEO4                                     = -1603538,
+    SAY_SEO5                                     = -1603539,
+    QUEST_SMOKE_EM_OUT_A                         = 12323,
+    QUEST_SMOKE_EM_OUT_H                         = 12324,
+    SPELL_SMOKE_BOMB                             = 49075,
+    SPELL_CHOP                                   = 43410,
+    NPC_VENTURE_CO_STABLES_KC                    = 27568,
+};
+
+class npc_venture_co_straggler : public CreatureScript
+{
+public:
+    npc_venture_co_straggler() : CreatureScript("npc_venture_co_straggler") { }
+    
+    CreatureAI *GetAI(Creature *pCreature) const
+    {
+        return new npc_venture_co_stragglerAI(pCreature);
+    }
+
+    struct npc_venture_co_stragglerAI : public ScriptedAI
+    {
+        npc_venture_co_stragglerAI(Creature *pCreature) : ScriptedAI(pCreature) { }
+
+        uint64 uiPlayerGUID;
+        uint32 uiRunAwayTimer;
+        uint32 uiTimer;
+        uint32 uiChopTimer;
+
+        void Reset()
+        {
+            uiPlayerGUID = 0;
+            uiTimer = 0;
+            uiChopTimer = urand(10000,12500);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            me->SetReactState(REACT_AGGRESSIVE);
+        }
+
+        void UpdateAI(const uint32 uiDiff)
+        {
+            if (uiRunAwayTimer <= uiDiff)
+            {
+                if (Player *pPlayer = Unit::GetPlayer(*me, uiPlayerGUID))
+                {
+                    switch (uiTimer)
+                    {
+                        case 0:
+                            if (pPlayer->GetQuestStatus(QUEST_SMOKE_EM_OUT_A) == QUEST_STATUS_INCOMPLETE || 
+                                pPlayer->GetQuestStatus(QUEST_SMOKE_EM_OUT_H) == QUEST_STATUS_INCOMPLETE)
+                                pPlayer->KilledMonsterCredit(NPC_VENTURE_CO_STABLES_KC, 0);
+                            me->GetMotionMaster()->MovePoint(0, me->GetPositionX()-7, me->GetPositionY()+7, me->GetPositionZ());
+                            uiRunAwayTimer = 2500;
+                            ++uiTimer;
+                            break;
+                        case 1:
+                            DoScriptText(RAND(SAY_SEO1, SAY_SEO2, SAY_SEO3, SAY_SEO4, SAY_SEO5), me);
+                            me->GetMotionMaster()->MovePoint(0, me->GetPositionX()-7, me->GetPositionY()-5, me->GetPositionZ());
+                            uiRunAwayTimer = 2500;
+                            ++uiTimer;
+                            break;
+                        case 2:
+                            me->GetMotionMaster()->MovePoint(0, me->GetPositionX()-5, me->GetPositionY()-5, me->GetPositionZ());
+                            uiRunAwayTimer = 2500;
+                            ++uiTimer;
+                            break;
+                        case 3:
+                            me->DisappearAndDie();
+                            uiTimer = 0;
+                            break;
+                    }
+                }
+            }
+            else
+                uiRunAwayTimer -= uiDiff;
+
+            if (!UpdateVictim())
+                return;
+
+            if (uiChopTimer <= uiDiff)
+            {
+                DoCast(me->getVictim(), SPELL_CHOP);
+                uiChopTimer = urand(10000,12000);
+            }
+            else
+                uiChopTimer -= uiDiff;
+
+            DoMeleeAttackIfReady();
+        }
+
+        void SpellHit(Unit *pCaster, const SpellEntry *pSpell)
+        {
+            if (pCaster && pCaster->GetTypeId() == TYPEID_PLAYER && pSpell->Id == SPELL_SMOKE_BOMB)
+            {
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                me->SetReactState(REACT_PASSIVE);
+                me->CombatStop(false);
+                uiPlayerGUID = pCaster->GetGUID();
+                uiRunAwayTimer = 3500;
+            }
+        }
+    };
+};
+
 void AddSC_grizzly_hills()
 {
     new npc_orsonn_and_kodian;
@@ -635,4 +807,6 @@ void AddSC_grizzly_hills()
     new npc_tallhorn_stag;
     new npc_amberpine_woodsman;
     new npc_wounded_skirmisher;
+    new npc_lightning_sentry();
+    new npc_venture_co_straggler();
 }

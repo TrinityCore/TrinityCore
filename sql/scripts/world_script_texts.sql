@@ -2621,6 +2621,13 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (33288,-1603340,'Destroy them minion, your master commands it!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15760,5,0,0,'YoggSaron WHISP_INSANITY_2'),
    (33288,-1603341,'Your fate is sealed. The end of days is finally upon you and ALL who inhabit this miserable little seedling. Uulwi ifis halahs gag erh''ongg w''ssh.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15761,1,0,0,'YoggSaron SAY_DEATH'),
 
+-- Quest Smoke Em Out
+   (27570,-1603535,'We\'re all gonna die!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Smoke \'Em Out - Say1'),
+   (27570,-1603536,'Gotta get out of here!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Smoke \'Em Out - Say2'),
+   (27570,-1603537,'No way I\'m stickin\' around!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Smoke \'Em Out - Say3'),
+   (27570,-1603538,'Forget this! I\'m going home!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Smoke \'Em Out - Say4'),
+   (27570,-1603539,'I didn\'t sign up for this!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'Smoke \'Em Out - Say5'),
+
 -- -1 604 000 GUNDRAK
 /* Moorabi */
    (29305,-1604010,'We fought back da Scourge. What chance joo be thinkin'' JOO got?',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,'SAY_AGGRO boss_moorabi'),
