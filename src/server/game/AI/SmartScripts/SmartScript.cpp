@@ -141,7 +141,7 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                 }
                 mLastTextID = e.action.talk.textGroupID;
                 mTextTimer = e.action.talk.duration;
-                mTextGUID = IsPlayer(unit)? unit->GetGUID() : NULL;//invoker, used for $vars in texts
+                mTextGUID = IsPlayer(mLastInvoker)? mLastInvoker->GetGUID() : NULL;//invoker, used for $vars in texts
                 mUseTextTimer = true;
                 sCreatureTextMgr.SendChat(talker, uint8(e.action.talk.textGroupID), mTextGUID);
                 break;
@@ -155,10 +155,10 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                     {
                         if (IsCreature((*itr)))
                         {
-                            sCreatureTextMgr.SendChat((*itr)->ToCreature(), uint8(e.action.talk.textGroupID));
+                            sCreatureTextMgr.SendChat((*itr)->ToCreature(), uint8(e.action.talk.textGroupID), IsPlayer(mLastInvoker)? mLastInvoker->GetGUID() : NULL);
                         } else if (IsPlayer((*itr)))
                         {
-                            sCreatureTextMgr.SendChat(me, uint8(e.action.talk.textGroupID),NULL,CHAT_TYPE_END,LANG_ADDON,TEXT_RANGE_NORMAL,NULL,TEAM_OTHER,false, (*itr)->ToPlayer());
+                            sCreatureTextMgr.SendChat(me, uint8(e.action.talk.textGroupID),IsPlayer(mLastInvoker)? mLastInvoker->GetGUID() : NULL,CHAT_TYPE_END,LANG_ADDON,TEXT_RANGE_NORMAL,NULL,TEAM_OTHER,false, (*itr)->ToPlayer());
                         }
                     }
                 }
