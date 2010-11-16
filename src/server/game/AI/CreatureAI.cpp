@@ -34,6 +34,12 @@ void CreatureAI::OnCharmed(bool /*apply*/)
 AISpellInfoType * UnitAI::AISpellInfo;
  AISpellInfoType * GetAISpellInfo(uint32 i) { return &CreatureAI::AISpellInfo[i]; }
 
+
+void CreatureAI::Talk(uint8 id, uint64 WhisperGuid)
+{
+    sCreatureTextMgr.SendChat(me, id, WhisperGuid);
+}
+
 void CreatureAI::DoZoneInCombat(Creature* creature)
 {
     if (!creature)

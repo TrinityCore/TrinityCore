@@ -21,6 +21,7 @@
 
 #include "UnitAI.h"
 #include "Common.h"
+#include "CreatureTextMgr.h"
 
 class WorldObject;
 class Unit;
@@ -78,6 +79,7 @@ class CreatureAI : public UnitAI
         Creature *DoSummonFlyer(uint32 uiEntry, WorldObject *obj, float fZ, float fRadius = 5.0f, uint32 uiDespawntime = 30000, TempSummonType uiType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
 
     public:
+        void Talk(uint8 id, uint64 WhisperGuid = 0);
         explicit CreatureAI(Creature *c) : UnitAI((Unit*)c), me(c), m_MoveInLineOfSight_locked(false) {}
 
         virtual ~CreatureAI() {}
