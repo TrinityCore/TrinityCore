@@ -1262,16 +1262,16 @@ class SmartAIMgr
             }
             return true;
         }
-        inline bool IsConditionValid(SmartScriptHolder e, uint32 t, uint32 v1, uint32 v2, uint32 v3)
+        inline bool IsConditionValid(SmartScriptHolder e, int32 t, int32 v1, int32 v2, int32 v3)
         {
             bool error = false;
             if (t > 0 && v1 >= 0 && v2 >= 0 && v3 >= 0)
             {
                 Condition cond;
                 cond.mConditionType = ConditionType(t);
-                cond.mConditionValue1 = v1;
-                cond.mConditionValue2 = v2;
-                cond.mConditionValue3 = v3;
+                cond.mConditionValue1 = uint32(v1);
+                cond.mConditionValue2 = uint32(v2);
+                cond.mConditionValue3 = uint32(v3);
                 if (!sConditionMgr.isConditionTypeValid(&cond))
                     error = true;
             }

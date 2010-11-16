@@ -229,7 +229,7 @@ class SmartAI : public CreatureAI
 class SmartGameObjectAI : public GameObjectAI
 {
 public:
-    SmartGameObjectAI(GameObject *g) : go(g), GameObjectAI(g) {}
+    SmartGameObjectAI(GameObject *g) : GameObjectAI(g), go(g) {}
     ~SmartGameObjectAI() {}
 
     void UpdateAI(const uint32 diff);
