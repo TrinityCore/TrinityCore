@@ -79,7 +79,6 @@ class ChatHandler
         static ChatCommand* getCommandTable();
 
         bool isValidChatMessage(const char* msg);
-        bool HasSentErrorMessage() { return sentErrorMessage;}
         void SendGlobalSysMessage(const char *str);
 
         bool hasStringAbbr(const char* name, const char* part);
@@ -120,7 +119,10 @@ class ChatHandler
 
         GameObject* GetNearbyGameObject();
         GameObject* GetObjectGlobalyWithGuidOrNearWithDbGuid(uint32 lowguid,uint32 entry);
+        bool HasSentErrorMessage() { return sentErrorMessage;}
         void SetSentErrorMessage(bool val){ sentErrorMessage = val;};
+        static bool LoadCommandTable() { return load_command_table;}
+        static void SetLoadCommandTable(bool val){ load_command_table = val;};
 
     protected:
         explicit ChatHandler() : m_session(NULL) {}      // for CLI subclass
@@ -171,25 +173,11 @@ class ChatHandler
         bool HandleBindSightCommand(const char* args);
         bool HandleUnbindSightCommand(const char* args);
 
-        bool HandleGameObjectAddCommand(const char* args);
-        bool HandleGameObjectDeleteCommand(const char* args);
-        bool HandleGameObjectInfoCommand(const char* args);
-        bool HandleGameObjectMoveCommand(const char* args);
-        bool HandleGameObjectNearCommand(const char* args);
-        bool HandleGameObjectPhaseCommand(const char* args);
-        bool HandleGameObjectStateCommand(const char* args);
-        bool HandleGameObjectTargetCommand(const char* args);
-        bool HandleGameObjectTurnCommand(const char* args);
-
         bool HandleGuildCreateCommand(const char* args);
         bool HandleGuildInviteCommand(const char* args);
         bool HandleGuildUninviteCommand(const char* args);
         bool HandleGuildRankCommand(const char* args);
         bool HandleGuildDeleteCommand(const char* args);
-
-        bool HandleHonorAddCommand(const char* args);
-        bool HandleHonorAddKillCommand(const char* args);
-        bool HandleHonorUpdateCommand(const char* args);
 
         bool HandleInstanceListBindsCommand(const char* args);
         bool HandleInstanceUnbindCommand(const char* args);
@@ -222,115 +210,6 @@ class ChatHandler
         bool HandlePDumpLoadCommand(const char *args);
         bool HandlePDumpWriteCommand(const char *args);
 
-        bool HandleQuestAdd(const char * args);
-        bool HandleQuestRemove(const char * args);
-        bool HandleQuestComplete(const char * args);
-
-        bool HandleReloadAllCommand(const char* args);
-        bool HandleReloadAllAchievementCommand(const char* args);
-        bool HandleReloadAllAreaCommand(const char* args);
-        bool HandleReloadAllGossipsCommand(const char* args);
-        bool HandleReloadAllItemCommand(const char* args);
-        bool HandleReloadAllLootCommand(const char* args);
-        bool HandleReloadAllNpcCommand(const char* args);
-        bool HandleReloadAllQuestCommand(const char* args);
-        bool HandleReloadAllScriptsCommand(const char* args);
-        bool HandleReloadAllEventAICommand(const char* args);
-        bool HandleReloadAllSpellCommand(const char* args);
-        bool HandleReloadAllLocalesCommand(const char* args);
-
-        bool HandleReloadConfigCommand(const char* args);
-
-        bool HandleReloadAccessRequirementCommand(const char* args);
-        bool HandleReloadAchievementCriteriaDataCommand(const char* args);
-        bool HandleReloadAchievementRewardCommand(const char* args);
-        bool HandleReloadAreaTriggerTavernCommand(const char* args);
-        bool HandleReloadAreaTriggerTeleportCommand(const char* args);
-        bool HandleReloadAutobroadcastCommand(const char* args);
-        bool HandleReloadEventScriptsCommand(const char* args);
-        bool HandleReloadEventAITextsCommand(const char* args);
-        bool HandleReloadEventAISummonsCommand(const char* args);
-        bool HandleReloadEventAIScriptsCommand(const char* args);
-        bool HandleReloadCommandCommand(const char* args);
-        bool HandleReloadOnKillReputationCommand(const char* args);
-        bool HandleReloadCreatureTemplateCommand(const char* args);
-        bool HandleReloadCreatureQuestRelationsCommand(const char* args);
-        bool HandleReloadCreatureQuestInvRelationsCommand(const char* args);
-        bool HandleReloadCreatureLinkedRespawnCommand(const char* args);
-        bool HandleReloadDbScriptStringCommand(const char* args);
-        bool HandleReloadGameGraveyardZoneCommand(const char* args);
-        bool HandleReloadGameObjectScriptsCommand(const char* args);
-        bool HandleReloadGameTeleCommand(const char* args);
-        bool HandleReloadGossipMenuCommand(const char* args);
-        bool HandleReloadGossipMenuOptionCommand(const char* args);
-        bool HandleReloadGossipScriptsCommand(const char* args);
-        bool HandleReloadGOQuestRelationsCommand(const char* args);
-        bool HandleReloadGOQuestInvRelationsCommand(const char* args);
-        bool HandleReloadItemEnchantementsCommand(const char* args);
-        bool HandleReloadItemSetNamesCommand(const char* args);
-        bool HandleReloadLfgEncountersCommand(const char* args);
-        bool HandleReloadLfgRewardsCommand(const char* args);
-        bool HandleReloadLocalesAchievementRewardCommand(const char* args);
-        bool HandleReloadLocalesCreatureCommand(const char* args);
-        bool HandleReloadLocalesGameobjectCommand(const char* args);
-        bool HandleReloadLocalesGossipMenuOptionCommand(const char* args);
-        bool HandleReloadLocalesItemCommand(const char* args);
-        bool HandleReloadLocalesItemSetNameCommand(const char* args);
-        bool HandleReloadLocalesNpcTextCommand(const char* args);
-        bool HandleReloadLocalesPageTextCommand(const char* args);
-        bool HandleReloadLocalesPointsOfInterestCommand(const char* args);
-        bool HandleReloadLocalesQuestCommand(const char* args);
-//        bool HandleReloadAuctionsCommand(const char* args);
-        bool HandleReloadLootTemplatesCreatureCommand(const char* args);
-        bool HandleReloadLootTemplatesDisenchantCommand(const char* args);
-        bool HandleReloadLootTemplatesFishingCommand(const char* args);
-        bool HandleReloadLootTemplatesGameobjectCommand(const char* args);
-        bool HandleReloadLootTemplatesItemCommand(const char* args);
-        bool HandleReloadLootTemplatesMailCommand(const char* args);
-        bool HandleReloadMailLevelRewardCommand(const char* args);
-        bool HandleReloadLootTemplatesMillingCommand(const char* args);
-        bool HandleReloadLootTemplatesPickpocketingCommand(const char* args);
-        bool HandleReloadLootTemplatesProspectingCommand(const char* args);
-        bool HandleReloadLootTemplatesReferenceCommand(const char* args);
-        bool HandleReloadLootTemplatesSkinningCommand(const char* args);
-        bool HandleReloadLootTemplatesSpellCommand(const char* args);
-        bool HandleReloadTrinityStringCommand(const char* args);
-        bool HandleReloadNpcGossipCommand(const char* args);
-        bool HandleReloadNpcTrainerCommand(const char* args);
-        bool HandleReloadNpcVendorCommand(const char* args);
-        bool HandleReloadPageTextsCommand(const char* args);
-        bool HandleReloadPointsOfInterestCommand(const char* args);
-        bool HandleReloadSpellClickSpellsCommand(const char* args);
-        bool HandleReloadQuestAreaTriggersCommand(const char* args);
-        bool HandleReloadQuestEndScriptsCommand(const char* args);
-        bool HandleReloadQuestPOICommand(const char* args);
-        bool HandleReloadQuestStartScriptsCommand(const char* args);
-        bool HandleReloadQuestTemplateCommand(const char* args);
-        bool HandleReloadReservedNameCommand(const char*);
-        bool HandleReloadReputationRewardRateCommand(const char* args);
-        bool HandleReloadReputationSpilloverTemplateCommand(const char* args);
-        bool HandleReloadSkillDiscoveryTemplateCommand(const char* args);
-        bool HandleReloadSkillExtraItemTemplateCommand(const char* args);
-        bool HandleReloadSkillFishingBaseLevelCommand(const char* args);
-        bool HandleReloadSpellRequiredCommand(const char* args);
-        bool HandleReloadSpellAreaCommand(const char* args);
-        bool HandleReloadSpellGroupsCommand(const char* args);
-        bool HandleReloadSpellLearnSpellCommand(const char* args);
-        bool HandleReloadSpellLinkedSpellCommand(const char* args);
-        bool HandleReloadSpellProcEventCommand(const char* args);
-        bool HandleReloadSpellBonusesCommand(const char* args);
-        bool HandleReloadSpellScriptsCommand(const char* args);
-        bool HandleReloadSpellTargetPositionCommand(const char* args);
-        bool HandleReloadSpellThreatsCommand(const char* args);
-        bool HandleReloadSpellPetAurasCommand(const char* args);
-        bool HandleReloadDisablesCommand(const char* args);
-        bool HandleReloadSpellGroupStackRulesCommand(const char* args);
-        bool HandleReloadAuctionsCommand(const char* args);
-        bool HandleReloadWpScriptsCommand(const char* args);
-        bool HandleReloadConditions(const char* args);
-        bool HandleReloadCreatureText(const char* args);
-        bool HandleReloadSmartScripts(const char* args);
-
         bool HandleResetAchievementsCommand(const char * args);
         bool HandleResetAllCommand(const char * args);
         bool HandleResetHonorCommand(const char * args);
@@ -361,23 +240,10 @@ class ChatHandler
         bool HandleServerSetLogFileLevelCommand(const char* args);
         bool HandleServerSetDiffTimeCommand(const char* args);
 
-        bool HandleTitlesAddCommand(const char* args);
-        bool HandleTitlesCurrentCommand(const char* args);
-        bool HandleTitlesRemoveCommand(const char* args);
-        bool HandleTitlesSetMaskCommand(const char* args);
-
         bool HandleUnBanAccountCommand(const char* args);
         bool HandleUnBanAccountByCharCommand(const char* args);
         bool HandleUnBanCharacterCommand(const char* args);
         bool HandleUnBanIPCommand(const char* args);
-
-        bool HandleWpAddCommand(const char* args);
-        bool HandleWpLoadPathCommand(const char* args);
-        bool HandleWpUnLoadPathCommand(const char* args);
-        bool HandleWpModifyCommand(const char* args);
-        bool HandleWpEventCommand(const char* args);
-        bool HandleWpShowCommand(const char* args);
-        bool HandleReloadAllPaths(const char *args);
 
         bool HandleHelpCommand(const char* args);
         bool HandleCommandsCommand(const char* args);

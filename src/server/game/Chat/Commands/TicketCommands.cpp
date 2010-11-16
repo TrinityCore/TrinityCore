@@ -427,12 +427,6 @@ bool ChatHandler::HandleGMTicketDeleteByIdCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleGMTicketReloadCommand(const char* /* args */)
-{
-    sTicketMgr.LoadGMTickets();
-    return true;
-}
-
 bool ChatHandler::HandleToggleGMTicketSystem(const char* /* args */)
 {
     sTicketMgr.SetStatus(!sTicketMgr.GetStatus());

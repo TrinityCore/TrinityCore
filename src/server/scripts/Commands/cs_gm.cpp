@@ -133,10 +133,13 @@ class gm_commandscript : public CommandScript
                     const char* name = itr->second->GetName();
                     uint8 security = itr_sec;
                     uint8 max = ((16 - strlen(name)) / 2);
+                    uint8 max2 = max;
+                    if (((max)+(max2)+(strlen(name))) == 16)
+                        max2 = ((max)-1);
                     if (handler->GetSession())
-                        handler->PSendSysMessage("|%s GMLevel %u", name, security);
+                        handler->PSendSysMessage("|    %s GMLevel %u", name, security);
                     else
-                        handler->PSendSysMessage("|%*s%s%*s|   %u  |", max, " ", name, max, " ", security);
+                        handler->PSendSysMessage("|%*s%s%*s|   %u  |", max, " ", name, max2, " ", security);
                 }
             }
             if (footer)
@@ -162,10 +165,13 @@ class gm_commandscript : public CommandScript
                     const char* name = fields[0].GetCString();
                     uint8 security = fields[1].GetUInt8();
                     uint8 max = ((16 - strlen(name)) / 2);
+                    uint8 max2 = max;
+                    if (((max)+(max2)+(strlen(name))) == 16)
+                        max2 = ((max)-1);
                     if (handler->GetSession())
-                        handler->PSendSysMessage("|%s GMLevel %u", name, security);
+                        handler->PSendSysMessage("|    %s GMLevel %u", name, security);
                     else
-                        handler->PSendSysMessage("|%*s%s%*s|   %u  |", max, " ", name, max, " ", security);
+                        handler->PSendSysMessage("|%*s%s%*s|   %u  |", max, " ", name, max2, " ", security);
                 }
                 while (result->NextRow());
 
