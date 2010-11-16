@@ -114,7 +114,7 @@ public:
             bIsWaitingToAppear = false;
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->SetVisibility(VISIBILITY_ON);
+            me->SetVisible(true);
 
             if (pInstance)
                 pInstance->SetData(DATA_MAGUS_TELESTRA_EVENT, NOT_STARTED);
@@ -225,7 +225,7 @@ public:
                     me->GetMotionMaster()->Clear();
                     me->GetMap()->CreatureRelocation(me, CenterOfRoom.GetPositionX(), CenterOfRoom.GetPositionY(), CenterOfRoom.GetPositionZ(), CenterOfRoom.GetOrientation());
                     DoCast(me, SPELL_TELESTRA_BACK);
-                    me->SetVisibility(VISIBILITY_ON);
+                    me->SetVisible(true);
                     if (Phase == 1)
                         Phase = 2;
                     if (Phase == 3)
@@ -248,7 +248,7 @@ public:
                 Phase = 1;
                 me->CastStop();
                 me->RemoveAllAuras();
-                me->SetVisibility(VISIBILITY_OFF);
+                me->SetVisible(false);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 uiFireMagusGUID = SplitPersonality(MOB_FIRE_MAGUS);
                 uiFrostMagusGUID = SplitPersonality(MOB_FROST_MAGUS);
@@ -265,7 +265,7 @@ public:
                 Phase = 3;
                 me->CastStop();
                 me->RemoveAllAuras();
-                me->SetVisibility(VISIBILITY_OFF);
+                me->SetVisible(false);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 uiFireMagusGUID = SplitPersonality(MOB_FIRE_MAGUS);
                 uiFrostMagusGUID = SplitPersonality(MOB_FROST_MAGUS);

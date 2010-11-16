@@ -239,7 +239,7 @@ public:
             Timer[TIMER_SENTINEL] = 31500;
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->SetVisibility(VISIBILITY_ON);
+            me->SetVisible(true);
 
             Summons.DespawnAll();
 
@@ -274,7 +274,7 @@ public:
             switch(summoned->GetEntry())
             {
                 case BOSS_ENTROPIUS:
-                    me->SetVisibility(VISIBILITY_OFF);
+                    me->SetVisible(false);
                     break;
                 case CREATURE_DARK_FIENDS:
                     summoned->CastSpell(summoned,SPELL_DARKFIEND_VISUAL,false);

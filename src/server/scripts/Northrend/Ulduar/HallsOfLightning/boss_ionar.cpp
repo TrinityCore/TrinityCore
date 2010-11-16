@@ -83,7 +83,7 @@ public:
                 pCreatureTarget->CastSpell(pCreatureTarget, SPELL_SUMMON_SPARK, true);
 
             pCreatureTarget->AttackStop();
-            pCreatureTarget->SetVisibility(VISIBILITY_OFF);
+            pCreatureTarget->SetVisible(false);
             pCreatureTarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_DISABLE_MOVE);
 
             pCreatureTarget->GetMotionMaster()->Clear();
@@ -137,8 +137,8 @@ public:
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_DISABLE_MOVE);
 
-            if (me->GetVisibility() == VISIBILITY_OFF)
-                me->SetVisibility(VISIBILITY_ON);
+            if (!me->IsVisible())
+                me->SetVisible(true);
 
             if (pInstance)
                 pInstance->SetData(TYPE_IONAR, NOT_STARTED);
@@ -195,7 +195,7 @@ public:
 
         void DamageTaken(Unit * /*pDoneBy*/, uint32 &uiDamage)
         {
-            if (me->GetVisibility() == VISIBILITY_OFF)
+            if (!me->IsVisible())
                 uiDamage = 0;
         }
 
@@ -230,7 +230,7 @@ public:
                 return;
 
             // Splitted
-            if (me->GetVisibility() == VISIBILITY_OFF)
+            if (!me->IsVisible())
             {
                 if (uiSplitTimer <= uiDiff)
                 {
@@ -245,7 +245,7 @@ public:
                     // Lightning effect and restore Ionar
                     else if (lSparkList.empty())
                     {
-                        me->SetVisibility(VISIBILITY_ON);
+                        me->SetVisible(true);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_DISABLE_MOVE);
 
                         DoCast(me, SPELL_SPARK_DESPAWN, false);

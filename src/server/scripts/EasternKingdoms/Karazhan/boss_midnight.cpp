@@ -132,7 +132,7 @@ public:
             Mount_Timer = 0;
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->SetVisibility(VISIBILITY_ON);
+            me->SetVisible(true);
         }
 
         void EnterCombat(Unit* /*who*/) {}
@@ -174,7 +174,7 @@ public:
                     if (Mount_Timer <= diff)
                     {
                         Mount_Timer = 0;
-                        me->SetVisibility(VISIBILITY_OFF);
+                        me->SetVisible(false);
                         me->GetMotionMaster()->MoveIdle();
                         if (Unit *pAttumen = Unit::GetUnit(*me, Attumen))
                         {
@@ -239,10 +239,10 @@ void boss_attumen::boss_attumenAI::UpdateAI(const uint32 diff)
             if (pMidnight)
             {
                 pMidnight->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                pMidnight->SetVisibility(VISIBILITY_ON);
+                pMidnight->SetVisible(true);
             }
             Midnight = 0;
-            me->SetVisibility(VISIBILITY_OFF);
+            me->SetVisible(false);
             me->Kill(me);
         }
     } else ResetTimer -= diff;

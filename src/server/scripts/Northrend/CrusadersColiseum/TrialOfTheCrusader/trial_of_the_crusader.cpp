@@ -215,8 +215,8 @@ class npc_announcer_toc10 : public CreatureScript
 
                     m_pInstance->SetData(TYPE_ANUBARAK,NOT_STARTED);
 
-                    if (pCreature->GetVisibility() == VISIBILITY_ON)
-                        pCreature->SetVisibility(VISIBILITY_OFF);
+                    if (pCreature->IsVisible())
+                        pCreature->SetVisible(false);
                     break;
                 }
             }

@@ -593,7 +593,7 @@ public:
                 me->MonsterYell(SAY_DIALOG_MEDIVH_9, LANG_UNIVERSAL, NULL);
                 return 10000;
             case 14:
-                me->SetVisibility(VISIBILITY_OFF);
+                me->SetVisible(false);
                 me->ClearInCombat();
 
                 if (pMap->IsDungeon())

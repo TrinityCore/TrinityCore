@@ -6574,7 +6574,7 @@ bool Spell::CheckTarget(Unit* target, uint32 eff)
     //Check player targets and remove if in GM mode or GM invisibility (for not self casting case)
     if (target != m_caster && target->GetTypeId() == TYPEID_PLAYER)
     {
-        if (target->ToPlayer()->GetVisibility() == VISIBILITY_OFF)
+        if (!target->ToPlayer()->IsVisible())
             return false;
 
         if (target->ToPlayer()->isGameMaster() && !IsPositiveSpell(m_spellInfo->Id))

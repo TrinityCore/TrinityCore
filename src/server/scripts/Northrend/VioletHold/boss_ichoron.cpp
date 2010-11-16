@@ -108,7 +108,7 @@ public:
             uiBubbleCheckerTimer = 1000;
             uiWaterBoltVolleyTimer = urand(10000, 15000);
 
-            me->SetVisibility(VISIBILITY_ON);
+            me->SetVisible(true);
             DespawnWaterElements();
 
             if (pInstance)
@@ -195,7 +195,7 @@ public:
                 DoCast(me, SPELL_PROTECTIVE_BUBBLE, true);
             }
 
-            me->SetVisibility(VISIBILITY_ON);
+            me->SetVisible(true);
             me->GetMotionMaster()->MoveChase(me->getVictim());
         }
 
@@ -227,7 +227,7 @@ public:
                             DoCast(me, SPELL_DRAINED);
                             bIsExploded = true;
                             me->AttackStop();
-                            me->SetVisibility(VISIBILITY_OFF);
+                            me->SetVisible(false);
                             for (uint8 i = 0; i < 10; i++)
                             {
                                 int tmp = urand(0, MAX_SPAWN_LOC-1);
@@ -277,7 +277,7 @@ public:
             if (bIsExploded)
             {
                 bIsExploded = false;
-                me->SetVisibility(VISIBILITY_ON);
+                me->SetVisible(true);
             }
 
             DespawnWaterElements();

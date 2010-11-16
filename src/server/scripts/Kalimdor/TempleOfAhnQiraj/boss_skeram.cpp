@@ -94,7 +94,7 @@ public:
             Invisible = false;
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->SetVisibility(VISIBILITY_ON);
+            me->SetVisible(true);
 
             if (IsImage)
                 me->setDeathState(JUST_DIED);
@@ -194,7 +194,7 @@ public:
                 if (Invisible_Timer <= diff)
                 {
                     //Making Skeram visible after telporting
-                    me->SetVisibility(VISIBILITY_ON);
+                    me->SetVisible(true);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
                     Invisible_Timer = 2500;
@@ -251,7 +251,7 @@ public:
 
             me->RemoveAllAuras();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->SetVisibility(VISIBILITY_OFF);
+            me->SetVisible(false);
             me->GetMap()->CreatureRelocation(me, bossc->x, bossc->y, bossc->z, bossc->r);
             Invisible = true;
             delete place1;

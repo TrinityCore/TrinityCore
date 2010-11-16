@@ -72,7 +72,7 @@ public:
             float x, y, z;
             me->GetNearPoint(me, x, y, z, 1, 100, float(M_PI*2*rand_norm()));
             me->GetMotionMaster()->MovePoint(0, x, y, z);
-            me->SetVisibility(VISIBILITY_OFF);
+            me->SetVisible(false);
             me->CastSpell(me,SPELL_MOLTEN_FLAME,true);
         }
     };
