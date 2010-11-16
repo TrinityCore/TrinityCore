@@ -721,13 +721,13 @@ class debug_commandscript : public CommandScript
             return true;
         }
 
-        static bool HandleDebugBattlegroundCommand(ChatHandler* handler, const char* /*args*/)
+        static bool HandleDebugBattlegroundCommand(ChatHandler* /*handler*/, const char* /*args*/)
         {
             sBattlegroundMgr.ToggleTesting();
             return true;
         }
 
-        static bool HandleDebugArenaCommand(ChatHandler* handler, const char* /*args*/)
+        static bool HandleDebugArenaCommand(ChatHandler* /*handler*/, const char* /*args*/)
         {
             sBattlegroundMgr.ToggleArenaTesting();
             return true;

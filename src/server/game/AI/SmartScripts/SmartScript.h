@@ -225,7 +225,7 @@ class SmartScript
             {
                 for (SmartAIEventList::iterator i = mStoredEvents.begin(); i != mStoredEvents.end(); ++i)
                 {
-                    if (i->event_id = id)
+                    if (i->event_id == id)
                     {
                         mStoredEvents.erase(i);
                         return;
