@@ -223,7 +223,7 @@ public:
 
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             me->SetStandState(UNIT_STAND_STATE_STAND);
-            me->SetVisibility(VISIBILITY_ON);
+            me->SetVisible(true);
         }
 
         void DoAction(const int32 actionId)
@@ -476,9 +476,9 @@ public:
                 case EVENT_INTRO_LK_5:
                     // summon Falric and Marwyn. then go back to the door
                     if (Creature* pFalric = me->GetCreature(*me, pInstance->GetData64(DATA_FALRIC)))
-                        pFalric->SetVisibility(VISIBILITY_ON);
+                        pFalric->SetVisible(true);
                     if (Creature* pMarwyn = me->GetCreature(*me, pInstance->GetData64(DATA_MARWYN)))
-                        pMarwyn->SetVisibility(VISIBILITY_ON);
+                        pMarwyn->SetVisible(true);
 
                     if (Creature* pLichKing = me->GetCreature(*me, uiLichKing))
                     {
@@ -533,9 +533,9 @@ public:
                     // TODO: implement
 
                     if (Creature* pFalric = me->GetCreature(*me, pInstance->GetData64(DATA_FALRIC)))
-                        pFalric->SetVisibility(VISIBILITY_ON);
+                        pFalric->SetVisible(true);
                     if (Creature* pMarwyn = me->GetCreature(*me, pInstance->GetData64(DATA_MARWYN)))
-                        pMarwyn->SetVisibility(VISIBILITY_ON);
+                        pMarwyn->SetVisible(true);
 
                     me->GetMotionMaster()->MovePoint(0, LichKingSpawnPos);
                     // TODO: Loralen/Koreln shall run also

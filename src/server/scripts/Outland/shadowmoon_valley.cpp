@@ -226,7 +226,7 @@ public:
 
             FlyTimer = 10000;
             me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-            me->SetVisibility(VISIBILITY_ON);
+            me->SetVisible(true);
         }
 
         void SpellHit(Unit* caster, const SpellEntry* spell)
@@ -271,7 +271,7 @@ public:
 
                     PlayerGUID = 0;
                 }
-                me->SetVisibility(VISIBILITY_OFF);
+                me->SetVisible(false);
                 me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                 me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 me->RemoveCorpse();
@@ -808,7 +808,7 @@ public:
             if (Illidan)
             {
                 IllidanGUID = Illidan->GetGUID();
-                Illidan->SetVisibility(VISIBILITY_OFF);
+                Illidan->SetVisible(false);
             }
             if (PlayerGUID)
             {
@@ -840,7 +840,7 @@ public:
             case 2: DoScriptText(OVERLORD_YELL_1, me, plr); return 4500; break;
             case 3: me->SetInFront(plr); return 3200;  break;
             case 4: DoScriptText(OVERLORD_SAY_2, me, plr); return 2000; break;
-            case 5: Illi->SetVisibility(VISIBILITY_ON);
+            case 5: Illi->SetVisible(true);
                  Illi->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE); return 350; break;
             case 6:
                 Illi->CastSpell(Illi, SPELL_ONE, true);
@@ -876,7 +876,7 @@ public:
                 return 500; break;
             case 21: DoScriptText(OVERLORD_SAY_5, me); return 500; break;
             case 22:
-                Illi->SetVisibility(VISIBILITY_OFF);
+                Illi->SetVisible(false);
                 Illi->setDeathState(JUST_DIED);
                 return 1000; break;
             case 23: me->SetUInt32Value(UNIT_FIELD_BYTES_1,0); return 2000; break;
@@ -1429,7 +1429,7 @@ public:
             Announced = false;
             Failed = false;
 
-            me->SetVisibility(VISIBILITY_OFF);
+            me->SetVisible(false);
         }
 
         void EnterCombat(Unit* /*who*/) {}

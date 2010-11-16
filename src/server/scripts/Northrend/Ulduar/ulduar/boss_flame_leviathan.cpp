@@ -1204,7 +1204,7 @@ public:
             if (Creature* pLeviathan = instance->instance->GetCreature(instance->GetData64(TYPE_LEVIATHAN)))
             {
                 CAST_AI(boss_flame_leviathan::boss_flame_leviathanAI, (pLeviathan->AI()))->DoAction(0); //enable hard mode activating the 4 additional events spawning additional vehicles
-                pCreature->SetVisibility(VISIBILITY_OFF);
+                pCreature->SetVisible(false);
                 pCreature->AI()->DoAction(0); // spawn the vehicles
                 if (Creature* Delorah = pCreature->FindNearestCreature(NPC_DELORAH, 1000, true))
                 {

@@ -540,12 +540,6 @@ enum DamageEffectType
     SELF_DAMAGE             = 5
 };
 
-enum UnitVisibility
-{
-    VISIBILITY_OFF                = 0,
-    VISIBILITY_ON                 = 1
-};
-
 // Value masks for UNIT_FIELD_FLAGS
 enum UnitFlags
 {
@@ -1763,8 +1757,8 @@ class Unit : public WorldObject
         void SetFacingToObject(WorldObject* pObject);
 
         // Visibility system
-        UnitVisibility GetVisibility() const { return (m_serverSideVisibility.GetValue(SERVERSIDE_VISIBILITY_GM) > SEC_PLAYER) ? VISIBILITY_OFF : VISIBILITY_ON; }
-        void SetVisibility(UnitVisibility x);
+        bool IsVisible() const { return (m_serverSideVisibility.GetValue(SERVERSIDE_VISIBILITY_GM) > SEC_PLAYER) ? false : true; }
+        void SetVisible(bool x);
 
         // common function for visibility checks for player/creatures with detection code
 

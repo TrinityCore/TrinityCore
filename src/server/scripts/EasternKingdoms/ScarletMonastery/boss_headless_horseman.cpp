@@ -426,7 +426,7 @@ public:
 
         void FlyMode()
         {
-            me->SetVisibility(VISIBILITY_OFF);
+            me->SetVisible(false);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_LEVITATING);
             me->SetSpeed(MOVE_WALK,5.0f,true);
@@ -447,7 +447,7 @@ public:
             switch (id)
             {
                 case 0:
-                    me->SetVisibility(VISIBILITY_ON);
+                    me->SetVisible(true);
                     break;
                 case 1:
                 {
@@ -802,7 +802,7 @@ public:
             if (!debuffGUID) return;
             Unit *debuff = Unit::GetUnit((*me),debuffGUID);
             if (debuff)
-                debuff->SetVisibility(VISIBILITY_OFF);
+                debuff->SetVisible(false);
                 debuffGUID = 0;
         }
 

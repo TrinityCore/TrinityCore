@@ -944,11 +944,11 @@ class npc_blood_queen_lana_thel : public CreatureScript
                 me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                 if (instance->GetBossState(DATA_BLOOD_PRINCE_COUNCIL) == DONE)
                 {
-                    me->SetVisibility(VISIBILITY_OFF);
+                    me->SetVisible(false);
                     bIntroDone = true;
                 }
                 else
-                    me->SetVisibility(VISIBILITY_ON);
+                    me->SetVisible(true);
             }
 
             void MoveInLineOfSight(Unit* who)
@@ -975,7 +975,7 @@ class npc_blood_queen_lana_thel : public CreatureScript
             void MovementInform(uint32 type, uint32 id)
             {
                 if (type == POINT_MOTION_TYPE && id == POINT_INTRO_DESPAWN)
-                    me->SetVisibility(VISIBILITY_OFF);
+                    me->SetVisible(false);
             }
 
             void UpdateAI(const uint32 diff)
@@ -1135,7 +1135,7 @@ class npc_kinetic_bomb : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_BOMB_DESPAWN:
-                            me->SetVisibility(VISIBILITY_OFF);
+                            me->SetVisible(false);
                             break;
                         case EVENT_CONTINUE_FALLING:
                             me->GetMotionMaster()->Clear();

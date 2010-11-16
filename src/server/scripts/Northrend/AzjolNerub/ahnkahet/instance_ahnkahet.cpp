@@ -195,7 +195,7 @@ public:
                             Creature* cr = instance->GetCreature(*itr);
                             if (cr && cr->isAlive())
                             {
-                                cr->SetVisibility(VISIBILITY_OFF);
+                                cr->SetVisible(false);
                                 cr->setDeathState(JUST_DIED);
                                 cr->RemoveCorpse();
                             }

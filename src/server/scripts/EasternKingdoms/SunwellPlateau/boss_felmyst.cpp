@@ -512,7 +512,7 @@ public:
                     (*i)->GetPosition(x, y, z);
                     me->SummonCreature(MOB_DEAD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                 }
-                (*i)->SetVisibility(VISIBILITY_OFF);
+                (*i)->SetVisible(false);
                 (*i)->setDeathState(JUST_DIED);
                 if ((*i)->getDeathState() == CORPSE)
                     (*i)->RemoveCorpse();

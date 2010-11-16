@@ -1598,7 +1598,7 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
     Creature *trigger = SummonTrigger(GetPositionX(), GetPositionY(), GetPositionZ(), 0, 1);
     if (!trigger) return;
 
-    trigger->SetVisibility(VISIBILITY_OFF); //should this be true?
+    trigger->SetVisible(false); //should this be true?
     if (Unit *owner = GetOwner())
     {
         trigger->setFaction(owner->getFaction());

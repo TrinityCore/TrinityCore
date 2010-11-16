@@ -44,7 +44,7 @@ public:
         void Reset()
         {
             me->setActive(true);
-            me->SetVisibility(VISIBILITY_OFF);
+            me->SetVisible(false);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->SetFlying(true);
             FlyBackTimer = 500;
@@ -81,7 +81,7 @@ public:
                         z += 2.5; x -= 2; y -= 1.5;
                         me->GetMotionMaster()->MovePoint(0, x, y, z);
                         me->SetUInt64Value(UNIT_FIELD_TARGET, plr->GetGUID());
-                        me->SetVisibility(VISIBILITY_ON);
+                        me->SetVisible(true);
                         FlyBackTimer = 4500;
                         break;
                     case 2:
@@ -94,7 +94,7 @@ public:
                         FlyBackTimer = 5000;
                         break;
                     case 3:
-                        me->SetVisibility(VISIBILITY_OFF);
+                        me->SetVisible(false);
                         FlyBackTimer = 3000;
                         break;
                     case 4:

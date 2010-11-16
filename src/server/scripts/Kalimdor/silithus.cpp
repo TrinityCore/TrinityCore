@@ -595,7 +595,7 @@ public:
                         break;
                     case 14:
                         DoScriptText(ARYGOS_SAY_1,Arygos);
-                        Merithra->SetVisibility(VISIBILITY_OFF);
+                        Merithra->SetVisible(false);
                         break;
                     case 15:
                         Arygos->GetMotionMaster()->MoveCharge(-8065,1530,2.61f,10);
@@ -625,7 +625,7 @@ public:
                         break;
                     case 23:
                         Caelestrasz->GetMotionMaster()->MoveCharge(-8065,1530,2.61f,10);
-                        Arygos->SetVisibility(VISIBILITY_OFF);
+                        Arygos->SetVisible(false);
                         Arygos->GetMotionMaster()->MoveCharge(-8034.535f,1535.14f,2.61f,10);
                         break;
                     case 24:
@@ -655,7 +655,7 @@ public:
                         DoScriptText(ANACHRONOS_SAY_3, me, Fandral);
                         break;
                     case 32:
-                        Caelestrasz->SetVisibility(VISIBILITY_OFF);
+                        Caelestrasz->SetVisible(false);
                         Caelestrasz->GetMotionMaster()->MoveCharge(-8034.535f,1535.14f,2.61f,42);
                         Fandral->GetMotionMaster()->MoveCharge(-8108,1529,2.77f,8);
                         me->GetMotionMaster()->MoveCharge(-8113,1525,2.77f,8);
@@ -745,7 +745,7 @@ public:
                         DoScriptText(ANACHRONOS_EMOTE_2,me);
                         break;
                     case 55:
-                        Fandral->SetVisibility(VISIBILITY_OFF);
+                        Fandral->SetVisible(false);
                         break;
                     case 56:
                         DoScriptText(ANACHRONOS_EMOTE_3, me);
@@ -781,7 +781,7 @@ public:
                         me->GetMotionMaster()->MoveCharge(-8000,1400,150,9);
                         break;
                     case 65:
-                        me->SetVisibility(VISIBILITY_OFF);
+                        me->SetVisible(false);
                         if (Creature* AnachronosQuestTrigger = (Unit::GetCreature(*me, AnachronosQuestTriggerGUID)))
                         {
                             DoScriptText(ARYGOS_YELL_1,me);
@@ -968,7 +968,7 @@ public:
             Announced = false;
             Failed = false;
 
-            me->SetVisibility(VISIBILITY_OFF);
+            me->SetVisible(false);
         }
 
         void SummonNextWave()

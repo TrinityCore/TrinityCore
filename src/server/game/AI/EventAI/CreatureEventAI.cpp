@@ -781,7 +781,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             me->SetPhaseMask(action.raw.param1, true);
             break;
         case ACTION_T_SET_VISIBILITY:
-            me->SetVisibility(UnitVisibility(action.raw.param1));
+            me->SetVisible(bool(action.raw.param1));
             break;
         case ACTION_T_SET_ACTIVE:
             me->setActive(action.raw.param1 ? true : false);

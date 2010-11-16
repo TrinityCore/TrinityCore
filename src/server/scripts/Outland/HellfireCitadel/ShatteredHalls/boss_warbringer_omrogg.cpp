@@ -266,7 +266,7 @@ class boss_warbringer_omrogg : public CreatureScript
 
                 //summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 //summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                summoned->SetVisibility(VISIBILITY_OFF);
+                summoned->SetVisible(false);
             }
 
             void KilledUnit(Unit* /*victim*/)

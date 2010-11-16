@@ -129,7 +129,7 @@ class mob_abyssal : public CreatureScript
                 if (trigger == 2 && spell->Id == SPELL_BLAZE_TARGET)
                 {
                     DoCast(me, SPELL_BLAZE_TRAP, true);
-                    me->SetVisibility(VISIBILITY_OFF);
+                    me->SetVisible(false);
                     Despawn_Timer = 130000;
                 }
             }

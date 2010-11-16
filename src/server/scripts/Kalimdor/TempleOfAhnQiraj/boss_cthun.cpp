@@ -219,7 +219,7 @@ public:
             me->RemoveAurasDueToSpell(SPELL_RED_COLORATION);
             me->RemoveAurasDueToSpell(SPELL_FREEZE_ANIM);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
-            me->SetVisibility(VISIBILITY_ON);
+            me->SetVisible(true);
 
             //Reset Phase
             if (pInst)
@@ -404,7 +404,7 @@ public:
                     //Remove any target
                     me->SetUInt64Value(UNIT_FIELD_TARGET, 0);
                     me->SetHealth(0);
-                    me->SetVisibility(VISIBILITY_OFF);
+                    me->SetVisible(false);
                     break;
 
                 //Dead phase
@@ -542,7 +542,7 @@ public:
             //Reset flags
             me->RemoveAurasDueToSpell(SPELL_TRANSFORM);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
-            me->SetVisibility(VISIBILITY_OFF);
+            me->SetVisible(false);
 
             if (pInst)
                 pInst->SetData(DATA_CTHUN_PHASE, PHASE_NOT_STARTED);
@@ -670,7 +670,7 @@ public:
                         DoCast(me, SPELL_TRANSFORM, false);
                         me->SetFullHealth();
 
-                        me->SetVisibility(VISIBILITY_ON);
+                        me->SetVisible(true);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
 
                         //Emerging phase
@@ -1062,7 +1062,7 @@ public:
                         p->Kill(p);
 
                     //Dissapear and reappear at new position
-                    me->SetVisibility(VISIBILITY_OFF);
+                    me->SetVisible(false);
 
                     Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
                     if (!pTarget)
@@ -1086,7 +1086,7 @@ public:
                         AttackStart(pTarget);
                     }
 
-                    me->SetVisibility(VISIBILITY_ON);
+                    me->SetVisible(true);
                 } else EvadeTimer -= diff;
             }
 
@@ -1174,7 +1174,7 @@ public:
                         p->Kill(p);
 
                     //Dissapear and reappear at new position
-                    me->SetVisibility(VISIBILITY_OFF);
+                    me->SetVisible(false);
 
                     Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
                     if (!pTarget)
@@ -1198,7 +1198,7 @@ public:
                         EvadeTimer = 5000;
                         AttackStart(pTarget);
                     }
-                    me->SetVisibility(VISIBILITY_ON);
+                    me->SetVisible(true);
                 } else EvadeTimer -= diff;
             }
 

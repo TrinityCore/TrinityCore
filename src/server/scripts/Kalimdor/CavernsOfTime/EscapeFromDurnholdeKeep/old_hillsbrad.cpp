@@ -462,7 +462,7 @@ public:
                     break;
                 case 108:
                     //last waypoint, just set Thrall invisible, respawn is turned off
-                    me->SetVisibility(VISIBILITY_OFF);
+                    me->SetVisible(false);
                     break;
             }
         }

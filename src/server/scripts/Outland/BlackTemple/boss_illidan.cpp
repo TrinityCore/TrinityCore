@@ -876,7 +876,7 @@ public:
                     {
                         if (GETUNIT(Glaive, GlaiveGUID[i]))
                         {
-                            Glaive->SetVisibility(VISIBILITY_OFF);
+                            Glaive->SetVisible(false);
                             Glaive->setDeathState(JUST_DIED); // Despawn the Glaive
                         }
                         GlaiveGUID[i] = 0;
@@ -1229,7 +1229,7 @@ public:
                 if (Timer[EVENT_MAIEV_STEALTH])
                 {
                     me->SetFullHealth();
-                    me->SetVisibility(VISIBILITY_ON);
+                    me->SetVisible(true);
                     Timer[EVENT_MAIEV_STEALTH] = 0;
                 }
                 me->InterruptNonMeleeSpells(false);
@@ -1307,7 +1307,7 @@ public:
                 case EVENT_MAIEV_STEALTH:
                     {
                         me->SetFullHealth();
-                        me->SetVisibility(VISIBILITY_ON);
+                        me->SetVisible(true);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         Timer[EVENT_MAIEV_STEALTH] = 0;
                         BlinkToPlayer();
@@ -1349,7 +1349,7 @@ public:
 
                 if (HealthBelowPct(50))
                 {
-                    me->SetVisibility(VISIBILITY_OFF);
+                    me->SetVisible(false);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     if (GETCRE(Illidan, IllidanGUID))
                         CAST_AI(boss_illidan_stormrage::boss_illidan_stormrageAI, Illidan->AI())->DeleteFromThreatList(me->GetGUID());
@@ -1446,7 +1446,7 @@ public:
             me->SetUInt32Value(UNIT_NPC_FLAGS, 0); // Database sometimes has strange values..
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             me->setActive(false);
-            me->SetVisibility(VISIBILITY_OFF);
+            me->SetVisible(false);
         }
 
         // Do not call reset in Akama's evade mode, as this will stop him from summoning minions after he kills the first bit
@@ -1529,7 +1529,7 @@ public:
             for (uint8 i = 0; i < 2; ++i)
                 if (Creature* Spirit = me->SummonCreature(i ? SPIRIT_OF_OLUM : SPIRIT_OF_UDALO, SpiritSpawns[i].x, SpiritSpawns[i].y, SpiritSpawns[i].z, 0, TEMPSUMMON_TIMED_DESPAWN, 20000))
                 {
-                    Spirit->SetVisibility(VISIBILITY_OFF);
+                    Spirit->SetVisible(false);
                     SpiritGUID[i] = Spirit->GetGUID();
                 }
         }
@@ -1649,8 +1649,8 @@ public:
                 Timer = 2000;
                 break;
             case 1: // spirit appear
-                Spirit[0]->SetVisibility(VISIBILITY_ON);
-                Spirit[1]->SetVisibility(VISIBILITY_ON);
+                Spirit[0]->SetVisible(true);
+                Spirit[1]->SetVisible(true);
                 Timer = 2000;
                 break;
             case 2: // spirit help
@@ -1675,8 +1675,8 @@ public:
                 me->MonsterYell(SAY_AKAMA_BEWARE, LANG_UNIVERSAL, 0);
                 DoPlaySoundToSet(me, SOUND_AKAMA_BEWARE);
                 Channel->setDeathState(JUST_DIED);
-                Spirit[0]->SetVisibility(VISIBILITY_OFF);
-                Spirit[1]->SetVisibility(VISIBILITY_OFF);
+                Spirit[0]->SetVisible(false);
+                Spirit[1]->SetVisible(false);
                 Timer = 3000;
                 break;
             case 6:
@@ -1718,12 +1718,12 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (me->GetVisibility() == VISIBILITY_OFF)
+            if (!me->IsVisible())
             {
                 if (Check_Timer <= diff)
                 {
                     if (pInstance && pInstance->GetData(DATA_ILLIDARICOUNCILEVENT) == DONE)
-                        me->SetVisibility(VISIBILITY_ON);
+                        me->SetVisible(true);
 
                     Check_Timer = 5000;
                 } else Check_Timer -= diff;
@@ -1882,7 +1882,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::JustSummoned(Creature* su
         {
             if (Phase == PHASE_TALK_SEQUENCE)
             {
-                summon->SetVisibility(VISIBILITY_OFF);
+                summon->SetVisible(false);
                 summon->setDeathState(JUST_DIED);
                 return;
             }
@@ -1903,7 +1903,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::JustSummoned(Creature* su
         break;
     case MAIEV_SHADOWSONG:
         {
-            summon->SetVisibility(VISIBILITY_OFF); // Leave her invisible until she has to talk
+            summon->SetVisible(false); // Leave her invisible until she has to talk
             summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             MaievGUID = summon->GetGUID();
             CAST_AI(boss_maiev_shadowsong::boss_maievAI, summon->AI())->GetIllidanGUID(me->GetGUID());
@@ -1948,7 +1948,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::HandleTalkSequence()
     case 11:
         if (GETUNIT(Maiev, MaievGUID))
         {
-            Maiev->SetVisibility(VISIBILITY_ON); // Maiev is now visible
+            Maiev->SetVisible(true); // Maiev is now visible
             Maiev->CastSpell(Maiev, SPELL_TELEPORT_VISUAL, true); // onoz she looks like she teleported!
             Maiev->SetInFront(me); // Have her face us
             me->SetInFront(Maiev); // Face her, so it's not rude =P
@@ -2235,7 +2235,7 @@ public:
                     AttackStart(pTarget);
                 else
                 {
-                    me->SetVisibility(VISIBILITY_OFF);
+                    me->SetVisible(false);
                     me->setDeathState(JUST_DIED);
                     return;
                 }
@@ -2246,7 +2246,7 @@ public:
                 GETUNIT(Illidan, IllidanGUID);
                 if (!Illidan || CAST_CRE(Illidan)->IsInEvadeMode())
                 {
-                    me->SetVisibility(VISIBILITY_OFF);
+                    me->SetVisible(false);
                     me->setDeathState(JUST_DIED);
                     return;
                 } else CheckTimer = 5000;

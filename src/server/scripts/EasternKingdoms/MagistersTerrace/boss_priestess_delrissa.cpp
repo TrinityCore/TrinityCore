@@ -515,7 +515,7 @@ public:
             Eviscerate_Timer = 6000;
             Wait_Timer = 5000;
             InVanish = false;
-            me->SetVisibility(VISIBILITY_ON);
+            me->SetVisible(true);
 
             boss_priestess_lackey_commonAI::Reset();
         }
@@ -549,7 +549,7 @@ public:
                 {
                     DoCast(me->getVictim(), SPELL_BACKSTAB, true);
                     DoCast(me->getVictim(), SPELL_KIDNEY_SHOT, true);
-                    me->SetVisibility(VISIBILITY_ON);       // ...? Hacklike
+                    me->SetVisible(true);       // ...? Hacklike
                     InVanish = false;
                 } else Wait_Timer -= diff;
             }
