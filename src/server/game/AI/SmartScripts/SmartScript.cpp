@@ -88,10 +88,11 @@ void SmartScript::ProcessEventsFor(SMART_EVENT e, Unit* unit, uint32 var0, uint3
     }
     for (SmartAIEventList::iterator i = mEvents.begin(); i != mEvents.end(); ++i)
     {
-        if ((*i).GetEventType() == SMART_EVENT_LINK)//special handling
+        SMART_EVENT eventType = SMART_EVENT((*i).GetEventType());
+        if (eventType == SMART_EVENT_LINK)//special handling
             continue;
         
-        if ((*i).GetEventType() == e/* && (!(*i).event.event_phase_mask || IsInPhase((*i).event.event_phase_mask)) && !((*i).event.event_flags & SMART_EVENT_FLAG_NOT_REPEATABLE && (*i).runOnce)*/)
+        if (eventType == e/* && (!(*i).event.event_phase_mask || IsInPhase((*i).event.event_phase_mask)) && !((*i).event.event_flags & SMART_EVENT_FLAG_NOT_REPEATABLE && (*i).runOnce)*/)
             ProcessEvent(*i, unit, var0, var1, bvar, spell, gob);
     }
 }
@@ -808,7 +809,6 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
             {
                 ObjectList* targets = GetTargets(e, unit);
                 if (!targets) return;
-                uint32 map = e.action.teleport.mapID;
                 for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); itr++)
                 {
                     if(!IsPlayer((*itr))) continue;

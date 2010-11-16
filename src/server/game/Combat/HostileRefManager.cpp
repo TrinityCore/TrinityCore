@@ -193,7 +193,7 @@ void HostileRefManager::UpdateVisibility()
         HostileReference* nextRef = ref->next();
         if (!ref->getSource()->getOwner()->canSeeOrDetect(getOwner()))
         {
-            HostileReference* nextRef = ref->next();
+            nextRef = ref->next();
             ref->removeReference();
             delete ref;
         }

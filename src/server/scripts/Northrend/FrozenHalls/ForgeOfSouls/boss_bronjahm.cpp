@@ -106,7 +106,7 @@ class boss_bronjahm : public CreatureScript
                     DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
             {
                 if (events.GetPhaseMask() & (1 << PHASE_1) && !HealthAbovePct(30))
                 {

@@ -18,7 +18,7 @@
 #ifndef DEF_ICECROWN_CITADEL_H
 #define DEF_ICECROWN_CITADEL_H
 
-static const char* ICCScriptName = "instance_icecrown_citadel";
+#define ICCScriptName "instance_icecrown_citadel"
 
 enum eSharedSpells
 {

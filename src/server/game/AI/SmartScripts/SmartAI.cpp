@@ -35,7 +35,7 @@
 
 SmartAI::SmartAI(Creature *c) : CreatureAI(c)
 {
-    // copy script to local (pretection for table reload)
+    // copy script to local (protection for table reload)
 
     mWayPoints = NULL;
     mEscortState = SMART_ESCORT_NONE;
@@ -114,7 +114,7 @@ WayPoint* SmartAI::GetNextWayPoint()
     return NULL;
 }
 
-void SmartAI::StartPath(bool run, uint32 path, bool repeat, Unit* invoker)
+void SmartAI::StartPath(bool run, uint32 path, bool repeat, Unit* /*invoker*/)
 {
     if (me->isInCombat())// no wp movement in combat
     {
@@ -347,7 +347,7 @@ void SmartAI::UpdateAI(const uint32 diff)
     {
         if (mFollowArrivedTimer < diff)
         {
-            if (Creature* target = me->FindNearestCreature(mFollowArrivedEntry,INTERACTION_DISTANCE, true))
+            if (me->FindNearestCreature(mFollowArrivedEntry,INTERACTION_DISTANCE, true))
             {
                 if (Player* plr = me->GetPlayer(*me, mFollowGuid))
                 {
@@ -495,7 +495,7 @@ void SmartAI::MoveInLineOfSight(Unit* who)
     //    AttackStart(who);
 }
 
-bool SmartAI::CanAIAttack(const Unit* who) const
+bool SmartAI::CanAIAttack(const Unit* /*who*/) const
 {
     if (me->GetReactState() == REACT_PASSIVE)
         return false;
@@ -649,7 +649,7 @@ void SmartAI::SummonedCreatureDespawn(Creature* unit)
     GetScript()->ProcessEventsFor(SMART_EVENT_SUMMON_DESPAWNED, unit);
 }
 
-void SmartAI::UpdateAIWhileCharmed(const uint32 diff)
+void SmartAI::UpdateAIWhileCharmed(const uint32 /*diff*/)
 {
 }
 
@@ -676,11 +676,11 @@ void SmartAI::OnCharmed(bool apply)
     GetScript()->ProcessEventsFor(SMART_EVENT_CHARMED, NULL, 0, 0, apply);
 }
 
-void SmartAI::DoAction(const int32 param)
+void SmartAI::DoAction(const int32 /*param*/)
 {
 }
 
-uint32 SmartAI::GetData(uint32 id)
+uint32 SmartAI::GetData(uint32 /*id*/)
 {
     return 0;
 }
@@ -690,11 +690,11 @@ void SmartAI::SetData(uint32 id, uint32 value)
     GetScript()->ProcessEventsFor(SMART_EVENT_DATA_SET, NULL, id, value);
 }
 
-void SmartAI::SetGUID(const uint64& guid, int32 id)
+void SmartAI::SetGUID(const uint64& /*guid*/, int32 /*id*/)
 {
 }
 
-uint64 SmartAI::GetGUID(int32 id)
+uint64 SmartAI::GetGUID(int32 /*id*/)
 {
     return 0;
 }
@@ -731,7 +731,7 @@ void SmartAI::sGossipSelect(Player* player, uint32 sender, uint32 action)
     GetScript()->ProcessEventsFor(SMART_EVENT_GOSSIP_SELECT, player, sender, action);
 }
 
-void SmartAI::sGossipSelectCode(Player* player, uint32 sender, uint32 action, const char* code)
+void SmartAI::sGossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/)
 {
 }
 
