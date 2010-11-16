@@ -744,6 +744,13 @@ bool Creature::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, 
     SetMap(map);
     SetPhaseMask(phaseMask,false);
 
+    CreatureInfo const *cinfo = sObjectMgr.GetCreatureTemplate(Entry);
+    if (!cinfo)
+    {
+        sLog.outErrorDb("Creature entry %u does not exist.", Entry);
+        return false;
+    }
+
     Relocate(x, y, z, ang);
 
     if (!IsPositionValid())
