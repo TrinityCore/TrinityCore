@@ -341,7 +341,7 @@ public:
         pGo->SummonGameObject(GO_HIGH_QUALITY_FUR, pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ(), 0, 0, 0, 0, 0, 1000);
         if (TempSummon* summon = pPlayer->SummonCreature(NPC_NESINGWARY_TRAPPER, x, y, z, pGo->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1000))
         {
-            summon->SetVisibility(VISIBILITY_OFF);
+            summon->SetVisible(false);
             summon->SetReactState(REACT_PASSIVE);
             summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
         }

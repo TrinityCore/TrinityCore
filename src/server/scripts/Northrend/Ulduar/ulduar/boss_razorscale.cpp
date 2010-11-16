@@ -579,7 +579,7 @@ public:
         npc_mole_machine_triggerAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
-            me->SetVisibility(VISIBILITY_OFF);
+            me->SetVisible(false);
         }
 
         GameObject* MoleMachine;

@@ -258,7 +258,7 @@ public:
     {
         mob_frozen_orb_stalkerAI(Creature* c) : Scripted_NoMovementAI(c)
         {
-            c->SetVisibility(VISIBILITY_OFF);
+            c->SetVisible(false);
             c->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_DISABLE_MOVE);
             c->SetReactState(REACT_PASSIVE);
 

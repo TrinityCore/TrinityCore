@@ -318,7 +318,7 @@ public:
                         break;
                     case 4:
                         CanWalk = true;
-                        me->SetVisibility(VISIBILITY_OFF);
+                        me->SetVisible(false);
                         SummonRingMob();
                         Event_Timer = 8000;
                         break;
@@ -332,7 +332,7 @@ public:
                         Event_Timer = 0;
                         break;
                     case 7:
-                        me->SetVisibility(VISIBILITY_ON);
+                        me->SetVisible(true);
                         HandleGameObject(DATA_ARENA1, false);
                         DoScriptText(SCRIPT_TEXT6, me);//4
                         CanWalk = true;
@@ -343,7 +343,7 @@ public:
                         Event_Timer = 5000;
                         break;
                     case 9:
-                        me->SetVisibility(VISIBILITY_OFF);
+                        me->SetVisible(false);
                         SummonRingBoss();
                         Event_Timer = 0;
                         break;

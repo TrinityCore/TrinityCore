@@ -681,7 +681,7 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
         case SMART_ACTION_SET_VISIBILITY:
             {
                 if (me)
-                    me->SetVisibility(e.action.visibility.state ? VISIBILITY_ON : VISIBILITY_OFF);
+                    me->SetVisible(e.action.visibility.state ? true : false);
                 break;
             }
         case SMART_ACTION_SET_ACTIVE:

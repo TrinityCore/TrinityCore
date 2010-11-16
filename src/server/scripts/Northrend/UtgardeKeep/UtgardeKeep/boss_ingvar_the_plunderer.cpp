@@ -344,7 +344,7 @@ public:
                     uiResurectPhase = 1;
                     break;
                 case 2:
-                    me->SetVisibility(VISIBILITY_OFF);
+                    me->SetVisible(false);
                     me->DealDamage(me,me->GetHealth());
                     me->RemoveCorpse();
                     break;

@@ -343,7 +343,7 @@ class npc_big_ooze : public CreatureScript
                 {
                     bExploded = true;
                     me->RemoveAllAuras();
-                    me->SetVisibility(VISIBILITY_OFF);
+                    me->SetVisible(false);
                     events.Reset();
                     events.ScheduleEvent(EVENT_UNSTABLE_DESPAWN, 60000);
                 }

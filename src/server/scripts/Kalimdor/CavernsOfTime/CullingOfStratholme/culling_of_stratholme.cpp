@@ -843,7 +843,7 @@ public:
                             break;
                         case 39:
                             if (Creature* pMalganis = Unit::GetCreature(*me, uiMalganisGUID))
-                                pMalganis->SetVisibility(VISIBILITY_OFF);
+                                pMalganis->SetVisible(false);
                             DoScriptText(SAY_PHASE208, me);
                             JumpToNextStep(7000);
                             break;

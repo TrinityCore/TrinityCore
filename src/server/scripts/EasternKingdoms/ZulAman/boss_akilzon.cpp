@@ -166,7 +166,7 @@ class boss_akilzon : public CreatureScript
                     Unit* bird = Unit::GetUnit(*me,BirdGUIDs[i]);
                     if (bird && bird->isAlive())
                     {
-                        bird->SetVisibility(VISIBILITY_OFF);
+                        bird->SetVisible(false);
                         bird->setDeathState(JUST_DIED);
                     }
                 }

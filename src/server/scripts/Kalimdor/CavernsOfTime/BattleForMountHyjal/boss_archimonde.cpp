@@ -463,15 +463,15 @@ public:
                 if (pInstance)
                 {
                     // Do not let the raid skip straight to Archimonde. Visible and hostile ONLY if Azagalor is finished.
-                    if ((pInstance->GetData(DATA_AZGALOREVENT) < DONE) && ((me->GetVisibility() != VISIBILITY_OFF) || (me->getFaction() != 35)))
+                    if ((pInstance->GetData(DATA_AZGALOREVENT) < DONE) && (me->IsVisible() || (me->getFaction() != 35)))
                     {
-                        me->SetVisibility(VISIBILITY_OFF);
+                        me->SetVisible(false);
                         me->setFaction(35);
                     }
-                    else if ((pInstance->GetData(DATA_AZGALOREVENT) >= DONE) && ((me->GetVisibility() != VISIBILITY_ON) || (me->getFaction() == 35)))
+                    else if ((pInstance->GetData(DATA_AZGALOREVENT) >= DONE) && (!me->IsVisible() || (me->getFaction() == 35)))
                     {
                         me->setFaction(1720);
-                        me->SetVisibility(VISIBILITY_ON);
+                        me->SetVisible(true);
                     }
                 }
 
@@ -526,7 +526,7 @@ public:
                     Creature* Check = me->SummonCreature(CREATURE_CHANNEL_TARGET, NORDRASSIL_X, NORDRASSIL_Y, NORDRASSIL_Z, 0, TEMPSUMMON_TIMED_DESPAWN, 2000);
                     if (Check)
                     {
-                        Check->SetVisibility(VISIBILITY_OFF);
+                        Check->SetVisible(false);
 
                         if (me->IsWithinDistInMap(Check, 75))
                         {

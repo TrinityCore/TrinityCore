@@ -575,7 +575,7 @@ public:
 
     struct npc_nesingwary_trapperAI : public ScriptedAI
     {
-        npc_nesingwary_trapperAI(Creature *c) : ScriptedAI(c) { c->SetVisibility(VISIBILITY_OFF); }
+        npc_nesingwary_trapperAI(Creature *c) : ScriptedAI(c) { c->SetVisible(false); }
 
         uint64 go_caribouGUID;
         uint8  Phase;
@@ -583,7 +583,7 @@ public:
 
         void Reset()
         {
-            me->SetVisibility(VISIBILITY_OFF);
+            me->SetVisible(false);
             uiPhaseTimer = 2500;
             Phase = 1;
             go_caribouGUID = 0;
@@ -613,7 +613,7 @@ public:
                 switch (Phase)
                 {
                     case 1:
-                        me->SetVisibility(VISIBILITY_ON);
+                        me->SetVisible(true);
                         uiPhaseTimer = 2000;
                         Phase = 2;
                         break;

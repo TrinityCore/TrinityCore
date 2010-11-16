@@ -332,7 +332,7 @@ public:
                     {
                         pGuard->DisappearAndDie();
                         pGuard->Respawn();
-                        pGuard->SetVisibility(VISIBILITY_ON);
+                        pGuard->SetVisible(true);
                         pGuard->SetReactState(REACT_AGGRESSIVE);
                     }
                 }
@@ -380,7 +380,7 @@ public:
                                 {
                                     if (Creature* pGuard = *itr)
                                     {
-                                        pGuard->SetVisibility(VISIBILITY_OFF);
+                                        pGuard->SetVisible(false);
                                         pGuard->SetReactState(REACT_PASSIVE);
                                     }
                                 }
@@ -609,7 +609,7 @@ public:
                                 uint32 entry = RAND(CREATURE_AZURE_CAPTAIN,CREATURE_AZURE_RAIDER,CREATURE_AZURE_STALKER,CREATURE_AZURE_SORCEROR);
                                 DoSummon(entry, me, 2.0f, 20000, TEMPSUMMON_DEAD_DESPAWN);
                             }
-                            me->SetVisibility(VISIBILITY_OFF);
+                            me->SetVisible(false);
                         } else uiSpawnTimer -= diff;
                     }
                     else
