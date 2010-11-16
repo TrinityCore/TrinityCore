@@ -137,6 +137,7 @@ class Object
             // synchronize values mirror with values array (changes will send in updatecreate opcode any way
             ClearUpdateMask(true);
         }
+
         virtual void RemoveFromWorld()
         {
             if (!m_inWorld)
@@ -577,6 +578,16 @@ class WorldObject : public Object, public WorldLocation
         virtual void Update (uint32 /*time_diff*/) { }
 
         void _Create(uint32 guidlow, HighGuid guidhigh, uint32 phaseMask);
+
+        virtual void RemoveFromWorld()
+        {
+            if (!IsInWorld())
+                return;
+
+            DestroyForNearbyPlayers();
+
+            Object::RemoveFromWorld();
+        }
 
         void GetNearPoint2D(float &x, float &y, float distance, float absAngle) const;
         void GetNearPoint(WorldObject const* searcher, float &x, float &y, float &z, float searcher_size, float distance2d,float absAngle) const;
