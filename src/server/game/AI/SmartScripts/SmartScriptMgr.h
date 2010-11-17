@@ -149,9 +149,10 @@ enum SMART_EVENT
     SMART_EVENT_GOSSIP_SELECT            = 62,      //1             // menuID, actionID
     SMART_EVENT_JUST_CREATED             = 63,      //1             // none
     SMART_EVENT_GOSSIP_HELLO             = 64,      //1             // none
-    SMART_EVENT_FOLLOW_COPMLETE          = 65,      //1             // none
+    SMART_EVENT_FOLLOW_COMPLETED          = 65,      //1             // none
+    SMART_EVENT_DUMMY_EFFECT             = 66,      //1             // spellId, effectIndex
 
-    SMART_EVENT_END                      = 66,
+    SMART_EVENT_END                      = 67,
 };
 
 struct SmartEvent
@@ -323,6 +324,12 @@ struct SmartEvent
             uint32 sender;
             uint32 action;
         } gossip;
+
+        struct
+        {
+            uint32 spell;
+            uint32 effIndex;
+        } dummy;
 
         struct
         {
@@ -1059,6 +1066,8 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
     {SMART_EVENT_GOSSIP_SELECT,             SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
     {SMART_EVENT_JUST_CREATED,              SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
     {SMART_EVENT_GOSSIP_HELLO,              SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
+    {SMART_EVENT_FOLLOW_COMPLETED,           SMART_SCRIPT_TYPE_MASK_CREATURE },
+    {SMART_EVENT_DUMMY_EFFECT,              SMART_SCRIPT_TYPE_MASK_CREATURE },
 
 };
 
@@ -1262,7 +1271,7 @@ class SmartAIMgr
             }
             return true;
         }
-        inline bool IsConditionValid(SmartScriptHolder e, int32 t, int32 v1, int32 v2, int32 v3)
+        /*inline bool IsConditionValid(SmartScriptHolder e, int32 t, int32 v1, int32 v2, int32 v3)
         {
             bool error = false;
             if (t > 0 && v1 >= 0 && v2 >= 0 && v3 >= 0)
@@ -1281,7 +1290,7 @@ class SmartAIMgr
                 return false;
             }
             return true;
-        }
+        }*/
         inline bool IsEmoteValid(SmartScriptHolder e, uint32 entry)
         {
             if (!sEmotesTextStore.LookupEntry(entry))

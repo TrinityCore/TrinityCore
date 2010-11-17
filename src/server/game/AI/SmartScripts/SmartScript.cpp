@@ -1664,7 +1664,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder &e, Unit* unit, uint32 var0, ui
         case SMART_EVENT_RESET:
         case SMART_EVENT_JUST_CREATED:
         case SMART_EVENT_GOSSIP_HELLO:
-        case SMART_EVENT_FOLLOW_COPMLETE:
+        case SMART_EVENT_FOLLOW_COMPLETED:
             ProcessAction(e, unit, var0, var1, bvar, spell, gob);
             break;
         case SMART_EVENT_RECEIVE_EMOTE:
@@ -1854,6 +1854,13 @@ void SmartScript::ProcessEvent(SmartScriptHolder &e, Unit* unit, uint32 var0, ui
             {
                 sLog.outString("SmartScript: Gossip Select:  menu %u action %u", var0, var1);//little help for scripters
                 if (e.event.gossip.sender != var0 || e.event.gossip.action != var1)
+                    return;
+                ProcessAction(e, unit, var0, var1);
+                break;
+            }
+        case SMART_EVENT_DUMMY_EFFECT:
+            {
+                if (e.event.dummy.spell != var0 || e.event.dummy.effIndex != var1)
                     return;
                 ProcessAction(e, unit, var0, var1);
                 break;

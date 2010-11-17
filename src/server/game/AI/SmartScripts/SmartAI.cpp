@@ -367,7 +367,7 @@ void SmartAI::UpdateAI(const uint32 diff)
                 me->StopMoving();
                 me->GetMotionMaster()->MoveIdle();
                 StartDespawn();
-                GetScript()->ProcessEventsFor(SMART_EVENT_FOLLOW_COPMLETE);
+                GetScript()->ProcessEventsFor(SMART_EVENT_FOLLOW_COMPLETED);
                 return;
             }
             mFollowArrivedTimer = 1000;
@@ -744,6 +744,12 @@ void SmartAI::sQuestReward(Player* player, Quest const* quest, uint32 opt)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_REWARD_QUEST, player, quest->GetQuestId(), opt);
 }
+
+void SmartAI::sOnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_DUMMY_EFFECT,caster,spellId,(uint32)effIndex);
+}
+
 void SmartAI::SetCombatMove(bool on)
 {
     if (mCanCombatMove == on)
