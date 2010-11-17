@@ -5458,7 +5458,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
 
                     target = this;
                     if (roll_chance_i(10))
-                        this->ToPlayer()->Say("This is Madness!", LANG_UNIVERSAL);
+                        this->ToPlayer()->Say(std::string("This is Madness!"), LANG_UNIVERSAL);
                     break;
                 }
                 // Sunwell Exalted Caster Neck (??? neck)

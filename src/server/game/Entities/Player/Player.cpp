@@ -18816,7 +18816,7 @@ void Player::BuildPlayerChat(WorldPacket *data, uint8 msgtype, const std::string
     *data << (uint8)chatTag();
 }
 
-void Player::Say(const std::string& text, const uint32 language)
+void Player::Say(std::string& text, const uint32 language)
 {
     sScriptMgr.OnPlayerChat(this, CHAT_MSG_SAY, language, text);
 
@@ -18825,7 +18825,7 @@ void Player::Say(const std::string& text, const uint32 language)
     SendMessageToSetInRange(&data,sWorld.getFloatConfig(CONFIG_LISTEN_RANGE_SAY),true);
 }
 
-void Player::Yell(const std::string& text, const uint32 language)
+void Player::Yell(std::string& text, const uint32 language)
 {
     sScriptMgr.OnPlayerChat(this, CHAT_MSG_YELL, language, text);
 
@@ -18834,7 +18834,7 @@ void Player::Yell(const std::string& text, const uint32 language)
     SendMessageToSetInRange(&data,sWorld.getFloatConfig(CONFIG_LISTEN_RANGE_YELL),true);
 }
 
-void Player::TextEmote(const std::string& text)
+void Player::TextEmote(std::string& text)
 {
     sScriptMgr.OnPlayerChat(this, CHAT_MSG_EMOTE, LANG_UNIVERSAL, text);
 
@@ -18843,7 +18843,7 @@ void Player::TextEmote(const std::string& text)
     SendMessageToSetInRange(&data,sWorld.getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE),true, !sWorld.getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT));
 }
 
-void Player::Whisper(const std::string& text, uint32 language,uint64 receiver)
+void Player::Whisper(std::string& text, uint32 language,uint64 receiver)
 {
     if (language != LANG_ADDON)                             // if not addon data
         language = LANG_UNIVERSAL;                          // whispers should always be readable

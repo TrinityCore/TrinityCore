@@ -629,14 +629,14 @@ public:
                                 if (count < 3)
                                 {
                                     if (plr)
-                                        plr->Say(Text[count],0);
+                                        plr->Say(std::string(Text[count]),0);
                                 }
                                 else
                                 {
                                     DoCast(me, SPELL_RHYME_BIG);
                                     if (plr)
                                     {
-                                        plr->Say(Text[count],0);
+                                        plr->Say(std::string(Text[count]),0);
                                         plr->HandleEmoteCommand(ANIM_EMOTE_SHOUT);
                                     }
                                     wp_reached = true;

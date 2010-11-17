@@ -390,7 +390,7 @@ void Map::ScriptsProcess()
                     {
                         uint64 targetGUID = target ? target->GetGUID() : 0;
                         LocaleConstant loc_idx = pSource->GetSession()->GetSessionDbLocaleIndex();
-                        const std::string text(sObjectMgr.GetTrinityString(step.script->Talk.TextID, loc_idx));
+                        std::string text(sObjectMgr.GetTrinityString(step.script->Talk.TextID, loc_idx));
 
                         switch (step.script->Talk.ChatType)
                         {
