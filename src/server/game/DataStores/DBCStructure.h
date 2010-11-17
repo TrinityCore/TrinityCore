@@ -1610,8 +1610,8 @@ struct SpellShapeshiftEntry
     int32  creatureType;                                    // 20 <= 0 humanoid, other normal creature types
     //uint32 unk1;                                          // 21 unused
     uint32 attackSpeed;                                     // 22
-    //uint32 modelID;                                       // 23 unused, alliance modelid (where horde case?)
-    //uint32 unk2;                                          // 24 unused
+    uint32 modelID_A;                                       // 23 alliance modelid
+    uint32 modelID_H;                                       // 24 horde modelid (only one form)
     //uint32 unk3;                                          // 25 unused
     //uint32 unk4;                                          // 26 unused
     uint32 stanceSpell[MAX_SHAPESHIFT_SPELLS];                                  // 27 - 34 unused
