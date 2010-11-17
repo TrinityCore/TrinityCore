@@ -449,6 +449,10 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder &e)
                     }
                     break;
                 }
+            case SMART_EVENT_DUMMY_EFFECT:
+                if (!IsSpellValid(e, e.event.dummy.spell)) return false;
+                if (e.event.dummy.effIndex > EFFECT_2) return false;
+                break;
             case SMART_EVENT_TIMED_EVENT_TRIGGERED:
             case SMART_EVENT_INSTANCE_PLAYER_ENTER:
             case SMART_EVENT_TRANSPORT_RELOCATE:
@@ -479,7 +483,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder &e)
             case SMART_EVENT_GOSSIP_SELECT:
             case SMART_EVENT_GOSSIP_HELLO:
             case SMART_EVENT_JUST_CREATED:
-            case SMART_EVENT_FOLLOW_COPMLETE:
+            case SMART_EVENT_FOLLOW_COMPLETED:
                 break;
             default: 
                 sLog.outErrorDb("SmartAIMgr: Not handled event_type(%u), Entry %d SourceType %u Event %u Action %u, skipped.", e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
