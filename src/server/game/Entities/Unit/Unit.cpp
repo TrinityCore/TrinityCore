@@ -16340,51 +16340,37 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
                 return 2281;
             else
                 return 2289;
-        case FORM_THARONJA_SKELETON:
-            return 1034;
-        case FORM_STEVES_GHOUL:
-            return 128;
-        case FORM_AMBIENT:
-            return 328;
-        case FORM_ZOMBIE:
-            return 26942;
-        case FORM_TRAVEL:
-            return 918;
-        case FORM_AQUA:
-            return 2428;
-        case FORM_GHOUL:
-            return 25527;
-        case FORM_CREATUREBEAR:
-            return 2281;
-        case FORM_CREATURECAT:
-            return 892;
-        case FORM_GHOSTWOLF:
-            return 4613;
         case FORM_FLIGHT:
             if (Player::TeamForRace(getRace()) == ALLIANCE)
                 return 20857;
-            else
-                return 20872;
-        case FORM_MOONKIN:
-            if (Player::TeamForRace(getRace()) == ALLIANCE)
-                return 15374;
-            else
-                return 15375;
+            return 20872;
         case FORM_FLIGHT_EPIC:
             if (Player::TeamForRace(getRace()) == ALLIANCE)
                 return 21243;
-            else
-                return 21244;
-        case FORM_METAMORPHOSIS:
-            return 25277;
-        case FORM_MASTER_ANGLER:
-            return 17170;
-        case FORM_TREE:
-            return 864;
-        case FORM_SPIRITOFREDEMPTION:
-            return 16031;
+            return 21244;
         default:
-            break;
+        {
+            uint32 modelid = 0;
+            SpellShapeshiftEntry const* formEntry = sSpellShapeshiftStore.LookupEntry(form);
+            if (formEntry && formEntry->modelID_A)
+            {
+                // Take the alliance modelid as default
+                if (GetTypeId() != TYPEID_PLAYER)
+                    return formEntry->modelID_A;
+                else
+                {
+                    if (Player::TeamForRace(getRace()) == ALLIANCE)
+                        modelid = formEntry->modelID_A;
+                    else
+                        modelid = formEntry->modelID_H;
+
+                    // If the player is horde but there are no values for the horde modelid - take the alliance modelid
+                    if (!modelid && Player::TeamForRace(getRace()) == HORDE)
+                        modelid = formEntry->modelID_A;
+                }
+            }
+            return modelid;
+        }
     }
     return 0;
 }
