@@ -20,6 +20,7 @@
 
 #define ICCScriptName "instance_icecrown_citadel"
 
+// Shared spells used by every boss
 enum eSharedSpells
 {
     SPELL_BERSERK   = 26662,
@@ -28,6 +29,7 @@ enum eSharedSpells
 
 enum eData
 {
+    // Encounter States/Boss GUIDs
     DATA_LORD_MARROWGAR             = 0,
     DATA_LADY_DEATHWHISPER          = 1,
     DATA_GUNSHIP_EVENT              = 2,
@@ -41,6 +43,7 @@ enum eData
     DATA_SINDRAGOSA                 = 10,
     DATA_THE_LICH_KING              = 11,
 
+    // Additional data
     DATA_SAURFANG_EVENT_NPC         = 12,
     DATA_BONED_ACHIEVEMENT          = 13,
     DATA_OOZE_DANCE_ACHIEVEMENT     = 14,
@@ -137,17 +140,24 @@ enum eCreatures
 
 enum eGameobjects
 {
+    // Lord Marrogar
     GO_DOODAD_ICECROWN_ICEWALL02            = 201910,
     GO_ICEWALL                              = 201911,
     GO_LORD_MARROWGAR_S_ENTRANCE            = 201857,
+
+    // Lady Deathwhisper
     GO_ORATORY_OF_THE_DAMNED_ENTRANCE       = 201563,
     GO_LADY_DEATHWHISPER_ELEVATOR           = 202220,
+
+    // Deathbringer Saurfang
     GO_SAURFANG_S_DOOR                      = 201825,
     GO_DEATHBRINGER_S_CACHE_10N             = 202239,
     GO_DEATHBRINGER_S_CACHE_25N             = 202240,
     GO_DEATHBRINGER_S_CACHE_10H             = 202238,
     GO_DEATHBRINGER_S_CACHE_25H             = 202241,
     GO_SCOURGE_TRANSPORTER_SAURFANG         = 202244,
+
+    // Professor Putricide
     GO_ORANGE_PLAGUE_MONSTER_ENTRANCE       = 201371,
     GO_GREEN_PLAGUE_MONSTER_ENTRANCE        = 201370,
     GO_SCIENTIST_AIRLOCK_DOOR_COLLISION     = 201612,
@@ -157,13 +167,21 @@ enum eGameobjects
     GO_DOODAD_ICECROWN_GREENTUBES02         = 201618,
     GO_SCIENTIST_ENTRANCE                   = 201372,
     GO_DRINK_ME                             = 201584,
+
+    // Blood Prince Council
     GO_CRIMSON_HALL_DOOR                    = 201376,
     GO_BLOOD_ELF_COUNCIL_DOOR               = 201378,
     GO_BLOOD_ELF_COUNCIL_DOOR_RIGHT         = 201377,
+
+    // Blood-Queen Lana'thel
     GO_DOODAD_ICECROWN_BLOODPRINCE_DOOR_01  = 201746,
     GO_DOODAD_ICECROWN_GRATE_01             = 201755,
+
+    // Valithria Dreamwalker
     GO_GREEN_DRAGON_BOSS_ENTRANCE           = 201375,
     GO_GREEN_DRAGON_BOSS_EXIT               = 201374,
+
+    // Sindragosa
     GO_SINDRAGOSA_ENTRANCE_DOOR             = 201373,
     GO_SINDRAGOSA_SHORTCUT_ENTRANCE_DOOR    = 201369,
     GO_SINDRAGOSA_SHORTCUT_EXIT_DOOR        = 201379,
@@ -171,29 +189,39 @@ enum eGameobjects
 
 enum eAchievementCriteria
 {
+    // Lord Marrowgar
     CRITERIA_BONED_10N              = 12775,
     CRITERIA_BONED_25N              = 12962,
     CRITERIA_BONED_10H              = 13393,
     CRITERIA_BONED_25H              = 13394,
+
+    // Rotface
     CRITERIA_DANCES_WITH_OOZES_10N  = 12984,
     CRITERIA_DANCES_WITH_OOZES_25N  = 12966,
     CRITERIA_DANCES_WITH_OOZES_10H  = 12985,
     CRITERIA_DANCES_WITH_OOZES_25H  = 12983,
+
+    // Professor Putricide
     CRITERIA_NAUSEA_10N             = 12987,
     CRITERIA_NAUSEA_25N             = 12968,
     CRITERIA_NAUSEA_10H             = 12988,
     CRITERIA_NAUSEA_25H             = 12981,
+
+    // Blood Prince Council
     CRITERIA_ORB_WHISPERER_10N      = 13033,
     CRITERIA_ORB_WHISPERER_25N      = 12969,
     CRITERIA_ORB_WHISPERER_10H      = 13034,
     CRITERIA_ORB_WHISPERER_25H      = 13032,
 };
 
-enum ePutricideActions
+enum eSharedActions
 {
+    // Festergut
     ACTION_FESTERGUT_COMBAT     = -366260,
     ACTION_FESTERGUT_GAS        = -366261,
     ACTION_FESTERGUT_DEATH      = -366262,
+
+    // Rotface
     ACTION_ROTFACE_COMBAT       = -366270,
     ACTION_ROTFACE_OOZE         = -366271,
     ACTION_ROTFACE_DEATH        = -366272,
