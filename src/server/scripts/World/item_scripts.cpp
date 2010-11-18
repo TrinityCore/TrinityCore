@@ -270,8 +270,9 @@ public:
                     return false;
                 else
                 {
-                    //This should be sent to the player as red text.
-                    pPlayer->Say(std::string("You have created enough ghouls. Return to Gothik the Harvester at Death's Breach."), LANG_UNIVERSAL);
+                    // This should be sent to the player as red text.
+                    // TODO: Text should be moved to DB
+                    pPlayer->Say("You have created enough ghouls. Return to Gothik the Harvester at Death's Breach.", LANG_UNIVERSAL);
                     return true;
                 }
             }

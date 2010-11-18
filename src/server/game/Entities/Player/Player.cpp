@@ -18804,74 +18804,76 @@ void Player::StopCastingCharm()
     }
 }
 
-void Player::BuildPlayerChat(WorldPacket *data, uint8 msgtype, const std::string& text, uint32 language) const
+inline void Player::BuildPlayerChat(WorldPacket *data, uint8 msgtype, const std::string& text, uint32 language) const
 {
-    *data << (uint8)msgtype;
-    *data << (uint32)language;
-    *data << (uint64)GetGUID();
-    *data << (uint32)language;                               //language 2.1.0 ?
-    *data << (uint64)GetGUID();
-    *data << (uint32)(text.length()+1);
+    *data << uint8(msgtype);
+    *data << uint32(language);
+    *data << uint64(GetGUID());
+    *data << uint32(language);                               //language 2.1.0 ?
+    *data << uint64(GetGUID());
+    *data << uint32(text.length() + 1);
     *data << text;
-    *data << (uint8)chatTag();
+    *data << uint8(chatTag());
 }
 
-void Player::Say(std::string& text, const uint32 language)
+void Player::Say(const std::string& text, const uint32 language)
 {
-    sScriptMgr.OnPlayerChat(this, CHAT_MSG_SAY, language, text);
+    std::string _text(text);
+    sScriptMgr.OnPlayerChat(this, CHAT_MSG_SAY, language, _text);
 
     WorldPacket data(SMSG_MESSAGECHAT, 200);
-    BuildPlayerChat(&data, CHAT_MSG_SAY, text, language);
-    SendMessageToSetInRange(&data,sWorld.getFloatConfig(CONFIG_LISTEN_RANGE_SAY),true);
+    BuildPlayerChat(&data, CHAT_MSG_SAY, _text, language);
+    SendMessageToSetInRange(&data, sWorld.getFloatConfig(CONFIG_LISTEN_RANGE_SAY), true);
 }
 
-void Player::Yell(std::string& text, const uint32 language)
+void Player::Yell(const std::string& text, const uint32 language)
 {
-    sScriptMgr.OnPlayerChat(this, CHAT_MSG_YELL, language, text);
+    std::string _text(text);
+    sScriptMgr.OnPlayerChat(this, CHAT_MSG_YELL, language, _text);
 
     WorldPacket data(SMSG_MESSAGECHAT, 200);
-    BuildPlayerChat(&data, CHAT_MSG_YELL, text, language);
-    SendMessageToSetInRange(&data,sWorld.getFloatConfig(CONFIG_LISTEN_RANGE_YELL),true);
+    BuildPlayerChat(&data, CHAT_MSG_YELL, _text, language);
+    SendMessageToSetInRange(&data, sWorld.getFloatConfig(CONFIG_LISTEN_RANGE_YELL), true);
 }
 
-void Player::TextEmote(std::string& text)
+void Player::TextEmote(const std::string& text)
 {
-    sScriptMgr.OnPlayerChat(this, CHAT_MSG_EMOTE, LANG_UNIVERSAL, text);
+    std::string _text(text);
+    sScriptMgr.OnPlayerChat(this, CHAT_MSG_EMOTE, LANG_UNIVERSAL, _text);
 
     WorldPacket data(SMSG_MESSAGECHAT, 200);
-    BuildPlayerChat(&data, CHAT_MSG_EMOTE, text, LANG_UNIVERSAL);
-    SendMessageToSetInRange(&data,sWorld.getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE),true, !sWorld.getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT));
+    BuildPlayerChat(&data, CHAT_MSG_EMOTE, _text, LANG_UNIVERSAL);
+    SendMessageToSetInRange(&data, sWorld.getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), true, !sWorld.getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT));
 }
 
-void Player::Whisper(std::string& text, uint32 language,uint64 receiver)
+void Player::Whisper(const std::string& text, uint32 language, uint64 receiver)
 {
     if (language != LANG_ADDON)                             // if not addon data
         language = LANG_UNIVERSAL;                          // whispers should always be readable
 
     Player *rPlayer = sObjectMgr.GetPlayer(receiver);
 
-    sScriptMgr.OnPlayerChat(this, CHAT_MSG_WHISPER, language, text, rPlayer);
+    std::string _text(text);
+    sScriptMgr.OnPlayerChat(this, CHAT_MSG_WHISPER, language, _text, rPlayer);
 
     // when player you are whispering to is dnd, he cannot receive your message, unless you are in gm mode
     if (!rPlayer->isDND() || isGameMaster())
     {
         WorldPacket data(SMSG_MESSAGECHAT, 200);
-        BuildPlayerChat(&data, CHAT_MSG_WHISPER, text, language);
+        BuildPlayerChat(&data, CHAT_MSG_WHISPER, _text, language);
         rPlayer->GetSession()->SendPacket(&data);
 
         // not send confirmation for addon messages
         if (language != LANG_ADDON)
         {
             data.Initialize(SMSG_MESSAGECHAT, 200);
-            rPlayer->BuildPlayerChat(&data, CHAT_MSG_WHISPER_INFORM, text, language);
+            rPlayer->BuildPlayerChat(&data, CHAT_MSG_WHISPER_INFORM, _text, language);
             GetSession()->SendPacket(&data);
         }
     }
     else
-    {
         // announce to player that player he is whispering to is dnd and cannot receive his message
         ChatHandler(this).PSendSysMessage(LANG_PLAYER_DND, rPlayer->GetName(), rPlayer->dndMsg.c_str());
-    }
 
     if (!isAcceptWhispers() && !isGameMaster() && !rPlayer->isGameMaster())
     {
