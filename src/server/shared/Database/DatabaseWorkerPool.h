@@ -254,17 +254,18 @@ class DatabaseWorkerPool
 
         void CommitTransaction(SQLTransaction transaction)
         {
-            #ifdef SQLQUERY_LOG
-            if (transaction->GetSize() == 0)
+            if (sLog.GetSQLDriverQueryLogging())
             {
-                sLog.outSQLDriver("Transaction contains 0 queries. Not executing.");
-                return;
+                if (transaction->GetSize() == 0)
+                {
+                    sLog.outSQLDriver("Transaction contains 0 queries. Not executing.");
+                    return;
+                }
+                if (transaction->GetSize() == 1)
+                {
+                    sLog.outSQLDriver("Warning: Transaction only holds 1 query, consider removing Transaction context in code.");
+                }
             }
-            if (transaction->GetSize() == 1)
-            {
-                sLog.outSQLDriver("Warning: Transaction only holds 1 query, consider removing Transaction context in code.");
-            }
-            #endif
             Enqueue(new TransactionTask(transaction));
         }
 

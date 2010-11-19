@@ -530,6 +530,18 @@ bool ChatHandler::HandleServerSetDiffTimeCommand(const char *args)
     return true;
 }
 
+/// toggle sql driver query logging
+bool ChatHandler::HandleServerToggleQueryLogging(const char* /* args */)
+{
+    sLog.SetSQLDriverQueryLogging(!sLog.GetSQLDriverQueryLogging());
+    if(sLog.GetSQLDriverQueryLogging())
+        PSendSysMessage(LANG_SQLDRIVER_QUERY_LOGGING_ENABLED);
+    else
+        PSendSysMessage(LANG_SQLDRIVER_QUERY_LOGGING_DISABLED);
+
+    return true;
+}
+
 /// @}
 
 #ifdef linux

@@ -70,13 +70,6 @@ else()
   message("* Use coreside debug     : No  (default)")
 endif()
 
-if( WITH_SQLDEBUG )
-  message("* Use SQL-query logging  : Yes")
-  add_definitions(-DSQLQUERY_LOG)
-else()
-  message("* Use SQL-query logging  : No  (default)")
-endif()
-
 if( WIN32 )
   if( USE_MYSQL_SOURCES )
     message("* Use MySQL sourcetree   : Yes (default)")
