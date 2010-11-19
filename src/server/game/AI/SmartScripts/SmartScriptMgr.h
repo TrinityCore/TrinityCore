@@ -404,7 +404,7 @@ enum SMART_ACTION
     SMART_ACTION_ATTACK_START                       = 49,     // 
     SMART_ACTION_SUMMON_GO                          = 50,     // GameObjectID, DespawnTime in ms, 
     SMART_ACTION_KILL_UNIT                          = 51,     // 
-    //SMART_ACTION_WP_LOAD                            = 52,     // pathID
+    SMART_ACTION_ACTIVATE_TAXI                      = 52,     // TaxiID
     SMART_ACTION_WP_START                           = 53,     // run/walk, pathID, canRepeat, quest, despawntime, reactState
     SMART_ACTION_WP_PAUSE                           = 54,     // time
     SMART_ACTION_WP_STOP                            = 55,     // despawnTime, quest, fail?
@@ -682,7 +682,7 @@ struct SmartAction
         struct
         {
             uint32 id;
-        } wpLoad;
+        } taxi;
         
 
         struct

@@ -541,6 +541,15 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder &e)
         case SMART_ACTION_ADD_QUEST:
             if (e.action.quest.quest && !IsQuestValid(e, e.action.quest.quest)) return false;
             break;
+        case SMART_ACTION_ACTIVATE_TAXI:
+            {
+                if (!sTaxiPathStore.LookupEntry(e.action.taxi.id))
+                {
+                    sLog.outErrorDb("SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses invalid Taxi path ID %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.taxi.id);
+                    return false;
+                }
+                break;
+            }
         case SMART_ACTION_RANDOM_EMOTE:
             if (e.action.randomEmote.emote1 && !IsEmoteValid(e, e.action.randomEmote.emote1)) return false;
             if (e.action.randomEmote.emote2 && !IsEmoteValid(e, e.action.randomEmote.emote2)) return false;
