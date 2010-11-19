@@ -30,6 +30,7 @@
 #include "PreparedStatement.h"
 #include "DatabaseWorker.h"
 #include "Timer.h"
+#include "Log.h"
 
 MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo) :
 m_queue(NULL),
@@ -154,20 +155,19 @@ bool MySQLConnection::Execute(const char* sql)
         return false;
 
     {
-        #ifdef SQLQUERY_LOG
-        uint32 _s = getMSTime();
-        #endif
+        uint32 _s;
+        if (sLog.GetSQLDriverQueryLogging())
+            _s = getMSTime();
+
         if (mysql_query(m_Mysql, sql))
         {
             sLog.outSQLDriver("SQL: %s", sql);
             sLog.outSQLDriver("SQL ERROR: %s", mysql_error(m_Mysql));
             return false;
         }
-        else
+        else if (sLog.GetSQLDriverQueryLogging())
         {
-            #ifdef SQLQUERY_LOG
             sLog.outSQLDriver("[%u ms] SQL: %s", getMSTimeDiff(_s, getMSTime()), sql);
-            #endif
         }
     }
 
@@ -191,9 +191,10 @@ bool MySQLConnection::Execute(PreparedStatement* stmt)
         MYSQL_STMT* msql_STMT = m_mStmt->GetSTMT();
         MYSQL_BIND* msql_BIND = m_mStmt->GetBind();
 
-        #ifdef SQLQUERY_LOG
-        uint32 _s = getMSTime();
-        #endif
+        uint32 _s;
+        if (sLog.GetSQLDriverQueryLogging())
+            _s = getMSTime();
+
         if (mysql_stmt_bind_param(msql_STMT, msql_BIND))
         {
             sLog.outSQLDriver("[ERROR]: PreparedStatement (id: %u, database: `%s`) error binding params:  %s",
@@ -209,11 +210,11 @@ bool MySQLConnection::Execute(PreparedStatement* stmt)
             m_mStmt->ClearParameters();
             return false;
         }
-
-        #ifdef SQLQUERY_LOG
-        sLog.outSQLDriver("[%u ms] Prepared SQL: %u on database `%s`",
-            getMSTimeDiff(_s, getMSTime()), index, m_connectionInfo.database.c_str());
-        #endif
+        
+        if (sLog.GetSQLDriverQueryLogging())
+            sLog.outSQLDriver("[%u ms] Prepared SQL: %u on database `%s`",
+                getMSTimeDiff(_s, getMSTime()), index, m_connectionInfo.database.c_str());
+ 
         m_mStmt->ClearParameters();
         return true;
     }
@@ -236,9 +237,10 @@ bool MySQLConnection::_Query(PreparedStatement* stmt, MYSQL_RES **pResult, uint6
         MYSQL_STMT* msql_STMT = m_mStmt->GetSTMT();
         MYSQL_BIND* msql_BIND = m_mStmt->GetBind();
 
-        #ifdef SQLQUERY_LOG
-        uint32 _s = getMSTime();
-        #endif
+        uint32 _s;
+        if (sLog.GetSQLDriverQueryLogging())
+            _s = getMSTime();
+
         if (mysql_stmt_bind_param(msql_STMT, msql_BIND))
         {
             sLog.outSQLDriver("[ERROR]: PreparedStatement (id: %u, database: `%s`) error binding params:  %s",
@@ -255,10 +257,10 @@ bool MySQLConnection::_Query(PreparedStatement* stmt, MYSQL_RES **pResult, uint6
             return false;
         }
 
-        #ifdef SQLQUERY_LOG
-        sLog.outSQLDriver("[%u ms] Prepared SQL: %u on database `%s`",
-            getMSTimeDiff(_s, getMSTime()), index, m_connectionInfo.database.c_str());
-        #endif
+        if (sLog.GetSQLDriverQueryLogging())
+            sLog.outSQLDriver("[%u ms] Prepared SQL: %u on database `%s`",
+                getMSTimeDiff(_s, getMSTime()), index, m_connectionInfo.database.c_str());
+
         m_mStmt->ClearParameters();
 
         *pResult = mysql_stmt_result_metadata(msql_STMT);
@@ -292,20 +294,19 @@ bool MySQLConnection::_Query(const char *sql, MYSQL_RES **pResult, MYSQL_FIELD *
         return false;
 
     {
-        #ifdef SQLQUERY_LOG
-        uint32 _s = getMSTime();
-        #endif
+        uint32 _s;
+        if (sLog.GetSQLDriverQueryLogging())
+            _s = getMSTime();
+
         if (mysql_query(m_Mysql, sql))
         {
             sLog.outSQLDriver("SQL: %s", sql);
             sLog.outSQLDriver("query ERROR: %s", mysql_error(m_Mysql));
             return false;
         }
-        else
+        else if (sLog.GetSQLDriverQueryLogging())
         {
-            #ifdef SQLQUERY_LOG
             sLog.outSQLDriver("[%u ms] SQL: %s", getMSTimeDiff(_s,getMSTime()), sql);
-            #endif
         }
 
         *pResult = mysql_store_result(m_Mysql);

@@ -301,17 +301,18 @@ ChatCommand * ChatHandler::getCommandTable()
 
     static ChatCommand serverCommandTable[] =
     {
-        { "corpses",        SEC_GAMEMASTER,     true,  OldHandler<&ChatHandler::HandleServerCorpsesCommand>,       "", NULL },
-        { "exit",           SEC_CONSOLE,        true,  OldHandler<&ChatHandler::HandleServerExitCommand>,          "", NULL },
-        { "idlerestart",    SEC_ADMINISTRATOR,  true,  NULL,                                           "", serverIdleRestartCommandTable },
-        { "idleshutdown",   SEC_ADMINISTRATOR,  true,  NULL,                                           "", serverShutdownCommandTable },
-        { "info",           SEC_PLAYER,         true,  OldHandler<&ChatHandler::HandleServerInfoCommand>,          "", NULL },
-        { "motd",           SEC_PLAYER,         true,  OldHandler<&ChatHandler::HandleServerMotdCommand>,          "", NULL },
-        { "plimit",         SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleServerPLimitCommand>,        "", NULL },
-        { "restart",        SEC_ADMINISTRATOR,  true,  NULL,                                           "", serverRestartCommandTable },
-        { "shutdown",       SEC_ADMINISTRATOR,  true,  NULL,                                           "", serverShutdownCommandTable },
-        { "set",            SEC_ADMINISTRATOR,  true,  NULL,                                           "", serverSetCommandTable },
-        { NULL,             0,                  false, NULL,                                           "", NULL }
+        { "corpses",        SEC_GAMEMASTER,     true,  OldHandler<&ChatHandler::HandleServerCorpsesCommand>,     "", NULL },
+        { "exit",           SEC_CONSOLE,        true,  OldHandler<&ChatHandler::HandleServerExitCommand>,        "", NULL },
+        { "idlerestart",    SEC_ADMINISTRATOR,  true,  NULL,                                                     "", serverIdleRestartCommandTable },
+        { "idleshutdown",   SEC_ADMINISTRATOR,  true,  NULL,                                                     "", serverShutdownCommandTable },
+        { "info",           SEC_PLAYER,         true,  OldHandler<&ChatHandler::HandleServerInfoCommand>,        "", NULL },
+        { "motd",           SEC_PLAYER,         true,  OldHandler<&ChatHandler::HandleServerMotdCommand>,        "", NULL },
+        { "plimit",         SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleServerPLimitCommand>,      "", NULL },
+        { "restart",        SEC_ADMINISTRATOR,  true,  NULL,                                                     "", serverRestartCommandTable },
+        { "shutdown",       SEC_ADMINISTRATOR,  true,  NULL,                                                     "", serverShutdownCommandTable },
+        { "set",            SEC_ADMINISTRATOR,  true,  NULL,                                                     "", serverSetCommandTable },
+        { "togglequerylog", SEC_CONSOLE,        true,  OldHandler<&ChatHandler::HandleServerToggleQueryLogging>, "", NULL },
+        { NULL,             0,                  false, NULL,                                                     "", NULL }
     };
 
     static ChatCommand unbanCommandTable[] =
