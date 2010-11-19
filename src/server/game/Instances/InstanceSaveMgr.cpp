@@ -265,7 +265,10 @@ void InstanceSaveManager::CleanupInstances()
     _DelHelper("character_instance.guid, instance", "character_instance", "LEFT JOIN instance ON character_instance.instance = instance.id WHERE instance.id IS NULL");
     _DelHelper("guid, instance", "group_instance", "LEFT JOIN instance ON group_instance.instance = instance.id WHERE instance.id IS NULL");
 
-    // creature_respawn and gameobject_respawn are in another database
+    // Clean respawn data from non existing instances
+    CharacterDatabase.PExecute("DELETE FROM creature_respawn WHERE instance <> 0 AND instance NOT IN (SELECT id FROM instance)");
+    CharacterDatabase.PExecute("DELETE FROM gameobject_respawn WHERE instance <> 0 AND instance NOT IN (SELECT id FROM instance)");
+
     // first, obtain total instance set
     std::set<uint32> InstanceSet;
     QueryResult result = CharacterDatabase.Query("SELECT id FROM instance");
@@ -275,32 +278,6 @@ void InstanceSaveManager::CleanupInstances()
         {
             Field *fields = result->Fetch();
             InstanceSet.insert(fields[0].GetUInt32());
-        }
-        while (result->NextRow());
-    }
-
-    // creature_respawn
-    result = WorldDatabase.Query("SELECT DISTINCT(instance) FROM creature_respawn WHERE instance <> 0");
-    if (result)
-    {
-        do
-        {
-            Field *fields = result->Fetch();
-            if (InstanceSet.find(fields[0].GetUInt32()) == InstanceSet.end())
-                WorldDatabase.PExecute("DELETE FROM creature_respawn WHERE instance = '%u'", fields[0].GetUInt32());
-        }
-        while (result->NextRow());
-    }
-
-    // gameobject_respawn
-    result = WorldDatabase.Query("SELECT DISTINCT(instance) FROM gameobject_respawn WHERE instance <> 0");
-    if (result)
-    {
-        do
-        {
-            Field *fields = result->Fetch();
-            if (InstanceSet.find(fields[0].GetUInt32()) == InstanceSet.end())
-                WorldDatabase.PExecute("DELETE FROM gameobject_respawn WHERE instance = '%u'", fields[0].GetUInt32());
         }
         while (result->NextRow());
     }
@@ -368,8 +345,8 @@ void InstanceSaveManager::PackInstances()
         if (*i != InstanceNumber)
         {
             // remap instance id
-            WorldDatabase.PExecute("UPDATE creature_respawn SET instance = '%u' WHERE instance = '%u'", InstanceNumber, *i);
-            WorldDatabase.PExecute("UPDATE gameobject_respawn SET instance = '%u' WHERE instance = '%u'", InstanceNumber, *i);
+            CharacterDatabase.PExecute("UPDATE creature_respawn SET instance = '%u' WHERE instance = '%u'", InstanceNumber, *i);
+            CharacterDatabase.PExecute("UPDATE gameobject_respawn SET instance = '%u' WHERE instance = '%u'", InstanceNumber, *i);
             CharacterDatabase.PExecute("UPDATE characters SET instance_id = '%u' WHERE instance_id = '%u'", InstanceNumber, *i);
             CharacterDatabase.PExecute("UPDATE corpse SET instance = '%u' WHERE instance = '%u'", InstanceNumber, *i);
             CharacterDatabase.PExecute("UPDATE character_instance SET instance = '%u' WHERE instance = '%u'", InstanceNumber, *i);
@@ -420,7 +397,7 @@ void InstanceSaveManager::LoadResetTimes()
         while (result->NextRow());
 
         // update reset time for normal instances with the max creature respawn time + X hours
-        result = WorldDatabase.Query("SELECT MAX(respawntime), instance FROM creature_respawn WHERE instance > 0 GROUP BY instance");
+        result = CharacterDatabase.Query("SELECT MAX(respawntime), instance FROM creature_respawn WHERE instance > 0 GROUP BY instance");
         if (result)
         {
             do
