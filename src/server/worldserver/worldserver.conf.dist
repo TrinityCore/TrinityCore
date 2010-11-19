@@ -405,8 +405,13 @@ CleanCharacterDB = 0
 #
 #    SQLDriverLogFile
 #        Log file of SQL driver events.
-#        For effective query logging you need to build in debug configuration.
+#        For effective query logging you need to configure SQLDriverQueryLogging.
 #        Default: "" - Empty name for disable
+#
+#    SQLDriverQueryLogging
+#        Log SQL queries to the SQLDriverLogFile and console
+#        Default: 0 - disabled (Query errors only)
+#                 1 - enabled  (Full query logging - may have performance impact)
 #
 #    LogColors
 #        Color for messages (format "normal basic detail debug")
@@ -538,6 +543,7 @@ RaLogFile = "ra_commands.log"
 ArenaLogFile = ""
 ArenaLog.ExtendedInfo = 0
 SQLDriverLogFile = ""
+SQLDriverQueryLogging = 0
 LogColors = ""
 EnableLogDB = 0
 DBLogLevel = 2

@@ -118,6 +118,7 @@ class Log
         void SetLogLevel(char * Level);
         void SetLogFileLevel(char * Level);
         void SetDBLogLevel(char * Level);
+        void SetSQLDriverQueryLogging(bool newStatus) { m_sqlDriverQueryLogging = newStatus; }
         void SetRealmID(uint32 id) { realm = id; }
 
         uint32 getLogFilter() const { return m_logFilter; }
@@ -128,6 +129,7 @@ class Log
         bool GetLogDBLater() { return m_enableLogDBLater; }
         void SetLogDB(bool enable) { m_enableLogDB = enable; }
         void SetLogDBLater(bool value) { m_enableLogDBLater = value; }
+        bool GetSQLDriverQueryLogging() { return m_sqlDriverQueryLogging; }
     private:
         FILE* openLogFile(char const* configFileName,char const* configTimeStampFlag, char const* mode);
         FILE* openGmlogPerAccount(uint32 account);
@@ -156,6 +158,10 @@ class Log
         // log coloring
         bool m_colored;
         ColorTypes m_colors[4];
+
+        // log levels:
+        // false: errors only, true: full query logging
+        bool m_sqlDriverQueryLogging;
 
         // log levels:
         // 0 minimum/string, 1 basic/error, 2 detail, 3 full/debug
