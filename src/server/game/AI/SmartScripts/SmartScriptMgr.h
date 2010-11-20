@@ -855,7 +855,8 @@ enum SMARTAI_TARGETS
     SMART_TARGET_CLOSEST_PLAYER                 = 21,   // none
     SMART_TARGET_ACTION_INVOKER_VEHICLE         = 22,   // Unit's vehicle who caused this Event to occur
     SMART_TARGET_OWNER_OR_SUMMONER              = 23,   // Unit's owner or summoner
-    SMART_TARGET_END                            = 24,
+    SMART_TARGET_THREAT_LIST                    = 24,   // All units on creature's threat list
+    SMART_TARGET_END                            = 25,
 };
 
 struct SmartTarget
