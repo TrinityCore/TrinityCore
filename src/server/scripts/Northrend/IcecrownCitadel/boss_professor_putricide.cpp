@@ -686,7 +686,7 @@ class npc_volatile_ooze : public CreatureScript
                 newTargetSelectTimer = 0;
             }
 
-            void SpellHitTarget(Unit* /*pTarget*/, const SpellEntry* spell)
+            void SpellHitTarget(Unit* /*target*/, SpellEntry const* spell)
             {
                 SpellEntry const* explode = sSpellStore.LookupEntry(SPELL_OOZE_ERUPTION);
                 explode = sSpellMgr.GetSpellForDifficultyFromSpell(explode, me);

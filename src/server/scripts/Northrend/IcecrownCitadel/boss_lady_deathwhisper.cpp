@@ -257,7 +257,7 @@ class boss_lady_deathwhisper : public CreatureScript
 
                 if (livingAddEntries.size() >= 5)
                 {
-                    if (Player *player = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
+                    if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
                     {
                         if (Group* group = player->GetGroup())
                         {
@@ -499,7 +499,7 @@ class boss_lady_deathwhisper : public CreatureScript
                 DoCast(cultist, SPELL_DARK_MARTYRDOM_T);
             }
 
-            void SpellHitTarget(Unit* target, const SpellEntry* spell)
+            void SpellHitTarget(Unit* target, SpellEntry const* spell)
             {
                 if (spell->Id == SPELL_DARK_MARTYRDOM_T)
                 {
@@ -572,7 +572,7 @@ class npc_cult_fanatic : public CreatureScript
                     events.ScheduleEvent(EVENT_CULTIST_DARK_MARTYRDOM, urand(18000, 32000));
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellEntry* spell)
+            void SpellHit(Unit* /*caster*/, SpellEntry const* spell)
             {
                 if (spell->Id == SPELL_DARK_TRANSFORMATION)
                     me->UpdateEntry(NPC_DEFORMED_FANATIC);
@@ -650,7 +650,7 @@ class npc_cult_adherent : public CreatureScript
                     events.ScheduleEvent(EVENT_CULTIST_DARK_MARTYRDOM, urand(18000, 32000));
             }
 
-            void SpellHit(Unit* /*caster*/, const SpellEntry* spell)
+            void SpellHit(Unit* /*caster*/, SpellEntry const* spell)
             {
                 if (spell->Id == SPELL_DARK_EMPOWERMENT)
                     me->UpdateEntry(NPC_EMPOWERED_ADHERENT);
@@ -734,7 +734,7 @@ class npc_vengeful_shade : public CreatureScript
                 me->AddAura(SPELL_VENGEFUL_BLAST_PASSIVE, me);
             }
 
-            void SpellHitTarget(Unit* /*pTarget*/, const SpellEntry* spell)
+            void SpellHitTarget(Unit* /*target*/, SpellEntry const* spell)
             {
                 switch (spell->Id)
                 {

@@ -110,7 +110,11 @@ class boss_festergut : public CreatureScript
                 if (Creature* gasDummy = me->FindNearestCreature(NPC_GAS_DUMMY, 100.0f, true))
                 {
                     gasDummyGUID = gasDummy->GetGUID();
-                    _RemoveBlight();
+                    for (uint8 i = 0; i < 3; ++i)
+                    {
+                        gasDummy->RemoveAurasDueToSpell(gaseousBlight[i]);
+                        gasDummy->RemoveAurasDueToSpell(gaseousBlightVisual[i]);
+                    }
                 }
 
                 instance->SetBossState(DATA_FESTERGUT, NOT_STARTED);
@@ -160,7 +164,7 @@ class boss_festergut : public CreatureScript
                 // don't enter combat
             }
 
-            void SpellHitTarget(Unit* target, const SpellEntry* spell)
+            void SpellHitTarget(Unit* target, SpellEntry const* spell)
             {
                 if (spell->Id == PUNGENT_BLIGHT_HELPER)
                     target->RemoveAurasDueToSpell(INOCULATED_HELPER);
