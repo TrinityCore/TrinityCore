@@ -1155,7 +1155,12 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                 if (!targets) return;
                 for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); itr++)
                     if (IsCreature((*itr)))
-                        (*itr)->ToCreature()->GetMotionMaster()->MoveRandom((float)e.action.moveRandom.distance);
+                    {
+                        if (e.action.moveRandom.distance)
+                            (*itr)->ToCreature()->GetMotionMaster()->MoveRandom((float)e.action.moveRandom.distance);
+                        else
+                            (*itr)->ToCreature()->GetMotionMaster()->MoveIdle();
+                    }
                 break;
             }
         default:
