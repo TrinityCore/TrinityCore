@@ -42,19 +42,19 @@ class icecrown_citadel_teleport : public GameObjectScript
         bool OnGossipHello(Player* player, GameObject* go)
         {
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to Light's Hammer.", GOSSIP_SENDER_ICC_PORT, LIGHT_S_HAMMER_TELEPORT);
-            if (InstanceScript* pInstance = go->GetInstanceScript())
+            if (InstanceScript* instance = go->GetInstanceScript())
             {
-                if (pInstance->GetBossState(DATA_LORD_MARROWGAR) == DONE)
+                if (instance->GetBossState(DATA_LORD_MARROWGAR) == DONE)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Oratory of the Damned.", GOSSIP_SENDER_ICC_PORT, ORATORY_OF_THE_DAMNED_TELEPORT);
-                if (pInstance->GetBossState(DATA_LADY_DEATHWHISPER) == DONE)
+                if (instance->GetBossState(DATA_LADY_DEATHWHISPER) == DONE)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Rampart of Skulls.", GOSSIP_SENDER_ICC_PORT, RAMPART_OF_SKULLS_TELEPORT);
-                if (pInstance->GetBossState(DATA_GUNSHIP_EVENT) == DONE)
+                if (instance->GetBossState(DATA_GUNSHIP_EVENT) == DONE)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Deathbringer's Rise.", GOSSIP_SENDER_ICC_PORT, DEATHBRINGER_S_RISE_TELEPORT);
-                if (pInstance->GetBossState(DATA_DEATHBRINGER_SAURFANG) == DONE)
+                if (instance->GetBossState(DATA_DEATHBRINGER_SAURFANG) == DONE)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Upper Spire.", GOSSIP_SENDER_ICC_PORT, UPPER_SPIRE_TELEPORT);
-                if (pInstance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == DONE)
+                if (instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == DONE)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Sindragosa's Lair", GOSSIP_SENDER_ICC_PORT, SINDRAGOSA_S_LAIR_TELEPORT);
-                if (pInstance->GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE && pInstance->GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE && pInstance->GetBossState(DATA_SINDRAGOSA) == DONE)
+                if (instance->GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE && instance->GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE && instance->GetBossState(DATA_SINDRAGOSA) == DONE)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to The Frozen Throne", GOSSIP_SENDER_ICC_PORT, FROZEN_THRONE_TELEPORT);
             }
 
