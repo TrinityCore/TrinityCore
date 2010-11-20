@@ -49,7 +49,7 @@ class instance_forge_of_souls : public InstanceMapScript
                     if (Player* pPlayer = players.begin()->getSource())
                         uiTeamInInstance = pPlayer->GetTeamId();
 
-                switch(pCreature->GetEntry())
+                switch (pCreature->GetEntry())
                 {
                     case CREATURE_BRONJAHM:
                         uiBronjahm = pCreature->GetGUID();
@@ -62,7 +62,7 @@ class instance_forge_of_souls : public InstanceMapScript
 
             uint32 GetData(uint32 type)
             {
-                switch(type)
+                switch (type)
                 {
                     case DATA_TEAM_IN_INSTANCE:
                         return uiTeamInInstance;
@@ -75,10 +75,14 @@ class instance_forge_of_souls : public InstanceMapScript
 
             uint64 GetData64(uint32 identifier)
             {
-                switch(identifier)
+                switch (identifier)
                 {
-                    case DATA_BRONJAHM:         return uiBronjahm;
-                    case DATA_DEVOURER:         return uiBronjahm;
+                    case DATA_BRONJAHM:
+                        return uiBronjahm;
+                    case DATA_DEVOURER:
+                        return uiDevourer;
+                    default:
+                        break;
                 }
 
                 return 0;
