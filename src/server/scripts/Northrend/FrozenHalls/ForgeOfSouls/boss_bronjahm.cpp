@@ -65,11 +65,16 @@ class boss_bronjahm : public CreatureScript
 
         struct boss_bronjahmAI : public BossAI
         {
-            boss_bronjahmAI(Creature* pCreature) : BossAI(pCreature, DATA_BRONJAHM)
+            boss_bronjahmAI(Creature* creature) : BossAI(creature, DATA_BRONJAHM)
             {
-                // disable AI outside of instance
-                if (!instance)
+            }
+
+            void InitializeAI()
+            {
+                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != GetScriptId(FoSScriptName))
                     me->IsAIEnabled = false;
+                else if (!me->isDead())
+                    Reset();
             }
 
             void Reset()
@@ -176,55 +181,55 @@ class boss_bronjahm : public CreatureScript
             }
         };
 
-        CreatureAI *GetAI(Creature* pCreature) const
+        CreatureAI *GetAI(Creature* creature) const
         {
-            return new boss_bronjahmAI(pCreature);
+            return new boss_bronjahmAI(creature);
         }
 };
 
 class mob_corrupted_soul_fragment : public CreatureScript
 {
-public:
-    mob_corrupted_soul_fragment() : CreatureScript("mob_corrupted_soul_fragment") { }
+    public:
+        mob_corrupted_soul_fragment() : CreatureScript("mob_corrupted_soul_fragment") { }
 
-    struct mob_corrupted_soul_fragmentAI : public ScriptedAI
-    {
-        mob_corrupted_soul_fragmentAI(Creature* pCreature) : ScriptedAI(pCreature)
+        struct mob_corrupted_soul_fragmentAI : public ScriptedAI
         {
-            instance = me->GetInstanceScript();
-        }
-
-        void MovementInform(uint32 type, uint32 id)
-        {
-            if (type != TARGETED_MOTION_TYPE)
-                return;
-
-            uint64 BronjahmGUID = 0;
-            if (instance)
+            mob_corrupted_soul_fragmentAI(Creature* creature) : ScriptedAI(creature)
             {
-                if (TempSummon* summ = me->ToTempSummon())
+                instance = me->GetInstanceScript();
+            }
+
+            void MovementInform(uint32 type, uint32 id)
+            {
+                if (type != TARGETED_MOTION_TYPE)
+                    return;
+
+                uint64 BronjahmGUID = 0;
+                if (instance)
                 {
-                    BronjahmGUID = instance->GetData64(DATA_BRONJAHM);
-                    if (GUID_LOPART(BronjahmGUID) != id)
-                        return;
+                    if (TempSummon* summ = me->ToTempSummon())
+                    {
+                        BronjahmGUID = instance->GetData64(DATA_BRONJAHM);
+                        if (GUID_LOPART(BronjahmGUID) != id)
+                            return;
 
-                    if (Creature* bronjahm = ObjectAccessor::GetCreature(*me, BronjahmGUID))
-                        me->CastSpell(bronjahm, SPELL_CONSUME_SOUL, true);
+                        if (Creature* bronjahm = ObjectAccessor::GetCreature(*me, BronjahmGUID))
+                            me->CastSpell(bronjahm, SPELL_CONSUME_SOUL, true);
 
-                    summ->GetMotionMaster()->MoveIdle();
-                    summ->UnSummon();
+                        summ->GetMotionMaster()->MoveIdle();
+                        summ->UnSummon();
+                    }
                 }
             }
+
+        private:
+            InstanceScript* instance;
+        };
+
+        CreatureAI *GetAI(Creature* creature) const
+        {
+            return new mob_corrupted_soul_fragmentAI(creature);
         }
-
-    private:
-        InstanceScript* instance;
-    };
-
-    CreatureAI *GetAI(Creature* pCreature) const
-    {
-        return new mob_corrupted_soul_fragmentAI(pCreature);
-    }
 };
 
 class spell_bronjahm_magic_bane : public SpellScriptLoader
