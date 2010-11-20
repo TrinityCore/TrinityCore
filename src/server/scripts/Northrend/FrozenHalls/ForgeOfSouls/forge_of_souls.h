@@ -18,16 +18,14 @@
 #ifndef DEF_FORGE_OF_SOULS_H
 #define DEF_FORGE_OF_SOULS_H
 
+#define FoSScriptName "instance_forge_of_souls"
+
 enum Data
 {
-    DATA_DEVOURER_EVENT     = 1,
-    DATA_TEAM_IN_INSTANCE   = 2,
-};
-
-enum Data64
-{
-    DATA_BRONJAHM,
-    DATA_DEVOURER,
+    DATA_BRONJAHM           = 0,
+    DATA_DEVOURER           = 1,
+    DATA_DEVOURER_EVENT     = 2,
+    DATA_TEAM_IN_INSTANCE   = 3,
 };
 
 enum Creatures
