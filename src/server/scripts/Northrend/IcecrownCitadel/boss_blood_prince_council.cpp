@@ -432,13 +432,16 @@ class boss_prince_keleseth_icc : public CreatureScript
                     instance->SetData(DATA_ORB_WHISPERER_ACHIEVEMENT, uint32(false));
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage)
             {
                 if (!isEmpowered)
+                {
+                    me->AddThreat(attacker, float(damage));
                     damage = 0;
+                }
             }
 
-            void KilledUnit(Unit *victim)
+            void KilledUnit(Unit* victim)
             {
                 if (victim->GetTypeId() == TYPEID_PLAYER)
                     Talk(SAY_KELESETH_KILL);
@@ -605,7 +608,7 @@ class boss_prince_taldaram_icc : public CreatureScript
                 summons.Summon(summon);
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, -10.0f, true); // first try at distance
                 if (!target)
-                    target = SelectTarget(SELECT_TARGET_RANDOM, 0/*1*/, 0.0f, true);     // too bad for you raiders, its going to boom
+                    target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);     // too bad for you raiders, its going to boom
 
                 if (summon->GetEntry() == NPC_BALL_OF_INFERNO_FLAME && target)
                     Talk(EMOTE_TALDARAM_FLAME, target->GetGUID());
@@ -623,13 +626,16 @@ class boss_prince_taldaram_icc : public CreatureScript
                     instance->SetData(DATA_ORB_WHISPERER_ACHIEVEMENT, uint32(false));
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage)
             {
                 if (!isEmpowered)
+                {
+                    me->AddThreat(attacker, float(damage));
                     damage = 0;
+                }
             }
 
-            void KilledUnit(Unit *victim)
+            void KilledUnit(Unit* victim)
             {
                 if (victim->GetTypeId() == TYPEID_PLAYER)
                     Talk(SAY_TALDARAM_KILL);
@@ -833,13 +839,16 @@ class boss_prince_valanar_icc : public CreatureScript
                     instance->SetData(DATA_ORB_WHISPERER_ACHIEVEMENT, uint32(false));
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* attacker, uint32& damage)
             {
                 if (!isEmpowered)
+                {
+                    me->AddThreat(attacker, float(damage));
                     damage = 0;
+                }
             }
 
-            void KilledUnit(Unit *victim)
+            void KilledUnit(Unit* victim)
             {
                 if (victim->GetTypeId() == TYPEID_PLAYER)
                     Talk(SAY_VALANAR_KILL);
@@ -1231,7 +1240,7 @@ class npc_dark_nucleus : public CreatureScript
                 if (targetAuraCheck <= diff)
                 {
                     targetAuraCheck = 1000;
-                    if (Unit *victim = me->getVictim())
+                    if (Unit* victim = me->getVictim())
                         if (me->GetDistance(victim) < 15.0f &&
                             !victim->HasAura(SPELL_SHADOW_RESONANCE_RESIST, me->GetGUID()))
                         {
@@ -1244,7 +1253,7 @@ class npc_dark_nucleus : public CreatureScript
 
                 if (!lockedTarget)
                 {
-                    if (Unit *victim = me->SelectVictim())
+                    if (Unit* victim = me->SelectVictim())
                     {
                         if (me->getVictim() && me->getVictim() != victim)
                         {
