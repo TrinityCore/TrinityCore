@@ -154,7 +154,7 @@ public:
 
     struct npc_sylvanas_fosAI : public ScriptedAI
     {
-        npc_sylvanas_fosAI(Creature *c) : ScriptedAI(c)
+        npc_sylvanas_fosAI(Creature* creature) : ScriptedAI(creature)
         {
             pInstance = me->GetInstanceScript();
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -237,37 +237,37 @@ public:
         }
     };
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            player->PrepareQuestMenu(creature->GetGUID());
 
-        if (pCreature->GetEntry() == NPC_JAINA_PART1)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_JAINA_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        if (creature->GetEntry() == NPC_JAINA_PART1)
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_JAINA_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
         else
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SYLVANAS_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SYLVANAS_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, pCreature->GetGUID());
+        player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         switch(uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
-                pPlayer->CLOSE_GOSSIP_MENU();
+                player->CLOSE_GOSSIP_MENU();
 
-                if (pCreature->AI())
-                    pCreature->AI()->DoAction(ACTION_INTRO);
+                if (creature->AI())
+                    creature->AI()->DoAction(ACTION_INTRO);
                 break;
         }
 
         return true;
     }
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_sylvanas_fosAI(creature);
     }
@@ -280,7 +280,7 @@ public:
 
     struct npc_jaina_fosAI: public ScriptedAI
     {
-        npc_jaina_fosAI(Creature *c) : ScriptedAI(c)
+        npc_jaina_fosAI(Creature* creature) : ScriptedAI(creature)
         {
             pInstance = me->GetInstanceScript();
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -374,37 +374,37 @@ public:
         }
     };
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (creature->isQuestGiver())
+            player->PrepareQuestMenu(creature->GetGUID());
 
-        if (pCreature->GetEntry() == NPC_JAINA_PART1)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_JAINA_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        if (creature->GetEntry() == NPC_JAINA_PART1)
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_JAINA_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
         else
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SYLVANAS_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SYLVANAS_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-        pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, pCreature->GetGUID());
+        player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         switch(uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
-                pPlayer->CLOSE_GOSSIP_MENU();
+                player->CLOSE_GOSSIP_MENU();
 
-                if (pCreature->AI())
-                    pCreature->AI()->DoAction(ACTION_INTRO);
+                if (creature->AI())
+                    creature->AI()->DoAction(ACTION_INTRO);
                 break;
         }
 
         return true;
     }
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new npc_jaina_fosAI(creature);
     }
@@ -417,7 +417,7 @@ public:
 
     struct mob_spiteful_apparitionAI: public ScriptedAI
     {
-        mob_spiteful_apparitionAI(Creature *c) : ScriptedAI(c)
+        mob_spiteful_apparitionAI(Creature* creature) : ScriptedAI(creature)
         {
         }
 
@@ -449,7 +449,7 @@ public:
                 switch(eventId)
                 {
                     case EVENT_SPITE:
-                        DoCast(me->getVictim(), SPELL_SPITE);
+                        DoCastVictim(SPELL_SPITE);
                         events.RescheduleEvent(EVENT_SPITE, 8000);
                         return;
                 }
@@ -459,7 +459,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new mob_spiteful_apparitionAI(creature);
     }
@@ -472,7 +472,7 @@ public:
 
     struct mob_spectral_wardenAI: public ScriptedAI
     {
-        mob_spectral_wardenAI(Creature *c) : ScriptedAI(c)
+        mob_spectral_wardenAI(Creature* creature) : ScriptedAI(creature)
         {
         }
 
@@ -505,12 +505,12 @@ public:
                 switch(eventId)
                 {
                     case EVENT_VEIL_OF_SHADOWS:
-                        DoCast(me->getVictim(), SPELL_VEIL_OF_SHADOWS);
+                        DoCastVictim(SPELL_VEIL_OF_SHADOWS);
                         events.RescheduleEvent(EVENT_VEIL_OF_SHADOWS, 10000);
                         return;
                     case EVENT_WAIL_OF_SOULS:
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                            DoCast(pTarget, SPELL_WAIL_OF_SOULS);
+                        if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_WAIL_OF_SOULS);
                         events.RescheduleEvent(EVENT_WAIL_OF_SOULS, 5000);
                         return;
                 }
@@ -519,7 +519,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new mob_spectral_wardenAI(creature);
     }
@@ -532,7 +532,7 @@ public:
 
     struct mob_soulguard_watchmanAI: public ScriptedAI
     {
-        mob_soulguard_watchmanAI(Creature *c) : ScriptedAI(c) { }
+        mob_soulguard_watchmanAI(Creature* creature) : ScriptedAI(creature) { }
 
         EventMap events;
 
@@ -576,7 +576,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new mob_soulguard_watchmanAI(creature);
     }
@@ -589,7 +589,7 @@ public:
 
     struct mob_soulguard_reaperAI: public ScriptedAI
     {
-        mob_soulguard_reaperAI(Creature *c) : ScriptedAI(c) { }
+        mob_soulguard_reaperAI(Creature* creature) : ScriptedAI(creature) { }
 
         EventMap events;
 
@@ -624,8 +624,8 @@ public:
                         events.RescheduleEvent(EVENT_FROST_NOVA, 9600);
                         return;
                     case EVENT_SHADOW_LANCE:
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                            DoCast(pTarget, SPELL_SHADOW_LANCE);
+                        if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_SHADOW_LANCE);
                         events.RescheduleEvent(EVENT_SHADOW_LANCE, 8000);
                         return;
                 }
@@ -635,7 +635,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new mob_soulguard_reaperAI(creature);
     }
@@ -648,7 +648,7 @@ public:
 
     struct mob_soulguard_bonecasterAI: public ScriptedAI
     {
-        mob_soulguard_bonecasterAI(Creature *c) : ScriptedAI(c) { }
+        mob_soulguard_bonecasterAI(Creature* creature) : ScriptedAI(creature) { }
 
         EventMap events;
 
@@ -698,7 +698,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new mob_soulguard_bonecasterAI(creature);
     }
@@ -711,7 +711,7 @@ public:
 
     struct mob_soulguard_animatorAI : public ScriptedAI
     {
-        mob_soulguard_animatorAI(Creature *c) : ScriptedAI(c)
+        mob_soulguard_animatorAI(Creature* creature) : ScriptedAI(creature)
         {
         }
 
@@ -750,18 +750,18 @@ public:
                         events.RescheduleEvent(EVENT_RAISE_DEAD, 25000);
                         return;
                     case EVENT_SHADOW_BOLT:
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                            DoCast(pTarget, SPELL_SHADOW_BOLT);
+                        if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_SHADOW_BOLT);
                         events.RescheduleEvent(EVENT_SHADOW_BOLT, 5000);
                         return;
                     case EVENT_SOUL_SICKNESS:
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                            DoCast(pTarget, SPELL_SOUL_SICKNESS);
+                        if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_SOUL_SICKNESS);
                         events.RescheduleEvent(EVENT_SOUL_SICKNESS, 10000);
                         return;
                     case EVENT_SOUL_SIPHON:
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                            DoCast(pTarget, SPELL_SOUL_SIPHON);
+                        if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_SOUL_SIPHON);
                         events.RescheduleEvent(EVENT_SOUL_SIPHON, 8000);
                         return;
                 }
@@ -771,7 +771,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new mob_soulguard_animatorAI(creature);
     }
@@ -784,7 +784,7 @@ public:
 
     struct mob_soulguard_adeptAI: public ScriptedAI
     {
-        mob_soulguard_adeptAI(Creature *c) : ScriptedAI(c)
+        mob_soulguard_adeptAI(Creature* creature) : ScriptedAI(creature)
         {
         }
 
@@ -823,13 +823,13 @@ public:
                         events.RescheduleEvent(EVENT_RAISE_DEAD, 25000);
                         return;
                     case EVENT_SHADOW_BOLT:
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                            DoCast(pTarget, SPELL_SHADOW_BOLT);
+                        if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_SHADOW_BOLT);
                         events.RescheduleEvent(EVENT_SHADOW_BOLT, 4000);
                         return;
                     case EVENT_DRAIN_LIFE:
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                            DoCast(pTarget, SPELL_DRAIN_LIFE);
+                        if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                            DoCast(target, SPELL_DRAIN_LIFE);
                         events.RescheduleEvent(EVENT_DRAIN_LIFE, 9000);
                         return;
                     case EVENT_SHADOW_MEND:
@@ -843,7 +843,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new mob_soulguard_adeptAI(creature);
     }
@@ -856,7 +856,7 @@ public:
 
     struct mob_soul_horrorAI : public ScriptedAI
     {
-        mob_soul_horrorAI(Creature *c) : ScriptedAI(c) { }
+        mob_soul_horrorAI(Creature* creature) : ScriptedAI(creature) { }
 
         EventMap events;
 
@@ -896,7 +896,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature* creature) const
     {
         return new mob_soul_horrorAI(creature);
     }
@@ -904,14 +904,14 @@ public:
 
 void AddSC_forge_of_souls()
 {
-    new npc_sylvanas_fos;
-    new npc_jaina_fos;
-    new mob_spiteful_apparition;
-    new mob_spectral_warden;
-    new mob_soulguard_watchman;
-    new mob_soulguard_reaper;
-    new mob_soulguard_bonecaster;
-    new mob_soulguard_animator;
-    new mob_soulguard_adept;
-    new mob_soul_horror;
+    new npc_sylvanas_fos();
+    new npc_jaina_fos();
+    new mob_spiteful_apparition();
+    new mob_spectral_warden();
+    new mob_soulguard_watchman();
+    new mob_soulguard_reaper();
+    new mob_soulguard_bonecaster();
+    new mob_soulguard_animator();
+    new mob_soulguard_adept();
+    new mob_soul_horror();
 }
