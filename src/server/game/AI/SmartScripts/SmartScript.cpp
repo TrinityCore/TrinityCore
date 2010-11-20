@@ -460,11 +460,13 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
         case SMART_ACTION_CALL_CASTEDCREATUREORGO:
             {
                 if (!me) return;
-                std::list<HostileReference*>& threatList = me->getThreatManager().getThreatList();
-                for (std::list<HostileReference*>::iterator i = threatList.begin(); i != threatList.end(); ++i)
-                    if (Unit* Temp = Unit::GetUnit(*me,(*i)->getUnitGuid()))
-                        if (IsPlayer(Temp))
-                            Temp->ToPlayer()->CastedCreatureOrGO(e.action.castedCreatureOrGO.creature, me->GetGUID(), e.action.castedCreatureOrGO.spell);
+                ObjectList* targets = GetTargets(e, unit);
+                if (!targets) return;
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); itr++)
+                {
+                    if (IsPlayer((*itr)))
+                        (*itr)->ToPlayer()->CastedCreatureOrGO(e.action.castedCreatureOrGO.creature, me->GetGUID(), e.action.castedCreatureOrGO.spell);
+                }
                 break;
             }
         case SMART_ACTION_REMOVEAURASFROMSPELL:
@@ -1480,6 +1482,15 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder e, Unit* invoker)
                 uint64 guid = me->GetCharmerOrOwnerGUID();
                 if (Unit* owner = ObjectAccessor::GetUnit(*me, guid))
                     l->push_back(owner);
+                break;
+            }
+        case SMART_TARGET_THREAT_LIST:
+            {
+                if (!me) return NULL;
+                std::list<HostileReference*>& threatList = me->getThreatManager().getThreatList();
+                for (std::list<HostileReference*>::iterator i = threatList.begin(); i != threatList.end(); ++i)
+                    if (Unit* Temp = Unit::GetUnit(*me,(*i)->getUnitGuid()))
+                        l->push_back(Temp);
                 break;
             }
         case SMART_TARGET_POSITION:
