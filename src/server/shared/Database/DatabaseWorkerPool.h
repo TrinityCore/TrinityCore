@@ -279,6 +279,13 @@ class DatabaseWorkerPool
             PreparedStatementTask* task = new PreparedStatementTask(stmt);
             Enqueue(task);
         }
+		
+        void DirectExecute(PreparedStatement* stmt)
+        {
+            T* t = GetFreeConnection();
+            t->Execute(stmt);
+            t->Unlock();
+        }
 
         void escape_string(std::string& str)
         {
