@@ -11694,7 +11694,7 @@ Item* Player::EquipItem(uint16 pos, Item *pItem, bool update)
 
             _ApplyItemMods(pItem, slot, true);
 
-            if (pProto && isInCombat()&& pProto->Class == ITEM_CLASS_WEAPON && m_weaponChangeTimer == 0)
+            if (pProto && isInCombat() && (pProto->Class == ITEM_CLASS_WEAPON || pProto->InventoryType == INVTYPE_RELIC) && m_weaponChangeTimer == 0)
             {
                 uint32 cooldownSpell = 6119;
 
@@ -11708,6 +11708,8 @@ Item* Player::EquipItem(uint16 pos, Item *pItem, bool update)
                 else
                 {
                     m_weaponChangeTimer = spellProto->StartRecoveryTime;
+
+                    CastSpell(this, cooldownSpell, false); // Needed for server side GCD
 
                     WorldPacket data(SMSG_SPELL_COOLDOWN, 8+1+4);
                     data << uint64(GetGUID());
