@@ -562,7 +562,7 @@ public:
                 if (!gInfo)
                     continue;
 
-                handler->PSendSysMessage(LANG_GO_LIST_CHAT, guid, entry, guid, gInfo->name, x, y, z, mapid);
+                handler->PSendSysMessage(LANG_GO_LIST_CHAT, guid, entry, gInfo->name, x, y, z, mapid);
 
                 ++count;
             } while (result->NextRow());
