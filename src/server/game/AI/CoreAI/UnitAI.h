@@ -219,7 +219,7 @@ class UnitAI
         virtual void sQuestSelect(Player* /*player*/, Quest const* /*quest*/) {}
         virtual void sQuestComplete(Player* /*player*/, Quest const* /*quest*/) {}
         virtual void sQuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) {}
-        virtual void sOnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex) {}
+        virtual void sOnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/) {}
 };
 
 class PlayerAI : public UnitAI
