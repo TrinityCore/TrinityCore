@@ -275,7 +275,6 @@ class LFGMgr
     private:
         void Cleaner();
         void AddGuidToNewQueue(uint64 guid);
-        void AddToQueue(uint64 guid, LfgRolesMap* roles, LfgDungeonSet* dungeons);
 
         bool RemoveFromQueue(uint64 guid);
         void RemoveProposal(LfgProposalMap::iterator itProposal, LfgUpdateType type);
