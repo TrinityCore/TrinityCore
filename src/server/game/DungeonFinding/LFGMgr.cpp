@@ -529,10 +529,7 @@ void LFGMgr::Join(Player* plr)
     {
         dungeons = plr->GetLfgDungeons();
         if (!dungeons || !dungeons->size())
-        {
             result = LFG_JOIN_NOT_MEET_REQS;
-            dungeons = NULL;
-        }
         else // Check if all dungeons are valid
         {
             LfgType type = LFG_TYPE_NONE;
@@ -558,6 +555,7 @@ void LFGMgr::Join(Player* plr)
                 }
             }
         }
+        dungeons = NULL;
     }
 
     if (result == LFG_JOIN_OK)
