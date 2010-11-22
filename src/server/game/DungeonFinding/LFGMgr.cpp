@@ -570,14 +570,32 @@ void LFGMgr::Join(Player* plr)
         if (!dungeons || !dungeons->size())
             result = LFG_JOIN_NOT_MEET_REQS;
         else // Check if all dungeons are valid
+        {
+            bool isDungeon = false;
+            bool isRaid = false;
+            LfgType type = LFG_TYPE_NONE;
             for (LfgDungeonSet::const_iterator it = dungeons->begin(); it != dungeons->end(); ++it)
             {
-                if (!GetDungeonGroupType(*it))
+                type = GetDungeonType(*it);
+                switch(type)
                 {
-                    result = LFG_JOIN_DUNGEON_INVALID;
-                    break;
+                    case LFG_TYPE_DUNGEON:
+                    case LFG_TYPE_HEROIC:
+                        if (isRaid)
+                            result = LFG_JOIN_MIXED_RAID_DUNGEON;
+                        isDungeon = true;
+                        break;
+                    case LFG_TYPE_RAID:
+                        if (isDungeon)
+                            result = LFG_JOIN_MIXED_RAID_DUNGEON;
+                        isRaid = true;
+                        break;
+                    default:
+                        result = LFG_JOIN_DUNGEON_INVALID;
+                        break;
                 }
             }
+        }
     }
 
     // Group checks
@@ -614,7 +632,6 @@ void LFGMgr::Join(Player* plr)
         if (grp && !grp->isLFGGroup())
             plr->SetLfgState(LFG_STATE_NONE);
         plr->GetSession()->SendLfgJoinResult(result);
-        plr->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_ROLECHECK_FAILED);
         return;
     }
 
@@ -2174,17 +2191,17 @@ LfgReward const* LFGMgr::GetRandomDungeonReward(uint32 dungeon, uint8 level)
 }
 
 /// <summary>
-/// Given a Dungeon id returns the dungeon Group Type
+/// Given a Dungeon id returns the dungeon Type
 /// </summary>
 /// <param name="uint32">Dungeon id</param>
-/// <returns>uint8: GroupType</returns>
-uint8 LFGMgr::GetDungeonGroupType(uint32 dungeonId)
+/// <returns>uint8: Type</returns>
+LfgType LFGMgr::GetDungeonType(uint32 dungeonId)
 {
     LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(dungeonId);
     if (!dungeon)
-        return 0;
+        return LFG_TYPE_NONE;
 
-    return dungeon->grouptype;
+    return LfgType(dungeon->type);
 }
 
 /// <summary>
