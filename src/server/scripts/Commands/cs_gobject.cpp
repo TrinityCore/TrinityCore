@@ -555,14 +555,14 @@ public:
                 float x = fields[2].GetFloat();
                 float y = fields[3].GetFloat();
                 float z = fields[4].GetFloat();
-                int mapid = fields[5].GetUInt16();
+                uint16 mapid = fields[5].GetUInt16();
 
                 GameObjectInfo const * gInfo = sObjectMgr.GetGameObjectInfo(entry);
 
                 if (!gInfo)
                     continue;
 
-                handler->PSendSysMessage(LANG_GO_LIST_CHAT, guid, entry, gInfo->name, x, y, z, mapid);
+                handler->PSendSysMessage(LANG_GO_LIST_CHAT, guid, entry, guid, gInfo->name, x, y, z, mapid);
 
                 ++count;
             } while (result->NextRow());
