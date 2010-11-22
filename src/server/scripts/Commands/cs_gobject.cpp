@@ -582,10 +582,12 @@ public:
         uint32 lootId = 0;
 
         if (!*args)
+        {
             if (WorldObject * obj = handler->getSelectedObject())
                 entry = obj->GetEntry();
             else
                 entry = atoi((char*)args);
+        }
 
         GameObjectInfo const* goinfo = sObjectMgr.GetGameObjectInfo(entry);
 
