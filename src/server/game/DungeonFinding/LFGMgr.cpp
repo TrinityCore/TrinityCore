@@ -1878,10 +1878,10 @@ void LFGMgr::TeleportPlayer(Player* plr, bool out, bool fromOpcode /*= false*/)
 /// </summary>
 /// <param name="const uint32">dungeonId</param>
 /// <param name="Player*">player</param>
-void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player* player)
+void LFGMgr::RewardDungeonDoneFor(const uint32 /*dungeonId*/, Player* player)
 {
     Group* group = player->GetGroup();
-    if ((!group || !group->isLFGGroup()) || !sWorld.getBoolConfig(CONFIG_DUNGEON_FINDER_ENABLE))
+    if (!group || !group->isLFGGroup() || !sWorld.getBoolConfig(CONFIG_DUNGEON_FINDER_ENABLE))
         return;
 
     // Mark dungeon as finished
@@ -1894,7 +1894,7 @@ void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player* player)
     player->SetLfgRoles(ROLE_NONE);
 
     // Give rewards only if its a random dungeon
-    LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(dungeonId);
+    LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(rDungeonId);
     if (!dungeon || dungeon->type != LFG_TYPE_RANDOM)
         return;
 
@@ -1925,6 +1925,7 @@ void LFGMgr::RewardDungeonDoneFor(const uint32 dungeonId, Player* player)
     }
 
     // Give rewards
+    sLog.outDebug("LFGMgr::RewardDungeonDoneFor: [" UI64FMTD "] done dungeon %u, %s previously done.", player->GetGUID(), rDungeonId, index > 0 ? "" : "not ");
     player->GetSession()->SendLfgPlayerReward(dungeon->Entry(), group->GetLfgDungeonEntry(false), index, reward, qReward);
 }
 
