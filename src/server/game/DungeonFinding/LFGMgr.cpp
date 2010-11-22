@@ -538,6 +538,7 @@ void LFGMgr::Join(Player* plr)
                 type = GetDungeonType(*it);
                 switch(type)
                 {
+                    case LFG_TYPE_RANDOM:
                     case LFG_TYPE_DUNGEON:
                     case LFG_TYPE_HEROIC:
                         if (isRaid)
