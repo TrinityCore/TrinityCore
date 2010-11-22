@@ -500,7 +500,7 @@ public:
     {
         if (pPlayer->GetQuestStatus(QUEST_THE_PERFECT_SPIES) == QUEST_STATUS_INCOMPLETE)
         {
-            if (Creature* target = pPlayer->FindNearestCreature(NPC_VANIRAS_SENTRY_TOTEM, 10.0f))
+            if (pPlayer->FindNearestCreature(NPC_VANIRAS_SENTRY_TOTEM, 10.0f))
                 return false;
             else
                 pPlayer->SendEquipError(EQUIP_ERR_OUT_OF_RANGE, pItem, NULL);

@@ -164,7 +164,7 @@ public:
     }
 
     //reload commands
-    static bool HandleReloadGMTicketsCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleReloadGMTicketsCommand(ChatHandler* /*handler*/, const char* /*args*/)
     {
         sTicketMgr.LoadGMTickets();
         return true;

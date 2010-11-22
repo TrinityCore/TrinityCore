@@ -155,7 +155,7 @@ bool MySQLConnection::Execute(const char* sql)
         return false;
 
     {
-        uint32 _s;
+        uint32 _s = 0;
         if (sLog.GetSQLDriverQueryLogging())
             _s = getMSTime();
 
@@ -191,7 +191,7 @@ bool MySQLConnection::Execute(PreparedStatement* stmt)
         MYSQL_STMT* msql_STMT = m_mStmt->GetSTMT();
         MYSQL_BIND* msql_BIND = m_mStmt->GetBind();
 
-        uint32 _s;
+        uint32 _s = 0;
         if (sLog.GetSQLDriverQueryLogging())
             _s = getMSTime();
 
@@ -237,7 +237,7 @@ bool MySQLConnection::_Query(PreparedStatement* stmt, MYSQL_RES **pResult, uint6
         MYSQL_STMT* msql_STMT = m_mStmt->GetSTMT();
         MYSQL_BIND* msql_BIND = m_mStmt->GetBind();
 
-        uint32 _s;
+        uint32 _s = 0;
         if (sLog.GetSQLDriverQueryLogging())
             _s = getMSTime();
 
@@ -294,7 +294,7 @@ bool MySQLConnection::_Query(const char *sql, MYSQL_RES **pResult, MYSQL_FIELD *
         return false;
 
     {
-        uint32 _s;
+        uint32 _s = 0;
         if (sLog.GetSQLDriverQueryLogging())
             _s = getMSTime();
 

@@ -375,7 +375,7 @@ class npc_bone_spike : public CreatureScript
                 events.ScheduleEvent(EVENT_FAIL_BONED, 8000);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 if (!trappedGUID)
                     return;
