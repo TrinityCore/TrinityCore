@@ -360,6 +360,10 @@ uint32 Group::RemoveMember(const uint64 &guid, const RemoveMethod &method /* = G
 
     sScriptMgr.OnGroupRemoveMember(this, guid, method, kicker, reason);
 
+    // Lfg group vote kick handled in scripts
+    if (isLFGGroup() && method == GROUP_REMOVEMETHOD_KICK)
+        return m_memberSlots.size();
+
     // remove member and change leader (if need) only if strong more 2 members _before_ member remove (BG allow 1 member group)
     if (GetMembersCount() > (isBGGroup() ? 1u : 2u))
     {

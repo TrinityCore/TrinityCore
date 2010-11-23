@@ -67,24 +67,32 @@ public:
         if (!group->isLFGGroup())
             return;
 
-        if (!group->isLfgDungeonComplete())                 // Need more players to finish the dungeon
-            sLFGMgr.OfferContinue(group);
-
         if (method == GROUP_REMOVEMETHOD_KICK)              // Player have been kicked
         {
-            // TODO - Update internal kick cooldown
-        }
-        else
-        {
-            // Deserter flag
+            // TODO - Update internal kick cooldown of kicker
+            std::string str_reason = "";
+            if (reason)
+                str_reason = std::string(reason);
+            sLFGMgr.InitBoot(group, GUID_LOPART(kicker), GUID_LOPART(guid), str_reason);
+            return;
         }
 
         if (Player *plr = sObjectMgr.GetPlayer(guid))
         {
+            /*
+            if (method == GROUP_REMOVEMETHOD_LEAVE)
+                // Add deserter flag
+            else if (group->isLfgKickActive())
+                // Update internal kick cooldown of kicked
+            */
+
             plr->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_LEADER);
             if (plr->GetMap()->IsDungeon())                 // Teleport player out the dungeon
                 sLFGMgr.TeleportPlayer(plr, true);
         }
+
+        if (!group->isLfgDungeonComplete())                 // Need more players to finish the dungeon
+            sLFGMgr.OfferContinue(group);
     }
 
     void OnDisband(Group* group)
