@@ -235,7 +235,7 @@ bool ChatHandler::HandleKickPlayerCommand(const char *args)
         if (HasLowerSecurity(player, 0))
             return false;
 
-        if (sWorld.getIntConfig(CONFIG_SHOW_KICK_IN_WORLD) == 1)
+        if (sWorld.getBoolConfig(CONFIG_SHOW_KICK_IN_WORLD) == 1)
         {
             sWorld.SendWorldText(LANG_COMMAND_KICKMESSAGE, player->GetName(), kicker.c_str(), reason.c_str());
         }
