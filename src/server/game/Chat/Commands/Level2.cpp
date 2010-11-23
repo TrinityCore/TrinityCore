@@ -205,10 +205,10 @@ bool ChatHandler::HandleDeMorphCommand(const char* /*args*/)
 //kick player
 bool ChatHandler::HandleKickPlayerCommand(const char *args)
 {
-/*    const char* kickName = strtok((char*)args, " ");
+    const char* kickName = strtok((char*)args, " ");
     char* kickReason = strtok(NULL, "\n");
-    std::string reason = "No Reason";
-    std::string kicker = "Console";
+    std::string reason = "No reason given";
+    std::string kicker = "CONSOLE";
     if (kickReason)
         reason = kickReason;
     if (m_session)
@@ -282,7 +282,7 @@ bool ChatHandler::HandleKickPlayerCommand(const char *args)
 
         if (sWorld.KickPlayer(name))
         {
-            if (sWorld.getIntConfig(CONFIG_SHOW_KICK_IN_WORLD) == 1)
+            if (sWorld.getBoolConfig(CONFIG_SHOW_KICK_IN_WORLD) == 1)
             {
                 sWorld.SendWorldText(LANG_COMMAND_KICKMESSAGE, nameLink.c_str(), kicker.c_str(), reason.c_str());
             }
@@ -296,7 +296,7 @@ bool ChatHandler::HandleKickPlayerCommand(const char *args)
             PSendSysMessage(LANG_COMMAND_KICKNOTFOUNDPLAYER,nameLink.c_str());
             return false;
         }
-    }*/
+    }
     Player* target;
     if (!extractPlayerTarget((char*)args,&target))
         return false;
