@@ -51,10 +51,10 @@ public:
             sLFGMgr.Leave(plr);
     }
 
-    void OnRemoveMember(Group* group, uint64 guid, RemoveMethod& method)
+    void OnRemoveMember(Group* group, uint64 guid, RemoveMethod& method, uint64 kicker, const char* reason)
     {
         uint64 gguid = group->GetGUID();
-        sLog.outDebug("OnRemoveMember [" UI64FMTD "]: remove [" UI64FMTD "] Method: %d", gguid, guid, method);
+        sLog.outDebug("OnRemoveMember [" UI64FMTD "]: remove [" UI64FMTD "] Method: %d Kicker: [" UI64FMTD "] Reason: %s", gguid, guid, method, kicker, (reason ? reason : ""));
         if (!gguid)
             return;
 
