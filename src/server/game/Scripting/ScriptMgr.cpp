@@ -1267,10 +1267,10 @@ void ScriptMgr::OnGroupInviteMember(Group* group, uint64 guid)
     FOREACH_SCRIPT(GroupScript)->OnInviteMember(group, guid);
 }
 
-void ScriptMgr::OnGroupRemoveMember(Group* group, uint64 guid, RemoveMethod method)
+void ScriptMgr::OnGroupRemoveMember(Group* group, uint64 guid, RemoveMethod method, uint64 kicker, const char* reason)
 {
     ASSERT(group);
-    FOREACH_SCRIPT(GroupScript)->OnRemoveMember(group, guid, method);
+    FOREACH_SCRIPT(GroupScript)->OnRemoveMember(group, guid, method, kicker, reason);
 }
 
 void ScriptMgr::OnGroupChangeLeader(Group* group, uint64 newLeaderGuid, uint64 oldLeaderGuid)
