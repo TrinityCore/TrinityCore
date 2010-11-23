@@ -1455,7 +1455,7 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag /*= true
                 damage++;
         }
     }
-    return true;
+    return (tank + healer + damage) == groles.size();
 }
 
 /// <summary>
