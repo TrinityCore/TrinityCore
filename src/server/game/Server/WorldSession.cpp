@@ -501,7 +501,7 @@ void WorldSession::SendNotification(const char *format,...)
     }
 }
 
-void WorldSession::SendNotification(int32 string_id,...)
+void WorldSession::SendNotification(uint32 string_id,...)
 {
     char const* format = GetTrinityString(string_id);
     if (format)
