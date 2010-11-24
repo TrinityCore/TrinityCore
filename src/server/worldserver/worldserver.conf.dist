@@ -1225,7 +1225,7 @@ Quests.IgnoreRaid = 0
 #
 #    Guild.EventLogRecordsCount
 #        Description: Number of log entries for guild events that are stored per guild. Old entries
-                      will be overwritten if the number of log entries exceed the configured value.
+#                     will be overwritten if the number of log entries exceed the configured value.
 #                     High numbers prevent this behavior but may have performance impacts.
 #        Default:     100
 
@@ -1584,7 +1584,6 @@ Rate.Creature.Elite.WORLDBOSS.Damage = 1
 #                     1 - (Rate.Creature.Elite.RARE.SpellDamage)
 #                     1 - (Rate.Creature.Elite.RAREELITE.SpellDamage)
 #                     1 - (Rate.Creature.Elite.WORLDBOSS.SpellDamage)
-
 
 Rate.Creature.Normal.SpellDamage          = 1
 Rate.Creature.Elite.Elite.SpellDamage     = 1
@@ -2654,7 +2653,7 @@ NoResetTalentsCost = 0
 #
 #     Guild.AllowMultipleGuildMaster
 #        Description: Allow more than one guild master. Additional Guild Masters must be set using
-                      the ".guild rank" command.
+#                     the ".guild rank" command.
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
