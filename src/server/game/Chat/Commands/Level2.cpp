@@ -206,87 +206,28 @@ bool ChatHandler::HandleDeMorphCommand(const char* /*args*/)
 bool ChatHandler::HandleKickPlayerCommand(const char *args)
 {
     const char* kickName = strtok((char*)args, " ");
-    char* kickReason = strtok(NULL, "\n");
-    std::string reason = "No reason given";
-    std::string kicker = "CONSOLE";
-    if (kickReason)
-        reason = kickReason;
-    if (m_session)
-        kicker = m_session->GetPlayer()->GetName();
+    Player* target = NULL;
+    std::string playerName;
+    if (!extractPlayerTarget((char*)args, &target, NULL, &playerName))
+        return false;
 
-    if (!kickName)
+    if (m_session && target == m_session->GetPlayer())
     {
-        Player* target;
-        if (!extractPlayerTarget((char*)args,&target))
-            return false;
-
-        if (!target)
-        {
-            SendSysMessage(LANG_PLAYER_NOT_FOUND);
-            SetSentErrorMessage(true);
-            return false;
-        }
-
-        if (m_session && target == m_session->GetPlayer())
-        {
-            SendSysMessage(LANG_COMMAND_KICKSELF);
-            SetSentErrorMessage(true);
-            return false;
-        }
-
-        // check online security
-        if (HasLowerSecurity(target, 0))
-            return false;
-
-        if (sWorld.getBoolConfig(CONFIG_SHOW_KICK_IN_WORLD))
-            sWorld.SendWorldText(LANG_COMMAND_KICKMESSAGE, target->GetName(), kicker.c_str(), reason.c_str());
-        else
-            PSendSysMessage(LANG_COMMAND_KICKMESSAGE, target->GetName(), kicker.c_str(), reason.c_str());
-
-        target->GetSession()->KickPlayer();
+        SendSysMessage(LANG_COMMAND_KICKSELF);
+        SetSentErrorMessage(true);
+        return false;
     }
+
+    // check online security
+    if (HasLowerSecurity(target, 0))
+        return false;
+
+    if (sWorld.getBoolConfig(CONFIG_SHOW_KICK_IN_WORLD))
+        sWorld.SendWorldText(LANG_COMMAND_KICKMESSAGE, playerName.c_str());
     else
-    {
-        std::string name = extractPlayerNameFromLink((char*)kickName);
-        if (name.empty())
-        {
-            SendSysMessage(LANG_PLAYER_NOT_FOUND);
-            SetSentErrorMessage(true);
-            return false;
-        }
+        PSendSysMessage(LANG_COMMAND_KICKMESSAGE, playerName.c_str());
 
-        if (m_session && name == m_session->GetPlayer()->GetName())
-        {
-            SendSysMessage(LANG_COMMAND_KICKSELF);
-            SetSentErrorMessage(true);
-            return false;
-        }
-
-        Player* player = sObjectMgr.GetPlayer(kickName);
-        if (!player)
-        {
-            SendSysMessage(LANG_PLAYER_NOT_FOUND);
-            SetSentErrorMessage(true);
-            return false;
-        }
-
-        if (HasLowerSecurity(player, 0))
-        {
-            SendSysMessage(LANG_YOURS_SECURITY_IS_LOW); //maybe replacement string for this later on
-            SetSentErrorMessage(true);
-            return false;
-        }
-
-        std::string nameLink = playerLink(name);
-
-        if (sWorld.getBoolConfig(CONFIG_SHOW_KICK_IN_WORLD))
-            sWorld.SendWorldText(LANG_COMMAND_KICKMESSAGE, nameLink.c_str(), kicker.c_str(), reason.c_str());
-        else
-            PSendSysMessage(LANG_COMMAND_KICKMESSAGE,nameLink.c_str());
-
-        player->GetSession()->KickPlayer();
-    }
-
+    target->GetSession()->KickPlayer();
     return true;
 }
 
