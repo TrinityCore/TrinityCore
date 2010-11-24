@@ -408,24 +408,26 @@ void LFGMgr::Update(uint32 diff)
             role = ROLE_NONE;
             for (LfgRolesMap::const_iterator itPlayer = queue->roles.begin(); itPlayer != queue->roles.end(); ++itPlayer)
                 role |= itPlayer->second;
+            role &= ~ROLE_LEADER;
 
-            waitTime = -1;
-            if (role & ROLE_TANK)
+            switch(role)
             {
-                if (role & ROLE_HEALER || role & ROLE_DAMAGE)
-                    waitTime = m_WaitTimeAvg;
-                else
+                case ROLE_NONE:                             // Should not happen - just in case
+                    waitTime = -1;
+                    break;
+                case ROLE_TANK:
                     waitTime = m_WaitTimeTank;
-            }
-            else if (role & ROLE_HEALER)
-            {
-                if (role & ROLE_DAMAGE)
-                    waitTime = m_WaitTimeAvg;
-                else
+                    break;
+                case ROLE_HEALER:
                     waitTime = m_WaitTimeHealer;
+                    break;
+                case ROLE_DAMAGE:
+                    waitTime = m_WaitTimeDps;
+                    break;
+                default:
+                    waitTime = m_WaitTimeAvg;
+                    break;
             }
-            else if (role & ROLE_DAMAGE)
-                waitTime = m_WaitTimeDps;
 
             for (LfgRolesMap::const_iterator itPlayer = queue->roles.begin(); itPlayer != queue->roles.end(); ++itPlayer)
                 if (Player* plr = sObjectMgr.GetPlayerByLowGUID(itPlayer->first))
@@ -533,7 +535,7 @@ void LFGMgr::Join(Player* plr)
         else // Check if all dungeons are valid
         {
             LfgType type = LFG_TYPE_NONE;
-            for (LfgDungeonSet::const_iterator it = dungeons->begin(); it != dungeons->end(); ++it)
+            for (LfgDungeonSet::const_iterator it = dungeons->begin(); it != dungeons->end() && result == LFG_JOIN_OK; ++it)
             {
                 type = GetDungeonType(*it);
                 switch(type)
@@ -578,6 +580,8 @@ void LFGMgr::Join(Player* plr)
                             result = LFG_JOIN_PARTY_DESERTER;
                         else if (plrg->HasAura(LFG_SPELL_DUNGEON_COOLDOWN))
                             result = LFG_JOIN_PARTY_RANDOM_COOLDOWN;
+                        else if (plrg->InBattleground() || plrg->InArena() || plrg->InBattlegroundQueue())
+                            result = LFG_JOIN_USING_BG_SYSTEM;
                         ++memberCount;
                     }
                 }
@@ -1455,7 +1459,7 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag /*= true
                 damage++;
         }
     }
-    return (tank + healer + damage) == groles.size();
+    return (tank + healer + damage) == uint8(groles.size());
 }
 
 /// <summary>
