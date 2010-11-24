@@ -1591,6 +1591,10 @@ void Group::UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed)
 
 GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* bgOrTemplate, BattlegroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 /*MaxPlayerCount*/, bool isRated, uint32 arenaSlot)
 {
+    // check if this group is LFG group
+    if (isLFGGroup())
+        return ERR_LFG_CANT_USE_BATTLEGROUND;
+
     BattlemasterListEntry const* bgEntry = sBattlemasterListStore.LookupEntry(bgOrTemplate->GetTypeID());
     if (!bgEntry)
         return ERR_GROUP_JOIN_BATTLEGROUND_FAIL;            // shouldn't happen
@@ -1649,6 +1653,9 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
         // check if member can join any more battleground queues
         if (!member->HasFreeBattlegroundQueueId())
             return ERR_BATTLEGROUND_TOO_MANY_QUEUES;        // not blizz-like
+        // check if someone in party is using dungeon system
+        if (member->isUsingLfg())
+            return ERR_LFG_CANT_USE_BATTLEGROUND;
     }
 
     // only check for MinPlayerCount since MinPlayerCount == MaxPlayerCount for arenas...
