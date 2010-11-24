@@ -431,7 +431,7 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
     items.reserve(MAX_NR_LOOT_ITEMS);
     quest_items.reserve(MAX_NR_QUEST_ITEMS);
 
-    tab->Process(*this, store, store.IsRatesAllowed(), lootMode);     // Processing is done there, callback via Loot::AddItem()
+    tab->Process(*this, store.IsRatesAllowed(), lootMode);          // Processing is done there, callback via Loot::AddItem()
 
     // Setting access rights for group loot case
     Group * pGroup = lootOwner->GetGroup();
@@ -1194,7 +1194,7 @@ void LootTemplate::CopyConditions(ConditionList conditions)
 }
 
 // Rolls for every item in the template and adds the rolled items the the loot
-void LootTemplate::Process(Loot& loot, LootStore const& store, bool rate, uint16 lootMode, uint8 groupId) const
+void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId) const
 {
     if (groupId)                                            // Group reference uses own processing of the group
     {
@@ -1240,7 +1240,7 @@ void LootTemplate::Process(Loot& loot, LootStore const& store, bool rate, uint16
 
             uint32 maxcount = uint32(float(i->maxcount) * sWorld.getRate(RATE_DROP_ITEM_REFERENCED_AMOUNT));
             for (uint32 loop = 0; loop < maxcount; ++loop)    // Ref multiplicator
-                Referenced->Process(loot, store, rate, lootMode, i->group);
+                Referenced->Process(loot, rate, lootMode, i->group);
         }
         else                                                  // Plain entries (not a reference, not grouped)
             loot.AddItem(*i);                                 // Chance is already checked, just add
