@@ -3,167 +3,232 @@
 ###############################################
 [authserver]
 
-# Note to devs, line breaks should be at column 80
-###############################################################################
+###################################################################################################
+# SECTION INDEX
+#
+#    EXAMPLE CONFIG
+#    AUTH SERVER SETTINGS
+#    MYSQL SETTINGS
+#
+###################################################################################################
+
+###################################################################################################
+# EXAMPLE CONFIG
+#
+#    Variable
+#        Description: Brief description what the variable is doing.
+#        Important:   Annotation for important things about this variable.
+#        Example:     "Example, i.e. if the value is a string"
+#        Default:     10 - (Enabled|Comment|Variable name in case of grouped config options)
+#                     0  - (Disabled|Comment|Variable name in case of grouped config options)
+#
+# Note to developers:
+# - Copy this example to keep the formatting.
+# - Line breaks should be at column 100.
+###################################################################################################
+
+###################################################################################################
 # AUTH SERVER SETTINGS
 #
 #    LogsDir
-#        Logs directory setting.
-#        Important: Logs dir must exists, or all logs need to be disabled
-#        Default: "" - no log directory prefix, if used log names isn't
-#         absolute path then logs will be stored in current directory.
-#
-#    MaxPingTime
-#         Settings for maximum database-ping interval (minutes between pings)
-#
-#    RealmServerPort
-#         Default RealmServerPort
-#
-#    BindIP
-#         Bind Realm Server to IP/hostname
-#
-#    PidFile
-#        Realmd daemon PID file
-#        Default: ""             - do not create PID file
-#                 "./realmd.pid" - create PID file (recommended name)
-#
-#    LogLevel
-#        Server console level of logging
-#        Default: 0 = Minimum
-#                 1 = Basic
-#                 2 = Detail
-#                 3 = Full/Debug
-#
-#    LogFile
-#        Logfile name
-#        Default: "realmd.log"
-#                 "" - Empty name disable creating log file
-#
-#    SQLDriverLogFile
-#        Log file of SQL driver events.
-#        For effective query logging you need to build in debug configuration.
-#        Default: "" - Empty name for disable
-#
-#    LogTimestamp
-#        Logfile with timestamp of server start in name
-#         in form Logname_YYYY-MM-DD_HH-MM-SS.Ext for Logname.Ext
-#        Default: 0 - no timestamp in name
-#                 1 - add timestamp in name
-#
-#    LogFileLevel
-#        Server file level of logging
-#        Default: 0 = Minimum
-#                 1 = Basic
-#                 2 = Detail
-#                 3 = Full/Debug
-#
-#    LogColors
-#        Color for messages (format "normal basic detail debug")
-#        Default: "" - no colors
-#        Colors: 0  - BLACK
-#                1  - RED
-#                2  - GREEN
-#                3  - BROWN
-#                4  - BLUE
-#                5  - MAGENTA
-#                6  - CYAN
-#                7  - GREY
-#                8  - YELLOW
-#                9  - LRED
-#                10 - LGREEN
-#                11 - LBLUE
-#                12 - LMAGENTA
-#                13 - LCYAN
-#                14 - WHITE
-#        Example: "13 11 9 5"
-#
-#    EnableLogDB
-#        Enable/disable logging to database (LogDatabaseInfo).
-#        Default: 0 - disabled
-#                 1 - enabled
-#
-#    DBLogLevel
-#        Log level of DB logging.
-#                 0 = Minimum
-#        Default: 1 = Basic
-#                 2 = Detail
-#                 3 = Full/Debug
-#
-#    UseProcessors
-#        Processors mask for multi-processor system (Used only in Windows)
-#        Default: 0 (selected by OS)
-#                 number (bitmask value of selected processors)
-#
-#    ProcessPriority
-#        Process proirity setting (Used only at Windows)
-#        Default: 1 (HIGH)
-#                 0 (Normal)
-#
-#    RealmsStateUpdateDelay
-#        Realm list Update up delay
-#         (updated at realm list request if delay expired).
-#        Default: 20
-#                 0  (Disabled)
-#
-#    WrongPass.MaxCount
-#        Number of login attemps with wrong password
-#         before the account or IP is banned
-#        Default: 0  (Never ban)
-#
-#    WrongPass.BanTime
-#        Duration of the ban in seconds (0 means permanent ban)
-#        Default: 600
-#
-#    WrongPass.BanType
-#        Ban the IP or account on which login is attempted
-#        Default: 0 (Ban IP)
-#                 1 (Ban Account)
-#
-###############################################################################
+#        Description: Logs directory setting.
+#        Important:   LogsDir needs to be quoted, as the string might contain space characters.
+#                     Logs directory must exists, or log file creation will be disabled.
+#        Default:     "" - (Log files will be stored in the current path)
 
 LogsDir = ""
-MaxPingTime = 30
+
+#
+#    MaxPingTime
+#        Description: Time (in seconds) between database pings.
+#        Default:     1800 - (30 minutes)
+
+MaxPingTime = 1800
+
+#
+#    RealmServerPort
+#        Description: TCP port to reach the auth server.
+#        Default:     3724
+
 RealmServerPort = 3724
+
+#
+#
+#    BindIP
+#        Description: Bind auth server to IP/hostname
+#        Default:     "0.0.0.0" - (Bind to all IPs on the system)
+
 BindIP = "0.0.0.0"
+
+#
+#    PidFile
+#        Description: Auth server PID file.
+#        Example:     "./authserver.pid"  - (Enabled)
+#        Default:     ""                  - (Disabled)
+
 PidFile = ""
+
+#
+#    LogLevel
+#        Description: Server console level of logging
+#        Default:     0 - (Minimum)
+#                     1 - (Basic)
+#                     2 - (Detail)
+#                     3 - (Full/Debug)
+
 LogLevel = 0
-LogFile = "auth.log"
+
+#
+#    LogFile
+#        Description: Log file for main server log.
+#        Default:     "Auth.log" - (Enabled)
+#                     ""           - (Disabled)
+
+LogFile = "Auth.log"
+
+#
+#    SQLDriverLogFile
+#        Description: Log file for SQL driver events.
+#        Example:     "SQLDriver.log" - (Enabled)
+#        Default:      ""             - (Disabled)
+
 SQLDriverLogFile = ""
+
+#
+#    LogTimestamp
+#        Description: Append timestamp to the server log file name.
+#                     Logname_YYYY-MM-DD_HH-MM-SS.Ext for Logname.Ext
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
 LogTimestamp = 0
+
+#
+#    LogFileLevel
+#        Description: Server file level of logging
+#        Default:     0 - (Minimum)
+#                     1 - (Basic)
+#                     2 - (Detail)
+#                     3 - (Full/Debug)
+
 LogFileLevel = 0
+
+#
+#    LogColors
+#        Description: Colors for log messages (Format: "normal basic detail debug").
+#        Colors:      0  - Black
+#                     1  - Red
+#                     2  - Green
+#                     3  - Brown
+#                     4  - Blue
+#                     5  - Magenta
+#                     6  - Cyan
+#                     7  - Grey
+#                     8  - Yellow
+#                     9  - Lred
+#                     10 - Lgreen
+#                     11 - Lblue
+#                     12 - Lmagenta
+#                     13 - Lcyan
+#                     14 - White
+#        Example:     "13 11 9 5" - (Enabled)
+#        Default:     ""          - (Disabled)
+
 LogColors = ""
+
+#
+#    EnableLogDB
+#        Description: Write log messages to database (LogDatabaseInfo).
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
 EnableLogDB = 0
+
+#
+#    DBLogLevel
+#        Description: Log level of databases logging.
+#        Default:     1 - (Basic)
+#                     0 - (Minimum)
+#                     2 - (Detail)
+#                     3 - (Full/Debug)
+
 DBLogLevel = 1
+
+#
+#    UseProcessors
+#        Description: Processors mask for Windows based multi-processor systems.
+#        Default:     0  - (Selected by OS)
+#                     1+ - (Bit mask value of selected processors)
+
 UseProcessors = 0
+
+#
+#    ProcessPriority
+#        Description: Process priority setting for Windows based systems.
+#        Default:     1 - (High)
+#                     0 - (Normal)
+
 ProcessPriority = 1
+
+#
+#    RealmsStateUpdateDelay
+#        Description: Time (in seconds) between realm list updates.
+#        Default:     20 - (Enabled)
+#                     0  - (Disabled)
+
 RealmsStateUpdateDelay = 20
+
+#
+#    WrongPass.MaxCount
+#        Description: Number of login attemps with wrong password before the account or IP will be
+#                     banned.
+#        Default:     0  - (Disabled)
+#                     1+ - (Enabled)
+
 WrongPass.MaxCount = 0
+
+#
+#    WrongPass.BanTime
+#        Description: Time (in seconds) for banning account or IP for invalid login attempts.
+#        Default:     600 - (10 minutes)
+#                     0   - (Permanent ban)
+
 WrongPass.BanTime = 600
+
+#
+#    WrongPass.BanType
+#        Description: Ban type for invalid login attempts.
+#        Default:     0 - (Ban IP)
+#                     1 - (Ban Account)
+
 WrongPass.BanType = 0
 
-###############################################################################
+#
+###################################################################################################
+
+###################################################################################################
 # MYSQL SETTINGS
 #
 #    LoginDatabaseInfo
-#        Database connection settings for the realm server.
-#        Default:
-#                    hostname;port;username;password;database
-#                    .;somenumber;username;password;database
-#                     - use named pipes in Windows
-#                    Named pipes: mySQL required adding
-#                        "enable-named-pipe" to [mysqld] section my.ini
-#                    .;/path/to/unix_socket;username;password;database
-#                     - use Unix sockets in Unix/Linux
-#
-#    LoginDatabase.WorkerThreads
-#        The amount of worker threads spawned to handle
-#        asynchroneous MySQL statements
-#        Each worker thread is mirrored with its own
-#        connection to the MySQL server and their own
-#        thread on the MySQL server.
-#        Default: 1
-#
-###############################################################################
+#        Description: Database connection settings for the realm server.
+#        Example:     "hostname;port;username;password;database"
+#                     ".;somenumber;username;password;database" - (Use named pipes on Windows
+#                                                                 "enable-named-pipe" to [mysqld]
+#                                                                 section my.ini)
+#                     ".;/path/to/unix_socket;username;password;database" - (use Unix sockets on
+#                                                                           Unix/Linux)
+#        Default:     "127.0.0.1;3306;trinity;trinity;auth"
 
 LoginDatabaseInfo = "127.0.0.1;3306;trinity;trinity;auth"
-LoginDatabase.WorkerThreads = 1
+
+#
+#    LoginDatabase.WorkerThreads
+#        Description: The amount of worker threads spawned to handle asynchronous (delayed) MySQL
+#                     statements. Each worker thread is mirrored with its own connection to the
+#                     MySQL server and their own thread on the MySQL server.
+#        Default:     1 - (LoginDatabase.WorkerThreads)
+
+LoginDatabase.WorkerThreads     = 1
+
+#
+###################################################################################################
