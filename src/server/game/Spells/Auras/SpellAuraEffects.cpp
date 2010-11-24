@@ -2901,33 +2901,43 @@ void AuraEffect::HandlePhase(AuraApplication const * aurApp, uint8 mode, bool ap
     Unit * target = aurApp->GetTarget();
 
     // no-phase is also phase state so same code for apply and remove
+    uint32 newPhase = 0;
+    Unit::AuraEffectList const& phases = target->GetAuraEffectsByType(SPELL_AURA_PHASE);
+    if (!phases.empty())
+        for (Unit::AuraEffectList::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
+            newPhase |= (*itr)->GetMiscValue();
+
 
     // phase auras normally not expected at BG but anyway better check
-    if (target->GetTypeId() == TYPEID_PLAYER)
+    if (Player* player = target->ToPlayer())
     {
+        if (!newPhase)
+            newPhase = PHASEMASK_NORMAL;
+
         // drop flag at invisible in bg
-        if (target->ToPlayer()->InBattleground())
-            if (Battleground *bg = target->ToPlayer()->GetBattleground())
-          bg->EventPlayerDroppedFlag(target->ToPlayer());
+        if (player->InBattleground())
+            if (Battleground *bg = player->GetBattleground())
+                bg->EventPlayerDroppedFlag(player);
 
         // GM-mode have mask 0xFFFFFFFF
-        if (!target->ToPlayer()->isGameMaster())
+        if (player->isGameMaster())
+            newPhase = 0xFFFFFFFF;
+
+        player->SetPhaseMask(newPhase, false);
+        player->GetSession()->SendSetPhaseShift(newPhase);
+    }
+    else
+    {
+        if (!newPhase)
         {
-            if (apply)
-                target->SetPhaseMask(GetMiscValue(), false);
-            else
-                target->SetPhaseMask(PHASEMASK_NORMAL, false);
+            newPhase = PHASEMASK_NORMAL;
+            if (Creature* creature = target->ToCreature())
+                if (CreatureData const* data = sObjectMgr.GetCreatureData(creature->GetDBTableGUIDLow()))
+                    newPhase = data->phaseMask;
         }
 
-        if (apply)
-            target->ToPlayer()->GetSession()->SendSetPhaseShift(GetMiscValue());
-        else
-            target->ToPlayer()->GetSession()->SendSetPhaseShift(PHASEMASK_NORMAL);
+        target->SetPhaseMask(newPhase, false);
     }
-    else if (apply)
-        target->SetPhaseMask(GetMiscValue(), false);
-    else
-        target->SetPhaseMask(PHASEMASK_NORMAL, false);
 
     // need triggering visibility update base at phase update of not GM invisible (other GMs anyway see in any phases)
     if (!target->IsVisible())
