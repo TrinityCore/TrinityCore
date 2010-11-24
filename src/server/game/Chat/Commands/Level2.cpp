@@ -216,15 +216,18 @@ bool ChatHandler::HandleKickPlayerCommand(const char *args)
 
     if (!kickName)
     {
-        Player* player = getSelectedPlayer();
-        if (!player)
+        Player* target;
+        if (!extractPlayerTarget((char*)args,&target))
+            return false;
+
+        if (!target)
         {
-            SendSysMessage(LANG_NO_CHAR_SELECTED);
+            SendSysMessage(LANG_PLAYER_NOT_FOUND);
             SetSentErrorMessage(true);
             return false;
         }
 
-        if (player == m_session->GetPlayer())
+        if (m_session && target == m_session->GetPlayer())
         {
             SendSysMessage(LANG_COMMAND_KICKSELF);
             SetSentErrorMessage(true);
@@ -232,19 +235,15 @@ bool ChatHandler::HandleKickPlayerCommand(const char *args)
         }
 
         // check online security
-        if (HasLowerSecurity(player, 0))
+        if (HasLowerSecurity(target, 0))
             return false;
 
-        if (sWorld.getBoolConfig(CONFIG_SHOW_KICK_IN_WORLD) == 1)
-        {
-            sWorld.SendWorldText(LANG_COMMAND_KICKMESSAGE, player->GetName(), kicker.c_str(), reason.c_str());
-        }
+        if (sWorld.getBoolConfig(CONFIG_SHOW_KICK_IN_WORLD))
+            sWorld.SendWorldText(LANG_COMMAND_KICKMESSAGE, target->GetName(), kicker.c_str(), reason.c_str());
         else
-        {
-            PSendSysMessage(LANG_COMMAND_KICKMESSAGE, player->GetName(), kicker.c_str(), reason.c_str());
-        }
+            PSendSysMessage(LANG_COMMAND_KICKMESSAGE, target->GetName(), kicker.c_str(), reason.c_str());
 
-        player->GetSession()->KickPlayer();
+        target->GetSession()->KickPlayer();
     }
     else
     {
@@ -280,41 +279,14 @@ bool ChatHandler::HandleKickPlayerCommand(const char *args)
 
         std::string nameLink = playerLink(name);
 
-        if (sWorld.KickPlayer(name))
-        {
-            if (sWorld.getBoolConfig(CONFIG_SHOW_KICK_IN_WORLD) == 1)
-            {
-                sWorld.SendWorldText(LANG_COMMAND_KICKMESSAGE, nameLink.c_str(), kicker.c_str(), reason.c_str());
-            }
-            else
-            {
-                PSendSysMessage(LANG_COMMAND_KICKMESSAGE,nameLink.c_str());
-            }
-        }
+        if (sWorld.getBoolConfig(CONFIG_SHOW_KICK_IN_WORLD))
+            sWorld.SendWorldText(LANG_COMMAND_KICKMESSAGE, nameLink.c_str(), kicker.c_str(), reason.c_str());
         else
-        {
-            PSendSysMessage(LANG_COMMAND_KICKNOTFOUNDPLAYER,nameLink.c_str());
-            return false;
-        }
-    }
-    Player* target;
-    if (!extractPlayerTarget((char*)args,&target))
-        return false;
+            PSendSysMessage(LANG_COMMAND_KICKMESSAGE,nameLink.c_str());
 
-    if (m_session && target == m_session->GetPlayer())
-    {
-        SendSysMessage(LANG_COMMAND_KICKSELF);
-        SetSentErrorMessage(true);
-        return false;
+        player->GetSession()->KickPlayer();
     }
 
-    // check online security
-    if (HasLowerSecurity(target, 0))
-        return false;
-
-    // send before target pointer invalidate
-    PSendSysMessage(LANG_COMMAND_KICKMESSAGE,GetNameLink(target).c_str());
-    target->GetSession()->KickPlayer();
     return true;
 }
 
