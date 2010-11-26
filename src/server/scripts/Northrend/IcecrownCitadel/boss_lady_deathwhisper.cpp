@@ -179,6 +179,7 @@ class boss_lady_deathwhisper : public CreatureScript
 
             void Reset()
             {
+                me->SetReactState(REACT_DEFENSIVE);
                 me->SetPower(POWER_MANA, me->GetMaxPower(POWER_MANA));
                 me->SetLastManaUse(0xFFFFFFFF); // hacky, but no other way atm to prevent mana regen
                 events.Reset();
@@ -209,6 +210,8 @@ class boss_lady_deathwhisper : public CreatureScript
                     events.ScheduleEvent(EVENT_INTRO_7, 58000, 0, PHASE_INTRO);
                     events.ScheduleEvent(EVENT_INTRO_FINISH, 76000, 0, PHASE_INTRO);
                 }
+
+                BossAI::MoveInLineOfSight(who);
             }
 
             void AttackStart(Unit* victim)
