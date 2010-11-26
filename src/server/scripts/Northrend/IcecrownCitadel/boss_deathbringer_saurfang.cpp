@@ -257,6 +257,7 @@ class boss_deathbringer_saurfang : public CreatureScript
 
             void Reset()
             {
+                me->SetReactState(REACT_DEFENSIVE);
                 events.Reset();
                 events.SetPhase(PHASE_COMBAT);
                 frenzy = false;
@@ -274,6 +275,11 @@ class boss_deathbringer_saurfang : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
+                // oh just screw intro, enter combat - no exploits please
+                events.SetPhase(PHASE_COMBAT);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                introDone = true;
+
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_SUMMON_BLOOD_BEAST, 30000, 0, PHASE_COMBAT);
                 events.ScheduleEvent(EVENT_BERSERK, 480000, 0, PHASE_COMBAT);
@@ -295,11 +301,6 @@ class boss_deathbringer_saurfang : public CreatureScript
                 instance->SetBossState(DATA_DEATHBRINGER_SAURFANG, DONE);
                 if (Creature* creature = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SAURFANG_EVENT_NPC)))
                     creature->AI()->DoAction(ACTION_START_OUTRO);
-            }
-
-            void MoveInLineOfSight(Unit* /*who*/)
-            {
-                // not calling CreatureAI::MoveInLineOfSight to prevent entering combat
             }
 
             void AttackStart(Unit* victim)
