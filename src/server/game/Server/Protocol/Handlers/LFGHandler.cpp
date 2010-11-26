@@ -59,17 +59,10 @@ void BuildPartyLockDungeonBlock(WorldPacket &data, LfgLockStatusMap* lockMap)
 
 void WorldSession::HandleLfgJoinOpcode(WorldPacket &recv_data)
 {
-    if (!sWorld.getBoolConfig(CONFIG_DUNGEON_FINDER_ENABLE))
+    if (!sWorld.getBoolConfig(CONFIG_DUNGEON_FINDER_ENABLE) ||
+        (GetPlayer()->GetGroup() && GetPlayer()->GetGroup()->GetLeaderGUID() != GetPlayer()->GetGUID()))
     {
         recv_data.rpos(recv_data.wpos());
-        sLog.outDebug("CMSG_LFG_JOIN [" UI64FMTD "] Dungeon finder disabled", GetPlayer()->GetGUID());
-        return;
-    }
-
-    if (sLFGMgr.isJoining(GetPlayer()->GetGUID()))
-    {
-        recv_data.rpos(recv_data.wpos());
-        sLog.outDebug("CMSG_LFG_JOIN [" UI64FMTD "] already Joining. Ignoring", GetPlayer()->GetGUID());
         return;
     }
 
@@ -77,11 +70,10 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket &recv_data)
     uint32 dungeon;
     uint32 roles;
     std::string comment;
-    LfgDungeonSet newDungeons;
+    LfgDungeonSet* newDungeons;
 
     recv_data >> roles;
-    recv_data.read_skip<uint8>();                           // unk - always 0
-    recv_data.read_skip<uint8>();                           // unk - always 0
+    recv_data.read_skip<uint16>();                         // uint8 (always 0) - uint8 (always 0)
     recv_data >> numDungeons;
     if (!numDungeons)
     {
@@ -90,34 +82,18 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket &recv_data)
         return;
     }
 
+    newDungeons = new LfgDungeonSet();
     for (int8 i = 0 ; i < numDungeons; ++i)
     {
         recv_data >> dungeon;
-        newDungeons.insert((dungeon & 0x00FFFFFF));         // remove the type from the dungeon entry
+        newDungeons->insert((dungeon & 0x00FFFFFF));       // remove the type from the dungeon entry
     }
 
-    recv_data >> numDungeons;                               // unk - always 3
-    for (int8 i = 0 ; i < numDungeons; ++i)
-        recv_data.read_skip<uint8>();                       // unk - always 0
+    recv_data.read_skip<uint32>();                         // for 0..uint8 (always 3) { uint8 (always 0) }
 
     recv_data >> comment;
-
-    LfgDungeonSet* dungeons = GetPlayer()->GetLfgDungeons();
-    Group* grp = GetPlayer()->GetGroup();
-    bool isRandomDungeon = dungeons->size() == 1 && sLFGMgr.isRandomDungeon(*dungeons->begin());
-    bool isCurrentDungeon = newDungeons.size() == 1 && grp && grp->isLFGGroup() &&  grp->GetLfgDungeonEntry() == (*newDungeons.begin());
-
-    if (!isRandomDungeon || !isCurrentDungeon)              // is not offer to continue - clear old dungeons and use new dungeons
-    {
-        dungeons->clear();
-        for (LfgDungeonSet::const_iterator it = newDungeons.begin(); it != newDungeons.end(); ++it)
-            dungeons->insert(*it);
-    }
-    GetPlayer()->SetLfgRoles(uint8(roles));
-    GetPlayer()->SetLfgComment(comment);
-    sLog.outDebug("CMSG_LFG_JOIN [" UI64FMTD "] as group: %u - Dungeons: %u", GetPlayer()->GetGUID(), grp ? 1 : 0, uint8(newDungeons.size()));
-    newDungeons.clear();
-    sLFGMgr.Join(GetPlayer());
+    sLog.outDebug("CMSG_LFG_JOIN [" UI64FMTD "] roles: %u, Dungeons: %u, Comment: %s", GetPlayer()->GetGUID(), roles, uint8(newDungeons->size()), comment.c_str());
+    sLFGMgr.Join(GetPlayer(), uint8(roles), newDungeons, comment);
 }
 
 void WorldSession::HandleLfgLeaveOpcode(WorldPacket & /*recv_data*/)
@@ -300,14 +276,8 @@ void WorldSession::HandleLfrLeaveOpcode(WorldPacket &recv_data)
     //sLFGMgr.LeaveLfr(GetPlayer(), dungeonId);
 }
 
-void WorldSession::SendLfgUpdatePlayer(uint8 updateType)
+void WorldSession::SendLfgUpdatePlayer(uint8 updateType, LfgDungeonSet* dungeons /* = NULL */, std::string comment /* = "" */)
 {
-    if (!GetPlayer()->GetLfgUpdate())
-    {
-        sLog.outDebug("SMSG_LFG_UPDATE_PLAYER [" UI64FMTD "] updatetype: %u not sent! player flag: false", GetPlayer()->GetGUID(), updateType);
-        return;
-    }
-
     bool queued = false;
     bool extrainfo = false;
 
@@ -323,37 +293,31 @@ void WorldSession::SendLfgUpdatePlayer(uint8 updateType)
         extrainfo = true;
         break;
     }
-    LfgDungeonSet* dungeons = GetPlayer()->GetLfgDungeons();
-    uint8 size = dungeons->size();
-    std::string comment = GetPlayer()->GetLfgComment();
 
-    sLog.outDebug("SMSG_LFG_UPDATE_PLAYER [" UI64FMTD "] updatetype: %u", GetPlayer()->GetGUID(), updateType);
+    uint64 guid = GetPlayer()->GetGUID();
+    uint8 size = dungeons ? dungeons->size() : 0;
+
+    sLog.outDebug("SMSG_LFG_UPDATE_PLAYER [" UI64FMTD "] updatetype: %u", guid, updateType);
     WorldPacket data(SMSG_LFG_UPDATE_PLAYER, 1 + 1 + (extrainfo ? 1 : 0) * (1 + 1 + 1 + 1 + size * 4 + comment.length()));
-    data << uint8(updateType);                              // Lfg Update type
-    data << uint8(extrainfo);                               // Extra info
+    data << uint8(updateType);                             // Lfg Update type
+    data << uint8(extrainfo);                              // Extra info
     if (extrainfo)
     {
-        data << uint8(queued);                              // Join the queue
-        data << uint8(0);                                   // unk - Always 0
-        data << uint8(0);                                   // unk - Always 0
+        data << uint8(queued);                             // Join the queue
+        data << uint8(0);                                  // unk - Always 0
+        data << uint8(0);                                  // unk - Always 0
 
         data << uint8(size);
-
-        for (LfgDungeonSet::const_iterator it = dungeons->begin(); it != dungeons->end(); ++it)
-            data << uint32(*it);
+        if (size)
+            for (LfgDungeonSet::const_iterator it = dungeons->begin(); it != dungeons->end(); ++it)
+                data << uint32(*it);
         data << comment;
     }
     SendPacket(&data);
 }
 
-void WorldSession::SendLfgUpdateParty(uint8 updateType)
+void WorldSession::SendLfgUpdateParty(uint8 updateType, LfgDungeonSet* dungeons /* = NULL */, std::string comment /* = "" */)
 {
-    if (!GetPlayer()->GetLfgUpdate())
-    {
-        sLog.outDebug("SMSG_LFG_UPDATE_PARTY [" UI64FMTD "] updatetype: %u not sent! player flag: false", GetPlayer()->GetGUID(), updateType);
-        return;
-    }
-
     bool join = false;
     bool extrainfo = false;
     bool queued = false;
@@ -378,28 +342,26 @@ void WorldSession::SendLfgUpdateParty(uint8 updateType)
         break;
     }
 
-    LfgDungeonSet* dungeons = GetPlayer()->GetLfgDungeons();
-    uint8 size = dungeons->size();
-    std::string comment = GetPlayer()->GetLfgComment();
+    uint64 guid = GetPlayer()->GetGUID();
+    uint8 size = dungeons ? dungeons->size() : 0;
 
-    sLog.outDebug("SMSG_LFG_UPDATE_PARTY [" UI64FMTD "] updatetype: %u", GetPlayer()->GetGUID(), updateType);
+    sLog.outDebug("SMSG_LFG_UPDATE_PARTY [" UI64FMTD "] updatetype: %u", guid, updateType);
     WorldPacket data(SMSG_LFG_UPDATE_PARTY, 1 + 1 + (extrainfo ? 1 : 0) * (1 + 1 + 1 + 1 + 1 + size * 4 + comment.length()));
-    data << uint8(updateType);                              // Lfg Update type
-    data << uint8(extrainfo);                               // Extra info
+    data << uint8(updateType);                             // Lfg Update type
+    data << uint8(extrainfo);                              // Extra info
     if (extrainfo)
     {
-        data << uint8(join);                                // LFG Join
-        data << uint8(queued);                              // Join the queue
-        data << uint8(0);                                   // unk - Always 0
-        data << uint8(0);                                   // unk - Always 0
+        data << uint8(join);                               // LFG Join
+        data << uint8(queued);                             // Join the queue
+        data << uint8(0);                                  // unk - Always 0
+        data << uint8(0);                                  // unk - Always 0
         for (uint8 i = 0; i < 3; ++i)
-            data << uint8(0);                               // unk - Always 0
+            data << uint8(0);                              // unk - Always 0
 
         data << uint8(size);
-
-        for (LfgDungeonSet::const_iterator it = dungeons->begin(); it != dungeons->end(); ++it)
-            data << uint32(*it);
-
+        if (size)
+            for (LfgDungeonSet::const_iterator it = dungeons->begin(); it != dungeons->end(); ++it)
+                data << uint32(*it);
         data << comment;
     }
     SendPacket(&data);

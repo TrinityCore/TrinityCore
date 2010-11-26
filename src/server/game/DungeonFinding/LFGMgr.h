@@ -30,7 +30,6 @@ enum LFGenum
     LFG_TIME_ROLECHECK         = 2*MINUTE,
     LFG_TIME_BOOT              = 2*MINUTE,
     LFG_TIME_PROPOSAL          = 2*MINUTE,
-    LFG_TIME_JOIN_WARNING      = 1*IN_MILLISECONDS,
     LFG_TANKS_NEEDED           = 1,
     LFG_HEALERS_NEEDED         = 1,
     LFG_DPS_NEEDED             = 3,
@@ -248,13 +247,13 @@ class LFGMgr
         LFGMgr();
         ~LFGMgr();
 
-        void Join(Player* plr);
+        void Join(Player* plr, uint8 roles, LfgDungeonSet* dungeons, std::string comment);
         void Leave(Player* plr, Group* grp = NULL);
         void OfferContinue(Group* grp);
         void TeleportPlayer(Player* plr, bool out, bool fromOpcode = false);
         void UpdateProposal(uint32 proposalId, uint32 lowGuid, bool accept);
         void UpdateBoot(Player* plr, bool accept);
-        void UpdateRoleCheck(Group* grp, Player* plr = NULL);
+        void UpdateRoleCheck(Group* grp, Player* plr = NULL, bool newRoleCheck = false);
         void Update(uint32 diff);
 
         bool isRandomDungeon(uint32 dungeonId);
@@ -269,8 +268,6 @@ class LFGMgr
         LfgDungeonSet* GetRandomDungeons(uint8 level, uint8 expansion);
         LfgLockStatusSet* GetPlayerLockStatusDungeons(Player* plr, LfgDungeonSet* dungeons = NULL, bool useEntry = true);
         LfgReward const* GetRandomDungeonReward(uint32 dungeon, uint8 level);
-
-        bool isJoining(uint64 guid);
 
     private:
         void Cleaner();
