@@ -9389,7 +9389,7 @@ bool Unit::Attack(Unit *victim, bool meleeAttack)
     //if (GetTypeId() == TYPEID_UNIT)
     //    this->ToCreature()->SetCombatStartPosition(GetPositionX(), GetPositionY(), GetPositionZ());
 
-    if (GetTypeId() == TYPEID_UNIT && !this->ToCreature()->IsPet())
+    if (GetTypeId() == TYPEID_UNIT && !this->ToCreature()->isPet())
     {
         // should not let player enter combat by right clicking target
         SetInCombatWith(victim);
