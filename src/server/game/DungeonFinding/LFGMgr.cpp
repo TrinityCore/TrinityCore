@@ -1658,49 +1658,53 @@ void LFGMgr::RemoveProposal(LfgProposalMap::iterator itProposal, LfgUpdateType t
             if (it->second->accept != LFG_ANSWER_AGREE)
                 it->second->accept = LFG_ANSWER_DENY;
 
+    // Remove from queue all players/groups that didn't accept
+    for (LfgProposalPlayerMap::const_iterator it = pProposal->players.begin(); it != pProposal->players.end(); ++it)
+        if (it->second->accept == LFG_ANSWER_DENY)
+            RemoveFromQueue(it->second->groupLowGuid ? MAKE_NEW_GUID(it->second->groupLowGuid, 0, HIGHGUID_GROUP) : MAKE_NEW_GUID(it->first, 0, HIGHGUID_PLAYER));
+
     // Inform players
     for (LfgProposalPlayerMap::const_iterator it = pProposal->players.begin(); it != pProposal->players.end(); ++it)
     {
         plr = sObjectMgr.GetPlayerByLowGUID(it->first);
         if (!plr)
             continue;
+        plr->GetSession()->SendUpdateProposal(itProposal->first, pProposal);
         guid = it->second->groupLowGuid ? MAKE_NEW_GUID(it->second->groupLowGuid, 0, HIGHGUID_GROUP) : plr->GetGUID();
 
-        plr->GetSession()->SendUpdateProposal(itProposal->first, pProposal);
-        // Remove members that didn't accept
-        if (it->second->accept == LFG_ANSWER_DENY)
+        itQueue = m_QueueInfoMap.find(guid);
+        if (itQueue == m_QueueInfoMap.end())               // Didn't accept or in same group that someone that didn't accept
         {
-            updateType = type;
+            if (it->second->accept == LFG_ANSWER_DENY)
+            {
+                updateType = type;
+                sLog.outDebug("LFGMgr::RemoveProposal: [" UI64FMTD "] didn't accept. Removing from queue and compatible cache", guid);
+            }
+            else
+            {
+                updateType = LFG_UPDATETYPE_REMOVED_FROM_QUEUE;
+                sLog.outDebug("LFGMgr::RemoveProposal: [" UI64FMTD "] in same group that someone that didn't accept. Removing from queue and compatible cache", guid);
+            }
             plr->GetLfgDungeons()->clear();
             plr->SetLfgRoles(ROLE_NONE);
             if (!plr->GetGroup() || !plr->GetGroup()->isLFGGroup())
                 plr->SetLfgState(LFG_STATE_NONE);
 
-            sLog.outDebug("LFGMgr::RemoveProposal: [" UI64FMTD "] didn't accept. Removing from queue and compatible cache", guid);
-            RemoveFromQueue(guid);
-        }
-        else                                                 // Readd to queue
-        {
-            itQueue = m_QueueInfoMap.find(guid);
-            if (itQueue == m_QueueInfoMap.end())             // Can't readd! misssing queue info!
-            {
-                sLog.outError("LFGMgr::RemoveProposal: Imposible to readd [" UI64FMTD "] to queue. Missing queue info!", guid);
-                updateType = LFG_UPDATETYPE_REMOVED_FROM_QUEUE;
-            }
+            if (plr->GetGroup())
+                plr->GetSession()->SendLfgUpdateParty(updateType);
             else
-            {
-                sLog.outDebug("LFGMgr::RemoveProposal: Readding [" UI64FMTD "] to queue.", guid);
-                itQueue->second->joinTime = time_t(time(NULL));
-                AddGuidToNewQueue(guid);
-                updateType = LFG_UPDATETYPE_ADDED_TO_QUEUE;
-            }
+                plr->GetSession()->SendLfgUpdatePlayer(updateType);
         }
-
-        if (plr->GetGroup())
-            plr->GetSession()->SendLfgUpdateParty(updateType, plr->GetLfgDungeons(), plr->GetLfgComment());
         else
-            plr->GetSession()->SendLfgUpdatePlayer(updateType, plr->GetLfgDungeons(), plr->GetLfgComment());
-
+        {
+            sLog.outDebug("LFGMgr::RemoveProposal: Readding [" UI64FMTD "] to queue.", guid);
+            itQueue->second->joinTime = time_t(time(NULL));
+            AddGuidToNewQueue(guid);
+            if (plr->GetGroup())
+                plr->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_ADDED_TO_QUEUE, plr->GetLfgDungeons(), plr->GetLfgComment());
+            else
+                plr->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_ADDED_TO_QUEUE, plr->GetLfgDungeons(), plr->GetLfgComment());
+        }
     }
 
     for (LfgProposalPlayerMap::const_iterator it = pProposal->players.begin(); it != pProposal->players.end(); ++it)
