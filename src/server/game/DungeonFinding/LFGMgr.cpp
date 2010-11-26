@@ -525,9 +525,12 @@ void LFGMgr::Join(Player* plr, uint8 roles, LfgDungeonSet* dungeons, std::string
         if (sameDungeons)                                   // Joining the same dungeons -- Send OK
         {
             plr->GetSession()->SendLfgJoinResult(LFG_JOIN_OK);
-            for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
-                if (itr->getSource() && itr->getSource()->GetSession())
-                    itr->getSource()->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_ADDED_TO_QUEUE, dungeons, comment);
+            if (grp)
+            {
+                for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
+                    if (itr->getSource() && itr->getSource()->GetSession())
+                        itr->getSource()->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_ADDED_TO_QUEUE, dungeons, comment);
+            }
             dungeons->clear();
             delete dungeons;
             return;
