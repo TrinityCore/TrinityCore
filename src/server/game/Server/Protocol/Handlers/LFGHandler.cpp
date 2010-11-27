@@ -554,7 +554,7 @@ void WorldSession::SendUpdateProposal(uint32 proposalId, LfgProposal* pProp)
     if (grp)
     {
         isContinue = grp->isLFGGroup() && !grp->isLfgDungeonComplete();
-        isSameDungeon = GetPlayer()->GetGroup() == grp;
+        isSameDungeon = GetPlayer()->GetGroup() == grp && isContinue;
     }
 
     sLog.outDebug("SMSG_LFG_PROPOSAL_UPDATE [" UI64FMTD "] state: %u", GetPlayer()->GetGUID(), pProp->state);
