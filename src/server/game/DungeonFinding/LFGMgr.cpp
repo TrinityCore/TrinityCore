@@ -1425,9 +1425,6 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag /*= true
 
         if (it->second & ROLE_TANK)
         {
-            if  (tank == LFG_TANKS_NEEDED)
-                return false;
-
             if (it->second != ROLE_TANK)
             {
                 it->second -= ROLE_TANK;
@@ -1435,15 +1432,14 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag /*= true
                     return true;
                 it->second += ROLE_TANK;
             }
+            else if (tank == LFG_TANKS_NEEDED)
+                return false;
             else
                 tank++;
         }
 
         if (it->second & ROLE_HEALER)
         {
-            if  (healer == LFG_HEALERS_NEEDED)
-                return false;
-
             if (it->second != ROLE_HEALER)
             {
                 it->second -= ROLE_HEALER;
@@ -1451,15 +1447,14 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag /*= true
                     return true;
                 it->second += ROLE_HEALER;
             }
+            else if (healer == LFG_HEALERS_NEEDED)
+                return false;
             else
                 healer++;
         }
 
         if (it->second & ROLE_DAMAGE)
         {
-            if  (damage == LFG_DPS_NEEDED)
-                return false;
-
             if (it->second != ROLE_DAMAGE)
             {
                 it->second -= ROLE_DAMAGE;
@@ -1467,6 +1462,8 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag /*= true
                     return true;
                 it->second += ROLE_DAMAGE;
             }
+            else if (damage == LFG_DPS_NEEDED)
+                return false;
             else
                 damage++;
         }
