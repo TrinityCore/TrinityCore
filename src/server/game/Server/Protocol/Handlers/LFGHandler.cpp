@@ -548,11 +548,19 @@ void WorldSession::SendUpdateProposal(uint32 proposalId, LfgProposal* pProp)
     uint32 pLowGroupGuid = ppPlayer->groupLowGuid;
     uint32 dLowGuid = pProp->groupLowGuid;
     uint32 dungeonId = pProp->dungeonId;
-    uint32 isSameDungeon = GetPlayer()->GetGroup() && GetPlayer()->GetGroup()->GetLfgDungeonEntry() == dungeonId;
+    bool isSameDungeon = false;
+    bool isContinue = false;
+    Group* grp = dLowGuid ? sObjectMgr.GetGroupByGUID(dLowGuid) : NULL;
+    if (grp)
+    {
+        isContinue = grp->isLFGGroup() && !grp->isLfgDungeonComplete();
+        isSameDungeon = GetPlayer()->GetGroup() == grp;
+    }
 
     sLog.outDebug("SMSG_LFG_PROPOSAL_UPDATE [" UI64FMTD "] state: %u", GetPlayer()->GetGUID(), pProp->state);
     WorldPacket data(SMSG_LFG_PROPOSAL_UPDATE, 4 + 1 + 4 + 4 + 1 + 1 + pProp->players.size() * (4 + 1 + 1 + 1 + 1 +1));
-    if (!dLowGuid && GetPlayer()->GetLfgDungeons()->size() == 1)    // New group - select the dungeon the player selected
+
+    if (!isContinue)                                        // Only show proposal dungeon if it's continue
         dungeonId = (*GetPlayer()->GetLfgDungeons()->begin());
     if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(dungeonId))
         dungeonId = dungeon->Entry();
