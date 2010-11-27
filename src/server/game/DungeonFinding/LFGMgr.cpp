@@ -1500,6 +1500,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint32 lowGuid, bool accept)
     }
 
     LfgPlayerList players;
+    LfgPlayerList playersToTeleport;
     Player* plr;
 
     // check if all have answered and reorder players (leader first)
@@ -1514,6 +1515,10 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint32 lowGuid, bool accept)
                 players.push_front(plr);
             else
                 players.push_back(plr);
+
+            // Only teleport new players
+            if (!plr->GetGroup() || plr->GetGroup()->isLfgDungeonComplete()) 
+                playersToTeleport.push_back(plr);
         }
 
         if (itPlayers->second->accept != LFG_ANSWER_AGREE)   // No answer (-1) or not accepted (0)
@@ -1621,7 +1626,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint32 lowGuid, bool accept)
             RemoveFromQueue(*it);
 
         // Teleport Player
-        for (LfgPlayerList::const_iterator it = players.begin(); it != players.end(); ++it)
+        for (LfgPlayerList::const_iterator it = playersToTeleport.begin(); it != playersToTeleport.end(); ++it)
             TeleportPlayer(*it, false);
 
         // Update group info
@@ -1635,6 +1640,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint32 lowGuid, bool accept)
         m_Proposals.erase(itProposal);
     }
     players.clear();
+    playersToTeleport.clear();
 }
 
 /// <summary>
