@@ -1517,7 +1517,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint32 lowGuid, bool accept)
                 players.push_back(plr);
 
             // Only teleport new players
-            if (!plr->GetGroup() || plr->GetGroup()->isLfgDungeonComplete()) 
+            if (!plr->GetGroup() || !plr->GetGroup()->isLFGGroup() || plr->GetGroup()->isLfgDungeonComplete()) 
                 playersToTeleport.push_back(plr);
         }
 
