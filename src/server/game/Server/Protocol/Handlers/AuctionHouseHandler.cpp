@@ -115,11 +115,11 @@ void WorldSession::SendAuctionOwnerNotification(AuctionEntry* auction)
 void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
 {
     uint64 auctioneer, item;
-    uint32 etime, bid, buyout;
+    uint32 etime, bid, buyout, count;
     recv_data >> auctioneer;
     recv_data.read_skip<uint32>();                          // const 1?
     recv_data >> item;
-    recv_data.read_skip<uint32>();                          // unk 3.2.2, const 1?
+    recv_data >> count;                                     // 3.2.2, number of items being auctioned
     recv_data >> bid;
     recv_data >> buyout;
     recv_data >> etime;
@@ -201,7 +201,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
     AuctionHouseObject* auctionHouse = sAuctionMgr.GetAuctionsMap(pCreature->getFaction());
 
     //we have to take deposit :
-    uint32 deposit = sAuctionMgr.GetAuctionDeposit(auctionHouseEntry, etime, it);
+    uint32 deposit = sAuctionMgr.GetAuctionDeposit(auctionHouseEntry, etime, it, count);
     if (!pl->HasEnoughMoney(deposit))
     {
         SendAuctionCommandResult(0, AUCTION_SELL_ITEM, AUCTION_NOT_ENOUGHT_MONEY);
@@ -211,7 +211,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
     if (GetSecurity() > SEC_PLAYER && sWorld.getBoolConfig(CONFIG_GM_LOG_TRADE))
     {
         sLog.outCommand(GetAccountId(),"GM %s (Account: %u) create auction: %s (Entry: %u Count: %u)",
-            GetPlayerName(),GetAccountId(),it->GetProto()->Name1,it->GetEntry(),it->GetCount());
+            GetPlayerName(),GetAccountId(),it->GetProto()->Name1,it->GetEntry(),count);
     }
 
     pl->ModifyMoney(-int32(deposit));
