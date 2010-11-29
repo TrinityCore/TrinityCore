@@ -279,10 +279,7 @@ class FormulaScript : public ScriptObject
     public:
 
         // Called after calculating honor.
-        virtual void OnHonorCalculation(float& /*honor*/, uint8 /*level*/, uint32 /*count*/) { }
-
-        // Called after calculating honor.
-        virtual void OnHonorCalculation(uint32& /*honor*/, uint8 /*level*/, uint32 /*count*/) { }
+        virtual void OnHonorCalculation(float& /*honor*/, uint8 /*level*/, float /*multiplier*/) { }
 
         // Called after gray level calculation.
         virtual void OnGrayLevelCalculation(uint8& /*grayLevel*/, uint8 /*playerLevel*/) { }
@@ -807,8 +804,7 @@ class ScriptMgr
 
     public: /* FormulaScript */
 
-        void OnHonorCalculation(float& honor, uint8 level, uint32 count);
-        void OnHonorCalculation(uint32& honor, uint8 level, uint32 count);
+        void OnHonorCalculation(float& honor, uint8 level, float multiplier);
         void OnGrayLevelCalculation(uint8& grayLevel, uint8 playerLevel);
         void OnColorCodeCalculation(XPColorChar& color, uint8 playerLevel, uint8 mobLevel);
         void OnZeroDifferenceCalculation(uint8& diff, uint8 playerLevel);

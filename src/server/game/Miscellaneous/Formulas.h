@@ -27,18 +27,16 @@ namespace Trinity
 {
     namespace Honor
     {
-        inline float hk_honor_at_level_f(uint8 level, uint32 count = 1)
+        inline float hk_honor_at_level_f(uint8 level, float multiplier = 1.0f)
         {
-            float honor = count * level * 1.55f;
-            sScriptMgr.OnHonorCalculation(honor, level, count);
+            float honor = multiplier * level * 1.55f;
+            sScriptMgr.OnHonorCalculation(honor, level, multiplier);
             return honor;
         }
 
-        inline uint32 hk_honor_at_level(uint8 level, uint32 count = 1)
+        inline uint32 hk_honor_at_level(uint8 level, float multiplier = 1.0f)
         {
-            uint32 honor = uint32(ceil(hk_honor_at_level_f(level, count)));
-            sScriptMgr.OnHonorCalculation(honor, level, count);
-            return honor;
+            return uint32(ceil(hk_honor_at_level_f(level, multiplier)));
         }
     }
     namespace XP
