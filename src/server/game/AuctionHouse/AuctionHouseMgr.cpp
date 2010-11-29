@@ -34,6 +34,11 @@
 #include "ProgressBar.h"
 #include <vector>
 
+enum eAuctionHouse
+{
+    AH_MINIMUM_DEPOSIT = 100;
+}
+
 using namespace std;
 
 AuctionHouseMgr::AuctionHouseMgr()
@@ -66,16 +71,23 @@ AuctionHouseObject * AuctionHouseMgr::GetAuctionsMap(uint32 factionTemplateId)
 uint32 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseEntry const* entry, uint32 time, Item *pItem, uint32 count)
 {
     uint32 MSV = pItem->GetProto()->SellPrice;
+
     if (MSV <= 0)
-        return 0;
+        return AH_MINIMUM_DEPOSIT;
+
     uint32 timeHr = (((time / 60) / 60) /12);
     float multiplier = (float)(entry->depositPercent * 3) / 100.0f;
     uint32 deposit = ((uint32)((float)MSV * multiplier * (float)count)/3) * 3 * timeHr;
+
     sLog.outDebug("MSV:        %u", MSV);
     sLog.outDebug("Items:      %u", count);
     sLog.outDebug("Multiplier: %f", multiplier);
     sLog.outDebug("Deposit:    %u", deposit);
-    return deposit;
+
+    if (deposit < AH_MINIMUM_DEPOSIT)
+        return AH_MINIMUM_DEPOSIT;
+    else
+        return deposit;
 }
 
 //does not clear ram
