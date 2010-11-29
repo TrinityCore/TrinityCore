@@ -35,6 +35,7 @@ EndContentData */
 
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
+#include "Group.h"
 
 /*######
 ## mob_unkor_the_ruthless

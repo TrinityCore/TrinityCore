@@ -11,6 +11,7 @@ EndScriptData */
 
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
+#include "Group.h"
 
 enum ePoints
 {

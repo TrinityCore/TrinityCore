@@ -43,6 +43,7 @@ EndContentData */
 
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
+#include "Group.h"
 
 /*#####
 # mob_mature_netherwing_drake

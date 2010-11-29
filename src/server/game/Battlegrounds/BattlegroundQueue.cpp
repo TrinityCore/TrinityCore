@@ -22,6 +22,7 @@
 #include "Chat.h"
 #include "ObjectMgr.h"
 #include "Log.h"
+#include "Group.h"
 
 /*********************************************************/
 /***            BATTLEGROUND QUEUE SYSTEM              ***/

@@ -33,6 +33,7 @@
 #include "ScriptedCreature.h"
 #include "SmartScript.h"
 #include "SmartAI.h"
+#include "Group.h"
 
 SmartScript::SmartScript()
 {

@@ -39,6 +39,7 @@
 #include "BattlegroundAV.h"
 #include "ScriptMgr.h"
 #include "CreatureAISelector.h"
+#include "Group.h"
 
 GameObject::GameObject() : WorldObject(), m_goValue(new GameObjectValue), m_AI(NULL)
 {

@@ -24,6 +24,7 @@
 #include "Util.h"
 #include "SharedDefines.h"
 #include "SpellMgr.h"
+#include "Group.h"
 
 static Rates const qualityToRate[MAX_ITEM_QUALITY] = {
     RATE_DROP_ITEM_POOR,                                    // ITEM_QUALITY_POOR
