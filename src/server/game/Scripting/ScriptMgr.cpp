@@ -422,14 +422,9 @@ void ScriptMgr::OnWorldUpdate(uint32 diff)
     FOREACH_SCRIPT(WorldScript)->OnUpdate(NULL, diff);
 }
 
-void ScriptMgr::OnHonorCalculation(float& honor, uint8 level, uint32 count)
+void ScriptMgr::OnHonorCalculation(float& honor, uint8 level, float multiplier)
 {
-    FOREACH_SCRIPT(FormulaScript)->OnHonorCalculation(honor, level, count);
-}
-
-void ScriptMgr::OnHonorCalculation(uint32& honor, uint8 level, uint32 count)
-{
-    FOREACH_SCRIPT(FormulaScript)->OnHonorCalculation(honor, level, count);
+    FOREACH_SCRIPT(FormulaScript)->OnHonorCalculation(honor, level, multiplier);
 }
 
 void ScriptMgr::OnGrayLevelCalculation(uint8& grayLevel, uint8 playerLevel)
