@@ -189,7 +189,7 @@ void Channel::Join(uint64 p, const char *pass)
     JoinNotify(p);
 
     // if no owner first logged will become
-    if (!m_public || (!IsConstant() && !m_ownerGUID))
+    if (!IsConstant() && !m_ownerGUID)
     {
         SetOwner(p, (players.size() > 1 ? true : false));
         players[p].SetModerator(true);
