@@ -48,10 +48,12 @@ Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
     {
         channel_id = 0;
         m_flags |= CHANNEL_FLAG_CUSTOM;
+
         //load not built in channel if saved
         std::string _name(name);
         CharacterDatabase.escape_string(_name);
         QueryResult result = CharacterDatabase.PQuery("SELECT m_announce, m_moderate, m_public, m_password, BannedList FROM channels WHERE m_name = '%s' AND m_team = '%u'", _name.c_str(), m_Team);
+
         if (result)//load
         {
             Field *fields = result->Fetch();
@@ -187,7 +189,7 @@ void Channel::Join(uint64 p, const char *pass)
     JoinNotify(p);
 
     // if no owner first logged will become
-    if (!IsConstant() && !m_ownerGUID)
+    if (!m_public || (!IsConstant() && !m_ownerGUID))
     {
         SetOwner(p, (players.size() > 1 ? true : false));
         players[p].SetModerator(true);
