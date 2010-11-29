@@ -29,6 +29,7 @@
 #include "CellImpl.h"
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
+#include "Group.h"
 
 #include "SmartAI.h"
 #include "ScriptPCH.h"

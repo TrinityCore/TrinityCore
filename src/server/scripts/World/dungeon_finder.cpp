@@ -21,6 +21,7 @@
 
 #include "ScriptPCH.h"
 #include "LFGMgr.h"
+#include "Group.h"
 
 class DungeonFinderScript: public GroupScript, PlayerScript
 {

@@ -34,6 +34,7 @@
 #include "CellImpl.h"
 #include "InstanceSaveMgr.h"
 #include "Util.h"
+#include "Group.h"
 
 #ifdef _DEBUG_VMAPS
 #include "VMapFactory.h"

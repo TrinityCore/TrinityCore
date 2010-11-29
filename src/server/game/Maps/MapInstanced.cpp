@@ -23,6 +23,7 @@
 #include "VMapFactory.h"
 #include "InstanceSaveMgr.h"
 #include "World.h"
+#include "Group.h"
 
 MapInstanced::MapInstanced(uint32 id, time_t expiry) : Map(id, expiry, 0, DUNGEON_DIFFICULTY_NORMAL)
 {

@@ -20,6 +20,7 @@
 #include "WorldPacket.h"
 #include "Player.h"
 #include "ObjectMgr.h"
+#include "Group.h"
 
 void BuildPlayerLockDungeonBlock(WorldPacket &data, LfgLockStatusSet* lockSet)
 {

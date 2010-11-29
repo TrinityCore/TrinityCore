@@ -16,7 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Player.h"
 #include "Group.h"
 #include "GroupReference.h"
 
