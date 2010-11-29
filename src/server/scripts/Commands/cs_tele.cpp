@@ -26,6 +26,7 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include "MapManager.h"
 #include "Chat.h"
+#include "Group.h"
 
 class tele_commandscript : public CommandScript
 {

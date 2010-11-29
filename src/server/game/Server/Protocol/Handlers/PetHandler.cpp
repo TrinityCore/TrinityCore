@@ -29,6 +29,7 @@
 #include "Util.h"
 #include "Pet.h"
 #include "World.h"
+#include "Group.h"
 
 void WorldSession::HandleDismissCritter(WorldPacket &recv_data)
 {

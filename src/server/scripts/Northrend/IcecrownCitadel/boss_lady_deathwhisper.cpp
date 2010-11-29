@@ -20,6 +20,7 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "icecrown_citadel.h"
+#include "Group.h"
 
 enum eScriptTexts
 {

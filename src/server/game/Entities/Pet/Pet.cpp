@@ -29,6 +29,7 @@
 #include "CreatureAI.h"
 #include "Unit.h"
 #include "Util.h"
+#include "Group.h"
 
 char const* petTypeSuffix[MAX_PET_TYPE] =
 {

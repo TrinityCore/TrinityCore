@@ -30,6 +30,7 @@ quest_a_pawn_on_the_eternal_pawn
 EndContentData */
 
 #include "ScriptPCH.h"
+#include "Group.h"
 
 /*###
 ## npc_highlord_demitrian

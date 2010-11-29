@@ -19,38 +19,39 @@
 #ifndef _PLAYER_H
 #define _PLAYER_H
 
-#include "Common.h"
-#include "ItemPrototype.h"
-#include "Unit.h"
-#include "Item.h"
-#include "DatabaseEnv.h"
-#include "NPCHandler.h"
-#include "QuestDef.h"
-#include "Group.h"
-#include "Bag.h"
-#include "WorldSession.h"
-#include "Pet.h"
-#include "MapReference.h"
-#include "Util.h"                                           // for Tokens typedef
 #include "AchievementMgr.h"
-#include "ReputationMgr.h"
 #include "Battleground.h"
+#include "Bag.h"
+#include "Common.h"
+#include "DatabaseEnv.h"
 #include "DBCEnums.h"
+#include "GroupReference.h"
+#include "ItemPrototype.h"
+#include "Item.h"
 #include "LFG.h"
-
+#include "MapReference.h"
+#include "NPCHandler.h"
+#include "Pet.h"
+#include "QuestDef.h"
+#include "ReputationMgr.h"
+#include "Unit.h"
+#include "Util.h"                                           // for Tokens typedef
+#include "WorldSession.h"
+ 
 #include<string>
 #include<vector>
-
+ 
 struct Mail;
 class Channel;
-class DynamicObject;
 class Creature;
+class DynamicObject;
+class Group;
+class OutdoorPvP;
 class Pet;
 class PlayerMenu;
-class UpdateMask;
-class SpellCastTargets;
 class PlayerSocial;
-class OutdoorPvP;
+class SpellCastTargets;
+class UpdateMask;
 
 typedef std::deque<Mail*> PlayerMails;
 

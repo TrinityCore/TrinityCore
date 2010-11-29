@@ -33,6 +33,26 @@
 #include "MapInstanced.h"
 #include "Util.h"
 
+Roll::Roll(uint64 _guid, LootItem const& li) : itemGUID(_guid), itemid(li.itemid), 
+itemRandomPropId(li.randomPropertyId), itemRandomSuffix(li.randomSuffix), itemCount(li.count),
+totalPlayersRolling(0), totalNeed(0), totalGreed(0), totalPass(0), itemSlot(0), 
+rollVoteMask(ROLL_ALL_TYPE_NO_DISENCHANT)
+{
+}
+Roll::~Roll()
+{
+}
+
+void Roll::setLoot(Loot *pLoot)
+{
+    link(pLoot, this);
+}
+
+Loot* Roll::getLoot()
+{
+    return getTarget();
+}
+
 Group::Group()
 {
     m_leaderGuid        = 0;
@@ -1899,4 +1919,347 @@ void Group::ResetMaxEnchantingLevel()
         if (pMember && m_maxEnchantingLevel < pMember->GetSkillValue(SKILL_ENCHANTING))
             m_maxEnchantingLevel = pMember->GetSkillValue(SKILL_ENCHANTING);
     }
+}
+
+void Group::SetLootMethod(LootMethod method)
+{
+    m_lootMethod = method;
+}
+
+void Group::SetLooterGuid(const uint64 &guid)
+{
+    m_looterGuid = guid;
+}
+
+void Group::SetLootThreshold(ItemQualities threshold)
+{
+    m_lootThreshold = threshold;
+}
+
+void Group::SetLfgQueued(bool queued)
+{
+    m_LfgQueued = queued;
+}
+
+bool Group::isLfgQueued()
+{
+    return m_LfgQueued;
+}
+
+void Group::SetLfgStatus(uint8 status)
+{
+    m_LfgStatus = status;
+}
+
+uint8 Group::GetLfgStatus()
+{
+    return m_LfgStatus;
+}
+
+bool Group::isLfgDungeonComplete() const
+{
+    return m_LfgStatus == LFG_STATUS_COMPLETE;
+}
+
+void Group::SetLfgDungeonEntry(uint32 dungeonEntry)
+{
+    m_LfgDungeonEntry = dungeonEntry;
+}
+
+uint32 Group::GetLfgDungeonEntry(bool id /* = true*/)
+{
+    if (id)
+        return (m_LfgDungeonEntry & 0x00FFFFFF);
+    else
+        return m_LfgDungeonEntry;
+}
+
+bool Group::isLfgKickActive() const
+{
+    return m_LfgkicksActive;
+}
+
+void Group::SetLfgKickActive(bool active)
+{
+    m_LfgkicksActive = active;
+}
+
+uint8 Group::GetLfgKicks() const
+{
+    return m_Lfgkicks;
+}
+
+void Group::SetLfgKicks(uint8 kicks)
+{
+    m_Lfgkicks = kicks;
+}
+
+void Group::SetLfgRoles(uint64 guid, const uint8 roles)
+{
+    member_witerator slot = _getMemberWSlot(guid);
+    if (slot == m_memberSlots.end())
+        return;
+
+    slot->roles = roles;
+         SendUpdate();
+}
+
+bool Group::IsFull() const
+{
+    return isRaidGroup() ? (m_memberSlots.size() >= MAXRAIDSIZE) : (m_memberSlots.size() >= MAXGROUPSIZE);
+}
+
+bool Group::isLFGGroup() const
+{
+    return m_groupType & GROUPTYPE_LFG;
+}
+
+bool Group::isRaidGroup() const
+{
+    return m_groupType & GROUPTYPE_RAID;
+}
+
+bool Group::isBGGroup() const
+{
+    return m_bgGroup != NULL;
+}
+
+bool Group::IsCreated() const
+{
+    return GetMembersCount() > 0;
+}
+
+const uint64& Group::GetLeaderGUID() const
+{
+    return m_leaderGuid;
+}
+
+const uint64& Group::GetGUID() const
+{
+    return m_guid;
+}
+
+uint32 Group::GetLowGUID() const
+{
+    return GUID_LOPART(m_guid);
+}
+
+const char * Group::GetLeaderName() const
+{
+    return m_leaderName.c_str();
+}
+
+LootMethod Group::GetLootMethod() const
+{
+    return m_lootMethod;
+}
+
+const uint64& Group::GetLooterGuid() const
+{
+    return m_looterGuid;
+}
+
+ItemQualities Group::GetLootThreshold() const
+{
+    return m_lootThreshold;
+}
+
+bool Group::IsMember(const uint64& guid) const
+{
+    return _getMemberCSlot(guid) != m_memberSlots.end();
+}
+
+bool Group::IsLeader(const uint64& guid) const
+{
+    return (GetLeaderGUID() == guid);
+}
+
+uint64 Group::GetMemberGUID(const std::string& name)
+{
+    for (member_citerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+        if (itr->name == name)
+            return itr->guid;
+    return 0;
+}
+
+bool Group::IsAssistant(uint64 guid) const
+{
+    member_citerator mslot = _getMemberCSlot(guid);
+    if (mslot == m_memberSlots.end())
+        return false;
+    return mslot->flags & MEMBER_FLAG_ASSISTANT;
+}
+
+bool Group::SameSubGroup(uint64 guid1,const uint64& guid2) const
+{
+    member_citerator mslot2 = _getMemberCSlot(guid2);
+    if (mslot2 == m_memberSlots.end())
+       return false;
+    return SameSubGroup(guid1,&*mslot2);
+}
+
+bool Group::SameSubGroup(uint64 guid1, MemberSlot const* slot2) const
+{
+    member_citerator mslot1 = _getMemberCSlot(guid1);
+    if (mslot1 == m_memberSlots.end() || !slot2)
+        return false;
+    return (mslot1->group == slot2->group);
+}
+
+bool Group::HasFreeSlotSubGroup(uint8 subgroup) const
+{
+    return (m_subGroupsCounts && m_subGroupsCounts[subgroup] < MAXGROUPSIZE);
+}
+
+Group::MemberSlotList const& Group::GetMemberSlots() const
+{
+    return m_memberSlots;
+}
+
+GroupReference* Group::GetFirstMember()
+{
+    return m_memberMgr.getFirst();
+}
+
+uint32 Group::GetMembersCount() const
+{
+    return m_memberSlots.size();
+}
+
+uint8 Group::GetMemberGroup(uint64 guid) const
+{
+    member_citerator mslot = _getMemberCSlot(guid);
+    if (mslot == m_memberSlots.end())
+       return (MAX_RAID_SUBGROUPS+1);
+    return mslot->group;
+}
+
+void Group::SetBattlegroundGroup(Battleground *bg)
+{
+    m_bgGroup = bg;
+}
+
+void Group::SetAssistant(uint64 guid, const bool &apply)
+{
+    if (!isRaidGroup())
+       return;
+
+    if (_setAssistantFlag(guid, apply))
+        SendUpdate();
+}
+
+void Group::SetMainTank(uint64 guid, const bool &apply)
+{
+    if (!isRaidGroup())
+        return;
+
+    if (_setMainTank(guid, apply))
+        SendUpdate();
+}
+
+void Group::SetMainAssistant(uint64 guid, const bool &apply)
+{
+    if (!isRaidGroup())
+        return;
+
+    if (_setMainAssistant(guid, apply))
+        SendUpdate();
+}
+
+Difficulty Group::GetDifficulty(bool isRaid) const
+{
+    return isRaid ? m_raidDifficulty : m_dungeonDifficulty;
+}
+
+Difficulty Group::GetDungeonDifficulty() const
+{
+    return m_dungeonDifficulty;
+}
+
+Difficulty Group::GetRaidDifficulty() const
+{
+    return m_raidDifficulty;
+}
+
+bool Group::isRollLootActive() const
+{
+    return !RollId.empty();
+}
+
+Group::Rolls::iterator Group::GetRoll(uint64 Guid)
+{
+    Rolls::iterator iter;
+    for (iter=RollId.begin(); iter != RollId.end(); ++iter)
+        if ((*iter)->itemGUID == Guid && (*iter)->isValid())
+            return iter;
+    return RollId.end();
+}
+
+void Group::LinkMember(GroupReference *pRef)
+{
+    m_memberMgr.insertFirst(pRef);
+}
+
+void Group::DelinkMember(GroupReference* /*pRef*/)
+{
+}
+
+Group::BoundInstancesMap& Group::GetBoundInstances(Difficulty difficulty)
+{
+    return m_boundInstances[difficulty];
+}
+
+void Group::_initRaidSubGroupsCounter()
+{
+    // Sub group counters initialization
+    if (!m_subGroupsCounts)
+        m_subGroupsCounts = new uint8[MAX_RAID_SUBGROUPS];
+
+    memset((void*)m_subGroupsCounts, 0, (MAX_RAID_SUBGROUPS)*sizeof(uint8));
+
+    for (member_citerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+        ++m_subGroupsCounts[itr->group];
+}
+
+Group::member_citerator Group::_getMemberCSlot(uint64 Guid) const
+{
+    for (member_citerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+        if (itr->guid == Guid)
+            return itr;
+    return m_memberSlots.end();
+}
+
+Group::member_witerator Group::_getMemberWSlot(uint64 Guid)
+{
+    for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+        if (itr->guid == Guid)
+            return itr;
+    return m_memberSlots.end();
+}
+
+void Group::SubGroupCounterIncrease(uint8 subgroup)
+{
+    if (m_subGroupsCounts)
+        ++m_subGroupsCounts[subgroup];
+}
+
+void Group::SubGroupCounterDecrease(uint8 subgroup)
+{
+    if (m_subGroupsCounts)
+        --m_subGroupsCounts[subgroup];
+}
+
+void Group::RemoveUniqueGroupMemberFlag(GroupMemberFlags flag)
+{
+    for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+        if (itr->flags & flag)
+            itr->flags &= ~flag;
+}
+
+void Group::ToggleGroupMemberFlag(member_witerator slot, uint8 flag, bool apply)
+{
+    if (apply)
+        slot->flags |= flag;
+    else
+        slot->flags &= ~flag;
 }
