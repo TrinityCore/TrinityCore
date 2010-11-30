@@ -1230,6 +1230,15 @@ struct MovieEntry
     //uint32      unk2;                                     // 2 always 100
 };
 
+#define MAX_OVERRIDE_SPELL 10
+
+struct OverrideSpellDataEntry
+{
+    uint32      id;                                         // 0
+    uint32      spellId[MAX_OVERRIDE_SPELL];                // 1-10
+    //uint32      unk0;                                     // 11
+};
+
 struct PvPDifficultyEntry
 {
     //uint32      id;                                       // 0        m_ID
