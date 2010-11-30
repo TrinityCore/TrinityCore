@@ -345,7 +345,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraModCritPct,                            //290 SPELL_AURA_MOD_CRIT_PCT
     &AuraEffect::HandleNoImmediateEffect,                         //291 SPELL_AURA_MOD_XP_QUEST_PCT  implemented in Player::RewardQuest
     &AuraEffect::HandleAuraOpenStable,                            //292 SPELL_AURA_OPEN_STABLE
-    &AuraEffect::HandleNULL,                                      //293 auras which probably add set of abilities to their target based on it's miscvalue
+    &AuraEffect::HandleAuraOverrideSpells,                        //293 auras which probably add set of abilities to their target based on it's miscvalue
     &AuraEffect::HandleNoImmediateEffect,                         //294 SPELL_AURA_PREVENT_REGENERATE_POWER implemented in Player::Regenerate(Powers power)
     &AuraEffect::HandleNULL,                                      //295 0 spells in 3.3.5
     &AuraEffect::HandleAuraSetVehicle,                            //296 SPELL_AURA_SET_VEHICLE_ID sets vehicle on target
@@ -6459,6 +6459,36 @@ void AuraEffect::HandleAuraModFakeInebriation(AuraApplication const * aurApp, ui
     }
 
     target->UpdateObjectVisibility();
+}
+
+void AuraEffect::HandleAuraOverrideSpells(AuraApplication const * aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Player * target = aurApp->GetTarget()->ToPlayer();
+
+    if (!target || !target->IsInWorld())
+        return;
+
+    uint32 overrideId = uint32(GetMiscValue());
+
+    if (apply)
+    {
+        target->SetUInt32Value(PLAYER_FIELD_BYTES2, overrideId);
+        if (OverrideSpellDataEntry const* overrideSpells = sOverrideSpellDataStore.LookupEntry(overrideId))
+            for (uint8 i = 0; i < MAX_OVERRIDE_SPELL; ++i)
+                if (uint32 spellId = overrideSpells->spellId[i])
+                    target->AddTemporarySpell(spellId);
+    }
+    else
+    {
+        target->SetUInt32Value(PLAYER_FIELD_BYTES2, 0);
+        if (OverrideSpellDataEntry const* overrideSpells = sOverrideSpellDataStore.LookupEntry(overrideId))
+            for (uint8 i = 0; i < MAX_OVERRIDE_SPELL; ++i)
+                if (uint32 spellId = overrideSpells->spellId[i])
+                    target->RemoveTemporarySpell(spellId);
+    }
 }
 
 void AuraEffect::HandleAuraSetVehicle(AuraApplication const * aurApp, uint8 mode, bool apply) const
