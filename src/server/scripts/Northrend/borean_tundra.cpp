@@ -2350,6 +2350,221 @@ public:
     }
 };
 
+/*######
+## npc_hidden_cultist
+######*/
+
+enum eHiddenCultist
+{
+    SPELL_SHROUD_OF_THE_DEATH_CULTIST           = 46077, //not working
+    SPELL_RIGHTEOUS_VISION                      = 46078, //player aura
+
+    QUEST_THE_HUNT_IS_ON                        = 11794,
+
+    GOSSIP_TEXT_SALTY_JOHN_THORPE               = 12529,
+    GOSSIP_TEXT_GUARD_MITCHELSS                 = 12530,
+    GOSSIP_TEXT_TOM_HEGGER                      = 12528,
+
+    NPC_TOM_HEGGER                              = 25827,
+    NPC_SALTY_JOHN_THORPE                       = 25248,
+    NPC_GUARD_MITCHELLS                         = 25828,
+
+    SAY_HIDDEN_CULTIST_1                        = -1571044,
+    SAY_HIDDEN_CULTIST_2                        = -1571045,
+    SAY_HIDDEN_CULTIST_3                        = -1571046,
+    SAY_HIDDEN_CULTIST_4                        = -1571047
+};
+
+#define GOSSIP_ITEM_TOM_HEGGER "What do you know about the Cult of the Damned?"
+#define GOSSIP_ITEM_GUARD_MITCHELLS "How long have you worked for the Cult of the Damned?"
+#define GOSSIP_ITEM_SALTY_JOHN_THORPE "I have a reason to believe you're involved in the cultist activity"
+
+class npc_hidden_cultist : public CreatureScript
+{
+public:
+    npc_hidden_cultist() : CreatureScript("npc_hidden_cultist") { }
+
+    struct npc_hidden_cultistAI : public ScriptedAI
+    {
+        npc_hidden_cultistAI(Creature* pCreature) : ScriptedAI(pCreature)
+        {
+           uiEmoteState = pCreature->GetUInt32Value(UNIT_NPC_EMOTESTATE);
+           uiNpcFlags = pCreature->GetUInt32Value(UNIT_NPC_FLAGS);
+        }
+
+        uint32 uiEmoteState;
+        uint32 uiNpcFlags;
+
+        uint32 uiEventTimer;
+        uint8 uiEventPhase;
+
+        uint64 uiPlayerGUID;
+
+        void Reset()
+        {
+            if (uiEmoteState)
+                me->SetUInt32Value(UNIT_NPC_EMOTESTATE,uiEmoteState);
+
+            if (uiNpcFlags)
+                me->SetUInt32Value(UNIT_NPC_FLAGS,uiNpcFlags);
+
+            uiEventTimer = 0;
+            uiEventPhase = 0;
+
+            uiPlayerGUID = 0;
+
+            DoCast(SPELL_SHROUD_OF_THE_DEATH_CULTIST);
+
+            me->RestoreFaction();
+        }
+
+        void DoAction(const int32 iParam)
+        {
+            me->StopMoving();
+            me->SetUInt32Value(UNIT_NPC_FLAGS,0);
+            if (Player* pPlayer = me->GetPlayer(*me,uiPlayerGUID))
+            {
+                me->SetInFront(pPlayer);
+                me->SendMovementFlagUpdate();
+            }
+            uiEventTimer = 3000;
+            uiEventPhase = 1;
+        }
+
+        void SetGUID(const uint64 &uiGuid, int32 iId)
+        {
+            uiPlayerGUID = uiGuid;
+        }
+
+        void AttackPlayer()
+        {
+            me->setFaction(14);
+            if (Player* pPlayer = me->GetPlayer(*me,uiPlayerGUID))
+                me->AI()->AttackStart(pPlayer);
+        }
+
+        void UpdateAI(const uint32 uiDiff)
+        {
+            if (uiEventTimer && uiEventTimer <= uiDiff)
+            {
+                switch(uiEventPhase)
+                {
+                    case 1:
+                        switch(me->GetEntry())
+                        {
+                            case NPC_SALTY_JOHN_THORPE:
+                                me->SetUInt32Value(UNIT_NPC_EMOTESTATE,0);
+                                DoScriptText(SAY_HIDDEN_CULTIST_1,me);
+                                uiEventTimer = 5000;
+                                uiEventPhase = 2;
+                                break;
+                            case NPC_GUARD_MITCHELLS:
+                                DoScriptText(SAY_HIDDEN_CULTIST_2,me);
+                                uiEventTimer = 5000;
+                                uiEventPhase = 2;
+                                break;
+                            case NPC_TOM_HEGGER:
+                                DoScriptText(SAY_HIDDEN_CULTIST_3,me);
+                                uiEventTimer = 5000;
+                                uiEventPhase = 2;
+                                break;
+                        }
+                        break;
+                    case 2:
+                        switch(me->GetEntry())
+                        {
+                            case NPC_SALTY_JOHN_THORPE:
+                                DoScriptText(SAY_HIDDEN_CULTIST_4,me);
+                                if (Player* pPlayer = me->GetPlayer(*me,uiPlayerGUID))
+                                {
+                                    me->SetInFront(pPlayer);
+                                    me->SendMovementFlagUpdate();
+                                }
+                                uiEventTimer = 3000;
+                                uiEventPhase = 3;
+                                break;
+                            case NPC_GUARD_MITCHELLS:
+                            case NPC_TOM_HEGGER:
+                                AttackPlayer();
+                                uiEventPhase = 0;
+                                break;
+                        }
+                        break;
+                    case 3:
+                        if (me->GetEntry() == NPC_SALTY_JOHN_THORPE)
+                        {
+                            AttackPlayer();
+                            uiEventPhase = 0;
+                        }
+                        break;
+                }                       
+            }else uiEventTimer -= uiDiff;
+
+            if (!UpdateVictim())
+                return;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_hidden_cultistAI(pCreature);
+    }
+
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    {
+        uint32 uiGossipText = 0;
+        char* charGossipItem = "";
+
+        switch(pCreature->GetEntry())
+        {
+            case NPC_TOM_HEGGER:
+                uiGossipText = GOSSIP_TEXT_TOM_HEGGER;
+                charGossipItem = GOSSIP_ITEM_TOM_HEGGER;
+                break;
+            case NPC_SALTY_JOHN_THORPE:
+                uiGossipText = GOSSIP_TEXT_SALTY_JOHN_THORPE;
+                charGossipItem = GOSSIP_ITEM_SALTY_JOHN_THORPE;
+                break;
+            case NPC_GUARD_MITCHELLS:
+                uiGossipText = GOSSIP_TEXT_GUARD_MITCHELSS;
+                charGossipItem = GOSSIP_ITEM_GUARD_MITCHELLS;
+                break;
+            default:
+                return false;
+        }
+
+        if (pPlayer->HasAura(SPELL_RIGHTEOUS_VISION) && pPlayer->GetQuestStatus(QUEST_THE_HUNT_IS_ON) == QUEST_STATUS_INCOMPLETE)
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, charGossipItem, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
+        if (pCreature->isVendor())
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+
+        pPlayer->SEND_GOSSIP_MENU(uiGossipText, pCreature->GetGUID());
+
+        return true;
+    }
+
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+    {
+        pPlayer->PlayerTalkClass->ClearMenus();
+
+        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+        {
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pCreature->AI()->SetGUID(pPlayer->GetGUID());
+            pCreature->AI()->DoAction(1);
+        }
+
+        if (uiAction == GOSSIP_ACTION_TRADE)
+            pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+    
+        return true;
+    }
+
+};
+    
 void AddSC_borean_tundra()
 {
     new npc_sinkhole_kill_credit;
@@ -2378,4 +2593,5 @@ void AddSC_borean_tundra()
     new npc_seaforium_depth_charge;
     new npc_valiance_keep_cannoneer;
     new npc_warmage_coldarra;
+    new npc_hidden_cultist;
 }
