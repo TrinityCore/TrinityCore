@@ -1057,10 +1057,10 @@ class SpellMgr
         SpellEntry const* GetSpellForDifficultyFromSpell(SpellEntry const* spell, Unit* Caster)
         {
             //spell never can be NULL in this case!
-            if (!Caster->ToCreature() || !Caster->ToCreature()->GetMap() ||  !Caster->ToCreature()->GetMap()->IsDungeon())
+            if (!Caster || !Caster->GetMap() ||  !Caster->GetMap()->IsDungeon())
                 return spell;
 
-            uint32 mode = uint32(Caster->ToCreature()->GetMap()->GetSpawnMode());
+            uint32 mode = uint32(Caster->GetMap()->GetSpawnMode());
             if (mode >= MAX_DIFFICULTY)
             {
                 sLog.outError("GetSpellForDifficultyFromSpell: Incorrect Difficulty for spell %u.", spell->Id);
