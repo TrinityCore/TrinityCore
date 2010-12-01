@@ -1424,10 +1424,10 @@ DROP TABLE IF EXISTS `group_member`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `group_member` (
   `guid` int(11) unsigned NOT NULL,
-  `memberGuid` int(11) unsigned NOT NULL,
-  `memberFlags` tinyint(2) unsigned NOT NULL,
-  `subgroup` smallint(6) unsigned NOT NULL,
-  `roles` smallint(6) unsigned NOT NULL default '0',
+  `memberGuid` int(11) unsigned NOT NULL default '0',
+  `memberFlags` tinyint(3) unsigned NOT NULL default '0',
+  `subgroup` tinyint(3) unsigned NOT NULL default '0',
+  `roles` tinyint(3) unsigned NOT NULL default '0',
   PRIMARY KEY  (`memberGuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Groups';
 /*!40101 SET character_set_client = @saved_cs_client */;
