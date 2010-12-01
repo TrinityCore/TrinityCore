@@ -2030,6 +2030,7 @@ void ObjectMgr::LoadItemPrototypes()
     sLog.outString();
 
     // check data correctness
+    bool enforceDBCAttributes = sWorld.getBoolConfig(CONFIG_DBC_ENFORCE_ITEM_ATTRIBUTES);
     for (uint32 i = 1; i < sItemStorage.MaxEntry; ++i)
     {
         ItemPrototype const* proto = sItemStorage.LookupEntry<ItemPrototype >(i);
@@ -2047,8 +2048,9 @@ void ObjectMgr::LoadItemPrototypes()
         {
             if (proto->Class != dbcitem->Class)
             {
-                sLog.outErrorDb("Item (Entry: %u) does not have a correct class %u, must be %u (still using DB value).",i,proto->Class,dbcitem->Class);
-                // It is safe to use Class from DB
+                sLog.outErrorDb("Item (Entry: %u) does not have a correct class %u, must be %u .", i, proto->Class, dbcitem->Class);
+                if (enforceDBCAttributes)
+                    const_cast<ItemPrototype*>(proto)->Class = dbcitem->Class;
             }
             /* disabled: have some strange wrong cases for Subclass values.
                for enable also uncomment Subclass field in ItemEntry structure and in Itemfmt[]
@@ -2061,32 +2063,35 @@ void ObjectMgr::LoadItemPrototypes()
 
             if (proto->Unk0 != dbcitem->Unk0)
             {
-                sLog.outErrorDb("Item (Entry: %u) does not have a correct Unk0 (%i) , must be %i (still using DB value).",i,proto->Unk0,dbcitem->Unk0);
-                // It is safe to use Unk0 from DB
+                sLog.outErrorDb("Item (Entry: %u) does not have a correct Unk0 (%i) , must be %i .", i, proto->Unk0, dbcitem->Unk0);
+                if (enforceDBCAttributes)
+                    const_cast<ItemPrototype*>(proto)->Unk0 = dbcitem->Unk0;
             }
-
             if (proto->Material != dbcitem->Material)
             {
-                sLog.outErrorDb("Item (Entry: %u) does not have a correct material (%i), must be %i (still using DB value).",i,proto->Material,dbcitem->Material);
-                // It is safe to use Material from DB
+                sLog.outErrorDb("Item (Entry: %u) does not have a correct material (%i), must be %i .", i, proto->Material, dbcitem->Material);
+                if (enforceDBCAttributes)
+                    const_cast<ItemPrototype*>(proto)->Material = dbcitem->Material;
             }
-
             if (proto->InventoryType != dbcitem->InventoryType)
             {
-                sLog.outErrorDb("Item (Entry: %u) does not have a correct inventory type (%u), must be %u (still using DB value).",i,proto->InventoryType,dbcitem->InventoryType);
-                // It is safe to use InventoryType from DB
+                sLog.outErrorDb("Item (Entry: %u) does not have a correct inventory type (%u), must be %u .", i, proto->InventoryType, dbcitem->InventoryType);
+                if (enforceDBCAttributes)    
+                    const_cast<ItemPrototype*>(proto)->InventoryType = dbcitem->InventoryType;
             }
-
             if (proto->DisplayInfoID != dbcitem->DisplayId)
             {
-                sLog.outErrorDb("Item (Entry: %u) does not have a correct display id (%u), must be %u (using it).",i,proto->DisplayInfoID,dbcitem->DisplayId);
-                const_cast<ItemPrototype*>(proto)->DisplayInfoID = dbcitem->DisplayId;
+                sLog.outErrorDb("Item (Entry: %u) does not have a correct display id (%u), must be %u .", i, proto->DisplayInfoID, dbcitem->DisplayId);
+                if (enforceDBCAttributes)
+                    const_cast<ItemPrototype*>(proto)->DisplayInfoID = dbcitem->DisplayId;
             }
             if (proto->Sheath != dbcitem->Sheath)
             {
-                sLog.outErrorDb("Item (Entry: %u) does not have a correct sheathid (%u), must be %u  (using it).",i,proto->Sheath,dbcitem->Sheath);
-                const_cast<ItemPrototype*>(proto)->Sheath = dbcitem->Sheath;
+                sLog.outErrorDb("Item (Entry: %u) does not have a correct sheathid (%u), must be %u .", i, proto->Sheath, dbcitem->Sheath);
+                if (enforceDBCAttributes)
+                    const_cast<ItemPrototype*>(proto)->Sheath = dbcitem->Sheath;
             }
+
         }
         else
             sLog.outErrorDb("Item (Entry: %u) does not exist in item.dbc! (not correct id?).",i);
