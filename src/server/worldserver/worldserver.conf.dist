@@ -1370,6 +1370,14 @@ AllowTickets = 1
 DungeonFinder.Enable = 0
 
 #
+#   DBC.EnforceItemAttributes
+#        Disallow overriding item attributes stored in DBC files with values from the database
+#        Default: 0 - Off, Use DB values
+#                 1 - On, Enforce DBC Values (default)
+
+DBC.EnforceItemAttributes = 1
+
+#
 ###################################################################################################
 
 ###################################################################################################

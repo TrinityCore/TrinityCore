@@ -1172,6 +1172,9 @@ void World::LoadConfigSettings(bool reload)
 
     // Dungeon finder
     m_bool_configs[CONFIG_DUNGEON_FINDER_ENABLE] = sConfig.GetBoolDefault("DungeonFinder.Enable", false);
+    
+    // DBC_ItemAttributes
+    m_bool_configs[CONFIG_DBC_ENFORCE_ITEM_ATTRIBUTES] = sConfig.GetBoolDefault("DBC.EnforceItemAttributes", true);
 
     // AutoBroadcast
     m_bool_configs[CONFIG_AUTOBROADCAST] = sConfig.GetBoolDefault("AutoBroadcast.On", false);
