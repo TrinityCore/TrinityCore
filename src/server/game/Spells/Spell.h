@@ -399,6 +399,7 @@ class Spell
         void EffectRedirectThreat(SpellEffIndex effIndex);
         void EffectWMODamage(SpellEffIndex effIndex);
         void EffectWMORepair(SpellEffIndex effIndex);
+        void EffectWMOChange(SpellEffIndex effIndex);
         void EffectActivateRune(SpellEffIndex effIndex);
         void EffectCreateTamedPet(SpellEffIndex effIndex);
         void EffectDiscoverTaxi(SpellEffIndex effIndex);
