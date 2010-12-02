@@ -141,6 +141,7 @@ Battleground::Battleground()
     m_IsArena           = false;
     m_Winner            = 2;
     m_StartTime         = 0;
+    m_ResetStatTimer    = 0;
     m_Events            = 0;
     m_IsRated           = false;
     m_BuffChange        = false;
@@ -379,6 +380,14 @@ void Battleground::Update(uint32 diff)
     {
         ModifyStartDelayTime(diff);
 
+        if (m_ResetStatTimer <= 5000)
+        {
+            m_ResetStatTimer = 0;
+            for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+                if (Player *plr = sObjectMgr.GetPlayer(itr->first))
+                    plr->ResetAllPowers();
+        }
+
         if (!(m_Events & BG_STARTING_EVENT_1))
         {
             m_Events |= BG_STARTING_EVENT_1;
@@ -434,6 +443,7 @@ void Battleground::Update(uint32 diff)
                         plr->GetSession()->SendPacket(&status);
 
                         plr->RemoveAurasDueToSpell(SPELL_ARENA_PREPARATION);
+                        plr->ResetAllPowers();
                         // remove auras with duration lower than 30s
                         Unit::AuraApplicationMap & auraMap = plr->GetAppliedAuras();
                         for (Unit::AuraApplicationMap::iterator iter = auraMap.begin(); iter != auraMap.end();)
@@ -455,12 +465,14 @@ void Battleground::Update(uint32 diff)
             }
             else
             {
-
                 PlaySoundToAll(SOUND_BG_START);
 
                 for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
                     if (Player* plr = sObjectMgr.GetPlayer(itr->first))
+                    {
                         plr->RemoveAurasDueToSpell(SPELL_PREPARATION);
+                        plr->ResetAllPowers();
+                    }
                 //Announce BG starting
                 if (sWorld.getBoolConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE))
                 {
@@ -493,8 +505,9 @@ void Battleground::Update(uint32 diff)
         }
     }
 
-    //update start time
+    // Update start time and reset stats timer
     m_StartTime += diff;
+    m_ResetStatTimer += diff;
 }
 
 void Battleground::SetTeamStartLoc(uint32 TeamID, float X, float Y, float Z, float O)
@@ -843,8 +856,7 @@ void Battleground::EndBattleground(uint32 winner)
         }
 
 
-        plr->SetFullHealth();
-        plr->SetPower(POWER_MANA, plr->GetMaxPower(POWER_MANA));
+        plr->ResetAllPowers();
         plr->CombatStopWithPets(true);
 
         BlockMovement(plr);
@@ -1132,9 +1144,7 @@ void Battleground::AddPlayer(Player *plr)
         if (GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
         {
             plr->CastSpell(plr, SPELL_ARENA_PREPARATION, true);
-
-            plr->SetFullHealth();
-            plr->SetPower(POWER_MANA, plr->GetMaxPower(POWER_MANA));
+            plr->ResetAllPowers();
         }
         WorldPacket teammate;
         teammate.Initialize(SMSG_ARENA_OPPONENT_UPDATE, 8);
