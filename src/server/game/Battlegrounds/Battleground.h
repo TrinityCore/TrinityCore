@@ -616,6 +616,7 @@ class Battleground
         BattlegroundStatus m_Status;
         uint32 m_ClientInstanceID;                          //the instance-id which is sent to the client and without any other internal use
         uint32 m_StartTime;
+        uint32 m_ResetStatTimer;
         int32 m_EndTime;                                    // it is set to 120000 when bg is ending and it decreases itself
         uint32 m_LastResurrectTime;
         BattlegroundBracketId m_BracketId;
