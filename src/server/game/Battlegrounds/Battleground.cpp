@@ -724,7 +724,7 @@ void Battleground::EndBattleground(uint32 winner)
     {
         winner_arena_team = sObjectMgr.GetArenaTeamById(GetArenaTeamIdForTeam(winner));
         loser_arena_team = sObjectMgr.GetArenaTeamById(GetArenaTeamIdForTeam(GetOtherTeam(winner)));
-        if (winner_arena_team && loser_arena_team && winner_arena_team != loser_arena_team)
+        if (winner_arena_team && loser_arena_team && winner_arena_team != loser_arena_team && !((winner == WINNER_NONE))
         {
             loser_team_rating = loser_arena_team->GetRating();
             loser_matchmaker_rating = GetArenaMatchmakerRating(GetOtherTeam(winner));
@@ -741,6 +741,12 @@ void Battleground::EndBattleground(uint32 winner)
                 for (Battleground::BattlegroundScoreMap::const_iterator itr = GetPlayerScoresBegin(); itr != GetPlayerScoresEnd(); itr++)
                     if (Player* player = sObjectMgr.GetPlayer(itr->first))
                         sLog.outArena("Statistics for %s (GUID: " UI64FMTD ", Team: %d, IP: %s): %u damage, %u healing, %u killing blows", player->GetName(), itr->first, player->GetArenaTeamId(m_ArenaType == 5 ? 2 : m_ArenaType == 3), player->GetSession()->GetRemoteAddress().c_str(), itr->second->DamageDone, itr->second->HealingDone, itr->second->KillingBlows);
+        }
+        // Deduct 16 points from each teams arena-rating if there are no winners after 45+2 minutes
+        else if(winner_arena_team && loser_arena_team && winner_arena_team != loser_arena_team && (winner == WINNER_NONE))
+        {
+            SetArenaTeamRatingChangeForTeam(ALLIANCE, -16);
+             SetArenaTeamRatingChangeForTeam(HORDE, -16);
         }
         else
         {
@@ -1854,6 +1860,11 @@ int32 Battleground::GetObjectType(uint64 guid)
 
 void Battleground::HandleKillUnit(Creature * /*creature*/, Player * /*killer*/)
 {
+}
+
+void Battleground::CheckArenaAfterTimerConditions()
+{
+    EndBattleground(WINNER_NONE);
 }
 
 void Battleground::CheckArenaWinConditions()
