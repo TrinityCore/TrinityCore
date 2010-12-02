@@ -737,7 +737,7 @@ void Battleground::EndBattleground(uint32 winner)
     {
         winner_arena_team = sObjectMgr.GetArenaTeamById(GetArenaTeamIdForTeam(winner));
         loser_arena_team = sObjectMgr.GetArenaTeamById(GetArenaTeamIdForTeam(GetOtherTeam(winner)));
-        if (winner_arena_team && loser_arena_team && winner_arena_team != loser_arena_team && !((winner == WINNER_NONE))
+        if (winner_arena_team && loser_arena_team && winner_arena_team != loser_arena_team && !(winner == WINNER_NONE))
         {
             loser_team_rating = loser_arena_team->GetRating();
             loser_matchmaker_rating = GetArenaMatchmakerRating(GetOtherTeam(winner));
