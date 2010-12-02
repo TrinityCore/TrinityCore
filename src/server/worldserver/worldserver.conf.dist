@@ -1371,9 +1371,10 @@ DungeonFinder.Enable = 0
 
 #
 #   DBC.EnforceItemAttributes
-#        Disallow overriding item attributes stored in DBC files with values from the database
-#        Default: 0 - Off, Use DB values
-#                 1 - On, Enforce DBC Values (default)
+#        Description: Disallow overriding item attributes stored in DBC files with values from the 
+#                     database.
+#        Default:     1 - (Enabled, Enforce DBC values)
+#                     0 - (Disabled, Use database values)
 
 DBC.EnforceItemAttributes = 1
 
@@ -1743,6 +1744,27 @@ ChatLevelReq.Say = 1
 #                     0 - (Disabled)
 
 AllowPlayerCommands = 1
+
+#
+#    PreserveCustomChannels
+#        Description: Store custom chat channel settings like password, automatic ownership handout
+#                     or ban list in the database. Needs to be enabled to save custom 
+#                     world/trade/etc. channels that have automatic ownership handout disabled.
+#                     (.channel set ownership $channel off)
+#        Default:     0 - (Disabled, Blizzlike, Channel settings are lost if last person left)
+#                     1 - (Enabled)
+
+PreserveCustomChannels = 1
+
+#
+#    PreserveCustomChannelDuration
+#        Description: Time (in days) that needs to pass before the customs chat channels get
+#                     cleaned up from the database. Only channels with ownership handout enabled
+#                     (default behavior) will be cleaned.
+#        Default:     14 - (Enabled, Clean channels that haven't been used for 14 days)
+#                     0  - (Disabled, Infinite channel storage)
+
+PreserveCustomChannelDuration = 14
 
 #
 ###################################################################################################

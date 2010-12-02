@@ -194,7 +194,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x0A5*/ { "CMSG_CHANNEL_BAN",                             STATUS_LOGGEDIN, &WorldSession::HandleChannelBan                },
     /*0x0A6*/ { "CMSG_CHANNEL_UNBAN",                           STATUS_LOGGEDIN, &WorldSession::HandleChannelUnban              },
     /*0x0A7*/ { "CMSG_CHANNEL_ANNOUNCEMENTS",                   STATUS_LOGGEDIN, &WorldSession::HandleChannelAnnouncements      },
-    /*0x0A8*/ { "CMSG_CHANNEL_MODERATE",                        STATUS_LOGGEDIN, &WorldSession::HandleChannelModerate           },
+    /*0x0A8*/ { "CMSG_CHANNEL_MODERATE",                        STATUS_NEVER,    &WorldSession::Handle_NULL                     },
     /*0x0A9*/ { "SMSG_UPDATE_OBJECT",                           STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x0AA*/ { "SMSG_DESTROY_OBJECT",                          STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x0AB*/ { "CMSG_USE_ITEM",                                STATUS_LOGGEDIN, &WorldSession::HandleUseItemOpcode             },

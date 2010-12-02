@@ -61,6 +61,7 @@
 #include "CreatureTextMgr.h"
 #include "SmartAI.h"
 #include "Group.h"
+#include "ChannelMgr.h"
 
 bool ChatHandler::HandleMaxSkillCommand(const char* /*args*/)
 {
@@ -4400,25 +4401,38 @@ bool ChatHandler::HandleFlushArenaPointsCommand(const char * /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleChannelSetPublic(const char *args)
+bool ChatHandler::HandleChannelSetOwnership(const char *args)
 {
     if (!*args)
         return false;
-    std::string channel = strtok((char*)args, " ");
-    uint32 val = atoi((char*)args);
+    char *channel = strtok((char*)args, " ");
+    char *argstr =  strtok(NULL, "");
 
-    if (val)
+    if (!channel || !argstr)
+        return false;
+
+    Player *player = m_session->GetPlayer();
+    Channel *chn;
+
+    if (ChannelMgr* cMgr = channelMgr(player->GetTeam()))
+        chn = cMgr->GetChannel(channel, player);
+
+    if (strcmp(argstr, "on") == 0)
     {
-        CharacterDatabase.PExecute("UPDATE channels SET m_public = 1 WHERE m_name LIKE '%s'", channel.c_str());
-        val = 1;
+        if(chn)
+            chn->SetOwnership(true);
+        CharacterDatabase.PExecute("UPDATE channels SET m_ownership = 1 WHERE m_name LIKE '%s'", channel);
+        PSendSysMessage(LANG_CHANNEL_ENABLE_OWNERSHIP, channel);
+    }
+    else if (strcmp(argstr, "off") == 0)
+    {
+        if(chn)
+            chn->SetOwnership(false);
+        CharacterDatabase.PExecute("UPDATE channels SET m_ownership = 0 WHERE m_name LIKE '%s'", channel);
+        PSendSysMessage(LANG_CHANNEL_DISABLE_OWNERSHIP, channel);
     }
     else
-    {
-        CharacterDatabase.PExecute("UPDATE channels SET m_public = 0 WHERE m_name LIKE '%s'", channel.c_str());
-        val = 0;
-    }
-
-    PSendSysMessage(LANG_CHANNEL_PUBLIC_CHANGED, channel.c_str(), val);
+        return false;
 
     return true;
 }
