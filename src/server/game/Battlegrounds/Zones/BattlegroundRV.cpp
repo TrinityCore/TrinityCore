@@ -48,6 +48,15 @@ void BattlegroundRV::Update(uint32 diff)
 {
     Battleground::Update(diff);
 
+    if (GetStatus() == STATUS_IN_PROGRESS)
+    {
+        if (GetStartTime() >= 47*MINUTE*IN_MILLISECONDS)    // after 47 minutes without one team losing, the arena closes with no winner and no rating change
+        {
+            UpdateArenaWorldState();
+            CheckArenaAfterTimerConditions();
+        }
+    } 
+
     if (getTimer() < diff)
     {
         uint32 i;
