@@ -238,14 +238,14 @@ DROP TABLE IF EXISTS `channels`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `channels` (
-  `m_name` text NOT NULL,
+  `m_name` varchar(128) NOT NULL,
   `m_team` int(10) unsigned NOT NULL,
-  `m_announce` tinyint(1) unsigned NOT NULL default '0',
-  `m_moderate` tinyint(1) unsigned NOT NULL default '0',
-  `m_public` tinyint(1) unsigned NOT NULL default '1',
-  `m_password` text,
+  `m_announce` tinyint(3) unsigned NOT NULL default '1',
+  `m_ownership` tinyint(3) unsigned NOT NULL default '1',
+  `m_password` varchar(32) NULL,
   `BannedList` longtext,
-  PRIMARY KEY  (`m_name`(10),`m_team`)
+  `last_used` INT(10) UNSIGNED NOT NULL,
+  PRIMARY KEY  (`m_name`,`m_team`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Channel System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
