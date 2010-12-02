@@ -641,12 +641,6 @@ void Channel::Say(uint64 p, const char *what, uint32 lang)
         MakeMuted(&data);
         SendToOne(&data, p);
     }
-    else if (!players[p].IsModerator() && sec < SEC_GAMEMASTER)
-    {
-        WorldPacket data;
-        MakeNotModerator(&data);
-        SendToOne(&data, p);
-    }
     else
     {
         uint32 messageLength = strlen(what) + 1;
