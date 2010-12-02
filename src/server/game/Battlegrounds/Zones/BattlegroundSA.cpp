@@ -474,8 +474,7 @@ void BattlegroundSA::TeleportPlayers()
                 plr->SpawnCorpseBones();
             }
 
-            plr->SetFullHealth();
-            plr->SetPower(POWER_MANA, plr->GetMaxPower(POWER_MANA));
+            plr->ResetAllPowers();
             plr->CombatStopWithPets(true);
 
             if (plr->GetTeamId() == attackers)
