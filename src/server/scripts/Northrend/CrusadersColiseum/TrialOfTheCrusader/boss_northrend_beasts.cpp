@@ -108,7 +108,8 @@ enum BossSpells
     SPELL_FROTHING_RAGE     = 66759,
     SPELL_STAGGERED_DAZE    = 66758,
 };
-class boss_gormok : public CreatureScript
+
+class boss_gormok : public CreatureScript
 {
 public:
     boss_gormok() : CreatureScript("boss_gormok") { }
@@ -167,29 +168,26 @@ public:
             m_pInstance->SetData(TYPE_NORTHREND_BEASTS,GORMOK_IN_PROGRESS);
         }
 
-        void JustSummoned(Creature* pSummoned)
+        void JustSummoned(Creature* summon)
         {
-            Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-            switch(pSummoned->GetEntry())
+            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
             {
-                case NPC_SNOBOLD_VASSAL:
-                    pSummoned->GetMotionMaster()->MoveJump(pTarget->GetPositionX(),pTarget->GetPositionY(),pTarget->GetPositionZ(),10.0f,20.0f);
+                if (summon->GetEntry() == NPC_SNOBOLD_VASSAL)
+                {
+                    summon->GetMotionMaster()->MoveJump(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 10.0f, 20.0f);
                     DoCast(me, SPELL_RISING_ANGER);
                     --m_uiSummonCount;
-                    break;
+                }
+                summon->AI()->AttackStart(target);
             }
-            pSummoned->AI()->AttackStart(pTarget);
-            Summons.Summon(pSummoned);
+            Summons.Summon(summon);
         }
 
-        void SummonedCreatureDespawn(Creature* pSummoned)
+        void SummonedCreatureDespawn(Creature* summon)
         {
-            switch(pSummoned->GetEntry())
-            {
-                case NPC_SNOBOLD_VASSAL:
-                    if (pSummoned->isAlive()) ++m_uiSummonCount;
-                    break;
-            }
+            if (summon->GetEntry() == NPC_SNOBOLD_VASSAL)
+                if (summon->isAlive())
+                    ++m_uiSummonCount;
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -225,7 +223,8 @@ public:
 
 };
 
-class mob_snobold_vassal : public CreatureScript
+
+class mob_snobold_vassal : public CreatureScript
 {
 public:
     mob_snobold_vassal() : CreatureScript("mob_snobold_vassal") { }
@@ -563,7 +562,8 @@ struct boss_jormungarAI : public ScriptedAI
     }
 };
 
-class boss_acidmaw : public CreatureScript
+
+class boss_acidmaw : public CreatureScript
 {
     public:
     boss_acidmaw() : CreatureScript("boss_acidmaw") { }
@@ -596,7 +596,8 @@ struct boss_jormungarAI : public ScriptedAI
 
 };
 
-class boss_dreadscale : public CreatureScript
+
+class boss_dreadscale : public CreatureScript
 {
 public:
     boss_dreadscale() : CreatureScript("boss_dreadscale") { }
@@ -628,7 +629,8 @@ public:
 
 };
 
-class mob_slime_pool : public CreatureScript
+
+class mob_slime_pool : public CreatureScript
 {
 public:
     mob_slime_pool() : CreatureScript("mob_slime_pool") { }
@@ -663,7 +665,8 @@ public:
     };
 
 };
-class boss_icehowl : public CreatureScript
+
+class boss_icehowl : public CreatureScript
 {
 public:
     boss_icehowl() : CreatureScript("boss_icehowl") { }
