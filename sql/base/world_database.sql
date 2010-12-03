@@ -26708,6 +26708,7 @@ LOCK TABLES `spell_script_names` WRITE;
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 -- generic
 (  6962, 'spell_gen_pet_summoned'),
+( 10848, 'spell_gen_shroud_of_death'),
 ( 24750, 'spell_gen_trick'),
 ( 24751, 'spell_gen_trick_or_treat'),
 ( 29266, 'spell_creature_permanent_feign_death'),
@@ -26747,14 +26748,14 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 70835, 'spell_marrowgar_bone_storm'),
 ( 70836, 'spell_marrowgar_bone_storm'),
 ( 70842, 'spell_deathwhisper_mana_barrier'),
-( 70903, 'spell_cultist_dark_martyrdrom'),
-( 72498, 'spell_cultist_dark_martyrdrom'),
-( 72499, 'spell_cultist_dark_martyrdrom'),
-( 72500, 'spell_cultist_dark_martyrdrom'),
-( 71236, 'spell_cultist_dark_martyrdrom'),
-( 72495, 'spell_cultist_dark_martyrdrom'),
-( 72496, 'spell_cultist_dark_martyrdrom'),
-( 72497, 'spell_cultist_dark_martyrdrom'),
+( 70903, 'spell_cultist_dark_martyrdom'),
+( 72498, 'spell_cultist_dark_martyrdom'),
+( 72499, 'spell_cultist_dark_martyrdom'),
+( 72500, 'spell_cultist_dark_martyrdom'),
+( 71236, 'spell_cultist_dark_martyrdom'),
+( 72495, 'spell_cultist_dark_martyrdom'),
+( 72496, 'spell_cultist_dark_martyrdom'),
+( 72497, 'spell_cultist_dark_martyrdom'),
 ( 72202, 'spell_deathbringer_blood_link'),
 ( 72178, 'spell_deathbringer_blood_link_aura'),
 ( 72371, 'spell_deathbringer_blood_power'),
@@ -26892,6 +26893,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 -- priest
 ( 47948, 'spell_pri_pain_and_suffering_proc'),
 (-47540, 'spell_pri_penance'),
+( -8129, 'spell_pri_mana_burn'),
 -- death knight
 (-49158, 'spell_dk_corpse_explosion'),
 ( 50524, 'spell_dk_runic_power_feed'),
