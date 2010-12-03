@@ -367,6 +367,12 @@ class npc_bone_spike : public CreatureScript
                 trappedGUID = 0;
             }
 
+            void KilledUnit(Unit* victim)
+            {
+                if (TempSummon* summ = me->ToTempSummon())
+                    summ->UnSummon();
+            }
+
             void IsSummonedBy(Unit* summoner)
             {
                 trappedGUID = summoner->GetGUID();
@@ -375,10 +381,12 @@ class npc_bone_spike : public CreatureScript
                 events.ScheduleEvent(EVENT_FAIL_BONED, 8000);
             }
 
-            void UpdateAI(const uint32 /*diff*/)
+            void UpdateAI(const uint32 diff)
             {
                 if (!trappedGUID)
                     return;
+
+                events.Update(diff);
 
                 if (events.ExecuteEvent() == EVENT_FAIL_BONED)
                     if (InstanceScript* instance = me->GetInstanceScript())
@@ -439,7 +447,7 @@ class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
         {
             PrepareSpellScript(spell_marrowgar_bone_spike_graveyard_SpellScript);
 
-            void HandleScript(SpellEffIndex effIndex)
+            void HandleSpikes(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
                 if (Creature* marrowgar = GetCaster()->ToCreature())
@@ -466,7 +474,7 @@ class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_marrowgar_bone_spike_graveyard_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffect += SpellEffectFn(spell_marrowgar_bone_spike_graveyard_SpellScript::HandleSpikes, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
             }
         };
 

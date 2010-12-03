@@ -3624,6 +3624,8 @@ void SpellMgr::LoadSpellCustomAttr()
         case 69782: case 69796:                 // Ooze Flood
         case 69798: case 69801:                 // Ooze Flood
         case 69538: case 69553: case 69610:     // Ooze Combine
+        case 71447: case 71481:                 // Bloodbolt Splash
+        case 71482: case 71483:                 // Bloodbolt Splash
             mSpellCustomAttr[i] |= SPELL_ATTR_CU_EXCLUDE_SELF;
             count++;
             break;
@@ -3949,6 +3951,10 @@ void SpellMgr::LoadSpellCustomAttr()
         case 72786: // Empowered Flare
         case 72787: // Empowered Flare
             spellInfo->AttributesEx3 |= SPELL_ATTR_EX3_NO_DONE_BONUS;
+            count++;
+            break;
+        case 71340: // Pact of the Darkfallen
+            spellInfo->DurationIndex = 21;
             count++;
             break;
         default:
