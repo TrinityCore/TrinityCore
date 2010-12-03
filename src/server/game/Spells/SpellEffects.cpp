@@ -7037,7 +7037,7 @@ void Spell::EffectBind(SpellEffIndex effIndex)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    Player* player = (Player*)unitTarget;
+    Player* player = unitTarget->ToPlayer();
 
     uint32 area_id;
     WorldLocation loc;
@@ -7046,14 +7046,14 @@ void Spell::EffectBind(SpellEffIndex effIndex)
         SpellTargetPosition const* st = sSpellMgr.GetSpellTargetPosition(m_spellInfo->Id);
         if (!st)
         {
-            sLog.outError( "Spell::EffectBind - unknown teleport coordinates for spell ID %u", m_spellInfo->Id );
+            sLog.outError("Spell::EffectBind - unknown teleport coordinates for spell ID %u", m_spellInfo->Id);
             return;
         }
 
-        loc.m_mapId         = st->target_mapId;
+        loc.m_mapId       = st->target_mapId;
         loc.m_positionX   = st->target_X;
         loc.m_positionY   = st->target_Y;
-        loc.m_positionZ   = st->target_Y;
+        loc.m_positionZ   = st->target_Z;
         loc.m_orientation = st->target_Orientation;
         area_id = player->GetAreaId();
     }
@@ -7066,13 +7066,13 @@ void Spell::EffectBind(SpellEffIndex effIndex)
     player->SetHomebind(loc, area_id);
 
     // binding
-    WorldPacket data( SMSG_BINDPOINTUPDATE, (4+4+4+4+4) );
+    WorldPacket data(SMSG_BINDPOINTUPDATE, (4+4+4+4+4));
     data << float(loc.m_positionX);
     data << float(loc.m_positionY);
     data << float(loc.m_positionZ);
     data << uint32(loc.m_mapId);
     data << uint32(area_id);
-    player->SendDirectMessage( &data );
+    player->SendDirectMessage(&data);
 
     sLog.outStaticDebug("New homebind X      : %f", loc.m_positionX);
     sLog.outStaticDebug("New homebind Y      : %f", loc.m_positionY);
