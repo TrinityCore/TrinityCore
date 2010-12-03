@@ -337,10 +337,116 @@ public:
     }
 };
 
+/*######
+## npc_daegarn
+######*/
+
+enum eDaegarnn
+{
+    QUEST_DEFEAT_AT_RING            = 11300,
+
+    NPC_FIRJUS                      = 24213,
+    NPC_JLARBORN                    = 24215,
+    NPC_YOROS                       = 24214,
+    NPC_OLUF                        = 23931,
+
+    NPC_PRISONER_1                  = 24253,  // looks the same but has different abilities
+    NPC_PRISONER_2                  = 24254,
+    NPC_PRISONER_3                  = 24255,
+};
+
+static float afSummon[] = {838.81f, -4678.06f, -94.182f};
+static float afCenter[] = {801.88f, -4721.87f, -96.143f}; 
+
+class npc_daegarn : public CreatureScript
+{
+public:
+    npc_daegarn() : CreatureScript("npc_daegarn") { }
+        
+    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+    {
+        if (pQuest->GetQuestId() == QUEST_DEFEAT_AT_RING)
+        {
+            if (npc_daegarnAI* pDaegarnAI = CAST_AI(npc_daegarn::npc_daegarnAI, pCreature->AI()))
+                pDaegarnAI->StartEvent(pPlayer->GetGUID());
+        }
+
+        return true;
+    }
+        
+    // TODO: make prisoners help (unclear if summoned or using npc's from surrounding cages (summon inside small cages?))
+    struct npc_daegarnAI : public ScriptedAI 
+    {  
+        npc_daegarnAI(Creature *pCreature) : ScriptedAI(pCreature) { }
+
+        bool bEventInProgress;
+        uint64 uiPlayerGUID;
+
+        void Reset()
+        {
+            bEventInProgress = false;
+            uiPlayerGUID = 0;
+        }
+
+        void StartEvent(uint64 uiGUID)
+        {
+            if (bEventInProgress)
+                return;
+
+            uiPlayerGUID = uiGUID;
+
+            SummonGladiator(NPC_FIRJUS);
+        }
+
+        void JustSummoned(Creature* pSummon)
+        {
+            if (Player* pPlayer = me->GetPlayer(*me,uiPlayerGUID))
+            {
+                if (pPlayer->isAlive())
+                {
+                    pSummon->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                    pSummon->GetMotionMaster()->MovePoint(0, afCenter[0], afCenter[1], afCenter[2]);
+                    pSummon->AI()->AttackStart(pPlayer);
+                    return;
+                }
+            }
+
+            Reset();
+        }
+
+        void SummonGladiator(uint32 uiEntry)
+        {
+            me->SummonCreature(uiEntry, afSummon[0], afSummon[1], afSummon[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30*IN_MILLISECONDS);
+        }
+
+        void SummonedCreatureDies(Creature* pSummoned, Unit* pKiller)
+        {
+            uint32 uiEntry = 0;
+
+            // will eventually reset the event if something goes wrong
+            switch(pSummoned->GetEntry())
+            {
+                case NPC_FIRJUS:    uiEntry = NPC_JLARBORN; break;
+                case NPC_JLARBORN:  uiEntry = NPC_YOROS;    break;
+                case NPC_YOROS:     uiEntry = NPC_OLUF;     break;
+                case NPC_OLUF:      Reset();                return;
+            }
+
+            SummonGladiator(uiEntry);
+        }
+    };
+
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new npc_daegarnAI(creature);
+    }
+};
+
 void AddSC_howling_fjord()
 {
     new npc_apothecary_hanes;
     new npc_plaguehound_tracker;
     new npc_razael_and_lyana;
     new npc_mcgoyver;
+    new npc_daegarn;
  }

@@ -821,6 +821,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_rinji' WHERE `entry`=7780;
 UPDATE `creature_template` SET `ScriptName`='npc_plaguehound_tracker' WHERE `entry`=24156;
 UPDATE `creature_template` SET `ScriptName`='npc_razael_and_lyana' WHERE `entry` IN (23778,23998);
 UPDATE `creature_template` SET `ScriptName`='npc_apothecary_hanes' WHERE `entry`=23784;
+UPDATE `creature_template` SET `ScriptName`='npc_daegarn' WHERE `entry`=24151;
 
 /* ICECROWN */
 UPDATE `creature_template` SET `ScriptName`='npc_arete' WHERE `entry`=29344;
