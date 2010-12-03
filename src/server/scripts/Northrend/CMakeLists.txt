@@ -152,6 +152,7 @@ set(scripts_STAT_SRCS
   Northrend/IcecrownCitadel/boss_rotface.cpp
   Northrend/IcecrownCitadel/boss_professor_putricide.cpp
   Northrend/IcecrownCitadel/boss_blood_prince_council.cpp
+  Northrend/IcecrownCitadel/boss_blood_queen_lana_thel.cpp
   Northrend/zuldrak.cpp
   Northrend/icecrown.cpp
   Northrend/Gundrak/boss_slad_ran.cpp

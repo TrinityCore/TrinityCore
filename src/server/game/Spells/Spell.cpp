@@ -2800,6 +2800,32 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                                 ++itr;
                         }
                         break;
+                    case 71390:                             // Pact of the Darkfallen
+                    {
+                        for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end();)
+                        {
+                            if (!(*itr)->HasAura(71340))
+                                itr = unitList.erase(itr);
+                            else
+                                ++itr;
+                        }
+                        bool remove = true;
+                        // we can do this, unitList is MAX 4 in size
+                        for (std::list<Unit*>::const_iterator itr = unitList.begin(); itr != unitList.end() && remove; ++itr)
+                        {
+                            if (!m_caster->IsWithinDist(*itr, 5.0f, false))
+                                remove = false;
+
+                            for (std::list<Unit*>::const_iterator itr2 = unitList.begin(); itr2 != unitList.end() && remove; ++itr2)
+                                if (itr != itr2 && !(*itr2)->IsWithinDist(*itr, 5.0f, false))
+                                    remove = false;
+                        }
+
+                        if (remove)
+                            for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
+                                (*itr)->RemoveAura(71340);
+                        break;
+                    }
                 }
                 // Death Pact
                 if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && m_spellInfo->SpellFamilyFlags[0] & 0x00080000)

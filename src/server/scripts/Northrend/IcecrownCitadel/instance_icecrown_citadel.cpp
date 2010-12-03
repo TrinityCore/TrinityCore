@@ -18,6 +18,8 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
+#include "ScriptedCreature.h"
+#include "Map.h"
 #include "icecrown_citadel.h"
 
 static const DoorData doorData[] =
@@ -53,6 +55,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             {
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadDoorData(doorData);
+                teamInInstance = 0;
                 ladyDeathwisperElevator = 0;
                 deathbringerSaurfang = 0;
                 saurfangDoor = 0;
@@ -68,73 +71,82 @@ class instance_icecrown_citadel : public InstanceMapScript
                 putricideTable = 0;
                 memset(bloodCouncil, 0, 3*sizeof(uint64));
                 bloodCouncilController = 0;
+                bloodQueenLanaThel = 0;
                 isBonedEligible = true;
                 isOozeDanceEligible = true;
                 isNauseaEligible = true;
                 isOrbWhispererEligible = true;
             }
 
-            void OnCreatureCreate(Creature* creature, bool /*add*/)
+            void OnPlayerEnter(Player* player)
             {
-                Map::PlayerList const &players = instance->GetPlayers();
-                uint32 TeamInInstance = 0;
+                if (!teamInInstance)
+                    teamInInstance = player->GetTeam();
+            }
 
-                if (!players.isEmpty())
+            void OnCreatureCreate(Creature* creature, bool add)
+            {
+                if (!add)
+                    return;
+
+                if (!teamInInstance)
                 {
-                    if (Player* pPlayer = players.begin()->getSource())
-                        TeamInInstance = pPlayer->GetTeam();
+                    Map::PlayerList const &players = instance->GetPlayers();
+                    if (!players.isEmpty())
+                        if (Player* player = players.begin()->getSource())
+                            teamInInstance = player->GetTeam();
                 }
 
                 switch (creature->GetEntry())
                 {
                     case NPC_KOR_KRON_GENERAL:
-                        if (TeamInInstance == ALLIANCE)
+                        if (teamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_ALLIANCE_COMMANDER, ALLIANCE);
                         break;
                     case NPC_KOR_KRON_LIEUTENANT:
-                        if (TeamInInstance == ALLIANCE)
+                        if (teamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_SKYBREAKER_LIEUTENANT, ALLIANCE);
                         break;
                     case NPC_TORTUNOK:
-                        if (TeamInInstance == ALLIANCE)
+                        if (teamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_ALANA_MOONSTRIKE, ALLIANCE);
                         break;
                     case NPC_GERARDO_THE_SUAVE:
-                        if (TeamInInstance == ALLIANCE)
+                        if (teamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_TALAN_MOONSTRIKE, ALLIANCE);
                         break;
                     case NPC_UVLUS_BANEFIRE:
-                        if (TeamInInstance == ALLIANCE)
+                        if (teamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_MALFUS_GRIMFROST, ALLIANCE);
                         break;
                     case NPC_IKFIRUS_THE_VILE:
-                        if (TeamInInstance == ALLIANCE)
+                        if (teamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_YILI, ALLIANCE);
                         break;
                     case NPC_VOL_GUK:
-                        if (TeamInInstance == ALLIANCE)
+                        if (teamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_JEDEBIA, ALLIANCE);
                         break;
                     case NPC_HARAGG_THE_UNSEEN:
-                        if (TeamInInstance == ALLIANCE)
+                        if (teamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_NIBY_THE_ALMIGHTY, ALLIANCE);
                         break;
                     case NPC_GARROSH_HELLSCREAM:
-                        if (TeamInInstance == ALLIANCE)
+                        if (teamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_KING_VARIAN_WRYNN, ALLIANCE);
                         break;
                     case NPC_DEATHBRINGER_SAURFANG:
                         deathbringerSaurfang = creature->GetGUID();
                         break;
                     case NPC_SE_HIGH_OVERLORD_SAURFANG:
-                        if (TeamInInstance == ALLIANCE)
+                        if (teamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_SE_MURADIN_BRONZEBEARD, ALLIANCE);
                     case NPC_SE_MURADIN_BRONZEBEARD:
                         saurfangEventNPC = creature->GetGUID();
                         creature->LastUsedScriptID = creature->GetScriptId();
                         break;
                     case NPC_SE_KOR_KRON_REAVER:
-                        if (TeamInInstance == ALLIANCE)
+                        if (teamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_SE_SKYBREAKER_MARINE, ALLIANCE);
                         break;
                     case NPC_FESTERGUT:
@@ -157,6 +169,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case NPC_BLOOD_ORB_CONTROLLER:
                         bloodCouncilController = creature->GetGUID();
+                        break;
+                    case NPC_BLOOD_QUEEN_LANA_THEL:
+                        bloodQueenLanaThel = creature->GetGUID();
                         break;
                     default:
                         break;
@@ -271,6 +286,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return bloodCouncil[2];
                     case DATA_BLOOD_PRINCES_CONTROL:
                         return bloodCouncilController;
+                    case DATA_BLOOD_QUEEN_LANA_THEL:
+                        return bloodQueenLanaThel;
                     default:
                         break;
                 }
@@ -400,6 +417,15 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case CRITERIA_ORB_WHISPERER_10H:
                     case CRITERIA_ORB_WHISPERER_25H:
                         return isOrbWhispererEligible;
+                    // Only one criteria for both modes, need to do it like this
+                    case CRITERIA_KILL_LANA_THEL_10M:
+                    case CRITERIA_ONCE_BITTEN_TWICE_SHY_10N:
+                    case CRITERIA_ONCE_BITTEN_TWICE_SHY_10V:
+                        return CAST_INST(InstanceMap, instance)->GetMaxPlayers() == 10;
+                    case CRITERIA_KILL_LANA_THEL_25M:
+                    case CRITERIA_ONCE_BITTEN_TWICE_SHY_25N:
+                    case CRITERIA_ONCE_BITTEN_TWICE_SHY_25V:
+                        return CAST_INST(InstanceMap, instance)->GetMaxPlayers() == 25;
                     default:
                         break;
                 }
@@ -449,6 +475,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             }
 
         private:
+            uint32 teamInInstance;
             uint64 ladyDeathwisperElevator;
             uint64 deathbringerSaurfang;
             uint64 saurfangDoor;
@@ -464,6 +491,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 putricideTable;
             uint64 bloodCouncil[3];
             uint64 bloodCouncilController;
+            uint64 bloodQueenLanaThel;
             bool isBonedEligible;
             bool isOozeDanceEligible;
             bool isNauseaEligible;
