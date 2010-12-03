@@ -136,6 +136,9 @@ enum eCreatures
     NPC_KINETIC_BOMB_TARGET                     = 38458,
     NPC_KINETIC_BOMB                            = 38454,
     NPC_SHOCK_VORTEX                            = 38422,
+
+    // Blood-Queen Lana'thel
+    NPC_BLOOD_QUEEN_LANA_THEL                   = 37955,
 };
 
 enum eGameobjects
@@ -190,28 +193,36 @@ enum eGameobjects
 enum eAchievementCriteria
 {
     // Lord Marrowgar
-    CRITERIA_BONED_10N              = 12775,
-    CRITERIA_BONED_25N              = 12962,
-    CRITERIA_BONED_10H              = 13393,
-    CRITERIA_BONED_25H              = 13394,
+    CRITERIA_BONED_10N                  = 12775,
+    CRITERIA_BONED_25N                  = 12962,
+    CRITERIA_BONED_10H                  = 13393,
+    CRITERIA_BONED_25H                  = 13394,
 
     // Rotface
-    CRITERIA_DANCES_WITH_OOZES_10N  = 12984,
-    CRITERIA_DANCES_WITH_OOZES_25N  = 12966,
-    CRITERIA_DANCES_WITH_OOZES_10H  = 12985,
-    CRITERIA_DANCES_WITH_OOZES_25H  = 12983,
+    CRITERIA_DANCES_WITH_OOZES_10N      = 12984,
+    CRITERIA_DANCES_WITH_OOZES_25N      = 12966,
+    CRITERIA_DANCES_WITH_OOZES_10H      = 12985,
+    CRITERIA_DANCES_WITH_OOZES_25H      = 12983,
 
     // Professor Putricide
-    CRITERIA_NAUSEA_10N             = 12987,
-    CRITERIA_NAUSEA_25N             = 12968,
-    CRITERIA_NAUSEA_10H             = 12988,
-    CRITERIA_NAUSEA_25H             = 12981,
+    CRITERIA_NAUSEA_10N                 = 12987,
+    CRITERIA_NAUSEA_25N                 = 12968,
+    CRITERIA_NAUSEA_10H                 = 12988,
+    CRITERIA_NAUSEA_25H                 = 12981,
 
     // Blood Prince Council
-    CRITERIA_ORB_WHISPERER_10N      = 13033,
-    CRITERIA_ORB_WHISPERER_25N      = 12969,
-    CRITERIA_ORB_WHISPERER_10H      = 13034,
-    CRITERIA_ORB_WHISPERER_25H      = 13032,
+    CRITERIA_ORB_WHISPERER_10N          = 13033,
+    CRITERIA_ORB_WHISPERER_25N          = 12969,
+    CRITERIA_ORB_WHISPERER_10H          = 13034,
+    CRITERIA_ORB_WHISPERER_25H          = 13032,
+
+    // Blood-Queen Lana'thel
+    CRITERIA_KILL_LANA_THEL_10M         = 13340,
+    CRITERIA_KILL_LANA_THEL_25M         = 13360,
+    CRITERIA_ONCE_BITTEN_TWICE_SHY_10N  = 12780,
+    CRITERIA_ONCE_BITTEN_TWICE_SHY_25N  = 13012,
+    CRITERIA_ONCE_BITTEN_TWICE_SHY_10V  = 13011,
+    CRITERIA_ONCE_BITTEN_TWICE_SHY_25V  = 13013,
 };
 
 enum eSharedActions

@@ -299,10 +299,12 @@ class boss_blood_council_controller : public CreatureScript
                             }
 
                             if (newPrince)
+                            {
                                 newPrince->SetHealth(me->GetHealth());
+                                newPrince->AI()->Talk(invocationOrder[invocationStage].textId);
+                            }
 
                             DoCast(me, invocationOrder[invocationStage].spellId);
-                            Talk(invocationOrder[invocationStage].textId);
                             events.ScheduleEvent(EVENT_INVOCATION_OF_BLOOD, 30000);
                             break;
                         }

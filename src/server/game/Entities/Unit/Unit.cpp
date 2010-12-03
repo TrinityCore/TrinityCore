@@ -5758,6 +5758,13 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     triggered_spell_id = 70701;
                     break;
                 }
+                case 70871:
+                {
+                    target = this;
+                    triggered_spell_id = 70872;
+                    basepoints0 = int32(damage) * triggerAmount / 100;
+                    break;
+                }
             }
             break;
         }
