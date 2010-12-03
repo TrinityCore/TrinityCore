@@ -127,15 +127,14 @@ class item_nether_wraith_beacon : public ItemScript
 public:
     item_nether_wraith_beacon() : ItemScript("item_nether_wraith_beacon") { }
 
-    bool OnUse(Player* pPlayer, Item* /*pItem*/, SpellCastTargets const& /*targets*/)
+    bool OnUse(Player* player, Item* /*item*/, SpellCastTargets const& /*targets*/)
     {
-        if (pPlayer->GetQuestStatus(10832) == QUEST_STATUS_INCOMPLETE)
+        if (player->GetQuestStatus(10832) == QUEST_STATUS_INCOMPLETE)
         {
-            Creature *Nether;
-            Nether = pPlayer->SummonCreature(22408, pPlayer->GetPositionX(), pPlayer->GetPositionY()+20, pPlayer->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 180000);
-            Nether = pPlayer->SummonCreature(22408, pPlayer->GetPositionX(), pPlayer->GetPositionY()-20, pPlayer->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 180000);
-            if (Nether)
-                Nether->AI()->AttackStart(pPlayer);
+            if (Creature *nether = player->SummonCreature(22408, pPlayer->GetPositionX(), pPlayer->GetPositionY()+20, pPlayer->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 180000))
+                nether->AI()->AttackStart(player);
+            if (Creature *nether = player->SummonCreature(22408, pPlayer->GetPositionX(), pPlayer->GetPositionY()-20, pPlayer->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 180000))
+                nether->AI()->AttackStart(player);
         }
         return false;
     }

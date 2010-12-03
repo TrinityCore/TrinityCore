@@ -530,22 +530,22 @@ class mob_essence_of_twin : public CreatureScript
 public:
     mob_essence_of_twin() : CreatureScript("mob_essence_of_twin") { }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    bool OnGossipHello(Player* player, Creature* creature)
     {
-        switch(pCreature->GetEntry())
+        switch (creature->GetEntry())
         {
             case NPC_LIGHT_ESSENCE:
-                if (pPlayer || pPlayer->HasAura(SPELL_DARK_ESSENCE))
-                    pPlayer->RemoveAura(SPELL_DARK_ESSENCE);
-                pPlayer->CastSpell(pPlayer,SPELL_LIGHT_ESSENCE,true);
+                player->RemoveAura(SPELL_DARK_ESSENCE);
+                player->CastSpell(player, SPELL_LIGHT_ESSENCE, true);
                 break;
             case NPC_DARK_ESSENCE:
-                if (pPlayer || pPlayer->HasAura(SPELL_LIGHT_ESSENCE))
-                    pPlayer->RemoveAura(SPELL_LIGHT_ESSENCE);
-                pPlayer->CastSpell(pPlayer,SPELL_DARK_ESSENCE,true);
+                player->RemoveAura(SPELL_LIGHT_ESSENCE);
+                player->CastSpell(player, SPELL_DARK_ESSENCE, true);
+                break;
+            default:
                 break;
         }
-        pPlayer->CLOSE_GOSSIP_MENU();
+        player->CLOSE_GOSSIP_MENU();
         return true;
     }
 };
