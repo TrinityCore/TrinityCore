@@ -90,7 +90,7 @@ public:
             uiYoggSaronGUID       = 0;
             uiAlgalonGUID         = 0;
             uiKologarnChestGUID   = 0;
-            uiKologarnChestGUID   = 0;
+            uiThorimChestGUID     = 0;
             uiHodirChestGUID      = 0;
             uiFreyaChestGUID      = 0;
             uiLeviathanGateGUID   = 0;
