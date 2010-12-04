@@ -1852,6 +1852,8 @@ CREATE TABLE `disables` (
   `sourceType` int(10) unsigned NOT NULL,
   `entry` int(10) unsigned NOT NULL,
   `flags` tinyint(3) unsigned NOT NULL default '0',
+  `params_0` varchar(255) NOT NULL default '',
+  `params_1` varchar(255) NOT NULL default '',
   `comment` varchar(255) character set utf8 NOT NULL default '',
   PRIMARY KEY  (`sourceType`,`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
