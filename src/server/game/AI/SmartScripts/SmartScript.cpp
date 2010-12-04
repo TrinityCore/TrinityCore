@@ -550,7 +550,8 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                 WorldObject* obj = GetBaseObject();
                 if (!obj)
                     obj = unit;
-                if (obj) return;
+                if (!obj)
+                    return;
                 InstanceScript* pInst = (InstanceScript*)obj->GetInstanceScript();
                 if (!pInst)
                 {
