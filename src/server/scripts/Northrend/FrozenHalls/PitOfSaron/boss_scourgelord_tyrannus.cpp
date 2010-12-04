@@ -328,6 +328,9 @@ class spell_tyrannus_overlord_brand : public SpellScriptLoader
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraApplication const* aurApp, AuraEffectHandleModes /*mode*/)
             {
+                if (aurApp->GetTarget()->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
                 delete aurApp->GetTarget()->GetAI();
                 aurApp->GetTarget()->SetAI(oldAI);
                 aurApp->GetTarget()->IsAIEnabled = oldAIState;
