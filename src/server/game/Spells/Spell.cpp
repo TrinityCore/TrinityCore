@@ -433,6 +433,7 @@ m_caster(Caster), m_spellValue(new SpellValue(m_spellInfo))
     m_delayStart = 0;
     m_delayAtDamageCount = 0;
 
+    m_applyMultiplierMask = 0;
     m_effectMask = 0;
     m_auraScaleMask = 0;
 
@@ -2382,6 +2383,10 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
 
         if (maxTargets > 1)
         {
+            //otherwise, this multiplier is used for something else
+            m_damageMultipliers[i] = 1.0f;
+            m_applyMultiplierMask |= 1 << i;
+
             float range;
             std::list<Unit*> unitList;
 
@@ -6874,10 +6879,8 @@ void Spell::CalculateDamageDoneForAllTargets()
 {
     float multiplier[MAX_SPELL_EFFECTS];
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-    {
-        // Get multiplier
-        multiplier[i] = SpellMgr::CalculateSpellEffectDamageMultiplier(m_spellInfo, i, m_originalCaster, this);
-    }
+        if (m_applyMultiplierMask & (1 << i))
+            multiplier[i] = SpellMgr::CalculateSpellEffectDamageMultiplier(m_spellInfo, i, m_originalCaster, this);
 
     bool usesAmmo = true;
     Unit::AuraEffectList const& Auras = m_caster->GetAuraEffectsByType(SPELL_AURA_ABILITY_CONSUME_NO_AMMO);
@@ -6937,7 +6940,7 @@ void Spell::CalculateDamageDoneForAllTargets()
     }
 }
 
-int32 Spell::CalculateDamageDone(Unit *unit, const uint32 effectMask, float * /*multiplier*/)
+int32 Spell::CalculateDamageDone(Unit *unit, const uint32 effectMask, float * multiplier)
 {
     int32 damageDone = 0;
     unitTarget = unit;
@@ -6979,6 +6982,12 @@ int32 Spell::CalculateDamageDone(Unit *unit, const uint32 effectMask, float * /*
                             m_damage = m_damage * 10/targetAmount;
                     }
                 }
+            }
+
+            if (m_applyMultiplierMask & (1 << i))
+            {
+                m_damage = int32(m_damage * m_damageMultipliers[i]);
+                m_damageMultipliers[i] *= multiplier[i];
             }
 
             damageDone += m_damage;
