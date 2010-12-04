@@ -146,7 +146,8 @@ namespace Trinity
             if (!plr->HaveAtClient(i_source))
                 return;
 
-            plr->GetSession()->SendPacket(i_message);
+            if (WorldSession* session = plr->GetSession())
+                session->SendPacket(i_message);
         }
     };
 
