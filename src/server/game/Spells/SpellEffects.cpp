@@ -3985,55 +3985,58 @@ void Spell::SpellDamageWeaponDmg(SpellEffIndex effIndex)
         case SPELLFAMILY_DEATHKNIGHT:
         {
             // Plague Strike
-            if (m_spellInfo->SpellFamilyFlags[0] & 0x00000001)
+            if (m_spellInfo->SpellFamilyFlags[EFFECT_0] & 0x1)
             {
                 // Glyph of Plague Strike
-                if (AuraEffect * aurEff = m_caster->GetAuraEffect(58657,0))
-                    totalDamagePercentMod *= float((aurEff->GetAmount() + 100.0f) / 100.0f);
+                if (AuraEffect const * aurEff = m_caster->GetAuraEffect(58657, EFFECT_0))
+                    totalDamagePercentMod *= (aurEff->GetAmount() + 100.0f) / 100.0f;
+                break;
             }
             // Blood Strike
-            else if (m_spellInfo->SpellFamilyFlags[0] & 0x400000)
+            if (m_spellInfo->SpellFamilyFlags[EFFECT_0] & 0x400000)
             {
-                totalDamagePercentMod *= (float(unitTarget->GetDiseasesByCaster(m_caster->GetGUID())) * 12.5f + 100.0f) / 100.0f;
+                totalDamagePercentMod *= ((SpellMgr::CalculateSpellEffectAmount(m_spellInfo, EFFECT_2) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID()) / 2.0f) + 100.0f) / 100.0f;
 
                 // Glyph of Blood Strike
-                if (m_caster->GetAuraEffect(59332,0))
-                {
+                if (m_caster->GetAuraEffect(59332, EFFECT_0))
                     if (unitTarget->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED))
-                       totalDamagePercentMod *= float((20 + 100.0f) / 100.0f);
-                }
+                       totalDamagePercentMod *= (20 + 100.0f) / 100.0f;
+                break;
             }
             // Death Strike
-            else if (m_spellInfo->SpellFamilyFlags[0] & 0x00000010)
+            if (m_spellInfo->SpellFamilyFlags[EFFECT_0] & 0x10)
             {
                 // Glyph of Death Strike
-                if (m_caster->GetAuraEffect(59336,0))
-                {
-                    if (uint32 runic = m_caster->GetPower(POWER_RUNIC_POWER))
-                    {
-                        if (runic > 25)
-                            runic = 25;
-
-                        totalDamagePercentMod *= float((runic + 100.0f) / 100.0f);
-                    }
-                }
+                if (AuraEffect const * aurEff = m_caster->GetAuraEffect(59336, EFFECT_0))
+                    if (uint32 runic = std::min<uint32>(m_caster->GetPower(POWER_RUNIC_POWER), SpellMgr::CalculateSpellEffectAmount(aurEff->GetSpellProto(), EFFECT_1)))
+                        totalDamagePercentMod *= (runic + 100.0f) / 100.0f;
+                break;
             }
             // Obliterate (12.5% more damage per disease)
-            else if (m_spellInfo->SpellFamilyFlags[1] & 0x20000)
+            if (m_spellInfo->SpellFamilyFlags[EFFECT_1] & 0x20000)
             {
                 bool consumeDiseases = true;
                 // Annihilation
-                if (AuraEffect * aurEff = m_caster->GetDummyAuraEffect(SPELLFAMILY_DEATHKNIGHT, 2710, 0))
-                {
+                if (AuraEffect const * aurEff = m_caster->GetDummyAuraEffect(SPELLFAMILY_DEATHKNIGHT, 2710, EFFECT_0))
                     // Do not consume diseases if roll sucesses
                     if (roll_chance_i(aurEff->GetAmount()))
                         consumeDiseases = false;
-                }
-                totalDamagePercentMod *= (float(CalculateDamage(2, unitTarget) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID(), consumeDiseases) / 2) + 100.0f) / 100.0f;
+
+                totalDamagePercentMod *= ((SpellMgr::CalculateSpellEffectAmount(m_spellInfo, EFFECT_2) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID(), consumeDiseases) / 2.0f) + 100.0f) / 100.0f;
+                break;
             }
             // Blood-Caked Strike - Blood-Caked Blade
-            else if (m_spellInfo->SpellIconID == 1736)
-                totalDamagePercentMod *= (float(unitTarget->GetDiseasesByCaster(m_caster->GetGUID())) * 12.5f + 100.0f) / 100.0f;
+            if (m_spellInfo->SpellIconID == 1736)
+            {
+                totalDamagePercentMod *= ((unitTarget->GetDiseasesByCaster(m_caster->GetGUID()) * 12.5f) + 100.0f) / 100.0f;
+                break;
+            }
+            // Heart Strike
+            if (m_spellInfo->SpellFamilyFlags[EFFECT_0] & 0x1000000)
+            {
+                totalDamagePercentMod *= ((SpellMgr::CalculateSpellEffectAmount(m_spellInfo, EFFECT_2) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID())) + 100.0f) / 100.0f;
+                break;
+            }
             break;
         }
     }
