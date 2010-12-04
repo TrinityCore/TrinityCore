@@ -20,6 +20,7 @@
 #define TRINITY_DISABLEMGR_H
 
 #include <ace/Singleton.h>
+
 class Unit;
 
 enum DisableType
@@ -32,9 +33,27 @@ enum DisableType
     DISABLE_TYPE_OUTDOORPVP             = 5,
 };
 
+enum SpellDisableTypes
+{
+    SPELL_DISABLE_PLAYER            = 0x1,
+    SPELL_DISABLE_CREATURE          = 0x2,
+    SPELL_DISABLE_PET               = 0x4,
+    SPELL_DISABLE_DEPRECATED_SPELL  = 0x8,
+    SPELL_DISABLE_MAP               = 0x10,
+    SPELL_DISABLE_AREA              = 0x20,
+    MAX_SPELL_DISABLE_TYPE = (  SPELL_DISABLE_PLAYER | SPELL_DISABLE_CREATURE | SPELL_DISABLE_PET | 
+                                SPELL_DISABLE_DEPRECATED_SPELL | SPELL_DISABLE_MAP | SPELL_DISABLE_AREA),
+};
+
 #define MAX_DISABLE_TYPES 6
 
-typedef std::map<uint32, uint8> DisableTypeMap;             // single disables here with optional data
+struct DisableData
+{
+    uint8 flags;
+    std::set<uint32> params[2];                             // params0, params1
+};
+
+typedef std::map<uint32, DisableData> DisableTypeMap;       // single disables here with optional data
 typedef std::map<DisableType, DisableTypeMap> DisableMap;   // global disable map by source
 
 class DisableMgr

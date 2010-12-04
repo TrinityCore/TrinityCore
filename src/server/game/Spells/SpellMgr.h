@@ -48,14 +48,6 @@ enum SpellCategories
     SPELLCATEGORY_DRINK            = 59,
 };
 
-enum SpellDisableTypes
-{
-    SPELL_DISABLE_PLAYER            = 0x1,
-    SPELL_DISABLE_CREATURE          = 0x2,
-    SPELL_DISABLE_PET               = 0x4,
-    SPELL_DISABLE_DEPRECATED_SPELL  = 0x8
-};
-
 enum SpellEffectTargetTypes
 {
     SPELL_REQUIRE_NONE,
