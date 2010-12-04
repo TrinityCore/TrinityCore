@@ -2871,7 +2871,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
             else if (spellproto->SpellFamilyFlags[1] & 0x8)
                 return DIMINISHING_FEAR_BLIND;
             // Seduction
-            else if (spellproto->SpellFamilyFlags[0] & 0x40000000)
+            else if (spellproto->SpellFamilyFlags[0] & 0x10000000)
                 return DIMINISHING_FEAR_BLIND;
             break;
         }
