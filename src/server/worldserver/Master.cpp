@@ -419,7 +419,7 @@ bool Master::_StartDB()
 {
     sLog.SetLogDB(false);
     std::string dbstring;
-    uint8 async_threads, synch_threads;
+    uint8 async_threads, connections;
 
     dbstring = sConfig.GetStringDefault("WorldDatabaseInfo", "");
     if (dbstring.empty())
@@ -436,10 +436,10 @@ bool Master::_StartDB()
         return false;
     }
 
-    synch_threads = sConfig.GetIntDefault("WorldDatabase.SynchThreads", 1);
+    connections = sConfig.GetIntDefault("WorldDatabase.Connections", 2);
 
     ///- Initialise the world database
-    if (!WorldDatabase.Open(dbstring, async_threads, synch_threads))
+    if (!WorldDatabase.Open(dbstring, async_threads, connections))
     {
         sLog.outError("Cannot connect to world database %s", dbstring.c_str());
         return false;
@@ -460,10 +460,10 @@ bool Master::_StartDB()
         return false;
     }
 
-    synch_threads = sConfig.GetIntDefault("CharacterDatabase.SynchThreads", 2);
+    connections = sConfig.GetIntDefault("CharacterDatabase.Connections", 2);
 
     ///- Initialise the Character database
-    if (!CharacterDatabase.Open(dbstring, async_threads, synch_threads))
+    if (!CharacterDatabase.Open(dbstring, async_threads, connections))
     {
         sLog.outError("Cannot connect to Character database %s", dbstring.c_str());
         return false;
@@ -485,10 +485,10 @@ bool Master::_StartDB()
         return false;
     }
 
-    synch_threads = sConfig.GetIntDefault("LoginDatabase.SynchThreads", 1);
+    connections = sConfig.GetIntDefault("LoginDatabase.Connections", 2);
 
     ///- Initialise the login database
-    if (!LoginDatabase.Open(dbstring, async_threads, synch_threads))
+    if (!LoginDatabase.Open(dbstring, async_threads, connections))
     {
         sLog.outError("Cannot connect to login database %s", dbstring.c_str());
         return false;
