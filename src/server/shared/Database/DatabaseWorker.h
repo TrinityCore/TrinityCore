@@ -21,8 +21,7 @@
 #include <ace/Task.h>
 #include <ace/Activation_Queue.h>
 
-#include "DatabaseEnv.h"
-#include "DatabaseWorker.h"
+#include "DatabaseWorkerPool.h"
 #include "SQLOperation.h"
 #include "MySQLConnection.h"
 #include "MySQLThreading.h"
