@@ -268,9 +268,12 @@ class boss_blood_queen_lana_thel : public CreatureScript
                             if (offtank != newOfftank)
                             {
                                 offtank = newOfftank;
-                                offtank->CastSpell(me->getVictim(), SPELL_BLOOD_MIRROR_DAMAGE, true);
-                                me->getVictim()->CastSpell(offtank, SPELL_BLOOD_MIRROR_DUMMY, true);
-                                DoCastVictim(SPELL_BLOOD_MIRROR_VISUAL);
+                                if (offtank)
+                                {
+                                    offtank->CastSpell(me->getVictim(), SPELL_BLOOD_MIRROR_DAMAGE, true);
+                                    me->getVictim()->CastSpell(offtank, SPELL_BLOOD_MIRROR_DUMMY, true);
+                                    DoCastVictim(SPELL_BLOOD_MIRROR_VISUAL);
+                                }
                             }
                             events.ScheduleEvent(EVENT_BLOOD_MIRROR, 2500, EVENT_GROUP_CANCELLABLE);
                             break;
