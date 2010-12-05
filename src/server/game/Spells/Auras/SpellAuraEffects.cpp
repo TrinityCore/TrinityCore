@@ -400,6 +400,17 @@ void AuraEffect::GetTargetList(std::list<Unit *> & targetList) const
     }
 }
 
+void AuraEffect::GetApplicationList(std::list<AuraApplication *> & applicationList) const
+{
+    Aura::ApplicationMap const & targetMap = GetBase()->GetApplicationMap();
+    // remove all targets which were not added to new list - they no longer deserve area aura
+    for (Aura::ApplicationMap::const_iterator appIter = targetMap.begin(); appIter != targetMap.end(); ++appIter)
+    {
+        if (appIter->second->HasEffect(GetEffIndex()))
+            applicationList.push_back(appIter->second);
+    }
+}
+
 int32 AuraEffect::CalculateAmount(Unit * caster)
 {
     int32 amount;
@@ -1057,13 +1068,13 @@ void AuraEffect::Update(uint32 diff, Unit * caster)
             m_periodicTimer += m_amplitude - diff;
             UpdatePeriodic(caster);
 
-            UnitList effectTargets;
-            GetTargetList(effectTargets);
+            std::list<AuraApplication*> effectApplications;
+            GetApplicationList(effectApplications);
             // tick on targets of effects
             if (!caster || !caster->hasUnitState(UNIT_STAT_ISOLATED))
             {
-                for (UnitList::iterator targetItr = effectTargets.begin(); targetItr != effectTargets.end(); ++targetItr)
-                    PeriodicTick(*targetItr, caster);
+                for (std::list<AuraApplication*>::iterator apptItr = effectApplications.begin(); apptItr != effectApplications.end(); ++apptItr)
+                    PeriodicTick(*apptItr, caster);
             }
         }
     }
@@ -1224,11 +1235,13 @@ void AuraEffect::SendTickImmune(Unit * target, Unit *caster) const
         caster->SendSpellDamageImmune(target, m_spellProto->Id);
 }
 
-void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
+void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit * caster) const
 {
-    bool prevented = GetBase()->CallScriptEffectPeriodicHandlers(const_cast<AuraEffect const *>(this), GetBase()->GetApplicationOfTarget(target->GetGUID()));
+    bool prevented = GetBase()->CallScriptEffectPeriodicHandlers(const_cast<AuraEffect const *>(this), aurApp);
     if (prevented)
         return;
+
+    Unit * target = aurApp->GetTarget();
 
     switch(GetAuraType())
     {

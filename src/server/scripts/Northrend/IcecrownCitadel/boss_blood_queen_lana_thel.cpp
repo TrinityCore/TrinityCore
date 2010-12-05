@@ -473,9 +473,6 @@ class spell_blood_queen_frenzied_bloodthirst : public SpellScriptLoader
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraApplication const* aurApp, AuraEffectHandleModes /*mode*/)
             {
-                if (!aurApp)
-                    return;
-
                 Unit* target = aurApp->GetTarget();
                 if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
                     if (InstanceScript* instance = target->GetInstanceScript())

@@ -361,29 +361,27 @@ public:
             if (aurEff->GetAmount() > 0)
                 return;
 
-            if (Unit* pTarget = aurApp->GetTarget())
+            uint32 spellId = SPELL_SNIPER_TRAINING_BUFF_R1 + GetId() - SPELL_SNIPER_TRAINING_R1;
+            Unit * pTarget = aurApp->GetTarget();
+            if (!pTarget->HasAura(spellId))
             {
-                uint32 spellId = SPELL_SNIPER_TRAINING_BUFF_R1 + GetId() - SPELL_SNIPER_TRAINING_R1;
-                if (!pTarget->HasAura(spellId))
-                {
-                    const SpellEntry* triggeredSpellInfo = sSpellStore.LookupEntry(spellId);
-                    Unit* triggerCaster = GetTriggeredSpellCaster(triggeredSpellInfo, GetCaster(), pTarget);
-                    triggerCaster->CastSpell(pTarget, triggeredSpellInfo, true, 0, aurEff);
-                }
+                SpellEntry const * triggeredSpellInfo = sSpellStore.LookupEntry(spellId);
+                Unit* triggerCaster = GetTriggeredSpellCaster(triggeredSpellInfo, GetCaster(), pTarget);
+                triggerCaster->CastSpell(pTarget, triggeredSpellInfo, true, 0, aurEff);
             }
         }
 
         void HandleUpdatePeriodic(AuraEffect * aurEff)
         {
-            if (Unit* pTarget = GetUnitOwner())
-                if (Player* pPlayerTarget = pTarget->ToPlayer())
-                {
-                    int32 baseAmount = aurEff->GetBaseAmount();
-                    int32 amount = pPlayerTarget->isMoving() ?
-                        pTarget->CalculateSpellDamage(pTarget, GetSpellProto(), aurEff->GetEffIndex(), &baseAmount) :
-                        aurEff->GetAmount() - 1;
-                    aurEff->SetAmount(amount);
-                }
+            Unit * pTarget = GetUnitOwner();
+            if (Player* pPlayerTarget = pTarget->ToPlayer())
+            {
+                int32 baseAmount = aurEff->GetBaseAmount();
+                int32 amount = pPlayerTarget->isMoving() ?
+                pTarget->CalculateSpellDamage(pTarget, GetSpellProto(), aurEff->GetEffIndex(), &baseAmount) :
+                aurEff->GetAmount() - 1;
+                aurEff->SetAmount(amount);
+            }
         }
 
         void Register()

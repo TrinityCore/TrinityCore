@@ -712,7 +712,7 @@ class spell_rotface_unstable_ooze_explosion_suicide : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 Unit* target = aurApp->GetTarget();
-                if (!target || target->GetTypeId() != TYPEID_UNIT)
+                if (target->GetTypeId() != TYPEID_UNIT)
                     return;
 
                 target->ToCreature()->AI()->DoAction(EVENT_UNSTABLE_DESPAWN);

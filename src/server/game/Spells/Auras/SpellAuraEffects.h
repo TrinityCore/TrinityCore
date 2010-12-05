@@ -23,6 +23,7 @@ class AuraEffect
         uint64 GetCasterGUID() const { return GetBase()->GetCasterGUID(); }
         Aura * GetBase() const { return m_base; }
         void GetTargetList(std::list<Unit*> & targetList) const;
+        void GetApplicationList(std::list<AuraApplication*> & applicationList) const;
 
         SpellEntry const * GetSpellProto() const { return m_spellProto; }
         uint32 GetId() const { return m_spellProto->Id; }
@@ -63,7 +64,7 @@ class AuraEffect
 
         void SendTickImmune(Unit * target, Unit *caster) const;
 
-        void PeriodicTick(Unit * target, Unit * caster) const;
+        void PeriodicTick(AuraApplication * aurApp, Unit * caster) const;
         void PeriodicDummyTick(Unit * target, Unit * caster) const;
         Unit* GetTriggerTarget(Unit * target) const;
         void TriggerSpell(Unit * target, Unit * caster) const;

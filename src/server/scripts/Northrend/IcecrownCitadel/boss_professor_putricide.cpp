@@ -760,8 +760,7 @@ class spell_putricide_gaseous_bloat : public SpellScriptLoader
 
             void HandleExtraEffect(AuraEffect const* /*aurEff*/, AuraApplication const* aurApp)
             {
-                if (aurApp->GetTarget())
-                    aurApp->GetTarget()->RemoveAuraFromStack(GetSpellProto()->Id, aurApp->GetBase()->GetCasterGUID());
+                 aurApp->GetTarget()->RemoveAuraFromStack(GetSpellProto()->Id, aurApp->GetBase()->GetCasterGUID());
             }
 
             void Register()
