@@ -2745,19 +2745,6 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                         unitList.sort(Trinity::PowerPctOrderPred((Powers)power));
                         unitList.resize(maxSize);
                     }
-
-                    // Replenishment: refresh existing auras
-                    if (m_spellInfo->Id == 57669)
-                        for (std::list<Unit *>::iterator itr = unitList.begin(); itr != unitList.end();)
-                            if (AuraEffect *aurEff = (*itr)->GetAuraEffect(SPELL_AURA_PERIODIC_ENERGIZE, SPELLFAMILY_GENERIC, 3184, EFFECT_0))
-                            {
-                                aurEff->SetAmount((*itr)->GetMaxPower(POWER_MANA) * 25 / 10000);
-                                aurEff->GetBase()->RefreshDuration();
-
-                                itr = unitList.erase(itr);
-                            }
-                            else
-                                ++itr;
                 }
             }
 
