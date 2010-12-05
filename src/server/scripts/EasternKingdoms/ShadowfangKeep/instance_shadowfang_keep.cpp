@@ -98,34 +98,34 @@ public:
             uiTimer = 0;
         }
 
-        void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+        void OnCreatureCreate(Creature* creature)
         {
-            switch(pCreature->GetEntry())
+            switch(creature->GetEntry())
             {
-                case NPC_ASH: uiAshGUID = pCreature->GetGUID(); break;
-                case NPC_ADA: uiAdaGUID = pCreature->GetGUID(); break;
-                case NPC_ARCHMAGE_ARUGAL: uiArchmageArugalGUID = pCreature->GetGUID(); break;
+                case NPC_ASH: uiAshGUID = creature->GetGUID(); break;
+                case NPC_ADA: uiAdaGUID = creature->GetGUID(); break;
+                case NPC_ARCHMAGE_ARUGAL: uiArchmageArugalGUID = creature->GetGUID(); break;
             }
         }
 
-        void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
+        void OnGameObjectCreate(GameObject* go)
         {
-            switch(pGo->GetEntry())
+            switch(go->GetEntry())
             {
                 case GO_COURTYARD_DOOR:
-                    DoorCourtyardGUID = pGo->GetGUID();
+                    DoorCourtyardGUID = go->GetGUID();
                     if (m_auiEncounter[0] == DONE)
-                        HandleGameObject(NULL, true, pGo);
+                        HandleGameObject(NULL, true, go);
                     break;
                 case GO_SORCERER_DOOR:
-                    DoorSorcererGUID = pGo->GetGUID();
+                    DoorSorcererGUID = go->GetGUID();
                     if (m_auiEncounter[2] == DONE)
-                        HandleGameObject(NULL, true, pGo);
+                        HandleGameObject(NULL, true, go);
                     break;
                 case GO_ARUGAL_DOOR:
-                    DoorArugalGUID = pGo->GetGUID();
+                    DoorArugalGUID = go->GetGUID();
                     if (m_auiEncounter[3] == DONE)
-                        HandleGameObject(NULL, true, pGo);
+                        HandleGameObject(NULL, true, go);
                     break;
             }
         }

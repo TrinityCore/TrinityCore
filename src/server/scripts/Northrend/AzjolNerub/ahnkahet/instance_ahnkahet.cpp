@@ -94,43 +94,43 @@ public:
             return false;
         }
 
-        void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+        void OnCreatureCreate(Creature* creature)
         {
-            switch(pCreature->GetEntry())
+            switch(creature->GetEntry())
             {
-                case 29309: Elder_Nadox = pCreature->GetGUID();                     break;
-                case 29308: Prince_Taldaram = pCreature->GetGUID();                 break;
-                case 29310: Jedoga_Shadowseeker = pCreature->GetGUID();             break;
-                case 29311: Herald_Volazj = pCreature->GetGUID();                   break;
-                case 30258: Amanitar = pCreature->GetGUID();                        break;
-                case 30114: InitiandGUIDs.insert(pCreature->GetGUID());             break;
+                case 29309: Elder_Nadox = creature->GetGUID();                     break;
+                case 29308: Prince_Taldaram = creature->GetGUID();                 break;
+                case 29310: Jedoga_Shadowseeker = creature->GetGUID();             break;
+                case 29311: Herald_Volazj = creature->GetGUID();                   break;
+                case 30258: Amanitar = creature->GetGUID();                        break;
+                case 30114: InitiandGUIDs.insert(creature->GetGUID());             break;
             }
         }
 
-        void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
+        void OnGameObjectCreate(GameObject* go)
         {
-            switch(pGo->GetEntry())
+            switch(go->GetEntry())
             {
-                case 193564:     Prince_TaldaramPlatform = pGo->GetGUID();
-                    if (m_auiEncounter[1] == DONE) HandleGameObject(NULL,true,pGo); break;
-                case 193093:     Prince_TaldaramSpheres[0] = pGo->GetGUID();
+                case 193564:     Prince_TaldaramPlatform = go->GetGUID();
+                    if (m_auiEncounter[1] == DONE) HandleGameObject(NULL,true,go); break;
+                case 193093:     Prince_TaldaramSpheres[0] = go->GetGUID();
                     if (spheres[0] == IN_PROGRESS)
                     {
-                        pGo->SetGoState(GO_STATE_ACTIVE);
-                        pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                        go->SetGoState(GO_STATE_ACTIVE);
+                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                     }
-                    else pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                    else go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                     break;
-                case 193094:     Prince_TaldaramSpheres[1] = pGo->GetGUID();
+                case 193094:     Prince_TaldaramSpheres[1] = go->GetGUID();
                     if (spheres[1] == IN_PROGRESS)
                     {
-                        pGo->SetGoState(GO_STATE_ACTIVE);
-                        pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                        go->SetGoState(GO_STATE_ACTIVE);
+                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                     }
-                    else pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                    else go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                     break;
-                case 192236:    Prince_TaldaramGate = pGo->GetGUID(); // Web gate past Prince Taldaram
-                    if (m_auiEncounter[1] == DONE)HandleGameObject(NULL,true,pGo);break;
+                case 192236:    Prince_TaldaramGate = go->GetGUID(); // Web gate past Prince Taldaram
+                    if (m_auiEncounter[1] == DONE)HandleGameObject(NULL,true,go);break;
             }
         }
 

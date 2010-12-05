@@ -99,14 +99,14 @@ public:
             OUT_LOAD_INST_DATA_COMPLETE;
         }
 
-        void OnGameObjectCreate(GameObject* pGo, bool /*bAdd*/)
+        void OnGameObjectCreate(GameObject* go)
         {
-            switch(pGo->GetEntry())
+            switch(go->GetEntry())
             {
                 case GO_GONG:
-                    uiGongGUID = pGo->GetGUID();
+                    uiGongGUID = go->GetGUID();
                     if (m_auiEncounter[0] == DONE)
-                        pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
+                        go->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
                     break;
                 default:
                     break;
@@ -123,19 +123,19 @@ public:
                 {
                     case 9:
                     case 14:
-                        if (GameObject* pGo = instance->GetGameObject(uiGongGUID))
-                            pGo->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
+                        if (GameObject* go = instance->GetGameObject(uiGongGUID))
+                            go->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
                         break;
                     case 1:
                     case 10:
                     case 16:
                     {
-                        GameObject* pGo = instance->GetGameObject(uiGongGUID);
+                        GameObject* go = instance->GetGameObject(uiGongGUID);
 
-                        if (!pGo)
+                        if (!go)
                             return;
 
-                        pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
+                        go->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
 
                         uint32 uiCreature = 0;
                         uint8 uiSummonTimes = 0;
@@ -158,17 +158,17 @@ public:
                         }
 
 
-                        if (Creature* pCreature = pGo->SummonCreature(uiCreature,2502.635f,844.140f,46.896f,0.633f))
+                        if (Creature* creature = go->SummonCreature(uiCreature,2502.635f,844.140f,46.896f,0.633f))
                         {
                             if (uiGongWaves == 10 || uiGongWaves == 1)
                             {
                                 for (uint8 i = 0; i < uiSummonTimes; ++i)
                                 {
-                                    if (Creature* pSummon = pGo->SummonCreature(uiCreature,2502.635f + float(irand(-5,5)),844.140f + float(irand(-5,5)),46.896f,0.633f))
+                                    if (Creature* pSummon = go->SummonCreature(uiCreature,2502.635f + float(irand(-5,5)),844.140f + float(irand(-5,5)),46.896f,0.633f))
                                         pSummon->GetMotionMaster()->MovePoint(0,2533.479f + float(irand(-5,5)),870.020f + float(irand(-5,5)),47.678f);
                                 }
                             }
-                            pCreature->GetMotionMaster()->MovePoint(0,2533.479f + float(irand(-5,5)),870.020f + float(irand(-5,5)),47.678f);
+                            creature->GetMotionMaster()->MovePoint(0,2533.479f + float(irand(-5,5)),870.020f + float(irand(-5,5)),47.678f);
                         }
                         break;
                     }

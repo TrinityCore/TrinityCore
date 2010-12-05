@@ -43,17 +43,17 @@ class go_main_chambers_access_panel : public GameObjectScript
 public:
     go_main_chambers_access_panel() : GameObjectScript("go_main_chambers_access_panel") { }
 
-    bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
+    bool OnGossipHello(Player* /*pPlayer*/, GameObject* go)
     {
-        InstanceScript* pInstance = pGo->GetInstanceScript();
+        InstanceScript* pInstance = go->GetInstanceScript();
 
         if (!pInstance)
             return false;
 
-        if (pGo->GetEntry() == ACCESS_PANEL_HYDRO && (pInstance->GetData(TYPE_HYDROMANCER_THESPIA) == DONE || pInstance->GetData(TYPE_HYDROMANCER_THESPIA) == SPECIAL))
+        if (go->GetEntry() == ACCESS_PANEL_HYDRO && (pInstance->GetData(TYPE_HYDROMANCER_THESPIA) == DONE || pInstance->GetData(TYPE_HYDROMANCER_THESPIA) == SPECIAL))
             pInstance->SetData(TYPE_HYDROMANCER_THESPIA,SPECIAL);
 
-        if (pGo->GetEntry() == ACCESS_PANEL_MEK && (pInstance->GetData(TYPE_MEKGINEER_STEAMRIGGER) == DONE || pInstance->GetData(TYPE_MEKGINEER_STEAMRIGGER) == SPECIAL))
+        if (go->GetEntry() == ACCESS_PANEL_MEK && (pInstance->GetData(TYPE_MEKGINEER_STEAMRIGGER) == DONE || pInstance->GetData(TYPE_MEKGINEER_STEAMRIGGER) == SPECIAL))
             pInstance->SetData(TYPE_MEKGINEER_STEAMRIGGER,SPECIAL);
 
         return true;
@@ -106,23 +106,23 @@ public:
             return false;
         }
 
-        void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+        void OnCreatureCreate(Creature* creature)
         {
-              switch(pCreature->GetEntry())
+              switch(creature->GetEntry())
             {
-              case 17797: ThespiaGUID = pCreature->GetGUID(); break;
-              case 17796: MekgineerGUID = pCreature->GetGUID(); break;
-              case 17798: KalithreshGUID = pCreature->GetGUID(); break;
+              case 17797: ThespiaGUID = creature->GetGUID(); break;
+              case 17796: MekgineerGUID = creature->GetGUID(); break;
+              case 17798: KalithreshGUID = creature->GetGUID(); break;
             }
         }
 
-        void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
+        void OnGameObjectCreate(GameObject* go)
         {
-            switch(pGo->GetEntry())
+            switch(go->GetEntry())
             {
-            case MAIN_CHAMBERS_DOOR: MainChambersDoor = pGo->GetGUID(); break;
-            case ACCESS_PANEL_HYDRO: AccessPanelHydro = pGo->GetGUID(); break;
-            case ACCESS_PANEL_MEK:   AccessPanelMek = pGo->GetGUID(); break;
+            case MAIN_CHAMBERS_DOOR: MainChambersDoor = go->GetGUID(); break;
+            case ACCESS_PANEL_HYDRO: AccessPanelHydro = go->GetGUID(); break;
+            case ACCESS_PANEL_MEK:   AccessPanelMek = go->GetGUID(); break;
             }
         }
 

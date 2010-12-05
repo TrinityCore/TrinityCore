@@ -94,49 +94,49 @@ public:
             uiDeathTimes = 0;
         }
 
-        void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+        void OnCreatureCreate(Creature* creature)
         {
-            switch (pCreature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case NPC_TWILIGHT_LORD_KELRIS:
-                    m_uiTwilightLordKelrisGUID = pCreature->GetGUID();
+                    m_uiTwilightLordKelrisGUID = creature->GetGUID();
                     break;
                 case NPC_LORGUS_JETT:
-                    pCreature->SetHomePosition(LorgusPosition[urand(0,3)]);
+                    creature->SetHomePosition(LorgusPosition[urand(0,3)]);
                     break;
             }
         }
 
-        void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
+        void OnGameObjectCreate(GameObject* go)
         {
-            switch(pGo->GetEntry())
+            switch(go->GetEntry())
             {
                 case GO_FIRE_OF_AKU_MAI_1:
-                    m_uiShrine1GUID = pGo->GetGUID();
+                    m_uiShrine1GUID = go->GetGUID();
                     break;
                 case GO_FIRE_OF_AKU_MAI_2:
-                    m_uiShrine2GUID = pGo->GetGUID();
+                    m_uiShrine2GUID = go->GetGUID();
                     break;
                 case GO_FIRE_OF_AKU_MAI_3:
-                    m_uiShrine3GUID = pGo->GetGUID();
+                    m_uiShrine3GUID = go->GetGUID();
                     break;
                 case GO_FIRE_OF_AKU_MAI_4:
-                    m_uiShrine4GUID = pGo->GetGUID();
+                    m_uiShrine4GUID = go->GetGUID();
                     break;
                 case GO_SHRINE_OF_GELIHAST:
-                    m_uiShrineOfGelihastGUID = pGo->GetGUID();
+                    m_uiShrineOfGelihastGUID = go->GetGUID();
                     if (m_auiEncounter[0] != DONE)
-                        pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                     break;
                 case GO_ALTAR_OF_THE_DEEPS:
-                    m_uiAltarOfTheDeepsGUID = pGo->GetGUID();
+                    m_uiAltarOfTheDeepsGUID = go->GetGUID();
                     if (m_auiEncounter[3] != DONE)
-                        pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                     break;
                 case GO_AKU_MAI_DOOR:
                     if (m_auiEncounter[2] == DONE)
-                        HandleGameObject(NULL,true,pGo);
-                    m_uiMainDoorGUID = pGo->GetGUID();
+                        HandleGameObject(NULL,true,go);
+                    m_uiMainDoorGUID = go->GetGUID();
                     break;
             }
         }
@@ -148,16 +148,16 @@ public:
                 case TYPE_GELIHAST:
                     m_auiEncounter[0] = uiData;
                     if (uiData == DONE)
-                        if (GameObject *pGo = instance->GetGameObject(m_uiShrineOfGelihastGUID))
-                            pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                        if (GameObject* go = instance->GetGameObject(m_uiShrineOfGelihastGUID))
+                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                     break;
                 case TYPE_AKU_MAI:
                     m_auiEncounter[3] = uiData;
                     if (uiData == DONE)
-                        if (GameObject *pGo = instance->GetGameObject(m_uiAltarOfTheDeepsGUID))
+                        if (GameObject* go = instance->GetGameObject(m_uiAltarOfTheDeepsGUID))
                         {
-                            pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
-                            pGo->SummonCreature(NPC_MORRIDUNE,SpawnsLocation[4], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                            go->SummonCreature(NPC_MORRIDUNE,SpawnsLocation[4], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
                         }
                     break;
                 case DATA_FIRE:

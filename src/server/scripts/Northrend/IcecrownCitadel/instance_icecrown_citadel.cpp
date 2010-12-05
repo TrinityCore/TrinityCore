@@ -84,11 +84,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                     teamInInstance = player->GetTeam();
             }
 
-            void OnCreatureCreate(Creature* creature, bool add)
+            void OnCreatureCreate(Creature* creature)
             {
-                if (!add)
-                    return;
-
                 if (!teamInInstance)
                 {
                     Map::PlayerList const &players = instance->GetPlayers();
@@ -178,7 +175,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go, bool add)
+            void OnGameObjectCreate(GameObject* go)
             {
                 switch (go->GetEntry())
                 {
@@ -199,7 +196,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_SINDRAGOSA_ENTRANCE_DOOR:
                     case GO_SINDRAGOSA_SHORTCUT_ENTRANCE_DOOR:
                     case GO_SINDRAGOSA_SHORTCUT_EXIT_DOOR:
-                        AddDoor(go, add);
+                        AddDoor(go, true);
                         break;
                     case GO_LADY_DEATHWHISPER_ELEVATOR:
                         ladyDeathwisperElevator = go->GetGUID();
