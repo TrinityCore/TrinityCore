@@ -69,11 +69,11 @@ public:
             return NULL;
         }
 
-        void OnGameObjectCreate(GameObject* pGo, bool /*apply*/)
+        void OnGameObjectCreate(GameObject* go)
         {
-            switch(pGo->GetEntry())
+            switch(go->GetEntry())
             {
-            case 21099: DoorWardGUID = pGo->GetGUID(); break;
+            case 21099: DoorWardGUID = go->GetGUID(); break;
             }
         }
 

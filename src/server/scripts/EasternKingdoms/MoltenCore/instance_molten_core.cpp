@@ -105,83 +105,83 @@ public:
             return false;
         };
 
-        void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
+        void OnGameObjectCreate(GameObject* go)
         {
-            switch(pGo->GetEntry())
+            switch(go->GetEntry())
             {
             case 176951:                                    //Sulfuron
-                RuneKoro = pGo->GetGUID();
+                RuneKoro = go->GetGUID();
                 break;
             case 176952:                                    //Geddon
-                RuneZeth = pGo->GetGUID();
+                RuneZeth = go->GetGUID();
                 break;
             case 176953:                                    //Shazzrah
-                RuneMazj = pGo->GetGUID();
+                RuneMazj = go->GetGUID();
                 break;
             case 176954:                                    //Golemagg
-                RuneTheri = pGo->GetGUID();
+                RuneTheri = go->GetGUID();
                 break;
             case 176955:                                    //Garr
-                RuneBlaz = pGo->GetGUID();
+                RuneBlaz = go->GetGUID();
                 break;
             case 176956:                                    //Magmadar
-                RuneKress = pGo->GetGUID();
+                RuneKress = go->GetGUID();
                 break;
             case 176957:                                    //Gehennas
-                RuneMohn = pGo->GetGUID();
+                RuneMohn = go->GetGUID();
                 break;
             case 179703:
-                m_uiFirelordCacheGUID = pGo->GetGUID();      //when majordomo event == DONE DoRespawnGameObject(m_uiFirelordCacheGUID,);
+                m_uiFirelordCacheGUID = go->GetGUID();      //when majordomo event == DONE DoRespawnGameObject(m_uiFirelordCacheGUID,);
                 break;
             }
         }
 
-        void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+        void OnCreatureCreate(Creature* creature)
         {
-            switch (pCreature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case ID_LUCIFRON:
-                    Lucifron = pCreature->GetGUID();
+                    Lucifron = creature->GetGUID();
                     break;
 
                 case ID_MAGMADAR:
-                    Magmadar = pCreature->GetGUID();
+                    Magmadar = creature->GetGUID();
                     break;
 
                 case ID_GEHENNAS:
-                    Gehennas = pCreature->GetGUID();
+                    Gehennas = creature->GetGUID();
                     break;
 
                 case ID_GARR:
-                    Garr = pCreature->GetGUID();
+                    Garr = creature->GetGUID();
                     break;
 
                 case ID_GEDDON:
-                    Geddon = pCreature->GetGUID();
+                    Geddon = creature->GetGUID();
                     break;
 
                 case ID_SHAZZRAH:
-                    Shazzrah = pCreature->GetGUID();
+                    Shazzrah = creature->GetGUID();
                     break;
 
                 case ID_SULFURON:
-                    Sulfuron = pCreature->GetGUID();
+                    Sulfuron = creature->GetGUID();
                     break;
 
                 case ID_GOLEMAGG:
-                    Golemagg = pCreature->GetGUID();
+                    Golemagg = creature->GetGUID();
                     break;
 
                 case ID_DOMO:
-                    Domo = pCreature->GetGUID();
+                    Domo = creature->GetGUID();
                     break;
 
                 case ID_RAGNAROS:
-                    Ragnaros = pCreature->GetGUID();
+                    Ragnaros = creature->GetGUID();
                     break;
 
                 case ID_FLAMEWAKERPRIEST:
-                    FlamewakerPriest = pCreature->GetGUID();
+                    FlamewakerPriest = creature->GetGUID();
                     break;
             }
         }

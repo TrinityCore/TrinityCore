@@ -150,67 +150,61 @@ public:
                 uiEncounter[i] = NOT_STARTED;
         }
 
-        void OnCreatureCreate(Creature* pCreature, bool add)
+        void OnCreatureCreate(Creature* creature)
         {
-            if (!add)
-                return;
-
             Map::PlayerList const &players = instance->GetPlayers();
             if (!players.isEmpty())
                 if (Player* pPlayer = players.begin()->getSource())
                     uiTeamInInstance = pPlayer->GetTeam();
 
-            switch(pCreature->GetEntry())
+            switch(creature->GetEntry())
             {
                 case NPC_FALRIC:
-                    uiFalric = pCreature->GetGUID();
+                    uiFalric = creature->GetGUID();
                     break;
                 case NPC_MARWYN:
-                    uiMarwyn = pCreature->GetGUID();
+                    uiMarwyn = creature->GetGUID();
                     break;
                 case NPC_LICH_KING_EVENT:
-                    uiLichKingEvent = pCreature->GetGUID();
+                    uiLichKingEvent = creature->GetGUID();
                     break;
                 case NPC_JAINA_PART1:
-                    uiJainaPart1 = pCreature->GetGUID();
+                    uiJainaPart1 = creature->GetGUID();
                     break;
                 case NPC_SYLVANAS_PART1:
-                    uiSylvanasPart1 = pCreature->GetGUID();
+                    uiSylvanasPart1 = creature->GetGUID();
                     break;
             }
         }
 
-        void OnGameObjectCreate(GameObject* pGo, bool add)
+        void OnGameObjectCreate(GameObject* go)
         {
-            if (!add)
-                return;
-
             // TODO: init state depending on encounters
-            switch(pGo->GetEntry())
+            switch(go->GetEntry())
             {
                 case GO_FROSTMOURNE:
-                    uiFrostmourne = pGo->GetGUID();
-                    pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
-                    HandleGameObject(0, false, pGo);
+                    uiFrostmourne = go->GetGUID();
+                    go->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
+                    HandleGameObject(0, false, go);
                     break;
                 case GO_FROSTMOURNE_ALTAR:
-                    uiFrostmourneAltar = pGo->GetGUID();
-                    pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
-                    HandleGameObject(0, true, pGo);
+                    uiFrostmourneAltar = go->GetGUID();
+                    go->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
+                    HandleGameObject(0, true, go);
                     break;
                 case GO_FRONT_DOOR:
-                    uiFrontDoor = pGo->GetGUID();
-                    pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
-                    HandleGameObject(0, true, pGo);
+                    uiFrontDoor = go->GetGUID();
+                    go->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
+                    HandleGameObject(0, true, go);
                     break;
                 case GO_ARTHAS_DOOR:
-                    uiArthasDoor = pGo->GetGUID();
-                    pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
+                    uiArthasDoor = go->GetGUID();
+                    go->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
 
                     if (uiEncounter[1] == DONE)
-                        HandleGameObject(0, true, pGo);
+                        HandleGameObject(0, true, go);
                     else
-                        HandleGameObject(0, false, pGo);
+                        HandleGameObject(0, false, go);
                     break;
             }
         }
@@ -333,13 +327,13 @@ public:
                 case 2:
                 case 3:
                 case 4:
-                    if (Creature *pFalric = instance->GetCreature(uiFalric))
+                    if (Creature* pFalric = instance->GetCreature(uiFalric))
                         SpawnWave(pFalric);
                     break;
                 case 5:
                     if (GetData(DATA_FALRIC_EVENT) == DONE)
                         events.ScheduleEvent(EVENT_NEXT_WAVE, 10000);
-                    else if (Creature *pFalric = instance->GetCreature(uiFalric))
+                    else if (Creature* pFalric = instance->GetCreature(uiFalric))
                         if (pFalric->AI())
                             pFalric->AI()->DoAction(ACTION_ENTER_COMBAT);
                     break;
@@ -347,12 +341,12 @@ public:
                 case 7:
                 case 8:
                 case 9:
-                    if (Creature *pMarwyn  = instance->GetCreature(uiMarwyn))
+                    if (Creature* pMarwyn  = instance->GetCreature(uiMarwyn))
                         SpawnWave(pMarwyn);
                     break;
                 case 10:
                     if (GetData(DATA_MARWYN_EVENT) != DONE) // wave should not have been started if DONE. Check anyway to avoid bug exploit!
-                        if (Creature *pMarwyn = instance->GetCreature(uiMarwyn))
+                        if (Creature* pMarwyn = instance->GetCreature(uiMarwyn))
                             if (pMarwyn->AI())
                                 pMarwyn->AI()->DoAction(ACTION_ENTER_COMBAT);
                     break;
@@ -383,7 +377,7 @@ public:
         }
 
         // spawn a wave on behalf of the summoner.
-        void SpawnWave(Creature *pSummoner)
+        void SpawnWave(Creature* pSummoner)
         {
             uint32 index;
 

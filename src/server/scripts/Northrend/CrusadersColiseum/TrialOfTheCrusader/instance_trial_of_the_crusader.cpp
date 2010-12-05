@@ -149,63 +149,63 @@ public:
         void OpenDoor(uint64 guid)
         {
             if (!guid) return;
-            GameObject* pGo = instance->GetGameObject(guid);
-            if (pGo) pGo->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+            GameObject* go = instance->GetGameObject(guid);
+            if (go) go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
         }
 
         void CloseDoor(uint64 guid)
         {
             if (!guid) return;
-            GameObject* pGo = instance->GetGameObject(guid);
-            if (pGo) pGo->SetGoState(GO_STATE_READY);
+            GameObject* go = instance->GetGameObject(guid);
+            if (go) go->SetGoState(GO_STATE_READY);
         }
 
-        void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+        void OnCreatureCreate(Creature* creature)
         {
-            switch(pCreature->GetEntry())
+            switch(creature->GetEntry())
             {
-                case NPC_BARRENT:     m_uiBarrentGUID = pCreature->GetGUID(); break;
-                case NPC_TIRION:      m_uiTirionGUID = pCreature->GetGUID(); break;
-                case NPC_FIZZLEBANG:  m_uiFizzlebangGUID = pCreature->GetGUID(); break;
-                case NPC_GARROSH:     m_uiGarroshGUID = pCreature->GetGUID(); break;
-                case NPC_VARIAN:      m_uiVarianGUID = pCreature->GetGUID(); break;
+                case NPC_BARRENT:     m_uiBarrentGUID = creature->GetGUID(); break;
+                case NPC_TIRION:      m_uiTirionGUID = creature->GetGUID(); break;
+                case NPC_FIZZLEBANG:  m_uiFizzlebangGUID = creature->GetGUID(); break;
+                case NPC_GARROSH:     m_uiGarroshGUID = creature->GetGUID(); break;
+                case NPC_VARIAN:      m_uiVarianGUID = creature->GetGUID(); break;
 
-                case NPC_GORMOK:      m_uiGormokGUID = pCreature->GetGUID(); break;
-                case NPC_ACIDMAW:     m_uiAcidmawGUID = pCreature->GetGUID(); break;
-                case NPC_DREADSCALE:  m_uiDreadscaleGUID = pCreature->GetGUID(); break;
-                case NPC_ICEHOWL:     m_uiIcehowlGUID = pCreature->GetGUID(); break;
-                case NPC_JARAXXUS:    m_uiJaraxxusGUID = pCreature->GetGUID(); break;
-                case NPC_CHAMPIONS_CONTROLLER:  m_uiChampionsControllerGUID = pCreature->GetGUID(); break;
-                case NPC_DARKBANE:    m_uiDarkbaneGUID = pCreature->GetGUID(); break;
-                case NPC_LIGHTBANE:   m_uiLightbaneGUID = pCreature->GetGUID(); break;
-                case NPC_ANUBARAK:    m_uiAnubarakGUID = pCreature->GetGUID(); break;
+                case NPC_GORMOK:      m_uiGormokGUID = creature->GetGUID(); break;
+                case NPC_ACIDMAW:     m_uiAcidmawGUID = creature->GetGUID(); break;
+                case NPC_DREADSCALE:  m_uiDreadscaleGUID = creature->GetGUID(); break;
+                case NPC_ICEHOWL:     m_uiIcehowlGUID = creature->GetGUID(); break;
+                case NPC_JARAXXUS:    m_uiJaraxxusGUID = creature->GetGUID(); break;
+                case NPC_CHAMPIONS_CONTROLLER:  m_uiChampionsControllerGUID = creature->GetGUID(); break;
+                case NPC_DARKBANE:    m_uiDarkbaneGUID = creature->GetGUID(); break;
+                case NPC_LIGHTBANE:   m_uiLightbaneGUID = creature->GetGUID(); break;
+                case NPC_ANUBARAK:    m_uiAnubarakGUID = creature->GetGUID(); break;
             }
         }
 
-        void OnGameObjectCreate(GameObject* pGO, bool /*bAdd*/)
+        void OnGameObjectCreate(GameObject* go)
         {
-            switch(pGO->GetEntry())
+            switch(go->GetEntry())
             {
                 case GO_CRUSADERS_CACHE_10:
                     if (instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_NORMAL)
-                        m_uiCrusadersCacheGUID = pGO->GetGUID();
+                        m_uiCrusadersCacheGUID = go->GetGUID();
                     break;
                 case GO_CRUSADERS_CACHE_25:
                     if (instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_NORMAL)
-                        m_uiCrusadersCacheGUID = pGO->GetGUID();
+                        m_uiCrusadersCacheGUID = go->GetGUID();
                     break;
                 case GO_CRUSADERS_CACHE_10_H:
                     if (instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_HEROIC)
-                        m_uiCrusadersCacheGUID = pGO->GetGUID();
+                        m_uiCrusadersCacheGUID = go->GetGUID();
                     break;
                 case GO_CRUSADERS_CACHE_25_H:
                     if (instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_HEROIC)
-                        m_uiCrusadersCacheGUID = pGO->GetGUID();
+                        m_uiCrusadersCacheGUID = go->GetGUID();
                     break;
-                case GO_ARGENT_COLISEUM_FLOOR: m_uiFloorGUID = pGO->GetGUID(); break;
-                case GO_MAIN_GATE_DOOR:   m_uiMainGateDoorGUID = pGO->GetGUID(); break;
-                case GO_EAST_PORTCULLIS:  m_uiEastPortcullisGUID = pGO->GetGUID(); break;
-                case GO_WEB_DOOR:         m_uiWebDoorGUID = pGO->GetGUID(); break;
+                case GO_ARGENT_COLISEUM_FLOOR: m_uiFloorGUID = go->GetGUID(); break;
+                case GO_MAIN_GATE_DOOR:   m_uiMainGateDoorGUID = go->GetGUID(); break;
+                case GO_EAST_PORTCULLIS:  m_uiEastPortcullisGUID = go->GetGUID(); break;
+                case GO_WEB_DOOR:         m_uiWebDoorGUID = go->GetGUID(); break;
 
                 case GO_TRIBUTE_CHEST_10H_25:
                 case GO_TRIBUTE_CHEST_10H_45:
@@ -215,7 +215,7 @@ public:
                 case GO_TRIBUTE_CHEST_25H_45:
                 case GO_TRIBUTE_CHEST_25H_50:
                 case GO_TRIBUTE_CHEST_25H_99:
-                    m_uiTributeChestGUID = pGO->GetGUID(); break;
+                    m_uiTributeChestGUID = go->GetGUID(); break;
             }
         }
 

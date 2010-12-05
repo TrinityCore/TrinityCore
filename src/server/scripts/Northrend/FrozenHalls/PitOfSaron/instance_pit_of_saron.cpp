@@ -72,7 +72,7 @@ public:
             return false;
         }
 
-        void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+        void OnCreatureCreate(Creature* creature)
         {
             Map::PlayerList const &players = instance->GetPlayers();
 
@@ -82,57 +82,57 @@ public:
                     uiTeamInInstance = pPlayer->GetTeam();
             }
 
-            switch(pCreature->GetEntry())
+            switch(creature->GetEntry())
             {
                 case CREATURE_KRICK:
-                    uiKrick = pCreature->GetGUID();
+                    uiKrick = creature->GetGUID();
                     break;
 
                 case CREATURE_ICK:
-                    uiIck = pCreature->GetGUID();
+                    uiIck = creature->GetGUID();
                     break;
 
                 case CREATURE_GARFROST:
-                    uiGarfrost = pCreature->GetGUID();
+                    uiGarfrost = creature->GetGUID();
                     break;
 
                 case CREATURE_TYRANNUS:
-                    uiTyrannus = pCreature->GetGUID();
+                    uiTyrannus = creature->GetGUID();
                     break;
 
                 case CREATURE_RIMEFANG:
-                    uiRimefang = pCreature->GetGUID();
+                    uiRimefang = creature->GetGUID();
                     break;
 
                 case NPC_SYLVANAS_PART1:
                     if (uiTeamInInstance == ALLIANCE)
-                        pCreature->UpdateEntry(NPC_JAINA_PART1, ALLIANCE);
-                    uiJainaOrSylvanas1 = pCreature->GetGUID();
+                        creature->UpdateEntry(NPC_JAINA_PART1, ALLIANCE);
+                    uiJainaOrSylvanas1 = creature->GetGUID();
                     break;
                 case NPC_SYLVANAS_PART2:
                     if (uiTeamInInstance == ALLIANCE)
-                        pCreature->UpdateEntry(NPC_JAINA_PART2, ALLIANCE);
-                    uiJainaOrSylvanas2 = pCreature->GetGUID();
+                        creature->UpdateEntry(NPC_JAINA_PART2, ALLIANCE);
+                    uiJainaOrSylvanas2 = creature->GetGUID();
                     break;
                 case NPC_KILARA:
                     if (uiTeamInInstance == ALLIANCE)
-                       pCreature->UpdateEntry(NPC_ELANDRA, ALLIANCE);
+                       creature->UpdateEntry(NPC_ELANDRA, ALLIANCE);
                     break;
                 case NPC_KORALEN:
                     if (uiTeamInInstance == ALLIANCE)
-                       pCreature->UpdateEntry(NPC_KORLAEN, ALLIANCE);
+                       creature->UpdateEntry(NPC_KORLAEN, ALLIANCE);
                     break;
                 case NPC_CHAMPION_1_HORDE:
                     if (uiTeamInInstance == ALLIANCE)
-                       pCreature->UpdateEntry(NPC_CHAMPION_1_ALLIANCE, ALLIANCE);
+                       creature->UpdateEntry(NPC_CHAMPION_1_ALLIANCE, ALLIANCE);
                     break;
                 case NPC_CHAMPION_2_HORDE:
                     if (uiTeamInInstance == ALLIANCE)
-                       pCreature->UpdateEntry(NPC_CHAMPION_2_ALLIANCE, ALLIANCE);
+                       creature->UpdateEntry(NPC_CHAMPION_2_ALLIANCE, ALLIANCE);
                     break;
                 case NPC_CHAMPION_3_HORDE: // No 3rd set for Alliance?
                     if (uiTeamInInstance == ALLIANCE)
-                       pCreature->UpdateEntry(NPC_CHAMPION_2_ALLIANCE, ALLIANCE);
+                       creature->UpdateEntry(NPC_CHAMPION_2_ALLIANCE, ALLIANCE);
                     break;
             }
         }

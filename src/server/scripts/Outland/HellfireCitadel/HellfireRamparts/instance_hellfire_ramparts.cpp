@@ -51,15 +51,15 @@ class instance_ramparts : public InstanceMapScript
                 m_uiChestHGUID = 0;
             }
 
-            void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
+            void OnGameObjectCreate(GameObject* go)
             {
-                switch(pGo->GetEntry())
+                switch(go->GetEntry())
                 {
                     case 185168:
-                        m_uiChestNGUID = pGo->GetGUID();
+                        m_uiChestNGUID = go->GetGUID();
                         break;
                     case 185169:
-                        m_uiChestHGUID = pGo->GetGUID();
+                        m_uiChestHGUID = go->GetGUID();
                         break;
                 }
             }

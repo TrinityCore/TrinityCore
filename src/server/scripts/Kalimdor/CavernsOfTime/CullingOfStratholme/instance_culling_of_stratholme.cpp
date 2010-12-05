@@ -66,54 +66,54 @@ public:
             return false;
         }
 
-        void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+        void OnCreatureCreate(Creature* creature)
         {
-            switch(pCreature->GetEntry())
+            switch(creature->GetEntry())
             {
                 case NPC_ARTHAS:
-                    uiArthas = pCreature->GetGUID();
+                    uiArthas = creature->GetGUID();
                     break;
                 case NPC_MEATHOOK:
-                    uiMeathook = pCreature->GetGUID();
+                    uiMeathook = creature->GetGUID();
                     break;
                 case NPC_SALRAMM:
-                    uiSalramm = pCreature->GetGUID();
+                    uiSalramm = creature->GetGUID();
                     break;
                 case NPC_EPOCH:
-                    uiEpoch = pCreature->GetGUID();
+                    uiEpoch = creature->GetGUID();
                     break;
                 case NPC_MAL_GANIS:
-                    uiMalGanis = pCreature->GetGUID();
+                    uiMalGanis = creature->GetGUID();
                     break;
                 case NPC_INFINITE:
-                    uiInfinite = pCreature->GetGUID();
+                    uiInfinite = creature->GetGUID();
                     break;
             }
         }
 
-        void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
+        void OnGameObjectCreate(GameObject* go)
         {
-            switch(pGo->GetEntry())
+            switch(go->GetEntry())
             {
                 case GO_SHKAF_GATE:
-                    uiShkafGate = pGo->GetGUID();
+                    uiShkafGate = go->GetGUID();
                     break;
                 case GO_MALGANIS_GATE_1:
-                    uiMalGanisGate1 = pGo->GetGUID();
+                    uiMalGanisGate1 = go->GetGUID();
                     break;
                 case GO_MALGANIS_GATE_2:
-                    uiMalGanisGate2 = pGo->GetGUID();
+                    uiMalGanisGate2 = go->GetGUID();
                     break;
                 case GO_EXIT_GATE:
-                    uiExitGate = pGo->GetGUID();
+                    uiExitGate = go->GetGUID();
                     if (m_auiEncounter[3] == DONE)
                         HandleGameObject(uiExitGate,true);
                     break;
                 case GO_MALGANIS_CHEST_N:
                 case GO_MALGANIS_CHEST_H:
-                    uiMalGanisChest = pGo->GetGUID();
+                    uiMalGanisChest = go->GetGUID();
                     if (m_auiEncounter[3] == DONE)
-                        pGo->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
+                        go->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
                     break;
             }
         }
@@ -144,8 +144,8 @@ public:
                             break;
                         case DONE:
                             HandleGameObject(uiExitGate, true);
-                            if (GameObject *pGo = instance->GetGameObject(uiMalGanisChest))
-                                pGo->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
+                            if (GameObject* go = instance->GetGameObject(uiMalGanisChest))
+                                go->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
                             break;
                     }
                     break;

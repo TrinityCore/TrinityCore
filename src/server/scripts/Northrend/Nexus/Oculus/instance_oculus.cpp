@@ -57,35 +57,35 @@ public:
             uiPlataformUrom = 0;
         }
 
-        void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+        void OnCreatureCreate(Creature* creature)
         {
-            switch(pCreature->GetEntry())
+            switch(creature->GetEntry())
             {
                 case CREATURE_DRAKOS:
-                    uiDrakos = pCreature->GetGUID();
+                    uiDrakos = creature->GetGUID();
                     break;
                 case CREATURE_VAROS:
-                    uiVaros = pCreature->GetGUID();
+                    uiVaros = creature->GetGUID();
                     break;
                 case CREATURE_UROM:
-                    uiUrom = pCreature->GetGUID();
+                    uiUrom = creature->GetGUID();
                     break;
                 case CREATURE_EREGOS:
-                    uiEregos = pCreature->GetGUID();
+                    uiEregos = creature->GetGUID();
                     break;
             }
         }
 
-        void OnGameObjectCreate(GameObject* pGO, bool /*bAdd*/)
+        void OnGameObjectCreate(GameObject* go)
         {
-            if (pGO->GetEntry() == GO_DRAGON_CAGE_DOOR)
+            if (go->GetEntry() == GO_DRAGON_CAGE_DOOR)
             {
                 if (GetData(DATA_DRAKOS_EVENT) == DONE)
-                    pGO->SetGoState(GO_STATE_ACTIVE);
+                    go->SetGoState(GO_STATE_ACTIVE);
                 else
-                    pGO->SetGoState(GO_STATE_READY);
+                    go->SetGoState(GO_STATE_READY);
 
-                GameObjectList.push_back(pGO->GetGUID());
+                GameObjectList.push_back(go->GetGUID());
             }
         }
 
@@ -150,8 +150,8 @@ public:
 
             for (std::list<uint64>::const_iterator itr = GameObjectList.begin(); itr != GameObjectList.end(); ++itr)
             {
-                if (GameObject* pGO = instance->GetGameObject(*itr))
-                    pGO->SetGoState(GO_STATE_ACTIVE);
+                if (GameObject* go = instance->GetGameObject(*itr))
+                    go->SetGoState(GO_STATE_ACTIVE);
             }
         }
 

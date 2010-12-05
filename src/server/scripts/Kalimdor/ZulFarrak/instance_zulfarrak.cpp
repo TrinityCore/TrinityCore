@@ -120,48 +120,48 @@ public:
             GahzRillaEncounter = NOT_STARTED;
         }
 
-        void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+        void OnCreatureCreate(Creature* creature)
         {
-            switch (pCreature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case ENTRY_ZUMRAH:
-                    ZumrahGUID = pCreature->GetGUID();
+                    ZumrahGUID = creature->GetGUID();
                     break;
                 case ENTRY_BLY:
-                    BlyGUID = pCreature->GetGUID();
-                    pCreature->SetReactState(REACT_PASSIVE); // starts out passive (in a cage)
+                    BlyGUID = creature->GetGUID();
+                    creature->SetReactState(REACT_PASSIVE); // starts out passive (in a cage)
                     break;
                 case ENTRY_RAVEN:
-                    RavenGUID = pCreature->GetGUID();
-                    pCreature->SetReactState(REACT_PASSIVE);// starts out passive (in a cage)
+                    RavenGUID = creature->GetGUID();
+                    creature->SetReactState(REACT_PASSIVE);// starts out passive (in a cage)
                     break;
                 case ENTRY_ORO:
-                    OroGUID = pCreature->GetGUID();
-                    pCreature->SetReactState(REACT_PASSIVE);// starts out passive (in a cage)
+                    OroGUID = creature->GetGUID();
+                    creature->SetReactState(REACT_PASSIVE);// starts out passive (in a cage)
                     break;
                 case ENTRY_WEEGLI:
-                    WeegliGUID = pCreature->GetGUID();
-                    pCreature->SetReactState(REACT_PASSIVE);// starts out passive (in a cage)
+                    WeegliGUID = creature->GetGUID();
+                    creature->SetReactState(REACT_PASSIVE);// starts out passive (in a cage)
                     break;
                 case ENTRY_MURTA:
-                    MurtaGUID = pCreature->GetGUID();
-                    pCreature->SetReactState(REACT_PASSIVE);// starts out passive (in a cage)
+                    MurtaGUID = creature->GetGUID();
+                    creature->SetReactState(REACT_PASSIVE);// starts out passive (in a cage)
                     break;
                 case NPC_GAHZRILLA:
                     if (GahzRillaEncounter >= IN_PROGRESS)
-                        pCreature->DisappearAndDie();
+                        creature->DisappearAndDie();
                     else
                         GahzRillaEncounter = IN_PROGRESS;
                     break;
             }
         }
 
-        void OnGameObjectCreate(GameObject* pGo, bool /*apply*/)
+        void OnGameObjectCreate(GameObject* go)
         {
-            switch(pGo->GetEntry())
+            switch(go->GetEntry())
             {
                 case GO_END_DOOR:
-                    EndDoorGUID = pGo->GetGUID();
+                    EndDoorGUID = go->GetGUID();
                     break;
             }
         }

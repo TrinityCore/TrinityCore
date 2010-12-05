@@ -100,26 +100,26 @@ class instance_arcatraz : public InstanceMapScript
             }
 
 
-            void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
+            void OnGameObjectCreate(GameObject* go)
             {
-                switch(pGo->GetEntry())
+                switch(go->GetEntry())
                 {
-                case CONTAINMENT_CORE_SECURITY_FIELD_ALPHA: Containment_Core_Security_Field_AlphaGUID = pGo->GetGUID(); break;
-                case CONTAINMENT_CORE_SECURITY_FIELD_BETA:  Containment_Core_Security_Field_BetaGUID =  pGo->GetGUID(); break;
-                case POD_ALPHA:                             Pod_AlphaGUID = pGo->GetGUID();                             break;
-                case POD_GAMMA:                             Pod_GammaGUID = pGo->GetGUID();                             break;
-                case POD_BETA:                              Pod_BetaGUID =  pGo->GetGUID();                             break;
-                case POD_DELTA:                             Pod_DeltaGUID = pGo->GetGUID();                             break;
-                case POD_OMEGA:                             Pod_OmegaGUID = pGo->GetGUID();                             break;
-                case SEAL_SPHERE:                           GoSphereGUID = pGo->GetGUID();                              break;
-                //case WARDENS_SHIELD:                        Wardens_ShieldGUID = pGo->GetGUID();                        break;
+                case CONTAINMENT_CORE_SECURITY_FIELD_ALPHA: Containment_Core_Security_Field_AlphaGUID = go->GetGUID(); break;
+                case CONTAINMENT_CORE_SECURITY_FIELD_BETA:  Containment_Core_Security_Field_BetaGUID =  go->GetGUID(); break;
+                case POD_ALPHA:                             Pod_AlphaGUID = go->GetGUID();                             break;
+                case POD_GAMMA:                             Pod_GammaGUID = go->GetGUID();                             break;
+                case POD_BETA:                              Pod_BetaGUID =  go->GetGUID();                             break;
+                case POD_DELTA:                             Pod_DeltaGUID = go->GetGUID();                             break;
+                case POD_OMEGA:                             Pod_OmegaGUID = go->GetGUID();                             break;
+                case SEAL_SPHERE:                           GoSphereGUID = go->GetGUID();                              break;
+                //case WARDENS_SHIELD:                        Wardens_ShieldGUID = go->GetGUID();                        break;
                 }
             }
 
-            void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+            void OnCreatureCreate(Creature* creature)
             {
-                if (pCreature->GetEntry() == MELLICHAR)
-                    MellicharGUID = pCreature->GetGUID();
+                if (creature->GetEntry() == MELLICHAR)
+                    MellicharGUID = creature->GetGUID();
             }
 
             void SetData(uint32 type, uint32 data)
@@ -132,16 +132,16 @@ class instance_arcatraz : public InstanceMapScript
                 case TYPE_DALLIAH:
                     if (data == DONE)
                     {
-                        if (GameObject *pGo = instance->GetGameObject(Containment_Core_Security_Field_BetaGUID))
-                            pGo->UseDoorOrButton();
+                        if (GameObject* go = instance->GetGameObject(Containment_Core_Security_Field_BetaGUID))
+                            go->UseDoorOrButton();
                     }
                     m_auiEncounter[1] = data;
                     break;
                 case TYPE_SOCCOTHRATES:
                     if (data == DONE)
                     {
-                        if (GameObject *pGo = instance->GetGameObject(Containment_Core_Security_Field_AlphaGUID))
-                            pGo->UseDoorOrButton();
+                        if (GameObject* go = instance->GetGameObject(Containment_Core_Security_Field_AlphaGUID))
+                            go->UseDoorOrButton();
                     }
                     m_auiEncounter[2] = data;
                     break;
@@ -158,47 +158,47 @@ class instance_arcatraz : public InstanceMapScript
                     break;
                 case TYPE_WARDEN_1:
                     if (data == IN_PROGRESS)
-                        if (GameObject *pGo = instance->GetGameObject(Pod_AlphaGUID))
-                            pGo->UseDoorOrButton();
+                        if (GameObject* go = instance->GetGameObject(Pod_AlphaGUID))
+                            go->UseDoorOrButton();
                     m_auiEncounter[4] = data;
                     break;
                 case TYPE_WARDEN_2:
                     if (data == IN_PROGRESS)
                     {
-                        if (GameObject *pGo = instance->GetGameObject(Pod_BetaGUID))
-                            pGo->UseDoorOrButton();
+                        if (GameObject* go = instance->GetGameObject(Pod_BetaGUID))
+                            go->UseDoorOrButton();
                     }
                     m_auiEncounter[5] = data;
                     break;
                 case TYPE_WARDEN_3:
                     if (data == IN_PROGRESS)
                     {
-                        if (GameObject *pGo = instance->GetGameObject(Pod_DeltaGUID))
-                            pGo->UseDoorOrButton();
+                        if (GameObject* go = instance->GetGameObject(Pod_DeltaGUID))
+                            go->UseDoorOrButton();
                     }
                     m_auiEncounter[6] = data;
                     break;
                 case TYPE_WARDEN_4:
                     if (data == IN_PROGRESS)
                     {
-                        if (GameObject *pGo = instance->GetGameObject(Pod_GammaGUID))
-                            pGo->UseDoorOrButton();
+                        if (GameObject* go = instance->GetGameObject(Pod_GammaGUID))
+                            go->UseDoorOrButton();
                     }
                     m_auiEncounter[7] = data;
                     break;
                 case TYPE_WARDEN_5:
                     if (data == IN_PROGRESS)
                     {
-                        if (GameObject *pGo = instance->GetGameObject(Pod_OmegaGUID))
-                            pGo->UseDoorOrButton();
+                        if (GameObject* go = instance->GetGameObject(Pod_OmegaGUID))
+                            go->UseDoorOrButton();
                     }
                     m_auiEncounter[8] = data;
                     break;
                 case TYPE_SHIELD_OPEN:
                     if (data == IN_PROGRESS)
                     {
-                        if (GameObject *pGo = instance->GetGameObject(Wardens_ShieldGUID))
-                            pGo->UseDoorOrButton();
+                        if (GameObject* go = instance->GetGameObject(Wardens_ShieldGUID))
+                            go->UseDoorOrButton();
                     }
                     break;
                 }

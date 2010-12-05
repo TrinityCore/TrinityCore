@@ -63,14 +63,14 @@ class instance_zulgurub : public InstanceMapScript
                 return false;
             }
 
-            void OnCreatureCreate(Creature* pCreature)
+            void OnCreatureCreate(Creature* creature)
             {
-                switch(pCreature->GetEntry())
+                switch(creature->GetEntry())
                 {
-                    case 11347: m_uiLorKhanGUID = pCreature->GetGUID(); break;
-                    case 11348: m_uiZathGUID = pCreature->GetGUID(); break;
-                    case 14509: m_uiThekalGUID = pCreature->GetGUID(); break;
-                    case 11380: m_uiJindoGUID = pCreature->GetGUID(); break;
+                    case 11347: m_uiLorKhanGUID = creature->GetGUID(); break;
+                    case 11348: m_uiZathGUID = creature->GetGUID(); break;
+                    case 14509: m_uiThekalGUID = creature->GetGUID(); break;
+                    case 11380: m_uiJindoGUID = creature->GetGUID(); break;
                 }
             }
 

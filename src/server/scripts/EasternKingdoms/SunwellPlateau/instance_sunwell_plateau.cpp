@@ -138,43 +138,43 @@ public:
             return NULL;
         }
 
-        void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+        void OnCreatureCreate(Creature* creature)
         {
-            switch(pCreature->GetEntry())
+            switch(creature->GetEntry())
             {
-                case 24850: Kalecgos_Dragon     = pCreature->GetGUID(); break;
-                case 24891: Kalecgos_Human      = pCreature->GetGUID(); break;
-                case 24892: Sathrovarr          = pCreature->GetGUID(); break;
-                case 24882: Brutallus           = pCreature->GetGUID(); break;
-                case 24895: Madrigosa           = pCreature->GetGUID(); break;
-                case 25038: Felmyst             = pCreature->GetGUID(); break;
-                case 25166: Alythess            = pCreature->GetGUID(); break;
-                case 25165: Sacrolash           = pCreature->GetGUID(); break;
-                case 25741: Muru                = pCreature->GetGUID(); break;
-                case 25315: KilJaeden           = pCreature->GetGUID(); break;
-                case 25608: KilJaedenController = pCreature->GetGUID(); break;
-                case 26046: Anveena             = pCreature->GetGUID(); break;
-                case 25319: KalecgosKJ          = pCreature->GetGUID(); break;
+                case 24850: Kalecgos_Dragon     = creature->GetGUID(); break;
+                case 24891: Kalecgos_Human      = creature->GetGUID(); break;
+                case 24892: Sathrovarr          = creature->GetGUID(); break;
+                case 24882: Brutallus           = creature->GetGUID(); break;
+                case 24895: Madrigosa           = creature->GetGUID(); break;
+                case 25038: Felmyst             = creature->GetGUID(); break;
+                case 25166: Alythess            = creature->GetGUID(); break;
+                case 25165: Sacrolash           = creature->GetGUID(); break;
+                case 25741: Muru                = creature->GetGUID(); break;
+                case 25315: KilJaeden           = creature->GetGUID(); break;
+                case 25608: KilJaedenController = creature->GetGUID(); break;
+                case 26046: Anveena             = creature->GetGUID(); break;
+                case 25319: KalecgosKJ          = creature->GetGUID(); break;
             }
         }
 
-        void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
+        void OnGameObjectCreate(GameObject* go)
         {
-            switch(pGo->GetEntry())
+            switch(go->GetEntry())
             {
-                case 188421: ForceField     = pGo->GetGUID(); break;
-                case 188523: KalecgosWall[0] = pGo->GetGUID(); break;
-                case 188524: KalecgosWall[0] = pGo->GetGUID(); break;
+                case 188421: ForceField     = go->GetGUID(); break;
+                case 188523: KalecgosWall[0] = go->GetGUID(); break;
+                case 188524: KalecgosWall[0] = go->GetGUID(); break;
                 case 188075:
                     if (m_auiEncounter[2] == DONE)
-                        HandleGameObject(NULL, true, pGo);
-                    FireBarrier = pGo->GetGUID();
+                        HandleGameObject(NULL, true, go);
+                    FireBarrier = go->GetGUID();
                     break;
-                case 187990: MurusGate[0]   = pGo->GetGUID(); break;
+                case 187990: MurusGate[0]   = go->GetGUID(); break;
                 case 188118:
                     if (m_auiEncounter[4] == DONE)
-                        HandleGameObject(NULL, true, pGo);
-                    MurusGate[1]= pGo->GetGUID();
+                        HandleGameObject(NULL, true, go);
+                    MurusGate[1]= go->GetGUID();
                     break;
             }
         }

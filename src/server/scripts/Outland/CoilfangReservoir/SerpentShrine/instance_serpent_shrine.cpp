@@ -52,9 +52,9 @@ class go_bridge_console : public GameObjectScript
 public:
     go_bridge_console() : GameObjectScript("go_bridge_console") { }
 
-    bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
+    bool OnGossipHello(Player* /*pPlayer*/, GameObject* go)
     {
-        InstanceScript* pInstance = pGo->GetInstanceScript();
+        InstanceScript* pInstance = go->GetInstanceScript();
 
         if (!pInstance)
             return false;
@@ -210,28 +210,28 @@ public:
             } else FrenzySpawnTimer -= diff;
         }
 
-        void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
+        void OnGameObjectCreate(GameObject* go)
         {
-            switch(pGo->GetEntry())
+            switch(go->GetEntry())
             {
                 case 184568:
-                    ControlConsole = pGo->GetGUID();
-                    pGo->setActive(true);
+                    ControlConsole = go->GetGUID();
+                    go->setActive(true);
                 break;
 
                 case 184203:
-                    BridgePart[0] = pGo->GetGUID();
-                    pGo->setActive(true);
+                    BridgePart[0] = go->GetGUID();
+                    go->setActive(true);
                 break;
 
                 case 184204:
-                    BridgePart[1] = pGo->GetGUID();
-                    pGo->setActive(true);
+                    BridgePart[1] = go->GetGUID();
+                    go->setActive(true);
                 break;
 
                 case 184205:
-                    BridgePart[2] = pGo->GetGUID();
-                    pGo->setActive(true);
+                    BridgePart[2] = go->GetGUID();
+                    go->setActive(true);
                 break;
                 case GAMEOBJECT_FISHINGNODE_ENTRY://no way checking if fish is hooked, so we create a timed event
                     if (LurkerSubEvent == LURKER_NOT_STARTED)
@@ -243,20 +243,20 @@ public:
             }
         }
 
-        void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+        void OnCreatureCreate(Creature* creature)
         {
-            switch(pCreature->GetEntry())
+            switch(creature->GetEntry())
             {
-                case 21212: LadyVashj = pCreature->GetGUID();            break;
-                case 21214: Karathress = pCreature->GetGUID();           break;
-                case 21966: Sharkkis = pCreature->GetGUID();             break;
-                case 21217: LurkerBelow = pCreature->GetGUID();          break;
-                case 21965: Tidalvess = pCreature->GetGUID();            break;
-                case 21964: Caribdis = pCreature->GetGUID();             break;
-                case 21215: LeotherasTheBlind = pCreature->GetGUID();    break;
+                case 21212: LadyVashj = creature->GetGUID();            break;
+                case 21214: Karathress = creature->GetGUID();           break;
+                case 21966: Sharkkis = creature->GetGUID();             break;
+                case 21217: LurkerBelow = creature->GetGUID();          break;
+                case 21965: Tidalvess = creature->GetGUID();            break;
+                case 21964: Caribdis = creature->GetGUID();             break;
+                case 21215: LeotherasTheBlind = creature->GetGUID();    break;
                 /*case TRASHMOB_COILFANG_PRIESTESS:
                 case TRASHMOB_COILFANG_SHATTERER:
-                    if (pCreature->isAlive())
+                    if (creature->isAlive())
                         ++TrashCount;
                     break;*/
             }

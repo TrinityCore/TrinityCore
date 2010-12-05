@@ -41,7 +41,7 @@ class instance_forge_of_souls : public InstanceMapScript
                 teamInInstance = 0;
             }
 
-            void OnCreatureCreate(Creature* creature, bool /*add*/)
+            void OnCreatureCreate(Creature* creature)
             {
                 Map::PlayerList const &players = instance->GetPlayers();
                 if (!players.isEmpty())

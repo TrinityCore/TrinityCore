@@ -38,7 +38,7 @@ EndScriptData */
 // But we cannot add loots to gameobject, so we have to use the fixed loot_template
 struct SHostageInfo
 {
-    uint32 npc, pGo;
+    uint32 npc, go;
     float x, y, z, o;
 };
 
@@ -114,9 +114,9 @@ class instance_zulaman : public InstanceMapScript
                 return false;
             }
 
-            void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+            void OnCreatureCreate(Creature* creature)
             {
-                switch(pCreature->GetEntry())
+                switch(creature->GetEntry())
                 {
                 case 23578://janalai
                 case 23863://zuljin
@@ -127,20 +127,20 @@ class instance_zulaman : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
+            void OnGameObjectCreate(GameObject* go)
             {
-                switch(pGo->GetEntry())
+                switch(go->GetEntry())
                 {
-                case 186303: HalazziDoorGUID = pGo->GetGUID(); break;
-                case 186304: ZulJinGateGUID  = pGo->GetGUID(); break;
-                case 186305: HexLordGateGUID = pGo->GetGUID(); break;
-                case 186858: AkilzonDoorGUID = pGo->GetGUID(); break;
-                case 186859: ZulJinDoorGUID  = pGo->GetGUID(); break;
+                case 186303: HalazziDoorGUID = go->GetGUID(); break;
+                case 186304: ZulJinGateGUID  = go->GetGUID(); break;
+                case 186305: HexLordGateGUID = go->GetGUID(); break;
+                case 186858: AkilzonDoorGUID = go->GetGUID(); break;
+                case 186859: ZulJinDoorGUID  = go->GetGUID(); break;
 
-                case 187021: HarkorsSatchelGUID  = pGo->GetGUID(); break;
-                case 186648: TanzarsTrunkGUID = pGo->GetGUID(); break;
-                case 186672: AshlisBagGUID = pGo->GetGUID(); break;
-                case 186667: KrazsPackageGUID  = pGo->GetGUID(); break;
+                case 187021: HarkorsSatchelGUID  = go->GetGUID(); break;
+                case 186648: TanzarsTrunkGUID = go->GetGUID(); break;
+                case 186672: AshlisBagGUID = go->GetGUID(); break;
+                case 186667: KrazsPackageGUID  = go->GetGUID(); break;
                 default: break;
 
                 }

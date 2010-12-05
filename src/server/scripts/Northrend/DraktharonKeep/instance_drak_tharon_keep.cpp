@@ -88,40 +88,40 @@ public:
             return false;
         }
 
-        void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
+        void OnGameObjectCreate(GameObject* go)
         {
-            switch(pGo->GetEntry())
+            switch(go->GetEntry())
             {
                 case GO_NOVOS_CRYSTAL_1:
-                    uiNovosCrystal1 = pGo->GetGUID();
+                    uiNovosCrystal1 = go->GetGUID();
                     break;
                 case GO_NOVOS_CRYSTAL_2:
-                    uiNovosCrystal2 = pGo->GetGUID();
+                    uiNovosCrystal2 = go->GetGUID();
                     break;
                 case GO_NOVOS_CRYSTAL_3:
-                    uiNovosCrystal3 = pGo->GetGUID();
+                    uiNovosCrystal3 = go->GetGUID();
                     break;
                 case GO_NOVOS_CRYSTAL_4:
-                    uiNovosCrystal4 = pGo->GetGUID();
+                    uiNovosCrystal4 = go->GetGUID();
                     break;
             }
         }
 
-        void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+        void OnCreatureCreate(Creature* creature)
         {
-            switch(pCreature->GetEntry())
+            switch(creature->GetEntry())
             {
                 case NPC_TROLLGORE:
-                    uiTrollgore = pCreature->GetGUID();
+                    uiTrollgore = creature->GetGUID();
                     break;
                 case NPC_NOVOS:
-                    uiNovos = pCreature->GetGUID();
+                    uiNovos = creature->GetGUID();
                     break;
                 case NPC_KING_DRED:
-                    uiDred = pCreature->GetGUID();
+                    uiDred = creature->GetGUID();
                     break;
                 case NPC_THARON_JA:
-                    uiTharonJa = pCreature->GetGUID();
+                    uiTharonJa = creature->GetGUID();
                     break;
             }
         }

@@ -102,41 +102,41 @@ public:
             return false;
         }
 
-        void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+        void OnCreatureCreate(Creature* creature)
         {
-            switch(pCreature->GetEntry())
+            switch(creature->GetEntry())
             {
-                case BOSS_SVALA_SORROWGRAVE:  uiSvalaSorrowgrave = pCreature->GetGUID();  break;
-                case BOSS_GORTOK_PALEHOOF:    uiGortokPalehoof = pCreature->GetGUID();    break;
-                case BOSS_SKADI_RUTHLESS:     uiSkadiTheRuthless = pCreature->GetGUID();  break;
-                case BOSS_KING_YMIRON:        uiKingYmiron = pCreature->GetGUID();        break;
-                case MOB_FRENZIED_WORGEN:     uiFrenziedWorgen = pCreature->GetGUID();    break;
-                case MOB_RAVENOUS_FURBOLG:    uiRavenousFurbolg = pCreature->GetGUID();   break;
-                case MOB_MASSIVE_JORMUNGAR:   uiMassiveJormungar = pCreature->GetGUID();  break;
-                case MOB_FEROCIOUS_RHINO:     uiFerociousRhino = pCreature->GetGUID();    break;
-                case MOB_SVALA:               uiSvala = pCreature->GetGUID();             break;
-                case MOB_PALEHOOF_ORB:        uiPalehoofOrb = pCreature->GetGUID();       break;
+                case BOSS_SVALA_SORROWGRAVE:  uiSvalaSorrowgrave = creature->GetGUID();  break;
+                case BOSS_GORTOK_PALEHOOF:    uiGortokPalehoof = creature->GetGUID();    break;
+                case BOSS_SKADI_RUTHLESS:     uiSkadiTheRuthless = creature->GetGUID();  break;
+                case BOSS_KING_YMIRON:        uiKingYmiron = creature->GetGUID();        break;
+                case MOB_FRENZIED_WORGEN:     uiFrenziedWorgen = creature->GetGUID();    break;
+                case MOB_RAVENOUS_FURBOLG:    uiRavenousFurbolg = creature->GetGUID();   break;
+                case MOB_MASSIVE_JORMUNGAR:   uiMassiveJormungar = creature->GetGUID();  break;
+                case MOB_FEROCIOUS_RHINO:     uiFerociousRhino = creature->GetGUID();    break;
+                case MOB_SVALA:               uiSvala = creature->GetGUID();             break;
+                case MOB_PALEHOOF_ORB:        uiPalehoofOrb = creature->GetGUID();       break;
             }
         }
 
-        void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
+        void OnGameObjectCreate(GameObject* go)
         {
-            switch(pGo->GetEntry())
+            switch(go->GetEntry())
             {
                 case ENTRY_SKADI_THE_RUTHLESS_DOOR:
-                    uiSkadiTheRuthlessDoor = pGo->GetGUID();
-                    if (m_auiEncounter[2] == DONE) HandleGameObject(NULL, true, pGo);
+                    uiSkadiTheRuthlessDoor = go->GetGUID();
+                    if (m_auiEncounter[2] == DONE) HandleGameObject(NULL, true, go);
                     break;
                 case ENTRY_KING_YMIRON_DOOR:
-                    uiKingYmironDoor = pGo->GetGUID();
-                    if (m_auiEncounter[3] == DONE) HandleGameObject(NULL, true, pGo);
+                    uiKingYmironDoor = go->GetGUID();
+                    if (m_auiEncounter[3] == DONE) HandleGameObject(NULL, true, go);
                     break;
                 case ENTRY_GORK_PALEHOOF_SPHERE:
-                    uiGortokPalehoofSphere = pGo->GetGUID();
+                    uiGortokPalehoofSphere = go->GetGUID();
                     if (m_auiEncounter[1] == DONE)
                     {
-                        HandleGameObject(NULL, true, pGo);
-                        pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                        HandleGameObject(NULL, true, go);
+                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                     }
                     break;
             }

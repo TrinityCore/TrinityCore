@@ -76,27 +76,27 @@ public:
             OUT_LOAD_INST_DATA_COMPLETE;
         }
 
-        void OnCreatureCreate(Creature* pCreature, bool /*bAdd*/)
+        void OnCreatureCreate(Creature* creature)
         {
-            switch(pCreature->GetEntry())
+            switch(creature->GetEntry())
             {
-                case NPC_BLASTMASTER_EMI_SHORTFUSE: uiBastmasterEmiShortfuseGUID = pCreature->GetGUID(); break;
+                case NPC_BLASTMASTER_EMI_SHORTFUSE: uiBastmasterEmiShortfuseGUID = creature->GetGUID(); break;
             }
         }
 
-        void OnGameObjectCreate(GameObject* pGo, bool /*bAdd*/)
+        void OnGameObjectCreate(GameObject* go)
         {
-            switch(pGo->GetEntry())
+            switch(go->GetEntry())
             {
                 case GO_CAVE_IN_LEFT:
-                    uiCaveInLeftGUID = pGo->GetGUID();
+                    uiCaveInLeftGUID = go->GetGUID();
                     if (m_auiEncounter[0] == DONE || m_auiEncounter[0] == NOT_STARTED)
-                        HandleGameObject(NULL,false,pGo);
+                        HandleGameObject(NULL,false,go);
                     break;
                 case GO_CAVE_IN_RIGHT:
-                    uiCaveInRightGUID = pGo->GetGUID();
+                    uiCaveInRightGUID = go->GetGUID();
                     if (m_auiEncounter[0] == DONE || m_auiEncounter[0] == NOT_STARTED)
-                        HandleGameObject(NULL,false,pGo);
+                        HandleGameObject(NULL,false,go);
                     break;
             }
         }
