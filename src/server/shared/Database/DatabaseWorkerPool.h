@@ -18,7 +18,6 @@
 #ifndef _DATABASEWORKERPOOL_H
 #define _DATABASEWORKERPOOL_H
 
-#include <ace/Atomic_Op_T.h>
 #include <ace/Thread_Mutex.h>
 
 #include "Common.h"
@@ -52,9 +51,6 @@ template <class T>
 class DatabaseWorkerPool
 {
     template <class Y> friend class DatabaseWorker;
-
-    private:
-        typedef ACE_Atomic_Op<ACE_SYNCH_MUTEX, uint32> AtomicUInt;
 
     public:
         DatabaseWorkerPool() :
@@ -90,7 +86,7 @@ class DatabaseWorkerPool
             for (uint8 i = 0; i < delaythreads; ++i)
                 m_delaythreads[i] = new DatabaseWorker<ThisClass>(m_queue, this);
 
-            sLog.outSQLDriver("Databasepool opened succesfuly. %u connections running.", (uint32)m_connectionCount.value());
+            sLog.outSQLDriver("Databasepool opened succesfuly. %u connections running.", m_connectionCount);
             return true;
         }
 
@@ -105,7 +101,7 @@ class DatabaseWorkerPool
                 m_delaythreads[i]->wait();
 
             /// Shut down the connections
-            for (uint8 i = 0; i < m_connections.size(); ++i)
+            for (uint8 i = 0; i < m_connectionCount; ++i)
             {
                 T* t = m_connections[i];
                 while (1)
@@ -302,7 +298,7 @@ class DatabaseWorkerPool
         void KeepAlive()
         {
             /// Ping connections
-            for (uint8 i = 0; i < m_connections.size(); ++i)
+            for (uint8 i = 0; i < m_connectionCount; ++i)
             {
                 T* t = m_connections[i];
                 if (t->LockIfReady())
@@ -319,7 +315,7 @@ class DatabaseWorkerPool
             uint8 i = 0;
             for (;;)    /// Block forever until a connection is free
             {
-                T* t = m_connections[++i % m_connectionCount.value()];
+                T* t = m_connections[++i % m_connectionCount];
                 if (t->LockIfReady())   /// Must be matched with t->Unlock() or you will get deadlocks
                     return t;
             }
@@ -350,7 +346,7 @@ class DatabaseWorkerPool
 
         ACE_Activation_Queue*           m_queue;                    //! Queue shared by async worker threads.
         std::vector<T*>                 m_connections;
-        AtomicUInt                      m_connectionCount;          //! Counter of MySQL connections;
+        uint8                           m_connectionCount;          //! Counter of MySQL connections;
         MySQLConnectionInfo             m_connectionInfo;
         std::vector<DatabaseWorker<ThisClass>*> m_delaythreads;     //! Delaythreads (templatized)
 };
