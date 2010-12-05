@@ -403,6 +403,13 @@ inline bool IsAreaOfEffectSpell(SpellEntry const *spellInfo)
     return false;
 }
 
+inline bool IsAreaOfEffectSpellEffect(SpellEntry const *spellInfo, uint8 effIndex)
+{
+    if (IsAreaEffectTarget[spellInfo->EffectImplicitTargetA[effIndex]] || IsAreaEffectTarget[spellInfo->EffectImplicitTargetB[effIndex]])
+        return true;
+    return false;
+}
+
 inline bool IsFarUnitTargetEffect(uint32 effect)
 {
     return (effect == SPELL_EFFECT_SUMMON_PLAYER);

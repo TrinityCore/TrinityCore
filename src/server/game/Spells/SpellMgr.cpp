@@ -3157,6 +3157,9 @@ bool SpellMgr::CanAurasStack(SpellEntry const *spellInfo_1, SpellEntry const *sp
                 case SPELL_AURA_OBS_MOD_POWER:
                 case SPELL_AURA_OBS_MOD_HEALTH:
                 case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
+                    // periodic auras which target areas are not allowed to stack this way (replenishment for example)
+                    if (IsAreaOfEffectSpellEffect(spellInfo_1, i) || IsAreaOfEffectSpellEffect(spellInfo_2, i))
+                        break;
                     return true;
                 default:
                     break;
