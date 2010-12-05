@@ -40,10 +40,10 @@ LogsDir = ""
 
 #
 #    MaxPingTime
-#        Description: Time (in seconds) between database pings.
-#        Default:     1800 - (30 minutes)
+#        Description: Time (in minutes) between database pings.
+#        Default:     30 - (minutes)
 
-MaxPingTime = 1800
+MaxPingTime = 30
 
 #
 #    RealmServerPort
