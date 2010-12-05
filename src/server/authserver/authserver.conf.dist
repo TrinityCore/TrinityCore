@@ -41,7 +41,7 @@ LogsDir = ""
 #
 #    MaxPingTime
 #        Description: Time (in minutes) between database pings.
-#        Default:     30 - (minutes)
+#        Default:     30
 
 MaxPingTime = 30
 
@@ -225,16 +225,16 @@ LoginDatabaseInfo = "127.0.0.1;3306;trinity;trinity;auth"
 #    LoginDatabase.WorkerThreads
 #        Description: The amount of worker threads spawned to handle asynchronous (delayed) MySQL
 #                     statements. 
-#        Default:     1 - (LoginDatabase.WorkerThreads)
+#        Default:     1
 
-LoginDatabase.WorkerThreads     = 1
+LoginDatabase.WorkerThreads = 1
 
 #
 #    LoginDatabase.Connections
 #        Description: The amount of MySQL connections spawned.
-#        Default: 1
+#        Default:     1
 
-LoginDatabase.Connections     = 1
+LoginDatabase.Connections = 1
 
 #
 ###################################################################################################
