@@ -701,8 +701,7 @@ public:
         void OnStackChange(AuraEffect const* /*aurEff*/, AuraApplication const* aurApp, AuraEffectHandleModes /*mode*/)
         {
             Unit* target = aurApp->GetTarget();
-            if (!target)
-                return;
+
             switch (GetStackAmount())
             {
                 case 1:
@@ -722,8 +721,7 @@ public:
         void OnRemove(AuraEffect const* /*aurEff*/, AuraApplication const* aurApp, AuraEffectHandleModes /*mode*/)
         {
             Unit* target = aurApp->GetTarget();
-            if (!target)
-                return;
+
             if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_STACK)
                 return;
             target->RemoveAurasDueToSpell(SPELL_SHADOWMOURNE_VISUAL_LOW);

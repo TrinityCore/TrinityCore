@@ -106,13 +106,13 @@ public:
 
         void HandleEffectPeriodic(AuraEffect const * /*aurEff*/, AuraApplication const * aurApp)
         {
-            if (Unit* pTarget = aurApp->GetTarget())
-                if (Player* pPlayerTarget = pTarget->ToPlayer())
-                    if (pPlayerTarget->IsFalling())
-                    {
-                        pPlayerTarget->RemoveAurasDueToSpell(SPELL_PARACHUTE);
-                        pPlayerTarget->CastSpell(pPlayerTarget, SPELL_PARACHUTE_BUFF, true);
-                    }
+            Unit* pTarget = aurApp->GetTarget();
+            if (Player* pPlayerTarget = pTarget->ToPlayer())
+                if (pPlayerTarget->IsFalling())
+                {
+                    pPlayerTarget->RemoveAurasDueToSpell(SPELL_PARACHUTE);
+                    pPlayerTarget->CastSpell(pPlayerTarget, SPELL_PARACHUTE_BUFF, true);
+                }
         }
 
         void Register()
@@ -246,17 +246,17 @@ public:
 
         void HandleEffectPeriodic(AuraEffect const * aurEff, AuraApplication const * aurApp)
         {
-            if (Unit* pTarget = aurApp->GetTarget())
-                if (Unit* pCaster = GetCaster())
-                {
-                    int32 lifeLeeched = pTarget->CountPctFromMaxHealth(aurEff->GetAmount());
-                    if (lifeLeeched < 250)
-                        lifeLeeched = 250;
-                    // Damage
-                    pCaster->CastCustomSpell(pTarget, SPELL_LEECHING_SWARM_DMG, &lifeLeeched, 0, 0, false);
-                    // Heal
-                    pCaster->CastCustomSpell(pCaster, SPELL_LEECHING_SWARM_HEAL, &lifeLeeched, 0, 0, false);
-                }
+            Unit* pTarget = aurApp->GetTarget();
+            if (Unit* pCaster = GetCaster())
+            {
+                int32 lifeLeeched = pTarget->CountPctFromMaxHealth(aurEff->GetAmount());
+                if (lifeLeeched < 250)
+                    lifeLeeched = 250;
+                // Damage
+                pCaster->CastCustomSpell(pTarget, SPELL_LEECHING_SWARM_DMG, &lifeLeeched, 0, 0, false);
+                // Heal
+                pCaster->CastCustomSpell(pCaster, SPELL_LEECHING_SWARM_HEAL, &lifeLeeched, 0, 0, false);
+            }
         }
 
         void Register()
@@ -408,8 +408,6 @@ class spell_creature_permanent_feign_death : public SpellScriptLoader
             void HandleEffectApply(AuraEffect const * /*aurEff*/, AuraApplication const * aurApp, AuraEffectHandleModes /*mode*/)
             {
                 Unit* pTarget = aurApp->GetTarget();
-                if (!pTarget)
-                    return;
 
                 pTarget->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
                 pTarget->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
@@ -528,20 +526,16 @@ class spell_gen_shroud_of_death : public SpellScriptLoader
 
             void HandleEffectApply(AuraEffect const * /*aurEff*/, AuraApplication const * aurApp, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* target = aurApp->GetTarget())
-                {
-                    target->m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_GHOST);
-                    target->m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_GHOST);
-                }
+                Unit* target = aurApp->GetTarget();
+                target->m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_GHOST);
+                target->m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_GHOST);
             }
 
             void HandleEffectRemove(AuraEffect const * /*aurEff*/, AuraApplication const * aurApp, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* target = aurApp->GetTarget())
-                {
-                    target->m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
-                    target->m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
-                }
+                Unit* target = aurApp->GetTarget();
+                target->m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
+                target->m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
             }
 
             void Register()

@@ -110,16 +110,15 @@ public:
 
         void HandleEffectApply(AuraEffect const * /*aurEff*/, AuraApplication const * aurApp, AuraEffectHandleModes /*mode*/)
         {
+            Unit* pTarget = aurApp->GetTarget();
             if (Unit* pCaster = GetCaster())
-                if (Unit* pTarget = aurApp->GetTarget())
-                    pCaster->CastSpell(pTarget, PALADIN_SPELL_BLESSING_OF_SANCTUARY_BUFF, true);
+                pCaster->CastSpell(pTarget, PALADIN_SPELL_BLESSING_OF_SANCTUARY_BUFF, true);
         }
 
         void HandleEffectRemove(AuraEffect const * /*aurEff*/, AuraApplication const * aurApp, AuraEffectHandleModes /*mode*/)
         {
-            if (GetCaster())
-                if (Unit* pTarget = aurApp->GetTarget())
-                    pTarget->RemoveAura(PALADIN_SPELL_BLESSING_OF_SANCTUARY_BUFF, GetCasterGUID());
+            Unit* pTarget = aurApp->GetTarget();
+            pTarget->RemoveAura(PALADIN_SPELL_BLESSING_OF_SANCTUARY_BUFF, GetCasterGUID());
         }
 
         void Register()
