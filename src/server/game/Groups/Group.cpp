@@ -53,24 +53,11 @@ Loot* Roll::getLoot()
     return getTarget();
 }
 
-Group::Group()
+Group::Group() : m_leaderGuid(0), m_groupType(GROUPTYPE_NORMAL), m_bgGroup(NULL),
+m_lootMethod(FREE_FOR_ALL), m_looterGuid(0), m_lootThreshold(ITEM_QUALITY_UNCOMMON),
+m_subGroupsCounts(NULL), m_guid(0), m_counter(0), m_maxEnchantingLevel(0),
+m_LfgState(LFG_STATE_NONE), m_LfgOldState(LFG_STATE_NONE), m_LfgDungeonEntry(0), m_Lfgkicks(0)
 {
-    m_leaderGuid        = 0;
-    m_groupType         = GroupType(0);
-    m_bgGroup           = NULL;
-    m_lootMethod        = LootMethod(0);
-    m_looterGuid        = 0;
-    m_lootThreshold     = ITEM_QUALITY_UNCOMMON;
-    m_subGroupsCounts   = NULL;
-    m_guid              = 0;
-    m_counter           = 0;
-    m_maxEnchantingLevel= 0;
-    m_LfgQueued         = false;
-    m_LfgStatus         = LFG_STATUS_NOT_SAVED;
-    m_LfgDungeonEntry   = 0;
-    m_Lfgkicks          = 0;
-    m_LfgkicksActive    = false;
-
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
         m_targetIcons[i] = 0;
 }
@@ -1119,7 +1106,7 @@ void Group::SendUpdate()
         data << uint8(citr->roles);
         if (isLFGGroup())
         {
-            data << uint8(m_LfgStatus);
+            data << uint8(m_LfgState == LFG_STATE_FINISHED_DUNGEON ? 2 : 0); // FIXME - Dungeon save status? 2 = done
             data << uint32(m_LfgDungeonEntry);
         }
 
@@ -1936,30 +1923,21 @@ void Group::SetLootThreshold(ItemQualities threshold)
     m_lootThreshold = threshold;
 }
 
-void Group::SetLfgQueued(bool queued)
+void Group::SetLfgState(LfgState state)
 {
-    m_LfgQueued = queued;
+    m_LfgState = state;
 }
 
-bool Group::isLfgQueued()
+LfgState Group::GetLfgState()
 {
-    return m_LfgQueued;
+    return m_LfgState;
 }
 
-void Group::SetLfgStatus(uint8 status)
+void Group::RestoreLfgState()
 {
-    m_LfgStatus = status;
+    m_LfgState = m_LfgOldState;
 }
 
-uint8 Group::GetLfgStatus()
-{
-    return m_LfgStatus;
-}
-
-bool Group::isLfgDungeonComplete() const
-{
-    return m_LfgStatus == LFG_STATUS_COMPLETE;
-}
 
 void Group::SetLfgDungeonEntry(uint32 dungeonEntry)
 {
@@ -1972,16 +1950,6 @@ uint32 Group::GetLfgDungeonEntry(bool id /* = true*/)
         return (m_LfgDungeonEntry & 0x00FFFFFF);
     else
         return m_LfgDungeonEntry;
-}
-
-bool Group::isLfgKickActive() const
-{
-    return m_LfgkicksActive;
-}
-
-void Group::SetLfgKickActive(bool active)
-{
-    m_LfgkicksActive = active;
 }
 
 uint8 Group::GetLfgKicks() const

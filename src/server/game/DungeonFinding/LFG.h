@@ -18,6 +18,8 @@
 #ifndef _LFG_H
 #define _LFG_H
 
+#include "Common.h"
+
 enum LfgRoles
 {
     ROLE_NONE   = 0x00,
@@ -25,13 +27,6 @@ enum LfgRoles
     ROLE_TANK   = 0x02,
     ROLE_HEALER = 0x04,
     ROLE_DAMAGE = 0x08,
-};
-
-enum LfgState
-{
-    LFG_STATE_NONE = 0,                                     // Not using LFG / LFR
-    LFG_STATE_LFG  = 1,                                     // Using Dungeon finder
-    LFG_STATE_LFR  = 2,                                     // Using Raid finder
 };
 
 enum LfgUpdateType
@@ -55,10 +50,10 @@ typedef std::set<uint32> LfgDungeonSet;
 
 struct LookingForGroup
 {
-    LookingForGroup(): roles(0), update(true), state(LFG_STATE_NONE) {}
+    LookingForGroup(): roles(0), state(LFG_STATE_NONE), oldState(LFG_STATE_NONE) {}
     uint8 roles;
-    bool update;
     LfgState state;
+    LfgState oldState;
     LfgDungeonSet applyDungeons;                            // Dungeons the player have applied for
     std::string comment;
 };

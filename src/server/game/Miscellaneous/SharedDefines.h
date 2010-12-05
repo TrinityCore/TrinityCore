@@ -2874,4 +2874,16 @@ enum RemoveMethod
     GROUP_REMOVEMETHOD_LEAVE   = 2,
 };
 
+enum LfgState
+{
+    LFG_STATE_NONE,                                        // Not using LFG / LFR
+    LFG_STATE_ROLECHECK,                                   // Rolecheck active
+    LFG_STATE_QUEUED,                                      // Queued
+    LFG_STATE_PROPOSAL,                                    // Proposal active
+    LFG_STATE_BOOT,                                        // Vote kick active
+    LFG_STATE_DUNGEON,                                     // In LFG Group, in a Dungeon
+    LFG_STATE_FINISHED_DUNGEON,                            // In LFG Group, in a finished Dungeon
+    LFG_STATE_RAIDBROWSER,                                 // Using Raid finder
+};
+
 #endif

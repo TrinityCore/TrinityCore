@@ -55,13 +55,6 @@ enum RollVote
     NOT_VALID         = 5
 };
 
-enum LfgDungeonStatus
-{
-    LFG_STATUS_SAVED     = 0,
-    LFG_STATUS_NOT_SAVED = 1,
-    LFG_STATUS_COMPLETE  = 2,
-};
-
 enum GroupMemberOnlineStatus
 {
     MEMBER_STATUS_OFFLINE   = 0x0000,
@@ -202,15 +195,11 @@ class Group
         void   Disband(bool hideDestroy=false);
 
         // Dungeon Finder
-        void   SetLfgQueued(bool queued);
-        bool   isLfgQueued();
-        void   SetLfgStatus(uint8 status);
-        uint8  GetLfgStatus();
-        bool   isLfgDungeonComplete() const;
+        void   SetLfgState(LfgState state);
+        LfgState GetLfgState();
+        void   RestoreLfgState();
         void   SetLfgDungeonEntry(uint32 dungeonEntry);
         uint32 GetLfgDungeonEntry(bool id = true);
-        bool   isLfgKickActive() const;
-        void   SetLfgKickActive(bool active);
         uint8  GetLfgKicks() const;
         void   SetLfgKicks(uint8 kicks);
         void   SetLfgRoles(uint64 guid, const uint8 roles);
@@ -357,10 +346,9 @@ class Group
         uint64              m_guid;
         uint32              m_counter;                      // used only in SMSG_GROUP_LIST
         uint32              m_maxEnchantingLevel;
-        bool                m_LfgQueued;
-        uint8               m_LfgStatus;
+        LfgState            m_LfgState;
+        LfgState            m_LfgOldState;
         uint32              m_LfgDungeonEntry;
         uint8               m_Lfgkicks;
-        bool                m_LfgkicksActive;
 };
 #endif
