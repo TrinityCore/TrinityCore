@@ -141,6 +141,7 @@ struct LfgPlayerBoot;
 
 typedef std::set<uint64> LfgGuidSet;
 typedef std::list<uint64> LfgGuidList;
+typedef std::map<uint8, LfgGuidList> LfgGuidListMap;
 typedef std::set<Player*> PlayerSet;
 typedef std::list<Player*> LfgPlayerList;
 typedef std::multimap<uint32, LfgReward const*> LfgRewardMap;
@@ -295,14 +296,14 @@ class LFGMgr
 
     private:
         // Queue
-        void AddToQueue(uint64& guid);
+        void AddToQueue(uint64& guid, uint8 queueId);
         bool RemoveFromQueue(uint64& guid);
 
         // Proposals
         void RemoveProposal(LfgProposalMap::iterator itProposal, LfgUpdateType type);
 
         // Group Matching
-        LfgProposal* FindNewGroups(LfgGuidList check, LfgGuidList all);
+        LfgProposal* FindNewGroups(LfgGuidList& check, LfgGuidList& all);
         bool CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag = true);
         bool CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal);
         LfgDungeonSet* CheckCompatibleDungeons(LfgDungeonMap* dungeonsMap, PlayerSet* players);
@@ -339,8 +340,8 @@ class LFGMgr
         std::map<uint32, uint32> m_EncountersByAchievement;///< Stores dungeon ids associated with achievements (for rewards)
         // Queue
         LfgQueueInfoMap m_QueueInfoMap;                    ///< Queued groups
-        LfgGuidList m_currentQueue;                        ///< Ordered list. Used to find groups
-        LfgGuidList m_newToQueue;                          ///< New groups to add to queue
+        LfgGuidListMap m_currentQueue;                     ///< Ordered list. Used to find groups
+        LfgGuidListMap m_newToQueue;                       ///< New groups to add to queue
         LfgCompatibleMap m_CompatibleMap;                  ///< Compatible dungeons
         // Rolecheck - Proposal - Vote Kicks
         LfgRoleCheckMap m_RoleChecks;                      ///< Current Role checks
