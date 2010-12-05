@@ -115,42 +115,42 @@ public:
             return false;
         }
 
-        void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
+        void OnGameObjectCreate(GameObject* go)
         {
-            switch(pGo->GetEntry())
+            switch(go->GetEntry())
             {
                 case 182060:
-                    HordeGate = pGo->GetGUID();
+                    HordeGate = go->GetGUID();
                     if (allianceRetreat)
-                        HandleGameObject(0, true, pGo);
+                        HandleGameObject(0, true, go);
                     else
-                        HandleGameObject(0, false, pGo);
+                        HandleGameObject(0, false, go);
                     break;
                 case 182061:
-                    ElfGate = pGo->GetGUID();
+                    ElfGate = go->GetGUID();
                     if (hordeRetreat)
-                        HandleGameObject(0, true, pGo);
+                        HandleGameObject(0, true, go);
                     else
-                        HandleGameObject(0, false, pGo);
+                        HandleGameObject(0, false, go);
                     break;
                 case GO_ANCIENT_GEM:
-                    m_uiAncientGemGUID.push_back(pGo->GetGUID());
+                    m_uiAncientGemGUID.push_back(go->GetGUID());
                     break;
             }
         }
 
-        void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+        void OnCreatureCreate(Creature* creature)
         {
-            switch(pCreature->GetEntry())
+            switch(creature->GetEntry())
             {
-                case 17767: RageWinterchill = pCreature->GetGUID(); break;
-                case 17808: Anetheron = pCreature->GetGUID(); break;
-                case 17888: Kazrogal = pCreature->GetGUID();  break;
-                case 17842: Azgalor = pCreature->GetGUID(); break;
-                case 17968: Archimonde = pCreature->GetGUID(); break;
-                case 17772: JainaProudmoore = pCreature->GetGUID(); break;
-                case 17852: Thrall = pCreature->GetGUID(); break;
-                case 17948: TyrandeWhisperwind = pCreature->GetGUID(); break;
+                case 17767: RageWinterchill = creature->GetGUID(); break;
+                case 17808: Anetheron = creature->GetGUID(); break;
+                case 17888: Kazrogal = creature->GetGUID();  break;
+                case 17842: Azgalor = creature->GetGUID(); break;
+                case 17968: Archimonde = creature->GetGUID(); break;
+                case 17772: JainaProudmoore = creature->GetGUID(); break;
+                case 17852: Thrall = creature->GetGUID(); break;
+                case 17948: TyrandeWhisperwind = creature->GetGUID(); break;
             }
         }
 
@@ -188,12 +188,12 @@ public:
                             if (ArchiYell)break;
                             ArchiYell = true;
 
-                            Creature* pCreature = instance->GetCreature(Azgalor);
-                            if (pCreature)
+                            Creature* creature = instance->GetCreature(Azgalor);
+                            if (creature)
                             {
-                                Creature* pUnit = pCreature->SummonCreature(21987,pCreature->GetPositionX(),pCreature->GetPositionY(),pCreature->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,10000);
+                                Creature* pUnit = creature->SummonCreature(21987,creature->GetPositionX(),creature->GetPositionY(),creature->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,10000);
 
-                                Map* pMap = pCreature->GetMap();
+                                Map* pMap = creature->GetMap();
                                 if (pMap->IsDungeon() && pUnit)
                                 {
                                     pUnit->SetVisible(false);

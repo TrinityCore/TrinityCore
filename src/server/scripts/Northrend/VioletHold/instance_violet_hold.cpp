@@ -227,85 +227,85 @@ public:
             return false;
         }
 
-        void OnCreatureCreate(Creature* pCreature, bool add)
+        void OnCreatureCreate(Creature* creature)
         {
-            switch(pCreature->GetEntry())
+            switch(creature->GetEntry())
             {
                 case CREATURE_XEVOZZ:
-                    uiXevozz = pCreature->GetGUID();
+                    uiXevozz = creature->GetGUID();
                     break;
                 case CREATURE_LAVANTHOR:
-                    uiLavanthor = pCreature->GetGUID();
+                    uiLavanthor = creature->GetGUID();
                     break;
                 case CREATURE_ICHORON:
-                    uiIchoron = pCreature->GetGUID();
+                    uiIchoron = creature->GetGUID();
                     break;
                 case CREATURE_ZURAMAT:
-                    uiZuramat = pCreature->GetGUID();
+                    uiZuramat = creature->GetGUID();
                     break;
                 case CREATURE_EREKEM:
-                    uiErekem = pCreature->GetGUID();
+                    uiErekem = creature->GetGUID();
                     break;
                 case CREATURE_EREKEM_GUARD:
                     if (uiCountErekemGuards < 2)
                     {
-                        uiErekemGuard[uiCountErekemGuards++] = pCreature->GetGUID();
-                        pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
+                        uiErekemGuard[uiCountErekemGuards++] = creature->GetGUID();
+                        creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
                     }
                     break;
                 case CREATURE_MORAGG:
-                    uiMoragg = pCreature->GetGUID();
+                    uiMoragg = creature->GetGUID();
                     break;
                 case CREATURE_CYANIGOSA:
-                    uiCyanigosa = pCreature->GetGUID();
-                    pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
+                    uiCyanigosa = creature->GetGUID();
+                    creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
                     break;
                 case CREATURE_SINCLARI:
-                    uiSinclari = pCreature->GetGUID();
+                    uiSinclari = creature->GetGUID();
                     break;
             }
 
-            if (add && (pCreature->GetGUID() == uiFirstBoss || pCreature->GetGUID() == uiSecondBoss))
+            if (creature->GetGUID() == uiFirstBoss || creature->GetGUID() == uiSecondBoss)
             {
-                pCreature->AllLootRemovedFromCorpse();
-                pCreature->RemoveLootMode(1);
+                creature->AllLootRemovedFromCorpse();
+                creature->RemoveLootMode(1);
             }
         }
 
-        void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
+        void OnGameObjectCreate(GameObject* go)
         {
-            switch(pGo->GetEntry())
+            switch(go->GetEntry())
             {
                 case GO_EREKEM_GUARD_1_DOOR:
-                    uiErekemLeftGuardCell = pGo->GetGUID();
+                    uiErekemLeftGuardCell = go->GetGUID();
                     break;
                 case GO_EREKEM_GUARD_2_DOOR:
-                    uiErekemRightGuardCell = pGo->GetGUID();
+                    uiErekemRightGuardCell = go->GetGUID();
                     break;
                 case GO_EREKEM_DOOR:
-                    uiErekemCell = pGo->GetGUID();
+                    uiErekemCell = go->GetGUID();
                     break;
                 case GO_ZURAMAT_DOOR:
-                    uiZuramatCell = pGo->GetGUID();
+                    uiZuramatCell = go->GetGUID();
                     break;
                 case GO_LAVANTHOR_DOOR:
-                    uiLavanthorCell = pGo->GetGUID();
+                    uiLavanthorCell = go->GetGUID();
                     break;
                 case GO_MORAGG_DOOR:
-                    uiMoraggCell = pGo->GetGUID();
+                    uiMoraggCell = go->GetGUID();
                     break;
                 case GO_ICHORON_DOOR:
-                    uiIchoronCell = pGo->GetGUID();
+                    uiIchoronCell = go->GetGUID();
                     break;
                 case GO_XEVOZZ_DOOR:
-                    uiXevozzCell = pGo->GetGUID();
+                    uiXevozzCell = go->GetGUID();
                     break;
                 case GO_MAIN_DOOR:
-                    uiMainDoor = pGo->GetGUID();
+                    uiMainDoor = go->GetGUID();
                     break;
                 case GO_ACTIVATION_CRYSTAL:
                     if (uiCountActivationCrystals < 3)
-                        uiActivationCrystal[uiCountActivationCrystals++] = pGo->GetGUID();
+                        uiActivationCrystal[uiCountActivationCrystals++] = go->GetGUID();
                     break;
             }
         }
@@ -468,8 +468,8 @@ public:
         void SpawnPortal()
         {
             SetData(DATA_PORTAL_LOCATION, (GetData(DATA_PORTAL_LOCATION) + urand(1,5))%6);
-            if (Creature *pSinclari = instance->GetCreature(uiSinclari))
-                if(Creature *portal = pSinclari->SummonCreature(CREATURE_TELEPORTATION_PORTAL,PortalLocation[GetData(DATA_PORTAL_LOCATION)],TEMPSUMMON_CORPSE_DESPAWN))
+            if (Creature* pSinclari = instance->GetCreature(uiSinclari))
+                if(Creature* portal = pSinclari->SummonCreature(CREATURE_TELEPORTATION_PORTAL,PortalLocation[GetData(DATA_PORTAL_LOCATION)],TEMPSUMMON_CORPSE_DESPAWN))
                     uiTeleportationPortal = portal->GetGUID();
         }
 
@@ -569,11 +569,11 @@ public:
                 case 6:
                     if (uiFirstBoss == 0)
                         uiFirstBoss = urand(1,6);
-                    if (Creature *pSinclari = instance->GetCreature(uiSinclari))
+                    if (Creature* pSinclari = instance->GetCreature(uiSinclari))
                     {
-                        if(Creature *pPortal = pSinclari->SummonCreature(CREATURE_TELEPORTATION_PORTAL, MiddleRoomPortalSaboLocation, TEMPSUMMON_CORPSE_DESPAWN))
+                        if(Creature* pPortal = pSinclari->SummonCreature(CREATURE_TELEPORTATION_PORTAL, MiddleRoomPortalSaboLocation, TEMPSUMMON_CORPSE_DESPAWN))
                             uiSaboteurPortal = pPortal->GetGUID();
-                        if (Creature *pAzureSaboteur = pSinclari->SummonCreature(CREATURE_SABOTEOUR, MiddleRoomLocation, TEMPSUMMON_DEAD_DESPAWN))
+                        if (Creature* pAzureSaboteur = pSinclari->SummonCreature(CREATURE_SABOTEOUR, MiddleRoomLocation, TEMPSUMMON_DEAD_DESPAWN))
                             pAzureSaboteur->CastSpell(pAzureSaboteur, SABOTEUR_SHIELD_EFFECT, false);
                     }
                     break;
@@ -583,17 +583,17 @@ public:
                         {
                             uiSecondBoss = urand(1,6);
                         } while (uiSecondBoss == uiFirstBoss);
-                    if (Creature *pSinclari = instance->GetCreature(uiSinclari))
+                    if (Creature* pSinclari = instance->GetCreature(uiSinclari))
                     {
-                        if(Creature *pPortal = pSinclari->SummonCreature(CREATURE_TELEPORTATION_PORTAL, MiddleRoomPortalSaboLocation, TEMPSUMMON_CORPSE_DESPAWN))
+                        if(Creature* pPortal = pSinclari->SummonCreature(CREATURE_TELEPORTATION_PORTAL, MiddleRoomPortalSaboLocation, TEMPSUMMON_CORPSE_DESPAWN))
                             uiSaboteurPortal = pPortal->GetGUID();
-                        if (Creature *pAzureSaboteur = pSinclari->SummonCreature(CREATURE_SABOTEOUR, MiddleRoomLocation, TEMPSUMMON_DEAD_DESPAWN))
+                        if (Creature* pAzureSaboteur = pSinclari->SummonCreature(CREATURE_SABOTEOUR, MiddleRoomLocation, TEMPSUMMON_DEAD_DESPAWN))
                             pAzureSaboteur->CastSpell(pAzureSaboteur, SABOTEUR_SHIELD_EFFECT, false);
                     }
                     break;
                 case 18:
                 {
-                    Creature *pSinclari = instance->GetCreature(uiSinclari);
+                    Creature* pSinclari = instance->GetCreature(uiSinclari);
                     if (pSinclari)
                         pSinclari->SummonCreature(CREATURE_CYANIGOSA,CyanigosasSpawnLocation,TEMPSUMMON_DEAD_DESPAWN);
                     break;
@@ -727,7 +727,7 @@ public:
             }
 
             // Cyanigosa is spawned but not tranformed, prefight event
-            Creature *pCyanigosa = instance->GetCreature(uiCyanigosa);
+            Creature* pCyanigosa = instance->GetCreature(uiCyanigosa);
             if (pCyanigosa && !pCyanigosa->HasAura(CYANIGOSA_SPELL_TRANSFORM))
             {
                 if (uiCyanigosaEventTimer <= diff)
@@ -788,9 +788,9 @@ public:
             // TODO: All visual, spells etc
             for (std::set<uint64>::const_iterator itr = trashMobs.begin(); itr != trashMobs.end(); ++itr)
             {
-                Creature* pCreature = instance->GetCreature(*itr);
-                if (pCreature && pCreature->isAlive())
-                    pCreature->CastSpell(pCreature,SPELL_ARCANE_LIGHTNING,true);  // Who should cast the spell?
+                Creature* creature = instance->GetCreature(*itr);
+                if (creature && creature->isAlive())
+                    creature->CastSpell(creature,SPELL_ARCANE_LIGHTNING,true);  // Who should cast the spell?
             }
         }
 

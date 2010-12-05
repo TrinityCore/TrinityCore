@@ -140,51 +140,51 @@ public:
             return NULL;
         }
 
-        void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+        void OnCreatureCreate(Creature* creature)
         {
-            switch(pCreature->GetEntry())
+            switch(creature->GetEntry())
             {
-            case 22887:    Najentus = pCreature->GetGUID();                  break;
-            case 23089:    Akama = pCreature->GetGUID();                     break;
-            case 22990:    Akama_Shade = pCreature->GetGUID();               break;
-            case 22841:    ShadeOfAkama = pCreature->GetGUID();              break;
-            case 22898:    Supremus = pCreature->GetGUID();                  break;
-            case 22917:    IllidanStormrage = pCreature->GetGUID();          break;
-            case 22949:    GathiosTheShatterer = pCreature->GetGUID();       break;
-            case 22950:    HighNethermancerZerevor = pCreature->GetGUID();   break;
-            case 22951:    LadyMalande = pCreature->GetGUID();               break;
-            case 22952:    VerasDarkshadow = pCreature->GetGUID();           break;
-            case 23426:    IllidariCouncil = pCreature->GetGUID();           break;
-            case 23499:    BloodElfCouncilVoice = pCreature->GetGUID();      break;
+            case 22887:    Najentus = creature->GetGUID();                  break;
+            case 23089:    Akama = creature->GetGUID();                     break;
+            case 22990:    Akama_Shade = creature->GetGUID();               break;
+            case 22841:    ShadeOfAkama = creature->GetGUID();              break;
+            case 22898:    Supremus = creature->GetGUID();                  break;
+            case 22917:    IllidanStormrage = creature->GetGUID();          break;
+            case 22949:    GathiosTheShatterer = creature->GetGUID();       break;
+            case 22950:    HighNethermancerZerevor = creature->GetGUID();   break;
+            case 22951:    LadyMalande = creature->GetGUID();               break;
+            case 22952:    VerasDarkshadow = creature->GetGUID();           break;
+            case 23426:    IllidariCouncil = creature->GetGUID();           break;
+            case 23499:    BloodElfCouncilVoice = creature->GetGUID();      break;
             }
         }
 
-        void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
+        void OnGameObjectCreate(GameObject* go)
         {
-            switch(pGo->GetEntry())
+            switch(go->GetEntry())
             {
-            case 185483: NajentusGate = pGo->GetGUID();// Gate past Naj'entus (at the entrance to Supermoose's courtyards)
-                if (m_auiEncounter[0] == DONE)HandleGameObject(NULL,true,pGo);break;
-            case 185882: MainTempleDoors = pGo->GetGUID();// Main Temple Doors - right past Supermoose (Supremus)
-                if (m_auiEncounter[1] == DONE)HandleGameObject(NULL,true,pGo);break;
-            case 185478: ShadeOfAkamaDoor = pGo->GetGUID();break;
-            case 185480: CommonDoor = pGo->GetGUID();
-                if (m_auiEncounter[3] == DONE)HandleGameObject(NULL,true,pGo);break;
-            case 186153: TeronDoor = pGo->GetGUID();
-                if (m_auiEncounter[3] == DONE)HandleGameObject(NULL,true,pGo);break;
-            case 185892: GuurtogDoor = pGo->GetGUID();
-                if (m_auiEncounter[4] == DONE)HandleGameObject(NULL,true,pGo);break;
-            case 185479: TempleDoor = pGo->GetGUID();
-                if (m_auiEncounter[5] == DONE)HandleGameObject(NULL,true,pGo);break;
-            case 185482: MotherDoor = pGo->GetGUID();
-                if (m_auiEncounter[6] == DONE)HandleGameObject(NULL,true,pGo);break;
-            case 185481: CouncilDoor = pGo->GetGUID();
-                if (m_auiEncounter[7] == DONE)HandleGameObject(NULL,true,pGo);break;
-            case 186152: SimpleDoor = pGo->GetGUID();
-                if (m_auiEncounter[7] == DONE)HandleGameObject(NULL,true,pGo);break;
-            case 185905: IllidanGate = pGo->GetGUID(); break; // Gate leading to Temple Summit
-            case 186261: IllidanDoor[0] = pGo->GetGUID(); break; // Right door at Temple Summit
-            case 186262: IllidanDoor[1] = pGo->GetGUID(); break; // Left door at Temple Summit
+            case 185483: NajentusGate = go->GetGUID();// Gate past Naj'entus (at the entrance to Supermoose's courtyards)
+                if (m_auiEncounter[0] == DONE)HandleGameObject(NULL,true,go);break;
+            case 185882: MainTempleDoors = go->GetGUID();// Main Temple Doors - right past Supermoose (Supremus)
+                if (m_auiEncounter[1] == DONE)HandleGameObject(NULL,true,go);break;
+            case 185478: ShadeOfAkamaDoor = go->GetGUID();break;
+            case 185480: CommonDoor = go->GetGUID();
+                if (m_auiEncounter[3] == DONE)HandleGameObject(NULL,true,go);break;
+            case 186153: TeronDoor = go->GetGUID();
+                if (m_auiEncounter[3] == DONE)HandleGameObject(NULL,true,go);break;
+            case 185892: GuurtogDoor = go->GetGUID();
+                if (m_auiEncounter[4] == DONE)HandleGameObject(NULL,true,go);break;
+            case 185479: TempleDoor = go->GetGUID();
+                if (m_auiEncounter[5] == DONE)HandleGameObject(NULL,true,go);break;
+            case 185482: MotherDoor = go->GetGUID();
+                if (m_auiEncounter[6] == DONE)HandleGameObject(NULL,true,go);break;
+            case 185481: CouncilDoor = go->GetGUID();
+                if (m_auiEncounter[7] == DONE)HandleGameObject(NULL,true,go);break;
+            case 186152: SimpleDoor = go->GetGUID();
+                if (m_auiEncounter[7] == DONE)HandleGameObject(NULL,true,go);break;
+            case 185905: IllidanGate = go->GetGUID(); break; // Gate leading to Temple Summit
+            case 186261: IllidanDoor[0] = go->GetGUID(); break; // Right door at Temple Summit
+            case 186262: IllidanDoor[1] = go->GetGUID(); break; // Left door at Temple Summit
             }
         }
 

@@ -99,7 +99,7 @@ public:
             return false;
         }
 
-        void OnCreatureCreate(Creature* pCreature, bool /*bAdd*/)
+        void OnCreatureCreate(Creature* creature)
         {
             Map::PlayerList const &players = instance->GetPlayers();
             uint32 TeamInInstance = 0;
@@ -110,56 +110,56 @@ public:
                     TeamInInstance = pPlayer->GetTeam();
             }
 
-            switch(pCreature->GetEntry())
+            switch(creature->GetEntry())
             {
                 // Champions
                 case VEHICLE_MOKRA_SKILLCRUSHER_MOUNT:
                     if (TeamInInstance == HORDE)
-                        pCreature->UpdateEntry(VEHICLE_MARSHAL_JACOB_ALERIUS_MOUNT, ALLIANCE);
+                        creature->UpdateEntry(VEHICLE_MARSHAL_JACOB_ALERIUS_MOUNT, ALLIANCE);
                     break;
                 case VEHICLE_ERESSEA_DAWNSINGER_MOUNT:
                     if (TeamInInstance == HORDE)
-                        pCreature->UpdateEntry(VEHICLE_AMBROSE_BOLTSPARK_MOUNT, ALLIANCE);
+                        creature->UpdateEntry(VEHICLE_AMBROSE_BOLTSPARK_MOUNT, ALLIANCE);
                     break;
                 case VEHICLE_RUNOK_WILDMANE_MOUNT:
                     if (TeamInInstance == HORDE)
-                        pCreature->UpdateEntry(VEHICLE_COLOSOS_MOUNT, ALLIANCE);
+                        creature->UpdateEntry(VEHICLE_COLOSOS_MOUNT, ALLIANCE);
                     break;
                 case VEHICLE_ZUL_TORE_MOUNT:
                     if (TeamInInstance == HORDE)
-                        pCreature->UpdateEntry(VEHICLE_EVENSONG_MOUNT, ALLIANCE);
+                        creature->UpdateEntry(VEHICLE_EVENSONG_MOUNT, ALLIANCE);
                     break;
                 case VEHICLE_DEATHSTALKER_VESCERI_MOUNT:
                     if (TeamInInstance == HORDE)
-                        pCreature->UpdateEntry(VEHICLE_LANA_STOUTHAMMER_MOUNT, ALLIANCE);
+                        creature->UpdateEntry(VEHICLE_LANA_STOUTHAMMER_MOUNT, ALLIANCE);
                     break;
                 // Coliseum Announcer || Just NPC_JAEREN must be spawned.
                 case NPC_JAEREN:
-                    uiAnnouncerGUID = pCreature->GetGUID();
+                    uiAnnouncerGUID = creature->GetGUID();
                     if (TeamInInstance == ALLIANCE)
-                        pCreature->UpdateEntry(NPC_ARELAS,ALLIANCE);
+                        creature->UpdateEntry(NPC_ARELAS,ALLIANCE);
                     break;
                 case VEHICLE_ARGENT_WARHORSE:
                 case VEHICLE_ARGENT_BATTLEWORG:
-                    VehicleList.push_back(pCreature->GetGUID());
+                    VehicleList.push_back(creature->GetGUID());
                     break;
                 case NPC_EADRIC:
                 case NPC_PALETRESS:
-                    uiArgentChampionGUID = pCreature->GetGUID();
+                    uiArgentChampionGUID = creature->GetGUID();
                     break;
             }
         }
 
-        void OnGameObjectCreate(GameObject* pGO, bool /*bAdd*/)
+        void OnGameObjectCreate(GameObject* go)
         {
-            switch(pGO->GetEntry())
+            switch(go->GetEntry())
             {
                 case GO_MAIN_GATE:
-                    uiMainGateGUID = pGO->GetGUID();
+                    uiMainGateGUID = go->GetGUID();
                     break;
                 case GO_CHAMPIONS_LOOT:
                 case GO_CHAMPIONS_LOOT_H:
-                    uiChampionLootGUID = pGO->GetGUID();
+                    uiChampionLootGUID = go->GetGUID();
                     break;
             }
         }

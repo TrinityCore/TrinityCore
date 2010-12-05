@@ -82,27 +82,27 @@ public:
             return false;
         }
 
-        void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+        void OnCreatureCreate(Creature* creature)
         {
-            switch(pCreature->GetEntry())
+            switch(creature->GetEntry())
             {
-                case 18835: KigglerTheCrazed = pCreature->GetGUID(); break;
-                case 18836: BlindeyeTheSeer = pCreature->GetGUID();  break;
-                case 18834: OlmTheSummoner = pCreature->GetGUID();   break;
-                case 18832: KroshFirehand = pCreature->GetGUID();    break;
-                case 18831: Maulgar = pCreature->GetGUID();          break;
+                case 18835: KigglerTheCrazed = creature->GetGUID(); break;
+                case 18836: BlindeyeTheSeer = creature->GetGUID();  break;
+                case 18834: OlmTheSummoner = creature->GetGUID();   break;
+                case 18832: KroshFirehand = creature->GetGUID();    break;
+                case 18831: Maulgar = creature->GetGUID();          break;
             }
         }
 
-        void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
+        void OnGameObjectCreate(GameObject* go)
         {
-            switch(pGo->GetEntry())
+            switch(go->GetEntry())
             {
                 case 184468:
-                    MaulgarDoor = pGo->GetGUID();
-                    if (m_auiEncounter[0] == DONE) HandleGameObject(NULL, true, pGo);
+                    MaulgarDoor = go->GetGUID();
+                    if (m_auiEncounter[0] == DONE) HandleGameObject(NULL, true, go);
                     break;
-                case 184662: GruulDoor = pGo->GetGUID(); break;
+                case 184662: GruulDoor = go->GetGUID(); break;
             }
         }
 

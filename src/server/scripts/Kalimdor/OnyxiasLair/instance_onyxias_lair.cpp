@@ -67,33 +67,30 @@ public:
             m_uiEruptTimer = 0;
         }
 
-        void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+        void OnCreatureCreate(Creature* creature)
         {
-            switch (pCreature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case NPC_ONYXIA:
-                    m_uiOnyxiasGUID = pCreature->GetGUID();
+                    m_uiOnyxiasGUID = creature->GetGUID();
                     break;
             }
         }
 
-        void OnGameObjectCreate(GameObject* pGo, bool add)
+        void OnGameObjectCreate(GameObject* go)
         {
-            if ((pGo->GetGOInfo()->displayId == 4392 || pGo->GetGOInfo()->displayId == 4472) && pGo->GetGOInfo()->trap.spellId == 17731)
+            if ((go->GetGOInfo()->displayId == 4392 || go->GetGOInfo()->displayId == 4472) && go->GetGOInfo()->trap.spellId == 17731)
             {
-                if (add)
-                    FloorEruptionGUID[0].insert(std::make_pair(pGo->GetGUID(),0));
-                else
-                    FloorEruptionGUID[0].erase(pGo->GetGUID());
+                FloorEruptionGUID[0].insert(std::make_pair(go->GetGUID(),0));
                 return;
             }
 
-            switch(pGo->GetEntry())
+            switch(go->GetEntry())
             {
                 case GO_WHELP_SPAWNER:
-                    Position pGoPos;
-                    pGo->GetPosition(&pGoPos);
-                    if (Creature* pTemp = pGo->SummonCreature(NPC_WHELP,pGoPos,TEMPSUMMON_CORPSE_DESPAWN))
+                    Position goPos;
+                    go->GetPosition(&goPos);
+                    if (Creature* pTemp = go->SummonCreature(NPC_WHELP,goPos,TEMPSUMMON_CORPSE_DESPAWN))
                     {
                         pTemp->SetInCombatWithZone();
                         ++m_uiManyWhelpsCounter;
@@ -102,9 +99,18 @@ public:
             }
         }
 
+        void OnGameObjectRemove(GameObject* go)
+        {
+            if ((go->GetGOInfo()->displayId == 4392 || go->GetGOInfo()->displayId == 4472) && go->GetGOInfo()->trap.spellId == 17731)
+            {
+                FloorEruptionGUID[0].erase(go->GetGUID());
+                return;
+            }
+        }
+
         void FloorEruption(uint64 floorEruptedGUID)
         {
-            if (GameObject *pFloorEruption = instance->GetGameObject(floorEruptedGUID))
+            if (GameObject* pFloorEruption = instance->GetGameObject(floorEruptedGUID))
             {
                 //THIS GOB IS A TRAP - What shall i do? =(
                 //Cast it spell? Copyed Heigan method

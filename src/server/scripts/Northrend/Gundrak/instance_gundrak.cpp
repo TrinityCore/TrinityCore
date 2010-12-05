@@ -137,115 +137,115 @@ public:
             return false;
         }
 
-        void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+        void OnCreatureCreate(Creature* creature)
         {
-            switch(pCreature->GetEntry())
+            switch(creature->GetEntry())
             {
-                case CREATURE_SLAD_RAN: uiSladRan = pCreature->GetGUID(); break;
-                case CREATURE_MOORABI: uiMoorabi = pCreature->GetGUID(); break;
-                case CREATURE_GALDARAH: uiGalDarah = pCreature->GetGUID(); break;
-                case CREATURE_DRAKKARICOLOSSUS: uiDrakkariColossus = pCreature->GetGUID(); break;
-                case CREATURE_ECK: uiEckTheFerocious = pCreature->GetGUID(); break;
+                case CREATURE_SLAD_RAN: uiSladRan = creature->GetGUID(); break;
+                case CREATURE_MOORABI: uiMoorabi = creature->GetGUID(); break;
+                case CREATURE_GALDARAH: uiGalDarah = creature->GetGUID(); break;
+                case CREATURE_DRAKKARICOLOSSUS: uiDrakkariColossus = creature->GetGUID(); break;
+                case CREATURE_ECK: uiEckTheFerocious = creature->GetGUID(); break;
                 case CREATURE_RUIN_DWELLER:
-                    if (pCreature->isAlive())
-                        DwellerGUIDs.insert(pCreature->GetGUID());
+                    if (creature->isAlive())
+                        DwellerGUIDs.insert(creature->GetGUID());
                     break;
             }
         }
 
-        void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
+        void OnGameObjectCreate(GameObject* go)
         {
-            switch(pGo->GetEntry())
+            switch(go->GetEntry())
             {
                 case 192518:
-                    uiSladRanAltar = pGo->GetGUID();
+                    uiSladRanAltar = go->GetGUID();
                     // Make sure that they start out as unusuable
-                    pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
+                    go->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
                     if (m_auiEncounter[0] == DONE)
                     {
                         if (uiSladRanStatueState == GO_STATE_ACTIVE)
-                            pGo->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
+                            go->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
                         else
                         {
                             ++phase;
-                            pGo->SetGoState(GO_STATE_ACTIVE);
+                            go->SetGoState(GO_STATE_ACTIVE);
                         }
                     }
                     break;
                 case 192519:
-                    uiMoorabiAltar = pGo->GetGUID();
+                    uiMoorabiAltar = go->GetGUID();
                     // Make sure that they start out as unusuable
-                    pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
+                    go->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
                     if (m_auiEncounter[0] == DONE)
                     {
                         if (uiMoorabiStatueState == GO_STATE_ACTIVE)
-                            pGo->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
+                            go->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
                         else
                         {
                             ++phase;
-                            pGo->SetGoState(GO_STATE_ACTIVE);
+                            go->SetGoState(GO_STATE_ACTIVE);
                         }
                     }
                     break;
                 case 192520:
-                    uiDrakkariColossusAltar = pGo->GetGUID();
+                    uiDrakkariColossusAltar = go->GetGUID();
                     // Make sure that they start out as unusuable
-                    pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
+                    go->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
                     if (m_auiEncounter[0] == DONE)
                     {
                         if (uiDrakkariColossusStatueState == GO_STATE_ACTIVE)
-                            pGo->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
+                            go->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
                         else
                         {
                             ++phase;
-                            pGo->SetGoState(GO_STATE_ACTIVE);
+                            go->SetGoState(GO_STATE_ACTIVE);
                         }
                     }
                     break;
                 case 192564:
-                    uiSladRanStatue = pGo->GetGUID();
-                    pGo->SetGoState(uiSladRanStatueState);
+                    uiSladRanStatue = go->GetGUID();
+                    go->SetGoState(uiSladRanStatueState);
                     break;
                 case 192565:
-                    uiMoorabiStatue = pGo->GetGUID();
-                    pGo->SetGoState(uiMoorabiStatueState);
+                    uiMoorabiStatue = go->GetGUID();
+                    go->SetGoState(uiMoorabiStatueState);
                     break;
                 case 192566:
-                    uiGalDarahStatue = pGo->GetGUID();
-                    pGo->SetGoState(uiGalDarahStatueState);
+                    uiGalDarahStatue = go->GetGUID();
+                    go->SetGoState(uiGalDarahStatueState);
                     break;
                 case 192567:
-                    uiDrakkariColossusStatue = pGo->GetGUID();
-                    pGo->SetGoState(uiDrakkariColossusStatueState);
+                    uiDrakkariColossusStatue = go->GetGUID();
+                    go->SetGoState(uiDrakkariColossusStatueState);
                     break;
                 case 192632:
-                    uiEckTheFerociousDoor = pGo->GetGUID();
+                    uiEckTheFerociousDoor = go->GetGUID();
                     if (bHeroicMode && m_auiEncounter[1] == DONE)
-                        HandleGameObject(NULL,true,pGo);
+                        HandleGameObject(NULL,true,go);
                     break;
                 case 192569:
-                    uiEckTheFerociousDoorBehind = pGo->GetGUID();
+                    uiEckTheFerociousDoorBehind = go->GetGUID();
                     if (bHeroicMode && m_auiEncounter[4] == DONE)
-                        HandleGameObject(NULL,true,pGo);
+                        HandleGameObject(NULL,true,go);
                 case 193208:
-                    uiGalDarahDoor1 = pGo->GetGUID();
+                    uiGalDarahDoor1 = go->GetGUID();
                     if (m_auiEncounter[3] == DONE)
-                        HandleGameObject(NULL,true,pGo);
+                        HandleGameObject(NULL,true,go);
                     break;
                 case 193209:
-                    uiGalDarahDoor2 = pGo->GetGUID();
+                    uiGalDarahDoor2 = go->GetGUID();
                     if (m_auiEncounter[3] == DONE)
-                        HandleGameObject(NULL,true,pGo);
+                        HandleGameObject(NULL,true,go);
                     break;
                 case 193188:
-                    uiBridge = pGo->GetGUID();
-                    pGo->SetGoState(uiBridgeState);
+                    uiBridge = go->GetGUID();
+                    go->SetGoState(uiBridgeState);
                     break;
                 case 192633:
-                    uiCollision = pGo->GetGUID();
-                    pGo->SetGoState(uiCollisionState);
+                    uiCollision = go->GetGUID();
+                    go->SetGoState(uiCollisionState);
 
-                    // Can't spawn here with SpawnGameObject because pGo isn't added to world yet...
+                    // Can't spawn here with SpawnGameObject because go isn't added to world yet...
                     if (uiCollisionState == GO_STATE_ACTIVE_ALTERNATIVE)
                         spawnSupport = true;
                     break;
@@ -260,18 +260,18 @@ public:
                 m_auiEncounter[0] = data;
                 if (data == DONE)
                 {
-                  GameObject* pGo = instance->GetGameObject(uiSladRanAltar);
-                  if (pGo)
-                      pGo->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
+                  GameObject* go = instance->GetGameObject(uiSladRanAltar);
+                  if (go)
+                      go->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
                 }
                 break;
             case DATA_MOORABI_EVENT:
                 m_auiEncounter[1] = data;
                 if (data == DONE)
                 {
-                  GameObject* pGo = instance->GetGameObject(uiMoorabiAltar);
-                  if (pGo)
-                      pGo->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
+                  GameObject* go = instance->GetGameObject(uiMoorabiAltar);
+                  if (go)
+                      go->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
                   if (bHeroicMode)
                       HandleGameObject(uiEckTheFerociousDoor,true);
                 }
@@ -280,9 +280,9 @@ public:
                 m_auiEncounter[2] = data;
                 if (data == DONE)
                 {
-                  GameObject* pGo = instance->GetGameObject(uiDrakkariColossusAltar);
-                  if (pGo)
-                      pGo->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
+                  GameObject* go = instance->GetGameObject(uiDrakkariColossusAltar);
+                  if (go)
+                      go->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
                 }
                 break;
             case DATA_GAL_DARAH_EVENT:
@@ -506,7 +506,7 @@ class go_gundrak_altar : public GameObjectScript
 public:
     go_gundrak_altar() : GameObjectScript("go_gundrak_altar") { }
 
-    bool OnGossipHello(Player * /*pPlayer*/, GameObject *pGO)
+    bool OnGossipHello(Player * /*pPlayer*/, GameObject* pGO)
     {
         InstanceScript *pInstance = pGO->GetInstanceScript();
         uint64 uiStatue = 0;

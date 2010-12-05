@@ -116,13 +116,13 @@ public:
             return false;
         }
 
-        void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+        void OnCreatureCreate(Creature* creature)
         {
-            switch (pCreature->GetEntry())
+            switch (creature->GetEntry())
             {
-                case 17229:   m_uiKilrekGUID = pCreature->GetGUID();      break;
-                case 15688:   m_uiTerestianGUID = pCreature->GetGUID();   break;
-                case 15687:   m_uiMoroesGUID = pCreature->GetGUID();      break;
+                case 17229:   m_uiKilrekGUID = creature->GetGUID();      break;
+                case 15688:   m_uiTerestianGUID = creature->GetGUID();   break;
+                case 15687:   m_uiMoroesGUID = creature->GetGUID();      break;
             }
         }
 
@@ -185,36 +185,36 @@ public:
              }
          }
 
-        void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
+        void OnGameObjectCreate(GameObject* go)
         {
-            switch(pGo->GetEntry())
+            switch(go->GetEntry())
             {
-                case 183932:   m_uiCurtainGUID          = pGo->GetGUID();         break;
+                case 183932:   m_uiCurtainGUID          = go->GetGUID();         break;
                 case 184278:
-                    m_uiStageDoorLeftGUID = pGo->GetGUID();
+                    m_uiStageDoorLeftGUID = go->GetGUID();
                     if (m_auiEncounter[4] == DONE)
-                        pGo->SetGoState(GO_STATE_ACTIVE);
+                        go->SetGoState(GO_STATE_ACTIVE);
                     break;
                 case 184279:
-                    m_uiStageDoorRightGUID = pGo->GetGUID();
+                    m_uiStageDoorRightGUID = go->GetGUID();
                     if (m_auiEncounter[4] == DONE)
-                        pGo->SetGoState(GO_STATE_ACTIVE);
+                        go->SetGoState(GO_STATE_ACTIVE);
                     break;
-                case 184517:   m_uiLibraryDoor          = pGo->GetGUID();         break;
-                case 185521:   m_uiMassiveDoor          = pGo->GetGUID();         break;
-                case 184276:   m_uiGamesmansDoor        = pGo->GetGUID();         break;
-                case 184277:   m_uiGamesmansExitDoor    = pGo->GetGUID();         break;
-                case 185134:   m_uiNetherspaceDoor      = pGo->GetGUID();         break;
-                case 184274:    MastersTerraceDoor[0] = pGo->GetGUID();  break;
-                case 184280:    MastersTerraceDoor[1] = pGo->GetGUID();  break;
+                case 184517:   m_uiLibraryDoor          = go->GetGUID();         break;
+                case 185521:   m_uiMassiveDoor          = go->GetGUID();         break;
+                case 184276:   m_uiGamesmansDoor        = go->GetGUID();         break;
+                case 184277:   m_uiGamesmansExitDoor    = go->GetGUID();         break;
+                case 185134:   m_uiNetherspaceDoor      = go->GetGUID();         break;
+                case 184274:    MastersTerraceDoor[0] = go->GetGUID();  break;
+                case 184280:    MastersTerraceDoor[1] = go->GetGUID();  break;
                 case 184275:
-                    m_uiSideEntranceDoor = pGo->GetGUID();
+                    m_uiSideEntranceDoor = go->GetGUID();
                     if (m_auiEncounter[4] == DONE)
-                        pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
                     else
-                        pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
+                        go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
                     break;
-                case 185119: DustCoveredChest = pGo->GetGUID(); break;
+                case 185119: DustCoveredChest = go->GetGUID(); break;
             }
 
             switch(m_uiOperaEvent)

@@ -112,103 +112,103 @@ public:
             return false;
         }
 
-        void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+        void OnCreatureCreate(Creature* creature)
         {
-            switch(pCreature->GetEntry())
+            switch(creature->GetEntry())
             {
                 case NPC_LEVIATHAN:
-                    uiLeviathanGUID = pCreature->GetGUID();
+                    uiLeviathanGUID = creature->GetGUID();
                     break;
                 case NPC_IGNIS:
-                    uiIgnisGUID = pCreature->GetGUID();
+                    uiIgnisGUID = creature->GetGUID();
                     break;
                 case NPC_RAZORSCALE:
-                    uiRazorscaleGUID = pCreature->GetGUID();
+                    uiRazorscaleGUID = creature->GetGUID();
                     break;
                 case NPC_EXPEDITION_COMMANDER:
-                    uiExpCommanderGUID = pCreature->GetGUID();
+                    uiExpCommanderGUID = creature->GetGUID();
                     return;
                 case NPC_XT002:
-                    uiXT002GUID = pCreature->GetGUID();
+                    uiXT002GUID = creature->GetGUID();
                     break;
 
                 // Assembly of Iron
                 case NPC_STEELBREAKER:
-                    uiAssemblyGUIDs[0] = pCreature->GetGUID();
+                    uiAssemblyGUIDs[0] = creature->GetGUID();
                     break;
                 case NPC_MOLGEIM:
-                    uiAssemblyGUIDs[1] = pCreature->GetGUID();
+                    uiAssemblyGUIDs[1] = creature->GetGUID();
                     break;
                 case NPC_BRUNDIR:
-                    uiAssemblyGUIDs[2] = pCreature->GetGUID();
+                    uiAssemblyGUIDs[2] = creature->GetGUID();
                     break;
 
                 case NPC_KOLOGARN:
-                    uiKologarnGUID = pCreature->GetGUID();
+                    uiKologarnGUID = creature->GetGUID();
                     break;
                 case NPC_AURIAYA:
-                    uiAuriayaGUID = pCreature->GetGUID();
+                    uiAuriayaGUID = creature->GetGUID();
                     break;
                 case NPC_MIMIRON:
-                    uiMimironGUID = pCreature->GetGUID();
+                    uiMimironGUID = creature->GetGUID();
                     break;
                 case NPC_HODIR:
-                    uiHodirGUID = pCreature->GetGUID();
+                    uiHodirGUID = creature->GetGUID();
                     break;
                 case NPC_THORIM:
-                    uiThorimGUID = pCreature->GetGUID();
+                    uiThorimGUID = creature->GetGUID();
                     break;
                 case NPC_FREYA:
-                    uiFreyaGUID = pCreature->GetGUID();
+                    uiFreyaGUID = creature->GetGUID();
                     break;
                 case NPC_VEZAX:
-                    uiVezaxGUID = pCreature->GetGUID();
+                    uiVezaxGUID = creature->GetGUID();
                     break;
                 case NPC_YOGGSARON:
-                    uiYoggSaronGUID = pCreature->GetGUID();
+                    uiYoggSaronGUID = creature->GetGUID();
                     break;
                 case NPC_ALGALON:
-                    uiAlgalonGUID = pCreature->GetGUID();
+                    uiAlgalonGUID = creature->GetGUID();
                     break;
             }
 
          }
 
-        void OnGameObjectCreate(GameObject* pGO, bool add)
+        void OnGameObjectCreate(GameObject* go)
         {
-            switch(pGO->GetEntry())
+            switch(go->GetEntry())
             {
                 case GO_KOLOGARN_CHEST_HERO:
                 case GO_KOLOGARN_CHEST:
-                    uiKologarnChestGUID  = add ? pGO->GetGUID() : NULL;
+                    uiKologarnChestGUID = go->GetGUID();
                     break;
                 case GO_THORIM_CHEST_HERO:
                 case GO_THORIM_CHEST:
-                    uiThorimChestGUID = add ? pGO->GetGUID() : NULL;
+                    uiThorimChestGUID =go->GetGUID();
                     break;
                 case GO_HODIR_CHEST_HERO:
                 case GO_HODIR_CHEST:
-                    uiHodirChestGUID = add ? pGO->GetGUID() : NULL;
+                    uiHodirChestGUID = go->GetGUID();
                     break;
                 case GO_FREYA_CHEST_HERO:
                 case GO_FREYA_CHEST:
-                    uiFreyaChestGUID = add ? pGO->GetGUID() : NULL;
+                    uiFreyaChestGUID = go->GetGUID();
                     break;
                 case GO_LEVIATHAN_DOOR:
-                    uiLeviathanDoor[flag] = pGO->GetGUID();
-                    HandleGameObject(NULL, true, pGO);
+                    uiLeviathanDoor[flag] = go->GetGUID();
+                    HandleGameObject(NULL, true, go);
                     flag++;
                     if (flag == 7)
                         flag =0;
                     break;
                 case GO_LEVIATHAN_GATE:
-                    uiLeviathanGateGUID = add ? pGO->GetGUID() : NULL;
-                    HandleGameObject(NULL, false, pGO);
+                    uiLeviathanGateGUID = go->GetGUID();
+                    HandleGameObject(NULL, false, go);
                     break;
             }
         }
 
-        void ProcessEvent(GameObject* /*pGO*/, uint32 uiEventId)
+        void ProcessEvent(GameObject* /*go*/, uint32 uiEventId)
         {
             // Flame Leviathan's Tower Event triggers
            Creature* pFlameLeviathan = instance->GetCreature(uiLeviathanGUID);
@@ -261,23 +261,23 @@ public:
                 break;
             case TYPE_KOLOGARN:
                 if (state == DONE)
-                    if (GameObject* pGO = instance->GetGameObject(uiKologarnChestGUID))
-                        pGO->SetRespawnTime(pGO->GetRespawnDelay());
+                    if (GameObject* go = instance->GetGameObject(uiKologarnChestGUID))
+                        go->SetRespawnTime(go->GetRespawnDelay());
                 break;
             case TYPE_HODIR:
                 if (state == DONE)
-                    if (GameObject* pGO = instance->GetGameObject(uiHodirChestGUID))
-                        pGO->SetRespawnTime(pGO->GetRespawnDelay());
+                    if (GameObject* go = instance->GetGameObject(uiHodirChestGUID))
+                        go->SetRespawnTime(go->GetRespawnDelay());
                 break;
             case TYPE_THORIM:
                 if (state == DONE)
-                    if (GameObject* pGO = instance->GetGameObject(uiThorimChestGUID))
-                        pGO->SetRespawnTime(pGO->GetRespawnDelay());
+                    if (GameObject* go = instance->GetGameObject(uiThorimChestGUID))
+                        go->SetRespawnTime(go->GetRespawnDelay());
                 break;
             case TYPE_FREYA:
                 if (state == DONE)
-                    if (GameObject* pGO = instance->GetGameObject(uiFreyaChestGUID))
-                        pGO->SetRespawnTime(pGO->GetRespawnDelay());
+                    if (GameObject* go = instance->GetGameObject(uiFreyaChestGUID))
+                        go->SetRespawnTime(go->GetRespawnDelay());
                 break;
              }
 

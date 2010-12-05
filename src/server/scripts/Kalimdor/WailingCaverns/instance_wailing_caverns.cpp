@@ -55,10 +55,10 @@ public:
             NaralexGUID = 0;
         }
 
-        void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+        void OnCreatureCreate(Creature* creature)
         {
-            if (pCreature->GetEntry() == DATA_NARALEX)
-                NaralexGUID = pCreature->GetGUID();
+            if (creature->GetEntry() == DATA_NARALEX)
+                NaralexGUID = creature->GetGUID();
         }
 
         void SetData(uint32 type, uint32 data)

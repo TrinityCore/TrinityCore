@@ -130,10 +130,10 @@ public:
             pPlayer->SendUpdateWorldState(WORLD_STATE_BM,0);
         }
 
-        void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+        void OnCreatureCreate(Creature* creature)
         {
-            if (pCreature->GetEntry() == C_MEDIVH)
-                MedivhGUID = pCreature->GetGUID();
+            if (creature->GetEntry() == C_MEDIVH)
+                MedivhGUID = creature->GetGUID();
         }
 
         //what other conditions to check?
@@ -272,7 +272,7 @@ public:
             //normalize Z-level if we can, if rift is not at ground level.
             pos.m_positionZ = std::max(me->GetMap()->GetHeight(pos.m_positionX, pos.m_positionY, MAX_HEIGHT), me->GetMap()->GetWaterLevel(pos.m_positionX, pos.m_positionY));
 
-            if (Creature *summon = me->SummonCreature(entry, pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000))
+            if (Creature* summon = me->SummonCreature(entry, pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000))
                 return summon;
 
             sLog.outDebug("TSCR: Instance Dark Portal: What just happened there? No boss, no loot, no fun...");
@@ -292,7 +292,7 @@ public:
 
                 CurrentRiftId = tmp;
 
-                Creature *pTemp = pMedivh->SummonCreature(C_TIME_RIFT,
+                Creature* pTemp = pMedivh->SummonCreature(C_TIME_RIFT,
                     PortalLocation[tmp][0],PortalLocation[tmp][1],PortalLocation[tmp][2],PortalLocation[tmp][3],
                     TEMPSUMMON_CORPSE_DESPAWN,0);
                 if (pTemp)
@@ -300,7 +300,7 @@ public:
                     pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-                    if (Creature *pBoss = SummonedPortalBoss(pTemp))
+                    if (Creature* pBoss = SummonedPortalBoss(pTemp))
                     {
                         if (pBoss->GetEntry() == C_AEONUS)
                             pBoss->AddThreat(pMedivh,0.0f);

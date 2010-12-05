@@ -80,32 +80,32 @@ public:
             return false;
         }
 
-        void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
+        void OnGameObjectCreate(GameObject* go)
         {
-            switch(pGo->GetEntry())
+            switch(go->GetEntry())
             {
                 case REFECTORY_DOOR:
-                    m_uiRefectoryDoorGUID = pGo->GetGUID();
+                    m_uiRefectoryDoorGUID = go->GetGUID();
                     if (m_auiEncounter[2] == DONE)
-                        pGo->SetGoState(GO_STATE_ACTIVE);
+                        go->SetGoState(GO_STATE_ACTIVE);
                     break;
                 case SCREAMING_HALL_DOOR:
-                    m_uiScreamingHallDoorGUID = pGo->GetGUID();
+                    m_uiScreamingHallDoorGUID = go->GetGUID();
                     if (m_auiEncounter[3] == DONE)
-                        pGo->SetGoState(GO_STATE_ACTIVE);
+                        go->SetGoState(GO_STATE_ACTIVE);
                     break;
             }
         }
 
-        void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+        void OnCreatureCreate(Creature* creature)
         {
-            switch(pCreature->GetEntry())
+            switch(creature->GetEntry())
             {
                 case 18732:
-                    m_uiGrandmasterVorpil = pCreature->GetGUID();
+                    m_uiGrandmasterVorpil = creature->GetGUID();
                     break;
                 case 18796:
-                    if (pCreature->isAlive())
+                    if (creature->isAlive())
                     {
                         ++m_uiFelOverseerCount;
                         sLog.outDebug("TSCR: Shadow Labyrinth: counting %u Fel Overseers.",m_uiFelOverseerCount);

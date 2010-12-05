@@ -59,7 +59,7 @@ public:
             Keristrasza = 0;
         }
 
-        void OnCreatureCreate(Creature *pCreature, bool /*bAdd*/)
+        void OnCreatureCreate(Creature* creature)
         {
             Map::PlayerList const &players = instance->GetPlayers();
             uint32 TeamInInstance = 0;
@@ -69,81 +69,81 @@ public:
                 if (Player* pPlayer = players.begin()->getSource())
                     TeamInInstance = pPlayer->GetTeam();
             }
-            switch (pCreature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case 26763:
-                    Anomalus = pCreature->GetGUID();
+                    Anomalus = creature->GetGUID();
                     break;
                 case 26723:
-                    Keristrasza = pCreature->GetGUID();
+                    Keristrasza = creature->GetGUID();
                     break;
                 // Alliance npcs are spawned by default, if you are alliance, you will fight against horde npcs.
                 case 26800:
                 {
                     if (ServerAllowsTwoSideGroups())
-                        pCreature->setFaction(FACTION_HOSTILE_FOR_ALL);
+                        creature->setFaction(FACTION_HOSTILE_FOR_ALL);
                     if (TeamInInstance == ALLIANCE)
-                        pCreature->UpdateEntry(26799, HORDE);
+                        creature->UpdateEntry(26799, HORDE);
                     break;
                 }
                 case 26802:
                 {
                     if (ServerAllowsTwoSideGroups())
-                        pCreature->setFaction(FACTION_HOSTILE_FOR_ALL);
+                        creature->setFaction(FACTION_HOSTILE_FOR_ALL);
                     if (TeamInInstance == ALLIANCE)
-                        pCreature->UpdateEntry(26801, HORDE);
+                        creature->UpdateEntry(26801, HORDE);
                     break;
                 }
                 case 26805:
                 {
                     if (ServerAllowsTwoSideGroups())
-                        pCreature->setFaction(FACTION_HOSTILE_FOR_ALL);
+                        creature->setFaction(FACTION_HOSTILE_FOR_ALL);
                     if (TeamInInstance == ALLIANCE)
-                        pCreature->UpdateEntry(26803, HORDE);
+                        creature->UpdateEntry(26803, HORDE);
                     break;
                 }
                 case 27949:
                 {
                     if (ServerAllowsTwoSideGroups())
-                        pCreature->setFaction(FACTION_HOSTILE_FOR_ALL);
+                        creature->setFaction(FACTION_HOSTILE_FOR_ALL);
                     if (TeamInInstance == ALLIANCE)
-                        pCreature->UpdateEntry(27947, HORDE);
+                        creature->UpdateEntry(27947, HORDE);
                     break;
                 }
                 case 26796:
                 {
                     if (ServerAllowsTwoSideGroups())
-                        pCreature->setFaction(FACTION_HOSTILE_FOR_ALL);
+                        creature->setFaction(FACTION_HOSTILE_FOR_ALL);
                     if (TeamInInstance == ALLIANCE)
-                        pCreature->UpdateEntry(26798, HORDE);
+                        creature->UpdateEntry(26798, HORDE);
                     break;
                 }
             }
         }
 
-        void OnGameObjectCreate(GameObject *pGo, bool /*bAdd*/)
+        void OnGameObjectCreate(GameObject* go)
         {
-            switch (pGo->GetEntry())
+            switch (go->GetEntry())
             {
                 case 188527:
                 {
-                    AnomalusContainmentSphere = pGo->GetGUID();
+                    AnomalusContainmentSphere = go->GetGUID();
                     if (m_auiEncounter[1] == DONE)
-                        pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                        go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                     break;
                 }
                 case 188528:
                 {
-                    OrmoroksContainmentSphere = pGo->GetGUID();
+                    OrmoroksContainmentSphere = go->GetGUID();
                     if (m_auiEncounter[2] == DONE)
-                        pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                        go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                     break;
                 }
                 case 188526:
                 {
-                    TelestrasContainmentSphere = pGo->GetGUID();
+                    TelestrasContainmentSphere = go->GetGUID();
                     if (m_auiEncounter[0] == DONE)
-                        pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                        go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                     break;
                 }
             }
@@ -169,7 +169,7 @@ public:
                 {
                     if (data == DONE)
                     {
-                        GameObject *Sphere = instance->GetGameObject(TelestrasContainmentSphere);
+                        GameObject* Sphere = instance->GetGameObject(TelestrasContainmentSphere);
                         if (Sphere)
                             Sphere->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                     }
@@ -180,7 +180,7 @@ public:
                 {
                     if (data == DONE)
                     {
-                        if (GameObject *Sphere = instance->GetGameObject(AnomalusContainmentSphere))
+                        if (GameObject* Sphere = instance->GetGameObject(AnomalusContainmentSphere))
                             Sphere->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                     }
                     m_auiEncounter[1] = data;
@@ -190,7 +190,7 @@ public:
                 {
                     if (data == DONE)
                     {
-                        if (GameObject *Sphere = instance->GetGameObject(OrmoroksContainmentSphere))
+                        if (GameObject* Sphere = instance->GetGameObject(OrmoroksContainmentSphere))
                             Sphere->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
                     }
                     m_auiEncounter[2] = data;

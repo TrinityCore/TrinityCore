@@ -76,59 +76,59 @@ public:
             m_uiLokenGlobeGUID       = 0;
         }
 
-        void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+        void OnCreatureCreate(Creature* creature)
         {
-            switch(pCreature->GetEntry())
+            switch(creature->GetEntry())
             {
                 case NPC_BJARNGRIM:
-                    m_uiGeneralBjarngrimGUID = pCreature->GetGUID();
+                    m_uiGeneralBjarngrimGUID = creature->GetGUID();
                     break;
                 case NPC_VOLKHAN:
-                    m_uiVolkhanGUID = pCreature->GetGUID();
+                    m_uiVolkhanGUID = creature->GetGUID();
                     break;
                 case NPC_IONAR:
-                    m_uiIonarGUID = pCreature->GetGUID();
+                    m_uiIonarGUID = creature->GetGUID();
                     break;
                 case NPC_LOKEN:
-                    m_uiLokenGUID = pCreature->GetGUID();
+                    m_uiLokenGUID = creature->GetGUID();
                     break;
             }
         }
 
-        void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
+        void OnGameObjectCreate(GameObject* go)
         {
-            switch(pGo->GetEntry())
+            switch(go->GetEntry())
             {
                 case GO_BJARNGRIM_DOOR:
-                    m_uiBjarngrimDoorGUID = pGo->GetGUID();
+                    m_uiBjarngrimDoorGUID = go->GetGUID();
                     if (m_auiEncounter[0] == DONE)
-                        pGo->SetGoState(GO_STATE_ACTIVE);
+                        go->SetGoState(GO_STATE_ACTIVE);
                     else
-                        pGo->SetGoState(GO_STATE_READY);
+                        go->SetGoState(GO_STATE_READY);
                     break;
                 case GO_VOLKHAN_DOOR:
-                    m_uiVolkhanDoorGUID = pGo->GetGUID();
+                    m_uiVolkhanDoorGUID = go->GetGUID();
                     if (m_auiEncounter[1] == DONE)
-                        pGo->SetGoState(GO_STATE_ACTIVE);
+                        go->SetGoState(GO_STATE_ACTIVE);
                     else
-                        pGo->SetGoState(GO_STATE_READY);
+                        go->SetGoState(GO_STATE_READY);
                     break;
                 case GO_IONAR_DOOR:
-                    m_uiIonarDoorGUID = pGo->GetGUID();
+                    m_uiIonarDoorGUID = go->GetGUID();
                     if (m_auiEncounter[2] == DONE)
-                        pGo->SetGoState(GO_STATE_ACTIVE);
+                        go->SetGoState(GO_STATE_ACTIVE);
                     else
-                        pGo->SetGoState(GO_STATE_READY);
+                        go->SetGoState(GO_STATE_READY);
                     break;
                 case GO_LOKEN_DOOR:
-                    m_uiLokenDoorGUID = pGo->GetGUID();
+                    m_uiLokenDoorGUID = go->GetGUID();
                     if (m_auiEncounter[3] == DONE)
-                        pGo->SetGoState(GO_STATE_ACTIVE);
+                        go->SetGoState(GO_STATE_ACTIVE);
                     else
-                        pGo->SetGoState(GO_STATE_READY);
+                        go->SetGoState(GO_STATE_READY);
                     break;
                 case GO_LOKEN_THRONE:
-                    m_uiLokenGlobeGUID = pGo->GetGUID();
+                    m_uiLokenGlobeGUID = go->GetGUID();
                     break;
             }
         }
