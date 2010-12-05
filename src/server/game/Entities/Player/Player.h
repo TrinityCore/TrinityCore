@@ -2260,10 +2260,27 @@ class Player : public Unit, public GridObject<Player>
         void SetLfgComment(std::string _comment) { m_LookingForGroup.comment = _comment; }
         uint8 GetLfgRoles() { return m_LookingForGroup.roles; }
         void SetLfgRoles(uint8 _roles) { m_LookingForGroup.roles = _roles; }
-        bool GetLfgUpdate() { return m_LookingForGroup.update; }
-        void SetLfgUpdate(bool update) { m_LookingForGroup.update = update; }
-        LfgState GetLfgState() { return m_LookingForGroup.state; }
-        void SetLfgState(LfgState state) { m_LookingForGroup.state = state; }
+        LfgState GetLfgState() const { return m_LookingForGroup.state; }
+        void SetLfgState(LfgState state)
+        {
+            
+            switch(state)
+            {
+                case LFG_STATE_NONE:
+                case LFG_STATE_DUNGEON:
+                case LFG_STATE_FINISHED_DUNGEON:
+                    m_LookingForGroup.oldState = state;
+                    // No break on purpose
+                default:
+                    m_LookingForGroup.state = state;
+            }
+        }
+        void ClearLfgState()
+        {
+            m_LookingForGroup.applyDungeons.clear();
+            m_LookingForGroup.roles = ROLE_NONE;
+            m_LookingForGroup.state = m_LookingForGroup.oldState;
+        }
         bool isUsingLfg() { return GetLfgState() != LFG_STATE_NONE; }
 
         typedef std::set<uint32> DFQuestsDoneList;
