@@ -22190,13 +22190,13 @@ PartyResult Player::CanUninviteFromGroup() const
         if (grp->GetLfgKicks() == GROUP_MAX_LFG_KICKS)
             return ERR_PARTY_LFG_BOOT_LIMIT;
 
-        if (grp->isLfgKickActive())
+        if (GetLfgState() == LFG_STATE_BOOT)
             return ERR_PARTY_LFG_BOOT_IN_PROGRESS;
 
         if (grp->GetMembersCount() <= GROUP_LFG_KICK_VOTES_NEEDED)
             return ERR_PARTY_LFG_BOOT_TOO_FEW_PLAYERS;
 
-        if (grp->isLfgDungeonComplete())
+        if (GetLfgState() == LFG_STATE_FINISHED_DUNGEON)
             return ERR_PARTY_LFG_BOOT_DUNGEON_COMPLETE;
 
         if (grp->isRollLootActive())

@@ -718,7 +718,7 @@ class WorldSession
         void HandleHearthAndResurrect(WorldPacket& recv_data);
 
         // Looking for Dungeon/Raid
-        void HandleSetLfgCommentOpcode(WorldPacket & recv_data);
+        void HandleLfgSetCommentOpcode(WorldPacket & recv_data);
         void HandleLfgPlayerLockInfoRequestOpcode(WorldPacket& recv_data);
         void HandleLfgPartyLockInfoRequestOpcode(WorldPacket& recv_data);
         void HandleLfgJoinOpcode(WorldPacket &recv_data);
@@ -739,7 +739,7 @@ class WorldSession
         void SendLfgQueueStatus(uint32 dungeon, int32 waitTime, int32 avgWaitTime, int32 waitTimeTanks, int32 waitTimeHealer, int32 waitTimeDps, uint32 queuedTime, uint8 tanks, uint8 healers, uint8 dps);
         void SendLfgPlayerReward(uint32 rdungeonEntry, uint32 sdungeonEntry, uint8 done, const LfgReward *reward, const Quest *qRew);
         void SendLfgBootPlayer(LfgPlayerBoot *pBoot);
-        void SendUpdateProposal(uint32 proposalId, LfgProposal *pProp);
+        void SendLfgUpdateProposal(uint32 proposalId, LfgProposal *pProp);
         void SendLfgDisabled();
         void SendLfgOfferContinue(uint32 dungeonEntry);
         void SendLfgTeleportError(uint8 err);

@@ -137,7 +137,7 @@ void WorldSession::HandleLfgSetRolesOpcode(WorldPacket &recv_data)
     sLFGMgr.UpdateRoleCheck(grp, GetPlayer());
 }
 
-void WorldSession::HandleSetLfgCommentOpcode(WorldPacket & recv_data)
+void WorldSession::HandleLfgSetCommentOpcode(WorldPacket & recv_data)
 {
     std::string comment;
     recv_data >> comment;
@@ -535,7 +535,7 @@ void WorldSession::SendLfgBootPlayer(LfgPlayerBoot* pBoot)
     SendPacket(&data);
 }
 
-void WorldSession::SendUpdateProposal(uint32 proposalId, LfgProposal* pProp)
+void WorldSession::SendLfgUpdateProposal(uint32 proposalId, LfgProposal* pProp)
 {
     if (!pProp)
         return;
@@ -554,7 +554,7 @@ void WorldSession::SendUpdateProposal(uint32 proposalId, LfgProposal* pProp)
     Group* grp = dLowGuid ? sObjectMgr.GetGroupByGUID(dLowGuid) : NULL;
     if (grp)
     {
-        isContinue = grp->isLFGGroup() && !grp->isLfgDungeonComplete();
+        isContinue = grp->isLFGGroup() && grp->GetLfgState() != LFG_STATE_FINISHED_DUNGEON;
         isSameDungeon = GetPlayer()->GetGroup() == grp && isContinue;
     }
 

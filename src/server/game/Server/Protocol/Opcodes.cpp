@@ -896,7 +896,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x363*/ { "SMSG_LFG_ROLE_CHECK_UPDATE",                   STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x364*/ { "SMSG_LFG_JOIN_RESULT",                         STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x365*/ { "SMSG_LFG_QUEUE_STATUS",                        STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
-    /*0x366*/ { "CMSG_SET_LFG_COMMENT",                         STATUS_LOGGEDIN, &WorldSession::HandleSetLfgCommentOpcode       },
+    /*0x366*/ { "CMSG_SET_LFG_COMMENT",                         STATUS_LOGGEDIN, &WorldSession::HandleLfgSetCommentOpcode       },
     /*0x367*/ { "SMSG_LFG_UPDATE_PLAYER",                       STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x368*/ { "SMSG_LFG_UPDATE_PARTY",                        STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x369*/ { "SMSG_LFG_UPDATE_LIST",                         STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
