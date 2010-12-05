@@ -6493,7 +6493,7 @@ void AuraEffect::HandleAuraOverrideSpells(AuraApplication const * aurApp, uint8 
 
     if (apply)
     {
-        target->SetUInt32Value(PLAYER_FIELD_BYTES2, overrideId);
+        target->SetUInt16Value(PLAYER_FIELD_BYTES2, 0, overrideId);
         if (OverrideSpellDataEntry const* overrideSpells = sOverrideSpellDataStore.LookupEntry(overrideId))
             for (uint8 i = 0; i < MAX_OVERRIDE_SPELL; ++i)
                 if (uint32 spellId = overrideSpells->spellId[i])
@@ -6501,7 +6501,7 @@ void AuraEffect::HandleAuraOverrideSpells(AuraApplication const * aurApp, uint8 
     }
     else
     {
-        target->SetUInt32Value(PLAYER_FIELD_BYTES2, 0);
+        target->SetUInt16Value(PLAYER_FIELD_BYTES2, 0, 0);
         if (OverrideSpellDataEntry const* overrideSpells = sOverrideSpellDataStore.LookupEntry(overrideId))
             for (uint8 i = 0; i < MAX_OVERRIDE_SPELL; ++i)
                 if (uint32 spellId = overrideSpells->spellId[i])
