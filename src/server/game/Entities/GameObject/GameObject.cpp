@@ -246,8 +246,8 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMa
             SetGoAnimProgress(animprogress);
             break;
     }
-
     LastUsedScriptID = GetGOInfo()->ScriptId;
+    AIM_Initialize();
 
     return true;
 }
