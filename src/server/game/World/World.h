@@ -572,7 +572,6 @@ class World
         bool RemoveQueuedPlayer(WorldSession* session);
         int32 GetQueuePos(WorldSession*);
         bool HasRecentlyDisconnected(WorldSession*);
-        uint32 GetQueueSize() const { return m_QueuedPlayer.size(); }
 
         /// \todo Actions on m_allowMovement still to be implemented
         /// Is movement allowed?
@@ -725,8 +724,8 @@ class World
 
         //used World DB version
         void LoadDBVersion();
-        char const* GetDBVersion() { return m_DBVersion.c_str(); }
-        char const* GetCreatureEventAIVersion() { return m_CreatureEventAIVersion.c_str(); }
+        char const* GetDBVersion() const { return m_DBVersion.c_str(); }
+        char const* GetCreatureEventAIVersion() const { return m_CreatureEventAIVersion.c_str(); }
 
         void RecordTimeDiff(const char * text, ...);
 
@@ -736,7 +735,7 @@ class World
 
         void ProcessStartEvent();
         void ProcessStopEvent();
-        bool GetEventKill() { return isEventKillStart; }
+        bool GetEventKill() const { return isEventKillStart; }
 
         bool isEventKillStart;
     protected:

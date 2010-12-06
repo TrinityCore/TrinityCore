@@ -1803,7 +1803,7 @@ void Battleground::HandleKillPlayer(Player *player, Player *killer)
 
 // return the player's team based on battlegroundplayer info
 // used in same faction arena matches mainly
-uint32 Battleground::GetPlayerTeam(uint64 guid)
+uint32 Battleground::GetPlayerTeam(uint64 guid) const
 {
     BattlegroundPlayerMap::const_iterator itr = m_Players.find(guid);
     if (itr != m_Players.end())
@@ -1811,12 +1811,12 @@ uint32 Battleground::GetPlayerTeam(uint64 guid)
     return 0;
 }
 
-uint32 Battleground::GetOtherTeam(uint32 teamId)
+uint32 Battleground::GetOtherTeam(uint32 teamId) const
 {
     return (teamId) ? ((teamId == ALLIANCE) ? HORDE : ALLIANCE) : 0;
 }
 
-bool Battleground::IsPlayerInBattleground(uint64 guid)
+bool Battleground::IsPlayerInBattleground(uint64 guid) const
 {
     BattlegroundPlayerMap::const_iterator itr = m_Players.find(guid);
     if (itr != m_Players.end())
@@ -1935,13 +1935,13 @@ void Battleground::RewardXPAtKill(Player* plr, Player* victim)
         return;
 
     uint32 xp = 0;
-    uint32 count = 0;
-    uint32 sum_level = 0;
     Player* member_with_max_level = NULL;
     Player* not_gray_member_with_max_level = NULL;
 
     if (Group *pGroup = plr->GetGroup())//should be always in a raid group while in any bg
     {
+        uint32 count = 0;
+        uint32 sum_level = 0;
         for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             Player* member = itr->getSource();

@@ -524,26 +524,6 @@ inline bool CreatureAI::UpdateVictimWithGaze()
     return me->getVictim();
 }
 
-inline bool CreatureAI::UpdateCombatState()
-{
-    if (!me->isInCombat())
-        return false;
-
-    if (!me->HasReactState(REACT_PASSIVE))
-    {
-        if (Unit *victim = me->SelectVictim())
-            AttackStart(victim);
-        return me->getVictim();
-    }
-    else if (me->getThreatManager().isThreatListEmpty())
-    {
-        EnterEvadeMode();
-        return false;
-    }
-
-    return true;
-}
-
 inline bool CreatureAI::UpdateVictim()
 {
     if (!me->isInCombat())

@@ -900,7 +900,6 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket *data, const uint6
     else                                                    // battleground
     {
         size_t count_pos = data->wpos();
-        uint32 count = 0;
         *data << uint32(0);                                 // number of bg instances
 
         if (Battleground* bgTemplate = sBattlegroundMgr.GetBattlegroundTemplate(bgTypeId))
@@ -908,6 +907,7 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket *data, const uint6
             // expected bracket entry
             if (PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bgTemplate->GetMapId(),plr->getLevel()))
             {
+                uint32 count = 0;
                 BattlegroundBracketId bracketId = bracketEntry->GetBracketId();
                 for (std::set<uint32>::iterator itr = m_ClientBattlegroundIds[bgTypeId][bracketId].begin(); itr != m_ClientBattlegroundIds[bgTypeId][bracketId].end();++itr)
                 {

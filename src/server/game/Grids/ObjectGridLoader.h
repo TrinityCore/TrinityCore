@@ -39,9 +39,9 @@ class ObjectGridLoader
         void Load(GridType &grid);
         void Visit(GameObjectMapType &m);
         void Visit(CreatureMapType &m);
-        void Visit(CorpseMapType &) {}
+        void Visit(CorpseMapType &) const {}
 
-        void Visit(DynamicObjectMapType&) { }
+        void Visit(DynamicObjectMapType&) const {}
 
         void LoadN(void);
 

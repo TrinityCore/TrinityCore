@@ -159,7 +159,7 @@ class GossipMenu
         void AddMenuItem(uint8 Icon, char const* Message, uint32 dtSender, uint32 dtAction, char const* BoxMessage, uint32 BoxMoney, bool Coded = false);
 
         void SetMenuId(uint32 menu_id) { m_gMenuId = menu_id; }
-        uint32 GetMenuId() { return m_gMenuId; }
+        uint32 GetMenuId() const { return m_gMenuId; }
 
         void AddGossipMenuItemData(uint32 action_menu, uint32 action_poi, uint32 action_script);
 
@@ -173,12 +173,12 @@ class GossipMenu
             return m_gItems.empty();
         }
 
-        GossipMenuItem const& GetItem(unsigned int Id)
+        GossipMenuItem const& GetItem(unsigned int Id) const
         {
             return m_gItems[ Id ];
         }
 
-        GossipMenuItemData const& GetItemData(unsigned int indexId)
+        GossipMenuItemData const& GetItemData(unsigned int indexId) const
         {
             return m_gItemsData[indexId];
         }
@@ -217,7 +217,7 @@ class QuestMenu
 
         bool HasItem(uint32 questid);
 
-        QuestMenuItem const& GetItem(uint16 Id)
+        QuestMenuItem const& GetItem(uint16 Id) const
         {
             return m_qItems[ Id ];
         }

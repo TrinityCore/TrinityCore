@@ -264,6 +264,9 @@ namespace VMAP
         // temporary use defines to simplify read/check code (close file and return at fail)
         #define READ_OR_RETURN(V,S) if(fread((V), (S), 1, rf) != 1) { \
                                         fclose(rf); printf("readfail, op = %i\n", readOperation); return(false); }readOperation++;
+        #define READ_OR_RETURN_WITH_DELETE(V,S) if(fread((V), (S), 1, rf) != 1) { \
+                                        fclose(rf); printf("readfail, op = %i\n", readOperation); delete V; return(false); }readOperation++;
+
         #define CMP_OR_RETURN(V,S)  if(strcmp((V),(S)) != 0)        { \
                                         fclose(rf); printf("cmpfail, %s!=%s\n", V, S);return(false); }
 
@@ -309,11 +312,12 @@ namespace VMAP
             if (nvectors >0)
             {
                 vectorarray = new float[nvectors*3];
-                READ_OR_RETURN(vectorarray, nvectors*sizeof(float)*3);
+                READ_OR_RETURN_WITH_DELETE(vectorarray, nvectors*sizeof(float)*3);
             }
             else
             {
                 std::cout << "error: model '" << spawn.name << "' has no geometry!" << std::endl;
+                fclose(rf);
                 return false;
             }
 
@@ -370,6 +374,8 @@ namespace VMAP
         // temporary use defines to simplify read/check code (close file and return at fail)
         #define READ_OR_RETURN(V,S) if(fread((V), (S), 1, rf) != 1) { \
                                         fclose(rf); printf("readfail, op = %i\n", readOperation); return(false); }readOperation++;
+        #define READ_OR_RETURN_WITH_DELETE(V,S) if(fread((V), (S), 1, rf) != 1) { \
+                                        fclose(rf); printf("readfail, op = %i\n", readOperation); delete V; return(false); }readOperation++;
         #define CMP_OR_RETURN(V,S)  if(strcmp((V),(S)) != 0)        { \
                                         fclose(rf); printf("cmpfail, %s!=%s\n", V, S);return(false); }
 
@@ -429,7 +435,7 @@ namespace VMAP
             if (nindexes >0)
             {
                 uint16 *indexarray = new uint16[nindexes];
-                READ_OR_RETURN(indexarray, nindexes*sizeof(uint16));
+                READ_OR_RETURN_WITH_DELETE(indexarray, nindexes*sizeof(uint16));
                 for (uint32 i=0; i<nindexes; i+=3)
                 {
                     triangles.push_back(MeshTriangle(indexarray[i], indexarray[i+1], indexarray[i+2]));
@@ -447,7 +453,7 @@ namespace VMAP
             if (nvectors >0)
             {
                 float *vectorarray = new float[nvectors*3];
-                READ_OR_RETURN(vectorarray, nvectors*sizeof(float)*3);
+                READ_OR_RETURN_WITH_DELETE(vectorarray, nvectors*sizeof(float)*3);
                 for (uint32 i=0; i<nvectors; ++i)
                 {
                     vertexArray.push_back( Vector3(vectorarray + 3*i) );

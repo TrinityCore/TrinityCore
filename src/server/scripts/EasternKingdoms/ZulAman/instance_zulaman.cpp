@@ -38,7 +38,7 @@ EndScriptData */
 // But we cannot add loots to gameobject, so we have to use the fixed loot_template
 struct SHostageInfo
 {
-    uint32 npc, go;
+    uint32 npc, go; // FIXME go Not used
     float x, y, z, o;
 };
 

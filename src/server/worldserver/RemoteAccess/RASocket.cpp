@@ -35,16 +35,11 @@
     }
 
 /// RASocket constructor
-RASocket::RASocket(ISocketHandler &h): TcpSocket(h)
+RASocket::RASocket(ISocketHandler &h): TcpSocket(h), szLogin(""), iInputLength(0),
+bSecure(sConfig.GetBoolDefault("RA.Secure", true)), iMinLevel(sConfig.GetIntDefault("RA.MinLevel", 3)),
+stage(NONE)
 {
-
-    ///- Get the config parameters
-    bSecure = sConfig.GetBoolDefault( "RA.Secure", true );
-    iMinLevel = sConfig.GetIntDefault( "RA.MinLevel", 3 );
-
-    ///- Initialize buffer and data
-    iInputLength=0;
-    stage=NONE;
+    *buff = '\0';
 }
 
 /// RASocket destructor
@@ -197,7 +192,7 @@ void RASocket::OnRead()
                 break;
                 ///<li> If user is logged, parse and execute the command
             case OK:
-                if (strlen(buff))
+                if (*buff != '\0')
                 {
                     sLog.outRemote("Got '%s' cmd.\n",buff);
                        SetDeleteByHandler(false);

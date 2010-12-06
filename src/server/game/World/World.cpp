@@ -221,9 +221,9 @@ World::AddSession_(WorldSession* s)
 
     ///- kick already loaded player with same account (if any) and remove session
     ///- if player is in loading and want to load again, return
-    if (!RemoveSession (s->GetAccountId ()))
+    if (!RemoveSession (s->GetAccountId()))
     {
-        s->KickPlayer ();
+        s->KickPlayer();
         delete s;                                           // session not added yet in session list, so not listed in queue
         return;
     }
@@ -234,7 +234,7 @@ World::AddSession_(WorldSession* s)
     // if session already exist, prepare to it deleting at next world update
     // NOTE - KickPlayer() should be called on "old" in RemoveSession()
     {
-        SessionMap::const_iterator old = m_sessions.find(s->GetAccountId ());
+        SessionMap::const_iterator old = m_sessions.find(s->GetAccountId());
 
         if (old != m_sessions.end())
         {
@@ -246,22 +246,22 @@ World::AddSession_(WorldSession* s)
         }
     }
 
-    m_sessions[s->GetAccountId ()] = s;
+    m_sessions[s->GetAccountId()] = s;
 
-    uint32 Sessions = GetActiveAndQueuedSessionCount ();
-    uint32 pLimit = GetPlayerAmountLimit ();
-    uint32 QueueSize = GetQueueSize ();                     //number of players in the queue
+    uint32 Sessions = GetActiveAndQueuedSessionCount();
+    uint32 pLimit = GetPlayerAmountLimit();
+    uint32 QueueSize = GetQueuedSessionCount();             //number of players in the queue
 
     //so we don't count the user trying to
     //login as a session and queue the socket that we are using
     if (decrease_session)
         --Sessions;
 
-    if (pLimit > 0 && Sessions >= pLimit && s->GetSecurity () == SEC_PLAYER && !HasRecentlyDisconnected(s))
+    if (pLimit > 0 && Sessions >= pLimit && s->GetSecurity() == SEC_PLAYER && !HasRecentlyDisconnected(s))
     {
         AddQueuedPlayer (s);
-        UpdateMaxSessionCounters ();
-        sLog.outDetail ("PlayerQueue: Account id %u is in Queue Position (%u).", s->GetAccountId (), ++QueueSize);
+        UpdateMaxSessionCounters();
+        sLog.outDetail ("PlayerQueue: Account id %u is in Queue Position (%u).", s->GetAccountId(), ++QueueSize);
         return;
     }
 
@@ -273,7 +273,7 @@ World::AddSession_(WorldSession* s)
 
     s->SendTutorialsData();
 
-    UpdateMaxSessionCounters ();
+    UpdateMaxSessionCounters();
 
     // Updates the population
     if (pLimit > 0)

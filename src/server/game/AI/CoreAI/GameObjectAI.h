@@ -46,7 +46,7 @@ class GameObjectAI
         virtual bool GossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) {return false;}
         virtual bool QuestAccept(Player* /*player*/, Quest const* /*quest*/) {return false;}
         virtual bool QuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) {return false;}
-        uint32 GetDialogStatus(Player* /*player*/) {return 100;}
+        virtual uint32 GetDialogStatus(Player* /*player*/) {return 100;}
         virtual void Destroyed(Player* /*player*/, uint32 /*eventId*/) {}
         virtual void SetData(uint32 /*id*/, uint32 /*value*/) {}
 };

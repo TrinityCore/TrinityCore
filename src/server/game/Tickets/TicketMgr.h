@@ -132,7 +132,7 @@ public:
     uint64 GenerateGMTicketId();
     bool GetStatus() const { return status; }
     void SetStatus(bool newStatus) { status = newStatus; }
-    uint64 GetOpenTicketCount() { return m_openTickets; }
+    uint64 GetOpenTicketCount() const { return m_openTickets; }
     uint64 GetNextSurveyID() { return ++m_GMSurveyID; }
 
     void Initialize()
@@ -149,7 +149,7 @@ public:
         return NULL;
     }
 
-    time_t GetLastChange() { return lastChange; }
+    time_t GetLastChange() const { return lastChange; }
     void UpdateLastChange() { lastChange = time(NULL); }
 
     GmTicketList m_GMTicketList;

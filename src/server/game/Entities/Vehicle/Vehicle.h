@@ -99,7 +99,7 @@ class Vehicle
         void InstallAllAccessories(uint32 entry);
 
         Unit *GetBase() const { return me; }
-        VehicleEntry const *GetVehicleInfo() { return m_vehicleInfo; }
+        VehicleEntry const *GetVehicleInfo() const { return m_vehicleInfo; }
 
         bool HasEmptySeat(int8 seatId) const;
         Unit *GetPassenger(int8 seatId) const;

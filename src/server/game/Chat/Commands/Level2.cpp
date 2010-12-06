@@ -205,7 +205,6 @@ bool ChatHandler::HandleDeMorphCommand(const char* /*args*/)
 //kick player
 bool ChatHandler::HandleKickPlayerCommand(const char *args)
 {
-    const char* kickName = strtok((char*)args, " ");
     Player* target = NULL;
     std::string playerName;
     if (!extractPlayerTarget((char*)args, &target, NULL, &playerName))

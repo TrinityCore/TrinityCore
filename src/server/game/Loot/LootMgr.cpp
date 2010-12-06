@@ -94,7 +94,6 @@ void LootStore::Verify() const
 void LootStore::LoadLootTable()
 {
     LootTemplateMap::const_iterator tab;
-    uint32 count = 0;
 
     // Clearing store (for reloading case)
     Clear();
@@ -106,6 +105,8 @@ void LootStore::LoadLootTable()
 
     if (result)
     {
+        uint32 count = 0;
+
         barGoLink bar(result->GetRowCount());
 
         do
