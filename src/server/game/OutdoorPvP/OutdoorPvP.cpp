@@ -598,3 +598,12 @@ void OutdoorPvP::OnGameObjectCreate(GameObject *go)
     if (OPvPCapturePoint *cp = GetCapturePoint(go->GetDBTableGUIDLow()))
         cp->m_capturePoint = go;
 }
+
+void OutdoorPvP::OnGameObjectRemove(GameObject *go)
+{
+    if (go->GetGoType() != GAMEOBJECT_TYPE_CAPTURE_POINT)
+        return;
+
+    if (OPvPCapturePoint *cp = GetCapturePoint(go->GetDBTableGUIDLow()))
+        cp->m_capturePoint = NULL;
+}
