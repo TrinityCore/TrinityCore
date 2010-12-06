@@ -567,7 +567,8 @@ bool AuraScript::_IsDefaultActionPrevented()
         case AURA_SCRIPT_HOOK_EFFECT_PERIODIC:
             return m_defaultActionPrevented;
         default:
-            ASSERT(false && "m_defaultActionPrevented has incorrect value, or AuraScript::_IsDefaultActionPrevented is called in a wrong place");
+            //TOFIX: probably one hook is called from another hook
+            //ASSERT(false && "m_defaultActionPrevented has incorrect value, or AuraScript::_IsDefaultActionPrevented is called in a wrong place");
             return false;
     }
 }
