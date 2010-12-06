@@ -276,14 +276,13 @@ bool Group::AddLeaderInvite(Player *player)
     return true;
 }
 
-uint32 Group::RemoveInvite(Player *player)
+void Group::RemoveInvite(Player *player)
 {
     if (player)
     {
         m_invitees.erase(player);
         player->SetGroupInvite(NULL);
     }
-    return GetMembersCount();
 }
 
 void Group::RemoveAllInvites()
