@@ -73,7 +73,6 @@ enum eSpells
     SPELL_PLAGUE_SICKNESS               = 70953,
     SPELL_UNBOUND_PLAGUE_PROTECTION     = 70955,
     SPELL_MUTATED_PLAGUE                = 72451,
-    SPELL_UNHOLY_INFUSION_CREDIT        = 71518,
 
     // Slime Puddle
     SPELL_GROW_STACKER                  = 70345,
@@ -249,7 +248,6 @@ class boss_professor_putricide : public CreatureScript
             {
                 Talk(SAY_DEATH);
                 instance->SetBossState(DATA_PROFESSOR_PUTRICIDE, DONE);
-                DoCastAOE(SPELL_UNHOLY_INFUSION_CREDIT, true);
             }
 
             void JustSummoned(Creature* summon)
