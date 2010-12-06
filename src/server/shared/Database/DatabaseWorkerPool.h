@@ -98,7 +98,11 @@ class DatabaseWorkerPool
             m_queue->queue()->deactivate();
 
             for (uint8 i = 0; i < m_delaythreads.size(); ++i)
-                m_delaythreads[i]->wait();
+            {
+                DatabaseWorker<T>* worker = m_delaythreads[i];
+                worker->wait();
+                delete worker;
+            }
 
             /// Shut down the connections
             for (uint8 i = 0; i < m_connectionCount; ++i)
@@ -241,16 +245,19 @@ class DatabaseWorkerPool
         {
             if (sLog.GetSQLDriverQueryLogging())
             {
-                if (transaction->GetSize() == 0)
+                switch (transaction->GetSize())
                 {
-                    sLog.outSQLDriver("Transaction contains 0 queries. Not executing.");
-                    return;
-                }
-                if (transaction->GetSize() == 1)
-                {
-                    sLog.outSQLDriver("Warning: Transaction only holds 1 query, consider removing Transaction context in code.");
+                    case 0:
+                        sLog.outSQLDriver("Transaction contains 0 queries. Not executing.");
+                        return;
+                    case 1:
+                        sLog.outSQLDriver("Warning: Transaction only holds 1 query, consider removing Transaction context in code.");
+                        break;
+                    default:
+                        break;
                 }
             }
+
             Enqueue(new TransactionTask(transaction));
         }
 
