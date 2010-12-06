@@ -125,11 +125,11 @@ class Log
         bool IsOutDebug() const { return m_logLevel > 2 || (m_logFileLevel > 2 && logfile); }
         bool IsOutCharDump() const { return m_charLog_Dump; }
 
-        bool GetLogDB() { return m_enableLogDB; }
-        bool GetLogDBLater() { return m_enableLogDBLater; }
+        bool GetLogDB() const { return m_enableLogDB; }
+        bool GetLogDBLater() const { return m_enableLogDBLater; }
         void SetLogDB(bool enable) { m_enableLogDB = enable; }
         void SetLogDBLater(bool value) { m_enableLogDBLater = value; }
-        bool GetSQLDriverQueryLogging() { return m_sqlDriverQueryLogging; }
+        bool GetSQLDriverQueryLogging() const { return m_sqlDriverQueryLogging; }
     private:
         FILE* openLogFile(char const* configFileName,char const* configTimeStampFlag, char const* mode);
         FILE* openGmlogPerAccount(uint32 account);

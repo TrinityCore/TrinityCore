@@ -70,7 +70,6 @@ class CreatureAI : public UnitAI
 
         bool UpdateVictim();
         bool UpdateVictimWithGaze();
-        bool UpdateCombatState();
 
         void SetGazeOn(Unit *target);
 

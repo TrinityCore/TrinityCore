@@ -1928,7 +1928,7 @@ void Group::SetLfgState(LfgState state)
     m_LfgState = state;
 }
 
-LfgState Group::GetLfgState()
+LfgState Group::GetLfgState() const
 {
     return m_LfgState;
 }
@@ -1944,7 +1944,7 @@ void Group::SetLfgDungeonEntry(uint32 dungeonEntry)
     m_LfgDungeonEntry = dungeonEntry;
 }
 
-uint32 Group::GetLfgDungeonEntry(bool id /* = true*/)
+uint32 Group::GetLfgDungeonEntry(bool id /* = true*/) const
 {
     if (id)
         return (m_LfgDungeonEntry & 0x00FFFFFF);
@@ -2168,7 +2168,7 @@ void Group::LinkMember(GroupReference *pRef)
     m_memberMgr.insertFirst(pRef);
 }
 
-void Group::DelinkMember(GroupReference* /*pRef*/)
+void Group::DelinkMember(GroupReference* /*pRef*/) const
 {
 }
 

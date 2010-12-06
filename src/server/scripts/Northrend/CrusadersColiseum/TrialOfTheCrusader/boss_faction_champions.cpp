@@ -275,9 +275,7 @@ struct boss_faction_championsAI : public ScriptedAI
     void UpdateThreat()
     {
         std::list<HostileReference*> const& tList = me->getThreatManager().getThreatList();
-        std::list<HostileReference*>::const_iterator itr;
-        bool empty = true;
-        for (itr = tList.begin(); itr!=tList.end(); ++itr)
+        for (std::list<HostileReference*>::const_iterator itr = tList.begin(); itr != tList.end(); ++itr)
         {
             Unit* pUnit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
             if (pUnit && me->getThreatManager().getThreat(pUnit))
@@ -287,7 +285,6 @@ struct boss_faction_championsAI : public ScriptedAI
                     float threat = CalculateThreat(me->GetDistance2d(pUnit), (float)pUnit->GetArmor(), pUnit->GetHealth());
                     me->getThreatManager().modifyThreatPercent(pUnit, -100);
                     me->AddThreat(pUnit, 1000000.0f * threat);
-                    empty = false;
                 }
             }
         }

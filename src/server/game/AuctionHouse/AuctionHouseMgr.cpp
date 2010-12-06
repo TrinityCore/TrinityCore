@@ -98,12 +98,12 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry *auction, SQLTransaction& 
         return;
 
     uint32 bidder_accId = 0;
-    uint32 bidder_security = 0;
     uint64 bidder_guid = MAKE_NEW_GUID(auction->bidder, 0, HIGHGUID_PLAYER);
     Player *bidder = sObjectMgr.GetPlayer(bidder_guid);
     // data for gm.log
     if (sWorld.getBoolConfig(CONFIG_GM_LOG_TRADE))
     {
+        uint32 bidder_security = 0;
         std::string bidder_name;
         if (bidder)
         {

@@ -92,7 +92,7 @@ void EventProcessor::AddEvent(BasicEvent* Event, uint64 e_time, bool set_addtime
     m_events.insert(std::pair<uint64, BasicEvent*>(e_time, Event));
 }
 
-uint64 EventProcessor::CalculateTime(uint64 t_offset)
+uint64 EventProcessor::CalculateTime(uint64 t_offset) const
 {
     return(m_time + t_offset);
 }

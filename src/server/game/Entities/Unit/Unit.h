@@ -989,8 +989,8 @@ struct CharmInfo
         void SetPetNumber(uint32 petnumber, bool statwindow);
 
         void SetCommandState(CommandStates st) { m_CommandState = st; }
-        CommandStates GetCommandState() { return m_CommandState; }
-        bool HasCommandState(CommandStates state) { return (m_CommandState == state); }
+        CommandStates GetCommandState() const { return m_CommandState; }
+        bool HasCommandState(CommandStates state) const { return (m_CommandState == state); }
         //void SetReactState(ReactStates st) { m_reactState = st; }
         //ReactStates GetReactState() { return m_reactState; }
         //bool HasReactState(ReactStates state) { return (m_reactState == state); }

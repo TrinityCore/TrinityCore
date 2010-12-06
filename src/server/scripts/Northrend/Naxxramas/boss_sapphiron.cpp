@@ -228,7 +228,7 @@ public:
 
             events.Update(diff);
 
-            if ((phase != PHASE_BIRTH && !UpdateCombatState()) || !CheckInRoom())
+            if ((phase != PHASE_BIRTH && !UpdateVictim()) || !CheckInRoom())
                 return;
 
             if (CanTheHundredClub)

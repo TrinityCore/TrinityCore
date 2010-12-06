@@ -624,10 +624,7 @@ void Channel::Say(uint64 p, const char *what, uint32 lang)
     if (sWorld.getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
         lang = LANG_UNIVERSAL;
 
-    uint32 sec = 0;
     Player *plr = sObjectMgr.GetPlayer(p);
-    if (plr)
-        sec = plr->GetSession()->GetSecurity();
 
     if (!IsOn(p))
     {

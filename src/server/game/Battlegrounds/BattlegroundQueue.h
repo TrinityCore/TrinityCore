@@ -80,7 +80,7 @@ class BattlegroundQueue
         bool IsPlayerInvited(const uint64& pl_guid, const uint32 bgInstanceGuid, const uint32 removeTime);
         bool GetPlayerGroupInfoData(const uint64& guid, GroupQueueInfo* ginfo);
         void PlayerInvitedToBGUpdateAverageWaitTime(GroupQueueInfo* ginfo, BattlegroundBracketId bracket_id);
-        uint32 GetAverageQueueWaitTime(GroupQueueInfo* ginfo, BattlegroundBracketId bracket_id);
+        uint32 GetAverageQueueWaitTime(GroupQueueInfo* ginfo, BattlegroundBracketId bracket_id) const;
 
         typedef std::map<uint64, PlayerQueueInfo> QueuedPlayersMap;
         QueuedPlayersMap m_QueuedPlayers;

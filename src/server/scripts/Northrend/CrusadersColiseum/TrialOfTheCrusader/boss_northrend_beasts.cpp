@@ -452,6 +452,7 @@ struct boss_jormungarAI : public ScriptedAI
                 case 4:
                     m_uiStage = 5;
                     m_uiSubmergeTimer = 5*IN_MILLISECONDS;
+                    break;
                 default:
                     m_uiStage = 7;
             }
