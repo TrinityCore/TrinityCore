@@ -5744,8 +5744,34 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 // Shadow's Fate (Shadowmourne questline)
                 case 71169:
                 {
-                    triggered_spell_id = 71203;
                     target = triggeredByAura->GetCaster();
+                    Player* player = target->ToPlayer();
+                    if (!player)
+                        return false;
+                    // not checking Infusion auras because its in targetAuraSpell of credit spell
+                    if (player->GetQuestStatus(24749) == QUEST_STATUS_INCOMPLETE)       // Unholy Infusion
+                    {
+                        if (GetEntry() != 36678)                                        // Professor Putricide
+                            return false;
+                        CastSpell(target, 71518, true);                                 // Quest Credit
+                        return true;
+                    }
+                    else if (player->GetQuestStatus(24756) == QUEST_STATUS_INCOMPLETE)  // Blood Infusion
+                    {
+                        if (GetEntry() != 37955)                                        // Blood-Queen Lana'thel
+                            return false;
+                        CastSpell(target, 72934, true);                                 // Quest Credit
+                        return true;
+                    }
+                    else if (player->GetQuestStatus(24757) == QUEST_STATUS_INCOMPLETE)  // Frost Infusion
+                    {
+                        if (GetEntry() != 36853)                                        // Sindragosa
+                            return false;
+                        CastSpell(target, 72289, true);                                 // Quest Credit
+                        return true;
+                    }
+                    else if (player->GetQuestStatus(24547) == QUEST_STATUS_INCOMPLETE)  // A Feast of Souls
+                        triggered_spell_id = 71203;
                     break;
                 }
                 // Gaseous Bloat (Professor Putricide add)
@@ -8863,16 +8889,36 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
             break;
         // Shadow's Fate (Shadowmourne questline)
         case 71169:
+        {
             if (GetTypeId() != TYPEID_PLAYER)
                 return false;
-            if (ToPlayer()->GetQuestStatus(24547) != QUEST_STATUS_INCOMPLETE)   // A Feast of Souls
+
+            Player* player = this->ToPlayer();
+            if (player->GetQuestStatus(24749) == QUEST_STATUS_INCOMPLETE)       // Unholy Infusion
+            {
+                if (!player->HasAura(71516) || pVictim->GetEntry() != 36678)    // Shadow Infusion && Professor Putricide
+                    return false;
+            }
+            else if (player->GetQuestStatus(24756) == QUEST_STATUS_INCOMPLETE)  // Blood Infusion
+            {
+                if (!player->HasAura(72154) || pVictim->GetEntry() != 37955)    // Thirst Quenched && Blood-Queen Lana'thel
+                    return false;
+            }
+            else if (player->GetQuestStatus(24757) == QUEST_STATUS_INCOMPLETE)  // Frost Infusion
+            {
+                if (!player->HasAura(72290) || pVictim->GetEntry() != 36853)    // Frost-Imbued Blade && Sindragosa
+                    return false;
+            }
+            else if (player->GetQuestStatus(24547) != QUEST_STATUS_INCOMPLETE)  // A Feast of Souls
                 return false;
+
             if (pVictim->GetTypeId() != TYPEID_UNIT)
                 return false;
             // critters are not allowed
             if (pVictim->GetCreatureType() == CREATURE_TYPE_CRITTER)
                 return false;
             break;
+        }
     }
 
     if (cooldown && GetTypeId() == TYPEID_PLAYER && ToPlayer()->HasSpellCooldown(trigger_spell_id))

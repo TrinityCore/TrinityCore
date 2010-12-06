@@ -61,6 +61,15 @@ enum eSpells
     SPELL_BLOODBOLT_WHIRL                   = 71772,
 };
 
+enum eShadowmourne
+{
+    QUEST_BLOOD_INFUSION                    = 24756,
+    ITEM_SHADOW_S_EDGE                      = 49888,
+
+    SPELL_GUSHING_WOUND                     = 72132,
+    SPELL_THIRST_QUENCHED                   = 72154,
+};
+
 static const uint32 vampireAuras[3][MAX_DIFFICULTY] = 
 {
     {70867, 71473, 71532, 71533},
@@ -182,6 +191,12 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 instance->DoRemoveAurasDueToSpellOnPlayers(ESSENCE_OF_BLOOD_QUEEN);
                 instance->DoRemoveAurasDueToSpellOnPlayers(ESSENCE_OF_BLOOD_QUEEN_PLR);
                 instance->DoRemoveAurasDueToSpellOnPlayers(FRENZIED_BLOODTHIRST);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_UNCONTROLLABLE_FRENZY);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BLOOD_MIRROR_DAMAGE);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BLOOD_MIRROR_VISUAL);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BLOOD_MIRROR_DUMMY);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DELIRIOUS_SLASH);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PACT_OF_THE_DARKFALLEN);
                 instance->SetBossState(DATA_BLOOD_QUEEN_LANA_THEL, DONE);
             }
 
@@ -273,6 +288,10 @@ class boss_blood_queen_lana_thel : public CreatureScript
                                     offtank->CastSpell(me->getVictim(), SPELL_BLOOD_MIRROR_DAMAGE, true);
                                     me->getVictim()->CastSpell(offtank, SPELL_BLOOD_MIRROR_DUMMY, true);
                                     DoCastVictim(SPELL_BLOOD_MIRROR_VISUAL);
+                                    if (Item* shadowsEdge = offtank->GetWeaponForAttack(BASE_ATTACK, true))
+                                        if (!offtank->HasAura(SPELL_THIRST_QUENCHED) && shadowsEdge->GetEntry() == ITEM_SHADOW_S_EDGE && !offtank->HasAura(SPELL_GUSHING_WOUND))
+                                            offtank->CastSpell(offtank, SPELL_GUSHING_WOUND, true);
+
                                 }
                             }
                             events.ScheduleEvent(EVENT_BLOOD_MIRROR, 2500, EVENT_GROUP_CANCELLABLE);
@@ -436,8 +455,23 @@ class spell_blood_queen_vampiric_bite : public SpellScriptLoader
                 spell = sSpellMgr.GetSpellForDifficultyFromSpell(spell, GetCaster());
                 GetCaster()->RemoveAura(spell->Id, 0, 0, AURA_REMOVE_BY_ENEMY_SPELL);
                 GetCaster()->CastSpell(GetCaster(), SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_PLR, true);
+                // Presence of the Darkfallen buff on Blood-Queen
                 if (GetCaster()->GetMap()->IsHeroic())
                     GetCaster()->CastSpell(GetCaster(), SPELL_PRESENCE_OF_THE_DARKFALLEN, true);
+                // Shadowmourne questline
+                if (GetCaster()->ToPlayer()->GetQuestStatus(QUEST_BLOOD_INFUSION) == QUEST_STATUS_INCOMPLETE)
+                {
+                    if (Aura* aura = GetCaster()->GetAura(SPELL_GUSHING_WOUND))
+                    {
+                        if (aura->GetStackAmount() == 3)
+                        {
+                            GetCaster()->CastSpell(GetCaster(), SPELL_THIRST_QUENCHED, true);
+                            GetCaster()->RemoveAura(aura);
+                        } 
+                        else
+                            GetCaster()->CastSpell(GetCaster(), SPELL_GUSHING_WOUND, true);
+                    }
+                }
                 if (InstanceScript* instance = GetCaster()->GetInstanceScript())
                     if (Creature* bloodQueen = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(DATA_BLOOD_QUEEN_LANA_THEL)))
                         bloodQueen->AI()->SetGUID(GetHitUnit()->GetGUID(), GUID_VAMPIRE);

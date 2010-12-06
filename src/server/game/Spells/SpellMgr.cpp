@@ -3888,11 +3888,6 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectImplicitTargetA[0] = TARGET_DST_DB;
             count++;
             break;
-        // Deathbringer Saurfang achievement (must be cast on players, cannot do that with ENTRY target)
-        case 72928:
-            spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_AREA_ENEMY_SRC;
-            count++;
-            break;
         case 63675: // Improved Devouring Plague
             spellInfo->AttributesEx3 |= SPELL_ATTR_EX3_NO_DONE_BONUS;
             count++;
@@ -3952,6 +3947,12 @@ void SpellMgr::LoadSpellCustomAttr()
         case 72855: // Unbound Plague
         case 72856: // Unbound Plague
             spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ENEMY;
+            count++;
+            break;
+        case 71518: // Unholy Infusion Quest Credit
+        case 72934: // Blood Infusion Quest Credit
+        case 72289: // Frost Infusion Quest Credit
+            spellInfo->EffectRadiusIndex[0] = 28;   // another missing radius
             count++;
             break;
         case 71708: // Empowered Flare
