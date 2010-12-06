@@ -84,7 +84,7 @@ class DatabaseWorkerPool
 
             m_delaythreads.resize(delaythreads);
             for (uint8 i = 0; i < delaythreads; ++i)
-                m_delaythreads[i] = new DatabaseWorker<ThisClass>(m_queue, this);
+                m_delaythreads[i] = new DatabaseWorker<T>(m_queue, this);
 
             sLog.outSQLDriver("Databasepool opened succesfuly. %u connections running.", m_connectionCount);
             return true;
@@ -342,13 +342,12 @@ class DatabaseWorkerPool
         }
 
     private:
-        typedef DatabaseWorkerPool<T> ThisClass;
 
         ACE_Activation_Queue*           m_queue;                    //! Queue shared by async worker threads.
         std::vector<T*>                 m_connections;
         uint8                           m_connectionCount;          //! Counter of MySQL connections;
         MySQLConnectionInfo             m_connectionInfo;
-        std::vector<DatabaseWorker<ThisClass>*> m_delaythreads;     //! Delaythreads (templatized)
+        std::vector<DatabaseWorker<T>*> m_delaythreads;     //! Delaythreads (templatized)
 };
 
 #endif
