@@ -32,9 +32,9 @@ template <typename T>
 class DatabaseWorker : public ACE_Task_Base
 {
     public:
-        DatabaseWorker(ACE_Activation_Queue* new_queue, T* t) :
+        DatabaseWorker(ACE_Activation_Queue* new_queue, DatabaseWorkerPool<T>* pool) :
         m_queue(new_queue),
-        m_pool(t)
+        m_pool(pool)
         {
             /// Assign thread to task
             activate();
@@ -87,7 +87,7 @@ class DatabaseWorker : public ACE_Task_Base
         DatabaseWorker() : ACE_Task_Base() {}
         ACE_Activation_Queue* m_queue;
         MySQLConnection* m_conn;
-        T* m_pool;  // Databasepool we operate on
+        DatabaseWorkerPool<T>* m_pool;  // Databasepool we operate on
 };
 
 #endif
