@@ -28,7 +28,10 @@
 
 class MySQLConnection;
 
-template <typename T>
+// Forward declare
+template <class T> class DatabaseWorkerPool;
+
+template <class T>
 class DatabaseWorker : public ACE_Task_Base
 {
     public:
