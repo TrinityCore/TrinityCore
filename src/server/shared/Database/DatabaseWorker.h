@@ -48,13 +48,14 @@ class DatabaseWorker : public ACE_Task_Base
                 return -1;
 
             SQLOperation *request = NULL;
+            MySQLConnection* con = NULL;
             while (1)
             {
                 request = (SQLOperation*)(m_queue->dequeue());
                 if (!request)
                     break;
 
-                MySQLConnection* con = m_pool->GetFreeConnection();
+                con = m_pool->GetFreeConnection();
                 request->SetConnection(con);
                 request->call();
                 con->Unlock();
@@ -62,7 +63,6 @@ class DatabaseWorker : public ACE_Task_Base
                 delete request;
             }
 
-            m_conn->Close();
             return 0;
         }
 
@@ -86,7 +86,6 @@ class DatabaseWorker : public ACE_Task_Base
     private:
         DatabaseWorker() : ACE_Task_Base() {}
         ACE_Activation_Queue* m_queue;
-        MySQLConnection* m_conn;
         DatabaseWorkerPool<T>* m_pool;  // Databasepool we operate on
 };
 
