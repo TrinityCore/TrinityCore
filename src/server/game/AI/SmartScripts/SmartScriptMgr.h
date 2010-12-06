@@ -1121,10 +1121,10 @@ struct SmartScriptHolder
     SmartTarget target;
 
     public:
-        uint32 GetScriptType() { return (uint32)source_type; }
-        uint32 GetEventType() { return (uint32)event.type; }
-        uint32 GetActionType() { return (uint32)action.type; }
-        uint32 GetTargetType() { return (uint32)target.type; }
+        uint32 GetScriptType() const { return (uint32)source_type; }
+        uint32 GetEventType() const { return (uint32)event.type; }
+        uint32 GetActionType() const { return (uint32)action.type; }
+        uint32 GetTargetType() const { return (uint32)target.type; }
 
     uint32 timer;
     bool active;

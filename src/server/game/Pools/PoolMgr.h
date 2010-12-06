@@ -58,7 +58,7 @@ class ActivePoolData
         template<typename T>
         void RemoveObject(uint32 db_guid_or_pool_id, uint32 pool_id);
 
-        ActivePoolObjects GetActiveQuests() { return mActiveQuests; } // a copy of the set
+        ActivePoolObjects GetActiveQuests() const { return mActiveQuests; } // a copy of the set
     private:
         ActivePoolObjects mSpawnedCreatures;
         ActivePoolObjects mSpawnedGameobjects;

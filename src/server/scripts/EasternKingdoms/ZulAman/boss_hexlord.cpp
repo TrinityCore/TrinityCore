@@ -128,7 +128,7 @@ struct PlayerAbilityStruct
 {
     uint32 spell;
     AbilityTarget target;
-    uint32 cooldown;
+    uint32 cooldown; //FIXME - it's never used
 };
 
 static PlayerAbilityStruct PlayerAbility[][3] =

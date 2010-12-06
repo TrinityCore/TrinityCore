@@ -128,7 +128,7 @@ struct Condition
     }
 
     bool Meets(Player * player, Unit* invoker = NULL);
-    bool isLoaded() { return mConditionType > CONDITION_NONE || mReferenceId; }
+    bool isLoaded() const { return mConditionType > CONDITION_NONE || mReferenceId; }
 };
 
 typedef std::list<Condition*> ConditionList;
@@ -168,7 +168,7 @@ class ConditionMgr
         bool addToGossipMenuItems(Condition* cond);
         bool IsPlayerMeetToConditionList(Player* player,const ConditionList& conditions, Unit* invoker = NULL);
 
-        bool isGroupable(ConditionSourceType sourceType)
+        bool isGroupable(ConditionSourceType sourceType) const
         {
             return (sourceType == CONDITION_SOURCE_TYPE_CREATURE_LOOT_TEMPLATE ||
                     sourceType == CONDITION_SOURCE_TYPE_DISENCHANT_LOOT_TEMPLATE ||

@@ -595,7 +595,8 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
             {
                 //store a map of old pet id to new inserted pet id for use by type 5 tables
                 snprintf(currpetid, 20, "%s", getnth(line, 1).c_str());
-                if (strlen(lastpetid) == 0) snprintf(lastpetid, 20, "%s", currpetid);
+                if (*lastpetid == '\0')
+                    snprintf(lastpetid, 20, "%s", currpetid);
                 if (strcmp(lastpetid,currpetid) != 0)
                 {
                     snprintf(newpetid, 20, "%d", sObjectMgr.GeneratePetNumber());

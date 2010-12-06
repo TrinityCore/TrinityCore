@@ -820,9 +820,6 @@ void npc_doctor::npc_doctorAI::UpdateAI(const uint32 diff)
     {
         if (SummonPatient_Timer <= diff)
         {
-            Creature* Patient = NULL;
-            Location* Point = NULL;
-
             if (Coordinates.empty())
                 return;
 
@@ -838,22 +835,21 @@ void npc_doctor::npc_doctorAI::UpdateAI(const uint32 diff)
                 return;
             }
 
-            Point = *itr;
-
-            Patient = me->SummonCreature(patientEntry, Point->x, Point->y, Point->z, Point->o, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-
-            if (Patient)
+            if (Location* Point = *itr)
             {
-                //303, this flag appear to be required for client side item->spell to work (TARGET_SINGLE_FRIEND)
-                Patient->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+                if (Creature* Patient = me->SummonCreature(patientEntry, Point->x, Point->y, Point->z, Point->o, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
+                {
+                    //303, this flag appear to be required for client side item->spell to work (TARGET_SINGLE_FRIEND)
+                    Patient->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
 
-                Patients.push_back(Patient->GetGUID());
-                CAST_AI(npc_injured_patient::npc_injured_patientAI, Patient->AI())->Doctorguid = me->GetGUID();
+                    Patients.push_back(Patient->GetGUID());
+                    CAST_AI(npc_injured_patient::npc_injured_patientAI, Patient->AI())->Doctorguid = me->GetGUID();
 
-                if (Point)
-                    CAST_AI(npc_injured_patient::npc_injured_patientAI, Patient->AI())->Coord = Point;
+                    if (Point)
+                        CAST_AI(npc_injured_patient::npc_injured_patientAI, Patient->AI())->Coord = Point;
 
-                Coordinates.erase(itr);
+                    Coordinates.erase(itr);
+                }
             }
             SummonPatient_Timer = 10000;
             ++SummonPatientCount;

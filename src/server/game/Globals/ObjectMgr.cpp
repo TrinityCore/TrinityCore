@@ -5858,13 +5858,13 @@ void ObjectMgr::GetTaxiPath(uint32 source, uint32 destination, uint32 &path, uin
 
 uint32 ObjectMgr::GetTaxiMountDisplayId(uint32 id, uint32 team, bool allowed_alt_team /* = false */)
 {
-    uint32 mount_entry = 0;
     uint32 mount_id = 0;
 
     // select mount creature id
     TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(id);
     if (node)
     {
+        uint32 mount_entry = 0;
         if (team == ALLIANCE)
             mount_entry = node->MountCreatureID[1];
         else

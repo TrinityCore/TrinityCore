@@ -97,7 +97,7 @@ class SOAPCommand
             m_success = val;
         }
 
-        bool hasCommandSucceeded()
+        bool hasCommandSucceeded() const
         {
             return m_success;
         }

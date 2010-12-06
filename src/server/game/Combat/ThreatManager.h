@@ -170,9 +170,9 @@ class ThreatContainer
 
         void setDirty(bool pDirty) { iDirty = pDirty; }
 
-        bool isDirty() { return iDirty; }
+        bool isDirty() const { return iDirty; }
 
-        bool empty() { return(iThreatList.empty()); }
+        bool empty() const { return(iThreatList.empty()); }
 
         HostileReference* getMostHated() { return iThreatList.empty() ? NULL : iThreatList.front(); }
 

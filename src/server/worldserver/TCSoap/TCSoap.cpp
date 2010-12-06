@@ -28,18 +28,15 @@ void TCSoapRunnable::run()
     pool.activate (THR_NEW_LWP | THR_JOINABLE, POOL_SIZE);
 
     struct soap soap;
-    int m, s;
     soap_init(&soap);
     soap_set_imode(&soap, SOAP_C_UTFSTRING);
     soap_set_omode(&soap, SOAP_C_UTFSTRING);
-    m = soap_bind(&soap, m_host.c_str(), m_port, 100);
 
     // check every 3 seconds if world ended
     soap.accept_timeout = 3;
-
     soap.recv_timeout = 5;
     soap.send_timeout = 5;
-    if (m < 0)
+    if (soap_bind(&soap, m_host.c_str(), m_port, 100) < 0)
     {
         sLog.outError("TCSoap: couldn't bind to %s:%d", m_host.c_str(), m_port);
         exit(-1);
@@ -49,9 +46,7 @@ void TCSoapRunnable::run()
 
     while(!World::IsStopped())
     {
-        s = soap_accept(&soap);
-
-        if (s < 0)
+        if (soap_accept(&soap) < 0)
             continue;   // ran into an accept timeout
 
         sLog.outDebug("TCSoap: accepted connection from IP=%d.%d.%d.%d", (int)(soap.ip>>24)&0xFF, (int)(soap.ip>>16)&0xFF, (int)(soap.ip>>8)&0xFF, (int)soap.ip&0xFF);

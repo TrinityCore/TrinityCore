@@ -196,10 +196,10 @@ class Group
 
         // Dungeon Finder
         void   SetLfgState(LfgState state);
-        LfgState GetLfgState();
+        LfgState GetLfgState() const;
         void   RestoreLfgState();
         void   SetLfgDungeonEntry(uint32 dungeonEntry);
-        uint32 GetLfgDungeonEntry(bool id = true);
+        uint32 GetLfgDungeonEntry(bool id = true) const;
         uint8  GetLfgKicks() const;
         void   SetLfgKicks(uint8 kicks);
         void   SetLfgRoles(uint64 guid, const uint8 roles);
@@ -292,7 +292,7 @@ class Group
         void ResetMaxEnchantingLevel();
 
         void LinkMember(GroupReference *pRef);
-        void DelinkMember(GroupReference* /*pRef*/);
+        void DelinkMember(GroupReference* /*pRef*/) const;
 
         InstanceGroupBind* BindToInstance(InstanceSave *save, bool permanent, bool load = false);
         void UnbindInstance(uint32 mapid, uint8 difficulty, bool unload = false);

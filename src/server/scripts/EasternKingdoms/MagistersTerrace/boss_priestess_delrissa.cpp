@@ -299,14 +299,11 @@ public:
             if (DispelTimer <= diff)
             {
                 Unit *pTarget = NULL;
-                bool friendly = false;
 
                 if (urand(0,1))
                     pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                 else
                 {
-                    friendly = true;
-
                     if (urand(0,1))
                         pTarget = me;
                     else

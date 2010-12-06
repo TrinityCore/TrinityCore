@@ -13593,7 +13593,6 @@ void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId, bool showQue
 
     uint32 npcflags = 0;
     Creature *pCreature = NULL;
-    GameObject *pGo = NULL;
 
     if (pSource->GetTypeId() == TYPEID_UNIT)
     {
@@ -13602,8 +13601,6 @@ void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId, bool showQue
         if (npcflags & UNIT_NPC_FLAG_QUESTGIVER && showQuests)
             PrepareQuestMenu(pSource->GetGUID());
     }
-    else if (pSource->GetTypeId() == TYPEID_GAMEOBJECT)
-        pGo = (GameObject*)pSource;
 
     for (GossipMenuItemsMap::const_iterator itr = pMenuItemBounds.first; itr != pMenuItemBounds.second; ++itr)
     {

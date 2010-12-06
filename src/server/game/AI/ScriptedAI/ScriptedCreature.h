@@ -269,7 +269,7 @@ struct BossAI : public ScriptedAI
     void Reset() { _Reset(); }
     void EnterCombat(Unit * /*who*/) { _EnterCombat(); }
     void JustDied(Unit * /*killer*/) { _JustDied(); }
-    void JustReachedHome() { me->setActive(false); }
+    void JustReachedHome() { _JustReachedHome(); }
 
     protected:
         void _Reset();

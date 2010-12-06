@@ -141,8 +141,8 @@ class ReputationMgr
         bool SetReputation(FactionEntry const* factionEntry, int32 standing, bool incremental);
         bool SetOneFactionReputation(FactionEntry const* factionEntry, int32 standing, bool incremental);
         void SetVisible(FactionState* faction);
-        void SetAtWar(FactionState* faction, bool atWar);
-        void SetInactive(FactionState* faction, bool inactive);
+        void SetAtWar(FactionState* faction, bool atWar) const;
+        void SetInactive(FactionState* faction, bool inactive) const;
         void SendVisible(FactionState const* faction) const;
         void UpdateRankCounters(ReputationRank old_rank, ReputationRank new_rank);
     private:

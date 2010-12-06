@@ -424,7 +424,7 @@ void ReputationMgr::SetAtWar(RepListID repListID, bool on)
     SetAtWar(&itr->second,on);
 }
 
-void ReputationMgr::SetAtWar(FactionState* faction, bool atWar)
+void ReputationMgr::SetAtWar(FactionState* faction, bool atWar) const
 {
     // not allow declare war to own faction
     if (atWar && (faction->Flags & FACTION_FLAG_PEACE_FORCED))
@@ -452,7 +452,7 @@ void ReputationMgr::SetInactive(RepListID repListID, bool on)
     SetInactive(&itr->second,on);
 }
 
-void ReputationMgr::SetInactive(FactionState* faction, bool inactive)
+void ReputationMgr::SetInactive(FactionState* faction, bool inactive) const
 {
     // always invisible or hidden faction can't be inactive
     if (inactive && ((faction->Flags & (FACTION_FLAG_INVISIBLE_FORCED|FACTION_FLAG_HIDDEN)) || !(faction->Flags & FACTION_FLAG_VISIBLE)))
