@@ -723,6 +723,8 @@ void LFGMgr::Leave(Player* plr, Group* grp /* = NULL*/)
                 RemoveProposal(it, LFG_UPDATETYPE_PROPOSAL_DECLINED);
             break;
         }
+        case LFG_STATE_NONE:
+            break;
         default:
             sLog.outError("LFGMgr::Leave: [" UI64FMTD "], state %u - This shouldn't happen", guid, uint8(state));
             break;
