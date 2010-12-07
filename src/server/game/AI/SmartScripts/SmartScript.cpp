@@ -1063,6 +1063,11 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
             }
         case SMART_ACTION_CALL_TIMED_ACTIONLIST:
             {
+                if (e.GetTargetType() == SMART_TARGET_NONE)
+                {
+                    sLog.outErrorDb("SmartScript: Entry %d SourceType %u Event %u Action %u is using TARGET_NONE(0) for Script9 target. Please correct target_type in database.", e.entryOrGuid, e.GetScriptType(), e.GetEventType(), e.GetActionType());
+                    return;
+                }
                 ObjectList* targets = GetTargets(e, unit);
                 if (targets)
                 {
@@ -1071,7 +1076,11 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                         if (Creature* target = (*itr)->ToCreature())
                         {
                             if (IsSmart(target))
-                                CAST_AI(SmartAI, target->AI())->SetScript9(e, e.action.timedActionList.id);
+                                CAST_AI(SmartAI, target->AI())->SetScript9(e, e.action.timedActionList.id, mLastInvoker);
+                        } else if (GameObject* target = (*itr)->ToGameObject())
+                        {
+                            if (IsSmartGO(target))
+                                CAST_AI(SmartGameObjectAI, target->AI())->SetScript9(e, e.action.timedActionList.id, mLastInvoker);
                         }
                     }
                 }
@@ -1147,6 +1156,11 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                     }
                 }
                 uint32 id = temp[urand(0, count)];
+                if (e.GetTargetType() == SMART_TARGET_NONE)
+                {
+                    sLog.outErrorDb("SmartScript: Entry %d SourceType %u Event %u Action %u is using TARGET_NONE(0) for Script9 target. Please correct target_type in database.", e.entryOrGuid, e.GetScriptType(), e.GetEventType(), e.GetActionType());
+                    return;
+                }
                 ObjectList* targets = GetTargets(e, unit);
                 if (targets)
                 {
@@ -1155,7 +1169,11 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                         if (Creature* target = (*itr)->ToCreature())
                         {
                             if (IsSmart(target))
-                                CAST_AI(SmartAI, target->AI())->SetScript9(e, id);
+                                CAST_AI(SmartAI, target->AI())->SetScript9(e, id, mLastInvoker);
+                        } else if (GameObject* target = (*itr)->ToGameObject())
+                        {
+                            if (IsSmartGO(target))
+                                CAST_AI(SmartGameObjectAI, target->AI())->SetScript9(e, id, mLastInvoker);
                         }
                     }
                 }
@@ -1164,6 +1182,11 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
         case SMART_ACTION_CALL_RANDOM_RANGE_TIMED_ACTIONLIST:
             {
                 uint32 id = urand(e.action.randTimedActionList.entry1, e.action.randTimedActionList.entry2);
+                if (e.GetTargetType() == SMART_TARGET_NONE)
+                {
+                    sLog.outErrorDb("SmartScript: Entry %d SourceType %u Event %u Action %u is using TARGET_NONE(0) for Script9 target. Please correct target_type in database.", e.entryOrGuid, e.GetScriptType(), e.GetEventType(), e.GetActionType());
+                    return;
+                }
                 ObjectList* targets = GetTargets(e, unit);
                 if (targets)
                 {
@@ -1172,7 +1195,11 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                         if (Creature* target = (*itr)->ToCreature())
                         {
                             if (IsSmart(target))
-                                CAST_AI(SmartAI, target->AI())->SetScript9(e, id);
+                                CAST_AI(SmartAI, target->AI())->SetScript9(e, id, mLastInvoker);
+                        } else if (GameObject* target = (*itr)->ToGameObject())
+                        {
+                            if (IsSmartGO(target))
+                                CAST_AI(SmartGameObjectAI, target->AI())->SetScript9(e, id, mLastInvoker);
                         }
                     }
                 }
