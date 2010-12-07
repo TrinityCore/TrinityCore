@@ -789,6 +789,11 @@ void SmartAI::SetFollow(Unit* target, float dist, float angle, uint32 credit, ui
     me->GetMotionMaster()->MoveFollow(target, dist, angle);
     mFollowCreditType = creditType;
 }
+
+void SmartAI::SetScript9(SmartScriptHolder &e, uint32 entry)
+{
+    GetScript()->SetScript9(e, entry);
+}
 /*
 SMART_EVENT_UPDATE_OOC
 SMART_EVENT_SPELLHIT
