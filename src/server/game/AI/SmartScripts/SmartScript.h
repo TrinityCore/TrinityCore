@@ -180,6 +180,9 @@ class SmartScript
             meOrigGUID = 0;
         }
 
+        //TIMED_ACTIONLIST (script type 9 aka script9)
+        void SetScript9(SmartScriptHolder &e, uint32 entry);
+
     private:
         void IncPhase(int32 p = 1) { 
             if(p >= 0)
@@ -250,8 +253,6 @@ class SmartScript
             SmartScriptHolder s;
             return s;
         }
-        //TIMED_ACTIONLIST (script type 9 aka script9)
-        void SetScript9(SmartScriptHolder &e, uint32 entry);
 };
 
 #endif
