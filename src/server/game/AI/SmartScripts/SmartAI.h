@@ -65,7 +65,7 @@ class SmartAI : public CreatureAI
         void SetCombatMove(bool on);
         void SetFollow(Unit* target, float dist = 0.0f, float angle = 0.0f, uint32 credit = 0, uint32 end = 0, uint32 creditType = 0);
 
-        void SetScript9(SmartScriptHolder &e, uint32 entry);
+        void SetScript9(SmartScriptHolder &e, uint32 entry, Unit* invoker);
         SmartScript* GetScript() { return &mScript; }
         bool IsEscortInvokerInRange();
 
@@ -248,6 +248,7 @@ public:
     uint32 GetDialogStatus(Player* /*player*/);
     void Destroyed(Player* player, uint32 eventId);
     void SetData(uint32 id, uint32 value);
+    void SetScript9(SmartScriptHolder &e, uint32 entry, Unit* invoker);
 
 protected:
     GameObject * const go;

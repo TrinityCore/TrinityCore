@@ -111,7 +111,16 @@ class SmartScript
             if (c && c->GetAIName() != "SmartAI") smart = false;
             if (!me || me->GetAIName() != "SmartAI") smart = false;
             if (!smart)
-                sLog.outErrorDb("SmartScript: Action target creature(entry: %u) is not using SmartAI, action skipped to prevent crash.", c?c->GetEntry():(me?me->GetEntry():0));
+                sLog.outErrorDb("SmartScript: Action target Creature(entry: %u) is not using SmartAI, action skipped to prevent crash.", c?c->GetEntry():(me?me->GetEntry():0));
+            return smart;
+        }
+        bool IsSmartGO(GameObject* g = NULL)
+        {
+            bool smart = true;
+            if (g && g->GetAIName() != "SmartGameObjectAI") smart = false;
+            if (!go || go->GetAIName() != "SmartGameObjectAI") smart = false;
+            if (!smart)
+                sLog.outErrorDb("SmartScript: Action target GameObject(entry: %u) is not using SmartGameObjectAI, action skipped to prevent crash.", g?g->GetEntry():(go?go->GetEntry():0));
             return smart;
         }
         ObjectList* GetTargetList(uint32 id)
@@ -182,6 +191,7 @@ class SmartScript
 
         //TIMED_ACTIONLIST (script type 9 aka script9)
         void SetScript9(SmartScriptHolder &e, uint32 entry);
+        Unit* mLastInvoker;
 
     private:
         void IncPhase(int32 p = 1) { 
@@ -217,7 +227,6 @@ class SmartScript
         uint64 mTextGUID;
         Creature* talker;
         bool mUseTextTimer;
-        Unit* mLastInvoker;
 
         SMARTAI_TEMPLATE mTemplate;
         void InstallEvents();
