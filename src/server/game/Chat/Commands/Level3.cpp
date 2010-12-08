@@ -57,7 +57,6 @@
 #include "Transport.h"
 #include "WeatherMgr.h"
 #include "ScriptMgr.h"
-#include "LFGMgr.h"
 #include "CreatureTextMgr.h"
 #include "SmartAI.h"
 #include "Group.h"

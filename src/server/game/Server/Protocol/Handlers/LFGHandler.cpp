@@ -15,20 +15,23 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "LFGMgr.h"
 #include "WorldSession.h"
 #include "WorldPacket.h"
+#include "DBCStores.h"
 #include "Player.h"
-#include "ObjectMgr.h"
 #include "Group.h"
+#include "LFGMgr.h"
+#include "ObjectMgr.h"
+
 
 void BuildPlayerLockDungeonBlock(WorldPacket &data, LfgLockStatusSet* lockSet)
 {
-    if (!lockSet || !lockSet->size())
+    if (!lockSet)
     {
         data << uint8(0);
         return;
     }
+    
     data << uint32(lockSet->size());                        // Size of lock dungeons
     for (LfgLockStatusSet::iterator it = lockSet->begin(); it != lockSet->end(); ++it)
     {
@@ -36,13 +39,13 @@ void BuildPlayerLockDungeonBlock(WorldPacket &data, LfgLockStatusSet* lockSet)
         data << uint32((*it)->lockstatus);                  // Lock status
         delete (*it);
     }
-    lockSet->clear();
     delete lockSet;
+    lockSet = NULL;
 }
 
 void BuildPartyLockDungeonBlock(WorldPacket &data, LfgLockStatusMap* lockMap)
 {
-    if (!lockMap || !lockMap->size())
+    if (!lockMap)
     {
         data << uint8(0);
         return;
@@ -54,8 +57,8 @@ void BuildPartyLockDungeonBlock(WorldPacket &data, LfgLockStatusMap* lockMap)
         data << uint64(MAKE_NEW_GUID(it->first, 0, HIGHGUID_PLAYER)); // Player guid
         BuildPlayerLockDungeonBlock(data, it->second);
     }
-    lockMap->clear();
     delete lockMap;
+    lockMap = NULL;
 }
 
 void WorldSession::HandleLfgJoinOpcode(WorldPacket &recv_data)
@@ -70,8 +73,6 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket &recv_data)
     uint8 numDungeons;
     uint32 dungeon;
     uint32 roles;
-    std::string comment;
-    LfgDungeonSet* newDungeons;
 
     recv_data >> roles;
     recv_data.read_skip<uint16>();                         // uint8 (always 0) - uint8 (always 0)
@@ -83,17 +84,18 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket &recv_data)
         return;
     }
 
-    newDungeons = new LfgDungeonSet();
+    LfgDungeonSet newDungeons;
     for (int8 i = 0 ; i < numDungeons; ++i)
     {
         recv_data >> dungeon;
-        newDungeons->insert((dungeon & 0x00FFFFFF));       // remove the type from the dungeon entry
+        newDungeons.insert((dungeon & 0x00FFFFFF));        // remove the type from the dungeon entry
     }
 
     recv_data.read_skip<uint32>();                         // for 0..uint8 (always 3) { uint8 (always 0) }
 
+    std::string comment;
     recv_data >> comment;
-    sLog.outDebug("CMSG_LFG_JOIN [" UI64FMTD "] roles: %u, Dungeons: %u, Comment: %s", GetPlayer()->GetGUID(), roles, uint8(newDungeons->size()), comment.c_str());
+    sLog.outDebug("CMSG_LFG_JOIN [" UI64FMTD "] roles: %u, Dungeons: %u, Comment: %s", GetPlayer()->GetGUID(), roles, uint8(newDungeons.size()), comment.c_str());
     sLFGMgr.Join(GetPlayer(), uint8(roles), newDungeons, comment);
 }
 
@@ -130,9 +132,7 @@ void WorldSession::HandleLfgSetRolesOpcode(WorldPacket &recv_data)
         sLog.outDebug("CMSG_LFG_SET_ROLES [" UI64FMTD "] Not in group", GetPlayer()->GetGUID());
         return;
     }
-    else
-        sLog.outDebug("CMSG_LFG_SET_ROLES [" UI64FMTD "] Roles: %u", GetPlayer()->GetGUID(), roles);
-
+    sLog.outDebug("CMSG_LFG_SET_ROLES [" UI64FMTD "] Roles: %u", GetPlayer()->GetGUID(), roles);
     GetPlayer()->SetLfgRoles(roles);
     sLFGMgr.UpdateRoleCheck(grp, GetPlayer());
 }
@@ -167,20 +167,26 @@ void WorldSession::HandleLfgTeleportOpcode(WorldPacket &recv_data)
 void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket &/*recv_data*/)
 {
     sLog.outDebug("CMSG_LFD_PLAYER_LOCK_INFO_REQUEST [" UI64FMTD "]", GetPlayer()->GetGUID());
-    uint32 rsize = 0;
-    uint32 lsize = 0;
-    LfgDungeonSet* randomlist = sLFGMgr.GetRandomDungeons(GetPlayer()->getLevel(), GetPlayer()->GetSession()->Expansion());
+
+    // FIXME - Should return seasonals (when not disabled)
+    LfgDungeonSet randomDungeons;
+    uint8 level = GetPlayer()->getLevel();
+    uint8 expansion = GetPlayer()->GetSession()->Expansion();
+    for (uint32 i = 0; i < sLFGDungeonStore.GetNumRows(); ++i)
+    {
+        LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(i);
+        if (dungeon && dungeon->type == LFG_TYPE_RANDOM && dungeon && dungeon->expansion <= expansion &&
+            dungeon->minlevel <= level && level <= dungeon->maxlevel)
+            randomDungeons.insert(dungeon->Entry());
+    }
+
     LfgLockStatusSet* lockSet = sLFGMgr.GetPlayerLockStatusDungeons(GetPlayer());
-
-    if (randomlist)
-        rsize = randomlist->size();
-
-    if (lockSet)
-        lsize = lockSet->size();
+    uint32 rsize = uint32(randomDungeons.size());
+    uint32 lsize = lockSet ? uint32(lockSet->size()) : 0;
 
     sLog.outDebug("SMSG_LFG_PLAYER_INFO [" UI64FMTD "]", GetPlayer()->GetGUID());
     WorldPacket data(SMSG_LFG_PLAYER_INFO, 1 + rsize * (4 + 1 + 4 + 4 + 4 + 4 + 1 + 4 + 4 + 4) + 4 + lsize * (1 + 4 + 4 + 4 + 4 + 1 + 4 + 4 + 4));
-    if (!randomlist)
+    if (!randomDungeons.size())
         data << uint8(0);
     else
     {
@@ -188,11 +194,11 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket &/*recv_data
         Quest const* qRew = NULL;
         uint8 done;
 
-        data << uint8(randomlist->size());                  // Random Dungeon count
-        for (LfgDungeonSet::iterator it = randomlist->begin(); it != randomlist->end(); ++it)
+        data << uint8(randomDungeons.size());               // Random Dungeon count
+        for (LfgDungeonSet::iterator it = randomDungeons.begin(); it != randomDungeons.end(); ++it)
         {
             data << uint32(*it);                            // Entry
-            reward = sLFGMgr.GetRandomDungeonReward(*it, GetPlayer()->getLevel());
+            reward = sLFGMgr.GetRandomDungeonReward(*it, level);
             qRew = NULL;
             if (reward)
             {
@@ -239,8 +245,6 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket &/*recv_data
                 data << uint8(0);
             }
         }
-        randomlist->clear();
-        delete randomlist;
     }
     BuildPlayerLockDungeonBlock(data, lockSet);
     SendPacket(&data);
@@ -382,51 +386,55 @@ void WorldSession::SendLfgRoleChosen(uint64 guid, uint8 roles)
 void WorldSession::SendLfgRoleCheckUpdate(LfgRoleCheck* pRoleCheck)
 {
     ASSERT(pRoleCheck);
+    LfgDungeonSet dungeons;
+    if (pRoleCheck->rDungeonId)
+        dungeons.insert(pRoleCheck->rDungeonId);
+    else
+        dungeons = pRoleCheck->dungeons;
 
     sLog.outDebug("SMSG_LFG_ROLE_CHECK_UPDATE [" UI64FMTD "]", GetPlayer()->GetGUID());
-    WorldPacket data(SMSG_LFG_ROLE_CHECK_UPDATE, 4 + 1 + 1 + pRoleCheck->dungeons.size() * 4 + 1 + pRoleCheck->roles.size() * (8 + 1 + 4 + 1));
+    WorldPacket data(SMSG_LFG_ROLE_CHECK_UPDATE, 4 + 1 + 1 + dungeons.size() * 4 + 1 + pRoleCheck->roles.size() * (8 + 1 + 4 + 1));
 
     Player* plr;
     uint8 roles;
 
     data << uint32(pRoleCheck->result);                     // Check result
     data << uint8(pRoleCheck->result == LFG_ROLECHECK_INITIALITING);
-    data << uint8(pRoleCheck->dungeons.size());             // Number of dungeons
-    LFGDungeonEntry const* dungeon;
-    for (LfgDungeonSet::iterator it = pRoleCheck->dungeons.begin(); it != pRoleCheck->dungeons.end(); ++it)
+    data << uint8(dungeons.size());                         // Number of dungeons
+    if (dungeons.size())
     {
-        dungeon = sLFGDungeonStore.LookupEntry(*it);
-        if (!dungeon)
+        for (LfgDungeonSet::iterator it = dungeons.begin(); it != dungeons.end(); ++it)
         {
-            sLog.outError("BuildLfgRoleCheck: Dungeon %u does not exist in dbcs", (*it));
-            data << uint32(0);
+            LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(*it);
+            data << uint32(dungeon ? dungeon->Entry() : 0); // Dungeon
         }
-        else
-            data << uint32(dungeon->Entry());               // Dungeon
     }
 
     data << uint8(pRoleCheck->roles.size());                // Players in group
-    // Leader info MUST be sent 1st :S
-    roles = pRoleCheck->roles[pRoleCheck->leader];
-    uint64 guid = MAKE_NEW_GUID(pRoleCheck->leader, 0, HIGHGUID_PLAYER);
-    data << uint64(guid);                                   // Guid
-    data << uint8(roles > 0);                               // Ready
-    data << uint32(roles);                                  // Roles
-    plr = sObjectMgr.GetPlayer(guid);
-    data << uint8(plr ? plr->getLevel() : 0);               // Level
-
-    for (LfgRolesMap::const_iterator itPlayers = pRoleCheck->roles.begin(); itPlayers != pRoleCheck->roles.end(); ++itPlayers)
+    if (pRoleCheck->roles.size())
     {
-        if (itPlayers->first == pRoleCheck->leader)
-            continue;
-
-        roles = itPlayers->second;
-        guid = MAKE_NEW_GUID(itPlayers->first, 0, HIGHGUID_PLAYER);
+        // Leader info MUST be sent 1st :S
+        roles = pRoleCheck->roles[pRoleCheck->leader];
+        uint64 guid = MAKE_NEW_GUID(pRoleCheck->leader, 0, HIGHGUID_PLAYER);
         data << uint64(guid);                               // Guid
         data << uint8(roles > 0);                           // Ready
         data << uint32(roles);                              // Roles
         plr = sObjectMgr.GetPlayer(guid);
         data << uint8(plr ? plr->getLevel() : 0);           // Level
+
+        for (LfgRolesMap::const_iterator itPlayers = pRoleCheck->roles.begin(); itPlayers != pRoleCheck->roles.end(); ++itPlayers)
+        {
+            if (itPlayers->first == pRoleCheck->leader)
+                continue;
+
+            roles = itPlayers->second;
+            guid = MAKE_NEW_GUID(itPlayers->first, 0, HIGHGUID_PLAYER);
+            data << uint64(guid);                           // Guid
+            data << uint8(roles > 0);                       // Ready
+            data << uint32(roles);                          // Roles
+            plr = sObjectMgr.GetPlayer(guid);
+            data << uint8(plr ? plr->getLevel() : 0);       // Level
+        }
     }
     SendPacket(&data);
 }
@@ -444,8 +452,7 @@ void WorldSession::SendLfgJoinResult(uint8 checkResult, uint8 checkValue /* = 0 
     WorldPacket data(SMSG_LFG_JOIN_RESULT, 4 + 4 + size);
     data << uint32(checkResult);                            // Check Result
     data << uint32(checkValue);                             // Check Value
-    if (playersLockMap)
-        BuildPartyLockDungeonBlock(data, playersLockMap);
+    BuildPartyLockDungeonBlock(data, playersLockMap);
     SendPacket(&data);
 }
 
