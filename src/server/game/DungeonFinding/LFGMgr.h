@@ -147,7 +147,7 @@ typedef std::list<Player*> LfgPlayerList;
 typedef std::multimap<uint32, LfgReward const*> LfgRewardMap;
 typedef std::pair<LfgRewardMap::const_iterator, LfgRewardMap::const_iterator> LfgRewardMapBounds;
 typedef std::map<std::string, LfgAnswer> LfgCompatibleMap;
-typedef std::map<uint64, LfgDungeonSet*> LfgDungeonMap;
+typedef std::map<uint64, LfgDungeonSet> LfgDungeonMap;
 typedef std::set<LfgLockStatus*> LfgLockStatusSet;
 typedef std::map<uint32, LfgLockStatusSet*> LfgLockStatusMap;
 typedef std::map<uint32, uint8> LfgRolesMap;
@@ -238,7 +238,8 @@ struct LfgRoleCheck
     time_t cancelTime;                                     ///< Time when the rolecheck will fail
     LfgRolesMap roles;                                     ///< Player selected roles
     LfgRoleCheckState result;                              ///< State of the rolecheck
-    LfgDungeonSet dungeons;                                ///< Dungeons group is applying for
+    LfgDungeonSet dungeons;                                ///< Dungeons group is applying for (expanded random dungeons)
+    uint32 rDungeonId;                                     ///< Random Dungeon Id.
     uint32 leader;                                         ///< Leader of the group
 };
 
@@ -269,7 +270,7 @@ class LFGMgr
         LfgReward const* GetRandomDungeonReward(uint32 dungeon, uint8 level);
 
         // Queue
-        void Join(Player* plr, uint8 roles, LfgDungeonSet* dungeons, std::string comment);
+        void Join(Player* plr, uint8 roles, LfgDungeonSet& dungeons, std::string& comment);
         void Leave(Player* plr, Group* grp = NULL);
 
         // Role Check
@@ -287,12 +288,8 @@ class LFGMgr
         void OfferContinue(Group* grp);
 
         // Lock info
-        LfgLockStatusMap* GetPartyLockStatusDungeons(Player* plr, LfgDungeonSet* dungeons = NULL);
-        LfgLockStatusSet* GetPlayerLockStatusDungeons(Player* plr, LfgDungeonSet* dungeons = NULL, bool useEntry = true);
-
-        // Generic
-        bool isRandomDungeon(uint32 dungeonId);
-        LfgDungeonSet* GetRandomDungeons(uint8 level, uint8 expansion);
+        LfgLockStatusMap* GetPartyLockStatusDungeons(Player* plr);
+        LfgLockStatusSet* GetPlayerLockStatusDungeons(Player* plr);
 
     private:
         // Queue
@@ -306,21 +303,19 @@ class LFGMgr
         LfgProposal* FindNewGroups(LfgGuidList& check, LfgGuidList& all);
         bool CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag = true);
         bool CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal);
-        LfgDungeonSet* CheckCompatibleDungeons(LfgDungeonMap* dungeonsMap, PlayerSet* players);
-        LfgLockStatusMap* CheckCompatibleDungeons(LfgDungeonSet* dungeons, PlayerSet* players, bool returnLockMap = true);
+        LfgLockStatusMap* CheckCompatibleDungeons(LfgDungeonSet& dungeons, PlayerSet& players, bool returnLockMap = true);
         void SetCompatibles(std::string concatenatedGuids, bool compatibles);
         LfgAnswer GetCompatibles(std::string concatenatedGuids);
         void RemoveFromCompatibles(uint64 guid);
 
         // Lock info
-        LfgLockStatusMap* GetGroupLockStatusDungeons(PlayerSet* pPlayers, LfgDungeonSet* dungeons, bool useEntry = true);
+        LfgLockStatusMap* GetGroupLockStatusDungeons(PlayerSet& players, LfgDungeonSet& dungeons, bool useEntry);
+        LfgLockStatusSet* GetPlayerLockStatusDungeons(Player* plr, LfgDungeonSet& dungeons, bool useEntry);
 
         // Generic
-        LfgDungeonSet* GetDungeonsByRandom(uint32 randomdungeon);
-        LfgDungeonSet* GetAllDungeons();
+        void GetDungeonsByRandom(uint32 randomdungeon, LfgDungeonSet& dungeons);
         LfgType GetDungeonType(uint32 dungeon);
         std::string ConcatenateGuids(LfgGuidList check);
-        std::string ConcatenateDungeons(LfgDungeonSet* dungeons);
 
         // General variables
         bool m_update;                                     ///< Doing an update?

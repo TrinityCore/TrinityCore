@@ -47,7 +47,6 @@
 #include "ScriptMgr.h"
 #include "MapManager.h"
 #include "InstanceScript.h"
-#include "LFGMgr.h"
 #include "GameObjectAI.h"
 #include "Group.h"
 
@@ -948,7 +947,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
 
     // Check if we are in LfgGroup and trying to get out the dungeon
     if (GetPlayer()->GetGroup() && GetPlayer()->GetGroup()->isLFGGroup() && GetPlayer()->GetMap()->IsDungeon() && at->target_mapId != GetPlayer()->GetMapId())
-        sLFGMgr.TeleportPlayer(GetPlayer(), true);
+        GetPlayer()->TeleportToBGEntryPoint();
     else
         GetPlayer()->TeleportTo(at->target_mapId,at->target_X,at->target_Y,at->target_Z,at->target_Orientation,TELE_TO_NOT_LEAVE_TRANSPORT);
 }
