@@ -307,6 +307,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                             std::list<Player*> targets;
                             SelectRandomTarget(false, &targets);
                             uint32 targetCount = 2;
+                            // do not combine these checks! we want it incremented TWICE when both conditions are met
                             if (IsHeroic())
                                 ++targetCount;
                             if (Is25ManRaid())
@@ -401,7 +402,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 }
 
                 std::list<Player*>::iterator itr = tempTargets.begin();
-                std::advance(itr, urand(1, tempTargets.size()-1));
+                std::advance(itr, urand(0, tempTargets.size()-1));
                 return *itr;
             }
 
