@@ -255,6 +255,34 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
             }
 
+            void OnGameObjectRemove(GameObject* go)
+            {
+                switch (go->GetEntry())
+                {
+                    case GO_DOODAD_ICECROWN_ICEWALL02:
+                    case GO_ICEWALL:
+                    case GO_LORD_MARROWGAR_S_ENTRANCE:
+                    case GO_ORATORY_OF_THE_DAMNED_ENTRANCE:
+                    case GO_ORANGE_PLAGUE_MONSTER_ENTRANCE:
+                    case GO_GREEN_PLAGUE_MONSTER_ENTRANCE:
+                    case GO_SCIENTIST_ENTRANCE:
+                    case GO_CRIMSON_HALL_DOOR:
+                    case GO_BLOOD_ELF_COUNCIL_DOOR:
+                    case GO_BLOOD_ELF_COUNCIL_DOOR_RIGHT:
+                    case GO_DOODAD_ICECROWN_BLOODPRINCE_DOOR_01:
+                    case GO_DOODAD_ICECROWN_GRATE_01:
+                    case GO_GREEN_DRAGON_BOSS_ENTRANCE:
+                    case GO_GREEN_DRAGON_BOSS_EXIT:
+                    case GO_SINDRAGOSA_ENTRANCE_DOOR:
+                    case GO_SINDRAGOSA_SHORTCUT_ENTRANCE_DOOR:
+                    case GO_SINDRAGOSA_SHORTCUT_EXIT_DOOR:
+                        AddDoor(go, false);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
             uint64 GetData64(uint32 type)
             {
                 switch (type)
