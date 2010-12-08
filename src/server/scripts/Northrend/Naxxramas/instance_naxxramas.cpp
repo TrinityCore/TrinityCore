@@ -173,19 +173,35 @@ public:
                 return;
             }
 
-            switch(go->GetEntry())
+            switch (go->GetEntry())
             {
                 case GO_GOTHIK_GATE:
                     GothikGateGUID = go->GetGUID();
                     go->SetGoState(gothikDoorState);
                     break;
-                case GO_HORSEMEN_CHEST: HorsemenChestGUID = go->GetGUID(); break;
-                case GO_HORSEMEN_CHEST_HERO: HorsemenChestGUID = go->GetGUID(); break;
-                case GO_KELTHUZAD_PORTAL01: uiPortals[0] = go->GetGUID(); break;
-                case GO_KELTHUZAD_PORTAL02: uiPortals[1] = go->GetGUID(); break;
-                case GO_KELTHUZAD_PORTAL03: uiPortals[2] = go->GetGUID(); break;
-                case GO_KELTHUZAD_PORTAL04: uiPortals[3] = go->GetGUID(); break;
-                case GO_KELTHUZAD_TRIGGER: uiKelthuzadTrigger = go->GetGUID(); break;
+                case GO_HORSEMEN_CHEST:
+                    HorsemenChestGUID = go->GetGUID();
+                    break;
+                case GO_HORSEMEN_CHEST_HERO:
+                    HorsemenChestGUID = go->GetGUID();
+                    break;
+                case GO_KELTHUZAD_PORTAL01:
+                    uiPortals[0] = go->GetGUID();
+                    break;
+                case GO_KELTHUZAD_PORTAL02:
+                    uiPortals[1] = go->GetGUID();
+                    break;
+                case GO_KELTHUZAD_PORTAL03:
+                    uiPortals[2] = go->GetGUID();
+                    break;
+                case GO_KELTHUZAD_PORTAL04:
+                    uiPortals[3] = go->GetGUID();
+                    break;
+                case GO_KELTHUZAD_TRIGGER:
+                    uiKelthuzadTrigger = go->GetGUID();
+                    break;
+                default:
+                    break;
             }
 
             AddDoor(go, true);
@@ -201,16 +217,21 @@ public:
                 return;
             }
 
-            switch(go->GetEntry())
+            switch (go->GetEntry())
             {
                 case GO_BIRTH:
-                if (SapphironGUID)
-                {
-                    if (Creature* pSapphiron = instance->GetCreature(SapphironGUID))
-                        pSapphiron->AI()->DoAction(DATA_SAPPHIRON_BIRTH);
-                    return;
-                }
+                    if (SapphironGUID)
+                    {
+                        if (Creature* pSapphiron = instance->GetCreature(SapphironGUID))
+                            pSapphiron->AI()->DoAction(DATA_SAPPHIRON_BIRTH);
+                        return;
+                    }
+                    break;
+                default:
+                    break;
             }
+
+            AddDoor(go, false);
         }
 
         void SetData(uint32 id, uint32 value)

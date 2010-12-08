@@ -724,8 +724,9 @@ public:
                             if (Speeches[speechCount].timer < SpeechTimer)
                             {
                                 SpeechTimer = 0;
-                                if (Creature* pSpeechCreature = Unit::GetCreature(*me, pInstance->GetData64(Speeches[speechCount].pCreature)))
-                                    DoScriptText(Speeches[speechCount].textid, pSpeechCreature);
+                                if (pInstance)
+                                    if (Creature* pSpeechCreature = Unit::GetCreature(*me, pInstance->GetData64(Speeches[speechCount].pCreature)))
+                                        DoScriptText(Speeches[speechCount].textid, pSpeechCreature);
                                 if (speechCount == 12)
                                     if (Creature* pAnveena =  Unit::GetCreature(*me, pInstance->GetData64(DATA_ANVEENA)))
                                         pAnveena->CastSpell(me, SPELL_SACRIFICE_OF_ANVEENA, false);
@@ -826,18 +827,19 @@ public:
                             }
                             break;
                         case TIMER_ORBS_EMPOWER: //Phase 3
-                            if (Creature* pKalec = Unit::GetCreature(*me, pInstance->GetData64(DATA_KALECGOS_KJ)))
-                            {
-                                switch (Phase)
+                            if (pInstance)
+                                if (Creature* pKalec = Unit::GetCreature(*me, pInstance->GetData64(DATA_KALECGOS_KJ)))
                                 {
+                                    switch (Phase)
+                                    {
                                     case PHASE_SACRIFICE:
                                         CAST_AI(boss_kalecgos_kj::boss_kalecgos_kjAI, pKalec->AI())->EmpowerOrb(true);
                                         break;
                                     default:
                                         CAST_AI(boss_kalecgos_kj::boss_kalecgos_kjAI, pKalec->AI())->EmpowerOrb(false);
                                         break;
+                                    }
                                 }
-                            }
                             OrbActivated = true;
                             TimerIsDeactivated[TIMER_ORBS_EMPOWER] = true;
                             break;
