@@ -2519,14 +2519,6 @@ Ra.Port = 3443
 Ra.MinLevel = 3
 
 #
-#    Ra.Secure
-#        Description: Kick clients on invalid authentication.
-#        Default:     1 - (Enabled)
-#                     0 - (Disabled)
-
-Ra.Secure = 1
-
-#
 #    SOAP.Enable
 #        Description: Enable soap service
 #        Default:     0 - (Disabled)
