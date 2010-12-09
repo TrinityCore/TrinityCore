@@ -539,10 +539,6 @@ void LFGMgr::Join(Player* plr, uint8 roles, LfgDungeonSet& dungeons, std::string
         {
             sLog.outDebug("LFGMgr::Join: [" UI64FMTD "] joining with %u members. result: LFG_JOIN_PARTY_NOT_MEET_REQS", guid, uint8(players.size()));
             plr->GetSession()->SendLfgJoinResult(LFG_JOIN_PARTY_NOT_MEET_REQS, 0, lockStatusMap);
-            for (LfgLockStatusMap::const_iterator it = lockStatusMap->begin(); it != lockStatusMap->end(); ++it)
-                delete it->second;
-            delete lockStatusMap;
-            return;
         }
         if (lockStatusMap)
         {
@@ -550,6 +546,8 @@ void LFGMgr::Join(Player* plr, uint8 roles, LfgDungeonSet& dungeons, std::string
                 delete it->second;
             delete lockStatusMap;
         }
+        if (!dungeons.size())
+            return;
     }
 
     // Can't join. Send result
