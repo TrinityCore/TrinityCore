@@ -5898,7 +5898,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 // Glyph of Icy Veins
                 case 56374:
                 {
-                    RemoveAurasByType(SPELL_AURA_MOD_HASTE, 0, 0, true, false);
+                    RemoveAurasByType(SPELL_AURA_MOD_MELEE_HASTE, 0, 0, true, false);
                     RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
                     return true;
                 }
@@ -6593,7 +6593,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             {
                 // "refresh your Slice and Dice duration to its 5 combo point maximum"
                 // lookup Slice and Dice
-                if (AuraEffect const* aur = GetAuraEffect(SPELL_AURA_MOD_HASTE, SPELLFAMILY_ROGUE,0x40000, 0, 0))
+                if (AuraEffect const* aur = GetAuraEffect(SPELL_AURA_MOD_MELEE_HASTE, SPELLFAMILY_ROGUE, 0x40000, 0, 0))
                 {
                     aur->GetBase()->SetDuration(GetSpellMaxDuration(aur->GetSpellProto()), true);
                     return true;
@@ -13925,7 +13925,7 @@ bool InitTriggerAuraData()
     isTriggerAura[SPELL_AURA_OVERRIDE_CLASS_SCRIPTS] = true;
     isTriggerAura[SPELL_AURA_MOD_MECHANIC_RESISTANCE] = true;
     isTriggerAura[SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS] = true;
-    isTriggerAura[SPELL_AURA_MOD_HASTE] = true;
+    isTriggerAura[SPELL_AURA_MOD_MELEE_HASTE] = true;
     isTriggerAura[SPELL_AURA_MOD_ATTACKER_MELEE_HIT_CHANCE]=true;
     isTriggerAura[SPELL_AURA_RAID_PROC_FROM_CHARGE] = true;
     isTriggerAura[SPELL_AURA_RAID_PROC_FROM_CHARGE_WITH_VALUE] = true;
@@ -14182,7 +14182,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit * pTarget, uint32 procFlag,
                     if (HandleModDamagePctTakenAuraProc(pTarget, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown))
                         takeCharges = true;
                     break;
-                case SPELL_AURA_MOD_HASTE:
+                case SPELL_AURA_MOD_MELEE_HASTE:
                 {
                     sLog.outDebug("ProcDamageAndSpell: casting spell id %u (triggered by %s haste aura of spell %u)", spellInfo->Id,(isVictim?"a victim's":"an attacker's"), triggeredByAura->GetId());
                     if (HandleHasteAuraProc(pTarget, damage, triggeredByAura, procSpell, procFlag, procExtra, cooldown))

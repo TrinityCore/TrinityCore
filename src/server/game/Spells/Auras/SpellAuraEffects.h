@@ -223,7 +223,7 @@ class AuraEffect
         void HandleModMeleeRangedSpeedPct(AuraApplication const * aurApp, uint8 mode, bool apply) const;
         void HandleModCombatSpeedPct(AuraApplication const * aurApp, uint8 mode, bool apply) const;
         void HandleModAttackSpeed(AuraApplication const * aurApp, uint8 mode, bool apply) const;
-        void HandleHaste(AuraApplication const * aurApp, uint8 mode, bool apply) const;
+        void HandleModMeleeSpeedPct(AuraApplication const * aurApp, uint8 mode, bool apply) const;
         void HandleAuraModRangedHaste(AuraApplication const * aurApp, uint8 mode, bool apply) const;
         void HandleRangedAmmoHaste(AuraApplication const * aurApp, uint8 mode, bool apply) const;
         //   combat rating
