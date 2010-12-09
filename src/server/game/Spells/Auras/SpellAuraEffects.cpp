@@ -190,7 +190,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleModHealingDone,                            //135 SPELL_AURA_MOD_HEALING_DONE
     &AuraEffect::HandleNoImmediateEffect,                         //136 SPELL_AURA_MOD_HEALING_DONE_PERCENT   implemented in Unit::SpellHealingBonus
     &AuraEffect::HandleModTotalPercentStat,                       //137 SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE
-    &AuraEffect::HandleHaste,                                     //138 SPELL_AURA_MOD_HASTE
+    &AuraEffect::HandleModMeleeSpeedPct,                          //138 SPELL_AURA_MOD_MELEE_HASTE
     &AuraEffect::HandleForceReaction,                             //139 SPELL_AURA_FORCE_REACTION
     &AuraEffect::HandleAuraModRangedHaste,                        //140 SPELL_AURA_MOD_RANGED_HASTE
     &AuraEffect::HandleRangedAmmoHaste,                           //141 SPELL_AURA_MOD_RANGED_AMMO_HASTE
@@ -244,7 +244,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleModRating,                                 //189 SPELL_AURA_MOD_RATING
     &AuraEffect::HandleNoImmediateEffect,                         //190 SPELL_AURA_MOD_FACTION_REPUTATION_GAIN     implemented in Player::CalculateReputationGain
     &AuraEffect::HandleAuraModUseNormalSpeed,                     //191 SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED
-    &AuraEffect::HandleModMeleeRangedSpeedPct,                    //192 SPELL_AURA_HASTE_MELEE
+    &AuraEffect::HandleModMeleeRangedSpeedPct,                    //192 SPELL_AURA_MOD_MELEE_RANGED_HASTE
     &AuraEffect::HandleModCombatSpeedPct,                         //193 SPELL_AURA_MELEE_SLOW (in fact combat (any type attack) speed pct)
     &AuraEffect::HandleNoImmediateEffect,                         //194 SPELL_AURA_MOD_TARGET_ABSORB_SCHOOL implemented in Unit::CalcAbsorbResist
     &AuraEffect::HandleNoImmediateEffect,                         //195 SPELL_AURA_MOD_TARGET_ABILITY_ABSORB_SCHOOL implemented in Unit::CalcAbsorbResist
@@ -5231,7 +5231,7 @@ void AuraEffect::HandleModAttackSpeed(AuraApplication const * aurApp, uint8 mode
     target->UpdateDamagePhysical(BASE_ATTACK);
 }
 
-void AuraEffect::HandleHaste(AuraApplication const * aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleModMeleeSpeedPct(AuraApplication const * aurApp, uint8 mode, bool apply) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
@@ -5240,7 +5240,6 @@ void AuraEffect::HandleHaste(AuraApplication const * aurApp, uint8 mode, bool ap
 
     target->ApplyAttackTimePercentMod(BASE_ATTACK,   (float)GetAmount(), apply);
     target->ApplyAttackTimePercentMod(OFF_ATTACK,    (float)GetAmount(), apply);
-    target->ApplyAttackTimePercentMod(RANGED_ATTACK, (float)GetAmount(), apply);
 }
 
 void AuraEffect::HandleAuraModRangedHaste(AuraApplication const * aurApp, uint8 mode, bool apply) const
