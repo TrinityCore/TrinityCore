@@ -161,7 +161,6 @@ target_link_libraries(worldserver
   game
   shared
   scripts
-  trinitysockets
   collision
   g3dlib
   gsoap
