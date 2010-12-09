@@ -566,7 +566,7 @@ void Spell::SpellDamageSchoolDmg(SpellEffIndex effIndex)
                 else if (m_spellInfo->SpellFamilyFlags[2] & 0x00002000)
                 {
                     // We are in Shadow Form
-                    if (m_caster->m_form == FORM_SHADOW)
+                    if (m_caster->GetShapeshiftForm() == FORM_SHADOW)
                         // We have Improved Mind Blast
                         if (AuraEffect * aurEff = m_caster->GetDummyAuraEffect(SPELLFAMILY_PRIEST,95,0))
                             // Chance has been successfully rolled
@@ -582,7 +582,7 @@ void Spell::SpellDamageSchoolDmg(SpellEffIndex effIndex)
                             damage += damage * aurEff->GetAmount() / 100;
                 }
                 // Improved Mind Blast (Mind Blast in shadow form bonus)
-                else if (m_caster->m_form == FORM_SHADOW && (m_spellInfo->SpellFamilyFlags[0] & 0x00002000))
+                else if (m_caster->GetShapeshiftForm() == FORM_SHADOW && (m_spellInfo->SpellFamilyFlags[0] & 0x00002000))
                 {
                     Unit::AuraEffectList const& ImprMindBlast = m_caster->GetAuraEffectsByType(SPELL_AURA_ADD_FLAT_MODIFIER);
                     for (Unit::AuraEffectList::const_iterator i = ImprMindBlast.begin(); i != ImprMindBlast.end(); ++i)
