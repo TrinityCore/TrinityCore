@@ -2765,6 +2765,8 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                 switch (m_spellInfo->Id)
                 {
                     case 27285: // Seed of Corruption proc spell
+                    case 49821: // Mind Sear proc spell Rank 1
+                    case 53022: // Mind Sear proc spell Rank 2
                         unitList.remove(m_targets.getUnitTarget());
                         break;
                     case 55789: // Improved Icy Talons
