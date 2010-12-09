@@ -278,8 +278,12 @@ void LFGMgr::Update(uint32 diff)
                     lowGuid = itPlayers->first;
                     if (Player* plr = sObjectMgr.GetPlayerByLowGUID(itPlayers->first))
                     {
+                        plr->SetLfgState(LFG_STATE_PROPOSAL);
                         if (plr->GetGroup())
+                        {
+                            plr->GetGroup()->SetLfgState(LFG_STATE_PROPOSAL);
                             plr->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_PROPOSAL_BEGIN, plr->GetLfgDungeons(), plr->GetLfgComment());
+                        }
                         else
                             plr->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_PROPOSAL_BEGIN, plr->GetLfgDungeons(), plr->GetLfgComment());
                         plr->GetSession()->SendLfgUpdateProposal(m_lfgProposalId, pProposal);
@@ -585,6 +589,7 @@ void LFGMgr::Join(Player* plr, uint8 roles, LfgDungeonSet& dungeons, std::string
             dungeons.insert(rDungeonId);
         }
 
+        grp->SetLfgState(LFG_STATE_ROLECHECK);
         // Send update to player
         for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
         {
@@ -1055,7 +1060,7 @@ void LFGMgr::UpdateRoleCheck(Group* grp, Player* plr /* = NULL*/, bool newRoleCh
         }
     }
 
-    if (pRoleCheck->result == LFG_ROLECHECK_FINISHED && pRoleCheck->dungeons.size())
+    if (pRoleCheck->result == LFG_ROLECHECK_FINISHED)
     {
         grp->SetLfgState(LFG_STATE_QUEUED);
         LfgQueueInfo* pqInfo = new LfgQueueInfo();
@@ -1375,6 +1380,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint32 lowGuid, bool accept)
                     break;
             }
             grp->SetLfgRoles(plr->GetGUID(), pProposal->players[plr->GetGUIDLow()]->role);
+            plr->SetLfgState(LFG_STATE_DUNGEON);
         }
 
         // Set the dungeon difficulty
