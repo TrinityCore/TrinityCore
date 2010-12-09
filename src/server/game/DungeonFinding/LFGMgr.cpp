@@ -1062,20 +1062,20 @@ void LFGMgr::UpdateRoleCheck(Group* grp, Player* plr /* = NULL*/, bool newRoleCh
         grp->SetLfgState(LFG_STATE_QUEUED);
         LfgQueueInfo* pqInfo = new LfgQueueInfo();
         pqInfo->joinTime = time_t(time(NULL));
+        pqInfo->roles = pRoleCheck->roles;
+        pqInfo->dungeons = pRoleCheck->dungeons;
+
+        // Set queue roles needed - As we are using check_roles will not have more that 1 tank, 1 healer, 3 dps
         for (LfgRolesMap::const_iterator it = check_roles.begin(); it != check_roles.end(); ++it)
         {
-            if (pqInfo->tanks && it->second & ROLE_TANK)
+            uint8 roles = it->second;
+            if (roles & ROLE_TANK)
                 --pqInfo->tanks;
-            else if (pqInfo->healers && it->second & ROLE_HEALER)
+            else if (roles & ROLE_HEALER)
                 --pqInfo->healers;
             else
                 --pqInfo->dps;
         }
-        for (LfgRolesMap::const_iterator itRoles = pRoleCheck->roles.begin(); itRoles != pRoleCheck->roles.end(); ++itRoles)
-            pqInfo->roles[itRoles->first] = itRoles->second;
-
-        for (LfgDungeonSet::const_iterator it = pRoleCheck->dungeons.begin(); it != pRoleCheck->dungeons.end(); ++it)
-            pqInfo->dungeons.insert(*it);
 
         uint64 guid = grp->GetGUID();
         m_QueueInfoMap[guid] = pqInfo;
@@ -1084,10 +1084,10 @@ void LFGMgr::UpdateRoleCheck(Group* grp, Player* plr /* = NULL*/, bool newRoleCh
 
     if (pRoleCheck->result != LFG_ROLECHECK_INITIALITING)
     {
-        delete pRoleCheck;
-        m_RoleChecks.erase(itRoleCheck);
         if (pRoleCheck->result != LFG_ROLECHECK_FINISHED)
             grp->RestoreLfgState();
+        delete pRoleCheck;
+        m_RoleChecks.erase(itRoleCheck);
     }
 }
 
