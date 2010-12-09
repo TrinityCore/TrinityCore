@@ -29,202 +29,300 @@
 #include "Util.h"
 #include "World.h"
 
-#define dropclient {Sendf("I'm busy right now, come back later."); \
-        SetCloseAndDelete(); \
-        return; \
-    }
-
-/// RASocket constructor
-RASocket::RASocket(ISocketHandler &h): TcpSocket(h), szLogin(""), iInputLength(0),
-bSecure(sConfig.GetBoolDefault("RA.Secure", true)), iMinLevel(sConfig.GetIntDefault("RA.MinLevel", 3)),
-stage(NONE)
+RASocket::RASocket()
 {
-    *buff = '\0';
+	iMinLevel = sConfig.GetIntDefault("RA.MinLevel", 3);
 }
 
-/// RASocket destructor
 RASocket::~RASocket()
 {
-    sLog.outRemote("Connection was closed.\n");
 }
 
-/// Accept an incoming connection
-void RASocket::OnAccept()
+int RASocket::open(void *)
 {
-    std::string ss=GetRemoteAddress();
-    sLog.outRemote("Incoming connection from %s.\n",ss.c_str());
-     ///- print Motd
-    Sendf("%s\r\n",sWorld.GetMotd());
+	ACE_INET_Addr remote_addr;
+
+	if (peer().get_remote_addr(remote_addr) == -1)
+	{
+		sLog.outError("RASocket::open: peer().get_remote_addr error is %s", ACE_OS::strerror(errno));
+		return -1;
+	}
+
+	sLog.outRemote("Incoming connection from %s", remote_addr.get_host_addr());
+
+	return activate();
 }
 
-/// Read data from the network
-void RASocket::OnRead()
+int RASocket::handle_close(ACE_HANDLE, ACE_Reactor_Mask)
 {
-    ///- Read data and check input length
-    TcpSocket::OnRead();
-
-    unsigned int sz=ibuf.GetLength();
-    if (iInputLength+sz>=RA_BUFF_SIZE)
-    {
-        sLog.outRemote("Input buffer overflow, possible DOS attack.\n");
-        SetCloseAndDelete();
-        return;
-    }
-
-    char *inp = new char [sz+1];
-    ibuf.Read(inp,sz);
-
-    /// \todo Can somebody explain this 'Linux bugfix'?
-    if (stage==NONE)
-        if (sz>4)                                            //linux remote telnet
-            if (memcmp(inp ,"USER ",5))
-            {
-                delete [] inp;return;
-                printf("lin bugfix");
-            }                                               //linux bugfix
-
-    ///- Discard data after line break or line feed
-    bool gotenter=false;
-    unsigned int y=0;
-    for (; y<sz; y++)
-        if (inp[y]=='\r'||inp[y]=='\n')
-    {
-        gotenter=true;
-        break;
-    }
-
-    //No buffer overflow (checked above)
-    memcpy(&buff[iInputLength],inp,y);
-    iInputLength+=y;
-    delete [] inp;
-    if (gotenter)
-    {
-
-        buff[iInputLength]=0;
-        iInputLength=0;
-        switch(stage)
-        {
-            /// <ul> <li> If the input is 'USER <username>'
-            case NONE:
-                if (!memcmp(buff,"USER ",5))                 //got "USER" cmd
-                {
-                    szLogin=&buff[5];
-
-                    ///- Get the password from the account table
-                    std::string login = szLogin;
-
-                    ///- Convert Account name to Upper Format
-                    AccountMgr::normalizeString(login);
-
-                    ///- Escape the Login to allow quotes in names
-                    LoginDatabase.escape_string(login);
-
-                    QueryResult result = LoginDatabase.PQuery("SELECT a.id, aa.gmlevel, aa.RealmID FROM account a LEFT JOIN account_access aa ON (a.id = aa.id) WHERE a.username = '%s'",login.c_str ());
-
-                    ///- If the user is not found, deny access
-                    if (!result)
-                    {
-                        Sendf("-No such user.\r\n");
-                        sLog.outRemote("User %s does not exist.\n",szLogin.c_str());
-                        if (bSecure)SetCloseAndDelete();
-                    }
-                    else
-                    {
-                        Field *fields = result->Fetch();
-
-                        //szPass=fields[0].GetString();
-
-                        ///- if gmlevel is too low, deny access
-                        if (fields[1].GetUInt32() < iMinLevel)
-                        {
-                            Sendf("-Not enough privileges.\r\n");
-                            sLog.outRemote("User %s has no privilege.\n",szLogin.c_str());
-                            if (bSecure)SetCloseAndDelete();
-                        }
-                        else if (fields[2].GetInt32() != -1)
-                        {
-                            ///- if RealmID isn't -1, deny access
-                            Sendf("-Not enough privileges.\r\n");
-                            sLog.outRemote("User %s has to be assigned on all realms (with RealmID = '-1').\n",szLogin.c_str());
-                            if (bSecure)SetCloseAndDelete();
-                        }
-                        else
-                        {
-                            stage=LG;
-                        }
-                    }
-                }
-                break;
-                ///<li> If the input is 'PASS <password>' (and the user already gave his username)
-            case LG:
-                if (!memcmp(buff,"PASS ",5))                 //got "PASS" cmd
-                {                                           //login+pass ok
-                    ///- If password is correct, increment the number of active administrators
-                    std::string login = szLogin;
-                    std::string pw = &buff[5];
-
-                    AccountMgr::normalizeString(login);
-                    AccountMgr::normalizeString(pw);
-                    LoginDatabase.escape_string(login);
-                    LoginDatabase.escape_string(pw);
-
-                    QueryResult check = LoginDatabase.PQuery(
-                        "SELECT 1 FROM account WHERE username = '%s' AND sha_pass_hash=SHA1(CONCAT('%s',':','%s'))",
-                        login.c_str(), login.c_str(), pw.c_str());
-
-                    if (check)
-                    {
-                        GetSocket();
-                        stage=OK;
-
-                        Sendf("+Logged in.\r\n");
-                        sLog.outRemote("User %s has logged in.\n",szLogin.c_str());
-                        Sendf("TC>");
-                    }
-                    else
-                    {
-                        ///- Else deny access
-                        Sendf("-Wrong pass.\r\n");
-                        sLog.outRemote("User %s has failed to log in.\n",szLogin.c_str());
-                        if (bSecure)SetCloseAndDelete();
-                    }
-                }
-                break;
-                ///<li> If user is logged, parse and execute the command
-            case OK:
-                if (*buff != '\0')
-                {
-                    sLog.outRemote("Got '%s' cmd.\n",buff);
-                       SetDeleteByHandler(false);
-                    CliCommandHolder* cmd = new CliCommandHolder(this, buff, &RASocket::zprint, &RASocket::commandFinished);
-                    sWorld.QueueCliCommand(cmd);
-                    ++pendingCommands;
-                }
-                else
-                    Sendf("TC>");
-                break;
-                ///</ul>
-        };
-
-    }
+	sLog.outRemote("Closing connection");
+	peer().close_reader();
+	wait();
+	destroy();
+	return 0;
 }
 
-/// Output function
-void RASocket::zprint(void* callbackArg, const char * szText )
+int RASocket::send(const std::string& line)
 {
-    if ( !szText )
-        return;
+	return peer().send(line.c_str(), line.length()) == line.length() ? 0 : -1;
+}
 
-    unsigned int sz=strlen(szText);
-       send(((RASocket*)callbackArg)->GetSocket(), szText, sz, 0);
+int RASocket::recv_line(ACE_Message_Block& buffer)
+{
+	char byte;
+	for (;;)
+	{
+		ssize_t n = peer().recv(&byte, sizeof(byte));
+
+		if (n < 0)
+		{
+			return -1;
+		}
+
+		if (n == 0)
+		{
+			// EOF, connection was closed
+			errno = ECONNRESET;
+			return -1;
+		}
+
+		ACE_ASSERT(n == sizeof(byte));
+
+		if (byte == '\n')
+			break;
+		else if (byte == '\r') /* Ignore CR */
+			continue;
+		else if (buffer.copy(&byte, sizeof(byte)) == -1)
+			return -1;
+	}
+
+	const char null_term = '\0';
+	if (buffer.copy(&null_term, sizeof(null_term)) == -1)
+		return -1;
+
+	return 0;
+}
+
+int RASocket::recv_line(std::string& out_line)
+{
+	char buf[4096];
+
+	ACE_Data_Block db(sizeof (buf),
+			ACE_Message_Block::MB_DATA,
+			buf,
+			0,
+			0,
+			ACE_Message_Block::DONT_DELETE,
+			0);
+
+	ACE_Message_Block message_block(&db,
+			ACE_Message_Block::DONT_DELETE,
+			0);
+
+	if (recv_line(message_block) == -1)
+	{
+		sLog.outRemote("Recv error %s", ACE_OS::strerror(errno));
+		return -1;
+	}
+
+	out_line = message_block.rd_ptr();
+
+	return 0;
+}
+
+int RASocket::process_command(const std::string& command)
+{
+	if (command.length() == 0)
+		return 0;
+
+	sLog.outRemote("Got command: %s", command.c_str());
+
+	// handle quit, exit and logout commands to terminate connection
+	if (command == "quit" || command == "exit" || command == "logout") {
+		(void) send("Bye\r\n");
+		return -1;
+	}
+
+	CliCommandHolder* cmd = new CliCommandHolder(this, command.c_str(), &RASocket::zprint, &RASocket::commandFinished);
+	sWorld.QueueCliCommand(cmd);
+
+	// wait for result
+	ACE_Message_Block* mb;
+	for (;;)
+	{
+		if (getq(mb) == -1)
+			return -1;
+
+		if (mb->msg_type() == ACE_Message_Block::MB_BREAK)
+		{
+			mb->release();
+			break;
+		}
+
+		if (peer().send(mb->rd_ptr(), mb->length()) != mb->length())
+		{
+			mb->release();
+			return -1;
+		}
+
+		mb->release();
+	}
+
+	return 0;
+}
+
+int RASocket::check_access_level(const std::string& user)
+{
+	std::string safe_user = user;
+
+	AccountMgr::normalizeString(safe_user);
+	LoginDatabase.escape_string(safe_user);
+
+	QueryResult result = LoginDatabase.PQuery("SELECT a.id, aa.gmlevel, aa.RealmID FROM account a LEFT JOIN account_access aa ON (a.id = aa.id) WHERE a.username = '%s'", safe_user.c_str());
+
+	if (!result)
+	{
+		sLog.outRemote("User %s does not exist in database", user.c_str());
+		return -1;
+	}
+
+	Field *fields = result->Fetch();
+
+	if (fields[1].GetUInt32() < iMinLevel)
+	{
+		sLog.outRemote("User %s has no privilege to login", user.c_str());
+		return -1;
+	}
+	else if (fields[2].GetInt32() != -1)
+	{
+		sLog.outRemote("User %s has to be assigned on all realms (with RealmID = '-1')", user.c_str());
+		return -1;
+	}
+
+	return 0;
+}
+
+int RASocket::check_password(const std::string& user, const std::string& pass)
+{
+	std::string safe_user = user;
+	AccountMgr::normalizeString(safe_user);
+	LoginDatabase.escape_string(safe_user);
+
+	std::string safe_pass = pass;
+	AccountMgr::normalizeString(safe_pass);
+	LoginDatabase.escape_string(safe_pass);
+
+	QueryResult check = LoginDatabase.PQuery(
+			"SELECT 1 FROM account WHERE username = '%s' AND sha_pass_hash=SHA1(CONCAT('%s',':','%s'))",
+			safe_user.c_str(), safe_user.c_str(), safe_pass.c_str());
+
+	if (!check)
+	{
+		sLog.outRemote("Wrong password for user: %s", user.c_str());
+		return -1;
+	}
+
+	return 0;
+}
+
+int RASocket::authenticate()
+{
+	if (send(std::string("Username: ")) == -1)
+		return -1;
+
+	std::string user;
+	if (recv_line(user) == -1)
+		return -1;
+
+	if (send(std::string("Password: ")) == -1)
+		return -1;
+
+	std::string pass;
+	if (recv_line(pass) == -1)
+		return -1;
+
+	sLog.outRemote("Login attempt for user: %s", user.c_str());
+
+	if (check_access_level(user) == -1)
+		return -1;
+
+	if (check_password(user, pass) == -1)
+		return -1;
+
+	sLog.outRemote("User login: %s", user.c_str());
+
+	return 0;
+}
+
+int RASocket::svc(void)
+{
+	if (send("Authentication required\r\n") == -1)
+		return -1;
+
+	if (authenticate() == -1)
+	{
+		(void) send("Authentication failed\r\n");
+		return -1;
+	}
+
+	// send motd
+	if (send(std::string(sWorld.GetMotd()) + "\r\n") == -1)
+		return -1;
+
+	for(;;)
+	{
+		// show prompt
+		const char* tc_prompt = "TC> ";
+		if (peer().send(tc_prompt, strlen(tc_prompt)) != strlen(tc_prompt))
+			return -1;
+
+		std::string line;
+
+		if (recv_line(line) == -1)
+			return -1;
+
+		if (process_command(line) == -1)
+			return -1;
+	}
+
+	return 0;
+}
+
+void RASocket::zprint(void* callbackArg, const char * szText)
+{
+	if (!szText || !callbackArg)
+		return;
+
+	RASocket* socket = static_cast<RASocket*>(callbackArg);
+	size_t sz = strlen(szText);
+
+	ACE_Message_Block* mb = new ACE_Message_Block(sz);
+	mb->copy(szText, sz);
+
+	if (socket->putq(mb, const_cast<ACE_Time_Value*>(&ACE_Time_Value::zero)) == -1)
+	{
+		sLog.outRemote("Failed to enqueue message, queue is full or closed. Error is %s", ACE_OS::strerror(errno));
+		mb->release();
+	}
 }
 
 void RASocket::commandFinished(void* callbackArg, bool /*success*/)
 {
-    RASocket* raSocket = (RASocket*)callbackArg;
-    raSocket->Sendf("TC>");
-    uint64 remainingCommands = --raSocket->pendingCommands;
+	if (!callbackArg)
+		return;
 
-    if (remainingCommands == 0)
-        raSocket->SetDeleteByHandler(true);
- }
+	RASocket* socket = static_cast<RASocket*>(callbackArg);
+
+	ACE_Message_Block* mb = new ACE_Message_Block();
+
+	mb->msg_type(ACE_Message_Block::MB_BREAK);
+
+	// the message is 0 size control message to tell that command output is finished
+	// hence we don't put timeout, because it shouldn't increase queue size and shouldn't block
+	if (socket->putq(mb) == -1)
+	{
+		// getting here is bad, command can't be marked as complete
+		sLog.outRemote("Failed to enqueue command end message. Error is %s", ACE_OS::strerror(errno));
+		mb->release();
+	}
+}
