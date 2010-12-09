@@ -460,13 +460,13 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
             }
         case SMART_ACTION_CALL_CASTEDCREATUREORGO:
             {
-                if (!me) return;
+                if (!GetBaseObject()) return;
                 ObjectList* targets = GetTargets(e, unit);
                 if (!targets) return;
                 for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); itr++)
                 {
                     if (IsPlayer((*itr)))
-                        (*itr)->ToPlayer()->CastedCreatureOrGO(e.action.castedCreatureOrGO.creature, me->GetGUID(), e.action.castedCreatureOrGO.spell);
+                        (*itr)->ToPlayer()->CastedCreatureOrGO(e.action.castedCreatureOrGO.creature, GetBaseObject()->GetGUID(), e.action.castedCreatureOrGO.spell);
                 }
                 break;
             }
