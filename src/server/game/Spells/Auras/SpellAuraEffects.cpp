@@ -754,7 +754,7 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
         case SPELL_AURA_MOD_INCREASE_SPEED:
             // Dash - do not set speed if not in cat form
             if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_DRUID && GetSpellProto()->SpellFamilyFlags[2] & 0x00000008)
-                amount = GetBase()->GetUnitOwner()->m_form == FORM_CAT ? amount : 0;
+                amount = GetBase()->GetUnitOwner()->GetShapeshiftForm() == FORM_CAT ? amount : 0;
             break;
         default:
             break;
@@ -3054,10 +3054,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const * aurApp, uint8 m
     if (apply)
     {
         // remove other shapeshift before applying a new one
-        if (target->m_ShapeShiftFormSpellId)
-            target->RemoveAurasDueToSpell(target->m_ShapeShiftFormSpellId);
-
-        target->SetByteValue(UNIT_FIELD_BYTES_2, 3, form);
+        target->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT, 0, GetBase());
 
         if (modelid > 0)
             target->SetDisplayId(modelid);
@@ -3106,8 +3103,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const * aurApp, uint8 m
             }
         }
 
-        target->m_ShapeShiftFormSpellId = GetId();
-        target->m_form = form;
+        target->SetShapeshiftForm(form);
     }
     else
     {
@@ -3116,8 +3112,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const * aurApp, uint8 m
         target->SetByteValue(UNIT_FIELD_BYTES_2, 3, FORM_NONE);
         if (target->getClass() == CLASS_DRUID)
             target->setPowerType(POWER_MANA);
-        target->m_ShapeShiftFormSpellId = 0;
-        target->m_form = FORM_NONE;
+        target->SetShapeshiftForm(FORM_NONE);
 
         switch(form)
         {
@@ -6134,7 +6129,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                     uint32 spellId = 62071;
                     if (apply)
                     {
-                        if (target->m_form != FORM_CAT)
+                        if (target->GetShapeshiftForm() != FORM_CAT)
                             break;
 
                         target->CastSpell(target, spellId, true, NULL, NULL, GetCasterGUID());

@@ -123,7 +123,6 @@ m_vehicleKit(NULL), m_unitTypeMask(UNIT_MASK_NONE), m_HostileRefManager(this)
     m_rootTimes = 0;
 
     m_state = 0;
-    m_form = FORM_NONE;
     m_deathState = ALIVE;
 
     for (uint8 i = 0; i < CURRENT_MAX_SPELL; ++i)
@@ -140,7 +139,6 @@ m_vehicleKit(NULL), m_unitTypeMask(UNIT_MASK_NONE), m_HostileRefManager(this)
 
     m_interruptMask = 0;
     m_transform = 0;
-    m_ShapeShiftFormSpellId = 0;
     m_canModifyStats = false;
 
     for (uint8 i = 0; i < MAX_SPELL_IMMUNITY; ++i)
@@ -1701,7 +1699,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
                 if (spellProto->SpellIconID == 2253)
                 {
                     //reduces all damage taken while Stunned
-                    if (pVictim->m_form == FORM_CAT && (unitflag & UNIT_FLAG_STUNNED))
+                    if (pVictim->GetShapeshiftForm() == FORM_CAT && (unitflag & UNIT_FLAG_STUNNED))
                         RemainingDamage -= RemainingDamage * currentAbsorb / 100;
                     continue;
                 }
@@ -8290,7 +8288,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                 // Druid Forms Trinket
                 if (auraSpellInfo->Id == 37336)
                 {
-                    switch(m_form)
+                    switch (GetShapeshiftForm())
                     {
                         case FORM_NONE:     trigger_spell_id = 37344;break;
                         case FORM_CAT:      trigger_spell_id = 37341;break;
@@ -8305,7 +8303,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                 // Druid T9 Feral Relic (Lacerate, Swipe, Mangle, and Shred)
                 else if (auraSpellInfo->Id == 67353)
                 {
-                    switch(m_form)
+                    switch (GetShapeshiftForm())
                     {
                         case FORM_CAT:      trigger_spell_id = 67355; break;
                         case FORM_BEAR:
@@ -13091,7 +13089,8 @@ uint32 Unit::GetCreatureType() const
 {
     if (GetTypeId() == TYPEID_PLAYER)
     {
-        SpellShapeshiftEntry const* ssEntry = sSpellShapeshiftStore.LookupEntry(m_form);
+        ShapeshiftForm form = GetShapeshiftForm();
+        SpellShapeshiftEntry const* ssEntry = sSpellShapeshiftStore.LookupEntry(form);
         if (ssEntry && ssEntry->creatureType > 0)
             return ssEntry->creatureType;
         else
