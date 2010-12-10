@@ -546,7 +546,7 @@ void LFGMgr::Join(Player* plr, uint8 roles, LfgDungeonSet& dungeons, std::string
         }
         if (lockStatusMap)
         {
-            for (LfgLockStatusMap::const_iterator it = lockStatusMap->begin(); it != lockStatusMap->end(); ++it)
+            for (LfgLockStatusMap::iterator it = lockStatusMap->begin(); it != lockStatusMap->end(); ++it)
                 delete it->second;
             delete lockStatusMap;
         }
