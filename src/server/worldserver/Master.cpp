@@ -41,12 +41,6 @@
 #include "Timer.h"
 #include "Util.h"
 
-#include "TcpSocket.h"
-#include "Utility.h"
-#include "Parse.h"
-#include "Socket.h"
-#include "SocketHandler.h"
-#include "ListenSocket.h"
 #include "BigNumber.h"
 
 #ifdef _WIN32
@@ -272,7 +266,7 @@ int Master::Run()
     }
 
     ///- Launch the world listener socket
-    port_t wsport = sWorld.getIntConfig(CONFIG_PORT_WORLD);
+    uint16 wsport = sWorld.getIntConfig(CONFIG_PORT_WORLD);
     std::string bind_ip = sConfig.GetStringDefault ("BindIP", "0.0.0.0");
 
     if (sWorldSocketMgr->StartNetwork (wsport, bind_ip.c_str ()) == -1)
