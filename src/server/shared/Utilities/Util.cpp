@@ -18,7 +18,6 @@
 
 #include "Util.h"
 
-#include "socket_include.h"
 #include "utf8.h"
 #ifdef USE_SFMT_FOR_RNG
 #include "SFMT.h"
@@ -26,6 +25,7 @@
 #include "MersenneTwister.h"
 #endif
 #include <ace/TSS_T.h>
+#include <ace/INET_Addr.h>
 
 #ifdef USE_SFMT_FOR_RNG
 typedef ACE_TSS<SFMTRand> SFMTRandTSS;
