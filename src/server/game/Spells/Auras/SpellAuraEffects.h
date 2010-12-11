@@ -264,4 +264,62 @@ class AuraEffect
         void HandleAuraModFakeInebriation(AuraApplication const * aurApp, uint8 mode, bool apply) const;
 };
 
+namespace Trinity
+{
+    // Binary predicate for sorting the priority of absorption aura effects
+    class AbsorbAuraOrderPred
+    {
+        public:
+            AbsorbAuraOrderPred() { }
+            bool operator() (AuraEffect * aurEffA, AuraEffect * aurEffB) const
+            {
+                SpellEntry const * spellProtoA = aurEffA->GetSpellProto();
+                SpellEntry const * spellProtoB = aurEffB->GetSpellProto();
+
+                // Wards
+                if ((spellProtoA->SpellFamilyName == SPELLFAMILY_MAGE) ||
+                    (spellProtoA->SpellFamilyName == SPELLFAMILY_WARLOCK))
+                    if (spellProtoA->Category == 56)
+                        return true;
+                if ((spellProtoB->SpellFamilyName == SPELLFAMILY_MAGE) ||
+                    (spellProtoB->SpellFamilyName == SPELLFAMILY_WARLOCK))
+                    if (spellProtoB->Category == 56)
+                        return false;
+
+                // Sacred Shield
+                if (spellProtoA->Id == 58597)
+                    return true;
+                if (spellProtoB->Id == 58597)
+                    return false;
+
+                // Fel Blossom
+                if (spellProtoA->Id == 28527)
+                    return true;
+                if (spellProtoB->Id == 28527)
+                    return false;
+
+                // Divine Aegis
+                if (spellProtoA->Id == 47753)
+                    return true;
+                if (spellProtoB->Id == 47753)
+                    return false;
+
+                // Ice Barrier
+                if (spellProtoA->Category == 471)
+                    return true;
+                if (spellProtoB->Category == 471)
+                    return false;
+
+                // Sacrifice
+                if ((spellProtoA->SpellFamilyName == SPELLFAMILY_WARLOCK) &&
+                    (spellProtoA->SpellIconID == 693))
+                    return true;
+                if ((spellProtoB->SpellFamilyName == SPELLFAMILY_WARLOCK) &&
+                    (spellProtoB->SpellIconID == 693))
+                    return false;
+
+                return false;
+            }
+    };
+}
 #endif
