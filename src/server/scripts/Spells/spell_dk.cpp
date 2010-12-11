@@ -140,7 +140,7 @@ public:
             Unit* caster = GetCaster();
             if (Unit* unitTarget = GetHitUnit())
             {
-                int32 bp = (GetHitDamage() * GetEffectValue() * unitTarget->GetDiseasesByCaster(caster->GetGUID())) / 100;
+                int32 bp = CalculatePctN(GetHitDamage(), GetEffectValue() * unitTarget->GetDiseasesByCaster(caster->GetGUID()));
                 caster->CastCustomSpell(unitTarget, DK_SPELL_SCOURGE_STRIKE_TRIGGERED, &bp, NULL, NULL, true);
             }
         }

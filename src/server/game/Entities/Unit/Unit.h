@@ -1211,8 +1211,8 @@ class Unit : public WorldObject
         inline bool HealthBelowPct(int32 pct) const { return GetHealth() * (uint64)100 < GetMaxHealth() * (uint64)pct; }
         inline bool HealthBelowPctDamaged(int32 pct, uint32 damage) const { return (int32(GetHealth()) - damage) * (int64)100 < GetMaxHealth() * (int64)pct; }
         inline bool HealthAbovePct(int32 pct) const { return GetHealth() * (uint64)100 > GetMaxHealth() * (uint64)pct; }
-            inline float GetHealthPct() const { return GetMaxHealth() ? 100.f * GetHealth() / GetMaxHealth() : 0.0f; }
-        inline uint32 CountPctFromMaxHealth(int32 pct) const { return uint32(float(pct) * GetMaxHealth() / 100.0f); }
+        inline float GetHealthPct() const { return GetMaxHealth() ? 100.f * GetHealth() / GetMaxHealth() : 0.0f; }
+        inline uint32 CountPctFromMaxHealth(int32 pct) const { return CalculatePctN(GetMaxHealth(), pct); } 
 
         void SetHealth(uint32 val);
         void SetMaxHealth(uint32 val);
@@ -1885,7 +1885,7 @@ class Unit : public WorldObject
         void SetHover(bool on);
         bool isHover() const { return HasAuraType(SPELL_AURA_HOVER); }
 
-        int32 ApplyEffectModifiers(SpellEntry const* spellProto, uint8 effect_index, int32 value) const;
+        float ApplyEffectModifiers(SpellEntry const* spellProto, uint8 effect_index, float value) const;
         int32 CalculateSpellDamage(Unit const* target, SpellEntry const* spellProto, uint8 effect_index, int32 const* basePoints = NULL) const;
         int32 CalcSpellDuration(SpellEntry const* spellProto);
         int32 ModSpellDuration(SpellEntry const* spellProto, Unit const* target, int32 duration, bool positive);

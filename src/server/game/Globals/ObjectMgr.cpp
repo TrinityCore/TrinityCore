@@ -9011,7 +9011,7 @@ uint32 ObjectMgr::GetScriptId(const char *name)
     ScriptNameMap::const_iterator itr =
         std::lower_bound(m_scriptNames.begin(), m_scriptNames.end(), name);
     if (itr == m_scriptNames.end() || *itr != name) return 0;
-    return itr - m_scriptNames.begin();
+    return uint32(itr - m_scriptNames.begin());
 }
 
 void ObjectMgr::CheckScripts(ScriptsType type, std::set<int32>& ids)

@@ -80,7 +80,7 @@ inline void ApplyModUInt32Var(uint32& var, int32 val, bool apply)
 {
     int32 cur = var;
     cur += (apply ? val : -val);
-    if(cur < 0)
+    if (cur < 0)
         cur = 0;
     var = cur;
 }
@@ -88,7 +88,7 @@ inline void ApplyModUInt32Var(uint32& var, int32 val, bool apply)
 inline void ApplyModFloatVar(float& var, float  val, bool apply)
 {
     var += (apply ? val : -val);
-    if(var < 0)
+    if (var < 0)
         var = 0;
 }
 
@@ -96,9 +96,65 @@ inline void ApplyPercentModFloatVar(float& var, float val, bool apply)
 {
     if (val == -100.0f)     // prevent set var to zero
         val = -99.99f;
-    var *= (apply?(100.0f+val)/100.0f : 100.0f / (100.0f+val));
+    var *= (apply ? (100.0f + val) / 100.0f : 100.0f / (100.0f + val));
 }
 
+// Percentage calculation
+template <class T>
+inline T CalculatePctF(T base, float pct)
+{
+    return T(base * pct / 100.0f);
+}
+
+template <class T>
+inline T CalculatePctN(T base, int32 pct)
+{
+    return T(base * float(pct) / 100.0f);
+}
+
+template <class T>
+inline T CalculatePctU(T base, uint32 pct)
+{
+    return T(base * float(pct) / 100.0f);
+}
+
+template <class T>
+inline T AddPctF(T& base, float pct)
+{
+    return base += CalculatePctF(base, pct);
+}
+
+template <class T>
+inline T AddPctN(T& base, int32 pct)
+{
+    return base += CalculatePctN(base, pct);
+}
+
+template <class T>
+inline T AddPctU(T& base, uint32 pct)
+{
+    return base += CalculatePctU(base, pct);
+}
+
+template <class T>
+inline T ApplyPctF(T& base, float pct)
+{
+    return base = CalculatePctF(base, pct);
+}
+
+template <class T>
+inline T ApplyPctN(T& base, int32 pct)
+{
+    return base = CalculatePctN(base, pct);
+}
+
+template <class T>
+inline T ApplyPctU(T& base, uint32 pct)
+{
+    return base = CalculatePctU(base, pct);
+}
+
+// UTF8 handling
 bool Utf8toWStr(const std::string& utf8str, std::wstring& wstr);
 // in wsize==max size of buffer, out wsize==real string size
 bool Utf8toWStr(char const* utf8str, size_t csize, wchar_t* wstr, size_t& wsize);

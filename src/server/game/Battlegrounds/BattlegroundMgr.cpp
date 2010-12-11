@@ -865,8 +865,8 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket *data, const uint6
     uint32 winner_arena = plr->GetRandomWinner() ? BG_REWARD_WINNER_ARENA_LAST : BG_REWARD_WINNER_ARENA_FIRST;
     uint32 loser_kills = plr->GetRandomWinner() ? BG_REWARD_LOSER_HONOR_LAST : BG_REWARD_LOSER_HONOR_FIRST;
 
-    winner_kills = Trinity::Honor::hk_honor_at_level(plr->getLevel(), winner_kills);
-    loser_kills = Trinity::Honor::hk_honor_at_level(plr->getLevel(), loser_kills);
+    winner_kills = Trinity::Honor::hk_honor_at_level(plr->getLevel(), float(winner_kills));
+    loser_kills = Trinity::Honor::hk_honor_at_level(plr->getLevel(), float(loser_kills));
 
     data->Initialize(SMSG_BATTLEFIELD_LIST);
     *data << uint64(guid);                                  // battlemaster guid
