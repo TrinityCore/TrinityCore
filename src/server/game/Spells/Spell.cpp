@@ -1298,7 +1298,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellInfo->SpellFamilyFlags[1] & 0x40000 && m_spellAura && m_spellAura->GetEffect(1))
         {
             AuraEffect * aurEff = m_spellAura->GetEffect(1);
-            aurEff->SetAmount(aurEff->GetAmount() * damageInfo.damage / 100);
+            aurEff->SetAmount(CalculatePctU(aurEff->GetAmount(), damageInfo.damage));
         }
     }
     // Passive spell hits/misses or active spells only misses (only triggers)
@@ -6450,7 +6450,7 @@ void Spell::Delayed() // only called in DealDamage()
     if (delayReduce >= 100)
         return;
 
-    delaytime = delaytime * (100 - delayReduce) / 100;
+    AddPctN(delaytime, -delayReduce);
 
     if (int32(m_timer) + delaytime > m_casttime)
     {
@@ -6478,14 +6478,14 @@ void Spell::DelayedChannel()
         return;
 
     //check pushback reduce
-    int32 delaytime = GetSpellDuration(m_spellInfo) * 25 / 100; // channeling delay is normally 25% of its time per hit
+    int32 delaytime = CalculatePctN(GetSpellDuration(m_spellInfo), 25); // channeling delay is normally 25% of its time per hit
     int32 delayReduce = 100;                                    // must be initialized to 100 for percent modifiers
     m_caster->ToPlayer()->ApplySpellMod(m_spellInfo->Id, SPELLMOD_NOT_LOSE_CASTING_TIME, delayReduce, this);
     delayReduce += m_caster->GetTotalAuraModifier(SPELL_AURA_REDUCE_PUSHBACK) - 100;
     if (delayReduce >= 100)
         return;
 
-    delaytime = delaytime * (100 - delayReduce) / 100;
+    AddPctN(delaytime, -delayReduce);
 
     if (int32(m_timer) <= delaytime)
     {

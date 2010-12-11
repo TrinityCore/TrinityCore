@@ -472,7 +472,7 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
                         // Glyph of Fear, Glyph of Frost nova and similar auras
                         if ((*itr)->GetMiscValue() == 7801)
                         {
-                            amount += (int32)(amount*(*itr)->GetAmount()/100.0f);
+                            AddPctN(amount, (*itr)->GetAmount());
                             break;
                         }
                     }
@@ -493,7 +493,7 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
                         DoneActualBenefit += caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellProto)) * 0.8068f;
                         // Glyph of Ice Barrier: its weird having a SPELLMOD_ALL_EFFECTS here but its blizzards doing :)
                         // Glyph of Ice Barrier is only applied at the spell damage bonus because it was already applied to the base value in CalculateSpellDamage
-                        DoneActualBenefit = caster->ApplyEffectModifiers(GetSpellProto(), m_effIndex, (int32)DoneActualBenefit);
+                        DoneActualBenefit = caster->ApplyEffectModifiers(GetSpellProto(), m_effIndex, DoneActualBenefit);
                     }
                     // Fire Ward
                     else if(GetSpellProto()->SpellFamilyFlags[0] & 0x8 && GetSpellProto()->SpellFamilyFlags[2] & 0x8)
@@ -520,27 +520,27 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
                     // Power Word: Shield
                     if (GetSpellProto()->SpellFamilyFlags[0] & 0x1 && GetSpellProto()->SpellFamilyFlags[2] & 0x400)
                     {
-                        //+80.68% from sp bonus
+                        // +80.68% from sp bonus
                         float bonus = 0.8068f;
 
                         // Borrowed Time
                         if (AuraEffect const* pAurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_PRIEST, 2899, 1))
-                            bonus += (float)pAurEff->GetAmount() / 100.0f;
+                            bonus += CalculatePctN(1.0f, pAurEff->GetAmount());
 
                         DoneActualBenefit += caster->SpellBaseHealingBonus(GetSpellSchoolMask(m_spellProto)) * bonus;
                         // Improved PW: Shield: its weird having a SPELLMOD_ALL_EFFECTS here but its blizzards doing :)
                         // Improved PW: Shield is only applied at the spell healing bonus because it was already applied to the base value in CalculateSpellDamage
-                        DoneActualBenefit = caster->ApplyEffectModifiers(GetSpellProto(), m_effIndex, (int32)DoneActualBenefit);
+                        DoneActualBenefit = caster->ApplyEffectModifiers(GetSpellProto(), m_effIndex, DoneActualBenefit);
                         DoneActualBenefit *= caster->CalculateLevelPenalty(GetSpellProto());
 
-                        amount += (int32)DoneActualBenefit;
+                        amount += int32(DoneActualBenefit);
 
                         // Twin Disciplines
                         if (AuraEffect const* pAurEff = caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_PRIEST, 0x400000, 0, 0, caster->GetGUID()))
-                            amount *= (100.0f + pAurEff->GetAmount()) / 100.0f;
+                            AddPctN(amount, pAurEff->GetAmount());
 
                         // Focused Power                       
-                        amount *= caster->GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_DONE_PERCENT);
+                        amount *= int32(caster->GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_DONE_PERCENT));
 
                         return amount;
                     }
@@ -554,17 +554,17 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
 
                         DoneActualBenefit += caster->SpellBaseHealingBonus(GetSpellSchoolMask(m_spellProto)) * bonus;
                         // Divine Guardian is only applied at the spell healing bonus because it was already applied to the base value in CalculateSpellDamage
-                        DoneActualBenefit = caster->ApplyEffectModifiers(GetSpellProto(), m_effIndex, (int32)DoneActualBenefit);
+                        DoneActualBenefit = caster->ApplyEffectModifiers(GetSpellProto(), m_effIndex, DoneActualBenefit);
                         DoneActualBenefit *= caster->CalculateLevelPenalty(GetSpellProto());
 
                         amount += (int32)DoneActualBenefit;
                         
                         // Arena - Dampening
                         if (AuraEffect const* pAurEff = caster->GetAuraEffect(74410, 0))
-                            amount *= (100.0f + pAurEff->GetAmount()) / 100.0f;
+                            AddPctN(amount, pAurEff->GetAmount());
                         // Battleground - Dampening
                         else if (AuraEffect const* pAurEff = caster->GetAuraEffect(74411, 0))
-                            amount *= (100.0f + pAurEff->GetAmount()) / 100.0f;
+                            AddPctN(amount, pAurEff->GetAmount());
 
                         return amount;
                     }
@@ -632,24 +632,25 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
                 if (AuraEffect const * aurEff = caster->GetAuraEffect(34241,0))
                     amount += cp * aurEff->GetAmount();
 
-                amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * cp / 100);
+                amount += CalculatePctF(cp, caster->GetTotalAttackPowerValue(BASE_ATTACK));
             }
             // Rend
             else if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_WARRIOR && GetSpellProto()->SpellFamilyFlags[0] & 0x20)
             {
                 m_canBeRecalculated = false;
-                // $0.2*(($MWB+$mwb)/2+$AP/14*$MWS) bonus per tick
+                // $0.2 * (($MWB + $mwb) / 2 + $AP / 14 * $MWS) bonus per tick
                 float ap = caster->GetTotalAttackPowerValue(BASE_ATTACK);
                 int32 mws = caster->GetAttackTime(BASE_ATTACK);
                 float mwb_min = caster->GetWeaponDamageRange(BASE_ATTACK,MINDAMAGE);
                 float mwb_max = caster->GetWeaponDamageRange(BASE_ATTACK,MAXDAMAGE);
-                amount+=caster->ApplyEffectModifiers(m_spellProto,m_effIndex,int32(((mwb_min+mwb_max)/2+ap*mws/14000)*0.2f));
+                float mwb = ((mwb_min + mwb_max) / 2 + ap * mws / 14000) * 0.2f;
+                amount += int32(caster->ApplyEffectModifiers(m_spellProto, m_effIndex, mwb));
                 // "If used while your target is above 75% health, Rend does 35% more damage."
                 // as for 3.1.3 only ranks above 9 (wrong tooltip?)
                 if (sSpellMgr.GetSpellRank(m_spellProto->Id) >= 9)
                 {
                     if (GetBase()->GetUnitOwner()->HasAuraState(AURA_STATE_HEALTH_ABOVE_75_PERCENT, m_spellProto, caster))
-                        amount += int32(amount * SpellMgr::CalculateSpellEffectAmount(m_spellProto, 2, caster) / 100.0f);
+                        AddPctN(amount, SpellMgr::CalculateSpellEffectAmount(m_spellProto, 2, caster));
                 }
             }
             // Unholy Blight damage over time effect
@@ -670,10 +671,10 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
             }
             // Innervate
             else if (m_spellProto->Id == 29166)
-                amount = int32(GetBase()->GetUnitOwner()->GetCreatePowers(POWER_MANA) * amount / (GetTotalTicks() * 100.0f));
+                ApplyPctF(amount, float(GetBase()->GetUnitOwner()->GetCreatePowers(POWER_MANA)) / GetTotalTicks());
             // Owlkin Frenzy
             else if (m_spellProto->Id == 48391)
-                amount = GetBase()->GetUnitOwner()->GetCreatePowers(POWER_MANA) * amount / 100;
+                ApplyPctU(amount, GetBase()->GetUnitOwner()->GetCreatePowers(POWER_MANA));
             break;
         case SPELL_AURA_PERIODIC_HEAL:
             if (!caster)
@@ -684,7 +685,7 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
                 if (caster->GetTypeId() == TYPEID_PLAYER)
                 // Bonus from Glyph of Lightwell
                 if (AuraEffect* modHealing = caster->GetAuraEffect(55673, 0))
-                    amount = int32(amount * (100.0f + modHealing->GetAmount()) / 100.0f);
+                    AddPctN(amount, modHealing->GetAmount());
             }
             break;
         case SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN:
@@ -749,7 +750,7 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
         case SPELL_AURA_MOD_INCREASE_ENERGY:
             // Hymn of Hope
             if (GetId() == 64904)
-                amount = GetBase()->GetUnitOwner()->GetMaxPower(GetBase()->GetUnitOwner()->getPowerType()) * amount / 100;
+                ApplyPctU(amount, GetBase()->GetUnitOwner()->GetMaxPower(GetBase()->GetUnitOwner()->getPowerType()));
             break;
         case SPELL_AURA_MOD_INCREASE_SPEED:
             // Dash - do not set speed if not in cat form
@@ -1550,27 +1551,27 @@ void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit * caster) const
 
                 // Tenacity increase healing % taken
                 if (AuraEffect const* Tenacity = target->GetAuraEffect(58549, 0))
-                    TakenTotalMod *= (Tenacity->GetAmount() + 100.0f) / 100.0f;
+                    AddPctN(TakenTotalMod, Tenacity->GetAmount());
 
                 // Healing taken percent
                 float minval = (float)target->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_HEALING_PCT);
                 if (minval)
-                    TakenTotalMod *= (100.0f + minval) / 100.0f;
+                    AddPctF(TakenTotalMod, minval);
 
                 float maxval = (float)target->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HEALING_PCT);
                 if (maxval)
-                    TakenTotalMod *= (100.0f + maxval) / 100.0f;
+                    AddPctF(TakenTotalMod, maxval);
 
                 // Healing over time taken percent
                 float minval_hot = (float)target->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_HOT_PCT);
                 if (minval_hot)
-                    TakenTotalMod *= (100.0f + minval_hot) / 100.0f;
+                    AddPctF(TakenTotalMod, minval_hot);
 
                 float maxval_hot = (float)target->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HOT_PCT);
                 if (maxval_hot)
-                    TakenTotalMod *= (100.0f + maxval_hot) / 100.0f;
+                    AddPctF(TakenTotalMod, maxval_hot);
 
-                TakenTotalMod = TakenTotalMod > 0.0f ? TakenTotalMod : 0.0f;
+                TakenTotalMod = std::max(TakenTotalMod, 0.0f);
 
                 damage = uint32(target->CountPctFromMaxHealth(damage));
                 damage = uint32(damage * TakenTotalMod);
@@ -1670,8 +1671,8 @@ void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit * caster) const
             if (m_spellProto->ManaCostPercentage)
             {
                 // max value
-                uint32 maxmana = caster->GetMaxPower(power)  * damage * 2 / 100;
-                damage = target->GetMaxPower(power) * damage / 100;
+                uint32 maxmana = CalculatePctF(caster->GetMaxPower(power), damage * 2.0f);
+                ApplyPctU(damage, target->GetMaxPower(power));
                 if (damage > maxmana)
                     damage = maxmana;
             }
@@ -1679,7 +1680,7 @@ void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit * caster) const
             sLog.outDetail("PeriodicTick: %u (TypeId: %u) power leech of %u (TypeId: %u) for %u dmg inflicted by %u",
                 GUID_LOPART(GetCasterGUID()), GuidHigh2TypeId(GUID_HIPART(GetCasterGUID())), target->GetGUIDLow(), target->GetTypeId(), damage, GetId());
 
-            int32 drain_amount = target->GetPower(power) > damage ? damage : target->GetPower(power);
+            int32 drain_amount = std::min(target->GetPower(power), damage);
 
             // resilience reduce mana draining effect at spell crit damage reduction (added in 2.4)
             if (power == POWER_MANA)
@@ -1699,7 +1700,7 @@ void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit * caster) const
 
             if (gain_amount)
             {
-                int32 gain = caster->ModifyPower(power,gain_amount);
+                int32 gain = caster->ModifyPower(power, gain_amount);
                 target->AddThreat(caster, float(gain) * 0.5f, GetSpellSchoolMask(GetSpellProto()), GetSpellProto());
             }
 
@@ -1735,7 +1736,7 @@ void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit * caster) const
                 // Mana Feed - Drain Mana
                 if (manaFeedVal > 0)
                 {
-                    manaFeedVal = manaFeedVal * gain_amount / 100;
+                    ApplyPctN(manaFeedVal, gain_amount);
                     caster->CastCustomSpell(caster, 32554, &manaFeedVal, NULL, NULL, true, NULL, this);
                 }
             }
@@ -5570,10 +5571,10 @@ void AuraEffect::HandleModPowerCostPCT(AuraApplication const * aurApp, uint8 mod
 
     Unit * target = aurApp->GetTarget();
 
-    float amount = GetAmount() /100.0f;
+    float amount = CalculatePctN(1.0f, GetAmount());
     for (int i = 0; i < MAX_SPELL_SCHOOL; ++i)
-        if (GetMiscValue() & (1<<i))
-            target->ApplyModSignedFloatValue(UNIT_FIELD_POWER_COST_MULTIPLIER+i,amount,apply);
+        if (GetMiscValue() & (1 << i))
+            target->ApplyModSignedFloatValue(UNIT_FIELD_POWER_COST_MULTIPLIER + i, amount, apply);
 }
 
 void AuraEffect::HandleModPowerCost(AuraApplication const * aurApp, uint8 mode, bool apply) const
@@ -5930,7 +5931,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                         // restore mana
                         if (caster)
                         {
-                            int32 returnmana = (GetSpellProto()->ManaCostPercentage * caster->GetCreateMana() / 100) * stack / 2;
+                            int32 returnmana = CalculatePctU(caster->GetCreateMana(), GetSpellProto()->ManaCostPercentage) * stack / 2;
                             caster->CastCustomSpell(caster, 64372, &returnmana, NULL, NULL, true, NULL, this, GetCasterGUID());
                         }
                     }

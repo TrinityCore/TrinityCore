@@ -460,14 +460,14 @@ void Spell::SpellDamageSchoolDmg(SpellEffIndex effIndex)
             {
                 // Bloodthirst
                 if (m_spellInfo->SpellFamilyFlags[1] & 0x400)
-                    damage = uint32(damage * (m_caster->GetTotalAttackPowerValue(BASE_ATTACK)) / 100);
+                    ApplyPctF(damage, m_caster->GetTotalAttackPowerValue(BASE_ATTACK));
                 // Shield Slam
                 else if (m_spellInfo->SpellFamilyFlags[1] & 0x200 && m_spellInfo->Category == 1209)
-                    damage += m_caster->ApplyEffectModifiers(m_spellInfo,effIndex,int32(m_caster->GetShieldBlockValue()));
+                    damage += int32(m_caster->ApplyEffectModifiers(m_spellInfo, effIndex, float(m_caster->GetShieldBlockValue())));
                 // Victory Rush
                 else if (m_spellInfo->SpellFamilyFlags[1] & 0x100)
                 {
-                    damage = uint32(damage * m_caster->GetTotalAttackPowerValue(BASE_ATTACK) / 100);
+                    ApplyPctF(damage, m_caster->GetTotalAttackPowerValue(BASE_ATTACK));
                     m_caster->ModifyAuraState(AURA_STATE_WARRIOR_VICTORY_RUSH, false);
                 }
                 // Shockwave
@@ -475,7 +475,7 @@ void Spell::SpellDamageSchoolDmg(SpellEffIndex effIndex)
                 {
                     int32 pct = m_caster->CalculateSpellDamage(unitTarget, m_spellInfo, 2);
                     if (pct > 0)
-                        damage+= int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * pct / 100);
+                        damage += int32(CalculatePctN(m_caster->GetTotalAttackPowerValue(BASE_ATTACK), pct));
                     break;
                 }
                 break;
@@ -521,14 +521,14 @@ void Spell::SpellDamageSchoolDmg(SpellEffIndex effIndex)
                     // found Immolate or Shadowflame
                     if (aura)
                     {
-                        uint32 pdamage = aura->GetAmount() > 0 ? aura->GetAmount() : 0;
+                        uint32 pdamage = uint32(std::max(aura->GetAmount(), 0));
                         pdamage = m_caster->SpellDamageBonus(unitTarget, aura->GetSpellProto(), pdamage, DOT, aura->GetBase()->GetStackAmount());
                         uint32 pct_dir = m_caster->CalculateSpellDamage(unitTarget, m_spellInfo, (effIndex + 1));
                         uint8 baseTotalTicks = uint8(m_caster->CalcSpellDuration(aura->GetSpellProto()) / aura->GetSpellProto()->EffectAmplitude[0]);
-                        damage += pdamage * baseTotalTicks * pct_dir / 100;
+                        damage += int32(CalculatePctU(pdamage * baseTotalTicks, pct_dir));
 
                         uint32 pct_dot = m_caster->CalculateSpellDamage(unitTarget, m_spellInfo, (effIndex + 2)) / 3;
-                        m_spellValue->EffectBasePoints[1] = SpellMgr::CalculateSpellEffectBaseAmount(pdamage * baseTotalTicks * pct_dot / 100, m_spellInfo, 1);
+                        m_spellValue->EffectBasePoints[1] = SpellMgr::CalculateSpellEffectBaseAmount(int32(CalculatePctU(pdamage * baseTotalTicks, pct_dot)), m_spellInfo, 1);
 
                         apply_direct_bonus = false;
                         // Glyph of Conflagrate
@@ -542,10 +542,8 @@ void Spell::SpellDamageSchoolDmg(SpellEffIndex effIndex)
                 else if (m_spellInfo->SpellFamilyFlags[1] & 0x400000)
                 {
                     if (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->isPet())
-                    {
                         // Get DoTs on target by owner (5% increase by dot)
-                        damage += 5 * unitTarget->GetDoTsByCaster(m_caster->GetOwnerGUID()) / 100;
-                    }
+                        damage += int32(CalculatePctN(unitTarget->GetDoTsByCaster(m_caster->GetOwnerGUID()), 5));
                 }
                 break;
             }
@@ -557,7 +555,7 @@ void Spell::SpellDamageSchoolDmg(SpellEffIndex effIndex)
                     int32 back_damage = m_caster->SpellDamageBonus(unitTarget, m_spellInfo, (uint32)damage, SPELL_DIRECT_DAMAGE);
                     // Pain and Suffering reduces damage
                     if (AuraEffect * aurEff = m_caster->GetDummyAuraEffect(SPELLFAMILY_PRIEST, 2874, 0))
-                        back_damage -= aurEff->GetAmount() * back_damage / 100;
+                        AddPctN(back_damage, -aurEff->GetAmount());
 
                     if (back_damage < int32(unitTarget->GetHealth()))
                         m_caster->CastCustomSpell(m_caster, 32409, &back_damage, 0, 0, true);
@@ -579,7 +577,7 @@ void Spell::SpellDamageSchoolDmg(SpellEffIndex effIndex)
                     // Glyph of Smite
                     if (AuraEffect * aurEff = m_caster->GetAuraEffect(55692, 0))
                         if (unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x100000, 0, 0, m_caster->GetGUID()))
-                            damage += damage * aurEff->GetAmount() / 100;
+                            AddPctN(damage, aurEff->GetAmount());
                 }
                 // Improved Mind Blast (Mind Blast in shadow form bonus)
                 else if (m_caster->GetShapeshiftForm() == FORM_SHADOW && (m_spellInfo->SpellFamilyFlags[0] & 0x00002000))
@@ -610,7 +608,7 @@ void Spell::SpellDamageSchoolDmg(SpellEffIndex effIndex)
                     float multiple = ap / 410 + m_spellInfo->EffectDamageMultiplier[effIndex];
                     int32 energy = -(m_caster->ModifyPower(POWER_ENERGY, -30));
                     damage += int32(energy * multiple);
-                    damage += int32(m_caster->ToPlayer()->GetComboPoints() * ap * 7 / 100);
+                    damage += int32(CalculatePctN(m_caster->ToPlayer()->GetComboPoints() * ap, 7));
                 }
                 // Wrath
                 else if (m_spellInfo->SpellFamilyFlags[0] & 0x00000001)
@@ -618,7 +616,7 @@ void Spell::SpellDamageSchoolDmg(SpellEffIndex effIndex)
                     // Improved Insect Swarm
                     if (AuraEffect const * aurEff = m_caster->GetDummyAuraEffect(SPELLFAMILY_DRUID, 1771, 0))
                         if (unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DRUID, 0x00200000, 0, 0))
-                            damage = int32(damage*(100.0f+aurEff->GetAmount())/100.0f);
+                            AddPctN(damage, aurEff->GetAmount());
                 }
                 break;
             }
@@ -739,7 +737,7 @@ void Spell::SpellDamageSchoolDmg(SpellEffIndex effIndex)
                 // Shield of Righteousness
                 if (m_spellInfo->SpellFamilyFlags[EFFECT_1] & 0x100000)
                 {
-                    damage += m_caster->GetShieldBlockValue() * SpellMgr::CalculateSpellEffectAmount(m_spellInfo, EFFECT_1) / 100;
+                    damage += CalculatePctN(m_caster->GetShieldBlockValue(), SpellMgr::CalculateSpellEffectAmount(m_spellInfo, EFFECT_1));
                     break;
                 }
                 break;
@@ -1255,7 +1253,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
             // Concussion Blow
             if (m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_WARRIOR_CONCUSSION_BLOW)
             {
-                m_damage+= uint32(damage * m_caster->GetTotalAttackPowerValue(BASE_ATTACK) / 100);
+                m_damage += CalculatePctF(damage, m_caster->GetTotalAttackPowerValue(BASE_ATTACK));
                 return;
             }
             switch(m_spellInfo->Id)
@@ -1289,7 +1287,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
 
                     // Improved Life Tap mod
                     if (AuraEffect const * aurEff = m_caster->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, 208, 0))
-                        mana = (aurEff->GetAmount() + 100)* mana / 100;
+                        AddPctN(mana, aurEff->GetAmount());
 
                     m_caster->CastCustomSpell(unitTarget, 31818, &mana, NULL, NULL, true);
 
@@ -1300,7 +1298,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
 
                     if (manaFeedVal > 0)
                     {
-                        manaFeedVal = manaFeedVal * mana / 100;
+                        ApplyPctN(manaFeedVal, mana);
                         m_caster->CastCustomSpell(m_caster, 32553, &manaFeedVal, NULL, NULL, true, NULL);
                     }
                 }
@@ -1333,7 +1331,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
             // Divine Storm
             if (m_spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_PALADIN_DIVINESTORM && effIndex == 1)
             {
-                int32 dmg = m_damage * damage / 100;
+                int32 dmg = CalculatePctN(m_damage, damage);
                 if (!unitTarget)
                     unitTarget = m_caster;
                 m_caster->CastCustomSpell(unitTarget, 54171, &dmg, 0, 0, true);
@@ -1383,7 +1381,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 // Restorative Totems
                 if (Unit *owner = m_caster->GetOwner())
                     if (AuraEffect *dummy = owner->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, 338, 1))
-                        damage += damage * dummy->GetAmount() / 100;
+                        AddPctN(damage, dummy->GetAmount());
 
                     m_caster->CastCustomSpell(unitTarget, 52042, &damage, 0, 0, true, 0, 0, m_originalCasterGUID);
                 return;
@@ -1406,7 +1404,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 {
                     // Damage is increased by 25% if your off-hand weapon is enchanted with Flametongue.
                     if (m_caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, 0x200000, 0, 0))
-                        m_damage += m_damage * damage / 100;
+                        AddPctN(m_damage, damage);
                 }
                 return;
             }
@@ -1419,7 +1417,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 int32 bp = int32(count * m_caster->CountPctFromMaxHealth(int32(m_spellInfo->EffectDamageMultiplier[0])));
                 // Improved Death Strike
                 if (AuraEffect const * aurEff = m_caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_DEATHKNIGHT, 2751, 0))
-                    bp = int32(bp * (m_caster->CalculateSpellDamage(m_caster, aurEff->GetSpellProto(), 2) + 100.0f) / 100.0f);
+                    AddPctN(bp, m_caster->CalculateSpellDamage(m_caster, aurEff->GetSpellProto(), 2));
                 m_caster->CastCustomSpell(m_caster, 45470, &bp, NULL, NULL, false);
                 return;
             }
@@ -2115,8 +2113,8 @@ void Spell::EffectPowerBurn(SpellEffIndex effIndex)
     // burn x% of target's mana, up to maximum of 2x% of caster's mana (Mana Burn)
     if (m_spellInfo->ManaCostPercentage)
     {
-        int32 maxDamage = m_caster->GetMaxPower(powerType) * damage * 2 / 100;
-        damage = unitTarget->GetMaxPower(powerType) * damage / 100;
+        int32 maxDamage = int32(CalculatePctN(m_caster->GetMaxPower(powerType), damage * 2));
+        damage = int32(CalculatePctN(unitTarget->GetMaxPower(powerType), damage));
         damage = std::min(damage, maxDamage);
     }
 
@@ -2224,7 +2222,7 @@ void Spell::SpellDamageHeal(SpellEffIndex /*effIndex*/)
                 for (Unit::AuraEffectList::const_iterator i = Periodic.begin(); i != Periodic.end(); ++i)
                 {
                     if (m_caster->GetGUID() == (*i)->GetCasterGUID())
-                        addhealth += addhealth * aurEff->GetAmount() / 100;
+                        AddPctN(addhealth, aurEff->GetAmount());
                 }
             }
         }
@@ -2530,10 +2528,10 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
         case 31930:                                         // Judgements of the Wise
         case 63375:                                         // Improved Stormstrike
         case 68082:                                         // Glyph of Seal of Command
-            damage = damage * unitTarget->GetCreateMana() / 100;
+            damage = int32(CalculatePctN(unitTarget->GetCreateMana(), damage));
             break;
         case 48542:                                         // Revitalize
-            damage = damage * unitTarget->GetMaxPower(power) / 100;
+            damage = int32(CalculatePctN(unitTarget->GetMaxPower(power), damage));
             break;
         default:
             break;
@@ -2616,7 +2614,7 @@ void Spell::EffectEnergizePct(SpellEffIndex effIndex)
     if (maxPower == 0)
         return;
 
-    uint32 gain = damage * maxPower / 100;
+    uint32 gain = CalculatePctN(maxPower, damage);
     m_caster->EnergizeBySpell(unitTarget, m_spellInfo->Id, gain, power);
 }
 
@@ -3350,7 +3348,7 @@ void Spell::EffectAddHonor(SpellEffIndex /*effIndex*/)
     // do not allow to add too many honor for player (50 * 21) = 1040 at level 70, or (50 * 31) = 1550 at level 80
     if (damage <= 50)
     {
-        uint32 honor_reward = Trinity::Honor::hk_honor_at_level(unitTarget->getLevel(), damage);
+        uint32 honor_reward = Trinity::Honor::hk_honor_at_level(unitTarget->getLevel(), float(damage));
         unitTarget->ToPlayer()->RewardHonor(NULL, 1, honor_reward);
         sLog.outDebug("SpellEffect::AddHonor (spell_id %u) rewards %u honor points (scale) to player: %u", m_spellInfo->Id, honor_reward, unitTarget->ToPlayer()->GetGUIDLow());
     }
@@ -3938,14 +3936,14 @@ void Spell::SpellDamageWeaponDmg(SpellEffIndex effIndex)
             // Seal of Command - Increase damage by 36% on every swing
             if (m_spellInfo->SpellFamilyFlags[0] & 0x2000000)
             {
-                totalDamagePercentMod *= 1.36f;            //136% damage
+                totalDamagePercentMod *= 1.36f;            // 136% damage
             }
 
             // Seal of Command Unleashed
             else if (m_spellInfo->Id == 20467)
             {
-                spell_bonus += int32(0.08f*m_caster->GetTotalAttackPowerValue(BASE_ATTACK));
-                spell_bonus += int32(0.13f*m_caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellInfo)));
+                spell_bonus += int32(0.08f * m_caster->GetTotalAttackPowerValue(BASE_ATTACK));
+                spell_bonus += int32(0.13f * m_caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellInfo)));
             }
             break;
         }
@@ -3963,15 +3961,13 @@ void Spell::SpellDamageWeaponDmg(SpellEffIndex effIndex)
             if (m_spellInfo->SpellFamilyFlags[1] & 0x400)
             {
                 if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                    m_caster->ToPlayer()->AddComboPoints(unitTarget,1, this);
+                    m_caster->ToPlayer()->AddComboPoints(unitTarget, 1, this);
             }
             // Shred, Maul - Rend and Tear
             else if (m_spellInfo->SpellFamilyFlags[0] & 0x00008800 && unitTarget->HasAuraState(AURA_STATE_BLEEDING))
             {
                 if (AuraEffect const* rendAndTear = m_caster->GetDummyAuraEffect(SPELLFAMILY_DRUID, 2859, 0))
-                {
-                    totalDamagePercentMod *= float((rendAndTear->GetAmount() + 100.0f) / 100.0f);
-                }
+                    AddPctN(totalDamagePercentMod, rendAndTear->GetAmount());
             }
             break;
         }
@@ -3979,7 +3975,7 @@ void Spell::SpellDamageWeaponDmg(SpellEffIndex effIndex)
         {
             // Kill Shot - bonus damage from Ranged Attack Power
             if (m_spellInfo->SpellFamilyFlags[1] & 0x800000)
-                spell_bonus += int32(0.4f*m_caster->GetTotalAttackPowerValue(RANGED_ATTACK));
+                spell_bonus += int32(0.4f * m_caster->GetTotalAttackPowerValue(RANGED_ATTACK));
             break;
         }
         case SPELLFAMILY_DEATHKNIGHT:
@@ -3989,18 +3985,18 @@ void Spell::SpellDamageWeaponDmg(SpellEffIndex effIndex)
             {
                 // Glyph of Plague Strike
                 if (AuraEffect const * aurEff = m_caster->GetAuraEffect(58657, EFFECT_0))
-                    totalDamagePercentMod *= (aurEff->GetAmount() + 100.0f) / 100.0f;
+                    AddPctN(totalDamagePercentMod, aurEff->GetAmount());
                 break;
             }
             // Blood Strike
             if (m_spellInfo->SpellFamilyFlags[EFFECT_0] & 0x400000)
             {
-                totalDamagePercentMod *= ((SpellMgr::CalculateSpellEffectAmount(m_spellInfo, EFFECT_2) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID()) / 2.0f) + 100.0f) / 100.0f;
+                AddPctF(totalDamagePercentMod, SpellMgr::CalculateSpellEffectAmount(m_spellInfo, EFFECT_2) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID()) / 2.0f);
 
                 // Glyph of Blood Strike
                 if (m_caster->GetAuraEffect(59332, EFFECT_0))
                     if (unitTarget->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED))
-                       totalDamagePercentMod *= (20 + 100.0f) / 100.0f;
+                       AddPctN(totalDamagePercentMod, 20);
                 break;
             }
             // Death Strike
@@ -4009,7 +4005,7 @@ void Spell::SpellDamageWeaponDmg(SpellEffIndex effIndex)
                 // Glyph of Death Strike
                 if (AuraEffect const * aurEff = m_caster->GetAuraEffect(59336, EFFECT_0))
                     if (uint32 runic = std::min<uint32>(m_caster->GetPower(POWER_RUNIC_POWER), SpellMgr::CalculateSpellEffectAmount(aurEff->GetSpellProto(), EFFECT_1)))
-                        totalDamagePercentMod *= (runic + 100.0f) / 100.0f;
+                        AddPctN(totalDamagePercentMod, runic);
                 break;
             }
             // Obliterate (12.5% more damage per disease)
@@ -4022,19 +4018,19 @@ void Spell::SpellDamageWeaponDmg(SpellEffIndex effIndex)
                     if (roll_chance_i(aurEff->GetAmount()))
                         consumeDiseases = false;
 
-                totalDamagePercentMod *= ((SpellMgr::CalculateSpellEffectAmount(m_spellInfo, EFFECT_2) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID(), consumeDiseases) / 2.0f) + 100.0f) / 100.0f;
+                AddPctF(totalDamagePercentMod, SpellMgr::CalculateSpellEffectAmount(m_spellInfo, EFFECT_2) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID(), consumeDiseases) / 2.0f);
                 break;
             }
             // Blood-Caked Strike - Blood-Caked Blade
             if (m_spellInfo->SpellIconID == 1736)
             {
-                totalDamagePercentMod *= ((unitTarget->GetDiseasesByCaster(m_caster->GetGUID()) * 12.5f) + 100.0f) / 100.0f;
+                AddPctF(totalDamagePercentMod, unitTarget->GetDiseasesByCaster(m_caster->GetGUID()) * 12.5f);
                 break;
             }
             // Heart Strike
             if (m_spellInfo->SpellFamilyFlags[EFFECT_0] & 0x1000000)
             {
-                totalDamagePercentMod *= ((SpellMgr::CalculateSpellEffectAmount(m_spellInfo, EFFECT_2) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID())) + 100.0f) / 100.0f;
+                AddPctN(totalDamagePercentMod, SpellMgr::CalculateSpellEffectAmount(m_spellInfo, EFFECT_2) * unitTarget->GetDiseasesByCaster(m_caster->GetGUID()));
                 break;
             }
             break;
@@ -4042,10 +4038,10 @@ void Spell::SpellDamageWeaponDmg(SpellEffIndex effIndex)
     }
 
     bool normalized = false;
-    float weaponDamagePercentMod = 1.0;
+    float weaponDamagePercentMod = 1.0f;
     for (int j = 0; j < MAX_SPELL_EFFECTS; ++j)
     {
-        switch(m_spellInfo->Effect[j])
+        switch (m_spellInfo->Effect[j])
         {
             case SPELL_EFFECT_WEAPON_DAMAGE:
             case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
@@ -4056,7 +4052,7 @@ void Spell::SpellDamageWeaponDmg(SpellEffIndex effIndex)
                 normalized = true;
                 break;
             case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
-                weaponDamagePercentMod *= float(CalculateDamage(j,unitTarget)) / 100.0f;
+                ApplyPctN(weaponDamagePercentMod, CalculateDamage(j, unitTarget));
                 break;
             default:
                 break;                                      // not weapon damage effect, just skip
@@ -4067,7 +4063,7 @@ void Spell::SpellDamageWeaponDmg(SpellEffIndex effIndex)
     if (fixed_bonus || spell_bonus)
     {
         UnitMods unitMod;
-        switch(m_attackType)
+        switch (m_attackType)
         {
             default:
             case BASE_ATTACK:   unitMod = UNIT_MOD_DAMAGE_MAINHAND; break;
@@ -4113,11 +4109,11 @@ void Spell::SpellDamageWeaponDmg(SpellEffIndex effIndex)
         weaponDamage = int32(weaponDamage * totalDamagePercentMod);
 
     // prevent negative damage
-    uint32 eff_damage = uint32(weaponDamage > 0 ? weaponDamage : 0);
+    uint32 eff_damage(std::max(weaponDamage, 0));
 
     // Add melee damage bonuses (also check for negative)
     m_caster->MeleeDamageBonus(unitTarget, &eff_damage, m_attackType, m_spellInfo);
-    m_damage+= eff_damage;
+    m_damage += eff_damage;
 }
 
 void Spell::EffectThreat(SpellEffIndex /*effIndex*/)
@@ -4154,7 +4150,7 @@ void Spell::EffectHealMaxHealth(SpellEffIndex /*effIndex*/)
         addhealth = unitTarget->GetMaxHealth() - unitTarget->GetHealth();
 
     if (m_originalCaster)
-         m_healing += m_originalCaster->SpellHealingBonus(unitTarget,m_spellInfo, addhealth, HEAL);
+         m_healing += m_originalCaster->SpellHealingBonus(unitTarget, m_spellInfo, addhealth, HEAL);
 }
 
 void Spell::EffectInterruptCast(SpellEffIndex effIndex)
@@ -5811,7 +5807,7 @@ void Spell::EffectResurrect(SpellEffIndex effIndex)
         return;
 
     uint32 health = pTarget->CountPctFromMaxHealth(damage);
-    uint32 mana   = pTarget->GetMaxPower(POWER_MANA) * damage / 100;
+    uint32 mana   = CalculatePctN(pTarget->GetMaxPower(POWER_MANA), damage);
 
     ExecuteLogEffectResurrect(effIndex, pTarget);
 
@@ -5931,7 +5927,7 @@ void Spell::EffectSelfResurrect(SpellEffIndex effIndex)
     {
         health = unitTarget->CountPctFromMaxHealth(damage);
         if (unitTarget->GetMaxPower(POWER_MANA) > 0)
-            mana = uint32(damage/100.0f*unitTarget->GetMaxPower(POWER_MANA));
+            mana = CalculatePctN(unitTarget->GetMaxPower(POWER_MANA), damage);
     }
 
     Player *plr = unitTarget->ToPlayer();
@@ -6206,13 +6202,12 @@ void Spell::EffectDestroyAllTotems(SpellEffIndex /*effIndex*/)
             if (spellInfo)
             {
                 mana += spellInfo->manaCost;
-                mana += spellInfo->ManaCostPercentage * m_caster->GetCreateMana() / 100;
+                mana += int32(CalculatePctU(m_caster->GetCreateMana(), spellInfo->ManaCostPercentage));
             }
             totem->ToTotem()->UnSummon();
         }
     }
-    mana = mana * damage / 100;
-
+    ApplyPctN(mana, damage);
     if (mana)
         m_caster->CastCustomSpell(m_caster, 39104, &mana, NULL, NULL, true);
 }
@@ -6253,7 +6248,7 @@ void Spell::EffectDurabilityDamagePCT(SpellEffIndex effIndex)
     // Possibly its mean -1 all player equipped items and -2 all items
     if (slot < 0)
     {
-        unitTarget->ToPlayer()->DurabilityLossAll(double(damage)/100.0f, (slot < -1));
+        unitTarget->ToPlayer()->DurabilityLossAll(float(damage) / 100.0f, (slot < -1));
         return;
     }
 
@@ -6265,7 +6260,7 @@ void Spell::EffectDurabilityDamagePCT(SpellEffIndex effIndex)
         return;
 
     if (Item* item = unitTarget->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
-        unitTarget->ToPlayer()->DurabilityLoss(item, double(damage)/100.0f);
+        unitTarget->ToPlayer()->DurabilityLoss(item, float(damage) / 100.0f);
 }
 
 void Spell::EffectModifyThreatPercent(SpellEffIndex /*effIndex*/)

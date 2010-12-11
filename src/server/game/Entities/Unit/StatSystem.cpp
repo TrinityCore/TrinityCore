@@ -213,7 +213,7 @@ void Player::UpdateArmor()
     for (AuraEffectList::const_iterator i = mResbyIntellect.begin(); i != mResbyIntellect.end(); ++i)
     {
         if ((*i)->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL)
-            value += int32(GetStat(Stats((*i)->GetMiscValueB())) * (*i)->GetAmount() / 100.0f);
+            value += CalculatePctN(GetStat(Stats((*i)->GetMiscValueB())), (*i)->GetAmount());
     }
 
     value *= GetModifierValue(unitMod, TOTAL_PCT);
@@ -329,7 +329,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
             {
                 ShapeshiftForm form = GetShapeshiftForm();
                 // Check if Predatory Strikes is skilled
-                float mLevelMult = 0.0;
+                float mLevelMult = 0.0f;
                 switch (form)
                 {
                     case FORM_CAT:
@@ -343,7 +343,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                             // Predatory Strikes (effect 0)
                             if ((*itr)->GetEffIndex() == 0 && (*itr)->GetSpellProto()->SpellIconID == 1563)
                             {
-                                mLevelMult = (*itr)->GetAmount() / 100.0f;
+                                mLevelMult = CalculatePctN(1.0f, (*itr)->GetAmount());
                                 break;
                             }
                         }
@@ -384,14 +384,14 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
         {
             AuraEffectList const& mRAPbyStat = GetAuraEffectsByType(SPELL_AURA_MOD_RANGED_ATTACK_POWER_OF_STAT_PERCENT);
             for (AuraEffectList::const_iterator i = mRAPbyStat.begin(); i != mRAPbyStat.end(); ++i)
-                attPowerMod += int32(GetStat(Stats((*i)->GetMiscValue())) * (*i)->GetAmount() / 100.0f);
+                attPowerMod += CalculatePctN(GetStat(Stats((*i)->GetMiscValue())), (*i)->GetAmount());
         }
     }
     else
     {
         AuraEffectList const& mAPbyStat = GetAuraEffectsByType(SPELL_AURA_MOD_ATTACK_POWER_OF_STAT_PERCENT);
         for (AuraEffectList::const_iterator i = mAPbyStat.begin(); i != mAPbyStat.end(); ++i)
-            attPowerMod += int32(GetStat(Stats((*i)->GetMiscValue())) * (*i)->GetAmount() / 100.0f);
+            attPowerMod += CalculatePctN(GetStat(Stats((*i)->GetMiscValue())), (*i)->GetAmount());
 
         AuraEffectList const& mAPbyArmor = GetAuraEffectsByType(SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR);
         for (AuraEffectList::const_iterator iter = mAPbyArmor.begin(); iter != mAPbyArmor.end(); ++iter)
@@ -739,7 +739,7 @@ void Player::UpdateManaRegen()
     int32 modManaRegenInterrupt = GetTotalAuraModifier(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT);
     if (modManaRegenInterrupt > 100)
         modManaRegenInterrupt = 100;
-    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, power_regen_mp5 + power_regen * modManaRegenInterrupt / 100.0f);
+    SetStatFloatValue(UNIT_FIELD_POWER_REGEN_INTERRUPTED_FLAT_MODIFIER, power_regen_mp5 + CalculatePctN(power_regen, modManaRegenInterrupt));
 
     SetStatFloatValue(UNIT_FIELD_POWER_REGEN_FLAT_MODIFIER, power_regen_mp5 + power_regen);
 }
@@ -958,13 +958,13 @@ bool Guardian::UpdateStats(Stats stat)
         aurEff = owner->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, SPELLFAMILY_DEATHKNIGHT, 3010, 0);
         if (aurEff)
         {
-            SpellEntry const* sProto = aurEff->GetSpellProto();                                                       // Then get the SpellProto and add the dummy effect value
-            mod += mod * (SpellMgr::CalculateSpellEffectAmount(sProto, 1) / 100.0f);                                                      // Ravenous Dead edits the original scale
+            SpellEntry const* sProto = aurEff->GetSpellProto();                                                 // Then get the SpellProto and add the dummy effect value
+            AddPctN(mod, SpellMgr::CalculateSpellEffectAmount(sProto, 1));                                      // Ravenous Dead edits the original scale
         }
         // Glyph of the Ghoul
         aurEff = owner->GetAuraEffect(58686, 0);
         if (aurEff)
-            mod += (aurEff->GetAmount() / 100.0f);                                                                    // Glyph of the Ghoul adds a flat value to the scale mod
+            mod += CalculatePctN(1.0f, aurEff->GetAmount());                                                    // Glyph of the Ghoul adds a flat value to the scale mod
         ownersBonus = float(owner->GetStat(stat)) * mod;
         value += ownersBonus;
     }
@@ -972,7 +972,7 @@ bool Guardian::UpdateStats(Stats stat)
     {
         if (owner->getClass() == CLASS_WARLOCK && isPet())
         {
-            ownersBonus = float(owner->GetStat(STAT_STAMINA)) * 0.75f;
+            ownersBonus = CalculatePctN(owner->GetStat(STAT_STAMINA), 75);
             value += ownersBonus;
         }
         else
@@ -987,7 +987,7 @@ bool Guardian::UpdateStats(Stats stat)
                 if (itr != ToPet()->m_spells.end())                                 // If pet has Wild Hunt
                 {
                     SpellEntry const* sProto = sSpellStore.LookupEntry(itr->first); // Then get the SpellProto and add the dummy effect value
-                    mod += mod * (SpellMgr::CalculateSpellEffectAmount(sProto, 0) / 100.0f);
+                    AddPctN(mod, SpellMgr::CalculateSpellEffectAmount(sProto, 0));
                 }
             }
             ownersBonus = float(owner->GetStat(stat)) * mod;
@@ -999,7 +999,7 @@ bool Guardian::UpdateStats(Stats stat)
     {
         if (owner->getClass() == CLASS_WARLOCK || owner->getClass() == CLASS_MAGE)
         {
-            ownersBonus = float(owner->GetStat(stat)) * 0.3f;
+            ownersBonus = CalculatePctN(owner->GetStat(stat), 30);
             value += ownersBonus;
         }
     }
@@ -1051,7 +1051,7 @@ void Guardian::UpdateResistances(uint32 school)
 
         // hunter and warlock pets gain 40% of owner's resistance
         if (isPet())
-            value += float(m_owner->GetResistance(SpellSchools(school))) * 0.4f;
+            value += float(CalculatePctN(m_owner->GetResistance(SpellSchools(school)), 40));
 
         SetResistance(SpellSchools(school), int32(value));
     }
@@ -1067,7 +1067,7 @@ void Guardian::UpdateArmor()
 
     // hunter and warlock pets gain 35% of owner's armor value
     if (isPet())
-        bonus_armor = 0.35f * float(m_owner->GetArmor());
+        bonus_armor = float(CalculatePctN(m_owner->GetArmor(), 35));
 
     value  = GetModifierValue(unitMod, BASE_VALUE);
     value *= GetModifierValue(unitMod, BASE_PCT);
@@ -1157,7 +1157,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
                 if (itr != ToPet()->m_spells.end())                                 // If pet has Wild Hunt
                 {
                     SpellEntry const* sProto = sSpellStore.LookupEntry(itr->first); // Then get the SpellProto and add the dummy effect value
-                    mod += (SpellMgr::CalculateSpellEffectAmount(sProto, 1) / 100.0f);
+                    mod += CalculatePctN(1.0f, SpellMgr::CalculateSpellEffectAmount(sProto, 1));
                 }
             }
 
@@ -1275,8 +1275,8 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
         {
             case 61682:
             case 61683:
-                mindamage = mindamage * (100.0f-float((*itr)->GetAmount()))/100.0f;
-                maxdamage = maxdamage * (100.0f-float((*itr)->GetAmount()))/100.0f;
+                AddPctN(mindamage, -(*itr)->GetAmount());
+                AddPctN(maxdamage, -(*itr)->GetAmount());
                 break;
             default:
                 break;
