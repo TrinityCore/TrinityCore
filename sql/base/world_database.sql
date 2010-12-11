@@ -16887,6 +16887,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (26573, -1, 0.04, -1, 0.04, 'Paladin - Consecration'),
 (879, 0.15, -1, 0.15, -1, 'Paladin - Exorcism'),
 (19750, 1, -1, -1, -1, 'Paladin - Flash of Light'),
+(66922, 0, 0, 0, 0, 'Paladin - Flash of Light'),
 (53595, 0, 0, 0, 0, 'Paladin - Hammer of the Righteous'),
 (24275, 0.15, -1, 0.15, -1, 'Paladin - Hammer of Wrath'),
 (62124, 0.085, -1, -1, -1, 'Paladin - Hand of Reckoning'),
