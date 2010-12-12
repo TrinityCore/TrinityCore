@@ -163,6 +163,11 @@ public:
             AddMinion(creature, true);
         }
 
+        void OnCreatureRemove(Creature* creature)
+        {
+            AddMinion(creature, false);
+        }
+
         void OnGameObjectCreate(GameObject* go)
         {
             if (go->GetGOInfo()->displayId == 6785 || go->GetGOInfo()->displayId == 1287)
