@@ -20,6 +20,7 @@
 #define _THREATMANAGER
 
 #include "Common.h"
+#include "Util.h"
 #include "SharedDefines.h"
 #include "LinkedReference/Reference.h"
 #include "UnitEvents.h"
