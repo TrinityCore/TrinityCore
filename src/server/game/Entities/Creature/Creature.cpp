@@ -2425,6 +2425,6 @@ void Creature::FarTeleportTo(Map* map, float X, float Y, float Z, float O)
     ResetMap();
     SetMap(map);
     AddToWorld();
-    
+
     SetPosition(X, Y, Z, O, true);
 }

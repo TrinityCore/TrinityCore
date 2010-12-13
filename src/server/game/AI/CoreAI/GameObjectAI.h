@@ -38,7 +38,7 @@ class GameObjectAI
         virtual void InitializeAI() { Reset(); }
 
         virtual void Reset() {};
-        
+
         static int Permissible(const GameObject* go);
 
         virtual bool GossipHello(Player* /*player*/) {return false;}

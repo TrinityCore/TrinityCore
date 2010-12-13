@@ -210,11 +210,11 @@ bool MySQLConnection::Execute(PreparedStatement* stmt)
             m_mStmt->ClearParameters();
             return false;
         }
-        
+
         if (sLog.GetSQLDriverQueryLogging())
             sLog.outSQLDriver("[%u ms] Prepared SQL: %u on database `%s`",
                 getMSTimeDiff(_s, getMSTime()), index, m_connectionInfo.database.c_str());
- 
+
         m_mStmt->ClearParameters();
         return true;
     }

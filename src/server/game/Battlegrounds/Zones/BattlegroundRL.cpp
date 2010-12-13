@@ -55,7 +55,7 @@ void BattlegroundRL::Update(uint32 diff)
             UpdateArenaWorldState();
             CheckArenaAfterTimerConditions();
         }
-    } 
+    }
 }
 
 void BattlegroundRL::StartingEventCloseDoors()

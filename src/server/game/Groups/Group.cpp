@@ -33,9 +33,9 @@
 #include "MapInstanced.h"
 #include "Util.h"
 
-Roll::Roll(uint64 _guid, LootItem const& li) : itemGUID(_guid), itemid(li.itemid), 
+Roll::Roll(uint64 _guid, LootItem const& li) : itemGUID(_guid), itemid(li.itemid),
 itemRandomPropId(li.randomPropertyId), itemRandomSuffix(li.randomSuffix), itemCount(li.count),
-totalPlayersRolling(0), totalNeed(0), totalGreed(0), totalPass(0), itemSlot(0), 
+totalPlayersRolling(0), totalNeed(0), totalGreed(0), totalPass(0), itemSlot(0),
 rollVoteMask(ROLL_ALL_TYPE_NO_DISENCHANT)
 {
 }

@@ -130,7 +130,7 @@ class instance_uldaman : public InstanceMapScript
                     case GO_IRONAYA_SEAL_DOOR:
                         uiIronayaSealDoor = go->GetGUID();
 
-                        if (m_auiEncounter[2] == DONE) 
+                        if (m_auiEncounter[2] == DONE)
                             HandleGameObject(NULL, true, go);
                         break;
 
@@ -353,7 +353,7 @@ class instance_uldaman : public InstanceMapScript
                         switch(data)
                         {
                             case NOT_STARTED:
-                                if (m_auiEncounter[0] == DONE) //if players opened the doors 
+                                if (m_auiEncounter[0] == DONE) //if players opened the doors
                                     SetDoor(uiArchaedasTempleDoor, true);
 
                                 RespawnMinions();

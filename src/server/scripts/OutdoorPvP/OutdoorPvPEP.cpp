@@ -575,7 +575,7 @@ void OPvPCapturePointEP_PWT::SummonFlightMaster(uint32 team)
         AddCreature(EP_PWT_FLIGHTMASTER,EP_PWT_FlightMaster.entry,team,EP_PWT_FlightMaster.map,EP_PWT_FlightMaster.x,EP_PWT_FlightMaster.y,EP_PWT_FlightMaster.z,EP_PWT_FlightMaster.o);
         /*
         // sky - we need update gso code
-        
+
         Creature * c = HashMapHolder<Creature>::Find(m_Creatures[EP_PWT_FLIGHTMASTER]);
         //Spawn flight master as friendly to capturing team
         c->SetUInt32Value(GAMEOBJECT_FACTION,(team == ALLIANCE ? 55 : 68));

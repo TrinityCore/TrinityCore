@@ -539,7 +539,7 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
                         if (AuraEffect const* pAurEff = caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_PRIEST, 0x400000, 0, 0, caster->GetGUID()))
                             AddPctN(amount, pAurEff->GetAmount());
 
-                        // Focused Power                       
+                        // Focused Power
                         amount *= int32(caster->GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_DONE_PERCENT));
 
                         return amount;
@@ -558,7 +558,7 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
                         DoneActualBenefit *= caster->CalculateLevelPenalty(GetSpellProto());
 
                         amount += (int32)DoneActualBenefit;
-                        
+
                         // Arena - Dampening
                         if (AuraEffect const* pAurEff = caster->GetAuraEffect(74410, 0))
                             AddPctN(amount, pAurEff->GetAmount());

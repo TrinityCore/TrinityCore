@@ -55,7 +55,7 @@ void BattlegroundDS::Update(uint32 diff)
             UpdateArenaWorldState();
             CheckArenaAfterTimerConditions();
         }
-    } 
+    }
 
     if (getWaterFallTimer() < diff)
     {

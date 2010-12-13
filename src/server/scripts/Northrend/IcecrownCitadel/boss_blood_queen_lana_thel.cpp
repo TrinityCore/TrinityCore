@@ -70,7 +70,7 @@ enum eShadowmourne
     SPELL_THIRST_QUENCHED                   = 72154,
 };
 
-static const uint32 vampireAuras[3][MAX_DIFFICULTY] = 
+static const uint32 vampireAuras[3][MAX_DIFFICULTY] =
 {
     {70867, 71473, 71532, 71533},
     {70879, 71525, 71530, 71531},
@@ -468,7 +468,7 @@ class spell_blood_queen_vampiric_bite : public SpellScriptLoader
                         {
                             GetCaster()->CastSpell(GetCaster(), SPELL_THIRST_QUENCHED, true);
                             GetCaster()->RemoveAura(aura);
-                        } 
+                        }
                         else
                             GetCaster()->CastSpell(GetCaster(), SPELL_GUSHING_WOUND, true);
                     }
