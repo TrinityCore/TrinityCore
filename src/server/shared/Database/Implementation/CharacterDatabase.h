@@ -26,6 +26,7 @@ class CharacterDatabaseConnection : public MySQLConnection
     public:
         //- Constructors for sync and async connections
         CharacterDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo) {}
+        CharacterDatabaseConnection(ACE_Activation_Queue* q, MySQLConnectionInfo& connInfo) : MySQLConnection(q, connInfo) {}
 
         //- Loads databasetype specific prepared statements
         bool Open();
