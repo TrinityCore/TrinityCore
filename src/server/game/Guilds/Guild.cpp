@@ -2467,7 +2467,7 @@ inline void Guild::_DecreaseMemberRemainingSlots(SQLTransaction& trans, const ui
     // Remaining slots must be more then 0
     if (uint32 remainingSlots = _GetMemberRemainingSlots(guid, tabId))
         // Ignore guild master
-        if (remainingSlots < GUILD_WITHDRAW_SLOT_UNLIMITED)
+        if (remainingSlots < uint32(GUILD_WITHDRAW_SLOT_UNLIMITED))
             if (Member* pMember = GetMember(guid))
                 pMember->DecreaseBankRemainingValue(trans, tabId, 1);
 }
