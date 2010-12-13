@@ -94,7 +94,8 @@ CharacterDatabaseInfo = "127.0.0.1;3306;trinity;trinity;characters"
 #    WorldDatabase.WorkerThreads
 #    CharacterDatabase.WorkerThreads
 #        Description: The amount of worker threads spawned to handle asynchronous (delayed) MySQL
-#                     statements.
+#                     statements. Each worker thread is mirrored with its own connection to the
+#                     MySQL server and their own thread on the MySQL server.
 #        Default:     1 - (LoginDatabase.WorkerThreads)
 #                     1 - (WorldDatabase.WorkerThreads)
 #                     1 - (CharacterDatabase.WorkerThreads)
@@ -104,17 +105,17 @@ WorldDatabase.WorkerThreads     = 1
 CharacterDatabase.WorkerThreads = 1
 
 #
-#    LoginDatabase.Connections
-#    WorldDatabase.Connections
-#    CharacterDatabase.Connections
-#        Description: The amount of MySQL connections spawned.
-#        Default:     1 - (LoginDatabase.Connections)
-#                     1 - (WorldDatabase.Connections)
+#    LoginDatabase.SynchThreads
+#    WorldDatabase.SynchThreads
+#    CharacterDatabase.SynchThreads
+#        Description: The amount of MySQL connections spawned to handle.
+#        Default:     1 - (LoginDatabase.WorkerThreads)
+#                     1 - (WorldDatabase.WorkerThreads)
 #                     2 - (CharacterDatabase.WorkerThreads)
 
-LoginDatabase.Connections     = 2
-WorldDatabase.Connections     = 2
-CharacterDatabase.Connections = 2
+LoginDatabase.SynchThreads     = 1
+WorldDatabase.SynchThreads     = 1
+CharacterDatabase.SynchThreads = 2
 
 #
 #    MaxPingTime
