@@ -285,7 +285,7 @@ class DatabaseWorkerPool
         void ExecuteOrAppend(SQLTransaction& trans, const char* sql)
         {
             if (trans.null())
-                Execute(stmt);
+                Execute(sql);
             else 
                 trans->Append(sql);
         }
