@@ -536,7 +536,7 @@ void LFGMgr::Join(Player* plr, uint8 roles, LfgDungeonSet& dungeons, std::string
 
         // Expand random dungeons and check restrictions        
         if (rDungeonId)
-            GetDungeonsByRandom(rDungeonId, dungeons);
+            dungeons = GetDungeonsByRandom(rDungeonId);
 
         LfgLockStatusMap* lockStatusMap = CheckCompatibleDungeons(dungeons, players);
         if (!dungeons.size())
@@ -1831,8 +1831,7 @@ LfgLockStatusMap* LFGMgr::GetPartyLockStatusDungeons(Player* plr)
             players.insert(plrg);
     }
 
-    LfgDungeonSet allDungeons;
-    GetDungeonsByRandom(0, allDungeons);
+    LfgDungeonSet allDungeons = GetDungeonsByRandom(0);
     return GetGroupLockStatusDungeons(players, allDungeons, true);
 }
 
@@ -1844,8 +1843,7 @@ LfgLockStatusMap* LFGMgr::GetPartyLockStatusDungeons(Player* plr)
 */
 LfgLockStatusSet* LFGMgr::GetPlayerLockStatusDungeons(Player* plr)
 {
-    LfgDungeonSet allDungeons;
-    GetDungeonsByRandom(0, allDungeons);
+    LfgDungeonSet allDungeons = GetDungeonsByRandom(0);
     return GetPlayerLockStatusDungeons(plr, allDungeons, true);
 }
 
@@ -1950,13 +1948,13 @@ LfgLockStatusSet* LFGMgr::GetPlayerLockStatusDungeons(Player* plr, LfgDungeonSet
    Get the dungeon list that can be done given a random dungeon entry.
 
    @param[in]     randomdungeon Random dungeon id (if value = 0 will return all dungeons)
-   @param[out]    dungeons Set of dungeons that can be done.
+   @returns Set of dungeons that can be done.
 */
-void LFGMgr::GetDungeonsByRandom(uint32 randomdungeon, LfgDungeonSet& dungeons)
+LfgDungeonSet LFGMgr::GetDungeonsByRandom(uint32 randomdungeon)
 {
     LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(randomdungeon);
     uint8 groupType = dungeon ? dungeon->grouptype : 0;
-    dungeons = m_CachedDungeonMap[groupType];
+    return m_CachedDungeonMap[groupType];                  // Return a copy
 }
 
 /**
