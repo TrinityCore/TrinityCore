@@ -34,9 +34,18 @@
 
 MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo) :
 m_queue(NULL),
+m_worker(NULL),
 m_Mysql(NULL),
 m_connectionInfo(connInfo)
 {
+}
+
+MySQLConnection::MySQLConnection(ACE_Activation_Queue* queue, MySQLConnectionInfo& connInfo) :
+m_queue(queue),
+m_Mysql(NULL),
+m_connectionInfo(connInfo)
+{
+    m_worker = new DatabaseWorker(m_queue, this);
 }
 
 MySQLConnection::~MySQLConnection()
