@@ -36,12 +36,13 @@ void LFGScripts::OnAddMember(Group* group, uint64 guid)
         return;
 
     sLog.outDebug("LFGScripts::OnAddMember [" UI64FMTD "]: added [" UI64FMTD "]", gguid, guid);
+    LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_CLEAR_LOCK_LIST);
     for (GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
     {
         if (Player *plrg = itr->getSource())
         {
-            plrg->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_CLEAR_LOCK_LIST);
-            plrg->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_CLEAR_LOCK_LIST);
+            plrg->GetSession()->SendLfgUpdatePlayer(updateData);
+            plrg->GetSession()->SendLfgUpdateParty(updateData);
         }
     }
 
@@ -90,7 +91,8 @@ void LFGScripts::OnRemoveMember(Group* group, uint64 guid, RemoveMethod& method,
         */
 
         plr->ClearLfgState();
-        plr->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_LEADER);
+        LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_LEADER);
+        plr->GetSession()->SendLfgUpdateParty(updateData);
         if (plr->GetMap()->IsDungeon())                    // Teleport player out the dungeon
             sLFGMgr.TeleportPlayer(plr, true);
     }
@@ -111,12 +113,18 @@ void LFGScripts::OnChangeLeader(Group* group, uint64 newLeaderGuid, uint64 oldLe
 
     sLog.outDebug("LFGScripts::OnChangeLeader [" UI64FMTD "]: old [" UI64FMTD "] new [" UI64FMTD "]", gguid, newLeaderGuid, oldLeaderGuid);
     Player *plr = sObjectMgr.GetPlayer(newLeaderGuid);
+
+    LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_LEADER);
     if (plr)
-        plr->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_LEADER);
+        plr->GetSession()->SendLfgUpdateParty(updateData);
+
 
     plr = sObjectMgr.GetPlayer(oldLeaderGuid);
     if (plr)
-        plr->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_GROUP_DISBAND);
+    {
+        updateData.updateType = LFG_UPDATETYPE_GROUP_DISBAND;
+        plr->GetSession()->SendLfgUpdateParty(updateData);
+    }
 }
 
 void LFGScripts::OnInviteMember(Group* group, uint64 guid)
@@ -137,8 +145,9 @@ void LFGScripts::OnLevelChanged(Player* /*player*/, uint8 /*newLevel*/)
 void LFGScripts::OnLogout(Player* player)
 {
     sLFGMgr.Leave(player);
-    player->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_REMOVED_FROM_QUEUE);
-    player->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_REMOVED_FROM_QUEUE);
+    LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_REMOVED_FROM_QUEUE);
+    player->GetSession()->SendLfgUpdateParty(updateData);
+    player->GetSession()->SendLfgUpdatePlayer(updateData);
     player->GetSession()->SendLfgUpdateSearch(false);
 }
 

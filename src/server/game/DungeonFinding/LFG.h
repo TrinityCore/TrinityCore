@@ -32,6 +32,7 @@ enum LfgRoles
 
 enum LfgUpdateType
 {
+    LFG_UPDATETYPE_DEFAULT              = 0,               // Internal Use
     LFG_UPDATETYPE_LEADER               = 1,
     LFG_UPDATETYPE_ROLECHECK_ABORTED    = 4,
     LFG_UPDATETYPE_JOIN_PROPOSAL        = 5,
