@@ -313,7 +313,7 @@ class LFGMgr
         LfgLockStatusSet* GetPlayerLockStatusDungeons(Player* plr, LfgDungeonSet& dungeons, bool useEntry);
 
         // Generic
-        void GetDungeonsByRandom(uint32 randomdungeon, LfgDungeonSet& dungeons);
+        LfgDungeonSet GetDungeonsByRandom(uint32 randomdungeon);
         LfgType GetDungeonType(uint32 dungeon);
         std::string ConcatenateGuids(LfgGuidList check);
 
