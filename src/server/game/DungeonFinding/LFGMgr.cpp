@@ -409,7 +409,7 @@ bool LFGMgr::RemoveFromQueue(uint64& guid)
         sLog.outDebug("LFGMgr::RemoveFromQueue: [" UI64FMTD "] not in queue", guid);
         return false;
     }
-    
+
 }
 
 /**
@@ -540,25 +540,28 @@ void LFGMgr::Join(Player* plr, uint8 roles, LfgDungeonSet& dungeons, std::string
             }
         }
 
-        // Expand random dungeons and check restrictions        
+        // Expand random dungeons and check restrictions
         if (rDungeonId)
             dungeons = GetDungeonsByRandom(rDungeonId);
 
-        joinData.lockmap = CheckCompatibleDungeons(dungeons, players);
-        if (!dungeons.size())
+        // if we have lockmap then there are no compatible dungeons
+        if (LfgLockStatusMap* lockStatusMap = GetCompatibleDungeons(dungeons, players))
         {
             joinData.result = LFG_JOIN_PARTY_NOT_MEET_REQS;
+            joinData.lockmap = lockStatusMap;
             sLog.outDebug("LFGMgr::Join: [" UI64FMTD "] joining with %u members. result: LFG_JOIN_PARTY_NOT_MEET_REQS", guid, uint8(players.size()));
             plr->GetSession()->SendLfgJoinResult(joinData);
-        }
-        if (joinData.lockmap)
-        {
-            for (LfgLockStatusMap::iterator it = joinData.lockmap->begin(); it != joinData.lockmap->end(); ++it)
-                delete it->second;
-            delete joinData.lockmap;
-        }
-        if (!dungeons.size())
+
+            for (LfgLockStatusMap::iterator itLockMap = lockStatusMap->begin(); itLockMap != lockStatusMap->end(); ++itLockMap)
+            {
+                for (LfgLockStatusSet::iterator itLockSet = itLockMap->second->begin(); itLockSet != itLockMap->second->end(); ++itLockSet)
+                    delete (*itLockSet);
+                delete itLockMap->second;
+            }
+            delete lockStatusMap;
+            joinData.lockmap = NULL;
             return;
+        }
     }
 
     // Can't join. Send result
@@ -764,7 +767,7 @@ LfgProposal* LFGMgr::FindNewGroups(LfgGuidList& check, LfgGuidList& all)
     // Try to match with queued groups
     while (!pProposal && all.size() > 0)
     {
-        check.push_back(all.front());        
+        check.push_back(all.front());
         all.pop_front();
         pProposal = FindNewGroups(check, all);
         check.pop_back();
@@ -802,7 +805,7 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal)
         sLog.outDebug("LFGMgr::CheckCompatibility: (%s) compatibles (cached): %d", strGuids.c_str(), answer);
         return bool(answer);
     }
-    
+
     // Check all but new compatiblitity
     if (check.size() > 2)
     {
@@ -929,7 +932,7 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal)
         if (itOther == pqInfoMap.end())
             compatibleDungeons.insert(*itDungeon);
     }
-    CheckCompatibleDungeons(compatibleDungeons, players, false);
+    GetCompatibleDungeons(compatibleDungeons, players, false);
 
     if (!compatibleDungeons.size())
     {
@@ -1168,9 +1171,9 @@ LfgAnswer LFGMgr::GetCompatibles(std::string key)
    @param[in,out] dungeons Dungeons to check restrictions
    @param[in]     players Set of players to check their dungeon restrictions
    @param[in]     returnLockMap Determines when to return a function value (Default true)
-   @return Map of players Lock status info of given dungeons
+   @return Map of players Lock status info of given dungeons (NULL if dungeons is not empty)
 */
-LfgLockStatusMap* LFGMgr::CheckCompatibleDungeons(LfgDungeonSet& dungeons, PlayerSet& players, bool returnLockMap /* = true */)
+LfgLockStatusMap* LFGMgr::GetCompatibleDungeons(LfgDungeonSet& dungeons, PlayerSet& players, bool returnLockMap /* = true */)
 {
     if (!dungeons.size())
         return NULL;
@@ -1180,19 +1183,24 @@ LfgLockStatusMap* LFGMgr::CheckCompatibleDungeons(LfgDungeonSet& dungeons, Playe
     {
         for (LfgLockStatusMap::const_iterator itLockMap = pLockDungeons->begin(); itLockMap != pLockDungeons->end() && dungeons.size(); ++itLockMap)
         {
-            for(LfgLockStatusSet::const_iterator itLockSet = itLockMap->second->begin(); itLockSet != itLockMap->second->end(); ++itLockSet)
+            for(LfgLockStatusSet::const_iterator itLockSet = itLockMap->second->begin(); itLockSet != itLockMap->second->end() && dungeons.size(); ++itLockSet)
             {
                 LfgDungeonSet::iterator itDungeon = dungeons.find((*itLockSet)->dungeon);
                 if (itDungeon != dungeons.end())
                      dungeons.erase(itDungeon);
             }
-            if (!returnLockMap)
-                delete itLockMap->second;
         }
-        if (!returnLockMap)
+
+        if (!returnLockMap || !dungeons.empty())
         {
+            for (LfgLockStatusMap::iterator itLockMap = pLockDungeons->begin(); itLockMap != pLockDungeons->end(); ++itLockMap)
+            {
+                for (LfgLockStatusSet::iterator itLockSet = itLockMap->second->begin(); itLockSet != itLockMap->second->end(); ++itLockSet)
+                    delete (*itLockSet);
+                delete itLockMap->second;
+            }
             delete pLockDungeons;
-            return NULL;
+            pLockDungeons = NULL;
         }
     }
     return pLockDungeons;
@@ -1316,7 +1324,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint32 lowGuid, bool accept)
 
             // Only teleport new players
             Group* grp = plr->GetGroup();
-            if (!grp || !grp->isLFGGroup() || grp->GetLfgState() == LFG_STATE_FINISHED_DUNGEON) 
+            if (!grp || !grp->isLFGGroup() || grp->GetLfgState() == LFG_STATE_FINISHED_DUNGEON)
                 playersToTeleport.push_back(plr);
         }
 
@@ -1650,7 +1658,7 @@ void LFGMgr::UpdateBoot(Player* plr, bool accept)
             }
             OfferContinue(grp);
             grp->SetLfgKicks(grp->GetLfgKicks() + 1);
-            
+
         }
         delete pBoot;
         m_Boots.erase(itBoot);
@@ -1700,7 +1708,7 @@ void LFGMgr::TeleportPlayer(Player* plr, bool out, bool fromOpcode /*= false*/)
 
             if (!fromOpcode)
             {
-                
+
                 // Select a player inside to be teleported to
                 for (GroupReference* itr = grp->GetFirstMember(); itr != NULL && !mapid; itr = itr->next())
                 {

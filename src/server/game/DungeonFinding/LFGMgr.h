@@ -172,7 +172,7 @@ struct LfgJoinResultData
     LfgJoinResultData(): result(LFG_JOIN_OK), state(LFG_ROLECHECK_DEFAULT), lockmap(NULL) {}
     LfgJoinResult result;
     LfgRoleCheckState state;
-    LfgLockStatusMap* lockmap;    
+    LfgLockStatusMap* lockmap;
 };
 
 // Data needed by SMSG_LFG_UPDATE_PARTY and SMSG_LFG_UPDATE_PLAYER
@@ -324,7 +324,7 @@ class LFGMgr
         LfgProposal* FindNewGroups(LfgGuidList& check, LfgGuidList& all);
         bool CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag = true);
         bool CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal);
-        LfgLockStatusMap* CheckCompatibleDungeons(LfgDungeonSet& dungeons, PlayerSet& players, bool returnLockMap = true);
+        LfgLockStatusMap* GetCompatibleDungeons(LfgDungeonSet& dungeons, PlayerSet& players, bool returnLockMap = true);
         void SetCompatibles(std::string concatenatedGuids, bool compatibles);
         LfgAnswer GetCompatibles(std::string concatenatedGuids);
         void RemoveFromCompatibles(uint64 guid);
