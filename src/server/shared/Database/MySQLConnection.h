@@ -22,7 +22,7 @@
 #ifndef _MYSQLCONNECTION_H
 #define _MYSQLCONNECTION_H
 
-template <class T> class DatabaseWorker;
+class DatabaseWorker;
 class PreparedStatement;
 class MySQLPreparedStatement;
 class PingOperation;
@@ -56,11 +56,11 @@ struct MySQLConnectionInfo
 class MySQLConnection
 {
     template <class T> friend class DatabaseWorkerPool;
-    template <class T> friend class DatabaseWorker;
     friend class PingOperation;
 
     public:
-        MySQLConnection(MySQLConnectionInfo& connInfo);
+        MySQLConnection(MySQLConnectionInfo& connInfo);                               //! Constructor for synchroneous connections.
+        MySQLConnection(ACE_Activation_Queue* queue, MySQLConnectionInfo& connInfo);  //! Constructor for asynchroneous connections.
         ~MySQLConnection();
 
         virtual bool Open();
@@ -102,6 +102,7 @@ class MySQLConnection
 
     private:
         ACE_Activation_Queue* m_queue;                      //! Queue shared with other asynchroneous connections.
+        DatabaseWorker*       m_worker;                     //! Core worker task.
         MYSQL *               m_Mysql;                      //! MySQL Handle.
         MySQLConnectionInfo& m_connectionInfo;        //! Connection info (used for logging)
         ACE_Thread_Mutex      m_Mutex;
