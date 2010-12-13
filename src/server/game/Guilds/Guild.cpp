@@ -27,14 +27,6 @@
 #define MAX_GUILD_BANK_TAB_TEXT_LEN 500
 #define EMBLEM_PRICE 10 * GOLD
 
-inline void _CharacterExecutePreparedStatement(SQLTransaction& trans, PreparedStatement* stmt)
-{
-    if (trans.null())
-        CharacterDatabase.Execute(stmt);
-    else 
-        trans->Append(stmt);
-}
-
 inline uint32 _GetGuildBankTabPrice(uint8 tabId)
 {
     switch (tabId)
@@ -131,7 +123,7 @@ void Guild::EventLogEntry::SaveToDB(SQLTransaction& trans) const
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GUILD_EVENTLOG);
     stmt->setUInt32(0, m_guildId);
     stmt->setUInt32(1, m_guid);
-    _CharacterExecutePreparedStatement(trans, stmt);
+    CharacterDatabase.ExecuteOrAppend(trans, stmt);
 
     uint8 index = 0;
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_GUILD_EVENTLOG);
@@ -142,7 +134,7 @@ void Guild::EventLogEntry::SaveToDB(SQLTransaction& trans) const
     stmt->setUInt32(++index, m_playerGuid2);
     stmt->setUInt8 (++index, m_newRank);
     stmt->setUInt64(++index, m_timestamp);
-    _CharacterExecutePreparedStatement(trans, stmt);
+    CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
 void Guild::EventLogEntry::WritePacket(WorldPacket& data) const
@@ -172,7 +164,7 @@ void Guild::BankEventLogEntry::SaveToDB(SQLTransaction& trans) const
     stmt->setUInt32(  index, m_guildId);
     stmt->setUInt32(++index, m_guid);
     stmt->setUInt8 (++index, m_bankTabId);
-    _CharacterExecutePreparedStatement(trans, stmt);
+    CharacterDatabase.ExecuteOrAppend(trans, stmt);
 
     index = 0;
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_GUILD_BANK_EVENTLOG);
@@ -185,7 +177,7 @@ void Guild::BankEventLogEntry::SaveToDB(SQLTransaction& trans) const
     stmt->setUInt16(++index, m_itemStackCount);
     stmt->setUInt8 (++index, m_destTabId);
     stmt->setUInt64(++index, m_timestamp);
-    _CharacterExecutePreparedStatement(trans, stmt);
+    CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
 void Guild::BankEventLogEntry::WritePacket(WorldPacket& data) const
@@ -222,7 +214,7 @@ void Guild::RankInfo::SaveToDB(SQLTransaction& trans) const
     stmt->setUInt8 (1, m_rankId);
     stmt->setString(2, m_name);
     stmt->setUInt32(3, m_rights);
-    _CharacterExecutePreparedStatement(trans, stmt);
+    CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
 void Guild::RankInfo::WritePacket(WorldPacket& data) const
@@ -475,7 +467,7 @@ bool Guild::BankTab::SetItem(SQLTransaction& trans, uint8 slotId, Item* pItem)
     stmt->setUInt32(0, m_guildId);
     stmt->setUInt8 (1, m_tabId);
     stmt->setUInt8 (2, slotId);
-    _CharacterExecutePreparedStatement(trans, stmt);
+    CharacterDatabase.ExecuteOrAppend(trans, stmt);
 
     if (pItem)
     {
@@ -485,7 +477,7 @@ bool Guild::BankTab::SetItem(SQLTransaction& trans, uint8 slotId, Item* pItem)
         stmt->setUInt8 (2, slotId);
         stmt->setUInt32(3, pItem->GetGUIDLow());
         stmt->setUInt32(4, pItem->GetEntry());
-        _CharacterExecutePreparedStatement(trans, stmt);
+        CharacterDatabase.ExecuteOrAppend(trans, stmt);
 
         pItem->SetUInt64Value(ITEM_FIELD_CONTAINED, 0);
         pItem->SetUInt64Value(ITEM_FIELD_OWNER, 0);
@@ -575,7 +567,7 @@ void Guild::Member::SaveToDB(SQLTransaction& trans) const
     stmt->setUInt8 (2, m_rankId);
     stmt->setString(3, m_publicNote);
     stmt->setString(4, m_officerNote);
-    _CharacterExecutePreparedStatement(trans, stmt);
+    CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
 // Loads member's data from database.
@@ -670,7 +662,7 @@ void Guild::Member::DecreaseBankRemainingValue(SQLTransaction& trans, uint8 tabI
     stmt->setUInt32(0, m_bankRemaining[tabId].value);
     stmt->setUInt32(1, m_guildId);
     stmt->setUInt32(2, GUID_LOPART(m_guid));
-    _CharacterExecutePreparedStatement(trans, stmt);
+    CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
 // Get amount of money/slots left for today.
