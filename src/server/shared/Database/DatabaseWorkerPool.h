@@ -51,8 +51,6 @@ class PingOperation : public SQLOperation
 template <class T>
 class DatabaseWorkerPool
 {
-    template <class Y> friend class DatabaseWorker;
-
     private:
         typedef ACE_Atomic_Op<ACE_SYNCH_MUTEX, uint32> AtomicUInt;
 
@@ -61,6 +59,8 @@ class DatabaseWorkerPool
         m_queue(new ACE_Activation_Queue(new ACE_Message_Queue<ACE_MT_SYNCH>)),
         m_connections(0)
         {
+            m_connections.resize(IDX_SIZE);
+
             mysql_library_init(-1, NULL, NULL);
             WPFatal (mysql_thread_safe(), "Used MySQL library isn't thread-safe.");
         }
@@ -71,24 +71,31 @@ class DatabaseWorkerPool
             mysql_library_end();
         }
 
-        bool Open(const std::string& infoString, uint8 connections, uint8 delaythreads)
+        bool Open(const std::string& infoString, uint8 async_threads, uint8 synch_threads)
         {
             m_connectionInfo = MySQLConnectionInfo(infoString);
 
-            sLog.outSQLDriver("Opening databasepool '%s'. Delaythreads: %u, connections: %u", m_connectionInfo.database.c_str(), delaythreads, connections);
+            sLog.outSQLDriver("Opening databasepool '%s'. Async threads: %u, synch threads: %u", m_connectionInfo.database.c_str(), async_threads, synch_threads);
 
-            m_connections.resize(connections);
-            for (uint8 i = 0; i < connections; ++i)
+            /// Open asynchronous connections (delayed operations)
+            m_connections[IDX_ASYNC].resize(async_threads);
+            for (uint8 i = 0; i < async_threads; ++i)
             {
-                T* t = new T(m_connectionInfo);
+                T* t = new T(m_queue, m_connectionInfo);
                 t->Open();
-                m_connections[i] = t;
+                m_connections[IDX_ASYNC][i] = t;
                 ++m_connectionCount;
             }
 
-            m_delaythreads.resize(delaythreads);
-            for (uint8 i = 0; i < delaythreads; ++i)
-                m_delaythreads[i] = new DatabaseWorker<ThisClass>(m_queue, this);
+            /// Open synchronous connections (direct, blocking operations)
+            m_connections[IDX_SYNCH].resize(synch_threads);
+            for (uint8 i = 0; i < synch_threads; ++i) 
+            {
+                T* t = new T(m_connectionInfo);
+                t->Open();
+                m_connections[IDX_SYNCH][i] = t;
+                ++m_connectionCount;
+            }
 
             sLog.outSQLDriver("Databasepool opened succesfuly. %u connections running.", (uint32)m_connectionCount.value());
             return true;
@@ -100,21 +107,25 @@ class DatabaseWorkerPool
 
             /// Shuts down delaythreads for this connection pool.
             m_queue->queue()->deactivate();
-
-            for (uint8 i = 0; i < m_delaythreads.size(); ++i)
-                m_delaythreads[i]->wait();
-
-            /// Shut down the connections
-            for (uint8 i = 0; i < m_connections.size(); ++i)
+            for (uint8 i = 0; i < m_connections[IDX_ASYNC].size(); ++i)
             {
-                T* t = m_connections[i];
-                while (1)
-                    if (t->LockIfReady())
-                    {
-                        t->Close();
-                        --m_connectionCount;
-                        break;
-                    }
+                /// TODO: Better way. probably should flip a boolean and check it on low level code before doing anything on the mysql ctx
+                /// Now we just wait until m_queue gives the signal to the worker threads to stop
+                T* t = m_connections[IDX_ASYNC][i];
+                t->m_worker->wait(); // t->Close(); is called from worker thread                
+                --m_connectionCount;
+            }
+
+            sLog.outSQLDriver("Asynchronous connections on databasepool '%s' terminated. Proceeding with synchronous connections.", m_connectionInfo.database.c_str());
+
+            /// Shut down the synchronous connections
+            for (uint8 i = 0; i < m_connections[IDX_SYNCH].size(); ++i)
+            {
+                T* t = m_connections[IDX_SYNCH][i];
+                //while (1)
+                //    if (t->LockIfReady()) -- For some reason deadlocks us 
+                t->Close();
+                --m_connectionCount;
             }
             
             sLog.outSQLDriver("All connections on databasepool %s closed.", m_connectionInfo.database.c_str());
@@ -301,31 +312,22 @@ class DatabaseWorkerPool
 
         void KeepAlive()
         {
-            /// Ping connections
-            for (uint8 i = 0; i < m_connections.size(); ++i)
+            /// Ping synchronous connections
+            for (uint8 i = 0; i < m_connections[IDX_SYNCH].size(); ++i)
             {
-                T* t = m_connections[i];
+                T* t = m_connections[IDX_SYNCH][i];
                 if (t->LockIfReady())
                 {
                     t->Ping();
                     t->Unlock();
                 }
             }
-        }
-
-    protected:
-        T* GetFreeConnection()
-        {
-            uint8 i = 0;
-            for (;;)    /// Block forever until a connection is free
-            {
-                T* t = m_connections[++i % m_connectionCount.value()];
-                if (t->LockIfReady())   /// Must be matched with t->Unlock() or you will get deadlocks
-                    return t;
-            }
-
-            // This will be called when Celine Dion learns to sing
-            return NULL;
+ 
+            /// Assuming all worker threads are free, every worker thread will receive 1 ping operation request
+            /// If one or more worker threads are busy, the ping operations will not be split evenly, but this doesn't matter
+            /// as the sole purpose is to prevent connections from idling.
+            for (size_t i = 0; i < m_connections[IDX_ASYNC].size(); ++i)
+                Enqueue(new PingOperation);
         }
 
     private:
@@ -345,14 +347,33 @@ class DatabaseWorkerPool
             m_queue->enqueue(op);
         }
 
-    private:
-        typedef DatabaseWorkerPool<T> ThisClass;
+        T* GetFreeConnection()
+        {
+            uint8 i = 0;
+            size_t num_cons = m_connections[IDX_SYNCH].size();
+            for (;;)    /// Block forever until a connection is free
+            {
+                T* t = m_connections[IDX_SYNCH][++i % num_cons ];
+                if (t->LockIfReady())   /// Must be matched with t->Unlock() or you will get deadlocks
+                    return t;
+            }
 
-        ACE_Activation_Queue*           m_queue;                    //! Queue shared by async worker threads.
-        std::vector<T*>                 m_connections;
-        AtomicUInt                      m_connectionCount;          //! Counter of MySQL connections;
+            // This will be called when Celine Dion learns to sing
+            return NULL;
+        }
+
+    private:
+        enum
+        {
+            IDX_ASYNC,
+            IDX_SYNCH,
+            IDX_SIZE,
+        };
+
+        ACE_Activation_Queue*           m_queue;             //! Queue shared by async worker threads.
+        std::vector< std::vector<T*> >  m_connections;
+        AtomicUInt                      m_connectionCount;       //! Counter of MySQL connections;
         MySQLConnectionInfo             m_connectionInfo;
-        std::vector<DatabaseWorker<ThisClass>*> m_delaythreads;     //! Delaythreads (templatized)
 };
 
 #endif

@@ -49,7 +49,7 @@ typedef ACE_Refcounted_Auto_Ptr<Transaction, ACE_Null_Mutex> SQLTransaction;
 class TransactionTask : public SQLOperation
 {
     template <class T> friend class DatabaseWorkerPool;
-    template <class T> friend class DatabaseWorker;
+    friend class DatabaseWorker;
 
     public:
         TransactionTask(SQLTransaction trans) : m_trans(trans) {} ;
