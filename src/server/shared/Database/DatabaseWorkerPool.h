@@ -270,6 +270,26 @@ class DatabaseWorkerPool
             Enqueue(new TransactionTask(transaction));
         }
 
+        //! Method used to execute prepared statements in a diverse context.
+        //! Will be wrapped in a transaction if valid object is present, otherwise executed standalone.
+        void ExecuteOrAppend(SQLTransaction& trans, PreparedStatement* stmt)
+        {
+            if (trans.null())
+                Execute(stmt);
+            else 
+                trans->Append(stmt);
+        }
+
+        //! Method used to execute ad-hoc statements in a diverse context.
+        //! Will be wrapped in a transaction if valid object is present, otherwise executed standalone.
+        void ExecuteOrAppend(SQLTransaction& trans, const char* sql)
+        {
+            if (trans.null())
+                Execute(stmt);
+            else 
+                trans->Append(sql);
+        }
+
         PreparedStatement* GetPreparedStatement(uint32 index)
         {
             return new PreparedStatement(index);
