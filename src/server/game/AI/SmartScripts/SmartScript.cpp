@@ -92,7 +92,7 @@ void SmartScript::ProcessEventsFor(SMART_EVENT e, Unit* unit, uint32 var0, uint3
         SMART_EVENT eventType = SMART_EVENT((*i).GetEventType());
         if (eventType == SMART_EVENT_LINK)//special handling
             continue;
-        
+
         if (eventType == e/* && (!(*i).event.event_phase_mask || IsInPhase((*i).event.event_phase_mask)) && !((*i).event.event_flags & SMART_EVENT_FLAG_NOT_REPEATABLE && (*i).runOnce)*/)
             ProcessEvent(*i, unit, var0, var1, bvar, spell, gob);
     }
@@ -215,7 +215,7 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
             {
                 if (!IsCreature((*itr)))
                     continue;
-            
+
                 if (e.action.morphOrMount.creature || e.action.morphOrMount.model)
                 {
                     //set model based on entry from creature_template
@@ -530,7 +530,7 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                     pPlayer = me->GetLootRecipient();
                 if (me && pPlayer)
                     pPlayer->RewardPlayerAndGroupAtEvent(e.action.killedMonster.creature, pPlayer);
-                else if (GetBaseObject()) 
+                else if (GetBaseObject())
                 {
                     ObjectList* targets = GetTargets(e, unit);
                     if (!targets) return;
@@ -581,7 +581,7 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                     pInst->SetData64(e.action.setInstanceData64.field, (*itr)->GetGUID());
                     return;
                 }
-                
+
                 break;
             }
         case SMART_ACTION_UPDATE_TEMPLATE:
@@ -833,7 +833,7 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                 CAST_AI(SmartAI, me->AI())->SetRun(e.action.setRun.run ? true : false);
                 break;
             }
-        
+
         case SMART_ACTION_SET_SWIMM:
             {
                 if (!IsSmart()) return;
@@ -979,7 +979,7 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                 ne.type = (SMART_EVENT)SMART_EVENT_UPDATE;
                 ne.event_chance = e.action.timeEvent.chance;
                 if (!ne.event_chance) ne.event_chance = 100;
-                
+
                 ne.minMaxRepeat.min = e.action.timeEvent.min;
                 ne.minMaxRepeat.max = e.action.timeEvent.max;
                 ne.minMaxRepeat.repeatMin = e.action.timeEvent.repeatMin;
@@ -999,7 +999,7 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                 ev.action = ac;
                 InitTimer(ev);
                 mStoredEvents.push_back(ev);
-                
+
                 break;
             }
         case SMART_ACTION_TRIGGER_TIMED_EVENT:
@@ -1270,7 +1270,7 @@ void SmartScript::InstallTemplate(SmartScriptHolder e)
 
                  //reset(close) cage on hostage(me) respawn
                 AddEvent(SMART_EVENT_UPDATE,SMART_EVENT_FLAG_NOT_REPEATABLE,0,0,0,0,SMART_ACTION_RESET_GOBJECT,0,0,0,0,0,0,SMART_TARGET_GAMEOBJECT_DISTANCE,e.action.installTtemplate.param1,5,0,0);
-                
+
                 AddEvent(SMART_EVENT_DATA_SET,0,0,0,0,0,SMART_ACTION_SET_RUN,e.action.installTtemplate.param3,0,0,0,0,0,SMART_TARGET_NONE,0,0,0,0);
                 AddEvent(SMART_EVENT_DATA_SET,0,0,0,0,0,SMART_ACTION_SET_EVENT_PHASE,1,0,0,0,0,0,SMART_TARGET_NONE,0,0,0,0);
 
@@ -1402,7 +1402,7 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder e, Unit* invoker)
                             if (Player *pGroupGuy = gr->getSource())
                                 l->push_back(pGroupGuy);
                         }
-                    }                
+                    }
                 }
             }
             break;
@@ -1475,7 +1475,7 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder e, Unit* invoker)
                 {
                     uint64 guid = MAKE_NEW_GUID(e.target.unitGUID.guid, e.target.unitGUID.entry, HIGHGUID_UNIT);
                     target = HashMapHolder<Creature>::Find(guid);
-                } else 
+                } else
                 {
                     if (!trigger && !GetBaseObject())
                     {
@@ -1497,7 +1497,7 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder e, Unit* invoker)
                 {
                     uint64 guid = MAKE_NEW_GUID(e.target.goGUID.guid, e.target.goGUID.entry, HIGHGUID_GAMEOBJECT);
                     target = HashMapHolder<GameObject>::Find(guid);
-                } else 
+                } else
                 {
                     if (!trigger && !GetBaseObject())
                     {
@@ -1599,7 +1599,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder &e, Unit* unit, uint32 var0, ui
 
     if ((e.event.event_phase_mask && !IsInPhase(e.event.event_phase_mask)) || ((e.event.event_flags & SMART_EVENT_FLAG_NOT_REPEATABLE) && e.runOnce))
         return;
-    
+
     switch (e.GetEventType())
     {
         case SMART_EVENT_LINK://special handling
@@ -1999,7 +1999,7 @@ void SmartScript::UpdateTimer(SmartScriptHolder &e, const uint32 diff)
         return;
     if (e.event.event_phase_mask && !IsInPhase(e.event.event_phase_mask))
         return;
-    
+
     if (e.GetEventType() == SMART_EVENT_UPDATE_IC && (!me || !me->isInCombat()))
         return;
     if (e.GetEventType() == SMART_EVENT_UPDATE_OOC && (me && me->isInCombat()))//can be used with me=NULL (go script)
@@ -2016,11 +2016,11 @@ void SmartScript::UpdateTimer(SmartScriptHolder &e, const uint32 diff)
             case SMART_EVENT_TARGET_HEALTH_PCT:
             case SMART_EVENT_MANA_PCT:
             case SMART_EVENT_TARGET_MANA_PCT:
-            case SMART_EVENT_RANGE:        
+            case SMART_EVENT_RANGE:
             case SMART_EVENT_TARGET_CASTING:
             case SMART_EVENT_FRIENDLY_HEALTH:
             case SMART_EVENT_FRIENDLY_IS_CC:
-            case SMART_EVENT_FRIENDLY_MISSING_BUFF:        
+            case SMART_EVENT_FRIENDLY_MISSING_BUFF:
             case SMART_EVENT_HAS_AURA:
             case SMART_EVENT_TARGET_BUFFED:
             {
@@ -2225,7 +2225,7 @@ void SmartScript::OnMoveInLineOfSight(Unit* who)
         return;
 
     ProcessEventsFor(SMART_EVENT_IC_LOS, who);
-    
+
 }
 
 /*
@@ -2339,7 +2339,7 @@ void SmartScript::SetScript9(SmartScriptHolder &e, uint32 entry)
             i->enableTimed = true;//enable processing only for the first action
         }
         else i->enableTimed = false;
-                    
+
         if (e.action.timedActionList.timerType == 1)
             i->event.type = SMART_EVENT_UPDATE_IC;
         else if (e.action.timedActionList.timerType > 1)

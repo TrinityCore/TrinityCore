@@ -96,7 +96,7 @@ void CreatureGroupManager::LoadCreatureFormations()
     QueryResult guidResult = WorldDatabase.PQuery("SELECT guid FROM creature");
     if (guidResult)
     {
-        do 
+        do
         {
             Field *fields = guidResult->Fetch();
             uint32 guid = fields[0].GetUInt32();

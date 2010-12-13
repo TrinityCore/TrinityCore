@@ -992,7 +992,7 @@ class spell_putricide_choking_gas_bomb : public SpellScriptLoader
                 {
                     if (i == skipIndex)
                         continue;
-                        
+
                     uint32 spellId = SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), uint8(i));
                     GetCaster()->CastSpell(GetCaster(), spellId, true, NULL, NULL, GetCaster()->GetGUID());
                 }

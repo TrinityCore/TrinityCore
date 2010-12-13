@@ -1411,7 +1411,7 @@ void ConditionMgr::Clean()
 
     m_ConditionMap.clear();
 
-    
+
     for (VehicleSpellConditionMap::iterator itr = m_VehicleSpellConditions.begin(); itr != m_VehicleSpellConditions.end(); ++itr)
     {
         for (ConditionTypeMap::iterator it = itr->second.begin(); it != itr->second.end(); ++it)

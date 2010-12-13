@@ -52,7 +52,7 @@ SmartAI::SmartAI(Creature *c) : CreatureAI(c)
     mRun = true;
 
     me->GetPosition(&mLastOOCPos);
-    
+
     mCanAutoAttack = true;
     mCanCombatMove = true;
 
@@ -206,7 +206,7 @@ void SmartAI::EndPath(bool fail)
     mCurrentWPID = 0;
     mWPPauseTimer = 0;
     mLastWP = NULL;
-    
+
     if (mCanRepeatPath)
         StartPath(mRun, GetScript()->GetPathId(), mCanRepeatPath);
     else
@@ -333,7 +333,7 @@ void SmartAI::UpdatePath(const uint32 diff)
                 me->GetMotionMaster()->MovePoint(wp->id, wp->x, wp->y, wp->z);
             }
         }
-        
+
     }
 }
 
@@ -461,7 +461,7 @@ void SmartAI::EnterEvadeMode()
         me->GetMotionMaster()->MoveTargetedHome();
     }
 
-    Reset(); 
+    Reset();
 }
 
 void SmartAI::MoveInLineOfSight(Unit* who)
@@ -667,7 +667,7 @@ void SmartAI::PassengerBoarded(Unit* who, int8 seatId, bool apply)
 void SmartAI::InitializeAI()
 {
     GetScript()->OnInitialize(me);
-    if (!me->isDead()) 
+    if (!me->isDead())
         Reset();
     GetScript()->ProcessEventsFor(SMART_EVENT_RESPAWN);
 }
@@ -843,7 +843,7 @@ void SmartGameObjectAI::Reset()
 }
 
 // Called when a player opens a gossip dialog with the gameobject.
-bool SmartGameObjectAI::GossipHello(Player* player) 
+bool SmartGameObjectAI::GossipHello(Player* player)
 {
     sLog.outDebug("SmartGameObjectAI::GossipHello");
     GetScript()->ProcessEventsFor(SMART_EVENT_GOSSIP_HELLO, player, 0 ,0 , false, NULL, go);

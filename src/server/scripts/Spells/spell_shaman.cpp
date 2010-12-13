@@ -30,7 +30,7 @@ enum ShamanSpells
     SHAMAN_SPELL_MANA_TIDE_TOTEM        = 39609,
     SHAMAN_SPELL_FIRE_NOVA_R1           = 1535,
     SHAMAN_SPELL_FIRE_NOVA_TRIGGERED_R1 = 8349,
-    
+
     //For Earthen Power
     SHAMAN_TOTEM_SPELL_EARTHBIND_TOTEM  = 6474, //Spell casted by totem
     SHAMAN_TOTEM_SPELL_EARTHEN_POWER    = 59566,//Spell witch remove snare effect
@@ -135,7 +135,7 @@ public:
     }
 };
 
-// 6474 - Earthbind Totem - Fix Talent:Earthen Power 
+// 6474 - Earthbind Totem - Fix Talent:Earthen Power
 class spell_sha_earthbind_totem : public SpellScriptLoader
 {
 public:
@@ -143,11 +143,11 @@ public:
 
     class spell_sha_earthbind_totem_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_sha_earthbind_totem_AuraScript); 
-        
+        PrepareAuraScript(spell_sha_earthbind_totem_AuraScript);
+
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
-            if (!sSpellStore.LookupEntry(SHAMAN_TOTEM_SPELL_EARTHBIND_TOTEM)) 
+            if (!sSpellStore.LookupEntry(SHAMAN_TOTEM_SPELL_EARTHBIND_TOTEM))
                 return false;
             if (!sSpellStore.LookupEntry(SHAMAN_TOTEM_SPELL_EARTHEN_POWER))
                 return false;

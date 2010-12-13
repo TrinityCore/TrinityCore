@@ -369,7 +369,7 @@ class npc_big_ooze : public CreatureScript
                             break;
                     }
                 }
-                
+
                 if (me->IsVisible())
                     DoMeleeAttackIfReady();
             }

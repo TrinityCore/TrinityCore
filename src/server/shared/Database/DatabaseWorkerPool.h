@@ -85,7 +85,7 @@ class DatabaseWorkerPool
 
             /// Open synchronous connections (direct, blocking operations)
             m_connections[IDX_SYNCH].resize(synch_threads);
-            for (uint8 i = 0; i < synch_threads; ++i) 
+            for (uint8 i = 0; i < synch_threads; ++i)
             {
                 T* t = new T(m_connectionInfo);
                 t->Open();
@@ -121,11 +121,11 @@ class DatabaseWorkerPool
             {
                 T* t = m_connections[IDX_SYNCH][i];
                 //while (1)
-                //    if (t->LockIfReady()) -- For some reason deadlocks us 
+                //    if (t->LockIfReady()) -- For some reason deadlocks us
                 t->Close();
                 --m_connectionCount[IDX_SYNCH];
             }
-            
+
             sLog.outSQLDriver("All connections on databasepool %s closed.", m_connectionInfo.database.c_str());
         }
 
@@ -156,7 +156,7 @@ class DatabaseWorkerPool
         {
             if (!sql)
                 return;
-            
+
             T* t = GetFreeConnection();
             t->Execute(sql);
             t->Unlock();
@@ -276,7 +276,7 @@ class DatabaseWorkerPool
         {
             if (trans.null())
                 Execute(stmt);
-            else 
+            else
                 trans->Append(stmt);
         }
 
@@ -286,7 +286,7 @@ class DatabaseWorkerPool
         {
             if (trans.null())
                 Execute(sql);
-            else 
+            else
                 trans->Append(sql);
         }
 
@@ -300,7 +300,7 @@ class DatabaseWorkerPool
             PreparedStatementTask* task = new PreparedStatementTask(stmt);
             Enqueue(task);
         }
-		
+
         void DirectExecute(PreparedStatement* stmt)
         {
             T* t = GetFreeConnection();
@@ -343,7 +343,7 @@ class DatabaseWorkerPool
                     t->Unlock();
                 }
             }
- 
+
             /// Assuming all worker threads are free, every worker thread will receive 1 ping operation request
             /// If one or more worker threads are busy, the ping operations will not be split evenly, but this doesn't matter
             /// as the sole purpose is to prevent connections from idling.
@@ -356,7 +356,7 @@ class DatabaseWorkerPool
         {
             if (!to || !from || !length)
                 return 0;
-            
+
             T* t = GetFreeConnection();
             unsigned long ret = mysql_real_escape_string(t->GetHandle(), to, from, length);
             t->Unlock();

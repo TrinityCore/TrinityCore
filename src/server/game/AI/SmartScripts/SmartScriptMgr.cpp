@@ -65,8 +65,8 @@ void SmartWaypointMgr::LoadFromDB()
         x = fields[2].GetFloat();
         y = fields[3].GetFloat();
         z = fields[4].GetFloat();
-        
-        
+
+
         WayPoint *wp = new WayPoint(id, x, y, z);
 
         if (last_entry != entry)
@@ -486,7 +486,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder &e)
             case SMART_EVENT_JUST_CREATED:
             case SMART_EVENT_FOLLOW_COMPLETED:
                 break;
-            default: 
+            default:
                 sLog.outErrorDb("SmartAIMgr: Not handled event_type(%u), Entry %d SourceType %u Event %u Action %u, skipped.", e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
                 return false;
         }
@@ -710,7 +710,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder &e)
             }
         case SMART_ACTION_CREATE_TIMED_EVENT:
         {
-            if (!IsMinMaxValid(e, e.action.timeEvent.min, e.action.timeEvent.max)) return false; 
+            if (!IsMinMaxValid(e, e.action.timeEvent.min, e.action.timeEvent.max)) return false;
             if (!IsMinMaxValid(e, e.action.timeEvent.repeatMin, e.action.timeEvent.repeatMax)) return false;
             break;
         }

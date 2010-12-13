@@ -57,7 +57,7 @@ enum VehicleSpells
 {
     VEHICLE_SPELL_PARACHUTE                      = 45472
 };
-  
+
 
 struct VehicleSeat
 {

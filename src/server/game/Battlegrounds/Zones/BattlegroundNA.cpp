@@ -55,7 +55,7 @@ void BattlegroundNA::Update(uint32 diff)
             UpdateArenaWorldState();
             CheckArenaAfterTimerConditions();
         }
-    } 
+    }
 }
 
 void BattlegroundNA::StartingEventCloseDoors()

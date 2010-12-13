@@ -194,11 +194,11 @@ class SmartScript
         Unit* mLastInvoker;
 
     private:
-        void IncPhase(int32 p = 1) { 
+        void IncPhase(int32 p = 1) {
             if(p >= 0)
                 mEventPhase += (uint32)p;
             else
-                DecPhase(abs(p)); 
+                DecPhase(abs(p));
         }
         void DecPhase(int32 p = 1) { mEventPhase  -= (mEventPhase < (uint32)p ? (uint32)p - mEventPhase : (uint32)p); }
         bool IsInPhase(uint32 p) const { return mEventPhase & p; }
@@ -215,7 +215,7 @@ class SmartScript
         AreaTriggerEntry const* trigger;
         SmartScriptType mScriptType;
         uint32 mEventPhase;
-        
+
         uint32 mInvinceabilityHpLevel;
         UNORDERED_MAP<int32, int32> mStoredDecimals;
         uint32 mPathId;
@@ -242,7 +242,7 @@ class SmartScript
                         mStoredEvents.erase(i);
                         return;
                     }
-                    
+
                 }
             }
         }
@@ -256,7 +256,7 @@ class SmartScript
                     {
                         return (*i);
                     }
-                    
+
                 }
             }
             SmartScriptHolder s;

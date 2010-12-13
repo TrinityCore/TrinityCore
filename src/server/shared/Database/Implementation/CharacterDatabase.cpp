@@ -170,7 +170,7 @@ bool CharacterDatabaseConnection::Open()
     PrepareStatement(CHAR_RESET_GUILD_RANK_BANK_TIME3, "UPDATE guild_member SET BankResetTimeTab3 = 0 WHERE guildid = ? AND rank = ?");
     PrepareStatement(CHAR_RESET_GUILD_RANK_BANK_TIME4, "UPDATE guild_member SET BankResetTimeTab4 = 0 WHERE guildid = ? AND rank = ?");
     PrepareStatement(CHAR_RESET_GUILD_RANK_BANK_TIME5, "UPDATE guild_member SET BankResetTimeTab5 = 0 WHERE guildid = ? AND rank = ?");
-    PrepareStatement(CHAR_LOAD_GUILDS, 
+    PrepareStatement(CHAR_LOAD_GUILDS,
     //          0          1       2             3              4              5              6
         "SELECT g.guildid, g.name, g.leaderguid, g.EmblemStyle, g.EmblemColor, g.BorderStyle, g.BorderColor,"
     //   7                  8       9       10            11           12
@@ -179,7 +179,7 @@ bool CharacterDatabaseConnection::Open()
     //                                              0        1    2      3       4
     PrepareStatement(CHAR_LOAD_GUILD_RANKS, "SELECT guildid, rid, rname, rights, BankMoneyPerDay FROM guild_rank ORDER BY guildid ASC, rid ASC");
     PrepareStatement(CHAR_LOAD_CHAR_DATA_FOR_GUILD, "SELECT name, level, class, zone, account FROM characters WHERE guid = ?");
-    PrepareStatement(CHAR_LOAD_GUILD_MEMBERS, 
+    PrepareStatement(CHAR_LOAD_GUILD_MEMBERS,
     //          0        1        2     3      4        5                   6
         "SELECT guildid, gm.guid, rank, pnote, offnote, BankResetTimeMoney, BankRemMoney,"
     //   7                  8                 9                  10                11                 12
@@ -189,18 +189,18 @@ bool CharacterDatabaseConnection::Open()
     //   19      20       21       22      23         24
         "c.name, c.level, c.class, c.zone, c.account, c.logout_time "
         "FROM guild_member gm LEFT JOIN characters c ON c.guid = gm.guid ORDER BY guildid ASC");
-    PrepareStatement(CHAR_LOAD_GUILD_BANK_RIGHTS, 
+    PrepareStatement(CHAR_LOAD_GUILD_BANK_RIGHTS,
     //          0        1      2    3        4
         "SELECT guildid, TabId, rid, gbright, SlotPerDay FROM guild_bank_right ORDER BY guildid ASC, TabId ASC");
     //                                                  0        1      2        3        4
     PrepareStatement(CHAR_LOAD_GUILD_BANK_TABS, "SELECT guildid, TabId, TabName, TabIcon, TabText FROM guild_bank_tab ORDER BY guildid ASC, TabId ASC");
-    PrepareStatement(CHAR_LOAD_GUILD_EVENTLOGS, 
+    PrepareStatement(CHAR_LOAD_GUILD_EVENTLOGS,
     //          0        1        2          3            4            5        6
         "SELECT guildid, LogGuid, EventType, PlayerGuid1, PlayerGuid2, NewRank, TimeStamp FROM guild_eventlog ORDER BY TimeStamp DESC, LogGuid DESC");
-    PrepareStatement(CHAR_LOAD_GUILD_BANK_EVENTLOGS, 
+    PrepareStatement(CHAR_LOAD_GUILD_BANK_EVENTLOGS,
     //          0        1      2        3          4           5            6               7          8
         "SELECT guildid, TabId, LogGuid, EventType, PlayerGuid, ItemOrMoney, ItemStackCount, DestTabId, TimeStamp FROM guild_bank_eventlog ORDER BY TimeStamp DESC, LogGuid DESC");
-    PrepareStatement(CHAR_LOAD_GUILD_BANK_ITEMS, 
+    PrepareStatement(CHAR_LOAD_GUILD_BANK_ITEMS,
     //          0            1                2      3         4        5      6             7                 8           9           10
         "SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text, "
     //   11       12     13      14         15

@@ -1218,7 +1218,7 @@ void Player::SetDrunkValue(uint16 newDrunkenValue, uint32 itemId)
         m_invisibilityDetect.AddFlag(INVISIBILITY_DRUNK);
     else
         m_invisibilityDetect.DelFlag(INVISIBILITY_DRUNK);
-    
+
     m_invisibilityDetect.AddValue(INVISIBILITY_DRUNK, int32(newDrunkenValue - m_drunk) / 256);
 
     m_drunk = newDrunkenValue;
@@ -11999,7 +11999,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
     if (pItem)
     {
         sLog.outDebug("STORAGE: DestroyItem bag = %u, slot = %u, item = %u", bag, slot, pItem->GetEntry());
-        // Also remove all contained items if the item is a bag. 
+        // Also remove all contained items if the item is a bag.
         // This if() prevents item saving crashes if the condition for a bag to be empty before being destroyed was bypassed somehow.
         if (pItem->IsBag() && !((Bag*)pItem)->IsEmpty())
         {

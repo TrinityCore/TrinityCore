@@ -55,7 +55,7 @@ void BattlegroundRV::Update(uint32 diff)
             UpdateArenaWorldState();
             CheckArenaAfterTimerConditions();
         }
-    } 
+    }
 
     if (getTimer() < diff)
     {
