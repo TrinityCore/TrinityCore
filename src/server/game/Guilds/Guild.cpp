@@ -73,7 +73,7 @@ Guild::LogHolder::~LogHolder()
 // Adds event loaded from database to collection
 inline void Guild::LogHolder::LoadEvent(LogEntry* entry)
 {
-    if (m_nextGUID == GUILD_EVENT_LOG_GUID_UNDEFINED)
+    if (m_nextGUID == uint32(GUILD_EVENT_LOG_GUID_UNDEFINED))
         m_nextGUID = entry->GetGUID();
     m_log.push_front(entry);
 }
@@ -107,7 +107,7 @@ inline uint32 Guild::LogHolder::GetNextGUID()
 {
     // Next guid was not initialized. It means there are no records for this holder in DB yet.
     // Start from the beginning.
-    if (m_nextGUID == GUILD_EVENT_LOG_GUID_UNDEFINED)
+    if (m_nextGUID == uint32(GUILD_EVENT_LOG_GUID_UNDEFINED))
         m_nextGUID = 0;
     else
         m_nextGUID = (m_nextGUID + 1) % m_maxRecords;
@@ -1669,7 +1669,7 @@ bool Guild::HandleMemberWithdrawMoney(WorldSession* session, uint32 amount, bool
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     // Update remaining money amount
-    if (remainingMoney < GUILD_WITHDRAW_MONEY_UNLIMITED)
+    if (remainingMoney < uint32(GUILD_WITHDRAW_MONEY_UNLIMITED))
         if (Member* pMember = GetMember(player->GetGUID()))
             pMember->DecreaseBankRemainingValue(trans, GUILD_BANK_MAX_TABS, amount);
     // Remove money from bank
