@@ -28,8 +28,8 @@ class Group;
 
 class LFGScripts: public GroupScript, PlayerScript
 {
-	public:
-		LFGScripts();
+    public:
+        LFGScripts();
 
         // Group Hooks
         void OnAddMember(Group* group, uint64 guid);
@@ -37,8 +37,8 @@ class LFGScripts: public GroupScript, PlayerScript
         void OnDisband(Group* group);
         void OnChangeLeader(Group* group, uint64 newLeaderGuid, uint64 oldLeaderGuid);
         void OnInviteMember(Group* group, uint64 guid);
-		
-		// Player Hooks
+
+        // Player Hooks
         void OnLevelChanged(Player* player, uint8 newLevel);
         void OnLogout(Player* player);
         void OnLogin(Player* player);

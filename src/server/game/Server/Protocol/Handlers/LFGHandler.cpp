@@ -31,16 +31,13 @@ void BuildPlayerLockDungeonBlock(WorldPacket &data, LfgLockStatusSet* lockSet)
         data << uint8(0);
         return;
     }
-    
+
     data << uint32(lockSet->size());                        // Size of lock dungeons
-    for (LfgLockStatusSet::iterator it = lockSet->begin(); it != lockSet->end(); ++it)
+    for (LfgLockStatusSet::const_iterator it = lockSet->begin(); it != lockSet->end(); ++it)
     {
         data << uint32((*it)->dungeon);                     // Dungeon entry + type
         data << uint32((*it)->lockstatus);                  // Lock status
-        delete (*it);
     }
-    delete lockSet;
-    lockSet = NULL;
 }
 
 void BuildPartyLockDungeonBlock(WorldPacket &data, LfgLockStatusMap* lockMap)
@@ -57,8 +54,6 @@ void BuildPartyLockDungeonBlock(WorldPacket &data, LfgLockStatusMap* lockMap)
         data << uint64(MAKE_NEW_GUID(it->first, 0, HIGHGUID_PLAYER)); // Player guid
         BuildPlayerLockDungeonBlock(data, it->second);
     }
-    delete lockMap;
-    lockMap = NULL;
 }
 
 void WorldSession::HandleLfgJoinOpcode(WorldPacket &recv_data)
