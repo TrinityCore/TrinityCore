@@ -142,7 +142,7 @@ bool ArenaTeam::AddMember(const uint64& PlayerGuid)
 
     plMMRating = sWorld.getIntConfig(CONFIG_ARENA_START_MATCHMAKER_RATING);
     plPRating = 0;
-    
+
     if (sWorld.getIntConfig(CONFIG_ARENA_START_PERSONAL_RATING) > 0)
         plPRating = sWorld.getIntConfig(CONFIG_ARENA_START_PERSONAL_RATING);
     else if (GetRating() >= 1000)

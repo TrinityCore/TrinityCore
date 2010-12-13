@@ -331,10 +331,10 @@ private:
     class EventLogEntry : public LogEntry
     {
     public:
-        EventLogEntry(uint32 guildId, uint32 guid, GuildEventLogTypes eventType, uint32 playerGuid1, uint32 playerGuid2, uint8 newRank) : 
+        EventLogEntry(uint32 guildId, uint32 guid, GuildEventLogTypes eventType, uint32 playerGuid1, uint32 playerGuid2, uint8 newRank) :
             LogEntry(guildId, guid), m_eventType(eventType), m_playerGuid1(playerGuid1), m_playerGuid2(playerGuid2), m_newRank(newRank) { }
 
-        EventLogEntry(uint32 guildId, uint32 guid, time_t timestamp, GuildEventLogTypes eventType, uint32 playerGuid1, uint32 playerGuid2, uint8 newRank) : 
+        EventLogEntry(uint32 guildId, uint32 guid, time_t timestamp, GuildEventLogTypes eventType, uint32 playerGuid1, uint32 playerGuid2, uint8 newRank) :
             LogEntry(guildId, guid, timestamp), m_eventType(eventType), m_playerGuid1(playerGuid1), m_playerGuid2(playerGuid2), m_newRank(newRank) { }
 
         ~EventLogEntry() { }
@@ -355,18 +355,18 @@ private:
     public:
         static bool IsMoneyEvent(GuildBankEventLogTypes eventType)
         {
-            return 
+            return
                 eventType == GUILD_BANK_LOG_DEPOSIT_MONEY ||
                 eventType == GUILD_BANK_LOG_WITHDRAW_MONEY ||
                 eventType == GUILD_BANK_LOG_REPAIR_MONEY;
         }
 
-        BankEventLogEntry(uint32 guildId, uint32 guid, GuildBankEventLogTypes eventType, uint8 tabId, uint32 playerGuid, uint32 itemOrMoney, uint16 itemStackCount, uint8 destTabId) : 
-            LogEntry(guildId, guid), m_eventType(eventType), m_bankTabId(tabId), m_playerGuid(playerGuid), 
+        BankEventLogEntry(uint32 guildId, uint32 guid, GuildBankEventLogTypes eventType, uint8 tabId, uint32 playerGuid, uint32 itemOrMoney, uint16 itemStackCount, uint8 destTabId) :
+            LogEntry(guildId, guid), m_eventType(eventType), m_bankTabId(tabId), m_playerGuid(playerGuid),
             m_itemOrMoney(itemOrMoney), m_itemStackCount(itemStackCount), m_destTabId(destTabId) { }
 
-        BankEventLogEntry(uint32 guildId, uint32 guid, time_t timestamp, uint8 tabId, GuildBankEventLogTypes eventType, uint32 playerGuid, uint32 itemOrMoney, uint16 itemStackCount, uint8 destTabId) : 
-            LogEntry(guildId, guid, timestamp), m_eventType(eventType), m_bankTabId(tabId), m_playerGuid(playerGuid), 
+        BankEventLogEntry(uint32 guildId, uint32 guid, time_t timestamp, uint8 tabId, GuildBankEventLogTypes eventType, uint32 playerGuid, uint32 itemOrMoney, uint16 itemStackCount, uint8 destTabId) :
+            LogEntry(guildId, guid, timestamp), m_eventType(eventType), m_bankTabId(tabId), m_playerGuid(playerGuid),
             m_itemOrMoney(itemOrMoney), m_itemStackCount(itemStackCount), m_destTabId(destTabId) { }
 
         ~BankEventLogEntry() { }
@@ -414,7 +414,7 @@ private:
     {
     public:
         RankInfo(uint32 guildId) : m_guildId(guildId), m_rankId(GUILD_RANK_NONE), m_rights(GR_RIGHT_EMPTY), m_bankMoneyPerDay(0) { }
-        RankInfo(uint32 guildId, uint8 rankId, const std::string& name, uint32 rights, uint32 money) : 
+        RankInfo(uint32 guildId, uint8 rankId, const std::string& name, uint32 rights, uint32 money) :
             m_guildId(guildId), m_rankId(rankId), m_name(name), m_rights(rights), m_bankMoneyPerDay(money) { }
 
         bool LoadFromDB(Field* fields);
@@ -492,7 +492,7 @@ private:
     class MoveItemData
     {
     public:
-        MoveItemData(Guild* pGuild, Player* player, uint8 container, uint8 slotId) : m_pGuild(pGuild), m_pPlayer(player), 
+        MoveItemData(Guild* pGuild, Player* player, uint8 container, uint8 slotId) : m_pGuild(pGuild), m_pPlayer(player),
             m_container(container), m_slotId(slotId), m_pItem(NULL), m_pClonedItem(NULL) { }
         virtual ~MoveItemData() { }
 
@@ -538,7 +538,7 @@ private:
     class PlayerMoveItemData : public MoveItemData
     {
     public:
-        PlayerMoveItemData(Guild* pGuild, Player* player, uint8 container, uint8 slotId) : 
+        PlayerMoveItemData(Guild* pGuild, Player* player, uint8 container, uint8 slotId) :
             MoveItemData(pGuild, player, container, slotId) { }
 
         bool IsBank() const { return false; }
@@ -553,7 +553,7 @@ private:
     class BankMoveItemData : public MoveItemData
     {
     public:
-        BankMoveItemData(Guild* pGuild, Player* player, uint8 container, uint8 slotId) : 
+        BankMoveItemData(Guild* pGuild, Player* player, uint8 container, uint8 slotId) :
             MoveItemData(pGuild, player, container, slotId) { }
 
         bool IsBank() const { return true; }

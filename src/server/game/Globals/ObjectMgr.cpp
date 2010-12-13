@@ -360,7 +360,7 @@ void ObjectMgr::AddGuild(Guild* pGuild)
     // Allocate space if necessary
     if (guildId >= uint32(mGuildMap.size()))
         // Reserve a bit more space than necessary.
-        // 16 is intentional and it will allow creation of next 16 guilds happen 
+        // 16 is intentional and it will allow creation of next 16 guilds happen
         // without reallocation.
         mGuildMap.resize(guildId + 16);
     mGuildMap[guildId] = pGuild;
@@ -2076,7 +2076,7 @@ void ObjectMgr::LoadItemPrototypes()
             if (proto->InventoryType != dbcitem->InventoryType)
             {
                 sLog.outErrorDb("Item (Entry: %u) does not have a correct inventory type (%u), must be %u .", i, proto->InventoryType, dbcitem->InventoryType);
-                if (enforceDBCAttributes)    
+                if (enforceDBCAttributes)
                     const_cast<ItemPrototype*>(proto)->InventoryType = dbcitem->InventoryType;
             }
             if (proto->DisplayInfoID != dbcitem->DisplayId)
@@ -5183,7 +5183,7 @@ void ObjectMgr::LoadWaypointScripts()
     QueryResult result = WorldDatabase.PQuery("SELECT DISTINCT(`action`) FROM waypoint_data");
     if (result)
     {
-        do 
+        do
         {
             Field *fields = result->Fetch();
             uint32 action = fields[0].GetUInt32();

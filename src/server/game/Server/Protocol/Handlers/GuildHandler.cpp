@@ -358,7 +358,7 @@ void WorldSession::HandleGuildBankerActivate(WorldPacket & recv_data)
     {
         if (Guild* pGuild = _GetPlayerGuild(this))
             pGuild->SendBankTabsInfo(this);
-        else 
+        else
             Guild::SendCommandResult(this, GUILD_UNK1, ERR_GUILD_PLAYER_NOT_IN_GUILD);
     }
 }

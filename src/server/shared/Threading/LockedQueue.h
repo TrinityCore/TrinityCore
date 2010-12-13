@@ -82,6 +82,22 @@ namespace ACE_Based
                 return true;
             }
 
+            template<class Checker>
+            bool next(T& result, Checker& check)
+            {
+                ACE_Guard<LockType> g(this->_lock);
+
+                if (_queue.empty())
+                    return false;
+
+                result = _queue.front();
+                if(!check.Process(result))
+                    return false;
+
+                _queue.pop_front();
+                return true;
+            }
+
             //! Peeks at the top of the queue. Remember to unlock after use.
             T& peek()
             {
