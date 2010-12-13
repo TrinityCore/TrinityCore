@@ -224,17 +224,10 @@ LoginDatabaseInfo = "127.0.0.1;3306;trinity;trinity;auth"
 #
 #    LoginDatabase.WorkerThreads
 #        Description: The amount of worker threads spawned to handle asynchronous (delayed) MySQL
-#                     statements. 
+#                     statements. Each worker thread is mirrored with its own connection to the
 #        Default:     1
 
 LoginDatabase.WorkerThreads = 1
-
-#
-#    LoginDatabase.Connections
-#        Description: The amount of MySQL connections spawned.
-#        Default:     1
-
-LoginDatabase.Connections = 1
 
 #
 ###################################################################################################
