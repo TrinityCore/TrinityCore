@@ -187,7 +187,7 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket &/*recv_data
     {
         LfgReward const* reward = NULL;
         Quest const* qRew = NULL;
-        uint8 done;
+        uint8 done = 0;
 
         data << uint8(randomDungeons.size());               // Random Dungeon count
         for (LfgDungeonSet::iterator it = randomDungeons.begin(); it != randomDungeons.end(); ++it)

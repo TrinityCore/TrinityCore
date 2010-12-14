@@ -435,6 +435,7 @@ void LoadDBCStores(const std::string& dataPath)
             continue;
 
         SpellDifficultyEntry newEntry;
+        memset(newEntry.SpellID, 0, 4*sizeof(uint32));
         for (int x = 0; x < MAX_DIFFICULTY; ++x)
         {
             if (spellDiff->SpellID[x] <= 0 || !sSpellStore.LookupEntry(spellDiff->SpellID[x]))
@@ -442,7 +443,9 @@ void LoadDBCStores(const std::string& dataPath)
                 if (spellDiff->SpellID[x] > 0)//don't show error if spell is <= 0, not all modes have spells and there are unknown negative values
                     sLog.outErrorDb("spelldifficulty_dbc: spell %i at field id:%u at spellid%i does not exist in SpellStore (spell.dbc), loaded as 0", spellDiff->SpellID[x], spellDiff->ID, x);
                 newEntry.SpellID[x] = 0;//spell was <= 0 or invalid, set to 0
-            } else newEntry.SpellID[x] = spellDiff->SpellID[x];
+            }
+            else
+                newEntry.SpellID[x] = spellDiff->SpellID[x];
         }
         if (newEntry.SpellID[0] <= 0 || newEntry.SpellID[1] <= 0)//id0-1 must be always set!
             continue;
