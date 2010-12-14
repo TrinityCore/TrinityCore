@@ -70,7 +70,7 @@ public:
         {
         }
 
-        void KilledUnit()
+        void KilledUnit(Unit* /*victim*/)
         {
             // When a player, pet or totem gets killed, Lord Kazzak casts this spell to instantly regenerate 70,000 health.
             DoCast(me, SPELL_CAPTURESOUL);

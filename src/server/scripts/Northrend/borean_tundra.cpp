@@ -2418,11 +2418,11 @@ public:
             me->RestoreFaction();
         }
 
-        void DoAction(const int32 iParam)
+        void DoAction(const int32 /*iParam*/)
         {
             me->StopMoving();
-            me->SetUInt32Value(UNIT_NPC_FLAGS,0);
-            if (Player* pPlayer = me->GetPlayer(*me,uiPlayerGUID))
+            me->SetUInt32Value(UNIT_NPC_FLAGS, 0);
+            if (Player* pPlayer = me->GetPlayer(*me, uiPlayerGUID))
             {
                 me->SetInFront(pPlayer);
                 me->SendMovementFlagUpdate();
@@ -2431,7 +2431,7 @@ public:
             uiEventPhase = 1;
         }
 
-        void SetGUID(const uint64 &uiGuid, int32 iId)
+        void SetGUID(const uint64 &uiGuid, int32 /*iId*/)
         {
             uiPlayerGUID = uiGuid;
         }
@@ -2546,7 +2546,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
 

@@ -72,7 +72,7 @@ public:
             DoScriptText(SAY_AGGRO, me);
         }
 
-        void KilledUnit()
+        void KilledUnit(Unit* /*victim*/)
         {
             DoScriptText(SAY_KILL, me);
         }
