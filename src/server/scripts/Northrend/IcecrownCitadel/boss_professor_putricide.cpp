@@ -658,10 +658,9 @@ class boss_professor_putricide : public CreatureScript
                 events.SetPhase(newPhase);
             }
 
-            ePhases phase;          // external of EventMap because event phase gets reset on evade
-            // Festergut & Rotface variables
-            const float baseSpeed;
             uint64 oozeFloodDummy[4];
+            ePhases phase;          // external of EventMap because event phase gets reset on evade
+            const float baseSpeed;
             uint8 oozeFloodStage;
             bool experimentState;
         };
@@ -893,7 +892,7 @@ class spell_putricide_unstable_experiment : public SpellScriptLoader
                         break;
                 }
 
-                GetCaster()->CastSpell(target, GetSpellInfo()->EffectBasePoints[stage]+1, true, NULL, NULL, GetCaster()->GetGUID());
+                GetCaster()->CastSpell(target, uint32(GetSpellInfo()->EffectBasePoints[stage]+1), true, NULL, NULL, GetCaster()->GetGUID());
             }
 
             void Register()
@@ -993,7 +992,7 @@ class spell_putricide_choking_gas_bomb : public SpellScriptLoader
                     if (i == skipIndex)
                         continue;
 
-                    uint32 spellId = SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), uint8(i));
+                    uint32 spellId = uint32(SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), uint8(i)));
                     GetCaster()->CastSpell(GetCaster(), spellId, true, NULL, NULL, GetCaster()->GetGUID());
                 }
             }
@@ -1079,7 +1078,7 @@ class spell_putricide_eat_ooze : public SpellScriptLoader
             {
                 if (Creature* target = GetCaster()->FindNearestCreature(NPC_GROWING_OOZE_PUDDLE, 15.0f))
                 {
-                    if (Aura* grow = target->GetAura(GetEffectValue()))
+                    if (Aura* grow = target->GetAura(uint32(GetEffectValue())))
                     {
                         if (grow->GetStackAmount() < 4)
                         {
@@ -1143,7 +1142,7 @@ class spell_putricide_mutated_plague : public SpellScriptLoader
             {
                 if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_STACK)
                     return;
-                uint32 healSpell = SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), 0);
+                uint32 healSpell = uint32(SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), 0));
                 aurApp->GetTarget()->CastSpell(aurApp->GetTarget(), healSpell, true, NULL, NULL, GetCasterGUID());
             }
 
@@ -1229,13 +1228,13 @@ class spell_putricide_mutated_transformation : public SpellScriptLoader
             void HandleSummon(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                uint32 entry = GetSpellInfo()->EffectMiscValue[effIndex];
-                SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(GetSpellInfo()->EffectMiscValueB[effIndex]);
+                uint32 entry = uint32(GetSpellInfo()->EffectMiscValue[effIndex]);
+                SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(uint32(GetSpellInfo()->EffectMiscValueB[effIndex]));
                 Unit* caster = GetOriginalCaster();
                 if (!caster)
                     return;
 
-                int32 duration = GetSpellDuration(GetSpellInfo());
+                uint32 duration = uint32(GetSpellDuration(GetSpellInfo()));
 
                 Position pos;
                 caster->GetPosition(&pos);

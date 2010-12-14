@@ -167,7 +167,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 events.ScheduleEvent(EVENT_PACT_OF_THE_DARKFALLEN, 15000, EVENT_GROUP_NORMAL);
                 events.ScheduleEvent(EVENT_SWARMING_SHADOWS, 30500, EVENT_GROUP_NORMAL);
                 events.ScheduleEvent(EVENT_TWILIGHT_BLOODBOLT, urand(20000, 25000), EVENT_GROUP_NORMAL);
-                events.ScheduleEvent(EVENT_AIR_PHASE, 124000 + (Is25ManRaid() ? 3000 : 0));
+                events.ScheduleEvent(EVENT_AIR_PHASE, 124000 + uint32(Is25ManRaid() ? 3000 : 0));
                 me->SetSpeed(MOVE_FLIGHT, 0.642857f, true);
                 offtank = NULL;
                 vampires.clear();
@@ -227,7 +227,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 {
                     case POINT_CENTER:
                         DoCast(me, SPELL_INCITE_TERROR);
-                        events.ScheduleEvent(EVENT_AIR_PHASE, 100000 + (Is25ManRaid() ? 0 : 20000));
+                        events.ScheduleEvent(EVENT_AIR_PHASE, 100000 + uint32(Is25ManRaid() ? 0 : 20000));
                         events.RescheduleEvent(EVENT_SWARMING_SHADOWS, 30500, EVENT_GROUP_NORMAL);
                         events.RescheduleEvent(EVENT_PACT_OF_THE_DARKFALLEN, 25500, EVENT_GROUP_NORMAL);
                         events.ScheduleEvent(EVENT_AIR_START_FLYING, 5000);
@@ -335,7 +335,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         {
                             std::list<Player*> targets;
                             SelectRandomTarget(false, &targets);
-                            Trinity::RandomResizeList<Player*>(targets, Is25ManRaid() ? 4 : 2);
+                            Trinity::RandomResizeList<Player*>(targets, uint32(Is25ManRaid() ? 4 : 2));
                             for (std::list<Player*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
                                 DoCast(*itr, SPELL_TWILIGHT_BLOODBOLT);
                             DoCast(me, SPELL_TWILIGHT_BLOODBOLT_TARGET);

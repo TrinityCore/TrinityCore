@@ -167,7 +167,7 @@ class boss_lady_deathwhisper : public CreatureScript
             boss_lady_deathwhisperAI(Creature* creature) : BossAI(creature, DATA_LADY_DEATHWHISPER)
             {
                 introDone = false;
-                dominateMindCount = RAID_MODE(0,1,1,3);
+                dominateMindCount = RAID_MODE<uint8>(0,1,1,3);
             }
 
             void InitializeAI()
@@ -383,7 +383,7 @@ class boss_lady_deathwhisper : public CreatureScript
                             for (uint8 i = 0; i < dominateMindCount; i++)
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_DOMINATE_MIND_H))
                                     DoCast(target, SPELL_DOMINATE_MIND_H);
-                            events.ScheduleEvent(EVENT_DOMINATE_MIND_H, urand(18000, 22000));
+                            events.ScheduleEvent(EVENT_DOMINATE_MIND_H, urand(40000, 45000));
                             break;
                         case EVENT_P1_SUMMON_WAVE:
                             SummonWaveP1();
@@ -443,7 +443,7 @@ class boss_lady_deathwhisper : public CreatureScript
             void SummonWaveP1()
             {
                 uint8 addIndex = addWaveCounter & 1;
-                uint8 addIndexOther = addIndex ^ 1;
+                uint8 addIndexOther = uint8(addIndex ^ 1);
                 _SummonAdd(addEntries[addIndex], addSpawnPos[addIndex*3]);
                 _SummonAdd(addEntries[addIndexOther], addSpawnPos[addIndex*3+1]);
                 _SummonAdd(addEntries[addIndex], addSpawnPos[addIndex*3+2]);
@@ -537,15 +537,15 @@ class boss_lady_deathwhisper : public CreatureScript
 
                 Creature* cultist = *cultistItr;
                 DoCast(cultist, cultist->GetEntry() == NPC_CULT_FANATIC ? SPELL_DARK_TRANSFORMATION_T : SPELL_DARK_EMPOWERMENT_T, true);
-                Talk(cultist->GetEntry() == NPC_CULT_FANATIC ? SAY_DARK_TRANSFORMATION : SAY_DARK_EMPOWERMENT);
+                Talk(uint8(cultist->GetEntry() == NPC_CULT_FANATIC ? SAY_DARK_TRANSFORMATION : SAY_DARK_EMPOWERMENT));
             }
 
         private:
-            bool introDone;
-            uint32 addWaveCounter;
             uint64 nextVengefulShadeTarget;
             std::deque<uint64> reanimationQueue;
+            uint32 addWaveCounter;
             uint8 dominateMindCount;
+            bool introDone;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -770,7 +770,7 @@ class spell_deathwhisper_mana_barrier : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 Unit* caster = GetCaster();
-                int32 missingHealth = caster->GetMaxHealth() - caster->GetHealth();
+                int32 missingHealth = int32(caster->GetMaxHealth() - caster->GetHealth());
                 caster->ModifyHealth(missingHealth);
                 caster->ModifyPower(POWER_MANA, -missingHealth);
             }
@@ -804,7 +804,7 @@ class spell_cultist_dark_martyrdom : public SpellScriptLoader
                             CAST_AI(boss_lady_deathwhisper::boss_lady_deathwhisperAI, owner->ToCreature()->AI())->AddToReanimationQueue(GetCaster());
 
                 GetCaster()->Kill(GetCaster());
-                GetCaster()->SetDisplayId(GetCaster()->GetEntry() == NPC_CULT_FANATIC ? 38009 : 38010);
+                GetCaster()->SetDisplayId(uint32(GetCaster()->GetEntry() == NPC_CULT_FANATIC ? 38009 : 38010));
             }
 
             void Register()

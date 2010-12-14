@@ -228,8 +228,8 @@ class boss_rotface : public CreatureScript
             }
 
         private:
-            uint8 infectionStage;
             uint32 infectionCooldown;
+            uint8 infectionStage;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -468,7 +468,7 @@ class spell_rotface_ooze_flood : public SpellScriptLoader
                 std::list<Creature*> list;
                 GetHitUnit()->GetCreatureListWithEntryInGrid(list, GetHitUnit()->GetEntry(), 12.5f);
                 list.sort(Trinity::ObjectDistanceOrderPred(GetHitUnit()));
-                GetHitUnit()->CastSpell(list.back(), GetEffectValue(), false, NULL, NULL, GetOriginalCaster() ? GetOriginalCaster()->GetGUID() : 0);
+                GetHitUnit()->CastSpell(list.back(), uint32(GetEffectValue()), false, NULL, NULL, GetOriginalCaster() ? GetOriginalCaster()->GetGUID() : 0);
             }
 
             void Register()
@@ -580,7 +580,7 @@ class spell_rotface_large_ooze_buff_combine : public SpellScriptLoader
 
                 if (Aura* unstable = GetCaster()->GetAura(SPELL_UNSTABLE_OOZE))
                 {
-                    uint8 newStack = unstable->GetStackAmount()+1;
+                    uint8 newStack = uint8(unstable->GetStackAmount()+1);
                     unstable->SetStackAmount(newStack);
 
                     // explode!

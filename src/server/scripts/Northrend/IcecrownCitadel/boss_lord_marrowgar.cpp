@@ -45,12 +45,13 @@ enum eSpells
     SPELL_COLDFLAME_BONE_STORM  = 72705,
 
     // Bone Spike
-    SPELL_IMPALE                = 69062,
     SPELL_IMPALED               = 69065,
 
     // Coldflame
     SPELL_COLDFLAME_PASSIVE     = 69145,
 };
+
+static const uint32 boneSpikeSummonId[3] = {69062, 72669, 72670};
 
 enum eEvents
 {
@@ -84,11 +85,11 @@ class boss_lord_marrowgar : public CreatureScript
         {
             boss_lord_marrowgarAI(Creature* creature) : BossAI(creature, DATA_LORD_MARROWGAR)
             {
-                introDone = false;
-                boneStormDuration = RAID_MODE(20000, 30000, 20000, 30000);
+                boneStormDuration = RAID_MODE<uint32>(20000, 30000, 20000, 30000);
                 baseSpeed = creature->GetSpeedRate(MOVE_RUN);
-                boneSlice = false;
                 coldflameLastPos.Relocate(creature);
+                introDone = false;
+                boneSlice = false;
             }
 
             void InitializeAI()
@@ -182,6 +183,7 @@ class boss_lord_marrowgar : public CreatureScript
                             DoCast(me, SPELL_BONE_STORM);
                             events.DelayEvents(3000, EVENT_GROUP_SPECIAL);
                             events.ScheduleEvent(EVENT_BONE_STORM_BEGIN, 3050);
+                            events.ScheduleEvent(EVENT_WARN_BONE_STORM, urand(90000, 95000));
                             break;
                         case EVENT_BONE_STORM_BEGIN:
                             if (Aura* pStorm = me->GetAura(SPELL_BONE_STORM))
@@ -207,7 +209,8 @@ class boss_lord_marrowgar : public CreatureScript
                             me->SetSpeed(MOVE_RUN, baseSpeed, true);
                             events.CancelEvent(EVENT_BONE_STORM_MOVE);
                             events.ScheduleEvent(EVENT_ENABLE_BONE_SLICE, 10000);
-                            events.ScheduleEvent(EVENT_WARN_BONE_STORM, urand(70000, 75000));
+                            if (!IsHeroic())
+                                events.RescheduleEvent(EVENT_BONE_SPIKE_GRAVEYARD, urand(15000, 20000), EVENT_GROUP_SPECIAL);
                             break;
                         case EVENT_ENABLE_BONE_SLICE:
                             boneSlice = true;
@@ -245,11 +248,11 @@ class boss_lord_marrowgar : public CreatureScript
             }
 
         private:
-            bool introDone;
             uint32 boneStormDuration;
             float baseSpeed;
-            bool boneSlice;
             Position coldflameLastPos;
+            bool introDone;
+            bool boneSlice;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -282,12 +285,15 @@ class npc_coldflame : public CreatureScript
                 if (!owner->HasAura(SPELL_BONE_STORM))
                 {
                     // select any unit but not the tank (by owners threatlist)
-                    Unit* target = creOwner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 1, 40.0f, true);
+                    Unit* target = creOwner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 1, 40.0f, true, -SPELL_IMPALED);
                     if (!target)
                         target = creOwner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true); // or the tank if its solo
                     if (!target)
                     {
-                        me->ForcedDespawn();
+                        if (TempSummon* summ = me->ToTempSummon())
+                            summ->UnSummon();
+                        else
+                            me->ForcedDespawn();
                         return;
                     }
 
@@ -371,6 +377,8 @@ class npc_bone_spike : public CreatureScript
             {
                 if (TempSummon* summ = me->ToTempSummon())
                     summ->UnSummon();
+                victim->RemoveAurasDueToSpell(SPELL_IMPALED);
+                trappedGUID = 0;
             }
 
             void IsSummonedBy(Unit* summoner)
@@ -423,7 +431,7 @@ class spell_marrowgar_coldflame : public SpellScriptLoader
                     count = 4;
 
                 for (uint8 i = 0; i < count; ++i)
-                    caster->CastSpell(caster, GetEffectValue()+i, true);
+                    caster->CastSpell(caster, uint32(GetEffectValue()+i), true);
             }
 
             void Register()
@@ -454,7 +462,7 @@ class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
                 {
                     CreatureAI* marrowgarAI = marrowgar->AI();
                     bool yell = false;
-                    uint8 boneSpikeCount = GetCaster()->GetMap()->GetSpawnMode() & 1 ? 3 : 1;
+                    uint8 boneSpikeCount = uint8(GetCaster()->GetMap()->GetSpawnMode() & 1 ? 3 : 1);
                     for (uint8 i = 0; i < boneSpikeCount; ++i)
                     {
                         // select any unit but not the tank
@@ -464,7 +472,7 @@ class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
                         if (!target)
                             break;
                         yell = true;
-                        target->CastCustomSpell(SPELL_IMPALE, SPELLVALUE_BASE_POINT0, 0, target, true);
+                        target->CastCustomSpell(boneSpikeSummonId[i], SPELLVALUE_BASE_POINT0, 0, target, true);
                     }
 
                     if (yell)
