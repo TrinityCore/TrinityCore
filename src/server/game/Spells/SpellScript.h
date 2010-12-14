@@ -57,6 +57,7 @@ class _SpellScript
     protected:
         virtual bool _Validate(SpellEntry const * entry);
     public:
+        virtual ~_SpellScript() {}
         virtual void _Register();
         virtual void _Unload();
         virtual void _Init(const std::string * scriptname, uint32 spellId);

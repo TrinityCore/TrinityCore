@@ -837,7 +837,7 @@ UPDATE `instance_template` SET `script`='instance_icecrown_citadel' WHERE `map`=
 UPDATE `gameobject_template` SET `ScriptName`='icecrown_citadel_teleport' WHERE `entry` IN (202223,202235,202242,202243,202244,202245,202246);
 UPDATE `creature_template` SET `ScriptName`='boss_lord_marrowgar' WHERE `entry`=36612;
 UPDATE `creature_template` SET `ScriptName`='npc_coldflame' WHERE `entry`=36672;
-UPDATE `creature_template` SET `ScriptName`='npc_bone_spike' WHERE `entry`=36619;
+UPDATE `creature_template` SET `ScriptName`='npc_bone_spike' WHERE `entry` IN (36619,38711,38712);
 UPDATE `creature_template` SET `ScriptName`='boss_lady_deathwhisper' WHERE `entry`=36855;
 UPDATE `creature_template` SET `ScriptName`='npc_cult_fanatic' WHERE `entry` IN (37890,38009,38135);
 UPDATE `creature_template` SET `ScriptName`='npc_cult_adherent' WHERE `entry` IN(37949,38010,38136);

@@ -268,6 +268,7 @@ class boss_blood_council_controller : public CreatureScript
                     if (Creature* prince = ObjectAccessor::GetCreature(*me, invocationOrder[invocationStage].guid))
                         prince->Kill(prince);
                 }
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SHADOW_PRISON_DUMMY);
             }
 
             void UpdateAI(const uint32 diff)
@@ -715,8 +716,8 @@ class boss_prince_taldaram_icc : public CreatureScript
             }
 
         private:
-            bool isEmpowered;  // bool check faster than map lookup
             uint32 spawnHealth;
+            bool isEmpowered;  // bool check faster than map lookup
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -933,8 +934,8 @@ class boss_prince_valanar_icc : public CreatureScript
             }
 
         private:
-            bool isEmpowered;  // bool check faster than map lookup
             uint32 spawnHealth;
+            bool isEmpowered;  // bool check faster than map lookup
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1033,9 +1034,9 @@ class npc_blood_queen_lana_thel : public CreatureScript
             }
 
         private:
-            bool introDone;
             EventMap events;
             InstanceScript* instance;
+            bool introDone;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1109,8 +1110,8 @@ class npc_ball_of_flame : public CreatureScript
             }
 
         private:
-            uint32 despawnTimer;
             uint64 chaseGUID;
+            uint32 despawnTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1294,7 +1295,7 @@ class spell_taldaram_glittering_sparks : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                GetCaster()->CastSpell(GetCaster(), GetEffectValue(), true);
+                GetCaster()->CastSpell(GetCaster(), uint32(GetEffectValue()), true);
             }
 
             void Register()
@@ -1321,7 +1322,7 @@ class spell_taldaram_summon_flame_ball : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                GetCaster()->CastSpell(GetCaster(), GetEffectValue(), true);
+                GetCaster()->CastSpell(GetCaster(), uint32(GetEffectValue()), true);
             }
 
             void Register()
@@ -1397,7 +1398,7 @@ class spell_taldaram_ball_of_inferno_flame : public SpellScriptLoader
             void ModAuraStack()
             {
                 if (Aura* aur = GetHitAura())
-                    aur->SetStackAmount(GetSpellInfo()->StackAmount);
+                    aur->SetStackAmount(uint8(GetSpellInfo()->StackAmount));
             }
 
             void Register()
