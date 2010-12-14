@@ -323,7 +323,7 @@ public:
             nWeaver = 0;
         }
 
-        void KilledUnit()
+        void KilledUnit(Unit* /*victim*/)
         {
             DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
         }

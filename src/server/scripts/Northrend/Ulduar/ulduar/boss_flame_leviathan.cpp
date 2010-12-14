@@ -788,7 +788,7 @@ public:
         {
         }
 
-        void JustDied()
+        void JustDied(Unit* /*killer*/)
         {
             float x,y,z;
             me->GetPosition(x,y,z);

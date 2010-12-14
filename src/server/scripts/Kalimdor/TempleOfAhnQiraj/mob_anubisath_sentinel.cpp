@@ -268,7 +268,7 @@ public:
             return NULL;
         }
 
-        Unit* GetAuraEffectTriggerTarget(uint32 spellId, uint8 /*effIndex*/) const
+        Unit* GetAuraEffectTriggerTarget(uint32 spellId, uint8 /*effIndex*/)
         {
             switch (spellId)
             {

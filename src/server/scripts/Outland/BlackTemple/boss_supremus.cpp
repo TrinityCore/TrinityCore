@@ -279,7 +279,7 @@ public:
 
         void MoveInLineOfSight(Unit * /*who*/) {}
 
-        void DoAction(const uint32 /*info*/)
+        void DoAction(const int32 /*info*/)
         {
             me->RemoveAura(SPELL_VOLCANIC_ERUPTION);
         }

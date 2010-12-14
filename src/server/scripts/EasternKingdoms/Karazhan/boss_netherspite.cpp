@@ -63,7 +63,7 @@ class boss_netherspite : public CreatureScript
 public:
     boss_netherspite() : CreatureScript("boss_netherspite") { }
 
-    CreatureAI* GetAI(Creature *pCreature)
+    CreatureAI* GetAI(Creature *pCreature) const
     {
         return new boss_netherspiteAI(pCreature);
     }

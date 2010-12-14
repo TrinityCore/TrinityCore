@@ -662,7 +662,7 @@ public:
             for (uint8 i = 0; i < 4; ++i)
             {
                 float x,y,z;
-                Unit *pTarget;
+                Unit *pTarget = NULL;
                 for (uint8 z = 0; z < 6; ++z)
                 {
                     pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
@@ -748,7 +748,7 @@ public:
                         case TIMER_LEGION_LIGHTNING:
                             if (!me->IsNonMeleeSpellCasted(false))
                             {
-                                Unit* pRandomPlayer;
+                                Unit* pRandomPlayer = NULL;
 
                                 me->RemoveAurasDueToSpell(SPELL_SOUL_FLAY);
                                 for (uint8 z = 0; z < 6; ++z)
@@ -844,7 +844,7 @@ public:
                             TimerIsDeactivated[TIMER_ORBS_EMPOWER] = true;
                             break;
                         case TIMER_ARMAGEDDON: //Phase 4
-                            Unit *pTarget;
+                            Unit *pTarget = NULL;
                             for (uint8 z = 0; z < 6; ++z)
                             {
                                 pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);

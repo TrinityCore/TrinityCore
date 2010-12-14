@@ -436,7 +436,7 @@ public:
 
         void SpawnTrigger()
         {
-            uint8 iStart,iEnd;
+            uint8 iStart = 0, iEnd = 0;
             switch (urand(0,1))
             {
                 case 0:
@@ -447,9 +447,11 @@ public:
                     iStart = 38;
                     iEnd = 68;
                     break;
+                default:
+                    break;
             }
-            for(uint32 i = iStart; i < iEnd; ++i)
-                me->SummonCreature(CREATURE_TRIGGER,Location[i]);
+            for (uint32 i = iStart; i < iEnd; ++i)
+                me->SummonCreature(CREATURE_TRIGGER, Location[i]);
         }
     };
 
