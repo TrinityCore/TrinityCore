@@ -119,7 +119,8 @@ public:
 
         bool IsEncounterInProgress() const
         {
-            if (GetData(TYPE_MEDIVH) == IN_PROGRESS)
+            //if (GetData(TYPE_MEDIVH) == IN_PROGRESS)
+            if (m_auiEncounter[0] == IN_PROGRESS)   // compile fix, GetData is not const
                 return true;
 
             return false;
