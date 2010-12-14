@@ -1219,7 +1219,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x4A6*/ { "SMSG_BATTLEGROUND_INFO_THROTTLED",             STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x4A7*/ { "SMSG_PLAYER_VEHICLE_DATA",                     STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x4A8*/ { "CMSG_PLAYER_VEHICLE_ENTER",                    STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleEnterPlayerVehicle        },
-    /*0x4A9*/ { "CMSG_EJECT_PASSENGER",                         STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleEjectPasenger             },
+    /*0x4A9*/ { "CMSG_EJECT_PASSENGER",                         STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleEjectPassenger            },
     /*0x4AA*/ { "SMSG_PET_GUIDS",                               STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x4AB*/ { "SMSG_CLIENTCACHE_VERSION",                     STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x4AC*/ { "UMSG_UNKNOWN_1196",                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
