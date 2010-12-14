@@ -258,10 +258,6 @@ void TempSummon::RemoveFromWorld()
     Creature::RemoveFromWorld();
 }
 
-void TempSummon::SaveToDB()
-{
-}
-
 Minion::Minion(SummonPropertiesEntry const *properties, Unit *owner) : TempSummon(properties, owner)
 , m_owner(owner)
 {

@@ -2939,6 +2939,8 @@ void AuraEffect::HandlePhase(AuraApplication const * aurApp, uint8 mode, bool ap
         for (Unit::AuraEffectList::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
             newPhase |= (*itr)->GetMiscValue();
 
+    if (apply)
+        newPhase |= GetMiscValue();
 
     // phase auras normally not expected at BG but anyway better check
     if (Player* player = target->ToPlayer())

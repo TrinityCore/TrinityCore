@@ -101,7 +101,7 @@ void LFGScripts::OnRemoveMember(Group* group, uint64 guid, RemoveMethod& method,
         sLFGMgr.OfferContinue(group);
 }
 
-void LFGScripts::OnDisband(Group* group)
+void LFGScripts::OnDisband(Group* /*group*/)
 {
 }
 
