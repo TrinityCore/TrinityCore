@@ -2251,12 +2251,12 @@ void Creature::AllLootRemovedFromCorpse()
     }
 }
 
-uint8 Creature::getLevelForTarget(Unit const* target) const
+uint8 Creature::getLevelForTarget(WorldObject const* target) const
 {
-    if (!isWorldBoss())
+    if (!isWorldBoss() || !target->ToUnit())
         return Unit::getLevelForTarget(target);
 
-    uint16 level = target->getLevel() + sWorld.getIntConfig(CONFIG_WORLD_BOSS_LEVEL_DIFF);
+    uint16 level = target->ToUnit()->getLevel() + sWorld.getIntConfig(CONFIG_WORLD_BOSS_LEVEL_DIFF);
     if (level < 1)
         return 1;
     if (level > 255)

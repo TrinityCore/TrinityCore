@@ -471,7 +471,7 @@ class Creature : public Unit, public GridObject<Creature>
             return GetCreatureInfo()->rank == CREATURE_ELITE_WORLDBOSS;
         }
 
-        uint8 getLevelForTarget(Unit const* target) const; // overwrite Unit::getLevelForTarget for boss level support
+        uint8 getLevelForTarget(WorldObject const* target) const; // overwrite Unit::getLevelForTarget for boss level support
 
         bool IsInEvadeMode() const { return hasUnitState(UNIT_STAT_EVADE); }
 
@@ -530,17 +530,17 @@ class Creature : public Unit, public GridObject<Creature>
         void Whisper(int32 textId, uint64 receiver, bool IsBossWhisper = false) { MonsterWhisper(textId,receiver,IsBossWhisper); }
         void YellToZone(int32 textId, uint32 language, uint64 TargetGuid) { MonsterYellToZone(textId,language,TargetGuid); }
 
-        // overwrite WorldObject function for proper name localization
+        // override WorldObject function for proper name localization
         const char* GetNameForLocaleIdx(LocaleConstant locale_idx) const;
 
-        void setDeathState(DeathState s);                   // overwrite virtual Unit::setDeathState
+        void setDeathState(DeathState s);                   // override virtual Unit::setDeathState
         bool FallGround();
 
         bool LoadFromDB(uint32 guid, Map *map);
         void SaveToDB();
-                                                            // overwrited in Pet
+                                                            // overriden in Pet
         virtual void SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask);
-        virtual void DeleteFromDB();                        // overwrited in Pet
+        virtual void DeleteFromDB();                        // overriden in Pet
 
         Loot loot;
         bool lootForPickPocketed;

@@ -130,7 +130,7 @@ class WorldSocket : protected WorldHandler
         virtual int open (void *);
 
         /// Called on failures inside of the acceptor, don't call from your code.
-        virtual int close (int);
+        virtual int close (u_long);
 
         /// Called when we can read from the socket.
         virtual int handle_input (ACE_HANDLE = ACE_INVALID_HANDLE);

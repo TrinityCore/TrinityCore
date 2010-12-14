@@ -620,7 +620,7 @@ void SmartAI::SpellHitTarget(Unit* target, const SpellEntry* pSpell)
     GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT_TARGET, target, 0, 0, false, pSpell);
 }
 
-void SmartAI::DamageTaken(Unit* done_by, uint32& damage, DamageEffectType /*damagetype*/)
+void SmartAI::DamageTaken(Unit* done_by, uint32& damage)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_DAMAGED, done_by, damage);
 }
@@ -640,7 +640,7 @@ void SmartAI::IsSummonedBy(Unit* summoner)
     GetScript()->ProcessEventsFor(SMART_EVENT_JUST_SUMMONED, summoner);
 }
 
-void SmartAI::DamageDealt(Unit* done_to, uint32& damage)
+void SmartAI::DamageDealt(Unit* done_to, uint32& damage, DamageEffectType /*damagetype*/)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_DAMAGED_TARGET, done_to, damage);
 }
