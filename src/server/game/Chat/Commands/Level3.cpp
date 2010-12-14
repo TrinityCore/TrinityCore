@@ -4410,7 +4410,7 @@ bool ChatHandler::HandleChannelSetOwnership(const char *args)
         return false;
 
     Player *player = m_session->GetPlayer();
-    Channel *chn;
+    Channel *chn = NULL;
 
     if (ChannelMgr* cMgr = channelMgr(player->GetTeam()))
         chn = cMgr->GetChannel(channel, player);
