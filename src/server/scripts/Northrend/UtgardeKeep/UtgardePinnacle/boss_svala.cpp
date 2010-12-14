@@ -232,7 +232,7 @@ public:
         }
 
         // called by svala sorrowgrave to set guid of victim
-        void DoAction(uint32 /*action*/)
+        void DoAction(const int32 /*action*/)
         {
             if (pInstance)
                 if (Unit *pVictim = me->GetUnit(*me, pInstance->GetData64(DATA_SACRIFICED_PLAYER)))

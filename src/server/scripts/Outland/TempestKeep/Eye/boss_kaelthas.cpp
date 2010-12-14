@@ -430,7 +430,7 @@ class boss_kaelthas : public CreatureScript
                     StartEvent();
             }
 
-            void KilledUnit()
+            void KilledUnit(Unit* /*victim*/)
             {
                 DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), me);
             }

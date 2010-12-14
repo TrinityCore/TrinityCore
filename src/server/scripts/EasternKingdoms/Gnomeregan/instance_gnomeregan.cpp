@@ -113,7 +113,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 uiType, uint32 /*uiData*/)
+        uint32 GetData(uint32 uiType)
         {
             switch(uiType)
             {

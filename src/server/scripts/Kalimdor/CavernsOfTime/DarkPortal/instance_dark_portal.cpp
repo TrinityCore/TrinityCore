@@ -73,7 +73,10 @@ public:
 
     struct instance_dark_portal_InstanceMapScript : public InstanceScript
     {
-        instance_dark_portal_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
+        instance_dark_portal_InstanceMapScript(Map* pMap) : InstanceScript(pMap)
+        {
+            Initialize();
+        }
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
@@ -114,7 +117,7 @@ public:
             DoUpdateWorldState(WORLD_STATE_BM_RIFT, 0);
         }
 
-        bool IsEncounterInProgress()
+        bool IsEncounterInProgress() const
         {
             if (GetData(TYPE_MEDIVH) == IN_PROGRESS)
                 return true;

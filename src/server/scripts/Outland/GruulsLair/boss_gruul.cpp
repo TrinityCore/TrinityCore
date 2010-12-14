@@ -104,7 +104,7 @@ public:
                 pInstance->SetData(DATA_GRUULEVENT, IN_PROGRESS);
         }
 
-        void KilledUnit()
+        void KilledUnit(Unit* /*victim*/)
         {
             DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), me);
         }
