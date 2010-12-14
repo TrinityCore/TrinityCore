@@ -19767,7 +19767,7 @@ void Player::InitDisplayIds()
 inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int32 price, ItemPrototype const *pProto, Creature *pVendor, VendorItem const* crItem, bool bStore)
 {
     ItemPosCountVec vDest;
-    uint16 uiDest;
+    uint16 uiDest = 0;
     uint8 msg = bStore ?
         CanStoreNewItem(bag, slot, vDest, item, pProto->BuyCount * count) :
         CanEquipNewItem(slot, uiDest, item, false);
