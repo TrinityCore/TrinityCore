@@ -210,7 +210,7 @@ class boss_festergut : public CreatureScript
                         case EVENT_VILE_GAS:
                         {
                             std::list<Unit*> targets;
-                            uint32 minTargets = RAID_MODE(3,8,3,8);
+                            uint32 minTargets = RAID_MODE<uint32>(3,8,3,8);
                             SelectTargetList(targets, minTargets, SELECT_TARGET_RANDOM, -5.0f, true);
                             float minDist = 0.0f;
                             if (targets.size() >= minTargets)
@@ -268,9 +268,9 @@ class boss_festergut : public CreatureScript
             }
 
         private:
+            uint64 gasDummyGUID;
             uint32 maxInoculatedStack;
             uint8 inhaleCounter;
-            uint64 gasDummyGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -359,7 +359,7 @@ class spell_festergut_pungent_blight : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                SpellEntry const* spellInfo = sSpellStore.LookupEntry(GetEffectValue());
+                SpellEntry const* spellInfo = sSpellStore.LookupEntry(uint32(GetEffectValue()));
                 if (!spellInfo || GetCaster()->GetTypeId() != TYPEID_UNIT)
                     return;
 

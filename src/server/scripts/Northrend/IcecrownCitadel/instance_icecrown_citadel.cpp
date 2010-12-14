@@ -500,7 +500,6 @@ class instance_icecrown_citadel : public InstanceMapScript
             }
 
         private:
-            uint32 teamInInstance;
             uint64 ladyDeathwisperElevator;
             uint64 deathbringerSaurfang;
             uint64 saurfangDoor;
@@ -517,6 +516,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 bloodCouncil[3];
             uint64 bloodCouncilController;
             uint64 bloodQueenLanaThel;
+            uint32 teamInInstance;
             bool isBonedEligible;
             bool isOozeDanceEligible;
             bool isNauseaEligible;
