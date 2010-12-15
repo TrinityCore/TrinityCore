@@ -62,7 +62,7 @@ bool CharacterDatabaseConnection::Open()
     PrepareStatement(CHAR_LOAD_PLAYER_WEKLYQUESTSTATUS, "SELECT quest FROM character_queststatus_weekly WHERE guid = ?");
     PrepareStatement(CHAR_LOAD_PLAYER_REPUTATION, "SELECT faction,standing,flags FROM character_reputation WHERE guid = ?");
     PrepareStatement(CHAR_LOAD_PLAYER_INVENTORY, "SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text, bag, slot, "
-        "item, item_template FROM character_inventory JOIN item_instance ON character_inventory.item = item_instance.guid WHERE character_inventory.guid = ? ORDER BY bag, slot");
+        "item, itemEntry FROM character_inventory ci JOIN item_instance ii ON ci.item = ii.guid WHERE ci.guid = ? ORDER BY bag, slot");
     PrepareStatement(CHAR_LOAD_PLAYER_ACTIONS, "SELECT a.button, a.action, a.type FROM character_action as a, characters as c WHERE a.guid = c.guid AND a.spec = c.activespec AND a.guid = ? ORDER BY button");
     PrepareStatement(CHAR_LOAD_PLAYER_ACTIONS_SPEC, "SELECT button, action, type FROM character_action WHERE guid = ? AND spec = ? ORDER BY button");
     PrepareStatement(CHAR_LOAD_PLAYER_MAILCOUNT, "SELECT COUNT(id) FROM mail WHERE receiver = ? AND (checked & 1) = 0 AND deliver_time <= ?");
@@ -86,14 +86,34 @@ bool CharacterDatabaseConnection::Open()
     PrepareStatement(CHAR_LOAD_PLAYER_ARENASTATS, "SELECT slot, personal_rating, matchmaker_rating FROM character_arena_stats WHERE guid = ? ORDER BY slot ASC");
     PrepareStatement(CHAR_LOAD_PLAYER_BANNED, "SELECT guid FROM character_banned WHERE guid = ? AND active = 1");
     PrepareStatement(CHAR_LOAD_ACCOUNT_DATA, "SELECT type, time, data FROM account_data WHERE account = ?");
-    PrepareStatement(CHAR_LOAD_PLAYER_MAILITEMS, "SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text, item_guid, item_template, owner_guid FROM mail_items JOIN item_instance ON item_guid = guid WHERE mail_id = ?");
-    PrepareStatement(CHAR_LOAD_AUCTION_ITEMS, "SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text, itemguid, item_template FROM auctionhouse JOIN item_instance ON itemguid = guid");
+    PrepareStatement(CHAR_LOAD_PLAYER_MAILITEMS, "SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text, item_guid, itemEntry, owner_guid FROM mail_items mi JOIN item_instance ii ON mi.item_guid = ii.guid WHERE mail_id = ?");
+    PrepareStatement(CHAR_LOAD_AUCTION_ITEMS, "SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text, itemguid, itemEntry FROM auctionhouse ah JOIN item_instance ii ON ah.itemguid = ii.guid");
+    PrepareStatement(CHAR_LOAD_AUCTIONS, "SELECT id, auctioneerguid, itemguid, itemEntry, itemowner, buyoutprice, time, buyguid, lastbid, startbid, deposit FROM auctionhouse ah INNER JOIN item_instance ii ON ii.guid = ah.itemguid");
+    PrepareStatement(CHAR_ADD_AUCTION, "INSERT INTO auctionhouse (id, auctioneerguid, itemguid, itemowner, buyoutprice, time, buyguid, lastbid, startbid, deposit) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    PrepareStatement(CHAR_DEL_AUCTION, "DELETE FROM auctionhouse WHERE id = ?");
+    PrepareStatement(CHAR_ADD_MAIL, "INSERT INTO mail(id, messageType, stationery, mailTemplateId, sender, receiver, subject, body, has_items, expire_time, deliver_time, money,cod, checked) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    PrepareStatement(CHAR_DEL_MAIL, "DELETE FROM mail WHERE id = ?");
+    PrepareStatement(CHAR_ADD_MAIL_ITEM, "INSERT INTO mail_items(mail_id, item_guid, receiver) VALUES (?, ?, ?)");
+    PrepareStatement(CHAR_DEL_EMPTY_EXPIRED_MAIL, "DELETE FROM mail WHERE expire_time < ? AND has_items = 0 AND body = ''");
+    PrepareStatement(CHAR_GET_EXPIRED_MAIL, "SELECT id, messageType, sender, receiver, has_items, expire_time, cod, checked, mailTemplateId FROM mail WHERE expire_time < ?");
+    PrepareStatement(CHAR_GET_MAIL_ITEM_LITE, "SELECT item_guid, itemEntry FROM mail_items mi INNER JOIN item_instance ii ON ii.guid = mi.item_guid WHERE mail_id = ?");
+    PrepareStatement(CHAR_SET_MAIL_RETURNED, "UPDATE mail SET sender = ?, receiver = ?, expire_time = ?, deliver_time = ?, cod = 0, checked = ? WHERE id = ?");
+    PrepareStatement(CHAR_SET_MAIL_ITEM_RECEIVER, "UPDATE mail_items SET receiver = ? WHERE item_guid = ?");
+    PrepareStatement(CHAR_SET_ITEM_OWNER, "UPDATE item_instance SET owner_guid = ? WHERE guid = ?");
+
     PrepareStatement(CHAR_LOAD_ITEM_REFUNDS, "SELECT player_guid, paidMoney, paidExtendedCost FROM item_refund_instance WHERE item_guid = ? AND player_guid = ? LIMIT 1");
     PrepareStatement(CHAR_LOAD_ITEM_BOP_TRADE, "SELECT allowedPlayers FROM item_soulbound_trade_data WHERE itemGuid = ? LIMIT 1");
     PrepareStatement(CHAR_DEL_ITEM_BOP_TRADE, "DELETE FROM item_soulbound_trade_data WHERE itemGuid = ? LIMIT 1");
     PrepareStatement(CHAR_ADD_ITEM_BOP_TRADE, "INSERT INTO item_soulbound_trade_data VALUES (?, ?)");
+    PrepareStatement(CHAR_ADD_INVENTORY_ITEM, "INSERT INTO character_inventory (guid, bag, slot, item) VALUES (?, ?, ?, ?)");
+    PrepareStatement(CHAR_UPDATE_INVENTORY_ITEM, "UPDATE character_inventory SET guid = ?, bag = ?, slot = ? WHERE item = ?");
     PrepareStatement(CHAR_DEL_INVENTORY_ITEM, "DELETE FROM character_inventory WHERE item = ?");
+    PrepareStatement(CHAR_ADD_ITEM_INSTANCE, "REPLACE INTO item_instance (itemEntry, owner_guid, creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text, guid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    PrepareStatement(CHAR_UPDATE_ITEM_INSTANCE, "UPDATE item_instance SET itemEntry = ?, owner_guid = ?, creatorGuid = ?, giftCreatorGuid = ?, count = ?, duration = ?, charges = ?, flags = ?, enchantments = ?, randomPropertyId = ?, durability = ?, playedTime = ?, text = ? WHERE guid = ?");
+    PrepareStatement(CHAR_UPDATE_ITEM_INSTANCE_ON_LOAD, "UPDATE item_instance SET duration = ?, flags = ?, durability = ? WHERE guid = ?");
     PrepareStatement(CHAR_DEL_ITEM_INSTANCE, "DELETE FROM item_instance WHERE guid = ?");
+    PrepareStatement(CHAR_UPDATE_GIFT_OWNER, "UPDATE character_gifts SET guid = ? WHERE item_guid = ?");
+    PrepareStatement(CHAR_DEL_GIFT, "DELETE FROM character_gifts WHERE item_guid = ?");
     PrepareStatement(CHAR_GET_ACCOUNT_BY_NAME, "SELECT account FROM characters WHERE name = ?");
 
     // Guild handling
@@ -112,7 +132,7 @@ bool CharacterDatabaseConnection::Open()
     PrepareStatement(CHAR_DEL_GUILD_BANK_TAB, "DELETE FROM guild_bank_tab WHERE guildid = ? AND TabId = ?"); // 0: uint32, 1: uint8
     PrepareStatement(CHAR_DEL_GUILD_BANK_TABS, "DELETE FROM guild_bank_tab WHERE guildid = ?"); // 0: uint32
      // 0: uint32, 1: uint8, 2: uint8, 3: uint32, 4: uint32
-    PrepareStatement(CHAR_ADD_GUILD_BANK_ITEM, "INSERT INTO guild_bank_item (guildid, TabId, SlotId, item_guid, item_entry) VALUES (?, ?, ?, ?, ?)");
+    PrepareStatement(CHAR_ADD_GUILD_BANK_ITEM, "INSERT INTO guild_bank_item (guildid, TabId, SlotId, item_guid) VALUES (?, ?, ?, ?)");
     PrepareStatement(CHAR_DEL_GUILD_BANK_ITEM, "DELETE FROM guild_bank_item WHERE guildid = ? AND TabId = ? AND SlotId = ?"); // 0: uint32, 1: uint8, 2: uint8
     PrepareStatement(CHAR_DEL_GUILD_BANK_ITEMS, "DELETE FROM guild_bank_item WHERE guildid = ?"); // 0: uint32
     PrepareStatement(CHAR_ADD_GUILD_BANK_RIGHT_DEFAULT, "INSERT INTO guild_bank_right (guildid, TabId, rid) VALUES (?, ?, ?)"); // 0: uint32, 1: uint8, 2: uint8
@@ -204,7 +224,7 @@ bool CharacterDatabaseConnection::Open()
     //          0            1                2      3         4        5      6             7                 8           9           10
         "SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text, "
     //   11       12     13      14         15
-        "guildid, TabId, SlotId, item_guid, item_entry FROM guild_bank_item INNER JOIN item_instance ON item_guid = guid");
+        "guildid, TabId, SlotId, item_guid, itemEntry FROM guild_bank_item gbi INNER JOIN item_instance ii ON gbi.item_guid = ii.guid");
 
     PrepareStatement(CHAR_CLEAN_GUILD_RANKS, "DELETE FROM guild_rank WHERE guildId NOT IN (SELECT guildid FROM guild)");
     PrepareStatement(CHAR_CLEAN_GUILD_MEMBERS, "DELETE FROM guild_member WHERE guildId NOT IN (SELECT guildid FROM guild)");

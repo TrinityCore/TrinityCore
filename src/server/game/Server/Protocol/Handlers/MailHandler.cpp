@@ -258,7 +258,11 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data)
                 item->DeleteFromInventoryDB(trans);     // deletes item from character's inventory
                 item->SaveToDB(trans);                  // recursive and not have transaction guard into self, item not in inventory and can be save standalone
                 // owner in data will set at mail receive and item extracting
-                trans->PAppend("UPDATE item_instance SET owner_guid = '%u' WHERE guid='%u'", GUID_LOPART(rc), item->GetGUIDLow());
+                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SET_ITEM_OWNER);
+                stmt->setUInt32(0, GUID_LOPART(rc));
+                stmt->setUInt32(1, item->GetGUIDLow());
+                trans->Append(stmt);
+
                 draft.AddItem(item);
             }
 
@@ -373,7 +377,7 @@ void WorldSession::HandleMailReturnToSender(WorldPacket & recv_data)
 
         if (m->HasItems())
         {
-            for (std::vector<MailItemInfo>::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
+            for (MailItemInfoVec::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
             {
                 Item *item = pl->GetMItem(itr2->item_guid);
                 if (item)

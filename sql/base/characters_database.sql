@@ -184,7 +184,6 @@ CREATE TABLE `auctionhouse` (
   `id` int(11) unsigned NOT NULL default '0',
   `auctioneerguid` int(11) unsigned NOT NULL default '0',
   `itemguid` int(11) unsigned NOT NULL default '0',
-  `item_template` int(11) unsigned NOT NULL default '0' COMMENT 'Item Identifier',
   `itemowner` int(11) unsigned NOT NULL default '0',
   `buyoutprice` int(11) NOT NULL default '0',
   `time` bigint(40) NOT NULL default '0',
@@ -762,7 +761,6 @@ CREATE TABLE `character_inventory` (
   `bag` int(11) unsigned NOT NULL default '0',
   `slot` tinyint(3) unsigned NOT NULL default '0',
   `item` int(11) unsigned NOT NULL default '0' COMMENT 'Item Global Unique Identifier',
-  `item_template` int(11) unsigned NOT NULL default '0' COMMENT 'Item Identifier',
   PRIMARY KEY  (`item`),
   KEY `idx_guid` (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
@@ -1557,7 +1555,6 @@ CREATE TABLE `guild_bank_item` (
   `TabId` tinyint(1) unsigned NOT NULL default '0',
   `SlotId` tinyint(3) unsigned NOT NULL default '0',
   `item_guid` int(11) unsigned NOT NULL default '0',
-  `item_entry` int(11) unsigned NOT NULL default '0',
   PRIMARY KEY  (`guildid`,`tabid`,`slotid`),
   KEY `guildid_key` (`guildid`),    
   INDEX `Idx_item_guid`(`item_guid`)
@@ -1790,6 +1787,7 @@ DROP TABLE IF EXISTS `item_instance`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `item_instance` (
   `guid` int(11) unsigned NOT NULL default '0',
+  `itemEntry` mediumint(8) unsigned NOT NULL default '0',
   `owner_guid` int(11) unsigned NOT NULL default '0',
   `creatorGuid` int(10) unsigned NOT NULL default '0',
   `giftCreatorGuid` int(10) unsigned NOT NULL default '0',
@@ -1938,7 +1936,6 @@ DROP TABLE IF EXISTS `mail_items`;
 CREATE TABLE `mail_items` (
   `mail_id` int(11) NOT NULL default '0',
   `item_guid` int(11) NOT NULL default '0',
-  `item_template` int(11) NOT NULL default '0',
   `receiver` int(11) unsigned NOT NULL default '0' COMMENT 'Character Global Unique Identifier',
   PRIMARY KEY  (`mail_id`,`item_guid`),
   KEY `idx_receiver` (`receiver`)
