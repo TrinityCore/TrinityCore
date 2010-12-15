@@ -2375,9 +2375,9 @@ enum eHiddenCultist
     SAY_HIDDEN_CULTIST_4                        = -1571047
 };
 
-#define GOSSIP_ITEM_TOM_HEGGER "What do you know about the Cult of the Damned?"
-#define GOSSIP_ITEM_GUARD_MITCHELLS "How long have you worked for the Cult of the Damned?"
-#define GOSSIP_ITEM_SALTY_JOHN_THORPE "I have a reason to believe you're involved in the cultist activity"
+const char* GOSSIP_ITEM_TOM_HEGGER = "What do you know about the Cult of the Damned?";
+const char* GOSSIP_ITEM_GUARD_MITCHELLS = "How long have you worked for the Cult of the Damned?";
+const char* GOSSIP_ITEM_SALTY_JOHN_THORPE = "I have a reason to believe you're involved in the cultist activity";
 
 class npc_hidden_cultist : public CreatureScript
 {
@@ -2515,7 +2515,7 @@ public:
     bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
         uint32 uiGossipText = 0;
-        char* charGossipItem = "";
+        const char* charGossipItem;
 
         switch(pCreature->GetEntry())
         {
@@ -2532,6 +2532,7 @@ public:
                 charGossipItem = GOSSIP_ITEM_GUARD_MITCHELLS;
                 break;
             default:
+                charGossipItem = "";
                 return false;
         }
 
