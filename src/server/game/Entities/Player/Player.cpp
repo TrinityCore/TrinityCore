@@ -18168,18 +18168,22 @@ void Player::_SaveInventory(SQLTransaction& trans)
             }
         }
 
+        PreparedStatement* stmt = NULL;
         switch (item->GetState())
         {
             case ITEM_NEW:
-                trans->PAppend("INSERT INTO character_inventory (guid,bag,slot,item,item_template) VALUES ('%u', '%u', '%u', '%u', '%u')", lowGuid, bag_guid, item->GetSlot(), item->GetGUIDLow(), item->GetEntry());
-                break;
             case ITEM_CHANGED:
-                trans->PAppend("DELETE FROM character_inventory WHERE item = '%u'", item->GetGUIDLow());
-                trans->PAppend("INSERT INTO character_inventory (guid,bag,slot,item,item_template) VALUES ('%u', '%u', '%u', '%u', '%u')", lowGuid, bag_guid, item->GetSlot(), item->GetGUIDLow(), item->GetEntry());
+                stmt = CharacterDatabase.GetPreparedStatement(item->GetState() == ITEM_NEW ? CHAR_ADD_INVENTORY_ITEM : CHAR_UPDATE_INVENTORY_ITEM);
+                stmt->setUInt32(0, lowGuid);
+                stmt->setUInt32(1, bag_guid);
+                stmt->setUInt8 (2, item->GetSlot());
+                stmt->setUInt32(3, item->GetGUIDLow());
+                trans->Append(stmt);
                 break;
             case ITEM_REMOVED:
-                trans->PAppend("DELETE FROM character_inventory WHERE item = '%u'", item->GetGUIDLow());
-                break;
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVENTORY_ITEM);
+                stmt->setUInt32(0, item->GetGUIDLow());
+                trans->Append(stmt);
             case ITEM_UNCHANGED:
                 break;
         }
@@ -18214,7 +18218,7 @@ void Player::_SaveMail(SQLTransaction& trans)
             if (m->HasItems())
             {
                 PreparedStatement* stmt = NULL;
-                for (std::vector<MailItemInfo>::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
+                for (MailItemInfoVec::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
                 {
                     stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
                     stmt->setUInt32(0, itr2->item_guid);

@@ -165,6 +165,7 @@ struct MailItemInfo
     uint32 item_guid;
     uint32 item_template;
 };
+typedef std::vector<MailItemInfo> MailItemInfoVec;
 
 struct Mail
 {
@@ -195,7 +196,7 @@ struct Mail
 
     bool RemoveItem(uint32 item_guid)
     {
-        for (std::vector<MailItemInfo>::iterator itr = items.begin(); itr != items.end(); ++itr)
+        for (MailItemInfoVec::iterator itr = items.begin(); itr != items.end(); ++itr)
         {
             if (itr->item_guid == item_guid)
             {

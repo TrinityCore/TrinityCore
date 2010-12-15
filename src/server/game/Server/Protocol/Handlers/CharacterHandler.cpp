@@ -1430,6 +1430,7 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket &recv_data)
 
 void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
 {
+    // TODO: Move queries to prepared statements
     uint64 guid;
     std::string newname;
     uint8 gender, skin, face, hairStyle, hairColor, facialHair, race;
@@ -1714,7 +1715,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
         {
             uint32 item_alliance = it->first;
             uint32 item_horde = it->second;
-            trans->PAppend("UPDATE `character_inventory` SET item_template = '%u' where item_template = '%u' AND guid = '%u'",
+            trans->PAppend("UPDATE `item_instance` ii, `character_inventory` ci SET ii.itemEntry = '%u' WHERE ii.itemEntry = '%u' AND ci.guid = '%u' AND ci.item = ii.guid",
                 team == BG_TEAM_ALLIANCE ? item_alliance : item_horde, team == BG_TEAM_ALLIANCE ? item_horde : item_alliance, guid);
         }
 
