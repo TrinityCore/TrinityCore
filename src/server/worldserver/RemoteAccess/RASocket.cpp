@@ -65,7 +65,7 @@ int RASocket::handle_close(ACE_HANDLE, ACE_Reactor_Mask)
 
 int RASocket::send(const std::string& line)
 {
-    return peer().send(line.c_str(), line.length()) == line.length() ? 0 : -1;
+    return size_t(peer().send(line.c_str(), line.length())) == line.length() ? 0 : -1;
 }
 
 int RASocket::recv_line(ACE_Message_Block& buffer)
@@ -160,7 +160,7 @@ int RASocket::process_command(const std::string& command)
             break;
         }
 
-        if (peer().send(mb->rd_ptr(), mb->length()) != mb->length())
+        if (size_t(peer().send(mb->rd_ptr(), mb->length())) != mb->length())
         {
             mb->release();
             return -1;
@@ -276,7 +276,7 @@ int RASocket::svc(void)
     {
         // show prompt
         const char* tc_prompt = "TC> ";
-        if (peer().send(tc_prompt, strlen(tc_prompt)) != strlen(tc_prompt))
+        if (size_t(peer().send(tc_prompt, strlen(tc_prompt))) != strlen(tc_prompt))
             return -1;
 
         std::string line;
