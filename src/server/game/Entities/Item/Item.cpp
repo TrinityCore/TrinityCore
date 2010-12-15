@@ -316,21 +316,21 @@ void Item::SaveToDB(SQLTransaction& trans)
             stmt->setUInt32(++index, GetCount());
             stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_DURATION));
 
-            std::ostringstream ss;
+            std::ostringstream ssSpells;
             for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
-                ss << GetSpellCharges(i) << " ";
-            stmt->setString(++index, ss.str());
+                ssSpells << GetSpellCharges(i) << " ";
+            stmt->setString(++index, ssSpells.str());
 
             stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_FLAGS));
 
-            ss.clear();
+            std::ostringstream ssEnchants;
             for (uint8 i = 0; i < MAX_ENCHANTMENT_SLOT; ++i)
             {
-                ss << GetEnchantmentId(EnchantmentSlot(i)) << " ";
-                ss << GetEnchantmentDuration(EnchantmentSlot(i)) << " ";
-                ss << GetEnchantmentCharges(EnchantmentSlot(i)) << " ";
+                ssEnchants << GetEnchantmentId(EnchantmentSlot(i)) << " ";
+                ssEnchants << GetEnchantmentDuration(EnchantmentSlot(i)) << " ";
+                ssEnchants << GetEnchantmentCharges(EnchantmentSlot(i)) << " ";
             }
-            stmt->setString(++index, ss.str());
+            stmt->setString(++index, ssEnchants.str());
 
             stmt->setInt32 (++index, GetItemRandomPropertyId());
             stmt->setUInt32(++index, GetUInt32Value(ITEM_FIELD_DURABILITY));
