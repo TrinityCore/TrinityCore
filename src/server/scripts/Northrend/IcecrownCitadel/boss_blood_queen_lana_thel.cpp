@@ -118,26 +118,6 @@ bool IsVampire(Unit const* unit)
     return false;
 }
 
-class VampiricBiteTargetSelector : public std::unary_function<Unit*, bool>
-{
-    public:
-        VampiricBiteTargetSelector() { }
-
-        bool operator() (Unit const* target)
-        {
-            if (!target)
-                return false;
-
-            if (target->GetTypeId() != TYPEID_PLAYER)
-                return false;
-
-            if (IsVampire(target))
-                return false;
-
-            return true;
-        }
-};
-
 class boss_blood_queen_lana_thel : public CreatureScript
 {
     public:
