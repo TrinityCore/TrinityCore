@@ -476,7 +476,6 @@ bool Guild::BankTab::SetItem(SQLTransaction& trans, uint8 slotId, Item* pItem)
         stmt->setUInt8 (1, m_tabId);
         stmt->setUInt8 (2, slotId);
         stmt->setUInt32(3, pItem->GetGUIDLow());
-        stmt->setUInt32(4, pItem->GetEntry());
         CharacterDatabase.ExecuteOrAppend(trans, stmt);
 
         pItem->SetUInt64Value(ITEM_FIELD_CONTAINED, 0);

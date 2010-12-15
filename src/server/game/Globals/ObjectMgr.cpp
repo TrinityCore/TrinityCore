@@ -5550,13 +5550,21 @@ void ObjectMgr::LoadNpcTextLocales()
 //not very fast function but it is called only once a day, or on starting-up
 void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
 {
-    time_t basetime = time(NULL);
-    sLog.outDebug("Returning mails current time: hour: %d, minute: %d, second: %d ", localtime(&basetime)->tm_hour, localtime(&basetime)->tm_min, localtime(&basetime)->tm_sec);
-    //delete all old mails without item and without body immediately, if starting server
+    time_t curTime = time(NULL);
+    tm* lt = localtime(&curTime);
+    uint64 basetime(curTime);
+    sLog.outDebug("Returning mails current time: hour: %d, minute: %d, second: %d ", lt->tm_hour, lt->tm_min, lt->tm_sec);
+
+    // Delete all old mails without item and without body immediately, if starting server
     if (!serverUp)
-        CharacterDatabase.PExecute("DELETE FROM mail WHERE expire_time < '" UI64FMTD "' AND has_items = '0' AND body = ''", (uint64)basetime);
-    //                                                     0  1           2      3        4          5         6           7   8       9
-    QueryResult result = CharacterDatabase.PQuery("SELECT id,messageType,sender,receiver,has_items,expire_time,cod,checked,mailTemplateId FROM mail WHERE expire_time < '" UI64FMTD "'", (uint64)basetime);
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EMPTY_EXPIRED_MAIL);
+        stmt->setUInt64(0, basetime);
+        CharacterDatabase.Execute(stmt);
+    }
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_EXPIRED_MAIL);
+    stmt->setUInt64(0, basetime);
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (!result)
     {
         barGoLink bar(1);
@@ -5569,7 +5577,6 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
     barGoLink bar(result->GetRowCount());
     uint32 count = 0;
     Field *fields;
-
     do
     {
         bar.step();
@@ -5592,17 +5599,18 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
             pl = GetPlayer((uint64)m->receiver);
 
         if (pl && pl->m_mailsLoaded)
-        {                                                   //this code will run very improbably (the time is between 4 and 5 am, in game is online a player, who has old mail
-            //his in mailbox and he has already listed his mails)
+        {                                                   // this code will run very improbably (the time is between 4 and 5 am, in game is online a player, who has old mail
+            // his in mailbox and he has already listed his mails)
             delete m;
             continue;
         }
 
-        //delete or return mail:
+        // Delete or return mail
         if (has_items)
         {
-            QueryResult resultItems = CharacterDatabase.PQuery("SELECT item_guid,item_template FROM mail_items WHERE mail_id='%u'", m->messageID);
-            if (resultItems)
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_MAIL_ITEM_LITE);
+            stmt->setUInt32(0, m->messageID);
+            if (PreparedQueryResult resultItems = CharacterDatabase.Query(stmt))
             {
                 do
                 {
@@ -5615,11 +5623,11 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
                 }
                 while (resultItems->NextRow());
             }
-            //if it is mail from AH, it shouldn't be returned, but deleted
-            if (m->messageType != MAIL_NORMAL || m->messageType == MAIL_AUCTION || (m->checked & (MAIL_CHECK_MASK_COD_PAYMENT | MAIL_CHECK_MASK_RETURNED)))
+            // if it is mail from non-player, or if it's already return mail, it shouldn't be returned, but deleted
+            if (m->messageType != MAIL_NORMAL || (m->checked & (MAIL_CHECK_MASK_COD_PAYMENT | MAIL_CHECK_MASK_RETURNED)))
             {
                 // mail open and then not returned
-                for (std::vector<MailItemInfo>::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
+                for (MailItemInfoVec::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
                 {
                     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
                     stmt->setUInt32(0, itr2->item_guid);
@@ -5628,14 +5636,36 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
             }
             else
             {
-                //mail will be returned:
-                CharacterDatabase.PExecute("UPDATE mail SET sender = '%u', receiver = '%u', expire_time = '" UI64FMTD "', deliver_time = '" UI64FMTD "',cod = '0', checked = '%u' WHERE id = '%u'", m->receiver, m->sender, (uint64)(basetime + 30*DAY), (uint64)basetime, MAIL_CHECK_MASK_RETURNED, m->messageID);
+                // Mail will be returned
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_SET_MAIL_RETURNED);
+                stmt->setUInt32(0, m->receiver);
+                stmt->setUInt32(1, m->sender);
+                stmt->setUInt64(2, basetime + 30 * DAY);
+                stmt->setUInt64(3, basetime);
+                stmt->setUInt8 (4, uint8(MAIL_CHECK_MASK_RETURNED));
+                stmt->setUInt32(5, m->messageID);
+                CharacterDatabase.Execute(stmt);
+                for (MailItemInfoVec::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
+                {
+                    // Update receiver in mail items for its proper delivery, and in instance_item for avoid lost item at sender delete
+                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SET_MAIL_ITEM_RECEIVER);
+                    stmt->setUInt32(0, m->sender);
+                    stmt->setUInt32(1, itr2->item_guid);
+                    CharacterDatabase.Execute(stmt);
+
+                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SET_ITEM_OWNER);
+                    stmt->setUInt32(0, m->sender);
+                    stmt->setUInt32(1, itr2->item_guid);
+                    CharacterDatabase.Execute(stmt);
+                }
                 delete m;
                 continue;
             }
         }
 
-        CharacterDatabase.PExecute("DELETE FROM mail WHERE id = '%u'", m->messageID);
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL);
+        stmt->setUInt32(0, m->messageID);
+        CharacterDatabase.Execute(stmt);
         delete m;
         ++count;
     } while (result->NextRow());
