@@ -238,7 +238,7 @@ bool DisableMgr::IsDisabledFor(DisableType type, uint32 entry, Unit const* pUnit
             {
 
                 if ((flags & SPELL_DISABLE_PLAYER && pUnit->GetTypeId() == TYPEID_PLAYER) ||
-                    (pUnit->GetTypeId() == TYPEID_UNIT && (pUnit->ToCreature()->isPet() && flags & SPELL_DISABLE_PET || flags & SPELL_DISABLE_CREATURE)))
+                    (pUnit->GetTypeId() == TYPEID_UNIT && ((pUnit->ToCreature()->isPet() && flags & SPELL_DISABLE_PET) || flags & SPELL_DISABLE_CREATURE)))
 
                 {
                     if (flags & SPELL_DISABLE_MAP)

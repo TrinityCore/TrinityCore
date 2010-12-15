@@ -222,7 +222,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
     ///- Retrieve packets from the receive queue and call the appropriate handlers
     /// not process packets if socket already closed
-    WorldPacket* packet;
+    WorldPacket* packet = NULL;
     while (m_Socket && !m_Socket->IsClosed() && _recvQueue.next(packet, updater))
     {
         /*#if 1

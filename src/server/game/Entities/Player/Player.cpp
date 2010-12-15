@@ -2377,6 +2377,8 @@ void Player::ResetAllPowers()
         case POWER_RUNIC_POWER:
             SetPower(POWER_RUNIC_POWER, 0);
             break;
+        default:
+            break;
     }
 }
 
@@ -5366,8 +5368,6 @@ void Player::HandleBaseModValue(BaseModGroup modGroup, BaseModType modType, floa
         sLog.outError("ERROR in HandleBaseModValue(): non existed BaseModGroup of wrong BaseModType!");
         return;
     }
-
-    float val = 1.0f;
 
     switch (modType)
     {
