@@ -101,7 +101,6 @@ class boss_festergut : public CreatureScript
                 events.Reset();
                 events.ScheduleEvent(EVENT_BERSERK, 300000);
                 events.ScheduleEvent(EVENT_INHALE_BLIGHT, urand(25000, 30000));
-                events.ScheduleEvent(EVENT_VILE_GAS, urand(30000, 32500));
                 events.ScheduleEvent(EVENT_GAS_SPORE, urand(20000, 25000));
                 events.ScheduleEvent(EVENT_GASTRIC_BLOAT, urand(12500, 15000));
                 maxInoculatedStack = 0;
@@ -195,6 +194,7 @@ class boss_festergut : public CreatureScript
                                 inhaleCounter = 0;
                                 if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
                                     professor->AI()->DoAction(ACTION_FESTERGUT_GAS);
+                                events.RescheduleEvent(EVENT_GAS_SPORE, urand(20000, 25000));
                             }
                             else
                             {
@@ -210,7 +210,7 @@ class boss_festergut : public CreatureScript
                         case EVENT_VILE_GAS:
                         {
                             std::list<Unit*> targets;
-                            uint32 minTargets = RAID_MODE<uint32>(3,8,3,8);
+                            uint32 minTargets = RAID_MODE<uint32>(3, 8, 3, 8);
                             SelectTargetList(targets, minTargets, SELECT_TARGET_RANDOM, -5.0f, true);
                             float minDist = 0.0f;
                             if (targets.size() >= minTargets)
@@ -224,8 +224,9 @@ class boss_festergut : public CreatureScript
                         case EVENT_GAS_SPORE:
                             Talk(EMOTE_WARN_GAS_SPORE);
                             Talk(EMOTE_GAS_SPORE);
-                            me->CastCustomSpell(SPELL_GAS_SPORE, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2,3,2,3), me);
-                            events.ScheduleEvent(EVENT_GAS_SPORE, urand(40000, 45000));
+                            me->CastCustomSpell(SPELL_GAS_SPORE, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 3, 2, 3), me);
+                            events.ScheduleEvent(EVENT_GAS_SPORE, urand(40000, 45000), EVENT_GAS_SPORE);
+                            events.RescheduleEvent(EVENT_VILE_GAS, urand(28000, 35000));
                             break;
                         case EVENT_GASTRIC_BLOAT:
                             DoCastVictim(SPELL_GASTRIC_BLOAT);
