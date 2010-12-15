@@ -441,7 +441,7 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
     if (need_save)                                           // normal item changed state set not work at loading
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPDATE_ITEM_INSTANCE_ON_LOAD);
-        stmt->setUInt32(0, GetUInt32Value(ITEM_FIELD_DURABILITY));
+        stmt->setUInt32(0, GetUInt32Value(ITEM_FIELD_DURATION));
         stmt->setUInt32(1, GetUInt32Value(ITEM_FIELD_FLAGS));
         stmt->setUInt32(2, GetUInt32Value(ITEM_FIELD_DURABILITY));
         stmt->setUInt32(3, guid);
