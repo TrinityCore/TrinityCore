@@ -125,8 +125,10 @@ public:
             DrainLifeTimer = 3000 + rand()%4000;
             DrainManaTimer = DrainLifeTimer + 5000;
             FelExplosionTimer = 2100;
-            DrainCrystalTimer = 10000 + rand()%5000;
-            DrainCrystalTimer = 20000 + rand()%5000;
+            if (IsHeroic())
+                DrainCrystalTimer = 10000 + rand()%5000;
+            else
+                DrainCrystalTimer = 20000 + rand()%5000;
             EmpowerTimer = 10000;
 
             IsDraining = false;

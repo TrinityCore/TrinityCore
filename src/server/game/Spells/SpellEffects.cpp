@@ -3228,10 +3228,10 @@ void Spell::EffectDualWield(SpellEffIndex /*effIndex*/)
         unitTarget->ToCreature()->UpdateDamagePhysical(OFF_ATTACK);
 }
 
-void Spell::EffectPull(SpellEffIndex /*effIndex*/)
+void Spell::EffectPull(SpellEffIndex effIndex)
 {
     // TODO: create a proper pull towards distract spell center for distract
-    sLog.outDebug("WORLD: Spell Effect DUMMY");
+    EffectNULL(effIndex);
 }
 
 void Spell::EffectDistract(SpellEffIndex /*effIndex*/)

@@ -4223,14 +4223,9 @@ void AuraEffect::HandleAuraModIncreaseSpeed(AuraApplication const * aurApp, uint
     target->UpdateSpeed(MOVE_RUN, true);
 }
 
-void AuraEffect::HandleAuraModIncreaseMountedSpeed(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
+void AuraEffect::HandleAuraModIncreaseMountedSpeed(AuraApplication const * aurApp, uint8 mode, bool apply) const
 {
-    if (!(mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK))
-        return;
-
-    Unit * target = aurApp->GetTarget();
-
-    target->UpdateSpeed(MOVE_RUN, true);
+    HandleAuraModIncreaseSpeed(aurApp, mode, apply);
 }
 
 void AuraEffect::HandleAuraModIncreaseFlightSpeed(AuraApplication const * aurApp, uint8 mode, bool apply) const
@@ -4868,20 +4863,9 @@ void AuraEffect::HandleModPowerRegen(AuraApplication const * aurApp, uint8 mode,
     // other powers are not immediate effects - implemented in Player::Regenerate, Creature::Regenerate
 }
 
-void AuraEffect::HandleModPowerRegenPCT(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
+void AuraEffect::HandleModPowerRegenPCT(AuraApplication const * aurApp, uint8 mode, bool apply) const
 {
-    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
-        return;
-
-    Unit * target = aurApp->GetTarget();
-
-    if (target->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    // Update manaregen value
-    if (GetMiscValue() == POWER_MANA)
-        target->ToPlayer()->UpdateManaRegen();
-    // other powers are not immediate effects - implemented in Player::Regenerate, Creature::Regenerate
+    HandleModPowerRegen(aurApp, mode, apply);
 }
 
 void AuraEffect::HandleModManaRegen(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
@@ -5055,17 +5039,9 @@ void AuraEffect::HandleAuraModBlockPercent(AuraApplication const * aurApp, uint8
     target->ToPlayer()->UpdateBlockPercentage();
 }
 
-void AuraEffect::HandleAuraModRegenInterrupt(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
+void AuraEffect::HandleAuraModRegenInterrupt(AuraApplication const * aurApp, uint8 mode, bool apply) const
 {
-    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
-        return;
-
-    Unit * target = aurApp->GetTarget();
-
-    if (target->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    target->ToPlayer()->UpdateManaRegen();
+    HandleModManaRegen(aurApp, mode, apply);
 }
 
 void AuraEffect::HandleAuraModWeaponCritPercent(AuraApplication const * aurApp, uint8 mode, bool apply) const
@@ -5362,16 +5338,9 @@ void AuraEffect::HandleAuraModRangedAttackPowerOfStatPercent(AuraApplication con
         target->ToPlayer()->UpdateAttackPowerAndDamage(true);
 }
 
-void AuraEffect::HandleAuraModAttackPowerOfStatPercent(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
+void AuraEffect::HandleAuraModAttackPowerOfStatPercent(AuraApplication const * aurApp, uint8 mode, bool apply) const
 {
-    if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
-        return;
-
-    Unit * target = aurApp->GetTarget();
-
-    // Recalculate bonus
-    if (target->GetTypeId() == TYPEID_PLAYER)
-        target->ToPlayer()->UpdateAttackPowerAndDamage(false);
+    HandleAuraModAttackPowerOfArmor(aurApp, mode, apply);
 }
 
 void AuraEffect::HandleAuraModAttackPowerOfArmor(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
