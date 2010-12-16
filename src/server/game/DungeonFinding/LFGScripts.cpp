@@ -47,12 +47,12 @@ void LFGScripts::OnAddMember(Group* group, uint64 guid)
     }
 
     // TODO - if group is queued and new player is added convert to rolecheck without notify the current players queued
-    if (group->GetLfgState() == LFG_STATE_QUEUED)
+    if (sLFGMgr.GetState(gguid) == LFG_STATE_QUEUED)
         sLFGMgr.Leave(NULL, group);
 
-    Player *plr = sObjectMgr.GetPlayer(guid);
-    if (plr && plr->GetLfgState() == LFG_STATE_QUEUED)
-        sLFGMgr.Leave(plr);
+    if (sLFGMgr.GetState(guid) == LFG_STATE_QUEUED)
+        if (Player *plr = sObjectMgr.GetPlayer(guid))
+            sLFGMgr.Leave(plr);
 }
 
 void LFGScripts::OnRemoveMember(Group* group, uint64 guid, RemoveMethod& method, uint64 kicker, const char* reason)
@@ -62,7 +62,7 @@ void LFGScripts::OnRemoveMember(Group* group, uint64 guid, RemoveMethod& method,
         return;
 
     sLog.outDebug("LFGScripts::OnRemoveMember [" UI64FMTD "]: remove [" UI64FMTD "] Method: %d Kicker: [" UI64FMTD "] Reason: %s", gguid, guid, method, kicker, (reason ? reason : ""));
-    if (group->GetLfgState() == LFG_STATE_QUEUED)
+    if (sLFGMgr.GetState(gguid) == LFG_STATE_QUEUED)
     {
         // TODO - Do not remove, just remove the one leaving and rejoin queue with all other data
         sLFGMgr.Leave(NULL, group);
@@ -81,6 +81,7 @@ void LFGScripts::OnRemoveMember(Group* group, uint64 guid, RemoveMethod& method,
         return;
     }
 
+    sLFGMgr.ClearState(guid);
     if (Player *plr = sObjectMgr.GetPlayer(guid))
     {
         /*
@@ -89,20 +90,23 @@ void LFGScripts::OnRemoveMember(Group* group, uint64 guid, RemoveMethod& method,
         else if (group->isLfgKickActive())
             // Update internal kick cooldown of kicked
         */
-
-        plr->ClearLfgState();
+        
         LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_LEADER);
         plr->GetSession()->SendLfgUpdateParty(updateData);
         if (plr->GetMap()->IsDungeon())                    // Teleport player out the dungeon
             sLFGMgr.TeleportPlayer(plr, true);
     }
 
-    if (group->GetLfgState() != LFG_STATE_FINISHED_DUNGEON)// Need more players to finish the dungeon
+    if (sLFGMgr.GetState(gguid) != LFG_STATE_FINISHED_DUNGEON)// Need more players to finish the dungeon
         sLFGMgr.OfferContinue(group);
 }
 
-void LFGScripts::OnDisband(Group* /*group*/)
+void LFGScripts::OnDisband(Group* group)
 {
+    uint64 gguid = group->GetGUID();
+    sLog.outError("LFGScripts::OnDisband [" UI64FMTD "]", gguid);
+
+    sLFGMgr.RemoveGroupData(gguid);
 }
 
 void LFGScripts::OnChangeLeader(Group* group, uint64 newLeaderGuid, uint64 oldLeaderGuid)
@@ -149,6 +153,9 @@ void LFGScripts::OnLogout(Player* player)
     player->GetSession()->SendLfgUpdateParty(updateData);
     player->GetSession()->SendLfgUpdatePlayer(updateData);
     player->GetSession()->SendLfgUpdateSearch(false);
+    uint64 guid = player->GetGUID();
+    // TODO - Do not remove, add timer before deleting
+    sLFGMgr.RemovePlayerData(guid);
 }
 
 void LFGScripts::OnLogin(Player* /*player*/)

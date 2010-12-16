@@ -32,6 +32,7 @@
 #include "InstanceSaveMgr.h"
 #include "MapInstanced.h"
 #include "Util.h"
+#include "LFGMgr.h"
 
 Roll::Roll(uint64 _guid, LootItem const& li) : itemGUID(_guid), itemid(li.itemid),
 itemRandomPropId(li.randomPropertyId), itemRandomSuffix(li.randomSuffix), itemCount(li.count),
@@ -56,8 +57,7 @@ Loot* Roll::getLoot()
 Group::Group() : m_leaderGuid(0), m_leaderName(""), m_groupType(GROUPTYPE_NORMAL), 
 m_dungeonDifficulty(DUNGEON_DIFFICULTY_NORMAL), m_raidDifficulty(RAID_DIFFICULTY_10MAN_NORMAL),
 m_bgGroup(NULL), m_lootMethod(FREE_FOR_ALL), m_lootThreshold(ITEM_QUALITY_UNCOMMON), m_looterGuid(0), 
-m_subGroupsCounts(NULL), m_guid(0), m_counter(0), m_maxEnchantingLevel(0),
-m_LfgState(LFG_STATE_NONE), m_LfgOldState(LFG_STATE_NONE), m_LfgDungeonEntry(0), m_Lfgkicks(0)
+m_subGroupsCounts(NULL), m_guid(0), m_counter(0), m_maxEnchantingLevel(0)
 {
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
         m_targetIcons[i] = 0;
@@ -1106,8 +1106,8 @@ void Group::SendUpdate()
         data << uint8(citr->roles);
         if (isLFGGroup())
         {
-            data << uint8(m_LfgState == LFG_STATE_FINISHED_DUNGEON ? 2 : 0); // FIXME - Dungeon save status? 2 = done
-            data << uint32(m_LfgDungeonEntry);
+            data << uint8(sLFGMgr.GetState(m_guid) == LFG_STATE_FINISHED_DUNGEON ? 2 : 0); // FIXME - Dungeon save status? 2 = done
+            data << uint32(sLFGMgr.GetDungeon(m_guid));
         }
 
         data << uint64(m_guid);
@@ -1923,46 +1923,7 @@ void Group::SetLootThreshold(ItemQualities threshold)
     m_lootThreshold = threshold;
 }
 
-void Group::SetLfgState(LfgState state)
-{
-    m_LfgState = state;
-}
-
-LfgState Group::GetLfgState() const
-{
-    return m_LfgState;
-}
-
-void Group::RestoreLfgState()
-{
-    m_LfgState = m_LfgOldState;
-}
-
-
-void Group::SetLfgDungeonEntry(uint32 dungeonEntry)
-{
-    m_LfgDungeonEntry = dungeonEntry;
-}
-
-uint32 Group::GetLfgDungeonEntry(bool id /* = true*/) const
-{
-    if (id)
-        return (m_LfgDungeonEntry & 0x00FFFFFF);
-    else
-        return m_LfgDungeonEntry;
-}
-
-uint8 Group::GetLfgKicks() const
-{
-    return m_Lfgkicks;
-}
-
-void Group::SetLfgKicks(uint8 kicks)
-{
-    m_Lfgkicks = kicks;
-}
-
-void Group::SetLfgRoles(uint64 guid, const uint8 roles)
+void Group::SetLfgRoles(uint64& guid, const uint8 roles)
 {
     member_witerator slot = _getMemberWSlot(guid);
     if (slot == m_memberSlots.end())

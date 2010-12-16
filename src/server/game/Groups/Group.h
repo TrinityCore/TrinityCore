@@ -42,8 +42,6 @@ struct MapEntry;
 #define MAXRAIDSIZE 40
 #define MAX_RAID_SUBGROUPS MAXRAIDSIZE/MAXGROUPSIZE
 #define TARGETICONCOUNT 8
-#define GROUP_MAX_LFG_KICKS 3
-#define GROUP_LFG_KICK_VOTES_NEEDED 3
 
 enum RollVote
 {
@@ -193,16 +191,7 @@ class Group
         void   UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed = false);
         void   SetLootThreshold(ItemQualities threshold);
         void   Disband(bool hideDestroy=false);
-
-        // Dungeon Finder
-        void   SetLfgState(LfgState state);
-        LfgState GetLfgState() const;
-        void   RestoreLfgState();
-        void   SetLfgDungeonEntry(uint32 dungeonEntry);
-        uint32 GetLfgDungeonEntry(bool id = true) const;
-        uint8  GetLfgKicks() const;
-        void   SetLfgKicks(uint8 kicks);
-        void   SetLfgRoles(uint64 guid, const uint8 roles);
+        void   SetLfgRoles(uint64& guid, const uint8 roles);
 
         // properties accessories
         bool IsFull() const;
@@ -346,9 +335,5 @@ class Group
         uint64              m_guid;
         uint32              m_counter;                      // used only in SMSG_GROUP_LIST
         uint32              m_maxEnchantingLevel;
-        LfgState            m_LfgState;
-        LfgState            m_LfgOldState;
-        uint32              m_LfgDungeonEntry;
-        uint8               m_Lfgkicks;
 };
 #endif
