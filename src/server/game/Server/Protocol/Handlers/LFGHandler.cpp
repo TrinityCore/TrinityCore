@@ -113,7 +113,7 @@ void WorldSession::HandleLfgProposalResultOpcode(WorldPacket &recv_data)
     recv_data >> accept;
 
     sLog.outDebug("CMSG_LFG_PROPOSAL_RESULT [" UI64FMTD "] proposal: %u accept: %u", GetPlayer()->GetGUID(), lfgGroupID, accept ? 1 : 0);
-    sLFGMgr.UpdateProposal(lfgGroupID, GetPlayer()->GetGUIDLow(), accept);
+    sLFGMgr.UpdateProposal(lfgGroupID, GetPlayer()->GetGUID(), accept);
 }
 
 void WorldSession::HandleLfgSetRolesOpcode(WorldPacket &recv_data)
@@ -397,8 +397,8 @@ void WorldSession::SendLfgRoleCheckUpdate(LfgRoleCheck* pRoleCheck)
     Player* plr;
     uint8 roles;
 
-    data << uint32(pRoleCheck->result);                     // Check result
-    data << uint8(pRoleCheck->result == LFG_ROLECHECK_INITIALITING);
+    data << uint32(pRoleCheck->state);                      // Check result
+    data << uint8(pRoleCheck->state == LFG_ROLECHECK_INITIALITING);
     data << uint8(dungeons.size());                         // Number of dungeons
     if (dungeons.size())
     {
@@ -525,15 +525,13 @@ void WorldSession::SendLfgBootPlayer(LfgPlayerBoot* pBoot)
                 ++agreeNum;
         }
     }
-    uint64 victimguid = MAKE_NEW_GUID(pBoot->victimLowGuid, 0, HIGHGUID_PLAYER);
-
     sLog.outDebug("SMSG_LFG_BOOT_PLAYER [" UI64FMTD "] inProgress: %u - didVote: %u - agree: %u - victim: [" UI64FMTD "] votes: %u - agrees: %u - left: %u - needed: %u - reason %s",
-        GetPlayer()->GetGUID(), uint8(pBoot->inProgress), uint8(playerVote != LFG_ANSWER_PENDING), uint8(playerVote == LFG_ANSWER_AGREE), victimguid, votesNum, agreeNum, secsleft, pBoot->votedNeeded, pBoot->reason.c_str());
+        GetPlayer()->GetGUID(), uint8(pBoot->inProgress), uint8(playerVote != LFG_ANSWER_PENDING), uint8(playerVote == LFG_ANSWER_AGREE), pBoot->victim, votesNum, agreeNum, secsleft, pBoot->votedNeeded, pBoot->reason.c_str());
     WorldPacket data(SMSG_LFG_BOOT_PLAYER, 1 + 1 + 1 + 8 + 4 + 4 + 4 + 4 + pBoot->reason.length());
     data << uint8(pBoot->inProgress);                       // Vote in progress
     data << uint8(playerVote != LFG_ANSWER_PENDING);        // Did Vote
     data << uint8(playerVote == LFG_ANSWER_AGREE);          // Agree
-    data << uint64(victimguid);                             // Victim GUID
+    data << uint64(pBoot->victim);                          // Victim GUID
     data << uint32(votesNum);                               // Total Votes
     data << uint32(agreeNum);                               // Agree Count
     data << uint32(secsleft);                               // Time Left
