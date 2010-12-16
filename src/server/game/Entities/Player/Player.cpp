@@ -66,6 +66,7 @@
 #include "ConditionMgr.h"
 #include "DisableMgr.h"
 #include "WeatherMgr.h"
+#include "LFGMgr.h"
 #include <cmath>
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
@@ -22202,16 +22203,18 @@ PartyResult Player::CanUninviteFromGroup() const
 
     if (grp->isLFGGroup())
     {
-        if (grp->GetLfgKicks() == GROUP_MAX_LFG_KICKS)
+        uint64 gguid = grp->GetGUID();
+        if (!sLFGMgr.GetKicksLeft(gguid))
             return ERR_PARTY_LFG_BOOT_LIMIT;
 
-        if (GetLfgState() == LFG_STATE_BOOT)
+        LfgState state = sLFGMgr.GetState(gguid);
+        if (state == LFG_STATE_BOOT)
             return ERR_PARTY_LFG_BOOT_IN_PROGRESS;
 
-        if (grp->GetMembersCount() <= GROUP_LFG_KICK_VOTES_NEEDED)
+        if (grp->GetMembersCount() <= sLFGMgr.GetVotesNeeded(gguid))
             return ERR_PARTY_LFG_BOOT_TOO_FEW_PLAYERS;
 
-        if (GetLfgState() == LFG_STATE_FINISHED_DUNGEON)
+        if (state == LFG_STATE_FINISHED_DUNGEON)
             return ERR_PARTY_LFG_BOOT_DUNGEON_COMPLETE;
 
         if (grp->isRollLootActive())
@@ -22233,6 +22236,12 @@ PartyResult Player::CanUninviteFromGroup() const
     }
 
     return ERR_PARTY_RESULT_OK;
+}
+
+bool Player::isUsingLfg()
+{
+    uint64 guid = GetGUID();
+    return sLFGMgr.GetState(guid) != LFG_STATE_NONE;
 }
 
 void Player::SetBattlegroundRaid(Group* group, int8 subgroup)

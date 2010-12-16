@@ -91,7 +91,7 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket &recv_data)
     std::string comment;
     recv_data >> comment;
     sLog.outDebug("CMSG_LFG_JOIN [" UI64FMTD "] roles: %u, Dungeons: %u, Comment: %s", GetPlayer()->GetGUID(), roles, uint8(newDungeons.size()), comment.c_str());
-    sLFGMgr.Join(GetPlayer(), uint8(roles), newDungeons, comment);
+    sLFGMgr.Join(GetPlayer(), LfgRoles(roles), newDungeons, comment);
 }
 
 void WorldSession::HandleLfgLeaveOpcode(WorldPacket & /*recv_data*/)
@@ -120,25 +120,25 @@ void WorldSession::HandleLfgSetRolesOpcode(WorldPacket &recv_data)
 {
     uint8 roles;
     recv_data >> roles;                                     // Player Group Roles
-
+    uint64 guid = GetPlayer()->GetGUID();
     Group* grp = GetPlayer()->GetGroup();
     if (!grp)
     {
-        sLog.outDebug("CMSG_LFG_SET_ROLES [" UI64FMTD "] Not in group", GetPlayer()->GetGUID());
+        sLog.outDebug("CMSG_LFG_SET_ROLES [" UI64FMTD "] Not in group", guid);
         return;
     }
-    sLog.outDebug("CMSG_LFG_SET_ROLES [" UI64FMTD "] Roles: %u", GetPlayer()->GetGUID(), roles);
-    GetPlayer()->SetLfgRoles(roles);
-    sLFGMgr.UpdateRoleCheck(grp, GetPlayer());
+    sLog.outDebug("CMSG_LFG_SET_ROLES [" UI64FMTD "] Roles: %u", guid, roles);
+    sLFGMgr.UpdateRoleCheck(grp, GetPlayer(), LfgRoles(roles));
 }
 
 void WorldSession::HandleLfgSetCommentOpcode(WorldPacket & recv_data)
 {
     std::string comment;
     recv_data >> comment;
-
-    sLog.outDebug("CMSG_SET_LFG_COMMENT [" UI64FMTD "] comment: %s", GetPlayer()->GetGUID(), comment.c_str());
-    GetPlayer()->SetLfgComment(comment);
+    uint64 guid = GetPlayer()->GetGUID();
+    sLog.outDebug("CMSG_SET_LFG_COMMENT [" UI64FMTD "] comment: %s", guid, comment.c_str());
+    
+    sLFGMgr.SetComment(guid, comment);
 }
 
 void WorldSession::HandleLfgSetBootVoteOpcode(WorldPacket &recv_data)
@@ -276,7 +276,7 @@ void WorldSession::HandleLfrLeaveOpcode(WorldPacket &recv_data)
     //sLFGMgr.LeaveLfr(GetPlayer(), dungeonId);
 }
 
-void WorldSession::SendLfgUpdatePlayer(LfgUpdateData& updateData)
+void WorldSession::SendLfgUpdatePlayer(LfgUpdateData updateData)
 {
     bool queued = false;
     bool extrainfo = false;
@@ -318,7 +318,7 @@ void WorldSession::SendLfgUpdatePlayer(LfgUpdateData& updateData)
     SendPacket(&data);
 }
 
-void WorldSession::SendLfgUpdateParty(LfgUpdateData& updateData)
+void WorldSession::SendLfgUpdateParty(LfgUpdateData updateData)
 {
     bool join = false;
     bool extrainfo = false;
@@ -546,6 +546,8 @@ void WorldSession::SendLfgUpdateProposal(uint32 proposalId, LfgProposal* pProp)
         return;
 
     uint32 pLogGuid = GetPlayer()->GetGUIDLow();
+    uint64 guid = GetPlayer()->GetGUID();
+
     LfgProposalPlayerMap::const_iterator itPlayer = pProp->players.find(pLogGuid);
     if (itPlayer == pProp->players.end())                   // Player MUST be in the proposal
         return;
@@ -559,7 +561,8 @@ void WorldSession::SendLfgUpdateProposal(uint32 proposalId, LfgProposal* pProp)
     Group* grp = dLowGuid ? sObjectMgr.GetGroupByGUID(dLowGuid) : NULL;
     if (grp)
     {
-        isContinue = grp->isLFGGroup() && grp->GetLfgState() != LFG_STATE_FINISHED_DUNGEON;
+        uint64 gguid = grp->GetGUID();
+        isContinue = grp->isLFGGroup() && sLFGMgr.GetState(gguid) != LFG_STATE_FINISHED_DUNGEON;
         isSameDungeon = GetPlayer()->GetGroup() == grp && isContinue;
     }
 
@@ -567,7 +570,11 @@ void WorldSession::SendLfgUpdateProposal(uint32 proposalId, LfgProposal* pProp)
     WorldPacket data(SMSG_LFG_PROPOSAL_UPDATE, 4 + 1 + 4 + 4 + 1 + 1 + pProp->players.size() * (4 + 1 + 1 + 1 + 1 +1));
 
     if (!isContinue)                                        // Only show proposal dungeon if it's continue
-        dungeonId = (*GetPlayer()->GetLfgDungeons()->begin());
+    {
+        LfgDungeonSet playerDungeons = sLFGMgr.GetSelectedDungeons(guid);
+        if (playerDungeons.size())
+            dungeonId = (*playerDungeons.begin());
+    }
     if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(dungeonId))
         dungeonId = dungeon->Entry();
     data << uint32(dungeonId);                              // Dungeon

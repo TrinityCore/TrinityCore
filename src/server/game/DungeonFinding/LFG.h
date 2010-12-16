@@ -19,7 +19,6 @@
 #define _LFG_H
 
 #include "Common.h"
-#include "SharedDefines.h"
 
 enum LfgRoles
 {
@@ -49,15 +48,19 @@ enum LfgUpdateType
 };
 
 typedef std::set<uint32> LfgDungeonSet;
+typedef std::set<LfgLockStatus*> LfgLockStatusSet;
+typedef std::map<uint64, LfgLockStatusSet*> LfgLockStatusMap;
 
-struct LookingForGroup
+enum LfgState
 {
-    LookingForGroup(): roles(0), state(LFG_STATE_NONE), oldState(LFG_STATE_NONE) {}
-    uint8 roles;
-    LfgState state;
-    LfgState oldState;
-    LfgDungeonSet applyDungeons;                            // Dungeons the player have applied for
-    std::string comment;
+    LFG_STATE_NONE,                                        // Not using LFG / LFR
+    LFG_STATE_ROLECHECK,                                   // Rolecheck active
+    LFG_STATE_QUEUED,                                      // Queued
+    LFG_STATE_PROPOSAL,                                    // Proposal active
+    LFG_STATE_BOOT,                                        // Vote kick active
+    LFG_STATE_DUNGEON,                                     // In LFG Group, in a Dungeon
+    LFG_STATE_FINISHED_DUNGEON,                            // In LFG Group, in a finished Dungeon
+    LFG_STATE_RAIDBROWSER,                                 // Using Raid finder
 };
 
 #endif
