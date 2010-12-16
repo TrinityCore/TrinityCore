@@ -471,7 +471,6 @@ bool Transport::GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids)
     //    sLog.outDetail("    Generated %lu waypoints, total time %u.", (unsigned long)m_WayPoints.size(), timer);
 
     m_curr = m_WayPoints.begin();
-    m_curr = GetNextWayPoint();
     m_next = GetNextWayPoint();
     m_pathTime = timer;
 

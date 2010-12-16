@@ -104,17 +104,17 @@ public:
         ai->Reset();
         ai->EnterEvadeMode();
 
-        ai->Spell[0].SpellId = SPELL_BLIZZARD;
-        ai->Spell[0].Cooldown = 15000 + rand()%20000;
-        ai->Spell[0].TargetType = TARGETTYPE_RANDOM;
+        ai->Spells[0].SpellId = SPELL_BLIZZARD;
+        ai->Spells[0].Cooldown = 15000 + rand()%20000;
+        ai->Spells[0].TargetType = TARGETTYPE_RANDOM;
 
-        ai->Spell[1].SpellId = SPELL_PYROBLAST;
-        ai->Spell[1].Cooldown = 5500 + rand()%4000;
-        ai->Spell[1].TargetType = TARGETTYPE_RANDOM;
+        ai->Spells[1].SpellId = SPELL_PYROBLAST;
+        ai->Spells[1].Cooldown = 5500 + rand()%4000;
+        ai->Spells[1].TargetType = TARGETTYPE_RANDOM;
 
-        ai->Spell[2].SpellId = SPELL_SUMMON_ELEMENTALS;
-        ai->Spell[2].Cooldown = 15000 + rand()%30000;
-        ai->Spell[2].TargetType = TARGETTYPE_SELF;
+        ai->Spells[2].SpellId = SPELL_SUMMON_ELEMENTALS;
+        ai->Spells[2].Cooldown = 15000 + rand()%30000;
+        ai->Spells[2].TargetType = TARGETTYPE_SELF;
 
         return ai;
     }
@@ -188,13 +188,13 @@ public:
         ai->Reset();
         ai->EnterEvadeMode();
 
-        ai->Spell[0].SpellId = SPELL_CHAIN_LIGHTNING;
-        ai->Spell[0].Cooldown = 3000 + rand()%5000;
-        ai->Spell[0].TargetType = TARGETTYPE_VICTIM;
+        ai->Spells[0].SpellId = SPELL_CHAIN_LIGHTNING;
+        ai->Spells[0].Cooldown = 3000 + rand()%5000;
+        ai->Spells[0].TargetType = TARGETTYPE_VICTIM;
 
-        ai->Spell[1].SpellId = SPELL_SUMMON_DIRE_WOLF;
-        ai->Spell[1].Cooldown = 6000 + rand()%35000;
-        ai->Spell[1].TargetType = TARGETTYPE_RANDOM;
+        ai->Spells[1].SpellId = SPELL_SUMMON_DIRE_WOLF;
+        ai->Spells[1].Cooldown = 6000 + rand()%35000;
+        ai->Spells[1].TargetType = TARGETTYPE_RANDOM;
 
         return ai;
     }

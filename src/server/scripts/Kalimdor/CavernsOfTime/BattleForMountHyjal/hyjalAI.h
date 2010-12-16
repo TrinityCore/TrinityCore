@@ -22,6 +22,8 @@
 #include "hyjal.h"
 #include "ScriptedEscortAI.h"
 
+#define HYJAL_AI_MAX_SPELLS 3
+
 // Trash Mobs summoned in waves
 #define NECROMANCER         17899//done
 #define ABOMINATION         17898//done
@@ -252,7 +254,7 @@ struct hyjalAI : public npc_escortAI
             uint32 SpellId;
             uint32 Cooldown;
             uint32 TargetType;
-        }Spell[3];
+        } Spells[HYJAL_AI_MAX_SPELLS];
 
     private:
         uint32 SpellTimer[3];

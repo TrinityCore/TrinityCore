@@ -26,8 +26,7 @@ IdleMovementGenerator si_idleMovement;
 // But it should not be sent otherwise there are many redundent packets
 void IdleMovementGenerator::Initialize(Unit &owner)
 {
-    if (owner.hasUnitState(UNIT_STAT_MOVE))
-        owner.StopMoving();
+    Reset(owner);
 }
 
 void

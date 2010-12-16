@@ -184,7 +184,7 @@ public:
 
         void Reset()
         {
-            summons.DespawnAll();
+            DespawnAllImp();
         }
 
         void JustSummoned(Creature* summon)
