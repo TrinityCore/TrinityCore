@@ -911,15 +911,17 @@ void GameObject::TriggeringLinkedGameObject(uint32 trapEntry, Unit* target)
     if (!trapSpell)                                          // checked at load already
         return;
 
-    /*** FIXME: this maybe not correct ***/
     float range;
     SpellRangeEntry const * srentry = sSpellRangeStore.LookupEntry(trapSpell->rangeIndex);
-    //get owner to check hostility of GameObject
-    if (Unit *owner = GetOwner())
-        range = (float)owner->GetSpellMaxRangeForTarget(target, srentry);
-    else
-        //if no owner assume that object is hostile to target
+    if (GetSpellMaxRangeForHostile(srentry) == GetSpellMaxRangeForFriend(srentry))
         range = GetSpellMaxRangeForHostile(srentry);
+    else
+        // get owner to check hostility of GameObject
+        if (Unit *owner = GetOwner())
+            range = (float)owner->GetSpellMaxRangeForTarget(target, srentry);
+        else
+            // if no owner assume that object is hostile to target
+            range = GetSpellMaxRangeForHostile(srentry);
 
     // search nearest linked GO
     GameObject* trapGO = NULL;
