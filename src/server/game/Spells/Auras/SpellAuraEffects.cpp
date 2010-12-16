@@ -540,7 +540,10 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
                             AddPctN(amount, pAurEff->GetAmount());
 
                         // Focused Power
-                        amount *= int32(caster->GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_DONE_PERCENT));
+                        // Reuse variable, not sure if this code below can be moved before Twin Disciplines
+                        DoneActualBenefit = float(amount);
+                        DoneActualBenefit *= caster->GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_DONE_PERCENT);
+                        amount = int32(DoneActualBenefit);
 
                         return amount;
                     }
