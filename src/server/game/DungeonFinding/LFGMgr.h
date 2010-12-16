@@ -22,6 +22,8 @@
 #include <ace/Singleton.h>
 #include "LFG.h"
 
+class LfgGroupData;
+class LfgPlayerData;
 class Group;
 class Player;
 
@@ -149,8 +151,6 @@ typedef std::multimap<uint32, LfgReward const*> LfgRewardMap;
 typedef std::pair<LfgRewardMap::const_iterator, LfgRewardMap::const_iterator> LfgRewardMapBounds;
 typedef std::map<std::string, LfgAnswer> LfgCompatibleMap;
 typedef std::map<uint64, LfgDungeonSet> LfgDungeonMap;
-typedef std::set<LfgLockStatus*> LfgLockStatusSet;
-typedef std::map<uint64, LfgLockStatusSet*> LfgLockStatusMap;
 typedef std::map<uint64, uint8> LfgRolesMap;
 typedef std::map<uint64, LfgAnswer> LfgAnswerMap;
 typedef std::map<uint32, LfgRoleCheck*> LfgRoleCheckMap;
@@ -158,6 +158,8 @@ typedef std::map<uint64, LfgQueueInfo*> LfgQueueInfoMap;
 typedef std::map<uint32, LfgProposal*> LfgProposalMap;
 typedef std::map<uint64, LfgProposalPlayer*> LfgProposalPlayerMap;
 typedef std::map<uint32, LfgPlayerBoot*> LfgPlayerBootMap;
+typedef std::map<uint64, LfgGroupData> LfgGroupDataMap;
+typedef std::map<uint64, LfgPlayerData> LfgPlayerDataMap;
 
 /// Dungeon and reason why player can't join
 struct LfgLockStatus
@@ -169,7 +171,8 @@ struct LfgLockStatus
 // Data needed by SMSG_LFG_JOIN_RESULT
 struct LfgJoinResultData
 {
-    LfgJoinResultData(): result(LFG_JOIN_OK), state(LFG_ROLECHECK_DEFAULT), lockmap(NULL) {}
+    LfgJoinResultData(LfgJoinResult _result = LFG_JOIN_OK, LfgRoleCheckState _state = LFG_ROLECHECK_DEFAULT, LfgLockStatusMap* _lockmap = NULL):
+        result(_result), state(_state), lockmap(_lockmap) {}
     LfgJoinResult result;
     LfgRoleCheckState state;
     LfgLockStatusMap* lockmap;
@@ -312,6 +315,26 @@ class LFGMgr
         LfgLockStatusMap* GetPartyLockStatusDungeons(Player* plr);
         LfgLockStatusSet* GetPlayerLockStatusDungeons(Player* plr);
 
+
+        LfgState GetState(uint64& guid);
+        uint32 GetDungeon(uint64& guid, bool asId = true);
+        uint8 GetRoles(uint64& guid);
+        const std::string& GetComment(uint64& gguid);
+        LfgDungeonSet& GetSelectedDungeons(uint64& guid);
+        uint8 GetKicksLeft(uint64& gguid);
+        uint8 GetVotesNeeded(uint64& gguid);
+
+        void RestoreState(uint64& guid);
+        void ClearState(uint64& guid);
+        void SetState(uint64& guid, LfgState state);
+        void SetDungeon(uint64& guid, uint32 dungeon);
+        void SetRoles(uint64& guid, uint8 roles);
+        void SetComment(uint64& guid, std::string& comment);
+        void SetSelectedDungeons(uint64& guid, LfgDungeonSet dungeons);
+        void DecreaseKicksLeft(uint64& guid);
+        void RemovePlayerData(uint64& guid);
+        void RemoveGroupData(uint64& guid);
+
     private:
         // Queue
         void AddToQueue(uint64& guid, uint8 queueId);
@@ -363,6 +386,8 @@ class LFGMgr
         LfgRoleCheckMap m_RoleChecks;                      ///< Current Role checks
         LfgProposalMap m_Proposals;                        ///< Current Proposals
         LfgPlayerBootMap m_Boots;                          ///< Current player kicks
+        LfgPlayerDataMap m_Players;                        ///< Player data
+        LfgGroupDataMap m_Groups;                          ///< Group data
 };
 
 #define sLFGMgr (*ACE_Singleton<LFGMgr, ACE_Null_Mutex>::instance())

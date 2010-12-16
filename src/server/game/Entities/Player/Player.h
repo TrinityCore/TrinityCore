@@ -28,7 +28,6 @@
 #include "GroupReference.h"
 #include "ItemPrototype.h"
 #include "Item.h"
-#include "LFG.h"
 #include "MapReference.h"
 #include "NPCHandler.h"
 #include "Pet.h"
@@ -2255,34 +2254,7 @@ class Player : public Unit, public GridObject<Player>
         void SetAtLoginFlag(AtLoginFlags f) { m_atLoginFlags |= f; }
         void RemoveAtLoginFlag(AtLoginFlags f, bool in_db_also = false);
 
-        // Dungeon Finder
-        LfgDungeonSet *GetLfgDungeons() { return &m_LookingForGroup.applyDungeons; }
-        std::string GetLfgComment() { return m_LookingForGroup.comment; }
-        void SetLfgComment(std::string _comment) { m_LookingForGroup.comment = _comment; }
-        uint8 GetLfgRoles() { return m_LookingForGroup.roles; }
-        void SetLfgRoles(uint8 _roles) { m_LookingForGroup.roles = _roles; }
-        LfgState GetLfgState() const { return m_LookingForGroup.state; }
-        void SetLfgState(LfgState state)
-        {
-
-            switch(state)
-            {
-                case LFG_STATE_NONE:
-                case LFG_STATE_DUNGEON:
-                case LFG_STATE_FINISHED_DUNGEON:
-                    m_LookingForGroup.oldState = state;
-                    // No break on purpose
-                default:
-                    m_LookingForGroup.state = state;
-            }
-        }
-        void ClearLfgState()
-        {
-            m_LookingForGroup.applyDungeons.clear();
-            m_LookingForGroup.roles = ROLE_NONE;
-            m_LookingForGroup.state = m_LookingForGroup.oldState;
-        }
-        bool isUsingLfg() { return GetLfgState() != LFG_STATE_NONE; }
+        bool isUsingLfg();
 
         typedef std::set<uint32> DFQuestsDoneList;
         DFQuestsDoneList m_DFQuests;
@@ -2711,8 +2683,6 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_timeSyncTimer;
         uint32 m_timeSyncClient;
         uint32 m_timeSyncServer;
-
-        LookingForGroup m_LookingForGroup;
 };
 
 void AddItemsSetItem(Player*player,Item *item);
