@@ -283,13 +283,8 @@ void WorldSession::HandleChannelAnnouncements(WorldPacket& recvPacket)
 
 void WorldSession::HandleChannelDisplayListQuery(WorldPacket &recvPacket)
 {
-    sLog.outDebug("Opcode %u", recvPacket.GetOpcode());
-    //recvPacket.hexlike();
-    std::string channelname;
-    recvPacket >> channelname;
-    if (ChannelMgr* cMgr = channelMgr(_player->GetTeam()))
-        if (Channel *chn = cMgr->GetChannel(channelname, _player))
-            chn->List(_player);
+    // this should be OK because the 2 function _were_ the same
+    HandleChannelList(recvPacket);
 }
 
 void WorldSession::HandleGetChannelMemberCount(WorldPacket &recvPacket)

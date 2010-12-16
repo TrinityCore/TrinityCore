@@ -79,8 +79,8 @@ public:
                 case 0: RandX = 0.0f - Rand; break;
                 case 1: RandX = 0.0f + Rand; break;
             }
-            Rand = 0;
-            Rand =  10 + (rand()%10);
+
+            Rand = 10 + (rand()%10);
             switch (rand()%2)
             {
                 case 0: RandY = 0.0f - Rand; break;

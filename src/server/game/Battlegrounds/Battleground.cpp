@@ -188,7 +188,6 @@ Battleground::Battleground()
     m_TeamScores[BG_TEAM_HORDE]         = 0;
 
     m_PrematureCountDown = false;
-    m_PrematureCountDown = 0;
 
     m_HonorMode = BG_NORMAL;
 
