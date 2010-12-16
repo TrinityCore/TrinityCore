@@ -77,7 +77,7 @@ void LFGScripts::OnRemoveMember(Group* group, uint64 guid, RemoveMethod& method,
         std::string str_reason = "";
         if (reason)
             str_reason = std::string(reason);
-        sLFGMgr.InitBoot(group, GUID_LOPART(kicker), GUID_LOPART(guid), str_reason);
+        sLFGMgr.InitBoot(group, kicker, guid, str_reason);
         return;
     }
 
