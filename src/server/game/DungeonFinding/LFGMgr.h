@@ -150,13 +150,13 @@ typedef std::pair<LfgRewardMap::const_iterator, LfgRewardMap::const_iterator> Lf
 typedef std::map<std::string, LfgAnswer> LfgCompatibleMap;
 typedef std::map<uint64, LfgDungeonSet> LfgDungeonMap;
 typedef std::set<LfgLockStatus*> LfgLockStatusSet;
-typedef std::map<uint32, LfgLockStatusSet*> LfgLockStatusMap;
-typedef std::map<uint32, uint8> LfgRolesMap;
-typedef std::map<uint32, LfgAnswer> LfgAnswerMap;
+typedef std::map<uint64, LfgLockStatusSet*> LfgLockStatusMap;
+typedef std::map<uint64, uint8> LfgRolesMap;
+typedef std::map<uint64, LfgAnswer> LfgAnswerMap;
 typedef std::map<uint32, LfgRoleCheck*> LfgRoleCheckMap;
 typedef std::map<uint64, LfgQueueInfo*> LfgQueueInfoMap;
 typedef std::map<uint32, LfgProposal*> LfgProposalMap;
-typedef std::map<uint32, LfgProposalPlayer*> LfgProposalPlayerMap;
+typedef std::map<uint64, LfgProposalPlayer*> LfgProposalPlayerMap;
 typedef std::map<uint32, LfgPlayerBoot*> LfgPlayerBootMap;
 
 /// Dungeon and reason why player can't join
@@ -234,7 +234,7 @@ struct LfgProposalPlayer
 /// Stores group data related to proposal to join
 struct LfgProposal
 {
-    LfgProposal(uint32 dungeon): dungeonId(dungeon), state(LFG_PROPOSAL_INITIATING), groupLowGuid(0), leaderLowGuid(0) {}
+    LfgProposal(uint32 dungeon): dungeonId(dungeon), state(LFG_PROPOSAL_INITIATING), groupLowGuid(0), leader(0) {}
 
     ~LfgProposal()
     {
@@ -246,7 +246,7 @@ struct LfgProposal
     uint32 dungeonId;                                      ///< Dungeon to join
     LfgProposalState state;                                ///< State of the proposal
     uint32 groupLowGuid;                                   ///< Proposal group (0 if new)
-    uint32 leaderLowGuid;                                  ///< Leader guid.
+    uint64 leader;                                         ///< Leader guid.
     time_t cancelTime;                                     ///< Time when we will cancel this proposal
     LfgGuidList queues;                                    ///< Queue Ids to remove/readd
     LfgProposalPlayerMap players;                          ///< Players data
@@ -258,10 +258,10 @@ struct LfgRoleCheck
 {
     time_t cancelTime;                                     ///< Time when the rolecheck will fail
     LfgRolesMap roles;                                     ///< Player selected roles
-    LfgRoleCheckState result;                              ///< State of the rolecheck
+    LfgRoleCheckState state;                               ///< State of the rolecheck
     LfgDungeonSet dungeons;                                ///< Dungeons group is applying for (expanded random dungeons)
     uint32 rDungeonId;                                     ///< Random Dungeon Id.
-    uint32 leader;                                         ///< Leader of the group
+    uint64 leader;                                         ///< Leader of the group
 };
 
 /// Stores information of a current vote to kick someone from a group
@@ -270,7 +270,7 @@ struct LfgPlayerBoot
     time_t cancelTime;                                     ///< Time left to vote
     bool inProgress;                                       ///< Vote in progress
     LfgAnswerMap votes;                                    ///< Player votes (-1 not answer | 0 Not agree | 1 agree)
-    uint32 victimLowGuid;                                  ///< Player guid to be kicked (can't vote)
+    uint64 victim;                                         ///< Player guid to be kicked (can't vote)
     uint8 votedNeeded;                                     ///< Votes needed to kick the player
     std::string reason;                                    ///< kick reason
 };
@@ -298,13 +298,13 @@ class LFGMgr
         void UpdateRoleCheck(Group* grp, Player* plr = NULL, bool newRoleCheck = false);
 
         // Proposals
-        void UpdateProposal(uint32 proposalId, uint32 lowGuid, bool accept);
+        void UpdateProposal(uint32 proposalId, const uint64& guid, bool accept);
 
         // Teleportation
         void TeleportPlayer(Player* plr, bool out, bool fromOpcode = false);
 
         // Vote kick
-        void InitBoot(Group* grp, uint32 plowGuid, uint32 vlowGuid, std::string reason);
+        void InitBoot(Group* grp, uint64& kguid, uint64& vguid, std::string reason);
         void UpdateBoot(Player* plr, bool accept);
         void OfferContinue(Group* grp);
 
