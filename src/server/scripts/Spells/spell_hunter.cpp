@@ -275,7 +275,9 @@ public:
             {
                 SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
 
-                if (spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER &&
+                ///! If spellId in cooldown map isn't valid, the above will return a null pointer.
+                if (spellInfo &&
+                    spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER &&
                     spellInfo->Id != HUNTER_SPELL_READINESS &&
                     spellInfo->Id != HUNTER_SPELL_BESTIAL_WRATH &&
                     GetSpellRecoveryTime(spellInfo) > 0)
