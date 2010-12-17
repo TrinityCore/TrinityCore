@@ -71,6 +71,8 @@ void CreatureGroupManager::RemoveCreatureFromGroup(CreatureGroup *group, Creatur
 void CreatureGroupManager::LoadCreatureFormations()
 {
     //Clear existing map
+    for (CreatureGroupInfoType::iterator itr = CreatureGroupMap.begin(); itr != CreatureGroupMap.end(); ++itr)
+       delete itr->second;
     CreatureGroupMap.clear();
 
     //Check Integrity of the table
