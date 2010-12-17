@@ -2,7 +2,7 @@ TrinityCore uses (parts of or in whole) the following opensource software :
 
 ACE (ADAPTIVE Communication Environment)
   http://www.cs.wustl.edu/~schmidt/ACE.html
-  Version: 5.8.1
+  Version: 5.8.3
 
 bzip2 (a freely available, patent free, high-quality data compressor)
   http://www.bzip.org/
@@ -32,10 +32,6 @@ SFMT (SIMD-oriented Fast Mersenne Twister)
   Based on http://agner.org/random/
   Version: 2010-Aug-03
 
-sockets (a GPL licensed C++ class library wrapping the berkeley sockets C API)
-  http://www.alhem.net/Sockets/
-  Version: UNKNOWN
-
 utf8-cpp (UTF-8 with C++ in a Portable Way)
   http://utfcpp.sourceforge.net/
   Version: 2.3
@@ -43,3 +39,7 @@ utf8-cpp (UTF-8 with C++ in a Portable Way)
 zlib (A Massively Spiffy Yet Delicately Unobtrusive Compression Library)
   http://www.zlib.net/
   Version: 1.2.5
+
+gSOAP (a portable development toolkit for C and C++ XML Web services and XML data bindings)
+  http://gsoap2.sourceforge.net/
+  Version: 2.8.0
