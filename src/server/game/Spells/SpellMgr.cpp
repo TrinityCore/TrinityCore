@@ -2821,9 +2821,15 @@ void SpellMgr::LoadSkillLineAbilityMap()
 
 DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto, bool triggered)
 {
+    if (IsPositiveSpell(spellproto->Id))
+        return DIMINISHING_NONE;
+
     // Explicit Diminishing Groups
     switch (spellproto->SpellFamilyName)
     {
+        // Event spells
+        case SPELLFAMILY_UNK1:
+            return DIMINISHING_NONE;
         case SPELLFAMILY_GENERIC:
             // some generic arena related spells have by some strange reason MECHANIC_TURN
             if  (spellproto->Mechanic == MECHANIC_TURN)
