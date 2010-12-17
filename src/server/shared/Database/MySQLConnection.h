@@ -27,6 +27,12 @@ class PreparedStatement;
 class MySQLPreparedStatement;
 class PingOperation;
 
+enum ConnectionFlags
+{
+    CONNECTION_ASYNC = 0x1,
+    CONNECTION_SYNCH = 0x2,
+};
+
 struct MySQLConnectionInfo
 {
     MySQLConnectionInfo() {}
@@ -84,7 +90,7 @@ class MySQLConnection
     protected:
         MYSQL* GetHandle()  { return m_Mysql; }
         MySQLPreparedStatement* GetPreparedStatement(uint32 index);
-        void PrepareStatement(uint32 index, const char* sql);
+        void PrepareStatement(uint32 index, const char* sql, bool async = false);
         std::vector<MySQLPreparedStatement*> m_stmts;       //! PreparedStatements storage
 
         bool LockIfReady()
@@ -104,7 +110,8 @@ class MySQLConnection
         ACE_Activation_Queue* m_queue;                      //! Queue shared with other asynchroneous connections.
         DatabaseWorker*       m_worker;                     //! Core worker task.
         MYSQL *               m_Mysql;                      //! MySQL Handle.
-        MySQLConnectionInfo& m_connectionInfo;        //! Connection info (used for logging)
+        MySQLConnectionInfo&  m_connectionInfo;             //! Connection info (used for logging)
+        ConnectionFlags       m_connectionFlags;            //! Connection flags (for preparing relevant statements)
         ACE_Thread_Mutex      m_Mutex;
 };
 
