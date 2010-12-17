@@ -4680,14 +4680,14 @@ float Unit::GetTotalAuraMultiplierByMiscMask(AuraType auratype, uint32 misc_mask
     return multiplier;
 }
 
-int32 Unit::GetMaxPositiveAuraModifierByMiscMask(AuraType auratype, uint32 misc_mask) const
+int32 Unit::GetMaxPositiveAuraModifierByMiscMask(AuraType auratype, uint32 misc_mask, const AuraEffect* except) const
 {
     int32 modifier = 0;
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
     for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
     {
-        if ((*i)->GetMiscValue()& misc_mask && (*i)->GetAmount() > modifier)
+        if (except != (*i) && (*i)->GetMiscValue()& misc_mask && (*i)->GetAmount() > modifier)
             modifier = (*i)->GetAmount();
     }
 
