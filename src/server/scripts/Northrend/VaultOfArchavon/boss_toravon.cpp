@@ -237,11 +237,11 @@ class mob_frozen_orb_stalker : public CreatureScript
         {
             mob_frozen_orb_stalkerAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
-                c->SetVisible(false);
-                c->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_DISABLE_MOVE);
-                c->SetReactState(REACT_PASSIVE);
+                creature->SetVisible(false);
+                creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_DISABLE_MOVE);
+                creature->SetReactState(REACT_PASSIVE);
 
-                instance = c->GetInstanceScript();
+                instance = creature->GetInstanceScript();
                 spawned = false;
             }
 
