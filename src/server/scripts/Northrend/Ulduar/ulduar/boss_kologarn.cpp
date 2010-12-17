@@ -126,7 +126,7 @@ public:
 
             events.Update(diff);
 
-            if (me->hasUnitState(UNIT_STAT_CASTING))
+            if (me->HasUnitState(UNIT_STAT_CASTING))
                 return;
 
             // TODO: because we are using hack, he is stunned and cannot cast, so we use triggered for every spell

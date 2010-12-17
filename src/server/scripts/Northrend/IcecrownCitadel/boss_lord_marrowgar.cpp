@@ -156,7 +156,7 @@ class boss_lord_marrowgar : public CreatureScript
 
                 events.Update(diff);
 
-                if (me->hasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STAT_CASTING))
                     return;
 
                 while (uint32 eventId = events.ExecuteEvent())
@@ -532,8 +532,4 @@ void AddSC_boss_lord_marrowgar()
     new spell_marrowgar_coldflame();
     new spell_marrowgar_bone_spike_graveyard();
     new spell_marrowgar_bone_storm();
-
-    // has to be done or else players threat will be wiped for impaled player and he will absorb all damage
-    if (VehicleSeatEntry* vehSeat = const_cast<VehicleSeatEntry*>(sVehicleSeatStore.LookupEntry(6206)))
-        vehSeat->m_flags |= 0x400;
 }

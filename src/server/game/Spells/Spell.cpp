@@ -1415,7 +1415,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
             }
 
             // assisting case, healing and resurrection
-            if (unit->hasUnitState(UNIT_STAT_ATTACK_PLAYER))
+            if (unit->HasUnitState(UNIT_STAT_ATTACK_PLAYER))
             {
                 m_caster->SetContestedPvP();
                 if (m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -3357,8 +3357,8 @@ void Spell::cast(bool skipCheck)
         m_spellState = SPELL_STATE_DELAYED;
         SetDelayStart(0);
 
-        if (m_caster->hasUnitState(UNIT_STAT_CASTING) && !m_caster->IsNonMeleeSpellCasted(false, false, true))
-            m_caster->clearUnitState(UNIT_STAT_CASTING);
+        if (m_caster->HasUnitState(UNIT_STAT_CASTING) && !m_caster->IsNonMeleeSpellCasted(false, false, true))
+            m_caster->ClearUnitState(UNIT_STAT_CASTING);
     }
     else
     {
@@ -3731,8 +3731,8 @@ void Spell::finish(bool ok)
     if (IsChanneledSpell(m_spellInfo))
         m_caster->UpdateInterruptMask();
 
-    if (m_caster->hasUnitState(UNIT_STAT_CASTING) && !m_caster->IsNonMeleeSpellCasted(false, false, true))
-        m_caster->clearUnitState(UNIT_STAT_CASTING);
+    if (m_caster->HasUnitState(UNIT_STAT_CASTING) && !m_caster->IsNonMeleeSpellCasted(false, false, true))
+        m_caster->ClearUnitState(UNIT_STAT_CASTING);
 
     // Unsummon summon as possessed creatures on spell cancel
     if (IsChanneledSpell(m_spellInfo) && m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -4870,8 +4870,8 @@ SpellCastResult Spell::CheckCast(bool strict)
             if (!m_IsTriggeredSpell && m_spellInfo->TargetAuraState && !target->HasAuraState(AuraState(m_spellInfo->TargetAuraState), m_spellInfo, m_caster))
                 return SPELL_FAILED_TARGET_AURASTATE;
 
-            // Not allow casting on flying player
-            if (target->hasUnitState(UNIT_STAT_UNATTACKABLE))
+            // Not allow casting on flying player or on vehicle player (if caster isnt vehicle)
+            if (target->HasUnitState(UNIT_STAT_IN_FLIGHT) || (target->HasUnitState(UNIT_STAT_ONVEHICLE) && target->GetVehicleBase() != m_caster))
                 return SPELL_FAILED_BAD_TARGETS;
 
             if (!m_IsTriggeredSpell && !m_caster->canSeeOrDetect(target))
@@ -5225,7 +5225,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                     if (strict && m_caster->IsScriptOverriden(m_spellInfo, 6953))
                         m_caster->RemoveMovementImpairingAuras();
                 }
-                if (m_caster->hasUnitState(UNIT_STAT_ROOT))
+                if (m_caster->HasUnitState(UNIT_STAT_ROOT))
                     return SPELL_FAILED_ROOTED;
                 break;
             }
@@ -5426,7 +5426,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                     return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
 
                 Unit* target = m_targets.getUnitTarget();
-                if (m_caster == target && m_caster->hasUnitState(UNIT_STAT_ROOT))
+                if (m_caster == target && m_caster->HasUnitState(UNIT_STAT_ROOT))
                 {
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
                         return SPELL_FAILED_ROOTED;
@@ -5652,7 +5652,7 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
     if (!m_caster->isAlive() && !(m_spellInfo->Attributes & SPELL_ATTR_CASTABLE_WHILE_DEAD))
         return SPELL_FAILED_CASTER_DEAD;
 
-    if (m_caster->hasUnitState(UNIT_STAT_CASTING) && !m_IsTriggeredSpell)              //prevent spellcast interruption by another spellcast
+    if (m_caster->HasUnitState(UNIT_STAT_CASTING) && !m_IsTriggeredSpell)              //prevent spellcast interruption by another spellcast
         return SPELL_FAILED_SPELL_IN_PROGRESS;
     if (m_caster->isInCombat() && IsNonCombatSpell(m_spellInfo))
         return SPELL_FAILED_AFFECTING_COMBAT;

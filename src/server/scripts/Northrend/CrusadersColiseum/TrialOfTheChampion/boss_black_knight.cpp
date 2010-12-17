@@ -109,7 +109,7 @@ public:
         {
             RemoveSummons();
             me->SetDisplayId(me->GetNativeDisplayId());
-            me->clearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+            me->ClearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
 
             bEventInProgress = false;
             bEvent = false;
@@ -165,7 +165,7 @@ public:
                     uiPhase++;
                     uiResurrectTimer = 4000;
                     bEventInProgress = false;
-                    me->clearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+                    me->ClearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
                 } else uiResurrectTimer -= uiDiff;
             }
 
@@ -209,14 +209,14 @@ public:
                             if (!bSummonArmy)
                             {
                                 bSummonArmy = true;
-                                me->addUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+                                me->AddUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
                                 DoCast(me, SPELL_ARMY_DEAD);
                             }
                             if (!bDeathArmyDone)
                             {
                                 if (uiDeathArmyCheckTimer <= uiDiff)
                                 {
-                                    me->clearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+                                    me->ClearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
                                     uiDeathArmyCheckTimer = 0;
                                     bDeathArmyDone = true;
                                 } else uiDeathArmyCheckTimer -= uiDiff;
@@ -261,7 +261,7 @@ public:
                 }
             }
 
-            if (!me->hasUnitState(UNIT_STAT_ROOT) && !me->HealthBelowPct(1))
+            if (!me->HasUnitState(UNIT_STAT_ROOT) && !me->HealthBelowPct(1))
                 DoMeleeAttackIfReady();
         }
 
@@ -271,7 +271,7 @@ public:
             {
                 uiDamage = 0;
                 me->SetHealth(0);
-                me->addUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+                me->AddUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
                 RemoveSummons();
                 switch(uiPhase)
                 {

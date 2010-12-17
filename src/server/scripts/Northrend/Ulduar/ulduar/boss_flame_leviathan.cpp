@@ -397,11 +397,11 @@ public:
             if (me->HasAura(SPELL_SYSTEMS_SHUTDOWN))
             {
                 me->SetReactState(REACT_PASSIVE);
-                me->addUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
+                me->AddUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
                 return;
             }
 
-            if (me->hasUnitState(UNIT_STAT_CASTING))
+            if (me->HasUnitState(UNIT_STAT_CASTING))
                 return;
 
             if (me->HasAura(SPELL_SYSTEMS_SHUTDOWN))
@@ -466,7 +466,7 @@ public:
                 break;
             case EVENT_REPAIR:
                 me->MonsterTextEmote(EMOTE_REPAIR, 0, true);
-                me->clearUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
+                me->ClearUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
                 InstallAdds(false);
                 events.CancelEvent(EVENT_REPAIR);
                 break;

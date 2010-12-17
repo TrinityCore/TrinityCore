@@ -1873,7 +1873,7 @@ public:
             Unit *owner = me->GetCharmerOrOwner();
 
             me->CombatStop(true);
-            if (owner && !me->hasUnitState(UNIT_STAT_FOLLOW))
+            if (owner && !me->HasUnitState(UNIT_STAT_FOLLOW))
             {
                 me->GetMotionMaster()->Clear(false);
                 me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle(), MOTION_SLOT_ACTIVE);
@@ -2056,7 +2056,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (!me->hasUnitState(UNIT_STAT_STUNNED))
+            if (!me->HasUnitState(UNIT_STAT_STUNNED))
                 me->SetControlled(true,UNIT_STAT_STUNNED);//disable rotate
 
             if (uiEntry != NPC_ADVANCED_TARGET_DUMMY && uiEntry != NPC_TARGET_DUMMY)
