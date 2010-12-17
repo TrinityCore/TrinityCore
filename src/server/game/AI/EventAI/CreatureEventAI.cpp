@@ -580,7 +580,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
                 {
                     if (action.combat_movement.melee)
                     {
-                        me->addUnitState(UNIT_STAT_MELEE_ATTACKING);
+                        me->AddUnitState(UNIT_STAT_MELEE_ATTACKING);
                         me->SendMeleeAttackStart(victim);
                     }
                     if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == IDLE_MOTION_TYPE)
@@ -594,7 +594,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
                     Unit* victim = me->getVictim();
                     if (action.combat_movement.melee && victim)
                     {
-                        me->clearUnitState(UNIT_STAT_MELEE_ATTACKING);
+                        me->ClearUnitState(UNIT_STAT_MELEE_ATTACKING);
                         me->SendMeleeAttackStop(victim);
                     }
                     if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)

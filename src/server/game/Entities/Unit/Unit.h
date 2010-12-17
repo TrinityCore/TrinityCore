@@ -1169,12 +1169,12 @@ class Unit : public WorldObject
         void SendMeleeAttackStop(Unit* victim);
         void SendMeleeAttackStart(Unit* pVictim);
 
-        void addUnitState(uint32 f) { m_state |= f; }
-        bool hasUnitState(const uint32 f) const { return (m_state & f); }
-        void clearUnitState(uint32 f) { m_state &= ~f; }
+        void AddUnitState(uint32 f) { m_state |= f; }
+        bool HasUnitState(const uint32 f) const { return (m_state & f); }
+        void ClearUnitState(uint32 f) { m_state &= ~f; }
         bool CanFreeMove() const
         {
-            return !hasUnitState(UNIT_STAT_CONFUSED | UNIT_STAT_FLEEING | UNIT_STAT_IN_FLIGHT |
+            return !HasUnitState(UNIT_STAT_CONFUSED | UNIT_STAT_FLEEING | UNIT_STAT_IN_FLIGHT |
                 UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED) && GetOwnerGUID() == 0;
         }
 
@@ -1387,7 +1387,7 @@ class Unit : public WorldObject
         //Need fix or use this
         bool isGuard() const  { return HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GUARD); }
 
-        bool isInFlight()  const { return hasUnitState(UNIT_STAT_IN_FLIGHT); }
+        bool isInFlight()  const { return HasUnitState(UNIT_STAT_IN_FLIGHT); }
 
         bool isInCombat()  const { return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT); }
         void CombatStart(Unit* target, bool initialAggro = true);
@@ -1531,8 +1531,8 @@ class Unit : public WorldObject
         void RemoveAllControlled();
 
         bool isCharmed() const { return GetCharmerGUID() != 0; }
-        bool isPossessed() const { return hasUnitState(UNIT_STAT_POSSESSED); }
-        bool isPossessedByPlayer() const { return hasUnitState(UNIT_STAT_POSSESSED) && IS_PLAYER_GUID(GetCharmerGUID()); }
+        bool isPossessed() const { return HasUnitState(UNIT_STAT_POSSESSED); }
+        bool isPossessedByPlayer() const { return HasUnitState(UNIT_STAT_POSSESSED) && IS_PLAYER_GUID(GetCharmerGUID()); }
         bool isPossessing() const
         {
             if (Unit *u = GetCharm())
@@ -1766,7 +1766,7 @@ class Unit : public WorldObject
         bool isInFrontInMap(Unit const* target,float distance, float arc = M_PI) const;
         void SetInFront(Unit const* target)
         {
-            if (!hasUnitState(UNIT_STAT_CANNOT_TURN))
+            if (!HasUnitState(UNIT_STAT_CANNOT_TURN))
                 SetOrientation(GetAngle(target));
         }
         bool isInBackInMap(Unit const* target, float distance, float arc = M_PI) const;
@@ -1900,7 +1900,7 @@ class Unit : public WorldObject
 
         MotionMaster* GetMotionMaster(){ return &i_motionMaster; }
 
-        bool IsStopped() const { return !(hasUnitState(UNIT_STAT_MOVING)); }
+        bool IsStopped() const { return !(HasUnitState(UNIT_STAT_MOVING)); }
         void StopMoving();
 
         void AddUnitMovementFlag(uint32 f) { m_movementInfo.flags |= f; }

@@ -1823,7 +1823,7 @@ void UnitAura::FillTargetMap(std::map<Unit *, uint8> & targets, Unit * caster)
             if (modOwner)
                 modOwner->ApplySpellMod(GetId(), SPELLMOD_RADIUS, radius);
 
-            if (!GetUnitOwner()->hasUnitState(UNIT_STAT_ISOLATED))
+            if (!GetUnitOwner()->HasUnitState(UNIT_STAT_ISOLATED))
             {
                 switch(GetSpellProto()->Effect[effIndex])
                 {

@@ -90,7 +90,7 @@ ConfusedMovementGenerator<T>::Initialize(T &unit)
     unit.CastStop();
     unit.StopMoving();
     unit.RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
-    unit.addUnitState(UNIT_STAT_CONFUSED);
+    unit.AddUnitState(UNIT_STAT_CONFUSED);
 }
 
 template<>
@@ -126,7 +126,7 @@ ConfusedMovementGenerator<T>::Update(T &unit, const uint32 &diff)
     if (!&unit)
         return true;
 
-    if (unit.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED))
+    if (unit.HasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED))
         return true;
 
     if (i_nextMoveTime.Passed())
@@ -138,7 +138,7 @@ ConfusedMovementGenerator<T>::Update(T &unit, const uint32 &diff)
             if (i_destinationHolder.HasArrived())
             {
                 // arrived, stop and wait a bit
-                unit.clearUnitState(UNIT_STAT_MOVE);
+                unit.ClearUnitState(UNIT_STAT_MOVE);
 
                 i_nextMove = urand(1,MAX_CONF_WAYPOINTS);
                 i_nextMoveTime.Reset(urand(0, 1500-1));     // TODO: check the minimum reset time, should be probably higher
@@ -168,7 +168,7 @@ void
 ConfusedMovementGenerator<T>::Finalize(T &unit)
 {
     unit.RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
-    unit.clearUnitState(UNIT_STAT_CONFUSED);
+    unit.ClearUnitState(UNIT_STAT_CONFUSED);
     if (unit.GetTypeId() == TYPEID_UNIT && unit.getVictim())
         unit.SetUInt64Value(UNIT_FIELD_TARGET, unit.getVictim()->GetGUID());
 }

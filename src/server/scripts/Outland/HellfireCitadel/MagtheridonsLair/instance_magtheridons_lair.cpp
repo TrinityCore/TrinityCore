@@ -224,7 +224,7 @@ class instance_magtheridons_lair : public InstanceMapScript
                         Creature* Magtheridon = instance->GetCreature(MagtheridonGUID);
                         if (Magtheridon && Magtheridon->isAlive())
                         {
-                            Magtheridon->clearUnitState(UNIT_STAT_STUNNED);
+                            Magtheridon->ClearUnitState(UNIT_STAT_STUNNED);
                             Magtheridon->AI()->AttackStart(Magtheridon->SelectNearestTarget(999));
                         }
                         CageTimer = 0;
