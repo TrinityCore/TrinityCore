@@ -90,7 +90,7 @@ void LFGScripts::OnRemoveMember(Group* group, uint64 guid, RemoveMethod& method,
         else if (group->isLfgKickActive())
             // Update internal kick cooldown of kicked
         */
-        
+
         LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_LEADER);
         plr->GetSession()->SendLfgUpdateParty(updateData);
         if (plr->GetMap()->IsDungeon())                    // Teleport player out the dungeon
@@ -104,7 +104,7 @@ void LFGScripts::OnRemoveMember(Group* group, uint64 guid, RemoveMethod& method,
 void LFGScripts::OnDisband(Group* group)
 {
     uint64 gguid = group->GetGUID();
-    sLog.outError("LFGScripts::OnDisband [" UI64FMTD "]", gguid);
+    sLog.outDebug("LFGScripts::OnDisband [" UI64FMTD "]", gguid);
 
     sLFGMgr.RemoveGroupData(gguid);
 }
