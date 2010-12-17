@@ -61,23 +61,6 @@ enum LfgProposalState
     LFG_PROPOSAL_SUCCESS                         = 2,
 };
 
-/// Instance lock types
-enum LfgLockStatusType
-{
-    LFG_LOCKSTATUS_OK                            = 0,      // Internal use only
-    LFG_LOCKSTATUS_INSUFFICIENT_EXPANSION        = 1,
-    LFG_LOCKSTATUS_TOO_LOW_LEVEL                 = 2,
-    LFG_LOCKSTATUS_TOO_HIGH_LEVEL                = 3,
-    LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE            = 4,
-    LFG_LOCKSTATUS_TOO_HIGH_GEAR_SCORE           = 5,
-    LFG_LOCKSTATUS_RAID_LOCKED                   = 6,
-    LFG_LOCKSTATUS_ATTUNEMENT_TOO_LOW_LEVEL      = 1001,
-    LFG_LOCKSTATUS_ATTUNEMENT_TOO_HIGH_LEVEL     = 1002,
-    LFG_LOCKSTATUS_QUEST_NOT_COMPLETED           = 1022,
-    LFG_LOCKSTATUS_MISSING_ITEM                  = 1025,
-    LFG_LOCKSTATUS_NOT_IN_SEASON                 = 1031,
-};
-
 /// Teleport errors
 enum LfgTeleportError
 {
@@ -160,13 +143,6 @@ typedef std::map<uint64, LfgProposalPlayer*> LfgProposalPlayerMap;
 typedef std::map<uint32, LfgPlayerBoot*> LfgPlayerBootMap;
 typedef std::map<uint64, LfgGroupData> LfgGroupDataMap;
 typedef std::map<uint64, LfgPlayerData> LfgPlayerDataMap;
-
-/// Dungeon and reason why player can't join
-struct LfgLockStatus
-{
-    uint32 dungeon;                                        ///< Dungeon Id
-    LfgLockStatusType lockstatus;                          ///< Lock type
-};
 
 // Data needed by SMSG_LFG_JOIN_RESULT
 struct LfgJoinResultData
