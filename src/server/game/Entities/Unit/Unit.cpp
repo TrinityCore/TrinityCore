@@ -6680,6 +6680,11 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 if (!procSpell)
                     return false;
 
+                Spell * spell = ToPlayer()->m_spellModTakingSpell;
+
+                // Disable charge drop because of Lock and Load
+                ToPlayer()->SetSpellModTakingSpell(spell, false);
+
                 // Explosive Shot
                 if (procSpell->SpellFamilyFlags[2] & 0x200)
                 {
@@ -6688,10 +6693,12 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 }
                 else
                     basepoints0 = CalculatePowerCost(procSpell, this, SpellSchoolMask(procSpell->SchoolMask)) * 4/10;
+
+                ToPlayer()->SetSpellModTakingSpell(spell, true);
+
                 if (basepoints0 <= 0)
                     return false;
 
-                basepoints0 += 1;   // standard basepoint increase for CastCustomSpell
                 target = this;
                 triggered_spell_id = 34720;
                 break;
