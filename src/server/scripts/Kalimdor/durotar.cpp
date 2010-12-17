@@ -57,6 +57,7 @@ public:
         void Reset ()
         {
             uiPlayerGUID = 0;
+            m_uiRebuffTimer = 0;
             work = false;
         }
 
