@@ -3777,7 +3777,18 @@ void AuraEffect::HandleAuraMounted(AuraApplication const * aurApp, uint8 mode, b
 
     if (apply)
     {
-        CreatureInfo const* ci = sObjectMgr.GetCreatureTemplate(GetMiscValue());
+        uint32 creatureEntry = GetMiscValue();
+
+        // Festive Holiday Mount
+        if (target->HasAura(62061))
+        {
+            if (GetBase()->HasEffectType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED))
+                creatureEntry = 24906;
+            else
+                creatureEntry = 15665;
+        }
+
+        CreatureInfo const* ci = sObjectMgr.GetCreatureTemplate(creatureEntry);
         if (!ci)
         {
             sLog.outErrorDb("AuraMounted: `creature_template`='%u' not found in database (only need its modelid)",GetMiscValue());
@@ -3798,6 +3809,7 @@ void AuraEffect::HandleAuraMounted(AuraApplication const * aurApp, uint8 mode, b
             if (GetSpellProto()->Effect[i] == SPELL_EFFECT_SUMMON
                 && GetSpellProto()->EffectMiscValue[i] == GetMiscValue())
                 display_id = 0;
+
         target->Mount(display_id, ci->VehicleId, GetMiscValue());
     }
     else
@@ -5764,10 +5776,6 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                         if (AuraEffect *aurEff = caster->GetAuraEffect(63330, 0)) // glyph of Dancing Rune Weapon
                             GetBase()->SetDuration(GetBase()->GetDuration() + aurEff->GetAmount());
                     break;
-                case 62061:                                     // Festive Holiday Mount
-                    if (target->HasAuraType(SPELL_AURA_MOUNTED))
-                        target->CastSpell(target, 25860, true, NULL, this); // Reindeer Transformation
-                    break;
                 case 52916: // Honor Among Thieves
                     if (target->GetTypeId() == TYPEID_PLAYER)
                         if (Unit * spellTarget = ObjectAccessor::GetUnit(*target,target->ToPlayer()->GetComboTarget()))
@@ -5828,7 +5836,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                 }
 
                 if (finalSpelId)
-                    caster->CastSpell(target,finalSpelId,true,NULL,this);
+                    caster->CastSpell(target, finalSpelId, true, NULL, this);
             }
 
             switch(m_spellProto->SpellFamilyName)
@@ -6075,6 +6083,35 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                         // Play part 3
                         else
                             target->PlayDirectSound(14972, target->ToPlayer());
+                    }
+                    break;
+                case 62061: // Festive Holiday Mount
+                    if (target->HasAuraType(SPELL_AURA_MOUNTED))
+                    {
+                        uint32 creatureEntry = 0;
+                        if (apply)
+                        {
+                            if (target->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED))
+                                creatureEntry = 24906;
+                            else
+                                creatureEntry = 15665;
+                        }
+                        else
+                            creatureEntry = target->GetAuraEffectsByType(SPELL_AURA_MOUNTED).front()->GetMiscValue();
+
+                        if (CreatureInfo const* creatureInfo = sObjectMgr.GetCreatureTemplate(creatureEntry))
+                        {
+                            uint32 team = 0;
+                            if (target->GetTypeId() == TYPEID_PLAYER)
+                                team = target->ToPlayer()->GetTeam();
+
+                            uint32 display_id = sObjectMgr.ChooseDisplayId(team, creatureInfo);
+                            CreatureModelInfo const *minfo = sObjectMgr.GetCreatureModelRandomGender(display_id);
+                            if (minfo)
+                                display_id = minfo->modelid;
+
+                            target->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, display_id);
+                        }
                     }
                     break;
             }
