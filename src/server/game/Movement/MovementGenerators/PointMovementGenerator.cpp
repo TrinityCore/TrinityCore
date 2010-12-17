@@ -30,7 +30,7 @@ void PointMovementGenerator<T>::Initialize(T &unit)
     unit.StopMoving();
     Traveller<T> traveller(unit);
     // knockback effect has UNIT_STAT_JUMPING set,so if here we disable sentmonstermove there will be creature position sync problem between client and server
-    i_destinationHolder.SetDestination(traveller,i_x,i_y,i_z, true /* !unit.hasUnitState(UNIT_STAT_JUMPING)*/);
+    i_destinationHolder.SetDestination(traveller,i_x,i_y,i_z, true /* !unit.HasUnitState(UNIT_STAT_JUMPING)*/);
 }
 
 template<class T>
@@ -39,9 +39,9 @@ bool PointMovementGenerator<T>::Update(T &unit, const uint32 &diff)
     if (!&unit)
         return false;
 
-    if (unit.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED))
+    if (unit.HasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED))
     {
-        if (unit.hasUnitState(UNIT_STAT_CHARGING))
+        if (unit.HasUnitState(UNIT_STAT_CHARGING))
             return false;
         else
             return true;
@@ -53,7 +53,7 @@ bool PointMovementGenerator<T>::Update(T &unit, const uint32 &diff)
 
     if (i_destinationHolder.HasArrived())
     {
-        unit.clearUnitState(UNIT_STAT_MOVE);
+        unit.ClearUnitState(UNIT_STAT_MOVE);
         arrived = true;
         return false;
     }
@@ -64,8 +64,8 @@ bool PointMovementGenerator<T>::Update(T &unit, const uint32 &diff)
 template<class T>
 void PointMovementGenerator<T>:: Finalize(T &unit)
 {
-    if (unit.hasUnitState(UNIT_STAT_CHARGING))
-        unit.clearUnitState(UNIT_STAT_CHARGING | UNIT_STAT_JUMPING);
+    if (unit.HasUnitState(UNIT_STAT_CHARGING))
+        unit.ClearUnitState(UNIT_STAT_CHARGING | UNIT_STAT_JUMPING);
     if (arrived) // without this crash!
         MovementInform(unit);
 }

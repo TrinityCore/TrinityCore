@@ -94,11 +94,11 @@ class ObjectWorldLoader
         uint32 i_corpses;
 };
 
-template<class T> void addUnitState(T* /*obj*/, CellPair const& /*cell_pair*/)
+template<class T> void AddUnitState(T* /*obj*/, CellPair const& /*cell_pair*/)
 {
 }
 
-template<> void addUnitState(Creature *obj, CellPair const& cell_pair)
+template<> void AddUnitState(Creature *obj, CellPair const& cell_pair)
 {
     Cell cell(cell_pair);
 
@@ -109,7 +109,7 @@ template <class T>
 void AddObjectHelper(CellPair &cell, GridRefManager<T> &m, uint32 &count, Map* map, T *obj)
 {
     obj->GetGridRef().link(&m, obj);
-    addUnitState(obj,cell);
+    AddUnitState(obj,cell);
     obj->AddToWorld();
     if (obj->isActiveObject())
         map->AddToActive(obj);

@@ -1683,7 +1683,7 @@ void LFGMgr::TeleportPlayer(Player* plr, bool out, bool fromOpcode /*= false*/)
         error = LFG_TELEPORTERROR_INVALID_LOCATION;
     else if (!plr->isAlive())
         error = LFG_TELEPORTERROR_PLAYER_DEAD;
-    else if (plr->IsFalling() || plr->hasUnitState(UNIT_STAT_JUMPING))
+    else if (plr->IsFalling() || plr->HasUnitState(UNIT_STAT_JUMPING))
         error = LFG_TELEPORTERROR_FALLING;
     else
     {

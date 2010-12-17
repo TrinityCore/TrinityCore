@@ -206,7 +206,7 @@ public:
 
             if (uiCleaveTimer <= diff)
             {
-                if (!me->hasUnitState(UNIT_STAT_CASTING))
+                if (!me->HasUnitState(UNIT_STAT_CASTING))
                 {
                     if (bIsUndead)
                         DoCast(me->getVictim(), SPELL_WOE_STRIKE);
@@ -218,7 +218,7 @@ public:
 
             if (uiSmashTimer <= diff)
             {
-                if (!me->hasUnitState(UNIT_STAT_CASTING))
+                if (!me->HasUnitState(UNIT_STAT_CASTING))
                 {
                     if (bIsUndead)
                         DoCast(me->getVictim(), SPELL_DARK_SMASH);
@@ -239,7 +239,7 @@ public:
             {
                 if (uiEnrageTimer <= diff)
                 {
-                    if (!me->hasUnitState(UNIT_STAT_CASTING))
+                    if (!me->HasUnitState(UNIT_STAT_CASTING))
                     {
                         // Spawn target for Axe
                         Unit *pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO, 1);
@@ -256,7 +256,7 @@ public:
 
             if (uiRoarTimer <= diff)
             {
-                if (!me->hasUnitState(UNIT_STAT_CASTING))
+                if (!me->HasUnitState(UNIT_STAT_CASTING))
                 {
                     if (bIsUndead)
                         DoCast(me, SPELL_DREADFUL_ROAR);

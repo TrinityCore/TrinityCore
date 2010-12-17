@@ -1258,7 +1258,7 @@ public:
             AggroTargetGUID = 0;
             Timers = false;
 
-            me->addUnitState(UNIT_STAT_ROOT);
+            me->AddUnitState(UNIT_STAT_ROOT);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->SetUInt64Value(UNIT_FIELD_TARGET, 0);
         }
@@ -1302,7 +1302,7 @@ public:
                 if (Player* AggroTarget = (Unit::GetPlayer(*me, AggroTargetGUID)))
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    me->clearUnitState(UNIT_STAT_ROOT);
+                    me->ClearUnitState(UNIT_STAT_ROOT);
 
                     float x, y, z;
                     AggroTarget->GetPosition(x,y,z);

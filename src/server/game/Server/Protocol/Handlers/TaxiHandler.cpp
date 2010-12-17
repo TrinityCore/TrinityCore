@@ -80,7 +80,7 @@ void WorldSession::HandleTaxiQueryAvailableNodes(WorldPacket & recv_data)
     }
 
     // remove fake death
-    if (GetPlayer()->hasUnitState(UNIT_STAT_DIED))
+    if (GetPlayer()->HasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     // unknown taxi node case
@@ -119,7 +119,7 @@ void WorldSession::SendTaxiMenu(Creature* unit)
 void WorldSession::SendDoFlight(uint32 mountDisplayId, uint32 path, uint32 pathNode)
 {
     // remove fake death
-    if (GetPlayer()->hasUnitState(UNIT_STAT_DIED))
+    if (GetPlayer()->HasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     while (GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)

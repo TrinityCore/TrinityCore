@@ -311,7 +311,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
     }
 
     if (seat->second.seatInfo->m_flags && !(seat->second.seatInfo->m_flags & VEHICLE_SEAT_FLAG_UNK11))
-        unit->addUnitState(UNIT_STAT_ONVEHICLE);
+        unit->AddUnitState(UNIT_STAT_ONVEHICLE);
 
     unit->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     VehicleSeatEntry const *veSeat = seat->second.seatInfo;
@@ -392,7 +392,7 @@ void Vehicle::RemovePassenger(Unit *unit)
         ++m_usableSeatNum;
     }
 
-    unit->clearUnitState(UNIT_STAT_ONVEHICLE);
+    unit->ClearUnitState(UNIT_STAT_ONVEHICLE);
 
     if (me->GetTypeId() == TYPEID_UNIT
         && unit->GetTypeId() == TYPEID_PLAYER

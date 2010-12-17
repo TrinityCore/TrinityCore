@@ -267,7 +267,7 @@ class boss_professor_putricide : public CreatureScript
                         {
                             summon->AI()->AttackStart(target);
                             summon->CastCustomSpell(SPELL_GASEOUS_BLOAT, SPELLVALUE_MAX_TARGETS, 1, target, false);
-                            summon->clearUnitState(UNIT_STAT_CASTING);
+                            summon->ClearUnitState(UNIT_STAT_CASTING);
                             summon->GetMotionMaster()->MoveIdle();
                             summon->m_Events.AddEvent(new StartMovementEvent(*summon), summon->m_Events.CalculateTime(3500));
                         }
@@ -280,7 +280,7 @@ class boss_professor_putricide : public CreatureScript
                         {
                             summon->AI()->AttackStart(target);
                             summon->CastCustomSpell(SPELL_VOLATILE_OOZE_ADHESIVE, SPELLVALUE_MAX_TARGETS, 1, target, false);
-                            summon->clearUnitState(UNIT_STAT_CASTING);
+                            summon->ClearUnitState(UNIT_STAT_CASTING);
                             summon->GetMotionMaster()->MoveIdle();
                             summon->m_Events.AddEvent(new StartMovementEvent(*summon), summon->m_Events.CalculateTime(3500));
                         }
@@ -524,7 +524,7 @@ class boss_professor_putricide : public CreatureScript
 
                 events.Update(diff);
 
-                if (me->hasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STAT_CASTING))
                     return;
 
                 while (uint32 eventId = events.ExecuteEvent())
