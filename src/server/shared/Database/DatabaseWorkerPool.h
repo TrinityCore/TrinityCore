@@ -103,6 +103,9 @@ class DatabaseWorkerPool
 
             /// Shuts down delaythreads for this connection pool.
             m_queue->queue()->deactivate();
+            while (SQLOperation* op = (SQLOperation*)(m_queue->dequeue()))
+                delete op;
+
             for (uint8 i = 0; i < m_connectionCount[IDX_ASYNC]; ++i)
             {
                 /// TODO: Better way. probably should flip a boolean and check it on low level code before doing anything on the mysql ctx
