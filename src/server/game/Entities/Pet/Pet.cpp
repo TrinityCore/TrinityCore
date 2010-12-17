@@ -695,44 +695,43 @@ void Pet::GivePetXP(uint32 xp)
 
     if (!isAlive())
         return;
+    
+    uint8 maxlevel = std::min((uint8)sWorld.getIntConfig(CONFIG_MAX_PLAYER_LEVEL), GetOwner()->getLevel());
+    uint8 petlevel = getLevel();
 
-    uint8 level = getLevel();
-
-    // If pet is detected to be equal to player level, don't hand out XP
-    if (level >= GetOwner()->getLevel())
+    // If pet is detected to be at, or above(?) the players level, don't hand out XP
+    if (petlevel >= maxlevel)
        return;
 
-    uint32 curXP = GetUInt32Value(UNIT_FIELD_PETEXPERIENCE);
     uint32 nextLvlXP = GetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP);
+    uint32 curXP = GetUInt32Value(UNIT_FIELD_PETEXPERIENCE);
     uint32 newXP = curXP + xp;
 
     // Check how much XP the pet should receive, and hand off have any left from previous levelups
-    while (newXP >= nextLvlXP && level < sWorld.getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+    while (newXP >= nextLvlXP && petlevel < maxlevel)
     {
-        // Subtract newXP from amount needed for nextlevel
+        // Subtract newXP from amount needed for nextlevel, and give pet the level
         newXP -= nextLvlXP;
-        GivePetLevel(level+1);
-        SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, uint32(sObjectMgr.GetXPForLevel(level+1)*PET_XP_FACTOR));
+        ++petlevel;
 
-        // Make sure we're working with the upgraded levels for the pet XP-levels
-        level = getLevel();
+        GivePetLevel(petlevel);
+
         nextLvlXP = GetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP);
-
-        // Hitting the pet/playerlevel combolimitation, set UNIT_FIELD_PETEXPERIENCE (current XP) to 0
-        if (level >= GetOwner()->getLevel()) {
-          newXP = 0;
-          SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, newXP);
-          return;
-        }
     }
     // Not affected by special conditions - give it new XP
-    SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, newXP);
+    SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, petlevel < maxlevel ? newXP : 0);
 }
 
 void Pet::GivePetLevel(uint8 level)
 {
-    if (!level)
+    if (!level || level == getLevel())
         return;
+
+    if (getPetType()==HUNTER_PET)
+    {
+        SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
+        SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, uint32(sObjectMgr.GetXPForLevel(level)*PET_XP_FACTOR));
+    }
 
     InitStatsForLevel(level);
     InitLevelupSpellsForLevel();
