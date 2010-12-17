@@ -4550,9 +4550,13 @@ void AuraEffect::HandleAuraModResistanceExclusive(AuraApplication const * aurApp
     {
         if (GetMiscValue() & int32(1<<x))
         {
-            target->HandleStatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + x), BASE_VALUE, float(GetAmount()), apply);
-            if (target->GetTypeId() == TYPEID_PLAYER)
-                target->ApplyResistanceBuffModsMod(SpellSchools(x),aurApp->IsPositive(),(float)GetAmount(), apply);
+            int32 amount = target->GetMaxPositiveAuraModifierByMiscMask(SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE, 1<<x, this);
+            if (amount < GetAmount())
+            {
+                target->HandleStatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + x), BASE_VALUE, float(GetAmount() - amount), apply);
+                if (target->GetTypeId() == TYPEID_PLAYER)
+                    target->ApplyResistanceBuffModsMod(SpellSchools(x), aurApp->IsPositive(), float(GetAmount() - amount), apply);
+            }
         }
     }
 }
