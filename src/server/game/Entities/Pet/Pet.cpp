@@ -1985,17 +1985,9 @@ void Pet::SynchronizeLevelWithOwner()
         // can't be greater owner level
         case HUNTER_PET:
             if (getLevel() > owner->getLevel())
-            {
                 GivePetLevel(owner->getLevel());
-                SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, sObjectMgr.GetXPForLevel(owner->getLevel())/5);
-                SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
-            }
-            if (getLevel() < owner->getLevel()-5)
-            {
-                GivePetLevel(owner->getLevel()-5);
-                SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, sObjectMgr.GetXPForLevel(owner->getLevel()-5)/5);
-                SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
-            }
+            else if (getLevel() + 5 < owner->getLevel())
+                GivePetLevel(owner->getLevel() - 5);
             break;
         default:
             break;
