@@ -36,14 +36,16 @@ MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo) :
 m_queue(NULL),
 m_worker(NULL),
 m_Mysql(NULL),
-m_connectionInfo(connInfo)
+m_connectionInfo(connInfo),
+m_connectionFlags(CONNECTION_SYNCH)
 {
 }
 
 MySQLConnection::MySQLConnection(ACE_Activation_Queue* queue, MySQLConnectionInfo& connInfo) :
 m_queue(queue),
 m_Mysql(NULL),
-m_connectionInfo(connInfo)
+m_connectionInfo(connInfo),
+m_connectionFlags(CONNECTION_ASYNC)
 {
     m_worker = new DatabaseWorker(m_queue, this);
 }
@@ -345,11 +347,25 @@ void MySQLConnection::CommitTransaction()
 MySQLPreparedStatement* MySQLConnection::GetPreparedStatement(uint32 index)
 {
     ASSERT(index < m_stmts.size());
-    return m_stmts[index];
+    MySQLPreparedStatement* ret = m_stmts[index];
+    if (!ret)
+        sLog.outSQLDriver("ERROR: Could not fetch prepared statement %u on database `%s`, connection type: %s.",
+            index, m_connectionInfo.database.c_str(), (m_connectionFlags & CONNECTION_ASYNC) ? "asynchronous" : "synchronous");
+
+    return ret;
 }
 
-void MySQLConnection::PrepareStatement(uint32 index, const char* sql)
+void MySQLConnection::PrepareStatement(uint32 index, const char* sql, bool async)
 {
+    // Check if specified query should be prepared on this connection
+    // ie. don't prepare async statements on synchronous connections
+    // to save memory that will not be used.
+    if (async && !(m_connectionFlags & CONNECTION_ASYNC))
+    {
+        m_stmts[index] = NULL;
+        return;
+    }
+
     MYSQL_STMT * stmt = mysql_stmt_init(m_Mysql);
     if (!stmt)
     {
