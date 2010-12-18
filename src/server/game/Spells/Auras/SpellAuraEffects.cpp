@@ -3963,12 +3963,11 @@ void AuraEffect::HandleModThreat(AuraApplication const * aurApp, uint8 mode, boo
         return;
 
     Unit * target = aurApp->GetTarget();
-
-    if (!target->isAlive())
+    if (!target || (apply && !target->isAlive()))
         return;
 
     Unit * caster = GetCaster();
-    if (!caster || !caster->isAlive())
+    if (!caster)
         return;
 
     if (target->GetTypeId() == TYPEID_PLAYER)
