@@ -8,16 +8,14 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-file(GLOB sources *.c)
+file(GLOB sources src/*.c)
 
 set(jemalloc_STAT_SRC
   ${sources}
 )
 
 include_directories(
-  ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/internal
 )
 
 add_definitions(-D_GNU_SOURCE -D_REENTRANT)
