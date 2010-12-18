@@ -164,7 +164,7 @@ target_link_libraries(worldserver
   collision
   g3dlib
   gsoap
-  ${JEMALLOC_LIB}
+  ${JEMALLOC_LIBRARY}
   ${READLINE_LIBRARY}
   ${TERMCAP_LIBRARY}
   ${ACE_LIBRARY}
@@ -198,3 +198,4 @@ if( USE_COREPCH )
     add_native_precompiled_header(worldserver ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/worldPCH)
   endif()
 endif()
+
