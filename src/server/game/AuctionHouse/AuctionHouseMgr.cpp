@@ -39,15 +39,13 @@ enum eAuctionHouse
     AH_MINIMUM_DEPOSIT = 100,
 };
 
-using namespace std;
-
 AuctionHouseMgr::AuctionHouseMgr()
 {
 }
 
 AuctionHouseMgr::~AuctionHouseMgr()
 {
-    for (ItemMap::const_iterator itr = mAitems.begin(); itr != mAitems.end(); ++itr)
+    for (ItemMap::iterator itr = mAitems.begin(); itr != mAitems.end(); ++itr)
         delete itr->second;
 }
 
