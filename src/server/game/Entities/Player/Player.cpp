@@ -19226,7 +19226,7 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
 }
 
 // Restore spellmods in case of failed cast
-void Player::RestoreSpellMods(Spell * spell)
+void Player::RestoreSpellMods(Spell *spell, uint32 ownerAuraId)
 {
     if (!spell || spell->m_appliedMods.empty())
         return;
@@ -19239,6 +19239,10 @@ void Player::RestoreSpellMods(Spell * spell)
 
             // spellmods without aura set cannot be charged
             if (!mod->ownerAura || !mod->ownerAura->GetCharges())
+                continue;
+
+            // Restore only specific owner aura mods
+            if (ownerAuraId && (ownerAuraId != mod->ownerAura->GetSpellProto()->Id))
                 continue;
 
             // check if mod affected this spell
