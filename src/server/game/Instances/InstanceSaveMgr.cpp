@@ -280,10 +280,10 @@ void InstanceSaveManager::CleanupAndPackInstances()
     CharacterDatabase.DirectExecute("UPDATE gameobject_respawn      AS tmp LEFT JOIN instance ON tmp.instance    = instance.id SET tmp.instance    = instance.newid WHERE tmp.instance    > 0");
 
     // Update instance too
-    CharacterDatabase.Query("UPDATE instance SET id = newid");
+    CharacterDatabase.DirectExecute("UPDATE instance SET id = newid");
 
     // Finally drop the no longer needed column
-    CharacterDatabase.Query("ALTER TABLE instance DROP COLUMN newid");
+    CharacterDatabase.DirectExecute("ALTER TABLE instance DROP COLUMN newid");
     
     // Bake some cookies for click
     sLog.outString(">> Cleaned up and packed instances");
