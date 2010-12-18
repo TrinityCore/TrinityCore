@@ -182,7 +182,7 @@ class SmartAI : public CreatureAI
         //void sQuestSelect(Player* player, Quest const* quest);
         //void sQuestComplete(Player* player, Quest const* quest);
         void sQuestReward(Player* player, Quest const* quest, uint32 opt);
-        void sOnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex);
+        bool sOnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex);
 
         uint32 mEscortQuestID;
 

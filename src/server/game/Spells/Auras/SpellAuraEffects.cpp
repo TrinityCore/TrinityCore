@@ -2150,11 +2150,11 @@ void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
     // specific code for cases with no trigger spell provided in field
     if (triggeredSpellInfo == NULL)
     {
-        switch(auraSpellInfo->SpellFamilyName)
+        switch (auraSpellInfo->SpellFamilyName)
         {
             case SPELLFAMILY_GENERIC:
             {
-                switch(auraId)
+                switch (auraId)
                 {
                     // Thaumaturgy Channel
                     case 9712:
@@ -2356,17 +2356,8 @@ void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
     else
     {
         // Spell exist but require custom code
-        switch(auraId)
+        switch (auraId)
         {
-            case 66869:
-                switch(caster->GetMap()->GetDifficulty())
-                {
-                    case RAID_DIFFICULTY_10MAN_NORMAL: triggerSpellId = 66870; break;
-                    case RAID_DIFFICULTY_10MAN_HEROIC: triggerSpellId = 67621; break;
-                    case RAID_DIFFICULTY_25MAN_NORMAL: triggerSpellId = 67622; break;
-                    case RAID_DIFFICULTY_25MAN_HEROIC: triggerSpellId = 67623; break;
-                }
-                break;
             // Pursuing Spikes (Anub'arak)
             case 65920:
             case 65922:
@@ -2422,15 +2413,14 @@ void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
     {
         Unit * triggerCaster = GetTriggeredSpellCaster(triggeredSpellInfo, caster, triggerTarget);
         triggerCaster->CastSpell(triggerTarget, triggeredSpellInfo, true, NULL, this);
-        sLog.outDebug("AuraEffect::TriggerSpell: Spell %u Trigger %u",GetId(), triggeredSpellInfo->Id);
+        sLog.outDebug("AuraEffect::TriggerSpell: Spell %u Trigger %u", GetId(), triggeredSpellInfo->Id);
     }
-    else if (target->GetTypeId() != TYPEID_UNIT || !sScriptMgr.OnDummyEffect(caster, GetId(), SpellEffIndex(GetEffIndex()), triggerTarget->ToCreature()))
+    else
     {
-        if (Creature* c = triggerTarget->ToCreature())
-        {
-            c->AI()->sOnDummyEffect(caster, GetId(), SpellEffIndex(GetEffIndex()));
-        }
-        sLog.outError("AuraEffect::TriggerSpell: Spell %u has value 0 in EffectTriggered[%d] and is therefor not handled. Define as custom case?",GetId(),GetEffIndex());
+        Creature* c = triggerTarget->ToCreature();
+        if (!c || (c && !sScriptMgr.OnDummyEffect(caster, GetId(), SpellEffIndex(GetEffIndex()), triggerTarget->ToCreature())) ||
+            (c && !c->AI()->sOnDummyEffect(caster, GetId(), SpellEffIndex(GetEffIndex()))))
+            sLog.outError("AuraEffect::TriggerSpell: Spell %u has value 0 in EffectTriggered[%d] and is therefor not handled. Define as custom case?",GetId(),GetEffIndex());
     }
 }
 
