@@ -141,8 +141,7 @@ class InstanceSaveManager
         };
         typedef std::multimap<time_t /*resetTime*/, InstResetEvent> ResetTimeQueue;
 
-        void CleanupInstances();
-        void PackInstances();
+        void CleanupAndPackInstances();
 
         void LoadResetTimes();
         time_t GetResetTimeFor(uint32 mapid, Difficulty d) const
