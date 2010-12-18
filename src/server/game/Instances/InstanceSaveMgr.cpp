@@ -246,120 +246,47 @@ void InstanceSaveManager::_DelHelper(const char *fields, const char *table, cons
     }
 }
 
-void InstanceSaveManager::CleanupInstances()
+void InstanceSaveManager::CleanupAndPackInstances()
 {
-    barGoLink bar(2);
-    bar.step();
-
     // load reset times and clean expired instances
     sInstanceSaveMgr.LoadResetTimes();
 
-    // clean character/group - instance binds with invalid group/characters
-    _DelHelper("character_instance.guid, instance", "character_instance", "LEFT JOIN characters ON character_instance.guid = characters.guid WHERE characters.guid IS NULL");
-    _DelHelper("group_instance.guid, instance", "group_instance", "LEFT JOIN groups ON group_instance.guid = groups.guid LEFT JOIN characters ON groups.leaderGuid = characters.guid WHERE characters.guid IS NULL OR groups.guid IS NULL");
+    // Delete invalid character_instance and group_instance references
+    CharacterDatabase.DirectExecute("DELETE ci.* FROM character_instance AS ci LEFT JOIN characters AS c ON ci.guid = c.guid WHERE c.guid IS NULL");
+    CharacterDatabase.DirectExecute("DELETE gi.* FROM group_instance     AS gi LEFT JOIN groups     AS g ON gi.guid = g.guid WHERE g.guid IS NULL");
 
-    // clean instances that do not have any players or groups bound to them
-    _DelHelper("id, map, difficulty", "instance", "LEFT JOIN character_instance ON character_instance.instance = id LEFT JOIN group_instance ON group_instance.instance = id WHERE character_instance.instance IS NULL AND group_instance.instance IS NULL");
+    // Delete invalid instance references
+    CharacterDatabase.DirectExecute("DELETE i.* FROM instance AS i LEFT JOIN character_instance AS ci ON i.id = ci.instance LEFT JOIN group_instance AS gi ON i.id = gi.instance WHERE ci.guid IS NULL AND gi.guid IS NULL");
 
-    // clean invalid instance references in other tables
-    _DelHelper("character_instance.guid, instance", "character_instance", "LEFT JOIN instance ON character_instance.instance = instance.id WHERE instance.id IS NULL");
-    _DelHelper("guid, instance", "group_instance", "LEFT JOIN instance ON group_instance.instance = instance.id WHERE instance.id IS NULL");
+    // Delete invalid references to instance
+    CharacterDatabase.DirectExecute("DELETE tmp.* FROM creature_respawn   AS tmp LEFT JOIN instance ON tmp.instance = instance.id WHERE tmp.instance > 0 AND instance.id IS NULL");
+    CharacterDatabase.DirectExecute("DELETE tmp.* FROM gameobject_respawn AS tmp LEFT JOIN instance ON tmp.instance = instance.id WHERE tmp.instance > 0 AND instance.id IS NULL");
+    CharacterDatabase.DirectExecute("DELETE tmp.* FROM character_instance AS tmp LEFT JOIN instance ON tmp.instance = instance.id WHERE tmp.instance > 0 AND instance.id IS NULL");
+    CharacterDatabase.DirectExecute("DELETE tmp.* FROM group_instance     AS tmp LEFT JOIN instance ON tmp.instance = instance.id WHERE tmp.instance > 0 AND instance.id IS NULL");
 
-    // Clean respawn data from non existing instances
-    CharacterDatabase.PExecute("DELETE FROM creature_respawn WHERE instance <> 0 AND instance NOT IN (SELECT id FROM instance)");
-    CharacterDatabase.PExecute("DELETE FROM gameobject_respawn WHERE instance <> 0 AND instance NOT IN (SELECT id FROM instance)");
+    // Clean invalid references to instance
+    CharacterDatabase.DirectExecute("UPDATE corpse     AS tmp LEFT JOIN instance ON tmp.instance    = instance.id SET tmp.instance    = 0 WHERE tmp.instance    > 0 AND instance.id IS NULL");
+    CharacterDatabase.DirectExecute("UPDATE characters AS tmp LEFT JOIN instance ON tmp.instance_id = instance.id SET tmp.instance_id = 0 WHERE tmp.instance_id > 0 AND instance.id IS NULL");
 
-    // first, obtain total instance set
-    std::set<uint32> InstanceSet;
-    QueryResult result = CharacterDatabase.Query("SELECT id FROM instance");
-    if (result)
-    {
-        do
-        {
-            Field *fields = result->Fetch();
-            InstanceSet.insert(fields[0].GetUInt32());
-        }
-        while (result->NextRow());
-    }
+    // Create new index
+    CharacterDatabase.DirectExecute("ALTER TABLE instance ADD newid INT UNSIGNED AUTO_INCREMENT, ADD INDEX(newid)");
 
-    // characters
-    result = CharacterDatabase.Query("SELECT DISTINCT(instance_id) FROM characters WHERE instance_id <> 0");
-    if (result)
-    {
-        do
-        {
-            Field *fields = result->Fetch();
-            if (InstanceSet.find(fields[0].GetUInt32()) == InstanceSet.end())
-                CharacterDatabase.PExecute("UPDATE characters SET instance_id = '0' WHERE instance_id = '%u'", fields[0].GetUInt32());
-        }
-        while (result->NextRow());
-    }
+    // Update old ids
+    CharacterDatabase.DirectExecute("UPDATE corpse                  AS tmp LEFT JOIN instance ON tmp.instance    = instance.id SET tmp.instance    = instance.newid WHERE tmp.instance    > 0");
+    CharacterDatabase.DirectExecute("UPDATE character_instance      AS tmp LEFT JOIN instance ON tmp.instance    = instance.id SET tmp.instance    = instance.newid WHERE tmp.instance    > 0");
+    CharacterDatabase.DirectExecute("UPDATE group_instance          AS tmp LEFT JOIN instance ON tmp.instance    = instance.id SET tmp.instance    = instance.newid WHERE tmp.instance    > 0");
+    CharacterDatabase.DirectExecute("UPDATE characters              AS tmp LEFT JOIN instance ON tmp.instance_id = instance.id SET tmp.instance_id = instance.newid WHERE tmp.instance_id > 0");
+    CharacterDatabase.DirectExecute("UPDATE creature_respawn        AS tmp LEFT JOIN instance ON tmp.instance    = instance.id SET tmp.instance    = instance.newid WHERE tmp.instance    > 0");
+    CharacterDatabase.DirectExecute("UPDATE gameobject_respawn      AS tmp LEFT JOIN instance ON tmp.instance    = instance.id SET tmp.instance    = instance.newid WHERE tmp.instance    > 0");
 
-    // corpse
-    result = CharacterDatabase.Query("SELECT DISTINCT(instance) FROM corpse WHERE instance <> 0");
-    if (result)
-    {
-        do
-        {
-            Field *fields = result->Fetch();
-            if (InstanceSet.find(fields[0].GetUInt32()) == InstanceSet.end())
-                CharacterDatabase.PExecute("UPDATE corpse SET instance = '0' WHERE instance = '%u'", fields[0].GetUInt32());
-        }
-        while (result->NextRow());
-    }
+    // Update instance too
+    CharacterDatabase.Query("UPDATE instance SET id = newid");
 
-    bar.step();
-    sLog.outString();
-    sLog.outString(">> Initialized %u instances", (uint32)InstanceSet.size());
-}
-
-void InstanceSaveManager::PackInstances()
-{
-    // this routine renumbers player instance associations in such a way so they start from 1 and go up
-    // TODO: this can be done a LOT more efficiently
-
-    // obtain set of all associations
-    std::set<uint32> InstanceSet;
-
-    // all valid ids are in the instance table
-    // any associations to ids not in this table are assumed to be
-    // cleaned already in CleanupInstances
-    QueryResult result = CharacterDatabase.Query("SELECT id FROM instance");
-    if (result)
-    {
-        do
-        {
-            Field *fields = result->Fetch();
-            InstanceSet.insert(fields[0].GetUInt32());
-        }
-        while (result->NextRow());
-    }
-
-    barGoLink bar(InstanceSet.size() + 1);
-    bar.step();
-
-    uint32 InstanceNumber = 1;
-    // we do assume std::set is sorted properly on integer value
-    for (std::set<uint32>::iterator i = InstanceSet.begin(); i != InstanceSet.end(); ++i)
-    {
-        if (*i != InstanceNumber)
-        {
-            // remap instance id
-            CharacterDatabase.PExecute("UPDATE creature_respawn SET instance = '%u' WHERE instance = '%u'", InstanceNumber, *i);
-            CharacterDatabase.PExecute("UPDATE gameobject_respawn SET instance = '%u' WHERE instance = '%u'", InstanceNumber, *i);
-            CharacterDatabase.PExecute("UPDATE characters SET instance_id = '%u' WHERE instance_id = '%u'", InstanceNumber, *i);
-            CharacterDatabase.PExecute("UPDATE corpse SET instance = '%u' WHERE instance = '%u'", InstanceNumber, *i);
-            CharacterDatabase.PExecute("UPDATE character_instance SET instance = '%u' WHERE instance = '%u'", InstanceNumber, *i);
-            CharacterDatabase.PExecute("UPDATE instance SET id = '%u' WHERE id = '%u'", InstanceNumber, *i);
-            CharacterDatabase.PExecute("UPDATE group_instance SET instance = '%u' WHERE instance = '%u'", InstanceNumber, *i);
-        }
-
-        ++InstanceNumber;
-        bar.step();
-    }
-
-    sLog.outString();
-    sLog.outString(">> Instance numbers remapped, next instance id is %u", InstanceNumber);
+    // Finally drop the no longer needed column
+    CharacterDatabase.Query("ALTER TABLE instance DROP COLUMN newid");
+    
+    // Bake some cookies for click
+    sLog.outString(">> Cleaned up and packed instances");
 }
 
 void InstanceSaveManager::LoadResetTimes()

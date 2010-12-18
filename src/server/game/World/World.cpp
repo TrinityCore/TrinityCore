@@ -1256,11 +1256,8 @@ void World::SetInitialWorldSettings()
     sSpellMgr.LoadSkillLineAbilityMap();
 
     ///- Clean up and pack instances
-    sLog.outString("Cleaning up instances...");
-    sInstanceSaveMgr.CleanupInstances();                // must be called before `creature_respawn`/`gameobject_respawn` tables
-
-    sLog.outString("Packing instances...");
-    sInstanceSaveMgr.PackInstances();
+    sLog.outString("Cleaning up and packing instances...");
+    sInstanceSaveMgr.CleanupAndPackInstances();                // must be called before `creature_respawn`/`gameobject_respawn` tables
 
     sLog.outString("Loading Localization strings...");
     sObjectMgr.LoadCreatureLocales();
