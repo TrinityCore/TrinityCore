@@ -1241,7 +1241,7 @@ void AuraEffect::SendTickImmune(Unit * target, Unit *caster) const
 
 void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit * caster) const
 {
-    bool prevented = GetBase()->CallScriptEffectPeriodicHandlers(const_cast<AuraEffect const *>(this), aurApp);
+    bool prevented = GetBase()->CallScriptEffectPeriodicHandlers(this, aurApp);
     if (prevented)
         return;
 
