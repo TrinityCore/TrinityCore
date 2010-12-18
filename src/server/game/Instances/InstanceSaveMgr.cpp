@@ -470,7 +470,7 @@ void InstanceSaveManager::Update()
         {
             // global reset/warning for a certain map
             time_t resetTime = GetResetTimeFor(event.mapid,event.difficulty);
-            _ResetOrWarnAll(event.mapid, event.difficulty, event.type != 4, uint32(resetTime - now));
+            _ResetOrWarnAll(event.mapid, event.difficulty, event.type != 4, resetTime);
             if (event.type != 4)
             {
                 // schedule the next warning/reset
@@ -520,14 +520,14 @@ void InstanceSaveManager::_ResetInstance(uint32 mapid, uint32 instanceId)
     else sObjectMgr.DeleteRespawnTimeForInstance(instanceId);   // even if map is not loaded
 }
 
-void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, bool warn, uint32 timeLeft)
+void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, bool warn, time_t resetTime)
 {
     // global reset for all instances of the given map
     MapEntry const *mapEntry = sMapStore.LookupEntry(mapid);
     if (!mapEntry->Instanceable())
         return;
 
-    uint64 now = (uint64)time(NULL);
+    time_t now = time(NULL);
 
     if (!warn)
     {
@@ -561,7 +561,7 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
         if (period < DAY)
             period = DAY;
 
-        uint64 next_reset = ((now + timeLeft + MINUTE) / DAY * DAY) + period + diff;
+        uint64 next_reset = ((resetTime + MINUTE) / DAY * DAY) + period + diff;
 
         SetResetTimeFor(mapid, difficulty, next_reset);
         ScheduleReset(true, time_t(next_reset-3600), InstResetEvent(1, mapid, difficulty, 0));
@@ -574,12 +574,25 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
     Map const *map = sMapMgr.CreateBaseMap(mapid);          // _not_ include difficulty
     MapInstanced::InstancedMaps &instMaps = ((MapInstanced*)map)->GetInstancedMaps();
     MapInstanced::InstancedMaps::iterator mitr;
+    uint32 timeLeft;
+
     for (mitr = instMaps.begin(); mitr != instMaps.end(); ++mitr)
     {
         Map *map2 = mitr->second;
-        if (!map2->IsDungeon()) continue;
-        if (warn) ((InstanceMap*)map2)->SendResetWarnings(timeLeft);
-        else ((InstanceMap*)map2)->Reset(INSTANCE_RESET_GLOBAL);
+        if (!map2->IsDungeon())
+            continue;
+
+        if (warn)
+        {            
+            if (now <= resetTime)
+                timeLeft = 0;
+            else
+                timeLeft = uint32(now - resetTime);
+
+            ((InstanceMap*)map2)->SendResetWarnings(timeLeft);
+        }
+        else
+            ((InstanceMap*)map2)->Reset(INSTANCE_RESET_GLOBAL);
     }
 
     // TODO: delete creature/gameobject respawn times even if the maps are not loaded
