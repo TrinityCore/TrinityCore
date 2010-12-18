@@ -127,10 +127,8 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket & recv_data)
     Object* pObject = ObjectAccessor::GetObjectByTypeMask(*_player, guid,TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT|TYPEMASK_ITEM|TYPEMASK_PLAYER);
 
     // no or incorrect quest giver
-    if (!pObject
-        || (pObject->GetTypeId() != TYPEID_PLAYER && !pObject->hasQuest(quest))
-        || (pObject->GetTypeId() == TYPEID_PLAYER && !pObject->ToPlayer()->CanShareQuest(quest))
-)
+    if (!pObject || (pObject->GetTypeId() != TYPEID_PLAYER && !pObject->hasQuest(quest)) || 
+        (pObject->GetTypeId() == TYPEID_PLAYER && !pObject->ToPlayer()->CanShareQuest(quest)))
     {
         _player->PlayerTalkClass->CloseGossip();
         _player->SetDivider(0);
@@ -462,7 +460,7 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recv_data)
     uint64 guid;
     recv_data >> guid >> quest;
 
-    if (!GetPlayer()->isAlive())
+    if (!_player->isAlive())
         return;
 
     sLog.outDebug("WORLD: Received CMSG_QUESTGIVER_COMPLETE_QUEST npc = %u, quest = %u",uint32(GUID_LOPART(guid)),quest);
@@ -470,11 +468,17 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recv_data)
     Quest const *pQuest = sObjectMgr.GetQuestTemplate(quest);
     if (pQuest)
     {
+        if (!_player->CanSeeStartQuest(pQuest) && _player->GetQuestStatus(quest)==QUEST_STATUS_NONE)
+        {
+            sLog.outError("Possible hacking attempt: Player %s [guid: %u] tried to complete quest [entry: %u] without being in possession of the quest!",
+                          _player->GetName(), _player->GetGUIDLow(), quest);
+            return;
+        }
         // TODO: need a virtual function
-        if (GetPlayer()->InBattleground())
-            if (Battleground* bg = GetPlayer()->GetBattleground())
+        if (_player->InBattleground())
+            if (Battleground* bg = _player->GetBattleground())
                 if (bg->GetTypeID() == BATTLEGROUND_AV)
-                    ((BattlegroundAV*)bg)->HandleQuestComplete(quest, GetPlayer());
+                    ((BattlegroundAV*)bg)->HandleQuestComplete(quest, _player);
 
         if (_player->GetQuestStatus(quest) != QUEST_STATUS_COMPLETE)
         {
