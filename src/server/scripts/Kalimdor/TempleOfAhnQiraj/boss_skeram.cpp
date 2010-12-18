@@ -254,9 +254,6 @@ public:
             me->SetVisible(false);
             me->GetMap()->CreatureRelocation(me, bossc->x, bossc->y, bossc->z, bossc->r);
             Invisible = true;
-            delete place1;
-            delete place2;
-            delete place3;
             DoResetThreat();
             DoStopAttack();
 
@@ -289,6 +286,9 @@ public:
                 CAST_AI(boss_skeram::boss_skeramAI, Image2->AI())->IsImage = true;
             }
             Invisible = true;
+            delete place1;
+            delete place2;
+            delete place3;
         }
 
     };
