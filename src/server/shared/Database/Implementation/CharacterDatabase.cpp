@@ -251,5 +251,10 @@ bool CharacterDatabaseConnection::Open()
     PrepareStatement(CHAR_ADD_EQUIP_SET, "INSERT INTO character_equipmentsets (guid,setguid,setindex,name,iconname,item0,item1,item2,item3,item4,item5,item6,item7,item8,item9,item10,item11,item12,item13,item14,item15,item16,item17,item18) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", true);
     PrepareStatement(CHAR_DEL_EQUIP_SET, "DELETE FROM character_equipmentsets WHERE setguid=?", true);
 
+    // Auras
+    PrepareStatement(CHAR_DEL_AURA, "DELETE FROM character_aura WHERE guid = ?", true);
+    PrepareStatement(CHAR_ADD_AURA, "INSERT INTO character_aura (guid,caster_guid,spell,effect_mask,recalculate_mask,stackcount,amount0,amount1,amount2,base_amount0,base_amount1,base_amount2,maxduration,remaintime,remaincharges) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", true);
+    
     return true;
 }

@@ -210,6 +210,9 @@ enum CharacterDatabaseStatements
     CHAR_ADD_EQUIP_SET,
     CHAR_DEL_EQUIP_SET,
 
+    CHAR_DEL_AURA,
+    CHAR_ADD_AURA,
+
     MAX_CHARACTERDATABASE_STATEMENTS,
 };
 

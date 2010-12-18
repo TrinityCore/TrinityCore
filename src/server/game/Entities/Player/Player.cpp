@@ -18086,7 +18086,9 @@ void Player::_SaveActions(SQLTransaction& trans)
 
 void Player::_SaveAuras(SQLTransaction& trans)
 {
-    trans->PAppend("DELETE FROM character_aura WHERE guid = '%u'",GetGUIDLow());
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_AURA);
+    stmt->setUInt32(0, GetGUIDLow());
+    trans->Append(stmt);
 
     for (AuraMap::const_iterator itr = m_ownedAuras.begin(); itr != m_ownedAuras.end() ; ++itr)
     {
@@ -18116,11 +18118,24 @@ void Player::_SaveAuras(SQLTransaction& trans)
             }
         }
 
-        trans->PAppend("INSERT INTO character_aura (guid,caster_guid,spell,effect_mask,recalculate_mask,stackcount,amount0,amount1,amount2,base_amount0,base_amount1,base_amount2,maxduration,remaintime,remaincharges) "
-            "VALUES ('%u', '" UI64FMTD "', '%u', '%u', '%u', '%u', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%u')",
-            GetGUIDLow(), itr->second->GetCasterGUID(), itr->second->GetId(), effMask, recalculateMask,
-            itr->second->GetStackAmount(), damage[0], damage[1], damage[2], baseDamage[0], baseDamage[1], baseDamage[2],
-            itr->second->GetMaxDuration(), itr->second->GetDuration(),itr->second->GetCharges());
+        uint8 index = 0;
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_AURA);
+        stmt->setUInt32(index++, GetGUIDLow());
+        stmt->setUInt64(index++, itr->second->GetCasterGUID());
+        stmt->setUInt32(index++, itr->second->GetId());
+        stmt->setUInt8(index++, effMask);
+        stmt->setUInt8(index++, recalculateMask);       
+        stmt->setUInt8(index++, itr->second->GetStackAmount());
+        stmt->setInt32(index++, damage[0]);
+        stmt->setInt32(index++, damage[1]);
+        stmt->setInt32(index++, damage[2]);
+        stmt->setInt32(index++, baseDamage[0]);
+        stmt->setInt32(index++, baseDamage[1]);
+        stmt->setInt32(index++, baseDamage[2]);
+        stmt->setInt32(index++, itr->second->GetMaxDuration());
+        stmt->setInt32(index++, itr->second->GetDuration());
+        stmt->setUInt8(index, itr->second->GetCharges());
+        trans->Append(stmt);
     }
 }
 
