@@ -697,10 +697,6 @@ public:
             else
                 m_uiVesperonTimer -= uiDiff;
 
-            // Don't attack current target if he's not visible for us.
-            if(me->getVictim() && me->getVictim()->HasAura(57874, 0))
-                me->getThreatManager().modifyThreatPercent(me->getVictim(), -100);
-
             DoMeleeAttackIfReady();
 
             EnterEvadeIfOutOfCombatArea(uiDiff);
@@ -1083,10 +1079,6 @@ public:
             else
                 m_uiShadowBreathTimer -= uiDiff;
 
-            // Don't attack current target if he's not visible for us.
-            if(me->getVictim() && me->getVictim()->HasAura(57874, 0))
-                me->getThreatManager().modifyThreatPercent(me->getVictim(), -100);
-
             DoMeleeAttackIfReady();
         }
     };
@@ -1193,10 +1185,6 @@ public:
             else
                 m_uiShadowBreathTimer -= uiDiff;
 
-            // Don't attack current target if he's not visible for us.
-            if (me->getVictim()->HasAura(57874, 0))
-                me->getThreatManager().modifyThreatPercent(me->getVictim(), -100);
-
             DoMeleeAttackIfReady();
         }
     };
@@ -1293,10 +1281,6 @@ public:
             }
             else
                 m_uiShadowBreathTimer -= uiDiff;
-
-            // Don't attack current target if he's not visible for us.
-            if(me->getVictim() && me->getVictim()->HasAura(57874, 0))
-                me->getThreatManager().modifyThreatPercent(me->getVictim(), -100);
 
             DoMeleeAttackIfReady();
         }
