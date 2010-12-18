@@ -8035,6 +8035,21 @@ bool Unit::HandleAuraProc(Unit * pVictim, uint32 damage, Aura * triggeredByAura,
                     RemoveAuraFromStack(dummySpell->Id);
                     *handled = true;
                     break;
+                // Discerning Eye of the Beast
+                case 59915:
+                { 
+                    CastSpell(this, 59914, true);   // 59914 already has correct basepoints in DBC, no need for custom bp
+                    *handled = true;
+                    break;
+                }
+                // Swift Hand of Justice
+                case 59906:
+                {
+                    int32 bp0 = CalculatePctN(GetMaxHealth(), SpellMgr::CalculateSpellEffectAmount(dummySpell, 0));
+                    CastCustomSpell(this, 59913, &bp0, NULL, NULL, true);
+                    *handled = true;
+                    break;
+                }
             }
             break;
         case SPELLFAMILY_PALADIN:
