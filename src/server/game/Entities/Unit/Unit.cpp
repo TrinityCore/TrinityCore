@@ -5793,6 +5793,8 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 case 71169:
                 {
                     target = triggeredByAura->GetCaster();
+                    if (!target)
+                        return false;
                     Player* player = target->ToPlayer();
                     if (!player)
                         return false;
