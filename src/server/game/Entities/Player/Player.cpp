@@ -1845,7 +1845,14 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         sLog.outDebug("Player %s using client without required expansion tried teleport to non accessible map %u", GetName(), mapid);
 
         if (GetTransport())
+        {
+            m_transport->RemovePassenger(this);
+            m_transport = NULL;
+            m_movementInfo.t_pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
+            m_movementInfo.t_time = 0;
+            m_movementInfo.t_seat = -1;
             RepopAtGraveyard();                             // teleport to near graveyard if on transport, looks blizz like :)
+        }
 
         SendTransferAborted(mapid, TRANSFER_ABORT_INSUF_EXPAN_LVL, mEntry->Expansion());
 
