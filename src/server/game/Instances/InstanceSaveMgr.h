@@ -177,7 +177,7 @@ class InstanceSaveManager
 
     private:
 
-        void _ResetOrWarnAll(uint32 mapid, Difficulty difficulty, bool warn, uint32 timeleft);
+        void _ResetOrWarnAll(uint32 mapid, Difficulty difficulty, bool warn, time_t resetTime);
         void _ResetInstance(uint32 mapid, uint32 instanceId);
         void _ResetSave(InstanceSaveHashMap::iterator &itr);
         void _DelHelper(const char *fields, const char *table, const char *queryTail,...);
