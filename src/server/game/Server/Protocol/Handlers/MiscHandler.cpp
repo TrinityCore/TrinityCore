@@ -351,8 +351,8 @@ void WorldSession::HandleWhoOpcode(WorldPacket & recv_data)
         ++displaycount;
     }
 
-    data.put(0, matchcount);                             // insert right count, count of matches
-    data.put(4, displaycount);                           // insert right count, count displayed
+    data.put(0, displaycount);                            // insert right count, count displayed
+    data.put(4, matchcount);                              // insert right count, count of matches
 
     SendPacket(&data);
     sLog.outDebug("WORLD: Send SMSG_WHO Message");
