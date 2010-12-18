@@ -58,35 +58,35 @@
  * JEMALLOC_TINY enables support for tiny objects, which are smaller than one
  * quantum.
  */
-#define JEMALLOC_TINY 
+/* #undef JEMALLOC_TINY */
 
 /*
  * JEMALLOC_TCACHE enables a thread-specific caching layer for small objects.
  * This makes it possible to allocate/deallocate objects without any locking
  * when the cache is in the steady state.
  */
-#define JEMALLOC_TCACHE 
+/* #undef JEMALLOC_TCACHE */
 
 /*
  * JEMALLOC_DSS enables use of sbrk(2) to allocate chunks from the data storage
  * segment (DSS).
  */
-#define JEMALLOC_DSS 
+/* #undef JEMALLOC_DSS */
 
 /* JEMALLOC_SWAP enables mmap()ed swap file support. */
-#define JEMALLOC_SWAP 
+/* #undef JEMALLOC_SWAP */
 
 /* Support memory filling (junk/zero). */
-#define JEMALLOC_FILL 
+/* #undef JEMALLOC_FILL */
 
 /* Support optional abort() on OOM. */
-#define JEMALLOC_XMALLOC 
+/* #undef JEMALLOC_XMALLOC */
 
 /* Support SYSV semantics. */
-#define JEMALLOC_SYSV 
+/* #undef JEMALLOC_SYSV */
 
 /* Support lazy locking (avoid locking unless a second thread is launched). */
-#define JEMALLOC_LAZY_LOCK 
+/* #undef JEMALLOC_LAZY_LOCK */
 
 /* Determine page size at run time if defined. */
 /* #undef DYNAMIC_PAGE_SHIFT */
