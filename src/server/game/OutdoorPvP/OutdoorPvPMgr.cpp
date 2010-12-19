@@ -40,40 +40,7 @@ OutdoorPvPMgr::~OutdoorPvPMgr()
 
 void OutdoorPvPMgr::InitOutdoorPvP()
 {
-    LoadTemplates();
-
-    OutdoorPvP* pvp;
-    for (uint8 i = 1; i < MAX_OUTDOORPVP_TYPES; ++i)
-    {
-        OutdoorPvPDataMap::iterator iter = m_OutdoorPvPDatas.find(OutdoorPvPTypes(i));
-        if (iter == m_OutdoorPvPDatas.end())
-        {
-            sLog.outErrorDb("Could not initialize OutdoorPvP object for type ID %u; no entry in database.", uint32(i));
-            continue;
-        }
-
-        pvp = sScriptMgr.CreateOutdoorPvP(iter->second);
-        if (!pvp)
-        {
-            sLog.outError("Could not initialize OutdoorPvP object for type ID %u; got NULL pointer from script.", uint32(i));
-            continue;
-        }
-
-        if (!pvp->SetupOutdoorPvP())
-        {
-            sLog.outError("Could not initialize OutdoorPvP object for type ID %u; SetupOutdoorPvP failed.", uint32(i));
-            delete pvp;
-            continue;
-        }
-
-        m_OutdoorPvPSet.push_back(pvp);
-    }
-}
-
-void OutdoorPvPMgr::LoadTemplates()
-{
-    uint32 typeId = 0;
-    uint32 count = 0;
+    uint32 oldMSTime = getMSTime();
 
     //                                                       0       1
     QueryResult result = WorldDatabase.Query("SELECT TypeId, ScriptName FROM outdoorpvp_template");
@@ -81,15 +48,15 @@ void OutdoorPvPMgr::LoadTemplates()
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
-        sLog.outString();
         sLog.outErrorDb(">> Loaded 0 outdoor PvP definitions. DB table `outdoorpvp_template` is empty.");
+        sLog.outString();
         return;
     }
 
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
+    uint32 typeId = 0;
 
     do
     {
@@ -117,8 +84,35 @@ void OutdoorPvPMgr::LoadTemplates()
     }
     while (result->NextRow());
 
+    OutdoorPvP* pvp;
+    for (uint8 i = 1; i < MAX_OUTDOORPVP_TYPES; ++i)
+    {
+        OutdoorPvPDataMap::iterator iter = m_OutdoorPvPDatas.find(OutdoorPvPTypes(i));
+        if (iter == m_OutdoorPvPDatas.end())
+        {
+            sLog.outErrorDb("Could not initialize OutdoorPvP object for type ID %u; no entry in database.", uint32(i));
+            continue;
+        }
+
+        pvp = sScriptMgr.CreateOutdoorPvP(iter->second);
+        if (!pvp)
+        {
+            sLog.outError("Could not initialize OutdoorPvP object for type ID %u; got NULL pointer from script.", uint32(i));
+            continue;
+        }
+
+        if (!pvp->SetupOutdoorPvP())
+        {
+            sLog.outError("Could not initialize OutdoorPvP object for type ID %u; SetupOutdoorPvP failed.", uint32(i));
+            delete pvp;
+            continue;
+        }
+
+        m_OutdoorPvPSet.push_back(pvp);
+    }
+
+    sLog.outString(">> Loaded %u outdoor PvP definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u outdoor PvP definitions.", count);
 }
 
 void OutdoorPvPMgr::AddZone(uint32 zoneid, OutdoorPvP *handle)

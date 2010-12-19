@@ -30,21 +30,21 @@
 
 void MapManager::LoadTransports()
 {
-    QueryResult result = WorldDatabase.Query("SELECT guid, entry, name, period, ScriptName FROM transports");
+    uint32 oldMSTime = getMSTime();
 
-    uint32 count = 0;
+    QueryResult result = WorldDatabase.Query("SELECT guid, entry, name, period, ScriptName FROM transports");
 
     if (!result)
     {
         barGoLink bar(1);
         bar.step();
-
+        sLog.outString(">> Loaded 0 transports. DB table `transports` is empty!");
         sLog.outString();
-        sLog.outString(">> Loaded %u transports", count);
         return;
     }
 
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
 
     do
     {
@@ -113,9 +113,6 @@ void MapManager::LoadTransports()
     }
     while (result->NextRow());
 
-    sLog.outString();
-    sLog.outString(">> Loaded %u transports", count);
-
     // check transport data DB integrity
     result = WorldDatabase.Query("SELECT gameobject.guid,gameobject.id,transports.name FROM gameobject,transports WHERE gameobject.id = transports.entry");
     if (result)                                              // wrong data found
@@ -131,26 +128,29 @@ void MapManager::LoadTransports()
         }
         while (result->NextRow());
     }
+
+    sLog.outString(">> Loaded %u transports in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog.outString();
 }
 
 void MapManager::LoadTransportNPCs()
 {
-    // Spawn NPCs linked to the transport
+    uint32 oldMSTime = getMSTime();
+
     //                                                         0    1          2                3             4             5             6             7
     QueryResult result = WorldDatabase.PQuery("SELECT guid, npc_entry, transport_entry, TransOffsetX, TransOffsetY, TransOffsetZ, TransOffsetO, emote FROM creature_transport");
-    uint32 count = 0;
 
     if (!result)
     {
         barGoLink bar(1);
         bar.step();
-
+        sLog.outString(">> Loaded 0 transport NPCs. DB table `creature_transport` is empty!");
         sLog.outString();
-        sLog.outString(">> Loaded %u transport NPCs.", count);
         return;
     }
 
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
 
     do
     {
@@ -174,10 +174,12 @@ void MapManager::LoadTransportNPCs()
             }
         }
 
-        count++;
-    } while (result->NextRow());
+        ++count;
+    }
+    while (result->NextRow());
+
+    sLog.outString(">> Loaded %u transport npcs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u transport npcs", count);
 }
 
 Transport::Transport(uint32 period, uint32 script) : GameObject(), m_period(period), ScriptId(script)

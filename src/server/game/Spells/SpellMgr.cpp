@@ -1114,25 +1114,23 @@ SpellCastResult GetErrorAtShapeshiftedCast (SpellEntry const *spellInfo, uint32 
 
 void SpellMgr::LoadSpellTargetPositions()
 {
-    mSpellTargetPositions.clear();                                // need for reload case
+    uint32 oldMSTime = getMSTime();
 
-    uint32 count = 0;
+    mSpellTargetPositions.clear();                                // need for reload case
 
     //                                                0   1           2                  3                  4                  5
     QueryResult result = WorldDatabase.Query("SELECT id, target_map, target_position_x, target_position_y, target_position_z, target_orientation FROM spell_target_position");
     if (!result)
     {
-
         barGoLink bar(1);
-
         bar.step();
-
+        sLog.outString(">> Loaded 0 spell target coordinates. DB table `spell_target_position` is empty.");
         sLog.outString();
-        sLog.outString(">> Loaded %u spell target coordinates", count);
         return;
     }
 
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
 
     do
     {
@@ -1235,8 +1233,8 @@ void SpellMgr::LoadSpellTargetPositions()
         }
     }
 
+    sLog.outString(">> Loaded %u spell teleport coordinates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u spell teleport coordinates", count);
 }
 
 bool SpellMgr::IsAffectedByMod(SpellEntry const *spellInfo, SpellModifier *mod) const
@@ -1259,6 +1257,8 @@ bool SpellMgr::IsAffectedByMod(SpellEntry const *spellInfo, SpellModifier *mod) 
 
 void SpellMgr::LoadSpellProcEvents()
 {
+    uint32 oldMSTime = getMSTime();
+
     mSpellProcEventMap.clear();                             // need for reload case
 
     uint32 count = 0;
@@ -1269,8 +1269,8 @@ void SpellMgr::LoadSpellProcEvents()
     {
         barGoLink bar(1);
         bar.step();
-        sLog.outString();
         sLog.outString(">> Loaded %u spell proc event conditions", count);
+        sLog.outString();
         return;
     }
 
@@ -1318,15 +1318,17 @@ void SpellMgr::LoadSpellProcEvents()
         ++count;
     } while (result->NextRow());
 
-    sLog.outString();
     if (customProc)
-        sLog.outString(">> Loaded %u extra spell proc event conditions + %u custom",  count, customProc);
+        sLog.outString(">> Loaded %u extra and %u custom spell proc event conditions in %u ms",  count, customProc, GetMSTimeDiffToNow(oldMSTime));
     else
-        sLog.outString(">> Loaded %u extra spell proc event conditions", count);
+        sLog.outString(">> Loaded %u extra spell proc event conditions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog.outString();
 }
 
 void SpellMgr::LoadSpellBonusess()
 {
+    uint32 oldMSTime = getMSTime();
+
     mSpellBonusMap.clear();                             // need for reload case
     uint32 count = 0;
     //                                                0      1             2          3         4
@@ -1335,8 +1337,8 @@ void SpellMgr::LoadSpellBonusess()
     {
         barGoLink bar(1);
         bar.step();
-        sLog.outString();
         sLog.outString(">> Loaded %u spell bonus data", count);
+        sLog.outString();
         return;
     }
 
@@ -1365,8 +1367,8 @@ void SpellMgr::LoadSpellBonusess()
         ++count;
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %u extra spell bonus data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u extra spell bonus data",  count);
 }
 
 bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellProcEvent, uint32 EventProcFlag, SpellEntry const * procSpell, uint32 procFlags, uint32 procExtra, bool active)
@@ -1500,6 +1502,8 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
 
 void SpellMgr::LoadSpellGroups()
 {
+    uint32 oldMSTime = getMSTime();
+
     mSpellSpellGroup.clear();                                  // need for reload case
     mSpellGroupSpell.clear();
 
@@ -1585,12 +1589,14 @@ void SpellMgr::LoadSpellGroups()
         }
     }
 
+    sLog.outString(">> Loaded %u spell group definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u spell group definitions", count);
 }
 
 void SpellMgr::LoadSpellGroupStackRules()
 {
+    uint32 oldMSTime = getMSTime();
+
     mSpellGroupStack.clear();                                  // need for reload case
 
     uint32 count = 0;
@@ -1599,13 +1605,12 @@ void SpellMgr::LoadSpellGroupStackRules()
     QueryResult result = WorldDatabase.Query("SELECT group_id, stack_rule FROM spell_group_stack_rules");
     if (!result)
     {
-
         barGoLink bar(1);
 
         bar.step();
 
+        sLog.outString(">> Loaded 0 spell group stack rules");
         sLog.outString();
-        sLog.outString(">> Loaded %u spell group stack rules", count);
         return;
     }
 
@@ -1638,12 +1643,14 @@ void SpellMgr::LoadSpellGroupStackRules()
         ++count;
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %u spell group stack rules in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u spell group stack rules", count);
 }
 
 void SpellMgr::LoadSpellThreats()
 {
+    uint32 oldMSTime = getMSTime();
+
     mSpellThreatMap.clear();                                // need for reload case
 
     uint32 count = 0;
@@ -1657,8 +1664,8 @@ void SpellMgr::LoadSpellThreats()
 
         bar.step();
 
-        sLog.outString();
         sLog.outString(">> Loaded %u aggro generating spells", count);
+        sLog.outString();
         return;
     }
 
@@ -1684,8 +1691,8 @@ void SpellMgr::LoadSpellThreats()
         ++count;
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %u aggro generating spells in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u aggro generating spells", count);
 }
 
 bool SpellMgr::IsRankSpellDueToSpell(SpellEntry const *spellInfo_1,uint32 spellId_2) const
@@ -1962,6 +1969,8 @@ SpellEntry const* SpellMgr::SelectAuraRankForPlayerLevel(SpellEntry const* spell
 
 void SpellMgr::LoadSpellLearnSkills()
 {
+    uint32 oldMSTime = getMSTime();
+
     mSpellLearnSkills.clear();                              // need for reload case
 
     // search auto-learned skills and add its to map also for use in unlearn spells/talents
@@ -1994,12 +2003,14 @@ void SpellMgr::LoadSpellLearnSkills()
         }
     }
 
+    sLog.outString(">> Loaded %u Spell Learn Skills from DBC in %u ms", dbc_count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u Spell Learn Skills from DBC", dbc_count);
 }
 
 void SpellMgr::LoadSpellLearnSpells()
 {
+    uint32 oldMSTime = getMSTime();
+
     mSpellLearnSpells.clear();                              // need for reload case
 
     //                                                  0      1        2
@@ -2009,8 +2020,8 @@ void SpellMgr::LoadSpellLearnSpells()
         barGoLink bar(1);
         bar.step();
 
-        sLog.outString();
         sLog.outString(">> Loaded 0 spell learn spells");
+        sLog.outString();
         sLog.outErrorDb("`spell_learn_spell` table is empty!");
         return;
     }
@@ -2102,30 +2113,29 @@ void SpellMgr::LoadSpellLearnSpells()
         }
     }
 
+    sLog.outString(">> Loaded %u spell learn spells + %u found in DBC in %u ms", count, dbc_count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u spell learn spells + %u found in DBC", count, dbc_count);
 }
 
 void SpellMgr::LoadSpellPetAuras()
 {
-    mSpellPetAuraMap.clear();                                  // need for reload case
+    uint32 oldMSTime = getMSTime();
 
-    uint32 count = 0;
+    mSpellPetAuraMap.clear();                                  // need for reload case
 
     //                                                  0       1       2    3
     QueryResult result = WorldDatabase.Query("SELECT spell, effectId, pet, aura FROM spell_pet_auras");
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
+        sLog.outString(">> Loaded 0 spell pet auras. DB table `spell_pet_auras` is empty.");
         sLog.outString();
-        sLog.outString(">> Loaded %u spell pet auras", count);
         return;
     }
 
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
 
     do
     {
@@ -2171,12 +2181,14 @@ void SpellMgr::LoadSpellPetAuras()
         ++count;
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %u spell pet auras in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u spell pet auras", count);
 }
 
 void SpellMgr::LoadPetLevelupSpellMap()
 {
+    uint32 oldMSTime = getMSTime();
+
     mPetLevelupSpellMap.clear();                                   // need for reload case
 
     uint32 count = 0;
@@ -2230,8 +2242,8 @@ void SpellMgr::LoadPetLevelupSpellMap()
         }
     }
 
+    sLog.outString(">> Loaded %u pet levelup and default spells for %u families in %u ms", count, family_count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u pet levelup and default spells for %u families", count, family_count);
 }
 
 bool LoadPetDefaultSpells_helper(CreatureInfo const* cInfo, PetDefaultSpellsEntry& petDefSpells)
@@ -2284,12 +2296,14 @@ bool LoadPetDefaultSpells_helper(CreatureInfo const* cInfo, PetDefaultSpellsEntr
 
 void SpellMgr::LoadPetDefaultSpells()
 {
+    uint32 oldMSTime = getMSTime();
+
     mPetDefaultSpellsMap.clear();
 
     uint32 countCreature = 0;
     uint32 countData = 0;
 
-    barGoLink bar(sCreatureStorage.MaxEntry + sSpellStore.GetNumRows());
+    barGoLink bar(sCreatureStorage.MaxEntry);
 
     for (uint32 i = 0; i < sCreatureStorage.MaxEntry; ++i)
     {
@@ -2319,10 +2333,18 @@ void SpellMgr::LoadPetDefaultSpells()
         }
     }
 
+    sLog.outString(">> Loaded addition spells for %u pet spell data entries in %u ms", countData, GetMSTimeDiffToNow(oldMSTime));
+    sLog.outString();
+
+    sLog.outString("Loading summonable creature templates...");
+    oldMSTime = getMSTime();
+
+    barGoLink bar2(sSpellStore.GetNumRows());
+
     // different summon spells
     for (uint32 i = 0; i < sSpellStore.GetNumRows(); ++i)
     {
-        bar.step();
+        bar2.step();
 
         SpellEntry const* spellEntry = sSpellStore.LookupEntry(i);
         if (!spellEntry)
@@ -2359,9 +2381,9 @@ void SpellMgr::LoadPetDefaultSpells()
         }
     }
 
+    
+    sLog.outString(">> Loaded %u summonable creature templates in %u ms", countCreature, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded addition spells for %u pet spell data entries.", countData);
-    sLog.outString(">> Loaded %u summonable creature templates.", countCreature);
 }
 
 /// Some checks for spells, to prevent adding deprecated/broken spells for trainers, spell book, etc
@@ -2459,13 +2481,13 @@ bool SpellMgr::IsSpellValid(SpellEntry const *spellInfo, Player *pl, bool msg)
 
 void SpellMgr::LoadSpellAreas()
 {
+    uint32 oldMSTime = getMSTime();
+
     mSpellAreaMap.clear();                                  // need for reload case
     mSpellAreaForQuestMap.clear();
     mSpellAreaForActiveQuestMap.clear();
     mSpellAreaForQuestEndMap.clear();
     mSpellAreaForAuraMap.clear();
-
-    uint32 count = 0;
 
     //                                                  0     1         2              3               4           5          6        7       8
     QueryResult result = WorldDatabase.Query("SELECT spell, area, quest_start, quest_start_active, quest_end, aura_spell, racemask, gender, autocast FROM spell_area");
@@ -2473,15 +2495,14 @@ void SpellMgr::LoadSpellAreas()
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
+        sLog.outString(">> Loaded 0 spell area requirements. DB table `spell_area` is empty.");
         sLog.outString();
-        sLog.outString(">> Loaded %u spell area requirements", count);
         return;
     }
 
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
 
     do
     {
@@ -2660,8 +2681,8 @@ void SpellMgr::LoadSpellAreas()
         ++count;
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %u spell area requirements in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u spell area requirements", count);
 }
 
 SpellCastResult SpellMgr::GetSpellAllowedInLocationError(SpellEntry const *spellInfo, uint32 map_id, uint32 zone_id, uint32 area_id, Player const* player)
@@ -2799,6 +2820,8 @@ SpellCastResult SpellMgr::GetSpellAllowedInLocationError(SpellEntry const *spell
 
 void SpellMgr::LoadSkillLineAbilityMap()
 {
+    uint32 oldMSTime = getMSTime();
+
     mSkillLineAbilityMap.clear();
 
     barGoLink bar(sSkillLineAbilityStore.GetNumRows());
@@ -2815,8 +2838,8 @@ void SpellMgr::LoadSkillLineAbilityMap()
         ++count;
     }
 
+    sLog.outString(">> Loaded %u SkillLineAbility MultiMap Data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u SkillLineAbility MultiMap Data", count);
 }
 
 DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto, bool triggered)
@@ -3227,6 +3250,8 @@ bool CanSpellPierceImmuneAura(SpellEntry const * pierceSpell, SpellEntry const *
 
 void SpellMgr::LoadSpellEnchantProcData()
 {
+    uint32 oldMSTime = getMSTime();
+
     mSpellEnchantProcEventMap.clear();                             // need for reload case
 
     uint32 count = 0;
@@ -3239,8 +3264,8 @@ void SpellMgr::LoadSpellEnchantProcData()
 
         bar.step();
 
-        sLog.outString();
         sLog.outString(">> Loaded %u spell enchant proc event conditions", count);
+        sLog.outString();
         return;
     }
 
@@ -3271,12 +3296,14 @@ void SpellMgr::LoadSpellEnchantProcData()
         ++count;
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %u enchant proc data definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u enchant proc data definitions", count);
 }
 
 void SpellMgr::LoadSpellRequired()
 {
+    uint32 oldMSTime = getMSTime();
+
     mSpellsReqSpell.clear();                                   // need for reload case
     mSpellReq.clear();                                         // need for reload case
 
@@ -3287,8 +3314,8 @@ void SpellMgr::LoadSpellRequired()
         barGoLink bar(1);
         bar.step();
 
-        sLog.outString();
         sLog.outString(">> Loaded 0 spell required records");
+        sLog.outString();
         sLog.outErrorDb("`spell_required` table is empty!");
         return;
     }
@@ -3331,12 +3358,14 @@ void SpellMgr::LoadSpellRequired()
         ++rows;
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %u spell required records in %u ms", rows, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u spell required records", rows);
 }
 
 void SpellMgr::LoadSpellRanks()
 {
+    uint32 oldMSTime = getMSTime();
+
     mSpellChains.clear();                                   // need for reload case
 
     QueryResult result = WorldDatabase.Query("SELECT first_spell_id, spell_id, rank from spell_ranks ORDER BY first_spell_id , rank");
@@ -3346,8 +3375,8 @@ void SpellMgr::LoadSpellRanks()
         barGoLink bar(1);
         bar.step();
 
-        sLog.outString();
         sLog.outString(">> Loaded 0 spell rank records");
+        sLog.outString();
         sLog.outErrorDb("`spell_ranks` table is empty!");
         return;
     }
@@ -3445,13 +3474,15 @@ void SpellMgr::LoadSpellRanks()
         while (true);
     } while (!finished);
 
+    sLog.outString(">> Loaded %u spell rank records in %u ms", rows, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u spell rank records", rows);
 }
 
 // set data in core for now
 void SpellMgr::LoadSpellCustomAttr()
 {
+    uint32 oldMSTime = getMSTime();
+
     mSpellCustomAttr.resize(GetSpellStore()->GetNumRows());
 
     barGoLink bar(GetSpellStore()->GetNumRows());
@@ -4018,13 +4049,15 @@ void SpellMgr::LoadSpellCustomAttr()
 
     CreatureAI::FillAISpellInfo();
 
+    sLog.outString(">> Loaded %u custom spell attributes in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u custom spell attributes", count);
 }
 
 // Fill custom data about enchancments
 void SpellMgr::LoadEnchantCustomAttr()
 {
+    uint32 oldMSTime = getMSTime();
+
     uint32 size = sSpellItemEnchantmentStore.GetNumRows();
     mEnchantCustomAttr.resize(size);
 
@@ -4062,14 +4095,15 @@ void SpellMgr::LoadEnchantCustomAttr()
         }
     }
 
+    sLog.outString(">> Loaded %u custom enchant attributes in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u custom enchant attributes", count);
 }
 
 void SpellMgr::LoadSpellLinked()
 {
+    uint32 oldMSTime = getMSTime();
+
     mSpellLinkedMap.clear();    // need for reload case
-    uint32 count = 0;
 
     //                                                0              1             2
     QueryResult result = WorldDatabase.Query("SELECT spell_trigger, spell_effect, type FROM spell_linked_spell");
@@ -4077,12 +4111,13 @@ void SpellMgr::LoadSpellLinked()
     {
         barGoLink bar(1);
         bar.step();
+        sLog.outString(">> Loaded 0 linked spells. DB table `spell_linked_spell` is empty.");
         sLog.outString();
-        sLog.outString(">> Loaded %u linked spells", count);
         return;
     }
 
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
 
     do
     {
@@ -4133,6 +4168,6 @@ void SpellMgr::LoadSpellLinked()
         ++count;
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %u linked spells in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u linked spells", count);
 }

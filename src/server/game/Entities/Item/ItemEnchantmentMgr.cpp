@@ -46,6 +46,8 @@ static EnchantmentStore RandomItemEnch;
 
 void LoadRandomEnchantmentsTable()
 {
+    uint32 oldMSTime = getMSTime();
+
     RandomItemEnch.clear();                                 // for reload case
 
     QueryResult result = WorldDatabase.Query("SELECT entry, ench, chance FROM item_enchantment_template");
@@ -70,13 +72,13 @@ void LoadRandomEnchantmentsTable()
             ++count;
         } while (result->NextRow());
 
+        sLog.outString(">> Loaded %u Item Enchantment definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         sLog.outString();
-        sLog.outString(">> Loaded %u Item Enchantment definitions", count);
     }
     else
     {
-        sLog.outString();
         sLog.outErrorDb(">> Loaded 0 Item Enchantment definitions. DB table `item_enchantment_template` is empty.");
+        sLog.outString();
     }
 }
 

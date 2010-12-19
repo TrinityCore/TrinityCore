@@ -434,6 +434,8 @@ void ObjectMgr::AddLocaleString(std::string& s, LocaleConstant locale, StringVec
 
 void ObjectMgr::LoadCreatureLocales()
 {
+    uint32 oldMSTime = getMSTime();
+
     mCreatureLocaleMap.clear();                              // need for reload case
 
     QueryResult result = WorldDatabase.Query("SELECT entry,name_loc1,subname_loc1,name_loc2,subname_loc2,name_loc3,subname_loc3,name_loc4,subname_loc4,name_loc5,subname_loc5,name_loc6,subname_loc6,name_loc7,subname_loc7,name_loc8,subname_loc8 FROM locales_creature");
@@ -463,12 +465,14 @@ void ObjectMgr::LoadCreatureLocales()
         }
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %lu creature locale strings in %u ms", (unsigned long)mCreatureLocaleMap.size(), GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %lu creature locale strings", (unsigned long)mCreatureLocaleMap.size());
 }
 
 void ObjectMgr::LoadGossipMenuItemsLocales()
 {
+    uint32 oldMSTime = getMSTime();
+
     mGossipMenuItemsLocaleMap.clear();                              // need for reload case
 
     QueryResult result = WorldDatabase.Query("SELECT menu_id,id,"
@@ -504,12 +508,14 @@ void ObjectMgr::LoadGossipMenuItemsLocales()
         }
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %lu gossip_menu_option locale strings in %u ms", (unsigned long)mGossipMenuItemsLocaleMap.size(), GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %lu gossip_menu_option locale strings", (unsigned long)mGossipMenuItemsLocaleMap.size());
 }
 
 void ObjectMgr::LoadPointOfInterestLocales()
 {
+    uint32 oldMSTime = getMSTime();
+
     mPointOfInterestLocaleMap.clear();                              // need for reload case
 
     QueryResult result = WorldDatabase.Query("SELECT entry,icon_name_loc1,icon_name_loc2,icon_name_loc3,icon_name_loc4,icon_name_loc5,icon_name_loc6,icon_name_loc7,icon_name_loc8 FROM locales_points_of_interest");
@@ -535,8 +541,8 @@ void ObjectMgr::LoadPointOfInterestLocales()
         }
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %lu points_of_interest locale strings in %u ms", (unsigned long)mPointOfInterestLocaleMap.size(), GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %lu points_of_interest locale strings", (unsigned long)mPointOfInterestLocaleMap.size());
 }
 
 struct SQLCreatureLoader : public SQLStorageLoaderBase<SQLCreatureLoader>
@@ -550,11 +556,10 @@ struct SQLCreatureLoader : public SQLStorageLoaderBase<SQLCreatureLoader>
 
 void ObjectMgr::LoadCreatureTemplates()
 {
+    uint32 oldMSTime = getMSTime();
+
     SQLCreatureLoader loader;
     loader.Load(sCreatureStorage);
-
-    sLog.outString(">> Loaded %u creature definitions", sCreatureStorage.RecordCount);
-    sLog.outString();
 
     // check data correctness
     for (uint32 i = 1; i < sCreatureStorage.MaxEntry; ++i)
@@ -562,6 +567,9 @@ void ObjectMgr::LoadCreatureTemplates()
         CreatureInfo const* cInfo = sCreatureStorage.LookupEntry<CreatureInfo>(i);
         CheckCreatureTemplate(cInfo);
     }
+
+    sLog.outString(">> Loaded %u creature definitions in %u ms", sCreatureStorage.RecordCount, GetMSTimeDiffToNow(oldMSTime));
+    sLog.outString();
 }
 
 void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
@@ -961,12 +969,9 @@ void ObjectMgr::ConvertCreatureAddonAuras(CreatureDataAddon* addon, char const* 
     endAura.effectMask = 0;
 }
 
-void ObjectMgr::LoadCreatureAddons(SQLStorage& creatureaddons, char const* entryName, char const* comment)
+uint32 ObjectMgr::LoadCreatureAddons(SQLStorage& creatureaddons, char const* entryName)
 {
     creatureaddons.Load();
-
-    sLog.outString(">> Loaded %u %s", creatureaddons.RecordCount, comment);
-    sLog.outString();
 
     // check data correctness and convert 'auras'
     for (uint32 i = 1; i < creatureaddons.MaxEntry; ++i)
@@ -995,11 +1000,15 @@ void ObjectMgr::LoadCreatureAddons(SQLStorage& creatureaddons, char const* entry
 
         ConvertCreatureAddonAuras(const_cast<CreatureDataAddon*>(addon), creatureaddons.GetTableName(), entryName);
     }
+
+    return creatureaddons.RecordCount;
 }
 
 void ObjectMgr::LoadCreatureAddons()
 {
-    LoadCreatureAddons(sCreatureInfoAddonStorage,"Entry","creature template addons");
+    uint32 oldMSTime = getMSTime();
+
+    uint32 count = LoadCreatureAddons(sCreatureInfoAddonStorage,"Entry");
 
     // check entry ids
     for (uint32 i = 1; i < sCreatureInfoAddonStorage.MaxEntry; ++i)
@@ -1007,14 +1016,20 @@ void ObjectMgr::LoadCreatureAddons()
             if (!sCreatureStorage.LookupEntry<CreatureInfo>(addon->guidOrEntry))
                 sLog.outErrorDb("Creature (Entry: %u) does not exist but has a record in `%s`",addon->guidOrEntry, sCreatureInfoAddonStorage.GetTableName());
 
+    sLog.outString(">> Loaded %u creature template addons in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog.outString();
+
     sLog.outString("Loading Creature Addon Data...");
-    LoadCreatureAddons(sCreatureDataAddonStorage,"GUID","creature addons");
+    count = LoadCreatureAddons(sCreatureDataAddonStorage,"GUID");
 
     // check entry ids
     for (uint32 i = 1; i < sCreatureDataAddonStorage.MaxEntry; ++i)
         if (CreatureDataAddon const* addon = sCreatureDataAddonStorage.LookupEntry<CreatureDataAddon>(i))
             if (mCreatureDataMap.find(addon->guidOrEntry) == mCreatureDataMap.end())
                 sLog.outErrorDb("Creature (GUID: %u) does not exist but has a record in `creature_addon`",addon->guidOrEntry);
+
+    sLog.outString(">> Loaded %u creature addons in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog.outString();
 }
 
 EquipmentInfo const* ObjectMgr::GetEquipmentInfo(uint32 entry)
@@ -1024,6 +1039,8 @@ EquipmentInfo const* ObjectMgr::GetEquipmentInfo(uint32 entry)
 
 void ObjectMgr::LoadEquipmentTemplates()
 {
+    uint32 oldMSTime = getMSTime();
+
     sEquipmentStorage.Load();
 
     for (uint32 i = 0; i < sEquipmentStorage.MaxEntry; ++i)
@@ -1062,7 +1079,8 @@ void ObjectMgr::LoadEquipmentTemplates()
             }
         }
     }
-    sLog.outString(">> Loaded %u equipment template", sEquipmentStorage.RecordCount);
+
+    sLog.outString(">> Loaded %u equipment templates in %u ms", sEquipmentStorage.RecordCount, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
 }
 
@@ -1129,6 +1147,8 @@ CreatureModelInfo const* ObjectMgr::GetCreatureModelRandomGender(uint32 display_
 
 void ObjectMgr::LoadCreatureModelInfo()
 {
+    uint32 oldMSTime = getMSTime();
+
     sCreatureModelStorage.Load();
 
     // post processing
@@ -1154,9 +1174,6 @@ void ObjectMgr::LoadCreatureModelInfo()
         }
     }
 
-    sLog.outString(">> Loaded %u creature model based info", sCreatureModelStorage.RecordCount);
-    sLog.outString();
-
     // check if combat_reach is valid
     for (uint32 i = 1; i < sCreatureModelStorage.MaxEntry; ++i)
     {
@@ -1170,6 +1187,9 @@ void ObjectMgr::LoadCreatureModelInfo()
             const_cast<CreatureModelInfo*>(mInfo)->combat_reach = DEFAULT_COMBAT_REACH;
         }
     }
+
+    sLog.outString(">> Loaded %u creature model based info in %u ms", sCreatureModelStorage.RecordCount, GetMSTimeDiffToNow(oldMSTime));
+    sLog.outString();
 }
 
 bool ObjectMgr::CheckCreatureLinkedRespawn(uint32 guid, uint32 linkedGuid) const
@@ -1204,17 +1224,17 @@ bool ObjectMgr::CheckCreatureLinkedRespawn(uint32 guid, uint32 linkedGuid) const
 
 void ObjectMgr::LoadCreatureLinkedRespawn()
 {
+    uint32 oldMSTime = getMSTime();
+
     mCreatureLinkedRespawnMap.clear();
     QueryResult result = WorldDatabase.Query("SELECT guid, linkedGuid FROM creature_linked_respawn ORDER BY guid ASC");
 
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
-        sLog.outString();
         sLog.outErrorDb(">> Loaded 0 linked respawns. DB table `creature_linked_respawn` is empty.");
+        sLog.outString();
         return;
     }
 
@@ -1233,8 +1253,8 @@ void ObjectMgr::LoadCreatureLinkedRespawn()
 
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded " UI64FMTD " linked respawns in %u ms", uint64(mCreatureLinkedRespawnMap.size()), GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded " UI64FMTD " linked respawns", uint64(mCreatureLinkedRespawnMap.size()));
 }
 
 bool ObjectMgr::SetCreatureLinkedRespawn(uint32 guid, uint32 linkedGuid)
@@ -1266,6 +1286,8 @@ bool ObjectMgr::SetCreatureLinkedRespawn(uint32 guid, uint32 linkedGuid)
 
 void ObjectMgr::LoadCreatures()
 {
+    uint32 oldMSTime = getMSTime();
+
     uint32 count = 0;
     //                                                0              1   2    3
     QueryResult result = WorldDatabase.Query("SELECT creature.guid, id, map, modelid,"
@@ -1281,11 +1303,9 @@ void ObjectMgr::LoadCreatures()
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
+        sLog.outErrorDb(">> Loaded 0 creatures. DB table `creature` is empty.");
         sLog.outString();
-        sLog.outErrorDb(">> Loaded 0 creature. DB table `creature` is empty.");
         return;
     }
 
@@ -1455,8 +1475,8 @@ void ObjectMgr::LoadCreatures()
 
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %u creatures in %u ms", (uint32)mCreatureDataMap.size(), GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u creatures", (uint32)mCreatureDataMap.size());
 }
 
 void ObjectMgr::AddCreatureToGrid(uint32 guid, CreatureData const* data)
@@ -1634,6 +1654,8 @@ uint32 ObjectMgr::AddCreData(uint32 entry, uint32 /*team*/, uint32 mapId, float 
 
 void ObjectMgr::LoadGameobjects()
 {
+    uint32 oldMSTime = getMSTime();
+    
     uint32 count = 0;
 
     //                                                0                1   2    3           4           5           6
@@ -1646,11 +1668,9 @@ void ObjectMgr::LoadGameobjects()
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
-        sLog.outString();
         sLog.outErrorDb(">> Loaded 0 gameobjects. DB table `gameobject` is empty.");
+        sLog.outString();
         return;
     }
 
@@ -1774,8 +1794,8 @@ void ObjectMgr::LoadGameobjects()
 
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %lu gameobjects in %u ms", (unsigned long)mGameObjectDataMap.size(), GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %lu gameobjects", (unsigned long)mGameObjectDataMap.size());
 }
 
 void ObjectMgr::AddGameobjectToGrid(uint32 guid, GameObjectData const* data)
@@ -1812,6 +1832,8 @@ void ObjectMgr::RemoveGameobjectFromGrid(uint32 guid, GameObjectData const* data
 
 void ObjectMgr::LoadCreatureRespawnTimes()
 {
+    uint32 oldMSTime = getMSTime();
+
     uint32 count = 0;
 
     QueryResult result = CharacterDatabase.Query("SELECT guid,respawntime,instance FROM creature_respawn");
@@ -1819,11 +1841,9 @@ void ObjectMgr::LoadCreatureRespawnTimes()
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
-        sLog.outString();
         sLog.outString(">> Loaded 0 creature respawn time.");
+        sLog.outString();
         return;
     }
 
@@ -1843,12 +1863,14 @@ void ObjectMgr::LoadCreatureRespawnTimes()
         ++count;
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %lu creature respawn times in %u ms", (unsigned long)mCreatureRespawnTimes.size(), GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %lu creature respawn times", (unsigned long)mCreatureRespawnTimes.size());
 }
 
 void ObjectMgr::LoadGameobjectRespawnTimes()
 {
+    uint32 oldMSTime = getMSTime();
+
     // remove outdated data
     PreparedStatement *stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GAMEOBJECT_RESPAWN_TIMES);
     CharacterDatabase.Execute(stmt);
@@ -1860,11 +1882,9 @@ void ObjectMgr::LoadGameobjectRespawnTimes()
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
+        sLog.outString(">> Loaded 0 gameobject respawn times. DB table `gameobject_respawn` is empty!");
         sLog.outString();
-        sLog.outString(">> Loaded 0 gameobject respawn time.");
         return;
     }
 
@@ -1884,8 +1904,8 @@ void ObjectMgr::LoadGameobjectRespawnTimes()
         ++count;
     } while (result->NextRow());
 
-    sLog.outString(">> Loaded %lu gameobject respawn times", (unsigned long)mGORespawnTimes.size());
     sLog.outString();
+    sLog.outString(">> Loaded %lu gameobject respawn times in %u ms", (unsigned long)mGORespawnTimes.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 Player* ObjectMgr::GetPlayerByLowGUID(uint32 lowguid) const
@@ -1980,6 +2000,8 @@ uint32 ObjectMgr::GetPlayerAccountIdByPlayerName(const std::string& name) const
 
 void ObjectMgr::LoadItemLocales()
 {
+    uint32 oldMSTime = getMSTime();
+
     mItemLocaleMap.clear();                                 // need for reload case
 
     QueryResult result = WorldDatabase.Query("SELECT entry,name_loc1,description_loc1,name_loc2,description_loc2,name_loc3,description_loc3,name_loc4,description_loc4,name_loc5,description_loc5,name_loc6,description_loc6,name_loc7,description_loc7,name_loc8,description_loc8 FROM locales_item");
@@ -2009,8 +2031,8 @@ void ObjectMgr::LoadItemLocales()
         }
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %lu Item locale strings in %u ms", (unsigned long)mItemLocaleMap.size(), GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %lu Item locale strings", (unsigned long)mItemLocaleMap.size());
 }
 
 struct SQLItemLoader : public SQLStorageLoaderBase<SQLItemLoader>
@@ -2024,10 +2046,10 @@ struct SQLItemLoader : public SQLStorageLoaderBase<SQLItemLoader>
 
 void ObjectMgr::LoadItemPrototypes()
 {
+    uint32 oldMSTime = getMSTime();
+
     SQLItemLoader loader;
     loader.Load(sItemStorage);
-    sLog.outString(">> Loaded %u item prototypes", sItemStorage.RecordCount);
-    sLog.outString();
 
     // check data correctness
     bool enforceDBCAttributes = sWorld.getBoolConfig(CONFIG_DBC_ENFORCE_ITEM_ATTRIBUTES);
@@ -2477,10 +2499,15 @@ void ObjectMgr::LoadItemPrototypes()
 
     for (std::set<uint32>::const_iterator itr = notFoundOutfit.begin(); itr != notFoundOutfit.end(); ++itr)
         sLog.outErrorDb("Item (Entry: %u) does not exist in `item_template` but is referenced in `CharStartOutfit.dbc`", *itr);
+
+    sLog.outString(">> Loaded %u item prototypes in %u ms", sItemStorage.RecordCount, GetMSTimeDiffToNow(oldMSTime));
+    sLog.outString();
 }
 
 void ObjectMgr::LoadItemSetNameLocales()
 {
+    uint32 oldMSTime = getMSTime();
+
     mItemSetNameLocaleMap.clear();                                 // need for reload case
 
     QueryResult result = WorldDatabase.Query("SELECT `entry`,`name_loc1`,`name_loc2`,`name_loc3`,`name_loc4`,`name_loc5`,`name_loc6`,`name_loc7`,`name_loc8` FROM `locales_item_set_names`");
@@ -2506,17 +2533,16 @@ void ObjectMgr::LoadItemSetNameLocales()
         }
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded " UI64FMTD " Item set name locale strings in %u ms", uint64(mItemSetNameLocaleMap.size()), GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded " UI64FMTD " Item set name locale strings", uint64(mItemSetNameLocaleMap.size()));
 }
 
 void ObjectMgr::LoadItemSetNames()
 {
+    uint32 oldMSTime = getMSTime();
+
     mItemSetNameMap.clear();                               // needed for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT `entry`,`name`,`InventoryType` FROM `item_set_names`");
-
-    uint32 count = 0;
     std::set<uint32> itemSetItems;
 
     // fill item set member ids
@@ -2531,44 +2557,47 @@ void ObjectMgr::LoadItemSetNames()
                 itemSetItems.insert(setEntry->itemId[i]);
     }
 
-    if (result)
-    {
-        barGoLink bar(result->GetRowCount());
-        do
-        {
-            Field *fields = result->Fetch();
-            bar.step();
+    QueryResult result = WorldDatabase.Query("SELECT `entry`,`name`,`InventoryType` FROM `item_set_names`");
 
-            uint32 entry = fields[0].GetUInt32();
-            if (itemSetItems.find(entry) == itemSetItems.end())
-            {
-                sLog.outErrorDb("Item set name (Entry: %u) not found in ItemSet.dbc, data useless.", entry);
-                continue;
-            }
-
-            ItemSetNameEntry &data = mItemSetNameMap[entry];
-            data.name = fields[1].GetString();
-
-            uint32 invType = fields[2].GetUInt32();
-            if (invType >= MAX_INVTYPE)
-            {
-                sLog.outErrorDb("Item set name (Entry: %u) has wrong InventoryType value (%u)", entry, invType);
-                invType = INVTYPE_NON_EQUIP;
-            }
-
-            data.InventoryType = invType;
-            itemSetItems.erase(entry);
-            ++count;
-        } while (result->NextRow());
-    }
-    else
+    if (!result)
     {
         barGoLink bar(1);
         bar.step();
-
+        sLog.outString(">> Loaded 0 item set names. DB table `item_set_names` is empty.");
         sLog.outString();
-        sLog.outErrorDb(">> Loaded 0 item set names. DB table `item_set_names` is empty.");
+        return;
     }
+
+    barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
+
+    do
+    {
+        Field *fields = result->Fetch();
+        bar.step();
+
+        uint32 entry = fields[0].GetUInt32();
+        if (itemSetItems.find(entry) == itemSetItems.end())
+        {
+            sLog.outErrorDb("Item set name (Entry: %u) not found in ItemSet.dbc, data useless.", entry);
+            continue;
+        }
+
+        ItemSetNameEntry &data = mItemSetNameMap[entry];
+        data.name = fields[1].GetString();
+
+        uint32 invType = fields[2].GetUInt32();
+        if (invType >= MAX_INVTYPE)
+        {
+            sLog.outErrorDb("Item set name (Entry: %u) has wrong InventoryType value (%u)", entry, invType);
+            invType = INVTYPE_NON_EQUIP;
+        }
+
+        data.InventoryType = invType;
+        itemSetItems.erase(entry);
+        ++count;
+    } while (result->NextRow());
+    
 
     if (!itemSetItems.empty())
     {
@@ -2591,12 +2620,14 @@ void ObjectMgr::LoadItemSetNames()
         }
     }
 
+    sLog.outString(">> Loaded %u item set names in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u item set names", count);
 }
 
 void ObjectMgr::LoadVehicleAccessories()
 {
+    uint32 oldMSTime = getMSTime();
+
     m_VehicleAccessoryMap.clear();                           // needed for reload case
 
     uint32 count = 0;
@@ -2606,11 +2637,9 @@ void ObjectMgr::LoadVehicleAccessories()
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
-        sLog.outString();
         sLog.outErrorDb(">> Loaded 0 LoadVehicleAccessor. DB table `vehicle_accessory` is empty.");
+        sLog.outString();
         return;
     }
 
@@ -2643,12 +2672,14 @@ void ObjectMgr::LoadVehicleAccessories()
         ++count;
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %u Vehicle Accessories in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u Vehicle Accessories", count);
 }
 
 void ObjectMgr::LoadVehicleScaling()
 {
+    uint32 oldMSTime = getMSTime();
+
     m_VehicleScalingMap.clear();                           // needed for reload case
 
     uint32 count = 0;
@@ -2659,8 +2690,8 @@ void ObjectMgr::LoadVehicleScaling()
     {
         barGoLink bar(1);
         bar.step();
+        sLog.outString(">> Loaded 0 vehicle scaling entries. DB table `vehicle_scaling_info` is empty.");
         sLog.outString();
-        sLog.outErrorDb(">> Loaded 0 vehicle scaling entries. DB table `vehicle_scaling_info` is empty.");
         return;
     }
 
@@ -2688,85 +2719,79 @@ void ObjectMgr::LoadVehicleScaling()
         ++count;
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %u vehicle scaling entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u vehicle scaling entries.", count);
 }
 
 void ObjectMgr::LoadPetLevelInfo()
 {
-    // Loading levels data
+    uint32 oldMSTime = getMSTime();
+
+    //                                                 0               1      2   3     4    5    6    7     8    9
+    QueryResult result  = WorldDatabase.Query("SELECT creature_entry, level, hp, mana, str, agi, sta, inte, spi, armor FROM pet_levelstats");
+
+    if (!result)
     {
-        //                                                 0               1      2   3     4    5    6    7     8    9
-        QueryResult result  = WorldDatabase.Query("SELECT creature_entry, level, hp, mana, str, agi, sta, inte, spi, armor FROM pet_levelstats");
-
-        uint32 count = 0;
-
-        if (!result)
-        {
-            barGoLink bar(1);
-
-            sLog.outString();
-            sLog.outString(">> Loaded %u level pet stats definitions", count);
-            sLog.outErrorDb("Error loading `pet_levelstats` table or empty table.");
-            return;
-        }
-
-        barGoLink bar(result->GetRowCount());
-
-        do
-        {
-            Field* fields = result->Fetch();
-
-            uint32 creature_id = fields[0].GetUInt32();
-            if (!sCreatureStorage.LookupEntry<CreatureInfo>(creature_id))
-            {
-                sLog.outErrorDb("Wrong creature id %u in `pet_levelstats` table, ignoring.",creature_id);
-                continue;
-            }
-
-            uint32 current_level = fields[1].GetUInt32();
-            if (current_level > sWorld.getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
-            {
-                if (current_level > STRONG_MAX_LEVEL)        // hardcoded level maximum
-                    sLog.outErrorDb("Wrong (> %u) level %u in `pet_levelstats` table, ignoring.",STRONG_MAX_LEVEL,current_level);
-                else
-                {
-                    sLog.outDetail("Unused (> MaxPlayerLevel in worldserver.conf) level %u in `pet_levelstats` table, ignoring.",current_level);
-                    ++count;                                // make result loading percent "expected" correct in case disabled detail mode for example.
-                }
-                continue;
-            }
-            else if (current_level < 1)
-            {
-                sLog.outErrorDb("Wrong (<1) level %u in `pet_levelstats` table, ignoring.",current_level);
-                continue;
-            }
-
-            PetLevelInfo*& pInfoMapEntry = petInfo[creature_id];
-
-            if (pInfoMapEntry == NULL)
-                pInfoMapEntry =  new PetLevelInfo[sWorld.getIntConfig(CONFIG_MAX_PLAYER_LEVEL)];
-
-            // data for level 1 stored in [0] array element, ...
-            PetLevelInfo* pLevelInfo = &pInfoMapEntry[current_level-1];
-
-            pLevelInfo->health = fields[2].GetUInt16();
-            pLevelInfo->mana   = fields[3].GetUInt16();
-            pLevelInfo->armor  = fields[9].GetUInt16();
-
-            for (int i = 0; i < MAX_STATS; i++)
-            {
-                pLevelInfo->stats[i] = fields[i+4].GetUInt16();
-            }
-
-            bar.step();
-            ++count;
-        }
-        while (result->NextRow());
-
+        barGoLink bar(1);
+        bar.step();
+        sLog.outErrorDb(">> Loaded 0 level pet stats definitions. DB table `pet_levelstats` is empty.");
         sLog.outString();
-        sLog.outString(">> Loaded %u level pet stats definitions", count);
+        return;
     }
+
+    barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 creature_id = fields[0].GetUInt32();
+        if (!sCreatureStorage.LookupEntry<CreatureInfo>(creature_id))
+        {
+            sLog.outErrorDb("Wrong creature id %u in `pet_levelstats` table, ignoring.",creature_id);
+            continue;
+        }
+
+        uint32 current_level = fields[1].GetUInt32();
+        if (current_level > sWorld.getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+        {
+            if (current_level > STRONG_MAX_LEVEL)        // hardcoded level maximum
+                sLog.outErrorDb("Wrong (> %u) level %u in `pet_levelstats` table, ignoring.",STRONG_MAX_LEVEL,current_level);
+            else
+            {
+                sLog.outDetail("Unused (> MaxPlayerLevel in worldserver.conf) level %u in `pet_levelstats` table, ignoring.",current_level);
+                ++count;                                // make result loading percent "expected" correct in case disabled detail mode for example.
+            }
+            continue;
+        }
+        else if (current_level < 1)
+        {
+            sLog.outErrorDb("Wrong (<1) level %u in `pet_levelstats` table, ignoring.",current_level);
+            continue;
+        }
+
+        PetLevelInfo*& pInfoMapEntry = petInfo[creature_id];
+
+        if (pInfoMapEntry == NULL)
+            pInfoMapEntry =  new PetLevelInfo[sWorld.getIntConfig(CONFIG_MAX_PLAYER_LEVEL)];
+
+        // data for level 1 stored in [0] array element, ...
+        PetLevelInfo* pLevelInfo = &pInfoMapEntry[current_level-1];
+
+        pLevelInfo->health = fields[2].GetUInt16();
+        pLevelInfo->mana   = fields[3].GetUInt16();
+        pLevelInfo->armor  = fields[9].GetUInt16();
+
+        for (int i = 0; i < MAX_STATS; i++)
+        {
+            pLevelInfo->stats[i] = fields[i+4].GetUInt16();
+        }
+
+        bar.step();
+        ++count;
+    }
+    while (result->NextRow());
 
     // Fill gaps and check integrity
     for (PetLevelInfoMap::iterator itr = petInfo.begin(); itr != petInfo.end(); ++itr)
@@ -2790,6 +2815,9 @@ void ObjectMgr::LoadPetLevelInfo()
             }
         }
     }
+
+    sLog.outString(">> Loaded %u level pet stats definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog.outString();
 }
 
 PetLevelInfo const* ObjectMgr::GetPetLevelInfo(uint32 creature_id, uint8 level) const
@@ -2849,115 +2877,113 @@ void ObjectMgr::LoadPlayerInfo()
 {
     // Load playercreate
     {
+        uint32 oldMSTime = getMSTime();
         //                                                0     1      2    3     4           5           6
         QueryResult result = WorldDatabase.Query("SELECT race, class, map, zone, position_x, position_y, position_z, orientation FROM playercreateinfo");
-
-        uint32 count = 0;
 
         if (!result)
         {
             barGoLink bar(1);
-
             sLog.outString();
-            sLog.outString(">> Loaded %u player create definitions", count);
-            sLog.outErrorDb("Error loading `playercreateinfo` table or empty table.");
+            sLog.outErrorDb(">> Loaded 0 player create definitions. DB table `playercreateinfo` is empty.");
             exit(1);
         }
-
-        barGoLink bar(result->GetRowCount());
-
-        do
+        else
         {
-            Field* fields = result->Fetch();
+            barGoLink bar(result->GetRowCount());
+            uint32 count = 0;
 
-            uint32 current_race  = fields[0].GetUInt32();
-            uint32 current_class = fields[1].GetUInt32();
-            uint32 mapId         = fields[2].GetUInt32();
-            uint32 areaId        = fields[3].GetUInt32();
-            float  positionX     = fields[4].GetFloat();
-            float  positionY     = fields[5].GetFloat();
-            float  positionZ     = fields[6].GetFloat();
-            float  orientation   = fields[7].GetFloat();
-
-            if (current_race >= MAX_RACES)
+            do
             {
-                sLog.outErrorDb("Wrong race %u in `playercreateinfo` table, ignoring.",current_race);
-                continue;
+                Field* fields = result->Fetch();
+
+                uint32 current_race  = fields[0].GetUInt32();
+                uint32 current_class = fields[1].GetUInt32();
+                uint32 mapId         = fields[2].GetUInt32();
+                uint32 areaId        = fields[3].GetUInt32();
+                float  positionX     = fields[4].GetFloat();
+                float  positionY     = fields[5].GetFloat();
+                float  positionZ     = fields[6].GetFloat();
+                float  orientation   = fields[7].GetFloat();
+
+                if (current_race >= MAX_RACES)
+                {
+                    sLog.outErrorDb("Wrong race %u in `playercreateinfo` table, ignoring.",current_race);
+                    continue;
+                }
+
+                ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(current_race);
+                if (!rEntry)
+                {
+                    sLog.outErrorDb("Wrong race %u in `playercreateinfo` table, ignoring.",current_race);
+                    continue;
+                }
+
+                if (current_class >= MAX_CLASSES)
+                {
+                    sLog.outErrorDb("Wrong class %u in `playercreateinfo` table, ignoring.",current_class);
+                    continue;
+                }
+
+                if (!sChrClassesStore.LookupEntry(current_class))
+                {
+                    sLog.outErrorDb("Wrong class %u in `playercreateinfo` table, ignoring.",current_class);
+                    continue;
+                }
+
+                // accept DB data only for valid position (and non instanceable)
+                if (!MapManager::IsValidMapCoord(mapId,positionX,positionY,positionZ,orientation))
+                {
+                    sLog.outErrorDb("Wrong home position for class %u race %u pair in `playercreateinfo` table, ignoring.",current_class,current_race);
+                    continue;
+                }
+
+                if (sMapStore.LookupEntry(mapId)->Instanceable())
+                {
+                    sLog.outErrorDb("Home position in instanceable map for class %u race %u pair in `playercreateinfo` table, ignoring.",current_class,current_race);
+                    continue;
+                }
+
+                PlayerInfo* pInfo = &playerInfo[current_race][current_class];
+
+                pInfo->mapId       = mapId;
+                pInfo->areaId      = areaId;
+                pInfo->positionX   = positionX;
+                pInfo->positionY   = positionY;
+                pInfo->positionZ   = positionZ;
+                pInfo->orientation = orientation;
+
+                pInfo->displayId_m = rEntry->model_m;
+                pInfo->displayId_f = rEntry->model_f;
+
+                bar.step();
+                ++count;
             }
+            while (result->NextRow());
 
-            ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(current_race);
-            if (!rEntry)
-            {
-                sLog.outErrorDb("Wrong race %u in `playercreateinfo` table, ignoring.",current_race);
-                continue;
-            }
-
-            if (current_class >= MAX_CLASSES)
-            {
-                sLog.outErrorDb("Wrong class %u in `playercreateinfo` table, ignoring.",current_class);
-                continue;
-            }
-
-            if (!sChrClassesStore.LookupEntry(current_class))
-            {
-                sLog.outErrorDb("Wrong class %u in `playercreateinfo` table, ignoring.",current_class);
-                continue;
-            }
-
-            // accept DB data only for valid position (and non instanceable)
-            if (!MapManager::IsValidMapCoord(mapId,positionX,positionY,positionZ,orientation))
-            {
-                sLog.outErrorDb("Wrong home position for class %u race %u pair in `playercreateinfo` table, ignoring.",current_class,current_race);
-                continue;
-            }
-
-            if (sMapStore.LookupEntry(mapId)->Instanceable())
-            {
-                sLog.outErrorDb("Home position in instanceable map for class %u race %u pair in `playercreateinfo` table, ignoring.",current_class,current_race);
-                continue;
-            }
-
-            PlayerInfo* pInfo = &playerInfo[current_race][current_class];
-
-            pInfo->mapId       = mapId;
-            pInfo->areaId      = areaId;
-            pInfo->positionX   = positionX;
-            pInfo->positionY   = positionY;
-            pInfo->positionZ   = positionZ;
-            pInfo->orientation = orientation;
-
-            pInfo->displayId_m = rEntry->model_m;
-            pInfo->displayId_f = rEntry->model_f;
-
-            bar.step();
-            ++count;
+            sLog.outString(">> Loaded %u player create definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog.outString();
         }
-        while (result->NextRow());
-
-        sLog.outString();
-        sLog.outString(">> Loaded %u player create definitions", count);
     }
 
     // Load playercreate items
     sLog.outString("Loading Player Create Items Data...");
     {
+        uint32 oldMSTime = getMSTime();
         //                                                0     1      2       3
         QueryResult result = WorldDatabase.Query("SELECT race, class, itemid, amount FROM playercreateinfo_item");
-
-        uint32 count = 0;
 
         if (!result)
         {
             barGoLink bar(1);
-
             bar.step();
-
+            sLog.outString(">> Loaded 0 custom player create items. DB table `playercreateinfo_item` is empty.");
             sLog.outString();
-            sLog.outString(">> Loaded %u custom player create items", count);
         }
         else
         {
             barGoLink bar(result->GetRowCount());
+            uint32 count = 0;
 
             do
             {
@@ -3011,14 +3037,15 @@ void ObjectMgr::LoadPlayerInfo()
             }
             while (result->NextRow());
 
+            sLog.outString(">> Loaded %u custom player create items in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
             sLog.outString();
-            sLog.outString(">> Loaded %u custom player create items", count);
         }
     }
 
     // Load playercreate spells
     sLog.outString("Loading Player Create Spell Data...");
     {
+        uint32 oldMSTime = getMSTime();
 
         QueryResult result = QueryResult(NULL);
         if (sWorld.getBoolConfig(CONFIG_START_ALL_SPELLS))
@@ -3026,19 +3053,17 @@ void ObjectMgr::LoadPlayerInfo()
         else
             result = WorldDatabase.Query("SELECT race, class, Spell FROM playercreateinfo_spell");
 
-        uint32 count = 0;
-
         if (!result)
         {
             barGoLink bar(1);
-
+            bar.step();
+            sLog.outErrorDb(">> Loaded 0 player create spells. DB table `%s` is empty.", sWorld.getBoolConfig(CONFIG_START_ALL_SPELLS) ? "playercreateinfo_spell_custom" : "playercreateinfo_spell");
             sLog.outString();
-            sLog.outString(">> Loaded %u player create spells", count);
-            sLog.outErrorDb("Error loading player starting spells or empty table.");
         }
         else
         {
             barGoLink bar(result->GetRowCount());
+            uint32 count = 0;
 
             do
             {
@@ -3076,30 +3101,30 @@ void ObjectMgr::LoadPlayerInfo()
             }
             while (result->NextRow());
 
+            sLog.outString(">> Loaded %u player create spells in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
             sLog.outString();
-            sLog.outString(">> Loaded %u player create spells", count);
         }
     }
 
     // Load playercreate actions
     sLog.outString("Loading Player Create Action Data...");
     {
+        uint32 oldMSTime = getMSTime();
+
         //                                                0     1      2       3       4
         QueryResult result = WorldDatabase.Query("SELECT race, class, button, action, type FROM playercreateinfo_action");
-
-        uint32 count = 0;
 
         if (!result)
         {
             barGoLink bar(1);
-
+            bar.step();
+            sLog.outErrorDb(">> Loaded 0 player create actions. DB table `playercreateinfo_action` is empty.");
             sLog.outString();
-            sLog.outString(">> Loaded %u player create actions", count);
-            sLog.outErrorDb("Error loading `playercreateinfo_action` table or empty table.");
         }
         else
         {
             barGoLink bar(result->GetRowCount());
+            uint32 count = 0;
 
             do
             {
@@ -3127,30 +3152,30 @@ void ObjectMgr::LoadPlayerInfo()
             }
             while (result->NextRow());
 
+            sLog.outString(">> Loaded %u player create actions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
             sLog.outString();
-            sLog.outString(">> Loaded %u player create actions", count);
         }
     }
 
     // Loading levels data (class only dependent)
     sLog.outString("Loading Player Create Level HP/Mana Data...");
     {
+        uint32 oldMSTime = getMSTime();
+
         //                                                 0      1      2       3
         QueryResult result  = WorldDatabase.Query("SELECT class, level, basehp, basemana FROM player_classlevelstats");
-
-        uint32 count = 0;
 
         if (!result)
         {
             barGoLink bar(1);
-
+            bar.step();
+            sLog.outErrorDb(">> Loaded 0 level health/mana definitions. DB table `game_event_condition` is empty.");
             sLog.outString();
-            sLog.outString(">> Loaded %u level health/mana definitions", count);
-            sLog.outErrorDb("Error loading `player_classlevelstats` table or empty table.");
             exit(1);
         }
 
         barGoLink bar(result->GetRowCount());
+        uint32 count = 0;
 
         do
         {
@@ -3186,56 +3211,56 @@ void ObjectMgr::LoadPlayerInfo()
         }
         while (result->NextRow());
 
-        sLog.outString();
-        sLog.outString(">> Loaded %u level health/mana definitions", count);
-    }
-
-    // Fill gaps and check integrity
-    for (int class_ = 0; class_ < MAX_CLASSES; ++class_)
-    {
-        // skip non existed classes
-        if (!sChrClassesStore.LookupEntry(class_))
-            continue;
-
-        PlayerClassInfo* pClassInfo = &playerClassInfo[class_];
-
-        // fatal error if no level 1 data
-        if (!pClassInfo->levelInfo || pClassInfo->levelInfo[0].basehealth == 0)
+        // Fill gaps and check integrity
+        for (int class_ = 0; class_ < MAX_CLASSES; ++class_)
         {
-            sLog.outErrorDb("Class %i Level 1 does not have health/mana data!",class_);
-            exit(1);
-        }
+            // skip non existed classes
+            if (!sChrClassesStore.LookupEntry(class_))
+                continue;
 
-        // fill level gaps
-        for (uint8 level = 1; level < sWorld.getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
-        {
-            if (pClassInfo->levelInfo[level].basehealth == 0)
+            PlayerClassInfo* pClassInfo = &playerClassInfo[class_];
+
+            // fatal error if no level 1 data
+            if (!pClassInfo->levelInfo || pClassInfo->levelInfo[0].basehealth == 0)
             {
-                sLog.outErrorDb("Class %i Level %i does not have health/mana data. Using stats data of level %i.",class_,level+1, level);
-                pClassInfo->levelInfo[level] = pClassInfo->levelInfo[level-1];
+                sLog.outErrorDb("Class %i Level 1 does not have health/mana data!",class_);
+                exit(1);
+            }
+
+            // fill level gaps
+            for (uint8 level = 1; level < sWorld.getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
+            {
+                if (pClassInfo->levelInfo[level].basehealth == 0)
+                {
+                    sLog.outErrorDb("Class %i Level %i does not have health/mana data. Using stats data of level %i.",class_,level+1, level);
+                    pClassInfo->levelInfo[level] = pClassInfo->levelInfo[level-1];
+                }
             }
         }
+
+        sLog.outString(">> Loaded %u level health/mana definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog.outString();
     }
 
     // Loading levels data (class/race dependent)
     sLog.outString("Loading Player Create Level Stats Data...");
     {
+        uint32 oldMSTime = getMSTime();
+
         //                                                 0     1      2      3    4    5    6    7
         QueryResult result  = WorldDatabase.Query("SELECT race, class, level, str, agi, sta, inte, spi FROM player_levelstats");
-
-        uint32 count = 0;
 
         if (!result)
         {
             barGoLink bar(1);
-
+            bar.step();
+            sLog.outErrorDb(">> Loaded 0 level stats definitions. DB table `player_levelstats` is empty.");
             sLog.outString();
-            sLog.outString(">> Loaded %u level stats definitions", count);
-            sLog.outErrorDb("Error loading `player_levelstats` table or empty table.");
             exit(1);
         }
 
         barGoLink bar(result->GetRowCount());
+        uint32 count = 0;
 
         do
         {
@@ -3285,59 +3310,61 @@ void ObjectMgr::LoadPlayerInfo()
         }
         while (result->NextRow());
 
-        sLog.outString();
-        sLog.outString(">> Loaded %u level stats definitions", count);
-    }
-
-    // Fill gaps and check integrity
-    for (int race = 0; race < MAX_RACES; ++race)
-    {
-        // skip non existed races
-        if (!sChrRacesStore.LookupEntry(race))
-            continue;
-
-        for (int class_ = 0; class_ < MAX_CLASSES; ++class_)
+        // Fill gaps and check integrity
+        for (int race = 0; race < MAX_RACES; ++race)
         {
-            // skip non existed classes
-            if (!sChrClassesStore.LookupEntry(class_))
+            // skip non existed races
+            if (!sChrRacesStore.LookupEntry(race))
                 continue;
 
-            PlayerInfo* pInfo = &playerInfo[race][class_];
-
-            // skip non loaded combinations
-            if (!pInfo->displayId_m || !pInfo->displayId_f)
-                continue;
-
-            // skip expansion races if not playing with expansion
-            if (sWorld.getIntConfig(CONFIG_EXPANSION) < 1 && (race == RACE_BLOODELF || race == RACE_DRAENEI))
-                continue;
-
-            // skip expansion classes if not playing with expansion
-            if (sWorld.getIntConfig(CONFIG_EXPANSION) < 2 && class_ == CLASS_DEATH_KNIGHT)
-                continue;
-
-            // fatal error if no level 1 data
-            if (!pInfo->levelInfo || pInfo->levelInfo[0].stats[0] == 0)
+            for (int class_ = 0; class_ < MAX_CLASSES; ++class_)
             {
-                sLog.outErrorDb("Race %i Class %i Level 1 does not have stats data!",race,class_);
-                exit(1);
-            }
+                // skip non existed classes
+                if (!sChrClassesStore.LookupEntry(class_))
+                    continue;
 
-            // fill level gaps
-            for (uint8 level = 1; level < sWorld.getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
-            {
-                if (pInfo->levelInfo[level].stats[0] == 0)
+                PlayerInfo* pInfo = &playerInfo[race][class_];
+
+                // skip non loaded combinations
+                if (!pInfo->displayId_m || !pInfo->displayId_f)
+                    continue;
+
+                // skip expansion races if not playing with expansion
+                if (sWorld.getIntConfig(CONFIG_EXPANSION) < 1 && (race == RACE_BLOODELF || race == RACE_DRAENEI))
+                    continue;
+
+                // skip expansion classes if not playing with expansion
+                if (sWorld.getIntConfig(CONFIG_EXPANSION) < 2 && class_ == CLASS_DEATH_KNIGHT)
+                    continue;
+
+                // fatal error if no level 1 data
+                if (!pInfo->levelInfo || pInfo->levelInfo[0].stats[0] == 0)
                 {
-                    sLog.outErrorDb("Race %i Class %i Level %i does not have stats data. Using stats data of level %i.",race,class_,level+1, level);
-                    pInfo->levelInfo[level] = pInfo->levelInfo[level-1];
+                    sLog.outErrorDb("Race %i Class %i Level 1 does not have stats data!",race,class_);
+                    exit(1);
+                }
+
+                // fill level gaps
+                for (uint8 level = 1; level < sWorld.getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
+                {
+                    if (pInfo->levelInfo[level].stats[0] == 0)
+                    {
+                        sLog.outErrorDb("Race %i Class %i Level %i does not have stats data. Using stats data of level %i.",race,class_,level+1, level);
+                        pInfo->levelInfo[level] = pInfo->levelInfo[level-1];
+                    }
                 }
             }
         }
+
+        sLog.outString(">> Loaded %u level stats definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog.outString();
     }
 
     // Loading xp per level data
     sLog.outString("Loading Player Create XP Data...");
     {
+        uint32 oldMSTime = getMSTime();
+
         mPlayerXPperLevel.resize(sWorld.getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
         for (uint8 level = 0; level < sWorld.getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
             mPlayerXPperLevel[level] = 0;
@@ -3345,19 +3372,17 @@ void ObjectMgr::LoadPlayerInfo()
         //                                                 0    1
         QueryResult result  = WorldDatabase.Query("SELECT lvl, xp_for_next_level FROM player_xp_for_level");
 
-        uint32 count = 0;
-
         if (!result)
         {
             barGoLink bar(1);
-
+            bar.step();
+            sLog.outErrorDb(">> Loaded 0 xp for level definitions. DB table `player_xp_for_level` is empty.");
             sLog.outString();
-            sLog.outString(">> Loaded %u xp for level definitions", count);
-            sLog.outErrorDb("Error loading `player_xp_for_level` table or empty table.");
             exit(1);
         }
 
         barGoLink bar(result->GetRowCount());
+        uint32 count = 0;
 
         do
         {
@@ -3384,18 +3409,18 @@ void ObjectMgr::LoadPlayerInfo()
         }
         while (result->NextRow());
 
-        sLog.outString();
-        sLog.outString(">> Loaded %u xp for level definitions", count);
-    }
-
-    // fill level gaps
-    for (uint8 level = 1; level < sWorld.getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
-    {
-        if (mPlayerXPperLevel[level] == 0)
+        // fill level gaps
+        for (uint8 level = 1; level < sWorld.getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
         {
-            sLog.outErrorDb("Level %i does not have XP for level data. Using data of level [%i] + 100.",level+1, level);
-            mPlayerXPperLevel[level] = mPlayerXPperLevel[level-1]+100;
+            if (mPlayerXPperLevel[level] == 0)
+            {
+                sLog.outErrorDb("Level %i does not have XP for level data. Using data of level [%i] + 100.",level+1, level);
+                mPlayerXPperLevel[level] = mPlayerXPperLevel[level-1]+100;
+            }
         }
+
+        sLog.outString(">> Loaded %u xp for level definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog.outString();
     }
 }
 
@@ -3505,292 +3530,366 @@ void ObjectMgr::BuildPlayerLevelInfo(uint8 race, uint8 _class, uint8 level, Play
 
 void ObjectMgr::LoadGuilds()
 {
-    PreparedStatement* stmt = NULL;
-    PreparedQueryResult result;
-
-    sLog.outString("Loading Guilds...");
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILDS);
-    result = CharacterDatabase.Query(stmt);
-    if (!result)
-    {
-        barGoLink bar(1);
-        bar.step();
-
-        sLog.outString(">> Loaded 0 guild definitions");
-        sLog.outString();
-        return;
-    }
-    mGuildMap.resize(m_guildId, NULL);         // Reserve space and initialize storage for loading guilds
     // 1. Load all guilds
-    uint64 rowCount = result->GetRowCount();
-    barGoLink bar(rowCount);
-    do
+    sLog.outString("Loading guilds definitions...");
     {
-        bar.step();
+        uint32 oldMSTime = getMSTime();
 
-        Field* fields = result->Fetch();
-        Guild* pNewGuild = new Guild();
-        if (!pNewGuild->LoadFromDB(fields))
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILDS);
+        PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
+        if (!result)
         {
-            delete pNewGuild;
-            continue;
+            barGoLink bar(1);
+            bar.step();
+            sLog.outString(">> Loaded 0 guild definitions. DB table `guild` is empty.");
+            sLog.outString();
+            return;
         }
-        AddGuild(pNewGuild);
+        else
+        {
+            mGuildMap.resize(m_guildId, NULL);         // Reserve space and initialize storage for loading guilds //TODOLEAK: fix this shit
+
+            barGoLink bar(result->GetRowCount());
+            uint32 count = 0;
+
+            do
+            {
+                bar.step();
+
+                Field* fields = result->Fetch();
+                Guild* pNewGuild = new Guild();
+                if (!pNewGuild->LoadFromDB(fields))
+                {
+                    delete pNewGuild;
+                    continue;
+                }
+                AddGuild(pNewGuild);
+                ++count;
+            }
+            while (result->NextRow());
+
+            sLog.outString(">> Loaded %u guild definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog.outString();
+        }
     }
-    while (result->NextRow());
-    sLog.outString();
-    sLog.outString(">> Loaded " UI64FMTD " guilds definitions", rowCount);
-    sLog.outString();
 
     // 2. Load all guild ranks
     sLog.outString("Loading guild ranks...");
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_RANKS);
-    result = CharacterDatabase.Query(stmt);
-    if (result)
     {
-        rowCount = result->GetRowCount();
-        barGoLink bar(rowCount);
-        do
-        {
-            bar.step();
+        uint32 oldMSTime = getMSTime();
 
-            Field* fields = result->Fetch();
-            uint32 guildId = fields[0].GetUInt32();
-            if (Guild* pGuild = GetGuildById(guildId))
-                pGuild->LoadRankFromDB(fields);
+        // Delete orphaned guild rank entries before loading the valid ones
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_CLEAN_GUILD_RANKS);
+        CharacterDatabase.Execute(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_RANKS);
+        PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
+        if (!result)
+        {
+            barGoLink bar(1);
+            bar.step();
+            sLog.outString(">> Loaded 0 guild ranks. DB table `guild_rank` is empty.");
+            sLog.outString();
         }
-        while (result->NextRow());
+        else
+        {
+            barGoLink bar(result->GetRowCount());
+            uint32 count = 0;
+
+            do
+            {
+                bar.step();
+
+                Field* fields = result->Fetch();
+                uint32 guildId = fields[0].GetUInt32();
+                if (Guild* pGuild = GetGuildById(guildId))
+                    pGuild->LoadRankFromDB(fields);                     //TODOLEAK: untangle that shit
+                ++count;
+            }
+            while (result->NextRow());
+
+            sLog.outString(">> Loaded %u guild ranks in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog.outString();
+        }
     }
-    else
-    {
-        rowCount = 0;
-        barGoLink bar(1);
-        bar.step();
-    }
-    sLog.outString(">> Loaded " UI64FMTD " ranks for all the guilds", rowCount);
-    sLog.outString();
 
     // 3. Load all guild members
     sLog.outString("Loading guild members...");
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_MEMBERS);
-    result = CharacterDatabase.Query(stmt);
-    if (result)
     {
-        rowCount = result->GetRowCount();
-        barGoLink bar(rowCount);
-        do
-        {
-            bar.step();
+        uint32 oldMSTime = getMSTime();
 
-            Field* fields = result->Fetch();
-            uint32 guildId = fields[0].GetUInt32();
-            if (Guild* pGuild = GetGuildById(guildId))
-                pGuild->LoadMemberFromDB(fields);
+        // Delete orphaned guild member entries before loading the valid ones
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_CLEAN_GUILD_MEMBERS);
+        CharacterDatabase.Execute(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_MEMBERS);
+        PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
+        if (!result)
+        {
+            barGoLink bar(1);
+            bar.step();
+            sLog.outString(">> Loaded 0 guild members. DB table `guild_member` is empty.");
+            sLog.outString();
         }
-        while (result->NextRow());
+        else
+        {
+            barGoLink bar(result->GetRowCount());
+            uint32 count = 0;
+
+            do
+            {
+                bar.step();
+
+                Field* fields = result->Fetch();
+                uint32 guildId = fields[0].GetUInt32();
+                if (Guild* pGuild = GetGuildById(guildId))
+                    pGuild->LoadMemberFromDB(fields);
+                ++count;
+            }
+            while (result->NextRow());
+
+            sLog.outString(">> Loaded %u guild members int %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog.outString();
+        }
     }
-    else
-    {
-        rowCount = 0;
-        barGoLink bar(1);
-        bar.step();
-    }
-    sLog.outString(">> Loaded " UI64FMTD " members from all the guilds", rowCount);
-    sLog.outString();
 
     // 4. Load all guild bank tab rights
     sLog.outString("Loading bank tab rights...");
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_BANK_RIGHTS);
-    result = CharacterDatabase.Query(stmt);
-    if (result)
     {
-        rowCount = result->GetRowCount();
-        barGoLink bar(rowCount);
-        do
-        {
-            bar.step();
+        uint32 oldMSTime = getMSTime();
 
-            Field* fields = result->Fetch();
-            uint32 guildId = fields[0].GetUInt32();
-            if (Guild* pGuild = GetGuildById(guildId))
-                pGuild->LoadBankRightFromDB(fields);
+        // Delete orphaned guild bank right entries before loading the valid ones
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_CLEAN_GUILD_BANK_RIGHTS);
+        CharacterDatabase.Execute(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_BANK_RIGHTS);
+        PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
+        if (!result)
+        {
+            barGoLink bar(1);
+            bar.step();
+            sLog.outString(">> Loaded 0 guild bank tab rights. DB table `guild_bank_right` is empty.");
+            sLog.outString();
         }
-        while (result->NextRow());
+        else
+        {
+            barGoLink bar(result->GetRowCount());
+            uint32 count = 0;
+
+            do
+            {
+                bar.step();
+
+                Field* fields = result->Fetch();
+                uint32 guildId = fields[0].GetUInt32();
+                if (Guild* pGuild = GetGuildById(guildId))
+                    pGuild->LoadBankRightFromDB(fields);
+                ++count;
+            }
+            while (result->NextRow());
+
+            sLog.outString(">> Loaded %u bank tab rights in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog.outString();
+        }
     }
-    else
-    {
-        rowCount = 0;
-        barGoLink bar(1);
-        bar.step();
-    }
-    sLog.outString(">> Loaded " UI64FMTD " bank tab rights for all the guilds", rowCount);
-    sLog.outString();
 
     // 5. Load all event logs
     sLog.outString("Loading guild event logs...");
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_EVENTLOGS);
-    result = CharacterDatabase.Query(stmt);
-    if (result)
     {
-        rowCount = result->GetRowCount();
-        barGoLink bar(rowCount);
-        do
-        {
-            bar.step();
+        uint32 oldMSTime = getMSTime();
 
-            Field* fields = result->Fetch();
-            uint32 guildId = fields[0].GetUInt32();
-            if (Guild* pGuild = GetGuildById(guildId))
-                pGuild->LoadEventLogFromDB(fields);
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_OLD_GUILD_EVENT_LOGS);
+        stmt->setUInt32(0, sWorld.getIntConfig(CONFIG_GUILD_EVENT_LOG_COUNT));
+        CharacterDatabase.Execute(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_EVENTLOGS);
+        PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
+        if (!result)
+        {
+            barGoLink bar(1);
+            bar.step();
+            sLog.outString(">> Loaded 0 guild event logs. DB table `guild_eventlog` is empty.");
+            sLog.outString();
         }
-        while (result->NextRow());
+        else
+        {
+            barGoLink bar(result->GetRowCount());
+            uint32 count = 0;
+
+            do
+            {
+                bar.step();
+
+                Field* fields = result->Fetch();
+                uint32 guildId = fields[0].GetUInt32();
+                if (Guild* pGuild = GetGuildById(guildId))
+                    pGuild->LoadEventLogFromDB(fields);
+                ++count;
+            }
+            while (result->NextRow());
+
+            sLog.outString(">> Loaded %u guild event logs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog.outString();
+        }
     }
-    else
-    {
-        rowCount = 0;
-        barGoLink bar(1);
-        bar.step();
-    }
-    sLog.outString(">> Loaded " UI64FMTD " event logs for all the guilds", rowCount);
-    sLog.outString();
 
     // 6. Load all bank event logs
     sLog.outString("Loading guild bank event logs...");
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_BANK_EVENTLOGS);
-    result = CharacterDatabase.Query(stmt);
-    if (result)
     {
-        rowCount = result->GetRowCount();
-        barGoLink bar(rowCount);
-        do
-        {
-            bar.step();
+        uint32 oldMSTime = getMSTime();
 
-            Field* fields = result->Fetch();
-            uint32 guildId = fields[0].GetUInt32();
-            if (Guild* pGuild = GetGuildById(guildId))
-                pGuild->LoadBankEventLogFromDB(fields);
+        // Remove log entries that exceed the number of allowed entries per guild
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_OLD_GUILD_BANK_EVENT_LOGS);
+        stmt->setUInt32(0, sWorld.getIntConfig(CONFIG_GUILD_BANK_EVENT_LOG_COUNT));
+        CharacterDatabase.Execute(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_BANK_EVENTLOGS);
+        PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
+        if (!result)
+        {
+            barGoLink bar(1);
+            bar.step();
+            sLog.outString(">> Loaded 0 guild bank event logs. DB table `guild_bank_eventlog` is empty.");
+            sLog.outString();
         }
-        while (result->NextRow());
+        else
+        {
+            barGoLink bar(result->GetRowCount());
+            uint32 count = 0;
+
+            do
+            {
+                bar.step();
+
+                Field* fields = result->Fetch();
+                uint32 guildId = fields[0].GetUInt32();
+                if (Guild* pGuild = GetGuildById(guildId))
+                    pGuild->LoadBankEventLogFromDB(fields);
+                ++count;
+            }
+            while (result->NextRow());
+
+            sLog.outString(">> Loaded %u guild bank event logs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog.outString();
+        }
     }
-    else
-    {
-        rowCount = 0;
-        barGoLink bar(1);
-        bar.step();
-    }
-    sLog.outString(">> Loaded " UI64FMTD " bank event logs for all the guilds", rowCount);
-    sLog.outString();
 
     // 7. Load all guild bank tabs
     sLog.outString("Loading guild bank tabs...");
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_BANK_TABS);
-    result = CharacterDatabase.Query(stmt);
-    if (result)
     {
-        rowCount = result->GetRowCount();
-        barGoLink bar(rowCount);
-        do
-        {
-            bar.step();
+        uint32 oldMSTime = getMSTime();
 
-            Field* fields = result->Fetch();
-            uint32 guildId = fields[0].GetUInt32();
-            if (Guild* pGuild = GetGuildById(guildId))
-                pGuild->LoadBankTabFromDB(fields);
+        // Delete orphaned guild bank tab entries before loading the valid ones
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_CLEAN_GUILD_BANK_TABS);
+        CharacterDatabase.Execute(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_BANK_TABS);
+        PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
+        if (!result)
+        {
+            barGoLink bar(1);
+            bar.step();
+            sLog.outString(">> Loaded 0 guild bank tabs. DB table `guild_bank_tab` is empty.");
+            sLog.outString();
         }
-        while (result->NextRow());
+        else
+        {
+            barGoLink bar(result->GetRowCount());
+            uint32 count = 0;
+
+            do
+            {
+                bar.step();
+
+                Field* fields = result->Fetch();
+                uint32 guildId = fields[0].GetUInt32();
+                if (Guild* pGuild = GetGuildById(guildId))
+                    pGuild->LoadBankTabFromDB(fields);
+                ++count;
+            }
+            while (result->NextRow());
+
+            sLog.outString(">> Loaded %u guild bank tabs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog.outString();
+        }
     }
-    else
-    {
-        rowCount = 0;
-        barGoLink bar(1);
-        bar.step();
-    }
-    sLog.outString(">> Loaded " UI64FMTD " bank tabs for all the guilds", rowCount);
-    sLog.outString();
 
     // 8. Fill all guild bank tabs
     sLog.outString("Filling bank tabs with items...");
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_BANK_ITEMS);
-    result = CharacterDatabase.Query(stmt);
-    if (result)
     {
-        rowCount = result->GetRowCount();
-        barGoLink bar(rowCount);
-        do
-        {
-            bar.step();
+        uint32 oldMSTime = getMSTime();
 
-            Field* fields = result->Fetch();
-            uint32 guildId = fields[11].GetUInt32();
-            if (Guild* pGuild = GetGuildById(guildId))
-                pGuild->LoadBankItemFromDB(fields);
+        // Delete orphan guild bank items
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_CLEAN_GUILD_BANK_ITEMS);
+        CharacterDatabase.Execute(stmt);
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_BANK_ITEMS);
+        PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
+        if (!result)
+        {
+            barGoLink bar(1);
+            bar.step();
+            sLog.outString(">> Loaded 0 guild bank tab items. DB table `guild_bank_item` or `item_instance` is empty.");
+            sLog.outString();
         }
-        while (result->NextRow());
+        else
+        {
+            barGoLink bar(result->GetRowCount());
+            uint32 count = 0;
+
+            do
+            {
+                bar.step();
+
+                Field* fields = result->Fetch();
+                uint32 guildId = fields[11].GetUInt32();
+                if (Guild* pGuild = GetGuildById(guildId))
+                    pGuild->LoadBankItemFromDB(fields);
+                ++count;
+            }
+            while (result->NextRow());
+
+            sLog.outString(">> Loaded %u guild bank tab items in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog.outString();
+        }
     }
-    else
-    {
-        rowCount = 0;
-        barGoLink bar(1);
-        bar.step();
-    }
-    sLog.outString(">> Filled bank tabs with " UI64FMTD " items for all the guilds", rowCount);
-    sLog.outString();
 
     // 9. Validate loaded guild data
-    uint32 totalGuilds = 0;
     sLog.outString("Validating data of loaded guilds...");
-    barGoLink barGuilds(mGuildMap.size());
-    for (GuildMap::iterator itr = mGuildMap.begin(); itr != mGuildMap.end(); ++itr)
     {
-        barGuilds.step();
-        Guild* pGuild = *itr;
-        if (pGuild)
+        uint32 oldMSTime = getMSTime();
+
+        barGoLink barGuilds(mGuildMap.size());
+        for (GuildMap::iterator itr = mGuildMap.begin(); itr != mGuildMap.end(); ++itr)
         {
-            if (!pGuild->Validate())
+            barGuilds.step();
+            Guild* pGuild = *itr;
+            if (pGuild)
             {
-                RemoveGuild(pGuild->GetId());
-                delete pGuild;
+                if (!pGuild->Validate())
+                {
+                    RemoveGuild(pGuild->GetId());
+                    delete pGuild;
+                }
             }
-            else
-                ++totalGuilds;
         }
+
+        sLog.outString("Validated data of loaded guilds in %u ms", GetMSTimeDiffToNow(oldMSTime));
+        sLog.outString();
     }
-    // Cleanup
-    // Delete orphan guild ranks
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_CLEAN_GUILD_RANKS);
-    CharacterDatabase.Execute(stmt);
-    // Delete orphan guild members
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_CLEAN_GUILD_MEMBERS);
-    CharacterDatabase.Execute(stmt);
-    // Delete orphan guild bank rights
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_CLEAN_GUILD_BANK_RIGHTS);
-    CharacterDatabase.Execute(stmt);
-    // Delete orphan guild bank tabs
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_CLEAN_GUILD_BANK_TABS);
-    CharacterDatabase.Execute(stmt);
-    // Delete orphan guild bank items
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_CLEAN_GUILD_BANK_ITEMS);
-    CharacterDatabase.Execute(stmt);
-
-    // Delete unused LogGuid records in guild_eventlog and guild_bank_eventlog table.
-    // You can comment these lines if you don't plan to change CONFIG_GUILD_EVENT_LOG_COUNT and CONFIG_GUILD_BANK_EVENT_LOG_COUNT
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_OLD_GUILD_EVENT_LOGS);
-    stmt->setUInt32(0, sWorld.getIntConfig(CONFIG_GUILD_EVENT_LOG_COUNT));
-    CharacterDatabase.Execute(stmt);
-
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_OLD_GUILD_BANK_EVENT_LOGS);
-    stmt->setUInt32(0, sWorld.getIntConfig(CONFIG_GUILD_BANK_EVENT_LOG_COUNT));
-    CharacterDatabase.Execute(stmt);
-
-    sLog.outString();
-    sLog.outString(">> Successfully loaded %u guilds", totalGuilds);
 }
 
 void ObjectMgr::LoadArenaTeams()
 {
-    uint32 count = 0;
+    uint32 oldMSTime = getMSTime();
 
     //                                                     0                      1    2           3    4               5
     QueryResult result = CharacterDatabase.Query("SELECT arena_team.arenateamid,name,captainguid,type,BackgroundColor,EmblemStyle,"
@@ -3800,13 +3899,10 @@ void ObjectMgr::LoadArenaTeams()
 
     if (!result)
     {
-
         barGoLink bar(1);
-
         bar.step();
-
+        sLog.outString(">> Loaded 0 arena team definitions. DB table `arena_team` is empty!");
         sLog.outString();
-        sLog.outString(">> Loaded %u arenateam definitions", count);
         return;
     }
 
@@ -3817,6 +3913,7 @@ void ObjectMgr::LoadArenaTeams()
         "FROM arena_team_member member LEFT JOIN characters chars on member.guid = chars.guid ORDER BY member.arenateamid ASC");
 
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
 
     do
     {
@@ -3837,139 +3934,155 @@ void ObjectMgr::LoadArenaTeams()
     }while (result->NextRow());
 
     sLog.outString();
-    sLog.outString(">> Loaded %u arenateam definitions", count);
+    sLog.outString(">> Loaded %u arena team definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadGroups()
 {
-    Group *group = NULL;
-    Field *fields = NULL;
-    uint32 count = 0;
-
-    // Consistency cleaning before load to avoid having to do some checks later
-    // Delete all members that does not exist
-    CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_DEL_NONEXISTENT_CHARACTER_GROUP_MEMBERS));
-    // Delete all groups whose leader does not exist
-    CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_DEL_LEADERLESS_GROUPS));
-    // Delete all groups with less than 2 members
-    CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_DEL_TINY_GROUPS));
-    // Delete all rows from group_member or group_instance with no group
-    CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_DEL_NONEXISTENT_GROUP_MEMBERS));
-    CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_DEL_NONEXISTENT_GROUP_INSTANCES));
-
-    // ----------------------- Load Group definitions
-    //                                                            0           1           2           3              4      5      6      7      8      9      10     11     12         13          14              15
-    QueryResult result = CharacterDatabase.PQuery("SELECT leaderGuid, lootMethod, looterGuid, lootThreshold, icon1, icon2, icon3, icon4, icon5, icon6, icon7, icon8, groupType, difficulty, raiddifficulty, guid FROM groups");
-    if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
+        uint32 oldMSTime = getMSTime();
 
-        sLog.outString();
-        sLog.outString(">> Loaded 0 group definitions");
-        return;
-    }
+        // Delete all groups whose leader does not exist
+        CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_DEL_LEADERLESS_GROUPS));
+        // Delete all groups with less than 2 members
+        CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_DEL_TINY_GROUPS));
 
-    barGoLink bar(result->GetRowCount());
-    do
-    {
-        bar.step();
-        fields = result->Fetch();
-        ++count;
-        group = new Group;
-        group->LoadGroupFromDB(fields[15].GetUInt32(), result, false);
-        // group load will never be false (we have run consistency sql's before loading)
-        AddGroup(group);
-    }while (result->NextRow());
-
-    sLog.outString();
-    sLog.outString(">> Loaded %u group definitions", count);
-
-    // ----------------------- Load member
-    //                                       0     1           2            3         4
-    result = CharacterDatabase.Query("SELECT guid, memberGuid, memberFlags, subgroup, roles FROM group_member ORDER BY guid");
-    if (!result)
-    {
-        barGoLink bar2(1);
-        bar2.step();
-        sLog.outString();
-        sLog.outString(">> Loaded 0 group members");
-        return;
-    }
-
-    barGoLink bar2(result->GetRowCount());
-    uint32 groupLowGuid = 0;
-    count = 0;
-    do
-    {
-        bar2.step();
-        fields = result->Fetch();
-
-        if (groupLowGuid != fields[0].GetUInt32())
+        //                                                        0           1           2             3          4      5      6      7      8     9
+        QueryResult result = CharacterDatabase.PQuery("SELECT leaderGuid, lootMethod, looterGuid, lootThreshold, icon1, icon2, icon3, icon4, icon5, icon6" 
+        //                                                10     11     12         13              14        15    
+                                                      ",icon7, icon8, groupType, difficulty, raiddifficulty, guid FROM groups");
+        if (!result)
         {
-            groupLowGuid = fields[0].GetUInt32();
-            group = GetGroupByGUID(groupLowGuid);
-        }
-        if (group)                                         // Should never be null
-            group->LoadMemberFromDB(fields[1].GetUInt32(), fields[2].GetUInt8(), fields[3].GetUInt8(), fields[4].GetUInt8());
-        else
-            sLog.outError("ObjectMgr::LoadGroups: Consistency failed, can't find group (lowguid %u)", groupLowGuid);
-        ++count;
-    }while (result->NextRow());
-
-    sLog.outString();
-    sLog.outString(">> Loaded %u group members", count);
-
-
-    // ----------------------- Load instance save
-    //                                       0     1    2         3          4           5
-    result = CharacterDatabase.Query("SELECT guid, map, instance, permanent, difficulty, resettime, "
-    //           6
-        "(SELECT COUNT(1) FROM groups JOIN character_instance ON leaderGuid = groups.guid WHERE instance = group_instance.instance AND permanent = 1 LIMIT 1) "
-        "FROM group_instance LEFT JOIN instance ON instance = id ORDER BY guid");
-
-    if (!result)
-    {
-        barGoLink bar2(1);
-        bar2.step();
-        sLog.outString();
-        sLog.outString(">> Loaded 0 group-instance saves");
-        return;
-    }
-
-    barGoLink bar3(result->GetRowCount());
-    count = 0;
-    do
-    {
-        bar3.step();
-        fields = result->Fetch();
-        group = GetGroupByGUID(fields[0].GetUInt32());
-        // group will never be NULL (we have run consistency sql's before loading)
-
-        MapEntry const* mapEntry = sMapStore.LookupEntry(fields[1].GetUInt32());
-        if (!mapEntry || !mapEntry->IsDungeon())
-        {
-            sLog.outErrorDb("Incorrect entry in group_instance table : no dungeon map %d", fields[1].GetUInt32());
-            continue;
+            barGoLink bar(1);
+            bar.step();
+            sLog.outString(">> Loaded 0 group definitions. DB table `groups` is empty!");
+            sLog.outString();
+            return;
         }
 
-        uint32 diff = fields[4].GetUInt8();
-        if (diff >= uint32(mapEntry->IsRaid() ? MAX_RAID_DIFFICULTY : MAX_DUNGEON_DIFFICULTY))
+        barGoLink bar(result->GetRowCount());
+        uint32 count = 0;
+
+        do
         {
-            sLog.outErrorDb("Wrong dungeon difficulty use in group_instance table: %d", diff + 1);
-            diff = 0;                                   // default for both difficaly types
+            bar.step();
+            Field *fields = result->Fetch();
+            ++count;
+            Group *group = new Group;
+            group->LoadGroupFromDB(fields[15].GetUInt32(), result, false);
+            // group load will never be false (we have run consistency sql's before loading)
+            AddGroup(group);
+        }
+        while (result->NextRow());
+
+        sLog.outString(">> Loaded %u group definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog.outString();
+    }
+
+    sLog.outString("Loading Group members...");
+    {
+        uint32 oldMSTime = getMSTime();
+
+        // Delete all rows from group_member or group_instance with no group
+        CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_DEL_NONEXISTENT_GROUP_MEMBERS));
+        CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_DEL_NONEXISTENT_GROUP_INSTANCES));
+        // Delete all members that does not exist
+        CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_DEL_NONEXISTENT_CHARACTER_GROUP_MEMBERS));
+
+        //                                       0     1           2            3         4
+        QueryResult result = CharacterDatabase.Query("SELECT guid, memberGuid, memberFlags, subgroup, roles FROM group_member ORDER BY guid");
+        if (!result)
+        {
+            barGoLink bar(1);
+            bar.step();
+            sLog.outString(">> Loaded 0 group members. DB table `group_member` is empty!");
+            sLog.outString();
+            return;
         }
 
-        InstanceSave *save = sInstanceSaveMgr.AddInstanceSave(mapEntry->MapID, fields[2].GetUInt32(), Difficulty(diff), time_t(fields[5].GetUInt64()), fields[6].GetBool(), true);
-        group->BindToInstance(save, fields[3].GetBool(), true);
-        ++count;
-    }while (result->NextRow());
-    sLog.outString();
-    sLog.outString(">> Loaded %u group-instance saves", count);
+        barGoLink bar(result->GetRowCount());
+        uint32 groupLowGuid = 0;
+        uint32 count = 0;
+        do
+        {
+            bar.step();
+            Field *fields = result->Fetch();
+            Group *group = NULL;
+            if (groupLowGuid != fields[0].GetUInt32())
+            {
+                groupLowGuid = fields[0].GetUInt32();
+                group = GetGroupByGUID(groupLowGuid);
+            }
+            if (group)                                          // Should never be null
+                group->LoadMemberFromDB(fields[1].GetUInt32(), fields[2].GetUInt8(), fields[3].GetUInt8(), fields[4].GetUInt8());
+            else
+                sLog.outError("ObjectMgr::LoadGroups: Consistency failed, can't find group (lowguid %u)", groupLowGuid);
+            ++count;
+        }
+        while (result->NextRow());
+
+        sLog.outString(">> Loaded %u group members in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog.outString();
+    }
+
+
+    sLog.outString("Loading Group instance saves...");
+    {
+        uint32 oldMSTime = getMSTime();
+
+        //                                        0     1      2         3           4          5
+        QueryResult result = CharacterDatabase.Query("SELECT guid, map, instance, permanent, difficulty, resettime, "
+        //           6
+            "(SELECT COUNT(1) FROM groups JOIN character_instance ON leaderGuid = groups.guid WHERE instance = group_instance.instance AND permanent = 1 LIMIT 1) "
+            "FROM group_instance LEFT JOIN instance ON instance = id ORDER BY guid");
+
+        if (!result)
+        {
+            barGoLink bar(1);
+            bar.step();
+            sLog.outString();
+            sLog.outString(">> Loaded 0 group-instance saves. DB table `group_instance` is empty!");
+            return;
+        }
+
+        barGoLink bar3(result->GetRowCount());
+        uint32 count = 0;
+        do
+        {
+            bar3.step();
+            Field *fields = result->Fetch();
+            Group *group = GetGroupByGUID(fields[0].GetUInt32());
+            // group will never be NULL (we have run consistency sql's before loading)
+
+            MapEntry const* mapEntry = sMapStore.LookupEntry(fields[1].GetUInt32());
+            if (!mapEntry || !mapEntry->IsDungeon())
+            {
+                sLog.outErrorDb("Incorrect entry in group_instance table : no dungeon map %d", fields[1].GetUInt32());
+                continue;
+            }
+
+            uint32 diff = fields[4].GetUInt8();
+            if (diff >= uint32(mapEntry->IsRaid() ? MAX_RAID_DIFFICULTY : MAX_DUNGEON_DIFFICULTY))
+            {
+                sLog.outErrorDb("Wrong dungeon difficulty use in group_instance table: %d", diff + 1);
+                diff = 0;                                   // default for both difficaly types
+            }
+
+            InstanceSave *save = sInstanceSaveMgr.AddInstanceSave(mapEntry->MapID, fields[2].GetUInt32(), Difficulty(diff), time_t(fields[5].GetUInt64()), fields[6].GetBool(), true);
+            group->BindToInstance(save, fields[3].GetBool(), true);
+            ++count;
+        }
+        while (result->NextRow());
+
+        sLog.outString(">> Loaded %u group-instance saves in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog.outString();
+    }
 }
 
 void ObjectMgr::LoadQuests()
 {
+    uint32 oldMSTime = getMSTime();
+
     // For reload case
     for (QuestMap::const_iterator itr=mQuestTemplates.begin(); itr != mQuestTemplates.end(); ++itr)
         delete itr->second;
@@ -4018,10 +4131,8 @@ void ObjectMgr::LoadQuests()
     {
         barGoLink bar(1);
         bar.step();
-
+        sLog.outErrorDb(">> Loaded 0 quests definitions. DB table `quest_template` is empty.");
         sLog.outString();
-        sLog.outString(">> Loaded 0 quests definitions");
-        sLog.outErrorDb("`quest_template` table is empty!");
         return;
     }
 
@@ -4662,12 +4773,14 @@ void ObjectMgr::LoadQuests()
         }
     }
 
+    sLog.outString(">> Loaded %lu quests definitions in %u ms", (unsigned long)mQuestTemplates.size(), GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %lu quests definitions", (unsigned long)mQuestTemplates.size());
 }
 
 void ObjectMgr::LoadQuestLocales()
 {
+    uint32 oldMSTime = getMSTime();
+
     mQuestLocaleMap.clear();                                // need for reload case
 
     QueryResult result = WorldDatabase.Query("SELECT entry,"
@@ -4679,8 +4792,7 @@ void ObjectMgr::LoadQuestLocales()
         "Title_loc6,Details_loc6,Objectives_loc6,OfferRewardText_loc6,RequestItemsText_loc6,EndText_loc6,CompletedText_loc6,ObjectiveText1_loc6,ObjectiveText2_loc6,ObjectiveText3_loc6,ObjectiveText4_loc6,"
         "Title_loc7,Details_loc7,Objectives_loc7,OfferRewardText_loc7,RequestItemsText_loc7,EndText_loc7,CompletedText_loc7,ObjectiveText1_loc7,ObjectiveText2_loc7,ObjectiveText3_loc7,ObjectiveText4_loc7,"
         "Title_loc8,Details_loc8,Objectives_loc8,OfferRewardText_loc8,RequestItemsText_loc8,EndText_loc8,CompletedText_loc8,ObjectiveText1_loc8,ObjectiveText2_loc8,ObjectiveText3_loc8,ObjectiveText4_loc8"
-        " FROM locales_quest"
-);
+        " FROM locales_quest");
 
     if (!result)
         return;
@@ -4728,12 +4840,14 @@ void ObjectMgr::LoadQuestLocales()
         }
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %lu Quest locale strings in %u ms", (unsigned long)mQuestLocaleMap.size(), GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %lu Quest locale strings", (unsigned long)mQuestLocaleMap.size());
 }
 
 void ObjectMgr::LoadScripts(ScriptsType type)
 {
+    uint32 oldMSTime = getMSTime();
+
     ScriptMapMap *scripts = GetScriptsMapByType(type);
     if (!scripts)
         return;
@@ -4745,7 +4859,7 @@ void ObjectMgr::LoadScripts(ScriptsType type)
     if (sWorld.IsScriptScheduled())                          // function don't must be called in time scripts use.
         return;
 
-    sLog.outString("%s :", tableName.c_str());
+    sLog.outString("Loading %s...", tableName.c_str());
 
     scripts->clear();                                        // need for reload support
 
@@ -4754,19 +4868,18 @@ void ObjectMgr::LoadScripts(ScriptsType type)
     sprintf(buff, "SELECT id,delay,command,datalong,datalong2,dataint,x,y,z,o%s FROM %s", isSpellScriptTable ? ",effIndex" : "", tableName.c_str());
     QueryResult result = WorldDatabase.Query(buff);
 
-    uint32 count = 0;
 
     if (!result)
     {
         barGoLink bar(1);
         bar.step();
-
+        sLog.outString(">> Loaded 0 script definitions. DB table `%s` is empty!", tableName.c_str());
         sLog.outString();
-        sLog.outString(">> Loaded %u script definitions", count);
         return;
     }
 
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
 
     do
     {
@@ -5052,10 +5165,11 @@ void ObjectMgr::LoadScripts(ScriptsType type)
         (*scripts)[tmp.id].insert(std::pair<uint32, ScriptInfo>(tmp.delay, tmp));
 
         ++count;
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
+    sLog.outString(">> Loaded %u script definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u script definitions", count);
 }
 
 void ObjectMgr::LoadGameObjectScripts()
@@ -5199,26 +5313,26 @@ void ObjectMgr::LoadWaypointScripts()
 
 void ObjectMgr::LoadSpellScriptNames()
 {
-    mSpellScripts.clear();                            // need for reload case
-    QueryResult result = WorldDatabase.Query("SELECT spell_id, ScriptName FROM spell_script_names");
+    uint32 oldMSTime = getMSTime();
 
-    uint32 count = 0;
+    mSpellScripts.clear();                            // need for reload case
+
+    QueryResult result = WorldDatabase.Query("SELECT spell_id, ScriptName FROM spell_script_names");
 
     if (!result)
     {
         barGoLink bar(1);
         bar.step();
-
+        sLog.outString(">> Loaded 0 spell script names. DB table `spell_script_names` is empty!");
         sLog.outString();
-        sLog.outString(">> Loaded %u spell script names", count);
         return;
     }
 
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
 
     do
     {
-        ++count;
         bar.step();
 
         Field *fields = result->Fetch();
@@ -5255,26 +5369,30 @@ void ObjectMgr::LoadSpellScriptNames()
         }
         else
             mSpellScripts.insert(SpellScriptsMap::value_type(spellId, GetScriptId(scriptName)));
+        ++count;
+    }
+    while (result->NextRow());
 
-    } while (result->NextRow());
-
+    sLog.outString(">> Loaded %u spell script names in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u spell script names", count);
 }
 
 void ObjectMgr::ValidateSpellScripts()
 {
+    uint32 oldMSTime = getMSTime();
+
     if (mSpellScripts.empty())
     {
         barGoLink bar(1);
         bar.step();
-
+        sLog.outString(">> Validated 0 scripts.");
         sLog.outString();
-        sLog.outString(">> Validation done");
         return;
     }
 
     barGoLink bar(mSpellScripts.size());
+    uint32 count = 0;
+
     for (SpellScriptsMap::iterator itr = mSpellScripts.begin(); itr != mSpellScripts.end();)
     {
         SpellEntry const * spellEntry = sSpellStore.LookupEntry(itr->first);
@@ -5282,9 +5400,10 @@ void ObjectMgr::ValidateSpellScripts()
         sScriptMgr.CreateSpellScriptLoaders(itr->first, SpellScriptLoaders);
         itr = mSpellScripts.upper_bound(itr->first);
 
+        bar.step();
+
         for (std::vector<std::pair<SpellScriptLoader *, SpellScriptsMap::iterator> >::iterator sitr = SpellScriptLoaders.begin(); sitr != SpellScriptLoaders.end(); ++sitr)
         {
-            bar.step();
             SpellScript * spellScript = sitr->first->GetSpellScript();
             AuraScript * auraScript = sitr->first->GetAuraScript();
             bool valid = true;
@@ -5310,12 +5429,16 @@ void ObjectMgr::ValidateSpellScripts()
                 delete auraScript;
             }
             if (!valid)
+            {
                 mSpellScripts.erase(sitr->second);
+                bar.step();
+            }
         }
+        ++count;
     }
 
+    sLog.outString(">> Validated %u scripts in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Validation done");
 }
 
 void ObjectMgr::LoadGossipScripts()
@@ -5327,11 +5450,11 @@ void ObjectMgr::LoadGossipScripts()
 
 void ObjectMgr::LoadPageTexts()
 {
+    uint32 oldMSTime = getMSTime();
+
     sPageTextStore.Free();                                  // for reload case
 
     sPageTextStore.Load();
-    sLog.outString(">> Loaded %u page texts", sPageTextStore.RecordCount);
-    sLog.outString();
 
     for (uint32 i = 1; i < sPageTextStore.MaxEntry; ++i)
     {
@@ -5367,10 +5490,15 @@ void ObjectMgr::LoadPageTexts()
             }
         }
     }
+
+    sLog.outString(">> Loaded %u page texts in %u ms", sPageTextStore.RecordCount, GetMSTimeDiffToNow(oldMSTime));
+    sLog.outString();
 }
 
 void ObjectMgr::LoadPageTextLocales()
 {
+    uint32 oldMSTime = getMSTime();
+
     mPageTextLocaleMap.clear();                             // need for reload case
 
     QueryResult result = WorldDatabase.Query("SELECT entry,text_loc1,text_loc2,text_loc3,text_loc4,text_loc5,text_loc6,text_loc7,text_loc8 FROM locales_page_text");
@@ -5397,8 +5525,8 @@ void ObjectMgr::LoadPageTextLocales()
 
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %lu PageText locale strings in %u ms", (unsigned long)mPageTextLocaleMap.size(), GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %lu PageText locale strings", (unsigned long)mPageTextLocaleMap.size());
 }
 
 struct SQLInstanceLoader : public SQLStorageLoaderBase<SQLInstanceLoader>
@@ -5412,6 +5540,8 @@ struct SQLInstanceLoader : public SQLStorageLoaderBase<SQLInstanceLoader>
 
 void ObjectMgr::LoadInstanceTemplate()
 {
+    uint32 oldMSTime = getMSTime();
+
     SQLInstanceLoader loader;
     loader.Load(sInstanceTemplate);
 
@@ -5431,7 +5561,7 @@ void ObjectMgr::LoadInstanceTemplate()
         }
     }
 
-    sLog.outString(">> Loaded %u Instance Template definitions", sInstanceTemplate.RecordCount);
+    sLog.outString(">> Loaded %u Instance Template definitions in %u ms", sInstanceTemplate.RecordCount, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
 }
 
@@ -5445,6 +5575,8 @@ GossipText const *ObjectMgr::GetGossipText(uint32 Text_ID) const
 
 void ObjectMgr::LoadGossipText()
 {
+    uint32 oldMSTime = getMSTime();
+
     QueryResult result = WorldDatabase.Query("SELECT * FROM npc_text");
 
     int count = 0;
@@ -5453,8 +5585,8 @@ void ObjectMgr::LoadGossipText()
         barGoLink bar(1);
         bar.step();
 
-        sLog.outString();
         sLog.outString(">> Loaded %u npc texts", count);
+        sLog.outString();
         return;
     }
 
@@ -5496,12 +5628,14 @@ void ObjectMgr::LoadGossipText()
         }
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %u npc texts in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u npc texts", count);
 }
 
 void ObjectMgr::LoadNpcTextLocales()
 {
+    uint32 oldMSTime = getMSTime();
+
     mNpcTextLocaleMap.clear();                              // need for reload case
 
     QueryResult result = WorldDatabase.Query("SELECT entry,"
@@ -5543,13 +5677,15 @@ void ObjectMgr::LoadNpcTextLocales()
         }
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %lu NpcText locale strings in %u ms", (unsigned long)mNpcTextLocaleMap.size(), GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %lu NpcText locale strings", (unsigned long)mNpcTextLocaleMap.size());
 }
 
 //not very fast function but it is called only once a day, or on starting-up
 void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
 {
+    uint32 oldMSTime = getMSTime();
+
     time_t curTime = time(NULL);
     tm* lt = localtime(&curTime);
     uint64 basetime(curTime);
@@ -5569,19 +5705,18 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
     {
         barGoLink bar(1);
         bar.step();
+        sLog.outString(">> No expired mails found or DB table `mail` is empty.");
         sLog.outString();
-        sLog.outString(">> Only expired mails (need to be return or delete) or DB table `mail` is empty.");
         return;                                             // any mails need to be returned or deleted
     }
 
     barGoLink bar(result->GetRowCount());
     uint32 count = 0;
-    Field *fields;
     do
     {
         bar.step();
 
-        fields = result->Fetch();
+        Field *fields = result->Fetch();
         Mail *m = new Mail;
         m->messageID = fields[0].GetUInt32();
         m->messageType = fields[1].GetUInt8();
@@ -5668,31 +5803,32 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
         CharacterDatabase.Execute(stmt);
         delete m;
         ++count;
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
+    sLog.outString(">> Loaded %u mails in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u mails", count);
 }
 
 void ObjectMgr::LoadQuestAreaTriggers()
 {
+    uint32 oldMSTime = getMSTime();
+
     mQuestAreaTriggerMap.clear();                           // need for reload case
 
     QueryResult result = WorldDatabase.Query("SELECT id,quest FROM areatrigger_involvedrelation");
-
-    uint32 count = 0;
 
     if (!result)
     {
         barGoLink bar(1);
         bar.step();
-
+        sLog.outString(">> Loaded 0 quest trigger points. DB table `areatrigger_involvedrelation` is empty.");
         sLog.outString();
-        sLog.outString(">> Loaded %u quest trigger points", count);
         return;
     }
 
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
 
     do
     {
@@ -5733,29 +5869,29 @@ void ObjectMgr::LoadQuestAreaTriggers()
 
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %u quest trigger points in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u quest trigger points", count);
 }
 
 void ObjectMgr::LoadTavernAreaTriggers()
 {
+    uint32 oldMSTime = getMSTime();
+
     mTavernAreaTriggerSet.clear();                          // need for reload case
 
     QueryResult result = WorldDatabase.Query("SELECT id FROM areatrigger_tavern");
-
-    uint32 count = 0;
 
     if (!result)
     {
         barGoLink bar(1);
         bar.step();
-
+        sLog.outString(">> Loaded 0 tavern triggers. DB table `areatrigger_tavern` is empty.");
         sLog.outString();
-        sLog.outString(">> Loaded %u tavern triggers", count);
         return;
     }
 
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
 
     do
     {
@@ -5776,28 +5912,28 @@ void ObjectMgr::LoadTavernAreaTriggers()
         mTavernAreaTriggerSet.insert(Trigger_ID);
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %u tavern triggers in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u tavern triggers", count);
 }
 
 void ObjectMgr::LoadAreaTriggerScripts()
 {
+    uint32 oldMSTime = getMSTime();
+
     mAreaTriggerScripts.clear();                            // need for reload case
     QueryResult result = WorldDatabase.Query("SELECT entry, ScriptName FROM areatrigger_scripts");
-
-    uint32 count = 0;
 
     if (!result)
     {
         barGoLink bar(1);
         bar.step();
-
+        sLog.outString(">> Loaded 0 areatrigger scripts. DB table `areatrigger_scripts` is empty.");
         sLog.outString();
-        sLog.outString(">> Loaded %u areatrigger scripts", count);
         return;
     }
 
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
 
     do
     {
@@ -5818,8 +5954,8 @@ void ObjectMgr::LoadAreaTriggerScripts()
         mAreaTriggerScripts[Trigger_ID] = GetScriptId(scriptName);
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %u areatrigger scripts in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u areatrigger scripts", count);
 }
 
 uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, uint32 team)
@@ -5929,23 +6065,23 @@ uint32 ObjectMgr::GetTaxiMountDisplayId(uint32 id, uint32 team, bool allowed_alt
 
 void ObjectMgr::LoadGraveyardZones()
 {
+    uint32 oldMSTime = getMSTime();
+
     mGraveYardMap.clear();                                  // need for reload case
 
     QueryResult result = WorldDatabase.Query("SELECT id,ghost_zone,faction FROM game_graveyard_zone");
-
-    uint32 count = 0;
 
     if (!result)
     {
         barGoLink bar(1);
         bar.step();
-
+        sLog.outString(">> Loaded 0 graveyard-zone links. DB table `game_graveyard_zone` is empty.");
         sLog.outString();
-        sLog.outString(">> Loaded %u graveyard-zone links", count);
         return;
     }
 
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
 
     do
     {
@@ -5988,8 +6124,8 @@ void ObjectMgr::LoadGraveyardZones()
             sLog.outErrorDb("Table `game_graveyard_zone` has a duplicate record for Graveyard (ID: %u) and Zone (ID: %u), skipped.",safeLocId,zoneId);
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %u graveyard-zone links in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u graveyard-zone links", count);
 }
 
 WorldSafeLocsEntry const *ObjectMgr::GetClosestGraveYard(float x, float y, float z, uint32 MapId, uint32 team)
@@ -6201,25 +6337,23 @@ void ObjectMgr::RemoveGraveYardLink(uint32 id, uint32 zoneId, uint32 team, bool 
 
 void ObjectMgr::LoadAreaTriggerTeleports()
 {
-    mAreaTriggers.clear();                                  // need for reload case
+    uint32 oldMSTime = getMSTime();
 
-    uint32 count = 0;
+    mAreaTriggers.clear();                                  // need for reload case
 
     //                                                        0            1                  2                  3                  4                   5
     QueryResult result = WorldDatabase.Query("SELECT id,  target_map, target_position_x, target_position_y, target_position_z, target_orientation FROM areatrigger_teleport");
     if (!result)
     {
-
         barGoLink bar(1);
-
         bar.step();
-
+        sLog.outString(">> Loaded 0 area trigger teleport definitions. DB table `areatrigger_teleport` is empty.");
         sLog.outString();
-        sLog.outString(">> Loaded %u area trigger teleport definitions", count);
         return;
     }
 
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
 
     do
     {
@@ -6263,31 +6397,29 @@ void ObjectMgr::LoadAreaTriggerTeleports()
 
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %u area trigger teleport definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u area trigger teleport definitions", count);
 }
 
 void ObjectMgr::LoadAccessRequirements()
 {
-    mAccessRequirements.clear();                                  // need for reload case
+    uint32 oldMSTime = getMSTime();
 
-    uint32 count = 0;
+    mAccessRequirements.clear();                                  // need for reload case
 
     //                                                           0           1          2          3     4      5             6             7                      8                  9
     QueryResult result = WorldDatabase.Query("SELECT mapid, difficulty, level_min, level_max, item, item2, quest_done_A, quest_done_H, completed_achievement, quest_failed_text FROM access_requirement");
     if (!result)
     {
-
         barGoLink bar(1);
-
         bar.step();
-
+        sLog.outString(">> Loaded 0 access requirement definitions. DB table `access_requirement` is empty.");
         sLog.outString();
-        sLog.outString(">> Loaded %u access requirement definitions", count);
         return;
     }
 
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
 
     do
     {
@@ -6362,8 +6494,8 @@ void ObjectMgr::LoadAccessRequirements()
         mAccessRequirements[requirement_ID] = ar;
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %u access requirement definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u access requirement definitions", count);
 }
 
 /*
@@ -6607,6 +6739,8 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
 
 void ObjectMgr::LoadGameObjectLocales()
 {
+    uint32 oldMSTime = getMSTime();
+
     mGameObjectLocaleMap.clear();                           // need for reload case
 
     QueryResult result = WorldDatabase.Query("SELECT entry,"
@@ -6642,8 +6776,8 @@ void ObjectMgr::LoadGameObjectLocales()
 
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %lu gameobject locale strings in %u ms", (unsigned long)mGameObjectLocaleMap.size(), GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %lu gameobject locale strings", (unsigned long)mGameObjectLocaleMap.size());
 }
 
 struct SQLGameObjectLoader : public SQLStorageLoaderBase<SQLGameObjectLoader>
@@ -6717,6 +6851,8 @@ inline void CheckGOConsumable(GameObjectInfo const* goInfo,uint32 dataN,uint32 N
 
 void ObjectMgr::LoadGameobjectInfo()
 {
+    uint32 oldMSTime = getMSTime();
+
     SQLGameObjectLoader loader;
     loader.Load(sGOStorage);
 
@@ -6859,27 +6995,27 @@ void ObjectMgr::LoadGameobjectInfo()
         }
     }
 
-    sLog.outString(">> Loaded %u game object templates", sGOStorage.RecordCount);
+    sLog.outString(">> Loaded %u game object templates in %u ms", sGOStorage.RecordCount, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
 }
 
 void ObjectMgr::LoadExplorationBaseXP()
 {
-    uint32 count = 0;
-    QueryResult result = WorldDatabase.Query("SELECT level,basexp FROM exploration_basexp");
+    uint32 oldMSTime = getMSTime();
+
+    QueryResult result = WorldDatabase.Query("SELECT word,entry,half FROM pet_name_generation");
 
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
+        sLog.outErrorDb(">> Loaded 0 pet name parts. DB table `pet_name_generation` is empty.");
         sLog.outString();
-        sLog.outString(">> Loaded %u BaseXP definitions", count);
         return;
     }
 
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
 
     do
     {
@@ -6893,8 +7029,8 @@ void ObjectMgr::LoadExplorationBaseXP()
     }
     while (result->NextRow());
 
+    sLog.outString(">> Loaded %u BaseXP definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u BaseXP definitions", count);
 }
 
 uint32 ObjectMgr::GetBaseXP(uint8 level)
@@ -6911,21 +7047,21 @@ uint32 ObjectMgr::GetXPForLevel(uint8 level)
 
 void ObjectMgr::LoadPetNames()
 {
-    uint32 count = 0;
+    uint32 oldMSTime = getMSTime();
+
     QueryResult result = WorldDatabase.Query("SELECT word,entry,half FROM pet_name_generation");
 
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
+        sLog.outString(">> Loaded 0 pet name parts. DB table `pet_name_generation` is empty!");
         sLog.outString();
-        sLog.outString(">> Loaded %u pet name parts", count);
         return;
     }
 
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
 
     do
     {
@@ -6943,12 +7079,14 @@ void ObjectMgr::LoadPetNames()
     }
     while (result->NextRow());
 
+    sLog.outString(">> Loaded %u pet name parts in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u pet name parts", count);
 }
 
 void ObjectMgr::LoadPetNumber()
 {
+    uint32 oldMSTime = getMSTime();
+
     QueryResult result = CharacterDatabase.Query("SELECT MAX(id) FROM character_pet");
     if (result)
     {
@@ -6956,11 +7094,8 @@ void ObjectMgr::LoadPetNumber()
         m_hiPetNumber = fields[0].GetUInt32()+1;
     }
 
-    barGoLink bar(1);
-    bar.step();
-
+    sLog.outString(">> Loaded the max pet number: %d in %u ms", m_hiPetNumber-1, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded the max pet number: %d", m_hiPetNumber-1);
 }
 
 std::string ObjectMgr::GeneratePetName(uint32 entry)
@@ -6987,22 +7122,24 @@ uint32 ObjectMgr::GeneratePetNumber()
 
 void ObjectMgr::LoadCorpses()
 {
-    uint32 count = 0;
-    //                                                                    0           1           2            3    4          5          6       7       8      9     10        11    12           13        14         15    16      17
-    QueryResult result = CharacterDatabase.Query("SELECT position_x, position_y, position_z, orientation, map, displayId, itemCache, bytes1, bytes2, guild, flags, dynFlags, time, corpse_type, instance, phaseMask, guid, player FROM corpse WHERE corpse_type <> 0");
+    uint32 oldMSTime = getMSTime();
+    
+    //                                                      0           1           2            3         4      5          6         7       8       9     10      11
+    QueryResult result = CharacterDatabase.Query("SELECT position_x, position_y, position_z, orientation, map, displayId, itemCache, bytes1, bytes2, guild, flags, dynFlags"
+    //                                               12       13          14        15       16     17        
+                                                 ", time, corpse_type, instance, phaseMask, guid, player FROM corpse WHERE corpse_type <> 0");
 
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
+        sLog.outString(">> Loaded 0 corpses. DB table `pet_name_generation` is empty.");
         sLog.outString();
-        sLog.outString(">> Loaded %u corpses", count);
         return;
     }
 
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
 
     do
     {
@@ -7025,12 +7162,14 @@ void ObjectMgr::LoadCorpses()
     }
     while (result->NextRow());
 
+    sLog.outString(">> Loaded %u corpses in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u corpses", count);
 }
 
 void ObjectMgr::LoadReputationRewardRate()
 {
+    uint32 oldMSTime = getMSTime();
+
     m_RepRewardRateMap.clear();                             // for reload case
 
     uint32 count = 0;
@@ -7039,11 +7178,9 @@ void ObjectMgr::LoadReputationRewardRate()
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
-        sLog.outString();
         sLog.outErrorDb(">> Loaded `reputation_reward_rate`, table is empty!");
+        sLog.outString();
         return;
     }
 
@@ -7094,12 +7231,14 @@ void ObjectMgr::LoadReputationRewardRate()
     }
     while (result->NextRow());
 
+    sLog.outString(">> Loaded %u reputation_reward_rate in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u reputation_reward_rate", count);
 }
 
 void ObjectMgr::LoadReputationOnKill()
 {
+    uint32 oldMSTime = getMSTime();
+
     // For reload case
     mRepOnKill.clear();
 
@@ -7114,11 +7253,9 @@ void ObjectMgr::LoadReputationOnKill()
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
-        sLog.outString();
         sLog.outErrorDb(">> Loaded 0 creature award reputation definitions. DB table `creature_onkill_reputation` is empty.");
+        sLog.outString();
         return;
     }
 
@@ -7173,12 +7310,14 @@ void ObjectMgr::LoadReputationOnKill()
         ++count;
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %u creature award reputation definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u creature award reputation definitions", count);
 }
 
 void ObjectMgr::LoadReputationSpilloverTemplate()
 {
+    uint32 oldMSTime = getMSTime();
+
     m_RepSpilloverTemplateMap.clear();                      // for reload case
 
     uint32 count = 0;
@@ -7187,11 +7326,9 @@ void ObjectMgr::LoadReputationSpilloverTemplate()
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
-        sLog.outString();
         sLog.outString(">> Loaded `reputation_spillover_template`, table is empty.");
+        sLog.outString();
         return;
     }
 
@@ -7291,12 +7428,14 @@ void ObjectMgr::LoadReputationSpilloverTemplate()
     }
     while (result->NextRow());
 
+    sLog.outString(">> Loaded %u reputation_spillover_template in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u reputation_spillover_template", count);
 }
 
 void ObjectMgr::LoadPointsOfInterest()
 {
+    uint32 oldMSTime = getMSTime();
+
     mPointsOfInterest.clear();                              // need for reload case
 
     uint32 count = 0;
@@ -7307,11 +7446,9 @@ void ObjectMgr::LoadPointsOfInterest()
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
-        sLog.outString();
         sLog.outErrorDb(">> Loaded 0 Points of Interest definitions. DB table `points_of_interest` is empty.");
+        sLog.outString();
         return;
     }
 
@@ -7343,12 +7480,14 @@ void ObjectMgr::LoadPointsOfInterest()
         ++count;
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %u Points of Interest definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u Points of Interest definitions", count);
 }
 
 void ObjectMgr::LoadQuestPOI()
 {
+    uint32 oldMSTime = getMSTime();
+
     mQuestPOIMap.clear();                              // need for reload case
 
     uint32 count = 0;
@@ -7359,11 +7498,9 @@ void ObjectMgr::LoadQuestPOI()
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
-        sLog.outString();
         sLog.outErrorDb(">> Loaded 0 quest POI definitions. DB table `quest_poi` is empty.");
+        sLog.outString();
         return;
     }
 
@@ -7422,13 +7559,13 @@ void ObjectMgr::LoadQuestPOI()
         ++count;
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %u quest POI definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u quest POI definitions", count);
 }
 
 void ObjectMgr::LoadNPCSpellClickSpells()
 {
-    uint32 count = 0;
+    uint32 oldMSTime = getMSTime();
 
     mSpellClickInfoMap.clear();
     //                                                0          1         2            3                   4          5           6              7               8
@@ -7437,15 +7574,14 @@ void ObjectMgr::LoadNPCSpellClickSpells()
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
-        sLog.outString();
         sLog.outErrorDb(">> Loaded 0 spellclick spells. DB table `npc_spellclick_spells` is empty.");
+        sLog.outString();
         return;
     }
 
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
 
     do
     {
@@ -7538,10 +7674,11 @@ void ObjectMgr::LoadNPCSpellClickSpells()
         const_cast<CreatureInfo*>(cInfo)->npcflag |= UNIT_NPC_FLAG_SPELLCLICK;
 
         ++count;
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
+    sLog.outString(">> Loaded %u spellclick definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u spellclick definitions", count);
 }
 
 void ObjectMgr::SaveCreatureRespawnTime(uint32 loguid, uint32 instance, time_t t)
@@ -7651,6 +7788,8 @@ void ObjectMgr::DeleteCorpseCellData(uint32 mapid, uint32 cellid, uint32 player_
 
 void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, std::string table, bool starter, bool go)
 {
+    uint32 oldMSTime = getMSTime();
+
     map.clear();                                            // need for reload case
 
     uint32 count = 0;
@@ -7660,11 +7799,9 @@ void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, std::string table,
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
+        sLog.outErrorDb(">> Loaded 0 quest relations from `%s`, table is empty.", table.c_str());
         sLog.outString();
-        sLog.outErrorDb(">> Loaded 0 quest relations from %s, table is empty.", table.c_str());
         return;
     }
 
@@ -7696,8 +7833,8 @@ void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, std::string table,
         ++count;
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %u quest relations from %s in %u ms", count, table.c_str(), GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u quest relations from %s", count, table.c_str());
 }
 
 void ObjectMgr::LoadGameobjectQuestRelations()
@@ -7758,23 +7895,23 @@ void ObjectMgr::LoadCreatureInvolvedRelations()
 
 void ObjectMgr::LoadReservedPlayersNames()
 {
+    uint32 oldMSTime = getMSTime();
+
     m_ReservedNames.clear();                                // need for reload case
 
     QueryResult result = CharacterDatabase.Query("SELECT name FROM reserved_name");
-
-    uint32 count = 0;
 
     if (!result)
     {
         barGoLink bar(1);
         bar.step();
-
+        sLog.outString(">> Loaded 0 reserved player names. DB table `reserved_name` is empty!");
         sLog.outString();
-        sLog.outString(">> Loaded %u reserved player names", count);
         return;
     }
 
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
 
     Field* fields;
     do
@@ -7794,10 +7931,11 @@ void ObjectMgr::LoadReservedPlayersNames()
 
         m_ReservedNames.insert(wstr);
         ++count;
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
+    sLog.outString(">> Loaded %u reserved player names in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u reserved player names", count);
 }
 
 bool ObjectMgr::IsReservedName(const std::string& name) const
@@ -7944,14 +8082,16 @@ PetNameInvalidReason ObjectMgr::CheckPetName(const std::string& name)
 
 void ObjectMgr::LoadGameObjectForQuests()
 {
+    uint32 oldMSTime = getMSTime();
+
     mGameObjectForQuestSet.clear();                         // need for reload case
 
     if (!sGOStorage.MaxEntry)
     {
         barGoLink bar(1);
         bar.step();
-        sLog.outString();
         sLog.outString(">> Loaded 0 GameObjects for quests");
+        sLog.outString();
         return;
     }
 
@@ -8004,12 +8144,14 @@ void ObjectMgr::LoadGameObjectForQuests()
         }
     }
 
+    sLog.outString(">> Loaded %u GameObjects for quests in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u GameObjects for quests", count);
 }
 
 bool ObjectMgr::LoadTrinityStrings(char const* table, int32 min_value, int32 max_value)
 {
+    uint32 oldMSTime = getMSTime();
+
     int32 start_value = min_value;
     int32 end_value   = max_value;
     // some string can have negative indexes range
@@ -8052,11 +8194,11 @@ bool ObjectMgr::LoadTrinityStrings(char const* table, int32 min_value, int32 max
 
         bar.step();
 
-        sLog.outString();
         if (min_value == MIN_TRINITY_STRING_ID)              // error only in case internal strings
             sLog.outErrorDb(">> Loaded 0 trinity strings. DB table `%s` is empty. Cannot continue.",table);
         else
             sLog.outString(">> Loaded 0 string templates. DB table `%s` is empty.",table);
+        sLog.outString();
         return false;
     }
 
@@ -8100,12 +8242,13 @@ bool ObjectMgr::LoadTrinityStrings(char const* table, int32 min_value, int32 max
         }
     } while (result->NextRow());
 
-    sLog.outString();
+    
     if (min_value == MIN_TRINITY_STRING_ID)
-        sLog.outString(">> Loaded %u Trinity strings from table %s", count,table);
+        sLog.outString(">> Loaded %u Trinity strings from table %s in %u ms", count, table, GetMSTimeDiffToNow(oldMSTime));
     else
-        sLog.outString(">> Loaded %u string templates from %s", count,table);
+        sLog.outString(">> Loaded %u string templates from %s in %u ms", count, table, GetMSTimeDiffToNow(oldMSTime));
 
+    sLog.outString();
     return true;
 }
 
@@ -8128,23 +8271,23 @@ const char *ObjectMgr::GetTrinityString(int32 entry, LocaleConstant locale_idx) 
 
 void ObjectMgr::LoadFishingBaseSkillLevel()
 {
+    uint32 oldMSTime = getMSTime();
+
     mFishingBaseForArea.clear();                            // for reload case
 
-    uint32 count = 0;
     QueryResult result = WorldDatabase.Query("SELECT entry,skill FROM skill_fishing_base_level");
 
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
+        sLog.outErrorDb(">> Loaded 0 areas for fishing base skill level. DB table `skill_fishing_base_level` is empty.");
         sLog.outString();
-        sLog.outErrorDb(">> Loaded `skill_fishing_base_level`, table is empty!");
         return;
     }
 
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
 
     do
     {
@@ -8166,8 +8309,8 @@ void ObjectMgr::LoadFishingBaseSkillLevel()
     }
     while (result->NextRow());
 
+    sLog.outString(">> Loaded %u areas for fishing base skill level in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u areas for fishing base skill level", count);
 }
 
 bool ObjectMgr::CheckDeclinedNames(std::wstring mainpart, DeclinedName const& names)
@@ -8231,23 +8374,23 @@ SkillRangeType GetSkillRangeType(SkillLineEntry const *pSkill, bool racial)
 
 void ObjectMgr::LoadGameTele()
 {
+    uint32 oldMSTime = getMSTime();
+
     m_GameTeleMap.clear();                                  // for reload case
 
-    uint32 count = 0;
     QueryResult result = WorldDatabase.Query("SELECT id, position_x, position_y, position_z, orientation, map, name FROM game_tele");
 
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
+        sLog.outErrorDb(">> Loaded 0 GameTeleports. DB table `game_tele` is empty!");
         sLog.outString();
-        sLog.outErrorDb(">> Loaded `game_tele`, table is empty!");
         return;
     }
 
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
 
     do
     {
@@ -8286,8 +8429,8 @@ void ObjectMgr::LoadGameTele()
     }
     while (result->NextRow());
 
+    sLog.outString(">> Loaded %u GameTeleports in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u GameTeleports", count);
 }
 
 GameTele const* ObjectMgr::GetGameTele(const std::string& name) const
@@ -8361,23 +8504,23 @@ bool ObjectMgr::DeleteGameTele(const std::string& name)
 
 void ObjectMgr::LoadMailLevelRewards()
 {
+    uint32 oldMSTime = getMSTime();
+
     m_mailLevelRewardMap.clear();                           // for reload case
 
-    uint32 count = 0;
     QueryResult result = WorldDatabase.Query("SELECT level, raceMask, mailTemplateId, senderEntry FROM mail_level_reward");
 
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
+        sLog.outErrorDb(">> Loaded 0 level dependent mail rewards. DB table `mail_level_reward` is empty.");
         sLog.outString();
-        sLog.outErrorDb(">> Loaded `mail_level_reward`, table is empty!");
         return;
     }
 
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
 
     do
     {
@@ -8420,8 +8563,8 @@ void ObjectMgr::LoadMailLevelRewards()
     }
     while (result->NextRow());
 
+    sLog.outString(">> Loaded %u level dependent mail rewards in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u level dependent mail rewards,", count);
 }
 
 bool ObjectMgr::AddSpellToTrainer(uint32 entry, uint32 spell, Field *fields, std::set<uint32> *skip_trainers, std::set<uint32> *talentIds)
@@ -8536,6 +8679,8 @@ int ObjectMgr::LoadReferenceTrainer(uint32 trainer, int32 spell, std::set<uint32
 
 void ObjectMgr::LoadTrainerSpell()
 {
+    uint32 oldMSTime = getMSTime();
+
     // For reload case
     for (CacheTrainerSpellMap::iterator itr = m_mCacheTrainerSpellMap.begin(); itr != m_mCacheTrainerSpellMap.end(); ++itr)
         itr->second.Clear();
@@ -8548,19 +8693,16 @@ void ObjectMgr::LoadTrainerSpell()
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
+        sLog.outErrorDb(">>  Loaded 0 Trainers. DB table `npc_trainer` is empty!");
         sLog.outString();
-        sLog.outErrorDb(">> Loaded `npc_trainer`, table is empty!");
         return;
     }
 
     barGoLink bar(result->GetRowCount());
-
-    std::set<uint32> talentIds;
-
     uint32 count = 0;
+    std::set<uint32> talentIds;
+    
     do
     {
         bar.step();
@@ -8574,10 +8716,11 @@ void ObjectMgr::LoadTrainerSpell()
         else if (this->AddSpellToTrainer(entry, uint32(spell), fields, &skip_trainers, &talentIds))
             ++count;
 
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
+    sLog.outString(">> Loaded %d Trainers in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %d Trainers", count);
 }
 
 int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, std::set<uint32> *skip_vendors)
@@ -8619,6 +8762,8 @@ int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, std::set<uint32> *s
 
 void ObjectMgr::LoadVendors()
 {
+    uint32 oldMSTime = getMSTime();
+
     // For reload case
     for (CacheVendorItemMap::iterator itr = m_mCacheVendorItemMap.begin(); itr != m_mCacheVendorItemMap.end(); ++itr)
         itr->second.Clear();
@@ -8630,17 +8775,15 @@ void ObjectMgr::LoadVendors()
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
         sLog.outString();
-        sLog.outErrorDb(">> Loaded `npc_vendor`, table is empty!");
+        sLog.outErrorDb(">>  Loaded 0 Vendors. DB table `npc_vendor` is empty!");
         return;
     }
 
     barGoLink bar(result->GetRowCount());
-
     uint32 count = 0;
+
     do
     {
         bar.step();
@@ -8667,33 +8810,34 @@ void ObjectMgr::LoadVendors()
             ++count;
         }
 
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
+    sLog.outString(">> Loaded %d Vendors in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %d Vendors ", count);
 }
 
 void ObjectMgr::LoadNpcTextId()
 {
+    uint32 oldMSTime = getMSTime();
 
     m_mCacheNpcTextIdMap.clear();
 
     QueryResult result = WorldDatabase.Query("SELECT npc_guid, textid FROM npc_gossip");
+
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
+        sLog.outErrorDb(">> Loaded 0 NpcTextId. DB table `npc_gossip` is empty!");
         sLog.outString();
-        sLog.outErrorDb(">> Loaded `npc_gossip`, table is empty!");
         return;
     }
 
     barGoLink bar(result->GetRowCount());
-
     uint32 count = 0;
-    uint32 guid,textid;
+    uint32 guid, textid;
+
     do
     {
         bar.step();
@@ -8717,14 +8861,17 @@ void ObjectMgr::LoadNpcTextId()
         m_mCacheNpcTextIdMap[guid] = textid ;
         ++count;
 
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
+    sLog.outString(">> Loaded %d NpcTextId in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %d NpcTextId ", count);
 }
 
 void ObjectMgr::LoadGossipMenu()
 {
+    uint32 oldMSTime = getMSTime();
+
     m_mGossipMenusMap.clear();
 
     QueryResult result = WorldDatabase.Query("SELECT entry, text_id FROM gossip_menu");
@@ -8732,16 +8879,13 @@ void ObjectMgr::LoadGossipMenu()
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
+        sLog.outErrorDb(">> Loaded 0  gossip_menu entries. DB table `gossip_menu` is empty!");
         sLog.outString();
-        sLog.outErrorDb(">> Loaded `gossip_menu`, table is empty!");
         return;
     }
 
     barGoLink bar(result->GetRowCount());
-
     uint32 count = 0;
 
     do
@@ -8767,12 +8911,14 @@ void ObjectMgr::LoadGossipMenu()
     }
     while (result->NextRow());
 
+    sLog.outString(">> Loaded %u gossip_menu entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u gossip_menu entries", count);
 }
 
 void ObjectMgr::LoadGossipMenuItems()
 {
+    uint32 oldMSTime = getMSTime();
+
     m_mGossipMenuItemsMap.clear();
 
     QueryResult result = WorldDatabase.Query(
@@ -8783,16 +8929,13 @@ void ObjectMgr::LoadGossipMenuItems()
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
+        sLog.outErrorDb(">> Loaded 0 gossip_menu_option entries. DB table `gossip_menu_option` is empty!");
         sLog.outString();
-        sLog.outErrorDb(">> Loaded gossip_menu_option, table is empty!");
         return;
     }
 
     barGoLink bar(result->GetRowCount());
-
     uint32 count = 0;
 
     std::set<uint32> gossipScriptSet;
@@ -8866,8 +9009,8 @@ void ObjectMgr::LoadGossipMenuItems()
             sLog.outErrorDb("Table `gossip_scripts` contain unused script, id %u.", *itr);
     }
 
+    sLog.outString(">> Loaded %u gossip_menu_option entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u gossip_menu_option entries", count);
 }
 
 void ObjectMgr::AddVendorItem(uint32 entry,uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedcost, bool savetodb)
@@ -8981,6 +9124,8 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 item_id, int32 max
 
 void ObjectMgr::LoadScriptNames()
 {
+    uint32 oldMSTime = getMSTime();
+
     m_scriptNames.push_back("");
     QueryResult result = WorldDatabase.Query(
       "SELECT DISTINCT(ScriptName) FROM achievement_criteria_data WHERE ScriptName <> '' AND type = 11 "
@@ -9029,8 +9174,8 @@ void ObjectMgr::LoadScriptNames()
     while (result->NextRow());
 
     std::sort(m_scriptNames.begin(), m_scriptNames.end());
+    sLog.outString(">> Loaded %d Script Names in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %d Script Names", count);
 }
 
 uint32 ObjectMgr::GetScriptId(const char *name)
@@ -9159,14 +9304,16 @@ CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 level, uint8 unit
 
 void ObjectMgr::LoadCreatureClassLevelStats()
 {
+    uint32 oldMSTime = getMSTime();
+
     QueryResult result = WorldDatabase.Query("SELECT level, class, basehp0, basehp1, basehp2, basemana, basearmor FROM creature_classlevelstats");
 
     if (!result)
     {
         barGoLink bar(1);
         bar.step();
-        sLog.outString();
         sLog.outString(">> Loaded 0 creature base stats. DB table `creature_classlevelstats` is empty.");
+        sLog.outString();
         return;
     }
 
@@ -9220,25 +9367,27 @@ void ObjectMgr::LoadCreatureClassLevelStats()
         }
     }
 
+    sLog.outString(">> Loaded %u creature base stats in %u ms", counter, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u creature base stats.", counter);
 }
 
 void ObjectMgr::LoadFactionChangeAchievements()
 {
+    uint32 oldMSTime = getMSTime();
+
     QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_achievement");
 
     if (!result)
     {
         barGoLink bar(1);
         bar.step();
+        sLog.outErrorDb(">> Loaded 0 faction change achievement pairs. DB table `player_factionchange_achievement` is empty.");
         sLog.outString();
-        sLog.outString(">> Loaded 0 faction change achievement pairs. DB table `player_factionchange_achievement` is empty.");
         return;
     }
 
     barGoLink bar(result->GetRowCount());
-    uint32 counter = 0;
+    uint32 count = 0;
 
     do
     {
@@ -9255,29 +9404,31 @@ void ObjectMgr::LoadFactionChangeAchievements()
             factionchange_achievements[alliance] = horde;
 
         bar.step();
-        ++counter;
+        ++count;
     }
     while (result->NextRow());
 
+    sLog.outString(">> Loaded %u faction change achievement pairs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u faction change achievement pairs.", counter);
 }
 
 void ObjectMgr::LoadFactionChangeItems()
 {
+    uint32 oldMSTime = getMSTime();
+
     QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_items");
 
     if (!result)
     {
         barGoLink bar(1);
         bar.step();
-        sLog.outString();
         sLog.outString(">> Loaded 0 faction change item pairs. DB table `player_factionchange_items` is empty.");
+        sLog.outString();
         return;
     }
 
     barGoLink bar(result->GetRowCount());
-    uint32 counter = 0;
+    uint32 count = 0;
 
     do
     {
@@ -9294,29 +9445,31 @@ void ObjectMgr::LoadFactionChangeItems()
             factionchange_items[alliance] = horde;
 
         bar.step();
-        ++counter;
+        ++count;
     }
     while (result->NextRow());
 
+    sLog.outString(">> Loaded %u faction change item pairs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u faction change item pairs.", counter);
 }
 
 void ObjectMgr::LoadFactionChangeSpells()
 {
+    uint32 oldMSTime = getMSTime();
+
     QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_spells");
 
     if (!result)
     {
         barGoLink bar(1);
         bar.step();
+        sLog.outErrorDb(">> Loaded 0 faction change spell pairs. DB table `player_factionchange_spells` is empty.");
         sLog.outString();
-        sLog.outString(">> Loaded 0 faction change spell pairs. DB table `player_factionchange_spells` is empty.");
         return;
     }
 
     barGoLink bar(result->GetRowCount());
-    uint32 counter = 0;
+    uint32 count = 0;
 
     do
     {
@@ -9333,29 +9486,31 @@ void ObjectMgr::LoadFactionChangeSpells()
             factionchange_spells[alliance] = horde;
 
         bar.step();
-        ++counter;
+        ++count;
     }
     while (result->NextRow());
 
+    sLog.outString(">> Loaded %u faction change spell pairs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u faction change spell pairs.", counter);
 }
 
 void ObjectMgr::LoadFactionChangeReputations()
 {
+    uint32 oldMSTime = getMSTime();
+
     QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_reputations");
 
     if (!result)
     {
         barGoLink bar(1);
         bar.step();
-        sLog.outString();
         sLog.outString(">> Loaded 0 faction change reputation pairs. DB table `player_factionchange_reputations` is empty.");
+        sLog.outString();
         return;
     }
 
     barGoLink bar(result->GetRowCount());
-    uint32 counter = 0;
+    uint32 count = 0;
 
     do
     {
@@ -9372,10 +9527,10 @@ void ObjectMgr::LoadFactionChangeReputations()
             factionchange_reputations[alliance] = horde;
 
         bar.step();
-        ++counter;
+        ++count;
     }
     while (result->NextRow());
 
+    sLog.outString(">> Loaded %u faction change reputation pairs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u faction change reputation pairs.", counter);
 }

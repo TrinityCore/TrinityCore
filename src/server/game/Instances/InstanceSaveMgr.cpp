@@ -253,6 +253,8 @@ void InstanceSaveManager::_DelHelper(const char *fields, const char *table, cons
 
 void InstanceSaveManager::CleanupAndPackInstances()
 {
+    uint32 oldMSTime = getMSTime();
+
     // load reset times and clean expired instances
     sInstanceSaveMgr.LoadResetTimes();
 
@@ -291,7 +293,8 @@ void InstanceSaveManager::CleanupAndPackInstances()
     CharacterDatabase.DirectExecute("ALTER TABLE instance DROP COLUMN newid");
     
     // Bake some cookies for click
-    sLog.outString(">> Cleaned up and packed instances");
+    sLog.outString(">> Cleaned up and packed instances in %u ms", GetMSTimeDiffToNow(oldMSTime));
+    sLog.outString();
 }
 
 void InstanceSaveManager::LoadResetTimes()

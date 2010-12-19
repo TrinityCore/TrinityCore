@@ -543,10 +543,12 @@ PoolMgr::PoolMgr()
 
 void PoolMgr::LoadFromDB()
 {
+    uint32 oldMSTime = getMSTime();
+
     QueryResult result = WorldDatabase.Query("SELECT MAX(entry) FROM pool_template");
     if (!result)
     {
-        sLog.outString(">> Table pool_template is empty.");
+        sLog.outString(">> Loaded 0 object pools. DB table `pool_template` is empty.");
         sLog.outString();
         return;
     }
@@ -562,7 +564,7 @@ void PoolMgr::LoadFromDB()
     if (!result)
     {
         mPoolTemplate.clear();
-        sLog.outString(">> Table pool_template is empty:");
+        sLog.outString(">> Loaded 0 object pools. DB table `pool_template` is empty.");
         sLog.outString();
         return;
     }
@@ -584,13 +586,13 @@ void PoolMgr::LoadFromDB()
 
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %u objects pools in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u objects pools", count);
 
     // Creatures
 
-    sLog.outString();
     sLog.outString("Loading Creatures Pooling Data...");
+    oldMSTime = getMSTime();
 
     mPoolCreatureGroups.resize(max_pool_id + 1);
     mCreatureSearchMap.clear();
@@ -602,9 +604,8 @@ void PoolMgr::LoadFromDB()
     {
         barGoLink bar2(1);
         bar2.step();
-
+        sLog.outString(">> Loaded 0 creatures in  pools. DB table `pool_creature` is empty.");
         sLog.outString();
-        sLog.outString(">> Loaded %u creatures in pools", count);
     }
     else
     {
@@ -647,8 +648,10 @@ void PoolMgr::LoadFromDB()
             mCreatureSearchMap.insert(p);
 
         } while (result->NextRow());
+
+        
+        sLog.outString(">> Loaded %u creatures in pools in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         sLog.outString();
-        sLog.outString(">> Loaded %u creatures in pools", count);
     }
 
     // Gameobjects
@@ -665,9 +668,8 @@ void PoolMgr::LoadFromDB()
     {
         barGoLink bar2(1);
         bar2.step();
-
+        sLog.outString(">> Loaded 0 gameobjects in  pools. DB table `pool_gameobject` is empty.");
         sLog.outString();
-        sLog.outString(">> Loaded %u gameobject in pools", count);
     }
     else
     {
@@ -719,13 +721,15 @@ void PoolMgr::LoadFromDB()
             mGameobjectSearchMap.insert(p);
 
         } while (result->NextRow());
+
+        sLog.outString(">> Loaded %u gameobject in pools in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         sLog.outString();
-        sLog.outString(">> Loaded %u gameobject in pools", count);
     }
 
     // Pool of pools
 
     sLog.outString("Loading Mother Pooling Data...");
+    oldMSTime = getMSTime();
 
     mPoolPoolGroups.resize(max_pool_id + 1);
     //                                      1        2            3
@@ -736,9 +740,8 @@ void PoolMgr::LoadFromDB()
     {
         barGoLink bar2(1);
         bar2.step();
-
+        sLog.outString(">> Loaded 0 pools in pools");
         sLog.outString();
-        sLog.outString(">> Loaded %u pools in pools", count);
     }
     else
     {
@@ -811,13 +814,15 @@ void PoolMgr::LoadFromDB()
             }
         }
 
+        sLog.outString(">> Loaded %u pools in mother pools in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         sLog.outString();
-        sLog.outString(">> Loaded %u pools in mother pools", count);
     }
 }
 
 void PoolMgr::LoadQuestPools()
 {
+    uint32 oldMSTime = getMSTime();
+
     PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_LOAD_QUEST_POOLS);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
 
@@ -829,9 +834,8 @@ void PoolMgr::LoadQuestPools()
     {
         barGoLink bar(1);
         bar.step();
-
-        sLog.outString();
         sLog.outString(">> Loaded 0 quests in pools");
+        sLog.outString();
         return;
     }
 
@@ -910,8 +914,8 @@ void PoolMgr::LoadQuestPools()
     }
     while (result->NextRow());
 
+    sLog.outString(">> Loaded %u quests in pools in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u quests in pools", count);
 }
 
 // The initialize method will spawn all pools not in an event and not in another pool, this is why there is 2 left joins with 2 null checks

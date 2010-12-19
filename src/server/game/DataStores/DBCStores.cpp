@@ -244,6 +244,8 @@ inline void LoadDBC(uint32& availableDbcLocales,barGoLink& bar, StoreProblemList
 
 void LoadDBCStores(const std::string& dataPath)
 {
+    uint32 oldMSTime = getMSTime();
+
     std::string dbcPath = dataPath+"dbc/";
 
     const uint32 DBCFilesCount = 90;
@@ -620,8 +622,8 @@ void LoadDBCStores(const std::string& dataPath)
         sLog.outError("\nYou have _outdated_ DBC files. Please extract correct versions from current using client.");
         exit(1);
     }
+    sLog.outString(">> Initialized %d data stores in %u ms", DBCFilesCount, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Initialized %d data stores", DBCFilesCount);
 }
 
 SimpleFactionsList const* GetFactionTeamList(uint32 faction)

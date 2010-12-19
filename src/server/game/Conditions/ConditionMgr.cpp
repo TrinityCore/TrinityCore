@@ -348,6 +348,8 @@ ConditionList ConditionMgr::GetConditionsForVehicleSpell(uint32 creatureID, uint
 
 void ConditionMgr::LoadConditions(bool isReload)
 {
+    uint32 oldMSTime = getMSTime();
+
     Clean();
 
     //must clear all custom handled cases (groupped types) before reload
@@ -374,21 +376,21 @@ void ConditionMgr::LoadConditions(bool isReload)
         sObjectMgr.LoadGossipMenuItems();
     }
 
-    uint32 count = 0;
-    QueryResult result = WorldDatabase.Query("SELECT SourceTypeOrReferenceId, SourceGroup, SourceEntry, ElseGroup, ConditionTypeOrReference, ConditionValue1, ConditionValue2, ConditionValue3, ErrorTextId, ScriptName FROM conditions");
+  
+    QueryResult result = WorldDatabase.Query("SELECT SourceTypeOrReferenceId, SourceGroup, SourceEntry, ElseGroup, ConditionTypeOrReference,"
+                                             " ConditionValue1, ConditionValue2, ConditionValue3, ErrorTextId, ScriptName FROM conditions");
 
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
+        sLog.outErrorDb(">> Loaded 0 conditions. DB table `groups` is empty!");
         sLog.outString();
-        sLog.outErrorDb(">> Loaded `conditions`, table is empty!");
         return;
     }
 
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
 
     do
     {
@@ -576,8 +578,8 @@ void ConditionMgr::LoadConditions(bool isReload)
     }
     while (result->NextRow());
 
+    sLog.outString(">> Loaded %u conditions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u conditions", count);
 }
 
 bool ConditionMgr::addToLootTemplate(Condition* cond, LootTemplate* loot)

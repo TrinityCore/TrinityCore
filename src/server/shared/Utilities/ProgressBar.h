@@ -34,6 +34,5 @@ class barGoLink
 
         void step( void );
         barGoLink( uint64 );
-        ~barGoLink();
 };
 #endif
