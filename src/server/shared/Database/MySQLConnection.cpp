@@ -460,6 +460,11 @@ bool MySQLConnection::_HandleMySQLErrno(uint32 errNo)
             return _HandleMySQLErrno(lErrno);           // Call self (recursive)
         }
 
+        // Query related errors - skip query
+        case 1058:      // "Column count doesn't match value count"
+        case 1062:      // "Duplicate entry '%s' for key '%d'"
+            return false;
+
         default:
             sLog.outSQLDriver("Unhandled MySQL errno %u. Unexpected behaviour possible.", errNo);
             return false;
