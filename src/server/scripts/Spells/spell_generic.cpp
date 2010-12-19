@@ -478,6 +478,7 @@ public:
 
 enum AnimalBloodPoolSpell
 {
+    SPELL_ANIMAL_BLOOD      = 46221,
     SPELL_SPAWN_BLOOD_POOL  = 63471,
 };
 
@@ -496,6 +497,13 @@ class spell_gen_animal_blood : public SpellScriptLoader
                     return false;
                 return true;
             }
+            
+            void OnApply(AuraEffect const* /*aurEff*/, AuraApplication const* /*aurApp*/, AuraEffectHandleModes /*mode*/)
+            {
+                // Remove all auras with spell id 46221, except the one currently being applied
+                while (Aura* aur = GetUnitOwner()->GetOwnedAura(SPELL_ANIMAL_BLOOD, 0, 0, GetAura()))
+                    GetUnitOwner()->RemoveOwnedAura(aur);
+            }
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraApplication const* /*aurApp*/, AuraEffectHandleModes /*mode*/)
             {
@@ -505,6 +513,7 @@ class spell_gen_animal_blood : public SpellScriptLoader
 
             void Register()
             {
+                OnEffectApply += AuraEffectRemoveFn(spell_gen_animal_blood_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
                 OnEffectRemove += AuraEffectRemoveFn(spell_gen_animal_blood_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
             }
         };
