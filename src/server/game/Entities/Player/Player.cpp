@@ -8072,7 +8072,7 @@ void Player::CastItemUseSpell(Item *item,SpellCastTargets const& targets,uint8 c
             continue;
 
         // wrong triggering type
-        if (spellData.SpellTrigger != ITEM_SPELLTRIGGER_ON_USE && spellData.SpellTrigger != ITEM_SPELLTRIGGER_ON_NO_DELAY_USE)
+        if (spellData.SpellTrigger != ITEM_SPELLTRIGGER_ON_USE)
             continue;
 
         SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellData.SpellId);
@@ -11553,6 +11553,11 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
             pItem->SetItemRandomProperties(randomPropertyId);
         pItem = StoreItem(dest, pItem, update);
 
+        const ItemPrototype *proto = pItem->GetProto();
+        for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+            if (proto->Spells[i].SpellTrigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE && proto->Spells[i].SpellId > 0) // On obtain trigger
+                CastSpell(this, proto->Spells[i].SpellId, true, pItem);                
+
         if (allowedLooters && pItem->GetProto()->GetMaxStackSize() == 1 && pItem->IsSoulBound())
         {
             pItem->SetSoulboundTradeable(allowedLooters, this, true);
@@ -12038,6 +12043,11 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
         pItem->SetNotRefundable(this);
         pItem->SetSoulboundTradeable(NULL, this, false);
         RemoveTradeableItem(pItem);
+
+        const ItemPrototype *proto = pItem->GetProto();
+        for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+            if (proto->Spells[i].SpellTrigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE && proto->Spells[i].SpellId > 0) // On obtain trigger
+                RemoveAurasDueToSpell(proto->Spells[i].SpellId);
 
         ItemRemovedQuestCheck(pItem->GetEntry(), pItem->GetCount());
 
