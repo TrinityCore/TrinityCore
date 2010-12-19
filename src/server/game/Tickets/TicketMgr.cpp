@@ -41,6 +41,8 @@ uint64 TicketMgr::GenerateGMTicketId()
 
 void TicketMgr::LoadGMTickets()
 {
+    uint32 oldMSTime = getMSTime();
+
     if (!m_GMTicketList.empty())
         for (GmTicketList::const_iterator itr = m_GMTicketList.begin(); itr != m_GMTicketList.end(); ++itr)
             delete *itr;
@@ -49,24 +51,25 @@ void TicketMgr::LoadGMTickets()
     m_GMticketid = 0;
     m_openTickets = 0;
 
-    QueryResult result = CharacterDatabase.Query("SELECT guid, playerGuid, name, message, createtime, map, posX, posY, posZ, timestamp, closed, assignedto, comment, completed, escalated, viewed FROM gm_tickets");
+    QueryResult result = CharacterDatabase.Query("SELECT guid, playerGuid, name, message, createtime, map, posX, posY, posZ, timestamp, closed,"
+                                                 "assignedto, comment, completed, escalated, viewed FROM gm_tickets");
 
     if (!result)
     {
         barGoLink bar(1);
         bar.step();
+        sLog.outString(">> Loaded 0 GM tickets. DB table `gm_tickets` is empty!");
         sLog.outString();
-        sLog.outString(">> GM Tickets table is empty, no tickets were loaded.");
         return;
     }
 
-    uint16 count = 0;
     barGoLink bar(result->GetRowCount());
-    GM_Ticket *ticket;
+    uint32 count = 0;
+    
     do
     {
         Field *fields = result->Fetch();
-        ticket = new GM_Ticket;
+        GM_Ticket *ticket = new GM_Ticket;
         ticket->guid = fields[0].GetUInt64();
         ticket->playerGuid = fields[1].GetUInt64();
         ticket->name = fields[2].GetString();
@@ -100,11 +103,14 @@ void TicketMgr::LoadGMTickets()
         m_GMticketid = fields[0].GetUInt64();
     }
 
-    sLog.outString(">> Loaded %u GM Tickets from the database.", count);
+    sLog.outString(">> Loaded %u GM tickets in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog.outString();
 }
 
 void TicketMgr::LoadGMSurveys()
 {
+    uint32 oldMSTime = getMSTime();
+
     // we don't actually load anything into memory here as there's no reason to
     QueryResult result = CharacterDatabase.Query("SELECT MAX(surveyid) FROM gm_surveys");
     if (result)
@@ -115,7 +121,8 @@ void TicketMgr::LoadGMSurveys()
     else
         m_GMSurveyID = 0;
 
-    sLog.outString(">> Loaded GM Survey count from database.");
+    sLog.outString(">> Loaded GM Survey count from database in %u ms", GetMSTimeDiffToNow(oldMSTime));
+    sLog.outString();
 }
 
 void TicketMgr::AddOrUpdateGMTicket(GM_Ticket &ticket, bool create)

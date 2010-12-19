@@ -46,22 +46,24 @@ static SkillDiscoveryMap SkillDiscoveryStore;
 
 void LoadSkillDiscoveryTable()
 {
+    uint32 oldMSTime = getMSTime();
 
     SkillDiscoveryStore.clear();                            // need for reload
-
-    uint32 count = 0;
 
     //                                                0        1         2              3
     QueryResult result = WorldDatabase.Query("SELECT spellId, reqSpell, reqSkillValue, chance FROM skill_discovery_template");
 
     if (!result)
     {
+        barGoLink bar(1);
+        bar.step();
+        sLog.outErrorDb(">> Loaded 0 skill discovery definitions. DB table `skill_discovery_template` is empty.");
         sLog.outString();
-        sLog.outString(">> Loaded 0 skill discovery definitions. DB table `skill_discovery_template` is empty.");
         return;
     }
 
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
 
     std::ostringstream ssNonDiscoverableEntries;
     std::set<uint32> reportedReqSpells;
@@ -135,8 +137,6 @@ void LoadSkillDiscoveryTable()
         ++count;
     } while (result->NextRow());
 
-    sLog.outString();
-    sLog.outString(">> Loaded %u skill discovery definitions", count);
     if (!ssNonDiscoverableEntries.str().empty())
         sLog.outErrorDb("Some items can't be successfully discovered: have in chance field value < 0.000001 in `skill_discovery_template` DB table . List:\n%s",ssNonDiscoverableEntries.str().c_str());
 
@@ -154,6 +154,9 @@ void LoadSkillDiscoveryTable()
         if (SkillDiscoveryStore.find(spell_id) == SkillDiscoveryStore.end())
             sLog.outErrorDb("Spell (ID: %u) is 100%% chance random discovery ability but not have data in `skill_discovery_template` table",spell_id);
     }
+
+    sLog.outString(">> Loaded %u skill discovery definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog.outString();
 }
 
 uint32 GetExplicitDiscoverySpell(uint32 spellId, Player* player)
