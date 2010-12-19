@@ -123,110 +123,109 @@ class npc_announcer_toc10 : public CreatureScript
             void AttackStart(Unit* /*pWho*/) {}
         };
 
-        bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+        bool OnGossipHello(Player* player, Creature* creature)
         {
-            InstanceScript* m_pInstance;
-            m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
-            if (!m_pInstance) return false;
+            InstanceScript* instanceScript = creature->GetInstanceScript();
+            if (!instanceScript)
+                return true;
 
             char const* _message = "We are ready!";
 
-            if (!pPlayer->getAttackers().empty() || m_pInstance->IsEncounterInProgress() || m_pInstance->GetData(TYPE_EVENT))
+            if (player->isInCombat() || instanceScript->IsEncounterInProgress() || instanceScript->GetData(TYPE_EVENT))
                 return true;
 
-            uint8 i;
-            for (i = 0; i < NUM_MESSAGES; i++)
+            uint8 i = 0;
+            for (; i < NUM_MESSAGES; ++i)
             {
-                if ((!_GossipMessage[i].state && m_pInstance->GetData(_GossipMessage[i].encounter) != DONE)
-                    || (_GossipMessage[i].state && m_pInstance->GetData(_GossipMessage[i].encounter) == DONE))
+                if ((!_GossipMessage[i].state && instanceScript->GetData(_GossipMessage[i].encounter) != DONE)
+                    || (_GossipMessage[i].state && instanceScript->GetData(_GossipMessage[i].encounter) == DONE))
                 {
-                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, _message, GOSSIP_SENDER_MAIN,_GossipMessage[i].id);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, _message, GOSSIP_SENDER_MAIN, _GossipMessage[i].id);
                     break;
                 }
             }
 
-            pPlayer->SEND_GOSSIP_MENU(_GossipMessage[i].msgnum, pCreature->GetGUID());
+            player->SEND_GOSSIP_MENU(_GossipMessage[i].msgnum, creature->GetGUID());
             return true;
         }
 
-        bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
         {
-            pPlayer->PlayerTalkClass->ClearMenus();
-            InstanceScript* m_pInstance;
-            m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
-            if (!m_pInstance) return false;
+            player->PlayerTalkClass->ClearMenus();
+            player->CLOSE_GOSSIP_MENU();
+            InstanceScript* instanceScript = creature->GetInstanceScript();
+            if (!instanceScript)
+                return true;
 
-            pPlayer->CLOSE_GOSSIP_MENU();
-
-            switch(uiAction) {
+            switch (action)
+            {
                 case GOSSIP_ACTION_INFO_DEF+1:
-                    if (m_pInstance->GetData(TYPE_BEASTS) != DONE)
+                    if (instanceScript->GetData(TYPE_BEASTS) != DONE)
                     {
-                        m_pInstance->SetData(TYPE_EVENT,110);
-                        m_pInstance->SetData(TYPE_NORTHREND_BEASTS,NOT_STARTED);
-                        m_pInstance->SetData(TYPE_BEASTS,NOT_STARTED);
+                        instanceScript->SetData(TYPE_EVENT, 110);
+                        instanceScript->SetData(TYPE_NORTHREND_BEASTS, NOT_STARTED);
+                        instanceScript->SetData(TYPE_BEASTS, NOT_STARTED);
                     }
                     break;
                 case GOSSIP_ACTION_INFO_DEF+2:
-                    if (Creature* pJaraxxus = Unit::GetCreature(*pCreature,m_pInstance->GetData64(NPC_JARAXXUS)))
+                    if (Creature* jaraxxus = Unit::GetCreature(*player, instanceScript->GetData64(NPC_JARAXXUS)))
                     {
-                        pJaraxxus->RemoveAurasDueToSpell(SPELL_JARAXXUS_CHAINS);
-                        pJaraxxus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        pJaraxxus->SetReactState(REACT_AGGRESSIVE);
-                        pJaraxxus->SetInCombatWithZone();
+                        jaraxxus->RemoveAurasDueToSpell(SPELL_JARAXXUS_CHAINS);
+                        jaraxxus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        jaraxxus->SetReactState(REACT_AGGRESSIVE);
+                        jaraxxus->SetInCombatWithZone();
                     }
-                    else
+                    else if (instanceScript->GetData(TYPE_JARAXXUS) != DONE)
                     {
-                        if (m_pInstance->GetData(TYPE_JARAXXUS) != DONE)
-                        {
-                            m_pInstance->SetData(TYPE_EVENT,1010);
-                            m_pInstance->SetData(TYPE_JARAXXUS,NOT_STARTED);
-                        }
+                        instanceScript->SetData(TYPE_EVENT, 1010);
+                        instanceScript->SetData(TYPE_JARAXXUS, NOT_STARTED);
                     }
                     break;
                 case GOSSIP_ACTION_INFO_DEF+3:
-                    if (m_pInstance->GetData(TYPE_CRUSADERS) != DONE)
+                    if (instanceScript->GetData(TYPE_CRUSADERS) != DONE)
                     {
-                        if (pPlayer->GetTeam() == ALLIANCE) m_pInstance->SetData(TYPE_EVENT,3000);
-                        else m_pInstance->SetData(TYPE_EVENT,3001);
-                        m_pInstance->SetData(TYPE_CRUSADERS,NOT_STARTED);
+                        if (player->GetTeam() == ALLIANCE)
+                            instanceScript->SetData(TYPE_EVENT, 3000);
+                        else
+                            instanceScript->SetData(TYPE_EVENT, 3001);
+                        instanceScript->SetData(TYPE_CRUSADERS, NOT_STARTED);
                     }
                     break;
                 case GOSSIP_ACTION_INFO_DEF+4:
-                    if (m_pInstance->GetData(TYPE_VALKIRIES) != DONE)
+                    if (instanceScript->GetData(TYPE_VALKIRIES) != DONE)
                     {
-                        m_pInstance->SetData(TYPE_EVENT,4000);
-                        m_pInstance->SetData(TYPE_VALKIRIES,NOT_STARTED);
+                        instanceScript->SetData(TYPE_EVENT, 4000);
+                        instanceScript->SetData(TYPE_VALKIRIES, NOT_STARTED);
                     }
                     break;
                 case GOSSIP_ACTION_INFO_DEF+5:
                 {
-                    if (m_pInstance->GetData(TYPE_LICH_KING) != DONE && !pPlayer->isGameMaster())
-                        return false;
+                    if (instanceScript->GetData(TYPE_LICH_KING) != DONE && !player->isGameMaster())
+                        return true;
 
-                    if (GameObject* pGoFloor = m_pInstance->instance->GetGameObject(m_pInstance->GetData64(GO_ARGENT_COLISEUM_FLOOR)))
-                        pGoFloor->TakenDamage(1000000);
+                    if (GameObject* floor = GameObject::GetGameObject(*player, instanceScript->GetData64(GO_ARGENT_COLISEUM_FLOOR)))
+                        floor->TakenDamage(1000000);
 
-                    pCreature->CastSpell(pCreature,69016,false);
+                    creature->CastSpell(creature, 69016, false);
 
-                    Creature* pTemp = Unit::GetCreature((*pCreature),m_pInstance->GetData64(NPC_ANUBARAK));
-                    if (!pTemp || !pTemp->isAlive())
-                        pTemp = pCreature->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
+                    Creature* anubArak = Unit::GetCreature(*creature, instanceScript->GetData64(NPC_ANUBARAK));
+                    if (!anubArak || !anubArak->isAlive())
+                        anubArak = creature->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
 
-                    m_pInstance->SetData(TYPE_ANUBARAK,NOT_STARTED);
+                    instanceScript->SetData(TYPE_ANUBARAK, NOT_STARTED);
 
-                    if (pCreature->IsVisible())
-                        pCreature->SetVisible(false);
+                    if (creature->IsVisible())
+                        creature->SetVisible(false);
                     break;
                 }
             }
-            pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             return true;
         }
 
-        CreatureAI* GetAI(Creature* pCreature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_announcer_toc10AI(pCreature);
+            return new npc_announcer_toc10AI(creature);
         }
 };
 
