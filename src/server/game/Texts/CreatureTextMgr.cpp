@@ -24,6 +24,8 @@
 
 void CreatureTextMgr::LoadCreatureTexts()
 {
+    uint32 oldMSTime = getMSTime();
+
     mTextMap.clear(); // for reload case
     mTextRepeatMap.clear(); //reset all currently used temp texts
 
@@ -34,14 +36,14 @@ void CreatureTextMgr::LoadCreatureTexts()
     {
         barGoLink bar(1);
         bar.step();
+        sLog.outString(">> Loaded 0 ceature texts. DB table `creature_texts` is empty.");
         sLog.outString();
-        sLog.outString(">> Loaded 0 Creature Texts. DB table `creature_texts` is empty.");
         return;
     }
 
     barGoLink bar(result->GetRowCount());
-    uint32 TextCount = 0;
-    uint32 CreatureCount = 0;
+    uint32 textCount = 0;
+    uint32 creatureCount = 0;
 
     do
     {
@@ -88,7 +90,7 @@ void CreatureTextMgr::LoadCreatureTexts()
         //entry not yet added, add empty TextHolder (list of groups)
         if (mTextMap.find(temp.entry) == mTextMap.end())
         {
-            ++CreatureCount;
+            ++creatureCount;
             CreatureTextHolder TextHolder;
             mTextMap[temp.entry] = TextHolder;
         }
@@ -101,11 +103,11 @@ void CreatureTextMgr::LoadCreatureTexts()
         //add the text into our entry's group
         mTextMap[temp.entry][temp.group].push_back(temp);
 
-        ++TextCount;
+        ++textCount;
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %u creature texts for %u creatures in %u ms", textCount, creatureCount, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u Creature Texts for %u Creatures.", TextCount, CreatureCount);
 }
 
 uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, uint64 whisperGuid, ChatType msgtype, Language language, TextRange range, uint32 sound, Team team, bool gmOnly, Player* srcPlr)

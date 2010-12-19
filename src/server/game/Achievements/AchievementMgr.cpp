@@ -2095,13 +2095,14 @@ AchievementCriteriaEntryList const& AchievementGlobalMgr::GetTimedAchievementCri
 
 void AchievementGlobalMgr::LoadAchievementCriteriaList()
 {
+    uint32 oldMSTime = getMSTime();
+
     if (sAchievementCriteriaStore.GetNumRows() == 0)
     {
         barGoLink bar(1);
         bar.step();
-
-        sLog.outString();
         sLog.outErrorDb(">> Loaded 0 achievement criteria.");
+        sLog.outString();
         return;
     }
 
@@ -2121,24 +2122,26 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
             m_AchievementCriteriasByTimedType[criteria->timedType].push_back(criteria);
     }
 
+    sLog.outString(">> Loaded %lu achievement criteria in %u ms",(unsigned long)m_AchievementCriteriasByType->size(), GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %lu achievement criteria.",(unsigned long)m_AchievementCriteriasByType->size());
 }
 
 void AchievementGlobalMgr::LoadAchievementReferenceList()
 {
+    uint32 oldMSTime = getMSTime();
+
     if (sAchievementStore.GetNumRows() == 0)
     {
         barGoLink bar(1);
         bar.step();
-
+        sLog.outString(">> Loaded 0 achievement references.");
         sLog.outString();
-        sLog.outErrorDb(">> Loaded 0 achievement references.");
         return;
     }
 
-    uint32 count = 0;
     barGoLink bar(sAchievementStore.GetNumRows());
+    uint32 count = 0;
+
     for (uint32 entryId = 0; entryId < sAchievementStore.GetNumRows(); ++entryId)
     {
         bar.step();
@@ -2151,12 +2154,14 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
         ++count;
     }
 
+    sLog.outString(">> Loaded %u achievement references in %u ms",count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u achievement references.",count);
 }
 
 void AchievementGlobalMgr::LoadAchievementCriteriaData()
 {
+    uint32 oldMSTime = getMSTime();
+
     m_criteriaDataMap.clear();                              // need for reload case
 
     QueryResult result = WorldDatabase.Query("SELECT criteria_id, type, value1, value2, ScriptName FROM achievement_criteria_data");
@@ -2165,14 +2170,14 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
     {
         barGoLink bar(1);
         bar.step();
-
-        sLog.outString();
         sLog.outString(">> Loaded 0 additional achievement criteria data. DB table `achievement_criteria_data` is empty.");
+        sLog.outString();
         return;
     }
 
-    uint32 count = 0;
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
+
     do
     {
         bar.step();
@@ -2213,7 +2218,8 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
 
         // counting data by and data types
         ++count;
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
     // post loading checks
     for (uint32 entryId = 0; entryId < sAchievementCriteriaStore.GetNumRows(); ++entryId)
@@ -2294,21 +2300,22 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
             sLog.outErrorDb("Table `achievement_criteria_data` does not have expected data for criteria (Entry: %u Type: %u) for achievement %u.", criteria->ID, criteria->requiredType, criteria->referredAchievement);
     }
 
+    sLog.outString(">> Loaded %u additional achievement criteria data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u additional achievement criteria data.",count);
 }
 
 void AchievementGlobalMgr::LoadCompletedAchievements()
 {
+    uint32 oldMSTime = getMSTime();
+
     QueryResult result = CharacterDatabase.Query("SELECT achievement FROM character_achievement GROUP BY achievement");
 
     if (!result)
     {
         barGoLink bar(1);
         bar.step();
-
+        sLog.outString(">> Loaded 0 completed achievements. DB table `character_achievement` is empty.");
         sLog.outString();
-        sLog.outString(">> Loaded 0 realm completed achievements . DB table `character_achievement` is empty.");
         return;
     }
 
@@ -2330,12 +2337,14 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
         m_allCompletedAchievements.insert(achievement_id);
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %lu completed achievements in %u ms",(unsigned long)m_allCompletedAchievements.size(), GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %lu realm completed achievements.",(unsigned long)m_allCompletedAchievements.size());
 }
 
 void AchievementGlobalMgr::LoadRewards()
 {
+    uint32 oldMSTime = getMSTime();
+
     m_achievementRewards.clear();                           // need for reload case
 
     //                                                0      1        2        3     4       5        6
@@ -2344,11 +2353,9 @@ void AchievementGlobalMgr::LoadRewards()
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
-        sLog.outString();
         sLog.outErrorDb(">> Loaded 0 achievement rewards. DB table `achievement_reward` is empty.");
+        sLog.outString();
         return;
     }
 
@@ -2439,27 +2446,29 @@ void AchievementGlobalMgr::LoadRewards()
         m_achievementRewards[entry] = reward;
         ++count;
 
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
+    sLog.outString(">> Loaded %u achievement rewards in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u achievement rewards", count);
 }
 
 void AchievementGlobalMgr::LoadRewardLocales()
 {
+    uint32 oldMSTime = getMSTime();
+
     m_achievementRewardLocales.clear();                       // need for reload case
 
-    QueryResult result = WorldDatabase.Query("SELECT entry,subject_loc1,text_loc1,subject_loc2,text_loc2,subject_loc3,text_loc3,subject_loc4,text_loc4,subject_loc5,text_loc5,subject_loc6,text_loc6,subject_loc7,text_loc7,subject_loc8,text_loc8 FROM locales_achievement_reward");
+    QueryResult result = WorldDatabase.Query("SELECT entry,subject_loc1,text_loc1,subject_loc2,text_loc2,subject_loc3,text_loc3,subject_loc4,text_loc4,"
+                                             "subject_loc5,text_loc5,subject_loc6,text_loc6,subject_loc7,text_loc7,subject_loc8,text_loc8"
+                                             " FROM locales_achievement_reward");
 
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
+        sLog.outString(">> Loaded 0 achievement reward locale strings.  DB table `locales_achievement_reward` is empty");
         sLog.outString();
-        sLog.outString(">> Loaded 0 achievement reward locale strings.");
-        sLog.outString(">> DB table `locales_achievement_reward` is empty.");
         return;
     }
 
@@ -2491,6 +2500,6 @@ void AchievementGlobalMgr::LoadRewardLocales()
         }
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %lu achievement reward locale strings in %u ms", (unsigned long)m_achievementRewardLocales.size(), GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %lu achievement reward locale strings", (unsigned long)m_achievementRewardLocales.size());
 }

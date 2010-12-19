@@ -661,6 +661,8 @@ uint32 BattlegroundMgr::CreateBattleground(BattlegroundTypeId bgTypeId, bool IsA
 
 void BattlegroundMgr::CreateInitialBattlegrounds()
 {
+    uint32 oldMSTime = getMSTime();
+
     float AStartLoc[4];
     float HStartLoc[4];
     uint32 MaxPlayersPerTeam, MinPlayersPerTeam, MinLvl, MaxLvl, start1, start2;
@@ -670,23 +672,20 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
     bool IsArena;
     uint32 scriptId = 0;
 
-    uint32 count = 0;
-
     //                                                       0   1                 2                 3      4      5                6              7             8           9      10
     QueryResult result = WorldDatabase.Query("SELECT id, MinPlayersPerTeam,MaxPlayersPerTeam,MinLvl,MaxLvl,AllianceStartLoc,AllianceStartO,HordeStartLoc,HordeStartO,Weight,ScriptName FROM battleground_template");
 
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
-
-        sLog.outString();
         sLog.outErrorDb(">> Loaded 0 battlegrounds. DB table `battleground_template` is empty.");
+        sLog.outString();
         return;
     }
 
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
 
     do
     {
@@ -785,10 +784,11 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
         else if (bgTypeID != BATTLEGROUND_RB)
             m_BGSelectionWeights[bgTypeID] = selectionWeight;
         ++count;
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
+    sLog.outString(">> Loaded %u battlegrounds in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u battlegrounds", count);
 }
 
 void BattlegroundMgr::InitAutomaticArenaPointDistribution()
@@ -1112,23 +1112,23 @@ uint32 BattlegroundMgr::GetPrematureFinishTime() const
 
 void BattlegroundMgr::LoadBattleMastersEntry()
 {
-    mBattleMastersMap.clear();                              // need for reload case
+    uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT entry,bg_template FROM battlemaster_entry");
+    mBattleMastersMap.clear();                                  // need for reload case
 
-    uint32 count = 0;
+    QueryResult result = WorldDatabase.Query("SELECT entry, bg_template FROM battlemaster_entry");
 
     if (!result)
     {
         barGoLink bar(1);
         bar.step();
-
+        sLog.outString(">> Loaded 0 battlemaster entries. DB table `battlemaster_entry` is empty!");
         sLog.outString();
-        sLog.outString(">> Loaded 0 battlemaster entries - table is empty!");
         return;
     }
 
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
 
     do
     {
@@ -1147,10 +1147,11 @@ void BattlegroundMgr::LoadBattleMastersEntry()
 
         mBattleMastersMap[entry] = BattlegroundTypeId(bgTypeId);
 
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
+    sLog.outString(">> Loaded %u battlemaster entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u battlemaster entries", count);
 }
 
 HolidayIds BattlegroundMgr::BGTypeToWeekendHolidayId(BattlegroundTypeId bgTypeId)

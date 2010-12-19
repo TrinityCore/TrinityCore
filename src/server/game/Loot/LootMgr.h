@@ -183,7 +183,7 @@ class LootStore
 
         void Verify() const;
 
-        void LoadAndCollectLootIds(LootIdSet& ids_set);
+        uint32 LoadAndCollectLootIds(LootIdSet& ids_set);
         void CheckLootRefs(LootIdSet* ref_set = NULL) const; // check existence reference and remove it from ref_set
         void ReportUnusedIds(LootIdSet const& ids_set) const;
         void ReportNotExistedId(uint32 id) const;
@@ -200,7 +200,7 @@ class LootStore
         char const* GetEntryName() const { return m_entryName; }
         bool IsRatesAllowed() const { return m_ratesAllowed; }
     protected:
-        void LoadLootTable();
+        uint32 LoadLootTable();
         void Clear();
     private:
         LootTemplateMap m_LootTemplates;

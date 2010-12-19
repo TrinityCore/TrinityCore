@@ -31,6 +31,8 @@ void CharacterDatabaseCleaner::CleanDatabase()
 
     sLog.outString("Cleaning character database...");
 
+    uint32 oldMSTime = getMSTime();
+
     // check flags which clean ups are necessary
     QueryResult result = CharacterDatabase.Query("SELECT value FROM worldstates WHERE entry=20004");
     if(!result)
@@ -47,6 +49,9 @@ void CharacterDatabaseCleaner::CleanDatabase()
     if(flags & CLEANING_FLAG_TALENTS)
         CleanCharacterTalent();
     CharacterDatabase.Query("UPDATE worldstates SET value = 0 WHERE entry=20004");
+
+    sLog.outString(">> Cleaned character database in %u ms", GetMSTimeDiffToNow(oldMSTime));
+    sLog.outString();
 }
 
 void CharacterDatabaseCleaner::CheckUnique(const char* column, const

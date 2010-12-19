@@ -34,32 +34,39 @@ AddonMgr::~AddonMgr()
 
 void AddonMgr::LoadFromDB()
 {
+    uint32 oldMSTime = getMSTime();
+
     QueryResult result = CharacterDatabase.Query("SELECT name, crc FROM addons");
+
     if (!result)
     {
-        sLog.outErrorDb("The table `addons` is empty");
+        barGoLink bar(1);
+        bar.step();
+        sLog.outString(">> Loaded 0 known addons. DB table `addons` is empty!");
+        sLog.outString();
         return;
     }
 
     barGoLink bar(result->GetRowCount());
     uint32 count = 0;
-    Field *fields;
 
     do
     {
-        fields = result->Fetch();
+        Field *fields = result->Fetch();
         bar.step();
-        count++;
 
         std::string name = fields[0].GetString();
         uint32 crc = fields[1].GetUInt32();
 
         SavedAddon addon(name, crc);
         m_knownAddons.push_back(addon);
-    } while (result->NextRow());
 
+        ++count;
+    }
+    while (result->NextRow());
+
+    sLog.outString(">> Loaded %u known addons in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u known addons", count);
 }
 
 void AddonMgr::SaveAddon(AddonInfo const& addon)

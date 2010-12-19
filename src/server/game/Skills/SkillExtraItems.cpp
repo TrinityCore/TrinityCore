@@ -52,68 +52,71 @@ SkillExtraItemMap SkillExtraItemStore;
 // loads the extra item creation info from DB
 void LoadSkillExtraItemTable()
 {
+    uint32 oldMSTime = getMSTime();
+
     SkillExtraItemStore.clear();                            // need for reload
 
     //                                                 0        1                       2                       3
     QueryResult result = WorldDatabase.Query("SELECT spellId, requiredSpecialization, additionalCreateChance, additionalMaxNum FROM skill_extra_item_template");
 
-    if (result)
+    if (!result)
     {
-        uint32 count = 0;
+        barGoLink bar(1);
+        bar.step();
+        sLog.outErrorDb(">> Loaded 0 spell specialization definitions. DB table `skill_extra_item_template` is empty.");
+        sLog.outString();
+        return;
+    }
 
-        barGoLink bar(result->GetRowCount());
+    barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
 
-        do
+    do
+    {
+        Field *fields = result->Fetch();
+        bar.step();
+
+        uint32 spellId = fields[0].GetUInt32();
+
+        if (!sSpellStore.LookupEntry(spellId))
         {
-            Field *fields = result->Fetch();
-            bar.step();
+            sLog.outError("Skill specialization %u has non-existent spell id in `skill_extra_item_template`!", spellId);
+            continue;
+        }
 
-            uint32 spellId = fields[0].GetUInt32();
+        uint32 requiredSpecialization = fields[1].GetUInt32();
+        if (!sSpellStore.LookupEntry(requiredSpecialization))
+        {
+            sLog.outError("Skill specialization %u have not existed required specialization spell id %u in `skill_extra_item_template`!", spellId,requiredSpecialization);
+            continue;
+        }
 
-            if (!sSpellStore.LookupEntry(spellId))
-            {
-                sLog.outError("Skill specialization %u has non-existent spell id in `skill_extra_item_template`!", spellId);
-                continue;
-            }
+        float additionalCreateChance = fields[2].GetFloat();
+        if (additionalCreateChance <= 0.0f)
+        {
+            sLog.outError("Skill specialization %u has too low additional create chance in `skill_extra_item_template`!", spellId);
+            continue;
+        }
 
-            uint32 requiredSpecialization = fields[1].GetUInt32();
-            if (!sSpellStore.LookupEntry(requiredSpecialization))
-            {
-                sLog.outError("Skill specialization %u have not existed required specialization spell id %u in `skill_extra_item_template`!", spellId,requiredSpecialization);
-                continue;
-            }
+        uint8 additionalMaxNum = fields[3].GetUInt8();
+        if (!additionalMaxNum)
+        {
+            sLog.outError("Skill specialization %u has 0 max number of extra items in `skill_extra_item_template`!", spellId);
+            continue;
+        }
 
-            float additionalCreateChance = fields[2].GetFloat();
-            if (additionalCreateChance <= 0.0f)
-            {
-                sLog.outError("Skill specialization %u has too low additional create chance in `skill_extra_item_template`!", spellId);
-                continue;
-            }
+        SkillExtraItemEntry& skillExtraItemEntry = SkillExtraItemStore[spellId];
 
-            uint8 additionalMaxNum = fields[3].GetUInt8();
-            if (!additionalMaxNum)
-            {
-                sLog.outError("Skill specialization %u has 0 max number of extra items in `skill_extra_item_template`!", spellId);
-                continue;
-            }
+        skillExtraItemEntry.requiredSpecialization = requiredSpecialization;
+        skillExtraItemEntry.additionalCreateChance = additionalCreateChance;
+        skillExtraItemEntry.additionalMaxNum       = additionalMaxNum;
 
-            SkillExtraItemEntry& skillExtraItemEntry = SkillExtraItemStore[spellId];
-
-            skillExtraItemEntry.requiredSpecialization = requiredSpecialization;
-            skillExtraItemEntry.additionalCreateChance = additionalCreateChance;
-            skillExtraItemEntry.additionalMaxNum       = additionalMaxNum;
-
-            ++count;
-        } while (result->NextRow());
-
-        sLog.outString();
-        sLog.outString(">> Loaded %u spell specialization definitions", count);
+        ++count;
     }
-    else
-    {
-        sLog.outString();
-        sLog.outString(">> Loaded 0 spell specialization definitions. DB table `skill_extra_item_template` is empty.");
-    }
+    while (result->NextRow());
+
+    sLog.outString(">> Loaded %u spell specialization definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog.outString();
 }
 
 bool canCreateExtraItems(Player * player, uint32 spellId, float &additionalChance, uint8 &additionalMax)

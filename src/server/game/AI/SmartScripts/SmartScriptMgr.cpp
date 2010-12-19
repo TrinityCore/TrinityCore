@@ -34,6 +34,8 @@
 
 void SmartWaypointMgr::LoadFromDB()
 {
+    uint32 oldMSTime = getMSTime();
+
     waypoint_map.clear();
 
     PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_LOAD_SMARTAI_WP);
@@ -43,17 +45,17 @@ void SmartWaypointMgr::LoadFromDB()
     {
         barGoLink bar(1);
         bar.step();
-        sLog.outString();
         sLog.outString(">> Loaded 0 SmartAI Waypoint Paths. DB table `waypoints` is empty.");
+        sLog.outString();
         return;
     }
 
-    WPPath* path = NULL;
-    uint32 last_entry = 0;
-    uint32 last_id = 1;
     barGoLink bar(result->GetRowCount());
     uint32 count = 0;
     uint32 total = 0;
+    WPPath* path = NULL;
+    uint32 last_entry = 0;
+    uint32 last_id = 1;
 
     do
     {
@@ -88,14 +90,17 @@ void SmartWaypointMgr::LoadFromDB()
         }
         last_entry = entry;
         total++;
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
+    sLog.outString(">> Loaded %u SmartAI waypoint paths (total %u waypoints) in %u ms", count, total, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u SmartAI Waypoint Paths, total %u waypoints.", count, total);
 }
 
 void SmartAIMgr::LoadSmartAIFromDB()
 {
+    uint32 oldMSTime = getMSTime();
+
     for (uint8 i = 0; i < SMART_SCRIPT_TYPE_MAX; i++)
         mEventMap[i].clear();  //Drop Existing SmartAI List
 
@@ -106,13 +111,13 @@ void SmartAIMgr::LoadSmartAIFromDB()
     {
         barGoLink bar(1);
         bar.step();
-        sLog.outString();
         sLog.outString(">> Loaded 0 SmartAI scripts. DB table `smartai_scripts` is empty.");
+        sLog.outString();
         return;
     }
 
     barGoLink bar(result->GetRowCount());
-    uint32 ScriptCount = 0;
+    uint32 count = 0;
 
     do
     {
@@ -215,16 +220,17 @@ void SmartAIMgr::LoadSmartAIFromDB()
         // creature entry / guid not found in storage, create empty event list for it and increase counters
         if (mEventMap[source_type].find(temp.entryOrGuid) == mEventMap[source_type].end())
         {
-            ++ScriptCount;
+            ++count;
             SmartAIEventList eventList;
             mEventMap[source_type][temp.entryOrGuid] = eventList;
         }
         // store the new event
         mEventMap[source_type][temp.entryOrGuid].push_back(temp);
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
+    sLog.outString(">> Loaded %u SmartAI scripts in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u SmartAI scripts.", ScriptCount);
 }
 
 bool SmartAIMgr::IsTargetValid(SmartScriptHolder e)

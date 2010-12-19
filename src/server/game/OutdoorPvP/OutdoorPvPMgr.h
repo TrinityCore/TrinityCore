@@ -49,9 +49,6 @@ class OutdoorPvPMgr
         // create outdoor pvp events
         void InitOutdoorPvP();
 
-        // loads outdoorpvp_template
-        void LoadTemplates();
-
         // called when a player enters an outdoor pvp area
         void HandlePlayerEnterZone(Player * plr, uint32 areaflag);
 

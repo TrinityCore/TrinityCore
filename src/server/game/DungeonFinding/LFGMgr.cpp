@@ -75,9 +75,10 @@ LFGMgr::~LFGMgr()
 /// Load achievement <-> encounter associations
 void LFGMgr::LoadDungeonEncounters()
 {
+    uint32 oldMSTime = getMSTime();
+
     m_EncountersByAchievement.clear();
 
-    uint32 count = 0;
     QueryResult result = WorldDatabase.Query("SELECT achievementId, dungeonId FROM lfg_dungeon_encounters");
 
     if (!result)
@@ -91,6 +92,7 @@ void LFGMgr::LoadDungeonEncounters()
     }
 
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
 
     Field* fields = NULL;
     do
@@ -124,19 +126,20 @@ void LFGMgr::LoadDungeonEncounters()
         ++count;
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %u dungeon encounter lfg associations in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u dungeon encounter lfg associations.", count);
 }
 
 
 /// Load rewards for completing dungeons
 void LFGMgr::LoadRewards()
 {
+    uint32 oldMSTime = getMSTime();
+
     for (LfgRewardMap::iterator itr = m_RewardMap.begin(); itr != m_RewardMap.end(); ++itr)
         delete itr->second;
     m_RewardMap.clear();
 
-    uint32 count = 0;
     // ORDER BY is very important for GetRandomDungeonReward!
     QueryResult result = WorldDatabase.Query("SELECT dungeonId, maxLevel, firstQuestId, firstMoneyVar, firstXPVar, otherQuestId, otherMoneyVar, otherXPVar FROM lfg_dungeon_rewards ORDER BY dungeonId, maxLevel ASC");
 
@@ -144,13 +147,13 @@ void LFGMgr::LoadRewards()
     {
         barGoLink bar(1);
         bar.step();
-
-        sLog.outString();
         sLog.outErrorDb(">> Loaded 0 lfg dungeon rewards. DB table `lfg_dungeon_rewards` is empty!");
+        sLog.outString();
         return;
     }
 
     barGoLink bar(result->GetRowCount());
+    uint32 count = 0;
 
     Field* fields = NULL;
     do
@@ -194,8 +197,8 @@ void LFGMgr::LoadRewards()
         ++count;
     } while (result->NextRow());
 
+    sLog.outString(">> Loaded %u lfg dungeon rewards in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog.outString();
-    sLog.outString(">> Loaded %u lfg dungeon rewards.", count);
 }
 
 void LFGMgr::Update(uint32 diff)
