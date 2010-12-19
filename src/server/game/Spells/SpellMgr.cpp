@@ -330,7 +330,7 @@ uint32 GetSpellCastTime(SpellEntry const* spellInfo, Spell * spell)
     if (spell && spell->GetCaster())
         spell->GetCaster()->ModSpellCastTime(spellInfo, castTime, spell);
 
-    if (spellInfo->Attributes & SPELL_ATTR_REQ_AMMO && (!spell || !(spell->IsAutoRepeat())))
+    if (spellInfo->Attributes & SPELL_ATTR0_REQ_AMMO && (!spell || !(spell->IsAutoRepeat())))
         castTime += 500;
 
     return (castTime > 0) ? uint32(castTime) : 0;
@@ -346,7 +346,7 @@ bool IsPassiveSpell(uint32 spellId)
 
 bool IsPassiveSpell(SpellEntry const * spellInfo)
 {
-    if (spellInfo->Attributes & SPELL_ATTR_PASSIVE)
+    if (spellInfo->Attributes & SPELL_ATTR0_PASSIVE)
         return true;
     return false;
 }
@@ -356,9 +356,9 @@ bool IsAutocastableSpell(uint32 spellId)
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
     if (!spellInfo)
         return false;
-    if (spellInfo->Attributes & SPELL_ATTR_PASSIVE)
+    if (spellInfo->Attributes & SPELL_ATTR0_PASSIVE)
         return false;
-    if (spellInfo->AttributesEx & SPELL_ATTR_EX_UNAUTOCASTABLE_BY_PET)
+    if (spellInfo->AttributesEx & SPELL_ATTR1_UNAUTOCASTABLE_BY_PET)
         return false;
     return true;
 }
@@ -371,7 +371,7 @@ bool IsHigherHankOfSpell(uint32 spellId_1, uint32 spellId_2)
 uint32 CalculatePowerCost(SpellEntry const * spellInfo, Unit const * caster, SpellSchoolMask schoolMask)
 {
     // Spell drain all exist power on cast (Only paladin lay of Hands)
-    if (spellInfo->AttributesEx & SPELL_ATTR_EX_DRAIN_ALL_POWER)
+    if (spellInfo->AttributesEx & SPELL_ATTR1_DRAIN_ALL_POWER)
     {
         // If power type - health drain all
         if (spellInfo->powerType == POWER_HEALTH)
@@ -416,13 +416,13 @@ uint32 CalculatePowerCost(SpellEntry const * spellInfo, Unit const * caster, Spe
     // Flat mod from caster auras by spell school
     powerCost += caster->GetInt32Value(UNIT_FIELD_POWER_COST_MODIFIER + school);
     // Shiv - costs 20 + weaponSpeed*10 energy (apply only to non-triggered spell with energy cost)
-    if (spellInfo->AttributesEx4 & SPELL_ATTR_EX4_SPELL_VS_EXTEND_COST)
+    if (spellInfo->AttributesEx4 & SPELL_ATTR4_SPELL_VS_EXTEND_COST)
         powerCost += caster->GetAttackTime(OFF_ATTACK)/100;
     // Apply cost mod by spell
     if (Player* modOwner = caster->GetSpellModOwner())
         modOwner->ApplySpellMod(spellInfo->Id, SPELLMOD_COST, powerCost);
 
-    if (spellInfo->Attributes & SPELL_ATTR_LEVEL_DAMAGE_CALCULATION)
+    if (spellInfo->Attributes & SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION)
         powerCost = int32(powerCost/ (1.117f* spellInfo->spellLevel / caster->getLevel() -0.1327f));
 
     // PCT mod from user auras by school
@@ -750,7 +750,7 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
     if (!spellproto) return false;
 
     // not found a single positive spell with this attribute
-    if (spellproto->Attributes & SPELL_ATTR_NEGATIVE_1)
+    if (spellproto->Attributes & SPELL_ATTR0_NEGATIVE_1)
         return false;
 
     switch (spellproto->SpellFamilyName)
@@ -854,7 +854,7 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
                 case SPELL_AURA_MOD_CRIT_PCT:
                 case SPELL_AURA_MOD_SPELL_CRIT_CHANCE:
                     if (SpellMgr::CalculateSpellEffectAmount(spellproto, effIndex) > 0)
-                        return true;                        // some expected positive spells have SPELL_ATTR_EX_NEGATIVE
+                        return true;                        // some expected positive spells have SPELL_ATTR1_NEGATIVE
                     break;
                 case SPELL_AURA_ADD_TARGET_TRIGGER:
                     return true;
@@ -908,7 +908,7 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
                     if (spellproto->EffectImplicitTargetA[effIndex] != TARGET_UNIT_CASTER)
                         return false;
                     // but not this if this first effect (didn't find better check)
-                    if (spellproto->Attributes & SPELL_ATTR_NEGATIVE_1 && effIndex == 0)
+                    if (spellproto->Attributes & SPELL_ATTR0_NEGATIVE_1 && effIndex == 0)
                         return false;
                     break;
                 case SPELL_AURA_MECHANIC_IMMUNITY:
@@ -969,7 +969,7 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
         return false;
 
     // AttributesEx check
-    if (spellproto->AttributesEx & SPELL_ATTR_EX_NEGATIVE)
+    if (spellproto->AttributesEx & SPELL_ATTR1_NEGATIVE)
         return false;
 
     if (!deep && spellproto->EffectTriggerSpell[effIndex]
@@ -986,7 +986,7 @@ bool IsPositiveSpell(uint32 spellId)
 {
     if (!sSpellStore.LookupEntry(spellId)) // non-existing spells
         return false;
-    return !(sSpellMgr.GetSpellCustomAttr(spellId) & SPELL_ATTR_CU_NEGATIVE);
+    return !(sSpellMgr.GetSpellCustomAttr(spellId) & SPELL_ATTR0_CU_NEGATIVE);
 }
 
 bool IsPositiveEffect(uint32 spellId, uint32 effIndex)
@@ -996,9 +996,9 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex)
     switch(effIndex)
     {
         default:
-        case 0: return !(sSpellMgr.GetSpellCustomAttr(spellId) & SPELL_ATTR_CU_NEGATIVE_EFF0);
-        case 1: return !(sSpellMgr.GetSpellCustomAttr(spellId) & SPELL_ATTR_CU_NEGATIVE_EFF1);
-        case 2: return !(sSpellMgr.GetSpellCustomAttr(spellId) & SPELL_ATTR_CU_NEGATIVE_EFF2);
+        case 0: return !(sSpellMgr.GetSpellCustomAttr(spellId) & SPELL_ATTR0_CU_NEGATIVE_EFF0);
+        case 1: return !(sSpellMgr.GetSpellCustomAttr(spellId) & SPELL_ATTR0_CU_NEGATIVE_EFF1);
+        case 2: return !(sSpellMgr.GetSpellCustomAttr(spellId) & SPELL_ATTR0_CU_NEGATIVE_EFF2);
     }
 }
 
@@ -1018,7 +1018,7 @@ bool SpellMgr::_isPositiveSpell(uint32 spellId, bool deep) const
 bool IsSingleTargetSpell(SpellEntry const *spellInfo)
 {
     // all other single target spells have if it has AttributesEx5
-    if (spellInfo->AttributesEx5 & SPELL_ATTR_EX5_SINGLE_TARGET_SPELL)
+    if (spellInfo->AttributesEx5 & SPELL_ATTR5_SINGLE_TARGET_SPELL)
         return true;
 
     switch(GetSpellSpecific(spellInfo))
@@ -1088,7 +1088,7 @@ SpellCastResult GetErrorAtShapeshiftedCast (SpellEntry const *spellInfo, uint32 
 
     if (actAsShifted)
     {
-        if (spellInfo->Attributes & SPELL_ATTR_NOT_SHAPESHIFT) // not while shapeshifted
+        if (spellInfo->Attributes & SPELL_ATTR0_NOT_SHAPESHIFT) // not while shapeshifted
             return SPELL_FAILED_NOT_SHAPESHIFT;
         else if (spellInfo->Stances != 0)                   // needs other shapeshift
             return SPELL_FAILED_ONLY_SHAPESHIFT;
@@ -1096,7 +1096,7 @@ SpellCastResult GetErrorAtShapeshiftedCast (SpellEntry const *spellInfo, uint32 
     else
     {
         // needs shapeshift
-        if (!(spellInfo->AttributesEx2 & SPELL_ATTR_EX2_NOT_NEED_SHAPESHIFT) && spellInfo->Stances != 0)
+        if (!(spellInfo->AttributesEx2 & SPELL_ATTR2_NOT_NEED_SHAPESHIFT) && spellInfo->Stances != 0)
             return SPELL_FAILED_ONLY_SHAPESHIFT;
     }
 
@@ -1876,7 +1876,7 @@ int32 SpellMgr::CalculateSpellEffectAmount(SpellEntry const * spellEntry, uint8 
         value = caster->ApplyEffectModifiers(spellEntry, effIndex, value);
 
         // amount multiplication based on caster's level
-        if (!basePointsPerLevel && (spellEntry->Attributes & SPELL_ATTR_LEVEL_DAMAGE_CALCULATION && spellEntry->spellLevel) &&
+        if (!basePointsPerLevel && (spellEntry->Attributes & SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION && spellEntry->spellLevel) &&
                 spellEntry->Effect[effIndex] != SPELL_EFFECT_WEAPON_PERCENT_DAMAGE &&
                 spellEntry->Effect[effIndex] != SPELL_EFFECT_KNOCK_BACK &&
                 spellEntry->EffectApplyAuraName[effIndex] != SPELL_AURA_MOD_SPEED_ALWAYS &&
@@ -2504,7 +2504,7 @@ void SpellMgr::LoadSpellAreas()
         if (const SpellEntry* spellInfo = sSpellStore.LookupEntry(spell))
         {
             if (spellArea.autocast)
-                const_cast<SpellEntry*>(spellInfo)->Attributes |= SPELL_ATTR_CANT_CANCEL;
+                const_cast<SpellEntry*>(spellInfo)->Attributes |= SPELL_ATTR0_CANT_CANCEL;
         }
         else
         {
@@ -2687,7 +2687,7 @@ SpellCastResult SpellMgr::GetSpellAllowedInLocationError(SpellEntry const *spell
     }
 
     // continent limitation (virtual continent)
-    if (spellInfo->AttributesEx4 & SPELL_ATTR_EX4_CAST_ONLY_IN_OUTLAND)
+    if (spellInfo->AttributesEx4 & SPELL_ATTR4_CAST_ONLY_IN_OUTLAND)
     {
         uint32 v_map = GetVirtualMapForMapAndZone(map_id, zone_id);
         MapEntry const *mapEntry = sMapStore.LookupEntry(v_map);
@@ -2696,7 +2696,7 @@ SpellCastResult SpellMgr::GetSpellAllowedInLocationError(SpellEntry const *spell
     }
 
     // raid instance limitation
-    if (spellInfo->AttributesEx6 & SPELL_ATTR_EX6_NOT_IN_RAID_INSTANCE)
+    if (spellInfo->AttributesEx6 & SPELL_ATTR6_NOT_IN_RAID_INSTANCE)
     {
         MapEntry const *mapEntry = sMapStore.LookupEntry(map_id);
         if (!mapEntry || mapEntry->IsRaid())
@@ -3142,8 +3142,8 @@ bool SpellMgr::CanAurasStack(SpellEntry const *spellInfo_1, SpellEntry const *sp
 
     if (!sameCaster)
     {
-        if (spellInfo_1->AttributesEx & SPELL_ATTR_EX_STACK_FOR_DIFF_CASTERS
-            || spellInfo_1->AttributesEx3 & SPELL_ATTR_EX3_STACK_FOR_DIFF_CASTERS)
+        if (spellInfo_1->AttributesEx & SPELL_ATTR1_STACK_FOR_DIFF_CASTERS
+            || spellInfo_1->AttributesEx3 & SPELL_ATTR3_STACK_FOR_DIFF_CASTERS)
             return true;
 
         // check same periodic auras
@@ -3192,19 +3192,19 @@ bool SpellMgr::CanAurasStack(SpellEntry const *spellInfo_1, SpellEntry const *sp
 bool CanSpellDispelAura(SpellEntry const * dispelSpell, SpellEntry const * aura)
 {
     // These auras (like ressurection sickness) can't be dispelled
-    if (aura->Attributes & SPELL_ATTR_NEGATIVE_1)
+    if (aura->Attributes & SPELL_ATTR0_NEGATIVE_1)
         return false;
 
     // These spells (like Mass Dispel) can dispell all auras
-    if (dispelSpell->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY)
+    if (dispelSpell->Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY)
         return true;
 
     // These auras (like Divine Shield) can't be dispelled
-    if (aura->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY)
+    if (aura->Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY)
         return false;
 
     // These auras (Cyclone for example) are not dispelable
-    if (aura->AttributesEx & SPELL_ATTR_EX_UNAFFECTED_BY_SCHOOL_IMMUNE)
+    if (aura->AttributesEx & SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE)
         return false;
 
     return true;
@@ -3213,11 +3213,11 @@ bool CanSpellDispelAura(SpellEntry const * dispelSpell, SpellEntry const * aura)
 bool CanSpellPierceImmuneAura(SpellEntry const * pierceSpell, SpellEntry const * aura)
 {
     // these spells pierce all avalible spells (Resurrection Sickness for example)
-    if (pierceSpell->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY)
+    if (pierceSpell->Attributes & SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY)
         return true;
 
     // these spells (Cyclone for example) can pierce all...
-    if ((pierceSpell->AttributesEx & SPELL_ATTR_EX_UNAFFECTED_BY_SCHOOL_IMMUNE)
+    if ((pierceSpell->AttributesEx & SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE)
         // ...but not these (Divine shield for example)
         && !(aura && (aura->Mechanic == MECHANIC_IMMUNE_SHIELD || aura->Mechanic == MECHANIC_INVULNERABILITY)))
         return true;
@@ -3478,7 +3478,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
                 case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
                 case SPELL_EFFECT_HEAL:
-                    mSpellCustomAttr[i] |= SPELL_ATTR_CU_DIRECT_DAMAGE;
+                    mSpellCustomAttr[i] |= SPELL_ATTR0_CU_DIRECT_DAMAGE;
                     count++;
                     break;
                 case SPELL_EFFECT_CHARGE:
@@ -3488,11 +3488,11 @@ void SpellMgr::LoadSpellCustomAttr()
                 case SPELL_EFFECT_LEAP_BACK:
                     if (!spellInfo->speed && !spellInfo->SpellFamilyName)
                         spellInfo->speed = SPEED_CHARGE;
-                    mSpellCustomAttr[i] |= SPELL_ATTR_CU_CHARGE;
+                    mSpellCustomAttr[i] |= SPELL_ATTR0_CU_CHARGE;
                     count++;
                     break;
                 case SPELL_EFFECT_PICKPOCKET:
-                    mSpellCustomAttr[i] |= SPELL_ATTR_CU_PICKPOCKET;
+                    mSpellCustomAttr[i] |= SPELL_ATTR0_CU_PICKPOCKET;
                     break;
                 case SPELL_EFFECT_TRIGGER_SPELL:
                     if (IsPositionTarget(spellInfo->EffectImplicitTargetA[j]) ||
@@ -3524,7 +3524,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 case SPELL_AURA_AOE_CHARM:
                 case SPELL_AURA_MOD_FEAR:
                 case SPELL_AURA_MOD_STUN:
-                    mSpellCustomAttr[i] |= SPELL_ATTR_CU_AURA_CC;
+                    mSpellCustomAttr[i] |= SPELL_ATTR0_CU_AURA_CC;
                     count++;
                     break;
             }
@@ -3532,29 +3532,29 @@ void SpellMgr::LoadSpellCustomAttr()
 
         if (!_isPositiveEffect(i, 0, false))
         {
-            mSpellCustomAttr[i] |= SPELL_ATTR_CU_NEGATIVE_EFF0;
+            mSpellCustomAttr[i] |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
             count++;
         }
         if (!_isPositiveEffect(i, 1, false))
         {
-            mSpellCustomAttr[i] |= SPELL_ATTR_CU_NEGATIVE_EFF1;
+            mSpellCustomAttr[i] |= SPELL_ATTR0_CU_NEGATIVE_EFF1;
             count++;
         }
         if (!_isPositiveEffect(i, 2, false))
         {
-            mSpellCustomAttr[i] |= SPELL_ATTR_CU_NEGATIVE_EFF2;
+            mSpellCustomAttr[i] |= SPELL_ATTR0_CU_NEGATIVE_EFF2;
             count++;
         }
 
         if (spellInfo->SpellVisual[0] == 3879)
         {
-            mSpellCustomAttr[i] |= SPELL_ATTR_CU_CONE_BACK;
+            mSpellCustomAttr[i] |= SPELL_ATTR0_CU_CONE_BACK;
             count++;
         }
 
         if (spellInfo->activeIconID == 2158)  // flight
         {
-            spellInfo->Attributes |= SPELL_ATTR_PASSIVE;
+            spellInfo->Attributes |= SPELL_ATTR0_PASSIVE;
             count++;
         }
 
@@ -3588,7 +3588,7 @@ void SpellMgr::LoadSpellCustomAttr()
         // Glyph of Life Tap
         case 63320:
         // Entries were not updated after spell effect change, we have to do that manually :/
-            spellInfo->AttributesEx3 |= SPELL_ATTR_EX3_CAN_PROC_TRIGGERED;
+            spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_TRIGGERED;
             count++;
             break;
         case 16007: // Draco-Incarcinatrix 900
@@ -3600,7 +3600,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 26029: // dark glare
         case 37433: // spout
         case 43140: case 43215: // flame breath
-            mSpellCustomAttr[i] |= SPELL_ATTR_CU_CONE_LINE;
+            mSpellCustomAttr[i] |= SPELL_ATTR0_CU_CONE_LINE;
             count++;
             break;
         case 24340: case 26558: case 28884:     // Meteor
@@ -3618,7 +3618,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 70492: case 72505:                 // Ooze Eruption
         case 72624: case 72625:                 // Ooze Eruption
             // ONLY SPELLS WITH SPELLFAMILY_GENERIC and EFFECT_SCHOOL_DAMAGE
-            mSpellCustomAttr[i] |= SPELL_ATTR_CU_SHARE_DAMAGE;
+            mSpellCustomAttr[i] |= SPELL_ATTR0_CU_SHARE_DAMAGE;
             count++;
             break;
         case 59725:                             // Improved Spell Reflection - aoe aura
@@ -3635,7 +3635,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 69538: case 69553: case 69610:     // Ooze Combine
         case 71447: case 71481:                 // Bloodbolt Splash
         case 71482: case 71483:                 // Bloodbolt Splash
-            mSpellCustomAttr[i] |= SPELL_ATTR_CU_EXCLUDE_SELF;
+            mSpellCustomAttr[i] |= SPELL_ATTR0_CU_EXCLUDE_SELF;
             count++;
             break;
         case 44978: case 45001: case 45002:     // Wild Magic
@@ -3801,7 +3801,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 51735: // Ebon Plague
         case 51734:
         case 51726:
-            spellInfo->AttributesEx3 |= SPELL_ATTR_EX3_STACK_FOR_DIFF_CASTERS;
+            spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
             spellInfo->SpellFamilyFlags[2] = 0x10;
             count++;
             break;
@@ -3819,7 +3819,7 @@ void SpellMgr::LoadSpellCustomAttr()
             count++;
             break;
         case 48743: // Death Pact
-            spellInfo->AttributesEx &= ~SPELL_ATTR_EX_CANT_TARGET_SELF;
+            spellInfo->AttributesEx &= ~SPELL_ATTR1_CANT_TARGET_SELF;
             count++;
             break;
         // target allys instead of enemies, target A is src_caster, spells with effect like that have ally target
@@ -3843,7 +3843,7 @@ void SpellMgr::LoadSpellCustomAttr()
             // spell should dispel area aura, but doesn't have the attribute
             // may be db data bug, or blizz may keep reapplying area auras every update with checking immunity
             // that will be clear if we get more spells with problem like this
-            spellInfo->AttributesEx |= SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY;
+            spellInfo->AttributesEx |= SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY;
             count++;
             break;
         case 69055:     // Saber Lash
@@ -3873,7 +3873,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 67860: // Impale
         case 69293: // Wing Buffet
         case 74439: // Machine Gun
-            mSpellCustomAttr[i] |= SPELL_ATTR_CU_IGNORE_ARMOR;
+            mSpellCustomAttr[i] |= SPELL_ATTR0_CU_IGNORE_ARMOR;
             count++;
             break;
         // Strength of the Pack
@@ -3895,7 +3895,7 @@ void SpellMgr::LoadSpellCustomAttr()
             count++;
             break;
         case 63675: // Improved Devouring Plague
-            spellInfo->AttributesEx3 |= SPELL_ATTR_EX3_NO_DONE_BONUS;
+            spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
             count++;
             break;
         case 53241: // Marked for Death (Rank 1)
@@ -3965,7 +3965,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 72785: // Empowered Flare
         case 72786: // Empowered Flare
         case 72787: // Empowered Flare
-            spellInfo->AttributesEx3 |= SPELL_ATTR_EX3_NO_DONE_BONUS;
+            spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
             count++;
             break;
         case 71340: // Pact of the Darkfallen
@@ -3981,7 +3981,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case SPELLFAMILY_WARRIOR:
                 // Shout
                 if (spellInfo->SpellFamilyFlags[0] & 0x20000 || spellInfo->SpellFamilyFlags[1] & 0x20)
-                    mSpellCustomAttr[i] |= SPELL_ATTR_CU_AURA_CC;
+                    mSpellCustomAttr[i] |= SPELL_ATTR0_CU_AURA_CC;
                 else
                     break;
                 count++;
@@ -3992,10 +3992,10 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->MaxAffectedTargets = 2;
                 // Starfall AOE Damage
                 else if (spellInfo->SpellFamilyFlags[2] & 0x800000)
-                    mSpellCustomAttr[i] |= SPELL_ATTR_CU_EXCLUDE_SELF;
+                    mSpellCustomAttr[i] |= SPELL_ATTR0_CU_EXCLUDE_SELF;
                 // Roar
                 else if (spellInfo->SpellFamilyFlags[0] & 0x8)
-                    mSpellCustomAttr[i] |= SPELL_ATTR_CU_AURA_CC;
+                    mSpellCustomAttr[i] |= SPELL_ATTR0_CU_AURA_CC;
                 else
                     break;
                 count++;
@@ -4003,7 +4003,7 @@ void SpellMgr::LoadSpellCustomAttr()
                 // Do not allow Deadly throw and Slice and Dice to proc twice
             case SPELLFAMILY_ROGUE:
                 if (spellInfo->SpellFamilyFlags[1] & 0x1 || spellInfo->SpellFamilyFlags[0] & 0x40000)
-                    spellInfo->AttributesEx4 |= SPELL_ATTR_EX4_CANT_PROC_FROM_SELFCAST;
+                    spellInfo->AttributesEx4 |= SPELL_ATTR4_CANT_PROC_FROM_SELFCAST;
                 else
                     break;
                 count++;
@@ -4044,7 +4044,7 @@ void SpellMgr::LoadEnchantCustomAttr()
             continue;
 
         // TODO: find a better check
-        if (!(spellInfo->AttributesEx2 & SPELL_ATTR_EX2_UNK13) || !(spellInfo->Attributes & SPELL_ATTR_NOT_SHAPESHIFT))
+        if (!(spellInfo->AttributesEx2 & SPELL_ATTR2_UNK13) || !(spellInfo->Attributes & SPELL_ATTR0_NOT_SHAPESHIFT))
             continue;
 
         for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
@@ -4111,14 +4111,14 @@ void SpellMgr::LoadSpellLinked()
         {
             switch(type)
             {
-                case 0: mSpellCustomAttr[trigger] |= SPELL_ATTR_CU_LINK_CAST; break;
-                case 1: mSpellCustomAttr[trigger] |= SPELL_ATTR_CU_LINK_HIT;  break;
-                case 2: mSpellCustomAttr[trigger] |= SPELL_ATTR_CU_LINK_AURA; break;
+                case 0: mSpellCustomAttr[trigger] |= SPELL_ATTR0_CU_LINK_CAST; break;
+                case 1: mSpellCustomAttr[trigger] |= SPELL_ATTR0_CU_LINK_HIT;  break;
+                case 2: mSpellCustomAttr[trigger] |= SPELL_ATTR0_CU_LINK_AURA; break;
             }
         }
         else
         {
-            mSpellCustomAttr[-trigger] |= SPELL_ATTR_CU_LINK_REMOVE;
+            mSpellCustomAttr[-trigger] |= SPELL_ATTR0_CU_LINK_REMOVE;
         }
 
         if (type) //we will find a better way when more types are needed
