@@ -16,6 +16,7 @@
  */
 
 #include <ace/Activation_Queue.h>
+
 #include "DatabaseWorkerPool.h"
 #include "Util.h"
 
@@ -88,11 +89,6 @@ class MySQLConnection
         void Ping() { mysql_ping(m_Mysql); }
 
     protected:
-        MYSQL* GetHandle()  { return m_Mysql; }
-        MySQLPreparedStatement* GetPreparedStatement(uint32 index);
-        void PrepareStatement(uint32 index, const char* sql, bool async = false);
-        std::vector<MySQLPreparedStatement*> m_stmts;       //! PreparedStatements storage
-
         bool LockIfReady()
         {
             /// Tries to acquire lock. If lock is acquired by another thread
@@ -105,6 +101,17 @@ class MySQLConnection
             /// Called by parent databasepool. Will let other threads access this connection
             m_Mutex.release();
         }
+
+        MYSQL* GetHandle()  { return m_Mysql; }
+        MySQLPreparedStatement* GetPreparedStatement(uint32 index);
+        void PrepareStatement(uint32 index, const char* sql, bool async = false);
+
+    protected:
+        std::vector<MySQLPreparedStatement*> m_stmts;       //! PreparedStatements storage
+        bool                  m_reconnecting;               //! Are we reconnecting?
+        
+    private:
+        bool _HandleMySQLErrno(uint32 errNo);
 
     private:
         ACE_Activation_Queue* m_queue;                      //! Queue shared with other asynchroneous connections.
