@@ -36,7 +36,7 @@ float ThreatCalcHelper::calcThreat(Unit* pHatedUnit, Unit* /*pHatingUnit*/, floa
 {
     if (pThreatSpell)
     {
-        if (pThreatSpell->AttributesEx & SPELL_ATTR_EX_NO_THREAT)
+        if (pThreatSpell->AttributesEx & SPELL_ATTR1_NO_THREAT)
             return 0.0f;
 
         if (Player* modOwner = pHatedUnit->GetSpellModOwner())

@@ -124,11 +124,11 @@ public:
             if (TempSpell->SpellIconID == 2294)
                 TempSpell->SpellIconID = 2295;
             TempSpell = GET_SPELL(SPELL_VAPOR_TRIGGER);
-            if ((TempSpell->Attributes & SPELL_ATTR_PASSIVE) == 0)
-                TempSpell->Attributes |= SPELL_ATTR_PASSIVE;
+            if ((TempSpell->Attributes & SPELL_ATTR0_PASSIVE) == 0)
+                TempSpell->Attributes |= SPELL_ATTR0_PASSIVE;
             TempSpell = GET_SPELL(SPELL_FOG_CHARM2);
-            if ((TempSpell->Attributes & SPELL_ATTR_PASSIVE) == 0)
-                TempSpell->Attributes |= SPELL_ATTR_PASSIVE;*/
+            if ((TempSpell->Attributes & SPELL_ATTR0_PASSIVE) == 0)
+                TempSpell->Attributes |= SPELL_ATTR0_PASSIVE;*/
         }
 
         InstanceScript *pInstance;
