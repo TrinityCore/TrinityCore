@@ -36,18 +36,18 @@ MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo) :
 m_queue(NULL),
 m_worker(NULL),
 m_Mysql(NULL),
+m_reconnecting(false),
 m_connectionInfo(connInfo),
-m_connectionFlags(CONNECTION_SYNCH),
-m_reconnecting(false)
+m_connectionFlags(CONNECTION_SYNCH)
 {
 }
 
 MySQLConnection::MySQLConnection(ACE_Activation_Queue* queue, MySQLConnectionInfo& connInfo) :
 m_queue(queue),
 m_Mysql(NULL),
+m_reconnecting(false),
 m_connectionInfo(connInfo),
-m_connectionFlags(CONNECTION_ASYNC),
-m_reconnecting(false)
+m_connectionFlags(CONNECTION_ASYNC)
 {
     m_worker = new DatabaseWorker(m_queue, this);
 }
@@ -131,8 +131,7 @@ bool MySQLConnection::Open()
 
         // set connection properties to UTF8 to properly handle locales for different
         // server configs - core sends data in UTF8, so MySQL must expect UTF8 too
-        Execute("SET NAMES `utf8`");
-        Execute("SET CHARACTER SET `utf8`");
+        mysql_set_character_set(m_Mysql, "utf8");
         return true;
     }
     else
