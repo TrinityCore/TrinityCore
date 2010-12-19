@@ -22,7 +22,9 @@ bool CharacterDatabaseConnection::Open()
     if (!MySQLConnection::Open())
         return false;
 
-    m_stmts.resize(MAX_CHARACTERDATABASE_STATEMENTS);
+    if (!m_reconnecting)
+        m_stmts.resize(MAX_CHARACTERDATABASE_STATEMENTS);
+
     /*
         ##################################
         LOAD YOUR PREPARED STATEMENTS HERE

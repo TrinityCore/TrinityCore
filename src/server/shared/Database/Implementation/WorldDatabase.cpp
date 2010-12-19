@@ -22,7 +22,8 @@ bool WorldDatabaseConnection::Open()
     if (!MySQLConnection::Open())
         return false;
 
-    m_stmts.resize(MAX_WORLDDATABASE_STATEMENTS);
+    if (!m_reconnecting)
+        m_stmts.resize(MAX_WORLDDATABASE_STATEMENTS);
 
     /*
         ##################################
