@@ -408,7 +408,7 @@ void Aura::_ApplyForTarget(Unit * target, Unit * caster, AuraApplication * auraA
     // set infinity cooldown state for spells
     if (caster && caster->GetTypeId() == TYPEID_PLAYER)
     {
-        if (m_spellProto->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE)
+        if (m_spellProto->Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE)
         {
             Item* castItem = m_castItemGuid ? caster->ToPlayer()->GetItemByGuid(m_castItemGuid) : NULL;
             caster->ToPlayer()->AddSpellAndCategoryCooldowns(m_spellProto,castItem ? castItem->GetEntry() : 0, NULL,true);
@@ -439,7 +439,7 @@ void Aura::_UnapplyForTarget(Unit * target, Unit * caster, AuraApplication * aur
     // reset cooldown state for spells
     if (caster && caster->GetTypeId() == TYPEID_PLAYER)
     {
-        if (GetSpellProto()->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE)
+        if (GetSpellProto()->Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE)
             // note: item based cooldowns and cooldown spell mods with charges ignored (unknown existed cases)
             caster->ToPlayer()->SendCooldownEvent(GetSpellProto());
     }
@@ -884,7 +884,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
     if (apply)
     {
         // Apply linked auras (On first aura apply)
-        if (sSpellMgr.GetSpellCustomAttr(GetId()) & SPELL_ATTR_CU_LINK_AURA)
+        if (sSpellMgr.GetSpellCustomAttr(GetId()) & SPELL_ATTR0_CU_LINK_AURA)
         {
             if (const std::vector<int32> *spell_triggered = sSpellMgr.GetSpellLinked(GetId() + SPELL_LINK_AURA))
                 for (std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
@@ -1090,7 +1090,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
         {
             if (uint32 customAttr = sSpellMgr.GetSpellCustomAttr(GetId()))
             {
-                if (customAttr & SPELL_ATTR_CU_LINK_REMOVE)
+                if (customAttr & SPELL_ATTR0_CU_LINK_REMOVE)
                 {
                     if (const std::vector<int32> *spell_triggered = sSpellMgr.GetSpellLinked(-(int32)GetId()))
                         for (std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
@@ -1101,7 +1101,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                                 target->CastSpell(target, *itr, true, NULL, NULL, GetCasterGUID());
                         }
                 }
-                if (customAttr & SPELL_ATTR_CU_LINK_AURA)
+                if (customAttr & SPELL_ATTR0_CU_LINK_AURA)
                 {
                     if (const std::vector<int32> *spell_triggered = sSpellMgr.GetSpellLinked(GetId() + SPELL_LINK_AURA))
                         for (std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)

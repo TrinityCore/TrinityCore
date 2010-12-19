@@ -85,7 +85,7 @@ void WorldSession::HandlePetAction(WorldPacket & recv_data)
         SpellEntry const* spell = (flag == ACT_ENABLED || flag == ACT_PASSIVE) ? sSpellStore.LookupEntry(spellid) : NULL;
         if (!spell)
             return;
-        if (!(spell->Attributes & SPELL_ATTR_CASTABLE_WHILE_DEAD))
+        if (!(spell->Attributes & SPELL_ATTR0_CASTABLE_WHILE_DEAD))
             return;
     }
 
