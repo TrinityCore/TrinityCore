@@ -147,6 +147,7 @@ void AuraApplication::_HandleEffect(uint8 effIndex, bool apply)
 
     if (apply)
     {
+        ASSERT(!(m_flags & (1<<effIndex)));
         m_flags |= 1<<effIndex;
         m_flags |=_CheckPositive(caster) ? AFLAG_POSITIVE : AFLAG_NEGATIVE;
         GetTarget()->_HandleAuraEffect(aurEff, true);
@@ -154,6 +155,7 @@ void AuraApplication::_HandleEffect(uint8 effIndex, bool apply)
     }
     else
     {
+        ASSERT(m_flags & (1<<effIndex));
         m_flags &= ~(1<<effIndex);
         m_flags |=_CheckPositive(caster) ? AFLAG_POSITIVE : AFLAG_NEGATIVE;
 
@@ -423,17 +425,19 @@ void Aura::_UnapplyForTarget(Unit * target, Unit * caster, AuraApplication * aur
     ASSERT(auraApp);
 
     ApplicationMap::iterator itr = m_applications.find(target->GetGUID());
-    // TODO: Figure out why this happens.
+    
+    // TODO: Figure out why this happens
     if (itr == m_applications.end())
     {
         sLog.outError("Aura::_UnapplyForTarget, target:%u, caster:%u, spell:%u was not found in owners application map!",
         target->GetGUIDLow(), caster->GetGUIDLow(), auraApp->GetBase()->GetSpellProto()->Id);
+        ASSERT(false);
     }
-    else
-        m_applications.erase(itr);
 
     // aura has to be already applied
-    //ASSERT(itr->second == auraApp);
+    ASSERT(itr->second == auraApp);
+    m_applications.erase(itr);
+
     m_removedApplications.push_back(auraApp);
 
     // reset cooldown state for spells
