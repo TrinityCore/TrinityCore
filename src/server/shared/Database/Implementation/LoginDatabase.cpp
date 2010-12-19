@@ -22,7 +22,8 @@ bool LoginDatabaseConnection::Open()
     if (!MySQLConnection::Open())
         return false;
 
-    m_stmts.resize(MAX_LOGINDATABASE_STATEMENTS);
+    if (!m_reconnecting)
+        m_stmts.resize(MAX_LOGINDATABASE_STATEMENTS);
 
     /*
         ##################################
