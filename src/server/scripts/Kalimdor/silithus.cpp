@@ -402,11 +402,11 @@ static const Position SpawnLocation[]=
     {-8078.0f, 1526.0f, 2.61f, 3.141592f},//Kaldorei Infantry
     {-8082.0f, 1527.0f, 2.61f, 3.141592f},//Kaldorei Infantry
 
-    {-8082.0f, 1524.0f, 2.61f.0f, 3.141592f},//Kaldorei Infantry
-    {-8078.0f, 1522.0f, 2.61f.0f, 3.141592f},//Kaldorei Infantry
-    {-8082.0f, 1520.0f, 2.61f.0f, 3.141592f},//Kaldorei Infantry
-    {-8078.0f, 1518.0f, 2.61f.0f, 3.141592f},//Kaldorei Infantry
-    {-8082.0f, 1516.0f, 2.61f.0f, 3.141592f},//Kaldorei Infantry
+    {-8082.0f, 1524.0f, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8078.0f, 1522.0f, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8082.0f, 1520.0f, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8078.0f, 1518.0f, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8082.0f, 1516.0f, 2.61f, 3.141592f},//Kaldorei Infantry
 
     {-8082.0f, 1523.0f, 2.61f, 3.141592f},//Kaldorei Infantry
     {-8078.0f, 1521.0f, 2.61f, 3.141592f},//Kaldorei Infantry
