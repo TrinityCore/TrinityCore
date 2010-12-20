@@ -375,84 +375,79 @@ static QuestCinematic EventAnim[]=
     {NULL, 0, NULL}
 };
 
-struct Location
-{
-    float x, y, z, o;
-};
-
 //Cordinates for Spawns
-static Location SpawnLocation[]=
+static const Position SpawnLocation[]=
 {
-    {-8085, 1528, 2.61f, 3.141592f},//Kaldorei Infantry
-    {-8080, 1526, 2.61f, 3.141592f},//Kaldorei Infantry
-    {-8085, 1524, 2.61f, 3.141592f},//Kaldorei Infantry
-    {-8080, 1522, 2.61f, 3.141592f},//Kaldorei Infantry
-    {-8085, 1520, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8085.0f, 1528.0f, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8080.0f, 1526.0f, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8085.0f, 1524.0f, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8080.0f, 1522.0f, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8085.0f, 1520.0f, 2.61f, 3.141592f},//Kaldorei Infantry
 
-    {-8085, 1524, 2.61f, 3.141592f},//Kaldorei Infantry
-    {-8080, 1522, 2.61f, 3.141592f},//Kaldorei Infantry
-    {-8085, 1520, 2.61f, 3.141592f},//Kaldorei Infantry
-    {-8080, 1518, 2.61f, 3.141592f},//Kaldorei Infantry
-    {-8085, 1516, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8085.0f, 1524.0f, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8080.0f, 1522.0f, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8085.0f, 1520.0f, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8080.0f, 1518.0f, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8085.0f, 1516.0f, 2.61f, 3.141592f},//Kaldorei Infantry
 
-    {-8085, 1518, 2.61f, 3.141592f},//Kaldorei Infantry
-    {-8080, 1516, 2.61f, 3.141592f},//Kaldorei Infantry
-    {-8080, 1520, 2.61f, 3.141592f},//Kaldorei Infantry
-    {-8080, 1424, 2.61f, 3.141592f},//Kaldorei Infantry
-    {-8085, 1422, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8085.0f, 1518.0f, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8080.0f, 1516.0f, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8080.0f, 1520.0f, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8080.0f, 1424.0f, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8085.0f, 1422.0f, 2.61f, 3.141592f},//Kaldorei Infantry
     // 2 waves of warriors
-    {-8082, 1528, 2.61f, 3.141592f},//Kaldorei Infantry
-    {-8078, 1525, 2.61f, 3.141592f},//Kaldorei Infantry
-    {-8082, 1524, 2.61f, 3.141592f},//Kaldorei Infantry
-    {-8078, 1526, 2.61f, 3.141592f},//Kaldorei Infantry
-    {-8082, 1527, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8082.0f, 1528.0f, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8078.0f, 1525.0f, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8082.0f, 1524.0f, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8078.0f, 1526.0f, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8082.0f, 1527.0f, 2.61f, 3.141592f},//Kaldorei Infantry
 
-    {-8082, 1524, 2.61f, 3.141592f},//Kaldorei Infantry
-    {-8078, 1522, 2.61f, 3.141592f},//Kaldorei Infantry
-    {-8082, 1520, 2.61f, 3.141592f},//Kaldorei Infantry
-    {-8078, 1518, 2.61f, 3.141592f},//Kaldorei Infantry
-    {-8082, 1516, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8082.0f, 1524.0f, 2.61f.0f, 3.141592f},//Kaldorei Infantry
+    {-8078.0f, 1522.0f, 2.61f.0f, 3.141592f},//Kaldorei Infantry
+    {-8082.0f, 1520.0f, 2.61f.0f, 3.141592f},//Kaldorei Infantry
+    {-8078.0f, 1518.0f, 2.61f.0f, 3.141592f},//Kaldorei Infantry
+    {-8082.0f, 1516.0f, 2.61f.0f, 3.141592f},//Kaldorei Infantry
 
-    {-8082, 1523, 2.61f, 3.141592f},//Kaldorei Infantry
-    {-8078, 1521, 2.61f, 3.141592f},//Kaldorei Infantry
-    {-8082, 1528, 2.61f, 3.141592f},//Kaldorei Infantry
-    {-8078, 1519, 2.61f, 3.141592f},//Kaldorei Infantry
-    {-8082, 1526, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8082.0f, 1523.0f, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8078.0f, 1521.0f, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8082.0f, 1528.0f, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8078.0f, 1519.0f, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8082.0f, 1526.0f, 2.61f, 3.141592f},//Kaldorei Infantry
 
-    {-8082, 1524, 2.61f, 3.141592f},//Kaldorei Infantry
-    {-8078, 1522, 2.61f, 3.141592f},//Kaldorei Infantry
-    {-8082, 1520, 2.61f, 3.141592f},//Kaldorei Infantry
-    {-8078, 1518, 2.61f, 3.141592f},//Kaldorei Infantry
-    {-8082, 1516, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8082.0f, 1524.0f, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8078.0f, 1522.0f, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8082.0f, 1520.0f, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8078.0f, 1518.0f, 2.61f, 3.141592f},//Kaldorei Infantry
+    {-8082.0f, 1516.0f, 2.61f, 3.141592f},//Kaldorei Infantry
 
-    {-8088, 1510, 2.61f, 0},//Anubisath Conqueror
-    {-8084, 1520, 2.61f, 0},//Anubisath Conqueror
-    {-8088, 1530, 2.61f, 0},//Anubisath Conqueror
+    {-8088.0f, 1510.0f, 2.61f, 0.0f},//Anubisath Conqueror
+    {-8084.0f, 1520.0f, 2.61f, 0.0f},//Anubisath Conqueror
+    {-8088.0f, 1530.0f, 2.61f, 0.0f},//Anubisath Conqueror
 
-    {-8080, 1513, 2.61f, 0},//Qiraj Wasp
-    {-8082, 1523, 2.61f, 0},//Qiraj Wasp
-    {-8085, 1518, 2.61f, 0},//Qiraj Wasp
-    {-8082, 1516, 2.61f, 0},//Qiraj Wasp
-    {-8085, 1520, 2.61f, 0},//Qiraj Wasp
-    {-8080, 1528, 2.61f, 0},//Qiraj Wasp
+    {-8080.0f, 1513.0f, 2.61f, 0.0f},//Qiraj Wasp
+    {-8082.0f, 1523.0f, 2.61f, 0.0f},//Qiraj Wasp
+    {-8085.0f, 1518.0f, 2.61f, 0.0f},//Qiraj Wasp
+    {-8082.0f, 1516.0f, 2.61f, 0.0f},//Qiraj Wasp
+    {-8085.0f, 1520.0f, 2.61f, 0.0f},//Qiraj Wasp
+    {-8080.0f, 1528.0f, 2.61f, 0.0f},//Qiraj Wasp
 
-    {-8082, 1513, 2.61f, 0},//Qiraj Wasp
-    {-8079, 1523, 2.61f, 0},//Qiraj Wasp
-    {-8080, 1531, 2.61f, 0},//Qiraj Wasp
-    {-8079, 1516, 2.61f, 0},//Qiraj Wasp
-    {-8082, 1520, 2.61f, 0},//Qiraj Wasp
-    {-8080, 1518, 2.61f, 0},//Qiraj Wasp
+    {-8082.0f, 1513.0f, 2.61f, 0.0f},//Qiraj Wasp
+    {-8079.0f, 1523.0f, 2.61f, 0.0f},//Qiraj Wasp
+    {-8080.0f, 1531.0f, 2.61f, 0.0f},//Qiraj Wasp
+    {-8079.0f, 1516.0f, 2.61f, 0.0f},//Qiraj Wasp
+    {-8082.0f, 1520.0f, 2.61f, 0.0f},//Qiraj Wasp
+    {-8080.0f, 1518.0f, 2.61f, 0.0f},//Qiraj Wasp
 
-    {-8081, 1514, 2.61f, 0},//Qiraj Tank
-    {-8081, 1520, 2.61f, 0},//Qiraj Tank
-    {-8081, 1526, 2.61f, 0},//Qiraj Tank
-    {-8081, 1512, 2.61f, 0},//Qiraj Tank
-    {-8082, 1520, 2.61f, 0},//Qiraj Tank
-    {-8081, 1528, 2.61f, 0},//Qiraj Tank
+    {-8081.0f, 1514.0f, 2.61f, 0.0f},//Qiraj Tank
+    {-8081.0f, 1520.0f, 2.61f, 0.0f},//Qiraj Tank
+    {-8081.0f, 1526.0f, 2.61f, 0.0f},//Qiraj Tank
+    {-8081.0f, 1512.0f, 2.61f, 0.0f},//Qiraj Tank
+    {-8082.0f, 1520.0f, 2.61f, 0.0f},//Qiraj Tank
+    {-8081.0f, 1528.0f, 2.61f, 0.0f},//Qiraj Tank
 
-    {-8082, 1513, 2.61f, 3.141592f},//Anubisath Conqueror
-    {-8082, 1520, 2.61f, 3.141592f},//Anubisath Conqueror
-    {-8082, 1527, 2.61f, 3.141592f},//Anubisath Conqueror
+    {-8082.0f, 1513.0f, 2.61f, 3.141592f},//Anubisath Conqueror
+    {-8082.0f, 1520.0f, 2.61f, 3.141592f},//Anubisath Conqueror
+    {-8082.0f, 1527.0f, 2.61f, 3.141592f},//Anubisath Conqueror
 };
 
 struct WaveData
@@ -464,11 +459,11 @@ struct WaveData
 
 static WaveData WavesInfo[] =
 {
-    {30, 0, 15423, 0, 0,24000, NULL},   //Kaldorei Soldier
-    {3, 35, 15424, 0, 0,24000, NULL},   //Anubisath Conqueror
-    {12, 38, 15414, 0, 0,24000, NULL},  //Qiraji Wasps
-    {6, 50, 15422, 0, 0,24000, NULL},   //Qiraji Tanks
-    {15, 15, 15423, 0, 0,24000, NULL}   //Kaldorei Soldier
+    {30,  0, 15423, 0, 0, 24000, 0},    // Kaldorei Soldier
+    { 3, 35, 15424, 0, 0, 24000, 0},    // Anubisath Conqueror
+    {12, 38, 15414, 0, 0, 24000, 0},    // Qiraji Wasps
+    { 6, 50, 15422, 0, 0, 24000, 0},    // Qiraji Tanks
+    {15, 15, 15423, 0, 0, 24000, 0}     // Kaldorei Soldier
 
 };
 
@@ -533,19 +528,19 @@ public:
             if (!plr)
                 return;
 
-            Unit* Fandral = plr->FindNearestCreature(C_FANDRAL_STAGHELM, 100, me);
-            Unit* Arygos = plr->FindNearestCreature(C_ARYGOS, 100,me);
-            Unit* Caelestrasz = plr->FindNearestCreature(C_CAELESTRASZ, 100, me);
-            Unit* Merithra = plr->FindNearestCreature(C_MERITHRA, 100,me);
+            Unit* Fandral = plr->FindNearestCreature(C_FANDRAL_STAGHELM, 100.0f, me);
+            Unit* Arygos = plr->FindNearestCreature(C_ARYGOS, 100.0f, me);
+            Unit* Caelestrasz = plr->FindNearestCreature(C_CAELESTRASZ, 100.0f, me);
+            Unit* Merithra = plr->FindNearestCreature(C_MERITHRA, 100.0f, me);
 
             if (!Fandral || !Arygos || !Caelestrasz || !Merithra)
                 return;
 
-            Unit* mob;
+            Unit* mob = NULL;
             AnimationTimer = EventAnim[AnimationCount].Timer;
             if (eventEnd == false)
             {
-                switch(AnimationCount)
+                switch (AnimationCount)
                 {
                     case 0:
                         DoScriptText(ANACHRONOS_SAY_1, me , Fandral);
@@ -981,19 +976,11 @@ public:
             //uint8 QirajiWaspCount = 0;
             for (uint8 i = 0; i < 67; ++i)
             {
-                Creature* Spawn = NULL;
-                float X = SpawnLocation[locIndex + i].x;
-                float Y = SpawnLocation[locIndex + i].y;
-                float Z = SpawnLocation[locIndex + i].z;
-                float O = SpawnLocation[locIndex + i].o;
-                uint32 desptimer = WavesInfo[WaveCount].DespTimer;
-                Spawn = me->SummonCreature(WavesInfo[WaveCount].CreatureId, X, Y, Z, O, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, desptimer);
-
-                if (Spawn)
+                if (Creature* spawn = me->SummonCreature(WavesInfo[WaveCount].CreatureId, SpawnLocation[locIndex + i], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, WavesInfo[WaveCount].DespTimer))
                 {
-                    Spawn->LoadCreaturesAddon();
-                    if (Spawn->GetGUID() == 15423)
-                        Spawn->SetUInt32Value(UNIT_FIELD_DISPLAYID,15427+rand()%4);
+                    spawn->LoadCreaturesAddon();
+                    if (spawn->GetEntry() == 15423)
+                        spawn->SetUInt32Value(UNIT_FIELD_DISPLAYID, 15427+rand()%4);
                     if (i >= 30) WaveCount = 1;
                     if (i >= 33) WaveCount = 2;
                     if (i >= 45) WaveCount = 3;
@@ -1001,8 +988,9 @@ public:
 
                     if (WaveCount < 5) //1-4 Wave
                     {
-                        CAST_AI(mob_qiraj_war_spawn::mob_qiraj_war_spawnAI, Spawn->AI())->MobGUID = me->GetGUID();
-                        CAST_AI(mob_qiraj_war_spawn::mob_qiraj_war_spawnAI, Spawn->AI())->PlayerGUID = PlayerGUID;
+                        mob_qiraj_war_spawn::mob_qiraj_war_spawnAI* spawnAI = CAST_AI(mob_qiraj_war_spawn::mob_qiraj_war_spawnAI, spawn->AI());
+                        spawnAI->MobGUID = me->GetGUID();
+                        spawnAI->PlayerGUID = PlayerGUID;
                     }
                 }
             }
