@@ -18120,18 +18120,18 @@ void Player::_SaveAuras(SQLTransaction& trans)
         uint8 recalculateMask = 0;
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
-            if (aura->GetEffect(i))
+            if (AuraEffect const* effect = aura->GetEffect(i))
             {
-                baseDamage[i] = aura->GetEffect(i)->GetBaseAmount();
-                damage[i] = aura->GetEffect(i)->GetAmount();
-                effMask |= (1<<i);
-                if (aura->GetEffect(i)->CanBeRecalculated())
-                    recalculateMask |= (1<<i);
+                baseDamage[i] = effect->GetBaseAmount();
+                damage[i] = effect->GetAmount();
+                effMask |= 1 << i;
+                if (effect->CanBeRecalculated())
+                    recalculateMask |= 1 << i;
             }
             else
             {
-                baseDamage[i] = NULL;
-                damage[i] = NULL;
+                baseDamage[i] = 0;
+                damage[i] = 0;
             }
         }
 
@@ -18139,6 +18139,7 @@ void Player::_SaveAuras(SQLTransaction& trans)
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_AURA);
         stmt->setUInt32(index++, GetGUIDLow());
         stmt->setUInt64(index++, itr->second->GetCasterGUID());
+        stmt->setUInt64(index++, itr->second->GetCastItemGUID());
         stmt->setUInt32(index++, itr->second->GetId());
         stmt->setUInt8(index++, effMask);
         stmt->setUInt8(index++, recalculateMask);       
