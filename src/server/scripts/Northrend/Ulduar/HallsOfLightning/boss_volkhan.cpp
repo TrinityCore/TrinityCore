@@ -18,8 +18,8 @@
 
 /* ScriptData
 SDName: Boss Volkhan
-SD%Complete: 60%
-SDComment: Not considered complete. Some events may fail and need further development
+SD%Complete: 90%
+SDComment: Event should be pretty close minus a few visual flaws
 SDCategory: Halls of Lightning
 EndScriptData */
 
@@ -45,15 +45,12 @@ enum eEnums
     SPELL_SHATTERING_STOMP_N                = 52237,
     SPELL_SHATTERING_STOMP_H                = 59529,
 
-    //unclear how "directions" of spells must be. Last, summoning GO, what is it for? Script depend on:
-    SPELL_TEMPER                            = 52238,        //TARGET_SCRIPT boss->anvil
-    SPELL_TEMPER_DUMMY                      = 52654,        //TARGET_SCRIPT anvil->boss
-
-    //SPELL_TEMPER_VISUAL                     = 52661,        //summons GO
+    SPELL_TEMPER                            = 52238,
+    SPELL_TEMPER_DUMMY                      = 52654,
 
     SPELL_SUMMON_MOLTEN_GOLEM               = 52405,
 
-    //Molten Golem
+    // Molten Golem
     SPELL_BLAST_WAVE                        = 23113,
     SPELL_IMMOLATION_STRIKE_N               = 52433,
     SPELL_IMMOLATION_STRIKE_H               = 59530,
@@ -64,7 +61,6 @@ enum eEnums
     NPC_MOLTEN_GOLEM                        = 28695,
     NPC_BRITTLE_GOLEM                       = 28681,
 
-    POINT_ID_ANVIL                          = 0,
     MAX_GOLEM                               = 2,
 
     ACHIEVEMENT_SHATTER_RESISTANT            = 2042
@@ -73,31 +69,10 @@ enum eEnums
 /*######
 ## Boss Volkhan
 ######*/
-
 class boss_volkhan : public CreatureScript
 {
 public:
     boss_volkhan() : CreatureScript("boss_volkhan") { }
-
-    bool EffectDummyCreature(Unit* pCaster, uint32 uiSpellId, uint32 uiEffIndex, Creature* pCreatureTarget)
-    {
-        //always check spellid and effectindex
-        if (uiSpellId == SPELL_TEMPER_DUMMY && uiEffIndex == 0)
-        {
-            if (pCaster->GetEntry() != NPC_VOLKHAN_ANVIL || pCreatureTarget->GetEntry() != NPC_VOLKHAN)
-                return true;
-
-            for (uint8 i = 0; i < MAX_GOLEM; ++i)
-            {
-                pCreatureTarget->CastSpell(pCaster, SPELL_SUMMON_MOLTEN_GOLEM, true);
-            }
-
-            //always return true when we are handling this spell and effect
-            return true;
-        }
-
-        return false;
-    }
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
@@ -123,6 +98,8 @@ public:
         uint32 m_uiPause_Timer;
         uint32 m_uiShatteringStomp_Timer;
         uint32 m_uiShatter_Timer;
+        uint32 m_uiDelay_Timer;
+        uint32 m_uiSummonPhase;
 
         uint32 m_uiHealthAmountModifier;
 
@@ -135,6 +112,8 @@ public:
             m_uiPause_Timer = 3500;
             m_uiShatteringStomp_Timer = 0;
             m_uiShatter_Timer = 5000;
+            m_uiDelay_Timer = 1000;
+            m_uiSummonPhase = 0;
             GolemsShattered = 0;
 
             m_uiHealthAmountModifier = 1;
@@ -222,7 +201,7 @@ public:
             {
                 if (Creature* pTemp = Unit::GetCreature(*me, *itr))
                 {
-                    // only shatter brittle golems
+                    // Only shatter brittle golems
                     if (pTemp->isAlive() && pTemp->GetEntry() == NPC_BRITTLE_GOLEM)
                     {
                         pTemp->CastSpell(pTemp, DUNGEON_MODE(SPELL_SHATTER_N, SPELL_SHATTER_H), false);
@@ -232,12 +211,6 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*pCaster*/, const SpellEntry* pSpell)
-        {
-            if (pSpell->Id == SPELL_TEMPER_DUMMY)
-                m_bIsStriking = true;
-        }
-
         void JustSummoned(Creature* pSummoned)
         {
             if (pSummoned->GetEntry() == NPC_MOLTEN_GOLEM)
@@ -245,16 +218,24 @@ public:
                 m_lGolemGUIDList.push_back(pSummoned->GetGUID());
 
                 if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                    pSummoned->AI()->AttackStart(pTarget);
+                    pSummoned->GetMotionMaster()->MoveFollow(pTarget, 0.0f, 0.0f);
 
-                //why healing when just summoned?
+                // Why healing when just summoned?
                 pSummoned->CastSpell(pSummoned, DUNGEON_MODE(SPELL_HEAT_N, SPELL_HEAT_H), false, NULL, NULL, me->GetGUID());
+            }
+        }
+
+        void JustReachedHome()
+        {
+            if (m_uiSummonPhase == 2)
+            {
+                me->SetOrientation(2.29f);
+                m_uiSummonPhase = 3;
             }
         }
 
         void UpdateAI(const uint32 uiDiff)
         {
-            //Return since we have no target
             if (!UpdateVictim())
                 return;
 
@@ -263,10 +244,8 @@ public:
                 if (m_uiPause_Timer <= uiDiff)
                 {
                     if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != TARGETED_MOTION_TYPE)
-                    {
                         if (me->getVictim())
                             me->GetMotionMaster()->MoveChase(me->getVictim());
-                    }
 
                     m_bHasTemper = false;
                     m_bIsStriking = false;
@@ -283,8 +262,7 @@ public:
             {
                 if (m_uiShatteringStomp_Timer <= uiDiff)
                 {
-                    //should he stomp even if he has no brittle golem to shatter?
-
+                    // Should he stomp even if he has no brittle golem to shatter?
                     DoScriptText(RAND(SAY_STOMP_1,SAY_STOMP_2), me);
 
                     DoCast(me, SPELL_SHATTERING_STOMP_N);
@@ -323,7 +301,60 @@ public:
 
                 m_bHasTemper = true;
 
-                DoCast(me, SPELL_TEMPER, false);
+                m_uiSummonPhase = 1;
+            }
+
+            switch (m_uiSummonPhase)
+            {
+                case 1:
+                    // 1 - Start run to Anvil
+                    DoScriptText(EMOTE_TO_ANVIL, me);
+                    me->GetMotionMaster()->MoveTargetedHome();
+                    m_uiSummonPhase = 2;        // Set Next Phase
+                    break;
+
+                case 2:
+                    // 2 - Check if reached Anvil
+                    // This is handled in: void JustReachedHome()
+                    break;
+
+                case 3:
+                    // 3 - Cast Temper on the Anvil
+                    if (Unit* pTarget = GetClosestCreatureWithEntry(me, NPC_VOLKHAN_ANVIL, 1000.0f, true))
+                    {
+                        me->SetOrientation(2.29f);
+                        DoCast(pTarget, SPELL_TEMPER, false);
+                        DoCast(pTarget, SPELL_TEMPER_DUMMY, false);
+                    }
+                    m_uiDelay_Timer = 1000;     // Delay 2 seconds before next phase can begin
+                    m_uiSummonPhase = 4;        // Set Next Phase
+                    break;
+
+                case 4:
+                    // 4 - Wait for delay to expire
+                    if (m_uiDelay_Timer <= uiDiff)
+                    {
+                        if (Unit* pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO, 0))
+                        {
+                            me->SetReactState(REACT_AGGRESSIVE);
+                            me->SetInCombatWith(pTarget);
+                            me->GetMotionMaster()->MoveFollow(pTarget, 0.0f, 0.0f);
+                        }
+                        m_uiSummonPhase = 5;
+                    }
+                    else
+                        m_uiDelay_Timer -= uiDiff;
+                    break;
+
+                case 5:
+                    // 5 - Spawn the Golems
+                    if (Creature* pCreatureTarget = GetClosestCreatureWithEntry(me, NPC_VOLKHAN_ANVIL, 1000.0f, true))
+                        for (uint8 i = 0; i < MAX_GOLEM; ++i)
+                            me->CastSpell(pCreatureTarget, SPELL_SUMMON_MOLTEN_GOLEM, true);
+
+                    m_bIsStriking = true;
+                    m_uiSummonPhase = 0;        // Reset back to Phase 0 for next time
+                    break;
             }
 
             DoMeleeAttackIfReady();
@@ -332,55 +363,9 @@ public:
 
 };
 
-
-
-/*######
-## npc_volkhan_anvil
-######*/
-
-class npc_volkhan_anvil : public CreatureScript
-{
-public:
-    npc_volkhan_anvil() : CreatureScript("npc_volkhan_anvil") { }
-
-    bool EffectDummyCreature(Unit* pCaster, uint32 uiSpellId, uint32 uiEffIndex, Creature* pCreatureTarget)
-    {
-        //always check spellid and effectindex
-        if (uiSpellId == SPELL_TEMPER && uiEffIndex == 0)
-        {
-            if (pCaster->GetEntry() != NPC_VOLKHAN || pCreatureTarget->GetEntry() != NPC_VOLKHAN_ANVIL)
-                return true;
-
-            Creature *cre = CAST_CRE(pCaster);
-
-            DoScriptText(EMOTE_TO_ANVIL, pCaster);
-
-            float fX, fY, fZ;
-            pCreatureTarget->GetContactPoint(pCaster, fX, fY, fZ, INTERACTION_DISTANCE);
-
-            pCaster->AttackStop();
-
-            if (pCaster->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
-                pCaster->GetMotionMaster()->MovementExpired();
-
-            cre->GetMap()->CreatureRelocation(cre, fX, fY, fZ, pCreatureTarget->GetOrientation());
-            cre->SendMonsterMove(fX, fY, fZ, 0, cre->GetUnitMovementFlags(), 1);
-
-            pCreatureTarget->CastSpell(pCaster, SPELL_TEMPER_DUMMY, false);
-
-            //always return true when we are handling this spell and effect
-            return true;
-        }
-
-        return false;
-    }
-
-};
-
 /*######
 ## mob_molten_golem
 ######*/
-
 class mob_molten_golem : public CreatureScript
 {
 public:
@@ -393,9 +378,7 @@ public:
 
     struct mob_molten_golemAI : public ScriptedAI
     {
-        mob_molten_golemAI(Creature *pCreature) : ScriptedAI(pCreature)
-        {
-        }
+        mob_molten_golemAI(Creature *pCreature) : ScriptedAI(pCreature) { }
 
         bool m_bIsFrozen;
 
@@ -434,7 +417,8 @@ public:
                 uiDamage = 0;
                 me->RemoveAllAuras();
                 me->AttackStop();
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+                // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);  //Set in DB
+                // me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); //Set in DB
                 if (me->IsNonMeleeSpellCasted(false))
                     me->InterruptNonMeleeSpells(false);
                 if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
@@ -445,17 +429,15 @@ public:
 
         void SpellHit(Unit* /*pCaster*/, const SpellEntry* pSpell)
         {
-            //this is the dummy effect of the spells
+            // This is the dummy effect of the spells
             if (pSpell->Id == SPELL_SHATTER_N || pSpell->Id == SPELL_SHATTER_H)
-            {
                 if (me->GetEntry() == NPC_BRITTLE_GOLEM)
                     me->ForcedDespawn();
-            }
         }
 
         void UpdateAI(const uint32 uiDiff)
         {
-            //Return since we have no target or if we are frozen
+            // Return since we have no target or if we are frozen
             if (!UpdateVictim() || m_bIsFrozen)
                 return;
 
@@ -478,13 +460,10 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
-
 
 void AddSC_boss_volkhan()
 {
     new boss_volkhan();
-    new npc_volkhan_anvil();
     new mob_molten_golem();
 }

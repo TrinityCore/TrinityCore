@@ -731,7 +731,6 @@ UPDATE `creature_template` SET `ScriptName`='boss_loken' WHERE `entry`=28923;
 /* Volkhan */
 UPDATE `creature_template` SET `ScriptName`='boss_volkhan' WHERE `entry`=28587;
 UPDATE `creature_template` SET `ScriptName`='mob_molten_golem' WHERE `entry`=28695;
-UPDATE `creature_template` SET `ScriptName`='npc_volkhan_anvil' WHERE `entry`=28823;
 /* Ionar */
 UPDATE `creature_template` SET `ScriptName`='boss_ionar' WHERE `entry`=28546;
 UPDATE `creature_template` SET `ScriptName`='mob_spark_of_ionar' WHERE `entry`=28926;
