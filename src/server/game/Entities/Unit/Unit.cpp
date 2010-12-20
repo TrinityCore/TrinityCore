@@ -3435,9 +3435,8 @@ void Unit::_AddAura(UnitAura * aura, Unit * caster)
         if (Aura * foundAura = GetOwnedAura(aura->GetId(), aura->GetCasterGUID(), aura->GetCastItemGUID(), 0, aura))
         {
             if (aura->GetSpellProto()->StackAmount)
-            {
                 aura->ModStackAmount(foundAura->GetStackAmount());
-            }
+
             // Update periodic timers from the previous aura
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             {
