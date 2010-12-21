@@ -545,8 +545,8 @@ void LFGMgr::Join(Player* plr, uint8 roles, const LfgDungeonSet& selectedDungeon
                 Join(plr, roles, dungeons, comment);
             else
                 sLog.outError("LFGMgr::Join [" UI64FMTD "] joined with different dungeons and leave failed! Player state: %u", guid, pstate); 
-            return;
         }
+        return;
     }
 
     // Check player or group member restrictions
