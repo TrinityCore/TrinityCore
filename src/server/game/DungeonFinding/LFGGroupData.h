@@ -18,13 +18,12 @@
 #ifndef _LFGGROUPDATA_H
 #define _LFGGROUPDATA_H
 
-#include "Common.h"
 #include "LFG.h"
 
 enum LfgGroupEnum
 {
     LFG_GROUP_MAX_KICKS                           = 3,
-    LFG_GROUP_KICK_VOTES_NEEDED                   = 3,
+    LFG_GROUP_KICK_VOTES_NEEDED                   = 3
 };
 
 /**

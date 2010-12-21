@@ -26,7 +26,7 @@
 class Player;
 class Group;
 
-class LFGScripts: public GroupScript, PlayerScript
+class LFGScripts: public GroupScript, public PlayerScript
 {
     public:
         LFGScripts();

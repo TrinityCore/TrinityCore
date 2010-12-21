@@ -158,7 +158,8 @@ void LFGScripts::OnLogout(Player* player)
     sLFGMgr.RemovePlayerData(guid);
 }
 
-void LFGScripts::OnLogin(Player* /*player*/)
+void LFGScripts::OnLogin(Player* player)
 {
+    sLFGMgr.InitializeLockedDungeons(player);
     // TODO - Restore LfgPlayerData and send proper status to player if it was in a group
 }

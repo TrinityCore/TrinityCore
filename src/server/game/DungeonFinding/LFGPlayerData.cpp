@@ -18,7 +18,7 @@
 #include "LFGPlayerData.h"
 
 LfgPlayerData::LfgPlayerData():
-m_State(LFG_STATE_NONE), m_OldState(LFG_STATE_NONE), m_Roles(ROLE_NONE), m_Comment("")
+m_State(LFG_STATE_NONE), m_OldState(LFG_STATE_NONE), m_Roles(0), m_Comment("")
 {}
 
 LfgPlayerData::~LfgPlayerData()
@@ -42,11 +42,11 @@ void LfgPlayerData::SetState(LfgState state)
 void LfgPlayerData::ClearState()
 {
     m_SelectedDungeons.clear();
-    m_Roles = ROLE_NONE;
+    m_Roles = 0;
     m_State = m_OldState;
 }
 
-void LfgPlayerData::SetDungeonsLockStatus(LfgLockStatusSet& lockStatus)
+void LfgPlayerData::SetLockedDungeons(const LfgLockMap& lockStatus)
 {
     m_LockedDungeons = lockStatus;
 }
@@ -56,12 +56,12 @@ void LfgPlayerData::SetRoles(uint8 roles)
     m_Roles = roles;
 }
 
-void LfgPlayerData::SetComment(std::string& comment)
+void LfgPlayerData::SetComment(const std::string& comment)
 {
     m_Comment = comment;
 }
 
-void LfgPlayerData::SetSelectedDungeons(LfgDungeonSet& dungeons)
+void LfgPlayerData::SetSelectedDungeons(const LfgDungeonSet& dungeons)
 {
     m_SelectedDungeons = dungeons;
 }
@@ -76,7 +76,7 @@ LfgState LfgPlayerData::GetState() const
     return m_State;
 }
 
-LfgLockStatusSet& LfgPlayerData::GetDungeonsLockStatus()
+const LfgLockMap & LfgPlayerData::GetLockedDungeons() const
 {
     return m_LockedDungeons;
 }
@@ -91,7 +91,7 @@ const std::string& LfgPlayerData::GetComment() const
     return m_Comment;
 }
 
-LfgDungeonSet& LfgPlayerData::GetSelectedDungeons()
+const LfgDungeonSet& LfgPlayerData::GetSelectedDungeons() const
 {
     return m_SelectedDungeons;
 }
