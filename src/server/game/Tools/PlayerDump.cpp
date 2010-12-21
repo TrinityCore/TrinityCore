@@ -579,7 +579,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                 // item, owner, data field:item, owner guid
                 if (!changeGuid(line, 1, items, sObjectMgr.m_hiItemGuid))
                    ROLLBACK(DUMP_FILE_BROKEN);              // item_instance.guid update
-                if (!changenth(line, 2, newguid))           // item_instance.owner_guid update
+                if (!changenth(line, 3, newguid))           // item_instance.owner_guid update
                     ROLLBACK(DUMP_FILE_BROKEN);
                 break;
             }
