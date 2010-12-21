@@ -876,23 +876,31 @@ inline bool IsProfessionSkill(uint32 skill)
     return  IsPrimaryProfessionSkill(skill) || skill == SKILL_FISHING || skill == SKILL_COOKING || skill == SKILL_FIRST_AID;
 }
 
-#define SPELL_ATTR0_CU_CONE_BACK         0x00000002
-#define SPELL_ATTR0_CU_CONE_LINE         0x00000004
-#define SPELL_ATTR0_CU_SHARE_DAMAGE      0x00000008
-#define SPELL_ATTR0_CU_AURA_CC           0x00000040
-#define SPELL_ATTR0_CU_DIRECT_DAMAGE     0x00000100
-#define SPELL_ATTR0_CU_CHARGE            0x00000200
-#define SPELL_ATTR0_CU_LINK_CAST         0x00000400
-#define SPELL_ATTR0_CU_LINK_HIT          0x00000800
-#define SPELL_ATTR0_CU_LINK_AURA         0x00001000
-#define SPELL_ATTR0_CU_LINK_REMOVE       0x00002000
-#define SPELL_ATTR0_CU_PICKPOCKET        0x00004000
-#define SPELL_ATTR0_CU_EXCLUDE_SELF      0x00008000
-#define SPELL_ATTR0_CU_NEGATIVE_EFF0     0x00010000
-#define SPELL_ATTR0_CU_NEGATIVE_EFF1     0x00020000
-#define SPELL_ATTR0_CU_NEGATIVE_EFF2     0x00040000
-#define SPELL_ATTR0_CU_NEGATIVE          0x00070000
-#define SPELL_ATTR0_CU_IGNORE_ARMOR      0x00080000
+enum SpellCustomAttributes
+{
+    SPELL_ATTR0_CU_ENCHANT_PROC     = 0x00000001,
+    SPELL_ATTR0_CU_CONE_BACK        = 0x00000002,
+    SPELL_ATTR0_CU_CONE_LINE        = 0x00000004,
+    SPELL_ATTR0_CU_SHARE_DAMAGE     = 0x00000008,
+    SPELL_ATTR0_CU_NONE1            = 0x00000010,   // UNUSED
+    SPELL_ATTR0_CU_NONE2            = 0x00000020,   // UNUSED
+    SPELL_ATTR0_CU_AURA_CC          = 0x00000040,
+    SPELL_ATTR0_CU_DIRECT_DAMAGE    = 0x00000100,
+    SPELL_ATTR0_CU_CHARGE           = 0x00000200,
+    SPELL_ATTR0_CU_LINK_CAST        = 0x00000400,
+    SPELL_ATTR0_CU_LINK_HIT         = 0x00000800,
+    SPELL_ATTR0_CU_LINK_AURA        = 0x00001000,
+    SPELL_ATTR0_CU_LINK_REMOVE      = 0x00002000,
+    SPELL_ATTR0_CU_PICKPOCKET       = 0x00004000,
+    SPELL_ATTR0_CU_EXCLUDE_SELF     = 0x00008000,
+    SPELL_ATTR0_CU_NEGATIVE_EFF0    = 0x00010000,
+    SPELL_ATTR0_CU_NEGATIVE_EFF1    = 0x00020000,
+    SPELL_ATTR0_CU_NEGATIVE_EFF2    = 0x00040000,
+    SPELL_ATTR0_CU_IGNORE_ARMOR     = 0x00080000,
+
+    SPELL_ATTR0_CU_NEGATIVE         = SPELL_ATTR0_CU_NEGATIVE_EFF0 | SPELL_ATTR0_CU_NEGATIVE_EFF1 | SPELL_ATTR0_CU_NEGATIVE_EFF2,
+};
+
 
 typedef std::vector<uint32> SpellCustomAttribute;
 typedef std::vector<bool> EnchantCustomAttribute;
@@ -1208,7 +1216,7 @@ class SpellMgr
 
         bool IsRankSpellDueToSpell(SpellEntry const *spellInfo_1,uint32 spellId_2) const;
         static bool canStackSpellRanks(SpellEntry const *spellInfo);
-        bool CanAurasStack(SpellEntry const *spellInfo_1, SpellEntry const *spellInfo_2, bool sameCaster) const;
+        bool CanAurasStack(Aura const *aura1, Aura const *aura2, bool sameCaster) const;
 
         SpellEntry const* SelectAuraRankForPlayerLevel(SpellEntry const* spellInfo, uint32 playerLevel) const;
 

@@ -3763,7 +3763,7 @@ bool Unit::_IsNoStackAuraDueToAura(Aura * appliedAura, Aura * existingAura) cons
     if (is_triggered_by_spell)
         return false;
 
-    if (sSpellMgr.CanAurasStack(spellProto, i_spellProto, sameCaster) || (sameCaster && appliedAura->GetCastItemGUID() && existingAura->GetCastItemGUID() != appliedAura->GetCastItemGUID()))
+    if (sSpellMgr.CanAurasStack(appliedAura, existingAura, sameCaster))
         return false;
     return true;
 }
