@@ -116,6 +116,7 @@ void WorldSession::HandleLfgSetRolesOpcode(WorldPacket& recv_data)
         return;
     }
     sLog.outDebug("CMSG_LFG_SET_ROLES [" UI64FMTD "] Roles: %u", guid, roles);
+    sLFGMgr.SetRoles(guid, roles);
     sLFGMgr.UpdateRoleCheck(grp, GetPlayer());
 }
 
