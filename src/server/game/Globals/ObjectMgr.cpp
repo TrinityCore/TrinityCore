@@ -299,8 +299,7 @@ ObjectMgr::~ObjectMgr()
     for (CacheVendorItemMap::iterator itr = m_mCacheVendorItemMap.begin(); itr != m_mCacheVendorItemMap.end(); ++itr)
         itr->second.Clear();
 
-    for (CacheTrainerSpellMap::iterator itr = m_mCacheTrainerSpellMap.begin(); itr != m_mCacheTrainerSpellMap.end(); ++itr)
-        itr->second.Clear();
+    m_mCacheTrainerSpellMap.clear();
 }
 
 Group * ObjectMgr::GetGroupByGUID(uint32 guid) const
@@ -8567,59 +8566,51 @@ void ObjectMgr::LoadMailLevelRewards()
     sLog.outString();
 }
 
-bool ObjectMgr::AddSpellToTrainer(uint32 entry, uint32 spell, Field *fields, std::set<uint32> *skip_trainers, std::set<uint32> *talentIds)
+void ObjectMgr::AddSpellToTrainer( uint32 entry, uint32 spell, uint32 spellCost, uint32 reqSkill, uint32 reqSkillValue, uint32 reqLevel)
 {
     if (entry >= TRINITY_TRAINER_START_REF)
-        return false;
+        return;
 
     CreatureInfo const* cInfo = GetCreatureTemplate(entry);
     if (!cInfo)
     {
-        sLog.outErrorDb("Table `npc_trainer` have entry for not existed creature template (Entry: %u), ignore", entry);
-        return false;
+        sLog.outErrorDb("Table `npc_trainer` contains an entry for a non-existing creature template (Entry: %u), ignoring", entry);
+        return;
     }
 
     if (!(cInfo->npcflag & UNIT_NPC_FLAG_TRAINER))
     {
-        if (skip_trainers->find(entry) == skip_trainers->end())
-        {
-            sLog.outErrorDb("Table `npc_trainer` have data for not creature template (Entry: %u) without trainer flag, ignore", entry);
-            skip_trainers->insert(entry);
-        }
-        return false;
+        sLog.outErrorDb("Table `npc_trainer` contains an entry for a creature template (Entry: %u) without trainer flag, ignoring", entry);
+        return;
     }
 
     SpellEntry const *spellinfo = sSpellStore.LookupEntry(spell);
     if (!spellinfo)
     {
-        sLog.outErrorDb("Table `npc_trainer` for Trainer (Entry: %u) has non existing spell %u, ignore", entry,spell);
-        return false;
+        sLog.outErrorDb("Table `npc_trainer` contains an entry (Entry: %u) for a non-existing spell (Spell: %u), ignoring", entry, spell);
+        return;
     }
 
     if (!SpellMgr::IsSpellValid(spellinfo))
     {
-        sLog.outErrorDb("Table `npc_trainer` for Trainer (Entry: %u) has broken learning spell %u, ignore", entry, spell);
-        return false;
+        sLog.outErrorDb("Table `npc_trainer` contains an entry (Entry: %u) for a broken spell (Spell: %u), ignoring", entry, spell);
+        return;
     }
 
     if (GetTalentSpellCost(spell))
     {
-        if (talentIds->count(spell) == 0)
-        {
-            sLog.outErrorDb("Table `npc_trainer` has talent as learning spell %u, ignore", spell);
-            talentIds->insert(spell);
-        }
-         return false;
+        sLog.outErrorDb("Table `npc_trainer` contains an entry (Entry: %u) for a non-existing spell (Spell: %u) which is a talent, ignoring", entry, spell);
+        return;
     }
 
     TrainerSpellData& data = m_mCacheTrainerSpellMap[entry];
 
     TrainerSpell& trainerSpell = data.spellList[spell];
     trainerSpell.spell         = spell;
-    trainerSpell.spellCost     = fields[2].GetUInt32();
-    trainerSpell.reqSkill      = fields[3].GetUInt32();
-    trainerSpell.reqSkillValue = fields[4].GetUInt32();
-    trainerSpell.reqLevel      = fields[5].GetUInt32();
+    trainerSpell.spellCost     = spellCost;
+    trainerSpell.reqSkill      = reqSkill;
+    trainerSpell.reqSkillValue = reqSkillValue;
+    trainerSpell.reqLevel      = reqLevel;
 
     if (!trainerSpell.reqLevel)
         trainerSpell.reqLevel = spellinfo->spellLevel;
@@ -8641,40 +8632,12 @@ bool ObjectMgr::AddSpellToTrainer(uint32 entry, uint32 spell, Field *fields, std
         }
 
         trainerSpell.learnedSpell[i] = spellinfo->EffectTriggerSpell[i];
-    }
 
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-    {
-        if (!trainerSpell.learnedSpell[i])
-            continue;
-        if (SpellMgr::IsProfessionSpell(trainerSpell.learnedSpell[i]))
-        {
+        if (trainerSpell.learnedSpell[i] && SpellMgr::IsProfessionSpell(trainerSpell.learnedSpell[i]))
             data.trainerType = 2;
-            break;
-        }
     }
-    return true;
-}
-int ObjectMgr::LoadReferenceTrainer(uint32 trainer, int32 spell, std::set<uint32> *skip_trainers, std::set<uint32> *talentIds)
-{
-    QueryResult result = WorldDatabase.PQuery("SELECT entry, spell,spellcost,reqskill,reqskillvalue,reqlevel FROM npc_trainer WHERE entry='%d'", spell);
-    if (!result)
-        return 0;
 
-    uint32 count = 0;
-    do
-    {
-
-        Field* fields = result->Fetch();
-
-        int32 spell  = fields[1].GetInt32();
-        if (spell < 0)
-            count += this->LoadReferenceTrainer(trainer, -spell, skip_trainers, talentIds);
-        else if (this->AddSpellToTrainer(trainer, uint32(spell), fields, skip_trainers, talentIds))
-            ++count;
-    } while (result->NextRow());
-
-    return count;
+    return;
 }
 
 void ObjectMgr::LoadTrainerSpell()
@@ -8682,13 +8645,13 @@ void ObjectMgr::LoadTrainerSpell()
     uint32 oldMSTime = getMSTime();
 
     // For reload case
-    for (CacheTrainerSpellMap::iterator itr = m_mCacheTrainerSpellMap.begin(); itr != m_mCacheTrainerSpellMap.end(); ++itr)
-        itr->second.Clear();
     m_mCacheTrainerSpellMap.clear();
 
     std::set<uint32> skip_trainers;
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, spell,spellcost,reqskill,reqskillvalue,reqlevel FROM npc_trainer");
+    QueryResult result = WorldDatabase.Query("SELECT b.entry, a.spell, a.spellcost, a.reqskill, a.reqskillvalue, a.reqlevel FROM npc_trainer AS a "
+                                             "INNER JOIN npc_trainer AS b ON a.entry = -(b.spell) "
+                                             "UNION SELECT * FROM npc_trainer WHERE spell > 0");
 
     if (!result)
     {
@@ -8701,7 +8664,6 @@ void ObjectMgr::LoadTrainerSpell()
 
     barGoLink bar(result->GetRowCount());
     uint32 count = 0;
-    std::set<uint32> talentIds;
     
     do
     {
@@ -8709,12 +8671,16 @@ void ObjectMgr::LoadTrainerSpell()
 
         Field* fields = result->Fetch();
 
-        uint32 entry  = fields[0].GetUInt32();
-        int32 spell  = fields[1].GetInt32();
-        if (spell < 0)
-            count += this->LoadReferenceTrainer(entry, -spell, &skip_trainers, &talentIds);
-        else if (this->AddSpellToTrainer(entry, uint32(spell), fields, &skip_trainers, &talentIds))
-            ++count;
+        uint32 entry         = fields[0].GetUInt32();
+        uint32 spell         = fields[1].GetUInt32();
+        uint32 spellCost     = fields[2].GetUInt32();
+        uint32 reqSkill      = fields[3].GetUInt32();
+        uint32 reqSkillValue = fields[4].GetUInt32();
+        uint32 reqLevel      = fields[5].GetUInt32();
+
+        AddSpellToTrainer(entry, spell, spellCost, reqSkill, reqSkillValue, reqLevel);
+
+        count++;
 
     }
     while (result->NextRow());
