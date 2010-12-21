@@ -206,13 +206,6 @@ MaxOverspeedPings = 2
 GridUnload = 1
 
 #
-#    SocketSelectTime
-#        Description: Time (in milliseconds) for socket selection.
-#        Default:     10000 - (10 seconds)
-
-SocketSelectTime = 10000
-
-#
 #    SocketTimeOutTime
 #        Description: Time (in milliseconds) after which a connection being idle on the character
 #                     selection screen is disconnected.
