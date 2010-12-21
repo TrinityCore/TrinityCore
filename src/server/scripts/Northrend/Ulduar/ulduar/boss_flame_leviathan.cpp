@@ -39,6 +39,7 @@ enum Spells
     SPELL_START_THE_ENGINE                      = 62472,
     SPELL_SEARING_FLAME                         = 62402,
     SPELL_BLAZE                                 = 62292,
+    SPELL_TAR_PASSIVE                           = 62288,
     SPELL_SMOKE_TRAIL                           = 63575,
     SPELL_ELECTROSHOCK                          = 62522,
     SPELL_NAPALM                                = 63666,
@@ -887,6 +888,7 @@ public:
         spell_pool_of_tarAI(Creature* pCreature) : PassiveAI(pCreature)
         {
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->AddAura(SPELL_TAR_PASSIVE, me);
         }
 
         void DamageTaken(Unit * /*who*/, uint32 &damage)
