@@ -745,6 +745,7 @@ bool AuthSocket::_HandleReconnectChallenge()
     _build = ch->build;
     _expversion = (AuthHelper::IsPostBCAcceptedClientBuild(_build) ? POST_BC_EXP_FLAG : NO_VALID_EXP_FLAG) | (AuthHelper::IsPreBCAcceptedClientBuild(_build) ? PRE_BC_EXP_FLAG : NO_VALID_EXP_FLAG);
 
+    Field* fields = result->Fetch();
     uint8 secLevel = fields[2].GetUInt8();
     _accountSecurityLevel = secLevel <= SEC_ADMINISTRATOR ? AccountTypes(secLevel) : SEC_ADMINISTRATOR;
 
