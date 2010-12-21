@@ -182,14 +182,6 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if(me->GetPositionY() < 150 || me->GetPositionX() < 450 || me->getVictim()->GetTypeId() == !TYPEID_PLAYER)
-            {
-                me->RemoveAllAuras();
-                me->DeleteThreatList();
-                me->CombatStop(false);
-                me->GetMotionMaster()->MoveTargetedHome();
-            }
-
             events.Update(diff);
 
             if (me->HasUnitState(UNIT_STAT_CASTING))
