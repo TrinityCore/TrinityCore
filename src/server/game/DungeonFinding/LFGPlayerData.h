@@ -33,27 +33,27 @@ class LfgPlayerData
         // General
         void SetState(LfgState state);
         void ClearState();
-        void SetDungeonsLockStatus(LfgLockStatusSet& lockStatus);
+        void SetLockedDungeons(const LfgLockMap& lock);
         // Queue
         void SetRoles(uint8 roles);
-        void SetComment(std::string& comment);
-        void SetSelectedDungeons(LfgDungeonSet& dungeons);
+        void SetComment(const std::string& comment);
+        void SetSelectedDungeons(const LfgDungeonSet& dungeons);
         void ClearSelectedDungeons();
 
         // General
         LfgState GetState() const;
-        LfgLockStatusSet& GetDungeonsLockStatus();
+        const LfgLockMap& GetLockedDungeons() const;
         // Queue
         uint8 GetRoles() const;
         const std::string& GetComment() const;
-        LfgDungeonSet& GetSelectedDungeons();
+        const LfgDungeonSet& GetSelectedDungeons() const;
         
     private:
         // General
         LfgState m_State;                                  ///< State if group in LFG
         LfgState m_OldState;                               ///< Old State
         // Player
-        LfgLockStatusSet m_LockedDungeons;                 ///< Dungeons player can't do and reason
+        LfgLockMap m_LockedDungeons;                       ///< Dungeons player can't do and reason
         // Queue
         uint8 m_Roles;                                     ///< Roles the player selected when joined LFG
         std::string m_Comment;                             ///< Player comment used when joined LFG
