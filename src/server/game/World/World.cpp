@@ -60,7 +60,6 @@
 #include "Language.h"
 #include "CreatureGroups.h"
 #include "Transport.h"
-#include "ProgressBar.h"
 #include "ScriptMgr.h"
 #include "AddonMgr.h"
 #include "LFGMgr.h"
@@ -1800,19 +1799,15 @@ void World::LoadAutobroadcasts()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outString(">> Loaded 0 autobroadcasts definitions. DB table `autobroadcast` is empty!");
         sLog.outString();
         return;
     }
 
-    barGoLink bar(result->GetRowCount());
     uint32 count = 0;
 
     do
     {
-        bar.step();
 
         Field *fields = result->Fetch();
         std::string message = fields[0].GetString();
@@ -2764,21 +2759,17 @@ void World::LoadWorldStates()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outString(">> Loaded 0 world states. DB table `worldstates` is empty!");
         sLog.outString();
         return;
     }
 
-    barGoLink bar(result->GetRowCount());
     uint32 count = 0;
 
     do
     {
         Field *fields = result->Fetch();
         m_worldstates[fields[0].GetUInt32()] = fields[1].GetUInt64();
-        bar.step();
         ++count;
     }
     while (result->NextRow());

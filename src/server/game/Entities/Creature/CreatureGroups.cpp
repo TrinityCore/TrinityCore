@@ -19,7 +19,6 @@
 #include "Creature.h"
 #include "CreatureGroups.h"
 #include "ObjectMgr.h"
-#include "ProgressBar.h"
 
 #include "CreatureAI.h"
 
@@ -81,8 +80,6 @@ void CreatureGroupManager::LoadCreatureFormations()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outErrorDb(">>  Loaded 0 creatures in formations. DB table `creature_formations` is empty!");
         sLog.outString();
         return;
@@ -103,7 +100,6 @@ void CreatureGroupManager::LoadCreatureFormations()
         } while (guidResult->NextRow());
     }
 
-    barGoLink bar(result->GetRowCount());
     uint32 count = 0;
     Field *fields;
     FormationInfo *group_member;
@@ -112,7 +108,6 @@ void CreatureGroupManager::LoadCreatureFormations()
     {
         fields = result->Fetch();
 
-        bar.step();
         //Load group member data
         group_member                        = new FormationInfo;
         group_member->leaderGUID            = fields[0].GetUInt32();

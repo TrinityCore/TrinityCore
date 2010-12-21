@@ -35,7 +35,6 @@
 #include "World.h"
 #include "Group.h"
 #include "InstanceScript.h"
-#include "ProgressBar.h"
 
 uint16 InstanceSaveManager::ResetTimeDelay[] = {3600, 900, 300, 60};
 
