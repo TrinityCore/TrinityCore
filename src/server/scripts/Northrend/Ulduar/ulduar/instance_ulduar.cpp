@@ -362,7 +362,7 @@ public:
             OUT_SAVE_INST_DATA;
 
             std::ostringstream saveStream;
-            saveStream << "U U " << GetBossSaveData() << " " << GetData[TYPE_COLOSSUS];
+            saveStream << "U U " << GetBossSaveData() << " " << GetData(TYPE_COLOSSUS);
 
             OUT_SAVE_INST_DATA_COMPLETE;
             return saveStream.str();
