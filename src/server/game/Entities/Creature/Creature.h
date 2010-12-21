@@ -385,12 +385,12 @@ typedef UNORDERED_MAP<uint32 /*spellid*/, TrainerSpell> TrainerSpellMap;
 struct TrainerSpellData
 {
     TrainerSpellData() : trainerType(0) {}
+    ~TrainerSpellData() { spellList.clear(); }
 
     TrainerSpellMap spellList;
     uint32 trainerType;                                     // trainer type based at trainer spells, can be different from creature_template value.
                                                             // req. for correct show non-prof. trainers like weaponmaster, allowed values 0 and 2.
     TrainerSpell const* Find(uint32 spell_id) const;
-    void Clear() { spellList.clear(); }
 };
 
 typedef std::map<uint32,time_t> CreatureSpellCooldowns;
