@@ -55,27 +55,27 @@ enum Gossip_Option
 
 enum GossipOptionIcon
 {
-    GOSSIP_ICON_CHAT                = 0,                    //white chat bubble
-    GOSSIP_ICON_VENDOR              = 1,                    //brown bag
-    GOSSIP_ICON_TAXI                = 2,                    //flight
-    GOSSIP_ICON_TRAINER             = 3,                    //book
-    GOSSIP_ICON_INTERACT_1          = 4,                    //interaction wheel
-    GOSSIP_ICON_INTERACT_2          = 5,                    //interaction wheel
-    GOSSIP_ICON_MONEY_BAG           = 6,                    //brown bag with yellow dot
-    GOSSIP_ICON_TALK                = 7,                    //white chat bubble with black dots
-    GOSSIP_ICON_TABARD              = 8,                    //tabard
-    GOSSIP_ICON_BATTLE              = 9,                    //two swords
-    GOSSIP_ICON_DOT                 = 10,                    //yellow dot
-    GOSSIP_ICON_UNK11               = 11,
-    GOSSIP_ICON_UNK12               = 12,
-    GOSSIP_ICON_UNK13               = 13,
-    GOSSIP_ICON_UNK14               = 14,
-    GOSSIP_ICON_UNK15               = 15,
-    GOSSIP_ICON_UNK16               = 16,
-    GOSSIP_ICON_UNK17               = 17,
-    GOSSIP_ICON_UNK18               = 18,
-    GOSSIP_ICON_UNK19               = 19,
-    GOSSIP_ICON_UNK20               = 20,
+    GOSSIP_ICON_CHAT                = 0,                    // white chat bubble
+    GOSSIP_ICON_VENDOR              = 1,                    // brown bag
+    GOSSIP_ICON_TAXI                = 2,                    // flightmarker (paperplane)
+    GOSSIP_ICON_TRAINER             = 3,                    // brown book (trainer)
+    GOSSIP_ICON_INTERACT_1          = 4,                    // golden interaction wheel
+    GOSSIP_ICON_INTERACT_2          = 5,                    // golden interaction wheel
+    GOSSIP_ICON_MONEY_BAG           = 6,                    // brown bag (with gold coin in lower corner)
+    GOSSIP_ICON_TALK                = 7,                    // white chat bubble (with "..." inside)
+    GOSSIP_ICON_TABARD              = 8,                    // white tabard
+    GOSSIP_ICON_BATTLE              = 9,                    // two crossed swords
+    GOSSIP_ICON_DOT                 = 10,                   // yellow dot/point
+    GOSSIP_ICON_CHAT_11             = 11,                   // white chat bubble
+    GOSSIP_ICON_CHAT_12             = 12,                   // white chat bubble
+    GOSSIP_ICON_CHAT_13             = 13,                   // white chat bubble
+    GOSSIP_ICON_UNK_14              = 14,                   // INVALID - DO NOT USE
+    GOSSIP_ICON_UNK_15              = 15,                   // INVALID - DO NOT USE
+    GOSSIP_ICON_CHAT_16             = 16,                   // white chat bubble
+    GOSSIP_ICON_CHAT_17             = 17,                   // white chat bubble
+    GOSSIP_ICON_CHAT_18             = 18,                   // white chat bubble
+    GOSSIP_ICON_CHAT_19             = 19,                   // white chat bubble
+    GOSSIP_ICON_CHAT_20             = 20,                   // white chat bubble
     GOSSIP_ICON_MAX
 };
 
