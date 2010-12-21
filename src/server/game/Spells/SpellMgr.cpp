@@ -18,6 +18,7 @@
 
 #include "SpellMgr.h"
 #include "ObjectMgr.h"
+#include "SpellAuras.h"
 #include "SpellAuraDefines.h"
 #include "ProgressBar.h"
 #include "DBCStores.h"
@@ -3142,8 +3143,10 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
 
 //-----------TRINITY-------------
 
-bool SpellMgr::CanAurasStack(SpellEntry const *spellInfo_1, SpellEntry const *spellInfo_2, bool sameCaster) const
+bool SpellMgr::CanAurasStack(Aura const *aura1, Aura const *aura2, bool sameCaster) const
 {
+    SpellEntry const *spellInfo_1 = aura1->GetSpellProto();
+    SpellEntry const *spellInfo_2 = aura2->GetSpellProto();
     SpellSpecific spellSpec_1 = GetSpellSpecific(spellInfo_1);
     SpellSpecific spellSpec_2 = GetSpellSpecific(spellInfo_2);
     if (spellSpec_1 && spellSpec_2)
@@ -3205,6 +3208,9 @@ bool SpellMgr::CanAurasStack(SpellEntry const *spellInfo_1, SpellEntry const *sp
         // Hack for Incanter's Absorption
         if (spellId_1 == 44413)
             return true;
+        if (aura1->GetCastItemGUID() && aura2->GetCastItemGUID())
+            if (aura1->GetCastItemGUID() != aura2->GetCastItemGUID() && (sSpellMgr.GetSpellCustomAttr(spellId_1) & SPELL_ATTR0_CU_ENCHANT_PROC))
+                return true;
         // same spell with same caster should not stack
         return false;
     }
@@ -4039,6 +4045,25 @@ void SpellMgr::LoadSpellCustomAttr()
                     break;
                 count++;
                 break;
+        }
+    }
+
+    for (uint32 i = 0; i < sSpellItemEnchantmentStore.GetNumRows(); ++i)
+    {
+        SpellItemEnchantmentEntry const *enchant = sSpellItemEnchantmentStore.LookupEntry(i);
+        if (!enchant)
+            continue;
+
+        for (uint8 s = 0; s < MAX_ITEM_ENCHANTMENT_EFFECTS; ++s)
+        {
+            if (enchant->type[s] != ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL)
+                continue;
+
+            SpellEntry const *spellInfo = sSpellStore.LookupEntry(enchant->spellid[s]);
+            if (!spellInfo)
+                continue;
+
+            mSpellCustomAttr[enchant->spellid[s]] |= SPELL_ATTR0_CU_ENCHANT_PROC;
         }
     }
 
