@@ -620,15 +620,6 @@ void World::LoadConfigSettings(bool reload)
     else
         m_int_configs[CONFIG_PORT_WORLD] = sConfig.GetIntDefault("WorldServerPort", 8085);
 
-    if (reload)
-    {
-        uint32 val = sConfig.GetIntDefault("SocketSelectTime", 10000);
-        if (val != m_int_configs[CONFIG_SOCKET_SELECTTIME])
-            sLog.outError("SocketSelectTime option can't be changed at worldserver.conf reload, using current value (%u).",m_int_configs[CONFIG_SOCKET_SELECTTIME]);
-    }
-    else
-        m_int_configs[CONFIG_SOCKET_SELECTTIME] = sConfig.GetIntDefault("SocketSelectTime", 10000);
-
     m_int_configs[CONFIG_SOCKET_TIMEOUTTIME] = sConfig.GetIntDefault("SocketTimeOutTime", 900000);
     m_int_configs[CONFIG_SESSION_ADD_DELAY] = sConfig.GetIntDefault("SessionAddDelay", 10000);
 
@@ -1140,7 +1131,6 @@ void World::LoadConfigSettings(bool reload)
 
     m_int_configs[CONFIG_MAX_WHO] = sConfig.GetIntDefault("MaxWhoListReturns", 49);
     m_bool_configs[CONFIG_PET_LOS] = sConfig.GetBoolDefault("vmap.petLOS", true);
-    m_bool_configs[CONFIG_BG_START_MUSIC] = sConfig.GetBoolDefault("MusicInBattleground", false);
     m_bool_configs[CONFIG_START_ALL_SPELLS] = sConfig.GetBoolDefault("PlayerStart.AllSpells", false);
     if (m_bool_configs[CONFIG_START_ALL_SPELLS])
         sLog.outString("WORLD: WARNING: PlayerStart.AllSpells enabled - may not function as intended!");
