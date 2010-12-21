@@ -21,7 +21,6 @@
 #include "ObjectMgr.h"
 #include "WorldPacket.h"
 #include "PoolMgr.h"
-#include "ProgressBar.h"
 #include "Language.h"
 #include "Log.h"
 #include "MapManager.h"
@@ -199,8 +198,6 @@ void GameEventMgr::LoadFromDB()
     QueryResult result = WorldDatabase.Query("SELECT MAX(entry) FROM game_event");
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outString(">> Loaded 0 weather definitions. DB table `game_event` is empty.");
         sLog.outString();
         return;
@@ -222,13 +219,11 @@ void GameEventMgr::LoadFromDB()
     }
 
     uint32 count = 0;
-    barGoLink bar(result->GetRowCount());
     do
     {
         ++count;
         Field *fields = result->Fetch();
 
-        bar.step();
 
         uint16 event_id = fields[0].GetUInt16();
         if (event_id == 0)
@@ -281,20 +276,16 @@ void GameEventMgr::LoadFromDB()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outString(">> Loaded 0 game event saves in game events. DB table `game_event_save` is empty.");
         sLog.outString();
     }
     else
     {
         count = 0;
-        barGoLink bar(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
 
-            bar.step();
 
             uint16 event_id = fields[0].GetUInt16();
 
@@ -331,20 +322,16 @@ void GameEventMgr::LoadFromDB()
     result = WorldDatabase.Query("SELECT event_id, prerequisite_event FROM game_event_prerequisite");
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outString(">> Loaded 0 game event prerequisites in game events. DB table `game_event_prerequisite` is empty.");
         sLog.outString();
     }
     else
     {
         count = 0;
-        barGoLink bar(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
 
-            bar.step();
 
             uint16 event_id = fields[0].GetUInt16();
 
@@ -390,20 +377,16 @@ void GameEventMgr::LoadFromDB()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outString(">> Loaded 0 creatures in game events. DB table `game_event_creature` is empty");
         sLog.outString();
     }
     else
     {
         count = 0;
-        barGoLink bar(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
 
-            bar.step();
 
             uint32 guid    = fields[0].GetUInt32();
             int16 event_id = fields[1].GetInt16();
@@ -438,20 +421,16 @@ void GameEventMgr::LoadFromDB()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outString(">> Loaded 0 gameobjects in game events. DB table `game_event_gameobject` is empty.");
         sLog.outString();
     }
     else
     {
         count = 0;
-        barGoLink bar(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
 
-            bar.step();
 
             uint32 guid    = fields[0].GetUInt32();
             int16 event_id = fields[1].GetInt16();
@@ -488,20 +467,16 @@ void GameEventMgr::LoadFromDB()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outString(">> Loaded 0 model/equipment changes in game events. DB table `game_event_model_equip` is empty.");
         sLog.outString();
     }
     else
     {
         count = 0;
-        barGoLink bar(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
 
-            bar.step();
             uint32 guid     = fields[0].GetUInt32();
             uint16 event_id = fields[1].GetUInt16();
 
@@ -547,20 +522,16 @@ void GameEventMgr::LoadFromDB()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outString(">> Loaded 0 quests additions in game events. DB table `game_event_creature_quest` is empty.");
         sLog.outString();
     }
     else
     {
         count = 0;
-        barGoLink bar(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
 
-            bar.step();
             uint32 id       = fields[0].GetUInt32();
             uint32 quest    = fields[1].GetUInt32();
             uint16 event_id = fields[2].GetUInt16();
@@ -592,20 +563,16 @@ void GameEventMgr::LoadFromDB()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outString(">> Loaded 0 go quests additions in game events. DB table `game_event_gameobject_quest` is empty.");
         sLog.outString();
     }
     else
     {
         count = 0;
-        barGoLink bar(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
 
-            bar.step();
             uint32 id       = fields[0].GetUInt32();
             uint32 quest    = fields[1].GetUInt32();
             uint16 event_id = fields[2].GetUInt16();
@@ -636,20 +603,16 @@ void GameEventMgr::LoadFromDB()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outString(">> Loaded 0 quest event conditions in game events. DB table `game_event_quest_condition` is empty.");
         sLog.outString();
     }
     else
     {
         count = 0;
-        barGoLink bar(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
 
-            bar.step();
             uint32 quest     = fields[0].GetUInt32();
             uint16 event_id  = fields[1].GetUInt16();
             uint32 condition = fields[2].GetUInt32();
@@ -682,20 +645,16 @@ void GameEventMgr::LoadFromDB()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outString(">> Loaded 0 conditions in game events. DB table `game_event_condition` is empty.");
         sLog.outString();
     }
     else
     {
         count = 0;
-        barGoLink bar(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
 
-            bar.step();
             uint16 event_id  = fields[0].GetUInt16();
             uint32 condition = fields[1].GetUInt32();
 
@@ -728,20 +687,16 @@ void GameEventMgr::LoadFromDB()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outString(">> Loaded 0 condition saves in game events. DB table `game_event_condition_save` is empty.");
         sLog.outString();
     }
     else
     {
         count = 0;
-        barGoLink bar(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
 
-            bar.step();
             uint16 event_id  = fields[0].GetUInt16();
             uint32 condition = fields[1].GetUInt32();
 
@@ -782,20 +737,16 @@ void GameEventMgr::LoadFromDB()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outString(">> Loaded 0 npcflags in game events. DB table `game_event_npcflag` is empty.");
         sLog.outString();
     }
     else
     {
         count = 0;
-        barGoLink bar(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
 
-            bar.step();
             uint32 guid     = fields[0].GetUInt32();
             uint16 event_id = fields[1].GetUInt16();
             uint32 npcflag  = fields[2].GetUInt32();
@@ -828,20 +779,16 @@ void GameEventMgr::LoadFromDB()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outString(">> Loaded 0 vendor additions in game events. DB table `game_event_npc_vendor` is empty.");
         sLog.outString();
     }
     else
     {
         count = 0;
-        barGoLink bar(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
 
-            bar.step();
             uint16 event_id  = fields[0].GetUInt16();
 
             if (event_id >= mGameEventVendors.size())
@@ -896,20 +843,16 @@ void GameEventMgr::LoadFromDB()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outString(">> Loaded 0 npc gossip textids in game events. DB table `game_event_npc_gossip` is empty.");
         sLog.outString();
     }
     else
     {
         count = 0;
-        barGoLink bar(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
 
-            bar.step();
             uint32 guid     = fields[0].GetUInt32();
             uint16 event_id = fields[1].GetUInt16();
             uint32 textid  = fields[2].GetUInt32();
@@ -943,20 +886,16 @@ void GameEventMgr::LoadFromDB()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outString(">> Loaded 0 battleground holidays in game events. DB table `game_event_condition` is empty.");
         sLog.outString();
     }
     else
     {
         count = 0;
-        barGoLink bar(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
 
-            bar.step();
 
             uint16 event_id = fields[0].GetUInt16();
 
@@ -991,20 +930,16 @@ void GameEventMgr::LoadFromDB()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outString(">> Loaded 0 pools for game events. DB table `game_event_pool` is empty.");
         sLog.outString();
     }
     else
     {
         count = 0;
-        barGoLink bar(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
 
-            bar.step();
 
             uint32 entry   = fields[0].GetUInt32();
             int16 event_id = fields[1].GetInt16();

@@ -16,7 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ProgressBar.h"
 #include "SpellMgr.h"
 #include "ObjectMgr.h"
 #include "DisableMgr.h"
@@ -50,19 +49,15 @@ void DisableMgr::LoadDisables()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outString(">> Loaded 0 disables. DB table `disables` is empty!");
         sLog.outString();
         return;
     }
 
-    barGoLink bar(result->GetRowCount());
 
     Field* fields;
     do
     {
-        bar.step();
         fields = result->Fetch();
         DisableType type = DisableType(fields[0].GetUInt32());
         if (type >= MAX_DISABLE_TYPES)
@@ -194,18 +189,14 @@ void DisableMgr::CheckQuestDisables()
     uint32 count = m_DisableMap[DISABLE_TYPE_QUEST].size();
     if (!count)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outString(">> Checked 0 quest disables.");
         sLog.outString();
         return;
     }
 
-    barGoLink bar(count);
     // check only quests, rest already done at startup
     for (DisableTypeMap::iterator itr = m_DisableMap[DISABLE_TYPE_QUEST].begin(); itr != m_DisableMap[DISABLE_TYPE_QUEST].end();)
     {
-        bar.step();
         const uint32 entry = itr->first;
         if (!sObjectMgr.GetQuestTemplate(entry))
         {

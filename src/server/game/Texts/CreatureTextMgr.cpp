@@ -19,7 +19,6 @@
 #include "DatabaseEnv.h"
 #include "SQLStorage.h"
 #include "CreatureTextMgr.h"
-#include "ProgressBar.h"
 #include "ObjectMgr.h"
 
 void CreatureTextMgr::LoadCreatureTexts()
@@ -34,20 +33,16 @@ void CreatureTextMgr::LoadCreatureTexts()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outString(">> Loaded 0 ceature texts. DB table `creature_texts` is empty.");
         sLog.outString();
         return;
     }
 
-    barGoLink bar(result->GetRowCount());
     uint32 textCount = 0;
     uint32 creatureCount = 0;
 
     do
     {
-        bar.step();
         Field* fields = result->Fetch();
         CreatureTextEntry temp;
 

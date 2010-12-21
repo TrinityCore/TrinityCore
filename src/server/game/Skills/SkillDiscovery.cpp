@@ -18,7 +18,6 @@
 
 #include "DatabaseEnv.h"
 #include "Log.h"
-#include "ProgressBar.h"
 #include "World.h"
 #include "Util.h"
 #include "SkillDiscovery.h"
@@ -55,14 +54,11 @@ void LoadSkillDiscoveryTable()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outErrorDb(">> Loaded 0 skill discovery definitions. DB table `skill_discovery_template` is empty.");
         sLog.outString();
         return;
     }
 
-    barGoLink bar(result->GetRowCount());
     uint32 count = 0;
 
     std::ostringstream ssNonDiscoverableEntries;
@@ -71,7 +67,6 @@ void LoadSkillDiscoveryTable()
     do
     {
         Field *fields = result->Fetch();
-        bar.step();
 
         uint32 spellId         = fields[0].GetUInt32();
         int32  reqSkillOrSpell = fields[1].GetInt32();

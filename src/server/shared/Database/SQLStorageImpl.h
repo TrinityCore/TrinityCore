@@ -16,7 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ProgressBar.h"
 #include "Log.h"
 #include "DBCFileLoader.h"
 
@@ -177,11 +176,9 @@ void SQLStorageLoaderBase<T>::Load(SQLStorage &store)
 
     char * _data= new char[store.RecordCount *recordsize];
     uint32 count=0;
-    barGoLink bar( store.RecordCount );
     do
     {
         fields = result->Fetch();
-        bar.step();
         char *p=(char*)&_data[recordsize*count];
         newIndex[fields[0].GetUInt32()]=p;
 

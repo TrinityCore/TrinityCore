@@ -19,7 +19,6 @@
 #include "DatabaseEnv.h"
 #include "SQLStorage.h"
 #include "ObjectMgr.h"
-#include "ProgressBar.h"
 #include "ObjectDefines.h"
 #include "GridDefines.h"
 #include "GridNotifiers.h"
@@ -43,14 +42,11 @@ void SmartWaypointMgr::LoadFromDB()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outString(">> Loaded 0 SmartAI Waypoint Paths. DB table `waypoints` is empty.");
         sLog.outString();
         return;
     }
 
-    barGoLink bar(result->GetRowCount());
     uint32 count = 0;
     uint32 total = 0;
     WPPath* path = NULL;
@@ -59,7 +55,6 @@ void SmartWaypointMgr::LoadFromDB()
 
     do
     {
-        bar.step();
         Field *fields = result->Fetch();
         uint32 entry = fields[0].GetUInt32();
         uint32 id = fields[1].GetUInt32();
@@ -109,19 +104,15 @@ void SmartAIMgr::LoadSmartAIFromDB()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outString(">> Loaded 0 SmartAI scripts. DB table `smartai_scripts` is empty.");
         sLog.outString();
         return;
     }
 
-    barGoLink bar(result->GetRowCount());
     uint32 count = 0;
 
     do
     {
-        bar.step();
         Field* fields = result->Fetch();
 
         SmartScriptHolder temp;
