@@ -537,13 +537,16 @@ void LFGMgr::Join(Player* plr, uint8 roles, const LfgDungeonSet& selectedDungeon
                         itr->getSource()->GetSession()->SendLfgUpdateParty(updateData);
             }
         }
-        else if (!isContinue)                              // Different dungeons and it's not an offer to continue
-        {
-            // Different dungeons and it's not a LfgGroup in the middle of a dungeon that need more people
+        else if (!isContinue) // Different dungeons and it's not a LfgGroup in the middle of a dungeon that need more people
+        { 
             Leave(plr, grp);
-            Join(plr, roles, dungeons, comment);
+            LfgState pstate = GetState(guid);
+            if (pstate == LFG_STATE_NONE)
+                Join(plr, roles, dungeons, comment);
+            else
+                sLog.outError("LFGMgr::Join [" UI64FMTD "] joined with different dungeons and leave failed! Player state: %u", guid, pstate); 
+            return;
         }
-        return;
     }
 
     // Check player or group member restrictions
@@ -665,6 +668,7 @@ void LFGMgr::Join(Player* plr, uint8 roles, const LfgDungeonSet& selectedDungeon
             dungeons.insert(rDungeonId);
         }
 
+        SetRoles(guid, roles);
         SetState(gguid, LFG_STATE_ROLECHECK);
         // Send update to player
         LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_JOIN_PROPOSAL, &dungeons, comment);
@@ -685,6 +689,19 @@ void LFGMgr::Join(Player* plr, uint8 roles, const LfgDungeonSet& selectedDungeon
     }
     else                                                   // Add player to queue
     {
+        // Queue player
+        LfgQueueInfo* pqInfo = new LfgQueueInfo();
+        pqInfo->joinTime = time_t(time(NULL));
+        pqInfo->roles[plr->GetGUID()] = roles;
+        pqInfo->dungeons = dungeons;
+        if (roles & ROLE_TANK)
+            --pqInfo->tanks;
+        else if (roles & ROLE_HEALER)
+            --pqInfo->healers;
+        else
+            --pqInfo->dps;
+        m_QueueInfoMap[guid] = pqInfo;
+
         // Send update to player
         plr->GetSession()->SendLfgJoinResult(joinData);
         plr->GetSession()->SendLfgUpdatePlayer(LfgUpdateData(LFG_UPDATETYPE_JOIN_PROPOSAL, &dungeons, comment));
@@ -699,20 +716,6 @@ void LFGMgr::Join(Player* plr, uint8 roles, const LfgDungeonSet& selectedDungeon
             }
             SetSelectedDungeons(guid, dungeons);
         }
-
-        // Queue player
-        LfgQueueInfo* pqInfo = new LfgQueueInfo();
-        pqInfo->joinTime = time_t(time(NULL));
-        pqInfo->roles[plr->GetGUID()] = roles;
-        pqInfo->dungeons = dungeons;
-        if (roles & ROLE_TANK)
-            --pqInfo->tanks;
-        else if (roles & ROLE_HEALER)
-            --pqInfo->healers;
-        else
-            --pqInfo->dps;
-
-        m_QueueInfoMap[guid] = pqInfo;
         AddToQueue(guid, uint8(plr->GetTeam()));
     }
     sLog.outDebug("LFGMgr::Join: [" UI64FMTD "] joined with %u members. dungeons: %u", guid, grp ? grp->GetMembersCount() : 1, uint8(dungeons.size()));
