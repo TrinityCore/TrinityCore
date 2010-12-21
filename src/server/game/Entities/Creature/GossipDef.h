@@ -66,6 +66,16 @@ enum GossipOptionIcon
     GOSSIP_ICON_TABARD              = 8,                    //tabard
     GOSSIP_ICON_BATTLE              = 9,                    //two swords
     GOSSIP_ICON_DOT                 = 10,                    //yellow dot
+    GOSSIP_ICON_UNK11               = 11,
+    GOSSIP_ICON_UNK12               = 12,
+    GOSSIP_ICON_UNK13               = 13,
+    GOSSIP_ICON_UNK14               = 14,
+    GOSSIP_ICON_UNK15               = 15,
+    GOSSIP_ICON_UNK16               = 16,
+    GOSSIP_ICON_UNK17               = 17,
+    GOSSIP_ICON_UNK18               = 18,
+    GOSSIP_ICON_UNK19               = 19,
+    GOSSIP_ICON_UNK20               = 20,
     GOSSIP_ICON_MAX
 };
 
