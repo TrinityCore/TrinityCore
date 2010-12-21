@@ -238,47 +238,46 @@ public:
 
             switch (type)
             {
-            case TYPE_LEVIATHAN:
-                if (state == IN_PROGRESS)
-                {
-                    for (uint8 uiI = 0; uiI < 7; ++uiI)
-                        HandleGameObject(uiLeviathanDoor[uiI],false);
-                }
-                else
-                {
-                    for (uint8 uiI = 0; uiI < 7; ++uiI)
-                        HandleGameObject(uiLeviathanDoor[uiI],true);
-                }
-                break;
-            case TYPE_IGNIS:
-            case TYPE_RAZORSCALE:
-            case TYPE_XT002:
-            case TYPE_ASSEMBLY:
-            case TYPE_AURIAYA:
-            case TYPE_MIMIRON:
-            case TYPE_VEZAX:
-            case TYPE_YOGGSARON:
-                break;
-            case TYPE_KOLOGARN:
-                if (state == DONE)
-                    if (GameObject* go = instance->GetGameObject(uiKologarnChestGUID))
-                        go->SetRespawnTime(go->GetRespawnDelay());
-                break;
-            case TYPE_HODIR:
-                if (state == DONE)
-                    if (GameObject* go = instance->GetGameObject(uiHodirChestGUID))
-                        go->SetRespawnTime(go->GetRespawnDelay());
-                break;
-            case TYPE_THORIM:
-                if (state == DONE)
-                    if (GameObject* go = instance->GetGameObject(uiThorimChestGUID))
-                        go->SetRespawnTime(go->GetRespawnDelay());
-                break;
-            case TYPE_FREYA:
-                if (state == DONE)
-                    if (GameObject* go = instance->GetGameObject(uiFreyaChestGUID))
-                        go->SetRespawnTime(go->GetRespawnDelay());
-                break;
+                case TYPE_LEVIATHAN:
+                    if (state == IN_PROGRESS)
+                        for (uint8 uiI = 0; uiI < 7; ++uiI)
+                            HandleGameObject(uiLeviathanDoor[uiI],false);
+                    else
+                        for (uint8 uiI = 0; uiI < 7; ++uiI)
+                            HandleGameObject(uiLeviathanDoor[uiI],true);
+                    break;
+                case TYPE_IGNIS:
+                case TYPE_RAZORSCALE:
+                case TYPE_XT002:
+                case TYPE_ASSEMBLY:
+                case TYPE_AURIAYA:
+                case TYPE_MIMIRON:
+                case TYPE_VEZAX:
+                case TYPE_YOGGSARON:
+                    break;
+                case TYPE_KOLOGARN:
+                    if (state == DONE)
+                        if (GameObject* go = instance->GetGameObject(uiKologarnChestGUID))
+                            go->SetRespawnTime(go->GetRespawnDelay());
+                    break;
+                case TYPE_HODIR:
+                    if (state == DONE)
+                        if (GameObject* go = instance->GetGameObject(uiHodirChestGUID))
+                            go->SetRespawnTime(go->GetRespawnDelay());
+                    break;
+                case TYPE_THORIM:
+                    if (state == DONE)
+                        if (GameObject* go = instance->GetGameObject(uiThorimChestGUID))
+                            go->SetRespawnTime(go->GetRespawnDelay());
+                    break;
+                case TYPE_FREYA:
+                    if (state == DONE)
+                        if (GameObject* go = instance->GetGameObject(uiFreyaChestGUID))
+                            go->SetRespawnTime(go->GetRespawnDelay());
+                    break;
+                case TYPE_COLOSSUS:
+                    SetData(type, state);
+                    break;
              }
 
              return true;
@@ -315,7 +314,7 @@ public:
                 case TYPE_KOLOGARN:             return uiKologarnGUID;
                 case TYPE_AURIAYA:              return uiAuriayaGUID;
                 case TYPE_MIMIRON:              return uiMimironGUID;
-                case TYPE_HODIR:                return uiMimironGUID;
+                case TYPE_HODIR:                return uiHodirGUID;
                 case TYPE_THORIM:               return uiThorimGUID;
                 case TYPE_FREYA:                return uiFreyaGUID;
                 case TYPE_VEZAX:                return uiVezaxGUID;
@@ -363,7 +362,7 @@ public:
             OUT_SAVE_INST_DATA;
 
             std::ostringstream saveStream;
-            saveStream << "U U " << GetBossSaveData() << " " << uiEncounter[14];
+            saveStream << "U U " << GetBossSaveData() << " " << GetData[TYPE_COLOSSUS];
 
             OUT_SAVE_INST_DATA_COMPLETE;
             return saveStream.str();
@@ -383,7 +382,7 @@ public:
             uint32 data14;
 
             std::istringstream loadStream(strIn);
-            loadStream >> dataHead1 >> dataHead2 >> data14;
+            loadStream >> dataHead1 >> dataHead2;
 
             if (dataHead1 == 'U' && dataHead2 == 'U')
             {
@@ -391,12 +390,12 @@ public:
                 {
                     uint32 tmpState;
                     loadStream >> tmpState;
-                    loadStream >> uiEncounter[data14]; //colossus pre leviathan
                     if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
                         tmpState = NOT_STARTED;
                     SetBossState(i, EncounterState(tmpState));
                 }
             }
+
             OUT_LOAD_INST_DATA_COMPLETE;
         }
     };
