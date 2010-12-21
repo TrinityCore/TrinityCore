@@ -26,7 +26,7 @@ enum LfgRoles
     ROLE_LEADER                                  = 0x01,
     ROLE_TANK                                    = 0x02,
     ROLE_HEALER                                  = 0x04,
-    ROLE_DAMAGE                                  = 0x08,
+    ROLE_DAMAGE                                  = 0x08
 };
 
 enum LfgUpdateType
@@ -44,7 +44,7 @@ enum LfgUpdateType
     LFG_UPDATETYPE_PROPOSAL_BEGIN                = 13,
     LFG_UPDATETYPE_CLEAR_LOCK_LIST               = 14,
     LFG_UPDATETYPE_GROUP_MEMBER_OFFLINE          = 15,
-    LFG_UPDATETYPE_GROUP_DISBAND                 = 16,
+    LFG_UPDATETYPE_GROUP_DISBAND                 = 16
 };
 
 enum LfgState
@@ -56,7 +56,7 @@ enum LfgState
     LFG_STATE_BOOT,                                        // Vote kick active
     LFG_STATE_DUNGEON,                                     // In LFG Group, in a Dungeon
     LFG_STATE_FINISHED_DUNGEON,                            // In LFG Group, in a finished Dungeon
-    LFG_STATE_RAIDBROWSER,                                 // Using Raid finder
+    LFG_STATE_RAIDBROWSER                                  // Using Raid finder
 };
 
 /// Instance lock types
@@ -73,7 +73,7 @@ enum LfgLockStatusType
     LFG_LOCKSTATUS_ATTUNEMENT_TOO_HIGH_LEVEL     = 1002,
     LFG_LOCKSTATUS_QUEST_NOT_COMPLETED           = 1022,
     LFG_LOCKSTATUS_MISSING_ITEM                  = 1025,
-    LFG_LOCKSTATUS_NOT_IN_SEASON                 = 1031,
+    LFG_LOCKSTATUS_NOT_IN_SEASON                 = 1031
 };
 
 /// Dungeon and reason why player can't join
@@ -84,7 +84,7 @@ struct LfgLockStatus
 };
 
 typedef std::set<uint32> LfgDungeonSet;
-typedef std::set<LfgLockStatus*> LfgLockStatusSet;
-typedef std::map<uint64, LfgLockStatusSet*> LfgLockStatusMap;
+typedef std::map<uint32, LfgLockStatusType> LfgLockMap;
+typedef std::map<uint64, LfgLockMap> LfgLockPartyMap;
 
 #endif

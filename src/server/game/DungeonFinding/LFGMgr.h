@@ -38,7 +38,7 @@ enum LFGenum
     LFG_QUEUEUPDATE_INTERVAL                     = 15*IN_MILLISECONDS,
     LFG_SPELL_DUNGEON_COOLDOWN                   = 71328,
     LFG_SPELL_DUNGEON_DESERTER                   = 71041,
-    LFG_SPELL_LUCK_OF_THE_DRAW                   = 72221,
+    LFG_SPELL_LUCK_OF_THE_DRAW                   = 72221
 };
 
 /// Determines the type of instance
@@ -50,7 +50,7 @@ enum LfgType
     LFG_TYPE_QUEST                               = 3,
     LFG_TYPE_ZONE                                = 4,
     LFG_TYPE_HEROIC                              = 5,
-    LFG_TYPE_RANDOM                              = 6,
+    LFG_TYPE_RANDOM                              = 6
 };
 
 /// Proposal states
@@ -58,7 +58,7 @@ enum LfgProposalState
 {
     LFG_PROPOSAL_INITIATING                      = 0,
     LFG_PROPOSAL_FAILED                          = 1,
-    LFG_PROPOSAL_SUCCESS                         = 2,
+    LFG_PROPOSAL_SUCCESS                         = 2
 };
 
 /// Teleport errors
@@ -69,7 +69,7 @@ enum LfgTeleportError
     LFG_TELEPORTERROR_PLAYER_DEAD                = 1,
     LFG_TELEPORTERROR_FALLING                    = 2,
     LFG_TELEPORTERROR_FATIGUE                    = 4,
-    LFG_TELEPORTERROR_INVALID_LOCATION           = 6,
+    LFG_TELEPORTERROR_INVALID_LOCATION           = 6
 };
 
 /// Queue join results
@@ -92,7 +92,7 @@ enum LfgJoinResult
     LFG_JOIN_RANDOM_COOLDOWN                     = 14,     // You can not queue for random dungeons while on random dungeon cooldown
     LFG_JOIN_PARTY_RANDOM_COOLDOWN               = 15,     // One or more party members are on random dungeon cooldown
     LFG_JOIN_TOO_MUCH_MEMBERS                    = 16,     // You can not enter dungeons with more that 5 party members
-    LFG_JOIN_USING_BG_SYSTEM                     = 17,     // You can not use the dungeon system while in BG or arenas
+    LFG_JOIN_USING_BG_SYSTEM                     = 17      // You can not use the dungeon system while in BG or arenas
 };
 
 /// Role check states
@@ -104,7 +104,7 @@ enum LfgRoleCheckState
     LFG_ROLECHECK_MISSING_ROLE                   = 3,      // Someone didn't selected a role after 2 mins
     LFG_ROLECHECK_WRONG_ROLES                    = 4,      // Can't form a group with that role selection
     LFG_ROLECHECK_ABORTED                        = 5,      // Someone leave the group
-    LFG_ROLECHECK_NO_ROLE                        = 6,      // Someone selected no role
+    LFG_ROLECHECK_NO_ROLE                        = 6       // Someone selected no role
 };
 
 /// Answer state (Also used to check compatibilites)
@@ -112,7 +112,7 @@ enum LfgAnswer
 {
     LFG_ANSWER_PENDING                           = -1,
     LFG_ANSWER_DENY                              = 0,
-    LFG_ANSWER_AGREE                             = 1,
+    LFG_ANSWER_AGREE                             = 1
 };
 
 
@@ -136,7 +136,7 @@ typedef std::map<std::string, LfgAnswer> LfgCompatibleMap;
 typedef std::map<uint64, LfgDungeonSet> LfgDungeonMap;
 typedef std::map<uint64, uint8> LfgRolesMap;
 typedef std::map<uint64, LfgAnswer> LfgAnswerMap;
-typedef std::map<uint32, LfgRoleCheck*> LfgRoleCheckMap;
+typedef std::map<uint64, LfgRoleCheck*> LfgRoleCheckMap;
 typedef std::map<uint64, LfgQueueInfo*> LfgQueueInfoMap;
 typedef std::map<uint32, LfgProposal*> LfgProposalMap;
 typedef std::map<uint64, LfgProposalPlayer*> LfgProposalPlayerMap;
@@ -147,11 +147,11 @@ typedef std::map<uint64, LfgPlayerData> LfgPlayerDataMap;
 // Data needed by SMSG_LFG_JOIN_RESULT
 struct LfgJoinResultData
 {
-    LfgJoinResultData(LfgJoinResult _result = LFG_JOIN_OK, LfgRoleCheckState _state = LFG_ROLECHECK_DEFAULT, LfgLockStatusMap* _lockmap = NULL):
-        result(_result), state(_state), lockmap(_lockmap) {}
+    LfgJoinResultData(LfgJoinResult _result = LFG_JOIN_OK, LfgRoleCheckState _state = LFG_ROLECHECK_DEFAULT):
+        result(_result), state(_state) {}
     LfgJoinResult result;
     LfgRoleCheckState state;
-    LfgLockStatusMap* lockmap;
+    LfgLockPartyMap lockmap;
 };
 
 // Data needed by SMSG_LFG_UPDATE_PARTY and SMSG_LFG_UPDATE_PLAYER
@@ -176,7 +176,7 @@ struct LfgReward
         uint32 variableXP;
     } reward[2];
 
-    LfgReward(uint32 _maxLevel, uint32 firstQuest, uint32 firstVarMoney, uint32 firstVarXp, uint32 otherQuest, uint32 otherVarMoney, uint32 otherVarXp)
+    LfgReward(uint32 _maxLevel = 0, uint32 firstQuest = 0, uint32 firstVarMoney = 0, uint32 firstVarXp = 0, uint32 otherQuest = 0, uint32 otherVarMoney = 0, uint32 otherVarXp = 0)
         : maxLevel(_maxLevel)
     {
         reward[0].questId = firstQuest;
@@ -191,7 +191,7 @@ struct LfgReward
 /// Stores player or group queue info
 struct LfgQueueInfo
 {
-    LfgQueueInfo(): tanks(LFG_TANKS_NEEDED), healers(LFG_HEALERS_NEEDED), dps(LFG_DPS_NEEDED) {};
+    LfgQueueInfo(): joinTime(0), tanks(LFG_TANKS_NEEDED), healers(LFG_HEALERS_NEEDED), dps(LFG_DPS_NEEDED) {};
     time_t joinTime;                                       ///< Player queue join time (to calculate wait times)
     uint8 tanks;                                           ///< Tanks needed
     uint8 healers;                                         ///< Healers needed
@@ -213,14 +213,12 @@ struct LfgProposalPlayer
 /// Stores group data related to proposal to join
 struct LfgProposal
 {
-    LfgProposal(uint32 dungeon): dungeonId(dungeon), state(LFG_PROPOSAL_INITIATING), groupLowGuid(0), leader(0) {}
+    LfgProposal(uint32 dungeon = 0): dungeonId(dungeon), state(LFG_PROPOSAL_INITIATING), groupLowGuid(0), leader(0), cancelTime(0) {}
 
     ~LfgProposal()
     {
         for (LfgProposalPlayerMap::iterator it = players.begin(); it != players.end(); ++it)
             delete it->second;
-        players.clear();
-        queues.clear();
     };
     uint32 dungeonId;                                      ///< Dungeon to join
     LfgProposalState state;                                ///< State of the proposal
@@ -270,7 +268,7 @@ class LFGMgr
         LfgReward const* GetRandomDungeonReward(uint32 dungeon, uint8 level);
 
         // Queue
-        void Join(Player* plr, uint8 roles, LfgDungeonSet& dungeons, std::string& comment);
+        void Join(Player* plr, uint8 roles, const LfgDungeonSet& dungeons, const std::string& comment);
         void Leave(Player* plr, Group* grp = NULL);
 
         // Role Check
@@ -283,38 +281,39 @@ class LFGMgr
         void TeleportPlayer(Player* plr, bool out, bool fromOpcode = false);
 
         // Vote kick
-        void InitBoot(Group* grp, uint64& kguid, uint64& vguid, std::string reason);
+        void InitBoot(Group* grp, const uint64& kguid, const uint64& vguid, std::string reason);
         void UpdateBoot(Player* plr, bool accept);
         void OfferContinue(Group* grp);
 
-        // Lock info
-        LfgLockStatusMap* GetPartyLockStatusDungeons(Player* plr);
-        LfgLockStatusSet* GetPlayerLockStatusDungeons(Player* plr);
+        void InitializeLockedDungeons(Player* plr);
 
-
-        LfgState GetState(uint64& guid);
-        uint32 GetDungeon(uint64& guid, bool asId = true);
-        uint8 GetRoles(uint64& guid);
-        const std::string& GetComment(uint64& gguid);
-        LfgDungeonSet& GetSelectedDungeons(uint64& guid);
-        uint8 GetKicksLeft(uint64& gguid);
-        uint8 GetVotesNeeded(uint64& gguid);
-
-        void RestoreState(uint64& guid);
-        void ClearState(uint64& guid);
-        void SetState(uint64& guid, LfgState state);
-        void SetDungeon(uint64& guid, uint32 dungeon);
-        void SetRoles(uint64& guid, uint8 roles);
-        void SetComment(uint64& guid, std::string& comment);
-        void SetSelectedDungeons(uint64& guid, LfgDungeonSet dungeons);
-        void DecreaseKicksLeft(uint64& guid);
-        void RemovePlayerData(uint64& guid);
-        void RemoveGroupData(uint64& guid);
+        void SetComment(const uint64& guid, const std::string& comment);
+        const LfgLockMap& GetLockedDungeons(const uint64& guid);
+        LfgState GetState(const uint64& guid);
+        const LfgDungeonSet& GetSelectedDungeons(const uint64& guid);
+        uint32 GetDungeon(const uint64& guid, bool asId = true);
+        void ClearState(const uint64& guid);
+        void RemovePlayerData(const uint64& guid);
+        void RemoveGroupData(const uint64& guid);
+        uint8 GetKicksLeft(const uint64& gguid);
+        uint8 GetVotesNeeded(const uint64& gguid);
+        void SetRoles(const uint64& guid, uint8 roles);
 
     private:
+
+        uint8 GetRoles(const uint64& guid);
+        const std::string& GetComment(const uint64& gguid);
+        void RestoreState(const uint64& guid);
+        void SetState(const uint64& guid, LfgState state);
+        void SetDungeon(const uint64& guid, uint32 dungeon);
+        void SetSelectedDungeons(const uint64& guid, const LfgDungeonSet& dungeons);
+        void SetLockedDungeons(const uint64& guid, const LfgLockMap& lock);
+        void DecreaseKicksLeft(const uint64& guid);
+        void NoExiste(uint8 lala);
+
         // Queue
-        void AddToQueue(uint64& guid, uint8 queueId);
-        bool RemoveFromQueue(uint64& guid);
+        void AddToQueue(const uint64& guid, uint8 queueId);
+        bool RemoveFromQueue(const uint64& guid);
 
         // Proposals
         void RemoveProposal(LfgProposalMap::iterator itProposal, LfgUpdateType type);
@@ -323,17 +322,13 @@ class LFGMgr
         LfgProposal* FindNewGroups(LfgGuidList& check, LfgGuidList& all);
         bool CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag = true);
         bool CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal);
-        LfgLockStatusMap* GetCompatibleDungeons(LfgDungeonSet& dungeons, PlayerSet& players, bool returnLockMap = true);
+        void GetCompatibleDungeons(LfgDungeonSet& dungeons, const PlayerSet& players, LfgLockPartyMap& lockMap);
         void SetCompatibles(std::string concatenatedGuids, bool compatibles);
         LfgAnswer GetCompatibles(std::string concatenatedGuids);
         void RemoveFromCompatibles(uint64 guid);
 
-        // Lock info
-        LfgLockStatusMap* GetGroupLockStatusDungeons(PlayerSet& players, LfgDungeonSet& dungeons, bool useEntry);
-        LfgLockStatusSet* GetPlayerLockStatusDungeons(Player* plr, LfgDungeonSet& dungeons, bool useEntry);
-
         // Generic
-        LfgDungeonSet GetDungeonsByRandom(uint32 randomdungeon);
+        const LfgDungeonSet& GetDungeonsByRandom(uint32 randomdungeon);
         LfgType GetDungeonType(uint32 dungeon);
         std::string ConcatenateGuids(LfgGuidList check);
 
