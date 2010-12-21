@@ -15038,10 +15038,12 @@ soap_puthttphdr(struct soap *soap, int status, size_t count)
       }
       s = soap->tmpbuf;
     }
+/*
     else if (status == SOAP_OK && soap->action && strlen(soap->action) < sizeof(soap->tmpbuf) - 80)
     { sprintf(soap->tmpbuf, "%s; action=\"%s\"", s, soap->action);
       s = soap->tmpbuf;
     }
+*/
 #endif
     if (s && (err = soap->fposthdr(soap, "Content-Type", s)))
       return err;
