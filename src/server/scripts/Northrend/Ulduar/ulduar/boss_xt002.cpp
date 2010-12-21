@@ -322,7 +322,7 @@ public:
                     gravity_bomb_active = true;
                 } else uiGravityBombTimer -= diff;
 
-                if (uiTympanicTantrumTimer <= 0)
+                if (uiTympanicTantrumTimer <= diff)
                 {
                     DoScriptText(SAY_TYMPANIC_TANTRUM, me);
                     DoCast(SPELL_TYMPANIC_TANTRUM);
