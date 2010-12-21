@@ -21,7 +21,6 @@
 #include "World.h"
 #include "Database/DatabaseEnv.h"
 #include "DBCStores.h"
-#include "ProgressBar.h"
 
 void CharacterDatabaseCleaner::CleanDatabase()
 {
@@ -66,10 +65,8 @@ char* table, bool (*check)(uint32))
 
     bool found = false;
     std::ostringstream ss;
-    barGoLink bar( (int)result->GetRowCount() );
     do
     {
-        bar.step();
 
         Field *fields = result->Fetch();
 

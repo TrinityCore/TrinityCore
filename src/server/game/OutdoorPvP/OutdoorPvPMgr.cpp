@@ -18,7 +18,6 @@
 #include "OutdoorPvPMgr.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "ProgressBar.h"
 #include "DisableMgr.h"
 #include "ScriptMgr.h"
 
@@ -47,21 +46,17 @@ void OutdoorPvPMgr::InitOutdoorPvP()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outErrorDb(">> Loaded 0 outdoor PvP definitions. DB table `outdoorpvp_template` is empty.");
         sLog.outString();
         return;
     }
 
-    barGoLink bar(result->GetRowCount());
     uint32 count = 0;
     uint32 typeId = 0;
 
     do
     {
         Field *fields = result->Fetch();
-        bar.step();
 
         typeId = fields[0].GetUInt32();
 

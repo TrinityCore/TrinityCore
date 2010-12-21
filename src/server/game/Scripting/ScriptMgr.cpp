@@ -22,7 +22,6 @@
 #include "DBCStores.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
-#include "ProgressBar.h"
 #include "ScriptLoader.h"
 #include "ScriptSystem.h"
 #include "Transport.h"
@@ -183,8 +182,6 @@ void ScriptMgr::Initialize()
     LoadDatabase();
 
     sLog.outString("Loading C++ scripts");
-    barGoLink bar(1);
-    bar.step();
     
     FillSpellSummary();
     AddScripts();

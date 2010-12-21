@@ -19,7 +19,6 @@
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "SQLStorage.h"
-#include "ProgressBar.h"
 #include "Log.h"
 #include "TicketMgr.h"
 #include "WorldPacket.h"
@@ -56,14 +55,11 @@ void TicketMgr::LoadGMTickets()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outString(">> Loaded 0 GM tickets. DB table `gm_tickets` is empty!");
         sLog.outString();
         return;
     }
 
-    barGoLink bar(result->GetRowCount());
     uint32 count = 0;
     
     do
@@ -90,7 +86,6 @@ void TicketMgr::LoadGMTickets()
         ticket->escalated = fields[14].GetUInt8();
         ticket->viewed = fields[15].GetBool();
         ++count;
-        bar.step();
 
         m_GMTicketList.push_back(ticket);
     } while (result->NextRow());

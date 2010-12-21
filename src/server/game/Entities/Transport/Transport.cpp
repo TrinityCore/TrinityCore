@@ -24,7 +24,6 @@
 #include "ScriptMgr.h"
 #include "WorldPacket.h"
 #include "DBCStores.h"
-#include "ProgressBar.h"
 #include "World.h"
 #include "GameObjectAI.h"
 
@@ -36,19 +35,15 @@ void MapManager::LoadTransports()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outString(">> Loaded 0 transports. DB table `transports` is empty!");
         sLog.outString();
         return;
     }
 
-    barGoLink bar(result->GetRowCount());
     uint32 count = 0;
 
     do
     {
-        bar.step();
 
         Field *fields = result->Fetch();
         uint32 lowguid = fields[0].GetUInt32();
@@ -142,19 +137,15 @@ void MapManager::LoadTransportNPCs()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outString(">> Loaded 0 transport NPCs. DB table `creature_transport` is empty!");
         sLog.outString();
         return;
     }
 
-    barGoLink bar(result->GetRowCount());
     uint32 count = 0;
 
     do
     {
-        bar.step();
         Field *fields = result->Fetch();
         uint32 guid = fields[0].GetUInt32();
         uint32 entry = fields[1].GetUInt32();

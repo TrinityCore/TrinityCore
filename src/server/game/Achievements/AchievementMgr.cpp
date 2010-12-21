@@ -30,7 +30,6 @@
 #include "Guild.h"
 #include "Language.h"
 #include "Player.h"
-#include "ProgressBar.h"
 #include "SpellMgr.h"
 #include "DisableMgr.h"
 #include "ScriptMgr.h"
@@ -2099,17 +2098,13 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
 
     if (sAchievementCriteriaStore.GetNumRows() == 0)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outErrorDb(">> Loaded 0 achievement criteria.");
         sLog.outString();
         return;
     }
 
-    barGoLink bar(sAchievementCriteriaStore.GetNumRows());
     for (uint32 entryId = 0; entryId < sAchievementCriteriaStore.GetNumRows(); ++entryId)
     {
-        bar.step();
 
         AchievementCriteriaEntry const* criteria = sAchievementCriteriaStore.LookupEntry(entryId);
         if (!criteria)
@@ -2132,19 +2127,15 @@ void AchievementGlobalMgr::LoadAchievementReferenceList()
 
     if (sAchievementStore.GetNumRows() == 0)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outString(">> Loaded 0 achievement references.");
         sLog.outString();
         return;
     }
 
-    barGoLink bar(sAchievementStore.GetNumRows());
     uint32 count = 0;
 
     for (uint32 entryId = 0; entryId < sAchievementStore.GetNumRows(); ++entryId)
     {
-        bar.step();
 
         AchievementEntry const* achievement = sAchievementStore.LookupEntry(entryId);
         if (!achievement || !achievement->refAchievement)
@@ -2168,19 +2159,15 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outString(">> Loaded 0 additional achievement criteria data. DB table `achievement_criteria_data` is empty.");
         sLog.outString();
         return;
     }
 
-    barGoLink bar(result->GetRowCount());
     uint32 count = 0;
 
     do
     {
-        bar.step();
         Field *fields = result->Fetch();
         uint32 criteria_id = fields[0].GetUInt32();
 
@@ -2312,17 +2299,13 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outString(">> Loaded 0 completed achievements. DB table `character_achievement` is empty.");
         sLog.outString();
         return;
     }
 
-    barGoLink bar(result->GetRowCount());
     do
     {
-        bar.step();
         Field *fields = result->Fetch();
 
         uint32 achievement_id = fields[0].GetUInt32();
@@ -2352,19 +2335,15 @@ void AchievementGlobalMgr::LoadRewards()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outErrorDb(">> Loaded 0 achievement rewards. DB table `achievement_reward` is empty.");
         sLog.outString();
         return;
     }
 
     uint32 count = 0;
-    barGoLink bar(result->GetRowCount());
 
     do
     {
-        bar.step();
 
         Field *fields = result->Fetch();
         uint32 entry = fields[0].GetUInt32();
@@ -2465,19 +2444,15 @@ void AchievementGlobalMgr::LoadRewardLocales()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outString(">> Loaded 0 achievement reward locale strings.  DB table `locales_achievement_reward` is empty");
         sLog.outString();
         return;
     }
 
-    barGoLink bar(result->GetRowCount());
 
     do
     {
         Field *fields = result->Fetch();
-        bar.step();
 
         uint32 entry = fields[0].GetUInt32();
 

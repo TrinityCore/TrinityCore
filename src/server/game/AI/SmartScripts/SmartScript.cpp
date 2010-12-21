@@ -19,7 +19,6 @@
 #include "DatabaseEnv.h"
 #include "SQLStorage.h"
 #include "ObjectMgr.h"
-#include "ProgressBar.h"
 #include "ObjectDefines.h"
 #include "GridDefines.h"
 #include "GridNotifiers.h"

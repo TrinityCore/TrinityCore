@@ -19,7 +19,6 @@
 #include "SkillExtraItems.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
-#include "ProgressBar.h"
 #include "Player.h"
 #include <map>
 
@@ -61,20 +60,16 @@ void LoadSkillExtraItemTable()
 
     if (!result)
     {
-        barGoLink bar(1);
-        bar.step();
         sLog.outErrorDb(">> Loaded 0 spell specialization definitions. DB table `skill_extra_item_template` is empty.");
         sLog.outString();
         return;
     }
 
-    barGoLink bar(result->GetRowCount());
     uint32 count = 0;
 
     do
     {
         Field *fields = result->Fetch();
-        bar.step();
 
         uint32 spellId = fields[0].GetUInt32();
 
