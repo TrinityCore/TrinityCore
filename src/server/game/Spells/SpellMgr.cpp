@@ -256,12 +256,6 @@ SpellMgr::~SpellMgr()
 {
 }
 
-SpellMgr& SpellMgr::Instance()
-{
-    static SpellMgr spellMgr;
-    return spellMgr;
-}
-
 bool SpellMgr::IsSrcTargetSpell(SpellEntry const *spellInfo) const
 {
     for (uint8 i = 0; i< MAX_SPELL_EFFECTS; ++i)
