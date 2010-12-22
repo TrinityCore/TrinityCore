@@ -363,10 +363,3 @@ WorldSocketMgr::OnSocketOpen (WorldSocket* sock)
 
     return m_NetThreads[min].AddSocket (sock);
 }
-
-WorldSocketMgr*
-WorldSocketMgr::Instance()
-{
-    return ACE_Singleton<WorldSocketMgr,ACE_Thread_Mutex>::instance();
-}
-

@@ -21,6 +21,7 @@
 
 // For static or at-server-startup loaded spell data
 // For more high level function for sSpellStore data
+#include <ace/Singleton.h>
 
 #include "SharedDefines.h"
 #include "SpellAuraDefines.h"
@@ -914,8 +915,7 @@ inline bool IsProfessionOrRidingSkill(uint32 skill)
 
 class SpellMgr
 {
-    // Constructors
-    public:
+        friend class ACE_Singleton<SpellMgr, ACE_Null_Mutex>;
         SpellMgr();
         ~SpellMgr();
 
@@ -1387,7 +1387,6 @@ class SpellMgr
 
     // Modifiers
     public:
-        static SpellMgr& Instance();
 
         // Loading data at server startup
         void LoadSpellRanks();
@@ -1443,5 +1442,6 @@ class SpellMgr
         SpellDifficultySearcherMap mSpellDifficultySearcherMap;
 };
 
-#define sSpellMgr SpellMgr::Instance()
+#define sSpellMgr (*ACE_Singleton<SpellMgr, ACE_Null_Mutex>::instance())
+
 #endif
