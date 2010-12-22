@@ -851,7 +851,7 @@ public:
 
         uint32 id = (uint32)atoi(i);
 
-        CreatureInfo const *ci = sObjectMgr.GetCreatureTemplate(entry);
+        CreatureInfo const *ci = ObjectMgr::GetCreatureTemplate(entry);
 
         if (!ci)
             return false;

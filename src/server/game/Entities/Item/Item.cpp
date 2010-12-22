@@ -265,7 +265,7 @@ bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
     SetUInt64Value(ITEM_FIELD_OWNER, owner ? owner->GetGUID() : 0);
     SetUInt64Value(ITEM_FIELD_CONTAINED, owner ? owner->GetGUID() : 0);
 
-    ItemPrototype const *itemProto = sObjectMgr.GetItemPrototype(itemid);
+    ItemPrototype const *itemProto = ObjectMgr::GetItemPrototype(itemid);
     if (!itemProto)
         return false;
 
@@ -467,7 +467,7 @@ void Item::DeleteFromInventoryDB(SQLTransaction& trans)
 
 ItemPrototype const *Item::GetProto() const
 {
-    return sObjectMgr.GetItemPrototype(GetEntry());
+    return ObjectMgr::GetItemPrototype(GetEntry());
 }
 
 Player* Item::GetOwner()const
@@ -1006,7 +1006,7 @@ Item* Item::CreateItem(uint32 item, uint32 count, Player const* player)
     if (count < 1)
         return NULL;                                        //don't create item at zero count
 
-    ItemPrototype const *pProto = sObjectMgr.GetItemPrototype(item);
+    ItemPrototype const *pProto = ObjectMgr::GetItemPrototype(item);
     if (pProto)
     {
         if (count > pProto->GetMaxStackSize())
