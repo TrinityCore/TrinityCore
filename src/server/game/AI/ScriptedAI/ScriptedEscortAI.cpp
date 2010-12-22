@@ -395,7 +395,7 @@ void npc_escortAI::AddWaypoint(uint32 id, float x, float y, float z, uint32 Wait
 
 void npc_escortAI::FillPointMovementListForCreature()
 {
-    std::vector<ScriptPointMove> const &pPointsEntries = sScriptSystemMgr.GetPointMoveList(me->GetEntry());
+    std::vector<ScriptPointMove> const &pPointsEntries = sScriptSystemMgr->GetPointMoveList(me->GetEntry());
 
     if (pPointsEntries.empty())
         return;

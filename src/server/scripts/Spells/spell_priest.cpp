@@ -107,13 +107,13 @@ class spell_pri_penance : public SpellScriptLoader
                 if (!sSpellStore.LookupEntry(PRIEST_SPELL_PENANCE_R1))
                     return false;
                 // can't use other spell than this penance due to spell_ranks dependency
-                if (sSpellMgr.GetFirstSpellInChain(PRIEST_SPELL_PENANCE_R1) != sSpellMgr.GetFirstSpellInChain(spellEntry->Id))
+                if (sSpellMgr->GetFirstSpellInChain(PRIEST_SPELL_PENANCE_R1) != sSpellMgr->GetFirstSpellInChain(spellEntry->Id))
                     return false;
 
-                uint8 rank = sSpellMgr.GetSpellRank(spellEntry->Id);
-                if (!sSpellMgr.GetSpellWithRank(PRIEST_SPELL_PENANCE_R1_DAMAGE, rank, true))
+                uint8 rank = sSpellMgr->GetSpellRank(spellEntry->Id);
+                if (!sSpellMgr->GetSpellWithRank(PRIEST_SPELL_PENANCE_R1_DAMAGE, rank, true))
                     return false;
-                if (!sSpellMgr.GetSpellWithRank(PRIEST_SPELL_PENANCE_R1_HEAL, rank, true))
+                if (!sSpellMgr->GetSpellWithRank(PRIEST_SPELL_PENANCE_R1_HEAL, rank, true))
                     return false;
 
                 return true;
@@ -127,12 +127,12 @@ class spell_pri_penance : public SpellScriptLoader
 
                 Unit *caster = GetCaster();
 
-                uint8 rank = sSpellMgr.GetSpellRank(GetSpellInfo()->Id);
+                uint8 rank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);
 
                 if (caster->IsFriendlyTo(unitTarget))
-                    caster->CastSpell(unitTarget, sSpellMgr.GetSpellWithRank(PRIEST_SPELL_PENANCE_R1_HEAL, rank), false, 0);
+                    caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(PRIEST_SPELL_PENANCE_R1_HEAL, rank), false, 0);
                 else
-                    caster->CastSpell(unitTarget, sSpellMgr.GetSpellWithRank(PRIEST_SPELL_PENANCE_R1_DAMAGE, rank), false, 0);
+                    caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(PRIEST_SPELL_PENANCE_R1_DAMAGE, rank), false, 0);
             }
 
             void Register()

@@ -53,8 +53,8 @@ public:
     {
         uint32 counter = 0;
 
-        GameEventMgr::GameEventDataMap const& events = sGameEventMgr.GetEventMap();
-        GameEventMgr::ActiveEvents const& activeEvents = sGameEventMgr.GetActiveEventList();
+        GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
+        GameEventMgr::ActiveEvents const& activeEvents = sGameEventMgr->GetActiveEventList();
 
         char const* active = handler->GetTrinityString(LANG_ACTIVE);
 
@@ -90,7 +90,7 @@ public:
 
         uint32 event_id = atoi(cId);
 
-        GameEventMgr::GameEventDataMap const& events = sGameEventMgr.GetEventMap();
+        GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
 
         if (event_id >=events.size())
         {
@@ -107,14 +107,14 @@ public:
             return false;
         }
 
-        GameEventMgr::ActiveEvents const& activeEvents = sGameEventMgr.GetActiveEventList();
+        GameEventMgr::ActiveEvents const& activeEvents = sGameEventMgr->GetActiveEventList();
         bool active = activeEvents.find(event_id) != activeEvents.end();
         char const* activeStr = active ? handler->GetTrinityString(LANG_ACTIVE) : "";
 
         std::string startTimeStr = TimeToTimestampStr(eventData.start);
         std::string endTimeStr = TimeToTimestampStr(eventData.end);
 
-        uint32 delay = sGameEventMgr.NextCheck(event_id);
+        uint32 delay = sGameEventMgr->NextCheck(event_id);
         time_t nextTime = time(NULL)+delay;
         std::string nextStr = nextTime >= eventData.start && nextTime < eventData.end ? TimeToTimestampStr(time(NULL)+delay) : "-";
 
@@ -139,7 +139,7 @@ public:
 
         int32 event_id = atoi(cId);
 
-        GameEventMgr::GameEventDataMap const& events = sGameEventMgr.GetEventMap();
+        GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
 
         if (event_id < 1 || uint32(event_id) >= events.size())
         {
@@ -156,7 +156,7 @@ public:
             return false;
         }
 
-        GameEventMgr::ActiveEvents const& activeEvents = sGameEventMgr.GetActiveEventList();
+        GameEventMgr::ActiveEvents const& activeEvents = sGameEventMgr->GetActiveEventList();
         if (activeEvents.find(event_id) != activeEvents.end())
         {
             handler->PSendSysMessage(LANG_EVENT_ALREADY_ACTIVE,event_id);
@@ -164,7 +164,7 @@ public:
             return false;
         }
 
-        sGameEventMgr.StartEvent(event_id,true);
+        sGameEventMgr->StartEvent(event_id,true);
         return true;
     }
 
@@ -180,7 +180,7 @@ public:
 
         int32 event_id = atoi(cId);
 
-        GameEventMgr::GameEventDataMap const& events = sGameEventMgr.GetEventMap();
+        GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
 
         if (event_id < 1 || uint32(event_id) >= events.size())
         {
@@ -197,7 +197,7 @@ public:
             return false;
         }
 
-        GameEventMgr::ActiveEvents const& activeEvents = sGameEventMgr.GetActiveEventList();
+        GameEventMgr::ActiveEvents const& activeEvents = sGameEventMgr->GetActiveEventList();
 
         if (activeEvents.find(event_id) == activeEvents.end())
         {
@@ -206,7 +206,7 @@ public:
             return false;
         }
 
-        sGameEventMgr.StopEvent(event_id,true);
+        sGameEventMgr->StopEvent(event_id,true);
         return true;
     }
 };

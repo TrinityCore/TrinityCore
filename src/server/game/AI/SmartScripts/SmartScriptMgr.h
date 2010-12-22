@@ -1239,7 +1239,7 @@ class SmartAIMgr
         }
         inline bool IsQuestValid(SmartScriptHolder e, uint32 entry)
         {
-            if (!sObjectMgr.GetQuestTemplate(entry))
+            if (!sObjectMgr->GetQuestTemplate(entry))
             {
                 sLog.outErrorDb("SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent Quest entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
                 return false;
@@ -1283,7 +1283,7 @@ class SmartAIMgr
                 cond.mConditionValue1 = uint32(v1);
                 cond.mConditionValue2 = uint32(v2);
                 cond.mConditionValue3 = uint32(v3);
-                if (!sConditionMgr.isConditionTypeValid(&cond))
+                if (!sConditionMgr->isConditionTypeValid(&cond))
                     error = true;
             }
             if (error)
@@ -1323,6 +1323,6 @@ class SmartAIMgr
         bool IsTextValid(SmartScriptHolder e, uint32 id);
 };
 
-#define sSmartScriptMgr (*ACE_Singleton<SmartAIMgr, ACE_Null_Mutex>::instance())
-#define sSmartWaypointMgr (*ACE_Singleton<SmartWaypointMgr, ACE_Null_Mutex>::instance())
+#define sSmartScriptMgr ACE_Singleton<SmartAIMgr, ACE_Null_Mutex>::instance()
+#define sSmartWaypointMgr ACE_Singleton<SmartWaypointMgr, ACE_Null_Mutex>::instance()
 #endif

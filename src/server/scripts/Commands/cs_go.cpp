@@ -245,7 +245,7 @@ public:
         else
             _player->SaveRecallPosition();
 
-        Map const *map = sMapMgr.CreateBaseMap(mapid);
+        Map const *map = sMapMgr->CreateBaseMap(mapid);
         float z = std::max(map->GetHeight(x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
         _player->TeleportTo(mapid, x, y, z, _player->GetOrientation());
 
@@ -272,7 +272,7 @@ public:
         int mapid;
 
         // by DB guid
-        if (GameObjectData const* go_data = sObjectMgr.GetGOData(guid))
+        if (GameObjectData const* go_data = sObjectMgr->GetGOData(guid))
         {
             x = go_data->posX;
             y = go_data->posY;
@@ -433,7 +433,7 @@ public:
         // update to parent zone if exist (client map show only zones without parents)
         AreaTableEntry const* zoneEntry = areaEntry->zone ? GetAreaEntryByAreaID(areaEntry->zone) : areaEntry;
 
-        Map const *map = sMapMgr.CreateBaseMap(zoneEntry->mapid);
+        Map const *map = sMapMgr->CreateBaseMap(zoneEntry->mapid);
 
         if (map->Instanceable())
         {
@@ -506,7 +506,7 @@ public:
         else
             _player->SaveRecallPosition();
 
-        Map const *map = sMapMgr.CreateBaseMap(mapid);
+        Map const *map = sMapMgr->CreateBaseMap(mapid);
         float z = std::max(map->GetHeight(x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
 
         _player->TeleportTo(mapid, x, y, z, _player->GetOrientation());
@@ -573,7 +573,7 @@ public:
         if (!ticket_id)
             return false;
 
-        GM_Ticket *ticket = sTicketMgr.GetGMTicket(ticket_id);
+        GM_Ticket *ticket = sTicketMgr->GetGMTicket(ticket_id);
         if (!ticket)
         {
             handler->SendSysMessage(LANG_COMMAND_TICKETNOTEXIST);

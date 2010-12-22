@@ -348,7 +348,7 @@ class boss_professor_putricide : public CreatureScript
                             case PHASE_COMBAT_2:
                             {
                                 SpellEntry const* spell = sSpellStore.LookupEntry(SPELL_CREATE_CONCOCTION);
-                                spell = sSpellMgr.GetSpellForDifficultyFromSpell(spell, me);
+                                spell = sSpellMgr->GetSpellForDifficultyFromSpell(spell, me);
                                 DoCast(me, SPELL_CREATE_CONCOCTION);
                                 events.ScheduleEvent(EVENT_PHASE_TRANSITION, GetSpellCastTime(spell)+100);
                                 break;
@@ -356,7 +356,7 @@ class boss_professor_putricide : public CreatureScript
                             case PHASE_COMBAT_3:
                             {
                                 SpellEntry const* spell = sSpellStore.LookupEntry(SPELL_GUZZLE_POTIONS);
-                                spell = sSpellMgr.GetSpellForDifficultyFromSpell(spell, me);
+                                spell = sSpellMgr->GetSpellForDifficultyFromSpell(spell, me);
                                 DoCast(me, SPELL_GUZZLE_POTIONS);
                                 events.ScheduleEvent(EVENT_PHASE_TRANSITION, GetSpellCastTime(spell)+100);
                                 break;
@@ -686,7 +686,7 @@ class npc_volatile_ooze : public CreatureScript
             void SpellHitTarget(Unit* /*target*/, SpellEntry const* spell)
             {
                 SpellEntry const* explode = sSpellStore.LookupEntry(SPELL_OOZE_ERUPTION);
-                explode = sSpellMgr.GetSpellForDifficultyFromSpell(explode, me);
+                explode = sSpellMgr->GetSpellForDifficultyFromSpell(explode, me);
                 if (explode->Id == spell->Id)
                 {
                     newTargetSelectTimer = 5000;
@@ -955,7 +955,7 @@ class spell_putricide_ooze_eruption_searcher : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 SpellEntry const* adhesive = sSpellStore.LookupEntry(SPELL_VOLATILE_OOZE_ADHESIVE);
-                adhesive = sSpellMgr.GetSpellForDifficultyFromSpell(adhesive, GetCaster());
+                adhesive = sSpellMgr->GetSpellForDifficultyFromSpell(adhesive, GetCaster());
                 if (GetHitUnit()->HasAura(adhesive->Id))
                 {
                     GetCaster()->CastSpell(GetHitUnit(), SPELL_OOZE_ERUPTION, true);
@@ -1031,8 +1031,8 @@ class spell_putricide_unbound_plague : public SpellScriptLoader
                     professor = Unit::GetCreature(*GetCaster(), instance->GetData64(DATA_PROFESSOR_PUTRICIDE));
                     if (professor)
                     {
-                        plague = sSpellMgr.GetSpellForDifficultyFromSpell(plague, professor);
-                        searcher = sSpellMgr.GetSpellForDifficultyFromSpell(searcher, professor);
+                        plague = sSpellMgr->GetSpellForDifficultyFromSpell(plague, professor);
+                        searcher = sSpellMgr->GetSpellForDifficultyFromSpell(searcher, professor);
                     }
                 }
 
@@ -1125,7 +1125,7 @@ class spell_putricide_mutated_plague : public SpellScriptLoader
 
                 uint32 triggerSpell = GetSpellProto()->EffectTriggerSpell[aurEff->GetEffIndex()];
                 SpellEntry const* spell = sSpellStore.LookupEntry(triggerSpell);
-                spell = sSpellMgr.GetSpellForDifficultyFromSpell(spell, caster);
+                spell = sSpellMgr->GetSpellForDifficultyFromSpell(spell, caster);
 
                 int32 damage = SpellMgr::CalculateSpellEffectAmount(spell, 0, caster);
                 float multiplier = 2.0f;

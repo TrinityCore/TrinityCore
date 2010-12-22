@@ -285,6 +285,10 @@ class AchievementMgr
 
 class AchievementGlobalMgr
 {
+        friend class ACE_Singleton<AchievementGlobalMgr, ACE_Null_Mutex>;
+        AchievementGlobalMgr() {}
+        ~AchievementGlobalMgr() {}
+
     public:
         AchievementCriteriaEntryList const& GetAchievementCriteriaByType(AchievementCriteriaTypes type);
         AchievementCriteriaEntryList const& GetTimedAchievementCriteriaByType(AchievementCriteriaTimedTypes type);
@@ -352,6 +356,6 @@ class AchievementGlobalMgr
         AchievementRewardLocales m_achievementRewardLocales;
 };
 
-#define sAchievementMgr (*ACE_Singleton<AchievementGlobalMgr, ACE_Null_Mutex>::instance())
+#define sAchievementMgr ACE_Singleton<AchievementGlobalMgr, ACE_Null_Mutex>::instance()
 
 #endif

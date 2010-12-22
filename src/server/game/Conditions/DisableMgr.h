@@ -73,6 +73,6 @@ class DisableMgr
         DisableMap m_DisableMap;
 };
 
-#define sDisableMgr (*ACE_Singleton<DisableMgr, ACE_Null_Mutex>::instance())
+#define sDisableMgr ACE_Singleton<DisableMgr, ACE_Null_Mutex>::instance()
 
 #endif //TRINITY_DISABLEMGR_H

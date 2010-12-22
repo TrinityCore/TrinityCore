@@ -110,7 +110,7 @@ public:
         else
             targetPlayer->learnSpell(spell, false);
 
-        uint32 first_spell = sSpellMgr.GetFirstSpellInChain(spell);
+        uint32 first_spell = sSpellMgr->GetFirstSpellInChain(spell);
         if (GetTalentSpellCost(first_spell))
             targetPlayer->SendTalentsInfoData(false);
 
@@ -814,7 +814,7 @@ public:
                 continue;
 
             // skip spells with first rank learned as talent (and all talents then also)
-            uint32 first_rank = sSpellMgr.GetFirstSpellInChain(spellInfo->Id);
+            uint32 first_rank = sSpellMgr->GetFirstSpellInChain(spellInfo->Id);
             if (GetTalentSpellCost(first_rank) > 0)
                 continue;
 

@@ -230,9 +230,9 @@ public:
 
             //Trinity::Singleton<MapManager>::Instance().GetMap(me->GetMapId(), me)->GetPlayers().begin();
             /*
-            list <Player*>::const_iterator i = sMapMgr.GetMap(me->GetMapId(), me)->GetPlayers().begin();
+            list <Player*>::const_iterator i = sMapMgr->GetMap(me->GetMapId(), me)->GetPlayers().begin();
 
-            for (i = sMapMgr.GetMap(me->GetMapId(), me)->GetPlayers().begin(); i != sMapMgr.GetMap(me->GetMapId(), me)->GetPlayers().end(); ++i)
+            for (i = sMapMgr->GetMap(me->GetMapId(), me)->GetPlayers().begin(); i != sMapMgr->GetMap(me->GetMapId(), me)->GetPlayers().end(); ++i)
             {
             AttackStart((*i));
             }
@@ -329,7 +329,7 @@ public:
                     if (SpawnedAdds >= 42)
                     {
                         //Teleport Victor Nefarius way out of the map
-                        //sMapMgr.GetMap(me->GetMapId(), me)->CreatureRelocation(me,0,0,-5000,0);
+                        //sMapMgr->GetMap(me->GetMapId(), me)->CreatureRelocation(me,0,0,-5000,0);
 
                         //Interrupt any spell casting
                         me->InterruptNonMeleeSpells(false);

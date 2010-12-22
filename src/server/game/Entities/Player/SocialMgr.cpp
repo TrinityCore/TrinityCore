@@ -126,7 +126,7 @@ void PlayerSocial::SendSocialList(Player* plr)
 
     for (PlayerSocialMap::iterator itr = m_playerSocialMap.begin(); itr != m_playerSocialMap.end(); ++itr)
     {
-        sSocialMgr.GetFriendInfo(plr, itr->first, itr->second);
+        sSocialMgr->GetFriendInfo(plr, itr->first, itr->second);
 
         data << uint64(itr->first);                         // player guid
         data << uint32(itr->second.Flags);                  // player flag (0x1-friend?, 0x2-ignored?, 0x4-muted?)

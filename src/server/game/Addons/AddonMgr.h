@@ -82,7 +82,7 @@ class AddonMgr
         SavedAddonsList m_knownAddons;                           // Known addons.
 };
 
-#define sAddonMgr (*ACE_Singleton<AddonMgr, ACE_Null_Mutex>::instance())
+#define sAddonMgr ACE_Singleton<AddonMgr, ACE_Null_Mutex>::instance()
 
 #endif
 
