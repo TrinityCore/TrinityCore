@@ -680,7 +680,7 @@ void PoolMgr::LoadFromDB()
                 sLog.outErrorDb("`pool_gameobject` has a non existing gameobject spawn (GUID: %u) defined for pool id (%u), skipped.", guid, pool_id);
                 continue;
             }
-            GameObjectInfo const* goinfo = sObjectMgr.GetGameObjectInfo(data->id);
+            GameObjectInfo const* goinfo = ObjectMgr::GetGameObjectInfo(data->id);
             if (goinfo->type != GAMEOBJECT_TYPE_CHEST &&
                 goinfo->type != GAMEOBJECT_TYPE_GOOBER &&
                 goinfo->type != GAMEOBJECT_TYPE_FISHINGHOLE)

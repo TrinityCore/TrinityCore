@@ -330,7 +330,7 @@ void AuctionHouseMgr::LoadAuctionItems()
         uint32 item_guid        = fields[11].GetUInt32();
         uint32 item_template    = fields[12].GetUInt32();
 
-        ItemPrototype const *proto = sObjectMgr.GetItemPrototype(item_template);
+        ItemPrototype const *proto = ObjectMgr::GetItemPrototype(item_template);
         if (!proto)
         {
             sLog.outError("AuctionHouseMgr::LoadAuctionItems: Unknown item (GUID: %u id: #%u) in auction, skipped.", item_guid,item_template);
@@ -750,7 +750,7 @@ bool AuctionEntry::LoadFromDB(Field* fields)
         return false;
     }
 
-    CreatureInfo const* auctioneerInfo = sObjectMgr.GetCreatureTemplate(auctioneerData->id);
+    CreatureInfo const* auctioneerInfo = ObjectMgr::GetCreatureTemplate(auctioneerData->id);
     if (!auctioneerInfo)
     {
         sLog.outError("Auction %u has not a existing auctioneer (GUID : %u Entry: %u)", Id, auctioneer, auctioneerData->id);

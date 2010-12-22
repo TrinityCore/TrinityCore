@@ -414,11 +414,6 @@ void ObjectMgr::RemoveArenaTeam(uint32 Id)
     mArenaTeamMap.erase(Id);
 }
 
-CreatureInfo const* ObjectMgr::GetCreatureTemplate(uint32 id)
-{
-    return sCreatureStorage.LookupEntry<CreatureInfo>(id);
-}
-
 void ObjectMgr::AddLocaleString(std::string& s, LocaleConstant locale, StringVector& data)
 {
     if (!s.empty())
@@ -2462,7 +2457,7 @@ void ObjectMgr::LoadItemPrototypes()
 
             uint32 item_id = entry->ItemId[j];
 
-            if (!GetItemPrototype(item_id))
+            if (!ObjectMgr::GetItemPrototype(item_id))
                 notFoundOutfit.insert(item_id);
         }
     }
@@ -2570,7 +2565,7 @@ void ObjectMgr::LoadItemSetNames()
         {
             uint32 entry = *itr;
             // add data from item_template if available
-            pProto = GetItemPrototype(entry);
+            pProto = ObjectMgr::GetItemPrototype(entry);
             if (pProto)
             {
                 sLog.outErrorDb("Item set part (Entry: %u) does not have entry in `item_set_names`, adding data from `item_template`.", entry);
@@ -2951,7 +2946,7 @@ void ObjectMgr::LoadPlayerInfo()
 
                 uint32 item_id = fields[2].GetUInt32();
 
-                if (!GetItemPrototype(item_id))
+                if (!ObjectMgr::GetItemPrototype(item_id))
                 {
                     sLog.outErrorDb("Item id %u (race %u class %u) in `playercreateinfo_item` table but not listed in `item_template`, ignoring.",item_id,current_race,current_class);
                     continue;
@@ -5004,7 +4999,7 @@ void ObjectMgr::LoadScripts(ScriptsType type)
 
             case SCRIPT_COMMAND_CREATE_ITEM:
             {
-                if (!GetItemPrototype(tmp.CreateItem.ItemEntry))
+                if (!ObjectMgr::GetItemPrototype(tmp.CreateItem.ItemEntry))
                 {
                     sLog.outErrorDb("Table `%s` has nonexistent item (entry: %u) in SCRIPT_COMMAND_CREATE_ITEM for script id %u",
                         tableName.c_str(), tmp.CreateItem.ItemEntry, tmp.id);
@@ -5401,7 +5396,7 @@ void ObjectMgr::LoadInstanceTemplate()
 
     for (uint32 i = 0; i < sInstanceTemplate.MaxEntry; i++)
     {
-        InstanceTemplate* temp = const_cast<InstanceTemplate*>(GetInstanceTemplate(i));
+        InstanceTemplate* temp = const_cast<InstanceTemplate*>(ObjectMgr::GetInstanceTemplate(i));
         if (!temp)
             continue;
 
@@ -6266,7 +6261,7 @@ void ObjectMgr::LoadAccessRequirements()
 
         if (ar.item)
         {
-            ItemPrototype const *pProto = GetItemPrototype(ar.item);
+            ItemPrototype const *pProto = ObjectMgr::GetItemPrototype(ar.item);
             if (!pProto)
             {
                 sLog.outError("Key item %u does not exist for map %u difficulty %u, removing key requirement.", ar.item, mapid, difficulty);
@@ -6276,7 +6271,7 @@ void ObjectMgr::LoadAccessRequirements()
 
         if (ar.item2)
         {
-            ItemPrototype const *pProto = GetItemPrototype(ar.item2);
+            ItemPrototype const *pProto = ObjectMgr::GetItemPrototype(ar.item2);
             if (!pProto)
             {
                 sLog.outError("Second item %u does not exist for map %u difficulty %u, removing key requirement.", ar.item2, mapid, difficulty);
@@ -6331,7 +6326,7 @@ AreaTrigger const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
 
     if (mapEntry->IsDungeon())
     {
-        const InstanceTemplate *iTemplate = sObjectMgr.GetInstanceTemplate(Map);
+        const InstanceTemplate *iTemplate = ObjectMgr::GetInstanceTemplate(Map);
 
         if (!iTemplate)
             return NULL;
@@ -8762,7 +8757,7 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 item_id, int32 max
         return false;
     }
 
-    if (!GetItemPrototype(item_id))
+    if (!ObjectMgr::GetItemPrototype(item_id))
     {
         if (pl)
             ChatHandler(pl).PSendSysMessage(LANG_ITEM_NOT_FOUND, item_id);
@@ -8959,12 +8954,12 @@ ObjectMgr::ScriptNameMap & GetScriptNames()
 
 GameObjectInfo const *GetGameObjectInfo(uint32 id)
 {
-    return sObjectMgr.GetGameObjectInfo(id);
+    return ObjectMgr::GetGameObjectInfo(id);
 }
 
 CreatureInfo const *GetCreatureInfo(uint32 id)
 {
-    return sObjectMgr.GetCreatureTemplate(id);
+    return ObjectMgr::GetCreatureTemplate(id);
 }
 
 CreatureInfo const* GetCreatureTemplateStore(uint32 entry)
@@ -9122,9 +9117,9 @@ void ObjectMgr::LoadFactionChangeItems()
         uint32 alliance = fields[0].GetUInt32();
         uint32 horde = fields[1].GetUInt32();
 
-        if (!GetItemPrototype(alliance))
+        if (!ObjectMgr::GetItemPrototype(alliance))
             sLog.outErrorDb("Item %u referenced in `player_factionchange_items` does not exist, pair skipped!", alliance);
-        else if (!GetItemPrototype(horde))
+        else if (!ObjectMgr::GetItemPrototype(horde))
             sLog.outErrorDb("Item %u referenced in `player_factionchange_items` does not exist, pair skipped!", horde);
         else
             factionchange_items[alliance] = horde;

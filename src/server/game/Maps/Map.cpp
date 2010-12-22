@@ -2402,7 +2402,7 @@ void InstanceMap::CreateInstanceData(bool load)
     if (i_data != NULL)
         return;
 
-    InstanceTemplate const* mInstance = sObjectMgr.GetInstanceTemplate(GetId());
+    InstanceTemplate const* mInstance = ObjectMgr::GetInstanceTemplate(GetId());
     if (mInstance)
     {
         i_script_id = mInstance->script_id;

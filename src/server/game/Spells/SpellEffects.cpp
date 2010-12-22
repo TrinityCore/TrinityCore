@@ -2321,7 +2321,7 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
     Player* player = (Player*)unitTarget;
 
     uint32 newitemid = itemtype;
-    ItemPrototype const *pProto = sObjectMgr.GetItemPrototype(newitemid);
+    ItemPrototype const *pProto = ObjectMgr::GetItemPrototype(newitemid);
     if (!pProto)
     {
         player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
@@ -6295,7 +6295,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
 {
     uint32 name_id = m_spellInfo->EffectMiscValue[effIndex];
 
-    GameObjectInfo const* goinfo = sObjectMgr.GetGameObjectInfo(name_id);
+    GameObjectInfo const* goinfo = ObjectMgr::GetGameObjectInfo(name_id);
 
     if (!goinfo)
     {
@@ -7035,7 +7035,7 @@ void Spell::EffectRechargeManaGem(SpellEffIndex /*effIndex*/)
 
     uint32 item_id = m_spellInfo->EffectItemType[0];
 
-    ItemPrototype const *pProto = sObjectMgr.GetItemPrototype(item_id);
+    ItemPrototype const *pProto = ObjectMgr::GetItemPrototype(item_id);
     if (!pProto)
     {
         player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);

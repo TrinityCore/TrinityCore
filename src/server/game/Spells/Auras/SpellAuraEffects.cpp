@@ -3260,7 +3260,7 @@ void AuraEffect::HandleAuraTransform(AuraApplication const * aurApp, uint8 mode,
         }
         else
         {
-            CreatureInfo const * ci = sObjectMgr.GetCreatureTemplate(GetMiscValue());
+            CreatureInfo const * ci = ObjectMgr::GetCreatureTemplate(GetMiscValue());
             if (!ci)
             {
                 target->SetDisplayId(16358);              // pig pink ^_^
@@ -3334,7 +3334,7 @@ void AuraEffect::HandleAuraTransform(AuraApplication const * aurApp, uint8 mode,
             if (!target->GetAuraEffectsByType(SPELL_AURA_MOUNTED).empty())
             {
                 uint32 cr_id = target->GetAuraEffectsByType(SPELL_AURA_MOUNTED).front()->GetMiscValue();
-                if (CreatureInfo const* ci = sObjectMgr.GetCreatureTemplate(cr_id))
+                if (CreatureInfo const* ci = ObjectMgr::GetCreatureTemplate(cr_id))
                 {
                     uint32 team = 0;
                     if (target->GetTypeId() == TYPEID_PLAYER)
@@ -3778,7 +3778,7 @@ void AuraEffect::HandleAuraMounted(AuraApplication const * aurApp, uint8 mode, b
                 creatureEntry = 15665;
         }
 
-        CreatureInfo const* ci = sObjectMgr.GetCreatureTemplate(creatureEntry);
+        CreatureInfo const* ci = ObjectMgr::GetCreatureTemplate(creatureEntry);
         if (!ci)
         {
             sLog.outErrorDb("AuraMounted: `creature_template`='%u' not found in database (only need its modelid)",GetMiscValue());
@@ -6092,7 +6092,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                         else
                             creatureEntry = target->GetAuraEffectsByType(SPELL_AURA_MOUNTED).front()->GetMiscValue();
 
-                        if (CreatureInfo const* creatureInfo = sObjectMgr.GetCreatureTemplate(creatureEntry))
+                        if (CreatureInfo const* creatureInfo = ObjectMgr::GetCreatureTemplate(creatureEntry))
                         {
                             uint32 team = 0;
                             if (target->GetTypeId() == TYPEID_PLAYER)
@@ -6332,7 +6332,7 @@ void AuraEffect::HandleAuraEmpathy(AuraApplication const * aurApp, uint8 mode, b
             return;
     }
 
-    CreatureInfo const * ci = sObjectMgr.GetCreatureTemplate(target->GetEntry());
+    CreatureInfo const * ci = ObjectMgr::GetCreatureTemplate(target->GetEntry());
     if (ci && ci->type == CREATURE_TYPE_BEAST)
         target->ApplyModUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_SPECIALINFO, apply);
 }
