@@ -137,7 +137,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectPull,                                     // 70 SPELL_EFFECT_PULL                     one spell: Distract Move
     &Spell::EffectPickPocket,                               // 71 SPELL_EFFECT_PICKPOCKET
     &Spell::EffectAddFarsight,                              // 72 SPELL_EFFECT_ADD_FARSIGHT
-    &Spell::EffectUnused,                                   // 73 SPELL_EFFECT_UNTRAIN_TALENTS
+    &Spell::EffectUntrainTalents,                           // 73 SPELL_EFFECT_UNTRAIN_TALENTS
     &Spell::EffectApplyGlyph,                               // 74 SPELL_EFFECT_APPLY_GLYPH
     &Spell::EffectHealMechanical,                           // 75 SPELL_EFFECT_HEAL_MECHANICAL          one spell: Mechanical Patch Kit
     &Spell::EffectSummonObjectWild,                         // 76 SPELL_EFFECT_SUMMON_OBJECT_WILD
@@ -3312,6 +3312,15 @@ void Spell::EffectAddFarsight(SpellEffIndex effIndex)
     // Need to update visibility of object for client to accept farsight guid
     m_caster->ToPlayer()->SetViewpoint(dynObj, true);
     //m_caster->ToPlayer()->UpdateVisibilityOf(dynObj);
+}
+
+void Spell::EffectUntrainTalents(SpellEffIndex effIndex)
+{
+    if (!unitTarget || m_caster->GetTypeId() == TYPEID_PLAYER)
+        return;
+
+    if (uint64 guid = m_caster->GetGUID()) // the trainer is the caster
+        unitTarget->ToPlayer()->SendTalentWipeConfirm(guid);
 }
 
 void Spell::EffectTeleUnitsFaceCaster(SpellEffIndex effIndex)
