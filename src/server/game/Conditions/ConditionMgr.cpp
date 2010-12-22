@@ -932,7 +932,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
                 return false;
             }
 
-            ItemPrototype const *pItemProto = sObjectMgr.GetItemPrototype(cond->mSourceEntry);
+            ItemPrototype const *pItemProto = ObjectMgr::GetItemPrototype(cond->mSourceEntry);
             if (!pItemProto)
             {
                 sLog.outErrorDb("SourceEntry %u in `condition` table, does not exist in `item_tamplate`, ignoring.", cond->mSourceEntry);
@@ -1048,7 +1048,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_ITEM:
         {
-            ItemPrototype const *proto = sObjectMgr.GetItemPrototype(cond->mConditionValue1);
+            ItemPrototype const *proto = ObjectMgr::GetItemPrototype(cond->mConditionValue1);
             if (!proto)
             {
                 sLog.outErrorDb("Item condition has non existing item (%u), skipped", cond->mConditionValue1);
@@ -1064,7 +1064,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_ITEM_EQUIPPED:
         {
-            ItemPrototype const *proto = sObjectMgr.GetItemPrototype(cond->mConditionValue1);
+            ItemPrototype const *proto = ObjectMgr::GetItemPrototype(cond->mConditionValue1);
             if (!proto)
             {
                 sLog.outErrorDb("ItemEquipped condition has non existing item (%u), skipped", cond->mConditionValue1);
@@ -1331,7 +1331,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_NOITEM:
         {
-            ItemPrototype const *proto = sObjectMgr.GetItemPrototype(cond->mConditionValue1);
+            ItemPrototype const *proto = ObjectMgr::GetItemPrototype(cond->mConditionValue1);
             if (!proto)
             {
                 sLog.outErrorDb("NoItem condition has non existing item (%u), skipped", cond->mConditionValue1);

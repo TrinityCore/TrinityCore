@@ -1545,7 +1545,7 @@ Creature* Battleground::AddCreature(uint32 entry, uint32 type, uint32 teamval, f
 
     pCreature->SetHomePosition(x, y, z, o);
 
-    CreatureInfo const *cinfo = sObjectMgr.GetCreatureTemplate(entry);
+    CreatureInfo const *cinfo = ObjectMgr::GetCreatureTemplate(entry);
     if (!cinfo)
     {
         sLog.outErrorDb("Battleground::AddCreature: entry %u does not exist.", entry);

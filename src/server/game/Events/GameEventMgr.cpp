@@ -1373,7 +1373,7 @@ void GameEventMgr::ChangeEquipOrModel(int16 event_id, bool activate)
             CreatureData const* data2 = sObjectMgr.GetCreatureData(itr->first);
             if (data2 && activate)
             {
-                CreatureInfo const *cinfo = sObjectMgr.GetCreatureTemplate(data2->id);
+                CreatureInfo const *cinfo = ObjectMgr::GetCreatureTemplate(data2->id);
                 uint32 display_id = sObjectMgr.ChooseDisplayId(0,cinfo,data2);
                 CreatureModelInfo const *minfo = sObjectMgr.GetCreatureModelRandomGender(display_id);
                 if (minfo)

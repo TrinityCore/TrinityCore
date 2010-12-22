@@ -121,7 +121,7 @@ public:
 
         char* spawntimeSecs = strtok(NULL, " ");
 
-        const GameObjectInfo *gInfo = sObjectMgr.GetGameObjectInfo(id);
+        const GameObjectInfo *gInfo = ObjectMgr::GetGameObjectInfo(id);
 
         if (!gInfo)
         {
@@ -304,7 +304,7 @@ public:
             return false;
         }
 
-        GameObjectInfo const* goI = sObjectMgr.GetGameObjectInfo(id);
+        GameObjectInfo const* goI = ObjectMgr::GetGameObjectInfo(id);
 
         if (!goI)
         {
@@ -557,7 +557,7 @@ public:
                 float z = fields[4].GetFloat();
                 uint16 mapid = fields[5].GetUInt16();
 
-                GameObjectInfo const * gInfo = sObjectMgr.GetGameObjectInfo(entry);
+                GameObjectInfo const * gInfo = ObjectMgr::GetGameObjectInfo(entry);
 
                 if (!gInfo)
                     continue;
@@ -589,7 +589,7 @@ public:
                 entry = atoi((char*)args);
         }
 
-        GameObjectInfo const* goinfo = sObjectMgr.GetGameObjectInfo(entry);
+        GameObjectInfo const* goinfo = ObjectMgr::GetGameObjectInfo(entry);
 
         if (!goinfo)
             return false;

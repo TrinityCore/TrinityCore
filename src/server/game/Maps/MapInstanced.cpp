@@ -179,7 +179,7 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave *save,
         sLog.outError("CreateInstance: no entry for map %d", GetId());
         ASSERT(false);
     }
-    const InstanceTemplate * iTemplate = sObjectMgr.GetInstanceTemplate(GetId());
+    const InstanceTemplate * iTemplate = ObjectMgr::GetInstanceTemplate(GetId());
     if (!iTemplate)
     {
         sLog.outError("CreateInstance: no instance template for map %d", GetId());
