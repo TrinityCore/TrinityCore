@@ -1526,6 +1526,7 @@ UPDATE `creature_template` SET `ScriptName`='boss_runemaster_molgeim' WHERE `ent
 UPDATE `creature_template` SET `ScriptName`='boss_stormcaller_brundir' WHERE `entry`=32857;
 UPDATE `creature_template` SET `ScriptName`='mob_lightning_elemental' WHERE `entry`=32958;
 UPDATE `creature_template` SET `ScriptName`='mob_rune_of_summoning' WHERE `entry`=33051;
+UPDATE `creature_template` SET `ScriptName`= 'mob_rune_of_power' WHERE entry = 33705;
 UPDATE `creature_template` SET `ScriptName`='boss_kologarn' WHERE `entry`=32930;
 UPDATE `creature_template` SET `ScriptName`='boss_algalon' WHERE `entry`=32871;
 UPDATE `creature_template` SET `ScriptName`='mob_collapsing_star' WHERE `entry`=32955;

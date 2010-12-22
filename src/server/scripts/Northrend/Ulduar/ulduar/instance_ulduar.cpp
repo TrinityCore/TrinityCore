@@ -275,9 +275,6 @@ public:
                         if (GameObject* go = instance->GetGameObject(uiFreyaChestGUID))
                             go->SetRespawnTime(go->GetRespawnDelay());
                     break;
-                case TYPE_COLOSSUS:
-                    SetData(type, state);
-                    break;
              }
 
              return true;
@@ -362,7 +359,7 @@ public:
             OUT_SAVE_INST_DATA;
 
             std::ostringstream saveStream;
-            saveStream << "U U " << GetBossSaveData() << " " << GetData(TYPE_COLOSSUS);
+            saveStream << "U U " << GetBossSaveData() << GetData(TYPE_COLOSSUS);
 
             OUT_SAVE_INST_DATA_COMPLETE;
             return saveStream.str();
@@ -379,7 +376,6 @@ public:
             OUT_LOAD_INST_DATA(strIn);
 
             char dataHead1, dataHead2;
-            uint32 data14;
 
             std::istringstream loadStream(strIn);
             loadStream >> dataHead1 >> dataHead2;
@@ -392,7 +388,11 @@ public:
                     loadStream >> tmpState;
                     if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
                         tmpState = NOT_STARTED;
-                    SetBossState(i, EncounterState(tmpState));
+
+                    if (i == TYPE_COLOSSUS)
+                        SetData(i, tmpState);
+                    else
+                        SetBossState(i, EncounterState(tmpState));
                 }
             }
 

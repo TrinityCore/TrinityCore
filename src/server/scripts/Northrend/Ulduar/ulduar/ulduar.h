@@ -41,8 +41,7 @@ enum eTypes
     DATA_STEELBREAKER           = 20,
     DATA_MOLGEIM                = 21,
     DATA_BRUNDIR                = 22,
-    DATA_RUNEMASTER_MOLGEIM     = 23,
-    DATA_STORMCALLER_BRUNDIR    = 24,
+
     DATA_EXP_COMMANDER          = 25,
 
 
