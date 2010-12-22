@@ -183,13 +183,13 @@ public:
                 return false;
 
             // can't use other spell than holy shock due to spell_ranks dependency
-            if (sSpellMgr.GetFirstSpellInChain(PALADIN_SPELL_HOLY_SHOCK_R1) != sSpellMgr.GetFirstSpellInChain(spellEntry->Id))
+            if (sSpellMgr->GetFirstSpellInChain(PALADIN_SPELL_HOLY_SHOCK_R1) != sSpellMgr->GetFirstSpellInChain(spellEntry->Id))
                 return false;
 
-            uint8 rank = sSpellMgr.GetSpellRank(spellEntry->Id);
-            if (!sSpellMgr.GetSpellWithRank(PALADIN_SPELL_HOLY_SHOCK_R1_DAMAGE, rank, true))
+            uint8 rank = sSpellMgr->GetSpellRank(spellEntry->Id);
+            if (!sSpellMgr->GetSpellWithRank(PALADIN_SPELL_HOLY_SHOCK_R1_DAMAGE, rank, true))
                 return false;
-            if (!sSpellMgr.GetSpellWithRank(PALADIN_SPELL_HOLY_SHOCK_R1_HEALING, rank, true))
+            if (!sSpellMgr->GetSpellWithRank(PALADIN_SPELL_HOLY_SHOCK_R1_HEALING, rank, true))
                 return false;
 
             return true;
@@ -201,12 +201,12 @@ public:
             {
                 Unit *caster = GetCaster();
 
-                uint8 rank = sSpellMgr.GetSpellRank(GetSpellInfo()->Id);
+                uint8 rank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);
 
                 if (caster->IsFriendlyTo(unitTarget))
-                    caster->CastSpell(unitTarget, sSpellMgr.GetSpellWithRank(PALADIN_SPELL_HOLY_SHOCK_R1_HEALING, rank), true, 0);
+                    caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(PALADIN_SPELL_HOLY_SHOCK_R1_HEALING, rank), true, 0);
                 else
-                    caster->CastSpell(unitTarget, sSpellMgr.GetSpellWithRank(PALADIN_SPELL_HOLY_SHOCK_R1_DAMAGE, rank), true, 0);
+                    caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(PALADIN_SPELL_HOLY_SHOCK_R1_DAMAGE, rank), true, 0);
             }
         }
 

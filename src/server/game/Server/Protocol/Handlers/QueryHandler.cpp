@@ -126,7 +126,7 @@ void WorldSession::HandleNameQueryOpcode(WorldPacket & recv_data)
 
     recv_data >> guid;
 
-    Player *pChar = sObjectMgr.GetPlayer(guid);
+    Player *pChar = sObjectMgr->GetPlayer(guid);
 
     if (pChar)
         SendNameQueryOpcode(pChar);
@@ -166,10 +166,10 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket & recv_data)
         int loc_idx = GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
         {
-            if (CreatureLocale const *cl = sObjectMgr.GetCreatureLocale(entry))
+            if (CreatureLocale const *cl = sObjectMgr->GetCreatureLocale(entry))
             {
-                sObjectMgr.GetLocaleString(cl->Name, loc_idx, Name);
-                sObjectMgr.GetLocaleString(cl->SubName, loc_idx, SubName);
+                sObjectMgr->GetLocaleString(cl->Name, loc_idx, Name);
+                sObjectMgr->GetLocaleString(cl->SubName, loc_idx, SubName);
             }
         }
         sLog.outDetail("WORLD: CMSG_CREATURE_QUERY '%s' - Entry: %u.", ci->Name, entry);
@@ -232,10 +232,10 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket & recv_data)
         int loc_idx = GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
         {
-            if (GameObjectLocale const *gl = sObjectMgr.GetGameObjectLocale(entryID))
+            if (GameObjectLocale const *gl = sObjectMgr->GetGameObjectLocale(entryID))
             {
-                sObjectMgr.GetLocaleString(gl->Name, loc_idx, Name);
-                sObjectMgr.GetLocaleString(gl->CastBarCaption, loc_idx, CastBarCaption);
+                sObjectMgr->GetLocaleString(gl->Name, loc_idx, Name);
+                sObjectMgr->GetLocaleString(gl->CastBarCaption, loc_idx, CastBarCaption);
             }
         }
         sLog.outDetail("WORLD: CMSG_GAMEOBJECT_QUERY '%s' - Entry: %u. ", info->name, entryID);
@@ -295,7 +295,7 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket & /*recv_data*/)
             if (corpseMapEntry->IsDungeon() && corpseMapEntry->entrance_map >= 0)
             {
                 // if corpse map have entrance
-                if (Map const* entranceMap = sMapMgr.CreateBaseMap(corpseMapEntry->entrance_map))
+                if (Map const* entranceMap = sMapMgr->CreateBaseMap(corpseMapEntry->entrance_map))
                 {
                     mapid = corpseMapEntry->entrance_map;
                     x = corpseMapEntry->entrance_x;
@@ -328,7 +328,7 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recv_data)
     recv_data >> guid;
     GetPlayer()->SetUInt64Value(UNIT_FIELD_TARGET, guid);
 
-    GossipText const* pGossip = sObjectMgr.GetGossipText(textID);
+    GossipText const* pGossip = sObjectMgr->GetGossipText(textID);
 
     WorldPacket data(SMSG_NPC_TEXT_UPDATE, 100);          // guess size
     data << textID;
@@ -361,12 +361,12 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recv_data)
         int loc_idx = GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
         {
-            if (NpcTextLocale const *nl = sObjectMgr.GetNpcTextLocale(textID))
+            if (NpcTextLocale const *nl = sObjectMgr->GetNpcTextLocale(textID))
             {
                 for (int i = 0; i < MAX_LOCALES; ++i)
                 {
-                    sObjectMgr.GetLocaleString(nl->Text_0[i], loc_idx, Text_0[i]);
-                    sObjectMgr.GetLocaleString(nl->Text_1[i], loc_idx, Text_1[i]);
+                    sObjectMgr->GetLocaleString(nl->Text_0[i], loc_idx, Text_0[i]);
+                    sObjectMgr->GetLocaleString(nl->Text_1[i], loc_idx, Text_1[i]);
                 }
             }
         }
@@ -428,8 +428,8 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPacket & recv_data)
 
             int loc_idx = GetSessionDbLocaleIndex();
             if (loc_idx >= 0)
-                if (PageTextLocale const *pl = sObjectMgr.GetPageTextLocale(pageID))
-                    sObjectMgr.GetLocaleString(pl->Text, loc_idx, Text);
+                if (PageTextLocale const *pl = sObjectMgr->GetPageTextLocale(pageID))
+                    sObjectMgr->GetLocaleString(pl->Text, loc_idx, Text);
 
             data << Text;
             data << uint32(pPage->Next_Page);
@@ -481,7 +481,7 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& recv_data)
 
         if (questOk)
         {
-            QuestPOIVector const *POI = sObjectMgr.GetQuestPOIVector(questId);
+            QuestPOIVector const *POI = sObjectMgr->GetQuestPOIVector(questId);
 
             if (POI)
             {

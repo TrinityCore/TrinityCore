@@ -60,7 +60,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
 
         typeId = fields[0].GetUInt32();
 
-        if (sDisableMgr.IsDisabledFor(DISABLE_TYPE_OUTDOORPVP, typeId, NULL))
+        if (sDisableMgr->IsDisabledFor(DISABLE_TYPE_OUTDOORPVP, typeId, NULL))
             continue;
 
         if (typeId >= MAX_OUTDOORPVP_TYPES)
@@ -72,7 +72,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
         OutdoorPvPData* data = new OutdoorPvPData();
         OutdoorPvPTypes realTypeId = OutdoorPvPTypes(typeId);
         data->TypeId = realTypeId;
-        data->ScriptId = sObjectMgr.GetScriptId(fields[1].GetCString());
+        data->ScriptId = sObjectMgr->GetScriptId(fields[1].GetCString());
         m_OutdoorPvPDatas[realTypeId] = data;
 
         ++count;
@@ -89,7 +89,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
             continue;
         }
 
-        pvp = sScriptMgr.CreateOutdoorPvP(iter->second);
+        pvp = sScriptMgr->CreateOutdoorPvP(iter->second);
         if (!pvp)
         {
             sLog.outError("Could not initialize OutdoorPvP object for type ID %u; got NULL pointer from script.", uint32(i));

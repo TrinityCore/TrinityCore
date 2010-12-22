@@ -361,5 +361,5 @@ class LFGMgr
         LfgGroupDataMap m_Groups;                          ///< Group data
 };
 
-#define sLFGMgr (*ACE_Singleton<LFGMgr, ACE_Null_Mutex>::instance())
+#define sLFGMgr ACE_Singleton<LFGMgr, ACE_Null_Mutex>::instance()
 #endif

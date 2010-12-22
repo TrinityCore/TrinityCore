@@ -112,7 +112,7 @@ void LoadSkillDiscoveryTable()
         }
         else if (reqSkillOrSpell == 0)                      // skill case
         {
-            SkillLineAbilityMapBounds bounds = sSpellMgr.GetSkillLineAbilityMapBounds(spellId);
+            SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellId);
 
             if (bounds.first == bounds.second)
             {
@@ -162,7 +162,7 @@ uint32 GetExplicitDiscoverySpell(uint32 spellId, Player* player)
     if (tab == SkillDiscoveryStore.end())
         return 0;
 
-    SkillLineAbilityMapBounds bounds = sSpellMgr.GetSkillLineAbilityMapBounds(spellId);
+    SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellId);
     uint32 skillvalue = bounds.first != bounds.second ? player->GetSkillValue(bounds.first->second->skillId) : 0;
 
     float full_chance = 0;

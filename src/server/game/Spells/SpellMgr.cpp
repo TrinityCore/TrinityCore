@@ -359,7 +359,7 @@ bool IsAutocastableSpell(uint32 spellId)
 
 bool IsHigherHankOfSpell(uint32 spellId_1, uint32 spellId_2)
 {
-    return sSpellMgr.GetSpellRank(spellId_1)<sSpellMgr.GetSpellRank(spellId_2);
+    return sSpellMgr->GetSpellRank(spellId_1) < sSpellMgr->GetSpellRank(spellId_2);
 }
 
 uint32 CalculatePowerCost(SpellEntry const * spellInfo, Unit const * caster, SpellSchoolMask schoolMask)
@@ -535,7 +535,7 @@ SpellSpecific GetSpellSpecific(SpellEntry const * spellInfo)
             // scrolls effects
             else
             {
-                uint32 firstSpell = sSpellMgr.GetFirstSpellInChain(spellInfo->Id);
+                uint32 firstSpell = sSpellMgr->GetFirstSpellInChain(spellInfo->Id);
                 switch (firstSpell)
                 {
                     case 8118: // Strength
@@ -980,7 +980,7 @@ bool IsPositiveSpell(uint32 spellId)
 {
     if (!sSpellStore.LookupEntry(spellId)) // non-existing spells
         return false;
-    return !(sSpellMgr.GetSpellCustomAttr(spellId) & SPELL_ATTR0_CU_NEGATIVE);
+    return !(sSpellMgr->GetSpellCustomAttr(spellId) & SPELL_ATTR0_CU_NEGATIVE);
 }
 
 bool IsPositiveEffect(uint32 spellId, uint32 effIndex)
@@ -990,9 +990,9 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex)
     switch(effIndex)
     {
         default:
-        case 0: return !(sSpellMgr.GetSpellCustomAttr(spellId) & SPELL_ATTR0_CU_NEGATIVE_EFF0);
-        case 1: return !(sSpellMgr.GetSpellCustomAttr(spellId) & SPELL_ATTR0_CU_NEGATIVE_EFF1);
-        case 2: return !(sSpellMgr.GetSpellCustomAttr(spellId) & SPELL_ATTR0_CU_NEGATIVE_EFF2);
+        case 0: return !(sSpellMgr->GetSpellCustomAttr(spellId) & SPELL_ATTR0_CU_NEGATIVE_EFF0);
+        case 1: return !(sSpellMgr->GetSpellCustomAttr(spellId) & SPELL_ATTR0_CU_NEGATIVE_EFF1);
+        case 2: return !(sSpellMgr->GetSpellCustomAttr(spellId) & SPELL_ATTR0_CU_NEGATIVE_EFF2);
     }
 }
 
@@ -1166,7 +1166,7 @@ void SpellMgr::LoadSpellTargetPositions()
                 // additional requirements
                 if (spellInfo->Effect[i]==SPELL_EFFECT_BIND && spellInfo->EffectMiscValue[i])
                 {
-                    uint32 area_id = sMapMgr.GetAreaId(st.target_mapId, st.target_X, st.target_Y, st.target_Z);
+                    uint32 area_id = sMapMgr->GetAreaId(st.target_mapId, st.target_X, st.target_Y, st.target_Z);
                     if (area_id != uint32(spellInfo->EffectMiscValue[i]))
                     {
                         sLog.outErrorDb("Spell (Id: %u) listed in `spell_target_position` expected point to zone %u bit point to zone %u.",Spell_ID, spellInfo->EffectMiscValue[i], area_id);
@@ -1218,7 +1218,7 @@ void SpellMgr::LoadSpellTargetPositions()
         }
         if (found)
         {
-//            if (!sSpellMgr.GetSpellTargetPosition(i))
+//            if (!sSpellMgr->GetSpellTargetPosition(i))
 //                sLog.outDebug("Spell (ID: %u) does not have record in `spell_target_position`", i);
         }
     }
@@ -1683,7 +1683,7 @@ bool SpellMgr::canStackSpellRanks(SpellEntry const *spellInfo)
     if (IsProfessionOrRidingSpell(spellInfo->Id))
         return false;
 
-    if (sSpellMgr.IsSkillBonusSpell(spellInfo->Id))
+    if (sSpellMgr->IsSkillBonusSpell(spellInfo->Id))
         return false;
 
     // All stance spells. if any better way, change it.
@@ -2220,7 +2220,7 @@ bool LoadPetDefaultSpells_helper(CreatureInfo const* cInfo, PetDefaultSpellsEntr
         return false;
 
     // remove duplicates with levelupSpells if any
-    if (PetLevelupSpellSet const *levelupSpells = cInfo->family ? sSpellMgr.GetPetLevelupSpellList(cInfo->family) : NULL)
+    if (PetLevelupSpellSet const *levelupSpells = cInfo->family ? sSpellMgr->GetPetLevelupSpellList(cInfo->family) : NULL)
     {
         for (uint8 j = 0; j < MAX_CREATURE_SPELL_DATA_SLOT; ++j)
         {
@@ -2519,7 +2519,7 @@ void SpellMgr::LoadSpellAreas()
             continue;
         }
 
-        if (spellArea.questStart && !sObjectMgr.GetQuestTemplate(spellArea.questStart))
+        if (spellArea.questStart && !sObjectMgr->GetQuestTemplate(spellArea.questStart))
         {
             sLog.outErrorDb("Spell %u listed in `spell_area` have wrong start quest (%u) requirement", spell,spellArea.questStart);
             continue;
@@ -2527,7 +2527,7 @@ void SpellMgr::LoadSpellAreas()
 
         if (spellArea.questEnd)
         {
-            if (!sObjectMgr.GetQuestTemplate(spellArea.questEnd))
+            if (!sObjectMgr->GetQuestTemplate(spellArea.questEnd))
             {
                 sLog.outErrorDb("Spell %u listed in `spell_area` have wrong end quest (%u) requirement", spell,spellArea.questEnd);
                 continue;
@@ -2675,7 +2675,7 @@ SpellCastResult SpellMgr::GetSpellAllowedInLocationError(SpellEntry const *spell
     }
 
     // DB base check (if non empty then must fit at least single for allow)
-    SpellAreaMapBounds saBounds = sSpellMgr.GetSpellAreaMapBounds(spellInfo->Id);
+    SpellAreaMapBounds saBounds = sSpellMgr->GetSpellAreaMapBounds(spellInfo->Id);
     if (saBounds.first != saBounds.second)
     {
         for (SpellAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
@@ -3156,7 +3156,7 @@ bool SpellMgr::CanAurasStack(Aura const *aura1, Aura const *aura2, bool sameCast
         if (spellId_1 == 44413)
             return true;
         if (aura1->GetCastItemGUID() && aura2->GetCastItemGUID())
-            if (aura1->GetCastItemGUID() != aura2->GetCastItemGUID() && (sSpellMgr.GetSpellCustomAttr(spellId_1) & SPELL_ATTR0_CU_ENCHANT_PROC))
+            if (aura1->GetCastItemGUID() != aura2->GetCastItemGUID() && (sSpellMgr->GetSpellCustomAttr(spellId_1) & SPELL_ATTR0_CU_ENCHANT_PROC))
                 return true;
         // same spell with same caster should not stack
         return false;

@@ -172,7 +172,7 @@ public:
                             break;
                     }
                 }
-                uint8 spellRank = sSpellMgr.GetSpellRank(GetSpellInfo()->Id);
+                uint8 spellRank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);
                 if (spellRank > 0 && spellRank <= 8)
                     CreateItem(effIndex, iTypes[spellRank - 1][rank]);
             }

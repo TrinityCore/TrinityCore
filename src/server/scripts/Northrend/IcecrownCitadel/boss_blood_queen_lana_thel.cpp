@@ -433,7 +433,7 @@ class spell_blood_queen_vampiric_bite : public SpellScriptLoader
                 }
 
                 SpellEntry const* spell = sSpellStore.LookupEntry(SPELL_FRENZIED_BLOODTHIRST);
-                spell = sSpellMgr.GetSpellForDifficultyFromSpell(spell, GetCaster());
+                spell = sSpellMgr->GetSpellForDifficultyFromSpell(spell, GetCaster());
                 GetCaster()->RemoveAura(spell->Id, 0, 0, AURA_REMOVE_BY_ENEMY_SPELL);
                 GetCaster()->CastSpell(GetCaster(), SPELL_ESSENCE_OF_THE_BLOOD_QUEEN_PLR, true);
                 // Presence of the Darkfallen buff on Blood-Queen

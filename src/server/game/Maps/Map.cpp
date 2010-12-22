@@ -39,7 +39,7 @@ GridState* si_GridStates[MAX_GRID_STATE];
 
 Map::~Map()
 {
-    sScriptMgr.OnDestroyMap(this);
+    sScriptMgr->OnDestroyMap(this);
 
     UnloadAll();
 
@@ -143,7 +143,7 @@ void Map::LoadMap(int gx,int gy, bool reload)
     if (GridMaps[gx][gy])
     {
         sLog.outDetail("Unloading previously loaded map %u before reloading.",GetId());
-        sScriptMgr.OnUnloadGridMap(this, GridMaps[gx][gy], gx, gy);
+        sScriptMgr->OnUnloadGridMap(this, GridMaps[gx][gy], gx, gy);
 
         delete (GridMaps[gx][gy]);
         GridMaps[gx][gy]=NULL;
@@ -163,7 +163,7 @@ void Map::LoadMap(int gx,int gy, bool reload)
     }
     delete [] tmp;
 
-    sScriptMgr.OnLoadGridMap(this, GridMaps[gx][gy], gx, gy);
+    sScriptMgr->OnLoadGridMap(this, GridMaps[gx][gy], gx, gy);
 }
 
 void Map::LoadMapAndVMap(int gx,int gy)
@@ -209,7 +209,7 @@ m_activeNonPlayersIter(m_activeNonPlayers.end()), i_gridExpiry(expiry), i_script
     //lets initialize visibility distance for map
     Map::InitVisibilityDistance();
 
-    sScriptMgr.OnCreateMap(this);
+    sScriptMgr->OnCreateMap(this);
 }
 
 void Map::InitVisibilityDistance()
@@ -418,7 +418,7 @@ bool Map::Add(Player *player)
     player->m_clientGUIDs.clear();
     player->UpdateObjectVisibility(false);
 
-    sScriptMgr.OnPlayerEnterMap(this, player);
+    sScriptMgr->OnPlayerEnterMap(this, player);
     return true;
 }
 
@@ -565,7 +565,7 @@ void Map::Update(const uint32 &t_diff)
     if (!m_mapRefManager.isEmpty() || !m_activeNonPlayers.empty())
         ProcessRelocationNotifies(t_diff);
 
-    sScriptMgr.OnMapUpdate(this, t_diff);
+    sScriptMgr->OnMapUpdate(this, t_diff);
 }
 
 struct ResetNotifier
@@ -684,7 +684,7 @@ void Map::Remove(Player *player, bool remove)
     if (remove)
         DeleteFromWorld(player);
 
-    sScriptMgr.OnPlayerLeaveMap(this, player);
+    sScriptMgr->OnPlayerLeaveMap(this, player);
 }
 
 template<class T>
@@ -1909,7 +1909,7 @@ void Map::SendInitSelf(Player * player)
 void Map::SendInitTransports(Player * player)
 {
     // Hack to send out transports
-    MapManager::TransportMap& tmap = sMapMgr.m_TransportsByMap;
+    MapManager::TransportMap& tmap = sMapMgr->m_TransportsByMap;
 
     // no transports at map
     if (tmap.find(player->GetMapId()) == tmap.end())
@@ -1936,7 +1936,7 @@ void Map::SendInitTransports(Player * player)
 void Map::SendRemoveTransports(Player * player)
 {
     // Hack to send out transports
-    MapManager::TransportMap& tmap = sMapMgr.m_TransportsByMap;
+    MapManager::TransportMap& tmap = sMapMgr->m_TransportsByMap;
 
     // no transports at map
     if (tmap.find(player->GetMapId()) == tmap.end())
@@ -2284,11 +2284,11 @@ bool InstanceMap::Add(Player *player)
         if (IsDungeon())
         {
             // get or create an instance save for the map
-            InstanceSave *mapSave = sInstanceSaveMgr.GetInstanceSave(GetInstanceId());
+            InstanceSave *mapSave = sInstanceSaveMgr->GetInstanceSave(GetInstanceId());
             if (!mapSave)
             {
                 sLog.outDetail("InstanceMap::Add: creating instance save for map %d spawnmode %d with instance id %d", GetId(), GetSpawnMode(), GetInstanceId());
-                mapSave = sInstanceSaveMgr.AddInstanceSave(GetId(), GetInstanceId(), Difficulty(GetSpawnMode()), 0, true);
+                mapSave = sInstanceSaveMgr->AddInstanceSave(GetId(), GetInstanceId(), Difficulty(GetSpawnMode()), 0, true);
             }
 
             // check for existing instance binds
@@ -2406,7 +2406,7 @@ void InstanceMap::CreateInstanceData(bool load)
     if (mInstance)
     {
         i_script_id = mInstance->script_id;
-        i_data = sScriptMgr.CreateInstanceData(this);
+        i_data = sScriptMgr->CreateInstanceData(this);
     }
 
     if (!i_data)
@@ -2424,7 +2424,7 @@ void InstanceMap::CreateInstanceData(bool load)
             std::string data = fields[0].GetString();
             if (data != "")
             {
-                sLog.outDebug("Loading instance data for `%s` with id %u", sObjectMgr.GetScriptName(i_script_id), i_InstanceId);
+                sLog.outDebug("Loading instance data for `%s` with id %u", sObjectMgr->GetScriptName(i_script_id), i_InstanceId);
                 i_data->Load(data.c_str());
             }
         }
@@ -2475,7 +2475,7 @@ void InstanceMap::PermBindAllPlayers(Player *player)
     if (!IsDungeon())
         return;
 
-    InstanceSave *save = sInstanceSaveMgr.GetInstanceSave(GetInstanceId());
+    InstanceSave *save = sInstanceSaveMgr->GetInstanceSave(GetInstanceId());
     if (!save)
     {
         sLog.outError("Cannot bind players, no instance save available for map!");
@@ -2509,7 +2509,7 @@ void InstanceMap::UnloadAll()
     ASSERT(!HavePlayers());
 
     if (m_resetAfterUnload == true)
-        sObjectMgr.DeleteRespawnTimeForInstance(GetInstanceId());
+        sObjectMgr->DeleteRespawnTimeForInstance(GetInstanceId());
 
     Map::UnloadAll();
 }
@@ -2527,9 +2527,9 @@ void InstanceMap::SetResetSchedule(bool on)
     // it is assumed that the reset time will rarely (if ever) change while the reset is scheduled
     if (IsDungeon() && !HavePlayers() && !IsRaidOrHeroicDungeon())
     {
-        InstanceSave *save = sInstanceSaveMgr.GetInstanceSave(GetInstanceId());
+        InstanceSave *save = sInstanceSaveMgr->GetInstanceSave(GetInstanceId());
         if (!save) sLog.outError("InstanceMap::SetResetSchedule: cannot turn schedule %s, no save available for instance %d of %d", on ? "on" : "off", GetInstanceId(), GetId());
-        else sInstanceSaveMgr.ScheduleReset(on, save->GetResetTime(), InstanceSaveManager::InstResetEvent(0, GetId(), Difficulty(GetSpawnMode()), GetInstanceId()));
+        else sInstanceSaveMgr->ScheduleReset(on, save->GetResetTime(), InstanceSaveManager::InstResetEvent(0, GetId(), Difficulty(GetSpawnMode()), GetInstanceId()));
     }
 }
 

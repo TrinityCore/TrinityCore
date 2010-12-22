@@ -168,7 +168,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     }
 
     Map *map = owner->GetMap();
-    uint32 guid = sObjectMgr.GenerateLowGuid(HIGHGUID_PET);
+    uint32 guid = sObjectMgr->GenerateLowGuid(HIGHGUID_PET);
     if (!Create(guid, map, owner->GetPhaseMask(), petentry, pet_number))
         return false;
 
@@ -649,7 +649,7 @@ bool Pet::CanTakeMoreActiveSpells(uint32 spellid)
     if (IsPassiveSpell(spellid))
         return true;
 
-    chainstartstore[0] = sSpellMgr.GetFirstSpellInChain(spellid);
+    chainstartstore[0] = sSpellMgr->GetFirstSpellInChain(spellid);
 
     for (PetSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
     {
@@ -659,7 +659,7 @@ bool Pet::CanTakeMoreActiveSpells(uint32 spellid)
         if (IsPassiveSpell(itr->first))
             continue;
 
-        uint32 chainstart = sSpellMgr.GetFirstSpellInChain(itr->first);
+        uint32 chainstart = sSpellMgr->GetFirstSpellInChain(itr->first);
 
         uint8 x;
 
@@ -730,7 +730,7 @@ void Pet::GivePetLevel(uint8 level)
     if (getPetType()==HUNTER_PET)
     {
         SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
-        SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, uint32(sObjectMgr.GetXPForLevel(level)*PET_XP_FACTOR));
+        SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, uint32(sObjectMgr->GetXPForLevel(level)*PET_XP_FACTOR));
     }
 
     InitStatsForLevel(level);
@@ -766,7 +766,7 @@ bool Pet::CreateBaseAtCreature(Creature* creature)
     if (CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cinfo->family))
         SetName(cFamily->Name[sWorld.GetDefaultDbcLocale()]);
     else
-        SetName(creature->GetNameForLocaleIdx(sObjectMgr.GetDBCLocaleIndex()));
+        SetName(creature->GetNameForLocaleIdx(sObjectMgr->GetDBCLocaleIndex()));
 
     return true;
 }
@@ -787,8 +787,8 @@ bool Pet::CreateBaseAtCreatureInfo(CreatureInfo const* cinfo, Unit * owner)
 bool Pet::CreateBaseAtTamed(CreatureInfo const * cinfo, Map * map, uint32 phaseMask)
 {
     sLog.outDebug("Pet::CreateBaseForTamed");
-    uint32 guid=sObjectMgr.GenerateLowGuid(HIGHGUID_PET);
-    uint32 pet_number = sObjectMgr.GeneratePetNumber();
+    uint32 guid=sObjectMgr->GenerateLowGuid(HIGHGUID_PET);
+    uint32 pet_number = sObjectMgr->GeneratePetNumber();
     if (!Create(guid, map, phaseMask, cinfo->Entry, pet_number))
         return false;
 
@@ -797,7 +797,7 @@ bool Pet::CreateBaseAtTamed(CreatureInfo const * cinfo, Map * map, uint32 phaseM
     setPowerType(POWER_FOCUS);
     SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, 0);
     SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
-    SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, uint32(sObjectMgr.GetXPForLevel(getLevel()+1)*PET_XP_FACTOR));
+    SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, uint32(sObjectMgr->GetXPForLevel(getLevel()+1)*PET_XP_FACTOR));
     SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
 
     if (cinfo->type == CREATURE_TYPE_BEAST)
@@ -877,7 +877,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
         SetModifierValue(UnitMods(UNIT_MOD_RESISTANCE_START + i), BASE_VALUE, float(createResistance[i]));
 
     //health, mana, armor and resistance
-    PetLevelInfo const* pInfo = sObjectMgr.GetPetLevelInfo(creature_ID, petlevel);
+    PetLevelInfo const* pInfo = sObjectMgr->GetPetLevelInfo(creature_ID, petlevel);
     if (pInfo)                                      // exist in DB
     {
         SetCreateHealth(pInfo->health);
@@ -923,7 +923,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
         }
         case HUNTER_PET:
         {
-            SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, uint32(sObjectMgr.GetXPForLevel(petlevel)*PET_XP_FACTOR));
+            SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, uint32(sObjectMgr->GetXPForLevel(petlevel)*PET_XP_FACTOR));
             //these formula may not be correct; however, it is designed to be close to what it should be
             //this makes dps 0.5 of pets level
             SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
@@ -1383,16 +1383,16 @@ bool Pet::addSpell(uint32 spell_id,ActiveStates active /*= ACT_DECIDE*/, PetSpel
             }
         }
     }
-    else if (sSpellMgr.GetSpellRank(spell_id) != 0)
+    else if (sSpellMgr->GetSpellRank(spell_id) != 0)
     {
         for (PetSpellMap::const_iterator itr2 = m_spells.begin(); itr2 != m_spells.end(); ++itr2)
         {
             if (itr2->second.state == PETSPELL_REMOVED) continue;
 
-            if (sSpellMgr.IsRankSpellDueToSpell(spellInfo,itr2->first))
+            if (sSpellMgr->IsRankSpellDueToSpell(spellInfo,itr2->first))
             {
                 // replace by new high rank
-                if (sSpellMgr.IsHighRankOfSpell(spell_id,itr2->first))
+                if (sSpellMgr->IsHighRankOfSpell(spell_id,itr2->first))
                 {
                     newspell.active = itr2->second.active;
 
@@ -1403,7 +1403,7 @@ bool Pet::addSpell(uint32 spell_id,ActiveStates active /*= ACT_DECIDE*/, PetSpel
                     break;
                 }
                 // ignore new lesser rank
-                else if (sSpellMgr.IsHighRankOfSpell(itr2->first,spell_id))
+                else if (sSpellMgr->IsHighRankOfSpell(itr2->first,spell_id))
                     return false;
             }
         }
@@ -1451,7 +1451,7 @@ void Pet::InitLevelupSpellsForLevel()
 {
     uint8 level = getLevel();
 
-    if (PetLevelupSpellSet const *levelupSpells = GetCreatureInfo()->family ? sSpellMgr.GetPetLevelupSpellList(GetCreatureInfo()->family) : NULL)
+    if (PetLevelupSpellSet const *levelupSpells = GetCreatureInfo()->family ? sSpellMgr->GetPetLevelupSpellList(GetCreatureInfo()->family) : NULL)
     {
         // PetLevelupSpellSet ordered by levels, process in reversed order
         for (PetLevelupSpellSet::const_reverse_iterator itr = levelupSpells->rbegin(); itr != levelupSpells->rend(); ++itr)
@@ -1468,7 +1468,7 @@ void Pet::InitLevelupSpellsForLevel()
     int32 petSpellsId = GetCreatureInfo()->PetSpellDataId ? -(int32)GetCreatureInfo()->PetSpellDataId : GetEntry();
 
     // default spells (can be not learned if pet level (as owner level decrease result for example) less first possible in normal game)
-    if (PetDefaultSpellsEntry const *defSpells = sSpellMgr.GetPetDefaultSpellsEntry(petSpellsId))
+    if (PetDefaultSpellsEntry const *defSpells = sSpellMgr->GetPetDefaultSpellsEntry(petSpellsId))
     {
         for (uint8 i = 0; i < MAX_CREATURE_SPELL_DATA_SLOT; ++i)
         {
@@ -1531,7 +1531,7 @@ bool Pet::removeSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
 
     if (learn_prev)
     {
-        if (uint32 prev_id = sSpellMgr.GetPrevSpellInChain (spell_id))
+        if (uint32 prev_id = sSpellMgr->GetPrevSpellInChain (spell_id))
             learnSpell(prev_id);
         else
             learn_prev = false;
@@ -1644,10 +1644,10 @@ bool Pet::resetTalents(bool no_cost)
                     continue;
                 }
                 // remove learned spells (all ranks)
-                uint32 itrFirstId = sSpellMgr.GetFirstSpellInChain(itr->first);
+                uint32 itrFirstId = sSpellMgr->GetFirstSpellInChain(itr->first);
 
                 // unlearn if first rank is talent or learned by talent
-                if (itrFirstId == talentInfo->RankID[j] || sSpellMgr.IsSpellLearnToSpell(talentInfo->RankID[j],itrFirstId))
+                if (itrFirstId == talentInfo->RankID[j] || sSpellMgr->IsSpellLearnToSpell(talentInfo->RankID[j],itrFirstId))
                 {
                     unlearnSpell(itr->first,false);
                     itr = m_spells.begin();
@@ -1966,7 +1966,7 @@ void Pet::learnSpellHighRank(uint32 spellid)
 {
     learnSpell(spellid);
 
-    if (uint32 next = sSpellMgr.GetNextSpellInChain(spellid))
+    if (uint32 next = sSpellMgr->GetNextSpellInChain(spellid))
         learnSpellHighRank(next);
 }
 

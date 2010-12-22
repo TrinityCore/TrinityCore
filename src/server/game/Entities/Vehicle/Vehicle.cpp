@@ -114,12 +114,12 @@ void Vehicle::Install()
     Reset();
 
     if (GetBase()->GetTypeId() == TYPEID_UNIT)
-        sScriptMgr.OnInstall(this);
+        sScriptMgr->OnInstall(this);
 }
 
 void Vehicle::InstallAllAccessories(uint32 entry)
 {
-    VehicleAccessoryList const* mVehicleList = sObjectMgr.GetVehicleAccessoryList(entry);
+    VehicleAccessoryList const* mVehicleList = sObjectMgr->GetVehicleAccessoryList(entry);
     if (!mVehicleList)
         return;
 
@@ -138,7 +138,7 @@ void Vehicle::Uninstall()
     RemoveAllPassengers();
 
     if (GetBase()->GetTypeId() == TYPEID_UNIT)
-        sScriptMgr.OnUninstall(this);
+        sScriptMgr->OnUninstall(this);
 }
 
 void Vehicle::Die()
@@ -152,7 +152,7 @@ void Vehicle::Die()
     RemoveAllPassengers();
 
     if (GetBase()->GetTypeId() == TYPEID_UNIT)
-        sScriptMgr.OnDie(this);
+        sScriptMgr->OnDie(this);
 }
 
 void Vehicle::Reset()
@@ -171,7 +171,7 @@ void Vehicle::Reset()
     }
 
     if (GetBase()->GetTypeId() == TYPEID_UNIT)
-        sScriptMgr.OnReset(this);
+        sScriptMgr->OnReset(this);
 }
 
 void Vehicle::RemoveAllPassengers()
@@ -263,7 +263,7 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion)
         accessory->SendMovementFlagUpdate();
 
         if (GetBase()->GetTypeId() == TYPEID_UNIT)
-            sScriptMgr.OnInstallAccessory(this, accessory);
+            sScriptMgr->OnInstallAccessory(this, accessory);
     }
 }
 
@@ -329,7 +329,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
         if (!me->SetCharmedBy(unit, CHARM_TYPE_VEHICLE))
             ASSERT(false);
 
-        if (VehicleScalingInfo const *scalingInfo = sObjectMgr.GetVehicleScalingInfo(m_vehicleInfo->m_ID))
+        if (VehicleScalingInfo const *scalingInfo = sObjectMgr->GetVehicleScalingInfo(m_vehicleInfo->m_ID))
         {
             Player *plr = unit->ToPlayer();
             float averageItemLevel = plr->GetAverageItemLevel();
@@ -360,7 +360,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
     unit->UpdateObjectVisibility(false);
 
     if (GetBase()->GetTypeId() == TYPEID_UNIT)
-        sScriptMgr.OnAddPassenger(this, unit, seatId);
+        sScriptMgr->OnAddPassenger(this, unit, seatId);
 
     return true;
 }
@@ -416,7 +416,7 @@ void Vehicle::RemovePassenger(Unit *unit)
         me->CastSpell(unit, VEHICLE_SPELL_PARACHUTE, true);
 
     if (GetBase()->GetTypeId() == TYPEID_UNIT)
-        sScriptMgr.OnRemovePassenger(this, unit);
+        sScriptMgr->OnRemovePassenger(this, unit);
 }
 
 void Vehicle::RelocatePassengers(float x, float y, float z, float ang)

@@ -148,7 +148,7 @@ void BattlegroundEY::CheckSomeoneJoinedPoint()
             uint8 j = 0;
             while (j < m_PlayersNearPoint[EY_POINTS_MAX].size())
             {
-                Player *plr = sObjectMgr.GetPlayer(m_PlayersNearPoint[EY_POINTS_MAX][j]);
+                Player *plr = sObjectMgr->GetPlayer(m_PlayersNearPoint[EY_POINTS_MAX][j]);
                 if (!plr)
                 {
                     sLog.outError("BattlegroundEY:CheckSomeoneJoinedPoint: Player (GUID: %u) not found!", GUID_LOPART(m_PlayersNearPoint[EY_POINTS_MAX][j]));
@@ -188,7 +188,7 @@ void BattlegroundEY::CheckSomeoneLeftPoint()
             uint8 j = 0;
             while (j < m_PlayersNearPoint[i].size())
             {
-                Player *plr = sObjectMgr.GetPlayer(m_PlayersNearPoint[i][j]);
+                Player *plr = sObjectMgr->GetPlayer(m_PlayersNearPoint[i][j]);
                 if (!plr)
                 {
                     sLog.outError("BattlegroundEY:CheckSomeoneLeftPoint Player (GUID: %u) not found!", GUID_LOPART(m_PlayersNearPoint[i][j]));
@@ -243,7 +243,7 @@ void BattlegroundEY::UpdatePointStatuses()
 
         for (uint8 i = 0; i < m_PlayersNearPoint[point].size(); ++i)
         {
-            Player *plr = sObjectMgr.GetPlayer(m_PlayersNearPoint[point][i]);
+            Player *plr = sObjectMgr->GetPlayer(m_PlayersNearPoint[point][i]);
             if (plr)
             {
                 this->UpdateWorldStateForPlayer(PROGRESS_BAR_STATUS, m_PointBarStatus[point], plr);
@@ -528,7 +528,7 @@ void BattlegroundEY::Reset()
     m_DroppedFlagGUID = 0;
     m_PointAddingTimer = 0;
     m_TowerCapCheckTimer = 0;
-    bool isBGWeekend = sBattlegroundMgr.IsBGWeekend(GetTypeID());
+    bool isBGWeekend = sBattlegroundMgr->IsBGWeekend(GetTypeID());
     m_HonorTics = (isBGWeekend) ? BG_EY_EYWeekendHonorTicks : BG_EY_NotEYWeekendHonorTicks;
 
     for (uint8 i = 0; i < EY_POINTS_MAX; ++i)

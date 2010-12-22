@@ -166,7 +166,7 @@ void InstanceSave::SaveToDB()
     // save instance data too
     std::string data;
 
-    Map *map = sMapMgr.FindMap(GetMapId(),m_instanceid);
+    Map *map = sMapMgr->FindMap(GetMapId(),m_instanceid);
     if (map)
     {
         ASSERT(map->IsDungeon());
@@ -212,8 +212,8 @@ bool InstanceSave::UnloadIfEmpty()
 {
     if (m_playerList.empty() && m_groupList.empty())
     {
-        if (!sInstanceSaveMgr.lock_instLists)
-            sInstanceSaveMgr.RemoveInstanceSave(GetInstanceId());
+        if (!sInstanceSaveMgr->lock_instLists)
+            sInstanceSaveMgr->RemoveInstanceSave(GetInstanceId());
 
         return false;
     }
@@ -255,7 +255,7 @@ void InstanceSaveManager::CleanupAndPackInstances()
     uint32 oldMSTime = getMSTime();
 
     // load reset times and clean expired instances
-    sInstanceSaveMgr.LoadResetTimes();
+    sInstanceSaveMgr->LoadResetTimes();
 
     // Delete invalid character_instance and group_instance references
     CharacterDatabase.DirectExecute("DELETE ci.* FROM character_instance AS ci LEFT JOIN characters AS c ON ci.guid = c.guid WHERE c.guid IS NULL");
@@ -540,7 +540,7 @@ void InstanceSaveManager::_ResetSave(InstanceSaveHashMap::iterator &itr)
 void InstanceSaveManager::_ResetInstance(uint32 mapid, uint32 instanceId)
 {
     sLog.outDebug("InstanceSaveMgr::_ResetInstance %u, %u", mapid, instanceId);
-    Map *map = (MapInstanced*)sMapMgr.CreateBaseMap(mapid);
+    Map *map = (MapInstanced*)sMapMgr->CreateBaseMap(mapid);
     if (!map->Instanceable())
         return;
 
@@ -555,7 +555,7 @@ void InstanceSaveManager::_ResetInstance(uint32 mapid, uint32 instanceId)
     if (iMap && iMap->IsDungeon())
         ((InstanceMap*)iMap)->Reset(INSTANCE_RESET_RESPAWN_DELAY);
     else
-        sObjectMgr.DeleteRespawnTimeForInstance(instanceId);   // even if map is not loaded
+        sObjectMgr->DeleteRespawnTimeForInstance(instanceId);   // even if map is not loaded
 }
 
 void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, bool warn, time_t resetTime)
@@ -609,7 +609,7 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
     }
 
     // note: this isn't fast but it's meant to be executed very rarely
-    Map const *map = sMapMgr.CreateBaseMap(mapid);          // _not_ include difficulty
+    Map const *map = sMapMgr->CreateBaseMap(mapid);          // _not_ include difficulty
     MapInstanced::InstancedMaps &instMaps = ((MapInstanced*)map)->GetInstancedMaps();
     MapInstanced::InstancedMaps::iterator mitr;
     uint32 timeLeft;

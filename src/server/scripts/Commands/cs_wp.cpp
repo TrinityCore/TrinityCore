@@ -599,7 +599,7 @@ public:
                     wpCreature->AddObjectToRemoveList();
                     // re-create
                     Creature* wpCreature2 = new Creature;
-                    if (!wpCreature2->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMaskForSpawn(), VISUAL_WAYPOINT, 0, 0, chr->GetPositionX(), chr->GetPositionY(), chr->GetPositionZ(), chr->GetOrientation()))
+                    if (!wpCreature2->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMaskForSpawn(), VISUAL_WAYPOINT, 0, 0, chr->GetPositionX(), chr->GetPositionY(), chr->GetPositionZ(), chr->GetOrientation()))
                     {
                         handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, VISUAL_WAYPOINT);
                         delete wpCreature2;
@@ -610,7 +610,7 @@ public:
                     // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
                     wpCreature2->LoadFromDB(wpCreature2->GetDBTableGUIDLow(), map);
                     map->Add(wpCreature2);
-                    //sMapMgr.GetMap(npcCreature->GetMapId())->Add(wpCreature2);
+                    //sMapMgr->GetMap(npcCreature->GetMapId())->Add(wpCreature2);
                 }
 
                 WorldDatabase.PExecute("UPDATE waypoint_data SET position_x = '%f',position_y = '%f',position_z = '%f' where id = '%u' AND point='%u'",
@@ -804,7 +804,7 @@ public:
                 float o = chr->GetOrientation();
 
                 Creature* wpCreature = new Creature;
-                if (!wpCreature->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMaskForSpawn(), id, 0, 0, x, y, z, o))
+                if (!wpCreature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMaskForSpawn(), id, 0, 0, x, y, z, o))
                 {
                     handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, id);
                     delete wpCreature;
@@ -856,7 +856,7 @@ public:
             Map *map = chr->GetMap();
 
             Creature* pCreature = new Creature;
-            if (!pCreature->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_UNIT),map, chr->GetPhaseMaskForSpawn(), id, 0, 0, x, y, z, o))
+            if (!pCreature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT),map, chr->GetPhaseMaskForSpawn(), id, 0, 0, x, y, z, o))
             {
                 handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, id);
                 delete pCreature;
@@ -904,7 +904,7 @@ public:
             Map *map = chr->GetMap();
 
             Creature* pCreature = new Creature;
-            if (!pCreature->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMaskForSpawn(), id, 0, 0, x, y, z, o))
+            if (!pCreature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMaskForSpawn(), id, 0, 0, x, y, z, o))
             {
                 handler->PSendSysMessage(LANG_WAYPOINT_NOTCREATED, id);
                 delete pCreature;

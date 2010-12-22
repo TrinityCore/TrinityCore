@@ -49,11 +49,11 @@ public:
         {
             if (!sSpellStore.LookupEntry(SHAMAN_SPELL_FIRE_NOVA_R1))
                 return false;
-            if (sSpellMgr.GetFirstSpellInChain(SHAMAN_SPELL_FIRE_NOVA_R1) != sSpellMgr.GetFirstSpellInChain(spellEntry->Id))
+            if (sSpellMgr->GetFirstSpellInChain(SHAMAN_SPELL_FIRE_NOVA_R1) != sSpellMgr->GetFirstSpellInChain(spellEntry->Id))
                 return false;
 
-            uint8 rank = sSpellMgr.GetSpellRank(spellEntry->Id);
-            if (!sSpellMgr.GetSpellWithRank(SHAMAN_SPELL_FIRE_NOVA_TRIGGERED_R1, rank, true))
+            uint8 rank = sSpellMgr->GetSpellRank(spellEntry->Id);
+            if (!sSpellMgr->GetSpellWithRank(SHAMAN_SPELL_FIRE_NOVA_TRIGGERED_R1, rank, true))
                 return false;
             return true;
         }
@@ -62,8 +62,8 @@ public:
         {
             if (Unit* caster = GetCaster())
             {
-                uint8 rank = sSpellMgr.GetSpellRank(GetSpellInfo()->Id);
-                uint32 spellId = sSpellMgr.GetSpellWithRank(SHAMAN_SPELL_FIRE_NOVA_TRIGGERED_R1, rank);
+                uint8 rank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);
+                uint32 spellId = sSpellMgr->GetSpellWithRank(SHAMAN_SPELL_FIRE_NOVA_TRIGGERED_R1, rank);
                 // fire slot
                 if (spellId && caster->m_SummonSlot[1])
                 {

@@ -63,7 +63,7 @@ public:
 
         std::string name = args;
 
-        if (sObjectMgr.GetGameTele(name))
+        if (sObjectMgr->GetGameTele(name))
         {
             handler->SendSysMessage(LANG_COMMAND_TP_ALREADYEXIST);
             handler->SetSentErrorMessage(true);
@@ -78,7 +78,7 @@ public:
         tele.mapId       = player->GetMapId();
         tele.name        = name;
 
-        if (sObjectMgr.AddGameTele(tele))
+        if (sObjectMgr->AddGameTele(tele))
         {
             handler->SendSysMessage(LANG_COMMAND_TP_ADDED);
         }
@@ -99,7 +99,7 @@ public:
 
         std::string name = args;
 
-        if (!sObjectMgr.DeleteGameTele(name))
+        if (!sObjectMgr->DeleteGameTele(name))
         {
             handler->SendSysMessage(LANG_COMMAND_TELE_NOTFOUND);
             handler->SetSentErrorMessage(true);
@@ -175,7 +175,7 @@ public:
 
             handler->PSendSysMessage(LANG_TELEPORTING_TO, nameLink.c_str(), handler->GetTrinityString(LANG_OFFLINE), tele->name.c_str());
             Player::SavePositionInDB(tele->mapId,tele->position_x,tele->position_y,tele->position_z,tele->orientation,
-                sMapMgr.GetZoneId(tele->mapId,tele->position_x,tele->position_y,tele->position_z),target_guid);
+                sMapMgr->GetZoneId(tele->mapId,tele->position_x,tele->position_y,tele->position_z),target_guid);
         }
 
         return true;

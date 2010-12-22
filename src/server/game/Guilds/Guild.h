@@ -288,7 +288,7 @@ private:
         void ResetTabTimes();
         void ResetMoneyTime();
 
-        inline Player* FindPlayer() const { return sObjectMgr.GetPlayer(m_guid); }
+        inline Player* FindPlayer() const { return sObjectMgr->GetPlayer(m_guid); }
 
     private:
         uint32 m_guildId;

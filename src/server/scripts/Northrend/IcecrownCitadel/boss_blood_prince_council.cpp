@@ -357,7 +357,7 @@ class boss_prince_keleseth_icc : public CreatureScript
 
             void InitializeAI()
             {
-                if (CreatureData const* data = sObjectMgr.GetCreatureData(me->GetDBTableGUIDLow()))
+                if (CreatureData const* data = sObjectMgr->GetCreatureData(me->GetDBTableGUIDLow()))
                     if (data->curhealth)
                         spawnHealth = data->curhealth;
 
@@ -542,7 +542,7 @@ class boss_prince_taldaram_icc : public CreatureScript
 
             void InitializeAI()
             {
-                if (CreatureData const* data = sObjectMgr.GetCreatureData(me->GetDBTableGUIDLow()))
+                if (CreatureData const* data = sObjectMgr->GetCreatureData(me->GetDBTableGUIDLow()))
                     if (data->curhealth)
                         spawnHealth = data->curhealth;
 
@@ -741,7 +741,7 @@ class boss_prince_valanar_icc : public CreatureScript
 
             void InitializeAI()
             {
-                if (CreatureData const* data = sObjectMgr.GetCreatureData(me->GetDBTableGUIDLow()))
+                if (CreatureData const* data = sObjectMgr->GetCreatureData(me->GetDBTableGUIDLow()))
                     if (data->curhealth)
                         spawnHealth = data->curhealth;
 

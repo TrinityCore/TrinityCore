@@ -179,7 +179,7 @@ int WorldSocket::SendPacket (const WorldPacket& pct)
     }
 
     // Create a copy of the original packet; this is to avoid issues if a hook modifies it.
-    sScriptMgr.OnPacketSend(this, WorldPacket(pct));
+    sScriptMgr->OnPacketSend(this, WorldPacket(pct));
 
     ServerPktHeader header(pct.size()+2, pct.GetOpcode());
     m_Crypt.EncryptSend ((uint8*)header.header, header.getHeaderLength());
@@ -713,11 +713,11 @@ int WorldSocket::ProcessIncoming (WorldPacket* new_pct)
                     return -1;
                 }
 
-                sScriptMgr.OnPacketReceive(this, WorldPacket(*new_pct));
+                sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return HandleAuthSession (*new_pct);
             case CMSG_KEEP_ALIVE:
                 sLog.outStaticDebug ("CMSG_KEEP_ALIVE ,size: " UI64FMTD, uint64(new_pct->size()));
-                sScriptMgr.OnPacketReceive(this, WorldPacket(*new_pct));
+                sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return 0;
             default:
             {

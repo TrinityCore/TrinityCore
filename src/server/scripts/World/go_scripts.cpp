@@ -1005,7 +1005,7 @@ public:
         if (!pPrisoner || !pPrisoner->isAlive())
             return true;
 
-        Quest const* qInfo = sObjectMgr.GetQuestTemplate(QUEST_PRISONERS_OF_WYRMSKULL);
+        Quest const* qInfo = sObjectMgr->GetQuestTemplate(QUEST_PRISONERS_OF_WYRMSKULL);
         if (qInfo)
         {
             //TODO: prisoner should help player for a short period of time

@@ -128,7 +128,7 @@ bool AssistDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 
 CreatureBaseStats const* CreatureBaseStats::GetBaseStats(uint8 level, uint8 unitClass)
 {
-    return sObjectMgr.GetCreatureBaseStats(level, unitClass);
+    return sObjectMgr->GetCreatureBaseStats(level, unitClass);
 }
 
 bool ForcedDespawnDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
@@ -302,8 +302,8 @@ bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData *data
         return false;
     }
 
-    uint32 display_id = sObjectMgr.ChooseDisplayId(0, GetCreatureInfo(), data);
-    CreatureModelInfo const *minfo = sObjectMgr.GetCreatureModelRandomGender(display_id);
+    uint32 display_id = sObjectMgr->ChooseDisplayId(0, GetCreatureInfo(), data);
+    CreatureModelInfo const *minfo = sObjectMgr->GetCreatureModelRandomGender(display_id);
     if (!minfo)                                             // Cancel load if no model defined
     {
         sLog.outErrorDb("Creature (Entry: %u) has no model defined in table `creature_template`, can't load. ",Entry);
@@ -373,7 +373,7 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData *data)
     ObjectMgr::ChooseCreatureFlags(cInfo, npcflag, unit_flags, dynamicflags, data);
 
     if (cInfo->flags_extra & CREATURE_FLAG_EXTRA_WORLDEVENT)
-        SetUInt32Value(UNIT_NPC_FLAGS, npcflag | sGameEventMgr.GetNPCFlag(this));
+        SetUInt32Value(UNIT_NPC_FLAGS, npcflag | sGameEventMgr->GetNPCFlag(this));
     else
         SetUInt32Value(UNIT_NPC_FLAGS, npcflag);
 
@@ -388,7 +388,7 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData *data)
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
 
     SetMeleeDamageSchool(SpellSchools(cInfo->dmgschool));
-    CreatureBaseStats const* stats = sObjectMgr.GetCreatureBaseStats(getLevel(), cInfo->unit_class);
+    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(getLevel(), cInfo->unit_class);
     float armor = (float)stats->GenerateArmor(cInfo); // TODO: Why is this treated as uint32 when it's a float?
     SetModifierValue(UNIT_MOD_ARMOR,             BASE_VALUE, armor);
     SetModifierValue(UNIT_MOD_RESISTANCE_HOLY,   BASE_VALUE, float(cInfo->resistance1));
@@ -463,7 +463,7 @@ void Creature::Update(uint32 diff)
                     Respawn();
                 else // the master is dead
                 {
-                    if (uint32 targetGuid = sObjectMgr.GetLinkedRespawnGuid(m_DBTableGuid))
+                    if (uint32 targetGuid = sObjectMgr->GetLinkedRespawnGuid(m_DBTableGuid))
                     {
                         if (targetGuid == m_DBTableGuid) // if linking self, never respawn (check delayed to next day)
                             SetRespawnTime(DAY);
@@ -489,7 +489,7 @@ void Creature::Update(uint32 diff)
 
                 if (m_groupLootTimer <= diff)
                 {
-                    Group* group = sObjectMgr.GetGroupByGUID(lootingGroupLowGUID);
+                    Group* group = sObjectMgr->GetGroupByGUID(lootingGroupLowGUID);
                     if (group)
                         group->EndRoll(&loot);
                     m_groupLootTimer = 0;
@@ -593,7 +593,7 @@ void Creature::Update(uint32 diff)
             break;
     }
 
-    sScriptMgr.OnCreatureUpdate(this, diff);
+    sScriptMgr->OnCreatureUpdate(this, diff);
 }
 
 void Creature::RegenerateMana()
@@ -784,7 +784,7 @@ bool Creature::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, 
                 break;
         }
         LoadCreaturesAddon();
-        CreatureModelInfo const *minfo = sObjectMgr.GetCreatureModelRandomGender(GetNativeDisplayId());
+        CreatureModelInfo const *minfo = sObjectMgr->GetCreatureModelRandomGender(GetNativeDisplayId());
         if (minfo && !isTotem())                               // Cancel load if no model defined or if totem
         {
             uint32 display_id = minfo->modelid;                // it can be different (for another gender)
@@ -918,7 +918,7 @@ bool Creature::isCanInteractWithBattleMaster(Player* pPlayer, bool msg) const
     if (!isBattleMaster())
         return false;
 
-    BattlegroundTypeId bgTypeId = sBattlegroundMgr.GetBattleMasterBG(GetEntry());
+    BattlegroundTypeId bgTypeId = sBattlegroundMgr->GetBattleMasterBG(GetEntry());
     if (!msg)
         return pPlayer->GetBGAccessByLevel(bgTypeId);
 
@@ -986,7 +986,7 @@ Group *Creature::GetLootRecipientGroup() const
 {
     if (!m_lootRecipientGroup)
         return NULL;
-    return sObjectMgr.GetGroupByGUID(m_lootRecipientGroup);
+    return sObjectMgr->GetGroupByGUID(m_lootRecipientGroup);
 }
 
 void Creature::SetLootRecipient(Unit *unit)
@@ -1034,7 +1034,7 @@ void Creature::SaveToDB()
 {
     // this should only be used when the creature has already been loaded
     // preferably after adding to map, because mapid may not be valid otherwise
-    CreatureData const *data = sObjectMgr.GetCreatureData(m_DBTableGuid);
+    CreatureData const *data = sObjectMgr->GetCreatureData(m_DBTableGuid);
     if (!data)
     {
         sLog.outError("Creature::SaveToDB failed, cannot get creature data!");
@@ -1049,7 +1049,7 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     // update in loaded data
     if (!m_DBTableGuid)
         m_DBTableGuid = GetGUIDLow();
-    CreatureData& data = sObjectMgr.NewOrExistCreatureData(m_DBTableGuid);
+    CreatureData& data = sObjectMgr->NewOrExistCreatureData(m_DBTableGuid);
 
     uint32 displayId = GetNativeDisplayId();
     uint32 npcflag = GetUInt32Value(UNIT_NPC_FLAGS);
@@ -1143,7 +1143,7 @@ void Creature::SelectLevel(const CreatureInfo *cinfo)
     uint8 level = minlevel == maxlevel ? minlevel : urand(minlevel, maxlevel);
     SetLevel(level);
 
-    CreatureBaseStats const* stats = sObjectMgr.GetCreatureBaseStats(level, cinfo->unit_class);
+    CreatureBaseStats const* stats = sObjectMgr->GetCreatureBaseStats(level, cinfo->unit_class);
 
     // health
     float healthmod = _GetHealthMod(rank);
@@ -1273,7 +1273,7 @@ bool Creature::CreateFromProto(uint32 guidlow, uint32 Entry, uint32 vehId, uint3
 
 bool Creature::LoadFromDB(uint32 guid, Map *map)
 {
-    CreatureData const* data = sObjectMgr.GetCreatureData(guid);
+    CreatureData const* data = sObjectMgr->GetCreatureData(guid);
 
     if (!data)
     {
@@ -1288,7 +1288,7 @@ bool Creature::LoadFromDB(uint32 guid, Map *map)
             return false;
     }
     else
-        guid = sObjectMgr.GenerateLowGuid(HIGHGUID_UNIT);
+        guid = sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT);
 
     uint16 team = 0;
     if (!Create(guid,map,data->phaseMask,data->id,0,team,data->posX,data->posY,data->posZ,data->orientation,data))
@@ -1303,7 +1303,7 @@ bool Creature::LoadFromDB(uint32 guid, Map *map)
     m_isDeadByDefault = data->is_dead;
     m_deathState = m_isDeadByDefault ? DEAD : ALIVE;
 
-    m_respawnTime  = sObjectMgr.GetCreatureRespawnTime(m_DBTableGuid,GetInstanceId());
+    m_respawnTime  = sObjectMgr->GetCreatureRespawnTime(m_DBTableGuid,GetInstanceId());
     if (m_respawnTime)                          // respawn on Update
     {
         m_deathState = DEAD;
@@ -1357,7 +1357,7 @@ void Creature::LoadEquipment(uint32 equip_entry, bool force)
         return;
     }
 
-    EquipmentInfo const *einfo = sObjectMgr.GetEquipmentInfo(equip_entry);
+    EquipmentInfo const *einfo = sObjectMgr->GetEquipmentInfo(equip_entry);
     if (!einfo)
         return;
 
@@ -1368,7 +1368,7 @@ void Creature::LoadEquipment(uint32 equip_entry, bool force)
 
 bool Creature::hasQuest(uint32 quest_id) const
 {
-    QuestRelationBounds qr = sObjectMgr.GetCreatureQuestRelationBounds(GetEntry());
+    QuestRelationBounds qr = sObjectMgr->GetCreatureQuestRelationBounds(GetEntry());
     for (QuestRelations::const_iterator itr = qr.first; itr != qr.second; ++itr)
     {
         if (itr->second == quest_id)
@@ -1379,7 +1379,7 @@ bool Creature::hasQuest(uint32 quest_id) const
 
 bool Creature::hasInvolvedQuest(uint32 quest_id) const
 {
-    QuestRelationBounds qir = sObjectMgr.GetCreatureQuestInvolvedRelationBounds(GetEntry());
+    QuestRelationBounds qir = sObjectMgr->GetCreatureQuestInvolvedRelationBounds(GetEntry());
     for (QuestRelations::const_iterator itr = qir.first; itr != qir.second; ++itr)
     {
         if (itr->second == quest_id)
@@ -1396,8 +1396,8 @@ void Creature::DeleteFromDB()
         return;
     }
 
-    sObjectMgr.SaveCreatureRespawnTime(m_DBTableGuid,GetInstanceId(),0);
-    sObjectMgr.DeleteCreatureData(m_DBTableGuid);
+    sObjectMgr->SaveCreatureRespawnTime(m_DBTableGuid,GetInstanceId(),0);
+    sObjectMgr->DeleteCreatureData(m_DBTableGuid);
 
     SQLTransaction trans = WorldDatabase.BeginTransaction();
     trans->PAppend("DELETE FROM creature WHERE guid = '%u'", m_DBTableGuid);
@@ -1587,7 +1587,7 @@ void Creature::Respawn(bool force)
     if (getDeathState() == DEAD)
     {
         if (m_DBTableGuid)
-            sObjectMgr.SaveCreatureRespawnTime(m_DBTableGuid,GetInstanceId(),0);
+            sObjectMgr->SaveCreatureRespawnTime(m_DBTableGuid,GetInstanceId(),0);
 
         sLog.outStaticDebug("Respawning...");
         m_respawnTime = 0;
@@ -1610,7 +1610,7 @@ void Creature::Respawn(bool force)
         else
             setDeathState(JUST_ALIVED);
 
-        CreatureModelInfo const *minfo = sObjectMgr.GetCreatureModelRandomGender(GetNativeDisplayId());
+        CreatureModelInfo const *minfo = sObjectMgr->GetCreatureModelRandomGender(GetNativeDisplayId());
         if (minfo)                                             // Cancel load if no model defined
         {
             uint32 display_id = minfo->modelid;                // it can be different (for another gender)
@@ -1626,9 +1626,9 @@ void Creature::Respawn(bool force)
         if (IsAIEnabled)
             TriggerJustRespawned = true;//delay event to next tick so all creatures are created on the map before processing
 
-        uint32 poolid = GetDBTableGUIDLow() ? sPoolMgr.IsPartOfAPool<Creature>(GetDBTableGUIDLow()) : 0;
+        uint32 poolid = GetDBTableGUIDLow() ? sPoolMgr->IsPartOfAPool<Creature>(GetDBTableGUIDLow()) : 0;
         if (poolid)
-            sPoolMgr.UpdatePool<Creature>(poolid, GetDBTableGUIDLow());
+            sPoolMgr->UpdatePool<Creature>(poolid, GetDBTableGUIDLow());
 
         //Re-initialize reactstate that could be altered by movementgenerators
         InitializeReactState();
@@ -1970,7 +1970,7 @@ void Creature::SaveRespawnTime()
     if (isSummon() || !m_DBTableGuid || (m_creatureData && !m_creatureData->dbData))
         return;
 
-    sObjectMgr.SaveCreatureRespawnTime(m_DBTableGuid,GetInstanceId(),m_respawnTime);
+    sObjectMgr->SaveCreatureRespawnTime(m_DBTableGuid,GetInstanceId(),m_respawnTime);
 }
 
 // this should not be called by petAI or
@@ -2204,7 +2204,7 @@ void Creature::GetRespawnCoord(float &x, float &y, float &z, float* ori, float* 
 {
     if (m_DBTableGuid)
     {
-        if (CreatureData const* data = sObjectMgr.GetCreatureData(GetDBTableGUIDLow()))
+        if (CreatureData const* data = sObjectMgr->GetCreatureData(GetDBTableGUIDLow()))
         {
             x = data->posX;
             y = data->posY;
@@ -2271,7 +2271,7 @@ std::string Creature::GetAIName() const
 
 std::string Creature::GetScriptName() const
 {
-    return sObjectMgr.GetScriptName(GetScriptId());
+    return sObjectMgr->GetScriptName(GetScriptId());
 }
 
 uint32 Creature::GetScriptId() const
@@ -2281,7 +2281,7 @@ uint32 Creature::GetScriptId() const
 
 VendorItemData const* Creature::GetVendorItems() const
 {
-    return sObjectMgr.GetNpcVendorItemList(GetEntry());
+    return sObjectMgr->GetNpcVendorItemList(GetEntry());
 }
 
 uint32 Creature::GetVendorItemCurrentCount(VendorItem const* vItem)
@@ -2358,7 +2358,7 @@ uint32 Creature::UpdateVendorItemCurrentCount(VendorItem const* vItem, uint32 us
 
 TrainerSpellData const* Creature::GetTrainerSpells() const
 {
-    return sObjectMgr.GetNpcTrainerSpells(GetEntry());
+    return sObjectMgr->GetNpcTrainerSpells(GetEntry());
 }
 
 // overwrite WorldObject function for proper name localization
@@ -2367,7 +2367,7 @@ const char* Creature::GetNameForLocaleIdx(LocaleConstant loc_idx) const
     if (loc_idx != DEFAULT_LOCALE)
     {
         uint8 uloc_idx = uint8(loc_idx);
-        CreatureLocale const *cl = sObjectMgr.GetCreatureLocale(GetEntry());
+        CreatureLocale const *cl = sObjectMgr->GetCreatureLocale(GetEntry());
         if (cl)
         {
             if (cl->Name.size() > uloc_idx && !cl->Name[uloc_idx].empty())
@@ -2383,8 +2383,8 @@ const CreatureData* Creature::GetLinkedRespawnCreatureData() const
     if (!m_DBTableGuid) // only hard-spawned creatures from DB can have a linked master
         return NULL;
 
-    if (uint32 targetGuid = sObjectMgr.GetLinkedRespawnGuid(m_DBTableGuid))
-        return sObjectMgr.GetCreatureData(targetGuid);
+    if (uint32 targetGuid = sObjectMgr->GetLinkedRespawnGuid(m_DBTableGuid))
+        return sObjectMgr->GetCreatureData(targetGuid);
 
     return NULL;
 }
@@ -2395,18 +2395,18 @@ time_t Creature::GetLinkedCreatureRespawnTime() const
     if (!m_DBTableGuid) // only hard-spawned creatures from DB can have a linked master
         return 0;
 
-    if (uint32 targetGuid = sObjectMgr.GetLinkedRespawnGuid(m_DBTableGuid))
+    if (uint32 targetGuid = sObjectMgr->GetLinkedRespawnGuid(m_DBTableGuid))
     {
         Map* targetMap = NULL;
-        if (const CreatureData* data = sObjectMgr.GetCreatureData(targetGuid))
+        if (const CreatureData* data = sObjectMgr->GetCreatureData(targetGuid))
         {
             if (data->mapid == GetMapId())   // look up on the same map
                 targetMap = GetMap();
             else                            // it shouldn't be instanceable map here
-                targetMap = sMapMgr.FindMap(data->mapid);
+                targetMap = sMapMgr->FindMap(data->mapid);
         }
         if (targetMap)
-            return sObjectMgr.GetCreatureRespawnTime(targetGuid,targetMap->GetInstanceId());
+            return sObjectMgr->GetCreatureRespawnTime(targetGuid,targetMap->GetInstanceId());
     }
 
     return 0;

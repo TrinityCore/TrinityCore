@@ -232,7 +232,7 @@ void BattlegroundSA::StartShips()
     {
         for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end();itr++)
         {
-            if (Player* p = sObjectMgr.GetPlayer(itr->first))
+            if (Player* p = sObjectMgr->GetPlayer(itr->first))
             {
                 if (p->GetTeamId() != attackers)
                     continue;
@@ -462,7 +462,7 @@ void BattlegroundSA::TeleportPlayers()
 {
     for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
     {
-        if (Player *plr = sObjectMgr.GetPlayer(itr->first))
+        if (Player *plr = sObjectMgr->GetPlayer(itr->first))
         {
             // should remove spirit of redemption
             if (plr->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))

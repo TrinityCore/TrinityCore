@@ -71,7 +71,7 @@ void OPvPCapturePoint::AddGO(uint32 type, uint32 guid, uint32 entry)
 {
     if (!entry)
     {
-        const GameObjectData *data = sObjectMgr.GetGOData(guid);
+        const GameObjectData *data = sObjectMgr->GetGOData(guid);
         if (!data)
             return;
         entry = data->id;
@@ -84,7 +84,7 @@ void OPvPCapturePoint::AddCre(uint32 type, uint32 guid, uint32 entry)
 {
     if (!entry)
     {
-        const CreatureData *data = sObjectMgr.GetCreatureData(guid);
+        const CreatureData *data = sObjectMgr->GetCreatureData(guid);
         if (!data)
             return;
         entry = data->id;
@@ -95,7 +95,7 @@ void OPvPCapturePoint::AddCre(uint32 type, uint32 guid, uint32 entry)
 
 bool OPvPCapturePoint::AddObject(uint32 type, uint32 entry, uint32 map, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3)
 {
-    if (uint32 guid = sObjectMgr.AddGOData(entry, map, x, y, z, o, 0, rotation0, rotation1, rotation2, rotation3))
+    if (uint32 guid = sObjectMgr->AddGOData(entry, map, x, y, z, o, 0, rotation0, rotation1, rotation2, rotation3))
     {
         AddGO(type, guid, entry);
         return true;
@@ -106,7 +106,7 @@ bool OPvPCapturePoint::AddObject(uint32 type, uint32 entry, uint32 map, float x,
 
 bool OPvPCapturePoint::AddCreature(uint32 type, uint32 entry, uint32 team, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay)
 {
-    if (uint32 guid = sObjectMgr.AddCreData(entry, team, map, x, y, z, o, spawntimedelay))
+    if (uint32 guid = sObjectMgr->AddCreData(entry, team, map, x, y, z, o, spawntimedelay))
     {
         AddCre(type, guid, entry);
         return true;
@@ -127,7 +127,7 @@ bool OPvPCapturePoint::SetCapturePointData(uint32 entry, uint32 map, float x, fl
         return false;
     }
 
-    m_capturePointGUID = sObjectMgr.AddGOData(entry, map, x, y, z, o, 0, rotation0, rotation1, rotation2, rotation3);
+    m_capturePointGUID = sObjectMgr->AddGOData(entry, map, x, y, z, o, 0, rotation0, rotation1, rotation2, rotation3);
     if (!m_capturePointGUID)
         return false;
 
@@ -163,12 +163,12 @@ bool OPvPCapturePoint::DelCreature(uint32 type)
     // explicit removal from map
     // beats me why this is needed, but with the recent removal "cleanup" some creatures stay in the map if "properly" deleted
     // so this is a big fat workaround, if AddObjectToRemoveList and DoDelayedMovesAndRemoves worked correctly, this wouldn't be needed
-    //if (Map * map = sMapMgr.FindMap(cr->GetMapId()))
+    //if (Map * map = sMapMgr->FindMap(cr->GetMapId()))
     //    map->Remove(cr,false);
     // delete respawn time for this creature
     CharacterDatabase.PExecute("DELETE FROM creature_respawn WHERE guid = '%u'", guid);
     cr->AddObjectToRemoveList();
-    sObjectMgr.DeleteCreatureData(guid);
+    sObjectMgr->DeleteCreatureData(guid);
     m_CreatureTypes[m_Creatures[type]] = 0;
     m_Creatures[type] = 0;
     return true;
@@ -188,7 +188,7 @@ bool OPvPCapturePoint::DelObject(uint32 type)
     uint32 guid = obj->GetDBTableGUIDLow();
     obj->SetRespawnTime(0);                                 // not save respawn time
     obj->Delete();
-    sObjectMgr.DeleteGOData(guid);
+    sObjectMgr->DeleteGOData(guid);
     m_ObjectTypes[m_Objects[type]] = 0;
     m_Objects[type] = 0;
     return true;
@@ -196,7 +196,7 @@ bool OPvPCapturePoint::DelObject(uint32 type)
 
 bool OPvPCapturePoint::DelCapturePoint()
 {
-    sObjectMgr.DeleteGOData(m_capturePointGUID);
+    sObjectMgr->DeleteGOData(m_capturePointGUID);
     m_capturePointGUID = 0;
 
     if (m_capturePoint)
@@ -566,7 +566,7 @@ void OutdoorPvP::BroadcastPacket(WorldPacket &data) const
 
 void OutdoorPvP::RegisterZone(uint32 zoneId)
 {
-    sOutdoorPvPMgr.AddZone(zoneId, this);
+    sOutdoorPvPMgr->AddZone(zoneId, this);
 }
 
 bool OutdoorPvP::HasPlayer(Player *plr) const

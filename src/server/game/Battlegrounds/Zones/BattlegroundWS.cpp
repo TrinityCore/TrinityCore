@@ -142,20 +142,20 @@ void BattlegroundWS::Update(uint32 diff)
           m_FlagSpellForceTimer += diff;
           if (m_FlagDebuffState == 0 && m_FlagSpellForceTimer >= 600000)  //10 minutes
           {
-            if (Player * plr = sObjectMgr.GetPlayer(m_FlagKeepers[0]))
+            if (Player * plr = sObjectMgr->GetPlayer(m_FlagKeepers[0]))
               plr->CastSpell(plr,WS_SPELL_FOCUSED_ASSAULT,true);
-            if (Player * plr = sObjectMgr.GetPlayer(m_FlagKeepers[1]))
+            if (Player * plr = sObjectMgr->GetPlayer(m_FlagKeepers[1]))
               plr->CastSpell(plr,WS_SPELL_FOCUSED_ASSAULT,true);
             m_FlagDebuffState = 1;
           }
           else if (m_FlagDebuffState == 1 && m_FlagSpellForceTimer >= 900000) //15 minutes
           {
-            if (Player * plr = sObjectMgr.GetPlayer(m_FlagKeepers[0]))
+            if (Player * plr = sObjectMgr->GetPlayer(m_FlagKeepers[0]))
             {
               plr->RemoveAurasDueToSpell(WS_SPELL_FOCUSED_ASSAULT);
               plr->CastSpell(plr,WS_SPELL_BRUTAL_ASSAULT,true);
             }
-            if (Player * plr = sObjectMgr.GetPlayer(m_FlagKeepers[1]))
+            if (Player * plr = sObjectMgr->GetPlayer(m_FlagKeepers[1]))
             {
               plr->RemoveAurasDueToSpell(WS_SPELL_FOCUSED_ASSAULT);
               plr->CastSpell(plr,WS_SPELL_BRUTAL_ASSAULT,true);
@@ -717,7 +717,7 @@ void BattlegroundWS::Reset()
     m_FlagState[BG_TEAM_HORDE]          = BG_WS_FLAG_STATE_ON_BASE;
     m_TeamScores[BG_TEAM_ALLIANCE]      = 0;
     m_TeamScores[BG_TEAM_HORDE]         = 0;
-    bool isBGWeekend = sBattlegroundMgr.IsBGWeekend(GetTypeID());
+    bool isBGWeekend = sBattlegroundMgr->IsBGWeekend(GetTypeID());
     m_ReputationCapture = (isBGWeekend) ? 45 : 35;
     m_HonorWinKills = (isBGWeekend) ? 3 : 1;
     m_HonorEndKills = (isBGWeekend) ? 4 : 2;

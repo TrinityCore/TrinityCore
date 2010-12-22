@@ -95,6 +95,6 @@ class SystemMgr
         PointMoveMap    m_mPointMoveMap;                    //coordinates for waypoints
 };
 
-#define sScriptSystemMgr (*ACE_Singleton<SystemMgr, ACE_Null_Mutex>::instance())
+#define sScriptSystemMgr ACE_Singleton<SystemMgr, ACE_Null_Mutex>::instance()
 
 #endif

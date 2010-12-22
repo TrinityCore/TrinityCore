@@ -723,13 +723,13 @@ public:
 
     static bool HandleDebugBattlegroundCommand(ChatHandler* /*handler*/, const char* /*args*/)
     {
-        sBattlegroundMgr.ToggleTesting();
+        sBattlegroundMgr->ToggleTesting();
         return true;
     }
 
     static bool HandleDebugArenaCommand(ChatHandler* /*handler*/, const char* /*args*/)
     {
-        sBattlegroundMgr.ToggleArenaTesting();
+        sBattlegroundMgr->ToggleArenaTesting();
         return true;
     }
 
@@ -865,7 +865,7 @@ public:
 
         Map *map = handler->GetSession()->GetPlayer()->GetMap();
 
-        if (!v->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_VEHICLE), map, handler->GetSession()->GetPlayer()->GetPhaseMask(), entry, id, handler->GetSession()->GetPlayer()->GetTeam(), x, y, z, o))
+        if (!v->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_VEHICLE), map, handler->GetSession()->GetPlayer()->GetPhaseMask(), entry, id, handler->GetSession()->GetPlayer()->GetTeam(), x, y, z, o))
         {
             delete v;
             return false;
@@ -971,7 +971,7 @@ public:
             return false;
 
         handler->GetSession()->GetPlayer()->DestroyItem(i->GetBagSlot(), i->GetSlot(), true);
-        sScriptMgr.OnItemExpire(handler->GetSession()->GetPlayer(), i->GetProto());
+        sScriptMgr->OnItemExpire(handler->GetSession()->GetPlayer(), i->GetProto());
 
         return true;
     }

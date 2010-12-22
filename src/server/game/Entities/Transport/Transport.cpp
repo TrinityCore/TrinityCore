@@ -50,7 +50,7 @@ void MapManager::LoadTransports()
         uint32 entry = fields[1].GetUInt32();
         std::string name = fields[2].GetString();
         uint32 period = fields[3].GetUInt32();
-        uint32 scriptId = sObjectMgr.GetScriptId(fields[4].GetCString());
+        uint32 scriptId = sObjectMgr->GetScriptId(fields[4].GetCString());
 
         Transport *t = new Transport(period, scriptId);
 
@@ -101,7 +101,7 @@ void MapManager::LoadTransports()
             m_TransportsByMap[*i].insert(t);
 
         //If we someday decide to use the grid to track transports, here:
-        t->SetMap(sMapMgr.CreateMap(mapid, t, 0));
+        t->SetMap(sMapMgr->CreateMap(mapid, t, 0));
         t->AddToWorld();
 
         ++count;
@@ -502,7 +502,7 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
 
     RemoveFromWorld();
     ResetMap();
-    Map * newMap = sMapMgr.CreateMap(newMapid, this, 0);
+    Map * newMap = sMapMgr->CreateMap(newMapid, this, 0);
     SetMap(newMap);
     ASSERT (GetMap());
     AddToWorld();
@@ -522,7 +522,7 @@ bool Transport::AddPassenger(Player* passenger)
     if (m_passengers.insert(passenger).second)
         sLog.outDetail("Player %s boarded transport %s.", passenger->GetName(), GetName());
 
-    sScriptMgr.OnAddPassenger(this, passenger);
+    sScriptMgr->OnAddPassenger(this, passenger);
     return true;
 }
 
@@ -531,7 +531,7 @@ bool Transport::RemovePassenger(Player* passenger)
     if (m_passengers.erase(passenger))
         sLog.outDetail("Player %s removed from transport %s.", passenger->GetName(), GetName());
 
-    sScriptMgr.OnRemovePassenger(this, passenger);
+    sScriptMgr->OnRemovePassenger(this, passenger);
     return true;
 }
 
@@ -568,7 +568,7 @@ void Transport::Update(uint32 p_diff)
             UpdateNPCPositions(); // COME BACK MARKER
         }
 
-        sScriptMgr.OnRelocate(this, m_curr->first, m_curr->second.mapid, m_curr->second.x, m_curr->second.y, m_curr->second.z);
+        sScriptMgr->OnRelocate(this, m_curr->first, m_curr->second.mapid, m_curr->second.x, m_curr->second.y, m_curr->second.z);
 
         m_nextNodeTime = m_curr->first;
 
@@ -579,7 +579,7 @@ void Transport::Update(uint32 p_diff)
             sLog.outDetail("%s moved to %d %f %f %f %d", m_name.c_str(), m_curr->second.id, m_curr->second.x, m_curr->second.y, m_curr->second.z, m_curr->second.mapid);
     }
 
-    sScriptMgr.OnTransportUpdate(this, p_diff);
+    sScriptMgr->OnTransportUpdate(this, p_diff);
 }
 
 void Transport::UpdateForMap(Map const* targetMap)
@@ -644,7 +644,7 @@ uint32 Transport::AddNPCPassenger(uint32 tguid, uint32 entry, float x, float y, 
     Map* map = GetMap();
     Creature* pCreature = new Creature;
 
-    if (!pCreature->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_UNIT), map, GetPhaseMask(), entry, 0, GetGOInfo()->faction, 0, 0, 0, 0))
+    if (!pCreature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, GetPhaseMask(), entry, 0, GetGOInfo()->faction, 0, 0, 0, 0))
     {
         delete pCreature;
         return 0;
@@ -685,7 +685,7 @@ uint32 Transport::AddNPCPassenger(uint32 tguid, uint32 entry, float x, float y, 
         currenttguid = std::max(tguid, currenttguid);
 
     pCreature->SetGUIDTransport(tguid);
-    sScriptMgr.OnAddCreaturePassenger(this, pCreature);
+    sScriptMgr->OnAddCreaturePassenger(this, pCreature);
     return tguid;
 }
 
