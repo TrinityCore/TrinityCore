@@ -299,7 +299,7 @@ bool MapManager::ExistMapAndVMap(uint32 mapid, float x,float y)
 bool MapManager::IsValidMAP(uint32 mapid)
 {
     MapEntry const* mEntry = sMapStore.LookupEntry(mapid);
-    return mEntry && (!mEntry->IsDungeon() || ObjectMgr::GetItemPrototype(mapid));
+    return mEntry && (!mEntry->IsDungeon() || ObjectMgr::GetInstanceTemplate(mapid));
     // TODO: add check for battleground template
 }
 
