@@ -27,7 +27,7 @@
 struct Tokens: public std::vector<char*>
 {
     Tokens(const std::string &src, const char sep, uint32 vectorReserve = 0);
-    ~Tokens() { delete m_str; }
+    ~Tokens() { delete[] m_str; }
 
     char* m_str;
 };
