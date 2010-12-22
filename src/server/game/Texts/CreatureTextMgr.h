@@ -79,5 +79,5 @@ class CreatureTextMgr
         CreatureTextRepeatMap mTextRepeatMap;
 };
 
-#define sCreatureTextMgr (*ACE_Singleton<CreatureTextMgr, ACE_Null_Mutex>::instance())
+#define sCreatureTextMgr ACE_Singleton<CreatureTextMgr, ACE_Null_Mutex>::instance()
 #endif

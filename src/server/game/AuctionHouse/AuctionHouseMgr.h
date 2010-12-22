@@ -172,6 +172,6 @@ class AuctionHouseMgr
         ItemMap mAitems;
 };
 
-#define sAuctionMgr (*ACE_Singleton<AuctionHouseMgr, ACE_Null_Mutex>::instance())
+#define sAuctionMgr ACE_Singleton<AuctionHouseMgr, ACE_Null_Mutex>::instance()
 
 #endif

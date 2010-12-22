@@ -527,7 +527,7 @@ void Aura::UpdateTargetMap(Unit * caster, bool apply)
                     for (Unit::AuraApplicationMap::iterator iter = itr->first->GetAppliedAuras().begin(); iter != itr->first->GetAppliedAuras().end(); ++iter)
                     {
                         Aura const * aura = iter->second->GetBase();
-                        if (!sSpellMgr.CanAurasStack(this, aura, aura->GetCasterGUID() == GetCasterGUID()))
+                        if (!sSpellMgr->CanAurasStack(this, aura, aura->GetCasterGUID() == GetCasterGUID()))
                         {
                             addUnit = false;
                             break;
@@ -863,7 +863,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
     Unit * target = aurApp->GetTarget();
     AuraRemoveMode removeMode = aurApp->GetRemoveMode();
     // spell_area table
-    SpellAreaForAreaMapBounds saBounds = sSpellMgr.GetSpellAreaForAuraMapBounds(GetId());
+    SpellAreaForAreaMapBounds saBounds = sSpellMgr->GetSpellAreaForAuraMapBounds(GetId());
     if (saBounds.first != saBounds.second)
     {
         uint32 zone, area;
@@ -886,9 +886,9 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
     if (apply)
     {
         // Apply linked auras (On first aura apply)
-        if (sSpellMgr.GetSpellCustomAttr(GetId()) & SPELL_ATTR0_CU_LINK_AURA)
+        if (sSpellMgr->GetSpellCustomAttr(GetId()) & SPELL_ATTR0_CU_LINK_AURA)
         {
-            if (const std::vector<int32> *spell_triggered = sSpellMgr.GetSpellLinked(GetId() + SPELL_LINK_AURA))
+            if (const std::vector<int32> *spell_triggered = sSpellMgr->GetSpellLinked(GetId() + SPELL_LINK_AURA))
                 for (std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
                 {
                     if (*itr < 0)
@@ -1090,11 +1090,11 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
         // Remove Linked Auras
         if (removeMode != AURA_REMOVE_BY_STACK && removeMode != AURA_REMOVE_BY_DEATH)
         {
-            if (uint32 customAttr = sSpellMgr.GetSpellCustomAttr(GetId()))
+            if (uint32 customAttr = sSpellMgr->GetSpellCustomAttr(GetId()))
             {
                 if (customAttr & SPELL_ATTR0_CU_LINK_REMOVE)
                 {
-                    if (const std::vector<int32> *spell_triggered = sSpellMgr.GetSpellLinked(-(int32)GetId()))
+                    if (const std::vector<int32> *spell_triggered = sSpellMgr->GetSpellLinked(-(int32)GetId()))
                         for (std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
                         {
                             if (*itr < 0)
@@ -1105,7 +1105,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                 }
                 if (customAttr & SPELL_ATTR0_CU_LINK_AURA)
                 {
-                    if (const std::vector<int32> *spell_triggered = sSpellMgr.GetSpellLinked(GetId() + SPELL_LINK_AURA))
+                    if (const std::vector<int32> *spell_triggered = sSpellMgr->GetSpellLinked(GetId() + SPELL_LINK_AURA))
                         for (std::vector<int32>::const_iterator itr = spell_triggered->begin(); itr != spell_triggered->end(); ++itr)
                         {
                             if (*itr < 0)
@@ -1634,7 +1634,7 @@ void Aura::_DeleteRemovedApplications()
 void Aura::LoadScripts()
 {
     sLog.outDebug("Aura::LoadScripts");
-    sScriptMgr.CreateAuraScripts(m_spellProto->Id, m_loadedScripts);
+    sScriptMgr->CreateAuraScripts(m_spellProto->Id, m_loadedScripts);
     for(std::list<AuraScript *>::iterator itr = m_loadedScripts.begin(); itr != m_loadedScripts.end() ;)
     {
         if (!(*itr)->_Load(this))

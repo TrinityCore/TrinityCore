@@ -35,13 +35,13 @@ void WorldSession::HandleInspectArenaTeamsOpcode(WorldPacket & recv_data)
     recv_data >> guid;
     sLog.outDebug("Inspect Arena stats (GUID: %u TypeId: %u)", GUID_LOPART(guid),GuidHigh2TypeId(GUID_HIPART(guid)));
 
-    if (Player *plr = sObjectMgr.GetPlayer(guid))
+    if (Player *plr = sObjectMgr->GetPlayer(guid))
     {
         for (uint8 i = 0; i < MAX_ARENA_SLOT; ++i)
         {
             if (uint32 a_id = plr->GetArenaTeamId(i))
             {
-                if (ArenaTeam *at = sObjectMgr.GetArenaTeamById(a_id))
+                if (ArenaTeam *at = sObjectMgr->GetArenaTeamById(a_id))
                     at->InspectStats(this, plr->GetGUID());
             }
         }
@@ -55,7 +55,7 @@ void WorldSession::HandleArenaTeamQueryOpcode(WorldPacket & recv_data)
     uint32 ArenaTeamId;
     recv_data >> ArenaTeamId;
 
-    if (ArenaTeam *arenateam = sObjectMgr.GetArenaTeamById(ArenaTeamId))
+    if (ArenaTeam *arenateam = sObjectMgr->GetArenaTeamById(ArenaTeamId))
     {
         arenateam->Query(this);
         arenateam->Stats(this);
@@ -69,7 +69,7 @@ void WorldSession::HandleArenaTeamRosterOpcode(WorldPacket & recv_data)
     uint32 ArenaTeamId;                                     // arena team id
     recv_data >> ArenaTeamId;
 
-    if (ArenaTeam *arenateam = sObjectMgr.GetArenaTeamById(ArenaTeamId))
+    if (ArenaTeam *arenateam = sObjectMgr->GetArenaTeamById(ArenaTeamId))
         arenateam->Roster(this);
 }
 
@@ -104,7 +104,7 @@ void WorldSession::HandleArenaTeamInviteOpcode(WorldPacket & recv_data)
         return;
     }
 
-    ArenaTeam *arenateam = sObjectMgr.GetArenaTeamById(ArenaTeamId);
+    ArenaTeam *arenateam = sObjectMgr->GetArenaTeamById(ArenaTeamId);
     if (!arenateam)
     {
         SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, "", "", ERR_ARENA_TEAM_PLAYER_NOT_IN_TEAM);
@@ -155,7 +155,7 @@ void WorldSession::HandleArenaTeamAcceptOpcode(WorldPacket & /*recv_data*/)
 {
     sLog.outDebug("CMSG_ARENA_TEAM_ACCEPT");                // empty opcode
 
-    ArenaTeam *at = sObjectMgr.GetArenaTeamById(_player->GetArenaTeamIdInvited());
+    ArenaTeam *at = sObjectMgr->GetArenaTeamById(_player->GetArenaTeamIdInvited());
     if (!at)
         return;
 
@@ -166,7 +166,7 @@ void WorldSession::HandleArenaTeamAcceptOpcode(WorldPacket & /*recv_data*/)
         return;
     }
 
-    if (!sWorld.getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD) && _player->GetTeam() != sObjectMgr.GetPlayerTeamByGUID(at->GetCaptain()))
+    if (!sWorld.getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD) && _player->GetTeam() != sObjectMgr->GetPlayerTeamByGUID(at->GetCaptain()))
     {
         // not let enemies sign petition
         SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, "", "", ERR_ARENA_TEAM_NOT_ALLIED);
@@ -198,7 +198,7 @@ void WorldSession::HandleArenaTeamLeaveOpcode(WorldPacket & recv_data)
     uint32 ArenaTeamId;                                     // arena team id
     recv_data >> ArenaTeamId;
 
-    ArenaTeam *at = sObjectMgr.GetArenaTeamById(ArenaTeamId);
+    ArenaTeam *at = sObjectMgr->GetArenaTeamById(ArenaTeamId);
     if (!at)
         return;
 
@@ -233,7 +233,7 @@ void WorldSession::HandleArenaTeamDisbandOpcode(WorldPacket & recv_data)
     uint32 ArenaTeamId;                                     // arena team id
     recv_data >> ArenaTeamId;
 
-    if (ArenaTeam *at = sObjectMgr.GetArenaTeamById(ArenaTeamId))
+    if (ArenaTeam *at = sObjectMgr->GetArenaTeamById(ArenaTeamId))
     {
         if (at->GetCaptain() != _player->GetGUID())
             return;
@@ -256,7 +256,7 @@ void WorldSession::HandleArenaTeamRemoveOpcode(WorldPacket & recv_data)
     recv_data >> ArenaTeamId;
     recv_data >> name;
 
-    ArenaTeam *at = sObjectMgr.GetArenaTeamById(ArenaTeamId);
+    ArenaTeam *at = sObjectMgr->GetArenaTeamById(ArenaTeamId);
     if (!at)                                                 // arena team not found
         return;
 
@@ -298,7 +298,7 @@ void WorldSession::HandleArenaTeamLeaderOpcode(WorldPacket & recv_data)
     recv_data >> ArenaTeamId;
     recv_data >> name;
 
-    ArenaTeam *at = sObjectMgr.GetArenaTeamById(ArenaTeamId);
+    ArenaTeam *at = sObjectMgr->GetArenaTeamById(ArenaTeamId);
     if (!at)                                                 // arena team not found
         return;
 

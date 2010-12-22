@@ -290,7 +290,7 @@ void Item::UpdateDuration(Player* owner, uint32 diff)
 
     if (GetUInt32Value(ITEM_FIELD_DURATION) <= diff)
     {
-        sScriptMgr.OnItemExpire(owner, GetProto());
+        sScriptMgr->OnItemExpire(owner, GetProto());
         owner->DestroyItem(GetBagSlot(), GetSlot(), true);
         return;
     }
@@ -472,7 +472,7 @@ ItemPrototype const *Item::GetProto() const
 
 Player* Item::GetOwner()const
 {
-    return sObjectMgr.GetPlayer(GetOwnerGUID());
+    return sObjectMgr->GetPlayer(GetOwnerGUID());
 }
 
 uint32 Item::GetSkill()
@@ -813,7 +813,7 @@ bool Item::IsFitToSpellRequirements(SpellEntry const* spellInfo) const
         // Special case - accept vellum for armor/weapon requirements
         if ((spellInfo->EquippedItemClass == ITEM_CLASS_ARMOR && proto->IsArmorVellum())
             ||(spellInfo->EquippedItemClass == ITEM_CLASS_WEAPON && proto->IsWeaponVellum()))
-            if (sSpellMgr.IsSkillTypeSpell(spellInfo->Id, SKILL_ENCHANTING)) // only for enchanting spells
+            if (sSpellMgr->IsSkillTypeSpell(spellInfo->Id, SKILL_ENCHANTING)) // only for enchanting spells
                 return true;
 
         if (spellInfo->EquippedItemClass != int32(proto->Class))
@@ -842,7 +842,7 @@ bool Item::IsFitToSpellRequirements(SpellEntry const* spellInfo) const
 
 bool Item::IsTargetValidForItemUse(Unit* pUnitTarget)
 {
-    ConditionList conditions = sConditionMgr.GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_ITEM_REQUIRED_TARGET, GetProto()->ItemId);
+    ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_ITEM_REQUIRED_TARGET, GetProto()->ItemId);
     if (conditions.empty())
         return true;
 
@@ -1015,7 +1015,7 @@ Item* Item::CreateItem(uint32 item, uint32 count, Player const* player)
         ASSERT(count !=0 && "pProto->Stackable == 0 but checked at loading already");
 
         Item *pItem = NewItemOrBag(pProto);
-        if (pItem->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_ITEM), item, player))
+        if (pItem->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), item, player))
         {
             pItem->SetCount(count);
             return pItem;

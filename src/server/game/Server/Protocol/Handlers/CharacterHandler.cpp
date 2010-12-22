@@ -352,14 +352,14 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
         return;
     }
 
-    if (GetSecurity() == SEC_PLAYER && sObjectMgr.IsReservedName(name))
+    if (GetSecurity() == SEC_PLAYER && sObjectMgr->IsReservedName(name))
     {
         data << (uint8)CHAR_NAME_RESERVED;
         SendPacket(&data);
         return;
     }
 
-    if (sObjectMgr.GetPlayerGUIDByName(name))
+    if (sObjectMgr->GetPlayerGUIDByName(name))
     {
         data << (uint8)CHAR_CREATE_NAME_IN_USE;
         SendPacket(&data);
@@ -532,7 +532,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
     }
 
     Player * pNewChar = new Player(this);
-    if (!pNewChar->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_PLAYER), name, race_, class_, gender, skin, face, hairStyle, hairColor, facialHair, outfitId))
+    if (!pNewChar->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_PLAYER), name, race_, class_, gender, skin, face, hairStyle, hairColor, facialHair, outfitId))
     {
         // Player not create (race/class problem?)
         pNewChar->CleanupsBeforeDelete();
@@ -564,7 +564,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
     std::string IP_str = GetRemoteAddress();
     sLog.outDetail("Account: %d (IP: %s) Create Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), pNewChar->GetGUIDLow());
     sLog.outChar("Account: %d (IP: %s) Create Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), pNewChar->GetGUIDLow());
-    sScriptMgr.OnPlayerCreate(pNewChar);
+    sScriptMgr->OnPlayerCreate(pNewChar);
     delete pNewChar;                                        // created only to call SaveToDB()
 
 }
@@ -575,14 +575,14 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket & recv_data)
     recv_data >> guid;
 
     // can't delete loaded character
-    if (sObjectMgr.GetPlayer(guid))
+    if (sObjectMgr->GetPlayer(guid))
         return;
 
     uint32 accountId = 0;
     std::string name;
 
     // is guild leader
-    if (sObjectMgr.GetGuildByLeader(guid))
+    if (sObjectMgr->GetGuildByLeader(guid))
     {
         WorldPacket data(SMSG_CHAR_DELETE, 1);
         data << (uint8)CHAR_DELETE_FAILED_GUILD_LEADER;
@@ -591,7 +591,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket & recv_data)
     }
 
     // is arena team captain
-    if (sObjectMgr.GetArenaTeamByCaptain(guid))
+    if (sObjectMgr->GetArenaTeamByCaptain(guid))
     {
         WorldPacket data(SMSG_CHAR_DELETE, 1);
         data << (uint8)CHAR_DELETE_FAILED_ARENA_CAPTAIN;
@@ -614,7 +614,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket & recv_data)
     std::string IP_str = GetRemoteAddress();
     sLog.outDetail("Account: %d (IP: %s) Delete Character:[%s] (GUID: %u)",GetAccountId(),IP_str.c_str(),name.c_str(),GUID_LOPART(guid));
     sLog.outChar("Account: %d (IP: %s) Delete Character:[%s] (GUID: %u)",GetAccountId(),IP_str.c_str(),name.c_str(),GUID_LOPART(guid));
-    sScriptMgr.OnPlayerDelete(guid);
+    sScriptMgr->OnPlayerDelete(guid);
 
     if (sLog.IsOutCharDump())                                // optimize GetPlayerDump call
     {
@@ -750,7 +750,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
 
     if (pCurrChar->GetGuildId() != 0)
     {
-        if (Guild* pGuild = sObjectMgr.GetGuildById(pCurrChar->GetGuildId()))
+        if (Guild* pGuild = sObjectMgr->GetGuildById(pCurrChar->GetGuildId()))
             pGuild->SendLoginInfo(this);
         else
         {
@@ -787,7 +787,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
 
     if (!pCurrChar->GetMap()->Add(pCurrChar) || !pCurrChar->CheckInstanceLoginValid())
     {
-        AreaTrigger const* at = sObjectMgr.GetGoBackTrigger(pCurrChar->GetMapId());
+        AreaTrigger const* at = sObjectMgr->GetGoBackTrigger(pCurrChar->GetMapId());
         if (at)
             pCurrChar->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, pCurrChar->GetOrientation());
         else
@@ -812,7 +812,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
     }
 
     // friend status
-    sSocialMgr.SendFriendStatus(pCurrChar, FRIEND_ONLINE, pCurrChar->GetGUIDLow(), true);
+    sSocialMgr->SendFriendStatus(pCurrChar, FRIEND_ONLINE, pCurrChar->GetGUIDLow(), true);
 
     // Place character in world (and load zone) before some object loading
     pCurrChar->LoadCorpse();
@@ -880,7 +880,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
 
     m_playerLoading = false;
 
-    sScriptMgr.OnPlayerLogin(pCurrChar);
+    sScriptMgr->OnPlayerLogin(pCurrChar);
     delete holder;
 }
 
@@ -1019,7 +1019,7 @@ void WorldSession::HandleCharRenameOpcode(WorldPacket& recv_data)
     }
 
     // check name limitations
-    if (GetSecurity() == SEC_PLAYER && sObjectMgr.IsReservedName(newname))
+    if (GetSecurity() == SEC_PLAYER && sObjectMgr->IsReservedName(newname))
     {
         WorldPacket data(SMSG_CHAR_RENAME, 1);
         data << uint8(CHAR_NAME_RESERVED);
@@ -1075,7 +1075,7 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recv_data)
 
     // not accept declined names for unsupported languages
     std::string name;
-    if (!sObjectMgr.GetPlayerNameByGUID(guid, name))
+    if (!sObjectMgr->GetPlayerNameByGUID(guid, name))
     {
         WorldPacket data(SMSG_SET_PLAYER_DECLINED_NAMES_RESULT, 4+8);
         data << uint32(1);
@@ -1281,7 +1281,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recv_data)
     }
 
     // check name limitations
-    if (GetSecurity() == SEC_PLAYER && sObjectMgr.IsReservedName(newname))
+    if (GetSecurity() == SEC_PLAYER && sObjectMgr->IsReservedName(newname))
     {
         WorldPacket data(SMSG_CHAR_CUSTOMIZE, 1);
         data << uint8(CHAR_NAME_RESERVED);
@@ -1290,7 +1290,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recv_data)
     }
 
     // character with this name already exist
-    if (uint64 newguid = sObjectMgr.GetPlayerGUIDByName(newname))
+    if (uint64 newguid = sObjectMgr->GetPlayerGUIDByName(newname))
     {
         if (newguid != guid)
         {
@@ -1453,7 +1453,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
     uint32 at_loginFlags = fields[2].GetUInt32();
     uint32 used_loginFlag = ((recv_data.GetOpcode() == CMSG_CHAR_RACE_CHANGE) ? AT_LOGIN_CHANGE_RACE : AT_LOGIN_CHANGE_FACTION);
 
-    if (!sObjectMgr.GetPlayerInfo(race, playerClass))
+    if (!sObjectMgr->GetPlayerInfo(race, playerClass))
     {
         WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 1);
         data << uint8(CHAR_CREATE_ERROR);
@@ -1500,7 +1500,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
     }
 
     // check name limitations
-    if (GetSecurity() == SEC_PLAYER && sObjectMgr.IsReservedName(newname))
+    if (GetSecurity() == SEC_PLAYER && sObjectMgr->IsReservedName(newname))
     {
         WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 1);
         data << uint8(CHAR_NAME_RESERVED);
@@ -1509,7 +1509,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
     }
 
     // character with this name already exist
-    if (uint64 newguid = sObjectMgr.GetPlayerGUIDByName(newname))
+    if (uint64 newguid = sObjectMgr->GetPlayerGUIDByName(newname))
     {
         if (newguid != guid)
         {
@@ -1641,7 +1641,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
         // Delete record of the faction old completed quests
         {
             std::ostringstream quests;
-            ObjectMgr::QuestMap const& qTemplates = sObjectMgr.GetQuestTemplates();
+            ObjectMgr::QuestMap const& qTemplates = sObjectMgr->GetQuestTemplates();
             for (ObjectMgr::QuestMap::const_iterator iter = qTemplates.begin(); iter != qTemplates.end(); ++iter)
             {
                 Quest *qinfo = iter->second;
@@ -1700,7 +1700,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
         }
 
         // Achievement conversion
-        for (std::map<uint32, uint32>::const_iterator it = sObjectMgr.factionchange_achievements.begin(); it != sObjectMgr.factionchange_achievements.end(); ++it)
+        for (std::map<uint32, uint32>::const_iterator it = sObjectMgr->factionchange_achievements.begin(); it != sObjectMgr->factionchange_achievements.end(); ++it)
         {
             uint32 achiev_alliance = it->first;
             uint32 achiev_horde = it->second;
@@ -1711,7 +1711,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
         }
 
         // Item conversion
-        for (std::map<uint32, uint32>::const_iterator it = sObjectMgr.factionchange_items.begin(); it != sObjectMgr.factionchange_items.end(); ++it)
+        for (std::map<uint32, uint32>::const_iterator it = sObjectMgr->factionchange_items.begin(); it != sObjectMgr->factionchange_items.end(); ++it)
         {
             uint32 item_alliance = it->first;
             uint32 item_horde = it->second;
@@ -1720,7 +1720,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
         }
 
         // Spell conversion
-        for (std::map<uint32, uint32>::const_iterator it = sObjectMgr.factionchange_spells.begin(); it != sObjectMgr.factionchange_spells.end(); ++it)
+        for (std::map<uint32, uint32>::const_iterator it = sObjectMgr->factionchange_spells.begin(); it != sObjectMgr->factionchange_spells.end(); ++it)
         {
             uint32 spell_alliance = it->first;
             uint32 spell_horde = it->second;
@@ -1731,7 +1731,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
         }
 
         // Reputation conversion
-        for (std::map<uint32, uint32>::const_iterator it = sObjectMgr.factionchange_reputations.begin(); it != sObjectMgr.factionchange_reputations.end(); ++it)
+        for (std::map<uint32, uint32>::const_iterator it = sObjectMgr->factionchange_reputations.begin(); it != sObjectMgr->factionchange_reputations.end(); ++it)
         {
             uint32 reputation_alliance = it->first;
             uint32 reputation_horde = it->second;

@@ -237,7 +237,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                 LookupOpcodeName(packet->GetOpcode()),
                 packet->GetOpcode());
 
-            sScriptMgr.OnUnknownPacketReceive(m_Socket, WorldPacket(*packet));
+            sScriptMgr->OnUnknownPacketReceive(m_Socket, WorldPacket(*packet));
         }
         else
         {
@@ -255,7 +255,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         }
                         else if (_player->IsInWorld())
                         {
-                            sScriptMgr.OnPacketReceive(m_Socket, WorldPacket(*packet));
+                            sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
                             (this->*opHandle.handler)(*packet);
                             if (sLog.IsOutDebug() && packet->rpos() < packet->wpos())
                                 LogUnprocessedTail(packet);
@@ -268,7 +268,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         else
                         {
                             // not expected _player or must checked in packet hanlder
-                            sScriptMgr.OnPacketReceive(m_Socket, WorldPacket(*packet));
+                            sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
                             (this->*opHandle.handler)(*packet);
                             if (sLog.IsOutDebug() && packet->rpos() < packet->wpos())
                                 LogUnprocessedTail(packet);
@@ -281,7 +281,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                             LogUnexpectedOpcode(packet, "the player is still in world");
                         else
                         {
-                            sScriptMgr.OnPacketReceive(m_Socket, WorldPacket(*packet));
+                            sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
                             (this->*opHandle.handler)(*packet);
                             if (sLog.IsOutDebug() && packet->rpos() < packet->wpos())
                                 LogUnprocessedTail(packet);
@@ -300,7 +300,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         if (packet->GetOpcode() != CMSG_SET_ACTIVE_VOICE_CHANNEL)
                             m_playerRecentlyLogout = false;
 
-                        sScriptMgr.OnPacketReceive(m_Socket, WorldPacket(*packet));
+                        sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
                         (this->*opHandle.handler)(*packet);
                         if (sLog.IsOutDebug() && packet->rpos() < packet->wpos())
                             LogUnprocessedTail(packet);
@@ -432,14 +432,14 @@ void WorldSession::LogoutPlayer(bool Save)
         if (!_player->m_InstanceValid && !_player->isGameMaster())
             _player->TeleportTo(_player->m_homebindMapId, _player->m_homebindX, _player->m_homebindY, _player->m_homebindZ, _player->GetOrientation());
 
-        sOutdoorPvPMgr.HandlePlayerLeaveZone(_player,_player->GetZoneId());
+        sOutdoorPvPMgr->HandlePlayerLeaveZone(_player,_player->GetZoneId());
 
         for (int i=0; i < PLAYER_MAX_BATTLEGROUND_QUEUES; ++i)
         {
             if (BattlegroundQueueTypeId bgQueueTypeId = _player->GetBattlegroundQueueTypeId(i))
             {
                 _player->RemoveBattlegroundQueueId(bgQueueTypeId);
-                sBattlegroundMgr.m_BattlegroundQueues[ bgQueueTypeId ].RemovePlayer(_player->GetGUID(), true);
+                sBattlegroundMgr->m_BattlegroundQueues[ bgQueueTypeId ].RemovePlayer(_player->GetGUID(), true);
             }
         }
 
@@ -449,7 +449,7 @@ void WorldSession::LogoutPlayer(bool Save)
             HandleMoveWorldportAckOpcode();
 
         ///- If the player is in a guild, update the guild roster and broadcast a logout message to other guild members
-        if (Guild *pGuild = sObjectMgr.GetGuildById(_player->GetGuildId()))
+        if (Guild *pGuild = sObjectMgr->GetGuildById(_player->GetGuildId()))
             pGuild->HandleMemberLogout(this);
 
         ///- Remove pet
@@ -489,11 +489,11 @@ void WorldSession::LogoutPlayer(bool Save)
         }
 
         ///- Broadcast a logout message to the player's friends
-        sSocialMgr.SendFriendStatus(_player, FRIEND_OFFLINE, _player->GetGUIDLow(), true);
-        sSocialMgr.RemovePlayerSocial (_player->GetGUIDLow ());
+        sSocialMgr->SendFriendStatus(_player, FRIEND_OFFLINE, _player->GetGUIDLow(), true);
+        sSocialMgr->RemovePlayerSocial (_player->GetGUIDLow ());
 
         // Call script hook before deletion
-        sScriptMgr.OnPlayerLogout(GetPlayer());
+        sScriptMgr->OnPlayerLogout(GetPlayer());
 
         ///- Remove the player from the world
         // the player may not be in the world when logging out
@@ -566,7 +566,7 @@ void WorldSession::SendNotification(uint32 string_id,...)
 
 const char * WorldSession::GetTrinityString(int32 entry) const
 {
-    return sObjectMgr.GetTrinityString(entry, GetSessionDbLocaleIndex());
+    return sObjectMgr->GetTrinityString(entry, GetSessionDbLocaleIndex());
 }
 
 void WorldSession::Handle_NULL(WorldPacket& recvPacket)
@@ -877,7 +877,7 @@ void WorldSession::ReadAddonsInfo(WorldPacket &data)
 
             AddonInfo addon(addonName, enabled, crc, 2, true);
 
-            SavedAddon const* savedAddon = sAddonMgr.GetAddonInfo(addonName);
+            SavedAddon const* savedAddon = sAddonMgr->GetAddonInfo(addonName);
             if (savedAddon)
             {
                 bool match = true;
@@ -892,7 +892,7 @@ void WorldSession::ReadAddonsInfo(WorldPacket &data)
             }
             else
             {
-                sAddonMgr.SaveAddon(addon);
+                sAddonMgr->SaveAddon(addon);
 
                 sLog.outDetail("ADDON: %s (0x%x) was not known, saving...", addon.Name.c_str(), addon.CRC);
             }

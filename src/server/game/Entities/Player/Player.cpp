@@ -233,13 +233,13 @@ bool PlayerTaxi::LoadTaxiDestinationsFromString(const std::string& values, uint3
     {
         uint32 cost;
         uint32 path;
-        sObjectMgr.GetTaxiPath(m_TaxiDestinations[i-1],m_TaxiDestinations[i],path,cost);
+        sObjectMgr->GetTaxiPath(m_TaxiDestinations[i-1],m_TaxiDestinations[i],path,cost);
         if (!path)
             return false;
     }
 
     // can't load taxi path without mount set (quest taxi path?)
-    if (!sObjectMgr.GetTaxiMountDisplayId(GetTaxiSource(),team,true))
+    if (!sObjectMgr->GetTaxiMountDisplayId(GetTaxiSource(),team,true))
         return false;
 
     return true;
@@ -266,7 +266,7 @@ uint32 PlayerTaxi::GetCurrentTaxiPath() const
     uint32 path;
     uint32 cost;
 
-    sObjectMgr.GetTaxiPath(m_TaxiDestinations[0],m_TaxiDestinations[1],path,cost);
+    sObjectMgr->GetTaxiPath(m_TaxiDestinations[0],m_TaxiDestinations[1],path,cost);
 
     return path;
 }
@@ -677,7 +677,7 @@ bool Player::Create(uint32 guidlow, const std::string& name, uint8 race, uint8 c
 
     m_name = name;
 
-    PlayerInfo const* info = sObjectMgr.GetPlayerInfo(race, class_);
+    PlayerInfo const* info = sObjectMgr->GetPlayerInfo(race, class_);
     if (!info)
     {
         sLog.outError("Player have incorrect race/class pair. Can't be loaded.");
@@ -696,7 +696,7 @@ bool Player::Create(uint32 guidlow, const std::string& name, uint8 race, uint8 c
         return false;
     }
 
-    SetMap(sMapMgr.CreateMap(info->mapId, this, 0));
+    SetMap(sMapMgr->CreateMap(info->mapId, this, 0));
 
     uint8 powertype = cEntry->powerType;
 
@@ -1595,7 +1595,7 @@ bool Player::BuildEnumData(QueryResult result, WorldPacket * p_data)
     uint8 pRace = fields[2].GetUInt8();
     uint8 pClass = fields[3].GetUInt8();
 
-    PlayerInfo const *info = sObjectMgr.GetPlayerInfo(pRace, pClass);
+    PlayerInfo const *info = sObjectMgr->GetPlayerInfo(pRace, pClass);
     if (!info)
     {
         sLog.outError("Player %u has incorrect race/class pair. Don't build enum.", guid);
@@ -1822,7 +1822,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         return false;
     }
 
-    if ((GetSession()->GetSecurity() < SEC_GAMEMASTER) && sDisableMgr.IsDisabledFor(DISABLE_TYPE_MAP, mapid, this))
+    if ((GetSession()->GetSecurity() < SEC_GAMEMASTER) && sDisableMgr->IsDisabledFor(DISABLE_TYPE_MAP, mapid, this))
     {
         sLog.outError("Player %s tried to enter a forbidden map %u", GetName(), mapid);
         SendTransferAborted(mapid, TRANSFER_ABORT_MAP_NOT_ALLOWED);
@@ -1939,12 +1939,12 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
         // Check enter rights before map getting to avoid creating instance copy for player
         // this check not dependent from map instance copy and same for all instance copies of selected map
-        if (!sMapMgr.CanPlayerEnter(mapid, this, false))
+        if (!sMapMgr->CanPlayerEnter(mapid, this, false))
             return false;
 
         // If the map is not created, assume it is possible to enter it.
         // It will be created in the WorldPortAck.
-        Map *map = sMapMgr.FindMap(mapid);
+        Map *map = sMapMgr->FindMap(mapid);
         if (!map ||  map->CanEnter(this))
         {
             //lets reset near teleport flag if it wasn't reset during chained teleports
@@ -2141,7 +2141,7 @@ void Player::RemoveFromWorld()
         StopCastingCharm();
         StopCastingBindSight();
         UnsummonPetTemporaryIfAny();
-        sOutdoorPvPMgr.HandlePlayerLeaveZone(this, m_zoneUpdateId);
+        sOutdoorPvPMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
     }
 
     ///- Do not add/remove the player from the object storage
@@ -2618,7 +2618,7 @@ void Player::UninviteFromGroup()
         if (group->IsCreated())
         {
             group->Disband(true);
-            sObjectMgr.RemoveGroup(group);
+            sObjectMgr->RemoveGroup(group);
         }
         else
             group->RemoveAllInvites();
@@ -2634,7 +2634,7 @@ void Player::RemoveFromGroup(Group* group, uint64 guid, RemoveMethod method /* =
         if (group->RemoveMember(guid, method, kicker, reason) <= 1)
         {
             // group->Disband(); already disbanded in RemoveMember
-            sObjectMgr.RemoveGroup(group);
+            sObjectMgr->RemoveGroup(group);
             delete group;
             group = NULL;
             // removemember sets the player's group pointer to NULL
@@ -2677,7 +2677,7 @@ void Player::GiveXP(uint32 xp, Unit *victim, float group_rate)
 
     uint8 level = getLevel();
 
-    sScriptMgr.OnGivePlayerXP(this, xp, victim);
+    sScriptMgr->OnGivePlayerXP(this, xp, victim);
 
     // Favored experience increase START
     uint32 zone = GetZoneId();
@@ -2727,13 +2727,13 @@ void Player::GiveLevel(uint8 level)
     if (level == getLevel())
         return;
 
-    sScriptMgr.OnPlayerLevelChanged(this, level);
+    sScriptMgr->OnPlayerLevelChanged(this, level);
 
     PlayerLevelInfo info;
-    sObjectMgr.GetPlayerLevelInfo(getRace(),getClass(),level,&info);
+    sObjectMgr->GetPlayerLevelInfo(getRace(),getClass(),level,&info);
 
     PlayerClassLevelInfo classInfo;
-    sObjectMgr.GetPlayerClassLevelInfo(getClass(),level,&classInfo);
+    sObjectMgr->GetPlayerClassLevelInfo(getClass(),level,&classInfo);
 
     // send levelup info to client
     WorldPacket data(SMSG_LEVELUP_INFO, (4+4+MAX_POWERS*4+MAX_STATS*4));
@@ -2753,7 +2753,7 @@ void Player::GiveLevel(uint8 level)
 
     GetSession()->SendPacket(&data);
 
-    SetUInt32Value(PLAYER_NEXT_LEVEL_XP, sObjectMgr.GetXPForLevel(level));
+    SetUInt32Value(PLAYER_NEXT_LEVEL_XP, sObjectMgr->GetXPForLevel(level));
 
     //update level, max level of skills
     m_Played_time[PLAYED_TIME_LEVEL] = 0;                   // Level Played Time reset
@@ -2795,7 +2795,7 @@ void Player::GiveLevel(uint8 level)
     if (Pet* pet = GetPet())
         pet->SynchronizeLevelWithOwner();
 
-    if (MailLevelReward const* mailReward = sObjectMgr.GetMailLevelReward(level,getRaceMask()))
+    if (MailLevelReward const* mailReward = sObjectMgr->GetMailLevelReward(level,getRaceMask()))
     {
         //- TODO: Poor design of mail system
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
@@ -2852,13 +2852,13 @@ void Player::InitStatsForLevel(bool reapplyMods)
         _RemoveAllStatBonuses();
 
     PlayerClassLevelInfo classInfo;
-    sObjectMgr.GetPlayerClassLevelInfo(getClass(),getLevel(),&classInfo);
+    sObjectMgr->GetPlayerClassLevelInfo(getClass(),getLevel(),&classInfo);
 
     PlayerLevelInfo info;
-    sObjectMgr.GetPlayerLevelInfo(getRace(),getClass(),getLevel(),&info);
+    sObjectMgr->GetPlayerLevelInfo(getRace(),getClass(),getLevel(),&info);
 
     SetUInt32Value(PLAYER_FIELD_MAX_LEVEL, sWorld.getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
-    SetUInt32Value(PLAYER_NEXT_LEVEL_XP, sObjectMgr.GetXPForLevel(getLevel()));
+    SetUInt32Value(PLAYER_NEXT_LEVEL_XP, sObjectMgr->GetXPForLevel(getLevel()));
 
     // reset before any aura state sources (health set/aura apply)
     SetUInt32Value(UNIT_FIELD_AURASTATE, 0);
@@ -3254,9 +3254,9 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool dependen
     {
         uint32 next_active_spell_id = 0;
         // fix activate state for non-stackable low rank (and find next spell for !active case)
-        if (!SpellMgr::canStackSpellRanks(spellInfo) && sSpellMgr.GetSpellRank(spellInfo->Id) != 0)
+        if (!SpellMgr::canStackSpellRanks(spellInfo) && sSpellMgr->GetSpellRank(spellInfo->Id) != 0)
         {
-            if (uint32 next = sSpellMgr.GetNextSpellInChain(spell_id))
+            if (uint32 next = sSpellMgr->GetNextSpellInChain(spell_id))
             {
                 if (HasSpell(next))
                 {
@@ -3374,7 +3374,7 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool dependen
             }
         }
         // non talent spell: learn low ranks (recursive call)
-        else if (uint32 prev_spell = sSpellMgr.GetPrevSpellInChain(spell_id))
+        else if (uint32 prev_spell = sSpellMgr->GetPrevSpellInChain(spell_id))
         {
             if (!IsInWorld() || disabled)                    // at spells loading, no output, but allow save
                 addSpell(prev_spell,active,true,true,disabled);
@@ -3389,7 +3389,7 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool dependen
         newspell->disabled  = disabled;
 
         // replace spells in action bars and spellbook to bigger rank if only one spell rank must be accessible
-        if (newspell->active && !newspell->disabled && !SpellMgr::canStackSpellRanks(spellInfo) && sSpellMgr.GetSpellRank(spellInfo->Id) != 0)
+        if (newspell->active && !newspell->disabled && !SpellMgr::canStackSpellRanks(spellInfo) && sSpellMgr->GetSpellRank(spellInfo->Id) != 0)
         {
             for (PlayerSpellMap::iterator itr2 = m_spells.begin(); itr2 != m_spells.end(); ++itr2)
             {
@@ -3397,11 +3397,11 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool dependen
                 SpellEntry const *i_spellInfo = sSpellStore.LookupEntry(itr2->first);
                 if (!i_spellInfo) continue;
 
-                if (sSpellMgr.IsRankSpellDueToSpell(spellInfo,itr2->first))
+                if (sSpellMgr->IsRankSpellDueToSpell(spellInfo,itr2->first))
                 {
                     if (itr2->second->active)
                     {
-                        if (sSpellMgr.IsHighRankOfSpell(spell_id,itr2->first))
+                        if (sSpellMgr->IsHighRankOfSpell(spell_id,itr2->first))
                         {
                             if (IsInWorld())                 // not send spell (re-/over-)learn packets at loading
                             {
@@ -3417,7 +3417,7 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool dependen
                                 itr2->second->state = PLAYERSPELL_CHANGED;
                             superceded_old = true;          // new spell replace old in action bars and spell book.
                         }
-                        else if (sSpellMgr.IsHighRankOfSpell(itr2->first,spell_id))
+                        else if (sSpellMgr->IsHighRankOfSpell(itr2->first,spell_id))
                         {
                             if (IsInWorld())                 // not send spell (re-/over-)learn packets at loading
                             {
@@ -3471,16 +3471,16 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool dependen
     // update free primary prof.points (if any, can be none in case GM .learn prof. learning)
     if (uint32 freeProfs = GetFreePrimaryProfessionPoints())
     {
-        if (sSpellMgr.IsPrimaryProfessionFirstRankSpell(spell_id))
+        if (sSpellMgr->IsPrimaryProfessionFirstRankSpell(spell_id))
             SetFreePrimaryProfessions(freeProfs-1);
     }
 
     // add dependent skills
     uint16 maxskill     = GetMaxSkillValueForLevel();
 
-    SpellLearnSkillNode const* spellLearnSkill = sSpellMgr.GetSpellLearnSkill(spell_id);
+    SpellLearnSkillNode const* spellLearnSkill = sSpellMgr->GetSpellLearnSkill(spell_id);
 
-    SkillLineAbilityMapBounds skill_bounds = sSpellMgr.GetSkillLineAbilityMapBounds(spell_id);
+    SkillLineAbilityMapBounds skill_bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spell_id);
 
     if (spellLearnSkill)
     {
@@ -3539,7 +3539,7 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool dependen
     }
 
     // learn dependent spells
-    SpellLearnSpellMapBounds spell_bounds = sSpellMgr.GetSpellLearnSpellMapBounds(spell_id);
+    SpellLearnSpellMapBounds spell_bounds = sSpellMgr->GetSpellLearnSpellMapBounds(spell_id);
 
     for (SpellLearnSpellMap::const_iterator itr2 = spell_bounds.first; itr2 != spell_bounds.second; ++itr2)
     {
@@ -3628,7 +3628,7 @@ void Player::learnSpell(uint32 spell_id, bool dependent)
     // learn all disabled higher ranks and required spells (recursive)
     if (disabled)
     {
-        SpellChainNode const* node = sSpellMgr.GetSpellChainNode(spell_id);
+        SpellChainNode const* node = sSpellMgr->GetSpellChainNode(spell_id);
         if (node)
         {
             PlayerSpellMap::iterator iter = m_spells.find(node->next);
@@ -3636,7 +3636,7 @@ void Player::learnSpell(uint32 spell_id, bool dependent)
                 learnSpell(node->next, false);
         }
 
-        SpellsRequiringSpellMapBounds spellsRequiringSpell = sSpellMgr.GetSpellsRequiringSpellBounds(spell_id);
+        SpellsRequiringSpellMapBounds spellsRequiringSpell = sSpellMgr->GetSpellsRequiringSpellBounds(spell_id);
         for (SpellsRequiringSpellMap::const_iterator itr2 = spellsRequiringSpell.first; itr2 != spellsRequiringSpell.second; ++itr2)
         {
             PlayerSpellMap::iterator iter2 = m_spells.find(itr2->second);
@@ -3656,13 +3656,13 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
         return;
 
     // unlearn non talent higher ranks (recursive)
-    if (SpellChainNode const* node = sSpellMgr.GetSpellChainNode(spell_id))
+    if (SpellChainNode const* node = sSpellMgr->GetSpellChainNode(spell_id))
     {
         if (HasSpell(node->next) && !GetTalentSpellPos(node->next))
         removeSpell(node->next,disabled, false);
     }
     //unlearn spells dependent from recently removed spells
-    SpellsRequiringSpellMapBounds spellsRequiringSpell = sSpellMgr.GetSpellsRequiringSpellBounds(spell_id);
+    SpellsRequiringSpellMapBounds spellsRequiringSpell = sSpellMgr->GetSpellsRequiringSpellBounds(spell_id);
     for (SpellsRequiringSpellMap::const_iterator itr2 = spellsRequiringSpell.first; itr2 != spellsRequiringSpell.second; ++itr2)
         removeSpell(itr2->second,disabled);
 
@@ -3697,7 +3697,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
 
     // remove pet auras
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (PetAura const *petSpell = sSpellMgr.GetPetAura(spell_id, i))
+        if (PetAura const *petSpell = sSpellMgr->GetPetAura(spell_id, i))
             RemovePetAura(petSpell);
 
     // free talent points
@@ -3711,7 +3711,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     }
 
     // update free primary prof.points (if not overflow setting, can be in case GM use before .learn prof. learning)
-    if (sSpellMgr.IsPrimaryProfessionFirstRankSpell(spell_id))
+    if (sSpellMgr->IsPrimaryProfessionFirstRankSpell(spell_id))
     {
         uint32 freeProfs = GetFreePrimaryProfessionPoints()+1;
         if (freeProfs <= sWorld.getIntConfig(CONFIG_MAX_PRIMARY_TRADE_SKILL))
@@ -3719,20 +3719,20 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     }
 
     // remove dependent skill
-    SpellLearnSkillNode const *spellLearnSkill = sSpellMgr.GetSpellLearnSkill(spell_id);
+    SpellLearnSkillNode const *spellLearnSkill = sSpellMgr->GetSpellLearnSkill(spell_id);
     if (spellLearnSkill)
     {
-        uint32 prev_spell = sSpellMgr.GetPrevSpellInChain(spell_id);
+        uint32 prev_spell = sSpellMgr->GetPrevSpellInChain(spell_id);
         if (!prev_spell)                                    // first rank, remove skill
             SetSkill(spellLearnSkill->skill, 0, 0, 0);
         else
         {
             // search prev. skill setting by spell ranks chain
-            SpellLearnSkillNode const *prevSkill = sSpellMgr.GetSpellLearnSkill(prev_spell);
+            SpellLearnSkillNode const *prevSkill = sSpellMgr->GetSpellLearnSkill(prev_spell);
             while (!prevSkill && prev_spell)
             {
-                prev_spell = sSpellMgr.GetPrevSpellInChain(prev_spell);
-                prevSkill = sSpellMgr.GetSpellLearnSkill(sSpellMgr.GetFirstSpellInChain(prev_spell));
+                prev_spell = sSpellMgr->GetPrevSpellInChain(prev_spell);
+                prevSkill = sSpellMgr->GetSpellLearnSkill(sSpellMgr->GetFirstSpellInChain(prev_spell));
             }
 
             if (!prevSkill)                                 // not found prev skill setting, remove skill
@@ -3758,7 +3758,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     else
     {
         // not ranked skills
-        SkillLineAbilityMapBounds bounds = sSpellMgr.GetSkillLineAbilityMapBounds(spell_id);
+        SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spell_id);
 
         for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
         {
@@ -3792,7 +3792,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     }
 
     // remove dependent spells
-    SpellLearnSpellMapBounds spell_bounds = sSpellMgr.GetSpellLearnSpellMapBounds(spell_id);
+    SpellLearnSpellMapBounds spell_bounds = sSpellMgr->GetSpellLearnSpellMapBounds(spell_id);
 
     for (SpellLearnSpellMap::const_iterator itr2 = spell_bounds.first; itr2 != spell_bounds.second; ++itr2)
         removeSpell(itr2->second.spell, disabled);
@@ -3800,7 +3800,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     // activate lesser rank in spellbook/action bar, and cast it if need
     bool prev_activate = false;
 
-    if (uint32 prev_id = sSpellMgr.GetPrevSpellInChain (spell_id))
+    if (uint32 prev_id = sSpellMgr->GetPrevSpellInChain (spell_id))
     {
         SpellEntry const *spellInfo = sSpellStore.LookupEntry(spell_id);
 
@@ -3812,7 +3812,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
             //    learnSpell(prev_id, false);
         }
         // if ranked non-stackable spell: need activate lesser rank and update dendence state
-        else if (cur_active && !SpellMgr::canStackSpellRanks(spellInfo) && sSpellMgr.GetSpellRank(spellInfo->Id) != 0)
+        else if (cur_active && !SpellMgr::canStackSpellRanks(spellInfo) && sSpellMgr->GetSpellRank(spellInfo->Id) != 0)
         {
             // need manually update dependence state (learn spell ignore like attempts)
             PlayerSpellMap::iterator prev_itr = m_spells.find(prev_id);
@@ -3872,7 +3872,7 @@ bool Player::Has310Flyer(bool checkAllSpells, uint32 excludeSpellId)
             if (itr->first == excludeSpellId)
                 continue;
 
-            SkillLineAbilityMapBounds bounds = sSpellMgr.GetSkillLineAbilityMapBounds(itr->first);
+            SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(itr->first);
             for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
             {
                 if (_spell_idx->second->skillId != SKILL_MOUNTS)
@@ -4077,7 +4077,7 @@ uint32 Player::resetTalentsCost() const
 
 bool Player::resetTalents(bool no_cost)
 {
-    sScriptMgr.OnPlayerTalentsReset(this, no_cost);
+    sScriptMgr->OnPlayerTalentsReset(this, no_cost);
 
     // not need after this call
     if (HasAtLoginFlag(AT_LOGIN_RESET_TALENTS))
@@ -4171,7 +4171,7 @@ bool Player::resetTalents(bool no_cost)
 
 void Player::SetFreeTalentPoints(uint32 points)
 {
-    sScriptMgr.OnPlayerFreeTalentPointsChanged(this, points);
+    sScriptMgr->OnPlayerFreeTalentPointsChanged(this, points);
     SetUInt32Value(PLAYER_CHARACTER_POINTS1,points);
 }
 
@@ -4417,14 +4417,14 @@ TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell
         if (!IsSpellFitByClassAndRace(trainer_spell->learnedSpell[i]))
             return TRAINER_SPELL_RED;
 
-        if (SpellChainNode const* spell_chain = sSpellMgr.GetSpellChainNode(trainer_spell->learnedSpell[i]))
+        if (SpellChainNode const* spell_chain = sSpellMgr->GetSpellChainNode(trainer_spell->learnedSpell[i]))
         {
             // check prev.rank requirement
             if (spell_chain->prev && !HasSpell(spell_chain->prev))
                 return TRAINER_SPELL_RED;
         }
 
-        SpellsRequiringSpellMapBounds spellsRequired = sSpellMgr.GetSpellsRequiredForSpellBounds(trainer_spell->learnedSpell[i]);
+        SpellsRequiringSpellMapBounds spellsRequired = sSpellMgr->GetSpellsRequiredForSpellBounds(trainer_spell->learnedSpell[i]);
         for (SpellsRequiringSpellMap::const_iterator itr = spellsRequired.first; itr != spellsRequired.second; ++itr)
         {
             // check additional spell requirement
@@ -4439,7 +4439,7 @@ TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell
     {
         if (!trainer_spell->learnedSpell[i])
             continue;
-        if ((sSpellMgr.IsPrimaryProfessionFirstRankSpell(trainer_spell->learnedSpell[i])) && (GetFreePrimaryProfessionPoints() == 0))
+        if ((sSpellMgr->IsPrimaryProfessionFirstRankSpell(trainer_spell->learnedSpell[i])) && (GetFreePrimaryProfessionPoints() == 0))
             return TRAINER_SPELL_GREEN_DISABLED;
     }
 
@@ -4479,7 +4479,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
     sObjectAccessor.ConvertCorpseForPlayer(playerguid);
 
     if (uint32 guildId = GetGuildIdFromDB(playerguid))
-        if (Guild* pGuild = sObjectMgr.GetGuildById(guildId))
+        if (Guild* pGuild = sObjectMgr->GetGuildById(guildId))
             pGuild->DeleteMember(guid);
 
     // remove from arena teams
@@ -4488,7 +4488,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
     // the player was uninvited already on logout so just remove from group
     QueryResult resultGroup = CharacterDatabase.PQuery("SELECT guid FROM group_member WHERE memberGuid=%u", guid);
     if (resultGroup)
-        if (Group* group = sObjectMgr.GetGroupByGUID((*resultGroup)[0].GetUInt32()))
+        if (Group* group = sObjectMgr->GetGroupByGUID((*resultGroup)[0].GetUInt32()))
             RemoveFromGroup(group, playerguid);
 
     // Remove signs from petitions (also remove petitions if owner);
@@ -4572,7 +4572,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
 
                     trans->PAppend("DELETE FROM mail_items WHERE mail_id = '%u'", mail_id);
 
-                    uint32 pl_account = sObjectMgr.GetPlayerAccountIdByGUID(MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER));
+                    uint32 pl_account = sObjectMgr->GetPlayerAccountIdByGUID(MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER));
 
                     draft.AddMoney(money).SendReturnToSender(pl_account, guid, sender);
                 }
@@ -4600,7 +4600,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
                         if (pFriend->IsInWorld())
                         {
                             pFriend->GetSocial()->RemoveFromSocialList(guid, false);
-                            sSocialMgr.SendFriendStatus(pFriend, FRIEND_REMOVED, guid, false);
+                            sSocialMgr->SendFriendStatus(pFriend, FRIEND_REMOVED, guid, false);
                         }
                     }
                 } while (resultFriends->NextRow());
@@ -4805,7 +4805,7 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
     uint32 newzone, newarea;
     GetZoneAndAreaId(newzone,newarea);
     UpdateZone(newzone,newarea);
-    sOutdoorPvPMgr.HandlePlayerResurrects(this, newzone);
+    sOutdoorPvPMgr->HandlePlayerResurrects(this, newzone);
 
     // update visibility
     UpdateObjectVisibility();
@@ -4905,7 +4905,7 @@ void Player::CreateCorpse()
     Corpse *corpse = new Corpse((m_ExtraFlags & PLAYER_EXTRA_PVP_DEATH) ? CORPSE_RESURRECTABLE_PVP : CORPSE_RESURRECTABLE_PVE);
     SetPvPDeath(false);
 
-    if (!corpse->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_CORPSE), this))
+    if (!corpse->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_CORPSE), this))
     {
         delete corpse;
         return;
@@ -5147,7 +5147,7 @@ uint32 Player::DurabilityRepair(uint16 pos, bool cost, float discountMod, bool g
                     return TotalCost;
                 }
 
-                Guild *pGuild = sObjectMgr.GetGuildById(GetGuildId());
+                Guild *pGuild = sObjectMgr->GetGuildById(GetGuildId());
                 if (!pGuild)
                     return TotalCost;
 
@@ -5195,7 +5195,7 @@ void Player::RepopAtGraveyard()
     if (Battleground *bg = GetBattleground())
         ClosestGrave = bg->GetClosestGraveYard(this);
     else
-        ClosestGrave = sObjectMgr.GetClosestGraveYard(GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId(), GetTeam());
+        ClosestGrave = sObjectMgr->GetClosestGraveYard(GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId(), GetTeam());
 
     // stop countdown until repop
     m_deathTimer = 0;
@@ -5308,7 +5308,7 @@ void Player::UpdateLocalChannels(uint32 newZone)
                     char const* currentNameExt;
 
                     if (channel->flags & CHANNEL_DBC_FLAG_CITY_ONLY)
-                        currentNameExt = sObjectMgr.GetTrinityStringForDBCLocale(LANG_CHANNEL_CITY);
+                        currentNameExt = sObjectMgr->GetTrinityStringForDBCLocale(LANG_CHANNEL_CITY);
                     else
                         currentNameExt = current_zone_name.c_str();
 
@@ -5788,7 +5788,7 @@ bool Player::UpdateCraftSkill(uint32 spellid)
 {
     sLog.outDebug("UpdateCraftSkill spellid %d", spellid);
 
-    SkillLineAbilityMapBounds bounds = sSpellMgr.GetSkillLineAbilityMapBounds(spellid);
+    SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellid);
 
     for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
     {
@@ -6136,7 +6136,7 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
             for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
                 if (SkillLineAbilityEntry const *pAbility = sSkillLineAbilityStore.LookupEntry(j))
                     if (pAbility->skillId == id)
-                        removeSpell(sSpellMgr.GetFirstSpellInChain(pAbility->spellId));
+                        removeSpell(sSpellMgr->GetFirstSpellInChain(pAbility->spellId));
         }
     }
     else if (newVal)                                        //add
@@ -6557,7 +6557,7 @@ void Player::CheckAreaExploreAndOutdoor()
                 uint32 XP = 0;
                 if (diff < -5)
                 {
-                    XP = uint32(sObjectMgr.GetBaseXP(getLevel()+5)*sWorld.getRate(RATE_XP_EXPLORE));
+                    XP = uint32(sObjectMgr->GetBaseXP(getLevel()+5)*sWorld.getRate(RATE_XP_EXPLORE));
                 }
                 else if (diff > 5)
                 {
@@ -6567,11 +6567,11 @@ void Player::CheckAreaExploreAndOutdoor()
                     else if (exploration_percent < 0)
                         exploration_percent = 0;
 
-                    XP = uint32(sObjectMgr.GetBaseXP(p->area_level)*exploration_percent/100*sWorld.getRate(RATE_XP_EXPLORE));
+                    XP = uint32(sObjectMgr->GetBaseXP(p->area_level)*exploration_percent/100*sWorld.getRate(RATE_XP_EXPLORE));
                 }
                 else
                 {
-                    XP = uint32(sObjectMgr.GetBaseXP(p->area_level)*sWorld.getRate(RATE_XP_EXPLORE));
+                    XP = uint32(sObjectMgr->GetBaseXP(p->area_level)*sWorld.getRate(RATE_XP_EXPLORE));
                 }
 
                 GiveXP(XP, NULL);
@@ -6631,7 +6631,7 @@ int32 Player::CalculateReputationGain(uint32 creatureOrQuestLevel, int32 rep, in
     float percent = 100.0f;
 
     // Get the generic rate first
-    if (RepRewardRate const * repData = sObjectMgr.GetRepRewardRate(faction))
+    if (RepRewardRate const * repData = sObjectMgr->GetRepRewardRate(faction))
     {
         float repRate = for_quest ? repData->quest_rate : repData->creature_rate;
         percent *= repRate;
@@ -6664,7 +6664,7 @@ void Player::RewardReputation(Unit *pVictim, float rate)
     if (pVictim->ToCreature()->IsReputationGainDisabled())
         return;
 
-    ReputationOnKillEntry const* Rep = sObjectMgr.GetReputationOnKilEntry(pVictim->ToCreature()->GetCreatureInfo()->Entry);
+    ReputationOnKillEntry const* Rep = sObjectMgr->GetReputationOnKilEntry(pVictim->ToCreature()->GetCreatureInfo()->Entry);
 
     if (!Rep)
         return;
@@ -6681,7 +6681,7 @@ void Player::RewardReputation(Unit *pVictim, float rate)
             InstanceTemplate const *pInstance = ObjectMgr::GetInstanceTemplate(pMap->GetId());
             if (pInstance)
             {
-                AccessRequirement const *pAccessRequirement = sObjectMgr.GetAccessRequirement(pMap->GetId(), ((InstanceMap*)pMap)->GetDifficulty());
+                AccessRequirement const *pAccessRequirement = sObjectMgr->GetAccessRequirement(pMap->GetId(), ((InstanceMap*)pMap)->GetDifficulty());
                 if (pAccessRequirement)
                 {
                     if (!pMap->IsRaid() && pAccessRequirement->levelMin == 80)
@@ -7048,7 +7048,7 @@ uint32 Player::GetZoneIdFromDB(uint64 guid)
         float posy = fields[2].GetFloat();
         float posz = fields[3].GetFloat();
 
-        zone = sMapMgr.GetZoneId(map,posx,posy,posz);
+        zone = sMapMgr->GetZoneId(map,posx,posy,posz);
 
         if (zone > 0)
             CharacterDatabase.PExecute("UPDATE characters SET zone='%u' WHERE guid='%u'", zone, guidLow);
@@ -7086,8 +7086,8 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 {
     if (m_zoneUpdateId != newZone)
     {
-        sOutdoorPvPMgr.HandlePlayerLeaveZone(this, m_zoneUpdateId);
-        sOutdoorPvPMgr.HandlePlayerEnterZone(this, newZone);
+        sOutdoorPvPMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
+        sOutdoorPvPMgr->HandlePlayerEnterZone(this, newZone);
         SendInitWorldStates(newZone, newArea);              // only if really enters to new zone, not just area change, works strange...
     }
 
@@ -7103,12 +7103,12 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 
     if (sWorld.getBoolConfig(CONFIG_WEATHER))
     {
-        Weather *wth = sWeatherMgr.FindWeather(zone->ID);
+        Weather *wth = sWeatherMgr->FindWeather(zone->ID);
         if (wth)
             wth->SendWeatherUpdateToPlayer(this);
         else
         {
-            if (!sWeatherMgr.AddWeather(zone->ID))
+            if (!sWeatherMgr->AddWeather(zone->ID))
             {
                 // send fine weather packet to remove old zone's weather
                 Weather::SendFineWeatherUpdateToPlayer(this);
@@ -7259,7 +7259,7 @@ void Player::DuelComplete(DuelCompleteType type)
         SendMessageToSet(&data,true);
     }
 
-    sScriptMgr.OnPlayerDuelEnd(duel->opponent, this, type);
+    sScriptMgr->OnPlayerDuelEnd(duel->opponent, this, type);
 
     switch (type)
     {
@@ -7983,7 +7983,7 @@ void Player::CastItemCombatSpell(Unit *target, WeaponAttackType attType, uint32 
             if (pEnchant->type[s] != ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL)
                 continue;
 
-            SpellEnchantProcEntry const* entry =  sSpellMgr.GetSpellEnchantProcEvent(enchant_id);
+            SpellEnchantProcEntry const* entry =  sSpellMgr->GetSpellEnchantProcEvent(enchant_id);
 
             if (entry && entry->procEx)
             {
@@ -8670,7 +8670,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
     Battleground* bg = GetBattleground();
     uint16 NumberOfFields = 0;
     uint32 mapid = GetMapId();
-    OutdoorPvP * pvp = sOutdoorPvPMgr.GetOutdoorPvPToZoneId(zoneid);
+    OutdoorPvP * pvp = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(zoneid);
 
     sLog.outDebug("Sending SMSG_INIT_WORLD_STATES to Map: %u, Zone: %u", mapid, zoneid);
 
@@ -13106,7 +13106,7 @@ void Player::RemoveArenaEnchantments(EnchantmentSlot slot)
             if (itr->item && itr->item->GetEnchantmentId(slot))
             {
                 // Poisons and DK runes are enchants which are allowed on arenas
-                if (sSpellMgr.IsArenaAllowedEnchancment(itr->item->GetEnchantmentId(slot)))
+                if (sSpellMgr->IsArenaAllowedEnchancment(itr->item->GetEnchantmentId(slot)))
                 {
                     ++next;
                     continue;
@@ -13644,11 +13644,11 @@ void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId, bool showQue
 
     pMenu->GetGossipMenu().SetMenuId(menuId);
 
-    GossipMenuItemsMapBounds pMenuItemBounds = sObjectMgr.GetGossipMenuItemsMapBounds(menuId);
+    GossipMenuItemsMapBounds pMenuItemBounds = sObjectMgr->GetGossipMenuItemsMapBounds(menuId);
 
     // if default menuId and no menu options exist for this, use options from default options
     if (pMenuItemBounds.first == pMenuItemBounds.second && menuId == GetDefaultGossipMenuForSource(pSource))
-        pMenuItemBounds = sObjectMgr.GetGossipMenuItemsMapBounds(0);
+        pMenuItemBounds = sObjectMgr->GetGossipMenuItemsMapBounds(0);
 
     uint32 npcflags = 0;
     Creature *pCreature = NULL;
@@ -13664,7 +13664,7 @@ void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId, bool showQue
     for (GossipMenuItemsMap::const_iterator itr = pMenuItemBounds.first; itr != pMenuItemBounds.second; ++itr)
     {
         bool bCanTalk = true;
-        if (!sConditionMgr.IsPlayerMeetToConditions(this, itr->second.conditions))
+        if (!sConditionMgr->IsPlayerMeetToConditions(this, itr->second.conditions))
             continue;
 
         if (pSource->GetTypeId() == TYPEID_UNIT)
@@ -13731,7 +13731,7 @@ void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId, bool showQue
                 case GOSSIP_OPTION_AUCTIONEER:
                     break;                                  // no checks
                 case GOSSIP_OPTION_OUTDOORPVP:
-                    if (!sOutdoorPvPMgr.CanTalkTo(this, pCreature, itr->second))
+                    if (!sOutdoorPvPMgr->CanTalkTo(this, pCreature, itr->second))
                         bCanTalk = false;
                     break;
                 default:
@@ -13770,10 +13770,10 @@ void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId, bool showQue
             if (loc_idx >= 0)
             {
                 uint32 idxEntry = MAKE_PAIR32(menuId, itr->second.id);
-                if (GossipMenuItemsLocale const *no = sObjectMgr.GetGossipMenuItemsLocale(idxEntry))
+                if (GossipMenuItemsLocale const *no = sObjectMgr->GetGossipMenuItemsLocale(idxEntry))
                 {
-                    sObjectMgr.GetLocaleString(no->OptionText, loc_idx, strOptionText);
-                    sObjectMgr.GetLocaleString(no->BoxText, loc_idx, strBoxText);
+                    sObjectMgr->GetLocaleString(no->OptionText, loc_idx, strOptionText);
+                    sObjectMgr->GetLocaleString(no->BoxText, loc_idx, strBoxText);
                 }
             }
 
@@ -13866,7 +13866,7 @@ void Player::OnGossipSelect(WorldObject* pSource, uint32 gossipListId, uint32 me
             break;
         }
         case GOSSIP_OPTION_OUTDOORPVP:
-            sOutdoorPvPMgr.HandleGossipOption(this, pSource->GetGUID(), gossipListId);
+            sOutdoorPvPMgr->HandleGossipOption(this, pSource->GetGUID(), gossipListId);
             break;
         case GOSSIP_OPTION_SPIRITHEALER:
             if (isDead())
@@ -13944,7 +13944,7 @@ void Player::OnGossipSelect(WorldObject* pSource, uint32 gossipListId, uint32 me
             break;
         case GOSSIP_OPTION_BATTLEFIELD:
         {
-            BattlegroundTypeId bgTypeId = sBattlegroundMgr.GetBattleMasterBG(pSource->GetEntry());
+            BattlegroundTypeId bgTypeId = sBattlegroundMgr->GetBattleMasterBG(pSource->GetEntry());
 
             if (bgTypeId == BATTLEGROUND_TYPE_NONE)
             {
@@ -13963,7 +13963,7 @@ uint32 Player::GetGossipTextId(WorldObject *pSource)
     if (!pSource || pSource->GetTypeId() != TYPEID_UNIT || !pSource->ToCreature()->GetDBTableGUIDLow())
         return DEFAULT_GOSSIP_MESSAGE;
 
-    if (uint32 pos = sObjectMgr.GetNpcGossip(pSource->ToCreature()->GetDBTableGUIDLow()))
+    if (uint32 pos = sObjectMgr->GetNpcGossip(pSource->ToCreature()->GetDBTableGUIDLow()))
         return pos;
 
     return DEFAULT_GOSSIP_MESSAGE;
@@ -13976,11 +13976,11 @@ uint32 Player::GetGossipTextId(uint32 menuId)
     if (!menuId)
         return textId;
 
-    GossipMenusMapBounds pMenuBounds = sObjectMgr.GetGossipMenusMapBounds(menuId);
+    GossipMenusMapBounds pMenuBounds = sObjectMgr->GetGossipMenusMapBounds(menuId);
 
     for (GossipMenusMap::const_iterator itr = pMenuBounds.first; itr != pMenuBounds.second; ++itr)
     {
-        if (sConditionMgr.IsPlayerMeetToConditions(this, itr->second.conditions))
+        if (sConditionMgr->IsPlayerMeetToConditions(this, itr->second.conditions))
             textId = itr->second.text_id;
     }
 
@@ -14010,20 +14010,20 @@ void Player::PrepareQuestMenu(uint64 guid)
     Creature *pCreature = ObjectAccessor::GetCreatureOrPetOrVehicle(*this, guid);
     if (pCreature)
     {
-        pObjectQR  = sObjectMgr.GetCreatureQuestRelationBounds(pCreature->GetEntry());
-        pObjectQIR = sObjectMgr.GetCreatureQuestInvolvedRelationBounds(pCreature->GetEntry());
+        pObjectQR  = sObjectMgr->GetCreatureQuestRelationBounds(pCreature->GetEntry());
+        pObjectQIR = sObjectMgr->GetCreatureQuestInvolvedRelationBounds(pCreature->GetEntry());
     }
     else
     {
         //we should obtain map pointer from GetMap() in 99% of cases. Special case
         //only for quests which cast teleport spells on player
-        Map * _map = IsInWorld() ? GetMap() : sMapMgr.FindMap(GetMapId(), GetInstanceId());
+        Map * _map = IsInWorld() ? GetMap() : sMapMgr->FindMap(GetMapId(), GetInstanceId());
         ASSERT(_map);
         GameObject *pGameObject = _map->GetGameObject(guid);
         if (pGameObject)
         {
-            pObjectQR  = sObjectMgr.GetGOQuestRelationBounds(pGameObject->GetEntry());
-            pObjectQIR = sObjectMgr.GetGOQuestInvolvedRelationBounds(pGameObject->GetEntry());
+            pObjectQR  = sObjectMgr->GetGOQuestRelationBounds(pGameObject->GetEntry());
+            pObjectQIR = sObjectMgr->GetGOQuestInvolvedRelationBounds(pGameObject->GetEntry());
         }
         else
             return;
@@ -14047,7 +14047,7 @@ void Player::PrepareQuestMenu(uint64 guid)
     for (QuestRelations::const_iterator i = pObjectQR.first; i != pObjectQR.second; ++i)
     {
         uint32 quest_id = i->second;
-        Quest const* pQuest = sObjectMgr.GetQuestTemplate(quest_id);
+        Quest const* pQuest = sObjectMgr->GetQuestTemplate(quest_id);
         if (!pQuest) continue;
 
         QuestStatus status = GetQuestStatus(quest_id);
@@ -14074,7 +14074,7 @@ void Player::SendPreparedQuest(uint64 guid)
     {
         // Auto open -- maybe also should verify there is no greeting
         uint32 quest_id = qmi0.m_qId;
-        Quest const* pQuest = sObjectMgr.GetQuestTemplate(quest_id);
+        Quest const* pQuest = sObjectMgr->GetQuestTemplate(quest_id);
 
         if (pQuest)
         {
@@ -14120,7 +14120,7 @@ void Player::SendPreparedQuest(uint64 guid)
         if (pCreature)
         {
             uint32 textid = GetGossipTextId(pCreature);
-            GossipText const* gossiptext = sObjectMgr.GetGossipText(textid);
+            GossipText const* gossiptext = sObjectMgr->GetGossipText(textid);
             if (!gossiptext)
             {
                 qe._Delay = 0;                              //TEXTEMOTE_MESSAGE;              //zyg: player emote
@@ -14137,8 +14137,8 @@ void Player::SendPreparedQuest(uint64 guid)
 
                     int loc_idx = GetSession()->GetSessionDbLocaleIndex();
                     if (loc_idx >= 0)
-                        if (NpcTextLocale const *nl = sObjectMgr.GetNpcTextLocale(textid))
-                            sObjectMgr.GetLocaleString(nl->Text_0[0], loc_idx, title);
+                        if (NpcTextLocale const *nl = sObjectMgr->GetNpcTextLocale(textid))
+                            sObjectMgr->GetLocaleString(nl->Text_0[0], loc_idx, title);
                 }
                 else
                 {
@@ -14146,8 +14146,8 @@ void Player::SendPreparedQuest(uint64 guid)
 
                     int loc_idx = GetSession()->GetSessionDbLocaleIndex();
                     if (loc_idx >= 0)
-                        if (NpcTextLocale const *nl = sObjectMgr.GetNpcTextLocale(textid))
-                            sObjectMgr.GetLocaleString(nl->Text_1[0], loc_idx, title);
+                        if (NpcTextLocale const *nl = sObjectMgr->GetNpcTextLocale(textid))
+                            sObjectMgr->GetLocaleString(nl->Text_1[0], loc_idx, title);
                 }
             }
         }
@@ -14168,16 +14168,16 @@ Quest const * Player::GetNextQuest(uint64 guid, Quest const *pQuest)
 
     Creature *pCreature = ObjectAccessor::GetCreatureOrPetOrVehicle(*this,guid);
     if (pCreature)
-        pObjectQR  = sObjectMgr.GetCreatureQuestRelationBounds(pCreature->GetEntry());
+        pObjectQR  = sObjectMgr->GetCreatureQuestRelationBounds(pCreature->GetEntry());
     else
     {
         //we should obtain map pointer from GetMap() in 99% of cases. Special case
         //only for quests which cast teleport spells on player
-        Map * _map = IsInWorld() ? GetMap() : sMapMgr.FindMap(GetMapId(), GetInstanceId());
+        Map * _map = IsInWorld() ? GetMap() : sMapMgr->FindMap(GetMapId(), GetInstanceId());
         ASSERT(_map);
         GameObject *pGameObject = _map->GetGameObject(guid);
         if (pGameObject)
-            pObjectQR  = sObjectMgr.GetGOQuestRelationBounds(pGameObject->GetEntry());
+            pObjectQR  = sObjectMgr->GetGOQuestRelationBounds(pGameObject->GetEntry());
         else
             return NULL;
     }
@@ -14186,7 +14186,7 @@ Quest const * Player::GetNextQuest(uint64 guid, Quest const *pQuest)
     for (QuestRelations::const_iterator itr = pObjectQR.first; itr != pObjectQR.second; ++itr)
     {
         if (itr->second == nextQuestID)
-            return sObjectMgr.GetQuestTemplate(nextQuestID);
+            return sObjectMgr->GetQuestTemplate(nextQuestID);
     }
 
     return NULL;
@@ -14198,7 +14198,7 @@ bool Player::CanSeeStartQuest(Quest const *pQuest)
         SatisfyQuestExclusiveGroup(pQuest, false) && SatisfyQuestReputation(pQuest, false) &&
         SatisfyQuestPreviousQuest(pQuest, false) && SatisfyQuestNextChain(pQuest, false) &&
         SatisfyQuestPrevChain(pQuest, false) && SatisfyQuestDay(pQuest, false) && SatisfyQuestWeek(pQuest, false) &&
-        !sDisableMgr.IsDisabledFor(DISABLE_TYPE_QUEST, pQuest->GetQuestId(), this))
+        !sDisableMgr->IsDisabledFor(DISABLE_TYPE_QUEST, pQuest->GetQuestId(), this))
     {
         return getLevel() + sWorld.getIntConfig(CONFIG_QUEST_HIGH_LEVEL_HIDE_DIFF) >= pQuest->GetMinLevel();
     }
@@ -14214,7 +14214,7 @@ bool Player::CanTakeQuest(Quest const *pQuest, bool msg)
         && SatisfyQuestPreviousQuest(pQuest, msg) && SatisfyQuestTimed(pQuest, msg)
         && SatisfyQuestNextChain(pQuest, msg) && SatisfyQuestPrevChain(pQuest, msg)
         && SatisfyQuestDay(pQuest, msg) && SatisfyQuestWeek(pQuest, msg)
-        && !sDisableMgr.IsDisabledFor(DISABLE_TYPE_QUEST, pQuest->GetQuestId(), this)
+        && !sDisableMgr->IsDisabledFor(DISABLE_TYPE_QUEST, pQuest->GetQuestId(), this)
         && SatisfyQuestConditions(pQuest, msg);
 }
 
@@ -14250,7 +14250,7 @@ bool Player::CanCompleteQuest(uint32 quest_id)
         if (q_status.m_status == QUEST_STATUS_COMPLETE)
             return false;                                   // not allow re-complete quest
 
-        Quest const* qInfo = sObjectMgr.GetQuestTemplate(quest_id);
+        Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id);
 
         if (!qInfo)
             return false;
@@ -14469,7 +14469,7 @@ void Player::AddQuest(Quest const *pQuest, Object *questGiver)
         GetMap()->ScriptsStart(sQuestStartScripts, pQuest->GetQuestStartScript(), questGiver, this);
 
     // Some spells applied at quest activation
-    SpellAreaForQuestMapBounds saBounds = sSpellMgr.GetSpellAreaForQuestMapBounds(quest_id,true);
+    SpellAreaForQuestMapBounds saBounds = sSpellMgr->GetSpellAreaForQuestMapBounds(quest_id,true);
     if (saBounds.first != saBounds.second)
     {
         uint32 zone, area;
@@ -14494,7 +14494,7 @@ void Player::CompleteQuest(uint32 quest_id)
         if (log_slot < MAX_QUEST_LOG_SIZE)
             SetQuestSlotState(log_slot,QUEST_STATE_COMPLETE);
 
-        if (Quest const* qInfo = sObjectMgr.GetQuestTemplate(quest_id))
+        if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id))
         {
             if (qInfo->HasFlag(QUEST_FLAGS_AUTO_REWARDED))
                 RewardQuest(qInfo,0,this,false);
@@ -14671,7 +14671,7 @@ void Player::RewardQuest(Quest const *pQuest, uint32 reward, Object* questGiver,
     uint32 area = 0;
 
     // remove auras from spells with quest reward state limitations
-    SpellAreaForQuestMapBounds saEndBounds = sSpellMgr.GetSpellAreaForQuestEndMapBounds(quest_id);
+    SpellAreaForQuestMapBounds saEndBounds = sSpellMgr->GetSpellAreaForQuestEndMapBounds(quest_id);
     if (saEndBounds.first != saEndBounds.second)
     {
         GetZoneAndAreaId(zone,area);
@@ -14682,7 +14682,7 @@ void Player::RewardQuest(Quest const *pQuest, uint32 reward, Object* questGiver,
     }
 
     // Some spells applied at quest reward
-    SpellAreaForQuestMapBounds saBounds = sSpellMgr.GetSpellAreaForQuestMapBounds(quest_id,false);
+    SpellAreaForQuestMapBounds saBounds = sSpellMgr->GetSpellAreaForQuestMapBounds(quest_id,false);
     if (saBounds.first != saBounds.second)
     {
         if (!zone || !area)
@@ -14700,7 +14700,7 @@ void Player::RewardQuest(Quest const *pQuest, uint32 reward, Object* questGiver,
 
 void Player::FailQuest(uint32 questId)
 {
-    if (Quest const* pQuest = sObjectMgr.GetQuestTemplate(questId))
+    if (Quest const* pQuest = sObjectMgr->GetQuestTemplate(questId))
     {
         SetQuestStatus(questId, QUEST_STATUS_FAILED);
 
@@ -14825,7 +14825,7 @@ bool Player::SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg)
         uint32 prevId = abs(*iter);
 
         QuestStatusMap::iterator i_prevstatus = mQuestStatus.find(prevId);
-        Quest const* qPrevInfo = sObjectMgr.GetQuestTemplate(prevId);
+        Quest const* qPrevInfo = sObjectMgr->GetQuestTemplate(prevId);
 
         if (qPrevInfo && i_prevstatus != mQuestStatus.end())
         {
@@ -14838,8 +14838,8 @@ bool Player::SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg)
 
                 // each-from-all exclusive group (< 0)
                 // can be start if only all quests in prev quest exclusive group completed and rewarded
-                ObjectMgr::ExclusiveQuestGroups::iterator iter2 = sObjectMgr.mExclusiveQuestGroups.lower_bound(qPrevInfo->GetExclusiveGroup());
-                ObjectMgr::ExclusiveQuestGroups::iterator end  = sObjectMgr.mExclusiveQuestGroups.upper_bound(qPrevInfo->GetExclusiveGroup());
+                ObjectMgr::ExclusiveQuestGroups::iterator iter2 = sObjectMgr->mExclusiveQuestGroups.lower_bound(qPrevInfo->GetExclusiveGroup());
+                ObjectMgr::ExclusiveQuestGroups::iterator end  = sObjectMgr->mExclusiveQuestGroups.upper_bound(qPrevInfo->GetExclusiveGroup());
 
                 ASSERT(iter2 != end);                         // always must be found if qPrevInfo->ExclusiveGroup != 0
 
@@ -14873,8 +14873,8 @@ bool Player::SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg)
 
                 // each-from-all exclusive group (< 0)
                 // can be start if only all quests in prev quest exclusive group active
-                ObjectMgr::ExclusiveQuestGroups::iterator iter2 = sObjectMgr.mExclusiveQuestGroups.lower_bound(qPrevInfo->GetExclusiveGroup());
-                ObjectMgr::ExclusiveQuestGroups::iterator end  = sObjectMgr.mExclusiveQuestGroups.upper_bound(qPrevInfo->GetExclusiveGroup());
+                ObjectMgr::ExclusiveQuestGroups::iterator iter2 = sObjectMgr->mExclusiveQuestGroups.lower_bound(qPrevInfo->GetExclusiveGroup());
+                ObjectMgr::ExclusiveQuestGroups::iterator end  = sObjectMgr->mExclusiveQuestGroups.upper_bound(qPrevInfo->GetExclusiveGroup());
 
                 ASSERT(iter2 != end);                         // always must be found if qPrevInfo->ExclusiveGroup != 0
 
@@ -14960,8 +14960,8 @@ bool Player::SatisfyQuestStatus(Quest const* qInfo, bool msg)
 
 bool Player::SatisfyQuestConditions(Quest const* qInfo, bool msg)
 {
-    ConditionList conditions = sConditionMgr.GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_QUEST_ACCEPT, qInfo->GetQuestId());
-    if (!sConditionMgr.IsPlayerMeetToConditions(this, conditions))
+    ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_QUEST_ACCEPT, qInfo->GetQuestId());
+    if (!sConditionMgr->IsPlayerMeetToConditions(this, conditions))
     {
         if (msg)
             SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
@@ -14988,8 +14988,8 @@ bool Player::SatisfyQuestExclusiveGroup(Quest const* qInfo, bool msg)
     if (qInfo->GetExclusiveGroup() <= 0)
         return true;
 
-    ObjectMgr::ExclusiveQuestGroups::iterator iter = sObjectMgr.mExclusiveQuestGroups.lower_bound(qInfo->GetExclusiveGroup());
-    ObjectMgr::ExclusiveQuestGroups::iterator end  = sObjectMgr.mExclusiveQuestGroups.upper_bound(qInfo->GetExclusiveGroup());
+    ObjectMgr::ExclusiveQuestGroups::iterator iter = sObjectMgr->mExclusiveQuestGroups.lower_bound(qInfo->GetExclusiveGroup());
+    ObjectMgr::ExclusiveQuestGroups::iterator end  = sObjectMgr->mExclusiveQuestGroups.upper_bound(qInfo->GetExclusiveGroup());
 
     ASSERT(iter != end);                                      // always must be found if qInfo->ExclusiveGroup != 0
 
@@ -15002,7 +15002,7 @@ bool Player::SatisfyQuestExclusiveGroup(Quest const* qInfo, bool msg)
             continue;
 
         // not allow have daily quest if daily quest from exclusive group already recently completed
-        Quest const* Nquest = sObjectMgr.GetQuestTemplate(exclude_Id);
+        Quest const* Nquest = sObjectMgr->GetQuestTemplate(exclude_Id);
         if (!SatisfyQuestDay(Nquest, false) || !SatisfyQuestWeek(Nquest, false))
         {
             if (msg)
@@ -15153,7 +15153,7 @@ bool Player::GiveQuestSourceItem(Quest const *pQuest)
 
 bool Player::TakeQuestSourceItem(uint32 quest_id, bool msg)
 {
-    Quest const* qInfo = sObjectMgr.GetQuestTemplate(quest_id);
+    Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id);
     if (qInfo)
     {
         uint32 srcitem = qInfo->GetSrcItemId();
@@ -15181,7 +15181,7 @@ bool Player::TakeQuestSourceItem(uint32 quest_id, bool msg)
 
 bool Player::GetQuestRewardStatus(uint32 quest_id) const
 {
-    Quest const* qInfo = sObjectMgr.GetQuestTemplate(quest_id);
+    Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id);
     if (qInfo)
     {
         // for repeatable quests: rewarded field is set after first reward only to prevent getting XP more than once
@@ -15208,7 +15208,7 @@ QuestStatus Player::GetQuestStatus(uint32 quest_id) const
 
 bool Player::CanShareQuest(uint32 quest_id) const
 {
-    Quest const* qInfo = sObjectMgr.GetQuestTemplate(quest_id);
+    Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id);
     if (qInfo && qInfo->HasFlag(QUEST_FLAGS_SHARABLE))
     {
         QuestStatusMap::const_iterator itr = mQuestStatus.find(quest_id);
@@ -15220,7 +15220,7 @@ bool Player::CanShareQuest(uint32 quest_id) const
 
 void Player::SetQuestStatus(uint32 quest_id, QuestStatus status)
 {
-    if (sObjectMgr.GetQuestTemplate(quest_id))
+    if (sObjectMgr->GetQuestTemplate(quest_id))
     {
         QuestStatusData& q_status = mQuestStatus[quest_id];
 
@@ -15236,7 +15236,7 @@ void Player::SetQuestStatus(uint32 quest_id, QuestStatus status)
 // not used in Trinity, but used in scripting code
 uint16 Player::GetReqKillOrCastCurrentCount(uint32 quest_id, int32 entry)
 {
-    Quest const* qInfo = sObjectMgr.GetQuestTemplate(quest_id);
+    Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id);
     if (!qInfo)
         return 0;
 
@@ -15327,7 +15327,7 @@ void Player::ItemAddedQuestCheck(uint32 entry, uint32 count)
         if (q_status.m_status != QUEST_STATUS_INCOMPLETE)
             continue;
 
-        Quest const* qInfo = sObjectMgr.GetQuestTemplate(questid);
+        Quest const* qInfo = sObjectMgr->GetQuestTemplate(questid);
         if (!qInfo || !qInfo->HasFlag(QUEST_TRINITY_FLAGS_DELIVER))
             continue;
 
@@ -15362,7 +15362,7 @@ void Player::ItemRemovedQuestCheck(uint32 entry, uint32 count)
         uint32 questid = GetQuestSlotQuestId(i);
         if (!questid)
             continue;
-        Quest const* qInfo = sObjectMgr.GetQuestTemplate(questid);
+        Quest const* qInfo = sObjectMgr->GetQuestTemplate(questid);
         if (!qInfo)
             continue;
         if (!qInfo->HasFlag(QUEST_TRINITY_FLAGS_DELIVER))
@@ -15427,7 +15427,7 @@ void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
         if (!questid)
             continue;
 
-        Quest const* qInfo = sObjectMgr.GetQuestTemplate(questid);
+        Quest const* qInfo = sObjectMgr->GetQuestTemplate(questid);
         if (!qInfo)
             continue;
         // just if !ingroup || !noraidgroup || raidgroup
@@ -15483,7 +15483,7 @@ void Player::CastedCreatureOrGO(uint32 entry, uint64 guid, uint32 spell_id)
         if (!questid)
             continue;
 
-        Quest const* qInfo = sObjectMgr.GetQuestTemplate(questid);
+        Quest const* qInfo = sObjectMgr->GetQuestTemplate(questid);
         if (!qInfo)
             continue;
 
@@ -15560,7 +15560,7 @@ void Player::TalkedToCreature(uint32 entry, uint64 guid)
         if (!questid)
             continue;
 
-        Quest const* qInfo = sObjectMgr.GetQuestTemplate(questid);
+        Quest const* qInfo = sObjectMgr->GetQuestTemplate(questid);
         if (!qInfo)
             continue;
 
@@ -15616,7 +15616,7 @@ void Player::MoneyChanged(uint32 count)
         if (!questid)
             continue;
 
-        Quest const* qInfo = sObjectMgr.GetQuestTemplate(questid);
+        Quest const* qInfo = sObjectMgr->GetQuestTemplate(questid);
         if (qInfo && qInfo->GetRewOrReqMoney() < 0)
         {
             QuestStatusData& q_status = mQuestStatus[questid];
@@ -15644,7 +15644,7 @@ void Player::ReputationChanged(FactionEntry const* factionEntry)
     {
         if (uint32 questid = GetQuestSlotQuestId(i))
         {
-            if (Quest const* qInfo = sObjectMgr.GetQuestTemplate(questid))
+            if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(questid))
             {
                 if (qInfo->GetRepObjectiveFaction() == factionEntry->ID)
                 {
@@ -15672,7 +15672,7 @@ void Player::ReputationChanged2(FactionEntry const* factionEntry)
     {
         if (uint32 questid = GetQuestSlotQuestId(i))
         {
-            if (Quest const* qInfo = sObjectMgr.GetQuestTemplate(questid))
+            if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(questid))
             {
                 if (qInfo->GetRepObjectiveFaction2() == factionEntry->ID)
                 {
@@ -15710,7 +15710,7 @@ bool Player::HasQuestForItem(uint32 itemid) const
 
         if (q_status.m_status == QUEST_STATUS_INCOMPLETE)
         {
-            Quest const* qinfo = sObjectMgr.GetQuestTemplate(questid);
+            Quest const* qinfo = sObjectMgr->GetQuestTemplate(questid);
             if (!qinfo)
                 continue;
 
@@ -15767,7 +15767,7 @@ void Player::SendQuestReward(Quest const *pQuest, uint32 XP, Object * questGiver
 {
     uint32 questid = pQuest->GetQuestId();
     sLog.outDebug("WORLD: Sent SMSG_QUESTGIVER_QUEST_COMPLETE quest = %u", questid);
-    sGameEventMgr.HandleQuestComplete(questid);
+    sGameEventMgr->HandleQuestComplete(questid);
     WorldPacket data(SMSG_QUESTGIVER_QUEST_COMPLETE, (4+4+4+4+4));
     data << uint32(questid);
 
@@ -15830,8 +15830,8 @@ void Player::SendQuestConfirmAccept(const Quest* pQuest, Player* pReceiver)
 
         int loc_idx = pReceiver->GetSession()->GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
-            if (const QuestLocale* pLocale = sObjectMgr.GetQuestLocale(pQuest->GetQuestId()))
-                sObjectMgr.GetLocaleString(pLocale->Title, loc_idx, strTitle);
+            if (const QuestLocale* pLocale = sObjectMgr->GetQuestLocale(pQuest->GetQuestId()))
+                sObjectMgr->GetLocaleString(pLocale->Title, loc_idx, strTitle);
 
         WorldPacket data(SMSG_QUEST_CONFIRM_ACCEPT, (4 + strTitle.size() + 8));
         data << uint32(pQuest->GetQuestId());
@@ -15923,7 +15923,7 @@ void Player::_LoadArenaTeamInfo(PreparedQueryResult result)
         uint32 played_season     = fields[2].GetUInt32();
         uint32 wons_season       = fields[3].GetUInt32();
 
-        ArenaTeam* aTeam = sObjectMgr.GetArenaTeamById(arenateamid);
+        ArenaTeam* aTeam = sObjectMgr->GetArenaTeamById(arenateamid);
         if (!aTeam)
         {
             sLog.outError("Player::_LoadArenaTeamInfo: couldn't load arenateam %u", arenateamid);
@@ -16120,7 +16120,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 
     // check name limitations
     if (ObjectMgr::CheckPlayerName(m_name) != CHAR_NAME_SUCCESS ||
-        (GetSession()->GetSecurity() == SEC_PLAYER && sObjectMgr.IsReservedName(m_name)))
+        (GetSession()->GetSecurity() == SEC_PLAYER && sObjectMgr->IsReservedName(m_name)))
     {
         CharacterDatabase.PExecute("UPDATE characters SET at_login = at_login | '%u' WHERE guid ='%u'", uint32(AT_LOGIN_RENAME),guid);
         return false;
@@ -16226,7 +16226,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
         if (!arena_team_id)
             continue;
 
-        if (ArenaTeam * at = sObjectMgr.GetArenaTeamById(arena_team_id))
+        if (ArenaTeam * at = sObjectMgr->GetArenaTeamById(arena_team_id))
             if (at->HaveMember(GetGUID()))
                 continue;
 
@@ -16256,13 +16256,13 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     {
         Battleground *currentBg = NULL;
         if (m_bgData.bgInstanceID)                                                //saved in Battleground
-            currentBg = sBattlegroundMgr.GetBattleground(m_bgData.bgInstanceID, BATTLEGROUND_TYPE_NONE);
+            currentBg = sBattlegroundMgr->GetBattleground(m_bgData.bgInstanceID, BATTLEGROUND_TYPE_NONE);
 
         bool player_at_bg = currentBg && currentBg->IsPlayerInBattleground(GetGUID());
 
         if (player_at_bg && currentBg->GetStatus() != STATUS_WAIT_LEAVE)
         {
-            BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr.BGQueueTypeId(currentBg->GetTypeID(true), currentBg->GetArenaType());
+            BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(currentBg->GetTypeID(true), currentBg->GetArenaType());
             AddBattlegroundQueueId(bgQueueTypeId);
 
             m_bgData.bgTypeID = currentBg->GetTypeID(true);
@@ -16316,7 +16316,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
         }
         else
         {
-            for (MapManager::TransportSet::iterator iter = sMapMgr.m_Transports.begin(); iter != sMapMgr.m_Transports.end(); ++iter)
+            for (MapManager::TransportSet::iterator iter = sMapMgr->m_Transports.begin(); iter != sMapMgr->m_Transports.end(); ++iter)
             {
                 if ((*iter)->GetGUIDLow() == transGUID)
                 {
@@ -16402,12 +16402,12 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 
     // NOW player must have valid map
     // load the player's map here if it's not already loaded
-    Map *map = sMapMgr.CreateMap(mapId, this, instanceId);
+    Map *map = sMapMgr->CreateMap(mapId, this, instanceId);
 
     if (!map)
     {
         instanceId = 0;
-        AreaTrigger const* at = sObjectMgr.GetGoBackTrigger(mapId);
+        AreaTrigger const* at = sObjectMgr->GetGoBackTrigger(mapId);
         if (at)
         {
             sLog.outError("Player (guidlow %d) is teleported to gobacktrigger (Map: %u X: %f Y: %f Z: %f O: %f).",guid,mapId,GetPositionX(),GetPositionY(),GetPositionZ(),GetOrientation());
@@ -16420,14 +16420,14 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
             RelocateToHomebind();
         }
 
-        map = sMapMgr.CreateMap(mapId, this, 0);
+        map = sMapMgr->CreateMap(mapId, this, 0);
         if (!map)
         {
-            PlayerInfo const *info = sObjectMgr.GetPlayerInfo(getRace(), getClass());
+            PlayerInfo const *info = sObjectMgr->GetPlayerInfo(getRace(), getClass());
             mapId = info->mapId;
             Relocate(info->positionX,info->positionY,info->positionZ,0.0f);
             sLog.outError("Player (guidlow %d) have invalid coordinates (X: %f Y: %f Z: %f O: %f). Teleport to default race/class locations.",guid,GetPositionX(),GetPositionY(),GetPositionZ(),GetOrientation());
-            map = sMapMgr.CreateMap(mapId, this, 0);
+            map = sMapMgr->CreateMap(mapId, this, 0);
             if (!map)
             {
                 sLog.outError("Player (guidlow %d) has invalid default map coordinates (X: %f Y: %f Z: %f O: %f). or instance couldn't be created",guid,GetPositionX(),GetPositionY(),GetPositionZ(),GetOrientation());
@@ -16437,9 +16437,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     }
 
     // if the player is in an instance and it has been reset in the meantime teleport him to the entrance
-    if (instanceId && !sInstanceSaveMgr.GetInstanceSave(instanceId))
+    if (instanceId && !sInstanceSaveMgr->GetInstanceSave(instanceId))
     {
-        AreaTrigger const* at = sObjectMgr.GetMapEntranceTrigger(mapId);
+        AreaTrigger const* at = sObjectMgr->GetMapEntranceTrigger(mapId);
         if (at)
             Relocate(at->target_X, at->target_Y, at->target_Z, at->target_Orientation);
         else
@@ -16608,7 +16608,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     // unread mails and next delivery time, actual mails not loaded
     _LoadMailInit(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADMAILCOUNT), holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADMAILDATE));
 
-    m_social = sSocialMgr.LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADSOCIALLIST), GetGUIDLow());
+    m_social = sSocialMgr->LoadFromDB(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADSOCIALLIST), GetGUIDLow());
 
     // check PLAYER_CHOSEN_TITLE compatibility with PLAYER__FIELD_KNOWN_TITLES
     // note: PLAYER__FIELD_KNOWN_TITLES updated at quest status loaded
@@ -17264,7 +17264,7 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
 
             uint32 quest_id = fields[0].GetUInt32();
                                                             // used to be new, no delete?
-            Quest const* pQuest = sObjectMgr.GetQuestTemplate(quest_id);
+            Quest const* pQuest = sObjectMgr->GetQuestTemplate(quest_id);
             if (pQuest)
             {
                 // find or create
@@ -17372,7 +17372,7 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
         do
         {
             Field* fields = result->Fetch();
-            if (Quest const* qQuest = sObjectMgr.GetQuestTemplate(fields[0].GetUInt32()))
+            if (Quest const* qQuest = sObjectMgr->GetQuestTemplate(fields[0].GetUInt32()))
             {
                 if (qQuest->IsDFQuest())
                 {
@@ -17393,7 +17393,7 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
             // save _any_ from daily quest times (it must be after last reset anyway)
             m_lastDailyQuestTime = (time_t)fields[1].GetUInt64();
 
-            Quest const* pQuest = sObjectMgr.GetQuestTemplate(quest_id);
+            Quest const* pQuest = sObjectMgr->GetQuestTemplate(quest_id);
             if (!pQuest)
                 continue;
 
@@ -17417,7 +17417,7 @@ void Player::_LoadWeeklyQuestStatus(PreparedQueryResult result)
         do
         {
             uint32 quest_id = (*result)[0].GetUInt32();
-            Quest const* pQuest = sObjectMgr.GetQuestTemplate(quest_id);
+            Quest const* pQuest = sObjectMgr->GetQuestTemplate(quest_id);
             if (!pQuest)
                 continue;
 
@@ -17447,7 +17447,7 @@ void Player::_LoadGroup(PreparedQueryResult result)
     //QueryResult *result = CharacterDatabase.PQuery("SELECT guid FROM group_member WHERE memberGuid=%u", GetGUIDLow());
     if (result)
     {
-        if (Group* group = sObjectMgr.GetGroupByGUID((*result)[0].GetUInt32()))
+        if (Group* group = sObjectMgr->GetGroupByGUID((*result)[0].GetUInt32()))
         {
             uint8 subgroup = group->GetMemberGroup(GetGUID());
             SetGroup(group, subgroup);
@@ -17516,7 +17516,7 @@ void Player::_LoadBoundInstances(PreparedQueryResult result)
             }
 
             // since non permanent binds are always solo bind, they can always be reset
-            if (InstanceSave *save = sInstanceSaveMgr.AddInstanceSave(mapId, instanceId, Difficulty(difficulty), resetTime, !perm, true))
+            if (InstanceSave *save = sInstanceSaveMgr->AddInstanceSave(mapId, instanceId, Difficulty(difficulty), resetTime, !perm, true))
                BindToInstance(save, perm, true);
         }
         while (result->NextRow());
@@ -17751,7 +17751,7 @@ bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, bool report
         else if (ar->item2 && !HasItemCount(ar->item2, 1))
             missingItem = ar->item2;
 
-        if (sDisableMgr.IsDisabledFor(DISABLE_TYPE_MAP, target_map, this))
+        if (sDisableMgr->IsDisabledFor(DISABLE_TYPE_MAP, target_map, this))
         {
             GetSession()->SendAreaTriggerMessage("%s", GetSession()->GetTrinityString(LANG_INSTANCE_CLOSED));
             return false;
@@ -17810,12 +17810,12 @@ bool Player::CheckInstanceLoginValid()
     }
 
     // do checks for satisfy accessreqs, instance full, encounter in progress (raid), perm bind group != perm bind player
-    return sMapMgr.CanPlayerEnter(GetMap()->GetId(), this, true);
+    return sMapMgr->CanPlayerEnter(GetMap()->GetId(), this, true);
 }
 
 bool Player::_LoadHomeBind(PreparedQueryResult result)
 {
-    PlayerInfo const *info = sObjectMgr.GetPlayerInfo(getRace(), getClass());
+    PlayerInfo const *info = sObjectMgr->GetPlayerInfo(getRace(), getClass());
     if (!info)
     {
         sLog.outError("Player have incorrect race/class pair. Can't be loaded.");
@@ -18689,7 +18689,7 @@ void Player::ResetInstances(uint8 method, bool isRaid)
         }
 
         // if the map is loaded, reset it
-        Map *map = sMapMgr.FindMap(p->GetMapId(), p->GetInstanceId());
+        Map *map = sMapMgr->FindMap(p->GetMapId(), p->GetInstanceId());
         if (map && map->IsDungeon())
             if (!((InstanceMap*)map)->Reset(method))
             {
@@ -18766,7 +18766,7 @@ void Player::UpdateDuelFlag(time_t currTime)
     if (!duel || duel->startTimer == 0 ||currTime < duel->startTimer + 3)
         return;
 
-    sScriptMgr.OnPlayerDuelStart(this, duel->opponent);
+    sScriptMgr->OnPlayerDuelStart(this, duel->opponent);
 
     SetUInt32Value(PLAYER_DUEL_TEAM, 1);
     duel->opponent->SetUInt32Value(PLAYER_DUEL_TEAM, 2);
@@ -18921,7 +18921,7 @@ inline void Player::BuildPlayerChat(WorldPacket *data, uint8 msgtype, const std:
 void Player::Say(const std::string& text, const uint32 language)
 {
     std::string _text(text);
-    sScriptMgr.OnPlayerChat(this, CHAT_MSG_SAY, language, _text);
+    sScriptMgr->OnPlayerChat(this, CHAT_MSG_SAY, language, _text);
 
     WorldPacket data(SMSG_MESSAGECHAT, 200);
     BuildPlayerChat(&data, CHAT_MSG_SAY, _text, language);
@@ -18931,7 +18931,7 @@ void Player::Say(const std::string& text, const uint32 language)
 void Player::Yell(const std::string& text, const uint32 language)
 {
     std::string _text(text);
-    sScriptMgr.OnPlayerChat(this, CHAT_MSG_YELL, language, _text);
+    sScriptMgr->OnPlayerChat(this, CHAT_MSG_YELL, language, _text);
 
     WorldPacket data(SMSG_MESSAGECHAT, 200);
     BuildPlayerChat(&data, CHAT_MSG_YELL, _text, language);
@@ -18941,7 +18941,7 @@ void Player::Yell(const std::string& text, const uint32 language)
 void Player::TextEmote(const std::string& text)
 {
     std::string _text(text);
-    sScriptMgr.OnPlayerChat(this, CHAT_MSG_EMOTE, LANG_UNIVERSAL, _text);
+    sScriptMgr->OnPlayerChat(this, CHAT_MSG_EMOTE, LANG_UNIVERSAL, _text);
 
     WorldPacket data(SMSG_MESSAGECHAT, 200);
     BuildPlayerChat(&data, CHAT_MSG_EMOTE, _text, LANG_UNIVERSAL);
@@ -18953,10 +18953,10 @@ void Player::Whisper(const std::string& text, uint32 language, uint64 receiver)
     if (language != LANG_ADDON)                             // if not addon data
         language = LANG_UNIVERSAL;                          // whispers should always be readable
 
-    Player *rPlayer = sObjectMgr.GetPlayer(receiver);
+    Player *rPlayer = sObjectMgr->GetPlayer(receiver);
 
     std::string _text(text);
-    sScriptMgr.OnPlayerChat(this, CHAT_MSG_WHISPER, language, _text, rPlayer);
+    sScriptMgr->OnPlayerChat(this, CHAT_MSG_WHISPER, language, _text, rPlayer);
 
     // when player you are whispering to is dnd, he cannot receive your message, unless you are in gm mode
     if (!rPlayer->isDND() || isGameMaster())
@@ -19117,8 +19117,8 @@ void Player::VehicleSpellInitialize()
         if (!spellInfo)
             continue;
 
-        ConditionList conditions = sConditionMgr.GetConditionsForVehicleSpell(veh->ToCreature()->GetEntry(), spellId);
-        if (!sConditionMgr.IsPlayerMeetToConditions(this, conditions))
+        ConditionList conditions = sConditionMgr->GetConditionsForVehicleSpell(veh->ToCreature()->GetEntry(), spellId);
+        if (!sConditionMgr->IsPlayerMeetToConditions(this, conditions))
         {
             sLog.outDebug("VehicleSpellInitialize: conditions not met for Vehicle entry %u spell %u", veh->ToCreature()->GetEntry(), spellId);
             continue;
@@ -19214,7 +19214,7 @@ bool Player::IsAffectedBySpellmod(SpellEntry const *spellInfo, SpellModifier *mo
     if (mod->op == SPELLMOD_DURATION && GetSpellDuration(spellInfo) == -1)
         return false;
 
-    return sSpellMgr.IsAffectedByMod(spellInfo, mod);
+    return sSpellMgr->IsAffectedByMod(spellInfo, mod);
 }
 
 void Player::AddSpellMod(SpellModifier* mod, bool apply)
@@ -19384,7 +19384,7 @@ void Player::RemovePetitionsAndSigns(uint64 guid, uint32 type)
             uint64 petitionguid = MAKE_NEW_GUID(fields[1].GetUInt32(), 0, HIGHGUID_ITEM);
 
             // send update if charter owner in game
-            Player* owner = sObjectMgr.GetPlayer(ownerguid);
+            Player* owner = sObjectMgr->GetPlayer(ownerguid);
             if (owner)
                 owner->GetSession()->SendPetitionQueryOpcode(petitionguid);
 
@@ -19422,7 +19422,7 @@ void Player::LeaveAllArenaTeams(uint64 guid)
         uint32 at_id = fields[0].GetUInt32();
         if (at_id != 0)
         {
-            ArenaTeam * at = sObjectMgr.GetArenaTeamById(at_id);
+            ArenaTeam * at = sObjectMgr->GetArenaTeamById(at_id);
             if (at)
                 at->DelMember(guid);
         }
@@ -19586,7 +19586,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         uint32 path, cost;
 
         lastnode = nodes[i];
-        sObjectMgr.GetTaxiPath(prevnode, lastnode, path, cost);
+        sObjectMgr->GetTaxiPath(prevnode, lastnode, path, cost);
 
         if (!path)
         {
@@ -19610,7 +19610,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     // only one mount ID for both sides. Probably not good to use 315 in case DBC nodes
     // change but I couldn't find a suitable alternative. OK to use class because only DK
     // can use this taxi.
-    uint32 mount_display_id = sObjectMgr.GetTaxiMountDisplayId(sourcenode, GetTeam(), npc == NULL || (sourcenode == 315 && getClass() == CLASS_DEATH_KNIGHT));
+    uint32 mount_display_id = sObjectMgr->GetTaxiMountDisplayId(sourcenode, GetTeam(), npc == NULL || (sourcenode == 315 && getClass() == CLASS_DEATH_KNIGHT));
 
     // in spell case allow 0 model
     if ((mount_display_id == 0 && spellid == 0) || sourcepath == 0)
@@ -19693,7 +19693,7 @@ void Player::ContinueTaxiFlight()
 
     sLog.outDebug("WORLD: Restart character %u taxi flight", GetGUIDLow());
 
-    uint32 mountDisplayId = sObjectMgr.GetTaxiMountDisplayId(sourceNode, GetTeam(),true);
+    uint32 mountDisplayId = sObjectMgr->GetTaxiMountDisplayId(sourceNode, GetTeam(),true);
     uint32 path = m_taxi.GetCurrentTaxiPath();
 
     // search appropriate start path node
@@ -19823,7 +19823,7 @@ void Player::InitDataForForm(bool reapplyMods)
 
 void Player::InitDisplayIds()
 {
-    PlayerInfo const *info = sObjectMgr.GetPlayerInfo(getRace(), getClass());
+    PlayerInfo const *info = sObjectMgr->GetPlayerInfo(getRace(), getClass());
     if (!info)
     {
         sLog.outError("Player %u has incorrect race/class pair. Can't init display ids.", GetGUIDLow());
@@ -20060,7 +20060,7 @@ uint32 Player::GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot)
     uint32 max_personal_rating = 0;
     for (uint8 i = minarenaslot; i < MAX_ARENA_SLOT; ++i)
     {
-        if (ArenaTeam * at = sObjectMgr.GetArenaTeamById(GetArenaTeamId(i)))
+        if (ArenaTeam * at = sObjectMgr->GetArenaTeamById(GetArenaTeamId(i)))
         {
             uint32 p_rating = GetArenaPersonalRating(i);
             uint32 t_rating = at->GetRating();
@@ -20489,7 +20489,7 @@ void Player::SetBattlegroundEntryPoint()
         // If map is dungeon find linked graveyard
         if (GetMap()->IsDungeon())
         {
-            if (const WorldSafeLocsEntry* entry = sObjectMgr.GetClosestGraveYard(GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId(), GetTeam()))
+            if (const WorldSafeLocsEntry* entry = sObjectMgr->GetClosestGraveYard(GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId(), GetTeam()))
             {
                 m_bgData.joinPos = WorldLocation(entry->map_id, entry->x, entry->y, entry->z, 0.0f);
                 return;
@@ -20574,7 +20574,7 @@ void Player::ReportedAfkBy(Player* reporter)
 
 WorldLocation Player::GetStartPosition() const
 {
-    PlayerInfo const *info = sObjectMgr.GetPlayerInfo(getRace(), getClass());
+    PlayerInfo const *info = sObjectMgr->GetPlayerInfo(getRace(), getClass());
     uint32 mapId = info->mapId;
     if (getClass() == CLASS_DEATH_KNIGHT && HasSpell(50977))
         mapId = 0;
@@ -20827,7 +20827,7 @@ void Player::InitPrimaryProfessions()
 
 void Player::ModifyMoney(int32 d)
 {
-    sScriptMgr.OnPlayerMoneyChanged(this, d);
+    sScriptMgr->OnPlayerMoneyChanged(this, d);
 
     if (d < 0)
         SetMoney (GetMoney() > uint32(-d) ? GetMoney() + d : 0);
@@ -21197,7 +21197,7 @@ void Player::resetSpells(bool myClassOnly)
                 continue;
 
             // skip spells with first rank learned as talent (and all talents then also)
-            uint32 first_rank = sSpellMgr.GetFirstSpellInChain(spellInfo->Id);
+            uint32 first_rank = sSpellMgr->GetFirstSpellInChain(spellInfo->Id);
             if (GetTalentSpellCost(first_rank) > 0)
                 continue;
 
@@ -21217,7 +21217,7 @@ void Player::resetSpells(bool myClassOnly)
 void Player::learnDefaultSpells()
 {
     // learn default race/class spells
-    PlayerInfo const *info = sObjectMgr.GetPlayerInfo(getRace(),getClass());
+    PlayerInfo const *info = sObjectMgr->GetPlayerInfo(getRace(),getClass());
     for (PlayerCreateInfoSpells::const_iterator itr = info->spell.begin(); itr != info->spell.end(); ++itr)
     {
         uint32 tspell = *itr;
@@ -21266,10 +21266,10 @@ void Player::learnQuestRewardedSpells(Quest const* quest)
 
     // prevent learn non first rank unknown profession and second specialization for same profession)
     uint32 learned_0 = spellInfo->EffectTriggerSpell[0];
-    if (sSpellMgr.GetSpellRank(learned_0) > 1 && !HasSpell(learned_0))
+    if (sSpellMgr->GetSpellRank(learned_0) > 1 && !HasSpell(learned_0))
     {
         // not have first rank learned (unlearned prof?)
-        uint32 first_spell = sSpellMgr.GetFirstSpellInChain(learned_0);
+        uint32 first_spell = sSpellMgr->GetFirstSpellInChain(learned_0);
         if (!HasSpell(first_spell))
             return;
 
@@ -21277,7 +21277,7 @@ void Player::learnQuestRewardedSpells(Quest const* quest)
         if (!learnedInfo)
             return;
 
-        SpellsRequiringSpellMapBounds spellsRequired = sSpellMgr.GetSpellsRequiredForSpellBounds(learned_0);
+        SpellsRequiringSpellMapBounds spellsRequired = sSpellMgr->GetSpellsRequiredForSpellBounds(learned_0);
         for (SpellsRequiringSpellMap::const_iterator itr2 = spellsRequired.first; itr2 != spellsRequired.second; ++itr2)
         {
             uint32 profSpell = itr2->second;
@@ -21300,7 +21300,7 @@ void Player::learnQuestRewardedSpells(Quest const* quest)
                         continue;
 
                     // compare same chain spells
-                    if (sSpellMgr.IsSpellRequiringSpell(itr->first, profSpell))
+                    if (sSpellMgr->IsSpellRequiringSpell(itr->first, profSpell))
                         return;
                 }
             }
@@ -21319,7 +21319,7 @@ void Player::learnQuestRewardedSpells()
         if (!itr->second.m_rewarded)
             continue;
 
-        Quest const* quest = sObjectMgr.GetQuestTemplate(itr->first);
+        Quest const* quest = sObjectMgr->GetQuestTemplate(itr->first);
         if (!quest)
             continue;
 
@@ -21398,7 +21398,7 @@ void Player::SendAurasForTarget(Unit *target)
 
 void Player::SetDailyQuestStatus(uint32 quest_id)
 {
-    if (Quest const* qQuest = sObjectMgr.GetQuestTemplate(quest_id))
+    if (Quest const* qQuest = sObjectMgr->GetQuestTemplate(quest_id))
     {
         if (!qQuest->IsDFQuest())
         {
@@ -21456,7 +21456,7 @@ Battleground* Player::GetBattleground() const
     if (GetBattlegroundId() == 0)
         return NULL;
 
-    return sBattlegroundMgr.GetBattleground(GetBattlegroundId(), m_bgData.bgTypeID);
+    return sBattlegroundMgr->GetBattleground(GetBattlegroundId(), m_bgData.bgTypeID);
 }
 
 bool Player::InArena() const
@@ -21471,7 +21471,7 @@ bool Player::InArena() const
 bool Player::GetBGAccessByLevel(BattlegroundTypeId bgTypeId) const
 {
     // get a template bg instead of running one
-    Battleground *bg = sBattlegroundMgr.GetBattlegroundTemplate(bgTypeId);
+    Battleground *bg = sBattlegroundMgr->GetBattlegroundTemplate(bgTypeId);
     if (!bg)
         return false;
 
@@ -21504,7 +21504,7 @@ bool Player::IsSpellFitByClassAndRace(uint32 spell_id) const
     uint32 racemask  = getRaceMask();
     uint32 classmask = getClassMask();
 
-    SkillLineAbilityMapBounds bounds = sSpellMgr.GetSkillLineAbilityMapBounds(spell_id);
+    SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spell_id);
     if (bounds.first == bounds.second)
         return true;
 
@@ -21540,7 +21540,7 @@ bool Player::HasQuestForGO(int32 GOId) const
 
         if (qs.m_status == QUEST_STATUS_INCOMPLETE)
         {
-            Quest const* qinfo = sObjectMgr.GetQuestTemplate(questid);
+            Quest const* qinfo = sObjectMgr->GetQuestTemplate(questid);
             if (!qinfo)
                 continue;
 
@@ -21584,7 +21584,7 @@ void Player::UpdateForQuestWorldObjects()
             if (!obj->HasFlag(UNIT_NPC_FLAGS,UNIT_NPC_FLAG_SPELLCLICK))
                 continue;
 
-            SpellClickInfoMapBounds clickPair = sObjectMgr.GetSpellClickInfoMapBounds(obj->GetEntry());
+            SpellClickInfoMapBounds clickPair = sObjectMgr->GetSpellClickInfoMapBounds(obj->GetEntry());
             for (SpellClickInfoMap::const_iterator _itr = clickPair.first; _itr != clickPair.second; ++_itr)
                 if (_itr->second.questStart || _itr->second.questEnd)
                 {
@@ -21686,7 +21686,7 @@ void Player::AutoUnequipOffhandIfNeed(bool force /*= false*/)
 
 OutdoorPvP * Player::GetOutdoorPvP() const
 {
-    return sOutdoorPvPMgr.GetOutdoorPvPToZoneId(GetZoneId());
+    return sOutdoorPvPMgr->GetOutdoorPvPToZoneId(GetZoneId());
 }
 
 bool Player::HasItemFitToSpellReqirements(SpellEntry const* spellInfo, Item const* ignoreItem)
@@ -22109,7 +22109,7 @@ void Player::SetClientControl(Unit* target, uint8 allowMove)
 void Player::UpdateZoneDependentAuras(uint32 newZone)
 {
     // Some spells applied at enter into zone (with subzones), aura removed in UpdateAreaDependentAuras that called always at zone->area update
-    SpellAreaForAreaMapBounds saBounds = sSpellMgr.GetSpellAreaForAreaMapBounds(newZone);
+    SpellAreaForAreaMapBounds saBounds = sSpellMgr->GetSpellAreaForAreaMapBounds(newZone);
     for (SpellAreaForAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
         if (itr->second->autocast && itr->second->IsFitToRequirements(this,newZone,0))
             if (!HasAura(itr->second->spellId))
@@ -22122,14 +22122,14 @@ void Player::UpdateAreaDependentAuras(uint32 newArea)
     for (AuraMap::iterator iter = m_ownedAuras.begin(); iter != m_ownedAuras.end();)
     {
         // use m_zoneUpdateId for speed: UpdateArea called from UpdateZone or instead UpdateZone in both cases m_zoneUpdateId up-to-date
-        if (sSpellMgr.GetSpellAllowedInLocationError(iter->second->GetSpellProto(),GetMapId(),m_zoneUpdateId,newArea,this) != SPELL_CAST_OK)
+        if (sSpellMgr->GetSpellAllowedInLocationError(iter->second->GetSpellProto(),GetMapId(),m_zoneUpdateId,newArea,this) != SPELL_CAST_OK)
             RemoveOwnedAura(iter);
         else
             ++iter;
     }
 
     // some auras applied at subzone enter
-    SpellAreaForAreaMapBounds saBounds = sSpellMgr.GetSpellAreaForAreaMapBounds(newArea);
+    SpellAreaForAreaMapBounds saBounds = sSpellMgr->GetSpellAreaForAreaMapBounds(newArea);
     for (SpellAreaForAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
         if (itr->second->autocast && itr->second->IsFitToRequirements(this,m_zoneUpdateId,newArea))
             if (!HasAura(itr->second->spellId))
@@ -22270,14 +22270,14 @@ PartyResult Player::CanUninviteFromGroup() const
     if (grp->isLFGGroup())
     {
         uint64 gguid = grp->GetGUID();
-        if (!sLFGMgr.GetKicksLeft(gguid))
+        if (!sLFGMgr->GetKicksLeft(gguid))
             return ERR_PARTY_LFG_BOOT_LIMIT;
 
-        LfgState state = sLFGMgr.GetState(gguid);
+        LfgState state = sLFGMgr->GetState(gguid);
         if (state == LFG_STATE_BOOT)
             return ERR_PARTY_LFG_BOOT_IN_PROGRESS;
 
-        if (grp->GetMembersCount() <= sLFGMgr.GetVotesNeeded(gguid))
+        if (grp->GetMembersCount() <= sLFGMgr->GetVotesNeeded(gguid))
             return ERR_PARTY_LFG_BOOT_TOO_FEW_PLAYERS;
 
         if (state == LFG_STATE_FINISHED_DUNGEON)
@@ -22307,7 +22307,7 @@ PartyResult Player::CanUninviteFromGroup() const
 bool Player::isUsingLfg()
 {
     uint64 guid = GetGUID();
-    return sLFGMgr.GetState(guid) != LFG_STATE_NONE;
+    return sLFGMgr->GetState(guid) != LFG_STATE_NONE;
 }
 
 void Player::SetBattlegroundRaid(Group* group, int8 subgroup)
@@ -22948,7 +22948,7 @@ void Player::learnSpellHighRank(uint32 spellid)
 {
     learnSpell(spellid, false);
 
-    if (uint32 next = sSpellMgr.GetNextSpellInChain(spellid))
+    if (uint32 next = sSpellMgr->GetNextSpellInChain(spellid))
         learnSpellHighRank(next);
 }
 
@@ -23496,7 +23496,7 @@ bool Player::canSeeSpellClickOn(Creature const *c) const
     if (!c->HasFlag(UNIT_NPC_FLAGS,UNIT_NPC_FLAG_SPELLCLICK))
         return false;
 
-    SpellClickInfoMapBounds clickPair = sObjectMgr.GetSpellClickInfoMapBounds(c->GetEntry());
+    SpellClickInfoMapBounds clickPair = sObjectMgr->GetSpellClickInfoMapBounds(c->GetEntry());
     if (clickPair.first == clickPair.second)
         return true;
 
@@ -23753,7 +23753,7 @@ void Player::SetEquipmentSet(uint32 index, EquipmentSet eqset)
 
     if (eqset.Guid == 0)
     {
-        eqslot.Guid = sObjectMgr.GenerateEquipmentSetGuid();
+        eqslot.Guid = sObjectMgr->GenerateEquipmentSetGuid();
 
         WorldPacket data(SMSG_EQUIPMENT_SET_SAVED, 4 + 1);
         data << uint32(index);
@@ -24150,9 +24150,10 @@ uint32 Player::GetReputation(uint32 factionentry)
 {
     return GetReputationMgr().GetReputation(sFactionStore.LookupEntry(factionentry));
 }
+
 std::string Player::GetGuildName()
 {
-    return sObjectMgr.GetGuildById(GetGuildId())->GetName();
+    return sObjectMgr->GetGuildById(GetGuildId())->GetName();
 }
 
 void Player::SendDuelCountdown(uint32 counter)

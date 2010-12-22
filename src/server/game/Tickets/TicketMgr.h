@@ -163,6 +163,6 @@ protected:
     time_t lastChange;
 };
 
-#define sTicketMgr (*ACE_Singleton<TicketMgr, ACE_Null_Mutex>::instance())
+#define sTicketMgr ACE_Singleton<TicketMgr, ACE_Null_Mutex>::instance()
 
 #endif // _TICKETMGR_H

@@ -58,7 +58,7 @@ class ItemUse_example_item : public ItemScript
 
         bool OnUse(Player* /*player*/, Item* /*item*/, SpellCastTargets const& /*targets*/)
         {
-            sScriptMgr.LoadDatabase();
+            sScriptMgr->LoadDatabase();
             return true;
         }
 };

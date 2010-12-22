@@ -161,7 +161,7 @@ class PoolMgr
         ActivePoolData mSpawnedData;
 };
 
-#define sPoolMgr (*ACE_Singleton<PoolMgr, ACE_Null_Mutex>::instance())
+#define sPoolMgr ACE_Singleton<PoolMgr, ACE_Null_Mutex>::instance()
 
 // Method that tell if the creature is part of a pool and return the pool id if yes
 template<>

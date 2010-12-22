@@ -294,10 +294,10 @@ void WorldSession::HandleItemQuerySingleOpcode(WorldPacket & recv_data)
         int loc_idx = GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
         {
-            if (ItemLocale const *il = sObjectMgr.GetItemLocale(pProto->ItemId))
+            if (ItemLocale const *il = sObjectMgr->GetItemLocale(pProto->ItemId))
             {
-                sObjectMgr.GetLocaleString(il->Name, loc_idx, Name);
-                sObjectMgr.GetLocaleString(il->Description, loc_idx, Description);
+                sObjectMgr->GetLocaleString(il->Name, loc_idx, Name);
+                sObjectMgr->GetLocaleString(il->Description, loc_idx, Description);
             }
         }
                                                             // guess size
@@ -1016,14 +1016,14 @@ void WorldSession::HandleItemNameQueryOpcode(WorldPacket & recv_data)
     recv_data.read_skip<uint64>();                          // guid
 
     sLog.outDebug("WORLD: CMSG_ITEM_NAME_QUERY %u", itemid);
-    ItemSetNameEntry const *pName = sObjectMgr.GetItemSetNameEntry(itemid);
+    ItemSetNameEntry const *pName = sObjectMgr->GetItemSetNameEntry(itemid);
     if (pName)
     {
         std::string Name = pName->name;
         int loc_idx = GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
-            if (ItemSetNameLocale const *isnl = sObjectMgr.GetItemSetNameLocale(itemid))
-                sObjectMgr.GetLocaleString(isnl->Name, loc_idx, Name);
+            if (ItemSetNameLocale const *isnl = sObjectMgr->GetItemSetNameLocale(itemid))
+                sObjectMgr->GetLocaleString(isnl->Name, loc_idx, Name);
 
         WorldPacket data(SMSG_ITEM_NAME_QUERY_RESPONSE, (4+Name.size()+1+4));
         data << uint32(itemid);

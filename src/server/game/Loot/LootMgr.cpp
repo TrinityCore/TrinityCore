@@ -340,7 +340,7 @@ LootItem::LootItem(LootStoreItem const& li)
 bool LootItem::AllowedForPlayer(Player const * player) const
 {
     // DB conditions check
-    if (!sConditionMgr.IsPlayerMeetToConditions(const_cast<Player*>(player), conditions))
+    if (!sConditionMgr->IsPlayerMeetToConditions(const_cast<Player*>(player), conditions))
         return false;
 
     ItemPrototype const *pProto = ObjectMgr::GetItemPrototype(itemid);
@@ -1512,7 +1512,7 @@ void LoadLootTemplates_Gameobject()
         {
             if (uint32 lootid = gInfo->GetLootId())
             {
-                if (sObjectMgr.IsGoOfSpecificEntrySpawned(gInfo->id) && ids_set.find(lootid) == ids_set.end())
+                if (sObjectMgr->IsGoOfSpecificEntrySpawned(gInfo->id) && ids_set.find(lootid) == ids_set.end())
                     LootTemplates_Gameobject.ReportNotExistedId(lootid);
                 else
                     ids_setUsed.insert(lootid);

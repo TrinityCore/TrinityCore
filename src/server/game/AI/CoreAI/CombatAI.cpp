@@ -337,7 +337,7 @@ void VehicleAI::OnCharmed(bool apply)
 
 void VehicleAI::LoadConditions()
 {
-    conditions = sConditionMgr.GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE, me->GetEntry());
+    conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE, me->GetEntry());
     if (!conditions.empty())
     {
         sLog.outDebug("VehicleAI::LoadConditions: loaded %u conditions", uint32(conditions.size()));
@@ -355,7 +355,7 @@ void VehicleAI::CheckConditions(const uint32 diff)
                 {
                     if (Player* plr = passenger->ToPlayer())
                     {
-                        if (!sConditionMgr.IsPlayerMeetToConditions(plr, conditions))
+                        if (!sConditionMgr->IsPlayerMeetToConditions(plr, conditions))
                         {
                             plr->ExitVehicle();
                             return;//check other pessanger in next tick

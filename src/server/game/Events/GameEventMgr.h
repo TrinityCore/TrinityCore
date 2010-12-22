@@ -172,7 +172,7 @@ class GameEventMgr
         GameEventGuidMap  mGameEventGameobjectGuids;
 };
 
-#define sGameEventMgr (*ACE_Singleton<GameEventMgr, ACE_Null_Mutex>::instance())
+#define sGameEventMgr ACE_Singleton<GameEventMgr, ACE_Null_Mutex>::instance()
 
 bool IsHolidayActive(HolidayIds id);
 bool IsEventActive(uint16 event_id);

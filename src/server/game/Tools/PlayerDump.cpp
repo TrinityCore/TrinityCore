@@ -382,7 +382,7 @@ void fixNULLfields(std::string &line)
 
 DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, std::string name, uint32 guid)
 {
-    uint32 charcount = sAccountMgr.GetCharactersCount(account);
+    uint32 charcount = sAccountMgr->GetCharactersCount(account);
     if (charcount >= 10)
         return DUMP_TOO_MANY_CHARS;
 
@@ -395,15 +395,15 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
 
     // make sure the same guid doesn't already exist and is safe to use
     bool incHighest = true;
-    if (guid != 0 && guid < sObjectMgr.m_hiCharGuid)
+    if (guid != 0 && guid < sObjectMgr->m_hiCharGuid)
     {
         result = CharacterDatabase.PQuery("SELECT 1 FROM characters WHERE guid = '%d'", guid);
         if (result)
-            guid = sObjectMgr.m_hiCharGuid;                     // use first free if exists
+            guid = sObjectMgr->m_hiCharGuid;                     // use first free if exists
         else incHighest = false;
     }
     else
-        guid = sObjectMgr.m_hiCharGuid;
+        guid = sObjectMgr->m_hiCharGuid;
 
     // normalize the name if specified and check if it exists
     if (!normalizePlayerName(name))
@@ -423,7 +423,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
 
     snprintf(newguid, 20, "%d", guid);
     snprintf(chraccount, 20, "%d", account);
-    snprintf(newpetid, 20, "%d", sObjectMgr.GeneratePetNumber());
+    snprintf(newpetid, 20, "%d", sObjectMgr->GeneratePetNumber());
     snprintf(lastpetid, 20, "%s", "");
 
     std::map<uint32,uint32> items;
@@ -540,7 +540,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                     ROLLBACK(DUMP_FILE_BROKEN);             // character_equipmentsets.guid
 
                 char newSetGuid[24];
-                snprintf(newSetGuid, 24, UI64FMTD, sObjectMgr.GenerateEquipmentSetGuid());
+                snprintf(newSetGuid, 24, UI64FMTD, sObjectMgr->GenerateEquipmentSetGuid());
                 if (!changenth(line, 2, newSetGuid))
                     ROLLBACK(DUMP_FILE_BROKEN);             // character_equipmentsets.setguid
                 break;
@@ -550,15 +550,15 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                 if (!changenth(line, 1, newguid))           // character_inventory.guid update
                     ROLLBACK(DUMP_FILE_BROKEN);
 
-                if (!changeGuid(line, 2, items, sObjectMgr.m_hiItemGuid, true))
+                if (!changeGuid(line, 2, items, sObjectMgr->m_hiItemGuid, true))
                     ROLLBACK(DUMP_FILE_BROKEN);             // character_inventory.bag update
-                if (!changeGuid(line, 4, items, sObjectMgr.m_hiItemGuid))
+                if (!changeGuid(line, 4, items, sObjectMgr->m_hiItemGuid))
                     ROLLBACK(DUMP_FILE_BROKEN);             // character_inventory.item update
                 break;
             }
             case DTT_MAIL:                                  // mail
             {
-                if (!changeGuid(line, 1, mails, sObjectMgr.m_mailid))
+                if (!changeGuid(line, 1, mails, sObjectMgr->m_mailid))
                     ROLLBACK(DUMP_FILE_BROKEN);             // mail.id update
                 if (!changenth(line, 6, newguid))           // mail.receiver update
                     ROLLBACK(DUMP_FILE_BROKEN);
@@ -566,9 +566,9 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
             }
             case DTT_MAIL_ITEM:                             // mail_items
             {
-                if (!changeGuid(line, 1, mails, sObjectMgr.m_mailid))
+                if (!changeGuid(line, 1, mails, sObjectMgr->m_mailid))
                     ROLLBACK(DUMP_FILE_BROKEN);             // mail_items.id
-                if (!changeGuid(line, 2, items, sObjectMgr.m_hiItemGuid))
+                if (!changeGuid(line, 2, items, sObjectMgr->m_hiItemGuid))
                     ROLLBACK(DUMP_FILE_BROKEN);             // mail_items.item_guid
                 if (!changenth(line, 4, newguid))           // mail_items.receiver
                     ROLLBACK(DUMP_FILE_BROKEN);
@@ -577,7 +577,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
             case DTT_ITEM:
             {
                 // item, owner, data field:item, owner guid
-                if (!changeGuid(line, 1, items, sObjectMgr.m_hiItemGuid))
+                if (!changeGuid(line, 1, items, sObjectMgr->m_hiItemGuid))
                    ROLLBACK(DUMP_FILE_BROKEN);              // item_instance.guid update
                 if (!changenth(line, 3, newguid))           // item_instance.owner_guid update
                     ROLLBACK(DUMP_FILE_BROKEN);
@@ -587,7 +587,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
             {
                 if (!changenth(line, 1, newguid))           // character_gifts.guid update
                     ROLLBACK(DUMP_FILE_BROKEN);
-                if (!changeGuid(line, 2, items, sObjectMgr.m_hiItemGuid))
+                if (!changeGuid(line, 2, items, sObjectMgr->m_hiItemGuid))
                     ROLLBACK(DUMP_FILE_BROKEN);             // character_gifts.item_guid update
                 break;
             }
@@ -599,7 +599,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                     snprintf(lastpetid, 20, "%s", currpetid);
                 if (strcmp(lastpetid,currpetid) != 0)
                 {
-                    snprintf(newpetid, 20, "%d", sObjectMgr.GeneratePetNumber());
+                    snprintf(newpetid, 20, "%d", sObjectMgr->GeneratePetNumber());
                     snprintf(lastpetid, 20, "%s", currpetid);
                 }
 
@@ -645,11 +645,11 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
 
     CharacterDatabase.CommitTransaction(trans);
 
-    sObjectMgr.m_hiItemGuid += items.size();
-    sObjectMgr.m_mailid     += mails.size();
+    sObjectMgr->m_hiItemGuid += items.size();
+    sObjectMgr->m_mailid     += mails.size();
 
     if (incHighest)
-        ++sObjectMgr.m_hiCharGuid;
+        ++sObjectMgr->m_hiCharGuid;
 
     fclose(fin);
 

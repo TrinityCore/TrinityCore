@@ -58,8 +58,8 @@ int CreatureEventAI::Permissible(const Creature *creature)
 CreatureEventAI::CreatureEventAI(Creature *c) : CreatureAI(c)
 {
     // Need make copy for filter unneeded steps and safe in case table reload
-    CreatureEventAI_Event_Map::const_iterator CreatureEvents = sEventAIMgr.GetCreatureEventAIMap().find(me->GetEntry());
-    if (CreatureEvents != sEventAIMgr.GetCreatureEventAIMap().end())
+    CreatureEventAI_Event_Map::const_iterator CreatureEvents = sEventAIMgr->GetCreatureEventAIMap().find(me->GetEntry());
+    if (CreatureEvents != sEventAIMgr->GetCreatureEventAIMap().end())
     {
         std::vector<CreatureEventAI_Event>::const_iterator i;
         for (i = (*CreatureEvents).second.begin(); i != (*CreatureEvents).second.end(); ++i)
@@ -410,7 +410,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
                 {
                     if (CreatureInfo const* ci = GetCreatureTemplateStore(action.morph.creatureId))
                     {
-                        uint32 display_id = sObjectMgr.ChooseDisplayId(0,ci);
+                        uint32 display_id = sObjectMgr->ChooseDisplayId(0,ci);
                         me->SetDisplayId(display_id);
                     }
                 }
@@ -672,8 +672,8 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
         {
             Unit* target = GetTargetByType(action.summon_id.target, pActionInvoker);
 
-            CreatureEventAI_Summon_Map::const_iterator i = sEventAIMgr.GetCreatureEventAISummonMap().find(action.summon_id.spawnId);
-            if (i == sEventAIMgr.GetCreatureEventAISummonMap().end())
+            CreatureEventAI_Summon_Map::const_iterator i = sEventAIMgr->GetCreatureEventAISummonMap().find(action.summon_id.spawnId);
+            if (i == sEventAIMgr->GetCreatureEventAISummonMap().end())
             {
                 sLog.outErrorDb("CreatureEventAI: failed to spawn creature %u. Summon map index %u does not exist. EventID %d. CreatureID %d", action.summon_id.creatureId, action.summon_id.spawnId, EventId, me->GetEntry());
                 return;
@@ -833,7 +833,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
                 {
                     if (CreatureInfo const* cInfo = GetCreatureTemplateStore(action.mount.creatureId))
                     {
-                        uint32 display_id = sObjectMgr.ChooseDisplayId(0, cInfo);
+                        uint32 display_id = sObjectMgr->ChooseDisplayId(0, cInfo);
                         me->Mount(display_id);
                     }
                 }
@@ -1248,9 +1248,9 @@ void CreatureEventAI::DoScriptText(int32 textEntry, WorldObject* pSource, Unit* 
         return;
     }
 
-    CreatureEventAI_TextMap::const_iterator i = sEventAIMgr.GetCreatureEventAITextMap().find(textEntry);
+    CreatureEventAI_TextMap::const_iterator i = sEventAIMgr->GetCreatureEventAITextMap().find(textEntry);
 
-    if (i == sEventAIMgr.GetCreatureEventAITextMap().end())
+    if (i == sEventAIMgr->GetCreatureEventAITextMap().end())
     {
         sLog.outErrorDb("CreatureEventAI: DoScriptText with source entry %u (TypeId=%u, guid=%u) could not find text entry %i.",pSource->GetEntry(),pSource->GetTypeId(),pSource->GetGUIDLow(),textEntry);
         return;

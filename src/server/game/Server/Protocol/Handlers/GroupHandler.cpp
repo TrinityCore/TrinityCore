@@ -70,7 +70,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recv_data)
         return;
     }
 
-    Player *player = sObjectMgr.GetPlayer(membername.c_str());
+    Player *player = sObjectMgr->GetPlayer(membername.c_str());
 
     // no player
     if (!player)
@@ -214,7 +214,7 @@ void WorldSession::HandleGroupAcceptOpcode(WorldPacket& recv_data)
         return;
     }
 
-    Player* leader = sObjectMgr.GetPlayer(group->GetLeaderGUID());
+    Player* leader = sObjectMgr->GetPlayer(group->GetLeaderGUID());
 
     // forming a new group, create it
     if (!group->IsCreated())
@@ -222,7 +222,7 @@ void WorldSession::HandleGroupAcceptOpcode(WorldPacket& recv_data)
         if (leader)
             group->RemoveInvite(leader);
         group->Create(group->GetLeaderGUID(), group->GetLeaderName());
-        sObjectMgr.AddGroup(group);
+        sObjectMgr->AddGroup(group);
     }
 
     // everything's fine, do it, PLAYER'S GROUP IS SET IN ADDMEMBER!!!
@@ -241,7 +241,7 @@ void WorldSession::HandleGroupDeclineOpcode(WorldPacket & /*recv_data*/)
     GetPlayer()->UninviteFromGroup();
 
     // remember leader if online
-    Player *leader = sObjectMgr.GetPlayer(group->GetLeaderGUID());
+    Player *leader = sObjectMgr->GetPlayer(group->GetLeaderGUID());
     if (!leader || !leader->GetSession())
         return;
 
@@ -343,7 +343,7 @@ void WorldSession::HandleGroupSetLeaderOpcode(WorldPacket & recv_data)
     uint64 guid;
     recv_data >> guid;
 
-    Player *player = sObjectMgr.GetPlayer(guid);
+    Player *player = sObjectMgr->GetPlayer(guid);
 
     /** error handling **/
     if (!player || !group->IsLeader(GetPlayer()->GetGUID()) || player->GetGroup() != group)
@@ -550,7 +550,7 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket & recv_data)
         return;
     /********************/
 
-    Player *movedPlayer = sObjectMgr.GetPlayer(name.c_str());
+    Player *movedPlayer = sObjectMgr->GetPlayer(name.c_str());
     if (movedPlayer)
     {
         //Do not allow leader to change group of player in combat
@@ -561,7 +561,7 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket & recv_data)
         group->ChangeMembersGroup(movedPlayer, groupNr);
     }
     else
-        group->ChangeMembersGroup(sObjectMgr.GetPlayerGUIDByName(name.c_str()), groupNr);
+        group->ChangeMembersGroup(sObjectMgr->GetPlayerGUIDByName(name.c_str()), groupNr);
 }
 
 void WorldSession::HandleGroupAssistantLeaderOpcode(WorldPacket & recv_data)
@@ -832,7 +832,7 @@ void WorldSession::HandleRequestPartyMemberStatsOpcode(WorldPacket &recv_data)
     uint64 Guid;
     recv_data >> Guid;
 
-    Player *player = sObjectMgr.GetPlayer(Guid);
+    Player *player = sObjectMgr->GetPlayer(Guid);
     if (!player)
     {
         WorldPacket data(SMSG_PARTY_MEMBER_STATS_FULL, 3+4+2);

@@ -411,7 +411,7 @@ void BattlegroundAB::_NodeDeOccupied(uint8 node)
         WorldSafeLocsEntry const *ClosestGrave = NULL;
         for (std::vector<uint64>::const_iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
         {
-            Player* plr = sObjectMgr.GetPlayer(*itr);
+            Player* plr = sObjectMgr->GetPlayer(*itr);
             if (!plr)
                 continue;
 
@@ -609,7 +609,7 @@ void BattlegroundAB::Reset()
     m_ReputationScoreTics[BG_TEAM_ALLIANCE] = 0;
     m_ReputationScoreTics[BG_TEAM_HORDE]    = 0;
     m_IsInformedNearVictory                 = false;
-    bool isBGWeekend = sBattlegroundMgr.IsBGWeekend(GetTypeID());
+    bool isBGWeekend = sBattlegroundMgr->IsBGWeekend(GetTypeID());
     m_HonorTics = (isBGWeekend) ? BG_AB_ABBGWeekendHonorTicks : BG_AB_NotABBGWeekendHonorTicks;
     m_ReputationTics = (isBGWeekend) ? BG_AB_ABBGWeekendReputationTicks : BG_AB_NotABBGWeekendReputationTicks;
     m_TeamScores500Disadvantage[BG_TEAM_ALLIANCE] = false;

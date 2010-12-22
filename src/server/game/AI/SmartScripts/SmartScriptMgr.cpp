@@ -163,7 +163,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
             }
         }else
         {
-            if (!sObjectMgr.GetCreatureData(uint32(abs(temp.entryOrGuid))))
+            if (!sObjectMgr->GetCreatureData(uint32(abs(temp.entryOrGuid))))
             {
                 sLog.outErrorDb("SmartAIMgr::LoadSmartAIFromDB: Creature guid (%u) does not exist, skipped loading.", uint32(abs(temp.entryOrGuid)));
                 continue;
@@ -563,7 +563,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder &e)
             break;
         case SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS:
         case SMART_ACTION_CALL_GROUPEVENTHAPPENS:
-            if (Quest const* qid = sObjectMgr.GetQuestTemplate(e.action.quest.quest))
+            if (Quest const* qid = sObjectMgr->GetQuestTemplate(e.action.quest.quest))
             {
                 if (!qid->HasFlag(QUEST_TRINITY_FLAGS_EXPLORATION_OR_EVENT))
                 {
@@ -692,7 +692,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder &e)
             break;
         case SMART_ACTION_WP_START:
             {
-                if (!sSmartWaypointMgr.GetPath(e.action.wpStart.pathID))
+                if (!sSmartWaypointMgr->GetPath(e.action.wpStart.pathID))
                 {
                     sLog.outErrorDb("SmartAIMgr: Creature %d Event %u Action %u uses non-existent WaypointPath id %u, skipped.", e.entryOrGuid, e.event_id, e.GetActionType(), e.action.wpStart.pathID);
                     return false;
@@ -783,7 +783,7 @@ bool SmartAIMgr::IsTextValid(SmartScriptHolder e, uint32 id)
         entry = uint32(e.entryOrGuid);
     else {
         entry = uint32(abs(e.entryOrGuid));
-        CreatureData const* data = sObjectMgr.GetCreatureData(entry);
+        CreatureData const* data = sObjectMgr->GetCreatureData(entry);
         if (!data)
         {
             sLog.outErrorDb("SmartAIMgr: Entry %d SourceType %u Event %u Action %u using non-existent Creature guid %d, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
@@ -792,7 +792,7 @@ bool SmartAIMgr::IsTextValid(SmartScriptHolder e, uint32 id)
         else
             entry = data->id;
     }
-    if (!entry || !sCreatureTextMgr.TextExist(entry, uint8(id)))
+    if (!entry || !sCreatureTextMgr->TextExist(entry, uint8(id)))
         error = true;
     if (error)
     {

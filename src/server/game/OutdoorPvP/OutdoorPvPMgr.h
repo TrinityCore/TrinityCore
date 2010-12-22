@@ -100,6 +100,6 @@ class OutdoorPvPMgr
         uint32 m_UpdateTimer;
 };
 
-#define sOutdoorPvPMgr (*ACE_Singleton<OutdoorPvPMgr, ACE_Null_Mutex>::instance())
+#define sOutdoorPvPMgr ACE_Singleton<OutdoorPvPMgr, ACE_Null_Mutex>::instance()
 
 #endif /*OUTDOOR_PVP_MGR_H_*/
