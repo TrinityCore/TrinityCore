@@ -14481,8 +14481,9 @@ void Unit::StopMoving()
     //if (fabs(GetPositionZ() - z) < 2.0f)
     //    Relocate(GetPositionX(), GetPositionY(), z);
     //Relocate(GetPositionX(), GetPositionY(),GetPositionZ());
-
-    SendMonsterStop();
+    
+    if (!(GetUnitMovementFlags() & MOVEMENTFLAG_ONTRANSPORT))
+        SendMonsterStop();
 }
 
 void Unit::SendMovementFlagUpdate()
