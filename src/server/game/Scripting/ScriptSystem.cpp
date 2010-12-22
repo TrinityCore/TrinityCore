@@ -21,16 +21,6 @@
 #include "ObjectMgr.h"
 #include "DatabaseEnv.h"
 
-SystemMgr::SystemMgr()
-{
-}
-
-SystemMgr& SystemMgr::Instance()
-{
-    static SystemMgr pSysMgr;
-    return pSysMgr;
-}
-
 void SystemMgr::LoadVersion()
 {
     //Get Version information
