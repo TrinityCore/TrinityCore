@@ -1873,7 +1873,7 @@ void Spell::SearchGOAreaTarget(std::list<GameObject*> &TagGOMap, float radius, S
             break;
     }
 
-    Trinity::GameObjectInRangeCheck check(pos->m_positionX, pos->m_positionY, pos->m_positionZ, radius + 50, entry);
+    Trinity::GameObjectInRangeCheck check(pos->m_positionX, pos->m_positionY, pos->m_positionZ, radius, entry);
     Trinity::GameObjectListSearcher<Trinity::GameObjectInRangeCheck> searcher(m_caster, TagGOMap, check);
     m_caster->GetMap()->VisitGrid(pos->m_positionX, pos->m_positionY, radius, searcher);
 }
