@@ -375,7 +375,10 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     // Skip it to prevent "interrupt" message
     if (IsAutoRepeatRangedSpell(spellInfo) && _player->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL)
         && _player->GetCurrentSpell(CURRENT_AUTOREPEAT_SPELL)->m_spellInfo == spellInfo)
+    {
+        recvPacket.rfinish();
         return;
+    }
 
     // can't use our own spells when we're in possession of another unit,
     if (_player->isPossessing())
