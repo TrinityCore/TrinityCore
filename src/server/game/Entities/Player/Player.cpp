@@ -13911,7 +13911,7 @@ void Player::OnGossipSelect(WorldObject* pSource, uint32 gossipListId, uint32 me
             break;
         case GOSSIP_OPTION_UNLEARNTALENTS:
             PlayerTalkClass->CloseGossip();
-            SendTalentWipeConfirm(guid);
+            pSource->ToCreature()->CastSpell(this, 46331, true); // Trainer: Untrain Talents
             break;
         case GOSSIP_OPTION_UNLEARNPETTALENTS:
             PlayerTalkClass->CloseGossip();

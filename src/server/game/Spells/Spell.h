@@ -319,6 +319,7 @@ class Spell
         void EffectDualWield(SpellEffIndex effIndex);
         void EffectPickPocket(SpellEffIndex effIndex);
         void EffectAddFarsight(SpellEffIndex effIndex);
+        void EffectUntrainTalents(SpellEffIndex effIndex);
         void EffectHealMechanical(SpellEffIndex effIndex);
         void EffectJump(SpellEffIndex effIndex);
         void EffectJumpDest(SpellEffIndex effIndex);
