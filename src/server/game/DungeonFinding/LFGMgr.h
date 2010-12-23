@@ -157,11 +157,12 @@ struct LfgJoinResultData
 // Data needed by SMSG_LFG_UPDATE_PARTY and SMSG_LFG_UPDATE_PLAYER
 struct LfgUpdateData
 {
-    LfgUpdateData(LfgUpdateType _type = LFG_UPDATETYPE_DEFAULT, LfgDungeonSet* _dungeons = NULL, std::string _comment = ""):
+    LfgUpdateData(LfgUpdateType _type = LFG_UPDATETYPE_DEFAULT): updateType(_type), comment("") {}
+    LfgUpdateData(LfgUpdateType _type, const LfgDungeonSet& _dungeons, std::string _comment):
         updateType(_type), dungeons(_dungeons), comment(_comment) {}
 
     LfgUpdateType updateType;
-    LfgDungeonSet* dungeons;
+    LfgDungeonSet dungeons;
     std::string comment;
 };
 
@@ -272,7 +273,7 @@ class LFGMgr
         void Leave(Player* plr, Group* grp = NULL);
 
         // Role Check
-        void UpdateRoleCheck(Group* grp, Player* plr = NULL, bool newRoleCheck = false);
+        void UpdateRoleCheck(uint64& gguid, uint64 guid = 0, uint8 roles = ROLE_NONE);
 
         // Proposals
         void UpdateProposal(uint32 proposalId, const uint64& guid, bool accept);

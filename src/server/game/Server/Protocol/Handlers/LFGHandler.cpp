@@ -115,9 +115,9 @@ void WorldSession::HandleLfgSetRolesOpcode(WorldPacket& recv_data)
         sLog.outDebug("CMSG_LFG_SET_ROLES [" UI64FMTD "] Not in group", guid);
         return;
     }
-    sLog.outDebug("CMSG_LFG_SET_ROLES [" UI64FMTD "] Roles: %u", guid, roles);
-    sLFGMgr->SetRoles(guid, roles);
-    sLFGMgr->UpdateRoleCheck(grp, GetPlayer());
+    uint64 gguid = grp->GetGUID();
+    sLog.outDebug("CMSG_LFG_SET_ROLES: Group [" UI64FMTD "], Player [" UI64FMTD "], Roles: %u", gguid, guid, roles);
+    sLFGMgr->UpdateRoleCheck(gguid, guid, roles);
 }
 
 void WorldSession::HandleLfgSetCommentOpcode(WorldPacket&  recv_data)
@@ -300,7 +300,7 @@ void WorldSession::SendLfgUpdatePlayer(const LfgUpdateData& updateData)
     }
 
     uint64 guid = GetPlayer()->GetGUID();
-    uint8 size = updateData.dungeons ? uint8(updateData.dungeons->size()) : 0;
+    uint8 size = uint8(updateData.dungeons.size());
 
     sLog.outDebug("SMSG_LFG_UPDATE_PLAYER [" UI64FMTD "] updatetype: %u", guid, updateData.updateType);
     WorldPacket data(SMSG_LFG_UPDATE_PLAYER, 1 + 1 + (extrainfo ? 1 : 0) * (1 + 1 + 1 + 1 + size * 4 + updateData.comment.length()));
@@ -314,7 +314,7 @@ void WorldSession::SendLfgUpdatePlayer(const LfgUpdateData& updateData)
 
         data << uint8(size);
         if (size)
-            for (LfgDungeonSet::const_iterator it = updateData.dungeons->begin(); it != updateData.dungeons->end(); ++it)
+            for (LfgDungeonSet::const_iterator it = updateData.dungeons.begin(); it != updateData.dungeons.end(); ++it)
                 data << uint32(*it);
         data << updateData.comment;
     }
@@ -350,7 +350,7 @@ void WorldSession::SendLfgUpdateParty(const LfgUpdateData& updateData)
     }
 
     uint64 guid = GetPlayer()->GetGUID();
-    uint8 size = updateData.dungeons ? uint8(updateData.dungeons->size()) : 0;
+    uint8 size = uint8(updateData.dungeons.size());
 
     sLog.outDebug("SMSG_LFG_UPDATE_PARTY [" UI64FMTD "] updatetype: %u", guid, updateData.updateType);
     WorldPacket data(SMSG_LFG_UPDATE_PARTY, 1 + 1 + (extrainfo ? 1 : 0) * (1 + 1 + 1 + 1 + 1 + size * 4 + updateData.comment.length()));
@@ -367,7 +367,7 @@ void WorldSession::SendLfgUpdateParty(const LfgUpdateData& updateData)
 
         data << uint8(size);
         if (size)
-            for (LfgDungeonSet::const_iterator it = updateData.dungeons->begin(); it != updateData.dungeons->end(); ++it)
+            for (LfgDungeonSet::const_iterator it = updateData.dungeons.begin(); it != updateData.dungeons.end(); ++it)
                 data << uint32(*it);
         data << updateData.comment;
     }

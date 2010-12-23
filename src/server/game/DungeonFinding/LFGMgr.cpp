@@ -201,31 +201,27 @@ void LFGMgr::Update(uint32 diff)
     time_t currTime = time(NULL);
 
     // Remove obsolete role checks
-    LfgJoinResultData joinData;
-    joinData.result = LFG_JOIN_FAILED;
-    joinData.state = LFG_ROLECHECK_MISSING_ROLE;
-
     for (LfgRoleCheckMap::iterator it = m_RoleChecks.begin(); it != m_RoleChecks.end();)
     {
         LfgRoleCheckMap::iterator itRoleCheck = it++;
-        LfgRoleCheck* pRoleCheck = itRoleCheck->second;
-        if (currTime < pRoleCheck->cancelTime)
+        LfgRoleCheck* roleCheck = itRoleCheck->second;
+        if (currTime < roleCheck->cancelTime)
             continue;
-        pRoleCheck->state = LFG_ROLECHECK_MISSING_ROLE;
+        roleCheck->state = LFG_ROLECHECK_MISSING_ROLE;
 
-        for (LfgRolesMap::const_iterator itRoles = pRoleCheck->roles.begin(); itRoles != pRoleCheck->roles.end(); ++itRoles)
+        for (LfgRolesMap::const_iterator itRoles = roleCheck->roles.begin(); itRoles != roleCheck->roles.end(); ++itRoles)
         {
             uint64 guid = itRoles->first;
             ClearState(guid);
             if (Player* plr = sObjectMgr->GetPlayer(guid))
             {
-                plr->GetSession()->SendLfgRoleCheckUpdate(pRoleCheck);
+                plr->GetSession()->SendLfgRoleCheckUpdate(roleCheck);
                 
-                if (itRoles->first == pRoleCheck->leader)
-                    plr->GetSession()->SendLfgJoinResult(joinData);
+                if (itRoles->first == roleCheck->leader)
+                    plr->GetSession()->SendLfgJoinResult(LfgJoinResultData(LFG_JOIN_FAILED, LFG_ROLECHECK_MISSING_ROLE));
             }
         }
-        delete pRoleCheck;
+        delete roleCheck;
         m_RoleChecks.erase(itRoleCheck);
     }
 
@@ -283,16 +279,14 @@ void LFGMgr::Update(uint32 diff)
                     if (Player* plr = sObjectMgr->GetPlayer(itPlayers->first))
                     {
                         Group *grp = plr->GetGroup();
-                        LfgDungeonSet dungeons = GetSelectedDungeons(guid);
-                        LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_PROPOSAL_BEGIN, &dungeons, GetComment(guid));
                         if (grp)
                          {
                             uint64 gguid = grp->GetGUID();
                             SetState(gguid, LFG_STATE_PROPOSAL);
-                            plr->GetSession()->SendLfgUpdateParty(updateData);
+                            plr->GetSession()->SendLfgUpdateParty(LfgUpdateData(LFG_UPDATETYPE_PROPOSAL_BEGIN, GetSelectedDungeons(guid), GetComment(guid)));
                         }
                         else
-                            plr->GetSession()->SendLfgUpdatePlayer(updateData);
+                            plr->GetSession()->SendLfgUpdatePlayer(LfgUpdateData(LFG_UPDATETYPE_PROPOSAL_BEGIN, GetSelectedDungeons(guid), GetComment(guid)));
                         plr->GetSession()->SendLfgUpdateProposal(m_lfgProposalId, pProposal);
                     }
                 }
@@ -519,7 +513,7 @@ void LFGMgr::Join(Player* plr, uint8 roles, const LfgDungeonSet& selectedDungeon
         LfgDungeonSet playerDungeons = GetSelectedDungeons(guid);
         if (playerDungeons == dungeons)                     // Joining the same dungeons -- Send OK
          {
-            LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_ADDED_TO_QUEUE, &dungeons, comment);
+            LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_ADDED_TO_QUEUE, dungeons, comment);
             plr->GetSession()->SendLfgJoinResult(joinData); // Default value of joinData.result = LFG_JOIN_OK
             if (grp)
             {
@@ -641,13 +635,13 @@ void LFGMgr::Join(Player* plr, uint8 roles, const LfgDungeonSet& selectedDungeon
     if (grp)                                               // Begin rolecheck
     {
         // Create new rolecheck
-        LfgRoleCheck* pRoleCheck = new LfgRoleCheck();
-        pRoleCheck->cancelTime = time_t(time(NULL)) + LFG_TIME_ROLECHECK;
-        pRoleCheck->state = LFG_ROLECHECK_INITIALITING;
-        pRoleCheck->leader = plr->GetGUID();
-        pRoleCheck->dungeons = dungeons;
-        pRoleCheck->rDungeonId = rDungeonId;
-        m_RoleChecks[grp->GetGUID()] = pRoleCheck;
+        LfgRoleCheck* roleCheck = new LfgRoleCheck();
+        roleCheck->cancelTime = time_t(time(NULL)) + LFG_TIME_ROLECHECK;
+        roleCheck->state = LFG_ROLECHECK_INITIALITING;
+        roleCheck->leader = guid;
+        roleCheck->dungeons = dungeons;
+        roleCheck->rDungeonId = rDungeonId;
+        m_RoleChecks[gguid] = roleCheck;
 
         if (rDungeonId)
         {
@@ -655,10 +649,9 @@ void LFGMgr::Join(Player* plr, uint8 roles, const LfgDungeonSet& selectedDungeon
             dungeons.insert(rDungeonId);
         }
 
-        SetRoles(guid, roles);
         SetState(gguid, LFG_STATE_ROLECHECK);
         // Send update to player
-        LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_JOIN_PROPOSAL, &dungeons, comment);
+        LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_JOIN_PROPOSAL, dungeons, comment);
         for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             if (Player* plrg = itr->getSource())
@@ -668,11 +661,11 @@ void LFGMgr::Join(Player* plr, uint8 roles, const LfgDungeonSet& selectedDungeon
                 SetState(pguid, LFG_STATE_ROLECHECK);
                 if (!isContinue)
                     SetSelectedDungeons(pguid, dungeons);
-                pRoleCheck->roles[pguid] = 0;
+                roleCheck->roles[pguid] = 0;
             }
         }
         // Update leader role
-        UpdateRoleCheck(grp, plr, true);
+        UpdateRoleCheck(gguid, guid, roles);
     }
     else                                                   // Add player to queue
     {
@@ -691,7 +684,7 @@ void LFGMgr::Join(Player* plr, uint8 roles, const LfgDungeonSet& selectedDungeon
 
         // Send update to player
         plr->GetSession()->SendLfgJoinResult(joinData);
-        plr->GetSession()->SendLfgUpdatePlayer(LfgUpdateData(LFG_UPDATETYPE_JOIN_PROPOSAL, &dungeons, comment));
+        plr->GetSession()->SendLfgUpdatePlayer(LfgUpdateData(LFG_UPDATETYPE_JOIN_PROPOSAL, dungeons, comment));
         SetState(gguid, LFG_STATE_QUEUED);
         SetRoles(guid, roles);
         if (!isContinue)
@@ -750,7 +743,7 @@ void LFGMgr::Leave(Player* plr, Group* grp /* = NULL*/)
             break;
         case LFG_STATE_ROLECHECK:
             if (grp)
-                UpdateRoleCheck(grp);                      // No player to update role = LFG_ROLECHECK_ABORTED
+                UpdateRoleCheck(guid);                     // No player to update role = LFG_ROLECHECK_ABORTED
             break;
         case LFG_STATE_PROPOSAL:
         {
@@ -1049,74 +1042,72 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal)
 /**
    Update the Role check info with the player selected role.
 
-   @param[in]     grp Group to update rolecheck
-   @param[in]     plr Player to update role (NULL = Rolecheck Failed)
-   @param[in]     newRoleCheck Determines if its a new rolecheck (Default false)
+   @param[in]     grp Group guid to update rolecheck
+   @param[in]     guid Player guid (0 = rolecheck failed)
+   @param[in]     roles Player selected roles
 */
-void LFGMgr::UpdateRoleCheck(Group* grp, Player* plr /* = NULL*/, bool newRoleCheck /* = false */)
+void LFGMgr::UpdateRoleCheck(uint64& gguid, uint64 guid /* = 0 */, uint8 roles /* = ROLE_NONE */)
 {
-    if (!grp)
+    if (!gguid)
         return;
 
     LfgRolesMap check_roles;
-    LfgRoleCheckMap::iterator itRoleCheck = m_RoleChecks.find(grp->GetGUID());
+    LfgRoleCheckMap::iterator itRoleCheck = m_RoleChecks.find(gguid);
     if (itRoleCheck == m_RoleChecks.end())
         return;
 
-    uint64 guid = plr ? plr->GetGUID() : 0;
-    uint8 roles = guid ? GetRoles(guid) : 0;
-    LfgRoleCheck* pRoleCheck = itRoleCheck->second;
+    LfgRoleCheck* roleCheck = itRoleCheck->second;
+    bool sendRoleChosen = roleCheck->state != LFG_ROLECHECK_DEFAULT && guid;
+
     if (!guid)
-        pRoleCheck->state = LFG_ROLECHECK_ABORTED;
+        roleCheck->state = LFG_ROLECHECK_ABORTED;
     else if (roles < ROLE_TANK)                            // Player selected no role.
-        pRoleCheck->state = LFG_ROLECHECK_NO_ROLE;
+        roleCheck->state = LFG_ROLECHECK_NO_ROLE;
     else
     {
-        pRoleCheck->roles[guid] = roles;
+        roleCheck->roles[guid] = roles;
 
         // Check if all players have selected a role
-        LfgRolesMap::const_iterator itRoles = pRoleCheck->roles.begin();
-        while (itRoles != pRoleCheck->roles.end() && itRoles->second != ROLE_NONE)
+        LfgRolesMap::const_iterator itRoles = roleCheck->roles.begin();
+        while (itRoles != roleCheck->roles.end() && itRoles->second != ROLE_NONE)
             ++itRoles;
 
-        if (itRoles == pRoleCheck->roles.end())
+        if (itRoles == roleCheck->roles.end())
         {
             // use temporal var to check roles, CheckGroupRoles modifies the roles
-            check_roles = pRoleCheck->roles;
-            pRoleCheck->state = CheckGroupRoles(check_roles) ? LFG_ROLECHECK_FINISHED : LFG_ROLECHECK_WRONG_ROLES;
+            check_roles = roleCheck->roles;
+            roleCheck->state = CheckGroupRoles(check_roles) ? LFG_ROLECHECK_FINISHED : LFG_ROLECHECK_WRONG_ROLES;
         }
     }
 
     uint8 team = 0;
     LfgDungeonSet dungeons;
-    if (pRoleCheck->rDungeonId)
-        dungeons.insert(pRoleCheck->rDungeonId);
+    if (roleCheck->rDungeonId)
+        dungeons.insert(roleCheck->rDungeonId);
     else
-        dungeons = pRoleCheck->dungeons;
+        dungeons = roleCheck->dungeons;
 
-    LfgJoinResultData joinData = LfgJoinResultData(LFG_JOIN_FAILED, pRoleCheck->state);
-    for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
+    LfgJoinResultData joinData = LfgJoinResultData(LFG_JOIN_FAILED, roleCheck->state);
+    for (LfgRolesMap::const_iterator it = roleCheck->roles.begin(); it != roleCheck->roles.end(); ++it)
     {
-        Player* plrg = itr->getSource();
-        if (!plrg)
-            continue;
-        uint64 pguid = plrg->GetGUID();
+        uint64 pguid = it->first;
+        Player* plrg = sObjectMgr->GetPlayer(pguid);
         team = uint8(plrg->GetTeam());
         WorldSession* session = plrg->GetSession();
-        if (!newRoleCheck && plr)
+        if (!sendRoleChosen)
             session->SendLfgRoleChosen(guid, roles);
-        session->SendLfgRoleCheckUpdate(pRoleCheck);
+        session->SendLfgRoleCheckUpdate(roleCheck);
 
-        switch(pRoleCheck->state)
+        switch(roleCheck->state)
         {
             case LFG_ROLECHECK_INITIALITING:
                 continue;
             case LFG_ROLECHECK_FINISHED:
                 SetState(pguid, LFG_STATE_QUEUED);
-                session->SendLfgUpdateParty(LfgUpdateData(LFG_UPDATETYPE_ADDED_TO_QUEUE, &dungeons, GetComment(pguid)));
+                session->SendLfgUpdateParty(LfgUpdateData(LFG_UPDATETYPE_ADDED_TO_QUEUE, dungeons, GetComment(pguid)));
                 break;
             default:
-                if (grp->GetLeaderGUID() == pguid)
+                if (roleCheck->leader == pguid)
                     session->SendLfgJoinResult(joinData);
                 session->SendLfgUpdateParty(LfgUpdateData(LFG_UPDATETYPE_ROLECHECK_FAILED));
                 ClearState(pguid);
@@ -1124,15 +1115,13 @@ void LFGMgr::UpdateRoleCheck(Group* grp, Player* plr /* = NULL*/, bool newRoleCh
         }
     }
 
-    uint64 gguid = grp->GetGUID();
-    if (pRoleCheck->state == LFG_ROLECHECK_FINISHED)
+    if (roleCheck->state == LFG_ROLECHECK_FINISHED)
     {
-
         SetState(gguid, LFG_STATE_QUEUED);
         LfgQueueInfo* pqInfo = new LfgQueueInfo();
         pqInfo->joinTime = time_t(time(NULL));
-        pqInfo->roles = pRoleCheck->roles;
-        pqInfo->dungeons = pRoleCheck->dungeons;
+        pqInfo->roles = roleCheck->roles;
+        pqInfo->dungeons = roleCheck->dungeons;
 
         // Set queue roles needed - As we are using check_roles will not have more that 1 tank, 1 healer, 3 dps
         for (LfgRolesMap::const_iterator it = check_roles.begin(); it != check_roles.end(); ++it)
@@ -1150,11 +1139,11 @@ void LFGMgr::UpdateRoleCheck(Group* grp, Player* plr /* = NULL*/, bool newRoleCh
         AddToQueue(gguid, team);
     }
 
-    if (pRoleCheck->state != LFG_ROLECHECK_INITIALITING)
+    if (roleCheck->state != LFG_ROLECHECK_INITIALITING)
     {
-        if (pRoleCheck->state != LFG_ROLECHECK_FINISHED)
+        if (roleCheck->state != LFG_ROLECHECK_FINISHED)
             RestoreState(gguid);
-        delete pRoleCheck;
+        delete roleCheck;
         m_RoleChecks.erase(itRoleCheck);
     }
 }
@@ -1545,17 +1534,15 @@ void LFGMgr::RemoveProposal(LfgProposalMap::iterator itProposal, LfgUpdateType t
         }
         else
         {
-            LfgDungeonSet dungeons = GetSelectedDungeons(guid);
-            LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_ADDED_TO_QUEUE, &dungeons, GetComment(guid));
             sLog.outDebug("LFGMgr::RemoveProposal: Readding [" UI64FMTD "] to queue.", guid);
             SetState(guid, LFG_STATE_QUEUED);
             if (grp)
             {
                 SetState(gguid, LFG_STATE_QUEUED);
-                plr->GetSession()->SendLfgUpdateParty(updateData);
+                plr->GetSession()->SendLfgUpdateParty(LfgUpdateData(LFG_UPDATETYPE_ADDED_TO_QUEUE, GetSelectedDungeons(guid), GetComment(guid)));
             }
             else
-                plr->GetSession()->SendLfgUpdatePlayer(updateData);
+                plr->GetSession()->SendLfgUpdatePlayer(LfgUpdateData(LFG_UPDATETYPE_ADDED_TO_QUEUE, GetSelectedDungeons(guid), GetComment(guid)));
         }
     }
 
