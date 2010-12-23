@@ -23,6 +23,7 @@
 #include "QueryResult.h"
 
 typedef ACE_Future<QueryResult> QueryResultFuture;
+typedef ACE_Future<PreparedQueryResult> PreparedQueryResultFuture;
 
 /*! A simple template using ACE_Future to manage callbacks from the thread and object that
     issued the request. <ParamType> is variable type of parameter that is used as parameter

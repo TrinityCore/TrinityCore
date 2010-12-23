@@ -35,7 +35,7 @@ class Transaction
         void Append(const char* sql);
         void PAppend(const char* sql, ...);
 
-        size_t GetSize() { return m_queries.size(); }
+        size_t GetSize() const { return m_queries.size(); }
 
     protected:
         void Cleanup();
