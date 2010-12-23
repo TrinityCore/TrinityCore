@@ -416,10 +416,6 @@ bool LFGMgr::RemoveFromQueue(const uint64& guid)
 void LFGMgr::InitializeLockedDungeons(Player* plr)
 {
     uint64 guid = plr->GetGUID();
-    LfgLockMap cachedLockMap = GetLockedDungeons(guid);
-    if (!cachedLockMap.empty())
-        return;
-
     uint8 level = plr->getLevel();
     uint8 expansion = plr->GetSession()->Expansion();
     LfgDungeonSet dungeons = GetDungeonsByRandom(0);
