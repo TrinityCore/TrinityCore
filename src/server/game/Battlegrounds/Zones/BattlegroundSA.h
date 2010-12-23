@@ -120,6 +120,14 @@ enum BG_SA_NPCs
     BG_SA_MAXNPC
   };
 
+enum BG_SA_Boat
+{
+    BG_SA_BOAT_ONE_A =193182,
+    BG_SA_BOAT_TWO_H =193183,
+    BG_SA_BOAT_ONE_H =193184,
+    BG_SA_BOAT_TWO_A =193185,
+};
+
 const uint32 BG_SA_NpcEntries[BG_SA_MAXNPC] =
   {
     27894,
@@ -149,7 +157,7 @@ const uint32 BG_SA_NpcEntries[BG_SA_MAXNPC] =
   };
 
 const float BG_SA_NpcSpawnlocs[BG_SA_MAXNPC + BG_SA_DEMOLISHER_AMOUNT][4] =
-  {
+{
     //Cannons
     { 1436.429f, 110.05f, 41.407f, 5.4f },
     { 1404.9023f, 84.758f, 41.183f, 5.46f },
@@ -180,10 +188,10 @@ const float BG_SA_NpcSpawnlocs[BG_SA_MAXNPC + BG_SA_DEMOLISHER_AMOUNT][4] =
     { 1424.034912f, -260.195190f, 31.084425f, 2.820013f},
     { 1353.139893f, 223.745438f, 35.265411f, 4.343684f},
     { 1404.809570f, 197.027237f, 32.046032f, 3.605401f}
-  };
+};
 
 enum BG_SA_Objects
-  {
+{
     BG_SA_GREEN_GATE = 0,
     BG_SA_YELLOW_GATE,
     BG_SA_BLUE_GATE,
@@ -211,10 +219,10 @@ enum BG_SA_Objects
     BG_SA_PORTAL_DEFFENDER_RED,
     BG_SA_BOMB,
     BG_SA_MAXOBJ = BG_SA_BOMB+68
-  };
+};
 
 const float BG_SA_ObjSpawnlocs[BG_SA_MAXOBJ][4] =
-  {
+{
     { 1411.57f, 108.163f, 28.692f, 5.441f },
     { 1055.452f, -108.1f, 82.134f, 0.034f },
     { 1431.3413f, -219.437f, 30.893f, 0.9736f },
@@ -314,7 +322,7 @@ const float BG_SA_ObjSpawnlocs[BG_SA_MAXOBJ][4] =
     {987.33f, 4.67389f, 86.8486f, 1.5779f},
     {985.23f, 4.65898f, 86.8368f, 1.5779f},
     {984.556f, 3.54097f, 86.8137f, 1.5779f},
-  };
+};
 
 /* Ships:
  * 193182 - ally
@@ -330,7 +338,7 @@ const float BG_SA_ObjSpawnlocs[BG_SA_MAXOBJ][4] =
  */
 
 const uint32 BG_SA_ObjEntries[BG_SA_MAXOBJ + BG_SA_FLAG_AMOUNT] =
-  {
+{
     190722,
     190727,
     190724,
@@ -338,8 +346,8 @@ const uint32 BG_SA_ObjEntries[BG_SA_MAXOBJ + BG_SA_FLAG_AMOUNT] =
     190723,
     192549,
     192834,
-    193182,
-    193185,
+    0,// Boat
+    0,// Boat
     192687,
     192685,
     192689,
@@ -357,70 +365,90 @@ const uint32 BG_SA_ObjEntries[BG_SA_MAXOBJ + BG_SA_FLAG_AMOUNT] =
     192819,
     192819,
     190753
-  };
+};
 
 const uint32 BG_SA_Factions[2] =
-  {
+{
     1732,
     1735,
-  };
+};
 
 enum BG_SA_Graveyards
-  {
+{
     BG_SA_BEACH_GY = 0,
     BG_SA_DEFENDER_LAST_GY,
     BG_SA_RIGHT_CAPTURABLE_GY,
     BG_SA_LEFT_CAPTURABLE_GY,
     BG_SA_CENTRAL_CAPTURABLE_GY,
     BG_SA_MAX_GY
-  };
+};
 
 const uint32 BG_SA_GYEntries[BG_SA_MAX_GY] =
-  {
+{
     1350,
     1349,
     1347,
     1346,
     1348,
-  };
+};
 
 const float BG_SA_GYOrientation[BG_SA_MAX_GY] =
-  {
+{
     6.202f,
     1.926f, //right capturable GY
     3.917f, //left capturable GY
     3.104f, //center, capturable
     6.148f, //defender last GY
-  };
+};
 
 struct BG_SA_RoundScore
 {
-  TeamId winner;
-  uint32 time;
+    TeamId winner;
+    uint32 time;
 };
 
+/// Class for manage Strand of Ancient battleground
 class BattlegroundSA : public Battleground
 {
     friend class BattlegroundMgr;
 
     public:
+        /// Constructor
         BattlegroundSA();
+        /// Destructor
         ~BattlegroundSA();
+
+        /**
+         * \brief Called every time for update battle data
+         * -Update timer
+         * -Round switch
+         */
         void Update(uint32 diff);
 
         /* inherited from BattlegroundClass */
+        /// Called when a player join battle
         virtual void AddPlayer(Player *plr);
+        /// Called when battle start
         virtual void StartingEventCloseDoors();
         virtual void StartingEventOpenDoors();
-    virtual bool SetupBattleground();
-    virtual void Reset();
-    virtual void FillInitialWorldStates(WorldPacket& data);
-    virtual void EventPlayerDamagedGO(Player* plr, GameObject* go, uint8 hitType, uint32 destroyedEvent);
-    virtual void HandleKillUnit(Creature* unit, Player* killer);
-    virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
-    virtual void EventPlayerClickedOnFlag(Player *Source, GameObject* target_obj);
-    virtual void EventPlayerUsedGO(Player* Source, GameObject* object);
-    uint32 GetGateIDFromDestroyEventID(uint32 id)
+
+        /// Called for ini battleground, after that the first player be entered
+        virtual bool SetupBattleground();
+        virtual void Reset();
+        /// Called for generate packet contain worldstate data
+        virtual void FillInitialWorldStates(WorldPacket& data);
+        /// Called when a player deal damage to building (door)
+        virtual void EventPlayerDamagedGO(Player* plr, GameObject* go, uint8 hitType, uint32 destroyedEvent);
+        /// Called when a player kill a unit in bg
+        virtual void HandleKillUnit(Creature* unit, Player* killer);
+        /// Return the nearest graveyard where player can respawn
+        virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
+        /// Called when a player click on flag (graveyard flag)
+        virtual void EventPlayerClickedOnFlag(Player *Source, GameObject* target_obj);
+        /// Called when a player use a gamobject (relic)
+        virtual void EventPlayerUsedGO(Player* Source, GameObject* object);
+        /// Return gate id, relative to bg data, according to gameobject id
+        uint32 GetGateIDFromDestroyEventID(uint32 id)
         {
             uint32 i = 0;
             switch(id)
@@ -434,6 +462,7 @@ class BattlegroundSA : public Battleground
             }
             return i;
         }
+        /// Return worldstate id, according to door id
         uint32 GetWorldStateFromGateID(uint32 id)
         {
             uint32 uws = 0;
@@ -448,38 +477,99 @@ class BattlegroundSA : public Battleground
             }
             return uws;
         }
-    void EndBattleground(uint32 winner);
 
+        /// Called on battleground ending
+        void EndBattleground(uint32 winner);
+
+        /// CAlled when a player leave battleground
         void RemovePlayer(Player *plr,uint64 guid);
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
 
 
         /* Scorekeeping */
+        /// Update score board
         void UpdatePlayerScore(Player *Source, uint32 type, uint32 value, bool doAddHonor = true);
 
     private:
-    bool ResetObjs();
-    void StartShips();
-    void TeleportPlayers();
-    void OverrideGunFaction();
-    void DemolisherStartState(bool start);
-    void DestroyGate(Player* pl, GameObject* /*go*/, uint32 destroyedEvent);
-    void SendTime();
-    void CaptureGraveyard(BG_SA_Graveyards i, Player *Source);
-    void ToggleTimer();
-    void UpdateDemolisherSpawns();
-    TeamId attackers;
-    uint32 TotalTime;
-    uint32 BG_SA_ENDROUNDTIME;
-    bool ShipsStarted;
-    BG_SA_GateState GateStatus[6];
-    BG_SA_Status status;
-    TeamId GraveyardStatus[BG_SA_MAX_GY];
-    BG_SA_RoundScore RoundScores[2];
-    bool TimerEnabled;
-    uint32 UpdateWaitTimer;//5secs before starting the 1min countdown for second round
-    bool SignaledRoundTwo;
-    bool SignaledRoundTwoHalfMin;
-    bool InitSecondRound;
+
+        /**
+         * \brief Called on setup and between the two round
+         * -Delete all gameobject / creature
+         * -Respawn all gameobject / creature to have good faction
+         */
+        bool ResetObjs();
+        /// Called for start ship movement
+        void StartShips();
+        /**
+         * \brief Called between the two round
+         * -Teleport all players to good location
+         */
+        void TeleportPlayers();
+        /**
+         * \brief Called on start and between the two round
+         * -Update faction of all vehicle
+         */
+        void OverrideGunFaction();
+        /// Set selectable or not demolisher, called on battle start, when boats arrive to dock
+        void DemolisherStartState(bool start);
+        /**
+         * \brief Called when a gate is destroy
+         * -Give honor to player witch destroy it
+         * -Update worldstate
+         * -Delete gameobject in front of door (lighting object, with different colours for each door)
+         */
+        void DestroyGate(Player* pl, GameObject* /*go*/, uint32 destroyedEvent);
+        /// Update timer worldstate
+        void SendTime();
+        /**
+         * \brief Called when a graveyard is capture
+         * -Update spiritguide
+         * -Update gameobject (flag)
+         * -Update Worldstate
+         * -Send warning for announce this
+         * \param i : id of graveyard
+         * \param Source : Player who capture gy
+         */
+        void CaptureGraveyard(BG_SA_Graveyards i, Player *Source);
+        /// Switch on/off timer worldstate
+        void ToggleTimer();
+
+        /// Respawn dead demolisher
+        void UpdateDemolisherSpawns();
+
+        /// Send packet to player for create boats (client part)
+        void SendTransportInit(Player *player);
+        /// Send packet to player for destroy boats (client part)
+        void SendTransportsRemove(Player * player);
+
+
+        /// Id of attacker team
+        TeamId Attackers;
+        /// Totale elapsed time of current round
+        uint32 TotalTime;
+        /// Max time of round
+        uint32 EndRoundTimer;
+        /// For know if boats has start moving or not yet
+        bool ShipsStarted;
+        /// Status of each gate (Destroy/Damage/Intact)
+        BG_SA_GateState GateStatus[6];
+        /// Statu of battle (Start or not, and what round)
+        BG_SA_Status Status;
+        /// Team witch conntrol each graveyard
+        TeamId GraveyardStatus[BG_SA_MAX_GY];
+        /// Score of each round
+        BG_SA_RoundScore RoundScores[2];
+        /// used for know we are in timer phase or not (used for worldstate update)
+        bool TimerEnabled;
+        /// 5secs before starting the 1min countdown for second round
+        uint32 UpdateWaitTimer;
+        /// for know if warning about second round start has been sent
+        bool SignaledRoundTwo;
+        /// for know if warning about second round start has been sent
+        bool SignaledRoundTwoHalfMin;
+        /// for know if second round has been init
+        bool InitSecondRound;
+        std::map<uint32/*id*/,uint32/*timer*/> DemoliserRespawnList;
+
 };
 #endif
