@@ -168,7 +168,7 @@ public:
                         case WARLOCK_IMPROVED_HEALTHSTONE_R1: rank = 1; break;
                         case WARLOCK_IMPROVED_HEALTHSTONE_R2: rank = 2; break;
                         default:
-                            sLog.outError("Unknown rank of Improved Healthstone id: %d", aurEff->GetId());
+                            sLog->outError("Unknown rank of Improved Healthstone id: %d", aurEff->GetId());
                             break;
                     }
                 }

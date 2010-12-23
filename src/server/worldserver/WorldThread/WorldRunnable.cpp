@@ -56,7 +56,7 @@ void WorldRunnable::run()
 
         uint32 diff = getMSTimeDiff(realPrevTime,realCurrTime);
 
-        sWorld.Update( diff );
+        sWorld->Update( diff );
         realPrevTime = realCurrTime;
 
         // diff (D0) include time of previous sleep (d0) + tick time (t0)
@@ -82,8 +82,8 @@ void WorldRunnable::run()
 
     sScriptMgr->OnShutdown();
 
-    sWorld.KickAll();                                       // save and kick all players
-    sWorld.UpdateSessions( 1 );                             // real players unload required UpdateSessions call
+    sWorld->KickAll();                                       // save and kick all players
+    sWorld->UpdateSessions( 1 );                             // real players unload required UpdateSessions call
 
     // unload battleground templates before different singletons destroyed
     sBattlegroundMgr->DeleteAllBattlegrounds();

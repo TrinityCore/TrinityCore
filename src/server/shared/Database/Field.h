@@ -43,7 +43,7 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsNumeric())
             {
-                sLog.outSQLDriver("Error: GetUInt8() on non-numeric field.");
+                sLog->outSQLDriver("Error: GetUInt8() on non-numeric field.");
                 return 0;
             }
             #endif
@@ -60,7 +60,7 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsNumeric())
             {
-                sLog.outSQLDriver("Error: GeInt8() on non-numeric field.");
+                sLog->outSQLDriver("Error: GeInt8() on non-numeric field.");
                 return 0;
             }
             #endif
@@ -77,7 +77,7 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsNumeric())
             {
-                sLog.outSQLDriver("Error: GetUInt16() on non-numeric field.");
+                sLog->outSQLDriver("Error: GetUInt16() on non-numeric field.");
                 return 0;
             }
             #endif
@@ -94,7 +94,7 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsNumeric())
             {
-                sLog.outSQLDriver("Error: GetInt16() on non-numeric field.");
+                sLog->outSQLDriver("Error: GetInt16() on non-numeric field.");
                 return 0;
             }
             #endif
@@ -111,7 +111,7 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsNumeric())
             {
-                sLog.outSQLDriver("Error: GetUInt32() on non-numeric field.");
+                sLog->outSQLDriver("Error: GetUInt32() on non-numeric field.");
                 return 0;
             }
             #endif
@@ -128,7 +128,7 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsNumeric())
             {
-                sLog.outSQLDriver("Error: GetInt32() on non-numeric field.");
+                sLog->outSQLDriver("Error: GetInt32() on non-numeric field.");
                 return 0;
             }
             #endif
@@ -145,7 +145,7 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsNumeric())
             {
-                sLog.outSQLDriver("Error: GetUInt64() on non-numeric field.");
+                sLog->outSQLDriver("Error: GetUInt64() on non-numeric field.");
                 return 0;
             }
             #endif
@@ -162,7 +162,7 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsNumeric())
             {
-                sLog.outSQLDriver("Error: GetInt64() on non-numeric field.");
+                sLog->outSQLDriver("Error: GetInt64() on non-numeric field.");
                 return 0;
             }
             #endif
@@ -179,7 +179,7 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsNumeric())
             {
-                sLog.outSQLDriver("Error: GetFloat() on non-numeric field.");
+                sLog->outSQLDriver("Error: GetFloat() on non-numeric field.");
                 return 0.0f;
             }
             #endif
@@ -196,7 +196,7 @@ class Field
             #ifdef TRINITY_DEBUG
             if (!IsNumeric())
             {
-                sLog.outSQLDriver("Error: GetDouble() on non-numeric field.");
+                sLog->outSQLDriver("Error: GetDouble() on non-numeric field.");
                 return 0.0f;
             }
             #endif
@@ -213,7 +213,7 @@ class Field
             #ifdef TRINITY_DEBUG
             if (IsNumeric())
             {
-                sLog.outSQLDriver("Error: GetCString() on numeric field.");
+                sLog->outSQLDriver("Error: GetCString() on numeric field.");
                 return NULL;
             }
             #endif
@@ -311,7 +311,7 @@ class Field
                 MYSQL_TYPE_SET:
                 */
                 default:
-                    sLog.outSQLDriver("SQL::SizeForType(): invalid field type %u", uint32(field->type));
+                    sLog->outSQLDriver("SQL::SizeForType(): invalid field type %u", uint32(field->type));
                     return 0;
             }
         }

@@ -24,11 +24,11 @@
 //#include "GameObject.h"
 //#include "Map.h"
 
-#define OUT_SAVE_INST_DATA             sLog.outDebug("TSCR: Saving Instance Data for Instance %s (Map %d, Instance Id %d)", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
-#define OUT_SAVE_INST_DATA_COMPLETE    sLog.outDebug("TSCR: Saving Instance Data for Instance %s (Map %d, Instance Id %d) completed.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
-#define OUT_LOAD_INST_DATA(a)          sLog.outDebug("TSCR: Loading Instance Data for Instance %s (Map %d, Instance Id %d). Input is '%s'", instance->GetMapName(), instance->GetId(), instance->GetInstanceId(), a)
-#define OUT_LOAD_INST_DATA_COMPLETE    sLog.outDebug("TSCR: Instance Data Load for Instance %s (Map %d, Instance Id: %d) is complete.",instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
-#define OUT_LOAD_INST_DATA_FAIL        sLog.outError("TSCR: Unable to load Instance Data for Instance %s (Map %d, Instance Id: %d).",instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
+#define OUT_SAVE_INST_DATA             sLog->outDebug("TSCR: Saving Instance Data for Instance %s (Map %d, Instance Id %d)", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
+#define OUT_SAVE_INST_DATA_COMPLETE    sLog->outDebug("TSCR: Saving Instance Data for Instance %s (Map %d, Instance Id %d) completed.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
+#define OUT_LOAD_INST_DATA(a)          sLog->outDebug("TSCR: Loading Instance Data for Instance %s (Map %d, Instance Id %d). Input is '%s'", instance->GetMapName(), instance->GetId(), instance->GetInstanceId(), a)
+#define OUT_LOAD_INST_DATA_COMPLETE    sLog->outDebug("TSCR: Instance Data Load for Instance %s (Map %d, Instance Id: %d) is complete.",instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
+#define OUT_LOAD_INST_DATA_FAIL        sLog->outError("TSCR: Unable to load Instance Data for Instance %s (Map %d, Instance Id: %d).",instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
 
 class Map;
 class Unit;
@@ -174,7 +174,7 @@ class InstanceScript : public ZoneScript
         void DoRemoveAurasDueToSpellOnPlayers(uint32 spell);
 
         // Return wether server allow two side groups or not
-        bool ServerAllowsTwoSideGroups() { return sWorld.getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP); }
+        bool ServerAllowsTwoSideGroups() { return sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP); }
 
         virtual bool SetBossState(uint32 id, EncounterState state);
         EncounterState GetBossState(uint32 id) const { return id < bosses.size() ? bosses[id].state : TO_BE_DECIDED; }

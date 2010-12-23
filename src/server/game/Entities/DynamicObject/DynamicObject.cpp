@@ -45,7 +45,7 @@ void DynamicObject::AddToWorld()
     ///- Register the dynamicObject for guid lookup
     if (!IsInWorld())
     {
-        sObjectAccessor.AddObject(this);
+        sObjectAccessor->AddObject(this);
         WorldObject::AddToWorld();
     }
 }
@@ -64,11 +64,11 @@ void DynamicObject::RemoveFromWorld()
             }
             else
             {
-                sLog.outCrash("DynamicObject::RemoveFromWorld cannot find viewpoint owner");
+                sLog->outCrash("DynamicObject::RemoveFromWorld cannot find viewpoint owner");
             }
         }
         WorldObject::RemoveFromWorld();
-        sObjectAccessor.RemoveObject(this);
+        sObjectAccessor->RemoveObject(this);
     }
 }
 
@@ -78,7 +78,7 @@ bool DynamicObject::Create(uint32 guidlow, Unit *caster, uint32 spellId, const P
     Relocate(pos);
     if (!IsPositionValid())
     {
-        sLog.outError("DynamicObject (spell %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)",spellId,GetPositionX(),GetPositionY());
+        sLog->outError("DynamicObject (spell %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)",spellId,GetPositionX(),GetPositionY());
         return false;
     }
 

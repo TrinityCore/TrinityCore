@@ -160,7 +160,7 @@ public:
             if (pCreature->GetOwner() && pCreature->GetOwner()->GetTypeId() == TYPEID_PLAYER)
                 Start(false, false, pCreature->GetOwner()->GetGUID());
             else
-                sLog.outError("TRINITY: npc_ancestral_wolf can not obtain owner or owner is not a player.");
+                sLog->outError("TRINITY: npc_ancestral_wolf can not obtain owner or owner is not a player.");
 
             pCreature->SetSpeed(MOVE_WALK, 1.5f);
             Reset();

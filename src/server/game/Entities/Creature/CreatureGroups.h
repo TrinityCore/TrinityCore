@@ -40,7 +40,7 @@ class CreatureGroupManager
         void LoadCreatureFormations();
 };
 
-#define formation_mgr (*ACE_Singleton<CreatureGroupManager, ACE_Null_Mutex>::instance())
+#define sFormationMgr ACE_Singleton<CreatureGroupManager, ACE_Null_Mutex>::instance()
 
 typedef UNORDERED_MAP<uint32/*memberDBGUID*/, FormationInfo*>   CreatureGroupInfoType;
 
@@ -59,7 +59,7 @@ class CreatureGroup
     public:
         //Group cannot be created empty
         explicit CreatureGroup(uint32 id) : m_leader(NULL), m_groupID(id), m_Formed(false) {}
-        ~CreatureGroup() { sLog.outDebug("Destroying group"); }
+        ~CreatureGroup() { sLog->outDebug("Destroying group"); }
 
         Creature* getLeader() const { return m_leader; }
         uint32 GetId() const { return m_groupID; }

@@ -288,7 +288,7 @@ bool FlightPathMovementGenerator::Update(Player &player, const uint32 &diff)
                 {
                     DoEventIfAny(player,(*i_path)[i_currentNode], true);
 
-                    sLog.outStaticDebug("loading node %u for player %s", i_currentNode, player.GetName());
+                    sLog->outStaticDebug("loading node %u for player %s", i_currentNode, player.GetName());
                     if ((*i_path)[i_currentNode].mapid == curMap)
                     {
                         // do not send movement, it was sent already
@@ -350,18 +350,18 @@ void FlightPathMovementGenerator::PreloadEndGrid()
     // Load the grid
     if (endMap)
     {
-        sLog.outDetail("Preloading flightmaster at grid (%f, %f) for map %u", m_endGridX, m_endGridY, m_endMapId);
+        sLog->outDetail("Preloading flightmaster at grid (%f, %f) for map %u", m_endGridX, m_endGridY, m_endMapId);
         endMap->LoadGrid(m_endGridX, m_endGridY);
     }
     else
-        sLog.outDetail("Unable to determine map to preload flightmaster grid");
+        sLog->outDetail("Unable to determine map to preload flightmaster grid");
 }
 
 void FlightPathMovementGenerator::DoEventIfAny(Player& player, TaxiPathNodeEntry const& node, bool departure)
 {
     if (uint32 eventid = departure ? node.departureEventID : node.arrivalEventID)
     {
-        sLog.outDebug("Taxi %s event %u of node %u of path %u for player %s", departure ? "departure" : "arrival", eventid, node.index, node.path, player.GetName());
+        sLog->outDebug("Taxi %s event %u of node %u of path %u for player %s", departure ? "departure" : "arrival", eventid, node.index, node.path, player.GetName());
         player.GetMap()->ScriptsStart(sEventScripts, eventid, &player, &player);
     }
 }

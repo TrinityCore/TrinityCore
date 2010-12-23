@@ -26,10 +26,10 @@
 #else
 #define WPAssert( assertion ) { if (!(assertion)) { fprintf( stderr, "\n%s:%i in %s ASSERTION FAILED2:\n  %s\n", __FILE__, __LINE__,__FUNCTION__,  #assertion); assert( #assertion &&0 ); ((void(*)())NULL)();} }
 #endif
-#define WPError( assertion, errmsg ) if( ! (assertion) ) { sLog.outError( "%\n%s:%i in %s ERROR:\n  %s\n", __FILE__, __LINE__, __FUNCTION__, (char *)errmsg ); assert( false ); }
-#define WPWarning( assertion, errmsg ) if( ! (assertion) ) { sLog.outError( "\n%s:%i in %s WARNING:\n  %s\n", __FILE__, __LINE__, __FUNCTION__, (char *)errmsg ); }
+#define WPError( assertion, errmsg ) if( ! (assertion) ) { sLog->outError( "%\n%s:%i in %s ERROR:\n  %s\n", __FILE__, __LINE__, __FUNCTION__, (char *)errmsg ); assert( false ); }
+#define WPWarning( assertion, errmsg ) if( ! (assertion) ) { sLog->outError( "\n%s:%i in %s WARNING:\n  %s\n", __FILE__, __LINE__, __FUNCTION__, (char *)errmsg ); }
 
-#define WPFatal( assertion, errmsg ) if( ! (assertion) ) { sLog.outError( "\n%s:%i in %s FATAL ERROR:\n  %s\n", __FILE__, __LINE__, __FUNCTION__, (char *)errmsg ); assert( #assertion &&0 ); abort(); }
+#define WPFatal( assertion, errmsg ) if( ! (assertion) ) { sLog->outError( "\n%s:%i in %s FATAL ERROR:\n  %s\n", __FILE__, __LINE__, __FUNCTION__, (char *)errmsg ); assert( #assertion &&0 ); abort(); }
 
 #define ASSERT WPAssert
 #endif

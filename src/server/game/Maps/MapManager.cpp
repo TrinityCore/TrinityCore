@@ -39,8 +39,8 @@ extern GridState* si_GridStates[];                          // debugging code, s
 
 MapManager::MapManager()
 {
-    i_gridCleanUpDelay = sWorld.getIntConfig(CONFIG_INTERVAL_GRIDCLEAN);
-    i_timer.SetInterval(sWorld.getIntConfig(CONFIG_INTERVAL_MAPUPDATE));
+    i_gridCleanUpDelay = sWorld->getIntConfig(CONFIG_INTERVAL_GRIDCLEAN);
+    i_timer.SetInterval(sWorld->getIntConfig(CONFIG_INTERVAL_MAPUPDATE));
 }
 
 MapManager::~MapManager()
@@ -68,7 +68,7 @@ void MapManager::Initialize()
 
         i_GridStateErrorCount = 0;
     }
-    int num_threads(sWorld.getIntConfig(CONFIG_NUMTHREADS));
+    int num_threads(sWorld->getIntConfig(CONFIG_NUMTHREADS));
     // Start mtmaps if needed.
     if (num_threads > 0 && m_updater.activate(num_threads) == -1)
         abort();
@@ -90,7 +90,7 @@ void MapManager::checkAndCorrectGridStatesArray()
     {
         if (i_GridStates[i] != si_GridStates[i])
         {
-            sLog.outError("MapManager::checkGridStates(), GridState: si_GridStates is currupt !!!");
+            sLog->outError("MapManager::checkGridStates(), GridState: si_GridStates is currupt !!!");
             ok = false;
             si_GridStates[i] = i_GridStates[i];
         }
@@ -134,7 +134,7 @@ Map* MapManager::_createBaseMap(uint32 id)
 Map* MapManager::CreateMap(uint32 id, const WorldObject* obj, uint32 /*instanceId*/)
 {
     ASSERT(obj);
-    //if (!obj->IsInWorld()) sLog.outError("GetMap: called for map %d with object (typeid %d, guid %d, mapid %d, instanceid %d) who is not in world!", id, obj->GetTypeId(), obj->GetGUIDLow(), obj->GetMapId(), obj->GetInstanceId());
+    //if (!obj->IsInWorld()) sLog->outError("GetMap: called for map %d with object (typeid %d, guid %d, mapid %d, instanceid %d) who is not in world!", id, obj->GetTypeId(), obj->GetGUIDLow(), obj->GetMapId(), obj->GetInstanceId());
     Map *m = _createBaseMap(id);
 
     if (m && (obj->GetTypeId() == TYPEID_PLAYER) && m->Instanceable()) m = ((MapInstanced*)m)->CreateInstance(id, (Player*)obj);
@@ -192,12 +192,12 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
     if (entry->IsRaid())
     {
         // can only enter in a raid group
-        if ((!pGroup || !pGroup->isRaidGroup()) && !sWorld.getBoolConfig(CONFIG_INSTANCE_IGNORE_RAID))
+        if ((!pGroup || !pGroup->isRaidGroup()) && !sWorld->getBoolConfig(CONFIG_INSTANCE_IGNORE_RAID))
         {
             // probably there must be special opcode, because client has this string constant in GlobalStrings.lua
             // TODO: this is not a good place to send the message
             player->GetSession()->SendAreaTriggerMessage(player->GetSession()->GetTrinityString(LANG_INSTANCE_RAID_GROUP_ONLY), mapName);
-            sLog.outDebug("MAP: Player '%s' must be in a raid group to enter instance '%s'", player->GetName(), mapName);
+            sLog->outDebug("MAP: Player '%s' must be in a raid group to enter instance '%s'", player->GetName(), mapName);
             return false;
         }
     }
@@ -222,13 +222,13 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
             {
                 WorldPacket data(SMSG_CORPSE_NOT_IN_INSTANCE);
                 player->GetSession()->SendPacket(&data);
-                sLog.outDebug("MAP: Player '%s' does not have a corpse in instance '%s' and cannot enter.", player->GetName(), mapName);
+                sLog->outDebug("MAP: Player '%s' does not have a corpse in instance '%s' and cannot enter.", player->GetName(), mapName);
                 return false;
             }
-            sLog.outDebug("MAP: Player '%s' has corpse in instance '%s' and can enter.", player->GetName(), mapName);
+            sLog->outDebug("MAP: Player '%s' has corpse in instance '%s' and can enter.", player->GetName(), mapName);
         }
         else
-            sLog.outDebug("Map::CanPlayerEnter - player '%s' is dead but does not have a corpse!", player->GetName());
+            sLog->outDebug("Map::CanPlayerEnter - player '%s' is dead but does not have a corpse!", player->GetName());
     }
 
     //Get instance where player's group is bound & its map
@@ -275,7 +275,7 @@ void MapManager::Update(uint32 diff)
     for (iter = i_maps.begin(); iter != i_maps.end(); ++iter)
         iter->second->DelayedUpdate(uint32(i_timer.GetCurrent()));
 
-    sObjectAccessor.Update(uint32(i_timer.GetCurrent()));
+    sObjectAccessor->Update(uint32(i_timer.GetCurrent()));
     for (TransportSet::iterator iter = m_Transports.begin(); iter != m_Transports.end(); ++iter)
         (*iter)->Update(uint32(i_timer.GetCurrent()));
 

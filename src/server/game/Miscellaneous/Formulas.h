@@ -127,7 +127,7 @@ namespace Trinity
                     nBaseExp = 580;
                     break;
                 default:
-                    sLog.outError("BaseGain: Unsupported content level %u",content);
+                    sLog->outError("BaseGain: Unsupported content level %u",content);
                     nBaseExp = 45;
                     break;
             }
@@ -178,7 +178,7 @@ namespace Trinity
                         gain *= 2;
                 }
 
-                gain = uint32(gain * sWorld.getRate(RATE_XP_KILL));
+                gain = uint32(gain * sWorld->getRate(RATE_XP_KILL));
             }
 
             sScriptMgr->OnGainCalculation(gain, pl, u);

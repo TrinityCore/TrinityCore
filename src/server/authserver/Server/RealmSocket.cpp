@@ -73,7 +73,7 @@ int RealmSocket::open(void * arg)
 
     if (peer ().get_remote_addr (addr) == -1)
     {
-        sLog.outError ("RealmSocket::open: peer ().get_remote_addr errno = %s", ACE_OS::strerror (errno));
+        sLog->outError ("RealmSocket::open: peer ().get_remote_addr errno = %s", ACE_OS::strerror (errno));
         return -1;
     }
 

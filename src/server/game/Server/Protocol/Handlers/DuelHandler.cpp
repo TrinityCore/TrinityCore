@@ -41,9 +41,9 @@ void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
     if (pl == pl->duel->initiator || !plTarget || pl == plTarget || pl->duel->startTime != 0 || plTarget->duel->startTime != 0)
         return;
 
-    //sLog.outDebug("WORLD: received CMSG_DUEL_ACCEPTED");
-    sLog.outStaticDebug("Player 1 is: %u (%s)", pl->GetGUIDLow(),pl->GetName());
-    sLog.outStaticDebug("Player 2 is: %u (%s)", plTarget->GetGUIDLow(),plTarget->GetName());
+    //sLog->outDebug("WORLD: received CMSG_DUEL_ACCEPTED");
+    sLog->outStaticDebug("Player 1 is: %u (%s)", pl->GetGUIDLow(),pl->GetName());
+    sLog->outStaticDebug("Player 2 is: %u (%s)", plTarget->GetGUIDLow(),plTarget->GetName());
 
     time_t now = time(NULL);
     pl->duel->startTimer = now;
@@ -55,7 +55,7 @@ void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandleDuelCancelledOpcode(WorldPacket& recvPacket)
 {
-    //sLog.outDebug("WORLD: received CMSG_DUEL_CANCELLED");
+    //sLog->outDebug("WORLD: received CMSG_DUEL_CANCELLED");
 
     // no duel requested
     if (!GetPlayer()->duel)

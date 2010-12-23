@@ -32,7 +32,7 @@
 
 void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recv_data)
 {
-    sLog.outDebug("WORLD: CMSG_AUTOSTORE_LOOT_ITEM");
+    sLog->outDebug("WORLD: CMSG_AUTOSTORE_LOOT_ITEM");
     Player* player = GetPlayer();
     uint64 lguid = player->GetLootGUID();
     Loot* loot = NULL;
@@ -96,7 +96,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recv_data)
 
 void WorldSession::HandleLootMoneyOpcode(WorldPacket & /*recv_data*/)
 {
-    sLog.outDebug("WORLD: CMSG_LOOT_MONEY");
+    sLog->outDebug("WORLD: CMSG_LOOT_MONEY");
 
     Player *player = GetPlayer();
     uint64 guid = player->GetLootGUID();
@@ -159,7 +159,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket & /*recv_data*/)
                 Player* playerGroup = itr->getSource();
                 if (!playerGroup)
                     continue;
-                if (player->IsWithinDistInMap(playerGroup,sWorld.getFloatConfig(CONFIG_GROUP_XP_DISTANCE),false))
+                if (player->IsWithinDistInMap(playerGroup,sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE),false))
                     playersNear.push_back(playerGroup);
             }
 
@@ -187,7 +187,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket & /*recv_data*/)
 
 void WorldSession::HandleLootOpcode(WorldPacket & recv_data)
 {
-    sLog.outDebug("WORLD: CMSG_LOOT");
+    sLog->outDebug("WORLD: CMSG_LOOT");
 
     uint64 guid;
     recv_data >> guid;
@@ -205,7 +205,7 @@ void WorldSession::HandleLootOpcode(WorldPacket & recv_data)
 
 void WorldSession::HandleLootReleaseOpcode(WorldPacket & recv_data)
 {
-    sLog.outDebug("WORLD: CMSG_LOOT_RELEASE");
+    sLog->outDebug("WORLD: CMSG_LOOT_RELEASE");
 
     // cheaters can modify lguid to prevent correct apply loot release code and re-loot
     // use internal stored guid
@@ -254,7 +254,7 @@ void WorldSession::DoLootRelease(uint64 lguid)
                 // only vein pass this check
                 if (go_min != 0 && go_max > go_min)
                 {
-                    float amount_rate = sWorld.getRate(RATE_MINING_AMOUNT);
+                    float amount_rate = sWorld->getRate(RATE_MINING_AMOUNT);
                     float min_amount = go_min*amount_rate;
                     float max_amount = go_max*amount_rate;
 
@@ -265,7 +265,7 @@ void WorldSession::DoLootRelease(uint64 lguid)
                     {
                         if (uses >= min_amount)
                         {
-                            float chance_rate = sWorld.getRate(RATE_MINING_NEXT);
+                            float chance_rate = sWorld->getRate(RATE_MINING_NEXT);
 
                             int32 ReqValue = 175;
                             LockEntry const *lockInfo = sLockStore.LookupEntry(go->GetGOInfo()->chest.lockId);
@@ -426,7 +426,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket & recv_data)
     if (!target)
         return;
 
-    sLog.outDebug("WorldSession::HandleLootMasterGiveOpcode (CMSG_LOOT_MASTER_GIVE, 0x02A3) Target = [%s].", target->GetName());
+    sLog->outDebug("WorldSession::HandleLootMasterGiveOpcode (CMSG_LOOT_MASTER_GIVE, 0x02A3) Target = [%s].", target->GetName());
 
     if (_player->GetLootGUID() != lootguid)
         return;
@@ -455,7 +455,7 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket & recv_data)
 
     if (slotid > pLoot->items.size())
     {
-        sLog.outDebug("MasterLootItem: Player %s might be using a hack! (slot %d, size %lu)",GetPlayer()->GetName(), slotid, (unsigned long)pLoot->items.size());
+        sLog->outDebug("MasterLootItem: Player %s might be using a hack! (slot %d, size %lu)",GetPlayer()->GetName(), slotid, (unsigned long)pLoot->items.size());
         return;
     }
 

@@ -70,7 +70,7 @@ void PreparedStatement::BindParameters()
     }
     #ifdef _DEBUG
     if (i < m_stmt->m_paramCount)
-        sLog.outSQLDriver("[WARNING]: BindParameters() for statement %u did not bind all allocated parameters", m_index);
+        sLog->outSQLDriver("[WARNING]: BindParameters() for statement %u did not bind all allocated parameters", m_index);
     #endif
 }
 
@@ -224,7 +224,7 @@ bool MySQLPreparedStatement::CheckValidIndex(uint8 index)
         return false;
 
     if (m_paramsSet[index])
-        sLog.outSQLDriver("[WARNING] Prepared Statement (id: %u) trying to bind value on already bound index (%u).", m_stmt->m_index, index);
+        sLog->outSQLDriver("[WARNING] Prepared Statement (id: %u) trying to bind value on already bound index (%u).", m_stmt->m_index, index);
     return true;
 }
 

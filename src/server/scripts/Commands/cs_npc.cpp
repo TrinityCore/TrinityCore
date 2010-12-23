@@ -272,14 +272,14 @@ public:
 
     static bool HandleNpcSetAllowMovementCommand(ChatHandler* handler, const char* /*args*/)
     {
-        if (sWorld.getAllowMovement())
+        if (sWorld->getAllowMovement())
         {
-            sWorld.SetAllowMovement(false);
+            sWorld->SetAllowMovement(false);
             handler->SendSysMessage(LANG_CREATURE_MOVE_DISABLED);
         }
         else
         {
-            sWorld.SetAllowMovement(true);
+            sWorld->SetAllowMovement(true);
             handler->SendSysMessage(LANG_CREATURE_MOVE_ENABLED);
         }
         return true;
@@ -316,7 +316,7 @@ public:
             return false;
 
         uint8 lvl = (uint8) atoi((char*)args);
-        if (lvl < 1 || lvl > sWorld.getIntConfig(CONFIG_MAX_PLAYER_LEVEL) + 3)
+        if (lvl < 1 || lvl > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) + 3)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
             handler->SetSentErrorMessage(true);
@@ -726,7 +726,7 @@ public:
 
         if (dontdel_str)
         {
-            //sLog.outError("DEBUG: All 3 params are set");
+            //sLog->outError("DEBUG: All 3 params are set");
 
             // All 3 params are set
             // GUID
@@ -734,7 +734,7 @@ public:
             // doNotDEL
             if (stricmp(dontdel_str, "NODEL") == 0)
             {
-                //sLog.outError("DEBUG: doNotDelete = true;");
+                //sLog->outError("DEBUG: doNotDelete = true;");
                 doNotDelete = true;
             }
         }
@@ -743,10 +743,10 @@ public:
             // Only 2 params - but maybe NODEL is set
             if (type_str)
             {
-                sLog.outError("DEBUG: Only 2 params ");
+                sLog->outError("DEBUG: Only 2 params ");
                 if (stricmp(type_str, "NODEL") == 0)
                 {
-                    //sLog.outError("DEBUG: type_str, NODEL ");
+                    //sLog->outError("DEBUG: type_str, NODEL ");
                     doNotDelete = true;
                     type_str = NULL;
                 }

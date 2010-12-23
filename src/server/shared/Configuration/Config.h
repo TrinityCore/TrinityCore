@@ -49,7 +49,7 @@ class Config
         ACE_Configuration_Heap *mConf;
 };
 
-#define sConfig (*ACE_Singleton<Config, ACE_Null_Mutex>::instance())
+#define sConfig ACE_Singleton<Config, ACE_Null_Mutex>::instance()
 
 #endif
 

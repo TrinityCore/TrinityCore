@@ -176,20 +176,20 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave *save,
     const MapEntry* entry = sMapStore.LookupEntry(GetId());
     if (!entry)
     {
-        sLog.outError("CreateInstance: no entry for map %d", GetId());
+        sLog->outError("CreateInstance: no entry for map %d", GetId());
         ASSERT(false);
     }
     const InstanceTemplate * iTemplate = ObjectMgr::GetInstanceTemplate(GetId());
     if (!iTemplate)
     {
-        sLog.outError("CreateInstance: no instance template for map %d", GetId());
+        sLog->outError("CreateInstance: no instance template for map %d", GetId());
         ASSERT(false);
     }
 
     // some instances only have one difficulty
     GetDownscaledMapDifficultyData(GetId(),difficulty);
 
-    sLog.outDebug("MapInstanced::CreateInstance: %s map instance %d for %d created with difficulty %s", save?"":"new ", InstanceId, GetId(), difficulty?"heroic":"normal");
+    sLog->outDebug("MapInstanced::CreateInstance: %s map instance %d for %d created with difficulty %s", save?"":"new ", InstanceId, GetId(), difficulty?"heroic":"normal");
 
     InstanceMap *map = new InstanceMap(GetId(), GetGridExpiry(), InstanceId, difficulty, this);
     ASSERT(map->IsDungeon());
@@ -206,7 +206,7 @@ BattlegroundMap* MapInstanced::CreateBattleground(uint32 InstanceId, Battlegroun
     // load/create a map
     ACE_GUARD_RETURN(ACE_Thread_Mutex, Guard, Lock, NULL);
 
-    sLog.outDebug("MapInstanced::CreateBattleground: map bg %d for %d created.", InstanceId, GetId());
+    sLog->outDebug("MapInstanced::CreateBattleground: map bg %d for %d created.", InstanceId, GetId());
 
     PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(),bg->GetMinLevel());
 
@@ -238,7 +238,7 @@ bool MapInstanced::DestroyInstance(InstancedMaps::iterator &itr)
 
     itr->second->UnloadAll();
     // should only unload VMaps if this is the last instance and grid unloading is enabled
-    if (m_InstancedMaps.size() <= 1 && sWorld.getBoolConfig(CONFIG_GRID_UNLOAD))
+    if (m_InstancedMaps.size() <= 1 && sWorld->getBoolConfig(CONFIG_GRID_UNLOAD))
     {
         VMAP::VMapFactory::createOrGetVMapManager()->unloadMap(itr->second->GetId());
         // in that case, unload grids of the base map, too

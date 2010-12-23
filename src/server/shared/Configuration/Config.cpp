@@ -24,7 +24,7 @@ static bool GetValueHelper(ACE_Configuration_Heap *mConf, const char *name, ACE_
     if (!mConf)
         return false;
 
-    ACE_GUARD_RETURN(ACE_Thread_Mutex, guard, sConfig.mMtx, false);
+    ACE_GUARD_RETURN(ACE_Thread_Mutex, guard, sConfig->mMtx, false);
 
     ACE_TString section_name;
     ACE_Configuration_Section_Key section_key;

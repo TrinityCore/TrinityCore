@@ -32,7 +32,7 @@ class GridState
         {
             if (i_Magic != MAGIC_TESTVAL)
             {
-                sLog.outError("!!! GridState: Magic value gone !!!");
+                sLog->outError("!!! GridState: Magic value gone !!!");
                 return false;
             }
             return true;

@@ -110,7 +110,7 @@ class DBCStorage
                     // Check if sql index pos is valid
                     if (int32(result->GetFieldCount()-1) < sql->sqlIndexPos)
                     {
-                        sLog.outError("Invalid index pos for dbc:'%s'", sql->sqlTableName.c_str());
+                        sLog->outError("Invalid index pos for dbc:'%s'", sql->sqlTableName.c_str());
                         return false;
                     }
                 }
@@ -138,7 +138,7 @@ class DBCStorage
                             uint32 id = fields[sql->sqlIndexPos].GetUInt32();
                             if (indexTable[id])
                             {
-                                sLog.outError("Index %d already exists in dbc:'%s'", id, sql->sqlTableName.c_str());
+                                sLog->outError("Index %d already exists in dbc:'%s'", id, sql->sqlTableName.c_str());
                                 return false;
                             }
                             indexTable[id]=(T*)&sqlDataTable[offset];
@@ -193,7 +193,7 @@ class DBCStorage
                                         offset+=1;
                                         break;
                                     case FT_STRING:
-                                        sLog.outError("Unsupported data type in table '%s' at char %d", sql->sqlTableName.c_str(), columnNumber);
+                                        sLog->outError("Unsupported data type in table '%s' at char %d", sql->sqlTableName.c_str(), columnNumber);
                                         return false;
                                     case FT_SORT:
                                         break;
@@ -205,13 +205,13 @@ class DBCStorage
                             }
                             else
                             {
-                                sLog.outError("Incorrect sql format string '%s' at char %d", sql->sqlTableName.c_str(), columnNumber);
+                                sLog->outError("Incorrect sql format string '%s' at char %d", sql->sqlTableName.c_str(), columnNumber);
                                 return false;
                             }
                         }
                         if (sqlColumnNumber != (result->GetFieldCount()-1))
                         {
-                            sLog.outError("SQL and DBC format strings are not matching for table: '%s'", sql->sqlTableName.c_str());
+                            sLog->outError("SQL and DBC format strings are not matching for table: '%s'", sql->sqlTableName.c_str());
                             return false;
                         }
 

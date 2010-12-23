@@ -52,7 +52,7 @@ Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
         m_flags |= CHANNEL_FLAG_CUSTOM;
 
         // If storing custom channels in the db is enabled either load or save the channel
-        if (sWorld.getBoolConfig(CONFIG_PRESERVE_CUSTOM_CHANNELS))
+        if (sWorld->getBoolConfig(CONFIG_PRESERVE_CUSTOM_CHANNELS))
         {
             PreparedStatement *stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_CHANNEL);
             stmt->setString(0, name);
@@ -76,7 +76,7 @@ Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
                         uint64 banned_guid = atol(*iter);
                         if (banned_guid)
                         {
-                            sLog.outDebug("Channel(%s) loaded banned guid:" UI64FMTD "",name.c_str(), banned_guid);
+                            sLog->outDebug("Channel(%s) loaded banned guid:" UI64FMTD "",name.c_str(), banned_guid);
                             banned.insert(banned_guid);
                         }
                     }
@@ -88,7 +88,7 @@ Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
                 stmt->setString(0, name);
                 stmt->setUInt32(1, m_Team);
                 CharacterDatabase.Execute(stmt);
-                sLog.outDebug("Channel(%s) saved in database", name.c_str());
+                sLog->outDebug("Channel(%s) saved in database", name.c_str());
             }
 
             m_IsSaved = true;
@@ -116,7 +116,7 @@ void Channel::UpdateChannelInDB() const
         stmt->setUInt32(5, m_Team);
         CharacterDatabase.Execute(stmt);
 
-        sLog.outDebug("Channel(%s) updated in database", m_name.c_str());
+        sLog->outDebug("Channel(%s) updated in database", m_name.c_str());
     }
 
 }
@@ -131,13 +131,13 @@ void Channel::UpdateChannelUseageInDB() const
 
 void Channel::CleanOldChannelsInDB()
 {
-    if (sWorld.getIntConfig(CONFIG_PRESERVE_CUSTOM_CHANNEL_DURATION) > 0)
+    if (sWorld->getIntConfig(CONFIG_PRESERVE_CUSTOM_CHANNEL_DURATION) > 0)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_CLEAN_CHANNEL);
-        stmt->setUInt32(0, sWorld.getIntConfig(CONFIG_PRESERVE_CUSTOM_CHANNEL_DURATION)*DAY);
+        stmt->setUInt32(0, sWorld->getIntConfig(CONFIG_PRESERVE_CUSTOM_CHANNEL_DURATION)*DAY);
         CharacterDatabase.Execute(stmt);
 
-        sLog.outDebug("Cleaned out unused custom chat channels.");
+        sLog->outDebug("Cleaned out unused custom chat channels.");
     }
 }
 
@@ -174,7 +174,7 @@ void Channel::Join(uint64 p, const char *pass)
     if (plr)
     {
         if (HasFlag(CHANNEL_FLAG_LFG) &&
-            sWorld.getBoolConfig(CONFIG_RESTRICTED_LFG_CHANNEL) && plr->GetSession()->GetSecurity() == SEC_PLAYER && plr->GetGroup())
+            sWorld->getBoolConfig(CONFIG_RESTRICTED_LFG_CHANNEL) && plr->GetSession()->GetSecurity() == SEC_PLAYER && plr->GetGroup())
         {
             MakeNotInLfg(&data);
             SendToOne(&data, p);
@@ -184,7 +184,7 @@ void Channel::Join(uint64 p, const char *pass)
         plr->JoinedChannel(this);
     }
 
-    if (m_announce && (!plr || plr->GetSession()->GetSecurity() < SEC_GAMEMASTER || !sWorld.getBoolConfig(CONFIG_SILENTLY_GM_JOIN_TO_CHANNEL)))
+    if (m_announce && (!plr || plr->GetSession()->GetSecurity() < SEC_GAMEMASTER || !sWorld->getBoolConfig(CONFIG_SILENTLY_GM_JOIN_TO_CHANNEL)))
     {
         MakeJoined(&data, p);
         SendToAll(&data);
@@ -246,7 +246,7 @@ void Channel::Leave(uint64 p, bool send)
         bool changeowner = players[p].IsOwner();
 
         players.erase(p);
-        if (m_announce && (!plr || plr->GetSession()->GetSecurity() < SEC_GAMEMASTER || !sWorld.getBoolConfig(CONFIG_SILENTLY_GM_JOIN_TO_CHANNEL)))
+        if (m_announce && (!plr || plr->GetSession()->GetSecurity() < SEC_GAMEMASTER || !sWorld->getBoolConfig(CONFIG_SILENTLY_GM_JOIN_TO_CHANNEL)))
         {
             WorldPacket data;
             MakeLeft(&data, p);
@@ -455,7 +455,7 @@ void Channel::SetMode(uint64 p, const char *p2n, bool mod, bool set)
         // allow make moderator from another team only if both is GMs
         // at this moment this only way to show channel post for GM from another team
         if ((plr->GetSession()->GetSecurity() < SEC_GAMEMASTER || newp->GetSession()->GetSecurity() < SEC_GAMEMASTER) &&
-            plr->GetTeam() != newp->GetTeam() && !sWorld.getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
+            plr->GetTeam() != newp->GetTeam() && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
         {
             WorldPacket data;
             MakePlayerNotFound(&data, p2n);
@@ -511,7 +511,7 @@ void Channel::SetOwner(uint64 p, const char *newname)
         return;
     }
 
-    if (newp->GetTeam() != plr->GetTeam() && !sWorld.getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
+    if (newp->GetTeam() != plr->GetTeam() && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
     {
         WorldPacket data;
         MakePlayerNotFound(&data, newname);
@@ -559,7 +559,7 @@ void Channel::List(Player* player)
         size_t pos = data.wpos();
         data << uint32(0);                                  // size of list, placeholder
 
-        uint32 gmLevelInWhoList = sWorld.getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST);
+        uint32 gmLevelInWhoList = sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST);
 
         uint32 count  = 0;
         for (PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
@@ -621,7 +621,7 @@ void Channel::Say(uint64 p, const char *what, uint32 lang)
 {
     if (!what)
         return;
-    if (sWorld.getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
+    if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
         lang = LANG_UNIVERSAL;
 
     Player *plr = sObjectMgr->GetPlayer(p);
@@ -688,7 +688,7 @@ void Channel::Invite(uint64 p, const char *newname)
     if (!plr)
         return;
 
-    if (newp->GetTeam() != plr->GetTeam() && !sWorld.getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
+    if (newp->GetTeam() != plr->GetTeam() && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
     {
         WorldPacket data;
         MakeInviteWrongFaction(&data);
