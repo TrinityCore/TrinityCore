@@ -3963,17 +3963,9 @@ void AuraEffect::HandleModThreat(AuraApplication const * aurApp, uint8 mode, boo
         return;
 
     Unit * target = aurApp->GetTarget();
-    if (apply && !target->isAlive())
-        return;
-
-    Unit * caster = GetCaster();
-    if (!caster)
-        return;
-
-    if (target->GetTypeId() == TYPEID_PLAYER)
-        for (int8 x=0; x < MAX_SPELL_SCHOOL; x++)
-            if (GetMiscValue() & int32(1<<x))
-                ApplyPercentModFloatVar(target->m_threatModifier[x], (float)GetAmount(), apply);
+    for (int32 i = 0; i < MAX_SPELL_SCHOOL; ++i)
+        if (GetMiscValue() & (1 << i))
+            ApplyPercentModFloatVar(target->m_threatModifier[i], float(GetAmount()), apply);
 }
 
 void AuraEffect::HandleAuraModTotalThreat(AuraApplication const * aurApp, uint8 mode, bool apply) const
