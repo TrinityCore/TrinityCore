@@ -3878,10 +3878,10 @@ void ObjectMgr::LoadGroups()
 
         uint32 groupLowGuid = 0;
         uint32 count = 0;
+        Group* group = NULL;
         do
         {
-            Field *fields = result->Fetch();
-            Group *group = NULL;
+            Field* fields = result->Fetch();
             if (groupLowGuid != fields[0].GetUInt32())
             {
                 groupLowGuid = fields[0].GetUInt32();
