@@ -7716,10 +7716,6 @@ void Player::_ApplyWeaponDependentAuraMods(Item *item,WeaponAttackType attackTyp
     AuraEffectList const& auraDamageFlatList = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE);
     for (AuraEffectList::const_iterator itr = auraDamageFlatList.begin(); itr != auraDamageFlatList.end(); ++itr)
         _ApplyWeaponDependentAuraDamageMod(item,attackType,*itr,apply);
-
-    AuraEffectList const& auraDamagePCTList = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
-    for (AuraEffectList::const_iterator itr = auraDamagePCTList.begin(); itr != auraDamagePCTList.end(); ++itr)
-        _ApplyWeaponDependentAuraDamageMod(item,attackType,*itr,apply);
 }
 
 void Player::_ApplyWeaponDependentAuraCritMod(Item *item, WeaponAttackType attackType, AuraEffect const*  aura, bool apply)
@@ -7768,18 +7764,13 @@ void Player::_ApplyWeaponDependentAuraDamageMod(Item *item, WeaponAttackType att
     switch (aura->GetAuraType())
     {
         case SPELL_AURA_MOD_DAMAGE_DONE:         unitModType = TOTAL_VALUE; break;
-        case SPELL_AURA_MOD_DAMAGE_PERCENT_DONE: unitModType = TOTAL_PCT;   break;
         default: return;
     }
 
     if (!item->IsBroken()&&item->IsFitToSpellRequirements(aura->GetSpellProto()))
     {
         HandleStatModifier(unitMod, unitModType, float(aura->GetAmount()),apply);
-
-        if (unitModType == TOTAL_PCT)
-            ApplyModSignedFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT,aura->GetAmount()/100.0f,apply);
-        else
-            ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS,aura->GetAmount(),apply);
+        ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS,aura->GetAmount(),apply);
     }
 }
 
