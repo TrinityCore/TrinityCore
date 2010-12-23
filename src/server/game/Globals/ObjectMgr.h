@@ -1079,12 +1079,14 @@ class ObjectMgr
             return mCreatureRespawnTimes[MAKE_PAIR64(loguid,instance)];
         }
         void SaveCreatureRespawnTime(uint32 loguid, uint32 instance, time_t t);
+        void RemoveCreatureRespawnTime(uint32 loguid, uint32 instance);
         time_t GetGORespawnTime(uint32 loguid, uint32 instance)
         {
             ACE_GUARD_RETURN(ACE_Thread_Mutex, guard, m_GORespawnTimesMtx, 0);
             return mGORespawnTimes[MAKE_PAIR64(loguid,instance)];
         }
         void SaveGORespawnTime(uint32 loguid, uint32 instance, time_t t);
+        void RemoveGORespawnTime(uint32 loguid, uint32 instance);
         void DeleteRespawnTimeForInstance(uint32 instance);
 
         // grid objects

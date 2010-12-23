@@ -1577,7 +1577,7 @@ void Battleground::SpawnBGCreature(uint32 type, uint32 respawntime)
         {
             //obj->Respawn();                               // bugged
             obj->SetRespawnTime(0);
-            sObjectMgr->SaveCreatureRespawnTime(obj->GetGUIDLow(), GetInstanceID(), 0);
+            sObjectMgr->RemoveCreatureRespawnTime(obj->GetGUIDLow(), GetInstanceID());
             map->Add(obj);
         }
     }
