@@ -517,17 +517,10 @@ void LFGMgr::Join(Player* plr, uint8 roles, const LfgDungeonSet& selectedDungeon
                     if (itr->getSource() && itr->getSource()->GetSession())
                         itr->getSource()->GetSession()->SendLfgUpdateParty(updateData);
             }
+            return;
         }
-        else if (!isContinue) // Different dungeons and it's not a LfgGroup in the middle of a dungeon that need more people
-        { 
-            Leave(plr, grp);
-            LfgState pstate = GetState(guid);
-            if (pstate == LFG_STATE_NONE)
-                Join(plr, roles, dungeons, comment);
-            else
-                sLog.outError("LFGMgr::Join [" UI64FMTD "] joined with different dungeons and leave failed! Player state: %u", guid, pstate); 
-        }
-        return;
+        else // Remove from queue and rejoin
+            RemoveFromQueue(gguid);
     }
 
     // Check player or group member restrictions
