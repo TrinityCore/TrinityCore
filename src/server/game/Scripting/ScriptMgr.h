@@ -709,6 +709,9 @@ class PlayerScript : public ScriptObject
         // Called when a player is created/deleted
         virtual void OnCreate(Player* /*player*/) { }
         virtual void OnDelete(uint64 /*guid*/) { }
+
+        // Called when a player is binded to an instance
+        virtual void OnBindToInstance(Player* /*player*/, Difficulty /*difficulty*/, uint32 /*mapid*/, bool /*permanent*/) { }
 };
 
 class GuildScript : public ScriptObject
@@ -943,6 +946,7 @@ class ScriptMgr
         void OnPlayerLogout(Player* player);
         void OnPlayerCreate(Player* player);
         void OnPlayerDelete(uint64 guid);
+        void OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent);
 
     public: /* GuildScript */
         void OnGuildAddMember(Guild *guild, Player *player, uint8& plRank);
