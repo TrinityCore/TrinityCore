@@ -55,7 +55,7 @@ class WorldLog
         bool m_dbWorld;
 };
 
-#define sWorldLog (*ACE_Singleton<WorldLog, ACE_Thread_Mutex>::instance())
+#define sWorldLog ACE_Singleton<WorldLog, ACE_Thread_Mutex>::instance()
 #endif
 /// @}
 

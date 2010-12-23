@@ -557,7 +557,7 @@ public:
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
-        sLog.outString("TSCR: Convert simpleAI script for Creature Entry %u to ACID", pCreature->GetEntry());
+        sLog->outString("TSCR: Convert simpleAI script for Creature Entry %u to ACID", pCreature->GetEntry());
         SimpleAI* ai = new SimpleAI (pCreature);
 
         ai->Spell[0].Enabled = true;

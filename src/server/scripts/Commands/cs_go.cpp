@@ -85,7 +85,7 @@ public:
         // User wants to teleport to the NPC's template entry
         if (strcmp(pParam1, "id") == 0)
         {
-            //sLog.outError("DEBUG: ID found");
+            //sLog->outError("DEBUG: ID found");
 
             // Get the "creature_template.entry"
             // number or [name] Shift-click form |color|Hcreature_entry:creature_id|h[name]|h|r
@@ -97,7 +97,7 @@ public:
                 return false;
 
             int32 tEntry = atoi(cId);
-            //sLog.outError("DEBUG: ID value: %d", tEntry);
+            //sLog->outError("DEBUG: ID value: %d", tEntry);
             if (!tEntry)
                 return false;
 
@@ -105,7 +105,7 @@ public:
         }
         else
         {
-            //sLog.outError("DEBUG: ID *not found*");
+            //sLog->outError("DEBUG: ID *not found*");
 
             int32 guid = atoi(pParam1);
 
@@ -121,7 +121,7 @@ public:
                 whereClause <<  "WHERE guid = '" << guid << "'";
             }
         }
-        //sLog.outError("DEBUG: %s", whereClause.c_str());
+        //sLog->outError("DEBUG: %s", whereClause.c_str());
 
         QueryResult result = WorldDatabase.PQuery("SELECT position_x,position_y,position_z,orientation,map FROM creature %s", whereClause.str().c_str());
         if (!result)

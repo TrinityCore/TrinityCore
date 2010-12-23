@@ -74,7 +74,7 @@ public:
         uint32 account_id = handler->GetSession()->GetAccountId();
 
         int expansion = atoi(szExp);                                    //get int anyway (0 if error)
-        if (expansion < 0 || uint8(expansion) > sWorld.getIntConfig(CONFIG_EXPANSION))
+        if (expansion < 0 || uint8(expansion) > sWorld->getIntConfig(CONFIG_EXPANSION))
         {
             handler->SendSysMessage(LANG_IMPROPER_VALUE);
             handler->SetSentErrorMessage(true);
@@ -377,7 +377,7 @@ public:
             return false;
 
         int expansion = atoi(szExp);                                    //get int anyway (0 if error)
-        if (expansion < 0 || uint8(expansion) > sWorld.getIntConfig(CONFIG_EXPANSION))
+        if (expansion < 0 || uint8(expansion) > sWorld->getIntConfig(CONFIG_EXPANSION))
             return false;
 
         // No SQL injection

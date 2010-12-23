@@ -260,7 +260,7 @@ public:
                     break;
             }
 
-             sLog.outDebug("TSCR: Instance Hyjal: Instance data updated for event %u (Data=%u)",type,data);
+             sLog->outDebug("TSCR: Instance Hyjal: Instance data updated for event %u (Data=%u)",type,data);
 
             if (data == DONE)
             {

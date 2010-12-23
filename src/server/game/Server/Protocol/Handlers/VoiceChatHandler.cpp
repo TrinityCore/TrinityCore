@@ -24,7 +24,7 @@
 
 void WorldSession::HandleVoiceSessionEnableOpcode(WorldPacket & recv_data)
 {
-    sLog.outDebug("WORLD: CMSG_VOICE_SESSION_ENABLE");
+    sLog->outDebug("WORLD: CMSG_VOICE_SESSION_ENABLE");
     // uint8 isVoiceEnabled, uint8 isMicrophoneEnabled
     recv_data.read_skip<uint8>();
     recv_data.read_skip<uint8>();
@@ -33,14 +33,14 @@ void WorldSession::HandleVoiceSessionEnableOpcode(WorldPacket & recv_data)
 
 void WorldSession::HandleChannelVoiceOnOpcode(WorldPacket & recv_data)
 {
-    sLog.outDebug("WORLD: CMSG_CHANNEL_VOICE_ON");
+    sLog->outDebug("WORLD: CMSG_CHANNEL_VOICE_ON");
     // Enable Voice button in channel context menu
     recv_data.hexlike();
 }
 
 void WorldSession::HandleSetActiveVoiceChannel(WorldPacket & recv_data)
 {
-    sLog.outDebug("WORLD: CMSG_SET_ACTIVE_VOICE_CHANNEL");
+    sLog->outDebug("WORLD: CMSG_SET_ACTIVE_VOICE_CHANNEL");
     recv_data.read_skip<uint32>();
     recv_data.read_skip<char*>();
     recv_data.hexlike();

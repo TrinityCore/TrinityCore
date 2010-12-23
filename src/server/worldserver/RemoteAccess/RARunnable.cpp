@@ -61,23 +61,23 @@ RARunnable::~RARunnable()
 
 void RARunnable::run()
 {
-    if (!sConfig.GetBoolDefault("Ra.Enable", false))
+    if (!sConfig->GetBoolDefault("Ra.Enable", false))
         return;
 
     ACE_Acceptor<RASocket, ACE_SOCK_ACCEPTOR> acceptor;
 
-    uint16 raport = sConfig.GetIntDefault("Ra.Port", 3443);
-    std::string stringip = sConfig.GetStringDefault("Ra.IP", "0.0.0.0");
+    uint16 raport = sConfig->GetIntDefault("Ra.Port", 3443);
+    std::string stringip = sConfig->GetStringDefault("Ra.IP", "0.0.0.0");
 
     ACE_INET_Addr listen_addr(raport, stringip.c_str());
 
     if (acceptor.open(listen_addr, m_Reactor) == -1)
     {
-        sLog.outError("Trinity RA can not bind to port %d on %s", raport, stringip.c_str());
+        sLog->outError("Trinity RA can not bind to port %d on %s", raport, stringip.c_str());
         return;
     }
 
-    sLog.outString("Starting Trinity RA on port %d on %s", raport, stringip.c_str());
+    sLog->outString("Starting Trinity RA on port %d on %s", raport, stringip.c_str());
 
     while (!World::IsStopped())
     {
@@ -89,5 +89,5 @@ void RARunnable::run()
             break;
     }
 
-    sLog.outStaticDebug("Trinity RA thread exiting");
+    sLog->outStaticDebug("Trinity RA thread exiting");
 }

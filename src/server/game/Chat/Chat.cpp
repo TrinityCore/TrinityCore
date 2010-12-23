@@ -523,7 +523,7 @@ bool ChatHandler::HasLowerSecurityAccount(WorldSession* target, uint32 target_ac
         return false;
 
     // ignore only for non-players for non strong checks (when allow apply command at least to same sec level)
-    if (m_session->GetSecurity() > SEC_PLAYER && !strong && !sWorld.getBoolConfig(CONFIG_GM_LOWER_SECURITY))
+    if (m_session->GetSecurity() > SEC_PLAYER && !strong && !sWorld->getBoolConfig(CONFIG_GM_LOWER_SECURITY))
         return false;
 
     if (target)
@@ -598,7 +598,7 @@ void ChatHandler::SendGlobalSysMessage(const char *str)
     while (char* line = LineFromMessage(pos))
     {
         FillSystemMessageData(&data, line);
-        sWorld.SendGlobalMessage(&data);
+        sWorld->SendGlobalMessage(&data);
     }
 
     free(buf);
@@ -616,7 +616,7 @@ void ChatHandler::SendGlobalGMSysMessage(const char *str)
     while (char* line = LineFromMessage(pos))
     {
         FillSystemMessageData(&data, line);
-        sWorld.SendGlobalGMMessage(&data);
+        sWorld->SendGlobalGMMessage(&data);
      }
     free(buf);
 }
@@ -716,7 +716,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand *table, const char* text, co
                 {
                     Player* p = m_session->GetPlayer();
                     uint64 sel_guid = p->GetSelection();
-                    sLog.outCommand(m_session->GetAccountId(),"Command: %s [Player: %s (Account: %u) X: %f Y: %f Z: %f Map: %u Selected %s: %s (GUID: %u)]",
+                    sLog->outCommand(m_session->GetAccountId(),"Command: %s [Player: %s (Account: %u) X: %f Y: %f Z: %f Map: %u Selected %s: %s (GUID: %u)]",
                         fullcmd.c_str(),p->GetName(),m_session->GetAccountId(),p->GetPositionX(),p->GetPositionY(),p->GetPositionZ(),p->GetMapId(),
                         GetLogNameForGuid(sel_guid), (p->GetSelectedUnit()) ? p->GetSelectedUnit()->GetName() : "", GUID_LOPART(sel_guid));
                 }
@@ -768,12 +768,12 @@ bool ChatHandler::SetDataForCommandInTable(ChatCommand *table, const char* text,
         // expected subcommand by full name DB content
         else if (*text)
         {
-            sLog.outErrorDb("Table `command` have unexpected subcommand '%s' in command '%s', skip.",text,fullcommand.c_str());
+            sLog->outErrorDb("Table `command` have unexpected subcommand '%s' in command '%s', skip.",text,fullcommand.c_str());
             return false;
         }
 
         if (table[i].SecurityLevel != security)
-            sLog.outDetail("Table `command` overwrite for command '%s' default security (%u) by %u",fullcommand.c_str(),table[i].SecurityLevel,security);
+            sLog->outDetail("Table `command` overwrite for command '%s' default security (%u) by %u",fullcommand.c_str(),table[i].SecurityLevel,security);
 
         table[i].SecurityLevel = security;
         table[i].Help          = help;
@@ -784,9 +784,9 @@ bool ChatHandler::SetDataForCommandInTable(ChatCommand *table, const char* text,
     if (!cmd.empty())
     {
         if (table == getCommandTable())
-            sLog.outErrorDb("Table `command` have not existed command '%s', skip.",cmd.c_str());
+            sLog->outErrorDb("Table `command` have not existed command '%s', skip.",cmd.c_str());
         else
-            sLog.outErrorDb("Table `command` have not existed subcommand '%s' in command '%s', skip.",cmd.c_str(),fullcommand.c_str());
+            sLog->outErrorDb("Table `command` have not existed subcommand '%s' in command '%s', skip.",cmd.c_str(),fullcommand.c_str());
     }
 
     return false;
@@ -799,7 +799,7 @@ int ChatHandler::ParseCommands(const char* text)
 
     std::string fullcmd = text;
 
-    if (m_session && m_session->GetSecurity() <= SEC_PLAYER && sWorld.getBoolConfig(CONFIG_ALLOW_PLAYER_COMMANDS) == 0)
+    if (m_session && m_session->GetSecurity() <= SEC_PLAYER && sWorld->getBoolConfig(CONFIG_ALLOW_PLAYER_COMMANDS) == 0)
        return 0;
 
     /// chat case (.command or !command format)
@@ -856,7 +856,7 @@ valid examples:
     const char* validSequenceIterator = validSequence;
 
     // more simple checks
-    if (sWorld.getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_SEVERITY) < 3)
+    if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_SEVERITY) < 3)
     {
         const std::string validCommands = "cHhr|";
 
@@ -875,7 +875,7 @@ valid examples:
 
             ++message;
             // validate sequence
-            if (sWorld.getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_SEVERITY) == 2)
+            if (sWorld->getIntConfig(CONFIG_CHAT_STRICT_LINK_CHECKING_SEVERITY) == 2)
             {
                 if (commandChar == *validSequenceIterator)
                 {
@@ -919,7 +919,7 @@ valid examples:
         else if (reader.get() != '|')
         {
 #ifdef TRINITY_DEBUG
-            sLog.outBasic("ChatHandler::isValidChatMessage sequence aborted unexpectedly");
+            sLog->outBasic("ChatHandler::isValidChatMessage sequence aborted unexpectedly");
 #endif
             return false;
         }
@@ -928,7 +928,7 @@ valid examples:
         if (reader.peek() == '\0')
         {
 #ifdef TRINITY_DEBUG
-            sLog.outBasic("ChatHandler::isValidChatMessage pipe followed by \\0");
+            sLog->outBasic("ChatHandler::isValidChatMessage pipe followed by \\0");
 #endif
             return false;
         }
@@ -953,7 +953,7 @@ valid examples:
             else
             {
 #ifdef TRINITY_DEBUG
-                sLog.outBasic("ChatHandler::isValidChatMessage invalid sequence, expected %c but got %c", *validSequenceIterator, commandChar);
+                sLog->outBasic("ChatHandler::isValidChatMessage invalid sequence, expected %c but got %c", *validSequenceIterator, commandChar);
 #endif
                 return false;
             }
@@ -962,7 +962,7 @@ valid examples:
         {
             // no escaped pipes in sequences
 #ifdef TRINITY_DEBUG
-            sLog.outBasic("ChatHandler::isValidChatMessage got escaped pipe in sequence");
+            sLog->outBasic("ChatHandler::isValidChatMessage got escaped pipe in sequence");
 #endif
             return false;
         }
@@ -979,7 +979,7 @@ valid examples:
                     if (!c)
                     {
 #ifdef TRINITY_DEBUG
-                        sLog.outBasic("ChatHandler::isValidChatMessage got \\0 while reading color in |c command");
+                        sLog->outBasic("ChatHandler::isValidChatMessage got \\0 while reading color in |c command");
 #endif
                         return false;
                     }
@@ -997,7 +997,7 @@ valid examples:
                         continue;
                     }
 #ifdef TRINITY_DEBUG
-                    sLog.outBasic("ChatHandler::isValidChatMessage got non hex char '%c' while reading color", c);
+                    sLog->outBasic("ChatHandler::isValidChatMessage got non hex char '%c' while reading color", c);
 #endif
                     return false;
                 }
@@ -1015,7 +1015,7 @@ valid examples:
                     if (!linkedItem)
                     {
 #ifdef TRINITY_DEBUG
-                        sLog.outBasic("ChatHandler::isValidChatMessage got invalid itemID %u in |item command", atoi(buffer));
+                        sLog->outBasic("ChatHandler::isValidChatMessage got invalid itemID %u in |item command", atoi(buffer));
 #endif
                         return false;
                     }
@@ -1023,7 +1023,7 @@ valid examples:
                     if (color != ItemQualityColors[linkedItem->Quality])
                     {
 #ifdef TRINITY_DEBUG
-                        sLog.outBasic("ChatHandler::isValidChatMessage linked item has color %u, but user claims %u", ItemQualityColors[linkedItem->Quality],
+                        sLog->outBasic("ChatHandler::isValidChatMessage linked item has color %u, but user claims %u", ItemQualityColors[linkedItem->Quality],
                                 color);
 #endif
                         return false;
@@ -1096,7 +1096,7 @@ valid examples:
                     if (!linkedQuest)
                     {
 #ifdef TRINITY_DEBUG
-                        sLog.outBasic("ChatHandler::isValidChatMessage Questtemplate %u not found", questid);
+                        sLog->outBasic("ChatHandler::isValidChatMessage Questtemplate %u not found", questid);
 #endif
                         return false;
                     }
@@ -1236,7 +1236,7 @@ valid examples:
                 else
                 {
 #ifdef TRINITY_DEBUG
-                    sLog.outBasic("ChatHandler::isValidChatMessage user sent unsupported link type '%s'", buffer);
+                    sLog->outBasic("ChatHandler::isValidChatMessage user sent unsupported link type '%s'", buffer);
 #endif
                     return false;
                 }
@@ -1249,7 +1249,7 @@ valid examples:
                     if (reader.get() != '[')
                     {
 #ifdef TRINITY_DEBUG
-                        sLog.outBasic("ChatHandler::isValidChatMessage link caption doesn't start with '['");
+                        sLog->outBasic("ChatHandler::isValidChatMessage link caption doesn't start with '['");
 #endif
                         return false;
                     }
@@ -1314,7 +1314,7 @@ valid examples:
                             if (!ql)
                             {
 #ifdef TRINITY_DEBUG
-                                sLog.outBasic("ChatHandler::isValidChatMessage default questname didn't match and there is no locale");
+                                sLog->outBasic("ChatHandler::isValidChatMessage default questname didn't match and there is no locale");
 #endif
                                 return false;
                             }
@@ -1331,7 +1331,7 @@ valid examples:
                             if (!foundName)
                             {
 #ifdef TRINITY_DEBUG
-                                sLog.outBasic("ChatHandler::isValidChatMessage no quest locale title matched");
+                                sLog->outBasic("ChatHandler::isValidChatMessage no quest locale title matched");
 #endif
                                 return false;
                             }
@@ -1374,7 +1374,7 @@ valid examples:
                             if (!foundName)
                             {
 #ifdef TRINITY_DEBUG
-                                sLog.outBasic("ChatHandler::isValidChatMessage linked item name wasn't found in any localization");
+                                sLog->outBasic("ChatHandler::isValidChatMessage linked item name wasn't found in any localization");
 #endif
                                 return false;
                             }
@@ -1406,7 +1406,7 @@ valid examples:
                 break;
             default:
 #ifdef TRINITY_DEBUG
-                sLog.outBasic("ChatHandler::isValidChatMessage got invalid command |%c", commandChar);
+                sLog->outBasic("ChatHandler::isValidChatMessage got invalid command |%c", commandChar);
 #endif
                 return false;
         }
@@ -1415,7 +1415,7 @@ valid examples:
     // check if every opened sequence was also closed properly
 #ifdef TRINITY_DEBUG
     if (validSequence != validSequenceIterator)
-        sLog.outBasic("ChatHandler::isValidChatMessage EOF in active sequence");
+        sLog->outBasic("ChatHandler::isValidChatMessage EOF in active sequence");
 #endif
     return validSequence == validSequenceIterator;
 }
@@ -2170,7 +2170,7 @@ bool ChatHandler::GetPlayerGroupAndGUIDByName(const char* cname, Player* &plr, G
 
 LocaleConstant CliHandler::GetSessionDbcLocale() const
 {
-    return sWorld.GetDefaultDbcLocale();
+    return sWorld->GetDefaultDbcLocale();
 }
 
 int CliHandler::GetSessionDbLocaleIndex() const

@@ -32,9 +32,9 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket & recv_data)
     if (sTicketMgr->GetStatus() == GMTICKET_QUEUE_STATUS_DISABLED)
         return;
 
-    if (GetPlayer()->getLevel() < sWorld.getIntConfig(CONFIG_TICKET_LEVEL_REQ))
+    if (GetPlayer()->getLevel() < sWorld->getIntConfig(CONFIG_TICKET_LEVEL_REQ))
     {
-        SendNotification(GetTrinityString(LANG_TICKET_REQ), sWorld.getIntConfig(CONFIG_TICKET_LEVEL_REQ));
+        SendNotification(GetTrinityString(LANG_TICKET_REQ), sWorld->getIntConfig(CONFIG_TICKET_LEVEL_REQ));
         return;
     }
 
@@ -85,7 +85,7 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket & recv_data)
     data << uint32(GMTICKET_RESPONSE_SUCCESS);
     SendPacket(&data);
 
-    sWorld.SendGMText(LANG_COMMAND_TICKETNEW, GetPlayer()->GetName(), ticket->guid);
+    sWorld->SendGMText(LANG_COMMAND_TICKETNEW, GetPlayer()->GetName(), ticket->guid);
 }
 
 void WorldSession::HandleGMTicketUpdateOpcode(WorldPacket & recv_data)
@@ -111,7 +111,7 @@ void WorldSession::HandleGMTicketUpdateOpcode(WorldPacket & recv_data)
     data << uint32(GMTICKET_RESPONSE_SUCCESS);
     SendPacket(&data);
 
-    sWorld.SendGMText(LANG_COMMAND_TICKETUPDATED, GetPlayer()->GetName(), ticket->guid);
+    sWorld->SendGMText(LANG_COMMAND_TICKETUPDATED, GetPlayer()->GetName(), ticket->guid);
 }
 
 void WorldSession::HandleGMTicketDeleteOpcode(WorldPacket & /*recv_data*/)
@@ -124,7 +124,7 @@ void WorldSession::HandleGMTicketDeleteOpcode(WorldPacket & /*recv_data*/)
         data << uint32(GMTICKET_RESPONSE_TICKET_DELETED);
         SendPacket(&data);
 
-        sWorld.SendGMText(LANG_COMMAND_TICKETPLAYERABANDON, GetPlayer()->GetName(), ticket->guid);
+        sWorld->SendGMText(LANG_COMMAND_TICKETPLAYERABANDON, GetPlayer()->GetName(), ticket->guid);
         sTicketMgr->RemoveGMTicket(ticket, GetPlayer()->GetGUID(), false);
         SendGMTicketGetTicket(GMTICKET_STATUS_DEFAULT, NULL);
     }
@@ -302,7 +302,7 @@ void WorldSession::HandleGMResponseResolve(WorldPacket& /*recvPacket*/)
     if (ticket)
     {
         uint8 getSurvey = 0;
-        if ((float)rand_chance() < sWorld.getFloatConfig(CONFIG_CHANCE_OF_GM_SURVEY))
+        if ((float)rand_chance() < sWorld->getFloatConfig(CONFIG_CHANCE_OF_GM_SURVEY))
             getSurvey = 1;
 
         WorldPacket data(SMSG_GMRESPONSE_STATUS_UPDATE, 4);

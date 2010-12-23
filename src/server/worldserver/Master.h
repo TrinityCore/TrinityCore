@@ -39,6 +39,6 @@ class Master
         void clearOnlineAccounts();
 };
 
-#define sMaster (*ACE_Singleton<Master, ACE_Null_Mutex>::instance())
+#define sMaster ACE_Singleton<Master, ACE_Null_Mutex>::instance()
 #endif
 /// @}

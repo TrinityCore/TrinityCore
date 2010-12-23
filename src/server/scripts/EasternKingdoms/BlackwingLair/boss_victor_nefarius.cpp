@@ -353,7 +353,7 @@ public:
                             Nefarian->setFaction(103);
                             NefarianGUID = Nefarian->GetGUID();
                         }
-                        else sLog.outError("TSCR: Blackwing Lair: Unable to spawn nefarian properly.");
+                        else sLog->outError("TSCR: Blackwing Lair: Unable to spawn nefarian properly.");
                     }
 
                     AddSpawnTimer = 4000;
