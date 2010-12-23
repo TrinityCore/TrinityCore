@@ -1081,24 +1081,31 @@ void LFGMgr::UpdateRoleCheck(uint64& gguid, uint64 guid /* = 0 */, uint8 roles /
     {
         uint64 pguid = it->first;
         Player* plrg = sObjectMgr->GetPlayer(pguid);
-        team = uint8(plrg->GetTeam());
-        WorldSession* session = plrg->GetSession();
-        if (!sendRoleChosen)
-            session->SendLfgRoleChosen(guid, roles);
-        session->SendLfgRoleCheckUpdate(roleCheck);
+        if (!plrg)
+        {
+            if (roleCheck->state == LFG_ROLECHECK_FINISHED)
+                SetState(pguid, LFG_STATE_QUEUED);
+            else if (roleCheck->state != LFG_ROLECHECK_INITIALITING)
+                ClearState(pguid);
+            continue;
+        }
 
-        switch(roleCheck->state)
+        team = uint8(plrg->GetTeam());
+        if (!sendRoleChosen)
+            plrg->GetSession()->SendLfgRoleChosen(guid, roles);
+        plrg->GetSession()->SendLfgRoleCheckUpdate(roleCheck);
+        switch (roleCheck->state)
         {
             case LFG_ROLECHECK_INITIALITING:
                 continue;
             case LFG_ROLECHECK_FINISHED:
                 SetState(pguid, LFG_STATE_QUEUED);
-                session->SendLfgUpdateParty(LfgUpdateData(LFG_UPDATETYPE_ADDED_TO_QUEUE, dungeons, GetComment(pguid)));
+                plrg->GetSession()->SendLfgUpdateParty(LfgUpdateData(LFG_UPDATETYPE_ADDED_TO_QUEUE, dungeons, GetComment(pguid)));
                 break;
             default:
                 if (roleCheck->leader == pguid)
-                    session->SendLfgJoinResult(joinData);
-                session->SendLfgUpdateParty(LfgUpdateData(LFG_UPDATETYPE_ROLECHECK_FAILED));
+                    plrg->GetSession()->SendLfgJoinResult(joinData);
+                plrg->GetSession()->SendLfgUpdateParty(LfgUpdateData(LFG_UPDATETYPE_ROLECHECK_FAILED));
                 ClearState(pguid);
                 break;
         }
