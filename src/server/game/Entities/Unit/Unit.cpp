@@ -10328,8 +10328,8 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
         for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
             if ((*i)->GetMiscValue() & GetSpellSchoolMask(spellProto))
                 if (((*i)->GetSpellProto()->EquippedItemClass == -1) ||
-                    ((*i)->GetSpellProto()->EquippedItemClass & spellProto->EquippedItemClass) &&
-                    ((*i)->GetSpellProto()->EquippedItemSubClassMask & spellProto->EquippedItemSubClassMask))
+                    (((*i)->GetSpellProto()->EquippedItemClass & spellProto->EquippedItemClass) &&
+                    ((*i)->GetSpellProto()->EquippedItemSubClassMask & spellProto->EquippedItemSubClassMask)))
                     AddPctN(DoneTotalMod, (*i)->GetAmount());
     }
 
