@@ -237,9 +237,11 @@ bool CharacterDatabaseConnection::Open()
     PrepareStatement(CHAR_CLEAN_GUILD_BANK_TABS, "DELETE FROM guild_bank_tab WHERE guildId NOT IN (SELECT guildid FROM guild)", true);
     PrepareStatement(CHAR_CLEAN_GUILD_BANK_RIGHTS, "DELETE FROM guild_bank_right WHERE guildId NOT IN (SELECT guildid FROM guild)", true);
     PrepareStatement(CHAR_CLEAN_GUILD_BANK_ITEMS, "DELETE FROM guild_bank_item WHERE guildId NOT IN (SELECT guildid FROM guild)", true);
-    PrepareStatement(CHAR_DEL_GAMEOBJECT_RESPAWN_TIMES, "DELETE FROM gameobject_respawn WHERE respawntime <= UNIX_TIMESTAMP(NOW())", true);
-    PrepareStatement(CHAR_DEL_CRESPAWNTIME, "DELETE FROM creature_respawn WHERE guid = ? AND instance = ?", true);
-    PrepareStatement(CHAR_ADD_CRESPAWNTIME, "INSERT INTO creature_respawn VALUES (?, ?, ?)", true);
+    PrepareStatement(CHAR_DEL_CREATURE_RESPAWN_TIME, "DELETE FROM creature_respawn WHERE guid = ? AND instance = ?", true);
+    PrepareStatement(CHAR_ADD_CREATURE_RESPAWN_TIME, "REPLACE INTO creature_respawn VALUES (?, ?, ?)", true);
+    PrepareStatement(CHAR_DEL_EXPIRED_GO_RESPAWN_TIMES, "DELETE FROM gameobject_respawn WHERE respawntime <= UNIX_TIMESTAMP()");
+    PrepareStatement(CHAR_DEL_GO_RESPAWN_TIME, "DELETE FROM gameobject_respawn WHERE guid = ? AND instance = ?", true);
+    PrepareStatement(CHAR_ADD_GO_RESPAWN_TIME, "REPLACE INTO gameobject_respawn VALUES (?, ?, ?)", true);
 
     // Chat channel handling
     PrepareStatement(CHAR_LOAD_CHANNEL, "SELECT m_announce, m_ownership, m_password, BannedList FROM channels WHERE m_name = ? AND m_team = ?");

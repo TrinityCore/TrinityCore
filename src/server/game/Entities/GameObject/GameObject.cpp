@@ -742,7 +742,7 @@ bool GameObject::LoadFromDB(uint32 guid, Map *map)
             if (m_respawnTime && m_respawnTime <= time(NULL))
             {
                 m_respawnTime = 0;
-                sObjectMgr->SaveGORespawnTime(m_DBTableGuid,GetInstanceId(),0);
+                sObjectMgr->RemoveGORespawnTime(m_DBTableGuid, GetInstanceId());
             }
         }
     }
@@ -760,7 +760,7 @@ bool GameObject::LoadFromDB(uint32 guid, Map *map)
 
 void GameObject::DeleteFromDB()
 {
-    sObjectMgr->SaveGORespawnTime(m_DBTableGuid,GetInstanceId(),0);
+    sObjectMgr->RemoveGORespawnTime(m_DBTableGuid, GetInstanceId());
     sObjectMgr->DeleteGOData(m_DBTableGuid);
     WorldDatabase.PExecute("DELETE FROM gameobject WHERE guid = '%u'", m_DBTableGuid);
     WorldDatabase.PExecute("DELETE FROM game_event_gameobject WHERE guid = '%u'", m_DBTableGuid);
@@ -853,7 +853,7 @@ void GameObject::Respawn()
     if (m_spawnedByDefault && m_respawnTime > 0)
     {
         m_respawnTime = time(NULL);
-        sObjectMgr->SaveGORespawnTime(m_DBTableGuid,GetInstanceId(),0);
+        sObjectMgr->RemoveGORespawnTime(m_DBTableGuid, GetInstanceId());
     }
 }
 

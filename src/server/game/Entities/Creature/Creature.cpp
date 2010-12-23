@@ -1396,7 +1396,7 @@ void Creature::DeleteFromDB()
         return;
     }
 
-    sObjectMgr->SaveCreatureRespawnTime(m_DBTableGuid,GetInstanceId(),0);
+    sObjectMgr->RemoveCreatureRespawnTime(m_DBTableGuid, GetInstanceId());
     sObjectMgr->DeleteCreatureData(m_DBTableGuid);
 
     SQLTransaction trans = WorldDatabase.BeginTransaction();
@@ -1587,7 +1587,7 @@ void Creature::Respawn(bool force)
     if (getDeathState() == DEAD)
     {
         if (m_DBTableGuid)
-            sObjectMgr->SaveCreatureRespawnTime(m_DBTableGuid,GetInstanceId(),0);
+            sObjectMgr->RemoveCreatureRespawnTime(m_DBTableGuid, GetInstanceId());
 
         sLog.outStaticDebug("Respawning...");
         m_respawnTime = 0;
