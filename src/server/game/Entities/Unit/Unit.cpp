@@ -8939,7 +8939,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
         {
             // remove cooldown of Death Grip
             if (GetTypeId() == TYPEID_PLAYER)
-                this->ToPlayer()->RemoveCategoryCooldown(82);
+                this->ToPlayer()->RemoveSpellCooldown(49576, true);
             return true;
         }
         // Savage Defense
