@@ -67,7 +67,7 @@ bool ChatHandler::HandleMuteCommand(const char* args)
 
     // find only player from same account if any
     if (!target)
-        if (WorldSession* session = sWorld.FindSession(account_id))
+        if (WorldSession* session = sWorld->FindSession(account_id))
             target = session->GetPlayer();
 
     uint32 notspeaktime = (uint32) atoi(delayStr);
@@ -106,7 +106,7 @@ bool ChatHandler::HandleUnmuteCommand(const char* args)
 
     // find only player from same account if any
     if (!target)
-        if (WorldSession* session = sWorld.FindSession(account_id))
+        if (WorldSession* session = sWorld->FindSession(account_id))
             target = session->GetPlayer();
 
     // must have strong lesser security level
@@ -221,8 +221,8 @@ bool ChatHandler::HandleKickPlayerCommand(const char *args)
     if (HasLowerSecurity(target, 0))
         return false;
 
-    if (sWorld.getBoolConfig(CONFIG_SHOW_KICK_IN_WORLD))
-        sWorld.SendWorldText(LANG_COMMAND_KICKMESSAGE, playerName.c_str());
+    if (sWorld->getBoolConfig(CONFIG_SHOW_KICK_IN_WORLD))
+        sWorld->SendWorldText(LANG_COMMAND_KICKMESSAGE, playerName.c_str());
     else
         PSendSysMessage(LANG_COMMAND_KICKMESSAGE, playerName.c_str());
 
@@ -528,7 +528,7 @@ bool ChatHandler::HandleLookupEventCommand(const char* args)
 
     bool found = false;
     uint32 count = 0;
-    uint32 maxResults = sWorld.getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
+    uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
     GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
     GameEventMgr::ActiveEvents const& activeEvents = sGameEventMgr->GetActiveEventList();
@@ -646,7 +646,7 @@ bool ChatHandler::LookupPlayerSearchCommand(QueryResult result, int32 limit)
 
     int i = 0;
     uint32 count = 0;
-    uint32 maxResults = sWorld.getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
+    uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
     do
     {
         if (maxResults && count++ == maxResults)
@@ -693,7 +693,7 @@ bool ChatHandler::LookupPlayerSearchCommand(QueryResult result, int32 limit)
 /// Triggering corpses expire check in world
 bool ChatHandler::HandleServerCorpsesCommand(const char* /*args*/)
 {
-    sObjectAccessor.RemoveOldCorpses();
+    sObjectAccessor->RemoveOldCorpses();
     return true;
 }
 
@@ -800,7 +800,7 @@ bool ChatHandler::HandleCreatePetCommand(const char* /*args*/)
 
     if (!pet->InitStatsForLevel(creatureTarget->getLevel()))
     {
-        sLog.outError("InitStatsForLevel() in EffectTameCreature failed! Pet deleted.");
+        sLog->outError("InitStatsForLevel() in EffectTameCreature failed! Pet deleted.");
         PSendSysMessage("Error 2");
         delete pet;
         return false;
@@ -938,7 +938,7 @@ bool ChatHandler::HandleLookupTitleCommand(const char* args)
     wstrToLower(wnamepart);
 
     uint32 counter = 0;                                     // Counter for figure out that we found smth.
-    uint32 maxResults = sWorld.getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
+    uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
     // Search in CharTitles.dbc
     for (uint32 id = 0; id < sCharTitlesStore.GetNumRows(); id++)

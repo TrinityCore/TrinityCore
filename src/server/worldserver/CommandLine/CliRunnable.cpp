@@ -412,7 +412,7 @@ bool ChatHandler::HandleCharacterDeletedDeleteCommand(const char* args)
  */
 bool ChatHandler::HandleCharacterDeletedOldCommand(const char* args)
 {
-    int32 keepDays = sWorld.getIntConfig(CONFIG_CHARDELETE_KEEP_DAYS);
+    int32 keepDays = sWorld->getIntConfig(CONFIG_CHARDELETE_KEEP_DAYS);
 
     char* px = strtok((char*)args, " ");
     if (px)
@@ -493,7 +493,7 @@ bool ChatHandler::HandleServerSetLogFileLevelCommand(const char *args)
     if (!NewLevel)
         return false;
 
-    sLog.SetLogFileLevel(NewLevel);
+    sLog->SetLogFileLevel(NewLevel);
     return true;
 }
 
@@ -507,7 +507,7 @@ bool ChatHandler::HandleServerSetLogLevelCommand(const char *args)
     if (!NewLevel)
         return false;
 
-    sLog.SetLogLevel(NewLevel);
+    sLog->SetLogLevel(NewLevel);
     return true;
 }
 
@@ -525,7 +525,7 @@ bool ChatHandler::HandleServerSetDiffTimeCommand(const char *args)
     if (NewTime < 0)
         return false;
 
-    sWorld.SetRecordDiffInterval(NewTime);
+    sWorld->SetRecordDiffInterval(NewTime);
     printf( "Record diff every %u ms\n", NewTime);
     return true;
 }
@@ -533,8 +533,8 @@ bool ChatHandler::HandleServerSetDiffTimeCommand(const char *args)
 /// toggle sql driver query logging
 bool ChatHandler::HandleServerToggleQueryLogging(const char* /* args */)
 {
-    sLog.SetSQLDriverQueryLogging(!sLog.GetSQLDriverQueryLogging());
-    if(sLog.GetSQLDriverQueryLogging())
+    sLog->SetSQLDriverQueryLogging(!sLog->GetSQLDriverQueryLogging());
+    if(sLog->GetSQLDriverQueryLogging())
         PSendSysMessage(LANG_SQLDRIVER_QUERY_LOGGING_ENABLED);
     else
         PSendSysMessage(LANG_SQLDRIVER_QUERY_LOGGING_DISABLED);
@@ -563,12 +563,12 @@ int kb_hit_return()
 void CliRunnable::run()
 {
     ///- Display the list of available CLI functions then beep
-    //sLog.outString("");
+    //sLog->outString("");
     #if PLATFORM != WINDOWS
     rl_attempted_completion_function = cli_completion;
     rl_event_hook = cli_hook_func;
     #endif
-    if (sConfig.GetBoolDefault("BeepAtStart", true))
+    if (sConfig->GetBoolDefault("BeepAtStart", true))
         printf("\a");                                       // \a = Alert
 
     // print this here the first time
@@ -615,7 +615,7 @@ void CliRunnable::run()
                 continue;
             }
             fflush(stdout);
-            sWorld.QueueCliCommand(new CliCommandHolder(NULL, command.c_str(), &utf8print, &commandFinished));
+            sWorld->QueueCliCommand(new CliCommandHolder(NULL, command.c_str(), &utf8print, &commandFinished));
             #if PLATFORM != WINDOWS
             add_history(command.c_str());
             #endif

@@ -364,7 +364,7 @@ public:
 
             if (uiType < MAX_ENCOUNTERS)
             {
-                sLog.outBasic("[ToCr] m_auiEncounter[uiType %u] %u = uiData %u;",uiType,m_auiEncounter[uiType],uiData);
+                sLog->outBasic("[ToCr] m_auiEncounter[uiType %u] %u = uiData %u;",uiType,m_auiEncounter[uiType],uiData);
                 if (uiData == FAIL)
                 {
                     if (IsRaidWiped())

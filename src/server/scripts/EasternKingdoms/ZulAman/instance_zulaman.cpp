@@ -182,7 +182,7 @@ class instance_zulaman : public InstanceMapScript
                 ss << "S " << BossKilled << " " << ChestLooted << " " << QuestMinute;
                 char* data = new char[ss.str().length()+1];
                 strcpy(data, ss.str().c_str());
-                //sLog.outError("TSCR: Zul'aman saved, %s.", data);
+                //sLog->outError("TSCR: Zul'aman saved, %s.", data);
                 return data;
             }
 
@@ -190,17 +190,17 @@ class instance_zulaman : public InstanceMapScript
             {
                 if (!load) return;
                 std::istringstream ss(load);
-                //sLog.outError("TSCR: Zul'aman loaded, %s.", ss.str().c_str());
+                //sLog->outError("TSCR: Zul'aman loaded, %s.", ss.str().c_str());
                 char dataHead; // S
                 uint16 data1, data2, data3;
                 ss >> dataHead >> data1 >> data2 >> data3;
-                //sLog.outError("TSCR: Zul'aman loaded, %d %d %d.", data1, data2, data3);
+                //sLog->outError("TSCR: Zul'aman loaded, %d %d %d.", data1, data2, data3);
                 if (dataHead == 'S')
                 {
                     BossKilled = data1;
                     ChestLooted = data2;
                     QuestMinute = data3;
-                } else sLog.outError("TSCR: Zul'aman: corrupted save data.");
+                } else sLog->outError("TSCR: Zul'aman: corrupted save data.");
             }
 
             void SetData(uint32 type, uint32 data)

@@ -180,7 +180,7 @@ public:
         {
             pInst = c->GetInstanceScript();
             if (!pInst)
-                sLog.outError("TSCR: No Instance eye_of_cthunAI");
+                sLog->outError("TSCR: No Instance eye_of_cthunAI");
         }
 
         InstanceScript* pInst;
@@ -486,7 +486,7 @@ public:
 
             pInst = c->GetInstanceScript();
             if (!pInst)
-                sLog.outError("TSCR: No Instance eye_of_cthunAI");
+                sLog->outError("TSCR: No Instance eye_of_cthunAI");
         }
 
         InstanceScript* pInst;

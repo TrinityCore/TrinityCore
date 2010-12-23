@@ -419,7 +419,7 @@ public:
         {
             LocaleConstant loc_idx = pPlayer->GetSession()->GetSessionDbLocaleIndex();
             const char* text = sObjectMgr->GetTrinityString(iTextEntry, loc_idx);
-            sWorld.SendServerMessage(SERVER_MSG_STRING, text, pPlayer);
+            sWorld->SendServerMessage(SERVER_MSG_STRING, text, pPlayer);
         }
 
         void AttackStart(Unit *who)

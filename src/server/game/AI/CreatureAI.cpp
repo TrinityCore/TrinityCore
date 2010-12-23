@@ -51,7 +51,7 @@ void CreatureAI::DoZoneInCombat(Creature* creature)
     Map *map = creature->GetMap();
     if (!map->IsDungeon())                                  //use IsDungeon instead of Instanceable, in case battlegrounds will be instantiated
     {
-        sLog.outError("DoZoneInCombat call for map that isn't an instance (creature entry = %d)", creature->GetTypeId() == TYPEID_UNIT ? creature->ToCreature()->GetEntry() : 0);
+        sLog->outError("DoZoneInCombat call for map that isn't an instance (creature entry = %d)", creature->GetTypeId() == TYPEID_UNIT ? creature->ToCreature()->GetEntry() : 0);
         return;
     }
 
@@ -74,7 +74,7 @@ void CreatureAI::DoZoneInCombat(Creature* creature)
 
     if (!creature->HasReactState(REACT_PASSIVE) && !creature->getVictim())
     {
-        sLog.outError("DoZoneInCombat called for creature that has empty threat list (creature entry = %u)", creature->GetEntry());
+        sLog->outError("DoZoneInCombat called for creature that has empty threat list (creature entry = %u)", creature->GetEntry());
         return;
     }
 
@@ -130,7 +130,7 @@ void CreatureAI::MoveInLineOfSight(Unit *who)
     if (me->canStartAttack(who, false))
         AttackStart(who);
     //else if (who->getVictim() && me->IsFriendlyTo(who)
-    //    && me->IsWithinDistInMap(who, sWorld.getIntConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS))
+    //    && me->IsWithinDistInMap(who, sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_RADIUS))
     //    && me->canStartAttack(who->getVictim(), true)) // TODO: if we use true, it will not attack it when it arrives
     //    me->GetMotionMaster()->MoveChase(who->getVictim());
 }
@@ -140,7 +140,7 @@ void CreatureAI::EnterEvadeMode()
     if (!_EnterEvadeMode())
         return;
 
-    sLog.outDebug("Creature %u enters evade mode.", me->GetEntry());
+    sLog->outDebug("Creature %u enters evade mode.", me->GetEntry());
 
     if (!me->GetVehicle()) // otherwise me will be in evade mode forever
     {

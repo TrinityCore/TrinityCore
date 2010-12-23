@@ -121,7 +121,7 @@ uint32 LootStore::LoadLootTable()
 
         if (maxcount > std::numeric_limits<uint8>::max())
         {
-            sLog.outErrorDb("Table '%s' entry %d item %d: maxcount value (%u) to large. must be less %u - skipped", GetName(), entry, item, maxcount,std::numeric_limits<uint8>::max());
+            sLog->outErrorDb("Table '%s' entry %d item %d: maxcount value (%u) to large. must be less %u - skipped", GetName(), entry, item, maxcount,std::numeric_limits<uint8>::max());
             continue;                                   // error already printed to log/console.
         }
 
@@ -226,12 +226,12 @@ void LootStore::ReportUnusedIds(LootIdSet const& ids_set) const
 {
     // all still listed ids isn't referenced
     for (LootIdSet::const_iterator itr = ids_set.begin(); itr != ids_set.end(); ++itr)
-        sLog.outErrorDb("Table '%s' entry %d isn't %s and not referenced from loot, and then useless.", GetName(), *itr,GetEntryName());
+        sLog->outErrorDb("Table '%s' entry %d isn't %s and not referenced from loot, and then useless.", GetName(), *itr,GetEntryName());
 }
 
 void LootStore::ReportNotExistedId(uint32 id) const
 {
-    sLog.outErrorDb("Table '%s' entry %d (%s) not exist but used as loot id in DB.", GetName(), id,GetEntryName());
+    sLog->outErrorDb("Table '%s' entry %d (%s) not exist but used as loot id in DB.", GetName(), id,GetEntryName());
 }
 
 //
@@ -246,11 +246,11 @@ bool LootStoreItem::Roll(bool rate) const
         return true;
 
     if (mincountOrRef < 0)                                   // reference case
-        return roll_chance_f(chance* (rate ? sWorld.getRate(RATE_DROP_ITEM_REFERENCED) : 1.0f));
+        return roll_chance_f(chance* (rate ? sWorld->getRate(RATE_DROP_ITEM_REFERENCED) : 1.0f));
 
     ItemPrototype const *pProto = ObjectMgr::GetItemPrototype(itemid);
 
-    float qualityModifier = pProto && rate ? sWorld.getRate(qualityToRate[pProto->Quality]) : 1.0f;
+    float qualityModifier = pProto && rate ? sWorld->getRate(qualityToRate[pProto->Quality]) : 1.0f;
 
     return roll_chance_f(chance*qualityModifier);
 }
@@ -260,13 +260,13 @@ bool LootStoreItem::IsValid(LootStore const& store, uint32 entry) const
 {
     if (group >= 1 << 7)                                     // it stored in 7 bit field
     {
-        sLog.outErrorDb("Table '%s' entry %d item %d: group (%u) must be less %u - skipped", store.GetName(), entry, itemid, group, 1 << 7);
+        sLog->outErrorDb("Table '%s' entry %d item %d: group (%u) must be less %u - skipped", store.GetName(), entry, itemid, group, 1 << 7);
         return false;
     }
 
     if (mincountOrRef == 0)
     {
-        sLog.outErrorDb("Table '%s' entry %d item %d: wrong mincountOrRef (%d) - skipped", store.GetName(), entry, itemid, mincountOrRef);
+        sLog->outErrorDb("Table '%s' entry %d item %d: wrong mincountOrRef (%d) - skipped", store.GetName(), entry, itemid, mincountOrRef);
         return false;
     }
 
@@ -275,26 +275,26 @@ bool LootStoreItem::IsValid(LootStore const& store, uint32 entry) const
         ItemPrototype const *proto = ObjectMgr::GetItemPrototype(itemid);
         if (!proto)
         {
-            sLog.outErrorDb("Table '%s' entry %d item %d: item entry not listed in `item_template` - skipped", store.GetName(), entry, itemid);
+            sLog->outErrorDb("Table '%s' entry %d item %d: item entry not listed in `item_template` - skipped", store.GetName(), entry, itemid);
             return false;
         }
 
         if (chance == 0 && group == 0)                      // Zero chance is allowed for grouped entries only
         {
-            sLog.outErrorDb("Table '%s' entry %d item %d: equal-chanced grouped entry, but group not defined - skipped", store.GetName(), entry, itemid);
+            sLog->outErrorDb("Table '%s' entry %d item %d: equal-chanced grouped entry, but group not defined - skipped", store.GetName(), entry, itemid);
             return false;
         }
 
         if (chance != 0 && chance < 0.000001f)             // loot with low chance
         {
-            sLog.outErrorDb("Table '%s' entry %d item %d: low chance (%f) - skipped",
+            sLog->outErrorDb("Table '%s' entry %d item %d: low chance (%f) - skipped",
                 store.GetName(), entry, itemid, chance);
             return false;
         }
 
         if (maxcount < mincountOrRef)                       // wrong max count
         {
-            sLog.outErrorDb("Table '%s' entry %d item %d: max count (%u) less that min count (%i) - skipped", store.GetName(), entry, itemid, int32(maxcount), mincountOrRef);
+            sLog->outErrorDb("Table '%s' entry %d item %d: max count (%u) less that min count (%i) - skipped", store.GetName(), entry, itemid, int32(maxcount), mincountOrRef);
             return false;
         }
 
@@ -302,10 +302,10 @@ bool LootStoreItem::IsValid(LootStore const& store, uint32 entry) const
     else                                                    // mincountOrRef < 0
     {
         if (needs_quest)
-            sLog.outErrorDb("Table '%s' entry %d item %d: quest chance will be treated as non-quest chance", store.GetName(), entry, itemid);
+            sLog->outErrorDb("Table '%s' entry %d item %d: quest chance will be treated as non-quest chance", store.GetName(), entry, itemid);
         else if (chance == 0)                              // no chance for the reference
         {
-            sLog.outErrorDb("Table '%s' entry %d item %d: zero chance is specified for a reference, skipped", store.GetName(), entry, itemid);
+            sLog->outErrorDb("Table '%s' entry %d item %d: zero chance is specified for a reference, skipped", store.GetName(), entry, itemid);
             return false;
         }
     }
@@ -419,7 +419,7 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
     if (!tab)
     {
         if (!noEmptyError)
-            sLog.outErrorDb("Table '%s' loot id #%u used but it doesn't have records.", store.GetName(), lootId);
+            sLog->outErrorDb("Table '%s' loot id #%u used but it doesn't have records.", store.GetName(), lootId);
         return false;
     }
 
@@ -651,11 +651,11 @@ void Loot::generateMoneyLoot(uint32 minAmount, uint32 maxAmount)
     if (maxAmount > 0)
     {
         if (maxAmount <= minAmount)
-            gold = uint32(maxAmount * sWorld.getRate(RATE_DROP_MONEY));
+            gold = uint32(maxAmount * sWorld->getRate(RATE_DROP_MONEY));
         else if ((maxAmount - minAmount) < 32700)
-            gold = uint32(urand(minAmount, maxAmount) * sWorld.getRate(RATE_DROP_MONEY));
+            gold = uint32(urand(minAmount, maxAmount) * sWorld->getRate(RATE_DROP_MONEY));
         else
-            gold = uint32(urand(minAmount >> 8, maxAmount >> 8) * sWorld.getRate(RATE_DROP_MONEY)) << 8;
+            gold = uint32(urand(minAmount >> 8, maxAmount >> 8) * sWorld->getRate(RATE_DROP_MONEY)) << 8;
     }
 }
 
@@ -1128,12 +1128,12 @@ void LootTemplate::LootGroup::Verify(LootStore const& lootstore, uint32 id, uint
     float chance = RawTotalChance();
     if (chance > 101.0f)                                    // TODO: replace with 100% when DBs will be ready
     {
-        sLog.outErrorDb("Table '%s' entry %u group %d has total chance > 100%% (%f)", lootstore.GetName(), id, group_id, chance);
+        sLog->outErrorDb("Table '%s' entry %u group %d has total chance > 100%% (%f)", lootstore.GetName(), id, group_id, chance);
     }
 
     if (chance >= 100.0f && !EqualChanced.empty())
     {
-        sLog.outErrorDb("Table '%s' entry %u group %d has items with chance=0%% but group total chance >= 100%% (%f)", lootstore.GetName(), id, group_id, chance);
+        sLog->outErrorDb("Table '%s' entry %u group %d has items with chance=0%% but group total chance >= 100%% (%f)", lootstore.GetName(), id, group_id, chance);
     }
 }
 
@@ -1233,7 +1233,7 @@ void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId
             if (!Referenced)
                 continue;                                     // Error message already printed at loading stage
 
-            uint32 maxcount = uint32(float(i->maxcount) * sWorld.getRate(RATE_DROP_ITEM_REFERENCED_AMOUNT));
+            uint32 maxcount = uint32(float(i->maxcount) * sWorld->getRate(RATE_DROP_ITEM_REFERENCED_AMOUNT));
             for (uint32 loop = 0; loop < maxcount; ++loop)    // Ref multiplicator
                 Referenced->Process(loot, rate, lootMode, i->group);
         }
@@ -1341,7 +1341,7 @@ bool LootTemplate::addConditionItem(Condition* cond)
 {
     if (!cond || !cond->isLoaded())//should never happen, checked at loading
     {
-        sLog.outError("LootTemplate::addConditionItem: condition is null");
+        sLog->outError("LootTemplate::addConditionItem: condition is null");
         return false;
     }
     if (!Entries.empty())
@@ -1400,7 +1400,7 @@ bool LootTemplate::isReference(uint32 id)
 
 void LoadLootTemplates_Creature()
 {
-    sLog.outString("Loading creature loot templates...");
+    sLog->outString("Loading creature loot templates...");
 
     uint32 oldMSTime = getMSTime();
 
@@ -1428,16 +1428,16 @@ void LoadLootTemplates_Creature()
     LootTemplates_Creature.ReportUnusedIds(ids_set);
 
     if(count)
-        sLog.outString(">> Loaded %u creature loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outString(">> Loaded %u creature loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
-        sLog.outErrorDb(">> Loaded 0 creature loot templates. DB table `creature_loot_template` is empty");
+        sLog->outErrorDb(">> Loaded 0 creature loot templates. DB table `creature_loot_template` is empty");
 
-    sLog.outString();
+    sLog->outString();
 }
 
 void LoadLootTemplates_Disenchant()
 {
-    sLog.outString("Loading disenchanting loot templates...");
+    sLog->outString("Loading disenchanting loot templates...");
 
     uint32 oldMSTime = getMSTime();
 
@@ -1464,15 +1464,15 @@ void LoadLootTemplates_Disenchant()
     LootTemplates_Disenchant.ReportUnusedIds(ids_set);
 
     if(count)
-        sLog.outString(">> Loaded %u disenchanting loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outString(">> Loaded %u disenchanting loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
-        sLog.outErrorDb(">> Loaded 0 disenchanting loot templates. DB table `disenchant_loot_template` is empty");
-    sLog.outString();
+        sLog->outErrorDb(">> Loaded 0 disenchanting loot templates. DB table `disenchant_loot_template` is empty");
+    sLog->outString();
 }
 
 void LoadLootTemplates_Fishing()
 {
-    sLog.outString("Loading fishing loot templates...");
+    sLog->outString("Loading fishing loot templates...");
 
     uint32 oldMSTime = getMSTime();
 
@@ -1489,16 +1489,16 @@ void LoadLootTemplates_Fishing()
     LootTemplates_Fishing.ReportUnusedIds(ids_set);
 
     if(count)
-        sLog.outString(">> Loaded %u fishing loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outString(">> Loaded %u fishing loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
-        sLog.outErrorDb(">> Loaded 0 fishing loot templates. DB table `fishing_loot_template` is empty");
+        sLog->outErrorDb(">> Loaded 0 fishing loot templates. DB table `fishing_loot_template` is empty");
 
-    sLog.outString();
+    sLog->outString();
 }
 
 void LoadLootTemplates_Gameobject()
 {
-    sLog.outString("Loading gameobject loot templates...");
+    sLog->outString("Loading gameobject loot templates...");
 
     uint32 oldMSTime = getMSTime();
 
@@ -1526,16 +1526,16 @@ void LoadLootTemplates_Gameobject()
     LootTemplates_Gameobject.ReportUnusedIds(ids_set);
 
     if(count)
-        sLog.outString(">> Loaded %u gameobject loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outString(">> Loaded %u gameobject loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
-        sLog.outErrorDb(">> Loaded 0 gameobject loot templates. DB table `gameobject_loot_template` is empty");
+        sLog->outErrorDb(">> Loaded 0 gameobject loot templates. DB table `gameobject_loot_template` is empty");
 
-    sLog.outString();
+    sLog->outString();
 }
 
 void LoadLootTemplates_Item()
 {
-    sLog.outString("Loading item loot templates...");
+    sLog->outString("Loading item loot templates...");
 
     uint32 oldMSTime = getMSTime();
 
@@ -1552,16 +1552,16 @@ void LoadLootTemplates_Item()
     LootTemplates_Item.ReportUnusedIds(ids_set);
 
     if(count)
-        sLog.outString(">> Loaded %u prospecting loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outString(">> Loaded %u prospecting loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
-        sLog.outErrorDb(">> Loaded 0 prospecting loot templates. DB table `item_loot_template` is empty");
+        sLog->outErrorDb(">> Loaded 0 prospecting loot templates. DB table `item_loot_template` is empty");
     
-    sLog.outString();
+    sLog->outString();
 }
 
 void LoadLootTemplates_Milling()
 {
-    sLog.outString("Loading milling loot templates...");
+    sLog->outString("Loading milling loot templates...");
 
     uint32 oldMSTime = getMSTime();
 
@@ -1586,16 +1586,16 @@ void LoadLootTemplates_Milling()
     LootTemplates_Milling.ReportUnusedIds(ids_set);
 
     if(count)
-        sLog.outString(">> Loaded %u milling loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outString(">> Loaded %u milling loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
-        sLog.outErrorDb(">> Loaded 0 milling loot templates. DB table `milling_loot_template` is empty");
+        sLog->outErrorDb(">> Loaded 0 milling loot templates. DB table `milling_loot_template` is empty");
 
-    sLog.outString();
+    sLog->outString();
 }
 
 void LoadLootTemplates_Pickpocketing()
 {
-    sLog.outString("Loading pickpocketing loot templates...");
+    sLog->outString("Loading pickpocketing loot templates...");
 
     uint32 oldMSTime = getMSTime();
 
@@ -1623,16 +1623,16 @@ void LoadLootTemplates_Pickpocketing()
     LootTemplates_Pickpocketing.ReportUnusedIds(ids_set);
 
     if(count)
-        sLog.outString(">> Loaded %u pickpocketing loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outString(">> Loaded %u pickpocketing loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
-        sLog.outErrorDb(">> Loaded 0 pickpocketing loot templates. DB table `pickpocketing_loot_template` is empty");
+        sLog->outErrorDb(">> Loaded 0 pickpocketing loot templates. DB table `pickpocketing_loot_template` is empty");
 
-    sLog.outString();
+    sLog->outString();
 }
 
 void LoadLootTemplates_Prospecting()
 {
-    sLog.outString("Loading prospecting loot templates...");
+    sLog->outString("Loading prospecting loot templates...");
 
     uint32 oldMSTime = getMSTime();
 
@@ -1657,16 +1657,16 @@ void LoadLootTemplates_Prospecting()
     LootTemplates_Prospecting.ReportUnusedIds(ids_set);
 
     if(count)
-        sLog.outString(">> Loaded %u prospecting loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outString(">> Loaded %u prospecting loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
-        sLog.outErrorDb(">> Loaded 0 prospecting loot templates. DB table `prospecting_loot_template` is empty");
+        sLog->outErrorDb(">> Loaded 0 prospecting loot templates. DB table `prospecting_loot_template` is empty");
 
-    sLog.outString();
+    sLog->outString();
 }
 
 void LoadLootTemplates_Mail()
 {
-    sLog.outString("Loading mail loot templates...");
+    sLog->outString("Loading mail loot templates...");
 
     uint32 oldMSTime = getMSTime();
 
@@ -1683,16 +1683,16 @@ void LoadLootTemplates_Mail()
     LootTemplates_Mail.ReportUnusedIds(ids_set);
 
     if(count)
-        sLog.outString(">> Loaded %u mail loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outString(">> Loaded %u mail loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
-        sLog.outErrorDb(">> Loaded 0 mail loot templates. DB table `mail_loot_template` is empty");
+        sLog->outErrorDb(">> Loaded 0 mail loot templates. DB table `mail_loot_template` is empty");
 
-    sLog.outString();
+    sLog->outString();
 }
 
 void LoadLootTemplates_Skinning()
 {
-    sLog.outString("Loading skinning loot templates...");
+    sLog->outString("Loading skinning loot templates...");
     
     uint32 oldMSTime = getMSTime();
 
@@ -1720,16 +1720,16 @@ void LoadLootTemplates_Skinning()
     LootTemplates_Skinning.ReportUnusedIds(ids_set);
 
     if(count)
-        sLog.outString(">> Loaded %u skinning loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outString(">> Loaded %u skinning loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
-        sLog.outErrorDb(">> Loaded 0 skinning loot templates. DB table `skinning_loot_template` is empty");
+        sLog->outErrorDb(">> Loaded 0 skinning loot templates. DB table `skinning_loot_template` is empty");
 
-    sLog.outString();
+    sLog->outString();
 }
 
 void LoadLootTemplates_Spell()
 {
-    sLog.outString("Loading spell loot templates...");
+    sLog->outString("Loading spell loot templates...");
 
     uint32 oldMSTime = getMSTime();
 
@@ -1764,15 +1764,15 @@ void LoadLootTemplates_Spell()
     LootTemplates_Spell.ReportUnusedIds(ids_set);
 
     if(count)
-        sLog.outString(">> Loaded %u spell loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outString(">> Loaded %u spell loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
-        sLog.outErrorDb(">> Loaded 0 spell loot templates. DB table `spell_loot_template` is empty");
-    sLog.outString();
+        sLog->outErrorDb(">> Loaded 0 spell loot templates. DB table `spell_loot_template` is empty");
+    sLog->outString();
 }
 
 void LoadLootTemplates_Reference()
 {
-    sLog.outString("Loading reference loot templates...");
+    sLog->outString("Loading reference loot templates...");
 
     uint32 oldMSTime = getMSTime();
 
@@ -1795,6 +1795,6 @@ void LoadLootTemplates_Reference()
     // output error for any still listed ids (not referenced from any loot table)
     LootTemplates_Reference.ReportUnusedIds(ids_set);
 
-    sLog.outString(">> Loaded refence loot templates in %u ms", GetMSTimeDiffToNow(oldMSTime));
-    sLog.outString();
+    sLog->outString(">> Loaded refence loot templates in %u ms", GetMSTimeDiffToNow(oldMSTime));
+    sLog->outString();
 }

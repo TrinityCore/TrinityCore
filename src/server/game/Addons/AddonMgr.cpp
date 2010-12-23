@@ -39,8 +39,8 @@ void AddonMgr::LoadFromDB()
 
     if (!result)
     {
-        sLog.outString(">> Loaded 0 known addons. DB table `addons` is empty!");
-        sLog.outString();
+        sLog->outString(">> Loaded 0 known addons. DB table `addons` is empty!");
+        sLog->outString();
         return;
     }
 
@@ -60,8 +60,8 @@ void AddonMgr::LoadFromDB()
     }
     while (result->NextRow());
 
-    sLog.outString(">> Loaded %u known addons in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    sLog.outString();
+    sLog->outString(">> Loaded %u known addons in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outString();
 }
 
 void AddonMgr::SaveAddon(AddonInfo const& addon)

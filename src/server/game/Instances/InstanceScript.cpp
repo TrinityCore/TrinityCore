@@ -41,7 +41,7 @@ void InstanceScript::HandleGameObject(uint64 GUID, bool open, GameObject *go)
     if (go)
         go->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
     else
-        sLog.outDebug("TSCR: InstanceScript: HandleGameObject failed");
+        sLog->outDebug("TSCR: InstanceScript: HandleGameObject failed");
 }
 
 bool InstanceScript::IsEncounterInProgress() const
@@ -62,7 +62,7 @@ void InstanceScript::LoadMinionData(const MinionData *data)
 
         ++data;
     }
-    sLog.outDebug("InstanceScript::LoadMinionData: " UI64FMTD " minions loaded.", uint64(minions.size()));
+    sLog->outDebug("InstanceScript::LoadMinionData: " UI64FMTD " minions loaded.", uint64(minions.size()));
 }
 
 void InstanceScript::LoadDoorData(const DoorData *data)
@@ -74,7 +74,7 @@ void InstanceScript::LoadDoorData(const DoorData *data)
 
         ++data;
     }
-    sLog.outDebug("InstanceScript::LoadDoorData: " UI64FMTD " doors loaded.", uint64(doors.size()));
+    sLog->outDebug("InstanceScript::LoadDoorData: " UI64FMTD " doors loaded.", uint64(doors.size()));
 }
 
 void InstanceScript::UpdateMinionState(Creature *minion, EncounterState state)
@@ -127,7 +127,7 @@ void InstanceScript::UpdateDoorState(GameObject *door)
     }
 
     door->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
-    //sLog.outError("Door %u is %s.", door->GetEntry(), open ? "opened" : "closed");
+    //sLog->outError("Door %u is %s.", door->GetEntry(), open ? "opened" : "closed");
 }
 
 void InstanceScript::AddDoor(GameObject *door, bool add)
@@ -193,7 +193,7 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
         if (bossInfo->state == TO_BE_DECIDED) // loading
         {
             bossInfo->state = state;
-            //sLog.outError("Inialize boss %u state as %u.", id, (uint32)state);
+            //sLog->outError("Inialize boss %u state as %u.", id, (uint32)state);
             return false;
         }
         else
@@ -263,7 +263,7 @@ void InstanceScript::DoUseDoorOrButton(uint64 uiGuid, uint32 uiWithRestoreTime, 
                 pGo->ResetDoorOrButton();
         }
         else
-            sLog.outError("SD2: Script call DoUseDoorOrButton, but gameobject entry %u is type %u.",pGo->GetEntry(),pGo->GetGoType());
+            sLog->outError("SD2: Script call DoUseDoorOrButton, but gameobject entry %u is type %u.",pGo->GetEntry(),pGo->GetGoType());
     }
 }
 
@@ -294,7 +294,7 @@ void InstanceScript::DoUpdateWorldState(uint32 uiStateId, uint32 uiStateData)
                 pPlayer->SendUpdateWorldState(uiStateId, uiStateData);
     }
     else
-        sLog.outDebug("TSCR: DoUpdateWorldState attempt send data but no players in map.");
+        sLog->outDebug("TSCR: DoUpdateWorldState attempt send data but no players in map.");
 }
 
 // Send Notify to all players in instance
@@ -325,7 +325,7 @@ void InstanceScript::DoCompleteAchievement(uint32 achievement)
 
     if (!pAE)
     {
-        sLog.outError("TSCR: DoCompleteAchievement called for not existing achievement %u", achievement);
+        sLog->outError("TSCR: DoCompleteAchievement called for not existing achievement %u", achievement);
         return;
     }
 
@@ -381,7 +381,7 @@ void InstanceScript::DoRemoveAurasDueToSpellOnPlayers(uint32 spell)
 
 bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/ /*= NULL*/, uint32 /*miscvalue1*/ /*= 0*/)
 {
-    sLog.outError("Achievement system call InstanceScript::CheckAchievementCriteriaMeet but instance script for map %u not have implementation for achievement criteria %u",
+    sLog->outError("Achievement system call InstanceScript::CheckAchievementCriteriaMeet but instance script for map %u not have implementation for achievement criteria %u",
         instance->GetId(),criteria_id);
     return false;
 }

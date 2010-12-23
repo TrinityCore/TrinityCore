@@ -239,7 +239,7 @@ public:
         uint32 icon = atol(icon_text);
         uint32 flags = atol(flags_text);
 
-        sLog.outDetail("Command : POI, NPC = %u, icon = %u flags = %u", target->GetGUIDLow(), icon,flags);
+        sLog->outDetail("Command : POI, NPC = %u, icon = %u flags = %u", target->GetGUIDLow(), icon,flags);
         pPlayer->PlayerTalkClass->SendPointOfInterest(target->GetPositionX(), target->GetPositionY(), Poi_Icon(icon), flags, 30, "Test POI");
         return true;
     }
@@ -391,12 +391,12 @@ public:
             }
             else
             {
-                sLog.outDebug("Sending opcode: unknown type '%s'", type.c_str());
+                sLog->outDebug("Sending opcode: unknown type '%s'", type.c_str());
                 break;
             }
         }
         ifs.close();
-        sLog.outDebug("Sending opcode %u", data.GetOpcode());
+        sLog->outDebug("Sending opcode %u", data.GetOpcode());
         data.hexlike();
         player->GetSession()->SendPacket(&data);
         handler->PSendSysMessage(LANG_COMMAND_OPCODESENT, data.GetOpcode(), unit->GetName());
@@ -1053,14 +1053,14 @@ public:
         if (isint32)
         {
             iValue = (uint32)atoi(py);
-            sLog.outDebug(handler->GetTrinityString(LANG_SET_UINT), GUID_LOPART(guid), Opcode, iValue);
+            sLog->outDebug(handler->GetTrinityString(LANG_SET_UINT), GUID_LOPART(guid), Opcode, iValue);
             target->SetUInt32Value(Opcode , iValue);
             handler->PSendSysMessage(LANG_SET_UINT_FIELD, GUID_LOPART(guid), Opcode,iValue);
         }
         else
         {
             fValue = (float)atof(py);
-            sLog.outDebug(handler->GetTrinityString(LANG_SET_FLOAT), GUID_LOPART(guid), Opcode, fValue);
+            sLog->outDebug(handler->GetTrinityString(LANG_SET_FLOAT), GUID_LOPART(guid), Opcode, fValue);
             target->SetFloatValue(Opcode , fValue);
             handler->PSendSysMessage(LANG_SET_FLOAT_FIELD, GUID_LOPART(guid), Opcode,fValue);
         }
@@ -1104,13 +1104,13 @@ public:
         if (isint32)
         {
             iValue = target->GetUInt32Value(Opcode);
-            sLog.outDebug(handler->GetTrinityString(LANG_GET_UINT), GUID_LOPART(guid), Opcode, iValue);
+            sLog->outDebug(handler->GetTrinityString(LANG_GET_UINT), GUID_LOPART(guid), Opcode, iValue);
             handler->PSendSysMessage(LANG_GET_UINT_FIELD, GUID_LOPART(guid), Opcode,    iValue);
         }
         else
         {
             fValue = target->GetFloatValue(Opcode);
-            sLog.outDebug(handler->GetTrinityString(LANG_GET_FLOAT), GUID_LOPART(guid), Opcode, fValue);
+            sLog->outDebug(handler->GetTrinityString(LANG_GET_FLOAT), GUID_LOPART(guid), Opcode, fValue);
             handler->PSendSysMessage(LANG_GET_FLOAT_FIELD, GUID_LOPART(guid), Opcode, fValue);
         }
 
@@ -1137,7 +1137,7 @@ public:
             return false;
         }
 
-        sLog.outDebug(handler->GetTrinityString(LANG_CHANGE_32BIT), Opcode, Value);
+        sLog->outDebug(handler->GetTrinityString(LANG_CHANGE_32BIT), Opcode, Value);
 
         int CurrentValue = (int)handler->GetSession()->GetPlayer()->GetUInt32Value(Opcode);
 
@@ -1223,7 +1223,7 @@ public:
         if (Value > 32)                                         //uint32 = 32 bits
             return false;
 
-        sLog.outDebug(handler->GetTrinityString(LANG_SET_32BIT), Opcode, Value);
+        sLog->outDebug(handler->GetTrinityString(LANG_SET_32BIT), Opcode, Value);
 
         uint32 iValue = Value ? 1 << (Value - 1) : 0;
         target->SetUInt32Value(Opcode ,  iValue);

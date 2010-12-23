@@ -64,7 +64,7 @@ class DatabaseWorkerPool
 
         ~DatabaseWorkerPool()
         {
-            sLog.outSQLDriver("~DatabaseWorkerPool for '%s'.", m_connectionInfo.database.c_str());
+            sLog->outSQLDriver("~DatabaseWorkerPool for '%s'.", m_connectionInfo.database.c_str());
             mysql_library_end();
         }
 
@@ -72,7 +72,7 @@ class DatabaseWorkerPool
         {
             m_connectionInfo = MySQLConnectionInfo(infoString);
 
-            sLog.outSQLDriver("Opening databasepool '%s'. Async threads: %u, synch threads: %u", m_connectionInfo.database.c_str(), async_threads, synch_threads);
+            sLog->outSQLDriver("Opening databasepool '%s'. Async threads: %u, synch threads: %u", m_connectionInfo.database.c_str(), async_threads, synch_threads);
 
             /// Open asynchronous connections (delayed operations)
             m_connections[IDX_ASYNC].resize(async_threads);
@@ -94,13 +94,13 @@ class DatabaseWorkerPool
                 ++m_connectionCount[IDX_SYNCH];
             }
 
-            sLog.outSQLDriver("Databasepool opened succesfuly. %u total connections running.", (m_connectionCount[IDX_SYNCH] + m_connectionCount[IDX_ASYNC]));
+            sLog->outSQLDriver("Databasepool opened succesfuly. %u total connections running.", (m_connectionCount[IDX_SYNCH] + m_connectionCount[IDX_ASYNC]));
             return true;
         }
 
         void Close()
         {
-            sLog.outSQLDriver("Closing down databasepool '%s'.", m_connectionInfo.database.c_str());
+            sLog->outSQLDriver("Closing down databasepool '%s'.", m_connectionInfo.database.c_str());
 
             /// Shuts down delaythreads for this connection pool.
             m_queue->queue()->deactivate();
@@ -118,7 +118,7 @@ class DatabaseWorkerPool
                 --m_connectionCount[IDX_ASYNC];
             }
 
-            sLog.outSQLDriver("Asynchronous connections on databasepool '%s' terminated. Proceeding with synchronous connections.", m_connectionInfo.database.c_str());
+            sLog->outSQLDriver("Asynchronous connections on databasepool '%s' terminated. Proceeding with synchronous connections.", m_connectionInfo.database.c_str());
 
             /// Shut down the synchronous connections
             for (uint8 i = 0; i < m_connectionCount[IDX_SYNCH]; ++i)
@@ -130,7 +130,7 @@ class DatabaseWorkerPool
                 --m_connectionCount[IDX_SYNCH];
             }
 
-            sLog.outSQLDriver("All connections on databasepool %s closed.", m_connectionInfo.database.c_str());
+            sLog->outSQLDriver("All connections on databasepool %s closed.", m_connectionInfo.database.c_str());
         }
 
         /** 
@@ -335,15 +335,15 @@ class DatabaseWorkerPool
         //! were appended to the transaction will be respected during execution.
         void CommitTransaction(SQLTransaction transaction)
         {
-            if (sLog.GetSQLDriverQueryLogging())
+            if (sLog->GetSQLDriverQueryLogging())
             {
                 switch (transaction->GetSize())
                 {
                     case 0:
-                        sLog.outSQLDriver("Transaction contains 0 queries. Not executing.");
+                        sLog->outSQLDriver("Transaction contains 0 queries. Not executing.");
                         return;
                     case 1:
-                        sLog.outSQLDriver("Warning: Transaction only holds 1 query, consider removing Transaction context in code.");
+                        sLog->outSQLDriver("Warning: Transaction only holds 1 query, consider removing Transaction context in code.");
                         break;
                     default:
                         break;

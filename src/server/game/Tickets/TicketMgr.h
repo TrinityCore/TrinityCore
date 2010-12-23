@@ -137,7 +137,7 @@ public:
 
     void Initialize()
     {
-        SetStatus(sWorld.getBoolConfig(CONFIG_ALLOW_TICKETS));
+        SetStatus(sWorld->getBoolConfig(CONFIG_ALLOW_TICKETS));
     }
 
     GM_Ticket *GetOldestOpenGMTicket()

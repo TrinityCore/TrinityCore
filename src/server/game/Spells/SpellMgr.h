@@ -1070,7 +1070,7 @@ class SpellMgr
             uint32 mode = uint32(Caster->GetMap()->GetSpawnMode());
             if (mode >= MAX_DIFFICULTY)
             {
-                sLog.outError("GetSpellForDifficultyFromSpell: Incorrect Difficulty for spell %u.", spell->Id);
+                sLog->outError("GetSpellForDifficultyFromSpell: Incorrect Difficulty for spell %u.", spell->Id);
                 return spell;//return source spell
             }
             uint32 SpellDiffId = GetSpellDifficultyId(spell->Id);
@@ -1080,27 +1080,27 @@ class SpellMgr
             SpellDifficultyEntry const *SpellDiff = sSpellDifficultyStore.LookupEntry(SpellDiffId);
             if (!SpellDiff)
             {
-                sLog.outDebug("GetSpellForDifficultyFromSpell: SpellDifficultyEntry not found for spell %u. This Should never happen.", spell->Id);
+                sLog->outDebug("GetSpellForDifficultyFromSpell: SpellDifficultyEntry not found for spell %u. This Should never happen.", spell->Id);
                 return spell;//return source spell
             }
             if (SpellDiff->SpellID[mode] <= 0 && mode > DUNGEON_DIFFICULTY_HEROIC)
             {
                 uint8 baseMode = mode;
                 mode -= 2;
-                sLog.outDebug("GetSpellForDifficultyFromSpell: spell %u mode %u spell is NULL, using mode %u", spell->Id, baseMode, mode);
+                sLog->outDebug("GetSpellForDifficultyFromSpell: spell %u mode %u spell is NULL, using mode %u", spell->Id, baseMode, mode);
             }
             if (SpellDiff->SpellID[mode] <= 0)
             {
-                sLog.outErrorDb("GetSpellForDifficultyFromSpell: spell %u mode %u spell is 0. Check spelldifficulty_dbc!", spell->Id, mode);
+                sLog->outErrorDb("GetSpellForDifficultyFromSpell: spell %u mode %u spell is 0. Check spelldifficulty_dbc!", spell->Id, mode);
                 return spell;
             }
             SpellEntry const*  newSpell = sSpellStore.LookupEntry(SpellDiff->SpellID[mode]);
             if (!newSpell)
             {
-                sLog.outDebug("GetSpellForDifficultyFromSpell: spell %u not found in SpellStore. Check spelldifficulty_dbc!", SpellDiff->SpellID[mode]);
+                sLog->outDebug("GetSpellForDifficultyFromSpell: spell %u not found in SpellStore. Check spelldifficulty_dbc!", SpellDiff->SpellID[mode]);
                 return spell;
             }
-            sLog.outDebug("GetSpellForDifficultyFromSpell: spellid for spell %u in mode %u is %u ", spell->Id, mode, newSpell->Id);
+            sLog->outDebug("GetSpellForDifficultyFromSpell: spellid for spell %u in mode %u is %u ", spell->Id, mode, newSpell->Id);
             return newSpell;
         }
 

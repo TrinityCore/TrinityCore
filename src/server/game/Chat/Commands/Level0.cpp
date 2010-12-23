@@ -84,14 +84,14 @@ bool ChatHandler::HandleStartCommand(const char* /*args*/)
 
 bool ChatHandler::HandleServerInfoCommand(const char* /*args*/)
 {
-    uint32 PlayersNum = sWorld.GetPlayerCount();
-    uint32 MaxPlayersNum = sWorld.GetMaxPlayerCount();
-    uint32 activeClientsNum = sWorld.GetActiveSessionCount();
-    uint32 queuedClientsNum = sWorld.GetQueuedSessionCount();
-    uint32 maxActiveClientsNum = sWorld.GetMaxActiveSessionCount();
-    uint32 maxQueuedClientsNum = sWorld.GetMaxQueuedSessionCount();
-    std::string uptime = secsToTimeString(sWorld.GetUptime());
-    uint32 updateTime = sWorld.GetUpdateTime();
+    uint32 PlayersNum = sWorld->GetPlayerCount();
+    uint32 MaxPlayersNum = sWorld->GetMaxPlayerCount();
+    uint32 activeClientsNum = sWorld->GetActiveSessionCount();
+    uint32 queuedClientsNum = sWorld->GetQueuedSessionCount();
+    uint32 maxActiveClientsNum = sWorld->GetMaxActiveSessionCount();
+    uint32 maxQueuedClientsNum = sWorld->GetMaxQueuedSessionCount();
+    std::string uptime = secsToTimeString(sWorld->GetUptime());
+    uint32 updateTime = sWorld->GetUpdateTime();
 
     PSendSysMessage(_FULLVERSION);
     PSendSysMessage(LANG_CONNECTED_PLAYERS, PlayersNum, MaxPlayersNum);
@@ -137,7 +137,7 @@ bool ChatHandler::HandleSaveCommand(const char* /*args*/)
     }
 
     // save if the player has last been saved over 20 seconds ago
-    uint32 save_interval = sWorld.getIntConfig(CONFIG_INTERVAL_SAVE);
+    uint32 save_interval = sWorld->getIntConfig(CONFIG_INTERVAL_SAVE);
     if (save_interval == 0 || (save_interval > 20*IN_MILLISECONDS && player->GetSaveTimer() <= save_interval - 20*IN_MILLISECONDS))
         player->SaveToDB();
 
@@ -147,7 +147,7 @@ bool ChatHandler::HandleSaveCommand(const char* /*args*/)
 /// Display the 'Message of the day' for the realm
 bool ChatHandler::HandleServerMotdCommand(const char* /*args*/)
 {
-    PSendSysMessage(LANG_MOTD_CURRENT, sWorld.GetMotd());
+    PSendSysMessage(LANG_MOTD_CURRENT, sWorld->GetMotd());
     return true;
 }
 
