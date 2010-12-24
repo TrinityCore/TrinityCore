@@ -58,7 +58,7 @@ void WorldSession::SendNameQueryOpcode(Player *p)
 
 void WorldSession::SendNameQueryOpcodeFromDB(uint64 guid)
 {
-    ACE_Future<QueryResult> lFutureResult =
+    QueryResultFuture lFutureResult =
         CharacterDatabase.AsyncPQuery(
             !sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED) ?
         //   ------- Query Without Declined Names --------
