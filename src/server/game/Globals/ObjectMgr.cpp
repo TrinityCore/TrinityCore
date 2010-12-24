@@ -1179,92 +1179,232 @@ void ObjectMgr::LoadCreatureModelInfo()
     sLog->outString();
 }
 
-bool ObjectMgr::CheckCreatureLinkedRespawn(uint32 guid, uint32 linkedGuid) const
-{
-    const CreatureData* const slave = GetCreatureData(guid);
-    const CreatureData* const master = GetCreatureData(linkedGuid);
-
-    if (!slave || !master) // they must have a corresponding entry in db
-    {
-        sLog->outErrorDb("LinkedRespawn: Creature '%u' linking to '%u' which doesn't exist",guid,linkedGuid);
-        return false;
-    }
-
-    const MapEntry* const map = sMapStore.LookupEntry(master->mapid);
-
-    if (master->mapid != slave->mapid        // link only to same map
-        && (!map || map->Instanceable()))   // or to unistanced world
-    {
-        sLog->outErrorDb("LinkedRespawn: Creature '%u' linking to '%u' on an unpermitted map",guid,linkedGuid);
-        return false;
-    }
-
-    if (!(master->spawnMask & slave->spawnMask)  // they must have a possibility to meet (normal/heroic difficulty)
-        && (!map || map->Instanceable()))
-    {
-        sLog->outErrorDb("LinkedRespawn: Creature '%u' linking to '%u' with not corresponding spawnMask",guid,linkedGuid);
-        return false;
-    }
-
-    return true;
-}
-
-void ObjectMgr::LoadCreatureLinkedRespawn()
+void ObjectMgr::LoadLinkedRespawn()
 {
     uint32 oldMSTime = getMSTime();
 
-    mCreatureLinkedRespawnMap.clear();
-    QueryResult result = WorldDatabase.Query("SELECT guid, linkedGuid FROM creature_linked_respawn ORDER BY guid ASC");
+    mLinkedRespawnMap.clear();
+    QueryResult result = WorldDatabase.Query("SELECT guid, linkedGuid, linkType FROM linked_respawn ORDER BY guid ASC");
 
     if (!result)
     {
-        sLog->outErrorDb(">> Loaded 0 linked respawns. DB table `creature_linked_respawn` is empty.");
+        sLog->outErrorDb(">> Loaded 0 linked respawns. DB table `linked_respawn` is empty.");
         sLog->outString();
         return;
     }
-
 
     do
     {
         Field *fields = result->Fetch();
 
-        uint32 guid = fields[0].GetUInt32();
-        uint32 linkedGuid = fields[1].GetUInt32();
+        uint32 guidLow = fields[0].GetUInt32();
+        uint32 linkedGuidLow = fields[1].GetUInt32();
+        uint8  linkType = fields[2].GetUInt8();
 
-        if (CheckCreatureLinkedRespawn(guid,linkedGuid))
-            mCreatureLinkedRespawnMap[guid] = linkedGuid;
+        uint64 guid, linkedGuid;
+        bool error = false;
+        switch (linkType)
+        {
+            case CREATURE_TO_CREATURE:
+            {
+                const CreatureData* slave = GetCreatureData(guidLow);
+                if (!slave)
+                {
+                    sLog->outErrorDb("Couldn't get creature data for GUIDLow %u", guidLow);
+                    error = true;
+                    break;
+                }
 
-    } while (result->NextRow());
+                const CreatureData* master = GetCreatureData(linkedGuidLow);
+                if (!master)
+                {
+                    sLog->outErrorDb("Couldn't get creature data for GUIDLow %u", linkedGuidLow);
+                    error = true;
+                    break;
+                }
 
-    sLog->outString(">> Loaded " UI64FMTD " linked respawns in %u ms", uint64(mCreatureLinkedRespawnMap.size()), GetMSTimeDiffToNow(oldMSTime));
+                const MapEntry* const map = sMapStore.LookupEntry(master->mapid);
+                if (!map || !map->Instanceable() || (master->mapid != slave->mapid))
+                {
+                    sLog->outErrorDb("Creature '%u' linking to '%u' on an unpermitted map.", guidLow, linkedGuidLow);
+                    error = true;
+                    break;
+                }
+
+                if (!(master->spawnMask & slave->spawnMask))  // they must have a possibility to meet (normal/heroic difficulty)
+                {
+                    sLog->outErrorDb("LinkedRespawn: Creature '%u' linking to '%u' with not corresponding spawnMask", guidLow, linkedGuidLow);
+                    error = true;
+                    break;
+                }
+                
+                guid = MAKE_NEW_GUID(guidLow, slave->id, HIGHGUID_UNIT);
+                linkedGuid = MAKE_NEW_GUID(linkedGuidLow, master->id, HIGHGUID_UNIT);
+                break;
+            }
+            case CREATURE_TO_GO:
+            {
+                const CreatureData* slave = GetCreatureData(guidLow);
+                if (!slave)
+                {
+                    sLog->outErrorDb("Couldn't get creature data for GUIDLow %u", guidLow);
+                    error = true;
+                    break;
+                }
+
+                const GameObjectData* master = GetGOData(linkedGuidLow);
+                if (!master)
+                {
+                    sLog->outErrorDb("Couldn't get gameobject data for GUIDLow %u", linkedGuidLow);
+                    error = true;
+                    break;
+                }
+
+                const MapEntry* const map = sMapStore.LookupEntry(master->mapid);
+                if (!map || !map->Instanceable() || (master->mapid != slave->mapid))
+                {
+                    sLog->outErrorDb("Creature '%u' linking to '%u' on an unpermitted map.", guidLow, linkedGuidLow);
+                    error = true;
+                    break;
+                }
+
+                if (!(master->spawnMask & slave->spawnMask))  // they must have a possibility to meet (normal/heroic difficulty)
+                {
+                    sLog->outErrorDb("LinkedRespawn: Creature '%u' linking to '%u' with not corresponding spawnMask", guidLow, linkedGuidLow);
+                    error = true;
+                    break;
+                }
+
+                guid = MAKE_NEW_GUID(guidLow, slave->id, HIGHGUID_UNIT);
+                linkedGuid = MAKE_NEW_GUID(linkedGuidLow, master->id, HIGHGUID_GAMEOBJECT);
+                break;
+            }
+            case GO_TO_GO:
+            {
+                const GameObjectData* slave = GetGOData(guidLow);
+                if (!slave)
+                {
+                    sLog->outErrorDb("Couldn't get gameobject data for GUIDLow %u", guidLow);
+                    error = true;
+                    break;
+                }
+
+                const GameObjectData* master = GetGOData(linkedGuidLow);
+                if (!master)
+                {
+                    sLog->outErrorDb("Couldn't get gameobject data for GUIDLow %u", linkedGuidLow);
+                    error = true;
+                    break;
+                }
+
+                const MapEntry* const map = sMapStore.LookupEntry(master->mapid);
+                if (!map || !map->Instanceable() || (master->mapid != slave->mapid))
+                {
+                    sLog->outErrorDb("Creature '%u' linking to '%u' on an unpermitted map.", guidLow, linkedGuidLow);
+                    error = true;
+                    break;
+                }
+
+                if (!(master->spawnMask & slave->spawnMask))  // they must have a possibility to meet (normal/heroic difficulty)
+                {
+                    sLog->outErrorDb("LinkedRespawn: Creature '%u' linking to '%u' with not corresponding spawnMask", guidLow, linkedGuidLow);
+                    error = true;
+                    break;
+                }
+
+                guid = MAKE_NEW_GUID(guidLow, slave->id, HIGHGUID_GAMEOBJECT);
+                linkedGuid = MAKE_NEW_GUID(linkedGuidLow, master->id, HIGHGUID_GAMEOBJECT);
+                break;
+            }
+            case GO_TO_CREATURE:
+            {
+                const GameObjectData* slave = GetGOData(guidLow);
+                if (!slave)
+                {
+                    sLog->outErrorDb("Couldn't get gameobject data for GUIDLow %u", guidLow);
+                    error = true;
+                    break;
+                }
+
+                const CreatureData* master = GetCreatureData(linkedGuidLow);
+                if (!master)
+                {
+                    sLog->outErrorDb("Couldn't get creature data for GUIDLow %u", linkedGuidLow);
+                    error = true;
+                    break;
+                }    
+                
+                const MapEntry* const map = sMapStore.LookupEntry(master->mapid);
+                if (!map || !map->Instanceable() || (master->mapid != slave->mapid))
+                {
+                    sLog->outErrorDb("Creature '%u' linking to '%u' on an unpermitted map.", guidLow, linkedGuidLow);
+                    error = true;
+                    break;
+                }
+
+                if (!(master->spawnMask & slave->spawnMask))  // they must have a possibility to meet (normal/heroic difficulty)
+                {
+                    sLog->outErrorDb("LinkedRespawn: Creature '%u' linking to '%u' with not corresponding spawnMask", guidLow, linkedGuidLow);
+                    error = true;
+                    break;
+                }
+
+                guid = MAKE_NEW_GUID(guidLow, slave->id, HIGHGUID_GAMEOBJECT);
+                linkedGuid = MAKE_NEW_GUID(linkedGuidLow, master->id, HIGHGUID_UNIT);
+                break;
+            }
+        }
+
+        if (!error)
+            mLinkedRespawnMap[guid] = linkedGuid;
+
+    }
+    while (result->NextRow());
+
+    sLog->outString(">> Loaded " UI64FMTD " linked respawns in %u ms", uint64(mLinkedRespawnMap.size()), GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
 }
 
-bool ObjectMgr::SetCreatureLinkedRespawn(uint32 guid, uint32 linkedGuid)
+bool ObjectMgr::SetCreatureLinkedRespawn(uint32 guidLow, uint32 linkedGuidLow)
 {
-    if (!guid)
+    if (!guidLow)
         return false;
 
-    if (!linkedGuid) // we're removing the linking
+    const CreatureData* master = GetCreatureData(guidLow);
+    uint64 guid = MAKE_NEW_GUID(guidLow, master->id, HIGHGUID_UNIT);
+
+    if (!linkedGuidLow) // we're removing the linking
     {
-        mCreatureLinkedRespawnMap.erase(guid);
+        mLinkedRespawnMap.erase(guid);
         PreparedStatement *stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_CRELINKED_RESPAWN);
-        stmt->setUInt32(0, guid);
+        stmt->setUInt32(0, guidLow);
         WorldDatabase.Execute(stmt);
         return true;
     }
 
-    if (CheckCreatureLinkedRespawn(guid,linkedGuid)) // we add/change linking
+    const CreatureData* slave = GetCreatureData(linkedGuidLow);
+
+    const MapEntry* const map = sMapStore.LookupEntry(master->mapid);
+    if (!map || !map->Instanceable() || (master->mapid != slave->mapid))
     {
-        mCreatureLinkedRespawnMap[guid] = linkedGuid;
-        PreparedStatement *stmt = WorldDatabase.GetPreparedStatement(WORLD_REP_CRELINKED_RESPAWN);
-        stmt->setUInt32(0, guid);
-        stmt->setUInt32(1, linkedGuid);
-        WorldDatabase.Execute(stmt);
-        return true;
+        sLog->outErrorDb("Creature '%u' linking to '%u' on an unpermitted map.", guidLow, linkedGuidLow);
+        return false;
     }
 
-    return false;
+    if (!(master->spawnMask & slave->spawnMask))  // they must have a possibility to meet (normal/heroic difficulty)
+    {
+        sLog->outErrorDb("LinkedRespawn: Creature '%u' linking to '%u' with not corresponding spawnMask", guidLow, linkedGuidLow);
+        return false;
+    }
+                
+    uint64 linkedGuid = MAKE_NEW_GUID(linkedGuidLow, slave->id, HIGHGUID_UNIT);
+
+    mLinkedRespawnMap[guid] = linkedGuid;
+    PreparedStatement *stmt = WorldDatabase.GetPreparedStatement(WORLD_REP_CRELINKED_RESPAWN);
+    stmt->setUInt32(0, guidLow);
+    stmt->setUInt32(1, linkedGuidLow);
+    WorldDatabase.Execute(stmt);
+    return true;
 }
 
 void ObjectMgr::LoadCreatures()

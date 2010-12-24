@@ -609,10 +609,6 @@ class Creature : public Unit, public GridObject<Creature>
         float GetRespawnRadius() const { return m_respawnradius; }
         void SetRespawnRadius(float dist) { m_respawnradius = dist; }
 
-        // Linked Creature Respawning System
-        time_t GetLinkedCreatureRespawnTime() const;
-        const CreatureData* GetLinkedRespawnCreatureData() const;
-
         uint32 m_groupLootTimer;                            // (msecs)timer used for group loot
         uint32 lootingGroupLowGUID;                         // used to find group which is looting corpse
 

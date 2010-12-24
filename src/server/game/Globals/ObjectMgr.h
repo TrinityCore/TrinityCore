@@ -379,7 +379,7 @@ struct TrinityStringLocale
     StringVector Content;
 };
 
-typedef std::map<uint32,uint32> CreatureLinkedRespawnMap;
+typedef std::map<uint64,uint64> LinkedRespawnMap;
 typedef UNORDERED_MAP<uint32,CreatureData> CreatureDataMap;
 typedef UNORDERED_MAP<uint32,GameObjectData> GameObjectDataMap;
 typedef UNORDERED_MAP<uint32,CreatureLocale> CreatureLocaleMap;
@@ -866,7 +866,6 @@ class ObjectMgr
         void CheckCreatureTemplate(CreatureInfo const* cInfo);
         void LoadCreatures();
         void LoadCreatureLinkedRespawn();
-        bool CheckCreatureLinkedRespawn(uint32 guid, uint32 linkedGuid) const;
         bool SetCreatureLinkedRespawn(uint32 guid, uint32 linkedGuid);
         void LoadCreatureRespawnTimes();
         void LoadCreatureAddons();
@@ -980,10 +979,10 @@ class ObjectMgr
         }
         CreatureData& NewOrExistCreatureData(uint32 guid) { return mCreatureDataMap[guid]; }
         void DeleteCreatureData(uint32 guid);
-        uint32 GetLinkedRespawnGuid(uint32 guid) const
+        uint64 GetLinkedRespawnGuid(uint64 guid) const
         {
-            CreatureLinkedRespawnMap::const_iterator itr = mCreatureLinkedRespawnMap.find(guid);
-            if (itr == mCreatureLinkedRespawnMap.end()) return 0;
+            LinkedRespawnMap::const_iterator itr = mLinkedRespawnMap.find(guid);
+            if (itr == mLinkedRespawnMap.end()) return 0;
             return itr->second;
         }
         CreatureLocale const* GetCreatureLocale(uint32 entry) const
@@ -1072,6 +1071,20 @@ class ObjectMgr
 
         void AddCorpseCellData(uint32 mapid, uint32 cellid, uint32 player_guid, uint32 instance);
         void DeleteCorpseCellData(uint32 mapid, uint32 cellid, uint32 player_guid);
+
+        time_t GetLinkedRespawnTime(uint64 guid, uint32 instance)
+        {
+            uint64 linkedGuid = GetLinkedRespawnGuid(guid);
+            switch (GUID_HIPART(linkedGuid))
+            {
+                case HIGHGUID_UNIT:
+                    return GetCreatureRespawnTime(GUID_LOPART(linkedGuid), instance);
+                case HIGHGUID_GAMEOBJECT:
+                    return GetGORespawnTime(GUID_LOPART(linkedGuid), instance);
+                default:
+                    return 0;
+             }
+        }
 
         time_t GetCreatureRespawnTime(uint32 loguid, uint32 instance)
         {
@@ -1319,7 +1332,7 @@ class ObjectMgr
 
         MapObjectGuids mMapObjectGuids;
         CreatureDataMap mCreatureDataMap;
-        CreatureLinkedRespawnMap mCreatureLinkedRespawnMap;
+        LinkedRespawnMap mLinkedRespawnMap;
         CreatureLocaleMap mCreatureLocaleMap;
         GameObjectDataMap mGameObjectDataMap;
         GameObjectLocaleMap mGameObjectLocaleMap;
@@ -1342,6 +1355,14 @@ class ObjectMgr
 
         std::set<uint32> difficultyEntries[MAX_DIFFICULTY - 1]; // already loaded difficulty 1 value in creatures, used in CheckCreatureTemplate
         std::set<uint32> hasDifficultyEntries[MAX_DIFFICULTY - 1]; // already loaded creatures with difficulty 1 values, used in CheckCreatureTemplate
+
+        enum CreatureLinkedRespawnType
+        {
+            CREATURE_TO_CREATURE,
+            CREATURE_TO_GO,         // Creature is dependant on GO
+            GO_TO_GO,
+            GO_TO_CREATURE,         // GO is dependant on creature
+        };
 
 };
 
