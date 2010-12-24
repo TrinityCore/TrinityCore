@@ -1349,7 +1349,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadCreatures();
 
     sLog->outString("Loading Creature Linked Respawn...");
-    sObjectMgr->LoadCreatureLinkedRespawn();                     // must be after LoadCreatures()
+    sObjectMgr->LoadLinkedRespawn();                     // must be after LoadCreatures()
 
     sLog->outString("Loading pet levelup spells...");
     sSpellMgr->LoadPetLevelupSpellMap();
