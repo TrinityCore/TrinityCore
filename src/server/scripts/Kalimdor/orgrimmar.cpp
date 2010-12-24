@@ -31,15 +31,6 @@ EndContentData */
 #include "ScriptPCH.h"
 
 /*######
-## npc_neeru_fireblade
-######*/
-
-#define QUEST_5727  5727
-
-#define GOSSIP_HNF "You may speak frankly, Neeru..."
-#define GOSSIP_SNF "[PH] ..."
-
-/*######
 ## npc_shenthul
 ######*/
 

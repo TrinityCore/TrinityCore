@@ -79,7 +79,7 @@ public:
             { "creature_ai_summons",          SEC_ADMINISTRATOR, true,  &HandleReloadEventAISummonsCommand,             "", NULL },
             { "creature_ai_texts",            SEC_ADMINISTRATOR, true,  &HandleReloadEventAITextsCommand,               "", NULL },
             { "creature_involvedrelation",    SEC_ADMINISTRATOR, true,  &HandleReloadCreatureQuestInvRelationsCommand,  "",NULL },
-            { "creature_linked_respawn",      SEC_GAMEMASTER,    true,  &HandleReloadCreatureLinkedRespawnCommand,      "", NULL },
+            { "creature_linked_respawn",      SEC_GAMEMASTER,    true,  &HandleReloadLinkedRespawnCommand,              "", NULL },
             { "creature_loot_template",       SEC_ADMINISTRATOR, true,  &HandleReloadLootTemplatesCreatureCommand,      "", NULL },
             { "creature_onkill_reputation",   SEC_ADMINISTRATOR, true,  &HandleReloadOnKillReputationCommand,           "", NULL },
             { "creature_questrelation",       SEC_ADMINISTRATOR, true,  &HandleReloadCreatureQuestRelationsCommand,     "", NULL },
@@ -545,10 +545,10 @@ public:
         return true;
     }
 
-    static bool HandleReloadCreatureLinkedRespawnCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleReloadLinkedRespawnCommand(ChatHandler* handler, const char* /*args*/)
     {
         sLog->outString("Loading Linked Respawns... (`creature_linked_respawn`)");
-        sObjectMgr->LoadCreatureLinkedRespawn();
+        sObjectMgr->LoadLinkedRespawn();
         handler->SendGlobalGMSysMessage("DB table `creature_linked_respawn` (creature linked respawns) reloaded.");
         return true;
     }
