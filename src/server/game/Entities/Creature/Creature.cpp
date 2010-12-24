@@ -457,18 +457,23 @@ void Creature::Update(uint32 diff)
             break;
         case DEAD:
         {
-            if (m_respawnTime <= time(NULL))
+            time_t now = time(NULL);
+            if (m_respawnTime <= now)
             {
+                bool allowed = IsAIEnabled ? AI()->CanRespawn() : true;     // First check if there are any scripts that object to us respawning
+                if (!allowed)                                               // Will be rechecked on next Update call
+                    break;
+
                 if (!GetLinkedCreatureRespawnTime()) // Can respawn
                     Respawn();
-                else // the master is dead
+                else                                // the master is dead
                 {
                     if (uint32 targetGuid = sObjectMgr->GetLinkedRespawnGuid(m_DBTableGuid))
                     {
                         if (targetGuid == m_DBTableGuid) // if linking self, never respawn (check delayed to next day)
                             SetRespawnTime(DAY);
                         else
-                            m_respawnTime = (time(NULL)>GetLinkedCreatureRespawnTime()? time(NULL):GetLinkedCreatureRespawnTime())+urand(5,MINUTE); // else copy time from master and add a little
+                            m_respawnTime = (now > GetLinkedCreatureRespawnTime() ? now : GetLinkedCreatureRespawnTime())+urand(5,MINUTE); // else copy time from master and add a little
                         SaveRespawnTime(); // also save to DB immediately
                     }
                     else
