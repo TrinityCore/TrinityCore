@@ -546,9 +546,6 @@ public:
         handler->PSendSysMessage(LANG_NPCINFO_PHASEMASK, target->GetPhaseMask());
         handler->PSendSysMessage(LANG_NPCINFO_ARMOR, target->GetArmor());
         handler->PSendSysMessage(LANG_NPCINFO_POSITION,float(target->GetPositionX()), float(target->GetPositionY()), float(target->GetPositionZ()));
-        if (const CreatureData* const linked = target->GetLinkedRespawnCreatureData())
-            if (CreatureInfo const *master = GetCreatureInfo(linked->id))
-                handler->PSendSysMessage(LANG_NPCINFO_LINKGUID, sObjectMgr->GetLinkedRespawnGuid(target->GetDBTableGUIDLow()), linked->id, master->Name);
 
         if ((npcflags & UNIT_NPC_FLAG_VENDOR))
         {

@@ -1451,29 +1451,6 @@ LOCK TABLES `creature_involvedrelation` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `creature_linked_respawn`
---
-
-DROP TABLE IF EXISTS `creature_linked_respawn`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `creature_linked_respawn` (
-  `guid` int(10) unsigned NOT NULL COMMENT 'dependent creature',
-  `linkedGuid` int(10) unsigned NOT NULL COMMENT 'master creature',
-  PRIMARY KEY (`guid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Creature Respawn Link System';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `creature_linked_respawn`
---
-
-LOCK TABLES `creature_linked_respawn` WRITE;
-/*!40000 ALTER TABLE `creature_linked_respawn` DISABLE KEYS */;
-/*!40000 ALTER TABLE `creature_linked_respawn` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `creature_loot_template`
 --
 
@@ -3141,6 +3118,30 @@ CREATE TABLE `lfg_dungeon_rewards` (
 LOCK TABLES `lfg_dungeon_rewards` WRITE;
 /*!40000 ALTER TABLE `lfg_dungeon_rewards` DISABLE KEYS */;
 /*!40000 ALTER TABLE `lfg_dungeon_rewards` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `linked_respawn`
+--
+
+DROP TABLE IF EXISTS `linked_respawn`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `linked_respawn` (
+  `guid` int(10) unsigned NOT NULL COMMENT 'slave entity',
+  `linkedGuid` int(10) unsigned NOT NULL COMMENT 'master entity',
+  `linkType` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '0: creature->creature, 1: creature->GO, 2: GO->GO, 3: GO->creature', 
+  PRIMARY KEY (`guid`, `linkType`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Respawn Link System';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `linked_respawn`
+--
+
+LOCK TABLES `linked_respawn` WRITE;
+/*!40000 ALTER TABLE `linked_respawn` DISABLE KEYS */;
+/*!40000 ALTER TABLE `linked_respawn` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
