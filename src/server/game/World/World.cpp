@@ -1348,9 +1348,6 @@ void World::SetInitialWorldSettings()
     sLog->outString("Loading Creature Data...");
     sObjectMgr->LoadCreatures();
 
-    sLog->outString("Loading Creature Linked Respawn...");
-    sObjectMgr->LoadLinkedRespawn();                     // must be after LoadCreatures()
-
     sLog->outString("Loading pet levelup spells...");
     sSpellMgr->LoadPetLevelupSpellMap();
 
@@ -1371,6 +1368,9 @@ void World::SetInitialWorldSettings()
 
     sLog->outString("Loading Gameobject Respawn Data...");       // must be after PackInstances()
     sObjectMgr->LoadGameobjectRespawnTimes();
+
+    sLog->outString("Loading Creature Linked Respawn...");
+    sObjectMgr->LoadLinkedRespawn();                     // must be after LoadCreatures(), LoadGameObjects()
 
     sLog->outString("Loading Objects Pooling Data...");          // TODOLEAK: scope
     sPoolMgr->LoadFromDB();
