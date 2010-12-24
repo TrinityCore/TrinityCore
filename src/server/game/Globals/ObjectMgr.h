@@ -867,7 +867,7 @@ class ObjectMgr
         void LoadCreatures();
         void LoadLinkedRespawn();
         bool SetCreatureLinkedRespawn(uint32 guid, uint32 linkedGuid);
-        void LoadCreatureRespawnTimes();
+        void LoadLinkedRespawnTimes();
         void LoadCreatureAddons();
         void LoadCreatureModelInfo();
         void LoadEquipmentTemplates();

@@ -1003,8 +1003,12 @@ void WorldSession::ProcessQueryCallbacks()
         if (m_nameQueryCallbacks.next_readable(lResult, &timeout) != 1)
            break;
 
-        lResult.get(result);
-        SendNameQueryOpcodeFromDBCallBack(result);
+        if (lResult.ready()) 
+        {
+            lResult.get(result);
+            SendNameQueryOpcodeFromDBCallBack(result);
+            lResult.cancel();
+        }
     }
 
     //! HandleCharEnumOpcode
