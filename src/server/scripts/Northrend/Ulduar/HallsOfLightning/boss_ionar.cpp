@@ -71,30 +71,6 @@ class boss_ionar : public CreatureScript
 public:
     boss_ionar() : CreatureScript("boss_ionar") { }
 
-    bool EffectDummyCreature(Unit* /*pCaster*/, uint32 uiSpellId, uint32 uiEffIndex, Creature* pCreatureTarget)
-    {
-        //always check spellid and effectindex
-        if (uiSpellId == SPELL_DISPERSE && uiEffIndex == 0)
-        {
-            if (pCreatureTarget->GetEntry() != NPC_IONAR)
-                return true;
-
-            for (uint8 i = 0; i < DATA_MAX_SPARKS; ++i)
-                pCreatureTarget->CastSpell(pCreatureTarget, SPELL_SUMMON_SPARK, true);
-
-            pCreatureTarget->AttackStop();
-            pCreatureTarget->SetVisible(false);
-            pCreatureTarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_DISABLE_MOVE);
-
-            pCreatureTarget->GetMotionMaster()->Clear();
-            pCreatureTarget->GetMotionMaster()->MoveIdle();
-
-            //always return true when we are handling this spell and effect
-            return true;
-        }
-        return false;
-    }
-
     CreatureAI* GetAI(Creature* pCreature) const
     {
         return new boss_ionarAI(pCreature);
@@ -165,6 +141,22 @@ public:
         void KilledUnit(Unit * /*victim*/)
         {
             DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
+        }
+
+        void SpellHit(Unit* /*caster*/, const SpellEntry* spell)
+        {
+            if (spell->Id == SPELL_DISPERSE)
+            {
+                for (uint8 i = 0; i < DATA_MAX_SPARKS; ++i)
+                    me->CastSpell(me, SPELL_SUMMON_SPARK, true);
+
+                me->AttackStop();
+                me->SetVisible(false);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_DISABLE_MOVE);
+
+                me->GetMotionMaster()->Clear();
+                me->GetMotionMaster()->MoveIdle();
+            }
         }
 
         //make sparks come back
@@ -291,7 +283,7 @@ public:
                 if (me->IsNonMeleeSpellCasted(false))
                     me->InterruptNonMeleeSpells(false);
 
-                DoCast(me, SPELL_DISPERSE, true);
+                DoCast(me, SPELL_DISPERSE, false);
             }
 
             DoMeleeAttackIfReady();
