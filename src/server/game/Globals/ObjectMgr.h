@@ -865,7 +865,7 @@ class ObjectMgr
         void LoadCreatureTemplates();
         void CheckCreatureTemplate(CreatureInfo const* cInfo);
         void LoadCreatures();
-        void LoadCreatureLinkedRespawn();
+        void LoadLinkedRespawn();
         bool SetCreatureLinkedRespawn(uint32 guid, uint32 linkedGuid);
         void LoadCreatureRespawnTimes();
         void LoadCreatureAddons();
