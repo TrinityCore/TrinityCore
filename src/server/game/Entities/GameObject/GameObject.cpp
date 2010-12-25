@@ -1321,7 +1321,7 @@ void GameObject::Use(Unit* user)
             if (user->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            Player* player = (Player*)user;
+            Player* player = user->ToPlayer();
 
             Unit* owner = GetOwner();
 
