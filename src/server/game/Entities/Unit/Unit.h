@@ -865,18 +865,6 @@ struct SpellPeriodicAuraLogInfo
     bool   critical;
 };
 
-struct TriggeredSpellInfo
-{
-    TriggeredSpellInfo(uint32 _spell, Unit *_source, Unit *_target, int32 _amount = 0, AuraEffect *_auraEff = NULL)
-        : spell(_spell), amount(_amount), source(_source), target(_target), auraEff(_auraEff) {}
-    uint32 spell;
-    int32 amount;
-    Unit *source, *target;
-    AuraEffect *auraEff;
-};
-
-typedef std::vector<TriggeredSpellInfo> TriggeredSpellInfoVct;
-
 uint32 createProcExtendMask(SpellNonMeleeDamage *damageInfo, SpellMissInfo missCondition);
 
 #define MAX_DECLINED_NAME_CASES 5
@@ -1873,7 +1861,6 @@ class Unit : public WorldObject
         static bool IsDamageReducedByArmor(SpellSchoolMask damageSchoolMask, SpellEntry const *spellInfo = NULL, uint8 effIndex = MAX_SPELL_EFFECTS);
         uint32 CalcArmorReducedDamage(Unit* pVictim, const uint32 damage, SpellEntry const *spellInfo, WeaponAttackType attackType=MAX_ATTACK);
         void CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEffectType damagetype, const uint32 damage, uint32 *absorb, uint32 *resist, SpellEntry const *spellInfo = NULL);
-        void FillOrderedAbsorbAuras(AuraEffectList & out) const;
         void CalcHealAbsorb(Unit *pVictim, const SpellEntry *spellProto, uint32 &healAmount, uint32 &absorb);
 
         void  UpdateSpeed(UnitMoveType mtype, bool forced);
