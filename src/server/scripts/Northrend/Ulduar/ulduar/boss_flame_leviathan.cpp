@@ -81,6 +81,7 @@ enum Creatures
     NPC_LOREKEEPER                              = 33686, //Hard mode starter
     NPC_BRANZ_BRONZBEARD                        = 33579,
     NPC_DELORAH                                 = 33701,
+    NPC_ULDUAR_GAUNTLET_GENERATOR               = 33571, // Trigger tied to towers
 };
 
 enum Towers
@@ -1325,10 +1326,8 @@ public:
     void OnDestroyed(Player* /*pPlayer*/, GameObject* pGO, uint32 /*value*/)
     {
         InstanceScript* instance = pGO->GetInstanceScript();
-        if (pGO->GetGOValue()->building.health == 0)
+        switch(pGO->GetEntry())
         {
-            switch(pGO->GetEntry())
-            {
             case GO_TOWER_OF_STORMS:
                 instance->ProcessEvent(pGO, EVENT_TOWER_OF_STORM_DESTROYED);
                 break;
@@ -1341,10 +1340,12 @@ public:
             case GO_TOWER_OF_LIFE:
                 instance->ProcessEvent(pGO, EVENT_TOWER_OF_LIFE_DESTROYED);
                 break;
-            }
         }
-    }
 
+        Creature* trigger = pGO->FindNearestCreature(NPC_ULDUAR_GAUNTLET_GENERATOR, 15.0f, true);
+        if (trigger)
+            trigger->DisappearAndDie();
+    }
 };
 
 class at_RX_214_repair_o_matic_station : public AreaTriggerScript
