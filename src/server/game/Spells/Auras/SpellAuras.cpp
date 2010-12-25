@@ -402,8 +402,8 @@ void Aura::_ApplyForTarget(Unit * target, Unit * caster, AuraApplication * auraA
 {
     ASSERT(target);
     ASSERT(auraApp);
-    // aura mustn't be already applied
-    ASSERT (m_applications.find(target->GetGUID()) == m_applications.end());
+    // aura mustn't be already applied on target
+    ASSERT (!IsAppliedOnTarget(target->GetGUID()) && "Aura::_ApplyForTarget: aura musn't be already applied on target");
 
     m_applications[target->GetGUID()] = auraApp;
 
@@ -502,6 +502,9 @@ void Aura::UpdateTargetMap(Unit * caster, bool apply)
     // register auras for units
     for (std::map<Unit *, uint8>::iterator itr = targets.begin(); itr!= targets.end();)
     {
+        // aura mustn't be already applied on target
+        ASSERT (!IsAppliedOnTarget(itr->first->GetGUID()) && "Aura::UpdateTargetMap: aura musn't be applied on target");
+
         bool addUnit = true;
         // check target immunities
         if (itr->first->IsImmunedToSpell(GetSpellProto())
@@ -570,7 +573,6 @@ void Aura::UpdateTargetMap(Unit * caster, bool apply)
 // targets have to be registered and not have effect applied yet to use this function
 void Aura::_ApplyEffectForTargets(uint8 effIndex)
 {
-    //Unit * caster = GetCaster();
     // prepare list of aura targets
     UnitList targetList;
     for (ApplicationMap::iterator appIter = m_applications.begin(); appIter != m_applications.end(); ++appIter)
