@@ -1496,7 +1496,7 @@ Creature* Battleground::GetBGCreature(uint32 type)
 {
     Creature *creature = GetBgMap()->GetCreature(m_BgCreatures[type]);
     if (!creature)
-        sLog->outError("couldn't get creature %i",type);
+        sLog->outError("Could not get BG creature %i (BG: %s Instance: %u)", type, GetBgMap()->GetBG()->GetName(), GetBgMap()->GetInstanceId());
     return creature;
 }
 
