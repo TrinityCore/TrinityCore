@@ -3318,7 +3318,7 @@ void Spell::EffectAddFarsight(SpellEffIndex effIndex)
     //m_caster->ToPlayer()->UpdateVisibilityOf(dynObj);
 }
 
-void Spell::EffectUntrainTalents(SpellEffIndex effIndex)
+void Spell::EffectUntrainTalents(SpellEffIndex /*effIndex*/)
 {
     if (!unitTarget || m_caster->GetTypeId() == TYPEID_PLAYER)
         return;
