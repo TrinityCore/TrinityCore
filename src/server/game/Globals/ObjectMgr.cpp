@@ -6956,11 +6956,11 @@ void ObjectMgr::LoadExplorationBaseXP()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT word,entry,half FROM pet_name_generation");
+    QueryResult result = WorldDatabase.Query("SELECT level, basexp FROM exploration_basexp");
 
     if (!result)
     {
-        sLog->outErrorDb(">> Loaded 0 pet name parts. DB table `pet_name_generation` is empty.");
+        sLog->outErrorDb(">> Loaded 0 BaseXP definitions. DB table `exploration_basexp` is empty.");
         sLog->outString();
         return;
     }
