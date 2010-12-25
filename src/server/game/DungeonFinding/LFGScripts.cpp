@@ -164,7 +164,7 @@ void LFGScripts::OnLogin(Player* player)
     // TODO - Restore LfgPlayerData and send proper status to player if it was in a group
 }
 
-void LFGScripts::OnBindToInstance(Player* player, Difficulty difficulty, uint32 mapId, bool permanent)
+void LFGScripts::OnBindToInstance(Player* player, Difficulty difficulty, uint32 mapId, bool /*permanent*/)
 {
     MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
     if (mapEntry->IsDungeon() && difficulty > DUNGEON_DIFFICULTY_NORMAL)
