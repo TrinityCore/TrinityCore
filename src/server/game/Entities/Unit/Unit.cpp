@@ -10327,9 +10327,18 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
         AuraEffectList const &mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
         for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
             if ((*i)->GetMiscValue() & GetSpellSchoolMask(spellProto))
-                if (((*i)->GetSpellProto()->EquippedItemClass == -1) ||
-                    (((*i)->GetSpellProto()->EquippedItemClass & spellProto->EquippedItemClass) &&
-                    ((*i)->GetSpellProto()->EquippedItemSubClassMask & spellProto->EquippedItemSubClassMask)))
+                if ((*i)->GetSpellProto()->EquippedItemClass == -1)
+                {
+                    AddPctN(DoneTotalMod, (*i)->GetAmount());
+                }
+                else if (!((*i)->GetSpellProto()->AttributesEx5 & SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK))
+                {
+                    if ((*i)->GetSpellProto()->EquippedItemClass & spellProto->EquippedItemClass)
+                        if (((*i)->GetSpellProto()->EquippedItemSubClassMask == 0) ||
+                            ((*i)->GetSpellProto()->EquippedItemSubClassMask & spellProto->EquippedItemSubClassMask))
+                            AddPctN(DoneTotalMod, (*i)->GetAmount());
+                }
+                else if (ToPlayer() && ToPlayer()->HasItemFitToSpellRequirements((*i)->GetSpellProto()))
                     AddPctN(DoneTotalMod, (*i)->GetAmount());
     }
 
@@ -11620,27 +11629,43 @@ void Unit::MeleeDamageBonus(Unit *pVictim, uint32 *pdamage, WeaponAttackType att
     for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
         if (spellProto)
         {
-            if ((*i)->GetMiscValue() & GetSpellSchoolMask(spellProto))
-                if (((*i)->GetSpellProto()->EquippedItemClass == -1) ||
-                    ((*i)->GetSpellProto()->EquippedItemClass & spellProto->EquippedItemClass) &&
-                    ((*i)->GetSpellProto()->EquippedItemSubClassMask & spellProto->EquippedItemSubClassMask))
-                    AddPctN(DoneTotalMod, (*i)->GetAmount());
+            AuraEffectList const &mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+            for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
+                if ((*i)->GetMiscValue() & GetSpellSchoolMask(spellProto))
+                    if ((*i)->GetSpellProto()->EquippedItemClass == -1)
+                    {
+                        AddPctN(DoneTotalMod, (*i)->GetAmount());
+                    }
+                    else if (!((*i)->GetSpellProto()->AttributesEx5 & SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK))
+                    {
+                        if ((*i)->GetSpellProto()->EquippedItemClass & spellProto->EquippedItemClass)
+                            if (((*i)->GetSpellProto()->EquippedItemSubClassMask == 0) ||
+                                ((*i)->GetSpellProto()->EquippedItemSubClassMask & spellProto->EquippedItemSubClassMask))
+                                AddPctN(DoneTotalMod, (*i)->GetAmount());
+                    }
+                    else if (ToPlayer() && ToPlayer()->HasItemFitToSpellRequirements((*i)->GetSpellProto()))
+                        AddPctN(DoneTotalMod, (*i)->GetAmount());
         }
         else if (ToPlayer())
         {
-            EquipmentSlots slot;
-                    
-            switch (attType)
+            if (!((*i)->GetSpellProto()->AttributesEx5 & SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK))
             {
-                case BASE_ATTACK:   slot = EQUIPMENT_SLOT_MAINHAND; break;
-                case OFF_ATTACK:    slot = EQUIPMENT_SLOT_OFFHAND;  break;
-                case RANGED_ATTACK: slot = EQUIPMENT_SLOT_RANGED;   break;
-                default: return;
+                EquipmentSlots slot;
+
+                switch (attType)
+                {
+                    case BASE_ATTACK:   slot = EQUIPMENT_SLOT_MAINHAND; break;
+                    case OFF_ATTACK:    slot = EQUIPMENT_SLOT_OFFHAND;  break;
+                    case RANGED_ATTACK: slot = EQUIPMENT_SLOT_RANGED;   break;
+                    default: return;
+                }
+
+                Item * item = ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
+
+                if (item && !item->IsBroken() && item->IsFitToSpellRequirements((*i)->GetSpellProto()))
+                    AddPctN(DoneTotalMod, (*i)->GetAmount());
             }
-
-            Item * item = ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
-
-            if (item && !item->IsBroken() && item->IsFitToSpellRequirements((*i)->GetSpellProto()))
+            else if (ToPlayer()->HasItemFitToSpellRequirements((*i)->GetSpellProto()))
                 AddPctN(DoneTotalMod, (*i)->GetAmount());
         }
 
