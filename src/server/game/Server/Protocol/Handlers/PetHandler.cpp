@@ -42,7 +42,8 @@ void WorldSession::HandleDismissCritter(WorldPacket &recv_data)
 
     if (!pet)
     {
-        sLog->outError("Vanitypet %u does not exist", uint32(GUID_LOPART(guid)));
+        sLog->outError("Vanitypet (GUID: %u) does not exist - player '%s' (GUID: %u / ACCOUNT: %u) attempted to dismiss it",
+                uint32(GUID_LOPART(guid)), GetPlayer()->GetName(), GetPlayer()->GetGUIDLow(), GetAccountId());
         return;
     }
 
