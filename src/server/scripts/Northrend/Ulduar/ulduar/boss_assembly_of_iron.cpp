@@ -159,7 +159,7 @@ void RespawnEncounter(InstanceScript* pInstance, Creature* me)
     }
 }
 
-void StartEncounter(InstanceScript* pInstance, Creature* me, Unit* target)
+void StartEncounter(InstanceScript* pInstance, Creature* me, Unit* /*target*/)
 {
     if (pInstance->GetBossState(TYPE_ASSEMBLY) == IN_PROGRESS)
         return;     // Prevent recursive calls

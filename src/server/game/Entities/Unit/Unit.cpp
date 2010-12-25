@@ -10327,6 +10327,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
         AuraEffectList const &mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
         for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
             if ((*i)->GetMiscValue() & GetSpellSchoolMask(spellProto))
+            {
                 if ((*i)->GetSpellProto()->EquippedItemClass == -1)
                 {
                     AddPctN(DoneTotalMod, (*i)->GetAmount());
@@ -10340,6 +10341,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                 }
                 else if (ToPlayer() && ToPlayer()->HasItemFitToSpellRequirements((*i)->GetSpellProto()))
                     AddPctN(DoneTotalMod, (*i)->GetAmount());
+            }
     }
 
     uint32 creatureTypeMask = pVictim->GetCreatureTypeMask();
@@ -11632,6 +11634,7 @@ void Unit::MeleeDamageBonus(Unit *pVictim, uint32 *pdamage, WeaponAttackType att
             AuraEffectList const &mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
             for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
                 if ((*i)->GetMiscValue() & GetSpellSchoolMask(spellProto))
+                {
                     if ((*i)->GetSpellProto()->EquippedItemClass == -1)
                     {
                         AddPctN(DoneTotalMod, (*i)->GetAmount());
@@ -11645,6 +11648,7 @@ void Unit::MeleeDamageBonus(Unit *pVictim, uint32 *pdamage, WeaponAttackType att
                     }
                     else if (ToPlayer() && ToPlayer()->HasItemFitToSpellRequirements((*i)->GetSpellProto()))
                         AddPctN(DoneTotalMod, (*i)->GetAmount());
+                }
         }
         else if (ToPlayer())
         {
