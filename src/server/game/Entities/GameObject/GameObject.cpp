@@ -326,10 +326,11 @@ void GameObject::Update(uint32 diff)
                 time_t now = time(NULL);
                 if (m_respawnTime <= now)            // timer expired
                 {
-                    time_t linkedRespawntime = sObjectMgr->GetLinkedRespawnTime(GetGUID(), GetMap()->GetInstanceId());
+                    uint64 dbtableHighGuid = MAKE_NEW_GUID(m_DBTableGuid, GetEntry(), HIGHGUID_GAMEOBJECT);
+                    time_t linkedRespawntime = sObjectMgr->GetLinkedRespawnTime(dbtableHighGuid, GetMap()->GetInstanceId());
                     if (linkedRespawntime)             // Can't respawn, the master is dead
                     {
-                        uint64 targetGuid = sObjectMgr->GetLinkedRespawnGuid(GetGUID());
+                        uint64 targetGuid = sObjectMgr->GetLinkedRespawnGuid(dbtableHighGuid);
                         if (targetGuid == GetGUID()) // if linking self, never respawn (check delayed to next day)
                             SetRespawnTime(DAY);
                         else

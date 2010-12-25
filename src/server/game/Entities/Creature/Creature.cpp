@@ -464,7 +464,8 @@ void Creature::Update(uint32 diff)
                 if (!allowed)                                               // Will be rechecked on next Update call
                     break;
 
-                time_t linkedRespawntime = sObjectMgr->GetLinkedRespawnTime(GetGUID(), GetMap()->GetInstanceId());
+                uint64 dbtableHighGuid = MAKE_NEW_GUID(m_DBTableGuid, GetEntry(), HIGHGUID_UNIT);
+                time_t linkedRespawntime = sObjectMgr->GetLinkedRespawnTime(dbtableHighGuid, GetMap()->GetInstanceId());
                 if (!linkedRespawntime)             // Can respawn
                     Respawn();
                 else                                // the master is dead
