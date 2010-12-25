@@ -11607,51 +11607,49 @@ void Unit::MeleeDamageBonus(Unit *pVictim, uint32 *pdamage, WeaponAttackType att
     float TakenTotalMod = 1.0f;
 
     // ..done
-    AuraEffectList const &mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
-    for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
-        if (spellProto)
-        {
-            AuraEffectList const &mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
-            for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
-                if ((*i)->GetMiscValue() & GetSpellSchoolMask(spellProto))
-                {
-                    if ((*i)->GetSpellProto()->EquippedItemClass == -1)
-                    {
-                        AddPctN(DoneTotalMod, (*i)->GetAmount());
-                    }
-                    else if (!((*i)->GetSpellProto()->AttributesEx5 & SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK))
-                    {
-                        if ((*i)->GetSpellProto()->EquippedItemClass & spellProto->EquippedItemClass)
-                            if (((*i)->GetSpellProto()->EquippedItemSubClassMask == 0) ||
-                                ((*i)->GetSpellProto()->EquippedItemSubClassMask & spellProto->EquippedItemSubClassMask))
-                                AddPctN(DoneTotalMod, (*i)->GetAmount());
-                    }
-                    else if (ToPlayer() && ToPlayer()->HasItemFitToSpellRequirements((*i)->GetSpellProto()))
-                        AddPctN(DoneTotalMod, (*i)->GetAmount());
-                }
-        }
-        else if (ToPlayer())
-        {
-            if (!((*i)->GetSpellProto()->AttributesEx5 & SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK))
+    if (spellProto)
+    {
+        AuraEffectList const &mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+        for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
+            if ((*i)->GetMiscValue() & GetSpellSchoolMask(spellProto))
             {
-                EquipmentSlots slot;
-
-                switch (attType)
+                if ((*i)->GetSpellProto()->EquippedItemClass == -1)
                 {
-                    case BASE_ATTACK:   slot = EQUIPMENT_SLOT_MAINHAND; break;
-                    case OFF_ATTACK:    slot = EQUIPMENT_SLOT_OFFHAND;  break;
-                    case RANGED_ATTACK: slot = EQUIPMENT_SLOT_RANGED;   break;
-                    default: return;
+                    AddPctN(DoneTotalMod, (*i)->GetAmount());
                 }
-
-                Item * item = ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
-
-                if (item && !item->IsBroken() && item->IsFitToSpellRequirements((*i)->GetSpellProto()))
+                else if (!((*i)->GetSpellProto()->AttributesEx5 & SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK))
+                {
+                    if ((*i)->GetSpellProto()->EquippedItemClass & spellProto->EquippedItemClass)
+                        if (((*i)->GetSpellProto()->EquippedItemSubClassMask == 0) ||
+                            ((*i)->GetSpellProto()->EquippedItemSubClassMask & spellProto->EquippedItemSubClassMask))
+                            AddPctN(DoneTotalMod, (*i)->GetAmount());
+                }
+                else if (ToPlayer() && ToPlayer()->HasItemFitToSpellRequirements((*i)->GetSpellProto()))
                     AddPctN(DoneTotalMod, (*i)->GetAmount());
             }
-            else if (ToPlayer()->HasItemFitToSpellRequirements((*i)->GetSpellProto()))
+    }
+    else if (ToPlayer())
+    {
+        if (!((*i)->GetSpellProto()->AttributesEx5 & SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK))
+        {
+            EquipmentSlots slot;
+
+            switch (attType)
+            {
+                case BASE_ATTACK:   slot = EQUIPMENT_SLOT_MAINHAND; break;
+                case OFF_ATTACK:    slot = EQUIPMENT_SLOT_OFFHAND;  break;
+                case RANGED_ATTACK: slot = EQUIPMENT_SLOT_RANGED;   break;
+                default: return;
+            }
+
+            Item * item = ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
+
+            if (item && !item->IsBroken() && item->IsFitToSpellRequirements((*i)->GetSpellProto()))
                 AddPctN(DoneTotalMod, (*i)->GetAmount());
         }
+        else if (ToPlayer()->HasItemFitToSpellRequirements((*i)->GetSpellProto()))
+            AddPctN(DoneTotalMod, (*i)->GetAmount());
+    }
 
     AuraEffectList const &mDamageDoneVersus = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS);
     for (AuraEffectList::const_iterator i = mDamageDoneVersus.begin(); i != mDamageDoneVersus.end(); ++i)
