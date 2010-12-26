@@ -142,7 +142,8 @@ public:
             }
         }
 
-        player->RemoveQuest(entry);
+        player->RemoveActiveQuest(entry);
+        player->RemoveRewardedQuest(entry);
 
         handler->SendSysMessage(LANG_COMMAND_QUEST_REMOVED);
         return true;
