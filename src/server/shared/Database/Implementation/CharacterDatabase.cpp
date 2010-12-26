@@ -60,7 +60,7 @@ bool CharacterDatabaseConnection::Open()
     PrepareStatement(CHAR_LOAD_PLAYER_AURAS, "SELECT caster_guid, spell, effect_mask, recalculate_mask, stackcount, amount0, amount1, amount2, "
         "base_amount0, base_amount1, base_amount2, maxduration, remaintime, remaincharges FROM character_aura WHERE guid = ?", true);
     PrepareStatement(CHAR_LOAD_PLAYER_SPELLS, "SELECT spell, active, disabled FROM character_spell WHERE guid = ?", true);
-    PrepareStatement(CHAR_LOAD_PLAYER_QUESTSTATUS, "SELECT quest, status, rewarded, explored, timer, mobcount1, mobcount2, mobcount3, mobcount4, "
+    PrepareStatement(CHAR_LOAD_PLAYER_QUESTSTATUS, "SELECT quest, status, explored, timer, mobcount1, mobcount2, mobcount3, mobcount4, "
         "itemcount1, itemcount2, itemcount3, itemcount4 FROM character_queststatus WHERE guid = ?", true);
     PrepareStatement(CHAR_LOAD_PLAYER_DAILYQUESTSTATUS, "SELECT quest, time FROM character_queststatus_daily WHERE guid = ?", true);
     PrepareStatement(CHAR_LOAD_PLAYER_WEKLYQUESTSTATUS, "SELECT quest FROM character_queststatus_weekly WHERE guid = ?", true);
@@ -88,6 +88,7 @@ bool CharacterDatabaseConnection::Open()
     PrepareStatement(CHAR_LOAD_PLAYER_RANDOMBG, "SELECT guid FROM character_battleground_random WHERE guid = ?", true);
     PrepareStatement(CHAR_LOAD_PLAYER_ARENASTATS, "SELECT slot, personal_rating, matchmaker_rating FROM character_arena_stats WHERE guid = ? ORDER BY slot ASC", true);
     PrepareStatement(CHAR_LOAD_PLAYER_BANNED, "SELECT guid FROM character_banned WHERE guid = ? AND active = 1", true);
+    PrepareStatement(CHAR_LOAD_PLAYER_QUESTSTATUSREW, "SELECT quest FROM character_queststatus_rewarded WHERE guid = ?", true);
     // End LoginQueryHolder content
     
     PrepareStatement(CHAR_LOAD_PLAYER_ACTIONS_SPEC, "SELECT button, action, type FROM character_action WHERE guid = ? AND spec = ? ORDER BY button");
@@ -259,6 +260,6 @@ bool CharacterDatabaseConnection::Open()
     PrepareStatement(CHAR_DEL_AURA, "DELETE FROM character_aura WHERE guid = ?", true);
     PrepareStatement(CHAR_ADD_AURA, "INSERT INTO character_aura (guid,caster_guid,item_guid,spell,effect_mask,recalculate_mask,stackcount,amount0,amount1,amount2,base_amount0,base_amount1,base_amount2,maxduration,remaintime,remaincharges) "
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", true);
-    
+
     return true;
 }

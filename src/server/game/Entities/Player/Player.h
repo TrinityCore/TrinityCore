@@ -505,6 +505,10 @@ enum AtLoginFlags
 };
 
 typedef std::map<uint32, QuestStatusData> QuestStatusMap;
+typedef std::set<uint32> RewardedQuestSet;
+
+//               quest,  keep
+typedef std::map<uint32, bool> QuestStatusSaveMap;
 
 enum QuestSlotOffsets
 {
@@ -789,7 +793,8 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOADRANDOMBG             = 27,
     PLAYER_LOGIN_QUERY_LOADARENASTATS           = 28,
     PLAYER_LOGIN_QUERY_LOADBANNED               = 29,
-    MAX_PLAYER_LOGIN_QUERY                      = 30
+    PLAYER_LOGIN_QUERY_LOADQUESTSTATUSREW       = 30,
+    MAX_PLAYER_LOGIN_QUERY                      = 31
 };
 
 enum PlayerDelayedOperations
@@ -1335,6 +1340,7 @@ class Player : public Unit, public GridObject<Player>
         bool GetQuestRewardStatus(uint32 quest_id) const;
         QuestStatus GetQuestStatus(uint32 quest_id) const;
         void SetQuestStatus(uint32 quest_id, QuestStatus status);
+        void RemoveQuest(uint32 quest_id);
 
         void SetDailyQuestStatus(uint32 quest_id);
         void SetWeeklyQuestStatus(uint32 quest_id);
@@ -1473,7 +1479,8 @@ class Player : public Unit, public GridObject<Player>
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_GOLD_VALUE_OWNED);
         }
 
-        QuestStatusMap& getQuestStatusMap() { return mQuestStatus; };
+        RewardedQuestSet& getRewardedQuests() { return m_RewardedQuests; }
+        QuestStatusMap& getQuestStatusMap() { return m_QuestStatus; };
 
         const uint64& GetSelection() const { return m_curSelection; }
         Unit *GetSelectedUnit() const;
@@ -2422,6 +2429,7 @@ class Player : public Unit, public GridObject<Player>
         void _LoadMail();
         void _LoadMailedItems(Mail *mail);
         void _LoadQuestStatus(PreparedQueryResult result);
+        void _LoadQuestStatusRewarded(PreparedQueryResult result);
         void _LoadDailyQuestStatus(PreparedQueryResult result);
         void _LoadWeeklyQuestStatus(PreparedQueryResult result);
         void _LoadRandomBGStatus(PreparedQueryResult result);
@@ -2499,7 +2507,11 @@ class Player : public Unit, public GridObject<Player>
         uint64 m_comboTarget;
         int8 m_comboPoints;
 
-        QuestStatusMap mQuestStatus;
+        QuestStatusMap m_QuestStatus;
+        QuestStatusSaveMap m_QuestStatusSave;
+
+        RewardedQuestSet m_RewardedQuests;
+        QuestStatusSaveMap m_RewardedQuestsSave;
 
         SkillStatusMap mSkillStatus;
 
