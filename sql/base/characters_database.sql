@@ -857,7 +857,6 @@ CREATE TABLE `character_queststatus` (
   `guid` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
   `quest` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Quest Identifier',
   `status` tinyint(1) unsigned NOT NULL DEFAULT '0',
-  `rewarded` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `explored` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `timer` bigint(20) unsigned NOT NULL DEFAULT '0',
   `mobcount1` smallint(3) unsigned NOT NULL DEFAULT '0',
@@ -905,6 +904,14 @@ LOCK TABLES `character_queststatus_daily` WRITE;
 /*!40000 ALTER TABLE `character_queststatus_daily` DISABLE KEYS */;
 /*!40000 ALTER TABLE `character_queststatus_daily` ENABLE KEYS */;
 UNLOCK TABLES;
+
+DROP TABLE IF EXISTS `character_queststatus_rewarded`;
+CREATE TABLE `character_queststatus_rewarded` (
+  `guid` int(10) unsigned NOT NULL default '0' COMMENT 'Global Unique Identifier',
+  `quest` int(10) unsigned NOT NULL default '0' COMMENT 'Quest Identifier',
+  PRIMARY KEY (`guid`,`quest`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
+
 
 --
 -- Table structure for table `character_queststatus_weekly`

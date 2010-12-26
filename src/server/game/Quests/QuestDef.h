@@ -351,30 +351,18 @@ class Quest
         uint32 QuestCompleteScript;
 };
 
-enum QuestUpdateState
-{
-    QUEST_UNCHANGED = 0,
-    QUEST_CHANGED = 1,
-    QUEST_NEW = 2
-};
-
 struct QuestStatusData
 {
-    QuestStatusData()
-        : m_status(QUEST_STATUS_NONE),m_rewarded(false),
-        m_explored(false), m_timer(0), uState(QUEST_NEW)
+    QuestStatusData(): m_status(QUEST_STATUS_NONE), m_explored(false), m_timer(0)
     {
         memset(m_itemcount, 0, QUEST_ITEM_OBJECTIVES_COUNT * sizeof(uint16));
         memset(m_creatureOrGOcount, 0, QUEST_OBJECTIVES_COUNT * sizeof(uint16));
     }
 
-    QuestStatus m_status;
-    bool m_rewarded;
-    bool m_explored;
     uint32 m_timer;
-    QuestUpdateState uState;
-
-    uint16 m_itemcount[ QUEST_ITEM_OBJECTIVES_COUNT ];
-    uint16 m_creatureOrGOcount[ QUEST_OBJECTIVES_COUNT ];
+    uint16 m_itemcount[QUEST_ITEM_OBJECTIVES_COUNT];
+    uint16 m_creatureOrGOcount[QUEST_OBJECTIVES_COUNT];
+    QuestStatus m_status;
+    bool m_explored;
 };
 #endif
