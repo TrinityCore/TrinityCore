@@ -1340,7 +1340,8 @@ class Player : public Unit, public GridObject<Player>
         bool GetQuestRewardStatus(uint32 quest_id) const;
         QuestStatus GetQuestStatus(uint32 quest_id) const;
         void SetQuestStatus(uint32 quest_id, QuestStatus status);
-        void RemoveQuest(uint32 quest_id);
+        void RemoveActiveQuest(uint32 quest_id);
+        void RemoveRewardedQuest(uint32 quest_id);
 
         void SetDailyQuestStatus(uint32 quest_id);
         void SetWeeklyQuestStatus(uint32 quest_id);
