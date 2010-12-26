@@ -29,7 +29,8 @@ enum eGameObjects
     GO_FREYA_CHEST_HERO     = 194325,
     GO_FREYA_CHEST          = 194324,
     GO_LEVIATHAN_DOOR       = 194905,
-    GO_LEVIATHAN_GATE       = 194630
+    GO_LEVIATHAN_GATE       = 194630,
+    GO_VEZAX_DOOR           = 194750,
 };
 
 class instance_ulduar : public InstanceMapScript
@@ -67,6 +68,7 @@ public:
         uint64 uiAlgalonGUID;
         uint64 uiLeviathanDoor[7];
         uint64 uiLeviathanGateGUID;
+        uint64 uiVezaxDoorGUID;
 
         uint64 uiKologarnChestGUID;
         uint64 uiThorimChestGUID;
@@ -94,6 +96,7 @@ public:
             uiHodirChestGUID      = 0;
             uiFreyaChestGUID      = 0;
             uiLeviathanGateGUID   = 0;
+            uiVezaxDoorGUID       = 0;
             flag                  = 0;
 
             memset(&uiEncounter, 0, sizeof(uiEncounter));
@@ -205,6 +208,10 @@ public:
                     uiLeviathanGateGUID = go->GetGUID();
                     HandleGameObject(NULL, false, go);
                     break;
+                case GO_VEZAX_DOOR:
+                    uiVezaxDoorGUID = go->GetGUID();
+                    HandleGameObject(NULL, false, go);
+                    break;
             }
         }
 
@@ -253,6 +260,9 @@ public:
                 case TYPE_AURIAYA:
                 case TYPE_MIMIRON:
                 case TYPE_VEZAX:
+                    if (state == DONE)
+                        HandleGameObject(uiVezaxDoorGUID, true);
+                    break;
                 case TYPE_YOGGSARON:
                     break;
                 case TYPE_KOLOGARN:
