@@ -294,11 +294,6 @@ void WorldSession::HandleGameObjectUseOpcode(WorldPacket & recv_data)
     if (!obj)
         return;
 
-    if (sScriptMgr->OnGossipHello(_player, obj))
-        return;
-
-    obj->AI()->GossipHello(_player);
-
     obj->Use(_player);
 }
 
