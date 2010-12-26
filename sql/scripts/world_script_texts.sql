@@ -2580,6 +2580,7 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (33413,-1603287,'Golganneth, lend me your strengh! Grant my mortal allies the power of thunder!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15750,1,0,0,'Thorim SAY_YS_HELP'),
 
 -- General Vezax
+   (33271,-1603289,'A cloud of saronite vapors coalesces nearby!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,3,0,0,'General Vezax - Emote1'),
    (33271,-1603290,'Your destruction will herald a new age of suffering!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15542,1,0,0,'Vezax SAY_AGGRO'),
    (33271,-1603291,'You thought to stand before the legions of death... and survive?',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15543,1,0,0,'Vezax SAY_SLAY_1'),
    (33271,-1603292,'Defiance... a flaw of mortality.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15544,1,0,0,'Vezax SAY_SLAY_2'),
@@ -2587,6 +2588,9 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (33271,-1603294,'Oh, what horrors await....',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15546,1,0,0,'Vezax SAY_DEATH'),
    (33271,-1603295,'Your defeat was inevitable!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15547,1,0,0,'Vezax SAY_BERSERK'),
    (33271,-1603296,'Behold, now! Terror, absolute!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15548,1,0,0,'Vezax SAY_HARDMODE_ON'),
+   (33271,-1603297,'The saronite vapors mass and swirl violently, merging into a monstrous form!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,3,0,0,'General Vezax - Emote2'),
+   (33271,-1603298,'A saronite barrier appears around General Vezax!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,3,0,0,'General Vezax - Emote3'),
+   (33271,-1603299,'General Vezax roars and surges with dark might!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,3,0,0,'General Vezax - Emote4');
 
 -- XT002
    (33293,-1603300,'New toys? For me? I promise I won''t break them this time!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15724,1,0,0,'XT002 SAY_AGGRO'),
