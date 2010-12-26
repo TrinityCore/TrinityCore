@@ -6101,9 +6101,8 @@ void Spell::EffectQuestClear(SpellEffIndex effIndex)
     if (!pQuest)
         return;
 
-    QuestStatusMap::iterator qs_itr = pPlayer->getQuestStatusMap().find(quest_id);
     // Player has never done this quest
-    if (qs_itr == pPlayer->getQuestStatusMap().end())
+    if (pPlayer->GetQuestStatus(quest_id) == QUEST_STATUS_NONE)
         return;
 
     // remove all quest entries for 'entry' from quest log
