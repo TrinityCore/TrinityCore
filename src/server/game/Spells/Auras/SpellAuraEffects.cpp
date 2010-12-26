@@ -5741,6 +5741,14 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                             caster->CastCustomSpell(28836, SPELLVALUE_BASE_POINT0, damage, target);
                     }
                     break;
+                case 63322: // Saronite Vapors
+                {
+                    int32 mana = int32(GetAmount() * pow(2.0f, GetBase()->GetStackAmount())); // mana restore - bp * 2^stackamount 
+                    int32 damage = mana * 2; // damage
+                    caster->CastCustomSpell(target, 63337, &mana, NULL, NULL, true);
+                    caster->CastCustomSpell(target, 63338, &damage, NULL, NULL, true);
+                    break;
+                }
                 case 71563:
                     if (Aura* newAura = target->AddAura(71564, target))
                         newAura->SetStackAmount(newAura->GetSpellProto()->StackAmount);
