@@ -1040,6 +1040,14 @@ void GameObject::Use(Unit* user)
     uint32 spellId = 0;
     bool triggered = false;
 
+    if (Player* playerUser = user->ToPlayer())
+    {
+        if (sScriptMgr->OnGossipHello(playerUser, this))
+            return;
+
+        AI()->GossipHello(playerUser);
+    }
+
     switch(GetGoType())
     {
         case GAMEOBJECT_TYPE_DOOR:                          //0
@@ -1238,15 +1246,14 @@ void GameObject::Use(Unit* user)
         //fishing bobber
         case GAMEOBJECT_TYPE_FISHINGNODE:                   //17
         {
-            if (user->GetTypeId() != TYPEID_PLAYER)
+            Player* player = user->ToPlayer();
+            if (!player)
                 return;
-
-            Player* player = (Player*)user;
 
             if (player->GetGUID() != GetOwnerGUID())
                 return;
 
-            switch(getLootState())
+            switch (getLootState())
             {
                 case GO_READY:                              // ready for loot
                 {
