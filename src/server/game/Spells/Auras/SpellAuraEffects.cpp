@@ -2986,7 +2986,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const * aurApp, uint8 m
     Powers PowerType = POWER_MANA;
     ShapeshiftForm form = ShapeshiftForm(GetMiscValue());
 
-    switch(form)
+    switch (form)
     {
         case FORM_CAT:                                      // 0x01
         case FORM_GHOUL:                                    // 0x07
@@ -3115,26 +3115,47 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const * aurApp, uint8 m
     }
     else
     {
-        if (modelid > 0)
-            target->SetDisplayId(target->GetNativeDisplayId());
         target->SetByteValue(UNIT_FIELD_BYTES_2, 3, FORM_NONE);
         if (target->getClass() == CLASS_DRUID)
             target->setPowerType(POWER_MANA);
         target->SetShapeshiftForm(FORM_NONE);
 
-        switch(form)
+        if (modelid > 0)
+        {
+            // re-aplly some from still active with preference negative cases
+            Unit::AuraEffectList const& otherTransforms = target->GetAuraEffectsByType(SPELL_AURA_TRANSFORM);
+            if (!otherTransforms.empty())
+            {
+                // look for other transform auras
+                AuraEffect* handledAura = *otherTransforms.begin();
+                for (Unit::AuraEffectList::const_iterator i = otherTransforms.begin(); i != otherTransforms.end(); ++i)
+                {
+                    // negative auras are preferred
+                    if (!IsPositiveSpell((*i)->GetSpellProto()->Id))
+                    {
+                        handledAura = *i;
+                        break;
+                    }
+                }
+                handledAura->HandleEffect(target, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true);
+            }
+            else
+                target->SetDisplayId(target->GetNativeDisplayId());
+        }
+
+        switch (form)
         {
             // Nordrassil Harness - bonus
             case FORM_BEAR:
             case FORM_DIREBEAR:
             case FORM_CAT:
                 if (AuraEffect* dummy = target->GetAuraEffect(37315, 0))
-                    target->CastSpell(target,37316,true,NULL,dummy);
+                    target->CastSpell(target, 37316, true, NULL, dummy);
                 break;
             // Nordrassil Regalia - bonus
             case FORM_MOONKIN:
                 if (AuraEffect* dummy = target->GetAuraEffect(37324, 0))
-                    target->CastSpell(target,37325,true,NULL,dummy);
+                    target->CastSpell(target, 37325, true, NULL, dummy);
                 break;
             case FORM_BATTLESTANCE:
             case FORM_DEFENSIVESTANCE:
@@ -3210,7 +3231,7 @@ void AuraEffect::HandleAuraTransform(AuraApplication const * aurApp, uint8 mode,
         if (GetMiscValue() == 0)
         {
             // player applied only
-            if (target->GetTypeId() != TYPEID_PLAYER)
+            if (target->GetTypeId() != TYPEID_PLAYER || target->GetModelForForm(target->GetShapeshiftForm()))
                 return;
 
             switch (GetId())
@@ -3272,30 +3293,33 @@ void AuraEffect::HandleAuraTransform(AuraApplication const * aurApp, uint8 mode,
         }
         else
         {
-            CreatureInfo const * ci = ObjectMgr::GetCreatureTemplate(GetMiscValue());
-            if (!ci)
+            if (!target->GetModelForForm(target->GetShapeshiftForm()))
             {
-                target->SetDisplayId(16358);              // pig pink ^_^
-                sLog->outError("Auras: unknown creature id = %d (only need its modelid) From Spell Aura Transform in Spell ID = %d", GetMiscValue(), GetId());
-            }
-            else
-            {
-                uint32 model_id = 0;
+                CreatureInfo const * ci = ObjectMgr::GetCreatureTemplate(GetMiscValue());
+                if (!ci)
+                {
+                    target->SetDisplayId(16358);              // pig pink ^_^
+                    sLog->outError("Auras: unknown creature id = %d (only need its modelid) From Spell Aura Transform in Spell ID = %d", GetMiscValue(), GetId());
+                }
+                else
+                {
+                    uint32 model_id = 0;
 
-                if (uint32 modelid = ci->GetRandomValidModelId())
-                    model_id = modelid;                     // Will use the default model here
+                    if (uint32 modelid = ci->GetRandomValidModelId())
+                        model_id = modelid;                     // Will use the default model here
 
-                // Polymorph (sheep)
-                if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_MAGE && GetSpellProto()->SpellIconID == 82 && GetSpellProto()->SpellVisual[0] == 12978)
-                    if (Unit * caster = GetCaster())
-                        if (caster->HasAura(52648))         // Glyph of the Penguin
-                            model_id = 26452;
+                    // Polymorph (sheep)
+                    if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_MAGE && GetSpellProto()->SpellIconID == 82 && GetSpellProto()->SpellVisual[0] == 12978)
+                        if (Unit * caster = GetCaster())
+                            if (caster->HasAura(52648))         // Glyph of the Penguin
+                                model_id = 26452;
 
-                target->SetDisplayId(model_id);
+                    target->SetDisplayId(model_id);
 
-                // Dragonmaw Illusion (set mount model also)
-                if (GetId() == 42016 && target->GetMountID() && !target->GetAuraEffectsByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED).empty())
-                    target->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID,16314);
+                    // Dragonmaw Illusion (set mount model also)
+                    if (GetId() == 42016 && target->GetMountID() && !target->GetAuraEffectsByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED).empty())
+                        target->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID,16314);
+                }
             }
         }
 
@@ -3320,24 +3344,28 @@ void AuraEffect::HandleAuraTransform(AuraApplication const * aurApp, uint8 mode,
     {
         // HandleEffect(this, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true) will reapply it if need
         target->setTransForm(0);
-        target->SetDisplayId(target->GetNativeDisplayId());
 
-        // re-aplly some from still active with preference negative cases
-        Unit::AuraEffectList const& otherTransforms = target->GetAuraEffectsByType(SPELL_AURA_TRANSFORM);
-        if (!otherTransforms.empty())
+        if (!target->GetModelForForm(target->GetShapeshiftForm()))
         {
-            // look for other transform auras
-            AuraEffect* handledAura = *otherTransforms.begin();
-            for (Unit::AuraEffectList::const_iterator i = otherTransforms.begin(); i != otherTransforms.end(); ++i)
+            // re-aplly some from still active with preference negative cases
+            Unit::AuraEffectList const& otherTransforms = target->GetAuraEffectsByType(SPELL_AURA_TRANSFORM);
+            if (!otherTransforms.empty())
             {
-                // negative auras are preferred
-                if (!IsPositiveSpell((*i)->GetSpellProto()->Id))
+                // look for other transform auras
+                AuraEffect* handledAura = *otherTransforms.begin();
+                for (Unit::AuraEffectList::const_iterator i = otherTransforms.begin(); i != otherTransforms.end(); ++i)
                 {
-                    handledAura = *i;
-                    break;
+                    // negative auras are preferred
+                    if (!IsPositiveSpell((*i)->GetSpellProto()->Id))
+                    {
+                        handledAura = *i;
+                        break;
+                    }
                 }
+                handledAura->HandleEffect(target, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true);
             }
-            handledAura->HandleEffect(target, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true);
+            else
+                target->SetDisplayId(target->GetNativeDisplayId());
         }
 
         // Dragonmaw Illusion (restore mount model)
