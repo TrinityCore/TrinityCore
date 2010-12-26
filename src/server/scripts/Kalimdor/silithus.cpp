@@ -1023,7 +1023,6 @@ public:
                     if (!GroupMember->IsWithinDistInMap(me, EVENT_AREA_RADIUS) && GroupMember->GetQuestStatus(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD) == QUEST_STATUS_INCOMPLETE)
                     {
                          GroupMember->FailQuest(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD);
-                         GroupMember->SetQuestStatus(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD, QUEST_STATUS_NONE);
                         ++FailedMemberCount;
                     }
                     ++GroupMemberCount;

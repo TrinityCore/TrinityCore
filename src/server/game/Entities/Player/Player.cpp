@@ -1311,7 +1311,7 @@ void Player::Update(uint32 p_time)
         QuestSet::iterator iter = m_timedquests.begin();
         while (iter != m_timedquests.end())
         {
-            QuestStatusData& q_status = mQuestStatus[*iter];
+            QuestStatusData& q_status = m_QuestStatus[*iter];
             if (q_status.m_timer <= p_time)
             {
                 uint32 quest_id  = *iter;
@@ -1321,8 +1321,7 @@ void Player::Update(uint32 p_time)
             else
             {
                 q_status.m_timer -= p_time;
-                if (q_status.uState != QUEST_NEW)
-                    q_status.uState = QUEST_CHANGED;
+                m_QuestStatusSave[*iter] = true;
                 ++iter;
             }
         }
@@ -4616,6 +4615,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
             trans->PAppend("DELETE FROM character_instance WHERE guid = '%u'",guid);
             trans->PAppend("DELETE FROM character_inventory WHERE guid = '%u'",guid);
             trans->PAppend("DELETE FROM character_queststatus WHERE guid = '%u'",guid);
+            trans->PAppend("DELETE FROM character_queststatus_rewarded WHERE guid = '%u'",guid);
             trans->PAppend("DELETE FROM character_reputation WHERE guid = '%u'",guid);
             trans->PAppend("DELETE FROM character_spell WHERE guid = '%u'",guid);
             trans->PAppend("DELETE FROM character_spell_cooldown WHERE guid = '%u'",guid);
@@ -14039,13 +14039,15 @@ void Player::PrepareQuestMenu(uint64 guid)
     {
         uint32 quest_id = i->second;
         Quest const* pQuest = sObjectMgr->GetQuestTemplate(quest_id);
-        if (!pQuest) continue;
+        if (!pQuest)
+            continue;
 
-        QuestStatus status = GetQuestStatus(quest_id);
+        if (!CanTakeQuest(pQuest, false))
+            continue;
 
-        if (pQuest->IsAutoComplete() && CanTakeQuest(pQuest, false))
+        if (pQuest->IsAutoComplete())
             qm.AddMenuItem(quest_id, 4);
-        else if (status == QUEST_STATUS_NONE && CanTakeQuest(pQuest, false))
+        else if (GetQuestStatus(quest_id) == QUEST_STATUS_NONE)
             qm.AddMenuItem(quest_id, 2);
     }
 }
@@ -14148,9 +14150,7 @@ void Player::SendPreparedQuest(uint64 guid)
 
 bool Player::IsActiveQuest(uint32 quest_id) const
 {
-    QuestStatusMap::const_iterator itr = mQuestStatus.find(quest_id);
-
-    return itr != mQuestStatus.end() && itr->second.m_status != QUEST_STATUS_NONE;
+    return m_QuestStatus.find(quest_id) != m_QuestStatus.end();
 }
 
 Quest const * Player::GetNextQuest(uint64 guid, Quest const *pQuest)
@@ -14237,8 +14237,8 @@ bool Player::CanCompleteQuest(uint32 quest_id)
 {
     if (quest_id)
     {
-        QuestStatusData& q_status = mQuestStatus[quest_id];
-        if (q_status.m_status == QUEST_STATUS_COMPLETE)
+        RewardedQuestSet::iterator rewItr = m_RewardedQuests.find(quest_id);
+        if (rewItr != m_RewardedQuests.end())
             return false;                                   // not allow re-complete quest
 
         Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id);
@@ -14249,6 +14249,12 @@ bool Player::CanCompleteQuest(uint32 quest_id)
         // auto complete quest
         if ((qInfo->IsAutoComplete() || qInfo->GetFlags() & QUEST_FLAGS_AUTOCOMPLETE) && CanTakeQuest(qInfo, false))
             return true;
+
+        QuestStatusMap::iterator itr = m_QuestStatus.find(quest_id);
+        if (itr == m_QuestStatus.end())
+            return false;
+
+        QuestStatusData &q_status = itr->second;
 
         if (q_status.m_status == QUEST_STATUS_INCOMPLETE)
         {
@@ -14403,7 +14409,7 @@ void Player::AddQuest(Quest const *pQuest, Object *questGiver)
     uint32 quest_id = pQuest->GetQuestId();
 
     // if not exist then created with set uState == NEW and rewarded=false
-    QuestStatusData& questStatusData = mQuestStatus[quest_id];
+    QuestStatusData& questStatusData = m_QuestStatus[quest_id];
 
     // check for repeatable quests status reset
     questStatusData.m_status = QUEST_STATUS_INCOMPLETE;
@@ -14450,8 +14456,7 @@ void Player::AddQuest(Quest const *pQuest, Object *questGiver)
 
     SetQuestSlot(log_slot, quest_id, qtime);
 
-    if (questStatusData.uState != QUEST_NEW)
-        questStatusData.uState = QUEST_CHANGED;
+    m_QuestStatusSave[quest_id] = true;
 
     GetAchievementMgr().StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_QUEST, quest_id);
 
@@ -14565,10 +14570,11 @@ void Player::RewardQuest(Quest const *pQuest, uint32 reward, Object* questGiver,
     if (log_slot < MAX_QUEST_LOG_SIZE)
         SetQuestSlot(log_slot, 0);
 
-    QuestStatusData& q_status = mQuestStatus[quest_id];
+    RewardedQuestSet::const_iterator rewItr = m_RewardedQuests.find(quest_id);
+    bool rewarded = (rewItr != m_RewardedQuests.end());
 
     // Not give XP in case already completed once repeatable quest
-    uint32 XP = q_status.m_rewarded ? 0 : uint32(pQuest->XPValue(this)*sWorld->getRate(RATE_XP_QUEST));
+    uint32 XP = rewarded ? 0 : uint32(pQuest->XPValue(this)*sWorld->getRate(RATE_XP_QUEST));
 
     // handle SPELL_AURA_MOD_XP_QUEST_PCT auras
     Unit::AuraEffectList const& ModXPPctAuras = GetAuraEffectsByType(SPELL_AURA_MOD_XP_QUEST_PCT);
@@ -14635,14 +14641,10 @@ void Player::RewardQuest(Quest const *pQuest, uint32 reward, Object* questGiver,
     } else if (pQuest->IsWeekly())
         SetWeeklyQuestStatus(quest_id);
 
-    if (!pQuest->IsRepeatable())
-        SetQuestStatus(quest_id, QUEST_STATUS_COMPLETE);
-    else
-        SetQuestStatus(quest_id, QUEST_STATUS_NONE);
+    RemoveQuest(quest_id);
 
-    q_status.m_rewarded = true;
-    if (q_status.uState != QUEST_NEW)
-        q_status.uState = QUEST_CHANGED;
+    m_RewardedQuests.insert(quest_id);
+    m_RewardedQuestsSave[quest_id] = true;
 
     if (announce)
         SendQuestReward(pQuest, XP, questGiver);
@@ -14705,7 +14707,7 @@ void Player::FailQuest(uint32 questId)
 
         if (pQuest->HasFlag(QUEST_TRINITY_FLAGS_TIMED))
         {
-            QuestStatusData& q_status = mQuestStatus[questId];
+            QuestStatusData& q_status = m_QuestStatus[questId];
 
             RemoveTimedQuest(questId);
             q_status.m_timer = 0;
@@ -14815,13 +14817,12 @@ bool Player::SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg)
     {
         uint32 prevId = abs(*iter);
 
-        QuestStatusMap::iterator i_prevstatus = mQuestStatus.find(prevId);
         Quest const* qPrevInfo = sObjectMgr->GetQuestTemplate(prevId);
 
-        if (qPrevInfo && i_prevstatus != mQuestStatus.end())
+        if (qPrevInfo)
         {
             // If any of the positive previous quests completed, return true
-            if (*iter > 0 && i_prevstatus->second.m_rewarded)
+            if (*iter > 0 && m_RewardedQuests.find(prevId) != m_RewardedQuests.end())
             {
                 // skip one-from-all exclusive group
                 if (qPrevInfo->GetExclusiveGroup() >= 0)
@@ -14842,10 +14843,8 @@ bool Player::SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg)
                     if (exclude_Id == prevId)
                         continue;
 
-                    QuestStatusMap::iterator i_exstatus = mQuestStatus.find(exclude_Id);
-
                     // alternative quest from group also must be completed and rewarded(reported)
-                    if (i_exstatus == mQuestStatus.end() || !i_exstatus->second.m_rewarded)
+                    if (m_RewardedQuests.find(exclude_Id) == m_RewardedQuests.end())
                     {
                         if (msg)
                             SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
@@ -14854,9 +14853,10 @@ bool Player::SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg)
                 }
                 return true;
             }
+
+
             // If any of the negative previous quests active, return true
-            if (*iter < 0 && (i_prevstatus->second.m_status == QUEST_STATUS_INCOMPLETE
-                || (i_prevstatus->second.m_status == QUEST_STATUS_COMPLETE && !GetQuestRewardStatus(prevId))))
+            if (*iter < 0 && m_QuestStatus.find(prevId) != m_QuestStatus.end())
             {
                 // skip one-from-all exclusive group
                 if (qPrevInfo->GetExclusiveGroup() >= 0)
@@ -14877,12 +14877,10 @@ bool Player::SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg)
                     if (exclude_Id == prevId)
                         continue;
 
-                    QuestStatusMap::iterator i_exstatus = mQuestStatus.find(exclude_Id);
+                    QuestStatusMap::iterator i_exstatus = m_QuestStatus.find(exclude_Id);
 
                     // alternative quest from group also must be active
-                    if (i_exstatus == mQuestStatus.end() ||
-                        (i_exstatus->second.m_status != QUEST_STATUS_INCOMPLETE &&
-                        (i_prevstatus->second.m_status != QUEST_STATUS_COMPLETE || GetQuestRewardStatus(prevId))))
+                    if (m_QuestStatus.find(exclude_Id) != m_QuestStatus.end())
                     {
                         if (msg)
                             SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
@@ -14939,8 +14937,7 @@ bool Player::SatisfyQuestReputation(Quest const* qInfo, bool msg)
 
 bool Player::SatisfyQuestStatus(Quest const* qInfo, bool msg)
 {
-    QuestStatusMap::iterator itr = mQuestStatus.find(qInfo->GetQuestId());
-    if  (itr != mQuestStatus.end() && itr->second.m_status != QUEST_STATUS_NONE)
+    if (GetQuestStatus(qInfo->GetQuestId()) != QUEST_STATUS_NONE)
     {
         if (msg)
             SendCanTakeQuestResponse(INVALIDREASON_QUEST_ALREADY_ON);
@@ -15002,11 +14999,8 @@ bool Player::SatisfyQuestExclusiveGroup(Quest const* qInfo, bool msg)
             return false;
         }
 
-        QuestStatusMap::iterator i_exstatus = mQuestStatus.find(exclude_Id);
-
         // alternative quest already started or completed
-        if (i_exstatus != mQuestStatus.end()
-            && (i_exstatus->second.m_status == QUEST_STATUS_COMPLETE || i_exstatus->second.m_status == QUEST_STATUS_INCOMPLETE))
+        if (m_QuestStatus.find(exclude_Id) != m_QuestStatus.end() || m_RewardedQuests.find(exclude_Id) != m_RewardedQuests.end())
         {
             if (msg)
                 SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
@@ -15018,13 +15012,12 @@ bool Player::SatisfyQuestExclusiveGroup(Quest const* qInfo, bool msg)
 
 bool Player::SatisfyQuestNextChain(Quest const* qInfo, bool msg)
 {
-    if (!qInfo->GetNextQuestInChain())
+    uint32 nextQuest = qInfo->GetNextQuestInChain();
+    if (!nextQuest)
         return true;
 
     // next quest in chain already started or completed
-    QuestStatusMap::iterator itr = mQuestStatus.find(qInfo->GetNextQuestInChain());
-    if (itr != mQuestStatus.end()
-        && (itr->second.m_status == QUEST_STATUS_COMPLETE || itr->second.m_status == QUEST_STATUS_INCOMPLETE))
+    if (m_QuestStatus.find(nextQuest) != m_QuestStatus.end() || m_RewardedQuests.find(nextQuest) != m_RewardedQuests.end())
     {
         if (msg)
             SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
@@ -15047,18 +15040,14 @@ bool Player::SatisfyQuestPrevChain(Quest const* qInfo, bool msg)
     {
         uint32 prevId = *iter;
 
-        QuestStatusMap::iterator i_prevstatus = mQuestStatus.find(prevId);
+        QuestStatusMap::iterator i_prevstatus = m_QuestStatus.find(prevId);
 
-        if (i_prevstatus != mQuestStatus.end())
+        // If any of the previous quests in chain active, return false
+        if (i_prevstatus != m_QuestStatus.end())
         {
-            // If any of the previous quests in chain active, return false
-            if (i_prevstatus->second.m_status == QUEST_STATUS_INCOMPLETE
-                || (i_prevstatus->second.m_status == QUEST_STATUS_COMPLETE && !GetQuestRewardStatus(prevId)))
-            {
-                if (msg)
-                    SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
-                return false;
-            }
+            if (msg)
+                SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+            return false;
         }
 
         // check for all quests further down the chain
@@ -15176,10 +15165,8 @@ bool Player::GetQuestRewardStatus(uint32 quest_id) const
     if (qInfo)
     {
         // for repeatable quests: rewarded field is set after first reward only to prevent getting XP more than once
-        QuestStatusMap::const_iterator itr = mQuestStatus.find(quest_id);
-        if (itr != mQuestStatus.end() && itr->second.m_status != QUEST_STATUS_NONE
-            && !qInfo->IsRepeatable())
-            return itr->second.m_rewarded;
+        if (!qInfo->IsRepeatable())
+            return m_RewardedQuests.find(quest_id) != m_RewardedQuests.end();
 
         return false;
     }
@@ -15190,9 +15177,12 @@ QuestStatus Player::GetQuestStatus(uint32 quest_id) const
 {
     if (quest_id)
     {
-        QuestStatusMap::const_iterator itr = mQuestStatus.find(quest_id);
-        if (itr != mQuestStatus.end())
+        QuestStatusMap::const_iterator itr = m_QuestStatus.find(quest_id);
+        if (itr != m_QuestStatus.end())
             return itr->second.m_status;
+
+        if (m_RewardedQuests.find(quest_id) != m_RewardedQuests.end())
+            return QUEST_STATUS_COMPLETE;
     }
     return QUEST_STATUS_NONE;
 }
@@ -15202,9 +15192,9 @@ bool Player::CanShareQuest(uint32 quest_id) const
     Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id);
     if (qInfo && qInfo->HasFlag(QUEST_FLAGS_SHARABLE))
     {
-        QuestStatusMap::const_iterator itr = mQuestStatus.find(quest_id);
-        if (itr != mQuestStatus.end())
-            return itr->second.m_status == QUEST_STATUS_NONE || itr->second.m_status == QUEST_STATUS_INCOMPLETE;
+        QuestStatusMap::const_iterator itr = m_QuestStatus.find(quest_id);
+        if (itr != m_QuestStatus.end())
+            return itr->second.m_status == QUEST_STATUS_INCOMPLETE;
     }
     return false;
 }
@@ -15213,15 +15203,29 @@ void Player::SetQuestStatus(uint32 quest_id, QuestStatus status)
 {
     if (sObjectMgr->GetQuestTemplate(quest_id))
     {
-        QuestStatusData& q_status = mQuestStatus[quest_id];
-
-        q_status.m_status = status;
-
-        if (q_status.uState != QUEST_NEW)
-            q_status.uState = QUEST_CHANGED;
+        m_QuestStatus[quest_id].m_status = status;
+        m_QuestStatusSave[quest_id] = true;
     }
 
     UpdateForQuestWorldObjects();
+}
+
+void Player::RemoveQuest(uint32 quest_id)
+{
+    QuestStatusMap::iterator itr = m_QuestStatus.find(quest_id);
+    if (itr != m_QuestStatus.end())
+    {
+        m_QuestStatus.erase(itr);
+        m_QuestStatusSave[quest_id] = false;
+        return;
+    }
+
+    RewardedQuestSet::iterator rewItr = m_RewardedQuests.find(quest_id);
+    if (rewItr != m_RewardedQuests.end())
+    {
+        m_RewardedQuests.erase(rewItr);
+        m_RewardedQuestsSave[quest_id] = false;
+    }
 }
 
 // not used in Trinity, but used in scripting code
@@ -15233,7 +15237,7 @@ uint16 Player::GetReqKillOrCastCurrentCount(uint32 quest_id, int32 entry)
 
     for (uint8 j = 0; j < QUEST_OBJECTIVES_COUNT; ++j)
         if (qInfo->ReqCreatureOrGOId[j] == entry)
-            return mQuestStatus[quest_id].m_creatureOrGOcount[j];
+            return m_QuestStatus[quest_id].m_creatureOrGOcount[j];
 
     return 0;
 }
@@ -15250,8 +15254,7 @@ void Player::AdjustQuestReqItemCount(Quest const* pQuest, QuestStatusData& quest
                 uint32 curitemcount = GetItemCount(pQuest->ReqItemId[i],true);
 
                 questStatusData.m_itemcount[i] = std::min(curitemcount, reqitemcount);
-                if (questStatusData.uState != QUEST_NEW)
-                    questStatusData.uState = QUEST_CHANGED;
+                m_QuestStatusSave[pQuest->GetQuestId()] = true;
             }
         }
     }
@@ -15273,13 +15276,12 @@ void Player::AreaExploredOrEventHappens(uint32 questId)
         uint16 log_slot = FindQuestSlot(questId);
         if (log_slot < MAX_QUEST_LOG_SIZE)
         {
-            QuestStatusData& q_status = mQuestStatus[questId];
+            QuestStatusData& q_status = m_QuestStatus[questId];
 
             if (!q_status.m_explored)
             {
                 q_status.m_explored = true;
-                if (q_status.uState != QUEST_NEW)
-                    q_status.uState = QUEST_CHANGED;
+                m_QuestStatusSave[questId] = true;
             }
         }
         if (CanCompleteQuest(questId))
@@ -15313,7 +15315,7 @@ void Player::ItemAddedQuestCheck(uint32 entry, uint32 count)
         if (questid == 0)
             continue;
 
-        QuestStatusData& q_status = mQuestStatus[questid];
+        QuestStatusData& q_status = m_QuestStatus[questid];
 
         if (q_status.m_status != QUEST_STATUS_INCOMPLETE)
             continue;
@@ -15333,7 +15335,8 @@ void Player::ItemAddedQuestCheck(uint32 entry, uint32 count)
                 {
                     uint16 additemcount = curitemcount + count <= reqitemcount ? count : reqitemcount - curitemcount;
                     q_status.m_itemcount[j] += additemcount;
-                    if (q_status.uState != QUEST_NEW) q_status.uState = QUEST_CHANGED;
+                    
+                    m_QuestStatusSave[questid] = true;
 
                     SendQuestUpdateAddItem(qInfo, j, additemcount);
                 }
@@ -15364,7 +15367,7 @@ void Player::ItemRemovedQuestCheck(uint32 entry, uint32 count)
             uint32 reqitem = qInfo->ReqItemId[j];
             if (reqitem == entry)
             {
-                QuestStatusData& q_status = mQuestStatus[questid];
+                QuestStatusData& q_status = m_QuestStatus[questid];
 
                 uint32 reqitemcount = qInfo->ReqItemCount[j];
                 uint16 curitemcount;
@@ -15376,8 +15379,8 @@ void Player::ItemRemovedQuestCheck(uint32 entry, uint32 count)
                 {
                     uint16 remitemcount = curitemcount <= reqitemcount ? count : count + reqitemcount - curitemcount;
                     q_status.m_itemcount[j] = (curitemcount <= remitemcount) ? 0 : curitemcount - remitemcount;
-                    if (q_status.uState != QUEST_NEW)
-                        q_status.uState = QUEST_CHANGED;
+                    
+                    m_QuestStatusSave[questid] = true;
 
                     IncompleteQuest(questid);
                 }
@@ -15422,7 +15425,7 @@ void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
         if (!qInfo)
             continue;
         // just if !ingroup || !noraidgroup || raidgroup
-        QuestStatusData& q_status = mQuestStatus[questid];
+        QuestStatusData& q_status = m_QuestStatus[questid];
         if (q_status.m_status == QUEST_STATUS_INCOMPLETE && (!GetGroup() || !GetGroup()->isRaidGroup() || qInfo->IsAllowedInRaid()))
         {
             if (qInfo->HasFlag(QUEST_TRINITY_FLAGS_KILL_OR_CAST))
@@ -15446,8 +15449,8 @@ void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
                         if (curkillcount < reqkillcount)
                         {
                             q_status.m_creatureOrGOcount[j] = curkillcount + addkillcount;
-                            if (q_status.uState != QUEST_NEW)
-                                q_status.uState = QUEST_CHANGED;
+                            
+                            m_QuestStatusSave[questid] = true;
 
                             SendQuestUpdateAddCreatureOrGo(qInfo, guid, j, curkillcount, addkillcount);
                         }
@@ -15478,7 +15481,7 @@ void Player::CastedCreatureOrGO(uint32 entry, uint64 guid, uint32 spell_id)
         if (!qInfo)
             continue;
 
-        QuestStatusData& q_status = mQuestStatus[questid];
+        QuestStatusData& q_status = m_QuestStatus[questid];
 
         if (q_status.m_status == QUEST_STATUS_INCOMPLETE)
         {
@@ -15525,8 +15528,8 @@ void Player::CastedCreatureOrGO(uint32 entry, uint64 guid, uint32 spell_id)
                     if (curCastCount < reqCastCount)
                     {
                         q_status.m_creatureOrGOcount[j] = curCastCount + addCastCount;
-                        if (q_status.uState != QUEST_NEW)
-                            q_status.uState = QUEST_CHANGED;
+                        
+                        m_QuestStatusSave[questid] = true;
 
                         SendQuestUpdateAddCreatureOrGo(qInfo, guid, j, curCastCount, addCastCount);
                     }
@@ -15555,7 +15558,7 @@ void Player::TalkedToCreature(uint32 entry, uint64 guid)
         if (!qInfo)
             continue;
 
-        QuestStatusData& q_status = mQuestStatus[questid];
+        QuestStatusData& q_status = m_QuestStatus[questid];
 
         if (q_status.m_status == QUEST_STATUS_INCOMPLETE)
         {
@@ -15582,8 +15585,8 @@ void Player::TalkedToCreature(uint32 entry, uint64 guid)
                         if (curTalkCount < reqTalkCount)
                         {
                             q_status.m_creatureOrGOcount[j] = curTalkCount + addTalkCount;
-                            if (q_status.uState != QUEST_NEW)
-                                q_status.uState = QUEST_CHANGED;
+                            
+                            m_QuestStatusSave[questid] = true;
 
                             SendQuestUpdateAddCreatureOrGo(qInfo, guid, j, curTalkCount, addTalkCount);
                         }
@@ -15610,7 +15613,7 @@ void Player::MoneyChanged(uint32 count)
         Quest const* qInfo = sObjectMgr->GetQuestTemplate(questid);
         if (qInfo && qInfo->GetRewOrReqMoney() < 0)
         {
-            QuestStatusData& q_status = mQuestStatus[questid];
+            QuestStatusData& q_status = m_QuestStatus[questid];
 
             if (q_status.m_status == QUEST_STATUS_INCOMPLETE)
             {
@@ -15639,7 +15642,7 @@ void Player::ReputationChanged(FactionEntry const* factionEntry)
             {
                 if (qInfo->GetRepObjectiveFaction() == factionEntry->ID)
                 {
-                    QuestStatusData& q_status = mQuestStatus[questid];
+                    QuestStatusData& q_status = m_QuestStatus[questid];
                     if (q_status.m_status == QUEST_STATUS_INCOMPLETE)
                     {
                         if (GetReputationMgr().GetReputation(factionEntry) >= qInfo->GetRepObjectiveValue())
@@ -15667,7 +15670,7 @@ void Player::ReputationChanged2(FactionEntry const* factionEntry)
             {
                 if (qInfo->GetRepObjectiveFaction2() == factionEntry->ID)
                 {
-                    QuestStatusData& q_status = mQuestStatus[questid];
+                    QuestStatusData& q_status = m_QuestStatus[questid];
                     if (q_status.m_status == QUEST_STATUS_INCOMPLETE)
                     {
                         if (GetReputationMgr().GetReputation(factionEntry) >= qInfo->GetRepObjectiveValue2())
@@ -15693,8 +15696,8 @@ bool Player::HasQuestForItem(uint32 itemid) const
         if (questid == 0)
             continue;
 
-        QuestStatusMap::const_iterator qs_itr = mQuestStatus.find(questid);
-        if (qs_itr == mQuestStatus.end())
+        QuestStatusMap::const_iterator qs_itr = m_QuestStatus.find(questid);
+        if (qs_itr == m_QuestStatus.end())
             continue;
 
         QuestStatusData const& q_status = qs_itr->second;
@@ -16578,6 +16581,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 
     // after spell load, learn rewarded spell if need also
     _LoadQuestStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADQUESTSTATUS));
+    _LoadQuestStatusRewarded(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADQUESTSTATUSREW));
     _LoadDailyQuestStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADDAILYQUESTSTATUS));
     _LoadWeeklyQuestStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADWEKLYQUESTSTATUS));
     _LoadRandomBGStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADRANDOMBG));
@@ -17240,12 +17244,10 @@ void Player::LoadPet()
 
 void Player::_LoadQuestStatus(PreparedQueryResult result)
 {
-    mQuestStatus.clear();
-
     uint16 slot = 0;
 
-    ////                                                     0      1       2         3         4      5          6          7          8          9           10          11          12
-    //QueryResult *result = CharacterDatabase.PQuery("SELECT quest, status, rewarded, explored, timer, mobcount1, mobcount2, mobcount3, mobcount4, itemcount1, itemcount2, itemcount3, itemcount4 FROM character_queststatus WHERE guid = '%u'", GetGUIDLow());
+    ////                                                     0      1       3         4      5          6          7          8          9           10          11          12
+    //QueryResult *result = CharacterDatabase.PQuery("SELECT quest, status, explored, timer, mobcount1, mobcount2, mobcount3, mobcount4, itemcount1, itemcount2, itemcount3, itemcount4 FROM character_queststatus WHERE guid = '%u'", GetGUIDLow());
 
     if (result)
     {
@@ -17259,23 +17261,22 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
             if (pQuest)
             {
                 // find or create
-                QuestStatusData& questStatusData = mQuestStatus[quest_id];
+                QuestStatusData& questStatusData = m_QuestStatus[quest_id];
 
                 uint8 qstatus = fields[1].GetUInt8();
                 if (qstatus < MAX_QUEST_STATUS)
                     questStatusData.m_status = QuestStatus(qstatus);
                 else
                 {
-                    questStatusData.m_status = QUEST_STATUS_NONE;
-                    sLog->outError("Player %s have invalid quest %d status (%u), replaced by QUEST_STATUS_NONE(0).",GetName(),quest_id,qstatus);
+                    questStatusData.m_status = QUEST_STATUS_INCOMPLETE;
+                    sLog->outError("Player %s have invalid quest %d status (%u), replaced by QUEST_STATUS_INCOMPLETE(3).",GetName(),quest_id,qstatus);
                 }
 
-                questStatusData.m_rewarded = (fields[2].GetUInt8() > 0);
-                questStatusData.m_explored = (fields[3].GetUInt8() > 0);
+                questStatusData.m_explored = (fields[2].GetUInt8() > 0);
 
-                time_t quest_time = time_t(fields[4].GetUInt64());
+                time_t quest_time = time_t(fields[3].GetUInt64());
 
-                if (pQuest->HasFlag(QUEST_TRINITY_FLAGS_TIMED) && !GetQuestRewardStatus(quest_id) &&  questStatusData.m_status != QUEST_STATUS_NONE)
+                if (pQuest->HasFlag(QUEST_TRINITY_FLAGS_TIMED) && !GetQuestRewardStatus(quest_id))
                 {
                     AddTimedQuest(quest_id);
 
@@ -17287,30 +17288,23 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
                 else
                     quest_time = 0;
 
-                questStatusData.m_creatureOrGOcount[0] = fields[5].GetUInt16();
-                questStatusData.m_creatureOrGOcount[1] = fields[6].GetUInt16();
-                questStatusData.m_creatureOrGOcount[2] = fields[7].GetUInt16();
-                questStatusData.m_creatureOrGOcount[3] = fields[8].GetUInt16();
-                questStatusData.m_itemcount[0] = fields[9].GetUInt16();
-                questStatusData.m_itemcount[1] = fields[10].GetUInt16();
-                questStatusData.m_itemcount[2] = fields[11].GetUInt16();
-                questStatusData.m_itemcount[3] = fields[12].GetUInt16();
-
-                questStatusData.uState = QUEST_UNCHANGED;
+                questStatusData.m_creatureOrGOcount[0] = fields[4].GetUInt16();
+                questStatusData.m_creatureOrGOcount[1] = fields[5].GetUInt16();
+                questStatusData.m_creatureOrGOcount[2] = fields[6].GetUInt16();
+                questStatusData.m_creatureOrGOcount[3] = fields[7].GetUInt16();
+                questStatusData.m_itemcount[0] = fields[8].GetUInt16();
+                questStatusData.m_itemcount[1] = fields[9].GetUInt16();
+                questStatusData.m_itemcount[2] = fields[10].GetUInt16();
+                questStatusData.m_itemcount[3] = fields[11].GetUInt16();
 
                 // add to quest log
-                if (slot < MAX_QUEST_LOG_SIZE &&
-                    ((questStatusData.m_status == QUEST_STATUS_INCOMPLETE ||
-                    questStatusData.m_status == QUEST_STATUS_COMPLETE ||
-                    questStatusData.m_status == QUEST_STATUS_FAILED) &&
-                    (!questStatusData.m_rewarded || pQuest->IsRepeatable())))
+                if (slot < MAX_QUEST_LOG_SIZE)
                 {
                     SetQuestSlot(slot, quest_id, uint32(quest_time)); // cast can't be helped
 
                     if (questStatusData.m_status == QUEST_STATUS_COMPLETE)
                         SetQuestSlotState(slot, QUEST_STATE_COMPLETE);
-
-                    if (questStatusData.m_status == QUEST_STATUS_FAILED)
+                    else if (questStatusData.m_status == QUEST_STATUS_FAILED)
                         SetQuestSlotState(slot, QUEST_STATE_FAIL);
 
                     for (uint8 idx = 0; idx < QUEST_OBJECTIVES_COUNT; ++idx)
@@ -17318,22 +17312,6 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
                             SetQuestSlotCounter(slot, idx, questStatusData.m_creatureOrGOcount[idx]);
 
                     ++slot;
-                }
-
-                if (questStatusData.m_rewarded)
-                {
-                    // learn rewarded spell if unknown
-                    learnQuestRewardedSpells(pQuest);
-
-                    // set rewarded title if any
-                    if (pQuest->GetCharTitleId())
-                    {
-                        if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(pQuest->GetCharTitleId()))
-                            SetTitle(titleEntry);
-                    }
-
-                    if (pQuest->GetBonusTalents())
-                        m_questRewardTalentCount += pQuest->GetBonusTalents();
                 }
 
                 sLog->outDebug("Quest status is {%u} for quest {%u} for player (GUID: %u)", questStatusData.m_status, quest_id, GetGUIDLow());
@@ -17345,6 +17323,41 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
     // clear quest log tail
     for (uint16 i = slot; i < MAX_QUEST_LOG_SIZE; ++i)
         SetQuestSlot(i, 0);
+}
+
+void Player::_LoadQuestStatusRewarded(PreparedQueryResult result)
+{
+    // SELECT quest FROM character_queststatus_rewarded WHERE guid = ?
+
+    if (result)
+    {
+        do
+        {
+            Field* fields = result->Fetch();
+
+            uint32 quest_id = fields[0].GetUInt32();
+                                                            // used to be new, no delete?
+            Quest const* pQuest = sObjectMgr->GetQuestTemplate(quest_id);
+            if (pQuest)
+            {
+                // learn rewarded spell if unknown
+                learnQuestRewardedSpells(pQuest);
+
+                // set rewarded title if any
+                if (pQuest->GetCharTitleId())
+                {
+                    if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(pQuest->GetCharTitleId()))
+                        SetTitle(titleEntry);
+                }
+
+                if (pQuest->GetBonusTalents())
+                    m_questRewardTalentCount += pQuest->GetBonusTalents();
+            }
+
+            m_RewardedQuests.insert(quest_id);
+        }
+        while (result->NextRow());
+    }
 }
 
 void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
@@ -18316,25 +18329,36 @@ void Player::_SaveMail(SQLTransaction& trans)
 
 void Player::_SaveQuestStatus(SQLTransaction& trans)
 {
-    // we don't need transactions here.
-    for (QuestStatusMap::iterator i = mQuestStatus.begin(); i != mQuestStatus.end(); ++i)
+    QuestStatusSaveMap::iterator saveItr;
+    QuestStatusMap::iterator statusItr;
+
+    for (saveItr = m_QuestStatusSave.begin(); saveItr != m_QuestStatusSave.end(); ++saveItr)
     {
-        switch (i->second.uState)
+        if (saveItr->second)
         {
-            case QUEST_NEW :
-                trans->PAppend("INSERT INTO character_queststatus (guid,quest,status,rewarded,explored,timer,mobcount1,mobcount2,mobcount3,mobcount4,itemcount1,itemcount2,itemcount3,itemcount4) "
-                    "VALUES ('%u', '%u', '%u', '%u', '%u', '" UI64FMTD "', '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u')",
-                    GetGUIDLow(), i->first, i->second.m_status, i->second.m_rewarded, i->second.m_explored, uint64(i->second.m_timer / IN_MILLISECONDS+ sWorld->GetGameTime()), i->second.m_creatureOrGOcount[0], i->second.m_creatureOrGOcount[1], i->second.m_creatureOrGOcount[2], i->second.m_creatureOrGOcount[3], i->second.m_itemcount[0], i->second.m_itemcount[1], i->second.m_itemcount[2], i->second.m_itemcount[3]);
-                break;
-            case QUEST_CHANGED :
-                trans->PAppend("UPDATE character_queststatus SET status = '%u',rewarded = '%u',explored = '%u',timer = '" UI64FMTD "',mobcount1 = '%u',mobcount2 = '%u',mobcount3 = '%u',mobcount4 = '%u',itemcount1 = '%u',itemcount2 = '%u',itemcount3 = '%u',itemcount4 = '%u'  WHERE guid = '%u' AND quest = '%u' ",
-                    i->second.m_status, i->second.m_rewarded, i->second.m_explored, uint64(i->second.m_timer / IN_MILLISECONDS + sWorld->GetGameTime()), i->second.m_creatureOrGOcount[0], i->second.m_creatureOrGOcount[1], i->second.m_creatureOrGOcount[2], i->second.m_creatureOrGOcount[3], i->second.m_itemcount[0], i->second.m_itemcount[1], i->second.m_itemcount[2], i->second.m_itemcount[3], GetGUIDLow(), i->first);
-                break;
-            case QUEST_UNCHANGED:
-                break;
-        };
-        i->second.uState = QUEST_UNCHANGED;
+            statusItr = m_QuestStatus.find(saveItr->first);
+            if (statusItr != m_QuestStatus.end() && statusItr->second.m_status != QUEST_STATUS_NONE)
+            {
+                trans->PAppend("REPLACE INTO character_queststatus (guid,quest,status,explored,timer,mobcount1,mobcount2,mobcount3,mobcount4,itemcount1,itemcount2,itemcount3,itemcount4) "
+                    "VALUES ('%u', '%u', '%u', '%u', '" UI64FMTD "', '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u')",
+                    GetGUIDLow(), statusItr->first, statusItr->second.m_status, statusItr->second.m_explored, uint64(statusItr->second.m_timer / IN_MILLISECONDS+ sWorld->GetGameTime()), statusItr->second.m_creatureOrGOcount[0], statusItr->second.m_creatureOrGOcount[1], statusItr->second.m_creatureOrGOcount[2], statusItr->second.m_creatureOrGOcount[3], statusItr->second.m_itemcount[0], statusItr->second.m_itemcount[1], statusItr->second.m_itemcount[2], statusItr->second.m_itemcount[3]);
+            }
+        }
+        else
+            trans->PAppend("DELETE FROM character_queststatus WHERE guid = %u AND quest = %u", GetGUIDLow(), saveItr->first);
     }
+
+    m_QuestStatusSave.clear();
+
+    for (saveItr = m_RewardedQuestsSave.begin(); saveItr != m_RewardedQuestsSave.end(); ++saveItr)
+    {
+        if (saveItr->second)
+            trans->PAppend("INSERT IGNORE INTO character_queststatus_rewarded (guid, quest) VALUES (%u, %u)", GetGUIDLow(), *saveItr);
+        else
+            trans->PAppend("DELETE FROM character_queststatus_rewarded WHERE guid = %u AND quest = %u", GetGUIDLow(), *saveItr);
+    }
+
+    m_RewardedQuestsSave.clear();
 }
 
 void Player::_SaveDailyQuestStatus(SQLTransaction& trans)
@@ -21305,13 +21329,9 @@ void Player::learnQuestRewardedSpells(Quest const* quest)
 void Player::learnQuestRewardedSpells()
 {
     // learn spells received from quest completing
-    for (QuestStatusMap::const_iterator itr = mQuestStatus.begin(); itr != mQuestStatus.end(); ++itr)
+    for (RewardedQuestSet::const_iterator itr = m_RewardedQuests.begin(); itr != m_RewardedQuests.end(); ++itr)
     {
-        // skip no rewarded quests
-        if (!itr->second.m_rewarded)
-            continue;
-
-        Quest const* quest = sObjectMgr->GetQuestTemplate(itr->first);
+        Quest const* quest = sObjectMgr->GetQuestTemplate(*itr);
         if (!quest)
             continue;
 
@@ -21524,8 +21544,8 @@ bool Player::HasQuestForGO(int32 GOId) const
         if (questid == 0)
             continue;
 
-        QuestStatusMap::const_iterator qs_itr = mQuestStatus.find(questid);
-        if (qs_itr == mQuestStatus.end())
+        QuestStatusMap::const_iterator qs_itr = m_QuestStatus.find(questid);
+        if (qs_itr == m_QuestStatus.end())
             continue;
 
         QuestStatusData const& qs = qs_itr->second;

@@ -186,6 +186,10 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt32(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADBANNED, stmt);
 
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_PLAYER_QUESTSTATUSREW);
+    stmt->setUInt32(0, lowGuid);
+    res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADQUESTSTATUSREW, stmt);
+
     return res;
 }
 
@@ -1636,7 +1640,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
         }
 
         // Delete all current quests
-        trans->PAppend("DELETE FROM `character_queststatus` WHERE `status` = 3 AND guid ='%u'",GUID_LOPART(guid));
+        trans->PAppend("DELETE FROM `character_queststatus` WHERE guid ='%u'",GUID_LOPART(guid));
 
         // Delete record of the faction old completed quests
         {
@@ -1668,7 +1672,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
             questsStr = questsStr.substr(0, questsStr.length() - 1);
 
             if (!questsStr.empty())
-                trans->PAppend("DELETE FROM `character_queststatus` WHERE guid='%u' AND quest IN (%s)", lowGuid, questsStr.c_str());
+                trans->PAppend("DELETE FROM `character_queststatus_rewarded` WHERE guid='%u' AND quest IN (%s)", lowGuid, questsStr.c_str());
         }
 
         if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD))
