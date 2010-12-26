@@ -2816,6 +2816,11 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                                 ++itr;
                         }
                         break;
+                    case 70402: case 72511:
+                    case 72512: case 72513:
+                        if (Unit* owner = ObjectAccessor::GetUnit(*m_caster, m_caster->GetCreatorGUID()))
+                            unitList.remove(owner);
+                        break;
                     case 71390:                             // Pact of the Darkfallen
                     {
                         for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end();)
