@@ -2631,12 +2631,19 @@ void Spell::EffectEnergizePct(SpellEffIndex effIndex)
 
 void Spell::SendLoot(uint64 guid, LootType loottype)
 {
-    Player* player = (Player*)m_caster;
+    Player* player = m_caster->ToPlayer();
     if (!player)
         return;
 
     if (gameObjTarget)
     {
+        // special case, already has GossipHello inside so return and avoid calling twice
+        if (gameObjTarget->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
+        {
+            gameObjTarget->Use(m_caster);
+            return;
+        }
+
         if (sScriptMgr->OnGossipHello(player, gameObjTarget))
             return;
 
@@ -2660,10 +2667,6 @@ void Spell::SendLoot(uint64 guid, LootType loottype)
                 // triggering linked GO
                 if (uint32 trapEntry = gameObjTarget->GetGOInfo()->spellFocus.linkedTrapId)
                     gameObjTarget->TriggeringLinkedGameObject(trapEntry,m_caster);
-                return;
-
-            case GAMEOBJECT_TYPE_GOOBER:
-                gameObjTarget->Use(m_caster);
                 return;
 
             case GAMEOBJECT_TYPE_CHEST:
