@@ -4225,11 +4225,8 @@ void AuraEffect::HandleAuraControlVehicle(AuraApplication const * aurApp, uint8 
         return;
 
     if (apply)
-    {
-        //if (caster->GetTypeId() == TYPEID_PLAYER)
-        //    if (Pet *pet = caster->ToPlayer()->GetPet())
-        //        pet->Remove(PET_SAVE_AS_CURRENT);
-        caster->EnterVehicle(target->GetVehicleKit(), m_amount - 1);
+    {   
+        caster->EnterVehicle(target->GetVehicleKit(), m_amount - 1, true);
     }
     else
     {

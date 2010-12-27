@@ -1968,10 +1968,10 @@ class Unit : public WorldObject
         bool m_ControlledByPlayer;
 
         bool CheckPlayerCondition(Player* pPlayer);
-        void EnterVehicle(Unit *base, int8 seatId = -1) { EnterVehicle(base->GetVehicleKit(), seatId); }
-        void EnterVehicle(Vehicle *vehicle, int8 seatId = -1);
+        void EnterVehicle(Unit *base, int8 seatId = -1, bool byAura = false) { EnterVehicle(base->GetVehicleKit(), seatId, byAura); }
+        void EnterVehicle(Vehicle *vehicle, int8 seatId = -1, bool byAura = false);
         void ExitVehicle();
-        void ChangeSeat(int8 seatId, bool next = true);
+        void ChangeSeat(int8 seatId, bool next = true, bool byAura = false);
 
         void BuildMovementPacket(ByteBuffer *data) const;
 
