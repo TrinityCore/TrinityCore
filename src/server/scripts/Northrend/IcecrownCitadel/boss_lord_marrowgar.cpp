@@ -46,6 +46,7 @@ enum eSpells
 
     // Bone Spike
     SPELL_IMPALED               = 69065,
+    SPELL_RIDE_VEHICLE          = 46598,
 
     // Coldflame
     SPELL_COLDFLAME_PASSIVE     = 69145,
@@ -354,23 +355,19 @@ class npc_bone_spike : public CreatureScript
 
         struct npc_bone_spikeAI : public Scripted_NoMovementAI
         {
-            npc_bone_spikeAI(Creature* creature) : Scripted_NoMovementAI(creature), vehicle(creature->GetVehicleKit())
+            npc_bone_spikeAI(Creature* creature) : Scripted_NoMovementAI(creature), hasTrappedUnit(false)
             {
-                ASSERT(vehicle);
-                trappedGUID = 0;
-            }
-
-            void Reset()
-            {
-                trappedGUID = 0;
+                ASSERT(creature->GetVehicleKit());
             }
 
             void JustDied(Unit* /*killer*/)
             {
-                events.Reset();
-                if (Player* trapped = ObjectAccessor::GetPlayer(*me, trappedGUID))
-                    trapped->RemoveAurasDueToSpell(SPELL_IMPALED);
-                trappedGUID = 0;
+                if (TempSummon* summ = me->ToTempSummon())
+                {
+                    if (Unit* trapped = summ->GetSummoner())
+                        trapped->RemoveAurasDueToSpell(SPELL_IMPALED);
+                    summ->UnSummon();
+                }
             }
 
             void KilledUnit(Unit* victim)
@@ -378,20 +375,19 @@ class npc_bone_spike : public CreatureScript
                 if (TempSummon* summ = me->ToTempSummon())
                     summ->UnSummon();
                 victim->RemoveAurasDueToSpell(SPELL_IMPALED);
-                trappedGUID = 0;
             }
 
             void IsSummonedBy(Unit* summoner)
             {
-                trappedGUID = summoner->GetGUID();
-                summoner->EnterVehicle(vehicle, 0);
                 DoCast(summoner, SPELL_IMPALED);
+                summoner->CastSpell(me, SPELL_RIDE_VEHICLE, true);
                 events.ScheduleEvent(EVENT_FAIL_BONED, 8000);
+                hasTrappedUnit = true;
             }
 
             void UpdateAI(const uint32 diff)
             {
-                if (!trappedGUID)
+                if (!hasTrappedUnit)
                     return;
 
                 events.Update(diff);
@@ -402,9 +398,8 @@ class npc_bone_spike : public CreatureScript
             }
 
         private:
-            uint64 trappedGUID;
             EventMap events;
-            Vehicle* vehicle;
+            bool hasTrappedUnit;
         };
 
         CreatureAI* GetAI(Creature* creature) const
