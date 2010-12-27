@@ -53,6 +53,14 @@ enum VehicleSeatFlags
     VEHICLE_SEAT_FLAG_CAN_CAST                   = 0x20000000,           // Lua_UnitHasVehicleUI
 };
 
+enum VehicleSeatFlagsB
+{
+    VEHICLE_SEAT_FLAG_B_NONE                     = 0x00000000,
+    VEHICLE_SEAT_FLAG_B_USABLE_FORCED            = 0x00000002, 
+    VEHICLE_SEAT_FLAG_B_USABLE_FORCED_2          = 0x00000040,
+    VEHICLE_SEAT_FLAG_B_USABLE_FORCED_3          = 0x00000100,
+};
+
 enum VehicleSpells
 {
     VEHICLE_SPELL_PARACHUTE                      = 45472
@@ -103,8 +111,8 @@ class Vehicle
 
         bool HasEmptySeat(int8 seatId) const;
         Unit *GetPassenger(int8 seatId) const;
-        int8 GetNextEmptySeat(int8 seatId, bool next) const;
-        bool AddPassenger(Unit *passenger, int8 seatId = -1);
+        int8 GetNextEmptySeat(int8 seatId, bool next, bool byAura = false) const;
+        bool AddPassenger(Unit *passenger, int8 seatId = -1, bool byAura = false);
         void RemovePassenger(Unit *passenger);
         void RelocatePassengers(float x, float y, float z, float ang);
         void RemoveAllPassengers();
@@ -116,7 +124,7 @@ class Vehicle
     protected:
         Unit *me;
         VehicleEntry const *m_vehicleInfo;
-        uint32 m_usableSeatNum;
+        uint32 m_usableSeatNum;         // Number of seats that match VehicleSeatEntry::UsableByPlayer, used for proper display flags
         uint32 m_bonusHP;
 
         void InstallAccessory(uint32 entry, int8 seatId, bool minion = true);
