@@ -6400,7 +6400,7 @@ void AuraEffect::HandleAuraLinked(AuraApplication const * aurApp, uint8 mode, bo
 
     if (apply)
     {
-        Unit * caster = GetCaster();
+        Unit * caster = GetTriggeredSpellCaster(m_spellProto, GetCaster(), target);
 
         if (!caster)
             return;
