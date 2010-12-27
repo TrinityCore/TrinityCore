@@ -766,7 +766,7 @@ class spell_deathwhisper_mana_barrier : public SpellScriptLoader
         {
             PrepareAuraScript(spell_deathwhisper_mana_barrier_AuraScript);
 
-            void HandlePeriodicTick(AuraEffect const* /*aurEff*/, AuraApplication const* /*aurApp*/)
+            void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
                 Unit* caster = GetCaster();

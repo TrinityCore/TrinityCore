@@ -969,7 +969,7 @@ class spell_deathbringer_blood_link_aura : public SpellScriptLoader
                 return true;
             }
 
-            void HandlePeriodicTick(AuraEffect const* /*aurEff*/, AuraApplication const* /*aurApp*/)
+            void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
                 if (GetUnitOwner()->getPowerType() == POWER_ENERGY && GetUnitOwner()->GetPower(POWER_ENERGY) == GetUnitOwner()->GetMaxPower(POWER_ENERGY))
@@ -1022,8 +1022,8 @@ class spell_deathbringer_blood_power : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectCalcAmount += AuraEffectCalcAmountFn(spell_deathbringer_blood_power_AuraScript::RecalculateHook, EFFECT_0, SPELL_AURA_MOD_SCALE);
-                OnEffectCalcAmount += AuraEffectCalcAmountFn(spell_deathbringer_blood_power_AuraScript::RecalculateHook, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_deathbringer_blood_power_AuraScript::RecalculateHook, EFFECT_0, SPELL_AURA_MOD_SCALE);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_deathbringer_blood_power_AuraScript::RecalculateHook, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
             }
 
             bool Load()
