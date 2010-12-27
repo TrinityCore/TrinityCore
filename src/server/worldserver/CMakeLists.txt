@@ -152,7 +152,7 @@ endif()
 add_dependencies(worldserver revision.h)
 
 if( UNIX )
-  set(worldserver_LINK_FLAGS "-pthread -lncurses -lcrypto ${worldserver_LINK_FLAGS}")
+  set(worldserver_LINK_FLAGS "-pthread -lncurses ${worldserver_LINK_FLAGS}")
 endif()
 
 set_target_properties(worldserver PROPERTIES LINK_FLAGS "${worldserver_LINK_FLAGS}")
