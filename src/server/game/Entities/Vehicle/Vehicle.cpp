@@ -280,7 +280,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId, bool byAura)
     if (seatId < 0) // no specific seat requirement
     {
         for (seat = m_Seats.begin(); seat != m_Seats.end(); ++seat)
-            if (!seat->second.passenger && ((!byAura && seat->second.seatInfo->IsUsableByPlayer() || (byAura && seat->second.seatInfo->IsUsableByAura()))))
+            if (!seat->second.passenger && ((!(byAura && seat->second.seatInfo->IsUsableByPlayer()) || (byAura && seat->second.seatInfo->IsUsableByAura()))))
                 break;
 
         if (seat == m_Seats.end()) // no available seat

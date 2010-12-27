@@ -359,10 +359,10 @@ struct QuestStatusData
         memset(m_creatureOrGOcount, 0, QUEST_OBJECTIVES_COUNT * sizeof(uint16));
     }
 
+    QuestStatus m_status;
+    bool m_explored;
     uint32 m_timer;
     uint16 m_itemcount[QUEST_ITEM_OBJECTIVES_COUNT];
     uint16 m_creatureOrGOcount[QUEST_OBJECTIVES_COUNT];
-    QuestStatus m_status;
-    bool m_explored;
 };
 #endif

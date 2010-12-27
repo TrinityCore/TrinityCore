@@ -304,7 +304,7 @@ class AuraScript : public _SpellScript
         typedef void(CLASSNAME::*AuraEffectCalcPeriodicFnType)(AuraEffect const *, bool &, int32 &); \
         typedef void(CLASSNAME::*AuraEffectCalcSpellModFnType)(AuraEffect const *, SpellModifier *&); \
         typedef void(CLASSNAME::*AuraEffectAbsorbFnType)(AuraEffect *, DamageInfo &, uint32 &); \
-        //typedef void(CLASSNAME::*AuraAbsorbFnType)(AuraEffect *, DamageInfo &); \
+        //typedef void(CLASSNAME::*AuraAbsorbFnType)(AuraEffect *, DamageInfo &);
 
         AURASCRIPT_FUNCTION_TYPE_DEFINES(AuraScript)
 
