@@ -1601,7 +1601,7 @@ void Spell::EffectForceCast(SpellEffIndex effIndex)
     }
     Unit * caster = GetTriggeredSpellCaster(spellInfo, m_caster, unitTarget);
 
-    caster->CastSpell(unitTarget, spellInfo, true, NULL, NULL, m_originalCasterGUID);
+    unitTarget->CastSpell(unitTarget, spellInfo, true, NULL, NULL, m_originalCasterGUID);
 }
 
 void Spell::EffectForceCastWithValue(SpellEffIndex effIndex)
@@ -1622,7 +1622,7 @@ void Spell::EffectForceCastWithValue(SpellEffIndex effIndex)
     int32 bp = damage;
     Unit * caster = GetTriggeredSpellCaster(spellInfo, m_caster, unitTarget);
 
-    caster->CastCustomSpell(unitTarget, spellInfo->Id, &bp, &bp, &bp, true, NULL, NULL, m_originalCasterGUID);
+    unitTarget->CastCustomSpell(unitTarget, spellInfo->Id, &bp, &bp, &bp, true, NULL, NULL, m_originalCasterGUID);
 }
 
 
