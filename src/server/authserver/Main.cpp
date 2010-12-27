@@ -181,11 +181,11 @@ extern int main(int argc, char **argv)
                 ULONG_PTR curAff = Aff & appAff;            // remove non accessible processors
 
                 if (!curAff)
-                    sLog.outError("Processors marked in UseProcessors bitmask (hex) %x not accessible for realmd. Accessible processors bitmask (hex): %x", Aff, appAff);
+                    sLog->outError("Processors marked in UseProcessors bitmask (hex) %x not accessible for realmd. Accessible processors bitmask (hex): %x", Aff, appAff);
                 else if (SetProcessAffinityMask(hProcess,curAff))
-                    sLog.outString("Using processors (bitmask, hex): %x", curAff);
+                    sLog->outString("Using processors (bitmask, hex): %x", curAff);
                 else
-                    sLog.outError("Can't set used processors (hex): %x", curAff);
+                    sLog->outError("Can't set used processors (hex): %x", curAff);
             }
             sLog->outString();
         }
