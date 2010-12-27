@@ -5079,6 +5079,12 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     }
                     return;
                 }
+                case 65594: // Cancel Stone Grip
+                {
+                    uint32 spellToRemove = unitTarget->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL ? 62166 : 63981;
+                    unitTarget->RemoveAurasDueToSpell(spellToRemove);
+                    return;
+                }
                 case 60123: // Lightwell
                 {
                     if (m_caster->GetTypeId() != TYPEID_UNIT || !m_caster->ToCreature()->isSummon())
