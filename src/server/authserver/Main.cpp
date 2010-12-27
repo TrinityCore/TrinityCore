@@ -16,13 +16,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// \addtogroup realmd Realm Daemon
-/// @{
-/// \file
+#include <ace/Dev_Poll_Reactor.h>
+#include <ace/TP_Reactor.h>
+#include <ace/ACE.h>
+#include <ace/Sig_Handler.h>
+#include <openssl/opensslv.h>
+#include <openssl/crypto.h>
 
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
-
 #include "Configuration/Config.h"
 #include "Log.h"
 #include "SystemConfig.h"
@@ -31,84 +33,50 @@
 #include "RealmList.h"
 #include "RealmAcceptor.h"
 
-#include <ace/Dev_Poll_Reactor.h>
-#include <ace/TP_Reactor.h>
-#include <ace/ACE.h>
-#include <ace/Sig_Handler.h>
-
-#include <openssl/opensslv.h>
-#include <openssl/crypto.h>
-
 #ifndef _TRINITY_REALM_CONFIG
 # define _TRINITY_REALM_CONFIG  "authserver.conf"
-#endif //_TRINITY_REALM_CONFIG
-
-#ifdef _WIN32
-#include "ServiceWin32.h"
-char serviceName[] = "TrinityRealm";
-char serviceLongName[] = "Trinity realm service";
-char serviceDescription[] = "Massive Network Game Object Server";
-/*
- * -1 - not in service mode
- *  0 - stopped
- *  1 - running
- *  2 - paused
- */
-int m_ServiceStatus = -1;
 #endif
 
 bool StartDB();
 
-bool stopEvent = false;                                     ///< Setting it to true stops the server
+bool stopEvent = false;                                     // Setting it to true stops the server
 
-LoginDatabaseWorkerPool LoginDatabase;                      ///< Accessor to the realm server database
+LoginDatabaseWorkerPool LoginDatabase;                      // Accessor to the realm server database
 
-/// Handle realmd's termination signals
+// Handle realmd's termination signals
 class RealmdSignalHandler : public Trinity::SignalHandler
 {
-    public:
-        virtual void HandleSignal(int SigNum)
+public:
+    virtual void HandleSignal(int SigNum)
+    {
+        switch (SigNum)
         {
-            switch (SigNum)
-            {
-                case SIGINT:
-                case SIGTERM:
-                    stopEvent = true;
-                    break;
-                #ifdef _WIN32
-                case SIGBREAK:
-                    if (m_ServiceStatus != 1)
-                        stopEvent = true;
-                    break;
-                #endif /* _WIN32 */
-            }
+        case SIGINT:
+        case SIGTERM:
+            stopEvent = true;
+            break;
         }
+    }
 };
 
 /// Print out the usage string for this program on the console.
 void usage(const char *prog)
 {
     sLog->outString("Usage: \n %s [<options>]\n"
-        "    -c config_file           use config_file as configuration file\n\r"
-        #ifdef _WIN32
-        "    Running as service functions:\n\r"
-        "    --service                run as service\n\r"
-        "    -s install               install service\n\r"
-        "    -s uninstall             uninstall service\n\r"
-        #endif
-        ,prog);
+        "    -c config_file           use config_file as configuration file\n\r",
+        prog);
 }
 
-/// Launch the realm server
+// Launch the realm server
 extern int main(int argc, char **argv)
 {
     sLog->SetLogDB(false);
-    ///- Command line parsing to get the configuration file name
-    char const* cfg_file = _TRINITY_REALM_CONFIG;
-    int c=1;
+    // Command line parsing to get the configuration file name
+    char const *cfg_file = _TRINITY_REALM_CONFIG;
+    int c = 1;
     while(c < argc)
     {
-        if (strcmp(argv[c],"-c") == 0)
+        if (strcmp(argv[c], "-c") == 0)
         {
             if (++c >= argc)
             {
@@ -119,44 +87,6 @@ extern int main(int argc, char **argv)
             else
                 cfg_file = argv[c];
         }
-
-        #ifdef _WIN32
-        ////////////
-        //Services//
-        ////////////
-        if (strcmp(argv[c],"-s") == 0)
-        {
-            if (++c >= argc)
-            {
-                sLog->outError("Runtime-Error: -s option requires an input argument");
-                usage(argv[0]);
-                return 1;
-            }
-            if (strcmp(argv[c],"install") == 0)
-            {
-                if (WinServiceInstall())
-                    sLog->outString("Installing service");
-                return 1;
-            }
-            else if (strcmp(argv[c],"uninstall") == 0)
-            {
-                if (WinServiceUninstall())
-                    sLog->outString("Uninstalling service");
-                return 1;
-            }
-            else
-            {
-                sLog->outError("Runtime-Error: unsupported option %s",argv[c]);
-                usage(argv[0]);
-                return 1;
-            }
-        }
-        if (strcmp(argv[c],"--service") == 0)
-        {
-            WinServiceRun();
-        }
-        ////
-        #endif
         ++c;
     }
 
@@ -182,7 +112,7 @@ extern int main(int argc, char **argv)
 
     sLog->outBasic("Max allowed open files is %d", ACE::max_handles());
 
-    /// realmd PID file creation
+    // realmd PID file creation
     std::string pidfile = sConfig->GetStringDefault("PidFile", "");
     if (!pidfile.empty())
     {
@@ -196,16 +126,16 @@ extern int main(int argc, char **argv)
         sLog->outString("Daemon PID: %u\n", pid);
     }
 
-    ///- Initialize the database connection
+    // Initialize the database connection
     if (!StartDB())
         return 1;
 
-    ///- Initialize the log database
+    // Initialize the log database
     sLog->SetLogDBLater(sConfig->GetBoolDefault("EnableLogDB", false)); // set var to enable DB logging once startup finished.
     sLog->SetLogDB(false);
     sLog->SetRealmID(0);                                               // ensure we've set realm to 0 (realmd realmid)
 
-    ///- Get the list of realms for the server
+    // Get the list of realms for the server
     sRealmList->Initialize(sConfig->GetIntDefault("RealmsStateUpdateDelay", 20));
     if (sRealmList->size() == 0)
     {
@@ -213,7 +143,7 @@ extern int main(int argc, char **argv)
         return 1;
     }
 
-    ///- Launch the listening network socket
+    // Launch the listening network socket
     RealmAcceptor acceptor;
 
     uint16 rmport = sConfig->GetIntDefault("RealmServerPort", 3724);
@@ -229,20 +159,14 @@ extern int main(int argc, char **argv)
 
     // Initialise the signal handlers
     RealmdSignalHandler SignalINT, SignalTERM;
-    #ifdef _WIN32
-    RealmdSignalHandler SignalBREAK;
-    #endif /* _WIN32 */
 
     // Register realmd's signal handlers
     ACE_Sig_Handler Handler;
     Handler.register_handler(SIGINT, &SignalINT);
     Handler.register_handler(SIGTERM, &SignalTERM);
-    #ifdef _WIN32
-    Handler.register_handler(SIGBREAK, &SignalBREAK);
-    #endif /* _WIN32 */
 
     ///- Handle affinity for multiple processors and process priority on Windows
-    #ifdef _WIN32
+#ifdef _WIN32
     {
         HANDLE hProcess = GetCurrentProcess();
 
@@ -257,16 +181,11 @@ extern int main(int argc, char **argv)
                 ULONG_PTR curAff = Aff & appAff;            // remove non accessible processors
 
                 if (!curAff)
-                {
-                    sLog->outError("Processors marked in UseProcessors bitmask (hex) %x not accessible for realmd. Accessible processors bitmask (hex): %x",Aff,appAff);
-                }
+                    sLog.outError("Processors marked in UseProcessors bitmask (hex) %x not accessible for realmd. Accessible processors bitmask (hex): %x", Aff, appAff);
+                else if (SetProcessAffinityMask(hProcess,curAff))
+                    sLog.outString("Using processors (bitmask, hex): %x", curAff);
                 else
-                {
-                    if (SetProcessAffinityMask(hProcess,curAff))
-                        sLog->outString("Using processors (bitmask, hex): %x", curAff);
-                    else
-                        sLog->outError("Can't set used processors (hex): %x", curAff);
-                }
+                    sLog.outError("Can't set used processors (hex): %x", curAff);
             }
             sLog->outString();
         }
@@ -275,14 +194,14 @@ extern int main(int argc, char **argv)
 
         if (Prio)
         {
-            if (SetPriorityClass(hProcess,HIGH_PRIORITY_CLASS))
+            if (SetPriorityClass(hProcess, HIGH_PRIORITY_CLASS))
                 sLog->outString("TrinityRealm process priority class set to HIGH");
             else
                 sLog->outError("Can't set realmd process priority class.");
             sLog->outString();
         }
     }
-    #endif
+#endif
 
     // maximum counter for next ping
     uint32 numLoops = (sConfig->GetIntDefault("MaxPingTime", 30) * (MINUTE * 1000000 / 100000));
@@ -299,7 +218,7 @@ extern int main(int argc, char **argv)
     else
         sLog->SetLogDB(false);
 
-    ///- Wait for termination signal
+    // Wait for termination signal
     while (!stopEvent)
     {
         // dont move this outside the loop, the reactor will modify it
@@ -314,20 +233,16 @@ extern int main(int argc, char **argv)
             sLog->outDetail("Ping MySQL to keep connection alive");
             LoginDatabase.KeepAlive();
         }
-#ifdef _WIN32
-        if (m_ServiceStatus == 0) stopEvent = true;
-        while (m_ServiceStatus == 2) Sleep(1000);
-#endif
     }
 
-    ///- Close the Database Pool
+    // Close the Database Pool
     LoginDatabase.Close();
 
     sLog->outString("Halting process...");
     return 0;
 }
 
-/// Initialize connection to the database
+// Initialize connection to the database
 bool StartDB()
 {
     std::string dbstring = sConfig->GetStringDefault("LoginDatabaseInfo", "");
@@ -351,7 +266,7 @@ bool StartDB()
         synch_threads = 1;
     }
 
-    /// NOTE: While authserver is singlethreaded you should keep synch_threads == 1. Increasing it is just silly since only 1 will be used ever.
+    // NOTE: While authserver is singlethreaded you should keep synch_threads == 1. Increasing it is just silly since only 1 will be used ever.
     if (!LoginDatabase.Open(dbstring.c_str(), worker_threads, synch_threads))
     {
         sLog->outError("Cannot connect to database");
@@ -360,5 +275,3 @@ bool StartDB()
 
     return true;
 }
-
-/// @}

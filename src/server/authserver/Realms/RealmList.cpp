@@ -16,44 +16,38 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** \file
-    \ingroup realmd
-*/
-
 #include "Common.h"
 #include "RealmList.h"
 #include "Database/DatabaseEnv.h"
 
-RealmList::RealmList() : m_UpdateInterval(0), m_NextUpdateTime(time(NULL))
-{
-}
+RealmList::RealmList() : m_UpdateInterval(0), m_NextUpdateTime(time(NULL)) { }
 
-/// Load the realm list from the database
+// Load the realm list from the database
 void RealmList::Initialize(uint32 updateInterval)
 {
     m_UpdateInterval = updateInterval;
 
-    ///- Get the content of the realmlist table in the database
+    // Get the content of the realmlist table in the database
     UpdateRealms(true);
 }
 
 void RealmList::UpdateRealm(uint32 ID, const std::string& name, const std::string& address, uint32 port, uint8 icon, uint8 color, uint8 timezone, AccountTypes allowedSecurityLevel, float popu, uint32 build)
 {
-    ///- Create new if not exist or update existed
+    // Create new if not exist or update existed
     Realm& realm = m_realms[name];
 
-    realm.m_ID      = ID;
-    realm.name      = name;
-    realm.icon      = icon;
-    realm.color     = color;
-    realm.timezone  = timezone;
+    realm.m_ID = ID;
+    realm.name = name;
+    realm.icon = icon;
+    realm.color = color;
+    realm.timezone = timezone;
     realm.allowedSecurityLevel = allowedSecurityLevel;
-    realm.populationLevel        = popu;
+    realm.populationLevel = popu;
 
-    ///- Append port to IP address.
+    // Append port to IP address.
     std::ostringstream ss;
     ss << address << ":" << port;
-    realm.address   = ss.str();
+    realm.address = ss.str();
     realm.gamebuild = build;
 }
 
@@ -69,22 +63,22 @@ void RealmList::UpdateIfNeed()
     m_realms.clear();
 
     // Get the content of the realmlist table in the database
-    UpdateRealms(false);
+    UpdateRealms();
 }
 
 void RealmList::UpdateRealms(bool init)
 {
     sLog->outDetail("Updating Realm List...");
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_REALMLIST);
+    PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_REALMLIST);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
-    ///- Circle through results and add them to the realm map
+    // Circle through results and add them to the realm map
     if (result)
     {
         do
         {
-            Field* fields = result->Fetch();
+            Field *fields = result->Fetch();
             uint32 realmId = fields[0].GetUInt32();
             const std::string& name = fields[1].GetString();
             const std::string& address = fields[2].GetString();
