@@ -479,17 +479,17 @@ class spell_blood_queen_frenzied_bloodthirst : public SpellScriptLoader
         {
             PrepareAuraScript(spell_blood_queen_frenzied_bloodthirst_AuraScript);
 
-            void OnApply(AuraEffect const* /*aurEff*/, AuraApplication const* aurApp, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (InstanceScript* instance = aurApp->GetTarget()->GetInstanceScript())
-                    if (Creature* bloodQueen = ObjectAccessor::GetCreature(*aurApp->GetTarget(), instance->GetData64(DATA_BLOOD_QUEEN_LANA_THEL)))
+                if (InstanceScript* instance = GetTarget()->GetInstanceScript())
+                    if (Creature* bloodQueen = ObjectAccessor::GetCreature(*GetTarget(), instance->GetData64(DATA_BLOOD_QUEEN_LANA_THEL)))
                         bloodQueen->AI()->Talk(EMOTE_BLOODTHIRST);
             }
 
-            void OnRemove(AuraEffect const* /*aurEff*/, AuraApplication const* aurApp, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                Unit* target = aurApp->GetTarget();
-                if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+                Unit* target = GetTarget();
+                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
                     if (InstanceScript* instance = target->GetInstanceScript())
                         if (Creature* bloodQueen = ObjectAccessor::GetCreature(*target, instance->GetData64(DATA_BLOOD_QUEEN_LANA_THEL)))
                         {

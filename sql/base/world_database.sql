@@ -26929,6 +26929,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 55709, 'spell_hun_pet_heart_of_the_phoenix'),
 ( 54044, 'spell_hun_pet_carrion_feeder'),
 -- rogue
+(-31130, 'spell_rog_nerves_of_steel'),
 (  5938, 'spell_rog_shiv'),
 ( 14185, 'spell_rog_preparation'),
 (-51685, 'spell_rog_prey_on_the_weak'),
@@ -26940,7 +26941,9 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (-49158, 'spell_dk_corpse_explosion'),
 ( 50524, 'spell_dk_runic_power_feed'),
 (-55090, 'spell_dk_scourge_strike'),
+(-49145, 'spell_dk_spell_deflection'),
 -- shaman
+(-51474, 'spell_sha_astral_shift'),
 ( 39610, 'spell_sha_mana_tide_totem'),
 ( -1535, 'spell_sha_fire_nova'),
 (  6474, 'spell_sha_earthbind_totem'),
@@ -26955,9 +26958,14 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 47422, 'spell_warl_everlasting_affliction'),
 -- druid
 ( 54846, 'spell_dru_glyph_of_starfire'),
+(69366, 'spell_dru_moonkin_form_passive'),
+(-33851, 'spell_dru_primal_tenacity'),
+(62606, 'spell_dru_savage_defense'),
 -- example
 ( 66244, 'spell_ex_66244'), 
-( 5581,  'spell_ex_5581');
+( 5581,  'spell_ex_5581'),
+(47299, 'spell_ex_absorb_aura');
+
 /*!40000 ALTER TABLE `spell_script_names` ENABLE KEYS */;
 UNLOCK TABLES;
 

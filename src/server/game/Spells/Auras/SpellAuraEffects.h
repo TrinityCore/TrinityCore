@@ -60,6 +60,7 @@ class AuraEffect
         void ResetPeriodic(bool resetPeriodicTimer = false) { if (resetPeriodicTimer) m_periodicTimer = m_amplitude; m_tickNumber = 0;}
 
         bool IsPeriodic() const { return m_isPeriodic; }
+        void SetPeriodic(bool isPeriodic) { m_isPeriodic = isPeriodic; }
         bool IsAffectedOnSpell(SpellEntry const *spell) const;
 
         void SendTickImmune(Unit * target, Unit *caster) const;
@@ -72,7 +73,6 @@ class AuraEffect
 
         void CleanupTriggeredSpells(Unit * target);
 
-        static bool IsPeriodicAuraType(uint32 type);
         // add/remove SPELL_AURA_MOD_SHAPESHIFT (36) linked auras
         void HandleShapeshiftBoosts(Unit * target, bool apply) const;
     private:

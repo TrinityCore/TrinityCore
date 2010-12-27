@@ -431,15 +431,19 @@ bool AuraScript::_Validate(SpellEntry const * entry)
         if (!(*itr).GetAffectedEffectsMask(entry))
             sLog->outError("TSCR: Spell `%u` Effect `%s` of script`%s` did not match dbc effect data - bound handler won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
 
-    for (std::list<EffectCalcAmountHandler>::iterator itr = OnEffectCalcAmount.begin(); itr != OnEffectCalcAmount.end();  ++itr)
+    for (std::list<EffectCalcAmountHandler>::iterator itr = DoEffectCalcAmount.begin(); itr != DoEffectCalcAmount.end();  ++itr)
         if (!(*itr).GetAffectedEffectsMask(entry))
             sLog->outError("TSCR: Spell `%u` Effect `%s` of script`%s` did not match dbc effect data - bound handler won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
 
-    for (std::list<EffectCalcPeriodicHandler>::iterator itr = OnEffectCalcPeriodic.begin(); itr != OnEffectCalcPeriodic.end();  ++itr)
+    for (std::list<EffectCalcPeriodicHandler>::iterator itr = DoEffectCalcPeriodic.begin(); itr != DoEffectCalcPeriodic.end();  ++itr)
         if (!(*itr).GetAffectedEffectsMask(entry))
             sLog->outError("TSCR: Spell `%u` Effect `%s` of script`%s` did not match dbc effect data - bound handler won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
 
-    for (std::list<EffectCalcSpellModHandler>::iterator itr = OnEffectCalcSpellMod.begin(); itr != OnEffectCalcSpellMod.end();  ++itr)
+    for (std::list<EffectCalcSpellModHandler>::iterator itr = DoEffectCalcSpellMod.begin(); itr != DoEffectCalcSpellMod.end();  ++itr)
+        if (!(*itr).GetAffectedEffectsMask(entry))
+            sLog->outError("TSCR: Spell `%u` Effect `%s` of script`%s` did not match dbc effect data - bound handler won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+
+    for (std::list<EffectAbsorbHandler>::iterator itr = OnEffectAbsorb.begin(); itr != OnEffectAbsorb.end();  ++itr)
         if (!(*itr).GetAffectedEffectsMask(entry))
             sLog->outError("TSCR: Spell `%u` Effect `%s` of script`%s` did not match dbc effect data - bound handler won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
 
@@ -467,9 +471,9 @@ AuraScript::EffectPeriodicHandler::EffectPeriodicHandler(AuraEffectPeriodicFnTyp
     pEffectHandlerScript = _pEffectHandlerScript;
 }
 
-void AuraScript::EffectPeriodicHandler::Call(AuraScript * auraScript, AuraEffect const * _aurEff, AuraApplication const * _aurApp)
+void AuraScript::EffectPeriodicHandler::Call(AuraScript * auraScript, AuraEffect const * _aurEff)
 {
-    (auraScript->*pEffectHandlerScript)(_aurEff, _aurApp);
+    (auraScript->*pEffectHandlerScript)(_aurEff);
 }
 
 AuraScript::EffectUpdatePeriodicHandler::EffectUpdatePeriodicHandler(AuraEffectUpdatePeriodicFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName)
@@ -523,10 +527,21 @@ AuraScript::EffectApplyHandler::EffectApplyHandler(AuraEffectApplicationModeFnTy
     mode = _mode;
 }
 
-void AuraScript::EffectApplyHandler::Call(AuraScript * auraScript, AuraEffect const * _aurEff, AuraApplication const * _aurApp, AuraEffectHandleModes _mode)
+void AuraScript::EffectApplyHandler::Call(AuraScript * auraScript, AuraEffect const * _aurEff, AuraEffectHandleModes _mode)
 {
     if (_mode & mode)
-        (auraScript->*pEffectHandlerScript)(_aurEff, _aurApp, _mode);
+        (auraScript->*pEffectHandlerScript)(_aurEff, _mode);
+}
+
+AuraScript::EffectAbsorbHandler::EffectAbsorbHandler(AuraEffectAbsorbFnType _pEffectHandlerScript,uint8 _effIndex)
+    : AuraScript::EffectBase(_effIndex, SPELL_AURA_SCHOOL_ABSORB)
+{
+    pEffectHandlerScript = _pEffectHandlerScript;
+}
+
+void AuraScript::EffectAbsorbHandler::Call(AuraScript * auraScript, AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+{
+    (auraScript->*pEffectHandlerScript)(aurEff, dmgInfo, absorbAmount);
 }
 
 bool AuraScript::_Load(Aura * aura)
@@ -538,7 +553,7 @@ bool AuraScript::_Load(Aura * aura)
     return load;
 }
 
-void AuraScript::_PrepareScriptCall(AuraScriptHookType hookType)
+void AuraScript::_PrepareScriptCall(AuraScriptHookType hookType, AuraApplication const * aurApp)
 {
     m_currentScriptState = hookType;
     switch (m_currentScriptState)
@@ -546,16 +561,19 @@ void AuraScript::_PrepareScriptCall(AuraScriptHookType hookType)
         case AURA_SCRIPT_HOOK_EFFECT_APPLY:
         case AURA_SCRIPT_HOOK_EFFECT_REMOVE:
         case AURA_SCRIPT_HOOK_EFFECT_PERIODIC:
+        case AURA_SCRIPT_HOOK_EFFECT_ABSORB:
             m_defaultActionPrevented = false;
             break;
         default:
             break;
     }
+    m_auraApplication = aurApp;
 }
 
 void AuraScript::_FinishScriptCall()
 {
     m_currentScriptState = SPELL_SCRIPT_STATE_NONE;
+    m_auraApplication = NULL;
 }
 
 bool AuraScript::_IsDefaultActionPrevented()
@@ -731,5 +749,15 @@ AuraEffect* AuraScript::GetEffect(uint8 effIndex) const
 bool AuraScript::HasEffectType(AuraType type) const
 {
     return m_aura->HasEffectType(type);
+}
+
+Unit * AuraScript::GetTarget() const
+{
+    return m_auraApplication->GetTarget();
+}
+
+AuraApplication const * AuraScript::GetTargetApplication() const
+{
+    return m_auraApplication;
 }
 

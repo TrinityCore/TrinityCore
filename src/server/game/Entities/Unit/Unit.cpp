@@ -1548,6 +1548,8 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
     if (!pVictim || !pVictim->isAlive() || !damage)
         return;
 
+    DamageInfo dmgInfo = DamageInfo(this, pVictim, damage, spellInfo, schoolMask, damagetype);
+
     // Magic damage, check for resists
     if ((schoolMask & SPELL_SCHOOL_MASK_NORMAL) == 0)
     {
@@ -1591,32 +1593,25 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
             probabilitySum += discreteResistProbability[i];
         }
 
-        uint32 damageResisted = damage * i / 10;
-
-        *resist += damageResisted;
+        float damageResisted = damage * i / 10;
 
         AuraEffectList const &ResIgnoreAurasAb = GetAuraEffectsByType(SPELL_AURA_MOD_ABILITY_IGNORE_TARGET_RESIST);
         for (AuraEffectList::const_iterator j = ResIgnoreAurasAb.begin(); j != ResIgnoreAurasAb.end(); ++j)
         {
             if ((*j)->GetMiscValue() & schoolMask
                 && (*j)->IsAffectedOnSpell(spellInfo))
-                AddPctN(*resist, -(*j)->GetAmount());
+                AddPctN(damageResisted, -(*j)->GetAmount());
         }
 
         AuraEffectList const &ResIgnoreAuras = GetAuraEffectsByType(SPELL_AURA_MOD_IGNORE_TARGET_RESIST);
         for (AuraEffectList::const_iterator j = ResIgnoreAuras.begin(); j != ResIgnoreAuras.end(); ++j)
         {
             if ((*j)->GetMiscValue() & schoolMask)
-                AddPctN(*resist, -(*j)->GetAmount());
+                AddPctN(damageResisted, -(*j)->GetAmount());
         }
+        dmgInfo.ResistDamage(damageResisted);
     }
-    else
-        *resist = 0;
 
-    int32 RemainingDamage = damage - *resist;
-    int32 TotalAbsorb = RemainingDamage;
-    // Get unit state (need for some absorb check)
-    uint32 unitflag = pVictim->GetUInt32Value(UNIT_FIELD_FLAGS);
     // Death Prevention Aura
     SpellEntry const* preventDeathSpell = NULL;
     int32 preventDeathAmount = 0;
@@ -1625,7 +1620,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
     int32 incanterAbsorption = 0;
 
     // Ignore Absorption Auras
-    int32 auraAbsorbMod = 0;
+    float auraAbsorbMod = 0;
     AuraEffectList const & AbsIgnoreAurasA = GetAuraEffectsByType(SPELL_AURA_MOD_TARGET_ABSORB_SCHOOL);
     for (AuraEffectList::const_iterator itr = AbsIgnoreAurasA.begin(); itr != AbsIgnoreAurasA.end(); ++itr)
     {
@@ -1645,6 +1640,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
         if (((*itr)->GetAmount() > auraAbsorbMod) && (*itr)->IsAffectedOnSpell(spellInfo))
             auraAbsorbMod = (*itr)->GetAmount();
     }
+    RoundToInterval(auraAbsorbMod, 0.0f, 100.0f);
 
     // We're going to call functions which can modify content of the list during iteration over it's elements
     // Let's copy the list so we can prevent iterator invalidation
@@ -1652,80 +1648,39 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
     vSchoolAbsorbCopy.sort(Trinity::AbsorbAuraOrderPred());
 
     // absorb without mana cost
-    for (AuraEffectList::iterator itr = vSchoolAbsorbCopy.begin(); (itr != vSchoolAbsorbCopy.end()) && (RemainingDamage > 0); ++itr)
+    for (AuraEffectList::iterator itr = vSchoolAbsorbCopy.begin(); (itr != vSchoolAbsorbCopy.end()) && (dmgInfo.GetDamage() > 0); ++itr)
     {
         AuraEffect * absorbAurEff = (*itr);
         // Check if aura was removed during iteration - we don't need to work on such auras
-        if (!(absorbAurEff->GetBase()->IsAppliedOnTarget(pVictim->GetGUID())))
+        AuraApplication const * aurApp = absorbAurEff->GetBase()->GetApplicationOfTarget(pVictim->GetGUID());
+        if (!aurApp)
             continue;
         if (!(absorbAurEff->GetMiscValue() & schoolMask))
             continue;
 
         SpellEntry const * spellProto = absorbAurEff->GetSpellProto();
 
-        // Frost Warding
-        // Chaos Bolt ignore the absorption but still proc Frost Warding mana return
-        if ((spellProto->SpellFamilyName == SPELLFAMILY_MAGE) && (spellProto->Category == 56))
-            if (AuraEffect * aurEff = pVictim->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_MAGE, 501, EFFECT_0))
-            {
-                int32 chance = SpellMgr::CalculateSpellEffectAmount(aurEff->GetSpellProto(), EFFECT_1);
-
-                if (roll_chance_i(chance))
-                {
-                    pVictim->CastCustomSpell(pVictim, 57776, &RemainingDamage, NULL, NULL, true, NULL, absorbAurEff);
-                    RemainingDamage = RemainingDamage * auraAbsorbMod / 100;
-                    continue;
-                }
-            }
-
-        if (auraAbsorbMod >= 100) // Do nothing if 100% absorb ignore
-            continue;
-
-        // Max Amount can be absorbed by this aura
+        // get amount which can be still absorbed by the aura
         int32 currentAbsorb = absorbAurEff->GetAmount();
-        // Found empty aura
-        if (currentAbsorb <= 0)
-        {
-            absorbAurEff->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
-            continue;
-        }
+        // aura with infinite absorb amount - let the scripts handle absorbtion amount, set here to 0 for safety
+        if (currentAbsorb < 0)
+            currentAbsorb = 0;
 
-        currentAbsorb = (100 - auraAbsorbMod) * currentAbsorb / 100;
+        uint32 absorb = currentAbsorb;
 
-        // Handle custom absorb auras
-        // TODO: try find better way
+        bool defaultPrevented = false;
+
+        absorbAurEff->GetBase()->CallScriptEffectAbsorbHandlers(absorbAurEff, aurApp, dmgInfo, absorb, defaultPrevented);
+
+        currentAbsorb = absorb;
         switch (spellProto->SpellFamilyName)
         {
             case SPELLFAMILY_GENERIC:
             {
-                // Astral Shift
-                if (spellProto->SpellIconID == 3066)
-                {
-                    //reduces all damage taken while stun, fear or silence
-                    if (unitflag & (UNIT_FLAG_STUNNED | UNIT_FLAG_FLEEING | UNIT_FLAG_SILENCED))
-                        AddPctN(RemainingDamage, -currentAbsorb);
-                    continue;
-                }
-                // Nerves of Steel
-                if (spellProto->SpellIconID == 2115)
-                {
-                    // while affected by Stun and Fear
-                    if (unitflag & (UNIT_FLAG_STUNNED | UNIT_FLAG_FLEEING))
-                        AddPctN(RemainingDamage, -currentAbsorb);
-                    continue;
-                }
-                // Spell Deflection
-                if (spellProto->SpellIconID == 3006)
-                {
-                    // You have a chance equal to your Parry chance
-                    if ((damagetype == DIRECT_DAMAGE) && roll_chance_f(pVictim->GetUnitParryChance()))
-                        AddPctN(RemainingDamage, -currentAbsorb);
-                    continue;
-                }
                 // Reflective Shield (Lady Malande boss)
                 if (spellProto->Id == 41475)
                 {
-                    int32 bp = std::min(RemainingDamage, currentAbsorb) / 2;
+                    int32 bp = std::min(int32(dmgInfo.GetDamage()), currentAbsorb) / 2;
                     pVictim->CastCustomSpell(this, 33619, &bp, NULL, NULL, true, NULL, *itr);
                     break;
                 }
@@ -1740,34 +1695,25 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
                 }
                 break;
             }
-            case SPELLFAMILY_DRUID:
+            case SPELLFAMILY_MAGE:
             {
-                // Primal Tenacity
-                if (spellProto->SpellIconID == 2253)
+                // possibly create BeforeEffectAbsorb for this?
+                // Frost ward and Fire Ward
+                if (spellProto->Category == 56)
                 {
-                    //reduces all damage taken while Stunned
-                    if ((pVictim->GetShapeshiftForm() == FORM_CAT) && (unitflag & UNIT_FLAG_STUNNED))
-                        AddPctN(RemainingDamage, -currentAbsorb);
-                    continue;
-                }
-                // Savage Defense
-                if (spellProto->SpellIconID == 146)
-                {
-                    if (RemainingDamage < currentAbsorb)
-                        currentAbsorb = RemainingDamage;
+                    // Frost Warding
+                    if (AuraEffect * aurEff = pVictim->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_MAGE, 501, EFFECT_0))
+                    {
+                        int32 chance = SpellMgr::CalculateSpellEffectAmount(aurEff->GetSpellProto(), EFFECT_1);
 
-                    RemainingDamage -= currentAbsorb;
-
-                    absorbAurEff->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL); // guarantee removal
-                    continue;
-                }
-                // Moonkin Form passive
-                if (spellProto->Id == 69366)
-                {
-                    //reduces all damage taken while Stunned
-                    if (unitflag & UNIT_FLAG_STUNNED)
-                        AddPctN(RemainingDamage, -currentAbsorb);
-                    continue;
+                        if (roll_chance_i(chance))
+                        {
+                            int32 bp = dmgInfo.GetDamage();
+                            pVictim->CastCustomSpell(pVictim, 57776, &bp, NULL, NULL, true, NULL, absorbAurEff);
+                            dmgInfo.AbsorbDamage(dmgInfo.GetDamage());
+                            continue;
+                        }
+                    }
                 }
                 break;
             }
@@ -1809,7 +1755,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
                             case 5065:                          // Rank 1
                             case 5064:                          // Rank 2
                             {
-                                int32 bp = CalculatePctN(std::min(RemainingDamage, currentAbsorb), aurEff->GetAmount());
+                                int32 bp = CalculatePctN(std::min(int32(dmgInfo.GetDamage()), currentAbsorb), aurEff->GetAmount());
                                 pVictim->CastCustomSpell(this, 33619, &bp, NULL, NULL, true, NULL, *itr);
                                 break;
                             }
@@ -1828,13 +1774,13 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
                     if (!pVictim->ToPlayer())
                         continue;
 
-                    int32 remainingHealth = pVictim->GetHealth() - RemainingDamage;
+                    int32 remainingHealth = pVictim->GetHealth() - dmgInfo.GetDamage();
                     uint32 allowedHealth = pVictim->CountPctFromMaxHealth(35);
                     // If damage kills us
                     if (remainingHealth <= 0 && !pVictim->ToPlayer()->HasSpellCooldown(66235))
                     {
                         // Cast healing spell, completely avoid damage
-                        RemainingDamage = 0;
+                        dmgInfo.AbsorbDamage(dmgInfo.GetDamage());
 
                         uint32 defenseSkillValue = pVictim->GetDefenseSkillValue();
                         // Max heal when defense skill denies critical hits from raid bosses
@@ -1852,22 +1798,10 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
                     {
                         // Reduce damage that brings us under 35% (or full damage if we are already under 35%) by x%
                         uint32 damageToReduce = (pVictim->GetHealth() < allowedHealth)
-                            ? RemainingDamage
+                            ? dmgInfo.GetDamage()
                             : allowedHealth - remainingHealth;
-                        RemainingDamage -= CalculatePctN(damageToReduce, currentAbsorb);
+                        dmgInfo.AbsorbDamage(CalculatePctN(damageToReduce, currentAbsorb));
                     }
-                    continue;
-                }
-                break;
-            }
-            case SPELLFAMILY_SHAMAN:
-            {
-                // Astral Shift
-                if (spellProto->SpellIconID == 3066)
-                {
-                    //reduces all damage taken while stun, fear or silence
-                    if (unitflag & (UNIT_FLAG_STUNNED | UNIT_FLAG_FLEEING | UNIT_FLAG_SILENCED))
-                        AddPctN(RemainingDamage, -currentAbsorb);
                     continue;
                 }
                 break;
@@ -1885,14 +1819,14 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
                             if (AuraEffect const * aurEff = caster->GetAuraEffect(58635, 0))
                                 AddPctN(absorbed, aurEff->GetAmount());
 
-                            RemainingDamage -= absorbed;
+                            dmgInfo.AbsorbDamage(absorbed);
                         }
                         continue;
                     case 52284: // Will of the Necropolis
                     case 52285:
                     case 52286:
                     {
-                        int32 remainingHp = int32(pVictim->GetHealth() - RemainingDamage);
+                        int32 remainingHp = int32(pVictim->GetHealth() - dmgInfo.GetDamage());
 
                         // min pct of hp is stored in effect 0 of talent spell
                         uint32 rank = sSpellMgr->GetSpellRank(spellProto->Id);
@@ -1902,8 +1836,8 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
                         // Damage that would take you below [effect0] health or taken while you are at [effect0]
                         if (remainingHp < minHp)
                         {
-                            uint32 absorbed = uint32(currentAbsorb * RemainingDamage * 0.01f);
-                            RemainingDamage -= absorbed;
+                            uint32 absorbed = uint32(currentAbsorb * dmgInfo.GetDamage() * 0.01f);
+                            dmgInfo.AbsorbDamage(absorbed);
                         }
                         continue;
                     }
@@ -1911,24 +1845,24 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
                     {
                         // damage absorbed by Anti-Magic Shell energizes the DK with additional runic power.
                         // This, if I'm not mistaken, shows that we get back ~2% of the absorbed damage as runic power.
-                        int32 absorbed = CalculatePctN(RemainingDamage, currentAbsorb);
-                        RemainingDamage -= absorbed;
+                        int32 absorbed = CalculatePctN(dmgInfo.GetDamage(), currentAbsorb);
+                        dmgInfo.AbsorbDamage(absorbed);
                         int32 bp = absorbed * 2 / 10;
                         pVictim->CastCustomSpell(pVictim, 49088, &bp, NULL, NULL, true, NULL, *itr);
                         continue;
                     }
                     case 50462: // Anti-Magic Shell (on single party/raid member)
-                        AddPctN(RemainingDamage, -currentAbsorb);
+                        dmgInfo.AbsorbDamage(CalculatePctN(dmgInfo.GetDamage(), currentAbsorb));
                         continue;
                     case 50461: // Anti-Magic Zone
                         if (Unit * caster = absorbAurEff->GetCaster())
                         {
-                            int32 absorbed = CalculatePctN(RemainingDamage, currentAbsorb);
+                            int32 absorbed = CalculatePctN(dmgInfo.GetDamage(), currentAbsorb);
                             int32 canabsorb = caster->GetHealth();
                             if (canabsorb < absorbed)
                                 absorbed = canabsorb;
 
-                            RemainingDamage -= absorbed;
+                            dmgInfo.AbsorbDamage(absorbed);
                         }
                         continue;
                     default:
@@ -1940,163 +1874,154 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
                 break;
         }
 
-        // currentAbsorb - damage can be absorbed by shield
-        // If need absorb less damage
-        if (RemainingDamage < currentAbsorb)
-            currentAbsorb = RemainingDamage;
+        if (defaultPrevented)
+            continue;
 
-        RemainingDamage -= currentAbsorb;
+        // Apply absorb mod auras
+        AddPctF(currentAbsorb, -auraAbsorbMod);
+
+        // absorb must be smaller than the damage itself
+        currentAbsorb = RoundToInterval(currentAbsorb, 0, int32(dmgInfo.GetDamage()));
+
+        dmgInfo.AbsorbDamage(currentAbsorb);
 
         // Fire Ward or Frost Ward or Ice Barrier (or Mana Shield)
         // for Incanter's Absorption converting to spell power
-        if (spellProto->SpellFamilyName == SPELLFAMILY_MAGE && spellProto->SpellFamilyFlags[EFFECT_2] & 0x8)
+        if (spellProto->SpellFamilyName == SPELLFAMILY_MAGE && spellProto->SpellFamilyFlags[2] & 0x8)
             incanterAbsorption += currentAbsorb;
 
-        // Reduce shield amount
-        absorbAurEff->SetAmount(absorbAurEff->GetAmount() - currentAbsorb);
-        // Need remove it later
-        if (absorbAurEff->GetAmount() <= 0)
-            absorbAurEff->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
+        // Check if our aura is using amount to count damage
+        if (absorbAurEff->GetAmount() >= 0)
+        {
+            // Reduce shield amount
+            absorbAurEff->SetAmount(absorbAurEff->GetAmount() - currentAbsorb);
+            // Aura cannot absorb anything more - remove it
+            if (absorbAurEff->GetAmount() <= 0)
+                absorbAurEff->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
+        }
     }
-
 
     if (auraAbsorbMod < 100) // Do nothing if 100% absorb ignore
     {
-        bool existExpired = false;
-
         // absorb by mana cost
-        AuraEffectList const & vManaShield = pVictim->GetAuraEffectsByType(SPELL_AURA_MANA_SHIELD);
-
-        for (AuraEffectList::const_iterator itr = vManaShield.begin(); (itr != vManaShield.end()) && (RemainingDamage > 0); ++itr)
+        AuraEffectList vManaShieldCopy(pVictim->GetAuraEffectsByType(SPELL_AURA_MANA_SHIELD));
+        for (AuraEffectList::const_iterator itr = vManaShieldCopy.begin(); (itr != vManaShieldCopy.end()) && (dmgInfo.GetDamage() > 0); ++itr)
         {
+            AuraEffect * absorbAurEff = *itr;
+            // Check if aura was removed during iteration - we don't need to work on such auras
+            if (!(absorbAurEff->GetBase()->IsAppliedOnTarget(pVictim->GetGUID())))
+                continue;
+            // check damage school mask
+            if (!(absorbAurEff->GetMiscValue() & schoolMask))
+                continue;
+
+            // get amount which can be still absorbed by the aura
+            int32 currentAbsorb = absorbAurEff->GetAmount();
+
+            AddPctF(currentAbsorb, -auraAbsorbMod);
+
+            // absorb must be smaller than the damage itself
+            currentAbsorb = RoundToInterval(currentAbsorb, 0, int32(dmgInfo.GetDamage()));
+
+            int32 manaReduction = currentAbsorb;
+
+            // lower absorb amount by talents
+            if (float manaMultiplier = SpellMgr::CalculateSpellEffectValueMultiplier(absorbAurEff->GetSpellProto(), absorbAurEff->GetEffIndex(), absorbAurEff->GetCaster()))
+                manaReduction = float(manaReduction) * manaMultiplier;
+
+            int32 manaTaken = -pVictim->ModifyPower(POWER_MANA, -manaReduction);
+
+            // take case when mana has ended up into account
+            currentAbsorb = float(currentAbsorb)*(float(manaTaken) / float(manaReduction));
+
+            // Mana Shield (or Fire Ward or Frost Ward or Ice Barrier)
+            // for Incanter's Absorption converting to spell power
+            if (absorbAurEff->GetSpellProto()->SpellFamilyName == SPELLFAMILY_MAGE && absorbAurEff->GetSpellProto()->SpellFamilyFlags[2] & 0x8)
+                incanterAbsorption += currentAbsorb;
+
+            dmgInfo.AbsorbDamage(currentAbsorb);
+
+            absorbAurEff->SetAmount(absorbAurEff->GetAmount() - currentAbsorb);
+            if ((absorbAurEff->GetAmount() <= 0))
+                absorbAurEff->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
+        }
+    }
+
+    // split damage auras - only when not damaging self
+    if (pVictim != this) 
+    {
+        // We're going to call functions which can modify content of the list during iteration over it's elements
+        // Let's copy the list so we can prevent iterator invalidation
+        AuraEffectList vSplitDamageFlatCopy(pVictim->GetAuraEffectsByType(SPELL_AURA_SPLIT_DAMAGE_FLAT));
+        for (AuraEffectList::iterator itr = vSplitDamageFlatCopy.begin(); (itr != vSplitDamageFlatCopy.end()) && (dmgInfo.GetDamage() > 0); ++itr)
+        {
+            // Check if aura was removed during iteration - we don't need to work on such auras
+            if (!((*itr)->GetBase()->IsAppliedOnTarget(pVictim->GetGUID())))
+                continue;
             // check damage school mask
             if (!((*itr)->GetMiscValue() & schoolMask))
                 continue;
 
-            int32 currentAbsorb;
+            // Damage can be splitted only if aura has an alive caster
+            Unit * caster = (*itr)->GetCaster();
+            if (!caster || (caster == pVictim) || !caster->IsInWorld() || !caster->isAlive())
+                continue;
 
-            if (RemainingDamage >= (*itr)->GetAmount())
-                currentAbsorb = (*itr)->GetAmount();
-            else
-                currentAbsorb = RemainingDamage;
+            int32 splitDamage = (*itr)->GetAmount();
 
-            currentAbsorb = (100 - auraAbsorbMod) * currentAbsorb / 100;
+            // absorb must be smaller than the damage itself
+            splitDamage = RoundToInterval(splitDamage, 0, int32(dmgInfo.GetDamage()));
 
-            if (float manaMultiplier = SpellMgr::CalculateSpellEffectValueMultiplier((*itr)->GetSpellProto(), (*itr)->GetEffIndex(), (*itr)->GetCaster()))
-            {
-                int32 maxAbsorb = int32(pVictim->GetPower(POWER_MANA) / manaMultiplier);
-                if (currentAbsorb > maxAbsorb)
-                    currentAbsorb = maxAbsorb;
+            dmgInfo.ModifyDamage(-splitDamage);
 
-                int32 manaReduction = int32(currentAbsorb * manaMultiplier);
-                pVictim->ApplyPowerMod(POWER_MANA, manaReduction, false);
-            }
+            uint32 splitted = splitDamage;
+            uint32 splitted_absorb = 0;
+            DealDamageMods(caster, splitted, &splitted_absorb);
 
-            // Mana Shield (or Fire Ward or Frost Ward or Ice Barrier)
-            // for Incanter's Absorption converting to spell power
-            if ((*itr)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_MAGE && (*itr)->GetSpellProto()->SpellFamilyFlags[EFFECT_2] & 0x8)
-                incanterAbsorption += currentAbsorb;
+            SendSpellNonMeleeDamageLog(caster, (*itr)->GetSpellProto()->Id, splitted, schoolMask, splitted_absorb, 0, false, 0, false);
 
-            (*itr)->SetAmount((*itr)->GetAmount() - currentAbsorb);
-            if (((*itr)->GetAmount() <= 0) || (pVictim->GetPower(POWER_MANA) <= 1))
-                existExpired = true;
-
-            RemainingDamage -= currentAbsorb;
+            CleanDamage cleanDamage = CleanDamage(splitted, 0, BASE_ATTACK, MELEE_HIT_NORMAL);
+            DealDamage(caster, splitted, &cleanDamage, DIRECT_DAMAGE, schoolMask, (*itr)->GetSpellProto(), false);
         }
 
-        if (existExpired)
-            for (AuraEffectList::const_iterator itr = vManaShield.begin(); itr != vManaShield.end();)
-            {
-                AuraEffect * auraEff = (*itr);
-                ++itr;
-
-                if ((auraEff->GetAmount() <= 0) || (pVictim->GetPower(POWER_MANA) <= 1))
-                {
-                    uint32 removedAuras = pVictim->m_removedAurasCount;
-                    auraEff->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
-                    if (removedAuras + 1 < pVictim->m_removedAurasCount)
-                        itr = vManaShield.begin();
-                }
-            }
-    }
-
-    // Do nothing if 100% absorb ignore
-    if (auraAbsorbMod < 100)
-        if (pVictim != this) // only split damage if not damaging yourself
+        // We're going to call functions which can modify content of the list during iteration over it's elements
+        // Let's copy the list so we can prevent iterator invalidation
+        AuraEffectList vSplitDamagePctCopy(pVictim->GetAuraEffectsByType(SPELL_AURA_SPLIT_DAMAGE_PCT));
+        for (AuraEffectList::iterator itr = vSplitDamagePctCopy.begin(), next; (itr != vSplitDamagePctCopy.end()) &&  (dmgInfo.GetDamage() > 0); ++itr)
         {
-            // We're going to call functions which can modify content of the list during iteration over it's elements
-            // Let's copy the list so we can prevent iterator invalidation
-            AuraEffectList vSplitDamageFlatCopy(pVictim->GetAuraEffectsByType(SPELL_AURA_SPLIT_DAMAGE_FLAT));
-            for (AuraEffectList::iterator itr = vSplitDamageFlatCopy.begin(); (itr != vSplitDamageFlatCopy.end()) && (RemainingDamage >= 0); ++itr)
-            {
-                // Check if aura was removed during iteration - we don't need to work on such auras
-                if (!((*itr)->GetBase()->IsAppliedOnTarget(pVictim->GetGUID())))
-                    continue;
-                // check damage school mask
-                if (!((*itr)->GetMiscValue() & schoolMask))
-                    continue;
+            // Check if aura was removed during iteration - we don't need to work on such auras
+            if (!((*itr)->GetBase()->IsAppliedOnTarget(pVictim->GetGUID())))
+                continue;
+            // check damage school mask
+            if (!((*itr)->GetMiscValue() & schoolMask))
+                continue;
 
-                // Damage can be splitted only if aura has an alive caster
-                Unit * caster = (*itr)->GetCaster();
-                if (!caster || (caster == pVictim) || !caster->IsInWorld() || !caster->isAlive())
-                    continue;
+            // Damage can be splitted only if aura has an alive caster
+            Unit * caster = (*itr)->GetCaster();
+            if (!caster || (caster == pVictim) || !caster->IsInWorld() || !caster->isAlive())
+                continue;
 
-                int32 currentAbsorb;
-                if (RemainingDamage >= (*itr)->GetAmount())
-                    currentAbsorb = (*itr)->GetAmount();
-                else
-                    currentAbsorb = RemainingDamage;
-                currentAbsorb = (100 - auraAbsorbMod) * currentAbsorb / 100;
+            int32 splitDamage = CalculatePctN(dmgInfo.GetDamage(), (*itr)->GetAmount());
 
-                RemainingDamage -= currentAbsorb;
+            // absorb must be smaller than the damage itself
+            splitDamage = RoundToInterval(splitDamage, 0, int32(dmgInfo.GetDamage()));
 
-                uint32 splitted = currentAbsorb;
-                uint32 splitted_absorb = 0;
-                DealDamageMods(caster, splitted, &splitted_absorb);
+            dmgInfo.ModifyDamage(-splitDamage);
 
-                SendSpellNonMeleeDamageLog(caster, (*itr)->GetSpellProto()->Id, splitted, schoolMask, splitted_absorb, 0, false, 0, false);
+            uint32 splitted = splitDamage;
+            uint32 split_absorb = 0;
+            DealDamageMods(caster, splitted, &split_absorb);
 
-                CleanDamage cleanDamage = CleanDamage(splitted, 0, BASE_ATTACK, MELEE_HIT_NORMAL);
-                DealDamage(caster, splitted, &cleanDamage, DIRECT_DAMAGE, schoolMask, (*itr)->GetSpellProto(), false);
-            }
+            SendSpellNonMeleeDamageLog(caster, (*itr)->GetSpellProto()->Id, splitted, schoolMask, split_absorb, 0, false, 0, false);
 
-            // We're going to call functions which can modify content of the list during iteration over it's elements
-            // Let's copy the list so we can prevent iterator invalidation
-            AuraEffectList vSplitDamagePctCopy(pVictim->GetAuraEffectsByType(SPELL_AURA_SPLIT_DAMAGE_PCT));
-            for (AuraEffectList::iterator itr = vSplitDamagePctCopy.begin(), next; (itr != vSplitDamagePctCopy.end()) && (RemainingDamage >= 0); ++itr)
-            {
-                // Check if aura was removed during iteration - we don't need to work on such auras
-                if (!((*itr)->GetBase()->IsAppliedOnTarget(pVictim->GetGUID())))
-                    continue;
-                // check damage school mask
-                if (!((*itr)->GetMiscValue() & schoolMask))
-                    continue;
-
-                // Damage can be splitted only if aura has an alive caster
-                Unit * caster = (*itr)->GetCaster();
-                if (!caster || (caster == pVictim) || !caster->IsInWorld() || !caster->isAlive())
-                    continue;
-
-                uint32 splitted = CalculatePctN(RemainingDamage, (*itr)->GetAmount());
-                AddPctN(splitted, -auraAbsorbMod);
-
-                RemainingDamage -= int32(splitted);
-
-                uint32 split_absorb = 0;
-                DealDamageMods(caster, splitted, &split_absorb);
-
-                SendSpellNonMeleeDamageLog(caster, (*itr)->GetSpellProto()->Id, splitted, schoolMask, split_absorb, 0, false, 0, false);
-
-                CleanDamage cleanDamage = CleanDamage(splitted, 0, BASE_ATTACK, MELEE_HIT_NORMAL);
-                DealDamage(caster, splitted, &cleanDamage, DIRECT_DAMAGE, schoolMask, (*itr)->GetSpellProto(), false);
-            }
+            CleanDamage cleanDamage = CleanDamage(splitted, 0, BASE_ATTACK, MELEE_HIT_NORMAL);
+            DealDamage(caster, splitted, &cleanDamage, DIRECT_DAMAGE, schoolMask, (*itr)->GetSpellProto(), false);
         }
-
-    TotalAbsorb = (TotalAbsorb - RemainingDamage > 0) ? TotalAbsorb - RemainingDamage : 0;
+    }
 
     // Apply death prevention spells effects
     if (auraAbsorbMod < 100) // Do nothing if 100% absorb ignore
-        if (preventDeathSpell && (RemainingDamage >= int32(pVictim->GetHealth())))
+        if (preventDeathSpell && (dmgInfo.GetDamage() >= int32(pVictim->GetHealth())))
         {
             switch(preventDeathSpell->SpellFamilyName)
             {
@@ -2108,9 +2033,14 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
                         pVictim->CastSpell(pVictim, 31231, true);
                         pVictim->ToPlayer()->AddSpellCooldown(31231, 0, time(NULL) + 60);
 
-                        // with health > 10% lost health until health == 10%, in other case no losses
                         uint32 health10 = pVictim->CountPctFromMaxHealth(10);
-                        RemainingDamage = pVictim->GetHealth() > health10 ? pVictim->GetHealth() - health10 : 0;
+
+                        // hp > 10% - absorb hp till 10%
+                        if (pVictim->GetHealth() > health10)
+                            dmgInfo.AbsorbDamage(dmgInfo.GetDamage() - pVictim->GetHealth() + health10);
+                        // hp lower than 10% - absorb everything
+                        else
+                            dmgInfo.AbsorbDamage(dmgInfo.GetDamage());
                     }
                     break;
                 }
@@ -2122,14 +2052,15 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
                         int32 healAmount = int32(pVictim->CountPctFromMaxHealth(preventDeathAmount));
                         pVictim->RemoveAurasDueToSpell(preventDeathSpell->Id);
                         pVictim->CastCustomSpell(pVictim, 48153, &healAmount, NULL, NULL, true);
-                        RemainingDamage = 0;
+                        dmgInfo.AbsorbDamage(dmgInfo.GetDamage());
                     }
                     break;
                 }
             }
         }
 
-    *absorb = RemainingDamage > 0 ? (damage - RemainingDamage - *resist) : (damage - *resist);
+    *resist = dmgInfo.GetResist();
+    *absorb = dmgInfo.GetAbsorb();
 
     // Incanter's Absorption, if have affective absorbing
     if (incanterAbsorption)
@@ -13548,50 +13479,6 @@ void Unit::SetMaxPower(Powers power, uint32 val)
 
     if (val < cur_power)
         SetPower(power, val);
-}
-
-void Unit::ApplyPowerMod(Powers power, uint32 val, bool apply)
-{
-    ApplyModUInt32Value(UNIT_FIELD_POWER1+power, val, apply);
-
-    // group update
-    if (GetTypeId() == TYPEID_PLAYER)
-    {
-        if (this->ToPlayer()->GetGroup())
-            this->ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_CUR_POWER);
-    }
-    else if (this->ToCreature()->isPet())
-    {
-        Pet *pet = ((Pet*)this);
-        if (pet->isControlled())
-        {
-            Unit *owner = GetOwner();
-            if (owner && (owner->GetTypeId() == TYPEID_PLAYER) && owner->ToPlayer()->GetGroup())
-                owner->ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_CUR_POWER);
-        }
-    }
-}
-
-void Unit::ApplyMaxPowerMod(Powers power, uint32 val, bool apply)
-{
-    ApplyModUInt32Value(UNIT_FIELD_MAXPOWER1+power, val, apply);
-
-    // group update
-    if (GetTypeId() == TYPEID_PLAYER)
-    {
-        if (this->ToPlayer()->GetGroup())
-            this->ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_MAX_POWER);
-    }
-    else if (this->ToCreature()->isPet())
-    {
-        Pet *pet = ((Pet*)this);
-        if (pet->isControlled())
-        {
-            Unit *owner = GetOwner();
-            if (owner && (owner->GetTypeId() == TYPEID_PLAYER) && owner->ToPlayer()->GetGroup())
-                owner->ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_MAX_POWER);
-        }
-    }
 }
 
 uint32 Unit::GetCreatePowers(Powers power) const

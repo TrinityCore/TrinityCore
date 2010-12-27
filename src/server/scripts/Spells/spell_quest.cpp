@@ -219,16 +219,16 @@ public:
     class spell_q11396_11399_force_shield_arcane_purple_x3_AuraScript : public AuraScript
     {
         PrepareAuraScript(spell_q11396_11399_force_shield_arcane_purple_x3_AuraScript)
-        void HandleEffectApply(AuraEffect const * /*aurEff*/, AuraApplication const * aurApp, AuraEffectHandleModes /*mode*/)
+        void HandleEffectApply(AuraEffect const * /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            Unit* pTarget = aurApp->GetTarget();
+            Unit* pTarget = GetTarget();
             pTarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
             pTarget->AddUnitState(UNIT_STAT_ROOT);
         }
 
-        void HandleEffectRemove(AuraEffect const * /*aurEff*/, AuraApplication const * aurApp, AuraEffectHandleModes /*mode*/)
+        void HandleEffectRemove(AuraEffect const * /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            aurApp->GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
         }
 
         void Register()

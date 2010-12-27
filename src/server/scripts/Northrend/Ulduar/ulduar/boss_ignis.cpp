@@ -443,13 +443,13 @@ class spell_ignis_slag_pot : public SpellScriptLoader
                 return true;
             }
 
-            void HandleEffectPeriodic(AuraEffect const * aurEff, AuraApplication const * aurApp)
+            void HandleEffectPeriodic(AuraEffect const * aurEff)
             {
                 Unit* aurEffCaster = aurEff->GetCaster();
                 if (!aurEffCaster)
                     return;
 
-                Unit * target = aurApp->GetTarget();
+                Unit * target = GetTarget();
                 aurEffCaster->CastSpell(target, SPELL_SLAG_POT_DAMAGE, true);
                 if (target->isAlive() && !GetDuration())
                      target->CastSpell(target, SPELL_SLAG_IMBUED, true);
