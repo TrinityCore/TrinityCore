@@ -28,601 +28,693 @@ EndScriptData */
 
 class instance_trial_of_the_crusader : public InstanceMapScript
 {
-public:
-    instance_trial_of_the_crusader() : InstanceMapScript("instance_trial_of_the_crusader", 649) { }
+    public:
+        instance_trial_of_the_crusader() : InstanceMapScript("instance_trial_of_the_crusader", 649) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
-    {
-        return new instance_trial_of_the_crusader_InstanceMapScript(pMap);
-    }
-
-    struct instance_trial_of_the_crusader_InstanceMapScript : public InstanceScript
-    {
-        instance_trial_of_the_crusader_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
-
-        uint32 m_auiEncounter[MAX_ENCOUNTERS];
-        uint32 m_uiTrialCounter;
-        uint32 m_uiEvent;
-        uint32 m_uiEventTimer;
-        uint32 m_uiEventNPCId;
-        uint32 m_uiNorthrendBeasts;
-        std::string m_strInstData;
-        bool   m_bNeedSave;
-
-        uint32 m_uiDataDamageTwin;
-        uint32 m_uiFjolaCasting;
-        uint32 m_uiEydisCasting;
-
-        uint64 m_uiBarrentGUID;
-        uint64 m_uiTirionGUID;
-        uint64 m_uiFizzlebangGUID;
-        uint64 m_uiGarroshGUID;
-        uint64 m_uiVarianGUID;
-
-        uint64 m_uiGormokGUID;
-        uint64 m_uiAcidmawGUID;
-        uint64 m_uiDreadscaleGUID;
-        uint64 m_uiIcehowlGUID;
-        uint64 m_uiJaraxxusGUID;
-        uint64 m_uiChampionsControllerGUID;
-        uint64 m_uiDarkbaneGUID;
-        uint64 m_uiLightbaneGUID;
-        uint64 m_uiAnubarakGUID;
-
-        uint64 m_uiCrusadersCacheGUID;
-        uint64 m_uiFloorGUID;
-
-        uint64 m_uiTributeChestGUID;
-
-        uint64 m_uiMainGateDoorGUID;
-        uint64 m_uiEastPortcullisGUID;
-        uint64 m_uiWebDoorGUID;
-
-        // Achievement stuff
-        uint32 m_uiNotOneButTwoJormungarsTimer;
-        uint32 m_uiResilienceWillFixItTimer;
-        uint8  m_uiSnoboldCount;
-        uint8  m_uiMistressOfPainCount;
-        bool   m_bTributeToImmortalityElegible;
-        std::list<uint32> m_vScarabTimeOfDeath;
-
-        void Initialize()
+        struct instance_trial_of_the_crusader_InstanceMapScript : public InstanceScript
         {
-            for (uint8 i = 0; i < MAX_ENCOUNTERS; ++i)
-                m_auiEncounter[i] = NOT_STARTED;
+            instance_trial_of_the_crusader_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
 
-            m_uiTrialCounter = 50;
-            m_uiEvent = 0;
+            uint32 EncounterStatus[MAX_ENCOUNTERS];
+            uint32 TrialCounter;
+            uint32 EventStage;
+            uint32 EventTimer;
+            uint32 EventNPCId;
+            uint32 NorthrendBeasts;
+            std::string SaveDataBuffer;
+            bool   NeedSave;
 
-            m_uiTributeChestGUID = 0;
-            m_uiDataDamageTwin = 0;
+            uint32 DataDamageTwin;
+            uint32 FjolaCasting;
+            uint32 EydisCasting;
 
-            m_uiMainGateDoorGUID = 0;
-            m_uiEastPortcullisGUID = 0;
-            m_uiWebDoorGUID = 0;
+            uint64 BarrentGUID;
+            uint64 TirionGUID;
+            uint64 FizzlebangGUID;
+            uint64 GarroshGUID;
+            uint64 VarianGUID;
 
-            m_uiNorthrendBeasts = NOT_STARTED;
+            uint64 GormokGUID;
+            uint64 AcidmawGUID;
+            uint64 DreadscaleGUID;
+            uint64 IcehowlGUID;
+            uint64 JaraxxusGUID;
+            uint64 ChampionsControllerGUID;
+            uint64 DarkbaneGUID;
+            uint64 LightbaneGUID;
+            uint64 AnubarakGUID;
 
-            m_uiEventTimer = 1000;
+            uint64 CrusadersCacheGUID;
+            uint64 FloorGUID;
 
-            m_uiNotOneButTwoJormungarsTimer = 0;
-            m_uiResilienceWillFixItTimer = 0;
-            m_uiSnoboldCount = 0;
-            m_uiMistressOfPainCount = 0;
-            m_bTributeToImmortalityElegible = true;
+            uint64 TributeChestGUID;
 
-            m_bNeedSave = false;
-        }
+            uint64 MainGateDoorGUID;
+            uint64 EastPortcullisGUID;
+            uint64 WebDoorGUID;
 
-        bool IsEncounterInProgress() const
-        {
-            for (uint8 i = 0; i < MAX_ENCOUNTERS ; ++i)
-                if (m_auiEncounter[i] == IN_PROGRESS)
-                    return true;
-            return false;
-        }
+            // Achievement stuff
+            uint32 NotOneButTwoJormungarsTimer;
+            uint32 ResilienceWillFixItTimer;
+            uint8  SnoboldCount;
+            uint8  MistressOfPainCount;
+            bool   TributeToImmortalityElegible;
 
-        void OnPlayerEnter(Player *m_player)
-        {
-            if (instance->IsHeroic())
+            void Initialize()
             {
-                m_player->SendUpdateWorldState(UPDATE_STATE_UI_SHOW,1);
-                m_player->SendUpdateWorldState(UPDATE_STATE_UI_COUNT, GetData(TYPE_COUNTER));
+                for (uint8 i = 0; i < MAX_ENCOUNTERS; ++i)
+                    EncounterStatus[i] = NOT_STARTED;
+
+                TrialCounter = 50;
+                EventStage = 0;
+
+                TributeChestGUID = 0;
+                DataDamageTwin = 0;
+
+                MainGateDoorGUID = 0;
+                EastPortcullisGUID = 0;
+                WebDoorGUID = 0;
+
+                NorthrendBeasts = NOT_STARTED;
+
+                EventTimer = 1000;
+
+                NotOneButTwoJormungarsTimer = 0;
+                ResilienceWillFixItTimer = 0;
+                SnoboldCount = 0;
+                MistressOfPainCount = 0;
+                TributeToImmortalityElegible = true;
+
+                NeedSave = false;
             }
-        }
 
-        bool IsRaidWiped()
-        {
-            Map::PlayerList const &players = instance->GetPlayers();
-
-            for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
+            bool IsEncounterInProgress() const
             {
-                if (Player* pPlayer = i->getSource())
+                for (uint8 i = 0; i < MAX_ENCOUNTERS ; ++i)
+                    if (EncounterStatus[i] == IN_PROGRESS)
+                        return true;
+                return false;
+            }
+
+            void OnPlayerEnter(Player* player)
+            {
+                if (instance->IsHeroic())
                 {
-                    if (pPlayer->isAlive())
-                        return false;
+                    player->SendUpdateWorldState(UPDATE_STATE_UI_SHOW, 1);
+                    player->SendUpdateWorldState(UPDATE_STATE_UI_COUNT, GetData(TYPE_COUNTER));
                 }
             }
-            return true;
-        }
 
-        void OpenDoor(uint64 guid)
-        {
-            if (!guid) return;
-            GameObject* go = instance->GetGameObject(guid);
-            if (go) go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
-        }
-
-        void CloseDoor(uint64 guid)
-        {
-            if (!guid) return;
-            GameObject* go = instance->GetGameObject(guid);
-            if (go) go->SetGoState(GO_STATE_READY);
-        }
-
-        void OnCreatureCreate(Creature* creature)
-        {
-            switch(creature->GetEntry())
+            bool IsRaidWiped()
             {
-                case NPC_BARRENT:     m_uiBarrentGUID = creature->GetGUID(); break;
-                case NPC_TIRION:      m_uiTirionGUID = creature->GetGUID(); break;
-                case NPC_FIZZLEBANG:  m_uiFizzlebangGUID = creature->GetGUID(); break;
-                case NPC_GARROSH:     m_uiGarroshGUID = creature->GetGUID(); break;
-                case NPC_VARIAN:      m_uiVarianGUID = creature->GetGUID(); break;
+                Map::PlayerList const &players = instance->GetPlayers();
+                for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
+                    if (Player* player = i->getSource())
+                        if (player->isAlive())
+                            return false;
 
-                case NPC_GORMOK:      m_uiGormokGUID = creature->GetGUID(); break;
-                case NPC_ACIDMAW:     m_uiAcidmawGUID = creature->GetGUID(); break;
-                case NPC_DREADSCALE:  m_uiDreadscaleGUID = creature->GetGUID(); break;
-                case NPC_ICEHOWL:     m_uiIcehowlGUID = creature->GetGUID(); break;
-                case NPC_JARAXXUS:    m_uiJaraxxusGUID = creature->GetGUID(); break;
-                case NPC_CHAMPIONS_CONTROLLER:  m_uiChampionsControllerGUID = creature->GetGUID(); break;
-                case NPC_DARKBANE:    m_uiDarkbaneGUID = creature->GetGUID(); break;
-                case NPC_LIGHTBANE:   m_uiLightbaneGUID = creature->GetGUID(); break;
-                case NPC_ANUBARAK:    m_uiAnubarakGUID = creature->GetGUID(); break;
+                return true;
             }
-        }
 
-        void OnGameObjectCreate(GameObject* go)
-        {
-            switch(go->GetEntry())
+            void OpenDoor(uint64 guid)
             {
-                case GO_CRUSADERS_CACHE_10:
-                    if (instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_NORMAL)
-                        m_uiCrusadersCacheGUID = go->GetGUID();
-                    break;
-                case GO_CRUSADERS_CACHE_25:
-                    if (instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_NORMAL)
-                        m_uiCrusadersCacheGUID = go->GetGUID();
-                    break;
-                case GO_CRUSADERS_CACHE_10_H:
-                    if (instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_HEROIC)
-                        m_uiCrusadersCacheGUID = go->GetGUID();
-                    break;
-                case GO_CRUSADERS_CACHE_25_H:
-                    if (instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_HEROIC)
-                        m_uiCrusadersCacheGUID = go->GetGUID();
-                    break;
-                case GO_ARGENT_COLISEUM_FLOOR: m_uiFloorGUID = go->GetGUID(); break;
-                case GO_MAIN_GATE_DOOR:   m_uiMainGateDoorGUID = go->GetGUID(); break;
-                case GO_EAST_PORTCULLIS:  m_uiEastPortcullisGUID = go->GetGUID(); break;
-                case GO_WEB_DOOR:         m_uiWebDoorGUID = go->GetGUID(); break;
-
-                case GO_TRIBUTE_CHEST_10H_25:
-                case GO_TRIBUTE_CHEST_10H_45:
-                case GO_TRIBUTE_CHEST_10H_50:
-                case GO_TRIBUTE_CHEST_10H_99:
-                case GO_TRIBUTE_CHEST_25H_25:
-                case GO_TRIBUTE_CHEST_25H_45:
-                case GO_TRIBUTE_CHEST_25H_50:
-                case GO_TRIBUTE_CHEST_25H_99:
-                    m_uiTributeChestGUID = go->GetGUID(); break;
+                if (!guid)
+                    return;
+                if (GameObject* go = instance->GetGameObject(guid))
+                    go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
             }
-        }
 
-        void SetData(uint32 uiType, uint32 uiData)
-        {
-            switch(uiType)
+            void CloseDoor(uint64 guid)
             {
-                case TYPE_JARAXXUS:
-                    if (uiData == DONE) m_uiEvent = 2000;
-                    break;
-                case TYPE_CRUSADERS:
-                    switch (uiData)
-                    {
-                        case IN_PROGRESS: m_uiResilienceWillFixItTimer = 0; break;
-                        case SPECIAL: //Means the first blood
-                            m_uiResilienceWillFixItTimer = 60*IN_MILLISECONDS;
-                            uiData = IN_PROGRESS;
-                            break;
-                        case DONE:
-                            DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_DEFEAT_FACTION_CHAMPIONS);
-                            if (m_uiResilienceWillFixItTimer > 0)
-                                DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_CHAMPIONS_KILLED_IN_MINUTE);
-                            if (GameObject* pChest = instance->GetGameObject(m_uiCrusadersCacheGUID))
-                                if (pChest && !pChest->isSpawned())
-                                    pChest->SetRespawnTime(7*DAY);
-                            m_uiEvent = 3100;
-                            break;
-                    }
-                    break;
-                case TYPE_VALKIRIES:
-                    switch (uiData)
-                    {
-                        case FAIL:
-                            if (m_auiEncounter[TYPE_VALKIRIES] == NOT_STARTED) uiData = NOT_STARTED;
-                            break;
-                        case SPECIAL:
-                            if (m_auiEncounter[TYPE_VALKIRIES] == SPECIAL) uiData = DONE;
-                            break;
-                        case DONE:
-                            if (instance->GetPlayers().getFirst()->getSource()->GetTeam() == ALLIANCE)
-                                m_uiEvent = 4020;
-                            else
-                                m_uiEvent = 4030;
-                            break;
-                    }
-                    break;
-                case TYPE_ANUBARAK:
-                    switch (uiData)
-                    {
-                        case DONE:
-                            m_uiEvent = 6000;
-                            break;
-                        case SPECIAL:
-                            uint32 tributeChest = 0;
-                            if (instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_HEROIC)
-                            {
-                                if (m_uiTrialCounter >= 50)
-                                    tributeChest = GO_TRIBUTE_CHEST_10H_99;
+                if (!guid)
+                    return;
+                if (GameObject* go = instance->GetGameObject(guid))
+                    go->SetGoState(GO_STATE_READY);
+            }
+
+            void OnCreatureCreate(Creature* creature)
+            {
+                switch (creature->GetEntry())
+                {
+                    case NPC_BARRENT:
+                        BarrentGUID = creature->GetGUID();
+                        break;
+                    case NPC_TIRION:
+                        TirionGUID = creature->GetGUID();
+                        break;
+                    case NPC_FIZZLEBANG:
+                        FizzlebangGUID = creature->GetGUID();
+                        break;
+                    case NPC_GARROSH:
+                        GarroshGUID = creature->GetGUID();
+                        break;
+                    case NPC_VARIAN:
+                        VarianGUID = creature->GetGUID();
+                        break;
+
+                    case NPC_GORMOK:
+                        GormokGUID = creature->GetGUID();
+                        break;
+                    case NPC_ACIDMAW:
+                        AcidmawGUID = creature->GetGUID();
+                        break;
+                    case NPC_DREADSCALE:
+                        DreadscaleGUID = creature->GetGUID();
+                        break;
+                    case NPC_ICEHOWL:
+                        IcehowlGUID = creature->GetGUID();
+                        break;
+                    case NPC_JARAXXUS:
+                        JaraxxusGUID = creature->GetGUID();
+                        break;
+                    case NPC_CHAMPIONS_CONTROLLER:
+                        ChampionsControllerGUID = creature->GetGUID();
+                        break;
+                    case NPC_DARKBANE:
+                        DarkbaneGUID = creature->GetGUID();
+                        break;
+                    case NPC_LIGHTBANE:
+                        LightbaneGUID = creature->GetGUID();
+                        break;
+                    case NPC_ANUBARAK:
+                        AnubarakGUID = creature->GetGUID();
+                        break;
+                }
+            }
+
+            void OnGameObjectCreate(GameObject* go)
+            {
+                switch (go->GetEntry())
+                {
+                    case GO_CRUSADERS_CACHE_10:
+                        if (instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_NORMAL)
+                            CrusadersCacheGUID = go->GetGUID();
+                        break;
+                    case GO_CRUSADERS_CACHE_25:
+                        if (instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_NORMAL)
+                            CrusadersCacheGUID = go->GetGUID();
+                        break;
+                    case GO_CRUSADERS_CACHE_10_H:
+                        if (instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_HEROIC)
+                            CrusadersCacheGUID = go->GetGUID();
+                        break;
+                    case GO_CRUSADERS_CACHE_25_H:
+                        if (instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_HEROIC)
+                            CrusadersCacheGUID = go->GetGUID();
+                        break;
+                    case GO_ARGENT_COLISEUM_FLOOR:
+                        FloorGUID = go->GetGUID();
+                        break;
+                    case GO_MAIN_GATE_DOOR:
+                        MainGateDoorGUID = go->GetGUID();
+                        break;
+                    case GO_EAST_PORTCULLIS:
+                        EastPortcullisGUID = go->GetGUID();
+                        break;
+                    case GO_WEB_DOOR:
+                        WebDoorGUID = go->GetGUID();
+                        break;
+
+                    case GO_TRIBUTE_CHEST_10H_25:
+                    case GO_TRIBUTE_CHEST_10H_45:
+                    case GO_TRIBUTE_CHEST_10H_50:
+                    case GO_TRIBUTE_CHEST_10H_99:
+                    case GO_TRIBUTE_CHEST_25H_25:
+                    case GO_TRIBUTE_CHEST_25H_45:
+                    case GO_TRIBUTE_CHEST_25H_50:
+                    case GO_TRIBUTE_CHEST_25H_99:
+                        TributeChestGUID = go->GetGUID();
+                        break;
+                }
+            }
+
+            void SetData(uint32 type, uint32 data)
+            {
+                switch (type)
+                {
+                    case TYPE_JARAXXUS:
+                        if (data == DONE)
+                            EventStage = 2000;
+                        break;
+                    case TYPE_CRUSADERS:
+                        switch (data)
+                        {
+                            case IN_PROGRESS:
+                                ResilienceWillFixItTimer = 0;
+                                break;
+                            case SPECIAL: //Means the first blood
+                                ResilienceWillFixItTimer = 60*IN_MILLISECONDS;
+                                data = IN_PROGRESS;
+                                break;
+                            case DONE:
+                                DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_DEFEAT_FACTION_CHAMPIONS);
+                                if (ResilienceWillFixItTimer > 0)
+                                    DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_CHAMPIONS_KILLED_IN_MINUTE);
+                                DoRespawnGameObject(CrusadersCacheGUID, 7*DAY);
+                                EventStage = 3100;
+                                break;
+                        }
+                        break;
+                    case TYPE_VALKIRIES:
+                        switch (data)
+                        {
+                            case FAIL:
+                                if (EncounterStatus[TYPE_VALKIRIES] == NOT_STARTED)
+                                    data = NOT_STARTED;
+                                break;
+                            case SPECIAL:
+                                if (EncounterStatus[TYPE_VALKIRIES] == SPECIAL)
+                                    data = DONE;
+                                break;
+                            case DONE:
+                                if (instance->GetPlayers().getFirst()->getSource()->GetTeam() == ALLIANCE)
+                                    EventStage = 4020;
                                 else
-                                    if (m_uiTrialCounter >= 45)
-                                        tributeChest = GO_TRIBUTE_CHEST_10H_50;
+                                    EventStage = 4030;
+                                break;
+                        }
+                        break;
+                    case TYPE_ANUBARAK:
+                        switch (data)
+                        {
+                            case DONE:
+                                EventStage = 6000;
+                                break;
+                            case SPECIAL:
+                                uint32 tributeChest = 0;
+                                if (instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_HEROIC)
+                                {
+                                    if (TrialCounter >= 50)
+                                        tributeChest = GO_TRIBUTE_CHEST_10H_99;
                                     else
-                                        if (m_uiTrialCounter >= 25)
-                                            tributeChest = GO_TRIBUTE_CHEST_10H_45;
+                                        if (TrialCounter >= 45)
+                                            tributeChest = GO_TRIBUTE_CHEST_10H_50;
                                         else
-                                            tributeChest = GO_TRIBUTE_CHEST_10H_25;
-                            }
-                            else if (instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_HEROIC)
-                            {
-                                if (m_uiTrialCounter >= 50)
-                                    tributeChest = GO_TRIBUTE_CHEST_25H_99;
-                                else
-                                    if (m_uiTrialCounter >= 45)
-                                        tributeChest = GO_TRIBUTE_CHEST_25H_50;
+                                            if (TrialCounter >= 25)
+                                                tributeChest = GO_TRIBUTE_CHEST_10H_45;
+                                            else
+                                                tributeChest = GO_TRIBUTE_CHEST_10H_25;
+                                }
+                                else if (instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_HEROIC)
+                                {
+                                    if (TrialCounter >= 50)
+                                        tributeChest = GO_TRIBUTE_CHEST_25H_99;
                                     else
-                                        if (m_uiTrialCounter >= 25)
-                                            tributeChest = GO_TRIBUTE_CHEST_25H_45;
+                                        if (TrialCounter >= 45)
+                                            tributeChest = GO_TRIBUTE_CHEST_25H_50;
                                         else
-                                            tributeChest = GO_TRIBUTE_CHEST_25H_25;
-                            }
-                            if (tributeChest)
-                                if (Creature* pTirion =  instance->GetCreature(m_uiTirionGUID))
-                                    if (GameObject* pChest = pTirion->SummonGameObject(tributeChest,805.62f,134.87f,142.16f,3.27f,0,0,0,0,90000000))
-                                        pChest->SetRespawnTime(pChest->GetRespawnDelay());
-                            break;
-                    }
-                    break;
-                case TYPE_COUNTER:   m_uiTrialCounter = uiData; uiData = DONE; break;
-                case TYPE_EVENT:     m_uiEvent = uiData; uiData = NOT_STARTED; break;
-                case TYPE_EVENT_TIMER:      m_uiEventTimer = uiData; uiData = NOT_STARTED; break;
-                case TYPE_NORTHREND_BEASTS:
-                    m_uiNorthrendBeasts = uiData;
-                    switch (uiData)
-                    {
-                        case GORMOK_DONE:
-                            m_uiEvent = 200;
-                            SetData(TYPE_NORTHREND_BEASTS,IN_PROGRESS);
-                            SetData(TYPE_BEASTS,IN_PROGRESS);
-                            break;
-                        case SNAKES_IN_PROGRESS: m_uiNotOneButTwoJormungarsTimer = 0; break;
-                        case SNAKES_SPECIAL: m_uiNotOneButTwoJormungarsTimer = 10*IN_MILLISECONDS; break;
-                        case SNAKES_DONE:
-                            if (m_uiNotOneButTwoJormungarsTimer > 0)
-                                DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_WORMS_KILLED_IN_10_SECONDS);
-                            m_uiEvent = 300;
-                            SetData(TYPE_NORTHREND_BEASTS,IN_PROGRESS);
-                            SetData(TYPE_BEASTS,IN_PROGRESS);
-                            break;
-                        case ICEHOWL_DONE:
-                            m_uiEvent = 400;
-                            SetData(TYPE_NORTHREND_BEASTS,DONE);
-                            SetData(TYPE_BEASTS,DONE);
-                            break;
-                        case FAIL:
-                            SetData(TYPE_BEASTS,FAIL);
-                            break;
-                    }
-                    break;
-                case DATA_HEALTH_TWIN_SHARED:     m_uiDataDamageTwin = uiData; uiData = NOT_STARTED; break;
+                                            if (TrialCounter >= 25)
+                                                tributeChest = GO_TRIBUTE_CHEST_25H_45;
+                                            else
+                                                tributeChest = GO_TRIBUTE_CHEST_25H_25;
+                                }
+                                if (tributeChest)
+                                    if (Creature* tirion =  instance->GetCreature(TirionGUID))
+                                        if (GameObject* chest = tirion->SummonGameObject(tributeChest, 805.62f, 134.87f, 142.16f, 3.27f, 0, 0, 0, 0, 90000000))
+                                            chest->SetRespawnTime(chest->GetRespawnDelay());
+                                break;
+                        }
+                        break;
+                    case TYPE_COUNTER:
+                        TrialCounter = data;
+                        data = DONE;
+                        break;
+                    case TYPE_EVENT:
+                        EventStage = data;
+                        data = NOT_STARTED;
+                        break;
+                    case TYPE_EVENT_TIMER:
+                        EventTimer = data;
+                        data = NOT_STARTED;
+                        break;
+                    case TYPE_NORTHREND_BEASTS:
+                        NorthrendBeasts = data;
+                        switch (data)
+                        {
+                            case GORMOK_DONE:
+                                EventStage = 200;
+                                SetData(TYPE_NORTHREND_BEASTS, IN_PROGRESS);
+                                SetData(TYPE_BEASTS, IN_PROGRESS);
+                                break;
+                            case SNAKES_IN_PROGRESS:
+                                NotOneButTwoJormungarsTimer = 0;
+                                break;
+                            case SNAKES_SPECIAL:
+                                NotOneButTwoJormungarsTimer = 10*IN_MILLISECONDS;
+                                break;
+                            case SNAKES_DONE:
+                                if (NotOneButTwoJormungarsTimer > 0)
+                                    DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, SPELL_WORMS_KILLED_IN_10_SECONDS);
+                                EventStage = 300;
+                                SetData(TYPE_NORTHREND_BEASTS, IN_PROGRESS);
+                                SetData(TYPE_BEASTS, IN_PROGRESS);
+                                break;
+                            case ICEHOWL_DONE:
+                                EventStage = 400;
+                                SetData(TYPE_NORTHREND_BEASTS, DONE);
+                                SetData(TYPE_BEASTS, DONE);
+                                break;
+                            case FAIL:
+                                SetData(TYPE_BEASTS, FAIL);
+                                break;
+                        }
+                        break;
+                    case DATA_HEALTH_TWIN_SHARED:
+                        DataDamageTwin = data;
+                        data = NOT_STARTED;
+                        break;
 
-                //Achievements
-                case DATA_SNOBOLD_COUNT:
-                    if (uiData == INCREASE)
-                        ++m_uiSnoboldCount;
-                    else if (uiData == DECREASE)
-                        --m_uiSnoboldCount;
-                    break;
-                case DATA_MISTRESS_OF_PAIN_COUNT:
-                    if (uiData == INCREASE)
-                        ++m_uiMistressOfPainCount;
-                    else if (uiData == DECREASE)
-                        --m_uiMistressOfPainCount;
-                    break;
-                case DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE:
-                    m_bTributeToImmortalityElegible = false;
-                    break;
-            }
-            if (IsEncounterInProgress())
-            {
-                CloseDoor(GetData64(GO_EAST_PORTCULLIS));
-                CloseDoor(GetData64(GO_WEB_DOOR));
-            } else {
-                OpenDoor(GetData64(GO_EAST_PORTCULLIS));
-                OpenDoor(GetData64(GO_WEB_DOOR));
-            }
-
-            if (uiType < MAX_ENCOUNTERS)
-            {
-                sLog->outBasic("[ToCr] m_auiEncounter[uiType %u] %u = uiData %u;",uiType,m_auiEncounter[uiType],uiData);
-                if (uiData == FAIL)
-                {
-                    if (IsRaidWiped())
-                    {
-                        --m_uiTrialCounter;
-                        m_bNeedSave = true;
-                        m_uiEvent = (uiType == TYPE_BEASTS? 666 : 0);
-                    }
-                    uiData = NOT_STARTED;
+                    //Achievements
+                    case DATA_SNOBOLD_COUNT:
+                        if (data == INCREASE)
+                            ++SnoboldCount;
+                        else if (data == DECREASE)
+                            --SnoboldCount;
+                        break;
+                    case DATA_MISTRESS_OF_PAIN_COUNT:
+                        if (data == INCREASE)
+                            ++MistressOfPainCount;
+                        else if (data == DECREASE)
+                            --MistressOfPainCount;
+                        break;
+                    case DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE:
+                        TributeToImmortalityElegible = false;
+                        break;
                 }
-                m_auiEncounter[uiType] = uiData;
-
-                if (uiData == DONE || m_bNeedSave == true)
+                if (IsEncounterInProgress())
                 {
-                    if (Unit* pAnnouncer = instance->GetCreature(GetData64(NPC_BARRENT)))
-                        pAnnouncer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    Save();
+                    CloseDoor(GetData64(GO_EAST_PORTCULLIS));
+                    CloseDoor(GetData64(GO_WEB_DOOR));
+                }
+                else
+                {
+                    OpenDoor(GetData64(GO_EAST_PORTCULLIS));
+                    OpenDoor(GetData64(GO_WEB_DOOR));
+                }
+
+                if (type < MAX_ENCOUNTERS)
+                {
+                    sLog->outDetail("[ToCr] EncounterStatus[type %u] %u = data %u;", type, EncounterStatus[type], data);
+                    if (data == FAIL)
+                    {
+                        if (IsRaidWiped())
+                        {
+                            --TrialCounter;
+                            NeedSave = true;
+                            EventStage = (type == TYPE_BEASTS ? 666 : 0);
+                        }
+                        data = NOT_STARTED;
+                    }
+
+                    EncounterStatus[type] = data;
+
+                    if (data == DONE || NeedSave == true)
+                    {
+                        if (Unit* announcer = instance->GetCreature(GetData64(NPC_BARRENT)))
+                            announcer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        Save();
+                    }
                 }
             }
-        }
 
-        uint64 GetData64(uint32 uiData)
-        {
-            switch(uiData)
+            uint64 GetData64(uint32 type)
             {
-                case NPC_BARRENT:  return m_uiBarrentGUID;
-                case NPC_TIRION:   return m_uiTirionGUID;
-                case NPC_FIZZLEBANG: return m_uiFizzlebangGUID;
-                case NPC_GARROSH:  return m_uiGarroshGUID;
-                case NPC_VARIAN:     return m_uiVarianGUID;
+                switch (type)
+                {
+                    case NPC_BARRENT:
+                        return BarrentGUID;
+                    case NPC_TIRION:
+                        return TirionGUID;
+                    case NPC_FIZZLEBANG:
+                        return FizzlebangGUID;
+                    case NPC_GARROSH:
+                        return GarroshGUID;
+                    case NPC_VARIAN:
+                        return VarianGUID;
 
-                case NPC_GORMOK: return m_uiGormokGUID;
-                case NPC_ACIDMAW: return m_uiAcidmawGUID;
-                case NPC_DREADSCALE: return m_uiDreadscaleGUID;
-                case NPC_ICEHOWL: return m_uiIcehowlGUID;
-                case NPC_JARAXXUS: return m_uiJaraxxusGUID;
-                case NPC_CHAMPIONS_CONTROLLER: return m_uiChampionsControllerGUID;
-                case NPC_DARKBANE: return m_uiDarkbaneGUID;
-                case NPC_LIGHTBANE: return m_uiLightbaneGUID;
-                case NPC_ANUBARAK: return m_uiAnubarakGUID;
+                    case NPC_GORMOK:
+                        return GormokGUID;
+                    case NPC_ACIDMAW:
+                        return AcidmawGUID;
+                    case NPC_DREADSCALE:
+                        return DreadscaleGUID;
+                    case NPC_ICEHOWL:
+                        return IcehowlGUID;
+                    case NPC_JARAXXUS:
+                        return JaraxxusGUID;
+                    case NPC_CHAMPIONS_CONTROLLER:
+                        return ChampionsControllerGUID;
+                    case NPC_DARKBANE:
+                        return DarkbaneGUID;
+                    case NPC_LIGHTBANE:
+                        return LightbaneGUID;
+                    case NPC_ANUBARAK:
+                        return AnubarakGUID;
 
-                case GO_ARGENT_COLISEUM_FLOOR:  return m_uiFloorGUID;
-                case GO_MAIN_GATE_DOOR:         return m_uiMainGateDoorGUID;
-                case GO_EAST_PORTCULLIS:        return m_uiEastPortcullisGUID;
-                case GO_WEB_DOOR:               return m_uiWebDoorGUID;
-            }
-            return 0;
-        }
+                    case GO_ARGENT_COLISEUM_FLOOR:
+                        return FloorGUID;
+                    case GO_MAIN_GATE_DOOR:
+                        return MainGateDoorGUID;
+                    case GO_EAST_PORTCULLIS:
+                        return EastPortcullisGUID;
+                    case GO_WEB_DOOR:
+                        return WebDoorGUID;
+                    default:
+                        break;
+                }
 
-        uint32 GetData(uint32 uiType)
-        {
-            switch(uiType)
-            {
-                case TYPE_BEASTS:    return m_auiEncounter[TYPE_BEASTS];
-                case TYPE_JARAXXUS:  return m_auiEncounter[TYPE_JARAXXUS];
-                case TYPE_CRUSADERS: return m_auiEncounter[TYPE_CRUSADERS];
-                case TYPE_VALKIRIES: return m_auiEncounter[TYPE_VALKIRIES];
-                case TYPE_LICH_KING: return m_auiEncounter[TYPE_LICH_KING];
-                case TYPE_ANUBARAK:  return m_auiEncounter[TYPE_ANUBARAK];
-                case TYPE_COUNTER:   return m_uiTrialCounter;
-                case TYPE_EVENT:     return m_uiEvent;
-                case TYPE_NORTHREND_BEASTS:    return m_uiNorthrendBeasts;
-                case TYPE_EVENT_TIMER:  return m_uiEventTimer;
-                case TYPE_EVENT_NPC:
-                    switch (m_uiEvent)
-                    {
-                        case 110:
-                        case 140:
-                        case 150:
-                        case 155:
-                        case 200:
-                        case 205:
-                        case 210:
-                        case 220:
-                        case 300:
-                        case 305:
-                        case 310:
-                        case 315:
-                        case 400:
-                        case 666:
-                        case 1010:
-                        case 1180:
-                        case 2000:
-                        case 2030:
-                        case 3000:
-                        case 3001:
-                        case 3060:
-                        case 3061:
-                        case 3090:
-                        case 3091:
-                        case 3092:
-                        case 3100:
-                        case 3110:
-                        case 4000:
-                        case 4010:
-                        case 4015:
-                        case 4016:
-                        case 4040:
-                        case 4050:
-                        case 5000:
-                        case 5005:
-                        case 5020:
-                        case 6000:
-                        case 6005:
-                        case 6010:
-                            m_uiEventNPCId = NPC_TIRION;
-                            break;
-                        case 5010:
-                        case 5030:
-                        case 5040:
-                        case 5050:
-                        case 5060:
-                        case 5070:
-                        case 5080:
-                            m_uiEventNPCId = NPC_LICH_KING_1;
-                            break;
-                        case 120:
-                        case 122:
-                        case 2020:
-                        case 3080:
-                        case 3051:
-                        case 3071:
-                        case 4020:
-                            m_uiEventNPCId = NPC_VARIAN;
-                            break;
-                        case 130:
-                        case 132:
-                        case 2010:
-                        case 3050:
-                        case 3070:
-                        case 3081:
-                        case 4030:
-                            m_uiEventNPCId = NPC_GARROSH;
-                            break;
-                        case 1110:
-                        case 1120:
-                        case 1130:
-                        case 1132:
-                        case 1134:
-                        case 1135:
-                        case 1140:
-                        case 1142:
-                        case 1144:
-                        case 1150:
-                            m_uiEventNPCId = NPC_FIZZLEBANG;
-                            break;
-                        default:
-                            m_uiEventNPCId = NPC_TIRION;
-                            break;
-                    };
-                    return m_uiEventNPCId;
-                case DATA_HEALTH_TWIN_SHARED: return m_uiDataDamageTwin;
-            }
-            return 0;
-        }
-
-        void Update(uint32 uiDiff)
-        {
-            if (GetData(TYPE_NORTHREND_BEASTS) == SNAKES_SPECIAL && m_uiNotOneButTwoJormungarsTimer)
-            {
-                if (m_uiNotOneButTwoJormungarsTimer <= uiDiff)
-                    m_uiNotOneButTwoJormungarsTimer = 0;
-                else m_uiNotOneButTwoJormungarsTimer -= uiDiff;
+                return 0;
             }
 
-            if (GetData(TYPE_CRUSADERS) == IN_PROGRESS && m_uiResilienceWillFixItTimer)
+            uint32 GetData(uint32 type)
             {
-                if (m_uiResilienceWillFixItTimer <= uiDiff)
-                    m_uiResilienceWillFixItTimer = 0;
-                else m_uiResilienceWillFixItTimer -= uiDiff;
+                switch (type)
+                {
+                    case TYPE_BEASTS:
+                        return EncounterStatus[TYPE_BEASTS];
+                    case TYPE_JARAXXUS:
+                        return EncounterStatus[TYPE_JARAXXUS];
+                    case TYPE_CRUSADERS:
+                        return EncounterStatus[TYPE_CRUSADERS];
+                    case TYPE_VALKIRIES:
+                        return EncounterStatus[TYPE_VALKIRIES];
+                    case TYPE_LICH_KING:
+                        return EncounterStatus[TYPE_LICH_KING];
+                    case TYPE_ANUBARAK:
+                        return EncounterStatus[TYPE_ANUBARAK];
+                    case TYPE_COUNTER:
+                        return TrialCounter;
+                    case TYPE_EVENT:
+                        return EventStage;
+                    case TYPE_NORTHREND_BEASTS:
+                        return NorthrendBeasts;
+                    case TYPE_EVENT_TIMER:
+                        return EventTimer;
+                    case TYPE_EVENT_NPC:
+                        switch (EventStage)
+                        {
+                            case 110:
+                            case 140:
+                            case 150:
+                            case 155:
+                            case 200:
+                            case 205:
+                            case 210:
+                            case 220:
+                            case 300:
+                            case 305:
+                            case 310:
+                            case 315:
+                            case 400:
+                            case 666:
+                            case 1010:
+                            case 1180:
+                            case 2000:
+                            case 2030:
+                            case 3000:
+                            case 3001:
+                            case 3060:
+                            case 3061:
+                            case 3090:
+                            case 3091:
+                            case 3092:
+                            case 3100:
+                            case 3110:
+                            case 4000:
+                            case 4010:
+                            case 4015:
+                            case 4016:
+                            case 4040:
+                            case 4050:
+                            case 5000:
+                            case 5005:
+                            case 5020:
+                            case 6000:
+                            case 6005:
+                            case 6010:
+                                EventNPCId = NPC_TIRION;
+                                break;
+                            case 5010:
+                            case 5030:
+                            case 5040:
+                            case 5050:
+                            case 5060:
+                            case 5070:
+                            case 5080:
+                                EventNPCId = NPC_LICH_KING_1;
+                                break;
+                            case 120:
+                            case 122:
+                            case 2020:
+                            case 3080:
+                            case 3051:
+                            case 3071:
+                            case 4020:
+                                EventNPCId = NPC_VARIAN;
+                                break;
+                            case 130:
+                            case 132:
+                            case 2010:
+                            case 3050:
+                            case 3070:
+                            case 3081:
+                            case 4030:
+                                EventNPCId = NPC_GARROSH;
+                                break;
+                            case 1110:
+                            case 1120:
+                            case 1130:
+                            case 1132:
+                            case 1134:
+                            case 1135:
+                            case 1140:
+                            case 1142:
+                            case 1144:
+                            case 1150:
+                                EventNPCId = NPC_FIZZLEBANG;
+                                break;
+                            default:
+                                EventNPCId = NPC_TIRION;
+                                break;
+                        };
+                        return EventNPCId;
+                    case DATA_HEALTH_TWIN_SHARED:
+                        return DataDamageTwin;
+                    default:
+                        break;
+                }
+
+                return 0;
             }
-        }
 
-        void Save()
-        {
-            OUT_SAVE_INST_DATA;
-
-            std::ostringstream saveStream;
-
-            for (uint8 i = 0; i < MAX_ENCOUNTERS; ++i)
-                saveStream << m_auiEncounter[i] << " ";
-
-            saveStream << m_uiTrialCounter;
-            m_strInstData = saveStream.str();
-
-            SaveToDB();
-            OUT_SAVE_INST_DATA_COMPLETE;
-            m_bNeedSave = false;
-        }
-
-        std::string GetSaveData()
-        {
-            return m_strInstData;
-        }
-
-        void Load(const char* strIn)
-        {
-            if (!strIn)
+            void Update(uint32 diff)
             {
-                OUT_LOAD_INST_DATA_FAIL;
-                return;
+                if (GetData(TYPE_NORTHREND_BEASTS) == SNAKES_SPECIAL && NotOneButTwoJormungarsTimer)
+                {
+                    if (NotOneButTwoJormungarsTimer <= diff)
+                        NotOneButTwoJormungarsTimer = 0;
+                    else
+                        NotOneButTwoJormungarsTimer -= diff;
+                }
+
+                if (GetData(TYPE_CRUSADERS) == IN_PROGRESS && ResilienceWillFixItTimer)
+                {
+                    if (ResilienceWillFixItTimer <= diff)
+                        ResilienceWillFixItTimer = 0;
+                    else
+                        ResilienceWillFixItTimer -= diff;
+                }
             }
 
-            OUT_LOAD_INST_DATA(strIn);
-
-            std::istringstream loadStream(strIn);
-
-            for (uint8 i = 0; i < MAX_ENCOUNTERS; ++i)
+            void Save()
             {
-                loadStream >> m_auiEncounter[i];
+                OUT_SAVE_INST_DATA;
 
-                if (m_auiEncounter[i] == IN_PROGRESS)
-                    m_auiEncounter[i] = NOT_STARTED;
+                std::ostringstream saveStream;
+
+                for (uint8 i = 0; i < MAX_ENCOUNTERS; ++i)
+                    saveStream << EncounterStatus[i] << " ";
+
+                saveStream << TrialCounter;
+                SaveDataBuffer = saveStream.str();
+
+                SaveToDB();
+                OUT_SAVE_INST_DATA_COMPLETE;
+                NeedSave = false;
             }
-            loadStream >> m_uiTrialCounter;
-            m_uiEvent = 0;
 
-            OUT_LOAD_INST_DATA_COMPLETE;
-        }
+            std::string GetSaveData()
+            {
+                return SaveDataBuffer;
+            }
 
-        bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/, uint32 /*miscvalue1*/)
+            void Load(const char* strIn)
+            {
+                if (!strIn)
+                {
+                    OUT_LOAD_INST_DATA_FAIL;
+                    return;
+                }
+
+                OUT_LOAD_INST_DATA(strIn);
+
+                std::istringstream loadStream(strIn);
+
+                for (uint8 i = 0; i < MAX_ENCOUNTERS; ++i)
+                {
+                    loadStream >> EncounterStatus[i];
+
+                    if (EncounterStatus[i] == IN_PROGRESS)
+                        EncounterStatus[i] = NOT_STARTED;
+                }
+
+                loadStream >> TrialCounter;
+                EventStage = 0;
+
+                OUT_LOAD_INST_DATA_COMPLETE;
+            }
+
+            bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/, uint32 /*miscvalue1*/)
+            {
+                switch (criteria_id)
+                {
+                    case UPPER_BACK_PAIN_10_PLAYER:
+                    case UPPER_BACK_PAIN_10_PLAYER_HEROIC:
+                        return SnoboldCount >= 2;
+                    case UPPER_BACK_PAIN_25_PLAYER:
+                    case UPPER_BACK_PAIN_25_PLAYER_HEROIC:
+                        return SnoboldCount >= 4;
+                    case THREE_SIXTY_PAIN_SPIKE_10_PLAYER:
+                    case THREE_SIXTY_PAIN_SPIKE_10_PLAYER_HEROIC:
+                    case THREE_SIXTY_PAIN_SPIKE_25_PLAYER:
+                    case THREE_SIXTY_PAIN_SPIKE_25_PLAYER_HEROIC:
+                        return MistressOfPainCount >= 2;
+                    case A_TRIBUTE_TO_SKILL_10_PLAYER:
+                    case A_TRIBUTE_TO_SKILL_25_PLAYER:
+                        return TrialCounter >= 25;
+                    case A_TRIBUTE_TO_MAD_SKILL_10_PLAYER:
+                    case A_TRIBUTE_TO_MAD_SKILL_25_PLAYER:
+                        return TrialCounter >= 45;
+                    case A_TRIBUTE_TO_INSANITY_10_PLAYER:
+                    case A_TRIBUTE_TO_INSANITY_25_PLAYER:
+                    case REALM_FIRST_GRAND_CRUSADER:
+                        return TrialCounter == 50;
+                    case A_TRIBUTE_TO_IMMORTALITY_HORDE:
+                    case A_TRIBUTE_TO_IMMORTALITY_ALLIANCE:
+                        return TrialCounter == 50 && TributeToImmortalityElegible;
+                    case A_TRIBUTE_TO_DEDICATED_INSANITY:
+                        return false/*uiGrandCrusaderAttemptsLeft == 50 && !bHasAtAnyStagePlayerEquippedTooGoodItem*/;
+                }
+
+                return false;
+            }
+        };
+
+        InstanceScript* GetInstanceScript(InstanceMap* map) const
         {
-            switch (criteria_id)
-            {
-                case UPPER_BACK_PAIN_10_PLAYER:
-                case UPPER_BACK_PAIN_10_PLAYER_HEROIC:
-                    return m_uiSnoboldCount >= 2;
-                case UPPER_BACK_PAIN_25_PLAYER:
-                case UPPER_BACK_PAIN_25_PLAYER_HEROIC:
-                    return m_uiSnoboldCount >= 4;
-                case THREE_SIXTY_PAIN_SPIKE_10_PLAYER:
-                case THREE_SIXTY_PAIN_SPIKE_10_PLAYER_HEROIC:
-                case THREE_SIXTY_PAIN_SPIKE_25_PLAYER:
-                case THREE_SIXTY_PAIN_SPIKE_25_PLAYER_HEROIC:
-                    return m_uiMistressOfPainCount >= 2;
-                case A_TRIBUTE_TO_SKILL_10_PLAYER:
-                case A_TRIBUTE_TO_SKILL_25_PLAYER:
-                    return m_uiTrialCounter >= 25;
-                case A_TRIBUTE_TO_MAD_SKILL_10_PLAYER:
-                case A_TRIBUTE_TO_MAD_SKILL_25_PLAYER:
-                    return m_uiTrialCounter >= 45;
-                case A_TRIBUTE_TO_INSANITY_10_PLAYER:
-                case A_TRIBUTE_TO_INSANITY_25_PLAYER:
-                case REALM_FIRST_GRAND_CRUSADER:
-                    return m_uiTrialCounter == 50;
-                case A_TRIBUTE_TO_IMMORTALITY_HORDE:
-                case A_TRIBUTE_TO_IMMORTALITY_ALLIANCE:
-                    return m_uiTrialCounter == 50 && m_bTributeToImmortalityElegible;
-                case A_TRIBUTE_TO_DEDICATED_INSANITY:
-                    return false/*uiGrandCrusaderAttemptsLeft == 50 && !bHasAtAnyStagePlayerEquippedTooGoodItem*/;
-            }
-
-            return false;
+            return new instance_trial_of_the_crusader_InstanceMapScript(map);
         }
-    };
-
 };
-
 
 void AddSC_instance_trial_of_the_crusader()
 {
