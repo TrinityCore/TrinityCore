@@ -16,10 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** \file
-  \ingroup realmd
-  */
-
 #ifndef __REALMACCEPTOR_H__
 #define __REALMACCEPTOR_H__
 
@@ -31,20 +27,20 @@
 
 class RealmAcceptor : public ACE_Acceptor<RealmSocket, ACE_SOCK_Acceptor>
 {
-    public:
-        RealmAcceptor(void) { }
-        virtual ~RealmAcceptor(void) { }
+public:
+    RealmAcceptor(void) { }
+    virtual ~RealmAcceptor(void) { }
 
-    protected:
-        virtual int make_svc_handler(RealmSocket *&sh)
-        {
-            if (sh == 0)
-                ACE_NEW_RETURN(sh, RealmSocket, -1);
+protected:
+    virtual int make_svc_handler(RealmSocket *&sh)
+    {
+        if (sh == 0)
+            ACE_NEW_RETURN(sh, RealmSocket, -1);
 
-            sh->reactor(reactor());
-            sh->set_session(new AuthSocket(*sh));
-            return 0;
-        }
+        sh->reactor(reactor());
+        sh->set_session(new AuthSocket(*sh));
+        return 0;
+    }
 };
 
-#endif /* __REALMACCEPTOR_H__ */
+#endif

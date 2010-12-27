@@ -16,9 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** \file
-    \ingroup realmd
-*/
+#include <openssl/md5.h>
 
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
@@ -28,28 +26,27 @@
 #include "RealmList.h"
 #include "AuthSocket.h"
 #include "AuthCodes.h"
-#include <openssl/md5.h>
 #include "SHA1.h"
 
 #define ChunkSize 2048
 
 enum eAuthCmd
 {
-    AUTH_LOGON_CHALLENGE        = 0x00,
-    AUTH_LOGON_PROOF            = 0x01,
-    AUTH_RECONNECT_CHALLENGE    = 0x02,
-    AUTH_RECONNECT_PROOF        = 0x03,
-    REALM_LIST                  = 0x10,
-    XFER_INITIATE               = 0x30,
-    XFER_DATA                   = 0x31,
-    XFER_ACCEPT                 = 0x32,
-    XFER_RESUME                 = 0x33,
-    XFER_CANCEL                 = 0x34
+    AUTH_LOGON_CHALLENGE                         = 0x00,
+    AUTH_LOGON_PROOF                             = 0x01,
+    AUTH_RECONNECT_CHALLENGE                     = 0x02,
+    AUTH_RECONNECT_PROOF                         = 0x03,
+    REALM_LIST                                   = 0x10,
+    XFER_INITIATE                                = 0x30,
+    XFER_DATA                                    = 0x31,
+    XFER_ACCEPT                                  = 0x32,
+    XFER_RESUME                                  = 0x33,
+    XFER_CANCEL                                  = 0x34
 };
 
 enum eStatus
 {
-    STATUS_CONNECTED = 0,
+    STATUS_CONNECTED                             = 0,
     STATUS_AUTHED
 };
 
@@ -149,12 +146,12 @@ typedef struct AuthHandler
 // Launch a thread to transfer a patch to the client
 class PatcherRunnable: public ACE_Based::Runnable
 {
-    public:
-        PatcherRunnable(class AuthSocket *);
-        void run();
+public:
+    PatcherRunnable(class AuthSocket *);
+    void run();
 
-    private:
-        AuthSocket * mySocket;
+private:
+    AuthSocket * mySocket;
 };
 
 typedef struct PATCH_INFO
@@ -165,18 +162,18 @@ typedef struct PATCH_INFO
 // Caches MD5 hash of client patches present on the server
 class Patcher
 {
-    public:
-        typedef std::map<std::string, PATCH_INFO*> Patches;
-        ~Patcher();
-        Patcher();
-        Patches::const_iterator begin() const { return _patches.begin(); }
-        Patches::const_iterator end() const { return _patches.end(); }
-        void LoadPatchMD5(char*);
-        bool GetHash(char * pat,uint8 mymd5[16]);
+public:
+    typedef std::map<std::string, PATCH_INFO*> Patches;
+    ~Patcher();
+    Patcher();
+    Patches::const_iterator begin() const { return _patches.begin(); }
+    Patches::const_iterator end() const { return _patches.end(); }
+    void LoadPatchMD5(char*);
+    bool GetHash(char * pat,uint8 mymd5[16]);
 
-    private:
-        void LoadPatchesInfo();
-        Patches _patches;
+private:
+    void LoadPatchesInfo();
+    Patches _patches;
 };
 
 const AuthHandler table[] =
@@ -191,7 +188,7 @@ const AuthHandler table[] =
     { XFER_CANCEL,              STATUS_CONNECTED, &AuthSocket::_HandleXferCancel        }
 };
 
-#define AUTH_TOTAL_COMMANDS sizeof(table)/sizeof(AuthHandler)
+#define AUTH_TOTAL_COMMANDS 8
 
 // Holds the MD5 hash of client patches present on the server
 Patcher PatchesCache;
@@ -233,9 +230,7 @@ void AuthSocket::OnRead()
         // Circle through known commands and call the correct command handler
         for (i = 0; i < AUTH_TOTAL_COMMANDS; ++i)
         {
-            if ((uint8)table[i].cmd == _cmd &&
-                (table[i].status == STATUS_CONNECTED ||
-                (_authed && table[i].status == STATUS_AUTHED)))
+            if ((uint8)table[i].cmd == _cmd && (table[i].status == STATUS_CONNECTED || (_authed && table[i].status == STATUS_AUTHED)))
             {
                 sLog->outStaticDebug("[Auth] got data for cmd %u recv length %u", (uint32)_cmd, (uint32)socket().recv_len());
 
@@ -281,6 +276,7 @@ void AuthSocket::_SetVSFields(const std::string& rI)
     BigNumber x;
     x.SetBinary(sha.GetDigest(), sha.GetLength());
     v = g.ModExp(x, N);
+
     // No SQL injection (username escaped)
     const char *v_hex, *s_hex;
     v_hex = v.AsHexStr();
@@ -483,9 +479,7 @@ bool AuthSocket::_HandleLogonChallenge()
                     for (int i = 0; i < 4; ++i)
                         _localizationName[i] = ch->country[4-i-1];
 
-                    sLog->outBasic("[AuthChallenge] account %s is using '%c%c%c%c' locale (%u)",
-                            _login.c_str (), ch->country[3], ch->country[2], ch->country[1], ch->country[0], GetLocaleByName(_localizationName)
-                        );
+                    sLog->outBasic("[AuthChallenge] account %s is using '%c%c%c%c' locale (%u)", _login.c_str (), ch->country[3], ch->country[2], ch->country[1], ch->country[0], GetLocaleByName(_localizationName));
                 }
             }
         }
@@ -599,9 +593,9 @@ bool AuthSocket::_HandleLogonProof()
 
         // Update the sessionkey, last_ip, last login time and reset number of failed logins in the account table for this account
         // No SQL injection (escaped user name) and IP address as received by socket
-        const char* K_hex = K.AsHexStr();
+        const char *K_hex = K.AsHexStr();
 
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SET_LOGONPROOF);
+        PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_SET_LOGONPROOF);
         stmt->setString(0, K_hex);
         stmt->setString(1, socket().get_remote_address().c_str());
         stmt->setUInt32(2, GetLocaleByName(_localizationName));
@@ -640,10 +634,10 @@ bool AuthSocket::_HandleLogonProof()
     }
     else
     {
-        char data[4]= { AUTH_LOGON_PROOF, WOW_FAIL_UNKNOWN_ACCOUNT, 3, 0};
+        uint8 data[4]= { AUTH_LOGON_PROOF, WOW_FAIL_UNKNOWN_ACCOUNT, 3, 0 };
         socket().send(data, sizeof(data));
 
-        sLog->outBasic("[AuthChallenge] account %s tried to login with wrong password!",_login.c_str ());
+        sLog->outBasic("[AuthChallenge] account %s tried to login with wrong password!", _login.c_str());
 
         uint32 MaxWrongPassCount = sConfig->GetIntDefault("WrongPass.MaxCount", 0);
         if (MaxWrongPassCount > 0)
@@ -683,8 +677,7 @@ bool AuthSocket::_HandleLogonProof()
                         stmt->setUInt32(1, WrongPassBanTime);
                         LoginDatabase.Execute(stmt);
 
-                        sLog->outBasic("[AuthChallenge] IP %s got banned for '%u' seconds because account %s failed to authenticate '%u' times",
-                            socket().get_remote_address().c_str(), WrongPassBanTime, _login.c_str(), failed_logins);
+                        sLog->outBasic("[AuthChallenge] IP %s got banned for '%u' seconds because account %s failed to authenticate '%u' times", socket().get_remote_address().c_str(), WrongPassBanTime, _login.c_str(), failed_logins);
                     }
                 }
             }
@@ -864,7 +857,7 @@ bool AuthSocket::_HandleRealmList()
         pkt << i->second.populationLevel;
         pkt << AmountOfCharacters;
         pkt << i->second.timezone;                          // realm category
-        if ( _expversion & POST_BC_EXP_FLAG )               // 2.x and 3.x clients
+        if (_expversion & POST_BC_EXP_FLAG)                 // 2.x and 3.x clients
             pkt << (uint8)0x2C;                             // unk, may be realm number/id?
         else
             pkt << (uint8)0x0;                              // 1.12.1 and 1.12.2 clients
@@ -969,9 +962,8 @@ void PatcherRunnable::run() {}
 #include <errno.h>
 void Patcher::LoadPatchesInfo()
 {
-    DIR * dirp;
-    //int errno;
-    struct dirent * dp;
+    DIR *dirp;
+    struct dirent *dp;
     dirp = opendir("./patches/");
 
     if (!dirp)
@@ -983,8 +975,10 @@ void Patcher::LoadPatchesInfo()
         if ((dp = readdir(dirp)) != NULL)
         {
             int l = strlen(dp->d_name);
+
             if (l < 8)
                 continue;
+
             if (!memcmp(&dp->d_name[l - 4], ".mpq", 4))
                 LoadPatchMD5(dp->d_name);
         }
@@ -1002,19 +996,16 @@ void Patcher::LoadPatchesInfo()
     if (dirp)
         closedir(dirp);
 }
-
 #else
 void Patcher::LoadPatchesInfo()
 {
     WIN32_FIND_DATA fil;
-    HANDLE hFil=FindFirstFile("./patches/*.mpq", &fil);
+    HANDLE hFil = FindFirstFile("./patches/*.mpq", &fil);
     if (hFil == INVALID_HANDLE_VALUE)
         return;                                             // no patches were found
 
     do
-    {
         LoadPatchMD5(fil.cFileName);
-    }
     while (FindNextFile(hFil, &fil));
 }
 #endif
