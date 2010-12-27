@@ -913,6 +913,8 @@ inline bool IsProfessionOrRidingSkill(uint32 skill)
     return  IsProfessionSkill(skill) || skill == SKILL_RIDING;
 }
 
+bool IsPartOfSkillLine(uint32 skillId, uint32 spellId);
+
 class SpellMgr
 {
         friend class ACE_Singleton<SpellMgr, ACE_Null_Mutex>;
