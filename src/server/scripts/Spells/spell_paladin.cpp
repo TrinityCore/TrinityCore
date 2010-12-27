@@ -108,16 +108,16 @@ public:
             return true;
         }
 
-        void HandleEffectApply(AuraEffect const * /*aurEff*/, AuraApplication const * aurApp, AuraEffectHandleModes /*mode*/)
+        void HandleEffectApply(AuraEffect const * /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            Unit* pTarget = aurApp->GetTarget();
+            Unit* pTarget = GetTarget();
             if (Unit* pCaster = GetCaster())
                 pCaster->CastSpell(pTarget, PALADIN_SPELL_BLESSING_OF_SANCTUARY_BUFF, true);
         }
 
-        void HandleEffectRemove(AuraEffect const * /*aurEff*/, AuraApplication const * aurApp, AuraEffectHandleModes /*mode*/)
+        void HandleEffectRemove(AuraEffect const * /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
-            Unit* pTarget = aurApp->GetTarget();
+            Unit* pTarget = GetTarget();
             pTarget->RemoveAura(PALADIN_SPELL_BLESSING_OF_SANCTUARY_BUFF, GetCasterGUID());
         }
 

@@ -430,17 +430,17 @@ class spell_festergut_blighted_spores : public SpellScriptLoader
         {
             PrepareAuraScript(spell_festergut_blighted_spores_AuraScript);
 
-            void ExtraEffect(AuraEffect const* /*aurEff*/, AuraApplication const* aurApp, AuraEffectHandleModes /*mode*/)
+            void ExtraEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetCaster()->IsAIEnabled || GetCaster()->GetTypeId() != TYPEID_UNIT)
                     return;
 
                 uint32 inoculateId = CAST_AI(ScriptedAI, GetCaster()->ToCreature()->AI())->INOCULATED_HELPER;
                 uint32 currStack = 0;
-                if (Aura const* inoculate = aurApp->GetTarget()->GetAura(inoculateId))
+                if (Aura const* inoculate = GetTarget()->GetAura(inoculateId))
                     currStack = inoculate->GetStackAmount();
 
-                aurApp->GetTarget()->CastSpell(aurApp->GetTarget(), SPELL_INOCULATED, true);
+                GetTarget()->CastSpell(GetTarget(), SPELL_INOCULATED, true);
                 ++currStack;
                 GetCaster()->ToCreature()->AI()->SetData(DATA_INOCULATED_STACK, currStack);
             }

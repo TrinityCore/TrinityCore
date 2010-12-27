@@ -104,9 +104,9 @@ public:
             return true;
         }
 
-        void HandleEffectPeriodic(AuraEffect const * /*aurEff*/, AuraApplication const * aurApp)
+        void HandleEffectPeriodic(AuraEffect const * /*aurEff*/)
         {
-            Unit* pTarget = aurApp->GetTarget();
+            Unit* pTarget = GetTarget();
             if (Player* pPlayerTarget = pTarget->ToPlayer())
                 if (pPlayerTarget->IsFalling())
                 {
@@ -244,9 +244,9 @@ public:
             return true;
         }
 
-        void HandleEffectPeriodic(AuraEffect const * aurEff, AuraApplication const * aurApp)
+        void HandleEffectPeriodic(AuraEffect const * aurEff)
         {
-            Unit* pTarget = aurApp->GetTarget();
+            Unit* pTarget = GetTarget();
             if (Unit* pCaster = GetCaster())
             {
                 int32 lifeLeeched = pTarget->CountPctFromMaxHealth(aurEff->GetAmount());
@@ -405,9 +405,9 @@ class spell_creature_permanent_feign_death : public SpellScriptLoader
         class spell_creature_permanent_feign_deathAuraScript : public AuraScript
         {
             PrepareAuraScript(spell_creature_permanent_feign_deathAuraScript)
-            void HandleEffectApply(AuraEffect const * /*aurEff*/, AuraApplication const * aurApp, AuraEffectHandleModes /*mode*/)
+            void HandleEffectApply(AuraEffect const * /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                Unit* pTarget = aurApp->GetTarget();
+                Unit* pTarget = GetTarget();
 
                 pTarget->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
                 pTarget->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
@@ -498,14 +498,14 @@ class spell_gen_animal_blood : public SpellScriptLoader
                 return true;
             }
             
-            void OnApply(AuraEffect const* /*aurEff*/, AuraApplication const* /*aurApp*/, AuraEffectHandleModes /*mode*/)
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 // Remove all auras with spell id 46221, except the one currently being applied
                 while (Aura* aur = GetUnitOwner()->GetOwnedAura(SPELL_ANIMAL_BLOOD, 0, 0, 0, GetAura()))
                     GetUnitOwner()->RemoveOwnedAura(aur);
             }
 
-            void OnRemove(AuraEffect const* /*aurEff*/, AuraApplication const* /*aurApp*/, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetUnitOwner()->IsInWater())
                     GetUnitOwner()->CastSpell(GetUnitOwner(), SPELL_SPAWN_BLOOD_POOL, true);
@@ -533,16 +533,16 @@ class spell_gen_shroud_of_death : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_shroud_of_deathAuraScript)
 
-            void HandleEffectApply(AuraEffect const * /*aurEff*/, AuraApplication const * aurApp, AuraEffectHandleModes /*mode*/)
+            void HandleEffectApply(AuraEffect const * /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                Unit* target = aurApp->GetTarget();
+                Unit* target = GetTarget();
                 target->m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_GHOST);
                 target->m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_GHOST);
             }
 
-            void HandleEffectRemove(AuraEffect const * /*aurEff*/, AuraApplication const * aurApp, AuraEffectHandleModes /*mode*/)
+            void HandleEffectRemove(AuraEffect const * /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                Unit* target = aurApp->GetTarget();
+                Unit* target = GetTarget();
                 target->m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
                 target->m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
             }

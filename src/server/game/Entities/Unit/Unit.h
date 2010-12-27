@@ -806,6 +806,60 @@ struct CleanDamage
     MeleeHitOutcome hitOutCome;
 };
 
+class DamageInfo
+{
+private:
+    Unit * const m_attacker;
+    Unit * const m_victim;
+    DamageEffectType const m_damageType;
+    SpellEntry const * const m_spellInfo;
+    SpellSchoolMask const m_schoolMask;
+    uint32 m_damage;
+    uint32 m_absorb;
+    uint32 m_resist;
+    uint32 m_block;
+public:
+    explicit DamageInfo(Unit * _attacker, Unit * _victim, uint32 _damage, SpellEntry const * _spellInfo, SpellSchoolMask _schoolMask, DamageEffectType _damageType)
+        : m_attacker(_attacker), m_victim(_victim), m_damage(_damage), m_spellInfo(_spellInfo), m_schoolMask(_schoolMask), m_damageType(_damageType)
+    {
+        m_absorb = 0;
+        m_resist = 0;
+        m_block = 0;
+    }
+    void ModifyDamage(int32 amount)
+    {
+        amount = std::min(amount, int32(GetDamage()));
+        m_damage += amount;
+    }
+    void AbsorbDamage(uint32 amount)
+    {
+        amount = std::min(amount, GetDamage());
+        m_absorb += amount;
+        m_damage -= amount;
+    }
+    void ResistDamage(uint32 amount)
+    {
+        amount = std::min(amount, GetDamage());
+        m_resist += amount;
+        m_damage -= amount;
+    }
+    void BlockDamage(uint32 amount)
+    {
+        amount = std::min(amount, GetDamage());
+        m_block += amount;
+        m_damage -= amount;
+    }
+    Unit * GetAttacker() const { return m_attacker; };
+    Unit * GetVictim() const { return m_victim; };
+    DamageEffectType const GetDamageType() const { return m_damageType; };
+    SpellEntry const * GetSpellInfo() const { return m_spellInfo; };
+    SpellSchoolMask const GetSchoolMask() const { return m_schoolMask; };
+    uint32 GetDamage() const { return m_damage; };
+    uint32 GetAbsorb() const { return m_absorb; };
+    uint32 GetResist() const { return m_resist; };
+    uint32 GetBlock() const { return m_block; };
+};
+
 // Struct for use in Unit::CalculateMeleeDamage
 // Need create structure like in SMSG_ATTACKERSTATEUPDATE opcode
 struct CalcDamageInfo
@@ -1214,9 +1268,8 @@ class Unit : public WorldObject
         uint32 GetMaxPower(Powers power) const { return GetUInt32Value(UNIT_FIELD_MAXPOWER1+power); }
         void SetPower(Powers power, uint32 val);
         void SetMaxPower(Powers power, uint32 val);
+        // returns the change in power
         int32 ModifyPower(Powers power, int32 val);
-        void ApplyPowerMod(Powers power, uint32 val, bool apply);
-        void ApplyMaxPowerMod(Powers power, uint32 val, bool apply);
 
         uint32 GetAttackTime(WeaponAttackType att) const
         {

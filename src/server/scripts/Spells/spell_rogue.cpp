@@ -30,6 +30,44 @@ enum RogueSpells
     ROGUE_SPELL_PREY_ON_THE_WEAK                 = 58670,
 };
 
+// 31130 - Nerves of Steel
+class spell_rog_nerves_of_steel : public SpellScriptLoader
+{
+public:
+    spell_rog_nerves_of_steel() : SpellScriptLoader("spell_rog_nerves_of_steel") { }
+
+    class spell_rog_nerves_of_steel_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_rog_nerves_of_steel_AuraScript);
+
+        uint32 absorbPct;
+        void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & canBeRecalculated)
+        {
+            absorbPct = amount;
+            // Set absorbtion amount to unlimited
+            amount = -1;
+        }
+
+        void Absorb(AuraEffect * /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+        {
+            // reduces all damage taken while stun or fear
+            if (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_STUNNED | UNIT_FLAG_FLEEING))
+                absorbAmount = CalculatePctN(dmgInfo.GetDamage(), absorbPct);
+        }
+
+        void Register()
+        {
+             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_nerves_of_steel_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+             OnEffectAbsorb += AuraEffectAbsorbFn(spell_rog_nerves_of_steel_AuraScript::Absorb, EFFECT_0);
+        }
+    };
+
+    AuraScript *GetAuraScript() const
+    {
+        return new spell_rog_nerves_of_steel_AuraScript();
+    }
+};
+
 class spell_rog_preparation : public SpellScriptLoader
 {
     public:
@@ -109,9 +147,9 @@ public:
             return true;
         }
 
-        void HandleEffectPeriodic(AuraEffect const * /*aurEff*/, AuraApplication const * aurApp)
+        void HandleEffectPeriodic(AuraEffect const * /*aurEff*/)
         {
-            Unit* pTarget = aurApp->GetTarget();
+            Unit* pTarget = GetTarget();
             Unit* pVictim = pTarget->getVictim();
             if (pVictim && (pTarget->GetHealthPct() > pVictim->GetHealthPct()))
             {
@@ -178,6 +216,7 @@ class spell_rog_shiv : public SpellScriptLoader
 
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_nerves_of_steel();
     new spell_rog_preparation();
     new spell_rog_prey_on_the_weak();
     new spell_rog_shiv();

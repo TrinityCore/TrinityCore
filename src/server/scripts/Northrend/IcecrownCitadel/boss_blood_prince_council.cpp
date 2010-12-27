@@ -1353,9 +1353,9 @@ class spell_taldaram_flame_ball_visual : public SpellScriptLoader
                 return false;
             }
 
-            void OnRemove(AuraEffect const* /*aurEff*/, AuraApplication const* aurApp, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                Creature* target = aurApp->GetTarget()->ToCreature();
+                Creature* target = GetTarget()->ToCreature();
                 if (!target)
                     return;
 
@@ -1439,9 +1439,9 @@ class spell_valanar_kinetic_bomb : public SpellScriptLoader
         {
             PrepareAuraScript(spell_valanar_kinetic_bomb_AuraScript);
 
-            void HandleDummyTick(AuraEffect const* /*aurEff*/, AuraApplication const* aurApp)
+            void HandleDummyTick(AuraEffect const* /*aurEff*/)
             {
-                Unit* target = aurApp->GetTarget();
+                Unit* target = GetTarget();
                 if (target->GetTypeId() != TYPEID_UNIT)
                     return;
 
@@ -1449,7 +1449,7 @@ class spell_valanar_kinetic_bomb : public SpellScriptLoader
                 {
                     bomb->CastSpell(bomb, SPELL_KINETIC_BOMB_EXPLOSION, true);
                     bomb->RemoveAurasDueToSpell(SPELL_KINETIC_BOMB_VISUAL);
-                    target->RemoveAura(const_cast<AuraApplication*>(aurApp));
+                    target->RemoveAura(GetAura());
                     bomb->AI()->DoAction(SPELL_KINETIC_BOMB_EXPLOSION);
                 }
             }
@@ -1507,10 +1507,10 @@ class spell_blood_council_shadow_prison : public SpellScriptLoader
         {
             PrepareAuraScript(spell_blood_council_shadow_prison_AuraScript);
 
-            void HandleDummyTick(AuraEffect const* aurEff, AuraApplication const* aurApp)
+            void HandleDummyTick(AuraEffect const* aurEff)
             {
-                if (aurApp->GetTarget()->isMoving())
-                    aurApp->GetTarget()->CastSpell(aurApp->GetTarget(), SPELL_SHADOW_PRISON_DAMAGE, true, NULL, aurEff);
+                if (GetTarget()->isMoving())
+                    GetTarget()->CastSpell(GetTarget(), SPELL_SHADOW_PRISON_DAMAGE, true, NULL, aurEff);
             }
 
             void Register()

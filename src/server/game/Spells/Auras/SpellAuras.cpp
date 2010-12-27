@@ -1656,12 +1656,12 @@ bool Aura::CallScriptEffectApplyHandlers(AuraEffect const * aurEff, AuraApplicat
     bool preventDefault = false;
     for(std::list<AuraScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
     {
-        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_APPLY);
+        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_APPLY, aurApp);
         std::list<AuraScript::EffectApplyHandler>::iterator effEndItr = (*scritr)->OnEffectApply.end(), effItr = (*scritr)->OnEffectApply.begin();
         for(; effItr != effEndItr ; ++effItr)
         {
             if ((*effItr).IsEffectAffected(m_spellProto, aurEff->GetEffIndex()))
-                (*effItr).Call(*scritr, aurEff, aurApp, mode);
+                (*effItr).Call(*scritr, aurEff, mode);
         }
         if (!preventDefault)
             preventDefault = (*scritr)->_IsDefaultActionPrevented();
@@ -1675,12 +1675,12 @@ bool Aura::CallScriptEffectRemoveHandlers(AuraEffect const * aurEff, AuraApplica
     bool preventDefault = false;
     for(std::list<AuraScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
     {
-        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_REMOVE);
+        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_REMOVE, aurApp);
         std::list<AuraScript::EffectApplyHandler>::iterator effEndItr = (*scritr)->OnEffectRemove.end(), effItr = (*scritr)->OnEffectRemove.begin();
         for(; effItr != effEndItr ; ++effItr)
         {
             if ((*effItr).IsEffectAffected(m_spellProto, aurEff->GetEffIndex()))
-                (*effItr).Call(*scritr, aurEff, aurApp, mode);
+                (*effItr).Call(*scritr, aurEff, mode);
         }
         if (!preventDefault)
             preventDefault = (*scritr)->_IsDefaultActionPrevented();
@@ -1694,12 +1694,12 @@ bool Aura::CallScriptEffectPeriodicHandlers(AuraEffect const * aurEff, AuraAppli
     bool preventDefault = false;
     for(std::list<AuraScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
     {
-        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_PERIODIC);
+        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_PERIODIC, aurApp);
         std::list<AuraScript::EffectPeriodicHandler>::iterator effEndItr = (*scritr)->OnEffectPeriodic.end(), effItr = (*scritr)->OnEffectPeriodic.begin();
         for(; effItr != effEndItr ; ++effItr)
         {
             if ((*effItr).IsEffectAffected(m_spellProto, aurEff->GetEffIndex()))
-                (*effItr).Call(*scritr, aurEff, aurApp);
+                (*effItr).Call(*scritr, aurEff);
         }
         if (!preventDefault)
             preventDefault = (*scritr)->_IsDefaultActionPrevented();
@@ -1728,7 +1728,7 @@ void Aura::CallScriptEffectCalcAmountHandlers(AuraEffect const * aurEff, int32 &
     for(std::list<AuraScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_CALC_AMOUNT);
-        std::list<AuraScript::EffectCalcAmountHandler>::iterator effEndItr = (*scritr)->OnEffectCalcAmount.end(), effItr = (*scritr)->OnEffectCalcAmount.begin();
+        std::list<AuraScript::EffectCalcAmountHandler>::iterator effEndItr = (*scritr)->DoEffectCalcAmount.end(), effItr = (*scritr)->DoEffectCalcAmount.begin();
         for(; effItr != effEndItr ; ++effItr)
         {
             if ((*effItr).IsEffectAffected(m_spellProto, aurEff->GetEffIndex()))
@@ -1743,7 +1743,7 @@ void Aura::CallScriptEffectCalcPeriodicHandlers(AuraEffect const * aurEff, bool 
     for(std::list<AuraScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_CALC_PERIODIC);
-        std::list<AuraScript::EffectCalcPeriodicHandler>::iterator effEndItr = (*scritr)->OnEffectCalcPeriodic.end(), effItr = (*scritr)->OnEffectCalcPeriodic.begin();
+        std::list<AuraScript::EffectCalcPeriodicHandler>::iterator effEndItr = (*scritr)->DoEffectCalcPeriodic.end(), effItr = (*scritr)->DoEffectCalcPeriodic.begin();
         for(; effItr != effEndItr ; ++effItr)
         {
             if ((*effItr).IsEffectAffected(m_spellProto, aurEff->GetEffIndex()))
@@ -1758,12 +1758,29 @@ void Aura::CallScriptEffectCalcSpellModHandlers(AuraEffect const * aurEff, Spell
     for(std::list<AuraScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
     {
         (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_CALC_SPELLMOD);
-        std::list<AuraScript::EffectCalcSpellModHandler>::iterator effEndItr = (*scritr)->OnEffectCalcSpellMod.end(), effItr = (*scritr)->OnEffectCalcSpellMod.begin();
+        std::list<AuraScript::EffectCalcSpellModHandler>::iterator effEndItr = (*scritr)->DoEffectCalcSpellMod.end(), effItr = (*scritr)->DoEffectCalcSpellMod.begin();
         for(; effItr != effEndItr ; ++effItr)
         {
             if ((*effItr).IsEffectAffected(m_spellProto, aurEff->GetEffIndex()))
                 (*effItr).Call(*scritr, aurEff, spellMod);
         }
+        (*scritr)->_FinishScriptCall();
+    }
+}
+
+void Aura::CallScriptEffectAbsorbHandlers(AuraEffect * aurEff, AuraApplication const * aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount, bool & defaultPrevented)
+{
+    for(std::list<AuraScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
+    {
+        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_EFFECT_ABSORB, aurApp);
+        std::list<AuraScript::EffectAbsorbHandler>::iterator effEndItr = (*scritr)->OnEffectAbsorb.end(), effItr = (*scritr)->OnEffectAbsorb.begin();
+        for(; effItr != effEndItr ; ++effItr)
+        {
+            if ((*effItr).IsEffectAffected(m_spellProto, aurEff->GetEffIndex()))
+                (*effItr).Call(*scritr, aurEff, dmgInfo, absorbAmount);
+        }
+        if (!defaultPrevented)
+            defaultPrevented = (*scritr)->_IsDefaultActionPrevented();
         (*scritr)->_FinishScriptCall();
     }
 }
