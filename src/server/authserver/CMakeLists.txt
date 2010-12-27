@@ -75,7 +75,7 @@ if( NOT WIN32 )
 endif()
 
 if( UNIX )
-  set(authserver_LINK_FLAGS "-pthread -lcrypto ${authserver_LINK_FLAGS}")
+  set(authserver_LINK_FLAGS "-pthread ${authserver_LINK_FLAGS}")
 endif()
 
 if( CMAKE_SYSTEM_NAME MATCHES "Darwin" )
