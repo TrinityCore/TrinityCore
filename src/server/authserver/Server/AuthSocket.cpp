@@ -634,7 +634,7 @@ bool AuthSocket::_HandleLogonProof()
     }
     else
     {
-        uint8 data[4]= { AUTH_LOGON_PROOF, WOW_FAIL_UNKNOWN_ACCOUNT, 3, 0 };
+        char data[4] = { AUTH_LOGON_PROOF, WOW_FAIL_UNKNOWN_ACCOUNT, 3, 0 };
         socket().send(data, sizeof(data));
 
         sLog->outBasic("[AuthChallenge] account %s tried to login with wrong password!", _login.c_str());
