@@ -3,6 +3,6 @@ build/
 *.orig
 *.rej
 *~
-.git/
+.hg/
 *.kdev*
 
