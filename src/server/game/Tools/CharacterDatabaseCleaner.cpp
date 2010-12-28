@@ -52,6 +52,9 @@ void CharacterDatabaseCleaner::CleanDatabase()
     if (flags & CLEANING_FLAG_TALENTS)
         CleanCharacterTalent();
 
+    if (flags & CLEANING_FLAG_QUESTSTATUS)
+        CleanCharacterQuestStatus();
+
     CharacterDatabase.DirectExecute("UPDATE worldstates SET value = 0 WHERE entry = 20004");
 
     sLog->outString(">> Cleaned character database in %u ms", GetMSTimeDiffToNow(oldMSTime));
@@ -141,5 +144,10 @@ void CharacterDatabaseCleaner::CleanCharacterTalent()
 {
     CharacterDatabase.DirectPExecute("DELETE FROM character_talent WHERE spec > %u", MAX_TALENT_SPECS);
     CheckUnique("spell", "character_talent", &TalentCheck);
+}
+
+void CharacterDatabaseCleaner::CleanCharacterQuestStatus()
+{
+    CharacterDatabase.DirectExecute("DELETE FROM character_queststatus WHERE status = 0");
 }
 
