@@ -38,6 +38,7 @@ void CharacterDatabaseCleaner::CleanDatabase()
         return;
 
     uint32 flags = (*result)[0].GetUInt32();
+    sWorld->SetCleaningFlags(flags);
 
     // clean up
     if (flags & CLEANING_FLAG_ACHIEVEMENT_PROGRESS)

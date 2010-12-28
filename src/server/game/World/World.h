@@ -737,6 +737,9 @@ class World
         bool GetEventKill() const { return isEventKillStart; }
 
         bool isEventKillStart;
+
+        uint32 GetCleaningFlags() { return m_CleaningFlags; }
+        void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters
@@ -753,6 +756,8 @@ class World
         static uint8 m_ExitCode;
         uint32 m_ShutdownTimer;
         uint32 m_ShutdownMask;
+
+        uint32 m_CleaningFlags;
 
         bool m_isClosed;
 
