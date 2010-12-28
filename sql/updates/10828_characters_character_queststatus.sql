@@ -1,5 +1,3 @@
-DELETE FROM character_queststatus WHERE `status` = 0;
-
 DROP TABLE IF EXISTS `character_queststatus_rewarded`;
 CREATE TABLE `character_queststatus_rewarded` (
   `guid` int(10) unsigned NOT NULL default '0' COMMENT 'Global Unique Identifier',
