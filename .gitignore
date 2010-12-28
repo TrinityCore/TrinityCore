@@ -1,0 +1,8 @@
+build/
+.directory
+*.orig
+*.rej
+*~
+.git/
+*.kdev*
+
