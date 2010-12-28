@@ -67,6 +67,7 @@
 #include "DisableMgr.h"
 #include "WeatherMgr.h"
 #include "LFGMgr.h"
+#include "CharacterDatabaseCleaner.h"
 #include <cmath>
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
@@ -17301,7 +17302,7 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
                 questStatusData.m_itemcount[3] = fields[11].GetUInt16();
 
                 // add to quest log
-                if (slot < MAX_QUEST_LOG_SIZE)
+                if (slot < MAX_QUEST_LOG_SIZE && questStatusData.m_status != QUEST_STATUS_NONE)
                 {
                     SetQuestSlot(slot, quest_id, uint32(quest_time)); // cast can't be helped
 
@@ -18335,12 +18336,14 @@ void Player::_SaveQuestStatus(SQLTransaction& trans)
     QuestStatusSaveMap::iterator saveItr;
     QuestStatusMap::iterator statusItr;
 
+    bool keepAbandoned = !(sWorld->GetCleaningFlags() & CharacterDatabaseCleaner::CLEANING_FLAG_QUESTSTATUS);
+
     for (saveItr = m_QuestStatusSave.begin(); saveItr != m_QuestStatusSave.end(); ++saveItr)
     {
         if (saveItr->second)
         {
             statusItr = m_QuestStatus.find(saveItr->first);
-            if (statusItr != m_QuestStatus.end() && statusItr->second.m_status != QUEST_STATUS_NONE)
+            if (statusItr != m_QuestStatus.end() && (keepAbandoned || statusItr->second.m_status != QUEST_STATUS_NONE))
             {
                 trans->PAppend("REPLACE INTO character_queststatus (guid,quest,status,explored,timer,mobcount1,mobcount2,mobcount3,mobcount4,itemcount1,itemcount2,itemcount3,itemcount4) "
                     "VALUES ('%u', '%u', '%u', '%u', '" UI64FMTD "', '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u')",
@@ -18357,7 +18360,7 @@ void Player::_SaveQuestStatus(SQLTransaction& trans)
     {
         if (saveItr->second)
             trans->PAppend("INSERT IGNORE INTO character_queststatus_rewarded (guid, quest) VALUES (%u, %u)", GetGUIDLow(), saveItr->first);
-        else
+        else if (!keepAbandoned)
             trans->PAppend("DELETE FROM character_queststatus_rewarded WHERE guid = %u AND quest = %u", GetGUIDLow(), saveItr->first);
     }
 
