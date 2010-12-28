@@ -55,7 +55,7 @@ void CharacterDatabaseCleaner::CleanDatabase()
     if (flags & CLEANING_FLAG_QUESTSTATUS)
         CleanCharacterQuestStatus();
 
-    CharacterDatabase.DirectExecute("UPDATE worldstates SET value = 0 WHERE entry = 20004");
+    CharacterDatabase.DirectPExecute("UPDATE worldstates SET value = value & %u WHERE entry = 20004", sWorld->getIntConfig(CONFIG_PERSISTENT_CHARACTER_CLEAN_FLAGS));
 
     sLog->outString(">> Cleaned character database in %u ms", GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
