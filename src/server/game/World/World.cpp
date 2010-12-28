@@ -109,6 +109,8 @@ World::World()
     m_updateTimeCount = 0;
 
     m_isClosed = false;
+
+    m_CleaningFlags = 0;
 }
 
 /// World destructor
