@@ -25,7 +25,7 @@
 void CharacterDatabaseCleaner::CleanDatabase()
 {
     // config to disable
-    if(!sWorld->getBoolConfig(CONFIG_CLEAN_CHARACTER_DB))
+    if (!sWorld->getBoolConfig(CONFIG_CLEAN_CHARACTER_DB))
         return;
 
     sLog->outString("Cleaning character database...");
@@ -33,33 +33,37 @@ void CharacterDatabaseCleaner::CleanDatabase()
     uint32 oldMSTime = getMSTime();
 
     // check flags which clean ups are necessary
-    QueryResult result = CharacterDatabase.Query("SELECT value FROM worldstates WHERE entry=20004");
-    if(!result)
+    QueryResult result = CharacterDatabase.Query("SELECT value FROM worldstates WHERE entry = 20004");
+    if (!result)
         return;
+
     uint32 flags = (*result)[0].GetUInt32();
 
     // clean up
-    if(flags & CLEANING_FLAG_ACHIEVEMENT_PROGRESS)
+    if (flags & CLEANING_FLAG_ACHIEVEMENT_PROGRESS)
         CleanCharacterAchievementProgress();
-    if(flags & CLEANING_FLAG_SKILLS)
+
+    if (flags & CLEANING_FLAG_SKILLS)
         CleanCharacterSkills();
-    if(flags & CLEANING_FLAG_SPELLS)
+
+    if (flags & CLEANING_FLAG_SPELLS)
         CleanCharacterSpell();
-    if(flags & CLEANING_FLAG_TALENTS)
+
+    if (flags & CLEANING_FLAG_TALENTS)
         CleanCharacterTalent();
-    CharacterDatabase.Query("UPDATE worldstates SET value = 0 WHERE entry=20004");
+
+    CharacterDatabase.DirectExecute("UPDATE worldstates SET value = 0 WHERE entry = 20004");
 
     sLog->outString(">> Cleaned character database in %u ms", GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
 }
 
-void CharacterDatabaseCleaner::CheckUnique(const char* column, const
-char* table, bool (*check)(uint32))
+void CharacterDatabaseCleaner::CheckUnique(const char* column, const char* table, bool (*check)(uint32))
 {
     QueryResult result = CharacterDatabase.PQuery("SELECT DISTINCT %s FROM %s", column, table);
-    if(!result)
+    if (!result)
     {
-        sLog->outString( "Table %s is empty.", table );
+        sLog->outString("Table %s is empty.", table);
         return;
     }
 
@@ -72,24 +76,25 @@ char* table, bool (*check)(uint32))
 
         uint32 id = fields[0].GetUInt32();
 
-        if(!check(id))
+        if (!check(id))
         {
-            if(!found)
+            if (!found)
             {
                 ss << "DELETE FROM " << table << " WHERE " << column << " IN (";
                 found = true;
             }
             else
                 ss << ",";
+
             ss << id;
         }
     }
-    while( result->NextRow() );
+    while(result->NextRow());
 
     if (found)
     {
         ss << ")";
-        CharacterDatabase.Execute( ss.str().c_str() );
+        CharacterDatabase.Execute(ss.str().c_str());
     }
 }
 
@@ -125,10 +130,11 @@ void CharacterDatabaseCleaner::CleanCharacterSpell()
 
 bool CharacterDatabaseCleaner::TalentCheck(uint32 talent_id)
 {
-    TalentEntry const *talentInfo = sTalentStore.LookupEntry( talent_id );
-    if(!talentInfo)
+    TalentEntry const *talentInfo = sTalentStore.LookupEntry(talent_id);
+    if (!talentInfo)
         return false;
-    return sTalentTabStore.LookupEntry( talentInfo->TalentTab );
+
+    return sTalentTabStore.LookupEntry(talentInfo->TalentTab);
 }
 
 void CharacterDatabaseCleaner::CleanCharacterTalent()
