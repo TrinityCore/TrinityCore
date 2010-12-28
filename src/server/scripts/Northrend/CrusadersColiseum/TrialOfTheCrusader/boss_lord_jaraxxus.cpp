@@ -25,8 +25,6 @@ EndScriptData */
 
 // Known bugs:
 // Some visuals aren't appearing right sometimes
-// Mistress of Pain - Isn't working as a vehicle yet
-//                  - SPELL_SPINNING_STRIKE not working
 
 #include "ScriptPCH.h"
 #include "trial_of_the_crusader.h"
@@ -76,7 +74,7 @@ enum BossSpells
     SPELL_LEGION_FLAME          = 66197,
     SPELL_LEGION_FLAME_EFFECT   = 66201,
     SPELL_SHIVAN_SLASH          = 67098,
-    SPELL_SPINNING_STRIKE       = 66316,
+    SPELL_SPINNING_STRIKE       = 66283,
     SPELL_MISTRESS_KISS         = 67077,
     SPELL_FEL_INFERNO           = 67047,
     SPELL_FEL_STREAK            = 66494,
