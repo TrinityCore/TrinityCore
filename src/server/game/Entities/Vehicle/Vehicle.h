@@ -101,6 +101,8 @@ typedef std::map<int8, VehicleSeat> SeatMap;
 
 class Vehicle
 {
+    friend class Unit;
+
     public:
         explicit Vehicle(Unit *unit, VehicleEntry const *vehInfo);
         virtual ~Vehicle();
@@ -125,6 +127,9 @@ class Vehicle
         bool IsVehicleInUse() { return m_Seats.begin() != m_Seats.end(); }
 
         SeatMap m_Seats;
+
+    protected:
+        uint16 GetExtraMovementFlagsForBase() const; 
 
     protected:
         Unit *me;
