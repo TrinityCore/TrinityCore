@@ -1,9 +1,9 @@
 build/
 .directory
+.mailmap
 *.orig
 *.rej
 *~
 .hg/
 *.kdev*
 *.bak
-
