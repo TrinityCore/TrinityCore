@@ -3200,8 +3200,20 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const * aurApp, uint8 m
     {
         // Dash
         if (AuraEffect * aurEff =target->GetAuraEffect(SPELL_AURA_MOD_INCREASE_SPEED, SPELLFAMILY_DRUID, 0, 0, 0x8))
-            aurEff->RecalculateAmount();
+            aurEff->RecalculateAmount();        
+
+        // Disarm handling
+        // If druid shifts while being disarmed we need to deal with that since forms aren't affected by disarm
+        // and also HandleAuraModDisarm is not triggered
+        if(!target->CanUseAttackType(BASE_ATTACK))
+        {
+            if (Item *pItem = target->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND))
+            {
+                    target->ToPlayer()->_ApplyWeaponDamage(EQUIPMENT_SLOT_MAINHAND, pItem->GetProto(), NULL, apply);
+            }
+        }
     }
+
     if (target->GetTypeId() == TYPEID_PLAYER)
     {
         SpellShapeshiftEntry const *shapeInfo = sSpellShapeshiftStore.LookupEntry(form);
@@ -3563,20 +3575,25 @@ void AuraEffect::HandleAuraModDisarm(AuraApplication const * aurApp, uint8 mode,
         return;
     }
 
-    if (!(apply))
+    if (!apply)
         target->RemoveFlag(field, flag);
-
-    if (target->GetTypeId() == TYPEID_PLAYER)
-    {
-        // This is between the two because there is a check in _ApplyItemMods
-        // we must make sure that flag is always removed when call that function
-        // refer to DurabilityPointsLoss
-        if (Item *pItem = target->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
-            target->ToPlayer()->_ApplyItemMods(pItem, slot, !apply);
-    }
 
     if (apply)
         target->SetFlag(field, flag);
+
+    // Handle damage modifcation, shapeshifted druids are not affected
+    if (target->GetTypeId() == TYPEID_PLAYER && !target->IsInFeralForm())
+    {
+        if (Item *pItem = target->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+        {
+            uint8 attacktype = Player::GetAttackBySlot(slot);
+
+            if (attacktype < MAX_ATTACK)
+                target->ToPlayer()->_ApplyWeaponDamage(slot, pItem->GetProto(), NULL, !apply);
+        }
+    }
+
+
 
     if (target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->GetCurrentEquipmentId())
         target->UpdateDamagePhysical(attType);
