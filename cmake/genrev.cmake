@@ -9,7 +9,7 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 execute_process(
-  COMMAND git log --pretty=format:"" origin/HEAD
+  COMMAND git log --pretty=format:"" origin/master
   COMMAND wc -l
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
   OUTPUT_VARIABLE rev_id_str
