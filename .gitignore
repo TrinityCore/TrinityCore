@@ -5,4 +5,5 @@ build/
 *~
 .hg/
 *.kdev*
+*.bak
 
