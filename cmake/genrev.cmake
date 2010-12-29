@@ -9,7 +9,8 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 execute_process(
-  COMMAND hg id -n
+  COMMAND git log --pretty=format:"" origin/HEAD
+  COMMAND wc -l
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
   OUTPUT_VARIABLE rev_id_str
   OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -17,28 +18,15 @@ execute_process(
 )
 
 execute_process(
-  COMMAND hg id -i
+  COMMAND git rev-parse --short=12 HEAD
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
   OUTPUT_VARIABLE rev_hash_str
   OUTPUT_STRIP_TRAILING_WHITESPACE
   ERROR_QUIET
 )
 
-if(EXISTS ${CMAKE_SOURCE_DIR}/.hg_archival.txt)
-  file(READ
-    ${CMAKE_SOURCE_DIR}/.hg_archival.txt rev_hash_str
-    LIMIT 10
-    OFFSET 7
-    NEWLINE_CONSUME
-  )
-  string(STRIP ${rev_hash_str} rev_hash_str)
-  set(rev_id_str "Archive")
-  set(rev_id "0")
-  set(rev_hash ${rev_hash_str})
-endif()
-
 # Last minute check - ensure that we have a proper revision
-# If everything above fails (means the user has erased the mercurial revisional control directory, or runs archive and erased their .hg_archival.txt)
+# If everything above fails (means the user has erased the git revision control directory or removed the origin/HEAD tag)
 if(NOT rev_id_str)
   message("")
   message(STATUS "WARNING - No revision-information found - have you been tampering with the sources?")
@@ -48,13 +36,12 @@ if(NOT rev_id_str)
   set(rev_hash "0")
   set(rev_id_str "0")
   set(rev_id "0")
+else()
+ string(STRIP ${rev_hash_str} rev_hash_str)
+ set(rev_hash ${rev_hash_str})
+ string(STRIP ${rev_id_str} rev_id_str)
+ set(rev_id ${rev_id_str})
 endif()
-
-# Strip off excess strings (shows when the source is actually modified)
-if(NOT rev_id_str MATCHES "Archive")
-  string(REPLACE "+" "" rev_id ${rev_id_str})
-endif()
-string(REPLACE "+" "" rev_hash ${rev_hash_str})
 
 # Its not set during initial run
 if(NOT BUILDDIR)
