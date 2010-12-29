@@ -26958,13 +26958,13 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 47422, 'spell_warl_everlasting_affliction'),
 -- druid
 ( 54846, 'spell_dru_glyph_of_starfire'),
-(69366, 'spell_dru_moonkin_form_passive'),
+( 69366, 'spell_dru_moonkin_form_passive'),
 (-33851, 'spell_dru_primal_tenacity'),
-(62606, 'spell_dru_savage_defense'),
+( 62606, 'spell_dru_savage_defense'),
 -- example
 ( 66244, 'spell_ex_66244'), 
 ( 5581,  'spell_ex_5581'),
-(47299, 'spell_ex_absorb_aura');
+( 47299, 'spell_ex_absorb_aura');
 
 /*!40000 ALTER TABLE `spell_script_names` ENABLE KEYS */;
 UNLOCK TABLES;
