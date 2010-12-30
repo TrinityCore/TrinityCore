@@ -1849,6 +1849,7 @@ struct VehicleSeatEntry
 
     bool IsUsableByPlayer() const { return m_flags & VEHICLE_SEAT_FLAG_USABLE; }
     bool IsUsableByAura() const { return m_flagsB & (VEHICLE_SEAT_FLAG_B_USABLE_FORCED | VEHICLE_SEAT_FLAG_B_USABLE_FORCED_2 | VEHICLE_SEAT_FLAG_B_USABLE_FORCED_3); }
+    bool IsEjectable() const { return m_flagsB & VEHICLE_SEAT_FLAG_B_EJECTABLE; }
 };
 
 struct WMOAreaTableEntry
