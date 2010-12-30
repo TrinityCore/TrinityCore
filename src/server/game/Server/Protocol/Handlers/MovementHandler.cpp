@@ -631,7 +631,11 @@ void WorldSession::HandleEjectPassenger(WorldPacket &data)
         if (IS_PLAYER_GUID(guid))
         {
             if (Player *plr = ObjectAccessor::FindPlayer(guid))
-                vehicle->EjectPassenger(plr, GetPlayer());
+            {
+                VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(plr);
+                if (seat->IsEjectable())
+                    plr->ExitVehicle();
+            }
             else
                 sLog->outError("Player %u tried to eject player %u from vehicle, but the latter was not found in world!", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
         }
@@ -640,8 +644,12 @@ void WorldSession::HandleEjectPassenger(WorldPacket &data)
         {
             if (Unit *unit = ObjectAccessor::GetUnit(*_player, guid)) // creatures can be ejected too from player mounts
             {
-                vehicle->EjectPassenger(unit, GetPlayer());
-                unit->ToCreature()->ForcedDespawn(1000);
+                VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(unit);
+                if (seat->IsEjectable())
+                {
+                    unit->ExitVehicle();
+                    unit->ToCreature()->ForcedDespawn(1000);
+                }
             }
             else
                 sLog->outError("Player %u tried to eject creature guid %u from vehicle, but the latter was not found in world!", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
@@ -657,7 +665,16 @@ void WorldSession::HandleRequestVehicleExit(WorldPacket &recv_data)
 {
     sLog->outDebug("WORLD: Recvd CMSG_REQUEST_VEHICLE_EXIT");
     recv_data.hexlike();
-    GetPlayer()->ExitVehicle();
+
+    if (Vehicle* vehicle = GetPlayer()->GetVehicle())
+    {
+        if (VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(GetPlayer()))
+            if (seat->CanEnterOrExit())
+                GetPlayer()->ExitVehicle();
+            else
+                sLog->outError("Player %u tried to exit vehicle, but seatflags %u (ID: %u) don't permit that.", 
+                    GetPlayer()->GetGUIDLow(), seat->m_ID, seat->m_flags);
+    }
 }
 
 void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recv_data*/)
