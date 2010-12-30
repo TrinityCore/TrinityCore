@@ -548,6 +548,14 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
     if (!vehicle_base)
         return;
 
+    VehicleSeatEntry const* seat = GetPlayer()->GetVehicle()->GetSeatForPassenger(GetPlayer());
+    if (!seat->CanSwitchFromSeat())
+    {
+        sLog->outError("HandleChangeSeatsOnControlledVehicle, Opcode: %u, Player %u tried to switch seats but current seatflags %u don't permit that.",
+            recv_data.GetOpcode(), GetPlayer()->GetGUIDLow(), seat->m_flags);
+        return;
+    }
+
     switch (recv_data.GetOpcode())
     {
         case CMSG_REQUEST_VEHICLE_PREV_SEAT:
@@ -635,6 +643,8 @@ void WorldSession::HandleEjectPassenger(WorldPacket &data)
                 VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(plr);
                 if (seat->IsEjectable())
                     plr->ExitVehicle();
+                else
+                    sLog->outError("Player %u attempted to eject player %u from non-ejectable seat.", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
             }
             else
                 sLog->outError("Player %u tried to eject player %u from vehicle, but the latter was not found in world!", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
@@ -650,6 +660,8 @@ void WorldSession::HandleEjectPassenger(WorldPacket &data)
                     unit->ExitVehicle();
                     unit->ToCreature()->ForcedDespawn(1000);
                 }
+                else
+                    sLog->outError("Player %u attempted to eject creature GUID "UI64FMTD" from non-ejectable seat.", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
             }
             else
                 sLog->outError("Player %u tried to eject creature guid %u from vehicle, but the latter was not found in world!", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));

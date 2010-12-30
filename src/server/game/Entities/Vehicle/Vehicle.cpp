@@ -423,17 +423,6 @@ void Vehicle::RemovePassenger(Unit *unit)
         sScriptMgr->OnRemovePassenger(this, unit);
 }
 
-void Vehicle::EjectPassenger(Unit* passenger, Unit* controller)
-{
-    SeatMap::const_iterator m_SeatsItr;
-    for (m_SeatsItr = m_Seats.begin(); m_SeatsItr != m_Seats.end(); ++m_SeatsItr)
-        if (m_SeatsItr->second.passenger == passenger)
-            if (m_SeatsItr->second.seatInfo->IsEjectable())
-                return passenger->ExitVehicle();
-            else
-                sLog->outError("Player %u attempted to eject unit GUID "UI64FMTD" from non-ejectable seat.", controller->GetGUIDLow(), passenger->GetGUID());
-}
-
 void Vehicle::RelocatePassengers(float x, float y, float z, float ang)
 {
     Map *map = me->GetMap();
