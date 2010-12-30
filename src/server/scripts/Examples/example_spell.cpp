@@ -268,10 +268,9 @@ class spell_ex_66244 : public SpellScriptLoader
         {
             return new spell_ex_66244AuraScript();
         }
-
-
 };
 
+// example usage of OnEffectAbsorb and AfterEffectAbsorb hooks
 class spell_ex_absorb_aura : public SpellScriptLoader
 {
     public:
@@ -297,17 +296,11 @@ class spell_ex_absorb_aura : public SpellScriptLoader
                 sLog->outString("Our aura has absorbed %u damage!", absorbAmount);
             }
 
-            /*void HandleAfterAbsorb(DamageInfo & dmgInfo)
-            {
-                sLog->outString("Our auras have just absorbed damage done to us!");
-            }*/
-
             // function registering
             void Register()
             {
                 OnEffectAbsorb += AuraEffectAbsorbFn(spell_ex_absorb_auraAuraScript::HandleOnEffectAbsorb, EFFECT_0);
                 AfterEffectAbsorb += AuraEffectAbsorbFn(spell_ex_absorb_auraAuraScript::HandleAfterEffectAbsorb, EFFECT_0);
-                //AfterAbsorb += AuraAbsorbFn(spell_ex_absorb_auraAuraScript::HandleAfterAbsorb);
             }
         };
 
@@ -318,6 +311,8 @@ class spell_ex_absorb_aura : public SpellScriptLoader
         }
 };
 
+// example usage of OnEffectManaShield and AfterEffectManaShield hooks
+// see spell_ex_absorb_aura, these hooks work the same as OnEffectAbsorb and AfterEffectAbsorb
 
 // this function has to be added to function set in ScriptLoader.cpp
 void AddSC_example_spell_scripts()

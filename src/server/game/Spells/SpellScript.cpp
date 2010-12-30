@@ -451,6 +451,14 @@ bool AuraScript::_Validate(SpellEntry const * entry)
         if (!(*itr).GetAffectedEffectsMask(entry))
             sLog->outError("TSCR: Spell `%u` Effect `%s` of script`%s` did not match dbc effect data - bound handler won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
 
+    for (std::list<EffectManaShieldHandler>::iterator itr = OnEffectManaShield.begin(); itr != OnEffectManaShield.end();  ++itr)
+        if (!(*itr).GetAffectedEffectsMask(entry))
+            sLog->outError("TSCR: Spell `%u` Effect `%s` of script`%s` did not match dbc effect data - bound handler won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+
+    for (std::list<EffectManaShieldHandler>::iterator itr = AfterEffectManaShield.begin(); itr != AfterEffectManaShield.end();  ++itr)
+        if (!(*itr).GetAffectedEffectsMask(entry))
+            sLog->outError("TSCR: Spell `%u` Effect `%s` of script`%s` did not match dbc effect data - bound handler won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+
     return _SpellScript::_Validate(entry);
 }
 
@@ -548,6 +556,17 @@ void AuraScript::EffectAbsorbHandler::Call(AuraScript * auraScript, AuraEffect *
     (auraScript->*pEffectHandlerScript)(aurEff, dmgInfo, absorbAmount);
 }
 
+AuraScript::EffectManaShieldHandler::EffectManaShieldHandler(AuraEffectAbsorbFnType _pEffectHandlerScript,uint8 _effIndex)
+    : AuraScript::EffectBase(_effIndex, SPELL_AURA_MANA_SHIELD)
+{
+    pEffectHandlerScript = _pEffectHandlerScript;
+}
+
+void AuraScript::EffectManaShieldHandler::Call(AuraScript * auraScript, AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+{
+    (auraScript->*pEffectHandlerScript)(aurEff, dmgInfo, absorbAmount);
+}
+
 bool AuraScript::_Load(Aura * aura)
 {
     m_currentScriptState = SPELL_SCRIPT_STATE_LOADING;
@@ -566,6 +585,7 @@ void AuraScript::_PrepareScriptCall(AuraScriptHookType hookType, AuraApplication
         case AURA_SCRIPT_HOOK_EFFECT_REMOVE:
         case AURA_SCRIPT_HOOK_EFFECT_PERIODIC:
         case AURA_SCRIPT_HOOK_EFFECT_ABSORB:
+        case AURA_SCRIPT_HOOK_EFFECT_MANASHIELD:
             m_defaultActionPrevented = false;
             break;
         default:
