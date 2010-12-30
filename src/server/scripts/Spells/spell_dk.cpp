@@ -170,7 +170,7 @@ public:
             amount = SpellMgr::CalculateSpellEffectAmount(talentSpell, EFFECT_0, GetCaster());
             // assume caster is a player here
             if (Unit * caster = GetCaster())
-                 amount += 2 * caster->ToPlayer()->GetTotalAttackPowerValue(BASE_ATTACK);
+                 amount += int32(2 * caster->ToPlayer()->GetTotalAttackPowerValue(BASE_ATTACK));
         }
 
         void Absorb(AuraEffect * /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
