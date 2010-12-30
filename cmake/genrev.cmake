@@ -9,27 +9,18 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 execute_process(
-  COMMAND git log --pretty=format:"" origin/master
-  COMMAND wc -l
+  COMMAND git describe --match init --dirty=+ --abbrev=12
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-  OUTPUT_VARIABLE rev_id_str
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-  ERROR_QUIET
-)
-
-execute_process(
-  COMMAND git rev-parse --short=12 HEAD
-  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-  OUTPUT_VARIABLE rev_hash_str
+  OUTPUT_VARIABLE rev_info
   OUTPUT_STRIP_TRAILING_WHITESPACE
   ERROR_QUIET
 )
 
 # Last minute check - ensure that we have a proper revision
 # If everything above fails (means the user has erased the git revision control directory or removed the origin/HEAD tag)
-if(NOT rev_id_str)
+if(NOT rev_info)
   message("")
-  message(STATUS "WARNING - No revision-information found - have you been tampering with the sources?")
+  message(STATUS "WARNING - No revision-information found")
 
   # Ok, since we have no valid ways of finding/setting the revision, let's force some defaults
   set(rev_hash_str "Archive")
@@ -37,10 +28,11 @@ if(NOT rev_id_str)
   set(rev_id_str "0")
   set(rev_id "0")
 else()
- string(STRIP ${rev_hash_str} rev_hash_str)
- set(rev_hash ${rev_hash_str})
- string(STRIP ${rev_id_str} rev_id_str)
- set(rev_id ${rev_id_str})
+  # Extract revision and hash from git
+  string(REGEX REPLACE init-|[0-9]+-g "" rev_hash_str ${rev_info})
+  string(REGEX REPLACE [+]+ "" rev_hash ${rev_hash_str})
+  string(REGEX REPLACE init-|-g[^+]+ "" rev_id_str ${rev_info})
+  string(REGEX REPLACE [+]+ "" rev_id ${rev_id_str})
 endif()
 
 # Its not set during initial run
