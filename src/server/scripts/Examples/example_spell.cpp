@@ -285,19 +285,16 @@ class spell_ex_absorb_aura : public SpellScriptLoader
                 SPELL_TRIGGERED = 18282
             };
 
-            bool Validate(SpellEntry const * /*spellEntry*/)
-            {
-                // check if spellid exists in dbc, we will trigger it later
-                if (!sSpellStore.LookupEntry(SPELL_TRIGGERED))
-                    return false;
-                return true;
-            }
-
             void HandleOnEffectAbsorb(AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
             {
                 sLog->outString("Our aura is now absorbing damage done to us!");
                 // absorb whole damage done to us
                 absorbAmount = dmgInfo.GetDamage();
+            }
+
+            void HandleAfterEffectAbsorb(AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            {
+                sLog->outString("Our aura has absorbed %u damage!", absorbAmount);
             }
 
             /*void HandleAfterAbsorb(DamageInfo & dmgInfo)
@@ -309,6 +306,7 @@ class spell_ex_absorb_aura : public SpellScriptLoader
             void Register()
             {
                 OnEffectAbsorb += AuraEffectAbsorbFn(spell_ex_absorb_auraAuraScript::HandleOnEffectAbsorb, EFFECT_0);
+                AfterEffectAbsorb += AuraEffectAbsorbFn(spell_ex_absorb_auraAuraScript::HandleAfterEffectAbsorb, EFFECT_0);
                 //AfterAbsorb += AuraAbsorbFn(spell_ex_absorb_auraAuraScript::HandleAfterAbsorb);
             }
         };
