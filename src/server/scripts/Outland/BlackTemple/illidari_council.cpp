@@ -89,6 +89,7 @@ static CouncilYells CouncilEnrage[]=
 #define SPELL_EMPOWERED_SMITE      41471
 #define SPELL_CIRCLE_OF_HEALING    41455
 #define SPELL_REFLECTIVE_SHIELD    41475
+#define SPELL_REFLECTIVE_SHIELD_T  33619
 #define SPELL_DIVINE_WRATH         41472
 #define SPELL_HEAL_VISUAL          24171
 
@@ -878,14 +879,43 @@ public:
             }
         }
     };
-
 };
 
+// SPELL_REFLECTIVE_SHIELD
+class spell_boss_lady_malande_shield : public SpellScriptLoader
+{
+public:
+    spell_boss_lady_malande_shield() : SpellScriptLoader("spell_boss_lady_malande_shield") { }
 
+    class spell_boss_lady_malande_shield_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_boss_lady_malande_shield_AuraScript);
 
+        bool Validate(SpellEntry const * /*spellEntry*/)
+        {
+            return sSpellStore.LookupEntry(SPELL_REFLECTIVE_SHIELD_T);
+        }
 
+        void Trigger(AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+        {
+            Unit * target = GetTarget();
+            if (dmgInfo.GetAttacker() == target)
+                return;
+            int32 bp = absorbAmount / 2;
+            target->CastCustomSpell(dmgInfo.GetAttacker(), SPELL_REFLECTIVE_SHIELD_T, &bp, NULL, NULL, true, NULL, aurEff);
+        }
 
+        void Register()
+        {
+             AfterEffectAbsorb += AuraEffectAbsorbFn(spell_boss_lady_malande_shield_AuraScript::Trigger, EFFECT_0);
+        }
+    };
 
+    AuraScript *GetAuraScript() const
+    {
+        return new spell_boss_lady_malande_shield_AuraScript();
+    }
+};
 
 void AddSC_boss_illidari_council()
 {
@@ -895,4 +925,5 @@ void AddSC_boss_illidari_council()
     new boss_lady_malande();
     new boss_veras_darkshadow();
     new boss_high_nethermancer_zerevor();
+    new spell_boss_lady_malande_shield();
 }

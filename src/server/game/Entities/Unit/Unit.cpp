@@ -1614,10 +1614,6 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
         dmgInfo.ResistDamage(damageResisted);
     }
 
-    // Death Prevention Aura
-    SpellEntry const* preventDeathSpell = NULL;
-    int32 preventDeathAmount = 0;
-
     // Incanter's Absorption, for converting to spell power
     int32 incanterAbsorption = 0;
 
@@ -1673,208 +1669,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
         bool defaultPrevented = false;
 
         absorbAurEff->GetBase()->CallScriptEffectAbsorbHandlers(absorbAurEff, aurApp, dmgInfo, absorb, defaultPrevented);
-
         currentAbsorb = absorb;
-        switch (spellProto->SpellFamilyName)
-        {
-            case SPELLFAMILY_GENERIC:
-            {
-                // Reflective Shield (Lady Malande boss)
-                if (spellProto->Id == 41475)
-                {
-                    int32 bp = std::min(int32(dmgInfo.GetDamage()), currentAbsorb) / 2;
-                    pVictim->CastCustomSpell(this, 33619, &bp, NULL, NULL, true, NULL, *itr);
-                    break;
-                }
-                if ((spellProto->Id == 39228) || // Argussian Compass
-                    (spellProto->Id == 60218))   // Essence of Gossamer
-                {
-                    // Max absorb stored in 1 dummy effect
-                    int32 maxAbsorb = SpellMgr::CalculateSpellEffectAmount(spellProto, EFFECT_1);
-                    if (maxAbsorb < currentAbsorb)
-                        currentAbsorb = maxAbsorb;
-                    break;
-                }
-                break;
-            }
-            case SPELLFAMILY_MAGE:
-            {
-                // possibly create BeforeEffectAbsorb for this?
-                // Frost ward and Fire Ward
-                if (spellProto->Category == 56)
-                {
-                    // Frost Warding
-                    if (AuraEffect * aurEff = pVictim->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_MAGE, 501, EFFECT_0))
-                    {
-                        int32 chance = SpellMgr::CalculateSpellEffectAmount(aurEff->GetSpellProto(), EFFECT_1);
-
-                        if (roll_chance_i(chance))
-                        {
-                            int32 bp = dmgInfo.GetDamage();
-                            pVictim->CastCustomSpell(pVictim, 57776, &bp, NULL, NULL, true, NULL, absorbAurEff);
-                            dmgInfo.AbsorbDamage(dmgInfo.GetDamage());
-                            continue;
-                        }
-                    }
-                }
-                break;
-            }
-            case SPELLFAMILY_ROGUE:
-            {
-                // Cheat Death (make less prio with Guardian Spirit case)
-                if (spellProto->SpellIconID == 2109)
-                {
-                    if (!preventDeathSpell && pVictim->ToPlayer())
-                        if (!pVictim->ToPlayer()->HasSpellCooldown(31231) && roll_chance_i(absorbAurEff->GetAmount()))
-                            preventDeathSpell = absorbAurEff->GetSpellProto();
-                    continue;
-                }
-                break;
-            }
-            case SPELLFAMILY_PRIEST:
-            {
-                // Guardian Spirit
-                if (spellProto->SpellIconID == 2873)
-                {
-                    preventDeathSpell = absorbAurEff->GetSpellProto();
-                    preventDeathAmount = absorbAurEff->GetAmount();
-                    continue;
-                }
-                // Power Word: Shield
-                if (spellProto->SpellFamilyFlags.IsEqual(0x1, 0, 0x400))
-                {
-                    if (pVictim == this)
-                        break;
-
-                    Unit * caster = absorbAurEff->GetCaster();
-                    if (!caster)
-                        break;
-
-                    // Reflective Shield
-                    if (AuraEffect const * aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PRIEST, 566, EFFECT_0))
-                        switch(aurEff->GetMiscValue())
-                        {
-                            case 5065:                          // Rank 1
-                            case 5064:                          // Rank 2
-                            {
-                                int32 bp = CalculatePctN(std::min(int32(dmgInfo.GetDamage()), currentAbsorb), aurEff->GetAmount());
-                                pVictim->CastCustomSpell(this, 33619, &bp, NULL, NULL, true, NULL, *itr);
-                                break;
-                            }
-                            default:
-                                sLog->outError("Unit::CalcAbsorbResist: unknown Reflective Shield spell %d", aurEff->GetId());
-                                break;
-                        }
-                }
-                break;
-            }
-            case SPELLFAMILY_PALADIN:
-            {
-                // Ardent Defender
-                if (spellProto->SpellIconID == 2135)
-                {
-                    if (!pVictim->ToPlayer())
-                        continue;
-
-                    int32 remainingHealth = pVictim->GetHealth() - dmgInfo.GetDamage();
-                    uint32 allowedHealth = pVictim->CountPctFromMaxHealth(35);
-                    // If damage kills us
-                    if (remainingHealth <= 0 && !pVictim->ToPlayer()->HasSpellCooldown(66235))
-                    {
-                        // Cast healing spell, completely avoid damage
-                        dmgInfo.AbsorbDamage(dmgInfo.GetDamage());
-
-                        uint32 defenseSkillValue = pVictim->GetDefenseSkillValue();
-                        // Max heal when defense skill denies critical hits from raid bosses
-                        // Formula: max defense at level + 140 (raiting from gear)
-                        uint32 reqDefForMaxHeal  = pVictim->getLevel() * 5 + 140;
-                        float pctFromDefense = (defenseSkillValue >= reqDefForMaxHeal)
-                            ? 1.0f
-                            : float(defenseSkillValue) / float(reqDefForMaxHeal);
-
-                        int32 healAmount = int32(pVictim->CountPctFromMaxHealth(uint32(absorbAurEff->GetAmount() * pctFromDefense)));
-                        pVictim->CastCustomSpell(pVictim, 66235, &healAmount, NULL, NULL, true, NULL, *itr);
-                        pVictim->ToPlayer()->AddSpellCooldown(66235, 0, time(NULL) + 120);
-                    }
-                    else if (remainingHealth < int32(allowedHealth))
-                    {
-                        // Reduce damage that brings us under 35% (or full damage if we are already under 35%) by x%
-                        uint32 damageToReduce = (pVictim->GetHealth() < allowedHealth)
-                            ? dmgInfo.GetDamage()
-                            : allowedHealth - remainingHealth;
-                        dmgInfo.AbsorbDamage(CalculatePctN(damageToReduce, currentAbsorb));
-                    }
-                    continue;
-                }
-                break;
-            }
-            case SPELLFAMILY_DEATHKNIGHT:
-            {
-                switch (spellProto->Id)
-                {
-                    case 51271: // Unbreakable Armor
-                        if (Unit * caster = absorbAurEff->GetCaster())
-                        {
-                            uint32 absorbed = uint32(currentAbsorb * caster->GetArmor() * 0.01f);
-
-                            // Glyph of Unbreakable Armor
-                            if (AuraEffect const * aurEff = caster->GetAuraEffect(58635, 0))
-                                AddPctN(absorbed, aurEff->GetAmount());
-
-                            dmgInfo.AbsorbDamage(absorbed);
-                        }
-                        continue;
-                    case 52284: // Will of the Necropolis
-                    case 52285:
-                    case 52286:
-                    {
-                        int32 remainingHp = int32(pVictim->GetHealth() - dmgInfo.GetDamage());
-
-                        // min pct of hp is stored in effect 0 of talent spell
-                        uint32 rank = sSpellMgr->GetSpellRank(spellProto->Id);
-                        SpellEntry const * talentProto = sSpellStore.LookupEntry(sSpellMgr->GetSpellWithRank(49189, rank));
-
-                        int32 minHp = int32(pVictim->CountPctFromMaxHealth(SpellMgr::CalculateSpellEffectAmount(talentProto, EFFECT_0, absorbAurEff->GetCaster())));
-                        // Damage that would take you below [effect0] health or taken while you are at [effect0]
-                        if (remainingHp < minHp)
-                        {
-                            uint32 absorbed = uint32(currentAbsorb * dmgInfo.GetDamage() * 0.01f);
-                            dmgInfo.AbsorbDamage(absorbed);
-                        }
-                        continue;
-                    }
-                    case 48707: // Anti-Magic Shell (on self)
-                    {
-                        // damage absorbed by Anti-Magic Shell energizes the DK with additional runic power.
-                        // This, if I'm not mistaken, shows that we get back ~2% of the absorbed damage as runic power.
-                        int32 absorbed = CalculatePctN(dmgInfo.GetDamage(), currentAbsorb);
-                        dmgInfo.AbsorbDamage(absorbed);
-                        int32 bp = absorbed * 2 / 10;
-                        pVictim->CastCustomSpell(pVictim, 49088, &bp, NULL, NULL, true, NULL, *itr);
-                        continue;
-                    }
-                    case 50462: // Anti-Magic Shell (on single party/raid member)
-                        dmgInfo.AbsorbDamage(CalculatePctN(dmgInfo.GetDamage(), currentAbsorb));
-                        continue;
-                    case 50461: // Anti-Magic Zone
-                        if (Unit * caster = absorbAurEff->GetCaster())
-                        {
-                            int32 absorbed = CalculatePctN(dmgInfo.GetDamage(), currentAbsorb);
-                            int32 canabsorb = caster->GetHealth();
-                            if (canabsorb < absorbed)
-                                absorbed = canabsorb;
-
-                            dmgInfo.AbsorbDamage(absorbed);
-                        }
-                        continue;
-                    default:
-                        break;
-                }
-                break;
-            }
-            default:
-                break;
-        }
 
         if (defaultPrevented)
             continue;
@@ -1891,6 +1686,9 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
         // for Incanter's Absorption converting to spell power
         if (spellProto->SpellFamilyName == SPELLFAMILY_MAGE && spellProto->SpellFamilyFlags[2] & 0x8)
             incanterAbsorption += currentAbsorb;
+
+        absorb = currentAbsorb;
+        absorbAurEff->GetBase()->CallScriptEffectAfterAbsorbHandlers(absorbAurEff, aurApp, dmgInfo, absorb);
 
         // Check if our aura is using amount to count damage
         if (absorbAurEff->GetAmount() >= 0)
@@ -1950,7 +1748,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
     }
 
     // split damage auras - only when not damaging self
-    if (pVictim != this) 
+    if (pVictim != this)
     {
         // We're going to call functions which can modify content of the list during iteration over it's elements
         // Let's copy the list so we can prevent iterator invalidation
@@ -2020,46 +1818,6 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
             DealDamage(caster, splitted, &cleanDamage, DIRECT_DAMAGE, schoolMask, (*itr)->GetSpellProto(), false);
         }
     }
-
-    // Apply death prevention spells effects
-    if (auraAbsorbMod < 100) // Do nothing if 100% absorb ignore
-        if (preventDeathSpell && (dmgInfo.GetDamage() >= int32(pVictim->GetHealth())))
-        {
-            switch(preventDeathSpell->SpellFamilyName)
-            {
-                case SPELLFAMILY_ROGUE:
-                {
-                    // Cheat Death
-                    if (preventDeathSpell->SpellIconID == 2109)
-                    {
-                        pVictim->CastSpell(pVictim, 31231, true);
-                        pVictim->ToPlayer()->AddSpellCooldown(31231, 0, time(NULL) + 60);
-
-                        uint32 health10 = pVictim->CountPctFromMaxHealth(10);
-
-                        // hp > 10% - absorb hp till 10%
-                        if (pVictim->GetHealth() > health10)
-                            dmgInfo.AbsorbDamage(dmgInfo.GetDamage() - pVictim->GetHealth() + health10);
-                        // hp lower than 10% - absorb everything
-                        else
-                            dmgInfo.AbsorbDamage(dmgInfo.GetDamage());
-                    }
-                    break;
-                }
-                case SPELLFAMILY_PRIEST:
-                {
-                    // Guardian Spirit
-                    if (preventDeathSpell->SpellIconID == 2873)
-                    {
-                        int32 healAmount = int32(pVictim->CountPctFromMaxHealth(preventDeathAmount));
-                        pVictim->RemoveAurasDueToSpell(preventDeathSpell->Id);
-                        pVictim->CastCustomSpell(pVictim, 48153, &healAmount, NULL, NULL, true);
-                        dmgInfo.AbsorbDamage(dmgInfo.GetDamage());
-                    }
-                    break;
-                }
-            }
-        }
 
     *resist = dmgInfo.GetResist();
     *absorb = dmgInfo.GetAbsorb();

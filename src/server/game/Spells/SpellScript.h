@@ -283,6 +283,7 @@ enum AuraScriptHookType
     AURA_SCRIPT_HOOK_EFFECT_CALC_PERIODIC,
     AURA_SCRIPT_HOOK_EFFECT_CALC_SPELLMOD,
     AURA_SCRIPT_HOOK_EFFECT_ABSORB,
+    AURA_SCRIPT_HOOK_EFFECT_AFTER_ABSORB,
     /*AURA_SCRIPT_HOOK_APPLY,
     AURA_SCRIPT_HOOK_REMOVE,*/
 };
@@ -445,6 +446,12 @@ class AuraScript : public _SpellScript
         // example: OnEffectAbsorb += AuraEffectAbsorbFn(class::function, EffectIndexSpecifier);
         // where function is: void function (AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount);
         HookList<EffectAbsorbHandler> OnEffectAbsorb;
+        #define AuraEffectAbsorbFn(F, I) EffectAbsorbFunction(&F, I)
+
+        // executed after absorb aura effect to reduced damage to target - absorbAmount is real amount absorbed by aura
+        // example: OnEffectAbsorb += AuraEffectAbsorbFn(class::function, EffectIndexSpecifier);
+        // where function is: void function (AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount);
+        HookList<EffectAbsorbHandler> AfterEffectAbsorb;
         #define AuraEffectAbsorbFn(F, I) EffectAbsorbFunction(&F, I)
 
         // executed after aura absorbtions reduced damage

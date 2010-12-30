@@ -32,6 +32,165 @@ enum DeathKnightSpells
     DK_SPELL_SCOURGE_STRIKE_TRIGGERED       = 70890,
 };
 
+// 50462 - Anti-Magic Shell (on raid member)
+class spell_dk_anti_magic_shell_raid : public SpellScriptLoader
+{
+public:
+    spell_dk_anti_magic_shell_raid() : SpellScriptLoader("spell_dk_anti_magic_shell_raid") { }
+
+    class spell_dk_anti_magic_shell_raid_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dk_anti_magic_shell_raid_AuraScript);
+
+        uint32 absorbPct;
+
+        bool Load()
+        {
+            absorbPct = SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), EFFECT_0, GetCaster());
+            return true;
+        }
+
+        void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & canBeRecalculated)
+        {
+            // TODO: this should absorb limited amount of damage, but no info on calculation formula
+            amount = -1;
+        }
+
+        void Absorb(AuraEffect * /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+        {
+             absorbAmount = CalculatePctN(dmgInfo.GetDamage(), absorbPct);
+        }
+
+        void Register()
+        {
+             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_anti_magic_shell_raid_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+             OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_anti_magic_shell_raid_AuraScript::Absorb, EFFECT_0);
+        }
+    };
+
+    AuraScript *GetAuraScript() const
+    {
+        return new spell_dk_anti_magic_shell_raid_AuraScript();
+    }
+};
+
+// 48707 - Anti-Magic Shell (on self)
+class spell_dk_anti_magic_shell_self : public SpellScriptLoader
+{
+public:
+    spell_dk_anti_magic_shell_self() : SpellScriptLoader("spell_dk_anti_magic_shell_self") { }
+
+    class spell_dk_anti_magic_shell_self_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dk_anti_magic_shell_self_AuraScript);
+
+        enum Spells
+        {
+            DK_SPELL_RUNIC_POWER_ENERGIZE = 49088,
+        };
+
+        uint32 absorbPct, hpPct;
+        bool Load()
+        {
+            absorbPct = SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), EFFECT_0, GetCaster());
+            hpPct = SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), EFFECT_1, GetCaster());
+            return true;
+        }
+
+        bool Validate(SpellEntry const * /*spellEntry*/)
+        {
+            return sSpellStore.LookupEntry(DK_SPELL_RUNIC_POWER_ENERGIZE);
+        }
+
+        void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & canBeRecalculated)
+        {
+            // Set absorbtion amount to unlimited
+            amount = -1;
+        }
+
+        void Absorb(AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+        {
+            absorbAmount = std::min(CalculatePctN(dmgInfo.GetDamage(), absorbPct), GetTarget()->CountPctFromMaxHealth(hpPct));
+        }
+
+        void Trigger(AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+        {
+            Unit * target = GetTarget();
+            // damage absorbed by Anti-Magic Shell energizes the DK with additional runic power.
+            // This, if I'm not mistaken, shows that we get back ~20% of the absorbed damage as runic power.
+            int32 bp = absorbAmount * 2 / 10;
+            target->CastCustomSpell(target, DK_SPELL_RUNIC_POWER_ENERGIZE, &bp, NULL, NULL, true, NULL, aurEff);
+        }
+
+        void Register()
+        {
+             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_anti_magic_shell_self_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+             OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_anti_magic_shell_self_AuraScript::Absorb, EFFECT_0);
+             AfterEffectAbsorb += AuraEffectAbsorbFn(spell_dk_anti_magic_shell_self_AuraScript::Trigger, EFFECT_0);
+        }
+    };
+
+    AuraScript *GetAuraScript() const
+    {
+        return new spell_dk_anti_magic_shell_self_AuraScript();
+    }
+};
+
+// 50461 - Anti-Magic Zone
+class spell_dk_anti_magic_zone : public SpellScriptLoader
+{
+public:
+    spell_dk_anti_magic_zone() : SpellScriptLoader("spell_dk_anti_magic_zone") { }
+
+    class spell_dk_anti_magic_zone_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dk_anti_magic_zone_AuraScript);
+
+        enum Spells
+        {
+            DK_SPELL_ANTI_MAGIC_SHELL_TALENT = 51052,
+        };
+
+        uint32 absorbPct;
+
+        bool Load()
+        {
+            absorbPct = SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), EFFECT_0, GetCaster());
+            return true;
+        }
+
+        bool Validate(SpellEntry const * /*spellEntry*/)
+        {
+            return sSpellStore.LookupEntry(DK_SPELL_ANTI_MAGIC_SHELL_TALENT);
+        }
+
+        void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & canBeRecalculated)
+        {
+            SpellEntry const * talentSpell = sSpellStore.LookupEntry(DK_SPELL_ANTI_MAGIC_SHELL_TALENT);
+            amount = SpellMgr::CalculateSpellEffectAmount(talentSpell, EFFECT_0, GetCaster());
+            // assume caster is a player here
+            if (Unit * caster = GetCaster())
+                 amount += 2 * caster->ToPlayer()->GetTotalAttackPowerValue(BASE_ATTACK);
+        }
+
+        void Absorb(AuraEffect * /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+        {
+             absorbAmount = CalculatePctN(dmgInfo.GetDamage(), absorbPct);
+        }
+
+        void Register()
+        {
+             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_anti_magic_zone_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+             OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_anti_magic_zone_AuraScript::Absorb, EFFECT_0);
+        }
+    };
+
+    AuraScript *GetAuraScript() const
+    {
+        return new spell_dk_anti_magic_zone_AuraScript();
+    }
+};
+
 // 49158 Corpse Explosion (51325, 51326, 51327, 51328)
 class spell_dk_corpse_explosion : public SpellScriptLoader
 {
@@ -168,9 +327,15 @@ public:
         PrepareAuraScript(spell_dk_spell_deflection_AuraScript);
 
         uint32 absorbPct;
+
+        bool Load()
+        {
+            absorbPct = SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), EFFECT_0, GetCaster());
+            return true;
+        }
+
         void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & canBeRecalculated)
         {
-            absorbPct = amount;
             // Set absorbtion amount to unlimited
             amount = -1;
         }
@@ -195,11 +360,83 @@ public:
     }
 };
 
+// 52284 - Will of the Necropolis
+class spell_dk_will_of_the_necropolis : public SpellScriptLoader
+{
+public:
+    spell_dk_will_of_the_necropolis() : SpellScriptLoader("spell_dk_will_of_the_necropolis") { }
+
+    class spell_dk_will_of_the_necropolis_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dk_will_of_the_necropolis_AuraScript);
+
+        enum Spells
+        {
+            DK_SPELL_WILL_OF_THE_NECROPOLIS_TALENT_R1 = 49189,
+            DK_SPELL_WILL_OF_THE_NECROPOLIS_AURA_R1   = 52284,
+        };
+        bool Validate(SpellEntry const *spellEntry)
+        {
+            // can't use other spell than will of the necropolis due to spell_ranks dependency
+            if (sSpellMgr->GetFirstSpellInChain(DK_SPELL_WILL_OF_THE_NECROPOLIS_AURA_R1) != sSpellMgr->GetFirstSpellInChain(spellEntry->Id))
+                return false;
+
+            uint8 rank = sSpellMgr->GetSpellRank(spellEntry->Id);
+            if (!sSpellMgr->GetSpellWithRank(DK_SPELL_WILL_OF_THE_NECROPOLIS_TALENT_R1, rank, true))
+                return false;
+
+            return true;
+        }
+
+        uint32 absorbPct;
+
+        bool Load()
+        {
+            absorbPct = SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), EFFECT_0, GetCaster());
+            return true;
+        }
+
+        void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & canBeRecalculated)
+        {
+            // Set absorbtion amount to unlimited
+            amount = -1;
+        }
+
+        void Absorb(AuraEffect * /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+        {
+            // min pct of hp is stored in effect 0 of talent spell
+            uint32 rank = sSpellMgr->GetSpellRank(GetSpellProto()->Id);
+            SpellEntry const * talentProto = sSpellStore.LookupEntry(sSpellMgr->GetSpellWithRank(DK_SPELL_WILL_OF_THE_NECROPOLIS_TALENT_R1, rank));
+
+            int32 remainingHp = int32(GetTarget()->GetHealth() - dmgInfo.GetDamage());
+            int32 minHp = int32(GetTarget()->CountPctFromMaxHealth(SpellMgr::CalculateSpellEffectAmount(talentProto, EFFECT_0, GetCaster())));
+            
+            // Damage that would take you below [effect0] health or taken while you are at [effect0]
+            if (remainingHp < minHp)
+                absorbAmount = CalculatePctN(dmgInfo.GetDamage(), absorbPct);
+        }
+
+        void Register()
+        {
+             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_will_of_the_necropolis_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+             OnEffectAbsorb += AuraEffectAbsorbFn(spell_dk_will_of_the_necropolis_AuraScript::Absorb, EFFECT_0);
+        }
+    };
+
+    AuraScript *GetAuraScript() const
+    {
+        return new spell_dk_will_of_the_necropolis_AuraScript();
+    }
+};
 
 void AddSC_deathknight_spell_scripts()
 {
+    new spell_dk_anti_magic_shell_raid();
+    new spell_dk_anti_magic_shell_self();
+    new spell_dk_anti_magic_zone();
     new spell_dk_corpse_explosion();
     new spell_dk_runic_power_feed();
     new spell_dk_scourge_strike();
     new spell_dk_spell_deflection();
+    new spell_dk_will_of_the_necropolis();
 }
