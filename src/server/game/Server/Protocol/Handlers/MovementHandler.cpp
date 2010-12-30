@@ -623,18 +623,34 @@ void WorldSession::HandleEnterPlayerVehicle(WorldPacket &data)
 
 void WorldSession::HandleEjectPassenger(WorldPacket &data)
 {
-    if (_player->GetVehicleKit())
+    if (Vehicle* vehicle = _player->GetVehicleKit())
     {
         uint64 guid;
         data >> guid;
-        if (Player *plr = ObjectAccessor::FindPlayer(guid))
-            plr->ExitVehicle();
-        else if (Unit *unit = ObjectAccessor::GetUnit(*_player, guid)) // creatures can be ejected too from player mounts
+
+        if (IS_PLAYER_GUID(guid))
         {
-            unit->ExitVehicle();
-            unit->ToCreature()->ForcedDespawn(1000);
+            if (Player *plr = ObjectAccessor::FindPlayer(guid))
+                vehicle->EjectPassenger(plr);
+            else
+                sLog->outError("Player %u tried to eject player %u from vehicle, but the latter was not found in world!", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
         }
+
+        else if (IS_CREATURE_GUID(guid))
+        {
+            if (Unit *unit = ObjectAccessor::GetUnit(*_player, guid)) // creatures can be ejected too from player mounts
+            {
+                vehicle->EjectPassenger(unit);
+                unit->ToCreature()->ForcedDespawn(1000);
+            }
+            else
+                sLog->outError("Player %u tried to eject creature guid %u from vehicle, but the latter was not found in world!", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
+        }
+        else
+            sLog->outError("HandleEjectPassenger: Player %u tried to eject invalid GUID "UI64FMTD, GetPlayer()->GetGUIDLow(), guid);
     }
+    else
+        sLog->outError("HandleEjectPassenger: Player %u is not in a vehicle!", GetPlayer()->GetGUIDLow());
 }
 
 void WorldSession::HandleRequestVehicleExit(WorldPacket &recv_data)
