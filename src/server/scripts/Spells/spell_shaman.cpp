@@ -47,9 +47,15 @@ public:
         PrepareAuraScript(spell_sha_astral_shift_AuraScript);
 
         uint32 absorbPct;
+
+        bool Load()
+        {
+            absorbPct = SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), EFFECT_0, GetCaster());
+            return true;
+        }
+
         void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & canBeRecalculated)
         {
-            absorbPct = amount;
             // Set absorbtion amount to unlimited
             amount = -1;
         }

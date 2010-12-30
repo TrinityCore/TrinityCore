@@ -38,6 +38,39 @@ enum MageSpells
     SPELL_MAGE_GLYPH_OF_BLAST_WAVE               = 62126,
 };
 
+class spell_mage_blast_wave : public SpellScriptLoader
+{
+    public:
+        spell_mage_blast_wave() : SpellScriptLoader("spell_mage_blast_wave") { }
+
+        class spell_mage_blast_wave_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mage_blast_wave_SpellScript)
+            bool Validate(SpellEntry const * /*spellEntry*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_MAGE_GLYPH_OF_BLAST_WAVE))
+                    return false;
+                return true;
+            }
+
+            void HandleKnockBack(SpellEffIndex effIndex)
+            {
+                if (GetCaster()->HasAura(SPELL_MAGE_GLYPH_OF_BLAST_WAVE))
+                    PreventHitDefaultEffect(effIndex);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_mage_blast_wave_SpellScript::HandleKnockBack, EFFECT_2, SPELL_EFFECT_KNOCK_BACK);
+            }
+        };
+
+        SpellScript * GetSpellScript() const
+        {
+            return new spell_mage_blast_wave_SpellScript();
+        }
+};
+
 class spell_mage_cold_snap : public SpellScriptLoader
 {
     public:
@@ -176,43 +209,61 @@ class spell_mage_summon_water_elemental : public SpellScriptLoader
         }
 };
 
-class spell_mage_blast_wave : public SpellScriptLoader
+// Frost Ward and Fire Ward
+class spell_mage_frost_warding_trigger : public SpellScriptLoader
 {
-    public:
-        spell_mage_blast_wave() : SpellScriptLoader("spell_mage_blast_wave") { }
+public:
+    spell_mage_frost_warding_trigger() : SpellScriptLoader("spell_mage_frost_warding_trigger") { }
 
-        class spell_mage_blast_wave_SpellScript : public SpellScript
+    class spell_mage_frost_warding_trigger_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_mage_frost_warding_trigger_AuraScript);
+
+        enum Spells
         {
-            PrepareSpellScript(spell_mage_blast_wave_SpellScript)
-            bool Validate(SpellEntry const * /*spellEntry*/)
-            {
-                if (!sSpellStore.LookupEntry(SPELL_MAGE_GLYPH_OF_BLAST_WAVE))
-                    return false;
-                return true;
-            }
-
-            void HandleKnockBack(SpellEffIndex effIndex)
-            {
-                if (GetCaster()->HasAura(SPELL_MAGE_GLYPH_OF_BLAST_WAVE))
-                    PreventHitDefaultEffect(effIndex);
-            }
-
-            void Register()
-            {
-                OnEffect += SpellEffectFn(spell_mage_blast_wave_SpellScript::HandleKnockBack, EFFECT_2, SPELL_EFFECT_KNOCK_BACK);
-            }
+            SPELL_MAGE_FROST_WARDING_TRIGGERED = 57776,
+            SPELL_MAGE_FROST_WARDING_R1 = 28332,
         };
 
-        SpellScript * GetSpellScript() const
+        bool Validate(SpellEntry const * /*spellEntry*/)
         {
-            return new spell_mage_blast_wave_SpellScript();
+            return sSpellStore.LookupEntry(SPELL_MAGE_FROST_WARDING_TRIGGERED) 
+                && sSpellStore.LookupEntry(SPELL_MAGE_FROST_WARDING_R1);
         }
+
+        void Absorb(AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+        {
+            Unit * target = GetTarget();
+            if (AuraEffect * talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_MAGE_FROST_WARDING_R1, EFFECT_0))
+            {
+                int32 chance = SpellMgr::CalculateSpellEffectAmount(talentAurEff->GetSpellProto(), EFFECT_1);
+
+                if (roll_chance_i(chance))
+                {
+                    absorbAmount = dmgInfo.GetDamage();
+                    int32 bp = absorbAmount;
+                    target->CastCustomSpell(target, SPELL_MAGE_FROST_WARDING_TRIGGERED, &bp, NULL, NULL, true, NULL, aurEff);
+                }
+            }
+        }
+
+        void Register()
+        {
+             OnEffectAbsorb += AuraEffectAbsorbFn(spell_mage_frost_warding_trigger_AuraScript::Absorb, EFFECT_0);
+        }
+    };
+
+    AuraScript *GetAuraScript() const
+    {
+        return new spell_mage_frost_warding_trigger_AuraScript();
+    }
 };
 
 void AddSC_mage_spell_scripts()
 {
+    new spell_mage_blast_wave;
     new spell_mage_cold_snap;
+    new spell_mage_frost_warding_trigger();
     new spell_mage_polymorph_cast_visual;
     new spell_mage_summon_water_elemental;
-    new spell_mage_blast_wave;
 }

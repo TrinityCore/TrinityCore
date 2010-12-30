@@ -94,9 +94,15 @@ public:
         PrepareAuraScript(spell_dru_moonkin_form_passive_AuraScript);
 
         uint32 absorbPct;
+
+        bool Load()
+        {
+            absorbPct = SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), EFFECT_0, GetCaster());
+            return true;
+        }
+
         void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & canBeRecalculated)
         {
-            absorbPct = amount;
             // Set absorbtion amount to unlimited
             amount = -1;
         }
@@ -132,9 +138,15 @@ public:
         PrepareAuraScript(spell_dru_primal_tenacity_AuraScript);
 
         uint32 absorbPct;
+
+        bool Load()
+        {
+            absorbPct = SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), EFFECT_1, GetCaster());
+            return true;
+        }
+
         void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & canBeRecalculated)
         {
-            absorbPct = amount;
             // Set absorbtion amount to unlimited
             amount = -1;
         }
@@ -170,19 +182,22 @@ public:
         PrepareAuraScript(spell_dru_savage_defense_AuraScript);
 
         uint32 absorbPct;
+
+        bool Load()
+        {
+            absorbPct = SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), EFFECT_0, GetCaster());
+            return true;
+        }
+
         void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & canBeRecalculated)
         {
-            absorbPct = amount;
             // Set absorbtion amount to unlimited
             amount = -1;
         }
 
         void Absorb(AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
         {
-            // don't waste charge when no dmg
-            if (!dmgInfo.GetDamage())
-                return;
-            absorbAmount = CalculatePctN(GetTarget()->GetTotalAttackPowerValue(BASE_ATTACK), absorbPct);
+            absorbAmount = int32(CalculatePctN(GetTarget()->GetTotalAttackPowerValue(BASE_ATTACK), absorbPct));
             aurEff->SetAmount(0);
         }
 
