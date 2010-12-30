@@ -26964,6 +26964,10 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 11958, 'spell_mage_cold_snap'),
 (  -543, 'spell_mage_frost_warding_trigger'),
 ( -6143, 'spell_mage_frost_warding_trigger'),
+(  -543, 'spell_mage_incanters_absorbtion_absorb'),
+( -6143, 'spell_mage_incanters_absorbtion_absorb'),
+(-11426, 'spell_mage_incanters_absorbtion_absorb'),
+( -1463, 'spell_mage_incanters_absorbtion_manashield')
 ( 31687, 'spell_mage_summon_water_elemental'),
 ( 32826, 'spell_mage_polymorph_visual'),
 -- warlock
