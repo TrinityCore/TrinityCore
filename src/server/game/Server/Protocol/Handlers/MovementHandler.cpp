@@ -631,7 +631,7 @@ void WorldSession::HandleEjectPassenger(WorldPacket &data)
         if (IS_PLAYER_GUID(guid))
         {
             if (Player *plr = ObjectAccessor::FindPlayer(guid))
-                vehicle->EjectPassenger(plr);
+                vehicle->EjectPassenger(plr, GetPlayer());
             else
                 sLog->outError("Player %u tried to eject player %u from vehicle, but the latter was not found in world!", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
         }
@@ -640,7 +640,7 @@ void WorldSession::HandleEjectPassenger(WorldPacket &data)
         {
             if (Unit *unit = ObjectAccessor::GetUnit(*_player, guid)) // creatures can be ejected too from player mounts
             {
-                vehicle->EjectPassenger(unit);
+                vehicle->EjectPassenger(unit, GetPlayer());
                 unit->ToCreature()->ForcedDespawn(1000);
             }
             else
