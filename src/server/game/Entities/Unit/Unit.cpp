@@ -1595,7 +1595,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
             probabilitySum += discreteResistProbability[i];
         }
 
-        float damageResisted = damage * i / 10;
+        float damageResisted = float(damage * i / 10);
 
         AuraEffectList const &ResIgnoreAurasAb = GetAuraEffectsByType(SPELL_AURA_MOD_ABILITY_IGNORE_TARGET_RESIST);
         for (AuraEffectList::const_iterator j = ResIgnoreAurasAb.begin(); j != ResIgnoreAurasAb.end(); ++j)
@@ -1611,7 +1611,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
             if ((*j)->GetMiscValue() & schoolMask)
                 AddPctN(damageResisted, -(*j)->GetAmount());
         }
-        dmgInfo.ResistDamage(damageResisted);
+        dmgInfo.ResistDamage(uint32(damageResisted));
     }
 
     // Incanter's Absorption, for converting to spell power
@@ -1626,7 +1626,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
             continue;
 
         if ((*itr)->GetAmount() > auraAbsorbMod)
-            auraAbsorbMod = (*itr)->GetAmount();
+            auraAbsorbMod = float((*itr)->GetAmount());
     }
 
     AuraEffectList const & AbsIgnoreAurasB = GetAuraEffectsByType(SPELL_AURA_MOD_TARGET_ABILITY_ABSORB_SCHOOL);
@@ -1636,7 +1636,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
             continue;
 
         if (((*itr)->GetAmount() > auraAbsorbMod) && (*itr)->IsAffectedOnSpell(spellInfo))
-            auraAbsorbMod = (*itr)->GetAmount();
+            auraAbsorbMod = float((*itr)->GetAmount());
     }
     RoundToInterval(auraAbsorbMod, 0.0f, 100.0f);
 
@@ -1682,11 +1682,6 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
 
         dmgInfo.AbsorbDamage(currentAbsorb);
 
-        // Fire Ward or Frost Ward or Ice Barrier (or Mana Shield)
-        // for Incanter's Absorption converting to spell power
-        if (spellProto->SpellFamilyName == SPELLFAMILY_MAGE && spellProto->SpellFamilyFlags[2] & 0x8)
-            incanterAbsorption += currentAbsorb;
-
         absorb = currentAbsorb;
         absorbAurEff->GetBase()->CallScriptEffectAfterAbsorbHandlers(absorbAurEff, aurApp, dmgInfo, absorb);
 
@@ -1707,9 +1702,10 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
         AuraEffectList vManaShieldCopy(pVictim->GetAuraEffectsByType(SPELL_AURA_MANA_SHIELD));
         for (AuraEffectList::const_iterator itr = vManaShieldCopy.begin(); (itr != vManaShieldCopy.end()) && (dmgInfo.GetDamage() > 0); ++itr)
         {
-            AuraEffect * absorbAurEff = *itr;
+            AuraEffect * absorbAurEff = (*itr);
             // Check if aura was removed during iteration - we don't need to work on such auras
-            if (!(absorbAurEff->GetBase()->IsAppliedOnTarget(pVictim->GetGUID())))
+            AuraApplication const * aurApp = absorbAurEff->GetBase()->GetApplicationOfTarget(pVictim->GetGUID());
+            if (!aurApp)
                 continue;
             // check damage school mask
             if (!(absorbAurEff->GetMiscValue() & schoolMask))
@@ -1717,6 +1713,19 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
 
             // get amount which can be still absorbed by the aura
             int32 currentAbsorb = absorbAurEff->GetAmount();
+            // aura with infinite absorb amount - let the scripts handle absorbtion amount, set here to 0 for safety
+            if (currentAbsorb < 0)
+                currentAbsorb = 0;
+
+            uint32 absorb = currentAbsorb;
+
+            bool defaultPrevented = false;
+
+            absorbAurEff->GetBase()->CallScriptEffectManaShieldHandlers(absorbAurEff, aurApp, dmgInfo, absorb, defaultPrevented);
+            currentAbsorb = absorb;
+
+            if (defaultPrevented)
+                continue;
 
             AddPctF(currentAbsorb, -auraAbsorbMod);
 
@@ -1727,23 +1736,25 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
 
             // lower absorb amount by talents
             if (float manaMultiplier = SpellMgr::CalculateSpellEffectValueMultiplier(absorbAurEff->GetSpellProto(), absorbAurEff->GetEffIndex(), absorbAurEff->GetCaster()))
-                manaReduction = float(manaReduction) * manaMultiplier;
+                manaReduction = int32(float(manaReduction) * manaMultiplier);
 
             int32 manaTaken = -pVictim->ModifyPower(POWER_MANA, -manaReduction);
 
             // take case when mana has ended up into account
-            currentAbsorb = float(currentAbsorb)*(float(manaTaken) / float(manaReduction));
-
-            // Mana Shield (or Fire Ward or Frost Ward or Ice Barrier)
-            // for Incanter's Absorption converting to spell power
-            if (absorbAurEff->GetSpellProto()->SpellFamilyName == SPELLFAMILY_MAGE && absorbAurEff->GetSpellProto()->SpellFamilyFlags[2] & 0x8)
-                incanterAbsorption += currentAbsorb;
+            currentAbsorb = int32(float(currentAbsorb)*(float(manaTaken) / float(manaReduction)));
 
             dmgInfo.AbsorbDamage(currentAbsorb);
 
-            absorbAurEff->SetAmount(absorbAurEff->GetAmount() - currentAbsorb);
-            if ((absorbAurEff->GetAmount() <= 0))
-                absorbAurEff->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
+            absorb = currentAbsorb;
+            absorbAurEff->GetBase()->CallScriptEffectAfterManaShieldHandlers(absorbAurEff, aurApp, dmgInfo, absorb);
+
+            // Check if our aura is using amount to count damage
+            if (absorbAurEff->GetAmount() >= 0)
+            {
+                absorbAurEff->SetAmount(absorbAurEff->GetAmount() - currentAbsorb);
+                if ((absorbAurEff->GetAmount() <= 0))
+                    absorbAurEff->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
+            }
         }
     }
 
@@ -1826,16 +1837,8 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
     if (incanterAbsorption)
     {
         // Incanter's Absorption
-        // TODO: move this code to procflag
         if (AuraEffect const * aurEff = pVictim->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2941, EFFECT_0))
         {
-            // Get total damage bonus from auras
-            int32 current_dmg = 0;
-            std::pair<AuraApplicationMap::const_iterator, AuraApplicationMap::const_iterator> range = pVictim->GetAppliedAuras().equal_range(44413);
-            for (AuraApplicationMap::const_iterator iter = range.first; iter != range.second; ++iter)
-                if (AuraEffect const * bonusEff = iter->second->GetBase()->GetEffect(0))
-                    current_dmg += bonusEff->GetAmount();
-
             int32 new_dmg = CalculatePctN(int32(*absorb), aurEff->GetAmount());
             if (new_dmg > 0)
                 pVictim->CastCustomSpell(pVictim, 44413, &new_dmg, NULL, NULL, true);
