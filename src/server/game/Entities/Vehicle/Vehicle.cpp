@@ -35,7 +35,7 @@ Vehicle::Vehicle(Unit *unit, VehicleEntry const *vehInfo) : me(unit), m_vehicleI
             if (VehicleSeatEntry const *veSeat = sVehicleSeatStore.LookupEntry(seatId))
             {
                 m_Seats.insert(std::make_pair(i, VehicleSeat(veSeat)));
-                if (veSeat->IsUsableByPlayer())
+                if (veSeat->CanEnterOrExit())
                     ++m_usableSeatNum;
             }
     }
@@ -219,7 +219,7 @@ int8 Vehicle::GetNextEmptySeat(int8 seatId, bool next, bool byAura) const
     if (seat == m_Seats.end())
         return -1;
 
-    while (seat->second.passenger || (!byAura && !seat->second.seatInfo->IsUsableByPlayer()) || (byAura && !seat->second.seatInfo->IsUsableByAura()))
+    while (seat->second.passenger || (!byAura && !seat->second.seatInfo->CanEnterOrExit()) || (byAura && !seat->second.seatInfo->IsUsableByAura()))
     {
         sLog->outDebug("Vehicle::GetNextEmptySeat: m_flags: %u, m_flagsB:%u", seat->second.seatInfo->m_flags, seat->second.seatInfo->m_flagsB);
         if (next)
@@ -280,7 +280,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId, bool byAura)
     if (seatId < 0) // no specific seat requirement
     {
         for (seat = m_Seats.begin(); seat != m_Seats.end(); ++seat)
-            if (!seat->second.passenger && ((!(byAura && seat->second.seatInfo->IsUsableByPlayer()) || (byAura && seat->second.seatInfo->IsUsableByAura()))))
+            if (!seat->second.passenger && ((!(byAura && seat->second.seatInfo->CanEnterOrExit()) || (byAura && seat->second.seatInfo->IsUsableByAura()))))
                 break;
 
         if (seat == m_Seats.end()) // no available seat
@@ -301,7 +301,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId, bool byAura)
     sLog->outDebug("Unit %s enter vehicle entry %u id %u dbguid %u seat %d", unit->GetName(), me->GetEntry(), m_vehicleInfo->m_ID, me->GetGUIDLow(), (int32)seat->first);
 
     seat->second.passenger = unit;
-    if (seat->second.seatInfo->IsUsableByPlayer())
+    if (seat->second.seatInfo->CanEnterOrExit())
     {
         ASSERT(m_usableSeatNum);
         --m_usableSeatNum;
@@ -384,7 +384,7 @@ void Vehicle::RemovePassenger(Unit *unit)
     sLog->outDebug("Unit %s exit vehicle entry %u id %u dbguid %u seat %d", unit->GetName(), me->GetEntry(), m_vehicleInfo->m_ID, me->GetGUIDLow(), (int32)seat->first);
 
     seat->second.passenger = NULL;
-    if (seat->second.seatInfo->IsUsableByPlayer())
+    if (seat->second.seatInfo->CanEnterOrExit())
     {
         if (!m_usableSeatNum)
         {
@@ -479,4 +479,14 @@ uint16 Vehicle::GetExtraMovementFlagsForBase() const
 
     sLog->outDebug("Vehicle::GetExtraMovementFlagsForBase() returned %u", movementMask);
     return movementMask;
+}
+
+VehicleSeatEntry const* Vehicle::GetSeatForPassenger(Unit* passenger)
+{
+    SeatMap::iterator itr;
+    for (itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
+        if (itr->second.passenger = passenger)
+            return itr->second.seatInfo;
+
+    return NULL;
 }
