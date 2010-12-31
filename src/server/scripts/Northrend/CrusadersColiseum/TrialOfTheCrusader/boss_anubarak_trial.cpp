@@ -222,7 +222,7 @@ public:
 
         void JustSummoned(Creature* pSummoned)
         {
-            Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM);
+            Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true);
             switch (pSummoned->GetEntry())
             {
                 case NPC_BURROW:
@@ -658,7 +658,7 @@ public:
         void Reset()
         {
             // For an unknown reason this npc isn't recognize the Aura of Permafrost with this flags =/
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
             m_uiTargetGUID = 0;
         }
 
