@@ -31,10 +31,11 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket & /*recv_data*/)
 
     time_t cur_time = time(NULL);
 
-    WorldPacket data(SMSG_CALENDAR_SEND_CALENDAR,4+4*0+4+4*0+4+4);
+    // we can't really get the real size of this packet...
+    WorldPacket data(SMSG_CALENDAR_SEND_CALENDAR, 4+4*0+4+4*0+4+4);
 
-    sCalendarMgr.AppendInvitesToCalendarPacketForPlayer(data, GetPlayer());
-    sCalendarMgr.AppendEventsToCalendarPacketForPlayer(data, GetPlayer());
+    sCalendarMgr->AppendInvitesToCalendarPacketForPlayer(data, GetPlayer());
+    sCalendarMgr->AppendEventsToCalendarPacketForPlayer(data, GetPlayer());
 
     InstanceSave *save = NULL;
     uint32 counter = 0;
@@ -140,11 +141,10 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket &recv_data)
     uint8 type;
     uint8 unkbyte;
     uint32 maxInvites;
-    int32 dungeonId;
+    uint32 dungeonId;
     uint32 eventPackedTime;
     uint32 unkPackedTime;
     uint32 flags;
-    uint64 eventId = 0;
 
     recv_data >> title;
     recv_data >> description;
@@ -156,7 +156,19 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket &recv_data)
     recv_data >> unkPackedTime;
     recv_data >> flags;
 
-    // TODO make new event
+    CalendarEvent event;
+    event.id = sCalendarMgr->GetNextEventID();
+    event.name = title;
+    event.description = description;
+    event.type = type;
+    event.unk = unkbyte;
+    event.dungeonId = dungeonId;
+    event.flags = flags;
+    event.time = eventPackedTime;
+    event.unkTime = unkPackedTime;
+    event.creator_guid = GetPlayer()->GetGUID();
+
+    sCalendarMgr->AddEvent(event);
 
     if (((flags >> 6) & 1))
         return;
@@ -167,15 +179,25 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket &recv_data)
     if (!inviteCount)
         return;
 
-    // TODO make invites
     uint64 guid;
     uint8 status;
     uint8 rank;
     for (int32 i = 0; i < inviteCount; ++i)
     {
+        CalendarInvite invite;
+        invite.id = sCalendarMgr->GetNextInviteID();
         recv_data.readPackGUID(guid);
         recv_data >> status;
         recv_data >> rank;
+        invite.event = event.id;
+        invite.creator_guid = GetPlayer()->GetGUID();
+        invite.target_guid = guid;
+        invite.status = status;
+        invite.rank = rank;
+        invite.time = event.time;
+        invite.text = ""; // hmm...
+        invite.unk1 = invite.unk2 = invite.unk3 = 0;
+        sCalendarMgr->AddInvite(invite);
     }
     //SendCalendarEvent(eventId, true);
 }

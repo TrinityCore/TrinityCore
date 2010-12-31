@@ -19,7 +19,7 @@
 #include "CalendarMgr.h"
 #include "QueryResult.h"
 
-CalendarMgr::CalendarMgr()
+CalendarMgr::CalendarMgr() : _currentEventID(0), _currentInviteID(0)
 {
 }
 

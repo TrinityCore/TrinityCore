@@ -57,9 +57,14 @@ public:
     void AppendInvitesToCalendarPacketForPlayer(WorldPacket &data, Player *player);
     void AppendEventsToCalendarPacketForPlayer(WorldPacket &data, Player *player);
 
+    uint64 GetNextEventID() { return ++_currentEventID; }
+    uint64 GetNextInviteID() { return ++_currentInviteID; }
+
 private:
     CalendarInviteMap _inviteMap;
     CalendarEventMap _eventMap;
+    uint64 _currentEventID;
+    uint64 _currentInviteID;
 };
 
 #define sCalendarMgr ACE_Singleton<CalendarMgr, ACE_Null_Mutex>::instance()
