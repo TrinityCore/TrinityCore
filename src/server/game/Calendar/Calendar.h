@@ -51,7 +51,7 @@ struct CalendarEvent
     std::string description;
     uint8 type;
     uint8 unk;
-    int32 dungeonID; // should maybe be uint32?
+    uint32 dungeonID;
     uint32 unkTime;
     uint32 time;
     uint32 flags;
@@ -70,9 +70,10 @@ struct CalendarInvite
     std::string text;
     uint64 creator_guid;
     uint32 time;
+    uint64 target_guid;
 };
 
-typedef std::map<uint64, CalendarInvite *> CalendarInviteMap;
-typedef std::map<uint64, CalendarEvent *> CalendarEventMap;
+typedef UNORDERED_MAP<uint64, CalendarInvite> CalendarInviteMap;
+typedef UNORDERED_MAP<uint64, CalendarEvent> CalendarEventMap;
 
 #endif

@@ -21,10 +21,45 @@
 
 #include <ace/Singleton.h>
 #include "Calendar.h"
+#include "Player.h"
 
 class CalendarMgr
 {
     friend class ACE_Singleton<CalendarMgr, ACE_Null_Mutex>;
+
+public:
+    CalendarMgr();
+    ~CalendarMgr();
+
+
+    CalendarInvite *GetInvite(uint64 inviteID)
+    {
+        CalendarInviteMap::const_iterator itr = _inviteMap.find(itemId);
+        if(itr != _inviteMap.end())
+            return &itr->second;
+        return NULL;
+    }
+
+    void AddInvite(CalendarInvite invite) { _inviteMap[invite.id] = invite; }
+    void RemoveInvite(uint64 inviteID) { _inviteMap.erase(inviteID); }
+
+    CalendarEvent *GetEvent(uint64 eventID)
+    {
+        CalendarEventMap::const_iterator itr = _eventMap.find(eventID);
+        if(itr != _eventMap.end())
+            return &itr->second;
+        return NULL;
+    }
+
+    void AddEvent(CalendarEvent event) { _eventMap[event.id] = event; }
+    void RemoveEvent(uint64 eventID) { _eventMap.erase(eventID); }
+
+    void AppendInvitesToCalendarPacketForPlayer(WorldPacket &data, Player *player);
+    void AppendEventsToCalendarPacketForPlayer(WorldPacket &data, Player *player);
+
+private:
+    CalendarInviteMap _inviteMap;
+    CalendarEventMap _eventMap;
 };
 
 #define sCalendarMgr ACE_Singleton<CalendarMgr, ACE_Null_Mutex>::instance()

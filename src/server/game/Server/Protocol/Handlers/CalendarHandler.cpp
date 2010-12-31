@@ -33,38 +33,8 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket & /*recv_data*/)
 
     WorldPacket data(SMSG_CALENDAR_SEND_CALENDAR,4+4*0+4+4*0+4+4);
 
-    if (false) // if we have invites
-    {
-        data << uint32(0);                       // invite count
-        for (uint8 i = 0; i < 0; ++i)
-        {
-            data << uint64(0);                   // Invite ID
-            data << uint64(0);                   // Event ID
-            data << uint8(0);                    // rank
-            data << uint8(0);                    // unk
-            data << uint8(0);                    // unk
-            data.appendPackGUID(0);              // creator's guid
-        }
-    }
-    else
-        data << uint32(0);                       // invite count
-
-    if (false) // if we have events
-    {
-        data << uint32(0);                       // event count
-        for (uint8 i = 0; i < 0; ++i)
-        {
-            data << uint64(0);                   // event ID
-            data << uint8(0);                    // event title
-            data << uint32(0);                   // event type
-            data << uint32(0);                   // event time as time bit field
-            data << uint32(0);                   // event flags
-            data << uint32(0);                   // dungeon ID
-            data.appendPackGUID(0);              // creator guid
-        }
-    }
-    else
-        data << uint32(0);
+    sCalendarMgr.AppendInvitesToCalendarPacketForPlayer(data, GetPlayer());
+    sCalendarMgr.AppendEventsToCalendarPacketForPlayer(data, GetPlayer());
 
     InstanceSave *save = NULL;
     uint32 counter = 0;
@@ -109,6 +79,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket & /*recv_data*/)
 
     data.put<uint32>(p_counter, counter);
 
+    // TODO: Fix this -- read from DBC?
     std::string holidayName = "";
     uint32 holidaycount = 0;
     data << uint32(holidaycount);                           // holiday count
