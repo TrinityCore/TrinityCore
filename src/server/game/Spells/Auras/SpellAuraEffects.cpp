@@ -3837,7 +3837,7 @@ void AuraEffect::HandleAuraModSkill(AuraApplication const * aurApp, uint8 /*mode
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    uint32 prot = GetSpellProto()->EffectMiscValue[m_effIndex];
+    uint32 prot = GetMiscValue();
     int32 points = GetAmount();
 
     target->ToPlayer()->ModifySkillBonus(prot,((apply) ? points: -points),GetAuraType() == SPELL_AURA_MOD_SKILL_TALENT);
@@ -4174,7 +4174,7 @@ void AuraEffect::HandleModPossess(AuraApplication const * aurApp, uint8 mode, bo
     }
 
     if (apply)
-        target->SetCharmedBy(caster, CHARM_TYPE_POSSESS);
+        target->SetCharmedBy(caster, CHARM_TYPE_POSSESS, aurApp);
     else
         target->RemoveCharmedBy(caster);
 }
@@ -4204,7 +4204,7 @@ void AuraEffect::HandleModPossessPet(AuraApplication const * aurApp, uint8 mode,
         if (caster->ToPlayer()->GetPet() != pet)
             return;
 
-        pet->SetCharmedBy(caster, CHARM_TYPE_POSSESS);
+        pet->SetCharmedBy(caster, CHARM_TYPE_POSSESS, aurApp);
     }
     else
     {
@@ -4236,7 +4236,7 @@ void AuraEffect::HandleModCharm(AuraApplication const * aurApp, uint8 mode, bool
     Unit * caster = GetCaster();
 
     if (apply)
-        target->SetCharmedBy(caster, CHARM_TYPE_CHARM);
+        target->SetCharmedBy(caster, CHARM_TYPE_CHARM, aurApp);
     else
         target->RemoveCharmedBy(caster);
 }
@@ -4251,7 +4251,7 @@ void AuraEffect::HandleCharmConvert(AuraApplication const * aurApp, uint8 mode, 
     Unit * caster = GetCaster();
 
     if (apply)
-        target->SetCharmedBy(caster, CHARM_TYPE_CONVERT);
+        target->SetCharmedBy(caster, CHARM_TYPE_CONVERT, aurApp);
     else
         target->RemoveCharmedBy(caster);
 }
@@ -4277,7 +4277,7 @@ void AuraEffect::HandleAuraControlVehicle(AuraApplication const * aurApp, uint8 
 
     if (apply)
     {   
-        caster->EnterVehicle(target->GetVehicleKit(), m_amount - 1, true);
+        caster->EnterVehicle(target->GetVehicleKit(), m_amount - 1, aurApp);
     }
     else
     {
@@ -4435,6 +4435,10 @@ void AuraEffect::HandleModStateImmunityMask(AuraApplication const * aurApp, uint
     if (apply && GetSpellProto()->AttributesEx & SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY)
         for (std::list <AuraType>::iterator iter = immunity_list.begin(); iter != immunity_list.end(); ++iter)
             target->RemoveAurasByType(*iter);
+
+    // stop handling the effect if it was removed by linked event
+    if (apply && aurApp->GetRemoveMode())
+        return;
 
     for (std::list <AuraType>::iterator iter = immunity_list.begin(); iter != immunity_list.end(); ++iter)
         target->ApplySpellImmune(GetId(), IMMUNITY_STATE, *iter, apply);
