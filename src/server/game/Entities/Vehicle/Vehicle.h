@@ -80,7 +80,7 @@ struct VehicleSeat
 {
     explicit VehicleSeat(VehicleSeatEntry const *_seatInfo) : seatInfo(_seatInfo), passenger(NULL) {}
     VehicleSeatEntry const *seatInfo;
-    Unit* passenger;
+    uint64 passenger;
 };
 
 struct VehicleAccessory
@@ -138,6 +138,9 @@ class Vehicle
     protected:
         uint16 GetExtraMovementFlagsForBase() const;
         VehicleSeatEntry const* GetSeatForPassenger(Unit* passenger);
+
+    private:
+        SeatMap::iterator GetSeatIteratorForPassenger(Unit* passenger);
 
     protected:
         Unit *me;

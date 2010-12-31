@@ -655,10 +655,13 @@ void WorldSession::HandleEjectPassenger(WorldPacket &data)
             if (Unit *unit = ObjectAccessor::GetUnit(*_player, guid)) // creatures can be ejected too from player mounts
             {
                 VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(unit);
+                ASSERT(seat);
                 if (seat->IsEjectable())
                 {
+                    ASSERT(GetPlayer() == vehicle->GetBase());
                     unit->ExitVehicle();
                     unit->ToCreature()->ForcedDespawn(1000);
+                    ASSERT(!unit->IsOnVehicle(vehicle->GetBase()));
                 }
                 else
                     sLog->outError("Player %u attempted to eject creature GUID "UI64FMTD" from non-ejectable seat.", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
