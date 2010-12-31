@@ -49,12 +49,11 @@ class AuraApplication
         uint8 m_effectsToApply;                         // Used only at spell hit to determine which effect should be applied
         AuraRemoveMode m_removeMode:8;                  // Store info for know remove aura reason
         bool m_needClientUpdate:1;
-        bool m_isNeedManyNegativeEffects:1;
 
         explicit AuraApplication(Unit * target, Unit * caster, Aura * base, uint8 effMask);
         void _Remove();
     private:
-        bool _CheckPositive(Unit * caster) const;
+        void _InitFlags(Unit * caster, uint8 effMask);
         void _HandleEffect(uint8 effIndex, bool apply);
     public:
 
@@ -66,6 +65,7 @@ class AuraApplication
         uint8 GetEffectMask() const { return m_flags & (AFLAG_EFF_INDEX_0 | AFLAG_EFF_INDEX_1 | AFLAG_EFF_INDEX_2); }
         bool HasEffect(uint8 effect) const { ASSERT(effect < MAX_SPELL_EFFECTS);  return m_flags & (1<<effect); }
         bool IsPositive() const { return m_flags & AFLAG_POSITIVE; }
+        bool IsSelfcasted() const { return m_flags & AFLAG_CASTER; }
         uint8 GetEffectsToApply() const { return m_effectsToApply; }
 
         void SetRemoveMode(AuraRemoveMode mode) { m_removeMode = mode; }
