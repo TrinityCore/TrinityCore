@@ -281,17 +281,17 @@ public:
 
         void HandleEffectPeriodic(AuraEffect const * aurEff)
         {
-            Unit* pTarget = GetTarget();
-            if (Unit* pCaster = GetCaster())
-            {
-                int32 lifeLeeched = pTarget->CountPctFromMaxHealth(aurEff->GetAmount());
-                if (lifeLeeched < 250)
-                    lifeLeeched = 250;
-                // Damage
-                pCaster->CastCustomSpell(pTarget, SPELL_LEECHING_SWARM_DMG, &lifeLeeched, 0, 0, false);
-                // Heal
-                pCaster->CastCustomSpell(pCaster, SPELL_LEECHING_SWARM_HEAL, &lifeLeeched, 0, 0, false);
-            }
+            if (Unit* pTarget = GetTarget())
+                if (Unit* pCaster = GetCaster())
+                {
+                    int32 lifeLeeched = pTarget->CountPctFromCurHealth(aurEff->GetAmount());
+                    if (lifeLeeched < 250)
+                        lifeLeeched = 250;
+                    // Damage
+                    pCaster->CastCustomSpell(pTarget, SPELL_LEECHING_SWARM_DMG, &lifeLeeched, 0, 0, false);
+                    // Heal
+                    pCaster->CastCustomSpell(pCaster, SPELL_LEECHING_SWARM_HEAL, &lifeLeeched, 0, 0, false);
+                }
         }
 
         void Register()
