@@ -351,7 +351,7 @@ void VehicleAI::CheckConditions(const uint32 diff)
         if (!conditions.empty())
         {
             for (SeatMap::iterator itr = m_vehicle->m_Seats.begin(); itr != m_vehicle->m_Seats.end(); ++itr)
-                if (Unit *passenger = itr->second.passenger)
+                if (Unit* passenger = ObjectAccessor::GetUnit(*m_vehicle->GetBase(), itr->second.passenger))
                 {
                     if (Player* plr = passenger->ToPlayer())
                     {
