@@ -78,14 +78,7 @@ m_effectsToApply(effMask), m_removeMode(AURA_REMOVE_NONE), m_needClientUpdate(fa
             sLog->outDebug("Aura: %u Effect: %d could not find empty unit visible slot", GetBase()->GetId(), GetEffectMask());
     }
 
-    m_isNeedManyNegativeEffects = false;
-    if (GetBase()->GetCasterGUID() == GetTarget()->GetGUID()) // caster == target - 1 negative effect is enough for aura to be negative
-        m_isNeedManyNegativeEffects = false;
-    else if (caster)
-        m_isNeedManyNegativeEffects = caster->IsFriendlyTo(GetTarget());
-
-    m_flags |= (_CheckPositive(caster) ? AFLAG_POSITIVE : AFLAG_NEGATIVE) |
-        (GetBase()->GetCasterGUID() == GetTarget()->GetGUID() ? AFLAG_CASTER : AFLAG_NONE);
+    _InitFlags(caster, effMask);
 }
 
 void AuraApplication::_Remove()
@@ -118,20 +111,41 @@ void AuraApplication::_Remove()
     }
 }
 
-bool AuraApplication::_CheckPositive(Unit * /*caster*/) const
+void AuraApplication::_InitFlags(Unit * caster, uint8 effMask)
 {
-    // Aura is positive when it is casted by friend and at least one aura is positive
-    // or when it is casted by enemy and at least one aura is negative
+    // mark as selfcasted if needed
+    m_flags |= (GetBase()->GetCasterGUID() == GetTarget()->GetGUID()) ? AFLAG_CASTER : AFLAG_NONE;
 
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    // aura is casted by self or an enemy
+    // one negative effect and we know aura is negative
+    if (IsSelfcasted() || !caster || !caster->IsFriendlyTo(GetTarget()))
     {
-        if ((1<<i & GetEffectMask()))
+        bool negativeFound = false;
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
-            if (m_isNeedManyNegativeEffects == IsPositiveEffect(GetBase()->GetId(), i))
-                return m_isNeedManyNegativeEffects;
+            if (((1<<i) & effMask) && !IsPositiveEffect(GetBase()->GetId(), i))
+            {
+                negativeFound = true;
+                break;
+            }
         }
+        m_flags |= negativeFound ? AFLAG_NEGATIVE : AFLAG_POSITIVE;
     }
-    return !m_isNeedManyNegativeEffects;
+    // aura is casted by friend
+    // one positive effect and we know aura is positive
+    else
+    {
+        bool positiveFound = false;
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        {
+            if (((1<<i) & effMask) && IsPositiveEffect(GetBase()->GetId(), i))
+            {
+                positiveFound = true;
+                break;
+            }
+        }
+        m_flags |= positiveFound ? AFLAG_POSITIVE : AFLAG_NEGATIVE;
+    }
 }
 
 void AuraApplication::_HandleEffect(uint8 effIndex, bool apply)
@@ -142,25 +156,20 @@ void AuraApplication::_HandleEffect(uint8 effIndex, bool apply)
     ASSERT((1<<effIndex) & m_effectsToApply);
     sLog->outDebug("AuraApplication::_HandleEffect: %u, apply: %u: amount: %u", aurEff->GetAuraType(), apply, aurEff->GetAmount());
 
-    Unit * caster = GetBase()->GetCaster();
-    m_flags &= ~(AFLAG_POSITIVE | AFLAG_NEGATIVE);
-
     if (apply)
     {
         ASSERT(!(m_flags & (1<<effIndex)));
         m_flags |= 1<<effIndex;
-        m_flags |=_CheckPositive(caster) ? AFLAG_POSITIVE : AFLAG_NEGATIVE;
-        GetTarget()->_HandleAuraEffect(aurEff, true);
+        GetTarget()->_RegisterAuraEffect(aurEff, true);
         aurEff->HandleEffect(this, AURA_EFFECT_HANDLE_REAL, true);
     }
     else
     {
         ASSERT(m_flags & (1<<effIndex));
         m_flags &= ~(1<<effIndex);
-        m_flags |=_CheckPositive(caster) ? AFLAG_POSITIVE : AFLAG_NEGATIVE;
 
         // remove from list before mods removing (prevent cyclic calls, mods added before including to aura list - use reverse order)
-        GetTarget()->_HandleAuraEffect(aurEff, false);
+        GetTarget()->_RegisterAuraEffect(aurEff, false);
         aurEff->HandleEffect(this, AURA_EFFECT_HANDLE_REAL, false);
 
         // Remove all triggered by aura spells vs unlimited duration

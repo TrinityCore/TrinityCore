@@ -3428,7 +3428,7 @@ bool Unit::_IsNoStackAuraDueToAura(Aura * appliedAura, Aura * existingAura) cons
     return true;
 }
 
-void Unit::_HandleAuraEffect(AuraEffect * aurEff, bool apply)
+void Unit::_RegisterAuraEffect(AuraEffect * aurEff, bool apply)
 {
     if (apply)
         m_modAuras[aurEff->GetAuraType()].push_back(aurEff);
@@ -14212,6 +14212,40 @@ void Unit::SetDisplayId(uint32 modelId)
     }
 }
 
+void Unit::RestoreDisplayId()
+{
+    AuraEffect* handledAura = NULL;
+    // try to receive model from transform auras
+    Unit::AuraEffectList const& transforms = GetAuraEffectsByType(SPELL_AURA_TRANSFORM);
+    if (!transforms.empty())
+    {
+        // iterate over already applied transform auras - from newest to oldest
+        for (Unit::AuraEffectList::const_reverse_iterator i = transforms.rbegin(); i != transforms.rend(); ++i)
+        {
+            if (AuraApplication const * aurApp = (*i)->GetBase()->GetApplicationOfTarget(GetGUID()))
+            {
+                if (aurApp->IsPositive())
+                    handledAura = (*i);
+                // prefer negative auras
+                else
+                {
+                    handledAura = (*i);
+                    break;
+                }
+            }
+        }
+    }
+    // transform aura was found
+    if (handledAura)
+        handledAura->HandleEffect(this, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true);
+    // we've found shapeshift
+    else if (uint32 modelId = GetModelForForm(GetShapeshiftForm()))
+        SetDisplayId(modelId);
+    // no auras found - set modelid to default
+    else
+        SetDisplayId(GetNativeDisplayId());
+}
+
 void Unit::ClearComboPointHolders()
 {
     while (!m_ComboPointHolders.empty())
@@ -15275,7 +15309,7 @@ void Unit::SetConfused(bool apply)
         this->ToPlayer()->SetClientControl(this, !apply);
 }
 
-bool Unit::SetCharmedBy(Unit* charmer, CharmType type)
+bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const * aurApp)
 {
     if (!charmer)
         return false;
@@ -15336,6 +15370,11 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type)
         return false;
     }
 
+    // charm is set by aura, and aura effect remove handler was called during apply handler execution
+    // prevent undefined behaviour
+    if (aurApp && aurApp->GetRemoveMode())
+        return false;
+
     // Set charmed
     Map* pMap = GetMap();
     if (!IsVehicle() || (IsVehicle() && pMap && !pMap->IsBattleground()))
@@ -15354,6 +15393,11 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type)
             this->ToPlayer()->ToggleAFK();
         this->ToPlayer()->SetClientControl(this, 0);
     }
+
+    // charm is set by aura, and aura effect remove handler was called during apply handler execution
+    // prevent undefined behaviour
+    if (aurApp && aurApp->GetRemoveMode())
+        return false;
 
     // Pets already have a properly initialized CharmInfo, don't overwrite it.
     if (type != CHARM_TYPE_VEHICLE && !GetCharmInfo())
@@ -16308,7 +16352,7 @@ bool Unit::CheckPlayerCondition(Player* pPlayer)
     }
 }
 
-void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId, bool byAura)
+void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId, AuraApplication const * aurApp)
 {
     if (!isAlive() || GetVehicleKit() == vehicle)
         return;
@@ -16320,7 +16364,7 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId, bool byAura)
             if (seatId >= 0 && seatId != GetTransSeat())
             {
                 sLog->outDebug("EnterVehicle: %u leave vehicle %u seat %d and enter %d.", GetEntry(), m_vehicle->GetBase()->GetEntry(), GetTransSeat(), seatId);
-                ChangeSeat(seatId, byAura);
+                ChangeSeat(seatId, aurApp != NULL);
             }
             return;
         }
@@ -16347,9 +16391,14 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId, bool byAura)
             bg->EventPlayerDroppedFlag(plr);
     }
 
+    // vehicle is applied by aura, and aura effect remove handler was called during apply handler execution
+    // prevent undefined behaviour
+    if (aurApp && aurApp->GetRemoveMode())
+        return;
+
     ASSERT(!m_vehicle);
     m_vehicle = vehicle;
-    if (!m_vehicle->AddPassenger(this, seatId, byAura))
+    if (!m_vehicle->AddPassenger(this, seatId, aurApp != NULL))
     {
         m_vehicle = NULL;
         return;
@@ -16723,7 +16772,7 @@ void Unit::OutDebugInfo() const
     {
         sLog->outStringInLine("Passenger List: ");
         for (SeatMap::iterator itr = GetVehicleKit()->m_Seats.begin(); itr != GetVehicleKit()->m_Seats.end(); ++itr)
-            if (Unit *passenger = itr->second.passenger)
+            if (Unit* passenger = ObjectAccessor::GetUnit(*GetVehicleBase(), itr->second.passenger))
                 sLog->outStringInLine(UI64FMTD", ", passenger->GetGUID());
         sLog->outString();
     }
