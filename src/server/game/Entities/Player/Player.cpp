@@ -15017,8 +15017,8 @@ bool Player::SatisfyQuestExclusiveGroup(Quest const* qInfo, bool msg)
             return false;
         }
 
-        // alternative quest already started or completed
-        if (m_QuestStatus.find(exclude_Id) != m_QuestStatus.end() || m_RewardedQuests.find(exclude_Id) != m_RewardedQuests.end())
+        // alternative quest already started or completed - but don't check rewarded states if both are repeatable
+        if (m_QuestStatus.find(exclude_Id) != m_QuestStatus.end() || (!(qInfo->IsRepeatable() && Nquest->IsRepeatable()) && m_RewardedQuests.find(exclude_Id) != m_RewardedQuests.end()))
         {
             if (msg)
                 SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);

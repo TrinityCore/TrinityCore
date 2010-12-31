@@ -60,6 +60,13 @@ MailSender::MailSender(AuctionEntry* sender)
 {
 }
 
+MailSender::MailSender(Player* sender)
+{
+    m_messageType = MAIL_NORMAL;
+    m_stationery = sender->isGameMaster() ? MAIL_STATIONERY_GM : MAIL_STATIONERY_DEFAULT;
+    m_senderId = sender->GetGUIDLow();
+}
+
 
 MailReceiver::MailReceiver(Player* receiver) : m_receiver(receiver), m_receiver_lowguid(receiver->GetGUIDLow())
 {
