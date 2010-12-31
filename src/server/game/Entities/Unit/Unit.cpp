@@ -3428,7 +3428,7 @@ bool Unit::_IsNoStackAuraDueToAura(Aura * appliedAura, Aura * existingAura) cons
     return true;
 }
 
-void Unit::_HandleAuraEffect(AuraEffect * aurEff, bool apply)
+void Unit::_RegisterAuraEffect(AuraEffect * aurEff, bool apply)
 {
     if (apply)
         m_modAuras[aurEff->GetAuraType()].push_back(aurEff);

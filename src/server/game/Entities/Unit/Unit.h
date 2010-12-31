@@ -1610,7 +1610,7 @@ class Unit : public WorldObject
         void _RemoveNoStackAuraApplicationsDueToAura(Aura * aura);
         void _RemoveNoStackAurasDueToAura(Aura * aura);
         bool _IsNoStackAuraDueToAura(Aura * appliedAura, Aura * existingAura) const;
-        void _HandleAuraEffect(AuraEffect * aurEff, bool apply);
+        void _RegisterAuraEffect(AuraEffect * aurEff, bool apply);
 
         // m_ownedAuras container management
         AuraMap      & GetOwnedAuras()       { return m_ownedAuras; }
