@@ -595,6 +595,49 @@ class spell_gen_shroud_of_death : public SpellScriptLoader
         }
 };
 
+enum DivineStormSpell
+{
+    SPELL_DIVINE_STORM  = 53385,
+};
+
+// 70769 Divine Storm!
+class spell_gen_divine_storm_cd_reset : public SpellScriptLoader
+{
+public:
+    spell_gen_divine_storm_cd_reset() : SpellScriptLoader("spell_gen_divine_storm_cd_reset") {}
+
+    class spell_gen_divine_storm_cd_reset_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_divine_storm_cd_reset_SpellScript)
+        bool Validate(SpellEntry const * /*spellEntry*/)
+        {
+            if (!sSpellStore.LookupEntry(SPELL_DIVINE_STORM))
+                return false;
+            return true;
+        }
+
+        void HandleScript(SpellEffIndex /*effIndex*/)
+        {
+            Player *caster = GetCaster()->ToPlayer();
+            if (caster->GetTypeId() != TYPEID_PLAYER)
+                return;
+                       
+            if (caster->HasSpellCooldown(SPELL_DIVINE_STORM))
+            caster->RemoveSpellCooldown(SPELL_DIVINE_STORM, true);
+        }
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_gen_divine_storm_cd_reset_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_gen_divine_storm_cd_reset_SpellScript();
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -610,4 +653,5 @@ void AddSC_generic_spell_scripts()
     new spell_pvp_trinket_wotf_shared_cd();
     new spell_gen_animal_blood();
     new spell_gen_shroud_of_death();
+    new spell_gen_divine_storm_cd_reset();
 }
