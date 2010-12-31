@@ -26878,6 +26878,11 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 71900, 'spell_blood_queen_bloodbolt'),
 ( 71901, 'spell_blood_queen_bloodbolt'),
 ( 71902, 'spell_blood_queen_bloodbolt'),
+-- Trial of Crusader
+( 66118, 'spell_gen_leeching_swarm'),
+( 67630, 'spell_gen_leeching_swarm'),
+( 68646, 'spell_gen_leeching_swarm'),
+( 68647, 'spell_gen_leeching_swarm'),
 -- Ulduar
 ( 62717, 'spell_ignis_slag_pot'),
 ( 63477, 'spell_ignis_slag_pot'),
