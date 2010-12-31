@@ -95,6 +95,7 @@ class MailSender
         }
         MailSender(Object* sender, MailStationery stationery = MAIL_STATIONERY_DEFAULT);
         MailSender(AuctionEntry* sender);
+        MailSender(Player* sender);
     public:                                                 // Accessors
         MailMessageType GetMailMessageType() const { return m_messageType; }
         uint32 GetSenderId() const { return m_senderId; }

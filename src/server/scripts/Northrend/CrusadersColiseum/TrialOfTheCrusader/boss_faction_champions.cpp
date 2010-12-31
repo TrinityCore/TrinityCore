@@ -601,7 +601,7 @@ public:
                 else
                     if (!me->HasAura(AURA_SATED))
                         DoCastAOE(SPELL_BLOODLUST);
-                m_uiHeroismOrBloodlustTimer = urand(30*IN_MILLISECONDS, 60*IN_MILLISECONDS);
+                m_uiHeroismOrBloodlustTimer = 300*IN_MILLISECONDS;
             } else m_uiHeroismOrBloodlustTimer -= uiDiff;
 
             if (m_uiHexTimer <= uiDiff)
