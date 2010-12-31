@@ -2362,16 +2362,23 @@ void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
             case 65920:
             case 65922:
             case 65923:
-                if (caster->HasAura(66193))
                 {
-                    if (Unit *permafrostCaster = caster->GetAura(66193)->GetCaster())
+                    Unit *permafrostCaster = NULL;
+                    if (caster->HasAura(66193)) permafrostCaster = caster->GetAura(66193)->GetCaster();
+                    if (caster->HasAura(67855)) permafrostCaster = caster->GetAura(67855)->GetCaster(); 
+                    if (caster->HasAura(67856)) permafrostCaster = caster->GetAura(67856)->GetCaster(); 
+                    if (caster->HasAura(67857)) permafrostCaster = caster->GetAura(67857)->GetCaster();
+                
+                    if (permafrostCaster)
+                    {
                         if (Creature *permafrostCasterAsCreature = permafrostCaster->ToCreature())
                             permafrostCasterAsCreature->ForcedDespawn(3000);
-
-                    caster->CastSpell(caster, 66181, false);
-                    caster->RemoveAllAuras();
-                    if (Creature *casterAsCreature = caster->ToCreature())
-                        casterAsCreature->DisappearAndDie();
+ 
+                        caster->CastSpell(caster, 66181, false);
+                        caster->RemoveAllAuras();
+                        if (Creature *casterAsCreature = caster->ToCreature())
+                            casterAsCreature->DisappearAndDie();
+                    }
                 }
                 break;
             // Mana Tide
@@ -2387,7 +2394,7 @@ void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
             case 54362:
             // Slime Pool (Dreadscale & Acidmaw)
             case 66882:
-                target->CastCustomSpell(triggerSpellId, SPELLVALUE_RADIUS_MOD, (int32)((((float)m_tickNumber / 60) * 0.9f + 0.1f) * 10000), NULL, true, NULL, this);
+                target->CastCustomSpell(triggerSpellId, SPELLVALUE_RADIUS_MOD, (int32)((((float)m_tickNumber / 60) * 0.9f + 0.1f) * 10000 * 2 / 3), NULL, true, NULL, this);
                 return;
             // Beacon of Light
             case 53563:
