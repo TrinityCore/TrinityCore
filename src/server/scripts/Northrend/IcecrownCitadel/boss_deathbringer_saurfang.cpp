@@ -23,7 +23,7 @@
 #include "SpellAuras.h"
 #include "icecrown_citadel.h"
 
-enum eScriptTexts
+enum ScriptTexts
 {
     // Deathbringer Saurfang
     SAY_INTRO_ALLIANCE_2            = 0,
@@ -84,7 +84,7 @@ enum eScriptTexts
     SAY_OUTRO_ALLIANCE_20           = 3,
 };
 
-enum eSpells
+enum Spells
 {
     // Deathbringer Saurfang
     SPELL_ZERO_POWER                    = 72242,
@@ -117,7 +117,7 @@ enum eSpells
 // Helper to get id of the aura on different modes (HasAura(baseId) wont work)
 #define BOILING_BLOOD_HELPER RAID_MODE<int32>(72385,72441,72442,72443)
 
-enum eEvents
+enum Events
 {
     EVENT_INTRO_ALLIANCE_1      = 1,
     EVENT_INTRO_ALLIANCE_2      = 2,
@@ -177,7 +177,7 @@ enum eEvents
     EVENT_OUTRO_HORDE_8         = 51,
 };
 
-enum ePhases
+enum Phases
 {
     PHASE_INTRO_A       = 1,
     PHASE_INTRO_H       = 2,
@@ -186,7 +186,7 @@ enum ePhases
     PHASE_INTRO_MASK    = (1 << PHASE_INTRO_A) | (1 << PHASE_INTRO_H),
 };
 
-enum eActions
+enum Actions
 {
     ACTION_START_EVENT                  = -3781300,
     ACTION_CONTINUE_INTRO               = -3781301,
@@ -198,7 +198,7 @@ enum eActions
 
 #define DATA_MADE_A_MESS 45374613 // 4537, 4613 are achievement IDs
 
-enum eMovePoints
+enum MovePoints
 {
     POINT_SAURFANG          = 3781300,
     POINT_FIRST_STEP        = 3781301,
@@ -273,8 +273,15 @@ class boss_deathbringer_saurfang : public CreatureScript
                 instance->SetBossState(DATA_DEATHBRINGER_SAURFANG, NOT_STARTED);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* who)
             {
+                if (!instance->CheckRequiredBosses(DATA_DEATHBRINGER_SAURFANG, who->ToPlayer()))
+                {
+                    instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
+                    EnterEvadeMode();
+                    return;
+                }
+
                 // oh just screw intro, enter combat - no exploits please
                 events.SetPhase(PHASE_COMBAT);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);

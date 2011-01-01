@@ -23,7 +23,7 @@
 #include "icecrown_citadel.h"
 #include "MapManager.h"
 
-enum eScriptTexts
+enum ScriptTexts
 {
     SAY_ENTER_ZONE              = 0,
     SAY_AGGRO                   = 1,
@@ -35,7 +35,7 @@ enum eScriptTexts
     EMOTE_BONE_STORM            = 7,
 };
 
-enum eSpells
+enum Spells
 {
     // Lord Marrowgar
     SPELL_BONE_SLICE            = 69055,
@@ -54,7 +54,7 @@ enum eSpells
 
 static const uint32 boneSpikeSummonId[3] = {69062, 72669, 72670};
 
-enum eEvents
+enum Events
 {
     EVENT_BONE_SPIKE_GRAVEYARD  = 1,
     EVENT_COLDFLAME             = 2,
@@ -71,7 +71,7 @@ enum eEvents
     EVENT_GROUP_SPECIAL         = 1,
 };
 
-enum eMovementPoints
+enum MovementPoints
 {
     POINT_TARGET_BONESTORM_PLAYER   = 36612631,
     POINT_TARGET_COLDFLAME          = 36672631,

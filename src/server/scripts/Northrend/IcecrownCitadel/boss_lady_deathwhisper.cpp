@@ -22,7 +22,7 @@
 #include "icecrown_citadel.h"
 #include "Group.h"
 
-enum eScriptTexts
+enum ScriptTexts
 {
     SAY_INTRO_1                 = 0,
     SAY_INTRO_2                 = 1,
@@ -43,7 +43,7 @@ enum eScriptTexts
     SAY_DEATH                   = 16,
 };
 
-enum eSpells
+enum Spells
 {
     // Lady Deathwhisper
     SPELL_MANA_BARRIER              = 70842,
@@ -91,7 +91,7 @@ enum eSpells
     SPELL_VENGEFUL_BLAST_25H        = 72012,
 };
 
-enum eEvents
+enum Events
 {
     // Lady Deathwhisper
     EVENT_INTRO_2                       = 1,
@@ -133,7 +133,7 @@ enum eEvents
     EVENT_ADHERENT_SHORUD_OF_THE_OCCULT = 27,
 };
 
-enum ePhases
+enum Phases
 {
     PHASE_ALL       = 0,
     PHASE_INTRO     = 1,
@@ -223,6 +223,13 @@ class boss_lady_deathwhisper : public CreatureScript
 
             void EnterCombat(Unit* who)
             {
+                if (!instance->CheckRequiredBosses(DATA_LADY_DEATHWHISPER, who->ToPlayer()))
+                {
+                    instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
+                    EnterEvadeMode();
+                    return;
+                }
+
                 events.Reset();
                 events.SetPhase(PHASE_ONE);
                 // phase-independent events
