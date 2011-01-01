@@ -21,17 +21,6 @@
 #include "icecrown_citadel.h"
 #include "Spell.h"
 
-enum eSpellAction
-{
-    LIGHT_S_HAMMER_TELEPORT         = 70781,
-    ORATORY_OF_THE_DAMNED_TELEPORT  = 70856,
-    RAMPART_OF_SKULLS_TELEPORT      = 70857,
-    DEATHBRINGER_S_RISE_TELEPORT    = 70858,
-    UPPER_SPIRE_TELEPORT            = 70859,
-    FROZEN_THRONE_TELEPORT          = 70860,
-    SINDRAGOSA_S_LAIR_TELEPORT      = 70861
-};
-
 #define GOSSIP_SENDER_ICC_PORT 631
 
 class icecrown_citadel_teleport : public GameObjectScript

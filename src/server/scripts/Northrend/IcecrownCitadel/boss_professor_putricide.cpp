@@ -22,7 +22,7 @@
 #include "SpellAuraEffects.h"
 #include "icecrown_citadel.h"
 
-enum eScriptTexts
+enum ScriptTexts
 {
     // Festergut
     SAY_FESTERGUT_GASEOUS_BLIGHT    = 0,
@@ -45,7 +45,7 @@ enum eScriptTexts
     SAY_DEATH                       = 13,
 };
 
-enum eSpells
+enum Spells
 {
     // Festergut
     SPELL_RELEASE_GAS_VISUAL            = 69125,
@@ -102,7 +102,7 @@ enum eSpells
 
 #define SPELL_GASEOUS_BLOAT_HELPER RAID_MODE<uint32>(70672,72455,72832,72833)
 
-enum eEvents
+enum Events
 {
     // Festergut
     EVENT_FESTERGUT_DIES        = 1,
@@ -126,7 +126,7 @@ enum eEvents
     EVENT_PHASE_TRANSITION      = 15,
 };
 
-enum ePhases
+enum Phases
 {
     PHASE_NONE          = 0,
     PHASE_FESTERGUT     = 1,
@@ -139,7 +139,7 @@ enum ePhases
     PHASE_MASK_NOT_SELF = (1 << PHASE_FESTERGUT) | (1 << PHASE_ROTFACE),
 };
 
-enum ePoints
+enum Points
 {
     POINT_FESTERGUT = 366260,
     POINT_ROTFACE   = 366270,
@@ -209,10 +209,17 @@ class boss_professor_putricide : public CreatureScript
                     table->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* who)
             {
                 if (events.GetPhaseMask() & PHASE_MASK_NOT_SELF)
                     return;
+
+                if (!instance->CheckRequiredBosses(DATA_PROFESSOR_PUTRICIDE, who->ToPlayer()))
+                {
+                    instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
+                    EnterEvadeMode();
+                    return;
+                }
 
                 _SetPhase(PHASE_COMBAT_1);
                 Talk(SAY_AGGRO);
@@ -652,14 +659,14 @@ class boss_professor_putricide : public CreatureScript
             }
 
         private:
-            void _SetPhase(ePhases newPhase)
+            void _SetPhase(Phases newPhase)
             {
                 phase = newPhase;
                 events.SetPhase(newPhase);
             }
 
             uint64 oozeFloodDummy[4];
-            ePhases phase;          // external of EventMap because event phase gets reset on evade
+            Phases phase;          // external of EventMap because event phase gets reset on evade
             const float baseSpeed;
             uint8 oozeFloodStage;
             bool experimentState;
