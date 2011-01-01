@@ -25,7 +25,7 @@
 // KNOWN BUGS:
 // ~ No Slime Spray animation directly at target spot
 
-enum eTexts
+enum Texts
 {
     SAY_PRECIOUS_DIES           = 0,
     SAY_AGGRO                   = 1,
@@ -38,7 +38,7 @@ enum eTexts
     SAY_DEATH                   = 8,
 };
 
-enum eSpells
+enum Spells
 {
     // Rotface
     SPELL_SLIME_SPRAY                       = 69508,    // every 20 seconds
@@ -64,7 +64,7 @@ enum eSpells
 
 #define MUTATED_INFECTION RAID_MODE<int32>(69674,71224,73022,73023)
 
-enum eEvents
+enum Events
 {
     EVENT_SLIME_SPRAY       = 1,
     EVENT_HASTEN_INFECTIONS = 2,
@@ -111,8 +111,15 @@ class boss_rotface : public CreatureScript
                 instance->SetBossState(DATA_ROTFACE, NOT_STARTED);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* who)
             {
+                if (!instance->CheckRequiredBosses(DATA_ROTFACE, who->ToPlayer()))
+                {
+                    instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
+                    EnterEvadeMode();
+                    return;
+                }
+
                 Talk(SAY_AGGRO);
                 if (Creature* professor = Unit::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
                     professor->AI()->DoAction(ACTION_ROTFACE_COMBAT);

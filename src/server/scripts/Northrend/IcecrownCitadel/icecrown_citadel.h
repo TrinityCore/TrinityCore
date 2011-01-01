@@ -21,13 +21,24 @@
 #define ICCScriptName "instance_icecrown_citadel"
 
 // Shared spells used by every boss
-enum eSharedSpells
+enum SharedSpells
 {
     SPELL_BERSERK   = 26662,
     SPELL_BERSERK2  = 47008
 };
 
-enum eData
+enum TeleporterSpells
+{
+    LIGHT_S_HAMMER_TELEPORT         = 70781,
+    ORATORY_OF_THE_DAMNED_TELEPORT  = 70856,
+    RAMPART_OF_SKULLS_TELEPORT      = 70857,
+    DEATHBRINGER_S_RISE_TELEPORT    = 70858,
+    UPPER_SPIRE_TELEPORT            = 70859,
+    FROZEN_THRONE_TELEPORT          = 70860,
+    SINDRAGOSA_S_LAIR_TELEPORT      = 70861
+};
+
+enum DataTypes
 {
     // Encounter States/Boss GUIDs
     DATA_LORD_MARROWGAR             = 0,
@@ -58,7 +69,7 @@ enum eData
 
 #define MAX_ENCOUNTER 12
 
-enum eCreatures
+enum CreaturesIds
 {
     // At Light's Hammer
     NPC_KOR_KRON_GENERAL                        = 37189,
@@ -141,7 +152,7 @@ enum eCreatures
     NPC_BLOOD_QUEEN_LANA_THEL                   = 37955,
 };
 
-enum eGameobjects
+enum GameObjectsIds
 {
     // Lord Marrogar
     GO_DOODAD_ICECROWN_ICEWALL02            = 201910,
@@ -190,7 +201,7 @@ enum eGameobjects
     GO_SINDRAGOSA_SHORTCUT_EXIT_DOOR        = 201379,
 };
 
-enum eAchievementCriteria
+enum AchievementCriteriaIds
 {
     // Lord Marrowgar
     CRITERIA_BONED_10N                  = 12775,
@@ -225,7 +236,7 @@ enum eAchievementCriteria
     CRITERIA_ONCE_BITTEN_TWICE_SHY_25V  = 13013,
 };
 
-enum eSharedActions
+enum SharedActions
 {
     // Festergut
     ACTION_FESTERGUT_COMBAT     = -366260,

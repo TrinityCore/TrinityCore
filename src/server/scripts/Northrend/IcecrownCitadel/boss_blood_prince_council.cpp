@@ -22,7 +22,7 @@
 #include "SpellAuraEffects.h"
 #include "icecrown_citadel.h"
 
-enum eTexts
+enum Texts
 {
     // Blood Queen Lana'Thel
     SAY_INTRO_1                 = 0,
@@ -55,7 +55,7 @@ enum eTexts
     SAY_VALANAR_DEATH           = 6,
 };
 
-enum eSpells
+enum Spells
 {
     SPELL_FEIGN_DEATH                   = 71598,
     SPELL_OOC_INVOCATION_VISUAL         = 70934,
@@ -110,7 +110,7 @@ enum eSpells
     SPELL_SHOCK_VORTEX_DUMMY            = 72633,
 };
 
-enum eEvents
+enum Events
 {
     EVENT_INTRO_1               = 1,
     EVENT_INTRO_2               = 2,
@@ -133,7 +133,7 @@ enum eEvents
     EVENT_CONTINUE_FALLING      = 12,
 };
 
-enum eActions
+enum Actions
 {
     ACTION_STAND_UP             = 1,
     ACTION_CAST_INVOCATION      = 2,
@@ -142,13 +142,13 @@ enum eActions
     ACTION_FLAME_BALL_CHASE     = 5,
 };
 
-enum ePoints
+enum Points
 {
     POINT_INTRO_DESPAWN         = 380040,
     POINT_KINETIC_BOMB_IMPACT   = 384540,
 };
 
-enum eDisplays
+enum Displays
 {
     DISPLAY_KINETIC_BOMB        = 31095,
 };
@@ -199,8 +199,15 @@ class boss_blood_council_controller : public CreatureScript
                 instance->SetBossState(DATA_BLOOD_PRINCE_COUNCIL, NOT_STARTED);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* who)
             {
+                if (!instance->CheckRequiredBosses(DATA_BLOOD_PRINCE_COUNCIL, who->ToPlayer()))
+                {
+                    instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
+                    EnterEvadeMode();
+                    return;
+                }
+
                 instance->SetBossState(DATA_BLOOD_PRINCE_COUNCIL, IN_PROGRESS);
 
                 DoCast(me, SPELL_INVOCATION_OF_BLOOD_VALANAR);

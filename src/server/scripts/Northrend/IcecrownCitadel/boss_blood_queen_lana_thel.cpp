@@ -23,7 +23,7 @@
 #include "SpellAuraEffects.h"
 #include "icecrown_citadel.h"
 
-enum eTexts
+enum Texts
 {
     SAY_AGGRO                   = 0,
     SAY_VAMPIRIC_BITE           = 1,
@@ -39,7 +39,7 @@ enum eTexts
     SAY_DEATH                   = 11,
 };
 
-enum eSpells
+enum Spells
 {
     SPELL_SHROUD_OF_SORROW                  = 70986,
     SPELL_FRENZIED_BLOODTHIRST_VISUAL       = 71949,
@@ -61,7 +61,7 @@ enum eSpells
     SPELL_BLOODBOLT_WHIRL                   = 71772,
 };
 
-enum eShadowmourne
+enum Shadowmourne
 {
     QUEST_BLOOD_INFUSION                    = 24756,
     ITEM_SHADOW_S_EDGE                      = 49888,
@@ -155,8 +155,15 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 instance->SetBossState(DATA_BLOOD_QUEEN_LANA_THEL, NOT_STARTED);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* who)
             {
+                if (!instance->CheckRequiredBosses(DATA_BLOOD_QUEEN_LANA_THEL, who->ToPlayer()))
+                {
+                    instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
+                    EnterEvadeMode();
+                    return;
+                }
+
                 DoZoneInCombat();
                 Talk(SAY_AGGRO);
                 instance->SetBossState(DATA_BLOOD_QUEEN_LANA_THEL, IN_PROGRESS);
