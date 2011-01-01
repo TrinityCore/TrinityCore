@@ -18,222 +18,210 @@
 #include "ScriptPCH.h"
 #include "pit_of_saron.h"
 
-#define MAX_ENCOUNTER     3
-
-/* Pit of Saron encounters:
-0- Forgemaster Garfrost
-1- Krick and Ick
-2- Scourgelord Tyrannus
-*/
-
 class instance_pit_of_saron : public InstanceMapScript
 {
-public:
-    instance_pit_of_saron() : InstanceMapScript("instance_pit_of_saron", 658) { }
+    public:
+        instance_pit_of_saron() : InstanceMapScript(PoSScriptName, 658) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
-    {
-        return new instance_pit_of_saron_InstanceMapScript(pMap);
-    }
-
-    struct instance_pit_of_saron_InstanceMapScript : public InstanceScript
-    {
-        instance_pit_of_saron_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {};
-
-        uint64 uiKrick;
-        uint64 uiIck;
-        uint64 uiGarfrost;
-        uint64 uiTyrannus;
-        uint64 uiRimefang;
-
-        uint64 uiJainaOrSylvanas1;
-        uint64 uiJainaOrSylvanas2;
-
-        uint32 uiTeamInInstance;
-        uint32 uiEncounter[MAX_ENCOUNTER];
-
-       void Initialize()
-       {
-            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                uiEncounter[i] = NOT_STARTED;
-
-            uiGarfrost = 0;
-            uiKrick = 0;
-            uiIck = 0;
-            uiTyrannus = 0;
-        }
-
-        bool IsEncounterInProgress() const
+        struct instance_pit_of_saron_InstanceScript : public InstanceScript
         {
-            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                if (uiEncounter[i] == IN_PROGRESS)
-                    return true;
-
-            return false;
-        }
-
-        void OnCreatureCreate(Creature* creature)
-        {
-            Map::PlayerList const &players = instance->GetPlayers();
-
-            if (!players.isEmpty())
+            instance_pit_of_saron_InstanceScript(Map* map) : InstanceScript(map)
             {
-                if (Player* pPlayer = players.begin()->getSource())
-                    uiTeamInInstance = pPlayer->GetTeam();
+                SetBossNumber(MAX_ENCOUNTER);
+                _garfrostGUID = 0;
+                _krickGUID = 0;
+                _ickGUID = 0;
+                _tyrannusGUID = 0;
+                _rimefangGUID = 0;
+                _jainaOrSylvanas1GUID = 0;
+                _jainaOrSylvanas2GUID = 0;
+                _teamInInstance = 0;
             }
 
-            switch(creature->GetEntry())
+            void OnCreatureCreate(Creature* creature, bool /*add*/)
             {
-                case CREATURE_KRICK:
-                    uiKrick = creature->GetGUID();
-                    break;
+                if (!_teamInInstance)
+                {
+                    Map::PlayerList const &players = instance->GetPlayers();
+                    if (!players.isEmpty())
+                        if (Player* player = players.begin()->getSource())
+                            _teamInInstance = player->GetTeam();
+                }
 
-                case CREATURE_ICK:
-                    uiIck = creature->GetGUID();
-                    break;
-
-                case CREATURE_GARFROST:
-                    uiGarfrost = creature->GetGUID();
-                    break;
-
-                case CREATURE_TYRANNUS:
-                    uiTyrannus = creature->GetGUID();
-                    break;
-
-                case CREATURE_RIMEFANG:
-                    uiRimefang = creature->GetGUID();
-                    break;
-
-                case NPC_SYLVANAS_PART1:
-                    if (uiTeamInInstance == ALLIANCE)
-                        creature->UpdateEntry(NPC_JAINA_PART1, ALLIANCE);
-                    uiJainaOrSylvanas1 = creature->GetGUID();
-                    break;
-                case NPC_SYLVANAS_PART2:
-                    if (uiTeamInInstance == ALLIANCE)
-                        creature->UpdateEntry(NPC_JAINA_PART2, ALLIANCE);
-                    uiJainaOrSylvanas2 = creature->GetGUID();
-                    break;
-                case NPC_KILARA:
-                    if (uiTeamInInstance == ALLIANCE)
-                       creature->UpdateEntry(NPC_ELANDRA, ALLIANCE);
-                    break;
-                case NPC_KORALEN:
-                    if (uiTeamInInstance == ALLIANCE)
-                       creature->UpdateEntry(NPC_KORLAEN, ALLIANCE);
-                    break;
-                case NPC_CHAMPION_1_HORDE:
-                    if (uiTeamInInstance == ALLIANCE)
-                       creature->UpdateEntry(NPC_CHAMPION_1_ALLIANCE, ALLIANCE);
-                    break;
-                case NPC_CHAMPION_2_HORDE:
-                    if (uiTeamInInstance == ALLIANCE)
-                       creature->UpdateEntry(NPC_CHAMPION_2_ALLIANCE, ALLIANCE);
-                    break;
-                case NPC_CHAMPION_3_HORDE: // No 3rd set for Alliance?
-                    if (uiTeamInInstance == ALLIANCE)
-                       creature->UpdateEntry(NPC_CHAMPION_2_ALLIANCE, ALLIANCE);
-                    break;
-            }
-        }
-
-        uint64 GetData64(uint32 identifier)
-        {
-            switch(identifier)
-            {
-                case DATA_GARFROST:             return uiGarfrost;
-                case DATA_KRICK:                return uiKrick;
-                case DATA_ICK:                  return uiIck;
-                case DATA_TYRANNUS:             return uiTyrannus;
-                case DATA_RIMEFANG:             return uiRimefang;
-
-                case DATA_JAINA_SYLVANAS_1:     return uiJainaOrSylvanas1;
-                case DATA_JAINA_SYLVANAS_2:     return uiJainaOrSylvanas2;
-            }
-
-            return 0;
-        }
-
-        void SetData(uint32 type, uint32 data)
-        {
-            switch(type)
-            {
-                case DATA_GARFROST_EVENT:
-                    uiEncounter[0] = data;
-                    break;
-                case DATA_TYRANNUS_EVENT:
-                    uiEncounter[1] = data;
-                    break;
-                case DATA_KRICKANDICK_EVENT:
-                    uiEncounter[2] = data;
-                    break;
+                switch (creature->GetEntry())
+                {
+                    case NPC_GARFROST:
+                        _garfrostGUID = creature->GetGUID();
+                        break;
+                    case NPC_KRICK:
+                        _krickGUID = creature->GetGUID();
+                        break;
+                    case NPC_ICK:
+                        _ickGUID = creature->GetGUID();
+                        break;
+                    case NPC_TYRANNUS:
+                        _tyrannusGUID = creature->GetGUID();
+                        break;
+                    case NPC_RIMEFANG:
+                        _rimefangGUID = creature->GetGUID();
+                        break;
+                    case NPC_TYRANNUS_EVENTS:
+                        _tyrannusEventGUID = creature->GetGUID();
+                        break;
+                    case NPC_SYLVANAS_PART1:
+                        if (_teamInInstance == ALLIANCE)
+                            creature->UpdateEntry(NPC_JAINA_PART1, ALLIANCE);
+                        _jainaOrSylvanas1GUID = creature->GetGUID();
+                        break;
+                    case NPC_SYLVANAS_PART2:
+                        if (_teamInInstance == ALLIANCE)
+                            creature->UpdateEntry(NPC_JAINA_PART2, ALLIANCE);
+                        _jainaOrSylvanas2GUID = creature->GetGUID();
+                        break;
+                    case NPC_KILARA:
+                        if (_teamInInstance == ALLIANCE)
+                           creature->UpdateEntry(NPC_ELANDRA, ALLIANCE);
+                        break;
+                    case NPC_KORALEN:
+                        if (_teamInInstance == ALLIANCE)
+                           creature->UpdateEntry(NPC_KORLAEN, ALLIANCE);
+                        break;
+                    case NPC_CHAMPION_1_HORDE:
+                        if (_teamInInstance == ALLIANCE)
+                           creature->UpdateEntry(NPC_CHAMPION_1_ALLIANCE, ALLIANCE);
+                        break;
+                    case NPC_CHAMPION_2_HORDE:
+                        if (_teamInInstance == ALLIANCE)
+                           creature->UpdateEntry(NPC_CHAMPION_2_ALLIANCE, ALLIANCE);
+                        break;
+                    case NPC_CHAMPION_3_HORDE: // No 3rd set for Alliance?
+                        if (_teamInInstance == ALLIANCE)
+                           creature->UpdateEntry(NPC_CHAMPION_2_ALLIANCE, ALLIANCE);
+                        break;
+                    case NPC_HORDE_SLAVE_1:
+                        if (_teamInInstance == ALLIANCE)
+                           creature->UpdateEntry(NPC_ALLIANCE_SLAVE_1, ALLIANCE);
+                        break;
+                    case NPC_HORDE_SLAVE_2:
+                        if (_teamInInstance == ALLIANCE)
+                           creature->UpdateEntry(NPC_ALLIANCE_SLAVE_2, ALLIANCE);
+                        break;
+                    case NPC_HORDE_SLAVE_3:
+                        if (_teamInInstance == ALLIANCE)
+                           creature->UpdateEntry(NPC_ALLIANCE_SLAVE_3, ALLIANCE);
+                        break;
+                    case NPC_HORDE_SLAVE_4:
+                        if (_teamInInstance == ALLIANCE)
+                           creature->UpdateEntry(NPC_ALLIANCE_SLAVE_4, ALLIANCE);
+                        break;
+                    default:
+                        break;
+                }
             }
 
-            if (data == DONE)
-                SaveToDB();
-        }
-
-        uint32 GetData(uint32 type)
-        {
-            switch(type)
+            uint32 GetData(uint32 type)
             {
-                case DATA_GARFROST_EVENT:            return uiEncounter[0];
-                case DATA_TYRANNUS_EVENT:            return uiEncounter[1];
-                case DATA_KRICKANDICK_EVENT:         return uiEncounter[2];
+                switch (type)
+                {
+                    case DATA_TEAM_IN_INSTANCE:
+                        return _teamInInstance;
+                    default:
+                        break;
+                }
+
+                return 0;
             }
 
-            return 0;
-        }
-
-        std::string GetSaveData()
-        {
-            OUT_SAVE_INST_DATA;
-
-            std::string str_data;
-
-            std::ostringstream saveStream;
-            saveStream << "P S " << uiEncounter[0] << " " << uiEncounter[1]  << " " << uiEncounter[2];
-
-            str_data = saveStream.str();
-
-            OUT_SAVE_INST_DATA_COMPLETE;
-            return str_data;
-        }
-
-        void Load(const char* in)
-        {
-            if (!in)
+            uint64 GetData64(uint32 type)
             {
-                OUT_LOAD_INST_DATA_FAIL;
-                return;
+                switch (type)
+                {
+                    case DATA_GARFROST:
+                        return _garfrostGUID;
+                    case DATA_KRICK:
+                        return _krickGUID;
+                    case DATA_ICK:
+                        return _ickGUID;
+                    case DATA_TYRANNUS:
+                        return _tyrannusGUID;
+                    case DATA_RIMEFANG:
+                        return _rimefangGUID;
+                    case DATA_TYRANNUS_EVENT:
+                        return _tyrannusEventGUID;
+                    case DATA_JAINA_SYLVANAS_1:
+                        return _jainaOrSylvanas1GUID;
+                    case DATA_JAINA_SYLVANAS_2:
+                        return _jainaOrSylvanas2GUID;
+                    default:
+                        break;
+                }
+
+                return 0;
             }
 
-            OUT_LOAD_INST_DATA(in);
-
-            char dataHead1, dataHead2;
-            uint16 data0, data1, data2;
-
-            std::istringstream loadStream(in);
-            loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2;
-
-            if (dataHead1 == 'P' && dataHead2 == 'S')
+            std::string GetSaveData()
             {
-                uiEncounter[0] = data0;
-                uiEncounter[1] = data1;
-                uiEncounter[2] = data2;
+                OUT_SAVE_INST_DATA;
 
-                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                    if (uiEncounter[i] == IN_PROGRESS)
-                        uiEncounter[i] = NOT_STARTED;
+                std::ostringstream saveStream;
+                saveStream << "P S " << GetBossSaveData();
 
-            } else OUT_LOAD_INST_DATA_FAIL;
+                OUT_SAVE_INST_DATA_COMPLETE;
+                return saveStream.str();
+            }
 
-            OUT_LOAD_INST_DATA_COMPLETE;
+            void Load(const char* in)
+            {
+                if (!in)
+                {
+                    OUT_LOAD_INST_DATA_FAIL;
+                    return;
+                }
+
+                OUT_LOAD_INST_DATA(in);
+
+                char dataHead1, dataHead2;
+
+                std::istringstream loadStream(in);
+                loadStream >> dataHead1 >> dataHead2;
+
+                if (dataHead1 == 'P' && dataHead2 == 'S')
+                {
+                    for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+                    {
+                        uint32 tmpState;
+                        loadStream >> tmpState;
+                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                            tmpState = NOT_STARTED;
+
+                        SetBossState(i, EncounterState(tmpState));
+                    }
+                }
+                else
+                    OUT_LOAD_INST_DATA_FAIL;
+
+                OUT_LOAD_INST_DATA_COMPLETE;
+            }
+
+        private:
+            uint64 _garfrostGUID;
+            uint64 _krickGUID;
+            uint64 _ickGUID;
+            uint64 _tyrannusGUID;
+            uint64 _rimefangGUID;
+
+            uint64 _tyrannusEventGUID;
+            uint64 _jainaOrSylvanas1GUID;
+            uint64 _jainaOrSylvanas2GUID;
+
+            uint32 _teamInInstance;
+        };
+
+        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        {
+            return new instance_pit_of_saron_InstanceScript(map);
         }
-    };
-
 };
-
 
 void AddSC_instance_pit_of_saron()
 {

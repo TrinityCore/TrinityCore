@@ -9,7 +9,7 @@ UPDATE `gameobject_template` SET `ScriptName`='';
 UPDATE `outdoorpvp_template` SET `ScriptName`='';
 
 /* AREA TRIGGERS */
-DELETE FROM `areatrigger_scripts` WHERE `entry` IN (822,5284,5285,5286,5287,4871,4872,4873,5108,5332,5338,5334,5340,5369,5423);
+DELETE FROM `areatrigger_scripts` WHERE `entry` IN (822,5284,5285,5286,5287,4871,4872,4873,5108,5332,5338,5334,5340,5369,5423,5633);
 DELETE FROM `areatrigger_scripts` WHERE `entry` BETWEEN 1726 AND 1740;
 INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES 
 (822, 'at_map_chamber'),
@@ -41,8 +41,8 @@ INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES
 (1739, 'at_scent_larkorwi'),
 (1740, 'at_scent_larkorwi'),
 (5369, 'at_RX_214_repair_o_matic_station'),
-(5423, 'at_RX_214_repair_o_matic_station');
-
+(5423, 'at_RX_214_repair_o_matic_station'),
+(5633, 'at_tyrannus_event_starter');
 
 /* WORLD BOSS */
 UPDATE `creature_template` SET `ScriptName`='boss_ysondre' WHERE `entry`=14887;
@@ -1071,22 +1071,9 @@ UPDATE `creature_template` SET `Scriptname`='boss_ick' WHERE `entry`=36476;
 UPDATE `creature_template` SET `Scriptname`='boss_krick' WHERE `entry`=36477;
 UPDATE `creature_template` SET `Scriptname`='boss_tyrannus' WHERE `entry`=36658;
 UPDATE `creature_template` SET `Scriptname`='boss_rimefang' WHERE `entry`=36661;
-UPDATE `creature_template` SET `Scriptname`='mob_ymirjar_wrathbringer' WHERE `entry`=36840;
-UPDATE `creature_template` SET `Scriptname`='mob_ymirjar_skycaller' WHERE `entry`=31260;
 UPDATE `creature_template` SET `Scriptname`='mob_ymirjar_flamebearer' WHERE `entry`=36893;
-UPDATE `creature_template` SET `Scriptname`='mob_ymirjar_deathbringer' WHERE `entry`=36892;
 UPDATE `creature_template` SET `Scriptname`='mob_wrathbone_laborer' WHERE `entry`=36830;
-UPDATE `creature_template` SET `Scriptname`='mob_wrathbone_coldwraith' WHERE `entry`=36842;
-UPDATE `creature_template` SET `Scriptname`='mob_wrathbone_sorcerer' WHERE `entry`=37728;
-UPDATE `creature_template` SET `Scriptname`='mob_stonespine_gargoyle' WHERE `entry`=36896;
-UPDATE `creature_template` SET `Scriptname`='mob_plagueborn_horror' WHERE `entry`=36879;
 UPDATE `creature_template` SET `Scriptname`='mob_iceborn_protodrake' WHERE `entry`=36891;
-UPDATE `creature_template` SET `Scriptname`='mob_hungering_ghoul' WHERE `entry`=37711;
-UPDATE `creature_template` SET `Scriptname`='mob_fallen_warrior' WHERE `entry`=38487;
-UPDATE `creature_template` SET `Scriptname`='mob_fallen_warrior' WHERE `entry`=36841;
-UPDATE `creature_template` SET `Scriptname`='mob_deathwhisper_torturer' WHERE `entry`=37713;
-UPDATE `creature_template` SET `Scriptname`='mob_deathwhisper_shadowcaster' WHERE `entry`=37712;
-UPDATE `creature_template` SET `Scriptname`='mob_deathwhisper_necrolyte' WHERE `entry`=36788;
 UPDATE `creature_template` SET `Scriptname`='mob_geist_ambusher' WHERE `entry`=36886;
 
 /* RAGEFIRE CHASM */
@@ -1756,7 +1743,7 @@ UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_si' WHERE `TypeId`=5;
 UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_ep' WHERE `TypeId`=6;
 
 /* ACHIEVEMENTS */
-DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (3693,6641,6642,6643,6644,3804,3805,3806,3807,3808,3809,3810,3811,3812,3813,1234,1239,5605,5606,12778,13036,13035,13037,12977,12967,12986,12982,12780,13012,13011,13013) AND `type` IN (0,11);
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (3693,6641,6642,6643,6644,3804,3805,3806,3807,3808,3809,3810,3811,3812,3813,1234,1239,5605,5606,12778,13036,13035,13037,12977,12967,12986,12982,12993,12780,13012,13011,13013) AND `type` IN (0,11);
 INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,`ScriptName`) VALUES
 (3693,11,0,0, 'achievement_storm_glory'),
 (6641,11,0,0, 'achievement_school_of_hard_knocks'),
@@ -1777,6 +1764,7 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,
 (1239,11,0,0, 'achievement_bg_control_all_nodes'),
 (5605,11,0,0, 'achievement_save_the_day'),
 (5606,11,0,0, 'achievement_save_the_day'),
+(12993,11,0,0, 'achievement_doesnt_go_to_eleven'),
 (12778,11,0,0, 'achievement_ive_gone_and_made_a_mess'),
 (13036,11,0,0, 'achievement_ive_gone_and_made_a_mess'),
 (13035,11,0,0, 'achievement_ive_gone_and_made_a_mess'),
