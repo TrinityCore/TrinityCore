@@ -18,34 +18,32 @@
 #ifndef DEF_PIT_OF_SARON_H
 #define DEF_PIT_OF_SARON_H
 
-enum Data
+#define PoSScriptName "instance_pit_of_saron"
+#define MAX_ENCOUNTER 3
+
+enum DataTypes
 {
-    DATA_GARFROST_EVENT,
-    DATA_KRICKANDICK_EVENT,
-    DATA_TYRANNUS_EVENT,
-    DATA_TEAM_IN_INSTANCE,
+    DATA_GARFROST           = 0,
+    DATA_KRICK              = 1,
+    DATA_ICK                = 2,
+    DATA_TYRANNUS           = 3,
+    DATA_RIMEFANG           = 4,
+
+    DATA_JAINA_SYLVANAS_1   = 5,    // GUID of either Jaina or Sylvanas part 1, depending on team, as it's the same spawn.
+    DATA_JAINA_SYLVANAS_2   = 6,    // GUID of either Jaina or Sylvanas part 2, depending on team, as it's the same spawn.
+    DATA_TYRANNUS_EVENT     = 7,
+    DATA_TEAM_IN_INSTANCE   = 8,
 };
 
-enum Data64
+enum CreatureIds
 {
-    DATA_GARFROST,
-    DATA_KRICK,
-    DATA_ICK,
-    DATA_TYRANNUS,
-    DATA_RIMEFANG,
+    NPC_GARFROST                                = 36494,
+    NPC_KRICK                                   = 36477,
+    NPC_ICK                                     = 36476,
+    NPC_TYRANNUS                                = 36658,
+    NPC_RIMEFANG                                = 36661,
 
-    DATA_JAINA_SYLVANAS_1,    // GUID of either Jaina or Sylvanas part 1, depending on team, as it's the same spawn.
-    DATA_JAINA_SYLVANAS_2,    // GUID of either Jaina or Sylvanas part 2, depending on team, as it's the same spawn.
-};
-
-enum Creatures
-{
-    CREATURE_GARFROST                           = 36494,
-    CREATURE_KRICK                              = 36477,
-    CREATURE_ICK                                = 36476,
-    CREATURE_TYRANNUS                           = 36658,
-    CREATURE_RIMEFANG                           = 36661,
-
+    NPC_TYRANNUS_EVENTS                         = 36794,
     NPC_SYLVANAS_PART1                          = 36990,
     NPC_SYLVANAS_PART2                          = 38189,
     NPC_JAINA_PART1                             = 36993,
@@ -59,6 +57,25 @@ enum Creatures
     NPC_CHAMPION_3_HORDE                        = 37588,
     NPC_CHAMPION_1_ALLIANCE                     = 37496,
     NPC_CHAMPION_2_ALLIANCE                     = 37497,
+
+    NPC_HORDE_SLAVE_1                           = 36770,
+    NPC_HORDE_SLAVE_2                           = 36771,
+    NPC_HORDE_SLAVE_3                           = 36772,
+    NPC_HORDE_SLAVE_4                           = 36773,
+    NPC_ALLIANCE_SLAVE_1                        = 36764,
+    NPC_ALLIANCE_SLAVE_2                        = 36765,
+    NPC_ALLIANCE_SLAVE_3                        = 36766,
+    NPC_ALLIANCE_SLAVE_4                        = 36767,
+
+    NPC_FORGEMASTER_STALKER                     = 36495,
+    NPC_EXPLODING_ORB                           = 36610,
+    NPC_YMIRJAR_DEATHBRINGER                    = 36892,
+    NPC_ICY_BLAST                               = 36731
+};
+
+enum GameObjectIds
+{
+    GO_SARONITE_ROCK                            = 196485,
 };
 
 #endif

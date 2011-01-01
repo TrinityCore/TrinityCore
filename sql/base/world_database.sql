@@ -26766,6 +26766,15 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 69008, 'spell_bronjahm_soulstorm_channel'),
 ( 68870, 'spell_bronjahm_soulstorm_visual'),
 -- Pit of Saron
+( 68786, 'spell_garfrost_permafrost'),
+( 70336, 'spell_garfrost_permafrost'),
+( 69012, 'spell_krick_explosive_barrage'),
+( 69263, 'spell_ick_explosive_barrage'),
+( 44851, 'spell_exploding_orb_hasty_grow'),
+( 68987, 'spell_krick_pursuit'),
+( 69029, 'spell_krick_pursuit_confusion'),
+( 70850, 'spell_krick_pursuit_confusion'),
+( 69275, 'spell_tyrannus_mark_of_rimefang'),
 ( 69172, 'spell_tyrannus_overlord_brand'),
 -- Icecrown Citadel
 ( 69057, 'spell_marrowgar_bone_spike_graveyard'),
@@ -27949,6 +27958,9 @@ AVG_ROW_LENGTH=0;
 LOCK TABLES `vehicle_accessory` WRITE;
 /*!40000 ALTER TABLE `vehicle_accessory` DISABLE KEYS */;
 INSERT INTO `vehicle_accessory` VALUES
+(36476,36477,0,0, 'Krick and Ick'),
+(36661,36658,0,0, 'Scourgelord Tyrannus and Rimefang'),
+(36891,31260,0,0, 'Ymirjar Skycaller on Drake'),
 (36678,38309,0,1, 'Professor Putricide - trigger'),
 (36678,38308,1,1, 'Professor Putricide - trigger');
 /*!40000 ALTER TABLE `vehicle_accessory` ENABLE KEYS */;
