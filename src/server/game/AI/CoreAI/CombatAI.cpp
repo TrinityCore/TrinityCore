@@ -19,6 +19,7 @@
 #include "CombatAI.h"
 #include "SpellMgr.h"
 #include "Vehicle.h"
+#include "ObjectAccessor.h"
 
 int AggressorAI::Permissible(const Creature *creature)
 {
