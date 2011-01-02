@@ -501,27 +501,57 @@ class instance_icecrown_citadel : public InstanceMapScript
 
             bool CheckPlagueworks(uint32 bossId) const
             {
-                if (bossId == DATA_PROFESSOR_PUTRICIDE)
-                    if (GetBossState(DATA_FESTERGUT) != DONE || GetBossState(DATA_ROTFACE) != DONE)
-                        return false;
+                switch (bossId)
+                {
+                    case DATA_THE_LICH_KING:
+                        if (GetBossState(DATA_PROFESSOR_PUTRICIDE) != DONE)
+                            return false;
+                        // no break
+                    case DATA_PROFESSOR_PUTRICIDE:
+                        if (GetBossState(DATA_FESTERGUT) != DONE || GetBossState(DATA_ROTFACE) != DONE)
+                            return false;
+                        break;
+                    default:
+                        break;
+                }
 
                 return true;
             }
 
             bool CheckCrimsonHalls(uint32 bossId) const
             {
-                if (bossId == DATA_BLOOD_QUEEN_LANA_THEL)
-                    if (GetBossState(DATA_BLOOD_PRINCE_COUNCIL) != DONE)
-                        return false;
+                switch (bossId)
+                {
+                    case DATA_THE_LICH_KING:
+                        if (GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) != DONE)
+                            return false;
+                        // no break
+                    case DATA_BLOOD_QUEEN_LANA_THEL:
+                        if (GetBossState(DATA_BLOOD_PRINCE_COUNCIL) != DONE)
+                            return false;
+                        break;
+                    default:
+                        break;
+                }
 
                 return true;
             }
 
             bool CheckFrostwingHalls(uint32 bossId) const
             {
-                if (bossId == DATA_SINDRAGOSA)
-                    if (GetBossState(DATA_VALITHRIA_DREAMWALKER) != DONE)
-                        return false;
+                switch (bossId)
+                {
+                    case DATA_THE_LICH_KING:
+                        if (GetBossState(DATA_SINDRAGOSA) != DONE)
+                            return false;
+                        // no break
+                    case DATA_SINDRAGOSA:
+                        if (GetBossState(DATA_VALITHRIA_DREAMWALKER) != DONE)
+                            return false;
+                        break;
+                    default:
+                        break;
+                }
 
                 return true;
             }
@@ -530,15 +560,30 @@ class instance_icecrown_citadel : public InstanceMapScript
             {
                 switch (bossId)
                 {
+                    case DATA_THE_LICH_KING:
+                    case DATA_SINDRAGOSA:
+                    case DATA_BLOOD_QUEEN_LANA_THEL:
+                    case DATA_PROFESSOR_PUTRICIDE:
+                    case DATA_VALITHRIA_DREAMWALKER:
+                    case DATA_BLOOD_PRINCE_COUNCIL:
+                    case DATA_ROTFACE:
+                    case DATA_FESTERGUT:
+                        if (GetBossState(DATA_DEATHBRINGER_SAURFANG) != DONE)
+                            return false;
+                        // no break
                     case DATA_DEATHBRINGER_SAURFANG:
                         if (GetBossState(DATA_GUNSHIP_EVENT) != DONE)
                             return false;
+                        // no break
                     case DATA_GUNSHIP_EVENT:
                         if (GetBossState(DATA_LADY_DEATHWHISPER) != DONE)
                             return false;
+                        // no break
                     case DATA_LADY_DEATHWHISPER:
                         if (GetBossState(DATA_LORD_MARROWGAR) != DONE)
                             return false;
+                        // no break
+                    case DATA_LORD_MARROWGAR:
                     default:
                         break;
                 }
