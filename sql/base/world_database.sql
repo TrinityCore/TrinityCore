@@ -26756,6 +26756,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 72752, 'spell_pvp_trinket_wotf_shared_cd'),
 ( 72757, 'spell_pvp_trinket_wotf_shared_cd'),
 ( 46221, 'spell_gen_animal_blood'),
+( 70769, 'spell_gen_divine_storm_cd_reset'),
 -- instances
 -- Black Temple
 ( 41475, 'spell_boss_lady_malande_shield'),
