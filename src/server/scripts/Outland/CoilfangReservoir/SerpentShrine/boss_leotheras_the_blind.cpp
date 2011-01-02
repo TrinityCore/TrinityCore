@@ -338,7 +338,7 @@ public:
                         Creature* pCreature = Unit::GetCreature((*me), InnderDemon[i]);
                         if (pCreature && pCreature->isAlive())
                         {
-                            pCreature->ForcedDespawn();
+                            pCreature->DespawnOrUnsummon();
                         }
                         InnderDemon[i] = 0;
                 }
@@ -390,7 +390,7 @@ public:
             if (Demon)
             {
                 if (Creature* pDemon = Unit::GetCreature(*me, Demon))
-                    pDemon->ForcedDespawn();
+                    pDemon->DespawnOrUnsummon();
             }
             if (pInstance)
                 pInstance->SetData(DATA_LEOTHERASTHEBLINDEVENT, DONE);

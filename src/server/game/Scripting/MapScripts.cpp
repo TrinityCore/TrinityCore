@@ -801,7 +801,7 @@ void Map::ScriptsProcess()
             case SCRIPT_COMMAND_DESPAWN_SELF:
                 // Target or source must be Creature.
                 if (Creature* cSource = _GetScriptCreatureSourceOrTarget(source, target, step.script, true))
-                    cSource->ForcedDespawn(step.script->DespawnSelf.DespawnDelay);
+                    cSource->DespawnOrUnsummon(step.script->DespawnSelf.DespawnDelay);
                 break;
 
             case SCRIPT_COMMAND_LOAD_PATH:

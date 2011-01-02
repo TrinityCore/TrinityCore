@@ -300,7 +300,7 @@ public:
                     me->InterruptNonMeleeSpells(true);
 
                 DoCast(me, SPELL_ETHEREAL_APPRENTICE, true);
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
                 return;
             } else Apprentice_Timer -= diff;
         }

@@ -514,7 +514,7 @@ public:
         if (spellId)
             pPlayer->CastSpell(pPlayer, spellId, true);
         DoScriptText(SAY_DWARF_HELP, pCreature);
-        pCreature->ForcedDespawn();
+        pCreature->DespawnOrUnsummon();
         return true;
     }
 };

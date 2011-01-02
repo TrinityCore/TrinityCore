@@ -123,7 +123,7 @@ public:
             if (DespawnTimer <= diff)
             {
                 if (!UpdateVictim())
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
                 DespawnTimer = 5000;
             } else DespawnTimer -= diff;
 

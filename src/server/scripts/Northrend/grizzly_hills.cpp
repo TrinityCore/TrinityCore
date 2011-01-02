@@ -591,7 +591,7 @@ public:
         void MovementInform(uint32, uint32 id)
         {
             if (id == 1)
-                me->ForcedDespawn(DespawnTimer);
+                me->DespawnOrUnsummon(DespawnTimer);
         }
 
         void SpellHit(Unit *caster, const SpellEntry *spell)
@@ -606,7 +606,7 @@ public:
                 else
                 {
                     me->SetStandState(UNIT_STAND_STATE_STAND);
-                    me->ForcedDespawn(DespawnTimer);
+                    me->DespawnOrUnsummon(DespawnTimer);
                 }
 
             }

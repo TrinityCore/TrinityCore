@@ -111,7 +111,7 @@ public:
                 case 23:
                     if (pPlayer)
                         pPlayer->GroupEventHappens(QUEST_TRAIL_OF_FIRE, me);
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
                     break;
                 case 5:
                     if (Unit* Trigger = me->FindNearestCreature(NPC_HANES_FIRE_TRIGGER,10.0f))
@@ -205,7 +205,7 @@ public:
             switch(i)
             {
             case 26:
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
                 break;
             }
         }

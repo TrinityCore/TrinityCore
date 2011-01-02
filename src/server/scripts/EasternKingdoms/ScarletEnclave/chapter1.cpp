@@ -579,7 +579,7 @@ public:
                         Phase = 3;
                         break;
                     case 3:
-                        me->ForcedDespawn();
+                        me->DespawnOrUnsummon();
                         break;
                     default:
                         break;

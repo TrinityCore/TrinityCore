@@ -330,7 +330,7 @@ public:
                     if (pIgnis->AI())
                         pIgnis->AI()->DoAction(ACTION_REMOVE_BUFF);
 
-                me->ForcedDespawn(1000);
+                me->DespawnOrUnsummon(1000);
             }
         }
 

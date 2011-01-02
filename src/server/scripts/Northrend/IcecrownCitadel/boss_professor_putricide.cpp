@@ -717,10 +717,8 @@ class npc_volatile_ooze : public CreatureScript
                         AttackStart(target);
                         me->CastCustomSpell(SPELL_VOLATILE_OOZE_ADHESIVE, SPELLVALUE_MAX_TARGETS, 1, target, false);
                     }
-                    else if (TempSummon* summ = me->ToTempSummon())
-                        summ->UnSummon();
                     else
-                        me->ForcedDespawn();
+                        me->DespawnOrUnsummon();
                 }
                 else
                     newTargetSelectTimer -= diff;
@@ -815,10 +813,8 @@ class spell_putricide_expunged_gas : public SpellScriptLoader
                     for (uint8 i = 1; i < stack; ++i)
                         dmg += mod * stack;
                 }
-                else if (TempSummon* summ = GetCaster()->ToTempSummon())
-                    summ->UnSummon();
                 else
-                    GetCaster()->ToCreature()->ForcedDespawn();
+                    GetCaster()->ToCreature()->DespawnOrUnsummon();
 
                 SetHitDamage(dmg);
             }
@@ -1091,10 +1087,7 @@ class spell_putricide_eat_ooze : public SpellScriptLoader
                         {
                             target->RemoveAurasDueToSpell(SPELL_GROW_STACKER);
                             target->RemoveAura(grow);
-                            if (TempSummon* summ = target->ToTempSummon())
-                                summ->UnSummon();
-                            else
-                                target->ForcedDespawn();
+                            target->DespawnOrUnsummon();
                         }
                         else
                             grow->ModStackAmount(-4);

@@ -511,7 +511,7 @@ public:
             me->setFaction(16); // Same faction as bosses
             DoCast(SPELL_RUNE_OF_POWER);
 
-            me->ForcedDespawn(60000);
+            me->DespawnOrUnsummon(60000);
         }
     };
 };
@@ -572,7 +572,7 @@ public:
         {
             me->CastSpell(me, SPELL_RUNE_OF_SUMMONING_SUMMON, false);
             if (++summonCount == 10)                        // TODO: Find out if this amount is right
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
             else
                 summonTimer = 2000;                         // TODO: Find out of timer is right
         }

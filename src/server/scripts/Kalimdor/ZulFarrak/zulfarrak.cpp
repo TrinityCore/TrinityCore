@@ -371,7 +371,7 @@ public:
                     {
                         pInstance->DoUseDoorOrButton(pInstance->GetData64(GO_END_DOOR));
                         //TODO: leave the area...
-                        me->ForcedDespawn();
+                        me->DespawnOrUnsummon();
                     };
             }
         }

@@ -270,13 +270,10 @@ class npc_little_ooze : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                if (TempSummon* summ = me->ToTempSummon())
-                {
-                    summ->UnSummon();
-                    if (InstanceScript* instance = me->GetInstanceScript())
-                        if (Creature* rotface = Unit::GetCreature(*me, instance->GetData64(DATA_ROTFACE)))
-                            rotface->AI()->SummonedCreatureDespawn(me);
-                }
+                me->DespawnOrUnsummon();
+                if (InstanceScript* instance = me->GetInstanceScript())
+                    if (Creature* rotface = Unit::GetCreature(*me, instance->GetData64(DATA_ROTFACE)))
+                        rotface->AI()->SummonedCreatureDespawn(me);
             }
 
             void UpdateAI(const uint32 diff)
@@ -332,13 +329,10 @@ class npc_big_ooze : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                if (TempSummon* summ = me->ToTempSummon())
-                {
-                    summ->UnSummon();
-                    if (InstanceScript* instance = me->GetInstanceScript())
-                        if (Creature* rotface = Unit::GetCreature(*me, instance->GetData64(DATA_ROTFACE)))
-                            rotface->AI()->SummonedCreatureDespawn(me);
-                }
+                me->DespawnOrUnsummon();
+                if (InstanceScript* instance = me->GetInstanceScript())
+                    if (Creature* rotface = Unit::GetCreature(*me, instance->GetData64(DATA_ROTFACE)))
+                        rotface->AI()->SummonedCreatureDespawn(me);
             }
 
             void DoAction(const int32 action)
@@ -501,16 +495,13 @@ class spell_rotface_little_ooze_combine : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                if (!(GetHitUnit() && GetHitUnit()->isAlive()))
+                if (!(GetHitCreature() && GetHitUnit()->isAlive()))
                     return;
 
                 GetCaster()->RemoveAurasDueToSpell(SPELL_LITTLE_OOZE_COMBINE);
-                GetHitUnit()->RemoveAurasDueToSpell(SPELL_LITTLE_OOZE_COMBINE);
-                GetHitUnit()->CastSpell(GetCaster(), SPELL_OOZE_MERGE, true);
-                if (TempSummon* summ = GetHitUnit()->ToTempSummon())
-                    summ->UnSummon();
-                else
-                    GetHitCreature()->ForcedDespawn();
+                GetHitCreature()->RemoveAurasDueToSpell(SPELL_LITTLE_OOZE_COMBINE);
+                GetHitCreature()->CastSpell(GetCaster(), SPELL_OOZE_MERGE, true);
+                GetHitCreature()->DespawnOrUnsummon();
             }
 
             void Register()
@@ -536,12 +527,12 @@ class spell_rotface_large_ooze_combine : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                if (!(GetHitUnit() && GetHitUnit()->isAlive()))
+                if (!(GetHitCreature() && GetHitCreature()->isAlive()))
                     return;
 
                 if (Aura* unstable = GetCaster()->GetAura(SPELL_UNSTABLE_OOZE))
                 {
-                    if (Aura* targetAura = GetHitUnit()->GetAura(SPELL_UNSTABLE_OOZE))
+                    if (Aura* targetAura = GetHitCreature()->GetAura(SPELL_UNSTABLE_OOZE))
                         unstable->ModStackAmount(targetAura->GetStackAmount());
                     else
                         unstable->ModStackAmount(1);
@@ -550,13 +541,9 @@ class spell_rotface_large_ooze_combine : public SpellScriptLoader
                 }
 
                 // just for safety
-                GetHitUnit()->RemoveAurasDueToSpell(SPELL_LARGE_OOZE_BUFF_COMBINE);
-                GetHitUnit()->RemoveAurasDueToSpell(SPELL_LARGE_OOZE_COMBINE);
-
-                if (TempSummon* summ = GetHitUnit()->ToTempSummon())
-                    summ->UnSummon();
-                else if (GetHitCreature())
-                    GetHitCreature()->ForcedDespawn();
+                GetHitCreature()->RemoveAurasDueToSpell(SPELL_LARGE_OOZE_BUFF_COMBINE);
+                GetHitCreature()->RemoveAurasDueToSpell(SPELL_LARGE_OOZE_COMBINE);
+                GetHitCreature()->DespawnOrUnsummon();
             }
 
             void Register()
@@ -582,7 +569,7 @@ class spell_rotface_large_ooze_buff_combine : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                if (!(GetHitUnit() && GetHitUnit()->isAlive()))
+                if (!(GetHitCreature() && GetHitCreature()->isAlive()))
                     return;
 
                 if (Aura* unstable = GetCaster()->GetAura(SPELL_UNSTABLE_OOZE))
@@ -611,10 +598,7 @@ class spell_rotface_large_ooze_buff_combine : public SpellScriptLoader
                     }
                 }
 
-                if (TempSummon* summ = GetHitUnit()->ToTempSummon())
-                    summ->UnSummon();
-                else if (GetHitCreature())
-                    GetHitCreature()->ForcedDespawn();
+                GetHitCreature()->DespawnOrUnsummon();
             }
 
             void Register()

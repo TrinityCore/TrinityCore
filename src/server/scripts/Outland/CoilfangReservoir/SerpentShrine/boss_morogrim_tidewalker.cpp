@@ -337,7 +337,7 @@ public:
                     DoCast(me->getVictim(), SPELL_GLOBULE_EXPLOSION);
 
                     //despawn
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
                     return;
                 }
                 Check_Timer = 500;

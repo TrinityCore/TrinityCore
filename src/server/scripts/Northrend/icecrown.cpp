@@ -242,7 +242,7 @@ public:
                 uiDamage = 0;
                 CAST_PLR(pDoneBy)->KilledMonsterCredit(NPC_ARGENT_VALIANT_CREDIT,0);
                 me->setFaction(35);
-                me->ForcedDespawn(5000);
+                me->DespawnOrUnsummon(5000);
                 me->SetHomePosition(me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(),me->GetOrientation());
                 EnterEvadeMode();
             }

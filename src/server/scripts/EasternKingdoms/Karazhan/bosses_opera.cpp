@@ -149,7 +149,7 @@ public:
 
         void JustReachedHome()
         {
-            me->ForcedDespawn();
+            me->DespawnOrUnsummon();
         }
 
         void SummonTito();
@@ -337,7 +337,7 @@ public:
 
         void JustReachedHome()
         {
-            me->ForcedDespawn();
+            me->DespawnOrUnsummon();
         }
 
         void SpellHit(Unit* /*caster*/, const SpellEntry *Spell)
@@ -440,7 +440,7 @@ public:
 
         void JustReachedHome()
         {
-            me->ForcedDespawn();
+            me->DespawnOrUnsummon();
         }
 
         void AttackStart(Unit* who)
@@ -564,7 +564,7 @@ public:
 
         void JustReachedHome()
         {
-            me->ForcedDespawn();
+            me->DespawnOrUnsummon();
         }
 
         void JustDied(Unit* /*killer*/)
@@ -648,7 +648,7 @@ public:
 
         void JustReachedHome()
         {
-            me->ForcedDespawn();
+            me->DespawnOrUnsummon();
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -784,7 +784,7 @@ public:
             if (Creature* pBigBadWolf = pCreature->SummonCreature(CREATURE_BIG_BAD_WOLF, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILLISECONDS))
                 pBigBadWolf->AI()->AttackStart(pPlayer);
 
-            pCreature->ForcedDespawn();
+            pCreature->DespawnOrUnsummon();
         }
 
         return true;
@@ -848,7 +848,7 @@ public:
 
         void JustReachedHome()
         {
-            me->ForcedDespawn();
+            me->DespawnOrUnsummon();
         }
 
         void JustDied(Unit* /*killer*/)
@@ -1086,7 +1086,7 @@ public:
 
         void JustReachedHome()
         {
-            me->ForcedDespawn();
+            me->DespawnOrUnsummon();
         }
 
         void SpellHit(Unit* /*caster*/, const SpellEntry *Spell)
@@ -1176,7 +1176,7 @@ public:
 
         void JustReachedHome()
         {
-            me->ForcedDespawn();
+            me->DespawnOrUnsummon();
         }
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage)
