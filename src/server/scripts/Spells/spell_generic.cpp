@@ -618,12 +618,9 @@ public:
 
         void HandleScript(SpellEffIndex /*effIndex*/)
         {
-            Player *caster = GetCaster()->ToPlayer();
-            if (caster->GetTypeId() != TYPEID_PLAYER)
-                return;
-                       
-            if (caster->HasSpellCooldown(SPELL_DIVINE_STORM))
-            caster->RemoveSpellCooldown(SPELL_DIVINE_STORM, true);
+            if (Player *caster = GetCaster()->ToPlayer())
+                if (caster->HasSpellCooldown(SPELL_DIVINE_STORM))
+                    caster->RemoveSpellCooldown(SPELL_DIVINE_STORM, true);
         }
 
         void Register()
