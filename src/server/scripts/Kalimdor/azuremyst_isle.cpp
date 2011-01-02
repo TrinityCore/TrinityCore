@@ -155,7 +155,7 @@ public:
             if (RunAwayTimer)
             {
                 if (RunAwayTimer <= diff)
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
                 else
                     RunAwayTimer -= diff;
 
@@ -611,7 +611,7 @@ public:
                 if (DespawnTimer <= diff)
                 {
                     //once we are able to, despawn us
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
                     return;
                 } else DespawnTimer -= diff;
             }
@@ -768,7 +768,7 @@ public:
             if(FleeTimer)
             {
                 if(FleeTimer <= diff)
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
                 else FleeTimer -= diff;
             }
         }

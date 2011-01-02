@@ -199,7 +199,7 @@ void Vehicle::RemoveAllPassengers()
 
             // creature passengers mounted on player mounts should be despawned at dismount
             if (GetBase()->GetTypeId() == TYPEID_PLAYER && passenger->ToCreature())
-                passenger->ToCreature()->ForcedDespawn();
+                passenger->ToCreature()->DespawnOrUnsummon();
         }
 }
 

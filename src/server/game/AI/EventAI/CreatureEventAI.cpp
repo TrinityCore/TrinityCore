@@ -813,7 +813,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
         }
         case ACTION_T_FORCE_DESPAWN:
         {
-            me->ForcedDespawn(action.forced_despawn.msDelay);
+            me->DespawnOrUnsummon(action.forced_despawn.msDelay);
             break;
         }
         case ACTION_T_SET_INVINCIBILITY_HP_LEVEL:

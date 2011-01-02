@@ -1373,12 +1373,7 @@ class spell_taldaram_flame_ball_visual : public SpellScriptLoader
                     target->AI()->DoAction(ACTION_FLAME_BALL_CHASE);
                 }
                 else // SPELL_FLAME_SPHERE_DEATH_EFFECT
-                {
-                    if (TempSummon* summ = target->ToTempSummon())
-                        summ->UnSummon();
-                    else
-                        target->ForcedDespawn();
-                }
+                    target->DespawnOrUnsummon();
             }
 
             void Register()

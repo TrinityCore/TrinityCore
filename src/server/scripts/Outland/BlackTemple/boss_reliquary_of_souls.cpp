@@ -168,7 +168,7 @@ public:
             {
                 if (Creature* Essence = Unit::GetCreature(*me, EssenceGUID))
                 {
-                    Essence->ForcedDespawn();
+                    Essence->DespawnOrUnsummon();
                 }
                 EssenceGUID = 0;
             }
@@ -324,7 +324,7 @@ public:
                     {
                         DoScriptText(DESI_SAY_AFTER, Essence);
                     }
-                    Essence->ForcedDespawn();
+                    Essence->DespawnOrUnsummon();
                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE,0);
                     EssenceGUID = 0;
                     SoulCount = 0;

@@ -180,7 +180,7 @@ class mob_abyssal : public CreatureScript
 
                 if (Despawn_Timer <= diff)
                 {
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
                 }
                 else Despawn_Timer -= diff;
 

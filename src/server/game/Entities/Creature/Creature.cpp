@@ -1656,6 +1656,14 @@ void Creature::ForcedDespawn(uint32 timeMSToDespawn)
     RemoveCorpse(false);
 }
 
+void Creature::DespawnOrUnsummon(uint32 msTimeToDespawn /*= 0*/)
+{
+    if (TempSummon* summon = this->ToTempSummon())
+        summon->UnSummon();
+    else
+        ForcedDespawn(msTimeToDespawn);
+}
+
 bool Creature::IsImmunedToSpell(SpellEntry const* spellInfo)
 {
     if (!spellInfo)

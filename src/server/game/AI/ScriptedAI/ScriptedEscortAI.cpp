@@ -246,7 +246,7 @@ void npc_escortAI::UpdateAI(const uint32 uiDiff)
                         me->Respawn();
                     }
                     else
-                        me->ForcedDespawn();
+                        me->DespawnOrUnsummon();
 
                     return;
                 }
@@ -287,7 +287,7 @@ void npc_escortAI::UpdateAI(const uint32 uiDiff)
                     me->Respawn();
                 }
                 else
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
 
                 return;
             }

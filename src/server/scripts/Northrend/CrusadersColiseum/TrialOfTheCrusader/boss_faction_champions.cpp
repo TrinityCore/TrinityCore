@@ -216,7 +216,7 @@ public:
                             {
                                 m_pInstance->SetData(TYPE_CRUSADERS, FAIL);
                                 Summons.DespawnAll();
-                                me->ForcedDespawn();
+                                me->DespawnOrUnsummon();
                             }
                             break;
                         case IN_PROGRESS:
@@ -238,7 +238,7 @@ public:
                             {
                                 m_pInstance->SetData(TYPE_CRUSADERS, DONE);
                                 Summons.DespawnAll();
-                                me->ForcedDespawn();
+                                me->DespawnOrUnsummon();
                             }
                             break;
                     }
@@ -277,7 +277,7 @@ struct boss_faction_championsAI : public ScriptedAI
         if (m_pInstance)
             if (Creature* pChampionController = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
                 pChampionController->AI()->SetData(2, FAIL);
-        me->ForcedDespawn();
+        me->DespawnOrUnsummon();
     }
 
     float CalculateThreat(float distance, float armor, uint32 health)

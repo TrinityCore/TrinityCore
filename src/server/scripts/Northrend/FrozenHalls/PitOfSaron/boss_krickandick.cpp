@@ -379,7 +379,7 @@ class boss_krick : public CreatureScript
                         case EVENT_OUTRO_1:
                             {
                                 if (Creature* temp = me->GetCreature(*me, _instanceScript->GetData64(DATA_JAINA_SYLVANAS_1)))
-                                    temp->ForcedDespawn();
+                                    temp->DespawnOrUnsummon();
 
                                 Creature* jainaOrSylvanas = NULL;
                                 if (_instanceScript->GetData(DATA_TEAM_IN_INSTANCE) == TEAM_ALLIANCE)
@@ -599,7 +599,7 @@ class spell_exploding_orb_hasty_grow : public SpellScriptLoader
                     GetTarget()->RemoveAurasDueToSpell(SPELL_AUTO_GROW);
                     GetTarget()->RemoveAurasDueToSpell(SPELL_EXPLODING_ORB);
                     if (Creature* creature = GetTarget()->ToCreature())
-                        creature->ForcedDespawn(1000);
+                        creature->DespawnOrUnsummon(1000);
                 }
             }
 

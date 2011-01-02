@@ -332,7 +332,7 @@ public:
 
         void JustDied(Unit* /*pKiller*/)
         {
-            me->ForcedDespawn();
+            me->DespawnOrUnsummon();
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -340,7 +340,7 @@ public:
             if (m_Timer <= uiDiff)
             {
                 if (m_CountMax && m_CountMax == m_Count)
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
                 else
                 {
                     DoCast(SPELL_INFERNAL_ERUPTION);
@@ -394,7 +394,7 @@ public:
                 return;
 
             if (m_pInstance && m_pInstance->GetData(TYPE_JARAXXUS) != IN_PROGRESS)
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
 
             if (m_uiFelStreakTimer <= uiDiff)
             {
@@ -464,7 +464,7 @@ public:
             if (m_Timer <= uiDiff)
             {
                 if (m_CountMax && m_CountMax == m_Count)
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
                 else
                 {
                     DoCast(SPELL_NETHER_PORTAL);
@@ -524,7 +524,7 @@ public:
                 return;
 
             if (m_pInstance && m_pInstance->GetData(TYPE_JARAXXUS) != IN_PROGRESS)
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
 
             if (m_uiShivanSlashTimer <= uiDiff)
             {

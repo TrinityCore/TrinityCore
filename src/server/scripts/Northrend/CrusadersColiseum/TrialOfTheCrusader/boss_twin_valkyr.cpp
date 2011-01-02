@@ -169,7 +169,7 @@ struct boss_twin_baseAI : public ScriptedAI
             m_pInstance->SetData(TYPE_VALKIRIES, FAIL);
             m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetMaxHealth());
         }
-        me->ForcedDespawn();
+        me->DespawnOrUnsummon();
     }
 
     void MovementInform(uint32 uiType, uint32 uiId)
@@ -623,7 +623,7 @@ public:
                     {
                         DoCastAOE(SPELL_UNLEASHED_DARK);
                         me->GetMotionMaster()->MoveIdle();
-                        me->ForcedDespawn(500);
+                        me->DespawnOrUnsummon(500);
                     }
                 m_uiRangeCheckTimer = IN_MILLISECONDS;
             }
@@ -657,7 +657,7 @@ public:
                     {
                         DoCastAOE(SPELL_UNLEASHED_LIGHT);
                         me->GetMotionMaster()->MoveIdle();
-                        me->ForcedDespawn(500);
+                        me->DespawnOrUnsummon(500);
                     }
                 m_uiRangeCheckTimer = IN_MILLISECONDS;
             }

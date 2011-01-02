@@ -80,7 +80,7 @@ public:
             // we mustn't remove the Creature in the same round in which we cast the summon spell, otherwise there will be no summons
             if (spellhit && morphtimer >= 5000)
             {
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
                 return;
             }
             // walk 5 seconds before summoning
@@ -335,7 +335,7 @@ public:
             {
                 if (Must_Die_Timer <= diff)
                 {
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
                     return;
                 } else Must_Die_Timer -= diff;
             }
@@ -396,7 +396,7 @@ public:
                 Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
                 if (!pPlayer)
                 {
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
                     return;
                 }
 
@@ -445,7 +445,7 @@ public:
 
             if (id == 57)
             {
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
                 return;
             }
 
@@ -489,7 +489,7 @@ public:
             {
                 if (must_die_timer <= diff)
                 {
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
                 } else must_die_timer -= diff;
             }
             return;
