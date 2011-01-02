@@ -1731,7 +1731,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
         int32 manaTaken = -pVictim->ModifyPower(POWER_MANA, -manaReduction);
 
         // take case when mana has ended up into account
-        currentAbsorb = int32(float(currentAbsorb)*(float(manaTaken) / float(manaReduction)));
+        currentAbsorb = currentAbsorb ? int32(float(currentAbsorb)*(float(manaTaken) / float(manaReduction))) : 0;
 
         dmgInfo.AbsorbDamage(currentAbsorb);
 
