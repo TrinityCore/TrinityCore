@@ -1965,7 +1965,7 @@ public:
                     despawnTimer -= diff;
                 else
                 {
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
                 }
                 return;
             }
@@ -2073,7 +2073,7 @@ public:
             else
             {
                 if (uiDespawnTimer <= uiDiff)
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
                 else
                     uiDespawnTimer -= uiDiff;
             }

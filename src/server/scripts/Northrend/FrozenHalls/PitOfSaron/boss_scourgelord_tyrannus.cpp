@@ -166,7 +166,7 @@ class boss_tyrannus : public CreatureScript
                 if (Creature* rimefang = GetRimefang())
                     rimefang->AI()->EnterEvadeMode();
 
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
             }
 
             void KilledUnit(Unit * victim)

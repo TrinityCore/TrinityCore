@@ -263,7 +263,7 @@ public:
                     break;
                 case CREATURE_TRIGGER:
                     pSummoned->CastSpell((Unit*)NULL, SPELL_FREEZING_CLOUD, true);
-                    pSummoned->ForcedDespawn(10*IN_MILLISECONDS);
+                    pSummoned->DespawnOrUnsummon(10*IN_MILLISECONDS);
                     break;
             }
             Summons.Summon(pSummoned);

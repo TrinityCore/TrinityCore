@@ -287,7 +287,7 @@ public:
                     if (Creature* pPortal = Unit::GetCreature(*me, PortalGUID[i]))
                     {
                         CAST_AI(mob_fiendish_portal::mob_fiendish_portalAI, pPortal->AI())->DespawnAllImp();
-                        pPortal->ForcedDespawn();
+                        pPortal->DespawnOrUnsummon();
                     }
 
                     PortalGUID[i] = 0;
@@ -351,7 +351,7 @@ public:
                 if (PortalGUID[i])
                 {
                     if (Creature* pPortal = Unit::GetCreature((*me), PortalGUID[i]))
-                        pPortal->ForcedDespawn();
+                        pPortal->DespawnOrUnsummon();
 
                     PortalGUID[i] = 0;
                 }

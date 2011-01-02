@@ -2229,7 +2229,7 @@ void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
 
                             player->AutoStoreLoot(creature->GetCreatureInfo()->SkinLootId,LootTemplates_Skinning,true);
 
-                            creature->ForcedDespawn();
+                            creature->DespawnOrUnsummon();
                         }
                         return;
                     }
@@ -2279,7 +2279,7 @@ void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
 
                         Creature* creatureTarget = target->ToCreature();
 
-                        creatureTarget->ForcedDespawn();
+                        creatureTarget->DespawnOrUnsummon();
                         return;
                     }
                     // Tear of Azzinoth Summon Channel - it's not really supposed to do anything,and this only prevents the console spam
@@ -2375,7 +2375,7 @@ void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
                     if (permafrostCaster)
                     {
                         if (Creature *permafrostCasterAsCreature = permafrostCaster->ToCreature())
-                            permafrostCasterAsCreature->ForcedDespawn(3000);
+                            permafrostCasterAsCreature->DespawnOrUnsummon(3000);
  
                         caster->CastSpell(caster, 66181, false);
                         caster->RemoveAllAuras();

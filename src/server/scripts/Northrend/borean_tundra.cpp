@@ -775,7 +775,7 @@ public:
                             break;
 
                         case 7:
-                            me->ForcedDespawn();
+                            me->DespawnOrUnsummon();
                             IntroPhase = 0;
                             IntroTimer = 0;
                             break;

@@ -310,7 +310,7 @@ void VehicleAI::UpdateAI(const uint32 diff)
         {
             m_DoDismiss = false;
             me->SetVisible(false);
-            me->ForcedDespawn();
+            me->DespawnOrUnsummon();
         }else m_DismissTimer -= diff;
     }
 }

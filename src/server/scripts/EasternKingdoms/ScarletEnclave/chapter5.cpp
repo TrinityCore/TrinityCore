@@ -1331,7 +1331,7 @@ public:
                             break;
 
                         case 73:
-                            me->ForcedDespawn();
+                            me->DespawnOrUnsummon();
                             break;
                     }
 

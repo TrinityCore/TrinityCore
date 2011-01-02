@@ -343,7 +343,7 @@ public:
             {
                 Creature* pTemp = Unit::GetCreature(*me, pInstance ? (*itr) : 0);
                 if (pTemp && pTemp->isAlive())
-                    pTemp->ForcedDespawn();
+                    pTemp->DespawnOrUnsummon();
             }
             lDwarfGUIDList.clear();
         }

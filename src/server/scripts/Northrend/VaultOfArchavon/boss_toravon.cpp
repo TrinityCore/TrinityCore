@@ -207,7 +207,7 @@ public:
             if (killTimer <= diff)
             {
                 if (!UpdateVictim())
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
                 killTimer = 10000;
             }
             else

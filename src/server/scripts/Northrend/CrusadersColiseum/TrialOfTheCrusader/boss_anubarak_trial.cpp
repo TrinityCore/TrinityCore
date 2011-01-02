@@ -445,7 +445,7 @@ public:
             {
                 case ACTION_SCARAB_SUBMERGE:
                     DoCast(SPELL_SUBMERGE_EFFECT);
-                    me->ForcedDespawn(1000);
+                    me->DespawnOrUnsummon(1000);
                     break;
             }
         }

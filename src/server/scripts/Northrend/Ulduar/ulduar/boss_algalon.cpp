@@ -167,7 +167,7 @@ public:
                 if (Creature* pTemp = Unit::GetCreature(*me, *itr))
                 {
                     if (pTemp->isAlive())
-                        pTemp->ForcedDespawn();
+                        pTemp->DespawnOrUnsummon();
                 }
             }
             m_lCollapsingStarGUIDList.clear();

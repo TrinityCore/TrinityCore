@@ -159,7 +159,7 @@ public:
         {
             if (m_pInstance)
                 m_pInstance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
-            me->ForcedDespawn();
+            me->DespawnOrUnsummon();
         }
 
         void EnterCombat(Unit* /*pWho*/)
@@ -287,12 +287,7 @@ public:
             {
                 case 0: // JUMP!? Fuck! THAT'S BEEZARR! Would someone PLEASE make MotionMaster->Move* work better?
                     if (m_bTargetDied)
-                    {
-                        if (TempSummon* summ = me->ToTempSummon())
-                            summ->UnSummon();
-                        else
-                            me->ForcedDespawn();
-                    }
+                        me->DespawnOrUnsummon();
                     break;
             }
         }
@@ -392,15 +387,8 @@ struct boss_jormungarAI : public ScriptedAI
                 {
                     instanceScript->SetData(TYPE_NORTHREND_BEASTS, SNAKES_DONE);
 
-                    if (TempSummon* summ = me->ToTempSummon())
-                        summ->UnSummon();
-                    else
-                        me->ForcedDespawn();
-
-                    if (TempSummon* summ = otherWorm->ToTempSummon())
-                        summ->UnSummon();
-                    else
-                        otherWorm->ForcedDespawn();
+                    me->DespawnOrUnsummon();
+                    otherWorm->DespawnOrUnsummon();
                 }
                 else
                     instanceScript->SetData(TYPE_NORTHREND_BEASTS, SNAKES_SPECIAL);
@@ -413,10 +401,7 @@ struct boss_jormungarAI : public ScriptedAI
         if (instanceScript && instanceScript->GetData(TYPE_NORTHREND_BEASTS) != FAIL)
             instanceScript->SetData(TYPE_NORTHREND_BEASTS, FAIL);
 
-        if (TempSummon* summ = me->ToTempSummon())
-            summ->UnSummon();
-        else
-            me->ForcedDespawn();
+        me->DespawnOrUnsummon();
     }
 
     void KilledUnit(Unit *pWho)
@@ -674,7 +659,7 @@ public:
         {
             casted = false;
             me->SetReactState(REACT_PASSIVE);
-            me->ForcedDespawn(60*IN_MILLISECONDS);
+            me->DespawnOrUnsummon(60*IN_MILLISECONDS);
         }
 
         void UpdateAI(const uint32 /*uiDiff*/)
@@ -775,7 +760,7 @@ public:
         {
             if (m_pInstance)
                 m_pInstance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
-            me->ForcedDespawn();
+            me->DespawnOrUnsummon();
         }
 
         void KilledUnit(Unit *pWho)

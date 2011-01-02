@@ -643,8 +643,8 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                 else if (id == POINT_FINAL)
                 {
                     if (Creature* deathbringer = ObjectAccessor::GetCreature(*me, deathbringerSaurfangGUID))
-                        deathbringer->ForcedDespawn();
-                    me->ForcedDespawn();
+                        deathbringer->DespawnOrUnsummon();
+                    me->DespawnOrUnsummon();
                 }
             }
 
@@ -908,7 +908,7 @@ class npc_saurfang_event : public CreatureScript
                 if (action == ACTION_CHARGE && uiNPCindex)
                     me->GetMotionMaster()->MoveCharge(chargePos[uiNPCindex].GetPositionX(), chargePos[uiNPCindex].GetPositionY(), chargePos[uiNPCindex].GetPositionZ(), 13.0f, POINT_CHARGE);
                 else if (action == ACTION_DESPAWN)
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
             }
 
         private:

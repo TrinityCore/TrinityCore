@@ -325,7 +325,7 @@ class boss_lich_king_toc : public CreatureScript
                             Creature* pTemp = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_ANUBARAK));
                             if (!pTemp || !pTemp->isAlive())
                                 pTemp = me->SummonCreature(NPC_ANUBARAK, AnubarakLoc[0].GetPositionX(), AnubarakLoc[0].GetPositionY(), AnubarakLoc[0].GetPositionZ(), 3, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
-                            me->ForcedDespawn();
+                            me->DespawnOrUnsummon();
                             m_pInstance->SetData(TYPE_EVENT, 0);
                             m_uiUpdateTimer = 20000;
                             break;
@@ -472,9 +472,9 @@ class npc_fizzlebang_toc : public CreatureScript
                             if (Creature* pTemp = Unit::GetCreature(*me, m_pInstance->GetData64(NPC_JARAXXUS)))
                                 pTemp->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
                             if (Creature* pTrigger = Unit::GetCreature(*me, m_uiTriggerGUID))
-                                pTrigger->ForcedDespawn();
+                                pTrigger->DespawnOrUnsummon();
                             if (Creature* pPortal = Unit::GetCreature(*me, m_uiPortalGUID))
-                                pPortal->ForcedDespawn();
+                                pPortal->DespawnOrUnsummon();
                             m_pInstance->SetData(TYPE_EVENT, 1144);
                             m_uiUpdateTimer = 10000;
                             break;
@@ -806,7 +806,7 @@ class npc_tirion_toc : public CreatureScript
                             } else m_pInstance->SetData(TYPE_EVENT, 6030);
                             break;
                         case 6020:
-                            me->ForcedDespawn();
+                            me->DespawnOrUnsummon();
                             m_uiUpdateTimer = 5000;
                             m_pInstance->SetData(TYPE_EVENT, 6030);
                             break;

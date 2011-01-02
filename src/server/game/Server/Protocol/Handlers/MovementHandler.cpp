@@ -660,7 +660,7 @@ void WorldSession::HandleEjectPassenger(WorldPacket &data)
                 {
                     ASSERT(GetPlayer() == vehicle->GetBase());
                     unit->ExitVehicle();
-                    unit->ToCreature()->ForcedDespawn(1000);
+                    unit->ToCreature()->DespawnOrUnsummon(1000);
                     ASSERT(!unit->IsOnVehicle(vehicle->GetBase()));
                 }
                 else

@@ -411,9 +411,9 @@ public:
                 case PHASE_CTHUN_DONE:
                     Creature* pPortal= me->FindNearestCreature(MOB_CTHUN_PORTAL, 10);
                     if (pPortal)
-                        pPortal->ForcedDespawn();
+                        pPortal->DespawnOrUnsummon();
 
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
                     break;
             }
         }

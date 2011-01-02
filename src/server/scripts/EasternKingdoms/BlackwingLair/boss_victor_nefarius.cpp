@@ -370,7 +370,7 @@ public:
                     if (!Nefarian || !Nefarian->isAlive())
                     {
                         NefarianGUID = 0;
-                        me->ForcedDespawn();
+                        me->DespawnOrUnsummon();
                     }
 
                     NefCheckTime = 2000;

@@ -291,10 +291,7 @@ class npc_coldflame : public CreatureScript
                         target = creOwner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true); // or the tank if its solo
                     if (!target)
                     {
-                        if (TempSummon* summ = me->ToTempSummon())
-                            summ->UnSummon();
-                        else
-                            me->ForcedDespawn();
+                        me->DespawnOrUnsummon();
                         return;
                     }
 
@@ -363,17 +360,15 @@ class npc_bone_spike : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 if (TempSummon* summ = me->ToTempSummon())
-                {
                     if (Unit* trapped = summ->GetSummoner())
                         trapped->RemoveAurasDueToSpell(SPELL_IMPALED);
-                    summ->UnSummon();
-                }
+
+                me->DespawnOrUnsummon();
             }
 
             void KilledUnit(Unit* victim)
             {
-                if (TempSummon* summ = me->ToTempSummon())
-                    summ->UnSummon();
+                me->DespawnOrUnsummon();
                 victim->RemoveAurasDueToSpell(SPELL_IMPALED);
             }
 

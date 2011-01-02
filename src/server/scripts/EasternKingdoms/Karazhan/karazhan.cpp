@@ -274,7 +274,7 @@ public:
                     if (TalkCount > 3)
                     {
                         if (Creature* pSpotlight = Unit::GetCreature(*me, m_uiSpotlightGUID))
-                            pSpotlight->ForcedDespawn();
+                            pSpotlight->DespawnOrUnsummon();
 
                         SetEscortPaused(false);
                         return;
