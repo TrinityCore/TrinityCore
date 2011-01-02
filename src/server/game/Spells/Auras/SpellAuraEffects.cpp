@@ -3253,7 +3253,7 @@ void AuraEffect::HandleAuraTransform(AuraApplication const * aurApp, uint8 mode,
     if (apply)
     {
         // update active transform spell only when transform or shapeshift not set or not overwriting negative by positive case
-        if ((!target->getTransForm() && !target->GetShapeshiftForm()) || !IsPositiveSpell(GetId()) || IsPositiveSpell(target->getTransForm()))
+        if (!target->GetModelForForm(target->GetShapeshiftForm()) || !IsPositiveSpell(GetId()))
         {
             // special case (spell specific functionality)
             if (GetMiscValue() == 0)
@@ -3264,7 +3264,7 @@ void AuraEffect::HandleAuraTransform(AuraApplication const * aurApp, uint8 mode,
                     case 16739:
                     {
                         uint32 orb_model = target->GetNativeDisplayId();
-                        switch(orb_model)
+                        switch (orb_model)
                         {
                             // Troll Female
                             case 1479: target->SetDisplayId(10134); break;
@@ -3343,8 +3343,11 @@ void AuraEffect::HandleAuraTransform(AuraApplication const * aurApp, uint8 mode,
                         target->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID,16314);
                 }
             }
-            target->setTransForm(GetId());
         }
+
+        // update active transform spell only when transform or shapeshift not set or not overwriting negative by positive case
+        if (!target->getTransForm() || !IsPositiveSpell(GetId()) || IsPositiveSpell(target->getTransForm()))
+            target->setTransForm(GetId());
 
         // polymorph case
         if ((mode & AURA_EFFECT_HANDLE_REAL) && target->GetTypeId() == TYPEID_PLAYER && target->IsPolymorphed())
@@ -3362,7 +3365,8 @@ void AuraEffect::HandleAuraTransform(AuraApplication const * aurApp, uint8 mode,
     else
     {
         // HandleEffect(this, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true) will reapply it if need
-        target->setTransForm(0);
+        if (target->getTransForm() == GetId())
+            target->setTransForm(0);
 
         target->RestoreDisplayId();
 

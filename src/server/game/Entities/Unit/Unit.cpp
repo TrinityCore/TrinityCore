@@ -14225,10 +14225,10 @@ void Unit::RestoreDisplayId()
         {
             if (AuraApplication const * aurApp = (*i)->GetBase()->GetApplicationOfTarget(GetGUID()))
             {
-                if (aurApp->IsPositive())
+                if (!handledAura)
                     handledAura = (*i);
                 // prefer negative auras
-                else
+                if (!aurApp->IsPositive())
                 {
                     handledAura = (*i);
                     break;
