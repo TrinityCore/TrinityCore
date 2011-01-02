@@ -153,8 +153,6 @@ public:
         {
             if (m_pInstance)
                 m_pInstance->SetData(TYPE_NORTHREND_BEASTS, GORMOK_DONE);
-
-            Summons.DespawnAll();
         }
 
         void JustReachedHome()
@@ -200,13 +198,13 @@ public:
 
             if (m_uiImpaleTimer <= uiDiff)
             {
-                DoCast(me->getVictim(), SPELL_IMPALE);
+                DoCastVictim(SPELL_IMPALE);
                 m_uiImpaleTimer = urand(8*IN_MILLISECONDS, 10*IN_MILLISECONDS);
             } else m_uiImpaleTimer -= uiDiff;
 
             if (m_uiStaggeringStompTimer <= uiDiff)
             {
-                DoCast(me->getVictim(), SPELL_STAGGERING_STOMP);
+                DoCastVictim(SPELL_STAGGERING_STOMP);
                 m_uiStaggeringStompTimer = urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS);
             } else m_uiStaggeringStompTimer -= uiDiff;
 
@@ -289,7 +287,12 @@ public:
             {
                 case 0: // JUMP!? Fuck! THAT'S BEEZARR! Would someone PLEASE make MotionMaster->Move* work better?
                     if (m_bTargetDied)
-                        me->ForcedDespawn();
+                    {
+                        if (TempSummon* summ = me->ToTempSummon())
+                            summ->UnSummon();
+                        else
+                            me->ForcedDespawn();
+                    }
                     break;
             }
         }
@@ -309,25 +312,26 @@ public:
                 return;
 
             if (Unit* pTarget = Unit::GetPlayer(*me, m_uiTargetGUID))
+            {
                 if (!pTarget->isAlive())
+                {
                     if (m_pInstance)
-                        if (Unit* pGormok = Unit::GetCreature(*me, m_pInstance->GetData64(NPC_GORMOK)))
+                    {
+                        Unit* gormok = ObjectAccessor::GetCreature(*me, m_pInstance->GetData64(NPC_GORMOK));
+                        if (gormok && gormok->isAlive())
                         {
-                            if (pGormok->isAlive())
-                            {
-                                SetCombatMovement(false);
-                                m_bTargetDied = true;
-                                me->GetMotionMaster()->MoveJump(pGormok->GetPositionX(), pGormok->GetPositionY(), pGormok->GetPositionZ(), 15.0f, 15.0f);
-                            }
-                            else
-                            {
-                                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                                {
-                                    m_uiTargetGUID = pTarget->GetGUID();
-                                    me->GetMotionMaster()->MoveJump(pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 15.0f, 15.0f);
-                                }
-                            }
+                            SetCombatMovement(false);
+                            m_bTargetDied = true;
+                            me->GetMotionMaster()->MoveJump(gormok->GetPositionX(), gormok->GetPositionY(), gormok->GetPositionZ(), 15.0f, 15.0f);
                         }
+                        else if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        {
+                            m_uiTargetGUID = target->GetGUID();
+                            me->GetMotionMaster()->MoveJump(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 15.0f, 15.0f);
+                        }
+                    }
+                }
+            }
 
             if (m_uiFireBombTimer < uiDiff)
             {
