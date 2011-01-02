@@ -3145,6 +3145,10 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
         if (!aurApp)
             continue;
 
+        // don't try to remove passive auras
+        if (aura->IsPassive())
+            continue;
+
         if ((1<<aura->GetSpellProto()->Dispel) & dispelMask)
         {
             if (aura->GetSpellProto()->Dispel == DISPEL_MAGIC)
