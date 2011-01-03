@@ -361,7 +361,9 @@ struct boss_twin_baseAI : public ScriptedAI
                     DoCastAOE(m_uiVortexSpellId);
                     m_uiStage = 0;
                     m_uiSpecialAbilityTimer = MINUTE*IN_MILLISECONDS;
-                } else m_uiSpecialAbilityTimer -= uiDiff;
+                }
+                else
+                    m_uiSpecialAbilityTimer -= uiDiff;
                 break;
             case 2: // Shield+Pact
                 if (m_uiSpecialAbilityTimer <= uiDiff)
@@ -374,7 +376,9 @@ struct boss_twin_baseAI : public ScriptedAI
                     DoCast(me, m_uiTwinPactSpellId);
                     m_uiStage = 0;
                     m_uiSpecialAbilityTimer = MINUTE*IN_MILLISECONDS;
-                } m_uiSpecialAbilityTimer -= uiDiff;
+                }
+                else
+                    m_uiSpecialAbilityTimer -= uiDiff;
                 break;
             default:
                 break;
@@ -384,14 +388,18 @@ struct boss_twin_baseAI : public ScriptedAI
         {
             DoCastVictim(m_uiSpikeSpellId);
             m_uiSpikeTimer = 20*IN_MILLISECONDS;
-        } m_uiSpikeTimer -= uiDiff;
+        }
+        else
+            m_uiSpikeTimer -= uiDiff;
 
         if (IsHeroic() && m_uiTouchTimer <= uiDiff)
         {
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true, m_uiOtherEssenceSpellId))
                 me->CastCustomSpell(m_uiTouchSpellId, SPELLVALUE_MAX_TARGETS, 1, pTarget, false);
             m_uiTouchTimer = urand(10, 15)*IN_MILLISECONDS;
-        } m_uiTouchTimer -= uiDiff;
+        }
+        else
+            m_uiTouchTimer -= uiDiff;
 
         if (m_uiColorballsTimer <= uiDiff)
         {
@@ -406,14 +414,18 @@ struct boss_twin_baseAI : public ScriptedAI
                 m_uiWaveCount++;
             }
             m_uiColorballsTimer = 15*IN_MILLISECONDS;
-        } else m_uiColorballsTimer -= uiDiff;
+        }
+        else
+            m_uiColorballsTimer -= uiDiff;
 
         if (!m_bIsBerserk && m_uiBerserkTimer <= uiDiff)
         {
             DoCast(me, SPELL_BERSERK);
             DoScriptText(SAY_BERSERK, me);
             m_bIsBerserk = true;
-        } else m_uiBerserkTimer -= uiDiff;
+        }
+        else
+            m_uiBerserkTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }
