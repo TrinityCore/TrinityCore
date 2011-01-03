@@ -1945,7 +1945,7 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             if (Player* pPlayer = GetPlayerForEscort())
-                pPlayer->FailQuest(QUEST_ESCAPING_THE_MIST);
+                pPlayer->FailQuest(QUEST_GET_ME_OUTA_HERE);
         }
 
         void UpdateEscortAI(const uint32 /*diff*/)
