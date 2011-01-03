@@ -38,7 +38,13 @@ class instance_pit_of_saron : public InstanceMapScript
                 _teamInInstance = 0;
             }
 
-            void OnCreatureCreate(Creature* creature, bool /*add*/)
+            void OnPlayerEnter(Player* player)
+            {
+                if (!_teamInInstance)
+                    _teamInInstance = player->GetTeam();
+            }
+
+            void OnCreatureCreate(Creature* creature)
             {
                 if (!_teamInInstance)
                 {

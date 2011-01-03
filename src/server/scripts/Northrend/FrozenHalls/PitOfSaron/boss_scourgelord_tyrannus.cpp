@@ -169,7 +169,7 @@ class boss_tyrannus : public CreatureScript
                 me->DespawnOrUnsummon();
             }
 
-            void KilledUnit(Unit * victim)
+            void KilledUnit(Unit* victim)
             {
                 if (victim->GetTypeId() == TYPEID_PLAYER)
                     DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
@@ -483,7 +483,7 @@ class at_tyrannus_event_starter : public AreaTriggerScript
                 return false;
 
             if (instance->GetBossState(DATA_TYRANNUS) != IN_PROGRESS || instance->GetBossState(DATA_TYRANNUS) != DONE)
-                if (Creature* tyrannus = Unit::GetCreature(*player, instance->GetData64(DATA_TYRANNUS)))
+                if (Creature* tyrannus = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_TYRANNUS)))
                 {
                     tyrannus->AI()->DoAction(ACTION_START_INTRO);
                     return true;
