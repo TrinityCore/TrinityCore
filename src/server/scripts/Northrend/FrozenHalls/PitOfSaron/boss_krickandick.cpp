@@ -599,12 +599,14 @@ class spell_exploding_orb_hasty_grow : public SpellScriptLoader
             {
                 if (GetStackAmount() == 15)
                 {
-                    GetTarget()->CastSpell(GetTarget(), SPELL_EXPLOSIVE_BARRAGE_DAMAGE, false);
-                    GetTarget()->RemoveAurasDueToSpell(SPELL_HASTY_GROW);
-                    GetTarget()->RemoveAurasDueToSpell(SPELL_AUTO_GROW);
-                    GetTarget()->RemoveAurasDueToSpell(SPELL_EXPLODING_ORB);
-                    if (Creature* creature = GetTarget()->ToCreature())
-                        creature->DespawnOrUnsummon(1000);
+                    Unit* target = GetTarget(); // store target because aura gets removed
+                    PreventDefaultAction();
+                    target->CastSpell(target, SPELL_EXPLOSIVE_BARRAGE_DAMAGE, false);
+                    target->RemoveAurasDueToSpell(SPELL_HASTY_GROW);
+                    target->RemoveAurasDueToSpell(SPELL_AUTO_GROW);
+                    target->RemoveAurasDueToSpell(SPELL_EXPLODING_ORB);
+                    if (Creature* creature = target->ToCreature())
+                        creature->DespawnOrUnsummon();
                 }
             }
 
