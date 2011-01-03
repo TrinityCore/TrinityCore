@@ -117,15 +117,16 @@ enum Points
     POINT_KRICK_DEATH       = 364771,
 };
 
-static const Position outroPos[7] =
+static const Position outroPos[8] =
 {
     {828.9342f, 118.6247f, 509.5190f, 0.0000000f},  // Krick's Outro Position
     {841.0100f, 196.2450f, 573.9640f, 0.2046099f},  // Scourgelord Tyrannus Outro Position (Tele to...)
     {777.2274f, 119.5521f, 510.0363f, 6.0562930f},  // Sylvanas / Jaine Outro Spawn Position (NPC_SYLVANAS_PART1)
     {823.3984f, 114.4907f, 509.4899f, 0.0000000f},  // Sylvanas / Jaine Outro Move Position (1)
-    {835.5887f, 139.4345f, 530.9526f, 0.0000000f},  // Tyrannus Fly down Position (only not blizz one :/)
+    {835.5887f, 139.4345f, 530.9526f, 0.0000000f},  // Tyrannus fly down Position (not sniffed)
     {828.9342f, 118.6247f, 514.5190f, 0.0000000f},  // Krick's Choke Position
     {828.9342f, 118.6247f, 509.4958f, 0.0000000f},  // Kirck's Death Position
+    {914.4820f, 143.1602f, 633.3624f, 0.0000000f},  // Tyrannus fly up (not sniffed)
 };
 
 class boss_ick : public CreatureScript
@@ -377,29 +378,30 @@ class boss_krick : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_OUTRO_1:
+                        {
+                            if (Creature* temp = me->GetCreature(*me, _instanceScript->GetData64(DATA_JAINA_SYLVANAS_1)))
+                                temp->DespawnOrUnsummon();
+
+                            Creature* jainaOrSylvanas = NULL;
+                            if (_instanceScript->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
+                                jainaOrSylvanas = me->SummonCreature(NPC_JAINA_PART1, outroPos[2], TEMPSUMMON_MANUAL_DESPAWN);
+                            else
+                                jainaOrSylvanas = me->SummonCreature(NPC_SYLVANAS_PART1, outroPos[2], TEMPSUMMON_MANUAL_DESPAWN);
+
+                            if (jainaOrSylvanas)
                             {
-                                if (Creature* temp = me->GetCreature(*me, _instanceScript->GetData64(DATA_JAINA_SYLVANAS_1)))
-                                    temp->DespawnOrUnsummon();
-
-                                Creature* jainaOrSylvanas = NULL;
-                                if (_instanceScript->GetData(DATA_TEAM_IN_INSTANCE) == TEAM_ALLIANCE)
-                                    jainaOrSylvanas = me->SummonCreature(NPC_JAINA_PART1, outroPos[2], TEMPSUMMON_MANUAL_DESPAWN);
-                                else
-                                    jainaOrSylvanas = me->SummonCreature(NPC_SYLVANAS_PART1, outroPos[2], TEMPSUMMON_MANUAL_DESPAWN);
-
-                                if (jainaOrSylvanas)
-                                {
-                                    jainaOrSylvanas->GetMotionMaster()->MovePoint(0, outroPos[3]);
-                                    _outroNpcGUID = jainaOrSylvanas->GetGUID();
-                                }
-                                _events.ScheduleEvent(EVENT_OUTRO_2, 6000);
+                                jainaOrSylvanas->GetMotionMaster()->MovePoint(0, outroPos[3]);
+                                _outroNpcGUID = jainaOrSylvanas->GetGUID();
                             }
+                            _events.ScheduleEvent(EVENT_OUTRO_2, 6000);
+                            break;
+                        }
                         case EVENT_OUTRO_2:
-                            if (Creature* jainaOrSylvanas = me->GetCreature(*me, _outroNpcGUID))
+                            if (Creature* jainaOrSylvanas = ObjectAccessor::GetCreature(*me, _outroNpcGUID))
                             {
                                 jainaOrSylvanas->SetFacingToObject(me);
                                 me->SetFacingToObject(jainaOrSylvanas);
-                                if (_instanceScript->GetData(DATA_TEAM_IN_INSTANCE) == TEAM_ALLIANCE)
+                                if (_instanceScript->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                                     DoScriptText(SAY_JAYNA_OUTRO_2, jainaOrSylvanas);
                                 else
                                     DoScriptText(SAY_SYLVANAS_OUTRO_2, jainaOrSylvanas);
@@ -411,9 +413,9 @@ class boss_krick : public CreatureScript
                             _events.ScheduleEvent(EVENT_OUTRO_4, 18000);
                             break;
                         case EVENT_OUTRO_4:
-                            if (Creature* jainaOrSylvanas = me->GetCreature(*me, _outroNpcGUID))
+                            if (Creature* jainaOrSylvanas = ObjectAccessor::GetCreature(*me, _outroNpcGUID))
                             {
-                                if (_instanceScript->GetData(DATA_TEAM_IN_INSTANCE) == TEAM_ALLIANCE)
+                                if (_instanceScript->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                                     DoScriptText(SAY_JAYNA_OUTRO_4, jainaOrSylvanas);
                                 else
                                     DoScriptText(SAY_SYLVANAS_OUTRO_4, jainaOrSylvanas);
@@ -434,7 +436,7 @@ class boss_krick : public CreatureScript
                             _events.ScheduleEvent(EVENT_OUTRO_7, 5000);
                             break;
                         case EVENT_OUTRO_7:
-                            if (Creature* tyrannus = me->GetCreature(*me, _tyrannusGUID))
+                            if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, _tyrannusGUID))
                                 DoScriptText(SAY_TYRANNUS_OUTRO_7, tyrannus);
                             _events.ScheduleEvent(EVENT_OUTRO_8, 5000);
                             break;
@@ -448,7 +450,7 @@ class boss_krick : public CreatureScript
                             DoScriptText(SAY_KRICK_OUTRO_8, me);
                             // TODO: Tyrannus starts killing Krick.
                             // there shall be some visual spell effect
-                            if (Creature* tyrannus = me->GetCreature(*me, _tyrannusGUID))
+                            if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, _tyrannusGUID))
                                 tyrannus->CastSpell(me, SPELL_NECROMANTIC_POWER, true);  //not sure if it's the right spell :/
                             _events.ScheduleEvent(EVENT_OUTRO_10, 1000);
                             break;
@@ -465,27 +467,30 @@ class boss_krick : public CreatureScript
                             _events.ScheduleEvent(EVENT_OUTRO_12, 3000);
                             break;
                         case EVENT_OUTRO_12:
-                            if (Creature* tyrannus = me->GetCreature(*me, _tyrannusGUID))
+                            if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, _tyrannusGUID))
                                 DoScriptText(SAY_TYRANNUS_OUTRO_9, tyrannus);
                             _events.ScheduleEvent(EVENT_OUTRO_13, 2000);
                             break;
                         case EVENT_OUTRO_13:
-                            if (Creature* jainaOrSylvanas = me->GetCreature(*me, _outroNpcGUID))
+                            if (Creature* jainaOrSylvanas = ObjectAccessor::GetCreature(*me, _outroNpcGUID))
                             {
-                                if (_instanceScript->GetData(DATA_TEAM_IN_INSTANCE) == TEAM_ALLIANCE)
+                                if (_instanceScript->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                                     DoScriptText(SAY_JAYNA_OUTRO_10, jainaOrSylvanas);
                                 else
                                     DoScriptText(SAY_SYLVANAS_OUTRO_10, jainaOrSylvanas);
                             }
                             // End of OUTRO. for now...
-                            _events.ScheduleEvent(EVENT_OUTRO_END, 2000);
+                            _events.ScheduleEvent(EVENT_OUTRO_END, 3000);
+                            if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, _tyrannusGUID))
+                                tyrannus->GetMotionMaster()->MovePoint(0, outroPos[7]);
                             break;
                         case EVENT_OUTRO_END:
-                            //if (Creature* jainaOrSylvanas = me->GetCreature(*me, npcOutroDialogGUID))
-                            //    jainaOrSylvanas->DisappearAndDie();
+                            if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, _tyrannusGUID))
+                                tyrannus->DespawnOrUnsummon();
 
-                            //Todo: jaina walk and tyrannus fly to next step
                             me->DisappearAndDie();
+                            break;
+                        default:
                             break;
                     }
                 }
