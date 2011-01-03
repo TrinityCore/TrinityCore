@@ -74,7 +74,7 @@ uint32 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseEntry const* entry, uint32
 
     float multiplier = CalculatePctN(float(entry->depositPercent), 3);
     uint32 timeHr = (((time / 60) / 60) / 12);
-    uint32 deposit = uint32(multiplier * MSV * count / 3) * timeHr * 3;
+    uint32 deposit = uint32(((multiplier * MSV * count / 3) * timeHr * 3) * sWorld->getRate(RATE_AUCTION_DEPOSIT));
 
     sLog->outDebug("MSV:        %u", MSV);
     sLog->outDebug("Items:      %u", count);
@@ -695,7 +695,7 @@ bool AuctionEntry::BuildAuctionInfo(WorldPacket & data) const
 
 uint32 AuctionEntry::GetAuctionCut() const
 {
-    int32 cut = int32(CalculatePctU(sWorld->getRate(RATE_AUCTION_CUT), auctionHouseEntry->cutPercent)) * bid;
+    int32 cut = int32(CalculatePctU(bid, auctionHouseEntry->cutPercent) * sWorld->getRate(RATE_AUCTION_CUT));
     return std::max(cut, 0);
 }
 
