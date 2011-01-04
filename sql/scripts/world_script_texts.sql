@@ -2590,7 +2590,7 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (33271,-1603296,'Behold, now! Terror, absolute!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15548,1,0,0,'Vezax SAY_HARDMODE_ON'),
    (33271,-1603297,'The saronite vapors mass and swirl violently, merging into a monstrous form!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,3,0,0,'General Vezax - Emote2'),
    (33271,-1603298,'A saronite barrier appears around General Vezax!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,3,0,0,'General Vezax - Emote3'),
-   (33271,-1603299,'General Vezax roars and surges with dark might!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,3,0,0,'General Vezax - Emote4');
+   (33271,-1603299,'General Vezax roars and surges with dark might!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,3,0,0,'General Vezax - Emote4'),
 
 -- XT002
    (33293,-1603300,'New toys? For me? I promise I won''t break them this time!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15724,1,0,0,'XT002 SAY_AGGRO'),
