@@ -17,7 +17,7 @@
  */
 /* ScriptData
 SDName: northrend_beasts
-SD%Complete: 90%
+SD%Complete: 95%
 SDComment: based on /dev/rsa
 SDCategory:
 EndScriptData */
@@ -71,43 +71,137 @@ enum Summons
 enum BossSpells
 {
     //Gormok
-    SPELL_IMPALE            = 66331,
-    SPELL_STAGGERING_STOMP  = 67648,
-    SPELL_RISING_ANGER      = 66636,
+    SPELL_IMPALE_10N            = 66331,
+    SPELL_IMPALE_10H            = 67478,
+    SPELL_IMPALE_25N            = 67477,
+    SPELL_IMPALE_25H            = 67479,
+
+    SPELL_STAGGERING_STOMP_10N  = 67649,
+    SPELL_STAGGERING_STOMP_10H  = 67647,
+    SPELL_STAGGERING_STOMP_25N  = 67648,
+    SPELL_STAGGERING_STOMP_25H  = 67649,
+
+    SPELL_RISING_ANGER          = 66636,
+    SPELL_SNOBOLLED             = 66406,
+
     //Snobold
-    SPELL_SNOBOLLED         = 66406,
-    SPELL_BATTER            = 66408,
-    SPELL_FIRE_BOMB         = 66313,
-    SPELL_FIRE_BOMB_1       = 66317,
-    SPELL_FIRE_BOMB_DOT     = 66318,
-    SPELL_HEAD_CRACK        = 66407,
+    SPELL_BATTER                = 66408,
+    SPELL_FIRE_BOMB             = 66313,
+    SPELL_HEAD_CRACK            = 66407,
+
+    //Acidmaw
+    SPELL_ACID_SPIT_10N         = 66880,
+    SPELL_ACID_SPIT_25N         = 67606,
+    SPELL_ACID_SPIT_10H         = 67607,
+    SPELL_ACID_SPIT_25H         = 67608,
+    
+    SPELL_PARALYTIC_BITE_10N    = 66824,
+    SPELL_PARALYTIC_BITE_25N    = 67612,
+    SPELL_PARALYTIC_BITE_10H    = 67613,
+    SPELL_PARALYTIC_BITE_25H    = 67614,
+    
+    SPELL_PARALYTIC_SPRAY_10N   = 66901,
+    SPELL_PARALYTIC_SPRAY_25N   = 67615,
+    SPELL_PARALYTIC_SPRAY_10H   = 67616,
+    SPELL_PARALYTIC_SPRAY_25H   = 67617,
+
+    SPELL_ACID_SPEW_10N         = 66819,
+    SPELL_ACID_SPEW_25N         = 67609,
+    SPELL_ACID_SPEW_10H         = 67610,
+    SPELL_ACID_SPEW_25H         = 67611,
+
+    //Dreadscale
+    SPELL_BURNING_BITE_10N      = 66879,
+    SPELL_BURNING_BITE_25N      = 67624,
+    SPELL_BURNING_BITE_10H      = 67625,
+    SPELL_BURNING_BITE_25H      = 67626,
+    
+    SPELL_BURNING_SPRAY_10N     = 66902,
+    SPELL_BURNING_SPRAY_25N     = 67627,
+    SPELL_BURNING_SPRAY_10H     = 67628,
+    SPELL_BURNING_SPRAY_25H     = 67629,
+    
+    SPELL_FIRE_SPIT_10N         = 66796,
+    SPELL_FIRE_SPIT_25N         = 67632,
+    SPELL_FIRE_SPIT_10H         = 67633,
+    SPELL_FIRE_SPIT_25H         = 67634,
+    
+    SPELL_MOLTEN_SPEW_10N       = 66820,
+    SPELL_MOLTEN_SPEW_25N       = 67635,
+    SPELL_MOLTEN_SPEW_10H       = 67636,
+    SPELL_MOLTEN_SPEW_25H       = 67637,
 
     //Acidmaw & Dreadscale
-    SPELL_ACID_SPIT         = 66880,
-    SPELL_PARALYTIC_SPRAY   = 66901,
-    SPELL_ACID_SPEW         = 66819,
-    SPELL_PARALYTIC_BITE    = 66824,
-    SPELL_SWEEP_0           = 66794,
-    SUMMON_SLIME_POOL       = 66883,
-    SPELL_FIRE_SPIT         = 66796,
-    SPELL_MOLTEN_SPEW       = 66821,
-    SPELL_BURNING_BITE      = 66879,
-    SPELL_BURNING_SPRAY     = 66902,
-    SPELL_SWEEP_1           = 67646,
-    SPELL_EMERGE_0          = 66947,
-    SPELL_SUBMERGE_0        = 53421,
-    SPELL_ENRAGE            = 68335,
-    SPELL_SLIME_POOL_EFFECT = 66882, //In 60s it diameter grows from 10y to 40y (r=r+0.25 per second)
+
+    SUMMON_SLIME_POOL_10N       = 66883,
+    SUMMON_SLIME_POOL_10H       = 67641,
+    SUMMON_SLIME_POOL_25N       = 67642,
+    SUMMON_SLIME_POOL_25H       = 67643,
+
+    SPELL_SWEEP_10N             = 66794,
+    SPELL_SWEEP_25N             = 66794,
+    SPELL_SWEEP_10H             = 66794,
+    SPELL_SWEEP_25H             = 66794,
+    
+    SPELL_EMERGE_0              = 66947,
+    SPELL_SUBMERGE_0            = 53421,
+    SPELL_ENRAGE                = 68335,
+    SPELL_SLIME_POOL_EFFECT     = 66882,
+    
 
     //Icehowl
-    SPELL_FEROCIOUS_BUTT    = 66770,
-    SPELL_MASSIVE_CRASH     = 66683,
-    SPELL_WHIRL             = 67345,
-    SPELL_ARCTIC_BREATH     = 66689,
-    SPELL_TRAMPLE           = 66734,
-    SPELL_FROTHING_RAGE     = 66759,
-    SPELL_STAGGERED_DAZE    = 66758,
+    SPELL_MASSIVE_CRASH_10N     = 66683,
+    SPELL_MASSIVE_CRASH_10H     = 67660,
+    SPELL_MASSIVE_CRASH_25N     = 67661,
+    SPELL_MASSIVE_CRASH_25H     = 67662,
+
+    SPELL_FEROCIOUS_BUTT_10N    = 66770,
+    SPELL_FEROCIOUS_BUTT_10H    = 67655,
+    SPELL_FEROCIOUS_BUTT_25N    = 67654,
+    SPELL_FEROCIOUS_BUTT_25H    = 67656,
+
+    SPELL_WHIRL_10N             = 67345,
+    SPELL_WHIRL_10H             = 67663,
+    SPELL_WHIRL_25N             = 67664,
+    SPELL_WHIRL_25H             = 67665,
+
+    SPELL_ARCTIC_BREATH_10N     = 66689,
+    SPELL_ARCTIC_BREATH_10H     = 67651,
+    SPELL_ARCTIC_BREATH_25N     = 67650,
+    SPELL_ARCTIC_BREATH_25H     = 67652,
+    
+    SPELL_TRAMPLE               = 66734,
+    SPELL_FROTHING_RAGE         = 66759,
+    SPELL_STAGGERED_DAZE        = 66758,
 };
+
+
+//Gormok
+#define SPELL_IMPALE              RAID_MODE(SPELL_IMPALE_10N, SPELL_IMPALE_25N, SPELL_IMPALE_10H, SPELL_IMPALE_25H)
+#define SPELL_STAGGERING_STOMP    RAID_MODE(SPELL_STAGGERING_STOMP_10N, SPELL_STAGGERING_STOMP_25N, SPELL_STAGGERING_STOMP_10H, SPELL_STAGGERING_STOMP_25H)
+
+//Acidmaw
+#define SPELL_ACID_SPIT           RAID_MODE(SPELL_ACID_SPIT_10N, SPELL_ACID_SPIT_25N, SPELL_ACID_SPIT_10H, SPELL_ACID_SPIT_25H)
+#define SPELL_PARALYTIC_BITE      RAID_MODE(SPELL_PARALYTIC_BITE_10N, SPELL_PARALYTIC_BITE_25N, SPELL_ACID_SPIT_10H, SPELL_ACID_SPIT_25H)
+#define SPELL_PARALYTIC_SPRAY     RAID_MODE(SPELL_PARALYTIC_SPRAY_10N, SPELL_PARALYTIC_SPRAY_25N, SPELL_PARALYTIC_SPRAY_10H, SPELL_PARALYTIC_SPRAY_25H)
+#define SPELL_ACID_SPEW           RAID_MODE(SPELL_ACID_SPEW_10N, SPELL_ACID_SPEW_25N, SPELL_ACID_SPIT_10H, SPELL_ACID_SPIT_25H)
+
+//Dreadscale
+#define SPELL_BURNING_BITE        RAID_MODE(SPELL_BURNING_BITE_10N, SPELL_BURNING_BITE_25N, SPELL_BURNING_BITE_10H, SPELL_BURNING_BITE_25H)
+#define SPELL_BURNING_SPRAY       RAID_MODE(SPELL_BURNING_SPRAY_10N, SPELL_BURNING_SPRAY_25N, SPELL_BURNING_SPRAY_10H, SPELL_BURNING_SPRAY_25H)
+#define SPELL_FIRE_SPIT           RAID_MODE(SPELL_FIRE_SPIT_10N, SPELL_FIRE_SPIT_25N, SPELL_FIRE_SPIT_10H, SPELL_FIRE_SPIT_25H)
+#define SPELL_MOLTEN_SPEW         RAID_MODE(SPELL_MOLTEN_SPEW_10N, SPELL_MOLTEN_SPEW_25N, SPELL_MOLTEN_SPEW_10H, SPELL_MOLTEN_SPEW_25H)
+
+//Acidmaw & Dreadscale
+#define SUMMON_SLIME_POOL         RAID_MODE(SUMMON_SLIME_POOL_10N, SUMMON_SLIME_POOL_25N, SUMMON_SLIME_POOL_10H, SUMMON_SLIME_POOL_25H)
+#define SPELL_SWEEP               RAID_MODE(SPELL_SWEEP_10N, SPELL_SWEEP_25N, SPELL_SWEEP_10H, SPELL_SWEEP_25H)
+
+//Icehowl
+#define SPELL_MASSIVE_CRASH       RAID_MODE(SPELL_MASSIVE_CRASH_10N, SPELL_MASSIVE_CRASH_25N, SPELL_MASSIVE_CRASH_10H, SPELL_MASSIVE_CRASH_25H)
+#define SPELL_FEROCIOUS_BUTT      RAID_MODE(SPELL_FEROCIOUS_BUTT_10N, SPELL_FEROCIOUS_BUTT_25N, SPELL_FEROCIOUS_BUTT_10H, SPELL_FEROCIOUS_BUTT_25H)
+#define SPELL_WHIRL               RAID_MODE(SPELL_WHIRL_10N, SPELL_WHIRL_25N, SPELL_WHIRL_10H, SPELL_WHIRL_25H)
+#define SPELL_ARCTIC_BREATH       RAID_MODE(SPELL_ARCTIC_BREATH_10N, SPELL_ARCTIC_BREATH_25N, SPELL_ARCTIC_BREATH_10H, SPELL_ARCTIC_BREATH_25H)
+
 
 class boss_gormok : public CreatureScript
 {
@@ -159,6 +253,7 @@ public:
         {
             if (m_pInstance)
                 m_pInstance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
+            Summons.DespawnAll();
             me->DespawnOrUnsummon();
         }
 
@@ -368,20 +463,20 @@ struct boss_jormungarAI : public ScriptedAI
 
     void Reset()
     {
-        enraged = false;
-        biteTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-        spewTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-        slimePoolTimer = 15*IN_MILLISECONDS;
-        spitTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-        sprayTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-        sweepTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
+        m_bEnraged = false;
+        m_uiBiteTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
+        m_uiSpewTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
+        m_uiSlimePoolTimer = 15*IN_MILLISECONDS;
+        m_uiSpitTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
+        m_uiSprayTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
+        m_uiSweepTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
     }
 
     void JustDied(Unit* /*pKiller*/)
     {
         if (instanceScript)
         {
-            if (Creature* otherWorm = Unit::GetCreature(*me, instanceScript->GetData64(otherWormEntry)))
+            if (Creature* otherWorm = Unit::GetCreature(*me, instanceScript->GetData64(m_uiSisterID)))
             {
                 if (!otherWorm->isAlive())
                 {
@@ -416,63 +511,67 @@ struct boss_jormungarAI : public ScriptedAI
     void EnterCombat(Unit* /*pWho*/)
     {
         me->SetInCombatWithZone();
+
         if (instanceScript)
+        {
             instanceScript->SetData(TYPE_NORTHREND_BEASTS, SNAKES_IN_PROGRESS);
+
+            if (Creature* pSister = Unit::GetCreature((*me), instanceScript->GetData64(m_uiSisterID)))
+                pSister->SetInCombatWithZone();
+        }
     }
 
     void UpdateAI(const uint32 uiDiff)
     {
         if (!UpdateVictim()) return;
 
-        if (instanceScript && instanceScript->GetData(TYPE_NORTHREND_BEASTS) == SNAKES_SPECIAL && !enraged)
+        if (instanceScript && instanceScript->GetData(TYPE_NORTHREND_BEASTS) == SNAKES_SPECIAL && !m_bEnraged)
         {
             DoScriptText(SAY_EMERGE, me);
             me->RemoveAurasDueToSpell(SPELL_SUBMERGE_0);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             DoCast(SPELL_ENRAGE);
-            enraged = true;
+            m_bEnraged = true;
             DoScriptText(SAY_BERSERK, me);
-            switch (stage)
+            switch (m_uiStage)
             {
                 case 0:
                     break;
                 case 4:
-                    stage = 5;
-                    submergeTimer = 5*IN_MILLISECONDS;
+                    m_uiStage = 5;
+                    m_uiSubmergeTimer = 5*IN_MILLISECONDS;
                     break;
                 default:
-                    stage = 7;
+                    m_uiStage = 7;
             }
         }
 
-        switch (stage)
+        switch (m_uiStage)
         {
             case 0: // Mobile
-                if (biteTimer <= uiDiff)
+                if (m_uiBiteTimer <= uiDiff)
                 {
-                    DoCastVictim(biteSpell);
-                    biteTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-                } else biteTimer -= uiDiff;
+                    DoCastVictim(m_uiBiteSpell);
+                    m_uiBiteTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
+                } else m_uiBiteTimer -= uiDiff;
 
-                if (spewTimer <= uiDiff)
+                if (m_uiSpewTimer <= uiDiff)
                 {
-                    DoCastAOE(spewSpell);
-                    spewTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-                } else spewTimer -= uiDiff;
+                    DoCastAOE(m_uiSpewSpell);
+                    m_uiSpewTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
+                } else m_uiSpewTimer -= uiDiff;
 
-                if (slimePoolTimer <= uiDiff)
+                if (m_uiSlimePoolTimer <= uiDiff)
                 {
-                    /* Spell summon has only 30s duration */
-                    //DoCast(SUMMON_SLIME_POOL);
-                    me->SummonCreature(NPC_SLIME_POOL, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0);
-                    slimePoolTimer = 30*IN_MILLISECONDS;
-                } else slimePoolTimer -= uiDiff;
+                    DoCast(SUMMON_SLIME_POOL);
+                    m_uiSlimePoolTimer = 30*IN_MILLISECONDS;
+                } else m_uiSlimePoolTimer -= uiDiff;
 
-                if (submergeTimer <= uiDiff && !enraged)
+                if (m_uiSubmergeTimer <= uiDiff && !m_bEnraged)
                 {
-                    stage = 1;
-                    submergeTimer = 5*IN_MILLISECONDS;
-                } else submergeTimer -= uiDiff;
+                    m_uiStage = 1;
+                    m_uiSubmergeTimer = 5*IN_MILLISECONDS;
+                } else m_uiSubmergeTimer -= uiDiff;
 
                 DoMeleeAttackIfReady();
                 break;
@@ -481,16 +580,16 @@ struct boss_jormungarAI : public ScriptedAI
                 DoCast(me, SPELL_SUBMERGE_0);
                 DoScriptText(SAY_SUBMERGE, me);
                 me->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX()+urand(0, 80)-40, ToCCommonLoc[1].GetPositionY()+urand(0, 80)-40, ToCCommonLoc[1].GetPositionZ());
-                stage = 2;
+                m_uiStage = 2;
             case 2: // Wait til emerge
-                if (submergeTimer <= uiDiff)
+                if (m_uiSubmergeTimer <= uiDiff)
                 {
-                    stage = 3;
-                    submergeTimer = 50*IN_MILLISECONDS;
-                } else submergeTimer -= uiDiff;
+                    m_uiStage = 3;
+                    m_uiSubmergeTimer = 45*IN_MILLISECONDS;
+                } else m_uiSubmergeTimer -= uiDiff;
                 break;
             case 3: // Emerge
-                me->SetDisplayId(modelStationary);
+                me->SetDisplayId(m_uiModelStationary);
                 DoScriptText(SAY_EMERGE, me);
                 me->RemoveAurasDueToSpell(SPELL_SUBMERGE_0);
                 DoCast(me, SPELL_EMERGE_0);
@@ -498,45 +597,45 @@ struct boss_jormungarAI : public ScriptedAI
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 SetCombatMovement(false);
                 me->GetMotionMaster()->MoveIdle();
-                stage = 4;
+                m_uiStage = 4;
                 break;
             case 4: // Stationary
-                if (sprayTimer <= uiDiff)
+                if (m_uiSprayTimer <= uiDiff)
                 {
                     if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget, spraySpell);
-                    sprayTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-                } else sprayTimer -= uiDiff;
+                        DoCast(pTarget, m_uiSpraySpell);
+                    m_uiSprayTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
+                } else m_uiSprayTimer -= uiDiff;
 
-                if (sweepTimer <= uiDiff)
+                if (m_uiSweepTimer <= uiDiff)
                 {
-                    DoCastAOE(SPELL_SWEEP_0);
-                    sweepTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-                } else sweepTimer -= uiDiff;
+                    DoCastAOE(SPELL_SWEEP);
+                    m_uiSweepTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
+                } else m_uiSweepTimer -= uiDiff;
 
-                if (submergeTimer <= uiDiff)
+                if (m_uiSubmergeTimer <= uiDiff)
                 {
-                    stage = 5;
-                    submergeTimer = 10*IN_MILLISECONDS;
-                } else submergeTimer -= uiDiff;
+                    m_uiStage = 5;
+                    m_uiSubmergeTimer = 45*IN_MILLISECONDS;
+                } else m_uiSubmergeTimer -= uiDiff;
 
-                DoSpellAttackIfReady(spitSpell);
+                DoSpellAttackIfReady(m_uiSpitSpell);
                 break;
             case 5: // Submerge
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 DoCast(me, SPELL_SUBMERGE_0);
                 DoScriptText(SAY_SUBMERGE, me);
                 me->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX()+urand(0, 80)-40, ToCCommonLoc[1].GetPositionY()+urand(0, 80)-40, ToCCommonLoc[1].GetPositionZ());
-                stage = 6;
+                m_uiStage = 6;
             case 6: // Wait til emerge
-                if (submergeTimer <= uiDiff)
+                if (m_uiSubmergeTimer <= uiDiff)
                 {
-                    stage = 7;
-                    submergeTimer = 45*IN_MILLISECONDS;
-                } else submergeTimer -= uiDiff;
+                    m_uiStage = 7;
+                    m_uiSubmergeTimer = 45*IN_MILLISECONDS;
+                } else m_uiSubmergeTimer -= uiDiff;
                 break;
             case 7: // Emerge
-                me->SetDisplayId(modelMobile);
+                me->SetDisplayId(m_uiModelMobile);
                 DoScriptText(SAY_EMERGE, me);
                 me->RemoveAurasDueToSpell(SPELL_SUBMERGE_0);
                 DoCast(me, SPELL_EMERGE_0);
@@ -544,32 +643,31 @@ struct boss_jormungarAI : public ScriptedAI
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 SetCombatMovement(true);
                 me->GetMotionMaster()->MoveChase(me->getVictim());
-                stage = 0;
+                m_uiStage = 0;
                 break;
         }
     }
 
     InstanceScript* instanceScript;
 
-    uint32 otherWormEntry;
+    uint32 m_uiSisterID;
+	uint32 m_uiModelStationary;
+    uint32 m_uiModelMobile;
 
-    uint32 modelStationary;
-    uint32 modelMobile;
+    uint32 m_uiBiteSpell;
+    uint32 m_uiSpewSpell;
+    uint32 m_uiSpitSpell;
+    uint32 m_uiSpraySpell;
 
-    uint32 biteSpell;
-    uint32 spewSpell;
-    uint32 spitSpell;
-    uint32 spraySpell;
-
-    uint32 biteTimer;
-    uint32 spewTimer;
-    uint32 slimePoolTimer;
-    uint32 spitTimer;
-    uint32 sprayTimer;
-    uint32 sweepTimer;
-    uint32 submergeTimer;
-    uint8  stage;
-    bool   enraged;
+    uint32 m_uiBiteTimer;
+    uint32 m_uiSpewTimer;
+    uint32 m_uiSlimePoolTimer;
+    uint32 m_uiSpitTimer;
+    uint32 m_uiSprayTimer;
+    uint32 m_uiSweepTimer;
+    uint32 m_uiSubmergeTimer;
+    uint8 m_uiStage;
+    bool m_bEnraged;
 };
 
 
@@ -585,17 +683,17 @@ class boss_acidmaw : public CreatureScript
         void Reset()
         {
             boss_jormungarAI::Reset();
-            biteSpell = SPELL_PARALYTIC_BITE;
-            spewSpell = SPELL_ACID_SPEW;
-            spitSpell = SPELL_ACID_SPIT;
-            spraySpell = SPELL_PARALYTIC_SPRAY;
-            modelStationary = MODEL_ACIDMAW_STATIONARY;
-            modelMobile = MODEL_ACIDMAW_MOBILE;
-            otherWormEntry = NPC_DREADSCALE;
+            m_uiBiteSpell = SPELL_PARALYTIC_BITE;
+            m_uiSpewSpell = SPELL_ACID_SPEW;
+            m_uiSpitSpell = SPELL_ACID_SPIT;
+            m_uiSpraySpell = SPELL_PARALYTIC_SPRAY;
+            m_uiModelStationary = MODEL_ACIDMAW_STATIONARY;
+            m_uiModelMobile = MODEL_ACIDMAW_MOBILE;
+            m_uiSisterID = NPC_DREADSCALE;
 
-            submergeTimer = 500;
+            m_uiSubmergeTimer = 500;
             DoCast(me, SPELL_SUBMERGE_0);
-            stage = 2;
+            m_uiStage = 2;
         }
     };
 
@@ -618,16 +716,16 @@ public:
         void Reset()
         {
             boss_jormungarAI::Reset();
-            biteSpell = SPELL_BURNING_BITE;
-            spewSpell = SPELL_MOLTEN_SPEW;
-            spitSpell = SPELL_FIRE_SPIT;
-            spraySpell = SPELL_BURNING_SPRAY;
-            modelStationary = MODEL_DREADSCALE_STATIONARY;
-            modelMobile = MODEL_DREADSCALE_MOBILE;
-            otherWormEntry = NPC_ACIDMAW;
+            m_uiBiteSpell = SPELL_BURNING_BITE;
+            m_uiSpewSpell = SPELL_MOLTEN_SPEW;
+            m_uiSpitSpell = SPELL_FIRE_SPIT;
+            m_uiSpraySpell = SPELL_BURNING_SPRAY;
+            m_uiModelStationary = MODEL_DREADSCALE_STATIONARY;
+            m_uiModelMobile = MODEL_DREADSCALE_MOBILE;
+            m_uiSisterID = NPC_ACIDMAW;
 
-            submergeTimer = 45 * IN_MILLISECONDS;
-            stage = 0;
+            m_uiSubmergeTimer = 45*IN_MILLISECONDS;
+            m_uiStage = 0;
         }
     };
 
@@ -659,7 +757,6 @@ public:
         {
             casted = false;
             me->SetReactState(REACT_PASSIVE);
-            me->DespawnOrUnsummon(60*IN_MILLISECONDS);
         }
 
         void UpdateAI(const uint32 /*uiDiff*/)
