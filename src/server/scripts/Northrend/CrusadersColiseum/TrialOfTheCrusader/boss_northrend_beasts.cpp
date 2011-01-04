@@ -616,7 +616,7 @@ struct boss_jormungarAI : public ScriptedAI
                 if (m_uiSubmergeTimer <= uiDiff)
                 {
                     m_uiStage = 5;
-                    m_uiSubmergeTimer = 45*IN_MILLISECONDS;
+                    m_uiSubmergeTimer = 10*IN_MILLISECONDS;
                 } else m_uiSubmergeTimer -= uiDiff;
 
                 DoSpellAttackIfReady(m_uiSpitSpell);
