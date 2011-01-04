@@ -479,7 +479,7 @@ void WorldSession::HandlePetSetAction(WorldPacket & recv_data)
 
     if (!pet || pet != _player->GetFirstControlled())
     {
-        sLog->outError("HandlePetSetAction: Unknown pet or pet owner.");
+        sLog->outError("HandlePetSetAction: Unknown pet (GUID: %u) or pet owner (GUID: %u)", pet->GetGUIDLow(), _player->GetGUIDLow());
         return;
     }
 
