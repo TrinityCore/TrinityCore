@@ -11658,7 +11658,7 @@ void Unit::Unmount()
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_MOUNT);
 
     WorldPacket data(SMSG_DISMOUNT, 8);
-    data << GetPackGUID();
+    data.appendPackGUID(GetGUID());
     SendMessageToSet(&data, true);
 
     // only resummon old pet if the player is already added to a map
