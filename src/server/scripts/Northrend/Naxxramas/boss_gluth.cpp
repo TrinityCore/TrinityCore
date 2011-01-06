@@ -123,7 +123,7 @@ public:
                         break;
                     case EVENT_SUMMON:
                         for (int32 i = 0; i < RAID_MODE(1, 2); ++i)
-                            DoSummon(MOB_ZOMBIE, PosSummon[rand() % 3]);
+                            DoSummon(MOB_ZOMBIE, PosSummon[rand() % RAID_MODE(1,3)]);
                         events.ScheduleEvent(EVENT_SUMMON, 10000);
                         break;
                 }
