@@ -3334,6 +3334,8 @@ void AuraEffect::HandleAuraTransform(AuraApplication const * aurApp, uint8 mode,
                     }
                     // Murloc costume
                     case 42365: target->SetDisplayId(21723); break;
+                    // Pygmy Oil
+                    case 53806: target->SetDisplayId(22512); break;
                     default: break;
                 }
             }
