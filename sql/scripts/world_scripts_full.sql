@@ -1217,7 +1217,8 @@ UPDATE `creature_template` SET `ScriptName`='npc_thorim' WHERE `entry`=29445;
 UPDATE `creature_template` SET `ScriptName`='npc_goblin_prisoner' WHERE `entry`=29466;
 UPDATE `gameobject_template` SET ScriptName='go_rusty_cage' WHERE `entry`=191544;
 UPDATE `creature_template` SET `ScriptName`='npc_injured_goblin' WHERE `entry`=29434;
-UPDATE `creature_template` SET `ScriptName`= 'npc_roxi_ramrocket' WHERE `entry` = 31247;
+UPDATE `creature_template` SET `ScriptName`='npc_roxi_ramrocket' WHERE `entry`=31247;
+UPDATE `creature_template` SET `ScriptName`='npc_brunnhildar_prisoner' WHERE `entry`=29639;
 
 /* STORMWIND CITY */
 UPDATE `creature_template` SET `ScriptName`='npc_archmage_malin' WHERE `entry`=2708;
