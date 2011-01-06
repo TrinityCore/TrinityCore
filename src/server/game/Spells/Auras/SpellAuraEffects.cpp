@@ -1929,6 +1929,30 @@ void AuraEffect::PeriodicDummyTick(Unit * target, Unit * caster) const
                 // 7053 Forsaken Skill: Shadow
                 return;
             }
+            case 54798: // FLAMING Arrow Triggered Effect
+            {
+                if (!target->ToCreature() || !caster->ToCreature()->IsVehicle())
+                    return;
+
+                Unit *rider = caster->GetVehicleKit()->GetPassenger(0);
+                if (!rider)
+                    return;
+
+                // set ablaze
+                if (target->HasAuraEffect(54683, EFFECT_0))
+                    return;
+                else
+                    target->CastSpell(target, 54683, true);
+
+                // Credit Frostworgs
+                if (target->ToCreature()->GetEntry() == 29358)
+                    rider->CastSpell(rider, 54896, true);
+                // Credit Frost Giants
+                else if (target->ToCreature()->GetEntry() == 29351)
+                    rider->CastSpell(rider, 54893, true);
+
+                break;
+            }
             case 62292: // Blaze (Pool of Tar)
                 // should we use custom damage?
                 target->CastSpell((Unit*)NULL, m_spellProto->EffectTriggerSpell[m_effIndex], true);
