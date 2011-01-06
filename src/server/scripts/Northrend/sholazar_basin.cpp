@@ -446,6 +446,149 @@ public:
     }
 };
 
+/*#####
+## npc_jungle_punch_target
+#####*/
+
+#define SAY_OFFER     "Care to try Grimbooze Thunderbrew's new jungle punch?"
+#define SAY_HEMET_1   "Aye, I'll try it."
+#define SAY_HEMET_2   "That's exactly what I needed!"
+#define SAY_HEMET_3   "It's got my vote! That'll put hair on your chest like nothing else will."
+#define SAY_HADRIUS_1 "I'm always up for something of Grimbooze's."
+#define SAY_HADRIUS_2 "Well, so far, it tastes like something my wife would drink..."
+#define SAY_HADRIUS_3 "Now, there's the kick I've come to expect from Grimbooze's drinks! I like it!"
+#define SAY_TAMARA_1  "Sure!"
+#define SAY_TAMARA_2  "Oh my..."
+#define SAY_TAMARA_3  "Tastes like I'm drinking... engine degreaser!"
+
+enum utils
+{
+    NPC_HEMET   = 27986,
+    NPC_HADRIUS = 28047,
+    NPC_TAMARA  = 28568,
+    SPELL_OFFER = 51962,
+    QUEST_ENTRY = 12645,
+};
+
+class npc_jungle_punch_target : public CreatureScript
+{
+public:
+    npc_jungle_punch_target() : CreatureScript("npc_jungle_punch_target") { }
+
+    struct npc_jungle_punch_targetAI : public ScriptedAI
+    {
+        npc_jungle_punch_targetAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+        uint16 sayTimer;
+        uint8 sayStep;
+
+        void Reset()
+        {
+            sayTimer = 3500;
+            sayStep = 0;
+        }
+
+        void UpdateAI(const uint32 uiDiff)
+        {
+            if (!sayStep)
+                return;
+
+            if (sayTimer < uiDiff)
+            {
+                switch (sayStep)
+                {
+                    case 1:
+                    {
+                        switch (me->GetEntry())
+                        {
+                            case NPC_HEMET:   me->MonsterSay(SAY_HEMET_1, LANG_UNIVERSAL, 0);   break;
+                            case NPC_HADRIUS: me->MonsterSay(SAY_HADRIUS_1, LANG_UNIVERSAL, 0); break;
+                            case NPC_TAMARA:  me->MonsterSay(SAY_TAMARA_1, LANG_UNIVERSAL, 0);  break;
+                        }
+                        sayTimer = 3000;
+                        sayStep++;
+                        break;
+                    }
+                    case 2:
+                    {
+                        switch (me->GetEntry())
+                        {
+                            case NPC_HEMET:   me->MonsterSay(SAY_HEMET_2, LANG_UNIVERSAL, 0);   break;
+                            case NPC_HADRIUS: me->MonsterSay(SAY_HADRIUS_2, LANG_UNIVERSAL, 0); break;
+                            case NPC_TAMARA:  me->MonsterSay(SAY_TAMARA_2, LANG_UNIVERSAL, 0);  break;
+                        }
+                        sayTimer = 3000;
+                        sayStep++;
+                        break;
+                    }
+                    case 3:
+                    {
+                        switch (me->GetEntry())
+                        {
+                            case NPC_HEMET:   me->MonsterSay(SAY_HEMET_3, LANG_UNIVERSAL, 0);   break;
+                            case NPC_HADRIUS: me->MonsterSay(SAY_HADRIUS_3, LANG_UNIVERSAL, 0); break;
+                            case NPC_TAMARA:  me->MonsterSay(SAY_TAMARA_3, LANG_UNIVERSAL, 0);  break;
+                        }
+                        sayTimer = 3000;
+                        sayStep = 0;
+                        break;
+                    }
+                }
+            }
+            else
+                sayTimer -= uiDiff;
+        }
+
+        void SpellHit(Unit* caster, const SpellEntry* proto)
+        {
+            if (!proto || proto->Id != SPELL_OFFER)
+                return;
+
+            if (!caster->ToPlayer())
+                return;
+
+            QuestStatusMap::const_iterator itr = caster->ToPlayer()->getQuestStatusMap().find(QUEST_ENTRY);
+            if (itr->second.m_status != QUEST_STATUS_INCOMPLETE)
+                return;
+
+            for (uint8 i=0; i<3; i++)
+            {
+                switch (i)
+                {
+                   case 1:
+                       if (NPC_HEMET != me->GetEntry())
+                           continue;
+                       else
+                           break;
+                   case 2:
+                       if (NPC_HADRIUS != me->GetEntry())
+                           continue;
+                       else
+                           break;
+                   case 3:
+                       if (NPC_TAMARA != me->GetEntry())
+                           continue;
+                       else
+                           break;
+                }
+
+                if (itr->second.m_creatureOrGOcount[i] != 0)
+                    continue;
+
+                caster->ToPlayer()->KilledMonsterCredit(me->GetEntry(), 0);
+                caster->ToPlayer()->Say(SAY_OFFER, LANG_UNIVERSAL);
+                sayStep = 1;
+                break;
+            }
+        }
+    };
+
+    CreatureAI *GetAI(Creature *pCreature) const
+    {
+        return new npc_jungle_punch_targetAI(pCreature);
+    }
+};
+
 /*######
 ## npc_adventurous_dwarf
 ######*/
@@ -527,4 +670,5 @@ void AddSC_sholazar_basin()
     new npc_bushwhacker();
     new npc_engineer_helice();
     new npc_adventurous_dwarf();
+    new npc_jungle_punch_target();
 }
