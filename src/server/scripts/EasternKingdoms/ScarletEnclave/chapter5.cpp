@@ -426,13 +426,13 @@ public:
                 }
 
                 if (Creature* pTemp = Unit::GetCreature(*me, uiKoltiraGUID))
-                    pTemp->setDeathState(JUST_DIED);
+                    pTemp->Respawn();
                 if (Creature* pTemp = Unit::GetCreature(*me, uiOrbazGUID))
-                    pTemp->setDeathState(JUST_DIED);
+                    pTemp->Respawn();
                 if (Creature* pTemp = Unit::GetCreature(*me, uiThassarianGUID))
-                    pTemp->setDeathState(JUST_DIED);
+                    pTemp->Respawn();
                 if (Creature* pTemp = Unit::GetCreature(*me, uiLichKingGUID))
-                    pTemp->setDeathState(JUST_DIED);
+                    pTemp->Respawn();
 
                 uiKoltiraGUID = NULL;
                 uiOrbazGUID = NULL;
@@ -1331,6 +1331,14 @@ public:
                             break;
 
                         case 73:
+                            if (Creature* pTemp = Unit::GetCreature(*me, uiKoltiraGUID))
+                                pTemp->DespawnOrUnsummon();
+                            if (Creature* pTemp = Unit::GetCreature(*me, uiOrbazGUID))
+                                pTemp->DespawnOrUnsummon();
+                            if (Creature* pTemp = Unit::GetCreature(*me, uiThassarianGUID))
+                                pTemp->DespawnOrUnsummon();
+                            if (Creature* pTemp = Unit::GetCreature(*me, uiLichKingGUID))
+                                pTemp->DespawnOrUnsummon();
                             me->DespawnOrUnsummon();
                             break;
                     }
