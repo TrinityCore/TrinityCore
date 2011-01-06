@@ -24,6 +24,7 @@ SDCategory: Molten Core
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "molten_core.h"
 
 #define SPELL_IMPENDINGDOOM 19702
 #define SPELL_LUCIFRONCURSE 19703
@@ -41,7 +42,11 @@ public:
 
     struct boss_lucifronAI : public ScriptedAI
     {
-        boss_lucifronAI(Creature *c) : ScriptedAI(c) {}
+        boss_lucifronAI(Creature *pCreature) : ScriptedAI(pCreature) 
+        {
+            m_pInstance = pCreature->GetInstanceScript(); 
+        }
+        InstanceScript* m_pInstance;
 
         uint32 ImpendingDoom_Timer;
         uint32 LucifronCurse_Timer;
@@ -52,6 +57,12 @@ public:
             ImpendingDoom_Timer = 10000;                        //Initial cast after 10 seconds so the debuffs alternate
             LucifronCurse_Timer = 20000;                        //Initial cast after 20 seconds
             ShadowShock_Timer = 6000;                           //6 seconds
+        }
+
+        void JustDied(Unit* /*pKiller*/)
+        {
+            if (m_pInstance)
+                m_pInstance->SetData(DATA_LUCIFRON, 0);
         }
 
         void EnterCombat(Unit * /*who*/)

@@ -76,7 +76,7 @@ public:
         void JustDied(Unit* /*pKiller*/)
         {
             if (m_pInstance)
-                m_pInstance->SetData(DATA_GOLEMAGG_DEATH, 0);
+                m_pInstance->SetData(DATA_GOLEMAGG, 0);
         }
 
         void UpdateAI(const uint32 uiDiff)
