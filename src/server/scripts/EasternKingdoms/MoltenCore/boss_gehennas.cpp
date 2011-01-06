@@ -24,6 +24,7 @@ SDCategory: Molten Core
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "molten_core.h"
 
 #define SPELL_SHADOWBOLT            19728
 #define SPELL_RAINOFFIRE            19717
@@ -41,7 +42,11 @@ public:
 
     struct boss_gehennasAI : public ScriptedAI
     {
-        boss_gehennasAI(Creature *c) : ScriptedAI(c) {}
+        boss_gehennasAI(Creature *pCreature) : ScriptedAI(pCreature) 
+        {
+            m_pInstance = pCreature->GetInstanceScript(); 
+        }
+        InstanceScript* m_pInstance;
 
         uint32 ShadowBolt_Timer;
         uint32 RainOfFire_Timer;
@@ -52,6 +57,12 @@ public:
             ShadowBolt_Timer = 6000;
             RainOfFire_Timer = 10000;
             GehennasCurse_Timer = 12000;
+        }
+
+        void JustDied(Unit* /*pKiller*/)
+        {
+            if (m_pInstance)
+                m_pInstance->SetData(DATA_GEHENNAS, 0);
         }
 
         void EnterCombat(Unit * /*who*/) {}
