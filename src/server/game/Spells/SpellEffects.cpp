@@ -1213,11 +1213,11 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 }
                 case 54577:                                 // U.D.E.D.
                 {
-                    if (!(unitTarget->GetEntry() == 29402))
+                    if (unitTarget->GetEntry() != 29402)
                         return;
 
                     m_caster->SummonGameObject(192693, unitTarget->GetPositionX(), unitTarget->GetPositionY(), unitTarget->GetPositionZ(), unitTarget->GetOrientation(), 0, 0, 0, 0, 100);
-                    for (int i = 1; i <= 4; i++)
+                    for (uint8 i = 0; i < 4; ++i)
                         m_caster->SummonGameObject(191567, float(unitTarget->GetPositionX() + irand(-7, 7)), float(unitTarget->GetPositionY() + irand(-7, 7)), unitTarget->GetPositionZ(), unitTarget->GetOrientation(), 0, 0, 0, 0, 100);
 
                     unitTarget->Kill(unitTarget);
