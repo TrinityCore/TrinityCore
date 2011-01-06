@@ -126,8 +126,10 @@ public:
                             }
                         }
 
-                        if (pMostHPTarget)
-                            DoCast(pMostHPTarget, RAID_MODE(SPELL_HATEFUL_STRIKE,H_SPELL_HATEFUL_STRIKE), true);
+                        if (!pMostHPTarget)
+                            pMostHPTarget = me->getVictim();
+
+                        DoCast(pMostHPTarget, RAID_MODE(SPELL_HATEFUL_STRIKE,H_SPELL_HATEFUL_STRIKE), true);
 
                         events.ScheduleEvent(EVENT_HATEFUL, 1200);
                         break;
