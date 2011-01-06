@@ -463,6 +463,7 @@ bool MySQLConnection::_HandleMySQLErrno(uint32 errNo)
         // Query related errors - skip query
         case 1058:      // "Column count doesn't match value count"
         case 1062:      // "Duplicate entry '%s' for key '%d'"
+        case 1054:      // "Unknown column '%s' in 'order clause'"
             return false;
 
         default:
