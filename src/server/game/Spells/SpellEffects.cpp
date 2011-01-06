@@ -1213,11 +1213,12 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 }
                 case 53808:                                 // Pygmy Oil
                 {
-                    if (Aura *pAura = m_caster->GetAura(53806))
+                    Aura *pAura = m_caster->GetAura(53806);
+                    if (pAura)
                         pAura->RefreshDuration();
                     else
                     {
-                        Aura *pAura = m_caster->GetAura(53805);
+                        pAura = m_caster->GetAura(53805);
                         if (!pAura || pAura->GetStackAmount() < 5 || !roll_chance_i(50))
                              m_caster->CastSpell(m_caster, 53805, true);
                         else
