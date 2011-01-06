@@ -534,6 +534,137 @@ public:
     }
 };
 
+/*######
+## npc_brunnhildar_prisoner
+######*/
+
+enum brunhildar {
+    NPC_QUEST_GIVER            = 29592,
+    
+    SPELL_ICE_PRISON           = 54894,
+    SPELL_KILL_CREDIT_PRISONER = 55144,
+    SPELL_KILL_CREDIT_DRAKE    = 55143,
+    SPELL_SUMMON_LIBERATED     = 55073,
+    SPELL_ICE_LANCE            = 55046
+};
+
+class npc_brunnhildar_prisoner : public CreatureScript 
+{
+public:
+    npc_brunnhildar_prisoner() : CreatureScript("npc_brunnhildar_prisoner") { }
+
+    struct npc_brunnhildar_prisonerAI : public ScriptedAI
+    {
+        npc_brunnhildar_prisonerAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+        Unit* drake;
+        uint16 enter_timer;
+        bool hasEmptySeats;
+
+        void Reset()
+        {
+            me->CastSpell(me, SPELL_ICE_PRISON, true);
+            enter_timer = 0;
+            drake = NULL;
+            hasEmptySeats = false;
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            // drake unsummoned, passengers dropped
+            if (drake && !me->IsOnVehicle(drake) && !hasEmptySeats)
+                me->ForcedDespawn(3000);
+
+            if (enter_timer <= 0)
+                return;
+
+            if (enter_timer < diff)
+            {
+                enter_timer = 0;
+                if (hasEmptySeats)
+                    me->JumpTo(drake, 25.0f);
+                else
+                    Reset();
+            }
+            else
+                enter_timer -= diff;
+        }
+
+        void MoveInLineOfSight(Unit *unit)
+        {
+            if (!unit || !drake)
+                return;
+
+            if (!me->IsOnVehicle(drake) && !me->HasAura(SPELL_ICE_PRISON))
+            {
+                if (unit->IsVehicle() && me->IsWithinDist(unit, 25.0f, true) && unit->ToCreature() && unit->ToCreature()->GetEntry() == 29709)
+                {
+                    uint8 seat = unit->GetVehicleKit()->GetNextEmptySeat(0, true);
+                    if (seat <= 0)
+                        return;
+
+                    me->EnterVehicle(unit, seat);
+                    me->SendMovementFlagUpdate();
+                    hasEmptySeats = false;
+                }
+            }
+
+            if (unit->ToCreature() && me->IsOnVehicle(drake))
+            {
+                if (unit->ToCreature()->GetEntry() == NPC_QUEST_GIVER && me->IsWithinDist(unit, 15.0f, false))
+                {
+                    Unit* rider = drake->GetVehicleKit()->GetPassenger(0);
+                    if (!rider)
+                        return;
+
+                    rider->CastSpell(rider, SPELL_KILL_CREDIT_PRISONER, true);
+
+                    me->ExitVehicle();
+                    me->CastSpell(me, SPELL_SUMMON_LIBERATED, true);
+                    me->ForcedDespawn(500);
+
+                    // drake is empty now, deliver credit for drake and despawn him
+                    if (drake->GetVehicleKit()->HasEmptySeat(1) &&
+                        drake->GetVehicleKit()->HasEmptySeat(2) && 
+                        drake->GetVehicleKit()->HasEmptySeat(3))
+                    {
+                        // not working rider->CastSpell(rider, SPELL_KILL_CREDIT_DRAKE, true);
+                        if (rider->ToPlayer())
+                            rider->ToPlayer()->KilledMonsterCredit(29709, 0);
+
+                        drake->ToCreature()->ForcedDespawn(0);
+                    }
+                }
+            }
+        }
+
+        void SpellHit(Unit* hitter, const SpellEntry* spell)
+        {
+            if (!hitter || !spell)
+                return;
+
+            if (spell->Id != SPELL_ICE_LANCE)
+                return;
+    
+            me->RemoveAura(SPELL_ICE_PRISON);
+            enter_timer = 500;
+
+            if (hitter->IsVehicle())
+                drake = hitter;
+            else
+                return;
+
+            if (hitter->GetVehicleKit()->GetNextEmptySeat(0, true))
+                hasEmptySeats = true;
+        }
+    };
+
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new npc_brunnhildar_prisonerAI(creature);
+    }
+};
+
 void AddSC_storm_peaks()
 {
     new npc_agnetta_tyrsdottar;
@@ -544,4 +675,5 @@ void AddSC_storm_peaks()
     new npc_loklira_crone;
     new npc_injured_goblin;
     new npc_roxi_ramrocket;
+    new npc_brunnhildar_prisoner;
 }
