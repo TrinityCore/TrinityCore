@@ -1211,6 +1211,11 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     m_caster->SendMessageToSet(&data,true);
                     return;
                 }
+                case 70769:                                 // Divine Storm!
+                {
+                    m_caster->ToPlayer()->RemoveSpellCooldown(53385, true);
+                    return;
+                }
                 case 53808:                                 // Pygmy Oil
                 {
                     Aura *pAura = m_caster->GetAura(53806);
@@ -1380,7 +1385,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
             }
             break;
         case SPELLFAMILY_PALADIN:
-            // Divine Storm
+           /* // Divine Storm
             if (m_spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_PALADIN_DIVINESTORM && effIndex == 1)
             {
                 int32 dmg = CalculatePctN(m_damage, damage);
@@ -1388,7 +1393,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     unitTarget = m_caster;
                 m_caster->CastCustomSpell(unitTarget, 54171, &dmg, 0, 0, true);
                 return;
-            }
+            } */
 
             switch(m_spellInfo->Id)
             {

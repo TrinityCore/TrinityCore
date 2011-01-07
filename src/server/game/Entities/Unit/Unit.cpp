@@ -550,6 +550,13 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
     if (IsAIEnabled)
         GetAI()->DamageDealt(pVictim, damage, damagetype);
 
+    // Divine Storm heal hack
+    if ( spellProto && spellProto->Id == 53385 )
+    {
+        int32 divineDmg = damage * (25 + (HasAura(63220) ? 15 : 0)) / 100; //25%, if has Glyph of Divine Storm -> 40%
+        CastCustomSpell(this, 54171, &divineDmg, NULL, NULL, true);
+    }
+
     if (damagetype != NODAMAGE)
     {
         // interrupting auras with AURA_INTERRUPT_FLAG_DAMAGE before checking !damage (absorbed damage breaks that type of auras)
