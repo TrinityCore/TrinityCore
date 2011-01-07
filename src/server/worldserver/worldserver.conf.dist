@@ -272,11 +272,19 @@ PlayerSave.Stats.SaveOnlyOnLogout = 1
 #        Default:     1 - (Enabled, vmap.enableLOS)
 #                     1 - (Enabled, vmap.enableHeight)
 #                     0 - (Disabled)
+#
+#    vmap.ignoreMapIds
+#        Map id that will be ignored by VMaps
+#         List of ids with delimiter ','
+#         If more then one id is defined and spaces are included, the string
+#         has to be enclosed by "
+#         Example: "369,0,1,530"
+#
 
 vmap.enableLOS    = 1
 vmap.enableHeight = 1
+vmap.ignoreMapIds = ""
 
-#
 #    vmap.ignoreSpellIds
 #        Description: These spells are ignored for LoS calculation.
 #                     List of ids with delimiter ','.
