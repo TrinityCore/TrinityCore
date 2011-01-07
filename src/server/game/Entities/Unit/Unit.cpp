@@ -6718,6 +6718,15 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     basepoints0 = CalculatePctN(int32(damage), triggerAmount);
                     break;
                 }
+                // Item - Paladin T10 Retribution 2P Bonus
+                case 70765:
+                {
+                    if (GetTypeId() != TYPEID_PLAYER)
+                        return false;
+ 
+                    triggered_spell_id = 70769;
+                    break;
+                }
                 case 71406: // Tiny Abomination in a Jar
                 {
                     if (!pVictim || !pVictim->isAlive())
@@ -6756,6 +6765,54 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                         if (player->GetWeaponForAttack(OFF_ATTACK, true) && urand(0, 1))
                             triggered_spell_id = 71434;
                     target = pVictim;
+                    break;
+                }
+                case 71880:
+                // Heartpierce (Item - Icecrown 25 Normal Dagger Proc)
+                // ===================================================
+                // 71881 - Restores 120 mana for 10 sec.      - Priest, Shaman, Paladin, Warlock, Hunter, Mage, Druid in human, moonkin, aqua, travel and in tree form.
+                // 71882 - Restores 4 energy for 10 sec.      - Rogue, Druid in cat form.
+                // 71883 - Restores 2 rage for 10 sec.        - Warrior, Druid in bear form.
+                // 71884 - Restores 8 runic power for 10 sec. - Death Knight
+                case 71892:
+                // Heartpierce (Item - Icecrown 25 Heroic Dagger Proc)
+                // ===================================================
+                // 71888 - Restores 120 mana for 12 sec.      - Priest, Shaman, Paladin, Warlock, Hunter, Mage, Druid in human, moonkin, aqua, travel and in tree form.
+                // 71887 - Restores 4 energy for 12 sec.      - Rogue, Druid in cat form.
+                // 71886 - Restores 2 rage for 12 sec.        - Warrior, Druid in bear form.
+                // 71885 - Restores 8 runic power for 12 sec. - Death Knigh
+                {
+                    if(GetTypeId() != TYPEID_PLAYER)
+                        return false;
+ 
+                    // Select powertype defined buff
+                    switch (getPowerType())
+                    {
+                        case POWER_MANA:
+                        {
+                            triggered_spell_id = ((dummySpell->Id) == 71880) ? 71881 : 71888;
+                            break;
+                        }
+                        case POWER_ENERGY:
+                        {
+                            triggered_spell_id = ((dummySpell->Id) == 71880) ? 71882 : 71887;
+                            break;
+                        }
+                        case POWER_RAGE:
+                        {
+                            triggered_spell_id = ((dummySpell->Id) == 71880) ? 71883 : 71886;
+                            break;
+                        }
+                        case POWER_RUNIC_POWER:
+                        {
+                            triggered_spell_id = ((dummySpell->Id) == 71880) ? 71884 : 71885;
+                            break;
+                        }
+                        default:
+                            return false;
+                    }
+ 
+                    target = this;
                     break;
                 }
             }
