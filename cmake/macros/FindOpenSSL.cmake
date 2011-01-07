@@ -24,17 +24,30 @@
 #  License text for the above reference.)
 
 # http://www.slproweb.com/products/Win32OpenSSL.html
+
 SET(_OPENSSL_ROOT_HINTS
   "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (32-bit)_is1;Inno Setup: App Path]"
   "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (64-bit)_is1;Inno Setup: App Path]"
   )
-SET(_OPENSSL_ROOT_PATHS
-  "C:/OpenSSL/"
+
+IF(PLATFORM EQUAL 64)
+  SET(_OPENSSL_ROOT_PATHS
+    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (64-bit)_is1;InstallLocation]"
   )
+ELSE()
+  SET(_OPENSSL_ROOT_PATHS
+    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (32-bit)_is1;InstallLocation]"
+    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (32-bit)_is1;InstallLocation]"
+  )
+ENDIF()
+
 FIND_PATH(OPENSSL_ROOT_DIR
-  NAMES include/openssl/ssl.h
-  HINTS ${_OPENSSL_ROOT_HINTS}
-  PATHS ${_OPENSSL_ROOT_PATHS}
+  NAMES
+    include/openssl/ssl.h
+  HINTS
+    ${_OPENSSL_ROOT_HINTS}
+  PATHS
+    ${_OPENSSL_ROOT_PATHS}
 )
 MARK_AS_ADVANCED(OPENSSL_ROOT_DIR)
 
@@ -60,51 +73,93 @@ IF(WIN32 AND NOT CYGWIN)
     # We are using the libraries located in the VC subdir instead of the parent directory eventhough :
     # libeay32MD.lib is identical to ../libeay32.lib, and
     # ssleay32MD.lib is identical to ../ssleay32.lib
-    FIND_LIBRARY(LIB_EAY_DEBUG NAMES libeay32MDd libeay32
-      ${OPENSSL_ROOT_DIR}/lib/VC
-      )
-    FIND_LIBRARY(LIB_EAY_RELEASE NAMES libeay32MD libeay32
-      ${OPENSSL_ROOT_DIR}/lib/VC
-      )
-    FIND_LIBRARY(SSL_EAY_DEBUG NAMES ssleay32MDd ssleay32 ssl
-      ${OPENSSL_ROOT_DIR}/lib/VC
-      )
-    FIND_LIBRARY(SSL_EAY_RELEASE NAMES ssleay32MD ssleay32 ssl
-      ${OPENSSL_ROOT_DIR}/lib/VC
-      )
+
+    FIND_LIBRARY(LIB_EAY_DEBUG
+      NAMES
+        libeay32MDd libeay32
+      PATHS
+        ${OPENSSL_ROOT_DIR}/lib/VC
+    )
+
+    FIND_LIBRARY(LIB_EAY_RELEASE
+      NAMES
+        libeay32MD libeay32
+      PATHS
+        ${OPENSSL_ROOT_DIR}/lib/VC
+    )
+
+    FIND_LIBRARY(SSL_EAY_DEBUG
+      NAMES
+        ssleay32MDd ssleay32 ssl
+      PATHS
+        ${OPENSSL_ROOT_DIR}/lib/VC
+    )
+
+    FIND_LIBRARY(SSL_EAY_RELEASE
+      NAMES
+        ssleay32MD ssleay32 ssl
+      PATHS
+        ${OPENSSL_ROOT_DIR}/lib/VC
+    )
+
     if( CMAKE_CONFIGURATION_TYPES OR CMAKE_BUILD_TYPE )
       set( OPENSSL_LIBRARIES
         optimized ${SSL_EAY_RELEASE} ${LIB_EAY_RELEASE}
         debug ${SSL_EAY_DEBUG} ${LIB_EAY_DEBUG}
-        )
+      )
     else()
-      set( OPENSSL_LIBRARIES ${SSL_EAY_RELEASE} ${LIB_EAY_RELEASE} )
+      set( OPENSSL_LIBRARIES
+        ${SSL_EAY_RELEASE}
+        ${LIB_EAY_RELEASE}
+      )
     endif()
-    MARK_AS_ADVANCED(SSL_EAY_DEBUG SSL_EAY_RELEASE)
-    MARK_AS_ADVANCED(LIB_EAY_DEBUG LIB_EAY_RELEASE)
+
+    MARK_AS_ADVANCED(SSL_EAY_DEBUG SSL_EAY_RELEASE LIB_EAY_DEBUG LIB_EAY_RELEASE)
   ELSEIF(MINGW)
+
     # same player, for MingW
-    FIND_LIBRARY(LIB_EAY NAMES libeay32
-      ${OPENSSL_ROOT_DIR}/lib/MinGW
-      )
-    FIND_LIBRARY(SSL_EAY NAMES ssleay32
-      ${OPENSSL_ROOT_DIR}/lib/MinGW
-      )
+    FIND_LIBRARY(LIB_EAY
+      NAMES
+        libeay32
+      PATHS
+        ${OPENSSL_ROOT_DIR}/lib/MinGW
+    )
+
+    FIND_LIBRARY(SSL_EAY NAMES
+      NAMES
+        ssleay32
+      PATHS
+        ${OPENSSL_ROOT_DIR}/lib/MinGW
+    )
+
     MARK_AS_ADVANCED(SSL_EAY LIB_EAY)
-    set( OPENSSL_LIBRARIES ${SSL_EAY} ${LIB_EAY} )
+
+    set( OPENSSL_LIBRARIES
+      ${SSL_EAY}
+      ${LIB_EAY}
+    )
   ELSE(MSVC)
     # Not sure what to pick for -say- intel, let's use the toplevel ones and hope someone report issues:
-    FIND_LIBRARY(LIB_EAY NAMES libeay32
-      ${OPENSSL_ROOT_DIR}/lib
-      )
-    FIND_LIBRARY(SSL_EAY NAMES ssleay32
-      ${OPENSSL_ROOT_DIR}/lib
-      )
+    FIND_LIBRARY(LIB_EAY
+      NAMES
+        libeay32
+      PATHS
+        ${OPENSSL_ROOT_DIR}/lib
+        ${OPENSSL_ROOT_DIR}/lib/VC
+    )
+
+    FIND_LIBRARY(SSL_EAY
+      NAMES
+        ssleay32
+      PATHS
+        ${OPENSSL_ROOT_DIR}/lib
+        ${OPENSSL_ROOT_DIR}/lib/VC
+    )
     MARK_AS_ADVANCED(SSL_EAY LIB_EAY)
-    set( OPENSSL_LIBRARIES ${SSL_EAY} ${LIB_EAY} )
+
+    SET( OPENSSL_LIBRARIES ${SSL_EAY} ${LIB_EAY} )
   ENDIF(MSVC)
 ELSE(WIN32 AND NOT CYGWIN)
-
   FIND_LIBRARY(OPENSSL_SSL_LIBRARIES NAMES ssl ssleay32 ssleay32MD)
   FIND_LIBRARY(OPENSSL_CRYPTO_LIBRARIES NAMES crypto)
   MARK_AS_ADVANCED(OPENSSL_CRYPTO_LIBRARIES OPENSSL_SSL_LIBRARIES)
@@ -120,4 +175,3 @@ find_package_handle_standard_args(OpenSSL DEFAULT_MSG
 )
 
 MARK_AS_ADVANCED(OPENSSL_INCLUDE_DIR OPENSSL_LIBRARIES)
-
