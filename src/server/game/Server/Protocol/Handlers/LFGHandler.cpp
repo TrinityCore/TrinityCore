@@ -568,7 +568,7 @@ void WorldSession::SendLfgUpdateProposal(uint32 proposalId, const LfgProposal* p
     if (!isContinue)                                       // Only show proposal dungeon if it's continue
     {
         LfgDungeonSet playerDungeons = sLFGMgr->GetSelectedDungeons(guid);
-        if (playerDungeons.size())
+        if (playerDungeons.size() == 1)
             dungeonId = (*playerDungeons.begin());
     }
     if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(dungeonId))
