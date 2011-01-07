@@ -425,6 +425,18 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
                 {
                     sScriptMgr->OnPlayerChat(_player, type, lang, msg, chn);
 
+                    if (chn->IsLFG() && !(_player->isGameMaster()))
+                    { 
+                        uint32 money = sWorld->getIntConfig(CONFIG_LFG_COST);
+
+                        if (_player->GetMoney() < money)
+                        {
+                           _player->SendBuyError( BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
+                           break;
+                        }
+                        _player->ModifyMoney(-(int32)money);
+                    }
+
                     chn->Say(_player->GetGUID(), msg.c_str(), lang);
                 }
             }

@@ -1738,6 +1738,7 @@ ChatLevelReq.Say = 1
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
+LFGMsg.Cost = 100000
 AllowPlayerCommands = 1
 
 #
