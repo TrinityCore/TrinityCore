@@ -2769,6 +2769,10 @@ void Player::GiveXP(uint32 xp, Unit *victim, float group_rate)
 
     sScriptMgr->OnGivePlayerXP(this, xp, victim);
 
+    if(level < 66 && GetMapId() == 571)
+        return;
+
+
     // Favored experience increase START
     uint32 zone = GetZoneId();
     float favored_exp_mult = 0;
