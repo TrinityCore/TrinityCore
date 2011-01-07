@@ -4698,6 +4698,14 @@ bool ChatHandler::HandleBindSightCommand(const char * /*args*/)
     return true;
 }
 
+  //reload commands
+bool ChatHandler::HandleJailReloadCommand(const char* arg)
+{
+    sObjectMgr->LoadJailConf();
+    SendSysMessage(LANG_JAIL_RELOAD);
+    return true;
+}
+
 bool ChatHandler::HandleUnbindSightCommand(const char * /*args*/)
 {
     if (m_session->GetPlayer()->isPossessing())

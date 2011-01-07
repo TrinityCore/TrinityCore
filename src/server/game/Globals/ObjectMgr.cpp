@@ -7065,6 +7065,119 @@ uint32 ObjectMgr::GeneratePetNumber()
     return ++m_hiPetNumber;
 }
 
+// Loads the jail conf out of the database
+void ObjectMgr::LoadJailConf(void)
+{
+    QueryResult result = CharacterDatabase.PQuery("SELECT * FROM `jail_conf`");
+
+    if (!result)
+    {
+		sLog->outError(GetTrinityStringForDBCLocale(LANG_JAIL_CONF_ERR1));
+		sLog->outError(GetTrinityStringForDBCLocale(LANG_JAIL_CONF_ERR2));
+
+		m_jailconf_max_jails    = 3;
+		m_jailconf_max_duration = 672;
+		m_jailconf_min_reason   = 25;
+		m_jailconf_warn_player  = 1;
+		m_jailconf_amnestie     = 180;
+
+		m_jailconf_ally_x       = -8673.43f;
+		m_jailconf_ally_y       = 631.795f;
+		m_jailconf_ally_z       = 96.9406f;
+		m_jailconf_ally_o       = 2.1785f;
+		m_jailconf_ally_m       = 0;
+
+		m_jailconf_horde_x      = 2179.85f;
+		m_jailconf_horde_y      = -4763.96f;
+		m_jailconf_horde_z      = 54.911f;
+		m_jailconf_horde_o      = 4.44216f;
+		m_jailconf_horde_m      = 1;
+
+		m_jailconf_ban          = 0;
+		m_jailconf_radius       = 10;
+
+        return;
+    }
+do
+{
+    Field *fields = result->Fetch();
+    m_jail_obt = fields[1].GetString();
+	if(m_jail_obt == "m_jailconf_max_jails")
+	{
+      m_jailconf_max_jails    = fields[2].GetUInt32();
+	}
+	if(m_jail_obt == "m_jailconf_max_duration")
+	{
+	  m_jailconf_max_duration = fields[2].GetUInt32();
+	}
+	if(m_jail_obt == "m_jailconf_min_reason")
+	{
+      m_jailconf_min_reason   = fields[2].GetUInt32();
+	}
+	if(m_jail_obt == "m_jailconf_warn_player")
+	{
+      m_jailconf_warn_player  = fields[2].GetUInt32();
+	}
+	if(m_jail_obt == "m_jailconf_amnestie")
+	{
+	  m_jailconf_amnestie     = fields[2].GetUInt32();
+	}
+	if(m_jail_obt == "m_jailconf_ally_x")
+	{
+      m_jailconf_ally_x       = fields[3].GetFloat();
+	}
+	if(m_jail_obt == "m_jailconf_ally_y")
+	{
+      m_jailconf_ally_y       = fields[3].GetFloat();
+	}
+	if(m_jail_obt == "m_jailconf_ally_z")
+	{
+      m_jailconf_ally_z       = fields[3].GetFloat();
+	}
+	if(m_jail_obt == "m_jailconf_ally_o")
+	{
+      m_jailconf_ally_o       = fields[3].GetFloat();
+	}
+	if(m_jail_obt == "m_jailconf_ally_m")
+	{
+      m_jailconf_ally_m       = fields[2].GetUInt32();
+	}
+	if(m_jail_obt == "m_jailconf_horde_x")
+	{
+      m_jailconf_horde_x      = fields[3].GetFloat();
+	}
+	if(m_jail_obt == "m_jailconf_horde_y")
+	{
+      m_jailconf_horde_y      = fields[3].GetFloat();
+	}
+	if(m_jail_obt == "m_jailconf_horde_z")
+	{
+      m_jailconf_horde_z      = fields[3].GetFloat();
+	}
+	if(m_jail_obt == "m_jailconf_horde_o")
+	{
+      m_jailconf_horde_o      = fields[3].GetFloat();
+	}
+	if(m_jail_obt == "m_jailconf_horde_m")
+	{
+      m_jailconf_horde_m      = fields[2].GetUInt32();
+	}
+	if(m_jail_obt == "m_jailconf_ban")
+	{
+      m_jailconf_ban = fields[2].GetUInt32();
+	}
+	if(m_jail_obt == "m_jailconf_radius")
+	{
+      m_jailconf_radius = fields[2].GetUInt32();
+	}
+}
+while (result->NextRow());
+
+    sLog->outString("");
+    sLog->outString(GetTrinityStringForDBCLocale(LANG_JAIL_CONF_LOADED));
+    sLog->outString("");
+}
+
 void ObjectMgr::LoadCorpses()
 {
     uint32 oldMSTime = getMSTime();

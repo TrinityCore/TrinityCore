@@ -1572,6 +1572,9 @@ void World::SetInitialWorldSettings()
     ///- Handle outdated emails (delete/return)
     sLog->outString("Returning old mails...");
     sObjectMgr->ReturnOrDeleteOldMails(false);
+    // Loads the jail conf out of the database
+    sLog->outString("Loading JailConfing...");    
+    sObjectMgr->LoadJailConf();
 
     sLog->outString("Loading Autobroadcasts...");
     LoadAutobroadcasts();
