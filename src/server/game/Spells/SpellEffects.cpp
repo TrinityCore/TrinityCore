@@ -5239,16 +5239,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     unitTarget->CastSpell(unitTarget, spellTarget[urand(0,4)], true);
                     break;
                 }
-                //Unholy Union - Quest 12126
-                case 47703:
-                {
-                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    m_caster->ToPlayer()->DestroyItemCount(36835, 1, true, false);
-                    m_caster->ToPlayer()->AddItem(36836, 1);
-                    break;
-                }
                 case 64142:                                 // Upper Deck - Create Foam Sword
                     if (unitTarget->GetTypeId() != TYPEID_PLAYER)
                         return;
