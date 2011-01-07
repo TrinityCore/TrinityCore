@@ -961,6 +961,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_ancient_core_hound' WHERE `entr
 UPDATE `creature_template` SET `ScriptName`='mob_firesworn' WHERE `entry`=12099;
 UPDATE `creature_template` SET `ScriptName`='mob_core_rager' WHERE `entry`=11672;
 UPDATE `creature_template` SET `ScriptName`='mob_flamewaker_priest' WHERE `entry`=11662;
+UPDATE `creature_template` SET `ScriptName`='mob_SonOfFlame' WHERE `entry`=12143;
 
 /* MOONGLADE */
 UPDATE `creature_template` SET `ScriptName`='npc_bunthen_plainswind' WHERE `entry`=11798;
