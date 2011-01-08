@@ -3761,6 +3761,10 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectSpellClassMask[1][0] |= 2;
             count++;
             break;
+        case 49305:
+            spellInfo->EffectImplicitTargetB[0] = 1;
+            count++;
+            break;
         case 51852:    // The Eye of Acherus (no spawn in phase 2 in db)
             spellInfo->EffectMiscValue[0] |= 1;
             count++;
