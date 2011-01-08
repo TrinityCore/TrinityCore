@@ -15033,10 +15033,8 @@ bool Player::SatisfyQuestNextChain(Quest const* qInfo, bool msg)
     if (!nextQuest)
         return true;
 
-    Quest const* Nquest = sObjectMgr->GetQuestTemplate(nextQuest);
-
     // next quest in chain already started or completed
-    if (GetQuestStatus(nextQuest) != QUEST_STATUS_NONE || m_RewardedQuests.find(nextQuest) != m_RewardedQuests.end())
+    if (GetQuestStatus(nextQuest) != QUEST_STATUS_NONE) // GetQuestStatus returns QUEST_STATUS_COMPLETED for rewarded quests
     {
         if (msg)
             SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
@@ -15057,10 +15055,10 @@ bool Player::SatisfyQuestPrevChain(Quest const* qInfo, bool msg)
 
     for (Quest::PrevChainQuests::const_iterator iter = qInfo->prevChainQuests.begin(); iter != qInfo->prevChainQuests.end(); ++iter)
     {
-        uint32 prevId = *iter;
+        QuestStatusMap::const_iterator itr = m_QuestStatus.find(*iter);
 
         // If any of the previous quests in chain active, return false
-        if (GetQuestStatus(prevId) != QUEST_STATUS_NONE)
+        if (itr != m_QuestStatus.end() && itr->second.m_status != QUEST_STATUS_NONE)
         {
             if (msg)
                 SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
