@@ -60,6 +60,13 @@ struct MySQLConnectionInfo
     std::string port_or_socket;
 };
 
+struct PreparedStatementTable
+{
+    uint32 index;
+    const char* query;
+    ConnectionFlags type;
+};
+
 class MySQLConnection
 {
     template <class T> friend class DatabaseWorkerPool;
@@ -104,10 +111,11 @@ class MySQLConnection
 
         MYSQL* GetHandle()  { return m_Mysql; }
         MySQLPreparedStatement* GetPreparedStatement(uint32 index);
-        void PrepareStatement(uint32 index, const char* sql, bool async = false);
+        void PrepareStatement(uint32 index, const char* sql, ConnectionFlags flags);
 
     protected:
         std::vector<MySQLPreparedStatement*> m_stmts;       //! PreparedStatements storage
+        PreparedStatementTable const * m_statementTable;    //! Static index/query pairs
         bool                  m_reconnecting;               //! Are we reconnecting?
         
     private:
