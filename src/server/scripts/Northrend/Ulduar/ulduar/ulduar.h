@@ -38,13 +38,17 @@ enum eTypes
     TYPE_ALGALON                = 13,
     TYPE_COLOSSUS               = 14,
 
-    DATA_STEELBREAKER           = 20,
-    DATA_MOLGEIM                = 21,
-    DATA_BRUNDIR                = 22,
+    DATA_STEELBREAKER,
+    DATA_MOLGEIM,
+    DATA_BRUNDIR,
 
-    DATA_EXP_COMMANDER          = 25,
+    DATA_EXP_COMMANDER,
+    DATA_RIGHT_ARM,
+    DATA_LEFT_ARM,
+};
 
-
+enum eBossNPCs
+{
     NPC_LEVIATHAN               = 33113,
     NPC_IGNIS                   = 33118,
     NPC_RAZORSCALE              = 33186,
@@ -62,7 +66,10 @@ enum eTypes
     NPC_VEZAX                   = 33271,
     NPC_YOGGSARON               = 33288,
     NPC_ALGALON                 = 32871,
+};
 
+enum eTowerEvents
+{
     EVENT_TOWER_OF_STORM_DESTROYED     = 21031,
     EVENT_TOWER_OF_FROST_DESTROYED     = 21032,
     EVENT_TOWER_OF_FLAMES_DESTROYED    = 21033,
