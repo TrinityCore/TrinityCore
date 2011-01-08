@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,6 +24,7 @@ SDCategory: Molten Core
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "molten_core.h"
 
 // Garr spells
 #define SPELL_ANTIMAGICPULSE        19492
@@ -46,7 +47,11 @@ public:
 
     struct boss_garrAI : public ScriptedAI
     {
-        boss_garrAI(Creature *c) : ScriptedAI(c) {}
+        boss_garrAI(Creature *pCreature) : ScriptedAI(pCreature) 
+        {
+        m_pInstance = pCreature->GetInstanceScript(); 
+        }
+        InstanceScript* m_pInstance;
 
         uint32 AntiMagicPulse_Timer;
         uint32 MagmaShackles_Timer;
@@ -59,6 +64,12 @@ public:
             AntiMagicPulse_Timer = 25000;                       //These times are probably wrong
             MagmaShackles_Timer = 15000;
             CheckAdds_Timer = 2000;
+        }
+
+        void JustDied(Unit* /*pKiller*/)
+        {
+            if (m_pInstance)
+                m_pInstance->SetData(DATA_GARR, 0);
         }
 
         void EnterCombat(Unit * /*who*/)

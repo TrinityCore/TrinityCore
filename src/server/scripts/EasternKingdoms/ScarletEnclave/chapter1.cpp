@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -579,7 +579,7 @@ public:
                         Phase = 3;
                         break;
                     case 3:
-                        me->ForcedDespawn();
+                        me->DespawnOrUnsummon();
                         break;
                     default:
                         break;

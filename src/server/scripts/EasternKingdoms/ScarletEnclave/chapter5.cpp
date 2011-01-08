@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -426,13 +426,13 @@ public:
                 }
 
                 if (Creature* pTemp = Unit::GetCreature(*me, uiKoltiraGUID))
-                    pTemp->setDeathState(JUST_DIED);
+                    pTemp->Respawn();
                 if (Creature* pTemp = Unit::GetCreature(*me, uiOrbazGUID))
-                    pTemp->setDeathState(JUST_DIED);
+                    pTemp->Respawn();
                 if (Creature* pTemp = Unit::GetCreature(*me, uiThassarianGUID))
-                    pTemp->setDeathState(JUST_DIED);
+                    pTemp->Respawn();
                 if (Creature* pTemp = Unit::GetCreature(*me, uiLichKingGUID))
-                    pTemp->setDeathState(JUST_DIED);
+                    pTemp->Respawn();
 
                 uiKoltiraGUID = NULL;
                 uiOrbazGUID = NULL;
@@ -1331,7 +1331,15 @@ public:
                             break;
 
                         case 73:
-                            me->ForcedDespawn();
+                            if (Creature* pTemp = Unit::GetCreature(*me, uiKoltiraGUID))
+                                pTemp->DespawnOrUnsummon();
+                            if (Creature* pTemp = Unit::GetCreature(*me, uiOrbazGUID))
+                                pTemp->DespawnOrUnsummon();
+                            if (Creature* pTemp = Unit::GetCreature(*me, uiThassarianGUID))
+                                pTemp->DespawnOrUnsummon();
+                            if (Creature* pTemp = Unit::GetCreature(*me, uiLichKingGUID))
+                                pTemp->DespawnOrUnsummon();
+                            me->DespawnOrUnsummon();
                             break;
                     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -330,7 +330,7 @@ public:
                     if (pIgnis->AI())
                         pIgnis->AI()->DoAction(ACTION_REMOVE_BUFF);
 
-                me->ForcedDespawn(1000);
+                me->DespawnOrUnsummon(1000);
             }
         }
 

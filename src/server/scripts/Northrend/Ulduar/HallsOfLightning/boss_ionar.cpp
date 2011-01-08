@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -180,7 +180,7 @@ public:
                         pSpark->GetMotionMaster()->MovePoint(DATA_POINT_CALLBACK, pos);
                     }
                     else
-                        pSpark->ForcedDespawn();
+                        pSpark->DespawnOrUnsummon();
                 }
             }
         }
@@ -331,7 +331,7 @@ public:
                 return;
 
             if (uiPointId == DATA_POINT_CALLBACK)
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
         }
 
         void DamageTaken(Unit * /*pDoneBy*/, uint32 &uiDamage)
@@ -344,7 +344,7 @@ public:
             // Despawn if the encounter is not running
             if (pInstance && pInstance->GetData(TYPE_IONAR) != IN_PROGRESS)
             {
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
                 return;
             }
 
@@ -367,7 +367,7 @@ public:
                         }
                     }
                     else
-                        me->ForcedDespawn();
+                        me->DespawnOrUnsummon();
                 }
                 uiCheckTimer = 2*IN_MILLISECONDS;
             }

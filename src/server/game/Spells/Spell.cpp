@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -2713,6 +2713,18 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     {
                         maxSize = m_caster->HasAura(62970) ? 6 : 5; // Glyph of Wild Growth
                         power = POWER_HEALTH;
+                    }
+                    else if (m_spellInfo->SpellFamilyFlags[2] == 0x0100) // Starfall
+                    {
+                        // Remove targets not in LoS or in stealth
+                        for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end();)
+                        {
+                            if ((*itr)->HasStealthAura() || (*itr)->HasInvisibilityAura() || !(*itr)->IsWithinLOSInMap(m_caster))
+                                itr = unitList.erase(itr);
+                            else
+                                ++itr;
+                        }
+                        break;
                     }
                     else
                         break;

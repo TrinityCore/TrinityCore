@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1654,6 +1654,14 @@ void Creature::ForcedDespawn(uint32 timeMSToDespawn)
         setDeathState(JUST_DIED);
 
     RemoveCorpse(false);
+}
+
+void Creature::DespawnOrUnsummon(uint32 msTimeToDespawn /*= 0*/)
+{
+    if (TempSummon* summon = this->ToTempSummon())
+        summon->UnSummon();
+    else
+        ForcedDespawn(msTimeToDespawn);
 }
 
 bool Creature::IsImmunedToSpell(SpellEntry const* spellInfo)

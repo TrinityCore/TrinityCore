@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -400,7 +400,7 @@ public:
                 me->SetHealth(me->GetMaxHealth());
                 me->RemoveAllAuras();
                 DoCast(me, SPELL_SARONITE_VAPORS);
-                me->ForcedDespawn(30000);
+                me->DespawnOrUnsummon(30000);
                 
                 if (Creature * pVezax = me->GetCreature(*me, pInstance ? pInstance->GetData64(TYPE_VEZAX) : 0))
                     pVezax->AI()->DoAction(ACTION_VAPORS_DIE);

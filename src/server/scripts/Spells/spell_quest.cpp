@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -49,7 +49,7 @@ public:
                     pCreatureTarget->AI()->AttackStart(GetCaster());
 
                 if (_despawnTime)
-                    pCreatureTarget->ForcedDespawn(_despawnTime);
+                    pCreatureTarget->DespawnOrUnsummon(_despawnTime);
             }
     }
 
@@ -166,7 +166,7 @@ public:
                         if (uiNewEntry)
                         {
                             pCreatureTarget->UpdateEntry(uiNewEntry);
-                            pCreatureTarget->ForcedDespawn(DESPAWN_TIME);
+                            pCreatureTarget->DespawnOrUnsummon(DESPAWN_TIME);
                         }
                     }
         }
@@ -460,7 +460,7 @@ public:
             }
             pCaster->CastSpell(pCaster, spellId, true, castItem);
             pCaster->CastSpell(pCaster, SPELL_ROBOT_KILL_CREDIT, true);
-            pTarget->ForcedDespawn();
+            pTarget->DespawnOrUnsummon();
         }
 
         void Register()
@@ -652,7 +652,7 @@ public:
                 {
                     pPlayer->CastSpell(pPlayer, SPELL_TRIGGER_AID_OF_THE_EARTHEN, true, NULL);
                     pPlayer->KilledMonsterCredit(NPC_FALLEN_EARTHEN_DEFENDER, 0);
-                    pTarget->ForcedDespawn();
+                    pTarget->DespawnOrUnsummon();
                 }
             }
         }

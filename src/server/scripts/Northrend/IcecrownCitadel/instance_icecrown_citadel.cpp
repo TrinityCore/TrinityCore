@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -456,6 +456,139 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
 
                 return false;
+            }
+
+            bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const
+            {
+                if (player && player->isGameMaster())
+                    return true;
+
+                switch (bossId)
+                {
+                    case DATA_THE_LICH_KING:
+                        if (!CheckPlagueworks(bossId))
+                            return false;
+                        if (!CheckCrimsonHalls(bossId))
+                            return false;
+                        if (!CheckFrostwingHalls(bossId))
+                            return false;
+                        break;
+                    case DATA_SINDRAGOSA:
+                    case DATA_VALITHRIA_DREAMWALKER:
+                        if (!CheckFrostwingHalls(bossId))
+                            return false;
+                        break;
+                    case DATA_BLOOD_QUEEN_LANA_THEL:
+                    case DATA_BLOOD_PRINCE_COUNCIL:
+                        if (!CheckCrimsonHalls(bossId))
+                            return false;
+                        break;
+                    case DATA_FESTERGUT:
+                    case DATA_ROTFACE:
+                    case DATA_PROFESSOR_PUTRICIDE:
+                        if (!CheckPlagueworks(bossId))
+                            return false;
+                        break;
+                    default:
+                        break;
+                }
+
+                if (!CheckLowerSpire(bossId))
+                    return false;
+
+                return true;
+            }
+
+            bool CheckPlagueworks(uint32 bossId) const
+            {
+                switch (bossId)
+                {
+                    case DATA_THE_LICH_KING:
+                        if (GetBossState(DATA_PROFESSOR_PUTRICIDE) != DONE)
+                            return false;
+                        // no break
+                    case DATA_PROFESSOR_PUTRICIDE:
+                        if (GetBossState(DATA_FESTERGUT) != DONE || GetBossState(DATA_ROTFACE) != DONE)
+                            return false;
+                        break;
+                    default:
+                        break;
+                }
+
+                return true;
+            }
+
+            bool CheckCrimsonHalls(uint32 bossId) const
+            {
+                switch (bossId)
+                {
+                    case DATA_THE_LICH_KING:
+                        if (GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) != DONE)
+                            return false;
+                        // no break
+                    case DATA_BLOOD_QUEEN_LANA_THEL:
+                        if (GetBossState(DATA_BLOOD_PRINCE_COUNCIL) != DONE)
+                            return false;
+                        break;
+                    default:
+                        break;
+                }
+
+                return true;
+            }
+
+            bool CheckFrostwingHalls(uint32 bossId) const
+            {
+                switch (bossId)
+                {
+                    case DATA_THE_LICH_KING:
+                        if (GetBossState(DATA_SINDRAGOSA) != DONE)
+                            return false;
+                        // no break
+                    case DATA_SINDRAGOSA:
+                        if (GetBossState(DATA_VALITHRIA_DREAMWALKER) != DONE)
+                            return false;
+                        break;
+                    default:
+                        break;
+                }
+
+                return true;
+            }
+
+            bool CheckLowerSpire(uint32 bossId) const
+            {
+                switch (bossId)
+                {
+                    case DATA_THE_LICH_KING:
+                    case DATA_SINDRAGOSA:
+                    case DATA_BLOOD_QUEEN_LANA_THEL:
+                    case DATA_PROFESSOR_PUTRICIDE:
+                    case DATA_VALITHRIA_DREAMWALKER:
+                    case DATA_BLOOD_PRINCE_COUNCIL:
+                    case DATA_ROTFACE:
+                    case DATA_FESTERGUT:
+                        if (GetBossState(DATA_DEATHBRINGER_SAURFANG) != DONE)
+                            return false;
+                        // no break
+                    case DATA_DEATHBRINGER_SAURFANG:
+                        if (GetBossState(DATA_GUNSHIP_EVENT) != DONE)
+                            return false;
+                        // no break
+                    case DATA_GUNSHIP_EVENT:
+                        if (GetBossState(DATA_LADY_DEATHWHISPER) != DONE)
+                            return false;
+                        // no break
+                    case DATA_LADY_DEATHWHISPER:
+                        if (GetBossState(DATA_LORD_MARROWGAR) != DONE)
+                            return false;
+                        // no break
+                    case DATA_LORD_MARROWGAR:
+                    default:
+                        break;
+                }
+
+                return true;
             }
 
             std::string GetSaveData()

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -216,7 +216,7 @@ public:
                             {
                                 m_pInstance->SetData(TYPE_CRUSADERS, FAIL);
                                 Summons.DespawnAll();
-                                me->ForcedDespawn();
+                                me->DespawnOrUnsummon();
                             }
                             break;
                         case IN_PROGRESS:
@@ -238,7 +238,7 @@ public:
                             {
                                 m_pInstance->SetData(TYPE_CRUSADERS, DONE);
                                 Summons.DespawnAll();
-                                me->ForcedDespawn();
+                                me->DespawnOrUnsummon();
                             }
                             break;
                     }
@@ -277,7 +277,7 @@ struct boss_faction_championsAI : public ScriptedAI
         if (m_pInstance)
             if (Creature* pChampionController = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
                 pChampionController->AI()->SetData(2, FAIL);
-        me->ForcedDespawn();
+        me->DespawnOrUnsummon();
     }
 
     float CalculateThreat(float distance, float armor, uint32 health)
@@ -601,7 +601,7 @@ public:
                 else
                     if (!me->HasAura(AURA_SATED))
                         DoCastAOE(SPELL_BLOODLUST);
-                m_uiHeroismOrBloodlustTimer = urand(30*IN_MILLISECONDS, 60*IN_MILLISECONDS);
+                m_uiHeroismOrBloodlustTimer = 300*IN_MILLISECONDS;
             } else m_uiHeroismOrBloodlustTimer -= uiDiff;
 
             if (m_uiHexTimer <= uiDiff)

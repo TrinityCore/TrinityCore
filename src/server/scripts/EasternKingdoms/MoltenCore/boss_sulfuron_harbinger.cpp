@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -49,7 +49,11 @@ public:
 
     struct boss_sulfuronAI : public ScriptedAI
     {
-        boss_sulfuronAI(Creature *c) : ScriptedAI(c) {}
+        boss_sulfuronAI(Creature *pCreature) : ScriptedAI(pCreature) 
+        {
+            m_pInstance = pCreature->GetInstanceScript(); 
+        }
+        InstanceScript* m_pInstance;
 
         uint32 Darkstrike_Timer;
         uint32 DemoralizingShout_Timer;
@@ -64,6 +68,12 @@ public:
             Inspire_Timer = 13000;
             Knockdown_Timer = 6000;
             Flamespear_Timer = 2000;
+        }
+
+        void JustDied(Unit* /*pKiller*/)
+        {
+            if (m_pInstance)
+                m_pInstance->SetData(DATA_SULFURON, 0);
         }
 
         void EnterCombat(Unit * /*who*/)

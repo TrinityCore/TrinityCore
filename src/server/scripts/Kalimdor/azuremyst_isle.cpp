@@ -1,5 +1,5 @@
  /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -155,7 +155,7 @@ public:
             if (RunAwayTimer)
             {
                 if (RunAwayTimer <= diff)
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
                 else
                     RunAwayTimer -= diff;
 
@@ -611,7 +611,7 @@ public:
                 if (DespawnTimer <= diff)
                 {
                     //once we are able to, despawn us
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
                     return;
                 } else DespawnTimer -= diff;
             }
@@ -768,7 +768,7 @@ public:
             if(FleeTimer)
             {
                 if(FleeTimer <= diff)
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
                 else FleeTimer -= diff;
             }
         }

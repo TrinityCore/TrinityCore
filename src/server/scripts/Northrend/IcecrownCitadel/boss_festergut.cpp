@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,7 +22,7 @@
 #include "SpellAuras.h"
 #include "icecrown_citadel.h"
 
-enum eScriptTexts
+enum ScriptTexts
 {
     SAY_STINKY_DEAD             = 0,
     SAY_AGGRO                   = 1,
@@ -36,7 +36,7 @@ enum eScriptTexts
     SAY_DEATH                   = 9,
 };
 
-enum eSpells
+enum Spells
 {
     // Festergut
     SPELL_INHALE_BLIGHT         = 69165,
@@ -60,7 +60,7 @@ enum eSpells
 static const uint32 gaseousBlight[3]        = {69157, 69162, 69164};
 static const uint32 gaseousBlightVisual[3]  = {69126, 69152, 69154};
 
-enum eEvents
+enum Events
 {
     EVENT_BERSERK       = 1,
     EVENT_INHALE_BLIGHT = 2,
@@ -119,8 +119,15 @@ class boss_festergut : public CreatureScript
                 instance->SetBossState(DATA_FESTERGUT, NOT_STARTED);
             }
 
-            void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* who)
             {
+                if (!instance->CheckRequiredBosses(DATA_FESTERGUT, who->ToPlayer()))
+                {
+                    instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
+                    EnterEvadeMode();
+                    return;
+                }
+
                 Talk(SAY_AGGRO);
                 if (Creature* gasDummy = me->FindNearestCreature(NPC_GAS_DUMMY, 100.0f, true))
                     gasDummyGUID = gasDummy->GetGUID();

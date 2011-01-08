@@ -545,7 +545,15 @@ void BossAI::_EnterCombat()
     me->setActive(true);
     DoZoneInCombat();
     if (instance)
+    {
+        // bosses do not respawn, check only on enter combat
+        if (!instance->CheckRequiredBosses(bossId))
+        {
+            EnterEvadeMode();
+            return;
+        }
         instance->SetBossState(bossId, IN_PROGRESS);
+    }
 }
 
 void BossAI::TeleportCheaters()

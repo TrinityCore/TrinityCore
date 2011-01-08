@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1153,10 +1153,8 @@ public:
         {
             if (!SummonList.empty())
                 for (std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
-                {
                     if (Creature* pTemp = Unit::GetCreature(*me, *itr))
-                        pTemp->ForcedDespawn();
-                }
+                        pTemp->DespawnOrUnsummon();
 
             if (Player* pPlayer = pKiller->GetCharmerOrOwnerPlayerOrPlayerItself())
                 pPlayer->GetCharmerOrOwnerPlayerOrPlayerItself()->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_FROM_BEYOND, pKiller);

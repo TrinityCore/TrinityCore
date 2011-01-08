@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2010 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -153,15 +153,13 @@ public:
         {
             if (m_pInstance)
                 m_pInstance->SetData(TYPE_NORTHREND_BEASTS, GORMOK_DONE);
-
-            Summons.DespawnAll();
         }
 
         void JustReachedHome()
         {
             if (m_pInstance)
                 m_pInstance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
-            me->ForcedDespawn();
+            me->DespawnOrUnsummon();
         }
 
         void EnterCombat(Unit* /*pWho*/)
@@ -200,13 +198,13 @@ public:
 
             if (m_uiImpaleTimer <= uiDiff)
             {
-                DoCast(me->getVictim(), SPELL_IMPALE);
+                DoCastVictim(SPELL_IMPALE);
                 m_uiImpaleTimer = urand(8*IN_MILLISECONDS, 10*IN_MILLISECONDS);
             } else m_uiImpaleTimer -= uiDiff;
 
             if (m_uiStaggeringStompTimer <= uiDiff)
             {
-                DoCast(me->getVictim(), SPELL_STAGGERING_STOMP);
+                DoCastVictim(SPELL_STAGGERING_STOMP);
                 m_uiStaggeringStompTimer = urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS);
             } else m_uiStaggeringStompTimer -= uiDiff;
 
@@ -289,7 +287,7 @@ public:
             {
                 case 0: // JUMP!? Fuck! THAT'S BEEZARR! Would someone PLEASE make MotionMaster->Move* work better?
                     if (m_bTargetDied)
-                        me->ForcedDespawn();
+                        me->DespawnOrUnsummon();
                     break;
             }
         }
@@ -309,25 +307,26 @@ public:
                 return;
 
             if (Unit* pTarget = Unit::GetPlayer(*me, m_uiTargetGUID))
+            {
                 if (!pTarget->isAlive())
+                {
                     if (m_pInstance)
-                        if (Unit* pGormok = Unit::GetCreature(*me, m_pInstance->GetData64(NPC_GORMOK)))
+                    {
+                        Unit* gormok = ObjectAccessor::GetCreature(*me, m_pInstance->GetData64(NPC_GORMOK));
+                        if (gormok && gormok->isAlive())
                         {
-                            if (pGormok->isAlive())
-                            {
-                                SetCombatMovement(false);
-                                m_bTargetDied = true;
-                                me->GetMotionMaster()->MoveJump(pGormok->GetPositionX(), pGormok->GetPositionY(), pGormok->GetPositionZ(), 15.0f, 15.0f);
-                            }
-                            else
-                            {
-                                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                                {
-                                    m_uiTargetGUID = pTarget->GetGUID();
-                                    me->GetMotionMaster()->MoveJump(pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 15.0f, 15.0f);
-                                }
-                            }
+                            SetCombatMovement(false);
+                            m_bTargetDied = true;
+                            me->GetMotionMaster()->MoveJump(gormok->GetPositionX(), gormok->GetPositionY(), gormok->GetPositionZ(), 15.0f, 15.0f);
                         }
+                        else if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        {
+                            m_uiTargetGUID = target->GetGUID();
+                            me->GetMotionMaster()->MoveJump(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 15.0f, 15.0f);
+                        }
+                    }
+                }
+            }
 
             if (m_uiFireBombTimer < uiDiff)
             {
@@ -388,15 +387,8 @@ struct boss_jormungarAI : public ScriptedAI
                 {
                     instanceScript->SetData(TYPE_NORTHREND_BEASTS, SNAKES_DONE);
 
-                    if (TempSummon* summ = me->ToTempSummon())
-                        summ->UnSummon();
-                    else
-                        me->ForcedDespawn();
-
-                    if (TempSummon* summ = otherWorm->ToTempSummon())
-                        summ->UnSummon();
-                    else
-                        otherWorm->ForcedDespawn();
+                    me->DespawnOrUnsummon();
+                    otherWorm->DespawnOrUnsummon();
                 }
                 else
                     instanceScript->SetData(TYPE_NORTHREND_BEASTS, SNAKES_SPECIAL);
@@ -409,10 +401,7 @@ struct boss_jormungarAI : public ScriptedAI
         if (instanceScript && instanceScript->GetData(TYPE_NORTHREND_BEASTS) != FAIL)
             instanceScript->SetData(TYPE_NORTHREND_BEASTS, FAIL);
 
-        if (TempSummon* summ = me->ToTempSummon())
-            summ->UnSummon();
-        else
-            me->ForcedDespawn();
+        me->DespawnOrUnsummon();
     }
 
     void KilledUnit(Unit *pWho)
@@ -670,7 +659,7 @@ public:
         {
             casted = false;
             me->SetReactState(REACT_PASSIVE);
-            me->ForcedDespawn(60*IN_MILLISECONDS);
+            me->DespawnOrUnsummon(60*IN_MILLISECONDS);
         }
 
         void UpdateAI(const uint32 /*uiDiff*/)
@@ -771,7 +760,7 @@ public:
         {
             if (m_pInstance)
                 m_pInstance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
-            me->ForcedDespawn();
+            me->DespawnOrUnsummon();
         }
 
         void KilledUnit(Unit *pWho)
@@ -843,7 +832,7 @@ public:
                     m_uiStage = 2;
                     break;
                 case 2:
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
                     {
                         m_uiTrampleTargetGUID = pTarget->GetGUID();
                         me->SetUInt64Value(UNIT_FIELD_TARGET, m_uiTrampleTargetGUID);

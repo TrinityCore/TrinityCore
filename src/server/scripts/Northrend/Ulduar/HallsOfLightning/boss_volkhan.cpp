@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -185,7 +185,7 @@ public:
                 if (Creature* pTemp = Unit::GetCreature(*me, *itr))
                 {
                     if (pTemp->isAlive())
-                        pTemp->ForcedDespawn();
+                        pTemp->DespawnOrUnsummon();
                 }
             }
 
@@ -432,7 +432,7 @@ public:
             // This is the dummy effect of the spells
             if (pSpell->Id == SPELL_SHATTER_N || pSpell->Id == SPELL_SHATTER_H)
                 if (me->GetEntry() == NPC_BRITTLE_GOLEM)
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
         }
 
         void UpdateAI(const uint32 uiDiff)

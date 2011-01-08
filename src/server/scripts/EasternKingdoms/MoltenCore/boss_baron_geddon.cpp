@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,6 +24,7 @@ SDCategory: Molten Core
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "molten_core.h"
 
 #define EMOTE_SERVICE               -1409000
 
@@ -44,7 +45,11 @@ public:
 
     struct boss_baron_geddonAI : public ScriptedAI
     {
-        boss_baron_geddonAI(Creature *c) : ScriptedAI(c) {}
+        boss_baron_geddonAI(Creature *pCreature) : ScriptedAI(pCreature) 
+        {
+            m_pInstance = pCreature->GetInstanceScript(); 
+        }
+        InstanceScript* m_pInstance;
 
         uint32 Inferno_Timer;
         uint32 IgniteMana_Timer;
@@ -55,6 +60,12 @@ public:
             Inferno_Timer = 45000;                              //These times are probably wrong
             IgniteMana_Timer = 30000;
             LivingBomb_Timer = 35000;
+        }
+
+        void JustDied(Unit* /*pKiller*/)
+        {
+            if (m_pInstance)
+                m_pInstance->SetData(DATA_GEDDON, 0);
         }
 
         void EnterCombat(Unit * /*who*/)

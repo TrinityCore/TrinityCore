@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,6 +24,7 @@ SDCategory: Molten Core
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "molten_core.h"
 
 #define SPELL_ARCANEEXPLOSION           19712
 #define SPELL_SHAZZRAHCURSE             19713
@@ -42,7 +43,12 @@ public:
 
     struct boss_shazzrahAI : public ScriptedAI
     {
-        boss_shazzrahAI(Creature *c) : ScriptedAI(c) {}
+        boss_shazzrahAI(Creature *pCreature) : ScriptedAI(pCreature)
+        {
+            m_pInstance = pCreature->GetInstanceScript(); 
+        }
+
+        InstanceScript* m_pInstance;
 
         uint32 ArcaneExplosion_Timer;
         uint32 ShazzrahCurse_Timer;
@@ -57,6 +63,12 @@ public:
             DeadenMagic_Timer = 24000;
             Countspell_Timer = 15000;
             Blink_Timer = 30000;
+        }
+
+        void JustDied(Unit* /*pKiller*/)
+        {
+            if (m_pInstance)
+                m_pInstance->SetData(DATA_SHAZZRAH, 0);
         }
 
         void EnterCombat(Unit * /*who*/)

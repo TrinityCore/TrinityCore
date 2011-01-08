@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -775,7 +775,7 @@ public:
                             break;
 
                         case 7:
-                            me->ForcedDespawn();
+                            me->DespawnOrUnsummon();
                             IntroPhase = 0;
                             IntroTimer = 0;
                             break;
@@ -1945,7 +1945,7 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             if (Player* pPlayer = GetPlayerForEscort())
-                pPlayer->FailQuest(QUEST_ESCAPING_THE_MIST);
+                pPlayer->FailQuest(QUEST_GET_ME_OUTA_HERE);
         }
 
         void UpdateEscortAI(const uint32 /*diff*/)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,7 +23,7 @@
 #include "icecrown_citadel.h"
 #include "MapManager.h"
 
-enum eScriptTexts
+enum ScriptTexts
 {
     SAY_ENTER_ZONE              = 0,
     SAY_AGGRO                   = 1,
@@ -35,7 +35,7 @@ enum eScriptTexts
     EMOTE_BONE_STORM            = 7,
 };
 
-enum eSpells
+enum Spells
 {
     // Lord Marrowgar
     SPELL_BONE_SLICE            = 69055,
@@ -54,7 +54,7 @@ enum eSpells
 
 static const uint32 boneSpikeSummonId[3] = {69062, 72669, 72670};
 
-enum eEvents
+enum Events
 {
     EVENT_BONE_SPIKE_GRAVEYARD  = 1,
     EVENT_COLDFLAME             = 2,
@@ -71,7 +71,7 @@ enum eEvents
     EVENT_GROUP_SPECIAL         = 1,
 };
 
-enum eMovementPoints
+enum MovementPoints
 {
     POINT_TARGET_BONESTORM_PLAYER   = 36612631,
     POINT_TARGET_COLDFLAME          = 36672631,
@@ -291,10 +291,7 @@ class npc_coldflame : public CreatureScript
                         target = creOwner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true); // or the tank if its solo
                     if (!target)
                     {
-                        if (TempSummon* summ = me->ToTempSummon())
-                            summ->UnSummon();
-                        else
-                            me->ForcedDespawn();
+                        me->DespawnOrUnsummon();
                         return;
                     }
 
@@ -363,17 +360,15 @@ class npc_bone_spike : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 if (TempSummon* summ = me->ToTempSummon())
-                {
                     if (Unit* trapped = summ->GetSummoner())
                         trapped->RemoveAurasDueToSpell(SPELL_IMPALED);
-                    summ->UnSummon();
-                }
+
+                me->DespawnOrUnsummon();
             }
 
             void KilledUnit(Unit* victim)
             {
-                if (TempSummon* summ = me->ToTempSummon())
-                    summ->UnSummon();
+                me->DespawnOrUnsummon();
                 victim->RemoveAurasDueToSpell(SPELL_IMPALED);
             }
 

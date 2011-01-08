@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -193,7 +193,7 @@ public:
                         {
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                             me->SetDisplayId(DATA_SVALA_DISPLAY_ID);
-                            pArthas->ToTempSummon()->UnSummon();
+                            pArthas->DespawnOrUnsummon();
                             uiArthasGUID = 0;
                             Phase = FINISHED;
                         }

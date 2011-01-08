@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -568,7 +568,7 @@ void WorldSession::SendLfgUpdateProposal(uint32 proposalId, const LfgProposal* p
     if (!isContinue)                                       // Only show proposal dungeon if it's continue
     {
         LfgDungeonSet playerDungeons = sLFGMgr->GetSelectedDungeons(guid);
-        if (playerDungeons.size())
+        if (playerDungeons.size() == 1)
             dungeonId = (*playerDungeons.begin());
     }
     if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(dungeonId))

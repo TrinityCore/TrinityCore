@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -813,7 +813,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
         }
         case ACTION_T_FORCE_DESPAWN:
         {
-            me->ForcedDespawn(action.forced_despawn.msDelay);
+            me->DespawnOrUnsummon(action.forced_despawn.msDelay);
             break;
         }
         case ACTION_T_SET_INVINCIBILITY_HP_LEVEL:

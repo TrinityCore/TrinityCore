@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,6 +19,7 @@
 #include "CombatAI.h"
 #include "SpellMgr.h"
 #include "Vehicle.h"
+#include "ObjectAccessor.h"
 
 int AggressorAI::Permissible(const Creature *creature)
 {
@@ -309,7 +310,7 @@ void VehicleAI::UpdateAI(const uint32 diff)
         {
             m_DoDismiss = false;
             me->SetVisible(false);
-            me->ForcedDespawn();
+            me->DespawnOrUnsummon();
         }else m_DismissTimer -= diff;
     }
 }
@@ -351,7 +352,7 @@ void VehicleAI::CheckConditions(const uint32 diff)
         if (!conditions.empty())
         {
             for (SeatMap::iterator itr = m_vehicle->m_Seats.begin(); itr != m_vehicle->m_Seats.end(); ++itr)
-                if (Unit *passenger = itr->second.passenger)
+                if (Unit* passenger = ObjectAccessor::GetUnit(*m_vehicle->GetBase(), itr->second.passenger))
                 {
                     if (Player* plr = passenger->ToPlayer())
                     {

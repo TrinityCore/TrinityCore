@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -111,7 +111,7 @@ public:
                 case 23:
                     if (pPlayer)
                         pPlayer->GroupEventHappens(QUEST_TRAIL_OF_FIRE, me);
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
                     break;
                 case 5:
                     if (Unit* Trigger = me->FindNearestCreature(NPC_HANES_FIRE_TRIGGER,10.0f))
@@ -205,7 +205,7 @@ public:
             switch(i)
             {
             case 26:
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
                 break;
             }
         }

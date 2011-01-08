@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2010 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -209,7 +209,7 @@ public:
 
             if (m_uiIncinerateFleshTimer <= uiDiff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true))
                 {
                     DoScriptText(EMOTE_INCINERATE, me, pTarget);
                     DoScriptText(SAY_INCINERATE, me);
@@ -226,7 +226,7 @@ public:
 
             if (m_uiLegionFlameTimer <= uiDiff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true))
                 {
                     DoScriptText(EMOTE_LEGION_FLAME, me, pTarget);
                     DoCast(pTarget, SPELL_LEGION_FLAME);
@@ -332,7 +332,7 @@ public:
 
         void JustDied(Unit* /*pKiller*/)
         {
-            me->ForcedDespawn();
+            me->DespawnOrUnsummon();
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -340,7 +340,7 @@ public:
             if (m_Timer <= uiDiff)
             {
                 if (m_CountMax && m_CountMax == m_Count)
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
                 else
                 {
                     DoCast(SPELL_INFERNAL_ERUPTION);
@@ -394,7 +394,7 @@ public:
                 return;
 
             if (m_pInstance && m_pInstance->GetData(TYPE_JARAXXUS) != IN_PROGRESS)
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
 
             if (m_uiFelStreakTimer <= uiDiff)
             {
@@ -464,7 +464,7 @@ public:
             if (m_Timer <= uiDiff)
             {
                 if (m_CountMax && m_CountMax == m_Count)
-                    me->ForcedDespawn();
+                    me->DespawnOrUnsummon();
                 else
                 {
                     DoCast(SPELL_NETHER_PORTAL);
@@ -524,7 +524,7 @@ public:
                 return;
 
             if (m_pInstance && m_pInstance->GetData(TYPE_JARAXXUS) != IN_PROGRESS)
-                me->ForcedDespawn();
+                me->DespawnOrUnsummon();
 
             if (m_uiShivanSlashTimer <= uiDiff)
             {
@@ -534,14 +534,14 @@ public:
 
             if (m_uiSpinningStrikeTimer <= uiDiff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
                     DoCast(pTarget, SPELL_SPINNING_STRIKE);
                 m_uiSpinningStrikeTimer = 30*IN_MILLISECONDS;
             } else m_uiSpinningStrikeTimer -= uiDiff;
 
             if (IsHeroic() && m_uiMistressKissTimer <= uiDiff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
                     DoCast(pTarget, SPELL_MISTRESS_KISS);
                 m_uiMistressKissTimer = 30*IN_MILLISECONDS;
             } else m_uiMistressKissTimer -= uiDiff;
