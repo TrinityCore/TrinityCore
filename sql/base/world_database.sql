@@ -26896,6 +26896,9 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 -- Ulduar
 ( 62717, 'spell_ignis_slag_pot'),
 ( 63477, 'spell_ignis_slag_pot'),
+( 62521, 'spell_attuned_to_nature_dose_reduction'),
+( 62524, 'spell_attuned_to_nature_dose_reduction'),
+( 62525, 'spell_attuned_to_nature_dose_reduction'),
 -- quest
 (  8913, 'spell_q55_sacred_cleansing'),
 ( 17271, 'spell_q5206_test_fetid_skull'),
