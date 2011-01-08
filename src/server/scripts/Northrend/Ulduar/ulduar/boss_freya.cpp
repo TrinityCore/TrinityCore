@@ -121,8 +121,62 @@ public:
 
 };
 
+enum eSpells
+{
+    SPELL_ATTUNED_TO_NATURE_2_DOSE_REDUCTION     = 62524,
+    SPELL_ATTUNED_TO_NATURE_10_DOSE_REDUCTION    = 62525,
+    SPELL_ATTUNED_TO_NATURE_25_DOSE_REDUCTION    = 62521,
+};
+
+class spell_attuned_to_nature_dose_reduction : public SpellScriptLoader
+{
+public:
+    spell_attuned_to_nature_dose_reduction() : SpellScriptLoader("spell_attuned_to_nature_dose_reduction") { }
+
+    class spell_attuned_to_nature_dose_reduction_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_attuned_to_nature_dose_reduction_SpellScript)
+
+        void HandleScript(SpellEffIndex /*effIndex*/)
+        {
+            Unit * target = GetHitUnit();
+            SpellEntry const * m_spellInfo = GetSpellInfo();
+            switch (m_spellInfo->Id)
+            {
+                case SPELL_ATTUNED_TO_NATURE_2_DOSE_REDUCTION:
+                    if (target->HasAura(GetEffectValue()))
+                        for (uint8 n = 0; n < 2; n++)
+                            target->RemoveAuraFromStack(GetEffectValue(), 0, AURA_REMOVE_BY_DEFAULT);
+                    break;
+                case SPELL_ATTUNED_TO_NATURE_10_DOSE_REDUCTION:
+                    if (target->HasAura(GetEffectValue()))
+                        for (uint8 n = 0; n < 10; n++)
+                            target->RemoveAuraFromStack(GetEffectValue(), 0, AURA_REMOVE_BY_DEFAULT);
+                    break;
+                case SPELL_ATTUNED_TO_NATURE_25_DOSE_REDUCTION:
+                    if (target->HasAura(GetEffectValue()))
+                        for (uint8 n = 0; n < 25; n++)
+                            target->RemoveAuraFromStack(GetEffectValue(), 0, AURA_REMOVE_BY_DEFAULT);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_attuned_to_nature_dose_reduction_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript * GetSpellScript() const
+    {
+        return new spell_attuned_to_nature_dose_reduction_SpellScript();
+    }
+};
 
 void AddSC_boss_freya()
 {
     new boss_freya();
+    new spell_attuned_to_nature_dose_reduction();
 }
