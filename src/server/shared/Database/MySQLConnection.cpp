@@ -259,7 +259,7 @@ bool MySQLConnection::_Query(PreparedStatement* stmt, MYSQL_RES **pResult, uint6
                 m_statementTable[index].query, lErrno, mysql_stmt_error(msql_STMT));
 
             if (_HandleMySQLErrno(lErrno))  // If it returns true, an error was handled succesfuly (ie reconnection)
-                return Execute(stmt);       // Try again
+                return _Query(stmt, pResult, pRowCount, pFieldCount);       // Try again
 
             m_mStmt->ClearParameters();
             return false;
@@ -272,7 +272,7 @@ bool MySQLConnection::_Query(PreparedStatement* stmt, MYSQL_RES **pResult, uint6
                 m_statementTable[index].query, lErrno, mysql_stmt_error(msql_STMT));
 
             if (_HandleMySQLErrno(lErrno))  // If it returns true, an error was handled succesfuly (ie reconnection)
-                return Execute(stmt);       // Try again
+                return _Query(stmt, pResult, pRowCount, pFieldCount);      // Try again
 
             m_mStmt->ClearParameters();
             return false;
