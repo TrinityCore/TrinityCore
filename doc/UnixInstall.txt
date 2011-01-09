@@ -6,7 +6,7 @@ WARNING: THIS DOCUMENTATION IS NOT ALWAYS UP TO DATE.
 FOR MORE UP-TO-DATE INFORMATION, CHECK THE TRINITY WIKI.
 =========================================================
 
-CHECK http://www.trinitycore.info/w/Linux_Build_HOWTO FOR FURTHER HELP
+CHECK http://www.trinitycore.org/w/How-to:Linux FOR FURTHER HELP
 
 Installing TrinityCore is fairly simple on a Linux machine, assuming you 
 have all required applications
