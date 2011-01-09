@@ -426,11 +426,11 @@ void Unit::SendMonsterMoveTransport(Unit *vehicleOwner)
     data << GetPositionX() - vehicleOwner->GetPositionX();
     data << GetPositionY() - vehicleOwner->GetPositionY();
     data << GetPositionZ() - vehicleOwner->GetPositionZ();
-    data << uint32(100);                    // should be an increasing constant that indicates movement packet count
+    data << uint32(getMSTime());            // should be an increasing constant that indicates movement packet count
     data << uint8(SPLINETYPE_FACING_ANGLE); 
-    data << GetTransOffsetO();              // facing angle?
+    data << GetOrientation();               // facing angle?
     data << uint32(SPLINEFLAG_TRANSPORT);
-    data << uint32(0);                      // move time
+    data << uint32(GetTransTime());         // move time
     data << uint32(1);                      // amount of waypoints
     data << GetTransOffsetX();
     data << GetTransOffsetY();
