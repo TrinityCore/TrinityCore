@@ -612,6 +612,28 @@ void Battleground::CastSpellOnTeam(uint32 SpellID, uint32 TeamID)
     }
 }
 
+void Battleground::RemoveAuraOnTeam(uint32 SpellID, uint32 TeamID)
+{
+    for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+    {
+        if (itr->second.OfflineRemoveTime)
+            continue;
+        Player *plr = sObjectMgr->GetPlayer(itr->first);
+
+        if (!plr)
+        {
+            sLog->outError("Battleground:RemoveAuraOnTeam: Player (GUID: %u) not found!", GUID_LOPART(itr->first));
+            continue;
+        }
+
+        uint32 team = itr->second.Team;
+        if (!team) team = plr->GetTeam();
+
+        if (team == TeamID)
+            plr->RemoveAura(SpellID);
+    }
+}
+
 void Battleground::YellToAll(Creature* creature, const char* text, uint32 language)
 {
     for (std::map<uint64, BattlegroundPlayer>::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
@@ -1405,6 +1427,9 @@ void Battleground::RemovePlayerFromResurrectQueue(uint64 player_guid)
 
 bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, uint32 /*respawnTime*/)
 {
+    // If the assert is called, means that m_BgObjects must be resized!
+    ASSERT(type < m_BgObjects.size());
+
     Map *map = GetBgMap();
     if (!map)
         return false;
@@ -1531,6 +1556,9 @@ void Battleground::SpawnBGObject(uint32 type, uint32 respawntime)
 
 Creature* Battleground::AddCreature(uint32 entry, uint32 type, uint32 teamval, float x, float y, float z, float o, uint32 respawntime)
 {
+    // If the assert is called, means that m_BgCreatures must be resized!
+    ASSERT(type < m_BgCreatures.size());
+
     Map * map = GetBgMap();
     if (!map)
         return NULL;

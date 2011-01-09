@@ -18,6 +18,7 @@
 #include "ScriptPCH.h"
 #include "BattlegroundAB.h"
 #include "BattlegroundWS.h"
+#include "BattlegroundIC.h"
 
 class achievement_school_of_hard_knocks : public AchievementCriteriaScript
 {
@@ -116,6 +117,54 @@ class achievement_save_the_day : public AchievementCriteriaScript
         }
 };
 
+class achievement_bg_ic_resource_glut : public AchievementCriteriaScript
+{
+    public:
+        achievement_bg_ic_resource_glut() : AchievementCriteriaScript("achievement_bg_ic_resource_glut") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            if (source->HasAura(SPELL_OIL_REFINERY) && source->HasAura(SPELL_QUARRY))
+                return true;
+
+            return false;
+        }
+};
+
+class achievement_bg_ic_glaive_grave : public AchievementCriteriaScript
+{
+    public:
+        achievement_bg_ic_glaive_grave() : AchievementCriteriaScript("achievement_bg_ic_glaive_grave") { }
+
+        bool OnCheck(Player* source, Unit* target)
+        {
+            if (Creature* vehicle = source->GetVehicleCreatureBase())
+            {
+                if (vehicle->GetEntry() == 35273 || vehicle->GetEntry() == 34802)
+                    return true;
+            }
+
+            return false;
+        }
+};
+
+class achievement_bg_ic_mowed_down : public AchievementCriteriaScript
+{
+    public:
+        achievement_bg_ic_mowed_down() : AchievementCriteriaScript("achievement_bg_ic_mowed_down") { }
+
+        bool OnCheck(Player* source, Unit* target)
+        {
+            if (Creature* vehicle = source->GetVehicleCreatureBase())
+            {
+                if (vehicle->GetEntry() == NPC_KEEP_CANNON)
+                    return true;
+            }
+
+            return false;
+        }
+};
+
 void AddSC_achievement_scripts()
 {
     new achievement_school_of_hard_knocks();
@@ -123,4 +172,7 @@ void AddSC_achievement_scripts()
     new achievement_resilient_victory();
     new achievement_bg_control_all_nodes();
     new achievement_save_the_day();
+    new achievement_bg_ic_resource_glut();
+    new achievement_bg_ic_glaive_grave();
+    new achievement_bg_ic_mowed_down();
 }

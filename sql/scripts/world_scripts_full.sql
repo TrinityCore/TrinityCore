@@ -867,6 +867,9 @@ UPDATE `creature_template` SET `ScriptName`='boss_blood_queen_lana_thel' WHERE `
 /* IRONFORGE */
 UPDATE `creature_template` SET `ScriptName`='npc_royal_historian_archesonus' WHERE `entry`=8879;
 
+/* ISLE OF CONQUEST */
+UPDATE `creature_template` SET `ScriptName`='npc_four_car_garage' WHERE `entry` IN (34802,34793,34775,35069,34776);
+
 /* ISLE OF QUEL'DANAS */
 UPDATE `creature_template` SET `ScriptName`='npc_converted_sentry' WHERE `entry`=24981;
 UPDATE `creature_template` SET `ScriptName`='npc_greengill_slave' WHERE `entry`=25084;
@@ -1748,7 +1751,7 @@ UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_si' WHERE `TypeId`=5;
 UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_ep' WHERE `TypeId`=6;
 
 /* ACHIEVEMENTS */
-DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (3693,6641,6642,6643,6644,3804,3805,3806,3807,3808,3809,3810,3811,3812,3813,1234,1239,5605,5606,12778,13036,13035,13037,12977,12967,12986,12982,12993,12780,13012,13011,13013) AND `type` IN (0,11);
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (3693,6641,6642,6643,6644,3804,3805,3806,3807,3808,3809,3810,3811,3812,3813,1234,1239,5605,5606,12778,13036,13035,13037,12977,12967,12986,12982,12993,12780,13012,13011,13013,12062,12063,12064,12065,12183,12068,12060,12061) AND `type` IN (0,11);
 INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,`ScriptName`) VALUES
 (3693,11,0,0, 'achievement_storm_glory'),
 (6641,11,0,0, 'achievement_school_of_hard_knocks'),
@@ -1781,7 +1784,16 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,
 (12780,11,0,0, 'achievement_once_bitten_twice_shy_n'),
 (13012,11,0,0, 'achievement_once_bitten_twice_shy_n'),
 (13011,11,0,0, 'achievement_once_bitten_twice_shy_v'),
-(13013,11,0,0, 'achievement_once_bitten_twice_shy_v');
+(13013,11,0,0, 'achievement_once_bitten_twice_shy_v'),
+(12062,11,0,0, 'achievement_bg_control_all_nodes'),
+(12063,11,0,0, 'achievement_bg_control_all_nodes'),
+(12064,11,0,0, 'achievement_bg_control_all_nodes'),
+(12065,11,0,0, 'achievement_bg_control_all_nodes'),
+(12183,11,0,0, 'achievement_bg_ic_glaive_grave'),
+(12068,11,0,0, 'achievement_bg_ic_mowed_down'),
+(12060,11,0,0, 'achievement_bg_ic_resource_glut'),
+(12061,11,0,0, 'achievement_bg_ic_resource_glut');
+
 
 /* SPELLS */
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
@@ -1939,6 +1951,10 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 71900, 'spell_blood_queen_bloodbolt'),
 ( 71901, 'spell_blood_queen_bloodbolt'),
 ( 71902, 'spell_blood_queen_bloodbolt'),
+-- Isle of Conquest
+( 66630, 'spell_gen_gunship_portal'),
+( 66637, 'spell_gen_gunship_portal'),
+( 66656, 'spell_gen_parachute_ic'),
 -- Trial of Crusader
 ( 66118, 'spell_gen_leeching_swarm'),
 ( 67630, 'spell_gen_leeching_swarm'),
