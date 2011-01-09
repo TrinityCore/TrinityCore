@@ -1618,15 +1618,15 @@ class spell_halion_fiery_combustion : public SpellScriptLoader
                 return true;
             }
 
-            void HandlePeriodicTick(AuraEffect const * /*aurEff*/, AuraApplication const * aurApp)
+            void HandlePeriodicTick(AuraEffect const * /*aurEff*/)
             {
-                if (Unit* pTarget = aurApp->GetTarget())
+                if (Unit* pTarget = GetTarget())
                     pTarget->CastSpell(pTarget, SPELL_MARK_OF_COMBUSTION, true);
             }
 
-            void HandleEffectRemove(AuraEffect const * /*aurEff*/, AuraApplication const * aurApp, AuraEffectHandleModes /*mode*/)
+            void HandleEffectRemove(AuraEffect const * /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* pTarget = aurApp->GetTarget())
+                if (Unit* pTarget = GetTarget())
                 {
                     if (Aura *mark = pTarget->GetAura(SPELL_MARK_OF_COMBUSTION))
                     {
@@ -1678,15 +1678,15 @@ class spell_halion_soul_consumption : public SpellScriptLoader
                 return true;
             }
 
-            void HandlePeriodicTick(AuraEffect const * /*aurEff*/, AuraApplication const * aurApp)
+            void HandlePeriodicTick(AuraEffect const * /*aurEff*/)
             {
-                if (Unit* pTarget = aurApp->GetTarget())
+                if (Unit* pTarget = GetTarget())
                     pTarget->CastSpell(pTarget, SPELL_MARK_OF_CONSUMPTION, true);
             }
 
-            void HandleEffectRemove(AuraEffect const * /*aurEff*/, AuraApplication const * aurApp, AuraEffectHandleModes /*mode*/)
+            void HandleEffectRemove(AuraEffect const * /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* pTarget = aurApp->GetTarget())
+                if (Unit* pTarget = GetTarget())
                 {
                     if (Aura *mark = pTarget->GetAura(SPELL_MARK_OF_CONSUMPTION))
                     {
