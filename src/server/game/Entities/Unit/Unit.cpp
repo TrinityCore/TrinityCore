@@ -16469,6 +16469,16 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId, AuraApplication const * a
         // drop flag at invisible in bg
         if (Battleground *bg = plr->GetBattleground())
             bg->EventPlayerDroppedFlag(plr);
+
+        if (Pet* pet = plr->GetPet())
+        {
+            Battleground *bg = ToPlayer()->GetBattleground();
+            // don't unsummon pet in arena but SetFlag UNIT_FLAG_STUNNED to disable pet's interface
+            if (bg && bg->isArena())
+                pet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+            else
+                plr->UnsummonPetTemporaryIfAny();
+        }
     }
 
     // vehicle is applied by aura, and aura effect remove handler was called during apply handler execution
@@ -16561,6 +16571,14 @@ void Unit::ExitVehicle()
         //this->ToPlayer()->SetClientControl(this, 1);
         this->ToPlayer()->SendTeleportAckPacket();
         this->ToPlayer()->SetFallInformation(0, GetPositionZ());
+
+        if (Pet *pPet = this->ToPlayer()->GetPet())
+        {
+            if (pPet && pPet->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED) && !pPet->HasUnitState(UNIT_STAT_STUNNED))
+                pPet->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+        }
+        else
+            this->ToPlayer()->ResummonPetTemporaryUnSummonedIfAny();
     }
     WorldPacket data;
     BuildHeartBeatMsg(&data);
