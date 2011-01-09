@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2010 TrinityScript 2
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,5 +17,20 @@
 
 #ifndef DEF_EYE_OF_ETERNITY_H
 #define DEF_EYE_OF_ETERNITY_H
+
+enum
+{
+    MAX_ENCOUNTER                = 1,
+ 
+    TYPE_MALYGOS                 = 2,
+    TYPE_OUTRO_CHECK             = 4,  // Because this encounter is really hard and outro takes about 90s and malygos dies at its end, I add some check against server crash
+    TYPE_DESTROY_PLATFORM        = 5,
+    TYPE_VORTEX                  = 6,
+    TYPE_PLAYER_HOVER            = 7,
+    DATA_DROP_PLAYERS            = 8,
+    
+    NPC_WYRMREST_SKYTALON        = 30161, // Dragon Vehicle in Third Phase
+    NPC_MALYGOS                  = 28859,
+};
 
 #endif
