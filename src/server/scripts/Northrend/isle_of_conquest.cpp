@@ -39,17 +39,18 @@ class npc_four_car_garage : public CreatureScript
                     switch(me->GetEntry())
                     {
                         case NPC_DEMOLISHER:
-                            spellId = 68365;
+                            spellId = SPELL_DRIVING_CREDIT_DEMOLISHER;
                             break;
-                        case NPC_GLAIVE_THROWER:
-                            spellId = 68363;
+                        case NPC_GLAIVE_THROWER_A:
+                        case NPC_GLAIVE_THROWER_H:
+                            spellId = SPELL_DRIVING_CREDIT_GLAIVE;
                             break;
                         case NPC_SIEGE_ENGINE_H:
                         case NPC_SIEGE_ENGINE_A:
-                            spellId = 68364;
+                            spellId = SPELL_DRIVING_CREDIT_SIEGE;
                             break;
                         case NPC_CATAPULT:
-                            spellId = 68362;
+                            spellId = SPELL_DRIVING_CREDIT_CATAPULT;
                             break;
                         default:
                             return;
