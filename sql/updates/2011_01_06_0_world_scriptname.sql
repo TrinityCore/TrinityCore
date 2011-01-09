@@ -1,1 +1,1 @@
-UPDATE `creature_template` SET `ScriptName`='npc_brunnhildar_prisoner' WHERE `entry`=29639;
+UPDATE `creature_template` SET `ScriptName`='mob_SonOfFlame' WHERE `entry`=12143;
