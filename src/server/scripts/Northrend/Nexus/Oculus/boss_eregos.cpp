@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2010 TrinityScript 2
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,6 +30,8 @@ enum Spells
     SPELL_ENRAGED_ASSAULT                         = 51170,
     SPELL_PLANAR_ANOMALIES                        = 57959,
     SPELL_PLANAR_SHIFT                            = 51162,
+    SPELL_ARCANE_SHIELD                           = 53813,
+    SPELL_PLANAR_BLAST                            = 57976,
 };
 /*Ruby Drake ,
 (npc 27756) (item 37860)
@@ -75,10 +77,15 @@ enum EmeraldDrake
     SPELL_EMERALD_DREAM_FUNNEL                    = 50344         //(60 yds) - Channeled - Transfers 5% of the caster's max health to a friendly drake every second for 10 seconds as long as the caster channels.
 };
 
+enum adds
+{
+    PLANAR_ANOMALY                          = 30879
+};
+
 class boss_eregos : public CreatureScript
 {
-public:
-    boss_eregos() : CreatureScript("boss_eregos") { }
+    public:
+        boss_eregos(): CreatureScript("boss_eregos") {}
 
     CreatureAI* GetAI(Creature* pCreature) const
     {
@@ -87,47 +94,187 @@ public:
 
     struct boss_eregosAI : public ScriptedAI
     {
-        boss_eregosAI(Creature *c) : ScriptedAI(c)
+        boss_eregosAI(Creature *pCreature) : ScriptedAI(pCreature), lSummons(me)
         {
-            pInstance = c->GetInstanceScript();
+            pInstance = pCreature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+            InstanceScript* pInstance;
+            uint32 uiArcaneBarrage_Timer;
+            uint32 uiArcaneVolley_Timer;
+            uint32 uiEnragedAssault_Timer;
+            bool hp1,hp2,started;
+            int phase;
+            SummonList lSummons;
 
         void Reset()
         {
             if (pInstance)
+                    {
                 pInstance->SetData(DATA_EREGOS_EVENT, NOT_STARTED);
+                    }
+                    uiArcaneBarrage_Timer       = 3000;
+                    uiArcaneVolley_Timer        = 10000;
+                    uiEnragedAssault_Timer      = 30000;
+                    hp1 = false;
+                    hp2 = false;
+                    phase = 1;
+                    started = false;
+                    lSummons.DespawnAll();
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    me->SetUnitMovementFlags(MOVEMENTFLAG_CAN_FLY);
+                    me->GetMotionMaster()->Clear();
+                    me->GetMotionMaster()->MoveRandom(80.0f);
+                    me->SetReactState(REACT_PASSIVE);
         }
 
-        void EnterCombat(Unit* /*who*/)
+            void SummonPlanarAnomaly()
+            {
+                    std::list<HostileReference*>& m_threatlist = me->getThreatManager().getThreatList();
+                    std::list<HostileReference*>::const_iterator i = m_threatlist.begin();
+                    for (i = m_threatlist.begin(); i!= m_threatlist.end(); ++i)
+                    {
+                            Unit* pUnit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                            if (pUnit )
+                            {
+                                    Creature* summon = DoSummon(PLANAR_ANOMALY, me, 3.0f, 30000, TEMPSUMMON_DEAD_DESPAWN);
+                                    if(summon)
+                                    {
+                                            summon->Attack(pUnit,true);
+                                            //printf("PLANAR_ANOMALY attack uinit %s \n",pUnit->GetName());
+                                            summon->SetVisible(true);
+                                            summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                                            summon->SetUnitMovementFlags(MOVEMENTFLAG_CAN_FLY);
+                                    }
+                            }
+                    }
+            }
+
+        void EnterCombat(Unit* who)
         {
             if (pInstance)
-                pInstance->SetData(DATA_EREGOS_EVENT, IN_PROGRESS);
+                pInstance->SetData(DATA_EREGOS_EVENT, IN_PROGRESS);                
         }
 
-        void AttackStart(Unit* /*who*/) {}
-        void MoveInLineOfSight(Unit* /*who*/) {}
-        void UpdateAI(const uint32 /*diff*/)
+        void UpdateAI(const uint32 uiDiff)
         {
+                    if(!started && pInstance->GetData(DATA_UROM_EVENT) == DONE)
+                    {
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                            me->RemoveAllAuras();
+                            me->SetReactState(REACT_AGGRESSIVE);
+                            started=true;
+                    }
             //Return since we have no target
             if (!UpdateVictim())
                 return;
 
-            DoMeleeAttackIfReady();
+                    if(!hp1 && HealthBelowPct(60))
+                    {
+                            phase = 2;
+                            hp1=true;
+                    }
+
+                    if(!hp2 && HealthBelowPct(20))
+                    {
+                            phase = 2;
+                            hp2=true;
+                    }
+
+                    switch(phase)
+                    {
+                            case 1:
+                                    if(!me->HasAura(SPELL_PLANAR_SHIFT))
+                                    {
+                                            lSummons.DespawnAll();
+                                            if(uiArcaneBarrage_Timer <= uiDiff)
+                                            {
+                                                    uiArcaneBarrage_Timer = 3000;
+                                                    DoCast(me->getVictim(),DUNGEON_MODE(SPELL_ARCANE_BARRAGE,H_SPELL_ARCANE_BARRAGE)); 
+                                            } else uiArcaneBarrage_Timer -= uiDiff;
+
+                                            if(uiArcaneVolley_Timer <= uiDiff)
+                                            {
+                                                    uiArcaneVolley_Timer = 8000;
+                                                    DoCast(DUNGEON_MODE(SPELL_ARCANE_VOLLEY,H_SPELL_ARCANE_VOLLEY)); 
+                                            } else uiArcaneVolley_Timer -= uiDiff;
+
+                                            if(uiEnragedAssault_Timer <= uiDiff)
+                                            {
+                                                    uiEnragedAssault_Timer = 30000;
+                                                    DoCast(SPELL_ENRAGED_ASSAULT); 
+                                            } else uiEnragedAssault_Timer -= uiDiff;
+                                            DoMeleeAttackIfReady();
+                                    }
+                                    break;
+                            case 2:
+                                    SummonPlanarAnomaly();
+                                    DoCast(SPELL_PLANAR_SHIFT);
+                                    phase = 1;
+                                    break;
+
+                    }
         }
 
-        void JustDied(Unit* /*killer*/)
+            void JustSummoned(Creature* summoned)
+            {
+                lSummons.Summon(summoned);
+            }
+
+        void JustDied(Unit* killer)
         {
             if (pInstance)
+                    {
                 pInstance->SetData(DATA_EREGOS_EVENT, DONE);
+                    }
+                    lSummons.DespawnAll();
+        }
+    };
+};
+
+class npc_planar_anomaly : public CreatureScript
+{
+    public:
+        npc_planar_anomaly(): CreatureScript("npc_planar_anomaly") {}
+
+    struct npc_planar_anomalyAI : public ScriptedAI
+    {
+        npc_planar_anomalyAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+        uint32 uiDeathTimer;
+
+        void Reset()
+        {
+            me->SetReactState(REACT_PASSIVE);
+            me->GetMotionMaster()->MoveRandom(40.0f);
+
+            uiDeathTimer = 16000;
+        }
+
+        void UpdateAI(const uint32 uiDiff)
+        {
+            if (uiDeathTimer <= uiDiff)
+            {
+                DoCast(SPELL_PLANAR_BLAST);
+                uiDeathTimer = 15*IN_MILLISECONDS;
+            } else uiDeathTimer -= uiDiff;
+
+            if (uiDeathTimer <= uiDiff)
+                me->DisappearAndDie();
+            else uiDeathTimer -= uiDiff;
         }
     };
 
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_planar_anomalyAI (pCreature);
+    };
 };
-
 
 void AddSC_boss_eregos()
 {
     new boss_eregos();
+    new npc_planar_anomaly();
 }

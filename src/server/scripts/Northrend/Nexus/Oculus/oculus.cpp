@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2010 TrinityScript 2
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
+ 
 #include "ScriptPCH.h"
 #include "oculus.h"
 
@@ -45,17 +45,87 @@ enum Drakes
     ITEM_AMBER_ESSENCE                            = 37859,
     ITEM_RUBY_ESSENCE                             = 37860,
 
-    NPC_VERDISA                                   = 27657,
-    NPC_BELGARISTRASZ                             = 27658,
-    NPC_ETERNOS                                   = 27659
+    //spells
+    SPELL_PARACHUTE                               = 61243    
+};
+
+class mob_centrifige_construct : public CreatureScript
+{
+public:
+    mob_centrifige_construct() : CreatureScript("mob_centrifige_construct") { }
+
+    struct mob_CentrifigeConstructAI : public ScriptedAI
+    {
+        mob_CentrifigeConstructAI(Creature *c) : ScriptedAI(c)
+        {
+            pInstance = c->GetInstanceScript();
+        }
+
+        InstanceScript* pInstance;
+
+
+            void DismountPlayers()
+            {
+                    std::list<HostileReference*>& m_threatlist = me->getThreatManager().getThreatList();
+                    std::list<HostileReference*>::const_iterator i = m_threatlist.begin();
+                    for (i = m_threatlist.begin(); i!= m_threatlist.end(); ++i)
+                    {
+                            Unit* pUnit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                            if (pUnit && (pUnit->GetTypeId() == TYPEID_PLAYER) )
+                            {
+                                    Vehicle* v = pUnit->GetVehicle();
+                                    if(v)
+                                    {
+                                            pUnit->ExitVehicle();
+                                            v->Dismiss();
+                                            DoCast(pUnit,SPELL_PARACHUTE);                                      
+                                    }
+                            }
+                    }
+            }
+
+        void UpdateAI(const uint32 diff)
+        {
+            //Return since we have no target
+            if (!UpdateVictim())
+                return;
+                    DismountPlayers();
+            DoMeleeAttackIfReady();
+        }
+
+        void JustDied(Unit* killer)
+        {
+            if (pInstance)
+                pInstance->SetData(DATA_CENTRIFUGE_CONSTRUCT_EVENT, pInstance->GetData(DATA_CENTRIFUGE_CONSTRUCT_EVENT)+1);
+        }
+    };
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new mob_CentrifigeConstructAI (pCreature);
+    };
 };
 
 class npc_oculus_drake : public CreatureScript
 {
-public:
+    public:
     npc_oculus_drake() : CreatureScript("npc_oculus_drake") { }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    {
+        if (pCreature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+        if (pCreature->GetInstanceScript()->GetData(DATA_DRAKOS_EVENT) == DONE)
+        {
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_DRAKES, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_DRAKES, pCreature->GetGUID());
+        }
+
+        return true;
+    };
+
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
     {
         pPlayer->PlayerTalkClass->ClearMenus();
         switch(pCreature->GetEntry())
@@ -81,7 +151,10 @@ public:
                 ItemPosCountVec dest;
                 uint8 msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, ITEM_EMERALD_ESSENCE, 1);
                 if (msg == EQUIP_ERR_OK)
-                    pPlayer->StoreNewItem(dest, ITEM_EMERALD_ESSENCE, true);
+                {
+                    Item* pItem = pPlayer->StoreNewItem(dest, ITEM_EMERALD_ESSENCE, true);
+                    pPlayer->SendNewItem(pItem,1,true,false);
+                }
                 pPlayer->CLOSE_GOSSIP_MENU();
                 break;
             }
@@ -111,7 +184,10 @@ public:
                 ItemPosCountVec dest;
                 uint8 msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, ITEM_RUBY_ESSENCE, 1);
                 if (msg == EQUIP_ERR_OK)
-                    pPlayer->StoreNewItem(dest, ITEM_RUBY_ESSENCE, true);
+                {
+                    Item* pItem = pPlayer->StoreNewItem(dest, ITEM_RUBY_ESSENCE, true);
+                    pPlayer->SendNewItem(pItem,1,true,false);
+                }
                 pPlayer->CLOSE_GOSSIP_MENU();
                 break;
             }
@@ -141,7 +217,10 @@ public:
                 ItemPosCountVec dest;
                 uint8 msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, ITEM_AMBER_ESSENCE, 1);
                 if (msg == EQUIP_ERR_OK)
-                    pPlayer->StoreNewItem(dest, ITEM_AMBER_ESSENCE, true);
+                {
+                    Item* pItem = pPlayer->StoreNewItem(dest, ITEM_AMBER_ESSENCE, true);
+                    pPlayer->SendNewItem(pItem,1,true ,false);
+                }
                 pPlayer->CLOSE_GOSSIP_MENU();
                 break;
             }
@@ -153,26 +232,11 @@ public:
         }
 
         return true;
-    }
-
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
-    {
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
-
-        if (pCreature->GetInstanceScript()->GetData(DATA_DRAKOS_EVENT) == DONE)
-        {
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_DRAKES, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_DRAKES, pCreature->GetGUID());
-        }
-
-        return true;
-    }
-
+    };
 };
-
 
 void AddSC_oculus()
 {
     new npc_oculus_drake();
+    new mob_centrifige_construct();
 }
