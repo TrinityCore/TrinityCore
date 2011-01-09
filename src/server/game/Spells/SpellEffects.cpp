@@ -2374,6 +2374,8 @@ void Spell::EffectHealthLeech(SpellEffIndex effIndex)
 
     float healMultiplier = SpellMgr::CalculateSpellEffectValueMultiplier(m_spellInfo, effIndex, m_originalCaster, this);
 
+    damage += m_originalCaster->SpellDamageBonus(unitTarget, m_spellInfo, uint32(damage), SPELL_DIRECT_DAMAGE);
+
     m_damage += damage;
     // get max possible damage, don't count overkill for heal
     uint32 healthGain = uint32(-unitTarget->GetHealthGain(-damage) * healMultiplier);
