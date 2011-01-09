@@ -25,6 +25,10 @@ void AddSC_example_gossip_codebox();
 void AddSC_example_misc();
 void AddSC_example_commandscript();
 
+void AddSC_npc_teleguy();
+void AddSC_npc_wintergrasp_honor_vendor();
+void AddSC_event_npc();
+
 // spells
 void AddSC_deathknight_spell_scripts();
 void AddSC_druid_spell_scripts();
@@ -1214,6 +1218,9 @@ void AddCustomScripts()
 {
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
+    AddSC_npc_teleguy();
+    AddSC_npc_wintergrasp_honor_vendor();
+    AddSC_event_npc();
 
 #endif
 }
