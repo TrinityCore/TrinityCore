@@ -9260,25 +9260,25 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 bg->FillInitialWorldStates(data);
             else
             {
-                data << uint32(4221) << uint32(1); // 7
-                data << uint32(4222) << uint32(1); // 8
-                data << uint32(4226) << uint32(300); // 9
-                data << uint32(4227) << uint32(300); // 10
-                data << uint32(4322) << uint32(1); // 11
-                data << uint32(4321) << uint32(1); // 12
-                data << uint32(4320) << uint32(1); // 13
-                data << uint32(4323) << uint32(1); // 14
-                data << uint32(4324) << uint32(1); // 15
-                data << uint32(4325) << uint32(1); // 16 
-                data << uint32(4317) << uint32(1); // 17
+                data << uint32(4221) << uint32(1); // 7 BG_IC_ALLIANCE_RENFORT_SET
+                data << uint32(4222) << uint32(1); // 8 BG_IC_HORDE_RENFORT_SET
+                data << uint32(4226) << uint32(300); // 9 BG_IC_ALLIANCE_RENFORT
+                data << uint32(4227) << uint32(300); // 10 BG_IC_HORDE_RENFORT
+                data << uint32(4322) << uint32(1); // 11 BG_IC_GATE_FRONT_H_WS_OPEN
+                data << uint32(4321) << uint32(1); // 12 BG_IC_GATE_WEST_H_WS_OPEN
+                data << uint32(4320) << uint32(1); // 13 BG_IC_GATE_EAST_H_WS_OPEN
+                data << uint32(4323) << uint32(1); // 14 BG_IC_GATE_FRONT_A_WS_OPEN
+                data << uint32(4324) << uint32(1); // 15 BG_IC_GATE_WEST_A_WS_OPEN
+                data << uint32(4325) << uint32(1); // 16 BG_IC_GATE_EAST_A_WS_OPEN
+                data << uint32(4317) << uint32(1); // 17 unknown
                 
-                data << uint32(4301) << uint32(1); // 18
-                data << uint32(4296) << uint32(1); // 19
-                data << uint32(4306) << uint32(1); // 20
-                data << uint32(4311) << uint32(1); // 21
-                data << uint32(4294) << uint32(1); // 22
-                data << uint32(4243) << uint32(1); // 23
-                data << uint32(4345) << uint32(1); // 24
+                data << uint32(4301) << uint32(1); // 18 BG_IC_DOCKS_UNCONTROLLED
+                data << uint32(4296) << uint32(1); // 19 BG_IC_HANGAR_UNCONTROLLED
+                data << uint32(4306) << uint32(1); // 20 BG_IC_QUARRY_UNCONTROLLED
+                data << uint32(4311) << uint32(1); // 21 BG_IC_REFINERY_UNCONTROLLED
+                data << uint32(4294) << uint32(1); // 22 BG_IC_WORKSHOP_UNCONTROLLED
+                data << uint32(4243) << uint32(1); // 23 unknown
+                data << uint32(4345) << uint32(1); // 24 unknown
             }
             break;
         default:
