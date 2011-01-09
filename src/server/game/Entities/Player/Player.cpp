@@ -1305,7 +1305,8 @@ void Player::Update(uint32 p_time)
     if (now > m_Last_tick)
         UpdateItemDuration(uint32(now - m_Last_tick));
 
-    if (now > m_Last_tick + IN_MILLISECONDS)
+    // check every second
+    if (now > m_Last_tick + 1)
         UpdateSoulboundTradeItems();
 
     if (!m_timedquests.empty())
