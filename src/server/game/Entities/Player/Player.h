@@ -2053,6 +2053,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool InBattleground()       const                { return m_bgData.bgInstanceID != 0; }
         bool InArena()              const;
+        bool InOutdoorPVP(bool inwar = false);
         uint32 GetBattlegroundId()  const                { return m_bgData.bgInstanceID; }
         BattlegroundTypeId GetBattlegroundTypeId() const { return m_bgData.bgTypeID; }
         Battleground* GetBattleground() const;

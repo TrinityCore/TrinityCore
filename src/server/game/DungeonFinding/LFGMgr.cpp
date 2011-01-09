@@ -525,7 +525,7 @@ void LFGMgr::Join(Player* plr, uint8 roles, const LfgDungeonSet& selectedDungeon
     }
 
     // Check player or group member restrictions
-    if (plr->InBattleground() || plr->InArena() || plr->InBattlegroundQueue())
+    if (plr->InBattleground() || plr->InArena() || plr->InBattlegroundQueue() || plr->InOutdoorPVP())
         joinData.result = LFG_JOIN_USING_BG_SYSTEM;
     else if (plr->HasAura(LFG_SPELL_DUNGEON_DESERTER))
         joinData.result = LFG_JOIN_DESERTER;
@@ -548,7 +548,7 @@ void LFGMgr::Join(Player* plr, uint8 roles, const LfgDungeonSet& selectedDungeon
                         joinData.result = LFG_JOIN_PARTY_DESERTER;
                     else if (plrg->HasAura(LFG_SPELL_DUNGEON_COOLDOWN))
                         joinData.result = LFG_JOIN_PARTY_RANDOM_COOLDOWN;
-                    else if (plrg->InBattleground() || plrg->InArena() || plrg->InBattlegroundQueue())
+                    else if (plrg->InBattleground() || plrg->InArena() || plrg->InBattlegroundQueue() || plr->InOutdoorPVP())
                         joinData.result = LFG_JOIN_USING_BG_SYSTEM;
                     ++memberCount;
                     players.insert(plrg);
