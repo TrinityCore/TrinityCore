@@ -811,7 +811,31 @@ enum TrinityStrings
     LANG_DEBUG_AREATRIGGER_REACHED      = 1204,
     // Room for more debug                1205-1299 not used
 
-    // FREE IDS                           1300-9999
+    // Isle of Conquest
+    LANG_BG_IC_START_TWO_MINUTES        = 1205,
+    LANG_BG_IC_START_ONE_MINUTE         = 1206,
+    LANG_BG_IC_START_HALF_MINUTE        = 1207,
+    LANG_BG_IC_HAS_BEGUN                = 1208,
+    LANG_BG_IC_ALLIANCE_KEEP            = 1209,
+    LANG_BG_IC_HORDE_KEEP               = 1210,
+    LANG_BG_IC_TEAM_WINS                = 1211,
+    LANG_BG_IC_WEST_GATE_DESTROYED      = 1212,
+    LANG_BG_IC_EAST_GATE_DESTROYED      = 1213,
+    LANG_BG_IC_SOUTH_GATE_DESTROYED     = 1214,
+    LANG_BG_IC_NORTH_GATE_DESTROYED     = 1215,
+    LANG_BG_IC_TEAM_ASSAULTED_NODE_1    = 1216,
+    LANG_BG_IC_TEAM_DEFENDED_NODE       = 1217,
+    LANG_BG_IC_TEAM_ASSAULTED_NODE_2    = 1218,
+    LANG_BG_IC_TEAM_HAS_TAKEN_NODE      = 1219,
+    LANG_BG_IC_WORKSHOP                 = 1220,
+    LANG_BG_IC_DOCKS                    = 1221,
+    LANG_BG_IC_REFINERY                 = 1222,
+    LANG_BG_IC_QUARRY                   = 1223,
+    LANG_BG_IC_HANGAR                   = 1224,
+    LANG_BG_IC_ALLIANCE                 = 1225,
+    LANG_BG_IC_HORDE                    = 1226,
+
+    // FREE IDS                           1228-9999
 
     // AV
     LANG_BG_AV_ALLY                     = 1300,

@@ -1669,7 +1669,6 @@ void Spell::EffectForceCastWithValue(SpellEffIndex effIndex)
         return;
     }
     int32 bp = damage;
-
     Unit * caster = GetTriggeredSpellCaster(spellInfo, m_caster, unitTarget);
 
     caster->CastCustomSpell(unitTarget, spellInfo->Id, &bp, &bp, &bp, true, NULL, NULL, m_originalCasterGUID);
@@ -1955,6 +1954,24 @@ void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
             {
                 unitTarget->AddAura(60444,unitTarget); //Apply Lost! Aura
                 return;
+            }
+            break;
+        case 66550: // teleports outside (Isle of Conquest)
+            if (Player* pTarget = unitTarget->ToPlayer())
+            {
+                if (pTarget->GetTeamId() == TEAM_ALLIANCE)
+                    m_targets.setDst(442.24f,-835.25f,44.30f,0.06f,628);
+                else
+                    m_targets.setDst(1120.43f,-762.11f,47.92f,2.94f,628);
+            }
+            break;
+        case 66551: // teleports inside (Isle of Conquest)
+            if (Player* pTarget = unitTarget->ToPlayer())
+            {
+                if (pTarget->GetTeamId() == TEAM_ALLIANCE)
+                    m_targets.setDst(389.57f,-832.38f,48.65f,3.00f,628);
+                else
+                    m_targets.setDst(1174.85f,-763.24f,48.72f,6.26f,628);
             }
             break;
     }
