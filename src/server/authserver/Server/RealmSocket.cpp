@@ -246,6 +246,7 @@ int RealmSocket::handle_close(ACE_HANDLE h, ACE_Reactor_Mask)
     if (session_)
         session_->OnClose();
 
+    reactor()->remove_handler(this, ACE_Event_Handler::DONT_CALL | ACE_Event_Handler::ALL_EVENTS_MASK);
     return 0;
 }
 
