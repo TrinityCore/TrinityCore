@@ -263,6 +263,7 @@ enum WorldIntConfigs
     CONFIG_CHAT_STRICT_LINK_CHECKING_KICK,
     CONFIG_CHAT_CHANNEL_LEVEL_REQ,
     CONFIG_LFG_COST,
+    CONFIG_CHATLOG_ACCOUNT,
     CONFIG_CHAT_WHISPER_LEVEL_REQ,
     CONFIG_CHAT_SAY_LEVEL_REQ,
     CONFIG_TRADE_LEVEL_REQ,
@@ -713,6 +714,7 @@ class World
         void KickAll();
         void KickAllLess(AccountTypes sec);
         BanReturn BanAccount(BanMode mode, std::string nameOrIP, std::string duration, std::string reason, std::string author);
+        void AutoBanDebug(std::string name, std::string reason, uint32 realmID, uint64 mobGUID,  float mob_x, float mob_y, float mob_z, uint32 mapId, float x, float y, float z);
         bool RemoveBanAccount(BanMode mode, std::string nameOrIP);
         BanReturn BanCharacter(std::string name, std::string duration, std::string reason, std::string author);
         bool RemoveBanCharacter(std::string name);

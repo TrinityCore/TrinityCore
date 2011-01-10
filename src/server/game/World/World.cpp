@@ -1189,6 +1189,7 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_CHATLOG_PUBLIC] = sConfig->GetBoolDefault("ChatLogs.Public", false);
     m_bool_configs[CONFIG_CHATLOG_ADDON] = sConfig->GetBoolDefault("ChatLogs.Addon", false);
     m_bool_configs[CONFIG_CHATLOG_BGROUND] = sConfig->GetBoolDefault("ChatLogs.Battleground", false);
+    m_int_configs[CONFIG_CHATLOG_ACCOUNT] = sConfig->GetIntDefault("ChatLog.Account", 0);
 
     // Dungeon finder
     m_bool_configs[CONFIG_DUNGEON_FINDER_ENABLE] = sConfig->GetBoolDefault("DungeonFinder.Enable", false);
@@ -2295,6 +2296,44 @@ BanReturn World::BanAccount(BanMode mode, std::string nameOrIP, std::string dura
     LoginDatabase.CommitTransaction(trans);
 
     return BAN_SUCCESS;
+}
+
+void World::AutoBanDebug(std::string name, std::string reason, uint32 realmID, uint64 mobGUID,  float mob_x, float mob_y, float mob_z, uint32 mapId, float x, float y, float z)
+{
+    PreparedQueryResult resultAccounts = PreparedQueryResult(NULL);
+    PreparedStatement* stmt = NULL;
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_ACCOUNT_BY_NAME);
+    stmt->setString(0, name);
+    resultAccounts = CharacterDatabase.Query(stmt);
+
+    if (!resultAccounts)
+        return;
+
+    SQLTransaction trans = LoginDatabase.BeginTransaction();
+    do
+    {
+        Field* fieldsAccount = resultAccounts->Fetch();
+        uint32 account = fieldsAccount->GetUInt32();
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SET_AUTOBANDEBUG);
+        stmt->setUInt32(0, account);
+        stmt->setUInt32(1, realmID);
+        stmt->setString(2, reason);
+        stmt->setUInt32(3, mobGUID);
+        stmt->setFloat(4, mob_x);
+        stmt->setFloat(5, mob_y);
+        stmt->setFloat(6, mob_z);
+        stmt->setUInt32(7, mapId);
+        stmt->setFloat(8, x);
+        stmt->setFloat(9, y);
+        stmt->setFloat(10, z);
+        trans->Append(stmt);
+
+    } while (resultAccounts->NextRow());
+
+    LoginDatabase.CommitTransaction(trans);
+
+    return;
 }
 
 /// Remove a ban from an account or IP address

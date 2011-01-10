@@ -62,6 +62,7 @@ enum LoginDatabaseStatements
     LOGIN_SET_IP_NOT_BANNED,
     LOGIN_SET_ACCOUNT_BANNED,
     LOGIN_SET_ACCOUNT_NOT_BANNED,
+    LOGIN_SET_AUTOBANDEBUG,
 
     MAX_LOGINDATABASE_STATEMENTS,
 };
@@ -87,7 +88,8 @@ static const PreparedStatementTable LoginDatabasePreparedStatements[] =
     {LOGIN_SET_IP_BANNED, "INSERT INTO ip_banned VALUES (?, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()+?, ?, ?)", CONNECTION_ASYNC},
     {LOGIN_SET_IP_NOT_BANNED, "DELETE FROM ip_banned WHERE ip = ?", CONNECTION_ASYNC},
     {LOGIN_SET_ACCOUNT_BANNED, "INSERT INTO account_banned VALUES (?, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()+?, ?, ?, 1)", CONNECTION_ASYNC},
-    {LOGIN_SET_ACCOUNT_NOT_BANNED, "UPDATE account_banned SET active = 0 WHERE id = ? AND active != 0", CONNECTION_ASYNC}
+    {LOGIN_SET_ACCOUNT_NOT_BANNED, "UPDATE account_banned SET active = 0 WHERE id = ? AND active != 0", CONNECTION_ASYNC},
+    {LOGIN_SET_AUTOBANDEBUG, "INSERT INTO autoban_debug VALUES (?, ?, UNIX_TIMESTAMP(), 'Very autobanner', ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC}
 };
 
 #endif
