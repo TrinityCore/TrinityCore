@@ -31,6 +31,7 @@ endif()
 
 include(CheckCXXSourceRuns)
 include(CheckIncludeFiles)
+include(EnsureVersion)
 
 # set default buildoptions and print them
 include(cmake/options.cmake)
