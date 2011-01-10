@@ -185,13 +185,15 @@ void Guild::BankEventLogEntry::WritePacket(WorldPacket& data) const
     data << uint8(m_eventType);
     data << uint64(MAKE_NEW_GUID(m_playerGuid, 0, HIGHGUID_PLAYER));
     data << uint32(m_itemOrMoney);
-    if (!IsMoneyEvent(m_eventType))
+    // if ( m_eventType != 4 || m_eventType != 5 || m_eventType != 6 || m_eventType != 8 || m_eventType != 9 )
+    if (m_eventType < GUILD_BANK_LOG_DEPOSIT_MONEY)
     {
         data << uint32(m_itemStackCount);
         if (m_eventType == GUILD_BANK_LOG_MOVE_ITEM || m_eventType == GUILD_BANK_LOG_MOVE_ITEM2)
             data << uint8(m_destTabId);
     }
-    data << uint32(::time(NULL) - m_timestamp);
+
+    data << uint32(time(NULL) - m_timestamp);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
