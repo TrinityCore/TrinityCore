@@ -18022,7 +18022,7 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 ( 45524, 55095, 0, 'Chains of Ice - Frost Fever'),
 ( 20066,-61840, 0, 'Repentance'),
 ( 66235, 66233, 0, 'Ardent Defender Visuals'),
-( 58875, 58876, 0, 'Spirit Walk'),
+( 58875, 58876, 1, 'Spirit Walk'),
 -- Quest
 ( 40214, 40216, 2, 'Dragonmaw Illusion'),
 ( 40214, 42016, 2, 'Dragonmaw Illusion'),
