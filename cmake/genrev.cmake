@@ -32,7 +32,7 @@ ensure_version( "${_REQUIRED_GIT_VERSION}" "${_GIT_VERSION}" _GIT_VERSION_OK)
 
 if(_GIT_VERSION_OK)
   execute_process(
-    COMMAND git describe --match init --dirty=+ --abbrev=12
+    COMMAND "${_GIT_EXEC}" describe --match init --dirty=+ --abbrev=12
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     OUTPUT_VARIABLE rev_info
     OUTPUT_STRIP_TRAILING_WHITESPACE
