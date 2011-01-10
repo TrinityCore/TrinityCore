@@ -868,7 +868,7 @@ UPDATE `creature_template` SET `ScriptName`='boss_blood_queen_lana_thel' WHERE `
 UPDATE `creature_template` SET `ScriptName`='npc_royal_historian_archesonus' WHERE `entry`=8879;
 
 /* ISLE OF CONQUEST */
-UPDATE `creature_template` SET `ScriptName`='npc_four_car_garage' WHERE `entry` IN (34802,34793,34775,35069,34776);
+UPDATE `creature_template` SET `ScriptName`='npc_four_car_garage' WHERE `entry` IN (35273,34802,34793,34775,35069,34776);
 
 /* ISLE OF QUEL'DANAS */
 UPDATE `creature_template` SET `ScriptName`='npc_converted_sentry' WHERE `entry`=24981;
