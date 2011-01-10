@@ -176,4 +176,3 @@ INSERT INTO trinity_string
    (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`)
 VALUES
    (983, 'Your Jail status was reset to 0 gesatzt', NULL, 'Votre statut a été Jail à 0 gesatzt', 'Dein Jail status wurde auf 0 zurück gesatzt', NULL, NULL, NULL, NULL, NULL);
-

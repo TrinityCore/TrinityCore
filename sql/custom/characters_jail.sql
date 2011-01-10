@@ -68,7 +68,3 @@ CREATE TABLE `jail` (
   `duration` int(11) unsigned NOT NULL default '0' COMMENT 'Duration of the jail',
   PRIMARY KEY  (`guid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Jail table for MaNGOS by WarHead';
-
--- ----------------------------
--- Records 
--- ----------------------------
