@@ -140,7 +140,7 @@ class achievement_bg_ic_glaive_grave : public AchievementCriteriaScript
         {
             if (Creature* vehicle = source->GetVehicleCreatureBase())
             {
-                if (vehicle->GetEntry() == 35273 || vehicle->GetEntry() == 34802)
+                if (vehicle->GetEntry() == NPC_GLAIVE_THROWER_H ||  vehicle->GetEntry() == NPC_GLAIVE_THROWER_A)
                     return true;
             }
 
