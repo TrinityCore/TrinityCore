@@ -8,6 +8,8 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+include(${CMAKE_SOURCE_DIR}/cmake/macros/EnsureVersion.cmake)
+
 set(_REQUIRED_GIT_VERSION "1.7")
 
 find_program(_GIT_EXEC
