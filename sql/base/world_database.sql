@@ -16749,6 +16749,55 @@ LOCK TABLES `skinning_loot_template` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `smart_scripts`
+--
+
+DROP TABLE IF EXISTS `smart_scripts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `smart_scripts` (
+  `entryorguid` mediumint(11) NOT NULL,
+  `source_type` mediumint(5) unsigned NOT NULL DEFAULT '0',
+  `id` mediumint(11) unsigned NOT NULL DEFAULT '0',
+  `link` mediumint(11) unsigned NOT NULL DEFAULT '0',
+  `event_type` mediumint(5) unsigned NOT NULL DEFAULT '0',
+  `event_phase_mask` mediumint(11) unsigned NOT NULL DEFAULT '0',
+  `event_chance` mediumint(5) unsigned NOT NULL DEFAULT '100',
+  `event_flags` mediumint(11) unsigned NOT NULL DEFAULT '0',
+  `event_param1` mediumint(11) unsigned NOT NULL DEFAULT '0',
+  `event_param2` mediumint(11) unsigned NOT NULL DEFAULT '0',
+  `event_param3` mediumint(11) unsigned NOT NULL DEFAULT '0',
+  `event_param4` mediumint(11) unsigned NOT NULL DEFAULT '0',
+  `action_type` mediumint(5) unsigned NOT NULL DEFAULT '0',
+  `action_param1` mediumint(11) unsigned NOT NULL DEFAULT '0',
+  `action_param2` mediumint(11) unsigned NOT NULL DEFAULT '0',
+  `action_param3` mediumint(11) unsigned NOT NULL DEFAULT '0',
+  `action_param4` mediumint(11) unsigned NOT NULL DEFAULT '0',
+  `action_param5` mediumint(11) unsigned NOT NULL DEFAULT '0',
+  `action_param6` mediumint(11) unsigned NOT NULL DEFAULT '0',
+  `target_type` mediumint(11) unsigned NOT NULL DEFAULT '0',
+  `target_param1` mediumint(11) unsigned NOT NULL DEFAULT '0',
+  `target_param2` mediumint(11) unsigned NOT NULL DEFAULT '0',
+  `target_param3` mediumint(11) unsigned NOT NULL DEFAULT '0',
+  `target_x` float NOT NULL DEFAULT '0',
+  `target_y` float NOT NULL DEFAULT '0',
+  `target_z` float NOT NULL DEFAULT '0',
+  `target_o` float NOT NULL DEFAULT '0',
+  `comment` varchar(255) NOT NULL DEFAULT '' COMMENT 'Event Comment',
+  PRIMARY KEY (`entryorguid`,`source_type`,`id`,`link`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `smart_scripts`
+--
+
+LOCK TABLES `smart_scripts` WRITE;
+/*!40000 ALTER TABLE `smart_scripts` DISABLE KEYS */;
+/*!40000 ALTER TABLE `smart_scripts` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `spell_area`
 --
 
@@ -18130,7 +18179,7 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 ( 71480, 71483, 1, 'Blood-Queen: Bloodbolt Splash'),
 ( 71952, 70995, 1, 'Blood-Queen: Presence of the Darkfallen'),
 ( 71390, 71341, 0, 'Blood-Queen: Pact of the Darkfallen'),
---- Isle of Conquest
+-- Isle of Conquest
 ( 66548, 66550, 0, 'Isle of Conquest (IN>OUT)'),
 ( 66549, 66551, 0, 'Isle of Conquest (OUT>IN)'),
 ( 66551, -66548, 2, 'Isle of Conquest Teleport (OUT>IN) Debuff limit'),
@@ -27487,7 +27536,7 @@ INSERT INTO `trinity_string` (`entry`,`content_default`,`content_loc1`,`content_
 (1201, 'You try to view movie %u but it doesn''t exist.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1205, 'The battle will begin in two minutes.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1206, 'The battle will begin in 1 minute.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(1208, 'The battle has begun!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),,
+(1208, 'The battle has begun!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1207, 'The battle will begin in 30 seconds!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1209, 'the alliance keep', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1210, 'the horde keep', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
@@ -27773,6 +27822,33 @@ CREATE TABLE `version` (
 LOCK TABLES `version` WRITE;
 /*!40000 ALTER TABLE `version` DISABLE KEYS */;
 /*!40000 ALTER TABLE `version` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `waypoints`
+--
+
+DROP TABLE IF EXISTS `waypoints`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `waypoints` (
+  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `pointid` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `position_x` float NOT NULL DEFAULT '0',
+  `position_y` float NOT NULL DEFAULT '0',
+  `position_z` float NOT NULL DEFAULT '0',
+  `point_comment` text,
+  PRIMARY KEY (`entry`,`pointid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Creature waypoints';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `waypoints`
+--
+
+LOCK TABLES `waypoints` WRITE;
+/*!40000 ALTER TABLE `waypoints` DISABLE KEYS */;
+/*!40000 ALTER TABLE `waypoints` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
