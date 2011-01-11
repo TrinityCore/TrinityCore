@@ -30,7 +30,7 @@ class npc_four_car_garage : public CreatureScript
         {
             npc_four_car_garageAI(Creature* pCreature) : NullCreatureAI(pCreature) { }
 
-            void PassengerBoarded(Unit* who, int8 seatId, bool apply)
+            void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply)
             {
                 if (apply)
                 {

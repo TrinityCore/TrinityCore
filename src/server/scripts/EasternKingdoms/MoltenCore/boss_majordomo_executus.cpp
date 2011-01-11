@@ -78,7 +78,7 @@ public:
         return true;
     }
 
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 /*uiAction*/)
     {   
         //ScriptedInstance* pInstance = pCreature->GetInstanceData();
 
@@ -137,7 +137,7 @@ public:
                     return;
 
                  if (((!me->FindNearestCreature(ENTRY_FLAMEWALKER_HEALER,100.0f)) && (!me->FindNearestCreature(ENTRY_FLAMEWALKER_ELITE,100.0f))) && (!m_pInstance->GetData(DATA_MAJORDOMOISDEAD)))
-                 {		
+                 {      
                     me->setFaction(35);
                     me->AI()->EnterEvadeMode();
                     DoScriptText(SAY_DEFEAT, me);

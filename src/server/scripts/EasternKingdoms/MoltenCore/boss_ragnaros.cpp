@@ -413,7 +413,7 @@ public:
                 pInstance->SetData(DATA_RAG_ELE_COUNTER, 1);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(const uint32 /*diff*/)
         {
             if (!UpdateVictim())
                 return;

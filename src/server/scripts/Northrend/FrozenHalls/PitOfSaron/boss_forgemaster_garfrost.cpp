@@ -174,7 +174,7 @@ class boss_garfrost : public CreatureScript
                     SetEquipmentSlots(false, EQUIP_ID_MACE);
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 /*type*/)
             {
                 return _permafrostStack;
             }

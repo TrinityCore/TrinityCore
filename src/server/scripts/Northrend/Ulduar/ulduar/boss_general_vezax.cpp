@@ -115,7 +115,7 @@ public:
             uiVaporCount = 0;
         }
 
-        void EnterCombat(Unit * pWho)
+        void EnterCombat(Unit * /*pWho*/)
         {
             _EnterCombat();
             
@@ -204,12 +204,12 @@ public:
                 bShadowDodger = false;
         }
 
-        void KilledUnit(Unit * pWho)
+        void KilledUnit(Unit * /*pWho*/)
         {
             DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
         }
 
-        void JustDied(Unit * pWho)
+        void JustDied(Unit * /*pWho*/)
         {
             _JustDied();
             
@@ -327,7 +327,7 @@ public:
             uiProfoundOfDarknessTimer = 3000;
         }
 
-        void JustDied(Unit * pWho)
+        void JustDied(Unit * /*pWho*/)
         {
             if (Creature * pVezax = me->GetCreature(*me, pInstance ? pInstance->GetData64(TYPE_VEZAX) : 0))
                 pVezax->AI()->DoAction(ACTION_ANIMUS_DIE);
@@ -388,7 +388,7 @@ public:
                 uiRandomMoveTimer -= uiDiff;
         }
 
-        void DamageTaken(Unit * pWho, uint32 &uiDamage)
+        void DamageTaken(Unit * /*pWho*/, uint32 &uiDamage)
         {
             // This can't be on JustDied. In 63322 dummy handler caster needs to be this NPC
             // if caster == target then damage mods will increase the damage taken
