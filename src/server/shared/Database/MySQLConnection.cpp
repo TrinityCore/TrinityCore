@@ -33,23 +33,23 @@
 #include "Log.h"
 
 MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo) :
+m_statementTable(NULL),
 m_reconnecting(false),
 m_queue(NULL),
 m_worker(NULL),
 m_Mysql(NULL),
 m_connectionInfo(connInfo),
-m_connectionFlags(CONNECTION_SYNCH),
-m_statementTable(NULL)
+m_connectionFlags(CONNECTION_SYNCH)
 {
 }
 
 MySQLConnection::MySQLConnection(ACE_Activation_Queue* queue, MySQLConnectionInfo& connInfo) :
+m_statementTable(NULL),
 m_reconnecting(false),
 m_queue(queue),
 m_Mysql(NULL),
 m_connectionInfo(connInfo),
-m_connectionFlags(CONNECTION_ASYNC),
-m_statementTable(NULL)
+m_connectionFlags(CONNECTION_ASYNC)
 {
     m_worker = new DatabaseWorker(m_queue, this);
 }

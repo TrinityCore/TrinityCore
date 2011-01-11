@@ -299,10 +299,12 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId, bool byAura)
             return false;
 
         if (seat->second.passenger)
+        {
             if (Unit* passenger = ObjectAccessor::GetUnit(*GetBase(), seat->second.passenger))
                 passenger->ExitVehicle();
             else
                 seat->second.passenger = NULL;
+        }
 
         ASSERT(!seat->second.passenger);
     }

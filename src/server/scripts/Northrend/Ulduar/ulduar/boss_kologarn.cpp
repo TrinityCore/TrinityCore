@@ -127,7 +127,7 @@ public:
             DoScriptText(RAND(SAY_SLAY_2,SAY_SLAY_2), me);
         }
 
-        void PassengerBoarded(Unit *who, int8 seatId, bool apply)
+        void PassengerBoarded(Unit *who, int8 /*seatId*/, bool apply)
         {
             if (who->GetTypeId() == TYPEID_UNIT)
             {
@@ -225,7 +225,7 @@ public:
         uint32 uiPermittedDamage;
         InstanceScript * pInstance;
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* /*who*/)
         {
             EncounterInCombat(me, pInstance);
             uiStoneGripTimer = 30000;
@@ -239,7 +239,7 @@ public:
             DoCast(SPELL_ARM_VISUAL);
         }
 
-        void DamageTaken(Unit* who, uint32& damage)
+        void DamageTaken(Unit* /*who*/, uint32& damage)
         {
             if (uiGrippedTargets[0] == 0)
                 return;
@@ -331,7 +331,7 @@ public:
         uint32 uiSweepTimer;
         InstanceScript * pInstance;
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* /*who*/)
         {
             EncounterInCombat(me, pInstance);
             uiSweepTimer = 15000;
