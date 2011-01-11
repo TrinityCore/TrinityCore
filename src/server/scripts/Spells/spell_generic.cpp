@@ -43,7 +43,7 @@ public:
             return true;
         }
 
-        void Absorb(AuraEffect * /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+        void Absorb(AuraEffect * /*aurEff*/, DamageInfo & /*dmgInfo*/, uint32 & absorbAmount)
         {
             absorbAmount = std::min(limit, absorbAmount);
         }

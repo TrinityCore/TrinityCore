@@ -539,9 +539,9 @@ class Battleground
         virtual void EventPlayerUsedGO(Player* /*player*/, GameObject* /*go*/){}
 
         // this function can be used by spell to interact with the BG map
-        virtual void DoAction(uint32 action, uint64 var) {}
+        virtual void DoAction(uint32 /*action*/, uint64 /*var*/) {}
 
-        virtual void HandlePlayerResurrect(Player* player) {}
+        virtual void HandlePlayerResurrect(Player* /*player*/) {}
 
         /* Death related */
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
