@@ -27,10 +27,10 @@ if(_GIT_EXEC)
     OUTPUT_VARIABLE _GIT_VERSION
     ERROR_QUIET
   )
-endif()
 
-# make sure we're using minimum the required version of git, so the "dirty-testing" will work properly
-ensure_version( "${_REQUIRED_GIT_VERSION}" "${_GIT_VERSION}" _GIT_VERSION_OK)
+  # make sure we're using minimum the required version of git, so the "dirty-testing" will work properly
+  ensure_version( "${_REQUIRED_GIT_VERSION}" "${_GIT_VERSION}" _GIT_VERSION_OK)
+endif()
 
 if(_GIT_VERSION_OK)
   execute_process(
@@ -42,16 +42,16 @@ if(_GIT_VERSION_OK)
   )
 else()
   message("")
-  message(STATUS "OUTDATED GIT-VERSION OR MISSING GIT-COMMAND - DID YOU FORGET TO INSTALL A RECENT VERSION?")
-  message(STATUS "FOR REVISION-IDS AND HASH-TAGGING TO WORK YOU NEED AT LEAST VERSION ${_REQUIRED_GIT_VERSION}.")
+  message(STATUS "WARNING - Missing or outdated git - did you forget to install a recent version?")
+  message(STATUS "WARNING - Observe that for revision ID/hash to work you need at least version ${_REQUIRED_GIT_VERSION}")
+  message(STATUS "WARNING - Continuing anyway, but setting the revision-ID and hash to Rev:0 Hash: Archive")
+  message("")
 endif()
 
 # Last minute check - ensure that we have a proper revision
 # If everything above fails (means the user has erased the git revision control directory or removed the origin/HEAD tag)
 if(NOT rev_info)
-  message(STATUS "No revision-information found, setting up for Archived-mode (revision 0, hash 0)")
-
-  # Ok, since we have no valid ways of finding/setting the revision, let's force some defaults
+  # No valid ways available to find/set the revision/hash, so let's force some defaults
   set(rev_hash_str "Archive")
   set(rev_hash "0")
   set(rev_id_str "0")
