@@ -3875,18 +3875,6 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->AttributesEx |= SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY;
             count++;
             break;
-        case 69055:     // Saber Lash
-        case 70814:     // Saber Lash
-            spellInfo->EffectRadiusIndex[0] = 8;
-            count++;
-            break;
-        case 69075:     // Bone Storm
-        case 70834:     // Bone Storm
-        case 70835:     // Bone Storm
-        case 70836:     // Bone Storm
-            spellInfo->EffectRadiusIndex[0] = 12;
-            count++;
-            break;
         case 18500: // Wing Buffet
         case 33086: // Wild Bite
         case 49749: // Piercing Blow
@@ -3910,19 +3898,6 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->StackAmount = 4;
             count++;
             break;
-        // THESE SPELLS ARE WORKING CORRECTLY EVEN WITHOUT THIS HACK
-        // THE ONLY REASON ITS HERE IS THAT CURRENT GRID SYSTEM
-        // DOES NOT ALLOW FAR OBJECT SELECTION (dist > 333)
-        case 70781: // Light's Hammer Teleport
-        case 70856: // Oratory of the Damned Teleport
-        case 70857: // Rampart of Skulls Teleport
-        case 70858: // Deathbringer's Rise Teleport
-        case 70859: // Upper Spire Teleport
-        case 70860: // Frozen Throne Teleport
-        case 70861: // Sindragosa's Lair Teleport
-            spellInfo->EffectImplicitTargetA[0] = TARGET_DST_DB;
-            count++;
-            break;
         case 63675: // Improved Devouring Plague
             spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
             count++;
@@ -3933,11 +3908,6 @@ void SpellMgr::LoadSpellCustomAttr()
         case 53245: // Marked for Death (Rank 4)
         case 53246: // Marked for Death (Rank 5)
             spellInfo->EffectSpellClassMask[0] = flag96(423937, 276955137, 2049);
-            count++;
-            break;
-        // this is here until targetAuraSpell and alike support SpellDifficulty.dbc
-        case 70459: // Ooze Eruption Search Effect
-            spellInfo->targetAuraSpell = 0;
             count++;
             break;
         case 70728: // Exploit Weakness
@@ -3951,45 +3921,6 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_MASTER;
             count++;
             break;
-        case 71413: // Green Ooze Summon
-        case 71414: // Orange Ooze Summon
-            spellInfo->EffectImplicitTargetA[0] = TARGET_DEST_DEST;
-            count++;
-            break;
-        // THIS IS HERE BECAUSE COOLDOWN ON CREATURE PROCS IS NOT IMPLEMENTED
-        case 71604: // Mutated Strength
-        case 72673: // Mutated Strength
-        case 72674: // Mutated Strength
-        case 72675: // Mutated Strength
-            spellInfo->Effect[1] = 0;
-            count++;
-            break;
-        case 70447: // Volatile Ooze Adhesive
-        case 72836: // Volatile Ooze Adhesive
-        case 72837: // Volatile Ooze Adhesive
-        case 72838: // Volatile Ooze Adhesive
-        case 70672: // Gaseous Bloat
-        case 72455: // Gaseous Bloat
-        case 72832: // Gaseous Bloat
-        case 72833: // Gaseous Bloat
-            spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ENEMY;
-            spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_TARGET_ENEMY;
-            spellInfo->EffectImplicitTargetB[2] = TARGET_UNIT_TARGET_ENEMY;
-            count++;
-            break;
-        case 70911: // Unbound Plague
-        case 72854: // Unbound Plague
-        case 72855: // Unbound Plague
-        case 72856: // Unbound Plague
-            spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ENEMY;
-            count++;
-            break;
-        case 71518: // Unholy Infusion Quest Credit
-        case 72934: // Blood Infusion Quest Credit
-        case 72289: // Frost Infusion Quest Credit
-            spellInfo->EffectRadiusIndex[0] = 28;   // another missing radius
-            count++;
-            break;
         case 71708: // Empowered Flare
         case 72785: // Empowered Flare
         case 72786: // Empowered Flare
@@ -3997,8 +3928,92 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
             count++;
             break;
-        case 71340: // Pact of the Darkfallen
+        // ICECROWN CITADEL SPELLS
+        // THESE SPELLS ARE WORKING CORRECTLY EVEN WITHOUT THIS HACK
+        // THE ONLY REASON ITS HERE IS THAT CURRENT GRID SYSTEM
+        // DOES NOT ALLOW FAR OBJECT SELECTION (dist > 333)
+        case 70781: // Light's Hammer Teleport
+        case 70856: // Oratory of the Damned Teleport
+        case 70857: // Rampart of Skulls Teleport
+        case 70858: // Deathbringer's Rise Teleport
+        case 70859: // Upper Spire Teleport
+        case 70860: // Frozen Throne Teleport
+        case 70861: // Sindragosa's Lair Teleport
+            spellInfo->EffectImplicitTargetA[0] = TARGET_DST_DB;
+            count++;
+            break;
+        case 69055: // Saber Lash (Lord Marrowgar)
+        case 70814: // Saber Lash (Lord Marrowgar)
+            spellInfo->EffectRadiusIndex[0] = 8;
+            count++;
+            break;
+        case 69075: // Bone Storm (Lord Marrowgar)
+        case 70834: // Bone Storm (Lord Marrowgar)
+        case 70835: // Bone Storm (Lord Marrowgar)
+        case 70836: // Bone Storm (Lord Marrowgar)
+        case 72378: // Blood Nova (Deathbringer Saurfang)
+        case 73058: // Blood Nova (Deathbringer Saurfang)
+            spellInfo->EffectRadiusIndex[0] = 12;
+            count++;
+            break;
+        case 72385: // Boiling Blood (Deathbringer Saurfang)
+        case 72441: // Boiling Blood (Deathbringer Saurfang)
+        case 72442: // Boiling Blood (Deathbringer Saurfang)
+        case 72443: // Boiling Blood (Deathbringer Saurfang)
+            spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
+            spellInfo->EffectImplicitTargetB[0] = 0;
+            count++;
+            break;
+        case 71413: // Green Ooze Summon (Professor Putricide)
+        case 71414: // Orange Ooze Summon (Professor Putricide)
+            spellInfo->EffectImplicitTargetA[0] = TARGET_DEST_DEST;
+            count++;
+            break;
+            // this is here until targetAuraSpell and alike support SpellDifficulty.dbc
+        case 70459: // Ooze Eruption Search Effect (Professor Putricide)
+            spellInfo->targetAuraSpell = 0;
+            count++;
+            break;
+        // THIS IS HERE BECAUSE COOLDOWN ON CREATURE PROCS IS NOT IMPLEMENTED
+        case 71604: // Mutated Strength (Professor Putricide)
+        case 72673: // Mutated Strength (Professor Putricide)
+        case 72674: // Mutated Strength (Professor Putricide)
+        case 72675: // Mutated Strength (Professor Putricide)
+            spellInfo->Effect[1] = 0;
+            count++;
+            break;
+        case 70447: // Volatile Ooze Adhesive (Professor Putricide)
+        case 72836: // Volatile Ooze Adhesive (Professor Putricide)
+        case 72837: // Volatile Ooze Adhesive (Professor Putricide)
+        case 72838: // Volatile Ooze Adhesive (Professor Putricide)
+        case 70672: // Gaseous Bloat (Professor Putricide)
+        case 72455: // Gaseous Bloat (Professor Putricide)
+        case 72832: // Gaseous Bloat (Professor Putricide)
+        case 72833: // Gaseous Bloat (Professor Putricide)
+            spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ENEMY;
+            spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_TARGET_ENEMY;
+            spellInfo->EffectImplicitTargetB[2] = TARGET_UNIT_TARGET_ENEMY;
+            count++;
+            break;
+        case 70911: // Unbound Plague (Professor Putricide)
+        case 72854: // Unbound Plague (Professor Putricide)
+        case 72855: // Unbound Plague (Professor Putricide)
+        case 72856: // Unbound Plague (Professor Putricide)
+            spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ENEMY;
+            count++;
+            break;
+        case 71518: // Unholy Infusion Quest Credit (Professor Putricide)
+        case 72934: // Blood Infusion Quest Credit (Blood-Queen Lana'thel)
+        case 72289: // Frost Infusion Quest Credit (Sindragosa)
+            spellInfo->EffectRadiusIndex[0] = 28;   // another missing radius
+            count++;
+            break;
+        case 71340: // Pact of the Darkfallen (Blood-Queen Lana'thel)
             spellInfo->DurationIndex = 21;
+            count++;
+            break;
+        case 71266: // Swarming Shadows
+            spellInfo->AreaGroupId = 0;
             count++;
             break;
         default:
