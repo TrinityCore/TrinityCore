@@ -1045,10 +1045,10 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_INSTANT_LOGOUT] = sConfig->GetIntDefault("InstantLogout", SEC_MODERATOR);
 
     m_int_configs[CONFIG_GUILD_EVENT_LOG_COUNT] = sConfig->GetIntDefault("Guild.EventLogRecordsCount", GUILD_EVENTLOG_MAX_RECORDS);
-    if (m_int_configs[CONFIG_GUILD_EVENT_LOG_COUNT] < GUILD_EVENTLOG_MAX_RECORDS)
+    if (m_int_configs[CONFIG_GUILD_EVENT_LOG_COUNT] > GUILD_EVENTLOG_MAX_RECORDS)
         m_int_configs[CONFIG_GUILD_EVENT_LOG_COUNT] = GUILD_EVENTLOG_MAX_RECORDS;
     m_int_configs[CONFIG_GUILD_BANK_EVENT_LOG_COUNT] = sConfig->GetIntDefault("Guild.BankEventLogRecordsCount", GUILD_BANKLOG_MAX_RECORDS);
-    if (m_int_configs[CONFIG_GUILD_BANK_EVENT_LOG_COUNT] < GUILD_BANKLOG_MAX_RECORDS)
+    if (m_int_configs[CONFIG_GUILD_BANK_EVENT_LOG_COUNT] > GUILD_BANKLOG_MAX_RECORDS)
         m_int_configs[CONFIG_GUILD_BANK_EVENT_LOG_COUNT] = GUILD_BANKLOG_MAX_RECORDS;
 
     //visibility on continents
