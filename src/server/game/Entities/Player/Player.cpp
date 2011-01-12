@@ -7191,6 +7191,15 @@ void Player::UpdateArea(uint32 newArea)
     pvpInfo.inFFAPvPArea = area && (area->flags & AREA_FLAG_ARENA);
     UpdatePvPState(true);
 
+    if (area && area->IsSanctuary())       // in sanctuary
+    {
+        SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
+        pvpInfo.inNoPvPArea = true;
+        CombatStopWithPets();
+    }
+    else
+        RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
+
     UpdateAreaDependentAuras(newArea);
 }
 
@@ -7205,9 +7214,6 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 
     m_zoneUpdateId    = newZone;
     m_zoneUpdateTimer = ZONE_UPDATE_INTERVAL;
-
-    // zone changed, so area changed as well, update it
-    UpdateArea(newArea);
 
     AreaTableEntry const* zone = GetAreaEntryByAreaID(newZone);
     if (!zone)
@@ -7287,6 +7293,8 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
         }
     }
 
+    // zone changed, so area changed as well, update it
+    UpdateArea(newArea);
     UpdatePvPState();
 
     // remove items with area/map limitations (delete only for alive player to allow back in ghost mode)
