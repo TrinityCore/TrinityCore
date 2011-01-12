@@ -384,8 +384,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                             HandleGameObject(putricidePipes[1], true);
                         }
                         break;
-                    case DATA_BLOOD_PRINCE_COUNCIL:
-                    case DATA_BLOOD_QUEEN_LANA_THEL:
                     case DATA_VALITHRIA_DREAMWALKER:
                     case DATA_SINDRAGOSA:
                     case DATA_THE_LICH_KING:

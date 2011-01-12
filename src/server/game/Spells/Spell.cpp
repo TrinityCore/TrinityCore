@@ -2794,6 +2794,30 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     case 59725: // Improved Spell Reflection - aoe aura
                         unitList.remove(m_caster);
                         break;
+                    case 72378: // Blood Nova (Deathbringer Saurfang)
+                    case 73058:
+                    {
+                        // select one random target, with preference of ranged targets
+                        uint32 targetsAtRange = 0;
+                        uint32 const minTargets = m_caster->GetMap()->GetSpawnMode() & 1 ? 10 : 4;
+                        unitList.sort(Trinity::ObjectDistanceOrderPred(m_caster, false));
+
+                        // get target count at range
+                        for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr, ++targetsAtRange)
+                            if ((*itr)->GetDistance(m_caster) < 12.0f)
+                                break;
+
+                        // set the upper cap
+                        if (targetsAtRange < minTargets)
+                            targetsAtRange = std::min<uint32>(unitList.size()-1, minTargets);
+
+                        std::list<Unit*>::iterator itr = unitList.begin();
+                        std::advance(itr, urand(0, targetsAtRange));
+                        Unit* target = *itr;
+                        unitList.clear();
+                        unitList.push_back(target);
+                        break;
+                    }
                     case 72255: // Mark of the Fallen Champion (Deathbringer Saurfang)
                     case 72444:
                     case 72445:

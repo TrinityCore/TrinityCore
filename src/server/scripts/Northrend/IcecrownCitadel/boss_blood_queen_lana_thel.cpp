@@ -159,8 +159,8 @@ class boss_blood_queen_lana_thel : public CreatureScript
             {
                 if (!instance->CheckRequiredBosses(DATA_BLOOD_QUEEN_LANA_THEL, who->ToPlayer()))
                 {
-                    instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
                     EnterEvadeMode();
+                    instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
                     return;
                 }
 

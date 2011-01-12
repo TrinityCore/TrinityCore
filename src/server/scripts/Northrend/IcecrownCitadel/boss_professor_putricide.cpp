@@ -214,17 +214,12 @@ class boss_professor_putricide : public CreatureScript
                 if (events.GetPhaseMask() & PHASE_MASK_NOT_SELF)
                     return;
 
-                if (!(events.GetPhaseMask() & PHASE_MASK_NOT_SELF) && !instance->CheckRequiredBosses(DATA_PROFESSOR_PUTRICIDE, who->ToPlayer()))
+                if (!instance->CheckRequiredBosses(DATA_PROFESSOR_PUTRICIDE, who->ToPlayer()))
                 {
-                    instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
                     EnterEvadeMode();
+                    instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
                     return;
                 }
-
-                _SetPhase(PHASE_COMBAT_1);
-                Talk(SAY_AGGRO);
-                DoCast(me, SPELL_OOZE_TANK_PROTECTION, true);
-                DoZoneInCombat(me);
 
                 events.Reset();
                 events.ScheduleEvent(EVENT_BERSERK, 600000);
@@ -232,6 +227,11 @@ class boss_professor_putricide : public CreatureScript
                 events.ScheduleEvent(EVENT_UNSTABLE_EXPERIMENT, urand(25000, 30000));
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_UNBOUND_PLAGUE, 20000);
+
+                _SetPhase(PHASE_COMBAT_1);
+                Talk(SAY_AGGRO);
+                DoCast(me, SPELL_OOZE_TANK_PROTECTION, true);
+                DoZoneInCombat(me);
 
                 instance->SetBossState(DATA_PROFESSOR_PUTRICIDE, IN_PROGRESS);
                 if (GameObject* table = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_PUTRICIDE_TABLE)))
