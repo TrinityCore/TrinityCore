@@ -88,7 +88,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            DoMeleeAttackIfReady();
+            //DoMeleeAttackIfReady();
         }
 
     };
