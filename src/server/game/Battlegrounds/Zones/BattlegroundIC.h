@@ -617,7 +617,7 @@ const ICGo BG_IC_ObjSpawnlocs[MAX_NORMAL_GAMEOBJECTS_SPAWNS] =
     {BG_IC_GO_DOODAD_VR_PORTCULLIS01_1,GO_DOODAD_VR_PORTCULLIS01,1156.89f,-843.998f,48.6322f,0.732934f}, // Doodad_VR_Portcullis01
     {BG_IC_GO_DOODAD_VR_PORTCULLIS01_2,GO_DOODAD_VR_PORTCULLIS01,1157.05f,-682.36f,48.6322f,-0.829132f}, // Doodad_VR_Portcullis01
 
-    {BG_IC_GO_FLAGPOLE_1_1,GO_FLAGPOLE_1,-400.809f,37.6253f,-1.76278f}, // Flagpole
+    {BG_IC_GO_FLAGPOLE_1_1,GO_FLAGPOLE_1,-400.809f,37.6253f,-1.76278f, 0.0f}, // Flagpole
     {BG_IC_GO_FLAGPOLE_2_1,GO_FLAGPOLE_2,1284.76f,-705.668f,48.9163f,-3.08918f}, // Flagpole
     {BG_IC_GO_FLAGPOLE_2_2,GO_FLAGPOLE_2,299.153f,-784.589f,48.9162f,-0.157079f}, // Flagpole
     {BG_IC_GO_FLAGPOLE_1_2,GO_FLAGPOLE_1,726.385f,-360.205f,17.8153f,-1.6057f}, // Flagpole
@@ -779,7 +779,7 @@ enum ICNodeState
 
 const uint32 BG_IC_GraveyardIds[MAX_NODE_TYPES+2] = {0, 0, 1480, 1481, 1482, 1485, 1486, 1483, 1484};
 
-const Position TransportMovementInfo = {7.305609f,-0.095246f,34.51022f};
+const Position TransportMovementInfo = {7.305609f, -0.095246f, 34.51022f, 0.0f};
 const Position TeleportToTransportPosition = {661.0f,-1244.0f,288.0f,0.0f};
 
 const float BG_IC_SpiritGuidePos[MAX_NODE_TYPES+2][4] = 

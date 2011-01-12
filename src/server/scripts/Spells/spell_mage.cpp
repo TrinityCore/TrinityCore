@@ -281,7 +281,7 @@ public:
                 && sSpellStore.LookupEntry(SPELL_MAGE_INCANTERS_ABSORBTION_R1);
         }
 
-        void Trigger(AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+        void Trigger(AuraEffect * aurEff, DamageInfo & /*dmgInfo*/, uint32 & absorbAmount)
         {
             Unit * target = GetTarget();
 
@@ -326,7 +326,7 @@ public:
                 && sSpellStore.LookupEntry(SPELL_MAGE_INCANTERS_ABSORBTION_R1);
         }
 
-        void Trigger(AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+        void Trigger(AuraEffect * aurEff, DamageInfo & /*dmgInfo*/, uint32 & absorbAmount)
         {
             Unit * target = GetTarget();
 

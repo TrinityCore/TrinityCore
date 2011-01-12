@@ -101,7 +101,7 @@ public:
             return true;
         }
 
-        void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & canBeRecalculated)
+        void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
         {
             // Set absorbtion amount to unlimited
             amount = -1;
@@ -145,7 +145,7 @@ public:
             return true;
         }
 
-        void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & canBeRecalculated)
+        void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
         {
             // Set absorbtion amount to unlimited
             amount = -1;
@@ -189,13 +189,13 @@ public:
             return true;
         }
 
-        void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & canBeRecalculated)
+        void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
         {
             // Set absorbtion amount to unlimited
             amount = -1;
         }
 
-        void Absorb(AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+        void Absorb(AuraEffect * aurEff, DamageInfo & /*dmgInfo*/, uint32 & absorbAmount)
         {
             absorbAmount = uint32(CalculatePctN(GetTarget()->GetTotalAttackPowerValue(BASE_ATTACK), absorbPct));
             aurEff->SetAmount(0);
