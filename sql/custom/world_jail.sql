@@ -1,10 +1,11 @@
-﻿DELETE FROM `command` WHERE name IN ('jail','jailinfo','unjail','jailreload','pinfo');
+DELETE FROM `command` WHERE name IN ('jail', 'jailinfo', 'unjail', 'jailreload', 'pinfo', 'clearjail');
 INSERT INTO `command` (name, security, help) VALUES
-('jail', 1, 'Syntax: .jail character hours reason\nJailed the \'character\' for \'hours\' with the \'reason\'.'),
-('jailinfo', 0, 'Syntax: .jailinfo\nShows your jail status.'),
-('unjail', 1, 'Syntax: .unjail character\nRealeases the \'character\' out of the jail.'),
+('jail',       1, 'Syntax: .jail $char_name $hours $reason\nJailed the \'character\' for \'hours\' with the \'reason\'.'),
+('jailinfo',   0, 'Syntax: .jailinfo\nShows your jail status.'),
+('unjail',     1, 'Syntax: .unjail $char_name\nRealeases the \'character\' out of the jail.'),
 ('jailreload', 3, 'Syntax: .jailreload\nLoads the jail config new.'),
-('pinfo', 2, 'Syntax: .pinfo [$player_name] [rep] [jail]\nOutput account information for selected player or player find by $player_name.\nIf \'rep\' parameter is provided it shows the reputation information for players.\nIf \'jail\' parameter is provided it shows the jail information for players.');
+('clearjail',  5, 'Syntax: .clearjail $char_name\nRemoves all jail records for character with entered name from DB.'),
+('pinfo',      2, 'Syntax: .pinfo [$player_name] [rep] [jail]\nOutput account information for selected player or player find by $player_name.\nIf \'rep\' parameter is provided it shows the reputation information for players.\nIf \'jail\' parameter is provided it shows the jail information for players.');
 
 DELETE FROM trinity_string WHERE `entry` IN (950, 951, 952, 953, 954, 955, 956, 957, 958, 959, 960, 961, 962, 963, 964, 965, 966, 967, 968, 969, 970, 971, 972, 973, 974, 975, 976, 977, 978, 979, 980, 981, 982, 983);
 INSERT INTO trinity_string

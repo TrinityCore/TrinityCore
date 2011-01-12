@@ -346,6 +346,7 @@ class ChatHandler
         bool HandleJailCommand(const char* args);
         bool HandleJailInfoCommand(const char* args);
         bool HandleUnJailCommand(const char* args);
+        bool HandleClearJailCommand(const char* args);
         bool HandleJailReloadCommand(const char* args);
 		
         bool HandlePlayAllCommand(const char* args);

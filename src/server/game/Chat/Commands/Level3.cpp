@@ -4704,11 +4704,48 @@ bool ChatHandler::HandleBindSightCommand(const char * /*args*/)
     return true;
 }
 
-  //reload commands
 bool ChatHandler::HandleJailReloadCommand(const char* arg)
 {
     sObjectMgr->LoadJailConf();
     SendSysMessage(LANG_JAIL_RELOAD);
+    return true;
+}
+
+//Removes all jail records from DB
+bool ChatHandler::HandleClearJailCommand(const char *args)
+{
+    char *charname = strtok((char*)args, " ");
+    std::string cname;
+
+    if (charname == NULL)
+        return false;
+    else cname = charname;
+
+    uint64 GUID = sObjectMgr->GetPlayerGUIDByName(cname.c_str());
+    Player *chr = sObjectMgr->GetPlayer(GUID);
+
+    if (chr)
+    {
+        if (chr->GetName() == m_session->GetPlayerName())
+        {
+            SendSysMessage(LANG_JAIL_NO_UNJAIL);
+            return false;
+        }
+
+        PSendSysMessage("%u jail records have been cleared", chr->m_jail_times);
+
+        chr->CastSpell(chr,8690,false);
+        ChatHandler(chr).PSendSysMessage("Your jail records have been cleared");
+        chr->GetSession()->LogoutPlayer(false);
+
+        CharacterDatabase.PExecute("DELETE FROM `jail` WHERE `guid`='%u'", GUID_LOPART(GUID));
+        return true;
+    }
+    else
+    {
+        SendSysMessage("Jail records have been cleared");
+        CharacterDatabase.PExecute("DELETE FROM `jail` WHERE `guid`='%u'", GUID_LOPART(GUID));
+    }
     return true;
 }
 

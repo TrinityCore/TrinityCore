@@ -21,7 +21,7 @@
 
 enum TrinityStrings
 {
-        // Added by WarHead for the Jail edited by spgm
+    // Added by WarHead for the Jail edited by spgm
     LANG_JAIL_YOURE_JAILED              = 950,  // "You are jailed by %s for %u hour(s)!"
     LANG_JAIL_REASON                    = 951,  // "%s wrote this as reason: %s"
     LANG_JAIL_WAS_JAILED                = 952,  // "%s was jailed by you for %u hour(s)!"
