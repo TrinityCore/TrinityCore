@@ -369,6 +369,52 @@ void MySQLConnection::CommitTransaction()
     Execute("COMMIT");
 }
 
+bool MySQLConnection::ExecuteTransaction(SQLTransaction& transaction)
+{
+    std::queue<SQLElementData> &queries = transaction->m_queries;
+    if (queries.empty())
+        return false;
+
+    BeginTransaction();
+    while (!queries.empty())
+    {
+        SQLElementData data = queries.front();
+        switch (data.type)
+        {
+            case SQL_ELEMENT_PREPARED:
+            {
+                PreparedStatement* stmt = data.element.stmt;
+                ASSERT(stmt);
+                if (!Execute(stmt))
+                {
+                    sLog->outSQLDriver("[Warning] Transaction aborted. %u queries not executed.", (uint32)queries.size());
+                    RollbackTransaction();
+                    return false;
+                }
+                delete data.element.stmt;
+            }
+            break;
+            case SQL_ELEMENT_RAW:
+            {
+                const char* sql = data.element.query;
+                ASSERT(sql);
+                if (!Execute(sql))
+                {
+                    sLog->outSQLDriver("[Warning] Transaction aborted. %u queries not executed.", (uint32)queries.size());
+                    RollbackTransaction();
+                    return false;
+                }
+                free((void*)const_cast<char*>(sql));
+            }
+            break;
+        }
+        queries.pop();
+    }
+
+    CommitTransaction();
+    return true;
+}
+
 MySQLPreparedStatement* MySQLConnection::GetPreparedStatement(uint32 index)
 {
     ASSERT(index < m_stmts.size());
@@ -461,6 +507,9 @@ bool MySQLConnection::_HandleMySQLErrno(uint32 errNo)
             ACE_OS::sleep(3);                           // Sleep 3 seconds
             return _HandleMySQLErrno(lErrno);           // Call self (recursive)
         }
+
+        case 1213:      // "Deadlock found when trying to get lock; try restarting transaction"
+            return true;    // Implemented in TransactionTask::Execute and DatabaseWorkerPool<T>::DirectCommitTransaction
 
         // Query related errors - skip query
         case 1058:      // "Column count doesn't match value count"
