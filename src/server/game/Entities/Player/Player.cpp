@@ -14084,7 +14084,7 @@ void Player::PrepareQuestMenu(uint64 guid)
     {
         uint32 quest_id = i->second;
         QuestStatus status = GetQuestStatus(quest_id);
-        if (status == QUEST_STATUS_COMPLETE && !GetQuestRewardStatus(quest_id))
+        if (status == QUEST_STATUS_COMPLETE)
             qm.AddMenuItem(quest_id, 4);
         else if (status == QUEST_STATUS_INCOMPLETE)
             qm.AddMenuItem(quest_id, 4);
@@ -15234,7 +15234,7 @@ QuestStatus Player::GetQuestStatus(uint32 quest_id) const
 
         if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id))
             if (!qInfo->IsRepeatable() && m_RewardedQuests.find(quest_id) != m_RewardedQuests.end())
-                return QUEST_STATUS_COMPLETE;
+                return QUEST_STATUS_REWARDED;
     }
     return QUEST_STATUS_NONE;
 }

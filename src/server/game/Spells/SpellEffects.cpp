@@ -4864,7 +4864,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     uint32 spellID = SpellMgr::CalculateSpellEffectAmount(m_spellInfo, 0);
                     uint32 questID = SpellMgr::CalculateSpellEffectAmount(m_spellInfo, 1);
 
-                    if (unitTarget->ToPlayer()->GetQuestStatus(questID) == QUEST_STATUS_COMPLETE && !unitTarget->ToPlayer()->GetQuestRewardStatus (questID))
+                    if (unitTarget->ToPlayer()->GetQuestStatus(questID) == QUEST_STATUS_COMPLETE)
                         unitTarget->CastSpell(unitTarget, spellID, true);
 
                     return;
