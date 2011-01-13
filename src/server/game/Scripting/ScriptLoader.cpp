@@ -27,9 +27,10 @@ void AddSC_example_commandscript();
 
 //TeleNPC2
 void AddSC_npc_teleport();
-
 //Hunter Pet Vendor
 void AddSC_npc_hunterpetvendor();
+// Custom
+void AddSC_DuelReset();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -1212,5 +1213,7 @@ void AddCustomScripts()
     AddSC_npc_teleport();
     //Hunter Pet Vendor
     AddSC_npc_hunterpetvendor();	
+    // Custom
+    AddSC_DuelReset();
 #endif
 }

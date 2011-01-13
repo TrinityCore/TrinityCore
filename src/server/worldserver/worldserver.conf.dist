@@ -2737,4 +2737,13 @@ LevelReq.Auction = 1
 LevelReq.Mail = 1
 
 #
+#   DuelResetCooldown
+#	Reseting spell cooldowns and restore health and mana with end duel
+#	Default: 0 - Disable
+#		 1 - Enable
+#
+
+DuelResetCooldown = 0
+
+#
 ###################################################################################################
