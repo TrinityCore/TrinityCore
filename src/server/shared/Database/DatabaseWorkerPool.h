@@ -353,6 +353,30 @@ class DatabaseWorkerPool
             Enqueue(new TransactionTask(transaction));
         }
 
+        //! Directly executes a collection of one-way SQL operations (can be both adhoc and prepared). The order in which these operations
+        //! were appended to the transaction will be respected during execution.
+        void DirectCommitTransaction(SQLTransaction& transaction)
+        {
+            MySQLConnection* con = GetFreeConnection();
+            if (con->ExecuteTransaction(transaction))
+            {
+                con->Unlock();      // OK, operation succesful
+                return;
+            }
+            
+            if (con->GetLastError() == 1213)
+            {
+                uint8 loopBreaker = 5;  // Handle MySQL Errno 1213 without extending deadlock to the core itself
+                for (uint8 i = 0; i < loopBreaker; ++i)
+                {
+                    if (con->ExecuteTransaction(transaction))
+                        break;
+                }
+            }
+
+            con->Unlock();
+        }
+
         //! Method used to execute prepared statements in a diverse context.
         //! Will be wrapped in a transaction if valid object is present, otherwise executed standalone.
         void ExecuteOrAppend(SQLTransaction& trans, PreparedStatement* stmt)
