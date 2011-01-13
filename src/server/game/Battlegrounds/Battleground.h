@@ -211,7 +211,11 @@ enum ScoreType
     SCORE_DESTROYED_WALL        = 19,
     //IC
     SCORE_BASE_ASSAULTED        = 20,
-    SCORE_BASE_DEFENDED         = 21
+    SCORE_BASE_DEFENDED         = 21,
+    /** World of Warcraft Armory **/
+    SCORE_DAMAGE_TAKEN          = 22,
+    SCORE_HEALING_TAKEN         = 23
+    /** World of Warcraft Armory **/
 };
 
 enum ArenaType
@@ -303,6 +307,10 @@ class BattlegroundScore
         uint32 BonusHonor;
         uint32 DamageDone;
         uint32 HealingDone;
+        /** World of Warcraft Armory **/
+        uint32 DamageTaken;
+        uint32 HealingTaken;
+        /** World of Warcraft Armory **/
 };
 
 enum BGHonorMode
