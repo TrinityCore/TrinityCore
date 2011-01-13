@@ -18,6 +18,7 @@
 #include <ace/Activation_Queue.h>
 
 #include "DatabaseWorkerPool.h"
+#include "Transaction.h"
 #include "Util.h"
 
 #ifndef _MYSQLCONNECTION_H
@@ -91,9 +92,12 @@ class MySQLConnection
         void BeginTransaction();
         void RollbackTransaction();
         void CommitTransaction();
+        bool ExecuteTransaction(SQLTransaction& transaction);
 
         operator bool () const { return m_Mysql != NULL; }
         void Ping() { mysql_ping(m_Mysql); }
+
+        uint32 GetLastError() { return mysql_errno(m_Mysql); }
 
     protected:
         bool LockIfReady()
