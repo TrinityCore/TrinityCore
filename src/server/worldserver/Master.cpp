@@ -300,10 +300,7 @@ int Master::Run()
     ///- Clean database before leaving
     clearOnlineAccounts();
 
-    ///- Wait for delay threads to end
-    CharacterDatabase.Close();
-    WorldDatabase.Close();
-    LoginDatabase.Close();
+    _StopDB();    
 
     sLog->outString("Halting process...");
 
@@ -368,6 +365,8 @@ int Master::Run()
 /// Initialize connection to the databases
 bool Master::_StartDB()
 {
+    MySQL::Library_Init();
+
     sLog->SetLogDB(false);
     std::string dbstring;
     uint8 async_threads, synch_threads;
@@ -469,6 +468,15 @@ bool Master::_StartDB()
     sLog->outString("Using World DB: %s", sWorld->GetDBVersion());
     sLog->outString("Using creature EventAI: %s", sWorld->GetCreatureEventAIVersion());
     return true;
+}
+
+void Master::_StopDB()
+{
+    CharacterDatabase.Close();
+    WorldDatabase.Close();
+    LoginDatabase.Close();
+
+    MySQL::Library_End();
 }
 
 /// Clear 'online' status for all accounts with characters in this realm
