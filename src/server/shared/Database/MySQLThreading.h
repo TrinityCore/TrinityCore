@@ -33,7 +33,7 @@ class MySQL
         static void Thread_Init()
         {
             mysql_thread_init();
-            printf("Core thread with ID ["UI64FMTD"] initializing MySQL thread.\n",
+            sLog->outSQLDriver("Core thread with ID ["UI64FMTD"] initializing MySQL thread.",
                     (uint64)ACE_Based::Thread::currentId());
         }
 
@@ -44,8 +44,18 @@ class MySQL
         static void Thread_End()
         {
             mysql_thread_end();
-            printf("Core thread with ID ["UI64FMTD"] shutting down MySQL thread.\n",
+            sLog->outSQLDriver("Core thread with ID ["UI64FMTD"] shutting down MySQL thread.",
                 (uint64)ACE_Based::Thread::currentId());
+        }
+
+        static void Library_Init()
+        {
+            mysql_library_init(-1, NULL, NULL);
+        }
+
+        static void Library_End()
+        {
+            mysql_library_end();
         }
 };
 
