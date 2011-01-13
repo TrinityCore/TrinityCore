@@ -1112,8 +1112,8 @@ public:
 
     bool OnGossipHello(Player *pPlayer, GameObject *pGO)
     {
-        if (pPlayer->GetQuestStatus(QUEST_DOING_YOUR_DUTY) == QUEST_STATUS_INCOMPLETE ||
-            (pPlayer->GetQuestStatus(QUEST_DOING_YOUR_DUTY) == QUEST_STATUS_COMPLETE))
+        QuestStatus status = pPlayer->GetQuestStatus(QUEST_DOING_YOUR_DUTY);
+        if (status == QUEST_STATUS_INCOMPLETE || status == QUEST_STATUS_COMPLETE || status == QUEST_STATUS_REWARDED)
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_USE_OUTHOUSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             pPlayer->SEND_GOSSIP_MENU(GOSSIP_OUTHOUSE_VACANT, pGO->GetGUID());
