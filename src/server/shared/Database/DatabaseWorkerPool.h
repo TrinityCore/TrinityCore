@@ -102,10 +102,8 @@ class DatabaseWorkerPool
         {
             sLog->outSQLDriver("Closing down databasepool '%s'.", m_connectionInfo.database.c_str());
 
-            /// Shuts down delaythreads for this connection pool.
-            m_queue->queue()->deactivate();
-            while (SQLOperation* op = (SQLOperation*)(m_queue->dequeue()))
-                delete op;
+            /// Shuts down delaythreads for this connection pool by underlying deactivate()
+            m_queue->queue()->close();
 
             for (uint8 i = 0; i < m_connectionCount[IDX_ASYNC]; ++i)
             {
