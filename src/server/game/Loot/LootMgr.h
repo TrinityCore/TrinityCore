@@ -68,7 +68,8 @@ enum PermissionTypes
     GROUP_PERMISSION            = 1,
     MASTER_PERMISSION           = 2,
     ROUND_ROBIN_PERMISSION      = 3,
-    NONE_PERMISSION             = 4,
+    OWNER_PERMISSION            = 4,
+    NONE_PERMISSION             = 5,
 };
 
 enum LootType
@@ -93,6 +94,7 @@ enum LootSlotType
     LOOT_SLOT_TYPE_ROLL_ONGOING = 1,                        // roll is ongoing. player cannot loot.
     LOOT_SLOT_TYPE_MASTER       = 2,                        // item can only be distributed by group loot master.
     LOOT_SLOT_TYPE_LOCKED       = 3,                        // item is shown in red. player cannot loot.
+    LOOT_SLOT_TYPE_OWNER        = 4,                        // ignore binding confirmation and etc, for single player looting
 };
 
 class Player;
