@@ -529,7 +529,7 @@ bool ChatHandler::HasLowerSecurityAccount(WorldSession* target, uint32 target_ac
     if (target)
         target_sec = target->GetSecurity();
     else if (target_account)
-        target_sec = sAccountMgr->GetSecurity(target_account);
+        target_sec = sAccountMgr->GetSecurity(target_account, realmID);
     else
         return true;                                        // caller must report error for (target == NULL && target_account == 0)
 
