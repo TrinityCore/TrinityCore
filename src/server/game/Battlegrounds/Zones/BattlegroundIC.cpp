@@ -332,10 +332,10 @@ void BattlegroundIC::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
 
     switch(type)
     {
-        case SCORE_BASE_ASSAULTED:
+        case SCORE_BASES_ASSAULTED:
             ((BattlegroundICScore*)itr->second)->BasesAssaulted += value;
             break;
-        case SCORE_BASE_DEFENDED:
+        case SCORE_BASES_DEFENDED:
             ((BattlegroundICScore*)itr->second)->BasesDefended += value;
             break;
         default:
@@ -529,7 +529,7 @@ void BattlegroundIC::EventPlayerClickedOnFlag(Player* player, GameObject* target
                     if (m_BgCreatures[BG_IC_NPC_SPIRIT_GUIDE_1+(nodePoint[i].nodeType)-2])
                         DelCreature(BG_IC_NPC_SPIRIT_GUIDE_1+(nodePoint[i].nodeType)-2);
 
-                UpdatePlayerScore(player, SCORE_BASE_ASSAULTED, 1);
+                UpdatePlayerScore(player, SCORE_BASES_ASSAULTED, 1);
 
                 SendMessage2ToAll(LANG_BG_IC_TEAM_ASSAULTED_NODE_1,CHAT_MSG_BG_SYSTEM_NEUTRAL,player,nodePoint[i].string);
                 SendMessage2ToAll(LANG_BG_IC_TEAM_ASSAULTED_NODE_2,CHAT_MSG_BG_SYSTEM_NEUTRAL,player,nodePoint[i].string, (player->GetTeamId() == TEAM_ALLIANCE ? LANG_BG_IC_ALLIANCE : LANG_BG_IC_HORDE));
@@ -542,7 +542,7 @@ void BattlegroundIC::EventPlayerClickedOnFlag(Player* player, GameObject* target
                 nodePoint[i].needChange = false;
                 SendMessage2ToAll(LANG_BG_IC_TEAM_DEFENDED_NODE,CHAT_MSG_BG_SYSTEM_NEUTRAL,player,nodePoint[i].string);
                 HandleCapturedNodes(&nodePoint[i],true); 
-                UpdatePlayerScore(player, SCORE_BASE_DEFENDED, 1);
+                UpdatePlayerScore(player, SCORE_BASES_DEFENDED, 1);
             }
 
             GameObject* banner = GetBGObject(nodePoint[i].gameobject_type);
