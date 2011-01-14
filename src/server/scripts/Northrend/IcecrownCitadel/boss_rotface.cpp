@@ -262,18 +262,11 @@ class npc_little_ooze : public CreatureScript
                 DoCast(me, SPELL_WEAK_RADIATING_OOZE, true);
                 events.ScheduleEvent(EVENT_STICKY_OOZE, 5000);
                 me->AddThreat(summoner, 500000.0f);
-                // register in Rotface's summons - not summoned with Rotface as owner
-                if (InstanceScript* instance = me->GetInstanceScript())
-                    if (Creature* rotface = Unit::GetCreature(*me, instance->GetData64(DATA_ROTFACE)))
-                        rotface->AI()->JustSummoned(me);
             }
 
             void JustDied(Unit* /*killer*/)
             {
                 me->DespawnOrUnsummon();
-                if (InstanceScript* instance = me->GetInstanceScript())
-                    if (Creature* rotface = Unit::GetCreature(*me, instance->GetData64(DATA_ROTFACE)))
-                        rotface->AI()->SummonedCreatureDespawn(me);
             }
 
             void UpdateAI(const uint32 diff)
@@ -329,10 +322,10 @@ class npc_big_ooze : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                me->DespawnOrUnsummon();
                 if (InstanceScript* instance = me->GetInstanceScript())
                     if (Creature* rotface = Unit::GetCreature(*me, instance->GetData64(DATA_ROTFACE)))
                         rotface->AI()->SummonedCreatureDespawn(me);
+                me->DespawnOrUnsummon();
             }
 
             void DoAction(const int32 action)
