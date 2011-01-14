@@ -224,7 +224,7 @@ class boss_blood_council_controller : public CreatureScript
                     if (!valanar->isInCombat())
                         DoZoneInCombat(valanar);
 
-                events.ScheduleEvent(EVENT_INVOCATION_OF_BLOOD, 30000);
+                events.ScheduleEvent(EVENT_INVOCATION_OF_BLOOD, 46500);
 
                 invocationOrder[0] = InvocationData(instance->GetData64(DATA_PRINCE_VALANAR_GUID), SPELL_INVOCATION_OF_BLOOD_VALANAR, EMOTE_VALANAR_INVOCATION, 71070);
                 if (urand(0, 1))
@@ -313,7 +313,7 @@ class boss_blood_council_controller : public CreatureScript
                             }
 
                             DoCast(me, invocationOrder[invocationStage].spellId);
-                            events.ScheduleEvent(EVENT_INVOCATION_OF_BLOOD, 30000);
+                            events.ScheduleEvent(EVENT_INVOCATION_OF_BLOOD, 46500);
                             break;
                         }
                         default:
