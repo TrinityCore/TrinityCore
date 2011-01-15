@@ -1931,7 +1931,7 @@ void AuraEffect::PeriodicDummyTick(Unit * target, Unit * caster) const
             }
             case 54798: // FLAMING Arrow Triggered Effect
             {
-                if (!target->ToCreature() || !caster->ToCreature()->IsVehicle())
+                if (!target || !target->ToCreature() || !caster->ToCreature()->IsVehicle())
                     return;
 
                 Unit *rider = caster->GetVehicleKit()->GetPassenger(0);
