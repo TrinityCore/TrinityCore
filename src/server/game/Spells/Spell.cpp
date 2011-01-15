@@ -1790,15 +1790,19 @@ void Spell::SearchChainTarget(std::list<Unit*> &TagUnitMap, float max_range, uin
             tempUnitMap.sort(Trinity::ObjectDistanceOrderPred(cur));
             next = tempUnitMap.begin();
 
-            if (cur->GetDistance(*next) > CHAIN_SPELL_JUMP_RADIUS)
+            if (cur->GetDistance(*next) > CHAIN_SPELL_JUMP_RADIUS)      // Don't search beyond the max jump radius
                 break;
-            while ((m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MELEE
+
+            // Check if (*next) is a valid chain target. If not, don't add to TagUnitMap, and repeat loop.
+            // If you want to add any conditions to exclude a target from TagUnitMap, add condition in this while() loop.
+            while ((m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MELEE   
                 && !m_caster->isInFrontInMap(*next, max_range))
                 || !m_caster->canSeeOrDetect(*next)
-                || !cur->IsWithinLOSInMap(*next))
+                || !cur->IsWithinLOSInMap(*next)
+                || ((GetSpellInfo()->AttributesEx6 & SPELL_ATTR6_IGNORE_CROWD_CONTROL_TARGETS) && !(*next)->CanFreeMove()))
             {
                 ++next;
-                if (next == tempUnitMap.end() || cur->GetDistance(*next) > CHAIN_SPELL_JUMP_RADIUS)
+                if (next == tempUnitMap.end() || cur->GetDistance(*next) > CHAIN_SPELL_JUMP_RADIUS) // Don't search beyond the max jump radius
                     return;
             }
         }
