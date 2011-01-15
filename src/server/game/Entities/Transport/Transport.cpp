@@ -180,8 +180,11 @@ Transport::Transport(uint32 period, uint32 script) : GameObject(), m_period(peri
 
 Transport::~Transport()
 {
-    for (CreatureSet::iterator itr = m_NPCPassengerSet.begin(); itr != m_NPCPassengerSet.end();)
-        (*(itr++))->ForcedDespawn();
+    for (CreatureSet::iterator itr = m_NPCPassengerSet.begin(); itr != m_NPCPassengerSet.end(); ++itr)
+    {
+        (*itr)->SetTransport(NULL);
+        GetMap()->AddObjectToRemoveList(*itr);
+    }
 
     m_NPCPassengerSet.clear();
 
