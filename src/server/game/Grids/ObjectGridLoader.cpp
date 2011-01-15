@@ -280,13 +280,13 @@ ObjectGridStoper::Visit(CreatureMapType &m)
     // stop any fights at grid de-activation and remove dynobjects created at cast by creatures
     for (CreatureMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
     {
-        iter->getSource()->RemoveAllDynObjects();
         if (iter->getSource()->isInCombat())
         {
             iter->getSource()->CombatStop();
             iter->getSource()->DeleteThreatList();
-            iter->getSource()->AI()->EnterEvadeMode();
+            iter->getSource()->AI()->EnterEvadeMode();  // Calls RemoveAllAuras
         }
+        iter->getSource()->RemoveAllDynObjects();       // Calls RemoveFromWorld, needs to be after RemoveAllAuras or we invalidate the Owner pointer of the aura
     }
 }
 

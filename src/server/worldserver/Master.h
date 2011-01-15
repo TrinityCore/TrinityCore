@@ -35,6 +35,7 @@ class Master
 
     private:
         bool _StartDB();
+        void _StopDB();
 
         void clearOnlineAccounts();
 };

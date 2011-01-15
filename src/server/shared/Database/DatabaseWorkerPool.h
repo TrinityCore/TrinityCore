@@ -58,14 +58,12 @@ class DatabaseWorkerPool
             memset(m_connectionCount, 0, sizeof(m_connectionCount));
             m_connections.resize(IDX_SIZE);
 
-            mysql_library_init(-1, NULL, NULL);
             WPFatal (mysql_thread_safe(), "Used MySQL library isn't thread-safe.");
         }
 
         ~DatabaseWorkerPool()
         {
             sLog->outSQLDriver("~DatabaseWorkerPool for '%s'.", m_connectionInfo.database.c_str());
-            mysql_library_end();
         }
 
         bool Open(const std::string& infoString, uint8 async_threads, uint8 synch_threads)
@@ -102,10 +100,8 @@ class DatabaseWorkerPool
         {
             sLog->outSQLDriver("Closing down databasepool '%s'.", m_connectionInfo.database.c_str());
 
-            /// Shuts down delaythreads for this connection pool.
-            m_queue->queue()->deactivate();
-            while (SQLOperation* op = (SQLOperation*)(m_queue->dequeue()))
-                delete op;
+            /// Shuts down delaythreads for this connection pool by underlying deactivate()
+            m_queue->queue()->close();
 
             for (uint8 i = 0; i < m_connectionCount[IDX_ASYNC]; ++i)
             {
@@ -351,6 +347,30 @@ class DatabaseWorkerPool
             }
 
             Enqueue(new TransactionTask(transaction));
+        }
+
+        //! Directly executes a collection of one-way SQL operations (can be both adhoc and prepared). The order in which these operations
+        //! were appended to the transaction will be respected during execution.
+        void DirectCommitTransaction(SQLTransaction& transaction)
+        {
+            MySQLConnection* con = GetFreeConnection();
+            if (con->ExecuteTransaction(transaction))
+            {
+                con->Unlock();      // OK, operation succesful
+                return;
+            }
+            
+            if (con->GetLastError() == 1213)
+            {
+                uint8 loopBreaker = 5;  // Handle MySQL Errno 1213 without extending deadlock to the core itself
+                for (uint8 i = 0; i < loopBreaker; ++i)
+                {
+                    if (con->ExecuteTransaction(transaction))
+                        break;
+                }
+            }
+
+            con->Unlock();
         }
 
         //! Method used to execute prepared statements in a diverse context.

@@ -2797,6 +2797,30 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     case 59725: // Improved Spell Reflection - aoe aura
                         unitList.remove(m_caster);
                         break;
+                    case 72378: // Blood Nova (Deathbringer Saurfang)
+                    case 73058:
+                    {
+                        // select one random target, with preference of ranged targets
+                        uint32 targetsAtRange = 0;
+                        uint32 const minTargets = m_caster->GetMap()->GetSpawnMode() & 1 ? 10 : 4;
+                        unitList.sort(Trinity::ObjectDistanceOrderPred(m_caster, false));
+
+                        // get target count at range
+                        for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr, ++targetsAtRange)
+                            if ((*itr)->GetDistance(m_caster) < 12.0f)
+                                break;
+
+                        // set the upper cap
+                        if (targetsAtRange < minTargets)
+                            targetsAtRange = std::min<uint32>(unitList.size()-1, minTargets);
+
+                        std::list<Unit*>::iterator itr = unitList.begin();
+                        std::advance(itr, urand(0, targetsAtRange));
+                        Unit* target = *itr;
+                        unitList.clear();
+                        unitList.push_back(target);
+                        break;
+                    }
                     case 72255: // Mark of the Fallen Champion (Deathbringer Saurfang)
                     case 72444:
                     case 72445:
@@ -5761,6 +5785,11 @@ SpellCastResult Spell::CheckCasterAuras() const
         if (m_spellInfo->Id == 42292 || m_spellInfo->Id == 59752)
             mechanic_immune = IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
     }
+
+    // Glyph of Pain Suppression
+    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PRIEST && m_spellInfo->SpellIconID == 2178)
+        if (m_caster->HasAuraEffect(63248, 0))      // no SpellFamilyFlags or SpellIconID to identify this
+            mechanic_immune = 1 << MECHANIC_STUN;   // "immune" to stun only for this cast
 
     // Check whether the cast should be prevented by any state you might have.
     SpellCastResult prevented_reason = SPELL_CAST_OK;
