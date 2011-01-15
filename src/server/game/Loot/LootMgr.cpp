@@ -866,8 +866,21 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
         }
         case ALL_PERMISSION:
         case MASTER_PERMISSION:
+        case OWNER_PERMISSION:
         {
-            uint8 slot_type = (lv.permission == MASTER_PERMISSION) ? LOOT_SLOT_TYPE_MASTER : LOOT_SLOT_TYPE_ALLOW_LOOT;
+            uint8 slot_type = LOOT_SLOT_TYPE_ALLOW_LOOT;
+            switch (lv.permission)
+            {
+                case MASTER_PERMISSION:
+                    slot_type = LOOT_SLOT_TYPE_MASTER;
+                    break;
+                case OWNER_PERMISSION:
+                    slot_type = LOOT_SLOT_TYPE_OWNER;
+                    break;
+                default:
+                    break;
+            }
+
             for (uint8 i = 0; i < l.items.size(); ++i)
             {
                 if (!l.items[i].is_looted && !l.items[i].freeforall && l.items[i].conditions.empty() && l.items[i].AllowedForPlayer(lv.viewer))
@@ -883,6 +896,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
             return b;                                       // nothing output more
     }
 
+    LootSlotType slotType = lv.permission == OWNER_PERMISSION ? LOOT_SLOT_TYPE_OWNER : LOOT_SLOT_TYPE_ALLOW_LOOT;
     QuestItemMap const& lootPlayerQuestItems = l.GetPlayerQuestItems();
     QuestItemMap::const_iterator q_itr = lootPlayerQuestItems.find(lv.viewer->GetGUIDLow());
     if (q_itr != lootPlayerQuestItems.end())
@@ -895,7 +909,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
             {
                 b << uint8(l.items.size() + (qi - q_list->begin()));
                 b << item;
-                b << uint8(LOOT_SLOT_TYPE_ALLOW_LOOT);
+                b << uint8(slotType);
                 ++itemsShown;
             }
         }
@@ -911,8 +925,9 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
             LootItem &item = l.items[fi->index];
             if (!fi->is_looted && !item.is_looted)
             {
-                b << uint8(fi->index) << item;
-                b << uint8(LOOT_SLOT_TYPE_ALLOW_LOOT);
+                b << uint8(fi->index);
+                b << item;
+                b << uint8(slotType);
                 ++itemsShown;
             }
         }
@@ -928,8 +943,9 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
             LootItem &item = l.items[ci->index];
             if (!ci->is_looted && !item.is_looted)
             {
-                b << uint8(ci->index) << item;
-                b << uint8(LOOT_SLOT_TYPE_ALLOW_LOOT);
+                b << uint8(ci->index);
+                b << item;
+                b << uint8(slotType);
                 ++itemsShown;
             }
         }

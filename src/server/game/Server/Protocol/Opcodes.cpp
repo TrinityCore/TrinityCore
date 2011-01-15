@@ -1333,4 +1333,8 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x518*/ { "SMSG_UNKNOWN_1304",                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x519*/ { "UMSG_UNKNOWN_1305",                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
     /*0x51A*/ { "UMSG_UNKNOWN_1306",                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
+    /*0x51B*/ { "CMSG_COMMENTATOR_SKIRMISH_QUEUE_COMMAND",      STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
+    /*0x51C*/ { "SMSG_UNKNOWN_1308",                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
+    /*0x51D*/ { "SMSG_UNKNOWN_1309",                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
+    /*0x51E*/ { "SMSG_UNKNOWN_1310",                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
 };
