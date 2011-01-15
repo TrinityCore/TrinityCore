@@ -45,11 +45,6 @@ ObjectAccessor::ObjectAccessor()
 
 ObjectAccessor::~ObjectAccessor()
 {
-    for (Player2CorpsesMapType::const_iterator itr = i_player2corpse.begin(); itr != i_player2corpse.end(); ++itr)
-    {
-        itr->second->RemoveFromWorld();
-        delete itr->second;
-    }
 }
 
 WorldObject* ObjectAccessor::GetWorldObject(WorldObject const& p, uint64 guid)
@@ -382,6 +377,15 @@ void ObjectAccessor::Update(uint32 /*diff*/)
         iter->second.BuildPacket(&packet);
         iter->first->GetSession()->SendPacket(&packet);
         packet.clear();                                     // clean the string
+    }
+}
+
+void ObjectAccessor::UnloadAll()
+{
+    for (Player2CorpsesMapType::const_iterator itr = i_player2corpse.begin(); itr != i_player2corpse.end(); ++itr)
+    {
+        itr->second->RemoveFromWorld();
+        delete itr->second;
     }
 }
 
