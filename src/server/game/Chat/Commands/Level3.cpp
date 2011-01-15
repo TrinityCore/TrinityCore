@@ -4745,6 +4745,17 @@ bool ChatHandler::HandleClearJailCommand(const char *args)
     {
         SendSysMessage("Jail records have been cleared");
         CharacterDatabase.PExecute("DELETE FROM `jail` WHERE `guid`='%u'", GUID_LOPART(GUID));
+        QueryResult result = CharacterDatabase.PQuery("SELECT map, zone, position_x, position_y, position_z FROM character_homebind WHERE guid = '%u'", GUID_LOPART(GUID));
+        if (result)
+        {
+            Field *fields = result->Fetch();
+            uint32 map = fields[0].GetUInt32();
+            uint32 zone = fields[1].GetUInt32();
+            uint32 x = fields[2].GetFloat();
+            uint32 y = fields[3].GetFloat();
+            uint32 z = fields[4].GetFloat();
+            Player::SavePositionInDB(map, x, y, z, 0.0f, zone, GUID);
+        }
     }
     return true;
 }
