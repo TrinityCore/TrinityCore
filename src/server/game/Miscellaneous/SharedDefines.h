@@ -487,7 +487,7 @@ enum SpellAttr6
     SPELL_ATTR6_UNK5                             = 0x00000020, //  5
     SPELL_ATTR6_UNK6                             = 0x00000040, //  6
     SPELL_ATTR6_UNK7                             = 0x00000080, //  7
-    SPELL_ATTR6_UNK8                             = 0x00000100, //  8
+    SPELL_ATTR6_IGNORE_CROWD_CONTROL_TARGETS     = 0x00000100, //  8
     SPELL_ATTR6_UNK9                             = 0x00000200, //  9
     SPELL_ATTR6_UNK10                            = 0x00000400, // 10
     SPELL_ATTR6_NOT_IN_RAID_INSTANCE             = 0x00000800, // 11 not usable in raid instance
