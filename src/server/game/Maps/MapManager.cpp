@@ -45,16 +45,6 @@ MapManager::MapManager()
 
 MapManager::~MapManager()
 {
-    for (MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
-        delete iter->second;
-
-    for (TransportSet::iterator i = m_Transports.begin(); i != m_Transports.end(); ++i)
-    {
-        (*i)->RemoveFromWorld();
-        delete *i;
-    }
-
-    Map::DeleteStateMachine();
 }
 
 void MapManager::Initialize()
@@ -305,17 +295,23 @@ bool MapManager::IsValidMAP(uint32 mapid)
 
 void MapManager::UnloadAll()
 {
-    for (MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
-        iter->second->UnloadAll();
-
-    while (!i_maps.empty())
+    for (TransportSet::iterator i = m_Transports.begin(); i != m_Transports.end(); ++i)
     {
-        delete i_maps.begin()->second;
-        i_maps.erase(i_maps.begin());
+        (*i)->RemoveFromWorld();
+        delete *i;
+    }
+
+    for (MapMapType::iterator iter = i_maps.begin(); iter != i_maps.end();)
+    {
+        iter->second->UnloadAll();
+        delete iter->second;
+        i_maps.erase(iter++);
     }
 
     if (m_updater.activated())
         m_updater.deactivate();
+
+    Map::DeleteStateMachine();
 }
 
 void MapManager::InitMaxInstanceId()
