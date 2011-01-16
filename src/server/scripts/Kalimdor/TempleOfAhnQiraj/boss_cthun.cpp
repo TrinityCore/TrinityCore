@@ -78,13 +78,13 @@ enum Creatures
 {
     MOB_CTHUN_PORTAL                            = 15896,
 
-    //***** Main Phase 1 ********
+    // ***** Main Phase 1 ********
     BOSS_EYE_OF_CTHUN                           = 15589,
     MOB_CLAW_TENTACLE                           = 15725,
     MOB_EYE_TENTACLE                            = 15726,
     MOB_SMALL_PORTAL                            = 15904,
 
-    //***** Main Phase 2 ********
+    // ***** Main Phase 2 ********
     MOB_BODY_OF_CTHUN                           = 15809,
     MOB_GIANT_CLAW_TENTACLE                     = 15728,
     MOB_GIANT_EYE_TENTACLE                      = 15334,
@@ -94,7 +94,7 @@ enum Creatures
 
 enum Spells
 {
-    //***** Main Phase 1 ********
+    // ***** Main Phase 1 ********
     //Eye Spells
     SPELL_FREEZE_ANIM                           = 16245,
     SPELL_GREEN_BEAM                            = 26134,
@@ -108,7 +108,7 @@ enum Spells
     SPELL_GROUND_RUPTURE                        = 26139,
     SPELL_HAMSTRING                             = 26141,
 
-    //***** Main Phase 2 ******
+    // ***** Main Phase 2 ******
     //Body spells
     //#define SPELL_CARAPACE_CTHUN                26156   //Was removed from client dbcs
     SPELL_TRANSFORM                             = 26232,
@@ -142,7 +142,7 @@ enum Yells
     //Text emote
     EMOTE_WEAKENED                              = -1531011,
 
-    //****** Out of Combat ******
+    // ****** Out of Combat ******
     // Random Wispers - No txt only sound
     // The random sound is chosen by the client.
     RANDOM_SOUND_WHISPER                        = 8663,
