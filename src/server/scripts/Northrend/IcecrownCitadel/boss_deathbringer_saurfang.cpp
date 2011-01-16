@@ -257,8 +257,8 @@ class boss_deathbringer_saurfang : public CreatureScript
 
             void Reset()
             {
+                _Reset();
                 me->SetReactState(REACT_DEFENSIVE);
-                events.Reset();
                 events.SetPhase(PHASE_COMBAT);
                 frenzy = false;
                 me->SetPower(POWER_ENERGY, 0);
@@ -269,8 +269,6 @@ class boss_deathbringer_saurfang : public CreatureScript
                 DoCast(me, SPELL_RUNE_OF_BLOOD_S, true);
                 me->RemoveAurasDueToSpell(SPELL_BERSERK);
                 me->RemoveAurasDueToSpell(SPELL_FRENZY);
-                summons.DespawnAll();
-                instance->SetBossState(DATA_DEATHBRINGER_SAURFANG, NOT_STARTED);
             }
 
             void EnterCombat(Unit* who)
@@ -283,6 +281,9 @@ class boss_deathbringer_saurfang : public CreatureScript
                 }
 
                 // oh just screw intro, enter combat - no exploits please
+                me->setActive(true);
+                DoZoneInCombat();
+
                 events.SetPhase(PHASE_COMBAT);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                 introDone = true;
@@ -301,11 +302,11 @@ class boss_deathbringer_saurfang : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
+                _JustDied();
                 DoCastAOE(SPELL_ACHIEVEMENT, true);
                 Talk(SAY_DEATH);
 
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MARK_OF_THE_FALLEN_CHAMPION);
-                instance->SetBossState(DATA_DEATHBRINGER_SAURFANG, DONE);
                 if (Creature* creature = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SAURFANG_EVENT_NPC)))
                     creature->AI()->DoAction(ACTION_START_OUTRO);
             }
@@ -327,6 +328,7 @@ class boss_deathbringer_saurfang : public CreatureScript
 
             void JustReachedHome()
             {
+                _JustReachedHome();
                 instance->SetBossState(DATA_DEATHBRINGER_SAURFANG, FAIL);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MARK_OF_THE_FALLEN_CHAMPION);
             }
