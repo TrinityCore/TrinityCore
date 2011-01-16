@@ -47,6 +47,5 @@ int DatabaseWorker::svc()
         delete request;
     }
 
-    m_conn->Close();
     return 0;
 }

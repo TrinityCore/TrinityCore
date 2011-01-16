@@ -1142,9 +1142,9 @@ void AuraEffect::UpdatePeriodic(Unit * caster)
                                     }
                                     else
                                     {
-                                        //**********************************************
+                                        // **********************************************
                                         // This feature uses only in arenas
-                                        //**********************************************
+                                        // **********************************************
                                         // Here need increase mana regen per tick (6 second rule)
                                         // on 0 tick -   0  (handled in 2 second)
                                         // on 1 tick - 166% (handled in 4 second)
@@ -1931,7 +1931,7 @@ void AuraEffect::PeriodicDummyTick(Unit * target, Unit * caster) const
             }
             case 54798: // FLAMING Arrow Triggered Effect
             {
-                if (!target->ToCreature() || !caster->ToCreature()->IsVehicle())
+                if (!target || !target->ToCreature() || !caster->ToCreature()->IsVehicle())
                     return;
 
                 Unit *rider = caster->GetVehicleKit()->GetPassenger(0);
