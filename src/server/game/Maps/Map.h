@@ -60,9 +60,9 @@ struct ScriptAction
     ScriptInfo const* script;                               // pointer to static script data
 };
 
-//******************************************
+// ******************************************
 // Map file format defines
-//******************************************
+// ******************************************
 #define MAP_MAGIC             'SPAM'
 #define MAP_VERSION_MAGIC     '1.1v'
 #define MAP_AREA_MAGIC        'AERA'

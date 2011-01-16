@@ -88,11 +88,11 @@ class example_creature : public CreatureScript
 
         struct example_creatureAI : public ScriptedAI
         {
-            //*** HANDLED FUNCTION ***
+            // *** HANDLED FUNCTION ***
             //This is the constructor, called only once when the Creature is first created
             example_creatureAI(Creature *c) : ScriptedAI(c) {}
 
-            //*** CUSTOM VARIABLES ****
+            // *** CUSTOM VARIABLES ****
             //These variables are for use only by this individual script.
             //Nothing else will ever call them but us.
 
@@ -105,7 +105,7 @@ class example_creature : public CreatureScript
             uint32 m_uiPhase;                                       // The current battle phase we are in
             uint32 m_uiPhaseTimer;                                  // Timer until phase transition
 
-            //*** HANDLED FUNCTION ***
+            // *** HANDLED FUNCTION ***
             //This is called after spawn and whenever the core decides we need to evade
             void Reset()
             {
@@ -119,7 +119,7 @@ class example_creature : public CreatureScript
                 me->RestoreFaction();
             }
 
-            //*** HANDLED FUNCTION ***
+            // *** HANDLED FUNCTION ***
             // Enter Combat called once per combat
             void EnterCombat(Unit* pWho)
             {
@@ -127,7 +127,7 @@ class example_creature : public CreatureScript
                 DoScriptText(SAY_AGGRO, me, pWho);
             }
 
-            //*** HANDLED FUNCTION ***
+            // *** HANDLED FUNCTION ***
             // Attack Start is called when victim change (including at start of combat)
             // By default, attack pWho and start movement toward the victim.
             //void AttackStart(Unit* pWho)
@@ -135,14 +135,14 @@ class example_creature : public CreatureScript
             //    ScriptedAI::AttackStart(pWho);
             //}
 
-            //*** HANDLED FUNCTION ***
+            // *** HANDLED FUNCTION ***
             // Called when going out of combat. Reset is called just after.
             void EnterEvadeMode()
             {
                 DoScriptText(SAY_EVADE, me);
             }
 
-            //*** HANDLED FUNCTION ***
+            // *** HANDLED FUNCTION ***
             //Our Receive emote function
             void ReceiveEmote(Player* /*pPlayer*/, uint32 uiTextEmote)
             {
@@ -159,7 +159,7 @@ class example_creature : public CreatureScript
                 }
              }
 
-            //*** HANDLED FUNCTION ***
+            // *** HANDLED FUNCTION ***
             //Update AI is called Every single map update (roughly once every 50ms if a player is within the grid)
             void UpdateAI(const uint32 uiDiff)
             {
