@@ -221,6 +221,7 @@ class boss_professor_putricide : public CreatureScript
                     return;
                 }
 
+                me->setActive(true);
                 events.Reset();
                 events.ScheduleEvent(EVENT_BERSERK, 600000);
                 events.ScheduleEvent(EVENT_SLIME_PUDDLE, 10000);
@@ -240,6 +241,7 @@ class boss_professor_putricide : public CreatureScript
 
             void JustReachedHome()
             {
+                _JustReachedHome();
                 me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                 if (events.GetPhaseMask() & PHASE_MASK_COMBAT)
                     instance->SetBossState(DATA_PROFESSOR_PUTRICIDE, FAIL);
@@ -253,8 +255,8 @@ class boss_professor_putricide : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
+                _JustDied();
                 Talk(SAY_DEATH);
-                instance->SetBossState(DATA_PROFESSOR_PUTRICIDE, DONE);
             }
 
             void JustSummoned(Creature* summon)
@@ -290,6 +292,7 @@ class boss_professor_putricide : public CreatureScript
                             summon->ClearUnitState(UNIT_STAT_CASTING);
                             summon->GetMotionMaster()->MoveIdle();
                             summon->m_Events.AddEvent(new StartMovementEvent(*summon), summon->m_Events.CalculateTime(3500));
+                            me->SetReactState(REACT_PASSIVE);
                         }
                         return;
                     case NPC_CHOKING_GAS_BOMB:
@@ -703,7 +706,11 @@ class npc_volatile_ooze : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim())
+                // simplified update, we do not want to select new target
+                if (!me->isInCombat())
+                    return;
+
+                if (!me->getVictim())
                     return;
 
                 if (!newTargetSelectTimer)

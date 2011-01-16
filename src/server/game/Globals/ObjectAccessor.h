@@ -40,6 +40,7 @@ class DynamicObject;
 class WorldObject;
 class Vehicle;
 class Map;
+class WorldRunnable;
 
 template <class T>
 class HashMapHolder
@@ -84,6 +85,7 @@ class HashMapHolder
 class ObjectAccessor
 {
     friend class ACE_Singleton<ObjectAccessor, ACE_Thread_Mutex>;
+    friend class WorldRunnable;
     ObjectAccessor();
     ~ObjectAccessor();
     ObjectAccessor(const ObjectAccessor&);
@@ -253,6 +255,9 @@ class ObjectAccessor
         void RemoveOldCorpses();
 
         typedef ACE_Thread_Mutex LockType;
+
+    protected:
+        void UnloadAll();
 
     private:
 
