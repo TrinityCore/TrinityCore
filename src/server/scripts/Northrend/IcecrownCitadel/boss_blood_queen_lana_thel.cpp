@@ -139,7 +139,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
 
             void Reset()
             {
-                events.Reset();
+                _Reset();
                 events.ScheduleEvent(EVENT_BERSERK, 330000);
                 events.ScheduleEvent(EVENT_VAMPIRIC_BITE, 15000);
                 events.ScheduleEvent(EVENT_BLOOD_MIRROR, 2500, EVENT_GROUP_CANCELLABLE);
@@ -151,8 +151,6 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 me->SetSpeed(MOVE_FLIGHT, 0.642857f, true);
                 offtank = NULL;
                 vampires.clear();
-
-                instance->SetBossState(DATA_BLOOD_QUEEN_LANA_THEL, NOT_STARTED);
             }
 
             void EnterCombat(Unit* who)
@@ -164,6 +162,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                     return;
                 }
 
+                me->setActive(true);
                 DoZoneInCombat();
                 Talk(SAY_AGGRO);
                 instance->SetBossState(DATA_BLOOD_QUEEN_LANA_THEL, IN_PROGRESS);
@@ -174,6 +173,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
+                _JustDied();
                 Talk(SAY_DEATH);
                 instance->DoRemoveAurasDueToSpellOnPlayers(ESSENCE_OF_BLOOD_QUEEN);
                 instance->DoRemoveAurasDueToSpellOnPlayers(ESSENCE_OF_BLOOD_QUEEN_PLR);
@@ -184,11 +184,11 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BLOOD_MIRROR_DUMMY);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DELIRIOUS_SLASH);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PACT_OF_THE_DARKFALLEN);
-                instance->SetBossState(DATA_BLOOD_QUEEN_LANA_THEL, DONE);
             }
 
             void JustReachedHome()
             {
+                _JustReachedHome();
                 Talk(SAY_WIPE);
                 instance->SetBossState(DATA_BLOOD_QUEEN_LANA_THEL, FAIL);
             }

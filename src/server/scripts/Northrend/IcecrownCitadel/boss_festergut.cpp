@@ -98,7 +98,7 @@ class boss_festergut : public CreatureScript
 
             void Reset()
             {
-                events.Reset();
+                _Reset();
                 events.ScheduleEvent(EVENT_BERSERK, 300000);
                 events.ScheduleEvent(EVENT_INHALE_BLIGHT, urand(25000, 30000));
                 events.ScheduleEvent(EVENT_GAS_SPORE, urand(20000, 25000));
@@ -111,12 +111,10 @@ class boss_festergut : public CreatureScript
                     gasDummyGUID = gasDummy->GetGUID();
                     for (uint8 i = 0; i < 3; ++i)
                     {
-                        gasDummy->RemoveAurasDueToSpell(gaseousBlight[i]);
+                        me->RemoveAurasDueToSpell(gaseousBlight[i]);
                         gasDummy->RemoveAurasDueToSpell(gaseousBlightVisual[i]);
                     }
                 }
-
-                instance->SetBossState(DATA_FESTERGUT, NOT_STARTED);
             }
 
             void EnterCombat(Unit* who)
@@ -128,19 +126,19 @@ class boss_festergut : public CreatureScript
                     return;
                 }
 
+                me->setActive(true);
                 Talk(SAY_AGGRO);
                 if (Creature* gasDummy = me->FindNearestCreature(NPC_GAS_DUMMY, 100.0f, true))
                     gasDummyGUID = gasDummy->GetGUID();
                 if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
                     professor->AI()->DoAction(ACTION_FESTERGUT_COMBAT);
-
-                DoZoneInCombat(me);
+                DoZoneInCombat();
             }
 
             void JustDied(Unit* /*killer*/)
             {
+                _JustDied();
                 Talk(SAY_DEATH);
-                instance->SetBossState(DATA_FESTERGUT, DONE);
                 if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
                     professor->AI()->DoAction(ACTION_FESTERGUT_DEATH);
 
@@ -149,6 +147,7 @@ class boss_festergut : public CreatureScript
 
             void JustReachedHome()
             {
+                _JustReachedHome();
                 instance->SetBossState(DATA_FESTERGUT, FAIL);
             }
 
