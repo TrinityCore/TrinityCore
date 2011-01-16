@@ -180,9 +180,9 @@ class boss_lady_deathwhisper : public CreatureScript
 
             void Reset()
             {
+                _Reset();
                 me->SetPower(POWER_MANA, me->GetMaxPower(POWER_MANA));
                 me->SetLastManaUse(0xFFFFFFFF); // hacky, but no other way atm to prevent mana regen
-                events.Reset();
                 events.SetPhase(PHASE_ONE);
                 addWaveCounter = 0;
                 nextVengefulShadeTarget = 0;
@@ -191,7 +191,6 @@ class boss_lady_deathwhisper : public CreatureScript
                 me->RemoveAurasDueToSpell(SPELL_MANA_BARRIER);
                 me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, false);
-                instance->SetBossState(DATA_LADY_DEATHWHISPER, NOT_STARTED);
             }
 
             void MoveInLineOfSight(Unit* who)
@@ -230,6 +229,9 @@ class boss_lady_deathwhisper : public CreatureScript
                     return;
                 }
 
+                me->setActive(true);
+                DoZoneInCombat();
+
                 events.Reset();
                 events.SetPhase(PHASE_ONE);
                 // phase-independent events
@@ -253,8 +255,6 @@ class boss_lady_deathwhisper : public CreatureScript
             void JustDied(Unit* killer)
             {
                 Talk(SAY_DEATH);
-
-                instance->SetBossState(DATA_LADY_DEATHWHISPER, DONE);
 
                 std::set<uint32> livingAddEntries;
                 // Full House achievement
@@ -284,11 +284,12 @@ class boss_lady_deathwhisper : public CreatureScript
                     }
                 }
 
-                summons.DespawnAll();
+                _JustDied();
             }
 
             void JustReachedHome()
             {
+                _JustReachedHome();
                 instance->SetBossState(DATA_LADY_DEATHWHISPER, FAIL);
 
                 summons.DespawnAll();
