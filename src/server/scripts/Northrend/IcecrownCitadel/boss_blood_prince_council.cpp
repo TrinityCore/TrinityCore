@@ -1059,7 +1059,7 @@ class npc_ball_of_flame : public CreatureScript
 
         struct npc_ball_of_flameAI : public ScriptedAI
         {
-            npc_ball_of_flameAI(Creature* creature) : ScriptedAI(creature)
+            npc_ball_of_flameAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript())
             {
                 despawnTimer = 0;
             }
@@ -1102,6 +1102,15 @@ class npc_ball_of_flame : public CreatureScript
                     }
             }
 
+            void DamageDealt(Unit* /*target*/, uint32& damage, DamageEffectType damageType)
+            {
+                if (!instance || damageType != SPELL_DIRECT_DAMAGE)
+                    return;
+
+                if (damage > RAID_MODE<uint32>(23000, 25000, 23000, 25000))
+                    instance->SetData(DATA_ORB_WHISPERER_ACHIEVEMENT, uint32(false));
+            }
+
             void UpdateAI(const uint32 diff)
             {
                 if (!despawnTimer)
@@ -1117,6 +1126,7 @@ class npc_ball_of_flame : public CreatureScript
             }
 
         private:
+            InstanceScript* instance;
             uint64 chaseGUID;
             uint32 despawnTimer;
         };
