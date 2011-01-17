@@ -2374,7 +2374,7 @@ bool ChatHandler::HandleChangeWeather(const char *args)
         return false;
     }
 
-    //*Change the weather of a cell
+    // *Change the weather of a cell
     char* px = strtok((char*)args, " ");
     char* py = strtok(NULL, " ");
 

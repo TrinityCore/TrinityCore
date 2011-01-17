@@ -47,21 +47,5 @@ int DatabaseWorker::svc()
         delete request;
     }
 
-    m_conn->Close();
     return 0;
-}
-
-int DatabaseWorker::activate()
-{
-    /* THR_DETACHED:
-    Create an asynchronous thread. The exit status of the thread would not be available to any other threads.
-    The thread resources are reclaimed by the operating system whenever the thread is terminated. */
-
-    /* THR_NEW_LWP:
-    Create an explicit kernel-level thread (as opposed to a user-level thread). */
-
-    ACE_Task_Base::activate(THR_NEW_LWP | THR_DETACHED, 1);
-    return 0;                                          //^ - Spawn one thread to handle this task.
-                                                       // However more of these tasks may be activated
-                                                       // See DatabaseWorkerPool ctor.
 }

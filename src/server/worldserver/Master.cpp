@@ -174,7 +174,7 @@ int Master::Run()
     CoredSignalHandler SignalBREAK;
     #endif /* _WIN32 */
 
-    // Register realmd's signal handlers
+    // Register core's signal handlers
     ACE_Sig_Handler Handler;
     Handler.register_handler(SIGINT, &SignalINT);
     Handler.register_handler(SIGTERM, &SignalTERM);
@@ -290,7 +290,7 @@ int Master::Run()
     }
 
     // set server offline
-    LoginDatabase.PExecute("UPDATE realmlist SET color = color | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realmID);
+    LoginDatabase.DirectPExecute("UPDATE realmlist SET color = color | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, realmID);
 
     // when the main thread closes the singletons get unloaded
     // since worldrunnable uses them, it will crash if unloaded after master
@@ -484,12 +484,12 @@ void Master::clearOnlineAccounts()
 {
     // Cleanup online status for characters hosted at current realm
     /// \todo Only accounts with characters logged on *this* realm should have online status reset. Move the online column from 'account' to 'realmcharacters'?
-    LoginDatabase.PExecute(
+    LoginDatabase.DirectPExecute(
         "UPDATE account SET online = 0 WHERE online > 0 "
         "AND id IN (SELECT acctid FROM realmcharacters WHERE realmid = '%d')",realmID);
 
-    CharacterDatabase.Execute("UPDATE characters SET online = 0 WHERE online<>0");
+    CharacterDatabase.DirectExecute("UPDATE characters SET online = 0 WHERE online<>0");
 
     // Battleground instance ids reset at server restart
-    CharacterDatabase.Execute("UPDATE character_battleground_data SET instance_id = 0");
+    CharacterDatabase.DirectExecute("UPDATE character_battleground_data SET instance_id = 0");
 }
