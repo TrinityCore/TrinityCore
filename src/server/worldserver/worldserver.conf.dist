@@ -2746,6 +2746,13 @@ LevelReq.Mail = 1
 
 DuelResetCooldown = 0
 
+#   PlayersAccessToGMIsland
+#       Prevent access for players to gm island
+#	Default: 0 - Disable
+#		 1 - Enable
+
+PreventPlayersAccessToGMIsland = 0
+
 #
 ###################################################################################################
 
