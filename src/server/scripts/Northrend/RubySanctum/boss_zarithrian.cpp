@@ -1,25 +1,18 @@
-/* Copyright (C) 2010 Easy for Trinity <http://trinity-core.ru/> 
- *
- * Copyright (C) 2008 - 2010 Trinity <http://www.trinitycore.org/>
- *
- * Copyright (C) 2010 Myth Project <http://bitbucket.org/sun/myth-core/>
- *
- * Copyright (C) 2006 - 2010 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
+/* Copyright (C) 2010 Easy for TrinityCore <http://trinity-core.ru/>
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 
 #include "ScriptPCH.h"
 #include "ruby_sanctum.h"
@@ -95,29 +88,6 @@ class boss_zarithrian : public CreatureScript
                 DoScriptText(SAY_AGGRO, me);
             }
 
-            void KilledUnit(Unit* /*victim*/)
-            {
-                DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
-            }
-
-            void JustSummoned(Creature *summon)
-            {
-                summons.Summon(summon);
-            }
-
-            void JustReachedHome()
-            {
-                summons.DespawnAll();
-                instance->SetData(DATA_ZARITHRIAN, FAIL);
-            }
-
-            void JustDied(Unit*)
-            {
-                _JustDied();
-                instance->SetBossState(DATA_ZARITHRIAN, DONE);
-                DoScriptText(SAY_DEATH, me);
-            }
-
             void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim() || !CheckInRoom())
@@ -157,6 +127,27 @@ class boss_zarithrian : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
+            void KilledUnit(Unit* /*victim*/)
+            {
+                DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
+            }
+
+            void JustSummoned(Creature *summon)
+            {
+                summons.Summon(summon);
+            }
+
+            void JustReachedHome()
+            {
+                summons.DespawnAll();
+                instance->SetData(DATA_ZARITHRIAN, FAIL);
+            }
+
+            void JustDied(Unit*)
+            {
+                _JustDied();
+                DoScriptText(SAY_DEATH, me);
+            }
         };
 
         CreatureAI* GetAI(Creature *pCreature) const
@@ -225,6 +216,6 @@ class npc_onyx_flamecaller : public CreatureScript
 
 void AddSC_boss_zarithrian()
 {
-    new boss_zarithrian();
-    new npc_onyx_flamecaller();
+    new boss_zarithrian;
+    new npc_onyx_flamecaller;
 }

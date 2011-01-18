@@ -1,25 +1,18 @@
-/* Copyright (C) 2010 Easy for Trinity <http://trinity-core.ru/> 
- *
- * Copyright (C) 2008 - 2010 Trinity <http://www.trinitycore.org/>
- *
- * Copyright (C) 2010 Myth Project <http://bitbucket.org/sun/myth-core/>
- *
- * Copyright (C) 2006 - 2010 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
+/* Copyright (C) 2010 Easy for TrinityCore <http://trinity-core.ru/>
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 
 #include "ScriptPCH.h"
 #include "ruby_sanctum.h"
@@ -42,7 +35,7 @@ enum eSpells
 {
     SPELL_FIRE_PILLAR               = 76006,
     SPELL_FIERY_EXPLOSION           = 76010,
-    // All
+    //All
     SPELL_TWILIGHT_PRECISION        = 78243,
     SPELL_CLEAVE                    = 74524,
     SPELL_TAIL_LASH                 = 74531,
@@ -55,14 +48,14 @@ enum eSpells
     SPELL_METEOR_DAMAGE             = 74648,
     SPELL_METEOR_FLAME              = 74713,
 
-    // Halion
+    //halion
     SPELL_FLAME_BREATH_10_NORMAL    = 74525,
     SPELL_FLAME_BREATH_25_NORMAL    = 74526,
     SPELL_FLAME_BREATH_10_HEROIC    = 74527,
     SPELL_FLAME_BREATH_25_HEROIC    = 74528,
     SPELL_FIERY_COMBUSTION          = 74562,
 
-    // Twilight Halion
+    //twilight halion
     SPELL_DUSK_SHROUD               = 75476,
     SPELL_SOUL_CONSUMPTION          = 74792,
     SPELL_DARK_BREATH_10_NORMAL     = 74806,
@@ -146,21 +139,9 @@ class boss_halion : public CreatureScript
             void Reset()
             {
                 if (instance->GetData(DATA_TWILIGHT_HALION)==IN_PROGRESS || instance->GetBossState(DATA_HALION)==IN_PROGRESS)
-                    return;
-
-              /*  if (instance->GetBossState(DATA_ZARITHRIAN)!=DONE || instance->GetBossState(DATA_RAGEFIRE)!=DONE || instance->GetBossState(DATA_BALTHARUS)!=DONE)
                 {
-                    me->SetVisible(false);
-                    me->SetReactState(REACT_PASSIVE);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    return;
                 }
-                else 
-				{
-                    me->SetVisible(true);
-                    me->SetReactState(REACT_AGGRESSIVE);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-				}*/
-
                 instance->SetBossState(DATA_HALION, NOT_STARTED);
                 events.Reset();
                 events.SetPhase(PHASE_1);
@@ -175,21 +156,27 @@ class boss_halion : public CreatureScript
                 HalionDamage = 0;
                 HalionAura = 0;
                 RemoveAllGO();
+                summons.DespawnEntry(40142);
             }
 
             void RemoveAllGO()
             {
-                if (GameObject* flame1 = GetClosestGameObjectWithEntry(me, GO_FLAME_WALLS2, 100.0f))
-                    flame1->RemoveFromWorld();
-
-                if (GameObject* flame2 = GetClosestGameObjectWithEntry(me, GO_FLAME_WALLS3, 100.0f))
-                    flame2->RemoveFromWorld();
-
-                if (GameObject* portal1 = GetClosestGameObjectWithEntry(me, GO_TWILIGHT_PORTAL1, 100.0f))
-                    portal1->RemoveFromWorld();
-
-                if (GameObject* portal2 = GetClosestGameObjectWithEntry(me, GO_TWILIGHT_PORTAL2, 100.0f))
-                    portal2->RemoveFromWorld();
+                if (GameObject* flame1 = instance->instance->GetGameObject(instance->GetData64(GO_FLAME_WALLS2)))
+                {
+                    flame1->Delete();
+                }
+                if (GameObject* flame2 = instance->instance->GetGameObject(instance->GetData64(GO_FLAME_WALLS3)))
+                {
+                    flame2->Delete();
+                }
+                if (GameObject* portal1 = instance->instance->GetGameObject(instance->GetData64(GO_TWILIGHT_PORTAL1)))
+                {
+                    portal1->Delete();
+                }
+                if (GameObject* portal2 = instance->instance->GetGameObject(instance->GetData64(GO_TWILIGHT_PORTAL2)))
+                {
+                    portal2->Delete();
+                }
             }
 
             void MeteorStrike()
@@ -214,6 +201,90 @@ class boss_halion : public CreatureScript
                 
                 events.ScheduleEvent(EVENT_FLAME_WALL, 3000,0,PHASE_1);
                 DoScriptText(SAY_AGGRO, me);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim() || !CheckInRoom())
+                    return;
+
+                if (events.GetPhaseMask() & PHASE_3_MASK)
+                {
+                    if (instance->GetData(DATA_DAMAGE) > 0)
+                        me->SetHealth(instance->GetData(DATA_DAMAGE));
+                    else
+                        if (instance->GetData(DATA_TWILIGHT_HALION)==IN_PROGRESS)
+                            me->SetHealth(1);
+                }
+
+                if (me->HasUnitState(UNIT_STAT_CASTING))
+                    return;
+
+                events.Update(diff);
+
+                if ((events.GetPhaseMask() & PHASE_1_MASK) || (events.GetPhaseMask() & PHASE_3_MASK))
+                {
+                    while (uint32 eventId = events.ExecuteEvent())
+                    {
+                        switch (eventId)
+                        {
+                            case EVENT_CAST_TWILIGHT_PRECISION:
+                                DoCast(me, SPELL_TWILIGHT_PRECISION); // not working
+                                me->AddAura(SPELL_TWILIGHT_PRECISION, me); //test
+                                break;
+                            case EVENT_FLAME_WALL:
+                                if (GameObject* go_flame1 = me->SummonGameObject(GO_FLAME_WALLS2, 3154.56f, 535.418f, 72.8889f, 4.47206f, 0, 0, 0.786772f, -0.617243f, 999999))
+                                {
+                                    go_flame1->SetPhaseMask(1,true);
+                                }
+                                if (GameObject* go_flame2 = me->SummonGameObject(GO_FLAME_WALLS3, 3154.56f, 535.418f, 72.8889f, 4.47206f, 0, 0, 0.786772f, -0.617243f, 999999))
+                                {
+                                    go_flame2->SetPhaseMask(32,true);
+                                }
+                                break;
+                            case EVENT_CAST_TAIL_LASH:
+                                DoCast(SPELL_TAIL_LASH);
+                                events.ScheduleEvent(EVENT_CAST_TAIL_LASH, urand(10000,15000));
+                                break;
+                            case EVENT_CAST_CLEAVE:
+                                DoCast(SPELL_CLEAVE);
+                                events.ScheduleEvent(EVENT_CAST_CLEAVE, 15000);
+                                break;
+                            case EVENT_METEOR_STRIKE:
+                                MeteorStrike();
+                                events.ScheduleEvent(EVENT_METEOR_STRIKE, 20000);
+                                break;
+                            case EVENT_CAST_FLAME_BREATH:
+                                DoCast(RAID_MODE(SPELL_FLAME_BREATH_10_NORMAL, SPELL_FLAME_BREATH_25_NORMAL, SPELL_FLAME_BREATH_10_HEROIC, SPELL_FLAME_BREATH_25_HEROIC));
+                                events.ScheduleEvent(EVENT_CAST_FLAME_BREATH, urand(20000,25000));break;
+                            case EVENT_DPS:
+                                CastCorporeality();
+                                events.ScheduleEvent(EVENT_DPS, 5000,0,PHASE_3);
+                                break;
+                            case EVENT_CAST_FIERY_COMBUSTION:
+                                Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+                                if (pTarget && !pTarget->HasAura(SPELL_FIERY_COMBUSTION))
+                                    DoCast(pTarget, SPELL_FIERY_COMBUSTION);
+                                events.ScheduleEvent(EVENT_CAST_FIERY_COMBUSTION, 15000);
+                                break;
+                        }
+                    }
+                }
+
+                if ((events.GetPhaseMask() & PHASE_1_MASK) && me->HealthBelowPct(75))
+                {
+                    events.SetPhase(PHASE_2);
+                    instance->SetBossState(DATA_HALION, SPECIAL);
+                    DoScriptText(SAY_PHASE2, me);
+                    me->SetReactState(REACT_PASSIVE);
+                    me->AttackStop();
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    DoCast(me, SPELL_SUMMON_TWILIGHT_PORTAL);
+                    DoCast(me, SPELL_TWILIGHT_DIVISION);
+                    me->SummonCreature(NPC_TWILIGHT_HALION,SpawnPosHalion);
+                    me->SetVisible(false);
+                }
+                DoMeleeAttackIfReady();
             }
 
             void CastCorporeality()
@@ -328,8 +399,11 @@ class boss_halion : public CreatureScript
 
             void JustReachedHome()
             {
+                if (instance->GetBossState(DATA_HALION)!=SPECIAL)
+                {
                     instance->SetBossState(DATA_HALION,FAIL);
                     RemoveAllGO();
+                }
             }
 
             void JustDied(Unit*)
@@ -349,90 +423,6 @@ class boss_halion : public CreatureScript
                     case RAID_DIFFICULTY_25MAN_HEROIC:
                         instance->DoCompleteAchievement(TWILIGHT_DESTROYER_HEROIC_25);
                 }
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                if (!UpdateVictim() || !CheckInRoom())
-                    return;
-
-                if (events.GetPhaseMask() & PHASE_3_MASK)
-                {
-                    if (instance->GetData(DATA_DAMAGE) > 0)
-                        me->SetHealth(instance->GetData(DATA_DAMAGE));
-                    else
-                        if (instance->GetData(DATA_TWILIGHT_HALION)==IN_PROGRESS)
-                            me->SetHealth(1);
-                }
-
-                if (me->HasUnitState(UNIT_STAT_CASTING))
-                    return;
-
-                events.Update(diff);
-
-                if ((events.GetPhaseMask() & PHASE_1_MASK) || (events.GetPhaseMask() & PHASE_3_MASK))
-                {
-                    while (uint32 eventId = events.ExecuteEvent())
-                    {
-                        switch (eventId)
-                        {
-                            case EVENT_CAST_TWILIGHT_PRECISION:
-                                DoCast(me, SPELL_TWILIGHT_PRECISION); // not working
-                                me->AddAura(SPELL_TWILIGHT_PRECISION, me); //test
-                                break;
-                            case EVENT_FLAME_WALL:
-                                if (GameObject* go_flame1 = me->SummonGameObject(GO_FLAME_WALLS2, 3154.56f, 535.418f, 72.8889f, 4.47206f, 0, 0, 0.786772f, -0.617243f, 999999))
-                                {
-                                    go_flame1->SetPhaseMask(1,true);
-                                }
-                                if (GameObject* go_flame2 = me->SummonGameObject(GO_FLAME_WALLS3, 3154.56f, 535.418f, 72.8889f, 4.47206f, 0, 0, 0.786772f, -0.617243f, 999999))
-                                {
-                                    go_flame2->SetPhaseMask(32,true);
-                                }
-                                break;
-                            case EVENT_CAST_TAIL_LASH:
-                                DoCast(SPELL_TAIL_LASH);
-                                events.ScheduleEvent(EVENT_CAST_TAIL_LASH, urand(10000,15000));
-                                break;
-                            case EVENT_CAST_CLEAVE:
-                                DoCast(SPELL_CLEAVE);
-                                events.ScheduleEvent(EVENT_CAST_CLEAVE, 15000);
-                                break;
-                            case EVENT_METEOR_STRIKE:
-                                MeteorStrike();
-                                events.ScheduleEvent(EVENT_METEOR_STRIKE, 20000);
-                                break;
-                            case EVENT_CAST_FLAME_BREATH:
-                                DoCast(RAID_MODE(SPELL_FLAME_BREATH_10_NORMAL, SPELL_FLAME_BREATH_25_NORMAL, SPELL_FLAME_BREATH_10_HEROIC, SPELL_FLAME_BREATH_25_HEROIC));
-                                events.ScheduleEvent(EVENT_CAST_FLAME_BREATH, urand(20000,25000));break;
-                            case EVENT_DPS:
-                                CastCorporeality();
-                                events.ScheduleEvent(EVENT_DPS, 5000,0,PHASE_3);
-                                break;
-                            case EVENT_CAST_FIERY_COMBUSTION:
-                                Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-                                if (pTarget && !pTarget->HasAura(SPELL_FIERY_COMBUSTION))
-                                    DoCast(pTarget, SPELL_FIERY_COMBUSTION);
-                                events.ScheduleEvent(EVENT_CAST_FIERY_COMBUSTION, 15000);
-                                break;
-                        }
-                    }
-                }
-
-                /*if ((events.GetPhaseMask() & PHASE_1_MASK) && me->HealthBelowPct(75))
-                {
-                    events.SetPhase(PHASE_2);
-                    instance->SetBossState(DATA_HALION, SPECIAL);
-                    DoScriptText(SAY_PHASE2, me);
-                    me->SetReactState(REACT_PASSIVE);
-                    me->AttackStop();
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    DoCast(me, SPELL_SUMMON_TWILIGHT_PORTAL);
-                    DoCast(me, SPELL_TWILIGHT_DIVISION);
-                    me->SummonCreature(NPC_TWILIGHT_HALION,SpawnPosHalion);
-                    me->SetVisible(false);
-                }*/
-                DoMeleeAttackIfReady();
             }
 
         private:
@@ -630,7 +620,7 @@ class npc_meteor_strike : public CreatureScript
 
         struct npc_meteor_strikeAI : public ScriptedAI
         {
-            npc_meteor_strikeAI(Creature *pCreature) : ScriptedAI(pCreature){ }
+            npc_meteor_strikeAI(Creature *pCreature) : ScriptedAI(pCreature){}
 
             void Reset()
             {
@@ -701,7 +691,7 @@ class npc_spell_meteor_strike : public CreatureScript
 
         struct npc_spell_meteor_strikeAI : public ScriptedAI
         {
-            npc_spell_meteor_strikeAI(Creature *pCreature) : ScriptedAI(pCreature){ }
+            npc_spell_meteor_strikeAI(Creature *pCreature) : ScriptedAI(pCreature){}
 
             void Reset()
             {
@@ -726,7 +716,7 @@ class npc_meteor_flame : public CreatureScript
 
         struct npc_meteor_flameAI : public ScriptedAI
         {
-            npc_meteor_flameAI(Creature *pCreature) : ScriptedAI(pCreature){ }
+            npc_meteor_flameAI(Creature *pCreature) : ScriptedAI(pCreature){}
 
             void Reset()
             {
@@ -752,7 +742,7 @@ class npc_summon_halion : public CreatureScript
 
         struct npc_summon_halionAI : public ScriptedAI
         {
-            npc_summon_halionAI(Creature *pCreature) : ScriptedAI(pCreature){ }
+            npc_summon_halionAI(Creature *pCreature) : ScriptedAI(pCreature){}
 
             void Reset()
             {
@@ -797,11 +787,11 @@ class npc_summon_halion : public CreatureScript
 
 void AddSC_boss_halion()
 {
-    new boss_halion();
-    new boss_twilight_halion();
-    new spell_halion_portal();
-    new npc_meteor_strike();
-    new npc_spell_meteor_strike();
-    new npc_meteor_flame();
-    new npc_summon_halion();
+    new boss_halion;
+    new boss_twilight_halion;
+    new spell_halion_portal;
+    new npc_meteor_strike;
+    new npc_spell_meteor_strike;
+    new npc_meteor_flame;
+    new npc_summon_halion;
 }
