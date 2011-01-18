@@ -126,7 +126,7 @@ enum eCreature
     NPC_METEOR_STRIKE    = 40041,//40029
     NPC_METEOR_FLAME     = 40042,
     NPC_SUMMON_HALIOH    = 40044,
-    //возгорание         = 40001
+    //vozgoranie         = 40001
 };
 
 enum eGameObject
