@@ -1283,9 +1283,9 @@ DROP TABLE IF EXISTS `game_event_save`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `game_event_save` (
-  `event_id` mediumint(8) unsigned NOT NULL,
+  `event_id` smallint(5) unsigned NOT NULL,
   `state` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `next_start` bigint(11) unsigned NOT NULL DEFAULT '0',
+  `next_start` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`event_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1308,8 +1308,8 @@ DROP TABLE IF EXISTS `gameobject_respawn`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `gameobject_respawn` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
-  `respawntime` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `instance` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `respawntime` int(10) unsigned NOT NULL DEFAULT '0',
+  `instance` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`instance`),
   KEY `instance` (`instance`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Grid Loading System';
@@ -1332,10 +1332,10 @@ DROP TABLE IF EXISTS `gm_subsurveys`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `gm_subsurveys` (
-  `surveyid` int(10) NOT NULL AUTO_INCREMENT,
-  `subsurveyid` int(11) unsigned NOT NULL DEFAULT '0',
-  `rank` int(11) unsigned NOT NULL DEFAULT '0',
-  `comment` longtext NOT NULL,
+  `surveyid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `subsurveyid` int(10) unsigned NOT NULL DEFAULT '0',
+  `rank` int(10) unsigned NOT NULL DEFAULT '0',
+  `comment` text NOT NULL,
   PRIMARY KEY (`surveyid`,`subsurveyid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1357,11 +1357,11 @@ DROP TABLE IF EXISTS `gm_surveys`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `gm_surveys` (
-  `surveyid` int(10) NOT NULL AUTO_INCREMENT,
-  `player` int(11) unsigned NOT NULL DEFAULT '0',
-  `mainSurvey` int(11) unsigned NOT NULL DEFAULT '0',
+  `surveyid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `player` int(10) unsigned NOT NULL DEFAULT '0',
+  `mainSurvey` int(10) unsigned NOT NULL DEFAULT '0',
   `overall_comment` longtext NOT NULL,
-  `timestamp` int(11) NOT NULL DEFAULT '0',
+  `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`surveyid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1383,22 +1383,22 @@ DROP TABLE IF EXISTS `gm_tickets`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `gm_tickets` (
-  `guid` int(10) NOT NULL AUTO_INCREMENT,
-  `playerGuid` int(11) unsigned NOT NULL DEFAULT '0',
-  `name` varchar(15) NOT NULL,
+  `guid` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `playerGuid` int(10) unsigned NOT NULL DEFAULT '0',
+  `name` varchar(12) NOT NULL,
   `message` text NOT NULL,
-  `createtime` int(10) NOT NULL DEFAULT '0',
-  `map` int(11) NOT NULL DEFAULT '0',
+  `createtime` int(10) unsigned NOT NULL DEFAULT '0',
+  `map` smallint(5) unsigned NOT NULL DEFAULT '0',
   `posX` float NOT NULL DEFAULT '0',
   `posY` float NOT NULL DEFAULT '0',
   `posZ` float NOT NULL DEFAULT '0',
-  `timestamp` int(10) NOT NULL DEFAULT '0',
-  `closed` int(10) NOT NULL DEFAULT '0',
-  `assignedto` int(10) NOT NULL DEFAULT '0',
+  `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
+  `closed` int(11) NOT NULL DEFAULT '0',
+  `assignedto` int(10) unsigned NOT NULL DEFAULT '0',
   `comment` text NOT NULL,
-  `completed` int(11) NOT NULL DEFAULT '0',
-  `escalated` int(11) NOT NULL DEFAULT '0',
-  `viewed` int(11) NOT NULL DEFAULT '0',
+  `completed` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `escalated` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `viewed` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1420,9 +1420,9 @@ DROP TABLE IF EXISTS `group_instance`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `group_instance` (
-  `guid` int(11) unsigned NOT NULL DEFAULT '0',
-  `instance` int(11) unsigned NOT NULL DEFAULT '0',
-  `permanent` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `guid` int(10) unsigned NOT NULL DEFAULT '0',
+  `instance` int(10) unsigned NOT NULL DEFAULT '0',
+  `permanent` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`instance`),
   KEY `instance` (`instance`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -1445,13 +1445,13 @@ DROP TABLE IF EXISTS `group_member`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `group_member` (
-  `guid` int(11) unsigned NOT NULL,
-  `memberGuid` int(11) unsigned NOT NULL DEFAULT '0',
+  `guid` int(10) unsigned NOT NULL,
+  `memberGuid` int(10) unsigned NOT NULL,
   `memberFlags` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `subgroup` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `roles` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`memberGuid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Groups';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Groups';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1471,25 +1471,25 @@ DROP TABLE IF EXISTS `groups`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `groups` (
-  `guid` int(11) unsigned NOT NULL,
-  `leaderGuid` int(11) unsigned NOT NULL,
-  `lootMethod` tinyint(4) unsigned NOT NULL,
-  `looterGuid` int(11) unsigned NOT NULL,
-  `lootThreshold` tinyint(4) unsigned NOT NULL,
-  `icon1` int(11) unsigned NOT NULL,
-  `icon2` int(11) unsigned NOT NULL,
-  `icon3` int(11) unsigned NOT NULL,
-  `icon4` int(11) unsigned NOT NULL,
-  `icon5` int(11) unsigned NOT NULL,
-  `icon6` int(11) unsigned NOT NULL,
-  `icon7` int(11) unsigned NOT NULL,
-  `icon8` int(11) unsigned NOT NULL,
-  `groupType` mediumint(8) unsigned NOT NULL,
+  `guid` int(10) unsigned NOT NULL,
+  `leaderGuid` int(10) unsigned NOT NULL,
+  `lootMethod` tinyint(3) unsigned NOT NULL,
+  `looterGuid` int(10) unsigned NOT NULL,
+  `lootThreshold` tinyint(3) unsigned NOT NULL,
+  `icon1` int(10) unsigned NOT NULL,
+  `icon2` int(10) unsigned NOT NULL,
+  `icon3` int(10) unsigned NOT NULL,
+  `icon4` int(10) unsigned NOT NULL,
+  `icon5` int(10) unsigned NOT NULL,
+  `icon6` int(10) unsigned NOT NULL,
+  `icon7` int(10) unsigned NOT NULL,
+  `icon8` int(10) unsigned NOT NULL,
+  `groupType` tinyint(3) unsigned NOT NULL,
   `difficulty` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `raiddifficulty` int(11) unsigned NOT NULL DEFAULT '0',
+  `raiddifficulty` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`),
   KEY `leaderGuid` (`leaderGuid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Groups';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Groups';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1509,18 +1509,18 @@ DROP TABLE IF EXISTS `guild`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `guild` (
-  `guildid` int(6) unsigned NOT NULL DEFAULT '0',
-  `name` varchar(255) NOT NULL DEFAULT '',
-  `leaderguid` int(6) unsigned NOT NULL DEFAULT '0',
-  `EmblemStyle` int(5) NOT NULL DEFAULT '0',
-  `EmblemColor` int(5) NOT NULL DEFAULT '0',
-  `BorderStyle` int(5) NOT NULL DEFAULT '0',
-  `BorderColor` int(5) NOT NULL DEFAULT '0',
-  `BackgroundColor` int(5) NOT NULL DEFAULT '0',
+  `guildid` int(10) unsigned NOT NULL DEFAULT '0',
+  `name` varchar(24) NOT NULL DEFAULT '',
+  `leaderguid` int(10) unsigned NOT NULL DEFAULT '0',
+  `EmblemStyle` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `EmblemColor` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `BorderStyle` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `BorderColor` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `BackgroundColor` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `info` text NOT NULL,
-  `motd` varchar(255) NOT NULL DEFAULT '',
-  `createdate` bigint(20) NOT NULL DEFAULT '0',
-  `BankMoney` bigint(20) NOT NULL DEFAULT '0',
+  `motd` varchar(128) NOT NULL DEFAULT '',
+  `createdate` int(10) unsigned NOT NULL DEFAULT '0',
+  `BankMoney` bigint(20) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guildid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Guild System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1542,15 +1542,15 @@ DROP TABLE IF EXISTS `guild_bank_eventlog`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `guild_bank_eventlog` (
-  `guildid` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Guild Identificator',
-  `LogGuid` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Log record identificator - auxiliary column',
+  `guildid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Guild Identificator',
+  `LogGuid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Log record identificator - auxiliary column',
   `TabId` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT 'Guild bank TabId',
   `EventType` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT 'Event type',
-  `PlayerGuid` int(11) unsigned NOT NULL DEFAULT '0',
-  `ItemOrMoney` int(11) unsigned NOT NULL DEFAULT '0',
-  `ItemStackCount` smallint(4) unsigned NOT NULL DEFAULT '0',
-  `DestTabId` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT 'Destination Tab Id',
-  `TimeStamp` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'Event UNIX time',
+  `PlayerGuid` int(10) unsigned NOT NULL DEFAULT '0',
+  `ItemOrMoney` int(10) unsigned NOT NULL DEFAULT '0',
+  `ItemStackCount` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `DestTabId` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT 'Destination Tab Id',
+  `TimeStamp` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Event UNIX time',
   PRIMARY KEY (`guildid`,`LogGuid`,`TabId`),
   KEY `guildid_key` (`guildid`),
   KEY `Idx_PlayerGuid` (`PlayerGuid`),
@@ -2192,4 +2192,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2011-01-19 22:45:57
+-- Dump completed on 2011-01-20  0:05:54
