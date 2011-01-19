@@ -604,7 +604,7 @@ void WorldSession::LoadAccountData(PreparedQueryResult result, uint32 mask)
     do
     {
         Field *fields = result->Fetch();
-        uint32 type = fields[0].GetUInt32();
+        uint32 type = fields[0].GetUInt8();
         if (type >= NUM_ACCOUNT_DATA_TYPES)
         {
             sLog->outError("Table `%s` have invalid account data type (%u), ignore.", mask == GLOBAL_CACHE_MASK ? "account_data" : "character_account_data", type);
@@ -617,7 +617,7 @@ void WorldSession::LoadAccountData(PreparedQueryResult result, uint32 mask)
             continue;
         }
 
-        m_accountData[type].Time = fields[1].GetUInt32();
+        m_accountData[type].Time = time_t(fields[1].GetUInt32());
         m_accountData[type].Data = fields[2].GetString();
     }
     while (result->NextRow());
