@@ -434,6 +434,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "setskill",       SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleSetSkillCommand>,            "", NULL },
         { "whispers",       SEC_MODERATOR,      false, OldHandler<&ChatHandler::HandleWhispersCommand>,            "", NULL },
         { "pinfo",          SEC_GAMEMASTER,     true,  OldHandler<&ChatHandler::HandlePInfoCommand>,               "", NULL },
+        { "partyinfo",      SEC_GAMEMASTER,     false, OldHandler<&ChatHandler::HandlePartyInfoCommand>,           "", NULL },
         { "respawn",        SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleRespawnCommand>,             "", NULL },
         { "send",           SEC_MODERATOR,      true,  NULL,                                           "", sendCommandTable     },
         { "mute",           SEC_MODERATOR,      true,  OldHandler<&ChatHandler::HandleMuteCommand>,                "", NULL },

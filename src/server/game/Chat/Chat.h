@@ -279,6 +279,7 @@ class ChatHandler
         bool HandleFreezeCommand(const char *args);
         bool HandleUnFreezeCommand(const char *args);
         bool HandleListFreezeCommand(const char* args);
+        bool HandlePartyInfoCommand(const char* args);
 
         bool HandleCooldownCommand(const char* args);
         bool HandleUnLearnCommand(const char* args);

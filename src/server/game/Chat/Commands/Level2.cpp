@@ -43,6 +43,7 @@
 #include "Transport.h"
 #include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand
 #include "CreatureGroups.h"
+#include "Group.h"
 
 //mute player for some times
 bool ChatHandler::HandleMuteCommand(const char* args)
@@ -302,38 +303,37 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
 		}
 		else
 		{
-        Field *fields = result->Fetch();
-        total_player_time = fields[0].GetUInt32();
-        level = fields[1].GetUInt32();
-        money = fields[2].GetUInt32();
-        accId = fields[3].GetUInt32();
-        race = fields[4].GetUInt8();
-        Class = fields[5].GetUInt8();
-    }
+            Field *fields = result->Fetch();
+            total_player_time = fields[0].GetUInt32();
+            level = fields[1].GetUInt32();
+            money = fields[2].GetUInt32();
+            accId = fields[3].GetUInt32();
+            race = fields[4].GetUInt8();
+            Class = fields[5].GetUInt8();
+        }
 
 		QueryResult row = CharacterDatabase.PQuery("SELECT * FROM `jail` WHERE `guid`='%u' LIMIT 1", GUID_LOPART(target_guid));
-	    
-                if (!row)
-                {
-                    p_jail_isjailed = false;
-                }
-                else
-                {
 
-                    Field *data = row->Fetch();
-                    p_jail_isjailed = true;
-                    p_jail_guid = data[0].GetUInt32();
-                    p_jail_char = data[1].GetString();
-                    p_jail_release = data[2].GetUInt32();
-                    p_jail_amnestietime = data[3].GetUInt32();
-                    p_jail_reason = data[4].GetString();
-                    p_jail_times = data[5].GetUInt32();
-                    p_jail_gmacc = data[6].GetUInt32();
-                    p_jail_gmchar = data[7].GetString();
-                    p_jail_lasttime = data[8].GetString();
-                    p_jail_duration = data[9].GetUInt32();
-                    gmname = "";
-                }
+        if (!row)
+        {
+            p_jail_isjailed = false;
+        }
+        else
+        {
+            Field *data = row->Fetch();
+            p_jail_isjailed = true;
+            p_jail_guid = data[0].GetUInt32();
+            p_jail_char = data[1].GetString();
+            p_jail_release = data[2].GetUInt32();
+            p_jail_amnestietime = data[3].GetUInt32();
+            p_jail_reason = data[4].GetString();
+            p_jail_times = data[5].GetUInt32();
+            p_jail_gmacc = data[6].GetUInt32();
+            p_jail_gmchar = data[7].GetString();
+            p_jail_lasttime = data[8].GetString();
+            p_jail_duration = data[9].GetUInt32();
+            gmname = "";
+        }
     }
 
     std::string username = GetTrinityString(LANG_ERROR);
@@ -408,38 +408,38 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     PSendSysMessage(LANG_PINFO_LEVEL, race_s.c_str(), Class_s.c_str(), timeStr.c_str(), level, gold, silv, copp);
 
 	if (p_jail_times > 0)
+    {
+        if(p_jail_release > 0)
         {
-            if(p_jail_release > 0)
-            {
-                time_t localtime;
-                localtime = time(NULL);
-                uint32 min_left = (uint32)floor(float(p_jail_release - localtime) / 60);
+            time_t localtime;
+            localtime = time(NULL);
+            uint32 min_left = (uint32)floor(float(p_jail_release - localtime) / 60);
 
-                if (min_left <= 0)
-                {
-                    p_jail_release = 0;
-                    CharacterDatabase.PExecute("UPDATE `jail` SET `release`='%u' WHERE `guid`='%u' LIMIT 1", p_jail_release, p_jail_guid);
-                    PSendSysMessage(LANG_JAIL_GM_INFO, p_jail_char.c_str(), p_jail_times, 0, p_jail_gmchar.c_str(), p_jail_reason.c_str());
-                    return true;
-                }
-                else
-                {
-                    PSendSysMessage(LANG_JAIL_GM_INFO, p_jail_char.c_str(), p_jail_times, min_left, p_jail_gmchar.c_str(), p_jail_reason.c_str());
-                    return true;
-                }
+            if (min_left <= 0)
+            {
+                p_jail_release = 0;
+                CharacterDatabase.PExecute("UPDATE `jail` SET `release`='%u' WHERE `guid`='%u' LIMIT 1", p_jail_release, p_jail_guid);
+                PSendSysMessage(LANG_JAIL_GM_INFO, p_jail_char.c_str(), p_jail_times, 0, p_jail_gmchar.c_str(), p_jail_reason.c_str());
+                return true;
             }
             else
             {
-                PSendSysMessage(LANG_JAIL_GM_INFO, p_jail_char.c_str(), p_jail_times, 0, p_jail_gmchar.c_str(), p_jail_reason.c_str());
+                PSendSysMessage(LANG_JAIL_GM_INFO, p_jail_char.c_str(), p_jail_times, min_left, p_jail_gmchar.c_str(), p_jail_reason.c_str());
                 return true;
             }
         }
         else
         {
-            PSendSysMessage(LANG_JAIL_GM_NOINFO, gmname.c_str());
+            PSendSysMessage(LANG_JAIL_GM_INFO, p_jail_char.c_str(), p_jail_times, 0, p_jail_gmchar.c_str(), p_jail_reason.c_str());
             return true;
         }
-        
+    }
+    else
+    {
+        PSendSysMessage(LANG_JAIL_GM_NOINFO, gmname.c_str());
+        return true;
+    }
+
     return true;
 }
 
@@ -1268,5 +1268,80 @@ bool ChatHandler::HandleCharacterTitlesCommand(const char* args)
                 PSendSysMessage(LANG_TITLE_LIST_CONSOLE,id,titleInfo->bit_index,name.c_str(),localeNames[loc],knownStr,activeStr);
         }
     }
+    return true;
+}
+
+bool ChatHandler::HandlePartyInfoCommand(const char* args)
+{
+    Player* target;
+    uint64 target_guid;
+    std::string target_name;
+    if (!extractPlayerTarget((char*)args,&target,&target_guid,&target_name))
+        return false;
+
+    uint32 accId = 0;
+    std::string username = "";
+    std::string status = "";
+    uint32 security = 0;
+
+    // get additional information from Player object
+    if (target)
+    {
+        std::string nameLink = playerLink(target_name);
+        if (Group *grp = target->GetGroup())
+        {
+            if (grp->isRaidGroup())
+                SendSysMessage("----------------Raid Group----------------");
+            else if (grp->isBGGroup())
+                SendSysMessage("----------------BG Group-----------------");
+            else if (grp->isLFGGroup())
+                SendSysMessage("----------------LFG Group----------------");
+            else
+                SendSysMessage("------------------Group------------------");
+
+            for (GroupReference *itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
+            {
+                Player *pl = itr->getSource();
+
+                if (!pl || pl == m_session->GetPlayer() || !pl->GetSession())
+                    continue;
+
+                accId = pl->GetSession()->GetAccountId();
+                nameLink = playerLink(pl->GetName());
+
+                QueryResult result = LoginDatabase.PQuery("SELECT aa.gmlevel, a.username "
+                                                            "FROM account a "
+                                                            "LEFT JOIN account_access aa "
+                                                            "ON (a.id = aa.id) "
+                                                            "WHERE a.id = '%u'",accId);
+                if (result)
+                {
+                    Field* fields = result->Fetch();
+                    security = fields[0].GetUInt32();
+                    username = fields[1].GetString();
+                }
+
+                if (grp->IsLeader(pl->GetGUID()))
+                {
+                    status = "[Leader]";
+                }
+                else if (grp->IsAssistant(pl->GetGUID()))
+                {
+                    status = "[Assistant]";
+                }
+
+                PSendSysMessage(LANG_PARTYINFO_PLAYER, (pl?"":GetTrinityString(LANG_OFFLINE)), nameLink.c_str(), username.c_str(), accId, security, status.c_str());
+            }
+            SendSysMessage("----------------------------------------");
+        }
+        else
+        {
+            PSendSysMessage(LANG_NOT_IN_GROUP,nameLink.c_str());
+            SetSentErrorMessage(true);
+            return false;
+        }
+
+    }
+
     return true;
 }
