@@ -2102,7 +2102,7 @@ bool Guild::AddMember(const uint64& guid, uint8 rankId)
                 fields[0].GetString(),
                 fields[1].GetUInt8(),
                 fields[2].GetUInt8(),
-                fields[3].GetUInt32(),
+                fields[3].GetUInt16(),
                 fields[4].GetUInt32());
 
             ok = pMember->CheckStats();
