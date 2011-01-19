@@ -198,7 +198,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
 
     SetDisplayId(fields[3].GetUInt32());
     SetNativeDisplayId(fields[3].GetUInt32());
-    uint32 petlevel = fields[4].GetUInt32();
+    uint32 petlevel = fields[4].GetUInt16();
     SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
     SetName(fields[8].GetString());
 
@@ -258,7 +258,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     // 0=current
     // 1..MAX_PET_STABLES in stable slot
     // PET_SAVE_NOT_IN_SLOT(100) = not stable slot (summoning))
-    if (fields[7].GetUInt32() != 0)
+    if (fields[7].GetUInt8() != 0)
     {
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
         trans->PAppend("UPDATE character_pet SET slot = '%u' WHERE owner = '%u' AND slot = '%u' AND id <> '%u'",
@@ -287,7 +287,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     map->Add(this->ToCreature());
 
     m_resetTalentsCost = fields[15].GetUInt32();
-    m_resetTalentsTime = fields[16].GetUInt64();
+    m_resetTalentsTime = time_t(fields[16].GetUInt32());
     InitTalentForLevel();                                   // set original talents points before spell loading
 
     uint32 timediff = uint32(time(NULL) - fields[14].GetUInt32());
