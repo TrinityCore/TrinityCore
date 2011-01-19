@@ -198,9 +198,9 @@ bool ArenaTeam::LoadArenaTeamFromDB(QueryResult arenaTeamDataResult)
     m_CaptainGuid        = MAKE_NEW_GUID(fields[2].GetUInt32(), 0, HIGHGUID_PLAYER);
     m_Type               = fields[3].GetUInt32();
     m_BackgroundColor    = fields[4].GetUInt32();
-    m_EmblemStyle        = fields[5].GetUInt32();
+    m_EmblemStyle        = fields[5].GetUInt8();
     m_EmblemColor        = fields[6].GetUInt32();
-    m_BorderStyle        = fields[7].GetUInt32();
+    m_BorderStyle        = fields[7].GetUInt8();
     m_BorderColor        = fields[8].GetUInt32();
     //load team stats
     m_stats.rating       = fields[9].GetUInt32();
