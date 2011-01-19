@@ -66,17 +66,17 @@ void TicketMgr::LoadGMTickets()
     {
         Field *fields = result->Fetch();
         GM_Ticket *ticket = new GM_Ticket;
-        ticket->guid = fields[0].GetUInt64();
-        ticket->playerGuid = fields[1].GetUInt64();
+        ticket->guid = fields[0].GetUInt32();
+        ticket->playerGuid = fields[1].GetUInt32();
         ticket->name = fields[2].GetString();
         ticket->message = fields[3].GetString();
-        ticket->createtime = fields[4].GetUInt64();
+        ticket->createtime = fields[4].GetUInt32();
         ticket->map = fields[5].GetUInt32();
         ticket->pos_x = fields[6].GetFloat();
         ticket->pos_y = fields[7].GetFloat();
         ticket->pos_z = fields[8].GetFloat();
-        ticket->timestamp = fields[9].GetUInt64();
-        ticket->closed = fields[10].GetUInt64();
+        ticket->timestamp = fields[9].GetUInt32();
+        ticket->closed = fields[10].GetInt32();
         if (ticket->closed == 0)
             m_openTickets++;
 
@@ -111,7 +111,7 @@ void TicketMgr::LoadGMSurveys()
     if (result)
     {
         Field *fields = result->Fetch();
-        m_GMSurveyID = fields[0].GetUInt64();
+        m_GMSurveyID = fields[0].GetUInt32();
     }
     else
         m_GMSurveyID = 0;

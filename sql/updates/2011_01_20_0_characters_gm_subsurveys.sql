@@ -1,0 +1,6 @@
+ALTER TABLE `gm_subsurveys`
+ROW_FORMAT=DEFAULT,
+CHANGE `surveyid` `surveyid` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+CHANGE `subsurveyid` `subsurveyid` INT(10) UNSIGNED DEFAULT '0' NOT NULL,
+CHANGE `rank` `rank` INT(10) UNSIGNED DEFAULT '0' NOT NULL,
+CHANGE `comment` `comment` TEXT NOT NULL;
