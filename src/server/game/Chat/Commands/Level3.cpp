@@ -3144,12 +3144,12 @@ bool ChatHandler::HandleBanInfoCharacterCommand(const char *args)
     do
     {
         Field* fields = result->Fetch();
-        time_t unbandate = time_t(fields[3].GetUInt64());
+        time_t unbandate = time_t(fields[3].GetUInt32());
         bool active = false;
-        if (fields[2].GetUInt8() && (!fields[1].GetUInt64() || unbandate >= time(NULL)))
+        if (fields[2].GetUInt8() && (!fields[1].GetUInt32() || unbandate >= time(NULL)))
             active = true;
-        bool permanent = (fields[1].GetUInt64() == uint64(0));
-        std::string bantime = permanent ? GetTrinityString(LANG_BANINFO_INFINITE) : secsToTimeString(fields[1].GetUInt64(), true);
+        bool permanent = (fields[1].GetUInt32() == uint32(0));
+        std::string bantime = permanent ? GetTrinityString(LANG_BANINFO_INFINITE) : secsToTimeString(fields[1].GetUInt32(), true);
         PSendSysMessage(LANG_BANINFO_HISTORYENTRY,
             fields[0].GetCString(), bantime.c_str(), active ? GetTrinityString(LANG_BANINFO_YES) : GetTrinityString(LANG_BANINFO_NO), fields[4].GetCString(), fields[5].GetCString());
     }
@@ -3273,10 +3273,10 @@ bool ChatHandler::HandleBanListCharacterCommand(const char *args)
                 Field* banFields = banInfo->Fetch();
                 do
                 {
-                    time_t t_ban = banFields[0].GetUInt64();
+                    time_t t_ban = time_t(banFields[0].GetUInt32());
                     tm* aTm_ban = localtime(&t_ban);
 
-                    if (banFields[0].GetUInt64() == banFields[1].GetUInt64())
+                    if (banFields[0].GetUInt32() == banFields[1].GetUInt32())
                     {
                         PSendSysMessage("|%-15.15s|%02d-%02d-%02d %02d:%02d|   permanent  |%-15.15s|%-15.15s|",
                             char_name.c_str(), aTm_ban->tm_year%100, aTm_ban->tm_mon+1, aTm_ban->tm_mday, aTm_ban->tm_hour, aTm_ban->tm_min,
@@ -3284,7 +3284,7 @@ bool ChatHandler::HandleBanListCharacterCommand(const char *args)
                     }
                     else
                     {
-                        time_t t_unban = banFields[1].GetUInt64();
+                        time_t t_unban = time_t(banFields[1].GetUInt32());
                         tm* aTm_unban = localtime(&t_unban);
                         PSendSysMessage("|%-15.15s|%02d-%02d-%02d %02d:%02d|%02d-%02d-%02d %02d:%02d|%-15.15s|%-15.15s|",
                             char_name.c_str(), aTm_ban->tm_year%100, aTm_ban->tm_mon+1, aTm_ban->tm_mday, aTm_ban->tm_hour, aTm_ban->tm_min,
