@@ -574,14 +574,14 @@ void AchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, PreparedQ
         do
         {
             Field* fields = achievementResult->Fetch();
-            uint32 achievement_id = fields[0].GetUInt32();
+            uint32 achievement_id = fields[0].GetUInt16();
 
             // don't must happen: cleanup at server startup in sAchievementMgr->LoadCompletedAchievements()
             if (!sAchievementStore.LookupEntry(achievement_id))
                 continue;
 
             CompletedAchievementData& ca = m_completedAchievements[achievement_id];
-            ca.date = time_t(fields[1].GetUInt64());
+            ca.date = time_t(fields[1].GetUInt32());
             ca.changed = false;
         }
         while (achievementResult->NextRow());
@@ -592,9 +592,9 @@ void AchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, PreparedQ
         do
         {
             Field* fields = criteriaResult->Fetch();
-            uint32 id      = fields[0].GetUInt32();
+            uint32 id      = fields[0].GetUInt16();
             uint32 counter = fields[1].GetUInt32();
-            time_t date    = time_t(fields[2].GetUInt64());
+            time_t date    = time_t(fields[2].GetUInt32());
 
             AchievementCriteriaEntry const* criteria = sAchievementCriteriaStore.LookupEntry(id);
             if (!criteria)

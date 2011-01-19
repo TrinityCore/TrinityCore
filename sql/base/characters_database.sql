@@ -23,10 +23,10 @@ DROP TABLE IF EXISTS `account_data`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `account_data` (
-  `account` int(11) unsigned NOT NULL DEFAULT '0',
-  `type` int(11) unsigned NOT NULL DEFAULT '0',
-  `time` bigint(11) unsigned NOT NULL DEFAULT '0',
-  `data` longblob NOT NULL,
+  `account` int(10) unsigned NOT NULL DEFAULT '0',
+  `type` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `time` int(10) unsigned NOT NULL DEFAULT '0',
+  `data` blob NOT NULL,
   PRIMARY KEY (`account`,`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -49,7 +49,7 @@ DROP TABLE IF EXISTS `addons`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `addons` (
   `name` varchar(120) NOT NULL DEFAULT '',
-  `crc` int(32) unsigned NOT NULL DEFAULT '0',
+  `crc` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Addons';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -72,13 +72,13 @@ DROP TABLE IF EXISTS `arena_team`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `arena_team` (
   `arenateamid` int(10) unsigned NOT NULL DEFAULT '0',
-  `name` char(255) NOT NULL,
+  `name` varchar(24) NOT NULL,
   `captainguid` int(10) unsigned NOT NULL DEFAULT '0',
   `type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `BackgroundColor` int(10) unsigned NOT NULL DEFAULT '0',
-  `EmblemStyle` int(10) unsigned NOT NULL DEFAULT '0',
+  `EmblemStyle` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `EmblemColor` int(10) unsigned NOT NULL DEFAULT '0',
-  `BorderStyle` int(10) unsigned NOT NULL DEFAULT '0',
+  `BorderStyle` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `BorderColor` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`arenateamid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -156,16 +156,16 @@ DROP TABLE IF EXISTS `auctionhouse`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `auctionhouse` (
-  `id` int(11) unsigned NOT NULL DEFAULT '0',
-  `auctioneerguid` int(11) unsigned NOT NULL DEFAULT '0',
-  `itemguid` int(11) unsigned NOT NULL DEFAULT '0',
-  `itemowner` int(11) unsigned NOT NULL DEFAULT '0',
-  `buyoutprice` int(11) NOT NULL DEFAULT '0',
-  `time` bigint(40) NOT NULL DEFAULT '0',
-  `buyguid` int(11) unsigned NOT NULL DEFAULT '0',
-  `lastbid` int(11) NOT NULL DEFAULT '0',
-  `startbid` int(11) NOT NULL DEFAULT '0',
-  `deposit` int(11) NOT NULL DEFAULT '0',
+  `id` int(10) unsigned NOT NULL DEFAULT '0',
+  `auctioneerguid` int(10) unsigned NOT NULL DEFAULT '0',
+  `itemguid` int(10) unsigned NOT NULL DEFAULT '0',
+  `itemowner` int(10) unsigned NOT NULL DEFAULT '0',
+  `buyoutprice` int(10) unsigned NOT NULL DEFAULT '0',
+  `time` int(10) unsigned NOT NULL DEFAULT '0',
+  `buyguid` int(10) unsigned NOT NULL DEFAULT '0',
+  `lastbid` int(10) unsigned NOT NULL DEFAULT '0',
+  `startbid` int(10) unsigned NOT NULL DEFAULT '0',
+  `deposit` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `item_guid` (`itemguid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -188,7 +188,7 @@ DROP TABLE IF EXISTS `bugreport`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `bugreport` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Identifier',
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Identifier',
   `type` longtext NOT NULL,
   `content` longtext NOT NULL,
   PRIMARY KEY (`id`)
@@ -217,7 +217,7 @@ CREATE TABLE `channels` (
   `m_announce` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `m_ownership` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `m_password` varchar(32) DEFAULT NULL,
-  `BannedList` longtext,
+  `BannedList` text,
   `last_used` int(10) unsigned NOT NULL,
   PRIMARY KEY (`m_name`,`m_team`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Channel System';
@@ -240,10 +240,10 @@ DROP TABLE IF EXISTS `character_account_data`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_account_data` (
-  `guid` int(11) unsigned NOT NULL DEFAULT '0',
-  `type` int(11) unsigned NOT NULL DEFAULT '0',
-  `time` bigint(11) unsigned NOT NULL DEFAULT '0',
-  `data` longblob NOT NULL,
+  `guid` int(10) unsigned NOT NULL DEFAULT '0',
+  `type` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `time` int(10) unsigned NOT NULL DEFAULT '0',
+  `data` blob NOT NULL,
   PRIMARY KEY (`guid`,`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -265,9 +265,9 @@ DROP TABLE IF EXISTS `character_achievement`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_achievement` (
-  `guid` int(11) unsigned NOT NULL,
-  `achievement` int(11) unsigned NOT NULL,
-  `date` bigint(11) unsigned NOT NULL DEFAULT '0',
+  `guid` int(10) unsigned NOT NULL,
+  `achievement` smallint(5) unsigned NOT NULL,
+  `date` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`achievement`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -289,10 +289,10 @@ DROP TABLE IF EXISTS `character_achievement_progress`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `character_achievement_progress` (
-  `guid` int(11) unsigned NOT NULL,
-  `criteria` int(11) unsigned NOT NULL,
-  `counter` int(11) unsigned NOT NULL,
-  `date` bigint(11) unsigned NOT NULL DEFAULT '0',
+  `guid` int(10) unsigned NOT NULL,
+  `criteria` smallint(5) unsigned NOT NULL,
+  `counter` int(10) unsigned NOT NULL,
+  `date` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`criteria`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2198,4 +2198,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2011-01-19  3:23:11
+-- Dump completed on 2011-01-19  4:18:09
