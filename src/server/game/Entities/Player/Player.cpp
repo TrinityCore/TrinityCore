@@ -1680,7 +1680,7 @@ bool Player::BuildEnumData(QueryResult result, WorldPacket * p_data)
             if (cInfo)
             {
                 petDisplayId = fields[17].GetUInt32();
-                petLevel     = fields[18].GetUInt32();
+                petLevel     = fields[18].GetUInt16();
                 petFamily    = cInfo->family;
             }
         }
@@ -17313,8 +17313,10 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
 {
     uint16 slot = 0;
 
-    ////                                                     0      1       3         4      5          6          7          8          9           10          11          12
-    //QueryResult *result = CharacterDatabase.PQuery("SELECT quest, status, explored, timer, mobcount1, mobcount2, mobcount3, mobcount4, itemcount1, itemcount2, itemcount3, itemcount4 FROM character_queststatus WHERE guid = '%u'", GetGUIDLow());
+    ////                                                       0      1       2        3        4           5          6         7           8           9           10
+    //QueryResult *result = CharacterDatabase.PQuery("SELECT quest, status, explored, timer, mobcount1, mobcount2, mobcount3, mobcount4, itemcount1, itemcount2, itemcount3, 
+    //                                                    11 
+    //                                                itemcount4 FROM character_queststatus WHERE guid = '%u'", GetGUIDLow());
 
     if (result)
     {
@@ -17341,7 +17343,7 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
 
                 questStatusData.m_explored = (fields[2].GetUInt8() > 0);
 
-                time_t quest_time = time_t(fields[3].GetUInt64());
+                time_t quest_time = time_t(fields[3].GetUInt32());
 
                 if (pQuest->HasFlag(QUEST_TRINITY_FLAGS_TIMED) && !GetQuestRewardStatus(quest_id))
                 {
@@ -17448,7 +17450,7 @@ void Player::_LoadDailyQuestStatus(PreparedQueryResult result)
                 if (qQuest->IsDFQuest())
                 {
                     m_DFQuests.insert(qQuest->GetQuestId());
-                    m_lastDailyQuestTime = (time_t)fields[1].GetUInt64();
+                    m_lastDailyQuestTime = time_t(fields[1].GetUInt32());
                     continue;
                 }
             }
@@ -17900,7 +17902,7 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
     {
         Field* fields = result->Fetch();
 
-        m_homebindMapId = fields[0].GetUInt32();
+        m_homebindMapId = fields[0].GetUInt16();
         m_homebindAreaId = fields[1].GetUInt16();
         m_homebindX = fields[2].GetFloat();
         m_homebindY = fields[3].GetFloat();
