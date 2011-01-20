@@ -3588,6 +3588,11 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (i)
         {
+        case 54069: // Energize Cores 
+        case 56251: // Energize Cores
+            spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CONE_ENTRY;
+            count++;
+            break;
         // Bind
         case 3286:
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
