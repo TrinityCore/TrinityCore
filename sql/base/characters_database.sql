@@ -1871,7 +1871,7 @@ DROP TABLE IF EXISTS `item_soulbound_trade_data`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `item_soulbound_trade_data` (
-  `itemGuid` int(11) unsigned NOT NULL COMMENT 'Item GUID',
+  `itemGuid` int(10) unsigned NOT NULL COMMENT 'Item GUID',
   `allowedPlayers` text NOT NULL COMMENT 'Space separated GUID list of players who can receive this item in trade',
   PRIMARY KEY (`itemGuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Item Refund System';
@@ -1894,10 +1894,10 @@ DROP TABLE IF EXISTS `lag_reports`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `lag_reports` (
-  `report_id` int(10) NOT NULL AUTO_INCREMENT,
-  `player` int(11) unsigned NOT NULL DEFAULT '0',
-  `lag_type` int(10) NOT NULL DEFAULT '0',
-  `map` int(11) NOT NULL DEFAULT '0',
+  `report_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `player` int(10) unsigned NOT NULL DEFAULT '0',
+  `lag_type` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `map` smallint(5) unsigned NOT NULL DEFAULT '0',
   `posX` float NOT NULL DEFAULT '0',
   `posY` float NOT NULL DEFAULT '0',
   `posZ` float NOT NULL DEFAULT '0',
@@ -1922,19 +1922,19 @@ DROP TABLE IF EXISTS `mail`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `mail` (
-  `id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Identifier',
+  `id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Identifier',
   `messageType` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `stationery` tinyint(3) NOT NULL DEFAULT '41',
-  `mailTemplateId` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `sender` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Character Global Unique Identifier',
-  `receiver` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Character Global Unique Identifier',
+  `mailTemplateId` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `sender` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Character Global Unique Identifier',
+  `receiver` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Character Global Unique Identifier',
   `subject` longtext,
   `body` longtext,
   `has_items` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `expire_time` bigint(40) NOT NULL DEFAULT '0',
-  `deliver_time` bigint(40) NOT NULL DEFAULT '0',
-  `money` int(11) unsigned NOT NULL DEFAULT '0',
-  `cod` int(11) unsigned NOT NULL DEFAULT '0',
+  `expire_time` int(10) unsigned NOT NULL DEFAULT '0',
+  `deliver_time` int(10) unsigned NOT NULL DEFAULT '0',
+  `money` int(10) unsigned NOT NULL DEFAULT '0',
+  `cod` int(10) unsigned NOT NULL DEFAULT '0',
   `checked` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `idx_receiver` (`receiver`)
@@ -1958,9 +1958,9 @@ DROP TABLE IF EXISTS `mail_items`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `mail_items` (
-  `mail_id` int(11) NOT NULL DEFAULT '0',
-  `item_guid` int(11) NOT NULL DEFAULT '0',
-  `receiver` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Character Global Unique Identifier',
+  `mail_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `item_guid` int(10) unsigned NOT NULL DEFAULT '0',
+  `receiver` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Character Global Unique Identifier',
   PRIMARY KEY (`mail_id`,`item_guid`),
   KEY `idx_receiver` (`receiver`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
@@ -1983,18 +1983,18 @@ DROP TABLE IF EXISTS `pet_aura`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `pet_aura` (
-  `guid` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
+  `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
   `caster_guid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT 'Full Global Unique Identifier',
-  `spell` int(11) unsigned NOT NULL DEFAULT '0',
+  `spell` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `effect_mask` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `recalculate_mask` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `stackcount` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `amount0` int(11) NOT NULL DEFAULT '0',
-  `amount1` int(11) NOT NULL DEFAULT '0',
-  `amount2` int(11) NOT NULL DEFAULT '0',
-  `base_amount0` int(11) NOT NULL DEFAULT '0',
-  `base_amount1` int(11) NOT NULL DEFAULT '0',
-  `base_amount2` int(11) NOT NULL DEFAULT '0',
+  `amount0` mediumint(8) NOT NULL,
+  `amount1` mediumint(8) NOT NULL,
+  `amount2` mediumint(8) NOT NULL,
+  `base_amount0` mediumint(8) NOT NULL,
+  `base_amount1` mediumint(8) NOT NULL,
+  `base_amount2` mediumint(8) NOT NULL,
   `maxduration` int(11) NOT NULL DEFAULT '0',
   `remaintime` int(11) NOT NULL DEFAULT '0',
   `remaincharges` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -2019,9 +2019,9 @@ DROP TABLE IF EXISTS `pet_spell`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `pet_spell` (
-  `guid` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
-  `spell` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell Identifier',
-  `active` int(11) unsigned NOT NULL DEFAULT '0',
+  `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
+  `spell` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell Identifier',
+  `active` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`spell`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Pet System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2043,9 +2043,9 @@ DROP TABLE IF EXISTS `pet_spell_cooldown`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `pet_spell_cooldown` (
-  `guid` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier, Low part',
-  `spell` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell Identifier',
-  `time` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `guid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier, Low part',
+  `spell` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell Identifier',
+  `time` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`,`spell`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2069,8 +2069,8 @@ DROP TABLE IF EXISTS `petition`;
 CREATE TABLE `petition` (
   `ownerguid` int(10) unsigned NOT NULL,
   `petitionguid` int(10) unsigned DEFAULT '0',
-  `name` varchar(255) NOT NULL DEFAULT '',
-  `type` int(10) unsigned NOT NULL DEFAULT '0',
+  `name` varchar(24) NOT NULL,
+  `type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`ownerguid`,`type`),
   UNIQUE KEY `index_ownerguid_petitionguid` (`ownerguid`,`petitionguid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Guild System';
@@ -2094,10 +2094,10 @@ DROP TABLE IF EXISTS `petition_sign`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `petition_sign` (
   `ownerguid` int(10) unsigned NOT NULL,
-  `petitionguid` int(11) unsigned NOT NULL DEFAULT '0',
-  `playerguid` int(11) unsigned NOT NULL DEFAULT '0',
-  `player_account` int(11) unsigned NOT NULL DEFAULT '0',
-  `type` int(10) unsigned NOT NULL DEFAULT '0',
+  `petitionguid` int(10) unsigned NOT NULL DEFAULT '0',
+  `playerguid` int(10) unsigned NOT NULL DEFAULT '0',
+  `player_account` int(10) unsigned NOT NULL DEFAULT '0',
+  `type` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`petitionguid`,`playerguid`),
   KEY `Idx_playerguid` (`playerguid`),
   KEY `Idx_ownerguid` (`ownerguid`)
@@ -2166,9 +2166,9 @@ DROP TABLE IF EXISTS `worldstates`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `worldstates` (
-  `entry` mediumint(11) unsigned NOT NULL DEFAULT '0',
-  `value` bigint(40) unsigned NOT NULL DEFAULT '0',
-  `comment` text,
+  `entry` int(10) unsigned NOT NULL DEFAULT '0',
+  `value` int(10) unsigned NOT NULL DEFAULT '0',
+  `comment` tinytext,
   PRIMARY KEY (`entry`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Variable Saves';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2192,4 +2192,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2011-01-20  0:59:06
+-- Dump completed on 2011-01-20  1:49:32
