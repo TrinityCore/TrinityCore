@@ -17272,8 +17272,8 @@ void Player::_LoadMail()
             m->subject = fields[4].GetString();
             m->body = fields[5].GetString();
             bool has_items = fields[6].GetBool();
-            m->expire_time = (time_t)fields[7].GetUInt64();
-            m->deliver_time = (time_t)fields[8].GetUInt64();
+            m->expire_time = time_t(fields[7].GetUInt32());
+            m->deliver_time = time_t(fields[8].GetUInt32());
             m->money = fields[9].GetUInt32();
             m->COD = fields[10].GetUInt32();
             m->checked = fields[11].GetUInt32();
