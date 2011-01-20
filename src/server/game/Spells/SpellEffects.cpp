@@ -2175,6 +2175,12 @@ void Spell::EffectSendEvent(SpellEffIndex effIndex)
     else
         pTarget = NULL;
 
+    if (unitTarget)
+    {
+        if (ZoneScript* zoneScript = unitTarget->GetZoneScript())
+            zoneScript->ProcessEvent(unitTarget, m_spellInfo->EffectMiscValue[effIndex]);
+    }
+
     m_caster->GetMap()->ScriptsStart(sEventScripts, m_spellInfo->EffectMiscValue[effIndex], m_caster, pTarget);
 }
 
