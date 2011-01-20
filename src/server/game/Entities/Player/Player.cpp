@@ -12749,6 +12749,12 @@ void Player::SwapItem(uint16 src, uint16 dst)
         }
         else if (IsEquipmentPos (dst))
         {
+            if (GetTradeData())
+            {
+                SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, pSrcItem, pDstItem);
+                return;
+            }
+
             uint16 dest;
             uint8 msg = CanEquipItem(dstslot, dest, pSrcItem, false);
             if (msg != EQUIP_ERR_OK)
@@ -12860,6 +12866,12 @@ void Player::SwapItem(uint16 src, uint16 dst)
     // Check bag swap with item exchange (one from empty in not bag possition (equipped (not possible in fact) or store)
     if (pSrcItem->IsBag() && pDstItem->IsBag())
     {
+        if (GetTradeData())
+        {
+            SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, pSrcItem, pDstItem);
+            return;
+        }
+
         Bag* emptyBag = NULL;
         Bag* fullBag = NULL;
         if (((Bag*)pSrcItem)->IsEmpty() && !IsBagPos(src))
