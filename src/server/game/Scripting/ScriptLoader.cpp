@@ -397,6 +397,7 @@ void AddSC_boss_keristrasza();
 void AddSC_instance_nexus();
 void AddSC_boss_drakos();                //The Nexus The Oculus
 void AddSC_boss_urom();
+void AddSC_boss_varos();
 void AddSC_instance_oculus();
 void AddSC_oculus();
 void AddSC_boss_sartharion();            //Obsidian Sanctum
@@ -1084,6 +1085,7 @@ void AddNorthrendScripts()
     AddSC_instance_nexus();
     AddSC_boss_drakos();                //The Nexus The Oculus
     AddSC_boss_urom();
+    AddSC_boss_varos();
     AddSC_instance_oculus();
     AddSC_oculus();
     AddSC_boss_sartharion();            //Obsidian Sanctum

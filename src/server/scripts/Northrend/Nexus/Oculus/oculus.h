@@ -37,15 +37,27 @@ enum Data64
 
 enum Bosses
 {
-    CREATURE_DRAKOS        = 27654,
-    CREATURE_VAROS         = 27447,
-    CREATURE_UROM          = 27655,
-    CREATURE_EREGOS        = 27656
-};
+    NPC_DRAKOS                  = 27654,
+    NPC_VAROS                   = 27447,
+    NPC_UROM                    = 27655,
+    NPC_EREGOS                  = 27656,
 
+    NPC_AZURE_RING_GUARDIAN     = 27638
+};
+ 
 enum GameObjects
 {
     GO_DRAGON_CAGE_DOOR                           = 193995
+};
+
+enum SpellEvents
+{
+    EVENT_CALL_DRAGON = 12229
+};
+
+enum CreatureActions
+{
+    ACTION_CALL_DRAGON_EVENT = 1
 };
 
 #endif
