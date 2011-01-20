@@ -591,7 +591,7 @@ bool Guild::Member::LoadFromDB(Field* fields)
              fields[21].GetUInt8(),
              fields[22].GetUInt32(),
              fields[23].GetUInt32());
-    m_logoutTime    = fields[24].GetUInt64();
+    m_logoutTime    = fields[24].GetUInt32();
 
     if (!CheckStats())
         return false;
