@@ -178,7 +178,7 @@ void InstanceSave::SaveToDB()
         }
     }
 
-    CharacterDatabase.PExecute("INSERT INTO instance VALUES ('%u', '%u', '"UI64FMTD"', '%u', '%s')", m_instanceid, GetMapId(), (uint64)GetResetTimeForDB(), GetDifficulty(), data.c_str());
+    CharacterDatabase.PExecute("INSERT INTO instance VALUES ('%u', '%u', '%u', '%u', '%s')", m_instanceid, GetMapId(), (uint32)GetResetTimeForDB(), GetDifficulty(), data.c_str());
 }
 
 time_t InstanceSave::GetResetTimeForDB()
@@ -321,11 +321,11 @@ void InstanceSaveManager::LoadResetTimes()
         {
             Field* fields = result->Fetch();
 
-            if (time_t resettime = time_t(fields[3].GetUInt64()))
+            if (time_t resettime = time_t(fields[3].GetUInt32()))
             {
                 uint32 id = fields[0].GetUInt32();
-                uint32 mapid = fields[1].GetUInt32();
-                uint32 difficulty = fields[2].GetUInt32();
+                uint32 mapid = fields[1].GetUInt16();
+                uint32 difficulty = fields[2].GetUInt8();
                 instResetTime[id] = ResetTimeMapDiffType(MAKE_PAIR32(mapid, difficulty), resettime);
                 mapDiffResetInstances.insert(ResetTimeMapDiffInstances::value_type(MAKE_PAIR32(mapid, difficulty), id));
             }
@@ -365,9 +365,9 @@ void InstanceSaveManager::LoadResetTimes()
         do
         {
             Field *fields = result->Fetch();
-            uint32 mapid = fields[0].GetUInt32();
+            uint32 mapid = fields[0].GetUInt16();
             Difficulty difficulty = Difficulty(fields[1].GetUInt32());
-            uint64 oldresettime = fields[2].GetUInt64();
+            uint64 oldresettime = fields[2].GetUInt32();
 
             MapDifficulty const* mapDiff = GetMapDifficultyData(mapid, difficulty);
             if (!mapDiff)
@@ -380,7 +380,7 @@ void InstanceSaveManager::LoadResetTimes()
             // update the reset time if the hour in the configs changes
             uint64 newresettime = (oldresettime / DAY) * DAY + diff;
             if (oldresettime != newresettime)
-                CharacterDatabase.DirectPExecute("UPDATE instance_reset SET resettime = '"UI64FMTD"' WHERE mapid = '%u' AND difficulty = '%u'", newresettime, mapid, difficulty);
+                CharacterDatabase.DirectPExecute("UPDATE instance_reset SET resettime = '%u' WHERE mapid = '%u' AND difficulty = '%u'", uint32(newresettime), mapid, difficulty);
 
             SetResetTimeFor(mapid, difficulty, newresettime);
         } while (result->NextRow());
@@ -413,7 +413,7 @@ void InstanceSaveManager::LoadResetTimes()
         {
             // initialize the reset time
             t = today + period + diff;
-            CharacterDatabase.DirectPExecute("INSERT INTO instance_reset VALUES ('%u','%u','"UI64FMTD"')", mapid, difficulty, (uint64)t);
+            CharacterDatabase.DirectPExecute("INSERT INTO instance_reset VALUES ('%u','%u','%u')", mapid, difficulty, (uint32)t);
         }
 
         if (t < now)
@@ -605,7 +605,7 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
         ScheduleReset(true, time_t(next_reset-3600), InstResetEvent(1, mapid, difficulty, 0));
 
         // update it in the DB
-        CharacterDatabase.PExecute("UPDATE instance_reset SET resettime = '"UI64FMTD"' WHERE mapid = '%d' AND difficulty = '%d'", next_reset, mapid, difficulty);
+        CharacterDatabase.PExecute("UPDATE instance_reset SET resettime = '%u' WHERE mapid = '%d' AND difficulty = '%d'", uint32(next_reset), mapid, difficulty);
     }
 
     // note: this isn't fast but it's meant to be executed very rarely

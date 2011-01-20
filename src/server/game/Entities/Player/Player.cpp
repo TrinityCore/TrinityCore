@@ -17063,7 +17063,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timediff)
                         Field* fields2 = result2->Fetch();
                         item->SetRefundRecipient(fields2[0].GetUInt32());
                         item->SetPaidMoney(fields2[1].GetUInt32());
-                        item->SetPaidExtendedCost(fields2[2].GetUInt32());
+                        item->SetPaidExtendedCost(fields2[2].GetUInt16());
                         AddRefundReference(item->GetGUIDLow());
                     }
                 }
