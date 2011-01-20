@@ -298,7 +298,7 @@ void GameEventMgr::LoadFromDB()
             if (mGameEvent[event_id].state != GAMEEVENT_NORMAL && mGameEvent[event_id].state != GAMEEVENT_INTERNAL)
             {
                 mGameEvent[event_id].state = (GameEventState)(fields[1].GetUInt8());
-                mGameEvent[event_id].nextstart    = time_t(fields[2].GetUInt64());
+                mGameEvent[event_id].nextstart    = time_t(fields[2].GetUInt32());
             }
             else
             {

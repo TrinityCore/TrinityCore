@@ -1046,6 +1046,8 @@ UPDATE `creature_template` SET `ScriptName`='boss_drakos' WHERE `entry`=27654;
 UPDATE `creature_template` SET `ScriptName`='npc_unstable_sphere' WHERE `entry`=28166;
 UPDATE `creature_template` SET `ScriptName`='npc_oculus_drake' WHERE `entry` IN (27657,27658,27659);
 UPDATE `creature_template` SET `ScriptName`='boss_urom' WHERE `entry`=27655;
+UPDATE `creature_template` SET `ScriptName`='boss_varos' WHERE `entry`=27447;
+UPDATE `creature_template` SET `ScriptName`='npc_azure_ring_captain' WHERE `entry`=27638;
 
 /* OBSIDIAN SANCTUM */
 UPDATE `instance_template` SET `script`='instance_obsidian_sanctum' WHERE `map`=615;
@@ -1847,7 +1849,10 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 72089, 'spell_marrowgar_bone_spike_graveyard'),
 ( 69140, 'spell_marrowgar_coldflame'),
 ( 72705, 'spell_marrowgar_coldflame'),
-( 69147, 'spell_marrowgar_coldflame_trigger'),
+( 69146, 'spell_marrowgar_coldflame_damage'),
+( 70823, 'spell_marrowgar_coldflame_damage'),
+( 70824, 'spell_marrowgar_coldflame_damage'),
+( 70825, 'spell_marrowgar_coldflame_damage');
 ( 69075, 'spell_marrowgar_bone_storm'),
 ( 70834, 'spell_marrowgar_bone_storm'),
 ( 70835, 'spell_marrowgar_bone_storm'),
@@ -1955,6 +1960,8 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 66630, 'spell_gen_gunship_portal'),
 ( 66637, 'spell_gen_gunship_portal'),
 ( 66656, 'spell_gen_parachute_ic'),
+-- Oculus
+( 50053, 'spell_varos_centrifuge_shield'),
 -- Trial of Crusader
 ( 66118, 'spell_gen_leeching_swarm'),
 ( 67630, 'spell_gen_leeching_swarm'),

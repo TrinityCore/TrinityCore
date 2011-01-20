@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 TrinityScript 2
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -217,6 +217,7 @@ public:
     };
 
 };
+
 
 void AddSC_boss_drakos()
 {

@@ -306,8 +306,8 @@ void CreatureTextMgr::BuildMonsterChat(WorldPacket *data, WorldObject* source, C
     {
         sLog->outError("CreatureTextMgr: WorldObject(%s) TypeId %u GuidLow %u sent WHISPER msg to Non-Player target. Ignoring.",source->GetName(), uint32(source->GetTypeId()), source->GetGUIDLow());
         return;
-        //*data << (uint32)1;                                 // target name length
-        //*data << (uint8)0;                                  // target name
+        // *data << (uint32)1;                                 // target name length
+        // *data << (uint8)0;                                  // target name
     }
     *data << (uint32)(strlen(text)+1);
     *data << text;
