@@ -1894,7 +1894,7 @@ bool Guild::LoadEventLogFromDB(Field* fields)
         m_eventLog->LoadEvent(new EventLogEntry(
             m_id,                                       // guild id
             fields[1].GetUInt32(),                      // guid
-            fields[6].GetUInt64(),                      // timestamp
+            time_t(fields[6].GetUInt32()),              // timestamp
             GuildEventLogTypes(fields[2].GetUInt8()),   // event type
             fields[3].GetUInt32(),                      // player guid 1
             fields[4].GetUInt32(),                      // player guid 2

@@ -1575,10 +1575,10 @@ DROP TABLE IF EXISTS `guild_bank_item`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `guild_bank_item` (
-  `guildid` int(11) unsigned NOT NULL DEFAULT '0',
-  `TabId` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `guildid` int(10) unsigned NOT NULL DEFAULT '0',
+  `TabId` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `SlotId` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `item_guid` int(11) unsigned NOT NULL DEFAULT '0',
+  `item_guid` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guildid`,`TabId`,`SlotId`),
   KEY `guildid_key` (`guildid`),
   KEY `Idx_item_guid` (`item_guid`)
@@ -1602,11 +1602,11 @@ DROP TABLE IF EXISTS `guild_bank_right`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `guild_bank_right` (
-  `guildid` int(11) unsigned NOT NULL DEFAULT '0',
-  `TabId` tinyint(1) unsigned NOT NULL DEFAULT '0',
-  `rid` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `guildid` int(10) unsigned NOT NULL DEFAULT '0',
+  `TabId` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `rid` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `gbright` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `SlotPerDay` int(11) unsigned NOT NULL DEFAULT '0',
+  `SlotPerDay` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guildid`,`TabId`,`rid`),
   KEY `guildid_key` (`guildid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -1629,11 +1629,11 @@ DROP TABLE IF EXISTS `guild_bank_tab`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `guild_bank_tab` (
-  `guildid` int(11) unsigned NOT NULL DEFAULT '0',
-  `TabId` tinyint(1) unsigned NOT NULL DEFAULT '0',
-  `TabName` varchar(100) NOT NULL DEFAULT '',
+  `guildid` int(10) unsigned NOT NULL DEFAULT '0',
+  `TabId` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `TabName` varchar(16) NOT NULL DEFAULT '',
   `TabIcon` varchar(100) NOT NULL DEFAULT '',
-  `TabText` text,
+  `TabText` varchar(500) DEFAULT NULL,
   PRIMARY KEY (`guildid`,`TabId`),
   KEY `guildid_key` (`guildid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -1656,13 +1656,13 @@ DROP TABLE IF EXISTS `guild_eventlog`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `guild_eventlog` (
-  `guildid` int(11) NOT NULL COMMENT 'Guild Identificator',
-  `LogGuid` int(11) NOT NULL COMMENT 'Log record identificator - auxiliary column',
-  `EventType` tinyint(1) NOT NULL COMMENT 'Event type',
-  `PlayerGuid1` int(11) NOT NULL COMMENT 'Player 1',
-  `PlayerGuid2` int(11) NOT NULL COMMENT 'Player 2',
-  `NewRank` tinyint(2) NOT NULL COMMENT 'New rank(in case promotion/demotion)',
-  `TimeStamp` bigint(20) NOT NULL COMMENT 'Event UNIX time',
+  `guildid` int(10) unsigned NOT NULL COMMENT 'Guild Identificator',
+  `LogGuid` int(10) unsigned NOT NULL COMMENT 'Log record identificator - auxiliary column',
+  `EventType` tinyint(3) unsigned NOT NULL COMMENT 'Event type',
+  `PlayerGuid1` int(10) unsigned NOT NULL COMMENT 'Player 1',
+  `PlayerGuid2` int(10) unsigned NOT NULL COMMENT 'Player 2',
+  `NewRank` tinyint(3) unsigned NOT NULL COMMENT 'New rank(in case promotion/demotion)',
+  `TimeStamp` int(10) unsigned NOT NULL COMMENT 'Event UNIX time',
   PRIMARY KEY (`guildid`,`LogGuid`),
   KEY `Idx_PlayerGuid1` (`PlayerGuid1`),
   KEY `Idx_PlayerGuid2` (`PlayerGuid2`),
@@ -1687,29 +1687,29 @@ DROP TABLE IF EXISTS `guild_member`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `guild_member` (
-  `guildid` int(6) unsigned NOT NULL DEFAULT '0',
-  `guid` int(11) unsigned NOT NULL DEFAULT '0',
-  `rank` tinyint(2) unsigned NOT NULL DEFAULT '0',
-  `pnote` varchar(255) NOT NULL DEFAULT '',
-  `offnote` varchar(255) NOT NULL DEFAULT '',
-  `BankResetTimeMoney` int(11) unsigned NOT NULL DEFAULT '0',
-  `BankRemMoney` int(11) unsigned NOT NULL DEFAULT '0',
-  `BankResetTimeTab0` int(11) unsigned NOT NULL DEFAULT '0',
-  `BankRemSlotsTab0` int(11) unsigned NOT NULL DEFAULT '0',
-  `BankResetTimeTab1` int(11) unsigned NOT NULL DEFAULT '0',
-  `BankRemSlotsTab1` int(11) unsigned NOT NULL DEFAULT '0',
-  `BankResetTimeTab2` int(11) unsigned NOT NULL DEFAULT '0',
-  `BankRemSlotsTab2` int(11) unsigned NOT NULL DEFAULT '0',
-  `BankResetTimeTab3` int(11) unsigned NOT NULL DEFAULT '0',
-  `BankRemSlotsTab3` int(11) unsigned NOT NULL DEFAULT '0',
-  `BankResetTimeTab4` int(11) unsigned NOT NULL DEFAULT '0',
-  `BankRemSlotsTab4` int(11) unsigned NOT NULL DEFAULT '0',
-  `BankResetTimeTab5` int(11) unsigned NOT NULL DEFAULT '0',
-  `BankRemSlotsTab5` int(11) unsigned NOT NULL DEFAULT '0',
+  `guildid` int(10) unsigned NOT NULL COMMENT 'Guild Identificator',
+  `guid` int(10) unsigned NOT NULL,
+  `rank` tinyint(3) unsigned NOT NULL,
+  `pnote` varchar(31) NOT NULL DEFAULT '',
+  `offnote` varchar(31) NOT NULL DEFAULT '',
+  `BankResetTimeMoney` int(10) unsigned NOT NULL DEFAULT '0',
+  `BankRemMoney` int(10) unsigned NOT NULL DEFAULT '0',
+  `BankResetTimeTab0` int(10) unsigned NOT NULL DEFAULT '0',
+  `BankRemSlotsTab0` int(10) unsigned NOT NULL DEFAULT '0',
+  `BankResetTimeTab1` int(10) unsigned NOT NULL DEFAULT '0',
+  `BankRemSlotsTab1` int(10) unsigned NOT NULL DEFAULT '0',
+  `BankResetTimeTab2` int(10) unsigned NOT NULL DEFAULT '0',
+  `BankRemSlotsTab2` int(10) unsigned NOT NULL DEFAULT '0',
+  `BankResetTimeTab3` int(10) unsigned NOT NULL DEFAULT '0',
+  `BankRemSlotsTab3` int(10) unsigned NOT NULL DEFAULT '0',
+  `BankResetTimeTab4` int(10) unsigned NOT NULL DEFAULT '0',
+  `BankRemSlotsTab4` int(10) unsigned NOT NULL DEFAULT '0',
+  `BankResetTimeTab5` int(10) unsigned NOT NULL DEFAULT '0',
+  `BankRemSlotsTab5` int(10) unsigned NOT NULL DEFAULT '0',
   UNIQUE KEY `guid_key` (`guid`),
   KEY `guildid_key` (`guildid`),
   KEY `guildid_rank_key` (`guildid`,`rank`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Guild System';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Guild System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1729,11 +1729,11 @@ DROP TABLE IF EXISTS `guild_rank`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `guild_rank` (
-  `guildid` int(6) unsigned NOT NULL DEFAULT '0',
-  `rid` tinyint(1) unsigned NOT NULL,
-  `rname` varchar(255) NOT NULL DEFAULT '',
-  `rights` int(3) unsigned NOT NULL DEFAULT '0',
-  `BankMoneyPerDay` int(11) unsigned NOT NULL DEFAULT '0',
+  `guildid` int(10) unsigned NOT NULL DEFAULT '0',
+  `rid` tinyint(3) unsigned NOT NULL,
+  `rname` varchar(15) NOT NULL DEFAULT '',
+  `rights` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `BankMoneyPerDay` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guildid`,`rid`),
   KEY `Idx_rid` (`rid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Guild System';
@@ -1756,11 +1756,11 @@ DROP TABLE IF EXISTS `instance`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `instance` (
-  `id` int(11) unsigned NOT NULL DEFAULT '0',
-  `map` int(11) unsigned NOT NULL DEFAULT '0',
-  `resettime` bigint(40) NOT NULL DEFAULT '0',
-  `difficulty` tinyint(1) unsigned NOT NULL DEFAULT '0',
-  `data` longtext,
+  `id` int(10) unsigned NOT NULL DEFAULT '0',
+  `map` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `resettime` int(10) unsigned NOT NULL DEFAULT '0',
+  `difficulty` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `data` tinytext NOT NULL,
   PRIMARY KEY (`id`),
   KEY `map` (`map`),
   KEY `resettime` (`resettime`),
@@ -1785,9 +1785,9 @@ DROP TABLE IF EXISTS `instance_reset`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `instance_reset` (
-  `mapid` int(11) unsigned NOT NULL DEFAULT '0',
-  `difficulty` tinyint(1) unsigned NOT NULL DEFAULT '0',
-  `resettime` bigint(40) NOT NULL DEFAULT '0',
+  `mapid` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `difficulty` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `resettime` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`mapid`,`difficulty`),
   KEY `difficulty` (`difficulty`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -1810,20 +1810,20 @@ DROP TABLE IF EXISTS `item_instance`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `item_instance` (
-  `guid` int(11) unsigned NOT NULL DEFAULT '0',
+  `guid` int(10) unsigned NOT NULL DEFAULT '0',
   `itemEntry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `owner_guid` int(11) unsigned NOT NULL DEFAULT '0',
+  `owner_guid` int(10) unsigned NOT NULL DEFAULT '0',
   `creatorGuid` int(10) unsigned NOT NULL DEFAULT '0',
   `giftCreatorGuid` int(10) unsigned NOT NULL DEFAULT '0',
   `count` int(10) unsigned NOT NULL DEFAULT '1',
-  `duration` int(10) unsigned NOT NULL DEFAULT '0',
-  `charges` text NOT NULL,
-  `flags` int(10) unsigned NOT NULL DEFAULT '0',
+  `duration` int(10) NOT NULL DEFAULT '0',
+  `charges` tinytext,
+  `flags` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `enchantments` text NOT NULL,
-  `randomPropertyId` int(11) NOT NULL DEFAULT '0',
-  `durability` int(10) unsigned NOT NULL DEFAULT '0',
+  `randomPropertyId` smallint(5) NOT NULL DEFAULT '0',
+  `durability` smallint(5) unsigned NOT NULL DEFAULT '0',
   `playedTime` int(10) unsigned NOT NULL DEFAULT '0',
-  `text` longtext,
+  `text` text,
   PRIMARY KEY (`guid`),
   KEY `idx_owner_guid` (`owner_guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Item System';
@@ -1846,10 +1846,10 @@ DROP TABLE IF EXISTS `item_refund_instance`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `item_refund_instance` (
-  `item_guid` int(11) unsigned NOT NULL COMMENT 'Item GUID',
-  `player_guid` int(11) unsigned NOT NULL COMMENT 'Player GUID',
-  `paidMoney` int(11) unsigned NOT NULL DEFAULT '0',
-  `paidExtendedCost` int(11) unsigned NOT NULL DEFAULT '0',
+  `item_guid` int(10) unsigned NOT NULL COMMENT 'Item GUID',
+  `player_guid` int(10) unsigned NOT NULL COMMENT 'Player GUID',
+  `paidMoney` int(10) unsigned NOT NULL DEFAULT '0',
+  `paidExtendedCost` smallint(5) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`item_guid`,`player_guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Item Refund System';
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2192,4 +2192,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2011-01-20  0:05:54
+-- Dump completed on 2011-01-20  0:59:06
