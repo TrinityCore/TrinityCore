@@ -365,7 +365,7 @@ class boss_halion : public CreatureScript
             void SetPhase3()
             {
                 events.SetPhase(PHASE_3);
-                if (GameObject* portal = me->SummonGameObject(GO_TWILIGHT_PORTAL2, 3154.56f, 535.418f, 72.8889f, 4.47206f, 0, 0, 0.786772f, -0.617243f, 99999999))
+                if (me && GameObject* portal = me->SummonGameObject(GO_TWILIGHT_PORTAL2, 3154.56f, 535.418f, 72.8889f, 4.47206f, 0, 0, 0.786772f, -0.617243f, 99999999))
                 {
                     portal->SetPhaseMask(32,true);
                     portal->SetRespawnTime(9999999);
