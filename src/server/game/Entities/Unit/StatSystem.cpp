@@ -330,6 +330,8 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                 ShapeshiftForm form = GetShapeshiftForm();
                 // Check if Predatory Strikes is skilled
                 float mLevelMult = 0.0f;
+                float mFeralMult = 0.0;
+                short applied = 0;
                 switch (form)
                 {
                     case FORM_CAT:
@@ -342,12 +344,20 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                         {
                             // Predatory Strikes (effect 0)
                             if ((*itr)->GetEffIndex() == 0 && (*itr)->GetSpellProto()->SpellIconID == 1563)
-                            {
-                                mLevelMult = CalculatePctN(1.0f, (*itr)->GetAmount());
-                                break;
+                            {                                
+                                mLevelMult = (*itr)->GetAmount() / 100.0f;
+                                if( applied ) break;
+                                applied = 1;
                             }
-                        }
-                        break;
+                            // Predatory Strikes (effect 1)
+                            if ((*itr)->GetEffIndex() == 1 && (*itr)->GetSpellProto()->SpellIconID == 1563)
+                             {
+                                mFeralMult = (*itr)->GetAmount() / 100.0f;
+                                if( applied ) break;
+                                applied = 1;
+                             }
+                         }
+                         break;
                     }
                     default: break;
                 }
@@ -355,10 +365,10 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                 switch (form)
                 {
                     case FORM_CAT:
-                        val2 = getLevel() * (mLevelMult + 2.0f) + GetStat(STAT_STRENGTH) * 2.0f + GetStat(STAT_AGILITY) - 20.0f + m_baseFeralAP; break;
+                        val2 = getLevel()*(mLevelMult+2.0f) + GetStat(STAT_STRENGTH)*2.0f + GetStat(STAT_AGILITY) - 20.0f + (m_baseFeralAP*(mFeralMult+1.0f)); break;
                     case FORM_BEAR:
                     case FORM_DIREBEAR:
-                        val2 = getLevel() * (mLevelMult + 3.0f) + GetStat(STAT_STRENGTH) * 2.0f - 20.0f + m_baseFeralAP; break;
+                        val2 = getLevel()*(mLevelMult+3.0f) + GetStat(STAT_STRENGTH)*2.0f - 20.0f + (m_baseFeralAP*(mFeralMult+1.0f)); break;
                     case FORM_MOONKIN:
                         val2 = getLevel() * (mLevelMult + 1.5f) + GetStat(STAT_STRENGTH) * 2.0f - 20.0f + m_baseFeralAP; break;
                     default:
