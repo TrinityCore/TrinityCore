@@ -2422,6 +2422,8 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     break;
             }
 
+            CallScriptAfterUnitTargetSelectHandlers(unitList, SpellEffIndex(i));
+
             for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
                 AddUnitTarget(*itr, i);
         }
@@ -2834,17 +2836,6 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                                 ++itr;
                         }
                         break;
-                    case 69782: case 69796:                 // Ooze Flood
-                    case 69798: case 69801:                 // Ooze Flood
-                        // get 2 targets except 2 nearest
-                        unitList.sort(Trinity::ObjectDistanceOrderPred(m_caster));
-                        unitList.resize(4);
-                        while (unitList.size() > 2)
-                            unitList.pop_front();
-                        // crashfix
-                        if (unitList.empty())
-                            return;
-                        break;
                     case 68921: case 69049:                 // Soulstorm
                         for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end();)
                         {
@@ -2917,6 +2908,9 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     }
                 }
             }
+
+            CallScriptAfterUnitTargetSelectHandlers(unitList, SpellEffIndex(i));
+
             for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
                 AddUnitTarget(*itr, i);
         }
@@ -7401,6 +7395,20 @@ void Spell::CallScriptAfterHitHandlers()
         {
             (*hookItr).Call(*scritr);
         }
+        (*scritr)->_FinishScriptCall();
+    }
+}
+
+void Spell::CallScriptAfterUnitTargetSelectHandlers(std::list<Unit*>& unitTargets, SpellEffIndex effIndex)
+{
+    for(std::list<SpellScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
+    {
+        (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_UNIT_TARGET_SELECT);
+        std::list<SpellScript::UnitTargetHandler>::iterator hookItrEnd = (*scritr)->OnUnitTargetSelect.end(), hookItr = (*scritr)->OnUnitTargetSelect.begin();
+        for(; hookItr != hookItrEnd ; ++hookItr)
+            if ((*hookItr).IsEffectAffected(m_spellInfo, effIndex))
+            (*hookItr).Call(*scritr, unitTargets);
+
         (*scritr)->_FinishScriptCall();
     }
 }
