@@ -463,9 +463,19 @@ class spell_rotface_ooze_flood : public SpellScriptLoader
                 GetHitUnit()->CastSpell(list.back(), uint32(GetEffectValue()), false, NULL, NULL, GetOriginalCaster() ? GetOriginalCaster()->GetGUID() : 0);
             }
 
+            void FilterTargets(std::list<Unit*>& targetList)
+            {
+                // get 2 targets except 2 nearest
+                targetList.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
+                targetList.resize(4);
+                while (targetList.size() > 2)
+                    targetList.pop_front();
+            }
+
             void Register()
             {
                 OnEffect += SpellEffectFn(spell_rotface_ooze_flood_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_rotface_ooze_flood_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENTRY_SRC);
             }
         };
 
