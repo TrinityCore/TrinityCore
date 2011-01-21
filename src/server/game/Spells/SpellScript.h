@@ -120,11 +120,12 @@ enum SpellScriptHookType
     SPELL_SCRIPT_HOOK_BEFORE_HIT,
     SPELL_SCRIPT_HOOK_HIT,
     SPELL_SCRIPT_HOOK_AFTER_HIT,
+    SPELL_SCRIPT_HOOK_UNIT_TARGET_SELECT,
 };
 #define HOOK_SPELL_HIT_START SPELL_SCRIPT_HOOK_EFFECT
 #define HOOK_SPELL_HIT_END SPELL_SCRIPT_HOOK_AFTER_HIT + 1
 #define HOOK_SPELL_START SPELL_SCRIPT_HOOK_EFFECT
-#define HOOK_SPELL_END SPELL_SCRIPT_HOOK_AFTER_HIT + 1
+#define HOOK_SPELL_END SPELL_SCRIPT_HOOK_UNIT_TARGET_SELECT + 1
 #define HOOK_SPELL_COUNT HOOK_SPELL_END - HOOK_SPELL_START
 
 class SpellScript : public _SpellScript
@@ -135,6 +136,7 @@ class SpellScript : public _SpellScript
         #define SPELLSCRIPT_FUNCTION_TYPE_DEFINES(CLASSNAME) \
             typedef void(CLASSNAME::*SpellEffectFnType)(SpellEffIndex); \
             typedef void(CLASSNAME::*SpellHitFnType)(); \
+            typedef void(CLASSNAME::*SpellUnitTargetFnType)(std::list<Unit*>&); \
 
         SPELLSCRIPT_FUNCTION_TYPE_DEFINES(SpellScript)
 
@@ -158,21 +160,34 @@ class SpellScript : public _SpellScript
                 SpellHitFnType pHitHandlerScript;
         };
 
+        class UnitTargetHandler : public _SpellScript::EffectHook
+        {
+            public:
+                UnitTargetHandler(SpellUnitTargetFnType _pUnitTargetHandlerScript, uint8 _effIndex, uint16 _targetType);
+                std::string ToString();
+                bool CheckEffect(SpellEntry const * spellEntry, uint8 targetType);
+                void Call(SpellScript * spellScript, std::list<Unit*>& unitTargets);
+            private:
+                SpellUnitTargetFnType pUnitTargetHandlerScript;
+                uint16 targetType;
+        };
+
         #define SPELLSCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME) \
         class EffectHandlerFunction : public SpellScript::EffectHandler { public: EffectHandlerFunction(SpellEffectFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName) : SpellScript::EffectHandler((SpellScript::SpellEffectFnType)_pEffectHandlerScript, _effIndex, _effName) {} }; \
         class HitHandlerFunction : public SpellScript::HitHandler { public: HitHandlerFunction(SpellHitFnType _pHitHandlerScript) : SpellScript::HitHandler((SpellScript::SpellHitFnType)_pHitHandlerScript) {} }; \
+        class UnitTargetHandlerFunction : public SpellScript::UnitTargetHandler { public: UnitTargetHandlerFunction(SpellUnitTargetFnType _pUnitTargetHandlerScript, uint8 _effIndex, uint16 _targetType) : SpellScript::UnitTargetHandler((SpellScript::SpellUnitTargetFnType)_pUnitTargetHandlerScript, _effIndex, _targetType) {} }; \
 
         #define PrepareSpellScript(CLASSNAME) SPELLSCRIPT_FUNCTION_TYPE_DEFINES(CLASSNAME) SPELLSCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME)
     public:
         bool _Validate(SpellEntry const * entry);
         bool _Load(Spell * spell);
         void _InitHit();
-        bool _IsEffectPrevented(SpellEffIndex effIndex) {return m_hitPreventEffectMask & (1<<effIndex);};
-        bool _IsDefaultEffectPrevented(SpellEffIndex effIndex) {return m_hitPreventDefaultEffectMask & (1<<effIndex);};
+        bool _IsEffectPrevented(SpellEffIndex effIndex) { return m_hitPreventEffectMask & (1<<effIndex); }
+        bool _IsDefaultEffectPrevented(SpellEffIndex effIndex) { return m_hitPreventDefaultEffectMask & (1<<effIndex); }
         void _PrepareScriptCall(SpellScriptHookType hookType);
         void _FinishScriptCall();
-        bool IsInHitPhase() { return (m_currentScriptState >= HOOK_SPELL_HIT_START && m_currentScriptState < HOOK_SPELL_HIT_END); };
-        bool IsInEffectHook() { return (m_currentScriptState == SPELL_SCRIPT_HOOK_EFFECT); };
+        bool IsInHitPhase() { return (m_currentScriptState >= HOOK_SPELL_HIT_START && m_currentScriptState < HOOK_SPELL_HIT_END); }
+        bool IsInEffectHook() { return (m_currentScriptState == SPELL_SCRIPT_HOOK_EFFECT); }
     private:
         Spell * m_spell;
         uint8 m_hitPreventEffectMask;
@@ -196,11 +211,17 @@ class SpellScript : public _SpellScript
         // where function is: void function()
         #define SpellHitFn(F) HitHandlerFunction(&F)
 
+        // example: OnUnitTargetSelect += SpellUnitTargetFn(class::function, EffectIndexSpecifier, TargetsNameSpecifier);
+        // where function is void function(std::list<Unit*>& targetList)
+        HookList<UnitTargetHandler> OnUnitTargetSelect;
+        #define SpellUnitTargetFn(F, I, N) UnitTargetHandlerFunction(&F, I, N)
+
         // hooks are executed in following order, at specified event of spell:
-        // 1. BeforeHit - executed just before spell hits a target
-        // 2. OnEffect - executed just before specified effect handler call
-        // 3. OnHit - executed just before spell deals damage and procs auras
-        // 4. AfterHit - executed just after spell finishes all it's jobs for target
+        // 1. OnUnitTargetSelect - executed just before adding selected targets to final target list
+        // 2. BeforeHit - executed just before spell hits a target
+        // 3. OnEffect - executed just before specified effect handler call
+        // 4. OnHit - executed just before spell deals damage and procs auras
+        // 5. AfterHit - executed just after spell finishes all it's jobs for target
 
         //
         // methods allowing interaction with Spell object
