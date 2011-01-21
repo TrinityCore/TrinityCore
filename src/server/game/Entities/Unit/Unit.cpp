@@ -5887,12 +5887,12 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
         case SPELLFAMILY_PRIEST:
         {
             // Vampiric Touch
-            if (dummySpell->SpellFamilyFlags[1] & 0x00000400)
+            if (dummySpell->SpellFamilyFlags[EFFECT_1] & 0x00000400)
             {
                 if (!pVictim || !pVictim->isAlive())
                     return false;
 
-                if (effIndex != 0)
+                if (effIndex != EFFECT_0)
                     return false;
 
                 // pVictim is caster of aura
@@ -5900,7 +5900,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     return false;
 
                 // Energize 0.25% of max. mana
-                pVictim->CastSpell(pVictim,57669,true,castItem,triggeredByAura);
+                pVictim->CastSpell(pVictim, 57669, true, castItem, triggeredByAura);
                 return true;                                // no hidden cooldown
             }
             // Divine Aegis
