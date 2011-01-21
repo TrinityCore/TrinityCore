@@ -159,7 +159,7 @@ bool ChatHandler::GetDeletedCharacterInfoList(DeletedInfoList& foundList, std::s
             // account name will be empty for not existed account
             sAccountMgr->GetName(info.accountId, info.accountName);
 
-            info.deleteDate = time_t(fields[3].GetUInt64());
+            info.deleteDate = time_t(fields[3].GetUInt32());
 
             foundList.push_back(info);
         } while (resultChar->NextRow());

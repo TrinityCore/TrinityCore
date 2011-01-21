@@ -18,30 +18,33 @@
 #include "ScriptPCH.h"
 #include "oculus.h"
 
+enum Says
+{
+    SAY_AGGRO           = 0,
+    SAY_AZURE           = 1,
+    SAY_AZURE_EMOTE     = 2,
+    SAY_DEATH           = 3
+};
+
 enum Spells
 {
     SPELL_ENERGIZE_CORES                          = 50785, //Damage 5938 to 6562, effec2 Triggers 54069, effect3 Triggers 56251
-    SPELL_ENERGIZE_CORES_TRIGGER_1                = 54069,
-    SPELL_ENERGIZE_CORES_TRIGGER_2                = 56251,
-    SPELL_ENERGIZE_CORES_2                        = 59372, //Damage 9025 to 9975, effect2 Triggers 54069, effect 56251
     SPELL_CALL_AZURE_RING_CAPTAIN                 = 51002, //Effect    Send Event (12229)
-    SPELL_CALL_AZURE_RING_CAPTAIN_2               = 51006, //Effect    Send Event (10665)
+    /*SPELL_CALL_AZURE_RING_CAPTAIN_2               = 51006, //Effect    Send Event (10665)
     SPELL_CALL_AZURE_RING_CAPTAIN_3               = 51007, //Effect    Send Event (18454)
-    SPELL_CALL_AZURE_RING_CAPTAIN_4               = 51008, //Effect    Send Event (18455)
+    SPELL_CALL_AZURE_RING_CAPTAIN_4               = 51008, //Effect    Send Event (18455)*/
     SPELL_CALL_AMPLIFY_MAGIC                      = 51054,
-    SPELL_CALL_AMPLIFY_MAGIC_2                    = 59371
+   
+    SPELL_CENTRIFUGE_SHIELD                       = 50053,
+
+    SPELL_ICE_BEAM                                = 49549
 };
-//not in db
-enum Yells
+
+enum Events
 {
-    SAY_AGGRO                                     = -1578022,
-    SAY_KILL_1                                    = -1578023,
-    SAY_KILL_2                                    = -1578024,
-    SAY_DEATH                                     = -1578025,
-    SAY_STRIKE_1                                  = -1578026,
-    SAY_STRIKE_2                                  = -1578027,
-    SAY_STRIKE_3                                  = -1578028,
-    SAY_SPAWN                                     = -1578029
+    EVENT_ENERGIZE_CORES = 1,
+    EVENT_CALL_AZURE,
+    EVENT_AMPLIFY_MAGIC
 };
 
 class boss_varos : public CreatureScript
@@ -49,61 +52,219 @@ class boss_varos : public CreatureScript
 public:
     boss_varos() : CreatureScript("boss_varos") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new boss_varosAI (pCreature);
+        return new boss_varosAI (creature);
     }
 
-    struct boss_varosAI : public ScriptedAI
+    struct boss_varosAI : public BossAI
     {
-        boss_varosAI(Creature *c) : ScriptedAI(c)
+        boss_varosAI(Creature* creature) : BossAI(creature, DATA_VAROS_EVENT) 
         {
-            pInstance = c->GetInstanceScript();
+            DoCast(me,SPELL_CENTRIFUGE_SHIELD);
         }
-
-        InstanceScript* pInstance;
 
         void Reset()
         {
-            if (pInstance)
-                pInstance->SetData(DATA_VAROS_EVENT, NOT_STARTED);
+            _Reset();
+
+            events.ScheduleEvent(EVENT_AMPLIFY_MAGIC, urand(20,25) * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_ENERGIZE_CORES, urand(0,15) * IN_MILLISECONDS);
+            // not sure if this is handled by a timer or hp percentage
+            events.ScheduleEvent(EVENT_CALL_AZURE, urand(15,30) * IN_MILLISECONDS);
+
+            instance->SetData(DATA_VAROS_EVENT, NOT_STARTED);
         }
+
+        void AttackStart(Unit* attacker)
+        {
+            if (me->HasFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_UNK_9))
+                return;
+
+            BossAI::AttackStart(attacker);
+        }
+
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            _EnterCombat();
 
-            if (pInstance)
-                pInstance->SetData(DATA_VAROS_EVENT, IN_PROGRESS);
+            Talk(SAY_AGGRO);
+
+            instance->SetData(DATA_VAROS_EVENT, IN_PROGRESS);
         }
-        void AttackStart(Unit* /*who*/) {}
-        void MoveInLineOfSight(Unit* /*who*/) {}
-        void UpdateAI(const uint32 /*diff*/)
+
+        void UpdateAI(const uint32 diff)
         {
             //Return since we have no target
             if (!UpdateVictim())
                 return;
 
+            events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STAT_CASTING))
+                return;
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_ENERGIZE_CORES:
+                        DoCast(me,SPELL_ENERGIZE_CORES);
+                        events.ScheduleEvent(EVENT_ENERGIZE_CORES, urand(12,14) * IN_MILLISECONDS);
+                        break;
+                    case EVENT_CALL_AZURE:
+                        // not sure how blizz handles this, i cant see any pattern between the differnt spells
+                        DoCast(me,SPELL_CALL_AZURE_RING_CAPTAIN); 
+                        Talk(SAY_AZURE);
+                        Talk(SAY_AZURE_EMOTE);
+                        events.ScheduleEvent(EVENT_CALL_AZURE, urand(20,25) * IN_MILLISECONDS);
+                        break;
+                    case EVENT_AMPLIFY_MAGIC:
+                        DoCast(me->getVictim(),SPELL_CALL_AMPLIFY_MAGIC);
+                        events.ScheduleEvent(EVENT_AMPLIFY_MAGIC, urand(17,20) * IN_MILLISECONDS);
+                        break;
+                }
+            }
+
             DoMeleeAttackIfReady();
         }
+
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            _JustDied();
 
-            if (pInstance)
-                pInstance->SetData(DATA_VAROS_EVENT, DONE);
-        }
-        void KilledUnit(Unit * victim)
-        {
-            if (victim == me)
-                return;
-            DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2), me);
+            Talk(SAY_DEATH);
+            instance->SetData(DATA_VAROS_EVENT, DONE);
         }
     };
-
 };
 
+class npc_azure_ring_captain : public CreatureScript
+{
+    public:
+        npc_azure_ring_captain() : CreatureScript("npc_azure_ring_captain") { }
+
+        struct npc_azure_ring_captainAI : public ScriptedAI
+        {
+            npc_azure_ring_captainAI(Creature* creature) : ScriptedAI(creature)
+            { 
+                instance = creature->GetInstanceScript();
+            }
+
+            void Reset()
+            {
+                targetGUID = 0;
+
+                me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                me->SetReactState(REACT_AGGRESSIVE);
+            }
+                      
+            void SpellHitTarget(Unit* target, SpellEntry const* spell)
+            {
+                if (spell->Id == SPELL_ICE_BEAM)
+                    EnterEvadeMode();
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+                
+                DoMeleeAttackIfReady();
+            }
+
+            void MovementInform(uint32 type, uint32 id)
+            {   
+                if (type != POINT_MOTION_TYPE ||
+                    id != ACTION_CALL_DRAGON_EVENT)
+                    return;
+
+                me->GetMotionMaster()->MoveIdle();
+
+                if (Unit* target = ObjectAccessor::GetUnit(*me,targetGUID))
+                    DoCast(target,SPELL_ICE_BEAM);
+            }
+
+            void DoAction(const int32 action)
+            {
+                switch (action)
+                {
+                   case ACTION_CALL_DRAGON_EVENT:
+                        if (instance)
+                        {
+                            if (Creature* varos = ObjectAccessor::GetCreature(*me,instance->GetData64(DATA_VAROS)))
+                            {
+                                if (Unit* victim = varos->AI()->SelectTarget(SELECT_TARGET_RANDOM,0))
+                                {
+                                    me->SetReactState(REACT_PASSIVE);
+                                    me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                                    me->GetMotionMaster()->MovePoint(ACTION_CALL_DRAGON_EVENT,victim->GetPositionX(),victim->GetPositionY(),victim->GetPositionZ() + 20.0f);
+                                    targetGUID = victim->GetGUID();
+                                }
+                            }
+                        }
+                        break;
+                }
+           }
+        private:
+            uint64 targetGUID;
+            InstanceScript* instance;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_azure_ring_captainAI(creature);
+        }
+};
+
+class spell_varos_centrifuge_shield : public SpellScriptLoader
+{
+    public:
+        spell_varos_centrifuge_shield() : SpellScriptLoader("spell_varos_centrifuge_shield") { }
+
+        class spell_varos_centrifuge_shield_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_varos_centrifuge_shield_AuraScript);
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (!GetCaster()->ToCreature())
+                    return;
+
+                // flags taken from sniffs
+                // UNIT_FLAG_UNK_9 -> means passive but it is not yet implemented in core
+                if (GetCaster()->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15|UNIT_FLAG_UNK_9|UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_UNK_6))
+                {
+                    GetCaster()->ToCreature()->SetReactState(REACT_PASSIVE);
+                    GetCaster()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15|UNIT_FLAG_UNK_9|UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_UNK_6);
+                }
+            }
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (!GetCaster()->ToCreature())
+                    return;
+
+                GetCaster()->ToCreature()->SetReactState(REACT_AGGRESSIVE);
+                GetCaster()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15|UNIT_FLAG_UNK_9|UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_UNK_6);
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_varos_centrifuge_shield_AuraScript::OnRemove, EFFECT_0,SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                OnEffectApply += AuraEffectApplyFn(spell_varos_centrifuge_shield_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_varos_centrifuge_shield_AuraScript();
+        }
+};
 
 void AddSC_boss_varos()
 {
     new boss_varos();
+    new npc_azure_ring_captain();
+    new spell_varos_centrifuge_shield();
 }

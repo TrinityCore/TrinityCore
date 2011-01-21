@@ -107,14 +107,13 @@ void Corpse::SaveToDB()
     DeleteFromDB(trans);
 
     std::ostringstream ss;
-    ss  << "INSERT INTO corpse (guid,player,position_x,position_y,position_z,orientation,zone,map,displayId,itemCache,bytes1,bytes2,guild,flags,dynFlags,time,corpse_type,instance,phaseMask) VALUES ("
+    ss  << "INSERT INTO corpse (guid,player,position_x,position_y,position_z,orientation,map,displayId,itemCache,bytes1,bytes2,guild,flags,dynFlags,time,corpse_type,instance,phaseMask) VALUES ("
         << GetGUIDLow() << ", "
         << GUID_LOPART(GetOwnerGUID()) << ", "
         << GetPositionX() << ", "
         << GetPositionY() << ", "
         << GetPositionZ() << ", "
         << GetOrientation() << ", "
-        << GetZoneId() << ", "
         << GetMapId() << ", "
         << GetUInt32Value(CORPSE_FIELD_DISPLAY_ID) << ", '";
     for (uint16 i = 0; i < EQUIPMENT_SLOT_END; ++i)
@@ -125,7 +124,7 @@ void Corpse::SaveToDB()
         << GetUInt32Value(CORPSE_FIELD_GUILD) << ", "
         << GetUInt32Value(CORPSE_FIELD_FLAGS) << ", "
         << GetUInt32Value(CORPSE_FIELD_DYNAMIC_FLAGS) << ", "
-        << uint64(m_time) << ", "
+        << uint32(m_time) << ", "
         << uint32(GetType()) << ", "
         << int(GetInstanceId()) << ", "
         << uint16(GetPhaseMask()) << ")";           // prevent out of range error
@@ -165,7 +164,7 @@ bool Corpse::LoadFromDB(uint32 guid, Field *fields)
     float positionY = fields[1].GetFloat();
     float positionZ = fields[2].GetFloat();
     float ort       = fields[3].GetFloat();
-    uint32 mapid    = fields[4].GetUInt32();
+    uint32 mapid    = fields[4].GetUInt16();
 
     Object::_Create(guid, 0, HIGHGUID_CORPSE);
 
@@ -174,11 +173,11 @@ bool Corpse::LoadFromDB(uint32 guid, Field *fields)
     SetUInt32Value(CORPSE_FIELD_BYTES_1, fields[7].GetUInt32());
     SetUInt32Value(CORPSE_FIELD_BYTES_2, fields[8].GetUInt32());
     SetUInt32Value(CORPSE_FIELD_GUILD, fields[9].GetUInt32());
-    SetUInt32Value(CORPSE_FIELD_FLAGS, fields[10].GetUInt32());
+    SetUInt32Value(CORPSE_FIELD_FLAGS, fields[10].GetUInt8());
     SetUInt32Value(CORPSE_FIELD_DYNAMIC_FLAGS, fields[11].GetUInt32());
     SetUInt64Value(CORPSE_FIELD_OWNER, MAKE_NEW_GUID(fields[17].GetUInt32(), 0, HIGHGUID_PLAYER));
 
-    m_time = time_t(fields[12].GetUInt64());
+    m_time = time_t(fields[12].GetUInt32());
     m_type = CorpseType(fields[13].GetUInt32());
 
     if (m_type >= MAX_CORPSE_TYPE)
@@ -191,7 +190,7 @@ bool Corpse::LoadFromDB(uint32 guid, Field *fields)
         m_isWorldObject = true;
 
     uint32 instanceid  = fields[14].GetUInt32();
-    uint32 phaseMask   = fields[15].GetUInt32();
+    uint32 phaseMask   = fields[15].GetUInt8();
 
     // place
     SetLocationInstanceId(instanceid);

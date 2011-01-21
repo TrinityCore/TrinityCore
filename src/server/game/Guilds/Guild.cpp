@@ -591,7 +591,7 @@ bool Guild::Member::LoadFromDB(Field* fields)
              fields[21].GetUInt8(),
              fields[22].GetUInt32(),
              fields[23].GetUInt32());
-    m_logoutTime    = fields[24].GetUInt64();
+    m_logoutTime    = fields[24].GetUInt32();
 
     if (!CheckStats())
         return false;
@@ -718,11 +718,11 @@ inline void Guild::Member::ResetMoneyTime()
 // EmblemInfo
 void EmblemInfo::LoadFromDB(Field* fields)
 {
-    m_style             = fields[3].GetUInt32();
-    m_color             = fields[4].GetUInt32();
-    m_borderStyle       = fields[5].GetUInt32();
-    m_borderColor       = fields[6].GetUInt32();
-    m_backgroundColor   = fields[7].GetUInt32();
+    m_style             = fields[3].GetUInt8();
+    m_color             = fields[4].GetUInt8();
+    m_borderStyle       = fields[5].GetUInt8();
+    m_borderColor       = fields[6].GetUInt8();
+    m_backgroundColor   = fields[7].GetUInt8();
 }
 
 void EmblemInfo::WritePacket(WorldPacket& data) const
@@ -1126,7 +1126,7 @@ bool Guild::Create(Player* pLeader, const std::string& name)
     stmt->setUInt32(++index, GUID_LOPART(m_leaderGuid));
     stmt->setString(++index, m_info);
     stmt->setString(++index, m_motd);
-    stmt->setUInt64(++index, uint64(m_createdDate));
+    stmt->setUInt64(++index, uint32(m_createdDate));
     stmt->setUInt32(++index, m_emblemInfo.GetStyle());
     stmt->setUInt32(++index, m_emblemInfo.GetColor());
     stmt->setUInt32(++index, m_emblemInfo.GetBorderStyle());
@@ -1840,7 +1840,7 @@ bool Guild::LoadFromDB(Field* fields)
     m_emblemInfo.LoadFromDB(fields);
     m_info          = fields[8].GetString();
     m_motd          = fields[9].GetString();
-    m_createdDate   = fields[10].GetUInt64();
+    m_createdDate   = time_t(fields[10].GetUInt32());
     m_bankMoney     = fields[11].GetUInt64();
 
     uint8 purchasedTabs = uint8(fields[12].GetUInt32());
@@ -1894,7 +1894,7 @@ bool Guild::LoadEventLogFromDB(Field* fields)
         m_eventLog->LoadEvent(new EventLogEntry(
             m_id,                                       // guild id
             fields[1].GetUInt32(),                      // guid
-            fields[6].GetUInt64(),                      // timestamp
+            time_t(fields[6].GetUInt32()),              // timestamp
             GuildEventLogTypes(fields[2].GetUInt8()),   // event type
             fields[3].GetUInt32(),                      // player guid 1
             fields[4].GetUInt32(),                      // player guid 2
@@ -1932,7 +1932,7 @@ bool Guild::LoadBankEventLogFromDB(Field* fields)
             pLog->LoadEvent(new BankEventLogEntry(
                 m_id,                                   // guild id
                 guid,                                   // guid
-                fields[8].GetUInt64(),                  // timestamp
+                time_t(fields[8].GetUInt32()),          // timestamp
                 dbTabId,                                // tab id
                 eventType,                              // event type
                 fields[4].GetUInt32(),                  // player guid
@@ -2102,7 +2102,7 @@ bool Guild::AddMember(const uint64& guid, uint8 rankId)
                 fields[0].GetString(),
                 fields[1].GetUInt8(),
                 fields[2].GetUInt8(),
-                fields[3].GetUInt32(),
+                fields[3].GetUInt16(),
                 fields[4].GetUInt32());
 
             ok = pMember->CheckStats();
