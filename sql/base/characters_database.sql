@@ -669,6 +669,7 @@ CREATE TABLE `character_inventory` (
   `slot` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `item` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Item Global Unique Identifier',
   PRIMARY KEY (`item`),
+  UNIQUE KEY (`guid`,`bag`,`slot`),
   KEY `idx_guid` (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
