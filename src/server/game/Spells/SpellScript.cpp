@@ -439,6 +439,12 @@ void SpellScript::CreateItem(uint32 effIndex, uint32 itemId)
     m_spell->DoCreateItem(effIndex, itemId);
 }
 
+void SpellScript::FinishCast(SpellCastResult result)
+{
+    m_spell->SendCastResult(result);
+    m_spell->finish(result == SPELL_CAST_OK);
+}
+
 bool AuraScript::_Validate(SpellEntry const * entry)
 {
     for (std::list<EffectApplyHandler>::iterator itr = OnEffectApply.begin(); itr != OnEffectApply.end();  ++itr)

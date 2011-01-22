@@ -39,155 +39,128 @@ enum WarlockSpells
 // 47193 Demonic Empowerment
 class spell_warl_demonic_empowerment : public SpellScriptLoader
 {
-public:
-    spell_warl_demonic_empowerment() : SpellScriptLoader("spell_warl_demonic_empowerment") { }
+    public:
+        spell_warl_demonic_empowerment() : SpellScriptLoader("spell_warl_demonic_empowerment") { }
 
-    class spell_warl_demonic_empowerment_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warl_demonic_empowerment_SpellScript)
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        class spell_warl_demonic_empowerment_SpellScript : public SpellScript
         {
-            if (!sSpellStore.LookupEntry(WARLOCK_DEMONIC_EMPOWERMENT_SUCCUBUS))
-                return false;
-            if (!sSpellStore.LookupEntry(WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER))
-                return false;
-            if (!sSpellStore.LookupEntry(WARLOCK_DEMONIC_EMPOWERMENT_FELGUARD))
-                return false;
-            if (!sSpellStore.LookupEntry(WARLOCK_DEMONIC_EMPOWERMENT_FELHUNTER))
-                return false;
-            if (!sSpellStore.LookupEntry(WARLOCK_DEMONIC_EMPOWERMENT_IMP))
-                return false;
-            return true;
-        }
+            PrepareSpellScript(spell_warl_demonic_empowerment_SpellScript);
 
-        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-        {
-            if (Creature* targetCreature = GetHitCreature())
+            bool Validate(SpellEntry const * /*spellEntry*/)
             {
-                if (targetCreature->isPet())
+                if (!sSpellStore.LookupEntry(WARLOCK_DEMONIC_EMPOWERMENT_SUCCUBUS))
+                    return false;
+                if (!sSpellStore.LookupEntry(WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER))
+                    return false;
+                if (!sSpellStore.LookupEntry(WARLOCK_DEMONIC_EMPOWERMENT_FELGUARD))
+                    return false;
+                if (!sSpellStore.LookupEntry(WARLOCK_DEMONIC_EMPOWERMENT_FELHUNTER))
+                    return false;
+                if (!sSpellStore.LookupEntry(WARLOCK_DEMONIC_EMPOWERMENT_IMP))
+                    return false;
+                return true;
+            }
+
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+            {
+                if (Creature* targetCreature = GetHitCreature())
                 {
-                    CreatureInfo const * ci = ObjectMgr::GetCreatureTemplate(targetCreature->GetEntry());
-                    switch (ci->family)
+                    if (targetCreature->isPet())
                     {
-                    case CREATURE_FAMILY_SUCCUBUS:
-                        targetCreature->CastSpell(targetCreature, WARLOCK_DEMONIC_EMPOWERMENT_SUCCUBUS, true);
-                        break;
-                    case CREATURE_FAMILY_VOIDWALKER:
-                    {
-                        SpellEntry const* spellInfo = sSpellStore.LookupEntry(WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER);
-                        int32 hp = int32(targetCreature->CountPctFromMaxHealth(GetCaster()->CalculateSpellDamage(targetCreature, spellInfo, 0)));
-                        targetCreature->CastCustomSpell(targetCreature, WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER, &hp, NULL, NULL, true);
-                        //unitTarget->CastSpell(unitTarget, 54441, true);
-                        break;
-                    }
-                    case CREATURE_FAMILY_FELGUARD:
-                        targetCreature->CastSpell(targetCreature, WARLOCK_DEMONIC_EMPOWERMENT_FELGUARD, true);
-                        break;
-                    case CREATURE_FAMILY_FELHUNTER:
-                        targetCreature->CastSpell(targetCreature, WARLOCK_DEMONIC_EMPOWERMENT_FELHUNTER, true);
-                        break;
-                    case CREATURE_FAMILY_IMP:
-                        targetCreature->CastSpell(targetCreature, WARLOCK_DEMONIC_EMPOWERMENT_IMP, true);
-                        break;
+                        CreatureInfo const * ci = ObjectMgr::GetCreatureTemplate(targetCreature->GetEntry());
+                        switch (ci->family)
+                        {
+                        case CREATURE_FAMILY_SUCCUBUS:
+                            targetCreature->CastSpell(targetCreature, WARLOCK_DEMONIC_EMPOWERMENT_SUCCUBUS, true);
+                            break;
+                        case CREATURE_FAMILY_VOIDWALKER:
+                        {
+                            SpellEntry const* spellInfo = sSpellStore.LookupEntry(WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER);
+                            int32 hp = int32(targetCreature->CountPctFromMaxHealth(GetCaster()->CalculateSpellDamage(targetCreature, spellInfo, 0)));
+                            targetCreature->CastCustomSpell(targetCreature, WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER, &hp, NULL, NULL, true);
+                            //unitTarget->CastSpell(unitTarget, 54441, true);
+                            break;
+                        }
+                        case CREATURE_FAMILY_FELGUARD:
+                            targetCreature->CastSpell(targetCreature, WARLOCK_DEMONIC_EMPOWERMENT_FELGUARD, true);
+                            break;
+                        case CREATURE_FAMILY_FELHUNTER:
+                            targetCreature->CastSpell(targetCreature, WARLOCK_DEMONIC_EMPOWERMENT_FELHUNTER, true);
+                            break;
+                        case CREATURE_FAMILY_IMP:
+                            targetCreature->CastSpell(targetCreature, WARLOCK_DEMONIC_EMPOWERMENT_IMP, true);
+                            break;
+                        }
                     }
                 }
             }
-        }
 
-        void Register()
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_warl_demonic_empowerment_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnEffect += SpellEffectFn(spell_warl_demonic_empowerment_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            return new spell_warl_demonic_empowerment_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_warl_demonic_empowerment_SpellScript();
-    }
-};
-
-// 47422 Everlasting Affliction
-class spell_warl_everlasting_affliction : public SpellScriptLoader
-{
-public:
-    spell_warl_everlasting_affliction() : SpellScriptLoader("spell_warl_everlasting_affliction") { }
-
-    class spell_warl_everlasting_affliction_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warl_everlasting_affliction_SpellScript)
-        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-        {
-            if (Unit* unitTarget = GetHitUnit())
-                // Refresh corruption on target
-                if (AuraEffect* aur = unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_WARLOCK, 0x2, 0, 0, GetCaster()->GetGUID()))
-                    aur->GetBase()->RefreshDuration();
-        }
-
-        void Register()
-        {
-            OnEffect += SpellEffectFn(spell_warl_everlasting_affliction_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_warl_everlasting_affliction_SpellScript();
-    }
 };
 
 // 6201 Create Healthstone (and ranks)
 class spell_warl_create_healthstone : public SpellScriptLoader
 {
-public:
-    spell_warl_create_healthstone() : SpellScriptLoader("spell_warl_create_healthstone") { }
+    public:
+        spell_warl_create_healthstone() : SpellScriptLoader("spell_warl_create_healthstone") { }
 
-    class spell_warl_create_healthstone_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warl_create_healthstone_SpellScript)
-        static uint32 const iTypes[8][3];
-
-        bool Validate(SpellEntry const * /*spellEntry*/)
+        class spell_warl_create_healthstone_SpellScript : public SpellScript
         {
-            if (!sSpellStore.LookupEntry(WARLOCK_IMPROVED_HEALTHSTONE_R1))
-                return false;
-            if (!sSpellStore.LookupEntry(WARLOCK_IMPROVED_HEALTHSTONE_R2))
-                return false;
-            return true;
-        }
+            PrepareSpellScript(spell_warl_create_healthstone_SpellScript);
 
-        void HandleScriptEffect(SpellEffIndex effIndex)
-        {
-            if (Unit* unitTarget = GetHitUnit())
+            static uint32 const iTypes[8][3];
+
+            bool Validate(SpellEntry const * /*spellEntry*/)
             {
-                uint32 rank = 0;
-                // Improved Healthstone
-                if (AuraEffect const * aurEff = unitTarget->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, 284, 0))
-                {
-                    switch (aurEff->GetId())
-                    {
-                        case WARLOCK_IMPROVED_HEALTHSTONE_R1: rank = 1; break;
-                        case WARLOCK_IMPROVED_HEALTHSTONE_R2: rank = 2; break;
-                        default:
-                            sLog->outError("Unknown rank of Improved Healthstone id: %d", aurEff->GetId());
-                            break;
-                    }
-                }
-                uint8 spellRank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);
-                if (spellRank > 0 && spellRank <= 8)
-                    CreateItem(effIndex, iTypes[spellRank - 1][rank]);
+                if (!sSpellStore.LookupEntry(WARLOCK_IMPROVED_HEALTHSTONE_R1))
+                    return false;
+                if (!sSpellStore.LookupEntry(WARLOCK_IMPROVED_HEALTHSTONE_R2))
+                    return false;
+                return true;
             }
-        }
 
-        void Register()
+            void HandleScriptEffect(SpellEffIndex effIndex)
+            {
+                if (Unit* unitTarget = GetHitUnit())
+                {
+                    uint32 rank = 0;
+                    // Improved Healthstone
+                    if (AuraEffect const * aurEff = unitTarget->GetDummyAuraEffect(SPELLFAMILY_WARLOCK, 284, 0))
+                    {
+                        switch (aurEff->GetId())
+                        {
+                            case WARLOCK_IMPROVED_HEALTHSTONE_R1: rank = 1; break;
+                            case WARLOCK_IMPROVED_HEALTHSTONE_R2: rank = 2; break;
+                            default:
+                                sLog->outError("Unknown rank of Improved Healthstone id: %d", aurEff->GetId());
+                                break;
+                        }
+                    }
+                    uint8 spellRank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);
+                    if (spellRank > 0 && spellRank <= 8)
+                        CreateItem(effIndex, iTypes[spellRank - 1][rank]);
+                }
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_warl_create_healthstone_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnEffect += SpellEffectFn(spell_warl_create_healthstone_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            return new spell_warl_create_healthstone_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_warl_create_healthstone_SpellScript();
-    }
 };
 
 uint32 const spell_warl_create_healthstone::spell_warl_create_healthstone_SpellScript::iTypes[8][3] = {
@@ -201,10 +174,66 @@ uint32 const spell_warl_create_healthstone::spell_warl_create_healthstone_SpellS
     {36892, 36893, 36894}               // Fel Healthstone
 };
 
+// 47422 Everlasting Affliction
+class spell_warl_everlasting_affliction : public SpellScriptLoader
+{
+    public:
+        spell_warl_everlasting_affliction() : SpellScriptLoader("spell_warl_everlasting_affliction") { }
+
+        class spell_warl_everlasting_affliction_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_everlasting_affliction_SpellScript);
+
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* unitTarget = GetHitUnit())
+                    // Refresh corruption on target
+                    if (AuraEffect* aur = unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_WARLOCK, 0x2, 0, 0, GetCaster()->GetGUID()))
+                        aur->GetBase()->RefreshDuration();
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_warl_everlasting_affliction_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_everlasting_affliction_SpellScript();
+        }
+};
+
+class spell_warl_seed_of_corruption : public SpellScriptLoader
+{
+    public:
+        spell_warl_seed_of_corruption() : SpellScriptLoader("spell_warl_seed_of_corruption") { }
+
+        class spell_warl_seed_of_corruption_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_seed_of_corruption_SpellScript);
+
+            void FilterTargets(std::list<Unit*>& unitList)
+            {
+                unitList.remove(GetTargetUnit());
+            }
+
+            void Register()
+            {
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_warl_seed_of_corruption_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_DST);
+            }
+        };
+
+        SpellScript *GetSpellScript() const
+        {
+            return new spell_warl_seed_of_corruption_SpellScript();
+        }
+};
 
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_demonic_empowerment();
-    new spell_warl_everlasting_affliction();
     new spell_warl_create_healthstone();
+    new spell_warl_everlasting_affliction();
+    new spell_warl_seed_of_corruption();
 }

@@ -560,6 +560,63 @@ class spell_blood_queen_bloodbolt : public SpellScriptLoader
         }
 };
 
+class PactOfTheDarkfallenChack
+{
+    public:
+        bool operator() (Unit* unit)
+        {
+            return !unit->HasAura(SPELL_PACT_OF_THE_DARKFALLEN);
+        }
+};
+
+class spell_blood_queen_pact_of_the_darkfallen : public SpellScriptLoader
+{
+    public:
+        spell_blood_queen_pact_of_the_darkfallen() : SpellScriptLoader("spell_blood_queen_pact_of_the_darkfallen") { }
+
+        class spell_blood_queen_pact_of_the_darkfallen_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_blood_queen_pact_of_the_darkfallen_SpellScript);
+
+            void FilterTargets(std::list<Unit*>& unitList)
+            {
+                unitList.remove_if(PactOfTheDarkfallenChack());
+
+                bool remove = true;
+                std::list<Unit*>::const_iterator itrEnd = unitList.end(), itr, itr2;
+                // we can do this, unitList is MAX 4 in size
+                for (itr = unitList.begin(); itr != itrEnd && remove; ++itr)
+                {
+                    if (!GetCaster()->IsWithinDist(*itr, 5.0f, false))
+                        remove = false;
+
+                    for (itr2 = unitList.begin(); itr2 != itrEnd && remove; ++itr2)
+                        if (itr != itr2 && !(*itr2)->IsWithinDist(*itr, 5.0f, false))
+                            remove = false;
+                }
+
+                if (remove)
+                {
+                    if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+                    {
+                        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PACT_OF_THE_DARKFALLEN);
+                        unitList.clear();
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_blood_queen_pact_of_the_darkfallen_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ALLY_SRC);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_blood_queen_pact_of_the_darkfallen_SpellScript();
+        }
+};
+
 class achievement_once_bitten_twice_shy_n : public AchievementCriteriaScript
 {
     public:
@@ -598,6 +655,7 @@ void AddSC_boss_blood_queen_lana_thel()
     new spell_blood_queen_vampiric_bite();
     new spell_blood_queen_frenzied_bloodthirst();
     new spell_blood_queen_bloodbolt();
+    new spell_blood_queen_pact_of_the_darkfallen();
     new achievement_once_bitten_twice_shy_n();
     new achievement_once_bitten_twice_shy_v();
 }
