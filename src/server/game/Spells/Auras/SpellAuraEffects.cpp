@@ -2314,6 +2314,12 @@ void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
                     case 46736:
                         triggerSpellId = 46737;
                         break;
+                    // Shield Level 1
+                    case 63130:
+                    // Shield Level 2
+                    case 63131:
+                    // Shield Level 3
+                    case 63132:
                     // Ball of Flames Visual
                     case 71706:
                         return;

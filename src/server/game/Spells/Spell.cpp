@@ -2787,127 +2787,6 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     unitList.remove(m_targets.getUnitTarget());
                 Trinity::RandomResizeList(unitList, maxTargets);
             }
-            else
-            {
-                switch (m_spellInfo->Id)
-                {
-                    case 27285: // Seed of Corruption proc spell
-                    case 49821: // Mind Sear proc spell Rank 1
-                    case 53022: // Mind Sear proc spell Rank 2
-                        unitList.remove(m_targets.getUnitTarget());
-                        break;
-                    case 55789: // Improved Icy Talons
-                    case 59725: // Improved Spell Reflection - aoe aura
-                        unitList.remove(m_caster);
-                        break;
-                    case 72378: // Blood Nova (Deathbringer Saurfang)
-                    case 73058:
-                    {
-                        // select one random target, with preference of ranged targets
-                        uint32 targetsAtRange = 0;
-                        uint32 const minTargets = m_caster->GetMap()->GetSpawnMode() & 1 ? 10 : 4;
-                        unitList.sort(Trinity::ObjectDistanceOrderPred(m_caster, false));
-
-                        // get target count at range
-                        for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr, ++targetsAtRange)
-                            if ((*itr)->GetDistance(m_caster) < 12.0f)
-                                break;
-
-                        // set the upper cap
-                        if (targetsAtRange < minTargets)
-                            targetsAtRange = std::min<uint32>(unitList.size()-1, minTargets);
-
-                        std::list<Unit*>::iterator itr = unitList.begin();
-                        std::advance(itr, urand(0, targetsAtRange));
-                        Unit* target = *itr;
-                        unitList.clear();
-                        unitList.push_back(target);
-                        break;
-                    }
-                    case 72255: // Mark of the Fallen Champion (Deathbringer Saurfang)
-                    case 72444:
-                    case 72445:
-                    case 72446:
-                        for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end();)
-                        {
-                            if (!(*itr)->HasAura(72293))
-                                itr = unitList.erase(itr);
-                            else
-                                ++itr;
-                        }
-                        break;
-                    case 68921: case 69049:                 // Soulstorm
-                        for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end();)
-                        {
-                            Position pos;
-                            (*itr)->GetPosition(&pos);
-                            if (m_caster->GetExactDist2d(&pos) <= 10.0f)
-                                itr = unitList.erase(itr);
-                            else
-                                ++itr;
-                        }
-                        break;
-                    case 70402: case 72511:
-                    case 72512: case 72513:
-                        if (Unit* owner = ObjectAccessor::GetUnit(*m_caster, m_caster->GetCreatorGUID()))
-                            unitList.remove(owner);
-                        break;
-                    case 71390:                             // Pact of the Darkfallen
-                    {
-                        for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end();)
-                        {
-                            if (!(*itr)->HasAura(71340))
-                                itr = unitList.erase(itr);
-                            else
-                                ++itr;
-                        }
-                        bool remove = true;
-                        // we can do this, unitList is MAX 4 in size
-                        for (std::list<Unit*>::const_iterator itr = unitList.begin(); itr != unitList.end() && remove; ++itr)
-                        {
-                            if (!m_caster->IsWithinDist(*itr, 5.0f, false))
-                                remove = false;
-
-                            for (std::list<Unit*>::const_iterator itr2 = unitList.begin(); itr2 != unitList.end() && remove; ++itr2)
-                                if (itr != itr2 && !(*itr2)->IsWithinDist(*itr, 5.0f, false))
-                                    remove = false;
-                        }
-
-                        if (remove)
-                            for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
-                                (*itr)->RemoveAura(71340);
-                        break;
-                    }
-                }
-                // Death Pact
-                if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && m_spellInfo->SpellFamilyFlags[0] & 0x00080000)
-                {
-                    Unit * unit_to_add = NULL;
-                    for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end(); ++itr)
-                    {
-                        if ((*itr)->GetTypeId() == TYPEID_UNIT
-                            && (*itr)->GetOwnerGUID() == m_caster->GetGUID()
-                            && (*itr)->ToCreature()->GetCreatureInfo()->type == CREATURE_TYPE_UNDEAD)
-                        {
-                            unit_to_add = (*itr);
-                            break;
-                        }
-                    }
-                    if (unit_to_add)
-                    {
-                        unitList.clear();
-                        unitList.push_back(unit_to_add);
-                    }
-                    // Pet not found - remove cooldown
-                    else
-                    {
-                        if (modOwner->GetTypeId() == TYPEID_PLAYER)
-                            modOwner->RemoveSpellCooldown(m_spellInfo->Id,true);
-                        SendCastResult(SPELL_FAILED_NO_PET);
-                        finish(false);
-                    }
-                }
-            }
 
             CallScriptAfterUnitTargetSelectHandlers(unitList, SpellEffIndex(i));
 
@@ -7300,13 +7179,13 @@ void Spell::InitEffectExecuteData(uint8 effIndex)
 
 void Spell::CleanupEffectExecuteData()
 {
-    for(uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         m_effectExecuteData[i] = NULL;
 }
 
 void Spell::CheckEffectExecuteData()
 {
-    for(uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         ASSERT(!m_effectExecuteData[i]);
 }
 
@@ -7314,7 +7193,7 @@ void Spell::LoadScripts()
 {
     sLog->outDebug("Spell::LoadScripts");
     sScriptMgr->CreateSpellScripts(m_spellInfo->Id, m_loadedScripts);
-    for(std::list<SpellScript *>::iterator itr = m_loadedScripts.begin(); itr != m_loadedScripts.end() ;)
+    for (std::list<SpellScript *>::iterator itr = m_loadedScripts.begin(); itr != m_loadedScripts.end() ;)
     {
         if (!(*itr)->_Load(this))
         {
@@ -7330,28 +7209,26 @@ void Spell::LoadScripts()
 
 void Spell::PrepareScriptHitHandlers()
 {
-    for(std::list<SpellScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
-    {
+    for (std::list<SpellScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
         (*scritr)->_InitHit();
-    }
 }
 
 bool Spell::CallScriptEffectHandlers(SpellEffIndex effIndex)
 {
     // execute script effect handler hooks and check if effects was prevented
     bool preventDefault = false;
-    for(std::list<SpellScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
+    for (std::list<SpellScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
     {
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_EFFECT);
         std::list<SpellScript::EffectHandler>::iterator effEndItr = (*scritr)->OnEffect.end(), effItr = (*scritr)->OnEffect.begin();
-        for(; effItr != effEndItr ; ++effItr)
-        {
+        for (; effItr != effEndItr ; ++effItr)
             // effect execution can be prevented
             if (!(*scritr)->_IsEffectPrevented(effIndex) && (*effItr).IsEffectAffected(m_spellInfo, effIndex))
                 (*effItr).Call(*scritr, effIndex);
-        }
+
         if (!preventDefault)
             preventDefault = (*scritr)->_IsDefaultEffectPrevented(effIndex);
+
         (*scritr)->_FinishScriptCall();
     }
     return preventDefault;
@@ -7359,55 +7236,52 @@ bool Spell::CallScriptEffectHandlers(SpellEffIndex effIndex)
 
 void Spell::CallScriptBeforeHitHandlers()
 {
-    for(std::list<SpellScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
+    for (std::list<SpellScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
     {
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_BEFORE_HIT);
         std::list<SpellScript::HitHandler>::iterator hookItrEnd = (*scritr)->BeforeHit.end(), hookItr = (*scritr)->BeforeHit.begin();
-        for(; hookItr != hookItrEnd ; ++hookItr)
-        {
+        for (; hookItr != hookItrEnd ; ++hookItr)
             (*hookItr).Call(*scritr);
-        }
+
         (*scritr)->_FinishScriptCall();
     }
 }
 
 void Spell::CallScriptOnHitHandlers()
 {
-    for(std::list<SpellScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
+    for (std::list<SpellScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
     {
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_HIT);
         std::list<SpellScript::HitHandler>::iterator hookItrEnd = (*scritr)->OnHit.end(), hookItr = (*scritr)->OnHit.begin();
-        for(; hookItr != hookItrEnd ; ++hookItr)
-        {
+        for (; hookItr != hookItrEnd ; ++hookItr)
             (*hookItr).Call(*scritr);
-        }
+
         (*scritr)->_FinishScriptCall();
     }
 }
 
 void Spell::CallScriptAfterHitHandlers()
 {
-    for(std::list<SpellScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
+    for (std::list<SpellScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
     {
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_AFTER_HIT);
         std::list<SpellScript::HitHandler>::iterator hookItrEnd = (*scritr)->AfterHit.end(), hookItr = (*scritr)->AfterHit.begin();
-        for(; hookItr != hookItrEnd ; ++hookItr)
-        {
+        for (; hookItr != hookItrEnd ; ++hookItr)
             (*hookItr).Call(*scritr);
-        }
+
         (*scritr)->_FinishScriptCall();
     }
 }
 
 void Spell::CallScriptAfterUnitTargetSelectHandlers(std::list<Unit*>& unitTargets, SpellEffIndex effIndex)
 {
-    for(std::list<SpellScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
+    for (std::list<SpellScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
     {
         (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_UNIT_TARGET_SELECT);
         std::list<SpellScript::UnitTargetHandler>::iterator hookItrEnd = (*scritr)->OnUnitTargetSelect.end(), hookItr = (*scritr)->OnUnitTargetSelect.begin();
-        for(; hookItr != hookItrEnd ; ++hookItr)
+        for (; hookItr != hookItrEnd ; ++hookItr)
             if ((*hookItr).IsEffectAffected(m_spellInfo, effIndex))
-            (*hookItr).Call(*scritr, unitTargets);
+                (*hookItr).Call(*scritr, unitTargets);
 
         (*scritr)->_FinishScriptCall();
     }
