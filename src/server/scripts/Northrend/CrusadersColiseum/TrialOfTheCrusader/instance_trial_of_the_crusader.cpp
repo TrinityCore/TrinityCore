@@ -71,6 +71,8 @@ class instance_trial_of_the_crusader : public InstanceMapScript
 
             uint64 MainGateDoorGUID;
             uint64 EastPortcullisGUID;
+            uint64 SouthPortcullisGUID;
+            uint64 NorthPortcullisGUID;
             uint64 WebDoorGUID;
 
             // Achievement stuff
@@ -230,6 +232,12 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         break;
                     case GO_EAST_PORTCULLIS:
                         EastPortcullisGUID = go->GetGUID();
+                        break;
+                    case GO_SOUTH_PORTCULLIS:
+                        SouthPortcullisGUID = go->GetGUID();
+                        break;
+                    case GO_NORTH_PORTCULLIS:
+                        NorthPortcullisGUID = go->GetGUID();
                         break;
                     case GO_WEB_DOOR:
                         WebDoorGUID = go->GetGUID();
@@ -404,11 +412,15 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 if (IsEncounterInProgress())
                 {
                     CloseDoor(GetData64(GO_EAST_PORTCULLIS));
+                    CloseDoor(GetData64(GO_SOUTH_PORTCULLIS));
+                    CloseDoor(GetData64(GO_NORTH_PORTCULLIS));
                     CloseDoor(GetData64(GO_WEB_DOOR));
                 }
                 else
                 {
                     OpenDoor(GetData64(GO_EAST_PORTCULLIS));
+                    OpenDoor(GetData64(GO_SOUTH_PORTCULLIS));
+                    OpenDoor(GetData64(GO_NORTH_PORTCULLIS));
                     OpenDoor(GetData64(GO_WEB_DOOR));
                 }
 
@@ -417,6 +429,11 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     sLog->outDetail("[ToCr] EncounterStatus[type %u] %u = data %u;", type, EncounterStatus[type], data);
                     if (data == FAIL)
                     {
+                        if (Unit* announcer = instance->GetCreature(GetData64(NPC_BARRENT)))
+                            announcer->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+
+                        EventStage = 0;
+
                         if (IsRaidWiped())
                         {
                             --TrialCounter;
@@ -477,6 +494,10 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         return MainGateDoorGUID;
                     case GO_EAST_PORTCULLIS:
                         return EastPortcullisGUID;
+                    case GO_SOUTH_PORTCULLIS:
+                        return SouthPortcullisGUID;
+                case GO_NORTH_PORTCULLIS:
+                        return NorthPortcullisGUID;
                     case GO_WEB_DOOR:
                         return WebDoorGUID;
                     default:
