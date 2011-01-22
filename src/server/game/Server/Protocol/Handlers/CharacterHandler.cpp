@@ -371,6 +371,17 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
         SendPacket(&data);
         return;
     }
+    else //Check if player's name busy yet by deleted character
+    {
+        CharacterDatabase.escape_string(name);
+        QueryResult resultdel = CharacterDatabase.PQuery("SELECT guid FROM characters WHERE deleteInfos_Name = '%s'", name.c_str());
+        if (resultdel)
+        {
+            data << (uint8)CHAR_CREATE_NAME_IN_USE;
+            SendPacket(&data);
+            return;
+        }
+    }
 
     QueryResult resultacct = LoginDatabase.PQuery("SELECT IFNULL(SUM(numchars), 0) FROM realmcharacters WHERE acctid = '%d'", GetAccountId());
     if (resultacct)
