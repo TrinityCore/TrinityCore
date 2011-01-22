@@ -291,6 +291,9 @@ class SpellScript : public _SpellScript
 
         // Creates item. Calls Spell::DoCreateItem method.
         void CreateItem(uint32 effIndex, uint32 itemId);
+
+        // finishes spellcast prematurely with selected error message
+        void FinishCast(SpellCastResult result);
 };
 
 // AuraScript interface - enum used for runtime checks of script function calls
