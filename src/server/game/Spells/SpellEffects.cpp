@@ -1259,6 +1259,33 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     unitTarget->Kill(unitTarget);
                     return;
                 }
+                case 74035:                                 // Motivate
+                {
+                    if (unitTarget->GetEntry() != 39623)
+                        return;
+
+                    m_caster->ToPlayer()->KilledMonsterCredit(39623, 0);
+                    m_caster->ToPlayer()->KilledMonsterCredit(39466, 0);
+
+                    Creature* creatureTarget = unitTarget->ToCreature();
+                    creatureTarget->ForcedDespawn();
+                    return;
+                }
+                case 74182:                                 // Shoot
+                {
+                    if (Vehicle *vehicle = m_caster->GetVehicleKit())
+                            if (Unit *driver = vehicle->GetPassenger(0))
+                                driver->CastSpell(driver, 74184, true);
+                    return;
+                }
+                case 73082:                                 // Deploy Radiageigatron
+                {
+                    if (!unitTarget)
+                        return;
+
+                    m_caster->ToPlayer()->KilledMonsterCredit(unitTarget->GetEntry(), 0);
+                    return;
+                }
             }
 
             break;

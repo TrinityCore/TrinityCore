@@ -1973,6 +1973,9 @@ void AuraEffect::PeriodicDummyTick(Unit * target, Unit * caster) const
                     target->RemoveAura(64821);
                 }
                 break;
+            case 75765: // [DND] Music (Operation Gnomeregan event)
+                target->CastSpell(target, 75782, true);
+                break;
         }
         break;
         case SPELLFAMILY_MAGE:
@@ -5888,6 +5891,16 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                     int32 damage = mana * 2; // damage
                     caster->CastCustomSpell(target, 63337, &mana, NULL, NULL, true);
                     caster->CastCustomSpell(target, 63338, &damage, NULL, NULL, true);
+                    break;
+                }
+                case 75572: // Eject!
+                {
+                    if (Vehicle *vehicle = caster->GetVehicleKit())
+                            if (Unit *driver = vehicle->GetPassenger(0))
+                            {
+                                driver->ExitVehicle();
+                                driver->GetMotionMaster()->MoveJump(driver->GetPositionX(), driver->GetPositionY(), driver->GetPositionZ()+7.0f, 2.0f, 2.0f);
+                            }
                     break;
                 }
                 case 71563:
