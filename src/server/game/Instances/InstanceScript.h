@@ -39,6 +39,12 @@ class Creature;
 typedef std::set<GameObject*> DoorSet;
 typedef std::set<Creature*> MinionSet;
 
+enum EncounterFrameType
+{
+    ENCOUNTER_FRAME_ADD     = 0,
+    ENCOUNTER_FRAME_REMOVE  = 1,
+};
+
 enum EncounterState
 {
     NOT_STARTED   = 0,
@@ -190,7 +196,7 @@ class InstanceScript : public ZoneScript
         // Checks boss requirements (one boss required to kill other)
         virtual bool CheckRequiredBosses(uint32 /*bossId*/, Player const* /*player*/ = NULL) const { return true; }
 
-        void SendEncounterUnit(uint32 type, Unit* unit, uint8 param1 = 0, uint8 param2 = 0);
+        void SendEncounterUnit(uint32 type, Unit* unit = NULL, uint8 param1 = 0, uint8 param2 = 0);
 
     protected:
         void SetBossNumber(uint32 number) { bosses.resize(number); }
