@@ -24644,4 +24644,3 @@ void Player::_SaveInstanceTimeRestrictions(SQLTransaction& trans)
         trans->Append(stmt);
     }
 }
->>>>>>> 820f87f365489607dfb7a0e87d7e86c44557518f
