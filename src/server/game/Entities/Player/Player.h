@@ -2302,6 +2302,9 @@ class Player : public Unit, public GridObject<Player>
         void UnbindInstance(uint32 mapid, Difficulty difficulty, bool unload = false);
         void UnbindInstance(BoundInstancesMap::iterator &itr, Difficulty difficulty, bool unload = false);
         InstancePlayerBind* BindToInstance(InstanceSave *save, bool permanent, bool load = false);
+        void BindToInstance();
+        void SetPendingBind(InstanceSave* save, uint32 bindTimer) { _pendingBind = save; _pendingBindTimer = bindTimer; }
+        bool HasPendingBind() const { return _pendingBind != NULL; }
         void SendRaidInfo();
         void SendSavedInstances();
         static void ConvertInstancesToGroup(Player *player, Group *group = NULL, uint64 player_guid = 0);
@@ -2720,6 +2723,8 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_timeSyncServer;
 
         InstanceTimeMap _instanceResetTimes;
+        InstanceSave* _pendingBind;
+        uint32 _pendingBindTimer;
 };
 
 void AddItemsSetItem(Player*player,Item *item);

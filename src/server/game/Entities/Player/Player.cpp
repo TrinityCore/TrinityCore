@@ -616,6 +616,8 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     m_ConditionErrorMsgId = 0;
 
     isDebugAreaTriggers = false;
+
+    SetPendingBind(NULL, 0);
 }
 
 Player::~Player ()
@@ -1496,6 +1498,17 @@ void Player::Update(uint32 p_time)
 
         if (m_drunkTimer > 10*IN_MILLISECONDS)
             HandleSobering();
+    }
+
+    if (HasPendingBind())
+    {
+        if (_pendingBindTimer <= p_time)
+        {
+            BindToInstance();
+            SetPendingBind(NULL, 0);
+        }
+        else
+            _pendingBindTimer -= p_time;
     }
 
     // not auto-free ghost from body in instances
@@ -17686,6 +17699,14 @@ InstancePlayerBind* Player::BindToInstance(InstanceSave *save, bool permanent, b
     }
     else
         return NULL;
+}
+
+void Player::BindToInstance()
+{
+    WorldPacket data(SMSG_INSTANCE_SAVE_CREATED, 4);
+    data << uint32(0);
+    GetSession()->SendPacket(&data);
+    BindToInstance(_pendingBind, true);
 }
 
 void Player::SendRaidInfo()
