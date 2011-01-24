@@ -92,6 +92,7 @@ enum CharacterDatabaseStatements
     CHAR_LOAD_PLAYER_ARENASTATS,
     CHAR_LOAD_PLAYER_BANNED,
     CHAR_LOAD_PLAYER_QUESTSTATUSREW,
+    CHAR_LOAD_ACCOUNT_INSTANCELOCKTIMES,
     CHAR_LOAD_ACCOUNT_DATA,
     CHAR_LOAD_PLAYER_MAILITEMS,
     CHAR_LOAD_AUCTION_ITEMS,
@@ -122,6 +123,8 @@ enum CharacterDatabaseStatements
     CHAR_UPDATE_GIFT_OWNER,
     CHAR_DEL_GIFT,
     CHAR_GET_ACCOUNT_BY_NAME,
+    CHAR_DEL_ACCOUNT_INSTANCE_LOCK_TIMES,
+    CHAR_ADD_ACCOUNT_INSTANCE_LOCK_TIMES,
 
     CHAR_ADD_GUILD,
     CHAR_DEL_GUILD,
@@ -247,7 +250,7 @@ static const PreparedStatementTable CharacterDatabasePreparedStatements[] =
         "arenaPoints, totalHonorPoints, todayHonorPoints, yesterdayHonorPoints, totalKills, todayKills, yesterdayKills, chosenTitle, knownCurrencies, watchedFaction, drunk,"
         "health, power1, power2, power3, power4, power5, power6, power7, instance_id, speccount, activespec, exploredZones, equipmentCache, ammoId, knownTitles, actionBars FROM characters WHERE guid = ?", CONNECTION_ASYNC},
     {CHAR_LOAD_PLAYER_GROUP, "SELECT guid FROM group_member WHERE memberGuid = ?", CONNECTION_ASYNC},
-    {CHAR_LOAD_PLAYER_BOUNDINSTANCES, "SELECT id, permanent, map, difficulty, resettime FROM character_instance LEFT JOIN instance ON instance = id WHERE guid = ?", CONNECTION_ASYNC},
+    {CHAR_LOAD_PLAYER_BOUNDINSTANCES, "SELECT id, permanent, map, difficulty, resettime, extended FROM character_instance LEFT JOIN instance ON instance = id WHERE guid = ?", CONNECTION_ASYNC},
     {CHAR_LOAD_PLAYER_AURAS, "SELECT caster_guid, spell, effect_mask, recalculate_mask, stackcount, amount0, amount1, amount2, "
         "base_amount0, base_amount1, base_amount2, maxduration, remaintime, remaincharges FROM character_aura WHERE guid = ?", CONNECTION_ASYNC},
     {CHAR_LOAD_PLAYER_SPELLS, "SELECT spell, active, disabled FROM character_spell WHERE guid = ?", CONNECTION_ASYNC},
@@ -280,6 +283,7 @@ static const PreparedStatementTable CharacterDatabasePreparedStatements[] =
     {CHAR_LOAD_PLAYER_ARENASTATS, "SELECT slot, personal_rating, matchmaker_rating FROM character_arena_stats WHERE guid = ? ORDER BY slot ASC", CONNECTION_ASYNC},
     {CHAR_LOAD_PLAYER_BANNED, "SELECT guid FROM character_banned WHERE guid = ? AND active = 1", CONNECTION_ASYNC},
     {CHAR_LOAD_PLAYER_QUESTSTATUSREW, "SELECT quest FROM character_queststatus_rewarded WHERE guid = ?", CONNECTION_ASYNC},
+    {CHAR_LOAD_ACCOUNT_INSTANCELOCKTIMES, "SELECT instanceId, releaseTime FROM account_instance_times WHERE accountId = ?", CONNECTION_ASYNC},
     // End LoginQueryHolder content
 
     {CHAR_LOAD_PLAYER_ACTIONS_SPEC, "SELECT button, action, type FROM character_action WHERE guid = ? AND spec = ? ORDER BY button", CONNECTION_SYNCH},
@@ -313,6 +317,8 @@ static const PreparedStatementTable CharacterDatabasePreparedStatements[] =
     {CHAR_UPDATE_GIFT_OWNER, "UPDATE character_gifts SET guid = ? WHERE item_guid = ?", CONNECTION_ASYNC},
     {CHAR_DEL_GIFT, "DELETE FROM character_gifts WHERE item_guid = ?", CONNECTION_ASYNC},
     {CHAR_GET_ACCOUNT_BY_NAME, "SELECT account FROM characters WHERE name = ?", CONNECTION_SYNCH},
+    {CHAR_DEL_ACCOUNT_INSTANCE_LOCK_TIMES, "DELETE FROM account_instance_times WHERE accountId = ?", CONNECTION_ASYNC},
+    {CHAR_ADD_ACCOUNT_INSTANCE_LOCK_TIMES, "INSERT INTO account_instance_times (accountId, instanceId, releaseTime) VALUES (?, ?, ?)", CONNECTION_ASYNC},
 
     // Guild handling
     // 0: uint32, 1: string, 2: uint32, 3: string, 4: string, 5: uint64, 6-10: uint32, 11: uint64
@@ -450,7 +456,7 @@ static const PreparedStatementTable CharacterDatabasePreparedStatements[] =
     // Auras
     {CHAR_DEL_AURA, "DELETE FROM character_aura WHERE guid = ?", CONNECTION_ASYNC},
     {CHAR_ADD_AURA, "INSERT INTO character_aura (guid,caster_guid,item_guid,spell,effect_mask,recalculate_mask,stackcount,amount0,amount1,amount2,base_amount0,base_amount1,base_amount2,maxduration,remaintime,remaincharges) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC}
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC},
 };
 
 #endif

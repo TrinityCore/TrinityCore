@@ -146,7 +146,7 @@ Map* MapManager::FindMap(uint32 mapid, uint32 instanceId) const
 
 bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
 {
-    const MapEntry *entry = sMapStore.LookupEntry(mapid);
+    MapEntry const* entry = sMapStore.LookupEntry(mapid);
     if (!entry)
        return false;
 
@@ -176,13 +176,13 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
     if (player->isGameMaster())
         return true;
 
-    const char *mapName = entry->name[player->GetSession()->GetSessionDbcLocale()];
+    char const* mapName = entry->name[player->GetSession()->GetSessionDbcLocale()];
 
-    Group* pGroup = player->GetGroup();
+    Group* group = player->GetGroup();
     if (entry->IsRaid())
     {
         // can only enter in a raid group
-        if ((!pGroup || !pGroup->isRaidGroup()) && !sWorld->getBoolConfig(CONFIG_INSTANCE_IGNORE_RAID))
+        if ((!group || !group->isRaidGroup()) && !sWorld->getBoolConfig(CONFIG_INSTANCE_IGNORE_RAID))
         {
             // probably there must be special opcode, because client has this string constant in GlobalStrings.lua
             // TODO: this is not a good place to send the message
@@ -194,21 +194,20 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
 
     if (!player->isAlive())
     {
-        if (Corpse *corpse = player->GetCorpse())
+        if (Corpse* corpse = player->GetCorpse())
         {
             // let enter in ghost mode in instance that connected to inner instance with corpse
-            uint32 instance_map = corpse->GetMapId();
+            uint32 corpseMap = corpse->GetMapId();
             do
             {
-                if (instance_map == mapid)
+                if (corpseMap == mapid)
                     break;
 
-                InstanceTemplate const* instance = ObjectMgr::GetInstanceTemplate(instance_map);
-                instance_map = instance ? instance->parent : 0;
-            }
-            while (instance_map);
+                InstanceTemplate const* instance = ObjectMgr::GetInstanceTemplate(corpseMap);
+                corpseMap = instance ? instance->parent : 0;
+            } while (corpseMap);
 
-            if (!instance_map)
+            if (!corpseMap)
             {
                 WorldPacket data(SMSG_CORPSE_NOT_IN_INSTANCE);
                 player->GetSession()->SendPacket(&data);
@@ -222,12 +221,12 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
     }
 
     //Get instance where player's group is bound & its map
-    if (pGroup)
+    if (group)
     {
-        InstanceGroupBind* boundedInstance = pGroup->GetBoundInstance(entry);
-        if (boundedInstance && boundedInstance->save)
-            if (Map *boundedMap = sMapMgr->FindMap(mapid,boundedInstance->save->GetInstanceId()))
-                if (!loginCheck && !boundedMap->CanEnter(player))
+        InstanceGroupBind* boundInstance = group->GetBoundInstance(entry);
+        if (boundInstance && boundInstance->save)
+            if (Map* boundMap = sMapMgr->FindMap(mapid, boundInstance->save->GetInstanceId()))
+                if (!loginCheck && !boundMap->CanEnter(player))
                     return false;
             /*
                 This check has to be moved to InstanceMap::CanEnter()
@@ -239,6 +238,21 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
                     //TODO: send some kind of error message to the player
                     return false;
                 }*/
+    }
+
+    // players are only allowed to enter 5 instances per hour
+    if (entry->IsDungeon() && (!player->GetGroup() || (player->GetGroup() && !player->GetGroup()->isLFGGroup())))
+    {
+        uint32 instaceIdToCheck = 0;
+        if (InstanceSave* save = player->GetInstanceSave(mapid, entry->IsRaid()))
+            instaceIdToCheck = save->GetInstanceId();
+
+        // instanceId can never be 0 - will not be found
+        if (!player->CheckInstanceCount(instaceIdToCheck))
+        {
+            player->SendTransferAborted(mapid, TRANSFER_ABORT_TOO_MANY_INSTANCES);
+            return false;
+        }
     }
 
     //Other requirements
