@@ -42,7 +42,8 @@ enum Bosses
     NPC_UROM                    = 27655,
     NPC_EREGOS                  = 27656,
 
-    NPC_AZURE_RING_GUARDIAN     = 27638
+    NPC_AZURE_RING_GUARDIAN     = 27638,
+    NPC_CENTRIFUGE_CONSTRUCT    = 27641
 };
  
 enum GameObjects
@@ -60,4 +61,14 @@ enum CreatureActions
     ACTION_CALL_DRAGON_EVENT = 1
 };
 
+enum OculusWorldStates
+{
+    WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW   = 3524,
+    WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT = 3486
+};
+
+enum OculusSpells
+{
+    SPELL_CENTRIFUGE_SHIELD = 50053
+};
 #endif
