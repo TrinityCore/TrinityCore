@@ -395,6 +395,16 @@ class instance_icecrown_citadel : public InstanceMapScript
                  return true;
             }
 
+            uint32 GetCompletedEncounterMask() const
+            {
+                uint32 mask = 0;
+                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+                    if (GetBossState(i) == DONE)
+                        mask |= 1 << i;
+
+                return mask;
+            }
+
             void SetData(uint32 type, uint32 data)
             {
                 switch (type)
