@@ -24424,13 +24424,15 @@ void Player::RefundItem(Item *item)
     data << uint32(iece->reqarenapoints);               // arena point cost
     for (uint8 i = 0; i < MAX_ITEM_EXTENDED_COST_REQUIREMENTS; ++i) // item cost data
     {
-        data << iece->reqitem[i];
-        data << (iece->reqitemcount[i]);
+        data << uint32(iece->reqitem[i]);
+        data << uint32(iece->reqitemcount[i]);
     }
     GetSession()->SendPacket(&data);
 
     // Delete any references to the refund data
     item->SetNotRefundable(this);
+
+    uint32 moneyRefund = item->GetPaidMoney();  // item-> will be invalidated in DestroyItem
 
     // Destroy item
     DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
@@ -24451,7 +24453,7 @@ void Player::RefundItem(Item *item)
     }
 
     // Grant back money
-    if (uint32 moneyRefund = item->GetPaidMoney())
+    if (moneyRefund)
         ModifyMoney(moneyRefund);
 
     // Grant back Honor points
