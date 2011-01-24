@@ -177,7 +177,7 @@ class npc_azure_ring_captain : public CreatureScript
             {
                 targetGUID = 0;
 
-                me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING + MOVEMENTFLAG_FLYING);
+                me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING | MOVEMENTFLAG_FLYING);
                 me->SetReactState(REACT_AGGRESSIVE);
             }
                       
