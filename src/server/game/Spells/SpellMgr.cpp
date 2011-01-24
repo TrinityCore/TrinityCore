@@ -3613,6 +3613,12 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CONE_ENTRY;
             count++;
             break;
+        case 71880:
+        case 71892:
+            spellInfo->SpellFamilyName = SPELLFAMILY_GENERIC;
+            spellInfo->procChance = 20;
+            count++;
+            break;
         // Bind
         case 3286:
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
