@@ -37,7 +37,9 @@ enum Spells
     SPELL_CALL_AZURE_RING_CAPTAIN_4               = 51008, //Effect    Send Event (18455)*/
     SPELL_CALL_AMPLIFY_MAGIC                      = 51054,
    
-    SPELL_ICE_BEAM                                = 49549
+    SPELL_ICE_BEAM                                = 49549,
+    SPELL_ARCANE_BEAM_PERIODIC                    = 51019,
+    SPELL_SUMMON_ARCANE_BEAM                      = 51017
 };
 
 enum Events
@@ -62,7 +64,7 @@ public:
     {
         boss_varosAI(Creature* creature) : BossAI(creature, DATA_VAROS_EVENT) 
         {
-            if (instance->GetData(DATA_DRAKOS_EVENT) != DONE)
+            if (instance->GetBossState(DATA_DRAKOS_EVENT) != DONE)
                 DoCast(me,SPELL_CENTRIFUGE_SHIELD);
         }
 
@@ -175,14 +177,17 @@ class npc_azure_ring_captain : public CreatureScript
             {
                 targetGUID = 0;
 
-                me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING + MOVEMENTFLAG_FLYING);
                 me->SetReactState(REACT_AGGRESSIVE);
             }
                       
             void SpellHitTarget(Unit* target, SpellEntry const* spell)
             {
                 if (spell->Id == SPELL_ICE_BEAM)
-                    EnterEvadeMode();
+                {
+                    target->CastSpell(target,SPELL_SUMMON_ARCANE_BEAM,true);
+                    me->DespawnOrUnsummon();
+                }
             }
 
             void UpdateAI(const uint32 diff)
@@ -226,6 +231,7 @@ class npc_azure_ring_captain : public CreatureScript
                         break;
                 }
            }
+
         private:
             uint64 targetGUID;
             InstanceScript* instance;
