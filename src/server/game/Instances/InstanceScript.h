@@ -196,6 +196,10 @@ class InstanceScript : public ZoneScript
         // Checks boss requirements (one boss required to kill other)
         virtual bool CheckRequiredBosses(uint32 /*bossId*/, Player const* /*player*/ = NULL) const { return true; }
 
+        // Returns completed encounters mask for packets
+        // NOTE: MUST USE ENCOUNTER IDS FROM DungeonEncounter.dbc 4th column
+        virtual uint32 GetCompletedEncounterMask() const { return 0; }
+
         void SendEncounterUnit(uint32 type, Unit* unit = NULL, uint8 param1 = 0, uint8 param2 = 0);
 
     protected:
