@@ -172,6 +172,8 @@ public:
                         DoUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW,0);
                     break;
             }
+
+            return true;
         }
 
         void SetData(uint32 type, uint32 data)
