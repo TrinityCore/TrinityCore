@@ -86,31 +86,13 @@ public:
             if (eventId != EVENT_CALL_DRAGON)
                 return;
 
-            if (azureDragonsList.empty())
-                return;
-
-            Creature* nearestDragon = NULL;
             Creature* varos = instance->GetCreature(varosGUID);
 
-            for (std::list<uint64>::const_iterator itr = azureDragonsList.begin(); itr != azureDragonsList.end(); ++itr)
-            {
-                if (Creature* dragon = instance->GetCreature(*itr))
-                {
-                    if (!dragon->isAlive() && dragon->isInCombat())
-                        continue;
+            if (!varos)
+                return;
 
-                    if (!nearestDragon)
-                        nearestDragon = dragon;
-                    else if (varos)
-                    {
-                        if (nearestDragon->GetExactDist(varos) > dragon->GetExactDist(varos))
-                            nearestDragon = dragon;
-                    }
-                }
-            }
-
-            if (nearestDragon)
-                nearestDragon->AI()->DoAction(ACTION_CALL_DRAGON_EVENT);
+            if (Creature* drake = varos->SummonCreature(NPC_AZURE_RING_GUARDIAN,varos->GetPositionX(),varos->GetPositionY(),varos->GetPositionZ()+40))
+                drake->AI()->DoAction(ACTION_CALL_DRAGON_EVENT);
         }
 
         void OnCreatureCreate(Creature* creature)
@@ -128,9 +110,6 @@ public:
                     break;
                 case NPC_EREGOS:
                     eregosGUID = creature->GetGUID();
-                    break;
-                case NPC_AZURE_RING_GUARDIAN:
-                    azureDragonsList.push_back(creature->GetGUID());
                     break;
                 case NPC_CENTRIFUGE_CONSTRUCT:
                     if (creature->isAlive())
