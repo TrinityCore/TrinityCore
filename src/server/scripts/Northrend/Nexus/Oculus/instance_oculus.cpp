@@ -42,6 +42,8 @@ public:
 
         void Initialize()
         {
+            SetBossNumber(MAX_ENCOUNTER);
+
             drakosGUID = 0;
             varosGUID = 0;
             uromGUID = 0;
@@ -109,7 +111,6 @@ public:
 
             if (nearestDragon)
                 nearestDragon->AI()->DoAction(ACTION_CALL_DRAGON_EVENT);
-           
         }
 
         void OnCreatureCreate(Creature* creature)
@@ -151,13 +152,15 @@ public:
             }
         }
 
-        void SetData(uint32 type, uint32 data)
+        bool SetBossState(uint32 type, EncounterState state)
         {
-            switch(type)
+            if (!InstanceScript::SetBossState(type, state))
+                return false;
+
+            switch (type)
             {
                 case DATA_DRAKOS_EVENT:
-                    encounter[0] = data;
-                    if (data == DONE)
+                    if (state == DONE)
                     {
                         DoUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW,1);
                         DoUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT,centrifugueConstructCounter);
@@ -165,34 +168,26 @@ public:
                     }
                     break;
                 case DATA_VAROS_EVENT:
-                    encounter[1] = data;
-                    if (encounter[1] == DONE)
+                    if (state == DONE)
                         DoUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW,0);
                     break;
-                case DATA_UROM_EVENT:
-                    encounter[2] = data;
-                    break;
-                case DATA_EREGOS_EVENT:
-                    encounter[3] = data;
-                    break;
+            }
+        }
+
+        void SetData(uint32 type, uint32 data)
+        {
+            switch(type)
+            {
                 case DATA_UROM_PLATAFORM:
                     platformUrom = data;
                     break;
             }
-
-            if (type <= DATA_EREGOS_EVENT)
-                if (data == DONE)
-                    SaveToDB();
         }
 
         uint32 GetData(uint32 type)
         {
             switch(type)
             {
-                case DATA_DRAKOS_EVENT:                return encounter[0];
-                case DATA_VAROS_EVENT:                 return encounter[1];
-                case DATA_UROM_EVENT:                  return encounter[2];
-                case DATA_EREGOS_EVENT:                return encounter[3];
                 case DATA_UROM_PLATAFORM:              return platformUrom;
             }
 
@@ -229,7 +224,7 @@ public:
             OUT_SAVE_INST_DATA;
 
             std::ostringstream saveStream;
-            saveStream << "T O " << encounter[0] << " " << encounter[1] << " " << encounter[2] << " " << encounter[3];
+            saveStream << "T O " << GetBossSaveData();
 
             str_data = saveStream.str();
 
@@ -248,22 +243,21 @@ public:
             OUT_LOAD_INST_DATA(in);
 
             char dataHead1, dataHead2;
-            uint16 data0, data1, data2, data3;
+
 
             std::istringstream loadStream(in);
-            loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3;
+            loadStream >> dataHead1 >> dataHead2;
 
             if (dataHead1 == 'T' && dataHead2 == 'O')
             {
-                encounter[0] = data0;
-                encounter[1] = data1;
-                encounter[2] = data2;
-                encounter[3] = data3;
-
                 for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                    if (encounter[i] == IN_PROGRESS)
-                        encounter[i] = NOT_STARTED;
-
+                {
+                    uint32 tmpState;
+                    loadStream >> tmpState;
+                    if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                        tmpState = NOT_STARTED;
+                    SetBossState(i, EncounterState(tmpState));
+                }
             } else OUT_LOAD_INST_DATA_FAIL;
 
             OUT_LOAD_INST_DATA_COMPLETE;
@@ -277,7 +271,6 @@ public:
             uint8 platformUrom;
             uint8 centrifugueConstructCounter;
 
-            uint16 encounter[MAX_ENCOUNTER];
             std::string str_data;
 
             std::list<uint64> gameObjectList;
