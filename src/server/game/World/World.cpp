@@ -1171,6 +1171,9 @@ void World::LoadConfigSettings(bool reload)
     // DBC_ItemAttributes
     m_bool_configs[CONFIG_DBC_ENFORCE_ITEM_ATTRIBUTES] = sConfig->GetBoolDefault("DBC.EnforceItemAttributes", true);
 
+    // Max instances per hour
+    m_int_configs[CONFIG_MAX_INSTANCES_PER_HOUR] = sConfig->GetIntDefault("AccountInstancesPerHour", 5);
+
     // AutoBroadcast
     m_bool_configs[CONFIG_AUTOBROADCAST] = sConfig->GetBoolDefault("AutoBroadcast.On", false);
     m_int_configs[CONFIG_AUTOBROADCAST_CENTER] = sConfig->GetIntDefault("AutoBroadcast.Center", 0);
