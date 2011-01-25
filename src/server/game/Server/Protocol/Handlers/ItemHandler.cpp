@@ -529,6 +529,12 @@ void WorldSession::HandleSellItemOpcode(WorldPacket & recv_data)
             return;
         }
 
+        // prevent selling item for sellprice when the item is still refundable
+        // this probably happens when right clicking a refundable item, the client sends both
+        // CMSG_SELL_ITEM and CMSG_REFUND_ITEM (unverified)
+        if (pItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_REFUNDABLE))
+            return; // Therefore, no feedback to client
+
         // special case at auto sell (sell all)
         if (count == 0)
         {
