@@ -1854,7 +1854,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 69146, 'spell_marrowgar_coldflame_damage'),
 ( 70823, 'spell_marrowgar_coldflame_damage'),
 ( 70824, 'spell_marrowgar_coldflame_damage'),
-( 70825, 'spell_marrowgar_coldflame_damage');
+( 70825, 'spell_marrowgar_coldflame_damage'),
 ( 69075, 'spell_marrowgar_bone_storm'),
 ( 70834, 'spell_marrowgar_bone_storm'),
 ( 70835, 'spell_marrowgar_bone_storm'),
