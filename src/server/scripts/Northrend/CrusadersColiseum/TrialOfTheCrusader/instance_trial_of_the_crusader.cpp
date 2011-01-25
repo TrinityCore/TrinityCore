@@ -496,7 +496,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         return EastPortcullisGUID;
                     case GO_SOUTH_PORTCULLIS:
                         return SouthPortcullisGUID;
-                case GO_NORTH_PORTCULLIS:
+                    case GO_NORTH_PORTCULLIS:
                         return NorthPortcullisGUID;
                     case GO_WEB_DOOR:
                         return WebDoorGUID;

@@ -330,6 +330,7 @@ enum WorldIntConfigs
     CONFIG_CONFIG_OUTDOORPVP_WINTERGRASP_MINLEVEL,
     CONFIG_CONFIG_OUTDOORPVP_WINTERGRASP_MAXPLAYERS,
     CONFIG_ANTICHEAT_REPORTS_INGAME_NOTIFICATION,
+    CONFIG_ANTICHEAT_DELVL,
     INT_CONFIG_VALUE_COUNT
 };
 
@@ -716,6 +717,7 @@ class World
         void KickAll();
         void KickAllLess(AccountTypes sec);
         BanReturn BanAccount(BanMode mode, std::string nameOrIP, std::string duration, std::string reason, std::string author);
+        void AntiCheatBanAccount(std::string name, std::string author);
         void AutoBanDebug(std::string name, std::string reason, uint32 realmID, uint64 mobGUID,  float mob_x, float mob_y, float mob_z, uint32 mapId, float x, float y, float z);
         bool RemoveBanAccount(BanMode mode, std::string nameOrIP);
         BanReturn BanCharacter(std::string name, std::string duration, std::string reason, std::string author);

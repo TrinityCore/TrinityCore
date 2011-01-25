@@ -1205,8 +1205,9 @@ void World::LoadConfigSettings(bool reload)
     // MySQL ping time interval
     m_int_configs[CONFIG_DB_PING_INTERVAL] = sConfig->GetIntDefault("MaxPingTime", 30);
 
-    m_bool_configs[CONFIG_ANTICHEAT_ENABLE] = sConfig->GetBoolDefault("Anticheat.Enable", true);
-    m_int_configs[CONFIG_ANTICHEAT_REPORTS_INGAME_NOTIFICATION] = sConfig->GetIntDefault("Anticheat.ReportsForIngameWarnings", 70);
+    m_bool_configs[CONFIG_ANTICHEAT_ENABLE] = sConfig->GetBoolDefault("AntiCheat.Enable", true);
+    m_int_configs[CONFIG_ANTICHEAT_REPORTS_INGAME_NOTIFICATION] = sConfig->GetIntDefault("AntiCheat.ReportsForIngameWarnings", 70);
+    m_int_configs[CONFIG_ANTICHEAT_DELVL] = sConfig->GetIntDefault("AntiCheat.DeLVL", 10);
     
     sScriptMgr->OnConfigLoad(reload);
 }
@@ -2299,6 +2300,76 @@ BanReturn World::BanAccount(BanMode mode, std::string nameOrIP, std::string dura
     LoginDatabase.CommitTransaction(trans);
 
     return BAN_SUCCESS;
+}
+
+void World::AntiCheatBanAccount(std::string name, std::string author)
+{
+    uint32 deLVL_cap = sConfig->GetIntDefault("AntiCheat.DeLVL", 10);
+    uint32 level;
+    uint64 guid;
+
+    QueryResult account  = CharacterDatabase.PQuery("SELECT account FROM characters WHERE name = '%s'", name.c_str());
+    Field *fields = account->Fetch();
+    uint32 acc = fields[0].GetUInt32();
+
+    QueryResult resultx4  = CharacterDatabase.PQuery("SELECT tcharx4.characters.level,  tcharx4.characters.guid  FROM tcharx4.characters  WHERE tcharx4.characters.account  = '%u'", acc);
+    QueryResult resultx1  = CharacterDatabase.PQuery("SELECT tcharx1.characters.level,  tcharx1.characters.guid  FROM tcharx1.characters  WHERE tcharx1.characters.account  = '%u'", acc);
+    QueryResult resultfun = CharacterDatabase.PQuery("SELECT tcharfun.characters.level, tcharfun.characters.guid FROM tcharfun.characters WHERE tcharfun.characters.account = '%u'", acc);
+
+    std::string reason = ("Игрок " + name + ", реалм " + std::string(sConfig->GetStringDefault("RealmID", "0")) + " был репрессирован карательным отрядом 'Долой СХ'");
+    BanAccount(BAN_CHARACTER, name, sConfig->GetStringDefault("AntiCheat.BanDuration", "30d"), reason, author);
+    reason = ("Репрессирован карательным отрядом 'Долой СХ'");
+    sWorld->SendWorldText(LANG_BAN_WORLD_ANNOUNCE, name.c_str(), author.c_str(), secsToTimeString(TimeStringToSecs(sConfig->GetStringDefault("AntiCheat.BanDuration", "30d"))).c_str(), reason.c_str());
+
+    if (resultx4)
+    {
+        do
+        {
+            Field *fields = resultx4->Fetch();
+            level = fields[0].GetUInt32();
+            guid = fields[1].GetUInt64();
+
+            if (level > deLVL_cap)
+            {
+                CharacterDatabase.PExecute("UPDATE tcharx4.characters SET tcharx4.characters.level = '%u', tcharx4.characters.xp = 0 WHERE tcharx4.characters.guid = '%u'", level - deLVL_cap, guid);
+            }
+
+        } while (resultx4->NextRow());
+    }
+
+    if (resultx1)
+    {
+        do
+        {
+            Field *fields = resultx1->Fetch();
+            level = fields[0].GetUInt32();
+            guid = fields[1].GetUInt64();
+
+            if (level > deLVL_cap)
+            {
+                CharacterDatabase.PExecute("UPDATE tcharx1.characters SET tcharx1.characters.level = '%u', tcharx1.characters.xp = 0 WHERE tcharx1.characters.guid = '%u'", level - deLVL_cap, guid);
+            }
+
+        } while (resultx1->NextRow());
+    }
+
+    if (resultfun)
+    {
+        do
+        {
+            Field *fields = resultfun->Fetch();
+            level = fields[0].GetUInt32();
+            guid = fields[1].GetUInt64();
+
+            if (level > deLVL_cap)
+            {
+                CharacterDatabase.PExecute("UPDATE tcharfun.characters SET tcharfun.characters.level = '%u', tcharfun.characters.xp = 0 WHERE tcharfun.characters.guid = '%u'", level - deLVL_cap, guid);
+            }
+
+        } while (resultfun->NextRow());
+    }
+
+    return;
 }
 
 void World::AutoBanDebug(std::string name, std::string reason, uint32 realmID, uint64 mobGUID,  float mob_x, float mob_y, float mob_z, uint32 mapId, float x, float y, float z)

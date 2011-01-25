@@ -30,9 +30,10 @@ public:
             { "player",         SEC_GAMEMASTER,     true,  &HandleAntiCheatPlayerCommand,         "", NULL },
             { "delete",         SEC_ADMINISTRATOR,  true,  &HandleAntiCheatDeleteCommand,         "", NULL },
             { "handle",         SEC_ADMINISTRATOR,  true,  &HandleAntiCheatHandleCommand,         "", NULL },
-            { "jail",           SEC_GAMEMASTER,     true,  &HandleAnticheatJailCommand,         "", NULL },
-            { "warn",           SEC_GAMEMASTER,     true,  &HandleAnticheatWarnCommand,         "", NULL },
-            { NULL,             0,                     false, NULL,                                           "", NULL }
+            { "jail",           SEC_GAMEMASTER,     true,  &HandleAntiCheatJailCommand,           "", NULL },
+            { "warn",           SEC_GAMEMASTER,     true,  &HandleAntiCheatWarnCommand,           "", NULL },
+            { "ban",            SEC_GAMEMASTER,     false, &HandleAntiCheatBanAccountCommand,     "", NULL },
+            { NULL,             0,                  false, NULL,                                  "", NULL }
         };
 
         static ChatCommand commandTable[] =
@@ -44,7 +45,7 @@ public:
         return commandTable;
     }
 
-    static bool HandleAnticheatWarnCommand(ChatHandler* handler, const char* args)
+    static bool HandleAntiCheatWarnCommand(ChatHandler* handler, const char* args)
     {
         if (!sWorld->getBoolConfig(CONFIG_ANTICHEAT_ENABLE))
             return false;
@@ -83,7 +84,7 @@ public:
         return true;
     }
 
-    static bool HandleAnticheatJailCommand(ChatHandler* handler, const char* args)
+    static bool HandleAntiCheatJailCommand(ChatHandler* handler, const char* args)
     {
         if (!sWorld->getBoolConfig(CONFIG_ANTICHEAT_ENABLE))
             return false;
@@ -297,6 +298,12 @@ public:
             } while (resultDB->NextRow());
         }
 
+        return true;
+    }
+
+    static bool HandleAntiCheatBanAccountCommand(ChatHandler* handler, const char *args)
+    {
+        handler->HandleBanHelper(BAN_ACCOUNT_ANTICHEAT, args);
         return true;
     }
 };

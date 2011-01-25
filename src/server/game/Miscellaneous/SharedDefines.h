@@ -2771,6 +2771,7 @@ enum ResponseCodes
 enum BanMode
 {
     BAN_ACCOUNT,
+    BAN_ACCOUNT_ANTICHEAT,
     BAN_CHARACTER,
     BAN_IP
 };

@@ -2933,6 +2933,17 @@ bool ChatHandler::HandleBanHelper(BanMode mode, const char *args)
 
     std::string nameOrIP = cnameOrIP;
 
+    if (mode == BAN_ACCOUNT_ANTICHEAT)
+    {
+        if (!normalizePlayerName(nameOrIP))
+        {
+            SetSentErrorMessage(true);
+            return false;
+        }
+        sWorld->AntiCheatBanAccount(nameOrIP, m_session ? m_session->GetPlayerName() : "");
+        return true;
+    }
+
     char* duration = strtok (NULL," ");
     if (!duration || !atoi(duration))
         return false;
@@ -4594,7 +4605,7 @@ bool ChatHandler::HandleUnFreezeCommand(const char *args)
             Field *fields=result->Fetch();
             uint64 pguid = fields[0].GetUInt64();
 
-            CharacterDatabase.PQuery("DELETE FROM character_aura WHERE character_aura.spell = 9454 AND character_aura.guid = '%u'",pguid);
+            CharacterDatabase.PExecute("DELETE FROM character_aura WHERE character_aura.spell = 9454 AND character_aura.guid = '%u'",pguid);
             PSendSysMessage(LANG_COMMAND_UNFREEZE,name.c_str());
             return true;
         }
