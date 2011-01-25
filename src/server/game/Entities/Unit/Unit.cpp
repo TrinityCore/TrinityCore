@@ -16411,9 +16411,7 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId, AuraApplication const * a
         WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
         thisPlr->GetSession()->SendPacket(&data);
 
-        data.Initialize(SMSG_BREAK_TARGET, 7);
-        data.append(vehicle->GetBase()->GetPackGUID());
-        thisPlr->GetSession()->SendPacket(&data);
+        thisPlr->SendClearFocus(vehicle->GetBase());
     }
 
     SetControlled(true, UNIT_STAT_ROOT);
