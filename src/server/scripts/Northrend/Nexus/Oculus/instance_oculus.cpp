@@ -170,6 +170,8 @@ public:
             switch(type)
             {
                 case DATA_UROM_PLATAFORM:              return platformUrom;
+                // used by condition system
+                case DATA_UROM_EVENT:                  return GetBossState(DATA_UROM_EVENT);
             }
 
             return 0;
