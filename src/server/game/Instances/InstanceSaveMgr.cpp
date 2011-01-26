@@ -291,7 +291,7 @@ void InstanceSaveManager::CleanupAndPackInstances()
 
     // Finally drop the no longer needed column
     CharacterDatabase.DirectExecute("ALTER TABLE instance DROP COLUMN newid");
-    
+
     // Bake some cookies for click
     sLog->outString(">> Cleaned up and packed instances in %u ms", GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
@@ -622,7 +622,7 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
             continue;
 
         if (warn)
-        {            
+        {
             if (now <= resetTime)
                 timeLeft = 0;
             else

@@ -46,9 +46,9 @@ public:
 
     struct boss_magmadarAI : public ScriptedAI
     {
-        boss_magmadarAI(Creature *pCreature) : ScriptedAI(pCreature) 
-        { 
-            m_pInstance = pCreature->GetInstanceScript(); 
+        boss_magmadarAI(Creature *pCreature) : ScriptedAI(pCreature)
+        {
+            m_pInstance = pCreature->GetInstanceScript();
         }
         InstanceScript* m_pInstance;
 

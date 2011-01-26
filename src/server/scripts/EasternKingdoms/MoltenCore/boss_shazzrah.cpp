@@ -45,7 +45,7 @@ public:
     {
         boss_shazzrahAI(Creature *pCreature) : ScriptedAI(pCreature)
         {
-            m_pInstance = pCreature->GetInstanceScript(); 
+            m_pInstance = pCreature->GetInstanceScript();
         }
 
         InstanceScript* m_pInstance;

@@ -642,7 +642,7 @@ void PoolMgr::LoadFromDB()
 
         } while (result->NextRow());
 
-        
+
         sLog->outString(">> Loaded %u creatures in pools in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         sLog->outString();
     }

@@ -45,7 +45,7 @@ enum Bosses
     NPC_AZURE_RING_GUARDIAN     = 28236,
     NPC_CENTRIFUGE_CONSTRUCT    = 27641,
 };
- 
+
 enum GameObjects
 {
     GO_DRAGON_CAGE_DOOR                           = 193995

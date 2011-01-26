@@ -7699,7 +7699,7 @@ void Player::_ApplyItemBonuses(ItemPrototype const *proto, uint8 slot, bool appl
 
  }
 
-void Player::_ApplyWeaponDamage(uint8 slot, ItemPrototype const *proto, ScalingStatValuesEntry const *ssv, bool apply) 
+void Player::_ApplyWeaponDamage(uint8 slot, ItemPrototype const *proto, ScalingStatValuesEntry const *ssv, bool apply)
 {
     WeaponAttackType attType = BASE_ATTACK;
     float damage = 0.0f;
@@ -9300,7 +9300,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 data << uint32(4324) << uint32(1); // 15 BG_IC_GATE_WEST_A_WS_OPEN
                 data << uint32(4325) << uint32(1); // 16 BG_IC_GATE_EAST_A_WS_OPEN
                 data << uint32(4317) << uint32(1); // 17 unknown
-                
+
                 data << uint32(4301) << uint32(1); // 18 BG_IC_DOCKS_UNCONTROLLED
                 data << uint32(4296) << uint32(1); // 19 BG_IC_HANGAR_UNCONTROLLED
                 data << uint32(4306) << uint32(1); // 20 BG_IC_QUARRY_UNCONTROLLED
@@ -11636,7 +11636,7 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
         const ItemPrototype *proto = pItem->GetProto();
         for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
             if (proto->Spells[i].SpellTrigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE && proto->Spells[i].SpellId > 0) // On obtain trigger
-                CastSpell(this, proto->Spells[i].SpellId, true, pItem);                
+                CastSpell(this, proto->Spells[i].SpellId, true, pItem);
 
         if (allowedLooters && pItem->GetProto()->GetMaxStackSize() == 1 && pItem->IsSoulBound())
         {
@@ -13651,7 +13651,7 @@ void Player::UpdateSkillEnchantments(uint16 skill_id, uint16 curr_value, uint16 
 
                 // If we're dealing with a gem inside a prismatic socket we need to check the prismatic socket requirements
                 // rather than the gem requirements itself. If the socket has no color it is a prismatic socket.
-                if ((slot == SOCK_ENCHANTMENT_SLOT || slot == SOCK_ENCHANTMENT_SLOT_2 || slot == SOCK_ENCHANTMENT_SLOT_3) 
+                if ((slot == SOCK_ENCHANTMENT_SLOT || slot == SOCK_ENCHANTMENT_SLOT_2 || slot == SOCK_ENCHANTMENT_SLOT_3)
                     && !m_items[i]->GetProto()->Socket[slot-SOCK_ENCHANTMENT_SLOT].Color)
                 {
                     SpellItemEnchantmentEntry const *pPrismaticEnchant = sSpellItemEnchantmentStore.LookupEntry(m_items[i]->GetEnchantmentId(PRISMATIC_ENCHANTMENT_SLOT));
@@ -15420,7 +15420,7 @@ void Player::ItemAddedQuestCheck(uint32 entry, uint32 count)
                 {
                     uint16 additemcount = curitemcount + count <= reqitemcount ? count : reqitemcount - curitemcount;
                     q_status.m_itemcount[j] += additemcount;
-                    
+
                     m_QuestStatusSave[questid] = true;
 
                     SendQuestUpdateAddItem(qInfo, j, additemcount);
@@ -15464,7 +15464,7 @@ void Player::ItemRemovedQuestCheck(uint32 entry, uint32 count)
                 {
                     uint16 remitemcount = curitemcount <= reqitemcount ? count : count + reqitemcount - curitemcount;
                     q_status.m_itemcount[j] = (curitemcount <= remitemcount) ? 0 : curitemcount - remitemcount;
-                    
+
                     m_QuestStatusSave[questid] = true;
 
                     IncompleteQuest(questid);
@@ -15534,7 +15534,7 @@ void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
                         if (curkillcount < reqkillcount)
                         {
                             q_status.m_creatureOrGOcount[j] = curkillcount + addkillcount;
-                            
+
                             m_QuestStatusSave[questid] = true;
 
                             SendQuestUpdateAddCreatureOrGo(qInfo, guid, j, curkillcount, addkillcount);
@@ -15613,7 +15613,7 @@ void Player::CastedCreatureOrGO(uint32 entry, uint64 guid, uint32 spell_id)
                     if (curCastCount < reqCastCount)
                     {
                         q_status.m_creatureOrGOcount[j] = curCastCount + addCastCount;
-                        
+
                         m_QuestStatusSave[questid] = true;
 
                         SendQuestUpdateAddCreatureOrGo(qInfo, guid, j, curCastCount, addCastCount);
@@ -15670,7 +15670,7 @@ void Player::TalkedToCreature(uint32 entry, uint64 guid)
                         if (curTalkCount < reqTalkCount)
                         {
                             q_status.m_creatureOrGOcount[j] = curTalkCount + addTalkCount;
-                            
+
                             m_QuestStatusSave[questid] = true;
 
                             SendQuestUpdateAddCreatureOrGo(qInfo, guid, j, curTalkCount, addTalkCount);
@@ -16875,7 +16875,7 @@ void Player::_LoadAuras(PreparedQueryResult result, uint32 timediff)
     /*                                                           0       1        2         3                 4         5      6       7         8              9            10
     QueryResult *result = CharacterDatabase.PQuery("SELECT caster_guid,spell,effect_mask,recalculate_mask,stackcount,amount0,amount1,amount2,base_amount0,base_amount1,base_amount2,
                                                         11          12          13
-                                                    maxduration,remaintime,remaincharges FROM character_aura WHERE guid = '%u'",GetGUIDLow()); 
+                                                    maxduration,remaintime,remaincharges FROM character_aura WHERE guid = '%u'",GetGUIDLow());
     */
 
     if (result)
@@ -17339,8 +17339,8 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
     uint16 slot = 0;
 
     ////                                                       0      1       2        3        4           5          6         7           8           9           10
-    //QueryResult *result = CharacterDatabase.PQuery("SELECT quest, status, explored, timer, mobcount1, mobcount2, mobcount3, mobcount4, itemcount1, itemcount2, itemcount3, 
-    //                                                    11 
+    //QueryResult *result = CharacterDatabase.PQuery("SELECT quest, status, explored, timer, mobcount1, mobcount2, mobcount3, mobcount4, itemcount1, itemcount2, itemcount3,
+    //                                                    11
     //                                                itemcount4 FROM character_queststatus WHERE guid = '%u'", GetGUIDLow());
 
     if (result)
@@ -18251,7 +18251,7 @@ void Player::_SaveAuras(SQLTransaction& trans)
         stmt->setUInt64(index++, itr->second->GetCastItemGUID());
         stmt->setUInt32(index++, itr->second->GetId());
         stmt->setUInt8(index++, effMask);
-        stmt->setUInt8(index++, recalculateMask);       
+        stmt->setUInt8(index++, recalculateMask);
         stmt->setUInt8(index++, itr->second->GetStackAmount());
         stmt->setInt32(index++, damage[0]);
         stmt->setInt32(index++, damage[1]);
@@ -23912,7 +23912,7 @@ void Player::_SaveEquipmentSets(SQLTransaction& trans)
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_EQUIP_SET);
                 stmt->setUInt32(j++, GetGUIDLow());
                 stmt->setUInt64(j++, eqset.Guid);
-                stmt->setUInt32(j++, index);                
+                stmt->setUInt32(j++, index);
                 stmt->setString(j++, eqset.Name.c_str());
                 stmt->setString(j++, eqset.IconName.c_str());
                 for (uint8 i=0; i<EQUIPMENT_SLOT_END; ++i)
@@ -24506,7 +24506,7 @@ void Player::_LoadInstanceTimeRestrictions(PreparedQueryResult result)
     if (!result)
         return;
 
-    do 
+    do
     {
         Field* fields = result->Fetch();
         _instanceResetTimes.insert(InstanceTimeMap::value_type(fields[0].GetUInt32(), fields[1].GetUInt64()));

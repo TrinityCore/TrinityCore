@@ -19,7 +19,7 @@
 #include "LFGGroupData.h"
 
 LfgGroupData::LfgGroupData():
-m_State(LFG_STATE_NONE), m_OldState(LFG_STATE_NONE), m_Dungeon(0), 
+m_State(LFG_STATE_NONE), m_OldState(LFG_STATE_NONE), m_Dungeon(0),
 m_VotesNeeded(0), m_KicksLeft(LFG_GROUP_MAX_KICKS)
 {
 }

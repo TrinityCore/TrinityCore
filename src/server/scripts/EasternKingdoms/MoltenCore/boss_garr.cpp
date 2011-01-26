@@ -47,9 +47,9 @@ public:
 
     struct boss_garrAI : public ScriptedAI
     {
-        boss_garrAI(Creature *pCreature) : ScriptedAI(pCreature) 
+        boss_garrAI(Creature *pCreature) : ScriptedAI(pCreature)
         {
-        m_pInstance = pCreature->GetInstanceScript(); 
+        m_pInstance = pCreature->GetInstanceScript();
         }
         InstanceScript* m_pInstance;
 

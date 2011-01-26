@@ -1333,7 +1333,7 @@ public:
                         pTarget->AddAura(SPELL_GIFT_OF_TWILIGTH_SHA, pTarget);
                 }
             }
-            
+
             me->AddAura(SPELL_TWILIGHT_SHIFT_ENTER,me);
         }
 

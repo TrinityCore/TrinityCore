@@ -227,7 +227,7 @@ public:
 
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
-            return sSpellStore.LookupEntry(SPELL_MAGE_FROST_WARDING_TRIGGERED) 
+            return sSpellStore.LookupEntry(SPELL_MAGE_FROST_WARDING_TRIGGERED)
                 && sSpellStore.LookupEntry(SPELL_MAGE_FROST_WARDING_R1);
         }
 
@@ -277,7 +277,7 @@ public:
 
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
-            return sSpellStore.LookupEntry(SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED) 
+            return sSpellStore.LookupEntry(SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED)
                 && sSpellStore.LookupEntry(SPELL_MAGE_INCANTERS_ABSORBTION_R1);
         }
 
@@ -322,7 +322,7 @@ public:
 
         bool Validate(SpellEntry const * /*spellEntry*/)
         {
-            return sSpellStore.LookupEntry(SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED) 
+            return sSpellStore.LookupEntry(SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED)
                 && sSpellStore.LookupEntry(SPELL_MAGE_INCANTERS_ABSORBTION_R1);
         }
 
