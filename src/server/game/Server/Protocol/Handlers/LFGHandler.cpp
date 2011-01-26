@@ -126,7 +126,7 @@ void WorldSession::HandleLfgSetCommentOpcode(WorldPacket&  recv_data)
     recv_data >> comment;
     uint64 guid = GetPlayer()->GetGUID();
     sLog->outDebug("CMSG_SET_LFG_COMMENT [" UI64FMTD "] comment: %s", guid, comment.c_str());
-    
+
     sLFGMgr->SetComment(guid, comment);
 }
 
@@ -256,7 +256,7 @@ void WorldSession::HandleLfgPartyLockInfoRequestOpcode(WorldPacket&  /*recv_data
     uint32 size = 0;
     for (LfgLockPartyMap::const_iterator it = lockMap.begin(); it != lockMap.end(); ++it)
         size += 8 + 4 + uint32(it->second.size()) * (4 + 4);
-    
+
     sLog->outDebug("SMSG_LFG_PARTY_INFO [" UI64FMTD "]", guid);
     WorldPacket data(SMSG_LFG_PARTY_INFO, 1 + size);
     BuildPartyLockDungeonBlock(data, lockMap);

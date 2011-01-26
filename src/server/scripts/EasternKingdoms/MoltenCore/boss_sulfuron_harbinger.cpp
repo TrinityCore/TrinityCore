@@ -49,9 +49,9 @@ public:
 
     struct boss_sulfuronAI : public ScriptedAI
     {
-        boss_sulfuronAI(Creature *pCreature) : ScriptedAI(pCreature) 
+        boss_sulfuronAI(Creature *pCreature) : ScriptedAI(pCreature)
         {
-            m_pInstance = pCreature->GetInstanceScript(); 
+            m_pInstance = pCreature->GetInstanceScript();
         }
         InstanceScript* m_pInstance;
 

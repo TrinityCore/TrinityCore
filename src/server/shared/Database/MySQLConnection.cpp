@@ -33,7 +33,6 @@
 #include "Log.h"
 
 MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo) :
-m_statementTable(NULL),
 m_reconnecting(false),
 m_queue(NULL),
 m_worker(NULL),
@@ -44,7 +43,6 @@ m_connectionFlags(CONNECTION_SYNCH)
 }
 
 MySQLConnection::MySQLConnection(ACE_Activation_Queue* queue, MySQLConnectionInfo& connInfo) :
-m_statementTable(NULL),
 m_reconnecting(false),
 m_queue(queue),
 m_Mysql(NULL),
@@ -61,6 +59,11 @@ MySQLConnection::~MySQLConnection()
     sLog->outSQLDriver("MySQLConnection::~MySQLConnection()");
     for (size_t i = 0; i < m_stmts.size(); ++i)
         delete m_stmts[i];
+
+    for (PreparedStatementMap::const_iterator itr = m_queries.begin(); itr != m_queries.end(); ++itr)
+    {
+        free((void *)m_queries[itr->first].first);
+    }
 
     mysql_close(m_Mysql);
     Unlock();   /// Unlock while we die, how ironic
@@ -161,7 +164,7 @@ bool MySQLConnection::Execute(const char* sql)
             sLog->outSQLDriver("SQL: %s", sql);
             sLog->outSQLDriver("ERROR: [%u] %s", lErrno, mysql_error(m_Mysql));
 
-            if (_HandleMySQLErrno(lErrno))  // If it returns true, an error was handled succesfuly (ie reconnection)
+            if (_HandleMySQLErrno(lErrno))  // If it returns true, an error was handled successfully (i.e. reconnection)
                 return Execute(sql);       // Try again
 
             return false;
@@ -199,10 +202,9 @@ bool MySQLConnection::Execute(PreparedStatement* stmt)
         if (mysql_stmt_bind_param(msql_STMT, msql_BIND))
         {
             uint32 lErrno = mysql_errno(m_Mysql);
-            sLog->outSQLDriver("SQL(p): %s\n [ERROR]: [%u] %s",
-                m_statementTable[index].query, lErrno, mysql_stmt_error(msql_STMT));
+            sLog->outSQLDriver("SQL(p): %s\n [ERROR]: [%u] %s", m_mStmt->getQueryString(m_queries[index].first).c_str(), lErrno, mysql_stmt_error(msql_STMT));
 
-            if (_HandleMySQLErrno(lErrno))  // If it returns true, an error was handled succesfuly (ie reconnection)
+            if (_HandleMySQLErrno(lErrno))  // If it returns true, an error was handled successfully (i.e. reconnection)
                 return Execute(stmt);       // Try again
 
             m_mStmt->ClearParameters();
@@ -212,10 +214,9 @@ bool MySQLConnection::Execute(PreparedStatement* stmt)
         if (mysql_stmt_execute(msql_STMT))
         {
             uint32 lErrno = mysql_errno(m_Mysql);
-            sLog->outSQLDriver("SQL(p): %s\n [ERROR]: [%u] %s",
-                m_statementTable[index].query, lErrno, mysql_stmt_error(msql_STMT));
+            sLog->outSQLDriver("SQL(p): %s\n [ERROR]: [%u] %s", m_mStmt->getQueryString(m_queries[index].first).c_str(), lErrno, mysql_stmt_error(msql_STMT));
 
-            if (_HandleMySQLErrno(lErrno))  // If it returns true, an error was handled succesfuly (ie reconnection)
+            if (_HandleMySQLErrno(lErrno))  // If it returns true, an error was handled successfully (i.e. reconnection)
                 return Execute(stmt);       // Try again
 
             m_mStmt->ClearParameters();
@@ -223,8 +224,7 @@ bool MySQLConnection::Execute(PreparedStatement* stmt)
         }
 
         if (sLog->GetSQLDriverQueryLogging())
-            sLog->outSQLDriver("[%u ms] SQL(p): %s",
-            getMSTimeDiff(_s, getMSTime()), m_statementTable[index].query);
+            sLog->outSQLDriver("[%u ms] SQL(p): %s", getMSTimeDiff(_s, getMSTime()), m_mStmt->getQueryString(m_queries[index].first).c_str());
 
         m_mStmt->ClearParameters();
         return true;
@@ -255,10 +255,9 @@ bool MySQLConnection::_Query(PreparedStatement* stmt, MYSQL_RES **pResult, uint6
         if (mysql_stmt_bind_param(msql_STMT, msql_BIND))
         {
             uint32 lErrno = mysql_errno(m_Mysql);
-            sLog->outSQLDriver("SQL(p): %s\n [ERROR]: [%u] %s",
-                m_statementTable[index].query, lErrno, mysql_stmt_error(msql_STMT));
+            sLog->outSQLDriver("SQL(p): %s\n [ERROR]: [%u] %s", m_mStmt->getQueryString(m_queries[index].first).c_str(), lErrno, mysql_stmt_error(msql_STMT));
 
-            if (_HandleMySQLErrno(lErrno))  // If it returns true, an error was handled succesfuly (ie reconnection)
+            if (_HandleMySQLErrno(lErrno))  // If it returns true, an error was handled successfully (i.e. reconnection)
                 return _Query(stmt, pResult, pRowCount, pFieldCount);       // Try again
 
             m_mStmt->ClearParameters();
@@ -269,9 +268,9 @@ bool MySQLConnection::_Query(PreparedStatement* stmt, MYSQL_RES **pResult, uint6
         {
             uint32 lErrno = mysql_errno(m_Mysql);
             sLog->outSQLDriver("SQL(p): %s\n [ERROR]: [%u] %s",
-                m_statementTable[index].query, lErrno, mysql_stmt_error(msql_STMT));
+                m_mStmt->getQueryString(m_queries[index].first).c_str(), lErrno, mysql_stmt_error(msql_STMT));
 
-            if (_HandleMySQLErrno(lErrno))  // If it returns true, an error was handled succesfuly (ie reconnection)
+            if (_HandleMySQLErrno(lErrno))  // If it returns true, an error was handled successfully (i.e. reconnection)
                 return _Query(stmt, pResult, pRowCount, pFieldCount);      // Try again
 
             m_mStmt->ClearParameters();
@@ -279,8 +278,7 @@ bool MySQLConnection::_Query(PreparedStatement* stmt, MYSQL_RES **pResult, uint6
         }
 
         if (sLog->GetSQLDriverQueryLogging())
-            sLog->outSQLDriver("[%u ms] SQL(p): %s",
-                getMSTimeDiff(_s, getMSTime()), m_statementTable[index].query);
+            sLog->outSQLDriver("[%u ms] SQL(p): %s", getMSTimeDiff(_s, getMSTime()), m_mStmt->getQueryString(m_queries[index].first).c_str());
 
         m_mStmt->ClearParameters();
 
@@ -325,8 +323,8 @@ bool MySQLConnection::_Query(const char *sql, MYSQL_RES **pResult, MYSQL_FIELD *
             sLog->outSQLDriver("SQL: %s", sql);
             sLog->outSQLDriver("ERROR: [%u] %s", lErrno, mysql_error(m_Mysql));
 
-            if (_HandleMySQLErrno(lErrno))      // If it returns true, an error was handled succesfuly (ie reconnection)
-                return _Query(sql, pResult, pFields, pRowCount, pFieldCount);    // We try again 
+            if (_HandleMySQLErrno(lErrno))      // If it returns true, an error was handled successfully (i.e. reconnection)
+                return _Query(sql, pResult, pFields, pRowCount, pFieldCount);    // We try again
 
             return false;
         }
@@ -433,7 +431,7 @@ void MySQLConnection::PrepareStatement(uint32 index, const char* sql, Connection
         delete m_stmts[index];
 
     // Check if specified query should be prepared on this connection
-    // ie. don't prepare async statements on synchronous connections
+    // i.e. don't prepare async statements on synchronous connections
     // to save memory that will not be used.
     if (!(m_connectionFlags & flags))
     {
@@ -495,7 +493,7 @@ bool MySQLConnection::_HandleMySQLErrno(uint32 errNo)
             {
                 sLog->outSQLDriver("Connection to the MySQL server is active.");
                 if (oldThreadId != mysql_thread_id(GetHandle()))
-                    sLog->outSQLDriver("Succesfuly reconnected to %s @%s:%s (%s).", 
+                    sLog->outSQLDriver("Successfully reconnected to %s @%s:%s (%s).",
                         m_connectionInfo.database.c_str(), m_connectionInfo.host.c_str(), m_connectionInfo.port_or_socket.c_str(),
                             (m_connectionFlags & CONNECTION_ASYNC) ? "asynchronous" : "synchronous");
 

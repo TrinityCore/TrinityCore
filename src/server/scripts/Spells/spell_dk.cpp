@@ -449,7 +449,7 @@ class spell_dk_will_of_the_necropolis : public SpellScriptLoader
 
                 int32 remainingHp = int32(GetTarget()->GetHealth() - dmgInfo.GetDamage());
                 int32 minHp = int32(GetTarget()->CountPctFromMaxHealth(SpellMgr::CalculateSpellEffectAmount(talentProto, EFFECT_0, GetCaster())));
-            
+
                 // Damage that would take you below [effect0] health or taken while you are at [effect0]
                 if (remainingHp < minHp)
                     absorbAmount = CalculatePctN(dmgInfo.GetDamage(), absorbPct);

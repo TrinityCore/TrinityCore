@@ -78,7 +78,7 @@ class boss_drakkari_colossus : public CreatureScript
 
         struct boss_drakkari_colossusAI : public BossAI
         {
-            boss_drakkari_colossusAI(Creature* creature) : BossAI(creature, DATA_DRAKKARI_COLOSSUS_EVENT) 
+            boss_drakkari_colossusAI(Creature* creature) : BossAI(creature, DATA_DRAKKARI_COLOSSUS_EVENT)
             {
                 me->SetReactState(REACT_PASSIVE);
                 introDone = false;
@@ -115,7 +115,7 @@ class boss_drakkari_colossus : public CreatureScript
             void EnterCombat(Unit* /*who*/)
             {
                 _EnterCombat();
-               
+
                 me->RemoveAura(SPELL_FREEZE_ANIM);
 
                 // Note: This should not be called, but before use SetBossState function we should use BossAI
@@ -185,7 +185,7 @@ class boss_drakkari_colossus : public CreatureScript
                         phase = (phase == COLOSSUS_PHASE_NORMAL ? COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON : COLOSSUS_PHASE_SECOND_ELEMENTAL_SUMMON);
                         DoAction(ACTION_FREEZE_COLOSSUS);
                         DoAction(ACTION_SUMMON_ELEMENTAL);
-                        
+
                     }
                 }
             }
@@ -287,7 +287,7 @@ class boss_drakkari_elemental : public CreatureScript
             {
                 if (!UpdateVictim())
                     return;
-                
+
                 events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STAT_CASTING))
@@ -339,7 +339,7 @@ class boss_drakkari_elemental : public CreatureScript
                             if (me->HasUnitState(UNIT_STAT_CHARGING))
                                 return;
 
-                            // not sure about this, the idea of this code is to prevent bug the elemental 
+                            // not sure about this, the idea of this code is to prevent bug the elemental
                             // if it is not in a acceptable distance to cast the charge spell.
                             /*if (me->GetDistance(colossus) > 80.0f)
                             {
@@ -454,7 +454,7 @@ public:
                 colossus->GetHomePosition().GetPosition(&colossusHomePosition);
 
                 float distance = homePosition.GetExactDist(colossusHomePosition.GetPositionX(),colossusHomePosition.GetPositionY(),colossusHomePosition.GetPositionZ());
-                
+
                 if (distance < 12.0f)
                 {
                     MoveMojos(colossus);

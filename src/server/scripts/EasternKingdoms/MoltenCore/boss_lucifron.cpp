@@ -42,9 +42,9 @@ public:
 
     struct boss_lucifronAI : public ScriptedAI
     {
-        boss_lucifronAI(Creature *pCreature) : ScriptedAI(pCreature) 
+        boss_lucifronAI(Creature *pCreature) : ScriptedAI(pCreature)
         {
-            m_pInstance = pCreature->GetInstanceScript(); 
+            m_pInstance = pCreature->GetInstanceScript();
         }
         InstanceScript* m_pInstance;
 

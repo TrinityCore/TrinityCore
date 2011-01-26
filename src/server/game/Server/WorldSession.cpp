@@ -959,7 +959,7 @@ void WorldSession::ProcessQueryCallbacks()
         if (m_nameQueryCallbacks.next_readable(lResult, &timeout) != 1)
            break;
 
-        if (lResult.ready()) 
+        if (lResult.ready())
         {
             lResult.get(result);
             SendNameQueryOpcodeFromDBCallBack(result);

@@ -185,7 +185,7 @@ void ScriptMgr::Initialize()
 	LoadNpcTele();
 
     sLog->outString("Loading C++ scripts");
-    
+
     FillSpellSummary();
     AddScripts();
 

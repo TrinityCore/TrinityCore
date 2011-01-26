@@ -381,7 +381,7 @@ public:
                 Intro_Timer = 4000;
                 Intro = 1;
             }
-        
+
         }
 };
 
@@ -400,13 +400,13 @@ public:
 
     struct mob_SonOfFlameAI : public ScriptedAI //didnt work correctly in EAI for me...
     {
-        mob_SonOfFlameAI(Creature *c) : ScriptedAI(c) 
+        mob_SonOfFlameAI(Creature *c) : ScriptedAI(c)
         {
             pInstance = me->GetInstanceScript();
         }
 
         InstanceScript* pInstance;
-        
+
         void JustDied(Unit * /*victim*/)
         {
             if (pInstance)

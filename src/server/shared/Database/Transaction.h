@@ -51,7 +51,7 @@ class TransactionTask : public SQLOperation
 {
     template <class T> friend class DatabaseWorkerPool;
     friend class DatabaseWorker;
-    
+
     public:
         TransactionTask(SQLTransaction trans) : m_trans(trans) {} ;
         ~TransactionTask(){};
