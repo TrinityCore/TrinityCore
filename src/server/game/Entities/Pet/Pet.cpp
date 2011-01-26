@@ -695,7 +695,7 @@ void Pet::GivePetXP(uint32 xp)
 
     if (!isAlive())
         return;
-    
+
     uint8 maxlevel = std::min((uint8)sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL), GetOwner()->getLevel());
     uint8 petlevel = getLevel();
 

@@ -61,7 +61,7 @@ void TicketMgr::LoadGMTickets()
     }
 
     uint32 count = 0;
-    
+
     do
     {
         Field *fields = result->Fetch();

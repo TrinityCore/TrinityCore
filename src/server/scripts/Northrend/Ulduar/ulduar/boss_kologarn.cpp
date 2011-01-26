@@ -26,9 +26,9 @@
 #define SPELL_PETRIFY_BREATH    RAID_MODE(62030,63980)
 
 #define SPELL_STONE_GRIP        RAID_MODE(62166,63981)
-#define SPELL_STONE_GRIP_CANCEL 65594 
+#define SPELL_STONE_GRIP_CANCEL 65594
 #define SPELL_ARM_SWEEP         RAID_MODE(63766,63983)
-#define SPELL_ARM_VISUAL        64753 
+#define SPELL_ARM_VISUAL        64753
 
 #define SPELL_BERSERK           47008 // guess
 
@@ -70,7 +70,7 @@ void EncounterInCombat(Creature* me, InstanceScript* pInstance)
     c = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_RIGHT_ARM) : 0);
     if (c && c != me && c->isAlive())
         c->SetInCombatWithZone();
-    
+
     c = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_LEFT_ARM) : 0);
     if (c && c != me && c->isAlive())
         c->SetInCombatWithZone();
