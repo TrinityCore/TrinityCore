@@ -115,7 +115,11 @@ public:
                         //amount of HP within melee distance
                         uint32 MostHP = 0;
                         Unit* pMostHPTarget = NULL;
-                        std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
+
+                        std::list<HostileReference*> m_threatlist = me->getThreatManager().getThreatList();
+                        m_threatlist.resize(RAID_MODE(2,3));  // Picks 2 (3) highest threat targets as Hateful Strike candidates
+                        std::list<HostileReference*>::const_iterator i = m_threatlist.begin();
+
                         for (; i != me->getThreatManager().getThreatList().end(); ++i)
                         {
                             Unit *pTarget = (*i)->getTarget();
@@ -130,6 +134,9 @@ public:
                             pMostHPTarget = me->getVictim();
 
                         DoCast(pMostHPTarget, RAID_MODE(SPELL_HATEFUL_STRIKE,H_SPELL_HATEFUL_STRIKE), true);
+
+                        /// wowhead article: "GREATLY boosts threat of the Hateful Strike candidates"
+                        /// but i have no data (bonus threat percent, ect) for this "GREAT boost"...
 
                         events.ScheduleEvent(EVENT_HATEFUL, 1200);
                         break;
