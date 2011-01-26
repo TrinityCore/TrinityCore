@@ -79,24 +79,24 @@ public:
     }
 
     bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 /*uiAction*/)
-    {   
+    {
         //ScriptedInstance* pInstance = pCreature->GetInstanceData();
 
         BossAI* pBossAI = CAST_AI(boss_majordomoAI, pCreature->AI());
 
         if (/*pInstance && */pBossAI)
-        {  
+        {
             pPlayer->CLOSE_GOSSIP_MENU();
-            CAST_AI(boss_majordomoAI, pCreature->AI())->StartRagsEvent(); 
+            CAST_AI(boss_majordomoAI, pCreature->AI())->StartRagsEvent();
         }
-        return true;                              
+        return true;
     }
 
     struct boss_majordomoAI : public BossAI
     {
-        boss_majordomoAI(Creature *pCreature) : BossAI(pCreature, BOSS_MAJORDOMO) 
+        boss_majordomoAI(Creature *pCreature) : BossAI(pCreature, BOSS_MAJORDOMO)
         {
-            m_pInstance = pCreature->GetInstanceScript(); 
+            m_pInstance = pCreature->GetInstanceScript();
         }
         InstanceScript* m_pInstance;
 
@@ -137,7 +137,7 @@ public:
                     return;
 
                  if (((!me->FindNearestCreature(ENTRY_FLAMEWALKER_HEALER,100.0f)) && (!me->FindNearestCreature(ENTRY_FLAMEWALKER_ELITE,100.0f))) && (!m_pInstance->GetData(DATA_MAJORDOMOISDEAD)))
-                 {      
+                 {
                     me->setFaction(35);
                     me->AI()->EnterEvadeMode();
                     DoScriptText(SAY_DEFEAT, me);
@@ -174,8 +174,8 @@ public:
 
                 if (Teleport_Timer <= diff)
                 {
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1)) 
-                         DoCast(pTarget, SPELL_TELEPORT); 
+                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1))
+                         DoCast(pTarget, SPELL_TELEPORT);
                     Teleport_Timer = 20000;
                 } else Teleport_Timer -= diff;
 
@@ -199,7 +199,7 @@ public:
                         if (m_pInstance)
                             m_pInstance->SetData(DATA_RAGNAROS, true);
                         Phase = 4;
-                        Phase_Timer = 16000; 
+                        Phase_Timer = 16000;
                     } else Phase_Timer -= diff;
                 }
                 if (Phase == 4)

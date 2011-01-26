@@ -532,7 +532,7 @@ class spell_gen_animal_blood : public SpellScriptLoader
                     return false;
                 return true;
             }
-            
+
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 // Remove all auras with spell id 46221, except the one currently being applied
@@ -690,7 +690,7 @@ class spell_gen_parachute_ic : public SpellScriptLoader
                     return;
 
                 if (target->ToPlayer()->m_movementInfo.fallTime > 2000)
-                    target->CastSpell(target,SPELL_PARACHUTE_IC,true);               
+                    target->CastSpell(target,SPELL_PARACHUTE_IC,true);
             }
 
             void Register()

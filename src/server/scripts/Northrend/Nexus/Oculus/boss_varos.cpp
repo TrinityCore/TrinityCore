@@ -36,7 +36,7 @@ enum Spells
     SPELL_CALL_AZURE_RING_CAPTAIN_3               = 51007, //Effect    Send Event (18454)
     SPELL_CALL_AZURE_RING_CAPTAIN_4               = 51008, //Effect    Send Event (18455)*/
     SPELL_CALL_AMPLIFY_MAGIC                      = 51054,
-   
+
     SPELL_ICE_BEAM                                = 49549,
     SPELL_ARCANE_BEAM_PERIODIC                    = 51019,
     SPELL_SUMMON_ARCANE_BEAM                      = 51017
@@ -62,7 +62,7 @@ public:
 
     struct boss_varosAI : public BossAI
     {
-        boss_varosAI(Creature* creature) : BossAI(creature, DATA_VAROS_EVENT) 
+        boss_varosAI(Creature* creature) : BossAI(creature, DATA_VAROS_EVENT)
         {
             if (instance->GetBossState(DATA_DRAKOS_EVENT) != DONE)
                 DoCast(me,SPELL_CENTRIFUGE_SHIELD);
@@ -76,7 +76,7 @@ public:
             events.ScheduleEvent(EVENT_ENERGIZE_CORES_VISUAL, 5000);
             // not sure if this is handled by a timer or hp percentage
             events.ScheduleEvent(EVENT_CALL_AZURE, urand(15,30) * IN_MILLISECONDS);
-            
+
             firstCoreEnergize = false;
             coreEnergizeOrientation = 0.0f;
         }
@@ -134,7 +134,7 @@ public:
                         break;
                     case EVENT_CALL_AZURE:
                         // not sure how blizz handles this, i cant see any pattern between the differnt spells
-                        DoCast(me,SPELL_CALL_AZURE_RING_CAPTAIN); 
+                        DoCast(me,SPELL_CALL_AZURE_RING_CAPTAIN);
                         Talk(SAY_AZURE);
                         Talk(SAY_AZURE_EMOTE);
                         events.ScheduleEvent(EVENT_CALL_AZURE, urand(20,25) * IN_MILLISECONDS);
@@ -169,7 +169,7 @@ class npc_azure_ring_captain : public CreatureScript
         struct npc_azure_ring_captainAI : public ScriptedAI
         {
             npc_azure_ring_captainAI(Creature* creature) : ScriptedAI(creature)
-            { 
+            {
                 instance = creature->GetInstanceScript();
             }
 
@@ -180,7 +180,7 @@ class npc_azure_ring_captain : public CreatureScript
                 me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING | MOVEMENTFLAG_FLYING);
                 me->SetReactState(REACT_AGGRESSIVE);
             }
-                      
+
             void SpellHitTarget(Unit* target, SpellEntry const* spell)
             {
                 if (spell->Id == SPELL_ICE_BEAM)
@@ -194,16 +194,16 @@ class npc_azure_ring_captain : public CreatureScript
             {
                 if (!UpdateVictim())
                     return;
-                
+
                 DoMeleeAttackIfReady();
             }
 
             void MovementInform(uint32 type, uint32 id)
-            {   
+            {
                 if (type != POINT_MOTION_TYPE ||
                     id != ACTION_CALL_DRAGON_EVENT)
                     return;
-                
+
                 me->GetMotionMaster()->MoveIdle();
 
                 if (Unit* target = ObjectAccessor::GetUnit(*me,targetGUID))
@@ -307,7 +307,7 @@ class spell_varos_energize_core_area_enemy : public SpellScriptLoader
                     return;
 
                 float orientation = CAST_AI(boss_varos::boss_varosAI,varos->AI())->GetCoreEnergizeOrientation();
-                
+
                 for (std::list<Unit*>::iterator itr = targetList.begin() ; itr != targetList.end();)
                 {
                     Position pos;
@@ -354,7 +354,7 @@ class spell_varos_energize_core_area_entry : public SpellScriptLoader
                     return;
 
                 float orientation = CAST_AI(boss_varos::boss_varosAI,varos->AI())->GetCoreEnergizeOrientation();
-                
+
                 for (std::list<Unit*>::iterator itr = targetList.begin() ; itr != targetList.end();)
                 {
                     Position pos;

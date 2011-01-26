@@ -105,7 +105,7 @@ public:
             if (instance->GetBossState(DATA_VAROS_EVENT) != DONE)
                 DoCast(SPELL_ARCANE_SHIELD);
 
-            _Reset(); 
+            _Reset();
 
             if (instance->GetData(DATA_UROM_PLATAFORM) == 0)
             {

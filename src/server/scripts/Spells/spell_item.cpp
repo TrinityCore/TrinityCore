@@ -751,7 +751,7 @@ enum AirRifleSpells
 class spell_item_red_rider_air_rifle : public SpellScriptLoader
 {
     public:
-	    spell_item_red_rider_air_rifle() : SpellScriptLoader("spell_item_red_rider_air_rifle") { }
+        spell_item_red_rider_air_rifle() : SpellScriptLoader("spell_item_red_rider_air_rifle") { }
 
         class spell_item_red_rider_air_rifle_SpellScript : public SpellScript
         {
