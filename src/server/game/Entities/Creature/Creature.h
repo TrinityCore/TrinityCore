@@ -542,6 +542,13 @@ class Creature : public Unit, public GridObject<Creature>
         virtual void SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask);
         virtual void DeleteFromDB();                        // overriden in Pet
 
+        // Ist dieser NPC ein Caster? Default = false.
+        bool m_isCaster;
+        // Default minimum Castrange für Caster. Default = 0.
+        float m_CasterDefaultMinCombatRange;
+        // Default maximum Castrange für Caster. Default = 29.
+        float m_CasterDefaultMaxCombatRange;
+
         Loot loot;
         bool lootForPickPocketed;
         bool lootForBody;

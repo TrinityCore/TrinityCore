@@ -110,6 +110,11 @@ enum EventAI_ActionType
     ACTION_T_SET_INVINCIBILITY_HP_LEVEL = 42,               // MinHpValue, format(0-flat,1-percent from max health)
     ACTION_T_MOUNT_TO_ENTRY_OR_MODEL    = 43,               // Creature_template entry(param1) OR ModelId (param2) (or 0 for both to unmount)
 
+    ACTION_T_CASTER_MOVEMENT            = 96,               // Param1 = Castermovement deaktivieren/aktivieren - 0/1 - default = 0
+                                                            // Param2 = Minimum Distanz setzen - default = 0
+                                                            // Param3 = Maximum Distanz setzen - default = 29
+                                                            // Am besten mit EVENT_T_AGGRO zu nutzen. ;)
+
     ACTION_T_SET_PHASE_MASK             = 97,
     ACTION_T_SET_STAND_STATE            = 98,
     ACTION_T_MOVE_RANDOM_POINT          = 99,

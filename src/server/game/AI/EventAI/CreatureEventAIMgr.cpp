@@ -391,6 +391,9 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                 break;
             }
 
+            case EVENT_T_RESET:
+                break;
+
             default:
                 sLog->outErrorDb("CreatureEventAI: Creature %u using not checked at load event (%u) in event %u. Need check code update?", temp.creature_id, temp.event_id, i);
                 break;
@@ -694,6 +697,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                         }
                     }
                     break;
+                case ACTION_T_CASTER_MOVEMENT:
                 case ACTION_T_EVADE:                    //No Params
                 case ACTION_T_FLEE_FOR_ASSIST:          //No Params
                 case ACTION_T_DIE:                      //No Params

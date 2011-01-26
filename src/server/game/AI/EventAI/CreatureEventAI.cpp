@@ -846,6 +846,18 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
 
             break;
         }
+        case ACTION_T_CASTER_MOVEMENT:
+            // Wenn Caster gesetzt wird, dann nach Distanzen schauen...
+            if (me->m_isCaster = action.raw.param1 ? true : false)
+            {
+                // Wenn Minimum Distanz gesetzt ist, dann übernehmen...
+                if (action.raw.param2)
+                    me->m_CasterDefaultMinCombatRange = float(action.raw.param2);
+                // Wenn Maximum Distanz gesetzt ist, dann übernehmen...
+                if (action.raw.param3)
+                    me->m_CasterDefaultMaxCombatRange = float(action.raw.param3);
+            }
+            break;
     }
 }
 

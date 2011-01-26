@@ -138,6 +138,10 @@ bool ForcedDespawnDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 }
 
 Creature::Creature(): Unit(),
+m_isCaster(false),                  // Ist dieser NPC ein Caster?
+m_CasterDefaultMinCombatRange(0),   // Default minimum Castrange für Caster
+m_CasterDefaultMaxCombatRange(29),  // Default maximum Castrange für Caster
+
 lootForPickPocketed(false), lootForBody(false), m_groupLootTimer(0), lootingGroupLowGUID(0),
 m_PlayerDamageReq(0), m_lootMoney(0), m_lootRecipient(0), m_lootRecipientGroup(0), m_corpseRemoveTime(0), m_respawnTime(0),
 m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_reactState(REACT_AGGRESSIVE),
@@ -587,6 +591,27 @@ void Creature::Update(uint32 diff)
                 if (!bIsPolymorphed) // if polymorphed, skip the timer
                     m_regenTimer -= diff;*/
             m_regenTimer = CREATURE_REGEN_INTERVAL;
+
+            // Movement bei Castern nur, wenn das Ziel zu weit weg ist, oder nicht in LoS, oder wenn das Mana auf weniger als 2% ist!
+            uint32 percent2 = 0;
+            uint32 curmana = 0;
+
+            if (getPowerType() == POWER_MANA)
+            {
+                percent2 = (GetMaxPower(POWER_MANA)/100)*2;
+                curmana = GetPower(POWER_MANA);
+            }
+
+            if (m_isCaster && isInCombat() && !IsNonMeleeSpellCasted(false) &&
+                (!IsInRange(getVictim(), m_CasterDefaultMinCombatRange, m_CasterDefaultMaxCombatRange) || !IsWithinLOSInMap(getVictim()) || curmana < percent2))
+            {
+                if (GetMotionMaster()->GetCurrentMovementGeneratorType() != TARGETED_MOTION_TYPE)
+                    GetMotionMaster()->MoveChase(getVictim());
+            }
+            else
+                if (m_isCaster && isInCombat() && GetMotionMaster()->GetCurrentMovementGeneratorType() != IDLE_MOTION_TYPE)
+                    GetMotionMaster()->MoveIdle();
+
             break;
         }
         case DEAD_FALLING:

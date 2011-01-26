@@ -144,6 +144,11 @@ Each event type has its own specific interpretation of it's params, like every e
 42   ACTION_T_SET_INVINCIBILITY_HP_LEVEL hp_level, is_percent            Set min. health level for creature that can be set at damage as flat value or percent from max health
 43   ACTION_T_MOUNT_TO_ENTRY_OR_MODEL    CreatureEntry, ModelId          Set mount model from creature_template.entry (Param1) OR explicit modelId (Param2). If (Param1) AND (Param2) are both 0, unmount.
 
+96   ACTION_T_CASTER_MOVEMENT            Ja/Nein,Minrange,Maxrange       Param1 = Nutzen oder nicht (1/0) - Param2 = Minimum Entfernung - Param3 = Maximum Entfernung
+                                                                         Am besten mit EVENT_T_RESET oder EVENT_T_AGGRO zu nutzen. ;)
+                                                                         Wenn es eingeschaltet ist, läuft der NPC nur bis auf die maximale Entfernung heran, und nicht mehr auf Melee. Ist der NPC nicht mehr in LoS,
+                                                                         oder einfach zu weit weg, läuft er näher an das Ziel heran.
+
 * = Use -1 where the param is expected to do nothing. Random constant is generated for each event, so if you have a random yell and a random sound, they will be linked up with each other (ie. param2 with param2).
 
 
