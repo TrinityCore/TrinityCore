@@ -68,7 +68,7 @@ struct PreparedStatementTable
     ConnectionFlags type;
 };
 
-typedef std::map<uint32 /*index*/, std::pair<const char* /*query*/, ConnectionFlags /*sync/async*/>> PreparedStatementMap;
+typedef std::map<uint32 /*index*/, std::pair<const char* /*query*/, ConnectionFlags /*sync/async*/> > PreparedStatementMap;
 
 #define PREPARE_STATEMENT(a, b, c) m_queries[a] = std::make_pair(strdup(b), c);
 
