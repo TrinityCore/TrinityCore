@@ -10237,6 +10237,16 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                     // Increase Mind Flay damage if Shadow Word: Pain present on target
                     if (pVictim->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x8000, 0,0, GetGUID()))
                         AddPctN(DoneTotalMod, aurEff->GetAmount());
+                break;
+            }
+            // Smite
+            if (spellProto->SpellFamilyFlags[EFFECT_0] & 0x80)
+            {
+                // Glyph of Smite
+                if (AuraEffect const * aurEff = GetAuraEffect(55692, EFFECT_0))
+                    if (pVictim->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x100000, 0, 0, GetGUID()))
+                        DoneTotalMod *= (aurEff->GetAmount() + 100.0f) / 100.f;
+                break;
             }
         break;
         case SPELLFAMILY_PALADIN:
