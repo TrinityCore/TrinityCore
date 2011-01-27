@@ -42,9 +42,9 @@ public:
 
     struct boss_gehennasAI : public ScriptedAI
     {
-        boss_gehennasAI(Creature *pCreature) : ScriptedAI(pCreature) 
+        boss_gehennasAI(Creature *pCreature) : ScriptedAI(pCreature)
         {
-            m_pInstance = pCreature->GetInstanceScript(); 
+            m_pInstance = pCreature->GetInstanceScript();
         }
         InstanceScript* m_pInstance;
 

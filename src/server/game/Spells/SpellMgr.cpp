@@ -2341,7 +2341,7 @@ void SpellMgr::LoadPetDefaultSpells()
         }
     }
 
-    
+
     sLog->outString(">> Loaded %u summonable creature templates in %u ms", countCreature, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
 }
@@ -3607,9 +3607,16 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (i)
         {
-        case 54069: // Energize Cores 
+        case 61407: // Energize Cores
+        case 62136: // Energize Cores
+        case 54069: // Energize Cores
         case 56251: // Energize Cores
-            spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CONE_ENTRY;
+            spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_AREA_ENTRY_SRC;
+            count++;
+            break;
+        case 50785: // Energize Cores
+        case 59372: // Energize Cores
+            spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_AREA_ENEMY_SRC;
             count++;
             break;
         // Bind
@@ -3687,6 +3694,7 @@ void SpellMgr::LoadSpellCustomAttr()
         case 69538: case 69553: case 69610:     // Ooze Combine
         case 71447: case 71481:                 // Bloodbolt Splash
         case 71482: case 71483:                 // Bloodbolt Splash
+        case 71390:                             // Pact of the Darkfallen
             mSpellCustomAttr[i] |= SPELL_ATTR0_CU_EXCLUDE_SELF;
             count++;
             break;

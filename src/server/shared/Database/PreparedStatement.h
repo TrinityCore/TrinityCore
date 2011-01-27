@@ -128,6 +128,7 @@ class MySQLPreparedStatement
         PreparedStatement* m_stmt;
         void ClearParameters();
         bool CheckValidIndex(uint8 index);
+        std::string getQueryString(const char *query);
 
     private:
         void setValue(MYSQL_BIND* param, enum_field_types type, const void* value, uint32 len, bool isUnsigned);

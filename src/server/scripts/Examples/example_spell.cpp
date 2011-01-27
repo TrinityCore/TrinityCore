@@ -99,6 +99,12 @@ class spell_ex_5581 : public SpellScriptLoader
                 sLog->outString("Spell just finished hitting target!");
             }
 
+            void FilterTargets(std::list<Unit*>& /*targetList*/)
+            {
+                // usually you want this call for Area Target spells
+                sLog->outString("Spell is about to add targets from targetList to final targets!");
+            }
+
             // register functions used in spell script - names of these functions do not matter
             void Register()
             {
@@ -118,6 +124,8 @@ class spell_ex_5581 : public SpellScriptLoader
                 OnHit += SpellHitFn(spell_ex_5581SpellScript::HandleOnHit);
                 // bind handler to AfterHit event of the spell
                 AfterHit += SpellHitFn(spell_ex_5581SpellScript::HandleAfterHit);
+                // bind handler to OnUnitTargetSelect event of the spell
+                //OnUnitTargetSelect += SpellUnitTargetFn(spell_ex_5581SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER);
             }
         };
 

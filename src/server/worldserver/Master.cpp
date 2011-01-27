@@ -300,7 +300,7 @@ int Master::Run()
     ///- Clean database before leaving
     clearOnlineAccounts();
 
-    _StopDB();    
+    _StopDB();
 
     sLog->outString("Halting process...");
 

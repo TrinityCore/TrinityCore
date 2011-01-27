@@ -1571,7 +1571,7 @@ void LoadLootTemplates_Item()
         sLog->outString(">> Loaded %u prospecting loot templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     else
         sLog->outErrorDb(">> Loaded 0 prospecting loot templates. DB table `item_loot_template` is empty");
-    
+
     sLog->outString();
 }
 
@@ -1709,7 +1709,7 @@ void LoadLootTemplates_Mail()
 void LoadLootTemplates_Skinning()
 {
     sLog->outString("Loading skinning loot templates...");
-    
+
     uint32 oldMSTime = getMSTime();
 
     LootIdSet ids_set, ids_setUsed;

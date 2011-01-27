@@ -402,6 +402,11 @@ void WorldSession::LogoutPlayer(bool Save)
             _player->BuildPlayerRepop();
             _player->RepopAtGraveyard();
         }
+        else if (_player->HasPendingBind())
+        {
+            _player->RepopAtGraveyard();
+            _player->SetPendingBind(NULL, 0);
+        }
 
         //drop a flag if player is carrying it
         if (Battleground *bg = _player->GetBattleground())
@@ -954,7 +959,7 @@ void WorldSession::ProcessQueryCallbacks()
         if (m_nameQueryCallbacks.next_readable(lResult, &timeout) != 1)
            break;
 
-        if (lResult.ready()) 
+        if (lResult.ready())
         {
             lResult.get(result);
             SendNameQueryOpcodeFromDBCallBack(result);

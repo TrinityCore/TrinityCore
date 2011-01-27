@@ -33,7 +33,7 @@ enum RealmFlags
     REALM_FLAG_UNK2                              = 0x10,
     REALM_FLAG_RECOMMENDED                       = 0x20,
     REALM_FLAG_NEW                               = 0x40,
-    REALM_FLAG_FULL                              = 0x80 
+    REALM_FLAG_FULL                              = 0x80
 };
 
 // Handle login commands

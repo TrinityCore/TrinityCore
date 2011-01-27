@@ -41,6 +41,31 @@ LOCK TABLES `account_data` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `account_instance_times`
+--
+
+DROP TABLE IF EXISTS `account_instance_times`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `account_instance_times` (
+  `accountId` int(10) unsigned NOT NULL,
+  `instanceId` int(10) unsigned NOT NULL DEFAULT '0',
+  `releaseTime` bigint(20) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`accountId`,`instanceId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `account_instance_times`
+--
+
+LOCK TABLES `account_instance_times` WRITE;
+/*!40000 ALTER TABLE `account_instance_times` DISABLE KEYS */;
+/*!40000 ALTER TABLE `account_instance_times` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+--
 -- Table structure for table `addons`
 --
 
@@ -669,6 +694,7 @@ CREATE TABLE `character_inventory` (
   `slot` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `item` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Item Global Unique Identifier',
   PRIMARY KEY (`item`),
+  UNIQUE KEY (`guid`,`bag`,`slot`),
   KEY `idx_guid` (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;

@@ -45,9 +45,9 @@ public:
 
     struct boss_baron_geddonAI : public ScriptedAI
     {
-        boss_baron_geddonAI(Creature *pCreature) : ScriptedAI(pCreature) 
+        boss_baron_geddonAI(Creature *pCreature) : ScriptedAI(pCreature)
         {
-            m_pInstance = pCreature->GetInstanceScript(); 
+            m_pInstance = pCreature->GetInstanceScript();
         }
         InstanceScript* m_pInstance;
 

@@ -213,16 +213,25 @@ class boss_blood_council_controller : public CreatureScript
                 DoCast(me, SPELL_INVOCATION_OF_BLOOD_VALANAR);
 
                 if (Creature* keleseth = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PRINCE_KELESETH_GUID)))
+                {
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_ADD, keleseth);
                     if (!keleseth->isInCombat())
                         DoZoneInCombat(keleseth);
+                }
 
                 if (Creature* taldaram = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PRINCE_TALDARAM_GUID)))
+                {
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_ADD, taldaram);
                     if (!taldaram->isInCombat())
                         DoZoneInCombat(taldaram);
+                }
 
                 if (Creature* valanar = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PRINCE_VALANAR_GUID)))
+                {
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_ADD, valanar);
                     if (!valanar->isInCombat())
                         DoZoneInCombat(valanar);
+                }
 
                 events.ScheduleEvent(EVENT_INVOCATION_OF_BLOOD, 46500);
 
@@ -408,10 +417,12 @@ class boss_prince_keleseth_icc : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 Talk(SAY_KELESETH_DEATH);
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
             }
 
             void JustReachedHome()
             {
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                 me->SetHealth(spawnHealth);
                 isEmpowered = false;
             }
@@ -593,10 +604,12 @@ class boss_prince_taldaram_icc : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 Talk(EMOTE_TALDARAM_DEATH);
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
             }
 
             void JustReachedHome()
             {
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                 me->SetHealth(spawnHealth);
                 isEmpowered = false;
             }
@@ -792,10 +805,12 @@ class boss_prince_valanar_icc : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 Talk(SAY_VALANAR_DEATH);
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
             }
 
             void JustReachedHome()
             {
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                 me->SetHealth(me->GetMaxHealth());
                 isEmpowered = false;
             }

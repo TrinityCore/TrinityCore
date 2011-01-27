@@ -124,7 +124,7 @@ class Vehicle
         bool HasEmptySeat(int8 seatId) const;
         Unit *GetPassenger(int8 seatId) const;
         int8 GetNextEmptySeat(int8 seatId, bool next, bool byAura = false) const;
-        
+
         bool AddPassenger(Unit *passenger, int8 seatId = -1, bool byAura = false);
         void EjectPassenger(Unit* passenger, Unit* controller);
         void RemovePassenger(Unit *passenger);

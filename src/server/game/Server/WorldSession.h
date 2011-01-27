@@ -754,6 +754,7 @@ class WorldSession
         void HandleWhoisOpcode(WorldPacket& recv_data);
         void HandleResetInstancesOpcode(WorldPacket& recv_data);
         void HandleHearthAndResurrect(WorldPacket& recv_data);
+        void HandleInstanceLockResponse(WorldPacket& recvPacket);
 
         // WinterGrasp
         void SendBfInvitePlayerToWar(uint32 BattleId,uint32 ZoneId,uint32 time);

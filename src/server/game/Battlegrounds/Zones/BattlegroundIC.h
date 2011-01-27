@@ -205,16 +205,16 @@ struct ICNpc
     uint32 entry;
     uint32 team;
     float x;
-    float y;        
-    float z;        
-    float o;        
+    float y;
+    float z;
+    float o;
 };
 
 enum BG_IC_GOs
 {
     BG_IC_GO_ALLIANCE_BANNER = 0,
 
-    BG_IC_GO_ALLIANCE_GATE_1, 
+    BG_IC_GO_ALLIANCE_GATE_1,
     BG_IC_GO_ALLIANCE_GATE_2,
     BG_IC_GO_ALLIANCE_GATE_3,
 
@@ -236,12 +236,12 @@ enum BG_IC_GOs
     BG_IC_GO_BRAZIER_3,
     BG_IC_GO_BRAZIER_4,
 
-    BG_IC_GO_CHAIR_1, 
+    BG_IC_GO_CHAIR_1,
     BG_IC_GO_CHAIR_2,
     BG_IC_GO_CHAIR_3_1,
-    BG_IC_GO_CHAIR_4, 
-    BG_IC_GO_CHAIR_5, 
-    BG_IC_GO_CHAIR_6_1, 
+    BG_IC_GO_CHAIR_4,
+    BG_IC_GO_CHAIR_5,
+    BG_IC_GO_CHAIR_6_1,
     BG_IC_GO_CHAIR_7,
     BG_IC_GO_CHAIR_3_2,
     BG_IC_GO_CHAIR_6_2,
@@ -251,41 +251,41 @@ enum BG_IC_GOs
 
     BG_IC_GO_DOCKS_BANNER,
 
-    BG_IC_GO_DOODAD_HU_PORTCULLIS01_1, 
+    BG_IC_GO_DOODAD_HU_PORTCULLIS01_1,
     BG_IC_GO_DOODAD_HU_PORTCULLIS01_2,
 
-    BG_IC_GO_DOODAD_ND_HUMAN_GATE_CLOSEDFX_DOOR01, 
+    BG_IC_GO_DOODAD_ND_HUMAN_GATE_CLOSEDFX_DOOR01,
 
     BG_IC_GO_DOODAD_PORTCULLISACTIVE01,
 
     BG_IC_GO_DOODAD_PORTCULLISACTIVE02,
 
     BG_IC_GO_DOODAD_VR_PORTCULLIS01_1,
-    BG_IC_GO_DOODAD_VR_PORTCULLIS01_2, 
+    BG_IC_GO_DOODAD_VR_PORTCULLIS01_2,
 
     BG_IC_GO_FLAGPOLE_1_1,
-    BG_IC_GO_FLAGPOLE_2_1, 
+    BG_IC_GO_FLAGPOLE_2_1,
     BG_IC_GO_FLAGPOLE_2_2,
-    BG_IC_GO_FLAGPOLE_1_2, 
-    BG_IC_GO_FLAGPOLE_1_3, 
-    BG_IC_GO_FLAGPOLE_1_4, 
+    BG_IC_GO_FLAGPOLE_1_2,
+    BG_IC_GO_FLAGPOLE_1_3,
+    BG_IC_GO_FLAGPOLE_1_4,
     BG_IC_GO_FLAGPOLE_1_5,
 
     BG_IC_GO_HANGAR_BANNER,
 
-    BG_IC_GO_HORDE_BANNER, 
+    BG_IC_GO_HORDE_BANNER,
 
-    BG_IC_GO_HORDE_GATE_1, 
-    BG_IC_GO_HORDE_GATE_2, 
-    BG_IC_GO_HORDE_GATE_3, 
+    BG_IC_GO_HORDE_GATE_1,
+    BG_IC_GO_HORDE_GATE_2,
+    BG_IC_GO_HORDE_GATE_3,
 
     BG_IC_GO_HORDE_KEEP_PORTCULLIS,
-    
+
     BG_IC_GO_QUARRY_BANNER,
 
-    BG_IC_GO_STOVE_1_1, 
-    BG_IC_GO_STOVE_2_1, 
-    BG_IC_GO_STOVE_1_2, 
+    BG_IC_GO_STOVE_1_1,
+    BG_IC_GO_STOVE_2_1,
+    BG_IC_GO_STOVE_1_2,
     BG_IC_GO_STOVE_2_2,
 
     BG_IC_GO_WORKSHOP_BANNER,
@@ -303,40 +303,40 @@ enum BG_IC_GOs
     BG_IC_GO_HUGE_SEAFORIUM_BOMBS_H_4,
 
     BG_IC_GO_DOODAD_ND_WINTERORC_WALL_GATEFX_DOOR01,
-        
-    BG_IC_GO_SEAFORIUM_BOMBS_1, 
+
+    BG_IC_GO_SEAFORIUM_BOMBS_1,
     BG_IC_GO_SEAFORIUM_BOMBS_2,
 
     BG_IC_GO_HANGAR_TELEPORTER_1,
     BG_IC_GO_HANGAR_TELEPORTER_2,
     BG_IC_GO_HANGAR_TELEPORTER_3,
 
-    BG_IC_GO_TELEPORTER_1_1, 
+    BG_IC_GO_TELEPORTER_1_1,
     BG_IC_GO_TELEPORTER_1_2,
-    BG_IC_GO_TELEPORTER_2_1, 
-    BG_IC_GO_TELEPORTER_3_1, 
-    BG_IC_GO_TELEPORTER_2_2, 
-    BG_IC_GO_TELEPORTER_4_1, 
+    BG_IC_GO_TELEPORTER_2_1,
+    BG_IC_GO_TELEPORTER_3_1,
+    BG_IC_GO_TELEPORTER_2_2,
+    BG_IC_GO_TELEPORTER_4_1,
     BG_IC_GO_TELEPORTER_3_2,
-    BG_IC_GO_TELEPORTER_3_3, 
+    BG_IC_GO_TELEPORTER_3_3,
     BG_IC_GO_TELEPORTER_4_2,
     BG_IC_GO_TELEPORTER_4_3,
     BG_IC_GO_TELEPORTER_1_3,
-    BG_IC_GO_TELEPORTER_2_3, 
-    
+    BG_IC_GO_TELEPORTER_2_3,
+
     BG_IC_GO_TELEPORTER_EFFECTS_A_1,
-    BG_IC_GO_TELEPORTER_EFFECTS_A_2, 
-    BG_IC_GO_TELEPORTER_EFFECTS_A_3, 
+    BG_IC_GO_TELEPORTER_EFFECTS_A_2,
+    BG_IC_GO_TELEPORTER_EFFECTS_A_3,
     BG_IC_GO_TELEPORTER_EFFECTS_A_4,
     BG_IC_GO_TELEPORTER_EFFECTS_A_5,
-    BG_IC_GO_TELEPORTER_EFFECTS_A_6, 
-    
+    BG_IC_GO_TELEPORTER_EFFECTS_A_6,
+
     BG_IC_GO_TELEPORTER_EFFECTS_H_1,
-    BG_IC_GO_TELEPORTER_EFFECTS_H_2, 
+    BG_IC_GO_TELEPORTER_EFFECTS_H_2,
     BG_IC_GO_TELEPORTER_EFFECTS_H_3,
     BG_IC_GO_TELEPORTER_EFFECTS_H_4,
-    BG_IC_GO_TELEPORTER_EFFECTS_H_5, 
-    BG_IC_GO_TELEPORTER_EFFECTS_H_6, 
+    BG_IC_GO_TELEPORTER_EFFECTS_H_5,
+    BG_IC_GO_TELEPORTER_EFFECTS_H_6,
 };
 
 enum BG_IC_NPCs
@@ -404,7 +404,7 @@ enum BG_IC_NPCs
     BG_IC_NPC_CATAPULT_2_H,
     BG_IC_NPC_CATAPULT_3_H,
     BG_IC_NPC_CATAPULT_4_H,
-    
+
     BG_IC_NPC_SPIRIT_GUIDE_1,
     BG_IC_NPC_SPIRIT_GUIDE_2,
     BG_IC_NPC_SPIRIT_GUIDE_3,
@@ -450,7 +450,7 @@ const ICNpc BG_IC_NpcSpawnlocs[MAX_NORMAL_NPCS_SPAWNS]=
     {BG_IC_NPC_KOR_KRON_GUARD_1,NPC_KOR_KRON_GUARD,TEAM_HORDE,1296.01f,-773.256f,69.958f,0.292168f}, // 3
     {BG_IC_NPC_KOR_KRON_GUARD_2,NPC_KOR_KRON_GUARD,TEAM_HORDE,1295.94f,-757.756f,69.9587f,6.02165f}, // 4
     {BG_IC_NPC_KOR_KRON_GUARD_3,NPC_KOR_KRON_GUARD,TEAM_HORDE,1295.09f,-760.927f,69.9587f,5.94311f}, // 5
-    {BG_IC_NPC_KOR_KRON_GUARD_4,NPC_KOR_KRON_GUARD,TEAM_HORDE,1295.13f,-769.7f,69.95f,0.34f}, // 6 
+    {BG_IC_NPC_KOR_KRON_GUARD_4,NPC_KOR_KRON_GUARD,TEAM_HORDE,1295.13f,-769.7f,69.95f,0.34f}, // 6
 
     {BG_IC_NPC_SEVEN_TH_LEGION_INFANTRY_1,NPC_SEVEN_TH_LEGION_INFANTRY,TEAM_ALLIANCE,223.969f,-822.958f,60.8151f,0.46337f}, // 7
     {BG_IC_NPC_SEVEN_TH_LEGION_INFANTRY_2,NPC_SEVEN_TH_LEGION_INFANTRY,TEAM_ALLIANCE,224.211f,-826.952f,60.8188f,6.25961f}, // 8
@@ -459,7 +459,7 @@ const ICNpc BG_IC_NpcSpawnlocs[MAX_NORMAL_NPCS_SPAWNS]=
 
     {BG_IC_NPC_KEEP_CANNON_1,NPC_KEEP_CANNON,TEAM_ALLIANCE,415.825f,-754.634f,87.799f,1.78024f},// 11
     {BG_IC_NPC_KEEP_CANNON_2,NPC_KEEP_CANNON,TEAM_ALLIANCE,410.142f,-755.332f,87.7991f,1.78024f},// 12
-    {BG_IC_NPC_KEEP_CANNON_3,NPC_KEEP_CANNON,TEAM_ALLIANCE,424.33f,-879.352f,88.0446f,0.436332f},// 13 
+    {BG_IC_NPC_KEEP_CANNON_3,NPC_KEEP_CANNON,TEAM_ALLIANCE,424.33f,-879.352f,88.0446f,0.436332f},// 13
     {BG_IC_NPC_KEEP_CANNON_4,NPC_KEEP_CANNON,TEAM_ALLIANCE,425.602f,-786.646f,87.7991f,5.74213f},// 14
     {BG_IC_NPC_KEEP_CANNON_5,NPC_KEEP_CANNON,TEAM_ALLIANCE,426.743f,-884.939f,87.9613f,0.436332f},// 15
     {BG_IC_NPC_KEEP_CANNON_6,NPC_KEEP_CANNON,TEAM_ALLIANCE,404.736f,-755.495f,87.7989f,1.78024f},// 16
@@ -475,9 +475,9 @@ const ICNpc BG_IC_NpcSpawnlocs[MAX_NORMAL_NPCS_SPAWNS]=
     {BG_IC_NPC_KEEP_CANNON_15,NPC_KEEP_CANNON,TEAM_HORDE,1163.74f,-663.67f,88.3571f,0.558505f},// 25
     {BG_IC_NPC_KEEP_CANNON_16,NPC_KEEP_CANNON,TEAM_HORDE,1135.18f,-683.896f,88.0409f,3.9619f},// 26
     {BG_IC_NPC_KEEP_CANNON_17,NPC_KEEP_CANNON,TEAM_HORDE,1138.91f,-836.359f,88.3728f,2.18166f},// 27
-    {BG_IC_NPC_KEEP_CANNON_18,NPC_KEEP_CANNON,TEAM_HORDE,1162.08f,-863.717f,88.358f,5.48033f},// 28 
+    {BG_IC_NPC_KEEP_CANNON_18,NPC_KEEP_CANNON,TEAM_HORDE,1162.08f,-863.717f,88.358f,5.48033f},// 28
     {BG_IC_NPC_KEEP_CANNON_19,NPC_KEEP_CANNON,TEAM_HORDE,1167.13f,-669.212f,87.9682f,0.383972f},// 29
-    {BG_IC_NPC_KEEP_CANNON_20,NPC_KEEP_CANNON,TEAM_HORDE,1137.72f,-688.517f,88.4023f,3.9619f},// 30 
+    {BG_IC_NPC_KEEP_CANNON_20,NPC_KEEP_CANNON,TEAM_HORDE,1137.72f,-688.517f,88.4023f,3.9619f},// 30
     {BG_IC_NPC_KEEP_CANNON_21,NPC_KEEP_CANNON,TEAM_HORDE,1135.29f,-840.878f,88.0252f,2.30383f},// 31
     {BG_IC_NPC_KEEP_CANNON_22,NPC_KEEP_CANNON,TEAM_HORDE,1144.33f,-833.309f,87.9268f,2.14675f},// 32
     {BG_IC_NPC_KEEP_CANNON_23,NPC_KEEP_CANNON,TEAM_HORDE,1135.29f,-840.878f,88.0252f,2.30383f},// 33
@@ -494,13 +494,13 @@ const Position BG_IC_WorkshopVehicles[5] =
     {773.680542f, -884.092041f, 16.8090363f, 1.58824956f} // Siege Engine
 };
 
-const Position BG_IC_DocksVehiclesGlaives[2] = 
+const Position BG_IC_DocksVehiclesGlaives[2] =
 {
     { 779.3125f, -342.972229f, 12.2104874f, 4.712389f }, // Glaive Throwers
     { 790.029541f, -342.899323f, 12.2128582f, 4.71238f }, // Glaive Throwers
 };
 
-const Position BG_IC_DocksVehiclesCatapults[4] = 
+const Position BG_IC_DocksVehiclesCatapults[4] =
 {
     {757.283f, -341.7795f, 12.2113762f, 4.729842f}, // Catapults
     {766.947937f, -342.053833f, 12.2009945f, 4.694f}, // Catapults
@@ -508,7 +508,7 @@ const Position BG_IC_DocksVehiclesCatapults[4] =
     {810.7257f, -342.083344f, 12.1675768f, 4.6600f}, // Catapults
 };
 
-const Position BG_IC_HangarTeleporters[3] = 
+const Position BG_IC_HangarTeleporters[3] =
 {
     {827.958f,-994.467f,134.071f,0.0f}, // Gunship Portal
     {738.613f,-1106.58f,134.745f,2.54818f}, // Gunship Portal
@@ -520,12 +520,12 @@ struct ICGo
     uint32 type;
     uint32 entry;
     float x;
-    float y;        
-    float z;        
-    float o;        
+    float y;
+    float z;
+    float o;
 };
 
-const ICGo BG_IC_Teleporters[MAX_FORTRESS_TELEPORTERS_SPAWNS] = 
+const ICGo BG_IC_Teleporters[MAX_FORTRESS_TELEPORTERS_SPAWNS] =
 {
     {BG_IC_GO_TELEPORTER_1_1,GO_TELEPORTER_1,1143.25f,-779.599f,48.629f,1.64061f}, // Teleporter
     {BG_IC_GO_TELEPORTER_1_2,GO_TELEPORTER_1,1236.53f,-669.415f,48.2729f,0.104719f}, // Teleporter
@@ -560,7 +560,7 @@ const ICGo BG_IC_ObjSpawnlocs[MAX_NORMAL_GAMEOBJECTS_SPAWNS] =
     {BG_IC_GO_ALLIANCE_GATE_1,GO_ALLIANCE_GATE_1,351.615f,-762.75f,48.9162f,-1.5708f}, // Alliance Gate || Left
     {BG_IC_GO_ALLIANCE_GATE_2,GO_ALLIANCE_GATE_2,351.024f,-903.326f,48.9247f,1.5708f}, // Alliance Gate || Right
     {BG_IC_GO_ALLIANCE_GATE_3,GO_ALLIANCE_GATE_3,413.479f,-833.95f,48.5238f,3.14159f}, // Alliance Gate || Front
-    
+
     {BG_IC_GO_HORDE_GATE_1,GO_HORDE_GATE_1,1150.9f,-762.606f,47.5077f,3.14159f}, // Horde Gate || Front
     {BG_IC_GO_HORDE_GATE_2,GO_HORDE_GATE_2,1218.74f,-851.155f,48.2533f,-1.5708f}, // Horde Gate || Left
     {BG_IC_GO_HORDE_GATE_3,GO_HORDE_GATE_3,1217.9f,-676.948f,47.6341f,1.5708f}, // Horde Gate || Right
@@ -579,14 +579,14 @@ const ICGo BG_IC_ObjSpawnlocs[MAX_NORMAL_GAMEOBJECTS_SPAWNS] =
     {BG_IC_GO_BENCH_3,GO_BENCH_3,817.446f,-470.47f,25.372f,-1.56207f}, // Bench
     {BG_IC_GO_BENCH_4,GO_BENCH_4,827.001f,-474.415f,25.372f,1.57952f}, // Bench
     {BG_IC_GO_BENCH_5,GO_BENCH_5,819.264f,-461.961f,22.7614f,1.57952f}, // Bench
-    
+
     {BG_IC_GO_BONFIRE_1,GO_BONFIRE_1,1162.91f,-734.578f,48.8948f,-2.9845f}, // Bonfire
     {BG_IC_GO_BONFIRE_2,GO_BONFIRE_2,1282.34f,-799.762f,87.1357f,-3.13286f}, // Bonfire
     {BG_IC_GO_BONFIRE_3,GO_BONFIRE_3,1358.06f,-732.178f,87.1606f,-3.13284f}, // Bonfire
     {BG_IC_GO_BONFIRE_4,GO_BONFIRE_4,1281.76f,-732.844f,87.1574f,-3.13246f}, // Bonfire
     {BG_IC_GO_BONFIRE_5,GO_BONFIRE_5,1358.81f,-797.899f,87.2953f,3.13312f}, // Bonfire
     {BG_IC_GO_BONFIRE_6,GO_BONFIRE_6,1162.21f,-790.543f,48.9162f,2.27765f}, // Bonfire
-    
+
     {BG_IC_GO_BRAZIER_1,GO_BRAZIER_1,1262.21f,-751.358f,48.8133f,2.26893f}, // Brazier
     {BG_IC_GO_BRAZIER_2,GO_BRAZIER_2,1262.58f,-781.861f,48.8132f,2.04203f}, // Brazier
     {BG_IC_GO_BRAZIER_3,GO_BRAZIER_3,223.818f,-839.352f,60.7917f,1.09083f}, // Brazier
@@ -630,7 +630,7 @@ const ICGo BG_IC_ObjSpawnlocs[MAX_NORMAL_GAMEOBJECTS_SPAWNS] =
     {BG_IC_GO_STOVE_1_1,GO_STOVE_1,903.291f,-457.345f,18.1356f,2.23402f}, // Stove
     {BG_IC_GO_STOVE_2_1,GO_STOVE_2,761.462f,-446.684f,22.5602f,0.244344f}, // Stove
     {BG_IC_GO_STOVE_1_2,GO_STOVE_1,11068.13f,-336.373f,18.5647f,-2.59181f}, // Stove
-    {BG_IC_GO_STOVE_2_2,GO_STOVE_2,1118.32f,-363.969f,18.5532f,-3.08918f}, // Stove   
+    {BG_IC_GO_STOVE_2_2,GO_STOVE_2,1118.32f,-363.969f,18.5532f,-3.08918f}, // Stove
 
     {BG_IC_GO_HUGE_SEAFORIUM_BOMBS_A_1,GO_HUGE_SEAFORIUM_BOMB_A,297.3212f,-851.321167f,48.91627f,-0.94247663f},
     {BG_IC_GO_HUGE_SEAFORIUM_BOMBS_A_2,GO_HUGE_SEAFORIUM_BOMB_A,298.104156f,-861.026062f,48.916275f,-2.75761318f},
@@ -645,7 +645,7 @@ const ICGo BG_IC_ObjSpawnlocs[MAX_NORMAL_GAMEOBJECTS_SPAWNS] =
     {BG_IC_GO_DOODAD_ND_WINTERORC_WALL_GATEFX_DOOR01,GO_DOODAD_ND_WINTERORC_WALL_GATEFX_DOOR01,1150.9f,-762.606f,47.0f,3.14159f} // Doodad_ND_WinterOrc_Wall_GateFX_Door01 -> this was not sniffed because I only had alliance sniffs
 };
 
-const Position workshopBombs[2] = 
+const Position workshopBombs[2] =
 {
     {750.601f,-864.597f,13.4754f,1.93731f},
     {785.509f,-864.715f,13.3993f,2.47837f}
@@ -764,7 +764,7 @@ enum ICNodePointType
     // Graveyards
     NODE_TYPE_GRAVEYARD_A,
     NODE_TYPE_GRAVEYARD_H,
-    
+
     MAX_NODE_TYPES
 };
 
@@ -782,7 +782,7 @@ const uint32 BG_IC_GraveyardIds[MAX_NODE_TYPES+2] = {0, 0, 1480, 1481, 1482, 148
 const Position TransportMovementInfo = {7.305609f, -0.095246f, 34.51022f, 0.0f};
 const Position TeleportToTransportPosition = {661.0f,-1244.0f,288.0f,0.0f};
 
-const float BG_IC_SpiritGuidePos[MAX_NODE_TYPES+2][4] = 
+const float BG_IC_SpiritGuidePos[MAX_NODE_TYPES+2][4] =
 {
     {0.0f, 0.0f, 0.0f, 0.0f},                     // no grave
     {0.0f, 0.0f, 0.0f, 0.0f},                     // no grave
@@ -795,7 +795,7 @@ const float BG_IC_SpiritGuidePos[MAX_NODE_TYPES+2][4] =
     {1148.65f, -1250.98f, 16.60f, 1.74f},         // last resort horde
 };
 
-const Position hordeGunshipPassengers[5] = 
+const Position hordeGunshipPassengers[5] =
 {
     {-21.401f, -31.343f, 34.173f, 4.62057f},
     {-12.1064f, -31.9697f, 34.3807f, 4.62057f},
@@ -804,7 +804,7 @@ const Position hordeGunshipPassengers[5] =
     {19.4636f, -30.794f, 36.2254f, 4.83106f}
 };
 
-const Position allianceGunshipPassengers[5] = 
+const Position allianceGunshipPassengers[5] =
 {
     {-41.7122f, 23.1838f, 22.5605f, 1.60659f},
     {-31.0354f, 25.1286f, 21.6921f, 1.60659f},
@@ -904,7 +904,7 @@ class BattlegroundIC : public Battleground
         uint16 factionReinforcements[2];
         BG_IC_GateState GateStatus[6];
         ICNodePoint nodePoint[7];
-        
+
         Transport* gunshipAlliance;
         Transport* gunshipHorde;
 
@@ -931,14 +931,14 @@ class BattlegroundIC : public Battleground
             uint32 uws = 0;
 
             switch(id)
-            { 
+            {
                 case GO_HORDE_GATE_1:
                     uws = (open ? BG_IC_GATE_FRONT_H_WS_OPEN : BG_IC_GATE_FRONT_H_WS_CLOSED);
                     break;
                 case GO_HORDE_GATE_2:
                     uws = (open ? BG_IC_GATE_WEST_H_WS_OPEN : BG_IC_GATE_WEST_H_WS_CLOSED);
                     break;
-                case GO_HORDE_GATE_3: 
+                case GO_HORDE_GATE_3:
                     uws = (open ? BG_IC_GATE_EAST_H_WS_OPEN : BG_IC_GATE_EAST_H_WS_CLOSED);
                     break;
                 case GO_ALLIANCE_GATE_3:
@@ -947,7 +947,7 @@ class BattlegroundIC : public Battleground
                 case GO_ALLIANCE_GATE_1:
                     uws = (open ? BG_IC_GATE_WEST_A_WS_OPEN : BG_IC_GATE_WEST_A_WS_CLOSED);
                     break;
-                case GO_ALLIANCE_GATE_2: 
+                case GO_ALLIANCE_GATE_2:
                     uws = (open ? BG_IC_GATE_EAST_A_WS_OPEN : BG_IC_GATE_EAST_A_WS_CLOSED);
                     break;
             }

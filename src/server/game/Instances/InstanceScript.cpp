@@ -396,3 +396,34 @@ bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player con
         instance->GetId(),criteria_id);
     return false;
 }
+
+void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8 param1 /*= 0*/, uint8 param2 /*= 0*/)
+{
+    // size of this packet is at most 15 (usually less)
+    WorldPacket data(SMSG_UPDATE_INSTANCE_ENCOUNTER_UNIT, 15);
+    data << uint32(type);
+
+    switch (type)
+    {
+        case ENCOUNTER_FRAME_ADD:
+        case ENCOUNTER_FRAME_REMOVE:
+        case 2:
+            data.append(unit->GetPackGUID());
+            data << uint8(param1);
+            break;
+        case 3:
+        case 4:
+        case 6:
+            data << uint8(param1);
+            data << uint8(param2);
+            break;
+        case 5:
+            data << uint8(param1);
+            break;
+        case 7:
+        default:
+            break;
+    }
+
+    instance->SendToPlayers(&data);
+}

@@ -47,7 +47,7 @@ class LfgPlayerData
         uint8 GetRoles() const;
         const std::string& GetComment() const;
         const LfgDungeonSet& GetSelectedDungeons() const;
-        
+
     private:
         // General
         LfgState m_State;                                  ///< State if group in LFG

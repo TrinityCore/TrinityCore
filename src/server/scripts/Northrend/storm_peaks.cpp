@@ -540,7 +540,7 @@ public:
 
 enum brunhildar {
     NPC_QUEST_GIVER            = 29592,
-    
+
     SPELL_ICE_PRISON           = 54894,
     SPELL_KILL_CREDIT_PRISONER = 55144,
     SPELL_KILL_CREDIT_DRAKE    = 55143,
@@ -548,7 +548,7 @@ enum brunhildar {
     SPELL_ICE_LANCE            = 55046
 };
 
-class npc_brunnhildar_prisoner : public CreatureScript 
+class npc_brunnhildar_prisoner : public CreatureScript
 {
 public:
     npc_brunnhildar_prisoner() : CreatureScript("npc_brunnhildar_prisoner") { }
@@ -625,7 +625,7 @@ public:
 
                     // drake is empty now, deliver credit for drake and despawn him
                     if (drake->GetVehicleKit()->HasEmptySeat(1) &&
-                        drake->GetVehicleKit()->HasEmptySeat(2) && 
+                        drake->GetVehicleKit()->HasEmptySeat(2) &&
                         drake->GetVehicleKit()->HasEmptySeat(3))
                     {
                         // not working rider->CastSpell(rider, SPELL_KILL_CREDIT_DRAKE, true);
@@ -645,7 +645,7 @@ public:
 
             if (spell->Id != SPELL_ICE_LANCE)
                 return;
-    
+
             me->RemoveAura(SPELL_ICE_PRISON);
             enter_timer = 500;
 

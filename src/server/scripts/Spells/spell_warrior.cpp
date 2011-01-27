@@ -35,7 +35,7 @@ class spell_warr_last_stand : public SpellScriptLoader
 
         class spell_warr_last_stand_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warr_last_stand_SpellScript)
+            PrepareSpellScript(spell_warr_last_stand_SpellScript);
 
             bool Validate(SpellEntry const * /*spellEntry*/)
             {
@@ -63,7 +63,34 @@ class spell_warr_last_stand : public SpellScriptLoader
         }
 };
 
+class spell_warr_improved_spell_reflection : public SpellScriptLoader
+{
+    public:
+        spell_warr_improved_spell_reflection() : SpellScriptLoader("spell_warr_improved_spell_reflection") { }
+
+        class spell_warr_improved_spell_reflection_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_improved_spell_reflection_SpellScript);
+
+            void FilterTargets(std::list<Unit*>& unitList)
+            {
+                unitList.remove(GetCaster());
+            }
+
+            void Register()
+            {
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_warr_improved_spell_reflection_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_PARTY_CASTER);
+            }
+        };
+
+        SpellScript *GetSpellScript() const
+        {
+            return new spell_warr_improved_spell_reflection_SpellScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
-    new spell_warr_last_stand;
+    new spell_warr_last_stand();
+    new spell_warr_improved_spell_reflection();
 }

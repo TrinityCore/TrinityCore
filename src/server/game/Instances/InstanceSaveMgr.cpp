@@ -278,6 +278,7 @@ void InstanceSaveManager::CleanupAndPackInstances()
     CharacterDatabase.DirectExecute("ALTER TABLE instance ADD newid INT UNSIGNED AUTO_INCREMENT, ADD INDEX(newid)");
 
     // Update old ids
+    CharacterDatabase.DirectExecute("UPDATE account_instance_times  AS tmp LEFT JOIN instance ON tmp.instanceId  = instance.id SET tmp.instanceId  = instance.newid WHERE tmp.instanceId  > 0");
     CharacterDatabase.DirectExecute("UPDATE corpse                  AS tmp LEFT JOIN instance ON tmp.instance    = instance.id SET tmp.instance    = instance.newid WHERE tmp.instance    > 0");
     CharacterDatabase.DirectExecute("UPDATE character_instance      AS tmp LEFT JOIN instance ON tmp.instance    = instance.id SET tmp.instance    = instance.newid WHERE tmp.instance    > 0");
     CharacterDatabase.DirectExecute("UPDATE group_instance          AS tmp LEFT JOIN instance ON tmp.instance    = instance.id SET tmp.instance    = instance.newid WHERE tmp.instance    > 0");
@@ -290,7 +291,7 @@ void InstanceSaveManager::CleanupAndPackInstances()
 
     // Finally drop the no longer needed column
     CharacterDatabase.DirectExecute("ALTER TABLE instance DROP COLUMN newid");
-    
+
     // Bake some cookies for click
     sLog->outString(">> Cleaned up and packed instances in %u ms", GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
@@ -621,7 +622,7 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
             continue;
 
         if (warn)
-        {            
+        {
             if (now <= resetTime)
                 timeLeft = 0;
             else
