@@ -24,3 +24,15 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (45529, 'spel
 UPDATE `instance_template` SET `script`='instance_blackrock_spire' WHERE `map`=229;
 UPDATE `creature_template` SET `ScriptName`='npc_rookey_whelp' WHERE entry=10161;
 UPDATE `gameobject_template` SET `ScriptName`='go_rookey_egg' WHERE entry=175124;
+
+-- Nature's Grasp fix
+DELETE FROM `spell_proc_event` WHERE `entry` IN (16689,16810,16811,16812,16813,17329,27009,53312);
+INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFamilyMask0`,`SpellFamilyMask1`,`SpellFamilyMask2`,`procFlags`,`procEx`,`ppmRate`,`CustomChance`,`Cooldown`) VALUES
+(16689,0,0,0,0,0,0,0,0,100,1), -- Nature's Grasp (Rank 1)
+(16810,0,0,0,0,0,0,0,0,100,1), -- Nature's Grasp (Rank 2)
+(16811,0,0,0,0,0,0,0,0,100,1), -- Nature's Grasp (Rank 3)
+(16812,0,0,0,0,0,0,0,0,100,1), -- Nature's Grasp (Rank 4)
+(16813,0,0,0,0,0,0,0,0,100,1), -- Nature's Grasp (Rank 5)
+(17329,0,0,0,0,0,0,0,0,100,1), -- Nature's Grasp (Rank 6)
+(27009,0,0,0,0,0,0,0,0,100,1), -- Nature's Grasp (Rank 7)
+(53312,0,0,0,0,0,0,0,0,100,1);-- Nature's Grasp (Rank 8)
