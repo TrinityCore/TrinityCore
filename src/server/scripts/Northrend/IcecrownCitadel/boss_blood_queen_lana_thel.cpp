@@ -561,13 +561,18 @@ class spell_blood_queen_bloodbolt : public SpellScriptLoader
         }
 };
 
-class PactOfTheDarkfallenChack
+class PactOfTheDarkfallenCheck
 {
     public:
+        PactOfTheDarkfallenCheck(bool hasPact) : _hasPact(hasPact) { }
+
         bool operator() (Unit* unit)
         {
-            return !unit->HasAura(SPELL_PACT_OF_THE_DARKFALLEN);
+            return unit->HasAura(SPELL_PACT_OF_THE_DARKFALLEN) == _hasPact;
         }
+
+    private:
+        bool _hasPact;
 };
 
 class spell_blood_queen_pact_of_the_darkfallen : public SpellScriptLoader
@@ -581,7 +586,7 @@ class spell_blood_queen_pact_of_the_darkfallen : public SpellScriptLoader
 
             void FilterTargets(std::list<Unit*>& unitList)
             {
-                unitList.remove_if(PactOfTheDarkfallenChack());
+                unitList.remove_if(PactOfTheDarkfallenCheck(false));
 
                 bool remove = true;
                 std::list<Unit*>::const_iterator itrEnd = unitList.end(), itr, itr2;
@@ -646,13 +651,40 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_blood_queen_pact_of_the_darkfallen_dmg_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_blood_queen_pact_of_the_darkfallen_dmg_AuraScript::PeriodicTick, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
             return new spell_blood_queen_pact_of_the_darkfallen_dmg_AuraScript();
+        }
+};
+
+class spell_blood_queen_pact_of_the_darkfallen_dmg_target : public SpellScriptLoader
+{
+    public:
+        spell_blood_queen_pact_of_the_darkfallen_dmg_target() : SpellScriptLoader("spell_blood_queen_pact_of_the_darkfallen_dmg_target") { }
+
+        class spell_blood_queen_pact_of_the_darkfallen_dmg_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_blood_queen_pact_of_the_darkfallen_dmg_SpellScript);
+
+            void FilterTargets(std::list<Unit*>& unitList)
+            {
+                unitList.remove_if(PactOfTheDarkfallenCheck(true));
+                unitList.push_back(GetCaster());
+            }
+
+            void Register()
+            {
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_blood_queen_pact_of_the_darkfallen_dmg_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ALLY_SRC);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_blood_queen_pact_of_the_darkfallen_dmg_SpellScript();
         }
 };
 
@@ -696,6 +728,7 @@ void AddSC_boss_blood_queen_lana_thel()
     new spell_blood_queen_bloodbolt();
     new spell_blood_queen_pact_of_the_darkfallen();
     new spell_blood_queen_pact_of_the_darkfallen_dmg();
+    new spell_blood_queen_pact_of_the_darkfallen_dmg_target();
     new achievement_once_bitten_twice_shy_n();
     new achievement_once_bitten_twice_shy_v();
 }
