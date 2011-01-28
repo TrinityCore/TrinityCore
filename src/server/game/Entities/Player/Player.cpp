@@ -7765,14 +7765,22 @@ void Player::_ApplyWeaponDependentAuraMods(Item *item,WeaponAttackType attackTyp
 {
     AuraEffectList const& auraCritList = GetAuraEffectsByType(SPELL_AURA_MOD_WEAPON_CRIT_PERCENT);
     for (AuraEffectList::const_iterator itr = auraCritList.begin(); itr != auraCritList.end(); ++itr)
-        _ApplyWeaponDependentAuraCritMod(item,attackType,*itr,apply);
+        _ApplyWeaponDependentAuraCritMod(item, attackType, *itr, apply);
 
     AuraEffectList const& auraDamageFlatList = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE);
     for (AuraEffectList::const_iterator itr = auraDamageFlatList.begin(); itr != auraDamageFlatList.end(); ++itr)
-        _ApplyWeaponDependentAuraDamageMod(item,attackType,*itr,apply);
+        _ApplyWeaponDependentAuraDamageMod(item, attackType, *itr, apply);
+
+    float mod = 100.0f;
+    AuraEffectList const& auraDamagePctList = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+    for (AuraEffectList::const_iterator itr = auraDamagePctList.begin(); itr != auraDamagePctList.end(); ++itr)
+        if ((apply && item->IsFitToSpellRequirements((*itr)->GetSpellProto())) || HasItemFitToSpellRequirements((*itr)->GetSpellProto(), item))
+            mod += (*itr)->GetAmount();
+
+    SetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT, mod/100.0f);
 }
 
-void Player::_ApplyWeaponDependentAuraCritMod(Item *item, WeaponAttackType attackType, AuraEffect const*  aura, bool apply)
+void Player::_ApplyWeaponDependentAuraCritMod(Item *item, WeaponAttackType attackType, AuraEffect const* aura, bool apply)
 {
     // generic not weapon specific case processes in aura code
     if (aura->GetSpellProto()->EquippedItemClass == -1)
@@ -7821,10 +7829,10 @@ void Player::_ApplyWeaponDependentAuraDamageMod(Item *item, WeaponAttackType att
         default: return;
     }
 
-    if (!item->IsBroken()&&item->IsFitToSpellRequirements(aura->GetSpellProto()))
+    if (item->IsFitToSpellRequirements(aura->GetSpellProto()))
     {
-        HandleStatModifier(unitMod, unitModType, float(aura->GetAmount()),apply);
-        ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS,aura->GetAmount(),apply);
+        HandleStatModifier(unitMod, unitModType, float(aura->GetAmount()), apply);
+        ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS, aura->GetAmount(), apply);
     }
 }
 
