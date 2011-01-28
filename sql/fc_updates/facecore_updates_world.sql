@@ -19,3 +19,8 @@ UPDATE `creature_template` SET flags_extra = 0 WHERE `entry` = 89;
 -- DKs Blood Tap spell fix
 DELETE FROM `spell_script_names` WHERE `spell_id`=45529;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (45529, 'spell_dk_blood_tap');
+
+-- Leeeeeeeeroy! achievement fix
+UPDATE `instance_template` SET `script`='instance_blackrock_spire' WHERE `map`=229;
+UPDATE `creature_template` SET `ScriptName`='npc_rookey_whelp' WHERE entry=10161;
+UPDATE `gameobject_template` SET `ScriptName`='go_rookey_egg' WHERE entry=175124;
