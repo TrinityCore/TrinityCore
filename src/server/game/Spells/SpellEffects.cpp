@@ -582,14 +582,6 @@ void Spell::SpellDamageSchoolDmg(SpellEffIndex effIndex)
                             if (roll_chance_i(aurEff->GetAmount()))
                                 m_caster->CastSpell(unitTarget, 48301, true);
                 }
-                // Smite
-                else if (m_spellInfo->SpellFamilyFlags[0] & 0x80)
-                {
-                    // Glyph of Smite
-                    if (AuraEffect * aurEff = m_caster->GetAuraEffect(55692, 0))
-                        if (unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x100000, 0, 0, m_caster->GetGUID()))
-                            AddPctN(damage, aurEff->GetAmount());
-                }
                 // Improved Mind Blast (Mind Blast in shadow form bonus)
                 else if (m_caster->GetShapeshiftForm() == FORM_SHADOW && (m_spellInfo->SpellFamilyFlags[0] & 0x00002000))
                 {
