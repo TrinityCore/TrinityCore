@@ -179,6 +179,10 @@ class boss_tyrannus : public CreatureScript
             {
                 DoScriptText(SAY_DEATH, me);
                 instance->SetBossState(DATA_TYRANNUS, DONE);
+
+                // Prevent corpse despawning
+                if (TempSummon* summ = me->ToTempSummon())
+                    summ->SetTempSummonType(TEMPSUMMON_DEAD_DESPAWN);
             }
 
             void DoAction(const int32 actionId)
@@ -483,7 +487,7 @@ class at_tyrannus_event_starter : public AreaTriggerScript
             if (player->isGameMaster() || !instance)
                 return false;
 
-            if (instance->GetBossState(DATA_TYRANNUS) != IN_PROGRESS || instance->GetBossState(DATA_TYRANNUS) != DONE)
+            if (instance->GetBossState(DATA_TYRANNUS) != IN_PROGRESS && instance->GetBossState(DATA_TYRANNUS) != DONE)
                 if (Creature* tyrannus = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_TYRANNUS)))
                 {
                     tyrannus->AI()->DoAction(ACTION_START_INTRO);
