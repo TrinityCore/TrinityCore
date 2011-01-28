@@ -31,6 +31,8 @@ void AddSC_npc_teleport();
 void AddSC_npc_hunterpetvendor();
 // Custom
 void AddSC_DuelReset();
+//NPC Transport Service
+void AddSC_npc_mount();	
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -1234,5 +1236,6 @@ void AddCustomScripts()
     AddSC_npc_hunterpetvendor();	
     // Custom
     AddSC_DuelReset();
+    AddSC_npc_mount();		
 #endif
 }
