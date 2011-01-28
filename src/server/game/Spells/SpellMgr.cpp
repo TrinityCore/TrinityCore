@@ -3935,6 +3935,14 @@ void SpellMgr::LoadSpellCustomAttr()
             mSpellCustomAttr[i] |= SPELL_ATTR0_CU_IGNORE_ARMOR;
             count++;
             break;
+        case 20224: // Seals of the Pure (Rank 1)
+        case 20225: // Seals of the Pure (Rank 2)
+        case 20330: // Seals of the Pure (Rank 3)
+        case 20331: // Seals of the Pure (Rank 4)
+        case 20332: // Seals of the Pure (Rank 5)
+            spellInfo->EffectSpellClassMask[EFFECT_0][1] = 0x20400800;
+            count++;
+            break;
         // Strength of the Pack
         case 64381:
             spellInfo->StackAmount = 4;

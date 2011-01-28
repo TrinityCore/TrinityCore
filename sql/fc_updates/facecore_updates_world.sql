@@ -36,3 +36,8 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 (17329,0,0,0,0,0,0,0,0,100,1), -- Nature's Grasp (Rank 6)
 (27009,0,0,0,0,0,0,0,0,100,1), -- Nature's Grasp (Rank 7)
 (53312,0,0,0,0,0,0,0,0,100,1);-- Nature's Grasp (Rank 8)
+
+-- Seals of the Pure fix
+DELETE FROM spell_bonus_data WHERE entry IN (25742);
+INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES
+('25742','0','0','0','0','Paladin - Seal of Righteousness Dummy Proc');
