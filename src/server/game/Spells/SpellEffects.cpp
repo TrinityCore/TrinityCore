@@ -4476,6 +4476,33 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                 case 26465:
                     unitTarget->RemoveAuraFromStack(26464);
                     return;
+                               // Argent Tournament  Mount spells
+                               case 62575:
+                               {
+                                       if(m_caster->GetCharmerOrOwner())
+                                               m_caster->GetCharmerOrOwner()->CastSpell(unitTarget,62626,true );
+                                               return;
+                               }
+                               case 62960:
+                               {
+                                       if (!unitTarget)
+                                               return;
+                                       m_caster->CastSpell(unitTarget,62563,true );
+                                       m_caster->CastSpell(unitTarget,68321,true );
+                                       return;
+                               }
+                               case 62626:
+                               case 68321:
+                               {
+                                       if(!unitTarget)
+                                               return;
+                                       if (unitTarget->GetAura(62719))
+                                               unitTarget->RemoveAuraFromStack(62719);
+
+                                       if(unitTarget->GetAura(64100))
+                                               unitTarget->RemoveAuraFromStack(64100);
+                                       return;
+                               }
                 // Shadow Flame (All script effects, not just end ones to prevent player from dodging the last triggered spell)
                 case 22539:
                 case 22972:
