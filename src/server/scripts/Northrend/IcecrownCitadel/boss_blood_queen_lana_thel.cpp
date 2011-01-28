@@ -54,6 +54,7 @@ enum Spells
     SPELL_DELIRIOUS_SLASH                   = 71623,
     SPELL_PACT_OF_THE_DARKFALLEN_TARGET     = 71336,
     SPELL_PACT_OF_THE_DARKFALLEN            = 71340,
+    SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE     = 71341,
     SPELL_SWARMING_SHADOWS                  = 71264,
     SPELL_TWILIGHT_BLOODBOLT_TARGET         = 71445,
     SPELL_TWILIGHT_BLOODBOLT                = 71446,
@@ -617,6 +618,44 @@ class spell_blood_queen_pact_of_the_darkfallen : public SpellScriptLoader
         }
 };
 
+class spell_blood_queen_pact_of_the_darkfallen_dmg : public SpellScriptLoader
+{
+    public:
+        spell_blood_queen_pact_of_the_darkfallen_dmg() : SpellScriptLoader("spell_blood_queen_pact_of_the_darkfallen_dmg") { }
+
+        class spell_blood_queen_pact_of_the_darkfallen_dmg_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_blood_queen_pact_of_the_darkfallen_dmg_AuraScript);
+
+            bool Validate(SpellEntry const* /*spell*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE))
+                    return false;
+                return true;
+            }
+
+            // this is an additional effect to be executed
+            void PeriodicTick(AuraEffect const* aurEff)
+            {
+                SpellEntry const* damageSpell = sSpellStore.LookupEntry(SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE);
+                int32 damage = SpellMgr::CalculateSpellEffectAmount(damageSpell, EFFECT_0);
+                float multiplier = 0.3375f + 0.1f * uint32(aurEff->GetTickNumber()/10); // do not convert to 0.01f - we need tick number/10 as INT (damage increases every 10 ticks)
+                damage = uint32(damage * multiplier);
+                GetTarget()->CastCustomSpell(SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE, SPELLVALUE_BASE_POINT0, damage, GetTarget(), true);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_blood_queen_pact_of_the_darkfallen_dmg_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_blood_queen_pact_of_the_darkfallen_dmg_AuraScript();
+        }
+};
+
 class achievement_once_bitten_twice_shy_n : public AchievementCriteriaScript
 {
     public:
@@ -656,6 +695,7 @@ void AddSC_boss_blood_queen_lana_thel()
     new spell_blood_queen_frenzied_bloodthirst();
     new spell_blood_queen_bloodbolt();
     new spell_blood_queen_pact_of_the_darkfallen();
+    new spell_blood_queen_pact_of_the_darkfallen_dmg();
     new achievement_once_bitten_twice_shy_n();
     new achievement_once_bitten_twice_shy_v();
 }

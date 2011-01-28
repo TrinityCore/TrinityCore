@@ -1970,6 +1970,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 71901, 'spell_blood_queen_bloodbolt'),
 ( 71902, 'spell_blood_queen_bloodbolt'),
 ( 71390, 'spell_blood_queen_pact_of_the_darkfallen'),
+( 71340, 'spell_blood_queen_pact_of_the_darkfallen_dmg'),
 -- Isle of Conquest
 ( 66630, 'spell_gen_gunship_portal'),
 ( 66637, 'spell_gen_gunship_portal'),
