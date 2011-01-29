@@ -296,19 +296,14 @@ void Map::ScriptsProcess()
         ScriptAction const& step = iter->second;
 
         Object* source = NULL;
-
         if (step.sourceGUID)
         {
             switch (GUID_HIPART(step.sourceGUID))
             {
-                case HIGHGUID_ITEM:
-                // case HIGHGUID_CONTAINER: == HIGHGUID_ITEM
-                {
-                    Player* player = HashMapHolder<Player>::Find(step.ownerGUID);
-                    if (player)
+                case HIGHGUID_ITEM: // as well as HIGHGUID_CONTAINER
+                    if (Player* player = HashMapHolder<Player>::Find(step.ownerGUID))
                         source = player->GetItemByGuid(step.sourceGUID);
                     break;
-                }
                 case HIGHGUID_UNIT:
                     source = HashMapHolder<Creature>::Find(step.sourceGUID);
                     break;
@@ -335,15 +330,13 @@ void Map::ScriptsProcess()
                     }
                     break;
                 default:
-                    sLog->outError("*_script source with unsupported high guid value %u",GUID_HIPART(step.sourceGUID));
+                    sLog->outError("%s source with unsupported high guid (GUID: " UI64FMTD ", high guid: %u).",
+                        step.script->GetDebugInfo().c_str(), step.sourceGUID, GUID_HIPART(step.sourceGUID));
                     break;
             }
         }
 
-        //if (source && !source->IsInWorld()) source = NULL;
-
         Object* target = NULL;
-
         if (step.targetGUID)
         {
             switch (GUID_HIPART(step.targetGUID))
@@ -367,13 +360,12 @@ void Map::ScriptsProcess()
                     target = HashMapHolder<Corpse>::Find(step.targetGUID);
                     break;
                 default:
-                    sLog->outError("*_script source with unsupported high guid value %u",GUID_HIPART(step.targetGUID));
+                    sLog->outError("%s target with unsupported high guid (GUID: " UI64FMTD ", high guid: %u).",
+                        step.script->GetDebugInfo().c_str(), step.targetGUID, GUID_HIPART(step.targetGUID));
                     break;
             }
         }
-
-        //if (target && !target->IsInWorld()) target = NULL;
-
+        // Some information for error messages
         std::string tableName = GetScriptsTableNameByType(step.script->type);
         std::string commandName = GetScriptCommandName(step.script->command);
         switch (step.script->command)
@@ -388,7 +380,6 @@ void Map::ScriptsProcess()
                 {
                     if (Player *pSource = _GetScriptPlayerSourceOrTarget(source, target, step.script))
                     {
-                        uint64 targetGUID = target ? target->GetGUID() : 0;
                         LocaleConstant loc_idx = pSource->GetSession()->GetSessionDbLocaleIndex();
                         std::string text(sObjectMgr->GetTrinityString(step.script->Talk.TextID, loc_idx));
 
@@ -406,13 +397,14 @@ void Map::ScriptsProcess()
                                 break;
                             case CHAT_TYPE_WHISPER:
                             case CHAT_MSG_RAID_BOSS_WHISPER:
+                            {
+                                uint64 targetGUID = target ? target->GetGUID() : 0;
                                 if (!targetGUID || !IS_PLAYER_GUID(targetGUID))
-                                {
                                     sLog->outError("%s attempt to whisper to non-player unit, skipping.", step.script->GetDebugInfo().c_str());
-                                    break;
-                                }
-                                pSource->Whisper(text, LANG_UNIVERSAL, targetGUID);
+                                else
+                                    pSource->Whisper(text, LANG_UNIVERSAL, targetGUID);
                                 break;
+                            }
                             default:
                                 break;                              // must be already checked at load
                         }
@@ -440,19 +432,15 @@ void Map::ScriptsProcess()
                                 break;
                             case CHAT_TYPE_WHISPER:
                                 if (!targetGUID || !IS_PLAYER_GUID(targetGUID))
-                                {
                                     sLog->outError("%s attempt to whisper to non-player unit, skipping.", step.script->GetDebugInfo().c_str());
-                                    break;
-                                }
-                                cSource->Whisper(step.script->Talk.TextID, targetGUID);
+                                else
+                                    cSource->Whisper(step.script->Talk.TextID, targetGUID);
                                 break;
-                            case CHAT_MSG_RAID_BOSS_WHISPER: //42
+                            case CHAT_MSG_RAID_BOSS_WHISPER:
                                 if (!targetGUID || !IS_PLAYER_GUID(targetGUID))
-                                {
                                     sLog->outError("%s attempt to raidbosswhisper to non-player unit, skipping.", step.script->GetDebugInfo().c_str());
-                                    break;
-                                }
-                                cSource->MonsterWhisper(step.script->Talk.TextID, targetGUID, true);
+                                else
+                                    cSource->MonsterWhisper(step.script->Talk.TextID, targetGUID, true);
                                 break;
                             default:
                                 break;                              // must be already checked at load
