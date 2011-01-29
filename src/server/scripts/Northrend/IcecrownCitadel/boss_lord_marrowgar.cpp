@@ -282,15 +282,16 @@ class npc_coldflame : public CreatureScript
             {
                 if (owner->GetTypeId() != TYPEID_UNIT)
                     return;
+
                 Creature* creOwner = owner->ToCreature();
-                DoCast(me, SPELL_COLDFLAME_PASSIVE, true);
+                Position pos;
                 // random target case
                 if (!owner->HasAura(SPELL_BONE_STORM))
                 {
                     // select any unit but not the tank (by owners threatlist)
-                    Unit* target = creOwner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 1, 40.0f, true, -SPELL_IMPALED);
+                    Unit* target = creOwner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 1, -owner->GetObjectSize(), true, -SPELL_IMPALED);
                     if (!target)
-                        target = creOwner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true); // or the tank if its solo
+                        target = creOwner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true); // or the tank if its solo
                     if (!target)
                     {
                         me->DespawnOrUnsummon();
@@ -298,6 +299,7 @@ class npc_coldflame : public CreatureScript
                     }
 
                     me->SetOrientation(me->GetAngle(target));
+                    owner->GetNearPosition(pos, owner->GetObjectSize()/2.0f, 0.0f);
                 }
                 else
                 {
@@ -306,7 +308,10 @@ class npc_coldflame : public CreatureScript
                     float ang = me->GetAngle(ownerPos) - static_cast<float>(M_PI);
                     MapManager::NormalizeOrientation(ang);
                     me->SetOrientation(ang);
+                    owner->GetNearPosition(pos, 2.5f, 0.0f);
                 }
+
+                me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), me->GetPositionZ(), me->GetOrientation());
                 events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 200);
             }
 
@@ -316,15 +321,10 @@ class npc_coldflame : public CreatureScript
 
                 if (events.ExecuteEvent() == EVENT_COLDFLAME_TRIGGER)
                 {
-                    if (me->HasAura(SPELL_COLDFLAME_PASSIVE))
-                    {
-                        float x, y;
-                        me->GetPosition(x, y);
-                        x += 5.5f * cos(me->GetOrientation());
-                        y += 5.5f * sin(me->GetOrientation());
-                        me->NearTeleportTo(x, y, me->GetPositionZ(), me->GetOrientation());
-                        DoCast(SPELL_COLDFLAME_SUMMON);
-                    }
+                    Position newPos;
+                    me->GetNearPosition(newPos, 5.5f, 0.0f);
+                    me->NearTeleportTo(newPos.GetPositionX(), newPos.GetPositionY(), me->GetPositionZ(), me->GetOrientation());
+                    DoCast(SPELL_COLDFLAME_SUMMON);
                     events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 200);
                 }
             }
@@ -442,7 +442,7 @@ class spell_marrowgar_coldflame_damage : public SpellScriptLoader
             void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
                 if (DynamicObject* owner = GetDynobjOwner())
-                    if (GetTarget()->GetExactDist2d(owner) > owner->GetRadius() || GetTarget()->HasAura(SPELL_IMPALED))
+                    if (GetTarget()->GetExactDist2d(owner) >= owner->GetRadius() || GetTarget()->HasAura(SPELL_IMPALED))
                         PreventDefaultAction();
             }
 
