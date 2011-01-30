@@ -468,7 +468,7 @@ class boss_prince_keleseth_icc : public CreatureScript
                 {
                     Position pos;
                     pos.Relocate(roomCenter);
-                    summon->MovePosition(pos, rand_norm() * 50.0f, summon->GetAngle(&roomCenter));
+                    summon->MovePosition(pos, float(rand_norm()) * 50.0f, summon->GetAngle(&roomCenter));
                 }
             }
 
