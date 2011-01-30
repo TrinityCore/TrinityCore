@@ -619,6 +619,66 @@ public:
     }
 };
 
+// http://www.wowhead.com/quest=12851 Going Bearback
+// 54798 FLAMING Arrow Triggered Effect
+enum eQuest12851Data
+{
+    NPC_FROSTGIANT = 29351,
+    NPC_FROSTWORG  = 29358,
+    SPELL_FROSTGIANT_CREDIT = 58184,
+    SPELL_FROSTWORG_CREDIT  = 58183,
+    SPELL_IMMOLATION        = 54690,
+    SPELL_ABLAZE            = 54683,
+};
+
+class spell_q12851_going_bearback : public SpellScriptLoader
+{
+public:
+    spell_q12851_going_bearback() : SpellScriptLoader("spell_q12851_going_bearback") { }
+
+    class spell_q12851_going_bearback_AuraScript : public AuraScript
+    {
+    public:
+        PrepareAuraScript(spell_q12851_going_bearback_AuraScript)
+        void HandleEffectApply(AuraEffect const * /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* caster = GetCaster())
+            {
+                if (Unit* target = GetTarget())
+                {
+                    if (Player* player = caster->GetCharmerOrOwnerPlayerOrPlayerItself())
+                    {
+                        switch(target->GetEntry())
+                        {
+                            case NPC_FROSTWORG:
+                                target->CastSpell(player, SPELL_FROSTWORG_CREDIT, true);
+                                target->CastSpell(target, SPELL_IMMOLATION, true);
+                                target->CastSpell(target, SPELL_ABLAZE, true);
+                                break;
+                            case NPC_FROSTGIANT:
+                                target->CastSpell(player, SPELL_FROSTGIANT_CREDIT, true);
+                                target->CastSpell(target, SPELL_IMMOLATION, true);
+                                target->CastSpell(target, SPELL_ABLAZE, true);
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_q12851_going_bearback_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_q12851_going_bearback_AuraScript();
+    }
+};
+
 // http://www.wowhead.com/quest=12937 Relief for the Fallen
 // 55804 Healing Finished
 enum eQuest12937Data
@@ -684,5 +744,6 @@ void AddSC_quest_spell_scripts()
     new spell_q12459_seeds_of_natures_wrath();
     new spell_q12634_despawn_fruit_tosser();
     new spell_q12683_take_sputum_sample();
+    new spell_q12851_going_bearback();
     new spell_q12937_relief_for_the_fallen();
 }
