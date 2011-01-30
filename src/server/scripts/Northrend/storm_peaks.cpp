@@ -665,6 +665,55 @@ public:
     }
 };
 
+class npc_icefang : public CreatureScript
+{
+public:
+    npc_icefang() : CreatureScript("npc_icefang") { }
+
+    struct npc_icefangAI : public npc_escortAI
+    {
+        npc_icefangAI(Creature* creature) : npc_escortAI(creature) {}
+
+        void AttackStart(Unit* who) {}
+        void EnterCombat(Unit* who) {}
+        void EnterEvadeMode() {}
+
+        void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply)
+        {
+            if (who->GetTypeId() == TYPEID_PLAYER)
+            {
+                if (apply)
+                    Start(false, true, who->GetGUID());
+            }
+        }
+
+        void WaypointReached(uint32 wp)
+        {
+        }
+
+        void JustDied(Unit* killer)
+        {
+        }
+
+        void OnCharmed(bool /*apply*/)
+        {
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            npc_escortAI::UpdateAI(diff);
+
+            if (!UpdateVictim())
+                return;
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_icefangAI (creature);
+    }
+};
+
 void AddSC_storm_peaks()
 {
     new npc_agnetta_tyrsdottar;
@@ -676,4 +725,5 @@ void AddSC_storm_peaks()
     new npc_injured_goblin;
     new npc_roxi_ramrocket;
     new npc_brunnhildar_prisoner;
+    new npc_icefang;
 }

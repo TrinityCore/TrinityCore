@@ -1227,6 +1227,7 @@ UPDATE `gameobject_template` SET ScriptName='go_rusty_cage' WHERE `entry`=191544
 UPDATE `creature_template` SET `ScriptName`='npc_injured_goblin' WHERE `entry`=29434;
 UPDATE `creature_template` SET `ScriptName`='npc_roxi_ramrocket' WHERE `entry`=31247;
 UPDATE `creature_template` SET `ScriptName`='npc_brunnhildar_prisoner' WHERE `entry`=29639;
+UPDATE `creature_template` SET `ScriptName`='npc_icefang' WHERE `entry`=29602;
 
 /* STORMWIND CITY */
 UPDATE `creature_template` SET `ScriptName`='npc_archmage_malin' WHERE `entry`=2708;
@@ -2011,6 +2012,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 51840, 'spell_q12634_despawn_fruit_tosser'),
 ( 52308, 'spell_q12683_take_sputum_sample'),
 ( 55804, 'spell_q12937_relief_for_the_fallen'),
+( 54798, 'spell_q12851_going_bearback'),
 -- item
 ( 23074, 'spell_item_arcanite_dragonling'),
 (  8063, 'spell_item_deviate_fish'),
