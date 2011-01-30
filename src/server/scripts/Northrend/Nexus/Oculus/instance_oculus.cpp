@@ -70,7 +70,7 @@ public:
 
         void OnPlayerEnter(Player* player)
         {
-            if (GetData(DATA_DRAKOS_EVENT) == DONE && GetData(DATA_VAROS_EVENT) != DONE)
+            if (GetBossState(DATA_DRAKOS_EVENT) == DONE && GetBossState(DATA_VAROS_EVENT) != DONE)
             {
                 player->SendUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW,1);
                 player->SendUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_AMOUNT,centrifugueConstructCounter);
@@ -122,7 +122,7 @@ public:
         {
             if (go->GetEntry() == GO_DRAGON_CAGE_DOOR)
             {
-                if (GetData(DATA_DRAKOS_EVENT) == DONE)
+                if (GetBossState(DATA_DRAKOS_EVENT) == DONE)
                     go->SetGoState(GO_STATE_ACTIVE);
                 else
                     go->SetGoState(GO_STATE_READY);
