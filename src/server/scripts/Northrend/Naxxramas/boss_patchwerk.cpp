@@ -114,13 +114,17 @@ public:
                         //Cast Hateful strike on the player with the highest
                         //amount of HP within melee distance
                         uint32 MostHP = 0;
+                        uint32 maxCandidates = RAID_MODE(2,3);
                         Unit* pMostHPTarget = NULL;
 
                         std::list<HostileReference*> m_threatlist = me->getThreatManager().getThreatList();
-                        m_threatlist.resize(RAID_MODE(2,3));  // Picks 2 (3) highest threat targets as Hateful Strike candidates
+
+                        if (m_threatlist.size()  > maxCandidates)
+                            m_threatlist.resize(maxCandidates);  // Picks 2 (3) highest threat targets as Hateful Strike candidates
+
                         std::list<HostileReference*>::const_iterator i = m_threatlist.begin();
 
-                        for (; i != me->getThreatManager().getThreatList().end(); ++i)
+                        for (; i != m_threatlist.end(); ++i)
                         {
                             Unit *pTarget = (*i)->getTarget();
                             if (pTarget->isAlive() && pTarget != me->getVictim() && pTarget->GetHealth() > MostHP && me->IsWithinMeleeRange(pTarget))
