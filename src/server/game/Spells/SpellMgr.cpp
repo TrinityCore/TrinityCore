@@ -3588,6 +3588,10 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (i)
         {
+        case 49838: // Stop Time
+            spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+            count++;
+            break;
         case 61407: // Energize Cores
         case 62136: // Energize Cores
         case 54069: // Energize Cores
