@@ -169,11 +169,11 @@ public:
             SetCombatMovement(true);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-            if (GameObject* pGoPortal = pInstance->instance->GetGameObject(pInstance->GetData64(GO_HALION_PORTAL_1)))
+            if (GameObject* pGoPortal = me->FindNearestGameObject(GO_HALION_PORTAL_1, 50.0f))
                    pGoPortal->Delete();
-            if (GameObject* pGoPortal = pInstance->instance->GetGameObject(pInstance->GetData64(GO_HALION_PORTAL_2)))
+            if (GameObject* pGoPortal = me->FindNearestGameObject(GO_HALION_PORTAL_2, 50.0f))
                    pGoPortal->Delete();
-            if (GameObject* pGoPortal = pInstance->instance->GetGameObject(pInstance->GetData64(GO_HALION_PORTAL_3)))
+            if (GameObject* pGoPortal = me->FindNearestGameObject(GO_HALION_PORTAL_3, 50.0f))
                    pGoPortal->Delete();
         }
 
@@ -232,8 +232,8 @@ public:
 
             if (!pclone || !pclone->isAlive())
             {
-               // if (GameObject* pGoPortal = me->GetMap()->GetGameObject(pInstance->GetData64(GO_HALION_PORTAL_1)))
-               //    pGoPortal->Delete();
+                if (GameObject* pGoPortal = me->FindNearestGameObject(GO_HALION_PORTAL_1, 50.0f))
+                    pGoPortal->Delete();
 
                 pInstance->SetData(TYPE_HALION, DONE);
                 me->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
@@ -627,11 +627,11 @@ public:
             DoScriptText(-1666104,me);
             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TWILIGHT_ENTER);
 
-            if (GameObject* pGoPortal = pInstance->instance->GetGameObject(pInstance->GetData64(GO_HALION_PORTAL_1)))
+            if (GameObject* pGoPortal = me->FindNearestGameObject(GO_HALION_PORTAL_1, 50.0f))
                    pGoPortal->Delete();
-            if (GameObject* pGoPortal = pInstance->instance->GetGameObject(pInstance->GetData64(GO_HALION_PORTAL_2)))
+            if (GameObject* pGoPortal = me->FindNearestGameObject(GO_HALION_PORTAL_2, 50.0f))
                    pGoPortal->Delete();
-            if (GameObject* pGoPortal = pInstance->instance->GetGameObject(pInstance->GetData64(GO_HALION_PORTAL_3)))
+            if (GameObject* pGoPortal = me->FindNearestGameObject(GO_HALION_PORTAL_3, 50.0f))
                    pGoPortal->Delete();
 
             if (Creature* pReal = me->GetMap()->GetCreature(pInstance->GetData64(NPC_HALION_REAL)))
@@ -730,7 +730,7 @@ public:
                     {
                         pGoPortal->SetPhaseMask(32,true);
                         pGoPortal->SetRespawnTime(9999999);
-                        pGoPortal->SetOwnerGUID(0);
+                        pGoPortal->SetOwnerGUID(NULL);
                     }
                     DoCast(SPELL_TWILIGHT_DIVISION);
                     setStage(3);
