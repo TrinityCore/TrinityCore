@@ -35,16 +35,20 @@ EndContentData */
 ## npc_lady_sylvanas_windrunner
 ######*/
 
-#define SAY_LAMENT_END              -1000196
-#define EMOTE_LAMENT_END            -1000197
+enum Sylvanas
+{
+    QUEST_JOURNEY_TO_UNDERCITY  = 9180,
+    SAY_LAMENT_END              = -1000196,
+    EMOTE_LAMENT_END            = -1000197,
 
-#define SOUND_CREDIT                10896
-#define ENTRY_HIGHBORNE_LAMENTER    21628
-#define ENTRY_HIGHBORNE_BUNNY       21641
+    SOUND_CREDIT                = 10896,
+    ENTRY_HIGHBORNE_LAMENTER    = 21628,
+    ENTRY_HIGHBORNE_BUNNY       = 21641,
 
-#define SPELL_HIGHBORNE_AURA        37090
-#define SPELL_SYLVANAS_CAST         36568
-#define SPELL_RIBBON_OF_SOULS       34432                   //the real one to use might be 37099
+    SPELL_HIGHBORNE_AURA        = 37090,
+    SPELL_SYLVANAS_CAST         = 36568,
+    SPELL_RIBBON_OF_SOULS       = 34432,                   //the real one to use might be 37099
+};
 
 float HighborneLoc[4][3]=
 {
@@ -62,13 +66,13 @@ class npc_lady_sylvanas_windrunner : public CreatureScript
 public:
     npc_lady_sylvanas_windrunner() : CreatureScript("npc_lady_sylvanas_windrunner") { }
 
-    bool ChooseReward(Player* /*pPlayer*/, Creature* pCreature, const Quest *_Quest, uint32 /*slot*/)
+    bool OnQuestReward(Player* /*pPlayer*/, Creature* pCreature, const Quest *_Quest, uint32 /*slot*/)
     {
-        if (_Quest->GetQuestId() == 9180)
+        if (_Quest->GetQuestId() == QUEST_JOURNEY_TO_UNDERCITY)
         {
             CAST_AI(npc_lady_sylvanas_windrunner::npc_lady_sylvanas_windrunnerAI, pCreature->AI())->LamentEvent = true;
-            CAST_AI(npc_lady_sylvanas_windrunner::npc_lady_sylvanas_windrunnerAI, pCreature->AI())->DoPlaySoundToSet(pCreature,SOUND_CREDIT);
-            pCreature->CastSpell(pCreature,SPELL_SYLVANAS_CAST,false);
+            CAST_AI(npc_lady_sylvanas_windrunner::npc_lady_sylvanas_windrunnerAI, pCreature->AI())->DoPlaySoundToSet(pCreature, SOUND_CREDIT);
+            pCreature->CastSpell(pCreature, SPELL_SYLVANAS_CAST, false);
 
             for (uint8 i = 0; i < 4; ++i)
                 pCreature->SummonCreature(ENTRY_HIGHBORNE_LAMENTER, HighborneLoc[i][0], HighborneLoc[i][1], HIGHBORNE_LOC_Y, HighborneLoc[i][2], TEMPSUMMON_TIMED_DESPAWN, 160000);
