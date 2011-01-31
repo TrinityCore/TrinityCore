@@ -41,3 +41,9 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 DELETE FROM spell_bonus_data WHERE entry IN (25742);
 INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES
 ('25742','0','0','0','0','Paladin - Seal of Righteousness Dummy Proc');
+
+-- fix Reign of the Unliving (normal and heroic) proc only from crit
+DELETE FROM `spell_proc_event` WHERE entry IN (67712, 67758);
+INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`) VALUES
+('67712','0','0','0','0','0','0','2','0','0','2'),
+('67758','0','0','0','0','0','0','2','0','0','2');
