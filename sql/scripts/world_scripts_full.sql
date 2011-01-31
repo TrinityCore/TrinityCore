@@ -2100,6 +2100,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 69366, 'spell_dru_moonkin_form_passive'),
 (-33851, 'spell_dru_primal_tenacity'),
 ( 62606, 'spell_dru_savage_defense'),
+( 70691, 'spell_dru_t10_restoration_4p_bonus'),
 -- example
 ( 66244, 'spell_ex_66244'), 
 ( 5581,  'spell_ex_5581'),

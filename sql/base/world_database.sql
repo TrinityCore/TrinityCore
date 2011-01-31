@@ -16902,6 +16902,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (61391, 0.193, -1, -1, -1, 'Druid - Typhoon'),
 (48438, -1, 0.11505, -1, -1, 'Druid - Wild Growth'),
 (5176, 0.5714, -1, -1, -1, 'Druid - Wrath'),
+(70691,0,0,0,0, 'Druid - Rejuvenation T10 4P proc'),
 (3044, -1, -1, 0.15, -1, 'Hunter - Arcane Shot'),
 (3674, -1, -1, -1, 0.02, 'Hunter - Black Arrow($RAP*0.1 / number of ticks)'),
 (19306, -1, -1, 0.2, -1, 'Hunter - Counterattack'),
@@ -19356,6 +19357,7 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 67702, 0x01,   0, 0x00000000, 0x00000000, 0x00000000, 0x00851154, 0x00000003,   0,  35,  45), -- Item - Coliseum Melee Trinket 25men
 ( 70652, 0x00,  15, 0x00000008, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Death Knight T10 Tank 4P Bonus
 ( 70656, 0x00,  15, 0x00000000, 0x00000000, 0x00000000, 0x00014000, 0x00000000,   0,   0,   0), -- Item - Death Knight T10 Melee 4P Bonus
+( 70664, 0x00,   7, 0x00000010, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Druid T10 Restoration 4P Bonus (Rejuvenation)
 ( 70727, 0x00,   9, 0x00000000, 0x00000000, 0x00000000, 0x00000040, 0x00000000,   0,   0,   0), -- Item - Hunter T10 2P Bonus
 ( 70730, 0x00,   9, 0x00004000, 0x00001000, 0x00000000, 0x00040000, 0x00000000,   0,   0,   0), -- Item - Hunter T10 4P Bonus
 ( 70748, 0x00,   3, 0x00000000, 0x00200000, 0x00000000, 0x00000400, 0x00000000,   0,   0,   0), -- Item - Mage T10 4P Bonus
