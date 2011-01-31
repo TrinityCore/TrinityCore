@@ -1846,6 +1846,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 70850, 'spell_krick_pursuit_confusion'),
 ( 69275, 'spell_tyrannus_mark_of_rimefang'),
 ( 69172, 'spell_tyrannus_overlord_brand'),
+( 70292, 'spell_trash_mob_glacial_strike'),
 -- Icecrown Citadel
 ( 69057, 'spell_marrowgar_bone_spike_graveyard'),
 ( 70826, 'spell_marrowgar_bone_spike_graveyard'),
