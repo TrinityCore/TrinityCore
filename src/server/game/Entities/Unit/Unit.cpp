@@ -1770,7 +1770,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
             // absorb must be smaller than the damage itself
             splitDamage = RoundToInterval(splitDamage, 0, int32(dmgInfo.GetDamage()));
 
-            dmgInfo.ModifyDamage(-splitDamage);
+            dmgInfo.AbsorbDamage(splitDamage);
 
             uint32 splitted = splitDamage;
             uint32 splitted_absorb = 0;
@@ -1804,7 +1804,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
             // absorb must be smaller than the damage itself
             splitDamage = RoundToInterval(splitDamage, 0, int32(dmgInfo.GetDamage()));
 
-            dmgInfo.ModifyDamage(-splitDamage);
+            dmgInfo.AbsorbDamage(splitDamage);
 
             uint32 splitted = splitDamage;
             uint32 split_absorb = 0;
