@@ -1286,7 +1286,6 @@ void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit * caster) const
                 {
                     case 43093: case 31956: case 38801:  // Grievous Wound
                     case 35321: case 38363: case 39215:  // Gushing Wound
-                    case 70292:                          // Glacial Strike
                         if (target->IsFullHealth())
                         {
                             target->RemoveAurasDueToSpell(GetId());
