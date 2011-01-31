@@ -93,6 +93,7 @@ enum Actions
     ACTION_START_INTRO      = 1,
     ACTION_START_RIMEFANG   = 2,
     ACTION_START_OUTRO      = 3,
+    ACTION_END_COMBAT       = 4,
 };
 
 #define GUID_HOARFROST 1
@@ -128,8 +129,10 @@ class boss_tyrannus : public CreatureScript
             {
                 if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != GetScriptId(PoSScriptName))
                     me->IsAIEnabled = false;
-                else if (!me->isDead())
+                else if (instance->GetBossState(DATA_TYRANNUS) != DONE)
                     Reset();
+                else
+                    me->DespawnOrUnsummon();
             }
 
             void Reset()
@@ -183,6 +186,10 @@ class boss_tyrannus : public CreatureScript
                 // Prevent corpse despawning
                 if (TempSummon* summ = me->ToTempSummon())
                     summ->SetTempSummonType(TEMPSUMMON_DEAD_DESPAWN);
+
+                // Stop combat for Rimefang
+                if (Creature* rimefang = GetRimefang())
+                    rimefang->AI()->DoAction(ACTION_END_COMBAT);
             }
 
             void DoAction(const int32 actionId)
@@ -306,6 +313,8 @@ class boss_rimefang : public CreatureScript
                     _events.ScheduleEvent(EVENT_MOVE_NEXT, 500, 0, PHASE_COMBAT);
                     _events.ScheduleEvent(EVENT_ICY_BLAST, 15000, 0, PHASE_COMBAT);
                 }
+                else if (actionId == ACTION_END_COMBAT)
+                    _EnterEvadeMode();
             }
 
             void SetGUID(const uint64& guid, int32 type)
