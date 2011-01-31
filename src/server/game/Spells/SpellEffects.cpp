@@ -793,6 +793,15 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
         {
             switch (m_spellInfo->Id)
             {
+                case 54015: //Set Oracle Faction Honored
+                case 53487: //Set Wolvar Faction Honored
+                {
+                    if (effIndex==0)
+                    {
+                            unitTarget->ToPlayer()->SetReputation(m_spellInfo->EffectBasePoints[0]+1,21000);
+                    }
+                    return;
+                }
                 case 8593:                                  // Symbol of life (restore creature to life)
                 case 31225:                                 // Shimmering Vessel (restore creature to life)
                 {
