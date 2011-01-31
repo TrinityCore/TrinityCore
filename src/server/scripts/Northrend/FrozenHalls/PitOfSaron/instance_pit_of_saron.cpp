@@ -120,6 +120,30 @@ class instance_pit_of_saron : public InstanceMapScript
                         if (_teamInInstance == ALLIANCE)
                            creature->UpdateEntry(NPC_ALLIANCE_SLAVE_4, ALLIANCE);
                         break;
+                    case NPC_FREED_SLAVE_1_HORDE:
+                        if (_teamInInstance == ALLIANCE)
+                            creature->UpdateEntry(NPC_FREED_SLAVE_1_ALLIANCE, ALLIANCE);
+                        break;
+                    case NPC_FREED_SLAVE_2_HORDE:
+                        if (_teamInInstance == ALLIANCE)
+                            creature->UpdateEntry(NPC_FREED_SLAVE_2_ALLIANCE, ALLIANCE);
+                        break;
+                    case NPC_FREED_SLAVE_3_HORDE:
+                        if (_teamInInstance == ALLIANCE)
+                            creature->UpdateEntry(NPC_FREED_SLAVE_3_ALLIANCE, ALLIANCE);
+                        break;
+                    case NPC_RESCUED_SLAVE_HORDE:
+                        if (_teamInInstance == ALLIANCE)
+                            creature->UpdateEntry(NPC_RESCUED_SLAVE_ALLIANCE, ALLIANCE);
+                        break;
+                    case NPC_MARTIN_VICTUS_1:
+                        if (_teamInInstance == ALLIANCE)
+                            creature->UpdateEntry(NPC_MARTIN_VICTUS_1, ALLIANCE);
+                        break;
+                    case NPC_MARTIN_VICTUS_2:
+                        if (_teamInInstance == ALLIANCE)
+                            creature->UpdateEntry(NPC_MARTIN_VICTUS_2, ALLIANCE);
+                        break;
                     default:
                         break;
                 }
