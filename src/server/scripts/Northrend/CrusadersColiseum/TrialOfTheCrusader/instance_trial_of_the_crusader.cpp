@@ -125,17 +125,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 }
             }
 
-            bool IsRaidWiped()
-            {
-                Map::PlayerList const &players = instance->GetPlayers();
-                for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
-                    if (Player* player = i->getSource())
-                        if (player->isAlive())
-                            return false;
-
-                return true;
-            }
-
             void OpenDoor(uint64 guid)
             {
                 if (!guid)
@@ -417,12 +406,9 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     sLog->outDetail("[ToCr] EncounterStatus[type %u] %u = data %u;", type, EncounterStatus[type], data);
                     if (data == FAIL)
                     {
-                        if (IsRaidWiped())
-                        {
-                            --TrialCounter;
-                            NeedSave = true;
-                            EventStage = (type == TYPE_BEASTS ? 666 : 0);
-                        }
+                        --TrialCounter;
+                        NeedSave = true;
+                        EventStage = (type == TYPE_BEASTS ? 666 : 0);
                         data = NOT_STARTED;
                     }
 
