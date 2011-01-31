@@ -170,19 +170,19 @@ public:
         {
             switch(pCreature->GetEntry())
             {
-                case NPC_HALION_REAL:  m_uiHalion_pGUID = pCreature->GetGUID(); break;
-                case NPC_HALION_TWILIGHT:   m_uiHalion_tGUID = pCreature->GetGUID();  break;
-                case NPC_HALION_CONTROL:    m_uiHalionControlGUID = pCreature->GetGUID();  break;
-                case NPC_RAGEFIRE:     m_uiRagefireGUID = pCreature->GetGUID();  break;
-                case NPC_ZARITHIAN:    m_uiZarithianGUID = pCreature->GetGUID(); break;
-                case NPC_BALTHARUS:    m_uiBaltharusGUID = pCreature->GetGUID(); break;
-                case NPC_BALTHARUS_TARGET:  m_uiBaltharusTargetGUID = pCreature->GetGUID(); break;
-                case NPC_CLONE:        m_uiCloneGUID = pCreature->GetGUID();     break;
-                case NPC_XERESTRASZA:  m_uiXerestraszaGUID = pCreature->GetGUID();          break;
-                case NPC_SHADOW_PULSAR_N:        m_uiOrbNGUID = pCreature->GetGUID();       break;
-                case NPC_SHADOW_PULSAR_S:        m_uiOrbSGUID = pCreature->GetGUID();       break;
-                case NPC_ORB_ROTATION_FOCUS:     m_uiOrbFocusGUID = pCreature->GetGUID();   break;
-                case NPC_ORB_CARRIER:            m_uiOrbCarrierGUID = pCreature->GetGUID(); break;
+                case NPC_HALION_REAL:             m_uiHalion_pGUID = pCreature->GetGUID();        break;
+                case NPC_HALION_TWILIGHT:         m_uiHalion_tGUID = pCreature->GetGUID();        break;
+                case NPC_HALION_CONTROL:          m_uiHalionControlGUID = pCreature->GetGUID();   break;
+                case NPC_RAGEFIRE:                m_uiRagefireGUID = pCreature->GetGUID();        break;
+                case NPC_ZARITHIAN:               m_uiZarithianGUID = pCreature->GetGUID();       break;
+                case NPC_BALTHARUS:               m_uiBaltharusGUID = pCreature->GetGUID();       break;
+                case NPC_BALTHARUS_TARGET:        m_uiBaltharusTargetGUID = pCreature->GetGUID(); break;
+                case NPC_CLONE:                   m_uiCloneGUID = pCreature->GetGUID();           break;
+                case NPC_XERESTRASZA:             m_uiXerestraszaGUID = pCreature->GetGUID();     break;
+                case NPC_SHADOW_PULSAR_N:         m_uiOrbNGUID = pCreature->GetGUID();            break;
+                case NPC_SHADOW_PULSAR_S:         m_uiOrbSGUID = pCreature->GetGUID();            break;
+                case NPC_ORB_ROTATION_FOCUS:      m_uiOrbFocusGUID = pCreature->GetGUID();        break;
+                case NPC_ORB_CARRIER:             m_uiOrbCarrierGUID = pCreature->GetGUID();      break;
             }
         }
 
@@ -252,11 +252,11 @@ public:
                                         }
                                         break;
                 case TYPE_HALION_EVENT: m_auiHalionEvent  = uiData; uiData = NOT_STARTED; break;
-                case TYPE_EVENT_TIMER:  m_auiEventTimer = uiData; uiData = NOT_STARTED; break;
+                case TYPE_EVENT_TIMER:  m_auiEventTimer = uiData; uiData = NOT_STARTED;   break;
 
                 case DATA_ORB_DIRECTION:        m_auiOrbDirection = uiData; uiData = NOT_STARTED; break;
-                case DATA_ORB_N:                m_auiOrbNState = uiData; uiData = NOT_STARTED; break;
-                case DATA_ORB_S:                m_auiOrbSState = uiData; uiData = NOT_STARTED; break;
+                case DATA_ORB_N:                m_auiOrbNState = uiData; uiData = NOT_STARTED;    break;
+                case DATA_ORB_S:                m_auiOrbSState = uiData; uiData = NOT_STARTED;    break;
                 case TYPE_COUNTER:
                                        if (uiData == 0)
                                            UpdateWorldState(false,0);
@@ -293,7 +293,7 @@ public:
                 case TYPE_RAGEFIRE:      return m_auiEncounter[uiType];
                 case TYPE_BALTHARUS:     return m_auiEncounter[uiType];
                 case TYPE_XERESTRASZA:   return m_auiEncounter[uiType];
-                case TYPE_ZARITHRIAN:     return m_auiEncounter[uiType];
+                case TYPE_ZARITHRIAN:    return m_auiEncounter[uiType];
                 case TYPE_HALION:        return m_auiEncounter[uiType];
 
                 case TYPE_EVENT:         return m_auiEncounter[uiType];
@@ -335,15 +335,15 @@ public:
         {
             switch(uiData)
             {
-                case NPC_BALTHARUS:  return m_uiBaltharusGUID;
-                case NPC_CLONE:      return m_uiCloneGUID;
-                case NPC_ZARITHIAN:  return m_uiZarithianGUID;
-                case NPC_RAGEFIRE:   return m_uiRagefireGUID;
-                case NPC_HALION_REAL:               return m_uiHalion_pGUID;
-                case NPC_HALION_TWILIGHT:           return m_uiHalion_tGUID;
+                case NPC_BALTHARUS:        return m_uiBaltharusGUID;
+                case NPC_CLONE:            return m_uiCloneGUID;
+                case NPC_ZARITHIAN:        return m_uiZarithianGUID;
+                case NPC_RAGEFIRE:         return m_uiRagefireGUID;
+                case NPC_HALION_REAL:      return m_uiHalion_pGUID;
+                case NPC_HALION_TWILIGHT:  return m_uiHalion_tGUID;
                 case NPC_HALION_CONTROL:   return m_uiHalionControlGUID;
-                case NPC_XERESTRASZA:               return m_uiXerestraszaGUID;
-                case NPC_BALTHARUS_TARGET:          return m_uiBaltharusTargetGUID;
+                case NPC_XERESTRASZA:      return m_uiXerestraszaGUID;
+                case NPC_BALTHARUS_TARGET: return m_uiBaltharusTargetGUID;
 
                 case GO_FLAME_WALLS: return m_uiFlameWallsGUID;
                 case GO_FLAME_RING:  return m_uiFlameRingGUID;

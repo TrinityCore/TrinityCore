@@ -2952,6 +2952,11 @@ bool ChatHandler::HandleBanHelper(BanMode mode, const char *args)
     if (!reason)
         return false;
 
+    QueryResult qUsername;
+    uint32 bandate;
+    uint32 unbandate;
+    std::string sUnbandate;
+
     switch(mode)
     {
         case BAN_ACCOUNT:
@@ -2961,6 +2966,29 @@ bool ChatHandler::HandleBanHelper(BanMode mode, const char *args)
                 SetSentErrorMessage(true);
                 return false;
             }
+            else
+            {
+                PreparedQueryResult resultAccount = PreparedQueryResult(NULL);
+                PreparedStatement* stmt = NULL;
+                stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_ACCIDBYNAME);
+                stmt->setString(0, nameOrIP);
+                resultAccount = LoginDatabase.Query(stmt);
+                if (resultAccount)
+                {
+                    Field* fieldsAccount = resultAccount->Fetch();
+                    uint32 account = fieldsAccount->GetUInt32();
+
+                    QueryResult BanInfo  = LoginDatabase.PQuery("SELECT bandate, unbandate, FROM_UNIXTIME(unbandate) FROM account_banned WHERE id  = '%u' and active = '1'", account);
+                    if (BanInfo)
+                    {
+                        Field* fieldsBanInfo = BanInfo->Fetch();
+                        bandate      = fieldsBanInfo[0].GetUInt32();
+                        unbandate    = fieldsBanInfo[1].GetUInt32();
+                        sUnbandate   = fieldsBanInfo[2].GetString();
+                    }
+                    qUsername  = LoginDatabase.PQuery("SELECT username FROM account WHERE id  = '%u'", account);
+                }
+            }
             break;
         case BAN_CHARACTER:
             if (!normalizePlayerName(nameOrIP))
@@ -2969,11 +2997,53 @@ bool ChatHandler::HandleBanHelper(BanMode mode, const char *args)
                 SetSentErrorMessage(true);
                 return false;
             }
+            else
+            {
+                PreparedQueryResult resultAccount = PreparedQueryResult(NULL);
+                PreparedStatement* stmt = NULL;
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_ACCOUNT_BY_NAME);
+                stmt->setString(0, nameOrIP);
+                resultAccount = CharacterDatabase.Query(stmt);
+                if (resultAccount)
+                {
+                    Field* fieldsAccount = resultAccount->Fetch();
+                    uint32 account = fieldsAccount->GetUInt32();
+
+                    QueryResult BanInfo  = LoginDatabase.PQuery("SELECT bandate, unbandate, FROM_UNIXTIME(unbandate) FROM account_banned WHERE id  = '%u' and active = '1'", account);
+                    if (BanInfo)
+                    {
+                        Field* fieldsBanInfo = BanInfo->Fetch();
+                        bandate      = fieldsBanInfo[0].GetUInt32();
+                        unbandate    = fieldsBanInfo[1].GetUInt32();
+                        sUnbandate   = fieldsBanInfo[2].GetString();
+                    }
+                    qUsername  = LoginDatabase.PQuery("SELECT username FROM account WHERE id  = '%u'", account);
+                }
+            }
             break;
         case BAN_IP:
             if (!IsIPAddress(nameOrIP.c_str()))
                 return false;
             break;
+    }
+
+    int time_stamp;
+    time_t current_time = time(0);
+    time_stamp = current_time;
+
+    uint32 uDuration = TimeStringToSecs(duration);
+    uint32 newDuration = time_stamp+uDuration;
+
+    if (qUsername && (bandate == unbandate || newDuration < unbandate) && uDuration > 0 && mode != BAN_IP /*&& GetSession()->GetSecurity() < SEC_CONSOLE*/)
+    {
+        Field* fieldUsername = qUsername->Fetch();
+        std::string username = fieldUsername->GetString();
+        SendSysMessage("Вы пытаетесь забанить аккаунт, который уже находится в бане.");
+        if (bandate == unbandate)
+            PSendSysMessage("Аккаунт %s забанен навсегда. Вы никогда не сможете дать повторный бан.", username.c_str());
+        else if (newDuration < unbandate)
+            PSendSysMessage("Аккаунт %s забанен до %s. Вы сможете дать повторный бан только по истечении срока активного бана.", username.c_str(), sUnbandate.c_str());
+        return false;
     }
 
     switch(sWorld->BanAccount(mode, nameOrIP, duration, reason,m_session ? m_session->GetPlayerName() : ""))
