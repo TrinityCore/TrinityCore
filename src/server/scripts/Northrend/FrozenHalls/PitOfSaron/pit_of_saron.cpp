@@ -275,10 +275,41 @@ class mob_geist_ambusher : public CreatureScript
         }
 };
 
+class spell_trash_mob_glacial_strike : public SpellScriptLoader
+{
+    public:
+        spell_trash_mob_glacial_strike() : SpellScriptLoader("spell_trash_mob_glacial_strike") { }
+
+        class spell_trash_mob_glacial_strike_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_trash_mob_glacial_strike_AuraScript);
+
+            void PeriodicTick(AuraEffect const* aurEff)
+            {
+                if (GetTarget()->IsFullHealth())
+                {
+                    GetTarget()->RemoveAura(GetId(), AURA_REMOVE_BY_ENEMY_SPELL);
+                    PreventDefaultAction();
+                }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_trash_mob_glacial_strike_AuraScript::PeriodicTick, EFFECT_2, SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_trash_mob_glacial_strike_AuraScript();
+        }
+};
+
 void AddSC_pit_of_saron()
 {
     new mob_ymirjar_flamebearer();
     new mob_wrathbone_laborer();
     new mob_iceborn_protodrake();
     new mob_geist_ambusher();
+    new spell_trash_mob_glacial_strike();
 }

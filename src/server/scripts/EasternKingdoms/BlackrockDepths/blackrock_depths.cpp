@@ -728,8 +728,8 @@ public:
 #define SAY_WINDSOR_9               "Ah, there it is!"
 #define MOB_ENTRY_REGINALD_WINDSOR  9682
 
-Player* pPlayerStart;
 /*
+Player* pPlayerStart;
 class npc_marshal_windsor : public CreatureScript
 {
 public:
@@ -902,8 +902,8 @@ public:
 #define MOB_ENTRY_SHILL_DINGER      9678
 #define MOB_ENTRY_CREST_KILLER      9680
 
-int wp = 0;
 /*
+int wp = 0;
 class npc_marshal_reginald_windsor : public CreatureScript
 {
 public:
@@ -1231,39 +1231,38 @@ class npc_rocknot : public CreatureScript
 public:
     npc_rocknot() : CreatureScript("npc_rocknot") { }
 
-    bool ChooseReward(Player* /*pPlayer*/, Creature* pCreature, const Quest *_Quest, uint32 /*item*/)
+    bool OnQuestReward(Player* /*player*/, Creature* creature, Quest const* quest, uint32 /*item*/)
     {
-        InstanceScript* pInstance = pCreature->GetInstanceScript();
-
-        if (!pInstance)
+        InstanceScript* instance = creature->GetInstanceScript();
+        if (!instance)
             return true;
 
-        if (pInstance->GetData(TYPE_BAR) == DONE || pInstance->GetData(TYPE_BAR) == SPECIAL)
+        if (instance->GetData(TYPE_BAR) == DONE || instance->GetData(TYPE_BAR) == SPECIAL)
             return true;
 
-        if (_Quest->GetQuestId() == QUEST_ALE)
+        if (quest->GetQuestId() == QUEST_ALE)
         {
-            if (pInstance->GetData(TYPE_BAR) != IN_PROGRESS)
-                pInstance->SetData(TYPE_BAR,IN_PROGRESS);
+            if (instance->GetData(TYPE_BAR) != IN_PROGRESS)
+                instance->SetData(TYPE_BAR, IN_PROGRESS);
 
-            pInstance->SetData(TYPE_BAR,SPECIAL);
+            instance->SetData(TYPE_BAR, SPECIAL);
 
             //keep track of amount in instance script, returns SPECIAL if amount ok and event in progress
-            if (pInstance->GetData(TYPE_BAR) == SPECIAL)
+            if (instance->GetData(TYPE_BAR) == SPECIAL)
             {
-                DoScriptText(SAY_GOT_BEER, pCreature);
-                pCreature->CastSpell(pCreature,SPELL_DRUNKEN_RAGE,false);
-                if (npc_escortAI* pEscortAI = CAST_AI(npc_rocknot::npc_rocknotAI, pCreature->AI()))
-                    pEscortAI->Start(false, false);
+                DoScriptText(SAY_GOT_BEER, creature);
+                creature->CastSpell(creature, SPELL_DRUNKEN_RAGE, false);
+                if (npc_escortAI* escortAI = CAST_AI(npc_rocknot::npc_rocknotAI, creature->AI()))
+                    escortAI->Start(false, false);
             }
         }
 
         return true;
     }
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_rocknotAI(pCreature);
+        return new npc_rocknotAI(creature);
     }
 
     struct npc_rocknotAI : public npc_escortAI

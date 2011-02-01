@@ -1227,6 +1227,7 @@ UPDATE `gameobject_template` SET ScriptName='go_rusty_cage' WHERE `entry`=191544
 UPDATE `creature_template` SET `ScriptName`='npc_injured_goblin' WHERE `entry`=29434;
 UPDATE `creature_template` SET `ScriptName`='npc_roxi_ramrocket' WHERE `entry`=31247;
 UPDATE `creature_template` SET `ScriptName`='npc_brunnhildar_prisoner' WHERE `entry`=29639;
+UPDATE `creature_template` SET `ScriptName`='npc_icefang' WHERE `entry`=29602;
 
 /* STORMWIND CITY */
 UPDATE `creature_template` SET `ScriptName`='npc_archmage_malin' WHERE `entry`=2708;
@@ -1845,6 +1846,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 70850, 'spell_krick_pursuit_confusion'),
 ( 69275, 'spell_tyrannus_mark_of_rimefang'),
 ( 69172, 'spell_tyrannus_overlord_brand'),
+( 70292, 'spell_trash_mob_glacial_strike'),
 -- Icecrown Citadel
 ( 69057, 'spell_marrowgar_bone_spike_graveyard'),
 ( 70826, 'spell_marrowgar_bone_spike_graveyard'),
@@ -2011,6 +2013,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 51840, 'spell_q12634_despawn_fruit_tosser'),
 ( 52308, 'spell_q12683_take_sputum_sample'),
 ( 55804, 'spell_q12937_relief_for_the_fallen'),
+( 54798, 'spell_q12851_going_bearback'),
 -- item
 ( 23074, 'spell_item_arcanite_dragonling'),
 (  8063, 'spell_item_deviate_fish'),
@@ -2098,6 +2101,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 69366, 'spell_dru_moonkin_form_passive'),
 (-33851, 'spell_dru_primal_tenacity'),
 ( 62606, 'spell_dru_savage_defense'),
+( 70691, 'spell_dru_t10_restoration_4p_bonus'),
 -- example
 ( 66244, 'spell_ex_66244'), 
 ( 5581,  'spell_ex_5581'),

@@ -216,7 +216,7 @@ class boss_devourer_of_souls : public CreatureScript
                     instance->DoCompleteAchievement(ACHIEV_THREE_FACED);
 
                 int32 entryIndex;
-                if (instance->GetData(DATA_TEAM_IN_INSTANCE) == TEAM_ALLIANCE)
+                if (instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
                     entryIndex = 0;
                 else
                     entryIndex = 1;
