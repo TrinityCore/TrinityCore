@@ -48,6 +48,8 @@ enum Bosses
 
 enum GameObjects
 {
+    GO_CACHE_OF_ERAGOS                            = 191349,
+    GO_CACHE_OF_ERAGOS_H                          = 193603,
     GO_DRAGON_CAGE_DOOR                           = 193995
 };
 

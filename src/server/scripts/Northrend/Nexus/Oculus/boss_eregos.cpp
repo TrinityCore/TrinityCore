@@ -129,6 +129,7 @@ public:
             _Reset();
 
             phase = PHASE_NORMAL;
+            started=false;
 
             DoAction(ACTION_SET_NORMAL_EVENTS);
         }
@@ -194,6 +195,15 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
+             if(!started && instance->GetBossState(DATA_UROM_EVENT) == DONE)
+             {
+                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                 me->RemoveAllAuras();
+                 me->SetReactState(REACT_AGGRESSIVE);
+                 started=true;
+             }
+
             //Return since we have no target
             if (!UpdateVictim())
                 return;
@@ -240,6 +250,7 @@ public:
 
     private:
         uint8 phase;
+        bool started;
     };
 };
 
