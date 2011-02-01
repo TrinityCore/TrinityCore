@@ -1693,6 +1693,8 @@ void World::SetInitialWorldSettings()
     ///- Initialize MapManager
     sLog->outString("Starting Map System");
     sMapMgr->Initialize();
+    ///- Initialize Visibility and notify
+    sMapMgr->InitializeVisibilityDistanceInfo();
 
     sLog->outString("Starting Game Event system...");
     uint32 nextGameEvent = sGameEventMgr->Initialize();
