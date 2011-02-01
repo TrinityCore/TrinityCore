@@ -5635,6 +5635,23 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     }
                     break;
                 }
+                // Blessing of Ancient Kings (Val'anyr, Hammer of Ancient Kings)
+                case 64411:
+                {
+                    basepoints0 = int32(CalculatePctN(damage, 15));
+                    if (AuraEffect* aurEff = pVictim->GetAuraEffect(64413, 0, GetGUID()))
+                    {
+                        // The shield can grow to a maximum size of 20,000 damage absorbtion
+                        aurEff->SetAmount(std::max<int32>(aurEff->GetAmount() + basepoints0, 20000));
+
+                        // Refresh and return to prevent replacing the aura
+                        aurEff->GetBase()->RefreshDuration();
+                        return true;
+                    }
+                    target = pVictim;
+                    triggered_spell_id = 64413;
+                    break;
+                }
             }
             break;
         }
@@ -8396,14 +8413,6 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
             // This effect only from Rapid Fire (ability cast)
             if (!(procSpell->SpellFamilyFlags[0] & 0x20))
                 return false;
-            break;
-        }
-        // Blessing of Ancient Kings (Val'anyr, Hammer of Ancient Kings)
-        case 64411:
-        {
-            basepoints0 = int32(CalculatePctN(damage, 15));
-            target = pVictim;
-            trigger_spell_id = 64413;
             break;
         }
         // Decimation
