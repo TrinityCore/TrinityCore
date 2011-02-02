@@ -80,3 +80,10 @@ INSERT INTO `spell_dbc` (`Id`, `Dispel`, `Mechanic`, `Attributes`, `AttributesEx
 DELETE FROM `spell_proc_event` WHERE `entry` IN ('199997');
 INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`) VALUES
 ('199997','0','10','0','131072','0','16','0','0','100','0');
+
+-- The Valiant's Challenge
+UPDATE `creature_template` SET `ScriptName` = 'npc_squire_danny' WHERE `entry` = 33518;
+UPDATE `creature_template` SET `KillCredit1` = 33708 WHERE `entry` = 33707;
+UPDATE `creature_template` SET `ScriptName` = 'npc_argent_champion' WHERE `entry` = 33707;
+DELETE FROM `creature_template_addon` WHERE `entry`='33707;
+INSERT INTO `creature_template_addon` (`entry`, `mount`) VALUES ('33707', '14337');
