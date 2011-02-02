@@ -1208,10 +1208,11 @@ void World::LoadConfigSettings(bool reload)
     // MySQL ping time interval
     m_int_configs[CONFIG_DB_PING_INTERVAL] = sConfig->GetIntDefault("MaxPingTime", 30);
 
+    // AntiCheat
     m_bool_configs[CONFIG_ANTICHEAT_ENABLE] = sConfig->GetBoolDefault("AntiCheat.Enable", true);
     m_int_configs[CONFIG_ANTICHEAT_REPORTS_INGAME_NOTIFICATION] = sConfig->GetIntDefault("AntiCheat.ReportsForIngameWarnings", 70);
     m_int_configs[CONFIG_ANTICHEAT_DELVL] = sConfig->GetIntDefault("AntiCheat.DeLVL", 10);
-    
+
     sScriptMgr->OnConfigLoad(reload);
 }
 
@@ -2314,6 +2315,9 @@ void World::AntiCheatBanAccount(std::string name, std::string author)
     uint64 guid;
 
     QueryResult account  = CharacterDatabase.PQuery("SELECT account FROM characters WHERE name = '%s'", name.c_str());
+    if (!account)
+        return;
+
     Field *fields = account->Fetch();
     uint32 acc = fields[0].GetUInt32();
 
