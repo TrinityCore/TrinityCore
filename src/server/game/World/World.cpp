@@ -1701,8 +1701,6 @@ void World::SetInitialWorldSettings()
     ///- Initialize MapManager
     sLog->outString("Starting Map System");
     sMapMgr->Initialize();
-    ///- Initialize Visibility and notify
-    sMapMgr->InitializeVisibilityDistanceInfo();
 
     sLog->outString("Starting Game Event system...");
     uint32 nextGameEvent = sGameEventMgr->Initialize();
@@ -1766,6 +1764,10 @@ void World::SetInitialWorldSettings()
     sLog->outString();
     sLog->outString("WORLD: World initialized in %u minutes %u seconds", (startupDuration / 60000), ((startupDuration % 60000) / 1000) );
     sLog->outString();
+
+    //and reload config again o_O, crazy think
+    sWorld->LoadConfigSettings(true);
+    sMapMgr->InitializeVisibilityDistanceInfo();
 }
 
 void World::DetectDBCLang()
