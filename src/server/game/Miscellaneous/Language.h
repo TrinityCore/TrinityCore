@@ -1111,6 +1111,7 @@ enum TrinityStrings
     LANG_BAN_WORLD_ANNOUNCE             = 11002,
     LANG_PERMBAN_WORLD_ANNOUNCE         = 11003,
     LANG_PARTYINFO_PLAYER               = 11004,
+    LANG_LOTTERY_MSG                    = 11005,
 
     // NOT RESERVED IDS                   12000-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)

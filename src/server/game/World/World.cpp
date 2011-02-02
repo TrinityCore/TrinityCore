@@ -1213,6 +1213,13 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_ANTICHEAT_REPORTS_INGAME_NOTIFICATION] = sConfig->GetIntDefault("AntiCheat.ReportsForIngameWarnings", 70);
     m_int_configs[CONFIG_ANTICHEAT_DELVL] = sConfig->GetIntDefault("AntiCheat.DeLVL", 10);
 
+    // Lottery
+    m_bool_configs[CONFIG_LOTTERY_ENABLE]           = sConfig->GetBoolDefault("Lottery.Enable", false);
+    m_int_configs[CONFIG_LOTTERY_MAXBET]            = sConfig->GetIntDefault("Lottery.MaxBet", 30);
+    m_int_configs[CONFIG_LOTTERY_BETCOST]           = sConfig->GetIntDefault("Lottery.BetCost", 500000);
+    m_int_configs[CONFIG_LOTTERY_MINLVL]            = sConfig->GetIntDefault("Lottery.MinUserLVL", 60);
+    m_float_configs[CONFIG_LOTTERY_CASH_MULTIPLIER] = sConfig->GetFloatDefault("Lottery.CashMultiplier", 0.3f);
+
     sScriptMgr->OnConfigLoad(reload);
 }
 

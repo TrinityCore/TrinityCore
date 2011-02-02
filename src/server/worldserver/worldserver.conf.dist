@@ -2775,7 +2775,7 @@ AntiCheat.Enable = 1
 AntiCheat.ReportsForIngameWarnings = 70
 
 #     AntiCheat.BanDuration
-#        Description: Ban duration for ".anticheat ban" command. Use a timestring like "4d20h3s"
+#        Description: Ban duration for ".anticheat ban" command. Use a timestring like "4d20h3s".
 #        Default:     30 - (days)
 
 AntiCheat.BanDuration = 30d
@@ -2785,6 +2785,37 @@ AntiCheat.BanDuration = 30d
 #        Default:     10 - (levels)
 
 AntiCheat.DeLVL = 10
+
+#     Lottery.Enable
+#        Description: Enables or disables the Lottery NPC activity.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)                       
+
+Lottery.Enable = 0
+
+#     Lottery.BetCost
+#        Description: Cost of 1 bet in lottery (in copper).
+#        Default:     500000
+
+Lottery.BetCost = 500000
+
+#     Lottery.MaxBet
+#        Description: Max lottery bet number.
+#        Default:     30
+
+Lottery.MaxBet = 30
+
+#     Lottery.CashMultiplier
+#        Description: Lottery cash multiplier.
+#        Default:     0.3
+
+Lottery.CashMultiplier = 0.3
+
+#     Lottery.MinUserLVL
+#        Description: Players with lower level can't take part in lottery.
+#        Default:     60
+
+Lottery.MinUserLVL = 60
       
 ###################################################################################################
 
