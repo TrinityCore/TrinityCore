@@ -505,15 +505,3 @@ void npc_escortAI::SetEscortPaused(bool bPaused)
     else
         RemoveEscortState(STATE_ESCORT_PAUSED);
 }
-
-void npc_escortAI::JumpToWP(uint32 WP)
-{
-    if (!(WP <= 0))
-    {
-        CurrentWP = WaypointList.begin();
-        advance(CurrentWP, WP-1); // WaypointReached() is called before CurrentWP incrementation so we use decreased value here
-                                  // We can't achieve zero waypoint...
-    }
-    else
-        sLog->outError("Wrong WP parametr (%u) in npc_escortAI::JumpToWP() call", WP);
-}
