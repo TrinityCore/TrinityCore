@@ -23,205 +23,194 @@ SDComment: Correct spawning and Event NYI
 SDCategory: Molten Core
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "molten_core.h"
 
-#define SAY_AGGRO           -1409003
-#define SAY_SPAWN           -1409004
-#define SAY_SLAY            -1409005
-#define SAY_SPECIAL         -1409006
-#define SAY_DEFEAT          -1409007
+enum Texts
+{
+    SAY_AGGRO           = -1409003,
+    SAY_SPAWN           = -1409004,
+    SAY_SLAY            = -1409005,
+    SAY_SPECIAL         = -1409006,
+    SAY_DEFEAT          = -1409007,
 
-#define SAY_SUMMON_MAJ      -1409008
-#define SAY_ARRIVAL1_RAG    -1409009
-#define SAY_ARRIVAL2_MAJ    -1409010
-#define SAY_ARRIVAL3_RAG    -1409011
-#define SAY_ARRIVAL5_RAG    -1409012
+    SAY_SUMMON_MAJ      = -1409008,
+    SAY_ARRIVAL1_RAG    = -1409009,
+    SAY_ARRIVAL2_MAJ    = -1409010,
+    SAY_ARRIVAL3_RAG    = -1409011,
+    SAY_ARRIVAL5_RAG    = -1409012,
+};
 
-#define ENTRY_RAGNAROS 11502
-
-#define EMOTE_EMERGE 449
-
-#define TELE_TO_RAG_X         829.159f
-#define TELE_TO_RAG_Y         -815.773f
-#define TELE_TO_RAG_Z         -228.972f
-#define TELE_TO_RAG_O         5.305f
-
-#define SPELL_MAGIC_REFLECTION      20619
-#define SPELL_DAMAGE_REFLECTION     21075
-
-#define SPELL_BLASTWAVE             20229
-#define SPELL_AEGIS                 20620                   //This is self casted whenever we are below 50%
-#define SPELL_TELEPORT              20618
-#define SPELL_SUMMON_RAGNAROS       19774
-
-#define ENTRY_FLAMEWALKER_HEALER    11663
-#define ENTRY_FLAMEWALKER_ELITE     11664
+enum Spells
+{
+    SPELL_MAGIC_REFLECTION  = 20619,
+    SPELL_DAMAGE_REFLECTION = 21075,
+    SPELL_BLAST_WAVE        = 20229,
+    SPELL_AEGIS_OF_RAGNAROS = 20620,
+    SPELL_TELEPORT          = 20618,
+    SPELL_SUMMON_RAGNAROS   = 19774,
+};
 
 #define GOSSIP_HELLO 4995
-#define GOSSIP_SELLECT "Tell me more."
+#define GOSSIP_SELECT "Tell me more."
+
+enum Events
+{
+    EVENT_MAGIC_REFLECTION  = 1,
+    EVENT_DAMAGE_REFLECTION = 2,
+    EVENT_BLAST_WAVE        = 3,
+    EVENT_TELEPORT          = 4,
+
+    EVENT_OUTRO_1           = 5,
+    EVENT_OUTRO_2           = 6,
+    EVENT_OUTRO_3           = 7,
+};
 
 class boss_majordomo : public CreatureScript
 {
-public:
-    boss_majordomo() : CreatureScript("boss_majordomo") { }
+    public:
+        boss_majordomo() : CreatureScript("boss_majordomo") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new boss_majordomoAI (pCreature);
-    }
-
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
-    {
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELLECT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        pPlayer->SEND_GOSSIP_MENU(GOSSIP_HELLO, pCreature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 /*uiAction*/)
-    {
-        //ScriptedInstance* pInstance = pCreature->GetInstanceData();
-
-        BossAI* pBossAI = CAST_AI(boss_majordomoAI, pCreature->AI());
-
-        if (/*pInstance && */pBossAI)
+        struct boss_majordomoAI : public BossAI
         {
-            pPlayer->CLOSE_GOSSIP_MENU();
-            CAST_AI(boss_majordomoAI, pCreature->AI())->StartRagsEvent();
-        }
-        return true;
-    }
-
-    struct boss_majordomoAI : public BossAI
-    {
-        boss_majordomoAI(Creature *pCreature) : BossAI(pCreature, BOSS_MAJORDOMO)
-        {
-            m_pInstance = pCreature->GetInstanceScript();
-        }
-        InstanceScript* m_pInstance;
-
-        uint32 MagicReflection_Timer;
-        uint32 DamageReflection_Timer;
-        uint32 Blastwave_Timer;
-        uint32 Teleport_Timer;
-        uint32 Phase_Timer; //for teleport and ragnaros's intro
-        uint8 Phase;
-
-        void Reset()
-        {
-            MagicReflection_Timer =  30000;                     //Damage reflection first so we alternate
-            DamageReflection_Timer = 15000;
-            Blastwave_Timer = 10000;
-            Teleport_Timer = 20000;
-            Phase = 0;
-        }
-
-        void KilledUnit(Unit* /*victim*/)
-        {
-            if (rand()%5)
-                return;
-
-            DoScriptText(SAY_SLAY, me);
-        }
-
-        void EnterCombat(Unit * /*who*/)
-        {
-            DoScriptText(SAY_AGGRO, me);
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (Phase == 0)
+            boss_majordomoAI(Creature *pCreature) : BossAI(pCreature, BOSS_MAJORDOMO_EXECUTUS)
             {
-                if (!UpdateVictim())
-                    return;
+            }
 
-                 if (((!me->FindNearestCreature(ENTRY_FLAMEWALKER_HEALER,100.0f)) && (!me->FindNearestCreature(ENTRY_FLAMEWALKER_ELITE,100.0f))) && (!m_pInstance->GetData(DATA_MAJORDOMOISDEAD)))
-                 {
+            void KilledUnit(Unit* /*victim*/)
+            {
+                if (urand(0, 99) < 25)
+                    DoScriptText(SAY_SLAY, me);
+            }
+
+            void EnterCombat(Unit* who)
+            {
+                BossAI::EnterCombat(who);
+                DoScriptText(SAY_AGGRO, me);
+                events.ScheduleEvent(EVENT_MAGIC_REFLECTION, 30000);
+                events.ScheduleEvent(EVENT_DAMAGE_REFLECTION, 15000);
+                events.ScheduleEvent(EVENT_BLAST_WAVE, 10000);
+                events.ScheduleEvent(EVENT_TELEPORT, 20000);
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (instance && instance->GetBossState(BOSS_MAJORDOMO_EXECUTUS) != DONE)
+                {
+                    if (!UpdateVictim())
+                        return;
+
+                    events.Update(diff);
+
+                    if (!me->FindNearestCreature(NPC_FLAMEWAKER_HEALER, 100.0f) && !me->FindNearestCreature(NPC_FLAMEWAKER_ELITE, 100.0f))
+                    {
+                        //instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, me->GetEntry());
+                        me->setFaction(35);
+                        me->AI()->EnterEvadeMode();
+                        DoScriptText(SAY_DEFEAT, me);
+                        _JustDied();
+                        events.ScheduleEvent(EVENT_OUTRO_1, 32000);
+                        return;
+                    }
+
+                    if (me->HasUnitState(UNIT_STAT_CASTING))
+                        return;
+
+                    if (HealthBelowPct(50))
+                        DoCast(me, SPELL_AEGIS_OF_RAGNAROS, true);
+
+                    while (uint32 eventId = events.ExecuteEvent())
+                    {
+                        switch (eventId)
+                        {
+                            case EVENT_MAGIC_REFLECTION:
+                                DoCast(me, SPELL_MAGIC_REFLECTION);
+                                events.ScheduleEvent(EVENT_MAGIC_REFLECTION, 30000);
+                                break;
+                            case EVENT_DAMAGE_REFLECTION:
+                                DoCast(me, SPELL_DAMAGE_REFLECTION);
+                                events.ScheduleEvent(EVENT_DAMAGE_REFLECTION, 30000);
+                                break;
+                            case EVENT_BLAST_WAVE:
+                                DoCastVictim(SPELL_BLAST_WAVE);
+                                events.ScheduleEvent(EVENT_BLAST_WAVE, 10000);
+                                break;
+                            case EVENT_TELEPORT:
+                                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1))
+                                    DoCast(target, SPELL_TELEPORT);
+                                events.ScheduleEvent(EVENT_TELEPORT, 20000);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
+                    DoMeleeAttackIfReady();
+                }
+                else
+                {
+                    events.Update(diff);
+
+                    while (uint32 eventId = events.ExecuteEvent())
+                    {
+                        switch (eventId)
+                        {
+                            case EVENT_OUTRO_1:
+                                me->NearTeleportTo(RagnarosTelePos.GetPositionX(), RagnarosTelePos.GetPositionY(), RagnarosTelePos.GetPositionZ(), RagnarosTelePos.GetOrientation());
+                                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                                break;
+                            case EVENT_OUTRO_2:
+                                if (instance)
+                                    instance->instance->SummonCreature(NPC_RAGNAROS, RagnarosSummonPos);
+                                break;
+                            case EVENT_OUTRO_3:
+                                DoScriptText(SAY_ARRIVAL2_MAJ, me);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+            }
+
+            void DoAction(const int32 action)
+            {
+                if (action == ACTION_START_RAGNAROS)
+                {
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    DoScriptText(SAY_SUMMON_MAJ, me);
+                    events.ScheduleEvent(EVENT_OUTRO_2, 8000);
+                    events.ScheduleEvent(EVENT_OUTRO_3, 24000);
+                }
+                else if (action == ACTION_START_RAGNAROS_ALT)
+                {
                     me->setFaction(35);
-                    me->AI()->EnterEvadeMode();
-                    DoScriptText(SAY_DEFEAT, me);
-                    //DoCast(SPELL_SUMMON_RAGNAROS); Not working atm ,doing workaround
-                    if (m_pInstance)
-                        m_pInstance->SetData(DATA_MAJORDOMO, DONE);
-                        //m_pInstance->SetBossState(DATA_MAJORDOMO, DONE);
-                    Phase_Timer = 32000;
-                    Phase = 1;
-                 }
-
-                //Cast Ageis if less than 50% hp
-                if (HealthBelowPct(50))
-                    DoCast(me, SPELL_AEGIS);
-
-                if (MagicReflection_Timer <= diff)
-                {
-                    DoCast(me, SPELL_MAGIC_REFLECTION);
-                    MagicReflection_Timer = 30000;
-                    } else MagicReflection_Timer -= diff;
-
-                if (DamageReflection_Timer <= diff)
-                {
-                    DoCast(me, SPELL_DAMAGE_REFLECTION);
-                    DamageReflection_Timer = 30000;
-                    } else DamageReflection_Timer -= diff;
-
-                //Blastwave_Timer
-                if (Blastwave_Timer <= diff)
-                {
-                    DoCast(me->getVictim(), SPELL_BLASTWAVE);
-                    Blastwave_Timer = 10000;
-                   } else Blastwave_Timer -= diff;
-
-                if (Teleport_Timer <= diff)
-                {
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1))
-                         DoCast(pTarget, SPELL_TELEPORT);
-                    Teleport_Timer = 20000;
-                } else Teleport_Timer -= diff;
-
-                DoMeleeAttackIfReady();
-            }
-            else
-            {
-                if (Phase == 1)
-                {
-                    if (Phase_Timer <= diff)
-                    {
-                        me->NearTeleportTo(TELE_TO_RAG_X, TELE_TO_RAG_Y, TELE_TO_RAG_Z, TELE_TO_RAG_O);
-                        Phase = 2;
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    } else Phase_Timer -= diff;
-                }
-                if (Phase == 3)
-                {
-                    if (Phase_Timer <= diff)
-                    {
-                        if (m_pInstance)
-                            m_pInstance->SetData(DATA_RAGNAROS, true);
-                        Phase = 4;
-                        Phase_Timer = 16000;
-                    } else Phase_Timer -= diff;
-                }
-                if (Phase == 4)
-                {
-                    if (Phase_Timer <= diff)
-                    {
-                        DoScriptText(SAY_ARRIVAL2_MAJ, me);
-                        Phase = 5;
-                    } else Phase_Timer -= diff;
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 }
             }
-        }
+        };
 
-        void StartRagsEvent()
+        bool OnGossipHello(Player* player, Creature* creature)
         {
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            Phase = 3;
-            DoScriptText(SAY_SUMMON_MAJ, me);
-            Phase_Timer = 8000;
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            player->SEND_GOSSIP_MENU(GOSSIP_HELLO, creature->GetGUID());
+            return true;
         }
-    };
 
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 /*uiAction*/)
+        {
+            player->CLOSE_GOSSIP_MENU();
+            creature->AI()->DoAction(ACTION_START_RAGNAROS);
+            return true;
+        }
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new boss_majordomoAI(creature);
+        }
 };
 
 void AddSC_boss_majordomo()

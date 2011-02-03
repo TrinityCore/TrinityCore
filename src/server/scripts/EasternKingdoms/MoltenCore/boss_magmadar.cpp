@@ -19,95 +19,101 @@
 /* ScriptData
 SDName: Boss_Magmadar
 SD%Complete: 75
-SDComment: Conflag on ground nyi, fear causes issues without VMAPs
+SDComment: Conflag on ground nyi
 SDCategory: Molten Core
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "molten_core.h"
 
-#define EMOTE_FRENZY                -1409001
+enum Texts
+{
+    EMOTE_FRENZY        = -1409001,
+};
 
-#define SPELL_FRENZY                19451
-#define SPELL_MAGMASPIT             19449                   //This is actually a buff he gives himself
-#define SPELL_PANIC                 19408
-#define SPELL_LAVABOMB              19411                   //This calls a dummy server side effect that isn't implemented yet
-#define SPELL_LAVABOMB_ALT          19428                   //This is the spell that the lava bomb casts
+enum Spells
+{
+    SPELL_FRENZY        = 19451,
+    SPELL_MAGMA_SPIT    = 19449,
+    SPELL_PANIC         = 19408,
+    SPELL_LAVA_BOMB     = 19428,
+};
+
+enum Events
+{
+    EVENT_FRENZY        = 1,
+    EVENT_PANIC         = 2,
+    EVENT_LAVA_BOMB     = 3,
+};
 
 class boss_magmadar : public CreatureScript
 {
-public:
-    boss_magmadar() : CreatureScript("boss_magmadar") { }
+    public:
+        boss_magmadar() : CreatureScript("boss_magmadar") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new boss_magmadarAI (pCreature);
-    }
-
-    struct boss_magmadarAI : public ScriptedAI
-    {
-        boss_magmadarAI(Creature *pCreature) : ScriptedAI(pCreature)
+        struct boss_magmadarAI : public BossAI
         {
-            m_pInstance = pCreature->GetInstanceScript();
-        }
-        InstanceScript* m_pInstance;
-
-        uint32 Frenzy_Timer;
-        uint32 Panic_Timer;
-        uint32 Lavabomb_Timer;
-
-        void Reset()
-        {
-            Frenzy_Timer = 30000;
-            Panic_Timer = 20000;
-            Lavabomb_Timer = 12000;
-
-            DoCast(me, SPELL_MAGMASPIT, true);
-        }
-
-        void JustDied(Unit* /*pKiller*/)
-        {
-            if (m_pInstance)
-                m_pInstance->SetData(DATA_MAGMADAR, 0);
-        }
-
-        void EnterCombat(Unit * /*who*/)
-        {
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            //Frenzy_Timer
-            if (Frenzy_Timer <= diff)
+            boss_magmadarAI(Creature *pCreature) : BossAI(pCreature, BOSS_MAGMADAR)
             {
-                DoScriptText(EMOTE_FRENZY, me);
-                DoCast(me, SPELL_FRENZY);
-                Frenzy_Timer = 15000;
-            } else Frenzy_Timer -= diff;
+            }
 
-            //Panic_Timer
-            if (Panic_Timer <= diff)
+            void Reset()
             {
-                DoCast(me->getVictim(), SPELL_PANIC);
-                Panic_Timer = 35000;
-            } else Panic_Timer -= diff;
+                BossAI::Reset();
+                DoCast(me, SPELL_MAGMA_SPIT, true);
+            }
 
-            //Lavabomb_Timer
-            if (Lavabomb_Timer <= diff)
+            void EnterCombat(Unit* victim)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-                    DoCast(pTarget, SPELL_LAVABOMB_ALT);
+                BossAI::EnterCombat(victim);
+                events.ScheduleEvent(EVENT_FRENZY, 30000);
+                events.ScheduleEvent(EVENT_PANIC, 20000);
+                events.ScheduleEvent(EVENT_LAVA_BOMB, 12000);
+            }
 
-                Lavabomb_Timer = 12000;
-            } else Lavabomb_Timer -= diff;
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
 
-            DoMeleeAttackIfReady();
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STAT_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_FRENZY:
+                            DoScriptText(EMOTE_FRENZY, me);
+                            DoCast(me, SPELL_FRENZY);
+                            events.ScheduleEvent(EVENT_FRENZY, 15000);
+                            break;
+                        case EVENT_PANIC:
+                            DoCastVictim(SPELL_PANIC);
+                            events.ScheduleEvent(EVENT_PANIC, 35000);
+                            break;
+                        case EVENT_LAVA_BOMB:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -SPELL_LAVA_BOMB))
+                                DoCast(target, SPELL_LAVA_BOMB);
+                            events.ScheduleEvent(EVENT_LAVA_BOMB, 12000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new boss_magmadarAI(creature);
         }
-    };
-
 };
 
 void AddSC_boss_magmadar()
