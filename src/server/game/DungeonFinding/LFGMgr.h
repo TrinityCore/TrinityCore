@@ -262,10 +262,8 @@ class LFGMgr
         void Update(uint32 diff);
 
         // Reward
-        void LoadDungeonEncounters();
         void LoadRewards();
         void RewardDungeonDoneFor(const uint32 dungeonId, Player* player);
-        uint32 GetDungeonIdForAchievement(uint32 achievementId);
         LfgReward const* GetRandomDungeonReward(uint32 dungeon, uint8 level);
 
         // Queue
@@ -348,7 +346,6 @@ class LFGMgr
         LfgDungeonMap m_CachedDungeonMap;                  ///< Stores all dungeons by groupType
         // Reward System
         LfgRewardMap m_RewardMap;                          ///< Stores rewards for random dungeons
-        std::map<uint32, uint32> m_EncountersByAchievement;///< Stores dungeon ids associated with achievements (for rewards)
         // Queue
         LfgQueueInfoMap m_QueueInfoMap;                    ///< Queued groups
         LfgGuidListMap m_currentQueue;                     ///< Ordered list. Used to find groups
