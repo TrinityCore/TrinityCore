@@ -165,20 +165,27 @@ void InstanceSave::SaveToDB()
 {
     // save instance data too
     std::string data;
+    uint32 completedEncounters = 0;
 
-    Map *map = sMapMgr->FindMap(GetMapId(),m_instanceid);
+    Map *map = sMapMgr->FindMap(GetMapId(), m_instanceid);
     if (map)
     {
         ASSERT(map->IsDungeon());
-        if (InstanceScript *iData = ((InstanceMap*)map)->GetInstanceScript())
+        if (InstanceScript *instanceScript = ((InstanceMap*)map)->GetInstanceScript())
         {
-            data = iData->GetSaveData();
-            if (!data.empty())
-                CharacterDatabase.escape_string(data);
+            data = instanceScript->GetSaveData();
+            completedEncounters = instanceScript->GetCompletedEncounterMask();
         }
     }
 
-    CharacterDatabase.PExecute("INSERT INTO instance VALUES ('%u', '%u', '%u', '%u', '%s')", m_instanceid, GetMapId(), (uint32)GetResetTimeForDB(), GetDifficulty(), data.c_str());
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_INSTANCE_SAVE);
+    stmt->setUInt32(0, m_instanceid);
+    stmt->setUInt16(1, GetMapId());
+    stmt->setUInt32(2, uint32(GetResetTimeForDB()));
+    stmt->setUInt8(3, uint8(GetDifficulty()));
+    stmt->setUInt32(4, completedEncounters);
+    stmt->setString(5, data);
+    CharacterDatabase.Execute(stmt);
 }
 
 time_t InstanceSave::GetResetTimeForDB()
