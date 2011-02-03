@@ -1863,10 +1863,11 @@ class Unit : public WorldObject
         void setTransForm(uint32 spellid) { m_transform = spellid;}
         uint32 getTransForm() const { return m_transform;}
 
+        // DynamicObject management
+        void _RegisterDynObject(DynamicObject* dynObj);
+        void _UnregisterDynObject(DynamicObject* dynObj);
         DynamicObject* GetDynObject(uint32 spellId);
-        void AddDynObject(DynamicObject* dynObj);
-        void RemoveDynObject(uint32 spellid);
-        void RemoveDynObjectWithGUID(uint64 guid) { m_dynObjGUIDs.remove(guid); }
+        void RemoveDynObject(uint32 spellId);
         void RemoveAllDynObjects();
 
         GameObject* GetGameObject(uint32 spellId) const;
@@ -2078,8 +2079,8 @@ class Unit : public WorldObject
 
         int32 m_procDeep;
 
-        typedef std::list<uint64> DynObjectGUIDs;
-        DynObjectGUIDs m_dynObjGUIDs;
+        typedef std::list<DynamicObject*> DynObjectList;
+        DynObjectList m_dynObj;
 
         typedef std::list<GameObject*> GameObjectList;
         GameObjectList m_gameObj;

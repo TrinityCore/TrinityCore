@@ -29,21 +29,27 @@ class DynamicObject : public WorldObject, public GridObject<DynamicObject>
 {
     public:
         explicit DynamicObject();
+        ~DynamicObject();
 
         void AddToWorld();
         void RemoveFromWorld();
 
         bool Create(uint32 guidlow, Unit *caster, uint32 spellId, const Position &pos, float radius, bool active);
         void Update(uint32 p_time);
-        void Delete();
+        void Remove();
         void SetDuration(int32 newDuration);
         int32 GetDuration() const;
-        void SetAura(Aura * aura) {ASSERT (!m_aura && aura); m_aura = aura;}
         void Delay(int32 delaytime);
+        void SetAura(Aura * aura);
+        void RemoveAura();
+        void SetCasterViewpoint();
+        void RemoveCasterViewpoint();
+        Unit * GetCaster() const { return m_caster; }
+        void BindToCaster();
+        void UnbindFromCaster();
         uint32 GetSpellId() const {  return GetUInt32Value(DYNAMICOBJECT_SPELLID); }
         uint64 GetCasterGUID() const { return GetUInt64Value(DYNAMICOBJECT_CASTER); }
         float GetRadius() const { return GetFloatValue(DYNAMICOBJECT_RADIUS); }
-        Unit* GetCaster() const;
 
         void Say(int32 textId, uint32 language, uint64 TargetGuid) { MonsterSay(textId,language,TargetGuid); }
         void Yell(int32 textId, uint32 language, uint64 TargetGuid) { MonsterYell(textId,language,TargetGuid); }
@@ -54,5 +60,7 @@ class DynamicObject : public WorldObject, public GridObject<DynamicObject>
     protected:
         int32 m_duration; // for non-aura dynobjects
         Aura * m_aura;
+        Unit * m_caster;
+        bool m_isViewpoint;
 };
 #endif
