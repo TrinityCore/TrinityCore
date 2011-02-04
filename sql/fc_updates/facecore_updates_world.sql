@@ -101,3 +101,10 @@ UPDATE `creature` SET DeathState = 0 WHERE id = 25841;
 
 -- Open Halls of Reflection without quest
 UPDATE `access_requirement` set `quest_done_A`=0, `quest_done_H`=0 where `mapId` = 668;
+
+-- Item - Hunter T10 Survival 2P Bonus
+DELETE FROM `spell_proc_event` WHERE `entry` = 70727;
+INSERT INTO `spell_proc_event` VALUES (70727, 0, 9, 0, 0, 0, 64, 0, 0, 5, 0); 
+-- Item - Hunter T10 Survival 4P Bonus
+DELETE FROM `spell_proc_event` WHERE `entry` = 70730;
+INSERT INTO `spell_proc_event` VALUES (70730, 0, 9, 16384, 4096, 0, 262144, 0, 0, 5, 0);  
