@@ -3725,10 +3725,6 @@ void Spell::finish(bool ok)
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
     }
 
-    if (m_caster->GetTypeId() == TYPEID_UNIT)
-        if (InstanceScript* instance = m_caster->GetInstanceScript())
-            instance->UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, m_spellInfo->Id, m_caster);
-
     // Stop Attack for some spells
     if (m_spellInfo->Attributes & SPELL_ATTR0_STOP_ATTACK_TARGET)
         m_caster->AttackStop();
