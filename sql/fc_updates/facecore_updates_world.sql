@@ -91,3 +91,10 @@ INSERT INTO `creature_template_addon` (`entry`, `mount`) VALUES ('33707', '14337
 -- prevent bagouse varlock's summon spell on battlegrounds
 DELETE FROM `disables` WHERE `sourceType`=0 and `entry` = 698;
 INSERT INTO `disables` VALUES (0, 698, (1+16+32), "489,529,529,566", "4572,4571,3417,3418,3820", "Ritual of Summoning spell on BG");
+
+-- Fizzcrank Recon Pilot
+DELETE FROM `creature_ai_scripts` WHERE creature_id = 25841;
+UPDATE `creature_template` SET IconName = 'Speak', npcflag = 1, gossip_menu_id = 0, AIName = '', ScriptName = 'npc_fizzcrank_recon_pilot', unit_flags = 0x00000000, flags_extra = 2, dynamicflags = 36  WHERE entry = 25841;
+DELETE FROM `creature_template_addon` WHERE entry = 25841;
+INSERT INTO `creature_template_addon` VALUES (25841, 0, 0, 7, 0, 65, '');
+UPDATE `creature` SET DeathState = 0 WHERE id = 25841;
