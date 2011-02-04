@@ -1215,7 +1215,7 @@ void World::LoadConfigSettings(bool reload)
 
     // Lottery
     m_bool_configs[CONFIG_LOTTERY_ENABLE]           = sConfig->GetBoolDefault("Lottery.Enable", false);
-    m_int_configs[CONFIG_LOTTERY_MAXBET]            = sConfig->GetIntDefault("Lottery.MaxBet", 30);
+    m_int_configs[CONFIG_LOTTERY_MAXNUMBER]         = sConfig->GetIntDefault("Lottery.MaxNubmer", 30);
     m_int_configs[CONFIG_LOTTERY_BETCOST]           = sConfig->GetIntDefault("Lottery.BetCost", 500000);
     m_int_configs[CONFIG_LOTTERY_MINLVL]            = sConfig->GetIntDefault("Lottery.MinUserLVL", 60);
     m_float_configs[CONFIG_LOTTERY_CASH_MULTIPLIER] = sConfig->GetFloatDefault("Lottery.CashMultiplier", 0.3f);
