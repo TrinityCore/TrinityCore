@@ -23,82 +23,83 @@ SDComment:
 SDCategory: Molten Core
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "molten_core.h"
 
-#define SPELL_IMPENDINGDOOM 19702
-#define SPELL_LUCIFRONCURSE 19703
-#define SPELL_SHADOWSHOCK   20603
+enum Spells
+{
+    SPELL_IMPENDING_DOOM    = 19702,
+    SPELL_LUCIFRON_CURSE    = 19703,
+    SPELL_SHADOW_SHOCK      = 20603,
+};
+
+enum Events
+{
+    EVENT_IMPENDING_DOOM    = 1,
+    EVENT_LUCIFRON_CURSE    = 2,
+    EVENT_SHADOW_SHOCK      = 3,
+};
 
 class boss_lucifron : public CreatureScript
 {
-public:
-    boss_lucifron() : CreatureScript("boss_lucifron") { }
+    public:
+        boss_lucifron() : CreatureScript("boss_lucifron") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new boss_lucifronAI (pCreature);
-    }
-
-    struct boss_lucifronAI : public ScriptedAI
-    {
-        boss_lucifronAI(Creature *pCreature) : ScriptedAI(pCreature)
+        struct boss_lucifronAI : public BossAI
         {
-            m_pInstance = pCreature->GetInstanceScript();
-        }
-        InstanceScript* m_pInstance;
-
-        uint32 ImpendingDoom_Timer;
-        uint32 LucifronCurse_Timer;
-        uint32 ShadowShock_Timer;
-
-        void Reset()
-        {
-            ImpendingDoom_Timer = 10000;                        //Initial cast after 10 seconds so the debuffs alternate
-            LucifronCurse_Timer = 20000;                        //Initial cast after 20 seconds
-            ShadowShock_Timer = 6000;                           //6 seconds
-        }
-
-        void JustDied(Unit* /*pKiller*/)
-        {
-            if (m_pInstance)
-                m_pInstance->SetData(DATA_LUCIFRON, 0);
-        }
-
-        void EnterCombat(Unit * /*who*/)
-        {
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            //Impending doom timer
-            if (ImpendingDoom_Timer <= diff)
+            boss_lucifronAI(Creature* creature) : BossAI(creature, BOSS_LUCIFRON)
             {
-                DoCast(me->getVictim(), SPELL_IMPENDINGDOOM);
-                ImpendingDoom_Timer = 20000;
-            } else ImpendingDoom_Timer -= diff;
+            }
 
-            //Lucifron's curse timer
-            if (LucifronCurse_Timer <= diff)
+            void EnterCombat(Unit* victim)
             {
-                DoCast(me->getVictim(), SPELL_LUCIFRONCURSE);
-                LucifronCurse_Timer = 15000;
-            } else LucifronCurse_Timer -= diff;
+                BossAI::EnterCombat(victim);
+                events.ScheduleEvent(EVENT_IMPENDING_DOOM, 10000);
+                events.ScheduleEvent(EVENT_LUCIFRON_CURSE, 20000);
+                events.ScheduleEvent(EVENT_SHADOW_SHOCK, 6000);
+            }
 
-            //Shadowshock
-            if (ShadowShock_Timer <= diff)
+            void UpdateAI(const uint32 diff)
             {
-                DoCast(me->getVictim(), SPELL_SHADOWSHOCK);
-                ShadowShock_Timer = 6000;
-            } else ShadowShock_Timer -= diff;
+                if (!UpdateVictim())
+                    return;
 
-            DoMeleeAttackIfReady();
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STAT_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_IMPENDING_DOOM:
+                            DoCastVictim(SPELL_IMPENDING_DOOM);
+                            events.ScheduleEvent(EVENT_IMPENDING_DOOM, 20000);
+                            break;
+                        case EVENT_LUCIFRON_CURSE:
+                            DoCastVictim(SPELL_LUCIFRON_CURSE);
+                            events.ScheduleEvent(EVENT_LUCIFRON_CURSE, 15000);
+                            break;
+                        case EVENT_SHADOW_SHOCK:
+                            DoCastVictim(SPELL_SHADOW_SHOCK);
+                            events.ScheduleEvent(EVENT_SHADOW_SHOCK, 6000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new boss_lucifronAI(creature);
         }
-    };
-
 };
 
 void AddSC_boss_lucifron()

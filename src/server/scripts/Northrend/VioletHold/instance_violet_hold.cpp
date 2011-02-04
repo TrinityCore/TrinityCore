@@ -315,11 +315,13 @@ public:
             switch(type)
             {
                 case DATA_1ST_BOSS_EVENT:
+                    UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, CREATURE_EREKEM, NULL);
                     m_auiEncounter[0] = data;
                     if (data == DONE)
                         SaveToDB();
                     break;
                 case DATA_2ND_BOSS_EVENT:
+                    UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, CREATURE_MORAGG, NULL);
                     m_auiEncounter[1] = data;
                     if (data == DONE)
                         SaveToDB();

@@ -102,7 +102,6 @@ public:
             { "item_enchantment_template",    SEC_ADMINISTRATOR, true,  &HandleReloadItemEnchantementsCommand,          "", NULL },
             { "item_loot_template",           SEC_ADMINISTRATOR, true,  &HandleReloadLootTemplatesItemCommand,          "", NULL },
             { "item_set_names",               SEC_ADMINISTRATOR, true,  &HandleReloadItemSetNamesCommand,               "", NULL },
-            { "lfg_dungeon_encounters",       SEC_ADMINISTRATOR, true,  &HandleReloadLfgEncountersCommand,              "", NULL },
             { "lfg_dungeon_rewards",          SEC_ADMINISTRATOR, true,  &HandleReloadLfgRewardsCommand,                 "", NULL },
             { "locales_achievement_reward",   SEC_ADMINISTRATOR, true,  &HandleReloadLocalesAchievementRewardCommand,   "", NULL },
             { "locales_creature",             SEC_ADMINISTRATOR, true,  &HandleReloadLocalesCreatureCommand,            "", NULL },
@@ -1161,14 +1160,6 @@ public:
         sLog->outString("Re-Loading Locales Achievement Reward Data...");
         sAchievementMgr->LoadRewardLocales();
         handler->SendGlobalGMSysMessage("DB table `locales_achievement_reward` reloaded.");
-        return true;
-    }
-
-    static bool HandleReloadLfgEncountersCommand(ChatHandler* handler, const char* /*args*/)
-    {
-        sLog->outString("Re-Loading dungeon encounter lfg associations...");
-        sLFGMgr->LoadDungeonEncounters();
-        handler->SendGlobalGMSysMessage("DB table `lfg_dungeon_encounters` reloaded.");
         return true;
     }
 
