@@ -85,5 +85,9 @@ INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `Spell
 UPDATE `creature_template` SET `ScriptName` = 'npc_squire_danny' WHERE `entry` = 33518;
 UPDATE `creature_template` SET `KillCredit1` = 33708 WHERE `entry` = 33707;
 UPDATE `creature_template` SET `ScriptName` = 'npc_argent_champion' WHERE `entry` = 33707;
-DELETE FROM `creature_template_addon` WHERE `entry`='33707;
+DELETE FROM `creature_template_addon` WHERE `entry` = 33707;
 INSERT INTO `creature_template_addon` (`entry`, `mount`) VALUES ('33707', '14337');
+
+--prevent bagouse varlock summon spell on battkegrounds
+DELETE FROM `disables` WHERE `sourceType`=0 and `entry` = 698;
+INSERT INTO `disables` VALUES (0, 698, (1+16+32), "489,529,529,566", "4572,4571,3417,3418,3820", "Ritual of Summoning spell on BG");
