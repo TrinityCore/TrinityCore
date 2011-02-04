@@ -267,23 +267,24 @@ bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData *data
     // get difficulty 1 mode entry
     uint32 actualEntry = Entry;
     CreatureInfo const *cinfo = normalInfo;
-    // TODO correctly implement spawnmodes for non-bg maps
-    for (uint32 diff = 0; diff < MAX_DIFFICULTY - 1; ++diff)
+    for (uint8 diff = uint8(GetMap()->GetSpawnMode()); diff > 0;)
     {
-        if (normalInfo->DifficultyEntry[diff])
+        // we already have valid Map pointer for current creature!
+        if (normalInfo->DifficultyEntry[diff - 1])
         {
-            // we already have valid Map pointer for current creature!
-            if (GetMap()->GetSpawnMode() > diff)
-            {
-                cinfo = ObjectMgr::GetCreatureTemplate(normalInfo->DifficultyEntry[diff]);
-                if (!cinfo)
-                {
-                    // maybe check such things already at startup
-                    sLog->outErrorDb("Creature::UpdateEntry creature difficulty %u entry %u does not exist.", diff + 1, actualEntry);
-                    return false;
-                }
-            }
+            cinfo = ObjectMgr::GetCreatureTemplate(normalInfo->DifficultyEntry[diff - 1]);
+            if (cinfo)
+                break;                                      // template found
+
+            // check and reported at startup, so just ignore (restore normalInfo)
+            cinfo = normalInfo;
         }
+
+        // for instances heroic to normal, other cases attempt to retrieve previous difficulty
+        if (diff >= RAID_DIFFICULTY_10MAN_HEROIC && GetMap()->IsDungeon())
+            diff -= 2;                                      // to normal raid difficulty cases
+        else
+            --diff;
     }
 
     SetEntry(Entry);                                        // normal entry always
