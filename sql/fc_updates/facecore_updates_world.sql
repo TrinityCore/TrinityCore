@@ -98,3 +98,6 @@ UPDATE `creature_template` SET IconName = 'Speak', npcflag = 1, gossip_menu_id =
 DELETE FROM `creature_template_addon` WHERE entry = 25841;
 INSERT INTO `creature_template_addon` VALUES (25841, 0, 0, 7, 0, 65, '');
 UPDATE `creature` SET DeathState = 0 WHERE id = 25841;
+
+-- Open Halls of Reflection without quest
+UPDATE `access_requirement` set `quest_done_A`=0, `quest_done_H`=0 where `mapId` = 668;
