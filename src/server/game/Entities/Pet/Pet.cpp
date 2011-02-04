@@ -280,7 +280,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
         data << uint32(GetUInt32Value(UNIT_CREATED_BY_SPELL));
         data << uint32(256); // CAST_FLAG_UNKNOWN3
         data << uint32(0);
-        owner->SendMessageToSet(&data, true);
+        SendMessageToSet(&data, true);
     }
 
     owner->SetMinion(this, true);
