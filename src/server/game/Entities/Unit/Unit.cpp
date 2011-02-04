@@ -204,11 +204,9 @@ Unit::~Unit()
         }
     }
 
-    RemoveAllGameObjects();
-    RemoveAllDynObjects();
     _DeleteRemovedAuras();
 
-    delete m_charmInfo;
+    ASSERT(!m_charmInfo);
     delete m_vehicleKit;
 
     ASSERT(!m_duringRemoveFromWorld);
@@ -219,6 +217,8 @@ Unit::~Unit()
     ASSERT(m_appliedAuras.empty());
     ASSERT(m_ownedAuras.empty());
     ASSERT(m_removedAuras.empty());
+    ASSERT(m_gameObj.empty());
+    ASSERT(m_dynObj.empty());
 }
 
 void Unit::Update(uint32 p_time)
@@ -13345,6 +13345,7 @@ void Unit::CleanupsBeforeDelete(bool finalCleanup)
     //A unit may be in removelist and not in world, but it is still in grid
     //and may have some references during delete
     RemoveAllAuras();
+    RemoveAllGameObjects();
 
     if (finalCleanup)
         m_cleanupDone = true;
@@ -13359,6 +13360,8 @@ void Unit::CleanupsBeforeDelete(bool finalCleanup)
     if (Creature* thisCreature = ToCreature())
         if (GetTransport())
             GetTransport()->RemovePassenger(thisCreature);
+
+    DeleteCharmInfo();
 }
 
 void Unit::UpdateCharmAI()
@@ -13417,7 +13420,6 @@ CharmInfo::CharmInfo(Unit* unit)
         m_oldReactState = m_unit->ToCreature()->GetReactState();
         m_unit->ToCreature()->SetReactState(REACT_PASSIVE);
     }
-
 }
 
 CharmInfo::~CharmInfo()
