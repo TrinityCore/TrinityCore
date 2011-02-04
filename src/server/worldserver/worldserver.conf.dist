@@ -2799,11 +2799,11 @@ Lottery.Enable = 0
 
 Lottery.BetCost = 500000
 
-#     Lottery.MaxBet
+#     Lottery.MaxNumber
 #        Description: Max lottery bet number.
 #        Default:     30
 
-Lottery.MaxBet = 30
+Lottery.MaxNumber = 30
 
 #     Lottery.CashMultiplier
 #        Description: Lottery cash multiplier.
