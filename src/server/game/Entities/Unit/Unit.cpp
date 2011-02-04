@@ -206,7 +206,7 @@ Unit::~Unit()
 
     _DeleteRemovedAuras();
 
-    ASSERT(!m_charmInfo);
+    delete m_charmInfo;
     delete m_vehicleKit;
 
     ASSERT(!m_duringRemoveFromWorld);
@@ -13360,8 +13360,6 @@ void Unit::CleanupsBeforeDelete(bool finalCleanup)
     if (Creature* thisCreature = ToCreature())
         if (GetTransport())
             GetTransport()->RemovePassenger(thisCreature);
-
-    DeleteCharmInfo();
 }
 
 void Unit::UpdateCharmAI()
@@ -13404,6 +13402,7 @@ void Unit::DeleteCharmInfo()
     if (!m_charmInfo)
         return;
 
+    m_charmInfo->RestoreState();
     delete m_charmInfo;
     m_charmInfo = NULL;
 }
@@ -13423,6 +13422,10 @@ CharmInfo::CharmInfo(Unit* unit)
 }
 
 CharmInfo::~CharmInfo()
+{
+}
+
+void CharmInfo::RestoreState()
 {
     if (m_unit->GetTypeId() == TYPEID_UNIT)
         if (Creature *pCreature = m_unit->ToCreature())
