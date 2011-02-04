@@ -1027,6 +1027,7 @@ struct CharmInfo
     public:
         explicit CharmInfo(Unit* unit);
         ~CharmInfo();
+        void RestoreState();
         uint32 GetPetNumber() const { return m_petnumber; }
         void SetPetNumber(uint32 petnumber, bool statwindow);
 
