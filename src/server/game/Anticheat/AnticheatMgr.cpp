@@ -169,6 +169,9 @@ void AnticheatMgr::StartHackDetection(Player* player, MovementInfo movementInfo,
 
 void AnticheatMgr::SpeedHackDetection(Player* player,MovementInfo movementInfo)
 {
+    if (player->anticheatData.lastMovementInfo.HasMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+        return;
+
     uint32 distance2D = (uint32)movementInfo.pos.GetExactDist2d(&player->anticheatData.lastMovementInfo.pos);
     uint8 moveType = 0;
 
