@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS `lfg_dungeon_encounters';
+DROP TABLE IF EXISTS `lfg_dungeon_encounters`;
