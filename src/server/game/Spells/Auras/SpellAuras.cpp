@@ -337,8 +337,6 @@ m_owner(owner), m_timeCla(0), m_updateTargetMapInterval(0),
 m_casterLevel(caster ? caster->getLevel() : m_spellProto->spellLevel), m_procCharges(0), m_stackAmount(1),
 m_isRemoved(false), m_isSingleTarget(false)
 {
-    LoadScripts();
-
     if (m_spellProto->manaPerSecond || m_spellProto->manaPerSecondPerLevel)
         m_timeCla = 1 * IN_MILLISECONDS;
 
@@ -363,7 +361,11 @@ m_isRemoved(false), m_isSingleTarget(false)
     m_procCharges = m_spellProto->procCharges;
     if (modOwner)
         modOwner->ApplySpellMod(GetId(), SPELLMOD_CHARGES, m_procCharges);
+}
 
+void Aura::_InitEffects(uint8 effMask, Unit * caster, int32 *baseAmount)
+{
+    // shouldn't be in constructor - functions in AuraEffect::AuraEffect use polymorphism
     for (uint8 i=0 ; i<MAX_SPELL_EFFECTS; ++i)
     {
         if (effMask & (uint8(1) << i))
@@ -1846,6 +1848,8 @@ UnitAura::UnitAura(SpellEntry const* spellproto, uint8 effMask, WorldObject * ow
     : Aura(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID)
 {
     m_AuraDRGroup = DIMINISHING_NONE;
+    LoadScripts();
+    _InitEffects(effMask, caster, baseAmount);
     GetUnitOwner()->_AddAura(this, caster);
 };
 
@@ -1955,9 +1959,11 @@ void UnitAura::FillTargetMap(std::map<Unit *, uint8> & targets, Unit * caster)
 DynObjAura::DynObjAura(SpellEntry const* spellproto, uint8 effMask, WorldObject * owner, Unit * caster, int32 *baseAmount, Item * castItem, uint64 casterGUID)
     : Aura(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID)
 {
+    LoadScripts();
     ASSERT(GetDynobjOwner());
     ASSERT(GetDynobjOwner()->IsInWorld());
     ASSERT(GetDynobjOwner()->GetMap() == caster->GetMap());
+    _InitEffects(effMask, caster, baseAmount);
     GetDynobjOwner()->SetAura(this);
 }
 
