@@ -2805,12 +2805,6 @@ Lottery.BetCost = 500000
 
 Lottery.MaxNumber = 30
 
-#     Lottery.CashMultiplier
-#        Description: Lottery cash multiplier.
-#        Default:     0.3
-
-Lottery.CashMultiplier = 0.3
-
 #     Lottery.MinUserLVL
 #        Description: Players with lower level can't take part in lottery.
 #        Default:     60

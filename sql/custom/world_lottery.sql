@@ -6,7 +6,7 @@ CREATE TABLE `lottery_winners` (
   `bet` longtext NOT NULL,
   `betPoints` int(10) unsigned NOT NULL DEFAULT '0',
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `lottery_bets`;
 CREATE TABLE `lottery_bets` (
@@ -26,9 +26,10 @@ CREATE TABLE `lottery` (
   `number_3` int(10) unsigned NOT NULL DEFAULT '0',
   `number_4` int(10) unsigned NOT NULL DEFAULT '0',
   `number_5` int(10) unsigned NOT NULL DEFAULT '0',
+  `jackpot` int(10) unsigned NOT NULL DEFAULT '0',
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 DELETE FROM game_event WHERE entry = 132;
 INSERT INTO game_event VALUES 
