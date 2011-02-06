@@ -514,7 +514,20 @@ void Aura::UpdateTargetMap(Unit * caster, bool apply)
     for (std::map<Unit *, uint8>::iterator itr = targets.begin(); itr!= targets.end();)
     {
         // aura mustn't be already applied on target
-        ASSERT (!IsAppliedOnTarget(itr->first->GetGUID()) && "Aura::UpdateTargetMap: aura musn't be applied on target");
+        if (IsAppliedOnTarget(itr->first->GetGUID()))
+        {
+            AuraApplication * aurApp = GetApplicationOfTarget(itr->first->GetGUID());
+            // check if we have valid pointer
+            ASSERT(aurApp->GetTarget());
+            // check if we really have same guid
+            ASSERT(aurApp->GetTarget()->GetGUID() == itr->first->GetGUID());
+            // check if we really have base aura
+            ASSERT(aurApp->GetBase() == this);
+            // check if core created 2 units with same guid
+            ASSERT(aurApp->GetTarget() == itr->first);
+            // ok, we have same unit twice in map, how?
+            ASSERT(false);
+        }
 
         bool addUnit = true;
         // check target immunities
