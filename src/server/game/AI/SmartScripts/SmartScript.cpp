@@ -1233,7 +1233,16 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                 if (!targets) return;
                 for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); itr++)
                     if (IsUnit((*itr)))
-                        (*itr)->ToUnit()->SetByteFlag(UNIT_FIELD_BYTES_1, 3, e.action.unitByte.byte);
+                        (*itr)->ToUnit()->SetByteFlag(UNIT_FIELD_BYTES_1, 3, e.action.setunitByte.byte1);
+                break;
+            }
+        case SMART_ACTION_REMOVE_UNIT_FIELD_BYTES_1:
+            {
+                ObjectList* targets = GetTargets(e, unit);
+                if (!targets) return;
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); itr++)
+                    if (IsUnit((*itr)))
+                        (*itr)->ToUnit()->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, e.action.delunitByte.byte1);
                 break;
             }
         default:
