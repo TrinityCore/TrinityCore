@@ -580,13 +580,13 @@ enum TrinityStrings
     LANG_CHANGE_32BIT                   = 575,              //log
     LANG_CHANGE_32BIT_FIELD             = 576,
 
-    LANG_INVISIBLE_INVISIBLE              = 577,
-    LANG_INVISIBLE_VISIBLE                = 578,
-    LANG_SELECTED_TARGET_NOT_HAVE_VICTIM  = 579,
+    LANG_INVISIBLE_INVISIBLE                    = 577,
+    LANG_INVISIBLE_VISIBLE                      = 578,
+    LANG_SELECTED_TARGET_NOT_HAVE_VICTIM        = 579,
 
-    LANG_COMMAND_LEARN_ALL_DEFAULT_AND_QUEST = 580,
-    LANG_COMMAND_NEAROBJMESSAGE         = 581,
-    LANG_COMMAND_RAWPAWNTIMES           = 582,
+    LANG_COMMAND_LEARN_ALL_DEFAULT_AND_QUEST    = 580,
+    LANG_COMMAND_NEAROBJMESSAGE                 = 581,
+    LANG_COMMAND_RAWPAWNTIMES                   = 582,
 
     LANG_EVENT_ENTRY_LIST_CHAT          = 583,
     LANG_NOEVENTFOUND                   = 584,
@@ -706,13 +706,13 @@ enum TrinityStrings
     LANG_ARENA_NOT_ENOUGH_PLAYERS       = 723,              // "Your group does not have enough players to join this match."
     LANG_ARENA_GOLD_WINS                = 724,              // "The Gold Team wins!"
     LANG_ARENA_GREEN_WINS               = 725,              // "The Green Team wins!"
-//                                      = 726, not used
-    LANG_BG_GROUP_OFFLINE_MEMBER        = 727,              // "Your group has an offline member. Please remove him before joining."
-    LANG_BG_GROUP_MIXED_FACTION         = 728,              // "Your group has players from the opposing faction. You can't join the battleground as a group."
-    LANG_BG_GROUP_MIXED_LEVELS          = 729,              // "Your group has players from different battleground brakets. You can't join as group."
-    LANG_BG_GROUP_MEMBER_ALREADY_IN_QUEUE = 730,            // "Someone in your party is already in this battleground queue. (S)he must leave it before joining as group."
-    LANG_BG_GROUP_MEMBER_DESERTER       = 731,              // "Someone in your party is Deserter. You can't join as group."
-    LANG_BG_GROUP_MEMBER_NO_FREE_QUEUE_SLOTS = 732,         // "Someone in your party is already in three battleground queues. You cannot join as group."
+//                                              = 726, not used
+    LANG_BG_GROUP_OFFLINE_MEMBER                = 727,      // "Your group has an offline member. Please remove him before joining."
+    LANG_BG_GROUP_MIXED_FACTION                 = 728,      // "Your group has players from the opposing faction. You can't join the battleground as a group."
+    LANG_BG_GROUP_MIXED_LEVELS                  = 729,      // "Your group has players from different battleground brakets. You can't join as group."
+    LANG_BG_GROUP_MEMBER_ALREADY_IN_QUEUE       = 730,      // "Someone in your party is already in this battleground queue. (S)he must leave it before joining as group."
+    LANG_BG_GROUP_MEMBER_DESERTER               = 731,      // "Someone in your party is Deserter. You can't join as group."
+    LANG_BG_GROUP_MEMBER_NO_FREE_QUEUE_SLOTS    = 732,      // "Someone in your party is already in three battleground queues. You cannot join as group."
 
     LANG_CANNOT_TELE_TO_BG              = 733,              // "You cannot teleport to a battleground or arena map."
     LANG_CANNOT_SUMMON_TO_BG            = 734,              // "You cannot summon players to a battleground or arena map."
@@ -785,42 +785,42 @@ enum TrinityStrings
     LANG_GUILD_INITIATE                 = 815,
     LANG_ZONE_NOFLYZONE                 = 816,
 
-    LANG_COMMAND_CREATURETEMPLATE_NOTFOUND = 817,
-    LANG_COMMAND_CREATURESTORAGE_NOTFOUND  = 818,
+    LANG_COMMAND_CREATURETEMPLATE_NOTFOUND  = 817,
+    LANG_COMMAND_CREATURESTORAGE_NOTFOUND   = 818,
 
-    LANG_CHANNEL_CITY                   = 819,
+    LANG_CHANNEL_CITY                       = 819,
     // Room for in-game strings           820-999 not used
 
     // Level 4 (CLI only commands)
-    LANG_COMMAND_EXIT                   = 1000,
-    LANG_ACCOUNT_DELETED                = 1001,
-    LANG_ACCOUNT_NOT_DELETED_SQL_ERROR  = 1002,
-    LANG_ACCOUNT_NOT_DELETED            = 1003,
-    LANG_ACCOUNT_CREATED                = 1004,
-    LANG_ACCOUNT_TOO_LONG               = 1005,
-    LANG_ACCOUNT_ALREADY_EXIST          = 1006,
-    LANG_ACCOUNT_NOT_CREATED_SQL_ERROR  = 1007,
-    LANG_ACCOUNT_NOT_CREATED            = 1008,
-    LANG_CHARACTER_DELETED              = 1009,
-    LANG_ACCOUNT_LIST_HEADER            = 1010,
-    LANG_ACCOUNT_LIST_ERROR             = 1011,
-    LANG_ACCOUNT_LIST_BAR               = 1012,
-    LANG_ACCOUNT_LIST_LINE              = 1013,
-    LANG_ACCOUNT_LIST_EMPTY             = 1014,
-    LANG_ACCOUNT_LIST_BAR_HEADER        = 1015,
-    LANG_CHARACTER_DELETED_LIST_HEADER  = 1016,
-    LANG_CHARACTER_DELETED_LIST_LINE_CONSOLE = 1017,
-    LANG_CHARACTER_DELETED_LIST_BAR     = 1018,
-    LANG_CHARACTER_DELETED_LIST_EMPTY   = 1019,
-    LANG_CHARACTER_DELETED_RESTORE      = 1020,
-    LANG_CHARACTER_DELETED_DELETE       = 1021,
-    LANG_CHARACTER_DELETED_ERR_RENAME   = 1022,
-    LANG_CHARACTER_DELETED_SKIP_ACCOUNT = 1023,
-    LANG_CHARACTER_DELETED_SKIP_FULL    = 1024,
-    LANG_CHARACTER_DELETED_SKIP_NAME    = 1025,
-    LANG_CHARACTER_DELETED_LIST_LINE_CHAT = 1026,
-    LANG_SQLDRIVER_QUERY_LOGGING_ENABLED  = 1027,
-    LANG_SQLDRIVER_QUERY_LOGGING_DISABLED = 1028,
+    LANG_COMMAND_EXIT                           = 1000,
+    LANG_ACCOUNT_DELETED                        = 1001,
+    LANG_ACCOUNT_NOT_DELETED_SQL_ERROR          = 1002,
+    LANG_ACCOUNT_NOT_DELETED                    = 1003,
+    LANG_ACCOUNT_CREATED                        = 1004,
+    LANG_ACCOUNT_TOO_LONG                       = 1005,
+    LANG_ACCOUNT_ALREADY_EXIST                  = 1006,
+    LANG_ACCOUNT_NOT_CREATED_SQL_ERROR          = 1007,
+    LANG_ACCOUNT_NOT_CREATED                    = 1008,
+    LANG_CHARACTER_DELETED                      = 1009,
+    LANG_ACCOUNT_LIST_HEADER                    = 1010,
+    LANG_ACCOUNT_LIST_ERROR                     = 1011,
+    LANG_ACCOUNT_LIST_BAR                       = 1012,
+    LANG_ACCOUNT_LIST_LINE                      = 1013,
+    LANG_ACCOUNT_LIST_EMPTY                     = 1014,
+    LANG_ACCOUNT_LIST_BAR_HEADER                = 1015,
+    LANG_CHARACTER_DELETED_LIST_HEADER          = 1016,
+    LANG_CHARACTER_DELETED_LIST_LINE_CONSOLE    = 1017,
+    LANG_CHARACTER_DELETED_LIST_BAR             = 1018,
+    LANG_CHARACTER_DELETED_LIST_EMPTY           = 1019,
+    LANG_CHARACTER_DELETED_RESTORE              = 1020,
+    LANG_CHARACTER_DELETED_DELETE               = 1021,
+    LANG_CHARACTER_DELETED_ERR_RENAME           = 1022,
+    LANG_CHARACTER_DELETED_SKIP_ACCOUNT         = 1023,
+    LANG_CHARACTER_DELETED_SKIP_FULL            = 1024,
+    LANG_CHARACTER_DELETED_SKIP_NAME            = 1025,
+    LANG_CHARACTER_DELETED_LIST_LINE_CHAT       = 1026,
+    LANG_SQLDRIVER_QUERY_LOGGING_ENABLED        = 1027,
+    LANG_SQLDRIVER_QUERY_LOGGING_DISABLED       = 1028,
     // Room for more level 4              1029-1099 not used
 
     // Level 3 (continue)
@@ -1000,91 +1000,91 @@ enum TrinityStrings
     // Room for more Trinity strings      5030-9999
 
     // Level requirement notifications
-    LANG_SAY_REQ                        = 6604,
-    LANG_WHISPER_REQ                    = 6605,
-    LANG_CHANNEL_REQ                    = 6606,
-    LANG_AUCTION_REQ                    = 6607,
-    LANG_TICKET_REQ                     = 6608,
-    LANG_TRADE_REQ                      = 6609,
-    LANG_TRADE_OTHER_REQ                = 6610,
-    LANG_MAIL_SENDER_REQ                = 6611,
-    LANG_MAIL_RECEIVER_REQ              = 6612,
+    LANG_SAY_REQ                            = 6604,
+    LANG_WHISPER_REQ                        = 6605,
+    LANG_CHANNEL_REQ                        = 6606,
+    LANG_AUCTION_REQ                        = 6607,
+    LANG_TICKET_REQ                         = 6608,
+    LANG_TRADE_REQ                          = 6609,
+    LANG_TRADE_OTHER_REQ                    = 6610,
+    LANG_MAIL_SENDER_REQ                    = 6611,
+    LANG_MAIL_RECEIVER_REQ                  = 6612,
 
 
     // Used for GM Announcements
-    LANG_GM_BROADCAST                    = 6613,
-    LANG_GM_NOTIFY                       = 6614,
-    LANG_GM_ANNOUNCE_COLOR               = 6615,
+    LANG_GM_BROADCAST                       = 6613,
+    LANG_GM_NOTIFY                          = 6614,
+    LANG_GM_ANNOUNCE_COLOR                  = 6615,
 
-    LANG_GM_SILENCE                      = 6616,              // "Silence is ON for %s" - Spell 1852
+    LANG_GM_SILENCE                         = 6616,              // "Silence is ON for %s" - Spell 1852
 
-    LANG_WORLD_CLOSED                    = 7523,
-    LANG_WORLD_OPENED                    = 7524,
+    LANG_WORLD_CLOSED                       = 7523,
+    LANG_WORLD_OPENED                       = 7524,
 
     // Use for not-in-offcial-sources patches
     //                                    10000-10999
     // opvp hp
-    LANG_OPVP_HP_CAPTURE_OVERLOOK_H     = 10001,
-    LANG_OPVP_HP_CAPTURE_OVERLOOK_A     = 10002,
-    LANG_OPVP_HP_CAPTURE_STADIUM_H      = 10003,
-    LANG_OPVP_HP_CAPTURE_STADIUM_A      = 10004,
-    LANG_OPVP_HP_CAPTURE_BROKENHILL_H   = 10005,
-    LANG_OPVP_HP_CAPTURE_BROKENHILL_A   = 10006,
-    LANG_OPVP_HP_LOSE_OVERLOOK_H       = 10007,
-    LANG_OPVP_HP_LOSE_OVERLOOK_A       = 10008,
-    LANG_OPVP_HP_LOSE_STADIUM_H        = 10009,
-    LANG_OPVP_HP_LOSE_STADIUM_A        = 10010,
-    LANG_OPVP_HP_LOSE_BROKENHILL_H     = 10011,
-    LANG_OPVP_HP_LOSE_BROKENHILL_A     = 10012,
+    LANG_OPVP_HP_CAPTURE_OVERLOOK_H         = 10001,
+    LANG_OPVP_HP_CAPTURE_OVERLOOK_A         = 10002,
+    LANG_OPVP_HP_CAPTURE_STADIUM_H          = 10003,
+    LANG_OPVP_HP_CAPTURE_STADIUM_A          = 10004,
+    LANG_OPVP_HP_CAPTURE_BROKENHILL_H       = 10005,
+    LANG_OPVP_HP_CAPTURE_BROKENHILL_A       = 10006,
+    LANG_OPVP_HP_LOSE_OVERLOOK_H            = 10007,
+    LANG_OPVP_HP_LOSE_OVERLOOK_A            = 10008,
+    LANG_OPVP_HP_LOSE_STADIUM_H             = 10009,
+    LANG_OPVP_HP_LOSE_STADIUM_A             = 10010,
+    LANG_OPVP_HP_LOSE_BROKENHILL_H          = 10011,
+    LANG_OPVP_HP_LOSE_BROKENHILL_A          = 10012,
     // opvp zm
-    LANG_OPVP_ZM_CAPTURE_WEST_H         = 10013,
-    LANG_OPVP_ZM_CAPTURE_WEST_A         = 10014,
-    LANG_OPVP_ZM_CAPTURE_EAST_H         = 10015,
-    LANG_OPVP_ZM_CAPTURE_EAST_A         = 10016,
-    LANG_OPVP_ZM_CAPTURE_GY_H           = 10017,
-    LANG_OPVP_ZM_CAPTURE_GY_A           = 10018,
-    LANG_OPVP_ZM_LOSE_WEST_H           = 10019,
-    LANG_OPVP_ZM_LOSE_WEST_A           = 10020,
-    LANG_OPVP_ZM_LOSE_EAST_H           = 10021,
-    LANG_OPVP_ZM_LOSE_EAST_A           = 10022,
-    LANG_OPVP_ZM_LOSE_GY_H             = 10023,
-    LANG_OPVP_ZM_LOSE_GY_A             = 10024,
+    LANG_OPVP_ZM_CAPTURE_WEST_H             = 10013,
+    LANG_OPVP_ZM_CAPTURE_WEST_A             = 10014,
+    LANG_OPVP_ZM_CAPTURE_EAST_H             = 10015,
+    LANG_OPVP_ZM_CAPTURE_EAST_A             = 10016,
+    LANG_OPVP_ZM_CAPTURE_GY_H               = 10017,
+    LANG_OPVP_ZM_CAPTURE_GY_A               = 10018,
+    LANG_OPVP_ZM_LOSE_WEST_H                = 10019,
+    LANG_OPVP_ZM_LOSE_WEST_A                = 10020,
+    LANG_OPVP_ZM_LOSE_EAST_H                = 10021,
+    LANG_OPVP_ZM_LOSE_EAST_A                = 10022,
+    LANG_OPVP_ZM_LOSE_GY_H                  = 10023,
+    LANG_OPVP_ZM_LOSE_GY_A                  = 10024,
     // opvp na
-    LANG_OPVP_NA_CAPTURE_H              = 10025,
-    LANG_OPVP_NA_CAPTURE_A              = 10026,
-    LANG_OPVP_NA_LOSE_H                = 10027,
-    LANG_OPVP_NA_LOSE_A                = 10028,
+    LANG_OPVP_NA_CAPTURE_H                  = 10025,
+    LANG_OPVP_NA_CAPTURE_A                  = 10026,
+    LANG_OPVP_NA_LOSE_H                     = 10027,
+    LANG_OPVP_NA_LOSE_A                     = 10028,
     // opvp tf
-    LANG_OPVP_TF_CAPTURE_H              = 10029,
-    LANG_OPVP_TF_CAPTURE_A              = 10030,
-    LANG_OPVP_TF_LOSE_H                = 10031,
-    LANG_OPVP_TF_LOSE_A                = 10032,
+    LANG_OPVP_TF_CAPTURE_H                  = 10029,
+    LANG_OPVP_TF_CAPTURE_A                  = 10030,
+    LANG_OPVP_TF_LOSE_H                     = 10031,
+    LANG_OPVP_TF_LOSE_A                     = 10032,
     // opvp ep
-    LANG_OPVP_EP_CAPTURE_NPT_H          = 10033,
-    LANG_OPVP_EP_CAPTURE_NPT_A          = 10034,
-    LANG_OPVP_EP_CAPTURE_EWT_H          = 10035,
-    LANG_OPVP_EP_CAPTURE_EWT_A          = 10036,
-    LANG_OPVP_EP_CAPTURE_CGT_H          = 10037,
-    LANG_OPVP_EP_CAPTURE_CGT_A          = 10038,
-    LANG_OPVP_EP_CAPTURE_PWT_H          = 10039,
-    LANG_OPVP_EP_CAPTURE_PWT_A          = 10040,
-    LANG_OPVP_EP_LOSE_NPT_H            = 10041,
-    LANG_OPVP_EP_LOSE_NPT_A            = 10042,
-    LANG_OPVP_EP_LOSE_EWT_H            = 10043,
-    LANG_OPVP_EP_LOSE_EWT_A            = 10044,
-    LANG_OPVP_EP_LOSE_CGT_H            = 10045,
-    LANG_OPVP_EP_LOSE_CGT_A            = 10046,
-    LANG_OPVP_EP_LOSE_PWT_H            = 10047,
-    LANG_OPVP_EP_LOSE_PWT_A            = 10048,
+    LANG_OPVP_EP_CAPTURE_NPT_H              = 10033,
+    LANG_OPVP_EP_CAPTURE_NPT_A              = 10034,
+    LANG_OPVP_EP_CAPTURE_EWT_H              = 10035,
+    LANG_OPVP_EP_CAPTURE_EWT_A              = 10036,
+    LANG_OPVP_EP_CAPTURE_CGT_H              = 10037,
+    LANG_OPVP_EP_CAPTURE_CGT_A              = 10038,
+    LANG_OPVP_EP_CAPTURE_PWT_H              = 10039,
+    LANG_OPVP_EP_CAPTURE_PWT_A              = 10040,
+    LANG_OPVP_EP_LOSE_NPT_H                 = 10041,
+    LANG_OPVP_EP_LOSE_NPT_A                 = 10042,
+    LANG_OPVP_EP_LOSE_EWT_H                 = 10043,
+    LANG_OPVP_EP_LOSE_EWT_A                 = 10044,
+    LANG_OPVP_EP_LOSE_CGT_H                 = 10045,
+    LANG_OPVP_EP_LOSE_CGT_A                 = 10046,
+    LANG_OPVP_EP_LOSE_PWT_H                 = 10047,
+    LANG_OPVP_EP_LOSE_PWT_A                 = 10048,
     // opvp si
-    LANG_OPVP_SI_CAPTURE_H              = 10049,
-    LANG_OPVP_SI_CAPTURE_A              = 10050,
+    LANG_OPVP_SI_CAPTURE_H                  = 10049,
+    LANG_OPVP_SI_CAPTURE_A                  = 10050,
     // opvp gossips
-    LANG_OPVP_EP_FLIGHT_NPT             = 10051,
-    LANG_OPVP_EP_FLIGHT_EWT             = 10052,
-    LANG_OPVP_EP_FLIGHT_CGT             = 10053,
-    LANG_OPVP_ZM_GOSSIP_ALLIANCE        = 10054,
-    LANG_OPVP_ZM_GOSSIP_HORDE           = 10055,
+    LANG_OPVP_EP_FLIGHT_NPT                 = 10051,
+    LANG_OPVP_EP_FLIGHT_EWT                 = 10052,
+    LANG_OPVP_EP_FLIGHT_CGT                 = 10053,
+    LANG_OPVP_ZM_GOSSIP_ALLIANCE            = 10054,
+    LANG_OPVP_ZM_GOSSIP_HORDE               = 10055,
 
     LANG_BG_SA_START_TWO_MINUTES            = 10056,
     LANG_BG_SA_START_ONE_MINUTE             = 10057,
@@ -1105,13 +1105,15 @@ enum TrinityStrings
     LANG_BG_SA_H_GY_WEST                    = 10072,//The Horde captured the West Graveyard!
     LANG_BG_SA_H_GY_EAST                    = 10073,//The Horde captured the East Graveyard!
 
-    // Use for custom patches             11000-11999
-    LANG_AUTO_BROADCAST                 = 11000,
-    LANG_INVALID_REALMID                = 11001,
-    LANG_BAN_WORLD_ANNOUNCE             = 11002,
-    LANG_PERMBAN_WORLD_ANNOUNCE         = 11003,
-    LANG_PARTYINFO_PLAYER               = 11004,
-    LANG_LOTTERY_MSG                    = 11005,
+    // Use for custom patches               11000-11999
+    LANG_AUTO_BROADCAST                     = 11000,
+    LANG_INVALID_REALMID                    = 11001,
+    LANG_BAN_WORLD_ANNOUNCE                 = 11002,
+    LANG_PERMBAN_WORLD_ANNOUNCE             = 11003,
+    LANG_PARTYINFO_PLAYER                   = 11004,
+    LANG_LOTTERY_ANNOUNCE                   = 11005,
+    LANG_LOTTERY_ANNOUNCE_JACKPOT           = 11006,
+    LANG_LOTTERY_ANNOUNCE_JACKPOT_M_PLAYERS = 11007,
 
     // NOT RESERVED IDS                   12000-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)

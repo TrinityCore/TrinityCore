@@ -10,14 +10,22 @@ public:
 
     bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
-        if (pPlayer && !pPlayer->isGameMaster() && sConfig->GetBoolDefault("Lottery.Enable", false) && pPlayer->getLevel() >= sConfig->GetIntDefault("Lottery.MinUserLVL", 60) && pPlayer->GetMoney() >= sConfig->GetIntDefault("Lottery.BetCost", 500000))
+        if (pPlayer && !pPlayer->isGameMaster() && sConfig->GetBoolDefault("Lottery.Enable", false))
         {
-            std::string wh = ("Здравствуй, незнакомец. Хочешь испытать удачу? О да, по глазам вижу чо хочешь. Всё очень просто: назови мне 5 чисел в диапазоне от 1 до " + 
-                                std::string(sConfig->GetStringDefault("Lottery.MaxNubmer", "30")) + " (разделяя пробелами), заплати стоимость ставки и дождись розыгрыша. Всё очень просто.");
-            pCreature->MonsterWhisper(wh.c_str(), pPlayer->GetGUID());
-            pPlayer->PrepareGossipMenu(pCreature);
-            pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_BUY_TICKET, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF, "", 0, true);
-            pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+            if (pPlayer->getLevel() >= uint32(sConfig->GetIntDefault("Lottery.MinUserLVL", 60)) && pPlayer->GetMoney() >= uint32(sConfig->GetIntDefault("Lottery.BetCost", 500000)))
+            {
+                std::string wh = ("Здравствуй, незнакомец. Хочешь испытать удачу? О да, по глазам вижу чо хочешь. Всё очень просто: назови мне 5 чисел в диапазоне от 1 до " + 
+                                    std::string(sConfig->GetStringDefault("Lottery.MaxNubmer", "30")) + " (разделяя пробелами), заплати стоимость ставки и дождись розыгрыша. Всё очень просто.");
+                pCreature->MonsterWhisper(wh.c_str(), pPlayer->GetGUID());
+                pPlayer->PrepareGossipMenu(pCreature);
+                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_BUY_TICKET, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF, "", 0, true);
+                pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+            }
+            else
+            {
+                std::string wh = ("У вас недостаточно денег (требуется " + std::string(sConfig->GetStringDefault("Lottery.BetCost", "500000"))+ "ед. меди) или ваш уровень недостаточно велик (требуется " + std::string(sConfig->GetStringDefault("Lottery.MinUserLVL", "60")) + ").");
+                pCreature->MonsterWhisper(wh.c_str(), pPlayer->GetGUID());
+            }
         }
         return true;
     }
@@ -115,7 +123,7 @@ public:
                     {
                         for (int8 n = 0; n < 5; ++n)
                         {
-                            luckyNumber[n] = urand(1, sConfig->GetIntDefault("Lottery.MaxNumber", 30));
+                            luckyNumber[n] = n+1;//urand(1, sConfig->GetIntDefault("Lottery.MaxNumber", 30));
                         }
 
                         do
@@ -193,6 +201,7 @@ public:
                             WorldDatabase.PExecute("INSERT INTO lottery_winners (id, name, guid, bet, betPoints) VALUES ('%u', '%s', '%u', '%s', '%u')", lotteryID+1, name.c_str(), guid, rBet.c_str(), points);
                         } while (qBets->NextRow());
                         uint64 jackpot;
+                        uint64 rJackpot;
                         uint64 defJackpot = uint64(betMaxID * sConfig->GetIntDefault("Lottery.BetCost", 500000) * 0.7f);
                         QueryResult qJackpot  = WorldDatabase.PQuery("SELECT jackpot FROM lottery WHERE id = '%u'", lotteryID);
                         if (qJackpot)
@@ -200,9 +209,15 @@ public:
                         else
                             jackpot = 0;
 
+                        rJackpot = jackpot;
+
                         if (jackpotWinners > 0)
                         {
                             QueryResult qJackpotWinners = WorldDatabase.PQuery("SELECT guid FROM lottery_winners WHERE betPoints = '5' and id = '%u'", lotteryID+1);
+                            QueryResult qJackpotWinnersName;
+                            if (jackpotWinners == 1)
+                                qJackpotWinnersName = WorldDatabase.PQuery("SELECT name FROM lottery_winners WHERE betPoints = '5' and id = '%u'", lotteryID+1);
+
                             if (qJackpotWinners)
                             {
                                 jackpot = uint64(jackpot / jackpotWinners);
@@ -219,10 +234,20 @@ public:
                                     CharacterDatabase.CommitTransaction(trans);
                                 } while (qJackpotWinners->NextRow());
                             }
+
+                            if (jackpotWinners == 1 && qJackpotWinnersName)
+                            {
+                                std::string wName = qJackpotWinnersName->Fetch()->GetString();
+                                sWorld->SendWorldText(LANG_LOTTERY_ANNOUNCE_JACKPOT, betMaxID, luckyNumber[0], luckyNumber[1], luckyNumber[2], luckyNumber[3], luckyNumber[4], ((jackpot = 0 ? uint64(betMaxID * sConfig->GetIntDefault("Lottery.BetCost", 500000) * 0.7f) : rJackpot) * 0.0001f), wName.c_str());
+                            }
+                            else
+                                sWorld->SendWorldText(LANG_LOTTERY_ANNOUNCE_JACKPOT_M_PLAYERS, betMaxID, luckyNumber[0], luckyNumber[1], luckyNumber[2], luckyNumber[3], luckyNumber[4], ((jackpot = 0 ? uint64(betMaxID * sConfig->GetIntDefault("Lottery.BetCost", 500000) * 0.7f) : rJackpot) * 0.0001f), jackpotWinners);
+
                             WorldDatabase.PExecute("INSERT INTO lottery (number_1, number_2, number_3, number_4, number_5, jackpot) VALUES ('%u', '%u', '%u', '%u', '%u', '%u')", luckyNumber[0], luckyNumber[1], luckyNumber[2], luckyNumber[3], luckyNumber[4], defJackpot);
                         }
                         else
                         {
+                            sWorld->SendWorldText(LANG_LOTTERY_ANNOUNCE, betMaxID, luckyNumber[0], luckyNumber[1], luckyNumber[2], luckyNumber[3], luckyNumber[4], ((jackpot + defJackpot) * 0.0001f));
                             WorldDatabase.PExecute("INSERT INTO lottery (number_1, number_2, number_3, number_4, number_5, jackpot) VALUES ('%u', '%u', '%u', '%u', '%u', '%u')", luckyNumber[0], luckyNumber[1], luckyNumber[2], luckyNumber[3], luckyNumber[4], (jackpot + defJackpot));
                         }
                         WorldDatabase.PExecute("DELETE FROM lottery_bets");
