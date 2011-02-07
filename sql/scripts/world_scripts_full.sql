@@ -9,7 +9,7 @@ UPDATE `gameobject_template` SET `ScriptName`='';
 UPDATE `outdoorpvp_template` SET `ScriptName`='';
 
 /* AREA TRIGGERS */
-DELETE FROM `areatrigger_scripts` WHERE `entry` IN (822,5284,5285,5286,5287,4871,4872,4873,5108,5332,5338,5334,5340,5369,5423,5633);
+DELETE FROM `areatrigger_scripts` WHERE `entry` IN (822,5284,5285,5286,5287,4871,4872,4873,5108,5332,5338,5334,5340,5369,5423,5633,5604);
 DELETE FROM `areatrigger_scripts` WHERE `entry` BETWEEN 1726 AND 1740;
 INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES 
 (822, 'at_map_chamber'),
@@ -42,7 +42,8 @@ INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES
 (1740, 'at_scent_larkorwi'),
 (5369, 'at_RX_214_repair_o_matic_station'),
 (5423, 'at_RX_214_repair_o_matic_station'),
-(5633, 'at_tyrannus_event_starter');
+(5633, 'at_tyrannus_event_starter'),
+(5604, 'at_sindragosa_lair');
 
 /* WORLD BOSS */
 UPDATE `creature_template` SET `ScriptName`='boss_ysondre' WHERE `entry`=14887;
@@ -863,6 +864,11 @@ UPDATE `creature_template` SET `ScriptName`='npc_kinetic_bomb' WHERE `entry`=384
 UPDATE `creature_template` SET `ScriptName`='npc_dark_nucleus' WHERE `entry`=38369;
 UPDATE `creature_template` SET `ScriptName`='npc_ball_of_flame' WHERE `entry` IN (38332,38451);
 UPDATE `creature_template` SET `ScriptName`='boss_blood_queen_lana_thel' WHERE `entry`=37955;
+UPDATE `creature_template` SET `ScriptName`='boss_sindragosa' WHERE `entry`=36853;
+UPDATE `creature_template` SET `ScriptName`='npc_ice_tomb' WHERE `entry`=36980;
+UPDATE `creature_template` SET `ScriptName`='npc_spinestalker' WHERE `entry`=37534;
+UPDATE `creature_template` SET `ScriptName`='npc_rimefang_icc' WHERE `entry`=37533;
+UPDATE `creature_template` SET `ScriptName`='npc_sindragosa_trash' WHERE `entry` IN (37531,37532);
 
 /* IRONFORGE */
 UPDATE `creature_template` SET `ScriptName`='npc_royal_historian_archesonus' WHERE `entry`=8879;
@@ -1755,7 +1761,7 @@ UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_si' WHERE `TypeId`=5;
 UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_ep' WHERE `TypeId`=6;
 
 /* ACHIEVEMENTS */
-DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (3693,6641,6642,6643,6644,3804,3805,3806,3807,3808,3809,3810,3811,3812,3813,1234,1239,5605,5606,12778,13036,13035,13037,12977,12967,12986,12982,12993,12780,13012,13011,13013,12062,12063,12064,12065,12183,12068,12060,12061) AND `type` IN (0,11);
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (3693,6641,6642,6643,6644,3804,3805,3806,3807,3808,3809,3810,3811,3812,3813,1234,1239,5605,5606,12778,13036,13035,13037,12977,12967,12986,12982,12993,12780,13012,13011,13013,12062,12063,12064,12065,12183,12068,12060,12061,12822,12996,12972,12989) AND `type` IN (0,11);
 INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,`ScriptName`) VALUES
 (3693,11,0,0, 'achievement_storm_glory'),
 (6641,11,0,0, 'achievement_school_of_hard_knocks'),
@@ -1796,8 +1802,11 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,
 (12183,11,0,0, 'achievement_bg_ic_glaive_grave'),
 (12068,11,0,0, 'achievement_bg_ic_mowed_down'),
 (12060,11,0,0, 'achievement_bg_ic_resource_glut'),
-(12061,11,0,0, 'achievement_bg_ic_resource_glut');
-
+(12061,11,0,0, 'achievement_bg_ic_resource_glut'),
+(12822,11,0,0, 'achievement_all_you_can_eat'),
+(12996,11,0,0, 'achievement_all_you_can_eat'),
+(12972,11,0,0, 'achievement_all_you_can_eat'),
+(12989,11,0,0, 'achievement_all_you_can_eat');
 
 /* SPELLS */
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
@@ -1989,6 +1998,24 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 71390, 'spell_blood_queen_pact_of_the_darkfallen'),
 ( 71340, 'spell_blood_queen_pact_of_the_darkfallen_dmg'),
 ( 71341, 'spell_blood_queen_pact_of_the_darkfallen_dmg_target'),
+( 71357, 'spell_frostwarden_handler_order_whelp'),
+( 71350, 'spell_frostwarden_handler_focus_fire'),
+( 71376, 'spell_rimefang_icy_blast'),
+( 70598, 'spell_sindragosa_s_fury'),
+( 69762, 'spell_sindragosa_unchained_magic'),
+( 69766, 'spell_sindragosa_instability'),
+( 70126, 'spell_sindragosa_frost_beacon'),
+( 69712, 'spell_sindragosa_ice_tomb'),
+( 69675, 'spell_sindragosa_ice_tomb_dummy'),
+( 70157, 'spell_sindragosa_ice_tomb_trap'),
+( 69845, 'spell_sindragosa_collision_filter'),
+( 71053, 'spell_sindragosa_collision_filter'),
+( 71054, 'spell_sindragosa_collision_filter'),
+( 71055, 'spell_sindragosa_collision_filter'),
+( 70127, 'spell_sindragosa_collision_filter'),
+( 72528, 'spell_sindragosa_collision_filter'),
+( 72529, 'spell_sindragosa_collision_filter'),
+( 72530, 'spell_sindragosa_collision_filter'),
 -- Isle of Conquest
 ( 66630, 'spell_gen_gunship_portal'),
 ( 66637, 'spell_gen_gunship_portal'),
