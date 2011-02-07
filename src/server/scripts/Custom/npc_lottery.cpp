@@ -123,7 +123,7 @@ public:
                     {
                         for (int8 n = 0; n < 5; ++n)
                         {
-                            luckyNumber[n] = n+1;//urand(1, sConfig->GetIntDefault("Lottery.MaxNumber", 30));
+                            luckyNumber[n] = urand(1, sConfig->GetIntDefault("Lottery.MaxNumber", 30));
                         }
 
                         do
