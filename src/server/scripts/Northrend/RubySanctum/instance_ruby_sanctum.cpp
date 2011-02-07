@@ -94,19 +94,19 @@ class instance_ruby_sanctum : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* pGo, bool add)
+            void OnGameObjectCreate(GameObject* go)
             {
-                switch (pGo->GetEntry())
+                switch (go->GetEntry())
                 {
                     case GO_FIRE_FIELD:
                     case GO_FLAME_WALLS:
                     //case GO_FLAME_WALLS2:
-                        AddDoor(pGo, add);
+                        AddDoor(go, true);
                         break;
-                    case GO_TWILIGHT_PORTAL1: m_uiHalionPortalGUID = pGo->GetGUID(); break;
-                    case GO_TWILIGHT_PORTAL2: m_uiTwilightPortalGUID = pGo->GetGUID(); break;
-                    case GO_FLAME_WALLS2:     m_uiGOFlameWallsGUID = pGo->GetGUID(); break;
-                    case GO_FLAME_WALLS3:     m_uiGOTwilightWallsGUID = pGo->GetGUID(); break;
+                    case GO_TWILIGHT_PORTAL1: m_uiHalionPortalGUID = go->GetGUID(); break;
+                    case GO_TWILIGHT_PORTAL2: m_uiTwilightPortalGUID = go->GetGUID(); break;
+                    case GO_FLAME_WALLS2:     m_uiGOFlameWallsGUID = go->GetGUID(); break;
+                    case GO_FLAME_WALLS3:     m_uiGOTwilightWallsGUID = go->GetGUID(); break;
                     default: break;
                 }
             }
