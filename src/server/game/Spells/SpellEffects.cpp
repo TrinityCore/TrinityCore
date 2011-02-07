@@ -4448,6 +4448,34 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
         {
             switch(m_spellInfo->Id)
             {
+                //Sunreaver Disguis
+                case 69672:
+                {
+                    if (unitTarget->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                    if (unitTarget->ToPlayer()->getGender() == GENDER_FEMALE)
+                        unitTarget->CastSpell(unitTarget, 70973, false);
+                    else
+                        unitTarget->CastSpell(unitTarget, 70974, false);
+
+                    return;
+                        
+                }
+                //Silver Covenant Disguise
+                case 69673:
+                {
+                    if (unitTarget->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                    if (unitTarget->ToPlayer()->getGender() == GENDER_FEMALE)
+                        unitTarget->CastSpell(unitTarget, 70971, false);
+                    else
+                        unitTarget->CastSpell(unitTarget, 70972, false);
+
+                    return;
+                        
+                }
                 //Teleport to Lake Wintergrasp
                 case 58622:
                    {
