@@ -337,8 +337,6 @@ m_owner(owner), m_timeCla(0), m_updateTargetMapInterval(0),
 m_casterLevel(caster ? caster->getLevel() : m_spellProto->spellLevel), m_procCharges(0), m_stackAmount(1),
 m_isRemoved(false), m_isSingleTarget(false)
 {
-    LoadScripts();
-
     if (m_spellProto->manaPerSecond || m_spellProto->manaPerSecondPerLevel)
         m_timeCla = 1 * IN_MILLISECONDS;
 
@@ -363,7 +361,11 @@ m_isRemoved(false), m_isSingleTarget(false)
     m_procCharges = m_spellProto->procCharges;
     if (modOwner)
         modOwner->ApplySpellMod(GetId(), SPELLMOD_CHARGES, m_procCharges);
+}
 
+void Aura::_InitEffects(uint8 effMask, Unit * caster, int32 *baseAmount)
+{
+    // shouldn't be in constructor - functions in AuraEffect::AuraEffect use polymorphism
     for (uint8 i=0 ; i<MAX_SPELL_EFFECTS; ++i)
     {
         if (effMask & (uint8(1) << i))
@@ -512,7 +514,20 @@ void Aura::UpdateTargetMap(Unit * caster, bool apply)
     for (std::map<Unit *, uint8>::iterator itr = targets.begin(); itr!= targets.end();)
     {
         // aura mustn't be already applied on target
-        ASSERT (!IsAppliedOnTarget(itr->first->GetGUID()) && "Aura::UpdateTargetMap: aura musn't be applied on target");
+        if (IsAppliedOnTarget(itr->first->GetGUID()))
+        {
+            AuraApplication * aurApp = GetApplicationOfTarget(itr->first->GetGUID());
+            // check if we have valid pointer
+            ASSERT(aurApp->GetTarget());
+            // check if we really have same guid
+            ASSERT(aurApp->GetTarget()->GetGUID() == itr->first->GetGUID());
+            // check if we really have base aura
+            ASSERT(aurApp->GetBase() == this);
+            // check if core created 2 units with same guid
+            ASSERT(aurApp->GetTarget() == itr->first);
+            // ok, we have same unit twice in map, how?
+            ASSERT(false);
+        }
 
         bool addUnit = true;
         // check target immunities
@@ -1866,6 +1881,8 @@ UnitAura::UnitAura(SpellEntry const* spellproto, uint8 effMask, WorldObject * ow
     : Aura(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID)
 {
     m_AuraDRGroup = DIMINISHING_NONE;
+    LoadScripts();
+    _InitEffects(effMask, caster, baseAmount);
     GetUnitOwner()->_AddAura(this, caster);
 };
 
@@ -1975,9 +1992,11 @@ void UnitAura::FillTargetMap(std::map<Unit *, uint8> & targets, Unit * caster)
 DynObjAura::DynObjAura(SpellEntry const* spellproto, uint8 effMask, WorldObject * owner, Unit * caster, int32 *baseAmount, Item * castItem, uint64 casterGUID)
     : Aura(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID)
 {
+    LoadScripts();
     ASSERT(GetDynobjOwner());
     ASSERT(GetDynobjOwner()->IsInWorld());
     ASSERT(GetDynobjOwner()->GetMap() == caster->GetMap());
+    _InitEffects(effMask, caster, baseAmount);
     GetDynobjOwner()->SetAura(this);
 }
 
