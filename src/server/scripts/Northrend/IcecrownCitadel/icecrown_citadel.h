@@ -137,6 +137,8 @@ enum CreaturesIds
     NPC_VOLATILE_OOZE                           = 37697,
     NPC_CHOKING_GAS_BOMB                        = 38159,
     NPC_TEAR_GAS_TARGET_STALKER                 = 38317,
+    NPC_MUTATED_ABOMINATION_10                  = 37672,
+    NPC_MUTATED_ABOMINATION_25                  = 38285,
 
     // Blood Prince Council
     NPC_PRINCE_KELESETH                         = 37972,
