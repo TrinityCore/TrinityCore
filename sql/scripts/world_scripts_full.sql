@@ -1,4 +1,4 @@
--- Up to TC2 6928
+-- Up to TC 11181
 
 -- Cleanup first
 UPDATE `battleground_template` SET `ScriptName`='';
@@ -1824,7 +1824,6 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 46394, 'spell_gen_burn_brutallus'),
 ( 57685, 'spell_creature_permanent_feign_death'),
 ( 58601, 'spell_gen_remove_flight_auras'),
-( 66118, 'spell_gen_leeching_swarm'),
 ( 58951, 'spell_creature_permanent_feign_death'),
 ( 70592, 'spell_creature_permanent_feign_death'),
 ( 70628, 'spell_creature_permanent_feign_death'),
