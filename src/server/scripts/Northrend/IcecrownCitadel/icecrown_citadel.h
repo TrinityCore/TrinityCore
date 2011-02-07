@@ -65,6 +65,9 @@ enum DataTypes
     DATA_PRINCE_TALDARAM_GUID       = 19,
     DATA_PRINCE_VALANAR_GUID        = 20,
     DATA_BLOOD_PRINCES_CONTROL      = 21,
+    DATA_SINDRAGOSA_FROSTWYRMS      = 22,
+    DATA_SPINESTALKER               = 23,
+    DATA_RIMEFANG                   = 24,
 };
 
 #define MAX_ENCOUNTER 12
@@ -150,6 +153,16 @@ enum CreaturesIds
 
     // Blood-Queen Lana'thel
     NPC_BLOOD_QUEEN_LANA_THEL                   = 37955,
+
+    // Sindragosa
+    NPC_SINDRAGOSA                              = 36853,
+    NPC_SPINESTALKER                            = 37534,
+    NPC_RIMEFANG                                = 37533,
+    NPC_FROSTWARDEN_HANDLER                     = 37531,
+    NPC_FROSTWING_WHELP                         = 37532,
+    NPC_ICY_BLAST                               = 38223,
+    NPC_FROST_BOMB                              = 37186,
+    NPC_ICE_TOMB                                = 36980,
 };
 
 enum GameObjectsIds
@@ -199,6 +212,8 @@ enum GameObjectsIds
     GO_SINDRAGOSA_ENTRANCE_DOOR             = 201373,
     GO_SINDRAGOSA_SHORTCUT_ENTRANCE_DOOR    = 201369,
     GO_SINDRAGOSA_SHORTCUT_EXIT_DOOR        = 201379,
+    GO_ICE_WALL                             = 202396,
+    GO_ICE_BLOCK                            = 201722,
 };
 
 enum AchievementCriteriaIds
@@ -247,7 +262,14 @@ enum SharedActions
     ACTION_ROTFACE_COMBAT       = -366270,
     ACTION_ROTFACE_OOZE         = -366271,
     ACTION_ROTFACE_DEATH        = -366272,
-    ACTION_CHANGE_PHASE         = -366780
+    ACTION_CHANGE_PHASE         = -366780,
+
+    // Sindragosa
+    ACTION_START_FROSTWYRM      = -368530,
+    ACTION_TRIGGER_ASPHYXIATION = -368531,
 };
+
+// Declaration
+extern Position const SindragosaSpawnPos;
 
 #endif // DEF_ICECROWN_CITADEL_H

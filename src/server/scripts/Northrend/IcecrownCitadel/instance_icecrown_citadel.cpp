@@ -39,8 +39,10 @@ static const DoorData doorData[] =
     {GO_GREEN_DRAGON_BOSS_ENTRANCE,          DATA_VALITHRIA_DREAMWALKER, DOOR_TYPE_ROOM,    BOUNDARY_N   },
     {GO_GREEN_DRAGON_BOSS_EXIT,              DATA_VALITHRIA_DREAMWALKER, DOOR_TYPE_PASSAGE, BOUNDARY_S   },
     {GO_SINDRAGOSA_ENTRANCE_DOOR,            DATA_SINDRAGOSA,            DOOR_TYPE_ROOM,    BOUNDARY_S   },
-    {GO_SINDRAGOSA_SHORTCUT_ENTRANCE_DOOR,   DATA_SINDRAGOSA,            DOOR_TYPE_ROOM,    BOUNDARY_E   },
+    {GO_SINDRAGOSA_SHORTCUT_ENTRANCE_DOOR,   DATA_SINDRAGOSA,            DOOR_TYPE_PASSAGE, BOUNDARY_E   },
     {GO_SINDRAGOSA_SHORTCUT_EXIT_DOOR,       DATA_SINDRAGOSA,            DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
+    {GO_ICE_WALL,                            DATA_SINDRAGOSA,            DOOR_TYPE_ROOM,    BOUNDARY_SE  },
+    {GO_ICE_WALL,                            DATA_SINDRAGOSA,            DOOR_TYPE_ROOM,    BOUNDARY_SW  },
     {0,                                      0,                          DOOR_TYPE_ROOM,    BOUNDARY_NONE} // END
 };
 
@@ -72,6 +74,12 @@ class instance_icecrown_citadel : public InstanceMapScript
                 memset(bloodCouncil, 0, 3*sizeof(uint64));
                 bloodCouncilController = 0;
                 bloodQueenLanaThel = 0;
+                sindragosa = 0;
+                spinestalker = 0;
+                rimefang = 0;
+                frostwyrms = 0;
+                spinestalkerTrash = 0;
+                rimefangTrash = 0;
                 isBonedEligible = true;
                 isOozeDanceEligible = true;
                 isNauseaEligible = true;
@@ -170,6 +178,19 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case NPC_BLOOD_QUEEN_LANA_THEL:
                         bloodQueenLanaThel = creature->GetGUID();
                         break;
+                    case NPC_SINDRAGOSA:
+                        sindragosa = creature->GetGUID();
+                        break;
+                    case NPC_SPINESTALKER:
+                        spinestalker = creature->GetGUID();
+                        if (!creature->isDead())
+                            ++frostwyrms;
+                        break;
+                    case NPC_RIMEFANG:
+                        rimefang = creature->GetGUID();
+                        if (!creature->isDead())
+                            ++frostwyrms;
+                        break;
                     default:
                         break;
                 }
@@ -196,6 +217,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_SINDRAGOSA_ENTRANCE_DOOR:
                     case GO_SINDRAGOSA_SHORTCUT_ENTRANCE_DOOR:
                     case GO_SINDRAGOSA_SHORTCUT_EXIT_DOOR:
+                    case GO_ICE_WALL:
                         AddDoor(go, true);
                         break;
                     case GO_LADY_DEATHWHISPER_ELEVATOR:
@@ -276,11 +298,29 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_SINDRAGOSA_ENTRANCE_DOOR:
                     case GO_SINDRAGOSA_SHORTCUT_ENTRANCE_DOOR:
                     case GO_SINDRAGOSA_SHORTCUT_EXIT_DOOR:
+                    case GO_ICE_WALL:
                         AddDoor(go, false);
                         break;
                     default:
                         break;
                 }
+            }
+
+            uint32 GetData(uint32 type)
+            {
+                switch (type)
+                {
+                    case DATA_SINDRAGOSA_FROSTWYRMS:
+                        return frostwyrms;
+                    case DATA_SPINESTALKER:
+                        return spinestalkerTrash;
+                    case DATA_RIMEFANG:
+                        return rimefangTrash;
+                    default:
+                        break;
+                }
+
+                return 0;
             }
 
             uint64 GetData64(uint32 type)
@@ -313,6 +353,12 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return bloodCouncilController;
                     case DATA_BLOOD_QUEEN_LANA_THEL:
                         return bloodQueenLanaThel;
+                    case DATA_SINDRAGOSA:
+                        return sindragosa;
+                    case DATA_SPINESTALKER:
+                        return spinestalker;
+                    case DATA_RIMEFANG:
+                        return rimefang;
                     default:
                         break;
                 }
@@ -410,6 +456,39 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case DATA_ORB_WHISPERER_ACHIEVEMENT:
                         isOrbWhispererEligible = data ? true : false;
+                        break;
+                    case DATA_SINDRAGOSA_FROSTWYRMS:
+                        if (data > 1)
+                            frostwyrms = data;
+                        else if (data == 1)
+                            ++frostwyrms;
+                        else if (!data && !--frostwyrms && GetBossState(DATA_SINDRAGOSA) != DONE)
+                        {
+                            instance->LoadGrid(SindragosaSpawnPos.GetPositionX(), SindragosaSpawnPos.GetPositionY());
+                            if (Creature* boss = instance->SummonCreature(NPC_SINDRAGOSA, SindragosaSpawnPos))
+                            {
+                                boss->setActive(true);
+                                boss->AI()->DoAction(ACTION_START_FROSTWYRM);
+                            }
+                        }
+                        break;
+                    case DATA_SPINESTALKER:
+                        if (data > 1)
+                            spinestalkerTrash = data;
+                        else if (data == 1)
+                            ++spinestalkerTrash;
+                        else if (!data && !--spinestalkerTrash)
+                            if (Creature* spinestalk = instance->GetCreature(spinestalker))
+                                spinestalk->AI()->DoAction(ACTION_START_FROSTWYRM);
+                        break;
+                    case DATA_RIMEFANG:
+                        if (data > 1)
+                            rimefangTrash = data;
+                        else if (data == 1)
+                            ++rimefangTrash;
+                        else if (!data && !--rimefangTrash)
+                            if (Creature* rime = instance->GetCreature(rimefang))
+                                rime->AI()->DoAction(ACTION_START_FROSTWYRM);
                         break;
                     default:
                         break;
@@ -544,8 +623,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                             return false;
                         // no break
                     case DATA_SINDRAGOSA:
-                        if (GetBossState(DATA_VALITHRIA_DREAMWALKER) != DONE)
-                            return false;
+                        //if (GetBossState(DATA_VALITHRIA_DREAMWALKER) != DONE)
+                        //    return false;
                         break;
                     default:
                         break;
@@ -647,7 +726,13 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 bloodCouncil[3];
             uint64 bloodCouncilController;
             uint64 bloodQueenLanaThel;
+            uint64 sindragosa;
+            uint64 spinestalker;
+            uint64 rimefang;
             uint32 teamInInstance;
+            uint8 frostwyrms;
+            uint8 spinestalkerTrash;
+            uint8 rimefangTrash;
             bool isBonedEligible;
             bool isOozeDanceEligible;
             bool isNauseaEligible;
