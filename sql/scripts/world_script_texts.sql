@@ -1,4 +1,4 @@
--- Up to TC2 5408
+-- Up to TC 11181
 --
 -- trinityscript_script_texts.sql Contains data for table `script_texts` mainly used in C++ parts.
 -- valid entries for table are between -1000000 and -1999999

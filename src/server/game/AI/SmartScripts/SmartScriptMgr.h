@@ -446,7 +446,9 @@ enum SMART_ACTION
 
     SMART_ACTION_SET_UNIT_FIELD_BYTES_1             = 90,     // bytes, target
 
-    SMART_ACTION_END                                = 91,
+    SMART_ACTION_REMOVE_UNIT_FIELD_BYTES_1          = 91,     // bytes, target
+
+    SMART_ACTION_END                                = 92,
 };
 
 struct SmartAction
@@ -789,8 +791,13 @@ struct SmartAction
 
         struct
         {
-            uint32 byte;
-        } unitByte;
+            uint32 byte1;
+        } setunitByte;
+
+        struct
+        {
+            uint32 byte1;
+        } delunitByte;
 
         struct
         {

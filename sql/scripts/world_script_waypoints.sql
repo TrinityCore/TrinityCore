@@ -1,4 +1,4 @@
--- Up to TC2 5408
+-- Up to TC 11181
 
 -- This file contains all waypoints used by escortAI scripts
 /*
@@ -14,12 +14,6 @@ CREATE TABLE `script_waypoint` (
   PRIMARY KEY (entry, pointid)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Script Creature waypoints';
 */
-
---
--- Not sure why we don't just run
--- DELETE FROM `script_waypoint`;
--- I mean seriously, who has custom waypoint creatures?
---
 
 DELETE FROM `script_waypoint` WHERE `entry`=26170;
 INSERT INTO `script_waypoint` VALUES
