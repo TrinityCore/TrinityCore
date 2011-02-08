@@ -115,3 +115,6 @@ UPDATE `creature_template` SET `ScriptName` = 'npc_arcanist_tybalin' WHERE `entr
 
 -- set visible intendants of The Sons of Hodir and Knights of the Ebon Blade
 UPDATE `creature` SET phaseMask=65535 WHERE `id` in (32538,32540);
+
+-- Open access to heroic ICC without achievement
+UPDATE `access_requirement` SET `completed_achievement`=0 WHERE `mapId`=631 and `difficulty` in (2,3);
