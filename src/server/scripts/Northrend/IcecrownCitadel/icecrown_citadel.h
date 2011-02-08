@@ -68,6 +68,7 @@ enum DataTypes
     DATA_SINDRAGOSA_FROSTWYRMS      = 22,
     DATA_SPINESTALKER               = 23,
     DATA_RIMEFANG                   = 24,
+    DATA_COLDFLAME_JETS             = 25,
 };
 
 #define MAX_ENCOUNTER 12
@@ -118,6 +119,7 @@ enum CreaturesIds
     NPC_SE_HIGH_OVERLORD_SAURFANG               = 37187,
     NPC_SE_KOR_KRON_REAVER                      = 37920,
     NPC_SE_SKYBREAKER_MARINE                    = 37830,
+    NPC_FROST_FREEZE_TRAP                       = 37744,
 
     // Festergut
     NPC_FESTERGUT                               = 36626,
@@ -255,6 +257,9 @@ enum AchievementCriteriaIds
 
 enum SharedActions
 {
+    // Coldflame Traps
+    ACTION_STOP_TRAPS           = -377440,
+
     // Festergut
     ACTION_FESTERGUT_COMBAT     = -366260,
     ACTION_FESTERGUT_GAS        = -366261,

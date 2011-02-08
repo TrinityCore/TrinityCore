@@ -476,6 +476,7 @@ void AddSC_boss_blood_queen_lana_thel();
 void AddSC_boss_sindragosa();
 void AddSC_icecrown_citadel_teleport();
 void AddSC_instance_icecrown_citadel();
+void AddSC_icecrown_citadel();
 
 void AddSC_dalaran();
 void AddSC_borean_tundra();
@@ -1166,6 +1167,7 @@ void AddNorthrendScripts()
     AddSC_boss_sindragosa();
     AddSC_icecrown_citadel_teleport();
     AddSC_instance_icecrown_citadel();
+    AddSC_icecrown_citadel();
 
     AddSC_dalaran();
     AddSC_borean_tundra();
