@@ -9,7 +9,7 @@ UPDATE `gameobject_template` SET `ScriptName`='';
 UPDATE `outdoorpvp_template` SET `ScriptName`='';
 
 /* AREA TRIGGERS */
-DELETE FROM `areatrigger_scripts` WHERE `entry` IN (822,5284,5285,5286,5287,4871,4872,4873,5108,5332,5338,5334,5340,5369,5423,5633,5604);
+DELETE FROM `areatrigger_scripts` WHERE `entry` IN (822,5284,5285,5286,5287,4871,4872,4873,5108,5332,5338,5334,5340,5369,5423,5633,5604,5698,5649);
 DELETE FROM `areatrigger_scripts` WHERE `entry` BETWEEN 1726 AND 1740;
 INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES 
 (822, 'at_map_chamber'),
@@ -43,7 +43,9 @@ INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES
 (5369, 'at_RX_214_repair_o_matic_station'),
 (5423, 'at_RX_214_repair_o_matic_station'),
 (5633, 'at_tyrannus_event_starter'),
-(5604, 'at_sindragosa_lair');
+(5604, 'at_sindragosa_lair'),
+(5698, 'at_icc_saurfang_portal'),
+(5649, 'at_icc_shutdown_traps');
 
 /* WORLD BOSS */
 UPDATE `creature_template` SET `ScriptName`='boss_ysondre' WHERE `entry`=14887;
@@ -847,6 +849,7 @@ UPDATE `creature_template` SET `ScriptName`='boss_deathbringer_saurfang' WHERE `
 UPDATE `creature_template` SET `ScriptName`='npc_high_overlord_saurfang_icc' WHERE `entry`=37187;
 UPDATE `creature_template` SET `ScriptName`='npc_muradin_bronzebeard_icc' WHERE `entry`=37200;
 UPDATE `creature_template` SET `ScriptName`='npc_saurfang_event' WHERE `entry` IN (37920,37830);
+UPDATE `creature_template` SET `ScriptName`='npc_frost_freeze_trap' WHERE `entry`=37744;
 UPDATE `creature_template` SET `ScriptName`='boss_festergut' WHERE `entry`=36626;
 UPDATE `creature_template` SET `ScriptName`='npc_stinky_icc' WHERE `entry`=37025;
 UPDATE `creature_template` SET `ScriptName`='boss_rotface' WHERE `entry`=36627;
