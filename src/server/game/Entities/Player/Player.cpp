@@ -22123,9 +22123,10 @@ bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
     }
 
     // Credit encounter in instance
-    if (pVictim->GetTypeId() == TYPEID_UNIT && GetMap()->IsDungeon())
-        if (InstanceScript* instance = pVictim->GetInstanceScript())
-            instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, pVictim->GetEntry(), pVictim);
+    if (Creature* victim = pVictim->ToCreature())
+        if (victim->IsDungeonBoss())
+            if (InstanceScript* instance = pVictim->GetInstanceScript())
+                instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, pVictim->GetEntry(), pVictim);
 
     return xp || honored_kill;
 }

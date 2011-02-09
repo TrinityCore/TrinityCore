@@ -855,6 +855,12 @@ void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
         const_cast<CreatureInfo*>(cInfo)->expansion = 0;
     }
 
+    if (uint32 badFlags = (cInfo->flags_extra & ~CREATURE_FLAG_EXTRA_DB_ALLOWED))
+    {
+        sLog->outErrorDb("Table `creature_template` lists creature (Entry: %u) with disallowed `flags_extra` %u, removing incorrect flag.", cInfo->Entry, badFlags);
+        const_cast<CreatureInfo*>(cInfo)->flags_extra &= CREATURE_FLAG_EXTRA_DB_ALLOWED;
+    }
+
     const_cast<CreatureInfo*>(cInfo)->dmg_multiplier *= Creature::_GetDamageMod(cInfo->rank);
 }
 
@@ -5571,38 +5577,15 @@ void ObjectMgr::LoadInstanceEncounters()
     {
         Field* fields = result->Fetch();
         uint32 entry = fields[0].GetUInt32();
+        uint8 creditType = fields[1].GetUInt8();
+        uint32 creditEntry = fields[2].GetUInt32();
+        uint32 lastEncounterDungeon = fields[3].GetUInt32();
         DungeonEncounterEntry const* dungeonEncounter = sDungeonEncounterStore.LookupEntry(entry);
         if (!dungeonEncounter)
         {
             sLog->outErrorDb("Table `instance_encounters` has an invalid encounter id %u, skipped!", entry);
             continue;
         }
-
-        uint8 creditType = fields[1].GetUInt8();
-        uint32 creditEntry = fields[2].GetUInt32();
-
-        switch (creditType)
-        {
-            case ENCOUNTER_CREDIT_KILL_CREATURE:
-                if (!GetCreatureInfo(creditEntry))
-                {
-                    sLog->outErrorDb("Table `instance_encounters` has an invalid creature (entry %u) linked to the encounter %u (%s), skipped!", creditEntry, entry, dungeonEncounter->encounterName[0]);
-                    continue;
-                }
-                break;
-            case ENCOUNTER_CREDIT_CAST_SPELL:
-                if (!sSpellStore.LookupEntry(creditEntry))
-                {
-                    sLog->outErrorDb("Table `instance_encounters` has an invalid spell (entry %u) linked to the encounter %u (%s), skipped!", creditEntry, entry, dungeonEncounter->encounterName[0]);
-                    continue;
-                }
-                break;
-            default:
-                sLog->outErrorDb("Table `instance_encounters` has an invalid credit type (%u) for encounter %u (%s), skipped!", creditType, entry, dungeonEncounter->encounterName[0]);
-                continue;
-        }
-
-        uint32 lastEncounterDungeon = fields[3].GetUInt32();
 
         if (lastEncounterDungeon && !sLFGDungeonStore.LookupEntry(lastEncounterDungeon))
         {
@@ -5620,6 +5603,31 @@ void ObjectMgr::LoadInstanceEncounters()
             }
 
             dungeonLastBosses[lastEncounterDungeon] = dungeonEncounter;
+        }
+
+        switch (creditType)
+        {
+            case ENCOUNTER_CREDIT_KILL_CREATURE:
+            {
+                CreatureInfo const* creatureInfo = GetCreatureInfo(creditEntry);
+                if (!creatureInfo)
+                {
+                    sLog->outErrorDb("Table `instance_encounters` has an invalid creature (entry %u) linked to the encounter %u (%s), skipped!", creditEntry, entry, dungeonEncounter->encounterName[0]);
+                    continue;
+                }
+                break;
+                const_cast<CreatureInfo*>(creatureInfo)->flags_extra |= CREATURE_FLAG_EXTRA_DUNGEON_BOSS;
+            }
+            case ENCOUNTER_CREDIT_CAST_SPELL:
+                if (!sSpellStore.LookupEntry(creditEntry))
+                {
+                    sLog->outErrorDb("Table `instance_encounters` has an invalid spell (entry %u) linked to the encounter %u (%s), skipped!", creditEntry, entry, dungeonEncounter->encounterName[0]);
+                    continue;
+                }
+                break;
+            default:
+                sLog->outErrorDb("Table `instance_encounters` has an invalid credit type (%u) for encounter %u (%s), skipped!", creditType, entry, dungeonEncounter->encounterName[0]);
+                continue;
         }
 
         DungeonEncounterList& encounters = mDungeonEncounters[MAKE_PAIR32(dungeonEncounter->mapId, dungeonEncounter->difficulty)];
