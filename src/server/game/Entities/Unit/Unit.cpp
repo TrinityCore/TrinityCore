@@ -6660,7 +6660,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                         return false;
 
                     // heal amount
-                    basepoints0 = int32(CalculatePctN(std::min(damage, GetMaxHealth() - GetHealth()), triggerAmount));
+                    basepoints0 = int32(CalculatePctN(damage, triggerAmount));
                     target = this;
 
                     if (basepoints0)
