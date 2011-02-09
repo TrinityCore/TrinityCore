@@ -28,6 +28,7 @@ static const DoorData doorData[] =
     {GO_ICEWALL,                             DATA_LORD_MARROWGAR,        DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
     {GO_DOODAD_ICECROWN_ICEWALL02,           DATA_LORD_MARROWGAR,        DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
     {GO_ORATORY_OF_THE_DAMNED_ENTRANCE,      DATA_LADY_DEATHWHISPER,     DOOR_TYPE_ROOM,    BOUNDARY_N   },
+    {GO_SAURFANG_S_DOOR,                     DATA_DEATHBRINGER_SAURFANG, DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
     {GO_ORANGE_PLAGUE_MONSTER_ENTRANCE,      DATA_FESTERGUT,             DOOR_TYPE_ROOM,    BOUNDARY_E   },
     {GO_GREEN_PLAGUE_MONSTER_ENTRANCE,       DATA_ROTFACE,               DOOR_TYPE_ROOM,    BOUNDARY_E   },
     {GO_SCIENTIST_ENTRANCE,                  DATA_PROFESSOR_PUTRICIDE,   DOOR_TYPE_ROOM,    BOUNDARY_E   },
@@ -84,6 +85,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 isOozeDanceEligible = true;
                 isNauseaEligible = true;
                 isOrbWhispererEligible = true;
+                coldflameJetsState = NOT_STARTED;
             }
 
             void OnPlayerEnter(Player* player)
@@ -154,6 +156,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                         if (teamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_SE_SKYBREAKER_MARINE, ALLIANCE);
                         break;
+                    case NPC_FROST_FREEZE_TRAP:
+                        coldflameJets.insert(creature->GetGUID());
+                        break;
                     case NPC_FESTERGUT:
                         festergut = creature->GetGUID();
                         break;
@@ -196,6 +201,12 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
             }
 
+            void OnCreatureRemove(Creature* creature)
+            {
+                if (creature->GetEntry() == NPC_FROST_FREEZE_TRAP)
+                    coldflameJets.erase(creature->GetGUID());
+            }
+
             void OnGameObjectCreate(GameObject* go)
             {
                 switch (go->GetEntry())
@@ -230,6 +241,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case GO_SAURFANG_S_DOOR:
                         saurfangDoor = go->GetGUID();
+                        AddDoor(go, true);
                         break;
                     case GO_DEATHBRINGER_S_CACHE_10N:
                     case GO_DEATHBRINGER_S_CACHE_25N:
@@ -285,6 +297,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_ICEWALL:
                     case GO_LORD_MARROWGAR_S_ENTRANCE:
                     case GO_ORATORY_OF_THE_DAMNED_ENTRANCE:
+                    case GO_SAURFANG_S_DOOR:
                     case GO_ORANGE_PLAGUE_MONSTER_ENTRANCE:
                     case GO_GREEN_PLAGUE_MONSTER_ENTRANCE:
                     case GO_SCIENTIST_ENTRANCE:
@@ -316,6 +329,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return spinestalkerTrash;
                     case DATA_RIMEFANG:
                         return rimefangTrash;
+                    case DATA_COLDFLAME_JETS:
+                        return coldflameJetsState;
                     default:
                         break;
                 }
@@ -489,6 +504,13 @@ class instance_icecrown_citadel : public InstanceMapScript
                         else if (!data && !--rimefangTrash)
                             if (Creature* rime = instance->GetCreature(rimefang))
                                 rime->AI()->DoAction(ACTION_START_FROSTWYRM);
+                        break;
+                    case DATA_COLDFLAME_JETS:
+                        coldflameJetsState = data;
+                        if (coldflameJetsState == DONE)
+                            for (std::set<uint64>::iterator itr = coldflameJets.begin(); itr != coldflameJets.end(); ++itr)
+                                if (Creature* trap = instance->GetCreature(*itr))
+                                    trap->AI()->DoAction(ACTION_STOP_TRAPS);
                         break;
                     default:
                         break;
@@ -673,7 +695,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 OUT_SAVE_INST_DATA;
 
                 std::ostringstream saveStream;
-                saveStream << "I C " << GetBossSaveData();
+                saveStream << "I C " << GetBossSaveData() << uint32(coldflameJetsState);
 
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return saveStream.str();
@@ -704,6 +726,11 @@ class instance_icecrown_citadel : public InstanceMapScript
                             tmpState = NOT_STARTED;
                         SetBossState(i, EncounterState(tmpState));
                     }
+                    uint32 jets = 0;
+                    loadStream >> jets;
+                    if (jets)
+                        jets = DONE;
+                    coldflameJetsState = jets;
                 } else OUT_LOAD_INST_DATA_FAIL;
 
                 OUT_LOAD_INST_DATA_COMPLETE;
@@ -729,7 +756,9 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 sindragosa;
             uint64 spinestalker;
             uint64 rimefang;
+            std::set<uint64> coldflameJets;
             uint32 teamInInstance;
+            uint8 coldflameJetsState;
             uint8 frostwyrms;
             uint8 spinestalkerTrash;
             uint8 rimefangTrash;
