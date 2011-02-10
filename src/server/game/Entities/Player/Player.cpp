@@ -16431,8 +16431,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
             m_bgData.bgTypeID = currentBg->GetTypeID(true);
 
             //join player to battleground group
-            currentBg->EventPlayerLoggedIn(this, GetGUID());
-            currentBg->AddOrSetPlayerToCorrectBgGroup(this, GetGUID(), m_bgData.bgTeam);
+            currentBg->EventPlayerLoggedIn(this);
+            currentBg->AddOrSetPlayerToCorrectBgGroup(this, m_bgData.bgTeam);
 
             SetInviteForBattlegroundQueueType(bgQueueTypeId,currentBg->GetInstanceID());
         }
@@ -22208,9 +22208,10 @@ bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
     }
 
     // Credit encounter in instance
-    if (pVictim->GetTypeId() == TYPEID_UNIT && GetMap()->IsDungeon())
-        if (InstanceScript* instance = pVictim->GetInstanceScript())
-            instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, pVictim->GetEntry(), pVictim);
+    if (Creature* victim = pVictim->ToCreature())
+        if (victim->IsDungeonBoss())
+            if (InstanceScript* instance = pVictim->GetInstanceScript())
+                instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, pVictim->GetEntry(), pVictim);
 
     return xp || honored_kill;
 }

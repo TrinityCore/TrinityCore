@@ -264,7 +264,6 @@ bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData *data
     }
 
     // get difficulty 1 mode entry
-    uint32 actualEntry = Entry;
     CreatureInfo const *cinfo = normalInfo;
     for (uint8 diff = uint8(GetMap()->GetSpawnMode()); diff > 0;)
     {
@@ -2396,4 +2395,10 @@ void Creature::FarTeleportTo(Map* map, float X, float Y, float Z, float O)
     AddToWorld();
 
     SetPosition(X, Y, Z, O, true);
+}
+
+bool Creature::IsDungeonBoss() const
+{
+    CreatureInfo const *cinfo = ObjectMgr::GetCreatureTemplate(GetEntry());
+    return cinfo && (cinfo->flags_extra & CREATURE_FLAG_EXTRA_DUNGEON_BOSS);
 }
