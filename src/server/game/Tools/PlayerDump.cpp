@@ -571,7 +571,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                     ROLLBACK(DUMP_FILE_BROKEN);             // mail_items.id
                 if (!changeGuid(line, 2, items, sObjectMgr->m_hiItemGuid))
                     ROLLBACK(DUMP_FILE_BROKEN);             // mail_items.item_guid
-                if (!changenth(line, 4, newguid))           // mail_items.receiver
+                if (!changenth(line, 3, newguid))           // mail_items.receiver
                     ROLLBACK(DUMP_FILE_BROKEN);
                 break;
             }
