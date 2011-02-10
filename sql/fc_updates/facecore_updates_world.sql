@@ -118,3 +118,9 @@ UPDATE `creature` SET phaseMask=65535 WHERE `id` in (32538,32540);
 
 -- Open access to heroic ICC without achievement
 UPDATE `access_requirement` SET `completed_achievement`=0 WHERE `mapId`=631 and `difficulty` in (2,3);
+
+-- [Dungeon Finder] Fix Drak'Tharon Keep reward for DF
+UPDATE `instance_encounters` SET `creditType` = '0', `creditEntry` = '26632' WHERE `entry` IN ('376', '375');
+-- [Dungeon Finder] Fix reward for Utgarde Keep.
+UPDATE `instance_encounters` SET `creditEntry` = '23980' WHERE `entry` IN ('575', '576');
+
