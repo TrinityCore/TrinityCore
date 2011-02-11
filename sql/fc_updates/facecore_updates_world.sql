@@ -123,4 +123,5 @@ UPDATE `access_requirement` SET `completed_achievement`=0 WHERE `mapId`=631 and 
 UPDATE `instance_encounters` SET `creditType` = '0', `creditEntry` = '26632' WHERE `entry` IN ('376', '375');
 -- [Dungeon Finder] Fix reward for Utgarde Keep.
 UPDATE `instance_encounters` SET `creditEntry` = '23980' WHERE `entry` IN ('575', '576');
-
+-- [Dungeon Finder] Fix CoS reward
+UPDATE `instance_encounters` SET `creditType`=0, `creditEntry`=26533 WHERE `entry` IN (296, 300);
