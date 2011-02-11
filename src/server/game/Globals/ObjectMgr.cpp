@@ -8787,53 +8787,6 @@ void ObjectMgr::LoadVendors()
     sLog->outString();
 }
 
-void ObjectMgr::LoadNpcTextId()
-{
-    uint32 oldMSTime = getMSTime();
-
-    m_mCacheNpcTextIdMap.clear();
-
-    QueryResult result = WorldDatabase.Query("SELECT npc_guid, textid FROM npc_gossip");
-
-    if (!result)
-    {
-        sLog->outErrorDb(">> Loaded 0 NpcTextId. DB table `npc_gossip` is empty!");
-        sLog->outString();
-        return;
-    }
-
-    uint32 count = 0;
-    uint32 guid, textid;
-
-    do
-    {
-
-        Field* fields = result->Fetch();
-
-        guid   = fields[0].GetUInt32();
-        textid = fields[1].GetUInt32();
-
-        if (!GetCreatureData(guid))
-        {
-            sLog->outErrorDb("Table `npc_gossip` have not existed creature (GUID: %u) entry, ignore. ",guid);
-            continue;
-        }
-        if (!GetGossipText(textid))
-        {
-            sLog->outErrorDb("Table `npc_gossip` for creature (GUID: %u) have wrong Textid (%u), ignore. ", guid, textid);
-            continue;
-        }
-
-        m_mCacheNpcTextIdMap[guid] = textid ;
-        ++count;
-
-    }
-    while (result->NextRow());
-
-    sLog->outString(">> Loaded %d NpcTextId in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    sLog->outString();
-}
-
 void ObjectMgr::LoadGossipMenu()
 {
     uint32 oldMSTime = getMSTime();
