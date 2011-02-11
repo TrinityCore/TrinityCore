@@ -96,9 +96,7 @@ UPDATE `gameobject_template` SET `ScriptName`='go_massive_seaforium_charge' WHER
 UPDATE `gameobject_template` SET `ScriptName`='go_harpoon_launcher' WHERE `entry` IN (192175,192176,192177);
 
 /* GUARD */
-UPDATE `creature_template` SET `ScriptName`='guard_generic' WHERE `entry` IN (727,1423,1735,1738,1742,1743,1744,1745,1746,2209,2210,3084,3212,3215,3217,3218,3219,3220,3221,3222,3223,3224,3502,3571,4262,4264,5595,5624,5725,5953,9460,11190,13076,15184,16221,16222,16733,18038,19687);
-UPDATE `creature_template` SET `ScriptName`='guard_orgrimmar' WHERE `entry`=3296;
-UPDATE `creature_template` SET `ScriptName`='guard_stormwind' WHERE `entry` IN (68,1976);
+UPDATE `creature_template` SET `ScriptName`='guard_generic' WHERE `entry` IN (68,1976,3218,3296,3502,4624,9460,11190,15184);
 UPDATE `creature_template` SET `ScriptName`='guard_shattrath_aldor' WHERE `entry`=18549;
 UPDATE `creature_template` SET `ScriptName`='guard_shattrath_scryer' WHERE `entry`=18568;
 
