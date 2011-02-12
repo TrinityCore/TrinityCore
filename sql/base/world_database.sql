@@ -566,11 +566,11 @@ INSERT INTO `command` VALUES
 ('reload all achievement',3,'Syntax: .reload all achievement\r\n\r\nReload achievement_reward, achievement_criteria_data tables.'),
 ('reload all area',3,'Syntax: .reload all area\r\n\r\nReload areatrigger_teleport, areatrigger_tavern, game_graveyard_zone tables.'),
 ('reload all eventai',3,'Syntax: .reload all eventai\r\n\r\nReload creature_ai_scripts, creature_ai_summons, creature_ai_texts tables.'),
-('reload all gossips',3,'Syntax: .reload all gossips\nReload gossip_menu, gossip_menu_option, gossip_scripts, npc_gossip, points_of_interest tables.'),
+('reload all gossips',3,'Syntax: .reload all gossips\nReload gossip_menu, gossip_menu_option, gossip_scripts, points_of_interest tables.'),
 ('reload all item',3,'Syntax: .reload all item\nReload page_text, item_enchantment_table tables.'),
 ('reload all locales',3,'Syntax: .reload all locales\r\n\r\nReload all `locales_*` tables with reload support added and that can be _safe_ reloaded.'),
 ('reload all loot',3,'Syntax: .reload all loot\r\n\r\nReload all `*_loot_template` tables. This can be slow operation with lags for server run.'),
-('reload all npc',3,'Syntax: .reload all npc\nReload npc_gossip, npc_option, npc_trainer, npc vendor, points of interest tables.'),
+('reload all npc',3,'Syntax: .reload all npc\nReload npc_option, npc_trainer, npc vendor, points of interest tables.'),
 ('reload all quest',3,'Syntax: .reload all quest\r\n\r\nReload all quest related tables if reload support added for this table and this table can be _safe_ reloaded.'),
 ('reload all scripts',3,'Syntax: .reload all scripts\nReload gameobject_scripts, event_scripts, quest_end_scripts, quest_start_scripts, spell_scripts, db_script_string, waypoint_scripts tables.'),
 ('reload all spell',3,'Syntax: .reload all spell\r\n\r\nReload all `spell_*` tables with reload support added and that can be _safe_ reloaded.'),
@@ -619,7 +619,6 @@ INSERT INTO `command` VALUES
 ('reload mail_level_reward',3,'Syntax: .reload mail_level_reward\nReload mail_level_reward table.'),
 ('reload mail_loot_template',3,'Syntax: .reload mail_loot_template\nReload mail_loot_template table.'),
 ('reload milling_loot_template',3,'Syntax: .reload milling_loot_template\nReload milling_loot_template table.'),
-('reload npc_gossip',3,'Syntax: .reload npc_gossip\nReload npc_gossip table.'),
 ('reload npc_trainer',3,'Syntax: .reload npc_trainer\nReload npc_trainer table.'),
 ('reload npc_vendor',3,'Syntax: .reload npc_vendor\nReload npc_vendor table.'),
 ('reload page_text',3,'Syntax: .reload page_text\nReload page_text table.'),
@@ -3775,29 +3774,6 @@ CREATE TABLE `milling_loot_template` (
 LOCK TABLES `milling_loot_template` WRITE;
 /*!40000 ALTER TABLE `milling_loot_template` DISABLE KEYS */;
 /*!40000 ALTER TABLE `milling_loot_template` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `npc_gossip`
---
-
-DROP TABLE IF EXISTS `npc_gossip`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `npc_gossip` (
-  `npc_guid` int(10) unsigned NOT NULL DEFAULT '0',
-  `textid` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`npc_guid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `npc_gossip`
---
-
-LOCK TABLES `npc_gossip` WRITE;
-/*!40000 ALTER TABLE `npc_gossip` DISABLE KEYS */;
-/*!40000 ALTER TABLE `npc_gossip` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --

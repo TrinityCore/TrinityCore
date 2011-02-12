@@ -1554,9 +1554,6 @@ void World::SetInitialWorldSettings()
     sLog->outString("Loading GameTeleports...");
     sObjectMgr->LoadGameTele();
 
-    sLog->outString("Loading Npc Text Id...");
-    sObjectMgr->LoadNpcTextId();                                 // must be after load Creature and NpcText
-
     sObjectMgr->LoadGossipScripts();                             // must be before gossip menu options
 
     sLog->outString("Loading Gossip menu...");

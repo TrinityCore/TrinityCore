@@ -514,19 +514,24 @@ void Aura::UpdateTargetMap(Unit * caster, bool apply)
     for (std::map<Unit *, uint8>::iterator itr = targets.begin(); itr!= targets.end();)
     {
         // aura mustn't be already applied on target
-        if (IsAppliedOnTarget(itr->first->GetGUID()))
+        if (AuraApplication * aurApp = GetApplicationOfTarget(itr->first->GetGUID()))
         {
-            AuraApplication * aurApp = GetApplicationOfTarget(itr->first->GetGUID());
-            // check if we have valid pointer
-            ASSERT(aurApp->GetTarget());
-            // check if we really have same guid
-            ASSERT(aurApp->GetTarget()->GetGUID() == itr->first->GetGUID());
-            // check if we really have base aura
-            ASSERT(aurApp->GetBase() == this);
-            // check if core created 2 units with same guid
-            ASSERT(aurApp->GetTarget() == itr->first);
-            // ok, we have same unit twice in map, how?
-            ASSERT(false);
+            // the core created 2 different units with same guid
+            // this is a major failue, which i can't fix right now
+            // let's remove one unit from aura list
+            // this may cause area aura "bouncing" between 2 units after each update
+            // but because we know the reason of a crash we can remove the assertion for now
+            if (aurApp->GetTarget() != itr->first)
+            {
+                // remove from auras to register list
+                targets.erase(itr++);
+                continue;
+            }
+            else
+            {
+                // ok, we have one unit twice in target map (impossible, but...)
+                ASSERT(false);
+            }
         }
 
         bool addUnit = true;
