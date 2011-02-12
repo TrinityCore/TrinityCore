@@ -5615,8 +5615,8 @@ void ObjectMgr::LoadInstanceEncounters()
                     sLog->outErrorDb("Table `instance_encounters` has an invalid creature (entry %u) linked to the encounter %u (%s), skipped!", creditEntry, entry, dungeonEncounter->encounterName[0]);
                     continue;
                 }
-                break;
                 const_cast<CreatureInfo*>(creatureInfo)->flags_extra |= CREATURE_FLAG_EXTRA_DUNGEON_BOSS;
+                break;
             }
             case ENCOUNTER_CREDIT_CAST_SPELL:
                 if (!sSpellStore.LookupEntry(creditEntry))
