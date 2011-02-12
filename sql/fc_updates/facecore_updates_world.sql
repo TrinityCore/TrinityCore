@@ -143,3 +143,8 @@ INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`
 DELETE FROM `spell_script_names` WHERE `spell_id` IN ('-2818');
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 ('-2818','spell_rog_deadly_poison');
+
+-- Envenom fix
+DELETE FROM `spell_bonus_data` WHERE `entry` IN ('32645');
+INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES
+('32645','0','0','0','0','Rogue - Envenom');
