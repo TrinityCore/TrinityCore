@@ -2073,6 +2073,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 59640, 'spell_item_underbelly_elixir'),
 ( 71905, 'spell_item_shadowmourne'),
 ( 67533, 'spell_item_red_rider_air_rifle'),
+( 26678,'spell_item_create_heart_candy'),
 -- warrior
 ( 12975, 'spell_warr_last_stand'),
 ( 59725, 'spell_warr_improved_spell_reflection'),
