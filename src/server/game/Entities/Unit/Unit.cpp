@@ -6416,6 +6416,17 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     triggered_spell_id = 32747;
                     break;
                 }
+                case 57934: // Tricks of the Trade
+                {
+                    if (Unit * unitTarget = GetMisdirectionTarget())
+                    {
+                        RemoveAura(dummySpell->Id, GetGUID(), 0, AURA_REMOVE_BY_DEFAULT);
+                        CastSpell(this, 59628, true);
+                        CastSpell(unitTarget, 57933, true);
+                        return true;
+                    }
+                    return false;
+                }
             }
             // Cut to the Chase
             if (dummySpell->SpellIconID == 2909)
