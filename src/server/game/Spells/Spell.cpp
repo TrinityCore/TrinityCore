@@ -1498,11 +1498,18 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
 
                 ((UnitAura*)m_spellAura)->SetDiminishGroup(m_diminishGroup);
 
-                bool positive = IsPositiveSpell(m_spellAura->GetId());
+                bool positive = true;
                 AuraApplication * aurApp = m_spellAura->GetApplicationOfTarget(m_originalCaster->GetGUID());
                 if (aurApp)
                     positive = aurApp->IsPositive();
-
+                else
+                    for (uint32 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
+                        if (effectMask & (1 << effIndex))
+                            if (!IsPositiveEffect(aurSpellInfo->Id, effIndex))
+                            {
+                                positive = false;
+                                break;
+                            }
                 duration = m_originalCaster->ModSpellDuration(aurSpellInfo, unit, duration, positive);
 
                 // Haste modifies duration of channeled spells
