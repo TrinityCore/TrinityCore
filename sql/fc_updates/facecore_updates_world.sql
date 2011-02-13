@@ -173,3 +173,6 @@ UPDATE `creature_template` SET `unit_flags` = 32768 WHERE `entry` = 25760;
 UPDATE `creature_template` SET `Unit_flags` = 36864 WHERE `entry` = 3296;
 UPDATE `creature_template` SET `unit_flags` = 0 WHERE `entry` = 26076;
 UPDATE `creature_template` SET `unit_flags` = 0 WHERE `entry` = 26073;
+
+-- fix flag for Sunreaver Agent NPC.
+UPDATE `creature_template` SET `unit_flags` = 0 WHERE `entry` = 36776;
