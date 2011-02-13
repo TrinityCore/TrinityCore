@@ -158,3 +158,10 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 
 -- fix for YTDB after "guards don't evade..." commit
 UPDATE `creature_template` SET `Unit_flags` = 36864 WHERE `entry` = 3296;
+
+-- Isle of Conquest bosses aggro through wall fix
+UPDATE `creature_template` SET `unit_flags` = 256 WHERE `entry` = 34924;
+UPDATE `creature_template` SET `unit_flags` = 256 WHERE `entry` = 34922;
+UPDATE `creature_template` SET `unit_flags` = 256 WHERE `entry` = 34918;
+UPDATE `creature_template` SET `unit_flags` = 256 WHERE `entry` = 34919;
+
