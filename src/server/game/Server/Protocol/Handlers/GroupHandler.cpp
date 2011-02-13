@@ -237,11 +237,12 @@ void WorldSession::HandleGroupDeclineOpcode(WorldPacket & /*recv_data*/)
     Group  *group  = GetPlayer()->GetGroupInvite();
     if (!group) return;
 
+    // Remember leader if online (group pointer will be invalid if group gets disbanded)
+    Player *leader = sObjectMgr->GetPlayer(group->GetLeaderGUID());
+
     // uninvite, group can be deleted
     GetPlayer()->UninviteFromGroup();
 
-    // remember leader if online
-    Player *leader = sObjectMgr->GetPlayer(group->GetLeaderGUID());
     if (!leader || !leader->GetSession())
         return;
 
