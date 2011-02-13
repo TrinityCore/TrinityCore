@@ -1405,7 +1405,7 @@ void World::SetInitialWorldSettings()
     sGameEventMgr->LoadFromDB();                                 // TODOLEAK: add scopes
 
     sLog->outString("Loading Dungeon boss data...");
-    sLFGMgr->LoadDungeonEncounters();
+    sObjectMgr->LoadInstanceEncounters();
 
     sLog->outString("Loading LFG rewards...");
     sLFGMgr->LoadRewards();
@@ -1522,9 +1522,6 @@ void World::SetInitialWorldSettings()
 
     sLog->outString("Loading GameTeleports...");
     sObjectMgr->LoadGameTele();
-
-    sLog->outString("Loading Npc Text Id...");
-    sObjectMgr->LoadNpcTextId();                                 // must be after load Creature and NpcText
 
     sObjectMgr->LoadGossipScripts();                             // must be before gossip menu options
 

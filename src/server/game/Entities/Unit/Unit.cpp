@@ -204,8 +204,6 @@ Unit::~Unit()
         }
     }
 
-    RemoveAllGameObjects();
-    RemoveAllDynObjects();
     _DeleteRemovedAuras();
 
     delete m_charmInfo;
@@ -219,6 +217,8 @@ Unit::~Unit()
     ASSERT(m_appliedAuras.empty());
     ASSERT(m_ownedAuras.empty());
     ASSERT(m_removedAuras.empty());
+    ASSERT(m_gameObj.empty());
+    ASSERT(m_dynObj.empty());
 }
 
 void Unit::Update(uint32 p_time)
@@ -1390,8 +1390,10 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
     // Do effect if any damage done to target
     if (damageInfo->damage)
     {
-        AuraEffectList const& vDamageShields = pVictim->GetAuraEffectsByType(SPELL_AURA_DAMAGE_SHIELD);
-        for (AuraEffectList::const_iterator dmgShieldItr = vDamageShields.begin(); dmgShieldItr != vDamageShields.end(); ++dmgShieldItr)
+        // We're going to call functions which can modify content of the list during iteration over it's elements
+        // Let's copy the list so we can prevent iterator invalidation
+        AuraEffectList vDamageShieldsCopy(pVictim->GetAuraEffectsByType(SPELL_AURA_DAMAGE_SHIELD));
+        for (AuraEffectList::const_iterator dmgShieldItr = vDamageShieldsCopy.begin(); dmgShieldItr != vDamageShieldsCopy.end(); ++dmgShieldItr)
         {
             SpellEntry const *i_spellProto = (*dmgShieldItr)->GetSpellProto();
             // Damage shield can be resisted...
@@ -4468,24 +4470,40 @@ int32 Unit::GetMaxNegativeAuraModifierByAffectMask(AuraType auratype, SpellEntry
     return modifier;
 }
 
-void Unit::AddDynObject(DynamicObject* dynObj)
+void Unit::_RegisterDynObject(DynamicObject* dynObj)
 {
-    m_dynObjGUIDs.push_back(dynObj->GetGUID());
+    m_dynObj.push_back(dynObj);
 }
 
-void Unit::RemoveDynObject(uint32 spellid)
+void Unit::_UnregisterDynObject(DynamicObject* dynObj)
 {
-    if (m_dynObjGUIDs.empty())
-        return;
-    for (DynObjectGUIDs::iterator i = m_dynObjGUIDs.begin(); i != m_dynObjGUIDs.end();)
+    m_dynObj.remove(dynObj);
+}
+
+DynamicObject * Unit::GetDynObject(uint32 spellId)
+{
+    if (m_dynObj.empty())
+        return NULL;
+    for (DynObjectList::const_iterator i = m_dynObj.begin(); i != m_dynObj.end();++i)
     {
-        DynamicObject* dynObj = GetMap()->GetDynamicObject(*i);
-        if (!dynObj) // may happen if a dynobj is removed when grid unload
-            i = m_dynObjGUIDs.erase(i);
-        else if (spellid == 0 || dynObj->GetSpellId() == spellid)
+        DynamicObject* dynObj = *i;
+        if (dynObj->GetSpellId() == spellId)
+            return dynObj;
+    }
+    return NULL;
+}
+
+void Unit::RemoveDynObject(uint32 spellId)
+{
+    if (m_dynObj.empty())
+        return;
+    for (DynObjectList::iterator i = m_dynObj.begin(); i != m_dynObj.end();)
+    {
+        DynamicObject* dynObj = *i;
+        if (dynObj->GetSpellId() == spellId)
         {
-            dynObj->Delete();
-            i = m_dynObjGUIDs.erase(i);
+            dynObj->Remove();
+            i = m_dynObj.begin();
         }
         else
             ++i;
@@ -4494,31 +4512,8 @@ void Unit::RemoveDynObject(uint32 spellid)
 
 void Unit::RemoveAllDynObjects()
 {
-    while (!m_dynObjGUIDs.empty())
-    {
-        DynamicObject* dynObj = GetMap()->GetDynamicObject(*m_dynObjGUIDs.begin());
-        if (dynObj)
-            dynObj->Delete();
-        m_dynObjGUIDs.erase(m_dynObjGUIDs.begin());
-    }
-}
-
-DynamicObject * Unit::GetDynObject(uint32 spellId)
-{
-    for (DynObjectGUIDs::iterator i = m_dynObjGUIDs.begin(); i != m_dynObjGUIDs.end();)
-    {
-        DynamicObject* dynObj = GetMap()->GetDynamicObject(*i);
-        if (!dynObj)
-        {
-            i = m_dynObjGUIDs.erase(i);
-            continue;
-        }
-
-        if (dynObj->GetSpellId() == spellId)
-            return dynObj;
-        ++i;
-    }
-    return NULL;
+    while (!m_dynObj.empty())
+        m_dynObj.front()->Remove();
 }
 
 GameObject* Unit::GetGameObject(uint32 spellId) const
@@ -11884,8 +11879,18 @@ bool Unit::canAttack(Unit const* target, bool force) const
     else if (!IsHostileTo(target))
         return false;
 
-    if (!target->isAttackableByAOE() || target->HasUnitState(UNIT_STAT_DIED))
+    if (!target->isAttackableByAOE())
         return false;
+
+    if (target->HasUnitState(UNIT_STAT_DIED))
+    {
+        if (!ToCreature() || !ToCreature()->isGuard())
+            return false;
+
+        // guards can detect fake death
+        if (!target->HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH))
+            return false;
+    }
 
     if (m_vehicle)
         if (IsOnVehicle(target) || m_vehicle->GetBase()->IsOnVehicle(target))
@@ -13352,6 +13357,7 @@ void Unit::CleanupsBeforeDelete(bool finalCleanup)
     //A unit may be in removelist and not in world, but it is still in grid
     //and may have some references during delete
     RemoveAllAuras();
+    RemoveAllGameObjects();
 
     if (finalCleanup)
         m_cleanupDone = true;
@@ -13408,6 +13414,7 @@ void Unit::DeleteCharmInfo()
     if (!m_charmInfo)
         return;
 
+    m_charmInfo->RestoreState();
     delete m_charmInfo;
     m_charmInfo = NULL;
 }
@@ -13424,10 +13431,13 @@ CharmInfo::CharmInfo(Unit* unit)
         m_oldReactState = m_unit->ToCreature()->GetReactState();
         m_unit->ToCreature()->SetReactState(REACT_PASSIVE);
     }
-
 }
 
 CharmInfo::~CharmInfo()
+{
+}
+
+void CharmInfo::RestoreState()
 {
     if (m_unit->GetTypeId() == TYPEID_UNIT)
         if (Creature *pCreature = m_unit->ToCreature())

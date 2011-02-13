@@ -102,7 +102,6 @@ public:
             { "item_enchantment_template",    SEC_ADMINISTRATOR, true,  &HandleReloadItemEnchantementsCommand,          "", NULL },
             { "item_loot_template",           SEC_ADMINISTRATOR, true,  &HandleReloadLootTemplatesItemCommand,          "", NULL },
             { "item_set_names",               SEC_ADMINISTRATOR, true,  &HandleReloadItemSetNamesCommand,               "", NULL },
-            { "lfg_dungeon_encounters",       SEC_ADMINISTRATOR, true,  &HandleReloadLfgEncountersCommand,              "", NULL },
             { "lfg_dungeon_rewards",          SEC_ADMINISTRATOR, true,  &HandleReloadLfgRewardsCommand,                 "", NULL },
             { "locales_achievement_reward",   SEC_ADMINISTRATOR, true,  &HandleReloadLocalesAchievementRewardCommand,   "", NULL },
             { "locales_creature",             SEC_ADMINISTRATOR, true,  &HandleReloadLocalesCreatureCommand,            "", NULL },
@@ -117,7 +116,6 @@ public:
             { "mail_level_reward",            SEC_ADMINISTRATOR, true,  &HandleReloadMailLevelRewardCommand,            "", NULL },
             { "mail_loot_template",           SEC_ADMINISTRATOR, true,  &HandleReloadLootTemplatesMailCommand,          "", NULL },
             { "milling_loot_template",        SEC_ADMINISTRATOR, true,  &HandleReloadLootTemplatesMillingCommand,       "", NULL },
-            { "npc_gossip",                   SEC_ADMINISTRATOR, true,  &HandleReloadNpcGossipCommand,                  "", NULL },
             { "npc_spellclick_spells",        SEC_ADMINISTRATOR, true,  &HandleReloadSpellClickSpellsCommand,           "",NULL},
             { "npc_trainer",                  SEC_ADMINISTRATOR, true,  &HandleReloadNpcTrainerCommand,                 "", NULL },
             { "npc_vendor",                   SEC_ADMINISTRATOR, true,  &HandleReloadNpcVendorCommand,                  "", NULL },
@@ -224,7 +222,6 @@ public:
     static bool HandleReloadAllNpcCommand(ChatHandler* handler, const char* args)
     {
         if(*args != 'a')                                          // will be reloaded from all_gossips
-            HandleReloadNpcGossipCommand(handler,"a");
         HandleReloadNpcTrainerCommand(handler,"a");
         HandleReloadNpcVendorCommand(handler,"a");
         HandleReloadPointsOfInterestCommand(handler,"a");
@@ -297,8 +294,7 @@ public:
         HandleReloadGossipMenuCommand(handler,"a");
         HandleReloadGossipMenuOptionCommand(handler,"a");
         if(*args != 'a')                                          // already reload from all_scripts
-            HandleReloadGossipScriptsCommand(handler,"a");
-        HandleReloadNpcGossipCommand(handler,"a");
+        HandleReloadGossipScriptsCommand(handler,"a");
         HandleReloadPointsOfInterestCommand(handler,"a");
         return true;
     }
@@ -743,14 +739,6 @@ public:
         return true;
     }
 
-    static bool HandleReloadNpcGossipCommand(ChatHandler* handler, const char* /*args*/)
-    {
-        sLog->outString("Re-Loading `npc_gossip` Table!");
-        sObjectMgr->LoadNpcTextId();
-        handler->SendGlobalGMSysMessage("DB table `npc_gossip` reloaded.");
-        return true;
-    }
-
     static bool HandleReloadNpcTrainerCommand(ChatHandler* handler, const char* /*args*/)
     {
         sLog->outString("Re-Loading `npc_trainer` Table!");
@@ -1161,14 +1149,6 @@ public:
         sLog->outString("Re-Loading Locales Achievement Reward Data...");
         sAchievementMgr->LoadRewardLocales();
         handler->SendGlobalGMSysMessage("DB table `locales_achievement_reward` reloaded.");
-        return true;
-    }
-
-    static bool HandleReloadLfgEncountersCommand(ChatHandler* handler, const char* /*args*/)
-    {
-        sLog->outString("Re-Loading dungeon encounter lfg associations...");
-        sLFGMgr->LoadDungeonEncounters();
-        handler->SendGlobalGMSysMessage("DB table `lfg_dungeon_encounters` reloaded.");
         return true;
     }
 

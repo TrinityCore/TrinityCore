@@ -144,6 +144,7 @@ set(scripts_STAT_SRCS
   Northrend/VioletHold/boss_erekem.cpp
   Northrend/VioletHold/violet_hold.cpp
   Northrend/IcecrownCitadel/instance_icecrown_citadel.cpp
+  Northrend/IcecrownCitadel/icecrown_citadel.cpp
   Northrend/IcecrownCitadel/icecrown_citadel.h
   Northrend/IcecrownCitadel/icecrown_citadel_teleport.cpp
   Northrend/IcecrownCitadel/boss_lord_marrowgar.cpp
@@ -154,6 +155,7 @@ set(scripts_STAT_SRCS
   Northrend/IcecrownCitadel/boss_professor_putricide.cpp
   Northrend/IcecrownCitadel/boss_blood_prince_council.cpp
   Northrend/IcecrownCitadel/boss_blood_queen_lana_thel.cpp
+  Northrend/IcecrownCitadel/boss_sindragosa.cpp
   Northrend/zuldrak.cpp
   Northrend/icecrown.cpp
   Northrend/Gundrak/boss_slad_ran.cpp

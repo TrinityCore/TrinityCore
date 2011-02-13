@@ -2556,17 +2556,15 @@ void Spell::EffectPersistentAA(SpellEffIndex effIndex)
             delete dynObj;
             return;
         }
-        caster->AddDynObject(dynObj);
         dynObj->GetMap()->Add(dynObj);
 
         if (Aura * aura = Aura::TryCreate(m_spellInfo, dynObj, caster, &m_spellValue->EffectBasePoints[0]))
-            m_spellAura = aura;
-        else
         {
-            ASSERT(false);
-            return;
+            m_spellAura = aura;
+            m_spellAura->_RegisterForTargets();
         }
-        m_spellAura->_RegisterForTargets();
+        else
+            return;
     }
     ASSERT(m_spellAura->GetDynobjOwner());
     m_spellAura->_ApplyEffectForTargets(effIndex);
@@ -3387,14 +3385,10 @@ void Spell::EffectAddFarsight(SpellEffIndex effIndex)
     }
     dynObj->SetDuration(duration);
     dynObj->SetUInt32Value(DYNAMICOBJECT_BYTES, 0x80000002);
-    m_caster->AddDynObject(dynObj);
 
     dynObj->setActive(true);    //must before add to map to be put in world container
     dynObj->GetMap()->Add(dynObj); //grid will also be loaded
-
-    // Need to update visibility of object for client to accept farsight guid
-    m_caster->ToPlayer()->SetViewpoint(dynObj, true);
-    //m_caster->ToPlayer()->UpdateVisibilityOf(dynObj);
+    dynObj->SetCasterViewpoint();
 }
 
 void Spell::EffectUntrainTalents(SpellEffIndex /*effIndex*/)

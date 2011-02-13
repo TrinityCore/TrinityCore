@@ -443,6 +443,8 @@ enum SMART_ACTION
     SMART_ACTION_CALL_RANDOM_TIMED_ACTIONLIST       = 87,     // script9 ids 1-9
     SMART_ACTION_CALL_RANDOM_RANGE_TIMED_ACTIONLIST = 88,     // script9 id min, max
     SMART_ACTION_RANDOM_MOVE                        = 89,     // maxDist
+    SMART_ACTION_SET_UNIT_FIELD_BYTES_1             = 90,     // bytes, target
+    SMART_ACTION_REMOVE_UNIT_FIELD_BYTES_1          = 91,     // bytes, target
 
     SMART_ACTION_CASTER_MOVEMENT                    = 96,     // Param1 = Castermovement deaktivieren/aktivieren - 0/1 - default = 0
                                                               // Param2 = Minimum Distanz setzen - default = 0
@@ -789,6 +791,16 @@ struct SmartAction
         {
             uint32 flag;
         } unitFlag;
+
+        struct
+        {
+            uint32 byte1;
+        } setunitByte;
+
+        struct
+        {
+            uint32 byte1;
+        } delunitByte;
 
         struct
         {

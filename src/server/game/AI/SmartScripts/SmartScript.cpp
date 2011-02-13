@@ -1227,7 +1227,6 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                     }
                 break;
             }
-
         case SMART_ACTION_CASTER_MOVEMENT:
             // Wenn Caster gesetzt wird, dann nach Distanzen schauen...
             if (me->m_isCaster = e.action.raw.param1 ? true : false)
@@ -1240,7 +1239,24 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                     me->m_CasterDefaultMaxCombatRange = float(e.action.raw.param3);
             }
             break;
-
+        case SMART_ACTION_SET_UNIT_FIELD_BYTES_1:
+            {
+                ObjectList* targets = GetTargets(e, unit);
+                if (!targets) return;
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); itr++)
+                    if (IsUnit((*itr)))
+                        (*itr)->ToUnit()->SetByteFlag(UNIT_FIELD_BYTES_1, 0, e.action.setunitByte.byte1);
+                break;
+            }
+        case SMART_ACTION_REMOVE_UNIT_FIELD_BYTES_1:
+            {
+                ObjectList* targets = GetTargets(e, unit);
+                if (!targets) return;
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); itr++)
+                    if (IsUnit((*itr)))
+                        (*itr)->ToUnit()->RemoveByteFlag(UNIT_FIELD_BYTES_1, 0, e.action.delunitByte.byte1);
+                break;
+            }
         default:
             sLog->outErrorDb("SmartScript::ProcessAction: Unhandled Action type %u", e.GetActionType());
             break;
