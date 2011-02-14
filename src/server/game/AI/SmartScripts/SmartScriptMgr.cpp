@@ -400,7 +400,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder &e)
                 break;
             case SMART_EVENT_RECEIVE_EMOTE:
             {
-                if (e.event.emote.emote && !IsEmoteValid(e, e.event.emote.emote)) return false;
+                if (e.event.emote.emote && !IsTextEmoteValid(e, e.event.emote.emote)) return false;
                 if (!IsMinMaxValid(e, e.event.emote.cooldownMin, e.event.emote.cooldownMax)) return false;
                 break;
             }

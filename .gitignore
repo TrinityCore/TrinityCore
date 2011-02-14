@@ -7,8 +7,12 @@ build/
 .hg/
 *.kdev*
 *.bak
+<<<<<<< HEAD
 branch_*
 merge_*
 push_*
 update_*
 commit
+=======
+*.patch
+>>>>>>> a8a5734bea7f9b7b0f810b111f8e054a73317bce
