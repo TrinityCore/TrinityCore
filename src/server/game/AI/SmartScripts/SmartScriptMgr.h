@@ -1316,6 +1316,15 @@ class SmartAIMgr
             }
             return true;
         }
+        inline bool IsEmoteValid(SmartScriptHolder e, uint32 entry)
+        {
+            if (!sEmotesStore.LookupEntry(entry))
+            {
+                sLog->outErrorDb("SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent Emote entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
+                return false;
+            }
+            return true;
+        }
         inline bool IsAreaTriggerValid(SmartScriptHolder e, uint32 entry)
         {
             if (!sAreaTriggerStore.LookupEntry(entry))
