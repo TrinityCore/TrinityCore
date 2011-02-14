@@ -508,9 +508,12 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case DATA_COLDFLAME_JETS:
                         coldflameJetsState = data;
                         if (coldflameJetsState == DONE)
+                        {
+                            SaveToDB();
                             for (std::set<uint64>::iterator itr = coldflameJets.begin(); itr != coldflameJets.end(); ++itr)
                                 if (Creature* trap = instance->GetCreature(*itr))
                                     trap->AI()->DoAction(ACTION_STOP_TRAPS);
+                        }
                         break;
                     default:
                         break;
