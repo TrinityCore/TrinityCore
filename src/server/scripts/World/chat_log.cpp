@@ -60,7 +60,7 @@ public:
 
     void OnChat(Player *player, uint32 /*type*/, uint32 /*lang*/, std::string& msg, Player *receiver)
     {
-        if ((sWorld->getIntConfig(CONFIG_CHATLOG_ACCOUNT) == 0) || (player->GetSession()->GetAccountId() == sWorld->getIntConfig(CONFIG_CHATLOG_ACCOUNT)))
+        if ((sWorld->getIntConfig(CONFIG_CHATLOG_ACCOUNT) == 0) || (player->GetSession()->GetAccountId() == sWorld->getIntConfig(CONFIG_CHATLOG_ACCOUNT)) || (receiver->GetSession()->GetAccountId() == sWorld->getIntConfig(CONFIG_CHATLOG_ACCOUNT)))
         {
             if (sWorld->getBoolConfig(CONFIG_CHATLOG_WHISPER))
                 sLog->outChat("[WHISPER] Player %s tells %s: %s",
