@@ -1307,11 +1307,11 @@ class SmartAIMgr
             }
             return true;
         }*/
-        inline bool IsEmoteValid(SmartScriptHolder e, uint32 entry)
+        inline bool IsTextEmoteValid(SmartScriptHolder e, uint32 entry)
         {
             if (!sEmotesTextStore.LookupEntry(entry))
             {
-                sLog->outErrorDb("SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent Emote entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
+                sLog->outErrorDb("SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent Text Emote entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), entry);
                 return false;
             }
             return true;
