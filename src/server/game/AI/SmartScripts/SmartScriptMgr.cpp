@@ -400,7 +400,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder &e)
                 break;
             case SMART_EVENT_RECEIVE_EMOTE:
             {
-                if (e.event.emote.emote && !IsEmoteValid(e, e.event.emote.emote)) return false;
+                if (e.event.emote.emote && !IsTextEmoteValid(e, e.event.emote.emote)) return false;
                 if (!IsMinMaxValid(e, e.event.emote.cooldownMin, e.event.emote.cooldownMax)) return false;
                 break;
             }
@@ -533,7 +533,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder &e)
             break;
         case SMART_ACTION_SET_EMOTE_STATE:
         case SMART_ACTION_PLAY_EMOTE:
-            if (!IsEmoteValid(e, e.action.emote.emote)) return false;
+            if (!IsTextEmoteValid(e, e.action.emote.emote)) return false;
             break;
         case SMART_ACTION_FAIL_QUEST:
         case SMART_ACTION_ADD_QUEST:
@@ -549,12 +549,12 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder &e)
                 break;
             }
         case SMART_ACTION_RANDOM_EMOTE:
-            if (e.action.randomEmote.emote1 && !IsEmoteValid(e, e.action.randomEmote.emote1)) return false;
-            if (e.action.randomEmote.emote2 && !IsEmoteValid(e, e.action.randomEmote.emote2)) return false;
-            if (e.action.randomEmote.emote3 && !IsEmoteValid(e, e.action.randomEmote.emote3)) return false;
-            if (e.action.randomEmote.emote4 && !IsEmoteValid(e, e.action.randomEmote.emote4)) return false;
-            if (e.action.randomEmote.emote5 && !IsEmoteValid(e, e.action.randomEmote.emote5)) return false;
-            if (e.action.randomEmote.emote6 && !IsEmoteValid(e, e.action.randomEmote.emote6)) return false;
+            if (e.action.randomEmote.emote1 && !IsTextEmoteValid(e, e.action.randomEmote.emote1)) return false;
+            if (e.action.randomEmote.emote2 && !IsTextEmoteValid(e, e.action.randomEmote.emote2)) return false;
+            if (e.action.randomEmote.emote3 && !IsTextEmoteValid(e, e.action.randomEmote.emote3)) return false;
+            if (e.action.randomEmote.emote4 && !IsTextEmoteValid(e, e.action.randomEmote.emote4)) return false;
+            if (e.action.randomEmote.emote5 && !IsTextEmoteValid(e, e.action.randomEmote.emote5)) return false;
+            if (e.action.randomEmote.emote6 && !IsTextEmoteValid(e, e.action.randomEmote.emote6)) return false;
             break;
         case SMART_ACTION_ADD_AURA:
         case SMART_ACTION_CAST:
