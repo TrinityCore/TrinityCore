@@ -52,6 +52,7 @@ enum Spells
     SPELL_UNCHAINED_MAGIC       = 69762,
     SPELL_BACKLASH              = 69770,
     SPELL_ICY_GRIP              = 70117,
+    SPELL_ICY_GRIP_JUMP         = 70122,
     SPELL_BLISTERING_COLD       = 70123,
     SPELL_FROST_BEACON          = 70126,
     SPELL_ICE_TOMB_TARGET       = 69712,
@@ -1214,6 +1215,40 @@ class spell_sindragosa_collision_filter : public SpellScriptLoader
         }
 };
 
+class spell_sindragosa_icy_grip : public SpellScriptLoader
+{
+    public:
+        spell_sindragosa_icy_grip() : SpellScriptLoader("spell_sindragosa_icy_grip") { }
+
+        class spell_sindragosa_icy_grip_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sindragosa_icy_grip_SpellScript);
+
+            bool Validate(SpellEntry const* /*spell*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_ICY_GRIP_JUMP))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                GetHitUnit()->CastSpell(GetCaster(), SPELL_ICY_GRIP_JUMP, true);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_sindragosa_icy_grip_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sindragosa_icy_grip_SpellScript();
+        }
+};
+
 class spell_rimefang_icy_blast : public SpellScriptLoader
 {
     public:
@@ -1471,6 +1506,7 @@ void AddSC_boss_sindragosa()
     new spell_sindragosa_frost_beacon();
     new spell_sindragosa_ice_tomb();
     new spell_sindragosa_collision_filter();
+    new spell_sindragosa_icy_grip();
     new spell_rimefang_icy_blast();
     new spell_frostwarden_handler_order_whelp();
     new spell_frostwarden_handler_focus_fire();

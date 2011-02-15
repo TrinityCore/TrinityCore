@@ -2018,6 +2018,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 72528, 'spell_sindragosa_collision_filter'),
 ( 72529, 'spell_sindragosa_collision_filter'),
 ( 72530, 'spell_sindragosa_collision_filter'),
+( 70117, 'spell_sindragosa_icy_grip'),
 -- Isle of Conquest
 ( 66630, 'spell_gen_gunship_portal'),
 ( 66637, 'spell_gen_gunship_portal'),
