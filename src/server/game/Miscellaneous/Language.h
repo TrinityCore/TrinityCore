@@ -1114,6 +1114,15 @@ enum TrinityStrings
     LANG_LOTTERY_ANNOUNCE                   = 11005,
     LANG_LOTTERY_ANNOUNCE_JACKPOT           = 11006,
     LANG_LOTTERY_ANNOUNCE_JACKPOT_M_PLAYERS = 11007,
+    LANG_CHATSPY_APEENDED                   = 11600,
+    LANG_CHATSPY_CANCELLEDMASSIVE           = 11601,
+    LANG_CHATSPY_ALLRESET                   = 11602,
+    LANG_CHATSPY_NOCHATSPY                  = 11603,
+    LANG_CHATSPY_YOURCANCELLED              = 11604,
+    LANG_CHATSPY_SMBCANCELLED               = 11605,
+    LANG_CHATSPY_LISTOFSPYS                 = 11606,
+    LANG_CHATSPY_TOTAL                      = 11607,
+    LANG_CHATSPY_ONESPYSANOTHER             = 11608,
 
     // NOT RESERVED IDS                   12000-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)

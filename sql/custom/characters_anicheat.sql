@@ -12,6 +12,3 @@ CREATE TABLE `players_reports_status` (
   `teleportplane_reports` bigint(20) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='';
-
-DELETE FROM `command` where `name` = 'anticheat ban';
-INSERT INTO `command` VALUES ('anticheat ban', '2', 'Syntax: .anticheat ban [$player_name]\nBan account for default time, kick player and delevel all characters from this account on all realms.');

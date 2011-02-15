@@ -4849,3 +4849,120 @@ bool ChatHandler::HandleUnbindSightCommand(const char * /*args*/)
     m_session->GetPlayer()->StopCastingBindSight();
     return true;
 }
+
+bool ChatHandler::HandleChatSpySetCommand(const char *args)
+{
+    if(!args)
+        return false;
+
+    char* name = strtok((char*)args, " ");
+    std::string cname;
+    Player* target = NULL;
+
+    if(name)
+    {
+        cname = name;
+        normalizePlayerName(cname);
+        target = sObjectMgr->GetPlayer(cname.c_str());
+    }
+    else
+        target = getSelectedPlayer();
+
+    if(!target || target->GetSession() == m_session)
+    {
+        SendSysMessage(LANG_PLAYER_NOT_FOUND);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    target->m_chatSpyGuid = m_session->GetPlayer()->GetGUID();
+    PSendSysMessage(LANG_CHATSPY_APEENDED, target->GetName(), target->GetGUIDLow());
+    return true;
+}
+
+bool ChatHandler::HandleChatSpyResetCommand(const char* /*args*/)
+{
+    HashMapHolder<Player>::MapType &m = HashMapHolder<Player>::GetContainer();
+    HashMapHolder<Player>::MapType::iterator itr = m.begin();
+    for(; itr != m.end(); ++itr)
+    {
+        Player* plr = itr->second->GetSession()->GetPlayer();
+        if (plr && plr->m_chatSpyGuid)
+        {
+            if(Player* spy = sObjectMgr->GetPlayer(plr->m_chatSpyGuid))
+                if(spy->IsInWorld())
+                    ChatHandler(spy).PSendSysMessage(LANG_CHATSPY_CANCELLEDMASSIVE,
+                        plr->GetName(), plr->GetGUIDLow());
+            plr->m_chatSpyGuid = 0;
+        }
+    }
+    SendSysMessage("All |cff00cc00ChatSpy|rs reset.");
+    return true;
+}
+
+bool ChatHandler::HandleChatSpyCancelCommand(const char* args)
+{
+    if(!args)
+        return false;
+
+    char* name = strtok((char*)args, " ");
+    std::string cname;
+    Player* target = NULL;
+
+    if(name)
+    {
+        cname = name;
+        normalizePlayerName(cname);
+        target = sObjectMgr->GetPlayer(cname.c_str());
+    }
+    else
+        target = getSelectedPlayer();
+
+    if(!target || target->GetSession() == m_session)
+    {
+        SendSysMessage(LANG_PLAYER_NOT_FOUND);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    // ok, player found
+    if(!target->m_chatSpyGuid)
+    {
+        PSendSysMessage(LANG_CHATSPY_NOCHATSPY, target->GetName(), target->GetGUIDLow());
+        SetSentErrorMessage(true);
+        return false;
+    }
+    if(target->m_chatSpyGuid == m_session->GetPlayer()->GetGUID())
+        SendSysMessage(LANG_CHATSPY_YOURCANCELLED);
+    else
+    {
+        Player* spy = sObjectMgr->GetPlayer(target->m_chatSpyGuid);
+        PSendSysMessage(LANG_CHATSPY_SMBCANCELLED, (spy ? spy->GetName() : "ERROR"), (spy ? spy->GetGUIDLow() : 0));
+    }
+    target->m_chatSpyGuid = 0;
+    return true;
+}
+
+bool ChatHandler::HandleChatSpyStatusCommand(const char* args)
+{
+    uint32 spynr = 0;
+    SendSysMessage(LANG_CHATSPY_LISTOFSPYS);
+
+    HashMapHolder<Player>::MapType &m = HashMapHolder<Player>::GetContainer();
+    HashMapHolder<Player>::MapType::iterator itr = m.begin();
+    for(; itr != m.end(); ++itr)
+    {
+        Player* plr = itr->second->GetSession()->GetPlayer();
+        if (plr && plr->m_chatSpyGuid)
+        {
+            Player* spy = sObjectMgr->GetPlayer(plr->m_chatSpyGuid);
+            PSendSysMessage(LANG_CHATSPY_ONESPYSANOTHER,
+                (spy ? spy->GetName() : "ERROR"), (spy ? spy->GetGUIDLow() : 0),
+                plr->GetName(), plr->GetGUIDLow()
+            );
+            spynr++;
+        }
+    }
+    PSendSysMessage(LANG_CHATSPY_TOTAL, spynr);
+    return true;
+}

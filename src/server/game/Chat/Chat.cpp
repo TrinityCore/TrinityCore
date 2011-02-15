@@ -90,6 +90,15 @@ static size_t appendCommandTable(ChatCommand* target, const ChatCommand* source)
 
 ChatCommand * ChatHandler::getCommandTable()
 {
+    static ChatCommand chatspyCommandTable[] =
+    {
+        { "reset",          SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleChatSpyResetCommand>,        "", NULL },
+        { "cancel",         SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleChatSpyCancelCommand>,       "", NULL },
+        { "status",         SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleChatSpyStatusCommand>,       "", NULL },
+        { "",               SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleChatSpySetCommand>,          "", NULL },
+        { NULL,             0,                  false, NULL,                                           "", NULL }
+    };
+
     static ChatCommand wintergraspCommandTable[] =
     {
         { "status",         SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleWintergraspStatusCommand>,       "", NULL },
@@ -373,6 +382,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "reset",          SEC_ADMINISTRATOR,  true,  NULL,                                           "", resetCommandTable    },
         { "instance",       SEC_ADMINISTRATOR,  true,  NULL,                                           "", instanceCommandTable },
         { "server",         SEC_ADMINISTRATOR,  true,  NULL,                                           "", serverCommandTable   },
+        { "chatspy",        SEC_ADMINISTRATOR,  false, NULL,                                           "", chatspyCommandTable  },
 
         { "channel",        SEC_ADMINISTRATOR, true, NULL,                                             "", channelCommandTable  },
 

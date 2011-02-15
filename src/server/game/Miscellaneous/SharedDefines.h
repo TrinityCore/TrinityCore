@@ -2537,10 +2537,11 @@ enum ChatMsg
     CHAT_MSG_ACHIEVEMENT            = 0x30,
     CHAT_MSG_GUILD_ACHIEVEMENT      = 0x31,
     CHAT_MSG_ARENA_POINTS           = 0x32,
-    CHAT_MSG_PARTY_LEADER           = 0x33
+    CHAT_MSG_PARTY_LEADER           = 0x33,
+    CHAT_MSG_REPLY                  = 0x34
 };
 
-#define MAX_CHAT_MSG_TYPE 0x34
+#define MAX_CHAT_MSG_TYPE 0x35
 
 enum ChatLinkColors
 {

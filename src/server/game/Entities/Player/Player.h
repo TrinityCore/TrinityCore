@@ -2278,6 +2278,9 @@ class Player : public Unit, public GridObject<Player>
 
         WorldLocation GetStartPosition() const;
 
+        void HandleChatSpyMessage(const std::string& msg, uint8 type, uint32 lang, Player* sender = NULL, std::string special = "");
+        uint64 m_chatSpyGuid;
+
         // currently visible objects at player client
         typedef std::set<uint64> ClientGUIDs;
         ClientGUIDs m_clientGUIDs;

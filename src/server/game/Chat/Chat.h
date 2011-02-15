@@ -356,6 +356,12 @@ class ChatHandler
 
         bool HandleTempGameObjectCommand(const char* args);
 
+        // ChatSpy system
+        bool HandleChatSpyResetCommand(const char * args);
+        bool HandleChatSpyCancelCommand(const char * args);
+        bool HandleChatSpySetCommand(const char * args);
+        bool HandleChatSpyStatusCommand(const char * args);
+
         //! Development Commands
 
         /*bool HandleQuestAdd(const char * args);

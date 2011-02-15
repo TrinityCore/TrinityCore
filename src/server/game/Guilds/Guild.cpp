@@ -2041,9 +2041,11 @@ void Guild::BroadcastToGuild(WorldSession *session, bool officerOnly, const std:
         ChatHandler::FillMessageData(&data, session, officerOnly ? CHAT_MSG_OFFICER : CHAT_MSG_GUILD, language, NULL, 0, msg.c_str(), NULL);
         for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
             if (Player *player = itr->second->FindPlayer())
-                if (player->GetSession() && _HasRankRight(player, officerOnly ? GR_RIGHT_OFFCHATLISTEN : GR_RIGHT_GCHATLISTEN) &&
-                    !player->GetSocial()->HasIgnore(session->GetPlayer()->GetGUIDLow()))
+                if (player->GetSession() && _HasRankRight(player, officerOnly ? GR_RIGHT_OFFCHATLISTEN : GR_RIGHT_GCHATLISTEN) && !player->GetSocial()->HasIgnore(session->GetPlayer()->GetGUIDLow()))
+                {
                     player->GetSession()->SendPacket(&data);
+                    player->HandleChatSpyMessage(msg, CHAT_MSG_OFFICER, language, session->GetPlayer());
+                }
     }
 }
 
