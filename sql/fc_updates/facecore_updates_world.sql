@@ -179,3 +179,6 @@ UPDATE `creature_template` SET `unit_flags` = 0 WHERE `entry` = 36776;
 
 -- fix flag for Silver Covenant Agent
 UPDATE `creature_template` SET `unit_flags` = 0 WHERE `entry` = 36774; 
+
+-- DB/Achievements: Fix achievement "Lonely?"
+UPDATE `gameobject_template` SET `data10`=45123 WHERE `entry`=187267;
