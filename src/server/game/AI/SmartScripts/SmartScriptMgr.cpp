@@ -769,6 +769,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder &e)
         case SMART_ACTION_CASTER_MOVEMENT:
         case SMART_ACTION_SET_UNIT_FIELD_BYTES_1:
         case SMART_ACTION_REMOVE_UNIT_FIELD_BYTES_1:
+        case SMART_ACTION_INTERRUPT_SPELL:
             break;
 
         default:
