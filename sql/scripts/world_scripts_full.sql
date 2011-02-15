@@ -843,6 +843,7 @@ UPDATE `creature_template` SET `ScriptName`='boss_lady_deathwhisper' WHERE `entr
 UPDATE `creature_template` SET `ScriptName`='npc_cult_fanatic' WHERE `entry` IN (37890,38009,38135);
 UPDATE `creature_template` SET `ScriptName`='npc_cult_adherent' WHERE `entry` IN(37949,38010,38136);
 UPDATE `creature_template` SET `ScriptName`='npc_vengeful_shade' WHERE `entry`=38222;
+UPDATE `creature_template` SET `ScriptName`='npc_rotting_frost_giant' WHERE `entry` IN (38490,38494);
 UPDATE `creature_template` SET `ScriptName`='boss_deathbringer_saurfang' WHERE `entry`=37813;
 UPDATE `creature_template` SET `ScriptName`='npc_high_overlord_saurfang_icc' WHERE `entry`=37187;
 UPDATE `creature_template` SET `ScriptName`='npc_muradin_bronzebeard_icc' WHERE `entry`=37200;
@@ -1895,6 +1896,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 72495, 'spell_cultist_dark_martyrdom'),
 ( 72496, 'spell_cultist_dark_martyrdom'),
 ( 72497, 'spell_cultist_dark_martyrdom'),
+( 72864, 'spell_frost_giant_death_plague'),
 ( 72202, 'spell_deathbringer_blood_link'),
 ( 72178, 'spell_deathbringer_blood_link_aura'),
 ( 72371, 'spell_deathbringer_blood_power'),
@@ -2073,7 +2075,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 59640, 'spell_item_underbelly_elixir'),
 ( 71905, 'spell_item_shadowmourne'),
 ( 67533, 'spell_item_red_rider_air_rifle'),
-( 26678,'spell_item_create_heart_candy'),
+( 26678, 'spell_item_create_heart_candy'),
 -- warrior
 ( 12975, 'spell_warr_last_stand'),
 ( 59725, 'spell_warr_improved_spell_reflection'),
