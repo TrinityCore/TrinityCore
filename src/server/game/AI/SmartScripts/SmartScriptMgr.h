@@ -448,7 +448,9 @@ enum SMART_ACTION
 
     SMART_ACTION_REMOVE_UNIT_FIELD_BYTES_1          = 91,     // bytes, target
 
-    SMART_ACTION_END                                = 92,
+    SMART_ACTION_INTERRUPT_SPELL                    = 92,
+
+    SMART_ACTION_END                                = 93,
 };
 
 struct SmartAction
@@ -821,6 +823,12 @@ struct SmartAction
             uint32 entry6;
         } randTimedActionList;
 
+        struct
+        {
+            bool withDelayed;
+            uint32 spell_id;
+            bool withInstant;
+        } interruptSpellCasting;
         struct
         {
             uint32 param1;
