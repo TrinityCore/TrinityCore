@@ -182,3 +182,13 @@ UPDATE `creature_template` SET `unit_flags` = 0 WHERE `entry` = 36774;
 
 -- DB/Achievements: Fix achievement "Lonely?"
 UPDATE `gameobject_template` SET `data10`=45123 WHERE `entry`=187267;
+
+ -- Dangerous Love achievement
+ -- Alliance
+ UPDATE quest_template SET prevQuestID = 0 where ExclusiveGroup = 24638;
+ -- Horde
+ UPDATE quest_template SET prevQuestID = 0 where ExclusiveGroup = 24658;
+ -- Alliance
+ UPDATE quest_template SET prevQuestID = 24576 where ExclusiveGroup = 24638;
+ -- Horde
+ UPDATE quest_template SET prevQuestID = 24657 where ExclusiveGroup = 24658;
