@@ -52,6 +52,7 @@ enum Spells
     SPELL_UNCHAINED_MAGIC       = 69762,
     SPELL_BACKLASH              = 69770,
     SPELL_ICY_GRIP              = 70117,
+    SPELL_ICY_GRIP_JUMP         = 70122,
     SPELL_BLISTERING_COLD       = 70123,
     SPELL_FROST_BEACON          = 70126,
     SPELL_ICE_TOMB_TARGET       = 69712,
@@ -251,7 +252,7 @@ class boss_sindragosa : public CreatureScript
                     me->SetSpeed(MOVE_FLIGHT, 4.0f);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     float moveTime = me->GetExactDist(&SindragosaFlyPos)/(me->GetSpeed(MOVE_FLIGHT)*0.001f);
-                    me->m_Events.AddEvent(new FrostwyrmLandEvent(*me, SindragosaLandPos), uint64(moveTime) + 250);
+                    me->m_Events.AddEvent(new FrostwyrmLandEvent(*me, SindragosaLandPos), me->m_Events.CalculateTime(uint64(moveTime) + 250));
                     me->GetMotionMaster()->MovePoint(POINT_FROSTWYRM_FLY_IN, SindragosaFlyPos);
                     DoCast(me, SPELL_SINDRAGOSA_S_FURY);
                 }
@@ -616,7 +617,7 @@ class npc_spinestalker : public CreatureScript
                     me->SetSpeed(MOVE_FLIGHT, 2.0f);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     float moveTime = me->GetExactDist(&SpinestalkerFlyPos)/(me->GetSpeed(MOVE_FLIGHT)*0.001f);
-                    me->m_Events.AddEvent(new FrostwyrmLandEvent(*me, SpinestalkerLandPos), uint64(moveTime) + 250);
+                    me->m_Events.AddEvent(new FrostwyrmLandEvent(*me, SpinestalkerLandPos), me->m_Events.CalculateTime(uint64(moveTime) + 250));
                     me->SetDefaultMovementType(IDLE_MOTION_TYPE);
                     me->GetMotionMaster()->MoveIdle(MOTION_SLOT_IDLE);
                     me->StopMoving();
@@ -736,7 +737,7 @@ class npc_rimefang : public CreatureScript
                     me->SetSpeed(MOVE_FLIGHT, 2.0f);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                     float moveTime = me->GetExactDist(&RimefangFlyPos)/(me->GetSpeed(MOVE_FLIGHT)*0.001f);
-                    me->m_Events.AddEvent(new FrostwyrmLandEvent(*me, RimefangLandPos), uint64(moveTime) + 250);
+                    me->m_Events.AddEvent(new FrostwyrmLandEvent(*me, RimefangLandPos), me->m_Events.CalculateTime(uint64(moveTime) + 250));
                     me->SetDefaultMovementType(IDLE_MOTION_TYPE);
                     me->GetMotionMaster()->MoveIdle(MOTION_SLOT_IDLE);
                     me->StopMoving();
@@ -1214,6 +1215,40 @@ class spell_sindragosa_collision_filter : public SpellScriptLoader
         }
 };
 
+class spell_sindragosa_icy_grip : public SpellScriptLoader
+{
+    public:
+        spell_sindragosa_icy_grip() : SpellScriptLoader("spell_sindragosa_icy_grip") { }
+
+        class spell_sindragosa_icy_grip_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sindragosa_icy_grip_SpellScript);
+
+            bool Validate(SpellEntry const* /*spell*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_ICY_GRIP_JUMP))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                GetHitUnit()->CastSpell(GetCaster(), SPELL_ICY_GRIP_JUMP, true);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_sindragosa_icy_grip_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sindragosa_icy_grip_SpellScript();
+        }
+};
+
 class spell_rimefang_icy_blast : public SpellScriptLoader
 {
     public:
@@ -1471,6 +1506,7 @@ void AddSC_boss_sindragosa()
     new spell_sindragosa_frost_beacon();
     new spell_sindragosa_ice_tomb();
     new spell_sindragosa_collision_filter();
+    new spell_sindragosa_icy_grip();
     new spell_rimefang_icy_blast();
     new spell_frostwarden_handler_order_whelp();
     new spell_frostwarden_handler_focus_fire();
