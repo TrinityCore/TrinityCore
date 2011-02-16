@@ -1,5 +1,5 @@
 = TrinityCore -- Linux installation =
-Copyright (C) 2008-2010 TrinityCore (http://www.trinitycore.org)
+Copyright (C) 2008-2011 TrinityCore (http://www.trinitycore.org)
 
 =========================================================
 WARNING: THIS DOCUMENTATION IS NOT ALWAYS UP TO DATE.
@@ -13,7 +13,7 @@ have all required applications
 
 The most important ones are:
 
-	g++
+    g++
     gcc
     make
     cmake version 2.6.x or greater
@@ -54,7 +54,6 @@ flags like
     USE_SFMT            Use SFMT as random numbergenerator
     WITH_WARNINGS       Show all warnings during compile
     WITH_COREDEBUG      Include additional debug-code in core
-    WITH_SQLDEBUG       Output SQL-queries to dedicated logfile
     WITH_SQL            Copy SQL files during installation
     PREFIX              Set installation directory
     CONF_DIR            Set configuration directory
