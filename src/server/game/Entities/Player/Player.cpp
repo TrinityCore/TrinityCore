@@ -19364,13 +19364,17 @@ void Player::Yell(const std::string& text, const uint32 language)
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_YELL, language, _text);
 
     HandleChatSpyMessage(text, CHAT_MSG_YELL, language);
-    Map::PlayerList const &PlayerList = pMap->GetPlayers();
+    Map* pMap = this->GetMap();
+    if (pMap)
+    {
+        Map::PlayerList const &PlayerList = pMap->GetPlayers();
         if (!PlayerList.isEmpty())
             for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             {
                 if (i->getSource()->IsWithinDistInMap(this, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL)))
                     i->getSource()->HandleChatSpyMessage(text, CHAT_MSG_YELL, language, this);
             }
+    }
 
     WorldPacket data(SMSG_MESSAGECHAT, 200);
     BuildPlayerChat(&data, CHAT_MSG_YELL, _text, language);
@@ -19383,13 +19387,17 @@ void Player::TextEmote(const std::string& text)
     sScriptMgr->OnPlayerChat(this, CHAT_MSG_EMOTE, LANG_UNIVERSAL, _text);
 
     HandleChatSpyMessage(text, CHAT_MSG_EMOTE, LANG_UNIVERSAL);
-    Map::PlayerList const &PlayerList = pMap->GetPlayers();
-        if (!PlayerList.isEmpty())
-            for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-            {
-                if (i->getSource()->IsWithinDistInMap(this, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE)))
-                    i->getSource()->HandleChatSpyMessage(text, CHAT_MSG_EMOTE, LANG_UNIVERSAL, this);
-            }
+    Map* pMap = this->GetMap();
+    if (pMap)
+    {
+        Map::PlayerList const &PlayerList = pMap->GetPlayers();
+            if (!PlayerList.isEmpty())
+                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                {
+                    if (i->getSource()->IsWithinDistInMap(this, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE)))
+                        i->getSource()->HandleChatSpyMessage(text, CHAT_MSG_EMOTE, LANG_UNIVERSAL, this);
+                }
+    }
 
     WorldPacket data(SMSG_MESSAGECHAT, 200);
     BuildPlayerChat(&data, CHAT_MSG_EMOTE, _text, LANG_UNIVERSAL);
