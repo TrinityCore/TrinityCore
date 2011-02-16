@@ -1545,6 +1545,12 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 }
                 return;
             }
+            // Hungering Cold 
+            if (m_spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_DK_HUNGERING_COLD) 
+            { 
+                unitTarget->CastSpell(m_caster, 51209, true); 
+                return; 
+            }
             switch (m_spellInfo->Id)
             {
             case 49560: // Death Grip
