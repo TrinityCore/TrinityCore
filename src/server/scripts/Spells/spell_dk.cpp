@@ -208,45 +208,45 @@ class spell_dk_corpse_explosion : public SpellScriptLoader
                 if (Unit* unitTarget = GetHitUnit())
                 {
                     int32 bp = 0;
-				bool ghoul = false;
-                // Living ghoul as a target
-                if (unitTarget->isAlive())
-				{
-					ghoul = true;
-                    bp = int32(unitTarget->CountPctFromMaxHealth(25));
-				}
-                // Some corpse
-                else
-                    bp = GetEffectValue();	
+                    bool ghoul = false;
+                    // Living ghoul as a target
+                    if (unitTarget->isAlive())
+                    {
+                        ghoul = true;
+                        bp = int32(unitTarget->CountPctFromMaxHealth(25));
+                    }
+                    // Some corpse
+                    else
+                        bp = GetEffectValue();	
 
-				uint32 spellid = SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), 1);
+                    uint32 spellid = SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), 1);
 
-				// ghoul case
-				if (ghoul)
-				{
-					spellid = 47496;
-					// ap bonus is offlike?
-					bp += GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.1f;
-					// ghoul cast on self, 1,5 seconds
-					unitTarget->CastCustomSpell(unitTarget, spellid, &bp, NULL, NULL, false);
-				}
-				else 
-					GetCaster()->CastCustomSpell(unitTarget, spellid, &bp, NULL, NULL, true);
+                    // ghoul case
+                    if (ghoul)
+                    {
+                        spellid = 47496;
+                        // ap bonus is offlike?
+                        bp += GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.1f;
+                        // ghoul cast on self, 1,5 seconds
+                        unitTarget->CastCustomSpell(unitTarget, spellid, &bp, NULL, NULL, false);
+                    }
+                    else 
+                        GetCaster()->CastCustomSpell(unitTarget, spellid, &bp, NULL, NULL, true);
 
-				// ghoul is dead already by 47496
-				if (!ghoul)
-				{
-					// Corpse Explosion (Suicide)
-					unitTarget->CastCustomSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_TRIGGERED, &bp, NULL, NULL, true);
-					// Set corpse look
-					unitTarget->SetDisplayId(DISPLAY_GHOUL_CORPSE + urand(0, 3));
-				}
+                    // ghoul is dead already by 47496
+                    if (!ghoul)
+                    {
+                        // Corpse Explosion (Suicide)
+                        unitTarget->CastCustomSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_TRIGGERED, &bp, NULL, NULL, true);
+                        // Set corpse look
+                        unitTarget->SetDisplayId(DISPLAY_GHOUL_CORPSE + urand(0, 3));
+                    }
 
-				// impossible to summon a new pet for a time when corpse exist, don't know how on offy
-				/*if (ghoul)
-				{
-					DoSomethingToRemoveCorpse();
-				}*/              
+                    // impossible to summon a new pet for a time when corpse exist, don't know how on offy
+                    /*if (ghoul)
+                    {
+                        DoSomethingToRemoveCorpse();
+                    }*/              
                 }
             }
 
