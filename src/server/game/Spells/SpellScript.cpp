@@ -439,6 +439,16 @@ void SpellScript::CreateItem(uint32 effIndex, uint32 itemId)
     m_spell->DoCreateItem(effIndex, itemId);
 }
 
+int32 SpellScript::GetTrueDamage()
+{
+    if (!IsInAfterHitPhase())
+    {
+        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::GetHitHeal was called while spell not in after-hit phase!", m_scriptName, m_scriptSpellId);
+        return NULL;
+    }
+    return m_spell->m_true_damage;
+}
+
 void SpellScript::FinishCast(SpellCastResult result)
 {
     m_spell->SendCastResult(result);

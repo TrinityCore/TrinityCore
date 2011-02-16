@@ -508,6 +508,7 @@ m_caster(Caster), m_spellValue(new SpellValue(m_spellInfo))
     m_powerCost = 0;                                        // setup to correct value in Spell::prepare, don't must be used before.
     m_casttime = 0;                                         // setup to correct value in Spell::prepare, don't must be used before.
     m_timer = 0;                                            // will set to castime in prepare
+    m_true_damage = 0;
 
     m_channelTargetEffectMask = 0;
 
@@ -1305,6 +1306,9 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         }
 
         caster->DealSpellDamage(&damageInfo, true);
+
+        //for some spells
+        m_true_damage = damageInfo.damage;
 
         // Haunt
         if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellInfo->SpellFamilyFlags[1] & 0x40000 && m_spellAura && m_spellAura->GetEffect(1))
