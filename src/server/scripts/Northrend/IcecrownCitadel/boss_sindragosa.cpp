@@ -1166,14 +1166,14 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
 class FrostBombTargetSelector
 {
     public:
-        FrostBombTargetSelector(Unit* _caster, std::list<Unit*> const& _collisionList) : caster(_caster), collisionList(_collisionList) { }
+        FrostBombTargetSelector(Unit* _caster, std::list<Creature*> const& _collisionList) : caster(_caster), collisionList(_collisionList) { }
 
         bool operator()(Unit* unit)
         {
             if (unit->HasAura(SPELL_ICE_TOMB_DAMAGE))
                 return true;
 
-            for (std::list<Unit*>::const_iterator itr = collisionList.begin(); itr != collisionList.end(); ++itr)
+            for (std::list<Creature*>::const_iterator itr = collisionList.begin(); itr != collisionList.end(); ++itr)
                 if ((*itr)->IsInBetween(caster, unit))
                     return true;
 
@@ -1181,7 +1181,7 @@ class FrostBombTargetSelector
         }
 
         Unit* caster;
-        std::list<Unit*> const& collisionList;
+        std::list<Creature*> const& collisionList;
 };
 
 class spell_sindragosa_collision_filter : public SpellScriptLoader
@@ -1193,13 +1193,17 @@ class spell_sindragosa_collision_filter : public SpellScriptLoader
         {
             PrepareSpellScript(spell_sindragosa_collision_filter_SpellScript);
 
+            bool Validate(SpellEntry const* /*spell*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_ICE_TOMB_DAMAGE))
+                    return false;
+                return true;
+            }
+
             void FilterTargets(std::list<Unit*>& unitList)
             {
-                std::list<Unit*> tombs;
-                for (std::list<Unit*>::const_iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
-                    if ((*itr)->HasAura(SPELL_ICE_TOMB_DAMAGE))
-                        tombs.push_back(*itr);
-
+                std::list<Creature*> tombs;
+                GetCreatureListWithEntryInGrid(tombs, GetCaster(), NPC_ICE_TOMB, 200.0f);
                 unitList.remove_if(FrostBombTargetSelector(GetCaster(), tombs));
             }
 
