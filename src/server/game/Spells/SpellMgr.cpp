@@ -3846,6 +3846,13 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectRadiusIndex[0] = 37;
             count++;
             break;
+        // Ghoul's explosion - fix wrong target(?) + make instakill
+	    case 47496:
+	    spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_AREA_ENEMY_DST;
+	    spellInfo->EffectImplicitTargetB[0] = 0;
+	    spellInfo->Effect[1] = SPELL_EFFECT_INSTAKILL;
+	    count++;
+	    break;
         // Master Shapeshifter: missing stance data for forms other than bear - bear version has correct data
         // To prevent aura staying on target after talent unlearned
         case 48420:
