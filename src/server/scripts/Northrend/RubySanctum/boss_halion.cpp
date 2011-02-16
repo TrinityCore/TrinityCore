@@ -872,7 +872,7 @@ public:
                        if (i->getSource()->isAlive()  && i->getSource()->IsWithinDistInMap(me, range))
                            return true;
                    }
-                }
+            }
             return false;
         }
 
