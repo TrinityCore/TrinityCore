@@ -352,9 +352,10 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId, bool byAura)
                 averageItemLevel = scalingInfo->baseItemLevel;
             averageItemLevel -= scalingInfo->baseItemLevel;
 
+            float currentHealthPct = me->GetHealthPct();
             m_bonusHP = uint32(me->GetMaxHealth() * (averageItemLevel * scalingInfo->scalingFactor));
             me->SetMaxHealth(me->GetMaxHealth() + m_bonusHP);
-            me->SetHealth(me->GetHealth() + m_bonusHP);
+            me->SetHealth(uint32((me->GetHealth() + m_bonusHP) * currentHealthPct));
         }
     }
 
