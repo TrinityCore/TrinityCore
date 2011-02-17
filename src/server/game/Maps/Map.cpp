@@ -2368,7 +2368,7 @@ bool InstanceMap::Add(Player *player)
 
         // for normal instances cancel the reset schedule when the
         // first player enters (no players yet)
-        SetResetSchedule(false);
+        SetResetSchedule(false, player);
 
         sLog->outDetail("MAP: Player '%s' entered instance '%u' of map '%s'", player->GetName(), GetInstanceId(), GetMapName());
         // initialize unload state
@@ -2402,7 +2402,7 @@ void InstanceMap::Remove(Player *player, bool remove)
         m_unloadTimer = m_unloadWhenEmpty ? MIN_UNLOAD_DELAY : std::max(sWorld->getIntConfig(CONFIG_INSTANCE_UNLOAD_DELAY), (uint32)MIN_UNLOAD_DELAY);
     Map::Remove(player, remove);
     // for normal instances schedule the reset after all players have left
-    SetResetSchedule(true);
+    SetResetSchedule(true, player);
 }
 
 void InstanceMap::CreateInstanceData(bool load)
@@ -2529,18 +2529,19 @@ void InstanceMap::SendResetWarnings(uint32 timeLeft) const
         itr->getSource()->SendInstanceResetWarning(GetId(), itr->getSource()->GetDifficulty(IsRaid()), timeLeft);
 }
 
-void InstanceMap::SetResetSchedule(bool on)
+void InstanceMap::SetResetSchedule(bool on, Player* player)
 {
     // only for normal instances
     // the reset time is only scheduled when there are no payers inside
     // it is assumed that the reset time will rarely (if ever) change while the reset is scheduled
     if (IsDungeon() && !HavePlayers() && !IsRaidOrHeroicDungeon())
     {
-        InstanceSave *save = sInstanceSaveMgr->GetInstanceSave(GetInstanceId());
-        if (!save)
-            sLog->outError("InstanceMap::SetResetSchedule: cannot turn schedule %s, no save available for instance %d of %d", on ? "on" : "off", GetInstanceId(), GetId());
-        else
+        if (InstanceSave *save = sInstanceSaveMgr->GetInstanceSave(GetInstanceId()))
             sInstanceSaveMgr->ScheduleReset(on, save->GetResetTime(), InstanceSaveManager::InstResetEvent(0, GetId(), Difficulty(GetSpawnMode()), GetInstanceId()));
+        else
+            sLog->outError("InstanceMap::SetResetSchedule: cannot turn schedule %s, there is no save information for instance (map [id: %u, name: %s], instance id: %u) due to player (GUID: %u, name: %s) %s", 
+                on ? "on" : "off", GetId(), GetMapName(), GetInstanceId(), 
+                player->GetGUIDLow(), player->GetName(), on ? "leave" : "entrance");
     }
 }
 
