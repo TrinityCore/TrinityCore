@@ -360,6 +360,14 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId, bool byAura)
 
     if (me->IsInWorld())
     {
+        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE))
+        {
+            WorldPacket data(SMSG_FORCE_MOVE_ROOT, 8+4);
+            data.append(me->GetPackGUID());
+            data << uint32(2);
+            me->SendMessageToSet(&data, false);
+        }
+
         unit->SendMonsterMoveTransport(me);
 
         if (me->GetTypeId() == TYPEID_UNIT)
