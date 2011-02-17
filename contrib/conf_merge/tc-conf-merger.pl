@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
 # Author: leak
 # Date: 2010-12-06
 # Note: Based on conf file format of rev 10507
@@ -33,7 +33,7 @@ my $confold = join "", <CONFOLD>;
 close CONFOLD;
 
 while ($confold =~ m/^(?!#)(.*?)\s+?=\s+?(.*?)$/mg) {
-	my $key = $1, my $value = $2;
+    my $key = $1, my $value = $2;
         $confdist =~ s/^(\Q$key\E)(\s+?=\s+?)(.*)/$1$2$value/mg;
 }
 

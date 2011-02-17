@@ -855,6 +855,12 @@ void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
         const_cast<CreatureInfo*>(cInfo)->expansion = 0;
     }
 
+    if (uint32 badFlags = (cInfo->flags_extra & ~CREATURE_FLAG_EXTRA_DB_ALLOWED))
+    {
+        sLog->outErrorDb("Table `creature_template` lists creature (Entry: %u) with disallowed `flags_extra` %u, removing incorrect flag.", cInfo->Entry, badFlags);
+        const_cast<CreatureInfo*>(cInfo)->flags_extra &= CREATURE_FLAG_EXTRA_DB_ALLOWED;
+    }
+
     const_cast<CreatureInfo*>(cInfo)->dmg_multiplier *= Creature::_GetDamageMod(cInfo->rank);
 }
 
@@ -5553,6 +5559,86 @@ void ObjectMgr::LoadInstanceTemplate()
     sLog->outString();
 }
 
+void ObjectMgr::LoadInstanceEncounters()
+{
+    uint32 oldMSTime = getMSTime();
+
+    QueryResult result = WorldDatabase.Query("SELECT entry, creditType, creditEntry, lastEncounterDungeon FROM instance_encounters");
+    if (!result)
+    {
+        sLog->outErrorDb(">> Loaded 0 instance encounters, table is empty!");
+        sLog->outString();
+        return;
+    }
+
+    uint32 count = 0;
+    std::map<uint32, DungeonEncounterEntry const*> dungeonLastBosses;
+    do
+    {
+        Field* fields = result->Fetch();
+        uint32 entry = fields[0].GetUInt32();
+        uint8 creditType = fields[1].GetUInt8();
+        uint32 creditEntry = fields[2].GetUInt32();
+        uint32 lastEncounterDungeon = fields[3].GetUInt32();
+        DungeonEncounterEntry const* dungeonEncounter = sDungeonEncounterStore.LookupEntry(entry);
+        if (!dungeonEncounter)
+        {
+            sLog->outErrorDb("Table `instance_encounters` has an invalid encounter id %u, skipped!", entry);
+            continue;
+        }
+
+        if (lastEncounterDungeon && !sLFGDungeonStore.LookupEntry(lastEncounterDungeon))
+        {
+            sLog->outErrorDb("Table `instance_encounters` has an encounter %u (%s) marked as final for invalid dungeon id %u, skipped!", entry, dungeonEncounter->encounterName[0], lastEncounterDungeon);
+            continue;
+        }
+
+        std::map<uint32, DungeonEncounterEntry const*>::const_iterator itr = dungeonLastBosses.find(lastEncounterDungeon);
+        if (lastEncounterDungeon)
+        {
+            if (itr != dungeonLastBosses.end())
+            {
+                sLog->outErrorDb("Table `instance_encounters` specified encounter %u (%s) as last encounter but %u (%s) is already marked as one, skipped!", entry, dungeonEncounter->encounterName[0], itr->second->id, itr->second->encounterName[0]);
+                continue;
+            }
+
+            dungeonLastBosses[lastEncounterDungeon] = dungeonEncounter;
+        }
+
+        switch (creditType)
+        {
+            case ENCOUNTER_CREDIT_KILL_CREATURE:
+            {
+                CreatureInfo const* creatureInfo = GetCreatureInfo(creditEntry);
+                if (!creatureInfo)
+                {
+                    sLog->outErrorDb("Table `instance_encounters` has an invalid creature (entry %u) linked to the encounter %u (%s), skipped!", creditEntry, entry, dungeonEncounter->encounterName[0]);
+                    continue;
+                }
+                const_cast<CreatureInfo*>(creatureInfo)->flags_extra |= CREATURE_FLAG_EXTRA_DUNGEON_BOSS;
+                break;
+            }
+            case ENCOUNTER_CREDIT_CAST_SPELL:
+                if (!sSpellStore.LookupEntry(creditEntry))
+                {
+                    sLog->outErrorDb("Table `instance_encounters` has an invalid spell (entry %u) linked to the encounter %u (%s), skipped!", creditEntry, entry, dungeonEncounter->encounterName[0]);
+                    continue;
+                }
+                break;
+            default:
+                sLog->outErrorDb("Table `instance_encounters` has an invalid credit type (%u) for encounter %u (%s), skipped!", creditType, entry, dungeonEncounter->encounterName[0]);
+                continue;
+        }
+
+        DungeonEncounterList& encounters = mDungeonEncounters[MAKE_PAIR32(dungeonEncounter->mapId, dungeonEncounter->difficulty)];
+        encounters.push_back(new DungeonEncounter(dungeonEncounter, EncounterCreditType(creditType), creditEntry, lastEncounterDungeon));
+        ++count;
+    } while (result->NextRow());
+
+    sLog->outString(">> Loaded %u instance encounters in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outString();
+}
+
 GossipText const *ObjectMgr::GetGossipText(uint32 Text_ID) const
 {
     GossipTextMap::const_iterator itr = mGossipText.find(Text_ID);
@@ -8811,53 +8897,6 @@ void ObjectMgr::LoadVendors()
     while (result->NextRow());
 
     sLog->outString(">> Loaded %d Vendors in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    sLog->outString();
-}
-
-void ObjectMgr::LoadNpcTextId()
-{
-    uint32 oldMSTime = getMSTime();
-
-    m_mCacheNpcTextIdMap.clear();
-
-    QueryResult result = WorldDatabase.Query("SELECT npc_guid, textid FROM npc_gossip");
-
-    if (!result)
-    {
-        sLog->outErrorDb(">> Loaded 0 NpcTextId. DB table `npc_gossip` is empty!");
-        sLog->outString();
-        return;
-    }
-
-    uint32 count = 0;
-    uint32 guid, textid;
-
-    do
-    {
-
-        Field* fields = result->Fetch();
-
-        guid   = fields[0].GetUInt32();
-        textid = fields[1].GetUInt32();
-
-        if (!GetCreatureData(guid))
-        {
-            sLog->outErrorDb("Table `npc_gossip` have not existed creature (GUID: %u) entry, ignore. ",guid);
-            continue;
-        }
-        if (!GetGossipText(textid))
-        {
-            sLog->outErrorDb("Table `npc_gossip` for creature (GUID: %u) have wrong Textid (%u), ignore. ", guid, textid);
-            continue;
-        }
-
-        m_mCacheNpcTextIdMap[guid] = textid ;
-        ++count;
-
-    }
-    while (result->NextRow());
-
-    sLog->outString(">> Loaded %d NpcTextId in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
 }
 

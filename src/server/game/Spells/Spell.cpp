@@ -53,6 +53,7 @@
 #include "SpellScript.h"
 #include "OutdoorPvPWG.h"
 #include "OutdoorPvPMgr.h"
+#include "InstanceScript.h"
 
 #define SPELL_CHANNEL_UPDATE_INTERVAL (1 * IN_MILLISECONDS)
 
@@ -2376,7 +2377,8 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                             AddUnitTarget(driver, i);
                     break;
                 default:
-                    sLog->outError("Unhandled spell target %u", cur);
+                    sLog->outError("SPELL (caster[type: %u; guidlow: %u], spell: %u): unhandled spell target (%u)",
+                        m_caster->GetTypeId(), m_caster->GetGUIDLow(), m_spellInfo->Id, cur);
                     break;
             }
             break;
@@ -3720,12 +3722,9 @@ void Spell::finish(bool ok)
         // triggered spell pointer can be not set in some cases
         // this is needed for proper apply of triggered spell mods
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, true);
-    }
 
-    // Take mods after trigger spell (needed for 14177 to affect 48664)
-    // mods are taken only on succesfull cast and independantly from targets of the spell
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
-    {
+        // Take mods after trigger spell (needed for 14177 to affect 48664)
+        // mods are taken only on succesfull cast and independantly from targets of the spell
         m_caster->ToPlayer()->RemoveSpellMods(this);
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
     }

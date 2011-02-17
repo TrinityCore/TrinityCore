@@ -140,7 +140,7 @@ public:
 
             Talk(SAY_AGGRO);
         }
-   
+
         void DoAction(const int32 action)
         {
             if (action != ACTION_SET_NORMAL_EVENTS)
@@ -158,7 +158,7 @@ public:
 
             if (summon->GetEntry() != NPC_PLANAR_ANOMALY)
                 return;
-            
+
             summon->CombatStop(true);
             summon->SetReactState(REACT_PASSIVE);
             summon->GetMotionMaster()->MoveRandom(100.0f);

@@ -65,6 +65,10 @@ enum DataTypes
     DATA_PRINCE_TALDARAM_GUID       = 19,
     DATA_PRINCE_VALANAR_GUID        = 20,
     DATA_BLOOD_PRINCES_CONTROL      = 21,
+    DATA_SINDRAGOSA_FROSTWYRMS      = 22,
+    DATA_SPINESTALKER               = 23,
+    DATA_RIMEFANG                   = 24,
+    DATA_COLDFLAME_JETS             = 25,
 };
 
 #define MAX_ENCOUNTER 12
@@ -115,6 +119,7 @@ enum CreaturesIds
     NPC_SE_HIGH_OVERLORD_SAURFANG               = 37187,
     NPC_SE_KOR_KRON_REAVER                      = 37920,
     NPC_SE_SKYBREAKER_MARINE                    = 37830,
+    NPC_FROST_FREEZE_TRAP                       = 37744,
 
     // Festergut
     NPC_FESTERGUT                               = 36626,
@@ -134,6 +139,8 @@ enum CreaturesIds
     NPC_VOLATILE_OOZE                           = 37697,
     NPC_CHOKING_GAS_BOMB                        = 38159,
     NPC_TEAR_GAS_TARGET_STALKER                 = 38317,
+    NPC_MUTATED_ABOMINATION_10                  = 37672,
+    NPC_MUTATED_ABOMINATION_25                  = 38285,
 
     // Blood Prince Council
     NPC_PRINCE_KELESETH                         = 37972,
@@ -150,6 +157,16 @@ enum CreaturesIds
 
     // Blood-Queen Lana'thel
     NPC_BLOOD_QUEEN_LANA_THEL                   = 37955,
+
+    // Sindragosa
+    NPC_SINDRAGOSA                              = 36853,
+    NPC_SPINESTALKER                            = 37534,
+    NPC_RIMEFANG                                = 37533,
+    NPC_FROSTWARDEN_HANDLER                     = 37531,
+    NPC_FROSTWING_WHELP                         = 37532,
+    NPC_ICY_BLAST                               = 38223,
+    NPC_FROST_BOMB                              = 37186,
+    NPC_ICE_TOMB                                = 36980,
 };
 
 enum GameObjectsIds
@@ -199,6 +216,8 @@ enum GameObjectsIds
     GO_SINDRAGOSA_ENTRANCE_DOOR             = 201373,
     GO_SINDRAGOSA_SHORTCUT_ENTRANCE_DOOR    = 201369,
     GO_SINDRAGOSA_SHORTCUT_EXIT_DOOR        = 201379,
+    GO_ICE_WALL                             = 202396,
+    GO_ICE_BLOCK                            = 201722,
 };
 
 enum AchievementCriteriaIds
@@ -238,6 +257,9 @@ enum AchievementCriteriaIds
 
 enum SharedActions
 {
+    // Coldflame Traps
+    ACTION_STOP_TRAPS           = -377440,
+
     // Festergut
     ACTION_FESTERGUT_COMBAT     = -366260,
     ACTION_FESTERGUT_GAS        = -366261,
@@ -247,7 +269,14 @@ enum SharedActions
     ACTION_ROTFACE_COMBAT       = -366270,
     ACTION_ROTFACE_OOZE         = -366271,
     ACTION_ROTFACE_DEATH        = -366272,
-    ACTION_CHANGE_PHASE         = -366780
+    ACTION_CHANGE_PHASE         = -366780,
+
+    // Sindragosa
+    ACTION_START_FROSTWYRM      = -368530,
+    ACTION_TRIGGER_ASPHYXIATION = -368531,
 };
+
+// Declaration
+extern Position const SindragosaSpawnPos;
 
 #endif // DEF_ICECROWN_CITADEL_H

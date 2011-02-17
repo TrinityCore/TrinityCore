@@ -566,11 +566,11 @@ INSERT INTO `command` VALUES
 ('reload all achievement',3,'Syntax: .reload all achievement\r\n\r\nReload achievement_reward, achievement_criteria_data tables.'),
 ('reload all area',3,'Syntax: .reload all area\r\n\r\nReload areatrigger_teleport, areatrigger_tavern, game_graveyard_zone tables.'),
 ('reload all eventai',3,'Syntax: .reload all eventai\r\n\r\nReload creature_ai_scripts, creature_ai_summons, creature_ai_texts tables.'),
-('reload all gossips',3,'Syntax: .reload all gossips\nReload gossip_menu, gossip_menu_option, gossip_scripts, npc_gossip, points_of_interest tables.'),
+('reload all gossips',3,'Syntax: .reload all gossips\nReload gossip_menu, gossip_menu_option, gossip_scripts, points_of_interest tables.'),
 ('reload all item',3,'Syntax: .reload all item\nReload page_text, item_enchantment_table tables.'),
 ('reload all locales',3,'Syntax: .reload all locales\r\n\r\nReload all `locales_*` tables with reload support added and that can be _safe_ reloaded.'),
 ('reload all loot',3,'Syntax: .reload all loot\r\n\r\nReload all `*_loot_template` tables. This can be slow operation with lags for server run.'),
-('reload all npc',3,'Syntax: .reload all npc\nReload npc_gossip, npc_option, npc_trainer, npc vendor, points of interest tables.'),
+('reload all npc',3,'Syntax: .reload all npc\nReload npc_option, npc_trainer, npc vendor, points of interest tables.'),
 ('reload all quest',3,'Syntax: .reload all quest\r\n\r\nReload all quest related tables if reload support added for this table and this table can be _safe_ reloaded.'),
 ('reload all scripts',3,'Syntax: .reload all scripts\nReload gameobject_scripts, event_scripts, quest_end_scripts, quest_start_scripts, spell_scripts, db_script_string, waypoint_scripts tables.'),
 ('reload all spell',3,'Syntax: .reload all spell\r\n\r\nReload all `spell_*` tables with reload support added and that can be _safe_ reloaded.'),
@@ -606,7 +606,6 @@ INSERT INTO `command` VALUES
 ('reload item_enchantment_template',3,'Syntax: .reload item_enchantment_template\nReload item_enchantment_template table.'),
 ('reload item_loot_template',3,'Syntax: .reload item_loot_template\nReload item_loot_template table.'),
 ('reload item_set_names',3,'Syntax: .reload item_set_names\nReload item_set_names table.'),
-('reload lfg_dungeon_encounters',3,'Syntax: .reload lfg_dungeon_encounters\nReload lfg_dungeon_encounters table.'),
 ('reload lfg_dungeon_rewards',3,'Syntax: .reload lfg_dungeon_rewards\nReload lfg_dungeon_rewards table.'),
 ('reload locales_creature',3,'Syntax: .reload locales_creature\nReload locales_creature table.'),
 ('reload locales_gameobject',3,'Syntax: .reload locales_gameobject\nReload locales_gameobject table.'),
@@ -620,7 +619,6 @@ INSERT INTO `command` VALUES
 ('reload mail_level_reward',3,'Syntax: .reload mail_level_reward\nReload mail_level_reward table.'),
 ('reload mail_loot_template',3,'Syntax: .reload mail_loot_template\nReload mail_loot_template table.'),
 ('reload milling_loot_template',3,'Syntax: .reload milling_loot_template\nReload milling_loot_template table.'),
-('reload npc_gossip',3,'Syntax: .reload npc_gossip\nReload npc_gossip table.'),
 ('reload npc_trainer',3,'Syntax: .reload npc_trainer\nReload npc_trainer table.'),
 ('reload npc_vendor',3,'Syntax: .reload npc_vendor\nReload npc_vendor table.'),
 ('reload page_text',3,'Syntax: .reload page_text\nReload page_text table.'),
@@ -2781,6 +2779,32 @@ LOCK TABLES `gossip_menu_option` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `instance_encounters`
+--
+
+DROP TABLE IF EXISTS `instance_encounters`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `instance_encounters` (
+  `entry` int(10) unsigned NOT NULL COMMENT 'Unique entry from DungeonEncounter.dbc',
+  `creditType` tinyint(3) unsigned NOT NULL DEFAULT '0',
+  `creditEntry` int(10) unsigned NOT NULL DEFAULT '0',
+  `lastEncounterDungeon` smallint(5) unsigned NOT NULL DEFAULT '0' COMMENT 'If not 0, LfgDungeon.dbc entry for the instance it is last encounter in',
+  `comment` varchar(255) NOT NULL DEFAULT '',
+  PRIMARY KEY (`entry`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `instance_encounters`
+--
+
+LOCK TABLES `instance_encounters` WRITE;
+/*!40000 ALTER TABLE `instance_encounters` DISABLE KEYS */;
+/*!40000 ALTER TABLE `instance_encounters` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `instance_template`
 --
 
@@ -3072,26 +3096,6 @@ CREATE TABLE `item_template` (
 LOCK TABLES `item_template` WRITE;
 /*!40000 ALTER TABLE `item_template` DISABLE KEYS */;
 /*!40000 ALTER TABLE `item_template` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `lfg_dungeon_encounters`
---
-
-DROP TABLE IF EXISTS `lfg_dungeon_encounters`;
-CREATE TABLE `lfg_dungeon_encounters` (
-  `achievementId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Achievement marking final boss completion',
-  `dungeonId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Dungeon entry from dbc',
-  PRIMARY KEY (`achievementId`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
---
--- Dumping data for table `lfg_dungeon_encounters`
---
-
-LOCK TABLES `lfg_dungeon_encounters` WRITE;
-/*!40000 ALTER TABLE `lfg_dungeon_encounters` DISABLE KEYS */;
-/*!40000 ALTER TABLE `lfg_dungeon_encounters` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -3770,29 +3774,6 @@ CREATE TABLE `milling_loot_template` (
 LOCK TABLES `milling_loot_template` WRITE;
 /*!40000 ALTER TABLE `milling_loot_template` DISABLE KEYS */;
 /*!40000 ALTER TABLE `milling_loot_template` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `npc_gossip`
---
-
-DROP TABLE IF EXISTS `npc_gossip`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `npc_gossip` (
-  `npc_guid` int(10) unsigned NOT NULL DEFAULT '0',
-  `textid` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`npc_guid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `npc_gossip`
---
-
-LOCK TABLES `npc_gossip` WRITE;
-/*!40000 ALTER TABLE `npc_gossip` DISABLE KEYS */;
-/*!40000 ALTER TABLE `npc_gossip` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -17305,7 +17286,17 @@ INSERT INTO `spell_dbc` (`Id`,`Dispel`,`Mechanic`,`Attributes`,`AttributesEx`,`A
 (70878,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, -1, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Creature 40160 creature_addon serverside spell'),
 (38406,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, -1, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Quest 10721 RewSpellCast serverside spell'),
 (44805,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Aura used in creature_addon - serverside spell'),
-(3617,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'NPC 32958 suicide spell');
+(3617,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'NPC 32958 suicide spell'),
+(58630,  0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 101, 0, 0, 0, 0, 0, 1, 0, -1, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 0, 16, 0, 0, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mal''ganis credit marker'),
+(68572,  0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 101, 0, 0, 0, 0, 0, 1, 0, -1, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 0, 16, 0, 0, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Grand Champions credit marker'),
+(68574,  0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 101, 0, 0, 0, 0, 0, 1, 0, -1, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 0, 16, 0, 0, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Argent Champion credit marker'),
+(59046,  0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 101, 0, 0, 0, 0, 0, 1, 0, -1, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 0, 16, 0, 0, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Tribunal of Ages credit marker'),
+(68184,  0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 101, 0, 0, 0, 0, 0, 1, 0, -1, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 0, 16, 0, 0, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Faction Champions credit marker'),
+(59450,  0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 101, 0, 0, 0, 0, 0, 1, 0, -1, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 0, 16, 0, 0, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Four Horsemen credit marker'),
+(65195,  0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 101, 0, 0, 0, 0, 0, 1, 0, -1, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 0, 16, 0, 0, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Iron Council credit marker'),
+(64899,  0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 101, 0, 0, 0, 0, 0, 1, 0, -1, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 0, 16, 0, 0, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Hodir credit marker'),
+(64985,  0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 101, 0, 0, 0, 0, 0, 1, 0, -1, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 0, 16, 0, 0, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Thorim credit marker'),
+(65074,  0, 0, 536870912, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 101, 0, 0, 0, 0, 0, 1, 0, -1, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 0, 16, 0, 0, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Freya credit marker');
 /*!40000 ALTER TABLE `spell_dbc` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -18185,6 +18176,7 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 ( 71479, 71482, 1, 'Blood-Queen: Bloodbolt Splash'),
 ( 71480, 71483, 1, 'Blood-Queen: Bloodbolt Splash'),
 ( 71952, 70995, 1, 'Blood-Queen: Presence of the Darkfallen'),
+( 70157, 69700, 2, 'Sindragosa - Ice Tomb resistance'),
 -- Isle of Conquest
 ( 66548, 66550, 0, 'Isle of Conquest (IN>OUT)'),
 ( 66549, 66551, 0, 'Isle of Conquest (OUT>IN)'),

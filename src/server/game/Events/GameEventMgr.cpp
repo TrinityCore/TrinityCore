@@ -833,46 +833,6 @@ void GameEventMgr::LoadFromDB()
         sLog->outString();
     }
 
-    // Load game event npc gossip ids
-
-    sLog->outString("Loading Game Event NPC Gossip Data...");
-    oldMSTime = getMSTime();
-
-    //                                   0         1        2
-    result = WorldDatabase.Query("SELECT guid, event_id, textid FROM game_event_npc_gossip");
-
-    if (!result)
-    {
-        sLog->outString(">> Loaded 0 npc gossip textids in game events. DB table `game_event_npc_gossip` is empty.");
-        sLog->outString();
-    }
-    else
-    {
-        count = 0;
-        do
-        {
-            Field *fields = result->Fetch();
-
-            uint32 guid     = fields[0].GetUInt32();
-            uint16 event_id = fields[1].GetUInt16();
-            uint32 textid  = fields[2].GetUInt32();
-
-            if (event_id >= mGameEvent.size())
-            {
-                sLog->outErrorDb("`game_event_npc_gossip` game event id (%u) is out of range compared to max event id in `game_event`",event_id);
-                continue;
-            }
-
-            mNPCGossipIds[guid]=EventNPCGossipIdPair(event_id, textid);
-
-            ++count;
-
-        } while (result->NextRow());
-
-        sLog->outString(">> Loaded %u npc gossip textids in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-        sLog->outString();
-    }
-
     // Load game event battleground flags
 
     sLog->outString("Loading Game Event Battleground Data...");
@@ -984,15 +944,6 @@ uint32 GameEventMgr::GetNPCFlag(Creature * cr)
     }
 
     return mask;
-}
-
-uint32 GameEventMgr::GetNpcTextId(uint32 guid)
-{
-    GuidEventNpcGossipIdMap::iterator itr = mNPCGossipIds.find(guid);
-    if (itr != mNPCGossipIds.end())
-        if (IsActiveEvent(itr->second.first))
-            return itr->second.second;
-    return 0;
 }
 
 uint32 GameEventMgr::Initialize()                           // return the next event delay in ms
@@ -1613,18 +1564,6 @@ void GameEventMgr::SaveWorldEventStateToDB(uint16 event_id)
     else
         trans->PAppend("INSERT INTO game_event_save (event_id, state, next_start) VALUES ('%u','%u','0')",event_id,mGameEvent[event_id].state);
     CharacterDatabase.CommitTransaction(trans);
-}
-
-void GameEventMgr::HandleWorldEventGossip(Player *plr, Creature *c)
-{
-    // this function is used to send world state update before sending gossip menu
-    // find the npc's gossip id (if set) in an active game event
-    // if present, send the event's world states
-    GuidEventNpcGossipIdMap::iterator itr = mNPCGossipIds.find(c->GetDBTableGUIDLow());
-    if (itr != mNPCGossipIds.end())
-        if (IsActiveEvent(itr->second.first))
-            // send world state updates to the player about the progress
-            SendWorldStateUpdate(plr, itr->second.first);
 }
 
 void GameEventMgr::SendWorldStateUpdate(Player * plr, uint16 event_id)

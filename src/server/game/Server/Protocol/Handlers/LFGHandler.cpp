@@ -22,7 +22,7 @@
 #include "Group.h"
 #include "LFGMgr.h"
 #include "ObjectMgr.h"
-
+#include "InstanceScript.h"
 
 void BuildPlayerLockDungeonBlock(WorldPacket& data, const LfgLockMap& lock)
 {
@@ -555,6 +555,7 @@ void WorldSession::SendLfgUpdateProposal(uint32 proposalId, const LfgProposal* p
     bool isSameDungeon = false;
     bool isContinue = false;
     Group* grp = dLowGuid ? sObjectMgr->GetGroupByGUID(dLowGuid) : NULL;
+    uint32 completedEncounters = 0;
     if (grp)
     {
         uint64 gguid = grp->GetGUID();
@@ -571,12 +572,31 @@ void WorldSession::SendLfgUpdateProposal(uint32 proposalId, const LfgProposal* p
         if (playerDungeons.size() == 1)
             dungeonId = (*playerDungeons.begin());
     }
+
     if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(dungeonId))
+    {
         dungeonId = dungeon->Entry();
+
+        // Select a player inside to be get completed encounters from
+        if (grp)
+        {
+            for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
+            {
+                Player* groupMember = itr->getSource();
+                if (groupMember && groupMember->GetMapId() == uint32(dungeon->map))
+                {
+                    if (InstanceScript* instance = groupMember->GetInstanceScript())
+                        completedEncounters = instance->GetCompletedEncounterMask();
+                    break;
+                }
+            }
+        }
+    }
+
     data << uint32(dungeonId);                             // Dungeon
     data << uint8(pProp->state);                           // Result state
     data << uint32(proposalId);                            // Internal Proposal ID
-    data << uint32(0);                                     // Bosses killed - FIXME
+    data << uint32(completedEncounters);                   // Bosses killed
     data << uint8(isSameDungeon);                          // Silent (show client window)
     data << uint8(pProp->players.size());                  // Group size
 

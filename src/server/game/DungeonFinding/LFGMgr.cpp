@@ -71,61 +71,6 @@ LFGMgr::~LFGMgr()
         delete it->second;
 }
 
-/// Load achievement <-> encounter associations
-void LFGMgr::LoadDungeonEncounters()
-{
-    uint32 oldMSTime = getMSTime();
-
-    m_EncountersByAchievement.clear();
-
-    QueryResult result = WorldDatabase.Query("SELECT achievementId, dungeonId FROM lfg_dungeon_encounters");
-
-    if (!result)
-    {
-
-        sLog->outString();
-        sLog->outErrorDb(">> Loaded 0 dungeon encounter lfg associations. DB table `lfg_dungeon_encounters` is empty!");
-        return;
-    }
-
-    uint32 count = 0;
-
-    Field* fields = NULL;
-    do
-    {
-        fields = result->Fetch();
-        uint32 achievementId = fields[0].GetUInt32();
-        uint32 dungeonId = fields[1].GetUInt32();
-
-        if (AchievementEntry const* achievement = sAchievementStore.LookupEntry(achievementId))
-        {
-            if (!(achievement->flags & ACHIEVEMENT_FLAG_COUNTER))
-            {
-                sLog->outErrorDb("Achievement %u specified in table `lfg_dungeon_encounters` is not a statistic!", achievementId);
-                continue;
-            }
-        }
-        else
-        {
-            sLog->outErrorDb("Achievement %u specified in table `lfg_dungeon_encounters` does not exist!", achievementId);
-            continue;
-        }
-
-        if (!sLFGDungeonStore.LookupEntry(dungeonId))
-        {
-            sLog->outErrorDb("Dungeon %u specified in table `lfg_dungeon_encounters` does not exist!", dungeonId);
-            continue;
-        }
-
-        m_EncountersByAchievement[achievementId] = dungeonId;
-        ++count;
-    } while (result->NextRow());
-
-    sLog->outString(">> Loaded %u dungeon encounter lfg associations in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    sLog->outString();
-}
-
-
 /// Load rewards for completing dungeons
 void LFGMgr::LoadRewards()
 {
@@ -1730,7 +1675,6 @@ void LFGMgr::TeleportPlayer(Player* plr, bool out, bool fromOpcode /*= false*/)
 
             if (!fromOpcode)
             {
-
                 // Select a player inside to be teleported to
                 for (GroupReference* itr = grp->GetFirstMember(); itr != NULL && !mapid; itr = itr->next())
                 {
@@ -1921,21 +1865,6 @@ LfgType LFGMgr::GetDungeonType(uint32 dungeonId)
 
     return LfgType(dungeon->type);
 }
-
-/**
-   Given a Achievement id returns the related dungeon id
-
-   @param[in]     achievementId Achievement id
-   @returns dungeon id
-*/
-uint32 LFGMgr::GetDungeonIdForAchievement(uint32 achievementId)
-{
-    std::map<uint32, uint32>::iterator itr = m_EncountersByAchievement.find(achievementId);
-    if (itr != m_EncountersByAchievement.end())
-        return itr->second;
-
-    return 0;
-};
 
 /**
    Given a list of guids returns the concatenation using | as delimiter

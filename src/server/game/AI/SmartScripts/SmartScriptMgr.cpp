@@ -400,7 +400,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder &e)
                 break;
             case SMART_EVENT_RECEIVE_EMOTE:
             {
-                if (e.event.emote.emote && !IsEmoteValid(e, e.event.emote.emote)) return false;
+                if (e.event.emote.emote && !IsTextEmoteValid(e, e.event.emote.emote)) return false;
                 if (!IsMinMaxValid(e, e.event.emote.cooldownMin, e.event.emote.cooldownMax)) return false;
                 break;
             }
@@ -766,6 +766,9 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder &e)
         case SMART_ACTION_CALL_RANDOM_TIMED_ACTIONLIST:
         case SMART_ACTION_CALL_RANDOM_RANGE_TIMED_ACTIONLIST:
         case SMART_ACTION_RANDOM_MOVE:
+        case SMART_ACTION_SET_UNIT_FIELD_BYTES_1:
+        case SMART_ACTION_REMOVE_UNIT_FIELD_BYTES_1:
+        case SMART_ACTION_INTERRUPT_SPELL:
             break;
         default:
             sLog->outErrorDb("SmartAIMgr: Not handled action_type(%u), event_type(%u), Entry %d SourceType %u Event %u, skipped.", e.GetActionType(), e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id);

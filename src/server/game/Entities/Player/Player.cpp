@@ -70,6 +70,7 @@
 #include "WeatherMgr.h"
 #include "LFGMgr.h"
 #include "CharacterDatabaseCleaner.h"
+#include "InstanceScript.h"
 #include <cmath>
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
@@ -1961,13 +1962,14 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
     if (!MapManager::IsValidMapCoord(mapid, x, y, z, orientation))
     {
-        sLog->outError("TeleportTo: invalid map %d or absent instance template.", mapid);
+        sLog->outError("TeleportTo: invalid map (%d) or invalid coordinates (X: %f, Y: %f, Z: %f, O: %f) given when teleporting player (GUID: %u, name: %s, map: %d, X: %f, Y: %f, Z: %f, O: %f).", 
+            mapid, x, y, z, orientation, GetGUIDLow(), GetName(), GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
         return false;
     }
 
     if ((GetSession()->GetSecurity() < SEC_GAMEMASTER) && sDisableMgr->IsDisabledFor(DISABLE_TYPE_MAP, mapid, this))
     {
-        sLog->outError("Player %s tried to enter a forbidden map %u", GetName(), mapid);
+        sLog->outError("Player (GUID: %u, name: %s) tried to enter a forbidden map %u", GetGUIDLow(), GetName(), mapid);
         SendTransferAborted(mapid, TRANSFER_ABORT_MAP_NOT_ALLOWED);
         return false;
     }
@@ -2431,7 +2433,7 @@ void Player::Regenerate(Powers power)
         return;
 
     addvalue += m_powerFraction[power];
-    uint32 integerValue = uint32(abs(addvalue));
+    uint32 integerValue = uint32(fabs(addvalue));
 
     if (addvalue < 0.0f)
     {
@@ -6739,39 +6741,27 @@ void Player::CheckAreaExploreAndOutdoor()
 
 uint32 Player::TeamForRace(uint8 race)
 {
-    ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(race);
-    if (!rEntry)
+    if (ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(race))
     {
-        sLog->outError("Race %u not found in DBC: wrong DBC files?",uint32(race));
-        return ALLIANCE;
+        switch (rEntry->TeamID)
+        {
+            case 1: return HORDE;
+            case 7: return ALLIANCE;
+        }
+        sLog->outError("Race (%u) has wrong teamid (%u) in DBC: wrong DBC files?", uint32(race), rEntry->TeamID);
     }
+    else
+        sLog->outError("Race (%u) not found in DBC: wrong DBC files?", uint32(race));
 
-    switch(rEntry->TeamID)
-    {
-        case 7: return ALLIANCE;
-        case 1: return HORDE;
-    }
-
-    sLog->outError("Race %u have wrong teamid %u in DBC: wrong DBC files?",uint32(race),rEntry->TeamID);
     return ALLIANCE;
-}
-
-uint32 Player::getFactionForRace(uint8 race)
-{
-    ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(race);
-    if (!rEntry)
-    {
-        sLog->outError("Race %u not found in DBC: wrong DBC files?",uint32(race));
-        return 0;
-    }
-
-    return rEntry->FactionID;
 }
 
 void Player::setFactionForRace(uint8 race)
 {
     m_team = TeamForRace(race);
-    setFaction(getFactionForRace(race));
+
+    ChrRacesEntry const* rEntry = sChrRacesStore.LookupEntry(race);
+    setFaction(rEntry ? rEntry->FactionID : 0);
 }
 
 ReputationRank Player::GetReputationRank(uint32 faction) const
@@ -8191,7 +8181,8 @@ void Player::CastItemCombatSpell(Unit *target, WeaponAttackType attType, uint32 
             SpellEntry const *spellInfo = sSpellStore.LookupEntry(pEnchant->spellid[s]);
             if (!spellInfo)
             {
-                sLog->outError("Player::CastItemCombatSpell Enchant %i, cast unknown spell %i", pEnchant->ID, pEnchant->spellid[s]);
+                sLog->outError("Player::CastItemCombatSpell(GUID: %u, name: %s, enchant: %i): unknown spell %i is casted, ignoring...", 
+                    GetGUIDLow(), GetName(), pEnchant->ID, pEnchant->spellid[s]);
                 continue;
             }
 
@@ -14349,7 +14340,7 @@ void Player::SendPreparedQuest(uint64 guid)
             }
         }
     }
-    // multiply entries
+    // multiple entries
     else
     {
         QEmote qe;
@@ -16510,8 +16501,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
             m_bgData.bgTypeID = currentBg->GetTypeID(true);
 
             //join player to battleground group
-            currentBg->EventPlayerLoggedIn(this, GetGUID());
-            currentBg->AddOrSetPlayerToCorrectBgGroup(this, GetGUID(), m_bgData.bgTeam);
+            currentBg->EventPlayerLoggedIn(this);
+            currentBg->AddOrSetPlayerToCorrectBgGroup(this, m_bgData.bgTeam);
 
             SetInviteForBattlegroundQueueType(bgQueueTypeId,currentBg->GetInstanceID());
         }
@@ -17929,6 +17920,10 @@ InstancePlayerBind* Player::BindToInstance(InstanceSave *save, bool permanent, b
 
 void Player::BindToInstance()
 {
+    // Player left the instance
+    if (_pendingBind->GetInstanceId() != GetInstanceId())
+        return;
+
     WorldPacket data(SMSG_INSTANCE_SAVE_CREATED, 4);
     data << uint32(0);
     GetSession()->SendPacket(&data);
@@ -22557,6 +22552,13 @@ bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
                 KilledMonster(pVictim->ToCreature()->GetCreatureInfo(), pVictim->GetGUID());
         }
     }
+
+    // Credit encounter in instance
+    if (Creature* victim = pVictim->ToCreature())
+        if (victim->IsDungeonBoss())
+            if (InstanceScript* instance = pVictim->GetInstanceScript())
+                instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, pVictim->GetEntry(), pVictim);
+
     return xp || honored_kill;
 }
 

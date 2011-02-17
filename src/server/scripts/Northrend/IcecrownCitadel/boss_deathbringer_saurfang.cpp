@@ -351,7 +351,7 @@ class boss_deathbringer_saurfang : public CreatureScript
 
             void JustSummoned(Creature* summon)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                     summon->AI()->AttackStart(target);
 
                 if (IsHeroic())
