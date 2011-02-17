@@ -16565,9 +16565,10 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
             break;
     }
 
-    if (GetVehicle())
-        if (!this->HasUnitMovementFlag(MOVEMENTFLAG_ROOT))
-            sLog->outError("Unit does not have MOVEMENTFLAG_ROOT but is in vehicle!");
+    if (Vehicle* pVehicle = GetVehicle())
+        if (!HasUnitMovementFlag(MOVEMENTFLAG_ROOT))
+            sLog->outError("Unit (GUID: " UI64FMTD ", entry: %u) does not have MOVEMENTFLAG_ROOT but is in vehicle (ID: %u)!",
+                GetGUID(), GetEntry(), pVehicle->GetVehicleInfo()->m_ID);
 
     *data << uint32(GetUnitMovementFlags()); // movement flags
     *data << uint16(m_movementInfo.flags2);    // 2.3.0
