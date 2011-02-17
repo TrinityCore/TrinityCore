@@ -633,7 +633,8 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     m_lastFallTime = 0;
     m_lastFallZ = 0;
 
-    m_chatSpyGuid = 0;
+    m_ChatSpyGUID = 0;
+    m_ChatSpyMODE = 0;
 
     m_ControlledByPlayer = true;
     m_isWorldObject = true;
@@ -19452,16 +19453,16 @@ void Player::Whisper(const std::string& text, uint32 language, uint64 receiver)
 
 void Player::HandleChatSpyMessage(const std::string& msg, uint8 type, uint32 lang, Player* sender, std::string special)
 {
-    if(!m_chatSpyGuid || lang == LANG_ADDON || sender == this)
+    if(!m_ChatSpyGUID || lang == LANG_ADDON || sender == this)
         return;
 
-    if(m_chatSpyGuid == GetGUID())
+    if(m_ChatSpyGUID == GetGUID())
     {
-        m_chatSpyGuid = 0;
+        m_ChatSpyGUID = 0;
         return;
     }
 
-    Player *plr = sObjectMgr->GetPlayer(m_chatSpyGuid);
+    Player *plr = sObjectMgr->GetPlayer(m_ChatSpyGUID);
 
     if(!plr || !plr->IsInWorld())
         return;
