@@ -1927,7 +1927,6 @@ class Player : public Unit, public GridObject<Player>
         static uint32 TeamForRace(uint8 race);
         uint32 GetTeam() const { return m_team; }
         TeamId GetTeamId() const { return m_team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE; }
-        static uint32 getFactionForRace(uint8 race);
         void setFactionForRace(uint8 race);
 
         void InitDisplayIds();

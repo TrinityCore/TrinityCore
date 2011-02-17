@@ -595,7 +595,7 @@ class InstanceMap : public Map
         void UnloadAll();
         bool CanEnter(Player* player);
         void SendResetWarnings(uint32 timeLeft) const;
-        void SetResetSchedule(bool on);
+        void SetResetSchedule(bool on, Player* player);
 
         uint32 GetMaxPlayers() const;
         uint32 GetMaxResetDelay() const;
