@@ -17,6 +17,8 @@
 
 #include "ScriptPCH.h"
 #include "vault_of_archavon.h"
+#include "OutdoorPvPMgr.h"
+#include "OutdoorPvPWG.h"
 
 #define ENCOUNTERS  4
 
@@ -101,6 +103,21 @@ public:
                 case DATA_TORAVON:  return uiToravon;
             }
             return 0;
+        }
+
+        void OnPlayerEnter(Player *m_player)
+        {
+            if (sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
+            {
+                if (OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197))
+                {
+                    if ((pvpWG->getDefenderTeam()==TEAM_ALLIANCE) && (m_player->ToPlayer()->GetTeam() == ALLIANCE))
+                        return;
+                    else if ((pvpWG->getDefenderTeam()!=TEAM_ALLIANCE) && (m_player->ToPlayer()->GetTeam() == HORDE))
+                        return;
+                    else m_player->CastSpell(m_player, SPELL_TELEPORT_FORTRESS, true);
+                }
+            }
         }
 
         void SetData(uint32 type, uint32 data)

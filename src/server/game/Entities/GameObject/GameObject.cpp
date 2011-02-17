@@ -1706,7 +1706,8 @@ void GameObject::TakenDamage(uint32 damage, Unit *who)
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
                 if (modelData->DestroyedDisplayId)
                     modelId = modelData->DestroyedDisplayId;
-            SetUInt32Value(GAMEOBJECT_DISPLAYID, modelId);
+
+            //SetUInt32Value(GAMEOBJECT_DISPLAYID, m_goInfo->building.destroyedDisplayId);
 
             EventInform(m_goInfo->building.destroyedEvent);
             if (pwho)
@@ -1738,7 +1739,8 @@ void GameObject::TakenDamage(uint32 damage, Unit *who)
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
                 if (modelData->DamagedDisplayId)
                     modelId = modelData->DamagedDisplayId;
-            SetUInt32Value(GAMEOBJECT_DISPLAYID, modelId);
+
+            //SetUInt32Value(GAMEOBJECT_DISPLAYID, m_goInfo->building.damagedDisplayId);
 
             EventInform(m_goInfo->building.damagedEvent);
             sScriptMgr->OnGameObjectDamaged(this, pwho, m_goInfo->building.damagedEvent);
