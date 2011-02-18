@@ -171,6 +171,32 @@ void DisableMgr::LoadDisables()
                 if (flags)
                     sLog->outErrorDb("Disable flags specified for Achievement Criteria %u, useless data.", entry);
                 break;
+            case DISABLE_TYPE_ENVIRONMENTALDAMAGE:
+                if (entry == DAMAGE_EXHAUSTED) // any entry=0 will break the DisableMgr, should be fixed
+                {
+                    sLog->outErrorDb("Disable for environmental damage DAMAGE_EXHAUSTED is not available, skipped.");
+                    continue;
+                }
+                if (flags > MAX_ENVIRONMENTALDAMAGE_DISABLE_TYPE)
+                {
+                    sLog->outErrorDb("Disable flags for environmental damage %u are invalid, skipped.", entry);
+                    continue;
+                }
+
+                if (flags & ENVIRONMENTALDAMAGE_DISABLE_MAP)
+                {
+                    Tokens tokens(params_0, ',');
+                    for (uint8 i = 0; i < tokens.size(); )
+                        data.params[0].insert(atoi(tokens[i++]));
+                }
+
+                if (flags & ENVIRONMENTALDAMAGE_DISABLE_AREA)
+                {
+                    Tokens tokens(params_1, ',');
+                    for (uint8 i = 0; i < tokens.size(); )
+                        data.params[1].insert(atoi(tokens[i++]));
+                }
+                break;
         }
 
         m_DisableMap[type].insert(DisableTypeMap::value_type(entry, data));
@@ -300,6 +326,29 @@ bool DisableMgr::IsDisabledFor(DisableType type, uint32 entry, Unit const* pUnit
         case DISABLE_TYPE_OUTDOORPVP:
         case DISABLE_TYPE_ACHIEVEMENT_CRITERIA:
             return true;
+        case DISABLE_TYPE_ENVIRONMENTALDAMAGE:
+        {
+            uint8 flags = itr->second.flags;
+            if (pUnit)
+            {
+                if (flags & ENVIRONMENTALDAMAGE_DISABLE_WORLD)
+                    return true;
+                if (flags & ENVIRONMENTALDAMAGE_DISABLE_MAP)
+                {
+                    std::set<uint32> const& mapIds = itr->second.params[0];
+                    if (mapIds.find(pUnit->GetMapId()) != mapIds.end())
+                        return true;
+                }
+
+                if (flags & ENVIRONMENTALDAMAGE_DISABLE_AREA)
+                {
+                    std::set<uint32> const& areaIds = itr->second.params[1];
+                    if (areaIds.find(pUnit->GetAreaId()) != areaIds.end())
+                        return true;
+                }
+                return false;
+            }
+        }
     }
 
     return false;
