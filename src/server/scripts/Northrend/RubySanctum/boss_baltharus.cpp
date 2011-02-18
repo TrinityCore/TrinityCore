@@ -1,18 +1,18 @@
 /* Copyright (C) 2010 Easy for TrinityCore <http://trinity-core.ru/>
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 #include "ScriptPCH.h"
 #include "ruby_sanctum.h"
@@ -41,7 +41,7 @@ enum eSpells
     SPELL_CLEAVE            = 40504,
     SPELL_REPELLING_WAVE    = 74509,
     SPELL_ENERVATING_BRAND  = 74502,
-//    SPELL_BLADE_TEMPEST     = 75125,
+    SPELL_BLADE_TEMPEST     = 75125,
     SPELL_SUMMON_CLONE      = 74511
 };
 
@@ -50,19 +50,19 @@ enum eEvents
     EVENT_CAST_CLEAVE           = 1,
     EVENT_CAST_REPELLING_WAVE   = 2,
     EVENT_CAST_ENERVATING_BRAND = 3,
-//    EVENT_CAST_BLADE_TEMPEST    = 4,
-    EVENT_CAST_SUMMON_CLONE     = 4,
-    
-    ACTION_START_EVENT          = 5,
-    EVENT_XERESTRASZA_3         = 6,
-    EVENT_XERESTRASZA_4         = 7,
-    EVENT_XERESTRASZA_5         = 8,
-    EVENT_XERESTRASZA_6         = 9,
-    EVENT_XERESTRASZA_7         = 10,
-    EVENT_XERESTRASZA_8         = 11,
-    EVENT_XERESTRASZA_9         = 12,
+    EVENT_CAST_BLADE_TEMPEST    = 4,
+    EVENT_CAST_SUMMON_CLONE     = 5,
 
-    EVENT_START_PHASE_TWO       = 13
+    ACTION_START_EVENT          = 6,
+    EVENT_XERESTRASZA_3         = 7,
+    EVENT_XERESTRASZA_4         = 8,
+    EVENT_XERESTRASZA_5         = 9,
+    EVENT_XERESTRASZA_6         = 10,
+    EVENT_XERESTRASZA_7         = 11,
+    EVENT_XERESTRASZA_8         = 12,
+    EVENT_XERESTRASZA_9         = 13,
+
+    EVENT_START_PHASE_TWO       = 14
 };
 
 enum ePhases
@@ -96,7 +96,7 @@ class boss_baltharus : public CreatureScript
                 events.SetPhase(PHASE_1);
                 events.ScheduleEvent(EVENT_CAST_CLEAVE, urand(2000,3000));
                 events.ScheduleEvent(EVENT_CAST_ENERVATING_BRAND, urand(30000,45000));
-//                events.ScheduleEvent(EVENT_CAST_BLADE_TEMPEST, urand(7000,7500));
+                events.ScheduleEvent(EVENT_CAST_BLADE_TEMPEST, urand(7000,7500));
             }
 
             void EnterCombat(Unit*)
@@ -132,10 +132,10 @@ class boss_baltharus : public CreatureScript
                             DoCastVictim(SPELL_ENERVATING_BRAND, true);
                             events.ScheduleEvent(EVENT_CAST_ENERVATING_BRAND, urand(30000,45000));
                             break;
-/*                        case EVENT_CAST_BLADE_TEMPEST:
+                        case EVENT_CAST_BLADE_TEMPEST:
                             DoCastAOE(SPELL_BLADE_TEMPEST);
                             events.ScheduleEvent(EVENT_CAST_BLADE_TEMPEST, urand(30000,35000));
-                            break;*/
+                            break;
                     }
                 }
 
@@ -170,8 +170,7 @@ class boss_baltharus : public CreatureScript
             void JustDied(Unit*)
             {
                 DoScriptText(SAY_DEATH, me);
-                if(pXerestrasza)
-                    pXerestrasza->AI()->DoAction(ACTION_START_EVENT);
+                pXerestrasza->AI()->DoAction(ACTION_START_EVENT);
                 _JustDied();
             }
 
@@ -201,7 +200,7 @@ class boss_baltharus_summon : public CreatureScript
                 events.Reset();
                 events.ScheduleEvent(EVENT_CAST_CLEAVE, urand(2000,3000));
                 events.ScheduleEvent(EVENT_CAST_ENERVATING_BRAND, urand(30000,45000));
-//                events.ScheduleEvent(EVENT_CAST_BLADE_TEMPEST, urand(20000,25000));
+                events.ScheduleEvent(EVENT_CAST_BLADE_TEMPEST, urand(20000,25000));
             }
 
             void UpdateAI(const uint32 diff)
@@ -226,10 +225,10 @@ class boss_baltharus_summon : public CreatureScript
                             DoCastVictim(SPELL_ENERVATING_BRAND);
                             events.ScheduleEvent(EVENT_CAST_ENERVATING_BRAND, urand(30000,45000));
                             break;
-/*                        case EVENT_CAST_BLADE_TEMPEST:
+                        case EVENT_CAST_BLADE_TEMPEST:
                             DoCast(SPELL_BLADE_TEMPEST);
                             events.ScheduleEvent(EVENT_CAST_BLADE_TEMPEST, urand(30000,45000));
-                            break;*/
+                            break;
                     }
                 }
 
@@ -334,7 +333,7 @@ class npc_xerestrasza : public CreatureScript
             EventMap events;
             InstanceScript* pInstance;
         };
-        
+
         CreatureAI* GetAI(Creature *pCreature) const
         {
             return new npc_xerestraszaAI(pCreature);
@@ -344,7 +343,7 @@ class npc_xerestrasza : public CreatureScript
 
 void AddSC_boss_baltharus()
 {
-    new boss_baltharus;
-    new boss_baltharus_summon;
-    new npc_xerestrasza;
+    new boss_baltharus();
+    new boss_baltharus_summon();
+    new npc_xerestrasza();
 }

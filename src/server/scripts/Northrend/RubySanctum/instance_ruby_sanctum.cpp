@@ -1,18 +1,18 @@
 /* Copyright (C) 2010 Easy for TrinityCore <http://trinity-core.ru/>
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 #include "ScriptPCH.h"
 #include "ruby_sanctum.h"
@@ -22,7 +22,7 @@ static const DoorData doorData[5] =
     {GO_FIRE_FIELD,   DATA_BALTHARUS,       DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
     {GO_FLAME_WALLS,  DATA_BALTHARUS,       DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
     {GO_FLAME_WALLS,  DATA_RAGEFIRE,        DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
-    {GO_FLAME_WALLS,  DATA_ZARITHRIAN,      DOOR_TYPE_ROOM,    BOUNDARY_N   },
+    {GO_FLAME_WALLS,  DATA_ZARITHRIAN,      DOOR_TYPE_ROOM,    BOUNDARY_NONE},
     {0,               0,                    DOOR_TYPE_ROOM,    BOUNDARY_NONE}
 };
 
@@ -94,7 +94,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 }
             }
 
-            void OnGameObjectCreate(GameObject* go)
+           void OnGameObjectCreate(GameObject* go)
             {
                 switch (go->GetEntry())
                 {
@@ -220,7 +220,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 std::istringstream loadStream(strIn);
 
                 uint32 tmpState;
-                
+
                 for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 {
                     loadStream >> tmpState;
@@ -248,7 +248,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 uint64 m_uiGOFlameWallsGUID;
                 uint64 m_uiGOTwilightWallsGUID;
         };
-        
+
         InstanceScript* GetInstanceScript (InstanceMap *pMap) const
         {
             return new instance_ruby_sanctum_InstanceMapScript(pMap);
@@ -258,5 +258,5 @@ class instance_ruby_sanctum : public InstanceMapScript
 
 void AddSC_instance_ruby_sanctum()
 {
-    new instance_ruby_sanctum;
+    new instance_ruby_sanctum();
 }

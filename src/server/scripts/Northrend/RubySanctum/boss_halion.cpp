@@ -1,18 +1,18 @@
 /* Copyright (C) 2010 Easy for TrinityCore <http://trinity-core.ru/>
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 #include "ScriptPCH.h"
 #include "ruby_sanctum.h"
@@ -157,7 +157,7 @@ class boss_halion : public CreatureScript
                 HalionAura = 0;
                 RemoveAllGO();
                 summons.DespawnEntry(40142);
-            }
+                }
 
             void RemoveAllGO()
             {
@@ -193,12 +193,12 @@ class boss_halion : public CreatureScript
             void EnterCombat(Unit*)
             {
                 instance->SetBossState(DATA_HALION, IN_PROGRESS);
-                
+
                 if (events.GetPhaseMask() & PHASE_3_MASK)
                 {
                     return;
                 }
-                
+
                 events.ScheduleEvent(EVENT_FLAME_WALL, 3000,0,PHASE_1);
                 DoScriptText(SAY_AGGRO, me);
             }
@@ -365,13 +365,10 @@ class boss_halion : public CreatureScript
             void SetPhase3()
             {
                 events.SetPhase(PHASE_3);
-                if(me != NULL)
+                if (GameObject* portal = me->SummonGameObject(GO_TWILIGHT_PORTAL2, 3154.56f, 535.418f, 72.8889f, 4.47206f, 0, 0, 0.786772f, -0.617243f, 99999999))
                 {
-                    if (GameObject* portal = me->SummonGameObject(GO_TWILIGHT_PORTAL2, 3154.56f, 535.418f, 72.8889f, 4.47206f, 0, 0, 0.786772f, -0.617243f, 99999999))
-                    {
-                        portal->SetPhaseMask(32,true);
-                        portal->SetRespawnTime(9999999);
-                    }
+                    portal->SetPhaseMask(32,true);
+                    portal->SetRespawnTime(9999999);
                 }
                 events.ScheduleEvent(EVENT_DPS, 5000,0,PHASE_3);
                 pHalion->SetHealth(pTwilight->GetHealth());
@@ -382,7 +379,7 @@ class boss_halion : public CreatureScript
                 if (!(events.GetPhaseMask() & PHASE_3_MASK))
                         return;
                 HalionDamage += dmg;    
-                
+
                 instance->SetData(DATA_DAMAGE, me->GetHealth() >= dmg ? me->GetHealth() - dmg : 0);
             }
 
@@ -417,16 +414,17 @@ class boss_halion : public CreatureScript
                 DoScriptText(SAY_DEATH, me);
                 switch(instance->instance->GetDifficulty())
                 {
-                    case RAID_DIFFICULTY_10MAN_NORMAL:
-                        instance->DoCompleteAchievement(TWILIGHT_DESTROYER_NORMAL_10);
-                    case RAID_DIFFICULTY_10MAN_HEROIC:
-                        instance->DoCompleteAchievement(TWILIGHT_DESTROYER_HEROIC_10);
-                    case RAID_DIFFICULTY_25MAN_NORMAL:
-                        instance->DoCompleteAchievement(TWILIGHT_DESTROYER_NORMAL_25);
-                    case RAID_DIFFICULTY_25MAN_HEROIC:
-                        instance->DoCompleteAchievement(TWILIGHT_DESTROYER_HEROIC_25);
-                }
-            }
+                 case RAID_DIFFICULTY_10MAN_NORMAL:
+                          instance->DoCompleteAchievement(TWILIGHT_DESTROYER_NORMAL_10);
+                 case RAID_DIFFICULTY_10MAN_HEROIC:
+                            instance->DoCompleteAchievement(TWILIGHT_DESTROYER_HEROIC_10);
+                 case RAID_DIFFICULTY_25MAN_NORMAL:
+                           instance->DoCompleteAchievement(TWILIGHT_DESTROYER_NORMAL_25);
+                  case RAID_DIFFICULTY_25MAN_HEROIC:
+                             instance->DoCompleteAchievement(TWILIGHT_DESTROYER_HEROIC_25);
+
+                 }
+             }
 
         private:
             uint32 PercentDamage;
@@ -596,7 +594,7 @@ class spell_halion_portal : public SpellScriptLoader
 
         class spell_halion_portal_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_halion_portal_SpellScript)
+	    PrepareSpellScript(spell_halion_portal_SpellScript)
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 PreventHitDefaultEffect(EFFECT_0);
@@ -680,7 +678,7 @@ class npc_meteor_strike : public CreatureScript
             uint8 count;
 
         };
-        
+
         CreatureAI* GetAI(Creature *pCreature) const
         {
             return new npc_meteor_strikeAI(pCreature);
@@ -705,7 +703,7 @@ class npc_spell_meteor_strike : public CreatureScript
             }
 
         };
-        
+
         CreatureAI* GetAI(Creature *pCreature) const
         {
             return new npc_spell_meteor_strikeAI(pCreature);
@@ -727,11 +725,11 @@ class npc_meteor_flame : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->SetReactState(REACT_PASSIVE);
                 DoCast(me,SPELL_METEOR_FLAME);
- 
+
                 me->ForcedDespawn(10000);
             }
         };
-        
+
         CreatureAI* GetAI(Creature *pCreature) const
         {
             return new npc_meteor_flameAI(pCreature);
@@ -755,7 +753,7 @@ class npc_summon_halion : public CreatureScript
                 events.Reset();
                 events.ScheduleEvent(EVENT_FIRE_PILLAR, 10000);
                 DoCast(me,SPELL_FIRE_PILLAR);
- 
+
                 me->ForcedDespawn(20000);
             }
 
@@ -781,7 +779,7 @@ class npc_summon_halion : public CreatureScript
             EventMap events;
 
         };
-        
+
         CreatureAI* GetAI(Creature *pCreature) const
         {
             return new npc_summon_halionAI(pCreature);
@@ -790,11 +788,11 @@ class npc_summon_halion : public CreatureScript
 
 void AddSC_boss_halion()
 {
-    new boss_halion;
-    new boss_twilight_halion;
-    new spell_halion_portal;
-    new npc_meteor_strike;
-    new npc_spell_meteor_strike;
-    new npc_meteor_flame;
-    new npc_summon_halion;
+    new boss_halion();
+    new boss_twilight_halion();
+    new spell_halion_portal();
+    new npc_meteor_strike();
+    new npc_spell_meteor_strike();
+    new npc_meteor_flame();
+    new npc_summon_halion();
 }
