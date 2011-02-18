@@ -78,8 +78,6 @@ enum CreaturesIds
     // At Light's Hammer
     NPC_KOR_KRON_GENERAL                        = 37189,
     NPC_ALLIANCE_COMMANDER                      = 37190,
-    NPC_KOR_KRON_LIEUTENANT                     = 38491,
-    NPC_SKYBREAKER_LIEUTENANT                   = 38492,
     NPC_TORTUNOK                                = 37992,    // Druid Armor H
     NPC_ALANA_MOONSTRIKE                        = 37999,    // Druid Armor A
     NPC_GERARDO_THE_SUAVE                       = 37993,    // Hunter Armor H
@@ -94,6 +92,14 @@ enum CreaturesIds
     NPC_NIBY_THE_ALMIGHTY                       = 38182,    // Warlock Armor N
     NPC_GARROSH_HELLSCREAM                      = 39372,
     NPC_KING_VARIAN_WRYNN                       = 39371,
+
+    // Weekly questgivers
+    NPC_INFILTRATOR_MINCHAR                     = 38471,
+    NPC_KOR_KRON_LIEUTENANT                     = 38491,
+    NPC_SKYBREAKER_LIEUTENANT                   = 38492,
+    NPC_ALCHEMIST_ADRIANNA                      = 38501,
+    NPC_ALRIN_THE_AGILE                         = 38551,
+    NPC_VALITHRIA_DREAMWALKER_QUEST             = 38589,
 
     // Lord Marrowgar
     NPC_LORD_MARROWGAR                          = 36612,
