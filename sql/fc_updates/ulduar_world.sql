@@ -1,7 +1,7 @@
 -- Leviathan Doors
 DELETE FROM `gameobject` WHERE `id` = '194905';
 INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
-('35528','194905','603','1','1','401.308','-13.8236','409.524','3.14159','0','0','0','1','180','255','0');
+('73313','194905','603','1','1','401.308','-13.8236','409.524','3.14159','0','0','0','1','180','255','0');
 
 -- Thorim's Hammer
 DELETE FROM `conditions` WHERE `SourceEntry` = 62911;
