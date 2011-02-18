@@ -22832,7 +22832,7 @@ bool Player::HasGlobalCooldown(SpellEntry const *spellInfo) const
 
 void Player::RemoveGlobalCooldown(SpellEntry const *spellInfo)
 {
-    if (!spellInfo)
+    if (!spellInfo || !spellInfo->StartRecoveryTime)
         return;
 
     m_globalCooldowns[spellInfo->StartRecoveryCategory] = 0;

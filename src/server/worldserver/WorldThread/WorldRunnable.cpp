@@ -90,6 +90,6 @@ void WorldRunnable::run()
 
     sWorldSocketMgr->StopNetwork();
 
-    sObjectAccessor->UnloadAll();             // unload 'i_player2corpse' storage and remove from world
     sMapMgr->UnloadAll();                     // unload all grids (including locked in memory)
+    sObjectAccessor->UnloadAll();             // unload 'i_player2corpse' storage and remove from world
 }
