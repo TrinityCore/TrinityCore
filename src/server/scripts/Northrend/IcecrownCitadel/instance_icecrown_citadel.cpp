@@ -20,6 +20,7 @@
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "Map.h"
+#include "PoolMgr.h"
 #include "icecrown_citadel.h"
 
 static const DoorData doorData[] =
@@ -45,6 +46,19 @@ static const DoorData doorData[] =
     {GO_ICE_WALL,                            DATA_SINDRAGOSA,            DOOR_TYPE_ROOM,    BOUNDARY_SE  },
     {GO_ICE_WALL,                            DATA_SINDRAGOSA,            DOOR_TYPE_ROOM,    BOUNDARY_SW  },
     {0,                                      0,                          DOOR_TYPE_ROOM,    BOUNDARY_NONE} // END
+};
+
+struct WeeklyQuest
+{
+    uint32 npcStart;
+    uint32 questId[2];  // 10 and 25 man versions
+} WeeklyQuestData[5] =
+{
+    {NPC_INFILTRATOR_MINCHAR,         {24869, 24875}},  // Deprogramming
+    {NPC_KOR_KRON_LIEUTENANT,         {24870, 24877}},  // Securing the Ramparts
+    {NPC_ALCHEMIST_ADRIANNA,          {24873, 24878}},  // Residue Rendezvous
+    {NPC_ALRIN_THE_AGILE,             {24874, 24879}},  // Blood Quickening
+    {NPC_VALITHRIA_DREAMWALKER_QUEST, {24872, 24880}},  // Respite for a Tormented Soul
 };
 
 class instance_icecrown_citadel : public InstanceMapScript
@@ -199,6 +213,35 @@ class instance_icecrown_citadel : public InstanceMapScript
                     default:
                         break;
                 }
+            }
+
+            // Weekly quest spawn prevention
+            uint32 GetCreatureEntry(uint32 /*guidLow*/, CreatureData const* data)
+            {
+                uint32 entry = data->id;
+                switch (entry)
+                {
+                    case NPC_INFILTRATOR_MINCHAR:
+                    case NPC_KOR_KRON_LIEUTENANT:
+                    case NPC_ALCHEMIST_ADRIANNA:
+                    case NPC_ALRIN_THE_AGILE:
+                    case NPC_VALITHRIA_DREAMWALKER_QUEST:
+                    {
+                        uint8 questIndex = 0;
+                        for (; questIndex < 5; ++questIndex)
+                            if (WeeklyQuestData[questIndex].npcStart == entry)
+                                break;
+
+                        uint8 diffIndex = instance->GetSpawnMode() & 1;
+                        if (!sPoolMgr->IsSpawnedObject<Quest>(WeeklyQuestData[questIndex].questId[diffIndex]))
+                            entry = 0;
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                return entry;
             }
 
             void OnCreatureRemove(Creature* creature)
@@ -704,19 +747,19 @@ class instance_icecrown_citadel : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(const char* in)
+            void Load(const char* str)
             {
-                if (!in)
+                if (!str)
                 {
                     OUT_LOAD_INST_DATA_FAIL;
                     return;
                 }
 
-                OUT_LOAD_INST_DATA(in);
+                OUT_LOAD_INST_DATA(str);
 
                 char dataHead1, dataHead2;
 
-                std::istringstream loadStream(in);
+                std::istringstream loadStream(str);
                 loadStream >> dataHead1 >> dataHead2;
 
                 if (dataHead1 == 'I' && dataHead2 == 'C')
@@ -729,11 +772,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                             tmpState = NOT_STARTED;
                         SetBossState(i, EncounterState(tmpState));
                     }
+
                     uint32 jets = 0;
                     loadStream >> jets;
-                    if (jets)
-                        jets = DONE;
-                    coldflameJetsState = jets;
+                    coldflameJetsState = jets ? DONE : NOT_STARTED;
                 } else OUT_LOAD_INST_DATA_FAIL;
 
                 OUT_LOAD_INST_DATA_COMPLETE;

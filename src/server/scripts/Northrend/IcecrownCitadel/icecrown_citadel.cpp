@@ -23,10 +23,10 @@
 #include "icecrown_citadel.h"
 
 // Weekly quest support
-//* Deprogramming
+//* Deprogramming                (DONE)
 //* Securing the Ramparts        (DONE)
 //* Residue Rendezvous
-//* Blood Quickening
+//* Blood Quickening                    // AreaTrigger 5729 starts the timer, pulling BQ before it runs out means success
 //* Respite for a Tormented Soul
 
 enum Texts
