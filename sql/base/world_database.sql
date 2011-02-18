@@ -18019,6 +18019,7 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 ( 17851, 54501, 2, 'Consume Shadows - Rank 3'),
 ( 17850, 54501, 2, 'Consume Shadows - Rank 2'),
 ( 17767, 54501, 2, 'Consume Shadows - Rank 1'),
+(-11129,-28682, 0, 'Combustion'),
 (-5143, -36032, 0, 'Arcane Missiles Rank 1'),
 (-5144, -36032, 0, 'Arcane Missiles Rank 2'),
 (-5145, -36032, 0, 'Arcane Missiles Rank 3'),
