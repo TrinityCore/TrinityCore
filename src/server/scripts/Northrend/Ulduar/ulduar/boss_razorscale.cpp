@@ -39,7 +39,7 @@ enum Says
     EMOTE_PERMA                     = -1603268,
 };
 
-#define GOSSIP_ITEM_1 "Activate Harpoones!"
+#define GOSSIP_ITEM_1               "We are ready to fight!"
 
 enum Spells
 {
@@ -95,7 +95,6 @@ const Position RazorGround = {586.966f, -175.534f, 391.517f, 1.692f};
 
 enum Mobs
 {
-    RAZORSCALE                      = 33186,// ?? why not use instance?
     NPC_DARK_RUNE_GUARDIAN          = 33388,
     NPC_DARK_RUNE_SENTINEL          = 33846,
     NPC_DARK_RUNE_WATCHER           = 33453,
@@ -164,12 +163,12 @@ public:
 
     struct boss_razorscaleAI : public BossAI
     {
-        boss_razorscaleAI(Creature *pCreature) : BossAI(pCreature, TYPE_RAZORSCALE), phase(PHASE_NULL)
+        boss_razorscaleAI(Creature *pCreature) : BossAI(pCreature, BOSS_RAZORSCALE), phase(PHASE_NULL)
         {
             // Do not let Razorscale be affected by Battle Shout buff
             me->ApplySpellImmune(0, IMMUNITY_ID, (SPELL_BATTLE_SHOUT), true);
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
-            me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true);  // Death Grip
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
         }
 
         Phases phase;
@@ -213,7 +212,7 @@ public:
             if (instance)
             {
                 // A Quick Shave
-                if (FlyCount <= 2)
+                if (FlyCount < 3)
                     instance->DoCompleteAchievement(ACHIEVEMENT_QUICK_SHAVE);
             }
         }
@@ -439,7 +438,7 @@ public:
     bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
         InstanceScript* pInstance = pCreature->GetInstanceScript();
-        if (pInstance && pInstance->GetBossState(TYPE_RAZORSCALE) == NOT_STARTED && pPlayer)
+        if (pInstance && pInstance->GetBossState(BOSS_RAZORSCALE) == NOT_STARTED && pPlayer)
         {
             pPlayer->PrepareGossipMenu(pCreature);
 
@@ -512,7 +511,7 @@ public:
                 switch(uiPhase)
                 {
                     case 1:
-                        pInstance->SetBossState(TYPE_RAZORSCALE, IN_PROGRESS);
+                        pInstance->SetBossState(BOSS_RAZORSCALE, IN_PROGRESS);
                         summons.DespawnAll();
                         uiTimer = 1000;
                         uiPhase = 2;
@@ -550,10 +549,10 @@ public:
                         uiPhase = 5;
                         break;
                     case 5:
-                        if (Creature *pRazorscale = me->GetCreature(*me, pInstance->GetData64(TYPE_RAZORSCALE)))
+                        if (Creature *pRazorscale = me->GetCreature(*me, pInstance->GetData64(DATA_RAZORSCALE)))
                             pRazorscale->AI()->DoAction(ACTION_EVENT_START);
                         engineer[0]->MonsterYell(SAY_AGGRO_1, LANG_UNIVERSAL, 0);
-                        uiPhase = 6;
+                        uiPhase = 0;
                         break;
                 }
             }
@@ -668,12 +667,7 @@ public:
 
     struct npc_darkrune_watcherAI : public ScriptedAI
     {
-        npc_darkrune_watcherAI(Creature *pCreature) : ScriptedAI(pCreature)
-        {
-            pInstance = pCreature->GetInstanceScript();
-        }
-
-        InstanceScript *pInstance;
+        npc_darkrune_watcherAI(Creature *pCreature) : ScriptedAI(pCreature){}
 
         uint32 ChainTimer;
         uint32 LightTimer;
@@ -722,12 +716,7 @@ public:
 
     struct npc_darkrune_guardianAI : public ScriptedAI
     {
-        npc_darkrune_guardianAI(Creature *pCreature) : ScriptedAI(pCreature)
-        {
-            pInstance = pCreature->GetInstanceScript();
-        }
-
-        InstanceScript *pInstance;
+        npc_darkrune_guardianAI(Creature *pCreature) : ScriptedAI(pCreature){}
 
         uint32 StormTimer;
 
@@ -767,12 +756,7 @@ public:
 
     struct npc_darkrune_sentinelAI : public ScriptedAI
     {
-        npc_darkrune_sentinelAI(Creature *pCreature) : ScriptedAI(pCreature)
-        {
-            pInstance = pCreature->GetInstanceScript();
-        }
-
-        InstanceScript *pInstance;
+        npc_darkrune_sentinelAI(Creature *pCreature) : ScriptedAI(pCreature){}
 
         uint32 HeroicTimer;
         uint32 WhirlTimer;
