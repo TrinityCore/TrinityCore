@@ -1,221 +1,251 @@
-/* Copyright (C) 2010 Easy for TrinityCore <http://trinity-core.ru/>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+/*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+// Based on /dev/rsa modified by Vlad
+// TODO:  Trash mobs, spawn and removal of fire ring/walls, spawn of halion
+// Need correct timers
 
 #include "ScriptPCH.h"
 #include "ruby_sanctum.h"
 
-enum eTexts
+enum BossSpells
 {
-    SAY_AGGRO = -1752017,
-    SAY_SLAY1 = -1752018,
-    SAY_SLAY2 = -1752019,
-    SAY_DEATH = -1752020
+    SPELL_CALL_FLAMECALLER           = 74398,
+    SPELL_CLEAVE_ARMOR               = 74367,
+    SPELL_IMTIMIDATING_ROAR          = 74384,
+    SPELL_LAVA_GOUT                  = 74394,
+    SPELL_BLAST_NOVA                 = 74392,
+
+    NPC_FLAMECALLER                  = 39814,
 };
 
-enum eSpells
+enum Equipment
 {
-    SPELL_CLEAVE_ARMOR          = 74367,
-    SPELL_INTIMIDATING_ROAR     = 74384,
-    SPELL_SUMMON_FLAMECALLER    = 74398,
-
-    SPELL_BLAST_NOVA_10         = 74392,
-    SPELL_BLAST_NOVA_25         = 74393,
-    SPELL_LAVA_GOUT_10          = 74394,
-    SPELL_LAVA_GOUT_25          = 74395
+    EQUIP_MAIN           = 47156,
+    EQUIP_OFFHAND        = 51812,
+    EQUIP_RANGED         = EQUIP_NO_CHANGE,
+    EQUIP_DONE           = EQUIP_NO_CHANGE,
 };
 
-enum eEvents
+struct Locations
 {
-    EVENT_CAST_CLEAVE_ARMOR         = 1,
-    EVENT_CAST_INTIMIDATING_ROAR    = 2,
-    EVENT_CAST_SUMMON_FLAMECALLER   = 3,
-
-    EVENT_CAST_BLAST_NOVA           = 4,
-    EVENT_CAST_LAVA_GOUT            = 5,
-    EVENT_MOVE_TO_RANDOM_PLAYER     = 6
+    float x, y, z, o;
 };
 
-static const Position SpawnPos[4] =
+static Locations SpawnLoc[]=
 {
-    {3022.67f, 479.01f, 89.23f, 2.38f},
-    {3016.55f, 510.26f, 90.03f, 0.89f},
-    {3039.37f, 590.13f, 87.90f, 3.74f},
-    {3018.86f, 549.40f, 89.25f, 5.23f}
+    {3008.552734f, 530.471680f, 89.195290f, 6.16f},    // 0 - zarithrian start point, o = 6,16
+    {3014.313477f, 486.453735f, 89.255096f, 6.16f},    // 1 - Mob spawn 1
+    {3025.324951f, 580.588501f, 88.593185f, 6.16f},    // 2 - Mob spawn 2
 };
 
-Creature* pZarithrian;
 
 class boss_zarithrian : public CreatureScript
 {
-    public:
-        boss_zarithrian() : CreatureScript("boss_zarithrian") { }
+public:
+    boss_zarithrian() : CreatureScript("boss_zarithrian") { }
 
-        struct boss_zarithrianAI : public BossAI
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new boss_zarithrianAI(pCreature);
+    }
+
+    struct boss_zarithrianAI : public ScriptedAI
+    {
+        boss_zarithrianAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            boss_zarithrianAI(Creature *pCreature) : BossAI(pCreature, DATA_ZARITHRIAN)
-            {
-                ASSERT(instance);
-                pZarithrian = me;
-            }
-
-            void Reset()
-            {
-                instance->SetBossState(DATA_ZARITHRIAN, NOT_STARTED);
-                events.Reset();
-                summons.DespawnAll();
-                summons.clear();
-                events.ScheduleEvent(EVENT_CAST_CLEAVE_ARMOR, urand(3500,4500));
-                events.ScheduleEvent(EVENT_CAST_INTIMIDATING_ROAR, urand(10000,11000));
-                events.ScheduleEvent(EVENT_CAST_SUMMON_FLAMECALLER, urand(40000,50000));
-            }
-
-            void EnterCombat(Unit*)
-            {
-                instance->SetBossState(DATA_ZARITHRIAN, IN_PROGRESS);
-                DoScriptText(SAY_AGGRO, me);
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                if (!UpdateVictim() || !CheckInRoom())
-                    return;
-
-                if (me->HasUnitState(UNIT_STAT_CASTING))
-                    return;
-
-                events.Update(diff);
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_CAST_CLEAVE_ARMOR:
-                            DoCastVictim(SPELL_CLEAVE_ARMOR);
-                            events.ScheduleEvent(EVENT_CAST_CLEAVE_ARMOR, urand(3500,4500));
-                            break;
-                        case EVENT_CAST_INTIMIDATING_ROAR:
-                            DoCastAOE(SPELL_INTIMIDATING_ROAR);
-                            events.ScheduleEvent(EVENT_CAST_INTIMIDATING_ROAR, urand(10000,11000));
-                            break;
-                        case EVENT_CAST_SUMMON_FLAMECALLER:
-                            if (Creature* pCreature1 = me->SummonCreature(NPC_ONYX_FLAMECALLER,SpawnPos[0]))
-                            {
-                                pCreature1->GetMotionMaster()->MovePoint(1,SpawnPos[1]);
-                            }
-                            if (Creature* pCreature2 = me->SummonCreature(NPC_ONYX_FLAMECALLER,SpawnPos[2]))
-                            {
-                                pCreature2->GetMotionMaster()->MovePoint(1,SpawnPos[3]);
-                            }
-                            events.ScheduleEvent(EVENT_CAST_SUMMON_FLAMECALLER, urand(40000,50000));
-                            break;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
-            }
-
-            void KilledUnit(Unit* /*victim*/)
-            {
-                DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
-            }
-
-            void JustSummoned(Creature *summon)
-            {
-                summons.Summon(summon);
-            }
-
-            void JustReachedHome()
-            {
-                summons.DespawnAll();
-                instance->SetData(DATA_ZARITHRIAN, FAIL);
-            }
-
-            void JustDied(Unit*)
-            {
-                _JustDied();
-                DoScriptText(SAY_DEATH, me);
-            }
-        };
-
-        CreatureAI* GetAI(Creature *pCreature) const
-        {
-            return new boss_zarithrianAI(pCreature);
+            pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            Reset();
         }
 
+        InstanceScript* pInstance;
+
+        uint32 m_uiSummonTimer;
+        uint32 m_uiCleaveTimer;
+        uint32 m_uiImtimidatingTimer;
+
+        void Reset()
+        {
+            if(!pInstance)
+                return;
+
+            m_uiSummonTimer = 45*IN_MILLISECONDS;
+            m_uiCleaveTimer = urand(10*IN_MILLISECONDS,20*IN_MILLISECONDS);
+            m_uiImtimidatingTimer = urand(15*IN_MILLISECONDS,25*IN_MILLISECONDS);
+
+            if (me->isAlive())
+            {
+                pInstance->SetData(TYPE_ZARITHRIAN, NOT_STARTED);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            }
+        }
+
+        void MoveInLineOfSight(Unit* pWho) 
+        {
+            if (pInstance->GetData(TYPE_XERESTRASZA) == DONE &&
+                 pInstance->GetData(TYPE_BALTHARUS) == DONE &&
+                 pInstance->GetData(TYPE_RAGEFIRE) == DONE)
+                 {
+                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                 }
+        }
+
+        void KilledUnit(Unit* pVictim)
+        {
+        switch (urand(0,1)) {
+            case 0:
+                   DoScriptText(-1666201,me,pVictim);
+                   break;
+            case 1:
+                   DoScriptText(-1666202,me,pVictim);
+                   break;
+            }
+        }
+
+        void JustReachedHome()
+        {
+            if (!pInstance) return;
+            pInstance->SetData(TYPE_ZARITHRIAN, FAIL);
+        }
+
+        void JustSummoned(Creature* summoned)
+        {
+            if(!pInstance || !summoned) return;
+
+            summoned->SetInCombatWithZone();
+            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 60, true))
+            {
+                summoned->AddThreat(pTarget, 100.0f);
+                summoned->GetMotionMaster()->MoveChase(pTarget);
+            }
+        }
+
+        void EnterCombat(Unit *who) 
+        {
+            if(!pInstance) return;
+
+            SetEquipmentSlots(false, EQUIP_MAIN, EQUIP_OFFHAND, EQUIP_RANGED);
+            pInstance->SetData(TYPE_ZARITHRIAN, IN_PROGRESS);
+            DoScriptText(-1666200,me);
+        }
+
+        void JustDied(Unit *killer)
+        {
+            if(!pInstance) return;
+
+            pInstance->SetData(TYPE_ZARITHRIAN, DONE);
+            DoScriptText(-1666203,me);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            if (m_uiSummonTimer <= diff)
+            {
+                me->SummonCreature(NPC_FLAMECALLER, SpawnLoc[1].x, SpawnLoc[1].y, SpawnLoc[1].z, SpawnLoc[1].o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
+                me->SummonCreature(NPC_FLAMECALLER, SpawnLoc[2].x, SpawnLoc[2].y, SpawnLoc[2].z, SpawnLoc[2].o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
+
+                if (pInstance->instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_NORMAL || pInstance->instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_HEROIC)
+                    DoCast(SPELL_CALL_FLAMECALLER);
+
+                DoScriptText(-1666204,me);
+                m_uiSummonTimer = 45*IN_MILLISECONDS;
+            } else m_uiSummonTimer -= diff;
+
+            if (m_uiCleaveTimer <= diff)
+            {
+                DoCast(SPELL_CLEAVE_ARMOR);
+                m_uiCleaveTimer = urand(10*IN_MILLISECONDS,20*IN_MILLISECONDS);
+            } else m_uiCleaveTimer -= diff;
+
+            if (m_uiImtimidatingTimer <= diff)
+            {
+                DoCast(SPELL_IMTIMIDATING_ROAR);
+                m_uiImtimidatingTimer = urand(15*IN_MILLISECONDS,25*IN_MILLISECONDS);
+            } else m_uiImtimidatingTimer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
 };
 
-class npc_onyx_flamecaller : public CreatureScript
+class mob_flamecaller_ruby : public CreatureScript
 {
-    public:
-        npc_onyx_flamecaller() : CreatureScript("npc_onyx_flamecaller") { }
+public:
+    mob_flamecaller_ruby() : CreatureScript("mob_flamecaller_ruby") { }
 
-        struct npc_onyx_flamecallerAI : public ScriptedAI
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new mob_flamecaller_rubyAI(pCreature);
+    }
+
+    struct mob_flamecaller_rubyAI : public ScriptedAI
+    {
+        mob_flamecaller_rubyAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            npc_onyx_flamecallerAI(Creature *pCreature) : ScriptedAI(pCreature)
-            {
-                pInstance = me->GetInstanceScript();
-            }
-
-            void Reset()
-            {
-                events.Reset();
-                events.ScheduleEvent(EVENT_MOVE_TO_RANDOM_PLAYER, 3000);
-                events.ScheduleEvent(EVENT_CAST_BLAST_NOVA, urand(15000,25000));
-                events.ScheduleEvent(EVENT_CAST_LAVA_GOUT, urand(30000,35000));
-            }
-
-             void UpdateAI(const uint32 diff)
-            {
-                events.Update(diff);
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_MOVE_TO_RANDOM_PLAYER:
-                            if (pZarithrian)
-                            {
-                                me->GetMotionMaster()->MovePoint(2,pZarithrian->GetPositionX(),pZarithrian->GetPositionY(),pZarithrian->GetPositionZ());
-                             }
-                            break;
-                        case EVENT_CAST_BLAST_NOVA:
-                            DoCast(RAID_MODE(SPELL_BLAST_NOVA_10,SPELL_BLAST_NOVA_25,SPELL_BLAST_NOVA_10,SPELL_BLAST_NOVA_25));
-                            events.ScheduleEvent(EVENT_CAST_BLAST_NOVA, urand(15000,25000));
-                            break;
-                        case EVENT_CAST_LAVA_GOUT:
-                            DoCast(RAID_MODE(SPELL_LAVA_GOUT_10,SPELL_LAVA_GOUT_25,SPELL_LAVA_GOUT_10,SPELL_LAVA_GOUT_25));
-                            events.ScheduleEvent(EVENT_CAST_LAVA_GOUT, urand(30000,35000));
-                            break;
-                    }
-                }
-                DoMeleeAttackIfReady();
-            }
-
-        private:
-            EventMap events;
-            InstanceScript* pInstance;
-        };
-
-        CreatureAI* GetAI(Creature *pCreature) const
-        {
-            return new npc_onyx_flamecallerAI(pCreature);
+            pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            Reset();
         }
+
+        InstanceScript* pInstance;
+
+        uint32 m_uiLavaGoutTimer;
+        uint32 m_uiBlastNovaTimer;
+
+        void Reset()
+        {
+            if(!pInstance) return;
+
+            m_uiLavaGoutTimer = urand(8*IN_MILLISECONDS,25*IN_MILLISECONDS);
+            m_uiBlastNovaTimer = urand(10*IN_MILLISECONDS,25*IN_MILLISECONDS);
+            me->SetRespawnDelay(7*DAY);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+
+            if (pInstance && pInstance->GetData(TYPE_ZARITHRIAN) != IN_PROGRESS)
+                me->ForcedDespawn();
+
+            if (!UpdateVictim())
+                return;
+
+            if (m_uiLavaGoutTimer <= diff)
+            {
+                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                    DoCast(pTarget,SPELL_LAVA_GOUT);
+                m_uiLavaGoutTimer = urand(8*IN_MILLISECONDS,25*IN_MILLISECONDS);
+            } else m_uiLavaGoutTimer -= diff;
+
+            if (m_uiBlastNovaTimer <= diff)
+            {
+                DoCast(SPELL_BLAST_NOVA);
+                m_uiBlastNovaTimer = urand(10*IN_MILLISECONDS,25*IN_MILLISECONDS);
+            } else m_uiBlastNovaTimer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
 };
 
 void AddSC_boss_zarithrian()
 {
     new boss_zarithrian();
-    new npc_onyx_flamecaller();
+    new mob_flamecaller_ruby();
 }
