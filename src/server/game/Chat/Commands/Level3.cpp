@@ -4634,7 +4634,10 @@ bool ChatHandler::HandleGroupLeaderCommand(const char *args)
 
     if (GetPlayerGroupAndGUIDByName(cname, plr, group, guid))
         if (group && group->GetLeaderGUID() != guid)
+        {
             group->ChangeLeader(guid);
+            group->SendUpdate();
+        }
 
     return true;
 }
