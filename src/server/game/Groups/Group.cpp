@@ -92,12 +92,13 @@ Group::~Group()
     delete[] m_subGroupsCounts;
 }
 
-bool Group::Create(const uint64 &guid, const char * name)
+bool Group::Create(Player *leader)
 {
+    uint64 leaderGuid = leader->GetGUID();
     uint32 lowguid = sObjectMgr->GenerateLowGuid(HIGHGUID_GROUP);
     m_guid = MAKE_NEW_GUID(lowguid, 0, HIGHGUID_GROUP);
-    m_leaderGuid = guid;
-    m_leaderName = name;
+    m_leaderGuid = leaderGuid;
+    m_leaderName = leader->GetName();
 
     m_groupType  = isBGGroup() ? GROUPTYPE_BGRAID : GROUPTYPE_NORMAL;
 
@@ -106,37 +107,29 @@ bool Group::Create(const uint64 &guid, const char * name)
 
     m_lootMethod = GROUP_LOOT;
     m_lootThreshold = ITEM_QUALITY_UNCOMMON;
-    m_looterGuid = guid;
+    m_looterGuid = leaderGuid;
 
     m_dungeonDifficulty = DUNGEON_DIFFICULTY_NORMAL;
     m_raidDifficulty = RAID_DIFFICULTY_10MAN_NORMAL;
+
     if (!isBGGroup())
     {
-        Player *leader = sObjectMgr->GetPlayer(guid);
-        if (leader)
-        {
-            m_dungeonDifficulty = leader->GetDungeonDifficulty();
-            m_raidDifficulty = leader->GetRaidDifficulty();
-        }
-
-        Player::ConvertInstancesToGroup(leader, this, guid);
-
-        if (!AddMember(guid, name))
-            return false;
+        m_dungeonDifficulty = leader->GetDungeonDifficulty();
+        m_raidDifficulty = leader->GetRaidDifficulty();
 
         // store group in database
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
-        trans->PAppend("DELETE FROM groups WHERE guid ='%u'", lowguid);
-        trans->PAppend("DELETE FROM group_member WHERE guid = %u OR memberGuid = %u", lowguid, GUID_LOPART(guid));
-        trans->PAppend("INSERT INTO group_member (guid, memberGuid, subgroup) VALUES (%u, %u, 0)", lowguid, GUID_LOPART(guid));
-        trans->PAppend("INSERT INTO groups (guid,leaderGuid,lootMethod,looterGuid,lootThreshold,icon1,icon2,icon3,icon4,icon5,icon6,icon7,icon8,groupType,difficulty,raiddifficulty) "
+        CharacterDatabase.PExecute("INSERT INTO groups (guid,leaderGuid,lootMethod,looterGuid,lootThreshold,icon1,icon2,icon3,icon4,icon5,icon6,icon7,icon8,groupType,difficulty,raiddifficulty) "
             "VALUES ('%u','%u','%u','%u','%u','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','%u','%u','%u')",
             lowguid, GUID_LOPART(m_leaderGuid), uint32(m_lootMethod),
-            GUID_LOPART(m_looterGuid), uint32(m_lootThreshold), m_targetIcons[0], m_targetIcons[1], m_targetIcons[2], m_targetIcons[3], m_targetIcons[4], m_targetIcons[5], m_targetIcons[6], m_targetIcons[7], uint8(m_groupType), uint32(m_dungeonDifficulty), m_raidDifficulty);
+            GUID_LOPART(m_looterGuid), uint32(m_lootThreshold), m_targetIcons[0], m_targetIcons[1], m_targetIcons[2], m_targetIcons[3], m_targetIcons[4], m_targetIcons[5], m_targetIcons[6],
+            m_targetIcons[7], uint8(m_groupType), uint32(m_dungeonDifficulty), m_raidDifficulty);
 
-        CharacterDatabase.CommitTransaction(trans);
+        ASSERT(AddMember(leader)); // If the leader can't be added to a new group because it appears full, something is clearly wrong.
+
+        Player::ConvertInstancesToGroup(leader, this, false);
+
     }
-    else if (!AddMember(guid, name))
+    else if (!AddMember(leader))
         return false;
 
     return true;
@@ -315,15 +308,66 @@ Player* Group::GetInvited(const std::string& name) const
     return NULL;
 }
 
-bool Group::AddMember(const uint64 &guid, const char* name)
+bool Group::AddMember(Player *player)
 {
-    if (!_addMember(guid, name))
-        return false;
+    // Get first not-full group
+    uint8 subGroup = 0;
+    if (m_subGroupsCounts)
+    {
+        bool groupFound = false;
+        for (; subGroup < MAX_RAID_SUBGROUPS; ++subGroup)
+        {
+            if (m_subGroupsCounts[subGroup] < MAXGROUPSIZE)
+            {
+                groupFound = true;
+                break;
+            }
+        }
+        // We are raid group and no one slot is free
+        if (!groupFound)
+            return false;
+    }
+
+    MemberSlot member;
+    member.guid      = player->GetGUID();
+    member.name      = player->GetName();
+    member.group     = subGroup;
+    member.flags     = 0;
+    member.roles     = 0;
+    m_memberSlots.push_back(member);
+
+    SubGroupCounterIncrease(subGroup);
+
+    if (player)
+    {
+        player->SetGroupInvite(NULL);
+        if (player->GetGroup() && isBGGroup()) //if player is in group and he is being added to BG raid group, then call SetBattlegroundRaid()
+            player->SetBattlegroundRaid(this, subGroup);
+        else if (player->GetGroup()) //if player is in bg raid and we are adding him to normal group, then call SetOriginalGroup()
+            player->SetOriginalGroup(this, subGroup);
+        else //if player is not in group, then call set group
+            player->SetGroup(this, subGroup);
+
+        // if the same group invites the player back, cancel the homebind timer
+        InstanceGroupBind *bind = GetBoundInstance(player);
+        if (bind && bind->save->GetInstanceId() == player->GetInstanceId())
+            player->m_InstanceValid = true;
+    }
+
+    if (!isRaidGroup())                                      // reset targetIcons for non-raid-groups
+    {
+        for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
+            m_targetIcons[i] = 0;
+    }
+
+    // insert into the table if we're not a battleground group
+    if (!isBGGroup())
+        CharacterDatabase.PExecute("INSERT INTO group_member (guid, memberGuid, memberFlags, subgroup, roles) VALUES(%u, %u, %u, %u, %u)",
+                                    GUID_LOPART(m_guid), GUID_LOPART(member.guid), member.flags, member.group, member.roles);
 
     SendUpdate();
-    sScriptMgr->OnGroupAddMember(this, guid);
+    sScriptMgr->OnGroupAddMember(this, player->GetGUID());
 
-    Player *player = sObjectMgr->GetPlayer(guid);
     if (player)
     {
         if (!IsLeader(player->GetGUID()) && !isBGGroup())
@@ -367,20 +411,30 @@ uint32 Group::RemoveMember(const uint64 &guid, const RemoveMethod &method /* = G
 
     sScriptMgr->OnGroupRemoveMember(this, guid, method, kicker, reason);
 
-    // Lfg group vote kick handled in scripts
+    // LFG group vote kick handled in scripts
     if (isLFGGroup() && method == GROUP_REMOVEMETHOD_KICK)
         return m_memberSlots.size();
 
     // remove member and change leader (if need) only if strong more 2 members _before_ member remove (BG allow 1 member group)
     if (GetMembersCount() > (isBGGroup() ? 1u : 2u))
     {
-        bool leaderChanged = _removeMember(guid);
-
-        if (Player *player = sObjectMgr->GetPlayer(guid))
+        Player *player = sObjectMgr->GetPlayer(guid);
+        if (player)
         {
-            // quest related GO state dependent from raid membership
-            if (isRaidGroup())
+            // Battleground group handling
+            if (isBGGroup())
+                player->RemoveFromBattlegroundRaid();
+            else
+            // Regular group
+            {
+                if (player->GetOriginalGroup() == this)
+                    player->SetOriginalGroup(NULL);
+                else
+                    player->SetGroup(NULL);
+
+                // quest related GO state dependent from raid membership
                 player->UpdateForQuestWorldObjects();
+            }
 
             WorldPacket data;
 
@@ -390,31 +444,69 @@ uint32 Group::RemoveMember(const uint64 &guid, const RemoveMethod &method /* = G
                 player->GetSession()->SendPacket(&data);
             }
 
-            //we already removed player from group and in player->GetGroup() is his original group!
-            if (Group* group = player->GetGroup())
-                group->SendUpdate();
-            else
-            {
-                data.Initialize(SMSG_GROUP_LIST, 1+1+1+1+8+4+4+8);
-                data << uint8(0x10) << uint8(0) << uint8(0) << uint8(0);
-                data << uint64(m_guid) << uint32(m_counter) << uint32(0) << uint64(0);
-                player->GetSession()->SendPacket(&data);
-            }
+            // Do we really need to send this opcode?
+            data.Initialize(SMSG_GROUP_LIST, 1+1+1+1+8+4+4+8);
+            data << uint8(0x10) << uint8(0) << uint8(0) << uint8(0);
+            data << uint64(m_guid) << uint32(m_counter) << uint32(0) << uint64(0);
+            player->GetSession()->SendPacket(&data);
 
             _homebindIfInstance(player);
         }
 
-        if (leaderChanged)
+        // Remove player from group in DB
+        CharacterDatabase.PExecute("DELETE FROM group_member WHERE memberGuid=%u", GUID_LOPART(guid));
+
+        // Reevaluate group enchanter if the leaving player had enchanting skill or the player is offline
+        if (player && player->GetSkillValue(SKILL_ENCHANTING) || !player)
+            ResetMaxEnchantingLevel();
+
+        // Remove player from loot rolls
+        for (Rolls::iterator it = RollId.begin(); it != RollId.end(); ++it)
         {
-            WorldPacket data(SMSG_GROUP_SET_LEADER, (m_memberSlots.front().name.size()+1));
-            data << m_memberSlots.front().name;
-            BroadcastPacket(&data, true);
+            Roll* roll = *it;
+            Roll::PlayerVote::iterator itr2 = roll->playerVote.find(guid);
+            if (itr2 == roll->playerVote.end())
+                continue;
+
+            if (itr2->second == GREED || itr2->second == DISENCHANT)
+                --roll->totalGreed;
+            else if (itr2->second == NEED)
+                --roll->totalNeed;
+            else if (itr2->second == PASS)
+                --roll->totalPass;
+
+            if (itr2->second != NOT_VALID)
+                --roll->totalPlayersRolling;
+
+            roll->playerVote.erase(itr2);
+
+            CountRollVote(guid, roll->itemGUID, GetMembersCount()-1, MAX_ROLL_TYPE);
+        }
+
+        // Update subgroups
+        member_witerator slot = _getMemberWSlot(guid);
+        if (slot != m_memberSlots.end())
+        {
+            SubGroupCounterDecrease(slot->group);
+            m_memberSlots.erase(slot);
+        }
+
+        // Pick new leader if necessary
+        if (m_leaderGuid == guid)
+        {
+            for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
+            {
+                if (sObjectMgr->GetPlayer(itr->guid))
+                {
+                    ChangeLeader(itr->guid);
+                    break;
+                }
+            }
         }
 
         SendUpdate();
-        ResetMaxEnchantingLevel();
     }
-    // if group before remove <= 2 disband it
+    // If group size before player removal <= 2 then disband it
     else
         Disband();
 
@@ -423,17 +515,54 @@ uint32 Group::RemoveMember(const uint64 &guid, const RemoveMethod &method /* = G
 
 void Group::ChangeLeader(const uint64 &guid)
 {
-    member_citerator slot = _getMemberCSlot(guid);
+    member_witerator slot = _getMemberWSlot(guid);
 
     if (slot == m_memberSlots.end())
         return;
 
-    _setLeader(guid);
+    Player *player = sObjectMgr->GetPlayer(slot->guid);
 
-    WorldPacket data(SMSG_GROUP_SET_LEADER, slot->name.size()+1);
+    // Don't allow switching leader to offline players
+    if (!player)
+        return;
+
+    sScriptMgr->OnGroupChangeLeader(this, m_leaderGuid, guid);
+
+    if (!isBGGroup())
+    {
+        // Remove the groups permanent instance bindings
+        for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+        {
+            for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end();)
+            {
+                if (itr->second.perm)
+                {
+                    itr->second.save->RemoveGroup(this);
+                    m_boundInstances[i].erase(itr++);
+                }
+                else
+                    ++itr;
+            }
+        }
+
+        // Same in the database
+        CharacterDatabase.PExecute("DELETE FROM group_instance WHERE guid=%u AND (permanent = 1 OR instance IN (SELECT instance FROM character_instance WHERE guid = '%u'))",
+            GUID_LOPART(m_guid), player->GetGUIDLow());
+
+        // Copy the permanent binds from the new leader to the group
+        Player::ConvertInstancesToGroup(player, this, true);
+
+        // update the group leader
+        CharacterDatabase.PExecute("UPDATE groups SET leaderGuid='%u' WHERE guid='%u'", player->GetGUIDLow(), GUID_LOPART(m_guid));
+    }
+
+    m_leaderGuid = player->GetGUID();
+    m_leaderName = player->GetName();
+    ToggleGroupMemberFlag(slot, MEMBER_FLAG_ASSISTANT, false);
+
+    WorldPacket data(SMSG_GROUP_SET_LEADER, m_leaderName.size()+1);
     data << slot->name;
     BroadcastPacket(&data, true);
-    SendUpdate();
 }
 
 void Group::Disband(bool hideDestroy /* = false */)
@@ -1203,199 +1332,6 @@ void Group::OfflineReadyCheck()
     }
 }
 
-bool Group::_addMember(const uint64 &guid, const char* name)
-{
-    // get first not-full group
-    uint8 groupid = 0;
-    if (m_subGroupsCounts)
-    {
-        bool groupFound = false;
-        for (; groupid < MAX_RAID_SUBGROUPS; ++groupid)
-        {
-            if (m_subGroupsCounts[groupid] < MAXGROUPSIZE)
-            {
-                groupFound = true;
-                break;
-            }
-        }
-        // We are raid group and no one slot is free
-        if (!groupFound)
-            return false;
-    }
-
-    return _addMember(guid, name, groupid);
-}
-
-bool Group::_addMember(const uint64 &guid, const char* name, uint8 group)
-{
-    if (IsFull())
-        return false;
-
-    if (!guid)
-        return false;
-
-    Player *player = sObjectMgr->GetPlayer(guid);
-
-    MemberSlot member;
-    member.guid      = guid;
-    member.name      = name;
-    member.group     = group;
-    member.flags     = 0;
-    member.roles     = 0;
-    m_memberSlots.push_back(member);
-
-    SubGroupCounterIncrease(group);
-
-    if (player)
-    {
-        player->SetGroupInvite(NULL);
-        if (player->GetGroup() && isBGGroup()) //if player is in group and he is being added to BG raid group, then call SetBattlegroundRaid()
-            player->SetBattlegroundRaid(this, group);
-        else if (player->GetGroup()) //if player is in bg raid and we are adding him to normal group, then call SetOriginalGroup()
-            player->SetOriginalGroup(this, group);
-        else //if player is not in group, then call set group
-            player->SetGroup(this, group);
-
-        // if the same group invites the player back, cancel the homebind timer
-        InstanceGroupBind *bind = GetBoundInstance(player);
-        if (bind && bind->save->GetInstanceId() == player->GetInstanceId())
-            player->m_InstanceValid = true;
-    }
-
-    if (!isRaidGroup())                                      // reset targetIcons for non-raid-groups
-    {
-        for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
-            m_targetIcons[i] = 0;
-    }
-
-    // insert into the table if we're not a battleground group
-    if (!isBGGroup())
-        CharacterDatabase.PExecute("INSERT INTO group_member (guid, memberGuid, memberFlags, subgroup, roles) VALUES(%u, %u, %u, %u, %u)", GUID_LOPART(m_guid), GUID_LOPART(member.guid), member.flags, member.group, member.roles);
-
-    return true;
-}
-
-bool Group::_removeMember(const uint64 &guid)
-{
-    Player *player = sObjectMgr->GetPlayer(guid);
-    if (player)
-    {
-        //if we are removing player from battleground raid
-        if (isBGGroup())
-            player->RemoveFromBattlegroundRaid();
-        else
-        {
-            //we can remove player who is in battleground from his original group
-            if (player->GetOriginalGroup() == this)
-                player->SetOriginalGroup(NULL);
-            else
-                player->SetGroup(NULL);
-        }
-    }
-
-    _removeRolls(guid);
-
-    member_witerator slot = _getMemberWSlot(guid);
-    if (slot != m_memberSlots.end())
-    {
-        SubGroupCounterDecrease(slot->group);
-        m_memberSlots.erase(slot);
-    }
-
-    if (!isBGGroup())
-        CharacterDatabase.PExecute("DELETE FROM group_member WHERE memberGuid=%u", GUID_LOPART(guid));
-
-    if (m_leaderGuid == guid)                                // leader was removed
-    {
-        if (GetMembersCount() > 0)
-            _setLeader(m_memberSlots.front().guid);
-        return true;
-    }
-
-    return false;
-}
-
-void Group::_setLeader(const uint64 &guid)
-{
-    member_witerator slot = _getMemberWSlot(guid);
-    if (slot == m_memberSlots.end())
-        return;
-
-    sScriptMgr->OnGroupChangeLeader(this, m_leaderGuid, guid);
-
-    if (!isBGGroup())
-    {
-        // TODO: set a time limit to have this function run rarely cause it can be slow
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
-
-        // update the group's bound instances when changing leaders
-        // remove all permanent binds from the group
-        // in the DB also remove solo binds that will be replaced with permbinds
-        // from the new leader
-        trans->PAppend(
-            "DELETE FROM group_instance WHERE guid=%u AND (permanent = 1 OR "
-            "instance IN (SELECT instance FROM character_instance WHERE guid = '%u')"
-            ")", GUID_LOPART(m_guid), GUID_LOPART(slot->guid)
-        );
-
-        Player *player = sObjectMgr->GetPlayer(slot->guid);
-        if (player)
-        {
-            for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
-            {
-                for (BoundInstancesMap::iterator itr = m_boundInstances[i].begin(); itr != m_boundInstances[i].end();)
-                {
-                    if (itr->second.perm)
-                    {
-                        itr->second.save->RemoveGroup(this);
-                        m_boundInstances[i].erase(itr++);
-                    }
-                    else
-                        ++itr;
-                }
-            }
-        }
-
-        // copy the permanent binds from the new leader to the group
-        // overwriting the solo binds with permanent ones if necessary
-        // in the DB those have been deleted already
-        Player::ConvertInstancesToGroup(player, this, slot->guid);
-
-        // update the group leader
-        trans->PAppend("UPDATE groups SET leaderGuid='%u' WHERE guid='%u'", GUID_LOPART(slot->guid), GUID_LOPART(m_guid));
-        CharacterDatabase.CommitTransaction(trans);
-    }
-
-    m_leaderGuid = slot->guid;
-    m_leaderName = slot->name;
-    ToggleGroupMemberFlag(slot, MEMBER_FLAG_ASSISTANT, false);
-}
-
-void Group::_removeRolls(const uint64 &guid)
-{
-    for (Rolls::iterator it = RollId.begin(); it != RollId.end(); ++it)
-    {
-        Roll* roll = *it;
-        Roll::PlayerVote::iterator itr2 = roll->playerVote.find(guid);
-        if (itr2 == roll->playerVote.end())
-            continue;
-
-        if (itr2->second == GREED || itr2->second == DISENCHANT)
-            --roll->totalGreed;
-        else if (itr2->second == NEED)
-            --roll->totalNeed;
-        else if (itr2->second == PASS)
-            --roll->totalPass;
-
-        if (itr2->second != NOT_VALID)
-            --roll->totalPlayersRolling;
-
-        roll->playerVote.erase(itr2);
-
-        CountRollVote(guid, roll->itemGUID, GetMembersCount()-1, MAX_ROLL_TYPE);
-    }
-}
-
 bool Group::_setMembersGroup(const uint64 &guid, const uint8 &group)
 {
     member_witerator slot = _getMemberWSlot(guid);
@@ -1412,50 +1348,6 @@ bool Group::_setMembersGroup(const uint64 &guid, const uint8 &group)
     return true;
 }
 
-bool Group::_setAssistantFlag(const uint64 &guid, const bool &apply)
-{
-    member_witerator slot = _getMemberWSlot(guid);
-    if (slot == m_memberSlots.end())
-        return false;
-
-    ToggleGroupMemberFlag(slot, MEMBER_FLAG_ASSISTANT, apply);
-
-    if (!isBGGroup())
-        CharacterDatabase.PExecute("UPDATE group_member SET memberFlags='%u' WHERE memberGuid='%u'", slot->flags, GUID_LOPART(guid));
-
-    return true;
-}
-
-bool Group::_setMainTank(const uint64 &guid, const bool &apply)
-{
-    member_witerator slot = _getMemberWSlot(guid);  // First check member slots to see if the target exists
-    if (slot == m_memberSlots.end())
-        return false;
-
-    RemoveUniqueGroupMemberFlag(MEMBER_FLAG_MAINTANK);          // Remove main tank flag from current if any.
-    ToggleGroupMemberFlag(slot, MEMBER_FLAG_MAINTANK, apply);   // And apply main tank flag on new main tank.
-
-    if (!isBGGroup())
-        CharacterDatabase.PExecute("UPDATE group_member SET memberFlags='%u' WHERE memberGuid='%u'", slot->flags, GUID_LOPART(guid));
-
-    return true;
-}
-
-bool Group::_setMainAssistant(const uint64 &guid, const bool &apply)
-{
-    member_witerator slot = _getMemberWSlot(guid);
-    if (slot == m_memberSlots.end())
-        return false;
-
-    RemoveUniqueGroupMemberFlag(MEMBER_FLAG_MAINASSIST);         // Remove main assist flag from current if any.
-    ToggleGroupMemberFlag(slot, MEMBER_FLAG_MAINASSIST, apply);  // Apply main assist flag on new main assist.
-
-    if (!isBGGroup())
-        CharacterDatabase.PExecute("UPDATE group_member SET memberFlags='%u' WHERE memberGuid='%u'", slot->flags, GUID_LOPART(guid));
-
-    return true;
-}
-
 bool Group::SameSubGroup(Player const* member1, Player const* member2) const
 {
     if (!member1 || !member2)
@@ -1466,55 +1358,53 @@ bool Group::SameSubGroup(Player const* member1, Player const* member2) const
         return member1->GetSubGroup() == member2->GetSubGroup();
 }
 
-// allows setting subgroup for offline members
+// Allows setting sub groups both for online or offline members
 void Group::ChangeMembersGroup(const uint64 &guid, const uint8 &group)
 {
+    // Only raid groups have sub groups
     if (!isRaidGroup())
         return;
 
-    Player *player = sObjectMgr->GetPlayer(guid);
-
-    if (!player)
-    {
-        uint8 prevSubGroup = GetMemberGroup(guid);
-        if (prevSubGroup == group)
-            return;
-
-        if (_setMembersGroup(guid, group))
-        {
-            SubGroupCounterDecrease(prevSubGroup);
-            SendUpdate();
-        }
-    }
-    else
-        // This methods handles itself groupcounter decrease
-        ChangeMembersGroup(player, group);
-}
-
-// only for online members
-void Group::ChangeMembersGroup(Player *player, const uint8 &group)
-{
-    if (!player || !isRaidGroup())
+    // Check if player is really in the raid
+    member_witerator slot = _getMemberWSlot(guid);
+    if (slot == m_memberSlots.end())
         return;
 
-    uint8 prevSubGroup = player->GetSubGroup();
+    // Abort if the player is already in the target sub group
+    uint8 prevSubGroup = GetMemberGroup(guid);
     if (prevSubGroup == group)
         return;
 
-    if (_setMembersGroup(player->GetGUID(), group))
+    // Update the player slot with the new sub group setting
+    slot->group = group;
+
+    // Increase the counter of the new sub group..
+    SubGroupCounterIncrease(group);
+
+    // ..and decrease the counter of the previous one
+    SubGroupCounterDecrease(prevSubGroup);
+
+    // Preserve new sub group in database for non-raid groups
+    if (!isBGGroup())
+        CharacterDatabase.PExecute("UPDATE group_member SET subgroup='%u' WHERE memberGuid='%u'", group, GUID_LOPART(guid));
+
+    Player *player = sObjectMgr->GetPlayer(guid);
+
+    // In case the moved player is online, update the player object with the new sub group references
+    if (player)
     {
         if (player->GetGroup() == this)
             player->GetGroupRef().setSubGroup(group);
         else
         {
-            //if player is in BG raid, it is possible that he is also in normal raid - and that normal raid is stored in m_originalGroup reference
+            // If player is in BG raid, it is possible that he is also in normal raid - and that normal raid is stored in m_originalGroup reference
             prevSubGroup = player->GetOriginalSubGroup();
             player->GetOriginalGroupRef().setSubGroup(group);
         }
-
-        SubGroupCounterDecrease(prevSubGroup);
-        SendUpdate();
     }
+
+    // Broadcast the changes to the group
+    SendUpdate();
 }
 
 // Retrieve the next Round-Roubin player for the group
@@ -2068,31 +1958,40 @@ void Group::SetBattlegroundGroup(Battleground *bg)
     m_bgGroup = bg;
 }
 
-void Group::SetAssistant(uint64 guid, const bool &apply)
+
+void Group::SetGroupMemberFlag(uint64 guid, const bool &apply, GroupMemberFlags flag)
 {
+    // Assistants, main assistants and main tanks are only available in raid groups
     if (!isRaidGroup())
        return;
 
-    if (_setAssistantFlag(guid, apply))
-        SendUpdate();
-}
-
-void Group::SetMainTank(uint64 guid, const bool &apply)
-{
-    if (!isRaidGroup())
+    // Check if player is really in the raid
+    member_witerator slot = _getMemberWSlot(guid);
+    if (slot == m_memberSlots.end())
         return;
 
-    if (_setMainTank(guid, apply))
-        SendUpdate();
-}
+    // Do flag specific actions, e.g ensure uniqueness
+    switch (flag) {
+        case MEMBER_FLAG_MAINASSIST:
+            RemoveUniqueGroupMemberFlag(MEMBER_FLAG_MAINASSIST);         // Remove main assist flag from current if any.
+            break;
+        case MEMBER_FLAG_MAINTANK:
+            RemoveUniqueGroupMemberFlag(MEMBER_FLAG_MAINTANK);           // Remove main tank flag from current if any.
+            break;
+        case MEMBER_FLAG_ASSISTANT:
+            break;
+        default:
+            return;                                                      // This should never happen
+    }
 
-void Group::SetMainAssistant(uint64 guid, const bool &apply)
-{
-    if (!isRaidGroup())
-        return;
+    // Switch the actual flag
+    ToggleGroupMemberFlag(slot, flag, apply);
 
-    if (_setMainAssistant(guid, apply))
-        SendUpdate();
+    // Preserve the new setting in the db
+    CharacterDatabase.PExecute("UPDATE group_member SET memberFlags='%u' WHERE memberGuid='%u'", slot->flags, GUID_LOPART(guid));
+
+    // Broadcast the changes to the group
+    SendUpdate();
 }
 
 Difficulty Group::GetDifficulty(bool isRaid) const
