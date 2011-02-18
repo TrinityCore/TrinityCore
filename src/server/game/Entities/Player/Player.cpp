@@ -7214,7 +7214,7 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 
     // group update
     if (GetGroup())
-        SetGroupUpdateFlag(GROUP_UPDATE_FLAG_ZONE);
+        SetGroupUpdateFlag(GROUP_UPDATE_FULL);
 
     UpdateZoneDependentAuras(newZone);
 }
@@ -17785,50 +17785,26 @@ void Player::SendSavedInstances()
 }
 
 /// convert the player's binds to the group
-void Player::ConvertInstancesToGroup(Player *player, Group *group, uint64 player_guid)
+void Player::ConvertInstancesToGroup(Player *player, Group *group, bool switchLeader)
 {
-    bool has_binds = false;
-    bool has_solo = false;
-
-    if (player)
-    {
-        player_guid = player->GetGUID();
-        if (!group)
-            group = player->GetGroup();
-    }
-    ASSERT(player_guid);
-
     // copy all binds to the group, when changing leader it's assumed the character
     // will not have any solo binds
 
-    if (player)
+    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
     {
-        for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+        for (BoundInstancesMap::iterator itr = player->m_boundInstances[i].begin(); itr != player->m_boundInstances[i].end();)
         {
-            for (BoundInstancesMap::iterator itr = player->m_boundInstances[i].begin(); itr != player->m_boundInstances[i].end();)
+            group->BindToInstance(itr->second.save, itr->second.perm, false);
+            // permanent binds are not removed
+            if (switchLeader && !itr->second.perm)
             {
-                has_binds = true;
-                if (group)
-                    group->BindToInstance(itr->second.save, itr->second.perm, true);
-                // permanent binds are not removed
-                if (!itr->second.perm)
-                {
-                    // increments itr in call
-                    player->UnbindInstance(itr, Difficulty(i), true);
-                    has_solo = true;
-                }
-                else
-                    ++itr;
+                // increments itr in call
+                player->UnbindInstance(itr, Difficulty(i), false);
             }
+            else
+                ++itr;
         }
     }
-
-    // if the player's not online we don't know what binds it has
-    if (!player || !group || has_binds)
-        CharacterDatabase.PExecute("INSERT INTO group_instance SELECT guid, instance, permanent FROM character_instance WHERE guid = '%u'", GUID_LOPART(player_guid));
-    // the following should not get executed when changing leaders
-    if (!player || has_solo)
-        CharacterDatabase.PExecute("DELETE FROM character_instance WHERE guid = '%d' AND permanent = 0", GUID_LOPART(player_guid));
 }
 
 bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, bool report)
