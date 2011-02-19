@@ -1507,6 +1507,8 @@ class Unit : public WorldObject
         void SendRemoveFromThreatListOpcode(HostileReference* pHostileReference);
         void SendThreatListUpdate();
 
+        void SendClearTarget();
+
         void BuildHeartBeatMsg(WorldPacket *data) const;
 
         bool isAlive() const { return (m_deathState == ALIVE); };
