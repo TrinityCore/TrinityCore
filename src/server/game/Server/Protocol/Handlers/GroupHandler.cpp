@@ -57,6 +57,8 @@ void WorldSession::SendPartyResult(PartyOperation operation, const std::string& 
 
 void WorldSession::HandleGroupInviteOpcode(WorldPacket & recv_data)
 {
+    sLog->outDebug("WORLD: Received CMSG_GROUP_INVITE");
+
     std::string membername;
     recv_data >> membername;
     recv_data.read_skip<uint32>();
@@ -191,9 +193,16 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recv_data)
 
 void WorldSession::HandleGroupAcceptOpcode(WorldPacket& recv_data)
 {
+    sLog->outDebug("WORLD: Received CMSG_GROUP_ACCEPT");
+
     recv_data.read_skip<uint32>();
     Group *group = GetPlayer()->GetGroupInvite();
-    if (!group) return;
+
+    if (!group)
+        return;
+
+    // Remove player from invitees in any case
+    group->RemoveInvite(GetPlayer());
 
     if (group->GetLeaderGUID() == GetPlayer()->GetGUID())
     {
@@ -201,13 +210,7 @@ void WorldSession::HandleGroupAcceptOpcode(WorldPacket& recv_data)
         return;
     }
 
-    // remove in from ivites in any case
-    group->RemoveInvite(GetPlayer());
-
-    /** error handling **/
-    /********************/
-
-    // not have place
+    // Group is full
     if (group->IsFull())
     {
         SendPartyResult(PARTY_OP_INVITE, "", ERR_GROUP_FULL);
@@ -216,17 +219,25 @@ void WorldSession::HandleGroupAcceptOpcode(WorldPacket& recv_data)
 
     Player* leader = sObjectMgr->GetPlayer(group->GetLeaderGUID());
 
-    // forming a new group, create it
+    // Forming a new group, create it
     if (!group->IsCreated())
     {
-        if (leader)
-            group->RemoveInvite(leader);
-        group->Create(group->GetLeaderGUID(), group->GetLeaderName());
+        // This can happen if the leader is zoning. To be removed once delayed actions for zoning are implemented
+        if (!leader)
+        {
+            group->RemoveAllInvites();
+            return;
+        }
+
+        // If we're about to create a group there really should be a leader present
+        ASSERT(leader);
+        group->RemoveInvite(leader);
+        group->Create(leader);
         sObjectMgr->AddGroup(group);
     }
 
-    // everything's fine, do it, PLAYER'S GROUP IS SET IN ADDMEMBER!!!
-    if (!group->AddMember(GetPlayer()->GetGUID(), GetPlayer()->GetName()))
+    // Everything is fine, do it, PLAYER'S GROUP IS SET IN ADDMEMBER!!!
+    if (!group->AddMember(GetPlayer()))
         return;
 
     group->BroadcastGroupUpdate();
@@ -234,6 +245,8 @@ void WorldSession::HandleGroupAcceptOpcode(WorldPacket& recv_data)
 
 void WorldSession::HandleGroupDeclineOpcode(WorldPacket & /*recv_data*/)
 {
+    sLog->outDebug("WORLD: Received CMSG_GROUP_DECLINE");
+
     Group  *group  = GetPlayer()->GetGroupInvite();
     if (!group) return;
 
@@ -255,6 +268,8 @@ void WorldSession::HandleGroupDeclineOpcode(WorldPacket & /*recv_data*/)
 
 void WorldSession::HandleGroupUninviteGuidOpcode(WorldPacket & recv_data)
 {
+    sLog->outDebug("WORLD: Received CMSG_GROUP_UNINVITE_GUID");
+
     uint64 guid;
     std::string reason;
     recv_data >> guid;
@@ -301,6 +316,8 @@ void WorldSession::HandleGroupUninviteGuidOpcode(WorldPacket & recv_data)
 
 void WorldSession::HandleGroupUninviteOpcode(WorldPacket & recv_data)
 {
+    sLog->outDebug("WORLD: Received CMSG_GROUP_UNINVITE");
+
     std::string membername;
     recv_data >> membername;
 
@@ -343,6 +360,8 @@ void WorldSession::HandleGroupUninviteOpcode(WorldPacket & recv_data)
 
 void WorldSession::HandleGroupSetLeaderOpcode(WorldPacket & recv_data)
 {
+    sLog->outDebug("WORLD: Received CMSG_GROUP_SET_LEADER");
+
     Group *group = GetPlayer()->GetGroup();
     if (!group)
         return;
@@ -357,12 +376,16 @@ void WorldSession::HandleGroupSetLeaderOpcode(WorldPacket & recv_data)
         return;
     /********************/
 
-    // everything's fine, do it
+    // Everything's fine, do it
     group->ChangeLeader(guid);
+
+    group->SendUpdate();
 }
 
 void WorldSession::HandleGroupDisbandOpcode(WorldPacket & /*recv_data*/)
 {
+    sLog->outDebug("WORLD: Received CMSG_GROUP_DISBAND");
+
     Group *grp = GetPlayer()->GetGroup();
     if (!grp)
         return;
@@ -384,6 +407,8 @@ void WorldSession::HandleGroupDisbandOpcode(WorldPacket & /*recv_data*/)
 
 void WorldSession::HandleLootMethodOpcode(WorldPacket & recv_data)
 {
+    sLog->outDebug("WORLD: Received CMSG_LOOT_METHOD");
+
     Group *group = GetPlayer()->GetGroup();
     if (!group)
         return;
@@ -439,6 +464,8 @@ void WorldSession::HandleLootRoll(WorldPacket &recv_data)
 
 void WorldSession::HandleMinimapPingOpcode(WorldPacket& recv_data)
 {
+    sLog->outDebug("WORLD: Received MSG_MINIMAP_PING");
+
     if (!GetPlayer()->GetGroup())
         return;
 
@@ -461,6 +488,8 @@ void WorldSession::HandleMinimapPingOpcode(WorldPacket& recv_data)
 
 void WorldSession::HandleRandomRollOpcode(WorldPacket& recv_data)
 {
+    sLog->outDebug("WORLD: Received MSG_RANDOM_ROLL");
+
     uint32 minimum, maximum, roll;
     recv_data >> minimum;
     recv_data >> maximum;
@@ -488,6 +517,8 @@ void WorldSession::HandleRandomRollOpcode(WorldPacket& recv_data)
 
 void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket & recv_data)
 {
+    sLog->outDebug("WORLD: Received MSG_RAID_TARGET_UPDATE");
+
     Group *group = GetPlayer()->GetGroup();
     if (!group)
         return;
@@ -516,6 +547,8 @@ void WorldSession::HandleRaidTargetUpdateOpcode(WorldPacket & recv_data)
 
 void WorldSession::HandleGroupRaidConvertOpcode(WorldPacket & /*recv_data*/)
 {
+    sLog->outDebug("WORLD: Received CMSG_GROUP_RAID_CONVERT");
+
     Group *group = GetPlayer()->GetGroup();
     if (!group)
         return;
@@ -535,6 +568,8 @@ void WorldSession::HandleGroupRaidConvertOpcode(WorldPacket & /*recv_data*/)
 
 void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket & recv_data)
 {
+    sLog->outDebug("WORLD: Received CMSG_GROUP_CHANGE_SUB_GROUP");
+
     // we will get correct pointer for group here, so we don't have to check if group is BG raid
     Group *group = GetPlayer()->GetGroup();
     if (!group)
@@ -548,78 +583,87 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket & recv_data)
     if (groupNr >= MAX_RAID_SUBGROUPS)
         return;
 
-    /** error handling **/
     uint64 senderGuid = GetPlayer()->GetGUID();
     if (!group->IsLeader(senderGuid) && !group->IsAssistant(senderGuid))
         return;
 
     if (!group->HasFreeSlotSubGroup(groupNr))
         return;
-    /********************/
 
     Player *movedPlayer = sObjectMgr->GetPlayer(name.c_str());
+    uint64 guid;
     if (movedPlayer)
     {
-        //Do not allow leader to change group of player in combat
-        if (movedPlayer->isInCombat())
-            return;
-
-        // everything's fine, do it
-        group->ChangeMembersGroup(movedPlayer, groupNr);
+        guid = movedPlayer->GetGUID();
     }
     else
-        group->ChangeMembersGroup(sObjectMgr->GetPlayerGUIDByName(name.c_str()), groupNr);
+    {
+        CharacterDatabase.escape_string(name);
+        guid = sObjectMgr->GetPlayerGUIDByName(name.c_str());
+    }
+
+    group->ChangeMembersGroup(guid, groupNr);
 }
 
 void WorldSession::HandleGroupAssistantLeaderOpcode(WorldPacket & recv_data)
 {
+    sLog->outDebug("WORLD: Received CMSG_GROUP_ASSISTANT_LEADER");
+
     Group *group = GetPlayer()->GetGroup();
     if (!group)
         return;
 
-    uint64 guid;
-    uint8 flag;
-    recv_data >> guid;
-    recv_data >> flag;
-
-    /** error handling **/
     if (!group->IsLeader(GetPlayer()->GetGUID()))
         return;
-    /********************/
 
-    // everything's fine, do it
-    group->SetAssistant(guid, (flag != 0));
+    uint64 guid;
+    bool apply;
+    recv_data >> guid;
+    recv_data >> apply;
+
+    group->SetGroupMemberFlag(guid, apply, MEMBER_FLAG_ASSISTANT);
+
+    group->SendUpdate();
 }
 
 void WorldSession::HandlePartyAssignmentOpcode(WorldPacket & recv_data)
 {
-    sLog->outDebug("MSG_PARTY_ASSIGNMENT");
+    sLog->outDebug("WORLD: Received MSG_PARTY_ASSIGNMENT");
 
     Group *group = GetPlayer()->GetGroup();
     if (!group)
         return;
 
-    uint8 flag, apply;
-    uint64 guid;
-    recv_data >> flag >> apply;
-    recv_data >> guid;
-
-    /** error handling **/
     uint64 senderGuid = GetPlayer()->GetGUID();
     if (!group->IsLeader(senderGuid) && !group->IsAssistant(senderGuid))
         return;
-    /********************/
 
-    // everything's fine, do it
-    if (flag == 0)
-        group->SetMainTank(guid, apply);
+    uint8 assignment;
+    bool apply;
+    uint64 guid;
+    recv_data >> assignment >> apply;
+    recv_data >> guid;
 
-    else if (flag == 1)
-        group->SetMainAssistant(guid, apply);
+    switch (assignment)
+    {
+        case GROUP_ASSIGN_MAINASSIST:
+            group->RemoveUniqueGroupMemberFlag(MEMBER_FLAG_MAINASSIST);
+            group->SetGroupMemberFlag(guid, apply, MEMBER_FLAG_MAINASSIST);
+            break;
+        case GROUP_ASSIGN_MAINTANK:
+            group->RemoveUniqueGroupMemberFlag(MEMBER_FLAG_MAINTANK);           // Remove main assist flag from current if any.
+            group->SetGroupMemberFlag(guid, apply, MEMBER_FLAG_MAINTANK);
+        default:
+            break;
+    }
+
+    group->SendUpdate();
 }
 
 void WorldSession::HandleRaidReadyCheckOpcode(WorldPacket & recv_data)
 {
+    sLog->outDebug("WORLD: Received MSG_RAID_READY_CHECK");
+
     Group *group = GetPlayer()->GetGroup();
     if (!group)
         return;

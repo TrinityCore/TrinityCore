@@ -7969,7 +7969,7 @@ void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, std::string table,
 
         if (mQuestTemplates.find(quest) == mQuestTemplates.end())
         {
-            sLog->outErrorDb("Table `%s: Quest %u listed for entry %u does not exist.", table.c_str(), quest, id);
+            sLog->outErrorDb("Table `%s`: Quest %u listed for entry %u does not exist.", table.c_str(), quest, id);
             continue;
         }
 
