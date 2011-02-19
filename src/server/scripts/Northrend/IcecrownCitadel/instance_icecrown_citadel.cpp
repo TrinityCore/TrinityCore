@@ -227,14 +227,16 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case NPC_ALRIN_THE_AGILE:
                     case NPC_VALITHRIA_DREAMWALKER_QUEST:
                     {
-                        uint8 questIndex = 0;
-                        for (; questIndex < 5; ++questIndex)
+                        for (uint8 questIndex = 0; questIndex < 5; ++questIndex)
+                        {
                             if (WeeklyQuestData[questIndex].npcStart == entry)
+                            {
+                                uint8 diffIndex = instance->GetSpawnMode() & 1;
+                                if (!sPoolMgr->IsSpawnedObject<Quest>(WeeklyQuestData[questIndex].questId[diffIndex]))
+                                    entry = 0;
                                 break;
-
-                        uint8 diffIndex = instance->GetSpawnMode() & 1;
-                        if (!sPoolMgr->IsSpawnedObject<Quest>(WeeklyQuestData[questIndex].questId[diffIndex]))
-                            entry = 0;
+                            }
+                        }
                         break;
                     }
                     default:
