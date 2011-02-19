@@ -220,13 +220,13 @@ Unit *Vehicle::GetPassenger(int8 seatId) const
     return ObjectAccessor::GetUnit(*GetBase(), seat->second.passenger);
 }
 
-int8 Vehicle::GetNextEmptySeat(int8 seatId, bool next, bool byAura) const
+int8 Vehicle::GetNextEmptySeat(int8 seatId, bool next) const
 {
     SeatMap::const_iterator seat = m_Seats.find(seatId);
     if (seat == m_Seats.end())
         return -1;
 
-    while (seat->second.passenger || (!byAura && !seat->second.seatInfo->CanEnterOrExit()) || (byAura && !seat->second.seatInfo->IsUsableByAura()))
+    while (seat->second.passenger || (!seat->second.seatInfo->CanEnterOrExit() && !seat->second.seatInfo->IsUsableByOverride()))
     {
         if (next)
         {
@@ -277,7 +277,7 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion)
     }
 }
 
-bool Vehicle::AddPassenger(Unit *unit, int8 seatId, bool byAura)
+bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
 {
     if (unit->GetVehicle() != this)
         return false;
@@ -286,7 +286,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId, bool byAura)
     if (seatId < 0) // no specific seat requirement
     {
         for (seat = m_Seats.begin(); seat != m_Seats.end(); ++seat)
-            if (!seat->second.passenger && ((!byAura && seat->second.seatInfo->CanEnterOrExit()) || (byAura && seat->second.seatInfo->IsUsableByAura())))
+            if (!seat->second.passenger && (seat->second.seatInfo->CanEnterOrExit() || seat->second.seatInfo->IsUsableByOverride()))
                 break;
 
         if (seat == m_Seats.end()) // no available seat
