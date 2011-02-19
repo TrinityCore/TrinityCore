@@ -1123,6 +1123,7 @@ enum TrinityStrings
     LANG_CHATSPY_LISTOFSPYS                 = 11606,
     LANG_CHATSPY_TOTAL                      = 11607,
     LANG_CHATSPY_ONESPYSANOTHER             = 11608,
+    LANG_CHATSPY_MODE_CHANGED               = 11609,
 
     // NOT RESERVED IDS                   12000-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)

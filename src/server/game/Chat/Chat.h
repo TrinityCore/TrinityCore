@@ -361,7 +361,7 @@ class ChatHandler
         bool HandleChatSpyCancelCommand(const char * args);
         bool HandleChatSpySetCommand(const char * args);
         bool HandleChatSpyStatusCommand(const char * args);
-      //bool HandleChatSpyModeCommand(const char * args); -- PlaceHolder
+        bool HandleChatSpyModeCommand(const char * args);
 
         //! Development Commands
 

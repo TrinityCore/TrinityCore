@@ -4855,14 +4855,14 @@ bool ChatHandler::HandleUnbindSightCommand(const char * /*args*/)
 
 bool ChatHandler::HandleChatSpySetCommand(const char *args)
 {
-    if(!args)
+    if (!args)
         return false;
 
     char* name = strtok((char*)args, " ");
     std::string cname;
     Player* target = NULL;
 
-    if(name)
+    if (name)
     {
         cname = name;
         normalizePlayerName(cname);
@@ -4871,7 +4871,7 @@ bool ChatHandler::HandleChatSpySetCommand(const char *args)
     else
         target = getSelectedPlayer();
 
-    if(!target || target->GetSession() == m_session)
+    if (!target || target->GetSession() == m_session)
     {
         SendSysMessage(LANG_PLAYER_NOT_FOUND);
         SetSentErrorMessage(true);
@@ -4879,6 +4879,7 @@ bool ChatHandler::HandleChatSpySetCommand(const char *args)
     }
 
     target->m_ChatSpyGUID = m_session->GetPlayer()->GetGUID();
+    target->m_ChatSpyMODE = 0;
     PSendSysMessage(LANG_CHATSPY_APEENDED, target->GetName(), target->GetGUIDLow());
     return true;
 }
@@ -4887,15 +4888,14 @@ bool ChatHandler::HandleChatSpyResetCommand(const char* /*args*/)
 {
     HashMapHolder<Player>::MapType &m = HashMapHolder<Player>::GetContainer();
     HashMapHolder<Player>::MapType::iterator itr = m.begin();
-    for(; itr != m.end(); ++itr)
+    for (; itr != m.end(); ++itr)
     {
         Player* plr = itr->second->GetSession()->GetPlayer();
         if (plr && plr->m_ChatSpyGUID)
         {
-            if(Player* spy = sObjectMgr->GetPlayer(plr->m_ChatSpyGUID))
-                if(spy->IsInWorld())
-                    ChatHandler(spy).PSendSysMessage(LANG_CHATSPY_CANCELLEDMASSIVE,
-                        plr->GetName(), plr->GetGUIDLow());
+            if (Player* spy = sObjectMgr->GetPlayer(plr->m_ChatSpyGUID))
+                if (spy->IsInWorld())
+                    ChatHandler(spy).PSendSysMessage(LANG_CHATSPY_CANCELLEDMASSIVE, plr->GetName(), plr->GetGUIDLow());
             plr->m_ChatSpyGUID = 0;
         }
     }
@@ -4912,7 +4912,7 @@ bool ChatHandler::HandleChatSpyCancelCommand(const char* args)
     std::string cname;
     Player* target = NULL;
 
-    if(name)
+    if (name)
     {
         cname = name;
         normalizePlayerName(cname);
@@ -4921,7 +4921,7 @@ bool ChatHandler::HandleChatSpyCancelCommand(const char* args)
     else
         target = getSelectedPlayer();
 
-    if(!target || target->GetSession() == m_session)
+    if (!target || target->GetSession() == m_session)
     {
         SendSysMessage(LANG_PLAYER_NOT_FOUND);
         SetSentErrorMessage(true);
@@ -4929,13 +4929,13 @@ bool ChatHandler::HandleChatSpyCancelCommand(const char* args)
     }
 
     // ok, player found
-    if(!target->m_ChatSpyGUID)
+    if (!target->m_ChatSpyGUID)
     {
         PSendSysMessage(LANG_CHATSPY_NOCHATSPY, target->GetName(), target->GetGUIDLow());
         SetSentErrorMessage(true);
         return false;
     }
-    if(target->m_ChatSpyGUID == m_session->GetPlayer()->GetGUID())
+    if (target->m_ChatSpyGUID == m_session->GetPlayer()->GetGUID())
         SendSysMessage(LANG_CHATSPY_YOURCANCELLED);
     else
     {
@@ -4953,19 +4953,78 @@ bool ChatHandler::HandleChatSpyStatusCommand(const char* args)
 
     HashMapHolder<Player>::MapType &m = HashMapHolder<Player>::GetContainer();
     HashMapHolder<Player>::MapType::iterator itr = m.begin();
-    for(; itr != m.end(); ++itr)
+    for (; itr != m.end(); ++itr)
     {
         Player* plr = itr->second->GetSession()->GetPlayer();
         if (plr && plr->m_ChatSpyGUID)
         {
             Player* spy = sObjectMgr->GetPlayer(plr->m_ChatSpyGUID);
-            PSendSysMessage(LANG_CHATSPY_ONESPYSANOTHER,
-                (spy ? spy->GetName() : "ERROR"), (spy ? spy->GetGUIDLow() : 0),
-                plr->GetName(), plr->GetGUIDLow()
-            );
+            PSendSysMessage(LANG_CHATSPY_ONESPYSANOTHER, (spy ? spy->GetName() : "ERROR"), (spy ? spy->GetGUIDLow() : 0), plr->GetName(), plr->GetGUIDLow(), plr->m_ChatSpyMODE);
             spynr++;
         }
     }
     PSendSysMessage(LANG_CHATSPY_TOTAL, spynr);
+    return true;
+}
+
+//    Modes
+// 0 - standart mode (Channels (LFG, Trade, ect) and world messages (say\yell\emote\party, ect))
+// 1 - minimum (Only world messages)
+// 2 - faction spy (Only channel spying)
+bool ChatHandler::HandleChatSpyModeCommand(const char *args)
+{
+    if (!args)
+        return false;
+
+    char* nameStr;
+    char* modeStr;
+    uint32 mode;
+    extractOptFirstArg((char*)args,&nameStr,&modeStr);
+    sLog->outError("Name: %s mode: %s", nameStr, modeStr);
+
+    if (!nameStr)
+    {
+        if (isdigit(modeStr[0]))
+        {
+            nameStr = (char*)getSelectedPlayer()->GetName();
+        }
+        else
+        {
+            SendSysMessage("Incorrect mode value entered.");
+            return false;
+        }
+    }
+    
+
+    Player* target;
+    uint64 target_guid;
+    std::string target_name;
+    if (!extractPlayerTarget(nameStr,&target,&target_guid,&target_name))
+        return false;
+
+    if (!target)
+        target = getSelectedPlayer();
+
+    if (target && target != m_session->GetPlayer())
+    {
+        mode = atoi(modeStr);
+        if (mode > 2 || mode < 0)
+        {
+            SendSysMessage("Incorrect mode value entered.");
+            return false;
+        }
+
+        target->m_ChatSpyMODE = mode;
+        sLog->outError("Mode: %u", target->m_ChatSpyMODE);
+    }
+    else
+    {
+        SendSysMessage(LANG_PLAYER_NOT_FOUND);
+        return false;
+    }
+
+    std::string nameLink = playerLink(target->GetName());
+    PSendSysMessage(LANG_CHATSPY_MODE_CHANGED, mode, nameLink.c_str(), target->GetGUIDLow());
+
     return true;
 }

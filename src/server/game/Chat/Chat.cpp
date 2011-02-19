@@ -96,7 +96,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "cancel",         SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleChatSpyCancelCommand>,       "", NULL },
         { "status",         SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleChatSpyStatusCommand>,       "", NULL },
         { "set",            SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleChatSpySetCommand>,          "", NULL },
-      //{ "mode",           SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleChatSpyMode>,                "", NULL }, -- PlaceHolder
+        { "mode",           SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleChatSpyModeCommand>,         "", NULL },
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
 

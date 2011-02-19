@@ -19451,6 +19451,16 @@ void Player::HandleChatSpyMessage(const std::string& msg, uint8 type, uint32 lan
     {
         // Public channels
         case CHAT_MSG_CHANNEL:
+            if (m_ChatSpyMODE == 1)
+            {
+                return;
+            }
+            else if(sender)
+            {
+                from = sender->GetName();
+                to = fmtstring("|cffff0000%s|r %s", GetName(), channelDesc);
+            }
+            break;
         case CHAT_MSG_SAY:
         case CHAT_MSG_YELL:
         case CHAT_MSG_EMOTE:
@@ -19463,7 +19473,11 @@ void Player::HandleChatSpyMessage(const std::string& msg, uint8 type, uint32 lan
         case CHAT_MSG_GUILD:
         case CHAT_MSG_BATTLEGROUND:
         case CHAT_MSG_BATTLEGROUND_LEADER:
-            if(sender)
+            if (m_ChatSpyMODE == 2)
+            {
+                return;
+            }
+            else if(sender)
             {
                 from = sender->GetName();
                 to = fmtstring("|cffff0000%s|r %s", GetName(), channelDesc);

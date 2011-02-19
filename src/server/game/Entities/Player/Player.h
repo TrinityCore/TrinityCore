@@ -2279,7 +2279,9 @@ class Player : public Unit, public GridObject<Player>
 
         void HandleChatSpyMessage(const std::string& msg, uint8 type, uint32 lang, Player* sender = NULL, std::string special = "");
         uint64 m_ChatSpyGUID;
-        uint32 m_ChatSpyMODE;
+        uint32 m_ChatSpyMODE;   // == 0 - standart mode (Channels (LFG, Trade, ect) and world messages (say\yell\emote\party, ect))
+                                // == 1 - minimum (Only world messages)
+                                // == 2 - faction spy (Only channel spying)
 
         // currently visible objects at player client
         typedef std::set<uint64> ClientGUIDs;
