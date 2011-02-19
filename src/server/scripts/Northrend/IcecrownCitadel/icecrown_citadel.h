@@ -20,11 +20,15 @@
 
 #define ICCScriptName "instance_icecrown_citadel"
 
-// Shared spells used by every boss
+// Shared spells used by more than one script
 enum SharedSpells
 {
-    SPELL_BERSERK   = 26662,
-    SPELL_BERSERK2  = 47008
+    SPELL_BERSERK               = 26662,
+    SPELL_BERSERK2              = 47008,
+
+    // Residue Rendezvous
+    SPELL_ORANGE_BLIGHT_RESIDUE = 72144,
+    SPELL_GREEN_BLIGHT_RESIDUE  = 72145,
 };
 
 enum TeleporterSpells
