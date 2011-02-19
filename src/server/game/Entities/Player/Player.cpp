@@ -24601,13 +24601,6 @@ void Player::_SaveInstanceTimeRestrictions(SQLTransaction& trans)
     }
 }
 
-void Player::SendClearFocus(Unit* target)
-{
-    WorldPacket data(SMSG_BREAK_TARGET, target->GetPackGUID().size());
-    data.append(target->GetPackGUID());
-    GetSession()->SendPacket(&data);
-}
-
 /** World of Warcraft Armory **/
 void Player::WriteWowArmoryDatabaseLog(uint32 type, uint32 data)
 {
