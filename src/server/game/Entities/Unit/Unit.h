@@ -2029,7 +2029,7 @@ class Unit : public WorldObject
         void EnterVehicle(Unit *base, int8 seatId = -1, AuraApplication const * aurApp = NULL) { EnterVehicle(base->GetVehicleKit(), seatId, aurApp); }
         void EnterVehicle(Vehicle *vehicle, int8 seatId = -1, AuraApplication const * aurApp = NULL);
         void ExitVehicle();
-        void ChangeSeat(int8 seatId, bool next = true, bool byAura = false);
+        void ChangeSeat(int8 seatId, bool next = true);
 
         void BuildMovementPacket(ByteBuffer *data) const;
 
