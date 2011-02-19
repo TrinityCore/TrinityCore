@@ -16461,9 +16461,9 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId, AuraApplication const * a
     {
         WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
         thisPlr->GetSession()->SendPacket(&data);
-
-        thisPlr->SendClearFocus(vehicle->GetBase());
     }
+
+    SendClearTarget();
 
     SetControlled(true, UNIT_STAT_ROOT);
     //movementInfo is set in AddPassenger
@@ -16841,6 +16841,13 @@ uint32 Unit::GetRemainingDotDamage(uint64 caster, uint32 spellId, uint8 effectIn
     }
 
     return amount;
+}
+
+void Unit::SendClearTarget()
+{
+    WorldPacket data(SMSG_BREAK_TARGET, GetPackGUID().size());
+    data.append(GetPackGUID());
+    SendMessageToSet(&data, false);
 }
 
 void CharmInfo::SetIsCommandAttack(bool val)
