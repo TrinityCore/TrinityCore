@@ -463,6 +463,42 @@ class spell_festergut_blighted_spores : public SpellScriptLoader
         }
 };
 
+class spell_festergut_gaseous_blight : public SpellScriptLoader
+{
+    public:
+        spell_festergut_gaseous_blight() : SpellScriptLoader("spell_festergut_gaseous_blight") { }
+
+        class spell_festergut_gaseous_blight_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_festergut_gaseous_blight_SpellScript);
+
+            bool Validate(SpellEntry const* /*spell*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_ORANGE_BLIGHT_RESIDUE))
+                    return false;
+                return true;
+            }
+
+            void ExtraEffect()
+            {
+                if (GetHitUnit()->HasAura(SPELL_ORANGE_BLIGHT_RESIDUE))
+                    return;
+
+                GetHitUnit()->CastSpell(GetHitUnit(), SPELL_ORANGE_BLIGHT_RESIDUE, true);
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_festergut_gaseous_blight_SpellScript::ExtraEffect);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_festergut_gaseous_blight_SpellScript();
+        }
+};
+
 class achievement_flu_shot_shortage : public AchievementCriteriaScript
 {
     public:
@@ -484,5 +520,6 @@ void AddSC_boss_festergut()
     new spell_festergut_pungent_blight();
     new spell_festergut_gastric_bloat();
     new spell_festergut_blighted_spores();
+    new spell_festergut_gaseous_blight();
     new achievement_flu_shot_shortage();
 }

@@ -1,6 +1,6 @@
 -- ICC Quest pools (also deletes old pool data)
 SET @pool := 5662;
-DELETE FROM `pool_quest` WHERE `pool_entry` BETWEEN @pool+18 AND @pool+22;
+DELETE FROM `pool_quest` WHERE `pool_entry` BETWEEN @pool+17 AND @pool+22;
 INSERT INTO `pool_quest` (`entry`,`pool_entry`,`description`) VALUES
 (24874,@pool+17, 'Blood Quickening (10)'),
 (24869,@pool+17, 'Deprogramming (10)'),
@@ -15,7 +15,7 @@ INSERT INTO `pool_quest` (`entry`,`pool_entry`,`description`) VALUES
 (24876,@pool+20, 'Securing the Ramparts ALLY (25)'),
 (24877,@pool+20, 'Securing the Ramparts HORDE (25)');
 
-DELETE FROM `pool_template` WHERE `entry` BETWEEN @pool+18 AND @pool+22;
+DELETE FROM `pool_template` WHERE `entry` BETWEEN @pool+17 AND @pool+22;
 INSERT INTO `pool_template` (`entry`,`max_limit`,`description`) VALUES
 (@pool+17,1, 'ICC weeklies (10)'),
 (@pool+18,1, 'ICC weeklies (25)'),
