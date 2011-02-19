@@ -25,7 +25,7 @@
 // Weekly quest support
 //* Deprogramming                (DONE)
 //* Securing the Ramparts        (DONE)
-//* Residue Rendezvous
+//* Residue Rendezvous           (DONE)
 //* Blood Quickening                    // AreaTrigger 5729 starts the timer, pulling BQ before it runs out means success
 //* Respite for a Tormented Soul
 
@@ -38,15 +38,19 @@ enum Texts
 enum Spells
 {
     // Rotting Frost Giant
-    SPELL_DEATH_PLAGUE      = 72879,
-    SPELL_DEATH_PLAGUE_AURA = 72865,
-    SPELL_RECENTLY_INFECTED = 72884,
-    SPELL_DEATH_PLAGUE_KILL = 72867,
-    SPELL_STOMP             = 64652,
-    SPELL_ARCTIC_BREATH     = 72848,
+    SPELL_DEATH_PLAGUE              = 72879,
+    SPELL_DEATH_PLAGUE_AURA         = 72865,
+    SPELL_RECENTLY_INFECTED         = 72884,
+    SPELL_DEATH_PLAGUE_KILL         = 72867,
+    SPELL_STOMP                     = 64652,
+    SPELL_ARCTIC_BREATH             = 72848,
 
     // Frost Freeze Trap
-    SPELL_COLDFLAME_JETS    = 70460,
+    SPELL_COLDFLAME_JETS            = 70460,
+
+    // Alchemist Adrianna
+    SPELL_HARVEST_BLIGHT_SPECIMEN   = 72155,
+    SPELL_HARVEST_BLIGHT_SPECIMEN25 = 72162,
 };
 
 enum Events
@@ -181,6 +185,20 @@ class npc_frost_freeze_trap : public CreatureScript
         }
 };
 
+class npc_alchemist_adrianna : public CreatureScript
+{
+    public:
+        npc_alchemist_adrianna() : CreatureScript("npc_alchemist_adrianna") { }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            if (!creature->FindCurrentSpellBySpellId(SPELL_HARVEST_BLIGHT_SPECIMEN) && !creature->FindCurrentSpellBySpellId(SPELL_HARVEST_BLIGHT_SPECIMEN25))
+                if (player->HasAura(SPELL_ORANGE_BLIGHT_RESIDUE) && player->HasAura(SPELL_GREEN_BLIGHT_RESIDUE))
+                    creature->CastSpell(creature, SPELL_HARVEST_BLIGHT_SPECIMEN, false);
+            return false;
+        }
+};
+
 class DeathPlagueTargetSelector
 {
     public:
@@ -267,6 +285,39 @@ class spell_frost_giant_death_plague : public SpellScriptLoader
         }
 };
 
+class spell_icc_harvest_blight_specimen : public SpellScriptLoader
+{
+    public:
+        spell_icc_harvest_blight_specimen() : SpellScriptLoader("spell_icc_harvest_blight_specimen") { }
+
+        class spell_icc_harvest_blight_specimen_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_icc_harvest_blight_specimen_SpellScript);
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
+            }
+
+            void HandleQuestComplete(SpellEffIndex effIndex)
+            {
+                GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_icc_harvest_blight_specimen_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffect += SpellEffectFn(spell_icc_harvest_blight_specimen_SpellScript::HandleQuestComplete, EFFECT_1, SPELL_EFFECT_QUEST_COMPLETE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_icc_harvest_blight_specimen_SpellScript();
+        }
+};
+
 class at_icc_saurfang_portal : public AreaTriggerScript
 {
     public:
@@ -318,7 +369,9 @@ void AddSC_icecrown_citadel()
 {
     new npc_rotting_frost_giant();
     new npc_frost_freeze_trap();
+    new npc_alchemist_adrianna();
     new spell_frost_giant_death_plague();
+    new spell_icc_harvest_blight_specimen();
     new at_icc_saurfang_portal();
     new at_icc_shutdown_traps();
 }
