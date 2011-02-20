@@ -1507,6 +1507,8 @@ class Unit : public WorldObject
         void SendRemoveFromThreatListOpcode(HostileReference* pHostileReference);
         void SendThreatListUpdate();
 
+        void SendClearTarget();
+
         void BuildHeartBeatMsg(WorldPacket *data) const;
 
         bool isAlive() const { return (m_deathState == ALIVE); };
@@ -2029,7 +2031,7 @@ class Unit : public WorldObject
         void EnterVehicle(Unit *base, int8 seatId = -1, AuraApplication const * aurApp = NULL) { EnterVehicle(base->GetVehicleKit(), seatId, aurApp); }
         void EnterVehicle(Vehicle *vehicle, int8 seatId = -1, AuraApplication const * aurApp = NULL);
         void ExitVehicle();
-        void ChangeSeat(int8 seatId, bool next = true, bool byAura = false);
+        void ChangeSeat(int8 seatId, bool next = true);
 
         void BuildMovementPacket(ByteBuffer *data) const;
 
