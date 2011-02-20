@@ -4980,7 +4980,6 @@ bool ChatHandler::HandleChatSpyModeCommand(const char *args)
     char* modeStr;
     uint32 mode;
     extractOptFirstArg((char*)args,&nameStr,&modeStr);
-    sLog->outError("Name: %s mode: %s", nameStr, modeStr);
 
     if (!nameStr)
     {
@@ -5015,7 +5014,6 @@ bool ChatHandler::HandleChatSpyModeCommand(const char *args)
         }
 
         target->m_ChatSpyMODE = mode;
-        sLog->outError("Mode: %u", target->m_ChatSpyMODE);
     }
     else
     {
