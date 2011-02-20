@@ -129,7 +129,7 @@ void Vehicle::InstallAllAccessories(uint32 entry)
 
 void Vehicle::Uninstall()
 {
-    sLog->outDebug("Vehicle::Uninstall %u", me->GetEntry());
+    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Uninstall %u", me->GetEntry());
     for (SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
         if (Unit *passenger = ObjectAccessor::GetUnit(*GetBase(), itr->second.passenger))
             if (passenger->HasUnitTypeMask(UNIT_MASK_ACCESSORY))
@@ -143,7 +143,7 @@ void Vehicle::Uninstall()
 
 void Vehicle::Die()
 {
-    sLog->outDebug("Vehicle::Die %u", me->GetEntry());
+    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Die %u", me->GetEntry());
     for (SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
         if (Unit *passenger = ObjectAccessor::GetUnit(*GetBase(), itr->second.passenger))
             if (passenger->HasUnitTypeMask(UNIT_MASK_ACCESSORY))
@@ -157,7 +157,7 @@ void Vehicle::Die()
 
 void Vehicle::Reset()
 {
-    sLog->outDebug("Vehicle::Reset");
+    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Reset");
     if (me->GetTypeId() == TYPEID_PLAYER)
     {
         if (m_usableSeatNum)
@@ -176,7 +176,7 @@ void Vehicle::Reset()
 
 void Vehicle::RemoveAllPassengers()
 {
-    sLog->outDebug("Vehicle::RemoveAllPassengers");
+    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::RemoveAllPassengers");
     for (SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
         if (Unit *passenger = ObjectAccessor::GetUnit(*GetBase(), itr->second.passenger))
         {
@@ -309,7 +309,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
         ASSERT(!seat->second.passenger);
     }
 
-    sLog->outDebug("Unit %s enter vehicle entry %u id %u dbguid %u seat %d", unit->GetName(), me->GetEntry(), m_vehicleInfo->m_ID, me->GetGUIDLow(), (int32)seat->first);
+    sLog->outDebug(LOG_FILTER_VEHICLES, "Unit %s enter vehicle entry %u id %u dbguid %u seat %d", unit->GetName(), me->GetEntry(), m_vehicleInfo->m_ID, me->GetGUIDLow(), (int32)seat->first);
 
     seat->second.passenger = unit->GetGUID();
     if (seat->second.seatInfo->CanEnterOrExit())
@@ -397,7 +397,7 @@ void Vehicle::RemovePassenger(Unit *unit)
     SeatMap::iterator seat = GetSeatIteratorForPassenger(unit);
     ASSERT(seat != m_Seats.end());
 
-    sLog->outDebug("Unit %s exit vehicle entry %u id %u dbguid %u seat %d", unit->GetName(), me->GetEntry(), m_vehicleInfo->m_ID, me->GetGUIDLow(), (int32)seat->first);
+    sLog->outDebug(LOG_FILTER_VEHICLES, "Unit %s exit vehicle entry %u id %u dbguid %u seat %d", unit->GetName(), me->GetEntry(), m_vehicleInfo->m_ID, me->GetGUIDLow(), (int32)seat->first);
 
     seat->second.passenger = 0;
     if (seat->second.seatInfo->CanEnterOrExit())
@@ -463,7 +463,7 @@ void Vehicle::RelocatePassengers(float x, float y, float z, float ang)
 
 void Vehicle::Dismiss()
 {
-    sLog->outDebug("Vehicle::Dismiss %u", me->GetEntry());
+    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Dismiss %u", me->GetEntry());
     Uninstall();
     me->SendObjectDeSpawnAnim(me->GetGUID());
     me->CombatStop();
@@ -486,7 +486,7 @@ uint16 Vehicle::GetExtraMovementFlagsForBase() const
     if (vehicleFlags & VEHICLE_FLAG_FULLSPEEDPITCHING)
         movementMask |= MOVEMENTFLAG2_FULL_SPEED_PITCHING;
 
-    sLog->outDebug("Vehicle::GetExtraMovementFlagsForBase() returned %u", movementMask);
+    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::GetExtraMovementFlagsForBase() returned %u", movementMask);
     return movementMask;
 }
 

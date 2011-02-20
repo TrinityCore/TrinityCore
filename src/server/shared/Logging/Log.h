@@ -24,12 +24,32 @@
 
 class Config;
 
-enum LogFilters
+enum DebugLogFilters
 {
-    LOG_FILTER_TRANSPORT_MOVES     = 1,
-    LOG_FILTER_CREATURE_MOVES      = 2,
-    LOG_FILTER_VISIBILITY_CHANGES  = 4,
-    LOG_FILTER_ACHIEVEMENT_UPDATES = 8
+    LOG_FILTER_NONE                     = 0x00000000,
+    LOG_FILTER_UNITS                    = 0x00000001,   // Anything related to units that doesn't fit in other categories. ie. creature formations
+    LOG_FILTER_PETS                     = 0x00000002,
+    LOG_FILTER_VEHICLES                 = 0x00000004,
+    LOG_FILTER_TSCR                     = 0x00000008,   // C++ AI, instance scripts, etc.
+    LOG_FILTER_DATABASE_AI              = 0x08000010,   // SmartAI, EventAI, CreatureAI
+    LOG_FILTER_MAPSCRIPTS               = 0x00000020,
+    LOG_FILTER_NETWORKIO                = 0x00000040,   // Anything packet/netcode related
+    LOG_FILTER_SPELLS_AURAS             = 0x00000080,
+    LOG_FILTER_ACHIEVEMENTSYS           = 0x00000100,
+    LOG_FILTER_CONDITIONSYS             = 0x00000200,
+    LOG_FILTER_POOLSYS                  = 0x00000400,
+    LOG_FILTER_AUCTIONHOUSE             = 0x00000800,
+    LOG_FILTER_BATTLEGROUND             = 0x00001000,   // Anything related to arena's and battlegrounds
+    LOG_FILTER_OUTDOORPVP               = 0x00002000,
+    LOG_FILTER_CHATSYS                  = 0x00004000,
+    LOG_FILTER_LFG                      = 0x00008000,
+    LOG_FILTER_MAPS                     = 0x00010000,   // Maps, instances, grids, cells, visibility
+    LOG_FILTER_PLAYER_LOADING           = 0x00020000,   // Debug output from Player::_Load functions
+    LOG_FILTER_PLAYER_ITEMS             = 0x00040000,   // Anything item related
+    LOG_FILTER_PLAYER_SKILLS            = 0x00080000,   // Skills related
+    LOG_FILTER_LOOT                     = 0x00100000,   // Loot related
+    LOG_FILTER_GUILD                    = 0x00200000,   // Guild related
+    LOG_FILTER_TRANSPORTS               = 0x00400000,   // Transport related
 };
 
 enum LogTypes
@@ -100,7 +120,7 @@ class Log
         void outCrash( const char * err, ... )                  ATTR_PRINTF(2,3);
         void outBasic( const char * str, ... )                  ATTR_PRINTF(2,3);
         void outDetail( const char * str, ... )                 ATTR_PRINTF(2,3);
-        void outDebug( const char * str, ... )                  ATTR_PRINTF(2,3);
+        void outDebug(DebugLogFilters f, const char* str, ...)  ATTR_PRINTF(3,4);
         void outStaticDebug( const char * str, ... )            ATTR_PRINTF(2,3);
         void outDebugInLine( const char * str, ... )            ATTR_PRINTF(2,3);
         void outErrorDb( const char * str, ... )                ATTR_PRINTF(2,3);
@@ -121,7 +141,6 @@ class Log
         void SetSQLDriverQueryLogging(bool newStatus) { m_sqlDriverQueryLogging = newStatus; }
         void SetRealmID(uint32 id) { realm = id; }
 
-        uint32 getLogFilter() const { return m_logFilter; }
         bool IsOutDebug() const { return m_logLevel > 2 || (m_logFileLevel > 2 && logfile); }
         bool IsOutCharDump() const { return m_charLog_Dump; }
 
@@ -168,7 +187,6 @@ class Log
         uint8 m_dbLogLevel;
         uint8 m_logLevel;
         uint8 m_logFileLevel;
-        uint8 m_logFilter;
         bool m_dbChar;
         bool m_dbRA;
         bool m_dbGM;
@@ -176,6 +194,8 @@ class Log
         bool m_charLog_Dump;
         bool m_charLog_Dump_Separate;
         std::string m_dumpsDir;
+
+        DebugLogFilters m_DebugLogMask;
 };
 
 #define sLog ACE_Singleton<Log, ACE_Thread_Mutex>::instance()

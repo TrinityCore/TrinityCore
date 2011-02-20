@@ -115,11 +115,9 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
     {
         SmartScriptHolder linked = FindLinkedEvent(e.link);
         if (linked.GetActionType() && linked.GetEventType() == SMART_EVENT_LINK)
-        {
             ProcessEvent(linked, unit, var0, var1, bvar, spell, gob);
-        }else{
+        else
             sLog->outErrorDb("SmartScript::ProcessAction: Entry %d SourceType %u, Event %u, Link Event %u not found or invalid, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.link);
-        }
     }
 
     switch (e.GetActionType())
@@ -2150,9 +2148,9 @@ void SmartScript::FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEn
     if (e.empty())
     {
         if (obj)
-            sLog->outDebug("SmartScript: EventMap for Entry %u is empty but is using SmartScript.", obj->GetEntry());
+            sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript: EventMap for Entry %u is empty but is using SmartScript.", obj->GetEntry());
         if (at)
-            sLog->outDebug("SmartScript: EventMap for AreaTrigger %u is empty but is using SmartScript.", at->id);
+            sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript: EventMap for AreaTrigger %u is empty but is using SmartScript.", at->id);
         return;
     }
     for (SmartAIEventList::iterator i = e.begin(); i != e.end(); ++i)
@@ -2214,12 +2212,12 @@ void SmartScript::OnInitialize(WorldObject* obj, AreaTriggerEntry const* at)
             case TYPEID_UNIT:
                 mScriptType = SMART_SCRIPT_TYPE_CREATURE;
                 me = obj->ToCreature();
-                sLog->outDebug("SmartScript::OnInitialize: source is Creature %u", me->GetEntry());
+                sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::OnInitialize: source is Creature %u", me->GetEntry());
                 break;
             case TYPEID_GAMEOBJECT:
                 mScriptType = SMART_SCRIPT_TYPE_GAMEOBJECT;
                 go = obj->ToGameObject();
-                sLog->outDebug("SmartScript::OnInitialize: source is GameObject %u", go->GetEntry());
+                sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::OnInitialize: source is GameObject %u", go->GetEntry());
                 break;
             default:
                 sLog->outError("SmartScript::OnInitialize: Unhandled TypeID !WARNING!");
@@ -2229,7 +2227,7 @@ void SmartScript::OnInitialize(WorldObject* obj, AreaTriggerEntry const* at)
     {
         mScriptType = SMART_SCRIPT_TYPE_AREATRIGGER;
         trigger = at;
-        sLog->outDebug("SmartScript::OnInitialize: source is AreaTrigger %u", trigger->id);
+        sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::OnInitialize: source is AreaTrigger %u", trigger->id);
     }
     else
     {
