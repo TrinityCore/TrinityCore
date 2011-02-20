@@ -1256,7 +1256,7 @@ void CreatureEventAI::DoScriptText(int32 textEntry, WorldObject* pSource, Unit* 
         return;
     }
 
-    sLog->outDebug("CreatureEventAI: DoScriptText: text entry=%i, Sound=%u, Type=%u, Language=%u, Emote=%u",textEntry,(*i).second.SoundId,(*i).second.Type,(*i).second.Language,(*i).second.Emote);
+    sLog->outDebug(LOG_FILTER_DATABASE_AI, "CreatureEventAI: DoScriptText: text entry=%i, Sound=%u, Type=%u, Language=%u, Emote=%u",textEntry,(*i).second.SoundId,(*i).second.Type,(*i).second.Language,(*i).second.Emote);
 
     if ((*i).second.SoundId)
     {
@@ -1356,7 +1356,7 @@ void CreatureEventAI::ReceiveEmote(Player* pPlayer, uint32 text_emote)
 
             if (cond.Meets(pPlayer))
             {
-                sLog->outDebug("CreatureEventAI: ReceiveEmote CreatureEventAI: Condition ok, processing");
+                sLog->outDebug(LOG_FILTER_DATABASE_AI, "CreatureEventAI: ReceiveEmote CreatureEventAI: Condition ok, processing");
                 ProcessEvent(*itr, pPlayer);
             }
         }

@@ -283,7 +283,7 @@ void WorldSession::HandleGameObjectUseOpcode(WorldPacket & recv_data)
 
     recv_data >> guid;
 
-    sLog->outDebug("WORLD: Recvd CMSG_GAMEOBJ_USE Message [guid=%u]", GUID_LOPART(guid));
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_GAMEOBJ_USE Message [guid=%u]", GUID_LOPART(guid));
 
     // ignore for remote control state
     if (_player->m_mover != _player)
@@ -302,7 +302,7 @@ void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
     uint64 guid;
     recvPacket >> guid;
 
-    sLog->outDebug("WORLD: Recvd CMSG_GAMEOBJ_REPORT_USE Message [in game guid: %u]", GUID_LOPART(guid));
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_GAMEOBJ_REPORT_USE Message [in game guid: %u]", GUID_LOPART(guid));
 
     // ignore for remote control state
     if (_player->m_mover != _player)
@@ -326,7 +326,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     uint8  castCount, castFlags;
     recvPacket >> castCount >> spellId >> castFlags;
 
-    sLog->outDebug("WORLD: got cast spell packet, castCount: %u, spellId: %u, castFlags: %u, data length = %u", castCount, spellId, castFlags, (uint32)recvPacket.size());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: got cast spell packet, castCount: %u, spellId: %u, castFlags: %u, data length = %u", castCount, spellId, castFlags, (uint32)recvPacket.size());
 
     // ignore for remote control state (for player case)
     Unit* mover = _player->m_mover;
@@ -532,7 +532,7 @@ void WorldSession::HandleTotemDestroyed(WorldPacket& recvPacket)
 
 void WorldSession::HandleSelfResOpcode(WorldPacket & /*recv_data*/)
 {
-    sLog->outDebug("WORLD: CMSG_SELF_RES");                  // empty opcode
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_SELF_RES");                  // empty opcode
 
     if (_player->GetUInt32Value(PLAYER_SELF_RES_SPELL))
     {
@@ -582,7 +582,7 @@ void WorldSession::HandleSpellClick(WorldPacket & recv_data)
 
 void WorldSession::HandleMirrrorImageDataRequest(WorldPacket & recv_data)
 {
-    sLog->outDebug("WORLD: CMSG_GET_MIRRORIMAGE_DATA");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GET_MIRRORIMAGE_DATA");
     uint64 guid;
     recv_data >> guid;
 

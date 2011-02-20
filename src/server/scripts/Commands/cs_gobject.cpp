@@ -172,8 +172,6 @@ public:
             return false;
         }
 
-        sLog->outDebug(handler->GetTrinityString(LANG_GAMEOBJECT_CURRENT), gInfo->name, db_lowGUID, x, y, z, o);
-
         map->Add(pGameObj);
 
         // TODO: is it really necessary to add both the real and DB table guid here ?
