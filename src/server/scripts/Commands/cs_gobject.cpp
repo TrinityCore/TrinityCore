@@ -159,7 +159,7 @@ public:
         {
             uint32 value = atoi((char*)spawntimeSecs);
             pGameObj->SetRespawnTime(value);
-            //sLog->OutDebug(LOG_FILTER_TSCR, "*** spawntimeSecs: %d", value);
+            //sLog->outDebug(LOG_FILTER_TSCR, "*** spawntimeSecs: %d", value);
         }
 
         // fill the gameobject data and save to the db
