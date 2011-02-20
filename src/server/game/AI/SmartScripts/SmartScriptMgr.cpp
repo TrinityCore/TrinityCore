@@ -118,7 +118,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
         SmartScriptHolder temp;
 
         temp.entryOrGuid = fields[0].GetInt32();
-        SmartScriptType source_type = (SmartScriptType)fields[1].GetUInt32();
+        SmartScriptType source_type = (SmartScriptType)fields[1].GetUInt8();
         if (source_type >= SMART_SCRIPT_TYPE_MAX)
         {
             sLog->outErrorDb("SmartAIMgr::LoadSmartAIFromDB: invalid source_type (%u), skipped loading.", uint32(source_type));
@@ -170,19 +170,19 @@ void SmartAIMgr::LoadSmartAIFromDB()
             }
         }
         temp.source_type = source_type;
-        temp.event_id = fields[2].GetUInt32();
-        temp.link = fields[3].GetUInt32();
-        temp.event.type = (SMART_EVENT)fields[4].GetUInt32();
-        temp.event.event_phase_mask = fields[5].GetUInt32();
-        temp.event.event_chance = fields[6].GetUInt32();
-        temp.event.event_flags = fields[7].GetUInt32();
+        temp.event_id = fields[2].GetUInt16();
+        temp.link = fields[3].GetUInt16();
+        temp.event.type = (SMART_EVENT)fields[4].GetUInt8();
+        temp.event.event_phase_mask = fields[5].GetUInt8();
+        temp.event.event_chance = fields[6].GetUInt8();
+        temp.event.event_flags = fields[7].GetUInt8();
 
         temp.event.raw.param1 = fields[8].GetUInt32();
         temp.event.raw.param2 = fields[9].GetUInt32();
         temp.event.raw.param3 = fields[10].GetUInt32();
         temp.event.raw.param4 = fields[11].GetUInt32();
 
-        temp.action.type = (SMART_ACTION)fields[12].GetUInt32();
+        temp.action.type = (SMART_ACTION)fields[12].GetUInt8();
 
         temp.action.raw.param1 = fields[13].GetUInt32();
         temp.action.raw.param2 = fields[14].GetUInt32();
@@ -191,7 +191,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
         temp.action.raw.param5 = fields[17].GetUInt32();
         temp.action.raw.param6 = fields[18].GetUInt32();
 
-        temp.target.type = (SMARTAI_TARGETS)fields[19].GetUInt32();
+        temp.target.type = (SMARTAI_TARGETS)fields[19].GetUInt8();
         temp.target.raw.param1 = fields[20].GetUInt32();
         temp.target.raw.param2 = fields[21].GetUInt32();
         temp.target.raw.param3 = fields[22].GetUInt32();
