@@ -87,6 +87,22 @@ LogLevel = 0
 LogFile = "Auth.log"
 
 #
+#    Debug Log Mask
+#        Description: Bitmask that determines which debug log output (level 3)
+#                     will be logged.
+#        Possible flags:
+#
+#                  64 - Anything related to network input/output,
+#                        such as packet handlers and netcode logs
+#
+#                       Simply add the values together to create a bitmask.
+#                       For more info see enum DebugLogFilters in Log.h
+#
+#             Default: 0 (nothing)
+
+DebugLogMask = 64
+
+#
 #    SQLDriverLogFile
 #        Description: Log file for SQL driver events.
 #        Example:     "SQLDriver.log" - (Enabled)
