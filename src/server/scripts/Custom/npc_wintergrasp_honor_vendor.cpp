@@ -94,6 +94,46 @@ public:
     };
 };
 
+
+/*#####
+# Sunreaver Disguise Spell for quest An Audience With The Arcanist
+#INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('69672', 'spell_sunreaver_disguise');
+#####*/
+class spell_sunreaver_disguise : public SpellScriptLoader
+{
+    public:
+        spell_sunreaver_disguise() : SpellScriptLoader("spell_sunreaver_disguise") { }
+
+        class spell_sunreaver_disguise_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sunreaver_disguise_SpellScript);
+
+            void HandleEffectScriptEffect(SpellEffIndex /*effIndex*/)
+            {
+                // Change model
+                if (Unit *unitTarget = GetHitUnit())
+                {
+                    if (unitTarget->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    unitTarget->CastSpell(unitTarget, unitTarget->getGender() == GENDER_MALE ? 70973 : 70974, true, NULL);
+                }
+
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_sunreaver_disguise_SpellScript::HandleEffectScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript *GetSpellScript() const
+        {
+            return new spell_sunreaver_disguise_SpellScript;
+        }
+};
+
+
 /*#####
 #INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES ('19752', 'spell_divine_intervention');
 #####*/
@@ -135,5 +175,6 @@ void AddSC_npc_wintergrasp_honor_vendor()
 {
     new npc_wintergrasp_honor_vendor;
     new mob_flyhack_banner;
+    new spell_sunreaver_disguise;
     new spell_divine_intervention;
 }
