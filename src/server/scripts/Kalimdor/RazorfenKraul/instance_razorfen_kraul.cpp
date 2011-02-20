@@ -65,7 +65,7 @@ public:
                         return plr;
                 }
             }
-            sLog->outDebug("TSCR: Instance Razorfen Kraul: GetPlayerInMap, but PlayerList is empty!");
+            sLog->OutDebug(LOG_FILTER_TSCR, "TSCR: Instance Razorfen Kraul: GetPlayerInMap, but PlayerList is empty!");
             return NULL;
         }
 

@@ -138,7 +138,7 @@ public:
                         if (GetData(TYPE_MEKGINEER_STEAMRIGGER) == SPECIAL)
                             HandleGameObject(MainChambersDoor, true);
 
-                        sLog->outDebug("TSCR: Instance Steamvault: Access panel used.");
+                        sLog->OutDebug(LOG_FILTER_TSCR, "TSCR: Instance Steamvault: Access panel used.");
                     }
                     m_auiEncounter[0] = data;
                     break;
@@ -150,7 +150,7 @@ public:
                         if (GetData(TYPE_HYDROMANCER_THESPIA) == SPECIAL)
                             HandleGameObject(MainChambersDoor, true);
 
-                        sLog->outDebug("TSCR: Instance Steamvault: Access panel used.");
+                        sLog->OutDebug(LOG_FILTER_TSCR, "TSCR: Instance Steamvault: Access panel used.");
                     }
                     m_auiEncounter[1] = data;
                     break;

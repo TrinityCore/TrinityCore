@@ -1424,7 +1424,7 @@ public:
                     DoMeleeAttackIfReady();
                     break;
                 }
-                sLog->outDebug("Sinister-Timer");
+                sLog->OutDebug(LOG_FILTER_TSCR, "Sinister-Timer");
                 for (uint8 i = 0; i < 3; ++i)
                     uiTimer[i] -= diff;
             }
