@@ -2701,7 +2701,7 @@ bool OutdoorPvPWG::AddOrSetPlayerToCorrectBfGroup(Player *plr)
         //its crazy thing
         Battleground *bg = (Battleground*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
         group->SetBattlegroundGroup(bg);
-        group->Create(plr->GetGUID(), plr->GetName());
+        group->Create(plr);
         sObjectMgr->AddGroup(group);
         m_Groups[plr->GetTeamId()].insert(group->GetGUID());
     }
@@ -2712,7 +2712,7 @@ bool OutdoorPvPWG::AddOrSetPlayerToCorrectBfGroup(Player *plr)
     }
     else
     {
-        group->AddMember(plr->GetGUID(), plr->GetName());
+        group->AddMember(plr);
         if (Group* originalGroup = plr->GetOriginalGroup())
             if (originalGroup->IsLeader(plr->GetGUID()))
                 group->ChangeLeader(plr->GetGUID());
