@@ -24971,10 +24971,3 @@ void Player::_SaveInstanceTimeRestrictions(SQLTransaction& trans)
         trans->Append(stmt);
     }
 }
-
-void Player::SendClearFocus(Unit* target)
-{
-    WorldPacket data(SMSG_BREAK_TARGET, target->GetPackGUID().size());
-    data.append(target->GetPackGUID());
-    GetSession()->SendPacket(&data);
-}
