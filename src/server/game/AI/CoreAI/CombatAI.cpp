@@ -340,9 +340,7 @@ void VehicleAI::LoadConditions()
 {
     conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE, me->GetEntry());
     if (!conditions.empty())
-    {
-        sLog->outDebug("VehicleAI::LoadConditions: loaded %u conditions", uint32(conditions.size()));
-    }
+        sLog->outDebug(LOG_FILTER_CONDITIONSYS, "VehicleAI::LoadConditions: loaded %u conditions", uint32(conditions.size()));
 }
 
 void VehicleAI::CheckConditions(const uint32 diff)

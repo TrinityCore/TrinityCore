@@ -36,13 +36,13 @@ void WorldSession::HandleDismissCritter(WorldPacket &recv_data)
     uint64 guid;
     recv_data >> guid;
 
-    sLog->outDebug("WORLD: Received CMSG_DISMISS_CRITTER for GUID " UI64FMTD, guid);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_DISMISS_CRITTER for GUID " UI64FMTD, guid);
 
     Unit* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
 
     if (!pet)
     {
-        sLog->outDebug("Vanitypet (guid: %u) does not exist - player '%s' (guid: %u / account: %u) attempted to dismiss it (possibly lagged out)",
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "Vanitypet (guid: %u) does not exist - player '%s' (guid: %u / account: %u) attempted to dismiss it (possibly lagged out)",
                 uint32(GUID_LOPART(guid)), GetPlayer()->GetName(), GetPlayer()->GetGUIDLow(), GetAccountId());
         return;
     }
@@ -114,7 +114,7 @@ void WorldSession::HandlePetStopAttack(WorldPacket &recv_data)
     uint64 guid;
     recv_data >> guid;
 
-    sLog->outDebug("WORLD: Received CMSG_PET_STOP_ATTACK for GUID " UI64FMTD "", guid);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_PET_STOP_ATTACK for GUID " UI64FMTD "", guid);
 
     Unit* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
 
@@ -731,7 +731,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
 
     recvPacket >> guid >> castCount >> spellId >> castFlags;
 
-    sLog->outDebug("WORLD: CMSG_PET_CAST_SPELL, guid: " UI64FMTD ", castCount: %u, spellId %u, castFlags %u", guid, castCount, spellId, castFlags);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_PET_CAST_SPELL, guid: " UI64FMTD ", castCount: %u, spellId %u, castFlags %u", guid, castCount, spellId, castFlags);
 
     // This opcode is also sent from charmed and possessed units (players and creatures)
     if (!_player->GetGuardianPet() && !_player->GetCharm())
@@ -836,7 +836,7 @@ void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, Dec
 
 void WorldSession::HandlePetLearnTalent(WorldPacket & recv_data)
 {
-    sLog->outDebug("WORLD: CMSG_PET_LEARN_TALENT");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_PET_LEARN_TALENT");
 
     uint64 guid;
     uint32 talent_id, requested_rank;
@@ -848,7 +848,7 @@ void WorldSession::HandlePetLearnTalent(WorldPacket & recv_data)
 
 void WorldSession::HandleLearnPreviewTalentsPet(WorldPacket & recv_data)
 {
-    sLog->outDebug("CMSG_LEARN_PREVIEW_TALENTS_PET");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_LEARN_PREVIEW_TALENTS_PET");
 
     uint64 guid;
     recv_data >> guid;

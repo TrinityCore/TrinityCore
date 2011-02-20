@@ -34,7 +34,7 @@ bool Condition::Meets(Player * player, Unit* invoker)
 {
     if (!player)
     {
-        sLog->outDebug("Condition player not found");
+        sLog->outDebug(LOG_FILTER_CONDITIONSYS, "Condition player not found");
         return false;                                       // player not present, return false
     }
     uint32 refId = mConditionValue3;//value 3 can be a 'quick' reference
@@ -255,7 +255,7 @@ bool ConditionMgr::IsPlayerMeetToConditionList(Player* player,const ConditionLis
     std::map<uint32, bool>ElseGroupMap;
     for (ConditionList::const_iterator i = conditions.begin(); i != conditions.end(); ++i)
     {
-        sLog->outDebug("ConditionMgr::IsPlayerMeetToConditionList condType: %u val1: %u",(*i)->mConditionType,(*i)->mConditionValue1);
+        sLog->outDebug(LOG_FILTER_CONDITIONSYS, "ConditionMgr::IsPlayerMeetToConditionList condType: %u val1: %u",(*i)->mConditionType,(*i)->mConditionValue1);
         if ((*i)->isLoaded())
         {
             std::map<uint32, bool>::const_iterator itr = ElseGroupMap.find((*i)->mElseGroup);
@@ -274,7 +274,7 @@ bool ConditionMgr::IsPlayerMeetToConditionList(Player* player,const ConditionLis
                 }
                 else
                 {
-                    sLog->outDebug("IsPlayerMeetToConditionList: Reference template -%u not found",
+                    sLog->outDebug(LOG_FILTER_CONDITIONSYS, "IsPlayerMeetToConditionList: Reference template -%u not found",
                         (*i)->mReferenceId);//checked at loading, should never happen
                 }
 
@@ -301,7 +301,7 @@ bool ConditionMgr::IsPlayerMeetToConditions(Player* player, ConditionList condit
     if(player)
         player->m_ConditionErrorMsgId = 0;
 
-    sLog->outDebug("ConditionMgr::IsPlayerMeetToConditions");
+    sLog->outDebug(LOG_FILTER_CONDITIONSYS, "ConditionMgr::IsPlayerMeetToConditions");
     bool result = IsPlayerMeetToConditionList(player, conditions, invoker);
 
     if (player && player->m_ConditionErrorMsgId && player->GetSession() && !result)
@@ -322,7 +322,7 @@ ConditionList ConditionMgr::GetConditionsForNotGroupedEntry(ConditionSourceType 
             if (i != (*itr).second.end())
             {
                 spellCond = (*i).second;
-                sLog->outDebug("GetConditionsForNotGroupedEntry: found conditions for type %u and entry %u", uint32(sType), uEntry);
+                sLog->outDebug(LOG_FILTER_CONDITIONSYS, "GetConditionsForNotGroupedEntry: found conditions for type %u and entry %u", uint32(sType), uEntry);
             }
         }
     }
@@ -339,7 +339,7 @@ ConditionList ConditionMgr::GetConditionsForVehicleSpell(uint32 creatureID, uint
         if (i != (*itr).second.end())
         {
             cond = (*i).second;
-            sLog->outDebug("GetConditionsForVehicleSpell: found conditions for Vehicle entry %u spell %u", creatureID, spellID);
+            sLog->outDebug(LOG_FILTER_CONDITIONSYS, "GetConditionsForVehicleSpell: found conditions for Vehicle entry %u spell %u", creatureID, spellID);
         }
     }
     return cond;

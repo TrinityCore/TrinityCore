@@ -106,7 +106,7 @@ InstanceSave* InstanceSaveManager::AddInstanceSave(uint32 mapId, uint32 instance
         }
     }
 
-    sLog->outDebug("InstanceSaveManager::AddInstanceSave: mapid = %d, instanceid = %d", mapId, instanceId);
+    sLog->outDebug(LOG_FILTER_MAPS, "InstanceSaveManager::AddInstanceSave: mapid = %d, instanceid = %d", mapId, instanceId);
 
     InstanceSave *save = new InstanceSave(mapId, instanceId, difficulty, resetTime, canReset);
     if (!load)
@@ -547,7 +547,7 @@ void InstanceSaveManager::_ResetSave(InstanceSaveHashMap::iterator &itr)
 
 void InstanceSaveManager::_ResetInstance(uint32 mapid, uint32 instanceId)
 {
-    sLog->outDebug("InstanceSaveMgr::_ResetInstance %u, %u", mapid, instanceId);
+    sLog->outDebug(LOG_FILTER_MAPS, "InstanceSaveMgr::_ResetInstance %u, %u", mapid, instanceId);
     Map *map = (MapInstanced*)sMapMgr->CreateBaseMap(mapid);
     if (!map->Instanceable())
         return;
