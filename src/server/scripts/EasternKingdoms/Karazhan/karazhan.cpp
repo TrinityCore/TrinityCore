@@ -227,7 +227,7 @@ public:
 
         void PrepareEncounter()
         {
-            sLog->outDebug("TSCR: Barnes Opera Event - Introduction complete - preparing encounter %d", m_uiEventId);
+            sLog->OutDebug(LOG_FILTER_TSCR, "TSCR: Barnes Opera Event - Introduction complete - preparing encounter %d", m_uiEventId);
             uint8 index = 0;
             uint8 count = 0;
 

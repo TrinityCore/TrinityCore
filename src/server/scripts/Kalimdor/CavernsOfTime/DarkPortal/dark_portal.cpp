@@ -325,7 +325,7 @@ public:
                 mRiftWaveCount = 0;
 
             entry = PortalWaves[mWaveId].PortalMob[mRiftWaveCount];
-            sLog->outDebug("TSCR: npc_time_rift: summoning wave Creature (Wave %u, Entry %u).",mRiftWaveCount,entry);
+            sLog->OutDebug(LOG_FILTER_TSCR, "TSCR: npc_time_rift: summoning wave Creature (Wave %u, Entry %u).",mRiftWaveCount,entry);
 
             ++mRiftWaveCount;
 
@@ -350,7 +350,7 @@ public:
             if (me->IsNonMeleeSpellCasted(false))
                 return;
 
-            sLog->outDebug("TSCR: npc_time_rift: not casting anylonger, i need to die.");
+            sLog->OutDebug(LOG_FILTER_TSCR, "TSCR: npc_time_rift: not casting anylonger, i need to die.");
             me->setDeathState(JUST_DIED);
 
             if (pInstance->GetData(TYPE_RIFT) == IN_PROGRESS)
