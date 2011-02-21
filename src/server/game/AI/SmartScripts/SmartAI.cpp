@@ -793,7 +793,7 @@ void SmartAI::SetFollow(Unit* target, float dist, float angle, uint32 credit, ui
 void SmartAI::SetScript9(SmartScriptHolder &e, uint32 entry, Unit* invoker)
 {
     if (invoker)
-        GetScript()->mLastInvoker = invoker;
+        GetScript()->mLastInvoker = invoker->GetGUID();
     GetScript()->SetScript9(e, entry);
 }
 /*
@@ -894,7 +894,7 @@ void SmartGameObjectAI::SetData(uint32 id, uint32 value)
 void SmartGameObjectAI::SetScript9(SmartScriptHolder &e, uint32 entry, Unit* invoker)
 {
     if (invoker)
-        GetScript()->mLastInvoker = invoker;
+        GetScript()->mLastInvoker = invoker->GetGUID();
     GetScript()->SetScript9(e, entry);
 }
 
