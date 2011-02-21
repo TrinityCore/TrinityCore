@@ -2297,9 +2297,10 @@ BanReturn World::BanAccount(BanMode mode, std::string nameOrIP, std::string dura
             // No SQL injection with prepared statements
             stmt = LoginDatabase.GetPreparedStatement(LOGIN_SET_ACCOUNT_BANNED);
             stmt->setUInt32(0, account);
-            stmt->setUInt32(1, duration_secs);
-            stmt->setString(2, author);
-            stmt->setString(3, reason);
+            stmt->setUInt32(1, sConfig->GetIntDefault("RealmID", 0));
+            stmt->setUInt32(2, duration_secs);
+            stmt->setString(3, author);
+            stmt->setString(4, reason);
             trans->Append(stmt);
         }
 
@@ -2443,6 +2444,16 @@ bool World::RemoveBanAccount(BanMode mode, std::string nameOrIP)
             account = sObjectMgr->GetPlayerAccountIdByPlayerName(nameOrIP);
 
         if (!account)
+            return false;
+
+        QueryResult result = LoginDatabase.PQuery("SELECT realm FROM account_banned WHERE id = '%u'", account);
+        if (!result)
+            return false;
+
+        Field *fields = result->Fetch();
+        uint32 realmID = fields[0].GetUInt32();
+
+        if (realmID != sConfig->GetIntDefault("RealmID", 0))
             return false;
 
         //NO SQL injection as account is uint32
