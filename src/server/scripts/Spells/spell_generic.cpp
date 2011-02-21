@@ -803,6 +803,53 @@ public:
     }
 };
 
+enum AshbringerSpell
+{
+    SPELL_ASHBRINGER_EFFECT  = 28441,
+};
+
+class spell_ashbringer_sound_effect : public SpellScriptLoader
+{
+public:
+    spell_ashbringer_sound_effect() : SpellScriptLoader("spell_ashbringer_sound_effect") {}
+
+    class spell_ashbringer_sound_effect_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_ashbringer_sound_effect_SpellScript)
+            bool Validate(SpellEntry const * /*spellEntry*/)
+        {
+            if (!sSpellStore.LookupEntry(SPELL_ASHBRINGER_EFFECT))
+                return false;
+            return true;
+        }
+
+        void HandleScript(SpellEffIndex /*effIndex*/)
+        {
+            Player* caster = GetCaster()->ToPlayer();
+            if (!caster)
+                return;
+            if (urand(0,100) < 2)
+            {
+                uint8 prob = urand(0,11);
+                if (prob > 8)
+                    caster->PlayDirectSound(8906 + prob - 9, caster);
+                else
+                    caster->PlayDirectSound(8920 + prob, caster);
+            }
+        }
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_ashbringer_sound_effect_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_ashbringer_sound_effect_SpellScript();
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -823,4 +870,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_gunship_portal();
     new spell_gen_dungeon_credit();
     new spell_gen_venomhide_check();
+    new spell_ashbringer_sound_effect();
 }
