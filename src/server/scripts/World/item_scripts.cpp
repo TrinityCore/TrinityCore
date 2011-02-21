@@ -160,7 +160,7 @@ public:
             if (pPlayer->GetBaseSkillValue(SKILL_RIDING) == 300)
                 return false;
 
-        sLog->outDebug("TSCR: Player attempt to use item %u, but did not meet riding requirement",itemId);
+        sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Player attempt to use item %u, but did not meet riding requirement",itemId);
         pPlayer->SendEquipError(EQUIP_ERR_CANT_EQUIP_SKILL,pItem,NULL);
         return true;
     }
