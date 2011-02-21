@@ -1612,14 +1612,10 @@ void OutdoorPvPWG::UpdateClock()
         UpdateClockDigit(timer, 1, 10);
     else
         UpdateClockDigit(timer, 0, 10);
-
-    //Announce in all world, comment it if you don't like/need it
-    // Announce 30 minutes left
-    if ((m_timer>1800000) && (m_timer<1802000) && (m_wartime==false))
+        
+    if ((m_time == 1800000) && (m_wartime == false))
         sWorld->SendWorldText(LANG_BG_WG_WORLD_ANNOUNCE_30);
-
-    // Announce 10 minutes left
-    if ((m_timer>600000) && (m_timer<602000) && (m_wartime==false))
+    else if ((m_time == 600000) && (m_wartime == false))
         sWorld->SendWorldText(LANG_BG_WG_WORLD_ANNOUNCE_10);
 }
 
