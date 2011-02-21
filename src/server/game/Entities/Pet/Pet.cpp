@@ -308,7 +308,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
 
     CleanupActionBar();                                     // remove unknown spells from action bar after load
 
-    sLog->outDebug("New Pet has guid %u", GetGUIDLow());
+    sLog->outDebug(LOG_FILTER_PETS, "New Pet has guid %u", GetGUIDLow());
 
     owner->PetSpellInitialize();
 
@@ -786,7 +786,7 @@ bool Pet::CreateBaseAtCreatureInfo(CreatureInfo const* cinfo, Unit * owner)
 
 bool Pet::CreateBaseAtTamed(CreatureInfo const * cinfo, Map * map, uint32 phaseMask)
 {
-    sLog->outDebug("Pet::CreateBaseForTamed");
+    sLog->outDebug(LOG_FILTER_PETS, "Pet::CreateBaseForTamed");
     uint32 guid=sObjectMgr->GenerateLowGuid(HIGHGUID_PET);
     uint32 pet_number = sObjectMgr->GeneratePetNumber();
     if (!Create(guid, map, phaseMask, cinfo->Entry, pet_number))
@@ -1125,7 +1125,7 @@ void Pet::_LoadSpellCooldowns()
 
             _AddCreatureSpellCooldown(spell_id,db_time);
 
-            sLog->outDebug("Pet (Number: %u) spell %u cooldown loaded (%u secs).", m_charmInfo->GetPetNumber(), spell_id, uint32(db_time-curTime));
+            sLog->outDebug(LOG_FILTER_PETS, "Pet (Number: %u) spell %u cooldown loaded (%u secs).", m_charmInfo->GetPetNumber(), spell_id, uint32(db_time-curTime));
         }
         while (result->NextRow());
 
@@ -1201,7 +1201,7 @@ void Pet::_SaveSpells(SQLTransaction& trans)
 
 void Pet::_LoadAuras(uint32 timediff)
 {
-    sLog->outDebug("Loading auras for pet %u",GetGUIDLow());
+    sLog->outDebug(LOG_FILTER_PETS, "Loading auras for pet %u",GetGUIDLow());
 
     QueryResult result = CharacterDatabase.PQuery("SELECT caster_guid,spell,effect_mask,recalculate_mask,stackcount,amount0,amount1,amount2,base_amount0,base_amount1,base_amount2,maxduration,remaintime,remaincharges FROM pet_aura WHERE guid = '%u'",m_charmInfo->GetPetNumber());
 

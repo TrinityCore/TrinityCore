@@ -159,7 +159,7 @@ public:
         {
             uint32 value = atoi((char*)spawntimeSecs);
             pGameObj->SetRespawnTime(value);
-            //sLog->outDebug("*** spawntimeSecs: %d", value);
+            //sLog->outDebug(LOG_FILTER_TSCR, "*** spawntimeSecs: %d", value);
         }
 
         // fill the gameobject data and save to the db
@@ -171,8 +171,6 @@ public:
             delete pGameObj;
             return false;
         }
-
-        sLog->outDebug(handler->GetTrinityString(LANG_GAMEOBJECT_CURRENT), gInfo->name, db_lowGUID, x, y, z, o);
 
         map->Add(pGameObj);
 

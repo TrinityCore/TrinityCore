@@ -477,7 +477,7 @@ PreparedResultSet* MySQLConnection::Query(PreparedStatement* stmt)
 
 bool MySQLConnection::_HandleMySQLErrno(uint32 errNo)
 {
-    sLog->outDebug("%s", __FUNCTION__);
+    sLog->outSQLDriver("%s", __FUNCTION__);
 
     switch (errNo)
     {

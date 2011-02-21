@@ -331,7 +331,7 @@ public:
             if (reseting)
                 return;
 
-            sLog->outDebug("TSCR: Increasing Death Count for Shade of Akama encounter");
+            sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Increasing Death Count for Shade of Akama encounter");
             ++DeathCount;
             me->RemoveAuraFromStack(SPELL_SHADE_SOUL_CHANNEL_2);
             if (guid)
@@ -389,7 +389,7 @@ public:
                 {
                     CAST_AI(mob_ashtongue_channeler::mob_ashtongue_channelerAI, (*itr)->AI())->ShadeGUID = me->GetGUID();
                     Channelers.push_back((*itr)->GetGUID());
-                    sLog->outDebug("TSCR: Shade of Akama Grid Search found channeler " UI64FMTD ". Adding to list", (*itr)->GetGUID());
+                    sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Shade of Akama Grid Search found channeler " UI64FMTD ". Adding to list", (*itr)->GetGUID());
                 }
             }
             else sLog->outError("SD2 ERROR: Grid Search was unable to find any channelers. Shade of Akama encounter will be buggy");

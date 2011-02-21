@@ -75,8 +75,6 @@ public:
     */
     static bool HandleWpAddCommand(ChatHandler* handler, const char* args)
     {
-        sLog->outDebug("DEBUG: HandleWpAddCommand");
-
         // optional
         char* path_number = NULL;
         uint32 pathid = 0;
@@ -96,7 +94,6 @@ public:
                 QueryResult result = WorldDatabase.Query("SELECT MAX(id) FROM waypoint_data");
                 uint32 maxpathid = result->Fetch()->GetInt32();
                 pathid = maxpathid+1;
-                sLog->outDebug("DEBUG: HandleWpAddCommand - New path started.");
                 handler->PSendSysMessage("%s%s|r", "|cff00ff00", "New path started.");
             }
         }
@@ -108,12 +105,9 @@ public:
 
         if (!pathid)
         {
-            sLog->outDebug("DEBUG: HandleWpAddCommand - Current creature haven't loaded path.");
             handler->PSendSysMessage("%s%s|r", "|cffff33ff", "Current creature haven't loaded path.");
             return true;
         }
-
-        sLog->outDebug("DEBUG: HandleWpAddCommand - point == 0");
 
         QueryResult result = WorldDatabase.PQuery("SELECT MAX(point) FROM waypoint_data WHERE id = '%u'",pathid);
 
@@ -147,7 +141,7 @@ public:
 
         // Did player provide a path_id?
         if (!path_number)
-            sLog->outDebug("DEBUG: HandleWpLoadPathCommand - No path number provided");
+            return false;
 
         if (!target)
         {
@@ -167,7 +161,7 @@ public:
 
         if (!pathid)
         {
-            handler->PSendSysMessage("%s%s|r", "|cffff33ff", "No vallid path number provided.");
+            handler->PSendSysMessage("%s%s|r", "|cffff33ff", "No valid path number provided.");
             return true;
         }
 
@@ -452,8 +446,6 @@ public:
 
     static bool HandleWpModifyCommand(ChatHandler* handler, const char* args)
     {
-        sLog->outDebug("DEBUG: HandleWpModifyCommand");
-
         if (!*args)
             return false;
 
@@ -491,7 +483,6 @@ public:
             return false;
         }
 
-        sLog->outDebug("DEBUG: HandleWpModifyCommand - User did select an NPC");
         // The visual waypoint
         Creature* wpCreature = NULL;
         wpGuid = target->GetGUIDLow();
@@ -513,8 +504,6 @@ public:
 
             if (!result)
             {
-                sLog->outDebug("DEBUG: HandleWpModifyCommand - No waypoint found - used 'wpguid'");
-
                 handler->PSendSysMessage(LANG_WAYPOINT_NOTFOUNDSEARCH, target->GetGUIDLow());
                 // Select waypoint number from database
                 // Since we compare float values, we have to deal with
@@ -531,7 +520,6 @@ public:
                     return true;
                 }
             }
-            sLog->outDebug("DEBUG: HandleWpModifyCommand - After getting wpGuid");
 
             do
             {
@@ -545,8 +533,6 @@ public:
             // Text is enclosed in "<>", all other arguments not
             arg_str = strtok((char*)NULL, " ");
         }
-
-        sLog->outDebug("DEBUG: HandleWpModifyCommand - Parameters parsed - now execute the command");
 
         // Check for argument
         if (show != "del" && show != "move" && arg_str == NULL)
@@ -644,8 +630,6 @@ public:
 
     static bool HandleWpShowCommand(ChatHandler* handler, const char* args)
     {
-        sLog->outDebug("DEBUG: HandleWpShowCommand");
-
         if (!*args)
             return false;
 
@@ -656,7 +640,6 @@ public:
 
         // second arg: GUID (optional, if a creature is selected)
         char* guid_str = strtok((char*)NULL, " ");
-        sLog->outDebug("DEBUG: HandleWpShowCommand: show_str: %s guid_str: %s", show_str, guid_str);
 
         uint32 pathid = 0;
         Creature* target = handler->getSelectedCreature();
@@ -665,7 +648,6 @@ public:
 
         if (!guid_str)
         {
-            sLog->outDebug("DEBUG: HandleWpShowCommand: !guid_str");
             // No PathID provided
             // -> Player must have selected a creature
 
@@ -680,7 +662,6 @@ public:
         }
         else
         {
-            sLog->outDebug("|cff00ff00DEBUG: HandleWpShowCommand: PathID provided|r");
             // PathID provided
             // Warn if player also selected a creature
             // -> Creature selection is ignored <-
@@ -690,12 +671,8 @@ public:
             pathid = atoi((char*)guid_str);
         }
 
-        sLog->outDebug("DEBUG: HandleWpShowCommand: danach");
-
         std::string show = show_str;
         uint32 Maxpoint;
-
-        sLog->outDebug("DEBUG: HandleWpShowCommand: PathID: %u", pathid);
 
         //handler->PSendSysMessage("wpshow - show: %s", show);
 
@@ -811,7 +788,6 @@ public:
                     return false;
                 }
 
-                sLog->outDebug("DEBUG: UPDATE waypoint_data SET wpguid = '%u' WHERE id = '%u' and point = '%u'", wpCreature->GetGUIDLow(), pathid, point);
                 // set "wpguid" column to the visual waypoint
                 WorldDatabase.PExecute("UPDATE waypoint_data SET wpguid = '%u' WHERE id = '%u' and point = '%u'", wpCreature->GetGUIDLow(), pathid, point);
 
