@@ -217,3 +217,6 @@ INSERT INTO `spell_script_names` VALUES
 
 -- fix some quests in Borean Tundra
 UPDATE creature_template SET scriptname = 'vehicle_wyrmrest_skytalon' WHERE entry = 32535;
+
+-- Add script for Archmage Vargoth NPC(19481)
+UPDATE creature_template SET scriptname = 'npc_archmage_vargoth' WHERE entry = 19481;
