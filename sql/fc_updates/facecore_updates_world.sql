@@ -220,3 +220,16 @@ UPDATE creature_template SET scriptname = 'vehicle_wyrmrest_skytalon' WHERE entr
 
 -- Add script for Archmage Vargoth NPC(19481)
 UPDATE creature_template SET scriptname = 'npc_archmage_vargoth' WHERE entry = 19481;
+
+-- Add scripts for some NPC in Dragon Blight
+UPDATE creature_template SET scriptname = 'vehicle_forsaken_blight_spreader' WHERE entry = 26523;
+UPDATE creature_template SET scriptname = 'npc_warsong_battle_standard' WHERE entry = 36738;
+UPDATE creature_template SET scriptname = 'npc_emissary_brighthoof' WHERE entry = 26181;
+UPDATE creature_template SET scriptname = 'npc_wintergarde_mine_bomb' WHERE entry = 27435;
+UPDATE creature_template SET scriptname = 'npc_devout_bodyguard' WHERE entry = 27247;
+UPDATE creature_template SET scriptname = 'npc_high_abbot_landgren' WHERE entry = 27245;
+UPDATE creature_template SET scriptname = 'npc_agent_skully' WHERE entry = 27350;
+UPDATE creature_template SET scriptname = 'npc_7th_legion_siege_engineer' WHERE entry = 27163;
+UPDATE creature_template SET scriptname = 'vehicle_alliance_steamtank' WHERE entry = 27587;
+UPDATE creature_template SET scriptname = 'mob_woodlands_walker' WHERE entry = 26421;
+
