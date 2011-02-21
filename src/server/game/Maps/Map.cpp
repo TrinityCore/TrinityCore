@@ -2228,17 +2228,6 @@ bool InstanceMap::CanEnter(Player *player)
         return false;
     }
 
-    // cannot enter if group too big, hack but should stop exploit
-    if (Group *group = player->GetGroup())
-    {
-        if (group->GetMembersCount() >= maxPlayers)
-        {
-            sLog->outDetail("MAP: Instance '%u' of map '%s' cannot have more than '%u' players. Player '%s' rejected", GetInstanceId(), GetMapName(), maxPlayers, player->GetName());
-            player->SendTransferAborted(GetId(), TRANSFER_ABORT_MAX_PLAYERS);
-            return false;
-        }
-    }
-
     // cannot enter while an encounter is in progress on raids
     /*Group *pGroup = player->GetGroup();
     if (!player->isGameMaster() && pGroup && pGroup->InCombatToInstance(GetInstanceId()) && player->GetMapId() != GetId())*/
