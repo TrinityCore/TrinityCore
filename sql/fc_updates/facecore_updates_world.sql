@@ -223,7 +223,7 @@ UPDATE creature_template SET scriptname = 'npc_archmage_vargoth' WHERE entry = 1
 
 -- Add scripts for some NPC in Dragon Blight
 UPDATE creature_template SET scriptname = 'vehicle_forsaken_blight_spreader' WHERE entry = 26523;
-UPDATE creature_template SET scriptname = 'npc_warsong_battle_standard' WHERE entry = 36738;
+UPDATE creature_template SET scriptname = 'npc_warsong_battle_standard' WHERE entry = 26678;
 UPDATE creature_template SET scriptname = 'npc_emissary_brighthoof' WHERE entry = 26181;
 UPDATE creature_template SET scriptname = 'npc_wintergarde_mine_bomb' WHERE entry = 27435;
 UPDATE creature_template SET scriptname = 'npc_devout_bodyguard' WHERE entry = 27247;
