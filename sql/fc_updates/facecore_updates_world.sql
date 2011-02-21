@@ -205,3 +205,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 DELETE FROM `spell_script_names` WHERE `spell_id`=66926;
 INSERT INTO `spell_script_names` VALUES
 (66926, 'spell_gen_venomhide_check');
+
+-- Lifebloom final bloom fix
+UPDATE `spell_bonus_data` SET `direct_bonus`=0.3857 WHERE `entry`=33778 ;
+UPDATE `spell_bonus_data` SET `dot_bonus`=0.0653 WHERE `entry` IN (48450, 48451, 48628);
