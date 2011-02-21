@@ -195,3 +195,8 @@ UPDATE quest_template SET prevQuestID = 24657 where ExclusiveGroup = 24658;
 
 -- Cinderglacier
 UPDATE `spell_proc_event` SET `SpellFamilyName` = '15', `SpellFamilyMask0` = 0x42002, `SpellFamilyMask1` = 0x6, `SpellFamilyMask2` = 0x80 WHERE `entry` = 53386;
+
+-- Druid Berserk fix
+DELETE FROM `spell_script_names` WHERE `spell_id`=50334 AND `ScriptName`='spell_dru_berserk';
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(50334, 'spell_dru_berserk');
