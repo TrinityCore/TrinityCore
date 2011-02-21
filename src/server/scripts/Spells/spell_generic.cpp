@@ -746,6 +746,15 @@ class spell_gen_dungeon_credit : public SpellScriptLoader
         }
 };
 
+enum ModelPerQuestProgress
+
+{
+    // PROG_0_4   = native,
+    PROG_5_9   = 29809,
+    PROG_10_14 = 29275,
+    PROG_15_20 = 29276,
+};
+
 // 66926 Venomhide Raptor Spawn Check
 class spell_gen_venomhide_check : public SpellScriptLoader
 {
