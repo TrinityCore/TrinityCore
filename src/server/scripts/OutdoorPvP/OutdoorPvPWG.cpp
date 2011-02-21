@@ -1613,9 +1613,9 @@ void OutdoorPvPWG::UpdateClock()
     else
         UpdateClockDigit(timer, 0, 10);
         
-    if ((m_time == 1800000) && (m_wartime == false))
+    if ((m_timer == 1800000) && (m_wartime == false))
         sWorld->SendWorldText(LANG_BG_WG_WORLD_ANNOUNCE_30);
-    else if ((m_time == 600000) && (m_wartime == false))
+    else if ((m_timer == 600000) && (m_wartime == false))
         sWorld->SendWorldText(LANG_BG_WG_WORLD_ANNOUNCE_10);
 }
 
