@@ -200,3 +200,8 @@ UPDATE `spell_proc_event` SET `SpellFamilyName` = '15', `SpellFamilyMask0` = 0x4
 DELETE FROM `spell_script_names` WHERE `spell_id`=50334 AND `ScriptName`='spell_dru_berserk';
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (50334, 'spell_dru_berserk');
+
+-- Fix spell 66926 for quest "They Grow Up So Fast"
+DELETE FROM `spell_script_names` WHERE `spell_id`=66926;
+INSERT INTO `spell_script_names` VALUES
+(66926, 'spell_gen_venomhide_check');
