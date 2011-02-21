@@ -1080,6 +1080,7 @@ public:
                 {
                     if (car->GetEntry() == 28817)
                     {
+                        pPlayer->setFaction(35);
                         car->AI()->SetGUID(miner->GetGUID());
                         CAST_AI(npc_scarlet_miner::npc_scarlet_minerAI, miner->AI())->InitCartQuest(pPlayer);
                     } else sLog->outError("TSCR: OnGossipHello vehicle entry is not correct.");
