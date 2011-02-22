@@ -949,16 +949,16 @@ typedef UNORDERED_MAP<uint32 /*category*/, GlobalCooldown> GlobalCooldownList;
 
 class GlobalCooldownMgr                                     // Shared by Player and CharmInfo
 {
-    public:
-        GlobalCooldownMgr() {}
+public:
+    GlobalCooldownMgr() {}
 
-    public:
-        bool HasGlobalCooldown(SpellEntry const* spellInfo) const;
-        void AddGlobalCooldown(SpellEntry const* spellInfo, uint32 gcd);
-        void CancelGlobalCooldown(SpellEntry const* spellInfo);
+public:
+    bool HasGlobalCooldown(SpellEntry const* spellInfo) const;
+    void AddGlobalCooldown(SpellEntry const* spellInfo, uint32 gcd);
+    void CancelGlobalCooldown(SpellEntry const* spellInfo);
 
-    private:
-        GlobalCooldownList m_GlobalCooldowns;
+private:
+    GlobalCooldownList m_GlobalCooldowns;
 };
 
 enum ActiveStates

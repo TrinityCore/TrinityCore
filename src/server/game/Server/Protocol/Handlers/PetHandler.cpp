@@ -753,7 +753,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
     }
 
     if (spellInfo->StartRecoveryCategory > 0) // Check if spell is affected by GCD
-        if (caster->GetCharmInfo() && caster->GetCharmInfo()->GetGlobalCooldownMgr().HasGlobalCooldown(spellInfo) && caster->GetTypeId() == TYPEID_UNIT)
+        if (caster->GetTypeId() == TYPEID_UNIT && caster->GetCharmInfo() && caster->GetCharmInfo()->GetGlobalCooldownMgr().HasGlobalCooldown(spellInfo))
         {
             caster->SendPetCastFail(spellId, SPELL_FAILED_NOT_READY);
             return;

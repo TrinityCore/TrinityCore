@@ -194,7 +194,6 @@ m_vehicleKit(NULL), m_unitTypeMask(UNIT_MASK_NONE), m_HostileRefManager(this)
 
 ////////////////////////////////////////////////////////////
 // Methods of class GlobalCooldownMgr
-
 bool GlobalCooldownMgr::HasGlobalCooldown(SpellEntry const* spellInfo) const
 {
     GlobalCooldownList::const_iterator itr = m_GlobalCooldowns.find(spellInfo->StartRecoveryCategory);
@@ -212,8 +211,6 @@ void GlobalCooldownMgr::CancelGlobalCooldown(SpellEntry const* spellInfo)
 }
 
 ////////////////////////////////////////////////////////////
-// Methods of class Unit
-
 Unit::~Unit()
 {
     // set current spells as deletable
