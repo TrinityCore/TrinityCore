@@ -87,7 +87,7 @@ void AnticheatMgr::JumpHackDetection(Player* player, MovementInfo movementInfo,u
     if (player->anticheatData.lastOpcode == MSG_MOVE_JUMP && opcode == MSG_MOVE_JUMP)
     {
         BuildReport(player,JUMP_HACK_REPORT);
-        sLog->outError("Jump Hack Detection Player LowGuid %u",player->GetGUIDLow());
+        sLog->outBasic("Jump Hack Detection Player LowGuid %u",player->GetGUIDLow());
     }
 }
 
@@ -105,7 +105,7 @@ void AnticheatMgr::WalkOnWaterHackDetection(Player* player, MovementInfo movemen
         player->HasAuraType(SPELL_AURA_WATER_WALK))
         return;
 
-    sLog->outError("Walk on Water Player LowGuid %u",player->GetGUIDLow());
+    sLog->outBasic("Walk on Water Player LowGuid %u",player->GetGUIDLow());
     BuildReport(player,WALK_WATER_HACK_REPORT);
 
 }
@@ -120,7 +120,7 @@ void AnticheatMgr::FlyHackDetection(Player* player, MovementInfo movementInfo)
         player->HasAuraType(SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED))
         return;
     
-    sLog->outError("FlyHack Player LowGuid %u",player->GetGUIDLow());
+    sLog->outBasic("FlyHack Player LowGuid %u",player->GetGUIDLow());
     BuildReport(player,FLY_HACK_REPORT);
 }
 
@@ -202,12 +202,12 @@ void AnticheatMgr::SpeedHackDetection(Player* player,MovementInfo movementInfo)
     // this is the distance doable by the player in 1 sec, using the time done to move to this point.
     uint32 clientSpeedRate = distance2D * 1000 / timeDiff;
 
-    //sLog->outError("fallxy %f fallz %f Distance2D %u clientSpeedRate %u speedRate %u timeDiff %u ",movementInfo.j_xyspeed, movementInfo.j_zspeed,distance2D,clientSpeedRate,speedRate,timeDiff);
+    //sLog->outBasic("fallxy %f fallz %f Distance2D %u clientSpeedRate %u speedRate %u timeDiff %u ",movementInfo.j_xyspeed, movementInfo.j_zspeed,distance2D,clientSpeedRate,speedRate,timeDiff);
     
     // we did the (uint32) cast to accept a margin of tolerance
     if (clientSpeedRate > speedRate)
     {
         BuildReport(player,SPEED_HACK_REPORT);
-        sLog->outError("Speed Hack Player LowGuid %u",player->GetGUIDLow());
+        sLog->outBasic("Speed Hack Player LowGuid %u",player->GetGUIDLow());
     }
 }
