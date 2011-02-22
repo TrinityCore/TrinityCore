@@ -190,7 +190,7 @@ class Group
         void   RemoveAllInvites();
         bool   AddLeaderInvite(Player *player);
         bool   AddMember(Player *player);
-        uint32 RemoveMember(const uint64 &guid, const RemoveMethod &method = GROUP_REMOVEMETHOD_DEFAULT, uint64 kicker = 0, const char* reason = NULL);
+        bool   RemoveMember(const uint64 &guid, const RemoveMethod &method = GROUP_REMOVEMETHOD_DEFAULT, uint64 kicker = 0, const char* reason = NULL);
         void   ChangeLeader(const uint64 &guid);
         void   SetLootMethod(LootMethod method);
         void   SetLooterGuid(const uint64 &guid);

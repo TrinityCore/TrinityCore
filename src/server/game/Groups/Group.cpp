@@ -405,7 +405,7 @@ bool Group::AddMember(Player *player)
     return true;
 }
 
-uint32 Group::RemoveMember(const uint64 &guid, const RemoveMethod &method /* = GROUP_REMOVEMETHOD_DEFAULT */, uint64 kicker /* = 0 */, const char* reason /* = NULL */)
+bool Group::RemoveMember(const uint64 &guid, const RemoveMethod &method /*= GROUP_REMOVEMETHOD_DEFAULT*/, uint64 kicker /*= 0*/, const char* reason /*= NULL*/)
 {
     BroadcastGroupUpdate();
 
@@ -505,12 +505,15 @@ uint32 Group::RemoveMember(const uint64 &guid, const RemoveMethod &method /* = G
         }
 
         SendUpdate();
+
+        return true;
     }
     // If group size before player removal <= 2 then disband it
     else
+    {
         Disband();
-
-    return m_memberSlots.size();
+        return false;
+    }
 }
 
 void Group::ChangeLeader(const uint64 &guid)
@@ -634,9 +637,8 @@ void Group::Disband(bool hideDestroy /* = false */)
         ResetInstances(INSTANCE_RESET_GROUP_DISBAND, true, NULL);
     }
 
-    m_guid = 0;
-    m_leaderGuid = 0;
-    m_leaderName = "";
+    sObjectMgr->RemoveGroup(this);
+    delete this;
 }
 
 /*********************************************************/
