@@ -14287,6 +14287,13 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit * pTarget, uint32 procFlag,
                     break;
             }
         }
+        // Bone Shield DropCharge Cooldown
+        if (GetTypeId() == TYPEID_PLAYER && cooldown && spellInfo->Id == 49222)
+            if (this->ToPlayer()->HasSpellCooldown(250000))
+                takeCharges = false;
+            else
+                this->ToPlayer()->AddSpellCooldown(250000, 0, time(NULL) + cooldown);
+
         // Remove charge (aura can be removed by triggers)
         if (useCharges && takeCharges)
             i->aura->DropCharge();
