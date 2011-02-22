@@ -109,7 +109,7 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
     e.runOnce = true;//used for repeat check
 
     if (unit)
-        mLastInvoker = unit;
+        mLastInvoker = unit->GetGUID();
 
     if (e.link && e.link != e.event_id)
     {
@@ -120,8 +120,8 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
             sLog->outErrorDb("SmartScript::ProcessAction: Entry %d SourceType %u, Event %u, Link Event %u not found or invalid, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.link);
     }
 
-    if (mLastInvoker)
-        sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction: Invoker: %s (guidlow: %u)", mLastInvoker->GetName(), mLastInvoker->GetGUIDLow());
+    if (Unit* tempInvoker = GetLastInvoker())
+        sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction: Invoker: %s (guidlow: %u)", tempInvoker->GetName(), tempInvoker->GetGUIDLow());
 
     switch (e.GetActionType())
     {
@@ -142,7 +142,7 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                 }
                 mLastTextID = e.action.talk.textGroupID;
                 mTextTimer = e.action.talk.duration;
-                mTextGUID = IsPlayer(mLastInvoker)? mLastInvoker->GetGUID() : NULL;//invoker, used for $vars in texts
+                mTextGUID = IsPlayer(GetLastInvoker())? GetLastInvoker()->GetGUID() : NULL;//invoker, used for $vars in texts
                 mUseTextTimer = true;
                 sCreatureTextMgr->SendChat(talker, uint8(e.action.talk.textGroupID), mTextGUID);
 
@@ -159,10 +159,12 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                     for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); itr++)
                     {
                         if (IsCreature((*itr)))
-                            sCreatureTextMgr->SendChat((*itr)->ToCreature(), uint8(e.action.talk.textGroupID), IsPlayer(mLastInvoker)? mLastInvoker->GetGUID() : NULL);
+                            sCreatureTextMgr->SendChat((*itr)->ToCreature(), uint8(e.action.talk.textGroupID), IsPlayer(GetLastInvoker())? GetLastInvoker()->GetGUID() : NULL);
                         else if (IsPlayer((*itr)))
-                            sCreatureTextMgr->SendChat(me, uint8(e.action.talk.textGroupID),IsPlayer(mLastInvoker)? mLastInvoker->GetGUID() : NULL,CHAT_TYPE_END,LANG_ADDON,TEXT_RANGE_NORMAL,NULL,TEAM_OTHER,false, (*itr)->ToPlayer());
-
+                        {
+                            Unit* templastInvoker = GetLastInvoker();
+                            sCreatureTextMgr->SendChat(me, uint8(e.action.talk.textGroupID),IsPlayer(templastInvoker)? templastInvoker->GetGUID() : NULL,CHAT_TYPE_END,LANG_ADDON,TEXT_RANGE_NORMAL,NULL,TEAM_OTHER,false, (*itr)->ToPlayer());
+                        }
                         sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_SIMPLE_TALK: talker: %s (GuidLow: %u), textGroupId: %u",
                             (*itr)->GetName(), (*itr)->GetGUIDLow(), uint8(e.action.talk.textGroupID));
                     }
@@ -419,20 +421,20 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
             }
         case SMART_ACTION_INVOKER_CAST:
             {
-                if (!mLastInvoker)
+                Unit* tempLastInvoker = GetLastInvoker();
+                if (!tempLastInvoker)
                     return;
-
                 ObjectList* targets = GetTargets(e, unit);
                 if (!targets) return;
                 for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); itr++)
                     if (IsUnit((*itr)))
                     {
                         if (e.action.cast.flags & SMARTCAST_INTERRUPT_PREVIOUS)
-                            mLastInvoker->InterruptNonMeleeSpells(false);
+                            tempLastInvoker->InterruptNonMeleeSpells(false);
 
-                        mLastInvoker->CastSpell((*itr)->ToUnit(), e.action.cast.spell,(e.action.cast.flags & SMARTCAST_TRIGGERED) ? true : false);
+                        tempLastInvoker->CastSpell((*itr)->ToUnit(), e.action.cast.spell,(e.action.cast.flags & SMARTCAST_TRIGGERED) ? true : false);
                         sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_INVOKER_CAST: Invoker %u casts spell % on target %u with castflags %u",
-                            mLastInvoker->GetGUIDLow(), (*itr)->GetGUIDLow(), e.action.cast.spell, e.action.cast.flags);
+                            tempLastInvoker->GetGUIDLow(), (*itr)->GetGUIDLow(), e.action.cast.spell, e.action.cast.flags);
                     }
                 break;
             }
@@ -1269,11 +1271,11 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                         if (Creature* target = (*itr)->ToCreature())
                         {
                             if (IsSmart(target))
-                                CAST_AI(SmartAI, target->AI())->SetScript9(e, e.action.timedActionList.id, mLastInvoker);
+                                CAST_AI(SmartAI, target->AI())->SetScript9(e, e.action.timedActionList.id, GetLastInvoker());
                         } else if (GameObject* target = (*itr)->ToGameObject())
                         {
                             if (IsSmartGO(target))
-                                CAST_AI(SmartGameObjectAI, target->AI())->SetScript9(e, e.action.timedActionList.id, mLastInvoker);
+                                CAST_AI(SmartGameObjectAI, target->AI())->SetScript9(e, e.action.timedActionList.id, GetLastInvoker());
                         }
                     }
                 }
@@ -1362,11 +1364,11 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                         if (Creature* target = (*itr)->ToCreature())
                         {
                             if (IsSmart(target))
-                                CAST_AI(SmartAI, target->AI())->SetScript9(e, id, mLastInvoker);
+                                CAST_AI(SmartAI, target->AI())->SetScript9(e, id, GetLastInvoker());
                         } else if (GameObject* target = (*itr)->ToGameObject())
                         {
                             if (IsSmartGO(target))
-                                CAST_AI(SmartGameObjectAI, target->AI())->SetScript9(e, id, mLastInvoker);
+                                CAST_AI(SmartGameObjectAI, target->AI())->SetScript9(e, id, GetLastInvoker());
                         }
                     }
                 }
@@ -1388,11 +1390,11 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                         if (Creature* target = (*itr)->ToCreature())
                         {
                             if (IsSmart(target))
-                                CAST_AI(SmartAI, target->AI())->SetScript9(e, id, mLastInvoker);
+                                CAST_AI(SmartAI, target->AI())->SetScript9(e, id, GetLastInvoker());
                         } else if (GameObject* target = (*itr)->ToGameObject())
                         {
                             if (IsSmartGO(target))
-                                CAST_AI(SmartGameObjectAI, target->AI())->SetScript9(e, id, mLastInvoker);
+                                CAST_AI(SmartGameObjectAI, target->AI())->SetScript9(e, id, GetLastInvoker());
                         }
                     }
                 }
@@ -1570,8 +1572,8 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder e, Unit* invoker)
     Unit* trigger = NULL;
     if (invoker)
         trigger = invoker;
-    else if (mLastInvoker)
-        trigger = mLastInvoker;
+    else if (Unit* tempLastInvoker = GetLastInvoker())
+        trigger = tempLastInvoker;
     ObjectList* l = new ObjectList();
     switch (e.GetTargetType())
     {
@@ -2572,4 +2574,7 @@ void SmartScript::SetScript9(SmartScriptHolder &e, uint32 entry)
         mResumeActionList = e.action.timedActionList.dontResume ? false : true;
         InitTimer((*i));
     }
+}Unit* SmartScript::GetLastInvoker()
+{
+    return ObjectAccessor::FindUnit(mLastInvoker);
 }
