@@ -191,7 +191,8 @@ class SmartScript
 
         //TIMED_ACTIONLIST (script type 9 aka script9)
         void SetScript9(SmartScriptHolder &e, uint32 entry);
-        Unit* mLastInvoker;
+        Unit* GetLastInvoker();
+        uint64 mLastInvoker;
 
     private:
         void IncPhase(int32 p = 1) {
