@@ -793,7 +793,7 @@ void SmartAI::SetFollow(Unit* target, float dist, float angle, uint32 credit, ui
 void SmartAI::SetScript9(SmartScriptHolder &e, uint32 entry, Unit* invoker)
 {
     if (invoker)
-        GetScript()->mLastInvoker = invoker;
+        GetScript()->mLastInvoker = invoker->GetGUID();
     GetScript()->SetScript9(e, entry);
 }
 /*
@@ -845,7 +845,7 @@ void SmartGameObjectAI::Reset()
 // Called when a player opens a gossip dialog with the gameobject.
 bool SmartGameObjectAI::GossipHello(Player* player)
 {
-    sLog->outDebug("SmartGameObjectAI::GossipHello");
+    sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartGameObjectAI::GossipHello");
     GetScript()->ProcessEventsFor(SMART_EVENT_GOSSIP_HELLO, player, 0 ,0 , false, NULL, go);
     return false;
 }
@@ -894,7 +894,7 @@ void SmartGameObjectAI::SetData(uint32 id, uint32 value)
 void SmartGameObjectAI::SetScript9(SmartScriptHolder &e, uint32 entry, Unit* invoker)
 {
     if (invoker)
-        GetScript()->mLastInvoker = invoker;
+        GetScript()->mLastInvoker = invoker->GetGUID();
     GetScript()->SetScript9(e, entry);
 }
 
@@ -909,7 +909,7 @@ class SmartTrigger : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
         {
-            sLog->outDebug("AreaTrigger %u is using SmartTrigger script", trigger->id);
+            sLog->outDebug(LOG_FILTER_DATABASE_AI, "AreaTrigger %u is using SmartTrigger script", trigger->id);
             SmartScript script;
             script.OnInitialize(NULL, trigger);
             script.ProcessEventsFor(SMART_EVENT_AREATRIGGER_ONTRIGGER, player, trigger->id);

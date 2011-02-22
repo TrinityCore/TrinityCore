@@ -168,16 +168,7 @@ void Log::Initialize()
     m_dbLogLevel   = sConfig->GetIntDefault("DBLogLevel", LOGL_NORMAL);
     m_sqlDriverQueryLogging  = sConfig->GetBoolDefault("SQLDriverQueryLogging", false);
 
-    m_logFilter = 0;
-
-    if(sConfig->GetBoolDefault("LogFilter_TransportMoves", true))
-        m_logFilter |= LOG_FILTER_TRANSPORT_MOVES;
-    if(sConfig->GetBoolDefault("LogFilter_CreatureMoves", true))
-        m_logFilter |= LOG_FILTER_CREATURE_MOVES;
-    if(sConfig->GetBoolDefault("LogFilter_VisibilityChanges", true))
-        m_logFilter |= LOG_FILTER_VISIBILITY_CHANGES;
-    if(sConfig->GetBoolDefault("LogFilter_AchievementUpdates", true))
-        m_logFilter |= LOG_FILTER_ACHIEVEMENT_UPDATES;
+    m_DebugLogMask = DebugLogFilters(sConfig->GetIntDefault("DebugLogMask", LOG_FILTER_NONE));
 
     // Char log settings
     m_charLog_Dump = sConfig->GetBoolDefault("CharLogDump", false);
@@ -723,8 +714,11 @@ void Log::outDebugInLine(const char * str, ...)
     }
 }
 
-void Log::outDebug(const char * str, ...)
+void Log::outDebug(DebugLogFilters f, const char * str, ...)
 {
+    if (!(m_DebugLogMask & f))
+        return;
+
     if (!str)
         return;
 
