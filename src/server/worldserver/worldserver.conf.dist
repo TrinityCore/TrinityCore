@@ -2837,6 +2837,15 @@ Lottery.MinUserLVL = 60
       
 ###################################################################################################
 
+#     DuelReset.Cooldown
+#     Reseting cooldown and restore health to start duel
+#     Default: 0 - Disable
+#              1 - Enable
+#
+
+DuelReset.Cooldown = 0
+
+
 #######################################################################
 #   OutdoorPvP.Wintergrasp.Enabled
 #       Determines whether the Wintergrasp battle is enabled or not.

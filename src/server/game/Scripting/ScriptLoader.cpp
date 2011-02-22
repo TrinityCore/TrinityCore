@@ -29,6 +29,7 @@ void AddSC_npc_teleguy();
 void AddSC_npc_wintergrasp_honor_vendor();
 void AddSC_event_npc();
 void AddSC_npc_lottery();
+void AddSC_DuelReset();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -1239,6 +1240,6 @@ void AddCustomScripts()
     AddSC_npc_wintergrasp_honor_vendor();
     AddSC_event_npc();
     AddSC_npc_lottery();
-
+    AddSC_DuelReset();
 #endif
 }
