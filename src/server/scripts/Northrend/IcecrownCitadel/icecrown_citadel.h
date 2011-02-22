@@ -208,6 +208,7 @@ enum GameObjectsIds
     GO_DOODAD_ICECROWN_GREENTUBES02         = 201618,
     GO_SCIENTIST_ENTRANCE                   = 201372,
     GO_DRINK_ME                             = 201584,
+    GO_PLAGUE_SIGIL                         = 202182,
 
     // Blood Prince Council
     GO_CRIMSON_HALL_DOOR                    = 201376,
@@ -217,6 +218,7 @@ enum GameObjectsIds
     // Blood-Queen Lana'thel
     GO_DOODAD_ICECROWN_BLOODPRINCE_DOOR_01  = 201746,
     GO_DOODAD_ICECROWN_GRATE_01             = 201755,
+    GO_BLOODWING_SIGIL                      = 202183,
 
     // Valithria Dreamwalker
     GO_GREEN_DRAGON_BOSS_ENTRANCE           = 201375,
@@ -228,6 +230,7 @@ enum GameObjectsIds
     GO_SINDRAGOSA_SHORTCUT_EXIT_DOOR        = 201379,
     GO_ICE_WALL                             = 202396,
     GO_ICE_BLOCK                            = 201722,
+    GO_SIGIL_OF_THE_FROSTWING               = 202181,
 };
 
 enum AchievementCriteriaIds
