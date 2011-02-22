@@ -1640,6 +1640,8 @@ class Player : public Unit, public GridObject<Player>
         void RemoveSpellCategoryCooldown(uint32 cat, bool update = false);
         void SendClearCooldown(uint32 spell_id, Unit* target);
 
+        GlobalCooldownMgr& GetGlobalCooldownMgr() { return m_GlobalCooldownMgr; }
+
         void RemoveCategoryCooldown(uint32 cat);
         void RemoveArenaSpellCooldowns(bool removeActivePetCooldowns = false);
         void RemoveAllSpellCooldown();
@@ -2544,6 +2546,8 @@ class Player : public Unit, public GridObject<Player>
         PlayerSpellMap m_spells;
         PlayerTalentMap *m_talents[MAX_TALENT_SPECS];
         uint32 m_lastPotionId;                              // last used health/mana potion in combat, that block next potion use
+
+        GlobalCooldownMgr m_GlobalCooldownMgr;
 
         uint8 m_activeSpec;
         uint8 m_specsCount;
