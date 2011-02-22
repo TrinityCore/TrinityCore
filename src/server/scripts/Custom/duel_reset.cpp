@@ -2,10 +2,10 @@
 #include "ScriptMgr.h"
 #include "Config.h"
 
-class Reset_OnDuelEnd : public PlayerScript
+class duel_reset : public PlayerScript
 {
     public:
-        Reset_OnDuelEnd() : PlayerScript("Reset_OnDuelEnd") {}
+        duel_reset() : PlayerScript("duel_reset") {}
 
     void OnDuelEnd(Player *winner, Player *looser, DuelCompleteType type)
     {
@@ -28,5 +28,5 @@ class Reset_OnDuelEnd : public PlayerScript
 
 void AddSC_DuelReset()
 {
-    new Reset_OnDuelEnd;
+    new duel_reset;
 }
