@@ -3970,9 +3970,9 @@ void ObjectMgr::LoadGroups()
         uint32 oldMSTime = getMSTime();
 
         // Delete all groups whose leader does not exist
-        CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_DEL_LEADERLESS_GROUPS));
+        CharacterDatabase.DirectExecute(CharacterDatabase.GetPreparedStatement(CHAR_DEL_LEADERLESS_GROUPS));
         // Delete all groups with less than 2 members
-        CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_DEL_TINY_GROUPS));
+        CharacterDatabase.DirectExecute(CharacterDatabase.GetPreparedStatement(CHAR_DEL_TINY_GROUPS));
 
         //                                                        0           1           2             3          4      5      6      7      8     9
         QueryResult result = CharacterDatabase.PQuery("SELECT leaderGuid, lootMethod, looterGuid, lootThreshold, icon1, icon2, icon3, icon4, icon5, icon6"
