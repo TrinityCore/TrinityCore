@@ -115,7 +115,6 @@ public:
         boss_onyxiaAI(Creature* pCreature) : ScriptedAI(pCreature), Summons(me)
         {
             m_pInstance = pCreature->GetInstanceScript();
-            Reset();
         }
 
         InstanceScript* m_pInstance;
@@ -171,7 +170,7 @@ public:
 
             if (m_pInstance)
             {
-                m_pInstance->SetData(DATA_ONYXIA, NOT_STARTED);
+                m_pInstance->SetBossState(DATA_ONYXIA, NOT_STARTED);
                 m_pInstance->SetData(DATA_ONYXIA_PHASE, m_uiPhase);
                 m_pInstance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  ACHIEV_TIMED_START_EVENT);
             }
@@ -184,7 +183,7 @@ public:
 
             if (m_pInstance)
             {
-                m_pInstance->SetData(DATA_ONYXIA, IN_PROGRESS);
+                m_pInstance->SetBossState(DATA_ONYXIA, IN_PROGRESS);
                 m_pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  ACHIEV_TIMED_START_EVENT);
             }
         }
@@ -192,7 +191,7 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             if (m_pInstance)
-                m_pInstance->SetData(DATA_ONYXIA, DONE);
+                m_pInstance->SetBossState(DATA_ONYXIA, DONE);
 
             Summons.DespawnAll();
         }

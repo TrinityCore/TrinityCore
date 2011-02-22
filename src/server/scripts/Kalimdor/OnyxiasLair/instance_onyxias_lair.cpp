@@ -37,7 +37,11 @@ public:
 
     struct instance_onyxias_lair_InstanceMapScript : public InstanceScript
     {
-        instance_onyxias_lair_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
+        instance_onyxias_lair_InstanceMapScript(Map* pMap) : InstanceScript(pMap)
+        {
+            Initialize();
+            SetBossNumber(MAX_ENCOUNTER);
+        }
 
         //Eruption is a BFS graph problem
         //One map to remember all floor, one map to keep floor that still need to erupt and one queue to know what needs to be removed
@@ -49,15 +53,11 @@ public:
         uint32 m_uiManyWhelpsCounter;
         uint32 m_uiEruptTimer;
 
-        uint8  m_auiEncounter[MAX_ENCOUNTER];
-
         bool   m_bAchievManyWhelpsHandleIt;
         bool   m_bAchievSheDeepBreathMore;
 
         void Initialize()
         {
-            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
             m_uiOnyxiasGUID = 0;
             m_uiOnyxiaLiftoffTimer = 0;
             m_uiManyWhelpsCounter = 0;
@@ -143,11 +143,6 @@ public:
         {
             switch(uiType)
             {
-                case DATA_ONYXIA:
-                    m_auiEncounter[0] = uiData;
-                    if (uiData == IN_PROGRESS)
-                        SetData(DATA_SHE_DEEP_BREATH_MORE, IN_PROGRESS);
-                    break;
                 case DATA_ONYXIA_PHASE:
                     if (uiData == PHASE_BREATH) //Used to mark the liftoff phase
                     {
@@ -184,17 +179,6 @@ public:
             }
         }
 
-        uint32 GetData(uint32 uiType)
-        {
-            switch(uiType)
-            {
-                case DATA_ONYXIA:
-                    return m_auiEncounter[0];
-            }
-
-            return 0;
-        }
-
         uint64 GetData64(uint32 uiData)
         {
             switch(uiData)
@@ -206,9 +190,25 @@ public:
             return 0;
         }
 
+        bool SetBossState(uint32 id, EncounterState state)
+        {
+            if (!InstanceScript::SetBossState(id, state))
+                return false;
+
+            switch (id)
+            {
+                case DATA_ONYXIA:
+                    if (state == IN_PROGRESS)
+                        SetData(DATA_SHE_DEEP_BREATH_MORE, IN_PROGRESS);
+                    break;
+            }
+
+            return true;
+        }
+
         void Update(uint32 uiDiff)
         {
-            if (GetData(DATA_ONYXIA) == IN_PROGRESS)
+            if (GetBossState(DATA_ONYXIA) == IN_PROGRESS)
             {
                 if (m_uiOnyxiaLiftoffTimer && m_uiOnyxiaLiftoffTimer <= uiDiff)
                 {
