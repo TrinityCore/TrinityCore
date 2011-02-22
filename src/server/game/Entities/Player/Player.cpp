@@ -2650,12 +2650,12 @@ void Player::UninviteFromGroup()
         if (group->IsCreated())
         {
             group->Disband(true);
-            sObjectMgr->RemoveGroup(group);
         }
         else
+        {
             group->RemoveAllInvites();
-
-        delete group;
+            delete group;
+        }
     }
 }
 
@@ -2663,14 +2663,8 @@ void Player::RemoveFromGroup(Group* group, uint64 guid, RemoveMethod method /* =
 {
     if (group)
     {
-        if (group->RemoveMember(guid, method, kicker, reason) <= 1)
-        {
-            // group->Disband(); already disbanded in RemoveMember
-            sObjectMgr->RemoveGroup(group);
-            delete group;
-            group = NULL;
-            // removemember sets the player's group pointer to NULL
-        }
+        group->RemoveMember(guid, method, kicker, reason);
+        group = NULL;
     }
 }
 
