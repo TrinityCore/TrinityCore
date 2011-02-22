@@ -122,7 +122,7 @@ void PetAI::UpdateAI(const uint32 diff)
         return;
 
     // Autocast (casted only in combat or persistent spells in any state)
-    if (me->GetGlobalCooldown() == 0 && !me->HasUnitState(UNIT_STAT_CASTING))
+    if (!me->HasUnitState(UNIT_STAT_CASTING))
     {
         typedef std::vector<std::pair<Unit*, Spell*> > TargetSpellList;
         TargetSpellList targetSpellStore;
@@ -135,6 +135,9 @@ void PetAI::UpdateAI(const uint32 diff)
 
             SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellID);
             if (!spellInfo)
+                continue;
+
+            if (me->GetCharmInfo() && me->GetCharmInfo()->GetGlobalCooldownMgr().HasGlobalCooldown(spellInfo))
                 continue;
 
             // ignore some combinations of combat state and combat/noncombat spells
