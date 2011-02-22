@@ -543,9 +543,6 @@ class Spell
 
         void SetSpellValue(SpellValueMod mod, int32 value);
     protected:
-        bool HasGlobalCooldown();
-        void TriggerGlobalCooldown();
-        void CancelGlobalCooldown();
 
         bool HasGlobalCooldown();
         void TriggerGlobalCooldown();
