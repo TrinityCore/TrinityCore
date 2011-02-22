@@ -263,7 +263,7 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
         passenger->ExitVehicle(); // this should not happen
     }
 
-    if (Creature *accessory = me->SummonCreature(entry, *me, type, summonTime))
+    if (Creature *accessory = me->SummonCreature(entry, *me, TempSummonType(type), summonTime))
     {
         if (minion)
             accessory->AddUnitTypeMask(UNIT_MASK_ACCESSORY);
