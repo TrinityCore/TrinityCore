@@ -1535,8 +1535,6 @@ UPDATE `creature_template` SET `ScriptName`='mob_lightning_elemental' WHERE `ent
 UPDATE `creature_template` SET `ScriptName`='mob_rune_of_summoning' WHERE `entry`=33051;
 UPDATE `creature_template` SET `ScriptName`= 'mob_rune_of_power' WHERE entry = 33705;
 UPDATE `creature_template` SET `ScriptName`='boss_kologarn' WHERE `entry`=32930;
-UPDATE `creature_template` SET `ScriptName`='npc_right_arm' WHERE `entry`=32934;
-UPDATE `creature_template` SET `ScriptName`='npc_left_arm' WHERE `entry`=32933;
 UPDATE `creature_template` SET `ScriptName`='boss_general_vezax' WHERE `entry`=33271;
 UPDATE `creature_template` SET `ScriptName`='npc_saronite_vapors' WHERE `entry`=33488;
 UPDATE `creature_template` SET `ScriptName`='npc_saronite_animus' WHERE `entry`=33524;
@@ -2064,6 +2062,12 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 62521, 'spell_attuned_to_nature_dose_reduction'),
 ( 62524, 'spell_attuned_to_nature_dose_reduction'),
 ( 62525, 'spell_attuned_to_nature_dose_reduction'),
+( 63633, 'spell_ulduar_rubble_summon'),
+( 65594, 'spell_ulduar_cancel_stone_grip'),
+( 62056, 'spell_ulduar_stone_grip'),
+( 63985, 'spell_ulduar_stone_grip'),
+( 64224, 'spell_ulduar_stone_grip_absorb'),
+( 64225, 'spell_ulduar_stone_grip_absorb'),
 -- quest
 (  8913, 'spell_q55_sacred_cleansing'),
 ( 17271, 'spell_q5206_test_fetid_skull'),
