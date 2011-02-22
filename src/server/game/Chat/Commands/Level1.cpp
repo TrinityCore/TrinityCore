@@ -723,7 +723,7 @@ bool ChatHandler::HandleJailCommand(const char *args)
         return true;
     }
 
-    uint32 jailtime = (uint32) atoi((char*)timetojail);
+    uint32 jailtime = atoi(timetojail);
     if (jailtime < 1 || jailtime > sObjectMgr->m_jailconf_max_duration)
     {
         PSendSysMessage(LANG_JAIL_VALUE, sObjectMgr->m_jailconf_max_duration);
@@ -741,23 +741,23 @@ bool ChatHandler::HandleJailCommand(const char *args)
     uint64 GUID = sObjectMgr->GetPlayerGUIDByName(cname.c_str());
     if (GUID == 0)
     {
-        SendSysMessage(LANG_JAIL_WRONG_NAME);
+        SendSysMessage(LANG_PLAYER_NOT_FOUND);
         return true;
     }
 
     //Check security
     uint32 accountid = sObjectMgr->GetPlayerAccountIdByGUID(GUID);
     QueryResult resultgm = LoginDatabase.PQuery("SELECT gmlevel FROM account_access WHERE id = '%u'",accountid);
-    if(resultgm)
+    if (resultgm)
     {
         Field* fields = resultgm->Fetch();
         AccountTypes security = (AccountTypes)fields[0].GetUInt32();
-        if(!m_session || m_session->GetSecurity() < security)
-           {
-             SendSysMessage(LANG_YOURS_SECURITY_IS_LOW);
-             SetSentErrorMessage(true);
-             return true;
-           }
+        if (!m_session || m_session->GetSecurity() < security)
+        {
+            SendSysMessage(LANG_YOURS_SECURITY_IS_LOW);
+            SetSentErrorMessage(true);
+            return true;
+        }
     }
 
     Player *chr = sObjectMgr->GetPlayer(GUID);
@@ -793,16 +793,7 @@ bool ChatHandler::HandleJailCommand(const char *args)
 
         PSendSysMessage(LANG_JAIL_WAS_JAILED, cname.c_str(), jailtime);
 
-        announce = GetTrinityString(LANG_JAIL_ANNOUNCE1);
-        announce += cname;
-        announce += GetTrinityString(LANG_JAIL_ANNOUNCE2);
-        announce += timetojail;
-        announce += GetTrinityString(LANG_JAIL_ANNOUNCE3);
-        announce += m_session->GetPlayerName();
-        announce += GetTrinityString(LANG_JAIL_ANNOUNCE4);
-        announce += jail_reason;
-
-        HandleAnnounceCommand(announce.c_str());
+        sWorld->SendWorldText(LANG_JAIL_ANNOUNCE, jail_char.c_str(), timetojail, jail_gmchar.c_str(), jail_reason.c_str());
 
         if ((sObjectMgr->m_jailconf_max_jails == jail_times) && !sObjectMgr->m_jailconf_ban)
         {
@@ -862,35 +853,26 @@ bool ChatHandler::HandleJailCommand(const char *args)
         return true;
     }
 
-		chr->SaveToDB();
+    chr->SaveToDB();
 
-		chr->m_jail_guid = fields[0].GetUInt32();
-		chr->m_jail_char = fields[3].GetString();
-		chr->m_jail_isjailed = true;
-		chr->m_jail_release = localtime + (jailtime * 60 * 60);
-		chr->m_jail_amnestietime = localtime +(60* 60 * 24 * sObjectMgr->m_jailconf_amnestie);
-		chr->m_jail_reason = jailreason;
-		chr->m_jail_times = chr->m_jail_times+1;
-		chr->m_jail_gmacc = m_session->GetAccountId();
-		chr->m_jail_gmchar = m_session->GetPlayerName();
-		chr->m_jail_duration = jailtime;
+    chr->m_jail_guid = fields[0].GetUInt32();
+    chr->m_jail_char = fields[2].GetString();
+    chr->m_jail_isjailed = true;
+    chr->m_jail_release = localtime + (jailtime * 60 * 60);
+    chr->m_jail_amnestietime = localtime +(60* 60 * 24 * sObjectMgr->m_jailconf_amnestie);
+    chr->m_jail_reason = jailreason;
+    chr->m_jail_times = chr->m_jail_times+1;
+    chr->m_jail_gmacc = m_session->GetAccountId();
+    chr->m_jail_gmchar = m_session->GetPlayerName();
+    chr->m_jail_duration = jailtime;
 
-		chr->_SaveJail();
+    chr->_SaveJail();
 
-		PSendSysMessage(LANG_JAIL_WAS_JAILED, fields[3].GetString().c_str(), jailtime);
-		ChatHandler(chr).PSendSysMessage(LANG_JAIL_YOURE_JAILED, m_session->GetPlayerName(), jailtime);
-		ChatHandler(chr).PSendSysMessage(LANG_JAIL_REASON, m_session->GetPlayerName(), jailreason.c_str());
+    PSendSysMessage(LANG_JAIL_WAS_JAILED, fields[2].GetString().c_str(), jailtime);
+    ChatHandler(chr).PSendSysMessage(LANG_JAIL_YOURE_JAILED, m_session->GetPlayerName(), jailtime);
+    ChatHandler(chr).PSendSysMessage(LANG_JAIL_REASON, m_session->GetPlayerName(), jailreason.c_str());
 
-		announce = GetTrinityString(LANG_JAIL_ANNOUNCE1);
-		announce += fields[3].GetString();
-		announce += GetTrinityString(LANG_JAIL_ANNOUNCE2);
-		announce += timetojail;
-		announce += GetTrinityString(LANG_JAIL_ANNOUNCE3);
-		announce += m_session->GetPlayerName();
-		announce += GetTrinityString(LANG_JAIL_ANNOUNCE4);
-		announce += chr->m_jail_reason;
-
-		HandleAnnounceCommand(announce.c_str());
+    sWorld->SendWorldText(LANG_JAIL_ANNOUNCE, fields[2].GetString().c_str(), timetojail, m_session->GetPlayerName(), jailreason.c_str());
 
     if (sObjectMgr->m_jailconf_max_jails == chr->m_jail_times)
     {
