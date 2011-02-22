@@ -894,7 +894,7 @@ public:
             {
                 if (!doSearchPlayerAtRange(100.0f))
                 {
-                    sLog->outDebug("ruby_sanctum: cannot detect players in range! ");
+                    sLog->outDebug(LOG_FILTER_TSCR, "ruby_sanctum: cannot detect players in range! ");
                     if (!m_detectplayers)
                     {
                         pInstance->SetData(TYPE_HALION_EVENT, FAIL);
@@ -941,7 +941,7 @@ public:
                     }
                 }
 
-                sLog->outDebug("ruby_sanctum: Buff num = %u, m_diff = %d ", buffnum, m_diff);
+                sLog->outDebug(LOG_FILTER_TSCR, "ruby_sanctum: Buff num = %u, m_diff = %d ", buffnum, m_diff);
 
                 pInstance->SetData(TYPE_COUNTER, 50 + (int)Buff[buffnum].diff);
 
@@ -1036,7 +1036,7 @@ public:
                 pInstance->SetData(DATA_ORB_DIRECTION, (uint32)(m_nextdirection*1000));
                 pInstance->SetData(DATA_ORB_N, SPECIAL);
                 pInstance->SetData(DATA_ORB_S, SPECIAL);
-                sLog->outDebug("EventMGR: creature %u send direction %u ",me->GetEntry(),pInstance->GetData(DATA_ORB_DIRECTION));
+                sLog->outDebug(LOG_FILTER_TSCR, "EventMGR: creature %u send direction %u ",me->GetEntry(),pInstance->GetData(DATA_ORB_DIRECTION));
             }
 
             if (m_timer - 6000 <= uiDiff && !m_warning)
@@ -1110,7 +1110,7 @@ public:
             nextPoint = 0;
             MovementStarted = false;
             pInstance->SetData(m_flag, DONE);
-            sLog->outDebug("EventMGR: creature %u assume m_flag %u ",me->GetEntry(),m_flag);
+            sLog->outDebug(LOG_FILTER_TSCR, "EventMGR: creature %u assume m_flag %u ",me->GetEntry(),m_flag);
         }
 
         void AttackStart(Unit *who)
@@ -1144,7 +1144,7 @@ public:
             if (focus = me->GetMap()->GetCreature(pInstance->GetData64(NPC_ORB_ROTATION_FOCUS)))
                 focus->GetNearPoint2D(x, y, FR_RADIUS, m_direction);
                 else me->ForcedDespawn();
-//        sLog->outDebug("EventMGR: creature %u go to move point %u ",me->GetEntry(),id);
+//        sLog->outDebug(LOG_FILTER_TSCR, "EventMGR: creature %u go to move point %u ",me->GetEntry(),id);
             me->GetMotionMaster()->Clear();
             me->GetMotionMaster()->MovePoint(id, x, y,  me->GetPositionZ());
         }
@@ -1163,7 +1163,7 @@ public:
 
             if (!MovementStarted && pInstance->GetData(m_flag) == SPECIAL)
             {
-//            sLog->outDebug("EventMGR: creature %u get direction %u ",me->GetEntry(),pInstance->GetData(DATA_ORB_DIRECTION));
+//            sLog->outDebug(LOG_FILTER_TSCR, "EventMGR: creature %u get direction %u ",me->GetEntry(),pInstance->GetData(DATA_ORB_DIRECTION));
                 StartMovement(1);
             }
 

@@ -2878,7 +2878,7 @@ void OPvPCapturePointWG::ChangeTeam(TeamId oldTeam)
     else if (m_engineer)
         m_engineer->SetVisible(false);
 
-    sLog->outDebug("Wintergrasp workshop now belongs to %u.", (uint32)m_buildingState->GetTeam());
+    sLog->outDebug(LOG_FILTER_OUTDOORPVP, "Wintergrasp workshop now belongs to %u.", (uint32)m_buildingState->GetTeam());
 }
 
 void WorldSession::SendBfInvitePlayerToWar(uint32 BattleId,uint32 ZoneId,uint32 p_time)
@@ -2948,7 +2948,7 @@ void WorldSession::HandleBfQueueInviteResponse(WorldPacket &recv_data)
     uint8 Accepted;             
 
     recv_data >> BattleId >> Accepted;
-    sLog->outDebug("HandleQueueInviteResponse: BattleID:%u Accepted:%u",BattleId,Accepted);
+    sLog->outDebug(LOG_FILTER_OUTDOORPVP, "HandleQueueInviteResponse: BattleID:%u Accepted:%u",BattleId,Accepted);
 
     OutdoorPvPWG *pvpWG =  (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
     if(!pvpWG)
@@ -2966,7 +2966,7 @@ void WorldSession::HandleBfEntryInviteResponse(WorldPacket &recv_data)
     uint8 Accepted;             
 
     recv_data >> BattleId >> Accepted;
-    sLog->outDebug("HandleBattlefieldInviteResponse: BattleID:%u Accepted:%u",BattleId,Accepted);
+    sLog->outDebug(LOG_FILTER_OUTDOORPVP, "HandleBattlefieldInviteResponse: BattleID:%u Accepted:%u",BattleId,Accepted);
 
     OutdoorPvPWG *pvpWG =  (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
     if(!pvpWG)
@@ -2989,7 +2989,7 @@ void WorldSession::HandleBfExitRequest(WorldPacket &recv_data)
     uint32 BattleId;                                                         
 
     recv_data >> BattleId;
-    sLog->outDebug("HandleBfExitRequest: BattleID:%u ",BattleId);
+    sLog->outDebug(LOG_FILTER_OUTDOORPVP, "HandleBfExitRequest: BattleID:%u ",BattleId);
 
     OutdoorPvPWG *pvpWG =  (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
     if(!pvpWG)
