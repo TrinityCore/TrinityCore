@@ -1535,7 +1535,6 @@ UPDATE `creature_template` SET `ScriptName`='mob_lightning_elemental' WHERE `ent
 UPDATE `creature_template` SET `ScriptName`='mob_rune_of_summoning' WHERE `entry`=33051;
 UPDATE `creature_template` SET `ScriptName`= 'mob_rune_of_power' WHERE entry = 33705;
 UPDATE `creature_template` SET `ScriptName`='boss_kologarn' WHERE `entry`=32930;
-UPDATE `creature_template` SET `AIName`='NullAI' WHERE `entry` IN(33742,33809,33942);
 UPDATE `creature_template` SET `ScriptName`='boss_general_vezax' WHERE `entry`=33271;
 UPDATE `creature_template` SET `ScriptName`='npc_saronite_vapors' WHERE `entry`=33488;
 UPDATE `creature_template` SET `ScriptName`='npc_saronite_animus' WHERE `entry`=33524;
