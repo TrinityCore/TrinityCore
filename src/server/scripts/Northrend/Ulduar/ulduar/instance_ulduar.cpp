@@ -79,6 +79,8 @@ public:
         uint64 uiHodirChestGUID;
         uint64 uiFreyaChestGUID;
 
+        std::set<uint64> mRubbleSpawns;
+
         void Initialize()
         {
             SetBossNumber(MAX_ENCOUNTER);
@@ -154,9 +156,14 @@ public:
                     uiAssemblyGUIDs[2] = creature->GetGUID();
                     break;
 
+                // Kologarn
                 case NPC_KOLOGARN:
                     uiKologarnGUID = creature->GetGUID();
                     break;
+                case NPC_RUBBLE:
+                    mRubbleSpawns.insert(creature->GetGUID());
+                    break;
+
                 case NPC_AURIAYA:
                     uiAuriayaGUID = creature->GetGUID();
                     break;
@@ -275,8 +282,28 @@ public:
                     break;
                 case TYPE_KOLOGARN:
                     if (state == DONE)
+                    {
                         if (GameObject* go = instance->GetGameObject(uiKologarnChestGUID))
                             go->SetRespawnTime(go->GetRespawnDelay());
+                    }
+                    if (state != IN_PROGRESS)
+                    {
+                        std::set<uint64>::const_iterator itr;
+                        for (itr = mRubbleSpawns.begin(); itr != mRubbleSpawns.end(); )
+                        {
+                            if (Creature* rubble = instance->GetCreature((*itr)))
+                            {
+                                if (rubble->isSummon())
+                                {
+                                    rubble->DestroyForNearbyPlayers();
+                                    rubble->ToTempSummon()->UnSummon();
+                                }
+                                else
+                                    rubble->DisappearAndDie();
+                            }
+                            mRubbleSpawns.erase(itr++);
+                        }
+                    }
                     break;
                 case TYPE_HODIR:
                     if (state == DONE)
