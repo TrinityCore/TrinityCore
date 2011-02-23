@@ -58,6 +58,10 @@ public:
         uint64 uiXT002GUID;
         uint64 uiAssemblyGUIDs[3];
         uint64 uiKologarnGUID;
+        uint64 uiFocusedEyebeamGUID;
+        uint64 uiFocusedEyebeamRightGUID;
+        uint64 uiLeftArmGUID;
+        uint64 uiRightArmGUID;
         uint64 uiAuriayaGUID;
         uint64 uiMimironGUID;
         uint64 uiHodirGUID;
@@ -83,6 +87,10 @@ public:
             uiExpCommanderGUID    = 0;
             uiXT002GUID           = 0;
             uiKologarnGUID        = 0;
+            uiFocusedEyebeamGUID  = 0;
+            uiFocusedEyebeamRightGUID = 0;
+            uiLeftArmGUID         = 0;
+            uiRightArmGUID        = 0;
             uiAuriayaGUID         = 0;
             uiMimironGUID         = 0;
             uiHodirGUID           = 0;
@@ -310,6 +318,19 @@ public:
             }
         }
 
+        void SetData64(uint32 type, uint64 data)
+        {
+            switch (type)
+            {
+                case DATA_LEFT_ARM:
+                    uiLeftArmGUID = data;
+                    break;
+                case DATA_RIGHT_ARM:
+                    uiRightArmGUID = data;
+                    break;
+            }
+        }
+
         uint64 GetData64(uint32 data)
         {
             switch(data)
@@ -319,6 +340,8 @@ public:
                 case TYPE_RAZORSCALE:           return uiRazorscaleGUID;
                 case TYPE_XT002:                return uiXT002GUID;
                 case TYPE_KOLOGARN:             return uiKologarnGUID;
+                case DATA_LEFT_ARM:             return uiLeftArmGUID;
+                case DATA_RIGHT_ARM:            return uiRightArmGUID;
                 case TYPE_AURIAYA:              return uiAuriayaGUID;
                 case TYPE_MIMIRON:              return uiMimironGUID;
                 case TYPE_HODIR:                return uiHodirGUID;
