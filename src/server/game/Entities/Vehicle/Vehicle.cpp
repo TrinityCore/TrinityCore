@@ -437,6 +437,13 @@ void Vehicle::RemovePassenger(Unit *unit)
             data << uint32(2);              // Counter
             me->SendMessageToSet(&data, false);
         }
+
+        unit->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+        unit->m_movementInfo.t_pos.Relocate(0, 0, 0, 0);
+        unit->m_movementInfo.t_time = 0;
+        unit->m_movementInfo.t_seat = 0;
+
+        unit->Relocate(GetBase());
     }
 
     if (me->GetTypeId() == TYPEID_UNIT && me->ToCreature()->IsAIEnabled)
