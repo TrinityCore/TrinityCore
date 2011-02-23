@@ -19,29 +19,36 @@
 #include "ulduar.h"
 #include "Vehicle.h"
 
+/* ScriptData
+SDName: boss_kologarn
+SD%Complete: 80
+SDComment: TODO: Achievements, begin/end animations
+SDCategory: Ulduar
+EndScriptData */
+
 #define SPELL_ARM_DEAD_DAMAGE   RAID_MODE(63629,63979)
 #define SPELL_TWO_ARM_SMASH     RAID_MODE(63356,64003)
 #define SPELL_ONE_ARM_SMASH     RAID_MODE(63573,64006)
+#define SPELL_ARM_SWEEP         RAID_MODE(63766,63983)
 #define SPELL_STONE_SHOUT       RAID_MODE(63716,64005)
 #define SPELL_PETRIFY_BREATH    RAID_MODE(62030,63980)
-
 #define SPELL_STONE_GRIP        RAID_MODE(62166,63981)
-
-#define NPC_RUBBLE_STALKER      RAID_MODE(33809,33942)
+#define SPELL_STONE_GRIP_CANCEL 65594
 #define SPELL_SUMMON_RUBBLE     63633
 #define SPELL_FALLING_RUBBLE    63821
-
-#define SPELL_STONE_GRIP_CANCEL 65594
-
-#define SPELL_ARM_SWEEP         RAID_MODE(63766,63983)
-
 #define SPELL_ARM_ENTER_VEHICLE 65343
-#define SPELL_ARM_VISUAL        64753
+#define SPELL_ARM_ENTER_VISUAL  64753
+
+#define SPELL_SUMMON_FOCUSED_EYEBEAM        63342
+#define SPELL_FOCUSED_EYEBEAM_PERIODIC      RAID_MODE(63347,63977)
+#define SPELL_FOCUSED_EYEBEAM_VISUAL        63369
+#define SPELL_FOCUSED_EYEBEAM_VISUAL_LEFT   63676
+#define SPELL_FOCUSED_EYEBEAM_VISUAL_RIGHT  63702
 
 #define SPELL_BERSERK           47008 // guess
 
-#define NPC_LEFT_ARM            RAID_MODE(32933,33910)
-#define NPC_RIGHT_ARM           RAID_MODE(32934,33911)
+#define NPC_RUBBLE_STALKER      33809
+#define NPC_ARM_SWEEP_STALKER   33661
 
 enum Events
 {
@@ -52,7 +59,7 @@ enum Events
     EVENT_SWEEP,
     EVENT_STONE_SHOUT,
     EVENT_STONE_GRIP,
-    EVENT_RIGHT_ARM_DEAD,
+    EVENT_FOCUSED_EYEBEAM,
     EVENT_RESPAWN_LEFT_ARM,
     EVENT_RESPAWN_RIGHT_ARM,
     EVENT_ENRAGE,
@@ -92,6 +99,7 @@ public:
             left(false), right(false)
         {
             ASSERT(vehicle);
+
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             SetCombatMovement(false);
@@ -100,6 +108,7 @@ public:
 
         Vehicle *vehicle;
         bool left, right;
+        uint64 eyebeamTarget;
 
         void EnterCombat(Unit * who)
         {
@@ -107,7 +116,9 @@ public:
             
             events.ScheduleEvent(EVENT_MELEE_CHECK, 6000);
             events.ScheduleEvent(EVENT_SMASH, 5000);
+            events.ScheduleEvent(EVENT_SWEEP, 19000);
             events.ScheduleEvent(EVENT_STONE_GRIP, 25000);
+            events.ScheduleEvent(EVENT_FOCUSED_EYEBEAM, 21000);
             events.ScheduleEvent(EVENT_ENRAGE, 600000);
 
             Unit* arm = NULL;
@@ -122,8 +133,13 @@ public:
         void Reset()
         {
             _Reset();
-            events.ScheduleEvent(EVENT_INSTALL_ACCESSORIES, 1000);
-            
+
+            if (Creature* arm = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_LEFT_ARM) : 0))
+                RespawnArm(arm);
+            if (Creature* arm = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_RIGHT_ARM) : 0))
+                RespawnArm(arm);
+
+            eyebeamTarget = 0;            
         }
 
         void JustDied(Unit * /*victim*/)
@@ -143,20 +159,30 @@ public:
             {
                 left = apply;
                 if (!apply)
+                {
                     DoScriptText(SAY_LEFT_ARM_GONE, me);
+                    events.ScheduleEvent(EVENT_RESPAWN_LEFT_ARM, 40000);
+                }
+                else
+                    instance->SetData64(DATA_LEFT_ARM, who->GetGUID());
             }
 
             else if (who->GetEntry() == NPC_RIGHT_ARM)
             {
                 right = apply;
                 if (!apply)
+                {
                     DoScriptText(SAY_RIGHT_ARM_GONE, me);
+                    events.ScheduleEvent(EVENT_RESPAWN_RIGHT_ARM, 40000);
+                }
+                else
+                    instance->SetData64(DATA_RIGHT_ARM, who->GetGUID());
             }
 
             if (!apply)
             {
                 who->CastSpell(me, SPELL_ARM_DEAD_DAMAGE, true);
-                DoScriptText(SAY_RIGHT_ARM_GONE, me);
+                who->GetMotionMaster()->MoveTargetedHome();
                 
                 if (Creature* rubbleStalker = me->FindNearestCreature(NPC_RUBBLE_STALKER, 20.0f))
                 {
@@ -170,22 +196,48 @@ public:
                 if (!right && !left)
                     events.ScheduleEvent(EVENT_STONE_SHOUT, 5000);
 
-                if (who->GetEntry() == NPC_LEFT_ARM)
-                    events.ScheduleEvent(EVENT_RESPAWN_LEFT_ARM, 40000);
-                else if (who->GetEntry() == NPC_RIGHT_ARM)
-                    events.ScheduleEvent(EVENT_RESPAWN_RIGHT_ARM, 40000);
-
                 if (instance)
                     instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);
             }
-
-            if (apply)
+            else
                 events.CancelEvent(EVENT_STONE_SHOUT);
+        }
+
+        void JustSummoned(Creature *summon)
+        {
+            switch (summon->GetEntry())
+            {
+                case NPC_FOCUSED_EYEBEAM:
+                    summon->CastSpell(me, SPELL_FOCUSED_EYEBEAM_VISUAL_LEFT, true);
+                    break;
+                case NPC_FOCUSED_EYEBEAM_RIGHT:
+                    summon->CastSpell(me, SPELL_FOCUSED_EYEBEAM_VISUAL_RIGHT, true);
+                    break;
+                default:
+                    return;
+            }
+
+            summon->CastSpell(summon, SPELL_FOCUSED_EYEBEAM_PERIODIC, true);
+            summon->CastSpell(summon, SPELL_FOCUSED_EYEBEAM_VISUAL, true);
+            summon->SetReactState(REACT_PASSIVE);
+            summon->SetFlag(UNIT_FIELD_ATTACK_POWER, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
+            // One of the above spells is a channeled spell, we need to clear this unit state for MoveChase to work
+            summon->ClearUnitState(UNIT_STAT_CASTING);  
+
+            // Victim gets 67351
+            if (eyebeamTarget)
+            {
+                if (Unit* target = Unit::GetUnit(*summon, eyebeamTarget))
+                {
+                    summon->Attack(target, false);
+                    summon->GetMotionMaster()->MoveChase(target);
+                }
+            }
         }
 
         void UpdateAI(const uint32 diff)
         {
-            if (!me->getVictim() && instance->GetBossState(TYPE_KOLOGARN) == NOT_STARTED)
+            if (!UpdateVictim())
                 return;
 
             events.Update(diff);
@@ -195,18 +247,14 @@ public:
 
             switch (events.GetEvent())
             {
-                case EVENT_INSTALL_ACCESSORIES: // Delayed install, this is needed for IsInWorldCheck in Vehicle code to trigger PassengerBoarded
-                    vehicle->InstallAllAccessories(me->GetEntry());
-                    events.CancelEvent(EVENT_INSTALL_ACCESSORIES);
-                    break;
                 case EVENT_MELEE_CHECK:
                     if (!me->IsWithinMeleeRange(me->getVictim()))
                         DoCast(SPELL_PETRIFY_BREATH);
                     events.RepeatEvent(1000);
                     break;
                 case EVENT_SWEEP:
-                    DoCast(SPELL_ARM_SWEEP);
-                    events.RepeatEvent(15000);
+                    DoCast(me->FindNearestCreature(NPC_ARM_SWEEP_STALKER, 500.0f, true), SPELL_ARM_SWEEP, true);
+                    events.RepeatEvent(25000);
                     break;
                 case EVENT_SMASH:
                     if (left && right)
@@ -222,18 +270,19 @@ public:
                 case EVENT_ENRAGE:
                     DoCast(SPELL_BERSERK);
                     DoScriptText(SAY_BERSERK, me);
+                    events.CancelEvent(EVENT_ENRAGE);
                     break;
                 case EVENT_RESPAWN_LEFT_ARM:
                 {
-                    if (Unit* arm = me->FindNearestCreature(NPC_LEFT_ARM, 20.0f, false))
-                        RespawnArm(arm);
+                    if (Creature* arm = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_LEFT_ARM) : 0))
+                        RespawnArm(arm->ToCreature());
                     events.CancelEvent(EVENT_RESPAWN_LEFT_ARM);                   
                     break;
                 }
                 case EVENT_RESPAWN_RIGHT_ARM:
                 {
-                    if (Unit* arm = me->FindNearestCreature(NPC_RIGHT_ARM, 20.0f, false))
-                        RespawnArm(arm);       
+                    if (Creature* arm = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_RIGHT_ARM) : 0))
+                        RespawnArm(arm->ToCreature());       
                     events.CancelEvent(EVENT_RESPAWN_RIGHT_ARM);             
                     break;
                 }
@@ -259,17 +308,27 @@ public:
                     events.RepeatEvent(25000);
                 }
                 break;
+                case EVENT_FOCUSED_EYEBEAM:
+                    Unit* eyebeamTargetUnit = SelectTarget(SELECT_TARGET_RANDOM);
+                    if (!eyebeamTargetUnit)
+                        return;
+
+                    eyebeamTarget = eyebeamTargetUnit->GetGUID();
+                    DoCast(SPELL_SUMMON_FOCUSED_EYEBEAM);
+                    events.RepeatEvent(urand(15000, 35000));
+                    break;
             }
 
             DoMeleeAttackIfReady();
         }
 
-        void RespawnArm(Unit* arm)
+        void RespawnArm(Creature* arm)
         {
-            arm->ToCreature()->Respawn();
-            arm->ToCreature()->SetInCombatWithZone();
+            if (!arm->isAlive())
+                arm->Respawn();
 
-            arm->CastSpell(me, SPELL_ARM_ENTER_VEHICLE, true);
+            arm->EnterVehicle(vehicle);
+            arm->CastSpell(arm, SPELL_ARM_ENTER_VISUAL, true);
         }
     };
 };
