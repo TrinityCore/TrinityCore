@@ -3946,7 +3946,16 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_MASTER;
             count++;
             break;
+        // ULDUAR SPELLS
+        //
+        case 63342: // Focused Eyebeam Summon Trigger
+            spellInfo->MaxAffectedTargets = 1;
+            count++;
+            break;
+        // ENDOF ULDUAR SPELLS
+        //
         // ICECROWN CITADEL SPELLS
+        //
         // THESE SPELLS ARE WORKING CORRECTLY EVEN WITHOUT THIS HACK
         // THE ONLY REASON ITS HERE IS THAT CURRENT GRID SYSTEM
         // DOES NOT ALLOW FAR OBJECT SELECTION (dist > 333)
