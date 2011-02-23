@@ -328,7 +328,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
     if (seat->second.seatInfo->m_flags && !(seat->second.seatInfo->m_flags & VEHICLE_SEAT_FLAG_UNK11))
         unit->AddUnitState(UNIT_STAT_ONVEHICLE);
 
-    unit->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_ROOT);
+    unit->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     VehicleSeatEntry const *veSeat = seat->second.seatInfo;
     unit->m_movementInfo.t_pos.m_positionX = veSeat->m_attachmentOffsetX;
     unit->m_movementInfo.t_pos.m_positionY = veSeat->m_attachmentOffsetY;
@@ -365,7 +365,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
         {
             WorldPacket data(SMSG_FORCE_MOVE_ROOT, 8+4);
             data.append(me->GetPackGUID());
-            data << uint32(2);
+            data << uint32(2);              // Counter
             me->SendMessageToSet(&data, false);
         }
 
@@ -426,6 +426,24 @@ void Vehicle::RemovePassenger(Unit *unit)
             me->SetMaxHealth(me->GetMaxHealth() - m_bonusHP);
             m_bonusHP = 0;
         }
+    }
+
+    if (me->IsInWorld())
+    {
+        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE))
+        {
+            WorldPacket data(SMSG_FORCE_MOVE_UNROOT, 8+4);
+            data.append(me->GetPackGUID());
+            data << uint32(2);              // Counter
+            me->SendMessageToSet(&data, false);
+        }
+
+        unit->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+        unit->m_movementInfo.t_pos.Relocate(0, 0, 0, 0);
+        unit->m_movementInfo.t_time = 0;
+        unit->m_movementInfo.t_seat = 0;
+
+        unit->Relocate(GetBase());
     }
 
     if (me->GetTypeId() == TYPEID_UNIT && me->ToCreature()->IsAIEnabled)
