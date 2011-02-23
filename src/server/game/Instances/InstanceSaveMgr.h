@@ -123,7 +123,6 @@ class InstanceSaveManager
         ~InstanceSaveManager();
 
         typedef UNORDERED_MAP<uint32 /*InstanceId*/, InstanceSave*> InstanceSaveHashMap;
-        typedef UNORDERED_MAP<uint32 /*mapId*/, InstanceSaveHashMap> InstanceSaveMapMap;
 
         /* resetTime is a global propery of each (raid/heroic) map
            all instances of that map reset at the same time */
