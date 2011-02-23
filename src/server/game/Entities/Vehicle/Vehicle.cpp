@@ -365,7 +365,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
         {
             WorldPacket data(SMSG_FORCE_MOVE_ROOT, 8+4);
             data.append(me->GetPackGUID());
-            data << uint32(2);
+            data << uint32(2);              // Counter
             me->SendMessageToSet(&data, false);
         }
 
@@ -425,6 +425,17 @@ void Vehicle::RemovePassenger(Unit *unit)
             me->SetHealth(me->GetHealth() - m_bonusHP);
             me->SetMaxHealth(me->GetMaxHealth() - m_bonusHP);
             m_bonusHP = 0;
+        }
+    }
+
+    if (me->IsInWorld())
+    {
+        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE))
+        {
+            WorldPacket data(SMSG_FORCE_MOVE_UNROOT, 8+4);
+            data.append(me->GetPackGUID());
+            data << uint32(2);              // Counter
+            me->SendMessageToSet(&data, false);
         }
     }
 
