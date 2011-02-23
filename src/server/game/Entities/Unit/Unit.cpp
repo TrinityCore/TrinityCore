@@ -16423,7 +16423,7 @@ bool Unit::CheckPlayerCondition(Player* pPlayer)
 
 void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId, AuraApplication const * aurApp)
 {
-    if (!isAlive() || GetVehicleKit() == vehicle)
+    if (!isAlive() || GetVehicleKit() == vehicle || vehicle->GetBase()->IsOnVehicle(this))
         return;
 
     if (m_vehicle)
