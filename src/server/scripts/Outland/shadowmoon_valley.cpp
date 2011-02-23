@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Shadowmoon_Valley
 SD%Complete: 100
-SDComment: Quest support: 10519, 10583, 10601, 10814, 10804, 10854, 10458, 10481, 10480, 11082, 10781, 10451. Vendor Drake Dealer Hurlunk.
+SDComment: Quest support: 10519, 10583, 10601, 10804, 10854, 10458, 10481, 10480, 11082, 10781, 10451. Vendor Drake Dealer Hurlunk.
 SDCategory: Shadowmoon Valley
 EndScriptData */
 
@@ -29,7 +29,6 @@ mob_enslaved_netherwing_drake
 npc_drake_dealer_hurlunk
 npcs_flanis_swiftwing_and_kagrosh
 npc_murkblood_overseer
-npc_neltharaku
 npc_karynaku
 npc_oronok_tornheart
 npc_overlord_morghor
@@ -561,60 +560,6 @@ public:
 
 };
 
-
-/*######
-## npc_neltharaku
-######*/
-
-#define GOSSIP_HN "I am listening, dragon"
-#define GOSSIP_SN1 "But you are dragons! How could orcs do this to you?"
-#define GOSSIP_SN2 "Your mate?"
-#define GOSSIP_SN3 "I have battled many beasts, dragon. I will help you."
-
-class npc_neltharaku : public CreatureScript
-{
-public:
-    npc_neltharaku() : CreatureScript("npc_neltharaku") { }
-
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
-    {
-        pPlayer->PlayerTalkClass->ClearMenus();
-        switch (uiAction)
-        {
-            case GOSSIP_ACTION_INFO_DEF+1:
-                pPlayer->ADD_GOSSIP_ITEM(0, GOSSIP_SN1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                pPlayer->SEND_GOSSIP_MENU(10614, pCreature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+2:
-                pPlayer->ADD_GOSSIP_ITEM(0, GOSSIP_SN2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-                pPlayer->SEND_GOSSIP_MENU(10615, pCreature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+3:
-                pPlayer->ADD_GOSSIP_ITEM(0, GOSSIP_SN3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-                pPlayer->SEND_GOSSIP_MENU(10616, pCreature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+4:
-                pPlayer->CLOSE_GOSSIP_MENU();
-                pPlayer->AreaExploredOrEventHappens(10814);
-                break;
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
-    {
-        if (pCreature->isQuestGiver())
-            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
-
-        if (pPlayer->GetQuestStatus(10814) == QUEST_STATUS_INCOMPLETE)
-            pPlayer->ADD_GOSSIP_ITEM(0, GOSSIP_HN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        pPlayer->SEND_GOSSIP_MENU(10613, pCreature->GetGUID());
-
-        return true;
-    }
-
-};
 
 
 /*######
@@ -1882,7 +1827,6 @@ void AddSC_shadowmoon_valley()
     new npc_drake_dealer_hurlunk();
     new npcs_flanis_swiftwing_and_kagrosh();
     new npc_murkblood_overseer();
-    new npc_neltharaku();
     new npc_karynaku();
     new npc_oronok_tornheart();
     new npc_overlord_morghor();
