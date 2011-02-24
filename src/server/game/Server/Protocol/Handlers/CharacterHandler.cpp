@@ -166,7 +166,7 @@ bool LoginQueryHolder::Initialize()
     stmt->setUInt32(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADTALENTS, stmt);
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_PLAYER_ACCOUNTDATA);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_PLAYER_ACCOUNT_DATA);
     stmt->setUInt32(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOADACCOUNTDATA, stmt);
 

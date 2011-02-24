@@ -596,7 +596,7 @@ void WorldSession::SendAuthWaitQue(uint32 position)
 
 void WorldSession::LoadGlobalAccountData()
 {
-    PreparedStatement *stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_ACCOUNT_DATA);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_ACCOUNT_DATA);
     stmt->setUInt32(0, GetAccountId());
     LoadAccountData(CharacterDatabase.Query(stmt), GLOBAL_CACHE_MASK);
 }
@@ -632,17 +632,14 @@ void WorldSession::LoadAccountData(PreparedQueryResult result, uint32 mask)
     while (result->NextRow());
 }
 
-void WorldSession::SetAccountData(AccountDataType type, time_t time_, std::string data)
+void WorldSession::SetAccountData(AccountDataType type, time_t tm, std::string data)
 {
+    uint32 id = 0;
+    uint32 index = 0;
     if ((1 << type) & GLOBAL_CACHE_MASK)
     {
-        uint32 acc = GetAccountId();
-
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
-        trans->PAppend("DELETE FROM account_data WHERE account='%u' AND type='%u'", acc, type);
-        CharacterDatabase.escape_string(data);
-        trans->PAppend("INSERT INTO account_data VALUES ('%u','%u','%u','%s')", acc, type, (uint32)time_, data.c_str());
-        CharacterDatabase.CommitTransaction(trans);
+        id = GetAccountId();
+        index = CHAR_SET_ACCOUNT_DATA;
     }
     else
     {
@@ -650,14 +647,18 @@ void WorldSession::SetAccountData(AccountDataType type, time_t time_, std::strin
         if (!m_GUIDLow)
             return;
 
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
-        trans->PAppend("DELETE FROM character_account_data WHERE guid='%u' AND type='%u'", m_GUIDLow, type);
-        CharacterDatabase.escape_string(data);
-        trans->PAppend("INSERT INTO character_account_data VALUES ('%u','%u','%u','%s')", m_GUIDLow, type, (uint32)time_, data.c_str());
-        CharacterDatabase.CommitTransaction(trans);
+        id = m_GUIDLow;
+        index = CHAR_SET_PLAYER_ACCOUNT_DATA;
     }
 
-    m_accountData[type].Time = time_;
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(index);
+    stmt->setUInt32(0, id);
+    stmt->setUInt8 (1, type);
+    stmt->setUInt32(2, uint32(tm));
+    stmt->setString(3, data);
+    CharacterDatabase.Execute(stmt);
+
+    m_accountData[type].Time = tm;
     m_accountData[type].Data = data;
 }
 
