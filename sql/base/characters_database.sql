@@ -66,6 +66,36 @@ UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 --
+-- Table structure for table `account_tutorial`
+--
+
+DROP TABLE IF EXISTS `account_tutorial`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `account_tutorial` (
+  `accountId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Account Identifier',
+  `tut0` int(10) unsigned NOT NULL DEFAULT '0',
+  `tut1` int(10) unsigned NOT NULL DEFAULT '0',
+  `tut2` int(10) unsigned NOT NULL DEFAULT '0',
+  `tut3` int(10) unsigned NOT NULL DEFAULT '0',
+  `tut4` int(10) unsigned NOT NULL DEFAULT '0',
+  `tut5` int(10) unsigned NOT NULL DEFAULT '0',
+  `tut6` int(10) unsigned NOT NULL DEFAULT '0',
+  `tut7` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`accountId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `account_tutorial`
+--
+
+LOCK TABLES `account_tutorial` WRITE;
+/*!40000 ALTER TABLE `account_tutorial` DISABLE KEYS */;
+/*!40000 ALTER TABLE `account_tutorial` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `addons`
 --
 
@@ -1083,36 +1113,6 @@ CREATE TABLE `character_talent` (
 LOCK TABLES `character_talent` WRITE;
 /*!40000 ALTER TABLE `character_talent` DISABLE KEYS */;
 /*!40000 ALTER TABLE `character_talent` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `character_tutorial`
---
-
-DROP TABLE IF EXISTS `character_tutorial`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `character_tutorial` (
-  `account` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Account Identifier',
-  `tut0` int(10) unsigned NOT NULL DEFAULT '0',
-  `tut1` int(10) unsigned NOT NULL DEFAULT '0',
-  `tut2` int(10) unsigned NOT NULL DEFAULT '0',
-  `tut3` int(10) unsigned NOT NULL DEFAULT '0',
-  `tut4` int(10) unsigned NOT NULL DEFAULT '0',
-  `tut5` int(10) unsigned NOT NULL DEFAULT '0',
-  `tut6` int(10) unsigned NOT NULL DEFAULT '0',
-  `tut7` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`account`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Player System';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `character_tutorial`
---
-
-LOCK TABLES `character_tutorial` WRITE;
-/*!40000 ALTER TABLE `character_tutorial` DISABLE KEYS */;
-/*!40000 ALTER TABLE `character_tutorial` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
