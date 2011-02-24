@@ -1633,13 +1633,6 @@ void Spell::EffectForceCast(SpellEffIndex effIndex)
         }
     }
 
-    switch (triggered_spell_id)
-    {
-        case 62056: case 63985:         // Stone Grip Forcecast (10m, 25m)
-            unitTarget->CastSpell(unitTarget, spellInfo, true);     // Don't send m_originalCasterGUID param here or underlying
-            return;                                                 // AureEffect::HandleAuraControlVehicle will fail on caster == target
-    }
-
     Unit * caster = GetTriggeredSpellCaster(spellInfo, m_caster, unitTarget);
 
     caster->CastSpell(unitTarget, spellInfo, true, NULL, NULL, m_originalCasterGUID);
@@ -5147,12 +5140,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                             unitTarget->EnterVehicle(seat, 1);
                         }
                     }
-                    return;
-                }
-                case 65594: // Cancel Stone Grip
-                {
-                    uint32 spellToRemove = unitTarget->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL ? 62166 : 63981;
-                    unitTarget->RemoveAurasDueToSpell(spellToRemove);
                     return;
                 }
                 case 60123: // Lightwell

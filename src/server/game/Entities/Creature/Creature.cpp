@@ -158,7 +158,6 @@ m_formation(NULL)
 
     m_CreatureSpellCooldowns.clear();
     m_CreatureCategoryCooldowns.clear();
-    m_GlobalCooldown = 0;
     DisableReputationGain = false;
     //m_unit_movement_flags = MONSTER_MOVE_WALK;
 
@@ -434,11 +433,6 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData *data)
 
 void Creature::Update(uint32 diff)
 {
-    if (m_GlobalCooldown <= diff)
-        m_GlobalCooldown = 0;
-    else
-        m_GlobalCooldown -= diff;
-
     if (IsAIEnabled && TriggerJustRespawned)
     {
         TriggerJustRespawned = false;
@@ -2210,8 +2204,6 @@ void Creature::AddCreatureSpellCooldown(uint32 spellid)
 
     if (spellInfo->Category)
         _AddCreatureCategoryCooldown(spellInfo->Category, time(NULL));
-
-    m_GlobalCooldown = spellInfo->StartRecoveryTime;
 }
 
 bool Creature::HasCategoryCooldown(uint32 spell_id) const
@@ -2219,10 +2211,6 @@ bool Creature::HasCategoryCooldown(uint32 spell_id) const
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spell_id);
     if (!spellInfo)
         return false;
-
-    // check global cooldown if spell affected by it
-    if (spellInfo->StartRecoveryCategory > 0 && m_GlobalCooldown > 0)
-        return true;
 
     CreatureSpellCooldowns::const_iterator itr = m_CreatureCategoryCooldowns.find(spellInfo->Category);
     return(itr != m_CreatureCategoryCooldowns.end() && time_t(itr->second + (spellInfo->CategoryRecoveryTime / IN_MILLISECONDS)) > time(NULL));

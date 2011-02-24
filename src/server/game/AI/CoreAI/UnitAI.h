@@ -124,22 +124,6 @@ class UnitAI
         virtual uint64 GetGUID(int32 /*id*/ = 0) { return 0; }
 
         Unit* SelectTarget(SelectAggroTarget targetType, uint32 position = 0, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
-        void SelectTargetList(std::list<Unit*> &targetList, uint32 num, SelectAggroTarget targetType, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
-
-        // Called at any Damage to any victim (before damage apply)
-        virtual void DamageDealt(Unit* /*victim*/, uint32& /*damage*/, DamageEffectType /*damageType*/) { }
-
-        // Called at any Damage from any attacker (before damage apply)
-        // Note: it for recalculation damage or special reaction at damage
-        // for attack reaction use AttackedBy called for not DOT damage in Unit::DealDamage also
-        virtual void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) {}
-
-        // Called when the creature receives heal
-        virtual void HealReceived(Unit* /*done_by*/, uint32& /*addhealth*/) {}
-
-        // Called when the unit heals
-        virtual void HealDone(Unit* /*done_to*/, uint32& /*addhealth*/) {}
-
         // Select the targets satifying the predicate.
         // predicate shall extend std::unary_function<Unit *, bool>
         template<class PREDICATE> Unit* SelectTarget(SelectAggroTarget targetType, uint32 position, PREDICATE predicate)
@@ -167,33 +151,108 @@ class UnitAI
             {
                 case SELECT_TARGET_NEAREST:
                 case SELECT_TARGET_TOPAGGRO:
-                    {
-                        std::list<Unit*>::iterator itr = targetList.begin();
-                        advance(itr, position);
-                        return *itr;
-                    }
-                    break;
+                {
+                    std::list<Unit*>::iterator itr = targetList.begin();
+                    advance(itr, position);
+                    return *itr;
+                }
+                break;
 
                 case SELECT_TARGET_FARTHEST:
                 case SELECT_TARGET_BOTTOMAGGRO:
-                    {
-                        std::list<Unit*>::reverse_iterator ritr = targetList.rbegin();
-                        advance(ritr, position);
-                        return *ritr;
-                    }
-                    break;
+                {
+                    std::list<Unit*>::reverse_iterator ritr = targetList.rbegin();
+                    advance(ritr, position);
+                    return *ritr;
+                }
+                break;
 
                 case SELECT_TARGET_RANDOM:
-                    {
-                        std::list<Unit*>::iterator itr = targetList.begin();
-                        advance(itr, urand(position, targetList.size()-1));
-                        return *itr;
-                    }
-                    break;
+                {
+                    std::list<Unit*>::iterator itr = targetList.begin();
+                    advance(itr, urand(position, targetList.size()-1));
+                    return *itr;
+                }
+                break;
             }
 
             return NULL;
         }
+
+        void SelectTargetList(std::list<Unit*> &targetList, uint32 num, SelectAggroTarget targetType, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
+        // Select the targets satifying the predicate.
+        // predicate shall extend std::unary_function<Unit *, bool>
+        template<class PREDICATE> void SelectTargetList(std::list<Unit*> &targetList, PREDICATE predicate, uint32 maxTargets, SelectAggroTarget targetType)
+        {
+            std::list<HostileReference *> const &threatlist = me->getThreatManager().getThreatList();
+            std::list<HostileReference*>::const_iterator itr;
+
+            for (itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+            {
+                HostileReference* ref = (*itr);
+                if (predicate(ref->getTarget()))
+                    targetList.push_back(ref->getTarget());
+            }
+
+            if (targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
+                targetList.sort(Trinity::ObjectDistanceOrderPred(me));
+
+            switch(targetType)
+            {
+                case SELECT_TARGET_NEAREST:
+                case SELECT_TARGET_TOPAGGRO:
+                {
+                    // Already sorted
+                    if (!maxTargets || maxTargets >= targetList.size())    // Do not filter
+                        return;     
+
+                    std::list<Unit*>::iterator itr = targetList.begin();
+                    advance(itr, maxTargets);
+                    for (; itr != targetList.end();)
+                        targetList.erase(itr++);        // Filter out any element more than maxTargets
+                }
+                break;
+
+                case SELECT_TARGET_FARTHEST:
+                case SELECT_TARGET_BOTTOMAGGRO:
+                {
+                    if (maxTargets >= targetList.size())                 // Do not filter
+                        return;
+
+                    // Sort (reverse)
+                    targetList.reverse();
+                    std::list<Unit*>::iterator itr = targetList.begin();
+                    for (uint32 i = 0; i < maxTargets; ++i)
+                        targetList.pop_back();          // Filter out any element more than maxTarget
+                }
+                break;
+
+                case SELECT_TARGET_RANDOM:
+                {
+                    while (maxTargets < targetList.size())
+                    {
+                        std::list<Unit*>::iterator itr = targetList.begin();
+                        advance(itr, urand(0, targetList.size()-1));
+                        targetList.erase(itr);
+                    }
+                }
+                break;
+            }
+        }
+
+        // Called at any Damage to any victim (before damage apply)
+        virtual void DamageDealt(Unit* /*victim*/, uint32& /*damage*/, DamageEffectType /*damageType*/) { }
+
+        // Called at any Damage from any attacker (before damage apply)
+        // Note: it for recalculation damage or special reaction at damage
+        // for attack reaction use AttackedBy called for not DOT damage in Unit::DealDamage also
+        virtual void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) {}
+
+        // Called when the creature receives heal
+        virtual void HealReceived(Unit* /*done_by*/, uint32& /*addhealth*/) {}
+
+        // Called when the unit heals
+        virtual void HealDone(Unit* /*done_to*/, uint32& /*addhealth*/) {}
 
         void AttackStartCaster(Unit *victim, float dist);
 
