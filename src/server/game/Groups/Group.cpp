@@ -635,12 +635,6 @@ void Group::Disband(bool hideDestroy /* = false */)
         CharacterDatabase.CommitTransaction(trans);
         ResetInstances(INSTANCE_RESET_GROUP_DISBAND, false, NULL);
         ResetInstances(INSTANCE_RESET_GROUP_DISBAND, true, NULL);
-
-        // If the deleted group guid is lower than the one we have stored for the next group creation,
-        // use this one instead.
-        if (lowguid < sObjectMgr->GetNextGroupGuid())
-            sObjectMgr->SetNextGroupGuid(lowguid);
-
     }
 
     sObjectMgr->RemoveGroup(this);

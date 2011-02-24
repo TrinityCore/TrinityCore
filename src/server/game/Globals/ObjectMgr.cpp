@@ -285,7 +285,7 @@ ObjectMgr::~ObjectMgr()
             delete[] playerInfo[race][class_].levelInfo;
 
     // free group and guild objects
-    for (GroupMap::iterator itr = mGroupMap.begin(); itr != mGroupMap.end(); ++itr)
+    for (GroupSet::iterator itr = mGroupSet.begin(); itr != mGroupSet.end(); ++itr)
         delete *itr;
 
     for (GuildMap::iterator itr = mGuildMap.begin(); itr != mGuildMap.end(); ++itr)
@@ -303,9 +303,10 @@ ObjectMgr::~ObjectMgr()
 
 Group * ObjectMgr::GetGroupByGUID(uint32 guid) const
 {
-    // Make sure given index exists in collection
-    if (guid < uint32(mGroupMap.size()))
-        return mGroupMap[guid];
+    for (GroupSet::const_iterator itr = mGroupSet.begin(); itr != mGroupSet.end(); ++itr)
+        if ((*itr)->GetLowGUID() == guid)
+            return *itr;
+
     return NULL;
 }
 
@@ -3979,7 +3980,7 @@ void ObjectMgr::LoadGroups()
         //                                                        0           1           2             3          4      5      6      7      8     9
         QueryResult result = CharacterDatabase.PQuery("SELECT leaderGuid, lootMethod, looterGuid, lootThreshold, icon1, icon2, icon3, icon4, icon5, icon6"
         //                                                10     11     12         13              14        15
-                                                      ",icon7, icon8, groupType, difficulty, raiddifficulty, guid FROM groups ORDER BY guid ASC");
+                                                      ",icon7, icon8, groupType, difficulty, raiddifficulty, guid FROM groups");
         if (!result)
         {
             sLog->outString(">> Loaded 0 group definitions. DB table `groups` is empty!");
@@ -3992,17 +3993,9 @@ void ObjectMgr::LoadGroups()
         do
         {
             Field *fields = result->Fetch();
-
-            uint32 guid = fields[15].GetUInt32();
-
-            // Groups are pulled in ascending order from db and m_hiGroupGuid is initialized with 1,
-            // so if the group slot is used increment until we find the first free one for a potential new group
-            if (sObjectMgr->GetNextGroupGuid() == guid)
-                sObjectMgr->SetNextGroupGuid(guid + 1);
-
             ++count;
             Group *group = new Group;
-            group->LoadGroupFromDB(guid, result, false);
+            group->LoadGroupFromDB(fields[15].GetUInt32(), result, false);
             // group load will never be false (we have run consistency sql's before loading)
             AddGroup(group);
         }
@@ -6650,10 +6643,9 @@ void ObjectMgr::SetHighestGuids()
     if (result)
         m_guildId = (*result)[0].GetUInt32()+1;
 
-    // The next free guid is determined during group loading, here we just preallocate the group holder
     result = CharacterDatabase.Query("SELECT MAX(guid) FROM groups");
     if (result)
-        mGroupMap.resize((*result)[0].GetUInt32()+1);
+        m_hiGroupGuid = (*result)[0].GetUInt32()+1;
 }
 
 uint32 ObjectMgr::GenerateArenaTeamId()
@@ -6767,26 +6759,12 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
             }
             return m_hiDoGuid++;
         case HIGHGUID_GROUP:
-        {
-            uint32 newGuid = m_hiGroupGuid;
-
-            for (uint32 i = ++m_hiGroupGuid; i < 0xFFFFFFFF; ++i)
-            {
-                if (!GetGroupByGUID(i))
-                {
-                    m_hiGroupGuid = i;
-                    break;
-                }
-            }
-
-            // If newGuid doesn't differ from m_hiGroupGuid after the loop there is no free guid available
-            if (newGuid == m_hiGroupGuid)
+            if (m_hiGroupGuid >= 0xFFFFFFFE)
             {
                 sLog->outError("Group guid overflow!! Can't continue, shutting down server. ");
                 World::StopNow(ERROR_EXIT_CODE);
             }
-            return newGuid;
-        }
+            return m_hiGroupGuid++;
         case HIGHGUID_MO_TRANSPORT:
             if (m_hiMoTransGuid >= 0xFFFFFFFE)
             {
@@ -9445,19 +9423,4 @@ void ObjectMgr::LoadFactionChangeReputations()
 
     sLog->outString(">> Loaded %u faction change reputation pairs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
-}
-
-void ObjectMgr::AddGroup(Group* group)
-{
-    uint32 groupGuid = group->GetLowGUID();
-    // Allocate space if necessary.
-    if (groupGuid >= uint32(mGroupMap.size()))
-        mGroupMap.resize(groupGuid + 1);
-
-    mGroupMap[groupGuid] = group;
-}
-
-void ObjectMgr::RemoveGroup(Group* group)
-{
-    mGroupMap[group->GetLowGUID()] = NULL;
 }
