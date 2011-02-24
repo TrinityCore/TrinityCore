@@ -16180,7 +16180,7 @@ float Unit::MeleeSpellMissChance(const Unit *pVictim, WeaponAttackType attType, 
     if (pVictim->GetTypeId() == TYPEID_PLAYER)
         miss_chance += diff > 0 ? diff * 0.04f : diff * 0.02f;
     else
-        miss_chance += diff > 10 ? 2 + (diff - 10) * 0.4f : diff * 0.1f;
+        miss_chance += diff > 10 ? diff * 0.4f - 3.0f : diff * 0.1f;
 
     // Limit miss chance from 0 to 60%
     if (miss_chance < 0.0f)
