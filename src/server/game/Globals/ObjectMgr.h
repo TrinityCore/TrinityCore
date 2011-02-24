@@ -957,7 +957,7 @@ class ObjectMgr
         void AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, uint32 reqSkill, uint32 reqSkillValue, uint32 reqLevel);
 
         // Loads the jail conf out of the database
-        void LoadJailConf(void);
+        void LoadJailConf();
         // Jail Config...
         std::string m_jail_obt;
         uint32 m_jailconf_max_jails;    // Jail times when the char will be deleted

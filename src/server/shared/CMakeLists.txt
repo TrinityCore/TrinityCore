@@ -13,6 +13,7 @@ if( USE_COREPCH )
 endif()
 
 file(GLOB_RECURSE sources_Configuration Configuration/*.cpp Configuration/*.h)
+file(GLOB_RECURSE sources_SQLConfiguration SQLConfiguration/*.cpp SQLConfiguration/*.h)
 file(GLOB_RECURSE sources_Cryptography Cryptography/*.cpp Cryptography/*.h)
 file(GLOB_RECURSE sources_Database Database/*.cpp Database/*.h)
 file(GLOB_RECURSE sources_DataStores DataStores/*.cpp DataStores/*.h)
@@ -38,6 +39,7 @@ endif()
 set(shared_STAT_SRCS
   ${shared_STAT_SRCS}
   ${sources_Configuration}
+  ${sources_SQLConfiguration}
   ${sources_Cryptography}
   ${sources_Database}
   ${sources_DataStores}
@@ -59,6 +61,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/Configuration
+  ${CMAKE_CURRENT_SOURCE_DIR}/SQLConfiguration
   ${CMAKE_CURRENT_SOURCE_DIR}/Cryptography
   ${CMAKE_CURRENT_SOURCE_DIR}/Database
   ${CMAKE_CURRENT_SOURCE_DIR}/DataStores

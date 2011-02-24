@@ -23,6 +23,7 @@
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "Config.h"
+#include <SQLConfiguration/SQLConfig.h>
 #include "SystemConfig.h"
 #include "Log.h"
 #include "Opcodes.h"
@@ -1221,6 +1222,8 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_LOTTERY_MAXNUMBER]         = sConfig->GetIntDefault("Lottery.MaxNubmer", 30);
     m_int_configs[CONFIG_LOTTERY_BETCOST]           = sConfig->GetIntDefault("Lottery.BetCost", 500000);
     m_int_configs[CONFIG_LOTTERY_MINLVL]            = sConfig->GetIntDefault("Lottery.MinUserLVL", 60);
+
+    // SQL Config values
 
     sScriptMgr->OnConfigLoad(reload);
 }

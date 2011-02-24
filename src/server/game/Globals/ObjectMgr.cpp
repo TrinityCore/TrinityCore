@@ -7176,7 +7176,7 @@ uint32 ObjectMgr::GeneratePetNumber()
 }
 
 // Loads the jail conf out of the database
-void ObjectMgr::LoadJailConf(void)
+void ObjectMgr::LoadJailConf()
 {
     QueryResult result = CharacterDatabase.PQuery("SELECT * FROM `jail_conf`");
 
