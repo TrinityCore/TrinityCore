@@ -61,6 +61,7 @@ enum eNPCs
     NPC_MOLGEIM                 = 32927,
     NPC_BRUNDIR                 = 32857,
     NPC_KOLOGARN                = 32930,
+    NPC_KOLOGARN_BRIDGE         = 34297,
     NPC_FOCUSED_EYEBEAM         = 33632,
     NPC_FOCUSED_EYEBEAM_RIGHT   = 33802,
     NPC_LEFT_ARM                = 32933,
