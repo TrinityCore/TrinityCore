@@ -245,11 +245,12 @@ public:
                 return;
             }
 
-            // Hodir: Alliance npcs are spawned by default
+            // Some npcs are faction dependent
             if (TeamInInstance == HORDE)
             {
                 switch(pCreature->GetEntry())
                 {
+                    case 33062: pCreature->SetDisplayId(25871); return;
                     case 33325: pCreature->UpdateEntry(32941, HORDE); return;
                     case 32901: pCreature->UpdateEntry(33333, HORDE); return;
                     case 33328: pCreature->UpdateEntry(33332, HORDE); return;
@@ -258,7 +259,7 @@ public:
                     case 33327: pCreature->UpdateEntry(32946, HORDE); return;
                     case 32897: pCreature->UpdateEntry(32948, HORDE); return;
                     case 33326: pCreature->UpdateEntry(33330, HORDE); return;
-                    case 32908: pCreature->UpdateEntry(32907, HORDE); return;
+                    case 32907: pCreature->UpdateEntry(32908, HORDE); return;
                     case 32885: pCreature->UpdateEntry(32883, HORDE); return;
                 }
             }

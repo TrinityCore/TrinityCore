@@ -214,7 +214,7 @@ struct SummonLocation
 SummonLocation preAddLocations[]=
 {
     {2149.68f, -263.477f, 419.679f, 3.120f, 32882},
-    {2131.31f, -271.640f, 419.840f, 2.188f, 32908},
+    {2131.31f, -271.640f, 419.840f, 2.188f, 32907},
     {2127.24f, -259.182f, 419.974f, 5.917f, 32885},
     {2123.32f, -254.770f, 419.840f, 6.170f, 32885},
     {2120.10f, -258.990f, 419.840f, 6.250f, 32885},
@@ -621,6 +621,7 @@ public:
                 DoCast(me, SPELL_AURA_OF_CELERITY);
                 
             me->getThreatManager().clearReferences();
+            me->AttackStop();
             if (me->getThreatManager().isThreatListEmpty())
             {
                 Map* pMap = me->GetMap();
@@ -632,7 +633,7 @@ public:
                         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                         {
                             if (i->getSource() && i->getSource()->isAlive() && isOnSameSide(i->getSource()))
-                                me->getThreatManager().addThreat(i->getSource(), 10.0f);
+                                me->getThreatManager().addThreat(i->getSource(), 150.0f);
                         }
                     }
                 }
@@ -662,12 +663,13 @@ public:
             {
                 if (id == DARK_RUNE_CHAMPION)
                     if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
-                        DoCast(pTarget, SPELL_CHARGE);
+                        if (isOnSameSide(pTarget))
+                            DoCast(pTarget, SPELL_CHARGE);
                 ChargeTimer = 12000;
             }
             else ChargeTimer -= diff;
 
-            if (id == DARK_RUNE_ACOLYTE)
+            if (id == DARK_RUNE_ACOLYTE_2)
                 DoSpellAttackIfReady(SPELL_HOLY_SMITE);
             else
                 DoMeleeAttackIfReady();
