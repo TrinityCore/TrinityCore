@@ -256,11 +256,23 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
         if (passenger->GetEntry() == entry)
         {
             ASSERT(passenger->GetTypeId() == TYPEID_UNIT);
-            if (me->GetTypeId() == TYPEID_UNIT && me->ToCreature()->IsInEvadeMode() && passenger->ToCreature()->IsAIEnabled)
-                passenger->ToCreature()->AI()->EnterEvadeMode();
-            return;
+            if (me->GetTypeId() == TYPEID_UNIT)
+            {
+                if (me->ToCreature()->IsInEvadeMode() && passenger->ToCreature()->IsAIEnabled)
+                {
+                    passenger->ToCreature()->AI()->EnterEvadeMode();
+                    return;
+                }
+                else if (passenger->ToTempSummon()->GetSummonType() == TEMPSUMMON_MANUAL_DESPAWN)
+                {
+                    passenger->ExitVehicle();
+                    passenger->ToTempSummon()->DespawnOrUnsummon();
+                    ASSERT(!GetPassenger(seatId))
+                }
+            }
         }
-        passenger->ExitVehicle(); // this should not happen
+        else
+            passenger->ExitVehicle(); // this should not happen
     }
 
     if (Creature *accessory = me->SummonCreature(entry, *me, TempSummonType(type), summonTime))
@@ -361,14 +373,6 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
 
     if (me->IsInWorld())
     {
-        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE))
-        {
-            WorldPacket data(SMSG_FORCE_MOVE_ROOT, 8+4);
-            data.append(me->GetPackGUID());
-            data << uint32(2);              // Counter
-            me->SendMessageToSet(&data, false);
-        }
-
         // In some cases we send SMSG_SPLINE_MOVE_ROOT here (for creatures)
         unit->SendMonsterMoveTransport(me);
 
@@ -429,20 +433,10 @@ void Vehicle::RemovePassenger(Unit *unit)
 
     if (me->IsInWorld())
     {
-        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE))
-        {
-            WorldPacket data(SMSG_FORCE_MOVE_UNROOT, 8+4);
-            data.append(me->GetPackGUID());
-            data << uint32(2);              // Counter
-            me->SendMessageToSet(&data, false);
-        }
-
         unit->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
         unit->m_movementInfo.t_pos.Relocate(0, 0, 0, 0);
         unit->m_movementInfo.t_time = 0;
         unit->m_movementInfo.t_seat = 0;
-
-        unit->Relocate(GetBase());
     }
 
     if (me->GetTypeId() == TYPEID_UNIT && me->ToCreature()->IsAIEnabled)
