@@ -16496,7 +16496,7 @@ bool Unit::CheckPlayerCondition(Player* pPlayer)
 
 void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId, AuraApplication const * aurApp)
 {
-    if (!isAlive() || GetVehicleKit() == vehicle)
+    if (!isAlive() || GetVehicleKit() == vehicle || vehicle->GetBase()->IsOnVehicle(this))
         return;
 
     if (m_vehicle)
@@ -16589,7 +16589,7 @@ void Unit::ChangeSeat(int8 seatId, bool next)
         ASSERT(false);
 }
 
-void Unit::ExitVehicle()
+void Unit::ExitVehicle(Position const* exitPosition)
 {
     if (!m_vehicle)
         return;
@@ -16608,21 +16608,23 @@ void Unit::ExitVehicle()
     if (!m_vehicle)
         return;
 
-    //sLog->outError("exit vehicle");
-
     m_vehicle->RemovePassenger(this);
 
     // This should be done before dismiss, because there may be some aura removal
     Vehicle *vehicle = m_vehicle;
     m_vehicle = NULL;
 
-    SetControlled(false, UNIT_STAT_ROOT);
+    SetControlled(false, UNIT_STAT_ROOT);       // SMSG_MOVE_FORCE_UNROOT
+
+    if (exitPosition)                           // Exit position specified 
+        Relocate(exitPosition);
+    else
+        Relocate(vehicle->GetBase());           // Relocate to vehicle base
 
     //Send leave vehicle, not correct
     if (GetTypeId() == TYPEID_PLAYER)
     {
         //this->ToPlayer()->SetClientControl(this, 1);
-        this->ToPlayer()->SendTeleportAckPacket();
         this->ToPlayer()->SetFallInformation(0, GetPositionZ());
 
         if (Pet *pPet = this->ToPlayer()->GetPet())
@@ -16633,6 +16635,7 @@ void Unit::ExitVehicle()
         else
             this->ToPlayer()->ResummonPetTemporaryUnSummonedIfAny();
     }
+
     WorldPacket data;
     BuildHeartBeatMsg(&data);
     SendMessageToSet(&data, false);
@@ -16936,7 +16939,7 @@ uint32 Unit::GetRemainingDotDamage(uint64 caster, uint32 spellId, uint8 effectIn
     {
         if ((*i)->GetCasterGUID() != caster || (*i)->GetId() != spellId || (*i)->GetEffIndex() != effectIndex)
             continue;
-        amount += ((*i)->GetAmount() * ((*i)->GetTotalTicks() - ((*i)->GetTickNumber()))) / (*i)->GetTotalTicks();
+        amount += uint32(((*i)->GetAmount() * std::max<int32>((*i)->GetTotalTicks() - int32((*i)->GetTickNumber()), 0)) / (*i)->GetTotalTicks());
         break;
     }
 

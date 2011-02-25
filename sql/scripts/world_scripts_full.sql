@@ -1172,7 +1172,6 @@ UPDATE `creature_template` SET `ScriptName`='npc_drake_dealer_hurlunk' WHERE `en
 UPDATE `creature_template` SET `ScriptName`='npc_invis_legion_teleporter' WHERE `entry`=21807;
 UPDATE `creature_template` SET `ScriptName`='npcs_flanis_swiftwing_and_kagrosh' WHERE `entry` IN (21725,21727);
 UPDATE `creature_template` SET `ScriptName`='npc_murkblood_overseer' WHERE `entry`=23309;
-UPDATE `creature_template` SET `ScriptName`='npc_neltharaku' WHERE `entry`=21657;
 UPDATE `creature_template` SET `ScriptName`='npc_oronok_tornheart' WHERE `entry`=21183;
 UPDATE `creature_template` SET `ScriptName`='mob_mature_netherwing_drake' WHERE `entry`=21648;
 UPDATE `creature_template` SET `ScriptName`='mob_enslaved_netherwing_drake' WHERE `entry`=21722;
@@ -1535,7 +1534,6 @@ UPDATE `creature_template` SET `ScriptName`='mob_lightning_elemental' WHERE `ent
 UPDATE `creature_template` SET `ScriptName`='mob_rune_of_summoning' WHERE `entry`=33051;
 UPDATE `creature_template` SET `ScriptName`= 'mob_rune_of_power' WHERE entry = 33705;
 UPDATE `creature_template` SET `ScriptName`='boss_kologarn' WHERE `entry`=32930;
-UPDATE `creature_template` SET `AIName`='NullAI' WHERE `entry` IN(33742,33809,33942);
 UPDATE `creature_template` SET `ScriptName`='boss_general_vezax' WHERE `entry`=33271;
 UPDATE `creature_template` SET `ScriptName`='npc_saronite_vapors' WHERE `entry`=33488;
 UPDATE `creature_template` SET `ScriptName`='npc_saronite_animus' WHERE `entry`=33524;
@@ -2069,6 +2067,9 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 63985, 'spell_ulduar_stone_grip'),
 ( 64224, 'spell_ulduar_stone_grip_absorb'),
 ( 64225, 'spell_ulduar_stone_grip_absorb'),
+( 62166, 'spell_ulduar_stone_grip_cast_target'),
+( 63981, 'spell_ulduar_stone_grip_cast_target'),
+( 64702, 'spell_ulduar_squeezed_lifeless'),
 -- quest
 (  8913, 'spell_q55_sacred_cleansing'),
 ( 17271, 'spell_q5206_test_fetid_skull'),
