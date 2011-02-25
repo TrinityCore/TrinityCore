@@ -52,7 +52,7 @@ UPDATE `creature_template` SET `baseattacktime` = 1500, `equipment_id` = 2422, `
 UPDATE `creature_model_info` SET `bounding_radius` = 0.775, `combat_reach` = 5 WHERE `modelid` = 28651;
 -- Sanctum Sentry
 UPDATE `creature_template` SET `speed_walk` = 1.66667, `mechanic_immune_mask` = 536870912, `flags_extra` = 1, `ScriptName` = 'npc_sanctum_sentry' WHERE `entry` = 34014;
-UPDATE `creature_template` SET `baseattacktime` = 1500, `speed_walk` = 1.66667, `mechanic_immune_mask` = 536870912, `flags_extra` = 1 WHERE `entry` = 34166;
+UPDATE `creature_template` SET `baseattacktime` = 1500, `speed_walk` = 1.66667, `mechanic_immune_mask` = 536870912, `flags_extra` = 1, `dmg_multiplier` = 35 WHERE `entry` = 34166;
 -- Feral Defender
 UPDATE `creature_template` SET `speed_walk` = 2, `dmg_multiplier` = 3.5, `flags_extra` = 1, `ScriptName` = 'npc_feral_defender' WHERE `entry` = 34035;
 UPDATE `creature_template` SET `speed_walk` = 2, `dmg_multiplier` = 5, `flags_extra` = 1, `baseattacktime` = 1500 WHERE `entry` = 34171;
@@ -1077,7 +1077,7 @@ INSERT INTO `game_tele` VALUES
 (NULL, 9347.78, -1114.88, 1245.09, 6.278, 571, 'Uld');
 
 -- Salvaged Chopper has no heroic entry
-UPDATE `creature_template` SET `difficulty_entry_1` = 0 WHERE `entry` = 33062;
+UPDATE `creature_template` SET `difficulty_entry_1` = 0, `modelid2` = 0 WHERE `entry` = 33062;
 
 DELETE FROM `creature` WHERE `id` IN (33060, 33062, 33109);
 
