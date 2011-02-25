@@ -136,7 +136,8 @@ UPDATE `creature_template` SET `vehicleid` = 370, `mechanic_immune_mask` = 65085
 UPDATE `creature_template` SET `minlevel` = 83, `maxlevel` = 83, `mechanic_immune_mask` = 650854235, `flags_extra` = 1 WHERE `entry` = 34106;
 UPDATE `creature_template` SET `mechanic_immune_mask` = 650854235, `ScriptName` = 'boss_leviathan_mk_turret' WHERE `entry` = 34071;
 DELETE FROM vehicle_accessory WHERE entry = 33432;
-INSERT INTO vehicle_accessory VALUE (33432, 34071, 3, 1, 'Leviathan Mk II turret');
+INSERT INTO vehicle_accessory (`entry`, `accessory_entry`, `seat_id`, `minion`, `description`) VALUES 
+(33432, 34071, 3, 1, 'Leviathan Mk II turret');
 UPDATE creature_template SET ScriptName = 'npc_proximity_mine' WHERE entry = 34362;
 DELETE FROM `creature_model_info` WHERE `modelid`=28831;
 INSERT INTO `creature_model_info` (`modelid`, `bounding_radius`, `combat_reach`, `gender`, `modelid_other_gender`) VALUES
@@ -1096,7 +1097,7 @@ DELETE FROM creature WHERE id = 33167;
 UPDATE `creature_template` SET `modelid1` = 11686, `modelid2` = 0 WHERE `entry` IN (33364, 33369, 33108, 33366);
 
 DELETE FROM vehicle_accessory WHERE entry = 33113 AND seat_id IN (0, 1);
-INSERT INTO vehicle_accessory VALUES 
+INSERT INTO vehicle_accessory (`entry`, `accessory_entry`, `seat_id`, `minion`, `description`) VALUES
 (33113, 33114, 0, 1, "Flame Leviathan"),
 (33113, 33114, 1, 1, "Flame Leviathan");
 
@@ -1210,7 +1211,7 @@ UPDATE `creature_template` SET `mechanic_immune_mask` = 650854235, `flags_extra`
 UPDATE `creature_template` SET `VehicleId` = 353 WHERE `entry` = 33293;
 -- XT-002 Hearth
 DELETE FROM `vehicle_accessory` WHERE `entry` = 33293;
-INSERT INTO `vehicle_accessory` VALUES 
+INSERT INTO vehicle_accessory (`entry`, `accessory_entry`, `seat_id`, `minion`, `description`) VALUES
 (33293, 33329, 0, 1, "XT-002 Hearth");
 -- Gravity Bomb
 DELETE FROM spell_script_names WHERE spell_id IN (63025, 64233);
