@@ -17,6 +17,7 @@ UPDATE `creature_template` SET `AIName`='', `Scriptname`='npc_shadowy_mercenary'
 UPDATE `creature_template` SET `AIName`='', `Scriptname`='npc_spectral_footman' WHERE `entry`=38173;
 UPDATE `creature_template` SET `AIName`='', `Scriptname`='npc_ghostly_priest' WHERE `entry`=38176;
 UPDATE `creature_template` SET `AIName`='', `Scriptname`='npc_frostworn_general' WHERE `entry`=36723;
+UPDATE `creature_template` SET `AIName`='', `Scriptname`='npc_tortured_rifleman' WHERE `entry`=38176;
 
 UPDATE `creature_template` SET `scale`='0.8', `equipment_id`='1221' WHERE `entry` in (37221, 36955);
 UPDATE `creature_template` SET `equipment_id`='1290' WHERE `entry` in (37223, 37554);
