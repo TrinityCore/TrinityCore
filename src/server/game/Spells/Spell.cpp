@@ -3051,8 +3051,8 @@ void Spell::cancel()
     switch (oldState)
     {
         case SPELL_STATE_PREPARING:
-            CancelGlobalCooldown();
         case SPELL_STATE_DELAYED:
+            CancelGlobalCooldown();
             SendInterrupted(0);
             SendCastResult(SPELL_FAILED_INTERRUPTED);
             break;
