@@ -31,7 +31,6 @@ class npc_demolisher_engineerer : public CreatureScript
 public:
     npc_demolisher_engineerer() : CreatureScript("npc_demolisher_engineerer") { }
 
-
 bool OnGossipHello(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isQuestGiver())
