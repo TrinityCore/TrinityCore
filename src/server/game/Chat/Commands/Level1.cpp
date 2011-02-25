@@ -724,17 +724,17 @@ bool ChatHandler::HandleJailCommand(const char *args)
     }
 
     uint32 jailtime = atoi(timetojail);
-    if (jailtime < 1 || jailtime > sObjectMgr->m_jailconf_max_duration)
+    if (jailtime < 1 || jailtime > sWorld->getIntConfig(CONFIG_JAIL_MAX_DURATION))
     {
-        PSendSysMessage(LANG_JAIL_VALUE, sObjectMgr->m_jailconf_max_duration);
+        PSendSysMessage(LANG_JAIL_VALUE, sWorld->getIntConfig(CONFIG_JAIL_MAX_DURATION));
         return true;
     }
 
     char *reason = strtok(NULL, "\0");
     std::string jailreason;
-    if (reason == NULL || strlen((const char*)reason) < sObjectMgr->m_jailconf_min_reason)
+    if (reason == NULL || strlen((const char*)reason) < sWorld->getIntConfig(CONFIG_JAIL_MIN_REASON))
     {
-        PSendSysMessage(LANG_JAIL_NOREASON, sObjectMgr->m_jailconf_min_reason);
+        PSendSysMessage(LANG_JAIL_NOREASON, sWorld->getIntConfig(CONFIG_JAIL_MIN_REASON));
         return true;
     } else jailreason = reason;
 
@@ -767,7 +767,7 @@ bool ChatHandler::HandleJailCommand(const char *args)
         std::string jail_char = cname;
         bool jail_isjailed = true;
         uint32 jail_release = localtime + (jailtime * 60 * 60);
-        uint32 jail_amnestietime = localtime +(60* 60 * 24 * sObjectMgr->m_jailconf_amnestie);
+        uint32 jail_amnestietime = localtime +(60* 60 * 24 * sWorld->getIntConfig(CONFIG_JAIL_AMNESTIE));
         std::string jail_reason = jailreason;
         uint32 jail_times = 0;
 
@@ -795,7 +795,7 @@ bool ChatHandler::HandleJailCommand(const char *args)
 
         sWorld->SendWorldText(LANG_JAIL_ANNOUNCE, jail_char.c_str(), timetojail, jail_gmchar.c_str(), jail_reason.c_str());
 
-        if ((sObjectMgr->m_jailconf_max_jails == jail_times) && !sObjectMgr->m_jailconf_ban)
+        if ((sWorld->getIntConfig(CONFIG_JAIL_MAX_JAILS) == jail_times) && !sWorld->getBoolConfig(CONFIG_JAIL_BAN))
         {
             QueryResult result = CharacterDatabase.PQuery("SELECT * FROM `characters` WHERE `guid`='%u' LIMIT 1", GUID_LOPART(GUID));
 
@@ -809,7 +809,7 @@ bool ChatHandler::HandleJailCommand(const char *args)
 
             Player::DeleteFromDB(GUID, fields[1].GetUInt32());
         }
-        else if ((sObjectMgr->m_jailconf_max_jails == jail_times) && sObjectMgr->m_jailconf_ban)
+        else if ((sWorld->getIntConfig(CONFIG_JAIL_MAX_JAILS) == jail_times) && sWorld->getBoolConfig(CONFIG_JAIL_BAN))
         {
             QueryResult result = CharacterDatabase.PQuery("SELECT * FROM `characters` WHERE `guid`='%u' LIMIT 1", GUID_LOPART(GUID));
 
@@ -859,7 +859,7 @@ bool ChatHandler::HandleJailCommand(const char *args)
     chr->m_jail_char = fields[2].GetString();
     chr->m_jail_isjailed = true;
     chr->m_jail_release = localtime + (jailtime * 60 * 60);
-    chr->m_jail_amnestietime = localtime +(60* 60 * 24 * sObjectMgr->m_jailconf_amnestie);
+    chr->m_jail_amnestietime = localtime +(60* 60 * 24 * sWorld->getIntConfig(CONFIG_JAIL_AMNESTIE));
     chr->m_jail_reason = jailreason;
     chr->m_jail_times = chr->m_jail_times+1;
     chr->m_jail_gmacc = m_session->GetAccountId();
@@ -874,12 +874,12 @@ bool ChatHandler::HandleJailCommand(const char *args)
 
     sWorld->SendWorldText(LANG_JAIL_ANNOUNCE, fields[2].GetString().c_str(), timetojail, m_session->GetPlayerName(), jailreason.c_str());
 
-    if (sObjectMgr->m_jailconf_max_jails == chr->m_jail_times)
+    if (sWorld->getIntConfig(CONFIG_JAIL_MAX_JAILS) == chr->m_jail_times)
     {
         chr->GetSession()->KickPlayer();
         chr->DeleteFromDB(fields[0].GetUInt64(), fields[1].GetUInt32());
     }
-    else if ((sObjectMgr->m_jailconf_max_jails == chr->m_jail_times) && sObjectMgr->m_jailconf_ban)
+    else if ((sWorld->getIntConfig(CONFIG_JAIL_MAX_JAILS) == chr->m_jail_times) && sWorld->getBoolConfig(CONFIG_JAIL_BAN))
     {
         uint32 acc_id = chr->GetSession()->GetAccountId();
         ban_reason = GetTrinityString(LANG_JAIL_BAN_REASON);

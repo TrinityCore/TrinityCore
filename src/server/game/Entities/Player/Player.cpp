@@ -1328,70 +1328,69 @@ void Player::Update(uint32 p_time)
     Unit::Update(p_time);
     SetCanDelayTeleport(false);
 
-    if(m_jail_isjailed)
+    if (m_jail_isjailed)
     {
         time_t localtime;
         localtime = time(NULL);
-		
+
         if (m_jail_release <= localtime)
         {
             m_jail_isjailed = false;
             m_jail_release = 0;
 
             _SaveJail();
-            
+
             sWorld->SendWorldText(LANG_JAIL_CHAR_FREE, GetName());
-            CastSpell(this,8690,false);
+            CastSpell(this, 8690, false);
 
             return;
         }
 
         if (m_team == ALLIANCE)
         {
-            if (GetDistance(sObjectMgr->m_jailconf_ally_x, sObjectMgr->m_jailconf_ally_y, sObjectMgr->m_jailconf_ally_z) > sObjectMgr->m_jailconf_radius)
+            if (GetDistance(sWorld->getFloatConfig(CONFIG_JAIL_TELE_ALLY_X), sWorld->getFloatConfig(CONFIG_JAIL_TELE_ALLY_Y), sWorld->getFloatConfig(CONFIG_JAIL_TELE_ALLY_Z)) > sWorld->getIntConfig(CONFIG_JAIL_RADIUS))
             {
-                TeleportTo(sObjectMgr->m_jailconf_ally_m, sObjectMgr->m_jailconf_ally_x,
-                    sObjectMgr->m_jailconf_ally_y, sObjectMgr->m_jailconf_ally_z, sObjectMgr->m_jailconf_ally_o);
+                TeleportTo(sWorld->getIntConfig(CONFIG_JAIL_TELE_ALLY_MAP), sWorld->getFloatConfig(CONFIG_JAIL_TELE_ALLY_X),
+                    sWorld->getFloatConfig(CONFIG_JAIL_TELE_ALLY_Y), sWorld->getFloatConfig(CONFIG_JAIL_TELE_ALLY_Z), sWorld->getFloatConfig(CONFIG_JAIL_TELE_ALLY_O));
                 return;
             }
         }
         else
         {
-            if (GetDistance(sObjectMgr->m_jailconf_horde_x, sObjectMgr->m_jailconf_horde_y, sObjectMgr->m_jailconf_horde_z) > sObjectMgr->m_jailconf_radius)
+            if (GetDistance(sWorld->getFloatConfig(CONFIG_JAIL_TELE_HORDE_X), sWorld->getFloatConfig(CONFIG_JAIL_TELE_HORDE_Y), sWorld->getFloatConfig(CONFIG_JAIL_TELE_HORDE_Z)) > sWorld->getIntConfig(CONFIG_JAIL_RADIUS))
             {
-                TeleportTo(sObjectMgr->m_jailconf_horde_m, sObjectMgr->m_jailconf_horde_x,
-                    sObjectMgr->m_jailconf_horde_y, sObjectMgr->m_jailconf_horde_z, sObjectMgr->m_jailconf_horde_o);
+                TeleportTo(sWorld->getIntConfig(CONFIG_JAIL_TELE_HORDE_MAP), sWorld->getFloatConfig(CONFIG_JAIL_TELE_HORDE_X),
+                    sWorld->getFloatConfig(CONFIG_JAIL_TELE_HORDE_Y), sWorld->getFloatConfig(CONFIG_JAIL_TELE_HORDE_Z), sWorld->getFloatConfig(CONFIG_JAIL_TELE_HORDE_O));
                 return;
             }
-			
         }
     }
-	
-    if(m_jail_warning == true)
+
+    if (m_jail_warning)
     {
-        m_jail_warning  = false;
-		
-        if(sObjectMgr->m_jailconf_warn_player == m_jail_times || sObjectMgr->m_jailconf_warn_player <= m_jail_times)
+        m_jail_warning = false;
+
+        if (sWorld->getIntConfig(CONFIG_JAIL_WARN_PLAYER) <= m_jail_times)
         {
-            if ((sObjectMgr->m_jailconf_max_jails-1 == m_jail_times-1) && sObjectMgr->m_jailconf_ban-1)
-                ChatHandler(this).PSendSysMessage(LANG_JAIL_WARNING_BAN, m_jail_times , sObjectMgr->m_jailconf_max_jails-1);
+            if ((sWorld->getIntConfig(CONFIG_JAIL_MAX_JAILS)-1 == m_jail_times-1) && sWorld->getBoolConfig(CONFIG_JAIL_BAN)-1)
+                ChatHandler(this).PSendSysMessage(LANG_JAIL_WARNING_BAN, m_jail_times , sWorld->getIntConfig(CONFIG_JAIL_MAX_JAILS)-1);
             else
-                ChatHandler(this).PSendSysMessage(LANG_JAIL_WARNING, m_jail_times , sObjectMgr->m_jailconf_max_jails);
+                ChatHandler(this).PSendSysMessage(LANG_JAIL_WARNING, m_jail_times , sWorld->getIntConfig(CONFIG_JAIL_MAX_JAILS));
         }
         return;
     }
 
-    if(m_jail_amnestie == true && sObjectMgr->m_jailconf_amnestie > 0 )
+    if (m_jail_amnestie && sWorld->getIntConfig(CONFIG_JAIL_AMNESTIE) > 0 )
     {
-	m_jail_amnestie =false;
-	time_t localtime;
+        m_jail_amnestie = false;
+        time_t localtime;
         localtime = time(NULL);
-	
-	if(localtime >  m_jail_amnestietime)
-	{   
-            CharacterDatabase.PExecute("DELETE FROM `jail` WHERE `guid` = '%u'",GetGUIDLow());
+
+        if (localtime >  m_jail_amnestietime)
+        {   
+            CharacterDatabase.PExecute("DELETE FROM `jail` WHERE `guid` = '%u'", GetGUIDLow());
             ChatHandler(this).PSendSysMessage(LANG_JAIL_AMNESTII);
-	}
+        }
         return;
     }
 
@@ -16998,13 +16997,13 @@ void Player::_LoadJail(void)
     {
         if (m_team == ALLIANCE)
         {
-            TeleportTo(sObjectMgr->m_jailconf_ally_m, sObjectMgr->m_jailconf_ally_x,
-                sObjectMgr->m_jailconf_ally_y, sObjectMgr->m_jailconf_ally_z, sObjectMgr->m_jailconf_ally_o);
+            TeleportTo(sWorld->getIntConfig(CONFIG_JAIL_TELE_ALLY_MAP), sWorld->getFloatConfig(CONFIG_JAIL_TELE_ALLY_X),
+                sWorld->getFloatConfig(CONFIG_JAIL_TELE_ALLY_Y), sWorld->getFloatConfig(CONFIG_JAIL_TELE_ALLY_Z), sWorld->getFloatConfig(CONFIG_JAIL_TELE_ALLY_O));
         }
         else
         {
-            TeleportTo(sObjectMgr->m_jailconf_horde_m, sObjectMgr->m_jailconf_horde_x,
-                sObjectMgr->m_jailconf_horde_y, sObjectMgr->m_jailconf_horde_z, sObjectMgr->m_jailconf_horde_o);
+            TeleportTo(sWorld->getIntConfig(CONFIG_JAIL_TELE_HORDE_MAP), sWorld->getFloatConfig(CONFIG_JAIL_TELE_HORDE_X),
+                sWorld->getFloatConfig(CONFIG_JAIL_TELE_HORDE_Y), sWorld->getFloatConfig(CONFIG_JAIL_TELE_HORDE_Z), sWorld->getFloatConfig(CONFIG_JAIL_TELE_HORDE_O));
         }
          
         sWorld->SendWorldText(LANG_JAIL_CHAR_TELE, GetName() );

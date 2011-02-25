@@ -1224,6 +1224,26 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_LOTTERY_MINLVL]            = sConfig->GetIntDefault("Lottery.MinUserLVL", 60);
 
     // SQL Config values
+    m_int_configs[CONFIG_JAIL_MAX_JAILS]            = sSQLConfig->GetIntDefault("Jail.MaxJails", 3);
+    m_int_configs[CONFIG_JAIL_MAX_DURATION]         = sSQLConfig->GetIntDefault("Jail.MaxDuration", 672);
+    m_int_configs[CONFIG_JAIL_MIN_REASON]           = sSQLConfig->GetIntDefault("Jail.MinReason", 25);
+    m_int_configs[CONFIG_JAIL_WARN_PLAYER]          = sSQLConfig->GetIntDefault("Jail.WarnPlayer", 1);
+    m_int_configs[CONFIG_JAIL_AMNESTIE]             = sSQLConfig->GetIntDefault("Jail.Amnestie", 180);
+
+    m_float_configs[CONFIG_JAIL_TELE_ALLY_X]        = sSQLConfig->GetFloatDefault("Jail.Tele.Alliance.X", -8673.43f);
+    m_float_configs[CONFIG_JAIL_TELE_ALLY_Y]        = sSQLConfig->GetFloatDefault("Jail.Tele.Alliance.Y", 631.795f);
+    m_float_configs[CONFIG_JAIL_TELE_ALLY_Z]        = sSQLConfig->GetFloatDefault("Jail.Tele.Alliance.Z", 96.9406f);
+    m_float_configs[CONFIG_JAIL_TELE_ALLY_O]        = sSQLConfig->GetFloatDefault("Jail.Tele.Alliance.O", 2.1785f);
+    m_int_configs[CONFIG_JAIL_TELE_ALLY_MAP]        = sSQLConfig->GetIntDefault("Jail.Tele.Alliance.Map", 0);
+
+    m_float_configs[CONFIG_JAIL_TELE_HORDE_X]       = sSQLConfig->GetFloatDefault("Jail.Tele.Horde.X", 2179.85f);
+    m_float_configs[CONFIG_JAIL_TELE_HORDE_Y]       = sSQLConfig->GetFloatDefault("Jail.Tele.Horde.Y", -4763.96f);
+    m_float_configs[CONFIG_JAIL_TELE_HORDE_Z]       = sSQLConfig->GetFloatDefault("Jail.Tele.Horde.Z", 54.911f);
+    m_float_configs[CONFIG_JAIL_TELE_HORDE_O]       = sSQLConfig->GetFloatDefault("Jail.Tele.Horde.O", 4.44216f);
+    m_int_configs[CONFIG_JAIL_TELE_HORDE_MAP]       = sSQLConfig->GetIntDefault("Jail.Tele.Horde.Map", 1);
+
+    m_bool_configs[CONFIG_JAIL_BAN]                 = sSQLConfig->GetBoolDefault("Jail.Ban", false);
+    m_int_configs[CONFIG_JAIL_RADIUS]               = sSQLConfig->GetIntDefault("Jail.Radius", 10);
 
     sScriptMgr->OnConfigLoad(reload);
 }
@@ -1614,9 +1634,6 @@ void World::SetInitialWorldSettings()
     ///- Handle outdated emails (delete/return)
     sLog->outString("Returning old mails...");
     sObjectMgr->ReturnOrDeleteOldMails(false);
-    // Loads the jail conf out of the database
-    sLog->outString("Loading JailConfing...");    
-    sObjectMgr->LoadJailConf();
 
     sLog->outString("Loading Autobroadcasts...");
     LoadAutobroadcasts();

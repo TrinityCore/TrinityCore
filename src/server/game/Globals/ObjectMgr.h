@@ -956,28 +956,6 @@ class ObjectMgr
         void LoadTrainerSpell();
         void AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, uint32 reqSkill, uint32 reqSkillValue, uint32 reqLevel);
 
-        // Loads the jail conf out of the database
-        void LoadJailConf();
-        // Jail Config...
-        std::string m_jail_obt;
-        uint32 m_jailconf_max_jails;    // Jail times when the char will be deleted
-        uint32 m_jailconf_max_duration; // Max. jail duration in hours
-        uint32 m_jailconf_min_reason;   // Min. char length of the reason
-        uint32 m_jailconf_warn_player;  // Warn player every login if max_jails is nearly reached?
-        uint32 m_jailconf_amnestie;     // player amnestie
-        float m_jailconf_ally_x;        // Coords of the jail for the allies
-        float m_jailconf_ally_y;
-        float m_jailconf_ally_z;
-        float m_jailconf_ally_o;
-        uint32 m_jailconf_ally_m;
-        float m_jailconf_horde_x;       // Coords of the jail for the horde
-        float m_jailconf_horde_y;
-        float m_jailconf_horde_z;
-        float m_jailconf_horde_o;
-        uint32 m_jailconf_horde_m;
-        uint32 m_jailconf_ban;          // Ban acc if max. jailtimes is reached?
-        uint32 m_jailconf_radius;       // Radius in which a jailed char can walk
-
         std::string GeneratePetName(uint32 entry);
         uint32 GetBaseXP(uint8 level);
         uint32 GetXPForLevel(uint8 level);

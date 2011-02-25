@@ -1,13 +1,13 @@
-DELETE FROM `command` WHERE name IN ('jail', 'jailinfo', 'unjail', 'jailreload', 'pinfo', 'clearjail');
+SET @MAX_SEC := (SELECT MAX(security) FROM `command`);
+DELETE FROM `command` WHERE name IN ('jail', 'jailinfo', 'unjail', 'pinfo', 'clearjail');
 INSERT INTO `command` (name, security, help) VALUES
 ('jail',       1, 'Syntax: .jail $char_name $hours $reason\nJailed the \'character\' for \'hours\' with the \'reason\'.'),
 ('jailinfo',   0, 'Syntax: .jailinfo\nShows your jail status.'),
 ('unjail',     1, 'Syntax: .unjail $char_name\nRealeases the \'character\' out of the jail.'),
-('jailreload', 3, 'Syntax: .jailreload\nLoads the jail config new.'),
-('clearjail',  5, 'Syntax: .clearjail $char_name\nRemoves all jail records for character with entered name from DB.'),
+('clearjail',  @MAX_SEC, 'Syntax: .clearjail $char_name\nRemoves all jail records for character with entered name from DB.'),
 ('pinfo',      2, 'Syntax: .pinfo [$player_name] [rep] [jail]\nOutput account information for selected player or player find by $player_name.\nIf \'rep\' parameter is provided it shows the reputation information for players.\nIf \'jail\' parameter is provided it shows the jail information for players.');
 
-DELETE FROM trinity_string WHERE `entry` BETWEEN '950' AND '979';
+DELETE FROM trinity_string WHERE `entry` BETWEEN '950' AND '975';
 INSERT INTO trinity_string
    (`entry`, `content_default`, `content_loc1`, `content_loc2`, `content_loc3`, `content_loc4`, `content_loc5`, `content_loc6`, `content_loc7`, `content_loc8`)
 VALUES
@@ -31,13 +31,28 @@ VALUES
    (967, 'You can\'t unjail yourself!', NULL, 'Vous ne pouvez pas vous librer vous m me!', 'So weit kommt es noch, da? Knastbr?der sich selber befreien! :-(', NULL, NULL, NULL, NULL, 'Вы не можете освободить самого себя из тюрьмы!'),
    (968, '|cffff0000[!!! ATTENTION - IMPORTANT - WARNING !!!\r\n You were already %u times in prison beim %u mal your character will be deleted\r\n|cffff0000!!! ATTENTION - IMPORTANT - WARNING !!!]', NULL, '|cffff0000[!!!ATTENTION - ATTENTION - ATTENTION!!!\r\n Vous étiez déjà %u fois en prison en %u fois, votre personnage supprimé\r\n|cffff0000!!! ATTENTION - ATTENTION - ATTENTION !!!]', '|cffff0000[!!! ACHTUNG - WICHTIG - WARNUNG !!!\r\n Du warst schon %u mal in Knast beim %u mal wird dein Charakter gelöscht\r\n|cffff0000!!! ACHTUNG - WICHTIG - WARNUNG !!!]', NULL, NULL, NULL, NULL, '|cffff0000[!!! ВНИМАНИЕ - ВАЖНО - ВНИМАНИЕ !!!\r\n Ваш персонаж уже %u раз был в тюрьме. Через %u раз(а) он будет удалён!\r\n|cffff0000!!! ВНИМАНИЕ - ВАЖНО - ВНИМАНИЕ !!!]'),
    (969, 'The character \'%s\' was jailed for %s hour(s) by the GM character \'%s\'. The reason is: %s', NULL, 'Le personnage ', 'Der Charakter \'', NULL, NULL, NULL, NULL, 'Персонаж \'%s\' арестован на %s часа(ов) ГМом \'%s\'. Причина: %s'),
-   (970, 'The jail configuration was reloaded.', NULL, 'La configuration de jail a t recharge.', 'Die Gef?ngnis-Konfiguration wurde neu geladen.', NULL, NULL, NULL, NULL, 'Параметры конфигурации перезагружены.'),
-   (971, '>> Jail config loaded.', NULL, '>> Configuration du jail charge.', '>> Gef?ngnis-Konfiguration geladen.', NULL, NULL, NULL, NULL, '>> Конфигурация тюрьмы загружена.'),
-   (972, 'Can\'t load jail config! Table empty or missed! Use characters_jail.sql!', NULL, 'Impossible de charger la configuration du jail! Table vide ou innexistante! Appliquez characters_jail.sql!', 'Fehler beim laden der Gef?ngnis-Konfiguration! Der Table \'jail_conf\' ist leer oder nicht vorhanden! Nutze die \'characters_jail.sql\'!', NULL, NULL, NULL, NULL, 'Невозможно загрузить параметры тюрьмы! Таблица отсутствует или является пустой! Используйте characters_jail.sql!'),
-   (973, 'Set all jail config settings to default...', NULL, 'Placez tous les param tres de configuration de prison par d faut.', 'Setze die Konfiguration des Gef?ngnisses auf Standardwerte...', NULL, NULL, NULL, NULL, 'Все параметры конфигурации сброшены на стандартные значения...'),
-   (974, 'The character \'%s\' is jailed and teleported into the jail.', NULL, 'Le personnage %s  est emprisonn et t leport dans la prison.', 'Der Charakter \'%s\'  ist ein Knastbruder und wird in den Knast teleportiert.', NULL, NULL, NULL, NULL, 'Персонаж \'%s\' заключён и телепортирован в тюрьму.'),
-   (975, 'The character \'%s\' was released out of the jail.', NULL, 'Le personnage %s  est liber  de prison.', 'Der Charakter \'%s\'  wurde aus dem Knast entlassen.', NULL, NULL, NULL, NULL, 'Персонаж \'%s\' освобождён из тюрьмы.'),
-   (976, '|cffff0000[!!! ATTENTION - IMPORTANT - WARNING !!!\r\n You were already %u times in prison beim %u mal your account  will be banned!\r\n|cffff0000!!! ATTENTION - IMPORTANT - WARNING !!!]', NULL, '|cffff0000[!!!ATTENTION - ATTENTION - ATTENTION!!!\r\n Vous avez %u fois en prison en %u fois votre compte sera banni\r\n|cffff0000!!! ATTENTION - ATTENTION - ATTENTION !!!]', '|cffff0000[!!! ACHTUNG - WICHTIG - WARNUNG !!!\r\n Du hast %u mal in Knast beim %u mal wird dein Account gebannt\r\n|cffff0000!!! ACHTUNG - WICHTIG - WARNUNG !!!]', NULL, NULL, NULL, NULL, '|cffff0000[!!! ВНИМАНИЕ - ВАЖНО - ВНИМАНИЕ !!!\r\n Ваш персонаж уже %u раз был в тюрьме. Через %u раз(а) ваш аккаунт будет забанен!\r\n|cffff0000!!! ВНИМАНИЕ - ВАЖНО - ВНИМАНИЕ !!!]'),
-   (977, 'Max. jailtimes reached!', NULL, 'Nombre maximum d\'Jails atteint!', 'Maximale Anzahl an Jails erreicht!', NULL, NULL, NULL, NULL, 'Максимальное количество отсидок достигнуто!'),
-   (978, 'Robotron', NULL, 'Robotron', 'Robotron', NULL, NULL, NULL, NULL, 'Robotron'),
-   (979, 'Your jail status was reset to 0', NULL, 'Votre statut a été Jail à 0 gesatzt', 'Dein Jail status wurde auf 0 zurück gesatzt', NULL, NULL, NULL, NULL, 'Ваша статистика тюрем сброшена на 0');
+   (970, 'The character \'%s\' is jailed and teleported into the jail.', NULL, 'Le personnage %s  est emprisonn et t leport dans la prison.', 'Der Charakter \'%s\'  ist ein Knastbruder und wird in den Knast teleportiert.', NULL, NULL, NULL, NULL, 'Персонаж \'%s\' заключён и телепортирован в тюрьму.'),
+   (971, 'The character \'%s\' was released out of the jail.', NULL, 'Le personnage %s  est liber  de prison.', 'Der Charakter \'%s\'  wurde aus dem Knast entlassen.', NULL, NULL, NULL, NULL, 'Персонаж \'%s\' освобождён из тюрьмы.'),
+   (972, '|cffff0000[!!! ATTENTION - IMPORTANT - WARNING !!!\r\n You were already %u times in prison beim %u mal your account  will be banned!\r\n|cffff0000!!! ATTENTION - IMPORTANT - WARNING !!!]', NULL, '|cffff0000[!!!ATTENTION - ATTENTION - ATTENTION!!!\r\n Vous avez %u fois en prison en %u fois votre compte sera banni\r\n|cffff0000!!! ATTENTION - ATTENTION - ATTENTION !!!]', '|cffff0000[!!! ACHTUNG - WICHTIG - WARNUNG !!!\r\n Du hast %u mal in Knast beim %u mal wird dein Account gebannt\r\n|cffff0000!!! ACHTUNG - WICHTIG - WARNUNG !!!]', NULL, NULL, NULL, NULL, '|cffff0000[!!! ВНИМАНИЕ - ВАЖНО - ВНИМАНИЕ !!!\r\n Ваш персонаж уже %u раз был в тюрьме. Через %u раз(а) ваш аккаунт будет забанен!\r\n|cffff0000!!! ВНИМАНИЕ - ВАЖНО - ВНИМАНИЕ !!!]'),
+   (973, 'Max. jailtimes reached!', NULL, 'Nombre maximum d\'Jails atteint!', 'Maximale Anzahl an Jails erreicht!', NULL, NULL, NULL, NULL, 'Максимальное количество отсидок достигнуто!'),
+   (974, 'Robotron', NULL, 'Robotron', 'Robotron', NULL, NULL, NULL, NULL, 'Robotron'),
+   (975, 'Your jail status was reset to 0', NULL, 'Votre statut a été Jail à 0 gesatzt', 'Dein Jail status wurde auf 0 zurück gesatzt', NULL, NULL, NULL, NULL, 'Ваша статистика тюрем сброшена на 0');
+
+DELETE FROM `config` WHERE `name` LIKE 'Jail.%';
+INSERT INTO `config` VALUES ('Jail.MaxJails', '3', '3', null, '3', 'Jail times when the char will be deleted or banned.');
+INSERT INTO `config` VALUES ('Jail.MaxDuration', '672', '672', null, '672', 'Maximum jail duration in hours.');
+INSERT INTO `config` VALUES ('Jail.MinReason', '25', '25', null, '25', 'Minimum character length of the reason.');
+INSERT INTO `config` VALUES ('Jail.WarnPlayer', '1', '1', null, '1', 'Warn player every login if Jail.MaxJails is nearly reached.');
+INSERT INTO `config` VALUES ('Jail.Amnestie', '180', '180', null, '180', '');
+INSERT INTO `config` VALUES ('Jail.Tele.Alliance.X', null, '-8673.43', null, '-8673,43', '');
+INSERT INTO `config` VALUES ('Jail.Tele.Alliance.Y', null, '631.795', null, '631,795', '');
+INSERT INTO `config` VALUES ('Jail.Tele.Alliance.Z', null, '96.9406', null, '96,9406', '');
+INSERT INTO `config` VALUES ('Jail.Tele.Alliance.O', null, '2.1785', null, '2,1785', '');
+INSERT INTO `config` VALUES ('Jail.Tele.Alliance.Map', '0', '0', null, '0', '');
+INSERT INTO `config` VALUES ('Jail.Tele.Horde.X', null, '2179.85', null, '2179,85', '');
+INSERT INTO `config` VALUES ('Jail.Tele.Horde.Y', null, '-4763.96', null, '-4763,96', '');
+INSERT INTO `config` VALUES ('Jail.Tele.Horde.Z', null, '54.911', null, '54,911', '');
+INSERT INTO `config` VALUES ('Jail.Tele.Horde.O', null, '4.44216', null, '4,44216', '');
+INSERT INTO `config` VALUES ('Jail.Tele.Horde.Map', '1', '1', null, '1', '');
+INSERT INTO `config` VALUES ('Jail.Ban', null, null, '0', null, 'Ban acc if maximum jailtimes is reached.');
+INSERT INTO `config` VALUES ('Jail.Radius', '10', '10', null, '10', 'Radius in which a jailed char can walk.');

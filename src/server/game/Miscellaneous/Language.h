@@ -42,16 +42,12 @@ enum TrinityStrings
     LANG_JAIL_NO_UNJAIL                 = 967,  // "You can't unjail yourself!"
     LANG_JAIL_WARNING                   = 968,  // "Be carefull! Only one more jailtime and your current character will be deleted!"
     LANG_JAIL_ANNOUNCE                  = 969,  // "The character '%s' was jailed for %s hour(s) by the GM character '%s'. The reason is: %s"
-    LANG_JAIL_RELOAD                    = 970,  // "The jail configuration was reloaded."
-    LANG_JAIL_CONF_LOADED               = 971,  // ">> Jail config loaded."
-    LANG_JAIL_CONF_ERR1                 = 972,  // "Can't load jail config! Table empty or missed! Use jail_conf.sql!"
-    LANG_JAIL_CONF_ERR2                 = 973,  // "Set all jail config settings to default..."
-    LANG_JAIL_CHAR_TELE                 = 974,  // "The Character '%s' (GUID %u) is jailed and teleportet into the jail."
-    LANG_JAIL_CHAR_FREE                 = 975,  // "The Character '%s' (GUID %u) was released out of the jail."
-    LANG_JAIL_WARNING_BAN               = 976,  // "Be carefull! Only one more jailtime and your account will be banned!"
-    LANG_JAIL_BAN_REASON                = 977,  // "Max. jailtimes reached!"
-    LANG_JAIL_BAN_BY                    = 978,  // "Robotron"
-    LANG_JAIL_AMNESTII                  = 979,  // "AMNESTII"
+    LANG_JAIL_CHAR_TELE                 = 970,  // "The Character '%s' (GUID %u) is jailed and teleportet into the jail."
+    LANG_JAIL_CHAR_FREE                 = 971,  // "The Character '%s' (GUID %u) was released out of the jail."
+    LANG_JAIL_WARNING_BAN               = 972,  // "Be carefull! Only one more jailtime and your account will be banned!"
+    LANG_JAIL_BAN_REASON                = 973,  // "Max. jailtimes reached!"
+    LANG_JAIL_BAN_BY                    = 974,  // "Robotron"
+    LANG_JAIL_AMNESTII                  = 975,  // "AMNESTII"
 
     // for chat commands
     LANG_SELECT_CHAR_OR_CREATURE        = 1,
