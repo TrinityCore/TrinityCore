@@ -553,9 +553,12 @@ enum SpellClickUserTypes
     SPELL_CLICK_USER_MAX = 4
 };
 
-#define NPC_CLICK_CAST_CASTER_PLAYER              0x01
-#define NPC_CLICK_CAST_TARGET_PLAYER              0x02
-#define NPC_CLICK_CAST_ORIG_CASTER_OWNER          0x04
+enum SpellClickCastFlags
+{
+    NPC_CLICK_CAST_CASTER_CLICKER       = 0x01,
+    NPC_CLICK_CAST_TARGET_CLICKER       = 0x02,
+    NPC_CLICK_CAST_ORIG_CASTER_OWNER    = 0x04,
+};
 
 enum SheathTypes
 {

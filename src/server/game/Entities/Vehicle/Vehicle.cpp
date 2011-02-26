@@ -282,7 +282,14 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
         if (minion)
             accessory->AddUnitTypeMask(UNIT_MASK_ACCESSORY);
 
-        accessory->EnterVehicle(this, seatId);
+        
+        if (!me->HandleSpellClick(accessory, seatId))
+        {
+            sLog->outErrorDb("Vehicle entry %u in vehicle_accessory does not have a valid record in npc_spellclick_spells! Calling default EnterVehicle()",
+                me->GetTypeId() == TYPEID_UNIT ? me->GetEntry() : me->GetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID)); 
+            accessory->EnterVehicle(this, seatId);
+        }
+
         // This is not good, we have to send update twice
         accessory->SendMovementFlagUpdate();
 
@@ -358,6 +365,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
         if (!me->SetCharmedBy(unit, CHARM_TYPE_VEHICLE))
             ASSERT(false);
 
+        // hack: should be done by aura system
         if (VehicleScalingInfo const *scalingInfo = sObjectMgr->GetVehicleScalingInfo(m_vehicleInfo->m_ID))
         {
             Player *plr = unit->ToPlayer();

@@ -16456,6 +16456,51 @@ bool Unit::CheckPlayerCondition(Player* pPlayer)
     }
 }
 
+bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
+{
+    bool success = false;
+    uint32 spellClickEntry = GetTypeId() == TYPEID_UNIT ? GetEntry() : GetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID);
+    SpellClickInfoMapBounds clickPair = sObjectMgr->GetSpellClickInfoMapBounds(spellClickEntry);
+    for (SpellClickInfoMap::const_iterator itr = clickPair.first; itr != clickPair.second; ++itr)
+    {
+        if (itr->second.IsFitToRequirements(clicker, this))
+        {
+            Unit *caster = (itr->second.castFlags & NPC_CLICK_CAST_CASTER_CLICKER) ? clicker : this;
+            Unit *target = (itr->second.castFlags & NPC_CLICK_CAST_TARGET_CLICKER) ? clicker : this;
+            uint64 origCasterGUID = (itr->second.castFlags & NPC_CLICK_CAST_ORIG_CASTER_OWNER) ? GetOwnerGUID() : clicker->GetGUID();
+
+            SpellEntry const* spellEntry = sSpellStore.LookupEntry(itr->second.spellId);
+            // if(!spellEntry) should be checked at npc_spellclick load
+
+            if (seatId > -1)
+            {
+                uint8 i = 0;
+                bool valid = false;
+                while (i < MAX_SPELL_EFFECTS && !valid)
+                    if (spellEntry->EffectApplyAuraName[i] == SPELL_AURA_CONTROL_VEHICLE)
+                        valid = true;
+
+                if (!valid)
+                {
+                    sLog->outErrorDb("Spell %u specified in npc_spellclick_spells is not a valid vehicle enter aura!", itr->second.spellId);
+                    return false;
+                }
+
+                caster->CastCustomSpell(itr->second.spellId, SpellValueMod(SPELLVALUE_BASE_POINT0+i), seatId+1, target, true, NULL, NULL, origCasterGUID);
+            }
+            else
+                caster->CastSpell(target, spellEntry, true, NULL, NULL, origCasterGUID);
+
+            success = true;
+        }
+    }
+
+    if (this->ToCreature())
+        this->ToCreature()->AI()->DoAction(EVENT_SPELLCLICK);
+
+    return success;
+}
+
 void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId, AuraApplication const * aurApp)
 {
     if (!isAlive() || GetVehicleKit() == vehicle || vehicle->GetBase()->IsOnVehicle(this))
