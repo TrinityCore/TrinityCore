@@ -18065,6 +18065,13 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 ( 20066,-61840, 0, 'Repentance'),
 ( 66235, 66233, 0, 'Ardent Defender Visuals'),
 ( 58875, 58876, 1, 'Spirit Walk'),
+-- Misc
+( 55428, 55475, 0, 'Lifeblood (Rank 1)'),
+( 55480, 55475, 0, 'Lifeblood (Rank 2)'),
+( 55500, 55475, 0, 'Lifeblood (Rank 3)'),
+( 55501, 55475, 0, 'Lifeblood (Rank 4)'),
+( 55502, 55475, 0, 'Lifeblood (Rank 5)'),
+( 55503, 55475, 0, 'Lifeblood (Rank 6)'),
 -- Quest
 ( 26286, 44430, 0, 'Small Red Rocket - questcredit'),
 ( 26292, 44430, 0, 'Small Green Rocket - questcredit'),
