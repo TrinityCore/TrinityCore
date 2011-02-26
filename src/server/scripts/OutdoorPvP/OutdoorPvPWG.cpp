@@ -1341,9 +1341,9 @@ void OutdoorPvPWG::HandlePlayerLeaveZone(Player * plr, uint32 zone)
                 {
                     m_Groups[plr->GetTeamId()].erase(group->GetGUID());
                     group->SetBattlegroundGroup(NULL);
-                    sObjectMgr->RemoveGroup(group);
-                    delete group;
-                    group = NULL;
+                   // sObjectMgr->RemoveGroup(group);
+                   // delete group;
+                   // group = NULL;
                 }
             }
         }
@@ -2222,9 +2222,9 @@ void OutdoorPvPWG::EndBattle()
             {
                group->Disband();
                group->SetBattlegroundGroup(NULL);
-               sObjectMgr->RemoveGroup(group);
-               delete group;
-               group = NULL;
+               //sObjectMgr->RemoveGroup(group);
+               //delete group;
+               //group = NULL;
             }
         }
     }
