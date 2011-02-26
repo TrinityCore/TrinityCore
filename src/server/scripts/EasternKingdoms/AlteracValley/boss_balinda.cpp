@@ -27,8 +27,8 @@ enum Spells
 
 enum Yells
 {
-    YELL_AGGRO                                    = -2100019,
-    YELL_EVADE                                    = -2100020
+    YELL_AGGRO                                    = -1810023,
+    YELL_EVADE                                    = -1810024
 };
 
 enum Creatures

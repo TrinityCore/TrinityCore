@@ -145,6 +145,7 @@ class Vehicle
 
     private:
         SeatMap::iterator GetSeatIteratorForPassenger(Unit* passenger);
+        void InitMovementInfoForBase();
 
     protected:
         Unit *me;
