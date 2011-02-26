@@ -310,7 +310,7 @@ enum BGHonorMode
 };
 
 #define BG_AWARD_ARENA_POINTS_MIN_LEVEL 71
-#define ARENA_TIMELIMIT_POINTS_LOSS    -16
+#define ARENA_TIMELIMIT_POINTS_LOSS    0
 
 /*
 This class is used to:
