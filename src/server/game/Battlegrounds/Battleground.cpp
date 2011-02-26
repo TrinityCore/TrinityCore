@@ -1257,8 +1257,7 @@ void Battleground::EventPlayerLoggedOut(Player* player)
         // 1 player is logging out, if it is the last, then end arena!
         if (isArena())
             if (GetAlivePlayersCountByTeam(player->GetTeam()) <= 1 && GetPlayersCountByTeam(GetOtherTeam(player->GetTeam())))
-                //EndBattleground(GetOtherTeam(player->GetTeam()));
-                EndBattleground(WINNER_NONE);
+                EndBattleground(GetOtherTeam(player->GetTeam()));
     }
 
     player->LeaveBattleground();
@@ -1917,19 +1916,9 @@ void Battleground::CheckArenaAfterTimerConditions()
 void Battleground::CheckArenaWinConditions()
 {
     if (!GetAlivePlayersCountByTeam(ALLIANCE) && GetPlayersCountByTeam(HORDE))
-    {
-        if (GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
-            EndBattleground(WINNER_NONE);
-        else
-            EndBattleground(HORDE);
-    }
+        EndBattleground(HORDE);
     else if (GetPlayersCountByTeam(ALLIANCE) && !GetAlivePlayersCountByTeam(HORDE))
-    {
-        if (GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
-            EndBattleground(WINNER_NONE);
-        else
-            EndBattleground(ALLIANCE);
-    }
+        EndBattleground(ALLIANCE);
 }
 
 void Battleground::UpdateArenaWorldState()
