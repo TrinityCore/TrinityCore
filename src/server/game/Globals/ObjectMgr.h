@@ -335,7 +335,7 @@ struct SpellClickInfo
     SpellClickUserTypes userType;
 
     // helpers
-    bool IsFitToRequirements(Player const* player, Creature const * clickNpc) const;
+    bool IsFitToRequirements(Unit const* clicker, Unit const * clickee) const;
 };
 
 typedef std::multimap<uint32, SpellClickInfo> SpellClickInfoMap;
