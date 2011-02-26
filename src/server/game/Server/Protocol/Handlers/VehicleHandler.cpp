@@ -148,7 +148,7 @@ void WorldSession::HandleEjectPassenger(WorldPacket &data)
     Vehicle* vehicle = _player->GetVehicleKit();
     if (!vehicle)
     {
-        recv_data.rfinish();                                // prevent warnings spam
+        data.rfinish();                                     // prevent warnings spam
         sLog->outError("HandleEjectPassenger: Player %u is not in a vehicle!", GetPlayer()->GetGUIDLow());
         return;
     }
