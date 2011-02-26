@@ -591,7 +591,8 @@ class ObjectMgr
     public:
         typedef UNORDERED_MAP<uint32, Item*> ItemMap;
 
-        typedef std::vector<Group *> GroupMap;
+        typedef std::set<Group *> GroupSet;
+        typedef std::vector<Group *> GroupStorage;
 
         typedef std::vector <Guild *> GuildMap;
 
@@ -626,10 +627,14 @@ class ObjectMgr
         void AddGameobjectInfo(GameObjectInfo *goinfo);
 
         Group * GetGroupByGUID(uint32 guid) const;
-        void AddGroup(Group* group);
-        void RemoveGroup(Group* group);
-        uint32 GetNextGroupGuid() { return m_hiGroupGuid; };
-        void SetNextGroupGuid(uint32 nextGuid) { m_hiGroupGuid = nextGuid; };
+        void AddGroup(Group* group) { mGroupSet.insert(group); }
+        void RemoveGroup(Group* group) { mGroupSet.erase(group); }
+
+        uint32 GenerateNewGroupStorageId();
+        void RegisterGroupStorageId(uint32 storageId, Group* group);
+        void FreeGroupStorageId(Group* group);
+        void SetNextGroupStorageId(uint32 storageId) { NextGroupStorageId = storageId; };
+        Group* GetGroupByStorageId(uint32 storageId) const;
 
         Guild* GetGuildByLeader(uint64 const&guid) const;
         Guild* GetGuildById(uint32 guildId) const;
@@ -1264,6 +1269,10 @@ class ObjectMgr
         uint32 m_hiGroupGuid;
         uint32 m_hiMoTransGuid;
 
+        // Database storage IDs
+
+        uint32 NextGroupStorageId;
+
         QuestMap            mQuestTemplates;
 
         typedef UNORDERED_MAP<uint32, GossipText> GossipTextMap;
@@ -1271,7 +1280,8 @@ class ObjectMgr
         typedef std::set<uint32> TavernAreaTriggerSet;
         typedef std::set<uint32> GameObjectForQuestSet;
 
-        GroupMap            mGroupMap;
+        GroupSet            mGroupSet;
+        GroupStorage        mGroupStorage;
         GuildMap            mGuildMap;
         ArenaTeamMap        mArenaTeamMap;
 
