@@ -435,6 +435,27 @@ void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 M
         SendMessageToSet(&data, true);
 }
 
+void Unit::SendMonsterMoveExitVehicle(Position const* newPos)
+{
+    WorldPacket data(SMSG_MONSTER_MOVE, 1+12+4+1+4+4+4+12+GetPackGUID().size());
+    data.append(GetPackGUID());
+
+    data << uint8(GetTypeId() == TYPEID_PLAYER ? 1 : 0);    // new in 3.1, bool
+    data << GetPositionX() << GetPositionY() << GetPositionZ();
+    data << getMSTime();
+
+    data << uint8(SPLINETYPE_FACING_ANGLE);
+    data << float(GetOrientation());                        // guess
+    data << uint32(SPLINEFLAG_EXIT_VEHICLE);
+    data << uint32(0);                                      // Time in between points
+    data << uint32(1);                                      // 1 single waypoint
+    data << newPos->GetPositionX();
+    data << newPos->GetPositionY();
+    data << newPos->GetPositionZ();
+
+    SendMessageToSet(&data, true);
+}
+
 void Unit::SendMonsterMoveTransport(Unit *vehicleOwner)
 {
     // TODO: Turn into BuildMonsterMoveTransport packet and allow certain variables (for npc movement aboard vehicles)
@@ -442,7 +463,7 @@ void Unit::SendMonsterMoveTransport(Unit *vehicleOwner)
     data.append(GetPackGUID());
     data.append(vehicleOwner->GetPackGUID());
     data << int8(GetTransSeat());
-    data << uint8(0);                       // unk boolean
+    data << uint8(GetTypeId() == TYPEID_PLAYER ? 1 : 0); // boolean
     data << GetPositionX() - vehicleOwner->GetPositionX();
     data << GetPositionY() - vehicleOwner->GetPositionY();
     data << GetPositionZ() - vehicleOwner->GetPositionZ();
@@ -451,7 +472,7 @@ void Unit::SendMonsterMoveTransport(Unit *vehicleOwner)
     data << GetTransOffsetO();              // facing angle?
     data << uint32(SPLINEFLAG_TRANSPORT);
     data << uint32(GetTransTime());         // move time
-    data << uint32(0);                      // amount of waypoints
+    data << uint32(1);                      // amount of waypoints
     data << uint32(0);                      // waypoint X
     data << uint32(0);                      // waypoint Y
     data << uint32(0);                      // waypoint Z
@@ -15301,28 +15322,42 @@ void Unit::SetRooted(bool apply)
         if (m_rootTimes > 0) //blizzard internal check?
             m_rootTimes++;
 
-//        AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
+        AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
 
-        WorldPacket data(SMSG_FORCE_MOVE_ROOT, 10);
-        data.append(GetPackGUID());
-        data << m_rootTimes;
-        SendMessageToSet(&data,true);
-
-        if (GetTypeId() != TYPEID_PLAYER)
+        if (Player* thisPlr = this->ToPlayer())
+        {
+            WorldPacket data(SMSG_FORCE_MOVE_ROOT, 10);
+            data.append(GetPackGUID());
+            data << m_rootTimes;
+            SendMessageToSet(&data,true);
+        }
+        else
+        {
+            WorldPacket data(SMSG_SPLINE_MOVE_ROOT, 8);
+            data.append(GetPackGUID());
+            SendMessageToSet(&data,true);
             ToCreature()->StopMoving();
+        }
     }
     else
     {
         if (!HasUnitState(UNIT_STAT_STUNNED))      // prevent allow move if have also stun effect
         {
-            m_rootTimes++; //blizzard internal check?
+            if (Player* thisPlr = this->ToPlayer())
+            {
+                WorldPacket data(SMSG_FORCE_MOVE_UNROOT, 10);
+                data.append(GetPackGUID());
+                data << ++m_rootTimes;
+                SendMessageToSet(&data,true);
+            }
+            else
+            {
+                WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 8);
+                data.append(GetPackGUID());
+                SendMessageToSet(&data,true);
+            }
 
-            WorldPacket data(SMSG_FORCE_MOVE_UNROOT, 10);
-            data.append(GetPackGUID());
-            data << m_rootTimes;
-            SendMessageToSet(&data,true);
-
-//            RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
+            RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
         }
     }
 }
@@ -16465,6 +16500,12 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId, AuraApplication const * a
     if (aurApp && aurApp->GetRemoveMode())
         return;
 
+    if (Player* thisPlr = this->ToPlayer())
+    {
+        WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
+        thisPlr->GetSession()->SendPacket(&data);
+    }
+
     ASSERT(!m_vehicle);
     m_vehicle = vehicle;
     if (!m_vehicle->AddPassenger(this, seatId))
@@ -16472,19 +16513,6 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId, AuraApplication const * a
         m_vehicle = NULL;
         return;
     }
-
-    if (Player* thisPlr = this->ToPlayer())
-    {
-        WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
-        thisPlr->GetSession()->SendPacket(&data);
-    }
-
-    SendClearTarget();
-
-    SetControlled(true, UNIT_STAT_ROOT);
-    //movementInfo is set in AddPassenger
-    //packets are sent in AddPassenger
-
 }
 
 void Unit::ChangeSeat(int8 seatId, bool next)
@@ -16531,23 +16559,31 @@ void Unit::ExitVehicle(Position const* exitPosition)
     Vehicle *vehicle = m_vehicle;
     m_vehicle = NULL;
 
-    SetControlled(false, UNIT_STAT_ROOT);       // SMSG_MOVE_FORCE_UNROOT
+    SetControlled(false, UNIT_STAT_ROOT);       // SMSG_MOVE_FORCE_UNROOT, ~MOVEMENTFLAG_ROOT
 
-    if (exitPosition)                           // Exit position specified 
-        Relocate(exitPosition);
+    Position pos;
+    if (!exitPosition)                           // Exit position not specified
+        vehicle->GetBase()->GetPosition(&pos);
     else
-        Relocate(vehicle->GetBase());           // Relocate to vehicle base
+        pos = *exitPosition;
 
-    //Send leave vehicle, not correct
+    AddUnitState(UNIT_STAT_MOVE);
+
     if (GetTypeId() == TYPEID_PLAYER)
-    {
-        //this->ToPlayer()->SetClientControl(this, 1);
         this->ToPlayer()->SetFallInformation(0, GetPositionZ());
+    else if (HasUnitMovementFlag(MOVEMENTFLAG_ROOT))
+    {
+        WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 8);
+        data.append(GetPackGUID());
+        SendMessageToSet(&data, false);
     }
 
-    WorldPacket data;
-    BuildHeartBeatMsg(&data);
-    SendMessageToSet(&data, false);
+    SendMonsterMoveExitVehicle(&pos);
+    Relocate(&pos);
+
+    WorldPacket data2;
+    BuildHeartBeatMsg(&data2);
+    SendMessageToSet(&data2, false);
 
     if (vehicle->GetBase()->HasUnitTypeMask(UNIT_MASK_MINION))
         if (((Minion*)vehicle->GetBase())->GetOwner() == this)
@@ -16561,8 +16597,6 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
         case TYPEID_UNIT:
             if (canFly())
                 const_cast<Unit*>(this)->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-            if (IsVehicle())
-                const_cast<Unit*>(this)->AddExtraUnitMovementFlag(GetVehicleKit()->GetExtraMovementFlagsForBase());
             break;
         case TYPEID_PLAYER:
             // remove unknown, unused etc flags for now

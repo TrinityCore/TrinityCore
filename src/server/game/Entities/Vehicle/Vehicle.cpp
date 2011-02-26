@@ -61,6 +61,8 @@ Vehicle::Vehicle(Unit *unit, VehicleEntry const *vehInfo) : me(unit), m_vehicleI
         default:
             break;
     }
+
+    InitMovementInfoForBase();
 }
 
 Vehicle::~Vehicle()
@@ -373,8 +375,10 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
 
     if (me->IsInWorld())
     {
-        // In some cases we send SMSG_SPLINE_MOVE_ROOT here (for creatures)
-        unit->SendMonsterMoveTransport(me);
+        unit->SendClearTarget();                                // SMSG_BREAK_TARGET
+        unit->SetControlled(true, UNIT_STAT_ROOT);              // SMSG_FORCE_ROOT - In some cases we send SMSG_SPLINE_MOVE_ROOT here (for creatures)
+                                                                // also adds MOVEMENTFLAG_ROOT
+        unit->SendMonsterMoveTransport(me);                     // SMSG_MONSTER_MOVE_TRANSPORT
 
         if (me->GetTypeId() == TYPEID_UNIT)
         {
@@ -476,29 +480,25 @@ void Vehicle::Dismiss()
 {
     sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Dismiss %u", me->GetEntry());
     Uninstall();
-    me->SendObjectDeSpawnAnim(me->GetGUID());
+    me->DestroyForNearbyPlayers();
     me->CombatStop();
     me->AddObjectToRemoveList();
 }
 
-uint16 Vehicle::GetExtraMovementFlagsForBase() const
+void Vehicle::InitMovementInfoForBase()
 {
-    uint16 movementMask = MOVEMENTFLAG2_NONE;
     uint32 vehicleFlags = GetVehicleInfo()->m_flags;
 
     if (vehicleFlags & VEHICLE_FLAG_NO_STRAFE)
-        movementMask |= MOVEMENTFLAG2_NO_STRAFE;
+        me->AddExtraUnitMovementFlag(MOVEMENTFLAG2_NO_STRAFE);
     if (vehicleFlags & VEHICLE_FLAG_NO_JUMPING)
-        movementMask |= MOVEMENTFLAG2_NO_JUMPING;
+        me->AddExtraUnitMovementFlag(MOVEMENTFLAG2_NO_JUMPING);
     if (vehicleFlags & VEHICLE_FLAG_FULLSPEEDTURNING)
-        movementMask |= MOVEMENTFLAG2_FULL_SPEED_TURNING;
+        me->AddExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_TURNING);
     if (vehicleFlags & VEHICLE_FLAG_ALLOW_PITCHING)
-        movementMask |= MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING;
+        me->AddExtraUnitMovementFlag( MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING);
     if (vehicleFlags & VEHICLE_FLAG_FULLSPEEDPITCHING)
-        movementMask |= MOVEMENTFLAG2_FULL_SPEED_PITCHING;
-
-    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::GetExtraMovementFlagsForBase() returned %u", movementMask);
-    return movementMask;
+        me->AddExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_PITCHING);
 }
 
 VehicleSeatEntry const* Vehicle::GetSeatForPassenger(Unit* passenger)
