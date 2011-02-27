@@ -146,10 +146,3 @@ INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equ
 ('', 32170, 571, 1, 64, 0, 918, 5932.96, 549.906, 641.595, 2.09189, 300, 0, 0, 504000, 440700, 0, 0, 0, 0, 0);
 UPDATE `creature_template` SET `ScriptName`='npc_wg_ally_battle_mage' WHERE `entry`=32169;
 UPDATE `creature_template` SET `ScriptName`='npc_wg_horde_battle_mage' WHERE `entry`=32170;
-
-/*WorldStates Characters DB*/
-DELETE FROM worldstates WHERE entry IN (31001,31002,31003,31004);
-INSERT INTO `worldstates` VALUES ('31001', '0', 'WG war status');
-INSERT INTO `worldstates` VALUES ('31002', '0', 'WG clock');
-INSERT INTO `worldstates` VALUES ('31003', '0', 'WG Fortress Defender');
-INSERT INTO `worldstates` VALUES ('31004', '0', 'WG TEMP Battle Control Faction');
