@@ -268,7 +268,7 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
                     passenger->ToCreature()->AI()->EnterEvadeMode();
                     return;
                 }
-                else if (passenger->ToTempSummon()->GetSummonType() == TEMPSUMMON_MANUAL_DESPAWN)
+                else if (passenger->HasUnitTypeMask(UNIT_MASK_ACCESSORY) && passenger->ToTempSummon()->GetSummonType() == TEMPSUMMON_MANUAL_DESPAWN)
                 {
                     passenger->ExitVehicle();
                     passenger->ToTempSummon()->DespawnOrUnsummon();
