@@ -6594,7 +6594,7 @@ void AuraEffect::HandleAuraSetVehicle(AuraApplication const * aurApp, uint8 mode
 
     if (apply)
     {
-        if (!target->CreateVehicleKit(vehicleId))
+        if (!target->CreateVehicleKit(vehicleId, 0))
             return;
     }
     else if (target->GetVehicleKit())
