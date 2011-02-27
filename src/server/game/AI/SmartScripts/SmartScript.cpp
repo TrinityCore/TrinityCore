@@ -146,7 +146,7 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                 mUseTextTimer = true;
                 sCreatureTextMgr->SendChat(talker, uint8(e.action.talk.textGroupID), mTextGUID);
 
-                sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction: SMART_ACTION_TALK: talker: %s (GuidLow: %u), textGuid: %u", 
+                sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction: SMART_ACTION_TALK: talker: %s (GuidLow: %u), textGuid: %u",
                     talker->GetName(), talker->GetGUIDLow(), mTextGUID);
 
                 break;
@@ -179,7 +179,7 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                         if (IsUnit((*itr)))
                         {
                             (*itr)->ToUnit()->HandleEmoteCommand(e.action.emote.emote);
-                            sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_PLAY_EMOTE: target: %s (GuidLow: %u), emote: %u", 
+                            sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_PLAY_EMOTE: target: %s (GuidLow: %u), emote: %u",
                                 (*itr)->GetName(), (*itr)->GetGUIDLow(), e.action.emote.emote);
                         }
                 break;
@@ -192,8 +192,8 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                         if (IsCreature((*itr)))
                         {
                             sCreatureTextMgr->SendSound((*itr)->ToCreature(), e.action.sound.sound, CHAT_TYPE_SAY, 0, TextRange(e.action.sound.range), Team(NULL), false);
-                            sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_SOUND: source: %s (GuidLow: %u), sound: %u, range: %u", 
-                                (*itr)->GetName(), (*itr)->GetGUIDLow(), e.action.sound.sound, e.action.sound.range); 
+                            sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_SOUND: source: %s (GuidLow: %u), sound: %u, range: %u",
+                                (*itr)->GetName(), (*itr)->GetGUIDLow(), e.action.sound.sound, e.action.sound.range);
                         }
                 break;
             }
@@ -539,7 +539,7 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
 
                 bool move = e.action.combatMove.move ? true : false;
                 CAST_AI(SmartAI, me->AI())->SetCombatMove(move);
-                sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_ALLOW_COMBAT_MOVEMENT: Creature %u bool on = %u", 
+                sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_ALLOW_COMBAT_MOVEMENT: Creature %u bool on = %u",
                     me->GetGUIDLow(), e.action.combatMove.move);
                 break;
             }
@@ -668,7 +668,7 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                 uint32 phase = temp[urand(0, count)];
                 SetPhase(phase);
                 sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction: SMART_ACTION_RANDOM_PHASE: Creature %u sets event phase to %u",
-                    me->GetGUIDLow(), phase);        
+                    me->GetGUIDLow(), phase);
                 break;
             }
         case SMART_ACTION_RANDOM_PHASE_RANGE:
@@ -1444,9 +1444,9 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
         case SMART_ACTION_INTERRUPT_SPELL:
             {
                 ObjectList* targets = GetTargets(e, unit);
-                if (!targets) 
+                if (!targets)
                     return;
-                
+
                 for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); itr++)
                 {
                     if (IsUnit((*itr)))

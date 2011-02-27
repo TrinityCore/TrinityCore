@@ -2531,8 +2531,8 @@ void InstanceMap::SetResetSchedule(bool on, Player* player)
         if (InstanceSave *save = sInstanceSaveMgr->GetInstanceSave(GetInstanceId()))
             sInstanceSaveMgr->ScheduleReset(on, save->GetResetTime(), InstanceSaveManager::InstResetEvent(0, GetId(), Difficulty(GetSpawnMode()), GetInstanceId()));
         else
-            sLog->outError("InstanceMap::SetResetSchedule: cannot turn schedule %s, there is no save information for instance (map [id: %u, name: %s], instance id: %u) due to player (GUID: %u, name: %s) %s", 
-                on ? "on" : "off", GetId(), GetMapName(), GetInstanceId(), 
+            sLog->outError("InstanceMap::SetResetSchedule: cannot turn schedule %s, there is no save information for instance (map [id: %u, name: %s], instance id: %u) due to player (GUID: %u, name: %s) %s",
+                on ? "on" : "off", GetId(), GetMapName(), GetInstanceId(),
                 player->GetGUIDLow(), player->GetName(), on ? "leave" : "entrance");
     }
 }
