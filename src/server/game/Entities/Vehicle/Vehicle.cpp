@@ -27,7 +27,8 @@
 #include "CreatureAI.h"
 #include "ZoneScript.h"
 
-Vehicle::Vehicle(Unit *unit, VehicleEntry const *vehInfo) : me(unit), m_vehicleInfo(vehInfo), m_usableSeatNum(0), m_bonusHP(0)
+Vehicle::Vehicle(Unit *unit, VehicleEntry const *vehInfo, uint32 creatureEntry) 
+: me(unit), m_vehicleInfo(vehInfo), m_usableSeatNum(0), m_bonusHP(0), m_creatureEntry(creatureEntry)
 {
     for (uint32 i = 0; i < MAX_VEHICLE_SEATS; ++i)
     {
@@ -119,9 +120,11 @@ void Vehicle::Install()
         sScriptMgr->OnInstall(this);
 }
 
-void Vehicle::InstallAllAccessories(uint32 entry)
+void Vehicle::InstallAllAccessories()
 {
-    VehicleAccessoryList const* mVehicleList = sObjectMgr->GetVehicleAccessoryList(entry);
+    me->RemoveAurasByType(SPELL_AURA_CONTROL_VEHICLE);  // We might have aura's saved in the DB with now invalid casters - remove
+
+    VehicleAccessoryList const* mVehicleList = sObjectMgr->GetVehicleAccessoryList(m_creatureEntry);
     if (!mVehicleList)
         return;
 
@@ -167,7 +170,7 @@ void Vehicle::Reset()
     }
     else
     {
-        InstallAllAccessories(me->GetEntry());
+        InstallAllAccessories();
         if (m_usableSeatNum)
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
     }
@@ -265,7 +268,7 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
                     passenger->ToCreature()->AI()->EnterEvadeMode();
                     return;
                 }
-                else if (passenger->ToTempSummon()->GetSummonType() == TEMPSUMMON_MANUAL_DESPAWN)
+                else if (passenger->HasUnitTypeMask(UNIT_MASK_ACCESSORY) && passenger->ToTempSummon()->GetSummonType() == TEMPSUMMON_MANUAL_DESPAWN)
                 {
                     passenger->ExitVehicle();
                     passenger->ToTempSummon()->DespawnOrUnsummon();
@@ -282,7 +285,14 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
         if (minion)
             accessory->AddUnitTypeMask(UNIT_MASK_ACCESSORY);
 
-        accessory->EnterVehicle(this, seatId);
+        
+        if (!me->HandleSpellClick(accessory, seatId))
+        {
+            sLog->outErrorDb("Vehicle entry %u in vehicle_accessory does not have a valid record in npc_spellclick_spells! Calling default EnterVehicle()",
+                m_creatureEntry); 
+            accessory->EnterVehicle(this, seatId);
+        }
+
         // This is not good, we have to send update twice
         accessory->SendMovementFlagUpdate();
 
@@ -358,6 +368,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
         if (!me->SetCharmedBy(unit, CHARM_TYPE_VEHICLE))
             ASSERT(false);
 
+        // hack: should be done by aura system
         if (VehicleScalingInfo const *scalingInfo = sObjectMgr->GetVehicleScalingInfo(m_vehicleInfo->m_ID))
         {
             Player *plr = unit->ToPlayer();
@@ -519,4 +530,15 @@ SeatMap::iterator Vehicle::GetSeatIteratorForPassenger(Unit* passenger)
             return itr;
 
     return m_Seats.end();
+}
+
+uint8 Vehicle::GetAvailableSeatCount() const
+{
+    uint8 ret = 0;
+    SeatMap::const_iterator itr;
+    for (itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
+        if (!itr->second.passenger && (itr->second.seatInfo->CanEnterOrExit() || itr->second.seatInfo->IsUsableByOverride()))
+            ++ret;
+
+    return ret;
 }

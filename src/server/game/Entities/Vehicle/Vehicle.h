@@ -113,14 +113,14 @@ class Vehicle
     friend class WorldSession;
 
     public:
-        explicit Vehicle(Unit *unit, VehicleEntry const *vehInfo);
+        explicit Vehicle(Unit *unit, VehicleEntry const *vehInfo, uint32 creatureEntry);
         virtual ~Vehicle();
 
         void Install();
         void Uninstall();
         void Reset();
         void Die();
-        void InstallAllAccessories(uint32 entry);
+        void InstallAllAccessories();
 
         Unit *GetBase() const { return me; }
         VehicleEntry const *GetVehicleInfo() const { return m_vehicleInfo; }
@@ -128,6 +128,7 @@ class Vehicle
         bool HasEmptySeat(int8 seatId) const;
         Unit *GetPassenger(int8 seatId) const;
         int8 GetNextEmptySeat(int8 seatId, bool next) const;
+        uint8 GetAvailableSeatCount() const;
 
         bool AddPassenger(Unit *passenger, int8 seatId = -1);
         void EjectPassenger(Unit* passenger, Unit* controller);
@@ -152,6 +153,7 @@ class Vehicle
         VehicleEntry const *m_vehicleInfo;
         uint32 m_usableSeatNum;         // Number of seats that match VehicleSeatEntry::UsableByPlayer, used for proper display flags
         uint32 m_bonusHP;
+        uint32 m_creatureEntry;         // Can be different than me->GetBase()->GetEntry() in case of players
 
         void InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 type, uint32 summonTime);
 };
