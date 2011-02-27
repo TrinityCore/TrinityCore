@@ -301,7 +301,7 @@ class boss_rimefang : public CreatureScript
 
             void JustReachedHome()
             {
-                _vehicle->InstallAllAccessories(me->GetEntry());
+                _vehicle->InstallAllAccessories();
             }
 
             void DoAction(const int32 actionId)
