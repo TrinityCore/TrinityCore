@@ -9469,10 +9469,6 @@ void ObjectMgr::RegisterGroupStorageId(uint32 storageId, Group* group)
 
 void ObjectMgr::FreeGroupStorageId(Group* group)
 {
-<<<<<<< HEAD
-    mGroupMap[group->GetLowGUID()] = NULL;
-}
-=======
     uint32 storageId = group->GetStorageId();
 
     if (storageId < NextGroupStorageId)
@@ -9480,4 +9476,3 @@ void ObjectMgr::FreeGroupStorageId(Group* group)
 
     mGroupStorage[storageId] = NULL;
 }
->>>>>>> da773981f8b7e8d1debb5b54a94dd6c173fb2f96
