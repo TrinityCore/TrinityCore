@@ -166,14 +166,14 @@ public:
                     // The below hacks are courtesy of the grid/visibilitysystem
                     if (GetBossState(TYPE_KOLOGARN) == DONE)
                     {
-                        creature->SetDeadByDefault(true); 
-                        creature->setDeathState(CORPSE); 
+                        creature->SetDeadByDefault(true);
+                        creature->setDeathState(CORPSE);
                         creature->DestroyForNearbyPlayers();
                         creature->UpdateObjectVisibility(true);
                     }
                     else
                     {
-                        creature->SetDeadByDefault(false); 
+                        creature->SetDeadByDefault(false);
                         creature->setDeathState(CORPSE);
                         creature->RemoveCorpse(true);
                     }

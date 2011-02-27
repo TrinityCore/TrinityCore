@@ -120,7 +120,7 @@ class boss_kologarn : public CreatureScript
             void EnterCombat(Unit * who)
             {
                 DoScriptText(SAY_AGGRO, me);
-            
+
                 events.ScheduleEvent(EVENT_MELEE_CHECK, 6000);
                 events.ScheduleEvent(EVENT_SMASH, 5000);
                 events.ScheduleEvent(EVENT_SWEEP, 19000);
@@ -138,7 +138,7 @@ class boss_kologarn : public CreatureScript
             void Reset()
             {
                 _Reset();
-                eyebeamTarget = 0;            
+                eyebeamTarget = 0;
             }
 
             void JustDied(Unit * /*victim*/)
@@ -188,7 +188,7 @@ class boss_kologarn : public CreatureScript
                         return;
 
                     who->CastSpell(me, SPELL_ARM_DEAD_DAMAGE, true);
-                
+
                     if (Creature* rubbleStalker = who->FindNearestCreature(NPC_RUBBLE_STALKER, 70.0f))
                     {
                         if (rubbleStalker)
@@ -233,7 +233,7 @@ class boss_kologarn : public CreatureScript
                 summon->SetReactState(REACT_PASSIVE);
                 summon->SetFlag(UNIT_FIELD_ATTACK_POWER, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
                 // One of the above spells is a channeled spell, we need to clear this unit state for MoveChase to work
-                summon->ClearUnitState(UNIT_STAT_CASTING);  
+                summon->ClearUnitState(UNIT_STAT_CASTING);
 
                 // Victim gets 67351
                 if (eyebeamTarget)
@@ -294,7 +294,7 @@ class boss_kologarn : public CreatureScript
                     case EVENT_RESPAWN_RIGHT_ARM:
                     {
                         if (Creature* arm = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_RIGHT_ARM) : 0))
-                            RespawnArm(arm->ToCreature());       
+                            RespawnArm(arm->ToCreature());
                         events.CancelEvent(EVENT_RESPAWN_RIGHT_ARM);
                         break;
                     }
