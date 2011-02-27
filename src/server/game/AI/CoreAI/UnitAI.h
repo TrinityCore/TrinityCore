@@ -204,7 +204,7 @@ class UnitAI
                 {
                     // Already sorted
                     if (!maxTargets || maxTargets >= targetList.size())    // Do not filter
-                        return;     
+                        return;
 
                     std::list<Unit*>::iterator itr = targetList.begin();
                     advance(itr, maxTargets);

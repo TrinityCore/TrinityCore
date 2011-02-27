@@ -498,7 +498,7 @@ int WorldSocket::handle_input_header (void)
         sLog->outError ("WorldSocket::handle_input_header(): client (account: %u, char [GUID: %u, name: %s]) sent malformed packet (size: %d , cmd: %d)",
             m_Session ? m_Session->GetAccountId() : 0,
             _player ? _player->GetGUIDLow() : 0,
-            _player ? _player->GetName() : "<none>", 
+            _player ? _player->GetName() : "<none>",
             header.size, header.cmd);
 
         errno = EINVAL;
