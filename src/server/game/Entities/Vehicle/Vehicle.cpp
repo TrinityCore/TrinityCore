@@ -289,7 +289,7 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
         if (!me->HandleSpellClick(accessory, seatId))
         {
             sLog->outErrorDb("Vehicle entry %u in vehicle_accessory does not have a valid record in npc_spellclick_spells! Calling default EnterVehicle()",
-                me->GetTypeId() == TYPEID_UNIT ? me->GetEntry() : me->GetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID)); 
+                m_creatureEntry); 
             accessory->EnterVehicle(this, seatId);
         }
 
