@@ -27,7 +27,8 @@
 #include "CreatureAI.h"
 #include "ZoneScript.h"
 
-Vehicle::Vehicle(Unit *unit, VehicleEntry const *vehInfo) : me(unit), m_vehicleInfo(vehInfo), m_usableSeatNum(0), m_bonusHP(0)
+Vehicle::Vehicle(Unit *unit, VehicleEntry const *vehInfo, uint32 creatureEntry) 
+: me(unit), m_vehicleInfo(vehInfo), m_usableSeatNum(0), m_bonusHP(0), m_creatureEntry(creatureEntry)
 {
     for (uint32 i = 0; i < MAX_VEHICLE_SEATS; ++i)
     {
@@ -119,9 +120,11 @@ void Vehicle::Install()
         sScriptMgr->OnInstall(this);
 }
 
-void Vehicle::InstallAllAccessories(uint32 entry)
+void Vehicle::InstallAllAccessories()
 {
-    VehicleAccessoryList const* mVehicleList = sObjectMgr->GetVehicleAccessoryList(entry);
+    me->RemoveAurasByType(SPELL_AURA_CONTROL_VEHICLE);  // We might have aura's saved in the DB with now invalid casters - remove
+
+    VehicleAccessoryList const* mVehicleList = sObjectMgr->GetVehicleAccessoryList(m_creatureEntry);
     if (!mVehicleList)
         return;
 
@@ -167,7 +170,7 @@ void Vehicle::Reset()
     }
     else
     {
-        InstallAllAccessories(me->GetEntry());
+        InstallAllAccessories();
         if (m_usableSeatNum)
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
     }
@@ -527,4 +530,15 @@ SeatMap::iterator Vehicle::GetSeatIteratorForPassenger(Unit* passenger)
             return itr;
 
     return m_Seats.end();
+}
+
+uint8 Vehicle::GetAvailableSeatCount() const
+{
+    uint8 ret = 0;
+    SeatMap::const_iterator itr;
+    for (itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
+        if (!itr->second.passenger && (itr->second.seatInfo->CanEnterOrExit() || itr->second.seatInfo->IsUsableByOverride()))
+            ++ret;
+
+    return ret;
 }
