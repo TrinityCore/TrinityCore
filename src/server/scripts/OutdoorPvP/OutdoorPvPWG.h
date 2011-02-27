@@ -100,7 +100,10 @@ enum OutdoorPvP_WG_KeepStatus
 
 enum OutdoorPVPWGStatus
 {
-    WORLDSTATE_WINTERGRASP_CONTROLING_FACTION,
+    WORLDSTATE_WINTERGRASP_WARTIME            = 31001,
+    WORLDSTATE_WINTERGRASP_TIMER              = 31002,
+    WORLDSTATE_WINTERGRASP_DEFENDERS          = 31003,
+    WORLDSTATE_WINTERGRASP_CONTROLING_FACTION = 31004,
     WORLDSTATE_VALUE_COUNT,
 };
 
@@ -174,13 +177,13 @@ struct BuildingState
 {
     explicit BuildingState(uint32 _worldState, TeamId _team, bool asDefault)
          : worldState(_worldState), health(0)
-         , defaultTeam(asDefault ? _team : OTHER_TEAM(_team)), team(_team), damageState(DAMAGE_INTACT)
-         , building(NULL), type(BUILDING_WALL), graveTeam(NULL)
-    { }
+         , defaultTeam(asDefault ? _team : OTHER_TEAM(_team)), damageState(DAMAGE_INTACT), team(_team)
+         , building(NULL), graveTeam(NULL), type(BUILDING_WALL) {}
     uint32 worldState;
     uint32 health;
     TeamId defaultTeam;
     OutdoorPvPWGDamageState damageState;
+    TeamId team;
     GameObject *building;
     uint32 *graveTeam;
     OutdoorPvPWGBuildingType type;
@@ -203,9 +206,6 @@ struct BuildingState
             if (uint32 newTeam = TeamId2Team[t])
                 *graveTeam = newTeam;
     }
-
-    private:
-        TeamId team;
 };
 
 typedef std::map<uint32, uint32> TeamPairMap;
@@ -238,11 +238,10 @@ class OutdoorPvPWG : public OutdoorPvP
         bool Update(uint32 diff);
         void BroadcastStateChange(BuildingState *state) const;
         uint32 GetData(uint32 id);
-        void SetData(uint32 id, uint32 value) { };
         void ModifyWorkshopCount(TeamId team, bool add);
         uint32 GetTimer() const { return m_timer / 1000; };
         bool isWarTime() const { return m_wartime; };
-        void setTimer(uint32 timer) { if (timer >= 0) m_timer = timer; };
+    void setTimer(uint32 timer) { if (timer > 0) m_timer = timer; };
         uint32 GetNumPlayersA() const { return m_players[TEAM_ALLIANCE].size(); };
         uint32 GetNumPlayersH() const { return m_players[TEAM_HORDE].size(); };
         TeamId getDefenderTeam() const { return m_defender; };
