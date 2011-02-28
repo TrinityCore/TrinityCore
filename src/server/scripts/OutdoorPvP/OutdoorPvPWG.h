@@ -241,7 +241,7 @@ class OutdoorPvPWG : public OutdoorPvP
         void ModifyWorkshopCount(TeamId team, bool add);
         uint32 GetTimer() const { return m_timer / 1000; };
         bool isWarTime() const { return m_wartime; };
-    void setTimer(uint32 timer) { if (timer > 0) m_timer = timer; };
+        void setTimer(uint32 timer) { if (timer >= 0) m_timer = timer; };
         uint32 GetNumPlayersA() const { return m_players[TEAM_ALLIANCE].size(); };
         uint32 GetNumPlayersH() const { return m_players[TEAM_HORDE].size(); };
         TeamId getDefenderTeam() const { return m_defender; };
@@ -258,8 +258,8 @@ class OutdoorPvPWG : public OutdoorPvP
         // BG end
         void SendInitWorldStatesTo(Player *player = NULL) const;
         uint32 m_timer;
-       bool m_changeAlly;
-       bool m_changeHorde;
+        bool m_changeAlly;
+        bool m_changeHorde;
 
     protected:
         // Temporal BG specific till 3.2

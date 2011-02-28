@@ -433,5 +433,5 @@ void AddSC_wintergrasp()
     new npc_demolisher_engineerer();
     new npc_wg_ally_battle_mage();
     new npc_wg_horde_battle_mage();
-    new go_wg_veh_teleporter(); // REPLACE INTO `gameobject_template` (`entry`, `type`, `displayId`, `name`, `IconName`, `castBarCaption`, `unk1`, `faction`, `flags`, `size`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `data8`, `data9`, `data10`, `data11`, `data12`, `data13`, `data14`, `data15`, `data16`, `data17`, `data18`, `data19`, `data20`, `data21`, `data22`, `data23`, `AIName`, `ScriptName`, `WDBVerified`) VALUES (192951, 6, 8244, 'Vehicle Teleporter', '', '', '', 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 10, 54643, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 'go_wg_veh_teleporter', 12340);
+    new go_wg_veh_teleporter();
 }

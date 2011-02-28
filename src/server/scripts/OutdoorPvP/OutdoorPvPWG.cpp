@@ -35,9 +35,6 @@ uint32 guide_entry;
 uint32 guide_entry_fortress_horde;
 uint32 guide_entry_fortress_alliance;
 
-/* Vehicle teleport system*/
-Map* pMap;
-
 OutdoorPvPWG::OutdoorPvPWG()
 {
     m_TypeId = OUTDOOR_PVP_WG;
@@ -78,7 +75,7 @@ bool OutdoorPvPWG::SetupOutdoorPvP()
     //load worlstates
     m_wartime  = sWorld->getWorldState(WORLDSTATE_WINTERGRASP_WARTIME) ? true : false;
     m_timer    = uint32(sWorld->getWorldState(WORLDSTATE_WINTERGRASP_TIMER));
-    m_defender = TeamId(sWorld->getWorldState(WORLDSTATE_WINTERGRASP_DEFENDERS)%2);
+    m_defender = TeamId(sWorld->getWorldState(WORLDSTATE_WINTERGRASP_DEFENDERS) ? true : false);
     m_WSSaveTimer = sWorld->getIntConfig(CONFIG_OUTDOORPVP_WINTERGRASP_SAVESTATE_PERIOD);
 
     if (m_timer == 0)
@@ -1013,8 +1010,6 @@ bool OutdoorPvPWG::UpdateCreatureInfo(Creature *creature)
             }
             return false;
         case CREATURE_SPIRIT_GUIDE:
-            /*Vehicle teleport system*/
-            pMap = creature->GetMap();
             if (isWarTime())
             {
                 /* Uncomment if want to disable ressurect for both factions at the same time at fortress graveyard
@@ -2117,9 +2112,7 @@ void OPvPCapturePointWG::ChangeTeam(TeamId oldTeam)
                 m_wintergrasp->RelocateHordeDeadPlayers(m_spiritguide_horde); // Horde
                 _RespawnCreatureIfNeeded(m_spiritguide, guide_entry);
                 m_wintergrasp->RelocateAllianceDeadPlayers(m_spiritguide); // Alliance
-            }
             } else {
-            {
                 *m_spiEntry = guide_entry;
                 _RespawnCreatureIfNeeded(m_spiritguide_alliance, guide_entry_fortress_alliance);
                 m_wintergrasp->RelocateAllianceDeadPlayers(m_spiritguide_alliance); // Alliance
