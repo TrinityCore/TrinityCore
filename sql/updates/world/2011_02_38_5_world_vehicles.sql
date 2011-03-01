@@ -1,5 +1,5 @@
 -- Argent Tournament mounts implementation
-SET @GUID = 200000;
+SET @GUID = 151783;
 UPDATE `creature_template` SET `npcflag`=`npcflag`|16777216,`speed_run`=1.5714285714286 WHERE `entry`=33870; -- Stabled Argent Warhorse
 UPDATE `creature_template` SET `npcflag`=`npcflag`|16777216,`speed_run`=1.5714285714286 WHERE `entry`=33790; -- Stabled Exodar Elekk
 UPDATE `creature_template` SET `npcflag`=`npcflag`|16777216,`speed_run`=1.5714285714286 WHERE `entry`=33791; -- Stabled Silvermoon Hawkstrider
