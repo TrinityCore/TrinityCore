@@ -39,7 +39,7 @@ INSERT INTO `linked_respawn` (`guid`,`linkedGuid`,`linkType`) VALUES
 (151767,@GUID+07,0); -- Crok Scourgebane
 
 SET @EQUIP := 2423;
-DELETE FROM `creature_equip_template` WHERE `entry`=@EQUIP;
+DELETE FROM `creature_equip_template` WHERE `entry` BETWEEN @EQUIP AND @EQUIP+3;
 INSERT INTO `creature_equip_template` (`entry`,`equipentry1`,`equipentry2`,`equipentry3`) VALUES
 (@EQUIP+0,45128,0,0),
 (@EQUIP+1,47519,0,0),
