@@ -161,16 +161,20 @@ std::string secsToTimeString(uint64 timeInSecs, bool shortText, bool hoursOnly)
     uint64 days    = timeInSecs / DAY;
 
     std::ostringstream ss;
-    if(days)
-        ss << days << (shortText ? "d" : " Day(s) ");
-    if(hours || hoursOnly)
-        ss << hours << (shortText ? "h" : " Hour(s) ");
-    if(!hoursOnly)
+
+    if (days)
+        ss << days << (shortText ? " Tag(e) " : " Tag(e) ");
+
+    if (hours || hoursOnly)
+        ss << hours << (shortText ? " Std. " : " Stunde(n) ");
+
+    if (!hoursOnly)
     {
-        if(minutes)
-            ss << minutes << (shortText ? "m" : " Minute(s) ");
-        if(secs || (!days && !hours && !minutes) )
-            ss << secs << (shortText ? "s" : " Second(s).");
+        if (minutes)
+            ss << minutes << (shortText ? " Min. " : " Minute(n) ");
+
+        if (secs || (!days && !hours && !minutes))
+            ss << secs << (shortText ? " Sek. " : " Sekunde(n) ");
     }
 
     return ss.str();

@@ -1221,8 +1221,8 @@ class ObjectMgr
             return GossipMenuItemsMapBoundsNonConst(m_mGossipMenuItemsMap.lower_bound(uiMenuId),m_mGossipMenuItemsMap.upper_bound(uiMenuId));
         }
 
-        // for wintergrasp only
-        GraveYardMap        mGraveYardMap;
+        // Tausendwinter
+        GraveYardMap    mGraveYardMap;
 
         void AddLocaleString(std::string& s, LocaleConstant locale, StringVector& data);
         inline void GetLocaleString(const StringVector& data, int loc_idx, std::string& value) const

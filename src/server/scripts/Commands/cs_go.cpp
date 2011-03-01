@@ -37,23 +37,23 @@ public:
     {
         static ChatCommand goCommandTable[] =
         {
-            { "creature",       SEC_MODERATOR,      false, &HandleGoCreatureCommand,          "", NULL },
-            { "graveyard",      SEC_MODERATOR,      false, &HandleGoGraveyardCommand,         "", NULL },
-            { "grid",           SEC_MODERATOR,      false, &HandleGoGridCommand,              "", NULL },
-            { "object",         SEC_MODERATOR,      false, &HandleGoObjectCommand,            "", NULL },
-            { "taxinode",       SEC_MODERATOR,      false, &HandleGoTaxinodeCommand,          "", NULL },
-            { "trigger",        SEC_MODERATOR,      false, &HandleGoTriggerCommand,           "", NULL },
-            { "zonexy",         SEC_MODERATOR,      false, &HandleGoZoneXYCommand,            "", NULL },
-            { "xy",             SEC_MODERATOR,      false, &HandleGoXYCommand,                "", NULL },
-            { "xyz",            SEC_MODERATOR,      false, &HandleGoXYZCommand,               "", NULL },
-            { "ticket",         SEC_MODERATOR,      false, &HandleGoTicketCommand,            "", NULL },
-            { "",               SEC_MODERATOR,      false, &HandleGoXYZCommand,               "", NULL },
+            { "creature",       SEC_ANWAERTER,      false, &HandleGoCreatureCommand,          "", NULL },
+            { "graveyard",      SEC_ANWAERTER,      false, &HandleGoGraveyardCommand,         "", NULL },
+            { "grid",           SEC_ANWAERTER,      false, &HandleGoGridCommand,              "", NULL },
+            { "object",         SEC_ANWAERTER,      false, &HandleGoObjectCommand,            "", NULL },
+            { "taxinode",       SEC_ANWAERTER,      false, &HandleGoTaxinodeCommand,          "", NULL },
+            { "trigger",        SEC_ANWAERTER,      false, &HandleGoTriggerCommand,           "", NULL },
+            { "zonexy",         SEC_ANWAERTER,      false, &HandleGoZoneXYCommand,            "", NULL },
+            { "xy",             SEC_ANWAERTER,      false, &HandleGoXYCommand,                "", NULL },
+            { "xyz",            SEC_ANWAERTER,      false, &HandleGoXYZCommand,               "", NULL },
+            { "ticket",         SEC_ANWAERTER,      false, &HandleGoTicketCommand,            "", NULL },
+            { "",               SEC_ANWAERTER,      false, &HandleGoXYZCommand,               "", NULL },
             { NULL,             0,                  false, NULL,                              "", NULL }
         };
 
         static ChatCommand commandTable[] =
         {
-            { "go",             SEC_MODERATOR,      false, NULL,                     "", goCommandTable },
+            { "go",             SEC_ANWAERTER,      false, NULL,                     "", goCommandTable },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         return commandTable;

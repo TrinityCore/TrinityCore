@@ -147,6 +147,15 @@ enum WorldBoolConfigs
     CONFIG_START_ALL_REP,
     CONFIG_ALWAYS_MAXSKILL,
     CONFIG_PVP_TOKEN_ENABLE,
+
+    // Tausendwinter
+    CONFIG_TW_AKTIVIERT,
+    CONFIG_TW_TELEPORT_DALARAN,
+    CONFIG_TW_WELTSTARTNACHRICHT,
+    CONFIG_TW_WELTCOUNTDOWN,
+    CONFIG_TW_WELTSIEGNACHRICHT,
+    CONFIG_TW_VERSCHIEBE_NPCS,
+
     CONFIG_NO_RESET_TALENT_COST,
     CONFIG_SHOW_KICK_IN_WORLD,
     CONFIG_CHATLOG_CHANNEL,
@@ -288,6 +297,13 @@ enum WorldIntConfigs
     CONFIG_PVP_TOKEN_MAP_TYPE,
     CONFIG_PVP_TOKEN_ID,
     CONFIG_PVP_TOKEN_COUNT,
+
+	// Tausendwinter
+    CONFIG_TW_STARTZEIT,
+    CONFIG_TW_KAMPFDAUER,
+    CONFIG_TW_INTERVALL,
+    CONFIG_TW_SPEICHER_INTERVALL,
+
     CONFIG_INTERVAL_LOG_UPDATE,
     CONFIG_MIN_LOG_UPDATE,
     CONFIG_ENABLE_SINFO_LOGIN,
@@ -453,7 +469,45 @@ enum RealmZone
 enum WorldStates
 {
     WS_WEEKLY_QUEST_RESET_TIME = 20002,                      // Next weekly reset time
-    WS_BG_DAILY_RESET_TIME     = 20003                       // Next daily BG reset time
+    WS_BG_DAILY_RESET_TIME     = 20003,                      // Next daily BG reset time
+
+    // Tausendwinter Hauptwerte
+    WS_TW_BESITZER                      = 90001,    // TeamId:  Aktuelles Team welches TW beherrscht
+    WS_TW_KAMPF                         = 90002,    // bool:    Ist zur Zeit Kampf?
+    WS_TW_ZEIT                          = 90003,    // uint64:  TW Zeit
+    WS_TW_ZEIT_ALLY                     = 90004,    // uint64:  Allyzeit
+    WS_TW_ZEIT_HORDE                    = 90005,    // uint64:  Hordezeit
+    // Tausendwinter Werkstättenbesitzer
+    WS_TW_WERKSTATT_BESITZER_192030     = 90006,    // TeamId: Aktueller Besitzer von Werkstatt 192030
+    WS_TW_WERKSTATT_BESITZER_192031     = 90007,    // TeamId: Aktueller Besitzer von Werkstatt 192031
+    WS_TW_WERKSTATT_BESITZER_192032     = 90008,    // TeamId: Aktueller Besitzer von Werkstatt 192032
+    WS_TW_WERKSTATT_BESITZER_192033     = 90009,    // TeamId: Aktueller Besitzer von Werkstatt 192033
+    // Tausendwinter Werkstättenzustand
+    WS_TW_WERKSTATT_ZUSTAND_192028      = 90010,    // uint32: Aktuelle Gesundheit von Werkstatt 192028
+    WS_TW_WERKSTATT_ZUSTAND_192029      = 90011,    // uint32: Aktuelle Gesundheit von Werkstatt 192029
+    WS_TW_WERKSTATT_ZUSTAND_192030      = 90012,    // uint32: Aktuelle Gesundheit von Werkstatt 192030
+    WS_TW_WERKSTATT_ZUSTAND_192031      = 90013,    // uint32: Aktuelle Gesundheit von Werkstatt 192031
+    WS_TW_WERKSTATT_ZUSTAND_192032      = 90014,    // uint32: Aktuelle Gesundheit von Werkstatt 192032
+    WS_TW_WERKSTATT_ZUSTAND_192033      = 90015,    // uint32: Aktuelle Gesundheit von Werkstatt 192033
+    // Tausendwinter Turmbesitzer
+    WS_TW_SCHATTENBLICKTURM_BESITZER    = 90016,    // TeamId: Aktueller Besitzer vom Schattenblickturm 190356
+    WS_TW_WINTERSTURZTURM_BESITZER      = 90017,    // TeamId: Aktueller Besitzer vom Wintersturzturm 190357
+    WS_TW_FLAMMENAUGENTURM_BESITZER     = 90018,    // TeamId: Aktueller Besitzer vom Flammenaugenturm 190358
+    // Tausendwinter Turmzustände
+    WS_TW_SCHATTENBLICKTURM_ZUSTAND     = 90019,    // uint32: Aktuelle Gesundheit vom Schattenblickturm 190356
+    WS_TW_WINTERSTURZTURM_ZUSTAND       = 90020,    // uint32: Aktuelle Gesundheit vom Wintersturzturm 190357
+    WS_TW_FLAMMENAUGENTURM_ZUSTAND      = 90021,    // uint32: Aktuelle Gesundheit vom Flammenaugenturm 190358
+    // Festungstürme
+    WS_TW_FESTUNGSTURM_WEST_ZUSTAND     = 90022,    // uint32: Aktuelle Gesundheit vom Turm 190221
+    WS_TW_FESTUNGSTURM_SUEDWEST_ZUSTAND = 90023,    // uint32: Aktuelle Gesundheit vom Turm 190373
+    WS_TW_FESTUNGSTURM_SUEDOST_ZUSTAND  = 90024,    // uint32: Aktuelle Gesundheit vom Turm 190377
+    WS_TW_FESTUNGSTURM_OST_ZUSTAND      = 90025     // uint32: Aktuelle Gesundheit vom Turm 190378
+};
+
+enum TausendwinterSpells
+{
+    SPELL_ESSENZ_VON_TAUSENDWINTER_TW       = 58045,    // Nur innerhalb von TW
+    SPELL_ESSENZ_VON_TAUSENDWINTER_NORDEND  = 57940     // Im Rest von Nordend (außer in Raidinstanzen)
 };
 
 // DB scripting commands
@@ -739,6 +793,11 @@ class World
 
         bool isEventKillStart;
 
+        // Tausendwinter
+        void AktualisiereNaechsteTWSchlachtZeit(uint32 timer, uint32 status) { m_TWTimer = timer; m_TWStatus = status; };
+        const uint32 GetTWTimer() { return m_TWTimer; };
+        const uint32 GetTWStatus() { return m_TWStatus; };
+
         uint32 GetCleaningFlags() { return m_CleaningFlags; }
         void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
     protected:
@@ -817,6 +876,10 @@ class World
         time_t m_NextWeeklyQuestReset;
         time_t m_NextRandomBGReset;
 
+        // Tausendwinter
+        uint32 m_TWTimer;
+        uint32 m_TWStatus;
+
         //Player Queue
         Queue m_QueuedPlayer;
 
@@ -830,7 +893,6 @@ class World
 
         std::list<std::string> m_Autobroadcasts;
 
-    private:
         void ProcessQueryCallbacks();
         QueryCallback<uint32> m_realmCharCallback;
 };
@@ -838,5 +900,5 @@ class World
 extern uint32 realmID;
 
 #define sWorld ACE_Singleton<World, ACE_Null_Mutex>::instance()
+
 #endif
-/// @}

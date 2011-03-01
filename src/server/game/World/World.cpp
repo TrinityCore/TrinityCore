@@ -108,6 +108,10 @@ World::World()
     m_updateTimeSum = 0;
     m_updateTimeCount = 0;
 
+    // Tausendwinter
+    m_TWTimer = uint32((getWorldState(WS_TW_ZEIT) + time(NULL)));
+    m_TWStatus = 0;
+
     m_isClosed = false;
 
     m_CleaningFlags = 0;
@@ -1042,7 +1046,7 @@ void World::LoadConfigSettings(bool reload)
             sLog->outError("ClientCacheVersion can't be negative %d, ignored.", clientCacheId);
     }
 
-    m_int_configs[CONFIG_INSTANT_LOGOUT] = sConfig->GetIntDefault("InstantLogout", SEC_MODERATOR);
+    m_int_configs[CONFIG_INSTANT_LOGOUT] = sConfig->GetIntDefault("InstantLogout", SEC_ANWAERTER);
 
     m_int_configs[CONFIG_GUILD_EVENT_LOG_COUNT] = sConfig->GetIntDefault("Guild.EventLogRecordsCount", GUILD_EVENTLOG_MAX_RECORDS);
     if (m_int_configs[CONFIG_GUILD_EVENT_LOG_COUNT] > GUILD_EVENTLOG_MAX_RECORDS)
@@ -1148,6 +1152,18 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_PVP_TOKEN_COUNT] = sConfig->GetIntDefault("PvPToken.ItemCount", 1);
     if (m_int_configs[CONFIG_PVP_TOKEN_COUNT] < 1)
         m_int_configs[CONFIG_PVP_TOKEN_COUNT] = 1;
+
+    // Tausendwinter
+    m_bool_configs[CONFIG_TW_TELEPORT_DALARAN]  = sConfig->GetBoolDefault("Tausendwinter.TeleportDalaran", false);
+    m_bool_configs[CONFIG_TW_WELTSTARTNACHRICHT]= sConfig->GetBoolDefault("Tausendwinter.WeltStartNachricht", false);
+    m_bool_configs[CONFIG_TW_WELTCOUNTDOWN]     = sConfig->GetBoolDefault("Tausendwinter.WeltStartCountdown", false);
+    m_bool_configs[CONFIG_TW_WELTSIEGNACHRICHT] = sConfig->GetBoolDefault("Tausendwinter.WeltSiegNachricht", false);
+    m_bool_configs[CONFIG_TW_VERSCHIEBE_NPCS]   = sConfig->GetBoolDefault("Tausendwinter.VerschiebeNPCs", false);
+
+    m_int_configs[CONFIG_TW_STARTZEIT]          = sConfig->GetIntDefault("Tausendwinter.Startzeit", 30) * IN_MILLISECONDS * MINUTE;
+    m_int_configs[CONFIG_TW_KAMPFDAUER]         = sConfig->GetIntDefault("Tausendwinter.Kampfdauer", 30) * IN_MILLISECONDS * MINUTE;
+    m_int_configs[CONFIG_TW_INTERVALL]          = sConfig->GetIntDefault("Tausendwinter.KampfIntervall", 130) * IN_MILLISECONDS * MINUTE;
+    m_int_configs[CONFIG_TW_SPEICHER_INTERVALL] = sConfig->GetIntDefault("Tausendwinter.SpeicherIntervall", 5) * IN_MILLISECONDS * MINUTE;
 
     m_bool_configs[CONFIG_NO_RESET_TALENT_COST] = sConfig->GetBoolDefault("NoResetTalentsCost", false);
     m_bool_configs[CONFIG_SHOW_KICK_IN_WORLD] = sConfig->GetBoolDefault("ShowKickInWorld", false);
@@ -2121,7 +2137,7 @@ void World::SendGMText(int32 string_id, ...)
         if (!itr->second || !itr->second->GetPlayer() || !itr->second->GetPlayer()->IsInWorld())
             continue;
 
-        if (itr->second->GetSecurity() < SEC_MODERATOR)
+        if (itr->second->GetSecurity() < SEC_ANWAERTER)
             continue;
 
         wt_do(itr->second->GetPlayer());

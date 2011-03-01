@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,22 +18,31 @@
 #ifndef DEF_ARCHAVON_H
 #define DEF_ARCHAVON_H
 
+#include "OutdoorPvPMgr.h"
+#include "../../OutdoorPvP/OutdoorPvPTW.h"
+
 enum Creatures
 {
     CREATURE_ARCHAVON                           = 31125,
     CREATURE_EMALON                             = 33993,
     CREATURE_KORALON                            = 35013,
-    CREATURE_TORAVON                            = 38433,
+    CREATURE_TORAVON                            = 38433
 };
 
 enum Data
 {
-    DATA_ARCHAVON   = 0,
-    DATA_EMALON     = 1,
-    DATA_KORALON    = 2,
-    DATA_TORAVON    = 3,
+    DATA_ARCHAVON_EVENT,
+    DATA_EMALON_EVENT,
+    DATA_KORALON_EVENT,
+    DATA_TORAVON_EVENT
 };
 
-#define MAX_ENCOUNTER 4
+enum Data64
+{
+    DATA_ARCHAVON,
+    DATA_EMALON,
+    DATA_KORALON,
+    DATA_TORAVON
+};
 
 #endif

@@ -42,7 +42,7 @@ public:
         };
         static ChatCommand accountCommandTable[] =
         {
-            { "addon",          SEC_MODERATOR,      false, &HandleAccountAddonCommand,        "", NULL },
+            { "addon",          SEC_ANWAERTER,      false, &HandleAccountAddonCommand,        "", NULL },
             { "create",         SEC_CONSOLE,        true,  &HandleAccountCreateCommand,       "", NULL },
             { "delete",         SEC_CONSOLE,        true,  &HandleAccountDeleteCommand,       "", NULL },
             { "onlinelist",     SEC_CONSOLE,        true,  &HandleAccountOnlineListCommand,   "", NULL },

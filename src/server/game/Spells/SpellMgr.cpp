@@ -28,6 +28,8 @@
 #include "CreatureAI.h"
 #include "MapManager.h"
 #include "BattlegroundIC.h"
+#include "OutdoorPvPMgr.h"
+#include "../../scripts/OutdoorPvP/OutdoorPvPTW.h"
 
 bool IsAreaEffectTarget[TOTAL_SPELL_TARGETS];
 SpellEffectTargetTypes EffectTargetType[TOTAL_SPELL_EFFECTS];
@@ -2765,6 +2767,14 @@ SpellCastResult SpellMgr::GetSpellAllowedInLocationError(SpellEntry const *spell
             {
                 if (player && !player->IsKnowHowFlyIn(map_id, zone_id))
                     return SPELL_FAILED_INCORRECT_AREA;
+
+                // In Tausendwinter ist das Fliegen (während ein Kampf läuft) verboten!
+                if (player && player->GetZoneId() == NORDEND_TAUSENDWINTER)
+                    if (Tausendwinter * pTW = const_cast<Tausendwinter*> ((Tausendwinter*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORDEND_TAUSENDWINTER)))
+                    {
+                        if (pTW->IstKampf())
+                            return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+                    }
             }
         }
     }

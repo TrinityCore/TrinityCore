@@ -2480,6 +2480,87 @@ Arena.ArenaStartMatchmakerRating = 1500
 ###################################################################################################
 
 ###################################################################################################
+# TAUSENDWINTERSEE KONFIGURATION
+#
+#   Tausendwinter.Aktiviert
+#       Gibt an, ob OutdoorPvP für Tausendwinter aktiviert sein soll.
+#       Default: 1 = Aktiviert
+#                0 = Deaktiviert
+
+Tausendwinter.Aktiviert = 1
+
+#
+#   Tausendwinter.WeltStartNachricht
+#       Gibt an, ob der Start von Tausendwinter weltweit bekannt gemacht werden soll.
+#       Default: 0 = Deaktiviert
+#                1 = Aktiviert
+
+Tausendwinter.WeltStartNachricht = 0
+
+#
+#   Tausendwinter.WeltStartCountdown
+#       Gibt an, ob es einen weltweiten Startcountdown soll.
+#       Default: 0 = Deaktiviert
+#                1 = Aktiviert
+
+Tausendwinter.WeltStartCountdown = 0
+
+#
+#   Tausendwinter.WeltSiegNachricht
+#       Gibt an, ob der Sieger weltweit bekannt gemacht werden soll.
+#       Default: 0 = Deaktiviert
+#                1 = Aktiviert
+
+Tausendwinter.WeltSiegNachricht = 0
+
+#
+#   Tausendwinter.TeleportDalaran
+#       Gibt an, ob das Angreiferteam nach dem Kampf nach Dalaran teleportiert werden soll.
+#       Default: 0 = Deaktiviert
+#                1 = Aktiviert
+
+Tausendwinter.TeleportDalaran = 0
+
+#
+#   Tausendwinter.VerschiebeNPCs
+#       Gibt an, ob Questgeber / Händler etc. entsprechend des Verteidigerteams verschoeben werden sollen.
+#       Default: 0 = Deaktiviert
+#                1 = Aktiviert
+
+Tausendwinter.VerschiebeNPCs = 0
+
+#
+#   Tausendwinter.Startzeit
+#       Gibt an, nach wieviel Minuten der erste Kampf (nach Realmstart) stattfindet.
+#       Default: 30
+
+Tausendwinter.Startzeit = 30
+
+#
+#   Tausendwinter.Kampfdauer
+#       Gibt die Dauer eines Kampfes (in Minuten) an.
+#       Default: 30
+
+Tausendwinter.Kampfdauer = 30
+
+#
+#   Tausendwinter.KampfIntervall
+#       Gibt die Zeit (in Minuten) zwischen den Kämpfen an.
+#       Default: 130
+
+Tausendwinter.KampfIntervall = 130
+
+#
+#   Tausendwinter.SpeicherIntervall
+#       Min. Zeit (in Minuten), nach der die Daten gespeichert werden sollen.
+#       Default: 5
+
+Tausendwinter.SpeicherIntervall = 5
+
+#
+###################################################################################################
+
+###################################################################################################
 # NETWORK CONFIG
 #
 #    Network.Threads

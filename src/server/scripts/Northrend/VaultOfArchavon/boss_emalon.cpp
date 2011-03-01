@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,35 +19,28 @@
 #include "vault_of_archavon.h"
 
 //Emalon spells
-enum Spells
-{
-    SPELL_OVERCHARGE            = 64218,    // Cast every 45 sec on a random Tempest Minion
-    SPELL_BERSERK               = 26662,
-
-    SPELL_SHOCK                 = 64363,
-    SPELL_OVERCHARGED           = 64217,
-    SPELL_OVERCHARGED_BLAST     = 64219,    // Cast when Overcharged reaches 10 stacks. Mob dies after that
-};
-
-// cannot let SpellDifficulty handle it, no entries for these
 #define SPELL_CHAIN_LIGHTNING           RAID_MODE(64213, 64215)
 #define SPELL_LIGHTNING_NOVA            RAID_MODE(64216, 65279)
+#define SPELL_OVERCHARGE                64218                   //Casted every 45 sec on a random Tempest Minion
+#define SPELL_BERSERK                   26662
 
-enum BossEmotes
-{
-    EMOTE_OVERCHARGE        = -1590000,
-    EMOTE_MINION_RESPAWN    = -1590001,
-    EMOTE_BERSERK           = -1590002,
-};
+//Tempest Minion spells
+#define SPELL_SHOCK                     64363
+#define SPELL_OVERCHARGED               64217
+#define SPELL_OVERCHARGED_BLAST         64219                   //Casted when Overcharged reaches 10 stacks. Mob dies after that
 
-enum Events
-{
-    EVENT_CHAIN_LIGHTNING   = 1,
-    EVENT_LIGHTNING_NOVA    = 2,
-    EVENT_OVERCHARGE        = 3,
-    EVENT_BERSERK           = 4,
-    EVENT_SHOCK             = 5,
-};
+//Emotes
+#define EMOTE_OVERCHARGE        -1590000
+#define EMOTE_MINION_RESPAWN    -1590001
+#define EMOTE_BERSERK           -1590002
+
+//Events
+#define EVENT_CHAIN_LIGHTNING       1
+#define EVENT_LIGHTNING_NOVA        2
+#define EVENT_OVERCHARGE            3
+#define EVENT_BERSERK               4
+#define EVENT_SHOCK                 5
+#define EVENT_TW_CHECK              6
 
 //Creatures
 #define MOB_TEMPEST_MINION          33998
@@ -67,107 +60,123 @@ struct Position TempestMinions[MAX_TEMPEST_MINIONS] =
 ######*/
 class boss_emalon : public CreatureScript
 {
-    public:
-        boss_emalon() : CreatureScript("boss_emalon") { }
+public:
+    boss_emalon() : CreatureScript("boss_emalon") { }
 
-        struct boss_emalonAI : public BossAI
+    CreatureAI* GetAI(Creature *_Creature) const
+    {
+        return new boss_emalonAI (_Creature);
+    }
+
+    struct boss_emalonAI : public BossAI
+    {
+        boss_emalonAI(Creature *c) : BossAI(c, DATA_EMALON_EVENT)
         {
-            boss_emalonAI(Creature* creature) : BossAI(creature, DATA_EMALON)
-            {
-            }
-
-            void Reset()
-            {
-                _Reset();
-
-                for (uint8 i = 0; i < MAX_TEMPEST_MINIONS; ++i)
-                    me->SummonCreature(MOB_TEMPEST_MINION, TempestMinions[i], TEMPSUMMON_CORPSE_DESPAWN, 0);
-            }
-
-            void JustSummoned(Creature* summoned)
-            {
-                BossAI::JustSummoned(summoned);
-
-                // AttackStart has NULL-check for victim
-                if (summoned->AI())
-                    summoned->AI()->AttackStart(me->getVictim());
-            }
-
-            void EnterCombat(Unit* who)
-            {
-                if (!summons.empty())
-                {
-                    for (std::list<uint64>::const_iterator itr = summons.begin(); itr != summons.end(); ++itr)
-                    {
-                        Creature *minion = Unit::GetCreature(*me, *itr);
-                        if (minion && minion->isAlive() && !minion->getVictim() && minion->AI())
-                            minion->AI()->AttackStart(who);
-                    }
-                }
-
-                events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 5000);
-                events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 40000);
-                events.ScheduleEvent(EVENT_BERSERK, 360000);
-                events.ScheduleEvent(EVENT_OVERCHARGE, 45000);
-
-                _EnterCombat();
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STAT_CASTING))
-                    return;
-
-                while (uint32 eventId = events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_CHAIN_LIGHTNING:
-                            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, SPELL_CHAIN_LIGHTNING);
-                            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 25000);
-                            break;
-                        case EVENT_LIGHTNING_NOVA:
-                            DoCastAOE(SPELL_LIGHTNING_NOVA);
-                            events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 40000);
-                            break;
-                        case EVENT_OVERCHARGE:
-                            if (!summons.empty())
-                            {
-                                std::list<uint64>::const_iterator itr = summons.begin();
-                                std::advance(itr, urand(0, summons.size()-1));
-                                Creature* minion = Unit::GetCreature(*me, *itr);
-                                if (minion && minion->isAlive())
-                                {
-                                    minion->CastSpell(me, SPELL_OVERCHARGED, true);
-                                    minion->SetFullHealth();
-                                    DoScriptText(EMOTE_OVERCHARGE, me);
-                                    events.ScheduleEvent(EVENT_OVERCHARGE, 45000);
-                                }
-                            }
-                            break;
-                        case EVENT_BERSERK:
-                            DoCast(me, SPELL_BERSERK);
-                            DoScriptText(EMOTE_BERSERK, me);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                DoMeleeAttackIfReady();
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new boss_emalonAI(creature);
         }
+
+        EventMap eventsTW;
+
+        void Reset()
+        {
+            _Reset();
+
+            eventsTW.Reset();
+            eventsTW.ScheduleEvent(EVENT_TW_CHECK, 100);
+
+            for (uint8 i = 0; i < MAX_TEMPEST_MINIONS; ++i)
+                me->SummonCreature(MOB_TEMPEST_MINION, TempestMinions[i], TEMPSUMMON_CORPSE_DESPAWN, 0);
+        }
+
+        void JustSummoned(Creature *summoned)
+        {
+            BossAI::JustSummoned(summoned);
+
+            if (me->getVictim() && summoned->AI())
+                summoned->AI()->AttackStart(me->getVictim());
+        }
+
+        void EnterCombat(Unit * who)
+        {
+            if (!summons.empty())
+            {
+                for (std::list<uint64>::const_iterator itr = summons.begin(); itr != summons.end(); ++itr)
+                {
+                    Creature *minion = Unit::GetCreature(*me, *itr);
+                    if (minion && minion->isAlive() && !minion->getVictim() && minion->AI())
+                        minion->AI()->AttackStart(who);
+                }
+            }
+
+            events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 5000);
+            events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 40000);
+            events.ScheduleEvent(EVENT_BERSERK, 360000);
+            events.ScheduleEvent(EVENT_OVERCHARGE, 45000);
+
+            _EnterCombat();
+        }
+
+        void CheckTW()
+        {
+            if (Tausendwinter * pTW = const_cast<Tausendwinter*> ((Tausendwinter*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORDEND_TAUSENDWINTER)))
+                pTW->DarfAngegriffenWerden(me);
+
+            eventsTW.RescheduleEvent(EVENT_TW_CHECK, 29000);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            eventsTW.Update(diff);
+
+            if (eventsTW.ExecuteEvent() == EVENT_TW_CHECK)
+                CheckTW();
+
+            if (!UpdateVictim())
+                return;
+
+            events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STAT_CASTING))
+                return;
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch(eventId)
+                {
+                case EVENT_CHAIN_LIGHTNING:
+                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        DoCast(pTarget, SPELL_CHAIN_LIGHTNING);
+                    events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 25000);
+                    break;
+                case EVENT_LIGHTNING_NOVA:
+                    DoCastAOE(SPELL_LIGHTNING_NOVA, false);
+                    events.ScheduleEvent(EVENT_LIGHTNING_NOVA, 40000);
+                    break;
+                case EVENT_OVERCHARGE:
+                    if (!summons.empty())
+                    {
+                        std::list<uint64>::const_iterator itr = summons.begin();
+                        std::advance(itr, urand(0, summons.size()-1));
+                        Creature *minion = Unit::GetCreature(*me, *itr);
+                        if (minion && minion->isAlive())
+                        {
+                            minion->CastSpell(me, SPELL_OVERCHARGED, true);
+                            minion->SetFullHealth();
+                            DoScriptText(EMOTE_OVERCHARGE, me);
+                            events.ScheduleEvent(EVENT_OVERCHARGE, 45000);
+                        }
+                    }
+                    break;
+                case EVENT_BERSERK:
+                    DoCast(me, SPELL_BERSERK);
+                    DoScriptText(EMOTE_BERSERK, me);
+                    break;
+                }
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
 
 /*######
@@ -175,100 +184,123 @@ class boss_emalon : public CreatureScript
 ######*/
 class mob_tempest_minion : public CreatureScript
 {
-    public:
-        mob_tempest_minion() : CreatureScript("mob_tempest_minion") { }
+public:
+    mob_tempest_minion() : CreatureScript("mob_tempest_minion") { }
 
-        struct mob_tempest_minionAI : public ScriptedAI
+    CreatureAI* GetAI(Creature *_Creature) const
+    {
+        return new mob_tempest_minionAI (_Creature);
+    }
+
+    struct mob_tempest_minionAI : public ScriptedAI
+    {
+        mob_tempest_minionAI(Creature *c) : ScriptedAI(c)
         {
-            mob_tempest_minionAI(Creature* creature) : ScriptedAI(creature)
-            {
-                instance = creature->GetInstanceScript();
-            }
+            pInstance = c->GetInstanceScript();
+        }
 
-            void Reset()
-            {
-                events.Reset();
-                OverchargedTimer = 0;
-            }
+        InstanceScript* pInstance;
 
-            void JustDied(Unit* /*Killer*/)
+        EventMap events;
+        EventMap eventsTW;
+
+        uint32 uiOverchargedTimer;
+
+        void Reset()
+        {
+            events.Reset();
+            eventsTW.Reset();
+            eventsTW.ScheduleEvent(EVENT_TW_CHECK, 100);
+
+            uiOverchargedTimer = 0;
+        }
+
+        void JustDied(Unit* /*Killer*/)
+        {
+            if (Creature *pEmalon = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_EMALON) : 0))
             {
-                if (Creature* emalon = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_EMALON) : 0))
+                if (pEmalon->isAlive())
                 {
-                    if (emalon->isAlive())
+                    pEmalon->SummonCreature(MOB_TEMPEST_MINION, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    DoScriptText(EMOTE_MINION_RESPAWN, me);
+                }
+            }
+        }
+
+        void EnterCombat(Unit * who)
+        {
+            DoZoneInCombat();
+            events.ScheduleEvent(EVENT_SHOCK, 20000);
+
+            if (Creature *pEmalon = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_EMALON) : 0))
+            {
+                if (!pEmalon->getVictim() && pEmalon->AI())
+                    pEmalon->AI()->AttackStart(who);
+            }
+        }
+
+        void CheckTW()
+        {
+            if (Tausendwinter * pTW = const_cast<Tausendwinter*> ((Tausendwinter*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORDEND_TAUSENDWINTER)))
+                pTW->DarfAngegriffenWerden(me);
+
+            eventsTW.RescheduleEvent(EVENT_TW_CHECK, 29000);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            eventsTW.Update(diff);
+
+            if (eventsTW.ExecuteEvent() == EVENT_TW_CHECK)
+                CheckTW();
+
+            if (!UpdateVictim())
+                return;
+
+            events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STAT_CASTING))
+                return;
+
+            if (Aura *overchargedAura = me->GetAura(SPELL_OVERCHARGED))
+            {
+                if (overchargedAura->GetStackAmount() < 10)
+                {
+                    if (uiOverchargedTimer <= diff)
                     {
-                        emalon->SummonCreature(MOB_TEMPEST_MINION, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        DoCast(me, SPELL_OVERCHARGED);
+                        uiOverchargedTimer = 2000;
+                    } else uiOverchargedTimer -=diff;
+                }
+                else
+                {
+                    if (overchargedAura->GetStackAmount() == 10)
+                    {
+                        DoCast(me, SPELL_OVERCHARGED_BLAST);
+                        me->ForcedDespawn();
                         DoScriptText(EMOTE_MINION_RESPAWN, me);
                     }
                 }
             }
 
-            void EnterCombat(Unit * who)
+            while (uint32 eventId = events.ExecuteEvent())
             {
-                DoZoneInCombat();
-                events.ScheduleEvent(EVENT_SHOCK, 20000);
-
-                if (Creature *pEmalon = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_EMALON) : 0))
+                switch(eventId)
                 {
-                    if (!pEmalon->getVictim() && pEmalon->AI())
-                        pEmalon->AI()->AttackStart(who);
-                }
-            }
-
-            void UpdateAI(const uint32 diff)
-            {
-                //Return since we have no target
-                if (!UpdateVictim())
-                    return;
-
-                events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STAT_CASTING))
-                    return;
-
-                if (Aura const* overchargedAura = me->GetAura(SPELL_OVERCHARGED))
-                {
-                    if (overchargedAura->GetStackAmount() < 10)
-                    {
-                        if (OverchargedTimer <= diff)
-                        {
-                            DoCast(me, SPELL_OVERCHARGED);
-                            OverchargedTimer = 2000;
-                        }
-                        else
-                            OverchargedTimer -= diff;
-                    }
-                    else
-                    {
-                        if (overchargedAura->GetStackAmount() == 10)
-                        {
-                            DoCast(me, SPELL_OVERCHARGED_BLAST);
-                            me->DespawnOrUnsummon();
-                            DoScriptText(EMOTE_MINION_RESPAWN, me);
-                        }
-                    }
-                }
-
-                if (events.ExecuteEvent() == EVENT_SHOCK)
-                {
-                    DoCastVictim(SPELL_SHOCK);
+                case EVENT_SHOCK:
+                    DoCast(me->getVictim(), SPELL_SHOCK);
                     events.ScheduleEvent(EVENT_SHOCK, 20000);
+                    return;
                 }
-
-                DoMeleeAttackIfReady();
             }
 
-        private:
-            InstanceScript* instance;
-            EventMap events;
-            uint32 OverchargedTimer;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new mob_tempest_minionAI(creature);
+            DoMeleeAttackIfReady();
         }
+    };
+
 };
+
+
 
 void AddSC_boss_emalon()
 {

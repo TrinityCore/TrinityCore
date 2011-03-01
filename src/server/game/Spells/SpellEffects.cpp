@@ -4861,6 +4861,12 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
 
                     return;
                 }
+
+                case 58622:                                 // Portal nach Tausendwinter
+                    if (unitTarget && m_originalCaster)
+                        m_originalCaster->CastSpell(unitTarget, 60035, true);
+                    return;
+
                 case 58941:                                 // Rock Shards
                     if (unitTarget && m_originalCaster)
                     {

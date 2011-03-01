@@ -66,6 +66,7 @@
 #include "ConditionMgr.h"
 #include "DisableMgr.h"
 #include "WeatherMgr.h"
+#include "../../../scripts/OutdoorPvP/OutdoorPvPTW.h"
 #include "LFGMgr.h"
 #include "CharacterDatabaseCleaner.h"
 #include "InstanceScript.h"
@@ -749,7 +750,7 @@ bool Player::Create(uint32 guidlow, const std::string& name, uint8 race, uint8 c
         ? sWorld->getIntConfig(CONFIG_START_PLAYER_LEVEL)
         : sWorld->getIntConfig(CONFIG_START_HEROIC_PLAYER_LEVEL);
 
-    if (GetSession()->GetSecurity() >= SEC_MODERATOR)
+    if (GetSession()->GetSecurity() >= SEC_ANWAERTER)
     {
         uint32 gm_level = sWorld->getIntConfig(CONFIG_START_GM_LEVEL);
         if (gm_level > start_level)
@@ -22208,6 +22209,9 @@ void Player::UpdateZoneDependentAuras(uint32 newZone)
         if (itr->second->autocast && itr->second->IsFitToRequirements(this,newZone,0))
             if (!HasAura(itr->second->spellId))
                 CastSpell(this,itr->second->spellId,true);
+
+    if (Tausendwinter * pTW = const_cast<Tausendwinter*> ((Tausendwinter*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(NORDEND_TAUSENDWINTER)))
+        pTW->AktualisiereEssenzVonTausendwinter(this, newZone);
 }
 
 void Player::UpdateAreaDependentAuras(uint32 newArea)
@@ -22283,6 +22287,9 @@ void Player::UpdateCorpseReclaimDelay()
 
 void Player::SendCorpseReclaimDelay(bool load)
 {
+    if (GetZoneId() == NORDEND_TAUSENDWINTER)
+        return;
+
     Corpse* corpse = GetCorpse();
     if (load && !corpse)
         return;

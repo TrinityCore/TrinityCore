@@ -43,9 +43,9 @@ public:
     {
         static ChatCommand debugPlayCommandTable[] =
         {
-            { "cinematic",      SEC_MODERATOR,      false, &HandleDebugPlayCinematicCommand,   "", NULL },
-            { "movie",          SEC_MODERATOR,      false, &HandleDebugPlayMovieCommand,       "", NULL },
-            { "sound",          SEC_MODERATOR,      false, &HandleDebugPlaySoundCommand,       "", NULL },
+            { "cinematic",      SEC_ANWAERTER,      false, &HandleDebugPlayCinematicCommand,   "", NULL },
+            { "movie",          SEC_ANWAERTER,      false, &HandleDebugPlayMovieCommand,       "", NULL },
+            { "sound",          SEC_ANWAERTER,      false, &HandleDebugPlaySoundCommand,       "", NULL },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         static ChatCommand debugSendCommandTable[] =
@@ -77,7 +77,7 @@ public:
             { "getvalue",       SEC_ADMINISTRATOR,  false, &HandleDebugGetValueCommand,        "", NULL },
             { "getitemvalue",   SEC_ADMINISTRATOR,  false, &HandleDebugGetItemValueCommand,    "", NULL },
             { "Mod32Value",     SEC_ADMINISTRATOR,  false, &HandleDebugMod32ValueCommand,      "", NULL },
-            { "play",           SEC_MODERATOR,      false, NULL,              "", debugPlayCommandTable },
+            { "play",           SEC_ANWAERTER,      false, NULL,              "", debugPlayCommandTable },
             { "send",           SEC_ADMINISTRATOR,  false, NULL,              "", debugSendCommandTable },
             { "setaurastate",   SEC_ADMINISTRATOR,  false, &HandleDebugSetAuraStateCommand,    "", NULL },
             { "setitemvalue",   SEC_ADMINISTRATOR,  false, &HandleDebugSetItemValueCommand,    "", NULL },
@@ -93,7 +93,7 @@ public:
         };
         static ChatCommand commandTable[] =
         {
-            { "debug",          SEC_MODERATOR,      true,  NULL,                  "", debugCommandTable },
+            { "debug",          SEC_ANWAERTER,      true,  NULL,                  "", debugCommandTable },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         return commandTable;

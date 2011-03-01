@@ -35,27 +35,27 @@ public:
     {
         static ChatCommand modifyCommandTable[] =
         {
-            { "hp",             SEC_MODERATOR,      false, &HandleModifyHPCommand,            "", NULL },
-            { "mana",           SEC_MODERATOR,      false, &HandleModifyManaCommand,          "", NULL },
-            { "rage",           SEC_MODERATOR,      false, &HandleModifyRageCommand,          "", NULL },
-            { "runicpower",     SEC_MODERATOR,      false, &HandleModifyRunicPowerCommand,    "", NULL },
-            { "energy",         SEC_MODERATOR,      false, &HandleModifyEnergyCommand,        "", NULL },
-            { "money",          SEC_MODERATOR,      false, &HandleModifyMoneyCommand,         "", NULL },
-            { "speed",          SEC_MODERATOR,      false, &HandleModifySpeedCommand,         "", NULL },
-            { "swim",           SEC_MODERATOR,      false, &HandleModifySwimCommand,          "", NULL },
-            { "scale",          SEC_MODERATOR,      false, &HandleModifyScaleCommand,         "", NULL },
-            { "bit",            SEC_MODERATOR,      false, &HandleModifyBitCommand,           "", NULL },
-            { "bwalk",          SEC_MODERATOR,      false, &HandleModifyBWalkCommand,         "", NULL },
-            { "fly",            SEC_MODERATOR,      false, &HandleModifyFlyCommand,           "", NULL },
-            { "aspeed",         SEC_MODERATOR,      false, &HandleModifyASpeedCommand,        "", NULL },
-            { "faction",        SEC_MODERATOR,      false, &HandleModifyFactionCommand,       "", NULL },
-            { "spell",          SEC_MODERATOR,      false, &HandleModifySpellCommand,         "", NULL },
-            { "tp",             SEC_MODERATOR,      false, &HandleModifyTalentCommand,        "", NULL },
-            { "mount",          SEC_MODERATOR,      false, &HandleModifyMountCommand,         "", NULL },
-            { "honor",          SEC_MODERATOR,      false, &HandleModifyHonorCommand,         "", NULL },
+            { "hp",             SEC_ANWAERTER,      false, &HandleModifyHPCommand,            "", NULL },
+            { "mana",           SEC_ANWAERTER,      false, &HandleModifyManaCommand,          "", NULL },
+            { "rage",           SEC_ANWAERTER,      false, &HandleModifyRageCommand,          "", NULL },
+            { "runicpower",     SEC_ANWAERTER,      false, &HandleModifyRunicPowerCommand,    "", NULL },
+            { "energy",         SEC_ANWAERTER,      false, &HandleModifyEnergyCommand,        "", NULL },
+            { "money",          SEC_ANWAERTER,      false, &HandleModifyMoneyCommand,         "", NULL },
+            { "speed",          SEC_ANWAERTER,      false, &HandleModifySpeedCommand,         "", NULL },
+            { "swim",           SEC_ANWAERTER,      false, &HandleModifySwimCommand,          "", NULL },
+            { "scale",          SEC_ANWAERTER,      false, &HandleModifyScaleCommand,         "", NULL },
+            { "bit",            SEC_ANWAERTER,      false, &HandleModifyBitCommand,           "", NULL },
+            { "bwalk",          SEC_ANWAERTER,      false, &HandleModifyBWalkCommand,         "", NULL },
+            { "fly",            SEC_ANWAERTER,      false, &HandleModifyFlyCommand,           "", NULL },
+            { "aspeed",         SEC_ANWAERTER,      false, &HandleModifyASpeedCommand,        "", NULL },
+            { "faction",        SEC_ANWAERTER,      false, &HandleModifyFactionCommand,       "", NULL },
+            { "spell",          SEC_ANWAERTER,      false, &HandleModifySpellCommand,         "", NULL },
+            { "tp",             SEC_ANWAERTER,      false, &HandleModifyTalentCommand,        "", NULL },
+            { "mount",          SEC_ANWAERTER,      false, &HandleModifyMountCommand,         "", NULL },
+            { "honor",          SEC_ANWAERTER,      false, &HandleModifyHonorCommand,         "", NULL },
             { "rep",            SEC_GAMEMASTER,     false, &HandleModifyRepCommand,           "", NULL },
-            { "arena",          SEC_MODERATOR,      false, &HandleModifyArenaCommand,         "", NULL },
-            { "drunk",          SEC_MODERATOR,      false, &HandleModifyDrunkCommand,         "", NULL },
+            { "arena",          SEC_ANWAERTER,      false, &HandleModifyArenaCommand,         "", NULL },
+            { "drunk",          SEC_ANWAERTER,      false, &HandleModifyDrunkCommand,         "", NULL },
             { "standstate",     SEC_GAMEMASTER,     false, &HandleModifyStandStateCommand,    "", NULL },
             { "morph",          SEC_GAMEMASTER,     false, &HandleModifyMorphCommand,         "", NULL },
             { "phase",          SEC_ADMINISTRATOR,  false, &HandleModifyPhaseCommand,         "", NULL },
@@ -64,7 +64,7 @@ public:
         };
         static ChatCommand commandTable[] =
         {
-            { "modify",         SEC_MODERATOR,      false, NULL,                 "", modifyCommandTable },
+            { "modify",         SEC_ANWAERTER,      false, NULL,                 "", modifyCommandTable },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         return commandTable;

@@ -72,7 +72,7 @@ enum Races
     //RACE_TUSKARR        = 17,
     //RACE_FOREST_TROLL   = 18,
     //RACE_TAUNKA         = 19,
-    //RACE_NORTHREND_SKELETON = 20,
+    //RACE_NORDEND_SKELETON = 20,
     //RACE_ICE_TROLL      = 21
 };
 
@@ -2482,6 +2482,51 @@ enum WeatherType
 };
 
 #define MAX_WEATHER_TYPE 4
+
+enum NordendZonen
+{   // Offene Gebiete
+    NORDEND_BOREANISCHE_TUNDRA          = 3537,
+    NORDEND_KRISTALLSANGWALD            = 2817,
+    NORDEND_DALARAN                     = 4395,
+    NORDEND_DRACHENOEDE                 = 65,
+    NORDEND_GRIZZLYHUEGEL               = 394,
+    NORDEND_HEULENDE_FJORD              = 495,
+    NORDEND_HROTHGARS_LANDESTELLE       = 4742,
+    NORDEND_EISKRONE                    = 210,
+    NORDEND_SHOLAZARBECKEN              = 3711,
+    NORDEND_STURMGIPFEL                 = 67,
+    NORDEND_TAUSENDWINTER               = 4197,
+    NORDEND_ZULDRAK                     = 66,
+
+    // Dungeons
+    NORDEND_AHNKAHET                    = 4494,
+    NORDEND_AZJOL_NERUB                 = 3477,
+    NORDEND_AUSMERZEN_VON_STRATHOLME    = 4100,
+    NORDEND_PRUEFUNG_DES_CHAMPIONS      = 4723,
+    NORDEND_FESTE_DRAKTHARON            = 4196,
+    NORDEND_GUNDRAK                     = 4416,
+    NORDEND_NEXUS                       = 4265,
+    NORDEND_OCULUS                      = 4228,
+    NORDEND_VIOLETTE_FESTUNG            = 4415,
+    NORDEND_HALLEN_DER_BLITZE           = 4272,
+    NORDEND_HALLEN_DES_STEINS           = 4264,
+    NORDEND_BURG_UTGARDE                = 206,
+    NORDEND_TURM_UTGARDE                = 1196,
+    NORDEND_SELENSCHMIEDE               = 4809,
+    NORDEND_GRUBE_VON_SARON             = 4813,
+    NORDEND_HALLEN_DER_REFLEKTION       = 4820,
+
+    // Schlachtzüge
+    NORDEND_ARCHAVONS_KAMMER            = 4603,
+    NORDEND_DAS_AUGE_DER_EWIGKEIT       = 4500,
+    NORDEND_EISKRONENZITADELLE          = 4812,
+    NORDEND_NAXXRAMAS                   = 3456,
+    NORDEND_ONYXIAS_HORT                = 2159,
+    NORDEND_PRUEFUNG_DES_KREUZFAHRERS   = 4722,
+    NORDEND_ULDUAR                      = 4273,
+    NORDEND_OBSIDIANSANKTUM             = 4493,
+    NORDEND_RUBINSANKTUM                = 4987
+};
 
 enum ChatMsg
 {

@@ -32,9 +32,10 @@ enum OutdoorPvPTypes
     OUTDOOR_PVP_ZM = 4,
     OUTDOOR_PVP_SI = 5,
     OUTDOOR_PVP_EP = 6,
+    OUTDOOR_PVP_TW = 7
 };
 
-#define MAX_OUTDOORPVP_TYPES 7
+#define MAX_OUTDOORPVP_TYPES 8
 
 const uint8 CapturePointArtKit[3] = {2, 1, 21};
 
@@ -221,7 +222,9 @@ class OutdoorPvP : public ZoneScript
 
         void OnGameObjectCreate(GameObject *go);
         void OnGameObjectRemove(GameObject *go);
+
         void OnCreatureCreate(Creature *) {}
+        void OnCreatureRemove(Creature *) {}
 
         // send world state update to all players present
         void SendUpdateWorldState(uint32 field, uint32 value);
