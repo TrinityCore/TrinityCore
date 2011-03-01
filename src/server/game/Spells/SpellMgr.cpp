@@ -3916,6 +3916,10 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->Targets |= TARGET_FLAG_UNIT_CASTER;
             count++;
             break;
+        case 66665: // Burning Breath
+            spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
+            count++;
+            break;
         case 16834: // Natural shapeshifter
         case 16835:
             spellInfo->DurationIndex = 21;
