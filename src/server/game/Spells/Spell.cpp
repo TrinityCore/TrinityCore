@@ -6967,16 +6967,16 @@ SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, SkillType& sk
 
                 if (skillId != SKILL_NONE)
                 {
-                    // skill bonus provided by casting spell (mostly item spells)
-                    // add the damage modifier from the spell casted (cheat lock / skeleton key etc.)
-                    uint32 spellSkillBonus = uint32(CalculateDamage(effIndex, NULL));
                     reqSkillValue = lockInfo->Skill[j];
 
                     // castitem check: rogue using skeleton keys. the skill values should not be added in this case.
                     skillValue = m_CastItem || m_caster->GetTypeId()!= TYPEID_PLAYER ?
                         0 : m_caster->ToPlayer()->GetSkillValue(skillId);
 
-                    skillValue += spellSkillBonus;
+                    // skill bonus provided by casting spell (mostly item spells)
+                    // add the damage modifier from the spell casted (cheat lock / skeleton key etc.)
+                    if (m_spellInfo->EffectImplicitTargetA[effIndex] == TARGET_GAMEOBJECT_ITEM || m_spellInfo->EffectImplicitTargetB[effIndex] == TARGET_GAMEOBJECT_ITEM)
+                        skillValue += uint32(CalculateDamage(effIndex, NULL));
 
                     if (skillValue < reqSkillValue)
                         return SPELL_FAILED_LOW_CASTLEVEL;
