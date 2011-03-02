@@ -69,14 +69,12 @@ public:
 
         InstanceScript* m_pInstance;
         SummonList Summons;
-        uint32 m_uiChampionsNotStarted;
         uint32 m_uiChampionsFailed;
         uint32 m_uiChampionsKilled;
         bool   m_bInProgress;
 
         void Reset()
         {
-            m_uiChampionsNotStarted = 0;
             m_uiChampionsFailed = 0;
             m_uiChampionsKilled = 0;
             m_bInProgress = false;
@@ -222,7 +220,6 @@ public:
                         case IN_PROGRESS:
                             if (!m_bInProgress)
                             {
-                                m_uiChampionsNotStarted = 0;
                                 m_uiChampionsFailed = 0;
                                 m_uiChampionsKilled = 0;
                                 m_bInProgress = true;
@@ -256,28 +253,27 @@ struct boss_faction_championsAI : public ScriptedAI
     {
         m_pInstance = (InstanceScript *) pCreature->GetInstanceScript();
         mAIType = aitype;
+        isWipe = false;
     }
 
     InstanceScript* m_pInstance;
 
-    uint64 championControllerGUID;
     uint32 mAIType;
     uint32 ThreatTimer;
     uint32 CCTimer;
+    bool   isWipe;
 
     void Reset()
     {
-        championControllerGUID = 0;
         CCTimer = rand()%10000;
         ThreatTimer = 5000;
-    }
-
-    void JustReachedHome()
-    {
-        if (m_pInstance)
-            if (Creature* pChampionController = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
-                pChampionController->AI()->SetData(2, FAIL);
-        me->DespawnOrUnsummon();
+        if (isWipe)
+        {
+            if (m_pInstance)
+                if (Creature* pChampionController = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
+                    pChampionController->AI()->SetData(TYPE_CRUSADERS, FAIL);
+            me->DespawnOrUnsummon();
+        }
     }
 
     float CalculateThreat(float distance, float armor, uint32 health)
@@ -329,16 +325,17 @@ struct boss_faction_championsAI : public ScriptedAI
         if (mAIType != AI_PET)
             if (m_pInstance)
                 if (Creature* pChampionController = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
-                    pChampionController->AI()->SetData(2, DONE);
+                    pChampionController->AI()->SetData(TYPE_CRUSADERS, DONE);
     }
 
     void EnterCombat(Unit* /*who*/)
     {
         DoCast(me, SPELL_ANTI_AOE, true);
         me->SetInCombatWithZone();
+        isWipe = true;
         if (m_pInstance)
             if (Creature* pChampionController = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
-                pChampionController->AI()->SetData(2, IN_PROGRESS);
+                pChampionController->AI()->SetData(TYPE_CRUSADERS, IN_PROGRESS);
     }
 
     void KilledUnit(Unit* who)
