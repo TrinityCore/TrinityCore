@@ -112,6 +112,7 @@ struct boss_twin_baseAI : public ScriptedAI
     boss_twin_baseAI(Creature* pCreature) : ScriptedAI(pCreature), Summons(me)
     {
         m_pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+        m_bIsWipe = false;
     }
 
     InstanceScript* m_pInstance;
@@ -119,6 +120,7 @@ struct boss_twin_baseAI : public ScriptedAI
 
     uint8  m_uiStage;
     bool   m_bIsBerserk;
+    bool   m_bIsWipe;
     uint8  m_uiWaveCount;
     uint32 m_uiColorballsTimer;
     uint32 m_uiSpecialAbilityTimer;
@@ -160,16 +162,14 @@ struct boss_twin_baseAI : public ScriptedAI
         m_uiBerserkTimer = IsHeroic() ? 6*MINUTE*IN_MILLISECONDS : 10*MINUTE*IN_MILLISECONDS;
 
         Summons.DespawnAll();
-    }
-
-    void JustReachedHome()
-    {
-        if (m_pInstance)
+        
+        if (m_bIsWipe)
         {
-            m_pInstance->SetData(TYPE_VALKIRIES, FAIL);
-            m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetMaxHealth());
+            if (m_pInstance)
+                m_pInstance->SetData(TYPE_VALKIRIES, FAIL);
+
+            me->DespawnOrUnsummon();
         }
-        me->DespawnOrUnsummon();
     }
 
     void MovementInform(uint32 uiType, uint32 uiId)
@@ -243,7 +243,7 @@ struct boss_twin_baseAI : public ScriptedAI
         if (pDoneBy->GetGUID() == me->GetGUID())
             return;
 
-        if (pDoneBy->GetTypeId() == TYPEID_PLAYER)
+        if (pDoneBy->ToPlayer())
         {
             if (pDoneBy->HasAura(m_uiOtherEssenceSpellId))
                 uiDamage += uiDamage/2;
@@ -255,15 +255,13 @@ struct boss_twin_baseAI : public ScriptedAI
         }
 
         if (m_pInstance)
-            m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetHealth() >= uiDamage ? me->GetHealth() - uiDamage : 0);
-    }
-
-    void SpellHit(Unit* caster, const SpellEntry* spell)
-    {
-        if (caster->ToCreature() == me)
-            if (spell->Effect[0] == 136) //Effect Heal
-                if (m_pInstance)
-                    m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetHealth() + me->CountPctFromMaxHealth(spell->EffectBasePoints[0]));
+        {
+            if (Creature* pSister = GetSister())
+            {
+                pSister->DealDamage(pSister, uiDamage);
+                pSister->LowerPlayerDamageReq(uiDamage);
+            }
+        }
     }
 
     void SummonColorballs(uint8 quantity)
@@ -286,7 +284,6 @@ struct boss_twin_baseAI : public ScriptedAI
         DoScriptText(SAY_DEATH, me);
         if (m_pInstance)
         {
-            m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, 0);
             if (Creature* pSister = GetSister())
             {
                 if (!pSister->isAlive())
@@ -308,19 +305,14 @@ struct boss_twin_baseAI : public ScriptedAI
 
     void EnterCombat(Unit* /*pWho*/)
     {
-        me->SetInCombatWithZone();
-        if (m_pInstance)
-        {
-            m_pInstance->SetData(TYPE_VALKIRIES, IN_PROGRESS);
-            m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetMaxHealth());
-        }
-        if (me->isAlive())
-        {
-            me->SummonCreature(m_uiEssenceNpcId, EssenceLocation[0].GetPositionX(), EssenceLocation[0].GetPositionY(), EssenceLocation[0].GetPositionZ());
-            me->SummonCreature(m_uiEssenceNpcId, EssenceLocation[1].GetPositionX(), EssenceLocation[1].GetPositionY(), EssenceLocation[1].GetPositionZ());
-        }
         DoScriptText(SAY_AGGRO, me);
         DoCast(me, m_uiSurgeSpellId);
+        me->SetInCombatWithZone();
+        m_bIsWipe = true;
+        me->SummonCreature(m_uiEssenceNpcId, EssenceLocation[0].GetPositionX(), EssenceLocation[0].GetPositionY(), EssenceLocation[0].GetPositionZ());
+        me->SummonCreature(m_uiEssenceNpcId, EssenceLocation[1].GetPositionX(), EssenceLocation[1].GetPositionY(), EssenceLocation[1].GetPositionZ());
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_VALKIRIES, IN_PROGRESS);
     }
 
     void DoAction(const int32 action)
@@ -341,11 +333,6 @@ struct boss_twin_baseAI : public ScriptedAI
     {
         if (!m_pInstance || !UpdateVictim())
             return;
-
-        if (m_pInstance->GetData(DATA_HEALTH_TWIN_SHARED) != 0)
-            me->SetHealth(m_pInstance->GetData(DATA_HEALTH_TWIN_SHARED));
-        else
-            me->SetHealth(1);
 
         switch (m_uiStage)
         {
