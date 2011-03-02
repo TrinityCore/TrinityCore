@@ -1046,31 +1046,31 @@ bool OutdoorPvPWG::UpdateCreatureInfo(Creature *creature)
         case CREATURE_GUARD:
         case CREATURE_SPECIAL:
         {
-            switch (entry)
+            if ((creature->GetAreaId()==4575) && (creature->GetEntry()==30740 || creature->GetEntry()==30739))
             {
-                case 30740://Alliance guard
+                switch (entry)
                 {
-                    if (getDefenderTeam() == TEAM_ALLIANCE)
+                    case 30740://Alliance guard
                     {
-                       if (creature->GetAreaId()==4575)
-                          creature->SetPhaseMask(257, true);
-                    } else {
-                       if (creature->GetAreaId()==4575)
-                           creature->SetPhaseMask(256, true);
+                        if (getDefenderTeam() == TEAM_ALLIANCE)
+                            creature->SetPhaseMask(1, true);
+                        else 
+                            creature->SetPhaseMask(2, true);
+                        break;
+                    }
+                    case 30739://Horde guard
+                    {
+                        if (getDefenderTeam() == TEAM_ALLIANCE)
+                            creature->SetPhaseMask(2, true);
+                        else 
+                            creature->SetPhaseMask(1, true);
+                        break;
                     }
                 }
-                case 30739://Horde guard
-                {
-                    if (getDefenderTeam() == TEAM_ALLIANCE)
-                    {
-                       if (creature->GetAreaId()==4575)
-                          creature->SetPhaseMask(64, true);
-                    } else {
-                       if (creature->GetAreaId()==4575)
-                          creature->SetPhaseMask(65, true);
-                    }
-                }
-            }
+                _RespawnCreatureIfNeeded(creature, entry);
+                creature->AI()->EnterEvadeMode();
+                return false;
+            } else {
             TeamPairMap::const_iterator itr = m_creEntryPair.find(creature->GetCreatureData()->id);
             if (itr != m_creEntryPair.end())
             {
@@ -1079,6 +1079,7 @@ bool OutdoorPvPWG::UpdateCreatureInfo(Creature *creature)
                 creature->AI()->EnterEvadeMode();
             }
             return false;
+            }
         }
         default:
             return false;
@@ -1913,6 +1914,8 @@ void OutdoorPvPWG::LoadQuestGiverMap(uint32 guid, Position posHorde, Position po
     m_questgivers[guid] = NULL;
     if (getDefenderTeam() == TEAM_ALLIANCE)
         sObjectMgr->MoveCreData(guid, 571, posAlli);
+    if (getDefenderTeam() == TEAM_HORDE)
+        sObjectMgr->MoveCreData(guid, 571, posHorde);
 }
 
 OPvPCapturePointWG *OutdoorPvPWG::GetWorkshop(uint32 lowguid) const
