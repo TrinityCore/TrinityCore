@@ -853,11 +853,11 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     {
         float scale;
         if (getLevel() >= cFamily->maxScaleLevel)
-            scale = cFamily->maxScale;
+            scale = 1.0f;
         else if (getLevel() <= cFamily->minScaleLevel)
-            scale = cFamily->minScale;
+            scale = 0.5f;
         else
-            scale = cFamily->minScale + float(getLevel() - cFamily->minScaleLevel) / cFamily->maxScaleLevel * (cFamily->maxScale - cFamily->minScale);
+            scale = 0.4f + float(getLevel() / 100.0f);
 
         SetFloatValue(OBJECT_FIELD_SCALE_X, scale);
     }

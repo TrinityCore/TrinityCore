@@ -1279,6 +1279,16 @@ void WorldObject::_Create(uint32 guidlow, HighGuid guidhigh, uint32 phaseMask)
     m_phaseMask = phaseMask;
 }
 
+float WorldObject::GetObjectSize() const 
+{ 
+   if (GetTypeId() == TYPEID_UNIT) 
+   { 
+       if (this->ToCreature()->isHunterPet()) 
+           return DEFAULT_WORLD_OBJECT_SIZE; 
+   } 
+   return (m_valuesCount > UNIT_FIELD_COMBATREACH) ? m_floatValues[UNIT_FIELD_COMBATREACH] : DEFAULT_WORLD_OBJECT_SIZE; 
+}
+
 uint32 WorldObject::GetZoneId() const
 {
     return GetBaseMap()->GetZoneId(m_positionX, m_positionY, m_positionZ);

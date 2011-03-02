@@ -116,7 +116,7 @@ void PetAI::UpdateAI(const uint32 diff)
             HandleReturnMovement();
     }
     else if (owner && !me->HasUnitState(UNIT_STAT_FOLLOW)) // no charm info and no victim
-        me->GetMotionMaster()->MoveFollow(owner,PET_FOLLOW_DIST, me->GetFollowAngle());
+        me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
 
     if (!me->GetCharmInfo())
         return;
