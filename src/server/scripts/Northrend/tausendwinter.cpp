@@ -1,4 +1,4 @@
-// Copyright 2009-2010 by WarHead (United Worlds of MaNGOS)
+// Copyright 2009-2011 by WarHead (United Worlds of MaNGOS)
 
 #include "ScriptPCH.h"
 #include "../OutdoorPvP/OutdoorPvPTW.h"

@@ -1,4 +1,4 @@
-// Copyright 2010 by WarHead (United Worlds of MaNGOS)
+// Copyright 2010-2011 by WarHead (United Worlds of MaNGOS)
 
 // TODO: Schneesturm (SPELL_WHITEOUT) Areaeffekt fixen - keiner vorhanden imo!
 
