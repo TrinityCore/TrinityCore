@@ -265,6 +265,10 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     case TYPE_VALKIRIES:
                         switch (data)
                         {
+                            case IN_PROGRESS:
+                                if(GameObject* chest = instance->GetGameObject(CrusadersCacheGUID))
+                                    chest->Delete();
+                                break;
                             case FAIL:
                                 if (EncounterStatus[TYPE_VALKIRIES] == NOT_STARTED)
                                     data = NOT_STARTED;
