@@ -1455,6 +1455,18 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
 
                 break;
             }
+        case SMART_ACTION_SEND_GO_CUSTOM_ANIM:
+            {
+                ObjectList* targets = GetTargets(e, unit);
+                if (!targets)
+                    return;
+
+                for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); itr++)
+                    if (IsGameObject((*itr)))
+                        (*itr)->ToGameObject()->SendCustomAnim(e.action.sendGoCustomAnim.anim);
+
+                break;
+            }
         default:
             sLog->outErrorDb("SmartScript::ProcessAction: Unhandled Action type %u", e.GetActionType());
             break;
