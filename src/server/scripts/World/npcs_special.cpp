@@ -1919,13 +1919,6 @@ public:
                 }
         }
 
-        void JustDied(Unit * /*killer*/)
-        {
-            // Stop Feeding Gargoyle when it dies
-            if (Unit *owner = me->GetOwner())
-                owner->RemoveAurasDueToSpell(50514);
-        }
-
         // Fly away when dismissed
         void SpellHit(Unit *source, const SpellEntry *spell)
         {
