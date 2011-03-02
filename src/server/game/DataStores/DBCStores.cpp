@@ -70,6 +70,7 @@ DBCStorage <ChrClassesEntry> sChrClassesStore(ChrClassesEntryfmt);
 DBCStorage <ChrRacesEntry> sChrRacesStore(ChrRacesEntryfmt);
 DBCStorage <CinematicSequencesEntry> sCinematicSequencesStore(CinematicSequencesEntryfmt);
 DBCStorage <CreatureDisplayInfoEntry> sCreatureDisplayInfoStore(CreatureDisplayInfofmt);
+DBCStorage <CreatureDisplayInfoExtraEntry> sCreatureDisplayInfoExtraStore(CreatureDisplayInfoExtrafmt);
 DBCStorage <CreatureFamilyEntry> sCreatureFamilyStore(CreatureFamilyfmt);
 DBCStorage <CreatureSpellDataEntry> sCreatureSpellDataStore(CreatureSpellDatafmt);
 DBCStorage <CreatureTypeEntry> sCreatureTypeStore(CreatureTypefmt);
@@ -268,32 +269,33 @@ void LoadDBCStores(const std::string& dataPath)
         }
     }
 
-    LoadDBC(availableDbcLocales,bad_dbc_files,sAchievementStore,         dbcPath,"Achievement.dbc");
-    LoadDBC(availableDbcLocales,bad_dbc_files,sAchievementCriteriaStore, dbcPath,"Achievement_Criteria.dbc");
-    LoadDBC(availableDbcLocales,bad_dbc_files,sAreaTriggerStore,         dbcPath,"AreaTrigger.dbc");
-    LoadDBC(availableDbcLocales,bad_dbc_files,sAreaGroupStore,           dbcPath,"AreaGroup.dbc");
-    LoadDBC(availableDbcLocales,bad_dbc_files,sAreaPOIStore,             dbcPath,"AreaPOI.dbc");
-    LoadDBC(availableDbcLocales,bad_dbc_files,sAuctionHouseStore,        dbcPath,"AuctionHouse.dbc");
-    LoadDBC(availableDbcLocales,bad_dbc_files,sBankBagSlotPricesStore,   dbcPath,"BankBagSlotPrices.dbc");
-    LoadDBC(availableDbcLocales,bad_dbc_files,sBattlemasterListStore,    dbcPath,"BattlemasterList.dbc");
-    LoadDBC(availableDbcLocales,bad_dbc_files,sBarberShopStyleStore,     dbcPath,"BarberShopStyle.dbc");
-    LoadDBC(availableDbcLocales,bad_dbc_files,sCharStartOutfitStore,     dbcPath,"CharStartOutfit.dbc");
-    LoadDBC(availableDbcLocales,bad_dbc_files,sCharTitlesStore,          dbcPath,"CharTitles.dbc");
-    LoadDBC(availableDbcLocales,bad_dbc_files,sChatChannelsStore,        dbcPath,"ChatChannels.dbc");
-    LoadDBC(availableDbcLocales,bad_dbc_files,sChrClassesStore,          dbcPath,"ChrClasses.dbc");
-    LoadDBC(availableDbcLocales,bad_dbc_files,sChrRacesStore,            dbcPath,"ChrRaces.dbc");
-    LoadDBC(availableDbcLocales,bad_dbc_files,sCinematicSequencesStore,  dbcPath,"CinematicSequences.dbc");
-    LoadDBC(availableDbcLocales,bad_dbc_files,sCreatureDisplayInfoStore, dbcPath,"CreatureDisplayInfo.dbc");
-    LoadDBC(availableDbcLocales,bad_dbc_files,sCreatureFamilyStore,      dbcPath,"CreatureFamily.dbc");
-    LoadDBC(availableDbcLocales,bad_dbc_files,sCreatureSpellDataStore,   dbcPath,"CreatureSpellData.dbc");
-    LoadDBC(availableDbcLocales,bad_dbc_files,sCreatureTypeStore,        dbcPath,"CreatureType.dbc");
-    LoadDBC(availableDbcLocales,bad_dbc_files,sCurrencyTypesStore,       dbcPath,"CurrencyTypes.dbc");
-    LoadDBC(availableDbcLocales,bad_dbc_files,sDungeonEncounterStore,    dbcPath,"DungeonEncounter.dbc");
-    LoadDBC(availableDbcLocales,bad_dbc_files,sDurabilityCostsStore,     dbcPath,"DurabilityCosts.dbc");
-    LoadDBC(availableDbcLocales,bad_dbc_files,sDurabilityQualityStore,   dbcPath,"DurabilityQuality.dbc");
-    LoadDBC(availableDbcLocales,bad_dbc_files,sEmotesStore,              dbcPath,"Emotes.dbc");
-    LoadDBC(availableDbcLocales,bad_dbc_files,sEmotesTextStore,          dbcPath,"EmotesText.dbc");
-    LoadDBC(availableDbcLocales,bad_dbc_files,sFactionStore,             dbcPath,"Faction.dbc");
+    LoadDBC(availableDbcLocales,bad_dbc_files,sAchievementStore,              dbcPath,"Achievement.dbc");
+    LoadDBC(availableDbcLocales,bad_dbc_files,sAchievementCriteriaStore,      dbcPath,"Achievement_Criteria.dbc");
+    LoadDBC(availableDbcLocales,bad_dbc_files,sAreaTriggerStore,              dbcPath,"AreaTrigger.dbc");
+    LoadDBC(availableDbcLocales,bad_dbc_files,sAreaGroupStore,                dbcPath,"AreaGroup.dbc");
+    LoadDBC(availableDbcLocales,bad_dbc_files,sAreaPOIStore,                  dbcPath,"AreaPOI.dbc");
+    LoadDBC(availableDbcLocales,bad_dbc_files,sAuctionHouseStore,             dbcPath,"AuctionHouse.dbc");
+    LoadDBC(availableDbcLocales,bad_dbc_files,sBankBagSlotPricesStore,        dbcPath,"BankBagSlotPrices.dbc");
+    LoadDBC(availableDbcLocales,bad_dbc_files,sBattlemasterListStore,         dbcPath,"BattlemasterList.dbc");
+    LoadDBC(availableDbcLocales,bad_dbc_files,sBarberShopStyleStore,          dbcPath,"BarberShopStyle.dbc");
+    LoadDBC(availableDbcLocales,bad_dbc_files,sCharStartOutfitStore,          dbcPath,"CharStartOutfit.dbc");
+    LoadDBC(availableDbcLocales,bad_dbc_files,sCharTitlesStore,               dbcPath,"CharTitles.dbc");
+    LoadDBC(availableDbcLocales,bad_dbc_files,sChatChannelsStore,             dbcPath,"ChatChannels.dbc");
+    LoadDBC(availableDbcLocales,bad_dbc_files,sChrClassesStore,               dbcPath,"ChrClasses.dbc");
+    LoadDBC(availableDbcLocales,bad_dbc_files,sChrRacesStore,                 dbcPath,"ChrRaces.dbc");
+    LoadDBC(availableDbcLocales,bad_dbc_files,sCinematicSequencesStore,       dbcPath,"CinematicSequences.dbc");
+    LoadDBC(availableDbcLocales,bad_dbc_files,sCreatureDisplayInfoStore,      dbcPath,"CreatureDisplayInfo.dbc");
+    LoadDBC(availableDbcLocales,bad_dbc_files,sCreatureDisplayInfoExtraStore, dbcPath,"CreatureDisplayInfoExtra.dbc");
+    LoadDBC(availableDbcLocales,bad_dbc_files,sCreatureFamilyStore,           dbcPath,"CreatureFamily.dbc");
+    LoadDBC(availableDbcLocales,bad_dbc_files,sCreatureSpellDataStore,        dbcPath,"CreatureSpellData.dbc");
+    LoadDBC(availableDbcLocales,bad_dbc_files,sCreatureTypeStore,             dbcPath,"CreatureType.dbc");
+    LoadDBC(availableDbcLocales,bad_dbc_files,sCurrencyTypesStore,            dbcPath,"CurrencyTypes.dbc");
+    LoadDBC(availableDbcLocales,bad_dbc_files,sDungeonEncounterStore,         dbcPath,"DungeonEncounter.dbc");
+    LoadDBC(availableDbcLocales,bad_dbc_files,sDurabilityCostsStore,          dbcPath,"DurabilityCosts.dbc");
+    LoadDBC(availableDbcLocales,bad_dbc_files,sDurabilityQualityStore,        dbcPath,"DurabilityQuality.dbc");
+    LoadDBC(availableDbcLocales,bad_dbc_files,sEmotesStore,                   dbcPath,"Emotes.dbc");
+    LoadDBC(availableDbcLocales,bad_dbc_files,sEmotesTextStore,               dbcPath,"EmotesText.dbc");
+    LoadDBC(availableDbcLocales,bad_dbc_files,sFactionStore,                  dbcPath,"Faction.dbc");
     for (uint32 i=0; i<sFactionStore.GetNumRows(); ++i)
     {
         FactionEntry const * faction = sFactionStore.LookupEntry(i);
@@ -847,13 +849,22 @@ uint32 const* GetTalentTabPages(uint8 cls)
     return sTalentTabPages[cls];
 }
 
+uint32 GetCreatureModelRace(uint32 model_id)
+{
+    CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(model_id);
+    if (!displayEntry)
+        return 0;
+    CreatureDisplayInfoExtraEntry const* extraEntry = sCreatureDisplayInfoExtraStore.LookupEntry(displayEntry->ExtendedDisplayInfoID);
+    return extraEntry ? extraEntry->Race : 0;
+}
+
 // script support functions
- DBCStorage <SoundEntriesEntry>  const* GetSoundEntriesStore()   { return &sSoundEntriesStore;   }
- DBCStorage <SpellEntry>         const* GetSpellStore()          { return &sSpellStore;          }
- DBCStorage <SpellRangeEntry>    const* GetSpellRangeStore()     { return &sSpellRangeStore;     }
- DBCStorage <FactionEntry>       const* GetFactionStore()        { return &sFactionStore;        }
- DBCStorage <ItemEntry>          const* GetItemDisplayStore()    { return &sItemStore;           }
+ DBCStorage <SoundEntriesEntry>        const* GetSoundEntriesStore()    { return &sSoundEntriesStore;        }
+ DBCStorage <SpellEntry>               const* GetSpellStore()           { return &sSpellStore;               }
+ DBCStorage <SpellRangeEntry>          const* GetSpellRangeStore()      { return &sSpellRangeStore;          }
+ DBCStorage <FactionEntry>             const* GetFactionStore()         { return &sFactionStore;             }
+ DBCStorage <ItemEntry>                const* GetItemDisplayStore()     { return &sItemStore;                }
  DBCStorage <CreatureDisplayInfoEntry> const* GetCreatureDisplayStore() { return &sCreatureDisplayInfoStore; }
- DBCStorage <EmotesEntry>        const* GetEmotesStore()         { return &sEmotesStore;         }
- DBCStorage <EmotesTextEntry>    const* GetEmotesTextStore()     { return &sEmotesTextStore;     }
- DBCStorage <AchievementEntry>   const* GetAchievementStore()    { return &sAchievementStore;    }
+ DBCStorage <EmotesEntry>              const* GetEmotesStore()          { return &sEmotesStore;              }
+ DBCStorage <EmotesTextEntry>          const* GetEmotesTextStore()      { return &sEmotesTextStore;          }
+ DBCStorage <AchievementEntry>         const* GetAchievementStore()     { return &sAchievementStore;         }
