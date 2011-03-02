@@ -1417,7 +1417,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
             if ((m_customAttr & SPELL_ATTR0_CU_AURA_CC) && unit->IsControlledByPlayer())
                 unit->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
             
-            bool binary = (uint32(sSpellMgr.GetSpellCustomAttr(m_spellInfo->Id) & SPELL_ATTR0_CU_BINARY) > 0);
+            bool binary = (uint32(sSpellMgr->GetSpellCustomAttr(m_spellInfo->Id) & SPELL_ATTR0_CU_BINARY) > 0);
             m_resist = m_caster->CalcSpellResistance(unit, GetSpellSchoolMask(m_spellInfo), binary, m_spellInfo);
             if (m_resist >= 100)
                 return SPELL_MISS_RESIST;
@@ -1448,7 +1448,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
 
     else if (!IsPositiveSpell(m_spellInfo->Id))
     {
-        bool binary = (uint32(sSpellMgr.GetSpellCustomAttr(m_spellInfo->Id) & SPELL_ATTR0_CU_BINARY) > 0);
+        bool binary = (uint32(sSpellMgr->GetSpellCustomAttr(m_spellInfo->Id) & SPELL_ATTR0_CU_BINARY) > 0);
         m_resist = m_caster->CalcSpellResistance(unit, GetSpellSchoolMask(m_spellInfo), binary, m_spellInfo);
         if (m_resist >= 100)
             return SPELL_MISS_RESIST;

@@ -1713,7 +1713,7 @@ void Unit::CalcAbsorbResist(Unit * pVictim, SpellSchoolMask schoolMask, DamageEf
 
     DamageInfo dmgInfo = DamageInfo(this, pVictim, damage, spellInfo, schoolMask, damagetype);
 
-    bool binary = (spellInfo && (uint32(sSpellMgr.GetSpellCustomAttr(spellInfo->Id) & SPELL_ATTR0_CU_BINARY) > 0));
+    bool binary = (spellInfo && (uint32(sSpellMgr->GetSpellCustomAttr(spellInfo->Id) & SPELL_ATTR0_CU_BINARY) > 0));
 
     if (!binary)
         if (calc_resist >= 0)
