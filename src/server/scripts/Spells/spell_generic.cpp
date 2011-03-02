@@ -116,10 +116,13 @@ public:
 };
 
 // 45472 Parachute
+// 79397 Parachute (Used in Operation 'Gnomeregan' event)
 enum eParachuteSpells
 {
-    SPELL_PARACHUTE         = 45472,
-    SPELL_PARACHUTE_BUFF    = 44795,
+    SPELL_PARACHUTE          = 45472,
+    SPELL_PARACHUTE_ALT      = 79397,
+    SPELL_PARACHUTE_BUFF     = 44795,
+    SPELL_PARACHUTE_BUFF_ALT = 79404,
 };
 
 class spell_gen_parachute : public SpellScriptLoader
@@ -136,17 +139,33 @@ public:
                 return false;
             if (!sSpellStore.LookupEntry(SPELL_PARACHUTE_BUFF))
                 return false;
+            if (!sSpellStore.LookupEntry(SPELL_PARACHUTE_ALT))
+                return false;
+            if (!sSpellStore.LookupEntry(SPELL_PARACHUTE_BUFF_ALT))
+                return false;
             return true;
         }
 
         void HandleEffectPeriodic(AuraEffect const * /*aurEff*/)
         {
+            uint32 parachute;
+            uint32 buff;
+            if (GetId() == SPELL_PARACHUTE)
+            {
+                parachute = SPELL_PARACHUTE;
+                buff = SPELL_PARACHUTE_BUFF;
+            }
+            else if (GetId() == SPELL_PARACHUTE_ALT)
+            {
+                parachute = SPELL_PARACHUTE_ALT;
+                buff = SPELL_PARACHUTE_BUFF_ALT;
+            }
             Unit* pTarget = GetTarget();
             if (Player* pPlayerTarget = pTarget->ToPlayer())
                 if (pPlayerTarget->IsFalling())
                 {
-                    pPlayerTarget->RemoveAurasDueToSpell(SPELL_PARACHUTE);
-                    pPlayerTarget->CastSpell(pPlayerTarget, SPELL_PARACHUTE_BUFF, true);
+                    pPlayerTarget->RemoveAurasDueToSpell(parachute);
+                    pPlayerTarget->CastSpell(pPlayerTarget, buff, true);
                 }
         }
 
