@@ -306,7 +306,7 @@ void GameObject::Update(uint32 diff)
                             udata.BuildPacket(&packet);
                             caster->ToPlayer()->GetSession()->SendPacket(&packet);
 
-                            SendCustomAnim();
+                            SendCustomAnim(GetGoAnimProgress());
                         }
 
                         m_lootState = GO_READY;                 // can be successfully open with some chance
@@ -1212,7 +1212,7 @@ void GameObject::Use(Unit* user)
 
             // this appear to be ok, however others exist in addition to this that should have custom (ex: 190510, 188692, 187389)
             if (time_to_restore && info->goober.customAnim)
-                SendCustomAnim();
+                SendCustomAnim(GetGoAnimProgress());
             else
                 SetGoState(GO_STATE_ACTIVE);
 
@@ -1637,11 +1637,11 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
     //trigger->RemoveCorpse();
 }
 
-void GameObject::SendCustomAnim()
+void GameObject::SendCustomAnim(uint32 anim)
 {
     WorldPacket data(SMSG_GAMEOBJECT_CUSTOM_ANIM,8+4);
     data << GetGUID();
-    data << uint32(GetGoAnimProgress());
+    data << uint32(anim);
     SendMessageToSet(&data, true);
 }
 
