@@ -5707,11 +5707,11 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                         {
                             // Unrelenting Assault, rank 1
                             case 46859:
-                                target->CastSpell(target,64849,true,NULL,aurEff);
+                                target->CastSpell(target, 64849, true, NULL, aurEff);
                                 break;
                             // Unrelenting Assault, rank 2
                             case 46860:
-                                target->CastSpell(target,64850,true,NULL,aurEff);
+                                target->CastSpell(target, 64850, true, NULL, aurEff);
                                 break;
                         }
             }
@@ -5725,7 +5725,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                 case 13139:                                     // net-o-matic
                     // root to self part of (root_target->charge->root_self sequence
                     if (caster)
-                        caster->CastSpell(caster,13138,true,NULL,this);
+                        caster->CastSpell(caster, 13138, true, NULL, this);
                     break;
                 case 34026:   // kill command
                 {
@@ -5733,10 +5733,10 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                     if (!pet)
                         break;
 
-                    target->CastSpell(target,34027,true,NULL,this);
+                    target->CastSpell(target, 34027, true, NULL, this);
 
                     // set 3 stacks and 3 charges (to make all auras not disappear at once)
-                    Aura * owner_aura = target->GetAura(34027,GetCasterGUID());
+                    Aura * owner_aura = target->GetAura(34027, GetCasterGUID());
                     Aura * pet_aura  = pet->GetAura(58914, GetCasterGUID());
                     if (owner_aura)
                     {
@@ -5756,10 +5756,10 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                         switch(caster->getGender())
                         {
                             case GENDER_FEMALE:
-                                caster->CastSpell(target,37095,true,NULL,this); // Blood Elf Disguise
+                                caster->CastSpell(target, 37095, true, NULL, this); // Blood Elf Disguise
                                 break;
                             case GENDER_MALE:
-                                caster->CastSpell(target,37093,true,NULL,this);
+                                caster->CastSpell(target, 37093, true, NULL, this);
                                 break;
                             default:
                                 break;
@@ -5769,9 +5769,9 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                 }
                 case 55198:   // Tidal Force
                 {
-                    target->CastSpell(target,55166,true,NULL,this);
+                    target->CastSpell(target, 55166, true, NULL, this);
                     // set 3 stacks and 3 charges (to make all auras not disappear at once)
-                    Aura * owner_aura = target->GetAura(55166,GetCasterGUID());
+                    Aura * owner_aura = target->GetAura(55166, GetCasterGUID());
                     if (owner_aura)
                     {
                         // This aura lasts 2 sec, need this hack to properly proc spells
@@ -5796,10 +5796,10 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                         switch(caster->getGender())
                         {
                             case GENDER_FEMALE:
-                                caster->CastSpell(target,46356,true,NULL,this);
+                                caster->CastSpell(target, 46356, true, NULL, this);
                                 break;
                             case GENDER_MALE:
-                                caster->CastSpell(target,46355,true,NULL,this);
+                                caster->CastSpell(target, 46355, true, NULL, this);
                                 break;
                         }
                     }
@@ -5858,16 +5858,24 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                 case 75572: // Eject!
                 {
                     if (Vehicle *vehicle = caster->GetVehicleKit())
-                            if (Unit *driver = vehicle->GetPassenger(0))
-                            {
-                                driver->ExitVehicle();
-                                driver->GetMotionMaster()->MoveJump(driver->GetPositionX(), driver->GetPositionY(), driver->GetPositionZ()+7.0f, 2.0f, 2.0f);
-                            }
+                        if (Unit *driver = vehicle->GetPassenger(0))
+                        {
+                            driver->ExitVehicle();
+                            driver->GetMotionMaster()->MoveJump(driver->GetPositionX(), driver->GetPositionY(), driver->GetPositionZ()+7.0f, 2.0f, 2.0f);
+                        }
                     break;
                 }
                 case 71563:
+                {
                     if (Aura* newAura = target->AddAura(71564, target))
                         newAura->SetStackAmount(newAura->GetSpellProto()->StackAmount);
+                    break;
+                }
+                case 74401:
+                {
+                    caster->CastSpell(caster, GetAmount(), true);
+                    break;
+                }
             }
         }
         // AT REMOVE
@@ -5929,10 +5937,10 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                             break;
                         }
                         case 42783: // Wrath of the Astromancer
-                            target->CastSpell(target,GetAmount(),true,NULL,this);
+                            target->CastSpell(target,GetAmount(), true, NULL, this);
                             break;
                         case 46308: // Burning Winds casted only at creatures at spawn
-                            target->CastSpell(target,47287,true,NULL,this);
+                            target->CastSpell(target,47287, true, NULL, this);
                             break;
                         case 52172:  // Coyote Spirit Despawn Aura
                         case 60244:  // Blood Parrot Despawn Aura
