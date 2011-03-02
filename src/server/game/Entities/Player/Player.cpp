@@ -570,6 +570,7 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     m_baseManaRegen = 0;
     m_baseHealthRegen = 0;
     m_spellPenetrationItemMod = 0;
+    m_baseSpellPenetration = 0;
 
     // Honor System
     m_lastHonorUpdateTime = time(NULL);
@@ -7653,7 +7654,8 @@ void Player::_ApplyItemBonuses(ItemPrototype const *proto, uint8 slot, bool appl
                 ApplyHealthRegenBonus(int32(val), apply);
                 break;
             case ITEM_MOD_SPELL_PENETRATION:
-                ApplySpellPenetrationBonus(int32(val), apply);
+                ApplySpellPenetrationBonus(PLAYER_FIELD_MOD_TARGET_RESISTANCE, -val, apply);
+                m_baseSpellPenetration += apply ? val : -val;
                 break;
             // deprecated item mods
             case ITEM_MOD_SPELL_HEALING_DONE:
@@ -13622,7 +13624,8 @@ void Player::ApplyEnchantment(Item *item, EnchantmentSlot slot, bool apply, bool
                             sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u HEALTH_REGENERATION", enchant_amount);
                             break;
                         case ITEM_MOD_SPELL_PENETRATION:
-                            ApplySpellPenetrationBonus(enchant_amount, apply);
+                            ApplySpellPenetrationBonus(PLAYER_FIELD_MOD_TARGET_RESISTANCE, enchant_amount, apply);
+                            m_baseSpellPenetration += apply ? int32(enchant_amount) : -int32(enchant_amount);
                             sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u SPELL_PENETRATION", enchant_amount);
                             break;
                         case ITEM_MOD_BLOCK_VALUE:

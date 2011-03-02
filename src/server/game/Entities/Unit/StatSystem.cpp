@@ -183,12 +183,6 @@ bool Player::UpdateAllStats()
     return true;
 }
 
-void Player::ApplySpellPenetrationBonus(int32 amount, bool apply)
-{
-    m_baseSpellPenetration += apply ? amount : -amount;
-    ApplyModInt32Value(PLAYER_FIELD_MOD_TARGET_RESISTANCE, -amount, apply);
-}
-
 void Player::UpdateResistances(uint32 school)
 {
     if (school > SPELL_SCHOOL_NORMAL)
