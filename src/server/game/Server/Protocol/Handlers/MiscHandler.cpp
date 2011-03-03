@@ -1666,14 +1666,7 @@ void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket & recv_data)
     ReadMovementInfo(recv_data, &movementInfo);
 
     recv_data.read_skip<float>();                           // unk2
-  
-    if (_player->m_mover->GetObjectGuid() != guid)
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSession::HandleMoveSetCanFlyAckOpcode: player %u, mover %u, received %u, ignored",
-            GetPlayer()->GetName(), _player->m_mover->GetGUIDLow(), guid.GetString());
-        return;
-    }
-	
+
     _player->m_mover->m_movementInfo.flags = movementInfo.GetMovementFlags();
 }
 
