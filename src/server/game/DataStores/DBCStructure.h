@@ -733,7 +733,7 @@ struct CreatureDisplayInfoEntry
                                                             // 15       m_objectEffectPackageID
 };
 
-+struct CreatureDisplayInfoExtraEntry
+struct CreatureDisplayInfoExtraEntry
 
 {
     uint32      DisplayExtraId;                             // 0        CreatureDisplayInfoEntry::m_extendedDisplayInfoID

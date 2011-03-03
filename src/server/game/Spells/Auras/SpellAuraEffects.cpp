@@ -3454,51 +3454,6 @@ void AuraEffect::HandleAuraTransform(AuraApplication const * aurApp, uint8 mode,
 
                         break;
                     }
-                    case 65528:                                 // Gossip NPC Appearance - Pirates' Day
-                    {
-                        // expecting npc's using this spell to have models with race info.
-                        uint32 race = GetCreatureModelRace(target->GetNativeDisplayId());
-
-                        // random gender, regardless of current gender
-                        switch(race)
-                        {
-                            case RACE_HUMAN:
-                                target->SetDisplayId(roll_chance_i(50) ? 25037 : 25048);
-                                break;
-                            case RACE_ORC:
-                                target->SetDisplayId(roll_chance_i(50) ? 25039 : 25050);
-                                break;
-                            case RACE_DWARF:
-                                target->SetDisplayId(roll_chance_i(50) ? 25034 : 25045);
-                                break;
-                            case RACE_NIGHTELF:
-                                target->SetDisplayId(roll_chance_i(50) ? 25038 : 25049);
-                                break;
-                            case RACE_UNDEAD_PLAYER:
-                                target->SetDisplayId(roll_chance_i(50) ? 25042 : 25053);
-                                break;
-                            case RACE_TAUREN:
-                                target->SetDisplayId(roll_chance_i(50) ? 25040 : 25051);
-                                break;
-                            case RACE_GNOME:
-                                target->SetDisplayId(roll_chance_i(50) ? 25035 : 25046);
-                                break;
-                            case RACE_TROLL:
-                                target->SetDisplayId(roll_chance_i(50) ? 25041 : 25052);
-                                break;
-                            //case RACE_GOBLIN:
-                                //target->SetDisplayId(roll_chance_i(50) ? 25036 : 25047);
-                                //break;
-                            case RACE_BLOODELF:
-                                target->SetDisplayId(roll_chance_i(50) ? 25032 : 25043);
-                                break;
-                            case RACE_DRAENEI:
-                                target->SetDisplayId(roll_chance_i(50) ? 25033 : 25044);
-                                break;
-                        }
-
-                        break;
-                    }
                     case 65529:                                 // Gossip NPC Appearance - Day of the Dead (DotD)
                         // random, regardless of current gender
                         target->SetDisplayId(roll_chance_i(50) ? 29203 : 29204);
