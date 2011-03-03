@@ -264,6 +264,17 @@ struct boss_twin_baseAI : public ScriptedAI
         }
     }
 
+    void SpellHit(Unit* caster, const SpellEntry* spell)
+    {
+        if (caster->GetGUID() == me->GetGUID())
+            if (spell->Effect[0] == 136) // Effect Heal
+                if (m_pInstance)
+                {
+                    if (Creature* pSister = GetSister())
+                        pSister->DealHeal(pSister, spell->EffectBasePoints[0]);
+                }
+    }
+
     void SummonColorballs(uint8 quantity)
     {
         float x0 = ToCCommonLoc[1].GetPositionX(), y0 = ToCCommonLoc[1].GetPositionY(), r = 47.0f;
