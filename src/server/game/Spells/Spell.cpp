@@ -3049,10 +3049,6 @@ void Spell::cancel()
     if (m_spellState == SPELL_STATE_FINISHED)
         return;
 
-    SetReferencedFromCurrent(false);
-    if (m_selfContainer && *m_selfContainer == this)
-        *m_selfContainer = NULL;
-
     uint32 oldState = m_spellState;
     m_spellState = SPELL_STATE_FINISHED;
 
@@ -3060,8 +3056,8 @@ void Spell::cancel()
     switch (oldState)
     {
         case SPELL_STATE_PREPARING:
-        case SPELL_STATE_DELAYED:
             CancelGlobalCooldown();
+        case SPELL_STATE_DELAYED:
             SendInterrupted(0);
             SendCastResult(SPELL_FAILED_INTERRUPTED);
             break;
@@ -3086,6 +3082,10 @@ void Spell::cancel()
         default:
             break;
     }
+    
+    SetReferencedFromCurrent(false);
+    if (m_selfContainer && *m_selfContainer == this)
+        *m_selfContainer = NULL;
 
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
         m_caster->ToPlayer()->RemoveGlobalCooldown(m_spellInfo);
