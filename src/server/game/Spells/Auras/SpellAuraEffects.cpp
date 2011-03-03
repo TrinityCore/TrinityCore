@@ -3461,8 +3461,9 @@ void AuraEffect::HandleAuraTransform(AuraApplication const * aurApp, uint8 mode,
                     case 71450:                                 // Crown Parcel Service Uniform
                         target->SetDisplayId(target->getGender() == GENDER_MALE ? 31002 : 31003);
                         break;
-                    //case 75531:                               // Gnomeregan Pride
-                        //break;
+                    case 75531:                               // Gnomeregan Pride
+                        target->SetDisplayId(31654);
+                        break;
                     //case 75532:                               // Darkspear Pride
                         //break;
                     default:
