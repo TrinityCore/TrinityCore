@@ -68,8 +68,10 @@ enum Events
     EVENT_GAS_SPORE     = 4,
     EVENT_GASTRIC_BLOAT = 5,
 
-    EVENT_DECIMATE      = 6,
-    EVENT_MORTAL_WOUND  = 7,
+    EVENT_DECIMATE                          = 6,
+    EVENT_DECIMATE_WORKAROUND               = 7,
+    EVENT_MORTAL_WOUND                      = 8,
+    EVENT_SPELL_PLAGUE_STENCH_WORKAROUND    = 9
 };
 
 #define DATA_INOCULATED_STACK 69291
@@ -301,9 +303,78 @@ class npc_stinky_icc : public CreatureScript
             void Reset()
             {
                 events.Reset();
-                events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
-                events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(3000, 7000));
+            }
+
+            void EnterCombat(Unit* /*who*/)
+            {
                 DoCast(me, SPELL_PLAGUE_STENCH);
+
+                events.ScheduleEvent(EVENT_SPELL_PLAGUE_STENCH_WORKAROUND, 3000);
+                events.ScheduleEvent(EVENT_DECIMATE, 20000);
+                events.ScheduleEvent(EVENT_DECIMATE_WORKAROUND, 23000);
+                events.ScheduleEvent(EVENT_MORTAL_WOUND, 5000);
+            }
+
+            // Der Spell hat leider keine Damage Funktion, also n Workaround!
+            void DezimierenWorkaround()
+            {
+                if (!instance)
+                    return;
+
+                Map::PlayerList const &pl = instance->instance->GetPlayers();
+                if (!pl.isEmpty())
+                {
+                    for (Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr)
+                    {
+                        Player *member = itr->getSource();
+                        if (!member)
+                            continue;
+
+                        if (!member->isAlive() || member->isGameMaster() || !member->isGMVisible())
+                            continue;
+
+                        uint32 health15 = (member->GetMaxHealth()/100)*15;
+
+                        if (member->GetHealth() <= health15)
+                            continue;
+
+                        member->SetHealth(health15);
+                    }
+                }
+            }
+
+            // Auch der Spell hat keine Damage Wirkung! :-( Noch n Workaround...
+            void Plague_Stench_Workaround()
+            {
+                if (!instance)
+                    return;
+
+                Map::PlayerList const &pl = instance->instance->GetPlayers();
+                if (!pl.isEmpty())
+                {
+                    for (Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr)
+                    {
+                        Player *member = itr->getSource();
+                        if (!member)
+                            continue;
+
+                        if (!member->isAlive() || member->isGameMaster() || !member->isGMVisible())
+                            continue;
+
+                        me->DealDamage(member, 3000, 0, SPELL_DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NATURE);
+                    }
+                }
+            }
+
+            void JustDied(Unit* /*who*/)
+            {
+                if (InstanceScript* pInstance = me->GetInstanceScript())
+                    pInstance->SetData(DATA_KILL_CREDIT, Quest_A_Feast_of_Souls);
+
+                uint64 festergutGUID = instance ? instance->GetData64(DATA_FESTERGUT) : 0;
+                if (Creature* festergut = me->GetCreature(*me, festergutGUID))
+                    if (festergut->isAlive())
+                        festergut->AI()->Talk(SAY_STINKY_DEAD);
             }
 
             void UpdateAI(const uint32 diff)
@@ -322,26 +393,25 @@ class npc_stinky_icc : public CreatureScript
                     {
                         case EVENT_DECIMATE:
                             DoCastVictim(SPELL_DECIMATE);
-                            events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
+                            events.RescheduleEvent(EVENT_DECIMATE, 30000);
+                            events.RescheduleEvent(EVENT_DECIMATE_WORKAROUND, 3000);
+                            break;
+                        case EVENT_DECIMATE_WORKAROUND:
+                            DezimierenWorkaround();
                             break;
                         case EVENT_MORTAL_WOUND:
                             DoCastVictim(SPELL_MORTAL_WOUND);
-                            events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(10000, 12500));
+                            events.RescheduleEvent(EVENT_MORTAL_WOUND, 10000);
+                            break;
+                        case EVENT_SPELL_PLAGUE_STENCH_WORKAROUND:
+                            Plague_Stench_Workaround();
+                            events.RescheduleEvent(EVENT_SPELL_PLAGUE_STENCH_WORKAROUND, 3000);
                             break;
                         default:
                             break;
                     }
                 }
-
                 DoMeleeAttackIfReady();
-            }
-
-            void JustDied(Unit* /*who*/)
-            {
-                uint64 festergutGUID = instance ? instance->GetData64(DATA_FESTERGUT) : 0;
-                if (Creature* festergut = me->GetCreature(*me, festergutGUID))
-                    if (festergut->isAlive())
-                        festergut->AI()->Talk(SAY_STINKY_DEAD);
             }
 
         private:

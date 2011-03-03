@@ -70,11 +70,12 @@ enum Events
     EVENT_HASTEN_INFECTIONS = 2,
     EVENT_MUTATED_INFECTION = 3,
 
-    EVENT_DECIMATE          = 4,
-    EVENT_MORTAL_WOUND      = 5,
+    EVENT_DECIMATE              = 4,
+    EVENT_DECIMATE_WORKAROUND   = 5,
+    EVENT_MORTAL_WOUND          = 6,
 
-    EVENT_STICKY_OOZE       = 6,
-    EVENT_UNSTABLE_DESPAWN  = 7,
+    EVENT_STICKY_OOZE       = 7,
+    EVENT_UNSTABLE_DESPAWN  = 8
 };
 
 class boss_rotface : public CreatureScript
@@ -386,21 +387,121 @@ class npc_precious_icc : public CreatureScript
             npc_precious_iccAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = creature->GetInstanceScript();
+                awaken = 0;
             }
 
             void Reset()
             {
+                if (awaken)
+                {
+                    std::list<Creature*> list;
+                    GetCreatureListWithEntryInGrid(list, me, 38104, 200);
+                    if (!list.empty())
+                    {
+                        for (std::list<Creature*>::const_iterator itr = list.begin(); itr != list.end(); ++itr)
+                            if (Creature* pAdd = *itr)
+                                pAdd->ForcedDespawn();
+                    }
+                }
                 events.Reset();
-                events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
-                events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(3000, 7000));
+                awaken = 0;
+            }
+
+            void EnterCombat(Unit* /*who*/)
+            {
+                events.ScheduleEvent(EVENT_DECIMATE, 20000);
+                events.ScheduleEvent(EVENT_DECIMATE_WORKAROUND, 23000);
+                events.ScheduleEvent(EVENT_MORTAL_WOUND, 5000);
+            }
+
+            // Der Spell hat leider keine Damage Funktion, also n Workaround!
+            void DezimierenWorkaround()
+            {
+                if (!instance)
+                    return;
+
+                Map::PlayerList const &pl = instance->instance->GetPlayers();
+                if (!pl.isEmpty())
+                {
+                    for (Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr)
+                    {
+                        Player *member = itr->getSource();
+                        if (!member)
+                            continue;
+
+                        if (!member->isAlive() || member->isGameMaster() || !member->isGMVisible())
+                            continue;
+
+                        uint32 health15 = (member->GetMaxHealth()/100)*15;
+
+                        if (member->GetHealth() <= health15)
+                            continue;
+
+                        member->SetHealth(health15);
+                    }
+                }
+            }
+
+            void JustDied(Unit* /*who*/)
+            {
+                if (InstanceScript* pInstance = me->GetInstanceScript())
+                    pInstance->SetData(DATA_KILL_CREDIT, Quest_A_Feast_of_Souls);
+
+                uint64 rotfaceGUID = instance ? instance->GetData64(DATA_ROTFACE) : 0;
+                if (Creature* rotface = Unit::GetCreature(*me, rotfaceGUID))
+                    if (rotface->isAlive())
+                        rotface->AI()->Talk(SAY_PRECIOUS_DIES);
             }
 
             void UpdateAI(const uint32 diff)
             {
+                if (!instance)
+                    return;
+
                 if (!UpdateVictim())
                     return;
 
                 events.Update(diff);
+
+                // Spawnen von NPC 38104 (Verseuchter Zombie)
+                if ((me->GetHealthPct() <= 66 && awaken == 0) || (me->GetHealthPct() <= 33 && awaken == 1))
+                {
+                    // Da die Zombies (wenn vom Spell gespawnt) nach 3 Sek. verschwinden (dürfen sie nicht!), manuell spawnen!
+                    // DoCast(me, SPELL_AWAKEN_PLAGUED_ZOMBIES, true);
+                    switch(RAID_MODE(1,2,3,4))
+                    {
+                        case 1:
+                        case 3:
+                            for (uint8 i=0; i<10; ++i)
+                            {
+                                Position pos;
+                                me->GetNearPosition(pos, 15, float(urand(0,360)));
+                                if (TempSummon *summ = me->SummonCreature(38104, pos, TEMPSUMMON_CORPSE_DESPAWN))
+                                {
+                                    summ->AI()->DoZoneInCombat();
+                                    if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                                        summ->Attack(target, true);
+                                }
+                            }
+                            ++awaken;
+                            break;
+                        case 2:
+                        case 4:
+                            for (uint8 i=0; i<25; ++i)
+                            {
+                                Position pos;
+                                me->GetNearPosition(pos, 15, float(urand(0,360)));
+                                if (TempSummon *summ = me->SummonCreature(38104, pos, TEMPSUMMON_CORPSE_DESPAWN))
+                                {
+                                    summ->AI()->DoZoneInCombat();
+                                    if (Unit *target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                                        summ->Attack(target, true);
+                                }
+                            }
+                            ++awaken;
+                            break;
+                    }
+                }
 
                 if (me->HasUnitState(UNIT_STAT_CASTING))
                     return;
@@ -411,31 +512,27 @@ class npc_precious_icc : public CreatureScript
                     {
                         case EVENT_DECIMATE:
                             DoCastVictim(SPELL_DECIMATE);
-                            events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
+                            events.RescheduleEvent(EVENT_DECIMATE, 30000);
+                            events.RescheduleEvent(EVENT_DECIMATE_WORKAROUND, 3000);
+                            break;
+                        case EVENT_DECIMATE_WORKAROUND:
+                            DezimierenWorkaround();
                             break;
                         case EVENT_MORTAL_WOUND:
                             DoCastVictim(SPELL_MORTAL_WOUND);
-                            events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(10000, 12500));
+                            events.RescheduleEvent(EVENT_MORTAL_WOUND, 10000);
                             break;
                         default:
                             break;
                     }
                 }
-
                 DoMeleeAttackIfReady();
-            }
-
-            void JustDied(Unit* /*who*/)
-            {
-                uint64 rotfaceGUID = instance ? instance->GetData64(DATA_ROTFACE) : 0;
-                if (Creature* rotface = Unit::GetCreature(*me, rotfaceGUID))
-                    if (rotface->isAlive())
-                        rotface->AI()->Talk(SAY_PRECIOUS_DIES);
             }
 
         private:
             EventMap events;
             InstanceScript* instance;
+            uint8 awaken;
         };
 
         CreatureAI* GetAI(Creature* creature) const

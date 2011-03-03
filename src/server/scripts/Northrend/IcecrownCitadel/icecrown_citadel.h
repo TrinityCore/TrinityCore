@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2010-2011 by WarHead (United Worlds of MaNGOS)
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,6 +20,7 @@
 #define DEF_ICECROWN_CITADEL_H
 
 #define ICCScriptName "instance_icecrown_citadel"
+#define Quest_A_Feast_of_Souls  24547
 
 // Shared spells used by more than one script
 enum SharedSpells
@@ -29,6 +31,11 @@ enum SharedSpells
     // Residue Rendezvous
     SPELL_ORANGE_BLIGHT_RESIDUE = 72144,
     SPELL_GREEN_BLIGHT_RESIDUE  = 72145,
+
+    // Kill Credit 38121 - Soul Feast Kill Credit Bunny - Quest 24547 - A Feast of Souls
+    // Must be used by every killable NPC within the ICC
+    SPELL_SOUL_FEAST_1          = 71203,
+    SPELL_SOUL_FEAST_2          = 53677
 };
 
 enum TeleporterSpells
@@ -73,6 +80,7 @@ enum DataTypes
     DATA_SPINESTALKER               = 23,
     DATA_RIMEFANG                   = 24,
     DATA_COLDFLAME_JETS             = 25,
+    DATA_KILL_CREDIT                = 26
 };
 
 #define MAX_ENCOUNTER 12

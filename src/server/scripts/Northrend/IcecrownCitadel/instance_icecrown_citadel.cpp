@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2010-2011 by WarHead (United Worlds of MaNGOS)
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -98,6 +99,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                 frostwyrms = 0;
                 spinestalkerTrash = 0;
                 rimefangTrash = 0;
+                TraumwandlerEingang = 0;
+                TraumwandlerAusgang = 0;
                 isBonedEligible = true;
                 isOozeDanceEligible = true;
                 isNauseaEligible = true;
@@ -271,8 +274,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_BLOOD_ELF_COUNCIL_DOOR_RIGHT:
                     case GO_DOODAD_ICECROWN_BLOODPRINCE_DOOR_01:
                     case GO_DOODAD_ICECROWN_GRATE_01:
-                    case GO_GREEN_DRAGON_BOSS_ENTRANCE:
-                    case GO_GREEN_DRAGON_BOSS_EXIT:
                     case GO_SINDRAGOSA_ENTRANCE_DOOR:
                     case GO_SINDRAGOSA_SHORTCUT_ENTRANCE_DOOR:
                     case GO_SINDRAGOSA_SHORTCUT_EXIT_DOOR:
@@ -346,6 +347,24 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case GO_DRINK_ME:
                         putricideTable = go->GetGUID();
+                        break;
+                    case GO_GREEN_DRAGON_BOSS_ENTRANCE:
+                        AddDoor(go, true);
+                        TraumwandlerEingang = go->GetGUID();
+                        if (GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE && GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE)
+                        {
+                            go->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
+                            go->SetGoState(GO_STATE_READY);
+                        }
+                        break;
+                    case GO_GREEN_DRAGON_BOSS_EXIT:
+                        AddDoor(go, true);
+                        TraumwandlerAusgang = go->GetGUID();
+                        if (GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE && GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE)
+                        {
+                            go->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
+                            go->SetGoState(GO_STATE_READY);
+                        }
                         break;
                     default:
                         break;
@@ -510,9 +529,35 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case DATA_PROFESSOR_PUTRICIDE:
                         HandleGameObject(plagueSigil, state != DONE);
+                        if (state == DONE)
+                        {
+                            if (GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE)
+                            {
+                                HandleGameObject(TraumwandlerEingang, true);
+                                HandleGameObject(TraumwandlerAusgang, true);
+                            }
+                            else
+                            {
+                                HandleGameObject(TraumwandlerEingang, false);
+                                HandleGameObject(TraumwandlerAusgang, false);
+                            }
+                        }
                         break;
                     case DATA_BLOOD_QUEEN_LANA_THEL:
                         HandleGameObject(bloodwingSigil, state != DONE);
+                        if (state == DONE)
+                        {
+                            if (GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE)
+                            {
+                                HandleGameObject(TraumwandlerEingang, true);
+                                HandleGameObject(TraumwandlerAusgang, true);
+                            }
+                            else
+                            {
+                                HandleGameObject(TraumwandlerEingang, false);
+                                HandleGameObject(TraumwandlerAusgang, false);
+                            }
+                        }
                         break;
                     case DATA_VALITHRIA_DREAMWALKER:
                         break;
@@ -532,6 +577,9 @@ class instance_icecrown_citadel : public InstanceMapScript
             {
                 switch (type)
                 {
+                    case DATA_KILL_CREDIT:
+                        GiveKillCredit(data);
+                        break;
                     case DATA_BONED_ACHIEVEMENT:
                         isBonedEligible = data ? true : false;
                         break;
@@ -765,6 +813,31 @@ class instance_icecrown_citadel : public InstanceMapScript
                 return true;
             }
 
+            void GiveKillCredit(uint32 uiQuest)
+            {
+                switch(uiQuest)
+                {
+                    case Quest_A_Feast_of_Souls: // Quest 24547 Kill Credit
+                        if (instance->GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL || instance->GetDifficulty() == RAID_DIFFICULTY_25MAN_HEROIC)
+                        {
+                            Map::PlayerList const &pl = instance->GetPlayers();
+                            if (!pl.isEmpty())
+                            {
+                                for (Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr)
+                                {
+                                    if (Player* pPl = itr->getSource())
+                                        if (pPl->hasQuest(uiQuest) && !pPl->GetQuestRewardStatus(uiQuest))
+                                        {
+                                            pPl->CastSpell(pPl, SPELL_SOUL_FEAST_1, true);
+                                            pPl->CastSpell(pPl, SPELL_SOUL_FEAST_2, true);
+                                        }
+                                }
+                            }
+                        }
+                        break;
+                }
+            }
+
             std::string GetSaveData()
             {
                 OUT_SAVE_INST_DATA;
@@ -833,6 +906,8 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 sindragosa;
             uint64 spinestalker;
             uint64 rimefang;
+            uint64 TraumwandlerEingang;
+            uint64 TraumwandlerAusgang;
             std::set<uint64> coldflameJets;
             uint32 teamInInstance;
             uint8 coldflameJetsState;
