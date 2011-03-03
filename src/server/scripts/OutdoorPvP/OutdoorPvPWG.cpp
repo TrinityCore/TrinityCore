@@ -1050,7 +1050,8 @@ bool OutdoorPvPWG::UpdateCreatureInfo(Creature *creature)
             {
                 switch (entry)
                 {
-                    case 30740://Alliance guard
+                    case 30740://Alliance champion
+                    case 32308://Alliance guard
                     {
                         if (getDefenderTeam() == TEAM_ALLIANCE)
                             creature->SetPhaseMask(1, true);
@@ -1058,7 +1059,8 @@ bool OutdoorPvPWG::UpdateCreatureInfo(Creature *creature)
                             creature->SetPhaseMask(2, true);
                         break;
                     }
-                    case 30739://Horde guard
+                    case 30739://Horde champion
+                    case 32307://Horde guard
                     {
                         if (getDefenderTeam() == TEAM_ALLIANCE)
                             creature->SetPhaseMask(2, true);
