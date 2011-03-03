@@ -8232,13 +8232,8 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                     //Item - Coliseum 25 Normal Caster Trinket
                     case 67712:
                     {
-                        if (!pVictim || !pVictim->isAlive())
+                        if(!pVictim || !pVictim->isAlive())
                             return false;
-
-                        if ((procSpell->SpellFamilyFlags[1] & 0x00800000 && procSpell->SpellFamilyName == SPELLFAMILY_DRUID) ||
-                            (procSpell->SpellFamilyFlags[2] & 0x00000020 && procSpell->SpellFamilyName == SPELLFAMILY_WARLOCK))
-                            return false;
-
                         // stacking
                         CastSpell(this, 67713, true, NULL, triggeredByAura);
 
@@ -8255,13 +8250,8 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                     //Item - Coliseum 25 Heroic Caster Trinket
                     case 67758:
                     {
-                        if (!pVictim || !pVictim->isAlive())
+                        if(!pVictim || !pVictim->isAlive())
                             return false;
-
-                        if ((procSpell->SpellFamilyFlags[1] & 0x00800000 && procSpell->SpellFamilyName == SPELLFAMILY_DRUID) ||
-                            (procSpell->SpellFamilyFlags[2] & 0x00000020 && procSpell->SpellFamilyName == SPELLFAMILY_WARLOCK))
-                            return false;
-
                         // stacking
                         CastSpell(this, 67759, true, NULL, triggeredByAura);
 
