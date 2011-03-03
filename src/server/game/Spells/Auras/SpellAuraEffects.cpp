@@ -3350,7 +3350,125 @@ void AuraEffect::HandleAuraTransform(AuraApplication const * aurApp, uint8 mode,
                     case 42365: target->SetDisplayId(21723); break;
                     // Pygmy Oil
                     case 53806: target->SetDisplayId(22512); break;
-                    default: break;
+                    case 50517:                                 // Dread Corsair
+                    case 51926:                                 // Corsair Costume
+                    {
+                        // expected for players
+                        uint32 race = target->getRace();
+
+                        switch(race)
+                        {
+                            case RACE_HUMAN:
+                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 25037 : 25048);
+                                break;
+                            case RACE_ORC:
+                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 25039 : 25050);
+                                break;
+                            case RACE_DWARF:
+                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 25034 : 25045);
+                                break;
+                            case RACE_NIGHTELF:
+                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 25038 : 25049);
+                                break;
+                            case RACE_UNDEAD_PLAYER:
+                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 25042 : 25053);
+                                break;
+                            case RACE_TAUREN:
+                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 25040 : 25051);
+                                break;
+                            case RACE_GNOME:
+                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 25035 : 25046);
+                                break;
+                            case RACE_TROLL:
+                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 25041 : 25052);
+                                break;
+                            //case RACE_GOBLIN:                   // not really player race (3.x), but model exist
+                                //target->SetDisplayId(target->getGender() == GENDER_MALE ? 25036 : 25047);
+                                //break;
+                            case RACE_BLOODELF:
+                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 25032 : 25043);
+                                break;
+                            case RACE_DRAENEI:
+                                target->SetDisplayId(target->getGender() == GENDER_MALE ? 25033 : 25044);
+                                break;
+                        }   
+
+                        break;
+                    }
+                    case 65495:
+                    {
+                        switch(target->getGender())
+                        {
+                            case GENDER_MALE:
+                                target->SetDisplayId(29203);    // Chapman
+                                break;
+                            case GENDER_FEMALE:
+                            case GENDER_NONE:
+                                target->SetDisplayId(29204);    // Catrina
+                                break;
+                        }
+                        break;
+                    }
+                    case 65528:                                 // Gossip NPC Appearance - Pirates' Day
+                    {
+                        // expecting npc's using this spell to have models with race info.
+                        uint32 race = GetCreatureModelRace(target->GetNativeDisplayId());
+
+                        // random gender, regardless of current gender
+                        switch(race)
+                        {
+                            case RACE_HUMAN:
+                                target->SetDisplayId(roll_chance_i(50) ? 25037 : 25048);
+                                break;
+                            case RACE_ORC:
+                                target->SetDisplayId(roll_chance_i(50) ? 25039 : 25050);
+                                break;
+                            case RACE_DWARF:
+                                target->SetDisplayId(roll_chance_i(50) ? 25034 : 25045);
+                                break;
+                            case RACE_NIGHTELF:
+                                target->SetDisplayId(roll_chance_i(50) ? 25038 : 25049);
+                                break;
+                            case RACE_UNDEAD_PLAYER:
+                                target->SetDisplayId(roll_chance_i(50) ? 25042 : 25053);
+                                break;
+                            case RACE_TAUREN:
+                                target->SetDisplayId(roll_chance_i(50) ? 25040 : 25051);
+                                break;
+                            case RACE_GNOME:
+                                target->SetDisplayId(roll_chance_i(50) ? 25035 : 25046);
+                                break;
+                            case RACE_TROLL:
+                                target->SetDisplayId(roll_chance_i(50) ? 25041 : 25052);
+                                break;
+                            //case RACE_GOBLIN:
+                                //target->SetDisplayId(roll_chance_i(50) ? 25036 : 25047);
+                                //break;
+                            case RACE_BLOODELF:
+                                target->SetDisplayId(roll_chance_i(50) ? 25032 : 25043);
+                                break;
+                            case RACE_DRAENEI:
+                                target->SetDisplayId(roll_chance_i(50) ? 25033 : 25044);
+                                break;
+                        }
+
+                        break;
+                    }
+                    case 65529:                                 // Gossip NPC Appearance - Day of the Dead (DotD)
+                        // random, regardless of current gender
+                        target->SetDisplayId(roll_chance_i(50) ? 29203 : 29204);
+                        break;
+                    case 71450:                                 // Crown Parcel Service Uniform
+                        target->SetDisplayId(target->getGender() == GENDER_MALE ? 31002 : 31003);
+                        break;
+                    case 75531:                               // Gnomeregan Pride
+                        target->SetDisplayId(31654);
+                        break;
+                    //case 75532:                               // Darkspear Pride
+                        //break;
+                    default:
+                        sLog->outError("Aura::HandleAuraTransform, spell %u does not have creature entry defined, need custom defined model.", GetId());
+                        break;
                 }
             }
             else
