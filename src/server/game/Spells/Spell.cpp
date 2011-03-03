@@ -2228,7 +2228,10 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
 
             if (cur == TARGET_DST_TARGET_ENEMY || cur == TARGET_DEST_TARGET_ANY)
             {
+                Position pos;
+                target->GetPosition(&pos);
                 m_targets.setDst(*target);
+                m_targets.modDst(pos);
                 break;
             }
 

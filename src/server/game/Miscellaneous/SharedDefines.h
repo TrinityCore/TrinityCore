@@ -1221,7 +1221,7 @@ enum Targets
     TARGET_DEST_CASTER_LEFT            = 50,
     TARGET_GAMEOBJECT_AREA_SRC         = 51, // If used with SPELL_EFFECT_ACTIVATE_OBJECT, appliccable GO entries should be specified in conditions table
     TARGET_GAMEOBJECT_AREA_DST         = 52, // If used with SPELL_EFFECT_ACTIVATE_OBJECT, appliccable GO entries should be specified in conditions table
-    TARGET_DST_TARGET_ENEMY            = 53, // set unit coordinates as dest, only 16 target B imlemented
+    TARGET_DST_TARGET_ENEMY            = 53,
     TARGET_UNIT_CONE_ENEMY_UNKNOWN     = 54, // 180 degree, or different angle
     TARGET_DEST_CASTER_FRONT_LEAP      = 55, // for a leap spell
     TARGET_UNIT_RAID_CASTER            = 56,
@@ -1233,7 +1233,7 @@ enum Targets
     TARGET_TEST                        = 62, // for a test spell
     TARGET_DEST_TARGET_ANY             = 63,
     TARGET_DEST_TARGET_FRONT           = 64,
-    TARGET_DEST_TARGET_BACK            = 65,                // uses in teleport behind spells
+    TARGET_DEST_TARGET_BACK            = 65, // uses in teleport behind spells
     TARGET_DEST_TARGET_RIGHT           = 66,
     TARGET_DEST_TARGET_LEFT            = 67,
     TARGET_DEST_TARGET_FRONT_LEFT      = 68,
