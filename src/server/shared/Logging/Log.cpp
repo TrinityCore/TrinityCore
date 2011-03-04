@@ -121,7 +121,7 @@ void Log::Initialize()
     m_logsTimestamp = "_" + GetTimestampStr();
 
     /// Open specific log files
-    logfile = openLogFile("LogFile","LogTimestamp","w");
+    logfile = openLogFile("LogFile","LogTimestamp","a");
     InitColors(sConfig->GetStringDefault("LogColors", ""));
 
     m_gmlog_per_account = sConfig->GetBoolDefault("GmLogPerAccount",false);
@@ -220,7 +220,7 @@ void Log::outTimestamp(FILE* file)
     //       HH     hour (2 digits 00-23)
     //       MM     minutes (2 digits 00-59)
     //       SS     seconds (2 digits 00-59)
-    fprintf(file,"%-4d-%02d-%02d %02d:%02d:%02d ",aTm->tm_year+1900,aTm->tm_mon+1,aTm->tm_mday,aTm->tm_hour,aTm->tm_min,aTm->tm_sec);
+    fprintf(file,"%02d-%02d-%04d %02d:%02d:%02d | ",aTm->tm_mday,aTm->tm_mon+1,aTm->tm_year+1900,aTm->tm_hour,aTm->tm_min,aTm->tm_sec);
 }
 
 void Log::InitColors(const std::string& str)
@@ -347,7 +347,7 @@ std::string Log::GetTimestampStr()
     //       MM     minutes (2 digits 00-59)
     //       SS     seconds (2 digits 00-59)
     char buf[20];
-    snprintf(buf,20,"%04d-%02d-%02d_%02d-%02d-%02d",aTm->tm_year+1900,aTm->tm_mon+1,aTm->tm_mday,aTm->tm_hour,aTm->tm_min,aTm->tm_sec);
+    snprintf(buf,20,"%02d-%02d-%04d %02d:%02d:%02d | ",aTm->tm_mday,aTm->tm_mon+1,aTm->tm_year+1900,aTm->tm_hour,aTm->tm_min,aTm->tm_sec);
     return std::string(buf);
 }
 
@@ -454,7 +454,7 @@ void Log::outCrash(const char * err, ...)
     if (logfile)
     {
         outTimestamp(logfile);
-        fprintf(logfile, "CRASH ALERT: ");
+        fprintf(logfile, "CRASHALARM | ");
 
         va_start(ap, err);
         vfprintf(logfile, err, ap);
@@ -497,7 +497,7 @@ void Log::outError(const char * err, ...)
     if (logfile)
     {
         outTimestamp(logfile);
-        fprintf(logfile, "ERROR: ");
+        fprintf(logfile, "FEHLER | ");
 
         va_start(ap, err);
         vfprintf(logfile, err, ap);
@@ -576,7 +576,7 @@ void Log::outErrorDb(const char * err, ...)
     if (logfile)
     {
         outTimestamp(logfile);
-        fprintf(logfile, "ERROR: " );
+        fprintf(logfile, "FEHLER | " );
 
         va_start(ap, err);
         vfprintf(logfile, err, ap);
