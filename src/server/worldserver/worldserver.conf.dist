@@ -2877,6 +2877,19 @@ UserPimper.PresentsAllowed = 0
 ###################################################################################################
 
 ###################################################################################################
+# GILDENPORTAL
+#
+#   GuildPortal.GuildID
+#       Enable/disable the GuildPortal (entry 400000) for a guild with GuildID.
+#       The GuildID is the guildid out of the guild table (chars).
+#       default: 0 - disabled
+
+GuildPortal.GuildID = 0
+
+#
+###################################################################################################
+
+###################################################################################################
 # NETWORK CONFIG
 #
 #    Network.Threads

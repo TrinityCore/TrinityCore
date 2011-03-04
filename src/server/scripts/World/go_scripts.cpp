@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2008-2011 by WarHead (United Worlds of MaNGOS)
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
@@ -50,6 +51,62 @@ go_bashir_crystalforge
 EndContentData */
 
 #include "ScriptPCH.h"
+
+// Copyright 2008-2011 by maguus (United Worlds of MaNGOS) - Extended by WarHead
+// Gildenhausportal 400000
+class go_gilden_portal : public GameObjectScript
+{
+public:
+    go_gilden_portal() : GameObjectScript("go_gilden_portal") { }
+
+    bool OnGossipHello(Player *pPlayer, GameObject * /*pGO*/)
+    {
+        if (!pPlayer)
+            return false;
+
+        if (!sWorld->getIntConfig(CONFIG_GILDEN_ID))
+        {
+            pPlayer->GetSession()->SendNotification("Das Gildenhaus ist zur Zeit nicht vergeben.");
+            return true;
+        }
+
+        if (pPlayer->GetGuildId() > 0 && pPlayer->GetGuildId() == sWorld->getIntConfig(CONFIG_GILDEN_ID))
+        {
+            pPlayer->TeleportTo(1, 16200.116211f, 16206.101562f, 0.139813f, 3.148836f);
+            return true;
+        }
+        else
+        {
+            std::string str = sObjectMgr->GetGuildNameById(sWorld->getIntConfig(CONFIG_GILDEN_ID));
+            pPlayer->GetSession()->SendNotification("Zutritt nur für Mitglieder der Gilde: '%s'!", str.c_str());
+            // GM erlauben trotzdem geportet zu werden
+            if (pPlayer->isGameMaster())
+                pPlayer->TeleportTo(1, 16200.116211f, 16206.101562f, 0.139813f, 3.148836f);
+        }
+        return true;
+    }
+};
+
+// Copyright 2008-2011 by WarHead (United Worlds of MaNGOS)
+// Ei der Geißelneruber 193051 - Quest 13182
+class go_ei_der_geisselneruber : public GameObjectScript
+{
+public:
+    go_ei_der_geisselneruber() : GameObjectScript("go_ei_der_geisselneruber") { }
+
+    bool OnGossipHello(Player *pPlayer, GameObject *pGO)
+    {
+        if (pPlayer && pPlayer->GetQuestStatus(13182) == QUEST_STATUS_INCOMPLETE)
+        {
+            pGO->SetLootState(GO_READY);
+            pGO->SetGoState(GO_STATE_ACTIVE);
+        }
+        else
+            return true;
+
+        return false;
+    }
+};
 
 /*######
 ## go_cat_figurine
@@ -1188,6 +1245,11 @@ public:
 
 void AddSC_go_scripts()
 {
+    // Eigene
+    new go_gilden_portal;
+    new go_ei_der_geisselneruber;
+
+    // Trinity
     new go_cat_figurine;
     new go_northern_crystal_pylon;
     new go_eastern_crystal_pylon;

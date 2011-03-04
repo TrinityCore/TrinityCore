@@ -1166,6 +1166,9 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_TW_INTERVALL]          = sConfig->GetIntDefault("Tausendwinter.KampfIntervall", 130) * IN_MILLISECONDS * MINUTE;
     m_int_configs[CONFIG_TW_SPEICHER_INTERVALL] = sConfig->GetIntDefault("Tausendwinter.SpeicherIntervall", 5) * IN_MILLISECONDS * MINUTE;
 
+    // Gildenportal
+    m_int_configs[CONFIG_GILDEN_ID] = sConfig->GetIntDefault("GuildPortal.GuildID", 0);
+
     m_bool_configs[CONFIG_NO_RESET_TALENT_COST] = sConfig->GetBoolDefault("NoResetTalentsCost", false);
     m_bool_configs[CONFIG_SHOW_KICK_IN_WORLD] = sConfig->GetBoolDefault("ShowKickInWorld", false);
     m_int_configs[CONFIG_INTERVAL_LOG_UPDATE] = sConfig->GetIntDefault("RecordUpdateTimeDiffInterval", 60000);
