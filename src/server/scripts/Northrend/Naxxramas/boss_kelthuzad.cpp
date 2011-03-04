@@ -665,7 +665,9 @@ public:
         if (!pKelthuzadAI)
             return false;
 
+        pKelthuzadAI->EnterCombat(pPlayer);
         pKelthuzadAI->AttackStart(pPlayer);
+
         if (GameObject* trigger = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_KELTHUZAD_TRIGGER)))
         {
             if (trigger->getLootState() == GO_READY)
