@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -140,6 +140,8 @@ public:
             {
                 case DATA_ADD_JEDOGA_OPFER: JedogaSacrifices = guid; break;
                 case DATA_PL_JEDOGA_TARGET: JedogaTarget = guid; break;
+                case DATA_SPHERE1: Prince_TaldaramSpheres[0] = guid; break;
+                case DATA_SPHERE2: Prince_TaldaramSpheres[1] = guid; break;
             }
         }
 

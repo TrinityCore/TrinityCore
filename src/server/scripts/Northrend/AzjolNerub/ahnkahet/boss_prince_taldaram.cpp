@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -82,8 +82,6 @@ public:
         boss_taldaramAI(Creature *c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
         uint32 uiBloodthirstTimer;
@@ -110,14 +108,22 @@ public:
             Phase = NORMAL;
             uiPhaseTimer = 0;
             uiEmbraceTarget = 0;
+
             if (pInstance)
                 pInstance->SetData(DATA_PRINCE_TALDARAM_EVENT, NOT_STARTED);
+
+            if (!CheckSpheres())
+            {
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            }
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             if (pInstance)
                 pInstance->SetData(DATA_PRINCE_TALDARAM_EVENT, IN_PROGRESS);
+
             DoScriptText(SAY_AGGRO, me);
         }
 
@@ -125,6 +131,7 @@ public:
         {
             if (!UpdateVictim())
                 return;
+
             if (uiPhaseTimer <= diff)
             {
                 switch (Phase)
@@ -293,8 +300,10 @@ public:
             for (uint8 i=0; i < 2; ++i)
             {
                 GameObject *pSpheres = pInstance->instance->GetGameObject(uiSphereGuids[i]);
+
                 if (!pSpheres)
                     return false;
+
                 if (pSpheres->GetGoState() != GO_STATE_ACTIVE)
                     return false;
             }
@@ -314,6 +323,7 @@ public:
         {
             if (!pInstance)
                 return;
+
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->RemoveAurasDueToSpell(SPELL_BEAM_VISUAL);
@@ -389,21 +399,29 @@ public:
     {
         InstanceScript *pInstance = pGO->GetInstanceScript();
 
-        Creature *pPrinceTaldaram = Unit::GetCreature(*pGO, pInstance ? pInstance->GetData64(DATA_PRINCE_TALDARAM) : 0);
-        if (pPrinceTaldaram && pPrinceTaldaram->isAlive())
-        {
-            // maybe these are hacks :(
-            pGO->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
-            pGO->SetGoState(GO_STATE_ACTIVE);
+        pGO->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+        pGO->SetGoState(GO_STATE_ACTIVE);
 
+        if (pInstance)
+        {
             switch(pGO->GetEntry())
             {
-                case GO_SPHERE1: pInstance->SetData(DATA_SPHERE1_EVENT,IN_PROGRESS); break;
-                case GO_SPHERE2: pInstance->SetData(DATA_SPHERE2_EVENT,IN_PROGRESS); break;
+                case GO_SPHERE1:
+                    pInstance->SetData(DATA_SPHERE1_EVENT, IN_PROGRESS);
+                    pInstance->SetData64(DATA_SPHERE1, pGO->GetGUID());
+                    break;
+                case GO_SPHERE2:
+                    pInstance->SetData(DATA_SPHERE2_EVENT, IN_PROGRESS);
+                    pInstance->SetData64(DATA_SPHERE2, pGO->GetGUID());
+                    break;
             }
 
-            CAST_AI(boss_taldaram::boss_taldaramAI, pPrinceTaldaram->AI())->CheckSpheres();
         }
+
+        Creature *pPrinceTaldaram = Unit::GetCreature(*pGO, pInstance ? pInstance->GetData64(DATA_PRINCE_TALDARAM) : 0);
+        if (pPrinceTaldaram && pPrinceTaldaram->isAlive())
+            CAST_AI(boss_taldaram::boss_taldaramAI, pPrinceTaldaram->AI())->CheckSpheres();
+
         return true;
     }
 };
