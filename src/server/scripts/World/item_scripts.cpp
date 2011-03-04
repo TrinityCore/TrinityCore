@@ -141,32 +141,6 @@ public:
 };
 
 /*#####
-# item_flying_machine
-#####*/
-
-class item_flying_machine : public ItemScript
-{
-public:
-    item_flying_machine() : ItemScript("item_flying_machine") { }
-
-    bool OnUse(Player* pPlayer, Item* pItem, SpellCastTargets const& /*targets*/)
-    {
-        uint32 itemId = pItem->GetEntry();
-        if (itemId == 34060)
-            if (pPlayer->GetBaseSkillValue(SKILL_RIDING) >= 225)
-                return false;
-
-        if (itemId == 34061)
-            if (pPlayer->GetBaseSkillValue(SKILL_RIDING) == 300)
-                return false;
-
-        sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Player attempt to use item %u, but did not meet riding requirement",itemId);
-        pPlayer->SendEquipError(EQUIP_ERR_CANT_EQUIP_SKILL,pItem,NULL);
-        return true;
-    }
-};
-
-/*#####
 # item_gor_dreks_ointment
 #####*/
 
@@ -242,42 +216,6 @@ public:
         if (msg == EQUIP_ERR_OK)
             pPlayer->StoreNewItem(dest, 44718, true, Item::GenerateItemRandomPropertyId(44718));
 
-        return true;
-    }
-};
-
-/*#####
-# item_harvesters_gift
-#####*/
-#define GHOULS 28845
-
-class item_harvesters_gift : public ItemScript
-{
-public:
-    item_harvesters_gift() : ItemScript("item_harvesters_gift") { }
-
-    bool OnUse(Player* pPlayer, Item* /*pItem*/, SpellCastTargets const& /*targets*/)
-    {
-        std::list<Creature*> MinionList;
-        pPlayer->GetAllMinionsByEntry(MinionList,GHOULS);
-
-        if (pPlayer->GetQuestStatus(12698) == QUEST_STATUS_INCOMPLETE)
-        {
-            if (!MinionList.empty())
-            {
-                if (MinionList.size() < 5)
-                    return false;
-                else
-                {
-                    // This should be sent to the player as red text.
-                    // TODO: Text should be moved to DB
-                    pPlayer->Say("You have created enough ghouls. Return to Gothik the Harvester at Death's Breach.", LANG_UNIVERSAL);
-                    return true;
-                }
-            }
-            else
-                return false;
-        }
         return true;
     }
 };
@@ -512,18 +450,16 @@ public:
 
 void AddSC_item_scripts()
 {
-    new item_only_for_flight;
-    new item_draenei_fishing_net;
-    new item_nether_wraith_beacon;
-    new item_flying_machine;
-    new item_gor_dreks_ointment;
-    new item_incendiary_explosives;
-    new item_mysterious_egg;
-    new item_disgusting_jar;
-    new item_harvesters_gift;
-    new item_pile_fake_furs;
-    new item_petrov_cluster_bombs;
-    new item_dehta_trap_smasher;
-    new item_trident_of_nazjan;
+    new item_only_for_flight();
+    new item_draenei_fishing_net();
+    new item_nether_wraith_beacon();
+    new item_gor_dreks_ointment();
+    new item_incendiary_explosives();
+    new item_mysterious_egg();
+    new item_disgusting_jar();
+    new item_pile_fake_furs();
+    new item_petrov_cluster_bombs();
+    new item_dehta_trap_smasher();
+    new item_trident_of_nazjan();
     new item_captured_frog();
 }

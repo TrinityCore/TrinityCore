@@ -432,18 +432,21 @@ class spell_blood_queen_vampiric_bite : public SpellScriptLoader
                 return true;
             }
 
+            SpellCastResult CheckTarget()
+            {
+                if (IsVampire(GetTargetUnit()))
+                {
+                    SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_CANT_TARGET_VAMPIRES);
+                    return SPELL_FAILED_CUSTOM_ERROR;
+                }
+
+                return SPELL_CAST_OK;
+            }
+
             void OnCast()
             {
                 if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
                     return;
-
-                if (IsVampire(GetHitUnit()))
-                {
-                    PreventHitDamage();
-                    PreventHitDefaultEffect(EFFECT_1);
-                    Spell::SendCastResult(GetCaster()->ToPlayer(), GetSpellInfo(), 0, SPELL_FAILED_BAD_TARGETS);
-                    return;
-                }
 
                 SpellEntry const* spell = sSpellStore.LookupEntry(SPELL_FRENZIED_BLOODTHIRST);
                 spell = sSpellMgr->GetSpellForDifficultyFromSpell(spell, GetCaster());
@@ -473,6 +476,7 @@ class spell_blood_queen_vampiric_bite : public SpellScriptLoader
 
             void Register()
             {
+                OnCheckCast += SpellCheckCastFn(spell_blood_queen_vampiric_bite_SpellScript::CheckTarget);
                 BeforeHit += SpellHitFn(spell_blood_queen_vampiric_bite_SpellScript::OnCast);
             }
         };
