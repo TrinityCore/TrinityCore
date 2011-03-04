@@ -2856,7 +2856,7 @@ void Player::InitTalentForLevel()
         // if used more that have then reset
         if (m_usedTalentCount > talentPointsForLevel)
         {
-            if (GetSession()->GetSecurity() < SEC_ADMINISTRATOR)
+            if (GetSession()->GetSecurity() < SEC_OGM)
                 resetTalents(true);
             else
                 SetFreeTalentPoints(0);
