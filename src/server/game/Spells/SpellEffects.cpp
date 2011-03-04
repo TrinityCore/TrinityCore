@@ -4826,15 +4826,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     if (unitTarget && m_originalCaster)
                         m_originalCaster->CastSpell(unitTarget, urand(0, 1) ? damage : 52505, true);
                     return;
-                // Death Gate
-                case 52751:
-                {
-                    if (!unitTarget || unitTarget->getClass() != CLASS_DEATH_KNIGHT)
-                        return;
-                    // triggered spell is stored in m_spellInfo->EffectBasePoints[0]
-                    unitTarget->CastSpell(unitTarget, damage, false);
-                    break;
-                }
                 case 53110: // Devour Humanoid
                     if (unitTarget)
                         unitTarget->CastSpell(m_caster, damage, true);

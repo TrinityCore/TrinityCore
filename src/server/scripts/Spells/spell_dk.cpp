@@ -233,6 +233,47 @@ class spell_dk_corpse_explosion : public SpellScriptLoader
         }
 };
 
+class spell_dk_death_gate : public SpellScriptLoader
+{
+    public:
+        spell_dk_death_gate() : SpellScriptLoader("spell_dk_death_gate") {}
+
+        class spell_dk_death_gate_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_death_gate_SpellScript);
+
+            SpellCastResult CheckClass()
+            {
+                if (GetCaster()->getClass() != CLASS_DEATH_KNIGHT)
+                {
+                    SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_MUST_BE_DEATH_KNIGHT);
+                    return SPELL_FAILED_CUSTOM_ERROR;
+                }
+
+                return SPELL_CAST_OK;
+            }
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                if (!GetHitUnit())
+                    return;
+                GetHitUnit()->CastSpell(GetHitUnit(), GetEffectValue(), false);
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_dk_death_gate_SpellScript::CheckClass);
+                OnEffect += SpellEffectFn(spell_dk_death_gate_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_death_gate_SpellScript();
+        }
+};
+
 class spell_dk_death_pact : public SpellScriptLoader
 {
     public:
@@ -474,6 +515,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_anti_magic_shell_self();
     new spell_dk_anti_magic_zone();
     new spell_dk_corpse_explosion();
+    new spell_dk_death_gate();
     new spell_dk_death_pact();
     new spell_dk_runic_power_feed();
     new spell_dk_scourge_strike();

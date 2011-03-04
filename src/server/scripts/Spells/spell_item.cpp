@@ -882,6 +882,46 @@ class spell_item_book_of_glyph_mastery : public SpellScriptLoader
         }
 };
 
+enum GiftOfTheHarvester
+{
+    NPC_GHOUL   = 28845,
+    MAX_GHOULS  = 5,
+};
+
+class spell_item_gift_of_the_harvester : public SpellScriptLoader
+{
+    public:
+        spell_item_gift_of_the_harvester() : SpellScriptLoader("spell_item_gift_of_the_harvester") {}
+
+        class spell_item_gift_of_the_harvester_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_gift_of_the_harvester_SpellScript);
+
+            SpellCastResult CheckRequirement()
+            {
+                std::list<Creature*> ghouls;
+                GetCaster()->GetAllMinionsByEntry(ghouls, NPC_GHOUL);
+                if (ghouls.size() >= MAX_GHOULS)
+                {
+                    SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_TOO_MANY_GHOULS);
+                    return SPELL_FAILED_CUSTOM_ERROR;
+                }
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_item_gift_of_the_harvester_SpellScript::CheckRequirement);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_gift_of_the_harvester_SpellScript();
+        }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -908,4 +948,5 @@ void AddSC_item_spell_scripts()
 
     new spell_item_create_heart_candy();
     new spell_item_book_of_glyph_mastery();
+    new spell_item_gift_of_the_harvester();
 }
