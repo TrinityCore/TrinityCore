@@ -5,8 +5,7 @@
    the Free Software Foundation.
 
    There are special exceptions to the terms and conditions of the GPL as it
-   is applied to this software. View the full text of the exception in file
-   EXCEPTIONS-CLIENT in the directory of this software distribution.
+   is applied to this software.
 
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -36,7 +35,7 @@
 #include <pwd.h>
 #endif /* HAVE_PWD_H */
 #else /* ! HAVE_GETPASS */
-#if !defined(__WIN__) && !defined(__NETWARE__)
+#if !defined(__WIN__)
 #include <sys/ioctl.h>
 #ifdef HAVE_TERMIOS_H				/* For tty-password */
 #include	<termios.h>
@@ -55,9 +54,7 @@
 #include <asm/termiobits.h>
 #endif
 #else
-#ifndef __NETWARE__
 #include <conio.h>
-#endif /* __NETWARE__ */
 #endif /* __WIN__ */
 #endif /* HAVE_GETPASS */
 
@@ -65,16 +62,8 @@
 #define getpass(A) getpassphrase(A)
 #endif
 
-#if defined( __WIN__) || defined(__NETWARE__)
+#if defined(__WIN__)
 /* were just going to fake it here and get input from the keyboard */
-
-#ifdef __NETWARE__
-#undef _getch
-#undef _cputs
-#define _getch getcharacter
-#define _cputs(A) putstring(A)
-#endif
-
 char *get_tty_password(const char *opt_message)
 {
   char to[80];

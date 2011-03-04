@@ -16,6 +16,8 @@
 #ifndef _my_getopt_h
 #define _my_getopt_h
 
+#include "my_sys.h"                             /* loglevel */
+
 C_MODE_START
 
 #define GET_NO_ARG     1
@@ -32,31 +34,56 @@ C_MODE_START
 #define GET_ENUM      12
 #define GET_SET       13
 #define GET_DOUBLE    14
+#define GET_FLAGSET   15
 
 #define GET_ASK_ADDR	 128
 #define GET_TYPE_MASK	 127
 
+/**
+  Enumeration of the my_option::arg_type attributes.
+  It should be noted that for historical reasons variables with the combination
+  arg_type=NO_ARG, my_option::var_type=GET_BOOL still accepts
+  arguments. This is someone counter intuitive and care should be taken
+  if the code is refactored.
+*/
 enum get_opt_arg_type { NO_ARG, OPT_ARG, REQUIRED_ARG };
 
 struct st_typelib;
 
 struct my_option
 {
-  const char *name;                     /* Name of the option */
-  int        id;                        /* unique id or short option */
-  const char *comment;                  /* option comment, for autom. --help */
-  void       *value;                    /* The variable value */
-  void       *u_max_value;              /* The user def. max variable value */
-  struct st_typelib *typelib;           /* Pointer to possible values */
-  ulong      var_type;                  /* Must match the variable type */
-  enum get_opt_arg_type arg_type;
-  longlong   def_value;                 /* Default value */
-  longlong   min_value;                 /* Min allowed value */
-  longlong   max_value;                 /* Max allowed value */
-  longlong   sub_size;                  /* Subtract this from given value */
-  long       block_size;                /* Value should be a mult. of this */
-  void       *app_type;                 /* To be used by an application */
+  const char *name;                     /**< Name of the option. name=NULL
+                                           marks the end of the my_option[]
+                                           array.
+                                         */
+  int        id;                        /**< For 0<id<255 it's means one
+                                           character for a short option
+                                           (like -A), if >255 no short option
+                                           is created, but a long option still
+                                           can be identified uniquely in the
+                                           my_get_one_option() callback.
+                                           If an opton needs neither special
+                                           treatment in the my_get_one_option()
+                                           nor one-letter short equivalent
+                                           use id=0
+                                         */
+  const char *comment;                  /**< option comment, for autom. --help.
+                                           if it's NULL the option is not
+                                           visible in --help.
+                                         */
+  void       *value;                    /**< A pointer to the variable value */
+  void       *u_max_value;              /**< The user def. max variable value */
+  struct st_typelib *typelib;           /**< Pointer to possible values */
+  ulong     var_type;                   /**< GET_BOOL, GET_ULL, etc */
+  enum get_opt_arg_type arg_type;       /**< e.g. REQUIRED_ARG or OPT_ARG */
+  longlong   def_value;                 /**< Default value */
+  longlong   min_value;                 /**< Min allowed value (for numbers) */
+  longlong   max_value;                 /**< Max allowed value (for numbers) */
+  longlong   sub_size;                  /**< Unused                          */
+  long       block_size;                /**< Value should be a mult. of this (for numbers) */
+  void       *app_type;                 /**< To be used by an application */
 };
+
 
 typedef my_bool (*my_get_one_option)(int, const struct my_option *, char *);
 typedef void (*my_error_reporter)(enum loglevel level, const char *format, ...);
@@ -68,6 +95,7 @@ typedef void (*my_error_reporter)(enum loglevel level, const char *format, ...);
 */
 typedef void *(*my_getopt_value)(const char *, uint, const struct my_option *,
                                  int *);
+
 
 extern char *disabled_my_option;
 extern my_bool my_getopt_print_errors;
@@ -85,6 +113,8 @@ ulonglong getopt_ull_limit_value(ulonglong num, const struct my_option *optp,
                                  my_bool *fix);
 longlong getopt_ll_limit_value(longlong, const struct my_option *,
                                my_bool *fix);
+double getopt_double_limit_value(double num, const struct my_option *optp,
+                                 my_bool *fix);
 my_bool getopt_compare_strings(const char *s, const char *t, uint length);
 
 C_MODE_END

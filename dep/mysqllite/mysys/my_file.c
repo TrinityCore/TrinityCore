@@ -97,6 +97,7 @@ uint my_set_max_open_files(uint files)
   DBUG_ENTER("my_set_max_open_files");
   DBUG_PRINT("enter",("files: %u  my_file_limit: %u", files, my_file_limit));
 
+  files+= MY_FILE_MIN;
   files= set_max_open_files(min(files, OS_FILE_LIMIT));
   if (files <= MY_NFILE)
     DBUG_RETURN(files);
@@ -126,7 +127,7 @@ void my_free_open_file_info()
     /* Copy data back for my_print_open_files */
     memcpy((char*) my_file_info_default, my_file_info,
            sizeof(*my_file_info_default)* MY_NFILE);
-    my_free((char*) my_file_info, MYF(0));
+    my_free(my_file_info);
     my_file_info= my_file_info_default;
     my_file_limit= MY_NFILE;
   }

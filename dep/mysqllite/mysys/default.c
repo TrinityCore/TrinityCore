@@ -1,4 +1,4 @@
-/* Copyright (C) 2000-2003 MySQL AB
+/* Copyright (C) 2000-2003 MySQL AB, 2008-2009 Sun Microsystems, Inc
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -41,9 +41,37 @@
 #include <winbase.h>
 #endif
 
+/**
+   arguments separator
+
+   load_defaults() loads arguments from config file and put them
+   before the arguments from command line, this separator is used to
+   separate the arguments loaded from config file and arguments user
+   provided on command line.
+
+   Options with value loaded from config file are always in the form
+   '--option=value', while for command line options, the value can be
+   given as the next argument. Thus we used a separator so that
+   handle_options() can distinguish them.
+
+   Note: any other places that does not need to distinguish them
+   should skip the separator.
+
+   The content of arguments separator does not matter, one should only
+   check the pointer, use "----args-separator----" here to ease debug
+   if someone misused it.
+
+   See BUG#25192
+*/
+const char *args_separator= "----args-separator----";
 const char *my_defaults_file=0;
 const char *my_defaults_group_suffix=0;
-char *my_defaults_extra_file=0;
+const char *my_defaults_extra_file=0;
+
+static char my_defaults_file_buffer[FN_REFLEN];
+static char my_defaults_extra_file_buffer[FN_REFLEN];
+
+static my_bool defaults_already_read= FALSE;
 
 /* Which directories are searched for options (and in which order) */
 
@@ -95,7 +123,6 @@ static int search_default_file_with_ext(Process_option_func func,
   - Windows:     GetWindowsDirectory()
   - Windows:     C:/
   - Windows:     Directory above where the executable is located
-  - Netware:     sys:/etc/
   - Unix:        /etc/
   - Unix:        /etc/mysql/
   - Unix:        --sysconfdir=<path> (compile-time option)
@@ -116,6 +143,33 @@ static const char **init_default_directories(MEM_ROOT *alloc);
 
 static char *remove_end_comment(char *ptr);
 
+
+/*
+  Expand a file name so that the current working directory is added if
+  the name is relative.
+
+  RETURNS
+   0   All OK
+   2   Out of memory or path to long
+   3   Not able to get working directory
+ */
+
+static int
+fn_expand(const char *filename, char *result_buf)
+{
+  char dir[FN_REFLEN];
+  const int flags= MY_UNPACK_FILENAME | MY_SAFE_PATH | MY_RELATIVE_PATH;
+  DBUG_ENTER("fn_expand");
+  DBUG_PRINT("enter", ("filename: %s, result_buf: 0x%lx",
+                       filename, (unsigned long) result_buf));
+  if (my_getwd(dir, sizeof(dir), MYF(0)))
+    DBUG_RETURN(3);
+  DBUG_PRINT("debug", ("dir: %s", dir));
+  if (fn_format(result_buf, filename, dir, NULL, flags) == NULL)
+    DBUG_RETURN(2);
+  DBUG_PRINT("return", ("result: %s", result_buf));
+  DBUG_RETURN(0);
+}
 
 /*
   Process config files in default directories.
@@ -145,6 +199,7 @@ static char *remove_end_comment(char *ptr);
     0  ok
     1  given cinf_file doesn't exist
     2  out of memory
+    3  Can't get current working directory
 
     The global variable 'my_defaults_group_suffix' is updated with value for
     --defaults_group_suffix
@@ -167,11 +222,23 @@ int my_search_option_files(const char *conf_file, int *argc, char ***argv,
   if (! my_defaults_group_suffix)
     my_defaults_group_suffix= getenv(STRINGIFY_ARG(DEFAULT_GROUP_SUFFIX_ENV));
 
-  if (forced_extra_defaults)
-    my_defaults_extra_file= (char *) forced_extra_defaults;
-  
-  if (forced_default_file)
-    my_defaults_file= forced_default_file;
+  if (forced_extra_defaults && !defaults_already_read)
+  {
+    int error= fn_expand(forced_extra_defaults, my_defaults_extra_file_buffer);
+    if (error)
+      DBUG_RETURN(error);
+    my_defaults_extra_file= my_defaults_extra_file_buffer;
+  }
+
+  if (forced_default_file && !defaults_already_read)
+  {
+    int error= fn_expand(forced_default_file, my_defaults_file_buffer);
+    if (error)
+      DBUG_RETURN(error);
+    my_defaults_file= my_defaults_file_buffer;
+  }
+
+  defaults_already_read= TRUE;
 
   /*
     We can only handle 'defaults-group-suffix' if we are called from
@@ -214,15 +281,15 @@ int my_search_option_files(const char *conf_file, int *argc, char ***argv,
     group->type_names[group->count]= 0;
   }
   
-  if (forced_default_file)
+  if (my_defaults_file)
   {
     if ((error= search_default_file_with_ext(func, func_ctx, "", "",
-                                             forced_default_file, 0)) < 0)
+                                             my_defaults_file, 0)) < 0)
       goto err;
     if (error > 0)
     {
       fprintf(stderr, "Could not open required defaults file: %s\n",
-              forced_default_file);
+              my_defaults_file);
       goto err;
     }
   }
@@ -454,10 +521,11 @@ int my_load_defaults(const char *conf_file, const char **groups,
       goto err;
     res= (char**) (ptr+sizeof(alloc));
     res[0]= **argv;				/* Copy program name */
+    /* set arguments separator */
+    res[1]= (char *)args_separator;
     for (i=2 ; i < (uint) *argc ; i++)
-      res[i-1]=argv[0][i];
-    res[i-1]=0;					/* End pointer */
-    (*argc)--;
+      res[i]=argv[0][i];
+    res[i]=0;					/* End pointer */
     *argv=res;
     *(MEM_ROOT*) ptr= alloc;			/* Save alloc root for free */
     if (default_directories)
@@ -479,15 +547,19 @@ int my_load_defaults(const char *conf_file, const char **groups,
   ctx.args= &args;
   ctx.group= &group;
 
-  error= my_search_option_files(conf_file, argc, argv, &args_used,
-                                handle_default_option, (void *) &ctx,
-                                dirs);
+  if ((error= my_search_option_files(conf_file, argc, argv, &args_used,
+                                     handle_default_option, (void *) &ctx,
+                                     dirs)))
+  {
+    free_root(&alloc,MYF(0));
+    DBUG_RETURN(error);
+  }
   /*
     Here error contains <> 0 only if we have a fully specified conf_file
     or a forced default file
   */
   if (!(ptr=(char*) alloc_root(&alloc,sizeof(alloc)+
-			       (args.elements + *argc +1) *sizeof(char*))))
+			       (args.elements + *argc + 1 + 1) *sizeof(char*))))
     goto err;
   res= (char**) (ptr+sizeof(alloc));
 
@@ -508,12 +580,16 @@ int my_load_defaults(const char *conf_file, const char **groups,
     --*argc; ++*argv;				/* skip argument */
   }
 
-  if (*argc)
-    memcpy((uchar*) (res+1+args.elements), (char*) ((*argv)+1),
-	   (*argc-1)*sizeof(char*));
-  res[args.elements+ *argc]=0;			/* last null */
+  /* set arguments separator for arguments from config file and
+     command line */
+  res[args.elements+1]= (char *)args_separator;
 
-  (*argc)+=args.elements;
+  if (*argc)
+    memcpy((uchar*) (res+1+args.elements+1), (char*) ((*argv)+1),
+	   (*argc-1)*sizeof(char*));
+  res[args.elements+ *argc+1]=0;                /* last null */
+
+  (*argc)+=args.elements+1;
   *argv= (char**) res;
   *(MEM_ROOT*) ptr= alloc;			/* Save alloc root for free */
   delete_dynamic(&args);
@@ -523,15 +599,16 @@ int my_load_defaults(const char *conf_file, const char **groups,
     printf("%s would have been started with the following arguments:\n",
 	   **argv);
     for (i=1 ; i < *argc ; i++)
-      printf("%s ", (*argv)[i]);
+      if ((*argv)[i] != args_separator) /* skip arguments separator */
+        printf("%s ", (*argv)[i]);
     puts("");
     exit(0);
   }
 
-  if (error == 0 && default_directories)
+  if (default_directories)
     *default_directories= dirs;
 
-  DBUG_RETURN(error);
+  DBUG_RETURN(0);
 
  err:
   fprintf(stderr,"Fatal error in defaults handling. Program aborted\n");
@@ -543,7 +620,7 @@ int my_load_defaults(const char *conf_file, const char **groups,
 void free_defaults(char **argv)
 {
   MEM_ROOT ptr;
-  memcpy_fixed((char*) &ptr,(char *) argv - sizeof(ptr), sizeof(ptr));
+  memcpy(&ptr, ((char *) argv) - sizeof(ptr), sizeof(ptr));
   free_root(&ptr,MYF(0));
 }
 
@@ -654,7 +731,7 @@ static int search_default_file_with_ext(Process_option_func opt_handler,
   static const char includedir_keyword[]= "includedir";
   static const char include_keyword[]= "include";
   const int max_recursion_level= 10;
-  FILE *fp;
+  MYSQL_FILE *fp;
   uint line=0;
   my_bool found_group=0;
   uint i;
@@ -675,7 +752,7 @@ static int search_default_file_with_ext(Process_option_func opt_handler,
     strmov(name,config_file);
   }
   fn_format(name,name,"","",4);
-#if !defined(__WIN__) && !defined(__NETWARE__)
+#if !defined(__WIN__)
   {
     MY_STAT stat_info;
     if (!my_stat(name,&stat_info,MYF(0)))
@@ -694,10 +771,10 @@ static int search_default_file_with_ext(Process_option_func opt_handler,
     }
   }
 #endif
-  if (!(fp= my_fopen(name, O_RDONLY, MYF(0))))
+  if (!(fp= mysql_file_fopen(key_file_cnf, name, O_RDONLY, MYF(0))))
     return 1;					/* Ignore wrong files */
 
-  while (fgets(buff, sizeof(buff) - 1, fp))
+  while (mysql_file_fgets(buff, sizeof(buff) - 1, fp))
   {
     line++;
     /* Ignore comment and empty lines */
@@ -887,11 +964,11 @@ static int search_default_file_with_ext(Process_option_func opt_handler,
         goto err;
     }
   }
-  my_fclose(fp,MYF(0));
+  mysql_file_fclose(fp, MYF(0));
   return(0);
 
  err:
-  my_fclose(fp,MYF(0));
+  mysql_file_fclose(fp, MYF(0));
   return -1;					/* Fatal error */
 }
 
@@ -921,7 +998,6 @@ static char *remove_end_comment(char *ptr)
   return ptr;
 }
 
-#include <help_start.h>
 
 void my_print_default_files(const char *conf_file)
 {
@@ -1000,8 +1076,6 @@ void print_defaults(const char *conf_file, const char **groups)
 --defaults-file=#       Only read default options from the given file #.\n\
 --defaults-extra-file=# Read this file after the global files are read.");
 }
-
-#include <help_end.h>
 
 
 static int add_directory(MEM_ROOT *alloc, const char *dir, const char **dirs)
@@ -1117,10 +1191,6 @@ static const char **init_default_directories(MEM_ROOT *alloc)
       errors += add_directory(alloc, fname_buffer, dirs);
   }
 
-#elif defined(__NETWARE__)
-
-  errors += add_directory(alloc, "sys:/etc/", dirs);
-
 #else
 
   errors += add_directory(alloc, "/etc/", dirs);
@@ -1139,7 +1209,7 @@ static const char **init_default_directories(MEM_ROOT *alloc)
   /* Placeholder for --defaults-extra-file=<path> */
   errors += add_directory(alloc, "", dirs);
 
-#if !defined(__WIN__) && !defined(__NETWARE__)
+#if !defined(__WIN__)
   errors += add_directory(alloc, "~/", dirs);
 #endif
 
