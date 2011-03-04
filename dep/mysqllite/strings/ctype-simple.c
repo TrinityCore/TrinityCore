@@ -304,14 +304,13 @@ void my_hash_sort_simple(CHARSET_INFO *cs,
 			 ulong *nr1, ulong *nr2)
 {
   register uchar *sort_order=cs->sort_order;
-  const uchar *end= key + len;
+  const uchar *end;
   
   /*
     Remove end space. We have to do this to be able to compare
     'A ' and 'A' as identical
   */
-  while (end > key && end[-1] == ' ')
-    end--;
+  end= skip_trailing_space(key, len);
   
   for (; key < (uchar*) end ; key++)
   {
@@ -336,10 +335,6 @@ long my_strntol_8bit(CHARSET_INFO *cs,
   int overflow;
 
   *err= 0;				/* Initialize error indicator */
-#ifdef NOT_USED
-  if (base < 0 || base == 1 || base > 36)
-    base = 10;
-#endif
 
   s = nptr;
   e = nptr+l;
@@ -364,29 +359,6 @@ long my_strntol_8bit(CHARSET_INFO *cs,
   }
   else
     negative = 0;
-
-#ifdef NOT_USED
-  if (base == 16 && s[0] == '0' && (s[1]=='X' || s[1]=='x'))
-    s += 2;
-#endif
-
-#ifdef NOT_USED
-  if (base == 0)
-  {
-    if (*s == '0')
-    {
-      if (s[1]=='X' || s[1]=='x')
-      {
-	s += 2;
-	base = 16;
-      }
-      else
-	base = 8;
-    }
-    else
-      base = 10;
-  }
-#endif
 
   save = s;
   cutoff = ((uint32)~0L) / (uint32) base;
@@ -459,10 +431,6 @@ ulong my_strntoul_8bit(CHARSET_INFO *cs,
   int overflow;
 
   *err= 0;				/* Initialize error indicator */
-#ifdef NOT_USED
-  if (base < 0 || base == 1 || base > 36)
-    base = 10;
-#endif
 
   s = nptr;
   e = nptr+l;
@@ -486,29 +454,6 @@ ulong my_strntoul_8bit(CHARSET_INFO *cs,
   }
   else
     negative = 0;
-
-#ifdef NOT_USED
-  if (base == 16 && s[0] == '0' && (s[1]=='X' || s[1]=='x'))
-    s += 2;
-#endif
-
-#ifdef NOT_USED
-  if (base == 0)
-  {
-    if (*s == '0')
-    {
-      if (s[1]=='X' || s[1]=='x')
-      {
-	s += 2;
-	base = 16;
-      }
-      else
-	base = 8;
-    }
-    else
-      base = 10;
-  }
-#endif
 
   save = s;
   cutoff = ((uint32)~0L) / (uint32) base;
@@ -572,10 +517,6 @@ longlong my_strntoll_8bit(CHARSET_INFO *cs __attribute__((unused)),
   int overflow;
 
   *err= 0;				/* Initialize error indicator */
-#ifdef NOT_USED
-  if (base < 0 || base == 1 || base > 36)
-    base = 10;
-#endif
 
   s = nptr;
   e = nptr+l;
@@ -599,29 +540,6 @@ longlong my_strntoll_8bit(CHARSET_INFO *cs __attribute__((unused)),
   }
   else
     negative = 0;
-
-#ifdef NOT_USED
-  if (base == 16 && s[0] == '0' && (s[1]=='X'|| s[1]=='x'))
-    s += 2;
-#endif
-
-#ifdef NOT_USED
-  if (base == 0)
-  {
-    if (*s == '0')
-    {
-      if (s[1]=='X' || s[1]=='x')
-      {
-	s += 2;
-	base = 16;
-      }
-      else
-	base = 8;
-    }
-    else
-      base = 10;
-  }
-#endif
 
   save = s;
 
@@ -695,10 +613,6 @@ ulonglong my_strntoull_8bit(CHARSET_INFO *cs,
   int overflow;
 
   *err= 0;				/* Initialize error indicator */
-#ifdef NOT_USED
-  if (base < 0 || base == 1 || base > 36)
-    base = 10;
-#endif
 
   s = nptr;
   e = nptr+l;
@@ -722,29 +636,6 @@ ulonglong my_strntoull_8bit(CHARSET_INFO *cs,
   }
   else
     negative = 0;
-
-#ifdef NOT_USED
-  if (base == 16 && s[0] == '0' && (s[1]=='X' || s[1]=='x'))
-    s += 2;
-#endif
-
-#ifdef NOT_USED
-  if (base == 0)
-  {
-    if (*s == '0')
-    {
-      if (s[1]=='X' || s[1]=='x')
-      {
-	s += 2;
-	base = 16;
-      }
-      else
-	base = 8;
-    }
-    else
-      base = 10;
-  }
-#endif
 
   save = s;
 
@@ -1165,9 +1056,8 @@ size_t my_well_formed_len_8bit(CHARSET_INFO *cs __attribute__((unused)),
 size_t my_lengthsp_8bit(CHARSET_INFO *cs __attribute__((unused)),
                         const char *ptr, size_t length)
 {
-  const char *end= ptr+length;
-  while (end > ptr && end[-1] == ' ')
-    end--;
+  const char *end;
+  end= (const char *) skip_trailing_space((const uchar *)ptr, length);
   return (size_t) (end-ptr);
 }
 
@@ -1387,19 +1277,6 @@ int my_mb_ctype_8bit(CHARSET_INFO *cs, int *ctype,
 }
 
 
-#undef  ULONGLONG_MAX
-/*
-  Needed under MetroWerks Compiler, since MetroWerks compiler does not
-  properly handle a constant expression containing a mod operator
-*/
-#if defined(__NETWARE__) && defined(__MWERKS__)
-static ulonglong ulonglong_max= ~(ulonglong) 0;
-#define ULONGLONG_MAX ulonglong_max
-#else
-#define ULONGLONG_MAX           (~(ulonglong) 0)
-#endif /* __NETWARE__ && __MWERKS__ */
-
-    
 #define CUTOFF  (ULONGLONG_MAX / 10)
 #define CUTLIM  (ULONGLONG_MAX % 10)
 #define DIGITS_IN_ULONGLONG 20
