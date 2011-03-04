@@ -236,6 +236,11 @@ inline bool isEastAsianCharacter(wchar_t wchar)
     return false;
 }
 
+inline bool isWhiteSpace(char c)
+{
+    return ::isspace(int(c)) != 0;
+}
+
 inline bool isNumeric(wchar_t wchar)
 {
     return (wchar >= L'0' && wchar <=L'9');

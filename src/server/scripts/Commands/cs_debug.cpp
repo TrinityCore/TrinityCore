@@ -99,18 +99,13 @@ public:
         return commandTable;
     }
 
-    static bool HandleDebugPlayCinematicCommand(ChatHandler* handler, const char* args)
+    static bool HandleDebugPlayCinematicCommand(ChatHandler* handler, char* args)
     {
         // USAGE: .debug play cinematic #cinematicid
         // #cinematicid - ID decimal number from CinemaicSequences.dbc (1st column)
-        if (!*args)
-        {
-            handler->SendSysMessage(LANG_BAD_VALUE);
-            handler->SetSentErrorMessage(true);
+        uint32 dwId;
+        if (!handler->ExtractUInt32(&args, dwId))
             return false;
-        }
-
-        uint32 dwId = atoi((char*)args);
 
         if (!sCinematicSequencesStore.LookupEntry(dwId))
         {
@@ -123,18 +118,13 @@ public:
         return true;
     }
 
-    static bool HandleDebugPlayMovieCommand(ChatHandler* handler, const char* args)
+    static bool HandleDebugPlayMovieCommand(ChatHandler* handler, char* args)
     {
         // USAGE: .debug play movie #movieid
         // #movieid - ID decimal number from Movie.dbc (1st column)
-        if (!*args)
-        {
-            handler->SendSysMessage(LANG_BAD_VALUE);
-            handler->SetSentErrorMessage(true);
+        uint32 dwId;
+        if (!handler->ExtractUInt32(&args, dwId))
             return false;
-        }
-
-        uint32 dwId = atoi((char*)args);
 
         if (!sMovieStore.LookupEntry(dwId))
         {
@@ -148,18 +138,13 @@ public:
     }
 
     //Play sound
-    static bool HandleDebugPlaySoundCommand(ChatHandler* handler, const char* args)
+    static bool HandleDebugPlaySoundCommand(ChatHandler* handler, char* args)
     {
         // USAGE: .debug playsound #soundid
         // #soundid - ID decimal number from SoundEntries.dbc (1st column)
-        if (!*args)
-        {
-            handler->SendSysMessage(LANG_BAD_VALUE);
-            handler->SetSentErrorMessage(true);
+        uint32 dwSoundId;
+        if (!handler->ExtractUInt32(&args, dwSoundId))
             return false;
-        }
-
-        uint32 dwSoundId = atoi((char*)args);
 
         if (!sSoundEntriesStore.LookupEntry(dwSoundId))
         {
@@ -185,32 +170,30 @@ public:
         return true;
     }
 
-    static bool HandleDebugSendSpellFailCommand(ChatHandler* handler, const char* args)
+    static bool HandleDebugSendSpellFailCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
-        char* px = strtok((char*)args, " ");
-        if (!px)
+        uint32 failnum;
+        if (!handler->ExtractUInt32(&args, failnum) || failnum > 255)
             return false;
 
-        uint8 failnum = (uint8)atoi(px);
-        if (failnum == 0 && *px != '0')
+        uint32 failarg1;
+        if (!handler->ExtractOptUInt32(&args, failarg1, 0))
             return false;
 
-        char* p1 = strtok(NULL, " ");
-        uint8 failarg1 = p1 ? (uint8)atoi(p1) : 0;
-
-        char* p2 = strtok(NULL, " ");
-        uint8 failarg2 = p2 ? (uint8)atoi(p2) : 0;
+        uint32 failarg2;
+        if (!handler->ExtractOptUInt32(&args, failarg2, 0))
+            return false;
 
         WorldPacket data(SMSG_CAST_FAILED, 5);
         data << uint8(0);
         data << uint32(133);
         data << uint8(failnum);
-        if (p1 || p2)
+        if (failarg1 || failarg2)
             data << uint32(failarg1);
-        if (p2)
+        if (failarg2)
             data << uint32(failarg2);
 
         handler->GetSession()->SendPacket(&data);
@@ -218,11 +201,8 @@ public:
         return true;
     }
 
-    static bool HandleDebugSendPoiCommand(ChatHandler* handler, const char* args)
+    static bool HandleDebugSendPoiCommand(ChatHandler* handler, char* args)
     {
-        if (!*args)
-            return false;
-
         Player *pPlayer = handler->GetSession()->GetPlayer();
         Unit* target = handler->getSelectedUnit();
         if (!target)
@@ -231,20 +211,20 @@ public:
             return true;
         }
 
-        char* icon_text = strtok((char*)args, " ");
-        char* flags_text = strtok(NULL, " ");
-        if (!icon_text || !flags_text)
+        uint32 icon;
+        if (!handler->ExtractUInt32(&args, icon))
             return false;
 
-        uint32 icon = atol(icon_text);
-        uint32 flags = atol(flags_text);
+        uint32 flags;
+        if (!handler->ExtractUInt32(&args, flags))
+            return false;
 
         sLog->outDetail("Command : POI, NPC = %u, icon = %u flags = %u", target->GetGUIDLow(), icon,flags);
         pPlayer->PlayerTalkClass->SendPointOfInterest(target->GetPositionX(), target->GetPositionY(), Poi_Icon(icon), flags, 30, "Test POI");
         return true;
     }
 
-    static bool HandleDebugSendEquipErrorCommand(ChatHandler* handler, const char* args)
+    static bool HandleDebugSendEquipErrorCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
@@ -254,7 +234,7 @@ public:
         return true;
     }
 
-    static bool HandleDebugSendSellErrorCommand(ChatHandler* handler, const char* args)
+    static bool HandleDebugSendSellErrorCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
@@ -264,7 +244,7 @@ public:
         return true;
     }
 
-    static bool HandleDebugSendBuyErrorCommand(ChatHandler* handler, const char* args)
+    static bool HandleDebugSendBuyErrorCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
@@ -274,7 +254,7 @@ public:
         return true;
     }
 
-    static bool HandleDebugSendOpcodeCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleDebugSendOpcodeCommand(ChatHandler* handler, char* /*args*/)
     {
         Unit *unit = handler->getSelectedUnit();
         Player *player = NULL;
@@ -403,21 +383,21 @@ public:
         return true;
     }
 
-    static bool HandleDebugUpdateWorldStateCommand(ChatHandler* handler, const char* args)
+    static bool HandleDebugUpdateWorldStateCommand(ChatHandler* handler, char* args)
     {
-        char* w = strtok((char*)args, " ");
-        char* s = strtok(NULL, " ");
-
-        if (!w || !s)
+        uint32 world;
+        if (!handler->ExtractUInt32(&args, world))
             return false;
 
-        uint32 world = (uint32)atoi(w);
-        uint32 state = (uint32)atoi(s);
+        uint32 state;
+        if (!handler->ExtractUInt32(&args, state))
+            return false;
+
         handler->GetSession()->GetPlayer()->SendUpdateWorldState(world, state);
         return true;
     }
 
-    static bool HandleDebugAreaTriggersCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleDebugAreaTriggersCommand(ChatHandler* handler, char* /*args*/)
     {
         Player* plr = handler->GetSession()->GetPlayer();
         if (!plr->isDebugAreaTriggers)
@@ -432,16 +412,16 @@ public:
     }
 
     //Send notification in channel
-    static bool HandleDebugSendChannelNotifyCommand(ChatHandler* handler, const char* args)
+    static bool HandleDebugSendChannelNotifyCommand(ChatHandler* handler, char* args)
     {
-        if (!*args)
+        const char *name = "test";
+        
+        uint32 code;
+        if (!handler->ExtractUInt32(&args, code) || code > 255)
             return false;
 
-        const char *name = "test";
-        uint8 code = atoi(args);
-
         WorldPacket data(SMSG_CHANNEL_NOTIFY, (1+10));
-        data << code;                                           // notify type
+        data << uint8(code);                                    // notify type
         data << name;                                           // channel name
         data << uint32(0);
         data << uint32(0);
@@ -450,27 +430,30 @@ public:
     }
 
     //Send notification in chat
-    static bool HandleDebugSendChatMsgCommand(ChatHandler* handler, const char* args)
+    static bool HandleDebugSendChatMsgCommand(ChatHandler* handler, char* args)
     {
-        if (!*args)
+        const char *msg = "testtest";
+
+        uint32 type;
+        if (!handler->ExtractUInt32(&args, type) || type > 255)
             return false;
 
-        const char *msg = "testtest";
-        uint8 type = atoi(args);
         WorldPacket data;
         ChatHandler::FillMessageData(&data, handler->GetSession(), type, 0, "chan", handler->GetSession()->GetPlayer()->GetGUID(), msg, handler->GetSession()->GetPlayer());
         handler->GetSession()->SendPacket(&data);
         return true;
     }
 
-    static bool HandleDebugSendQuestPartyMsgCommand(ChatHandler* handler, const char* args)
+    static bool HandleDebugSendQuestPartyMsgCommand(ChatHandler* handler, char* args)
     {
-        uint32 msg = atol((char*)args);
+        uint32 msg;
+        if (!handler->ExtractUInt32(&args, msg))
+            return false;
         handler->GetSession()->GetPlayer()->SendPushToPartyResponse(handler->GetSession()->GetPlayer(), msg);
         return true;
     }
 
-    static bool HandleDebugGetLootRecipientCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleDebugGetLootRecipientCommand(ChatHandler* handler, char* /*args*/)
     {
         Creature* target = handler->getSelectedCreature();
         if (!target)
@@ -480,14 +463,14 @@ public:
         return true;
     }
 
-    static bool HandleDebugSendQuestInvalidMsgCommand(ChatHandler* handler, const char* args)
+    static bool HandleDebugSendQuestInvalidMsgCommand(ChatHandler* handler, char* args)
     {
-        uint32 msg = atol((char*)args);
+        uint32 msg = atol(args);
         handler->GetSession()->GetPlayer()->SendCanTakeQuestResponse(msg);
         return true;
     }
 
-    static bool HandleDebugGetItemStateCommand(ChatHandler* handler, const char* args)
+    static bool HandleDebugGetItemStateCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
@@ -721,19 +704,19 @@ public:
         return true;
     }
 
-    static bool HandleDebugBattlegroundCommand(ChatHandler* /*handler*/, const char* /*args*/)
+    static bool HandleDebugBattlegroundCommand(ChatHandler* /*handler*/, char* /*args*/)
     {
         sBattlegroundMgr->ToggleTesting();
         return true;
     }
 
-    static bool HandleDebugArenaCommand(ChatHandler* /*handler*/, const char* /*args*/)
+    static bool HandleDebugArenaCommand(ChatHandler* /*handler*/, char* /*args*/)
     {
         sBattlegroundMgr->ToggleArenaTesting();
         return true;
     }
 
-    static bool HandleDebugThreatListCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleDebugThreatListCommand(ChatHandler* handler, char* /*args*/)
     {
         Creature* target = handler->getSelectedCreature();
         if (!target || target->isTotem() || target->isPet())
@@ -755,7 +738,7 @@ public:
         return true;
     }
 
-    static bool HandleDebugHostileRefListCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleDebugHostileRefListCommand(ChatHandler* handler, char* /*args*/)
     {
         Unit* target = handler->getSelectedUnit();
         if (!target)
@@ -776,7 +759,7 @@ public:
         return true;
     }
 
-    static bool HandleDebugSetVehicleIdCommand(ChatHandler* handler, const char* args)
+    static bool HandleDebugSetVehicleIdCommand(ChatHandler* handler, char* args)
     {
         Unit* target = handler->getSelectedUnit();
         if (!target || target->IsVehicle())
@@ -785,7 +768,7 @@ public:
         if (!args)
             return false;
 
-        char* i = strtok((char*)args, " ");
+        char* i = strtok(args, " ");
         if (!i)
             return false;
 
@@ -795,7 +778,7 @@ public:
         return true;
     }
 
-    static bool HandleDebugEnterVehicleCommand(ChatHandler* handler, const char* args)
+    static bool HandleDebugEnterVehicleCommand(ChatHandler* handler, char* args)
     {
         Unit* target = handler->getSelectedUnit();
         if (!target || !target->IsVehicle())
@@ -804,7 +787,7 @@ public:
         if (!args)
             return false;
 
-        char* i = strtok((char*)args, " ");
+        char* i = strtok(args, " ");
         if (!i)
             return false;
 
@@ -830,26 +813,18 @@ public:
         return true;
     }
 
-    static bool HandleDebugSpawnVehicleCommand(ChatHandler* handler, const char* args)
+    static bool HandleDebugSpawnVehicleCommand(ChatHandler* handler, char* args)
     {
-        if (!*args)
+        uint32 entry;
+        if (!handler->ExtractUInt32(&args, entry))
             return false;
 
-        char* e = strtok((char*)args, " ");
-        char* i = strtok(NULL, " ");
-
-        if (!e)
+        uint32 id;
+        if (!handler->ExtractUInt32(&args, id))
             return false;
-
-        uint32 entry = (uint32)atoi(e);
 
         float x, y, z, o = handler->GetSession()->GetPlayer()->GetOrientation();
         handler->GetSession()->GetPlayer()->GetClosePoint(x, y, z, handler->GetSession()->GetPlayer()->GetObjectSize());
-
-        if (!i)
-            return handler->GetSession()->GetPlayer()->SummonCreature(entry, x, y, z, o);
-
-        uint32 id = (uint32)atoi(i);
 
         CreatureInfo const *ci = ObjectMgr::GetCreatureTemplate(entry);
 
@@ -876,7 +851,7 @@ public:
         return true;
     }
 
-    static bool HandleDebugSendLargePacketCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleDebugSendLargePacketCommand(ChatHandler* handler, char* /*args*/)
     {
         const char* stuffingString = "This is a dummy string to push the packet's size beyond 128000 bytes. ";
         std::ostringstream ss;
@@ -886,7 +861,7 @@ public:
         return true;
     }
 
-    static bool HandleDebugSendSetPhaseShiftCommand(ChatHandler* handler, const char* args)
+    static bool HandleDebugSendSetPhaseShiftCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
@@ -896,12 +871,12 @@ public:
         return true;
     }
 
-    static bool HandleDebugGetItemValueCommand(ChatHandler* handler, const char* args)
+    static bool HandleDebugGetItemValueCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
-        char* e = strtok((char*)args, " ");
+        char* e = strtok(args, " ");
         char* f = strtok(NULL, " ");
 
         if (!e || !f)
@@ -925,12 +900,12 @@ public:
         return true;
     }
 
-    static bool HandleDebugSetItemValueCommand(ChatHandler* handler, const char* args)
+    static bool HandleDebugSetItemValueCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
-        char* e = strtok((char*)args, " ");
+        char* e = strtok(args, " ");
         char* f = strtok(NULL, " ");
         char* g = strtok(NULL, " ");
 
@@ -954,12 +929,12 @@ public:
         return true;
     }
 
-    static bool HandleDebugItemExpireCommand(ChatHandler* handler, const char* args)
+    static bool HandleDebugItemExpireCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
-        char* e = strtok((char*)args, " ");
+        char* e = strtok(args, " ");
         if (!e)
             return false;
 
@@ -977,24 +952,21 @@ public:
     }
 
     //show animation
-    static bool HandleDebugAnimCommand(ChatHandler* handler, const char* args)
+    static bool HandleDebugAnimCommand(ChatHandler* handler, char* args)
     {
-        if (!*args)
+        uint32 anim_id;
+        if (!handler->ExtractUInt32(&args, anim_id))
             return false;
 
-        uint32 anim_id = atoi((char*)args);
         handler->GetSession()->GetPlayer()->HandleEmoteCommand(anim_id);
         return true;
     }
 
-    static bool HandleDebugSetAuraStateCommand(ChatHandler* handler, const char* args)
+    static bool HandleDebugSetAuraStateCommand(ChatHandler* handler, char* args)
     {
-        if (!*args)
-        {
-            handler->SendSysMessage(LANG_BAD_VALUE);
-            handler->SetSentErrorMessage(true);
+        int32 state;
+        if (!handler->ExtractInt32(&args, state))
             return false;
-        }
 
         Unit* unit = handler->getSelectedUnit();
         if (!unit)
@@ -1004,7 +976,6 @@ public:
             return false;
         }
 
-        int32 state = atoi((char*)args);
         if (!state)
         {
             // reset all states
@@ -1017,12 +988,12 @@ public:
         return true;
     }
 
-    static bool HandleDebugSetValueCommand(ChatHandler* handler, const char* args)
+    static bool HandleDebugSetValueCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
-        char* px = strtok((char*)args, " ");
+        char* px = strtok(args, " ");
         char* py = strtok(NULL, " ");
         char* pz = strtok(NULL, " ");
 
@@ -1066,12 +1037,12 @@ public:
         return true;
     }
 
-    static bool HandleDebugGetValueCommand(ChatHandler* handler, const char* args)
+    static bool HandleDebugGetValueCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
-        char* px = strtok((char*)args, " ");
+        char* px = strtok(args, " ");
         char* pz = strtok(NULL, " ");
 
         if (!px)
@@ -1113,12 +1084,12 @@ public:
         return true;
     }
 
-    static bool HandleDebugMod32ValueCommand(ChatHandler* handler, const char* args)
+    static bool HandleDebugMod32ValueCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
-        char* px = strtok((char*)args, " ");
+        char* px = strtok(args, " ");
         char* py = strtok(NULL, " ");
 
         if (!px || !py)
@@ -1143,7 +1114,7 @@ public:
         return true;
     }
 
-    static bool HandleDebugUpdateCommand(ChatHandler* handler, const char* args)
+    static bool HandleDebugUpdateCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
@@ -1151,7 +1122,7 @@ public:
         uint32 updateIndex;
         uint32 value;
 
-        char* pUpdateIndex = strtok((char*)args, " ");
+        char* pUpdateIndex = strtok(args, " ");
 
         Unit* chr = handler->getSelectedUnit();
         if (chr == NULL)
@@ -1193,7 +1164,7 @@ public:
 
         return true;
     }
-    static bool HandleDebugSet32BitCommand(ChatHandler* handler, const char* args)
+    static bool HandleDebugSet32BitCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
@@ -1206,7 +1177,7 @@ public:
             return false;
         }
 
-        char* px = strtok((char*)args, " ");
+        char* px = strtok(args, " ");
         char* py = strtok(NULL, " ");
 
         if (!px || !py)

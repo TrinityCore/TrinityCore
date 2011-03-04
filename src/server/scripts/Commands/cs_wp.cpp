@@ -73,14 +73,14 @@ public:
     *
     * @return true - command did succeed, false - something went wrong
     */
-    static bool HandleWpAddCommand(ChatHandler* handler, const char* args)
+    static bool HandleWpAddCommand(ChatHandler* handler, char* args)
     {
         // optional
         char* path_number = NULL;
         uint32 pathid = 0;
 
         if (*args)
-            path_number = strtok((char*)args, " ");
+            path_number = strtok(args, " ");
 
         uint32 point = 0;
         Creature* target = handler->getSelectedCreature();
@@ -124,7 +124,7 @@ public:
         return true;
     }                                                           // HandleWpAddCommand
 
-    static bool HandleWpLoadCommand(ChatHandler* handler, const char* args)
+    static bool HandleWpLoadCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
@@ -133,7 +133,7 @@ public:
         char* path_number = NULL;
 
         if (*args)
-            path_number = strtok((char*)args, " ");
+            path_number = strtok(args, " ");
 
         uint32 pathid = 0;
         uint32 guidlow = 0;
@@ -183,7 +183,7 @@ public:
         return true;
     }
 
-    static bool HandleWpReloadCommand(ChatHandler* handler, const char* args)
+    static bool HandleWpReloadCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
@@ -197,7 +197,7 @@ public:
         sWaypointMgr->UpdatePath(id);
         return true;
     }
-    static bool HandleWpUnLoadCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleWpUnLoadCommand(ChatHandler* handler, char* /*args*/)
     {
         uint32 guidlow = 0;
         Creature* target = handler->getSelectedCreature();
@@ -227,12 +227,12 @@ public:
         return true;
     }
 
-    static bool HandleWpEventCommand(ChatHandler* handler, const char* args)
+    static bool HandleWpEventCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
-        char* show_str = strtok((char*)args, " ");
+        char* show_str = strtok(args, " ");
         std::string show = show_str;
 
         // Check
@@ -444,13 +444,13 @@ public:
         return true;
     }
 
-    static bool HandleWpModifyCommand(ChatHandler* handler, const char* args)
+    static bool HandleWpModifyCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
         // first arg: add del text emote spell waittime move
-        char* show_str = strtok((char*)args, " ");
+        char* show_str = strtok(args, " ");
         if (!show_str)
         {
             return false;
@@ -628,13 +628,13 @@ public:
         return true;
     }
 
-    static bool HandleWpShowCommand(ChatHandler* handler, const char* args)
+    static bool HandleWpShowCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
         // first arg: on, off, first, last
-        char* show_str = strtok((char*)args, " ");
+        char* show_str = strtok(args, " ");
         if (!show_str)
             return false;
 

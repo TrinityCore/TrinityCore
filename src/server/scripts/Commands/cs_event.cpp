@@ -49,7 +49,7 @@ public:
         return commandTable;
     }
 
-    static bool HandleEventActiveListCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleEventActiveListCommand(ChatHandler* handler, char* /*args*/)
     {
         uint32 counter = 0;
 
@@ -78,13 +78,13 @@ public:
         return true;
     }
 
-    static bool HandleEventInfoCommand(ChatHandler* handler, const char* args)
+    static bool HandleEventInfoCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
         // id or [name] Shift-click form |color|Hgameevent:id|h[name]|h|r
-        char* cId =  handler->extractKeyFromLink((char*)args,"Hgameevent");
+        char* cId =  handler->extractKeyFromLink(args,"Hgameevent");
         if (!cId)
             return false;
 
@@ -127,13 +127,13 @@ public:
         return true;
     }
 
-    static bool HandleEventStartCommand(ChatHandler* handler, const char* args)
+    static bool HandleEventStartCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
         // id or [name] Shift-click form |color|Hgameevent:id|h[name]|h|r
-        char* cId =  handler->extractKeyFromLink((char*)args,"Hgameevent");
+        char* cId =  handler->extractKeyFromLink(args,"Hgameevent");
         if (!cId)
             return false;
 
@@ -168,13 +168,13 @@ public:
         return true;
     }
 
-    static bool HandleEventStopCommand(ChatHandler* handler, const char* args)
+    static bool HandleEventStopCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
         // id or [name] Shift-click form |color|Hgameevent:id|h[name]|h|r
-        char* cId =  handler->extractKeyFromLink((char*)args,"Hgameevent");
+        char* cId =  handler->extractKeyFromLink(args,"Hgameevent");
         if (!cId)
             return false;
 

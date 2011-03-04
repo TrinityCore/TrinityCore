@@ -68,7 +68,7 @@ public:
         };
         return commandTable;
     }
-    static bool HandleLearnCommand(ChatHandler* handler, const char* args)
+    static bool HandleLearnCommand(ChatHandler* handler, char* args)
     {
         Player* targetPlayer = handler->getSelectedPlayer();
 
@@ -80,7 +80,7 @@ public:
         }
 
         // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
-        uint32 spell = handler->extractSpellIdFromLink((char*)args);
+        uint32 spell = handler->extractSpellIdFromLink(args);
         if (!spell || !sSpellStore.LookupEntry(spell))
             return false;
 
@@ -116,7 +116,7 @@ public:
 
         return true;
     }
-    static bool HandleLearnAllCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleLearnAllCommand(ChatHandler* handler, char* /*args*/)
     {
         static const char *allSpellList[] =
         {
@@ -742,7 +742,7 @@ public:
         return true;
     }
 
-    static bool HandleLearnAllGMCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleLearnAllGMCommand(ChatHandler* handler, char* /*args*/)
     {
         static const char *gmSpellList[] =
         {
@@ -781,14 +781,14 @@ public:
         return true;
     }
 
-    static bool HandleLearnAllMyClassCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleLearnAllMyClassCommand(ChatHandler* handler, char* /*args*/)
     {
         HandleLearnAllMySpellsCommand(handler, "");
         HandleLearnAllMyTalentsCommand(handler, "");
         return true;
     }
 
-    static bool HandleLearnAllMySpellsCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleLearnAllMySpellsCommand(ChatHandler* handler, char* /*args*/)
     {
         ChrClassesEntry const* clsEntry = sChrClassesStore.LookupEntry(handler->GetSession()->GetPlayer()->getClass());
         if (!clsEntry)
@@ -829,7 +829,7 @@ public:
         return true;
     }
 
-    static bool HandleLearnAllMyTalentsCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleLearnAllMyTalentsCommand(ChatHandler* handler, char* /*args*/)
     {
         Player* player = handler->GetSession()->GetPlayer();
         uint32 classMask = player->getClassMask();
@@ -876,7 +876,7 @@ public:
         return true;
     }
 
-    static bool HandleLearnAllMyPetTalentsCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleLearnAllMyPetTalentsCommand(ChatHandler* handler, char* /*args*/)
     {
         Player* player = handler->GetSession()->GetPlayer();
 
@@ -954,7 +954,7 @@ public:
         return true;
     }
 
-    static bool HandleLearnAllLangCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleLearnAllLangCommand(ChatHandler* handler, char* /*args*/)
     {
         // skipping UNIVERSAL language (0)
         for (uint8 i = 1; i < LANGUAGES_COUNT; ++i)
@@ -964,10 +964,10 @@ public:
         return true;
     }
 
-    static bool HandleLearnAllDefaultCommand(ChatHandler* handler, const char* args)
+    static bool HandleLearnAllDefaultCommand(ChatHandler* handler, char* args)
     {
         Player* target;
-        if (!handler->extractPlayerTarget((char*)args,&target))
+        if (!handler->extractPlayerTarget(args,&target))
             return false;
 
         target->learnDefaultSpells();
@@ -977,7 +977,7 @@ public:
         return true;
     }
 
-    static bool HandleLearnAllCraftsCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleLearnAllCraftsCommand(ChatHandler* handler, char* /*args*/)
     {
 
         for (uint32 i = 0; i < sSkillLineStore.GetNumRows(); ++i)
@@ -997,7 +997,7 @@ public:
         return true;
     }
 
-    static bool HandleLearnAllRecipesCommand(ChatHandler* handler, const char* args)
+    static bool HandleLearnAllRecipesCommand(ChatHandler* handler, char* args)
     {
         //  Learns all recipes of specified profession and sets skill to max
         //  Example: .learn all_recipes enchanting

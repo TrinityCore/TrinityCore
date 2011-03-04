@@ -2270,10 +2270,9 @@ void World::KickAllLess(AccountTypes sec)
             itr->second->KickPlayer();
 }
 
-/// Ban an account or ban an IP address, duration will be parsed using TimeStringToSecs if it is positive, otherwise permban
-BanReturn World::BanAccount(BanMode mode, std::string nameOrIP, std::string duration, std::string reason, std::string author)
+/// Ban an account or ban an IP address, duration_secs if it is positive used, otherwise permban
+BanReturn World::BanAccount(BanMode mode, std::string nameOrIP, uint32 duration_secs, std::string reason, std::string author)
 {
-    uint32 duration_secs = TimeStringToSecs(duration);
     PreparedQueryResult resultAccounts = PreparedQueryResult(NULL); //used for kicking
     PreparedStatement* stmt = NULL;
 
@@ -2367,7 +2366,7 @@ void World::AntiCheatBanAccount(std::string name, std::string author)
     QueryResult resultfun = CharacterDatabase.PQuery("SELECT tcharfun.characters.level, tcharfun.characters.guid FROM tcharfun.characters WHERE tcharfun.characters.account = '%u'", acc);
 
     std::string reason = ("Игрок " + name + ", реалм " + std::string(sConfig->GetStringDefault("RealmID", "0")) + " был репрессирован карательным отрядом 'Долой СХ'");
-    BanAccount(BAN_CHARACTER, name, sConfig->GetStringDefault("AntiCheat.BanDuration", "30d"), reason, author);
+    BanAccount(BAN_CHARACTER, name, TimeStringToSecs(sConfig->GetStringDefault("AntiCheat.BanDuration", "30d")), reason, author);
     reason = ("Репрессирован карательным отрядом 'Долой СХ'");
     sWorld->SendWorldText(LANG_BAN_WORLD_ANNOUNCE, name.c_str(), author.c_str(), secsToTimeString(TimeStringToSecs(sConfig->GetStringDefault("AntiCheat.BanDuration", "30d"))).c_str(), reason.c_str());
 
@@ -2422,7 +2421,7 @@ void World::AntiCheatBanAccount(std::string name, std::string author)
     return;
 }
 
-void World::AutoBanDebug(std::string name, std::string reason, uint32 realmID, uint64 mobGUID,  float mob_x, float mob_y, float mob_z, uint32 mapId, float x, float y, float z)
+void World::AutoBanDebug(std::string name, std::string reason, uint32 realmID, uint64 mobGUID, float mob_x, float mob_y, float mob_z, uint32 mapId, float x, float y, float z)
 {
     PreparedQueryResult resultAccounts = PreparedQueryResult(NULL);
     PreparedStatement* stmt = NULL;

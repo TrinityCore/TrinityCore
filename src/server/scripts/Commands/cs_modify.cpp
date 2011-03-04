@@ -71,13 +71,13 @@ public:
     }
 
     //Edit Player HP
-    static bool HandleModifyHPCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyHPCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
-        int32 hp = atoi((char*)args);
-        int32 hpm = atoi((char*)args);
+        int32 hp = atoi(args);
+        int32 hpm = atoi(args);
 
         if (hp < 1 || hpm < 1 || hpm < hp)
         {
@@ -108,13 +108,13 @@ public:
     }
 
     //Edit Player Mana
-    static bool HandleModifyManaCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyManaCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
-        int32 mana = atoi((char*)args);
-        int32 manam = atoi((char*)args);
+        int32 mana = atoi(args);
+        int32 manam = atoi(args);
 
         if (mana <= 0 || manam <= 0 || manam < mana)
         {
@@ -146,12 +146,12 @@ public:
     }
 
     //Edit Player Energy
-    static bool HandleModifyEnergyCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyEnergyCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
-        // char* pmana = strtok((char*)args, " ");
+        // char* pmana = strtok(args, " ");
         // if (!pmana)
         //     return false;
 
@@ -162,8 +162,8 @@ public:
         // int32 manam = atoi(pmanaMax);
         // int32 mana = atoi(pmana);
 
-        int32 energy = atoi((char*)args)*10;
-        int32 energym = atoi((char*)args)*10;
+        int32 energy = atoi(args)*10;
+        int32 energym = atoi(args)*10;
 
         if (energy <= 0 || energym <= 0 || energym < energy)
         {
@@ -197,12 +197,12 @@ public:
     }
 
     //Edit Player Rage
-    static bool HandleModifyRageCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyRageCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
-        // char* pmana = strtok((char*)args, " ");
+        // char* pmana = strtok(args, " ");
         // if (!pmana)
         //     return false;
 
@@ -213,8 +213,8 @@ public:
         // int32 manam = atoi(pmanaMax);
         // int32 mana = atoi(pmana);
 
-        int32 rage = atoi((char*)args)*10;
-        int32 ragem = atoi((char*)args)*10;
+        int32 rage = atoi(args)*10;
+        int32 ragem = atoi(args)*10;
 
         if (rage <= 0 || ragem <= 0 || ragem < rage)
         {
@@ -246,13 +246,13 @@ public:
     }
 
     // Edit Player Runic Power
-    static bool HandleModifyRunicPowerCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyRunicPowerCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
-        int32 rune = atoi((char*)args)*10;
-        int32 runem = atoi((char*)args)*10;
+        int32 rune = atoi(args)*10;
+        int32 runem = atoi(args)*10;
 
         if (rune <= 0 || runem <= 0 || runem < rune)
         {
@@ -280,12 +280,12 @@ public:
     }
 
     //Edit Player Faction
-    static bool HandleModifyFactionCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyFactionCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
-        char* pfactionid = handler->extractKeyFromLink((char*)args,"Hfaction");
+        char* pfactionid = handler->extractKeyFromLink(args,"Hfaction");
 
         Creature* target = handler->getSelectedCreature();
         if (!target)
@@ -358,10 +358,10 @@ public:
     }
 
     //Edit Player Spell
-    static bool HandleModifySpellCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifySpellCommand(ChatHandler* handler, char* args)
     {
         if (!*args) return false;
-        char* pspellflatid = strtok((char*)args, " ");
+        char* pspellflatid = strtok(args, " ");
         if (!pspellflatid)
             return false;
 
@@ -412,12 +412,12 @@ public:
     }
 
     //Edit Player TP
-    static bool HandleModifyTalentCommand (ChatHandler* handler, const char* args)
+    static bool HandleModifyTalentCommand (ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
-        int tp = atoi((char*)args);
+        int tp = atoi(args);
         if (tp < 0)
             return false;
 
@@ -458,12 +458,12 @@ public:
     }
 
     //Edit Player Aspeed
-    static bool HandleModifyASpeedCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyASpeedCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
-        float ASpeed = (float)atof((char*)args);
+        float ASpeed = (float)atof(args);
 
         if (ASpeed > 50.0f || ASpeed < 0.1f)
         {
@@ -506,12 +506,12 @@ public:
     }
 
     //Edit Player Speed
-    static bool HandleModifySpeedCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifySpeedCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
-        float Speed = (float)atof((char*)args);
+        float Speed = (float)atof(args);
 
         if (Speed > 50.0f || Speed < 0.1f)
         {
@@ -551,12 +551,12 @@ public:
     }
 
     //Edit Player Swim Speed
-    static bool HandleModifySwimCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifySwimCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
-        float Swim = (float)atof((char*)args);
+        float Swim = (float)atof(args);
 
         if (Swim > 50.0f || Swim < 0.1f)
         {
@@ -596,12 +596,12 @@ public:
     }
 
     //Edit Player Walk Speed
-    static bool HandleModifyBWalkCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyBWalkCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
-        float BSpeed = (float)atof((char*)args);
+        float BSpeed = (float)atof(args);
 
         if (BSpeed > 50.0f || BSpeed < 0.1f)
         {
@@ -641,12 +641,12 @@ public:
     }
 
     //Edit Player Fly
-    static bool HandleModifyFlyCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyFlyCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
-        float FSpeed = (float)atof((char*)args);
+        float FSpeed = (float)atof(args);
 
         if (FSpeed > 50.0f || FSpeed < 0.1f)
         {
@@ -677,12 +677,12 @@ public:
     }
 
     //Edit Player Scale
-    static bool HandleModifyScaleCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyScaleCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
-        float Scale = (float)atof((char*)args);
+        float Scale = (float)atof(args);
         if (Scale > 10.0f || Scale < 0.1f)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
@@ -712,7 +712,7 @@ public:
     }
 
     //Enable Player mount
-    static bool HandleModifyMountCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyMountCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
@@ -721,7 +721,7 @@ public:
         float speed = (float)15;
         uint32 num = 0;
 
-        num = atoi((char*)args);
+        num = atoi(args);
         switch(num)
         {
         case 1:
@@ -973,7 +973,7 @@ public:
     }
 
     //Edit Player money
-    static bool HandleModifyMoneyCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyMoneyCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
@@ -990,7 +990,7 @@ public:
         if (handler->HasLowerSecurity(target, 0))
             return false;
 
-        int32 addmoney = atoi((char*)args);
+        int32 addmoney = atoi(args);
 
         uint32 moneyuser = target->GetMoney();
 
@@ -1036,7 +1036,7 @@ public:
     }
 
     //Edit Unit field
-    static bool HandleModifyBitCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyBitCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
@@ -1053,7 +1053,7 @@ public:
         if (target->GetTypeId() == TYPEID_PLAYER && handler->HasLowerSecurity(target->ToPlayer(), 0))
             return false;
 
-        char* pField = strtok((char*)args, " ");
+        char* pField = strtok(args, " ");
         if (!pField)
             return false;
 
@@ -1090,7 +1090,7 @@ public:
         return true;
     }
 
-    static bool HandleModifyHonorCommand (ChatHandler* handler, const char* args)
+    static bool HandleModifyHonorCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
@@ -1116,7 +1116,7 @@ public:
         return true;
     }
 
-    static bool HandleModifyDrunkCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyDrunkCommand(ChatHandler* handler, char* args)
     {
         if (!*args)    return false;
 
@@ -1131,7 +1131,7 @@ public:
         return true;
     }
 
-    static bool HandleModifyRepCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyRepCommand(ChatHandler* handler, char* args)
     {
         if (!*args) return false;
 
@@ -1148,7 +1148,7 @@ public:
         if (handler->HasLowerSecurity(target, 0))
             return false;
 
-        char* factionTxt = handler->extractKeyFromLink((char*)args,"Hfaction");
+        char* factionTxt = handler->extractKeyFromLink(args,"Hfaction");
         if (!factionTxt)
             return false;
 
@@ -1231,12 +1231,12 @@ public:
     }
 
     //morph creature or player
-    static bool HandleModifyMorphCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyMorphCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
-        uint16 display_id = (uint16)atoi((char*)args);
+        uint16 display_id = (uint16)atoi(args);
 
         Unit* target = handler->getSelectedUnit();
         if (!target)
@@ -1252,12 +1252,12 @@ public:
     }
 
     //set temporary phase mask for player
-    static bool HandleModifyPhaseCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyPhaseCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
-        uint32 phasemask = (uint32)atoi((char*)args);
+        uint32 phasemask = (uint32)atoi(args);
 
         Unit* target = handler->getSelectedUnit();
         if (!target)
@@ -1273,18 +1273,18 @@ public:
     }
 
     //change standstate
-    static bool HandleModifyStandStateCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyStandStateCommand(ChatHandler* handler, char* args)
     {
-        if (!*args)
+        uint32 anim_id;
+        if (!handler->ExtractUInt32(&args, anim_id))
             return false;
 
-        uint32 anim_id = atoi((char*)args);
         handler->GetSession()->GetPlayer()->SetUInt32Value(UNIT_NPC_EMOTESTATE , anim_id);
 
         return true;
     }
 
-    static bool HandleModifyArenaCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyArenaCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
@@ -1306,7 +1306,7 @@ public:
         return true;
     }
 
-    static bool HandleModifyGenderCommand(ChatHandler* handler, const char* args)
+    static bool HandleModifyGenderCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
@@ -1324,7 +1324,7 @@ public:
         if (!info)
             return false;
 
-        char const* gender_str = (char*)args;
+        char const* gender_str = args;
         int gender_len = strlen(gender_str);
 
         Gender gender;

@@ -52,7 +52,7 @@ public:
         return commandTable;
     }
 
-    static bool HandleTeleAddCommand(ChatHandler* handler, const char* args)
+    static bool HandleTeleAddCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
@@ -92,7 +92,7 @@ public:
         return true;
     }
 
-    static bool HandleTeleDelCommand(ChatHandler* handler, const char* args)
+    static bool HandleTeleDelCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
@@ -111,13 +111,9 @@ public:
     }
 
     // teleport player to given game_tele.entry
-    static bool HandleTeleNameCommand(ChatHandler* handler, const char* args)
+    static bool HandleTeleNameCommand(ChatHandler* handler, char* args)
     {
-        char* nameStr;
-        char* teleStr;
-        handler->extractOptFirstArg((char*)args,&nameStr,&teleStr);
-        if (!teleStr)
-            return false;
+        char* nameStr = handler->ExtractOptNotLastArg(&args);
 
         Player* target;
         uint64 target_guid;
@@ -126,7 +122,7 @@ public:
             return false;
 
         // id, or string, or [name] Shift-click form |color|Htele:id|h[name]|h|r
-        GameTele const* tele = handler->extractGameTeleFromLink(teleStr);
+        GameTele const* tele = handler->extractGameTeleFromLink(args);
         if (!tele)
         {
             handler->SendSysMessage(LANG_COMMAND_TELE_NOTFOUND);
@@ -182,7 +178,7 @@ public:
     }
 
     //Teleport group to given game_tele.entry
-    static bool HandleTeleGroupCommand(ChatHandler* handler, const char* args)
+    static bool HandleTeleGroupCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
@@ -200,7 +196,7 @@ public:
             return false;
 
         // id, or string, or [name] Shift-click form |color|Htele:id|h[name]|h|r
-        GameTele const* tele = handler->extractGameTeleFromLink((char*)args);
+        GameTele const* tele = handler->extractGameTeleFromLink(args);
         if (!tele)
         {
             handler->SendSysMessage(LANG_COMMAND_TELE_NOTFOUND);
@@ -265,7 +261,7 @@ public:
         return true;
     }
 
-    static bool HandleTeleCommand(ChatHandler* handler, const char* args)
+    static bool HandleTeleCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
@@ -273,7 +269,7 @@ public:
         Player* me = handler->GetSession()->GetPlayer();
 
         // id, or string, or [name] Shift-click form |color|Htele:id|h[name]|h|r
-        GameTele const* tele = handler->extractGameTeleFromLink((char*)args);
+        GameTele const* tele = handler->extractGameTeleFromLink(args);
 
         if (!tele)
         {

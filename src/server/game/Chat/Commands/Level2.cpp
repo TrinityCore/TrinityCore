@@ -46,13 +46,9 @@
 #include "Group.h"
 
 //mute player for some times
-bool ChatHandler::HandleMuteCommand(const char* args)
+bool ChatHandler::HandleMuteCommand(char* args)
 {
-    char* nameStr;
-    char* delayStr;
-    extractOptFirstArg((char*)args,&nameStr,&delayStr);
-    if (!delayStr)
-        return false;
+    char* nameStr = ExtractOptNotLastArg(&args);
 
     char *mutereason = strtok(NULL, "\r");
     std::string mutereasonstr = "No reason";
@@ -65,14 +61,16 @@ bool ChatHandler::HandleMuteCommand(const char* args)
     if (!extractPlayerTarget(nameStr,&target,&target_guid,&target_name))
         return false;
 
+    uint32 notspeaktime;
+    if (!ExtractUInt32(&args, notspeaktime))
+        return false;
+
     uint32 account_id = target ? target->GetSession()->GetAccountId() : sObjectMgr->GetPlayerAccountIdByGUID(target_guid);
 
     // find only player from same account if any
     if (!target)
         if (WorldSession* session = sWorld->FindSession(account_id))
             target = session->GetPlayer();
-
-    uint32 notspeaktime = (uint32) atoi(delayStr);
 
     // must have strong lesser security level
     if (HasLowerSecurity (target,target_guid,true))
@@ -96,12 +94,12 @@ bool ChatHandler::HandleMuteCommand(const char* args)
 }
 
 //unmute player
-bool ChatHandler::HandleUnmuteCommand(const char* args)
+bool ChatHandler::HandleUnmuteCommand(char* args)
 {
     Player* target;
     uint64 target_guid;
     std::string target_name;
-    if (!extractPlayerTarget((char*)args,&target,&target_guid,&target_name))
+    if (!extractPlayerTarget(args,&target,&target_guid,&target_name))
         return false;
 
     uint32 account_id = target ? target->GetSession()->GetAccountId() : sObjectMgr->GetPlayerAccountIdByGUID(target_guid);
@@ -138,7 +136,7 @@ bool ChatHandler::HandleUnmuteCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleGUIDCommand(const char* /*args*/)
+bool ChatHandler::HandleGUIDCommand(char* /*args*/)
 {
     uint64 guid = m_session->GetPlayer()->GetSelection();
 
@@ -154,13 +152,13 @@ bool ChatHandler::HandleGUIDCommand(const char* /*args*/)
 }
 
  //move item to other slot
-bool ChatHandler::HandleItemMoveCommand(const char* args)
+bool ChatHandler::HandleItemMoveCommand(char* args)
 {
     if (!*args)
         return false;
     uint8 srcslot, dstslot;
 
-    char* pParam1 = strtok((char*)args, " ");
+    char* pParam1 = strtok(args, " ");
     if (!pParam1)
         return false;
 
@@ -189,7 +187,7 @@ bool ChatHandler::HandleItemMoveCommand(const char* args)
 }
 
 //demorph player or unit
-bool ChatHandler::HandleDeMorphCommand(const char* /*args*/)
+bool ChatHandler::HandleDeMorphCommand(char* /*args*/)
 {
     Unit *target = getSelectedUnit();
     if (!target)
@@ -205,11 +203,11 @@ bool ChatHandler::HandleDeMorphCommand(const char* /*args*/)
 }
 
 //kick player
-bool ChatHandler::HandleKickPlayerCommand(const char *args)
+bool ChatHandler::HandleKickPlayerCommand(char* args)
 {
     Player* target = NULL;
     std::string playerName;
-    if (!extractPlayerTarget((char*)args, &target, NULL, &playerName))
+    if (!extractPlayerTarget(args, &target, NULL, &playerName))
         return false;
 
     if (m_session && target == m_session->GetPlayer())
@@ -233,12 +231,12 @@ bool ChatHandler::HandleKickPlayerCommand(const char *args)
 }
 
 //show info of player
-bool ChatHandler::HandlePInfoCommand(const char* args)
+bool ChatHandler::HandlePInfoCommand(char* args)
 {
     Player* target;
     uint64 target_guid;
     std::string target_name;
-    if (!extractPlayerTarget((char*)args,&target,&target_guid,&target_name))
+    if (!extractPlayerTarget(args,&target,&target_guid,&target_name))
         return false;
 
     uint32 accId = 0;
@@ -444,12 +442,12 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
 }
 
 //rename characters
-bool ChatHandler::HandleCharacterRenameCommand(const char* args)
+bool ChatHandler::HandleCharacterRenameCommand(char* args)
 {
     Player* target;
     uint64 target_guid;
     std::string target_name;
-    if (!extractPlayerTarget((char*)args,&target,&target_guid,&target_name))
+    if (!extractPlayerTarget(args,&target,&target_guid,&target_name))
         return false;
 
     if (target)
@@ -477,12 +475,12 @@ bool ChatHandler::HandleCharacterRenameCommand(const char* args)
 }
 
 // customize characters
-bool ChatHandler::HandleCharacterCustomizeCommand(const char* args)
+bool ChatHandler::HandleCharacterCustomizeCommand(char* args)
 {
     Player* target;
     uint64 target_guid;
     std::string target_name;
-    if (!extractPlayerTarget((char*)args,&target,&target_guid,&target_name))
+    if (!extractPlayerTarget(args,&target,&target_guid,&target_name))
         return false;
 
     if (target)
@@ -502,13 +500,13 @@ bool ChatHandler::HandleCharacterCustomizeCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleCharacterChangeFactionCommand(const char * args)
+bool ChatHandler::HandleCharacterChangeFactionCommand(char* args)
 {
     Player* target;
     uint64 target_guid;
     std::string target_name;
 
-    if(!extractPlayerTarget((char*)args,&target,&target_guid,&target_name))
+    if(!extractPlayerTarget(args,&target,&target_guid,&target_name))
         return false;
 
     if(target)
@@ -530,12 +528,12 @@ bool ChatHandler::HandleCharacterChangeFactionCommand(const char * args)
     return true;
 }
 
-bool ChatHandler::HandleCharacterChangeRaceCommand(const char * args)
+bool ChatHandler::HandleCharacterChangeRaceCommand(char* args)
 {
     Player* target;
     uint64 target_guid;
     std::string target_name;
-    if(!extractPlayerTarget((char*)args,&target,&target_guid,&target_name))
+    if(!extractPlayerTarget(args,&target,&target_guid,&target_name))
         return false;
 
     if(target)
@@ -557,10 +555,10 @@ bool ChatHandler::HandleCharacterChangeRaceCommand(const char * args)
     return true;
 }
 
-bool ChatHandler::HandleCharacterReputationCommand(const char* args)
+bool ChatHandler::HandleCharacterReputationCommand(char* args)
 {
     Player* target;
-    if (!extractPlayerTarget((char*)args,&target))
+    if (!extractPlayerTarget(args,&target))
         return false;
 
     LocaleConstant loc = GetSessionDbcLocale();
@@ -598,7 +596,7 @@ bool ChatHandler::HandleCharacterReputationCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleLookupEventCommand(const char* args)
+bool ChatHandler::HandleLookupEventCommand(char* args)
 {
     if (!*args)
         return false;
@@ -653,10 +651,10 @@ bool ChatHandler::HandleLookupEventCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleCombatStopCommand(const char* args)
+bool ChatHandler::HandleCombatStopCommand(char* args)
 {
     Player* target;
-    if (!extractPlayerTarget((char*)args,&target))
+    if (!extractPlayerTarget(args,&target))
         return false;
 
     // check online security
@@ -668,13 +666,13 @@ bool ChatHandler::HandleCombatStopCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleLookupPlayerIpCommand(const char* args)
+bool ChatHandler::HandleLookupPlayerIpCommand(char* args)
 {
 
     if (!*args)
         return false;
 
-    std::string ip = strtok ((char*)args, " ");
+    std::string ip = strtok (args, " ");
     char* limit_str = strtok (NULL, " ");
     int32 limit = limit_str ? atoi (limit_str) : -1;
 
@@ -685,12 +683,12 @@ bool ChatHandler::HandleLookupPlayerIpCommand(const char* args)
     return LookupPlayerSearchCommand (result,limit);
 }
 
-bool ChatHandler::HandleLookupPlayerAccountCommand(const char* args)
+bool ChatHandler::HandleLookupPlayerAccountCommand(char* args)
 {
     if (!*args)
         return false;
 
-    std::string account = strtok ((char*)args, " ");
+    std::string account = strtok (args, " ");
     char* limit_str = strtok (NULL, " ");
     int32 limit = limit_str ? atoi (limit_str) : -1;
 
@@ -704,13 +702,13 @@ bool ChatHandler::HandleLookupPlayerAccountCommand(const char* args)
     return LookupPlayerSearchCommand (result,limit);
 }
 
-bool ChatHandler::HandleLookupPlayerEmailCommand(const char* args)
+bool ChatHandler::HandleLookupPlayerEmailCommand(char* args)
 {
 
     if (!*args)
         return false;
 
-    std::string email = strtok ((char*)args, " ");
+    std::string email = strtok (args, " ");
     char* limit_str = strtok (NULL, " ");
     int32 limit = limit_str ? atoi (limit_str) : -1;
 
@@ -777,16 +775,16 @@ bool ChatHandler::LookupPlayerSearchCommand(QueryResult result, int32 limit)
 }
 
 /// Triggering corpses expire check in world
-bool ChatHandler::HandleServerCorpsesCommand(const char* /*args*/)
+bool ChatHandler::HandleServerCorpsesCommand(char* /*args*/)
 {
     sObjectAccessor->RemoveOldCorpses();
     return true;
 }
 
-bool ChatHandler::HandleRepairitemsCommand(const char* args)
+bool ChatHandler::HandleRepairitemsCommand(char* args)
 {
     Player* target;
-    if (!extractPlayerTarget((char*)args,&target))
+    if (!extractPlayerTarget(args,&target))
         return false;
 
     // check online security
@@ -802,10 +800,15 @@ bool ChatHandler::HandleRepairitemsCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleWaterwalkCommand(const char* args)
+bool ChatHandler::HandleWaterwalkCommand(char* args)
 {
-    if (!*args)
-        return false;
+    bool value;
+    if (!ExtractOnOff(&args, value))
+    {
+        SendSysMessage(LANG_USE_BOL);
+        SetSentErrorMessage(true);
+	         return false;
+    }
 
     Player *player = getSelectedPlayer();
 
@@ -820,15 +823,10 @@ bool ChatHandler::HandleWaterwalkCommand(const char* args)
     if (HasLowerSecurity(player, 0))
         return false;
 
-    if (strncmp(args, "on", 3) == 0)
+    if (value)
         player->SetMovement(MOVE_WATER_WALK);               // ON
-    else if (strncmp(args, "off", 4) == 0)
-        player->SetMovement(MOVE_LAND_WALK);                // OFF
     else
-    {
-        SendSysMessage(LANG_USE_BOL);
-        return false;
-    }
+        player->SetMovement(MOVE_LAND_WALK);                // OFF
 
     PSendSysMessage(LANG_YOU_SET_WATERWALK, args, GetNameLink(player).c_str());
     if (needReportToTarget(player))
@@ -836,7 +834,7 @@ bool ChatHandler::HandleWaterwalkCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleCreatePetCommand(const char* /*args*/)
+bool ChatHandler::HandleCreatePetCommand(char* /*args*/)
 {
     Player *player = m_session->GetPlayer();
     Creature *creatureTarget = getSelectedCreature();
@@ -912,7 +910,7 @@ bool ChatHandler::HandleCreatePetCommand(const char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandlePetLearnCommand(const char* args)
+bool ChatHandler::HandlePetLearnCommand(char* args)
 {
     if (!*args)
         return false;
@@ -927,7 +925,7 @@ bool ChatHandler::HandlePetLearnCommand(const char* args)
         return false;
     }
 
-    uint32 spellId = extractSpellIdFromLink((char*)args);
+    uint32 spellId = extractSpellIdFromLink(args);
 
     if (!spellId || !sSpellStore.LookupEntry(spellId))
         return false;
@@ -955,7 +953,7 @@ bool ChatHandler::HandlePetLearnCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandlePetUnlearnCommand(const char *args)
+bool ChatHandler::HandlePetUnlearnCommand(char* args)
 {
     if (!*args)
         return false;
@@ -970,7 +968,7 @@ bool ChatHandler::HandlePetUnlearnCommand(const char *args)
         return false;
     }
 
-    uint32 spellId = extractSpellIdFromLink((char*)args);
+    uint32 spellId = extractSpellIdFromLink(args);
 
     if (pet->HasSpell(spellId))
         pet->removeSpell(spellId, false);
@@ -980,7 +978,7 @@ bool ChatHandler::HandlePetUnlearnCommand(const char *args)
     return true;
 }
 
-bool ChatHandler::HandlePetTpCommand(const char *args)
+bool ChatHandler::HandlePetTpCommand(char* args)
 {
     if (!*args)
         return false;
@@ -1003,7 +1001,7 @@ bool ChatHandler::HandlePetTpCommand(const char *args)
     return true;
 }
 
-bool ChatHandler::HandleWintergraspStatusCommand(const char* /*args*/)
+bool ChatHandler::HandleWintergraspStatusCommand(char* /*args*/)
 {
     OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
 
@@ -1023,7 +1021,7 @@ bool ChatHandler::HandleWintergraspStatusCommand(const char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleWintergraspStartCommand(const char* /*args*/)
+bool ChatHandler::HandleWintergraspStartCommand(char* /*args*/)
 {
     OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
 
@@ -1038,7 +1036,7 @@ bool ChatHandler::HandleWintergraspStartCommand(const char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleWintergraspStopCommand(const char* /*args*/)
+bool ChatHandler::HandleWintergraspStopCommand(char* /*args*/)
 {
     OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
 
@@ -1053,7 +1051,7 @@ bool ChatHandler::HandleWintergraspStopCommand(const char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleWintergraspEnableCommand(const char* args)
+bool ChatHandler::HandleWintergraspEnableCommand(char* args)
 {
     if(!*args)
         return false;
@@ -1095,7 +1093,7 @@ bool ChatHandler::HandleWintergraspEnableCommand(const char* args)
     }
 }
 
-bool ChatHandler::HandleWintergraspTimerCommand(const char* args)
+bool ChatHandler::HandleWintergraspTimerCommand(char* args)
 {
     if(!*args)
         return false;
@@ -1131,7 +1129,7 @@ bool ChatHandler::HandleWintergraspTimerCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleWintergraspSwitchTeamCommand(const char* /*args*/)
+bool ChatHandler::HandleWintergraspSwitchTeamCommand(char* /*args*/)
 {
     OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
 
@@ -1148,7 +1146,7 @@ bool ChatHandler::HandleWintergraspSwitchTeamCommand(const char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleLookupTitleCommand(const char* args)
+bool ChatHandler::HandleLookupTitleCommand(char* args)
 {
     if (!*args)
         return false;
@@ -1231,13 +1229,13 @@ bool ChatHandler::HandleLookupTitleCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleCharacterTitlesCommand(const char* args)
+bool ChatHandler::HandleCharacterTitlesCommand(char* args)
 {
     if (!*args)
         return false;
 
     Player* target;
-    if (!extractPlayerTarget((char*)args,&target))
+    if (!extractPlayerTarget(args,&target))
         return false;
 
     LocaleConstant loc = GetSessionDbcLocale();
@@ -1271,12 +1269,12 @@ bool ChatHandler::HandleCharacterTitlesCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandlePartyInfoCommand(const char* args)
+bool ChatHandler::HandlePartyInfoCommand(char* args)
 {
     Player* target;
     uint64 target_guid;
     std::string target_name;
-    if (!extractPlayerTarget((char*)args,&target,&target_guid,&target_name))
+    if (!extractPlayerTarget(args,&target,&target_guid,&target_name))
         return false;
 
     uint32 accId = 0;

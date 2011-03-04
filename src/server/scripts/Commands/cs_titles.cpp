@@ -54,10 +54,10 @@ public:
         return commandTable;
     }
 
-    static bool HandleTitlesCurrentCommand(ChatHandler* handler, const char* args)
+    static bool HandleTitlesCurrentCommand(ChatHandler* handler, char* args)
     {
         // number or [name] Shift-click form |color|Htitle:title_id|h[name]|h|r
-        char* id_p = handler->extractKeyFromLink((char*)args,"Htitle");
+        char* id_p = handler->extractKeyFromLink(args,"Htitle");
         if (!id_p)
             return false;
 
@@ -99,10 +99,10 @@ public:
         return true;
     }
 
-    static bool HandleTitlesAddCommand(ChatHandler* handler, const char* args)
+    static bool HandleTitlesAddCommand(ChatHandler* handler, char* args)
     {
         // number or [name] Shift-click form |color|Htitle:title_id|h[name]|h|r
-        char* id_p = handler->extractKeyFromLink((char*)args,"Htitle");
+        char* id_p = handler->extractKeyFromLink(args,"Htitle");
         if (!id_p)
             return false;
 
@@ -146,10 +146,10 @@ public:
         return true;
     }
 
-    static bool HandleTitlesRemoveCommand(ChatHandler* handler, const char* args)
+    static bool HandleTitlesRemoveCommand(ChatHandler* handler, char* args)
     {
         // number or [name] Shift-click form |color|Htitle:title_id|h[name]|h|r
-        char* id_p = handler->extractKeyFromLink((char*)args,"Htitle");
+        char* id_p = handler->extractKeyFromLink(args,"Htitle");
         if (!id_p)
             return false;
 
@@ -201,14 +201,14 @@ public:
     }
 
     //Edit Player KnownTitles
-    static bool HandleTitlesSetMaskCommand(ChatHandler* handler, const char* args)
+    static bool HandleTitlesSetMaskCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
         uint64 titles = 0;
 
-        sscanf((char*)args, UI64FMTD, &titles);
+        sscanf(args, UI64FMTD, &titles);
 
         Player *target = handler->getSelectedPlayer();
         if (!target)

@@ -38,6 +38,7 @@
 // Supported shift-links (client generated and server side)
 // |color|Hachievement:achievement_id:player_guid:0:0:0:0:0:0:0:0|h[name]|h|r
 //                                                                        - client, item icon shift click, not used in server currently
+// |color|Hplayer:name|h[name]|h|r                                        - client, in some messages, at click copy only name instead link, so no way generate it in client string send to server
 // |color|Harea:area_id|h[name]|h|r
 // |color|Hcreature:creature_guid|h[name]|h|r
 // |color|Hcreature_entry:creature_id|h[name]|h|r
@@ -62,8 +63,8 @@
 bool ChatHandler::load_command_table = true;
 
 // wrapper for old-style handlers
-template<bool (ChatHandler::*F)(const char*)>
-bool OldHandler(ChatHandler* chatHandler, const char* args)
+template<bool (ChatHandler::*F)(char*)>
+bool OldHandler(ChatHandler* chatHandler, char* args)
 {
     return (chatHandler->*F)(args);
 }
@@ -439,7 +440,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "additem",        SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleAddItemCommand>,             "", NULL },
         { "additemset",     SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleAddItemSetCommand>,          "", NULL },
         { "bank",           SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleBankCommand>,                "", NULL },
-        { "wchange",        SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleChangeWeather>,              "", NULL },
+        { "wchange",        SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleChangeWeatherCommand>,       "", NULL },
         { "maxskill",       SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleMaxSkillCommand>,            "", NULL },
         { "setskill",       SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleSetSkillCommand>,            "", NULL },
         { "whispers",       SEC_MODERATOR,      false, OldHandler<&ChatHandler::HandleWhispersCommand>,            "", NULL },
@@ -737,7 +738,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand *table, const char* text, co
 
         SetSentErrorMessage(false);
         // table[i].Name == "" is special case: send original command to handler
-        if ((table[i].Handler)(this, strlen(table[i].Name) != 0 ? text : oldtext))
+        if ((table[i].Handler)(this, strlen(table[i].Name) != 0 ? (char*)text : (char*)oldtext))
         {
             if (table[i].SecurityLevel > SEC_PLAYER)
             {
@@ -1673,6 +1674,418 @@ Creature* ChatHandler::getSelectedCreature()
     return ObjectAccessor::GetCreatureOrPetOrVehicle(*m_session->GetPlayer(),m_session->GetPlayer()->GetSelection());
 }
 
+/**
+ * Function skip all whitespaces in args string
+ *
+ * @param args variable pointer to non parsed args string, updated at function call to new position (with skipped white spaces)
+ *             allowed NULL string pointer stored in *args
+ */
+void ChatHandler::SkipWhiteSpaces(char** args)
+{
+    if(!*args)
+        return;
+
+    while(isWhiteSpace(**args))
+        ++(*args);
+}
+
+/**
+ * Function extract to val arg signed integer value or fail
+ *
+ * @param args variable pointer to non parsed args string, updated at function call to new position (with skipped white spaces)
+ * @param val  return extracted value if function success, in fail case original value unmodified
+ * @return     true if value extraction successful
+ */
+bool  ChatHandler::ExtractInt32(char** args, int32& val)
+{
+    if (!*args || !**args)
+        return false;
+
+    char* tail = *args;
+
+    long valRaw = strtol(*args, &tail, 10);
+
+    if (tail != *args && isWhiteSpace(*tail))
+        *(tail++) = '\0';
+    else if (tail && *tail)                                 // some not whitespace symbol
+        return false;                                       // args not modified and can be re-parsed
+
+    if (valRaw < std::numeric_limits<int32>::min() || valRaw > std::numeric_limits<int32>::max())
+        return false;
+
+    // value successfully extracted
+    val = int32(valRaw);
+    *args = tail;
+    return true;
+}
+
+/**
+ * Function extract to val arg optional signed integer value or use default value. Fail if extracted not signed integer.
+ *
+ * @param args    variable pointer to non parsed args string, updated at function call to new position (with skipped white spaces)
+ * @param val     return extracted value if function success, in fail case original value unmodified
+ * @param defVal  default value used if no data for extraction in args
+ * @return        true if value extraction successful
+ */
+bool  ChatHandler::ExtractOptInt32(char** args, int32& val, int32 defVal)
+{
+    if (!*args || !**args)
+    {
+        val = defVal;
+        return true;
+    }
+
+    return ExtractInt32(args, val);
+}
+
+/**
+ * Function extract to val arg unsigned integer value or fail
+ *
+ * @param args variable pointer to non parsed args string, updated at function call to new position (with skipped white spaces)
+ * @param val  return extracted value if function success, in fail case original value unmodified
+ * @param base set used base for extracted value format (10 for decimal, 16 for hex, etc), 0 let auto select by system internal function
+ * @return     true if value extraction successful
+ */
+bool  ChatHandler::ExtractUInt32Base(char** args, uint32& val, uint32 base)
+{
+    if (!*args || !**args)
+        return false;
+
+    char* tail = *args;
+
+    unsigned long valRaw = strtoul(*args, &tail, base);
+
+    if (tail != *args && isWhiteSpace(*tail))
+        *(tail++) = '\0';
+    else if (tail && *tail)                                 // some not whitespace symbol
+        return false;                                       // args not modified and can be re-parsed
+
+    if (valRaw > std::numeric_limits<uint32>::max())
+        return false;
+
+    // value successfully extracted
+    val = uint32(valRaw);
+    *args = tail;
+    return true;
+}
+
+/**
+ * Function extract to val arg optional unsigned integer value or use default value. Fail if extracted not unsigned integer.
+ *
+ * @param args    variable pointer to non parsed args string, updated at function call to new position (with skipped white spaces)
+ * @param val     return extracted value if function success, in fail case original value unmodified
+ * @param defVal  default value used if no data for extraction in args
+ * @return        true if value extraction successful
+ */
+bool  ChatHandler::ExtractOptUInt32(char** args, uint32& val, uint32 defVal)
+{
+    if (!*args || !**args)
+    {
+        val = defVal;
+        return true;
+    }
+
+    return ExtractUInt32(args, val);
+}
+
+/**
+ * Function extract to val arg float value or fail
+ *
+ * @param args variable pointer to non parsed args string, updated at function call to new position (with skipped white spaces)
+ * @param val  return extracted value if function success, in fail case original value unmodified
+ * @return     true if value extraction successful
+ */
+bool  ChatHandler::ExtractFloat(char** args, float& val)
+{
+    if (!*args || !**args)
+        return false;
+
+    char* tail = *args;
+
+    double valRaw = strtod(*args, &tail);
+
+    if (tail != *args && isWhiteSpace(*tail))
+        *(tail++) = '\0';
+    else if (tail && *tail)                                 // some not whitespace symbol
+        return false;                                       // args not modified and can be re-parsed
+
+    // value successfully extracted
+    val = float(valRaw);
+    *args = tail;
+    return true;
+}
+
+/**
+ * Function extract to val arg optional float value or use default value. Fail if extracted not float.
+ *
+ * @param args    variable pointer to non parsed args string, updated at function call to new position (with skipped white spaces)
+ * @param val     return extracted value if function success, in fail case original value unmodified
+ * @param defVal  default value used if no data for extraction in args
+ * @return        true if value extraction successful
+ */
+bool  ChatHandler::ExtractOptFloat(char** args, float& val, float defVal)
+{
+    if (!*args || !**args)
+    {
+        val = defVal;
+        return true;
+    }
+
+    return ExtractFloat(args, val);
+}
+
+/**
+ * Function extract name-like string (from non-numeric or special symbol until whitespace)
+ *
+ * @param args variable pointer to non parsed args string, updated at function call to new position (with skipped white spaces)
+ * @param lit  optional explicit literal requirement. function fail if literal is not starting substring of lit.
+ *             Note: function in same way fail if no any literal or literal not fit in this case. Need additional check for select specific fail case
+ * @return     name/number-like string without whitespaces, or NULL if args empty or not appropriate content.
+ */
+char* ChatHandler::ExtractLiteralArg(char** args, char const* lit /*= NULL*/)
+{
+    if (!*args || !**args)
+        return NULL;
+
+    char* head = *args;
+
+    // reject quoted string or link (|-started text)
+    switch (head[0])
+    {
+        // reject quoted string
+        case '[': case '\'': case '"':
+            return NULL;
+        // reject link (|-started text)
+        case '|':
+            // client replace all | by || in raw text
+            if (head[1] != '|')
+                return NULL;
+            ++head;                                         // skip one |
+            break;
+        default: break;
+    }
+
+    if (lit)
+    {
+        int diff = strncmp(head, lit, strlen(lit));
+
+        if (diff > 0)
+            return NULL;
+
+        if (diff < 0 && !head[-diff] && !isWhiteSpace(head[-diff]))
+            return NULL;
+
+        char* arg = head;
+
+        if (head[-diff])
+        {
+            head[-diff] = '\0';
+
+            head += -diff + 1;
+
+            *args = head;
+        }
+        else
+            *args = NULL;
+
+        return arg;
+    }
+
+    char* name = strtok(head, " ");
+    *args = strtok(NULL, "");
+
+    return name;
+}
+
+/**
+ * Function extract quote-like string (any characters guarded by some special character, in our cases ['")
+ *
+ * @param args variable pointer to non parsed args string, updated at function call to new position (with skipped white spaces)
+ * @return     quote-like string, or NULL if args empty or not appropriate content.
+ */
+char* ChatHandler::ExtractQuotedArg( char** args )
+{
+    if (!*args || !**args)
+        return NULL;
+
+    if (**args != '\'' && **args != '"' && **args != '[')
+        return NULL;
+
+    char guard[2] = " ";                                    // guard[1] == '\0'
+
+    guard[0] = (*args)[0];
+
+    if (guard[0] == '[')
+        guard[0] = ']';
+
+    char* str = strtok((*args)+1, guard);                   // skip start guard symbol
+
+    *args = strtok(NULL, "");
+
+    SkipWhiteSpaces(args);
+
+    return str;
+}
+
+ /**
+ * Function extract quote-like string or literal if quote not detected
+ *
+ * @param args variable pointer to non parsed args string, updated at function call to new position (with skipped white spaces)
+ * @return     quote/literal string, or NULL if args empty or not appropriate content.
+ */
+char* ChatHandler::ExtractQuotedOrLiteralArg(char** args)
+{
+    char *arg = ExtractQuotedArg(args);
+    if (!arg)
+        arg = ExtractLiteralArg(args);
+    return arg;
+}
+
+/**
+ * Function extract on/off literals as boolean values 
+ *
+ * @param args variable pointer to non parsed args string, updated at function call to new position (with skipped white spaces)
+ * @param val  return extracted value if function success, in fail case original value unmodified
+ * @return     true at success
+ */
+bool  ChatHandler::ExtractOnOff(char** args, bool& value)
+{
+    char* arg = ExtractLiteralArg(args);
+    if (!arg)
+        return false;
+
+    if (strncmp(arg, "on", 3) == 0)
+        value = true;
+    else if (strncmp(arg, "off", 4) == 0)
+        value = false;
+    else
+        return false;
+
+    return true;
+}
+
+/**
+ * Function extract shift-link-like string (any characters guarded by | and |h|r with some additional internal structure check)
+ *
+ * @param args variable pointer to non parsed args string, updated at function call to new position (with skipped white spaces)
+ * @return     shift-link-like string, or NULL if args empty or not appropriate content.
+ */
+char* ChatHandler::ExtractLinkArg( char** args )
+{
+    if (!*args || !**args)
+        return NULL;
+
+    if (**args != '|')
+        return NULL;
+
+    // |color|Hkey:data|h[name]|h|r
+
+    char* head = *args;
+    char* tail = (*args)+1;                                 // skip |
+
+    while (*tail && *tail != '|')                           // skip color part
+        ++tail;
+
+    if (!*tail)
+        return NULL;
+
+    // |Hkey:data|h[name]|h|r
+
+    ++tail;                                                 // skip |
+
+    if (*tail != 'H')
+        return NULL;
+
+    while (*tail && (*tail != '|' || *(tail+1) != 'h'))     // skip key/data part
+        ++tail;
+
+    if (!*tail)
+        return NULL;
+
+    tail += 2;
+
+    // [name]|h|r
+    if (!*tail || *tail != '[')
+        return NULL;
+
+    while (*tail && (*tail != ']' || *(tail+1) != '|'))     // skip name part
+        ++tail;
+
+    tail += 2;
+
+    // h|r
+    if (!*tail || *tail != 'h'  || *(tail+1) != '|')
+        return NULL;
+
+    tail += 2;
+
+    // r
+    if (!*tail || *tail != 'r' || *(tail+1) && !isWhiteSpace(*(tail+1)))
+        return NULL;
+
+    ++tail;
+
+    if (*tail)
+    {
+        *(tail++) = '\0';
+    }
+
+    *args = tail;
+
+    SkipWhiteSpaces(args);
+
+    return head;
+}
+
+/**
+ * Function extract name/number/quote/shift-link-like string
+ *
+ * @param args variable pointer to non parsed args string, updated at function call to new position (with skipped white spaces)
+ * @return     extracted arg string, or NULL if args empty or not appropriate content.
+ */
+char* ChatHandler::ExtractArg( char** args )
+{
+    if (!*args || !**args)
+        return NULL;
+
+    switch (**args)
+    {
+        case '|' :
+            return ExtractLinkArg(args);
+        case '\'' : case '"' : case '[' :
+            return ExtractQuotedArg(args);
+        default:
+        {
+            char* name = strtok(*args, " ");
+
+            *args = strtok(NULL, "");
+
+            return name;
+        }
+    }
+}
+
+/**
+ * Function extract name/quote/number/shift-link-like string, and return it if args have more non-whitespace data
+ *
+ * @param args variable pointer to non parsed args string, updated at function call to new position (with skipped white spaces)
+ *             if args have only single arg then args still pointing to this arg (unmodified pointer)
+ * @return     extracted string, or NULL if args empty or not appropriate content or have single arg totally.
+ */
+char* ChatHandler::ExtractOptNotLastArg(char** args)
+{
+    char* arg = ExtractArg(args);
+
+    // have more data
+    if (*args && **args)
+        return arg;
+
+    // optional name not found
+    *args = arg;
+
+    return NULL;
+}
+
 char* ChatHandler::extractKeyFromLink(char* text, char const* linkType, char** something1)
 {
     // skip empty
@@ -2075,40 +2488,6 @@ bool ChatHandler::extractPlayerTarget(char* args, Player** player, uint64* playe
     }
 
     return true;
-}
-
-void ChatHandler::extractOptFirstArg(char* args, char** arg1, char** arg2)
-{
-    char* p1 = strtok(args, " ");
-    char* p2 = strtok(NULL, " ");
-
-    if (!p2)
-    {
-        p2 = p1;
-        p1 = NULL;
-    }
-
-    if (arg1)
-        *arg1 = p1;
-
-    if (arg2)
-        *arg2 = p2;
-}
-
-char* ChatHandler::extractQuotedArg(char* args)
-{
-    if (!*args)
-        return NULL;
-
-    if (*args == '"')
-        return strtok(args+1, "\"");
-    else
-    {
-        char* space = strtok(args, "\"");
-        if (!space)
-            return false;
-        return strtok(NULL, "\"");
-    }
 }
 
 bool ChatHandler::needReportToTarget(Player* chr) const

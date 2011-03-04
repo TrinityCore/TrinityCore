@@ -69,14 +69,14 @@ public:
     *                                      you will be teleported to the first one that is found.
     */
     //teleport to creature
-    static bool HandleGoCreatureCommand(ChatHandler* handler, const char* args)
+    static bool HandleGoCreatureCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
         Player* _player = handler->GetSession()->GetPlayer();
 
         // "id" or number or [name] Shift-click form |color|Hcreature_entry:creature_id|h[name]|h|r
-        char* pParam1 = handler->extractKeyFromLink((char*)args,"Hcreature");
+        char* pParam1 = handler->extractKeyFromLink(args,"Hcreature");
         if (!pParam1)
             return false;
 
@@ -160,26 +160,18 @@ public:
         _player->TeleportTo(mapid, x, y, z, ort);
         return true;
     }
-    static bool HandleGoGraveyardCommand(ChatHandler* handler, const char* args)
+    static bool HandleGoGraveyardCommand(ChatHandler* handler, char* args)
     {
         Player* _player = handler->GetSession()->GetPlayer();
 
-        if (!*args)
+        uint32 gyId;
+        if (!handler->ExtractUInt32(&args, gyId))
             return false;
 
-        char *gyId = strtok((char*)args, " ");
-        if (!gyId)
-            return false;
-
-        int32 i_gyId = atoi(gyId);
-
-        if (!i_gyId)
-            return false;
-
-        WorldSafeLocsEntry const* gy = sWorldSafeLocsStore.LookupEntry(i_gyId);
+        WorldSafeLocsEntry const* gy = sWorldSafeLocsStore.LookupEntry(gyId);
         if (!gy)
         {
-            handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDNOEXIST,i_gyId);
+            handler->PSendSysMessage(LANG_COMMAND_GRAVEYARDNOEXIST, gyId);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -205,24 +197,21 @@ public:
         return true;
     }
     //teleport to grid
-    static bool HandleGoGridCommand(ChatHandler* handler, const char* args)
+    static bool HandleGoGridCommand(ChatHandler* handler, char* args)
     {
-        if (!*args)    return false;
         Player* _player = handler->GetSession()->GetPlayer();
 
-        char* px = strtok((char*)args, " ");
-        char* py = strtok(NULL, " ");
-        char* pmapid = strtok(NULL, " ");
-
-        if (!px || !py)
+        float grid_x;
+        if (!handler->ExtractFloat(&args, grid_x))
             return false;
 
-        float grid_x = (float)atof(px);
-        float grid_y = (float)atof(py);
+        float grid_y;
+        if (!handler->ExtractFloat(&args, grid_y))
+            return false;
+
         uint32 mapid;
-        if (pmapid)
-            mapid = (uint32)atoi(pmapid);
-        else mapid = _player->GetMapId();
+        if (!handler->ExtractOptUInt32(&args, mapid, _player->GetMapId()))
+            return false;
 
         // center of grid
         float x = (grid_x-CENTER_GRID_ID+0.5f)*SIZE_OF_GRIDS;
@@ -252,7 +241,7 @@ public:
         return true;
     }
     //teleport to gameobject
-    static bool HandleGoObjectCommand(ChatHandler* handler, const char* args)
+    static bool HandleGoObjectCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
@@ -260,7 +249,7 @@ public:
         Player* _player = handler->GetSession()->GetPlayer();
 
         // number or [name] Shift-click form |color|Hgameobject:go_guid|h[name]|h|r
-        char* cId = handler->extractKeyFromLink((char*)args,"Hgameobject");
+        char* cId = handler->extractKeyFromLink(args,"Hgameobject");
         if (!cId)
             return false;
 
@@ -307,14 +296,14 @@ public:
         _player->TeleportTo(mapid, x, y, z, ort);
         return true;
     }
-    static bool HandleGoTaxinodeCommand(ChatHandler* handler, const char* args)
+    static bool HandleGoTaxinodeCommand(ChatHandler* handler, char* args)
     {
         Player* _player = handler->GetSession()->GetPlayer();
 
         if (!*args)
             return false;
 
-        char* cNodeId = handler->extractKeyFromLink((char*)args,"Htaxinode");
+        char* cNodeId = handler->extractKeyFromLink(args,"Htaxinode");
         if (!cNodeId)
             return false;
 
@@ -351,14 +340,14 @@ public:
         _player->TeleportTo(node->map_id, node->x, node->y, node->z, _player->GetOrientation());
         return true;
     }
-    static bool HandleGoTriggerCommand(ChatHandler* handler, const char* args)
+    static bool HandleGoTriggerCommand(ChatHandler* handler, char* args)
     {
         Player* _player = handler->GetSession()->GetPlayer();
 
         if (!*args)
             return false;
 
-        char *atId = strtok((char*)args, " ");
+        char *atId = strtok(args, " ");
         if (!atId)
             return false;
 
@@ -396,14 +385,14 @@ public:
         return true;
     }
     //teleport at coordinates
-    static bool HandleGoZoneXYCommand(ChatHandler* handler, const char* args)
+    static bool HandleGoZoneXYCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
         Player* _player = handler->GetSession()->GetPlayer();
 
-        char* px = strtok((char*)args, " ");
+        char* px = strtok(args, " ");
         char* py = strtok(NULL, " ");
         char* tail = strtok(NULL,"");
 
@@ -467,27 +456,21 @@ public:
         return true;
     }
     //teleport at coordinates
-    static bool HandleGoXYCommand(ChatHandler* handler, const char* args)
+    static bool HandleGoXYCommand(ChatHandler* handler, char* args)
     {
-        if (!*args)
-            return false;
-
         Player* _player = handler->GetSession()->GetPlayer();
 
-        char* px = strtok((char*)args, " ");
-        char* py = strtok(NULL, " ");
-        char* pmapid = strtok(NULL, " ");
-
-        if (!px || !py)
+        float x;
+        if (!handler->ExtractFloat(&args, x))
             return false;
 
-        float x = (float)atof(px);
-        float y = (float)atof(py);
+        float y;
+        if (!handler->ExtractFloat(&args, y))
+            return false;
+
         uint32 mapid;
-        if (pmapid)
-            mapid = (uint32)atoi(pmapid);
-        else
-            mapid = _player->GetMapId();
+        if (!handler->ExtractOptUInt32(&args, mapid, _player->GetMapId()))
+            return false;
 
         if (!MapManager::IsValidMapCoord(mapid,x,y))
         {
@@ -514,29 +497,25 @@ public:
         return true;
     }
     //teleport at coordinates, including Z
-    static bool HandleGoXYZCommand(ChatHandler* handler, const char* args)
+    static bool HandleGoXYZCommand(ChatHandler* handler, char* args)
     {
-        if (!*args)
-            return false;
-
         Player* _player = handler->GetSession()->GetPlayer();
 
-        char* px = strtok((char*)args, " ");
-        char* py = strtok(NULL, " ");
-        char* pz = strtok(NULL, " ");
-        char* pmapid = strtok(NULL, " ");
-
-        if (!px || !py || !pz)
+        float x;
+        if (!handler->ExtractFloat(&args, x))
             return false;
 
-        float x = (float)atof(px);
-        float y = (float)atof(py);
-        float z = (float)atof(pz);
+        float y;
+        if (!handler->ExtractFloat(&args, y))
+            return false;
+
+        float z;
+        if (!handler->ExtractFloat(&args, z))
+            return false;
+
         uint32 mapid;
-        if (pmapid)
-            mapid = (uint32)atoi(pmapid);
-        else
-            mapid = _player->GetMapId();
+        if (!handler->ExtractOptUInt32(&args, mapid, _player->GetMapId()))
+            return false;
 
         if (!MapManager::IsValidMapCoord(mapid,x,y,z))
         {
@@ -559,12 +538,12 @@ public:
 
         return true;
     }
-    static bool HandleGoTicketCommand(ChatHandler* handler, const char* args)
+    static bool HandleGoTicketCommand(ChatHandler* handler, char* args)
     {
         if (!*args)
             return false;
 
-        char *cstrticket_id = strtok((char*)args, " ");
+        char *cstrticket_id = strtok(args, " ");
 
         if (!cstrticket_id)
             return false;
