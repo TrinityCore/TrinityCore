@@ -1250,7 +1250,7 @@ void SmartScript::ProcessAction(SmartScriptHolder &e, Unit* unit, uint32 var0, u
                 {
                     if (IsUnit(*itr) && (*itr)->ToUnit()->GetVehicleKit())
                     {
-                        me->EnterVehicle((*itr)->ToUnit()->GetVehicleKit(), e.action.enterVehicle.seat);
+                        me->EnterVehicle((*itr)->ToUnit(), e.action.enterVehicle.seat);
                         return;
                     }
                 }

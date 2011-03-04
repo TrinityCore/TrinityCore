@@ -73,6 +73,7 @@ enum VehicleSeatFlagsB
 
 enum VehicleSpells
 {
+    VEHICLE_SPELL_RIDE_HARDCODED                 = 46598,
     VEHICLE_SPELL_PARACHUTE                      = 45472
 };
 

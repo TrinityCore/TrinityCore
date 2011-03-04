@@ -138,6 +138,7 @@ class boss_kologarn : public CreatureScript
             void Reset()
             {
                 _Reset();
+
                 eyebeamTarget = 0;
             }
 
@@ -330,7 +331,7 @@ class boss_kologarn : public CreatureScript
                 // HACK: We should send spell SPELL_ARM_ENTER_VEHICLE here, but this will not work, because
                 // the aura system will not allow it to stack from two different casters
                 int32 seatId = arm->GetEntry() == NPC_LEFT_ARM ? 0 : 1;
-                arm->EnterVehicle(vehicle, seatId);
+                arm->CastCustomSpell(SPELL_ARM_ENTER_VEHICLE, SPELLVALUE_BASE_POINT0, seatId+1, me, true);
                 arm->CastSpell(arm, SPELL_ARM_ENTER_VISUAL, true);
             }
         };
