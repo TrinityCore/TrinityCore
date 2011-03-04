@@ -48,6 +48,8 @@ public:
             varosGUID = 0;
             uromGUID = 0;
             eregosGUID = 0;
+            EregosLager = 0;
+            Rampenlicht = 0;
 
             platformUrom = 0;
             centrifugueConstructCounter = 0;
@@ -120,14 +122,25 @@ public:
 
         void OnGameObjectCreate(GameObject* go)
         {
-            if (go->GetEntry() == GO_DRAGON_CAGE_DOOR)
+            switch(go->GetEntry())
             {
-                if (GetBossState(DATA_DRAKOS_EVENT) == DONE)
-                    go->SetGoState(GO_STATE_ACTIVE);
-                else
-                    go->SetGoState(GO_STATE_READY);
+                case GO_EREGOS_LAGER:
+                    EregosLager = go->GetGUID();
+                    break;
+                case GO_EREGOS_LAGER_H:
+                    EregosLager = go->GetGUID();
+                    break;
+                case GO_RAMPENLICHT:
+                    Rampenlicht = go->GetGUID();
+                    break;
+                case GO_DRAGON_CAGE_DOOR:
+                    if (GetBossState(DATA_DRAKOS_EVENT) == DONE)
+                        go->SetGoState(GO_STATE_ACTIVE);
+                    else
+                        go->SetGoState(GO_STATE_READY);
 
-                gameObjectList.push_back(go->GetGUID());
+                    gameObjectList.push_back(go->GetGUID());
+                    break;
             }
         }
 
@@ -149,6 +162,13 @@ public:
                 case DATA_VAROS_EVENT:
                     if (state == DONE)
                         DoUpdateWorldState(WORLD_STATE_CENTRIFUGE_CONSTRUCT_SHOW,0);
+                    break;
+                case DATA_EREGOS_EVENT:
+                    if (state == DONE)
+                    {
+                        DoRespawnGameObject(EregosLager, 1*DAY);
+                        DoRespawnGameObject(Rampenlicht, 1*DAY);
+                    }
                     break;
             }
 
@@ -250,6 +270,8 @@ public:
             uint64 varosGUID;
             uint64 uromGUID;
             uint64 eregosGUID;
+            uint64 EregosLager;
+            uint64 Rampenlicht;
 
             uint8 platformUrom;
             uint8 centrifugueConstructCounter;
