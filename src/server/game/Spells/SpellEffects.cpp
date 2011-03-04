@@ -1166,7 +1166,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                                 // use 99 because it is 3d search
                                 SearchAreaTarget(unitList, 99, PUSH_DST_CENTER, SPELL_TARGETS_ENTRY, 33114);
                                 float minDist = 99 * 99;
-                                Vehicle *target = NULL;
+                                Unit *target = NULL;
                                 for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
                                 {
                                     if (Vehicle *seat = (*itr)->GetVehicleKit())
@@ -1178,11 +1178,11 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                                                     if (dist < minDist)
                                                     {
                                                         minDist = dist;
-                                                        target = seat;
+                                                        target = (*itr);
                                                     }
                                                 }
                                 }
-                                if (target && target->GetBase()->IsWithinDist2d(&m_targets.m_dstPos, GetSpellRadius(m_spellInfo, effIndex, false) * 2)) // now we use *2 because the location of the seat is not correct
+                                if (target && target->IsWithinDist2d(&m_targets.m_dstPos, GetSpellRadius(m_spellInfo, effIndex, false) * 2)) // now we use *2 because the location of the seat is not correct
                                     passenger->EnterVehicle(target, 0);
                                 else
                                 {
@@ -3144,7 +3144,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
             }
 
             // Hard coded enter vehicle spell
-            m_originalCaster->CastSpell(summon, 46598, true);
+            m_originalCaster->CastSpell(summon, VEHICLE_SPELL_RIDE_HARDCODED, true);
 
             summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
             uint32 faction = properties->Faction;
@@ -5148,7 +5148,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                                 oldContainer->DisappearAndDie();
                             // TODO: a hack, range = 11, should after some time cast, otherwise too far
                             m_caster->CastSpell(seat->GetBase(), 62496, true);
-                            unitTarget->EnterVehicle(seat, 1);
+                            unitTarget->EnterVehicle(m_caster, 1);
                         }
                     }
                     return;

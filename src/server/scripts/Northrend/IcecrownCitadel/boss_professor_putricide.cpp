@@ -1251,7 +1251,7 @@ class spell_putricide_mutated_transformation : public SpellScriptLoader
                 caster->CastSpell(summon, SPELL_MUTATED_TRANSFORMATION_NAME, true);
                 summon->CastSpell(summon, SPELL_ABOMINATION_VEHICLE_POWER_DRAIN, true);
                 summon->CastSpell(summon, SPELL_MUTATED_TRANSFORMATION_DAMAGE, true);
-                caster->EnterVehicle(summon->GetVehicleKit(), 0);
+                caster->EnterVehicle(summon, 0);
 
                 summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, GetSpellInfo()->Id);
                 summon->SetCreatorGUID(caster->GetGUID());
