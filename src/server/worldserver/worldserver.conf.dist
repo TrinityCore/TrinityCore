@@ -275,6 +275,14 @@ PlayerSave.Stats.SaveOnlyOnLogout = 1
 
 vmap.enableLOS    = 1
 vmap.enableHeight = 1
+ 
+#    vmap.ignoreMapIds
+#        Map id that will be ignored by VMaps
+#        List of ids with delimiter ','
+#        If more then one id is defined and spaces are included, the string has to be enclosed by "
+#        Example: "369,0,1,530,571"
+
+vmap.ignoreMapIds = ""
 
 #
 #    vmap.ignoreSpellIds
@@ -2825,6 +2833,45 @@ AuctionHouseBot.DisableItemsBelowReqSkillRank = 0
 AuctionHouseBot.DisableItemsAboveReqSkillRank = 0
 AuctionHouseBot.DisableTGsBelowReqSkillRank = 0
 AuctionHouseBot.DisableTGsAboveReqSkillRank = 0
+
+#
+###################################################################################################
+
+###################################################################################################
+# USER PIMPER
+#       0 = Gold - 1 = Honor - 2 = Arena Points - 3 = Item
+#       NOTE: If Gold is the currency you set the real gold amount!
+#       UserPimper.Costs.Type - Default = 1
+#
+#       Used (must be set) if Cost_Type == 3
+#       UserPimper.Costs.Item - Default = 0
+#
+#       Costs (amount) to learn "all" mini pets
+#       UserPimper.Costs.MiniPets - Default = 1000000
+#
+#       Costs (amount) to max. "all" factions (Horde/Ally and world factions)
+#       UserPimper.Costs.Reputation - Default = 500000
+#
+#       Costs (amount) to learn a profession as grand master and get max. skill for it
+#       UserPimper.Costs.Profession - Default = 200000
+#
+#       Costs (amount) to learn all recipes for one profession
+#       UserPimper.Costs.Recipes - Default = 50000
+#
+#       Costs (amount) to set the max. skill for one profession
+#       UserPimper.Costs.MaxSkill - Default = 50000
+#
+#       Allow to give long time User presents (bool)
+#       UserPimper.PresentsAllowed = 0
+
+UserPimper.Costs.Type = 1
+UserPimper.Costs.Item = 0
+UserPimper.Costs.MiniPets = 1000000
+UserPimper.Costs.Reputation = 500000
+UserPimper.Costs.Profession = 200000
+UserPimper.Costs.Recipes = 50000
+UserPimper.Costs.MaxSkill = 50000
+UserPimper.PresentsAllowed = 0
 
 #
 ###################################################################################################

@@ -24,7 +24,7 @@
 #include "Define.h"
 #include "revision.h"
 
-#define _PACKAGENAME "TrinityCore "
+#define _PACKAGENAME "UWoM-Server "
 
 #if TRINITY_ENDIAN == TRINITY_BIGENDIAN
 # define _ENDIAN_STRING "big-endian"
