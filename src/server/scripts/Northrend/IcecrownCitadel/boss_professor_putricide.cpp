@@ -20,6 +20,7 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "Group.h"
 #include "icecrown_citadel.h"
 
 enum ScriptTexts
@@ -152,7 +153,13 @@ static const Position tablePos          = {4356.190f, 3262.90f, 389.4820f, 1.483
 
 static const uint32 oozeFloodSpells[4] = {69782, 69796, 69798, 69801};
 
-#define DATA_EXPERIMENT_STAGE   0
+enum PutricideData
+{
+    DATA_EXPERIMENT_STAGE   = 1,
+    DATA_PHASE              = 2,
+    DATA_ABOMINATION        = 3,
+};
+
 #define EXPERIMENT_STATE_OOZE   false
 #define EXPERIMENT_STATE_GAS    true
 
@@ -205,8 +212,6 @@ class boss_professor_putricide : public CreatureScript
                 me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                 if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
                     me->GetMotionMaster()->MovementExpired();
-                if (GameObject* table = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_PUTRICIDE_TABLE)))
-                    table->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
             }
 
             void EnterCombat(Unit* who)
@@ -235,8 +240,6 @@ class boss_professor_putricide : public CreatureScript
                 DoZoneInCombat(me);
 
                 instance->SetBossState(DATA_PROFESSOR_PUTRICIDE, IN_PROGRESS);
-                if (GameObject* table = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_PUTRICIDE_TABLE)))
-                    table->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
             }
 
             void JustReachedHome()
@@ -501,8 +504,6 @@ class boss_professor_putricide : public CreatureScript
                                 events.CancelEvent(EVENT_UNSTABLE_EXPERIMENT);
                                 summons.DespawnEntry(NPC_MUTATED_ABOMINATION_10);
                                 summons.DespawnEntry(NPC_MUTATED_ABOMINATION_25);
-                                if (GameObject* table = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_PUTRICIDE_TABLE)))
-                                    table->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
                                 break;
                             default:
                                 break;
@@ -515,12 +516,22 @@ class boss_professor_putricide : public CreatureScript
 
             uint32 GetData(uint32 type)
             {
-                if (type == DATA_EXPERIMENT_STAGE)
+                switch (type)
                 {
-                    // ALSO MODIFIES!
-                    uint32 ret = uint32(experimentState);
-                    experimentState ^= true;
-                    return ret;
+                    case DATA_EXPERIMENT_STAGE:
+                    {
+                        // ALSO MODIFIES!
+                        uint32 ret = uint32(experimentState);
+                        experimentState ^= true;
+                        return ret;
+                    }
+                    case DATA_PHASE:
+                        return phase;
+                    case DATA_ABOMINATION:
+                        summons.RemoveNotExisting();
+                        return summons.HasEntry(NPC_MUTATED_ABOMINATION_10) || summons.HasEntry(NPC_MUTATED_ABOMINATION_25);
+                    default:
+                        break;
                 }
 
                 return 0;
@@ -1027,28 +1038,33 @@ class spell_putricide_unbound_plague : public SpellScriptLoader
         {
             PrepareSpellScript(spell_putricide_unbound_plague_SpellScript);
 
+            bool Validate(SpellEntry const* /*spell*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_UNBOUND_PLAGUE))
+                    return false;
+                if (!sSpellStore.LookupEntry(SPELL_UNBOUND_PLAGUE_SEARCHER))
+                    return false;
+                return true;
+            }
+
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (!GetHitUnit())
                     return;
 
-                SpellEntry const* plague = sSpellStore.LookupEntry(SPELL_UNBOUND_PLAGUE);
-                SpellEntry const* searcher = sSpellStore.LookupEntry(SPELL_UNBOUND_PLAGUE_SEARCHER);
-                Creature* professor = NULL;
-                if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-                {
-                    professor = Unit::GetCreature(*GetCaster(), instance->GetData64(DATA_PROFESSOR_PUTRICIDE));
-                    if (professor)
-                    {
-                        plague = sSpellMgr->GetSpellForDifficultyFromSpell(plague, professor);
-                        searcher = sSpellMgr->GetSpellForDifficultyFromSpell(searcher, professor);
-                    }
-                }
+                InstanceScript* instance = GetCaster()->GetInstanceScript();
+                if (!instance)
+                    return;
+
+                SpellEntry const* plague = sSpellMgr->GetSpellForDifficultyFromSpell(sSpellStore.LookupEntry(SPELL_UNBOUND_PLAGUE), GetCaster());
+                SpellEntry const* searcher = sSpellMgr->GetSpellForDifficultyFromSpell(sSpellStore.LookupEntry(SPELL_UNBOUND_PLAGUE_SEARCHER), GetCaster());
 
                 if (!GetHitUnit()->HasAura(plague->Id))
                 {
-                    if (professor)
+                    if (Creature* professor = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
+                    {
                         if (Aura* oldPlague = GetCaster()->GetAura(plague->Id, professor->GetGUID()))
+                        {
                             if (Aura* newPlague = professor->AddAura(plague->Id, GetHitUnit()))
                             {
                                 newPlague->SetMaxDuration(oldPlague->GetDuration());
@@ -1059,6 +1075,8 @@ class spell_putricide_unbound_plague : public SpellScriptLoader
                                 GetCaster()->CastSpell(GetCaster(), SPELL_UNBOUND_PLAGUE_PROTECTION, true);
                                 professor->CastSpell(GetHitUnit(), SPELL_UNBOUND_PLAGUE_SEARCHER, true);
                             }
+                        }
+                    }
                 }
             }
 
@@ -1170,6 +1188,54 @@ class spell_putricide_mutation_init : public SpellScriptLoader
     public:
         spell_putricide_mutation_init() : SpellScriptLoader("spell_putricide_mutation_init") { }
 
+        class spell_putricide_mutation_init_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_putricide_mutation_init_SpellScript);
+
+            SpellCastResult CheckRequirement()
+            {
+                if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
+                    return SPELL_FAILED_TARGET_NOT_PLAYER;
+
+                InstanceScript* instance = GetCaster()->GetInstanceScript();
+                if (!instance)
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+                Creature* professor = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(DATA_PROFESSOR_PUTRICIDE));
+                if (!professor || !professor->isInCombat())
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+                if (professor->AI()->GetData(DATA_PHASE) == PHASE_COMBAT_3 || !professor->isAlive())
+                {
+                    SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_ALL_POTIONS_USED);
+                    return SPELL_FAILED_CUSTOM_ERROR;
+                }
+
+                // find another player with initialization aura
+                bool abominationExists = false;
+                Group* group = GetCaster()->ToPlayer()->GetGroup();
+                for (GroupReference* plrRef = group->GetFirstMember(); plrRef && !abominationExists; plrRef = plrRef->next())
+                    if (Player* player = plrRef->getSource())
+                        if (player->HasAura(GetSpellInfo()->Id))
+                            abominationExists = true;
+
+                // or an existing abomination
+                abominationExists |= bool(professor->AI()->GetData(DATA_ABOMINATION));
+                if (abominationExists)
+                {
+                    SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_TOO_MANY_ABOMINATIONS);
+                    return SPELL_FAILED_CUSTOM_ERROR;
+                }
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_putricide_mutation_init_SpellScript::CheckRequirement);
+            }
+        };
+
         class spell_putricide_mutation_init_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_putricide_mutation_init_AuraScript);
@@ -1188,6 +1254,11 @@ class spell_putricide_mutation_init : public SpellScriptLoader
                 OnEffectRemove += AuraEffectRemoveFn(spell_putricide_mutation_init_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_putricide_mutation_init_SpellScript();
+        }
 
         AuraScript* GetAuraScript() const
         {
