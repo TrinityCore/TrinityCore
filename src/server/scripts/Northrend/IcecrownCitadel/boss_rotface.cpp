@@ -127,6 +127,9 @@ class boss_rotface : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
+                if (InstanceScript* pInstance = me->GetInstanceScript())
+                    pInstance->SetData(DATA_KILL_CREDIT, Quest_A_Feast_of_Souls);
+
                 _JustDied();
                 Talk(SAY_DEATH);
                 if (Creature* professor = Unit::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))

@@ -209,6 +209,9 @@ class boss_sindragosa : public CreatureScript
 
             void JustDied(Unit* killer)
             {
+                if (InstanceScript* pInstance = me->GetInstanceScript())
+                    pInstance->SetData(DATA_KILL_CREDIT, Quest_A_Feast_of_Souls);
+
                 BossAI::JustDied(killer);
                 Talk(SAY_DEATH);
             }

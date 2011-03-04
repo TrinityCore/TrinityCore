@@ -290,6 +290,9 @@ class boss_blood_council_controller : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
+                if (InstanceScript* pInstance = me->GetInstanceScript())
+                    pInstance->SetData(DATA_KILL_CREDIT, Quest_A_Feast_of_Souls);
+
                 _JustDied();
                 // kill the other 2 princes too
                 for (uint8 i = 0; i < 2; ++i)

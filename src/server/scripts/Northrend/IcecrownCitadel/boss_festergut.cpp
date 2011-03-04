@@ -139,6 +139,9 @@ class boss_festergut : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
+                if (InstanceScript* pInstance = me->GetInstanceScript())
+                    pInstance->SetData(DATA_KILL_CREDIT, Quest_A_Feast_of_Souls);
+
                 _JustDied();
                 Talk(SAY_DEATH);
                 if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))

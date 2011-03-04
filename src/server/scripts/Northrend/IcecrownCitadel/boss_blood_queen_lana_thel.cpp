@@ -174,6 +174,9 @@ class boss_blood_queen_lana_thel : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
+                if (InstanceScript* pInstance = me->GetInstanceScript())
+                    pInstance->SetData(DATA_KILL_CREDIT, Quest_A_Feast_of_Souls);
+
                 _JustDied();
                 Talk(SAY_DEATH);
                 instance->DoRemoveAurasDueToSpellOnPlayers(ESSENCE_OF_BLOOD_QUEEN);

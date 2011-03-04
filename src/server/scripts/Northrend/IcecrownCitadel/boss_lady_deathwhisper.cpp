@@ -312,6 +312,9 @@ class boss_lady_deathwhisper : public CreatureScript
 
             void JustDied(Unit* killer)
             {
+                if (InstanceScript* pInstance = me->GetInstanceScript())
+                    pInstance->SetData(DATA_KILL_CREDIT, Quest_A_Feast_of_Souls);
+
                 Talk(SAY_DEATH);
 
                 std::set<uint32> livingAddEntries;

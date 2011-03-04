@@ -126,6 +126,9 @@ class boss_lord_marrowgar : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
+                if (InstanceScript* pInstance = me->GetInstanceScript())
+                    pInstance->SetData(DATA_KILL_CREDIT, Quest_A_Feast_of_Souls);
+
                 Talk(SAY_DEATH);
 
                 _JustDied();
