@@ -129,7 +129,7 @@ class npc_announcer_toc10 : public CreatureScript
             if (!instanceScript)
                 return true;
 
-            char const* _message = "We are ready!";
+            char const* _message = "Wir sind bereit!";
 
             if (player->isInCombat() || instanceScript->IsEncounterInProgress() || instanceScript->GetData(TYPE_EVENT))
                 return true;

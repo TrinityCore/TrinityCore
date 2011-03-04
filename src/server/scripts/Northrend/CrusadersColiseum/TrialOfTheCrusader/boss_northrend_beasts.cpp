@@ -306,6 +306,10 @@ public:
             if (m_bTargetDied || !UpdateVictim())
                 return;
 
+            if (Unit* pGormok = Unit::GetCreature(*me,m_pInstance->GetData64(NPC_GORMOK)))
+                if (!pGormok->isAlive())
+                    me->ForcedDespawn();
+
             if (Unit* pTarget = Unit::GetPlayer(*me, m_uiTargetGUID))
             {
                 if (!pTarget->isAlive())
