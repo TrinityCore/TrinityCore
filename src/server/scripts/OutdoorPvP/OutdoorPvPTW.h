@@ -927,7 +927,7 @@ private:
     void AktualisiereWerkstattAnzahl(TeamId teamId, bool add);
 
     // Werkstatt mit Werkstatt oder Ingi GUID holen
-    TausendwinterCapturePoint * HoleWerkstatt(uint32 lowguid) const;
+    TausendwinterCapturePoint * Tausendwinter::HoleWerkstatt(uint32 lowguid) const;
 
     // NPC Typen holen
     static TW_NPC_TYP HoleNPCTyp(const uint32 entry);
