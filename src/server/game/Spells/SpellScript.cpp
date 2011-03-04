@@ -146,6 +146,16 @@ std::string _SpellScript::EffectAuraNameCheck::ToString()
     }
 }
 
+SpellScript::CheckCastHandler::CheckCastHandler(SpellCheckCastFnType checkCastHandlerScript)
+{
+    _checkCastHandlerScript = checkCastHandlerScript;
+}
+
+SpellCastResult SpellScript::CheckCastHandler::Call(SpellScript* spellScript)
+{
+    return (spellScript->*_checkCastHandlerScript)();
+}
+
 SpellScript::EffectHandler::EffectHandler(SpellEffectFnType _pEffectHandlerScript,uint8 _effIndex, uint16 _effName)
     : _SpellScript::EffectNameCheck(_effName), _SpellScript::EffectHook(_effIndex)
 {
@@ -443,6 +453,17 @@ void SpellScript::FinishCast(SpellCastResult result)
 {
     m_spell->SendCastResult(result);
     m_spell->finish(result == SPELL_CAST_OK);
+}
+
+void SpellScript::SetCustomCastResultMessage(SpellCustomErrors result)
+{
+    if (!IsInCheckCastHook())
+    {
+        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::SetCustomCastResultMessage was called while spell not in check cast phase!", m_scriptName->c_str(), m_scriptSpellId);
+        return;
+    }
+
+    m_spell->m_customError = result;
 }
 
 bool AuraScript::_Validate(SpellEntry const * entry)
