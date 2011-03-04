@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -64,7 +64,11 @@ enum eSpells
     //SPELL_BREATH                = 21131,                  // 8x in "array", different initial cast than the other arrays
 
     // Phase 3 spells
-    SPELL_BELLOWING_ROAR         = 18431,
+    SPELL_BELLOWING_ROAR        = 18431,
+
+    SPELL_LAIRGUARDCLEAVE       = 15284,
+    SPELL_LAIRGUARDBLASTNOVA    = 68958,
+    SPELL_LAIRGUARDIGNITE       = 68960
 };
 
 struct sOnyxMove
@@ -494,7 +498,74 @@ public:
 
 };
 
+class mob_onyxia_lairguard : public CreatureScript
+{
+public:
+    mob_onyxia_lairguard() : CreatureScript("mob_onyxia_lairguard") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new mob_onyxia_lairguardAI(pCreature);
+    }
+
+    struct mob_onyxia_lairguardAI : public ScriptedAI
+    {
+        mob_onyxia_lairguardAI(Creature* pCreature) : ScriptedAI(pCreature)
+        {
+            m_pInstance = pCreature->GetInstanceScript();
+            Reset();
+        }
+
+        InstanceScript* m_pInstance;
+
+        uint32 m_uiLairGuardCleaveTimer;
+
+        bool novadone;
+        bool ignitedone;
+    
+        void Reset()
+        {
+            novadone = false;
+            ignitedone = false;
+
+            m_uiLairGuardCleaveTimer = urand(5000, 10000);
+        }
+
+        void UpdateAI(const uint32 uiDiff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            if (me->HasUnitState(UNIT_STAT_CASTING))
+                return;
+
+            if (!ignitedone)
+            {
+                DoCast(me, SPELL_LAIRGUARDIGNITE);
+                ignitedone = true;
+            }
+
+            if (!novadone && HealthBelowPct(25))
+            {
+                DoCast(me, SPELL_LAIRGUARDBLASTNOVA, true);
+                novadone = true;
+            }
+
+	        if (m_uiLairGuardCleaveTimer <= uiDiff)
+            {
+                DoCast(me->getVictim(), SPELL_LAIRGUARDCLEAVE);
+                m_uiLairGuardCleaveTimer = urand(5000, 10000);
+            }
+            else
+                m_uiLairGuardCleaveTimer -= uiDiff;
+
+            DoMeleeAttackIfReady();
+	    }
+    };
+};
+
 void AddSC_boss_onyxia()
 {
     new boss_onyxia();
+    new mob_onyxia_lairguard();
 }
