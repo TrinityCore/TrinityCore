@@ -281,11 +281,11 @@ public:
         {
             switch (pAI->uiGossipStep)
             {
-                case 0: //This one is a workaround since the very beggining of the script is wrong.
-                {
-                    QuestStatus status = pPlayer->GetQuestStatus(13149);
-                    if (status != QUEST_STATUS_COMPLETE && status != QUEST_STATUS_REWARDED)
-                        return false;
+                case 0:
+                    // This one is a workaround since the very beggining of the script is wrong.
+                    // Abgeschaltet, da die Quest IMMER NOCH NICHT funktioniert imo! :-(
+                    /*if (pPlayer->GetQuestStatus(13149) != QUEST_STATUS_COMPLETE)
+                        return false;*/
                     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
                     pPlayer->SEND_GOSSIP_MENU(907, pCreature->GetGUID());
                     break;
