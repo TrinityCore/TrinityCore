@@ -1847,6 +1847,10 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 72706, 'spell_gen_dungeon_credit'),
 ( 72830, 'spell_gen_dungeon_credit'),
 ( 72959, 'spell_gen_dungeon_credit'),
+( 60893, 'spell_gen_profession_research'),
+( 61177, 'spell_gen_profession_research'),
+( 61288, 'spell_gen_profession_research'),
+( 61756, 'spell_gen_profession_research'),
 -- instances
 -- Black Temple
 ( 41475, 'spell_boss_lady_malande_shield'),
@@ -2103,6 +2107,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 71905, 'spell_item_shadowmourne'),
 ( 67533, 'spell_item_red_rider_air_rifle'),
 ( 26678, 'spell_item_create_heart_candy'),
+( 64323, 'spell_item_book_of_glyph_mastery'),
 -- warrior
 ( 12975, 'spell_warr_last_stand'),
 ( 59725, 'spell_warr_improved_spell_reflection'),

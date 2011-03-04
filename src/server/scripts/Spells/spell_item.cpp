@@ -22,6 +22,7 @@
  */
 
 #include "ScriptPCH.h"
+#include "SkillDiscovery.h"
 
 // Generic script for handling item dummy effects which trigger another spell.
 class spell_item_trigger_spell : public SpellScriptLoader
@@ -849,6 +850,38 @@ class spell_item_create_heart_candy : public SpellScriptLoader
         }
 };
 
+class spell_item_book_of_glyph_mastery : public SpellScriptLoader
+{
+    public:
+        spell_item_book_of_glyph_mastery() : SpellScriptLoader("spell_item_book_of_glyph_mastery") {}
+
+        class spell_item_book_of_glyph_mastery_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_book_of_glyph_mastery_SpellScript);
+
+            SpellCastResult CheckRequirement()
+            {
+                if (GetCaster()->GetTypeId() == TYPEID_PLAYER && HasDiscoveredAllSpells(GetSpellInfo()->Id, GetCaster()->ToPlayer()))
+                {
+                    SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_LEARNED_EVERYTHING);
+                    return SPELL_FAILED_CUSTOM_ERROR;
+                }
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_item_book_of_glyph_mastery_SpellScript::CheckRequirement);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_book_of_glyph_mastery_SpellScript();
+        }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -874,4 +907,5 @@ void AddSC_item_spell_scripts()
     new spell_item_red_rider_air_rifle();
 
     new spell_item_create_heart_candy();
+    new spell_item_book_of_glyph_mastery();
 }
