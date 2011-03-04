@@ -255,26 +255,26 @@ class AchievementMgr
         void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscvalue1 = 0, uint32 miscvalue2 = 0, Unit *unit = NULL, uint32 time = 0);
         void CompletedAchievement(AchievementEntry const* entry, bool ignoreGMAllowAchievementConfig = false);
         void CheckAllAchievementCriteria();
-        void SendAllAchievementData();
-        void SendRespondInspectAchievements(Player* player);
+        void SendAllAchievementData() const;
+        void SendRespondInspectAchievements(Player* player) const;
         bool HasAchieved(AchievementEntry const* achievement) const;
-        Player* GetPlayer() { return m_player; }
+        Player* GetPlayer() const { return m_player; }
         void UpdateTimedAchievements(uint32 timeDiff);
         void StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry, uint32 timeLost = 0);
         void RemoveTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);   // used for quest and scripted timed achievements
 
     private:
         enum ProgressType { PROGRESS_SET, PROGRESS_ACCUMULATE, PROGRESS_HIGHEST };
-        void SendAchievementEarned(AchievementEntry const* achievement);
-        void SendCriteriaUpdate(AchievementCriteriaEntry const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted);
+        void SendAchievementEarned(AchievementEntry const* achievement) const;
+        void SendCriteriaUpdate(AchievementCriteriaEntry const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted) const;
         CriteriaProgress* GetCriteriaProgress(AchievementCriteriaEntry const* entry);
         void SetCriteriaProgress(AchievementCriteriaEntry const* entry, uint32 changeValue, ProgressType ptype = PROGRESS_SET);
         void RemoveCriteriaProgress(AchievementCriteriaEntry const* entry);
         void CompletedCriteriaFor(AchievementEntry const* achievement);
-        bool IsCompletedCriteria(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement);
+        bool IsCompletedCriteria(AchievementCriteriaEntry const* achievementCriteria, AchievementEntry const* achievement);
         bool IsCompletedAchievement(AchievementEntry const* entry);
-        //void CompleteAchievementsWithRefs(AchievementEntry const* entry);
-        void BuildAllDataPacket(WorldPacket *data);
+        bool CanUpdateCriteria(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement);
+        void BuildAllDataPacket(WorldPacket *data) const;
 
         Player* m_player;
         CriteriaProgressMap m_criteriaProgress;
@@ -290,9 +290,17 @@ class AchievementGlobalMgr
         ~AchievementGlobalMgr() {}
 
     public:
-        AchievementCriteriaEntryList const& GetAchievementCriteriaByType(AchievementCriteriaTypes type);
-        AchievementCriteriaEntryList const& GetTimedAchievementCriteriaByType(AchievementCriteriaTimedTypes type);
-        AchievementCriteriaEntryList const* GetAchievementCriteriaByAchievement(uint32 id)
+        AchievementCriteriaEntryList const& GetAchievementCriteriaByType(AchievementCriteriaTypes type) const
+        {
+            return m_AchievementCriteriasByType[type];
+        }
+
+        AchievementCriteriaEntryList const& GetTimedAchievementCriteriaByType(AchievementCriteriaTimedTypes type) const
+        {
+            return m_AchievementCriteriasByTimedType[type];
+        }
+
+        AchievementCriteriaEntryList const* GetAchievementCriteriaByAchievement(uint32 id) const
         {
             AchievementCriteriaListByAchievement::const_iterator itr = m_AchievementCriteriaListByAchievement.find(id);
             return itr != m_AchievementCriteriaListByAchievement.end() ? &itr->second : NULL;
@@ -316,7 +324,7 @@ class AchievementGlobalMgr
             return iter != m_achievementRewardLocales.end() ? &iter->second : NULL;
         }
 
-        AchievementCriteriaDataSet const* GetCriteriaDataSet(AchievementCriteriaEntry const *achievementCriteria)
+        AchievementCriteriaDataSet const* GetCriteriaDataSet(AchievementCriteriaEntry const *achievementCriteria) const
         {
             AchievementCriteriaDataMap::const_iterator iter = m_criteriaDataMap.find(achievementCriteria->ID);
             return iter != m_criteriaDataMap.end() ? &iter->second : NULL;
