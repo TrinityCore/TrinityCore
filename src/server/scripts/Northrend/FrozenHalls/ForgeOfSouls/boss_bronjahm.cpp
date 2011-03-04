@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -217,7 +217,7 @@ class mob_corrupted_soul_fragment : public CreatureScript
                             me->CastSpell(bronjahm, SPELL_CONSUME_SOUL, true);
 
                         summ->GetMotionMaster()->MoveIdle();
-                        summ->UnSummon();
+                    summ->ForcedDespawn();
                     }
                 }
             }
@@ -352,57 +352,6 @@ class spell_bronjahm_soulstorm_visual : public SpellScriptLoader
         }
 };
 
-class DistanceCheck
-{
-    public:
-        explicit DistanceCheck(Unit* _caster) : caster(_caster) { }
-
-        bool operator() (Unit* unit)
-        {
-            if (caster->GetExactDist2d(unit) <= 10.0f)
-                return true;
-            return false;
-        }
-
-        Unit* caster;
-};
-
-class spell_bronjahm_soulstorm_targeting : public SpellScriptLoader
-{
-    public:
-        spell_bronjahm_soulstorm_targeting() : SpellScriptLoader("spell_bronjahm_soulstorm_targeting") { }
-
-        class spell_bronjahm_soulstorm_targeting_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_bronjahm_soulstorm_targeting_SpellScript);
-
-            void FilterTargetsInitial(std::list<Unit*>& unitList)
-            {
-                unitList.remove_if(DistanceCheck(GetCaster()));
-                sharedUnitList = unitList;
-            }
-
-            // use the same target for first and second effect
-            void FilterTargetsSubsequent(std::list<Unit*>& unitList)
-            {
-                unitList = sharedUnitList;
-            }
-
-            void Register()
-            {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_bronjahm_soulstorm_targeting_SpellScript::FilterTargetsInitial, EFFECT_1, TARGET_UNIT_AREA_ENEMY_DST);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_bronjahm_soulstorm_targeting_SpellScript::FilterTargetsSubsequent, EFFECT_2, TARGET_UNIT_AREA_ENEMY_DST);
-            }
-
-            std::list<Unit*> sharedUnitList;
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_bronjahm_soulstorm_targeting_SpellScript();
-        }
-};
-
 void AddSC_boss_bronjahm()
 {
     new boss_bronjahm();
@@ -411,5 +360,4 @@ void AddSC_boss_bronjahm()
     new spell_bronjahm_consume_soul();
     new spell_bronjahm_soulstorm_channel();
     new spell_bronjahm_soulstorm_visual();
-    new spell_bronjahm_soulstorm_targeting();
 }
