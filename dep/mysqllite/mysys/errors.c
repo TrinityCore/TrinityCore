@@ -18,7 +18,7 @@
 
 #ifndef SHARED_LIBRARY
 
-const char * NEAR globerrs[GLOBERRS]=
+const char *globerrs[GLOBERRS]=
 {
   "Can't create/write to file '%s' (Errcode: %d)",
   "Error reading file '%s' (Errcode: %d)",
@@ -52,6 +52,7 @@ const char * NEAR globerrs[GLOBERRS]=
   "File '%s' (fileno: %d) was not closed",
   "Can't change ownership of the file '%s' (Errcode: %d)",
   "Can't change permissions of the file '%s' (Errcode: %d)",
+  "Can't seek in file '%s' (Errcode: %d)"
 };
 
 void init_glob_errs(void)
@@ -94,6 +95,7 @@ void init_glob_errs()
   EE(EE_FILE_NOT_CLOSED) = "File '%s' (fileno: %d) was not closed";
   EE(EE_CHANGE_OWNERSHIP)   = "Can't change ownership of the file '%s' (Errcode: %d)";
   EE(EE_CHANGE_PERMISSIONS) = "Can't change permissions of the file '%s' (Errcode: %d)";
+  EE(EE_CANT_SEEK)      = "Can't seek in file '%s' (Errcode: %d)";
 }
 #endif
 
@@ -108,5 +110,10 @@ void wait_for_free_space(const char *filename, int errors)
                     MYF(ME_BELL | ME_NOREFRESH),
                     MY_WAIT_FOR_USER_TO_FIX_PANIC,
                     MY_WAIT_GIVE_USER_A_MESSAGE * MY_WAIT_FOR_USER_TO_FIX_PANIC );
-  VOID(sleep(MY_WAIT_FOR_USER_TO_FIX_PANIC));
+  (void) sleep(MY_WAIT_FOR_USER_TO_FIX_PANIC);
+}
+
+const char **get_global_errmsgs()
+{
+  return globerrs;
 }

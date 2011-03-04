@@ -74,6 +74,7 @@ struct my_cs_file_section_st
 #define	_CS_DIFF1	19
 #define	_CS_DIFF2	20
 #define	_CS_DIFF3	21
+#define	_CS_IDENTICAL	22
 
 
 static struct my_cs_file_section_st sec[] =
@@ -108,6 +109,7 @@ static struct my_cs_file_section_st sec[] =
   {_CS_DIFF1,		"charsets/charset/collation/rules/p"},
   {_CS_DIFF2,		"charsets/charset/collation/rules/s"},
   {_CS_DIFF3,		"charsets/charset/collation/rules/t"},
+  {_CS_IDENTICAL,	"charsets/charset/collation/rules/i"},
   {0,	NULL}
 };
 
@@ -269,6 +271,7 @@ static int cs_value(MY_XML_PARSER *st,const char *attr, size_t len)
   case _CS_DIFF1:
   case _CS_DIFF2:
   case _CS_DIFF3:
+  case _CS_IDENTICAL:
     {
       /*
         Convert collation description from
@@ -276,7 +279,7 @@ static int cs_value(MY_XML_PARSER *st,const char *attr, size_t len)
         into ICU Collation Customization expression.
       */
       char arg[16];
-      const char *cmd[]= {"&","<","<<","<<<"};
+      const char *cmd[]= {"&","<","<<","<<<","="};
       i->cs.tailoring= i->tailoring;
       mstr(arg,attr,len,sizeof(arg)-1);
       if (i->tailoring_length + 20 < sizeof(i->tailoring))
@@ -401,6 +404,26 @@ my_charset_is_8bit_pure_ascii(CHARSET_INFO *cs)
   for (code= 0; code < 256; code++)
   {
     if (cs->tab_to_uni[code] > 0x7F)
+      return 0;
+  }
+  return 1;
+}
+
+
+/*
+  Shared function between conf_to_src and mysys.
+  Check if a 8bit character set is compatible with
+  ascii on the range 0x00..0x7F.
+*/
+my_bool
+my_charset_is_ascii_compatible(CHARSET_INFO *cs)
+{
+  uint i;
+  if (!cs->tab_to_uni)
+    return 1;
+  for (i= 0; i < 128; i++)
+  {
+    if (cs->tab_to_uni[i] != i)
       return 0;
   }
   return 1;
