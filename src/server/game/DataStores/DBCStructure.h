@@ -42,7 +42,7 @@
 struct AchievementEntry
 {
     uint32    ID;                                           // 0
-    int32    factionFlag;                                   // 1 -1=all, 0=horde, 1=alliance
+    int32    requiredFaction;                                   // 1 -1=all, 0=horde, 1=alliance
     int32    mapID;                                         // 2 -1=none
     //uint32 parentAchievement;                             // 3 its Achievement parent (can`t start while parent uncomplete, use its Criteria if don`t have own, use its progress on begin)
     char *name[16];                                         // 4-19
@@ -501,7 +501,7 @@ struct AchievementCriteriaEntry
 
     //char*  name[16];                                      // 9-24
     //uint32 name_flags;                                    // 25
-    uint32  completionFlag;                                 // 26
+    uint32  flags;                                          // 26
     uint32  timedType;                                      // 27
     uint32  timerStartEvent;                                // 28 Alway appears with timed events
                                                             // for timed spells it is spell id for
