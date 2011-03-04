@@ -136,7 +136,7 @@ public:
                 if (Creature *pArthas = me->SummonCreature(CREATURE_ARTHAS, ArthasPos, TEMPSUMMON_MANUAL_DESPAWN))
                 {
                     pArthas->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                    pArthas->SetFloatValue(OBJECT_FIELD_SCALE_X, 5);
+                    pArthas->SetFloatValue(OBJECT_FIELD_SCALE_X, 12);
                     uiArthasGUID = pArthas->GetGUID();
                 }
             }

@@ -759,6 +759,7 @@ public:
         mob_palehoof_orbAI(Creature *c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
+            me->SetUInt32Value(UNIT_FIELD_DISPLAYID, 11686);
         }
 
         InstanceScript *pInstance;
