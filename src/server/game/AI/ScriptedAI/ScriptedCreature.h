@@ -49,6 +49,9 @@ struct ScriptedAI : public CreatureAI
     //CreatureAI Functions
     // *************
 
+    // Add items to a player
+    void addItem(Player* player, uint32 itemid, uint8 amount = 1, bool received = true, bool created = false, bool broadcast = false);
+
     void AttackStartNoMove(Unit *pTarget);
 
     // Called at any Damage from any attacker (before damage apply)

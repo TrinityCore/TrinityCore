@@ -91,6 +91,28 @@ ScriptedAI::ScriptedAI(Creature* pCreature) : CreatureAI(pCreature),
     m_difficulty = Difficulty(me->GetMap()->GetSpawnMode());
 }
 
+// Add items to a player
+void ScriptedAI::addItem(Player* player, uint32 itemid, uint8 amount, bool received, bool created, bool broadcast)
+{
+    ItemPosCountVec dest;
+    uint32 no_space = 0;
+    uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemid, amount, &no_space);
+
+    if (msg != EQUIP_ERR_OK)
+    {
+        player->SendEquipError(msg, NULL, NULL);
+        return;
+    }
+    // create the new item(s) and store it
+    Item* pItem = player->StoreNewItem(dest, itemid, true, Item::GenerateItemRandomPropertyId(itemid));
+    if (!pItem)
+    {
+        player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
+        return;
+    }
+    player->SendNewItem(pItem, amount, received, created, broadcast);
+}
+
 void ScriptedAI::AttackStartNoMove(Unit* pWho)
 {
     if (!pWho)

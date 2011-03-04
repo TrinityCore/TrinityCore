@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2008-2011 by WarHead (United Worlds of MaNGOS)
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
@@ -29,7 +30,6 @@ npc_air_force_bots       80%    support for misc (invisible) guard bots in areas
 npc_lunaclaw_spirit      80%    support for quests 6001/6002 (Body and Heart)
 npc_chicken_cluck       100%    support for quest 3861 (Cluck!)
 npc_dancing_flames      100%    midsummer event NPC
-npc_guardian            100%    guardianAI used to prevent players from accessing off-limits areas. Not in use by SD2
 npc_garments_of_quests   80%    NPC's related to all Garments of-quests 5621, 5624, 5625, 5648, 565
 npc_injured_patient     100%    patients for triage-quests (6622 and 6624)
 npc_doctor              100%    Gustaf Vanhowzen and Gregory Victor, quest 6622 and 6624 (Triage)
@@ -47,6 +47,2206 @@ EndContentData */
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "World.h"
+#include "ReputationMgr.h"
+#include "Config.h"
+
+// Copyright 2008-2011 by WarHead (United Worlds of MaNGOS)
+// ------------------------------------------------------------------------------------------------------------
+// Feuerrufer 60000
+// ------------------------------------------------------------------------------------------------------------
+void CreateSema(const char* cnt, const char* character, const char* item)
+{
+    std::string tmpfile = "./firecaller_present_";
+    tmpfile.append(cnt);
+
+    std::string tmp = "Charakter: ";
+    tmp.append(character).append(" - Item: ").append(item);
+
+    FILE* semafile = fopen(tmpfile.c_str(), "w");
+    if (semafile)
+    {
+        sLog->outString("FEUERUFER: ADDITEM INFO: %s", tmp.c_str());
+        fputs(tmp.c_str(), semafile);
+        fclose(semafile);
+    }
+    else
+    {
+        sLog->outError("FEUERUFER: KANN '%s' NICHT ERSTELLEN!", tmpfile.c_str());
+        sLog->outError("FEUERUFER: ITEM INFO: %s", tmp.c_str());
+    }
+}
+
+bool CheckSema(const char* cnt)
+{
+    std::string tmpfile = "./firecaller_present_";
+    tmpfile.append(cnt);
+
+    FILE* semafile = fopen(tmpfile.c_str(), "r");
+    if (semafile)
+    {
+        fclose(semafile);
+        return true;
+    }
+    return false;
+}
+
+void LearnAllSkillRecipes(Player* player, uint32 skill_id)
+{
+    uint32 classmask = player->getClassMask();
+
+    for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
+    {
+        SkillLineAbilityEntry const *skillLine = sSkillLineAbilityStore.LookupEntry(j);
+        if (!skillLine)
+            continue;
+
+        // wrong skill
+        if (skillLine->skillId != skill_id)
+            continue;
+
+        // not high rank
+        if (skillLine->forward_spellid)
+            continue;
+
+        // skip racial skills
+        if (skillLine->racemask != 0)
+            continue;
+
+        // skip wrong class skills
+        if (skillLine->classmask && (skillLine->classmask & classmask) == 0)
+            continue;
+
+        SpellEntry const* spellInfo = sSpellStore.LookupEntry(skillLine->spellId);
+        if (!spellInfo)
+            continue;
+
+        player->learnSpell(skillLine->spellId, false);
+    }
+}
+
+#define SPELL_RAKETENBUENDEL_ZUENDER    26299   // Zünder für Raketenbündel herstellen - 2 Secs. cast - NUR EINMAL BEIM START CASTEN!!!
+
+#define FirecallerSpellsCnt 15
+uint32 FirecallerSpells[FirecallerSpellsCnt] =
+{
+    6668,   // Rotes Feuerwerk - 2.5 Secs. cooldown
+    11540,  // Blaues Feuerwerk - 2.5 Secs. cooldown
+    11541,  // Grünes Feuerwerk - 2.5 Secs. cooldown
+    11542,  // Rotes Streifen-Feuerwerk - 2.5 Secs. cooldown
+    11543,  // Rot - Weiß - Blau Feuerwerk - 2.5 Secs. cooldown
+    11544,  // Gelbe Rosen - Feuerwerk - 2.5 Secs. cooldown
+    19823,  // Feuernova - Visual - kein Schaden
+    30161,  // Lila Feuerwerk - 30 Secs. cooldown
+    30237,  // Astralflimmern - Visual
+    34602,  // Explosion - kein Schaden
+    42075,  // Headless Horseman - Visual - Large Fire
+    45153,  // Liebesrakete
+    46235,  // Schwarzes Loch 2 - Visual
+    46829,  // Ribbon Pole Firework and Flame Patch
+    55420,  // Feuerwerk von Dalaran - 5 Secs. Duration
+};
+
+uint32 FirecallerTargetSpells[4] =
+{
+    45729,  // Bodenblüte - Reichweite 20Y (needs target!)
+    45971,  // Bodenraketen - Reichweite 150Y - self oder target
+    49872,  // Raketenschuss - 10-70Y - needs target!
+    52254,  // Luft-Luft-Rakete - 80Y -NUR GEGEN GM ANWENDEN!!! (needs target!)
+};
+
+#define FirecallerClusterCnt    15
+uint32 FirecallerCluster[FirecallerClusterCnt] =
+{
+    26304,  // Blaues Raketenbündel - 10 Secs. Duration
+    26325,  // Grünes Raketenbündel - 10 Secs. Duration
+    26326,  // Lila Raketenbündel - 10 Secs. Duration
+    26327,  // Rotes Raketenbündel - 10 Secs. Duration
+    26328,  // Weißes Raketenbündel - 10 Secs. Duration
+    26329,  // Gelbes Raketenbündel - 10 Secs. Duration
+    26488,  // Großes blaues Raketenbündel - 10 Secs. Duration
+    26490,  // Großes grünes Raketenbündel - 10 Secs. Duration
+    26516,  // Großes lila Raketenbündel - 10 Secs. Duration
+    26517,  // Großes rotes Raketenbündel - 10 Secs. Duration
+    26518,  // Großes weißes Raketenbündel - 10 Secs. Duration
+    26519,  // Großes gelbes Raketenbündel - 10 Secs. Duration
+    42813,  // Blaue Rakete von Theramore - 5 Secs. Duration
+    42815,  // Gelbe Rakete von Theramore - 5 Secs. Duration
+    42816,  // Lila Rakete von Theramore - 5 Secs. Duration
+};
+
+#define FirecallerJokesCnt  17
+uint32 FirecallerJokes[FirecallerJokesCnt] =
+{
+    24708,  // Piratenkostüm - 100Y - m
+    24709,  // Piratenkostüm - 100Y - f
+    24710,  // Ninjakostüm - 100Y - m
+    24711,  // Ninjakostüm - 100Y - f
+    24712,  // Lepragnomkostüm - 100Y - m
+    24713,  // Lepragnomkostüm - 100Y - f
+    24723,  // Skelettkostüm - 100Y
+    24735,  // Geistkostüm - 100Y - m
+    24736,  // Geistkostüm - 100Y - f
+    24740,  // Irrwischkostüm - 100Y
+    26157,  // PX-238 Winterwundervolt - self
+    26272,  // PX-238 Winterwundervolt - self
+    26273,  // PX-238 Winterwundervolt - self
+    26274,  // PX-238 Winterwundervolt - self
+    43906,  // Frosch im Hals - 40Y
+    45684,  // Verwandlung: Pfiffi Wackelspross - self
+    61781   // Truthahnfedern - 40Y
+};
+
+// To find all pet items...
+// SELECT `entry`,`spellid_2` FROM `item_template` WHERE `class`='15' AND `subclass`='2' AND `spellid_2`!='0';
+
+#define FirecallerPresentsCnt   135
+uint32 FirecallerPresents[FirecallerPresentsCnt][2] =
+{   // Item,Spell
+    {4401,4055},{8485,10673},{8486,10674},{8487,10676},{8488,10678},{8489,10679},{8490,10677},{8491,10675},{8492,10683},{8494,10682},{8495,10684},{8496,10680},{8497,10711},{8498,10698},{8499,10697},
+    {8500,10707},{8501,10706},{10360,10714},{10361,10716},{10392,10717},{10393,10688},{10394,10709},{10398,12243},{10822,10695},{11023,10685},{11026,10704},{11027,10703},{11110,13548},{11474,15067},
+    {11825,15048},{11826,15049},{13582,17709},{13583,17707},{13584,17708},{15996,19772},{19450,23811},{20371,24696},{20769,25162},{21277,26010},{22114,27241},{22235,27570},{23002,28738},{23007,28739},
+    {23015,28740},{23083,28871},{23713,30156},{25535,32298},{27445,33050},{29363,35156},{29364,35239},{29901,35907},{29902,35909},{29903,35910},{29904,35911},{29953,36027},{29956,36028},{29957,36029},
+    {29958,36031},{29960,36034},{32233,39709},{32498,40405},{32588,40549},{33154,42609},{33816,43697},{33818,43698},{33993,43918},{34425,54187},{34478,45082},{34492,45125},{34493,45127},{34535,10696},
+    {35349,46425},{35350,46426},{35504,46599},{37297,48406},{38050,49964},{38628,51716},{38658,51851},{39286,52615},{39656,53082},{39896,61348},{39898,61351},{39899,61349},{39973,53316},{40653,40990},
+    {41133,55068},{43698,59250},{44721,61350},{44723,61357},{44738,61472},{44819,61855},{44822,10713},{44841,61991},{44965,62491},{44970,62508},{44971,62510},{44973,62513},{44974,62516},{44980,62542},
+    {44982,62564},{44983,62561},{44984,62562},{44998,62609},{45002,62674},{45022,62746},{45180,63318},{45606,63712},{46398,65358},{46544,65382},{46545,65381},{46707,44369},{46767,65682},{46802,66030},
+    {46820,66096},{46821,66096},{48112,67413},{48114,67414},{48116,67415},{48118,67416},{48120,67417},{48122,67418},{48124,67419},{48126,67420},{49287,68767},{49343,68810},{49362,69002},{49646,69452},
+    {49662,69535},{49663,69536},{49665,69541},{49693,69677},{49912,70613},{50446,71840},{54436,75134},{54847,75906}
+};
+
+uint32 FirecallerSounds[3][5] =
+{
+    // Welcome
+    {11966, 0, 0, 0, 0},
+    // Abschied
+    {11968, 0, 0, 0, 0},
+    // Random
+    {11962, 11965, 11967, 11975, 11976}
+};
+
+class npc_uwom_firecaller : public CreatureScript
+{
+public:
+    npc_uwom_firecaller() : CreatureScript("npc_uwom_firecaller") { }
+
+    struct npc_uwom_firecallerAI : public ScriptedAI
+    {
+        npc_uwom_firecallerAI(Creature* c) : ScriptedAI(c)
+        {
+            me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_NORMAL, true);
+            me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->setFaction(35);
+
+            StartTimer = 60000;                     // 1 Min. nach erscheinen loslegen
+            StopTimer = 1740000;                    // 29 Min. nach Start beenden
+            SoundTimer = urand(60000,120000);       // Timer für random Sounds
+            WaitTimer = 2400;                       // Pause zwischen den Spells
+            TargetTimer = urand(70000,90000);       // Timer für Targetspells
+            ClusterTimer = urand(30000,60000);      // Timer für ClusterSpells
+            PresentTimer = urand(600000,1200000);   // Ab hier gibbet Geschenke (min. 10 Min.)! ;)
+
+            Gestartet = false;
+            Ende = false;
+            Done = false;
+            CanGive = false;
+        }
+
+        uint32 StartTimer,
+            StopTimer,
+            SoundTimer,
+            WaitTimer,
+            TargetTimer,
+            ClusterTimer,
+            PresentTimer;
+
+        bool Gestartet,
+            Ende,
+            Done,
+            CanGive;
+
+        void Reset() { me->CastSpell(me, SPELL_RAKETENBUENDEL_ZUENDER, true); }
+
+        void EnterCombat(Unit* who) { return; }
+        void AttackStart(Unit* who) { return; }
+
+        uint8 PresentsDone()
+        {
+            if (Done) return 3;
+
+            if (CheckSema("01") && CheckSema("02") && CheckSema("03"))
+            {
+                Done = true;
+                return 3;
+            }
+            if (CheckSema("01") && CheckSema("02")) return 2;
+            if (CheckSema("01") && CheckSema("03")) return 2;
+            if (CheckSema("02") && CheckSema("03")) return 2;
+
+            if (CheckSema("01") || CheckSema("02") || CheckSema("03")) return 1;
+
+            return 0;
+        }
+
+        void MoveInLineOfSight(Unit* who)
+        {
+            if (Gestartet && who && who->GetTypeId() == TYPEID_PLAYER && who->isAlive())
+            {
+                if (((Player*)who)->GetSession()->GetSecurity() == SEC_PLAYER && !Done && CanGive && urand(0,299) == 150 && PresentsDone() < 3)
+                {
+                    for (uint8 i=0; i<FirecallerPresentsCnt; ++i)
+                    {
+                        if (!((Player*)who)->HasItemCount(FirecallerPresents[i][0], 1, true) && !((Player*)who)->HasSpell(FirecallerPresents[i][1]))
+                        {
+                            char buffer[6];
+                            sprintf(buffer, "%u", FirecallerPresents[i][0]);
+                            addItem((Player*)who, FirecallerPresents[i][0]);
+
+                            switch(PresentsDone())
+                            {
+                                case 0: CreateSema("01", ((Player*)who)->GetName(), buffer); break;
+                                case 1: CreateSema("02", ((Player*)who)->GetName(), buffer); break;
+                                case 2: CreateSema("03", ((Player*)who)->GetName(), buffer); break;
+                            }
+                            return;
+                        }
+                    }
+                }
+
+                for (uint8 i=0; i<FirecallerJokesCnt; ++i)
+                    if (who->HasAura(FirecallerJokes[i])) return;
+
+                if (((Player*)who)->GetDisplayId() != me->GetDisplayId()) ((Player*)who)->SetDisplayId(me->GetDisplayId());
+
+                if (urand(1,199) == 100)
+                {
+                    uint8 i = urand(0,FirecallerJokesCnt-1);
+
+                    switch(i)
+                    {
+                        case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9:
+                            if (((Player*)who)->GetDisplayId() == me->GetDisplayId()) ((Player*)who)->DeMorph();
+                            if (me->GetDistance(who) <= 100.0f) me->CastSpell(who, FirecallerJokes[i], true);
+                            break;
+                        case 10: case 11: case 12: case 13: case 15:
+                            if (((Player*)who)->GetDisplayId() == me->GetDisplayId()) ((Player*)who)->DeMorph();
+                            ((Player*)who)->InterruptNonMeleeSpells(false);
+                            ((Player*)who)->CastSpell(who, FirecallerJokes[i], false);
+                            break;
+                        case 14: case 16:
+                            if (((Player*)who)->GetDisplayId() == me->GetDisplayId()) ((Player*)who)->DeMorph();
+                            if (me->GetDistance(who) <= 40.0f) me->CastSpell(who, FirecallerJokes[i], true);
+                            break;
+                    }
+                }
+            }
+            return;
+        }
+
+        void StartEvent()
+        {
+            DoPlaySoundToSet(me, FirecallerSounds[0][0]);
+            DoCast(me, FirecallerSpells[6]);
+            Gestartet = true;
+        }
+
+        void StopEvent()
+        {
+            DoPlaySoundToSet(me, FirecallerSounds[1][0]);
+            DoCast(me, FirecallerSpells[9]);
+            me->SetVisible(false);
+            Gestartet = false;
+            Ende = true;
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (StartTimer < diff && !Gestartet && !Ende) StartEvent();
+            else if (!Gestartet) StartTimer -= diff;
+
+            if (!Done && !CanGive && PresentTimer < diff) CanGive = true;
+            else if (!CanGive) PresentTimer -= diff;
+
+            if (Gestartet && !Ende)
+            {
+                if (SoundTimer < diff)
+                {
+                    DoPlaySoundToSet(me, FirecallerSounds[2][urand(0,4)]);
+                    SoundTimer = urand(60000,120000);
+                } else SoundTimer -= diff;
+
+                if (WaitTimer < diff && !me->IsNonMeleeSpellCasted(false))
+                {
+                    DoCast(me, FirecallerSpells[urand(0,FirecallerSpellsCnt-1)]);
+                    WaitTimer = 2400;
+                } else WaitTimer -= diff;
+
+                if (TargetTimer < diff)
+                {
+                    Player* tmp = GetPlayerAtMinimumRange(10.0f);
+                    if (tmp && tmp->GetSession()->GetSecurity() > SEC_PLAYER)
+                    {   // GM
+                        me->setFaction(14);
+                        me->InterruptNonMeleeSpells(false);
+                        me->CastSpell(tmp, FirecallerTargetSpells[3], false);
+                        me->setFaction(35);
+                    }
+                    else if (tmp)
+                    {   // User
+                        me->setFaction(14);
+                        me->InterruptNonMeleeSpells(false);
+                        me->CastSpell(tmp, FirecallerTargetSpells[urand(0,2)], false);
+                        me->setFaction(35);
+                    }
+                    TargetTimer = urand(30000,60000);
+                } else TargetTimer -= diff;
+
+                if (ClusterTimer < diff)
+                {
+                    me->InterruptNonMeleeSpells(false);
+                    me->CastSpell(me, FirecallerCluster[urand(0,FirecallerClusterCnt-1)], false);
+                    ClusterTimer = urand(15000,15000);
+                } else ClusterTimer -= diff;
+
+                if (StopTimer < diff && !Ende) StopEvent();
+                else StopTimer -= diff;
+            }
+        }
+    };
+
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new npc_uwom_firecallerAI(creature);
+    }
+};
+
+// Copyright 2008-2011 by WarHead (United Worlds of MaNGOS)
+// ------------------------------------------------------------------------------------------------------------
+// Flugmeister sowie Add Skripte - http://de.wowhead.com/npcs?filter=cr=21;crs=1;crv=0#0+1
+// ------------------------------------------------------------------------------------------------------------
+#define SPELL_NET   38661 // Immobilizes an enemy for 8 sec.
+
+class npc_flugmeister : public CreatureScript
+{
+public:
+    npc_flugmeister() : CreatureScript("npc_flugmeister") { }
+
+    struct npc_flugmeisterAI : public ScriptedAI
+    {
+        npc_flugmeisterAI(Creature* c) : ScriptedAI(c)
+        {
+            switch(me->GetEntry())
+            {
+                // Surristrasz
+                case 24795:
+                    add1 = 26088;
+                    add2 = 26088;
+                    break;
+                // Drachenfalkenmeister
+                case 26560:
+                case 30269:
+                    add1 = 25175;
+                    add2 = 25175;
+                    break;
+                // Fledermausführer
+                case 2226:
+                case 2389:
+                case 4551:
+                case 12636:
+                case 16189:
+                case 16192:
+                case 24155:
+                case 26844:
+                case 26845:
+                case 27344:
+                    add1 = 14965;
+                    add2 = 14965;
+                    break;
+                // Hippogryphenmeister
+                case 1233:
+                case 3838:
+                case 3841:
+                case 4267:
+                case 4319:
+                case 4407:
+                case 6706:
+                case 8019:
+                case 10897:
+                case 11138:
+                case 12577:
+                case 12578:
+                case 15177:
+                case 17554:
+                case 17555:
+                case 18785:
+                case 18788:
+                case 18789:
+                case 18937:
+                case 22485:
+                case 22935:
+                case 26881:
+                case 30271:
+                    add1 = 9527;
+                    add2 = 9527;
+                    break;
+                // Greifenmeister
+                case 352:
+                case 523:
+                case 931:
+                case 1571:
+                case 1572:
+                case 1573:
+                case 1574:
+                case 1575:
+                case 2299:
+                case 2409:
+                case 2432:
+                case 2835:
+                case 2859:
+                case 2941:
+                case 4321:
+                case 7823:
+                case 8018:
+                case 8609:
+                case 12596:
+                case 12617:
+                case 18939:
+                case 16822:
+                case 18809:
+                case 18931:
+                case 20234:
+                case 21107:
+                case 23736:
+                case 23859:
+                case 24061:
+                case 24366:
+                case 26876:
+                case 26877:
+                case 26878:
+                case 26879:
+                case 26880:
+                    add1 = 9526;
+                    add2 = 9526;
+                    break;
+                // Windreitermeister
+                case 1387:
+                case 2851:
+                case 2858:
+                case 2861:
+                case 2995:
+                case 3305:
+                case 3310:
+                case 3615:
+                case 4312:
+                case 4314:
+                case 4317:
+                case 6026:
+                case 6726:
+                case 7824:
+                case 8020:
+                case 8610:
+                case 10378:
+                case 11139:
+                case 11899:
+                case 11900:
+                case 11901:
+                case 12616:
+                case 12740:
+                case 13177:
+                case 14242:
+                case 15178:
+                case 16587:
+                case 18791:
+                case 18807:
+                case 18808:
+                case 18930:
+                case 18942:
+                case 18953:
+                case 19317:
+                case 19558:
+                case 20762:
+                case 24032:
+                case 26566:
+                case 26847:
+                case 26850:
+                case 26852:
+                case 26853:
+                case 29762:
+                    add1 = 20489;
+                    add2 = 20489;
+                    break;
+                // Flugmeister
+                case 10583:
+                case 16227:
+                case 18938:
+                case 18940:
+                case 19581:
+                case 19583:
+                case 20515:
+                case 21766:
+                case 22216:
+                case 22455:
+                case 22931:
+                case 23612:
+                case 24851:
+                case 26602:
+                case 26851:
+                case 27046:
+                case 28195:
+                case 28196:
+                case 28197:
+                case 28574:
+                case 28615:
+                case 28618:
+                case 28623:
+                case 28624:
+                case 28674:
+                case 29480:
+                case 29721:
+                case 29750:
+                case 29757:
+                case 29950:
+                case 29951:
+                case 30314:
+                case 30433:
+                case 30569:
+                case 30869:
+                case 30870:
+                case 31069:
+                case 31078:
+                case 32571:
+                case 33849:
+                case 37888:
+                    add1 = 9526;
+                    add2 = 20489;
+                    break;
+            }
+        }
+
+        uint32 add1,
+            add2,
+            Net_Timer;
+
+        bool done;
+
+        void Reset()
+        {
+            Net_Timer = 1000;
+            done = false;
+
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISARM, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, true);
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SILENCE, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FREEZE, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_HORROR, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DAZE, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SLEEP, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_BANISH, true);
+            me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
+        }
+
+        void SpawnHelper()
+        {
+            uint32 DSpwTime = 10000;
+            float X=0.0f, Y=0.0f, Z=0.0f, A=0.0f;
+            TempSummonType DSpwType = TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT;
+
+            for (uint8 i=0; i<10; ++i)
+            {
+                Creature* Spawned = NULL;
+                me->GetContactPoint(me, X, Y, Z, float(urand(5,15)));
+
+                switch(i)
+                {
+                    case 0: Spawned = me->SummonCreature(add1, X, Y, Z+float(urand(1,10)), A, DSpwType, DSpwTime); break;
+                    case 1: Spawned = me->SummonCreature(add2, X, Y, Z+float(urand(1,5)), A, DSpwType, DSpwTime); break;
+                    case 2: Spawned = me->SummonCreature(add1, X, Y, Z+float(urand(1,10)), A, DSpwType, DSpwTime); break;
+                    case 3: Spawned = me->SummonCreature(add2, X, Y, Z+float(urand(1,5)), A, DSpwType, DSpwTime); break;
+                    case 4: Spawned = me->SummonCreature(add1, X, Y, Z+float(urand(1,10)), A, DSpwType, DSpwTime); break;
+                    case 5: Spawned = me->SummonCreature(add2, X, Y, Z+float(urand(1,5)), A, DSpwType, DSpwTime); break;
+                    case 6: Spawned = me->SummonCreature(add1, X, Y, Z+float(urand(1,10)), A, DSpwType, DSpwTime); break;
+                    case 7: Spawned = me->SummonCreature(add2, X, Y, Z+float(urand(1,5)), A, DSpwType, DSpwTime); break;
+                    case 8: Spawned = me->SummonCreature(add1, X, Y, Z+float(urand(1,10)), A, DSpwType, DSpwTime); break;
+                    case 9: Spawned = me->SummonCreature(add2, X, Y, Z+float(urand(1,5)), A, DSpwType, DSpwTime); break;
+                }
+
+                if (Spawned)
+                {
+                    Spawned->setFaction(me->getFaction());
+                    Spawned->AI()->AttackStart(me->getVictim());
+                }
+            }
+            done = true;
+        }
+
+        void MoveInLineOfSight(Unit *who) { return; }
+
+        void AttackStart(Unit* who)
+        {
+            if (!done)
+                SpawnHelper();
+
+            ScriptedAI::AttackStart(who);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            //Return since we have no target
+            if (!UpdateVictim())
+                return;
+
+            if (Net_Timer < diff)
+            {
+                DoCast(me->getVictim(), SPELL_NET);
+                Net_Timer = 8000;
+            }
+            else
+                Net_Timer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    bool OnGossipHello(Player *pPlayer, Creature *pCreature)
+    {
+        if (pCreature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+        if (pCreature->isTrainer())
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+
+        if (pCreature->isVendor())
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+
+        if (pCreature->isAuctioner())
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, GOSSIP_TEXT_AUCTIONHOUSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_AUCTION);
+
+        if (pCreature->isTaxi())
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TAXI, "Ich benötige einen Flug.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TAXI);
+
+        pPlayer->SEND_GOSSIP_MENU(68, pCreature->GetGUID());
+
+        return true;
+    }
+
+    void SendDefaultMenu(Player* pPlayer, Creature* pCreature, uint32 uiAction)
+    {
+        switch (uiAction)
+        {
+            // Standard-Aktionen
+            case GOSSIP_ACTION_TRAIN:
+                pPlayer->SEND_TRAINERLIST(pCreature->GetGUID());
+                break;
+            case GOSSIP_ACTION_TRADE:
+                pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+                break;
+            case GOSSIP_ACTION_AUCTION:
+                pPlayer->GetSession()->SendAuctionHello(pCreature->GetGUID(), pCreature);
+                break;
+            case GOSSIP_ACTION_TAXI:
+                pPlayer->GetSession()->SendTaxiMenu(pCreature);
+                break;
+        }
+    }
+
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+    {
+        pPlayer->PlayerTalkClass->ClearMenus();
+
+        switch(uiSender)
+        {
+            case GOSSIP_SENDER_MAIN: SendDefaultMenu(pPlayer, pCreature, uiAction); break;
+        }
+        return true;
+    }
+
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new npc_flugmeisterAI(creature);
+    }
+};
+
+#define SPELL_WING_BUFFET   31475
+
+class npc_flugmeister_adds : public CreatureScript
+{
+public:
+    npc_flugmeister_adds() : CreatureScript("npc_flugmeister_adds") { }
+
+    struct npc_flugmeister_addsAI : public ScriptedAI
+    {
+        npc_flugmeister_addsAI(Creature *c) : ScriptedAI(c) { }
+
+        uint32 WingTimer;
+
+        void Reset()
+        {
+            WingTimer = 10000;
+
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISARM, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_POLYMORPH, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, true);
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SILENCE, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DISORIENTED, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FEAR, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_ROOT, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_FREEZE, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_HORROR, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_DAZE, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SLEEP, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_BANISH, true);
+            me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
+
+            me->SetHover(true);
+            me->SetSpeed(MOVE_FLIGHT, 1.50f, true);
+            me->SetSpeed(MOVE_FLIGHT_BACK, 1.50f, true);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            //Return since we have no target
+            if (!UpdateVictim())
+                return;
+
+            if (WingTimer < diff)
+            {
+                DoCast(me, SPELL_WING_BUFFET);
+                WingTimer = urand(10000,60000);
+            }
+            else
+                WingTimer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new npc_flugmeister_addsAI(creature);
+    }
+};
+
+// Copyright 2010-2011 by WarHead (United Worlds of MaNGOS)
+// ------------------------------------------------------------------------------------------------------------
+// UWoM's GM-Pimper 60001
+// ------------------------------------------------------------------------------------------------------------
+
+// To find all mount items...
+// SELECT `entry`,`spellid_2` FROM `item_template` WHERE `class`='15' AND `subclass`='5' AND `spellid_2`!='0';
+
+#define HordeFactionCnt 16
+uint32 HordeFaction[HordeFactionCnt] = {530,729,1052,76,911,510,1067,941,1124,1064,947,81,922,68,1085,889};
+
+#define AllyFactionCnt  17
+uint32 AllyFaction[AllyFactionCnt] = {1037,69,930,1068,54,946,47,978,890,730,72,1126,509,1094,1050,471,589};
+
+#define WorldFactionCnt 43
+uint32 WorldFaction[WorldFactionCnt] = {1106,529,1012,87,21,910,609,942,909,577,1104,369,92,749,989,1090,1098,1011,93,1015,1038,470,349,1031,1077,809,970,70,932,933,1073,1105,990,934,935,1119,967,1091,59,576,270,1156,1094};
+
+// To find all Horde mounts...
+// SELECT `entry`,`spellid_2` FROM `item_template` WHERE `class`='15' AND `subclass`='5' AND `spellid_2`!='0' AND `AllowableRace`='690';
+
+#define HordeMountsCnt  92
+uint32 HordeMounts[HordeMountsCnt][2] =
+{
+    {1132,580},{5665,6653},{5668,6654},{8586,16084},{8588,8395},{8591,10796},{8592,10799},{12330,16080},{12351,16081},{13317,17450},{13331,17462},{13332,17463},{13333,17464},{13334,17465},{15277,18989},{15290,18990},
+    {15292,18991},{15293,18992},{18245,22724},{18246,22721},{18247,22718},{18248,22722},{18788,23241},{18789,23242},{18790,23243},{18791,23246},{18793,23247},{18794,23249},{18795,23248},{18796,23250},{18797,23251},
+    {18798,23252},{25474,32243},{25475,32244},{25476,32245},{25477,32246},{25531,32295},{25532,32296},{25533,32297},{28927,34795},{28936,33660},{29102,34896},{29103,34897},{29104,34898},{29105,34899},{29220,35020},
+    {29221,35022},{29222,35018},{29223,35025},{29224,35027},{29466,22718},{29469,22724},{29470,22722},{29472,22721},{31829,39315},{31831,39317},{31833,39318},{31835,39319},{34129,35028},{41508,55531},{44077,59788},
+    {44080,59797},{44083,61467},{44086,61469},{44224,60119},{44226,60116},{44231,59793},{44234,61447},{44690,61230},{45592,63641},{45593,63635},{45595,63640},{45596,63642},{45597,63643},{46099,64658},{46100,64657},
+    {46102,64659},{46308,64977},{46743,65644},{46746,65645},{46749,65646},{46750,65641},{46751,65639},{46755,65641},{46757,65646},{46760,65644},{46761,65639},{46764,65645},{46816,66091},{47101,66846},{49046,68056},
+    {49098,68188}
+};
+
+// To find all Ally mounts...
+// SELECT `entry`,`spellid_2` FROM `item_template` WHERE `class`='15' AND `subclass`='5' AND `spellid_2`!='0' AND `AllowableRace`='1101';
+
+#define AllyMountsCnt   94
+uint32 AllyMounts[AllyMountsCnt][2] =
+{
+    {2411,470},{2414,472},{5655,6648},{5656,458},{5864,6777},{5872,6899},{5873,6898},{8563,10873},{8595,10969},{8629,10793},{8631,8394},{8632,10789},{12302,16056},{12303,16055},{12353,16083},{12354,16082},{13086,17229},
+    {13321,17453},{13322,17454},{13326,15779},{13327,17459},{13328,17461},{13329,17460},{18241,22717},{18242,22723},{18243,22719},{18244,22720},{18766,23221},{18767,23219},{18772,23225},{18773,23223},{18774,23222},
+    {18776,23227},{18777,23229},{18778,23228},{18785,23240},{18786,23238},{18787,23239},{18902,23338},{25470,32235},{25471,32239},{25472,32240},{25473,32242},{25527,32289},{25528,32290},{25529,32292},{28481,34406},
+    {29227,34896},{29229,34898},{29230,34899},{29231,34897},{29465,22719},{29467,22720},{29468,22717},{29471,22723},{29743,35711},{29744,35710},{29745,35713},{29746,35712},{29747,35714},{31830,39315},{31832,39317},
+    {31834,39318},{31836,39319},{35906,48027},{43956,59785},{43958,59799},{43959,61465},{43961,61470},{44223,60118},{44225,60114},{44230,59791},{44235,61425},{44413,60424},{44689,61229},{45125,63232},{45586,63636},
+    {45589,63638},{45590,63639},{45591,63637},{46744,65638},{46745,65637},{46747,65642},{46748,65643},{46752,65640},{46756,65637},{46758,65640},{46759,65638},{46762,65643},{46763,65642},{46815,66090},{47100,66847},
+    {49044,68057},{49096,68187}
+};
+
+// To find all mounts for both sides...
+// SELECT `entry`,`spellid_2` FROM `item_template` WHERE `class`='15' AND `subclass`='5' AND `spellid_2`!='0' AND `AllowableRace`='-1';
+
+#define BothSideMountsCnt   83
+uint32 BothSideMounts[BothSideMountsCnt][2] =
+{
+    // {44557,60975} STILL CRASHES THE CLIENT ???
+    {13325,17458},{13335,17481},{19029,23509},{19030,23510},{19872,24242},{19902,24252},{21176,26656},{21218,25953},{21321,26054},{21323,26056},{21324,26055},{30480,36702},{30609,37015},{32314,39798},{32316,39801},
+    {32317,39800},{32318,39802},{32319,39803},{32458,40192},{32768,41252},{32857,41513},{32858,41514},{32859,41515},{32860,41516},{32861,41517},{32862,41518},{33224,42776},{33809,43688},{33976,43899},{33977,43900},
+    {33999,43927},{34092,44744},{35225,46197},{35226,46199},{35513,46628},{37676,49193},{37719,49322},{37828,49379},{38576,51412},{43516,58615},{43951,59569},{43952,59567},{43953,59568},{43954,59571},{43955,59570},
+    {43962,54753},{43986,59650},{44151,59996},{44160,59961},{44164,59976},{44168,60002},{44175,60021},{44177,60024},{44178,60025},{44557,60975},{44558,61309},{44707,61294},{44842,61997},{44843,61996},{45693,63796},
+    {45725,63844},{45801,63956},{45802,63963},{46109,64731},{46171,65439},{46708,64927},{46813,66087},{46814,66088},{47179,66906},{47180,67466},{49282,51412},{49283,42776},{49285,46197},{49286,46199},{49290,65917},
+    {49636,69395},{50250,71342},{51954,72808},{51955,72807},{52200,73313},{54069,74856},{54797,75596},{54860,75973}
+};
+
+#define GOSSIP_GM_PIMPER_01 "Merkt Ihr denn nicht, dass ich genervt bin!? Oder könnt Ihr einfach nur nicht lesen? Ich bin für GM zuständig, nicht für Truthähnchen!"
+
+#define GOSSIP_GM_PIMPER_02 "Ey Mann, was hast du so unter dem Ladentisch!?"
+#define GOSSIP_GM_PIMPER_03 "Ein paar Jobs würden mir ganz gut tun."
+#define GOSSIP_GM_PIMPER_11 "Ich möchte sooooooooo gerne gross und stark sein! *siehpimperschmachtendan*"
+#define GOSSIP_GM_PIMPER_12 "Kannst du mit deinen Käsemessern nur rumfuchteln, oder kannste mir auch was beibringen, Drache?!"
+
+#define GOSSIP_GM_PIMPER_04 "Kannste mir n bisschen Gold pumpen, Alter?"
+#define GOSSIP_GM_PIMPER_05 "Ich bin neu hier, und habe noch nicht einmal vernünftige Taschen."
+#define GOSSIP_GM_PIMPER_06 "Rück sofort alle deine Mini-Pets raus, oder es knallt!"
+#define GOSSIP_GM_PIMPER_07 "Ich könnte da so das eine oder andere Mount für meine Fraktion gebrauchen!"
+#define GOSSIP_GM_PIMPER_08 "Ey Drachen, sag mal... wie sieht's denn mit Mounts für beide Seiten aus!?"
+#define GOSSIP_GM_PIMPER_09 "Meine Truppe und ich brauchen unbedingt mal wieder n paar Schrottis!"
+#define GOSSIP_GM_PIMPER_10 "Also mein Ruf hier in der Gegend lässt ein wenig zu wünschen übrig."
+
+#define MAX_GM_GOLD_ADD 1000000000
+
+enum PIMPER_SPELL_ENUM
+{
+    SPELL_ALCHEMY_GRAND_MASTER          = 51304,
+    SPELL_BLACKSMITHING_GRAND_MASTER    = 51300,
+    SPELL_COOKING_GRAND_MASTER          = 51296,
+    SPELL_ENCHANTING_GRAND_MASTER       = 51313,
+    SPELL_ENGINEERING_GRAND_MASTER      = 51306,
+    SPELL_FIRAT_AID_GRAND_MASTER        = 45542,
+    SPELL_HERB_GATHERING_GRAND_MASTER   = 50300,
+    SPELL_INSCRIPTION_GRAND_MASTER      = 45363,
+    SPELL_JEWELCRAFTING_GRAND_MASTER    = 51311,
+    SPELL_LEATHERWORKING_GRAND_MASTER   = 51302,
+    SPELL_TAILORING_GRAND_MASTER        = 51309,
+    SPELL_MINING_GRAND_MASTER           = 50310,
+    SPELL_FISHING_GRAND_MASTER          = 51294,
+    SPELL_SKINNING_GRAND_MASTER         = 50305,
+    SPELL_COLD_WEATHER_FLYING_PASSIVE   = 54197,
+    SPELL_TURKEY_FEATHERS               = 61781
+};
+
+enum PIMPER_ITEM_ENUM
+{
+    ITEM_FORORS_CRATE               = 23162,
+    ITEM_SCRAPBOT_CONSTRUCTION_KIT  = 40769
+};
+
+class npc_uwom_gm_pimper : public CreatureScript
+{
+public:
+    npc_uwom_gm_pimper() : CreatureScript("npc_uwom_gm_pimper") {}
+
+    bool OnGossipHello(Player *pPlayer, Creature *pCreature)
+    {
+        if (pPlayer->GetSession()->GetSecurity() == SEC_PLAYER)
+        {
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_GM_PIMPER_01, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            pPlayer->SEND_GOSSIP_MENU(13674, pCreature->GetGUID());
+        }
+        else
+        {
+            if (pCreature->isQuestGiver())  pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+            if (pCreature->isTrainer())     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_TRAIN,          GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+            if (pCreature->isVendor())      pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR,    GOSSIP_TEXT_BROWSE_GOODS,   GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+            if (pCreature->isAuctioner())   pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, GOSSIP_TEXT_AUCTIONHOUSE,   GOSSIP_SENDER_MAIN, GOSSIP_ACTION_AUCTION);
+
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR,    GOSSIP_GM_PIMPER_02,    GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_GM_PIMPER_03,    GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_GM_PIMPER_11,    GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_GM_PIMPER_12,    GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+
+            pPlayer->SEND_GOSSIP_MENU(14141, pCreature->GetGUID());
+        }
+        return true;
+    }
+
+    void SendDefaultMenu(Player* pPlayer, Creature* pCreature, uint32 uiAction)
+    {
+        switch (uiAction)
+        {
+            // User
+            case GOSSIP_ACTION_INFO_DEF + 1:
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+
+            // Standard-Aktionen
+            case GOSSIP_ACTION_TRAIN:
+                pPlayer->SEND_TRAINERLIST(pCreature->GetGUID());
+                break;
+            case GOSSIP_ACTION_TRADE:
+                pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+                break;
+            case GOSSIP_ACTION_AUCTION:
+                pCreature->setFaction(pPlayer->getFaction());
+                pPlayer->GetSession()->SendAuctionHello(pCreature->GetGUID(), pCreature);
+                pCreature->setFaction(35);
+                break;
+
+            // Unterm Ladentisch
+            case GOSSIP_ACTION_INFO_DEF + 2:
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, GOSSIP_GM_PIMPER_04,    GOSSIP_SENDER_SEC_BANK, GOSSIP_ACTION_INFO_DEF + 4);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR,    GOSSIP_GM_PIMPER_05,    GOSSIP_SENDER_SEC_BANK, GOSSIP_ACTION_INFO_DEF + 5);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR,    GOSSIP_GM_PIMPER_06,    GOSSIP_SENDER_SEC_BANK, GOSSIP_ACTION_INFO_DEF + 6);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR,    GOSSIP_GM_PIMPER_07,    GOSSIP_SENDER_SEC_BANK, GOSSIP_ACTION_INFO_DEF + 7);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR,    GOSSIP_GM_PIMPER_08,    GOSSIP_SENDER_SEC_BANK, GOSSIP_ACTION_INFO_DEF + 8);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR,    GOSSIP_GM_PIMPER_09,    GOSSIP_SENDER_SEC_BANK, GOSSIP_ACTION_INFO_DEF + 9);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_GM_PIMPER_10,    GOSSIP_SENDER_SEC_BANK, GOSSIP_ACTION_INFO_DEF + 10);
+                pPlayer->SEND_GOSSIP_MENU(14208, pCreature->GetGUID());
+                break;
+
+            // Ein paar Jobs
+            case GOSSIP_ACTION_INFO_DEF + 3:
+                if ((pPlayer->GetFreePrimaryProfessionPoints() == 0 && pPlayer->GetSession()->GetSecurity() >= SEC_HGM) || (pPlayer->GetFreePrimaryProfessionPoints() > 0))
+                {
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_ALCHEMY,        GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 11);
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_BLACKSMITHING,  GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 12);
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_COOKING,        GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 13);
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_ENCHANTING,     GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 14);
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_ENGINEERING,    GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 15);
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_FIRSTAID,       GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 16);
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_HERBALISM,      GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 17);
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_INSCRIPTION,    GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 18);
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_JEWELCRAFTING,  GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 19);
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_LEATHERWORKING, GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 20);
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_TAILORING,      GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 21);
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_MINING,         GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 22);
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_FISHING,        GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 23);
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_SKINNING,       GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 24);
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_RIDING,         GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 25);
+
+                    if (pPlayer->GetSession()->GetSecurity() >= SEC_OGM)
+                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_ALL_PROFS,      GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 26);
+
+                    pPlayer->SEND_GOSSIP_MENU(9331, pCreature->GetGUID());
+                }
+                else if (pPlayer->GetFreePrimaryProfessionPoints() == 0 && pPlayer->GetSession()->GetSecurity() < SEC_HGM)
+                {
+                    pPlayer->GetSession()->SendNotification("Dein GM-Level erlaubt nicht mehr primäre Berufe.");
+
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_COOKING,        GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 13);
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_FIRSTAID,       GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 16);
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_FISHING,        GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 23);
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_RIDING,         GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 25);
+
+                    pPlayer->SEND_GOSSIP_MENU(9331, pCreature->GetGUID());
+                }
+                break;
+
+            // Leveln
+            case GOSSIP_ACTION_INFO_DEF + 4:
+                pPlayer->GiveLevel(DEFAULT_MAX_LEVEL);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+
+            // Maxskill
+            case GOSSIP_ACTION_INFO_DEF + 5:
+                pPlayer->UpdateSkillsToMaxSkillsForLevel();
+                pPlayer->CLOSE_GOSSIP_MENU();
+            break;
+        }
+    }
+
+    void SendActionMenu(Player* pPlayer, Creature* pCreature, uint32 uiAction)
+    {
+        switch(uiAction)
+        {
+            // Gold
+            case GOSSIP_ACTION_INFO_DEF + 4:
+                if (pPlayer->GetSession()->GetSecurity() < SEC_HGM && pPlayer->GetMoney() >= MAX_GM_GOLD_ADD)
+                    pPlayer->GetSession()->SendNotification("Mit deinem GM-Level bekommst du nicht mehr Gold.");
+                else
+                    pPlayer->ModifyMoney(+MAX_GM_GOLD_ADD); // 100K Gold
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+
+            // Koffer
+            case GOSSIP_ACTION_INFO_DEF + 5:
+                if (pPlayer->HasItemCount(ITEM_FORORS_CRATE, 11, true))
+                    pPlayer->GetSession()->SendNotification("Du hast bereits 11 GM-Koffer!");
+                else
+                    ((ScriptedAI*)pCreature)->addItem(pPlayer, ITEM_FORORS_CRATE, 11); // 11 Koffer
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+
+            // Mini-Pets
+            case GOSSIP_ACTION_INFO_DEF + 6:
+                for (uint8 i=0; i<FirecallerPresentsCnt; ++i)
+                    if (!pPlayer->HasSpell(FirecallerPresents[i][1]))
+                        pPlayer->learnSpell(FirecallerPresents[i][1], false);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+
+            // Mounts (Ally/Horde)
+            case GOSSIP_ACTION_INFO_DEF + 7:
+                if (pPlayer->GetTeam() == ALLIANCE)
+                {
+                    for (uint8 i=0; i<AllyMountsCnt; ++i)
+                        if (!pPlayer->HasSpell(AllyMounts[i][1]))
+                            pPlayer->learnSpell(AllyMounts[i][1], false);
+                }
+                else
+                {
+                    for (uint8 i=0; i<HordeMountsCnt; ++i)
+                        if (!pPlayer->HasSpell(HordeMounts[i][1]))
+                            pPlayer->learnSpell(HordeMounts[i][1], false);
+                }
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+
+            // Mounts (Both Side)
+            case GOSSIP_ACTION_INFO_DEF + 8:
+                for (uint8 i=0; i<BothSideMountsCnt; ++i)
+                    if (!pPlayer->HasSpell(BothSideMounts[i][1]))
+                            pPlayer->learnSpell(BothSideMounts[i][1], false);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+
+            // Schrottis
+            case GOSSIP_ACTION_INFO_DEF + 9:
+                if (pPlayer->HasItemCount(ITEM_SCRAPBOT_CONSTRUCTION_KIT, 40, true))
+                    pPlayer->GetSession()->SendNotification("Mehr als 40 Schrottis gibbet nit.");
+                else
+                    ((ScriptedAI*)pCreature)->addItem(pPlayer, ITEM_SCRAPBOT_CONSTRUCTION_KIT, 20); // 20 Schrottis
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+
+            // Ruf
+            case GOSSIP_ACTION_INFO_DEF + 10:
+                if (pPlayer->GetTeam() == ALLIANCE)
+                {
+                    for (uint8 i=0; i<AllyFactionCnt; ++i)
+                    {
+                        FactionEntry const* fe = sFactionStore.LookupEntry(AllyFaction[i]);
+                        pPlayer->GetReputationMgr().ModifyReputation(fe, ReputationMgr::Reputation_Cap);
+                    }
+                }
+                else
+                {
+                    for (uint8 i=0; i<HordeFactionCnt; ++i)
+                    {
+                        FactionEntry const* fe = sFactionStore.LookupEntry(HordeFaction[i]);
+                        pPlayer->GetReputationMgr().ModifyReputation(fe, ReputationMgr::Reputation_Cap);
+                    }
+                }
+                for (uint8 i=0; i<WorldFactionCnt; ++i)
+                {
+                    FactionEntry const* fe = sFactionStore.LookupEntry(WorldFaction[i]);
+                    pPlayer->GetReputationMgr().ModifyReputation(fe, ReputationMgr::Reputation_Cap);
+                }
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            // -----------------------------------------------------------------------------------
+            // -------------------------------------- BERUFE -------------------------------------
+            // -----------------------------------------------------------------------------------
+            // Alchimie
+            case GOSSIP_ACTION_INFO_DEF + 11:
+                if (!pPlayer->HasSpell(SPELL_ALCHEMY_GRAND_MASTER))
+                {
+                    pPlayer->learnSpellHighRank(SPELL_ALCHEMY_GRAND_MASTER);
+                    pPlayer->SetSkill(SKILL_ALCHEMY, 1, pPlayer->GetPureMaxSkillValue(SKILL_ALCHEMY), pPlayer->GetPureMaxSkillValue(SKILL_ALCHEMY));
+                    LearnAllSkillRecipes(pPlayer, SKILL_ALCHEMY);
+                }
+                else
+                    if (pPlayer->HasSpell(SPELL_ALCHEMY_GRAND_MASTER))
+                        LearnAllSkillRecipes(pPlayer, SKILL_ALCHEMY);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            // Schmieden
+            case GOSSIP_ACTION_INFO_DEF + 12:
+                if (!pPlayer->HasSpell(SPELL_BLACKSMITHING_GRAND_MASTER))
+                {
+                    pPlayer->learnSpellHighRank(SPELL_BLACKSMITHING_GRAND_MASTER);
+                    pPlayer->SetSkill(SKILL_BLACKSMITHING, 1, pPlayer->GetPureMaxSkillValue(SKILL_BLACKSMITHING), pPlayer->GetPureMaxSkillValue(SKILL_BLACKSMITHING));
+                    LearnAllSkillRecipes(pPlayer, SKILL_BLACKSMITHING);
+                }
+                else
+                    if (pPlayer->HasSpell(SPELL_BLACKSMITHING_GRAND_MASTER))
+                        LearnAllSkillRecipes(pPlayer, SKILL_BLACKSMITHING);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            // Kochen
+            case GOSSIP_ACTION_INFO_DEF + 13:
+                if (!pPlayer->HasSpell(SPELL_COOKING_GRAND_MASTER))
+                {
+                    pPlayer->learnSpellHighRank(SPELL_COOKING_GRAND_MASTER);
+                    pPlayer->SetSkill(SKILL_COOKING, 1, pPlayer->GetPureMaxSkillValue(SKILL_COOKING), pPlayer->GetPureMaxSkillValue(SKILL_COOKING));
+                    LearnAllSkillRecipes(pPlayer, SKILL_COOKING);
+                }
+                else
+                    if (pPlayer->HasSpell(SPELL_COOKING_GRAND_MASTER))
+                        LearnAllSkillRecipes(pPlayer, SKILL_COOKING);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            // Verzaubern
+            case GOSSIP_ACTION_INFO_DEF + 14:
+                if (!pPlayer->HasSpell(SPELL_ENCHANTING_GRAND_MASTER))
+                {
+                    pPlayer->learnSpellHighRank(SPELL_ENCHANTING_GRAND_MASTER);
+                    pPlayer->SetSkill(SKILL_ENCHANTING, 1, pPlayer->GetPureMaxSkillValue(SKILL_ENCHANTING), pPlayer->GetPureMaxSkillValue(SKILL_ENCHANTING));
+                    LearnAllSkillRecipes(pPlayer, SKILL_ENCHANTING);
+                }
+                else
+                    if (pPlayer->HasSpell(SPELL_ENCHANTING_GRAND_MASTER))
+                        LearnAllSkillRecipes(pPlayer, SKILL_ENCHANTING);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            // Ingenieurwesen
+            case GOSSIP_ACTION_INFO_DEF + 15:
+                if (!pPlayer->HasSpell(SPELL_ENGINEERING_GRAND_MASTER))
+                {
+                    pPlayer->learnSpellHighRank(SPELL_ENGINEERING_GRAND_MASTER);
+                    pPlayer->SetSkill(SKILL_ENGINERING, 1, pPlayer->GetPureMaxSkillValue(SKILL_ENGINERING), pPlayer->GetPureMaxSkillValue(SKILL_ENGINERING));
+                    LearnAllSkillRecipes(pPlayer, SKILL_ENGINERING);
+                }
+                else
+                    if (pPlayer->HasSpell(SPELL_ENGINEERING_GRAND_MASTER))
+                        LearnAllSkillRecipes(pPlayer, SKILL_ENGINERING);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            // Erste Hilfe
+            case GOSSIP_ACTION_INFO_DEF + 16:
+                if (!pPlayer->HasSpell(SPELL_FIRAT_AID_GRAND_MASTER))
+                {
+                    pPlayer->learnSpellHighRank(SPELL_FIRAT_AID_GRAND_MASTER);
+                    pPlayer->SetSkill(SKILL_FIRST_AID, 1, pPlayer->GetPureMaxSkillValue(SKILL_FIRST_AID), pPlayer->GetPureMaxSkillValue(SKILL_FIRST_AID));
+                }
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            // Kräuterkunde
+            case GOSSIP_ACTION_INFO_DEF + 17:
+                if (!pPlayer->HasSpell(SPELL_HERB_GATHERING_GRAND_MASTER))
+                {
+                    pPlayer->learnSpellHighRank(SPELL_HERB_GATHERING_GRAND_MASTER);
+                    pPlayer->SetSkill(SKILL_HERBALISM, 1, pPlayer->GetPureMaxSkillValue(SKILL_HERBALISM), pPlayer->GetPureMaxSkillValue(SKILL_HERBALISM));
+                }
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            // Inschriftenkunde
+            case GOSSIP_ACTION_INFO_DEF + 18:
+                if (!pPlayer->HasSpell(SPELL_INSCRIPTION_GRAND_MASTER))
+                {
+                    pPlayer->learnSpellHighRank(SPELL_INSCRIPTION_GRAND_MASTER);
+                    pPlayer->SetSkill(SKILL_INSCRIPTION, 1, pPlayer->GetPureMaxSkillValue(SKILL_INSCRIPTION), pPlayer->GetPureMaxSkillValue(SKILL_INSCRIPTION));
+                    LearnAllSkillRecipes(pPlayer, SKILL_INSCRIPTION);
+                }
+                else
+                    if (pPlayer->HasSpell(SPELL_INSCRIPTION_GRAND_MASTER))
+                        LearnAllSkillRecipes(pPlayer, SKILL_INSCRIPTION);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            // Juwelenschleifen
+            case GOSSIP_ACTION_INFO_DEF + 19:
+                if (!pPlayer->HasSpell(SPELL_JEWELCRAFTING_GRAND_MASTER))
+                {
+                    pPlayer->learnSpellHighRank(SPELL_JEWELCRAFTING_GRAND_MASTER);
+                    pPlayer->SetSkill(SKILL_JEWELCRAFTING, 1, pPlayer->GetPureMaxSkillValue(SKILL_JEWELCRAFTING), pPlayer->GetPureMaxSkillValue(SKILL_JEWELCRAFTING));
+                    LearnAllSkillRecipes(pPlayer, SKILL_JEWELCRAFTING);
+                }
+                else
+                    if (pPlayer->HasSpell(SPELL_JEWELCRAFTING_GRAND_MASTER))
+                        LearnAllSkillRecipes(pPlayer, SKILL_JEWELCRAFTING);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            // Lederverarbeitung
+            case GOSSIP_ACTION_INFO_DEF + 20:
+                if (!pPlayer->HasSpell(SPELL_LEATHERWORKING_GRAND_MASTER))
+                {
+                    pPlayer->learnSpellHighRank(SPELL_LEATHERWORKING_GRAND_MASTER);
+                    pPlayer->SetSkill(SKILL_LEATHERWORKING, 1, pPlayer->GetPureMaxSkillValue(SKILL_LEATHERWORKING), pPlayer->GetPureMaxSkillValue(SKILL_LEATHERWORKING));
+                    LearnAllSkillRecipes(pPlayer, SKILL_LEATHERWORKING);
+                }
+                else
+                    if (pPlayer->HasSpell(SPELL_LEATHERWORKING_GRAND_MASTER))
+                        LearnAllSkillRecipes(pPlayer, SKILL_LEATHERWORKING);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            // Schneidern
+            case GOSSIP_ACTION_INFO_DEF + 21:
+                if (!pPlayer->HasSpell(SPELL_TAILORING_GRAND_MASTER))
+                {
+                    pPlayer->learnSpellHighRank(SPELL_TAILORING_GRAND_MASTER);
+                    pPlayer->SetSkill(SKILL_TAILORING, 1, pPlayer->GetPureMaxSkillValue(SKILL_TAILORING), pPlayer->GetPureMaxSkillValue(SKILL_TAILORING));
+                    LearnAllSkillRecipes(pPlayer, SKILL_TAILORING);
+                }
+                else
+                    if (pPlayer->HasSpell(SPELL_TAILORING_GRAND_MASTER))
+                        LearnAllSkillRecipes(pPlayer, SKILL_TAILORING);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            // Bergbau
+            case GOSSIP_ACTION_INFO_DEF + 22:
+                if (!pPlayer->HasSpell(SPELL_MINING_GRAND_MASTER))
+                {
+                    pPlayer->learnSpellHighRank(SPELL_MINING_GRAND_MASTER);
+                    pPlayer->SetSkill(SKILL_MINING, 1, pPlayer->GetPureMaxSkillValue(SKILL_MINING), pPlayer->GetPureMaxSkillValue(SKILL_MINING));
+                }
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            // Angeln
+            case GOSSIP_ACTION_INFO_DEF + 23:
+                if (!pPlayer->HasSpell(SPELL_FISHING_GRAND_MASTER))
+                {
+                    pPlayer->learnSpellHighRank(SPELL_FISHING_GRAND_MASTER);
+                    pPlayer->SetSkill(SKILL_FISHING, 1, pPlayer->GetPureMaxSkillValue(SKILL_FISHING), pPlayer->GetPureMaxSkillValue(SKILL_FISHING));
+                }
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            // Kürschnern
+            case GOSSIP_ACTION_INFO_DEF + 24:
+                if (!pPlayer->HasSpell(SPELL_SKINNING_GRAND_MASTER))
+                {
+                    pPlayer->learnSpellHighRank(SPELL_SKINNING_GRAND_MASTER);
+                    pPlayer->SetSkill(SKILL_SKINNING, 1, pPlayer->GetPureMaxSkillValue(SKILL_SKINNING), pPlayer->GetPureMaxSkillValue(SKILL_SKINNING));
+                }
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            // Reiten
+            case GOSSIP_ACTION_INFO_DEF + 25:
+                if (!pPlayer->HasSpell(SPELL_COLD_WEATHER_FLYING_PASSIVE))
+                {
+                    pPlayer->learnSpellHighRank(SPELL_COLD_WEATHER_FLYING_PASSIVE);
+                    pPlayer->SetSkill(SKILL_RIDING, 1, pPlayer->GetPureMaxSkillValue(SKILL_RIDING), pPlayer->GetPureMaxSkillValue(SKILL_RIDING));
+                }
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            // Alle Berufe
+            case GOSSIP_ACTION_INFO_DEF + 26:
+                if (pPlayer->GetSession()->GetSecurity() >= SEC_OGM)
+                {
+                    // Alchimie
+                    if (!pPlayer->HasSpell(SPELL_ALCHEMY_GRAND_MASTER))
+                    {
+                        pPlayer->learnSpellHighRank(SPELL_ALCHEMY_GRAND_MASTER);
+                        pPlayer->SetSkill(SKILL_ALCHEMY, 1, pPlayer->GetPureMaxSkillValue(SKILL_ALCHEMY), pPlayer->GetPureMaxSkillValue(SKILL_ALCHEMY));
+                        LearnAllSkillRecipes(pPlayer, SKILL_ALCHEMY);
+                    }
+                    else
+                        if (pPlayer->HasSpell(SPELL_ALCHEMY_GRAND_MASTER))
+                            LearnAllSkillRecipes(pPlayer, SKILL_ALCHEMY);
+                    // Schmieden
+                    if (!pPlayer->HasSpell(SPELL_BLACKSMITHING_GRAND_MASTER))
+                    {
+                        pPlayer->learnSpellHighRank(SPELL_BLACKSMITHING_GRAND_MASTER);
+                        pPlayer->SetSkill(SKILL_BLACKSMITHING, 1, pPlayer->GetPureMaxSkillValue(SKILL_BLACKSMITHING), pPlayer->GetPureMaxSkillValue(SKILL_BLACKSMITHING));
+                        LearnAllSkillRecipes(pPlayer, SKILL_BLACKSMITHING);
+                    }
+                    else
+                        if (pPlayer->HasSpell(SPELL_BLACKSMITHING_GRAND_MASTER))
+                            LearnAllSkillRecipes(pPlayer, SKILL_BLACKSMITHING);
+                    // Kochen
+                    if (!pPlayer->HasSpell(SPELL_COOKING_GRAND_MASTER))
+                    {
+                        pPlayer->learnSpellHighRank(SPELL_COOKING_GRAND_MASTER);
+                        pPlayer->SetSkill(SKILL_COOKING, 1, pPlayer->GetPureMaxSkillValue(SKILL_COOKING), pPlayer->GetPureMaxSkillValue(SKILL_COOKING));
+                        LearnAllSkillRecipes(pPlayer, SKILL_COOKING);
+                    }
+                    else
+                        if (pPlayer->HasSpell(SPELL_COOKING_GRAND_MASTER))
+                            LearnAllSkillRecipes(pPlayer, SKILL_COOKING);
+                    // Verzaubern
+                    if (!pPlayer->HasSpell(SPELL_ENCHANTING_GRAND_MASTER))
+                    {
+                        pPlayer->learnSpellHighRank(SPELL_ENCHANTING_GRAND_MASTER);
+                        pPlayer->SetSkill(SKILL_ENCHANTING, 1, pPlayer->GetPureMaxSkillValue(SKILL_ENCHANTING), pPlayer->GetPureMaxSkillValue(SKILL_ENCHANTING));
+                        LearnAllSkillRecipes(pPlayer, SKILL_ENCHANTING);
+                    }
+                    else
+                        if (pPlayer->HasSpell(SPELL_ENCHANTING_GRAND_MASTER))
+                            LearnAllSkillRecipes(pPlayer, SKILL_ENCHANTING);
+                    // Ingenieurwesen
+                    if (!pPlayer->HasSpell(SPELL_ENGINEERING_GRAND_MASTER))
+                    {
+                        pPlayer->learnSpellHighRank(SPELL_ENGINEERING_GRAND_MASTER);
+                        pPlayer->SetSkill(SKILL_ENGINERING, 1, pPlayer->GetPureMaxSkillValue(SKILL_ENGINERING), pPlayer->GetPureMaxSkillValue(SKILL_ENGINERING));
+                        LearnAllSkillRecipes(pPlayer, SKILL_ENGINERING);
+                    }
+                    else
+                        if (pPlayer->HasSpell(SPELL_ENGINEERING_GRAND_MASTER))
+                            LearnAllSkillRecipes(pPlayer, SKILL_ENGINERING);
+                    // Erste Hilfe
+                    if (!pPlayer->HasSpell(SPELL_FIRAT_AID_GRAND_MASTER))
+                    {
+                        pPlayer->learnSpellHighRank(SPELL_FIRAT_AID_GRAND_MASTER);
+                        pPlayer->SetSkill(SKILL_FIRST_AID, 1, pPlayer->GetPureMaxSkillValue(SKILL_FIRST_AID), pPlayer->GetPureMaxSkillValue(SKILL_FIRST_AID));
+                    }
+                    // Kräuterkunde
+                    if (!pPlayer->HasSpell(SPELL_HERB_GATHERING_GRAND_MASTER))
+                    {
+                        pPlayer->learnSpellHighRank(SPELL_HERB_GATHERING_GRAND_MASTER);
+                        pPlayer->SetSkill(SKILL_HERBALISM, 1, pPlayer->GetPureMaxSkillValue(SKILL_HERBALISM), pPlayer->GetPureMaxSkillValue(SKILL_HERBALISM));
+                    }
+                    // Inschriftenkunde
+                    if (!pPlayer->HasSpell(SPELL_INSCRIPTION_GRAND_MASTER))
+                    {
+                        pPlayer->learnSpellHighRank(SPELL_INSCRIPTION_GRAND_MASTER);
+                        pPlayer->SetSkill(SKILL_INSCRIPTION, 1, pPlayer->GetPureMaxSkillValue(SKILL_INSCRIPTION), pPlayer->GetPureMaxSkillValue(SKILL_INSCRIPTION));
+                        LearnAllSkillRecipes(pPlayer, SKILL_INSCRIPTION);
+                    }
+                    else
+                        if (pPlayer->HasSpell(SPELL_INSCRIPTION_GRAND_MASTER))
+                            LearnAllSkillRecipes(pPlayer, SKILL_INSCRIPTION);
+                    // Juwelenschleifen
+                    if (!pPlayer->HasSpell(SPELL_JEWELCRAFTING_GRAND_MASTER))
+                    {
+                        pPlayer->learnSpellHighRank(SPELL_JEWELCRAFTING_GRAND_MASTER);
+                        pPlayer->SetSkill(SKILL_JEWELCRAFTING, 1, pPlayer->GetPureMaxSkillValue(SKILL_JEWELCRAFTING), pPlayer->GetPureMaxSkillValue(SKILL_JEWELCRAFTING));
+                        LearnAllSkillRecipes(pPlayer, SKILL_JEWELCRAFTING);
+                    }
+                    else
+                        if (pPlayer->HasSpell(SPELL_JEWELCRAFTING_GRAND_MASTER))
+                            LearnAllSkillRecipes(pPlayer, SKILL_JEWELCRAFTING);
+                    // Lederverarbeitung
+                    if (!pPlayer->HasSpell(SPELL_LEATHERWORKING_GRAND_MASTER))
+                    {
+                        pPlayer->learnSpellHighRank(SPELL_LEATHERWORKING_GRAND_MASTER);
+                        pPlayer->SetSkill(SKILL_LEATHERWORKING, 1, pPlayer->GetPureMaxSkillValue(SKILL_LEATHERWORKING), pPlayer->GetPureMaxSkillValue(SKILL_LEATHERWORKING));
+                        LearnAllSkillRecipes(pPlayer, SKILL_LEATHERWORKING);
+                    }
+                    else
+                        if (pPlayer->HasSpell(SPELL_LEATHERWORKING_GRAND_MASTER))
+                            LearnAllSkillRecipes(pPlayer, SKILL_LEATHERWORKING);
+                    // Schneidern
+                    if (!pPlayer->HasSpell(SPELL_TAILORING_GRAND_MASTER))
+                    {
+                        pPlayer->learnSpellHighRank(SPELL_TAILORING_GRAND_MASTER);
+                        pPlayer->SetSkill(SKILL_TAILORING, 1, pPlayer->GetPureMaxSkillValue(SKILL_TAILORING), pPlayer->GetPureMaxSkillValue(SKILL_TAILORING));
+                        LearnAllSkillRecipes(pPlayer, SKILL_TAILORING);
+                    }
+                    else
+                        if (pPlayer->HasSpell(SPELL_TAILORING_GRAND_MASTER))
+                            LearnAllSkillRecipes(pPlayer, SKILL_TAILORING);
+                    // Bergbau
+                    if (!pPlayer->HasSpell(SPELL_MINING_GRAND_MASTER))
+                    {
+                        pPlayer->learnSpellHighRank(SPELL_MINING_GRAND_MASTER);
+                        pPlayer->SetSkill(SKILL_MINING, 1, pPlayer->GetPureMaxSkillValue(SKILL_MINING), pPlayer->GetPureMaxSkillValue(SKILL_MINING));
+                    }
+                    // Angeln
+                    if (!pPlayer->HasSpell(SPELL_FISHING_GRAND_MASTER))
+                    {
+                        pPlayer->learnSpellHighRank(SPELL_FISHING_GRAND_MASTER);
+                        pPlayer->SetSkill(SKILL_FISHING, 1, pPlayer->GetPureMaxSkillValue(SKILL_FISHING), pPlayer->GetPureMaxSkillValue(SKILL_FISHING));
+                    }
+                    // Kürschnern
+                    if (!pPlayer->HasSpell(SPELL_SKINNING_GRAND_MASTER))
+                    {
+                        pPlayer->learnSpellHighRank(SPELL_SKINNING_GRAND_MASTER);
+                        pPlayer->SetSkill(SKILL_SKINNING, 1, pPlayer->GetPureMaxSkillValue(SKILL_SKINNING), pPlayer->GetPureMaxSkillValue(SKILL_SKINNING));
+                    }
+                    // Reiten
+                    if (!pPlayer->HasSpell(SPELL_COLD_WEATHER_FLYING_PASSIVE))
+                    {
+                        pPlayer->learnSpellHighRank(SPELL_COLD_WEATHER_FLYING_PASSIVE);
+                        pPlayer->SetSkill(SKILL_RIDING, 1, pPlayer->GetPureMaxSkillValue(SKILL_RIDING), pPlayer->GetPureMaxSkillValue(SKILL_RIDING));
+                    }
+                }
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+        }
+    }
+
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+    {
+        pPlayer->PlayerTalkClass->ClearMenus();
+
+        switch(uiSender)
+        {
+            case GOSSIP_SENDER_MAIN:
+                if (pPlayer->GetSession()->GetSecurity() == SEC_PLAYER)
+                    pCreature->CastSpell(pPlayer, SPELL_TURKEY_FEATHERS, true); // Truthahnfedern
+                SendDefaultMenu(pPlayer, pCreature, uiAction);
+                break;
+            case GOSSIP_SENDER_SEC_BANK:
+            case GOSSIP_SENDER_SEC_PROFTRAIN:
+                SendActionMenu(pPlayer, pCreature, uiAction);
+                break;
+        }
+        return true;
+    }
+};
+
+// Copyright 2010-2011 by WarHead (United Worlds of MaNGOS)
+// ------------------------------------------------------------------------------------------------------------
+// UWoM's User-Pimper 60002
+// ------------------------------------------------------------------------------------------------------------
+
+#define GOSSIP_USER_PIMPER_01 "Ey Mann, was hast du so unter dem Ladentisch!?"
+#define GOSSIP_USER_PIMPER_02 "Ein paar Jobs würden mir ganz gut tun."
+#define GOSSIP_USER_PIMPER_03 "Ich möchte gerne meine Skills maximieren."
+#define GOSSIP_USER_PIMPER_04 "Rück sofort alle deine Mini-Pets raus, oder es knallt!"
+#define GOSSIP_USER_PIMPER_05 "Also mein Ruf hier in der Gegend lässt ein wenig zu wünschen übrig."
+#define GOSSIP_USER_PIMPER_06 "Sag mal, hast du auch Rezepte zu den Berufen!?"
+#define GOSSIP_USER_PIMPER_07 "Was kosten mich eure Dienste (Preisliste)!?"
+
+#define COST_STRING_USER_PIMPER_PETS    "'Alle' Minipets lernen: "
+#define COST_STRING_USER_PIMPER_REP     "'Alle' Fraktionen ehrfürchtig: "
+#define COST_STRING_USER_PIMPER_PROF    "1 Beruf lernen (inkl. max. Skill): "
+#define COST_STRING_USER_PIMPER_RECIPES "Alle Rezepte für 1 Beruf lernen: "
+#define COST_STRING_USER_PIMPER_SKILL   "'Alle' Fähigkeiten auf max. Skill: "
+
+#define PIMPER_NOT_ENOUGH   "Du hast leider nicht genug %s für diesen Dienst!"
+#define PIMPER_PROF_MAX     "Du musst den Beruf auf Maximum haben!"
+#define PIMPER_PROF_LIMIT   "Du hast bereits das Maximum an Berufen!"
+
+struct UserPimper_PriceSetup
+{
+    uint8 Cost_Type;                // 0 = Money - 1 = Honor - 2 = Arena Points - 3 = Item
+
+    uint32 Costs_Item;              // Used (must be set) if Cost_Type == 3
+    uint32 Costs_AllMiniPets;       // Costs (amount) to learn all mini pets
+    uint32 Costs_Reputation;        // Costs (amount) to max. all factions (Horde/Ally and world factions)
+    uint32 Costs_Profession;        // Costs (amount) to learn a profession as grand master and get max. skill for it
+    uint32 Costs_AllRecipes;        // Costs (amount) to learn all recipes for one profession
+    uint32 Costs_MaxSkill;          // Costs (amount) to set the max. skill for one profession
+
+    bool PresentsAllowed;
+
+    // Cost strings for the gossip
+    std::string str_Item;
+    std::string str_AllMiniPets;
+    std::string str_Reputation;
+    std::string str_Profession;
+    std::string str_AllRecipes;
+    std::string str_MaxSkill;
+    std::string str_bottom;
+};
+
+class npc_uwom_user_pimper : public CreatureScript
+{
+public:
+    npc_uwom_user_pimper() : CreatureScript("npc_uwom_user_pimper") { }
+
+    struct npc_uwom_user_pimperAI : public ScriptedAI
+    {
+        npc_uwom_user_pimperAI(Creature* pCreature) : ScriptedAI(pCreature)
+        {
+            ps.Cost_Type = sConfig->GetIntDefault("UserPimper.Costs.Type", 1);
+            ps.Costs_Item = sConfig->GetIntDefault("UserPimper.Costs.Item", 0);
+
+            ps.Costs_AllMiniPets = sConfig->GetIntDefault("UserPimper.Costs.MiniPets", 1000000);
+            ps.Costs_Reputation = sConfig->GetIntDefault("UserPimper.Costs.Reputation", 500000);
+            ps.Costs_Profession = sConfig->GetIntDefault("UserPimper.Costs.Profession", 200000);
+            ps.Costs_AllRecipes = sConfig->GetIntDefault("UserPimper.Costs.Recipes", 50000);
+            ps.Costs_MaxSkill = sConfig->GetIntDefault("UserPimper.Costs.MaxSkill", 50000);
+
+            ps.PresentsAllowed = sConfig->GetBoolDefault("UserPimper.PresentsAllowed", false);
+
+            if (ps.Cost_Type == 3)
+            {
+                item = sObjectMgr->GetItemPrototype(ps.Costs_Item);
+                if (item)
+                    ps.str_Item = item->Name1;
+            }
+            else
+                item = NULL;
+
+            if (ps.Cost_Type == 0)
+            {
+                ps.Costs_AllMiniPets = ps.Costs_AllMiniPets*GOLD;
+                ps.Costs_Reputation = ps.Costs_Reputation*GOLD;
+                ps.Costs_Profession = ps.Costs_Profession*GOLD;
+                ps.Costs_AllRecipes = ps.Costs_AllRecipes*GOLD;
+                ps.Costs_MaxSkill = ps.Costs_MaxSkill*GOLD;
+            }
+            InitStrings();
+        }
+
+        UserPimper_PriceSetup ps;
+        ItemPrototype const* item;
+
+        void Reset() {}
+
+        void InitStrings()
+        {
+            char* tmpchars = (char*)malloc(32);
+            std::string tmpstr;
+
+            if (ps.Cost_Type == 0)
+            {
+                sprintf(tmpchars, "%i", ps.Costs_AllMiniPets/GOLD);
+                tmpstr.append(COST_STRING_USER_PIMPER_PETS).append(tmpchars);
+                ps.str_AllMiniPets = tmpstr;
+                tmpstr.clear();
+
+                sprintf(tmpchars, "%i", ps.Costs_Reputation/GOLD);
+                tmpstr.append(COST_STRING_USER_PIMPER_REP).append(tmpchars);
+                ps.str_Reputation = tmpstr;
+                tmpstr.clear();
+
+                sprintf(tmpchars, "%i", ps.Costs_Profession/GOLD);
+                tmpstr.append(COST_STRING_USER_PIMPER_PROF).append(tmpchars);
+                ps.str_Profession = tmpstr;
+                tmpstr.clear();
+
+                sprintf(tmpchars, "%i", ps.Costs_AllRecipes/GOLD);
+                tmpstr.append(COST_STRING_USER_PIMPER_RECIPES).append(tmpchars);
+                ps.str_AllRecipes = tmpstr;
+                tmpstr.clear();
+
+                sprintf(tmpchars, "%i", ps.Costs_MaxSkill/GOLD);
+                tmpstr.append(COST_STRING_USER_PIMPER_SKILL).append(tmpchars);
+                ps.str_MaxSkill = tmpstr;
+                tmpstr.clear();
+            }
+            else
+            {
+                sprintf(tmpchars, "%i", ps.Costs_AllMiniPets);
+                tmpstr.append(COST_STRING_USER_PIMPER_PETS).append(tmpchars);
+                ps.str_AllMiniPets = tmpstr;
+                tmpstr.clear();
+
+                sprintf(tmpchars, "%i", ps.Costs_Reputation);
+                tmpstr.append(COST_STRING_USER_PIMPER_REP).append(tmpchars);
+                ps.str_Reputation = tmpstr;
+                tmpstr.clear();
+
+                sprintf(tmpchars, "%i", ps.Costs_Profession);
+                tmpstr.append(COST_STRING_USER_PIMPER_PROF).append(tmpchars);
+                ps.str_Profession = tmpstr;
+                tmpstr.clear();
+
+                sprintf(tmpchars, "%i", ps.Costs_AllRecipes);
+                tmpstr.append(COST_STRING_USER_PIMPER_RECIPES).append(tmpchars);
+                ps.str_AllRecipes = tmpstr;
+                tmpstr.clear();
+
+                sprintf(tmpchars, "%i", ps.Costs_MaxSkill);
+                tmpstr.append(COST_STRING_USER_PIMPER_SKILL).append(tmpchars);
+                ps.str_MaxSkill = tmpstr;
+                tmpstr.clear();
+            }
+            ps.str_bottom.append("Alle Preise sind in ");
+
+            switch(ps.Cost_Type)
+            {
+                case 0: ps.str_bottom.append("Gold."); break;
+                case 1: ps.str_bottom.append("Ehre."); break;
+                case 2: ps.str_bottom.append("Arenapunkten."); break;
+                case 3:
+                    if (item)
+                        ps.str_bottom.append(ps.str_Item).append(".");
+                    else
+                        ps.str_bottom.append("ITEM NOT FOUND.");
+                    break;
+            }
+            free(tmpchars);
+        }
+
+        bool HasEnough(Player* pl, int32 amount)
+        {
+            if (!pl || !pl->IsInWorld())
+                return false;
+
+            switch(ps.Cost_Type)
+            {
+                case 0:
+                    if (pl->GetMoney() < static_cast<uint32>(amount))
+                        pl->GetSession()->SendNotification(PIMPER_NOT_ENOUGH, "Gold");
+                    else
+                        return true;
+                    break;
+                case 1:
+                    if (pl->GetHonorPoints() < static_cast<uint32>(amount))
+                        pl->GetSession()->SendNotification(PIMPER_NOT_ENOUGH, "Ehre");
+                    else
+                        return true;
+                    break;
+                case 2:
+                    if (pl->GetArenaPoints() < static_cast<uint32>(amount))
+                        pl->GetSession()->SendNotification(PIMPER_NOT_ENOUGH, "Arenapunkte");
+                    else
+                        return true;
+                    break;
+                case 3:
+                    if (pl->GetItemCount(ps.Costs_Item) < static_cast<uint32>(amount))
+                        if (item)
+                            pl->GetSession()->SendNotification(PIMPER_NOT_ENOUGH, item->Name1);
+                    else
+                        return true;
+                    break;
+            }
+            return false;
+        }
+
+        bool SubstructCurrency(Player* pl, int32 amount)
+        {
+            if (!pl || !pl->IsInWorld())
+                return false;
+
+            switch(ps.Cost_Type)
+            {
+                case 0:
+                    if (HasEnough(pl, amount))
+                        pl->ModifyMoney(-amount);
+                    else
+                        return false;
+                    break;
+                case 1:
+                    if (HasEnough(pl, amount))
+                        pl->ModifyHonorPoints(-amount);
+                    else
+                        return false;
+                    break;
+                case 2:
+                    if (HasEnough(pl, amount))
+                        pl->ModifyArenaPoints(-amount);
+                    else
+                        return false;
+                    break;
+                case 3:
+                    if (HasEnough(pl, amount))
+                        pl->DestroyItemCount(ps.Costs_Item, amount, true);
+                    else
+                        return false;
+                    break;
+            }
+            return true;
+        }
+
+        bool CanGetPresent(Player* pl, uint32 item, uint32 spell)
+        {
+            if (!pl || !pl->IsInWorld())
+                return false;
+
+            return (!pl->HasItemCount(item, 1, true) && !pl->HasSpell(spell));
+        }
+
+        std::string GetPlaytimeString(uint32 total_playtime_secs)
+        {
+            std::ostringstream ss;
+
+            ss << ("Deine Spielzeit: ");
+
+            if (GetPlaytimeDays(total_playtime_secs) > 0)
+                ss << uint32(GetPlaytimeDays(total_playtime_secs)) << (" Tage(e) ");
+            if (GetPlaytimeHours(total_playtime_secs) > 0)
+                ss << uint32(GetPlaytimeHours(total_playtime_secs)) << (" Stunde(n)");
+
+            return ss.str();
+        }
+
+        uint32 GetPlaytimeHours(uint32 total_playtime_secs) { return total_playtime_secs%DAY/HOUR; }
+        uint32 GetPlaytimeDays(uint32 total_playtime_secs) { return total_playtime_secs/DAY; }
+        uint32 GetPlaytimeWeeks(uint32 total_playtime_secs) { return total_playtime_secs/WEEK; }
+        uint32 GetPlaytimeMonth(uint32 total_playtime_secs) { return total_playtime_secs/MONTH; }
+    };
+
+    bool OnGossipHello(Player *pPlayer, Creature *pCreature)
+    {
+        if (!pPlayer || !pPlayer->IsInWorld())
+            return false;
+
+        npc_uwom_user_pimperAI *ai = CAST_AI(npc_uwom_user_pimperAI, pCreature->AI());
+
+        if (!ai)
+            return false;
+
+        uint32 total_playtime_secs = pPlayer->GetTotalPlayedTime(); // Sekunden!
+
+        if (ai->ps.PresentsAllowed && ai->GetPlaytimeMonth(total_playtime_secs) >= 1) // Ab 1 Monat Spielzeit
+        {
+            if (ai->CanGetPresent(pPlayer, 49665, 69541)) // Pandarenmönch
+                ai->addItem(pPlayer, 49665, 1, true, false, true);
+            if (ai->CanGetPresent(pPlayer, 45693, 63796)) // Mimirons Kopf
+                ai->addItem(pPlayer, 45693, 1, true, false, true);
+        }
+
+        if (ai->ps.PresentsAllowed && ai->GetPlaytimeMonth(total_playtime_secs) >= 2) // Ab 2 Monate Spielzeit
+        {
+            if (ai->CanGetPresent(pPlayer, 49343, 68810)) // Spektraltigerjunges
+                ai->addItem(pPlayer, 49343, 1, true, false, true);
+            if (ai->CanGetPresent(pPlayer, 45802, 63963)) // Zügel des rostigen Protodrachen
+                ai->addItem(pPlayer, 45802, 1, true, false, true);
+        }
+
+        if (ai->ps.PresentsAllowed && ai->GetPlaytimeMonth(total_playtime_secs) >= 3) // Ab 3 Monate Spielzeit
+        {
+            if (ai->CanGetPresent(pPlayer, 49283, 42776)) // Zügel des Spektraltigers
+                ai->addItem(pPlayer, 49283, 1, true, false, true);
+            if (ai->CanGetPresent(pPlayer, 45801, 63956)) // Zügel des eisenbeschlagenen Protodrachen
+                ai->addItem(pPlayer, 45801, 1, true, false, true);
+        }
+
+        if (pCreature->isQuestGiver())  pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (pCreature->isTrainer())     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_TRAIN,          GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+        if (pCreature->isVendor())      pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR,    GOSSIP_TEXT_BROWSE_GOODS,   GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+        if (pCreature->isAuctioner())   pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, GOSSIP_TEXT_AUCTIONHOUSE,   GOSSIP_SENDER_MAIN, GOSSIP_ACTION_AUCTION);
+
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR,    GOSSIP_USER_PIMPER_01,    GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR,    GOSSIP_USER_PIMPER_07,    GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
+
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ai->GetPlaytimeString(total_playtime_secs), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 8);
+
+        pPlayer->SEND_GOSSIP_MENU(1100000, pCreature->GetGUID());
+
+        return true;
+    }
+
+    void SendDefaultMenu(Player* pPlayer, Creature* pCreature, uint32 uiAction)
+    {
+        npc_uwom_user_pimperAI *ai = CAST_AI(npc_uwom_user_pimperAI, pCreature->AI());
+
+        if (!ai)
+            return;
+
+        switch (uiAction)
+        {   // Standard-Aktionen
+            case GOSSIP_ACTION_TRAIN:
+                pPlayer->SEND_TRAINERLIST(pCreature->GetGUID());
+                break;
+            case GOSSIP_ACTION_TRADE:
+                pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+                break;
+            case GOSSIP_ACTION_AUCTION:
+                pCreature->setFaction(pPlayer->getFaction());
+                pPlayer->GetSession()->SendAuctionHello(pCreature->GetGUID(), pCreature);
+                pCreature->setFaction(35);
+                break;
+
+            // Unterm Ladentisch
+            case GOSSIP_ACTION_INFO_DEF + 1:
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_USER_PIMPER_02,    GOSSIP_SENDER_MAIN,             GOSSIP_ACTION_INFO_DEF + 2);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_USER_PIMPER_03,    GOSSIP_SENDER_MAIN,             GOSSIP_ACTION_INFO_DEF + 3);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR,    GOSSIP_USER_PIMPER_04,    GOSSIP_SENDER_SEC_BANK,         GOSSIP_ACTION_INFO_DEF + 4);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_USER_PIMPER_05,    GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 5);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_USER_PIMPER_06,    GOSSIP_SENDER_MAIN,             GOSSIP_ACTION_INFO_DEF + 6);
+                pPlayer->SEND_GOSSIP_MENU(1100001, pCreature->GetGUID());
+                break;
+
+            // Ein paar Jobs
+            case GOSSIP_ACTION_INFO_DEF + 2:
+                if (pPlayer->GetFreePrimaryProfessionPoints() > 0)
+                {
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_ALCHEMY,        GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 11);
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_BLACKSMITHING,  GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 12);
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_COOKING,        GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 13);
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_ENCHANTING,     GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 14);
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_ENGINEERING,    GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 15);
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_FIRSTAID,       GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 16);
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_HERBALISM,      GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 17);
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_INSCRIPTION,    GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 18);
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_JEWELCRAFTING,  GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 19);
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_LEATHERWORKING, GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 20);
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_TAILORING,      GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 21);
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_MINING,         GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 22);
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_FISHING,        GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 23);
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_SKINNING,       GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 24);
+
+                    pPlayer->SEND_GOSSIP_MENU(4328, pCreature->GetGUID());
+                }
+                else
+                {
+                    pPlayer->GetSession()->SendNotification(PIMPER_PROF_LIMIT);
+                    pPlayer->CLOSE_GOSSIP_MENU();
+                }
+                break;
+
+            // Maxskill
+            case GOSSIP_ACTION_INFO_DEF + 3:
+                if (ai->SubstructCurrency(pPlayer, ai->ps.Costs_MaxSkill))
+                    pPlayer->UpdateSkillsToMaxSkillsForLevel();
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+
+            // Rezepte für Jobs
+            case GOSSIP_ACTION_INFO_DEF + 6:
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_ALCHEMY,        GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 30);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_BLACKSMITHING,  GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 31);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_COOKING,        GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 32);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_ENCHANTING,     GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 33);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_ENGINEERING,    GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 34);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_INSCRIPTION,    GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 35);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_JEWELCRAFTING,  GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 36);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_LEATHERWORKING, GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 37);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_TAILORING,      GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 38);
+
+                pPlayer->SEND_GOSSIP_MENU(1100002, pCreature->GetGUID());
+                break;
+
+            // Preisliste
+            case GOSSIP_ACTION_INFO_DEF + 7:
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ai->ps.str_AllMiniPets,  GOSSIP_SENDER_INFO, GOSSIP_ACTION_INFO_DEF + 39);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ai->ps.str_Reputation,   GOSSIP_SENDER_INFO, GOSSIP_ACTION_INFO_DEF + 40);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ai->ps.str_Profession,   GOSSIP_SENDER_INFO, GOSSIP_ACTION_INFO_DEF + 41);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ai->ps.str_AllRecipes,   GOSSIP_SENDER_INFO, GOSSIP_ACTION_INFO_DEF + 42);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ai->ps.str_MaxSkill,     GOSSIP_SENDER_INFO, GOSSIP_ACTION_INFO_DEF + 43);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "",                      GOSSIP_SENDER_INFO, GOSSIP_ACTION_INFO_DEF + 44);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, ai->ps.str_bottom,       GOSSIP_SENDER_INFO, GOSSIP_ACTION_INFO_DEF + 45);
+
+                pPlayer->SEND_GOSSIP_MENU(1100003, pCreature->GetGUID());
+                break;
+        }
+    }
+
+    void SendActionMenu(Player* pPlayer, Creature* pCreature, uint32 uiAction)
+    {
+        npc_uwom_user_pimperAI *ai = CAST_AI(npc_uwom_user_pimperAI, pCreature->AI());
+
+        if (!ai)
+            return;
+
+        switch(uiAction)
+        {
+            // Mini-Pets
+            case GOSSIP_ACTION_INFO_DEF + 4:
+                if (ai->SubstructCurrency(pPlayer, ai->ps.Costs_AllMiniPets))
+                {
+                    for (uint8 i=0; i<FirecallerPresentsCnt; ++i)
+                        if (!pPlayer->HasSpell(FirecallerPresents[i][1]))
+                            pPlayer->learnSpell(FirecallerPresents[i][1], false);
+                }
+                break;
+
+            // Ruf
+            case GOSSIP_ACTION_INFO_DEF + 5:
+                if (ai->SubstructCurrency(pPlayer, ai->ps.Costs_Reputation))
+                {
+                    if (pPlayer->GetTeam() == ALLIANCE)
+                    {
+                        for (uint8 i=0; i<AllyFactionCnt; ++i)
+                        {
+                            FactionEntry const* fe = sFactionStore.LookupEntry(AllyFaction[i]);
+                            pPlayer->GetReputationMgr().ModifyReputation(fe, ReputationMgr::Reputation_Cap);
+                        }
+                    }
+                    else
+                    {
+                        for (uint8 i=0; i<HordeFactionCnt; ++i)
+                        {
+                            FactionEntry const* fe = sFactionStore.LookupEntry(HordeFaction[i]);
+                            pPlayer->GetReputationMgr().ModifyReputation(fe, ReputationMgr::Reputation_Cap);
+                        }
+                    }
+                    for (uint8 i=0; i<WorldFactionCnt; ++i)
+                    {
+                        FactionEntry const* fe = sFactionStore.LookupEntry(WorldFaction[i]);
+                        pPlayer->GetReputationMgr().ModifyReputation(fe, ReputationMgr::Reputation_Cap);
+                    }
+                }
+                break;
+
+            // Preisliste
+            case GOSSIP_ACTION_INFO_DEF + 39:
+            case GOSSIP_ACTION_INFO_DEF + 40:
+            case GOSSIP_ACTION_INFO_DEF + 41:
+            case GOSSIP_ACTION_INFO_DEF + 42:
+            case GOSSIP_ACTION_INFO_DEF + 43:
+            case GOSSIP_ACTION_INFO_DEF + 44:
+            case GOSSIP_ACTION_INFO_DEF + 45:
+                break;
+            // -----------------------------------------------------------------------------------
+            // -------------------------------------- BERUFE -------------------------------------
+            // -----------------------------------------------------------------------------------
+            // Alchimie
+            case GOSSIP_ACTION_INFO_DEF + 11:
+                if (!pPlayer->HasSpell(SPELL_ALCHEMY_GRAND_MASTER) && ai->SubstructCurrency(pPlayer, ai->ps.Costs_Profession))
+                {
+                    pPlayer->learnSpellHighRank(SPELL_ALCHEMY_GRAND_MASTER);
+                    pPlayer->SetSkill(SKILL_ALCHEMY, 1, pPlayer->GetPureMaxSkillValue(SKILL_ALCHEMY), pPlayer->GetPureMaxSkillValue(SKILL_ALCHEMY));
+                }
+                break;
+            // Schmieden
+            case GOSSIP_ACTION_INFO_DEF + 12:
+                if (!pPlayer->HasSpell(SPELL_BLACKSMITHING_GRAND_MASTER) && ai->SubstructCurrency(pPlayer, ai->ps.Costs_Profession))
+                {
+                    pPlayer->learnSpellHighRank(SPELL_BLACKSMITHING_GRAND_MASTER);
+                    pPlayer->SetSkill(SKILL_BLACKSMITHING, 1, pPlayer->GetPureMaxSkillValue(SKILL_BLACKSMITHING), pPlayer->GetPureMaxSkillValue(SKILL_BLACKSMITHING));
+                }
+                break;
+            // Kochen
+            case GOSSIP_ACTION_INFO_DEF + 13:
+                if (!pPlayer->HasSpell(SPELL_COOKING_GRAND_MASTER) && ai->SubstructCurrency(pPlayer, ai->ps.Costs_Profession))
+                {
+                    pPlayer->learnSpellHighRank(SPELL_COOKING_GRAND_MASTER);
+                    pPlayer->SetSkill(SKILL_COOKING, 1, pPlayer->GetPureMaxSkillValue(SKILL_COOKING), pPlayer->GetPureMaxSkillValue(SKILL_COOKING));
+                }
+                break;
+            // Verzaubern
+            case GOSSIP_ACTION_INFO_DEF + 14:
+                if (!pPlayer->HasSpell(SPELL_ENCHANTING_GRAND_MASTER) && ai->SubstructCurrency(pPlayer, ai->ps.Costs_Profession))
+                {
+                    pPlayer->learnSpellHighRank(SPELL_ENCHANTING_GRAND_MASTER);
+                    pPlayer->SetSkill(SKILL_ENCHANTING, 1, pPlayer->GetPureMaxSkillValue(SKILL_ENCHANTING), pPlayer->GetPureMaxSkillValue(SKILL_ENCHANTING));
+                }
+                break;
+            // Ingenieurwesen
+            case GOSSIP_ACTION_INFO_DEF + 15:
+                if (!pPlayer->HasSpell(SPELL_ENGINEERING_GRAND_MASTER) && ai->SubstructCurrency(pPlayer, ai->ps.Costs_Profession))
+                {
+                    pPlayer->learnSpellHighRank(SPELL_ENGINEERING_GRAND_MASTER);
+                    pPlayer->SetSkill(SKILL_ENGINERING, 1, pPlayer->GetPureMaxSkillValue(SKILL_ENGINERING), pPlayer->GetPureMaxSkillValue(SKILL_ENGINERING));
+                }
+                break;
+            // Erste Hilfe
+            case GOSSIP_ACTION_INFO_DEF + 16:
+                if (!pPlayer->HasSpell(SPELL_FIRAT_AID_GRAND_MASTER) && ai->SubstructCurrency(pPlayer, ai->ps.Costs_Profession))
+                {
+                    pPlayer->learnSpellHighRank(SPELL_FIRAT_AID_GRAND_MASTER);
+                    pPlayer->SetSkill(SKILL_FIRST_AID, 1, pPlayer->GetPureMaxSkillValue(SKILL_FIRST_AID), pPlayer->GetPureMaxSkillValue(SKILL_FIRST_AID));
+                }
+                break;
+            // Kräuterkunde
+            case GOSSIP_ACTION_INFO_DEF + 17:
+                if (!pPlayer->HasSpell(SPELL_HERB_GATHERING_GRAND_MASTER) && ai->SubstructCurrency(pPlayer, ai->ps.Costs_Profession))
+                {
+                    pPlayer->learnSpellHighRank(SPELL_HERB_GATHERING_GRAND_MASTER);
+                    pPlayer->SetSkill(SKILL_HERBALISM, 1, pPlayer->GetPureMaxSkillValue(SKILL_HERBALISM), pPlayer->GetPureMaxSkillValue(SKILL_HERBALISM));
+                }
+                break;
+            // Inschriftenkunde
+            case GOSSIP_ACTION_INFO_DEF + 18:
+                if (!pPlayer->HasSpell(SPELL_INSCRIPTION_GRAND_MASTER) && ai->SubstructCurrency(pPlayer, ai->ps.Costs_Profession))
+                {
+                    pPlayer->learnSpellHighRank(SPELL_INSCRIPTION_GRAND_MASTER);
+                    pPlayer->SetSkill(SKILL_INSCRIPTION, 1, pPlayer->GetPureMaxSkillValue(SKILL_INSCRIPTION), pPlayer->GetPureMaxSkillValue(SKILL_INSCRIPTION));
+                }
+                break;
+            // Juwelenschleifen
+            case GOSSIP_ACTION_INFO_DEF + 19:
+                if (!pPlayer->HasSpell(SPELL_JEWELCRAFTING_GRAND_MASTER) && ai->SubstructCurrency(pPlayer, ai->ps.Costs_Profession))
+                {
+                    pPlayer->learnSpellHighRank(SPELL_JEWELCRAFTING_GRAND_MASTER);
+                    pPlayer->SetSkill(SKILL_JEWELCRAFTING, 1, pPlayer->GetPureMaxSkillValue(SKILL_JEWELCRAFTING), pPlayer->GetPureMaxSkillValue(SKILL_JEWELCRAFTING));
+                }
+                break;
+            // Lederverarbeitung
+            case GOSSIP_ACTION_INFO_DEF + 20:
+                if (!pPlayer->HasSpell(SPELL_LEATHERWORKING_GRAND_MASTER) && ai->SubstructCurrency(pPlayer, ai->ps.Costs_Profession))
+                {
+                    pPlayer->learnSpellHighRank(SPELL_LEATHERWORKING_GRAND_MASTER);
+                    pPlayer->SetSkill(SKILL_LEATHERWORKING, 1, pPlayer->GetPureMaxSkillValue(SKILL_LEATHERWORKING), pPlayer->GetPureMaxSkillValue(SKILL_LEATHERWORKING));
+                }
+                break;
+            // Schneidern
+            case GOSSIP_ACTION_INFO_DEF + 21:
+                if (!pPlayer->HasSpell(SPELL_TAILORING_GRAND_MASTER) && ai->SubstructCurrency(pPlayer, ai->ps.Costs_Profession))
+                {
+                    pPlayer->learnSpellHighRank(SPELL_TAILORING_GRAND_MASTER);
+                    pPlayer->SetSkill(SKILL_TAILORING, 1, pPlayer->GetPureMaxSkillValue(SKILL_TAILORING), pPlayer->GetPureMaxSkillValue(SKILL_TAILORING));
+                }
+                break;
+            // Bergbau
+            case GOSSIP_ACTION_INFO_DEF + 22:
+                if (!pPlayer->HasSpell(SPELL_MINING_GRAND_MASTER) && ai->SubstructCurrency(pPlayer, ai->ps.Costs_Profession))
+                {
+                    pPlayer->learnSpellHighRank(SPELL_MINING_GRAND_MASTER);
+                    pPlayer->SetSkill(SKILL_MINING, 1, pPlayer->GetPureMaxSkillValue(SKILL_MINING), pPlayer->GetPureMaxSkillValue(SKILL_MINING));
+                }
+                break;
+            // Angeln
+            case GOSSIP_ACTION_INFO_DEF + 23:
+                if (!pPlayer->HasSpell(SPELL_FISHING_GRAND_MASTER) && ai->SubstructCurrency(pPlayer, ai->ps.Costs_Profession))
+                {
+                    pPlayer->learnSpellHighRank(SPELL_FISHING_GRAND_MASTER);
+                    pPlayer->SetSkill(SKILL_FISHING, 1, pPlayer->GetPureMaxSkillValue(SKILL_FISHING), pPlayer->GetPureMaxSkillValue(SKILL_FISHING));
+                }
+                break;
+            // Kürschnern
+            case GOSSIP_ACTION_INFO_DEF + 24:
+                if (!pPlayer->HasSpell(SPELL_SKINNING_GRAND_MASTER) && ai->SubstructCurrency(pPlayer, ai->ps.Costs_Profession))
+                {
+                    pPlayer->learnSpellHighRank(SPELL_SKINNING_GRAND_MASTER);
+                    pPlayer->SetSkill(SKILL_SKINNING, 1, pPlayer->GetPureMaxSkillValue(SKILL_SKINNING), pPlayer->GetPureMaxSkillValue(SKILL_SKINNING));
+                }
+                break;
+            // -----------------------------------------------------------------------------------
+            // --------------------------------- REZEPTE FÜR BERUFE ------------------------------
+            // -----------------------------------------------------------------------------------
+            // Alchimie
+            case GOSSIP_ACTION_INFO_DEF + 30:
+                if (pPlayer->HasSkill(SKILL_ALCHEMY) && pPlayer->GetSkillValue(SKILL_ALCHEMY) >= pPlayer->GetPureMaxSkillValue(SKILL_ALCHEMY) && ai->SubstructCurrency(pPlayer, ai->ps.Costs_AllRecipes))
+                    LearnAllSkillRecipes(pPlayer, SKILL_ALCHEMY);
+                else
+                    pPlayer->GetSession()->SendNotification(PIMPER_PROF_MAX);
+                break;
+            // Schmieden
+            case GOSSIP_ACTION_INFO_DEF + 31:
+                if (pPlayer->HasSkill(SKILL_BLACKSMITHING) && pPlayer->GetSkillValue(SKILL_BLACKSMITHING) >= pPlayer->GetPureMaxSkillValue(SKILL_BLACKSMITHING) && ai->SubstructCurrency(pPlayer, ai->ps.Costs_AllRecipes))
+                    LearnAllSkillRecipes(pPlayer, SKILL_BLACKSMITHING);
+                else
+                    pPlayer->GetSession()->SendNotification(PIMPER_PROF_MAX);
+                break;
+            // Kochen
+            case GOSSIP_ACTION_INFO_DEF + 32:
+                if (pPlayer->HasSkill(SKILL_COOKING) && pPlayer->GetSkillValue(SKILL_COOKING) >= pPlayer->GetPureMaxSkillValue(SKILL_COOKING) && ai->SubstructCurrency(pPlayer, ai->ps.Costs_AllRecipes))
+                    LearnAllSkillRecipes(pPlayer, SKILL_COOKING);
+                else
+                    pPlayer->GetSession()->SendNotification(PIMPER_PROF_MAX);
+                break;
+            // Verzaubern
+            case GOSSIP_ACTION_INFO_DEF + 33:
+                if (pPlayer->HasSkill(SKILL_ENCHANTING) && pPlayer->GetSkillValue(SKILL_ENCHANTING) >= pPlayer->GetPureMaxSkillValue(SKILL_ENCHANTING) && ai->SubstructCurrency(pPlayer, ai->ps.Costs_AllRecipes))
+                    LearnAllSkillRecipes(pPlayer, SKILL_ENCHANTING);
+                else
+                    pPlayer->GetSession()->SendNotification(PIMPER_PROF_MAX);
+                break;
+            // Ingenieurwesen
+            case GOSSIP_ACTION_INFO_DEF + 34:
+                if (pPlayer->HasSkill(SKILL_ENGINERING) && pPlayer->GetSkillValue(SKILL_ENGINERING) >= pPlayer->GetPureMaxSkillValue(SKILL_ENGINERING) && ai->SubstructCurrency(pPlayer, ai->ps.Costs_AllRecipes))
+                    LearnAllSkillRecipes(pPlayer, SKILL_ENGINERING);
+                else
+                    pPlayer->GetSession()->SendNotification(PIMPER_PROF_MAX);
+                break;
+            // Inschriftenkunde
+            case GOSSIP_ACTION_INFO_DEF + 35:
+                if (pPlayer->HasSkill(SKILL_INSCRIPTION) && pPlayer->GetSkillValue(SKILL_INSCRIPTION) >= pPlayer->GetPureMaxSkillValue(SKILL_INSCRIPTION) && ai->SubstructCurrency(pPlayer, ai->ps.Costs_AllRecipes))
+                    LearnAllSkillRecipes(pPlayer, SKILL_INSCRIPTION);
+                else
+                    pPlayer->GetSession()->SendNotification(PIMPER_PROF_MAX);
+                break;
+            // Juwelenschleifen
+            case GOSSIP_ACTION_INFO_DEF + 36:
+                if (pPlayer->HasSkill(SKILL_JEWELCRAFTING) && pPlayer->GetSkillValue(SKILL_JEWELCRAFTING) >= pPlayer->GetPureMaxSkillValue(SKILL_JEWELCRAFTING) && ai->SubstructCurrency(pPlayer, ai->ps.Costs_AllRecipes))
+                    LearnAllSkillRecipes(pPlayer, SKILL_JEWELCRAFTING);
+                else
+                    pPlayer->GetSession()->SendNotification(PIMPER_PROF_MAX);
+                break;
+            // Lederverarbeitung
+            case GOSSIP_ACTION_INFO_DEF + 37:
+                if (pPlayer->HasSkill(SKILL_LEATHERWORKING) && pPlayer->GetSkillValue(SKILL_LEATHERWORKING) >= pPlayer->GetPureMaxSkillValue(SKILL_LEATHERWORKING) && ai->SubstructCurrency(pPlayer, ai->ps.Costs_AllRecipes))
+                    LearnAllSkillRecipes(pPlayer, SKILL_LEATHERWORKING);
+                else
+                    pPlayer->GetSession()->SendNotification(PIMPER_PROF_MAX);
+                break;
+            // Schneidern
+            case GOSSIP_ACTION_INFO_DEF + 38:
+                if (pPlayer->HasSkill(SKILL_TAILORING) && pPlayer->GetSkillValue(SKILL_TAILORING) >= pPlayer->GetPureMaxSkillValue(SKILL_TAILORING) && ai->SubstructCurrency(pPlayer, ai->ps.Costs_AllRecipes))
+                    LearnAllSkillRecipes(pPlayer, SKILL_TAILORING);
+                else
+                    pPlayer->GetSession()->SendNotification(PIMPER_PROF_MAX);
+                break;
+        }
+        pPlayer->CLOSE_GOSSIP_MENU();
+    }
+
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+    {
+        pPlayer->PlayerTalkClass->ClearMenus();
+
+        switch(uiSender)
+        {
+            case GOSSIP_SENDER_MAIN:
+                pCreature->CastSpell(pPlayer, SPELL_TURKEY_FEATHERS, true); // Truthahnfedern
+                SendDefaultMenu(pPlayer, pCreature, uiAction);
+                break;
+            case GOSSIP_SENDER_SEC_BANK:
+            case GOSSIP_SENDER_SEC_PROFTRAIN:
+                SendActionMenu(pPlayer, pCreature, uiAction);
+                break;
+        }
+        return true;
+    }
+
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new npc_uwom_user_pimperAI(creature);
+    }
+};
+
+// Copyright 2008-2011 by WarHead (United Worlds of MaNGOS)
+// ------------------------------------------------------------------------------------------------------------
+// Hati 60003
+// ------------------------------------------------------------------------------------------------------------
+enum HATI_ENUM
+{
+    SOUND_AGGRO             = 11176,
+    SOUND_SLAY1             = 11177,
+    SOUND_SLAY2             = 11178,
+    SOUND_SLAY3             = 11183,
+
+    SPELL_LUFT_LUFT_RAKETE  = 52254,
+    SPELL_DURCHBOHREN       = 58666
+};
+
+class npc_hati : public CreatureScript
+{
+public:
+    npc_hati() : CreatureScript("npc_hati") { }
+
+    struct npc_hatiAI : public ScriptedAI
+    {
+        npc_hatiAI(Creature *c) : ScriptedAI(c) {}
+
+        uint32 lufttimer,
+            bohrentimer;
+
+        void Reset()
+        {
+            me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_NORMAL, true);
+            me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
+
+            me->SetSpeed(MOVE_WALK,         1.50f, true);
+            me->SetSpeed(MOVE_RUN,          1.50f, true);
+            me->SetSpeed(MOVE_RUN_BACK,     1.50f, true);
+            me->SetSpeed(MOVE_SWIM,         1.50f, true);
+            me->SetSpeed(MOVE_SWIM_BACK,    1.50f, true);
+            me->SetSpeed(MOVE_TURN_RATE,    1.50f, true);
+            me->SetSpeed(MOVE_FLIGHT,       1.50f, true);
+            me->SetSpeed(MOVE_FLIGHT_BACK,  1.50f, true);
+
+            bohrentimer = urand(1000,2000);
+            lufttimer = urand(3000,4000);
+        }
+
+        void KilledUnit(Unit* Victim)
+        {
+            switch(urand(0,2))
+            {
+                case 0: DoPlaySoundToSet(me, SOUND_SLAY1); break;
+                case 1: DoPlaySoundToSet(me, SOUND_SLAY2); break;
+                case 2: DoPlaySoundToSet(me, SOUND_SLAY3); break;
+            }
+        }
+
+        void EnterCombat(Unit * /*who*/)
+        {
+            DoPlaySoundToSet(me, SOUND_AGGRO);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            //Return since we have no target
+            if (!UpdateVictim())
+                return;
+
+            if (me->HasUnitState(UNIT_STAT_CASTING))
+                return;
+
+            if (lufttimer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_LUFT_LUFT_RAKETE);
+                lufttimer = urand(3000,4000);
+            }
+            else
+                lufttimer -= diff;
+
+            if (bohrentimer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_DURCHBOHREN);
+                bohrentimer = urand(3000,4000);
+            }
+            else
+                bohrentimer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new npc_hatiAI(creature);
+    }
+};
 
 /*########
 # npc_air_force_bots
@@ -1073,49 +3273,6 @@ public:
     CreatureAI *GetAI(Creature *creature) const
     {
         return new npc_garments_of_questsAI(creature);
-    }
-};
-
-/*######
-## npc_guardian
-######*/
-
-#define SPELL_DEATHTOUCH                5
-
-class npc_guardian : public CreatureScript
-{
-public:
-    npc_guardian() : CreatureScript("npc_guardian") { }
-
-    struct npc_guardianAI : public ScriptedAI
-    {
-        npc_guardianAI(Creature *c) : ScriptedAI(c) {}
-
-        void Reset()
-        {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        }
-
-        void EnterCombat(Unit * /*who*/)
-        {
-        }
-
-        void UpdateAI(const uint32 /*diff*/)
-        {
-            if (!UpdateVictim())
-                return;
-
-            if (me->isAttackReady())
-            {
-                DoCast(me->getVictim(), SPELL_DEATHTOUCH, true);
-                me->resetAttackTimer();
-            }
-        }
-    };
-
-    CreatureAI *GetAI(Creature *creature) const
-    {
-        return new npc_guardianAI(creature);
     }
 };
 
@@ -2607,6 +4764,15 @@ public:
 
 void AddSC_npcs_special()
 {
+    // Eigene
+    new npc_flugmeister;
+    new npc_flugmeister_adds;
+    new npc_hati;
+    new npc_uwom_firecaller;
+    new npc_uwom_gm_pimper;
+    new npc_uwom_user_pimper;
+
+    // Trinity
     new npc_air_force_bots;
     new npc_lunaclaw_spirit;
     new npc_chicken_cluck;
@@ -2614,7 +4780,6 @@ void AddSC_npcs_special()
     new npc_doctor;
     new npc_injured_patient;
     new npc_garments_of_quests;
-    new npc_guardian;
     new npc_kingdom_of_dalaran_quests;
     new npc_mount_vendor;
     new npc_rogue_trainer;
