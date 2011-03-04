@@ -238,8 +238,8 @@ class spell_gen_remove_flight_auras : public SpellScriptLoader
 
         class spell_gen_remove_flight_auras_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_gen_remove_flight_auras_SpellScript)
-            void HandleScript(SpellEffIndex /*effIndex*/);
+            PrepareSpellScript(spell_gen_remove_flight_auras_SpellScript);
+            void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 Unit* target = GetHitUnit();
                 if (!target)
@@ -289,7 +289,7 @@ class spell_gen_leeching_swarm : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    int32 lifeLeeched = pTarget->CountPctFromCurHealth(aurEff->GetAmount());
+                    int32 lifeLeeched = GetTarget()->CountPctFromCurHealth(aurEff->GetAmount());
                     if (lifeLeeched < 250)
                         lifeLeeched = 250;
                     // Damage
