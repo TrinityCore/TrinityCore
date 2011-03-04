@@ -2493,6 +2493,11 @@ void InstanceMap::PermBindAllPlayers(Player *player)
         sLog->outError("Cannot bind players, no instance save available for map!");
         return;
     }
+    else if (!IsRaid()) // Nur Raidinstanzen permanent binden
+    {
+        save->SetCanReset(true);
+        return;
+    }
 
     Group *group = player->GetGroup();
     // group members outside the instance group don't get bound
