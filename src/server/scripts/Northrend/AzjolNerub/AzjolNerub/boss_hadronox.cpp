@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -109,34 +109,25 @@ public:
         {
             if (pInstance)
                 pInstance->SetData(DATA_HADRONOX_EVENT, IN_PROGRESS);
+
             me->SetInCombatWithZone();
         }
 
-        void CheckDistance(float dist, const uint32 uiDiff)
+        // Sicher stellen, dass Hadronox nicht von NPCs getötet wird!
+        void DamageTaken(Unit* pDone_by, uint32& uiDamage)
         {
-            if (!me->isInCombat())
-                return;
-
-            float x=0.0f, y=0.0f, z=0.0f;
-            me->GetRespawnCoord(x,y,z);
-
-            if (uiCheckDistanceTimer <= uiDiff)
-                uiCheckDistanceTimer = 5*IN_MILLISECONDS;
-            else
+            if (pDone_by && HealthBelowPct(75) && pDone_by->GetTypeId() != TYPEID_PLAYER)
             {
-                uiCheckDistanceTimer -= uiDiff;
+                uiDamage = 0;
                 return;
             }
-            if (me->IsInEvadeMode() || !me->getVictim())
-                return;
-            if (me->GetDistance(x,y,z) > dist)
-                EnterEvadeMode();
         }
 
         void UpdateAI(const uint32 diff)
         {
             //Return since we have no target
-            if (!UpdateVictim()) return;
+            if (!UpdateVictim())
+                return;
 
             // Without he comes up through the air to players on the bridge after krikthir if players crossing this bridge!
             CheckDistance(fMaxDistance, diff);
@@ -148,6 +139,9 @@ public:
             }
             else if (!IsCombatMovement())
                 SetCombatMovement(true);
+
+            if (me->HasUnitState(UNIT_STAT_CASTING))
+                return;
 
             if (uiPierceTimer <= diff)
             {
