@@ -307,12 +307,11 @@ public:
                     return;
                 for(std::list<Creature*>::const_iterator itr = lSeats.begin(); itr != lSeats.end(); itr++)
                 {
-                    Vehicle* pSeat = (*itr)->GetVehicleKit();
                     if (Creature* pTurret = (me->SummonCreature(33142, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_MANUAL_DESPAWN)))
-                        pTurret->EnterVehicle(pSeat, SEAT_TURRET);
+                        pTurret->EnterVehicle((*itr), SEAT_TURRET);
 
                     if (Creature* pDevice = (me->SummonCreature(33143, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_MANUAL_DESPAWN)))
-                        pDevice->EnterVehicle(pSeat, SEAT_DEVICE);
+                        pDevice->EnterVehicle((*itr), SEAT_DEVICE);
                 }
             }
             else
