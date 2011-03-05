@@ -220,7 +220,7 @@ public:
 
             if (m_uiNetherPowerTimer <= uiDiff)
             {
-                DoCast(me, SPELL_NETHER_POWER);
+                me->SetAuraStack(SPELL_NETHER_POWER, me, RAID_MODE(5, 10, 5, 10));
                 m_uiNetherPowerTimer = 40*IN_MILLISECONDS;
             } else m_uiNetherPowerTimer -= uiDiff;
 
