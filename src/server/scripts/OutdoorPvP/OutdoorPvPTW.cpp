@@ -1362,7 +1362,7 @@ void Tausendwinter::BearbeiteWiederbelebungen(const uint32 diff)
                     (*NPCiter).second->m_Creature->CastSpell((*NPCiter).second->m_Creature, SPELL_SPIRIT_HEAL, true);
                 else if (!(*NPCiter).second->m_Creature && pPlr->IsInWorld())
                 {
-                    (*NPCiter).second->m_Creature = pPlr->GetMap()->GetCreature((*NPCiter).second->m_Creature->GetGUID());
+                    (*NPCiter).second->m_Creature = pPlr->GetMap()->GetCreature((*NPCiter).second->m_GUID);
                     if ((*NPCiter).second->m_Creature)
                         (*NPCiter).second->m_Creature->CastSpell((*NPCiter).second->m_Creature, SPELL_SPIRIT_HEAL, true);
                 }

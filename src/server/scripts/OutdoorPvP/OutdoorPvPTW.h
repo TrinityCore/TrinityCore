@@ -685,6 +685,7 @@ protected:
 
     public:
         Creature * m_Creature;              // Zeiger auf den NPC
+        uint32 m_GUID;                      // Datenbank GUID
 
         TW_NPC_TYP m_Typ;                   // Typ des NPCs (Questgeber / Geisterführer etc.)
         TeamId m_TeamId;                    // Die TeamId, zu dem dieser NPC gehört
@@ -764,7 +765,6 @@ protected:
         }
 
     private:
-        uint32 m_GUID;                  // Datenbank GUID
         uint32 m_ID;                    // NPC ID
 
         Position m_Pos;                 // Aktuelle Position
