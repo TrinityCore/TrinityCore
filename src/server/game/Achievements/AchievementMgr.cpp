@@ -2044,13 +2044,8 @@ void AchievementMgr::BuildAllDataPacket(WorldPacket *data) const
     }
     *data << int32(-1);
 
-    AchievementCriteriaEntry const* criteria = NULL;
     for (CriteriaProgressMap::const_iterator iter = m_criteriaProgress.begin(); iter != m_criteriaProgress.end(); ++iter)
     {
-        criteria = sAchievementCriteriaStore.LookupEntry(iter->first);
-        if (criteria->flags & ACHIEVEMENT_CRITERIA_FLAG_HIDDEN)
-            continue;
-
         *data << uint32(iter->first);
         data->appendPackGUID(iter->second.counter);
         data->append(GetPlayer()->GetPackGUID());
