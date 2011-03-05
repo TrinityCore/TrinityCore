@@ -381,7 +381,7 @@ public:
                             if (instance)
                             {
                                 if (Creature *pLeviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
-                                    me->EnterVehicle(pLeviathan->GetVehicleKit(), 4);
+                                    me->EnterVehicle(pLeviathan, 4);
                             }
                             JumpToNextStep(2000);
                             break;
@@ -455,7 +455,7 @@ public:
                             if (instance)
                             {
                                 if (Creature *pVX_001 = me->GetCreature(*me, instance->GetData64(DATA_VX_001)))
-                                    me->EnterVehicle(pVX_001->GetVehicleKit(), 0);
+                                    me->EnterVehicle(pVX_001, 0);
                             }
                             JumpToNextStep(3500);
                             break;
@@ -561,8 +561,8 @@ public:
                                     {
                                         pLeviathan->GetMotionMaster()->MoveTargetedHome();
                                         pVX_001->SetStandState(UNIT_STAND_STATE_STAND);
-                                        pVX_001->EnterVehicle(pLeviathan->GetVehicleKit(), 7);
-                                        me->EnterVehicle(pVX_001->GetVehicleKit(), 1);
+                                        pVX_001->EnterVehicle(pLeviathan, 7);
+                                        me->EnterVehicle(pVX_001, 1);
                                     }
                             }
                             JumpToNextStep(8000);
@@ -574,7 +574,7 @@ public:
                                     {
                                         DoScriptText(SAY_V07TRON_ACTIVATE, me);
                                         pAerialUnit->SetFlying(false);
-                                        pAerialUnit->EnterVehicle(pVX_001->GetVehicleKit(), 3);
+                                        pAerialUnit->EnterVehicle(pVX_001, 3);
                                     }
                             JumpToNextStep(10000);
                             break;

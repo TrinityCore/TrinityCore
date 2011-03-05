@@ -869,6 +869,7 @@ public:
     {
         return new spell_ashbringer_sound_effect_SpellScript();
     }
+};
 
 class spell_gen_profession_research : public SpellScriptLoader
 {
