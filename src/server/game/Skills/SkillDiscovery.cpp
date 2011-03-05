@@ -191,6 +191,22 @@ uint32 GetExplicitDiscoverySpell(uint32 spellId, Player* player)
     return 0;
 }
 
+bool HasDiscoveredAllSpells(uint32 spellId, Player* player)
+{
+    SkillDiscoveryMap::const_iterator tab = SkillDiscoveryStore.find(spellId);
+    if (tab == SkillDiscoveryStore.end())
+        return true;
+
+    SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellId);
+    uint32 skillvalue = bounds.first != bounds.second ? player->GetSkillValue(bounds.first->second->skillId) : 0;
+
+    for (SkillDiscoveryList::const_iterator item_iter = tab->second.begin(); item_iter != tab->second.end(); ++item_iter)
+        if (!player->HasSpell(item_iter->spellId))
+            return false;
+
+    return true;
+}
+
 uint32 GetSkillDiscoverySpell(uint32 skillId, uint32 spellId, Player* player)
 {
     uint32 skillvalue = skillId ? player->GetSkillValue(skillId) : 0;

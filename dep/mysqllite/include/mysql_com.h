@@ -1,4 +1,4 @@
-/* Copyright (C) 2000 MySQL AB
+/* Copyright (c) 2000, 2010, Oracle and/or its affiliates. All rights reserved.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -27,8 +27,18 @@
 #define NAME_LEN                (NAME_CHAR_LEN*SYSTEM_CHARSET_MBMAXLEN)
 #define USERNAME_LENGTH         (USERNAME_CHAR_LENGTH*SYSTEM_CHARSET_MBMAXLEN)
 
+#define MYSQL_AUTODETECT_CHARSET_NAME "auto"
+
 #define SERVER_VERSION_LENGTH 60
 #define SQLSTATE_LENGTH 5
+
+/*
+  Maximum length of comments
+*/
+#define TABLE_COMMENT_INLINE_MAXLEN 180 /* pre 6.0: 60 characters */
+#define TABLE_COMMENT_MAXLEN 2048
+#define COLUMN_COMMENT_MAXLEN 1024
+#define INDEX_COMMENT_MAXLEN 1024
 
 /*
   USER_HOST_BUFF_SIZE -- length of string buffer, that is enough to contain
@@ -115,6 +125,12 @@ enum enum_server_command
 					   thread */
 #define REFRESH_MASTER          128     /* Remove all bin logs in the index
 					   and truncate the index */
+#define REFRESH_ERROR_LOG       256 /* Rotate only the erorr log */
+#define REFRESH_ENGINE_LOG      512 /* Flush all storage engine logs */
+#define REFRESH_BINARY_LOG     1024 /* Flush the binary log */
+#define REFRESH_RELAY_LOG      2048 /* Flush the relay log */
+#define REFRESH_GENERAL_LOG    4096 /* Flush the general log */
+#define REFRESH_SLOW_LOG       8192 /* Flush the slow query log */
 
 /* The following can't be set with mysql_refresh() */
 #define REFRESH_READ_LOCK	16384	/* Lock tables for read */
@@ -144,9 +160,18 @@ enum enum_server_command
 #define CLIENT_SECURE_CONNECTION 32768  /* New 4.1 authentication */
 #define CLIENT_MULTI_STATEMENTS (1UL << 16) /* Enable/disable multi-stmt support */
 #define CLIENT_MULTI_RESULTS    (1UL << 17) /* Enable/disable multi-results */
+#define CLIENT_PS_MULTI_RESULTS (1UL << 18) /* Multi-results in PS-protocol */
+
+#define CLIENT_PLUGIN_AUTH  (1UL << 19) /* Client supports plugin authentication */
 
 #define CLIENT_SSL_VERIFY_SERVER_CERT (1UL << 30)
 #define CLIENT_REMEMBER_OPTIONS (1UL << 31)
+
+#ifdef HAVE_COMPRESS
+#define CAN_CLIENT_COMPRESS CLIENT_COMPRESS
+#else
+#define CAN_CLIENT_COMPRESS 0
+#endif
 
 /* Gather all possible capabilites (flags) supported by the server */
 #define CLIENT_ALL_FLAGS  (CLIENT_LONG_PASSWORD | \
@@ -167,8 +192,10 @@ enum enum_server_command
                            CLIENT_SECURE_CONNECTION | \
                            CLIENT_MULTI_STATEMENTS | \
                            CLIENT_MULTI_RESULTS | \
+                           CLIENT_PS_MULTI_RESULTS | \
                            CLIENT_SSL_VERIFY_SERVER_CERT | \
-                           CLIENT_REMEMBER_OPTIONS)
+                           CLIENT_REMEMBER_OPTIONS | \
+                           CLIENT_PLUGIN_AUTH)
 
 /*
   Switch off the flags that are optional and depending on build flags
@@ -179,7 +206,14 @@ enum enum_server_command
                                                & ~CLIENT_COMPRESS) \
                                                & ~CLIENT_SSL_VERIFY_SERVER_CERT)
 
-#define SERVER_STATUS_IN_TRANS     1	/* Transaction has started */
+/**
+  Is raised when a multi-statement transaction
+  has been started, either explicitly, by means
+  of BEGIN or COMMIT AND CHAIN, or
+  implicitly, by the first transactional
+  statement, when autocommit=off.
+*/
+#define SERVER_STATUS_IN_TRANS     1
 #define SERVER_STATUS_AUTOCOMMIT   2	/* Server in auto_commit mode */
 #define SERVER_MORE_RESULTS_EXISTS 8    /* Multi query - next query exists */
 #define SERVER_QUERY_NO_GOOD_INDEX_USED 16
@@ -203,6 +237,12 @@ enum enum_server_command
   number of result set columns.
 */
 #define SERVER_STATUS_METADATA_CHANGED 1024
+#define SERVER_QUERY_WAS_SLOW          2048
+
+/**
+  To mark ResultSet containing output parameter values.
+*/
+#define SERVER_PS_OUT_PARAMS            4096
 
 /**
   Server status flags that must be cleared when starting
@@ -215,7 +255,11 @@ enum enum_server_command
 #define SERVER_STATUS_CLEAR_SET (SERVER_QUERY_NO_GOOD_INDEX_USED| \
                                  SERVER_QUERY_NO_INDEX_USED|\
                                  SERVER_MORE_RESULTS_EXISTS|\
-                                 SERVER_STATUS_METADATA_CHANGED)
+                                 SERVER_STATUS_METADATA_CHANGED |\
+                                 SERVER_QUERY_WAS_SLOW |\
+                                 SERVER_STATUS_DB_DROPPED |\
+                                 SERVER_STATUS_CURSOR_EXISTS|\
+                                 SERVER_STATUS_LAST_ROW_SENT)
 
 #define MYSQL_ERRMSG_SIZE	512
 #define NET_READ_TIMEOUT	30		/* Timeout on read */
@@ -254,24 +298,23 @@ typedef struct st_net {
   unsigned int *return_status;
   unsigned char reading_or_writing;
   char save_char;
-  my_bool unused0; /* Please remove with the next incompatible ABI change. */
-  my_bool unused; /* Please remove with the next incompatible ABI change */
-  my_bool compress;
   my_bool unused1; /* Please remove with the next incompatible ABI change. */
+  my_bool unused2; /* Please remove with the next incompatible ABI change */
+  my_bool compress;
+  my_bool unused3; /* Please remove with the next incompatible ABI change. */
   /*
     Pointer to query object in query cache, do not equal NULL (0) for
     queries in cache that have not stored its results yet
   */
 #endif
   /*
-    'query_cache_query' should be accessed only via query cache
-    functions and methods to maintain proper locking.
+    Unused, please remove with the next incompatible ABI change.
   */
-  unsigned char *query_cache_query;
+  unsigned char *unused;
   unsigned int last_errno;
   unsigned char error; 
-  my_bool unused2; /* Please remove with the next incompatible ABI change. */
-  my_bool return_errno;
+  my_bool unused4; /* Please remove with the next incompatible ABI change. */
+  my_bool unused5; /* Please remove with the next incompatible ABI change. */
   /** Client library error message buffer. Actually belongs to struct MYSQL. */
   char last_error[MYSQL_ERRMSG_SIZE];
   /** Client library sqlstate buffer. Set along with the error message. */
@@ -419,10 +462,6 @@ void my_net_set_write_timeout(NET *net, uint timeout);
 void my_net_set_read_timeout(NET *net, uint timeout);
 #endif
 
-/*
-  The following function is not meant for normal usage
-  Currently it's used internally by manager.c
-*/
 struct sockaddr;
 int my_connect(my_socket s, const struct sockaddr *name, unsigned int namelen,
 	       unsigned int timeout);
@@ -492,14 +531,14 @@ void create_random_string(char *to, unsigned int length, struct rand_struct *ran
 void hash_password(unsigned long *to, const char *password, unsigned int password_len);
 void make_scrambled_password_323(char *to, const char *password);
 void scramble_323(char *to, const char *message, const char *password);
-my_bool check_scramble_323(const char *, const char *message,
+my_bool check_scramble_323(const unsigned char *reply, const char *message,
                            unsigned long *salt);
 void get_salt_from_password_323(unsigned long *res, const char *password);
 void make_password_from_salt_323(char *to, const unsigned long *salt);
 
 void make_scrambled_password(char *to, const char *password);
 void scramble(char *to, const char *message, const char *password);
-my_bool check_scramble(const char *reply, const char *message,
+my_bool check_scramble(const unsigned char *reply, const char *message,
                        const unsigned char *hash_stage2);
 void get_salt_from_password(unsigned char *res, const char *password);
 void make_password_from_salt(char *to, const unsigned char *hash_stage2);
@@ -529,4 +568,5 @@ uchar *net_store_length(uchar *pkg, ulonglong length);
 #define MYSQL_STMT_HEADER       4
 #define MYSQL_LONG_DATA_HEADER  6
 
+#define NOT_FIXED_DEC           31
 #endif

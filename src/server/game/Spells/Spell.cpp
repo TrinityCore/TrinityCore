@@ -427,6 +427,7 @@ m_spellInfo(sSpellMgr->GetSpellForDifficultyFromSpell(info, Caster)),
 m_caster(Caster), m_spellValue(new SpellValue(m_spellInfo))
 {
     m_customAttr = sSpellMgr->GetSpellCustomAttr(m_spellInfo->Id);
+    m_customError = SPELL_CUSTOM_ERROR_NONE;
     m_skipCheck = skipCheck;
     m_selfContainer = NULL;
     m_referencedFromCurrentSpell = false;
@@ -3779,10 +3780,10 @@ void Spell::SendCastResult(SpellCastResult result)
     if (m_caster->ToPlayer()->GetSession()->PlayerLoading())  // don't send cast results at loading time
         return;
 
-    SendCastResult((Player*)m_caster,m_spellInfo,m_cast_count,result);
+    SendCastResult(m_caster->ToPlayer(), m_spellInfo, m_cast_count, result, m_customError);
 }
 
-void Spell::SendCastResult(Player* caster, SpellEntry const* spellInfo, uint8 cast_count, SpellCastResult result)
+void Spell::SendCastResult(Player* caster, SpellEntry const* spellInfo, uint8 cast_count, SpellCastResult result, SpellCustomErrors customError /*= SPELL_CUSTOM_ERROR_NONE*/)
 {
     if (result == SPELL_CAST_OK)
         return;
@@ -3844,6 +3845,9 @@ void Spell::SendCastResult(Player* caster, SpellEntry const* spellInfo, uint8 ca
                  data << uint32(pProto->ItemLimitCategory);
              break;
         }
+        case SPELL_FAILED_CUSTOM_ERROR:
+            data << uint32(customError);
+            break;
         default:
             break;
     }
@@ -5097,6 +5101,11 @@ SpellCastResult Spell::CheckCast(bool strict)
                         return SPELL_FAILED_NOTHING_TO_DISPEL;
                 }
             }
+
+    // script hook
+    castResult = CallScriptCheckCastHandlers();
+    if (castResult != SPELL_CAST_OK)
+        return castResult;
 
     for (int i = 0; i < MAX_SPELL_EFFECTS; i++)
     {
@@ -7311,6 +7320,25 @@ void Spell::PrepareScriptHitHandlers()
 {
     for (std::list<SpellScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
         (*scritr)->_InitHit();
+}
+
+SpellCastResult Spell::CallScriptCheckCastHandlers()
+{
+    SpellCastResult retVal = SPELL_CAST_OK;
+    for (std::list<SpellScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
+    {
+        (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_CHECK_CAST);
+        std::list<SpellScript::CheckCastHandler>::iterator hookItrEnd = (*scritr)->OnCheckCast.end(), hookItr = (*scritr)->OnCheckCast.begin();
+        for (; hookItr != hookItrEnd; ++hookItr)
+        {
+            SpellCastResult tempResult = (*hookItr).Call(*scritr);
+            if (retVal == SPELL_CAST_OK)
+                retVal = tempResult;
+        }
+
+        (*scritr)->_FinishScriptCall();
+    }
+    return retVal;
 }
 
 bool Spell::CallScriptEffectHandlers(SpellEffIndex effIndex)

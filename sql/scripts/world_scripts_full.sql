@@ -111,7 +111,6 @@ UPDATE `creature_template` SET `ScriptName`='npc_innkeeper' WHERE `entry` IN
 
 /* ITEM */
 UPDATE `item_template` SET `ScriptName`='item_draenei_fishing_net' WHERE `entry`=23654;
-UPDATE `item_template` SET `ScriptName`='item_flying_machine' WHERE `entry` IN (34060,34061);
 UPDATE `item_template` SET `ScriptName`='item_gor_dreks_ointment' WHERE `entry`=30175;
 UPDATE `item_template` SET `ScriptName`='item_nether_wraith_beacon' WHERE `entry`=31742;
 UPDATE `item_template` SET `ScriptName`='item_tainted_core' WHERE `entry`=31088;
@@ -119,7 +118,6 @@ UPDATE `item_template` SET `ScriptName`='item_only_for_flight' WHERE `entry` IN 
 UPDATE `item_template` SET `ScriptName`='item_incendiary_explosives' WHERE (`entry`=35704);
 UPDATE `item_template` SET `ScriptName`='item_mysterious_egg' WHERE `entry` IN(39878);
 UPDATE `item_template` SET `ScriptName`='item_disgusting_jar' WHERE `entry` IN(44717);
-UPDATE `item_template` SET `ScriptName`='item_harvesters_gift' WHERE `entry`=39253;
 UPDATE `item_template` SET `ScriptName`='item_petrov_cluster_bombs' WHERE `entry`=33098;
 UPDATE `item_template` SET `ScriptName`='item_Trident_of_Nazjan' WHERE `entry`=35850;
 UPDATE `item_template` SET `ScriptName`='item_captured_frog' WHERE `entry`=53510;
@@ -1847,6 +1845,10 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 72706, 'spell_gen_dungeon_credit'),
 ( 72830, 'spell_gen_dungeon_credit'),
 ( 72959, 'spell_gen_dungeon_credit'),
+( 60893, 'spell_gen_profession_research'),
+( 61177, 'spell_gen_profession_research'),
+( 61288, 'spell_gen_profession_research'),
+( 61756, 'spell_gen_profession_research'),
 -- instances
 -- Black Temple
 ( 41475, 'spell_boss_lady_malande_shield'),
@@ -2103,6 +2105,8 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 71905, 'spell_item_shadowmourne'),
 ( 67533, 'spell_item_red_rider_air_rifle'),
 ( 26678, 'spell_item_create_heart_candy'),
+( 64323, 'spell_item_book_of_glyph_mastery'),
+( 52481, 'spell_item_gift_of_the_harvester'),
 -- warrior
 ( 12975, 'spell_warr_last_stand'),
 ( 59725, 'spell_warr_improved_spell_reflection'),
@@ -2147,6 +2151,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (-49145, 'spell_dk_spell_deflection'),
 (-52284, 'spell_dk_will_of_the_necropolis'),
 ( 48743, 'spell_dk_death_pact'),
+( 52751, 'spell_dk_death_gate'),
 -- shaman
 (-51474, 'spell_sha_astral_shift'),
 ( 39610, 'spell_sha_mana_tide_totem'),

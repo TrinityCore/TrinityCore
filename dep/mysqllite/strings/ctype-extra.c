@@ -6,7 +6,7 @@
     ./conf_to_src ../sql/share/charsets/ > FILE
 */
 
-/* Copyright (C) 2000-2007 MySQL AB
+/* Copyright 2000-2008 MySQL AB, 2008 Sun Microsystems, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -1040,7 +1040,7 @@ uint16 to_uni_cp1251_bulgarian_ci[] = {
 0x0070,0x0071,0x0072,0x0073,0x0074,0x0075,0x0076,0x0077,
 0x0078,0x0079,0x007A,0x007B,0x007C,0x007D,0x007E,0x007F,
 0x0402,0x0403,0x201A,0x0453,0x201E,0x2026,0x2020,0x2021,
-0x0000,0x2030,0x0409,0x2039,0x040A,0x040C,0x040B,0x040F,
+0x20AC,0x2030,0x0409,0x2039,0x040A,0x040C,0x040B,0x040F,
 0x0452,0x2018,0x2019,0x201C,0x201D,0x2022,0x2013,0x2014,
 0x0000,0x2122,0x0459,0x203A,0x045A,0x045C,0x045B,0x045F,
 0x00A0,0x040E,0x045E,0x0408,0x00A4,0x0490,0x00A6,0x00A7,
@@ -1730,7 +1730,7 @@ uint16 to_uni_cp1251_ukrainian_ci[] = {
 0x0070,0x0071,0x0072,0x0073,0x0074,0x0075,0x0076,0x0077,
 0x0078,0x0079,0x007A,0x007B,0x007C,0x007D,0x007E,0x007F,
 0x0402,0x0403,0x201A,0x0453,0x201E,0x2026,0x2020,0x2021,
-0x0000,0x2030,0x0409,0x2039,0x040A,0x040C,0x040B,0x040F,
+0x20AC,0x2030,0x0409,0x2039,0x040A,0x040C,0x040B,0x040F,
 0x0452,0x2018,0x2019,0x201C,0x201D,0x2022,0x2013,0x2014,
 0x0000,0x2122,0x0459,0x203A,0x045A,0x045C,0x045B,0x045F,
 0x00A0,0x040E,0x045E,0x0408,0x00A4,0x0490,0x00A6,0x00A7,
@@ -3762,7 +3762,7 @@ uint16 to_uni_cp1251_bin[] = {
 0x0070,0x0071,0x0072,0x0073,0x0074,0x0075,0x0076,0x0077,
 0x0078,0x0079,0x007A,0x007B,0x007C,0x007D,0x007E,0x007F,
 0x0402,0x0403,0x201A,0x0453,0x201E,0x2026,0x2020,0x2021,
-0x0000,0x2030,0x0409,0x2039,0x040A,0x040C,0x040B,0x040F,
+0x20AC,0x2030,0x0409,0x2039,0x040A,0x040C,0x040B,0x040F,
 0x0452,0x2018,0x2019,0x201C,0x201D,0x2022,0x2013,0x2014,
 0x0000,0x2122,0x0459,0x203A,0x045A,0x045C,0x045B,0x045F,
 0x00A0,0x040E,0x045E,0x0408,0x00A4,0x0490,0x00A6,0x00A7,
@@ -3877,7 +3877,7 @@ uint16 to_uni_cp1251_general_ci[] = {
 0x0070,0x0071,0x0072,0x0073,0x0074,0x0075,0x0076,0x0077,
 0x0078,0x0079,0x007A,0x007B,0x007C,0x007D,0x007E,0x007F,
 0x0402,0x0403,0x201A,0x0453,0x201E,0x2026,0x2020,0x2021,
-0x0000,0x2030,0x0409,0x2039,0x040A,0x040C,0x040B,0x040F,
+0x20AC,0x2030,0x0409,0x2039,0x040A,0x040C,0x040B,0x040F,
 0x0452,0x2018,0x2019,0x201C,0x201D,0x2022,0x2013,0x2014,
 0x0000,0x2122,0x0459,0x203A,0x045A,0x045C,0x045B,0x045F,
 0x00A0,0x040E,0x045E,0x0408,0x00A4,0x0490,0x00A6,0x00A7,
@@ -3992,7 +3992,7 @@ uint16 to_uni_cp1251_general_cs[] = {
 0x0070,0x0071,0x0072,0x0073,0x0074,0x0075,0x0076,0x0077,
 0x0078,0x0079,0x007A,0x007B,0x007C,0x007D,0x007E,0x007F,
 0x0402,0x0403,0x201A,0x0453,0x201E,0x2026,0x2020,0x2021,
-0x0000,0x2030,0x0409,0x2039,0x040A,0x040C,0x040B,0x040F,
+0x20AC,0x2030,0x0409,0x2039,0x040A,0x040C,0x040B,0x040F,
 0x0452,0x2018,0x2019,0x201C,0x201D,0x2022,0x2013,0x2014,
 0x0000,0x2122,0x0459,0x203A,0x045A,0x045C,0x045B,0x045F,
 0x00A0,0x040E,0x045E,0x0408,0x00A4,0x0490,0x00A6,0x00A7,
@@ -6804,7 +6804,7 @@ CHARSET_INFO compiled_charsets[] = {
 #ifdef HAVE_CHARSET_swe7
 {
   10,0,0,
-  MY_CS_COMPILED|MY_CS_PRIMARY,
+  MY_CS_COMPILED|MY_CS_PRIMARY|MY_CS_NONASCII,
   "swe7",                     /* cset name     */
   "swe7_swedish_ci",                     /* coll name     */
   "",                       /* comment       */
@@ -8454,7 +8454,7 @@ CHARSET_INFO compiled_charsets[] = {
 #ifdef HAVE_CHARSET_swe7
 {
   82,0,0,
-  MY_CS_COMPILED|MY_CS_BINSORT,
+  MY_CS_COMPILED|MY_CS_BINSORT|MY_CS_NONASCII,
   "swe7",                     /* cset name     */
   "swe7_bin",                     /* coll name     */
   "",                       /* comment       */
@@ -8466,72 +8466,6 @@ CHARSET_INFO compiled_charsets[] = {
   NULL,                       /* contractions  */
   NULL,                       /* sort_order_big*/
   to_uni_swe7_bin,                  /* to_uni        */
-  NULL,                       /* from_uni      */
-  my_unicase_default,         /* caseinfo      */
-  NULL,                       /* state map     */
-  NULL,                       /* ident map     */
-  1,                          /* strxfrm_multiply*/
-  1,                          /* caseup_multiply*/
-  1,                          /* casedn_multiply*/
-  1,                          /* mbminlen      */
-  1,                          /* mbmaxlen      */
-  0,                          /* min_sort_char */
-  255,                        /* max_sort_char */
-  ' ',                        /* pad_char      */
-  0,                          /* escape_with_backslash_is_dangerous */
-  &my_charset_8bit_handler,
-  &my_collation_8bit_bin_handler,
-}
-,
-#endif
-#ifdef HAVE_CHARSET_geostd8
-{
-  92,0,0,
-  MY_CS_COMPILED|MY_CS_PRIMARY,
-  "geostd8",                     /* cset name     */
-  "geostd8_general_ci",                     /* coll name     */
-  "",                       /* comment       */
-  NULL,                       /* tailoring     */
-  ctype_geostd8_general_ci,                   /* ctype         */
-  to_lower_geostd8_general_ci,                /* lower         */
-  to_upper_geostd8_general_ci,                /* upper         */
-  sort_order_geostd8_general_ci,            /* sort_order    */
-  NULL,                       /* contractions  */
-  NULL,                       /* sort_order_big*/
-  to_uni_geostd8_general_ci,                  /* to_uni        */
-  NULL,                       /* from_uni      */
-  my_unicase_default,         /* caseinfo      */
-  NULL,                       /* state map     */
-  NULL,                       /* ident map     */
-  1,                          /* strxfrm_multiply*/
-  1,                          /* caseup_multiply*/
-  1,                          /* casedn_multiply*/
-  1,                          /* mbminlen      */
-  1,                          /* mbmaxlen      */
-  0,                          /* min_sort_char */
-  255,                        /* max_sort_char */
-  ' ',                        /* pad_char      */
-  0,                          /* escape_with_backslash_is_dangerous */
-  &my_charset_8bit_handler,
-  &my_collation_8bit_simple_ci_handler,
-}
-,
-#endif
-#ifdef HAVE_CHARSET_geostd8
-{
-  93,0,0,
-  MY_CS_COMPILED|MY_CS_BINSORT,
-  "geostd8",                     /* cset name     */
-  "geostd8_bin",                     /* coll name     */
-  "",                       /* comment       */
-  NULL,                       /* tailoring     */
-  ctype_geostd8_bin,                   /* ctype         */
-  to_lower_geostd8_bin,                /* lower         */
-  to_upper_geostd8_bin,                /* upper         */
-  NULL,                     /* sort_order    */
-  NULL,                       /* contractions  */
-  NULL,                       /* sort_order_big*/
-  to_uni_geostd8_bin,                  /* to_uni        */
   NULL,                       /* from_uni      */
   my_unicase_default,         /* caseinfo      */
   NULL,                       /* state map     */

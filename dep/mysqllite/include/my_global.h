@@ -1,4 +1,4 @@
-/* Copyright (C) 2000-2003 MySQL AB
+/* Copyright (C) 2000-2003 MySQL AB, 2009 Sun Microsystems, Inc
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -17,6 +17,11 @@
 
 #ifndef _global_h
 #define _global_h
+
+/* Client library users on Windows need this macro defined here. */
+#if !defined(__WIN__) && defined(_WIN32)
+#define __WIN__
+#endif
 
 /*
   InnoDB depends on some MySQL internals which other plugins should not
@@ -41,15 +46,6 @@
 #define HAVE_ERRNO_AS_DEFINE
 #endif /* __CYGWIN__ */
 
-#if defined(__QNXNTO__) && !defined(FD_SETSIZE)
-#define FD_SETSIZE 1024         /* Max number of file descriptor bits in
-                                   fd_set, used when calling 'select'
-                                   Must be defined before including
-                                   "sys/select.h" and "sys/time.h"
-                                 */
-#endif
-
-
 /* to make command line shorter we'll define USE_PRAGMA_INTERFACE here */
 #ifdef USE_PRAGMA_IMPLEMENTATION
 #define USE_PRAGMA_INTERFACE
@@ -72,26 +68,28 @@
 #define C_MODE_END
 #endif
 
-#if defined(_WIN32) || defined(_WIN64) || defined(__WIN32__) || defined(WIN32)
-#include <config-win.h>
-#elif defined(__NETWARE__)
-#include <my_config.h>
-#include <config-netware.h>
-#if defined(__cplusplus) && defined(inline)
-#undef inline				/* fix configure problem */
+#ifdef __cplusplus
+#define CPP_UNNAMED_NS_START  namespace {
+#define CPP_UNNAMED_NS_END    }
 #endif
-#else
-#include <my_config.h>
-#if defined(__cplusplus) && defined(inline)
-#undef inline				/* fix configure problem */
-#endif
-#endif /* _WIN32... */
 
-/* Make it easier to add conditionl code for windows */
+#include <my_config.h>
+
+#ifdef WITH_PERFSCHEMA_STORAGE_ENGINE
+#define HAVE_PSI_INTERFACE
+#endif /* WITH_PERFSCHEMA_STORAGE_ENGINE */
+
+/* Make it easier to add conditional code in _expressions_ */
 #ifdef __WIN__
-#define IF_WIN(A,B) (A)
+#define IF_WIN(A,B) A
 #else
-#define IF_WIN(A,B) (B)
+#define IF_WIN(A,B) B
+#endif
+
+#ifdef HAVE_purify
+#define IF_PURIFY(A,B) A
+#else
+#define IF_PURIFY(A,B) B
 #endif
 
 #ifndef EMBEDDED_LIBRARY
@@ -105,11 +103,48 @@
 #define HAVE_EXTERNAL_CLIENT
 #endif
 
-/* Some defines to avoid ifdefs in the code */
-#ifndef NETWARE_YIELD
-#define NETWARE_YIELD
-#define NETWARE_SET_SCREEN_MODE(A)
+#if defined (_WIN32)
+/*
+ off_t is 32 bit long. We do not use C runtime functions
+ with off_t but native Win32 file IO APIs, that work with
+ 64 bit offsets.
+*/
+#undef SIZEOF_OFF_T
+#define SIZEOF_OFF_T 8
+
+/*
+ Prevent inclusion of  Windows GDI headers - they define symbol
+ ERROR that conflicts with mysql headers.
+*/
+#ifndef NOGDI
+#define NOGDI
 #endif
+
+/* Include common headers.*/
+#include <winsock2.h>
+#include <ws2tcpip.h> /* SOCKET */
+#include <io.h>       /* access(), chmod() */
+#include <process.h>  /* getpid() */
+
+#define sleep(a) Sleep((a)*1000)
+
+/* Define missing access() modes. */
+#define F_OK 0
+#define W_OK 2
+
+/* Define missing file locking constants. */
+#define F_RDLCK 1
+#define F_WRLCK 2
+#define F_UNLCK 3
+#define F_TO_EOF 0x3FFFFFFF
+
+/* Shared memory and named pipe connections are supported. */
+#define HAVE_SMEM 1
+#define HAVE_NAMED_PIPE 1
+#define shared_memory_buffer_length 16000
+#define default_shared_memory_base_name "MYSQL"
+#endif /* _WIN32*/
+
 
 /* Workaround for _LARGE_FILES and _LARGE_FILE_API incompatibility on AIX */
 #if defined(_AIX) && defined(_LARGE_FILE_API)
@@ -163,108 +198,6 @@
 #define likely(x)	__builtin_expect((x),1)
 #define unlikely(x)	__builtin_expect((x),0)
 
-
-/*
-  The macros below are useful in optimising places where it has been
-  discovered that cache misses stall the process and where a prefetch
-  of the cache line can improve matters. This is available in GCC 3.1.1
-  and later versions.
-  PREFETCH_READ says that addr is going to be used for reading and that
-  it is to be kept in caches if possible for a while
-  PREFETCH_WRITE also says that the item to be cached is likely to be
-  updated.
-  The *LOCALITY scripts are also available for experimentation purposes
-  mostly and should only be used if they are verified to improve matters.
-  For more input see GCC manual (available in GCC 3.1.1 and later)
-*/
-
-#if (__GNUC__ > 3) || (__GNUC__ == 3 && __GNUC_MINOR > 10)
-#define PREFETCH_READ(addr) __builtin_prefetch(addr, 0, 3)
-#define PREFETCH_WRITE(addr) \
-  __builtin_prefetch(addr, 1, 3)
-#define PREFETCH_READ_LOCALITY(addr, locality) \
-  __builtin_prefetch(addr, 0, locality)
-#define PREFETCH_WRITE_LOCALITY(addr, locality) \
-  __builtin_prefetch(addr, 1, locality)
-#else
-#define PREFETCH_READ(addr)
-#define PREFETCH_READ_LOCALITY(addr, locality)
-#define PREFETCH_WRITE(addr)
-#define PREFETCH_WRITE_LOCALITY(addr, locality)
-#endif
-
-/*
-  The following macro is used to ensure that code often used in most
-  SQL statements and definitely for parts of the SQL processing are
-  kept in a code segment by itself. This has the advantage that the
-  risk of common code being overlapping in caches of the CPU is less.
-  This can be a cause of big performance problems.
-  Routines should be put in this category with care and when they are
-  put there one should also strive to make as much of the error handling
-  as possible (or uncommon code of the routine) to execute in a
-  separate method to avoid moving to much code to this code segment.
-
-  It is very easy to use, simply add HOT_METHOD at the end of the
-  function declaration.
-  For more input see GCC manual (available in GCC 2.95 and later)
-*/
-
-#if (__GNUC__ > 2) || (__GNUC__ == 2 && __GNUC_MINOR > 94)
-#define HOT_METHOD \
-  __attribute__ ((section ("hot_code_section")))
-#else
-#define HOT_METHOD
-#endif
-
-/*
-  The following macro is used to ensure that popular global variables
-  are located next to each other to avoid that they contend for the
-  same cache lines.
-
-  It is very easy to use, simply add HOT_DATA at the end of the declaration
-  of the variable, the variable must be initialised because of the way
-  that linker works so a declaration using HOT_DATA should look like:
-  uint global_hot_data HOT_DATA = 0;
-  For more input see GCC manual (available in GCC 2.95 and later)
-*/
-
-#if (__GNUC__ > 2) || (__GNUC__ == 2 && __GNUC_MINOR > 94)
-#define HOT_DATA \
-  __attribute__ ((section ("hot_data_section")))
-#else
-#define HOT_DATA
-#endif
-
-/*
-  now let's figure out if inline functions are supported
-  autoconf defines 'inline' to be empty, if not
-*/
-#define inline_test_1(X)        X ## 1
-#define inline_test_2(X)        inline_test_1(X)
-#if inline_test_2(inline) != 1
-#define HAVE_INLINE
-#endif
-#undef inline_test_2
-#undef inline_test_1
-/* helper macro for "instantiating" inline functions */
-#define STATIC_INLINE static inline
-
-/*
-  The following macros are used to control inlining a bit more than
-  usual. These macros are used to ensure that inlining always or
-  never occurs (independent of compilation mode).
-  For more input see GCC manual (available in GCC 3.1.1 and later)
-*/
-
-#if (__GNUC__ > 3) || (__GNUC__ == 3 && __GNUC_MINOR > 10)
-#define ALWAYS_INLINE __attribute__ ((always_inline))
-#define NEVER_INLINE __attribute__ ((noinline))
-#else
-#define ALWAYS_INLINE
-#define NEVER_INLINE
-#endif
-
-
 /* Fix problem with S_ISLNK() on Linux */
 #if defined(TARGET_OS_LINUX) || defined(__GLIBC__)
 #undef  _GNU_SOURCE
@@ -277,13 +210,6 @@
 */
 #if defined(HAVE_SYS_TYPES_H) && ( defined(sun) || defined(__sun) )
 #include <sys/types.h>
-#endif
-
-/* The client defines this to avoid all thread code */
-#if defined(MYSQL_CLIENT_NO_THREADS) || defined(UNDEF_THREADS_HACK)
-#undef THREAD
-#undef HAVE_LINUXTHREADS
-#undef HAVE_NPTL
 #endif
 
 #ifdef HAVE_THREADS_WITHOUT_SOCKETS
@@ -328,7 +254,7 @@
 #endif
 #endif
 
-#if defined(THREAD) && !defined(__WIN__)
+#if !defined(__WIN__)
 #ifndef _POSIX_PTHREAD_SEMANTICS
 #define _POSIX_PTHREAD_SEMANTICS /* We want posix threads */
 #endif
@@ -349,7 +275,7 @@ C_MODE_END
 #if !defined(SCO) && !defined(_REENTRANT)
 #define _REENTRANT	1	/* Threads requires reentrant code */
 #endif
-#endif /* THREAD */
+#endif /* !defined(__WIN__) */
 
 /* Go around some bugs in different OS and compilers */
 #ifdef _AIX			/* By soren@t.dk */
@@ -374,10 +300,6 @@ C_MODE_END
 #undef HAVE_PREAD
 #undef HAVE_PWRITE
 #endif
-#if defined(HAVE_BROKEN_INLINE) && !defined(__cplusplus)
-#undef inline
-#define inline
-#endif
 
 #ifdef UNDEF_HAVE_GETHOSTBYNAME_R		/* For OSF4.x */
 #undef HAVE_GETHOSTBYNAME_R
@@ -392,18 +314,6 @@ C_MODE_END
 #error "Please add -fno-exceptions to CXXFLAGS and reconfigure/recompile"
 #endif
 
-
-/* Fix a bug in gcc 2.8.0 on IRIX 6.2 */
-#if SIZEOF_LONG == 4 && defined(__LONG_MAX__) && (__GNUC__ == 2 && __GNUC_MINOR__ == 8)
-#undef __LONG_MAX__             /* Is a longlong value in gcc 2.8.0 ??? */
-#define __LONG_MAX__ 2147483647
-#endif
-
-/* egcs 1.1.2 has a problem with memcpy on Alpha */
-#if defined(__GNUC__) && defined(__alpha__) && ! (__GNUC__ > 2 || (__GNUC__ == 2 &&  __GNUC_MINOR__ >= 95))
-#define BAD_MEMCPY
-#endif
-
 #if defined(_lint) && !defined(lint)
 #define lint
 #endif
@@ -414,6 +324,7 @@ C_MODE_END
 #ifndef stdin
 #include <stdio.h>
 #endif
+#include <stdarg.h>
 #ifdef HAVE_STDLIB_H
 #include <stdlib.h>
 #endif
@@ -482,20 +393,22 @@ C_MODE_END
 #define compile_time_assert(X)                                  \
   do                                                            \
   {                                                             \
-    char compile_time_assert[(X) ? 1 : -1]                      \
-                             __attribute__ ((unused));          \
+    typedef char compile_time_assert[(X) ? 1 : -1];             \
   } while(0)
 #endif
 
 /* Go around some bugs in different OS and compilers */
 #if defined (HPUX11) && defined(_LARGEFILE_SOURCE)
+#ifndef _LARGEFILE64_SOURCE
 #define _LARGEFILE64_SOURCE
 #endif
+#endif
+
 #if defined(_HPUX_SOURCE) && defined(HAVE_SYS_STREAM_H)
 #include <sys/stream.h>		/* HPUX 10.20 defines ulong here. UGLY !!! */
 #define HAVE_ULONG
 #endif
-#if defined(HPUX10) && defined(_LARGEFILE64_SOURCE) && defined(THREAD)
+#if defined(HPUX10) && defined(_LARGEFILE64_SOURCE)
 /* Fix bug in setrlimit */
 #undef setrlimit
 #define setrlimit cma_setrlimit64
@@ -504,32 +417,6 @@ C_MODE_END
 #if HAVE_MADVISE && !HAVE_DECL_MADVISE && defined(__cplusplus)
 extern "C" int madvise(void *addr, size_t len, int behav);
 #endif
-
-#ifdef __QNXNTO__
-/* This has to be after include limits.h */
-#define HAVE_ERRNO_AS_DEFINE
-#define HAVE_FCNTL_LOCK
-#undef  HAVE_FINITE
-#undef  LONGLONG_MIN            /* These get wrongly defined in QNX 6.2 */
-#undef  LONGLONG_MAX            /* standard system library 'limits.h' */
-#ifdef __cplusplus
-#ifndef HAVE_RINT
-#define HAVE_RINT
-#endif                          /* rint() and isnan() functions are not */
-#define rint(a) std::rint(a)    /* visible in C++ scope due to an error */
-#define isnan(a) std::isnan(a)  /* in the usr/include/math.h on QNX     */
-#endif
-#endif
-
-/* We can not live without the following defines */
-
-#define USE_MYFUNC 1		/* Must use syscall indirection */
-#define MASTER 1		/* Compile without unireg */
-#define ENGLISH 1		/* Messages in English */
-#define POSIX_MISTAKE 1		/* regexp: Fix stupid spec error */
-#define USE_REGEX 1		/* We want the use the regex library */
-/* Do not define for ultra sparcs */
-#define USE_BMOVE512 1		/* Use this unless system bmove is faster */
 
 #define QUOTE_ARG(x)		#x	/* Quote argument (before cpp) */
 #define STRINGIFY_ARG(x) QUOTE_ARG(x)	/* Quote argument, after cpp */
@@ -545,17 +432,6 @@ extern "C" int madvise(void *addr, size_t len, int behav);
 #define SIGNAL_HANDLER_RESET_ON_DELIVERY
 #endif
 
-/* Define void to stop lint from generating "null effekt" comments */
-#ifndef DONT_DEFINE_VOID
-#ifdef _lint
-int	__void__;
-#define VOID(X)		(__void__ = (int) (X))
-#else
-#undef VOID
-#define VOID(X)		(X)
-#endif
-#endif /* DONT_DEFINE_VOID */
-
 /*
   Deprecated workaround for false-positive uninitialized variables
   warnings. Those should be silenced using tool-specific heuristics.
@@ -567,6 +443,16 @@ int	__void__;
 #define LINT_INIT(var) var= 0
 #else
 #define LINT_INIT(var)
+#endif
+
+#ifndef SO_EXT
+#ifdef _WIN32
+#define SO_EXT ".dll"
+#elif defined(__APPLE__)
+#define SO_EXT ".dylib"
+#else
+#define SO_EXT ".so"
+#endif
 #endif
 
 /*
@@ -583,12 +469,6 @@ int	__void__;
 #define UNINIT_VAR(x) x= x
 #endif
 
-/* Define some useful general macros */
-#if !defined(max)
-#define max(a, b)	((a) > (b) ? (a) : (b))
-#define min(a, b)	((a) < (b) ? (a) : (b))
-#endif
-
 #if !defined(HAVE_UINT)
 #undef HAVE_UINT
 #define HAVE_UINT
@@ -596,8 +476,6 @@ typedef unsigned int uint;
 typedef unsigned short ushort;
 #endif
 
-#define CMP_NUM(a,b)    (((a) < (b)) ? -1 : ((a) == (b)) ? 0 : 1)
-#define sgn(a)		(((a) < 0) ? -1 : ((a) > 0) ? 1 : 0)
 #define swap_variables(t, a, b) { t dummy; dummy= a; a= b; b= dummy; }
 #define test(a)		((a) ? 1 : 0)
 #define set_if_bigger(a,b)  do { if ((a) < (b)) (a)=(b); } while(0)
@@ -609,18 +487,6 @@ typedef unsigned short ushort;
 #ifndef TRUE
 #define TRUE		(1)	/* Logical true */
 #define FALSE		(0)	/* Logical false */
-#endif
-
-#if defined(__GNUC__)
-#define function_volatile	volatile
-#define my_reinterpret_cast(A) reinterpret_cast<A>
-#define my_const_cast(A) const_cast<A>
-# ifndef GCC_VERSION
-#  define GCC_VERSION (__GNUC__ * 1000 + __GNUC_MINOR__)
-# endif
-#elif !defined(my_reinterpret_cast)
-#define my_reinterpret_cast(A) (A)
-#define my_const_cast(A) (A)
 #endif
 
 #include <my_compiler.h>
@@ -636,16 +502,6 @@ int __cxa_pure_virtual () __attribute__ ((weak));
 C_MODE_END
 #endif
 
-/* From old s-system.h */
-
-/*
-  Support macros for non ansi & other old compilers. Since such
-  things are no longer supported we do nothing. We keep then since
-  some of our code may still be needed to upgrade old customers.
-*/
-#define _VARARGS(X) X
-#define _STATIC_VARARGS(X) X
-
 /* The DBUG_ON flag always takes precedence over default DBUG_OFF */
 #if defined(DBUG_ON) && defined(DBUG_OFF)
 #undef DBUG_OFF
@@ -659,16 +515,12 @@ C_MODE_END
 #  endif
 #endif
 
-#include <my_dbug.h>
-
-#define MIN_ARRAY_SIZE	0	/* Zero or One. Gcc allows zero*/
-#define ASCII_BITS_USED 8	/* Bit char used */
-#define NEAR_F			/* No near function handling */
-
 /* Some types that is different between systems */
 
 typedef int	File;		/* File descriptor */
-#ifndef Socket_defined
+#ifdef _WIN32
+typedef SOCKET my_socket;
+#else
 typedef int	my_socket;	/* File descriptor for sockets */
 #define INVALID_SOCKET -1
 #endif
@@ -739,14 +591,7 @@ typedef SOCKET_SIZE_TYPE size_socket;
 #endif /* __WIN__ */
 
 
-/* #define USE_RECORD_LOCK	*/
-
-	/* Unsigned types supported by the compiler */
-#define UNSINT8			/* unsigned int8 (char) */
-#define UNSINT16		/* unsigned int16 */
-#define UNSINT32		/* unsigned int32 */
-
-	/* General constants */
+/* General constants */
 #define FN_LEN		256	/* Max file name len */
 #define FN_HEADLEN	253	/* Max length of filepart of file name */
 #define FN_EXTLEN	20	/* Max length of extension (part of FN_LEN) */
@@ -756,18 +601,58 @@ typedef SOCKET_SIZE_TYPE size_socket;
 #define FN_CURLIB	'.'	/* ./ is used as abbrev for current dir */
 #define FN_PARENTDIR	".."	/* Parent directory; Must be a string */
 
-#ifndef FN_LIBCHAR
+#ifdef _WIN32
+#define FN_LIBCHAR	'\\'
+#define FN_LIBCHAR2	'/'
+#define FN_DIRSEP       "/\\"               /* Valid directory separators */
+#define FN_ROOTDIR	"\\"
+#define FN_DEVCHAR	':'
+#define FN_NETWORK_DRIVES	/* Uses \\ to indicate network drives */
+#define FN_NO_CASE_SENCE	/* Files are not case-sensitive */
+#else
 #define FN_LIBCHAR	'/'
+#define FN_LIBCHAR2	'/'
+#define FN_DIRSEP       "/"     /* Valid directory separators */
 #define FN_ROOTDIR	"/"
 #endif
-#define MY_NFILE	64	/* This is only used to save filenames */
+
+/* 
+  MY_FILE_MIN is  Windows speciality and is used to quickly detect
+  the mismatch of CRT and mysys file IO usage on Windows at runtime.
+  CRT file descriptors can be in the range 0-2047, whereas descriptors returned
+  by my_open() will start with 2048. If a file descriptor with value less then
+  MY_FILE_MIN is passed to mysys IO function, chances are it stemms from
+  open()/fileno() and not my_open()/my_fileno.
+
+  For Posix,  mysys functions are light wrappers around libc, and MY_FILE_MIN
+  is logically 0.
+*/
+
+#ifdef _WIN32
+#define MY_FILE_MIN  2048
+#else
+#define MY_FILE_MIN  0
+#endif
+
+/* 
+  MY_NFILE is the default size of my_file_info array.
+
+  It is larger on Windows, because it all file handles are stored in my_file_info
+  Default size is 16384 and this should be enough for most cases.If it is not 
+  enough, --max-open-files with larger value can be used.
+
+  For Posix , my_file_info array is only used to store filenames for
+  error reporting and its size is not a limitation for number of open files.
+*/ 
+#ifdef _WIN32
+#define MY_NFILE (16384 + MY_FILE_MIN)
+#else
+#define MY_NFILE 64
+#endif
+
 #ifndef OS_FILE_LIMIT
 #define OS_FILE_LIMIT	UINT_MAX
 #endif
-
-/* #define EXT_IN_LIBNAME     */
-/* #define FN_NO_CASE_SENCE   */
-/* #define FN_UPPER_CASE TRUE */
 
 /*
   Io buffer size; Must be a power of 2 and a multiple of 512. May be
@@ -779,27 +664,22 @@ typedef SOCKET_SIZE_TYPE size_socket;
   How much overhead does malloc have. The code often allocates
   something like 1024-MALLOC_OVERHEAD bytes
 */
-#ifdef SAFEMALLOC
-#define MALLOC_OVERHEAD (8+24+4)
-#else
 #define MALLOC_OVERHEAD 8
-#endif
+
 	/* get memory in huncs */
 #define ONCE_ALLOC_INIT		(uint) (4096-MALLOC_OVERHEAD)
 	/* Typical record cash */
 #define RECORD_CACHE_SIZE	(uint) (64*1024-MALLOC_OVERHEAD)
 	/* Typical key cash */
-#define KEY_CACHE_SIZE		(uint) (8*1024*1024-MALLOC_OVERHEAD)
+#define KEY_CACHE_SIZE		(uint) (8*1024*1024)
 	/* Default size of a key cache block  */
 #define KEY_CACHE_BLOCK_SIZE	(uint) 1024
 
 
 	/* Some things that this system doesn't have */
 
-#define NO_HASH			/* Not needed anymore */
-#ifdef __WIN__
-#define NO_DIR_LIBRARY		/* Not standar dir-library */
-#define USE_MY_STAT_STRUCT	/* For my_lib */
+#ifdef _WIN32
+#define NO_DIR_LIBRARY		/* Not standard dir-library */
 #endif
 
 /* Some defines of functions for portability */
@@ -807,6 +687,31 @@ typedef SOCKET_SIZE_TYPE size_socket;
 #undef remove		/* Crashes MySQL on SCO 5.0.0 */
 #ifndef __WIN__
 #define closesocket(A)	close(A)
+#endif
+
+#if (_MSC_VER)
+#if !defined(_WIN64)
+inline double my_ulonglong2double(unsigned long long value)
+{
+  long long nr=(long long) value;
+  if (nr >= 0)
+    return (double) nr;
+  return (18446744073709551616.0 + (double) nr);
+}
+#define ulonglong2double my_ulonglong2double
+#define my_off_t2double  my_ulonglong2double
+#endif /* _WIN64 */
+inline unsigned long long my_double2ulonglong(double d)
+{
+  double t= d - (double) 0x8000000000000000ULL;
+
+  if (t >= 0)
+    return  ((unsigned long long) t) + 0x8000000000000000ULL;
+  return (unsigned long long) d;
+}
+#define double2ulonglong my_double2ulonglong
+#endif
+
 #ifndef ulonglong2double
 #define ulonglong2double(A) ((double) (ulonglong) (A))
 #define my_off_t2double(A)  ((double) (my_off_t) (A))
@@ -814,13 +719,11 @@ typedef SOCKET_SIZE_TYPE size_socket;
 #ifndef double2ulonglong
 #define double2ulonglong(A) ((ulonglong) (double) (A))
 #endif
-#endif
 
 #ifndef offsetof
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 #endif
 #define ulong_to_double(X) ((double) (ulong) (X))
-#define SET_STACK_SIZE(X)	/* Not needed on real machines */
 
 #ifndef STACK_DIRECTION
 #error "please add -DSTACK_DIRECTION=1 or -1 to your CPPFLAGS"
@@ -839,7 +742,6 @@ typedef SOCKET_SIZE_TYPE size_socket;
 /*
   Some pre-ANSI-C99 systems like AIX 5.1 and Linux/GCC 2.95 define
   ULONGLONG_MAX, LONGLONG_MIN, LONGLONG_MAX; we use them if they're defined.
-  Also on Windows we define these constants by hand in config-win.h.
 */
 
 #if defined(HAVE_LONG_LONG) && !defined(LONGLONG_MIN)
@@ -856,6 +758,8 @@ typedef SOCKET_SIZE_TYPE size_socket;
 #endif
 #endif /* defined (HAVE_LONG_LONG) && !defined(ULONGLONG_MAX)*/
 
+#define INT_MIN64       (~0x7FFFFFFFFFFFFFFFLL)
+#define INT_MAX64       0x7FFFFFFFFFFFFFFFLL
 #define INT_MIN32       (~0x7FFFFFFFL)
 #define INT_MAX32       0x7FFFFFFFL
 #define UINT_MAX32      0xFFFFFFFFL
@@ -935,9 +839,6 @@ typedef long long	my_ptrdiff_t;
 #define MY_ALIGN(A,L)	(((A) + (L) - 1) & ~((L) - 1))
 #define ALIGN_SIZE(A)	MY_ALIGN((A),sizeof(double))
 /* Size to make adressable obj. */
-#define ALIGN_PTR(A, t) ((t*) MY_ALIGN((A),sizeof(t)))
-			 /* Offset of field f in structure t */
-#define OFFSET(t, f)	((size_t)(char *)&((t *)0)->f)
 #define ADD_TO_PTR(ptr,size,type) (type) ((uchar*) (ptr)+size)
 #define PTR_BYTE_DIFF(A,B) (my_ptrdiff_t) ((uchar*) (A) - (uchar*) (B))
 
@@ -957,18 +858,14 @@ typedef long long	my_ptrdiff_t;
         ((size_t)((char *)&(((TYPE *)0x10)->MEMBER) - (char*)0x10))
 
 #define NullS		(char *) 0
-/* Nowdays we do not support MessyDos */
-#ifndef NEAR
-#define NEAR				/* Who needs segments ? */
-#define FAR				/* On a good machine */
-#ifndef HUGE_PTR
-#define HUGE_PTR
+
+#ifdef STDCALL
+#undef STDCALL
 #endif
-#endif
-#if defined(__IBMC__) || defined(__IBMCPP__)
-/* This was  _System _Export but caused a lot of warnings on _AIX43 */
-#define STDCALL
-#elif !defined( STDCALL)
+
+#ifdef _WIN32
+#define STDCALL __stdcall
+#else
 #define STDCALL
 #endif
 
@@ -1052,31 +949,24 @@ typedef long long intptr;
 
 #define MY_ERRPTR ((void*)(intptr)1)
 
-#ifdef USE_RAID
-/*
-  The following is done with a if to not get problems with pre-processors
-  with late define evaluation
-*/
-#if SIZEOF_OFF_T == 4
-#define SYSTEM_SIZEOF_OFF_T 4
+#if defined(_WIN32)
+typedef unsigned long long my_off_t;
+typedef unsigned long long os_off_t;
 #else
-#define SYSTEM_SIZEOF_OFF_T 8
-#endif
-#undef  SIZEOF_OFF_T
-#define SIZEOF_OFF_T	    8
-#else
-#define SYSTEM_SIZEOF_OFF_T SIZEOF_OFF_T
-#endif /* USE_RAID */
-
+typedef off_t os_off_t;
 #if SIZEOF_OFF_T > 4
 typedef ulonglong my_off_t;
 #else
 typedef unsigned long my_off_t;
 #endif
+#endif /*_WIN32*/
 #define MY_FILEPOS_ERROR	(~(my_off_t) 0)
-#if !defined(__WIN__)
-typedef off_t os_off_t;
-#endif
+
+/*
+  TODO Convert these to use Bitmap class.
+ */
+typedef ulonglong table_map;          /* Used for table bits in join */
+typedef ulong nesting_map;  /* Used for flags of nesting constructs */
 
 #if defined(__WIN__)
 #define socket_errno	WSAGetLastError()
@@ -1099,17 +989,10 @@ typedef off_t os_off_t;
 #define SOCKET_EMFILE	EMFILE
 #endif
 
-typedef uint8		int7;	/* Most effective integer 0 <= x <= 127 */
-typedef short		int15;	/* Most effective integer 0 <= x <= 32767 */
 typedef int		myf;	/* Type of MyFlags in my_funcs */
 typedef char		my_bool; /* Small bool */
-#if !defined(bool) && (!defined(HAVE_BOOL) || !defined(__cplusplus))
-typedef char		bool;	/* Ordinary boolean values 0 1 */
-#endif
-	/* Macros for converting *constants* to the right type */
-#define INT8(v)		(int8) (v)
-#define INT16(v)	(int16) (v)
-#define INT32(v)	(int32) (v)
+
+/* Macros for converting *constants* to the right type */
 #define MYF(v)		(myf) (v)
 
 #ifndef LL
@@ -1151,23 +1034,11 @@ typedef char		bool;	/* Ordinary boolean values 0 1 */
 #define reg16 register
 #endif
 
-/*
-  Sometimes we want to make sure that the variable is not put into
-  a register in debugging mode so we can see its value in the core
-*/
-
-#ifndef DBUG_OFF
-#define dbug_volatile volatile
-#else
-#define dbug_volatile
-#endif
+#include <my_dbug.h>
 
 /* Some helper macros */
 #define YESNO(X) ((X) ? "yes" : "no")
 
-/* Defines for time function */
-#define SCALE_SEC	100
-#define SCALE_USEC	10000
 #define MY_HOW_OFTEN_TO_ALARM	2	/* How often we want info on screen */
 #define MY_HOW_OFTEN_TO_WRITE	1000	/* How often we want info on screen */
 
@@ -1365,8 +1236,8 @@ do { doubleget_union _tmp; \
                               ((uchar*) &def_temp)[7]=(M)[0];\
                               (V) = def_temp; } while(0)
 #else
-#define float4get(V,M)   memcpy_fixed((uchar*) &V,(uchar*) (M),sizeof(float))
-#define float4store(V,M) memcpy_fixed((uchar*) V,(uchar*) (&M),sizeof(float))
+#define float4get(V,M)   memcpy(&V, (M), sizeof(float))
+#define float4store(V,M) memcpy(V, (&M), sizeof(float))
 
 #if defined(__FLOAT_WORD_ORDER) && (__FLOAT_WORD_ORDER == __BIG_ENDIAN)
 #define doublestore(T,V) do { *(((char*)T)+0)=(char) ((uchar *) &V)[4];\
@@ -1436,12 +1307,12 @@ do { doubleget_union _tmp; \
                              *(((char*)T)+1)=(((A) >> 16));\
                              *(((char*)T)+0)=(((A) >> 24)); } while(0)
 
-#define floatget(V,M)    memcpy_fixed((uchar*) &V,(uchar*) (M),sizeof(float))
-#define floatstore(T,V)  memcpy_fixed((uchar*) (T),(uchar*)(&V),sizeof(float))
-#define doubleget(V,M)	 memcpy_fixed((uchar*) &V,(uchar*) (M),sizeof(double))
-#define doublestore(T,V) memcpy_fixed((uchar*) (T),(uchar*) &V,sizeof(double))
-#define longlongget(V,M) memcpy_fixed((uchar*) &V,(uchar*) (M),sizeof(ulonglong))
-#define longlongstore(T,V) memcpy_fixed((uchar*) (T),(uchar*) &V,sizeof(ulonglong))
+#define floatget(V,M)    memcpy(&V, (M), sizeof(float))
+#define floatstore(T,V)  memcpy((T), (void*) (&V), sizeof(float))
+#define doubleget(V,M)	 memcpy(&V, (M), sizeof(double))
+#define doublestore(T,V) memcpy((T), (void *) &V, sizeof(double))
+#define longlongget(V,M) memcpy(&V, (M), sizeof(ulonglong))
+#define longlongstore(T,V) memcpy((T), &V, sizeof(ulonglong))
 
 #else
 
@@ -1452,28 +1323,17 @@ do { doubleget_union _tmp; \
 #define shortstore(T,V) int2store(T,V)
 #define longstore(T,V)	int4store(T,V)
 #ifndef floatstore
-#define floatstore(T,V)  memcpy_fixed((uchar*) (T),(uchar*) (&V),sizeof(float))
-#define floatget(V,M)    memcpy_fixed((uchar*) &V, (uchar*) (M), sizeof(float))
+#define floatstore(T,V)  memcpy((T), (void *) (&V), sizeof(float))
+#define floatget(V,M)    memcpy(&V, (M), sizeof(float))
 #endif
 #ifndef doubleget
-#define doubleget(V,M)	 memcpy_fixed((uchar*) &V,(uchar*) (M),sizeof(double))
-#define doublestore(T,V) memcpy_fixed((uchar*) (T),(uchar*) &V,sizeof(double))
+#define doubleget(V,M)	 memcpy(&V, (M), sizeof(double))
+#define doublestore(T,V) memcpy((T), (void *) &V, sizeof(double))
 #endif /* doubleget */
-#define longlongget(V,M) memcpy_fixed((uchar*) &V,(uchar*) (M),sizeof(ulonglong))
-#define longlongstore(T,V) memcpy_fixed((uchar*) (T),(uchar*) &V,sizeof(ulonglong))
+#define longlongget(V,M) memcpy(&V, (M), sizeof(ulonglong))
+#define longlongstore(T,V) memcpy((T), &V, sizeof(ulonglong))
 
 #endif /* WORDS_BIGENDIAN */
-
-#ifndef THREAD
-#define thread_safe_increment(V,L) (V)++
-#define thread_safe_decrement(V,L) (V)--
-#define thread_safe_add(V,C,L)     (V)+=(C)
-#define thread_safe_sub(V,C,L)     (V)-=(C)
-#define statistic_increment(V,L)   (V)++
-#define statistic_decrement(V,L)   (V)--
-#define statistic_add(V,C,L)       (V)+=(C)
-#define statistic_sub(V,C,L)       (V)-=(C)
-#endif
 
 #ifdef HAVE_CHARSET_utf8
 #define MYSQL_UNIVERSAL_CLIENT_CHARSET "utf8"
@@ -1485,44 +1345,35 @@ do { doubleget_union _tmp; \
 #define NO_EMBEDDED_ACCESS_CHECKS
 #endif
 
-#ifdef HAVE_DLOPEN
-#if defined(__WIN__)
-#define dlsym(lib, name) GetProcAddress((HMODULE)lib, name)
+#if defined(_WIN32)
+#define dlsym(lib, name) (void*)GetProcAddress((HMODULE)lib, name)
 #define dlopen(libname, unused) LoadLibraryEx(libname, NULL, 0)
 #define dlclose(lib) FreeLibrary((HMODULE)lib)
-#elif defined(HAVE_DLFCN_H)
+#ifndef HAVE_DLOPEN
+#define HAVE_DLOPEN
+#endif
+#endif
+
+#ifdef HAVE_DLOPEN
+#if defined(HAVE_DLFCN_H)
 #include <dlfcn.h>
 #endif
 #endif
 
-/* FreeBSD 2.2.2 does not define RTLD_NOW) */
-#ifndef RTLD_NOW
-#define RTLD_NOW 1
-#endif
-
 #ifndef HAVE_DLERROR
+#ifdef _WIN32
 #define dlerror() ""
+#else
+#define dlerror() "No support for dynamic loading (static build?)"
+#endif
 #endif
 
 
-#ifndef __NETWARE__
 /*
  *  Include standard definitions of operator new and delete.
  */
 #ifdef __cplusplus
 #include <new>
-#endif
-#else
-/*
- *  Define placement versions of operator new and operator delete since
- *  we don't have <new> when building for Netware.
- */
-#ifdef __cplusplus
-inline void *operator new(size_t, void *ptr) { return ptr; }
-inline void *operator new[](size_t, void *ptr) { return ptr; }
-inline void  operator delete(void*, void*) { /* Do nothing */ }
-inline void  operator delete[](void*, void*) { /* Do nothing */ }
-#endif
 #endif
 
 /* Length of decimal number represented by INT32. */
@@ -1536,6 +1387,7 @@ inline void  operator delete[](void*, void*) { /* Do nothing */ }
 #define max(a, b)	((a) > (b) ? (a) : (b))
 #define min(a, b)	((a) < (b) ? (a) : (b))
 #endif  
+
 /*
   Only Linux is known to need an explicit sync of the directory to make sure a
   file creation/deletion/renaming in(from,to) this directory durable.
@@ -1546,6 +1398,25 @@ inline void  operator delete[](void*, void*) { /* Do nothing */ }
 
 #if !defined(__cplusplus) && !defined(bool)
 #define bool In_C_you_should_use_my_bool_instead()
+#endif
+
+/* Provide __func__ macro definition for platforms that miss it. */
+#if __STDC_VERSION__ < 199901L
+#  if __GNUC__ >= 2
+#    define __func__ __FUNCTION__
+#  else
+#    define __func__ "<unknown>"
+#  endif
+#elif defined(_MSC_VER)
+#  if _MSC_VER < 1300
+#    define __func__ "<unknown>"
+#  else
+#    define __func__ __FUNCTION__
+#  endif
+#elif defined(__BORLANDC__)
+#  define __func__ __FUNC__
+#else
+#  define __func__ "<unknown>"
 #endif
 
 #ifndef HAVE_RINT
@@ -1595,5 +1466,18 @@ static inline double rint(double x)
 #define MYSQL_PLUGIN_IMPORT
 #endif
 #endif
+
+/* Defines that are unique to the embedded version of MySQL */
+
+#ifdef EMBEDDED_LIBRARY
+
+/* Things we don't need in the embedded version of MySQL */
+/* TODO HF add #undef HAVE_VIO if we don't want client in embedded library */
+
+#undef HAVE_OPENSSL
+#undef HAVE_SMEM				/* No shared memory */
+#undef HAVE_NDBCLUSTER_DB /* No NDB cluster */
+
+#endif /* EMBEDDED_LIBRARY */
 
 #endif /* my_global_h */
