@@ -71,6 +71,7 @@ bool Tausendwinter::SetupOutdoorPvP()
     // Tausendwinter ist nicht aktiviert -> Setup abbrechen
     if (!sWorld->getBoolConfig(CONFIG_TW_AKTIVIERT))
     {
+        sLog->outError("TAUSENDWINTER: TW IST DEAKTIVIERT!");
         NotfallAbschaltung();
         return false;
     }
@@ -105,6 +106,7 @@ bool Tausendwinter::SetupOutdoorPvP()
     // Listen erstellen, aus den Resultaten
     if (!ErstelleNPCMap(CrResult) || !ErstelleGOMap(GOResult))
     {   // Wichtige NPCs / GOs sind nicht gespawnt!
+        sLog->outError("TAUSENDWINTER: KANN NPC UND/ODER GO MAP NICHT ERSTELLEN!");
         NotfallAbschaltung();
         return false;
     }
@@ -1322,6 +1324,7 @@ void Tausendwinter::Speichern()
 // NotfallAbschaltung
 void Tausendwinter::NotfallAbschaltung()
 {
+    sLog->outError("TAUSENDWINTER: void Tausendwinter::NotfallAbschaltung()");
     sWorld->setWorldState(CONFIG_TW_AKTIVIERT, uint64(false));
     sWorld->setWorldState(WS_TW_BESITZER, uint64(m_VerteidigerTeamId));
     sWorld->setWorldState(WS_TW_KAMPF, uint64(m_Kampf));
