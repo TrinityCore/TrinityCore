@@ -1155,6 +1155,7 @@ void World::LoadConfigSettings(bool reload)
         m_int_configs[CONFIG_PVP_TOKEN_COUNT] = 1;
 
     // Tausendwinter
+    m_bool_configs[CONFIG_TW_AKTIVIERT]         = sConfig->GetBoolDefault("Tausendwinter.Aktiviert", true);
     m_bool_configs[CONFIG_TW_TELEPORT_DALARAN]  = sConfig->GetBoolDefault("Tausendwinter.TeleportDalaran", false);
     m_bool_configs[CONFIG_TW_WELTSTARTNACHRICHT]= sConfig->GetBoolDefault("Tausendwinter.WeltStartNachricht", false);
     m_bool_configs[CONFIG_TW_WELTCOUNTDOWN]     = sConfig->GetBoolDefault("Tausendwinter.WeltStartCountdown", false);
