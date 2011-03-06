@@ -570,7 +570,6 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     m_baseManaRegen = 0;
     m_baseHealthRegen = 0;
     m_spellPenetrationItemMod = 0;
-    m_baseSpellPenetration = 0;
 
     // Honor System
     m_lastHonorUpdateTime = time(NULL);

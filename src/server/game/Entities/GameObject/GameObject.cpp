@@ -1628,13 +1628,11 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
     if (Unit *owner = GetOwner())
     {
         trigger->setFaction(owner->getFaction());
-        trigger->SetLevel(owner->getLevel());
         trigger->CastSpell(target ? target : trigger, spellInfo, true, 0, 0, owner->GetGUID());
     }
     else
     {
         trigger->setFaction(14);
-        trigger->SetLevel(target ? target->getLevel() : 255);
         // Set owner guid for target if no owner avalible - needed by trigger auras
         // - trigger gets despawned and there's no caster avalible (see AuraEffect::TriggerSpell())
         trigger->CastSpell(target ? target : trigger, spellInfo, true, 0, 0, target ? target->GetGUID() : 0);
