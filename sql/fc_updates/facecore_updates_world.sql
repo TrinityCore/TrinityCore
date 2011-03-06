@@ -245,3 +245,6 @@ INSERT INTO spell_script_names VALUES
 
 DELETE FROM `creature_model_info` WHERE (`modelid`=29524);
 INSERT INTO `creature_model_info` (`modelid`, `bounding_radius`, `combat_reach`, `gender`, `modelid_other_gender`) VALUES (29524, 0.45, 8, 2, 0);
+
+-- Fix Battleground Demolisher (http://www.wowhead.com/npc=28781) HP
+UPDATE `creature_template` SET `exp` = 0 WHERE `entry` = 32796;
