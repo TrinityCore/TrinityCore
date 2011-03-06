@@ -16711,7 +16711,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
             setDeathState(JUST_DIED);
         // If for other reason we as minion are exiting the vehicle (ejected, master unmounted) - unsummon
         else
-            ToTempSummon()->UnSummon();
+            ToTempSummon()->UnSummon(2000); // Approximation
     }
 }
 
