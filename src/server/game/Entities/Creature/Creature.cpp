@@ -1425,6 +1425,9 @@ bool Creature::canStartAttack(Unit const* who, bool force) const
     if (isCivilian())
         return false;
 
+    if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE))
+        return false;
+
     if (!canFly() && (GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE + m_CombatDistance))
         //|| who->IsControlledByPlayer() && who->IsFlying()))
         // we cannot check flying for other creatures, too much map/vmap calculation
@@ -1921,6 +1924,9 @@ bool Creature::CanAssistTo(const Unit* u, const Unit* enemy, bool checkfaction /
 
     // we don't need help from non-combatant ;)
     if (isCivilian())
+        return false;
+
+    if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PASSIVE))
         return false;
 
     // skip fighting creature
