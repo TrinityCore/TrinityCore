@@ -15519,7 +15519,7 @@ void Unit::SetRooted(bool apply)
         if (m_rootTimes > 0) //blizzard internal check?
             m_rootTimes++;
 
-        AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
+//        AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
 
         if (Player* thisPlr = this->ToPlayer())
         {
@@ -15554,7 +15554,7 @@ void Unit::SetRooted(bool apply)
                 SendMessageToSet(&data,true);
             }
 
-            RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
+//            RemoveUnitMovementFlag(MOVEMENTFLAG_ROOT);
         }
     }
 }
@@ -16867,7 +16867,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
             setDeathState(JUST_DIED);
         // If for other reason we as minion are exiting the vehicle (ejected, master unmounted) - unsummon
         else
-            ToTempSummon()->UnSummon();
+            ToTempSummon()->UnSummon(2000); // Approximation
     }
 }
 
