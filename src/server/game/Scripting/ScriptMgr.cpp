@@ -954,15 +954,6 @@ void ScriptMgr::OnUninstall(Vehicle* veh)
     tmpscript->OnUninstall(veh);
 }
 
-void ScriptMgr::OnDie(Vehicle* veh)
-{
-    ASSERT(veh);
-    ASSERT(veh->GetBase()->GetTypeId() == TYPEID_UNIT);
-
-    GET_SCRIPT(VehicleScript, veh->GetBase()->ToCreature()->GetScriptId(), tmpscript);
-    tmpscript->OnDie(veh);
-}
-
 void ScriptMgr::OnReset(Vehicle* veh)
 {
     ASSERT(veh);
