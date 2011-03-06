@@ -452,7 +452,7 @@ bool Loot::FillLoot(uint32 lootId, LootStore const& store, Player* lootOwner, bo
     return true;
 }
 
-void Loot::FillNotNormalLootFor(Player* pl, bool withCurrency)
+void Loot::FillNotNormalLootFor(Player* pl, bool presentAtLooting)
 {
     uint32 plguid = pl->GetGUIDLow();
 
@@ -466,10 +466,10 @@ void Loot::FillNotNormalLootFor(Player* pl, bool withCurrency)
 
     qmapitr = PlayerNonQuestNonFFAConditionalItems.find(plguid);
     if (qmapitr == PlayerNonQuestNonFFAConditionalItems.end())
-        FillNonQuestNonFFAConditionalLoot(pl);
+        FillNonQuestNonFFAConditionalLoot(pl, presentAtLooting);
 
     // if not auto-processed player will have to come and pick it up manually
-    if (!withCurrency)
+    if (!presentAtLooting)
         return;
 
     // Process currency items
@@ -548,7 +548,7 @@ QuestItemList* Loot::FillQuestLoot(Player* player)
     return ql;
 }
 
-QuestItemList* Loot::FillNonQuestNonFFAConditionalLoot(Player* player)
+QuestItemList* Loot::FillNonQuestNonFFAConditionalLoot(Player* player, bool presentAtLooting)
 {
     QuestItemList *ql = new QuestItemList();
 
@@ -557,7 +557,8 @@ QuestItemList* Loot::FillNonQuestNonFFAConditionalLoot(Player* player)
         LootItem &item = items[i];
         if (!item.is_looted && !item.freeforall && item.AllowedForPlayer(player))
         {
-            item.AddAllowedLooter(player);
+            if (presentAtLooting)
+                item.AddAllowedLooter(player);
             if (!item.conditions.empty())
             {
                 ql->push_back(QuestItem(i));
