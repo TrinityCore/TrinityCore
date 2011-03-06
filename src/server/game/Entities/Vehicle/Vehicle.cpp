@@ -124,7 +124,7 @@ void Vehicle::InstallAllAccessories()
 {
     RemoveAllPassengers();   // We might have aura's saved in the DB with now invalid casters - remove
 
-    VehicleAccessoryList const* mVehicleList = sObjectMgr->GetVehicleAccessoryList(m_creatureEntry);
+    VehicleAccessoryList const* mVehicleList = sObjectMgr->GetVehicleAccessoryList(this);
     if (!mVehicleList)
         return;
 
