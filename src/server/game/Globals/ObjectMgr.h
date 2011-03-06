@@ -807,10 +807,19 @@ class ObjectMgr
             return NULL;
         }
 
-        VehicleAccessoryList const* GetVehicleAccessoryList(uint32 uiEntry) const
+        VehicleAccessoryList const* GetVehicleAccessoryList(Vehicle* veh) const
         {
-            VehicleAccessoryMap::const_iterator itr = m_VehicleAccessoryMap.find(uiEntry);
-            if (itr != m_VehicleAccessoryMap.end())
+            if (veh->GetBase()->ToCreature())
+            {
+                // Give preference to GUID-based accessories
+                VehicleAccessoryMap::const_iterator itr = m_VehicleAccessoryMap.find(veh->GetBase()->GetGUIDLow());
+                if (itr != m_VehicleAccessoryMap.end())
+                    return &itr->second;
+            }
+
+            // Otherwise return entry-based
+            VehicleAccessoryMap::const_iterator itr = m_VehicleTemplateAccessoryMap.find(veh->GetCreatureEntry());
+            if (itr != m_VehicleTemplateAccessoryMap.end())
                 return &itr->second;
             return NULL;
         }
@@ -921,6 +930,7 @@ class ObjectMgr
         void LoadInstanceTemplate();
         void LoadInstanceEncounters();
         void LoadMailLevelRewards();
+        void LoadVehicleTemplateAccessories();
         void LoadVehicleAccessories();
         void LoadVehicleScaling();
 
@@ -1325,6 +1335,7 @@ class ObjectMgr
 
         ItemRequiredTargetMap m_ItemRequiredTarget;
 
+        VehicleAccessoryMap m_VehicleTemplateAccessoryMap;
         VehicleAccessoryMap m_VehicleAccessoryMap;
         VehicleScalingMap m_VehicleScalingMap;
 

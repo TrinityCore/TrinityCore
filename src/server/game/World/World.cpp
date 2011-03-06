@@ -1399,11 +1399,14 @@ void World::SetInitialWorldSettings()
     sLog->outString("Loading Game Event Data...");               // must be after loading pools fully
     sGameEventMgr->LoadFromDB();                                 // TODOLEAK: add scopes
 
-    sLog->outString("Loading UNIT_NPC_FLAG_SPELLCLICK Data...");
+    sLog->outString("Loading UNIT_NPC_FLAG_SPELLCLICK Data..."); // must be after LoadQuests
     sObjectMgr->LoadNPCSpellClickSpells();
 
+    sLog->outString("Loading Vehicle Template Accessories...");
+    sObjectMgr->LoadVehicleTemplateAccessories();                // must be after LoadCreatureTemplates() and LoadNPCSpellClickSpells()
+
     sLog->outString("Loading Vehicle Accessories...");
-    sObjectMgr->LoadVehicleAccessories();                        // must be after LoadCreatureTemplates() and LoadNPCSpellClickSpells()
+    sObjectMgr->LoadVehicleAccessories();                       // must be after LoadCreatureTemplates() and LoadNPCSpellClickSpells()
 
     sLog->outString("Loading Dungeon boss data...");
     sObjectMgr->LoadInstanceEncounters();
