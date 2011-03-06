@@ -1376,8 +1376,9 @@ void OutdoorPvPWG::UpdateTenacityStack()
     {
         if (allianceNum < hordeNum)
             newStack = int32((float(hordeNum) / float(allianceNum) - 1)*4); // positive, should cast on alliance
-    } else if (allianceNum > hordeNum)
+        else if (allianceNum > hordeNum)
             newStack = int32((1 - float(allianceNum) / float(hordeNum))*4); // negative, should cast on horde
+    }
 
     if (newStack == m_tenacityStack)
         return;
