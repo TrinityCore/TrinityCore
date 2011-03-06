@@ -5664,6 +5664,8 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 {
                     target = getVictim();
                     triggered_spell_id = 66765;
+                    break;
+                }
                 // Item - Icecrown 25 Normal Dagger Proc
                 case 71880:
                 {
