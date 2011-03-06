@@ -559,8 +559,8 @@ void WorldSession::HandleSpellClick(WorldPacket & recv_data)
     if (!unit->IsInWorld())
         return;
 
-     if (!unit->HandleSpellClick(_player))
-        sLog->outErrorDb("Missing npc_spellclick_spells data for creature %u", unit->GetEntry());
+    bool unusedReturnValue = unit->HandleSpellClick(_player);
+    // ^ ignore compiler warning 
 }
 
 void WorldSession::HandleMirrrorImageDataRequest(WorldPacket & recv_data)

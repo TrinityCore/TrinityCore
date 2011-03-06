@@ -2758,7 +2758,6 @@ void ObjectMgr::LoadVehicleAccessories()
         return;
     }
 
-
     do
     {
         Field *fields = result->Fetch();
@@ -2779,6 +2778,12 @@ void ObjectMgr::LoadVehicleAccessories()
         if (!sCreatureStorage.LookupEntry<CreatureInfo>(uiAccessory))
         {
             sLog->outErrorDb("Table `vehicle_accessory`: Accessory %u does not exist.", uiAccessory);
+            continue;
+        }
+
+        if (mSpellClickInfoMap.find(uiEntry) == mSpellClickInfoMap.end())
+        {
+            sLog->outErrorDb("Table `vehicle_accessory`: creature template entry %u has no data in npc_spellclick_spells", uiEntry);
             continue;
         }
 
@@ -7691,6 +7696,20 @@ void ObjectMgr::LoadNPCSpellClickSpells()
         ++count;
     }
     while (result->NextRow());
+
+    // all spellclick data loaded, now we check if there are creatures with NPC_FLAG_SPELLCLICK but with no data
+    // NOTE: It *CAN* be the other way around: no spellclick flag but with spellclick data, in case of creature-only vehicle accessories
+    for (uint32 i = 0; i < sCreatureStorage.MaxEntry; ++i)
+    {
+        if (CreatureInfo const* cInfo = GetCreatureTemplate(i))
+        {
+            if ((cInfo->npcflag & UNIT_NPC_FLAG_SPELLCLICK) && mSpellClickInfoMap.find(i) == mSpellClickInfoMap.end())
+            {
+                sLog->outErrorDb("npc_spellclick_spells: Creature template %u has UNIT_NPC_FLAG_SPELLCLICK but no data in spellclick table! Removing flag", i);
+                const_cast<CreatureInfo*>(cInfo)->npcflag &= ~UNIT_NPC_FLAG_SPELLCLICK;
+            }
+        }
+    }
 
     sLog->outString(">> Loaded %u spellclick definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
