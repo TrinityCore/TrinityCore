@@ -339,10 +339,10 @@ struct Loot
     bool hasOverThresholdItem() const;
 
     private:
-        void FillNotNormalLootFor(Player* player, bool withCurrency);
+        void FillNotNormalLootFor(Player* player, bool presentAtLooting);
         QuestItemList* FillFFALoot(Player* player);
         QuestItemList* FillQuestLoot(Player* player);
-        QuestItemList* FillNonQuestNonFFAConditionalLoot(Player* player);
+        QuestItemList* FillNonQuestNonFFAConditionalLoot(Player* player, bool presentAtLooting);
 
         std::vector<LootItem> quest_items;
         std::set<uint64> PlayersLooting;
