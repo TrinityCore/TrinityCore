@@ -121,7 +121,6 @@ class Vehicle
         void Install();
         void Uninstall();
         void Reset();
-        void Die();
         void InstallAllAccessories();
 
         Unit *GetBase() const { return me; }

@@ -5589,56 +5589,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     }
                     break;
                 }
-                // Heartpierce Normal
-                case 71880:
-                {
-                    if (GetTypeId() != TYPEID_PLAYER)
-                        return false;
-
-                    switch (getPowerType())
-                    {
-                        case POWER_MANA:
-                            triggered_spell_id = 71881;
-                            break;
-                        case POWER_ENERGY:
-                            triggered_spell_id = 71882;
-                            break;
-                        case POWER_RAGE:
-                            triggered_spell_id = 71883;
-                            break;
-                        case POWER_RUNIC_POWER:
-                            triggered_spell_id = 71884;
-                            break;
-                        default:
-                            return false;
-                    }
-                    break;
-                }
-                // Heartpierce Heroic
-                case 71892:
-                {
-                    if (GetTypeId() != TYPEID_PLAYER)
-                        return false;
-
-                    switch (getPowerType())
-                    {
-                        case POWER_MANA:
-                            triggered_spell_id = 71888;
-                            break;
-                        case POWER_ENERGY:
-                            triggered_spell_id = 71887;
-                            break;
-                        case POWER_RAGE:
-                            triggered_spell_id = 71886;
-                            break;
-                        case POWER_RUNIC_POWER:
-                            triggered_spell_id = 71885;
-                            break;
-                        default:
-                            return false;
-                    }
-                    break;
-                }
                 // Item - Shadowmourne Legendary
                 case 71903:
                 {
@@ -5714,6 +5664,48 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 {
                     target = getVictim();
                     triggered_spell_id = 66765;
+                // Item - Icecrown 25 Normal Dagger Proc
+                case 71880:
+                {
+                    switch (getPowerType())
+                    {
+                        case POWER_MANA:
+                            triggered_spell_id = 71881;
+                            break;
+                        case POWER_RAGE:
+                            triggered_spell_id = 71883;
+                            break;
+                        case POWER_ENERGY:
+                            triggered_spell_id = 71882;
+                            break;
+                        case POWER_RUNIC_POWER:
+                            triggered_spell_id = 71884;
+                            break;
+                        default:
+                            return false;
+                    }
+                    break;
+                }
+                // Item - Icecrown 25 Heroic Dagger Proc
+                case 71892:
+                {
+                    switch (getPowerType())
+                    {
+                        case POWER_MANA:
+                            triggered_spell_id = 71888;
+                            break;
+                        case POWER_RAGE:
+                            triggered_spell_id = 71886;
+                            break;
+                        case POWER_ENERGY:
+                            triggered_spell_id = 71887;
+                            break;
+                        case POWER_RUNIC_POWER:
+                            triggered_spell_id = 71885;
+                            break;
+                        default:
+                            return false;
+                    }
                     break;
                 }
             }
@@ -12641,8 +12633,6 @@ void Unit::setDeathState(DeathState s)
         ClearDiminishings();
         GetMotionMaster()->Clear(false);
         GetMotionMaster()->MoveIdle();
-        if (m_vehicleKit)
-            m_vehicleKit->Die();
         SendMonsterStop(true);
         //without this when removing IncreaseMaxHealth aura player may stuck with 1 hp
         //do not why since in IncreaseMaxHealth currenthealth is checked
@@ -15921,10 +15911,12 @@ void Unit::RemoveCharmedBy(Unit *charmer)
             case CHARM_TYPE_VEHICLE:
                 charmer->ToPlayer()->SetClientControl(charmer, 1);
                 charmer->ToPlayer()->SetViewpoint(this, false);
+                charmer->ToPlayer()->SetClientControl(this, 0);
                 break;
             case CHARM_TYPE_POSSESS:
                 charmer->ToPlayer()->SetClientControl(charmer, 1);
                 charmer->ToPlayer()->SetViewpoint(this, false);
+                charmer->ToPlayer()->SetClientControl(this, 0);
                 charmer->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 break;
             case CHARM_TYPE_CHARM:
