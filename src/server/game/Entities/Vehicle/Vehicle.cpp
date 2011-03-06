@@ -141,15 +141,6 @@ void Vehicle::Uninstall()
         sScriptMgr->OnUninstall(this);
 }
 
-void Vehicle::Die()
-{
-    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Die Entry: %u, GuidLow: %u", m_creatureEntry, me->GetGUIDLow());
-    RemoveAllPassengers();
-
-    if (GetBase()->GetTypeId() == TYPEID_UNIT)
-        sScriptMgr->OnDie(this);
-}
-
 void Vehicle::Reset()
 {
     sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Reset");
