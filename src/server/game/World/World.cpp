@@ -1363,8 +1363,11 @@ void World::SetInitialWorldSettings()
     sLog->outString("Loading Creature Template Addon Data...");
     sObjectMgr->LoadCreatureAddons();                            // must be after LoadCreatureTemplates() and LoadCreatures()
 
+    sLog->outString("Loading UNIT_NPC_FLAG_SPELLCLICK Data...");
+    sObjectMgr->LoadNPCSpellClickSpells();
+
     sLog->outString("Loading Vehicle Accessories...");
-    sObjectMgr->LoadVehicleAccessories();                        // must be after LoadCreatureTemplates()
+    sObjectMgr->LoadVehicleAccessories();                        // must be after LoadCreatureTemplates() and LoadNPCSpellClickSpells()
 
     sLog->outString("Loading Creature Respawn Data...");         // must be after PackInstances()
     sObjectMgr->LoadCreatureRespawnTimes();
@@ -1407,9 +1410,6 @@ void World::SetInitialWorldSettings()
 
     sLog->outString("Loading LFG rewards...");
     sLFGMgr->LoadRewards();
-
-    sLog->outString("Loading UNIT_NPC_FLAG_SPELLCLICK Data...");
-    sObjectMgr->LoadNPCSpellClickSpells();
 
     sLog->outString("Loading SpellArea Data...");                // must be after quest load
     sSpellMgr->LoadSpellAreas();
