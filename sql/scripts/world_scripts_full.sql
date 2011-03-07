@@ -2107,6 +2107,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 26678, 'spell_item_create_heart_candy'),
 ( 64323, 'spell_item_book_of_glyph_mastery'),
 ( 52481, 'spell_item_gift_of_the_harvester'),
+( 45853, 'spell_item_map_of_the_geyser_fields'),
 -- warrior
 ( 12975, 'spell_warr_last_stand'),
 ( 59725, 'spell_warr_improved_spell_reflection'),

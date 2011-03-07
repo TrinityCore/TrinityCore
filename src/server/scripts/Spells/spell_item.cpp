@@ -922,6 +922,46 @@ class spell_item_gift_of_the_harvester : public SpellScriptLoader
         }
 };
 
+enum Sinkholes
+{
+    NPC_SOUTH_SIKNHOLE      = 25664,
+    NPC_NORTHEAST_SIKNHOLE  = 25665,
+    NPC_NORTHWEST_SIKNHOLE  = 25666,
+};
+
+class spell_item_map_of_the_geyser_fields : public SpellScriptLoader
+{
+    public:
+        spell_item_map_of_the_geyser_fields() : SpellScriptLoader("spell_item_map_of_the_geyser_fields") {}
+
+        class spell_item_map_of_the_geyser_fields_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_map_of_the_geyser_fields_SpellScript);
+
+            SpellCastResult CheckSinkholes()
+            {
+                Unit* caster = GetCaster();
+                if (caster->FindNearestCreature(NPC_SOUTH_SIKNHOLE, 5.0f, true)     ||
+                    caster->FindNearestCreature(NPC_NORTHEAST_SIKNHOLE, 5.0f, true) ||
+                    caster->FindNearestCreature(NPC_NORTHWEST_SIKNHOLE, 5.0f, true))
+                    return SPELL_CAST_OK;
+
+                SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_MUST_BE_CLOSE_TO_SINKHOLE);
+                return SPELL_FAILED_CUSTOM_ERROR;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_item_map_of_the_geyser_fields_SpellScript::CheckSinkholes);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_map_of_the_geyser_fields_SpellScript();
+        }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -949,4 +989,5 @@ void AddSC_item_spell_scripts()
     new spell_item_create_heart_candy();
     new spell_item_book_of_glyph_mastery();
     new spell_item_gift_of_the_harvester();
+    new spell_item_map_of_the_geyser_fields();
 }
