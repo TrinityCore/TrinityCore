@@ -27758,6 +27758,42 @@ INSERT INTO `trinity_string` (`entry`,`content_default`,`content_loc1`,`content_
 UNLOCK TABLES;
 
 --
+-- Table structure for table `vehicle_template_accessory`
+--
+
+DROP TABLE IF EXISTS `vehicle_template_accessory`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `vehicle_template_accessory` (
+  `entry` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT 0,
+  `accessory_entry` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT 0,
+  `seat_id` TINYINT(1) SIGNED NOT NULL DEFAULT 0,
+  `minion` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
+  `description` TEXT NOT NULL,
+  PRIMARY KEY (`entry`, `seat_id`)
+)
+COLLATE=utf8_general_ci
+ENGINE=MyISAM
+ROW_FORMAT=FIXED
+AVG_ROW_LENGTH=0;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `vehicle_template_accessory`
+--
+
+LOCK TABLES `vehicle_template_accessory` WRITE;
+/*!40000 ALTER TABLE `vehicle_template_accessory` DISABLE KEYS */;
+INSERT INTO `vehicle_template_accessory` VALUES
+(36476,36477,0,0, 'Krick and Ick'),
+(36661,36658,0,0, 'Scourgelord Tyrannus and Rimefang'),
+(36891,31260,0,0, 'Ymirjar Skycaller on Drake'),
+(36678,38309,0,1, 'Professor Putricide - trigger'),
+(36678,38308,1,1, 'Professor Putricide - trigger');
+/*!40000 ALTER TABLE `vehicle_template_accessory` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `vehicle_accessory`
 --
 
@@ -27765,7 +27801,7 @@ DROP TABLE IF EXISTS `vehicle_accessory`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `vehicle_accessory` (
-  `entry` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT 0,
+  `guid` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT 0,
   `accessory_entry` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT 0,
   `seat_id` TINYINT(1) SIGNED NOT NULL DEFAULT 0,
   `minion` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
@@ -27784,12 +27820,6 @@ AVG_ROW_LENGTH=0;
 
 LOCK TABLES `vehicle_accessory` WRITE;
 /*!40000 ALTER TABLE `vehicle_accessory` DISABLE KEYS */;
-INSERT INTO `vehicle_accessory` VALUES
-(36476,36477,0,0, 'Krick and Ick'),
-(36661,36658,0,0, 'Scourgelord Tyrannus and Rimefang'),
-(36891,31260,0,0, 'Ymirjar Skycaller on Drake'),
-(36678,38309,0,1, 'Professor Putricide - trigger'),
-(36678,38308,1,1, 'Professor Putricide - trigger');
 /*!40000 ALTER TABLE `vehicle_accessory` ENABLE KEYS */;
 UNLOCK TABLES;
 
