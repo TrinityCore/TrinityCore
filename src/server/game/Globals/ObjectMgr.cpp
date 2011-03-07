@@ -2793,7 +2793,7 @@ void ObjectMgr::LoadVehicleTemplateAccessories()
     }
     while (result->NextRow());
 
-    sLog->outString(">> Loaded %u Vehicle Accessories in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outString(">> Loaded %u Vehicle Template Accessories in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
 }
 
@@ -2818,18 +2818,12 @@ void ObjectMgr::LoadVehicleAccessories()
     {
         Field *fields = result->Fetch();
 
-        uint32 uiEntry      = fields[0].GetUInt32();
+        uint32 uiGUID       = fields[0].GetUInt32();
         uint32 uiAccessory  = fields[1].GetUInt32();
         int8   uiSeat       = int8(fields[2].GetInt16());
         bool   bMinion      = fields[3].GetBool();
         uint8  uiSummonType = fields[4].GetUInt8();
         uint32 uiSummonTimer= fields[5].GetUInt32();
-
-        if (!sCreatureStorage.LookupEntry<CreatureInfo>(uiEntry))
-        {
-            sLog->outErrorDb("Table `vehicle_accessory`: creature template entry %u does not exist.", uiEntry);
-            continue;
-        }
 
         if (!sCreatureStorage.LookupEntry<CreatureInfo>(uiAccessory))
         {
@@ -2837,13 +2831,7 @@ void ObjectMgr::LoadVehicleAccessories()
             continue;
         }
 
-        if (mSpellClickInfoMap.find(uiEntry) == mSpellClickInfoMap.end())
-        {
-            sLog->outErrorDb("Table `vehicle_accessory`: creature template entry %u has no data in npc_spellclick_spells", uiEntry);
-            continue;
-        }
-
-        m_VehicleAccessoryMap[uiEntry].push_back(VehicleAccessory(uiAccessory, uiSeat, bMinion, uiSummonType, uiSummonTimer));
+        m_VehicleAccessoryMap[uiGUID].push_back(VehicleAccessory(uiAccessory, uiSeat, bMinion, uiSummonType, uiSummonTimer));
 
         ++count;
     }

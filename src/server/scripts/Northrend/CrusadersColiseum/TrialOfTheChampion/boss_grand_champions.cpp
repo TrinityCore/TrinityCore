@@ -179,6 +179,9 @@ public:
         {
             uiShieldBreakerTimer = 8000;
             uiBuffTimer = urand(30000,60000);
+
+            if (me->GetVehicleKit())
+                me->GetVehicleKit()->Reset();
         }
 
         void SetData(uint32 uiType, uint32 uiData)
