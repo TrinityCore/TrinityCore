@@ -2600,6 +2600,12 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
         case 48542:                                         // Revitalize
             damage = int32(CalculatePctN(unitTarget->GetMaxPower(power), damage));
             break;
+        case 71132:                                         // Glyph 'Shadow Word: Pain' (3.3.5a version, redone in 4.x)
+            damage = 1;                                     // effect #1 value is 0 so 0%, manually set to 1%
+            damage = int32(CalculatePctN(unitTarget->GetCreateMana(), damage));
+            //calculation below would use more generic approach
+            //damage = int32(CalculatePctN(unitTarget->GetCreatePowers(power), damage));
+            break;
         default:
             break;
     }
