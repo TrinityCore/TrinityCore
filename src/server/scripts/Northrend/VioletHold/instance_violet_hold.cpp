@@ -798,16 +798,19 @@ public:
 
         void ProcessEvent(GameObject* /*pGO*/, uint32 uiEventId)
         {
-            switch(uiEventId)
+            switch (uiEventId)
             {
                 case EVENT_ACTIVATE_CRYSTAL:
                     bCrystalActivated = true; // Activation by player's will throw event signal
                     ActivateCrystal();
                     break;
             }
-    }
+        }
 
-};
+        void ProcessEvent(Unit* /*unit*/, uint32 /*eventId*/)
+        {
+        }
+    };
 };
 
 

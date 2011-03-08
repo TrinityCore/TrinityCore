@@ -317,20 +317,28 @@ Unit *PetAI::SelectNextTarget()
     if (me->HasReactState(REACT_PASSIVE))
         return NULL;
 
-    Unit *target = NULL;
+    Unit *target = me->getAttackerForHelper();
     targetHasCC = false;
 
-    // Check pet's attackers first to prevent dragging mobs back
-    // to owner
-    if ((target = me->getAttackerForHelper()) && !_CheckTargetCC(target)) {}
-    // Check owner's attackers if pet didn't have any
-    else if (me->GetCharmerOrOwner() && (target = me->GetCharmerOrOwner()->getAttackerForHelper()) && !_CheckTargetCC(target)) {}
-    // 3.0.2 - Pets now start attacking their owners target in defensive mode as soon as the hunter does
-    else if (me->GetCharmerOrOwner() && (target = me->GetCharmerOrOwner()->getVictim()) && !_CheckTargetCC(target)) {}
-    // Default
-    else return NULL;
+    // Check pet's attackers first to prevent dragging mobs back to owner
+    if (target && !_CheckTargetCC(target))
+        return target;
 
-    return target;
+    if (me->GetCharmerOrOwner())
+    {
+        // Check owner's attackers if pet didn't have any
+        target = me->GetCharmerOrOwner()->getAttackerForHelper();
+        if (target && !_CheckTargetCC(target))
+            return target;
+
+        // 3.0.2 - Pets now start attacking their owners target in defensive mode as soon as the hunter does
+        target = me->GetCharmerOrOwner()->getVictim();
+        if (target && !_CheckTargetCC(target))
+            return target;
+    }
+
+    // Default
+    return NULL;
 }
 
 void PetAI::HandleReturnMovement()
