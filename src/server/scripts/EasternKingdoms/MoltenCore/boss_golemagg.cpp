@@ -139,7 +139,7 @@ class mob_core_rager : public CreatureScript
                 mangleTimer = 7*IN_MILLISECONDS;                 // These times are probably wrong
             }
 
-            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
             {
                 if (HealthAbovePct(50) || !instance)
                     return;

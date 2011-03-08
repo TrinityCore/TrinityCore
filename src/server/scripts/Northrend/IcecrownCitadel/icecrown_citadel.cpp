@@ -300,7 +300,7 @@ class spell_icc_harvest_blight_specimen : public SpellScriptLoader
                 GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
             }
 
-            void HandleQuestComplete(SpellEffIndex effIndex)
+            void HandleQuestComplete(SpellEffIndex /*effIndex*/)
             {
                 GetHitUnit()->RemoveAurasDueToSpell(uint32(GetEffectValue()));
             }
