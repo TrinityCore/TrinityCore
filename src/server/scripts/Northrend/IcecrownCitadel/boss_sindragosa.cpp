@@ -142,14 +142,14 @@ enum Shadowmourne
     SPELL_FROST_IMBUED_BLADE    = 72290,
 };
 
-static Position const RimefangFlyPos      = {4413.309f, 2456.421f, 223.3795f, 2.890186f};
-static Position const RimefangLandPos     = {4413.309f, 2456.421f, 203.3848f, 2.890186f};
-static Position const SpinestalkerFlyPos  = {4418.895f, 2514.233f, 220.4864f, 3.396045f};
-static Position const SpinestalkerLandPos = {4418.895f, 2514.233f, 203.3848f, 3.396045f};
-       Position const SindragosaSpawnPos  = {4818.700f, 2483.710f, 287.0650f, 3.089233f};
-static Position const SindragosaFlyPos    = {4475.190f, 2484.570f, 234.8510f, 3.141593f};
-static Position const SindragosaLandPos   = {4419.190f, 2484.570f, 203.3848f, 3.141593f};
-static Position const SindragosaAirPos    = {4475.990f, 2484.430f, 247.9340f, 3.141593f};
+Position const RimefangFlyPos      = {4413.309f, 2456.421f, 223.3795f, 2.890186f};
+Position const RimefangLandPos     = {4413.309f, 2456.421f, 203.3848f, 2.890186f};
+Position const SpinestalkerFlyPos  = {4418.895f, 2514.233f, 220.4864f, 3.396045f};
+Position const SpinestalkerLandPos = {4418.895f, 2514.233f, 203.3848f, 3.396045f};
+Position const SindragosaSpawnPos  = {4818.700f, 2483.710f, 287.0650f, 3.089233f};
+Position const SindragosaFlyPos    = {4475.190f, 2484.570f, 234.8510f, 3.141593f};
+Position const SindragosaLandPos   = {4419.190f, 2484.570f, 203.3848f, 3.141593f};
+Position const SindragosaAirPos    = {4475.990f, 2484.430f, 247.9340f, 3.141593f};
 
 class FrostwyrmLandEvent : public BasicEvent
 {
