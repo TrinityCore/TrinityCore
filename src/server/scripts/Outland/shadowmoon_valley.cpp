@@ -210,12 +210,10 @@ public:
     {
         mob_enslaved_netherwing_drakeAI(Creature* c) : ScriptedAI(c)
         {
-            PlayerGUID = 0;
             Tapped = false;
             Reset();
         }
 
-        uint64 PlayerGUID;
         uint32 FlyTimer;
         bool Tapped;
 
@@ -237,7 +235,6 @@ public:
             if (caster->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_HIT_FORCE_OF_NELTHARAKU && !Tapped)
             {
                 Tapped = true;
-                PlayerGUID = caster->GetGUID();
 
                 me->setFaction(FACTION_FRIENDLY);
                 DoCast(caster, SPELL_FORCE_OF_NELTHARAKU, true);
@@ -263,14 +260,6 @@ public:
 
             if (id == 1)
             {
-                if (PlayerGUID)
-                {
-                    Unit* plr = Unit::GetUnit((*me), PlayerGUID);
-                    if (plr)
-                        DoCast(plr, SPELL_FORCE_OF_NELTHARAKU, true);
-
-                    PlayerGUID = 0;
-                }
                 me->SetVisible(false);
                 me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                 me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
@@ -287,33 +276,18 @@ public:
                     if (FlyTimer <= diff)
                     {
                         Tapped = false;
-                        if (PlayerGUID)
+                        Position pos;
+                        if (Unit* EscapeDummy = me->FindNearestCreature(CREATURE_ESCAPE_DUMMY, 30))
                         {
-                            Player* plr = Unit::GetPlayer(*me, PlayerGUID);
-                            if (plr && plr->GetQuestStatus(10854) == QUEST_STATUS_INCOMPLETE)
-                            {
-                                DoCast(plr, SPELL_FORCE_OF_NELTHARAKU, true);
-                                /*
-                                float x,y,z;
-                                me->GetPosition(x,y,z);
-
-                                float dx,dy,dz;
-                                me->GetRandomPoint(x, y, z, 20, dx, dy, dz);
-                                dz += 20; // so it's in the air, not ground*/
-
-                                Position pos;
-                                if (Unit* EscapeDummy = me->FindNearestCreature(CREATURE_ESCAPE_DUMMY, 30))
-                                    EscapeDummy->GetPosition(&pos);
-                                else
-                                {
-                                    me->GetRandomNearPosition(pos, 20);
-                                    pos.m_positionZ += 25;
-                                }
-
-                                me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                                me->GetMotionMaster()->MovePoint(1, pos);
-                            }
+                            EscapeDummy->GetPosition(&pos);
                         }
+                        else
+                        {
+                            me->GetRandomNearPosition(pos, 20);
+                            pos.m_positionZ += 25;
+                        }
+                        me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                        me->GetMotionMaster()->MovePoint(1, pos);
                     } else FlyTimer -= diff;
                 }
                 return;
