@@ -324,7 +324,7 @@ void Map::ScriptsProcess()
                     {
                         if ((*iter)->GetGUID() == step.sourceGUID)
                         {
-                            source = reinterpret_cast<Object*>(*iter);
+                            source = *iter;
                             break;
                         }
                     }

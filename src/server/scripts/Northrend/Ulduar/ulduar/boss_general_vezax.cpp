@@ -76,8 +76,8 @@ enum eEvents
     EVENT_BERSERK                                = 6,
 };
 
-#define ACHIEVEMENT_SMELL_SARONITE               RAID_MODE(3181, 3188)
-#define ACHIEVEMENT_SHADOWDODGER                 RAID_MODE(2996, 2997)
+#define ACHIEVEMENT_SMELL_SARONITE               RAID_MODE<uint32>(3181, 3188)
+#define ACHIEVEMENT_SHADOWDODGER                 RAID_MODE<uint32>(2996, 2997)
 
 class boss_general_vezax : public CreatureScript
 {
@@ -156,16 +156,18 @@ public:
                         events.ScheduleEvent(EVENT_SEARING_FLAMES, urand(14000, 17500));
                         break;
                     case EVENT_MARK_OF_THE_FACELESS:
-                        Unit* pTarget;
+                    {
                         /*  He will not cast this on players within 15 yards of him.
                             However, if there are not at least 9 people outside of 15 yards
                             he will start casting it on players inside 15 yards melee and tank included.
                         */
-                        if (!(pTarget = CheckPlayersInRange(RAID_MODE(4,9), 15.0f, 50.f)))
-                            pTarget = SelectTarget(SELECT_TARGET_RANDOM);
-                        DoCast(pTarget, SPELL_MARK_OF_THE_FACELESS);
+                        Unit* target = CheckPlayersInRange(RAID_MODE<uint32>(4,9), 15.0f, 50.f);
+                        if (!target)
+                            target = SelectTarget(SELECT_TARGET_RANDOM);
+                        DoCast(target, SPELL_MARK_OF_THE_FACELESS);
                         events.ScheduleEvent(EVENT_MARK_OF_THE_FACELESS, urand(35000, 45000));
                         break;
+                    }
                     case EVENT_SURGE_OF_DARKNESS:
                         DoScriptText(EMOTE_SURGE_OF_DARKNESS, me);
                         DoScriptText(SAY_SURGE_OF_DARKNESS, me);
@@ -261,9 +263,9 @@ public:
             Purpose: If there are uiPlayersMin people within uiRangeMin, uiRangeMax: return a random players in that range.
             If not, return NULL and allow other target selection
         */
-        Unit * CheckPlayersInRange(uint32 uiPlayersMin, float uiRangeMin, float uiRangeMax)
+        Unit* CheckPlayersInRange(uint32 uiPlayersMin, float uiRangeMin, float uiRangeMax)
         {
-            Map * pMap = me->GetMap();
+            Map* pMap = me->GetMap();
             if (pMap && pMap->IsDungeon())
             {
                 std::list<Player*> PlayerList;

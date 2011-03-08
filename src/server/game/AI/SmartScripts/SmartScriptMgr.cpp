@@ -316,7 +316,8 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder &e)
     }
     else
     {
-        switch (e.event.type)
+        uint32 type = e.event.type;
+        switch (type)
         {
             case SMART_EVENT_UPDATE:
             case SMART_EVENT_UPDATE_IC:
