@@ -182,7 +182,7 @@ class npc_azure_ring_captain : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 if (!UpdateVictim())
                     return;

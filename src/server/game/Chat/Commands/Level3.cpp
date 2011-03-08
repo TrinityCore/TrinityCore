@@ -4122,8 +4122,11 @@ bool ChatHandler::HandleInstanceUnbindCommand(const char *args)
     uint16 MapId = 0;
 
     if (strcmp(pMap, "all"))
-        if (!(MapId = uint16(atoi(pMap))))
+    {
+        MapId = uint16(atoi(pMap));
+        if (!MapId)
             return false;
+    }
 
     for(uint8 i = 0; i < MAX_DIFFICULTY; ++i)
     {

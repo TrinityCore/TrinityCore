@@ -600,14 +600,14 @@ void CliRunnable::run()
 
             if (!*command_str)
             {
-                #if PLATFORM == WINDOWS
+                #if PLATFORM == PLATFORM_WINDOWS
                 printf("TC>");
                 #endif
                 continue;
             }
 
             std::string command;
-            if (!consoleToUtf8(command_str,command))         // convert from console encoding to utf8
+            if (!consoleToUtf8(command_str, command))         // convert from console encoding to utf8
             {
                 #if PLATFORM == PLATFORM_WINDOWS
                 printf("TC>");

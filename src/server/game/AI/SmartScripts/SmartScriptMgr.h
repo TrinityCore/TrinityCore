@@ -149,7 +149,7 @@ enum SMART_EVENT
     SMART_EVENT_GOSSIP_SELECT            = 62,      //1             // menuID, actionID
     SMART_EVENT_JUST_CREATED             = 63,      //1             // none
     SMART_EVENT_GOSSIP_HELLO             = 64,      //1             // none
-    SMART_EVENT_FOLLOW_COMPLETED          = 65,      //1             // none
+    SMART_EVENT_FOLLOW_COMPLETED         = 65,      //1             // none
     SMART_EVENT_DUMMY_EFFECT             = 66,      //1             // spellId, effectIndex
 
     SMART_EVENT_END                      = 67,
