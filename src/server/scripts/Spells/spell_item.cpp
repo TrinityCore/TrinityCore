@@ -924,9 +924,9 @@ class spell_item_gift_of_the_harvester : public SpellScriptLoader
 
 enum Sinkholes
 {
-    NPC_SOUTH_SIKNHOLE      = 25664,
-    NPC_NORTHEAST_SIKNHOLE  = 25665,
-    NPC_NORTHWEST_SIKNHOLE  = 25666,
+    NPC_SOUTH_SINKHOLE      = 25664,
+    NPC_NORTHEAST_SINKHOLE  = 25665,
+    NPC_NORTHWEST_SINKHOLE  = 25666,
 };
 
 class spell_item_map_of_the_geyser_fields : public SpellScriptLoader
@@ -941,9 +941,9 @@ class spell_item_map_of_the_geyser_fields : public SpellScriptLoader
             SpellCastResult CheckSinkholes()
             {
                 Unit* caster = GetCaster();
-                if (caster->FindNearestCreature(NPC_SOUTH_SIKNHOLE, 30.0f, true)     ||
-                    caster->FindNearestCreature(NPC_NORTHEAST_SIKNHOLE, 30.0f, true) ||
-                    caster->FindNearestCreature(NPC_NORTHWEST_SIKNHOLE, 30.0f, true))
+                if (caster->FindNearestCreature(NPC_SOUTH_SINKHOLE, 30.0f, true)     ||
+                    caster->FindNearestCreature(NPC_NORTHEAST_SINKHOLE, 30.0f, true) ||
+                    caster->FindNearestCreature(NPC_NORTHWEST_SINKHOLE, 30.0f, true))
                     return SPELL_CAST_OK;
 
                 SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_MUST_BE_CLOSE_TO_SINKHOLE);
