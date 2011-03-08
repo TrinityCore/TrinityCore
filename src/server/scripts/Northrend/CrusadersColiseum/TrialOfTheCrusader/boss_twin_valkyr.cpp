@@ -126,8 +126,8 @@ struct boss_twin_baseAI : public ScriptedAI
     uint32 m_uiTouchTimer;
     uint32 m_uiBerserkTimer;
 
-    uint32 m_uiVortexSay;
-    uint32 m_uiVortexEmote;
+    int32 m_uiVortexSay;
+    int32 m_uiVortexEmote;
     uint32 m_uiSisterNpcId;
     uint32 m_uiColorballNpcId;
     uint32 m_uiEssenceNpcId;

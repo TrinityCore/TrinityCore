@@ -315,10 +315,10 @@ Aura * Aura::Create(SpellEntry const* spellproto, uint8 effMask, WorldObject * o
     {
         case TYPEID_UNIT:
         case TYPEID_PLAYER:
-            aura = new UnitAura(spellproto,effMask,owner,caster,baseAmount,castItem, casterGUID);
+            aura = new UnitAura(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID);
             break;
         case TYPEID_DYNAMICOBJECT:
-            aura = new DynObjAura(spellproto,effMask,owner,caster,baseAmount,castItem, casterGUID);
+            aura = new DynObjAura(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID);
             break;
         default:
             ASSERT(false);
@@ -330,7 +330,7 @@ Aura * Aura::Create(SpellEntry const* spellproto, uint8 effMask, WorldObject * o
     return aura;
 }
 
-Aura::Aura(SpellEntry const* spellproto, uint8 effMask, WorldObject * owner, Unit * caster, int32 *baseAmount, Item * castItem, uint64 casterGUID):
+Aura::Aura(SpellEntry const* spellproto, WorldObject * owner, Unit * caster, Item * castItem, uint64 casterGUID) :
 m_spellProto(spellproto), m_casterGuid(casterGUID ? casterGUID : caster->GetGUID()),
 m_castItemGuid(castItem ? castItem->GetGUID() : 0), m_applyTime(time(NULL)),
 m_owner(owner), m_timeCla(0), m_updateTargetMapInterval(0),
@@ -1863,7 +1863,7 @@ void Aura::CallScriptEffectAfterManaShieldHandlers(AuraEffect * aurEff, AuraAppl
 }
 
 UnitAura::UnitAura(SpellEntry const* spellproto, uint8 effMask, WorldObject * owner, Unit * caster, int32 *baseAmount, Item * castItem, uint64 casterGUID)
-    : Aura(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID)
+    : Aura(spellproto, owner, caster, castItem, casterGUID)
 {
     m_AuraDRGroup = DIMINISHING_NONE;
     LoadScripts();
@@ -1975,7 +1975,7 @@ void UnitAura::FillTargetMap(std::map<Unit *, uint8> & targets, Unit * caster)
 }
 
 DynObjAura::DynObjAura(SpellEntry const* spellproto, uint8 effMask, WorldObject * owner, Unit * caster, int32 *baseAmount, Item * castItem, uint64 casterGUID)
-    : Aura(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID)
+    : Aura(spellproto, owner, caster, castItem, casterGUID)
 {
     LoadScripts();
     ASSERT(GetDynobjOwner());
