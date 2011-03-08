@@ -30,7 +30,7 @@ void SummonList::DoZoneInCombat(uint32 entry)
     }
 }
 
-void SummonList::DoAction(uint32 entry, uint32 info)
+void SummonList::DoAction(uint32 entry, int32 info)
 {
     for (iterator i = begin(); i != end();)
     {
