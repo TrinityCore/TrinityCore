@@ -168,7 +168,7 @@ class CreatureAI : public UnitAI
 
         virtual void PassengerBoarded(Unit * /*who*/, int8 /*seatId*/, bool /*apply*/) {}
 
-        virtual bool CanSeeAlways(WorldObject const* obj) {return false;}
+        virtual bool CanSeeAlways(WorldObject const* /*obj*/) { return false; }
     protected:
         virtual void MoveInLineOfSight(Unit *);
 

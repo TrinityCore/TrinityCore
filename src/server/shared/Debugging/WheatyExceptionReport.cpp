@@ -753,7 +753,7 @@ bool bWriteVariables, HANDLE pThreadHandle)                                     
 BOOL CALLBACK
 WheatyExceptionReport::EnumerateSymbolsCallback(
 PSYMBOL_INFO  pSymInfo,
-ULONG         SymbolSize,
+ULONG         /*SymbolSize*/,
 PVOID         UserContext)
 {
 
@@ -782,7 +782,7 @@ bool WheatyExceptionReport::FormatSymbolValue(
 PSYMBOL_INFO pSym,
 STACKFRAME * sf,
 char * pszBuffer,
-unsigned cbBuffer)
+unsigned /*cbBuffer*/)
 {
     char * pszCurrBuffer = pszBuffer;
 
@@ -853,7 +853,7 @@ DWORD dwTypeIndex,
 unsigned nestingLevel,
 DWORD_PTR offset,
 bool & bHandled,
-char* Name)
+char* /*Name*/)
 {
     bHandled = false;
 

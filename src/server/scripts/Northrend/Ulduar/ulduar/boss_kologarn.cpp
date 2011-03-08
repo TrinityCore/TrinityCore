@@ -117,7 +117,7 @@ class boss_kologarn : public CreatureScript
             bool left, right;
             uint64 eyebeamTarget;
 
-            void EnterCombat(Unit * who)
+            void EnterCombat(Unit* /*who*/)
             {
                 DoScriptText(SAY_AGGRO, me);
 
@@ -156,7 +156,7 @@ class boss_kologarn : public CreatureScript
                 DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
             }
 
-            void PassengerBoarded(Unit *who, int8 seatId, bool apply)
+            void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply)
             {
                 bool isEncounterInProgress = instance->GetBossState(TYPE_KOLOGARN) == IN_PROGRESS;
                 if (who->GetEntry() == NPC_LEFT_ARM)
@@ -549,7 +549,7 @@ class spell_ulduar_stone_grip_absorb : public SpellScriptLoader
 
             //! This will be called when Right Arm (vehicle) has sustained a specific amount of damage depending on instance mode
             //! What we do here is remove all harmful aura's related and teleport to safe spot.
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes mode)
             {
                 if (!(mode & AURA_EFFECT_HANDLE_REAL))
                     return;
@@ -596,7 +596,7 @@ class spell_ulduar_stone_grip : public SpellScriptLoader
                     pOwner->RemoveAurasDueToSpell(aurEff->GetAmount());
             }
 
-            void OnRemoveVehicle(AuraEffect const* aurEff, AuraEffectHandleModes mode)
+            void OnRemoveVehicle(AuraEffect const* /*aurEff*/, AuraEffectHandleModes mode)
             {
                 if (!(mode & AURA_EFFECT_HANDLE_REAL))
                     return;

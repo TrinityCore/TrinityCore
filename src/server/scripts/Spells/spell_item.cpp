@@ -828,6 +828,7 @@ class spell_item_create_heart_candy : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex effIndex)
             {
+                PreventHitDefaultEffect(effIndex);
                 if (!GetHitUnit() || !GetHitUnit()->ToPlayer())
                     return;
 

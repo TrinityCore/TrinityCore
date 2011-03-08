@@ -228,11 +228,11 @@ struct GuildBankRightsAndSlots
     GuildBankRightsAndSlots() : rights(0), slots(0) { }
     GuildBankRightsAndSlots(uint8 _rights, uint32 _slots) : rights(_rights), slots(_slots) { }
 
-    inline bool IsEqual(const GuildBankRightsAndSlots& rhs) const { return rights == rhs.rights && slots == rhs.slots; }
+    inline bool IsEqual(GuildBankRightsAndSlots const& rhs) const { return rights == rhs.rights && slots == rhs.slots; }
     void SetGuildMasterValues()
     {
         rights = GUILD_BANK_RIGHT_FULL;
-        slots = GUILD_WITHDRAW_SLOT_UNLIMITED;
+        slots = uint32(GUILD_WITHDRAW_SLOT_UNLIMITED);
     }
 
     uint8  rights;
@@ -387,7 +387,7 @@ private:
     class LogHolder
     {
     public:
-        LogHolder(uint32 guildId, uint32 maxRecords) : m_guildId(guildId), m_maxRecords(maxRecords), m_nextGUID(GUILD_EVENT_LOG_GUID_UNDEFINED) { }
+        LogHolder(uint32 guildId, uint32 maxRecords) : m_guildId(guildId), m_maxRecords(maxRecords), m_nextGUID(uint32(GUILD_EVENT_LOG_GUID_UNDEFINED)) { }
         ~LogHolder();
 
         uint8 GetSize() const { return uint8(m_log.size()); }

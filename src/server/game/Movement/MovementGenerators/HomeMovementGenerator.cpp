@@ -60,7 +60,7 @@ HomeMovementGenerator<Creature>::_setTargetLocation(Creature & owner)
 
     uint32 travel_time = i_destinationHolder.SetDestination(traveller, x, y, z);
     modifyTravelTime(travel_time);
-    owner.ClearUnitState(UNIT_STAT_ALL_STATE & ~UNIT_STAT_EVADE);
+    owner.ClearUnitState(uint32(UNIT_STAT_ALL_STATE & ~UNIT_STAT_EVADE));
 }
 
 bool
