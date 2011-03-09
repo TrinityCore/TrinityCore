@@ -1632,21 +1632,21 @@ bool OutdoorPvPWG::Update(uint32 diff)
                                 Old->ForcedDespawn();
                                 Vehicle *vehicle = New->GetVehicleKit();
 								Driver->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-								Driver->EnterVehicle(vehicle, 0);
+								Driver->_EnterVehicle(vehicle, 0);
 								if (Passenger1 && Passenger1->isAlive())
 								{
 								Passenger1->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-								//Passenger1->EnterVehicle(vehicle, 1); Seatid doesn't work :S
+								//Passenger1->_EnterVehicle(vehicle, 1); Seatid doesn't work :S
 								}
 								if (Passenger2 && Passenger2->isAlive())
 								{
 								Passenger2->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-								//Passenger2->EnterVehicle(vehicle, 2); Seatid doesn't work :S
+								//Passenger2->_EnterVehicle(vehicle, 2); Seatid doesn't work :S
 								}
 								if (Passenger3 && Passenger3->isAlive())
 								{
 								Passenger3->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-								//Passenger3->EnterVehicle(vehicle, 3); Seatid doesn't work :S
+								//Passenger3->_EnterVehicle(vehicle, 3); Seatid doesn't work :S
 								}
 								}
                                 }
@@ -1681,21 +1681,21 @@ bool OutdoorPvPWG::Update(uint32 diff)
                                 Old->ForcedDespawn();
                                 Vehicle *vehicle = New->GetVehicleKit();
 								Driver->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-								Driver->EnterVehicle(vehicle, 0);
+								Driver->_EnterVehicle(vehicle, 0);
 								if (Passenger1 && Passenger1->isAlive())
 								{
 								Passenger1->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-								//Passenger1->EnterVehicle(vehicle, 1); Seatid doesn't work :S
+								//Passenger1->_EnterVehicle(vehicle, 1); Seatid doesn't work :S
 								}
 								if (Passenger2 && Passenger2->isAlive())
 								{
 								Passenger2->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-								//Passenger2->EnterVehicle(vehicle, 2); Seatid doesn't work :S
+								//Passenger2->_EnterVehicle(vehicle, 2); Seatid doesn't work :S
 								}
 								if (Passenger3 && Passenger3->isAlive())
 								{
 								Passenger3->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-								//Passenger3->EnterVehicle(vehicle, 3); Seatid doesn't work :S
+								//Passenger3->_EnterVehicle(vehicle, 3); Seatid doesn't work :S
 								}
 						        }
                                 }
@@ -1736,21 +1736,21 @@ bool OutdoorPvPWG::Update(uint32 diff)
                                 Old->ForcedDespawn();
                                 Vehicle *vehicle = New->GetVehicleKit();
 								Driver->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-							    Driver->EnterVehicle(vehicle, 0);
+							    Driver->_EnterVehicle(vehicle, 0);
 								if (Passenger1 && Passenger1->isAlive())
 								{
 								Passenger1->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-								//Passenger1->EnterVehicle(vehicle, 1); Seatid doesn't work :S
+								//Passenger1->_EnterVehicle(vehicle, 1); Seatid doesn't work :S
 								}
 								if (Passenger2 && Passenger2->isAlive())
 								{
 								Passenger2->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-								//Passenger2->EnterVehicle(vehicle, 2); Seatid doesn't work :S
+								//Passenger2->_EnterVehicle(vehicle, 2); Seatid doesn't work :S
 								}
 								if (Passenger3 && Passenger3->isAlive())
 								{
 								Passenger3->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-								//Passenger3->EnterVehicle(vehicle, 3); Seatid doesn't work :S
+								//Passenger3->_EnterVehicle(vehicle, 3); Seatid doesn't work :S
 								}
 								}
                                 }
@@ -1785,21 +1785,21 @@ bool OutdoorPvPWG::Update(uint32 diff)
                                 Old->ForcedDespawn();
                                 Vehicle *vehicle = New->GetVehicleKit();
 								Driver->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-								Driver->EnterVehicle(vehicle, 0);
+								Driver->_EnterVehicle(vehicle, 0);
 								if (Passenger1 && Passenger1->isAlive())
 								{
 								Passenger1->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-								//Passenger1->EnterVehicle(vehicle, 1); Seatid doesn't work :S
+								//Passenger1->_EnterVehicle(vehicle, 1); Seatid doesn't work :S
 								}
 								if (Passenger2 && Passenger2->isAlive())
 								{
 								Passenger2->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-								//Passenger2->EnterVehicle(vehicle, 2); Seatid doesn't work :S
+								//Passenger2->_EnterVehicle(vehicle, 2); Seatid doesn't work :S
 								}
 								if (Passenger3 && Passenger3->isAlive())
 								{
 								Passenger3->NearTeleportTo(5141.191406f, 2841.045410f, 408.703217f, 3.163321f, true); // Out of the Fortress Gate
-								//Passenger3->EnterVehicle(vehicle, 3); Seatid doesn't work :S
+								//Passenger3->_EnterVehicle(vehicle, 3); Seatid doesn't work :S
 								}
 								}
                                 }

@@ -315,8 +315,8 @@ public:
                           me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                           me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                           me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                          me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_9);
-                          me->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_DISABLE_MOVE);
+                          me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
+                          me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                           DoCast(SPELL_FIERY_EXPLOSION);
                           me->SetDisplayId(31952);
                           SetCombatMovement(true);
@@ -331,13 +331,13 @@ public:
                      if (m_uiFlameTimer <= uiDiff)
                      {
                           DoCast(SPELL_FLAME_BREATH);
-                          m_uiFlameTimer = urand(12*IN_MILLISECONDS,20*IN_MILLISECONDS);
+                          m_uiFlameTimer = urand(12*IN_MILLISECONDS, 20*IN_MILLISECONDS);
                      } else m_uiFlameTimer -= uiDiff;
 
                      if (m_uiTailLashTimer <= uiDiff)
                      {
                           DoCast(SPELL_TAIL_LASH);
-                          m_uiTailLashTimer = urand(10*IN_MILLISECONDS,20*IN_MILLISECONDS);
+                          m_uiTailLashTimer = urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS);
                      } else m_uiTailLashTimer -= uiDiff;
 
                      if (m_uiFieryTimer <= uiDiff)
@@ -430,7 +430,7 @@ public:
                             }
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_9);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             me->SetHealth(me->GetMaxHealth()/2);
                             me->SetInCombatWithZone();
@@ -472,14 +472,14 @@ public:
                               DoCast(pTarget, SPELL_FIERY_COMBUSTION);
                           else if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
                               DoCast(pTarget, SPELL_FIERY_COMBUSTION);
-                          m_uiFieryTimer = urand(25*IN_MILLISECONDS,40*IN_MILLISECONDS);
+                          m_uiFieryTimer = urand(25*IN_MILLISECONDS, 40*IN_MILLISECONDS);
                      } else m_uiFieryTimer -= uiDiff;
 
 
                      if (m_uiMeteorTimer <= uiDiff)
                      {
                           DoCast(SPELL_METEOR);
-                          m_uiMeteorTimer = urand(30*IN_MILLISECONDS,35*IN_MILLISECONDS);
+                          m_uiMeteorTimer = urand(30*IN_MILLISECONDS, 35*IN_MILLISECONDS);
                      } else m_uiMeteorTimer -= uiDiff;
 
                     break;
@@ -493,7 +493,7 @@ public:
             {
                  DoCast(SPELL_BERSERK);
                  m_uiEnrage = 600*IN_MILLISECONDS;
-                 DoScriptText(-1666105,me);
+                 DoScriptText(-1666105, me);
             } else m_uiEnrage -= uiDiff;
 
             DoMeleeAttackIfReady();
@@ -545,9 +545,9 @@ public:
 
             m_uiEnrage = 600*IN_MILLISECONDS;
             m_uiDuskTimer = 2*IN_MILLISECONDS;
-            m_uiDarkBreathTimer = urand(12*IN_MILLISECONDS,20*IN_MILLISECONDS);
-            m_uiSoulCunsumTimer = urand(30*IN_MILLISECONDS,40*IN_MILLISECONDS);
-            m_uiTailLashTimer = urand(10*IN_MILLISECONDS,20*IN_MILLISECONDS);
+            m_uiDarkBreathTimer = urand(12*IN_MILLISECONDS, 20*IN_MILLISECONDS);
+            m_uiSoulCunsumTimer = urand(30*IN_MILLISECONDS, 40*IN_MILLISECONDS);
+            m_uiTailLashTimer = urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS);
 
             me->SetInCombatWithZone();
             if (Creature* pControl = me->GetMap()->GetCreature(pInstance->GetData64(NPC_HALION_CONTROL)))
@@ -608,7 +608,7 @@ public:
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_9);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
                 intro = true;
                 AttackStart(pWho);
                 setStage(1);
@@ -649,10 +649,10 @@ public:
             switch (urand(0,1))
             {
                 case 0:
-                    DoScriptText(-1631006,me,pVictim);
+                    DoScriptText(-1631006, me, pVictim);
                     break;
                 case 1:
-                    DoScriptText(-1631007,me,pVictim);
+                    DoScriptText(-1631007, me, pVictim);
                     break;
             }
         }
@@ -702,13 +702,13 @@ public:
                      if (m_uiDarkBreathTimer <= uiDiff)
                      {
                           DoCast(SPELL_DARK_BREATH);
-                          m_uiDarkBreathTimer = urand(12*IN_MILLISECONDS,20*IN_MILLISECONDS);
+                          m_uiDarkBreathTimer = urand(12*IN_MILLISECONDS, 20*IN_MILLISECONDS);
                      } else m_uiDarkBreathTimer -= uiDiff;
 
                      if (m_uiTailLashTimer <= uiDiff)
                      {
                           DoCast(SPELL_TAIL_LASH);
-                          m_uiTailLashTimer = urand(10*IN_MILLISECONDS,20*IN_MILLISECONDS);
+                          m_uiTailLashTimer = urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS);
                      } else m_uiTailLashTimer -= uiDiff;
 
                      if (m_uiSoulCunsumTimer <= uiDiff)
