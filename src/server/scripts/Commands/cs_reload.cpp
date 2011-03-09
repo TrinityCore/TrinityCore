@@ -151,6 +151,8 @@ public:
             { "spell_group_stack_rules",      SEC_ADMINISTRATOR, true,  &HandleReloadSpellGroupStackRulesCommand,       "", NULL },
             { "trinity_string",               SEC_ADMINISTRATOR, true,  &HandleReloadTrinityStringCommand,              "", NULL },
             { "waypoint_scripts",             SEC_ADMINISTRATOR, true,  &HandleReloadWpScriptsCommand,                  "", NULL },
+            { "vehicle_accessory",            SEC_ADMINISTRATOR, true,  &HandleReloadVehicleAccessoryCommand,           "", NULL },
+            { "vehicle_template_accessory",   SEC_ADMINISTRATOR, true,  &HandleReloadVehicleTemplateAccessoryCommand,   "", NULL },
             { NULL,                           0,                 false, NULL,                                           "", NULL }
         };
         static ChatCommand commandTable[] =
@@ -191,6 +193,9 @@ public:
         HandleReloadGameTeleCommand(handler,(char*)"");
 
         HandleReloadAutobroadcastCommand(handler,(char*)"");
+
+        HandleReloadVehicleAccessoryCommand(handler,(char*)"");
+        HandleReloadVehicleTemplateAccessoryCommand(handler,(char*)"");
         return true;
     }
 
@@ -1271,6 +1276,22 @@ public:
         sLog->outString("Re-Loading Smart Scripts...");
         sSmartScriptMgr->LoadSmartAIFromDB();
         handler->SendGlobalGMSysMessage("Smart Scripts reloaded.");
+        return true;
+    }
+
+    static bool HandleReloadVehicleAccessoryCommand(ChatHandler* handler, char* /*args*/)
+    {
+        sLog->outString("Reloading vehicle_accessory table...");
+        sObjectMgr->LoadVehicleAccessories();
+        handler->SendGlobalGMSysMessage("Vehicle accessories reloaded.");
+        return true;
+    }
+
+    static bool HandleReloadVehicleTemplateAccessoryCommand(ChatHandler* handler, char* /*args*/)
+    {
+        sLog->outString("Reloading vehicle_template_accessory table...");
+        sObjectMgr->LoadVehicleTemplateAccessories();
+        handler->SendGlobalGMSysMessage("Vehicle template accessories reloaded.");
         return true;
     }
 };

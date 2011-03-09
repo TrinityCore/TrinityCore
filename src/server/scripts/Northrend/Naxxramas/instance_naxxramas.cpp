@@ -335,7 +335,7 @@ public:
                 {
                     if (GameObject* pHeiganEruption = instance->GetGameObject(*itr))
                     {
-                        pHeiganEruption->SendCustomAnim();
+                        pHeiganEruption->SendCustomAnim(pHeiganEruption->GetGoAnimProgress());
                         pHeiganEruption->CastSpell(NULL, SPELL_ERUPTION);
                     }
                 }

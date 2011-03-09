@@ -30,7 +30,7 @@ void SummonList::DoZoneInCombat(uint32 entry)
     }
 }
 
-void SummonList::DoAction(uint32 entry, uint32 info)
+void SummonList::DoAction(uint32 entry, int32 info)
 {
     for (iterator i = begin(); i != end();)
     {
@@ -79,6 +79,33 @@ void SummonList::DespawnAll()
                 summon->DisappearAndDie();
         }
     }
+}
+
+void SummonList::RemoveNotExisting()
+{
+    for (iterator i = begin(); i != end();)
+    {
+        if (Unit::GetCreature(*me, *i))
+            ++i;
+        else
+            erase(i++);
+    }
+}
+
+bool SummonList::HasEntry(uint32 entry)
+{
+    for (iterator i = begin(); i != end();)
+    {
+        Creature* summon = Unit::GetCreature(*me, *i);
+        if (!summon)
+            erase(i++);
+        else if (summon->GetEntry() == entry)
+            return true;
+        else
+            ++i;
+    }
+
+    return false;
 }
 
 ScriptedAI::ScriptedAI(Creature* pCreature) : CreatureAI(pCreature),

@@ -27,7 +27,8 @@
 #include "CreatureAI.h"
 #include "ZoneScript.h"
 
-Vehicle::Vehicle(Unit *unit, VehicleEntry const *vehInfo) : me(unit), m_vehicleInfo(vehInfo), m_usableSeatNum(0), m_bonusHP(0)
+Vehicle::Vehicle(Unit *unit, VehicleEntry const *vehInfo, uint32 creatureEntry)
+: me(unit), m_vehicleInfo(vehInfo), m_usableSeatNum(0), m_bonusHP(0), m_creatureEntry(creatureEntry)
 {
     for (uint32 i = 0; i < MAX_VEHICLE_SEATS; ++i)
     {
@@ -61,6 +62,8 @@ Vehicle::Vehicle(Unit *unit, VehicleEntry const *vehInfo) : me(unit), m_vehicleI
         default:
             break;
     }
+
+    InitMovementInfoForBase();
 }
 
 Vehicle::~Vehicle()
@@ -111,15 +114,15 @@ void Vehicle::Install()
         }
     }
 
-    Reset();
-
     if (GetBase()->GetTypeId() == TYPEID_UNIT)
         sScriptMgr->OnInstall(this);
 }
 
-void Vehicle::InstallAllAccessories(uint32 entry)
+void Vehicle::InstallAllAccessories()
 {
-    VehicleAccessoryList const* mVehicleList = sObjectMgr->GetVehicleAccessoryList(entry);
+    RemoveAllPassengers();   // We might have aura's saved in the DB with now invalid casters - remove
+
+    VehicleAccessoryList const* mVehicleList = sObjectMgr->GetVehicleAccessoryList(this);
     if (!mVehicleList)
         return;
 
@@ -129,30 +132,11 @@ void Vehicle::InstallAllAccessories(uint32 entry)
 
 void Vehicle::Uninstall()
 {
-    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Uninstall %u", me->GetEntry());
-    for (SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
-        if (Unit *passenger = ObjectAccessor::GetUnit(*GetBase(), itr->second.passenger))
-            if (passenger->HasUnitTypeMask(UNIT_MASK_ACCESSORY))
-                passenger->ToTempSummon()->UnSummon();
-
+    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Uninstall Entry: %u, GuidLow: %u", m_creatureEntry, me->GetGUIDLow());
     RemoveAllPassengers();
 
     if (GetBase()->GetTypeId() == TYPEID_UNIT)
         sScriptMgr->OnUninstall(this);
-}
-
-void Vehicle::Die()
-{
-    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Die %u", me->GetEntry());
-    for (SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
-        if (Unit *passenger = ObjectAccessor::GetUnit(*GetBase(), itr->second.passenger))
-            if (passenger->HasUnitTypeMask(UNIT_MASK_ACCESSORY))
-                passenger->setDeathState(JUST_DIED);
-
-    RemoveAllPassengers();
-
-    if (GetBase()->GetTypeId() == TYPEID_UNIT)
-        sScriptMgr->OnDie(this);
 }
 
 void Vehicle::Reset()
@@ -165,7 +149,7 @@ void Vehicle::Reset()
     }
     else
     {
-        InstallAllAccessories(me->GetEntry());
+        InstallAllAccessories();
         if (m_usableSeatNum)
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
     }
@@ -176,31 +160,18 @@ void Vehicle::Reset()
 
 void Vehicle::RemoveAllPassengers()
 {
-    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::RemoveAllPassengers");
-    for (SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
-        if (Unit *passenger = ObjectAccessor::GetUnit(*GetBase(), itr->second.passenger))
-        {
-            ASSERT(passenger->IsInWorld());
-            ASSERT(passenger->IsOnVehicle(GetBase()));
-            ASSERT(GetSeatForPassenger(passenger));
+    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::RemoveAllPassengers. Entry: %u, GuidLow: %u", m_creatureEntry, me->GetGUIDLow());
 
-            if (passenger->IsVehicle())
-                passenger->GetVehicleKit()->RemoveAllPassengers();
+    // Passengers always cast an aura with SPELL_AURA_CONTROL_VEHICLE on the vehicle
+    // We just remove the aura and the unapply handler will make the target leave the vehicle.
+    // We don't need to iterate over m_Seats
+    me->RemoveAurasByType(SPELL_AURA_CONTROL_VEHICLE);
 
-            if (passenger->GetVehicle() != this)
-                sLog->outCrash("Vehicle %u has invalid passenger %u. Seat: %i", me->GetEntry(), passenger->GetEntry(), itr->first);
-
-            passenger->ExitVehicle();
-            if (itr->second.passenger)
-            {
-                sLog->outCrash("Vehicle %u cannot remove passenger %u. "UI64FMTD" is still on vehicle.", me->GetEntry(), passenger->GetEntry(), itr->second.passenger);
-                itr->second.passenger = 0;
-            }
-
-            // creature passengers mounted on player mounts should be despawned at dismount
-            if (GetBase()->GetTypeId() == TYPEID_PLAYER && passenger->ToCreature())
-                passenger->ToCreature()->DespawnOrUnsummon();
-        }
+    // Following the above logic, this assertion should NEVER fail.
+    // Even in 'hacky' cases, there should at least be VEHICLE_SPELL_RIDE_HARDCODED on us.
+    SeatMap::const_iterator itr;
+    for (itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
+        ASSERT(!itr->second.passenger);
 }
 
 bool Vehicle::HasEmptySeat(int8 seatId) const
@@ -250,6 +221,7 @@ int8 Vehicle::GetNextEmptySeat(int8 seatId, bool next) const
 
 void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 type, uint32 summonTime)
 {
+    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle: Installing accessory entry %u on vehicle entry %u (seat:%i)", entry, GetCreatureEntry(), seatId);
     if (Unit *passenger = GetPassenger(seatId))
     {
         // already installed
@@ -259,16 +231,8 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
             if (me->GetTypeId() == TYPEID_UNIT)
             {
                 if (me->ToCreature()->IsInEvadeMode() && passenger->ToCreature()->IsAIEnabled)
-                {
                     passenger->ToCreature()->AI()->EnterEvadeMode();
-                    return;
-                }
-                else if (passenger->ToTempSummon()->GetSummonType() == TEMPSUMMON_MANUAL_DESPAWN)
-                {
-                    passenger->ExitVehicle();
-                    passenger->ToTempSummon()->DespawnOrUnsummon();
-                    ASSERT(!GetPassenger(seatId))
-                }
+                return;
             }
         }
         else
@@ -280,7 +244,19 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
         if (minion)
             accessory->AddUnitTypeMask(UNIT_MASK_ACCESSORY);
 
-        accessory->EnterVehicle(this, seatId);
+
+        if (!me->HandleSpellClick(accessory, seatId))
+        {
+            accessory->AddObjectToRemoveList();
+            return;
+        }
+
+        if (!accessory->IsOnVehicle(me))
+        {
+            accessory->AddObjectToRemoveList();
+            return;         // Something went wrong in the spellsystem
+        }
+
         // This is not good, we have to send update twice
         accessory->SendMovementFlagUpdate();
 
@@ -356,6 +332,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
         if (!me->SetCharmedBy(unit, CHARM_TYPE_VEHICLE))
             ASSERT(false);
 
+        // hack: should be done by aura system
         if (VehicleScalingInfo const *scalingInfo = sObjectMgr->GetVehicleScalingInfo(m_vehicleInfo->m_ID))
         {
             Player *plr = unit->ToPlayer();
@@ -373,8 +350,10 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
 
     if (me->IsInWorld())
     {
-        // In some cases we send SMSG_SPLINE_MOVE_ROOT here (for creatures)
-        unit->SendMonsterMoveTransport(me);
+        unit->SendClearTarget();                                // SMSG_BREAK_TARGET
+        unit->SetControlled(true, UNIT_STAT_ROOT);              // SMSG_FORCE_ROOT - In some cases we send SMSG_SPLINE_MOVE_ROOT here (for creatures)
+                                                                // also adds MOVEMENTFLAG_ROOT
+        unit->SendMonsterMoveTransport(me);                     // SMSG_MONSTER_MOVE_TRANSPORT
 
         if (me->GetTypeId() == TYPEID_UNIT)
         {
@@ -474,31 +453,27 @@ void Vehicle::RelocatePassengers(float x, float y, float z, float ang)
 
 void Vehicle::Dismiss()
 {
-    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Dismiss %u", me->GetEntry());
+    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Dismiss Entry: %u, GuidLow %u", m_creatureEntry, me->GetGUIDLow());
     Uninstall();
-    me->SendObjectDeSpawnAnim(me->GetGUID());
+    me->DestroyForNearbyPlayers();
     me->CombatStop();
     me->AddObjectToRemoveList();
 }
 
-uint16 Vehicle::GetExtraMovementFlagsForBase() const
+void Vehicle::InitMovementInfoForBase()
 {
-    uint16 movementMask = MOVEMENTFLAG2_NONE;
     uint32 vehicleFlags = GetVehicleInfo()->m_flags;
 
     if (vehicleFlags & VEHICLE_FLAG_NO_STRAFE)
-        movementMask |= MOVEMENTFLAG2_NO_STRAFE;
+        me->AddExtraUnitMovementFlag(MOVEMENTFLAG2_NO_STRAFE);
     if (vehicleFlags & VEHICLE_FLAG_NO_JUMPING)
-        movementMask |= MOVEMENTFLAG2_NO_JUMPING;
+        me->AddExtraUnitMovementFlag(MOVEMENTFLAG2_NO_JUMPING);
     if (vehicleFlags & VEHICLE_FLAG_FULLSPEEDTURNING)
-        movementMask |= MOVEMENTFLAG2_FULL_SPEED_TURNING;
+        me->AddExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_TURNING);
     if (vehicleFlags & VEHICLE_FLAG_ALLOW_PITCHING)
-        movementMask |= MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING;
+        me->AddExtraUnitMovementFlag( MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING);
     if (vehicleFlags & VEHICLE_FLAG_FULLSPEEDPITCHING)
-        movementMask |= MOVEMENTFLAG2_FULL_SPEED_PITCHING;
-
-    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::GetExtraMovementFlagsForBase() returned %u", movementMask);
-    return movementMask;
+        me->AddExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_PITCHING);
 }
 
 VehicleSeatEntry const* Vehicle::GetSeatForPassenger(Unit* passenger)
@@ -519,4 +494,15 @@ SeatMap::iterator Vehicle::GetSeatIteratorForPassenger(Unit* passenger)
             return itr;
 
     return m_Seats.end();
+}
+
+uint8 Vehicle::GetAvailableSeatCount() const
+{
+    uint8 ret = 0;
+    SeatMap::const_iterator itr;
+    for (itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
+        if (!itr->second.passenger && (itr->second.seatInfo->CanEnterOrExit() || itr->second.seatInfo->IsUsableByOverride()))
+            ++ret;
+
+    return ret;
 }

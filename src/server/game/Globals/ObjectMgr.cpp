@@ -195,49 +195,57 @@ LanguageDesc const* GetLanguageDescByID(uint32 lang)
     return NULL;
 }
 
-bool SpellClickInfo::IsFitToRequirements(Player const* player, Creature const * clickNpc) const
+bool SpellClickInfo::IsFitToRequirements(Unit const* clicker, Unit const* clickee) const
 {
-    if (questStart)
+    Player const* playerClicker = clicker->ToPlayer();
+    if (playerClicker)
     {
-        // not in expected required quest state
-        if (!player || ((!questStartCanActive || !player->IsActiveQuest(questStart)) && !player->GetQuestRewardStatus(questStart)))
-            return false;
-    }
+        if (questStart)
+        {
+            // not in expected required quest state
+            if (((!questStartCanActive || !playerClicker->IsActiveQuest(questStart)) && !playerClicker->GetQuestRewardStatus(questStart)))
+                return false;
+        }
 
-    if (questEnd)
-    {
-        // not in expected forbidden quest state
-        if (!player || player->GetQuestRewardStatus(questEnd))
-            return false;
+        if (questEnd)
+        {
+            // not in expected forbidden quest state
+            if (playerClicker->GetQuestRewardStatus(questEnd))
+                return false;
+        }
     }
 
     if (auraRequired)
-        if (!player->HasAura(auraRequired))
+        if (!clicker->HasAura(auraRequired))
             return false;
 
     if (auraForbidden)
-        if (player->HasAura(auraForbidden))
+        if (clicker->HasAura(auraForbidden))
             return false;
 
     Unit const * summoner = NULL;
     // Check summoners for party
-    if (clickNpc->isSummon())
-        summoner = clickNpc->ToTempSummon()->GetSummoner();
+    if (clickee->isSummon())
+        summoner = clickee->ToTempSummon()->GetSummoner();
     if (!summoner)
-        summoner = clickNpc;
+        summoner = clickee;
 
+    if (!playerClicker)
+        return true;
+
+    // This only applies to players
     switch (userType)
     {
         case SPELL_CLICK_USER_FRIEND:
-            if (!player->IsFriendlyTo(summoner))
+            if (!playerClicker->IsFriendlyTo(summoner))
                 return false;
             break;
         case SPELL_CLICK_USER_RAID:
-            if (!player->IsInRaidWith(summoner))
+            if (!playerClicker->IsInRaidWith(summoner))
                 return false;
             break;
         case SPELL_CLICK_USER_PARTY:
-            if (!player->IsInPartyWith(summoner))
+            if (!playerClicker->IsInPartyWith(summoner))
                 return false;
             break;
         default:
@@ -266,6 +274,7 @@ ObjectMgr::ObjectMgr()
     m_guildId           = 1;
     m_arenaTeamId       = 1;
     m_auctionid         = 1;
+    NextGroupStorageId  = 1;
 }
 
 ObjectMgr::~ObjectMgr()
@@ -285,7 +294,7 @@ ObjectMgr::~ObjectMgr()
             delete[] playerInfo[race][class_].levelInfo;
 
     // free group and guild objects
-    for (GroupMap::iterator itr = mGroupMap.begin(); itr != mGroupMap.end(); ++itr)
+    for (GroupSet::iterator itr = mGroupSet.begin(); itr != mGroupSet.end(); ++itr)
         delete *itr;
 
     for (GuildMap::iterator itr = mGuildMap.begin(); itr != mGuildMap.end(); ++itr)
@@ -303,11 +312,22 @@ ObjectMgr::~ObjectMgr()
 
 Group * ObjectMgr::GetGroupByGUID(uint32 guid) const
 {
-    // Make sure given index exists in collection
-    if (guid < uint32(mGroupMap.size()))
-        return mGroupMap[guid];
+    for (GroupSet::const_iterator itr = mGroupSet.begin(); itr != mGroupSet.end(); ++itr)
+        if ((*itr)->GetLowGUID() == guid)
+            return *itr;
+
     return NULL;
 }
+
+Group* ObjectMgr::GetGroupByStorageId(uint32 storageId) const
+{
+    if (storageId < mGroupStorage.size())
+        return mGroupStorage[storageId];
+
+    return NULL;
+}
+
+
 
 // Guild collection
 Guild* ObjectMgr::GetGuildById(uint32 guildId) const
@@ -769,12 +789,6 @@ void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
 
     if (cInfo->rangeattacktime == 0)
         const_cast<CreatureInfo*>(cInfo)->rangeattacktime = BASE_ATTACK_TIME;
-
-    if (cInfo->npcflag & UNIT_NPC_FLAG_SPELLCLICK)
-    {
-        sLog->outErrorDb("Creature (Entry: %u) has dynamic flag UNIT_NPC_FLAG_SPELLCLICK (%u) set, it is expected to be set by code handling `npc_spellclick_spells` content.", cInfo->Entry, UNIT_NPC_FLAG_SPELLCLICK);
-        const_cast<CreatureInfo*>(cInfo)->npcflag &= ~UNIT_NPC_FLAG_SPELLCLICK;
-    }
 
     if ((cInfo->npcflag & UNIT_NPC_FLAG_TRAINER) && cInfo->trainer_type >= MAX_TRAINER_TYPE)
         sLog->outErrorDb("Creature (Entry: %u) has wrong trainer type %u.", cInfo->Entry, cInfo->trainer_type);
@@ -2727,6 +2741,62 @@ void ObjectMgr::LoadItemSetNames()
     sLog->outString();
 }
 
+void ObjectMgr::LoadVehicleTemplateAccessories()
+{
+    uint32 oldMSTime = getMSTime();
+
+    m_VehicleTemplateAccessoryMap.clear();                           // needed for reload case
+
+    uint32 count = 0;
+
+    QueryResult result = WorldDatabase.Query("SELECT `entry`,`accessory_entry`,`seat_id`,`minion`,`summontype`,`summontimer` FROM `vehicle_template_accessory`");
+
+    if (!result)
+    {
+        sLog->outErrorDb(">> Loaded 0 vehicle template accessories. DB table `vehicle_template_accessory` is empty.");
+        sLog->outString();
+        return;
+    }
+
+    do
+    {
+        Field *fields = result->Fetch();
+
+        uint32 uiEntry      = fields[0].GetUInt32();
+        uint32 uiAccessory  = fields[1].GetUInt32();
+        int8   uiSeat       = int8(fields[2].GetInt16());
+        bool   bMinion      = fields[3].GetBool();
+        uint8  uiSummonType = fields[4].GetUInt8();
+        uint32 uiSummonTimer= fields[5].GetUInt32();
+
+        if (!sCreatureStorage.LookupEntry<CreatureInfo>(uiEntry))
+        {
+            sLog->outErrorDb("Table `vehicle_template_accessory`: creature template entry %u does not exist.", uiEntry);
+            continue;
+        }
+
+        if (!sCreatureStorage.LookupEntry<CreatureInfo>(uiAccessory))
+        {
+            sLog->outErrorDb("Table `vehicle_template_accessory`: Accessory %u does not exist.", uiAccessory);
+            continue;
+        }
+
+        if (mSpellClickInfoMap.find(uiEntry) == mSpellClickInfoMap.end())
+        {
+            sLog->outErrorDb("Table `vehicle_template_accessory`: creature template entry %u has no data in npc_spellclick_spells", uiEntry);
+            continue;
+        }
+
+        m_VehicleTemplateAccessoryMap[uiEntry].push_back(VehicleAccessory(uiAccessory, uiSeat, bMinion, uiSummonType, uiSummonTimer));
+
+        ++count;
+    }
+    while (result->NextRow());
+
+    sLog->outString(">> Loaded %u Vehicle Template Accessories in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outString();
+}
+
 void ObjectMgr::LoadVehicleAccessories()
 {
     uint32 oldMSTime = getMSTime();
@@ -2735,32 +2805,25 @@ void ObjectMgr::LoadVehicleAccessories()
 
     uint32 count = 0;
 
-    QueryResult result = WorldDatabase.Query("SELECT `entry`,`accessory_entry`,`seat_id`,`minion`,`summontype`,`summontimer` FROM `vehicle_accessory`");
+    QueryResult result = WorldDatabase.Query("SELECT `guid`,`accessory_entry`,`seat_id`,`minion`,`summontype`,`summontimer` FROM `vehicle_accessory`");
 
     if (!result)
     {
-        sLog->outErrorDb(">> Loaded 0 LoadVehicleAccessor. DB table `vehicle_accessory` is empty.");
+        sLog->outErrorDb(">> Loaded 0 vehicle accessories. DB table `vehicle_accessory` is empty.");
         sLog->outString();
         return;
     }
-
 
     do
     {
         Field *fields = result->Fetch();
 
-        uint32 uiEntry       = fields[0].GetUInt32();
-        uint32 uiAccessory   = fields[1].GetUInt32();
-        int8   uiSeat        = int8(fields[2].GetInt16());
-        bool   bMinion       = fields[3].GetBool();
-        uint8  uiSummonType  = fields[4].GetUInt8();
-        uint32 uiSummonTimer = fields[5].GetUInt32();
-
-        if (!sCreatureStorage.LookupEntry<CreatureInfo>(uiEntry))
-        {
-            sLog->outErrorDb("Table `vehicle_accessory`: creature template entry %u does not exist.", uiEntry);
-            continue;
-        }
+        uint32 uiGUID       = fields[0].GetUInt32();
+        uint32 uiAccessory  = fields[1].GetUInt32();
+        int8   uiSeat       = int8(fields[2].GetInt16());
+        bool   bMinion      = fields[3].GetBool();
+        uint8  uiSummonType = fields[4].GetUInt8();
+        uint32 uiSummonTimer= fields[5].GetUInt32();
 
         if (!sCreatureStorage.LookupEntry<CreatureInfo>(uiAccessory))
         {
@@ -2768,7 +2831,7 @@ void ObjectMgr::LoadVehicleAccessories()
             continue;
         }
 
-        m_VehicleAccessoryMap[uiEntry].push_back(VehicleAccessory(uiAccessory, uiSeat, bMinion, uiSummonType, uiSummonTimer));
+        m_VehicleAccessoryMap[uiGUID].push_back(VehicleAccessory(uiAccessory, uiSeat, bMinion, uiSummonType, uiSummonTimer));
 
         ++count;
     }
@@ -3972,9 +4035,9 @@ void ObjectMgr::LoadGroups()
         uint32 oldMSTime = getMSTime();
 
         // Delete all groups whose leader does not exist
-        CharacterDatabase.DirectExecute(CharacterDatabase.GetPreparedStatement(CHAR_DEL_LEADERLESS_GROUPS));
+        CharacterDatabase.DirectExecute("DELETE FROM groups WHERE leaderGuid NOT IN (SELECT guid FROM characters)");
         // Delete all groups with less than 2 members
-        CharacterDatabase.DirectExecute(CharacterDatabase.GetPreparedStatement(CHAR_DEL_TINY_GROUPS));
+        CharacterDatabase.DirectExecute("DELETE FROM groups WHERE guid NOT IN (SELECT guid FROM group_member GROUP BY guid HAVING COUNT(guid) > 1)");
 
         //                                                        0           1           2             3          4      5      6      7      8     9
         QueryResult result = CharacterDatabase.PQuery("SELECT leaderGuid, lootMethod, looterGuid, lootThreshold, icon1, icon2, icon3, icon4, icon5, icon6"
@@ -3992,19 +4055,19 @@ void ObjectMgr::LoadGroups()
         do
         {
             Field *fields = result->Fetch();
+            Group *group = new Group;
+            group->LoadGroupFromDB(fields);
+            AddGroup(group);
 
-            uint32 guid = fields[15].GetUInt32();
+            //
+            uint32 storageId = group->GetStorageId();
 
-            // Groups are pulled in ascending order from db and m_hiGroupGuid is initialized with 1,
-            // so if the group slot is used increment until we find the first free one for a potential new group
-            if (sObjectMgr->GetNextGroupGuid() == guid)
-                sObjectMgr->SetNextGroupGuid(guid + 1);
+            RegisterGroupStorageId(storageId, group);
+
+            if (storageId == NextGroupStorageId)
+                NextGroupStorageId++;
 
             ++count;
-            Group *group = new Group;
-            group->LoadGroupFromDB(guid, result, false);
-            // group load will never be false (we have run consistency sql's before loading)
-            AddGroup(group);
         }
         while (result->NextRow());
 
@@ -4017,12 +4080,12 @@ void ObjectMgr::LoadGroups()
         uint32 oldMSTime = getMSTime();
 
         // Delete all rows from group_member or group_instance with no group
-        CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_DEL_NONEXISTENT_GROUP_MEMBERS));
-        CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_DEL_NONEXISTENT_GROUP_INSTANCES));
+        CharacterDatabase.DirectExecute("DELETE FROM group_member WHERE guid NOT IN (SELECT guid FROM groups)");
+        CharacterDatabase.DirectExecute("DELETE FROM group_instance WHERE guid NOT IN (SELECT guid FROM groups)");
         // Delete all members that does not exist
-        CharacterDatabase.Execute(CharacterDatabase.GetPreparedStatement(CHAR_DEL_NONEXISTENT_CHARACTER_GROUP_MEMBERS));
+        CharacterDatabase.DirectExecute("DELETE FROM group_member WHERE memberGuid NOT IN (SELECT guid FROM characters)");
 
-        //                                       0     1           2            3         4
+        //                                                    0        1           2            3       4
         QueryResult result = CharacterDatabase.Query("SELECT guid, memberGuid, memberFlags, subgroup, roles FROM group_member ORDER BY guid");
         if (!result)
         {
@@ -4031,21 +4094,18 @@ void ObjectMgr::LoadGroups()
             return;
         }
 
-        uint32 groupLowGuid = 0;
         uint32 count = 0;
-        Group* group = NULL;
+
         do
         {
             Field* fields = result->Fetch();
-            if (groupLowGuid != fields[0].GetUInt32())
-            {
-                groupLowGuid = fields[0].GetUInt32();
-                group = GetGroupByGUID(groupLowGuid);
-            }
-            if (group)                                          // Should never be null
+            Group* group = GetGroupByStorageId(fields[0].GetUInt32());
+
+            if (group)
                 group->LoadMemberFromDB(fields[1].GetUInt32(), fields[2].GetUInt8(), fields[3].GetUInt8(), fields[4].GetUInt8());
             else
-                sLog->outError("ObjectMgr::LoadGroups: Consistency failed, can't find group (lowguid %u)", groupLowGuid);
+                sLog->outError("ObjectMgr::LoadGroups: Consistency failed, can't find group (storage id: %u)", fields[0].GetUInt32());
+
             ++count;
         }
         while (result->NextRow());
@@ -4053,7 +4113,6 @@ void ObjectMgr::LoadGroups()
         sLog->outString(">> Loaded %u group members in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         sLog->outString();
     }
-
 
     sLog->outString("Loading Group instance saves...");
     {
@@ -4076,7 +4135,7 @@ void ObjectMgr::LoadGroups()
         do
         {
             Field *fields = result->Fetch();
-            Group *group = GetGroupByGUID(fields[0].GetUInt32());
+            Group *group = GetGroupByStorageId(fields[0].GetUInt32());
             // group will never be NULL (we have run consistency sql's before loading)
 
             MapEntry const* mapEntry = sMapStore.LookupEntry(fields[1].GetUInt32());
@@ -6650,10 +6709,9 @@ void ObjectMgr::SetHighestGuids()
     if (result)
         m_guildId = (*result)[0].GetUInt32()+1;
 
-    // The next free guid is determined during group loading, here we just preallocate the group holder
     result = CharacterDatabase.Query("SELECT MAX(guid) FROM groups");
     if (result)
-        mGroupMap.resize((*result)[0].GetUInt32()+1);
+        mGroupStorage.resize((*result)[0].GetUInt32()+1);
 }
 
 uint32 ObjectMgr::GenerateArenaTeamId()
@@ -6678,7 +6736,7 @@ uint32 ObjectMgr::GenerateAuctionID()
 
 uint64 ObjectMgr::GenerateEquipmentSetGuid()
 {
-    if (m_equipmentSetGuid >= 0xFFFFFFFFFFFFFFFEll)
+    if (m_equipmentSetGuid >= uint64(0xFFFFFFFFFFFFFFFELL))
     {
         sLog->outError("EquipmentSet guid overflow!! Can't continue, shutting down server. ");
         World::StopNow(ERROR_EXIT_CODE);
@@ -6767,26 +6825,12 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
             }
             return m_hiDoGuid++;
         case HIGHGUID_GROUP:
-        {
-            uint32 newGuid = m_hiGroupGuid;
-
-            for (uint32 i = ++m_hiGroupGuid; i < 0xFFFFFFFF; ++i)
-            {
-                if (!GetGroupByGUID(i))
-                {
-                    m_hiGroupGuid = i;
-                    break;
-                }
-            }
-
-            // If newGuid doesn't differ from m_hiGroupGuid after the loop there is no free guid available
-            if (newGuid == m_hiGroupGuid)
+            if (m_hiGroupGuid >= 0xFFFFFFFE)
             {
                 sLog->outError("Group guid overflow!! Can't continue, shutting down server. ");
                 World::StopNow(ERROR_EXIT_CODE);
             }
-            return newGuid;
-        }
+            return m_hiGroupGuid++;
         case HIGHGUID_MO_TRANSPORT:
             if (m_hiMoTransGuid >= 0xFFFFFFFE)
             {
@@ -7622,9 +7666,6 @@ void ObjectMgr::LoadNPCSpellClickSpells()
             continue;
         }
 
-        if (!(cInfo->npcflag & UNIT_NPC_FLAG_SPELLCLICK))
-            const_cast<CreatureInfo*>(cInfo)->npcflag |= UNIT_NPC_FLAG_SPELLCLICK;
-
         uint32 spellid = fields[1].GetUInt32();
         SpellEntry const *spellinfo = sSpellStore.LookupEntry(spellid);
         if (!spellinfo)
@@ -7696,12 +7737,23 @@ void ObjectMgr::LoadNPCSpellClickSpells()
         info.userType = SpellClickUserTypes(userType);
         mSpellClickInfoMap.insert(SpellClickInfoMap::value_type(npc_entry, info));
 
-        // mark creature template as spell clickable
-        const_cast<CreatureInfo*>(cInfo)->npcflag |= UNIT_NPC_FLAG_SPELLCLICK;
-
         ++count;
     }
     while (result->NextRow());
+
+    // all spellclick data loaded, now we check if there are creatures with NPC_FLAG_SPELLCLICK but with no data
+    // NOTE: It *CAN* be the other way around: no spellclick flag but with spellclick data, in case of creature-only vehicle accessories
+    for (uint32 i = 0; i < sCreatureStorage.MaxEntry; ++i)
+    {
+        if (CreatureInfo const* cInfo = GetCreatureTemplate(i))
+        {
+            if ((cInfo->npcflag & UNIT_NPC_FLAG_SPELLCLICK) && mSpellClickInfoMap.find(i) == mSpellClickInfoMap.end())
+            {
+                sLog->outErrorDb("npc_spellclick_spells: Creature template %u has UNIT_NPC_FLAG_SPELLCLICK but no data in spellclick table! Removing flag", i);
+                const_cast<CreatureInfo*>(cInfo)->npcflag &= ~UNIT_NPC_FLAG_SPELLCLICK;
+            }
+        }
+    }
 
     sLog->outString(">> Loaded %u spellclick definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
@@ -9447,17 +9499,43 @@ void ObjectMgr::LoadFactionChangeReputations()
     sLog->outString();
 }
 
-void ObjectMgr::AddGroup(Group* group)
+uint32 ObjectMgr::GenerateNewGroupStorageId()
 {
-    uint32 groupGuid = group->GetLowGUID();
-    // Allocate space if necessary.
-    if (groupGuid >= uint32(mGroupMap.size()))
-        mGroupMap.resize(groupGuid + 1);
+    uint32 newStorageId = NextGroupStorageId;
 
-    mGroupMap[groupGuid] = group;
+    for (uint32 i = ++NextGroupStorageId; i < 0xFFFFFFFF; ++i)
+    {
+        if ((i < mGroupStorage.size() && mGroupStorage[i] == NULL) || i >= mGroupStorage.size())
+        {
+            NextGroupStorageId = i;
+            break;
+        }
+    }
+
+    if (newStorageId == NextGroupStorageId)
+    {
+        sLog->outError("Group storage ID overflow!! Can't continue, shutting down server. ");
+        World::StopNow(ERROR_EXIT_CODE);
+    }
+
+    return newStorageId;
 }
 
-void ObjectMgr::RemoveGroup(Group* group)
+void ObjectMgr::RegisterGroupStorageId(uint32 storageId, Group* group)
 {
-    mGroupMap[group->GetLowGUID()] = NULL;
+    // Allocate space if necessary.
+    if (storageId >= uint32(mGroupStorage.size()))
+        mGroupStorage.resize(storageId + 1);
+
+    mGroupStorage[storageId] = group;
+}
+
+void ObjectMgr::FreeGroupStorageId(Group* group)
+{
+    uint32 storageId = group->GetStorageId();
+
+    if (storageId < NextGroupStorageId)
+        NextGroupStorageId = storageId;
+
+    mGroupStorage[storageId] = NULL;
 }

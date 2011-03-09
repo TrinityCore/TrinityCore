@@ -544,7 +544,7 @@ void WorldSession::HandleSelfResOpcode(WorldPacket & /*recv_data*/)
     }
 }
 
-void WorldSession::HandleSpellClick(WorldPacket & recv_data)
+void WorldSession::HandleSpellClick(WorldPacket& recv_data)
 {
     uint64 guid;
     recv_data >> guid;
@@ -559,25 +559,7 @@ void WorldSession::HandleSpellClick(WorldPacket & recv_data)
     if (!unit->IsInWorld())
         return;
 
-    SpellClickInfoMapBounds clickPair = sObjectMgr->GetSpellClickInfoMapBounds(unit->GetEntry());
-    for (SpellClickInfoMap::const_iterator itr = clickPair.first; itr != clickPair.second; ++itr)
-    {
-        if (itr->second.IsFitToRequirements(_player, unit))
-        {
-            Unit *caster = (itr->second.castFlags & NPC_CLICK_CAST_CASTER_PLAYER) ? (Unit*)_player : (Unit*)unit;
-            Unit *target = (itr->second.castFlags & NPC_CLICK_CAST_TARGET_PLAYER) ? (Unit*)_player : (Unit*)unit;
-            uint64 origCasterGUID = (itr->second.castFlags & NPC_CLICK_CAST_ORIG_CASTER_OWNER) ? unit->GetOwnerGUID() : 0;
-            caster->CastSpell(target, itr->second.spellId, true, NULL, NULL, origCasterGUID);
-        }
-    }
-
-    if (unit->IsVehicle())
-    {
-        if (unit->CheckPlayerCondition(_player))
-            _player->EnterVehicle(unit);
-    }
-
-    unit->AI()->DoAction(EVENT_SPELLCLICK);
+    unit->HandleSpellClick(_player);
 }
 
 void WorldSession::HandleMirrrorImageDataRequest(WorldPacket & recv_data)

@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Azuremyst_Isle
 SD%Complete: 75
-SDComment: Quest support: 9283, 9537, 9582, 9554, 9531, 9303(special flight path, proper model for mount missing). Injured Draenei cosmetic only, 9582.
+SDComment: Quest support: 9283, 9537, 9582, 9554, 9531, ? (special flight path, proper model for mount missing). Injured Draenei cosmetic only, 9582.
 SDCategory: Azuremyst Isle
 EndScriptData */
 
@@ -29,7 +29,6 @@ npc_engineer_spark_overgrind
 npc_injured_draenei
 npc_magwin
 npc_geezle
-mob_nestlewood_owlkin
 go_ravager_cage
 npc_death_ravager
 EndContentData */
@@ -576,79 +575,6 @@ public:
 
 };
 
-/*######
-## mob_nestlewood_owlkin
-######*/
-
-enum eOwlkin
-{
-    SPELL_INOCULATE_OWLKIN  = 29528,
-    ENTRY_OWLKIN            = 16518,
-    ENTRY_OWLKIN_INOC       = 16534
-};
-
-class npc_nestlewood_owlkin : public CreatureScript
-{
-public:
-    npc_nestlewood_owlkin() : CreatureScript("npc_nestlewood_owlkin") { }
-
-    struct npc_nestlewood_owlkinAI : public ScriptedAI
-    {
-        npc_nestlewood_owlkinAI(Creature *c) : ScriptedAI(c) {}
-
-        uint32 DespawnTimer;
-
-        void Reset()
-        {
-            DespawnTimer = 0;
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            //timer gets adjusted by the triggered aura effect
-            if (DespawnTimer)
-            {
-                if (DespawnTimer <= diff)
-                {
-                    //once we are able to, despawn us
-                    me->DespawnOrUnsummon();
-                    return;
-                } else DespawnTimer -= diff;
-            }
-
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
-    bool EffectDummyCreature(Unit * /*pCaster*/, uint32 spellId, uint32 effIndex, Creature *pCreatureTarget)
-    {
-        //always check spellid and effectindex
-        if (spellId == SPELL_INOCULATE_OWLKIN && effIndex == 0)
-        {
-            if (pCreatureTarget->GetEntry() != ENTRY_OWLKIN)
-                return true;
-
-            pCreatureTarget->UpdateEntry(ENTRY_OWLKIN_INOC);
-
-            //set despawn timer, since we want to remove Creature after a short time
-            CAST_AI(npc_nestlewood_owlkin::npc_nestlewood_owlkinAI, pCreatureTarget->AI())->DespawnTimer = 15000;
-
-            //always return true when we are handling this spell and effect
-            return true;
-        }
-        return false;
-    }
-
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new npc_nestlewood_owlkinAI (pCreature);
-    }
-
-};
-
 
 enum eRavegerCage
 {
@@ -812,7 +738,6 @@ void AddSC_azuremyst_isle()
     new npc_injured_draenei();
     new npc_magwin();
     new npc_geezle();
-    new npc_nestlewood_owlkin();
     new npc_death_ravager();
     new go_ravager_cage();
     new npc_stillpine_capitive();

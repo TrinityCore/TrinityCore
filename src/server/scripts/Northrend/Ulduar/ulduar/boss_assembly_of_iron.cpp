@@ -235,7 +235,7 @@ public:
             DoAction(EVENT_UPDATEPHASE);
         }
 
-        void DoAction(uint32 action)
+        void DoAction(const int32 action)
         {
             switch (action)
             {
@@ -381,7 +381,7 @@ public:
             DoAction(EVENT_UPDATEPHASE);
         }
 
-        void DoAction(uint32 action)
+        void DoAction(const int32 action)
         {
             switch (action)
             {
@@ -622,7 +622,7 @@ public:
             DoAction(EVENT_UPDATEPHASE);
         }
 
-        void DoAction(uint32 action)
+        void DoAction(const int32 action)
         {
             switch (action)
             {

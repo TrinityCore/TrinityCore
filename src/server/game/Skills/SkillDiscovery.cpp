@@ -70,7 +70,7 @@ void LoadSkillDiscoveryTable()
 
         uint32 spellId         = fields[0].GetUInt32();
         int32  reqSkillOrSpell = fields[1].GetInt32();
-        uint32 reqSkillValue   = fields[2].GetInt32();
+        uint32 reqSkillValue   = fields[2].GetUInt32();
         float  chance          = fields[3].GetFloat();
 
         if (chance <= 0)                                    // chance
@@ -82,13 +82,14 @@ void LoadSkillDiscoveryTable()
 
         if (reqSkillOrSpell > 0)                            // spell case
         {
-            SpellEntry const* reqSpellEntry = sSpellStore.LookupEntry(reqSkillOrSpell);
+            uint32 absReqSkillOrSpell = uint32(reqSkillOrSpell);
+            SpellEntry const* reqSpellEntry = sSpellStore.LookupEntry(absReqSkillOrSpell);
             if (!reqSpellEntry)
             {
-                if (reportedReqSpells.find(reqSkillOrSpell) == reportedReqSpells.end())
+                if (reportedReqSpells.find(absReqSkillOrSpell) == reportedReqSpells.end())
                 {
                     sLog->outErrorDb("Spell (ID: %u) have not existed spell (ID: %i) in `reqSpell` field in `skill_discovery_template` table",spellId,reqSkillOrSpell);
-                    reportedReqSpells.insert(reqSkillOrSpell);
+                    reportedReqSpells.insert(absReqSkillOrSpell);
                 }
                 continue;
             }
@@ -98,12 +99,12 @@ void LoadSkillDiscoveryTable()
                 // explicit discovery ability
                 !IsExplicitDiscoverySpell(reqSpellEntry))
             {
-                if (reportedReqSpells.find(reqSkillOrSpell) == reportedReqSpells.end())
+                if (reportedReqSpells.find(absReqSkillOrSpell) == reportedReqSpells.end())
                 {
                     sLog->outErrorDb("Spell (ID: %u) not have MECHANIC_DISCOVERY (28) value in Mechanic field in spell.dbc"
                         " and not 100%% chance random discovery ability but listed for spellId %u (and maybe more) in `skill_discovery_template` table",
-                        reqSkillOrSpell,spellId);
-                    reportedReqSpells.insert(reqSkillOrSpell);
+                        absReqSkillOrSpell, spellId);
+                    reportedReqSpells.insert(absReqSkillOrSpell);
                 }
                 continue;
             }
@@ -146,7 +147,7 @@ void LoadSkillDiscoveryTable()
         if (!IsExplicitDiscoverySpell(spellEntry))
             continue;
 
-        if (SkillDiscoveryStore.find(spell_id) == SkillDiscoveryStore.end())
+        if (SkillDiscoveryStore.find(int32(spell_id)) == SkillDiscoveryStore.end())
             sLog->outErrorDb("Spell (ID: %u) is 100%% chance random discovery ability but not have data in `skill_discovery_template` table",spell_id);
     }
 
@@ -158,12 +159,12 @@ uint32 GetExplicitDiscoverySpell(uint32 spellId, Player* player)
 {
     // explicit discovery spell chances (always success if case exist)
     // in this case we have both skill and spell
-    SkillDiscoveryMap::const_iterator tab = SkillDiscoveryStore.find(spellId);
+    SkillDiscoveryMap::const_iterator tab = SkillDiscoveryStore.find(int32(spellId));
     if (tab == SkillDiscoveryStore.end())
         return 0;
 
     SkillLineAbilityMapBounds bounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellId);
-    uint32 skillvalue = bounds.first != bounds.second ? player->GetSkillValue(bounds.first->second->skillId) : 0;
+    uint32 skillvalue = bounds.first != bounds.second ? player->GetSkillValue(bounds.first->second->skillId) : uint32(0);
 
     float full_chance = 0;
     for (SkillDiscoveryList::const_iterator item_iter = tab->second.begin(); item_iter != tab->second.end(); ++item_iter)
@@ -191,12 +192,25 @@ uint32 GetExplicitDiscoverySpell(uint32 spellId, Player* player)
     return 0;
 }
 
+bool HasDiscoveredAllSpells(uint32 spellId, Player* player)
+{
+    SkillDiscoveryMap::const_iterator tab = SkillDiscoveryStore.find(int32(spellId));
+    if (tab == SkillDiscoveryStore.end())
+        return true;
+
+    for (SkillDiscoveryList::const_iterator item_iter = tab->second.begin(); item_iter != tab->second.end(); ++item_iter)
+        if (!player->HasSpell(item_iter->spellId))
+            return false;
+
+    return true;
+}
+
 uint32 GetSkillDiscoverySpell(uint32 skillId, uint32 spellId, Player* player)
 {
-    uint32 skillvalue = skillId ? player->GetSkillValue(skillId) : 0;
+    uint32 skillvalue = skillId ? player->GetSkillValue(skillId) : uint32(0);
 
     // check spell case
-    SkillDiscoveryMap::const_iterator tab = SkillDiscoveryStore.find(spellId);
+    SkillDiscoveryMap::const_iterator tab = SkillDiscoveryStore.find(int32(spellId));
 
     if (tab != SkillDiscoveryStore.end())
     {

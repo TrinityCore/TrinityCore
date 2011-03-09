@@ -81,14 +81,6 @@ public:
             coreEnergizeOrientation = 0.0f;
         }
 
-        void AttackStart(Unit* attacker)
-        {
-            if (me->HasFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_UNK_9))
-                return;
-
-            BossAI::AttackStart(attacker);
-        }
-
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
@@ -190,7 +182,7 @@ class npc_azure_ring_captain : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(const uint32 /*diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -259,10 +251,10 @@ class spell_varos_centrifuge_shield : public SpellScriptLoader
 
                 // flags taken from sniffs
                 // UNIT_FLAG_UNK_9 -> means passive but it is not yet implemented in core
-                if (GetCaster()->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15|UNIT_FLAG_UNK_9|UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_UNK_6))
+                if (GetCaster()->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15|UNIT_FLAG_PASSIVE|UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_UNK_6))
                 {
                     GetCaster()->ToCreature()->SetReactState(REACT_PASSIVE);
-                    GetCaster()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15|UNIT_FLAG_UNK_9|UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_UNK_6);
+                    GetCaster()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15|UNIT_FLAG_PASSIVE|UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_UNK_6);
                 }
             }
 
@@ -272,7 +264,7 @@ class spell_varos_centrifuge_shield : public SpellScriptLoader
                     return;
 
                 GetCaster()->ToCreature()->SetReactState(REACT_AGGRESSIVE);
-                GetCaster()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15|UNIT_FLAG_UNK_9|UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_UNK_6);
+                GetCaster()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15|UNIT_FLAG_PASSIVE|UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_UNK_6);
             }
 
             void Register()
