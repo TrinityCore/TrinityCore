@@ -2483,7 +2483,7 @@ bool World::RemoveBanAccount(BanMode mode, std::string nameOrIP)
         if (!account)
             return false;
 
-        QueryResult result = LoginDatabase.PQuery("SELECT realm FROM account_banned WHERE id = '%u'", account);
+        QueryResult result = LoginDatabase.PQuery("SELECT realm FROM account_banned WHERE id = '%u' AND active = '1'", account);
         if (!result)
             return false;
 
