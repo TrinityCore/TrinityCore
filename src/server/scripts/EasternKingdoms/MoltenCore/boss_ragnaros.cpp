@@ -172,7 +172,7 @@ class boss_ragnaros : public CreatureScript
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
                             me->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
-                            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 AttackStart(target);
                             instance->SetData(DATA_RAGNAROS_ADDS, 0);
 
@@ -259,7 +259,7 @@ class boss_ragnaros : public CreatureScript
 
                                         // summon 8 elementals
                                         for (uint8 i = 0; i < 8; ++i)
-                                            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                                 if (Creature* pSummoned = me->SummonCreature(12143, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0.0f,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,900000))
                                                     pSummoned->AI()->AttackStart(pTarget);
 
@@ -274,7 +274,7 @@ class boss_ragnaros : public CreatureScript
                                         DoScriptText(SAY_REINFORCEMENTS2, me);
 
                                         for (uint8 i = 0; i < 8; ++i)
-                                            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                                 if (Creature* pSummoned = me->SummonCreature(12143, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0.0f,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,900000))
                                                     pSummoned->AI()->AttackStart(pTarget);
 

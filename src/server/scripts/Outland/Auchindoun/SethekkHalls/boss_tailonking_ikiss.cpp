@@ -155,9 +155,9 @@ public:
 
                 //second top aggro target in normal, random target in heroic correct?
                 if (IsHeroic())
-                    pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+                    pTarget = SelectTarget(SELECT_TARGET_RANDOM,0);
                 else
-                    pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO,1);
+                    pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO,1);
 
                 if (pTarget)
                     DoCast(pTarget, SPELL_POLYMORPH);
@@ -184,7 +184,7 @@ public:
             {
                 DoScriptText(EMOTE_ARCANE_EXP, me);
 
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                 {
                     if (me->IsNonMeleeSpellCasted(false))
                         me->InterruptNonMeleeSpells(false);

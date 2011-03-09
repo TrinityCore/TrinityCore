@@ -81,7 +81,7 @@ class mob_jadespine_basilisk : public CreatureScript
                     //Stop attacking target thast asleep and pick new target
                     uiCslumberTimer = 28000;
 
-                    Unit* pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO, 0);
+                    Unit* pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 0);
 
                     if (!pTarget || pTarget == me->getVictim())
                         pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);

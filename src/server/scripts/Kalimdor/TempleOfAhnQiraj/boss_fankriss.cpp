@@ -115,16 +115,16 @@ public:
                 switch (urand(0,2))
                 {
                     case 0:
-                        SummonSpawn(SelectUnit(SELECT_TARGET_RANDOM,0));
+                        SummonSpawn(SelectTarget(SELECT_TARGET_RANDOM,0));
                         break;
                     case 1:
-                        SummonSpawn(SelectUnit(SELECT_TARGET_RANDOM,0));
-                        SummonSpawn(SelectUnit(SELECT_TARGET_RANDOM,0));
+                        SummonSpawn(SelectTarget(SELECT_TARGET_RANDOM,0));
+                        SummonSpawn(SelectTarget(SELECT_TARGET_RANDOM,0));
                         break;
                     case 2:
-                        SummonSpawn(SelectUnit(SELECT_TARGET_RANDOM,0));
-                        SummonSpawn(SelectUnit(SELECT_TARGET_RANDOM,0));
-                        SummonSpawn(SelectUnit(SELECT_TARGET_RANDOM,0));
+                        SummonSpawn(SelectTarget(SELECT_TARGET_RANDOM,0));
+                        SummonSpawn(SelectTarget(SELECT_TARGET_RANDOM,0));
+                        SummonSpawn(SelectTarget(SELECT_TARGET_RANDOM,0));
                         break;
                 }
                 SpawnSpawns_Timer = 30000 + rand()%30000;
@@ -137,7 +137,7 @@ public:
                 if (SpawnHatchlings_Timer <= diff)
                 {
                     Unit *pTarget = NULL;
-                    pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+                    pTarget = SelectTarget(SELECT_TARGET_RANDOM,0);
                     if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER)
                     {
                         DoCast(pTarget, SPELL_ROOT);

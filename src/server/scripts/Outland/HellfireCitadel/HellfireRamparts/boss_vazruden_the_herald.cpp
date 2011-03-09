@@ -130,7 +130,7 @@ class boss_nazan : public CreatureScript
 
                 if (Fireball_Timer <= diff)
                 {
-                    if (Unit* pVictim = SelectUnit(SELECT_TARGET_RANDOM,0))
+                    if (Unit* pVictim = SelectTarget(SELECT_TARGET_RANDOM,0))
                         DoCast(pVictim, DUNGEON_MODE(SPELL_FIREBALL, SPELL_FIREBALL_H), true);
                     Fireball_Timer = urand(4000,7000);
                 }
@@ -148,7 +148,7 @@ class boss_nazan : public CreatureScript
                         me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                         me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
                         me->GetMotionMaster()->Clear();
-                        if (Unit* pVictim = SelectUnit(SELECT_TARGET_NEAREST,0))
+                        if (Unit* pVictim = SelectTarget(SELECT_TARGET_NEAREST,0))
                             me->AI()->AttackStart(pVictim);
                         DoStartMovement(me->getVictim());
                         DoScriptText(EMOTE, me);

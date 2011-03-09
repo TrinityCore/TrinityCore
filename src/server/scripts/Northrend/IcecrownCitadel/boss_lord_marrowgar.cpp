@@ -199,9 +199,9 @@ class boss_lord_marrowgar : public CreatureScript
                         case EVENT_BONE_STORM_MOVE:
                         {
                             events.ScheduleEvent(EVENT_BONE_STORM_MOVE, boneStormDuration/3);
-                            Unit* unit = SelectUnit(SELECT_TARGET_RANDOM, 1);
+                            Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 1);
                             if (!unit)
-                                unit = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                                unit = SelectTarget(SELECT_TARGET_RANDOM, 0);
                             if (unit)
                                 me->GetMotionMaster()->MovePoint(POINT_TARGET_BONESTORM_PLAYER, unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ());
                             break;

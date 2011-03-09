@@ -347,7 +347,7 @@ public:
 
             if (uiOldWoundsTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                 {
                     if (pTarget && pTarget->isAlive())
                         DoCast(pTarget, SPELL_OLD_WOUNDS);
@@ -363,7 +363,7 @@ public:
 
             if (uiShadowPastTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,1))
                 {
                     if (pTarget && pTarget->isAlive())
                         DoCast(pTarget,SPELL_SHADOWS_PAST);

@@ -143,7 +143,7 @@ public:
             //MarkOfKazzak_Timer
             if (MarkOfKazzak_Timer <= diff)
             {
-                Unit* victim = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (victim->GetPower(POWER_MANA))
                 {
                     DoCast(victim, SPELL_MARKOFKAZZAK);
@@ -161,7 +161,7 @@ public:
 
             if (Twisted_Reflection_Timer <= diff)
             {
-                DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_TWISTEDREFLECTION);
+                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_TWISTEDREFLECTION);
                 Twisted_Reflection_Timer = 15000;
             } else Twisted_Reflection_Timer -= diff;
 

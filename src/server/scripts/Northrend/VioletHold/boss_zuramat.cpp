@@ -133,7 +133,7 @@ public:
 
             if (SpellVoidShiftTimer <= diff)
             {
-                 if (Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                 if (Unit* pUnit = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(pUnit, SPELL_VOID_SHIFT);
                 SpellVoidShiftTimer = 20000;
             } else SpellVoidShiftTimer -=diff;

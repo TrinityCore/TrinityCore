@@ -1380,7 +1380,7 @@ public:
                 forcemove = false;
                 if (forcemove)
                 {
-                    Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                    Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     if (pTarget)
                         me->Attack(pTarget,false);
                 }

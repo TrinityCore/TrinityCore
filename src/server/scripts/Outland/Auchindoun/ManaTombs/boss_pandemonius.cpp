@@ -90,7 +90,7 @@ public:
 
             if (VoidBlast_Timer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(pTarget, SPELL_VOID_BLAST);
                     VoidBlast_Timer = 500;

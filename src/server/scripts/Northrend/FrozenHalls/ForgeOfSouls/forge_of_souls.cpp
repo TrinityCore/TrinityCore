@@ -509,7 +509,7 @@ public:
                         events.RescheduleEvent(EVENT_VEIL_OF_SHADOWS, 10000);
                         return;
                     case EVENT_WAIL_OF_SOULS:
-                        if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(target, SPELL_WAIL_OF_SOULS);
                         events.RescheduleEvent(EVENT_WAIL_OF_SOULS, 5000);
                         return;
@@ -624,7 +624,7 @@ public:
                         events.RescheduleEvent(EVENT_FROST_NOVA, 9600);
                         return;
                     case EVENT_SHADOW_LANCE:
-                        if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(target, SPELL_SHADOW_LANCE);
                         events.RescheduleEvent(EVENT_SHADOW_LANCE, 8000);
                         return;
@@ -750,17 +750,17 @@ public:
                         events.RescheduleEvent(EVENT_RAISE_DEAD, 25000);
                         return;
                     case EVENT_SHADOW_BOLT:
-                        if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(target, SPELL_SHADOW_BOLT);
                         events.RescheduleEvent(EVENT_SHADOW_BOLT, 5000);
                         return;
                     case EVENT_SOUL_SICKNESS:
-                        if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(target, SPELL_SOUL_SICKNESS);
                         events.RescheduleEvent(EVENT_SOUL_SICKNESS, 10000);
                         return;
                     case EVENT_SOUL_SIPHON:
-                        if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(target, SPELL_SOUL_SIPHON);
                         events.RescheduleEvent(EVENT_SOUL_SIPHON, 8000);
                         return;
@@ -823,12 +823,12 @@ public:
                         events.RescheduleEvent(EVENT_RAISE_DEAD, 25000);
                         return;
                     case EVENT_SHADOW_BOLT:
-                        if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(target, SPELL_SHADOW_BOLT);
                         events.RescheduleEvent(EVENT_SHADOW_BOLT, 4000);
                         return;
                     case EVENT_DRAIN_LIFE:
-                        if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(target, SPELL_DRAIN_LIFE);
                         events.RescheduleEvent(EVENT_DRAIN_LIFE, 9000);
                         return;
