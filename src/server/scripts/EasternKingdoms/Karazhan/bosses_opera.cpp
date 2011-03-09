@@ -194,7 +194,7 @@ public:
 
             if (WaterBoltTimer <= diff)
             {
-                DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_WATERBOLT);
+                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_WATERBOLT);
                 WaterBoltTimer = TitoDied ? 1500 : 5000;
             } else WaterBoltTimer -= diff;
 
@@ -1432,7 +1432,7 @@ void boss_julianne::boss_julianneAI::UpdateAI(const uint32 diff)
 
     if (PowerfulAttractionTimer <= diff)
     {
-        DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_POWERFUL_ATTRACTION);
+        DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_POWERFUL_ATTRACTION);
         PowerfulAttractionTimer = urand(5000,30000);
     } else PowerfulAttractionTimer -= diff;
 

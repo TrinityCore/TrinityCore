@@ -375,7 +375,7 @@ class boss_zuljin : public CreatureScript
                                 Vortex->CastSpell(Vortex, SPELL_CYCLONE_VISUAL, true);
                                 Vortex->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 Vortex->SetSpeed(MOVE_RUN, 1.0f);
-                                Vortex->AI()->AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 0));
+                                Vortex->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0));
                                 DoZoneInCombat(Vortex);
                             }
                         }
@@ -463,7 +463,7 @@ class boss_zuljin : public CreatureScript
                     {
                         if (!TankGUID)
                         {
-                            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             {
                                 TankGUID = me->getVictim()->GetGUID();
                                 me->SetSpeed(MOVE_RUN, 5.0f);
@@ -479,7 +479,7 @@ class boss_zuljin : public CreatureScript
                             {
                                 Unit *pTarget = me->getVictim();
                                 if (!pTarget || !pTarget->isTargetableForAttack()) pTarget = Unit::GetUnit(*me, TankGUID);
-                                if (!pTarget || !pTarget->isTargetableForAttack()) pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                                if (!pTarget || !pTarget->isTargetableForAttack()) pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                                 if (pTarget)
                                 {
                                     AttackStart(pTarget);
@@ -512,7 +512,7 @@ class boss_zuljin : public CreatureScript
                     {
                         if (!TankGUID)
                         {
-                            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             {
                                 TankGUID = me->getVictim()->GetGUID();
                                 me->SetSpeed(MOVE_RUN, 5.0f);
@@ -526,7 +526,7 @@ class boss_zuljin : public CreatureScript
                             Unit *pTarget = me->getVictim();
                             if (!pTarget || !pTarget->isTargetableForAttack())
                             {
-                                pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                                 AttackStart(pTarget);
                             }
                             if (pTarget)
@@ -543,7 +543,7 @@ class boss_zuljin : public CreatureScript
                                         TankGUID = 0;
                                     }
                                     else
-                                        AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 0));
+                                        AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0));
                                 }
                             }
                             else
@@ -564,14 +564,14 @@ class boss_zuljin : public CreatureScript
 
                     if (Pillar_Of_Fire_Timer <= diff)
                     {
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(pTarget, SPELL_SUMMON_PILLAR);
                         Pillar_Of_Fire_Timer = 10000;
                     } else Pillar_Of_Fire_Timer -= diff;
 
                     if (Flame_Breath_Timer <= diff)
                     {
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             me->SetInFront(pTarget);
                         DoCast(me, SPELL_FLAME_BREATH);
                         Flame_Breath_Timer = 10000;
@@ -621,7 +621,7 @@ class mob_zuljin_vortex : public CreatureScript
             {
                 //if the vortex reach the target, it change his target to another player
                 if (me->IsWithinMeleeRange(me->getVictim()))
-                    AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 0));
+                    AttackStart(SelectTarget(SELECT_TARGET_RANDOM, 0));
             }
         };
 

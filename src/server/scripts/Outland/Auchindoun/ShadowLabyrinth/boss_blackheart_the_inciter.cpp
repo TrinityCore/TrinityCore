@@ -150,7 +150,7 @@ public:
             //Charge_Timer
             if (Charge_Timer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(pTarget, SPELL_CHARGE);
                 Charge_Timer = 15000 + rand()%10000;
             } else Charge_Timer -= diff;

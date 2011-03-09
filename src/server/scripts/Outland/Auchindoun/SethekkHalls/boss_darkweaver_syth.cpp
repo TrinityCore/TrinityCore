@@ -112,7 +112,7 @@ public:
 
         void JustSummoned(Creature *summoned)
         {
-            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                 summoned->AI()->AttackStart(pTarget);
         }
 
@@ -154,7 +154,7 @@ public:
 
             if (flameshock_timer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget, SPELL_FLAME_SHOCK);
 
                 flameshock_timer = 10000 + rand()%5000;
@@ -162,7 +162,7 @@ public:
 
             if (arcaneshock_timer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget, SPELL_ARCANE_SHOCK);
 
                 arcaneshock_timer = 10000 + rand()%5000;
@@ -170,7 +170,7 @@ public:
 
             if (frostshock_timer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget, SPELL_FROST_SHOCK);
 
                 frostshock_timer = 10000 + rand()%5000;
@@ -178,7 +178,7 @@ public:
 
             if (shadowshock_timer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget, SPELL_SHADOW_SHOCK);
 
                 shadowshock_timer = 10000 + rand()%5000;
@@ -186,7 +186,7 @@ public:
 
             if (chainlightning_timer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget, SPELL_CHAIN_LIGHTNING);
 
                 chainlightning_timer = 25000;
@@ -230,7 +230,7 @@ public:
 
             if (flameshock_timer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget, SPELL_FLAME_SHOCK);
 
                 flameshock_timer = 5000;
@@ -238,7 +238,7 @@ public:
 
             if (flamebuffet_timer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget, SPELL_FLAME_BUFFET);
 
                 flamebuffet_timer = 5000;
@@ -289,7 +289,7 @@ public:
 
             if (arcaneshock_timer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget, SPELL_ARCANE_SHOCK);
 
                 arcaneshock_timer = 5000;
@@ -297,7 +297,7 @@ public:
 
             if (arcanebuffet_timer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget, SPELL_ARCANE_BUFFET);
 
                 arcanebuffet_timer = 5000;
@@ -344,7 +344,7 @@ public:
 
             if (frostshock_timer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget, SPELL_FROST_SHOCK);
 
                 frostshock_timer = 5000;
@@ -352,7 +352,7 @@ public:
 
             if (frostbuffet_timer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget, SPELL_FROST_BUFFET);
 
                 frostbuffet_timer = 5000;
@@ -400,7 +400,7 @@ public:
 
             if (shadowshock_timer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget, SPELL_SHADOW_SHOCK);
 
                 shadowshock_timer = 5000;
@@ -408,7 +408,7 @@ public:
 
             if (shadowbuffet_timer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget, SPELL_SHADOW_BUFFET);
 
                 shadowbuffet_timer = 5000;

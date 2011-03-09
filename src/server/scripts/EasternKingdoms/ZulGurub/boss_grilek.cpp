@@ -68,7 +68,7 @@ class boss_grilek : public CreatureScript
                     DoCast(me, SPELL_AVARTAR);
                     Unit *pTarget = NULL;
 
-                    pTarget = SelectUnit(SELECT_TARGET_RANDOM,1);
+                    pTarget = SelectTarget(SELECT_TARGET_RANDOM,1);
 
                     if (DoGetThreat(me->getVictim()))
                         DoModifyThreatPercent(me->getVictim(),-50);

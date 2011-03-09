@@ -136,7 +136,7 @@ public:
             if (FocusFire_Timer <= diff)
             {
                 // Summon Focus Fire & Emote
-                Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,1);
+                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,1);
                 if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER && pTarget->isAlive())
                 {
                     FocusedTargetGUID = pTarget->GetGUID();

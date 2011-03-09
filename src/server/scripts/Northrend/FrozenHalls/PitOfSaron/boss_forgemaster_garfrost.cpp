@@ -194,7 +194,7 @@ class boss_garfrost : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_THROW_SARONITE:
-                            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_THROW_SARONITE);
                             events.ScheduleEvent(EVENT_THROW_SARONITE, urand(12500, 20000));
                             break;
@@ -203,7 +203,7 @@ class boss_garfrost : public CreatureScript
                             events.ScheduleEvent(EVENT_CHILLING_WAVE, 40000, 0, PHASE_TWO);
                             break;
                         case EVENT_DEEP_FREEZE:
-                            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_DEEP_FREEZE);
                             events.ScheduleEvent(EVENT_DEEP_FREEZE, 35000, 0, PHASE_THREE);
                             break;

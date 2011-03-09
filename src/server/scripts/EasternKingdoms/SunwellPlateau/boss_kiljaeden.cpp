@@ -1049,7 +1049,7 @@ public:
             if (uiSpawnFiendTimer <= diff)
             {
                 if (Creature* pFiend = DoSpawnCreature(CREATURE_VOLATILE_FELFIRE_FIEND, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 20000))
-                    pFiend->AddThreat(SelectUnit(SELECT_TARGET_RANDOM,0), 100000.0f);
+                    pFiend->AddThreat(SelectTarget(SELECT_TARGET_RANDOM,0), 100000.0f);
                 uiSpawnFiendTimer = urand(4000,8000);
             } else uiSpawnFiendTimer -= diff;
         }
