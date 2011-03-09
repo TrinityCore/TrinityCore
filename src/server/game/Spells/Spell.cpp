@@ -5331,13 +5331,20 @@ SpellCastResult Spell::CheckCast(bool strict)
                     return SPELL_FAILED_BAD_TARGETS;
 
                 // check if our map is dungeon
-                if (sMapStore.LookupEntry(m_caster->GetMapId())->IsDungeon())
+                MapEntry const* map = sMapStore.LookupEntry(m_caster->GetMapId());
+                if (map->IsDungeon())
                 {
-                    Map const* pMap = m_caster->GetMap();
-                    InstanceTemplate const* instance = ObjectMgr::GetInstanceTemplate(pMap->GetId());
+                    uint32 mapId = m_caster->GetMap()->GetId();
+                    Difficulty difficulty = m_caster->GetMap()->GetDifficulty();
+                    if (map->IsRaid())
+                        if (InstancePlayerBind* targetBind = target->GetBoundInstance(mapId, difficulty))
+                            if (targetBind->perm && targetBind != m_caster->ToPlayer()->GetBoundInstance(mapId, difficulty))
+                                return SPELL_FAILED_TARGET_LOCKED_TO_RAID_INSTANCE;
+
+                    InstanceTemplate const* instance = ObjectMgr::GetInstanceTemplate(mapId);
                     if (!instance)
                         return SPELL_FAILED_TARGET_NOT_IN_INSTANCE;
-                    if (!target->Satisfy(sObjectMgr->GetAccessRequirement(pMap->GetId(), pMap->GetDifficulty()), pMap->GetId()))
+                    if (!target->Satisfy(sObjectMgr->GetAccessRequirement(mapId, difficulty), mapId))
                         return SPELL_FAILED_BAD_TARGETS;
                 }
                 break;
