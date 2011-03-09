@@ -1,5 +1,5 @@
 -- SrcItemCount is not a WDB field (0/1).
-UPDATE `quest_template` SET `SrcItemCount`=1 WHERE `SrcItemId!=0` AND `SrcItemCount`=0;
+UPDATE `quest_template` SET `SrcItemCount` = 1 WHERE `SrcItemId` != 0 AND `SrcItemCount` = 0;
 
 -- Missing items
 DELETE FROM `item_template` WHERE `entry` IN (52274,52275,52276,52344,52562,52563,52565,52706,52707,52729,52835,53048,54516) AND `WDBVerified` < 0;
@@ -71,4 +71,4 @@ DELETE FROM `disables` WHERE `sourceType`=1 AND `entry`=25461; -- Trollin' For V
 DELETE FROM `disables` WHERE `sourceType`=1 AND `entry`=25480; -- Dance Of De Spirits (world event: Zalazane's Fall)
 DELETE FROM `disables` WHERE `sourceType`=1 AND `entry`=25482; -- World Event Dungeon - Headless Horseman
 DELETE FROM `disables` WHERE `sourceType`=1 AND `entry`=25483; -- World Event Dungeon - Coren Direbrew
-DELETE FROM `disables` WHERE `sourceType`=1 AND `entry`=25485; -- World Event Dungeon - Hummel
+-- DELETE FROM `disables` WHERE `sourceType`=1 AND `entry`=25485; -- World Event Dungeon - Hummel (missing item)
