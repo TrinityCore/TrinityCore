@@ -114,7 +114,7 @@ public:
         void JustSummoned(Creature* pSummoned)
         {
             pSummoned->SetSpeed(MOVE_RUN, 0.5f);
-            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
             {
                 pSummoned->AddThreat(pTarget, 0.00f);
                 pSummoned->AI()->AttackStart(pTarget);

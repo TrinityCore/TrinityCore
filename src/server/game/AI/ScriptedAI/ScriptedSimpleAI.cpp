@@ -134,13 +134,13 @@ void SimpleAI::KilledUnit(Unit *victim)
         pTarget = me->getVictim();
         break;
     case CAST_HOSTILE_SECOND_AGGRO:
-        pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO,1);
+        pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO,1);
         break;
     case CAST_HOSTILE_LAST_AGGRO:
-        pTarget = SelectUnit(SELECT_TARGET_BOTTOMAGGRO,0);
+        pTarget = SelectTarget(SELECT_TARGET_BOTTOMAGGRO,0);
         break;
     case CAST_HOSTILE_RANDOM:
-        pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+        pTarget = SelectTarget(SELECT_TARGET_RANDOM,0);
         break;
     case CAST_KILLEDUNIT_VICTIM:
         pTarget = victim;
@@ -182,13 +182,13 @@ void SimpleAI::DamageTaken(Unit *killer, uint32 &damage)
         pTarget = me->getVictim();
         break;
     case CAST_HOSTILE_SECOND_AGGRO:
-        pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO,1);
+        pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO,1);
         break;
     case CAST_HOSTILE_LAST_AGGRO:
-        pTarget = SelectUnit(SELECT_TARGET_BOTTOMAGGRO,0);
+        pTarget = SelectTarget(SELECT_TARGET_BOTTOMAGGRO,0);
         break;
     case CAST_HOSTILE_RANDOM:
-        pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+        pTarget = SelectTarget(SELECT_TARGET_RANDOM,0);
         break;
     case CAST_JUSTDIED_KILLER:
         pTarget = killer;
@@ -233,13 +233,13 @@ void SimpleAI::UpdateAI(const uint32 diff)
                     pTarget = me->getVictim();
                     break;
                 case CAST_HOSTILE_SECOND_AGGRO:
-                    pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO,1);
+                    pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO,1);
                     break;
                 case CAST_HOSTILE_LAST_AGGRO:
-                    pTarget = SelectUnit(SELECT_TARGET_BOTTOMAGGRO,0);
+                    pTarget = SelectTarget(SELECT_TARGET_BOTTOMAGGRO,0);
                     break;
                 case CAST_HOSTILE_RANDOM:
-                    pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+                    pTarget = SelectTarget(SELECT_TARGET_RANDOM,0);
                     break;
                 }
 

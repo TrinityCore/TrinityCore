@@ -193,7 +193,7 @@ public:
 
             if (Charge_Timer <= diff)
             {
-                DoCast(SelectUnit(SELECT_TARGET_RANDOM, 1), SPELL_CHARGE);
+                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 1), SPELL_CHARGE);
                 Charge_Timer = 5000+rand()%5000;
             } else Charge_Timer -= diff;
 
@@ -365,7 +365,7 @@ public:
             {
                 if (!me->IsNonMeleeSpellCasted(false))
                 {
-                    DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_SHADOW_BOLT);
+                    DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_SHADOW_BOLT);
                     ShadowBolt_Timer = 2100;//give a 100ms pause to try cast other spells
                 }
             } else ShadowBolt_Timer -= diff;
@@ -374,7 +374,7 @@ public:
             {
                 if (!me->IsNonMeleeSpellCasted(false))
                 {
-                    DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_DEBILITATE);
+                    DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_DEBILITATE);
                     Debilitate_Timer = 5000+rand()%5000;
                 }
             } else Debilitate_Timer -= diff;

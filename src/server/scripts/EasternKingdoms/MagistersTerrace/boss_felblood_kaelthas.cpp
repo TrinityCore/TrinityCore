@@ -302,7 +302,7 @@ public:
                     if (PhoenixTimer <= diff)
                     {
 
-                        Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,1);
+                        Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,1);
 
                         uint8 random = urand(1,2);
                         float x = KaelLocations[random][0];
@@ -396,7 +396,7 @@ public:
                                 for (uint8 i = 0; i < 3; ++i)
                                 {
                                     Unit *pTarget = NULL;
-                                    pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+                                    pTarget = SelectTarget(SELECT_TARGET_RANDOM,0);
 
                                     Creature* Orb = DoSpawnCreature(CREATURE_ARCANE_SPHERE, 5, 5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
                                     if (Orb && pTarget)

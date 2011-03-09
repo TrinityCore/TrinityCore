@@ -171,7 +171,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                 Creature* Summoned = me->SummonCreature(entry, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                 if (Summoned)
                 {
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         Summoned->AI()->AttackStart(pTarget);
 
                     Summons.Summon(Summoned);
@@ -243,7 +243,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                         }
                         else
                         {
-                            Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                            Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                             if (!me->HasInArc(2.5f, pTarget))
                                 pTarget = me->getVictim();
                             if (pTarget)
@@ -258,7 +258,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                     {
                         me->InterruptNonMeleeSpells(false);
                         //Target the tank ?
-                        if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1))
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
                         {
                             if (pTarget->GetTypeId() == TYPEID_PLAYER)
                             {

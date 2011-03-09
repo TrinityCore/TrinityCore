@@ -96,7 +96,7 @@ class boss_toravon : public CreatureScript
                             events.ScheduleEvent(EVENT_WHITEOUT, 38000);
                             break;
                         case EVENT_FREEZING_GROUND:
-                            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                                 DoCast(target, SPELL_FREEZING_GROUND);
                             events.ScheduleEvent(EVENT_FREEZING_GROUND, 20000);
                             break;

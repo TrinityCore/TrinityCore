@@ -299,7 +299,7 @@ public:
 
                 if (GeyserTimer <= diff)
                 {
-                    Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,1);
+                    Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,1);
                     if (!pTarget && me->getVictim())
                         pTarget = me->getVictim();
                     if (pTarget)
@@ -311,7 +311,7 @@ public:
                 {
                     if (WaterboltTimer <= diff)
                     {
-                        Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+                        Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0);
                         if (!pTarget && me->getVictim())
                             pTarget = me->getVictim();
                         if (pTarget)
@@ -454,7 +454,7 @@ public:
             if (ShootBowTimer <= diff)
             {
                 Unit *pTarget = NULL;
-                pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 int bp0 = 1100;
                 if (pTarget)
                     me->CastCustomSpell(pTarget,SPELL_SHOOT,&bp0,NULL,NULL,true);

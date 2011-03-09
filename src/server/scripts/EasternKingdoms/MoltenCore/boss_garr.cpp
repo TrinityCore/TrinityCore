@@ -136,7 +136,7 @@ class mob_firesworn : public CreatureScript
 
                 if (immolateTimer <= diff)
                 {
-                     if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_IMMOLATE);
                     immolateTimer = urand(5000, 10000);
                 }

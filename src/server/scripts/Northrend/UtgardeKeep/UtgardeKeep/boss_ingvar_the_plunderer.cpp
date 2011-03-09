@@ -242,7 +242,7 @@ public:
                     if (!me->HasUnitState(UNIT_STAT_CASTING))
                     {
                         // Spawn target for Axe
-                        Unit *pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO, 1);
+                        Unit *pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
                         if (pTarget)
                         {
                             me->SummonCreature(ENTRY_THROW_TARGET,pTarget->GetPositionX(),pTarget->GetPositionY(),pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,2000);

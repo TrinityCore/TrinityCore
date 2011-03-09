@@ -377,7 +377,7 @@ class boss_kaelthas : public CreatureScript
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         AttackStart(pTarget);
 
                 }
@@ -440,7 +440,7 @@ class boss_kaelthas : public CreatureScript
                 // if not phoenix, then it's one of the 7 weapons
                 if (pSummoned->GetEntry() != NPC_PHOENIX)
                 {
-                    if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         pSummoned->AI()->AttackStart(pTarget);
 
                     summons.Summon(pSummoned);
@@ -504,7 +504,7 @@ class boss_kaelthas : public CreatureScript
                                         Advisor->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                         Advisor->setFaction(me->getFaction());
 
-                                        pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                                        pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                                         if (pTarget)
                                             Advisor->AI()->AttackStart(pTarget);
                                     }
@@ -538,7 +538,7 @@ class boss_kaelthas : public CreatureScript
                                         Advisor->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                         Advisor->setFaction(me->getFaction());
 
-                                        pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                                        pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                                         if (pTarget)
                                             Advisor->AI()->AttackStart(pTarget);
                                     }
@@ -572,7 +572,7 @@ class boss_kaelthas : public CreatureScript
                                         Advisor->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                         Advisor->setFaction(me->getFaction());
 
-                                        pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                                        pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                                         if (pTarget)
                                             Advisor->AI()->AttackStart(pTarget);
                                     }
@@ -606,7 +606,7 @@ class boss_kaelthas : public CreatureScript
                                         Advisor->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                         Advisor->setFaction(me->getFaction());
 
-                                        pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                                        pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                                         if (pTarget)
                                             Advisor->AI()->AttackStart(pTarget);
                                     }
@@ -684,7 +684,7 @@ class boss_kaelthas : public CreatureScript
                         if (PhaseSubphase == 0)
                         {
                             //Respawn advisors
-                            Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                            Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                             Creature *Advisor;
                             for (uint8 i = 0; i < MAX_ADVISORS; ++i)
@@ -715,7 +715,7 @@ class boss_kaelthas : public CreatureScript
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-                            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 AttackStart(pTarget);
 
                             Phase_Timer = 30000;
@@ -772,7 +772,7 @@ class boss_kaelthas : public CreatureScript
 
                             if (FlameStrike_Timer <= diff)
                             {
-                                if (Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                                if (Unit* pUnit = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                     DoCast(pUnit, SPELL_FLAME_STRIKE);
 
                                 FlameStrike_Timer = 30000;
@@ -984,7 +984,7 @@ class boss_kaelthas : public CreatureScript
                                 //NetherBeam_Timer
                                 if (NetherBeam_Timer <= diff)
                                 {
-                                    if (Unit* pUnit = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                                    if (Unit* pUnit = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                         DoCast(pUnit, SPELL_NETHER_BEAM);
 
                                     NetherBeam_Timer = 4000;
@@ -1065,7 +1065,7 @@ class boss_thaladred_the_darkener : public CreatureScript
                 //Gaze_Timer
                 if (Gaze_Timer <= diff)
                 {
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         DoResetThreat();
                         me->AddThreat(pTarget, 5000000.0f);
@@ -1268,7 +1268,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
                 if (Conflagration_Timer <= diff)
                 {
                     Unit *pTarget = NULL;
-                    pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                    pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                     if (pTarget && me->IsWithinDistInMap(pTarget, 30))
                         DoCast(pTarget, SPELL_CONFLAGRATION);
@@ -1381,7 +1381,7 @@ class boss_master_engineer_telonicus : public CreatureScript
                 //RemoteToy_Timer
                 if (RemoteToy_Timer <= diff)
                 {
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(pTarget, SPELL_REMOTE_TOY);
 
                     RemoteToy_Timer = 10000+rand()%5000;

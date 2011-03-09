@@ -683,7 +683,7 @@ public:
 
             if (NapalmTimer <= diff)
             {
-                    if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     {
                         if(CanAIAttack(pTarget))
                             DoCast(pTarget,SPELL_NAPALM,true);

@@ -128,7 +128,7 @@ public:
             {
                 summoned->CastSpell(summoned,SPELL_ETHEREAL_BEACON_VISUAL,false);
 
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     summoned->AI()->AttackStart(pTarget);
             }
 

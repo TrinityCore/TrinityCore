@@ -90,7 +90,7 @@ public:
 
         void JustSummoned(Creature* pSummoned)
         {
-            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 pSummoned->AI()->AttackStart(pTarget);
         }
 
@@ -117,7 +117,7 @@ public:
             //Sleep_Timer
             if (m_uiSleep_Timer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(pTarget, SPELL_SLEEP);
 
                 m_uiSleep_Timer = 8000 + rand()%7000;
@@ -164,7 +164,7 @@ public:
             //Summon 3 Shades at 75%, 50% and 25% (if bShades is true we already left in line 117, no need to check here again)
             if (!m_bShades && !HealthAbovePct(100 - 25 * m_uiShadesSummoned))
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     //Interrupt any spell casting
                     me->InterruptNonMeleeSpells(false);

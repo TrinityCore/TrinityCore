@@ -602,7 +602,7 @@ class boss_alyson_antille : public CreatureScript
                         if (urand(0,1))
                             pTarget = DoSelectLowestHpFriendly(50, 0);
                         else
-                            pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                            pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                         if (pTarget)
                             DoCast(pTarget, SPELL_DISPEL_MAGIC, false);
                     }
