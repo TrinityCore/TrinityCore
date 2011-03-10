@@ -104,7 +104,7 @@ public:
         {
             for (uint8 i = 0; i < 30; ++i)
             {
-                Unit* victim = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                 if (victim)
                 {

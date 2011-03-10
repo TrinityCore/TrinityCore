@@ -149,7 +149,7 @@ public:
             // Magnetic Pull
             if (MagneticPull_Timer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     if (pTarget->GetTypeId() == TYPEID_PLAYER && pTarget->isAlive())
                     {
                         DoCast(pTarget, SPELL_MAGNETIC_PULL);

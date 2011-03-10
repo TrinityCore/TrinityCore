@@ -291,7 +291,7 @@ public:
             {
                 if (uiSearingLightTimer <= diff)
                 {
-                    if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         me->AddAura(RAID_MODE(SPELL_SEARING_LIGHT_10, SPELL_SEARING_LIGHT_25), pTarget);
                         uiSearingLightTarget = pTarget->GetGUID();
@@ -304,7 +304,7 @@ public:
 
                 if (uiGravityBombTimer <= diff)
                 {
-                    if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         me->AddAura(RAID_MODE(SPELL_GRAVITY_BOMB_10, SPELL_GRAVITY_BOMB_25), pTarget);
                         uiGravityBombTarget = pTarget->GetGUID();

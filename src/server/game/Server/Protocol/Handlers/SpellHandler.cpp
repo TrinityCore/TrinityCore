@@ -544,7 +544,7 @@ void WorldSession::HandleSelfResOpcode(WorldPacket & /*recv_data*/)
     }
 }
 
-void WorldSession::HandleSpellClick(WorldPacket & recv_data)
+void WorldSession::HandleSpellClick(WorldPacket& recv_data)
 {
     uint64 guid;
     recv_data >> guid;
@@ -559,8 +559,7 @@ void WorldSession::HandleSpellClick(WorldPacket & recv_data)
     if (!unit->IsInWorld())
         return;
 
-    bool unusedReturnValue = unit->HandleSpellClick(_player);
-    // ^ ignore compiler warning 
+    unit->HandleSpellClick(_player);
 }
 
 void WorldSession::HandleMirrrorImageDataRequest(WorldPacket & recv_data)

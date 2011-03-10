@@ -1535,7 +1535,7 @@ public:
         {
             if (Creature* pTemp = Unit::GetCreature(*me, ui_GUID))
                 if (pTemp->isAlive())
-                    if (Unit* pTarger = SelectUnit(SELECT_TARGET_RANDOM,0))
+                    if (Unit* pTarger = SelectTarget(SELECT_TARGET_RANDOM,0))
                         if (pTarger->isAlive())
                         {
                             // pTemp->DeleteThreatList();

@@ -84,7 +84,7 @@ class boss_hazzarah : public CreatureScript
                     Unit *pTarget = NULL;
                     for (uint8 i = 0; i < 3; ++i)
                     {
-                        pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+                        pTarget = SelectTarget(SELECT_TARGET_RANDOM,0);
                         if (!pTarget)
                             return;
 

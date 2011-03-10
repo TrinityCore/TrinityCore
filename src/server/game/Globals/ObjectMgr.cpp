@@ -197,8 +197,8 @@ LanguageDesc const* GetLanguageDescByID(uint32 lang)
 
 bool SpellClickInfo::IsFitToRequirements(Unit const* clicker, Unit const* clickee) const
 {
-    Player const* playerClicker = NULL;
-    if (playerClicker = clicker->ToPlayer())
+    Player const* playerClicker = clicker->ToPlayer();
+    if (playerClicker)
     {
         if (questStart)
         {
@@ -6736,7 +6736,7 @@ uint32 ObjectMgr::GenerateAuctionID()
 
 uint64 ObjectMgr::GenerateEquipmentSetGuid()
 {
-    if (m_equipmentSetGuid >= 0xFFFFFFFFFFFFFFFEll)
+    if (m_equipmentSetGuid >= uint64(0xFFFFFFFFFFFFFFFELL))
     {
         sLog->outError("EquipmentSet guid overflow!! Can't continue, shutting down server. ");
         World::StopNow(ERROR_EXIT_CODE);

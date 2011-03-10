@@ -119,7 +119,7 @@ public:
             {
                 if (PartingSorrowTimer <= diff)
                 {
-                    Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                    Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                     if (pTarget)
                         DoCast(pTarget, SPELL_PARTING_SORROW);
@@ -144,7 +144,7 @@ public:
 
             if (PillarOfWoeTimer <= diff)
             {
-                Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
+                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1);
 
                 if (pTarget)
                     DoCast(pTarget, SPELL_PILLAR_OF_WOE_N);

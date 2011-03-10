@@ -217,7 +217,7 @@ public:
             {
                 m_lGolemGUIDList.push_back(pSummoned->GetGUID());
 
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     pSummoned->GetMotionMaster()->MoveFollow(pTarget, 0.0f, 0.0f);
 
                 // Why healing when just summoned?
@@ -334,7 +334,7 @@ public:
                     // 4 - Wait for delay to expire
                     if (m_uiDelay_Timer <= uiDiff)
                     {
-                        if (Unit* pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO, 0))
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 0))
                         {
                             me->SetReactState(REACT_AGGRESSIVE);
                             me->SetInCombatWith(pTarget);

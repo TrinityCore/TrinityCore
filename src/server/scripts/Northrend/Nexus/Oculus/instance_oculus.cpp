@@ -81,6 +81,10 @@ public:
             }
         }
 
+        void ProcessEvent(GameObject* /*go*/, uint32 /*eventId*/)
+        {
+        }
+
         void ProcessEvent(Unit* /*unit*/, uint32 eventId)
         {
             if (eventId != EVENT_CALL_DRAGON)

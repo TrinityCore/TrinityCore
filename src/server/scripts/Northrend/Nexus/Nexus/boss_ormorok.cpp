@@ -206,7 +206,7 @@ public:
                             break;
                     }
                     if (!pTarget)
-                        pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                        pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     if (pTarget)
                     {
                         Crystalline_Tangler->AI()->AttackStart(pTarget);

@@ -264,7 +264,7 @@ public:
                 case 25: Images25 = true; break;
             }
 
-            Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+            Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0);
 
             Creature *Image1 = me->SummonCreature(15263, i1->x, i1->y, i1->z, i1->r, TEMPSUMMON_CORPSE_DESPAWN, 30000);
             if (Image1)

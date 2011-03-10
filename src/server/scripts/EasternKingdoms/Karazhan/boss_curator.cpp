@@ -133,7 +133,7 @@ public:
                     //Summon Astral Flare
                     Creature* AstralFlare = DoSpawnCreature(17096, float(rand()%37), float(rand()%37), 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                     Unit *pTarget = NULL;
-                    pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                    pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                     if (AstralFlare && pTarget)
                     {
@@ -184,7 +184,7 @@ public:
                 else
                     HatefulBoltTimer = 15000;
 
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO, 1))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 1))
                     DoCast(pTarget, SPELL_HATEFUL_BOLT);
 
             } else HatefulBoltTimer -= diff;

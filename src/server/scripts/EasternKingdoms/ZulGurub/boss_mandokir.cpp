@@ -186,7 +186,7 @@ class boss_mandokir : public CreatureScript
 
                     if ((Watch_Timer < 8000) && !someWatched)       //8 sec(cast time + expire time) before the check for the watch effect mandokir will cast watch debuff on a random target
                     {
-                        if (Unit* p = SelectUnit(SELECT_TARGET_RANDOM,0))
+                        if (Unit* p = SelectTarget(SELECT_TARGET_RANDOM,0))
                         {
                             DoScriptText(SAY_WATCH, me, p);
                             DoCast(p, SPELL_WATCH);
