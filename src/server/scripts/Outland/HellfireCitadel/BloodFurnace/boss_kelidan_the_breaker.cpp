@@ -352,7 +352,7 @@ class mob_shadowmoon_channeler : public CreatureScript
 
                 if (MarkOfShadow_Timer <= diff)
                 {
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(pTarget, SPELL_MARK_OF_SHADOW);
                     MarkOfShadow_Timer = 15000+rand()%5000;
                 }

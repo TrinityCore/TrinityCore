@@ -126,20 +126,16 @@ class UnitAI
         Unit* SelectTarget(SelectAggroTarget targetType, uint32 position = 0, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
         // Select the targets satifying the predicate.
         // predicate shall extend std::unary_function<Unit *, bool>
-        template<class PREDICATE> Unit* SelectTarget(SelectAggroTarget targetType, uint32 position, PREDICATE predicate)
+        template <class PREDICATE> Unit* SelectTarget(SelectAggroTarget targetType, uint32 position, PREDICATE predicate)
         {
             const std::list<HostileReference *> &threatlist = me->getThreatManager().getThreatList();
-            std::list<Unit*> targetList;
-
             if (position >= threatlist.size())
                 return NULL;
 
+            std::list<Unit*> targetList;
             for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-            {
-                HostileReference* ref = (*itr);
-                if (predicate(ref->getTarget()))
-                    targetList.push_back(ref->getTarget());
-            }
+                if (predicate((*itr)->getTarget()))
+                    targetList.push_back((*itr)->getTarget());
 
             if (position >= targetList.size())
                 return NULL;
@@ -147,33 +143,30 @@ class UnitAI
             if (targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
                 targetList.sort(Trinity::ObjectDistanceOrderPred(me));
 
-            switch(targetType)
+            switch (targetType)
             {
                 case SELECT_TARGET_NEAREST:
                 case SELECT_TARGET_TOPAGGRO:
                 {
                     std::list<Unit*>::iterator itr = targetList.begin();
-                    advance(itr, position);
+                    std::advance(itr, position);
                     return *itr;
                 }
-                break;
-
                 case SELECT_TARGET_FARTHEST:
                 case SELECT_TARGET_BOTTOMAGGRO:
                 {
                     std::list<Unit*>::reverse_iterator ritr = targetList.rbegin();
-                    advance(ritr, position);
+                    std::advance(ritr, position);
                     return *ritr;
                 }
-                break;
-
                 case SELECT_TARGET_RANDOM:
                 {
                     std::list<Unit*>::iterator itr = targetList.begin();
-                    advance(itr, urand(position, targetList.size()-1));
+                    std::advance(itr, urand(position, targetList.size()-1));
                     return *itr;
                 }
-                break;
+                default:
+                    break;
             }
 
             return NULL;
@@ -182,62 +175,29 @@ class UnitAI
         void SelectTargetList(std::list<Unit*> &targetList, uint32 num, SelectAggroTarget targetType, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
         // Select the targets satifying the predicate.
         // predicate shall extend std::unary_function<Unit *, bool>
-        template<class PREDICATE> void SelectTargetList(std::list<Unit*> &targetList, PREDICATE predicate, uint32 maxTargets, SelectAggroTarget targetType)
+        template <class PREDICATE> void SelectTargetList(std::list<Unit*> &targetList, PREDICATE predicate, uint32 maxTargets, SelectAggroTarget targetType)
         {
-            std::list<HostileReference *> const &threatlist = me->getThreatManager().getThreatList();
-            std::list<HostileReference*>::const_iterator itr;
+            std::list<HostileReference*> const& threatlist = me->getThreatManager().getThreatList();
+            if (threatlist.empty())
+                return;
 
-            for (itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-            {
-                HostileReference* ref = (*itr);
-                if (predicate(ref->getTarget()))
-                    targetList.push_back(ref->getTarget());
-            }
+            for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+                if (predicate((*itr)->getTarget()))
+                    targetList.push_back((*itr)->getTarget());
+
+            if (targetList.size() < maxTargets)
+                return;
 
             if (targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
                 targetList.sort(Trinity::ObjectDistanceOrderPred(me));
 
-            switch(targetType)
-            {
-                case SELECT_TARGET_NEAREST:
-                case SELECT_TARGET_TOPAGGRO:
-                {
-                    // Already sorted
-                    if (!maxTargets || maxTargets >= targetList.size())    // Do not filter
-                        return;
+            if (targetType == SELECT_TARGET_FARTHEST || targetType == SELECT_TARGET_BOTTOMAGGRO)
+                targetList.reverse();
 
-                    std::list<Unit*>::iterator itr = targetList.begin();
-                    advance(itr, maxTargets);
-                    for (; itr != targetList.end();)
-                        targetList.erase(itr++);        // Filter out any element more than maxTargets
-                }
-                break;
-
-                case SELECT_TARGET_FARTHEST:
-                case SELECT_TARGET_BOTTOMAGGRO:
-                {
-                    if (maxTargets >= targetList.size())                 // Do not filter
-                        return;
-
-                    // Sort (reverse)
-                    targetList.reverse();
-                    std::list<Unit*>::iterator itr = targetList.begin();
-                    for (uint32 i = 0; i < maxTargets; ++i)
-                        targetList.pop_back();          // Filter out any element more than maxTarget
-                }
-                break;
-
-                case SELECT_TARGET_RANDOM:
-                {
-                    while (maxTargets < targetList.size())
-                    {
-                        std::list<Unit*>::iterator itr = targetList.begin();
-                        advance(itr, urand(0, targetList.size()-1));
-                        targetList.erase(itr);
-                    }
-                }
-                break;
-            }
+            if (targetType == SELECT_TARGET_RANDOM)
+                Trinity::RandomResizeList(targetList, maxTargets);
+            else
+                targetList.resize(maxTargets);
         }
 
         // Called at any Damage to any victim (before damage apply)

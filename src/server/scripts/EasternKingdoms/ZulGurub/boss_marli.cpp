@@ -118,7 +118,7 @@ class boss_marli : public CreatureScript
                     {
                         DoScriptText(SAY_SPIDER_SPAWN, me);
 
-                        Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+                        Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0);
                         if (!pTarget)
                             return;
 
@@ -142,7 +142,7 @@ class boss_marli : public CreatureScript
 
                     if (SpawnSpider_Timer <= diff)
                     {
-                        Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+                        Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0);
                         if (!pTarget)
                             return;
 

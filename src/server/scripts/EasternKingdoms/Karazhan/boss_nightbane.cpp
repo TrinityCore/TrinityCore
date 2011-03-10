@@ -395,7 +395,7 @@ public:
 
                 if (FireballBarrageTimer <= diff)
                 {
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_FARTHEST, 0))
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_FARTHEST, 0))
                         DoCast(pTarget, SPELL_FIREBALL_BARRAGE);
                     FireballBarrageTimer = 20000;
                 } else FireballBarrageTimer -= diff;

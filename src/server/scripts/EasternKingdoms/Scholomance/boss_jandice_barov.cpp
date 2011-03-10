@@ -114,7 +114,7 @@ public:
                 Unit *pTarget = NULL;
                 for (uint8 i = 0; i < 10; ++i)
                 {
-                    pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+                    pTarget = SelectTarget(SELECT_TARGET_RANDOM,0);
                     if (pTarget)
                         SummonIllusions(pTarget);
                 }

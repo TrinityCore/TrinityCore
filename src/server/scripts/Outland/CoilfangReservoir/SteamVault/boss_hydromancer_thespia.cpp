@@ -108,12 +108,12 @@ public:
             //LightningCloud_Timer
             if (LightningCloud_Timer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget, SPELL_LIGHTNING_CLOUD);
 
                 //cast twice in Heroic mode
                 if (IsHeroic())
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                         DoCast(pTarget, SPELL_LIGHTNING_CLOUD);
 
                 LightningCloud_Timer = 15000+rand()%10000;
@@ -122,7 +122,7 @@ public:
             //LungBurst_Timer
             if (LungBurst_Timer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget, SPELL_LUNG_BURST);
                 LungBurst_Timer = 7000+rand()%5000;
             } else LungBurst_Timer -=diff;
@@ -130,12 +130,12 @@ public:
             //EnvelopingWinds_Timer
             if (EnvelopingWinds_Timer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget, SPELL_ENVELOPING_WINDS);
 
                 //cast twice in Heroic mode
                 if (IsHeroic())
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                         DoCast(pTarget, SPELL_ENVELOPING_WINDS);
                 EnvelopingWinds_Timer = 10000+rand()%5000;
             } else EnvelopingWinds_Timer -=diff;

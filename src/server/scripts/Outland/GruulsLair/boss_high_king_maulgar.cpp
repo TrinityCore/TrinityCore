@@ -281,7 +281,7 @@ public:
                 if (Charging_Timer <= diff)
                 {
                     Unit *pTarget = NULL;
-                    pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                    pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     if (pTarget)
                     {
                         AttackStart(pTarget);
@@ -420,7 +420,7 @@ public:
             if (DeathCoil_Timer <= diff)
             {
                 Unit *pTarget = NULL;
-                pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (pTarget)
                     DoCast(pTarget, SPELL_DEATH_COIL);
                 DeathCoil_Timer = 20000;
@@ -520,7 +520,7 @@ public:
             //GreaterPolymorph_Timer
             if (GreaterPolymorph_Timer <= diff)
             {
-                Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (pTarget)
                     DoCast(pTarget, SPELL_GREATER_POLYMORPH);
 

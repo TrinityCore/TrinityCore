@@ -125,7 +125,7 @@ public:
                 if (Teleport_Timer <= diff)
                 {
                     Unit *pTarget = NULL;
-                    pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+                    pTarget = SelectTarget(SELECT_TARGET_RANDOM,0);
                     if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER)
                     {
                         if (DoGetThreat(pTarget))

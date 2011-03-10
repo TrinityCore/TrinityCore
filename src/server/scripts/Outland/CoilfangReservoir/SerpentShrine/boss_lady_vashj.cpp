@@ -426,7 +426,7 @@ public:
                         if (Sporebat)
                         {
                             Unit *pTarget = NULL;
-                            pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                            pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                             if (pTarget)
                                 Sporebat->AI()->AttackStart(pTarget);
                         }
@@ -479,7 +479,7 @@ public:
                     //Forked Lightning
                     //Used constantly in Phase 2, it shoots out completely randomly targeted bolts of lightning which hit everybody in a roughtly 60 degree cone in front of Vashj for 2313-2687 nature damage.
                     Unit *pTarget = NULL;
-                    pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                    pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                     if (!pTarget)
                         pTarget = me->getVictim();
@@ -520,7 +520,7 @@ public:
                     if (CoilfangElite)
                     {
                         Unit *pTarget = NULL;
-                        pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                        pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                         if (pTarget)
                             CoilfangElite->AI()->AttackStart(pTarget);
                         else if (me->getVictim())
@@ -538,7 +538,7 @@ public:
                      if (CoilfangStrider)
                     {
                         Unit *pTarget = NULL;
-                        pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                        pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                         if (pTarget)
                             CoilfangStrider->AI()->AttackStart(pTarget);
                         else if (me->getVictim())
@@ -728,7 +728,7 @@ public:
             if (PoisonBolt_Timer <= diff)
             {
                 Unit *pTarget = NULL;
-                pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                 if (pTarget && pTarget->IsWithinDistInMap(me, 30))
                     DoCast(pTarget, SPELL_POISON_BOLT);
@@ -820,7 +820,7 @@ public:
             if (bolt_timer <= diff)
             {
                 Unit *pTarget = NULL;
-                pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (pTarget)
                 {
                     Creature* trig = me->SummonCreature(TOXIC_SPORES_TRIGGER,pTarget->GetPositionX(),pTarget->GetPositionY(),pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,30000);

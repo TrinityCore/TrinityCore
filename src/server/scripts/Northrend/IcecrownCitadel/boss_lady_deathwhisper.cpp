@@ -492,7 +492,7 @@ class boss_lady_deathwhisper : public CreatureScript
                             events.ScheduleEvent(EVENT_P2_TOUCH_OF_INSIGNIFICANCE, urand(9000, 13000), 0, PHASE_TWO);
                             break;
                         case EVENT_P2_SUMMON_SHADE:
-                            if (Unit* shadeTarget = SelectUnit(SELECT_TARGET_RANDOM, 1))
+                            if (Unit* shadeTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
                             {
                                 nextVengefulShadeTarget = shadeTarget->GetGUID();
                                 DoCast(shadeTarget, SPELL_SUMMON_SHADE);
@@ -773,7 +773,7 @@ class npc_cult_adherent : public CreatureScript
                             events.ScheduleEvent(EVENT_ADHERENT_DEATHCHILL, urand(9000, 13000));
                             break;
                         case EVENT_ADHERENT_CURSE_OF_TORPOR:
-                            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                                 DoCast(target, SPELL_CURSE_OF_TORPOR);
                             events.ScheduleEvent(EVENT_ADHERENT_CURSE_OF_TORPOR, urand(9000, 13000));
                             break;

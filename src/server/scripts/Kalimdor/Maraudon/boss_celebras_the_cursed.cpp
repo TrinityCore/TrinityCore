@@ -70,7 +70,7 @@ public:
             if (Wrath_Timer <= diff)
             {
                 Unit *pTarget = NULL;
-                pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+                pTarget = SelectTarget(SELECT_TARGET_RANDOM,0);
                 if (pTarget)
                     DoCast(pTarget, SPELL_WRATH);
                 Wrath_Timer = 8000;

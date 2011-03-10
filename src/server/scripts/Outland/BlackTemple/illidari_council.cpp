@@ -557,7 +557,7 @@ public:
 
             if (HammerOfJusticeTimer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     // is in ~10-40 yd range
                     if (me->IsInRange(pTarget, 10.0f, 40.0f, false))
@@ -670,7 +670,7 @@ public:
 
             if (BlizzardTimer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(pTarget, SPELL_BLIZZARD);
                     BlizzardTimer = 45000 + rand()%46 * 1000;
@@ -681,7 +681,7 @@ public:
 
             if (FlamestrikeTimer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(pTarget, SPELL_FLAMESTRIKE);
                     FlamestrikeTimer = 55000 + rand()%46 * 1000;
@@ -738,7 +738,7 @@ public:
 
             if (EmpoweredSmiteTimer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(pTarget, SPELL_EMPOWERED_SMITE);
                     EmpoweredSmiteTimer = 38000;
@@ -753,7 +753,7 @@ public:
 
             if (DivineWrathTimer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(pTarget, SPELL_DIVINE_WRATH);
                     DivineWrathTimer = 40000 + rand()%41 * 1000;
@@ -838,7 +838,7 @@ public:
 
                 if (VanishTimer <= diff)                          // Disappear and stop attacking, but follow a random unit
                 {
-                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
                         VanishTimer = 30000;
                         AppearEnvenomTimer= 28000;

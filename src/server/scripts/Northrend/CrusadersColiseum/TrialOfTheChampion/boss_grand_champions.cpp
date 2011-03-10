@@ -531,7 +531,7 @@ public:
 
             if (uiPolymorphTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget, SPELL_POLYMORPH);
                 uiPolymorphTimer = 22000;
             } else uiPolymorphTimer -= uiDiff;
@@ -665,7 +665,7 @@ public:
 
             if (uiChainLightningTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget,SPELL_CHAIN_LIGHTNING);
 
                 uiChainLightningTimer = 23000;
@@ -825,7 +825,7 @@ public:
 
             if (uiLightningArrowsTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget,SPELL_LIGHTNING_ARROWS);
 
                 uiLightningArrowsTimer = 15000;
@@ -990,8 +990,9 @@ public:
 
             if (uiPosionBottleTimer <= uiDiff)
             {
-                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(pTarget,SPELL_POISON_BOTTLE);
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
+                    DoCast(pTarget,SPELL_POISON_BOTTLE);
+
                 uiPosionBottleTimer = 19000;
             } else uiPosionBottleTimer -= uiDiff;
 

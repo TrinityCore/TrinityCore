@@ -80,7 +80,7 @@ public:
             if (summon && summon->GetEntry() == ENTRY_SPORE_STRIDER)
             {
                 Striders.push_back(summon->GetGUID());
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,1))
                     summon->AI()->AttackStart(pTarget);
                 else
                     if (me->getVictim())
@@ -150,7 +150,7 @@ public:
             }
             if (Levitate_Timer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,1))
                 {
                     DoCast(pTarget, SPELL_LEVITATE);
                     LevitatedTarget = pTarget->GetGUID();
@@ -163,7 +163,7 @@ public:
             // Chain Lightning
             if (ChainLightning_Timer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget, SPELL_CHAIN_LIGHTNING);
                 ChainLightning_Timer = 7000;
             } else ChainLightning_Timer -= diff;

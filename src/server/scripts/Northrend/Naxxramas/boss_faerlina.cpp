@@ -142,7 +142,7 @@ public:
                         events.ScheduleEvent(EVENT_POISON, urand(8000,15000));
                         break;
                     case EVENT_FIRE:
-                        if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             DoCast(pTarget, RAID_MODE(SPELL_RAIN_OF_FIRE, H_SPELL_RAIN_OF_FIRE));
                         events.ScheduleEvent(EVENT_FIRE, urand(6000,18000));
                         break;
