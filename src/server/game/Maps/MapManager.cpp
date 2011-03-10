@@ -62,8 +62,6 @@ void MapManager::Initialize()
     // Start mtmaps if needed.
     if (num_threads > 0 && m_updater.activate(num_threads) == -1)
         abort();
-
-    InitMaxInstanceId();
 }
 
 void MapManager::InitializeVisibilityDistanceInfo()
@@ -328,15 +326,6 @@ void MapManager::UnloadAll()
     Map::DeleteStateMachine();
 }
 
-void MapManager::InitMaxInstanceId()
-{
-    i_MaxInstanceId = 0;
-
-    QueryResult result = CharacterDatabase.Query("SELECT MAX(id) FROM instance");
-    if (result)
-        i_MaxInstanceId = result->Fetch()[0].GetUInt32();
-}
-
 uint32 MapManager::GetNumInstances()
 {
     ACE_GUARD_RETURN(ACE_Thread_Mutex, Guard, Lock, NULL);
@@ -370,4 +359,74 @@ uint32 MapManager::GetNumPlayersInInstances()
                 ret += ((InstanceMap*)mitr->second)->GetPlayers().getSize();
     }
     return ret;
+}
+
+void MapManager::InitInstanceIds()
+{
+    _nextInstanceId = 1;
+
+    QueryResult result = CharacterDatabase.Query("SELECT MAX(id) FROM instance");
+    if (result)
+    {
+        uint32 maxId = (*result)[0].GetUInt32();
+
+        // Resize to multiples of 32 (vector<bool> allocates memory the same way)
+        _instanceIds.resize(floor(maxId / 32.0f) * 32 + (maxId % 32 > 0 ? 32 : 0));
+    }
+}
+
+void MapManager::RegisterInstanceId(uint32 instanceId)
+{
+    // Allocation and sizing was done in InitInstanceIds()
+    _instanceIds[instanceId] = true;
+}
+
+uint32 MapManager::GenerateInstanceId()
+{
+    uint32 newInstanceId = _nextInstanceId;
+
+    // Find the lowest available id starting from the current NextInstanceId (which should be the lowest according to the logic in FreeInstanceId()
+    for (uint32 i = ++_nextInstanceId; i < 0xFFFFFFFF; ++i)
+    {
+        if ((i < _instanceIds.size() && !_instanceIds[i]) || i >= _instanceIds.size())
+        {
+            _nextInstanceId = i;
+            break;
+        }
+    }
+
+    if (newInstanceId == _nextInstanceId)
+    {
+        sLog->outError("Instance ID overflow!! Can't continue, shutting down server. ");
+        World::StopNow(ERROR_EXIT_CODE);
+    }
+
+    // Allocate space if necessary
+    if (newInstanceId >= uint32(_instanceIds.size()))
+    {
+        // DEBUG CODE - TO BE REMOVED OR ENABLED DEPENDING ON THIS ASSERT TRIGGERING
+        ASSERT(_instanceIds.size() == _instanceIds.capacity());
+
+        /*
+        if (_instanceIds.size() < _instanceIds.capacity())
+        {
+            _instanceIds.resize(_instanceIds.capacity());
+        }
+        else
+        */
+            _instanceIds.resize(floor(newInstanceId / 32.0f) * 32 + (newInstanceId % 32 > 0 ? 32 : 0));
+    }
+
+    _instanceIds[newInstanceId] = true;
+
+    return newInstanceId;
+}
+
+void MapManager::FreeInstanceId(uint32 instanceId)
+{
+    // If freed instance id is lower than the next id available for new instances, use the freed one instead
+    if (instanceId < _nextInstanceId)
+        SetNextInstanceId(instanceId);
+
+    _instanceIds[instanceId] = false;
 }

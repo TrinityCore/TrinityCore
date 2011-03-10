@@ -257,12 +257,9 @@ void InstanceSaveManager::_DelHelper(const char *fields, const char *table, cons
     }
 }
 
-void InstanceSaveManager::CleanupAndPackInstances()
+void InstanceSaveManager::LoadInstances()
 {
     uint32 oldMSTime = getMSTime();
-
-    // load reset times and clean expired instances
-    sInstanceSaveMgr->LoadResetTimes();
 
     // Delete invalid character_instance and group_instance references
     CharacterDatabase.DirectExecute("DELETE ci.* FROM character_instance AS ci LEFT JOIN characters AS c ON ci.guid = c.guid WHERE c.guid IS NULL");
@@ -281,26 +278,13 @@ void InstanceSaveManager::CleanupAndPackInstances()
     CharacterDatabase.DirectExecute("UPDATE corpse     AS tmp LEFT JOIN instance ON tmp.instance    = instance.id SET tmp.instance    = 0 WHERE tmp.instance    > 0 AND instance.id IS NULL");
     CharacterDatabase.DirectExecute("UPDATE characters AS tmp LEFT JOIN instance ON tmp.instance_id = instance.id SET tmp.instance_id = 0 WHERE tmp.instance_id > 0 AND instance.id IS NULL");
 
-    // Create new index
-    CharacterDatabase.DirectExecute("ALTER TABLE instance ADD newid INT UNSIGNED AUTO_INCREMENT, ADD INDEX(newid)");
+    // Initialize instance id storage (Needs to be done after the trash has been clean out)
+    sMapMgr->InitInstanceIds();
 
-    // Update old ids
-    CharacterDatabase.DirectExecute("UPDATE account_instance_times  AS tmp LEFT JOIN instance ON tmp.instanceId  = instance.id SET tmp.instanceId  = instance.newid WHERE tmp.instanceId  > 0 AND instance.newid IS NOT NULL"); // can be null and must not be cleaned! its an "already reset" but still limited case
-    CharacterDatabase.DirectExecute("UPDATE corpse                  AS tmp LEFT JOIN instance ON tmp.instance    = instance.id SET tmp.instance    = instance.newid WHERE tmp.instance    > 0");
-    CharacterDatabase.DirectExecute("UPDATE character_instance      AS tmp LEFT JOIN instance ON tmp.instance    = instance.id SET tmp.instance    = instance.newid WHERE tmp.instance    > 0");
-    CharacterDatabase.DirectExecute("UPDATE group_instance          AS tmp LEFT JOIN instance ON tmp.instance    = instance.id SET tmp.instance    = instance.newid WHERE tmp.instance    > 0");
-    CharacterDatabase.DirectExecute("UPDATE characters              AS tmp LEFT JOIN instance ON tmp.instance_id = instance.id SET tmp.instance_id = instance.newid WHERE tmp.instance_id > 0");
-    CharacterDatabase.DirectExecute("UPDATE creature_respawn        AS tmp LEFT JOIN instance ON tmp.instance    = instance.id SET tmp.instance    = instance.newid WHERE tmp.instance    > 0");
-    CharacterDatabase.DirectExecute("UPDATE gameobject_respawn      AS tmp LEFT JOIN instance ON tmp.instance    = instance.id SET tmp.instance    = instance.newid WHERE tmp.instance    > 0");
+    // Load reset times and clean expired instances
+    sInstanceSaveMgr->LoadResetTimes();
 
-    // Update instance too
-    CharacterDatabase.DirectExecute("UPDATE instance SET id = newid");
-
-    // Finally drop the no longer needed column
-    CharacterDatabase.DirectExecute("ALTER TABLE instance DROP COLUMN newid");
-
-    // Bake some cookies for click
-    sLog->outString(">> Cleaned up and packed instances in %u ms", GetMSTimeDiffToNow(oldMSTime));
+    sLog->outString(">> Loaded instances in %u ms", GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
 }
 
@@ -322,20 +306,30 @@ void InstanceSaveManager::LoadResetTimes()
     typedef std::multimap<uint32 /*PAIR32(map,difficulty)*/, uint32 /*instanceid*/ > ResetTimeMapDiffInstances;
     ResetTimeMapDiffInstances mapDiffResetInstances;
 
-    QueryResult result = CharacterDatabase.Query("SELECT id, map, difficulty, resettime FROM instance WHERE resettime > 0");
+    QueryResult result = CharacterDatabase.Query("SELECT id, map, difficulty, resettime FROM instance ORDER BY id ASC");
     if (result)
     {
         do
         {
             Field* fields = result->Fetch();
 
+            uint32 instanceId = fields[0].GetUInt32();
+
+            // Instances are pulled in ascending order from db and nextInstanceId is initialized with 1,
+            // so if the instance id is used, increment until we find the first unused one for a potential new instance
+            if (sMapMgr->GetNextInstanceId() == instanceId)
+                sMapMgr->SetNextInstanceId(instanceId + 1);
+
+            // Mark instance id as being used
+            sMapMgr->RegisterInstanceId(instanceId);
+
             if (time_t resettime = time_t(fields[3].GetUInt32()))
             {
-                uint32 id = fields[0].GetUInt32();
                 uint32 mapid = fields[1].GetUInt16();
                 uint32 difficulty = fields[2].GetUInt8();
-                instResetTime[id] = ResetTimeMapDiffType(MAKE_PAIR32(mapid, difficulty), resettime);
-                mapDiffResetInstances.insert(ResetTimeMapDiffInstances::value_type(MAKE_PAIR32(mapid, difficulty), id));
+
+                instResetTime[instanceId] = ResetTimeMapDiffType(MAKE_PAIR32(mapid, difficulty), resettime);
+                mapDiffResetInstances.insert(ResetTimeMapDiffInstances::value_type(MAKE_PAIR32(mapid, difficulty), instanceId));
             }
         }
         while (result->NextRow());
@@ -564,6 +558,9 @@ void InstanceSaveManager::_ResetInstance(uint32 mapid, uint32 instanceId)
         ((InstanceMap*)iMap)->Reset(INSTANCE_RESET_RESPAWN_DELAY);
     else
         sObjectMgr->DeleteRespawnTimeForInstance(instanceId);   // even if map is not loaded
+
+    // Free up the instance id and allow it to be reused
+    sMapMgr->FreeInstanceId(iMap->GetInstanceId());
 }
 
 void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, bool warn, time_t resetTime)
