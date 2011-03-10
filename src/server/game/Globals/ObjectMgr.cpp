@@ -298,8 +298,7 @@ ObjectMgr::~ObjectMgr()
         delete *itr;
 
     for (GuildMap::iterator itr = mGuildMap.begin(); itr != mGuildMap.end(); ++itr)
-        if (*itr)
-            delete *itr;
+        delete itr->second;
 
     for (ArenaTeamMap::iterator itr = mArenaTeamMap.begin(); itr != mArenaTeamMap.end(); ++itr)
         delete itr->second;
@@ -332,9 +331,10 @@ Group* ObjectMgr::GetGroupByStorageId(uint32 storageId) const
 // Guild collection
 Guild* ObjectMgr::GetGuildById(uint32 guildId) const
 {
-    // Make sure given index exists in collection
-    if (guildId < uint32(mGuildMap.size()))
-        return mGuildMap[guildId];
+    GuildMap::const_iterator itr = mGuildMap.find(guildId);
+    if (itr != mGuildMap.end())
+        return itr->second;
+
     return NULL;
 }
 
@@ -344,13 +344,10 @@ Guild* ObjectMgr::GetGuildByName(const std::string& guildname) const
     std::transform(search.begin(), search.end(), search.begin(), ::toupper);
     for (GuildMap::const_iterator itr = mGuildMap.begin(); itr != mGuildMap.end(); ++itr)
     {
-        if (*itr)
-        {
-            std::string gname = (*itr)->GetName();
-            std::transform(gname.begin(), gname.end(), gname.begin(), ::toupper);
-            if (search == gname)
-                return *itr;
-        }
+        std::string gname = itr->second->GetName();
+        std::transform(gname.begin(), gname.end(), gname.begin(), ::toupper);
+        if (search == gname)
+            return itr->second;
     }
     return NULL;
 }
@@ -365,29 +362,20 @@ std::string ObjectMgr::GetGuildNameById(uint32 guildId) const
 Guild* ObjectMgr::GetGuildByLeader(const uint64 &guid) const
 {
     for (GuildMap::const_iterator itr = mGuildMap.begin(); itr != mGuildMap.end(); ++itr)
-        if ((*itr) && (*itr)->GetLeaderGUID() == guid)
-            return *itr;
+        if (itr->second->GetLeaderGUID() == guid)
+            return itr->second;
 
     return NULL;
 }
 
-void ObjectMgr::AddGuild(Guild* pGuild)
+void ObjectMgr::AddGuild(Guild* guild)
 {
-    uint32 guildId = pGuild->GetId();
-    // Allocate space if necessary
-    if (guildId >= uint32(mGuildMap.size()))
-        // Reserve a bit more space than necessary.
-        // 16 is intentional and it will allow creation of next 16 guilds happen
-        // without reallocation.
-        mGuildMap.resize(guildId + 16);
-    mGuildMap[guildId] = pGuild;
+    mGuildMap[guild->GetId()] = guild;
 }
 
 void ObjectMgr::RemoveGuild(uint32 guildId)
 {
-    // Make sure given index exists
-    if (guildId < uint32(mGuildMap.size()))
-        mGuildMap[guildId] = NULL;
+    mGuildMap.erase(guildId);
 }
 
 // Arena teams collection
@@ -3676,8 +3664,6 @@ void ObjectMgr::LoadGuilds()
         }
         else
         {
-            mGuildMap.resize(m_guildId, NULL);         // Reserve space and initialize storage for loading guilds //TODOLEAK: fix this shit
-
             uint32 count = 0;
             do
             {
@@ -3968,7 +3954,7 @@ void ObjectMgr::LoadGuilds()
 
         for (GuildMap::iterator itr = mGuildMap.begin(); itr != mGuildMap.end(); ++itr)
         {
-            Guild* pGuild = *itr;
+            Guild* pGuild = itr->second;
             if (pGuild)
             {
                 if (!pGuild->Validate())
