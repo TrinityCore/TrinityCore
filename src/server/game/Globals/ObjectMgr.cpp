@@ -3679,18 +3679,18 @@ void ObjectMgr::LoadGuilds()
             mGuildMap.resize(m_guildId, NULL);         // Reserve space and initialize storage for loading guilds //TODOLEAK: fix this shit
 
             uint32 count = 0;
-
             do
             {
-
                 Field* fields = result->Fetch();
                 Guild* pNewGuild = new Guild();
+
                 if (!pNewGuild->LoadFromDB(fields))
                 {
                     delete pNewGuild;
                     continue;
                 }
                 AddGuild(pNewGuild);
+
                 ++count;
             }
             while (result->NextRow());
@@ -3720,14 +3720,14 @@ void ObjectMgr::LoadGuilds()
         else
         {
             uint32 count = 0;
-
             do
             {
-
                 Field* fields = result->Fetch();
                 uint32 guildId = fields[0].GetUInt32();
+
                 if (Guild* pGuild = GetGuildById(guildId))
-                    pGuild->LoadRankFromDB(fields);                     //TODOLEAK: untangle that shit
+                    pGuild->LoadRankFromDB(fields);
+
                 ++count;
             }
             while (result->NextRow());
@@ -3760,11 +3760,12 @@ void ObjectMgr::LoadGuilds()
 
             do
             {
-
                 Field* fields = result->Fetch();
                 uint32 guildId = fields[0].GetUInt32();
+
                 if (Guild* pGuild = GetGuildById(guildId))
                     pGuild->LoadMemberFromDB(fields);
+
                 ++count;
             }
             while (result->NextRow());
@@ -3794,14 +3795,14 @@ void ObjectMgr::LoadGuilds()
         else
         {
             uint32 count = 0;
-
             do
             {
-
                 Field* fields = result->Fetch();
                 uint32 guildId = fields[0].GetUInt32();
+
                 if (Guild* pGuild = GetGuildById(guildId))
                     pGuild->LoadBankRightFromDB(fields);
+
                 ++count;
             }
             while (result->NextRow());
@@ -3831,14 +3832,14 @@ void ObjectMgr::LoadGuilds()
         else
         {
             uint32 count = 0;
-
             do
             {
-
                 Field* fields = result->Fetch();
                 uint32 guildId = fields[0].GetUInt32();
+
                 if (Guild* pGuild = GetGuildById(guildId))
                     pGuild->LoadEventLogFromDB(fields);
+
                 ++count;
             }
             while (result->NextRow());
@@ -3869,14 +3870,14 @@ void ObjectMgr::LoadGuilds()
         else
         {
             uint32 count = 0;
-
             do
             {
-
                 Field* fields = result->Fetch();
                 uint32 guildId = fields[0].GetUInt32();
+
                 if (Guild* pGuild = GetGuildById(guildId))
                     pGuild->LoadBankEventLogFromDB(fields);
+
                 ++count;
             }
             while (result->NextRow());
@@ -3906,14 +3907,14 @@ void ObjectMgr::LoadGuilds()
         else
         {
             uint32 count = 0;
-
             do
             {
-
                 Field* fields = result->Fetch();
                 uint32 guildId = fields[0].GetUInt32();
+
                 if (Guild* pGuild = GetGuildById(guildId))
                     pGuild->LoadBankTabFromDB(fields);
+
                 ++count;
             }
             while (result->NextRow());
@@ -3943,14 +3944,14 @@ void ObjectMgr::LoadGuilds()
         else
         {
             uint32 count = 0;
-
             do
             {
-
                 Field* fields = result->Fetch();
                 uint32 guildId = fields[11].GetUInt32();
+
                 if (Guild* pGuild = GetGuildById(guildId))
                     pGuild->LoadBankItemFromDB(fields);
+
                 ++count;
             }
             while (result->NextRow());
