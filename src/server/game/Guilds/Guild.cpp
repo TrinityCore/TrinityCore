@@ -198,7 +198,7 @@ void Guild::BankEventLogEntry::WritePacket(WorldPacket& data) const
 
 ///////////////////////////////////////////////////////////////////////////////
 // RankInfo
-bool Guild::RankInfo::LoadFromDB(Field* fields)
+void Guild::RankInfo::LoadFromDB(Field* fields)
 {
     m_rankId            = fields[1].GetUInt8();
     m_name              = fields[2].GetString();
@@ -206,7 +206,6 @@ bool Guild::RankInfo::LoadFromDB(Field* fields)
     m_bankMoneyPerDay   = fields[4].GetUInt32();
     if (m_rankId == GR_GUILDMASTER)                     // Prevent loss of leader rights
         m_rights |= GR_RIGHT_ALL;
-    return true;
 }
 
 void Guild::RankInfo::SaveToDB(SQLTransaction& trans) const
@@ -1855,13 +1854,13 @@ bool Guild::LoadFromDB(Field* fields)
     return true;
 }
 
-bool Guild::LoadRankFromDB(Field* fields)
+void Guild::LoadRankFromDB(Field* fields)
 {
     RankInfo rankInfo(m_id);
-    if (!rankInfo.LoadFromDB(fields))
-        return false;
+
+    rankInfo.LoadFromDB(fields);
+
     m_ranks.push_back(rankInfo);
-    return true;
 }
 
 bool Guild::LoadMemberFromDB(Field* fields)
@@ -1878,13 +1877,12 @@ bool Guild::LoadMemberFromDB(Field* fields)
     return true;
 }
 
-bool Guild::LoadBankRightFromDB(Field* fields)
+void Guild::LoadBankRightFromDB(Field* fields)
 {
                                            // rights             slots
     GuildBankRightsAndSlots rightsAndSlots(fields[3].GetUInt8(), fields[4].GetUInt32());
                                   // rankId             tabId
     _SetRankBankTabRightsAndSlots(fields[2].GetUInt8(), fields[1].GetUInt8(), rightsAndSlots, false);
-    return true;
 }
 
 bool Guild::LoadEventLogFromDB(Field* fields)

@@ -536,403 +536,420 @@ void PoolGroup<Quest>::ReSpawn1Object(PoolObject* /*obj*/)
 ////////////////////////////////////////////////////////////
 // Methods of class PoolMgr
 
-PoolMgr::PoolMgr()
+PoolMgr::PoolMgr() : max_pool_id(0)
 {
 }
 
-void PoolMgr::LoadFromDB()
+void PoolMgr::Initialize()
 {
-    uint32 oldMSTime = getMSTime();
-
     QueryResult result = WorldDatabase.Query("SELECT MAX(entry) FROM pool_template");
-    if (!result)
-    {
-        sLog->outString(">> Loaded 0 object pools. DB table `pool_template` is empty.");
-        sLog->outString();
-        return;
-    }
-    else
+    if (result)
     {
         Field *fields = result->Fetch();
         max_pool_id = fields[0].GetUInt32();
     }
 
     mPoolTemplate.resize(max_pool_id + 1);
-
-    result = WorldDatabase.Query("SELECT entry,max_limit FROM pool_template");
-    if (!result)
-    {
-        mPoolTemplate.clear();
-        sLog->outString(">> Loaded 0 object pools. DB table `pool_template` is empty.");
-        sLog->outString();
-        return;
-    }
-
-    uint32 count = 0;
-
-    do
-    {
-        ++count;
-        Field *fields = result->Fetch();
-
-
-        uint32 pool_id = fields[0].GetUInt32();
-
-        PoolTemplateData& pPoolTemplate = mPoolTemplate[pool_id];
-        pPoolTemplate.MaxLimit  = fields[1].GetUInt32();
-
-    } while (result->NextRow());
-
-    sLog->outString(">> Loaded %u objects pools in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    sLog->outString();
-
-    // Creatures
-
-    sLog->outString("Loading Creatures Pooling Data...");
-    oldMSTime = getMSTime();
-
     mPoolCreatureGroups.resize(max_pool_id + 1);
+    mPoolGameobjectGroups.resize(max_pool_id + 1);
+    mPoolPoolGroups.resize(max_pool_id + 1);
+    mPoolQuestGroups.resize(max_pool_id + 1);
+
+    mQuestSearchMap.clear();
+    mGameobjectSearchMap.clear();
     mCreatureSearchMap.clear();
-    //                                   1     2           3
-    result = WorldDatabase.Query("SELECT guid, pool_entry, chance FROM pool_creature");
+}
 
-    count = 0;
-    if (!result)
+void PoolMgr::LoadFromDB()
+{
+    // Pool templates
     {
-        sLog->outString(">> Loaded 0 creatures in  pools. DB table `pool_creature` is empty.");
-        sLog->outString();
-    }
-    else
-    {
+        uint32 oldMSTime = getMSTime();
 
+        QueryResult result = WorldDatabase.Query("SELECT entry,max_limit FROM pool_template");
+        if (!result)
+        {
+            mPoolTemplate.clear();
+            sLog->outString(">> Loaded 0 object pools. DB table `pool_template` is empty.");
+            sLog->outString();
+            return;
+        }
+
+        uint32 count = 0;
         do
         {
             Field *fields = result->Fetch();
 
+            uint32 pool_id = fields[0].GetUInt32();
 
-            uint32 guid    = fields[0].GetUInt32();
-            uint32 pool_id = fields[1].GetUInt32();
-            float chance   = fields[2].GetFloat();
+            PoolTemplateData& pPoolTemplate = mPoolTemplate[pool_id];
+            pPoolTemplate.MaxLimit  = fields[1].GetUInt32();
 
-            CreatureData const* data = sObjectMgr->GetCreatureData(guid);
-            if (!data)
-            {
-                sLog->outErrorDb("`pool_creature` has a non existing creature spawn (GUID: %u) defined for pool id (%u), skipped.", guid, pool_id);
-                continue;
-            }
-            if (pool_id > max_pool_id)
-            {
-                sLog->outErrorDb("`pool_creature` pool id (%u) is out of range compared to max pool id in `pool_template`, skipped.",pool_id);
-                continue;
-            }
-            if (chance < 0 || chance > 100)
-            {
-                sLog->outErrorDb("`pool_creature` has an invalid chance (%f) for creature guid (%u) in pool id (%u), skipped.", chance, guid, pool_id);
-                continue;
-            }
-            PoolTemplateData *pPoolTemplate = &mPoolTemplate[pool_id];
             ++count;
+        }
+        while (result->NextRow());
 
-            PoolObject plObject = PoolObject(guid, chance);
-            PoolGroup<Creature>& cregroup = mPoolCreatureGroups[pool_id];
-            cregroup.SetPoolId(pool_id);
-            cregroup.AddEntry(plObject, pPoolTemplate->MaxLimit);
-            SearchPair p(guid, pool_id);
-            mCreatureSearchMap.insert(p);
-
-        } while (result->NextRow());
-
-
-        sLog->outString(">> Loaded %u creatures in pools in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        sLog->outString(">> Loaded %u objects pools in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
         sLog->outString();
+    }
+
+    // Creatures
+
+    sLog->outString("Loading Creatures Pooling Data...");
+    {
+        uint32 oldMSTime = getMSTime();
+
+        //                                                 1     2           3
+        QueryResult result = WorldDatabase.Query("SELECT guid, pool_entry, chance FROM pool_creature");
+
+        if (!result)
+        {
+            sLog->outString(">> Loaded 0 creatures in  pools. DB table `pool_creature` is empty.");
+            sLog->outString();
+        }
+        else
+        {
+            uint32 count = 0;
+            do
+            {
+                Field *fields = result->Fetch();
+
+                uint32 guid    = fields[0].GetUInt32();
+                uint32 pool_id = fields[1].GetUInt32();
+                float chance   = fields[2].GetFloat();
+
+                CreatureData const* data = sObjectMgr->GetCreatureData(guid);
+                if (!data)
+                {
+                    sLog->outErrorDb("`pool_creature` has a non existing creature spawn (GUID: %u) defined for pool id (%u), skipped.", guid, pool_id);
+                    continue;
+                }
+                if (pool_id > max_pool_id)
+                {
+                    sLog->outErrorDb("`pool_creature` pool id (%u) is out of range compared to max pool id in `pool_template`, skipped.",pool_id);
+                    continue;
+                }
+                if (chance < 0 || chance > 100)
+                {
+                    sLog->outErrorDb("`pool_creature` has an invalid chance (%f) for creature guid (%u) in pool id (%u), skipped.", chance, guid, pool_id);
+                    continue;
+                }
+                PoolTemplateData *pPoolTemplate = &mPoolTemplate[pool_id];
+                PoolObject plObject = PoolObject(guid, chance);
+                PoolGroup<Creature>& cregroup = mPoolCreatureGroups[pool_id];
+                cregroup.SetPoolId(pool_id);
+                cregroup.AddEntry(plObject, pPoolTemplate->MaxLimit);
+                SearchPair p(guid, pool_id);
+                mCreatureSearchMap.insert(p);
+
+                ++count;
+            }
+            while (result->NextRow());
+
+            sLog->outString(">> Loaded %u creatures in pools in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outString();
+        }
     }
 
     // Gameobjects
 
     sLog->outString("Loading Gameobject Pooling Data...");
-
-    mPoolGameobjectGroups.resize(max_pool_id + 1);
-    mGameobjectSearchMap.clear();
-    //                                   1     2           3
-    result = WorldDatabase.Query("SELECT guid, pool_entry, chance FROM pool_gameobject");
-
-    count = 0;
-    if (!result)
     {
-        sLog->outString(">> Loaded 0 gameobjects in  pools. DB table `pool_gameobject` is empty.");
-        sLog->outString();
-    }
-    else
-    {
+        uint32 oldMSTime = getMSTime();
 
-        do
+        //                                                 1        2         3
+        QueryResult result = WorldDatabase.Query("SELECT guid, pool_entry, chance FROM pool_gameobject");
+
+        if (!result)
         {
-            Field *fields = result->Fetch();
-
-
-            uint32 guid    = fields[0].GetUInt32();
-            uint32 pool_id = fields[1].GetUInt32();
-            float chance   = fields[2].GetFloat();
-
-            GameObjectData const* data = sObjectMgr->GetGOData(guid);
-            if (!data)
+            sLog->outString(">> Loaded 0 gameobjects in  pools. DB table `pool_gameobject` is empty.");
+            sLog->outString();
+        }
+        else
+        {
+            uint32 count = 0;
+            do
             {
-                sLog->outErrorDb("`pool_gameobject` has a non existing gameobject spawn (GUID: %u) defined for pool id (%u), skipped.", guid, pool_id);
-                continue;
-            }
-            GameObjectInfo const* goinfo = ObjectMgr::GetGameObjectInfo(data->id);
-            if (goinfo->type != GAMEOBJECT_TYPE_CHEST &&
-                goinfo->type != GAMEOBJECT_TYPE_GOOBER &&
-                goinfo->type != GAMEOBJECT_TYPE_FISHINGHOLE)
-            {
-                sLog->outErrorDb("`pool_gameobject` has a not lootable gameobject spawn (GUID: %u, type: %u) defined for pool id (%u), skipped.", guid, goinfo->type, pool_id);
-                continue;
-            }
-            if (pool_id > max_pool_id)
-            {
-                sLog->outErrorDb("`pool_gameobject` pool id (%u) is out of range compared to max pool id in `pool_template`, skipped.",pool_id);
-                continue;
-            }
-            if (chance < 0 || chance > 100)
-            {
-                sLog->outErrorDb("`pool_gameobject` has an invalid chance (%f) for gameobject guid (%u) in pool id (%u), skipped.", chance, guid, pool_id);
-                continue;
-            }
-            PoolTemplateData *pPoolTemplate = &mPoolTemplate[pool_id];
+                Field *fields = result->Fetch();
 
-            ++count;
+                uint32 guid    = fields[0].GetUInt32();
+                uint32 pool_id = fields[1].GetUInt32();
+                float chance   = fields[2].GetFloat();
 
-            PoolObject plObject = PoolObject(guid, chance);
-            PoolGroup<GameObject>& gogroup = mPoolGameobjectGroups[pool_id];
-            gogroup.SetPoolId(pool_id);
-            gogroup.AddEntry(plObject, pPoolTemplate->MaxLimit);
-            SearchPair p(guid, pool_id);
-            mGameobjectSearchMap.insert(p);
+                GameObjectData const* data = sObjectMgr->GetGOData(guid);
+                if (!data)
+                {
+                    sLog->outErrorDb("`pool_gameobject` has a non existing gameobject spawn (GUID: %u) defined for pool id (%u), skipped.", guid, pool_id);
+                    continue;
+                }
 
-        } while (result->NextRow());
+                GameObjectInfo const* goinfo = ObjectMgr::GetGameObjectInfo(data->id);
+                if (goinfo->type != GAMEOBJECT_TYPE_CHEST &&
+                    goinfo->type != GAMEOBJECT_TYPE_GOOBER &&
+                    goinfo->type != GAMEOBJECT_TYPE_FISHINGHOLE)
+                {
+                    sLog->outErrorDb("`pool_gameobject` has a not lootable gameobject spawn (GUID: %u, type: %u) defined for pool id (%u), skipped.", guid, goinfo->type, pool_id);
+                    continue;
+                }
 
-        sLog->outString(">> Loaded %u gameobject in pools in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-        sLog->outString();
+                if (pool_id > max_pool_id)
+                {
+                    sLog->outErrorDb("`pool_gameobject` pool id (%u) is out of range compared to max pool id in `pool_template`, skipped.",pool_id);
+                    continue;
+                }
+
+                if (chance < 0 || chance > 100)
+                {
+                    sLog->outErrorDb("`pool_gameobject` has an invalid chance (%f) for gameobject guid (%u) in pool id (%u), skipped.", chance, guid, pool_id);
+                    continue;
+                }
+
+                PoolTemplateData *pPoolTemplate = &mPoolTemplate[pool_id];
+                PoolObject plObject = PoolObject(guid, chance);
+                PoolGroup<GameObject>& gogroup = mPoolGameobjectGroups[pool_id];
+                gogroup.SetPoolId(pool_id);
+                gogroup.AddEntry(plObject, pPoolTemplate->MaxLimit);
+                SearchPair p(guid, pool_id);
+                mGameobjectSearchMap.insert(p);
+
+                ++count;
+            }
+            while (result->NextRow());
+
+            sLog->outString(">> Loaded %u gameobject in pools in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outString();
+        }
     }
+
 
     // Pool of pools
 
     sLog->outString("Loading Mother Pooling Data...");
-    oldMSTime = getMSTime();
-
-    mPoolPoolGroups.resize(max_pool_id + 1);
-    //                                      1        2            3
-    result = WorldDatabase.Query("SELECT pool_id, mother_pool, chance FROM pool_pool");
-
-    count = 0;
-    if (!result)
     {
-        sLog->outString(">> Loaded 0 pools in pools");
-        sLog->outString();
-    }
-    else
-    {
+        uint32 oldMSTime = getMSTime();
 
-        do
+        //                                                  1        2            3
+        QueryResult result = WorldDatabase.Query("SELECT pool_id, mother_pool, chance FROM pool_pool");
+
+        if (!result)
         {
-            Field *fields = result->Fetch();
-
-
-            uint32 child_pool_id  = fields[0].GetUInt32();
-            uint32 mother_pool_id = fields[1].GetUInt32();
-            float chance          = fields[2].GetFloat();
-
-            if (mother_pool_id > max_pool_id)
-            {
-                sLog->outErrorDb("`pool_pool` mother_pool id (%u) is out of range compared to max pool id in `pool_template`, skipped.",mother_pool_id);
-                continue;
-            }
-            if (child_pool_id > max_pool_id)
-            {
-                sLog->outErrorDb("`pool_pool` included pool_id (%u) is out of range compared to max pool id in `pool_template`, skipped.",child_pool_id);
-                continue;
-            }
-            if (mother_pool_id == child_pool_id)
-            {
-                sLog->outErrorDb("`pool_pool` pool_id (%u) includes itself, dead-lock detected, skipped.",child_pool_id);
-                continue;
-            }
-            if (chance < 0 || chance > 100)
-            {
-                sLog->outErrorDb("`pool_pool` has an invalid chance (%f) for pool id (%u) in mother pool id (%u), skipped.", chance, child_pool_id, mother_pool_id);
-                continue;
-            }
-            PoolTemplateData *pPoolTemplateMother = &mPoolTemplate[mother_pool_id];
-
-            ++count;
-
-            PoolObject plObject = PoolObject(child_pool_id, chance);
-            PoolGroup<Pool>& plgroup = mPoolPoolGroups[mother_pool_id];
-            plgroup.SetPoolId(mother_pool_id);
-            plgroup.AddEntry(plObject, pPoolTemplateMother->MaxLimit);
-            SearchPair p(child_pool_id, mother_pool_id);
-            mPoolSearchMap.insert(p);
-
-        } while (result->NextRow());
-
-        // Now check for circular reference
-        for (uint32 i=0; i<max_pool_id; ++i)
+            sLog->outString(">> Loaded 0 pools in pools");
+            sLog->outString();
+        }
+        else
         {
-            std::set<uint32> checkedPools;
-            for (SearchMap::iterator poolItr = mPoolSearchMap.find(i); poolItr != mPoolSearchMap.end(); poolItr = mPoolSearchMap.find(poolItr->second))
+            uint32 count = 0;
+            do
             {
-                checkedPools.insert(poolItr->first);
-                if (checkedPools.find(poolItr->second) != checkedPools.end())
+                Field *fields = result->Fetch();
+
+                uint32 child_pool_id  = fields[0].GetUInt32();
+                uint32 mother_pool_id = fields[1].GetUInt32();
+                float chance          = fields[2].GetFloat();
+
+                if (mother_pool_id > max_pool_id)
                 {
-                    std::ostringstream ss;
-                    ss<< "The pool(s) ";
-                    for (std::set<uint32>::const_iterator itr=checkedPools.begin(); itr != checkedPools.end(); ++itr)
-                        ss << *itr << " ";
-                    ss << "create(s) a circular reference, which can cause the server to freeze.\nRemoving the last link between mother pool "
-                        << poolItr->first << " and child pool " << poolItr->second;
-                    sLog->outErrorDb("%s", ss.str().c_str());
-                    mPoolPoolGroups[poolItr->second].RemoveOneRelation(poolItr->first);
-                    mPoolSearchMap.erase(poolItr);
-                    --count;
-                    break;
+                    sLog->outErrorDb("`pool_pool` mother_pool id (%u) is out of range compared to max pool id in `pool_template`, skipped.",mother_pool_id);
+                    continue;
+                }
+                if (child_pool_id > max_pool_id)
+                {
+                    sLog->outErrorDb("`pool_pool` included pool_id (%u) is out of range compared to max pool id in `pool_template`, skipped.",child_pool_id);
+                    continue;
+                }
+                if (mother_pool_id == child_pool_id)
+                {
+                    sLog->outErrorDb("`pool_pool` pool_id (%u) includes itself, dead-lock detected, skipped.",child_pool_id);
+                    continue;
+                }
+                if (chance < 0 || chance > 100)
+                {
+                    sLog->outErrorDb("`pool_pool` has an invalid chance (%f) for pool id (%u) in mother pool id (%u), skipped.", chance, child_pool_id, mother_pool_id);
+                    continue;
+                }
+                PoolTemplateData *pPoolTemplateMother = &mPoolTemplate[mother_pool_id];
+                PoolObject plObject = PoolObject(child_pool_id, chance);
+                PoolGroup<Pool>& plgroup = mPoolPoolGroups[mother_pool_id];
+                plgroup.SetPoolId(mother_pool_id);
+                plgroup.AddEntry(plObject, pPoolTemplateMother->MaxLimit);
+                SearchPair p(child_pool_id, mother_pool_id);
+                mPoolSearchMap.insert(p);
+
+                ++count;
+            }
+            while (result->NextRow());
+
+            // Now check for circular reference
+            for (uint32 i=0; i<mPoolPoolGroups.size(); ++i)
+            {
+                std::set<uint32> checkedPools;
+                for (SearchMap::iterator poolItr = mPoolSearchMap.find(i); poolItr != mPoolSearchMap.end(); poolItr = mPoolSearchMap.find(poolItr->second))
+                {
+                    checkedPools.insert(poolItr->first);
+                    if (checkedPools.find(poolItr->second) != checkedPools.end())
+                    {
+                        std::ostringstream ss;
+                        ss<< "The pool(s) ";
+                        for (std::set<uint32>::const_iterator itr=checkedPools.begin(); itr != checkedPools.end(); ++itr)
+                            ss << *itr << " ";
+                        ss << "create(s) a circular reference, which can cause the server to freeze.\nRemoving the last link between mother pool "
+                            << poolItr->first << " and child pool " << poolItr->second;
+                        sLog->outErrorDb("%s", ss.str().c_str());
+                        mPoolPoolGroups[poolItr->second].RemoveOneRelation(poolItr->first);
+                        mPoolSearchMap.erase(poolItr);
+                        --count;
+                        break;
+                    }
                 }
             }
-        }
 
-        sLog->outString(">> Loaded %u pools in mother pools in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-        sLog->outString();
+            sLog->outString(">> Loaded %u pools in mother pools in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outString();
+        }
+    }
+
+    sLog->outString("Loading Quest Pooling Data...");
+    {
+        uint32 oldMSTime = getMSTime();
+
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_LOAD_QUEST_POOLS);
+        PreparedQueryResult result = WorldDatabase.Query(stmt);
+
+        if (!result)
+        {
+            sLog->outString(">> Loaded 0 quests in pools");
+            sLog->outString();
+        }
+        else
+        {
+            PooledQuestRelationBounds creBounds;
+            PooledQuestRelationBounds goBounds;
+
+            enum eQuestTypes
+            {
+                QUEST_NONE   = 0,
+                QUEST_DAILY  = 1,
+                QUEST_WEEKLY = 2
+            };
+
+            std::map<uint32, int32> poolTypeMap;
+            uint32 count = 0;
+            do
+            {
+                Field* fields = result->Fetch();
+
+                uint32 entry   = fields[0].GetUInt32();
+                uint32 pool_id = fields[1].GetUInt32();
+
+                Quest const* pQuest = sObjectMgr->GetQuestTemplate(entry);
+                if (!pQuest)
+                {
+                    sLog->outErrorDb("`pool_quest` has a non existing quest template (Entry: %u) defined for pool id (%u), skipped.", entry, pool_id);
+                    continue;
+                }
+
+                if (pool_id > max_pool_id)
+                {
+                    sLog->outErrorDb("`pool_quest` pool id (%u) is out of range compared to max pool id in `pool_template`, skipped.",pool_id);
+                    continue;
+                }
+
+                if (!pQuest->IsDailyOrWeekly())
+                {
+                    sLog->outErrorDb("`pool_quest` has an quest (%u) which is not daily or weekly in pool id (%u), use ExclusiveGroup instead, skipped.", entry, pool_id);
+                    continue;
+                }
+
+                if (poolTypeMap[pool_id] == QUEST_NONE)
+                    poolTypeMap[pool_id] = pQuest->IsDaily() ? QUEST_DAILY : QUEST_WEEKLY;
+
+                int32 currType = pQuest->IsDaily() ? QUEST_DAILY : QUEST_WEEKLY;
+
+                if (poolTypeMap[pool_id] != currType)
+                {
+                    sLog->outErrorDb("`pool_quest` quest %u is %s but pool (%u) is specified for %s, mixing not allowed, skipped.",
+                                     entry, currType == QUEST_DAILY ? "QUEST_DAILY" : "QUEST_WEEKLY", pool_id, poolTypeMap[pool_id] == QUEST_DAILY ? "QUEST_DAILY" : "QUEST_WEEKLY");
+                    continue;
+                }
+
+                creBounds = mQuestCreatureRelation.equal_range(entry);
+                goBounds = mQuestGORelation.equal_range(entry);
+
+                if (creBounds.first == creBounds.second && goBounds.first == goBounds.second)
+                {
+                    sLog->outErrorDb("`pool_quest` lists entry (%u) as member of pool (%u) but is not started anywhere, skipped.", entry, pool_id);
+                    continue;
+                }
+
+                PoolTemplateData *pPoolTemplate = &mPoolTemplate[pool_id];
+                PoolObject plObject = PoolObject(entry, 0.0f);
+                PoolGroup<Quest>& questgroup = mPoolQuestGroups[pool_id];
+                questgroup.SetPoolId(pool_id);
+                questgroup.AddEntry(plObject, pPoolTemplate->MaxLimit);
+                SearchPair p(entry, pool_id);
+                mQuestSearchMap.insert(p);
+
+                ++count;
+            }
+            while (result->NextRow());
+
+            sLog->outString(">> Loaded %u quests in pools in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outString();
+        }
+    }
+
+    // The initialize method will spawn all pools not in an event and not in another pool, this is why there is 2 left joins with 2 null checks
+    sLog->outString("Starting objects pooling system...");
+    {
+        uint32 oldMSTime = getMSTime();
+
+        QueryResult result = WorldDatabase.Query("SELECT DISTINCT pool_template.entry, pool_pool.pool_id, pool_pool.mother_pool FROM pool_template"
+            " LEFT JOIN game_event_pool ON pool_template.entry=game_event_pool.pool_entry"
+            " LEFT JOIN pool_pool ON pool_template.entry=pool_pool.pool_id WHERE game_event_pool.pool_entry IS NULL");
+
+        if (!result)
+        {
+            sLog->outString(">> Pool handling system initialized, 0 pools spawned.");
+            sLog->outString();
+        }
+        else
+        {
+            uint32 count = 0;
+            do
+            {
+                Field *fields = result->Fetch();
+                uint32 pool_entry = fields[0].GetUInt32();
+                uint32 pool_pool_id = fields[1].GetUInt32();
+
+                if (!CheckPool(pool_entry))
+                {
+                    if (pool_pool_id)
+                        // The pool is a child pool in pool_pool table. Ideally we should remove it from the pool handler to ensure it never gets spawned,
+                        // however that could recursively invalidate entire chain of mother pools. It can be done in the future but for now we'll do nothing.
+                        sLog->outErrorDb("Pool Id %u has no equal chance pooled entites defined and explicit chance sum is not 100. This broken pool is a child pool of Id %u and cannot be safely removed.", pool_entry, fields[2].GetUInt32());
+                    else
+                        sLog->outErrorDb("Pool Id %u has no equal chance pooled entites defined and explicit chance sum is not 100. The pool will not be spawned.", pool_entry);
+                    continue;
+                }
+
+                // Don't spawn child pools, they are spawned recursively by their parent pools
+                if (!pool_pool_id)
+                {
+                    SpawnPool(pool_entry);
+                    count++;
+                }
+            }
+            while (result->NextRow());
+
+            sLog->outBasic("Pool handling system initialized, %u pools spawned in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outString();
+        }
     }
 }
 
 void PoolMgr::LoadQuestPools()
 {
-    uint32 oldMSTime = getMSTime();
 
-    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_LOAD_QUEST_POOLS);
-    PreparedQueryResult result = WorldDatabase.Query(stmt);
-
-    mQuestSearchMap.clear();
-    mPoolQuestGroups.resize(max_pool_id + 1);
-
-    uint32 count = 0;
-    if (!result)
-    {
-        sLog->outString(">> Loaded 0 quests in pools");
-        sLog->outString();
-        return;
-    }
-
-    PooledQuestRelationBounds creBounds;
-    PooledQuestRelationBounds goBounds;
-
-    enum eQuestTypes
-    {
-        QUEST_NONE   = 0,
-        QUEST_DAILY  = 1,
-        QUEST_WEEKLY = 2
-    };
-
-    std::map<uint32, int32> poolTypeMap;
-
-    do
-    {
-
-        Field* fields = result->Fetch();
-
-        uint32 entry   = fields[0].GetUInt32();
-        uint32 pool_id = fields[1].GetUInt32();
-
-        Quest const* pQuest = sObjectMgr->GetQuestTemplate(entry);
-        if (!pQuest)
-        {
-            sLog->outErrorDb("`pool_quest` has a non existing quest template (Entry: %u) defined for pool id (%u), skipped.", entry, pool_id);
-            continue;
-        }
-
-        if (pool_id > max_pool_id)
-        {
-            sLog->outErrorDb("`pool_quest` pool id (%u) is out of range compared to max pool id in `pool_template`, skipped.",pool_id);
-            continue;
-        }
-
-        if (!pQuest->IsDailyOrWeekly())
-        {
-            sLog->outErrorDb("`pool_quest` has an quest (%u) which is not daily or weekly in pool id (%u), use ExclusiveGroup instead, skipped.", entry, pool_id);
-            continue;
-        }
-
-        if (poolTypeMap[pool_id] == QUEST_NONE)
-            poolTypeMap[pool_id] = pQuest->IsDaily() ? QUEST_DAILY : QUEST_WEEKLY;
-
-        int32 currType = pQuest->IsDaily() ? QUEST_DAILY : QUEST_WEEKLY;
-
-        if (poolTypeMap[pool_id] != currType)
-        {
-            sLog->outErrorDb("`pool_quest` quest %u is %s but pool (%u) is specified for %s, mixing not allowed, skipped.", entry, currType == QUEST_DAILY ? "QUEST_DAILY" : "QUEST_WEEKLY", pool_id, poolTypeMap[pool_id] == QUEST_DAILY ? "QUEST_DAILY" : "QUEST_WEEKLY");
-            continue;
-        }
-
-        creBounds = mQuestCreatureRelation.equal_range(entry);
-        goBounds = mQuestGORelation.equal_range(entry);
-
-        if (creBounds.first == creBounds.second && goBounds.first == goBounds.second)
-        {
-            sLog->outErrorDb("`pool_quest` lists entry (%u) as member of pool (%u) but is not started anywhere, skipped.", entry, pool_id);
-            continue;
-        }
-
-
-        PoolTemplateData *pPoolTemplate = &mPoolTemplate[pool_id];
-        ++count;
-
-        PoolObject plObject = PoolObject(entry, 0.0f);
-        PoolGroup<Quest>& questgroup = mPoolQuestGroups[pool_id];
-        questgroup.SetPoolId(pool_id);
-        questgroup.AddEntry(plObject, pPoolTemplate->MaxLimit);
-        SearchPair p(entry, pool_id);
-        mQuestSearchMap.insert(p);
-
-    }
-    while (result->NextRow());
-
-    sLog->outString(">> Loaded %u quests in pools in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-    sLog->outString();
-}
-
-// The initialize method will spawn all pools not in an event and not in another pool, this is why there is 2 left joins with 2 null checks
-void PoolMgr::Initialize()
-{
-    QueryResult result = WorldDatabase.Query("SELECT DISTINCT pool_template.entry, pool_pool.pool_id, pool_pool.mother_pool FROM pool_template LEFT JOIN game_event_pool ON pool_template.entry=game_event_pool.pool_entry LEFT JOIN pool_pool ON pool_template.entry=pool_pool.pool_id WHERE game_event_pool.pool_entry IS NULL");
-    uint32 count = 0;
-    if (result)
-    {
-        do
-        {
-            Field *fields = result->Fetch();
-            uint32 pool_entry = fields[0].GetUInt32();
-            uint32 pool_pool_id = fields[1].GetUInt32();
-
-            if (!CheckPool(pool_entry))
-            {
-                if (pool_pool_id)
-                    // The pool is a child pool in pool_pool table. Ideally we should remove it from the pool handler to ensure it never gets spawned,
-                    // however that could recursively invalidate entire chain of mother pools. It can be done in the future but for now we'll do nothing.
-                    sLog->outErrorDb("Pool Id %u has no equal chance pooled entites defined and explicit chance sum is not 100. This broken pool is a child pool of Id %u and cannot be safely removed.", pool_entry, fields[2].GetUInt32());
-                else
-                    sLog->outErrorDb("Pool Id %u has no equal chance pooled entites defined and explicit chance sum is not 100. The pool will not be spawned.", pool_entry);
-                continue;
-            }
-
-            // Don't spawn child pools, they are spawned recursively by their parent pools
-            if (!pool_pool_id)
-            {
-                SpawnPool(pool_entry);
-                count++;
-            }
-        } while (result->NextRow());
-    }
-
-    sLog->outBasic("Pool handling system initialized, %u pools spawned.", count);
 }
 
 void PoolMgr::SaveQuestsToDB()
