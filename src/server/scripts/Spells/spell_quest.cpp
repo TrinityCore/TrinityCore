@@ -729,6 +729,52 @@ public:
     }
 };
 
+enum eWhoarethey
+{
+    SPELL_QUESTGIVER = 48917,
+
+    SPELL_MALE_DISGUISE = 38080,
+    SPELL_FEMALE_DISGUISE = 38081,
+    SPELL_GENERIC_DISGUISE = 32756
+};
+
+class spell_q10041_q10040_who_are_they : public SpellScriptLoader
+{
+    public:
+        spell_q10041_q10040_who_are_they() : SpellScriptLoader("spell_q10041_q10040_who_are_they") { }
+
+        class spell_q10041_q10040_who_are_they_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q10041_q10040_who_are_they_SpellScript);
+
+            bool Validate(SpellEntry const * /*spellEntry*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_QUESTGIVER))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                if (!GetHitUnit() || !GetHitUnit()->ToPlayer())
+                    return;
+
+                GetHitUnit()->CastSpell(GetHitUnit(), GetHitUnit()->getGender() == GENDER_MALE ? SPELL_MALE_DISGUISE : SPELL_FEMALE_DISGUISE, true);
+                GetHitUnit()->CastSpell(GetHitUnit(), SPELL_GENERIC_DISGUISE, true);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_q10041_q10040_who_are_they_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q10041_q10040_who_are_they_SpellScript();
+        }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -746,4 +792,5 @@ void AddSC_quest_spell_scripts()
     new spell_q12683_take_sputum_sample();
     new spell_q12851_going_bearback();
     new spell_q12937_relief_for_the_fallen();
+    new spell_q10041_q10040_who_are_they();
 }
