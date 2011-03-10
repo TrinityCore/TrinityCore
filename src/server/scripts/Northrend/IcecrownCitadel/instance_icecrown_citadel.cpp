@@ -835,10 +835,10 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 rimefang;
             std::set<uint64> coldflameJets;
             uint32 teamInInstance;
-            uint8 coldflameJetsState;
-            uint8 frostwyrms;
-            uint8 spinestalkerTrash;
-            uint8 rimefangTrash;
+            uint16 coldflameJetsState;
+            uint16 frostwyrms;
+            uint16 spinestalkerTrash;
+            uint16 rimefangTrash;
             bool isBonedEligible;
             bool isOozeDanceEligible;
             bool isNauseaEligible;
