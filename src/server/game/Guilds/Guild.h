@@ -417,7 +417,7 @@ private:
         RankInfo(uint32 guildId, uint8 rankId, const std::string& name, uint32 rights, uint32 money) :
             m_guildId(guildId), m_rankId(rankId), m_name(name), m_rights(rights), m_bankMoneyPerDay(money) { }
 
-        bool LoadFromDB(Field* fields);
+        void LoadFromDB(Field* fields);
         void SaveToDB(SQLTransaction& trans) const;
         void WritePacket(WorldPacket& data) const;
 
@@ -631,10 +631,10 @@ public:
 
     // Load from DB
     bool LoadFromDB(Field* fields);
-    bool LoadRankFromDB(Field* fields);
+    void LoadRankFromDB(Field* fields);
     bool LoadMemberFromDB(Field* fields);
     bool LoadEventLogFromDB(Field* fields);
-    bool LoadBankRightFromDB(Field* fields);
+    void LoadBankRightFromDB(Field* fields);
     bool LoadBankTabFromDB(Field* fields);
     bool LoadBankEventLogFromDB(Field* fields);
     bool LoadBankItemFromDB(Field* fields);
