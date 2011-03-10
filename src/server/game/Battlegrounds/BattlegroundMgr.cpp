@@ -110,6 +110,10 @@ void BattlegroundMgr::Update(uint32 diff)
                 m_Battlegrounds[i].erase(itr);
                 if (!m_ClientBattlegroundIds[i][bg->GetBracketId()].empty())
                     m_ClientBattlegroundIds[i][bg->GetBracketId()].erase(bg->GetClientInstanceID());
+
+                // Free up the instance id and allow it to be reused
+                sMapMgr->FreeInstanceId(bg->GetInstanceID());
+
                 delete bg;
             }
         }
@@ -603,7 +607,10 @@ Battleground * BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId bgTypeI
     bg->SetBracket(bracketEntry);
 
     // generate a new instance id
-    bg->SetInstanceID(sMapMgr->GenerateInstanceId()); // set instance id
+    uint32 instanceId = sMapMgr->GenerateInstanceId();
+    // set instance id
+    bg->SetInstanceID(instanceId);
+
     bg->SetClientInstanceID(CreateClientVisibleInstanceId(isRandom ? BATTLEGROUND_RB : bgTypeId, bracketEntry->GetBracketId()));
 
     // reset the new bg (set status to status_wait_queue from status_none)
