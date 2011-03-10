@@ -228,7 +228,7 @@ public:
 
             if (m_uiLavaGoutTimer <= diff)
             {
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0))
                     DoCast(pTarget,SPELL_LAVA_GOUT);
                 m_uiLavaGoutTimer = urand(8*IN_MILLISECONDS,25*IN_MILLISECONDS);
             } else m_uiLavaGoutTimer -= diff;

@@ -1299,7 +1299,7 @@ public:
                             {
                                 if (me->getVictim()->IsWithinDist3d(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 35))
                                     DoCastVictim(SPELL_PLASMA_BALL);
-                                else if (Unit *pTarget = SelectUnit(SELECT_TARGET_NEAREST, 0))
+                                else if (Unit *pTarget = SelectTarget(SELECT_TARGET_NEAREST, 0))
                                     DoCast(pTarget, SPELL_PLASMA_BALL);
                             }
                             events.RescheduleEvent(EVENT_PLASMA_BALL, 2000);
