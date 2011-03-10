@@ -1253,9 +1253,9 @@ void World::SetInitialWorldSettings()
     sLog->outString("Loading SkillLineAbilityMultiMap Data...");
     sSpellMgr->LoadSkillLineAbilityMap();
 
-    ///- Clean up and pack instances
-    sLog->outString("Cleaning up and packing instances...");
-    sInstanceSaveMgr->CleanupAndPackInstances();                // must be called before `creature_respawn`/`gameobject_respawn` tables
+    // Must be called before `creature_respawn`/`gameobject_respawn` tables
+    sLog->outString("Loading instances...");
+    sInstanceSaveMgr->LoadInstances();
 
     sLog->outString("Loading Localization strings...");
     uint32 oldMSTime = getMSTime();
