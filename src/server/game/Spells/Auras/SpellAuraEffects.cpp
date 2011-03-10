@@ -1889,6 +1889,8 @@ void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit * caster) const
                 target->CastSpell((Unit*)NULL , GetAmount() , true);
             break;
         case SPELL_AURA_PERIODIC_DUMMY:
+		    if(GetId() == 72178)
+                caster->CastSpell(caster, 72202, true);
             PeriodicDummyTick(target, caster);
             break;
         case SPELL_AURA_PERIODIC_TRIGGER_SPELL:

@@ -241,7 +241,7 @@ class boss_deathbringer_saurfang : public CreatureScript
 
         struct boss_deathbringer_saurfangAI : public BossAI
         {
-            boss_deathbringer_saurfangAI(Creature* creature) : BossAI(creature, DATA_DEATHBRINGER_SAURFANG)
+            boss_deathbringer_saurfangAI(Creature* creature) : BossAI(creature, DATA_SAURFANG_EVENT)
             {
                 ASSERT(creature->GetVehicleKit()); // we dont actually use it, just check if exists
                 introDone = false;
@@ -274,10 +274,10 @@ class boss_deathbringer_saurfang : public CreatureScript
 
             void EnterCombat(Unit* who)
             {
-                if (!instance->CheckRequiredBosses(DATA_DEATHBRINGER_SAURFANG, who->ToPlayer()))
+                if (!instance->CheckRequiredBosses(DATA_SAURFANG_EVENT, who->ToPlayer()))
                 {
                     EnterEvadeMode();
-                    instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
+                    instance->DoCastSpellOnPlayers(SPELL_TELEPORT_ICC_LIGHT_S_HAMMER);
                     return;
                 }
 
@@ -291,7 +291,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 if (!introDone)
                 {
                     DoCast(me, SPELL_GRIP_OF_AGONY);
-                    if (Creature* creature = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SAURFANG_EVENT_NPC)))
+                    if (Creature* creature = ObjectAccessor::GetCreature(*me, instance->GetData64(GUID_SAURFANG_EVENT_NPC)))
                         creature->AI()->DoAction(ACTION_INTERRUPT_INTRO);
                 }
                 introDone = true;
@@ -305,7 +305,8 @@ class boss_deathbringer_saurfang : public CreatureScript
 
                 fallenChampionCount = 0;
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MARK_OF_THE_FALLEN_CHAMPION);
-                instance->SetBossState(DATA_DEATHBRINGER_SAURFANG, IN_PROGRESS);
+                instance->SetBossState(DATA_SAURFANG_EVENT, IN_PROGRESS);
+                instance->SetData(DATA_SAURFANG_EVENT, IN_PROGRESS);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -313,10 +314,12 @@ class boss_deathbringer_saurfang : public CreatureScript
                 _JustDied();
                 DoCastAOE(SPELL_ACHIEVEMENT, true);
                 Talk(SAY_DEATH);
+                me->RemoveAurasDueToSpell(SPELL_GRIP_OF_AGONY);
 
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MARK_OF_THE_FALLEN_CHAMPION);
-                if (Creature* creature = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SAURFANG_EVENT_NPC)))
+                if (Creature* creature = ObjectAccessor::GetCreature(*me, instance->GetData64(GUID_SAURFANG_EVENT_NPC)))
                     creature->AI()->DoAction(ACTION_START_OUTRO);
+                instance->SetData(DATA_SAURFANG_EVENT, DONE);
             }
 
             void AttackStart(Unit* victim)
@@ -337,7 +340,8 @@ class boss_deathbringer_saurfang : public CreatureScript
             void JustReachedHome()
             {
                 _JustReachedHome();
-                instance->SetBossState(DATA_DEATHBRINGER_SAURFANG, FAIL);
+                instance->SetBossState(DATA_SAURFANG_EVENT, FAIL);
+                instance->SetData(DATA_SAURFANG_EVENT, FAIL);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MARK_OF_THE_FALLEN_CHAMPION);
             }
 
@@ -380,7 +384,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 if (type != POINT_MOTION_TYPE && id != POINT_SAURFANG)
                     return;
 
-                instance->HandleGameObject(instance->GetData64(GO_SAURFANG_S_DOOR), false);
+                instance->HandleGameObject(instance->GetData64(GUID_DEATHBRINGER_S_DOOR), false);
             }
 
             void SpellHitTarget(Unit* target, SpellEntry const* spell)
@@ -499,12 +503,13 @@ class boss_deathbringer_saurfang : public CreatureScript
                 {
                     case PHASE_INTRO_A:
                     case PHASE_INTRO_H:
-                        if (GameObject* teleporter = GameObject::GetGameObject(*me, instance->GetData64(GO_SCOURGE_TRANSPORTER_SAURFANG)))
-                        {
-                            instance->HandleGameObject(0, false, teleporter);
-                            teleporter->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
-                        }
+                        //if (GameObject* teleporter = GameObject::GetGameObject(*me, instance->GetData64(GUID_TELEPORT_DEATHBRINGERS_RISE)))
+                        //{
+                        //    instance->HandleGameObject(0, false, teleporter);
+                        //    teleporter->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+                        //}
 
+                        instance->SetData(DATA_SAURFANG_EVENT, IN_PROGRESS);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         // controls what events will execute
                         events.SetPhase(uint32(action));
@@ -594,8 +599,8 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                         events.ScheduleEvent(EVENT_INTRO_HORDE_3, 18500, 0, PHASE_INTRO_H);
                         if (instance)
                         {
-                            deathbringerSaurfangGUID = instance->GetData64(DATA_DEATHBRINGER_SAURFANG);
-                            instance->HandleGameObject(instance->GetData64(GO_SAURFANG_S_DOOR), true);
+                            deathbringerSaurfangGUID = instance->GetData64(GUID_SAURFANG);
+                            instance->HandleGameObject(instance->GetData64(GUID_DEATHBRINGER_S_DOOR), true);
                         }
                         if (Creature* deathbringer = ObjectAccessor::GetCreature(*me, deathbringerSaurfangGUID))
                             deathbringer->AI()->DoAction(PHASE_INTRO_H);
@@ -610,6 +615,7 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                         events.ScheduleEvent(EVENT_OUTRO_HORDE_4, 24000);   // cast
                         events.ScheduleEvent(EVENT_OUTRO_HORDE_5, 30000);   // move
                         me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                        me->SetFlying(false);
                         me->SendMovementFlagUpdate();
                         me->Relocate(me->GetPositionX(), me->GetPositionY(), 539.2917f);
                         me->SendMonsterMove(me->GetPositionX(), me->GetPositionY(), 539.2917f, SPLINEFLAG_FALLING, 0, 0.0f);
@@ -632,6 +638,7 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                 if (spell->Id == SPELL_GRIP_OF_AGONY)
                 {
                     me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                    me->SetFlying(true);
                     me->GetMotionMaster()->MovePoint(POINT_CHOKE, chokePos[0]);
                 }
             }
@@ -740,7 +747,7 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                 return false;
 
             InstanceScript* instance = creature->GetInstanceScript();
-            if (instance && instance->GetBossState(DATA_DEATHBRINGER_SAURFANG) != DONE)
+            if (instance && instance->GetBossState(DATA_SAURFANG_EVENT) != DONE)
             {
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Let it begin...", 631, -ACTION_START_EVENT);
                 player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
@@ -804,8 +811,8 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
                         events.ScheduleEvent(EVENT_INTRO_ALLIANCE_4, 2500+17500+9500, 0, PHASE_INTRO_A);
                         if (instance)
                         {
-                            deathbringerSaurfangGUID = instance->GetData64(DATA_DEATHBRINGER_SAURFANG);
-                            instance->HandleGameObject(instance->GetData64(GO_SAURFANG_S_DOOR), true);
+                            deathbringerSaurfangGUID = instance->GetData64(GUID_SAURFANG);
+                            instance->HandleGameObject(instance->GetData64(GUID_DEATHBRINGER_S_DOOR), true);
                         }
                         if (Creature* deathbringer = ObjectAccessor::GetCreature(*me, deathbringerSaurfangGUID))
                             deathbringer->AI()->DoAction(PHASE_INTRO_A);
@@ -816,6 +823,7 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
                         me->RemoveAurasDueToSpell(SPELL_GRIP_OF_AGONY);
                         Talk(SAY_OUTRO_ALLIANCE_1);
                         me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                        me->SetFlying(false);
                         me->SendMovementFlagUpdate();
                         me->Relocate(me->GetPositionX(), me->GetPositionY(), 539.2917f);
                         me->SendMonsterMove(me->GetPositionX(), me->GetPositionY(), 539.2917f, SPLINEFLAG_FALLING, 0, 0.0f);
@@ -836,6 +844,7 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
                 if (spell->Id == SPELL_GRIP_OF_AGONY)
                 {
                     me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                    me->SetFlying(true);
                     me->GetMotionMaster()->MovePoint(POINT_CHOKE, chokePos[0]);
                 }
             }
@@ -886,7 +895,7 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
                 return false;
 
             InstanceScript* instance = creature->GetInstanceScript();
-            if (instance && instance->GetBossState(DATA_DEATHBRINGER_SAURFANG) != DONE)
+            if (instance && instance->GetBossState(DATA_SAURFANG_EVENT) != DONE)
             {
                 player->ADD_GOSSIP_ITEM(0, "Let it begin...", 631, -ACTION_START_EVENT+1);
                 player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
@@ -934,6 +943,7 @@ class npc_saurfang_event : public CreatureScript
                 if (spell->Id == SPELL_GRIP_OF_AGONY)
                 {
                     me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                    me->SetFlying(true);
                     me->GetMotionMaster()->MovePoint(POINT_CHOKE, chokePos[npcIndex]);
                 }
             }

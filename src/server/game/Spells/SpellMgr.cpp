@@ -273,6 +273,9 @@ int32 GetSpellDuration(SpellEntry const *spellInfo)
 {
     if (!spellInfo)
         return 0;
+    //Awaken Plagued Zombies spell (id 71159) fix: zombies should spawn not for just 3 seconds, but until they are killed
+    if (spellInfo->Id == 71159)
+        return 0; 
     SpellDurationEntry const *du = sSpellDurationStore.LookupEntry(spellInfo->DurationIndex);
     if (!du)
         return 0;
@@ -4137,6 +4140,7 @@ void SpellMgr::LoadSpellCustomAttr()
             count++;
             break;
         case 71266: // Swarming Shadows
+        case 72890: // Swarming Shadows 25-man
             spellInfo->AreaGroupId = 0;
             count++;
             break;

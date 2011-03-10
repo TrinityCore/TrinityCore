@@ -15,238 +15,345 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
-#include "InstanceScript.h"
-#include "ScriptedCreature.h"
-#include "Map.h"
-#include "PoolMgr.h"
+#include "ScriptPCH.h"
 #include "icecrown_citadel.h"
 
+#define MAX_ENCOUNTER      12
+
+const Position SpawnLoc[]=
+{
+    {4571.521f, 2481.815f, 343.365f, 3.166f} //spawn pos
+};
 static const DoorData doorData[] =
 {
-    {GO_LORD_MARROWGAR_S_ENTRANCE,           DATA_LORD_MARROWGAR,        DOOR_TYPE_ROOM,    BOUNDARY_N   },
-    {GO_ICEWALL,                             DATA_LORD_MARROWGAR,        DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
-    {GO_DOODAD_ICECROWN_ICEWALL02,           DATA_LORD_MARROWGAR,        DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
-    {GO_ORATORY_OF_THE_DAMNED_ENTRANCE,      DATA_LADY_DEATHWHISPER,     DOOR_TYPE_ROOM,    BOUNDARY_N   },
-    {GO_SAURFANG_S_DOOR,                     DATA_DEATHBRINGER_SAURFANG, DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
-    {GO_ORANGE_PLAGUE_MONSTER_ENTRANCE,      DATA_FESTERGUT,             DOOR_TYPE_ROOM,    BOUNDARY_E   },
-    {GO_GREEN_PLAGUE_MONSTER_ENTRANCE,       DATA_ROTFACE,               DOOR_TYPE_ROOM,    BOUNDARY_E   },
-    {GO_SCIENTIST_ENTRANCE,                  DATA_PROFESSOR_PUTRICIDE,   DOOR_TYPE_ROOM,    BOUNDARY_E   },
-    {GO_CRIMSON_HALL_DOOR,                   DATA_BLOOD_PRINCE_COUNCIL,  DOOR_TYPE_ROOM,    BOUNDARY_S   },
-    {GO_BLOOD_ELF_COUNCIL_DOOR,              DATA_BLOOD_PRINCE_COUNCIL,  DOOR_TYPE_PASSAGE, BOUNDARY_W   },
-    {GO_BLOOD_ELF_COUNCIL_DOOR_RIGHT,        DATA_BLOOD_PRINCE_COUNCIL,  DOOR_TYPE_PASSAGE, BOUNDARY_E   },
-    {GO_DOODAD_ICECROWN_BLOODPRINCE_DOOR_01, DATA_BLOOD_QUEEN_LANA_THEL, DOOR_TYPE_ROOM,    BOUNDARY_S   },
-    {GO_DOODAD_ICECROWN_GRATE_01,            DATA_BLOOD_QUEEN_LANA_THEL, DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
-    {GO_GREEN_DRAGON_BOSS_ENTRANCE,          DATA_VALITHRIA_DREAMWALKER, DOOR_TYPE_ROOM,    BOUNDARY_N   },
-    {GO_GREEN_DRAGON_BOSS_EXIT,              DATA_VALITHRIA_DREAMWALKER, DOOR_TYPE_PASSAGE, BOUNDARY_S   },
-    {GO_SINDRAGOSA_ENTRANCE_DOOR,            DATA_SINDRAGOSA,            DOOR_TYPE_ROOM,    BOUNDARY_S   },
-    {GO_SINDRAGOSA_SHORTCUT_ENTRANCE_DOOR,   DATA_SINDRAGOSA,            DOOR_TYPE_PASSAGE, BOUNDARY_E   },
-    {GO_SINDRAGOSA_SHORTCUT_EXIT_DOOR,       DATA_SINDRAGOSA,            DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
-    {GO_ICE_WALL,                            DATA_SINDRAGOSA,            DOOR_TYPE_ROOM,    BOUNDARY_SE  },
-    {GO_ICE_WALL,                            DATA_SINDRAGOSA,            DOOR_TYPE_ROOM,    BOUNDARY_SW  },
-    {0,                                      0,                          DOOR_TYPE_ROOM,    BOUNDARY_NONE} // END
+    {GO_LORD_MARROWGAR_S_ENTRANCE,           DATA_LORD_MARROWGAR_EVENT,        DOOR_TYPE_ROOM,    BOUNDARY_N   },
+    {GO_LORD_MARROWGAR_ICE_WALL,             DATA_LORD_MARROWGAR_EVENT,        DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
+    {GO_LORD_MARROWGAR_ICE_WALL_1,           DATA_LORD_MARROWGAR_EVENT,        DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
+    {GO_ORATORY_OF_THE_DAMNED_ENTRANCE,      DATA_DEATHWHISPER_EVENT,          DOOR_TYPE_ROOM,    BOUNDARY_N   },
+    {GO_DEATHBRINGER_S_DOOR,                 DATA_SAURFANG_EVENT,              DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
+    {GO_ORANGE_PLAGUE_MONSTER_ENTRANCE,      DATA_FESTERGUT_EVENT,             DOOR_TYPE_ROOM,    BOUNDARY_E   },
+    {GO_GREEN_PLAGUE_MONSTER_ENTRANCE,       DATA_ROTFACE_EVENT,               DOOR_TYPE_ROOM,    BOUNDARY_E   },
+    {GO_SCIENTIST_ENTRANCE,                  DATA_PROFESSOR_PUTRICIDE_EVENT,   DOOR_TYPE_ROOM,    BOUNDARY_E   },
+    {GO_CRIMSON_HALL_DOOR,                   DATA_BLOOD_PRINCE_COUNCIL_EVENT,  DOOR_TYPE_ROOM,    BOUNDARY_S   },
+    {GO_BLOOD_ELF_COUNCIL_DOOR,              DATA_BLOOD_PRINCE_COUNCIL_EVENT,  DOOR_TYPE_PASSAGE, BOUNDARY_W   },
+    {GO_BLOOD_ELF_COUNCIL_DOOR_RIGHT,        DATA_BLOOD_PRINCE_COUNCIL_EVENT,  DOOR_TYPE_PASSAGE, BOUNDARY_E   },
+    {GO_BLOOD_QUEEN_BLOOD_BARRIER,           DATA_BLOOD_QUEEN_LANA_THEL_EVENT, DOOR_TYPE_ROOM,    BOUNDARY_S   },
+    {GO_DOODAD_ICECROWN_GRATE_01,            DATA_BLOOD_QUEEN_LANA_THEL_EVENT, DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
+    {GO_GREEN_DRAGON_BOSS_ENTRANCE,          DATA_VALITHRIA_DREAMWALKER_EVENT, DOOR_TYPE_ROOM,    BOUNDARY_N   },
+    {GO_GREEN_DRAGON_BOSS_EXIT,              DATA_VALITHRIA_DREAMWALKER_EVENT, DOOR_TYPE_PASSAGE, BOUNDARY_S   },
+    {GO_SINDRAGOSA_ENTRANCE_DOOR,            DATA_SINDRAGOSA_EVENT,            DOOR_TYPE_ROOM,    BOUNDARY_S   },
+    {GO_SINDRAGOSA_SHORTCUT_ENTRANCE_DOOR,   DATA_SINDRAGOSA_EVENT,            DOOR_TYPE_PASSAGE, BOUNDARY_E   },
+    {GO_SINDRAGOSA_SHORTCUT_EXIT_DOOR,       DATA_SINDRAGOSA_EVENT,            DOOR_TYPE_PASSAGE, BOUNDARY_NONE},
+    {GO_SINDRAGOSA_ICE_WALL,                 DATA_SINDRAGOSA_EVENT,            DOOR_TYPE_ROOM,    BOUNDARY_SE  }, 
+    {GO_SINDRAGOSA_ICE_WALL,                 DATA_SINDRAGOSA_EVENT,            DOOR_TYPE_ROOM,    BOUNDARY_SW  }, 
+    {0,                                      0,                                DOOR_TYPE_ROOM,    BOUNDARY_NONE} // END
 };
-
-struct WeeklyQuest
-{
-    uint32 npcStart;
-    uint32 questId[2];  // 10 and 25 man versions
-} WeeklyQuestData[5] =
-{
-    {NPC_INFILTRATOR_MINCHAR,         {24869, 24875}},  // Deprogramming
-    {NPC_KOR_KRON_LIEUTENANT,         {24870, 24877}},  // Securing the Ramparts
-    {NPC_ALCHEMIST_ADRIANNA,          {24873, 24878}},  // Residue Rendezvous
-    {NPC_ALRIN_THE_AGILE,             {24874, 24879}},  // Blood Quickening
-    {NPC_VALITHRIA_DREAMWALKER_QUEST, {24872, 24880}},  // Respite for a Tormented Soul
-};
-
 class instance_icecrown_citadel : public InstanceMapScript
 {
     public:
-        instance_icecrown_citadel() : InstanceMapScript(ICCScriptName, 631) { }
+        instance_icecrown_citadel() : InstanceMapScript("instance_icecrown_citadel", 631) { }
 
         struct instance_icecrown_citadel_InstanceMapScript : public InstanceScript
         {
-            instance_icecrown_citadel_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
+            instance_icecrown_citadel_InstanceMapScript(InstanceMap* pMap) : InstanceScript(pMap)
             {
-                SetBossNumber(MAX_ENCOUNTER);
                 LoadDoorData(doorData);
-                teamInInstance = 0;
-                ladyDeathwisperElevator = 0;
-                deathbringerSaurfang = 0;
-                saurfangDoor = 0;
-                saurfangEventNPC = 0;
-                deathbringersCache = 0;
-                saurfangTeleport = 0;
-                plagueSigil = 0;
-                bloodwingSigil = 0;
-                frostwingSigil = 0;
-                memset(putricidePipes, 0, 2*sizeof(uint64));
-                memset(putricideGates, 0, 2*sizeof(uint64));
-                putricideCollision = 0;
-                festergut = 0;
-                rotface = 0;
-                professorPutricide = 0;
-                putricideTable = 0;
-                memset(bloodCouncil, 0, 3*sizeof(uint64));
-                bloodCouncilController = 0;
-                bloodQueenLanaThel = 0;
-                sindragosa = 0;
-                spinestalker = 0;
-                rimefang = 0;
-                frostwyrms = 0;
-                spinestalkerTrash = 0;
-                rimefangTrash = 0;
-                isBonedEligible = true;
-                isOozeDanceEligible = true;
-                isNauseaEligible = true;
-                isOrbWhispererEligible = true;
-                coldflameJetsState = NOT_STARTED;
-            }
+                uiDifficulty = pMap->GetDifficulty();
 
-            void OnPlayerEnter(Player* player)
+                uiLordMarrowgar         = 0;
+                uiDeathbringerSaurfang  = 0;
+                uiSaurfangEventNPC      = 0;
+                uiFestergut             = 0;
+                uiRotface               = 0;
+                uiProfessorPutricide    = 0;
+                uiPrinceValanar         = 0;
+                uiPrinceKeleseth        = 0;
+                uiPrinceTaldaram        = 0;
+                uiBloodQueenLanathel    = 0;
+                uiValithriaDreamwalker  = 0;
+                uiValithriaAlternative  = 0;
+                uiValithriaCombatTrigger= 0;
+                uiLichKing              = 0;
+                uiTirion                = 0;
+                uiSaurfangCache         = 0;
+                uiTerenasFighter        = 0;
+                uiSpiritWarden          = 0;
+
+                uiNecroticStack         = 0;
+                uiBloodCouncilController= 0;
+                uiBeenWaiting           = 0;
+                uiNeckDeep              = 0;
+                uiIceWall1              = 0;
+                uiIceWall2              = 0;
+                uiMarrowgarEntrance     = 0;
+                uiLadyDeathwisperTransporter = 0;
+                uiOratoryDoor           = 0;
+                uiSaurfangDoor          = 0;
+                uiOrangeMonsterDoor     = 0;
+                uiGreenMonsterDoor      = 0;
+                uiProfCollisionDoor     = 0;
+                uiPutricideTable        = 0;
+                uiOrangePipe            = 0;
+                uiGreenPipe             = 0;
+                uiOozeValve             = 0;
+                uiGasValve              = 0;
+                uiProfDoorOrange        = 0;
+                uiProfDoorGreen         = 0;
+                uiRotfaceEntrance       = 0;
+                uiFestergurtEntrance    = 0;
+                uiProfessorDoor         = 0;
+                uiBloodwingDoor         = 0;
+                uiCrimsonHallDoor1      = 0;
+                uiCrimsonHallDoorRight  = 0;
+                uiCrimsonHallDoorLeft   = 0;
+                uiBloodQueenGrate       = 0;
+                uiFrostwingDoor         = 0;
+                uiValithriaDoorEntrance = 0;
+                uiValithriaDoorExit     = 0;
+                uiSindragosaShortcutExitDoor = 0;
+                uiRoostDoor1            = 0;
+                uiRoostDoor2            = 0;
+                uiRoostDoor3            = 0;
+                uiRoostDoor4            = 0;
+                uiValithriaTransporter  = 0;
+                uiSindragosaTransporter = 0;
+                uiSindragosaDoor1       = 0;
+                uiSindragosaShortcutEntranceDoor       = 0;
+                uiSindragosaIceWall     = 0;
+                uiFirstTp               = 0;
+                uiMarrowgarTp           = 0;
+                uiFlightWarTp           = 0;
+                uiSaurfangTp            = 0;
+                uiCitadelTp             = 0;
+                uiSindragosaTp          = 0;
+                uiLichTp                = 0;
+
+                uiSpiritAlarm1          = 0;
+                uiSpiritAlarm2          = 0;
+                uiSpiritAlarm3          = 0;
+                uiSpiritAlarm4          = 0;
+
+                uiDeathboundWard1       = 0;
+                uiDeathboundWard2       = 0;
+                uiDeathboundWard3       = 0;
+                uiDeathboundWard4       = 0;
+
+                uiUpperSpireLever       = 0;
+
+                uiSindragosa            = 0; 
+                uiSpinestalker          = 0; 
+                uiRimefang              = 0; 
+                frostwyrms              = 0; 
+                spinestalkerTrash       = 0; 
+                rimefangTrash           = 0; 
+
+                oozeValveActivated      = 0;
+                gasValveActivated       = 0;
+
+                isBonedEligible         = true;
+                isOozeDanceEligible     = true;
+                isNauseaEligible        = 0;
+                isOrbWhispererEligible  = 0;
+                isPortalJockeyEligible  = 0;
+
+                uiTeleportToOratoryOfTheDamnedActivated = 0;
+                uiTeleportToRampartOfSkullsActivated = 0;
+                uiTeleportToDeathbringersRiseActivated = 0;
+                uiTeleportToUpperSpireActivated = 0;
+                uiTeleportToSindragosasLairActivated = 0;
+                uiTeleportToFrozenThroneActivated = 0;
+
+                uiIceShard1             = 0;
+                uiIceShard2             = 0;
+                uiIceShard3             = 0;
+                uiIceShard4             = 0;
+                uiFrostyEdgeInner       = 0;
+                uiFrostyEdgeOuter       = 0;
+                uiEdgeDestroyWarning    = 0;
+
+                coldflameJetsState      = NOT_STARTED;
+                memset(&uiEncounter, 0, sizeof(uiEncounter));
+                //While Gunship Battle is not implemented
+                uiEncounter[DATA_GUNSHIP_BATTLE_EVENT] = DONE;
+            };
+
+            bool IsEncounterInProgress() const
             {
-                if (!teamInInstance)
-                    teamInInstance = player->GetTeam();
+                if (!instance->GetPlayersCountExceptGMs())
+                    return false;
+                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+                    if (uiEncounter[i] == IN_PROGRESS)
+                        return true;
+                return false;
             }
 
             void OnCreatureCreate(Creature* creature)
             {
-                if (!teamInInstance)
-                {
-                    Map::PlayerList const &players = instance->GetPlayers();
-                    if (!players.isEmpty())
-                        if (Player* player = players.begin()->getSource())
-                            teamInInstance = player->GetTeam();
-                }
+                Map::PlayerList const &players = instance->GetPlayers();
+                uint32 TeamInInstance = 0;
 
-                switch (creature->GetEntry())
+
+                if (!players.isEmpty())
                 {
+                    if (Player* pPlayer = players.begin()->getSource())
+                        TeamInInstance = pPlayer->GetTeam();
+                }
+                switch(creature->GetEntry())
+                {
+                    case NPC_OOZE_COVERED_TENTACLE_STALKER:
+                    case NPC_SLIMY_TENTACLE_STALKER:
+                    case NPC_ORANGE_GAS_STALKER:
+                    case NPC_TEAR_GAS_STALKER:
+                        creature->SetReactState(REACT_PASSIVE);
+                        break;
                     case NPC_KOR_KRON_GENERAL:
-                        if (teamInInstance == ALLIANCE)
+                        if (TeamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_ALLIANCE_COMMANDER, ALLIANCE);
                         break;
-                    case NPC_KOR_KRON_LIEUTENANT:
-                        if (teamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_SKYBREAKER_LIEUTENANT, ALLIANCE);
-                        break;
                     case NPC_TORTUNOK:
-                        if (teamInInstance == ALLIANCE)
+                        if (TeamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_ALANA_MOONSTRIKE, ALLIANCE);
                         break;
                     case NPC_GERARDO_THE_SUAVE:
-                        if (teamInInstance == ALLIANCE)
+                        if (TeamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_TALAN_MOONSTRIKE, ALLIANCE);
                         break;
                     case NPC_UVLUS_BANEFIRE:
-                        if (teamInInstance == ALLIANCE)
+                        if (TeamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_MALFUS_GRIMFROST, ALLIANCE);
                         break;
                     case NPC_IKFIRUS_THE_VILE:
-                        if (teamInInstance == ALLIANCE)
+                        if (TeamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_YILI, ALLIANCE);
                         break;
                     case NPC_VOL_GUK:
-                        if (teamInInstance == ALLIANCE)
+                        if (TeamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_JEDEBIA, ALLIANCE);
                         break;
                     case NPC_HARAGG_THE_UNSEEN:
-                        if (teamInInstance == ALLIANCE)
+                        if (TeamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_NIBY_THE_ALMIGHTY, ALLIANCE);
                         break;
                     case NPC_GARROSH_HELLSCREAM:
-                        if (teamInInstance == ALLIANCE)
+                        if (TeamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_KING_VARIAN_WRYNN, ALLIANCE);
                         break;
-                    case NPC_DEATHBRINGER_SAURFANG:
-                        deathbringerSaurfang = creature->GetGUID();
-                        break;
                     case NPC_SE_HIGH_OVERLORD_SAURFANG:
-                        if (teamInInstance == ALLIANCE)
+                        if (TeamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_SE_MURADIN_BRONZEBEARD, ALLIANCE);
                     case NPC_SE_MURADIN_BRONZEBEARD:
-                        saurfangEventNPC = creature->GetGUID();
+                        uiSaurfangEventNPC = creature->GetGUID();
                         creature->LastUsedScriptID = creature->GetScriptId();
                         break;
                     case NPC_SE_KOR_KRON_REAVER:
-                        if (teamInInstance == ALLIANCE)
+                        if (TeamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_SE_SKYBREAKER_MARINE, ALLIANCE);
+                        break;
+                    case NPC_LORD_MARROWGAR:
+                        uiLordMarrowgar = creature->GetGUID();
+                        //Lord Marrowgar has lard hitbox
+                        creature->SetFloatValue(UNIT_FIELD_COMBATREACH, 10.0f);
+                        break;
+                    case NPC_DEATHBRINGER_SAURFANG:
+                        uiDeathbringerSaurfang = creature->GetGUID();
                         break;
                     case NPC_FROST_FREEZE_TRAP:
                         coldflameJets.insert(creature->GetGUID());
                         break;
                     case NPC_FESTERGUT:
-                        festergut = creature->GetGUID();
+                        uiFestergut = creature->GetGUID();
                         break;
                     case NPC_ROTFACE:
-                        rotface = creature->GetGUID();
+                        uiRotface = creature->GetGUID();
                         break;
                     case NPC_PROFESSOR_PUTRICIDE:
-                        professorPutricide = creature->GetGUID();
+                        uiProfessorPutricide = creature->GetGUID();
                         break;
-                    case NPC_PRINCE_KELESETH:
-                        bloodCouncil[0] = creature->GetGUID();
+                    case NPC_PRINCE_VALANAR_ICC:
+                        uiPrinceValanar = creature->GetGUID();
+                        creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
                         break;
-                    case NPC_PRINCE_TALDARAM:
-                        bloodCouncil[1] = creature->GetGUID();
+                    case NPC_PRINCE_KELESETH_ICC:
+                        uiPrinceKeleseth = creature->GetGUID();
+                        creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
                         break;
-                    case NPC_PRINCE_VALANAR:
-                        bloodCouncil[2] = creature->GetGUID();
+                    case NPC_PRINCE_TALDARAM_ICC:
+                        uiPrinceTaldaram = creature->GetGUID();
+                        creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
                         break;
                     case NPC_BLOOD_ORB_CONTROLLER:
-                        bloodCouncilController = creature->GetGUID();
+                        uiBloodCouncilController = creature->GetGUID();
                         break;
                     case NPC_BLOOD_QUEEN_LANA_THEL:
-                        bloodQueenLanaThel = creature->GetGUID();
+                        uiBloodQueenLanathel = creature->GetGUID();
+                        creature->SetReactState(REACT_DEFENSIVE);
                         break;
-                    case NPC_SINDRAGOSA:
-                        sindragosa = creature->GetGUID();
+                    case NPC_VALITHRIA_DREAMWALKER:
+                        uiValithriaDreamwalker = creature->GetGUID();
                         break;
-                    case NPC_SPINESTALKER:
-                        spinestalker = creature->GetGUID();
-                        if (!creature->isDead())
-                            ++frostwyrms;
+                    case NPC_VALITHRIA_ALTERNATIVE:
+                        uiValithriaAlternative = creature->GetGUID();
                         break;
-                    case NPC_RIMEFANG:
-                        rimefang = creature->GetGUID();
-                        if (!creature->isDead())
-                            ++frostwyrms;
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            // Weekly quest spawn prevention
-            uint32 GetCreatureEntry(uint32 /*guidLow*/, CreatureData const* data)
-            {
-                uint32 entry = data->id;
-                switch (entry)
-                {
-                    case NPC_INFILTRATOR_MINCHAR:
-                    case NPC_KOR_KRON_LIEUTENANT:
-                    case NPC_ALCHEMIST_ADRIANNA:
-                    case NPC_ALRIN_THE_AGILE:
-                    case NPC_VALITHRIA_DREAMWALKER_QUEST:
+                    case NPC_COMBAT_TRIGGER:
                     {
-                        for (uint8 questIndex = 0; questIndex < 5; ++questIndex)
-                        {
-                            if (WeeklyQuestData[questIndex].npcStart == entry)
-                            {
-                                uint8 diffIndex = instance->GetSpawnMode() & 1;
-                                if (!sPoolMgr->IsSpawnedObject<Quest>(WeeklyQuestData[questIndex].questId[diffIndex]))
-                                    entry = 0;
-                                break;
-                            }
-                        }
+                        uiValithriaCombatTrigger = creature->GetGUID();
+                        creature->SetReactState(REACT_AGGRESSIVE);
+                        creature->SetSpeed(MOVE_RUN, 0.0f, true);
+                        creature->SetSpeed(MOVE_WALK, 0.0f, true);
+                        creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
+                        creature->SetVisible(false);
                         break;
                     }
-                    default:
+                    case NPC_SINDRAGOSA: 
+                        uiSindragosa = creature->GetGUID(); 
+                        break; 
+                    case NPC_SPINESTALKER: 
+                        uiSpinestalker = creature->GetGUID(); 
+                        if (!creature->isDead()) 
+                            ++frostwyrms; 
+                        break; 
+                    case NPC_RIMEFANG: 
+                        uiRimefang = creature->GetGUID(); 
+                        if (!creature->isDead()) 
+                            ++frostwyrms; 
                         break;
+                    case NPC_DEATHBOUND_WARD:
+                    {
+                        float x, y;
+                        creature->GetPosition(x, y);
+                        if      (fabs(x - (-193.786f)) < 10.0f && fabs(y - 2290.22f) < 10.0f)
+                            uiDeathboundWard1 = creature->GetGUID();
+                        else if (fabs(x - (-194.007f)) < 10.0f && fabs(y - 2137.95f) < 10.0f)
+                            uiDeathboundWard2 = creature->GetGUID();
+                        else if (fabs(x - (-300.354f)) < 10.0f && fabs(y - 2242.18f) < 10.0f)
+                            uiDeathboundWard3 = creature->GetGUID();
+                        else if (fabs(x - (-300.566f)) < 10.0f && fabs(y - 2182.60f) < 10.0f)
+                            uiDeathboundWard4 = creature->GetGUID();
+                        creature->SetReactState(REACT_PASSIVE);
+                        creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                        break;
+                    }
+                    case NPC_LICH_KING:
+                    {
+                        uiLichKing = creature->GetGUID();
+                        break;
+                    }
+                    case NPC_TIRION_ICC:
+                    {
+                        uiTirion = creature->GetGUID();
+                        break;
+                    }
+                    case NPC_TERENAS_FIGHTER:
+                    {
+                        uiTerenasFighter = creature->GetGUID();
+                        break;
+                    }
+                    case NPC_SPIRIT_WARDEN:
+                    {
+                        uiSpiritWarden = creature->GetGUID();
+                        break;
+                    }
                 }
-
-                return entry;
             }
 
             void OnCreatureRemove(Creature* creature)
@@ -257,281 +364,933 @@ class instance_icecrown_citadel : public InstanceMapScript
 
             void OnGameObjectCreate(GameObject* go)
             {
+                if (go)
+                {
+                    Position pos;
+                    go->GetPosition(&pos);
+                    gameObjectPositions[go->GetGUID()] = pos;
+                }
                 switch (go->GetEntry())
                 {
-                    case GO_DOODAD_ICECROWN_ICEWALL02:
-                    case GO_ICEWALL:
-                    case GO_LORD_MARROWGAR_S_ENTRANCE:
-                    case GO_ORATORY_OF_THE_DAMNED_ENTRANCE:
-                    case GO_ORANGE_PLAGUE_MONSTER_ENTRANCE:
-                    case GO_GREEN_PLAGUE_MONSTER_ENTRANCE:
-                    case GO_SCIENTIST_ENTRANCE:
-                    case GO_CRIMSON_HALL_DOOR:
-                    case GO_BLOOD_ELF_COUNCIL_DOOR:
-                    case GO_BLOOD_ELF_COUNCIL_DOOR_RIGHT:
-                    case GO_DOODAD_ICECROWN_BLOODPRINCE_DOOR_01:
-                    case GO_DOODAD_ICECROWN_GRATE_01:
-                    case GO_GREEN_DRAGON_BOSS_ENTRANCE:
-                    case GO_GREEN_DRAGON_BOSS_EXIT:
-                    case GO_SINDRAGOSA_ENTRANCE_DOOR:
-                    case GO_SINDRAGOSA_SHORTCUT_ENTRANCE_DOOR:
-                    case GO_SINDRAGOSA_SHORTCUT_EXIT_DOOR:
-                    case GO_ICE_WALL:
-                        AddDoor(go, true);
+                    //Lower Spire
+                    case GO_SPIRIT_ALARM1:
+                    {
+                        uiSpiritAlarm1 = go->GetGUID();
                         break;
+                    }
+                    case GO_SPIRIT_ALARM2:
+                    {
+                        uiSpiritAlarm2 = go->GetGUID();
+                        break;
+                    }
+                    case GO_SPIRIT_ALARM3:
+                    {
+                        uiSpiritAlarm3 = go->GetGUID();
+                        go->SetPhaseMask(2, true);
+                        break;
+                    }
+                    case GO_SPIRIT_ALARM4:
+                    {
+                        uiSpiritAlarm4 = go->GetGUID();
+                        go->SetPhaseMask(2, true);
+                        break;
+                    }
+                    //Lord Marrowgar
+                    case GO_LORD_MARROWGAR_ICE_WALL:
+                    {
+                        uiIceWall1 = go->GetGUID();
+                        HandleGameObject(NULL, uiEncounter[DATA_LORD_MARROWGAR_EVENT] == DONE, go);
+                        break;
+                    }
+                    case GO_LORD_MARROWGAR_ICE_WALL_1:
+                    {
+                        uiIceWall2 = go->GetGUID();
+                        HandleGameObject(NULL, uiEncounter[DATA_LORD_MARROWGAR_EVENT] == DONE, go);
+                        break;
+                    }
+                    case GO_LORD_MARROWGAR_S_ENTRANCE:
+                    {
+                        uiMarrowgarEntrance = go->GetGUID();
+                        HandleGameObject(NULL, uiEncounter[DATA_LORD_MARROWGAR_EVENT] != IN_PROGRESS, go);
+                        break;
+                    }
+                    //Lady Deathwhisper
+                    case GO_ORATORY_OF_THE_DAMNED_ENTRANCE:
+                    {
+                        uiOratoryDoor = go->GetGUID();
+                        HandleGameObject(NULL, uiEncounter[DATA_DEATHWHISPER_EVENT] != IN_PROGRESS && uiEncounter[DATA_LORD_MARROWGAR_EVENT] == DONE, go);
+                        break;
+                    }
                     case GO_LADY_DEATHWHISPER_ELEVATOR:
-                        ladyDeathwisperElevator = go->GetGUID();
-                        if (GetBossState(DATA_LADY_DEATHWHISPER) == DONE)
+                    {
+                        uiLadyDeathwisperTransporter = go->GetGUID();
+                        if (uiEncounter[DATA_DEATHWHISPER_EVENT] == DONE)
                         {
                             go->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
                             go->SetGoState(GO_STATE_READY);
                         }
                         break;
-                    case GO_SAURFANG_S_DOOR:
-                        saurfangDoor = go->GetGUID();
-                        AddDoor(go, true);
+                    }
+                    //Deathbringer Saurfang
+                    case GO_DEATHBRINGER_S_DOOR:
+                    {
+                        uiSaurfangDoor = go->GetGUID();
+                        HandleGameObject(NULL, uiEncounter[DATA_SAURFANG_EVENT] == DONE, go);
                         break;
+                    }
                     case GO_DEATHBRINGER_S_CACHE_10N:
                     case GO_DEATHBRINGER_S_CACHE_25N:
                     case GO_DEATHBRINGER_S_CACHE_10H:
                     case GO_DEATHBRINGER_S_CACHE_25H:
-                        deathbringersCache = go->GetGUID();
+                    {
+                        uiSaurfangCache = go->GetGUID();
                         break;
-                    case GO_SCOURGE_TRANSPORTER_SAURFANG:
-                        saurfangTeleport = go->GetGUID();
+                    }
+                    //Upper Reaches
+                    case GO_BLOODWING_DOOR:
+                    {
+                        uiBloodwingDoor = go->GetGUID();
+                        HandleGameObject(NULL, uiEncounter[DATA_SAURFANG_EVENT] == DONE, go);
                         break;
+                    }
+                    case GO_FROSTWING_DOOR:
+                    {
+                        uiFrostwingDoor = go->GetGUID();
+                        HandleGameObject(NULL, uiEncounter[DATA_SAURFANG_EVENT] == DONE, go);
+                        break;
+                    }
                     case GO_PLAGUE_SIGIL:
-                        plagueSigil = go->GetGUID();
-                        if (GetBossState(DATA_PROFESSOR_PUTRICIDE))
-                            HandleGameObject(plagueSigil, true, go);
+                    {
+                        uiPlagueSigil = go->GetGUID();
+                        go->SetGoState(uiEncounter[DATA_PROFESSOR_PUTRICIDE_EVENT] == DONE ? GO_STATE_READY : GO_STATE_ACTIVE);
                         break;
+                    }
                     case GO_BLOODWING_SIGIL:
-                        bloodwingSigil = go->GetGUID();
-                        if (GetBossState(DATA_PROFESSOR_PUTRICIDE))
-                            HandleGameObject(bloodwingSigil, true, go);
+                    {
+                        uiBloodwingSigil = go->GetGUID();
+                        go->SetGoState(uiEncounter[DATA_BLOOD_QUEEN_LANA_THEL_EVENT] == DONE ? GO_STATE_READY : GO_STATE_ACTIVE);
                         break;
-                    case GO_SIGIL_OF_THE_FROSTWING:
-                        frostwingSigil = go->GetGUID();
-                        if (GetBossState(DATA_PROFESSOR_PUTRICIDE))
-                            HandleGameObject(frostwingSigil, true, go);
+                    }
+                    case GO_FROSTWING_SIGIL:
+                    {
+                        uiFrostwingSigil = go->GetGUID();
+                        go->SetGoState(uiEncounter[DATA_SINDRAGOSA_EVENT] == DONE ? GO_STATE_READY : GO_STATE_ACTIVE);
                         break;
-                    case GO_SCIENTIST_AIRLOCK_DOOR_COLLISION:
-                        putricideCollision = go->GetGUID();
-                        if (GetBossState(DATA_FESTERGUT) == DONE && GetBossState(DATA_ROTFACE) == DONE)
-                            HandleGameObject(putricideCollision, true, go);
+                    }
+                    case GO_INCONSPICUOUS_LEVER:
+                    {
+                        uiUpperSpireLever = go->GetGUID();
+                        HandleGameObject(NULL, false, go);
                         break;
-                    case GO_SCIENTIST_AIRLOCK_DOOR_ORANGE:
-                        putricideGates[0] = go->GetGUID();
-                        if (GetBossState(DATA_FESTERGUT) == DONE && GetBossState(DATA_ROTFACE) == DONE)
-                            go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
-                        else if (GetBossState(DATA_FESTERGUT) == DONE)
-                            HandleGameObject(putricideGates[1], false, go);
-                        break;
-                    case GO_SCIENTIST_AIRLOCK_DOOR_GREEN:
-                        putricideGates[1] = go->GetGUID();
-                        if (GetBossState(DATA_ROTFACE) == DONE && GetBossState(DATA_FESTERGUT) == DONE)
-                            go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
-                        else if (GetBossState(DATA_ROTFACE) == DONE)
-                            HandleGameObject(putricideGates[1], false, go);
-                        break;
-                    case GO_DOODAD_ICECROWN_ORANGETUBES02:
-                        putricidePipes[0] = go->GetGUID();
-                        if (GetBossState(DATA_FESTERGUT) == DONE)
-                            HandleGameObject(putricidePipes[0], true, go);
-                        break;
-                    case GO_DOODAD_ICECROWN_GREENTUBES02:
-                        putricidePipes[1] = go->GetGUID();
-                        if (GetBossState(DATA_ROTFACE) == DONE)
-                            HandleGameObject(putricidePipes[1], true, go);
-                        break;
-                    case GO_DRINK_ME:
-                        putricideTable = go->GetGUID();
-                        break;
-                    default:
-                        break;
-                }
-            }
+                    }
 
-            void OnGameObjectRemove(GameObject* go)
-            {
-                switch (go->GetEntry())
-                {
-                    case GO_DOODAD_ICECROWN_ICEWALL02:
-                    case GO_ICEWALL:
-                    case GO_LORD_MARROWGAR_S_ENTRANCE:
-                    case GO_ORATORY_OF_THE_DAMNED_ENTRANCE:
-                    case GO_SAURFANG_S_DOOR:
+                    //Plagueworks
                     case GO_ORANGE_PLAGUE_MONSTER_ENTRANCE:
+                    {
+                        uiOrangeMonsterDoor = go->GetGUID();
+                        HandleGameObject(NULL, uiEncounter[DATA_FESTERGUT_EVENT] != IN_PROGRESS, go);
+                        break;
+                    }
                     case GO_GREEN_PLAGUE_MONSTER_ENTRANCE:
+                    {
+                        uiGreenMonsterDoor = go->GetGUID();
+                        HandleGameObject(NULL, uiEncounter[DATA_ROTFACE_EVENT] != IN_PROGRESS, go);
+                        break;
+                    }
+                    case GO_SCIENTIST_AIRLOCK_DOOR_COLLISION:
+                    {
+                        uiProfCollisionDoor = go->GetGUID();
+                        HandleGameObject(NULL, oozeValveActivated && gasValveActivated, go);
+                        break;
+                    }
+                    case GO_SCIENTIST_AIRLOCK_DOOR_ORANGE:
+                    {
+                        uiProfDoorOrange = go->GetGUID();
+                        if (gasValveActivated == SPECIAL)
+                            go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                        else
+                            go->SetGoState(GO_STATE_ACTIVE);
+                        break;
+                    }
+                    case GO_SCIENTIST_AIRLOCK_DOOR_GREEN:
+                    {
+                        uiProfDoorGreen = go->GetGUID();
+                        if (oozeValveActivated == SPECIAL)
+                            go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                        else
+                            go->SetGoState(GO_STATE_ACTIVE);
+                        break;
+                    }
+                    case GO_DOODAD_ICECROWN_ORANGETUBES02:
+                    {
+                        uiOrangePipe = go->GetGUID();
+                        if (gasValveActivated == SPECIAL)
+                            go->SetGoState(GO_STATE_ACTIVE);
+                        else
+                            go->SetGoState(GO_STATE_READY);
+                        break;
+                    }
+                    case GO_DOODAD_ICECROWN_GREENTUBES02:
+                    {
+                        uiGreenPipe = go->GetGUID();
+                        if (oozeValveActivated == SPECIAL)
+                            go->SetGoState(GO_STATE_ACTIVE);
+                        else
+                            go->SetGoState(GO_STATE_READY);
+                        break;
+                    }
                     case GO_SCIENTIST_ENTRANCE:
+                    {
+                        uiProfessorDoor = go->GetGUID();
+                        HandleGameObject(NULL, uiEncounter[DATA_PROFESSOR_PUTRICIDE_EVENT] != IN_PROGRESS, go);
+                        break;
+                    }
+                    case GO_DRINK_ME:
+                    {
+                        uiPutricideTable = go->GetGUID();
+                        if (uiEncounter[DATA_PROFESSOR_PUTRICIDE_EVENT] == DONE)
+                            go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                        break;
+                    }
+                    case GO_OOZE_VALVE:
+                    {
+                        uiOozeValve = go->GetGUID();
+                        if (oozeValveActivated == SPECIAL)
+                            go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                        else
+                            if (uiEncounter[DATA_FESTERGUT_EVENT] == DONE && uiEncounter[DATA_ROTFACE_EVENT] == DONE)
+                                go->SetGoState(GO_STATE_READY);
+                            else
+                                go->SetGoState(GO_STATE_ACTIVE);
+                        break;
+                    }
+                    case GO_GAS_VALVE:
+                    {
+                        uiGasValve = go->GetGUID();
+                        if (gasValveActivated == SPECIAL)
+                            go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                        else
+                            if (uiEncounter[DATA_FESTERGUT_EVENT] == DONE && uiEncounter[DATA_ROTFACE_EVENT] == DONE)
+                                go->SetGoState(GO_STATE_READY);
+                            else
+                                go->SetGoState(GO_STATE_ACTIVE);
+                        break;
+                    }
+
+                    //Crimson Hall
+                    //Blood Prince Council
                     case GO_CRIMSON_HALL_DOOR:
+                    {
+                        uiCrimsonHallDoor1 = go->GetGUID();
+                        HandleGameObject(NULL, uiEncounter[DATA_BLOOD_PRINCE_COUNCIL_EVENT] != IN_PROGRESS, go);
+                        break;
+                    }
                     case GO_BLOOD_ELF_COUNCIL_DOOR:
+                    {
+                        uiCrimsonHallDoorLeft = go->GetGUID();
+                        HandleGameObject(NULL, uiEncounter[DATA_BLOOD_PRINCE_COUNCIL_EVENT] == DONE, go);
+                        break;
+                    }
                     case GO_BLOOD_ELF_COUNCIL_DOOR_RIGHT:
-                    case GO_DOODAD_ICECROWN_BLOODPRINCE_DOOR_01:
+                    {
+                        uiCrimsonHallDoorRight = go->GetGUID();
+                        HandleGameObject(NULL, uiEncounter[DATA_BLOOD_PRINCE_COUNCIL_EVENT] == DONE, go);
+                        break;
+                    }
+                    //Blood Queen Lana'thel
+                    case GO_BLOOD_QUEEN_BLOOD_BARRIER:
+                    {
+                        uiBloodQueenBloodBarrier = go->GetGUID();
+                        HandleGameObject(NULL, uiEncounter[DATA_BLOOD_QUEEN_LANA_THEL_EVENT] != IN_PROGRESS, go);
+                        break;
+                    }
                     case GO_DOODAD_ICECROWN_GRATE_01:
+                    {
+                        uiBloodQueenGrate = go->GetGUID();
+                        go->SetGoState(uiEncounter[DATA_BLOOD_QUEEN_LANA_THEL_EVENT] == DONE ? GO_STATE_ACTIVE : GO_STATE_READY);
+                        break;
+                    }
+
+                    //Frostwing Halls
+                    //Valithria Dreamwalker
+                    case GO_DREAMWALKER_CACHE_10_N:
+                    case GO_DREAMWALKER_CACHE_25_N:
+                    case GO_DREAMWALKER_CACHE_10_H:
+                    case GO_DREAMWALKER_CACHE_25_H:
+                    {
+                        uiDreamwalkerCache = go->GetGUID();
+                        break;
+                    }
                     case GO_GREEN_DRAGON_BOSS_ENTRANCE:
+                    {
+                        uiValithriaDoorEntrance = go->GetGUID();
+                        HandleGameObject(NULL, uiEncounter[DATA_VALITHRIA_DREAMWALKER_EVENT] != IN_PROGRESS, go);
+                        break;
+                    }
                     case GO_GREEN_DRAGON_BOSS_EXIT:
+                    {
+                        uiValithriaDoorExit = go->GetGUID();
+                        HandleGameObject(NULL, uiEncounter[DATA_VALITHRIA_DREAMWALKER_EVENT] == DONE, go);
+                        break;
+                    }
+                    case GO_DREAMWALKER_DOOR_1:
+                    {
+                        uiRoostDoor1 = go->GetGUID();
+                        break;
+                    }
+                    case GO_DREAMWALKER_DOOR_2:
+                    {
+                        uiRoostDoor2 = go->GetGUID();
+                        break;
+                    }
+                    case GO_DREAMWALKER_DOOR_3:
+                    {
+                        uiRoostDoor3 = go->GetGUID();
+                        break;
+                    }
+                    case GO_DREAMWALKER_DOOR_4:
+                    {
+                        uiRoostDoor4 = go->GetGUID();
+                        break;
+                    }
+                    case GO_VALITHRIA_ELEVATOR:
+                    {
+                        uiValithriaTransporter = go->GetGUID();
+                        if (uiEncounter[DATA_VALITHRIA_DREAMWALKER_EVENT] == DONE)
+                        {
+                            go->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
+                            go->SetGoState(GO_STATE_READY);
+                        }
+                        break;
+                    }
+                    //Sindragosa                   
                     case GO_SINDRAGOSA_ENTRANCE_DOOR:
+                    {
+                        uiSindragosaDoor1 = go->GetGUID();
+                        HandleGameObject(NULL, uiEncounter[DATA_VALITHRIA_DREAMWALKER_EVENT] == DONE, go);
+                        break;
+                    }
                     case GO_SINDRAGOSA_SHORTCUT_ENTRANCE_DOOR:
+                    {
+                        uiSindragosaShortcutEntranceDoor = go->GetGUID();
+                        HandleGameObject(NULL, uiEncounter[DATA_SINDRAGOSA_EVENT] == DONE, go);
+                        break;
+                    }
                     case GO_SINDRAGOSA_SHORTCUT_EXIT_DOOR:
-                    case GO_ICE_WALL:
-                        AddDoor(go, false);
+                    {
+                        uiSindragosaShortcutExitDoor = go->GetGUID();
+                        HandleGameObject(NULL, uiEncounter[DATA_SINDRAGOSA_EVENT] == DONE, go);
                         break;
-                    default:
+                    }
+                    case GO_SINDRAGOSA_ICE_WALL:
+                    {
+                        uiSindragosaIceWall = go->GetGUID();
+                        HandleGameObject(NULL, uiEncounter[DATA_SINDRAGOSA_EVENT] != IN_PROGRESS, go);
                         break;
+                    }
+                    case GO_SINDRAGOSA_ELEVATOR:
+                    {
+                        uiSindragosaTransporter = go->GetGUID();
+                        if (uiEncounter[DATA_SINDRAGOSA_EVENT] == DONE)
+                        {
+                            go->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
+                            go->SetGoState(GO_STATE_READY);
+                        }
+                        break;
+                    }
+
+                    //Lich King
+                    case GO_ICE_SHARD_1:
+                    {
+                        uiIceShard1 = go->GetGUID();
+                        go->SetGoState(uiEncounter[DATA_LICH_KING_EVENT] == DONE ? GO_STATE_ACTIVE : GO_STATE_READY);
+                        break;
+                    }
+                    case GO_ICE_SHARD_2:     
+                    {
+                        uiIceShard2 = go->GetGUID();
+                        go->SetGoState(uiEncounter[DATA_LICH_KING_EVENT] == DONE ? GO_STATE_ACTIVE : GO_STATE_READY);
+                        break;
+                    }
+                    case GO_ICE_SHARD_3:
+                    {
+                        uiIceShard3 = go->GetGUID();
+                        go->SetGoState(uiEncounter[DATA_LICH_KING_EVENT] == DONE ? GO_STATE_ACTIVE : GO_STATE_READY);
+                        break;
+                    }
+                    case GO_ICE_SHARD_4:
+                    {
+                        uiIceShard4 = go->GetGUID();
+                        go->SetGoState(uiEncounter[DATA_LICH_KING_EVENT] == DONE ? GO_STATE_ACTIVE : GO_STATE_READY);
+                        break;
+                    }
+                    case GO_FROSTY_EDGE_OUTER:
+                    {
+                        uiFrostyEdgeOuter = go->GetGUID();
+                        go->SetGoState(GO_STATE_ACTIVE);
+                        break;
+                    }
+                    case GO_FROSTY_EDGE_INNER:
+                    {
+                        uiFrostyEdgeInner = go->GetGUID();
+                        go->SetGoState(GO_STATE_READY);
+                        break;
+                    }
+                    case GO_EDGE_DESTROY_WARNING:
+                    {
+                        uiEdgeDestroyWarning = go->GetGUID();
+                        go->SetGoState(GO_STATE_READY);
+                        break;
+                    }
+
+                    //Teleports
+                    case GO_TELEPORT_LIGHT_S_HAMMER:
+                    {
+                        uiFirstTp = go->GetGUID();
+                        MakeObjectClickable(go, uiEncounter[DATA_LORD_MARROWGAR_EVENT] == DONE);
+                        go->SetGoState(uiEncounter[DATA_LORD_MARROWGAR_EVENT] == DONE ? GO_STATE_ACTIVE : GO_STATE_READY);
+                        break;
+                    }
+                    case GO_TELEPORT_ORATORY_OF_THE_DAMNED:
+                    {
+                        uiMarrowgarTp = go->GetGUID();
+                        MakeObjectClickable(go, uiEncounter[DATA_LORD_MARROWGAR_EVENT] == DONE);
+                        go->SetGoState(uiEncounter[DATA_LORD_MARROWGAR_EVENT] == DONE ? GO_STATE_ACTIVE : GO_STATE_READY);
+                        break;
+                    }
+                    case GO_TELEPORT_RAMPART_OF_SKULLS:
+                    {
+                        uiFlightWarTp = go->GetGUID();
+                        MakeObjectClickable(go, uiEncounter[DATA_DEATHWHISPER_EVENT] == DONE);
+                        go->SetGoState(uiEncounter[DATA_DEATHWHISPER_EVENT] == DONE ? GO_STATE_ACTIVE : GO_STATE_READY);
+                        break;
+                    }
+                    case GO_TELEPORT_DEATHBRINGER_RISE:
+                    {
+                        uiSaurfangTp = go->GetGUID();
+                        MakeObjectClickable(go, uiEncounter[DATA_DEATHWHISPER_EVENT] == DONE);
+                        go->SetGoState(uiEncounter[DATA_DEATHWHISPER_EVENT] == DONE ? GO_STATE_ACTIVE : GO_STATE_READY);
+                        break;
+                    }
+                    case GO_TELEPORT_UPPER_SPIRE:
+                    {
+                        uiCitadelTp = go->GetGUID();
+                        MakeObjectClickable(go, uiEncounter[DATA_SAURFANG_EVENT] == DONE);
+                        HandleGameObject(NULL, false, go);
+                        break;
+                    }
+                    case GO_TELEPORT_SINDRAGOSA_S_LAIR:
+                    {
+                        uiSindragosaTp = go->GetGUID();
+                        MakeObjectClickable(go, uiEncounter[DATA_VALITHRIA_DREAMWALKER_EVENT] == DONE);
+                        HandleGameObject(NULL, false, go);
+                        break;
+                    }
+                    case GO_TELEPORT_FROZEN_THRONE:
+                    {
+                        uiLichTp = go->GetGUID();
+                        bool bAllOthersAreDone = true;
+                        for (uint8 i = 0; i <= 11 && bAllOthersAreDone; ++i)
+                            bAllOthersAreDone &= (uiEncounter[i] == DONE);
+                        MakeObjectClickable(go, bAllOthersAreDone);
+                        go->SetGoState(bAllOthersAreDone ? GO_STATE_ACTIVE : GO_STATE_READY);
+                        break;
+                    }
                 }
             }
 
-            uint32 GetData(uint32 type)
+            uint64 GetData64(uint32 identifier)
             {
-                switch (type)
+                switch(identifier)
                 {
-                    case DATA_SINDRAGOSA_FROSTWYRMS:
-                        return frostwyrms;
-                    case DATA_SPINESTALKER:
-                        return spinestalkerTrash;
-                    case DATA_RIMEFANG:
-                        return rimefangTrash;
-                    case DATA_COLDFLAME_JETS:
-                        return coldflameJetsState;
-                    default:
-                        break;
-                }
+                    case GUID_LORD_MARROWGAR:                   return uiLordMarrowgar;
+                    case GUID_SAURFANG:                         return uiDeathbringerSaurfang;
+                    case GUID_SAURFANG_EVENT_NPC:               return uiSaurfangEventNPC;
+                    case GUID_FESTERGUT:                        return uiFestergut;
+                    case GUID_ROTFACE:                          return uiRotface;
+                    case GUID_PROFESSOR_PUTRICIDE:              return uiProfessorPutricide;
+                    case GUID_PRINCE_VALANAR_ICC:               return uiPrinceValanar;
+                    case GUID_PRINCE_KELESETH_ICC:              return uiPrinceKeleseth;
+                    case GUID_PRINCE_TALDARAM_ICC:              return uiPrinceTaldaram;
+                    case GUID_BLOOD_QUEEN_LANA_THEL:            return uiBloodQueenLanathel;
+                    case GUID_VALITHRIA_DREAMWALKER:            return uiValithriaDreamwalker;
+                    case GUID_VALITHRIA_ALTERNATIVE:            return uiValithriaAlternative;
+                    case GUID_VALITHRIA_COMBAT_TRIGGER:         return uiValithriaCombatTrigger;
+                    case GUID_SINDRAGOSA:                       return uiSindragosa; 
+                    case GUID_SPINESTALKER:                     return uiSpinestalker; 
+                    case GUID_RIMEFANG:                         return uiRimefang; 
+                    case GUID_LICH_KING:                        
+                    {
+                        if (!uiLichKing || !instance->GetCreature(uiLichKing))
+                            instance->LoadGrid(428.6f, -2123.88f);
+                        return uiLichKing;
+                    }
+                    case GUID_TIRION:                           return uiTirion;
+                    case GUID_BLOOD_PRINCES_CONTROL:            return uiBloodCouncilController;
+                    case GUID_PUTRICIDE_TABLE:                  return uiPutricideTable;
+                    case GUID_SINDRAGOSA_ENTRANCE_DOOR:         return uiSindragosaDoor1;
 
+                    case GUID_TELEPORT_LIGHTS_HAMMER:          
+                    {
+                        if (!uiFirstTp || !instance->GetGameObject(uiFirstTp))
+                            instance->LoadGrid(-17.0711f, 2211.47f);
+                        return uiFirstTp;
+                    }
+                    case GUID_TELEPORT_ORATORY_OF_THE_DAMNED:   
+                    {
+                        if (!uiMarrowgarTp || !instance->GetGameObject(uiMarrowgarTp))
+                            instance->LoadGrid(-503.62f, 2211.47f);
+                        return uiMarrowgarTp;
+                    }
+                    case GUID_TELEPORT_RAMPART_OF_SKULLS:    
+                    {
+                        if (!uiFlightWarTp || !instance->GetGameObject(uiFlightWarTp))
+                            instance->LoadGrid(-615.145f, 2211.47f);
+                        return uiFlightWarTp;
+                    }
+                    case GUID_TELEPORT_DEATHBRINGERS_RISE:    
+                    {
+                        if (!uiSaurfangTp || !instance->GetGameObject(uiSaurfangTp))
+                            instance->LoadGrid(-549.131f, 2211.29f);
+                        return uiSaurfangTp;
+                    }
+                    case GUID_TELEPORT_UPPER_SPIRE:           
+                    {
+                        if (!uiCitadelTp || !instance->GetGameObject(uiCitadelTp))
+                            instance->LoadGrid(4199.35f, 2769.42f);
+                        return uiCitadelTp;
+                    }
+                    case GUID_TELEPORT_SINDRAGOSAS_LAIR:      
+                    {
+                        if (!uiSindragosaTp || !instance->GetGameObject(uiSindragosaTp))
+                            instance->LoadGrid(4356.58f, 2565.75f);
+                        return uiSindragosaTp;
+                    }
+                    case GUID_TELEPORT_FROZEN_THRONE:         
+                    {
+                        if (!uiLichTp || !instance->GetGameObject(uiLichTp))
+                            instance->LoadGrid(4356.93f, 2769.41f);
+                        return uiLichTp;
+                    }
+                    case GUID_PROF_COLLISION_DOOR:              return uiProfCollisionDoor;
+                    case GUID_PROF_ORANGE_DOOR:                 return uiOrangeMonsterDoor;
+                    case GUID_PROF_GREEN_DOOR:                  return uiGreenMonsterDoor;
+
+                    case GUID_SPIRIT_ALARM1:                    return uiSpiritAlarm1;
+                    case GUID_SPIRIT_ALARM2:                    return uiSpiritAlarm2;
+                    case GUID_SPIRIT_ALARM3:                    return uiSpiritAlarm3;
+                    case GUID_SPIRIT_ALARM4:                    return uiSpiritAlarm4;
+
+                    case GUID_DEATHBOUND_WARD1:                 return uiDeathboundWard1;
+                    case GUID_DEATHBOUND_WARD2:                 return uiDeathboundWard2;
+                    case GUID_DEATHBOUND_WARD3:                 return uiDeathboundWard3;
+                    case GUID_DEATHBOUND_WARD4:                 return uiDeathboundWard4;
+
+                    case GUID_INCONSPICUOUS_LEVER:
+                    {
+                        if (!uiUpperSpireLever || !instance->GetGameObject(uiUpperSpireLever))
+                            instance->LoadGrid(4231.39f, 2765.97f);
+                        return uiUpperSpireLever;
+                    }
+                    case GUID_ICE_SHARD_1:
+                        return uiIceShard1;
+                    case GUID_ICE_SHARD_2:
+                        return uiIceShard2;
+                    case GUID_ICE_SHARD_3:
+                        return uiIceShard3;
+                    case GUID_ICE_SHARD_4:
+                        return uiIceShard4;
+                    case GUID_FROSTY_EDGE_OUTER:
+                        return uiFrostyEdgeOuter;
+                    case GUID_FROSTY_EDGE_INNER:
+                        return uiFrostyEdgeInner;
+                    case GUID_EDGE_DESTROY_WARNING:
+                        return uiEdgeDestroyWarning;
+                    case GUID_TERENAS_FIGHTER:
+                        return uiTerenasFighter;
+                    case GUID_SPIRIT_WARDEN:
+                        return uiSpiritWarden;
+                    case GUID_DEATHBRINGER_S_DOOR:
+                        return uiSaurfangDoor;
+                }
                 return 0;
             }
 
-            uint64 GetData64(uint32 type)
+            uint32 GetCompletedEncounterMask() const
             {
-                switch (type)
-                {
-                    case DATA_DEATHBRINGER_SAURFANG:
-                        return deathbringerSaurfang;
-                    case DATA_SAURFANG_EVENT_NPC:
-                        return saurfangEventNPC;
-                    case GO_SAURFANG_S_DOOR:
-                        return saurfangDoor;
-                    case GO_SCOURGE_TRANSPORTER_SAURFANG:
-                        return saurfangTeleport;
-                    case DATA_FESTERGUT:
-                        return festergut;
-                    case DATA_ROTFACE:
-                        return rotface;
-                    case DATA_PROFESSOR_PUTRICIDE:
-                        return professorPutricide;
-                    case DATA_PUTRICIDE_TABLE:
-                        return putricideTable;
-                    case DATA_PRINCE_KELESETH_GUID:
-                        return bloodCouncil[0];
-                    case DATA_PRINCE_TALDARAM_GUID:
-                        return bloodCouncil[1];
-                    case DATA_PRINCE_VALANAR_GUID:
-                        return bloodCouncil[2];
-                    case DATA_BLOOD_PRINCES_CONTROL:
-                        return bloodCouncilController;
-                    case DATA_BLOOD_QUEEN_LANA_THEL:
-                        return bloodQueenLanaThel;
-                    case DATA_SINDRAGOSA:
-                        return sindragosa;
-                    case DATA_SPINESTALKER:
-                        return spinestalker;
-                    case DATA_RIMEFANG:
-                        return rimefang;
-                    default:
-                        break;
-                }
+                uint32 mask = 0;
+                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+                    if (GetBossState(i) == DONE)
+                        mask |= 1 << i;
 
-                return 0;
+                return mask;
             }
 
-            bool SetBossState(uint32 type, EncounterState state)
+            void MakeObjectClickable(GameObject *obj, bool clickable = true)
             {
-                if (!InstanceScript::SetBossState(type, state))
-                    return false;
+                if (clickable)
+                    obj->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                else
+                    obj->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+            }
 
-                switch (type)
+            void MakeObjectClickable(const uint32 objectDataId, bool clickable = true)
+            {
+                uint64 objGUID = GetData64(objectDataId);
+                GameObject *obj = instance->GetGameObject(objGUID);
+                if (!obj)
                 {
-                    case DATA_LADY_DEATHWHISPER:
-                        SetBossState(DATA_GUNSHIP_EVENT, state);    // TEMP HACK UNTIL GUNSHIP SCRIPTED
-                        if (state == DONE)
-                            if (GameObject* elevator = instance->GetGameObject(ladyDeathwisperElevator))
-                            {
-                                elevator->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
-                                elevator->SetGoState(GO_STATE_READY);
-                            }
-                        break;
-                    case DATA_DEATHBRINGER_SAURFANG:
-                        switch (state)
-                        {
-                            case DONE:
-                                DoRespawnGameObject(deathbringersCache, 7*DAY);
-                            case NOT_STARTED:
-                                if (GameObject* teleporter = instance->GetGameObject(saurfangTeleport))
-                                {
-                                    HandleGameObject(saurfangTeleport, true, teleporter);
-                                    teleporter->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-                        break;
-                    case DATA_FESTERGUT:
-                        if (state == DONE)
-                        {
-                            if (GetBossState(DATA_ROTFACE) == DONE)
-                            {
-                                HandleGameObject(putricideCollision, true);
-                                if (GameObject* go = instance->GetGameObject(putricideGates[0]))
-                                    go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
-                                if (GameObject* go = instance->GetGameObject(putricideGates[1]))
-                                    go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
-                            }
-                            else
-                                HandleGameObject(putricideGates[0], false);
-                            HandleGameObject(putricidePipes[0], true);
-                        }
-                        break;
-                    case DATA_ROTFACE:
-                        if (state == DONE)
-                        {
-                            if (GetBossState(DATA_FESTERGUT) == DONE)
-                            {
-                                HandleGameObject(putricideCollision, true);
-                                if (GameObject* go = instance->GetGameObject(putricideGates[0]))
-                                    go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
-                                if (GameObject* go = instance->GetGameObject(putricideGates[1]))
-                                    go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
-                            }
-                            else
-                                HandleGameObject(putricideGates[1], false);
-                            HandleGameObject(putricidePipes[1], true);
-                        }
-                        break;
-                    case DATA_PROFESSOR_PUTRICIDE:
-                        HandleGameObject(plagueSigil, state != DONE);
-                        break;
-                    case DATA_BLOOD_QUEEN_LANA_THEL:
-                        HandleGameObject(bloodwingSigil, state != DONE);
-                        break;
-                    case DATA_VALITHRIA_DREAMWALKER:
-                        break;
-                    case DATA_SINDRAGOSA:
-                        HandleGameObject(frostwingSigil, state != DONE);
-                        break;
-                    case DATA_THE_LICH_KING:
-                        break;
-                    default:
-                        break;
-                 }
+                    instance->LoadGrid(gameObjectPositions[objGUID].GetPositionX(), gameObjectPositions[objGUID].GetPositionY());
+                    obj = instance->GetGameObject(objGUID);
+                }
+                if (!obj)
+                    return;
+                MakeObjectClickable(obj, clickable);
+            }
 
-                 return true;
+
+            void EnableObject(const uint32 teleportId, GOState state)
+            {
+                if (GameObject *teleport = instance->GetGameObject(GetData64(teleportId)))
+                    teleport->SetGoState(state);
             }
 
             void SetData(uint32 type, uint32 data)
             {
-                switch (type)
+                switch(type)
                 {
+                    case DATA_LORD_MARROWGAR_EVENT:
+                    {
+                        HandleGameObject(uiMarrowgarEntrance, data != IN_PROGRESS);
+                        if(data == DONE)
+                        {
+                            MakeObjectClickable(GUID_TELEPORT_LIGHTS_HAMMER);
+                            EnableObject(GUID_TELEPORT_LIGHTS_HAMMER, data == DONE ? GO_STATE_ACTIVE : GO_STATE_READY);
+                            MakeObjectClickable(GUID_TELEPORT_ORATORY_OF_THE_DAMNED);
+                            HandleGameObject(uiIceWall1, true);
+                            HandleGameObject(uiIceWall2, true);
+                            HandleGameObject(uiOratoryDoor, true);
+                        }
+                        uiEncounter[DATA_LORD_MARROWGAR_EVENT] = data;
+                        break;
+                    }
+                    case DATA_DEATHWHISPER_EVENT:
+                    {
+                        HandleGameObject(uiOratoryDoor, data != IN_PROGRESS);
+                        if(data == DONE)
+                        {
+                            MakeObjectClickable(GUID_TELEPORT_RAMPART_OF_SKULLS);
+                            EnableObject(GUID_TELEPORT_RAMPART_OF_SKULLS, data == DONE ? GO_STATE_ACTIVE : GO_STATE_READY);
+                            MakeObjectClickable(GUID_TELEPORT_DEATHBRINGERS_RISE);
+                            EnableObject(GUID_TELEPORT_DEATHBRINGERS_RISE, data == DONE ? GO_STATE_ACTIVE : GO_STATE_READY);
+                            HandleGameObject(uiOratoryDoor, true);
+                            if (GameObject* go = instance->GetGameObject(uiLadyDeathwisperTransporter))
+                            {
+                                go->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
+                                go->SetGoState(GO_STATE_READY);
+                            }
+                        }
+                        uiEncounter[DATA_DEATHWHISPER_EVENT] = data;
+                        break;
+                    }
+                    /*case DATA_GUNSHIP_BATTLE_EVENT:
+                        switch(data)
+                        {
+                            case DONE:
+                                break;
+                            case NOT_STARTED:
+                                break;
+                        }
+                        uiEncounter[DATA_GUNSHIP_BATTLE_EVENT] = data;
+                        break;*/
+                    case DATA_SAURFANG_EVENT:
+                    {
+                        //Preload the area around the Upper Spire teleport
+                        instance->LoadGrid(4199.35f, 2769.42f);
+                        MakeObjectClickable(GUID_TELEPORT_DEATHBRINGERS_RISE, data != IN_PROGRESS);
+                        EnableObject(GUID_TELEPORT_DEATHBRINGERS_RISE, data == IN_PROGRESS ? GO_STATE_READY : GO_STATE_ACTIVE);
+                        if (data == DONE)
+                        {
+                            MakeObjectClickable(GUID_TELEPORT_UPPER_SPIRE);
+                            if (GameObject* pChest = instance->GetGameObject(uiSaurfangCache))
+                                pChest->SetRespawnTime(pChest->GetRespawnDelay());
+                            HandleGameObject(uiSaurfangDoor, true);
+                            HandleGameObject(uiBloodwingDoor, true);
+                            HandleGameObject(uiFrostwingDoor, true);
+                        }
+                        uiEncounter[DATA_SAURFANG_EVENT] = data;
+                        break;
+                    }
+                    case DATA_FESTERGUT_EVENT:
+                    {
+                        HandleGameObject(uiOrangeMonsterDoor, data != IN_PROGRESS);
+                        uiEncounter[DATA_FESTERGUT_EVENT] = data;
+                        if (uiEncounter[DATA_ROTFACE_EVENT] == DONE && uiEncounter[DATA_FESTERGUT_EVENT] == DONE)
+                        {
+                            if (GameObject *pGasValve = instance->GetGameObject(uiGasValve))
+                                pGasValve->SetGoState(GO_STATE_READY);
+                            if (GameObject *pOozeValve = instance->GetGameObject(uiOozeValve))
+                                pOozeValve->SetGoState(GO_STATE_READY);
+                        }
+                        break;
+                    }
+                    case DATA_GAS_VALVE_ACTIVATED:
+                    {
+                        switch (data)
+                        {
+                            case IN_PROGRESS:
+                            {
+                                gasValveActivated = IN_PROGRESS;
+                                //Fill up the gas pipe
+                                if (GameObject *go = instance->GetGameObject(uiOrangePipe))
+                                    go->SetGoState(GO_STATE_ACTIVE);
+                                if (Creature *pProfessor = instance->GetCreature(uiProfessorPutricide))
+                                    pProfessor->AI()->DoAction(ACTION_ACTIVATE_ORANGE_DOOR);
+                                if (oozeValveActivated == IN_PROGRESS)
+                                {
+                                    oozeValveActivated = DONE;
+                                    gasValveActivated = DONE;
+                                }
+                                break;
+                            }
+                            case DONE:
+                            {
+                                if (gasValveActivated == FAIL)
+                                    break;
+                                gasValveActivated = SPECIAL;
+                                if (GameObject *goOrangeDoor = instance->GetGameObject(uiProfDoorOrange))
+                                    goOrangeDoor->SetGoState(GO_STATE_READY);
+                                if (oozeValveActivated == SPECIAL)
+                                    if (Creature *pProfessor = instance->GetCreature(uiProfessorPutricide))
+                                        pProfessor->AI()->DoAction(ACTION_OPEN_DOORS);
+                                break;
+                            }
+                            case FAIL:
+                            {
+                                if (gasValveActivated == DONE)
+                                    break;
+                                //Failed to activate valves simultaneously
+                                //Empty pipes
+                                HandleGameObject(uiGreenPipe, false);
+                                HandleGameObject(uiOrangePipe, false);
+                                //Empty doors
+                                HandleGameObject(uiProfDoorGreen, true);
+                                HandleGameObject(uiProfDoorOrange, true);
+                                //Make valves usable
+                                if (GameObject *goValve = instance->GetGameObject(uiOozeValve))
+                                    goValve->SetGoState(GO_STATE_READY);
+                                if (GameObject *goValve = instance->GetGameObject(uiGasValve))
+                                    goValve->SetGoState(GO_STATE_READY);
+                                gasValveActivated = FAIL;
+                                oozeValveActivated = FAIL;
+                                break;
+                            }
+                            case SPECIAL:
+                            {
+                                //Remove airlock door
+                                HandleGameObject(uiProfCollisionDoor, true);
+                                //Open ooze and gas doors
+                                if (GameObject* go = instance->GetGameObject(uiProfDoorOrange))
+                                    go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                                if (GameObject* go = instance->GetGameObject(uiProfDoorGreen))
+                                    go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                                //Make sure that professor's inner door is opened
+                                instance->LoadGrid(4356.0f, 3155.0f);
+                                HandleGameObject(uiProfessorDoor, true);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    case DATA_ROTFACE_EVENT:
+                    {
+                        HandleGameObject(uiGreenMonsterDoor, data != IN_PROGRESS);
+                        uiEncounter[DATA_ROTFACE_EVENT] = data;
+                        if (uiEncounter[DATA_ROTFACE_EVENT] == DONE && uiEncounter[DATA_FESTERGUT_EVENT] == DONE)
+                        {
+                            if (GameObject *pGasValve = instance->GetGameObject(uiGasValve))
+                                pGasValve->SetGoState(GO_STATE_READY);
+                            if (GameObject *pOozeValve = instance->GetGameObject(uiOozeValve))
+                                pOozeValve->SetGoState(GO_STATE_READY);
+                        }
+                        break;
+                    }
+                    case DATA_OOZE_VALVE_ACTIVATED:
+                    {
+                        switch (data)
+                        {
+                            case IN_PROGRESS:
+                            {
+                                oozeValveActivated = IN_PROGRESS;
+                                //Fill up the ooze pipe
+                                if (GameObject *go = instance->GetGameObject(uiGreenPipe))
+                                    go->SetGoState(GO_STATE_ACTIVE);
+                                if (Creature *pProfessor = instance->GetCreature(uiProfessorPutricide))
+                                    pProfessor->AI()->DoAction(ACTION_ACTIVATE_GREEN_DOOR);
+                                if (gasValveActivated == IN_PROGRESS)
+                                {
+                                    oozeValveActivated = DONE;
+                                    gasValveActivated = DONE;
+                                }
+                                break;
+                            }
+                            case DONE:
+                            {
+                                if (oozeValveActivated == FAIL)
+                                    break;
+                                oozeValveActivated = SPECIAL;
+                                if (GameObject *goGreenDoor = instance->GetGameObject(uiProfDoorGreen))
+                                    goGreenDoor->SetGoState(GO_STATE_READY);
+                                if (gasValveActivated == SPECIAL)
+                                    if (Creature *pProfessor = instance->GetCreature(uiProfessorPutricide))
+                                        pProfessor->AI()->DoAction(ACTION_OPEN_DOORS);
+                                break;
+                            }
+                            case FAIL:
+                            {
+                                if (oozeValveActivated == DONE)
+                                    break;
+                                //Failed to activate valves simultaneously
+                                //Empty pipes
+                                HandleGameObject(uiGreenPipe, false);
+                                HandleGameObject(uiOrangePipe, false);
+                                //Empty doors
+                                HandleGameObject(uiProfDoorGreen, true);
+                                HandleGameObject(uiProfDoorOrange, true);
+                                //Make valves usable
+                                if (GameObject *goValve = instance->GetGameObject(uiOozeValve))
+                                    goValve->SetGoState(GO_STATE_READY);
+                                if (GameObject *goValve = instance->GetGameObject(uiGasValve))
+                                    goValve->SetGoState(GO_STATE_READY);
+                                gasValveActivated = FAIL;
+                                oozeValveActivated = FAIL;
+                                break;
+                            }
+                            case SPECIAL:
+                            {
+                                //Remove airlock door
+                                HandleGameObject(uiProfCollisionDoor, true);
+                                //Open ooze and gas doors
+                                if (GameObject* go = instance->GetGameObject(uiProfDoorOrange))
+                                    go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                                if (GameObject* go = instance->GetGameObject(uiProfDoorGreen))
+                                    go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                                //Make sure that professor's inner door is opened
+                                instance->LoadGrid(4356.0f, 3155.0f);
+                                HandleGameObject(uiProfessorDoor, true);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    case DATA_PROFESSOR_PUTRICIDE_EVENT:
+                    {
+                        instance->LoadGrid(4356.0f, 3155.0f);
+                        HandleGameObject(uiProfessorDoor, data != IN_PROGRESS);
+                        if(data == DONE)
+                        {
+                            //Prevent future using of Putricide's mixtures
+                            if (GameObject *table = instance->GetGameObject(uiPutricideTable))
+                                table->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                            instance->LoadGrid(4357.0f, 2823.0f);
+                            if (GameObject* go = instance->GetGameObject(uiPlagueSigil))
+                                go->SetGoState(GO_STATE_READY);
+                            if (uiEncounter[DATA_BLOOD_QUEEN_LANA_THEL_EVENT] == DONE && uiEncounter[DATA_SINDRAGOSA_EVENT] == DONE)
+                                MakeObjectClickable(GUID_TELEPORT_FROZEN_THRONE);
+                        }
+                        uiEncounter[DATA_PROFESSOR_PUTRICIDE_EVENT] = data;
+                        break;
+                    }
+                    case DATA_BLOOD_PRINCE_COUNCIL_EVENT:
+                    {
+                        if(data == DONE)
+                        {
+                            HandleGameObject(uiCrimsonHallDoor1, true);
+                            HandleGameObject(uiCrimsonHallDoorRight, true);
+                            HandleGameObject(uiCrimsonHallDoorLeft, true);
+                        }
+                        HandleGameObject(uiCrimsonHallDoor1, data != IN_PROGRESS);
+                        uiEncounter[DATA_BLOOD_PRINCE_COUNCIL_EVENT] = data;
+                        break;
+                    }
+                    case DATA_BLOOD_QUEEN_LANA_THEL_EVENT:
+                    {
+                        if(data == DONE)
+                        {
+                            HandleGameObject(uiBloodQueenGrate, true);
+                            instance->LoadGrid(4412, 2769);
+                            if (GameObject *go = instance->GetGameObject(uiBloodwingSigil))
+                                go->SetGoState(GO_STATE_READY);
+                            if (uiEncounter[DATA_PROFESSOR_PUTRICIDE_EVENT] == DONE && uiEncounter[DATA_SINDRAGOSA_EVENT] == DONE)
+                                MakeObjectClickable(GUID_TELEPORT_FROZEN_THRONE);
+                        }
+                        HandleGameObject(uiBloodQueenBloodBarrier, data != IN_PROGRESS);
+                        uiEncounter[DATA_BLOOD_QUEEN_LANA_THEL_EVENT] = data;
+                        break;
+                    }
+                    case DATA_VALITHRIA_DREAMWALKER_EVENT:
+                    {
+                        if(data == DONE)
+                        {
+                            MakeObjectClickable(GUID_TELEPORT_SINDRAGOSAS_LAIR);
+                            if (GameObject* pChest = instance->GetGameObject(uiDreamwalkerCache))
+                                pChest->SetRespawnTime(pChest->GetRespawnDelay());
+                            if (GameObject* go = instance->GetGameObject(uiValithriaTransporter))
+                            {
+                                go->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
+                                go->SetGoState(GO_STATE_READY);
+                            }
+                            HandleGameObject(uiValithriaDoorEntrance, true);
+                            HandleGameObject(uiValithriaDoorExit, true);
+                            HandleGameObject(uiSindragosaDoor1, true);
+                        }
+                        if(data == NOT_STARTED || data == FAIL)
+                        {
+                            HandleGameObject(uiValithriaDoorEntrance, true);
+                            HandleGameObject(uiRoostDoor3, false);
+                            HandleGameObject(uiRoostDoor2, false);         
+                            HandleGameObject(uiRoostDoor1, false);
+                            HandleGameObject(uiRoostDoor4, false);
+                        }
+                        if(data == IN_PROGRESS)
+                        {
+                            HandleGameObject(uiValithriaDoorEntrance, false);
+                            HandleGameObject(uiRoostDoor3, true);
+                            HandleGameObject(uiRoostDoor2, true);
+                            if (uiDifficulty == RAID_DIFFICULTY_25MAN_NORMAL || uiDifficulty == RAID_DIFFICULTY_25MAN_HEROIC)
+                            {
+                                HandleGameObject(uiRoostDoor1, true);
+                                HandleGameObject(uiRoostDoor4, true);
+                            }
+                        }
+                        uiEncounter[DATA_VALITHRIA_DREAMWALKER_EVENT] = data;
+                        break;
+                    }
+                    case DATA_SINDRAGOSA_EVENT:
+                    {
+                        HandleGameObject(uiSindragosaIceWall, data != IN_PROGRESS);
+                        HandleGameObject(uiSindragosaDoor1, data != IN_PROGRESS);
+                        if (data == DONE)
+                        {
+                            HandleGameObject(uiSindragosaShortcutEntranceDoor, true);
+                            HandleGameObject(uiSindragosaShortcutExitDoor, true);
+                            if (GameObject* go = instance->GetGameObject(uiSindragosaTransporter))
+                            {
+                                go->SetUInt32Value(GAMEOBJECT_LEVEL, 0);
+                                go->SetGoState(GO_STATE_READY);
+                            }
+                            instance->LoadGrid(4357.0f, 2714.0f);
+                            if (GameObject *go = instance->GetGameObject(uiFrostwingSigil))
+                                go->SetGoState(GO_STATE_READY);
+                        }
+                        if (uiEncounter[DATA_PROFESSOR_PUTRICIDE_EVENT] == DONE && uiEncounter[DATA_BLOOD_QUEEN_LANA_THEL_EVENT] == DONE)
+                            MakeObjectClickable(GUID_TELEPORT_FROZEN_THRONE);
+                        uiEncounter[DATA_SINDRAGOSA_EVENT] = data;
+                        break;
+                    }
+                    case DATA_LICH_KING_EVENT:
+                        uiEncounter[DATA_LICH_KING_EVENT] = data;
+                        break;
                     case DATA_BONED_ACHIEVEMENT:
                         isBonedEligible = data ? true : false;
                         break;
@@ -544,40 +1303,49 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case DATA_ORB_WHISPERER_ACHIEVEMENT:
                         isOrbWhispererEligible = data ? true : false;
                         break;
+                    case DATA_PORTAL_JOCKEY_ACHIEVEMENT:
+                        isPortalJockeyEligible = data ? true : false;
+                        break;
                     case DATA_SINDRAGOSA_FROSTWYRMS:
-                        if (data > 1)
-                            frostwyrms = data;
-                        else if (data == 1)
-                            ++frostwyrms;
-                        else if (!data && !--frostwyrms && GetBossState(DATA_SINDRAGOSA) != DONE)
-                        {
-                            instance->LoadGrid(SindragosaSpawnPos.GetPositionX(), SindragosaSpawnPos.GetPositionY());
-                            if (Creature* boss = instance->SummonCreature(NPC_SINDRAGOSA, SindragosaSpawnPos))
-                            {
-                                boss->setActive(true);
-                                boss->AI()->DoAction(ACTION_START_FROSTWYRM);
-                            }
-                        }
+                    {
+                        if (data > 1) 
+                            frostwyrms = data; 
+                        else if (data == 1) 
+                            ++frostwyrms; 
+                        else if (!data && !--frostwyrms && GetBossState(DATA_SINDRAGOSA_EVENT) != DONE) 
+                        { 
+                            instance->LoadGrid(SindragosaSpawnPos.GetPositionX(), SindragosaSpawnPos.GetPositionY()); 
+                            if (Creature* boss = instance->SummonCreature(NPC_SINDRAGOSA, SindragosaSpawnPos)) 
+                            { 
+                                boss->setActive(true); 
+                                boss->AI()->DoAction(ACTION_START_FROSTWYRM); 
+                            } 
+                        } 
+                        break; 
+                    }
+                    case DATA_SPINESTALKER_EVENT:
+                    {
+                        if (data > 1) 
+                            spinestalkerTrash = data; 
+                        else if (data == 1) 
+                            ++spinestalkerTrash; 
+                        else if (!data && !--spinestalkerTrash) 
+                            if (Creature* spinestalk = instance->GetCreature(uiSpinestalker)) 
+                                spinestalk->AI()->DoAction(ACTION_START_FROSTWYRM); 
                         break;
-                    case DATA_SPINESTALKER:
-                        if (data > 1)
-                            spinestalkerTrash = data;
-                        else if (data == 1)
-                            ++spinestalkerTrash;
-                        else if (!data && !--spinestalkerTrash)
-                            if (Creature* spinestalk = instance->GetCreature(spinestalker))
-                                spinestalk->AI()->DoAction(ACTION_START_FROSTWYRM);
-                        break;
-                    case DATA_RIMEFANG:
-                        if (data > 1)
-                            rimefangTrash = data;
-                        else if (data == 1)
-                            ++rimefangTrash;
-                        else if (!data && !--rimefangTrash)
-                            if (Creature* rime = instance->GetCreature(rimefang))
+                    }
+                    case DATA_RIMEFANG_EVENT:
+                    {
+                        if (data > 1) 
+                            rimefangTrash = data; 
+                        else if (data == 1) 
+                            ++rimefangTrash; 
+                        else if (!data && !--rimefangTrash) 
+                            if (Creature* rime = instance->GetCreature(uiRimefang)) 
                                 rime->AI()->DoAction(ACTION_START_FROSTWYRM);
                         break;
-                    case DATA_COLDFLAME_JETS:
+                    }
+                    case DATA_COLDFLAME_JETS_EVENT:
                         coldflameJetsState = data;
                         if (coldflameJetsState == DONE)
                         {
@@ -587,9 +1355,111 @@ class instance_icecrown_citadel : public InstanceMapScript
                                     trap->AI()->DoAction(ACTION_STOP_TRAPS);
                         }
                         break;
-                    default:
-                        break;
+                    //Teleports
+                    case DATA_TELEPORT_ORATORY_OF_THE_DAMNED_ACTIVATED:
+                        uiTeleportToOratoryOfTheDamnedActivated = data;
+                    case DATA_TELEPORT_RAMPART_OF_SKULLS_ACTIVATED:
+                        uiTeleportToRampartOfSkullsActivated = data;
+                    case DATA_TELEPORT_DEATHBRINGER_S_RISE_ACTIVATED:
+                        uiTeleportToDeathbringersRiseActivated = data;
+                    case DATA_TELEPORT_UPPER_SPIRE_ACTIVATED:
+                        uiTeleportToUpperSpireActivated = data;
+                    case DATA_TELEPORT_SINDRAGOSA_S_LAIR_ACTIVATED:
+                        uiTeleportToSindragosasLairActivated = data;
+                    case DATA_TELEPORT_FROZEN_THRONE_ACTIVATED:
+                        uiTeleportToFrozenThroneActivated = data;
+                    default: 
+                        break; 
                 }
+
+                SaveToDB();
+            }
+
+            uint32 GetData(uint32 type)
+            {
+                switch(type)
+                {
+                    case DATA_LORD_MARROWGAR_EVENT:
+                        return uiEncounter[DATA_LORD_MARROWGAR_EVENT];
+                    case DATA_DEATHWHISPER_EVENT:
+                        return uiEncounter[DATA_DEATHWHISPER_EVENT];
+                    case DATA_GUNSHIP_BATTLE_EVENT:
+                        return uiEncounter[DATA_GUNSHIP_BATTLE_EVENT];
+                    case DATA_SAURFANG_EVENT:
+                        return uiEncounter[DATA_SAURFANG_EVENT];
+                    case DATA_FESTERGUT_EVENT:
+                        return uiEncounter[DATA_FESTERGUT_EVENT];
+                    case DATA_ROTFACE_EVENT:
+                        return uiEncounter[DATA_ROTFACE_EVENT];
+                    case DATA_PROFESSOR_PUTRICIDE_EVENT:
+                        return uiEncounter[DATA_PROFESSOR_PUTRICIDE_EVENT];
+                    case DATA_BLOOD_PRINCE_COUNCIL_EVENT:
+                        return uiEncounter[DATA_BLOOD_PRINCE_COUNCIL_EVENT];
+                    case DATA_BLOOD_QUEEN_LANA_THEL_EVENT:
+                        return uiEncounter[DATA_BLOOD_QUEEN_LANA_THEL_EVENT];
+                    case DATA_VALITHRIA_DREAMWALKER_EVENT:
+                        return uiEncounter[DATA_VALITHRIA_DREAMWALKER_EVENT];
+                    case DATA_SINDRAGOSA_EVENT:
+                        return uiEncounter[DATA_SINDRAGOSA_EVENT];
+                    case DATA_LICH_KING_EVENT:
+                        return uiEncounter[DATA_LICH_KING_EVENT];
+
+                    case DATA_PORTAL_JOCKEY_ACHIEVEMENT:
+                        return isPortalJockeyEligible ? true : false;
+                    case DATA_SINDRAGOSA_FROSTWYRMS: 
+                        return frostwyrms; 
+                    case DATA_SPINESTALKER_EVENT: 
+                        return spinestalkerTrash; 
+                    case DATA_RIMEFANG_EVENT: 
+                        return rimefangTrash; 
+                    case DATA_COLDFLAME_JETS_EVENT:
+                        return coldflameJetsState;
+                    case DATA_NECK_DEEP_ACHIEVEMENT:         
+                        return uiNeckDeep;
+                    case DATA_NECROTIC_STACK:              
+                        return uiNecroticStack;
+
+                    //Teleports
+                    case DATA_TELEPORT_ORATORY_OF_THE_DAMNED_ACTIVATED:
+                        return uiTeleportToOratoryOfTheDamnedActivated;
+                    case DATA_TELEPORT_RAMPART_OF_SKULLS_ACTIVATED:
+                        return uiTeleportToRampartOfSkullsActivated;
+                    case DATA_TELEPORT_DEATHBRINGER_S_RISE_ACTIVATED:
+                        return uiTeleportToDeathbringersRiseActivated;
+                    case DATA_TELEPORT_UPPER_SPIRE_ACTIVATED:
+                        return uiTeleportToUpperSpireActivated;
+                    case DATA_TELEPORT_SINDRAGOSA_S_LAIR_ACTIVATED:
+                        return uiTeleportToSindragosasLairActivated;
+                    case DATA_TELEPORT_FROZEN_THRONE_ACTIVATED:
+                        return uiTeleportToFrozenThroneActivated;
+                    default: 
+                        break; 
+                } 
+
+
+                return 0;
+            }
+
+            std::string GetSaveData()
+            {
+                OUT_SAVE_INST_DATA;
+                //While Gunship Battle isn't implemented
+                uiEncounter[DATA_GUNSHIP_BATTLE_EVENT] = DONE;
+                std::ostringstream saveStream;
+                saveStream << "I C" << uiEncounter[DATA_LORD_MARROWGAR_EVENT] << " " << uiEncounter[DATA_DEATHWHISPER_EVENT] << " " << uiEncounter[DATA_GUNSHIP_BATTLE_EVENT] << " " << uiEncounter[DATA_SAURFANG_EVENT]
+                << " " << uiEncounter[DATA_FESTERGUT_EVENT] << " " << uiEncounter[DATA_ROTFACE_EVENT] << " " << uiEncounter[DATA_PROFESSOR_PUTRICIDE_EVENT] << " " << uiEncounter[DATA_BLOOD_PRINCE_COUNCIL_EVENT] << " " << uiEncounter[DATA_BLOOD_QUEEN_LANA_THEL_EVENT]
+                << " " << uiEncounter[DATA_VALITHRIA_DREAMWALKER_EVENT] << " " << uiEncounter[DATA_SINDRAGOSA_EVENT] << " " << uiEncounter[DATA_LICH_KING_EVENT];
+                //Saving additional data
+                saveStream << " " << gasValveActivated << " " << oozeValveActivated << " " << coldflameJetsState;
+                saveStream << " " << uiTeleportToOratoryOfTheDamnedActivated;
+                saveStream << " " << uiTeleportToRampartOfSkullsActivated;
+                saveStream << " " << uiTeleportToDeathbringersRiseActivated;
+                saveStream << " " << uiTeleportToUpperSpireActivated;
+                saveStream << " " << uiTeleportToSindragosasLairActivated;
+                saveStream << " " << uiTeleportToFrozenThroneActivated;
+
+                OUT_SAVE_INST_DATA_COMPLETE;
+                return saveStream.str();
             }
 
             bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/, uint32 /*miscvalue1*/)
@@ -625,6 +1495,11 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case CRITERIA_ONCE_BITTEN_TWICE_SHY_25N:
                     case CRITERIA_ONCE_BITTEN_TWICE_SHY_25V:
                         return CAST_INST(InstanceMap, instance)->GetMaxPlayers() == 25;
+                    //case CRITERIA_PORTAL_JOCKEY_10N:
+                    //case CRITERIA_PORTAL_JOCKEY_10H:
+                    //case CRITERIA_PORTAL_JOCKEY_25N:
+                    //case CRITERIA_PORTAL_JOCKEY_25H:
+                    //    return isPortalJockeyEligible;
                     default:
                         break;
                 }
@@ -632,225 +1507,282 @@ class instance_icecrown_citadel : public InstanceMapScript
                 return false;
             }
 
-            bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const
+            void Load(const char* in)
             {
-                if (player && player->isGameMaster())
-                    return true;
-
-                switch (bossId)
-                {
-                    case DATA_THE_LICH_KING:
-                        if (!CheckPlagueworks(bossId))
-                            return false;
-                        if (!CheckCrimsonHalls(bossId))
-                            return false;
-                        if (!CheckFrostwingHalls(bossId))
-                            return false;
-                        break;
-                    case DATA_SINDRAGOSA:
-                    case DATA_VALITHRIA_DREAMWALKER:
-                        if (!CheckFrostwingHalls(bossId))
-                            return false;
-                        break;
-                    case DATA_BLOOD_QUEEN_LANA_THEL:
-                    case DATA_BLOOD_PRINCE_COUNCIL:
-                        if (!CheckCrimsonHalls(bossId))
-                            return false;
-                        break;
-                    case DATA_FESTERGUT:
-                    case DATA_ROTFACE:
-                    case DATA_PROFESSOR_PUTRICIDE:
-                        if (!CheckPlagueworks(bossId))
-                            return false;
-                        break;
-                    default:
-                        break;
-                }
-
-                if (!CheckLowerSpire(bossId))
-                    return false;
-
-                return true;
-            }
-
-            bool CheckPlagueworks(uint32 bossId) const
-            {
-                switch (bossId)
-                {
-                    case DATA_THE_LICH_KING:
-                        if (GetBossState(DATA_PROFESSOR_PUTRICIDE) != DONE)
-                            return false;
-                        // no break
-                    case DATA_PROFESSOR_PUTRICIDE:
-                        if (GetBossState(DATA_FESTERGUT) != DONE || GetBossState(DATA_ROTFACE) != DONE)
-                            return false;
-                        break;
-                    default:
-                        break;
-                }
-
-                return true;
-            }
-
-            bool CheckCrimsonHalls(uint32 bossId) const
-            {
-                switch (bossId)
-                {
-                    case DATA_THE_LICH_KING:
-                        if (GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) != DONE)
-                            return false;
-                        // no break
-                    case DATA_BLOOD_QUEEN_LANA_THEL:
-                        if (GetBossState(DATA_BLOOD_PRINCE_COUNCIL) != DONE)
-                            return false;
-                        break;
-                    default:
-                        break;
-                }
-
-                return true;
-            }
-
-            bool CheckFrostwingHalls(uint32 bossId) const
-            {
-                switch (bossId)
-                {
-                    case DATA_THE_LICH_KING:
-                        if (GetBossState(DATA_SINDRAGOSA) != DONE)
-                            return false;
-                        // no break
-                    case DATA_SINDRAGOSA:
-                        //if (GetBossState(DATA_VALITHRIA_DREAMWALKER) != DONE)
-                        //    return false;
-                        break;
-                    default:
-                        break;
-                }
-
-                return true;
-            }
-
-            bool CheckLowerSpire(uint32 bossId) const
-            {
-                switch (bossId)
-                {
-                    case DATA_THE_LICH_KING:
-                    case DATA_SINDRAGOSA:
-                    case DATA_BLOOD_QUEEN_LANA_THEL:
-                    case DATA_PROFESSOR_PUTRICIDE:
-                    case DATA_VALITHRIA_DREAMWALKER:
-                    case DATA_BLOOD_PRINCE_COUNCIL:
-                    case DATA_ROTFACE:
-                    case DATA_FESTERGUT:
-                        if (GetBossState(DATA_DEATHBRINGER_SAURFANG) != DONE)
-                            return false;
-                        // no break
-                    case DATA_DEATHBRINGER_SAURFANG:
-                        if (GetBossState(DATA_GUNSHIP_EVENT) != DONE)
-                            return false;
-                        // no break
-                    case DATA_GUNSHIP_EVENT:
-                        if (GetBossState(DATA_LADY_DEATHWHISPER) != DONE)
-                            return false;
-                        // no break
-                    case DATA_LADY_DEATHWHISPER:
-                        if (GetBossState(DATA_LORD_MARROWGAR) != DONE)
-                            return false;
-                        // no break
-                    case DATA_LORD_MARROWGAR:
-                    default:
-                        break;
-                }
-
-                return true;
-            }
-
-            std::string GetSaveData()
-            {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << "I C " << GetBossSaveData() << uint32(coldflameJetsState);
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
-            }
-
-            void Load(const char* str)
-            {
-                if (!str)
+                if (!in)
                 {
                     OUT_LOAD_INST_DATA_FAIL;
                     return;
                 }
 
-                OUT_LOAD_INST_DATA(str);
+                OUT_LOAD_INST_DATA(in);
 
                 char dataHead1, dataHead2;
 
-                std::istringstream loadStream(str);
+                std::istringstream loadStream(in);
                 loadStream >> dataHead1 >> dataHead2;
 
                 if (dataHead1 == 'I' && dataHead2 == 'C')
                 {
+                    loadStream >> uiEncounter[DATA_LORD_MARROWGAR_EVENT];
+                    loadStream >> uiEncounter[DATA_DEATHWHISPER_EVENT];
+                    loadStream >> uiEncounter[DATA_GUNSHIP_BATTLE_EVENT];
+                    //While not implemented
+                    uiEncounter[DATA_GUNSHIP_BATTLE_EVENT] = DONE;
+                    loadStream >> uiEncounter[DATA_SAURFANG_EVENT];
+                    loadStream >> uiEncounter[DATA_FESTERGUT_EVENT];
+                    loadStream >> uiEncounter[DATA_ROTFACE_EVENT];
+                    loadStream >> uiEncounter[DATA_PROFESSOR_PUTRICIDE_EVENT];
+                    loadStream >> uiEncounter[DATA_BLOOD_PRINCE_COUNCIL_EVENT];
+                    loadStream >> uiEncounter[DATA_BLOOD_QUEEN_LANA_THEL_EVENT];
+                    loadStream >> uiEncounter[DATA_VALITHRIA_DREAMWALKER_EVENT];
+                    loadStream >> uiEncounter[DATA_SINDRAGOSA_EVENT];
+                    loadStream >> uiEncounter[DATA_LICH_KING_EVENT];
+                    //Loading additional data
+                    loadStream >> gasValveActivated >> oozeValveActivated;
                     for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                     {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-                        SetBossState(i, EncounterState(tmpState));
+                        if (uiEncounter[i] == IN_PROGRESS)
+                            uiEncounter[i] = NOT_STARTED;
                     }
-
+                    if (uiEncounter[DATA_FESTERGUT_EVENT] != DONE || uiEncounter[DATA_ROTFACE_EVENT] != DONE)
+                        gasValveActivated = oozeValveActivated = NOT_STARTED;
+                    if (gasValveActivated == IN_PROGRESS || gasValveActivated == DONE)
+                        gasValveActivated = NOT_STARTED;
+                    if (oozeValveActivated == IN_PROGRESS || oozeValveActivated == DONE)
+                        oozeValveActivated = NOT_STARTED;
                     uint32 jets = 0;
                     loadStream >> jets;
-                    coldflameJetsState = jets ? DONE : NOT_STARTED;
+                    if (jets)
+                        jets = DONE;
+                    coldflameJetsState = jets;
+                    loadStream >> uiTeleportToOratoryOfTheDamnedActivated;
+                    loadStream >> uiTeleportToRampartOfSkullsActivated;
+                    loadStream >> uiTeleportToDeathbringersRiseActivated;
+                    loadStream >> uiTeleportToUpperSpireActivated;
+                    loadStream >> uiTeleportToSindragosasLairActivated;
+                    loadStream >> uiTeleportToFrozenThroneActivated;
                 } else OUT_LOAD_INST_DATA_FAIL;
 
                 OUT_LOAD_INST_DATA_COMPLETE;
             }
 
         private:
-            uint64 ladyDeathwisperElevator;
-            uint64 deathbringerSaurfang;
-            uint64 saurfangDoor;
-            uint64 saurfangEventNPC;  // Muradin Bronzebeard or High Overlord Saurfang
-            uint64 deathbringersCache;
-            uint64 saurfangTeleport;
-            uint64 plagueSigil;
-            uint64 bloodwingSigil;
-            uint64 frostwingSigil;
-            uint64 putricidePipes[2];
-            uint64 putricideGates[2];
-            uint64 putricideCollision;
-            uint64 festergut;
-            uint64 rotface;
-            uint64 professorPutricide;
-            uint64 putricideTable;
-            uint64 bloodCouncil[3];
-            uint64 bloodCouncilController;
-            uint64 bloodQueenLanaThel;
-            uint64 sindragosa;
-            uint64 spinestalker;
-            uint64 rimefang;
+            uint64 uiLordMarrowgar;
+            uint64 uiDeathbringerSaurfang;
+            uint64 uiSaurfangEventNPC;
+            uint64 uiFestergut;
+            uint64 uiRotface;
+            uint64 uiProfessorPutricide;
+            uint64 uiPrinceValanar;
+            uint64 uiPrinceKeleseth;
+            uint64 uiPrinceTaldaram;
+            uint64 uiBloodQueenLanathel;
+            uint64 uiValithriaDreamwalker;
+            uint64 uiValithriaAlternative;
+            uint64 uiValithriaCombatTrigger;
+            uint64 uiLichKing;
+            uint64 uiTirion;
+            uint64 uiTerenasFighter;
+            uint64 uiSpiritWarden;
+            uint64 uiIceWall1;
+            uint64 uiIceWall2;
+            uint64 uiMarrowgarEntrance;
+            uint64 uiFrozenThrone;
+            uint64 uiSaurfangCache;
+            uint64 uiLadyDeathwisperTransporter;
+            uint64 uiOratoryDoor;
+            uint64 uiSaurfangDoor;
+            uint64 uiOrangeMonsterDoor;
+            uint64 uiGreenMonsterDoor;
+            uint64 uiProfCollisionDoor;
+            uint64 uiPutricideTable;
+            uint64 uiOrangePipe;
+            uint64 uiGreenPipe;
+            uint64 uiOozeValve;
+            uint64 uiGasValve;
+            uint64 uiProfDoorOrange;
+            uint64 uiProfDoorGreen;
+            uint64 uiRotfaceEntrance;
+            uint64 uiFestergurtEntrance;
+            uint64 uiProfessorDoor;
+            uint64 uiBloodwingDoor;
+            uint64 uiCrimsonHallDoor1;
+            uint64 uiCrimsonHallDoorRight;
+            uint64 uiCrimsonHallDoorLeft;
+            uint64 uiBloodQueenGrate;
+            uint64 uiBloodQueenBloodBarrier;
+            uint64 uiFrostwingDoor;
+            uint64 uiValithriaDoorEntrance;
+            uint64 uiValithriaDoorExit;
+            uint64 uiSindragosaShortcutExitDoor;
+            uint64 uiRoostDoor1;
+            uint64 uiRoostDoor2;
+            uint64 uiRoostDoor3;
+            uint64 uiRoostDoor4;
+            uint64 uiValithriaTransporter;
+            uint64 uiSindragosaTransporter;
+            uint64 uiDreamwalkerCache;
+            uint64 uiSindragosaDoor1;
+            uint64 uiSindragosaShortcutEntranceDoor;
+            uint64 uiSindragosaIceWall;
+            uint64 uiFirstTp;
+            uint64 uiMarrowgarTp;
+            uint64 uiFlightWarTp;
+            uint64 uiSaurfangTp;
+            uint64 uiCitadelTp;
+            uint64 uiSindragosaTp;
+            uint64 uiLichTp;
+            uint64 uiBloodCouncilController;
+            uint64 uiPlagueSigil;
+            uint64 uiBloodwingSigil;
+            uint64 uiFrostwingSigil;
+            uint64 uiSpiritAlarm1;
+            uint64 uiSpiritAlarm2;
+            uint64 uiSpiritAlarm3;
+            uint64 uiSpiritAlarm4;
+            uint64 uiDeathboundWard1;
+            uint64 uiDeathboundWard2;
+            uint64 uiDeathboundWard3;
+            uint64 uiDeathboundWard4;
+            uint64 uiUpperSpireLever;
+            uint64 uiIceShard1;
+            uint64 uiIceShard2;
+            uint64 uiIceShard3;
+            uint64 uiIceShard4;
+            uint64 uiFrostyEdgeInner;
+            uint64 uiFrostyEdgeOuter;
+            uint64 uiEdgeDestroyWarning;
+
+            uint8 uiDifficulty;
+            uint8 uiBeenWaiting;
+            uint8 uiNeckDeep;
+            uint8 uiNecroticStack;
+            uint64 uiSindragosa; 
+            uint64 uiSpinestalker; 
+            uint64 uiRimefang;
+            uint8 coldflameJetsState;
             std::set<uint64> coldflameJets;
-            uint32 teamInInstance;
-            uint16 coldflameJetsState;
-            uint16 frostwyrms;
-            uint16 spinestalkerTrash;
-            uint16 rimefangTrash;
-            bool isBonedEligible;
-            bool isOozeDanceEligible;
-            bool isNauseaEligible;
-            bool isOrbWhispererEligible;
+            uint8 frostwyrms; 
+            uint8 spinestalkerTrash; 
+            uint8 rimefangTrash; 
+            uint8 oozeValveActivated;
+            uint8 gasValveActivated;
+
+            uint8 isBonedEligible;
+            uint8 isOozeDanceEligible;
+            uint8 isNauseaEligible;
+            uint8 isOrbWhispererEligible;
+            uint8 isPortalJockeyEligible;
+
+            uint8 uiTeleportToOratoryOfTheDamnedActivated;
+            uint8 uiTeleportToRampartOfSkullsActivated;
+            uint8 uiTeleportToDeathbringersRiseActivated;
+            uint8 uiTeleportToUpperSpireActivated;
+            uint8 uiTeleportToSindragosasLairActivated;
+            uint8 uiTeleportToFrozenThroneActivated;
+
+            uint32 uiEncounter[MAX_ENCOUNTER];
+            std::map<uint64, Position> gameObjectPositions;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        InstanceScript* GetInstanceScript(InstanceMap* pMap) const
         {
-            return new instance_icecrown_citadel_InstanceMapScript(map);
+            return new instance_icecrown_citadel_InstanceMapScript(pMap);
         }
 };
+void DespawnAllCreaturesAround(Creature *ref, uint32 entry)
+{
+    while (Unit *unit = ref->FindNearestCreature(entry, 80.0f, true))
+        if (Creature *creature = unit->ToCreature())
+            creature->DespawnOrUnsummon();
+}
+void UnsummonSpecificCreaturesNearby(Creature *ref, uint32 entry, float radius)
+{
+    std::list<Creature*> allCreaturesWithEntry;
+    GetCreatureListWithEntryInGrid(allCreaturesWithEntry, ref, entry, radius);
+    for(std::list<Creature*>::iterator itr = allCreaturesWithEntry.begin(); itr != allCreaturesWithEntry.end(); ++itr)
+    {
+        Creature *candidate = *itr;
 
+        if (!candidate)
+            continue;
+        if (TempSummon* summon = candidate->ToTempSummon())
+            summon->DespawnOrUnsummon();
+    }
+}
+uint32 GetPhase(const EventMap &em)
+{
+    switch (em.GetPhaseMask())
+    {
+        case 0x01: return 0;
+        case 0x02: return 1;
+        case 0x04: return 2;
+        case 0x08: return 3;
+        case 0x10: return 4;
+        case 0x20: return 5;
+        case 0x40: return 6;
+        case 0x80: return 7;
+        default:
+            return 0;
+    }
+}
+void LeaveOnlyPlayers(std::list<Unit*> &unitList)
+{
+    for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end();)
+    {
+        if ((*itr)->GetTypeId() != TYPEID_PLAYER)
+            unitList.erase(itr++);
+        else
+            ++itr;
+    }
+
+    std::list<Unit*>::iterator itr = unitList.begin();
+    std::advance(itr, urand(0, unitList.size()-1));
+    Unit* target = *itr;
+    unitList.clear();
+    unitList.push_back(target);
+}
+class TeleportToFrozenThrone : public BasicEvent
+{
+    public:
+        TeleportToFrozenThrone(Player *player, uint8 attempts): pPlayer(player), attemptsLeft(attempts) { }
+
+        bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/)
+        {
+            pPlayer->CastSpell(pPlayer, SPELL_TELEPORT_ICC_FROZEN_THRONE, true);
+            if (--attemptsLeft)
+                pPlayer->m_Events.AddEvent(new TeleportToFrozenThrone(pPlayer, attemptsLeft), pPlayer->m_Events.CalculateTime(uint64(1500)));
+            return true;
+        }
+    private:
+        Player *pPlayer;
+        uint8 attemptsLeft;
+};
+void TeleportPlayerToFrozenThrone(Player *player)
+{
+    player->m_Events.AddEvent(new TeleportToFrozenThrone(player, 2), player->m_Events.CalculateTime(uint64(5000)));
+}
+TPlayerList GetPlayersInTheMap(Map *pMap)
+{
+    TPlayerList players;
+    const Map::PlayerList &PlayerList = pMap->GetPlayers();
+    if (!PlayerList.isEmpty())
+        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+            if (Player* player = i->getSource())
+                players.push_back(player);
+    return players;
+}
+TPlayerList GetAttackablePlayersInTheMap(Map *pMap)
+{
+    TPlayerList players = GetPlayersInTheMap(pMap);
+    for (TPlayerList::iterator it = players.begin(); it != players.end();)
+        if (!(*it)->isTargetableForAttack())
+            players.erase(it++);
+        else
+            ++it;
+    return players;
+}
 void AddSC_instance_icecrown_citadel()
 {
     new instance_icecrown_citadel();

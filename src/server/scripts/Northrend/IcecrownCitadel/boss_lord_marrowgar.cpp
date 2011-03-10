@@ -15,15 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "ScriptPCH.h"
+#include "icecrown_citadel.h"
+#include "SpellAuraEffects.h"
 #include "SpellScript.h"
 #include "SpellAuras.h"
-#include "icecrown_citadel.h"
 #include "MapManager.h"
+#include "Group.h"
 
-enum ScriptTexts
+enum eScriptTexts
 {
     SAY_ENTER_ZONE              = 0,
     SAY_AGGRO                   = 1,
@@ -35,7 +35,7 @@ enum ScriptTexts
     EMOTE_BONE_STORM            = 7,
 };
 
-enum Spells
+enum eSpells
 {
     // Lord Marrowgar
     SPELL_BONE_SLICE            = 69055,
@@ -50,12 +50,12 @@ enum Spells
 
     // Coldflame
     SPELL_COLDFLAME_PASSIVE     = 69145,
-    SPELL_COLDFLAME_SUMMON      = 69147,
+    SPELL_COLDFLAME_SUMMON      = 69147
 };
 
 static const uint32 boneSpikeSummonId[3] = {69062, 72669, 72670};
 
-enum Events
+enum eEvents
 {
     EVENT_BONE_SPIKE_GRAVEYARD  = 1,
     EVENT_COLDFLAME             = 2,
@@ -72,7 +72,7 @@ enum Events
     EVENT_GROUP_SPECIAL         = 1,
 };
 
-enum MovementPoints
+enum eMovementPoints
 {
     POINT_TARGET_BONESTORM_PLAYER   = 36612631,
     POINT_TARGET_COLDFLAME          = 36672631,
@@ -85,7 +85,7 @@ class boss_lord_marrowgar : public CreatureScript
 
         struct boss_lord_marrowgarAI : public BossAI
         {
-            boss_lord_marrowgarAI(Creature* creature) : BossAI(creature, DATA_LORD_MARROWGAR)
+            boss_lord_marrowgarAI(Creature* creature) : BossAI(creature, DATA_LORD_MARROWGAR_EVENT)
             {
                 boneStormDuration = RAID_MODE<uint32>(20000, 30000, 20000, 30000);
                 baseSpeed = creature->GetSpeedRate(MOVE_RUN);
@@ -104,10 +104,10 @@ class boss_lord_marrowgar : public CreatureScript
 
             void Reset()
             {
-                _Reset();
                 me->SetSpeed(MOVE_RUN, baseSpeed, true);
                 me->RemoveAurasDueToSpell(SPELL_BONE_STORM);
                 me->RemoveAurasDueToSpell(SPELL_BERSERK);
+                events.Reset();
                 events.ScheduleEvent(EVENT_ENABLE_BONE_SLICE, 10000);
                 events.ScheduleEvent(EVENT_BONE_SPIKE_GRAVEYARD, urand(10000, 15000), EVENT_GROUP_SPECIAL);
                 events.ScheduleEvent(EVENT_COLDFLAME, 5000, EVENT_GROUP_SPECIAL);
@@ -119,22 +119,31 @@ class boss_lord_marrowgar : public CreatureScript
             {
                 Talk(SAY_AGGRO);
 
-                me->setActive(true);
-                DoZoneInCombat();
-                instance->SetBossState(DATA_LORD_MARROWGAR, IN_PROGRESS);
+                instance->SetBossState(DATA_LORD_MARROWGAR_EVENT, IN_PROGRESS);
+                instance->SetData(DATA_LORD_MARROWGAR_EVENT, IN_PROGRESS);
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* killer)
             {
                 Talk(SAY_DEATH);
-
-                _JustDied();
+                //Removing "Impaled" aura due to bug.
+                if (killer->GetTypeId() == TYPEID_PLAYER)
+                {
+                    Player *pPlayer = (Player*)killer;
+                    if (Group* pGroup = pPlayer->GetGroup())
+                        for (GroupReference* pRef = pGroup->GetFirstMember(); pRef != NULL; pRef = pRef->next())
+                            if (Player* pMember = pRef->getSource())
+                                pMember->RemoveAurasDueToSpell(SPELL_IMPALED);
+                }
+                instance->SetBossState(DATA_LORD_MARROWGAR_EVENT, DONE);
+                instance->SetData(DATA_LORD_MARROWGAR_EVENT, DONE);
+                summons.DespawnAll();
             }
 
             void JustReachedHome()
             {
-                _JustReachedHome();
-                instance->SetBossState(DATA_LORD_MARROWGAR, FAIL);
+                instance->SetBossState(DATA_LORD_MARROWGAR_EVENT, FAIL);
+                instance->SetData(DATA_LORD_MARROWGAR_EVENT, FAIL);
                 instance->SetData(DATA_BONED_ACHIEVEMENT, uint32(true));    // reset
             }
 
@@ -282,16 +291,16 @@ class npc_coldflame : public CreatureScript
             {
                 if (owner->GetTypeId() != TYPEID_UNIT)
                     return;
-
                 Creature* creOwner = owner->ToCreature();
-                Position pos;
+
+                DoCast(me, SPELL_COLDFLAME_PASSIVE, true);
                 // random target case
                 if (!owner->HasAura(SPELL_BONE_STORM))
                 {
                     // select any unit but not the tank (by owners threatlist)
-                    Unit* target = creOwner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 1, -owner->GetObjectSize(), true, -SPELL_IMPALED);
+                    Unit* target = creOwner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 1, 40.0f, true, -SPELL_IMPALED);
                     if (!target)
-                        target = creOwner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true); // or the tank if its solo
+                        target = creOwner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true); // or the tank if its solo
                     if (!target)
                     {
                         me->DespawnOrUnsummon();
@@ -299,7 +308,6 @@ class npc_coldflame : public CreatureScript
                     }
 
                     me->SetOrientation(me->GetAngle(target));
-                    owner->GetNearPosition(pos, owner->GetObjectSize()/2.0f, 0.0f);
                 }
                 else
                 {
@@ -308,11 +316,8 @@ class npc_coldflame : public CreatureScript
                     float ang = me->GetAngle(ownerPos) - static_cast<float>(M_PI);
                     MapManager::NormalizeOrientation(ang);
                     me->SetOrientation(ang);
-                    owner->GetNearPosition(pos, 2.5f, 0.0f);
                 }
-
-                me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), me->GetPositionZ(), me->GetOrientation());
-                events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 200);
+                events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 1000);
             }
 
             void UpdateAI(const uint32 diff)
@@ -321,11 +326,16 @@ class npc_coldflame : public CreatureScript
 
                 if (events.ExecuteEvent() == EVENT_COLDFLAME_TRIGGER)
                 {
-                    Position newPos;
-                    me->GetNearPosition(newPos, 5.5f, 0.0f);
-                    me->NearTeleportTo(newPos.GetPositionX(), newPos.GetPositionY(), me->GetPositionZ(), me->GetOrientation());
-                    DoCast(SPELL_COLDFLAME_SUMMON);
-                    events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 200);
+                    if (me->HasAura(SPELL_COLDFLAME_PASSIVE))
+                    {
+                        float x, y;
+                        me->GetPosition(x, y);
+                        x += 5.5f * cos(me->GetOrientation());
+                        y += 5.5f * sin(me->GetOrientation());
+                        me->NearTeleportTo(x, y, me->GetPositionZ(), me->GetOrientation());
+                        DoCast(SPELL_COLDFLAME_SUMMON);
+                    }
+                    events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 1000);
                 }
             }
 
@@ -338,7 +348,6 @@ class npc_coldflame : public CreatureScript
             return new npc_coldflameAI(creature);
         }
 };
-
 class npc_bone_spike : public CreatureScript
 {
     public:
@@ -384,6 +393,18 @@ class npc_bone_spike : public CreatureScript
                 if (events.ExecuteEvent() == EVENT_FAIL_BONED)
                     if (InstanceScript* instance = me->GetInstanceScript())
                         instance->SetData(DATA_BONED_ACHIEVEMENT, uint32(false));
+
+                if (TempSummon* summ = me->ToTempSummon())
+                {
+                    if (Unit* trapped = summ->GetSummoner())
+                    {
+                        if (trapped->isDead())
+                        {
+                            trapped->RemoveAurasDueToSpell(SPELL_IMPALED);
+                            summ->UnSummon();
+                        }
+                    }
+                }
             }
 
         private:
@@ -411,7 +432,7 @@ class spell_marrowgar_coldflame : public SpellScriptLoader
                 PreventHitDefaultEffect(effIndex);
                 Unit* caster = GetCaster();
                 uint8 count = 1;
-                if (GetSpellInfo()->Id == 72705)
+                if (GetSpellInfo()->Id == SPELL_COLDFLAME_BONE_STORM)
                     count = 4;
 
                 for (uint8 i = 0; i < count; ++i)
@@ -430,34 +451,6 @@ class spell_marrowgar_coldflame : public SpellScriptLoader
         }
 };
 
-class spell_marrowgar_coldflame_damage : public SpellScriptLoader
-{
-    public:
-        spell_marrowgar_coldflame_damage() : SpellScriptLoader("spell_marrowgar_coldflame_damage") { }
-
-        class spell_marrowgar_coldflame_damage_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_marrowgar_coldflame_damage_AuraScript);
-
-            void OnPeriodic(AuraEffect const* /*aurEff*/)
-            {
-                if (DynamicObject* owner = GetDynobjOwner())
-                    if (GetTarget()->GetExactDist2d(owner) >= owner->GetRadius() || GetTarget()->HasAura(SPELL_IMPALED))
-                        PreventDefaultAction();
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_marrowgar_coldflame_damage_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_marrowgar_coldflame_damage_AuraScript();
-        }
-};
-
 class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
 {
     public:
@@ -473,20 +466,23 @@ class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
                 if (Creature* marrowgar = GetCaster()->ToCreature())
                 {
                     CreatureAI* marrowgarAI = marrowgar->AI();
+                    bool yell = false;
                     uint8 boneSpikeCount = uint8(GetCaster()->GetMap()->GetSpawnMode() & 1 ? 3 : 1);
                     for (uint8 i = 0; i < boneSpikeCount; ++i)
                     {
                         // select any unit but not the tank
                         Unit* target = marrowgarAI->SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true, -SPELL_IMPALED);
-                        // try the tank only in first iteration
-                        if (!target && !i)
-                            target = marrowgarAI->SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_IMPALED);
+                        //Yes, NOT THE TANK!
+                        //if (!target && !i)
+                        //    target = marrowgarAI->SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_IMPALED);
                         if (!target)
-                            return;
+                            break;
+                        yell = true;
                         target->CastCustomSpell(boneSpikeSummonId[i], SPELLVALUE_BASE_POINT0, 0, target, true);
                     }
 
-                    marrowgarAI->Talk(SAY_BONESPIKE);
+                    if (yell)
+                        marrowgarAI->Talk(SAY_BONESPIKE);
                 }
             }
 
@@ -513,12 +509,13 @@ class spell_marrowgar_bone_storm : public SpellScriptLoader
 
             void RecalculateDamage(SpellEffIndex /*effIndex*/)
             {
+                int32 dmg = GetHitDamage();
                 float distance = GetHitUnit()->GetExactDist2d(GetCaster());
                 if (distance < 5.0f)
                     return;
 
-                float distVar = distance >= 40.0f ? 4 : (10.0f/3.0f);
-                SetHitDamage(int32(GetHitDamage() * distVar / distance));
+                float distVar = distance >= 20.0f ? 4 : (10.0f/3.0f);
+                SetHitDamage(int32(dmg * distVar / distance));
             }
 
             void Register()
@@ -533,6 +530,199 @@ class spell_marrowgar_bone_storm : public SpellScriptLoader
         }
 };
 
+class spell_marrowgar_coldflame_damage : public SpellScriptLoader
+{
+    public:
+        spell_marrowgar_coldflame_damage() : SpellScriptLoader("spell_marrowgar_coldflame_damage") { }
+
+        class spell_marrowgar_coldflame_damage_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_marrowgar_coldflame_damage_AuraScript);
+
+            void OnPeriodic(AuraEffect const* /*aurEff*/)
+            {
+                if (DynamicObject* owner = GetDynobjOwner())
+                    if (GetTarget()->GetExactDist2d(owner) > owner->GetRadius() || GetTarget()->HasAura(SPELL_IMPALED))
+                        PreventDefaultAction();
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_marrowgar_coldflame_damage_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_marrowgar_coldflame_damage_AuraScript();
+        }
+};
+
+class npc_the_damned : public CreatureScript
+{
+    enum eSpells
+    {
+        SPELL_BONE_FLURRY       = 70960,
+        SPELL_SHATTERED_BONES    = 70961,
+    };
+
+public:
+    npc_the_damned() : CreatureScript("npc_the_damned") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_the_damnedAI (pCreature);
+    }
+
+    struct npc_the_damnedAI : public ScriptedAI
+    {
+        npc_the_damnedAI(Creature *c) : ScriptedAI(c) {}
+
+        void JustDied(Unit* /*Killer*/)
+        {
+            DoCast(me, SPELL_SHATTERED_BONES);
+        }
+  
+        void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
+        {
+            if(HealthBelowPct(25) && !me->HasAura(SPELL_BONE_FLURRY))
+                DoCast(me, SPELL_BONE_FLURRY);
+        }
+    };
+};
+
+class npc_servant_of_the_throne : public CreatureScript
+{
+    enum eEvents
+    {
+        EVENT_GLACIAL_BLAST = 1,
+    };
+    enum eSpells
+    {
+        SPELL_GLACIAL_BLAST  = 71029,
+    };
+
+public:
+    npc_servant_of_the_throne() : CreatureScript("npc_servant_of_the_throne") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_servant_of_the_throneAI (pCreature);
+    }
+
+    struct npc_servant_of_the_throneAI : public ScriptedAI
+    {
+        npc_servant_of_the_throneAI(Creature *c) : ScriptedAI(c)
+        {
+            instance = me->GetInstanceScript();
+        }
+
+        void Reset()
+        {
+            events.Reset();
+        }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            events.Reset();
+            events.ScheduleEvent(EVENT_GLACIAL_BLAST, 3000);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+            if (me->HasUnitState(UNIT_STAT_CASTING))
+                return;
+            events.Update(diff);
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_GLACIAL_BLAST:  
+                    {
+                        DoCast(me, SPELL_GLACIAL_BLAST);
+                        events.ScheduleEvent(EVENT_GLACIAL_BLAST, 5000);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+    private:
+        InstanceScript *instance;
+        EventMap events;
+    };
+
+}; 
+class npc_ancient_skeletal_soldier : public CreatureScript
+{
+    enum eEvents
+    {
+        EVENT_SHIELD_BASH = 1,
+    };
+    enum eSpells
+    {
+        SPELL_SHIELD_BASH  = 70964,
+    };
+
+public:
+    npc_ancient_skeletal_soldier() : CreatureScript("npc_ancient_skeletal_soldier") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_ancient_skeletal_soldierAI (pCreature);
+    }
+
+    struct npc_ancient_skeletal_soldierAI : public ScriptedAI
+    {
+        npc_ancient_skeletal_soldierAI(Creature *c) : ScriptedAI(c)
+        {
+            instance = me->GetInstanceScript();
+        }
+
+        void Reset()
+        {
+            events.Reset();
+        }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            events.Reset();
+            events.ScheduleEvent(EVENT_SHIELD_BASH, 3000);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+            if (me->HasUnitState(UNIT_STAT_CASTING))
+                return;
+            events.Update(diff);
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_SHIELD_BASH:  
+                    {
+                        DoCastVictim(SPELL_SHIELD_BASH);
+                        events.ScheduleEvent(EVENT_SHIELD_BASH, 7000);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+            DoMeleeAttackIfReady();
+        }
+    private:
+        InstanceScript *instance;
+        EventMap events;
+    };
+
+}; 
 void AddSC_boss_lord_marrowgar()
 {
     new boss_lord_marrowgar();
@@ -542,4 +732,7 @@ void AddSC_boss_lord_marrowgar()
     new spell_marrowgar_coldflame_damage();
     new spell_marrowgar_bone_spike_graveyard();
     new spell_marrowgar_bone_storm();
+    new npc_the_damned();
+    new npc_servant_of_the_throne();
+    new npc_ancient_skeletal_soldier();
 }

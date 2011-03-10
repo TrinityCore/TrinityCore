@@ -2464,7 +2464,22 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
             case TARGET_UNIT_CONE_ENEMY:
             case TARGET_UNIT_CONE_ENEMY_UNKNOWN:
             case TARGET_UNIT_AREA_PATH:
-                radius = GetSpellRadius(m_spellInfo, i, false);
+                //Spell Decimate with id 71123 has wrong radius value inside Spell.dbc file.
+                //You cannot create spell_dbc table record that will overwrite this value
+                //So, there is a hack here: set radius the same as for Gluth's Decimate - 200 yards
+                if (m_spellInfo->Id == 71123 && i == 0 && cur == TARGET_UNIT_AREA_ENEMY_SRC)
+                    radius = 200.0f;
+                //Stinky's aura has 0 radius, but should apply to everyone in his line of sight
+                else if ((m_spellInfo->Id == 71805 || m_spellInfo->Id == 71161 || m_spellInfo->Id == 71160) && cur == TARGET_UNIT_AREA_ENEMY_DST)
+                    radius = 200.0f;
+                //Lich King's Defile. Actual targets are filtered through custom SpellScript.
+                else if (m_spellInfo->Id == 72754 || m_spellInfo->Id == 73708 || m_spellInfo->Id == 73709 || m_spellInfo->Id == 73710)
+                    radius = 200.0f;
+                //Lich King's Fury of the Frostmourne and Play Movie
+                else if (m_spellInfo->Id == 72350 || m_spellInfo->Id == 73159)
+                    radius = 200.0f;
+                else
+                    radius = GetSpellRadius(m_spellInfo, i, false);
                 targetType = SPELL_TARGETS_ENEMY;
                 break;
             case TARGET_UNIT_AREA_ALLY_SRC:
@@ -2527,6 +2542,13 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     // TODO: move these to sql
                     switch (m_spellInfo->Id)
                     {
+                        //Icecrown Citadel: Highlord Tirion Fordring's Mass Resurrection
+                        //Requires players to have at least friendly reputation with Argent Crusade
+                        case 72429:
+                        {
+                            SearchAreaTarget(unitList, 300.0f, pushType, SPELL_TARGETS_ALLY);
+                            break;
+                        }
                         case 46584: // Raise Dead
                         {
                             if (WorldObject* result = FindCorpseUsing<Trinity::RaiseDeadObjectCheck> ())
@@ -5002,6 +5024,9 @@ SpellCastResult Spell::CheckCast(bool strict)
 
         SpellCastResult locRes= sSpellMgr->GetSpellAllowedInLocationError(m_spellInfo,m_caster->GetMapId(),zone,area,
             m_caster->GetTypeId() == TYPEID_PLAYER ? m_caster->ToPlayer() : NULL);
+        //Fix Blood Queen Lana'thel's Swarming Shadows spell - there is incorrect area restriction in DBC
+        if ((m_spellInfo->Id == 71266 || m_spellInfo->Id == 72890) && zone == 4812 && area == 4891 && m_caster->GetMapId() == 631)
+            locRes = SPELL_CAST_OK;
         if (locRes != SPELL_CAST_OK)
             return locRes;
     }
@@ -5109,6 +5134,12 @@ SpellCastResult Spell::CheckCast(bool strict)
                 {
                     if (m_caster->IsInWater())
                         return SPELL_FAILED_ONLY_ABOVEWATER;
+                }
+                else if (m_spellInfo->Id == 72202) //Blood Link
+                {
+                    Creature* saurfang = m_caster->FindNearestCreature(37813, 500.0f, true);
+                    if(saurfang && saurfang->isAlive())
+                        saurfang->CastSpell(saurfang, 72195, true);
                 }
                 else if (m_spellInfo->SpellIconID == 156)    // Holy Shock
                 {

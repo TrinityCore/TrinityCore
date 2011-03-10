@@ -8123,6 +8123,15 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                             CastSpell(pVictim, 27526, true, castItem, triggeredByAura);
                         return true;
                     }
+					                    // Mark of the Fallen Champion
+                    case 72293:
+                        if(pVictim && pVictim->HasAura(72293) && !pVictim->isAlive())
+                        {
+                            Creature* saurfang = pVictim->FindNearestCreature(37813, 500.0f, true);
+                                if(saurfang && saurfang->isAlive())
+                                   saurfang->CastSpell(saurfang, 72260, true);
+                        }
+                        return true;
                 }
                 break;
             case SPELLFAMILY_MAGE:
