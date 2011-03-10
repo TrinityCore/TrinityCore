@@ -1590,6 +1590,12 @@ void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit * caster) const
                     damage += int32(float(damage * GetTotalTicks()) * ((6-float(2*(GetTickNumber()-1)))/100));
                 }
 
+                // Lifeblood Ranks 1-6 = amount + (1.5% of maximum health)/TotalTicks
+                if (m_spellProto->SpellIconID == 3088)
+                {
+                    damage += int32( float( target->GetMaxHealth() ) * 0.015f / float( GetTotalTicks() )  );
+                }
+
                 damage = caster->SpellHealingBonus(target, GetSpellProto(), damage, DOT, GetBase()->GetStackAmount());
             }
 
