@@ -451,18 +451,30 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
     return true;
 }
 
-void Item::DeleteFromDB(SQLTransaction& trans)
+/*static*/
+void Item::DeleteFromDB(SQLTransaction& trans, uint32 itemGuid)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-    stmt->setUInt32(0, GetGUIDLow());
+    stmt->setUInt32(0, itemGuid);
+    trans->Append(stmt);
+}
+
+void Item::DeleteFromDB(SQLTransaction& trans)
+{
+    DeleteFromDB(trans, GetGUIDLow());
+}
+
+/*static*/
+void Item::DeleteFromInventoryDB(SQLTransaction& trans, uint32 itemGuid)
+{
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVENTORY_ITEM);
+    stmt->setUInt32(0, itemGuid);
     trans->Append(stmt);
 }
 
 void Item::DeleteFromInventoryDB(SQLTransaction& trans)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVENTORY_ITEM);
-    stmt->setUInt32(0, GetGUIDLow());
-    trans->Append(stmt);
+    DeleteFromInventoryDB(trans, GetGUIDLow());
 }
 
 ItemPrototype const *Item::GetProto() const
