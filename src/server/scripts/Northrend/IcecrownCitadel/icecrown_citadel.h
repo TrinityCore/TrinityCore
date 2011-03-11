@@ -73,6 +73,7 @@ enum DataTypes
     DATA_SPINESTALKER               = 23,
     DATA_RIMEFANG                   = 24,
     DATA_COLDFLAME_JETS             = 25,
+    DATA_TEAM_IN_INSTANCE           = 26,
 };
 
 #define MAX_ENCOUNTER 12
