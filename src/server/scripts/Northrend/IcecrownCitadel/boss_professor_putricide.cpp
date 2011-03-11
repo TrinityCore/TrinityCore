@@ -21,6 +21,7 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "Group.h"
+#include "Spell.h"
 #include "icecrown_citadel.h"
 
 enum ScriptTexts
@@ -212,6 +213,9 @@ class boss_professor_putricide : public CreatureScript
                 me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                 if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
                     me->GetMotionMaster()->MovementExpired();
+
+                if (instance->GetBossState(DATA_ROTFACE) == DONE && instance->GetBossState(DATA_FESTERGUT) == DONE)
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             }
 
             void EnterCombat(Unit* who)
@@ -240,16 +244,6 @@ class boss_professor_putricide : public CreatureScript
                 DoZoneInCombat(me);
 
                 instance->SetBossState(DATA_PROFESSOR_PUTRICIDE, IN_PROGRESS);
-            }
-
-            void EnterEvadeMode()
-            {
-                BossAI::EnterEvadeMode();
-                if (instance->GetBossState(DATA_ROTFACE) == DONE && instance->GetBossState(DATA_FESTERGUT) == DONE)
-                {
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                }
             }
 
             void JustReachedHome()
@@ -1202,39 +1196,45 @@ class spell_putricide_mutation_init : public SpellScriptLoader
         {
             PrepareSpellScript(spell_putricide_mutation_init_SpellScript);
 
-            SpellCastResult CheckRequirement()
+            SpellCastResult CheckRequirementInternal(SpellCustomErrors& extendedError)
             {
-                if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
-                    return SPELL_FAILED_TARGET_NOT_PLAYER;
-
-                InstanceScript* instance = GetCaster()->GetInstanceScript();
+                InstanceScript* instance = GetTargetUnit()->GetInstanceScript();
                 if (!instance)
                     return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
 
-                Creature* professor = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(DATA_PROFESSOR_PUTRICIDE));
-                if (!professor || !professor->isInCombat())
+                Creature* professor = ObjectAccessor::GetCreature(*GetTargetUnit(), instance->GetData64(DATA_PROFESSOR_PUTRICIDE));
+                if (!professor)
                     return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
 
                 if (professor->AI()->GetData(DATA_PHASE) == PHASE_COMBAT_3 || !professor->isAlive())
                 {
-                    SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_ALL_POTIONS_USED);
+                    extendedError = SPELL_CUSTOM_ERROR_ALL_POTIONS_USED;
                     return SPELL_FAILED_CUSTOM_ERROR;
                 }
 
-                // find another player with initialization aura
-                bool abominationExists = false;
-                Group* group = GetCaster()->ToPlayer()->GetGroup();
-                for (GroupReference* plrRef = group->GetFirstMember(); plrRef && !abominationExists; plrRef = plrRef->next())
-                    if (Player* player = plrRef->getSource())
-                        if (player->HasAura(GetSpellInfo()->Id))
-                            abominationExists = true;
-
-                // or an existing abomination
-                abominationExists |= bool(professor->AI()->GetData(DATA_ABOMINATION));
-                if (abominationExists)
+                if (professor->AI()->GetData(DATA_ABOMINATION))
                 {
-                    SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_TOO_MANY_ABOMINATIONS);
+                    extendedError = SPELL_CUSTOM_ERROR_TOO_MANY_ABOMINATIONS;
                     return SPELL_FAILED_CUSTOM_ERROR;
+                }
+
+                return SPELL_CAST_OK;
+            }
+
+            SpellCastResult CheckRequirement()
+            {
+                if (!GetTargetUnit())
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                if (GetTargetUnit()->GetTypeId() != TYPEID_PLAYER)
+                    return SPELL_FAILED_TARGET_NOT_PLAYER;
+
+                SpellCustomErrors extension = SPELL_CUSTOM_ERROR_NONE;
+                SpellCastResult result = CheckRequirementInternal(extension);
+                if (result != SPELL_CAST_OK)
+                {
+                    Spell::SendCastResult(GetTargetUnit()->ToPlayer(), GetSpellInfo(), 0, result, extension);
+                    return result;
                 }
 
                 return SPELL_CAST_OK;
@@ -1315,12 +1315,27 @@ class spell_putricide_mutated_transformation : public SpellScriptLoader
             void HandleSummon(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                uint32 entry = uint32(GetSpellInfo()->EffectMiscValue[effIndex]);
-                SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(uint32(GetSpellInfo()->EffectMiscValueB[effIndex]));
                 Unit* caster = GetOriginalCaster();
                 if (!caster)
                     return;
 
+                InstanceScript* instance = GetTargetUnit()->GetInstanceScript();
+                if (!instance)
+                    return;
+
+                Creature* putricide = ObjectAccessor::GetCreature(*GetTargetUnit(), instance->GetData64(DATA_PROFESSOR_PUTRICIDE));
+                if (!putricide)
+                    return;
+
+                if (putricide->AI()->GetData(DATA_ABOMINATION))
+                {
+                    if (Player* plrCaster = caster->ToPlayer())
+                        Spell::SendCastResult(plrCaster, GetSpellInfo(), 0, SPELL_FAILED_CUSTOM_ERROR, SPELL_CUSTOM_ERROR_TOO_MANY_ABOMINATIONS);
+                    return;
+                }
+
+                uint32 entry = uint32(GetSpellInfo()->EffectMiscValue[effIndex]);
+                SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(uint32(GetSpellInfo()->EffectMiscValueB[effIndex]));
                 uint32 duration = uint32(GetSpellDuration(GetSpellInfo()));
 
                 Position pos;
@@ -1336,9 +1351,7 @@ class spell_putricide_mutated_transformation : public SpellScriptLoader
 
                 summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, GetSpellInfo()->Id);
                 summon->SetCreatorGUID(caster->GetGUID());
-                if (InstanceScript* instance = caster->GetInstanceScript())
-                    if (Creature* putricide = ObjectAccessor::GetCreature(*caster, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
-                        putricide->AI()->JustSummoned(summon);
+                putricide->AI()->JustSummoned(summon);
             }
 
             void Register()

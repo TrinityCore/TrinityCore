@@ -1293,6 +1293,12 @@ void World::SetInitialWorldSettings()
         exit(1);
     }
 
+    ///- Initialize pool manager
+    sPoolMgr->Initialize();
+
+    ///- Initialize game event manager
+    sGameEventMgr->Initialize();
+
     ///- Loading strings. Getting no records means core load has to be canceled because no error message can be output.
     sLog->outString();
     sLog->outString("Loading Trinity strings...");
@@ -1328,9 +1334,9 @@ void World::SetInitialWorldSettings()
     sLog->outString("Loading SkillLineAbilityMultiMap Data...");
     sSpellMgr->LoadSkillLineAbilityMap();
 
-    ///- Clean up and pack instances
-    sLog->outString("Cleaning up and packing instances...");
-    sInstanceSaveMgr->CleanupAndPackInstances();                // must be called before `creature_respawn`/`gameobject_respawn` tables
+    // Must be called before `creature_respawn`/`gameobject_respawn` tables
+    sLog->outString("Loading instances...");
+    sInstanceSaveMgr->LoadInstances();
 
     sLog->outString("Loading Localization strings...");
     uint32 oldMSTime = getMSTime();
@@ -1448,10 +1454,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadGameobjectRespawnTimes();
 
     sLog->outString("Loading Creature Linked Respawn...");
-    sObjectMgr->LoadLinkedRespawn();                     // must be after LoadCreatures(), LoadGameObjects()
-
-    sLog->outString("Loading Objects Pooling Data...");          // TODOLEAK: scope
-    sPoolMgr->LoadFromDB();
+    sObjectMgr->LoadLinkedRespawn();                             // must be after LoadCreatures(), LoadGameObjects()
 
     sLog->outString("Loading Weather Data...");
     sWeatherMgr->LoadWeatherData();
@@ -1468,11 +1471,11 @@ void World::SetInitialWorldSettings()
     sLog->outString("Loading Quests Relations...");
     sObjectMgr->LoadQuestRelations();                            // must be after quest load
 
-    sLog->outString("Loading Quest Pooling Data...");
-    sPoolMgr->LoadQuestPools();
+    sLog->outString("Loading Objects Pooling Data...");
+    sPoolMgr->LoadFromDB();
 
     sLog->outString("Loading Game Event Data...");               // must be after loading pools fully
-    sGameEventMgr->LoadFromDB();                                 // TODOLEAK: add scopes
+    sGameEventMgr->LoadFromDB();
 
     sLog->outString("Loading UNIT_NPC_FLAG_SPELLCLICK Data..."); // must be after LoadQuests
     sObjectMgr->LoadNPCSpellClickSpells();
@@ -1549,7 +1552,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadMailLevelRewards();
 
     // Loot tables
-    LoadLootTables();                                               //TODOLEAK: untangle that shit
+    LoadLootTables();
 
     sLog->outString("Loading Skill Discovery Table...");
     LoadSkillDiscoveryTable();
@@ -1680,7 +1683,7 @@ void World::SetInitialWorldSettings()
     sCreatureTextMgr->LoadCreatureTexts();
 
     sLog->outString("Initializing Scripts...");
-    sScriptMgr->Initialize();                            //LEAKTODO
+    sScriptMgr->Initialize();
 
     sLog->outString("Validating spell scripts...");
     sObjectMgr->ValidateSpellScripts();
@@ -1737,7 +1740,7 @@ void World::SetInitialWorldSettings()
     sMapMgr->Initialize();
 
     sLog->outString("Starting Game Event system...");
-    uint32 nextGameEvent = sGameEventMgr->Initialize();
+    uint32 nextGameEvent = sGameEventMgr->StartSystem();
     m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);    //depend on next event
 
     // Delete all characters which have been deleted X days before
@@ -1771,9 +1774,6 @@ void World::SetInitialWorldSettings()
 
     sLog->outString("Deleting expired bans...");
     LoginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate");
-
-    sLog->outString("Starting objects Pooling system...");
-    sPoolMgr->Initialize();
 
     sLog->outString("Calculate next daily quest reset time...");
     InitDailyQuestResetTime();
