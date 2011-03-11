@@ -164,7 +164,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case NPC_SE_HIGH_OVERLORD_SAURFANG:
                         if (teamInInstance == ALLIANCE)
-                            creature->UpdateEntry(NPC_SE_MURADIN_BRONZEBEARD, ALLIANCE);
+                            creature->UpdateEntry(NPC_SE_MURADIN_BRONZEBEARD, ALLIANCE, creature->GetCreatureData());
                     case NPC_SE_MURADIN_BRONZEBEARD:
                         saurfangEventNPC = creature->GetGUID();
                         creature->LastUsedScriptID = creature->GetScriptId();
@@ -394,6 +394,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return rimefangTrash;
                     case DATA_COLDFLAME_JETS:
                         return coldflameJetsState;
+                    case DATA_TEAM_IN_INSTANCE:
+                        return teamInInstance;
                     default:
                         break;
                 }
