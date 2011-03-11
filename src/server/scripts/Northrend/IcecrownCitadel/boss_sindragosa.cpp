@@ -53,6 +53,7 @@ enum Spells
     SPELL_UNCHAINED_MAGIC       = 69762,
     SPELL_BACKLASH              = 69770,
     SPELL_ICY_GRIP              = 70117,
+    SPELL_ICY_GRIP_JUMP         = 70122,
     SPELL_BLISTERING_COLD       = 70123,
     SPELL_FROST_BEACON          = 70126,
     SPELL_ICE_TOMB_TARGET       = 69712,
@@ -144,14 +145,14 @@ enum Shadowmourne
     SPELL_FROST_IMBUED_BLADE    = 72290,
 };
 
-static Position const RimefangFlyPos      = {4413.309f, 2456.421f, 223.3795f, 2.890186f};
-static Position const RimefangLandPos     = {4413.309f, 2456.421f, 203.3848f, 2.890186f};
-static Position const SpinestalkerFlyPos  = {4418.895f, 2514.233f, 220.4864f, 3.396045f};
-static Position const SpinestalkerLandPos = {4418.895f, 2514.233f, 203.3848f, 3.396045f};
-       Position const SindragosaSpawnPos  = {4818.700f, 2483.710f, 287.0650f, 3.089233f};
-static Position const SindragosaFlyPos    = {4475.190f, 2484.570f, 234.8510f, 3.141593f};
-static Position const SindragosaLandPos   = {4419.190f, 2484.570f, 203.3848f, 3.141593f};
-static Position const SindragosaAirPos    = {4475.990f, 2484.430f, 247.9340f, 3.141593f};
+Position const RimefangFlyPos      = {4413.309f, 2456.421f, 223.3795f, 2.890186f};
+Position const RimefangLandPos     = {4413.309f, 2456.421f, 203.3848f, 2.890186f};
+Position const SpinestalkerFlyPos  = {4418.895f, 2514.233f, 220.4864f, 3.396045f};
+Position const SpinestalkerLandPos = {4418.895f, 2514.233f, 203.3848f, 3.396045f};
+Position const SindragosaSpawnPos  = {4818.700f, 2483.710f, 287.0650f, 3.089233f};
+Position const SindragosaFlyPos    = {4475.190f, 2484.570f, 234.8510f, 3.141593f};
+Position const SindragosaLandPos   = {4419.190f, 2484.570f, 203.3848f, 3.141593f};
+Position const SindragosaAirPos    = {4475.990f, 2484.430f, 247.9340f, 3.141593f};
 
 class FrostwyrmLandEvent : public BasicEvent
 {
@@ -1303,15 +1304,15 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
 class FrostBombTargetSelector
 {
     public:
-        FrostBombTargetSelector(Unit* _caster, std::list<Unit*> const& _collisionList) : caster(_caster), collisionList(_collisionList) { }
+        FrostBombTargetSelector(Unit* _caster, std::list<Creature*> const& _collisionList) : caster(_caster), collisionList(_collisionList) { }
 
         bool operator()(Unit* unit)
         {
             if (unit->HasAura(SPELL_ICE_TOMB_DAMAGE))
                 return true;
 
-            for (std::list<Unit*>::const_iterator itr = collisionList.begin(); itr != collisionList.end(); ++itr)
-                if ((*itr)->IsInBetween(caster, unit, (*itr)->GetObjectSize() / 2.0f * 1.4142f))
+            for (std::list<Creature*>::const_iterator itr = collisionList.begin(); itr != collisionList.end(); ++itr)
+                if ((*itr)->IsInBetween(caster, unit))
                     return true;
 
             //Do not apply Mystic Buffet spell vulnerability to Sindragosa
@@ -1323,8 +1324,9 @@ class FrostBombTargetSelector
         }
 
         Unit* caster;
-        std::list<Unit*> const& collisionList;
+        std::list<Creature*> const& collisionList;
 };
+
 class spell_sindragosa_collision_filter : public SpellScriptLoader
 {
     public:
@@ -1334,13 +1336,17 @@ class spell_sindragosa_collision_filter : public SpellScriptLoader
         {
             PrepareSpellScript(spell_sindragosa_collision_filter_SpellScript);
 
+            bool Validate(SpellEntry const* /*spell*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_ICE_TOMB_DAMAGE))
+                    return false;
+                return true;
+            }
+
             void FilterTargets(std::list<Unit*>& unitList)
             {
-                std::list<Creature*> tomb_creatures;
-                GetCreatureListWithEntryInGrid(tomb_creatures, GetCaster(), NPC_ICE_TOMB, 150.0f);
-                std::list<Unit*> tombs;
-                for (std::list<Creature*>::const_iterator itr = tomb_creatures.begin(); itr != tomb_creatures.end(); ++itr)
-                    tombs.push_back(*itr);
+                std::list<Creature*> tombs;
+                GetCreatureListWithEntryInGrid(tombs, GetCaster(), NPC_ICE_TOMB, 200.0f);
                 unitList.remove_if(FrostBombTargetSelector(GetCaster(), tombs));
             }
 
@@ -1365,26 +1371,22 @@ class spell_sindragosa_icy_grip : public SpellScriptLoader
         {
             PrepareSpellScript(spell_sindragosa_icy_grip_SpellScript);
 
-            void HandleJump(SpellEffIndex effIndex)
+            bool Validate(SpellEntry const* /*spell*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_ICY_GRIP_JUMP))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                if (Unit *pUnit = GetCaster())
-                    if (pUnit->isAlive() && pUnit->GetTypeId() == TYPEID_PLAYER)
-                    {
-                        uint64 uiSindragosa = pUnit->GetInstanceScript()->GetData64(GUID_SINDRAGOSA);
-                        if (Creature *pSindragosa = pUnit->GetCreature(*pUnit, uiSindragosa))
-                        {
-                            float x, y, z;
-                            pSindragosa->GetPosition(x, y, z);
-                            float speedXY = pUnit->GetExactDist2d(x, y) * 10.0f;
-                            pUnit->GetMotionMaster()->MoveJump(x, y, z, speedXY, 1.0f);
-                        }
-                    }
+                GetHitUnit()->CastSpell(GetCaster(), SPELL_ICY_GRIP_JUMP, true);
             }
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_sindragosa_icy_grip_SpellScript::HandleJump, EFFECT_0, SPELL_EFFECT_JUMP);
+                OnEffect += SpellEffectFn(spell_sindragosa_icy_grip_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 

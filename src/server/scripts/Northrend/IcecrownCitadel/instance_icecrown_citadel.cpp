@@ -1355,6 +1355,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                                     trap->AI()->DoAction(ACTION_STOP_TRAPS);
                         }
                         break;
+                    case DATA_NECK_DEEP_ACHIEVEMENT:         
+                        uiNeckDeep = data;
+                    case DATA_BEEN_WAITING_ACHIEVEMENT:         
+                        uiNecroticStack = data;
                     //Teleports
                     case DATA_TELEPORT_ORATORY_OF_THE_DAMNED_ACTIVATED:
                         uiTeleportToOratoryOfTheDamnedActivated = data;
@@ -1416,7 +1420,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return coldflameJetsState;
                     case DATA_NECK_DEEP_ACHIEVEMENT:         
                         return uiNeckDeep;
-                    case DATA_NECROTIC_STACK:              
+                    case DATA_BEEN_WAITING_ACHIEVEMENT:         
                         return uiNecroticStack;
 
                     //Teleports

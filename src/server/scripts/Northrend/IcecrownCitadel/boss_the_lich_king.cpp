@@ -425,7 +425,7 @@ class boss_the_lich_king : public CreatureScript
                 instance->SetData(DATA_LICH_KING_EVENT, DONE);
                 if(instance->GetData(DATA_BEEN_WAITING_ACHIEVEMENT) == DONE)
                     instance->DoCompleteAchievement(RAID_MODE(ACHIEV_BEEN_WAITING_A_LONG_TIME_FOR_THIS_10,ACHIEV_BEEN_WAITING_A_LONG_TIME_FOR_THIS_25));
-                if(instance->GetData(DATA_NECK_DEEP_ACHIEVEMENT) == FAIL)
+                if(instance->GetData(DATA_NECK_DEEP_ACHIEVEMENT) == DONE)
                     instance->DoCompleteAchievement(RAID_MODE(ACHIEV_NECK_DEEP_IN_VILE_10,ACHIEV_NECK_DEEP_IN_VILE_25));
                 Cleanup();
                 DoCast(SPELL_PLAY_MOVIE);
@@ -1919,17 +1919,6 @@ class spell_lich_king_necrotic_plague : public SpellScriptLoader
         {
             PrepareAuraScript(spell_lich_king_necrotic_plague_AuraScript)
 
-            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                m_stackAmount = GetStackAmount();
-                if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-                {
-            //        //SetStackAmount(instance->GetData(DATA_NECROTIC_STACK));
-            //        instance->SetData(DATA_NECROTIC_STACK, GetStackAmount());
-                    if(GetStackAmount() >= 30)
-                        instance->SetData(DATA_BEEN_WAITING_ACHIEVEMENT, DONE);
-                }
-            }
             class AnyAliveCreatureOrPlayerInObjectRangeCheck
             {
                 public:
@@ -1977,42 +1966,48 @@ class spell_lich_king_necrotic_plague : public SpellScriptLoader
             //}
             void OnRemove(AuraEffect const * aurEff, AuraEffectHandleModes mode)
             {
-                CellPair p(Trinity::ComputeCellPair(GetTarget()->GetPositionX(), GetTarget()->GetPositionY()));
+                Unit *target = GetTarget();
+                if (!target)
+                    return;
+                if(GetStackAmount() >= 30)
+                    if (InstanceScript *instance = target->GetInstanceScript())
+                        instance->SetData(DATA_BEEN_WAITING_ACHIEVEMENT, DONE);
+                CellPair p(Trinity::ComputeCellPair(target->GetPositionX(), target->GetPositionY()));
                 Cell cell(p);
                 cell.data.Part.reserved = ALL_DISTRICT;
                 cell.SetNoCreate();
 
                 Unit *anyPlayerOrCreatureInRange = NULL;
                 float dist = 10.0f;
-                AnyAliveCreatureOrPlayerInObjectRangeCheck checker(GetTarget(), dist);
+                AnyAliveCreatureOrPlayerInObjectRangeCheck checker(target, dist);
                 Unit *newTarget = NULL;
-                Trinity::UnitLastSearcher<AnyAliveCreatureOrPlayerInObjectRangeCheck> searcher(GetTarget(), newTarget, checker);
+                Trinity::UnitLastSearcher<AnyAliveCreatureOrPlayerInObjectRangeCheck> searcher(target, newTarget, checker);
 
                 TypeContainerVisitor<Trinity::UnitLastSearcher<AnyAliveCreatureOrPlayerInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
                 TypeContainerVisitor<Trinity::UnitLastSearcher<AnyAliveCreatureOrPlayerInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
 
-                cell.Visit(p, world_unit_searcher, *GetTarget()->GetMap(), *GetTarget(), dist);
-                cell.Visit(p, grid_unit_searcher, *GetTarget()->GetMap(), *GetTarget(), dist);
+                cell.Visit(p, world_unit_searcher, *target->GetMap(), *target, dist);
+                cell.Visit(p, grid_unit_searcher, *target->GetMap(), *target, dist);
 
                 uint32 stacksTransferred = GetStackAmount();
                 //If target is still alive and it's a player, it means that this spell was dispelled - increase stack amount then
                 //I don't know the way to find out whether it's dispelled or not
-                if (!GetTarget()->isAlive())
+                if (!target->isAlive())
                     ++stacksTransferred;
                 else
                 {
                     //Player was a target and is still alive - assume that the spell was dispelled
-                    if (GetTarget()->GetTypeId() == TYPEID_PLAYER)
+                    if (target->GetTypeId() == TYPEID_PLAYER)
                         if (stacksTransferred > 1)
                             --stacksTransferred;
                 }
                 if (stacksTransferred < 1)
                     stacksTransferred = 1;
                 uint32 spellId = aurEff->GetSpellProto()->Id;
-                InstanceScript *instance = GetTarget()->GetInstanceScript();
+                InstanceScript *instance = target->GetInstanceScript();
                 if (instance)
                 {
-                    Unit *lichKing = ObjectAccessor::GetCreature(*GetTarget(), instance->GetData64(GUID_LICH_KING));
+                    Unit *lichKing = ObjectAccessor::GetCreature(*target, instance->GetData64(GUID_LICH_KING));
                     if (lichKing)
                     {
                         if (newTarget)
@@ -2020,7 +2015,11 @@ class spell_lich_king_necrotic_plague : public SpellScriptLoader
                             Aura *appAura = newTarget->GetAura(spellId);
                             if (!appAura)
                             {
-                                lichKing->CastSpell(newTarget, spellId, true);
+                                Unit *newCaster = lichKing;
+                                if (Creature *targetCreature = newTarget->ToCreature())
+                                    if (!targetCreature->IsFriendlyTo(target))
+                                        newCaster = target;
+                                newCaster->CastSpell(newTarget, spellId, true);
                                 appAura = newTarget->GetAura(spellId);
                                 --stacksTransferred; //One stack is already transferred
                             }
@@ -2048,7 +2047,7 @@ class spell_lich_king_necrotic_plague : public SpellScriptLoader
             void Register()
             {
                 //OnEffectPeriodic += AuraEffectPeriodicFn(spell_lich_king_necrotic_plague_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
-                OnEffectApply += AuraEffectApplyFn(spell_lich_king_necrotic_plague_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+                //OnEffectApply += AuraEffectApplyFn(spell_lich_king_necrotic_plague_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
                 OnEffectRemove += AuraEffectRemoveFn(spell_lich_king_necrotic_plague_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
             }
         private:

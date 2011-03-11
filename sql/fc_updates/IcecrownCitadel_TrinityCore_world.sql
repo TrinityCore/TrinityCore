@@ -42,10 +42,19 @@ UPDATE `creature_template` SET `ScriptName` = 'boss_prince_taldaram_icc' WHERE `
 -- Fix Blood Prince Council immunities
 UPDATE `creature_template` SET `mechanic_immune_mask`=650854399 WHERE `entry` IN (37970, 37972, 37973, 38401, 38784, 38785, 38399, 38769, 38770, 38400, 38771, 38772);
 
--- Blood Prince Council UPDATE
+-- Blood Prince Council update
 UPDATE `creature_template` SET `ScriptName` = 'npc_shock_vortex' WHERE `entry` = 38422;
 DELETE FROM `creature` WHERE `id` = 38557;
 UPDATE `creature_template` SET `ScriptName` = 'npc_kinetic_bomb_target' WHERE `entry` = 38458;
+UPDATE `creature_template` SET `lootid`='37970' WHERE `entry`=37973;
+UPDATE `creature_template` SET `lootid`='37970' WHERE `entry`=37972;
+UPDATE `creature_template` SET `lootid`='38401' WHERE `entry`=38400;
+UPDATE `creature_template` SET `lootid`='38401' WHERE `entry`=38399;
+UPDATE `creature_template` SET `lootid`='38784' WHERE `entry`=38771;
+UPDATE `creature_template` SET `lootid`='38784' WHERE `entry`=38769;
+UPDATE `creature_template` SET `lootid`='38785' WHERE `entry`=38772;
+UPDATE `creature_template` SET `lootid`='38785' WHERE `entry`=38770;
+UPDATE `creature_template` SET `dynamicflags`='9' WHERE `entry` IN (37973, 37972, 38400, 38399, 38771, 38769, 38772, 38770);
 
 -- Blood Queen Lana'thel 
 UPDATE `creature_template` SET `ScriptName` = 'boss_blood_queen_lana_thel' WHERE `entry` = 37955;
@@ -268,8 +277,6 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (72529,'spell_sindragosa_collision_filter'),
 (72530,'spell_sindragosa_collision_filter'),
 (70117,'spell_sindragosa_collision_filter');
-DELETE FROM `spell_script_names` WHERE `spell_id` = 70122;
-INSERT INTO `spell_script_names` VALUES (70122, 'spell_sindragosa_icy_grip');
 
 -- Teleports
 DELETE FROM `npc_text` WHERE `id` BETWEEN 800000 AND 800006;
