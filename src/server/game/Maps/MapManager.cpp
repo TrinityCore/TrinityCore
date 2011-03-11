@@ -371,7 +371,7 @@ void MapManager::InitInstanceIds()
         uint32 maxId = (*result)[0].GetUInt32();
 
         // Resize to multiples of 32 (vector<bool> allocates memory the same way)
-        _instanceIds.resize(floor(maxId / 32.0f) * 32 + (maxId % 32 > 0 ? 32 : 0));
+        _instanceIds.resize((maxId / 32) * 32 + (maxId % 32 > 0 ? 32 : 0));
     }
 }
 
@@ -410,7 +410,7 @@ uint32 MapManager::GenerateInstanceId()
             _instanceIds.resize(_instanceIds.capacity());
         }
         else
-            _instanceIds.resize(floor(newInstanceId / 32.0f) * 32 + (newInstanceId % 32 > 0 ? 32 : 0));
+            _instanceIds.resize((newInstanceId / 32) * 32 + (newInstanceId % 32 > 0 ? 32 : 0));
     }
 
     _instanceIds[newInstanceId] = true;
