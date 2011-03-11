@@ -4431,14 +4431,20 @@ bool ChatHandler::HandleChannelSetOwnership(const char *args)
     {
         if(chn)
             chn->SetOwnership(true);
-        CharacterDatabase.PExecute("UPDATE channels SET m_ownership = 1 WHERE m_name LIKE '%s'", channel);
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SET_CHANNEL_OWNERSHIP);
+        stmt->setUInt8 (0, 1);
+        stmt->setString(1, channel);
+        CharacterDatabase.Execute(stmt);
         PSendSysMessage(LANG_CHANNEL_ENABLE_OWNERSHIP, channel);
     }
     else if (strcmp(argstr, "off") == 0)
     {
         if(chn)
             chn->SetOwnership(false);
-        CharacterDatabase.PExecute("UPDATE channels SET m_ownership = 0 WHERE m_name LIKE '%s'", channel);
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SET_CHANNEL_OWNERSHIP);
+        stmt->setUInt8 (0, 0);
+        stmt->setString(1, channel);
+        CharacterDatabase.Execute(stmt);
         PSendSysMessage(LANG_CHANNEL_DISABLE_OWNERSHIP, channel);
     }
     else
