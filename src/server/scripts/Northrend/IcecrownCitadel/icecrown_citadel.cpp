@@ -31,6 +31,22 @@
 
 enum Texts
 {
+    // Highlord Tirion Fordring (at Light's Hammer)
+    SAY_TIRION_INTRO_1          = 0,
+    SAY_TIRION_INTRO_2          = 1,
+    SAY_TIRION_INTRO_3          = 2,
+    SAY_TIRION_INTRO_4          = 3,
+
+    // The Lich King (at Light's Hammer)
+    SAY_LK_INTRO_1              = 0,
+    SAY_LK_INTRO_2              = 1,
+    SAY_LK_INTRO_3              = 2,
+    SAY_LK_INTRO_4              = 3,
+    SAY_LK_INTRO_5              = 4,
+
+    // Highlord Bolvar Fordragon (at Light's Hammer)
+    SAY_BOLVAR_INTRO_1          = 0,
+
     // Rotting Frost Giant
     EMOTE_DEATH_PLAGUE_WARNING  = 0,
 };
@@ -55,13 +71,170 @@ enum Spells
 
 enum Events
 {
+    // Highlord Tirion Fordring (at Light's Hammer)
+    // The Lich King (at Light's Hammer)
+    // Highlord Bolvar Fordragon (at Light's Hammer)
+    EVENT_TIRION_INTRO_2    = 1, // EMOTE
+    EVENT_TIRION_INTRO_3    = 2,
+    EVENT_TIRION_INTRO_4    = 3, // EMOTE
+    EVENT_TIRION_INTRO_5    = 4,
+    EVENT_LK_INTRO_1        = 5, // TIRION EMOTE
+    EVENT_TIRION_INTRO_6    = 6,
+    EVENT_LK_INTRO_2        = 7,
+    EVENT_LK_INTRO_3        = 8,
+    EVENT_LK_INTRO_4        = 9,
+    EVENT_BOLVAR_INTRO_1    = 10,
+    EVENT_LK_INTRO_5        = 11,
+
     // Rotting Frost Giant
-    EVENT_DEATH_PLAGUE      = 1,
-    EVENT_STOMP             = 2,
-    EVENT_ARCTIC_BREATH     = 3,
+    EVENT_DEATH_PLAGUE      = 12,
+    EVENT_STOMP             = 13,
+    EVENT_ARCTIC_BREATH     = 14,
 
     // Frost Freeze Trap
-    EVENT_ACTIVATE_TRAP     = 4,
+    EVENT_ACTIVATE_TRAP     = 15,
+};
+
+enum DataTypesICC
+{
+    DATA_DAMNED_KILLS       = 1,
+};
+
+// at Light's Hammer
+class npc_highlord_tirion_fordring_lh : public CreatureScript
+{
+    public:
+        npc_highlord_tirion_fordring_lh() : CreatureScript("npc_highlord_tirion_fordring_lh") { }
+
+        struct npc_highlord_tirion_fordringAI : public ScriptedAI
+        {
+            npc_highlord_tirion_fordringAI(Creature* creature) : ScriptedAI(creature)
+            {
+            }
+
+            void Reset()
+            {
+                events.Reset();
+                _theLichKing = 0;
+                _bolvarFordragon = 0;
+                _damnedKills = 0;
+            }
+
+            // IMPORTANT NOTE: This is triggered from per-GUID scripts
+            // of The Damned SAI
+            void SetData(uint32 type, uint32 data)
+            {
+                if (type == DATA_DAMNED_KILLS && data == 1)
+                {
+                    if (++_damnedKills == 2)
+                    {
+                        if (Creature* theLichKing = me->FindNearestCreature(NPC_THE_LICH_KING_LH, 150.0f))
+                        {
+                            if (Creature* bolvarFordragon = me->FindNearestCreature(NPC_HIGHLORD_BOLVAR_FORDRAGON_LH, 150.0f))
+                            {
+                                me->setActive(true);
+                                _theLichKing = theLichKing->GetGUID();
+                                theLichKing->setActive(true);
+                                _bolvarFordragon = bolvarFordragon->GetGUID();
+                                bolvarFordragon->setActive(true);
+                            }
+                        }
+
+                        if (!_bolvarFordragon || !_theLichKing)
+                            return;
+
+                        Talk(SAY_TIRION_INTRO_1);
+                        events.ScheduleEvent(EVENT_TIRION_INTRO_2, 4000);
+                        events.ScheduleEvent(EVENT_TIRION_INTRO_3, 14000);
+                        events.ScheduleEvent(EVENT_TIRION_INTRO_4, 18000);
+                        events.ScheduleEvent(EVENT_TIRION_INTRO_5, 31000);
+                        events.ScheduleEvent(EVENT_LK_INTRO_1, 35000);
+                        events.ScheduleEvent(EVENT_TIRION_INTRO_6, 51000);
+                        events.ScheduleEvent(EVENT_LK_INTRO_2, 58000);
+                        events.ScheduleEvent(EVENT_LK_INTRO_3, 74000);
+                        events.ScheduleEvent(EVENT_LK_INTRO_4, 86000);
+                        events.ScheduleEvent(EVENT_BOLVAR_INTRO_1, 100000);
+                        events.ScheduleEvent(EVENT_LK_INTRO_5, 108000);
+                    }
+                }
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (_damnedKills != 2)
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_TIRION_INTRO_2:
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
+                            break;
+                        case EVENT_TIRION_INTRO_3:
+                            Talk(SAY_TIRION_INTRO_2);
+                            break;
+                        case EVENT_TIRION_INTRO_4:
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
+                            break;
+                        case EVENT_TIRION_INTRO_5:
+                            Talk(SAY_TIRION_INTRO_3);
+                            break;
+                        case EVENT_LK_INTRO_1:
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_POINT_NOSHEATHE);
+                            if (Creature* theLichKing = ObjectAccessor::GetCreature(*me, _theLichKing))
+                                theLichKing->AI()->Talk(SAY_LK_INTRO_1);
+                            break;
+                        case EVENT_TIRION_INTRO_6:
+                            Talk(SAY_TIRION_INTRO_4);
+                            break;
+                        case EVENT_LK_INTRO_2:
+                            if (Creature* theLichKing = ObjectAccessor::GetCreature(*me, _theLichKing))
+                                theLichKing->AI()->Talk(SAY_LK_INTRO_2);
+                            break;
+                        case EVENT_LK_INTRO_3:
+                            if (Creature* theLichKing = ObjectAccessor::GetCreature(*me, _theLichKing))
+                                theLichKing->AI()->Talk(SAY_LK_INTRO_3);
+                            break;
+                        case EVENT_LK_INTRO_4:
+                            if (Creature* theLichKing = ObjectAccessor::GetCreature(*me, _theLichKing))
+                                theLichKing->AI()->Talk(SAY_LK_INTRO_4);
+                            break;
+                        case EVENT_BOLVAR_INTRO_1:
+                            if (Creature* bolvarFordragon = ObjectAccessor::GetCreature(*me, _bolvarFordragon))
+                            {
+                                bolvarFordragon->AI()->Talk(SAY_BOLVAR_INTRO_1);
+                                bolvarFordragon->setActive(false);
+                            }
+                            break;
+                        case EVENT_LK_INTRO_5:
+                            if (Creature* theLichKing = ObjectAccessor::GetCreature(*me, _theLichKing))
+                            {
+                                theLichKing->AI()->Talk(SAY_LK_INTRO_5);
+                                theLichKing->setActive(false);
+                                me->setActive(false);
+                                _damnedKills = 3;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+        private:
+            EventMap events;
+            uint64 _theLichKing;
+            uint64 _bolvarFordragon;
+            uint16 _damnedKills;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_highlord_tirion_fordringAI(creature);
+        }
 };
 
 class npc_rotting_frost_giant : public CreatureScript
@@ -367,6 +540,7 @@ class at_icc_shutdown_traps : public AreaTriggerScript
 
 void AddSC_icecrown_citadel()
 {
+    new npc_highlord_tirion_fordring_lh();
     new npc_rotting_frost_giant();
     new npc_frost_freeze_trap();
     new npc_alchemist_adrianna();
