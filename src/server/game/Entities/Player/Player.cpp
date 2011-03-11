@@ -16995,87 +16995,145 @@ void Player::LoadCorpse()
     }
 }
 
-void Player::_LoadInventory(PreparedQueryResult result, uint32 timediff)
+void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
 {
     //QueryResult *result = CharacterDatabase.PQuery("SELECT data,text,bag,slot,item,item_template FROM character_inventory JOIN item_instance ON character_inventory.item = item_instance.guid WHERE character_inventory.guid = '%u' ORDER BY bag,slot", GetGUIDLow());
-    std::map<uint64, Bag*> bagMap;                          // fast guid lookup for bags
     //NOTE: the "order by `bag`" is important because it makes sure
     //the bagMap is filled before items in the bags are loaded
     //NOTE2: the "order by `slot`" is needed because mainhand weapons are (wrongly?)
     //expected to be equipped before offhand items (TODO: fixme)
 
-    uint32 zone = GetZoneId();
-
     if (result)
     {
+        uint32 zoneId = GetZoneId();
+
+        std::map<uint64, Bag*> bagMap;                                  // fast guid lookup for bags
         std::list<Item*> problematicItems;
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-        // prevent items from being added to the queue when stored
+        // Prevent items from being added to the queue while loading
         m_itemUpdateQueueBlocked = true;
         do
         {
             Field* fields = result->Fetch();
-
-            uint32 bag_guid  = fields[11].GetUInt32();
-            uint8  slot      = fields[12].GetUInt8();
-            uint32 item_guid = fields[13].GetUInt32();
-            uint32 item_id   = fields[14].GetUInt32();
-
-            ItemPrototype const * proto = ObjectMgr::GetItemPrototype(item_id);
-
-            if (!proto)
+            if (Item* item = _LoadItem(trans, zoneId, timeDiff, fields))
             {
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVENTORY_ITEM);
-                stmt->setUInt32(0, item_guid);
-                trans->Append(stmt);
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
-                stmt->setUInt32(0, item_guid);
-                trans->Append(stmt);
-                sLog->outError("Player::_LoadInventory: Player %s has an unknown item (id: #%u) in inventory, deleted.", GetName(),item_id);
-                continue;
-            }
+                uint32 bagGuid  = fields[11].GetUInt32();
+                uint8  slot     = fields[12].GetUInt8();
 
-            Item *item = NewItemOrBag(proto);
-
-            if (!item->LoadFromDB(item_guid, GetGUID(), fields, item_id))
-            {
-                sLog->outError("Player::_LoadInventory: Player %s has broken item (id: #%u) in inventory, deleted.", GetName(),item_id);
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVENTORY_ITEM);
-                stmt->setUInt32(0, item_guid);
-                trans->Append(stmt);
-                item->FSetState(ITEM_REMOVED);
-                item->SaveToDB(trans);                           // it also deletes item object !
-                continue;
-            }
-
-            // not allow have in alive state item limited to another map/zone
-            if (isAlive() && item->IsLimitedToAnotherMapOrZone(GetMapId(), zone))
-            {
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVENTORY_ITEM);
-                stmt->setUInt32(0, item_guid);
-                trans->Append(stmt);
-                item->FSetState(ITEM_REMOVED);
-                item->SaveToDB(trans);                           // it also deletes item object !
-                continue;
-            }
-
-            // "Conjured items disappear if you are logged out for more than 15 minutes"
-            if (timediff > 15*MINUTE && proto->Flags & ITEM_PROTO_FLAG_CONJURED)
-            {
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVENTORY_ITEM);
-                stmt->setUInt32(0, item_guid);
-                trans->Append(stmt);
-                item->FSetState(ITEM_REMOVED);
-                item->SaveToDB(trans);                           // it also deletes item object !
-                continue;
-            }
-
-            if (item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_REFUNDABLE))
-            {
-                if (item->GetPlayedTime() > (2*HOUR))
+                uint8 err = EQUIP_ERR_OK;
+                // Item is not in bag
+                if (!bagGuid)
                 {
-                    sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Item::LoadFromDB, Item GUID: %u: refund time expired, deleting refund data and removing refundable flag.", item->GetGUIDLow());
+                    item->SetContainer(NULL);
+                    item->SetSlot(slot);
+
+                    if (IsInventoryPos(INVENTORY_SLOT_BAG_0, slot))
+                    {
+                        ItemPosCountVec dest;
+                        err = CanStoreItem(INVENTORY_SLOT_BAG_0, slot, dest, item, false);
+                        if (err == EQUIP_ERR_OK)
+                            item = StoreItem(dest, item, true);
+                    }
+                    else if (IsEquipmentPos(INVENTORY_SLOT_BAG_0, slot))
+                    {
+                        uint16 dest;
+                        err = CanEquipItem(slot, dest, item, false, false);
+                        if (err == EQUIP_ERR_OK)
+                            QuickEquipItem(dest, item);
+                    }
+                    else if (IsBankPos(INVENTORY_SLOT_BAG_0, slot))
+                    {
+                        ItemPosCountVec dest;
+                        err = CanBankItem(INVENTORY_SLOT_BAG_0, slot, dest, item, false, false);
+                        if (err == EQUIP_ERR_OK)
+                            item = BankItem(dest, item, true);
+                    }
+
+                    // Remember bags that may contain items in them
+                    if (err == EQUIP_ERR_OK)
+                        if (item->IsBag() && IsBagPos(item->GetPos()))
+                            bagMap[item->GetGUIDLow()] = (Bag*)item;
+                }
+                else
+                {
+                    item->SetSlot(NULL_SLOT);
+                    // Item is in the bag, find the bag
+                    std::map<uint64, Bag*>::iterator itr = bagMap.find(bagGuid);
+                    if (itr != bagMap.end())
+                    {
+                        ItemPosCountVec dest;
+                        err = CanStoreItem(itr->second->GetSlot(), slot, dest, item);
+                        if (err == EQUIP_ERR_OK)
+                            itr->second->StoreItem(slot, item, true);
+                    }
+                }
+
+                // Item's state may have changed after storing
+                if (err == EQUIP_ERR_OK)
+                    item->SetState(ITEM_UNCHANGED, this);
+                else
+                {
+                    sLog->outError("Player::_LoadInventory: player (GUID: %u, name: '%s') has item (GUID: %u, entry: %u) which can't be loaded into inventory (Bag GUID: %u, slot: %u) by reason %u. Item will be sent by mail.",
+                        GetGUIDLow(), GetName(), item->GetGUIDLow(), item->GetEntry(), bagGuid, slot, err);
+                    item->DeleteFromInventoryDB(trans);
+                    problematicItems.push_back(item);
+                }
+            }
+        } while (result->NextRow());
+
+        m_itemUpdateQueueBlocked = false;
+
+        // Send problematic items by mail
+        while (!problematicItems.empty())
+        {
+            std::string subject = GetSession()->GetTrinityString(LANG_NOT_EQUIPPED_ITEM);
+
+            MailDraft draft(subject, "There were problems with equipping item(s).");
+            for (uint8 i = 0; !problematicItems.empty() && i < MAX_MAIL_ITEMS; ++i)
+            {
+                draft.AddItem(problematicItems.front());
+                problematicItems.pop_front();
+            }
+            draft.SendMailTo(trans, this, MailSender(this, MAIL_STATIONERY_GM), MAIL_CHECK_MASK_COPIED);
+        }
+        CharacterDatabase.CommitTransaction(trans);
+    }
+    //if (isAlive())
+    _ApplyAllItemMods();
+}
+
+Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, Field* fields)
+{
+    Item* item = NULL;
+    uint32 itemGuid  = fields[13].GetUInt32();
+    uint32 itemEntry = fields[14].GetUInt32();
+    if (ItemPrototype const * proto = ObjectMgr::GetItemPrototype(itemEntry))
+    {
+        bool remove = false;
+        item = NewItemOrBag(proto);
+        if (item->LoadFromDB(itemGuid, GetGUID(), fields, itemEntry))
+        {
+            // Do not allow to have item limited to another map/zone in alive state
+            if (isAlive() && item->IsLimitedToAnotherMapOrZone(GetMapId(), zoneId))
+            {
+                sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player::_LoadInventory: player (GUID: %u, name: '%s', map: %u) has item (GUID: %u, entry: %u) limited to another map (%u). Deleting item.",
+                    GetGUIDLow(), GetName(), GetMapId(), item->GetGUIDLow(), item->GetEntry(), zoneId);
+                remove = true;
+            }
+            // "Conjured items disappear if you are logged out for more than 15 minutes"
+            else if (timeDiff > 15 * MINUTE && proto->Flags & ITEM_PROTO_FLAG_CONJURED)
+            {
+                sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player::_LoadInventory: player (GUID: %u, name: '%s', diff: %u) has conjured item (GUID: %u, entry: %u) with expired lifetime (15 minutes). Deleting item.",
+                    GetGUIDLow(), GetName(), timeDiff, item->GetGUIDLow(), item->GetEntry());
+                remove = true;
+            }
+            else if (item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_REFUNDABLE))
+            {
+                if (item->GetPlayedTime() > (2 * HOUR))
+                {
+                    sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player::_LoadInventory: player (GUID: %u, name: '%s') has item (GUID: %u, entry: %u) with expired refund time (%u). Deleting refund data and removing refundable flag.",
+                        GetGUIDLow(), GetName(), item->GetGUIDLow(), item->GetEntry(), item->GetPlayedTime());
                     trans->PAppend("DELETE FROM item_refund_instance WHERE item_guid = '%u'", item->GetGUIDLow());
                     item->RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_REFUNDABLE);
                 }
@@ -17084,19 +17142,18 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timediff)
                     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_ITEM_REFUNDS);
                     stmt->setUInt32(0, item->GetGUIDLow());
                     stmt->setUInt32(1, GetGUIDLow());
-                    PreparedQueryResult result2 = CharacterDatabase.Query(stmt);
-                    if (!result2)
+                    if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
                     {
-                        sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Item::LoadFromDB, Item GUID: %u has field flags & ITEM_FLAGS_REFUNDABLE but has no data in item_refund_instance, removing flag.", item->GetGUIDLow());
-                        item->RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_REFUNDABLE);
+                        item->SetRefundRecipient((*result)[0].GetUInt32());
+                        item->SetPaidMoney((*result)[1].GetUInt32());
+                        item->SetPaidExtendedCost((*result)[2].GetUInt16());
+                        AddRefundReference(item->GetGUIDLow());
                     }
                     else
                     {
-                        Field* fields2 = result2->Fetch();
-                        item->SetRefundRecipient(fields2[0].GetUInt32());
-                        item->SetPaidMoney(fields2[1].GetUInt32());
-                        item->SetPaidExtendedCost(fields2[2].GetUInt16());
-                        AddRefundReference(item->GetGUIDLow());
+                        sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player::_LoadInventory: player (GUID: %u, name: '%s') has item (GUID: %u, entry: %u) with refundable flags, but without data in item_refund_instance. Removing flag.",
+                            GetGUIDLow(), GetName(), item->GetGUIDLow(), item->GetEntry());
+                        item->RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_REFUNDABLE);
                     }
                 }
             }
@@ -17104,16 +17161,9 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timediff)
             {
                 PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_ITEM_BOP_TRADE);
                 stmt->setUInt32(0, item->GetGUIDLow());
-                PreparedQueryResult result2 = CharacterDatabase.Query(stmt);
-                if (!result2)
+                if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
                 {
-                    sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Item::LoadFromDB, Item GUID: %u has flag ITEM_FLAG_BOP_TRADEABLE but has no data in item_soulbound_trade_data, removing flag.", item->GetGUIDLow());
-                    item->RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_BOP_TRADEABLE);
-                }
-                else
-                {
-                    Field* fields2 = result2->Fetch();
-                    std::string strGUID = fields2[0].GetString();
+                    std::string strGUID = (*result)[0].GetString();
                     Tokens GUIDlist(strGUID, ' ');
                     AllowedLooterSet looters;
                     for (Tokens::iterator itr = GUIDlist.begin(); itr != GUIDlist.end(); ++itr)
@@ -17121,106 +17171,37 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timediff)
                     item->SetSoulboundTradeable(&looters, this, true);
                     m_itemSoulboundTradeable.push_back(item);
                 }
-            }
-
-            bool success = true;
-
-            if (!bag_guid)
-            {
-                // the item is not in a bag
-                item->SetContainer(NULL);
-                item->SetSlot(slot);
-
-                if (IsInventoryPos(INVENTORY_SLOT_BAG_0, slot))
-                {
-                    ItemPosCountVec dest;
-                    if (CanStoreItem(INVENTORY_SLOT_BAG_0, slot, dest, item, false) == EQUIP_ERR_OK)
-                        item = StoreItem(dest, item, true);
-                    else
-                        success = false;
-                }
-                else if (IsEquipmentPos(INVENTORY_SLOT_BAG_0, slot))
-                {
-                    uint16 dest;
-                    if (CanEquipItem(slot, dest, item, false, false) == EQUIP_ERR_OK)
-                        QuickEquipItem(dest, item);
-                    else
-                        success = false;
-                }
-                else if (IsBankPos(INVENTORY_SLOT_BAG_0, slot))
-                {
-                    ItemPosCountVec dest;
-                    if (CanBankItem(INVENTORY_SLOT_BAG_0, slot, dest, item, false, false) == EQUIP_ERR_OK)
-                        item = BankItem(dest, item, true);
-                    else
-                        success = false;
-                }
-
-                if (success)
-                {
-                    // store bags that may contain items in them
-                    if (item->IsBag() && IsBagPos(item->GetPos()))
-                        bagMap[item_guid] = (Bag*)item;
-                }
-            }
-            else
-            {
-                item->SetSlot(NULL_SLOT);
-                // the item is in a bag, find the bag
-                std::map<uint64, Bag*>::iterator itr = bagMap.find(bag_guid);
-                if (itr != bagMap.end())
-                {
-                    ItemPosCountVec dest;
-                    uint8 result = CanStoreItem(itr->second->GetSlot(), slot, dest, item);
-                    if (result == EQUIP_ERR_OK)
-                        itr->second->StoreItem(slot, item, true);
-                    else
-                    {
-                        sLog->outError("Player::_LoadInventory: Player %s has item (GUID: %u Entry: %u) can't be loaded to inventory (Bag GUID: %u Slot: %u) by reason %u.", GetName(),item_guid, item_id, bag_guid, slot, result);
-                        success = false;
-                    }
-                }
                 else
-                    success = false;
+                {
+                    sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Player::_LoadInventory: player (GUID: %u, name: '%s') has item (GUID: %u, entry: %u) with ITEM_FLAG_BOP_TRADEABLE flag, but without data in item_soulbound_trade_data. Removing flag.",
+                        GetGUIDLow(), GetName(), item->GetGUIDLow(), item->GetEntry());
+                    item->RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_BOP_TRADEABLE);
+                }
             }
-
-            // item's state may have changed after stored
-            if (success)
-                item->SetState(ITEM_UNCHANGED, this);
-            else
-            {
-                sLog->outError("Player::_LoadInventory: Player %s has item (GUID: %u Entry: %u) can't be loaded to inventory (Bag GUID: %u Slot: %u) by some reason, will send by mail.", GetName(),item_guid, item_id, bag_guid, slot);
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVENTORY_ITEM);
-                stmt->setUInt32(0, item_guid);
-                trans->Append(stmt);
-                problematicItems.push_back(item);
-            }
-        } while (result->NextRow());
-
-        m_itemUpdateQueueBlocked = false;
-
-        // send by mail problematic items
-        while (!problematicItems.empty())
-        {
-            std::string subject = GetSession()->GetTrinityString(LANG_NOT_EQUIPPED_ITEM);
-
-            // fill mail
-            MailDraft draft(subject, "There's were problems with equipping item(s).");
-
-            for (uint8 i = 0; !problematicItems.empty() && i < MAX_MAIL_ITEMS; ++i)
-            {
-                Item* item = problematicItems.front();
-                problematicItems.pop_front();
-
-                draft.AddItem(item);
-            }
-
-            draft.SendMailTo(trans, this, MailSender(this, MAIL_STATIONERY_GM), MAIL_CHECK_MASK_COPIED);
         }
-        CharacterDatabase.CommitTransaction(trans);
+        else
+        {
+            sLog->outError("Player::_LoadInventory: player (GUID: %u, name: '%s') has broken item (GUID: %u, entry: %u) in inventory. Deleting item.",
+                GetGUIDLow(), GetName(), itemGuid, itemEntry);
+            remove = true;
+        }
+        // Remove item from inventory if necessary
+        if (remove)
+        {
+            Item::DeleteFromInventoryDB(trans, itemGuid);
+            item->FSetState(ITEM_REMOVED);
+            item->SaveToDB(trans);                           // it also deletes item object!
+            item = NULL;
+        }
     }
-    //if (isAlive())
-    _ApplyAllItemMods();
+    else
+    {
+        sLog->outError("Player::_LoadInventory: player (GUID: %u, name: '%s') has unknown item (entry: %u) in inventory. Deleting item.",
+            GetGUIDLow(), GetName(), itemEntry);
+        Item::DeleteFromInventoryDB(trans, itemGuid);
+        Item::DeleteFromDB(trans, itemGuid);
+    }
+    return item;
 }
 
 // load mailed item which should receive current player
