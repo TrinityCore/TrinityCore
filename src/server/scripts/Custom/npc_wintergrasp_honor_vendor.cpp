@@ -73,11 +73,11 @@ public:
 
                 sWorld->SendGMText(LANG_GM_BROADCAST, sText.c_str());
 
-                if (SpellEntry const *spellInfo = sSpellStore.LookupEntry(9454))
-                    Aura::TryCreate(spellInfo, pWho, pWho);
+                //if (SpellEntry const *spellInfo = sSpellStore.LookupEntry(9454))
+                  //  Aura::TryCreate(spellInfo, pWho, pWho);
 
                 sWorld->AutoBanDebug(pWho->GetName(), sText.c_str(), sConfig->GetIntDefault("RealmID", 0), me->GetGUIDLow(), me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), pWho->GetMapId(), pWho->GetPositionX(), pWho->GetPositionY(), pWho->GetPositionZ());
-                sWorld->BanAccount(BAN_CHARACTER, pWho->GetName(), 0, sText.c_str(), "Very autobanner");
+                sWorld->BanAccount(BAN_CHARACTER, pWho->GetName(), "0", sText.c_str(), "Very autobanner");
 
             }
 

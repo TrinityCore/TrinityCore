@@ -7001,8 +7001,8 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, int32 honor, bool pvpt
 
             if (pVictim->isJailed() || this->isJailed())
             {
-                sWorld->BanAccount(BAN_CHARACTER, pVictim->GetName(), 0, "Honor farm victim", "auto-ban");
-                sWorld->BanAccount(BAN_CHARACTER, this->GetName(), 0, "Honor farm killer", "auto-ban");
+                sWorld->BanAccount(BAN_CHARACTER, pVictim->GetName(), "0", "Honor farm victim", "auto-ban");
+                sWorld->BanAccount(BAN_CHARACTER, this->GetName(), "0", "Honor farm killer", "auto-ban");
                 return false;
             }
 
@@ -21435,7 +21435,7 @@ void Player::InitPrimaryProfessions()
                 {
                     SetSkill(skill_id,0 , 0, 0);
                     sLog->outError("Player %s has more than two professions. Skill %u removed",GetName(),skill_id);
-                    sWorld->BanAccount(BAN_CHARACTER, GetName(), TimeStringToSecs("30d") , "Not bad more proff? xD", "Server-anticheat");
+                    sWorld->BanAccount(BAN_CHARACTER, GetName(), "30d" , "Not bad more proff? xD", "Server-anticheat");
                 }
             }    
         }

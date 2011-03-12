@@ -40,7 +40,7 @@
 #include "VMapFactory.h"
 #endif
 
-bool ChatHandler::HandleNameAnnounceCommand(char* args)
+bool ChatHandler::HandleNameAnnounceCommand(const char* args)
 {
     WorldPacket data;
     if (!*args)
@@ -50,7 +50,7 @@ bool ChatHandler::HandleNameAnnounceCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleGMNameAnnounceCommand(char* args)
+bool ChatHandler::HandleGMNameAnnounceCommand(const char* args)
 {
     WorldPacket data;
     if (!*args)
@@ -61,7 +61,7 @@ bool ChatHandler::HandleGMNameAnnounceCommand(char* args)
 }
 
 // global announce
-bool ChatHandler::HandleAnnounceCommand(char* args)
+bool ChatHandler::HandleAnnounceCommand(const char* args)
 {
     if (!*args)
         return false;
@@ -73,7 +73,7 @@ bool ChatHandler::HandleAnnounceCommand(char* args)
 }
 
 // announce to logged in GMs
-bool ChatHandler::HandleGMAnnounceCommand(char* args)
+bool ChatHandler::HandleGMAnnounceCommand(const char* args)
 {
     if (!*args)
         return false;
@@ -83,7 +83,7 @@ bool ChatHandler::HandleGMAnnounceCommand(char* args)
 }
 
 //notification player at the screen
-bool ChatHandler::HandleNotifyCommand(char* args)
+bool ChatHandler::HandleNotifyCommand(const char* args)
 {
     if (!*args)
         return false;
@@ -99,7 +99,7 @@ bool ChatHandler::HandleNotifyCommand(char* args)
 }
 
 //notification GM at the screen
-bool ChatHandler::HandleGMNotifyCommand(char* args)
+bool ChatHandler::HandleGMNotifyCommand(const char* args)
 {
     if (!*args)
         return false;
@@ -114,12 +114,12 @@ bool ChatHandler::HandleGMNotifyCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleGPSCommand(char* args)
+bool ChatHandler::HandleGPSCommand(const char* args)
 {
     WorldObject *obj = NULL;
     if (*args)
     {
-        uint64 guid = extractGuidFromLink(args);
+        uint64 guid = extractGuidFromLink((char*)args);
         if (guid)
             obj = (WorldObject*)ObjectAccessor::GetObjectByTypeMask(*m_session->GetPlayer(),guid,TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT);
 
@@ -169,9 +169,9 @@ bool ChatHandler::HandleGPSCommand(char* args)
     uint32 have_map = Map::ExistMap(obj->GetMapId(),gx,gy) ? 1 : 0;
     uint32 have_vmap = Map::ExistVMap(obj->GetMapId(),gx,gy) ? 1 : 0;
 
-    if (have_vmap)
+    if(have_vmap)
     {
-        if (map->IsOutdoors(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ()))
+        if(map->IsOutdoors(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ()))
             PSendSysMessage("You are outdoors");
         else
             PSendSysMessage("You are indoors");
@@ -197,12 +197,12 @@ bool ChatHandler::HandleGPSCommand(char* args)
 }
 
 //Summon Player
-bool ChatHandler::HandleSummonCommand(char* args)
+bool ChatHandler::HandleSummonCommand(const char* args)
 {
     Player* target;
     uint64 target_guid;
     std::string target_name;
-    if (!extractPlayerTarget(args,&target,&target_guid,&target_name))
+    if (!extractPlayerTarget((char*)args,&target,&target_guid,&target_name))
         return false;
 
     Player* _player = m_session->GetPlayer();
@@ -312,12 +312,12 @@ bool ChatHandler::HandleSummonCommand(char* args)
 }
 
 //Teleport to Player
-bool ChatHandler::HandleAppearCommand(char* args)
+bool ChatHandler::HandleAppearCommand(const char* args)
 {
     Player* target;
     uint64 target_guid;
     std::string target_name;
-    if (!extractPlayerTarget(args,&target,&target_guid,&target_name))
+    if (!extractPlayerTarget((char*)args,&target,&target_guid,&target_name))
         return false;
 
     Player* _player = m_session->GetPlayer();
@@ -455,10 +455,10 @@ bool ChatHandler::HandleAppearCommand(char* args)
 }
 
 // Teleport player to last position
-bool ChatHandler::HandleRecallCommand(char* args)
+bool ChatHandler::HandleRecallCommand(const char* args)
 {
     Player* target;
-    if (!extractPlayerTarget(args,&target))
+    if (!extractPlayerTarget((char*)args,&target))
         return false;
 
     // check online security
@@ -484,43 +484,52 @@ bool ChatHandler::HandleRecallCommand(char* args)
 }
 
 //Enable On\OFF all taxi paths
-bool ChatHandler::HandleTaxiCheatCommand(char* args)
+bool ChatHandler::HandleTaxiCheatCommand(const char* args)
 {
-    bool value;
-    if (!ExtractOnOff(&args, value))
+    if (!*args)
     {
         SendSysMessage(LANG_USE_BOL);
         SetSentErrorMessage(true);
         return false;
     }
 
+    std::string argstr = (char*)args;
+
     Player *chr = getSelectedPlayer();
     if (!chr)
-        chr = m_session->GetPlayer();
+    {
+        chr=m_session->GetPlayer();
+    }
 
     // check online security
     else if (HasLowerSecurity(chr, 0))
         return false;
 
-    if (value)
+    if (argstr == "on")
     {
         chr->SetTaxiCheater(true);
         PSendSysMessage(LANG_YOU_GIVE_TAXIS, GetNameLink(chr).c_str());
         if (needReportToTarget(chr))
             ChatHandler(chr).PSendSysMessage(LANG_YOURS_TAXIS_ADDED, GetNameLink().c_str());
+        return true;
     }
-    else
+
+    if (argstr == "off")
     {
         chr->SetTaxiCheater(false);
         PSendSysMessage(LANG_YOU_REMOVE_TAXIS, GetNameLink(chr).c_str());
         if (needReportToTarget(chr))
             ChatHandler(chr).PSendSysMessage(LANG_YOURS_TAXIS_REMOVED, GetNameLink().c_str());
+
+        return true;
     }
 
-    return true;
+    SendSysMessage(LANG_USE_BOL);
+    SetSentErrorMessage(true);
+    return false;
 }
 
-bool ChatHandler::HandleLookupAreaCommand(char* args)
+bool ChatHandler::HandleLookupAreaCommand(const char* args)
 {
     if (!*args)
         return false;
@@ -596,7 +605,7 @@ bool ChatHandler::HandleLookupAreaCommand(char* args)
 }
 
 //Find tele in game_tele order by name
-bool ChatHandler::HandleLookupTeleCommand(char* args)
+bool ChatHandler::HandleLookupTeleCommand(const char * args)
 {
     if (!*args)
     {
@@ -605,7 +614,11 @@ bool ChatHandler::HandleLookupTeleCommand(char* args)
         return false;
     }
 
-    std::string namepart = args;
+    char const* str = strtok((char*)args, " ");
+    if (!str)
+        return false;
+
+    std::string namepart = str;
     std::wstring wnamepart;
 
     if (!Utf8toWStr(namepart,wnamepart))
@@ -651,7 +664,7 @@ bool ChatHandler::HandleLookupTeleCommand(char* args)
 }
 
 //Enable\Dissable accept whispers (for GM)
-bool ChatHandler::HandleWhispersCommand(char* args)
+bool ChatHandler::HandleWhispersCommand(const char* args)
 {
     if (!*args)
     {
@@ -659,30 +672,30 @@ bool ChatHandler::HandleWhispersCommand(char* args)
         return true;
     }
 
-    bool value;
-    if (!ExtractOnOff(&args, value))
-    {
-        SendSysMessage(LANG_USE_BOL);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
-    if (value)   // whisper on
+    std::string argstr = (char*)args;
+    // whisper on
+    if (argstr == "on")
     {
         m_session->GetPlayer()->SetAcceptWhispers(true);
         SendSysMessage(LANG_COMMAND_WHISPERON);
+        return true;
     }
-    else         // whisper off
+
+    // whisper off
+    if (argstr == "off")
     {
         m_session->GetPlayer()->SetAcceptWhispers(false);
         SendSysMessage(LANG_COMMAND_WHISPEROFF);
+        return true;
     }
 
-    return true;
+    SendSysMessage(LANG_USE_BOL);
+    SetSentErrorMessage(true);
+    return false;
 }
 
 //Save all players in the world
-bool ChatHandler::HandleSaveAllCommand(char* /*args*/)
+bool ChatHandler::HandleSaveAllCommand(const char* /*args*/)
 {
     sObjectAccessor->SaveAllPlayers();
     SendSysMessage(LANG_PLAYERS_SAVED);
@@ -690,13 +703,13 @@ bool ChatHandler::HandleSaveAllCommand(char* /*args*/)
 }
 
 // Jail by WarHead
-bool ChatHandler::HandleJailCommand(char* args)
+bool ChatHandler::HandleJailCommand(const char *args)
 {
     std::string cname, announce, ban_reason, ban_by;
     time_t localtime;
     localtime = time(NULL);
 
-    char *charname = strtok(args, " ");
+    char *charname = strtok((char*)args, " ");
     if (charname == NULL)
     {
         SendSysMessage(LANG_JAIL_NONAME);
@@ -880,9 +893,9 @@ bool ChatHandler::HandleJailCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleUnJailCommand(char* args)
+bool ChatHandler::HandleUnJailCommand(const char *args)
 {
-    char *charname = strtok(args, " ");
+    char *charname = strtok((char*)args, " ");
     std::string cname;
 
     if (charname == NULL) return false;
@@ -945,24 +958,28 @@ bool ChatHandler::HandleUnJailCommand(char* args)
 }
 
 //Send mail by command
-bool ChatHandler::HandleSendMailCommand(char* args)
+bool ChatHandler::HandleSendMailCommand(const char* args)
 {
     // format: name "subject text" "mail text"
     Player* target;
     uint64 target_guid;
     std::string target_name;
-    if (!extractPlayerTarget(args,&target,&target_guid,&target_name))
+    if (!extractPlayerTarget((char*)args,&target,&target_guid,&target_name))
         return false;
 
-    char* tail = strtok(NULL, "");
-    if (!tail)
+    char* tail1 = strtok(NULL, "");
+    if (!tail1)
         return false;
 
-    char* msgSubject = ExtractQuotedArg(&tail);
+    char* msgSubject = extractQuotedArg(tail1);
     if (!msgSubject)
         return false;
 
-    char* msgText = ExtractQuotedArg(&tail);
+    char* tail2 = strtok(NULL, "");
+    if (!tail2)
+        return false;
+
+    char* msgText = extractQuotedArg(tail2);
     if (!msgText)
         return false;
 
@@ -986,10 +1003,10 @@ bool ChatHandler::HandleSendMailCommand(char* args)
 }
 
 //Summon group of player
-bool ChatHandler::HandleGroupSummonCommand(char* args)
+bool ChatHandler::HandleGroupSummonCommand(const char* args)
 {
     Player* target;
-    if (!extractPlayerTarget(args,&target))
+    if (!extractPlayerTarget((char*)args,&target))
         return false;
 
     // check online security

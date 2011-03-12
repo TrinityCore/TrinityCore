@@ -45,15 +45,15 @@ public:
         return commandTable;
     }
 
-    static bool HandleAchievementAddCommand(ChatHandler* handler, char *args)
+    static bool HandleAchievementAddCommand(ChatHandler* handler, const char *args)
     {
         if (!*args)
             return false;
 
-        uint32 achievementId = atoi(args);
+        uint32 achievementId = atoi((char*)args);
         if (!achievementId)
         {
-            if (char* cId = handler->extractKeyFromLink(args, "Hachievement"))
+            if (char* cId = handler->extractKeyFromLink((char*)args, "Hachievement"))
                 achievementId = atoi(cId);
             if (!achievementId)
                 return false;

@@ -36,7 +36,7 @@ std::string ChatHandler::PGetParseString(int32 entry, ...)
     return (std::string)str;
 }
 
-bool ChatHandler::HandleGMTicketListCommand(char* /*args*/)
+bool ChatHandler::HandleGMTicketListCommand(const char* /*args*/)
 {
     SendSysMessage(LANG_COMMAND_TICKETSHOWLIST);
     for (GmTicketList::iterator itr = sTicketMgr->m_GMTicketList.begin(); itr != sTicketMgr->m_GMTicketList.end(); ++itr)
@@ -58,7 +58,7 @@ bool ChatHandler::HandleGMTicketListCommand(char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleGMTicketListOnlineCommand(char* /*args*/)
+bool ChatHandler::HandleGMTicketListOnlineCommand(const char* /*args*/)
 {
     SendSysMessage(LANG_COMMAND_TICKETSHOWONLINELIST);
     for (GmTicketList::iterator itr = sTicketMgr->m_GMTicketList.begin(); itr != sTicketMgr->m_GMTicketList.end(); ++itr)
@@ -79,7 +79,7 @@ bool ChatHandler::HandleGMTicketListOnlineCommand(char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleGMTicketListClosedCommand(char* /*args*/)
+bool ChatHandler::HandleGMTicketListClosedCommand(const char* /*args*/)
 {
     SendSysMessage(LANG_COMMAND_TICKETSHOWCLOSEDLIST);
     for (GmTicketList::iterator itr = sTicketMgr->m_GMTicketList.begin(); itr != sTicketMgr->m_GMTicketList.end(); ++itr)
@@ -101,7 +101,7 @@ bool ChatHandler::HandleGMTicketListClosedCommand(char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleGMTicketListEscalatedCommand(char* /*args*/)
+bool ChatHandler::HandleGMTicketListEscalatedCommand(const char* /*args*/)
 {
     SendSysMessage(LANG_COMMAND_TICKETSHOWESCALATEDLIST);
     for (GmTicketList::iterator itr = sTicketMgr->m_GMTicketList.begin(); itr != sTicketMgr->m_GMTicketList.end(); ++itr)
@@ -120,7 +120,7 @@ bool ChatHandler::HandleGMTicketListEscalatedCommand(char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleGMTicketGetByIdCommand(char* args)
+bool ChatHandler::HandleGMTicketGetByIdCommand(const char* args)
 {
     if (!*args)
         return false;
@@ -153,7 +153,7 @@ bool ChatHandler::HandleGMTicketGetByIdCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleGMTicketGetByNameCommand(char* args)
+bool ChatHandler::HandleGMTicketGetByNameCommand(const char* args)
 {
     if (!*args)
         return false;
@@ -196,7 +196,7 @@ bool ChatHandler::HandleGMTicketGetByNameCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleGMTicketCloseByIdCommand(char* args)
+bool ChatHandler::HandleGMTicketCloseByIdCommand(const char* args)
 {
     if (!*args)
         return false;
@@ -235,7 +235,7 @@ bool ChatHandler::HandleGMTicketCloseByIdCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleGMTicketAssignToCommand(char* args)
+bool ChatHandler::HandleGMTicketAssignToCommand(const char* args)
 {
     if (!*args)
         return false;
@@ -303,7 +303,7 @@ bool ChatHandler::HandleGMTicketAssignToCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleGMTicketUnAssignCommand(char* args)
+bool ChatHandler::HandleGMTicketUnAssignCommand(const char* args)
 {
     if (!*args)
         return false;
@@ -346,7 +346,7 @@ bool ChatHandler::HandleGMTicketUnAssignCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleGMTicketCommentCommand(char* args)
+bool ChatHandler::HandleGMTicketCommentCommand(const char* args)
 {
     if (!*args)
         return false;
@@ -389,7 +389,7 @@ bool ChatHandler::HandleGMTicketCommentCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleGMTicketDeleteByIdCommand(char* args)
+bool ChatHandler::HandleGMTicketDeleteByIdCommand(const char* args)
 {
     if (!*args)
         return false;
@@ -427,7 +427,7 @@ bool ChatHandler::HandleGMTicketDeleteByIdCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleToggleGMTicketSystem(char* /* args */)
+bool ChatHandler::HandleToggleGMTicketSystem(const char* /* args */)
 {
     sTicketMgr->SetStatus(!sTicketMgr->GetStatus());
     if (sTicketMgr->GetStatus())
@@ -438,7 +438,7 @@ bool ChatHandler::HandleToggleGMTicketSystem(char* /* args */)
     return true;
 }
 
-bool ChatHandler::HandleGMTicketEscalateCommand(char* args)
+bool ChatHandler::HandleGMTicketEscalateCommand(const char *args)
 {
     if (!*args)
         return false;
@@ -460,7 +460,7 @@ bool ChatHandler::HandleGMTicketEscalateCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleGMTicketCompleteCommand(char* args)
+bool ChatHandler::HandleGMTicketCompleteCommand(const char* args)
 {
     if (!*args)
         return false;
@@ -480,7 +480,7 @@ bool ChatHandler::HandleGMTicketCompleteCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleGMTicketResponseAppendCommand(char* args)
+bool ChatHandler::HandleGMTicketResponseAppendCommand(const char* args)
 {
     if (!*args)
         return false;
@@ -515,7 +515,7 @@ bool ChatHandler::HandleGMTicketResponseAppendCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleGMTicketResponseAppendLnCommand(char* args)
+bool ChatHandler::HandleGMTicketResponseAppendLnCommand(const char* args)
 {
     if (!*args)
         return false;

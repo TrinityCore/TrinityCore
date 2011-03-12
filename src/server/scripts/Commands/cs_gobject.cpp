@@ -69,12 +69,12 @@ public:
         return commandTable;
     }
 
-    static bool HandleGameObjectActivateCommand(ChatHandler* handler, char* args)
+    static bool HandleGameObjectActivateCommand(ChatHandler* handler, const char* args)
     {
         if (!*args)
             return false;
 
-        char* cId = handler->extractKeyFromLink(args,"Hgameobject");
+        char* cId = handler->extractKeyFromLink((char*)args,"Hgameobject");
         if (!cId)
             return false;
 
@@ -105,13 +105,13 @@ public:
     }
 
     //spawn go
-    static bool HandleGameObjectAddCommand(ChatHandler* handler, char* args)
+    static bool HandleGameObjectAddCommand(ChatHandler* handler, const char* args)
     {
         if (!*args)
             return false;
 
         // number or [name] Shift-click form |color|Hgameobject_entry:go_id|h[name]|h|r
-        char* cId = handler->extractKeyFromLink(args,"Hgameobject_entry");
+        char* cId = handler->extractKeyFromLink((char*)args,"Hgameobject_entry");
         if (!cId)
             return false;
 
@@ -182,11 +182,11 @@ public:
     }
 
     // add go, temp only
-    static bool HandleGameObjectAddTempCommand(ChatHandler* handler, char* args)
+    static bool HandleGameObjectAddTempCommand(ChatHandler* handler, const char* args)
     {
         if (!*args)
             return false;
-        char* charID = strtok(args, " ");
+        char* charID = strtok((char*)args, " ");
         if (!charID)
             return false;
 
@@ -213,7 +213,7 @@ public:
         return true;
     }
 
-    static bool HandleGameObjectTargetCommand(ChatHandler* handler, char* args)
+    static bool HandleGameObjectTargetCommand(ChatHandler* handler, const char* args)
     {
         Player* pl = handler->GetSession()->GetPlayer();
         QueryResult result;
@@ -221,7 +221,7 @@ public:
         if (*args)
         {
             // number or [name] Shift-click form |color|Hgameobject_entry:go_id|h[name]|h|r
-            char* cId = handler->extractKeyFromLink(args,"Hgameobject_entry");
+            char* cId = handler->extractKeyFromLink((char*)args,"Hgameobject_entry");
             if (!cId)
                 return false;
 
@@ -329,10 +329,10 @@ public:
     }
 
     //delete object by selection or guid
-    static bool HandleGameObjectDeleteCommand(ChatHandler* handler, char* args)
+    static bool HandleGameObjectDeleteCommand(ChatHandler* handler, const char* args)
     {
         // number or [name] Shift-click form |color|Hgameobject:go_guid|h[name]|h|r
-        char* cId = handler->extractKeyFromLink(args,"Hgameobject");
+        char* cId = handler->extractKeyFromLink((char*)args,"Hgameobject");
         if (!cId)
             return false;
 
@@ -377,10 +377,10 @@ public:
     }
 
     //turn selected object
-    static bool HandleGameObjectTurnCommand(ChatHandler* handler, char* args)
+    static bool HandleGameObjectTurnCommand(ChatHandler* handler, const char* args)
     {
         // number or [name] Shift-click form |color|Hgameobject:go_id|h[name]|h|r
-        char* cId = handler->extractKeyFromLink(args,"Hgameobject");
+        char* cId = handler->extractKeyFromLink((char*)args,"Hgameobject");
         if (!cId)
             return false;
 
@@ -428,10 +428,10 @@ public:
     }
 
     //move selected object
-    static bool HandleGameObjectMoveCommand(ChatHandler* handler, char* args)
+    static bool HandleGameObjectMoveCommand(ChatHandler* handler, const char* args)
     {
         // number or [name] Shift-click form |color|Hgameobject:go_guid|h[name]|h|r
-        char* cId = handler->extractKeyFromLink(args,"Hgameobject");
+        char* cId = handler->extractKeyFromLink((char*)args,"Hgameobject");
         if (!cId)
             return false;
 
@@ -493,10 +493,10 @@ public:
     }
 
     //set pahsemask for selected object
-    static bool HandleGameObjectSetPhaseCommand(ChatHandler* handler, char* args)
+    static bool HandleGameObjectSetPhaseCommand(ChatHandler* handler, const char* args)
     {
         // number or [name] Shift-click form |color|Hgameobject:go_id|h[name]|h|r
-        char* cId = handler->extractKeyFromLink(args,"Hgameobject");
+        char* cId = handler->extractKeyFromLink((char*)args,"Hgameobject");
         if (!cId)
             return false;
 
@@ -531,12 +531,9 @@ public:
         return true;
     }
 
-    static bool HandleGameObjectNearCommand(ChatHandler* handler, char* args)
+    static bool HandleGameObjectNearCommand(ChatHandler* handler, const char* args)
     {
-        float distance;
-        if (!handler->ExtractOptFloat(&args, distance, 10.0f))
-            return false;
-
+        float distance = (!*args) ? 10.0f : (float)(atof(args));
         uint32 count = 0;
 
         Player* pl = handler->GetSession()->GetPlayer();
@@ -574,7 +571,7 @@ public:
     }
 
     //show info of gameobject
-    static bool HandleGameObjectInfoCommand(ChatHandler* handler, char* args)
+    static bool HandleGameObjectInfoCommand(ChatHandler* handler, const char* args)
     {
         uint32 entry = 0;
         uint32 type = 0;
@@ -587,7 +584,7 @@ public:
             if (WorldObject * obj = handler->getSelectedObject())
                 entry = obj->GetEntry();
             else
-                entry = atoi(args);
+                entry = atoi((char*)args);
         }
 
         GameObjectInfo const* goinfo = ObjectMgr::GetGameObjectInfo(entry);
@@ -612,10 +609,10 @@ public:
         return true;
     }
 
-    static bool HandleGameObjectSetStateCommand(ChatHandler* handler, char* args)
+    static bool HandleGameObjectSetStateCommand(ChatHandler* handler, const char* args)
     {
         // number or [name] Shift-click form |color|Hgameobject:go_id|h[name]|h|r
-        char* cId = handler->extractKeyFromLink(args, "Hgameobject");
+        char* cId = handler->extractKeyFromLink((char*)args, "Hgameobject");
         if (!cId)
             return false;
 

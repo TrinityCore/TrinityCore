@@ -244,7 +244,7 @@ void ChatHandler::HandleCharacterDeletedListHelper(DeletedInfoList const& foundL
  *
  * @param args the search string which either contains a player GUID or a part fo the character-name
  */
-bool ChatHandler::HandleCharacterDeletedListCommand(char* args)
+bool ChatHandler::HandleCharacterDeletedListCommand(const char* args)
 {
     DeletedInfoList foundList;
     if (!GetDeletedCharacterInfoList(foundList, args))
@@ -308,7 +308,7 @@ void ChatHandler::HandleCharacterDeletedRestoreHelper(DeletedInfo const& delInfo
  *
  * @param args the search string which either contains a player GUID or a part of the character-name
  */
-bool ChatHandler::HandleCharacterDeletedRestoreCommand(char* args)
+bool ChatHandler::HandleCharacterDeletedRestoreCommand(const char* args)
 {
     // It is required to submit at least one argument
     if (!*args)
@@ -373,7 +373,7 @@ bool ChatHandler::HandleCharacterDeletedRestoreCommand(char* args)
  *
  * @param args the search string which either contains a player GUID or a part fo the character-name
  */
-bool ChatHandler::HandleCharacterDeletedDeleteCommand(char* args)
+bool ChatHandler::HandleCharacterDeletedDeleteCommand(const char* args)
 {
     // It is required to submit at least one argument
     if (!*args)
@@ -410,7 +410,7 @@ bool ChatHandler::HandleCharacterDeletedDeleteCommand(char* args)
  *
  * @param args the search string which either contains a player GUID or a part fo the character-name
  */
-bool ChatHandler::HandleCharacterDeletedOldCommand(char* args)
+bool ChatHandler::HandleCharacterDeletedOldCommand(const char* args)
 {
     int32 keepDays = sWorld->getIntConfig(CONFIG_CHARDELETE_KEEP_DAYS);
 
@@ -432,12 +432,11 @@ bool ChatHandler::HandleCharacterDeletedOldCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleCharacterEraseCommand(char* args)
-{
+bool ChatHandler::HandleCharacterEraseCommand(const char* args){
     if (!*args)
         return false;
 
-    char *character_name_str = strtok(args," ");
+    char *character_name_str = strtok((char*)args," ");
     if (!character_name_str)
         return false;
 
@@ -477,7 +476,7 @@ bool ChatHandler::HandleCharacterEraseCommand(char* args)
 }
 
 /// Exit the realm
-bool ChatHandler::HandleServerExitCommand(char* /*args*/)
+bool ChatHandler::HandleServerExitCommand(const char* /*args*/)
 {
     SendSysMessage(LANG_COMMAND_EXIT);
     World::StopNow(SHUTDOWN_EXIT_CODE);
@@ -485,7 +484,7 @@ bool ChatHandler::HandleServerExitCommand(char* /*args*/)
 }
 
 /// Set the level of logging
-bool ChatHandler::HandleServerSetLogFileLevelCommand(char* args)
+bool ChatHandler::HandleServerSetLogFileLevelCommand(const char *args)
 {
     if (!*args)
         return false;
@@ -499,7 +498,7 @@ bool ChatHandler::HandleServerSetLogFileLevelCommand(char* args)
 }
 
 /// Set the level of logging
-bool ChatHandler::HandleServerSetLogLevelCommand(char* args)
+bool ChatHandler::HandleServerSetLogLevelCommand(const char *args)
 {
     if (!*args)
         return false;
@@ -513,7 +512,7 @@ bool ChatHandler::HandleServerSetLogLevelCommand(char* args)
 }
 
 /// set diff time record interval
-bool ChatHandler::HandleServerSetDiffTimeCommand(char* args)
+bool ChatHandler::HandleServerSetDiffTimeCommand(const char *args)
 {
     if (!*args)
         return false;
@@ -532,7 +531,7 @@ bool ChatHandler::HandleServerSetDiffTimeCommand(char* args)
 }
 
 /// toggle sql driver query logging
-bool ChatHandler::HandleServerToggleQueryLogging(char* /* args */)
+bool ChatHandler::HandleServerToggleQueryLogging(const char* /* args */)
 {
     sLog->SetSQLDriverQueryLogging(!sLog->GetSQLDriverQueryLogging());
     if(sLog->GetSQLDriverQueryLogging())

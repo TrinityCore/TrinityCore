@@ -29,9 +29,9 @@
 #include "revision.h"
 #include "Util.h"
 
-bool ChatHandler::HandleHelpCommand(char* args)
+bool ChatHandler::HandleHelpCommand(const char* args)
 {
-    char* cmd = strtok(args, " ");
+    char* cmd = strtok((char*)args, " ");
     if (!cmd)
     {
         ShowHelpForCommand(getCommandTable(), "help");
@@ -46,13 +46,13 @@ bool ChatHandler::HandleHelpCommand(char* args)
     return true;
 }
 
-bool ChatHandler::HandleCommandsCommand(char* /*args*/)
+bool ChatHandler::HandleCommandsCommand(const char* /*args*/)
 {
     ShowHelpForCommand(getCommandTable(), "");
     return true;
 }
 
-bool ChatHandler::HandleStartCommand(char* /*args*/)
+bool ChatHandler::HandleStartCommand(const char* /*args*/)
 {
 		// Jail by WarHead edited by Vlad
     if (m_session->GetPlayer()->m_jail_isjailed)
@@ -89,7 +89,7 @@ bool ChatHandler::HandleStartCommand(char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleServerInfoCommand(char* /*args*/)
+bool ChatHandler::HandleServerInfoCommand(const char* /*args*/)
 {
     uint32 PlayersNum = sWorld->GetPlayerCount();
     uint32 MaxPlayersNum = sWorld->GetMaxPlayerCount();
@@ -109,7 +109,7 @@ bool ChatHandler::HandleServerInfoCommand(char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleDismountCommand(char* /*args*/)
+bool ChatHandler::HandleDismountCommand(const char* /*args*/)
 {
     //If player is not mounted, so go out :)
     if (!m_session->GetPlayer()->IsMounted())
@@ -131,7 +131,7 @@ bool ChatHandler::HandleDismountCommand(char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleSaveCommand(char* /*args*/)
+bool ChatHandler::HandleSaveCommand(const char* /*args*/)
 {
     Player *player = m_session->GetPlayer();
 
@@ -159,13 +159,13 @@ bool ChatHandler::HandleSaveCommand(char* /*args*/)
 }
 
 /// Display the 'Message of the day' for the realm
-bool ChatHandler::HandleServerMotdCommand(char* /*args*/)
+bool ChatHandler::HandleServerMotdCommand(const char* /*args*/)
 {
     PSendSysMessage(LANG_MOTD_CURRENT, sWorld->GetMotd());
     return true;
 }
 //Trinity Jail Edited by Vlad
-bool ChatHandler::HandleJailInfoCommand(char* /*args*/)
+bool ChatHandler::HandleJailInfoCommand(const char* args)
 {
     time_t localtime;
     localtime = time(NULL);

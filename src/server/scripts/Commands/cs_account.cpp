@@ -60,7 +60,7 @@ public:
         return commandTable;
     }
 
-    static bool HandleAccountAddonCommand(ChatHandler* handler, char* args)
+    static bool HandleAccountAddonCommand(ChatHandler* handler, const char* args)
     {
         if (!*args)
         {
@@ -69,7 +69,7 @@ public:
             return false;
         }
 
-        char *szExp = strtok(args, " ");
+        char *szExp = strtok((char*)args, " ");
 
         uint32 account_id = handler->GetSession()->GetAccountId();
 
@@ -88,13 +88,13 @@ public:
     }
 
     /// Create an account
-    static bool HandleAccountCreateCommand(ChatHandler* handler, char* args)
+    static bool HandleAccountCreateCommand(ChatHandler* handler, const char* args)
     {
         if (!*args)
             return false;
 
         ///- %Parse the command line arguments
-        char *szAcc = strtok(args, " ");
+        char *szAcc = strtok((char*)args, " ");
         char *szPassword = strtok(NULL, " ");
         if (!szAcc || !szPassword)
             return false;
@@ -132,13 +132,13 @@ public:
 
     /// Delete a user account and all associated characters in this realm
     /// \todo This function has to be enhanced to respect the login/realm split (delete char, delete account chars in realm, delete account chars in realm then delete account
-    static bool HandleAccountDeleteCommand(ChatHandler* handler, char* args)
+    static bool HandleAccountDeleteCommand(ChatHandler* handler, const char* args)
     {
         if (!*args)
             return false;
 
         ///- Get the account name from the command line
-        char *account_name_str=strtok (args," ");
+        char *account_name_str=strtok ((char*)args," ");
         if (!account_name_str)
             return false;
 
@@ -188,7 +188,7 @@ public:
     }
 
     /// Display info on users currently in the realm
-    static bool HandleAccountOnlineListCommand(ChatHandler* handler, char* /*args*/)
+    static bool HandleAccountOnlineListCommand(ChatHandler* handler, const char* /*args*/)
     {
         ///- Get the list of accounts ID logged to the realm
         QueryResult resultDB = CharacterDatabase.Query("SELECT name,account,map,zone FROM characters WHERE online > 0");
@@ -233,33 +233,36 @@ public:
         return true;
     }
 
-    static bool HandleAccountLockCommand(ChatHandler* handler, char* args)
+    static bool HandleAccountLockCommand(ChatHandler* handler, const char* args)
     {
-        bool value;
-        if (!handler->ExtractOnOff(&args, value))
+        if (!*args)
         {
             handler->SendSysMessage(LANG_USE_BOL);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        std::string argstr = args;
-        if (value)
+        std::string argstr = (char*)args;
+        if (argstr == "on")
         {
             LoginDatabase.PExecute("UPDATE account SET locked = '1' WHERE id = '%d'",handler->GetSession()->GetAccountId());
             handler->PSendSysMessage(LANG_COMMAND_ACCLOCKLOCKED);
+            return true;
         }
-        else
+
+        if (argstr == "off")
         {
             LoginDatabase.PExecute("UPDATE account SET locked = '0' WHERE id = '%d'",handler->GetSession()->GetAccountId());
             handler->PSendSysMessage(LANG_COMMAND_ACCLOCKUNLOCKED);
+            return true;
         }
 
+        handler->SendSysMessage(LANG_USE_BOL);
         handler->SetSentErrorMessage(true);
         return false;
     }
 
-    static bool HandleAccountPasswordCommand(ChatHandler* handler, char* args)
+    static bool HandleAccountPasswordCommand(ChatHandler* handler, const char* args)
     {
         if (!*args)
         {
@@ -268,10 +271,9 @@ public:
             return false;
         }
 
-        // allow or quoted string with possible spaces or literal without spaces
-        char *old_pass = handler->ExtractQuotedOrLiteralArg(&args);
-        char *new_pass = handler->ExtractQuotedOrLiteralArg(&args);
-        char *new_pass_c = handler->ExtractQuotedOrLiteralArg(&args);
+        char *old_pass = strtok((char*)args, " ");
+        char *new_pass = strtok(NULL, " ");
+        char *new_pass_c  = strtok(NULL, " ");
 
         if (!old_pass || !new_pass || !new_pass_c)
         {
@@ -317,7 +319,7 @@ public:
         return true;
     }
 
-    static bool HandleAccountCommand(ChatHandler* handler, char* /*args*/)
+    static bool HandleAccountCommand(ChatHandler* handler, const char* /*args*/)
     {
         AccountTypes gmlevel = handler->GetSession()->GetSecurity();
         handler->PSendSysMessage(LANG_ACCOUNT_LEVEL, uint32(gmlevel));
@@ -325,10 +327,10 @@ public:
     }
 
     /// Set/Unset the expansion level for an account
-    static bool HandleAccountSetAddonCommand(ChatHandler* handler, char *args)
+    static bool HandleAccountSetAddonCommand(ChatHandler* handler, const char *args)
     {
         ///- Get the command line arguments
-        char *szAcc = strtok(args," ");
+        char *szAcc = strtok((char*)args," ");
         char *szExp = strtok(NULL," ");
 
         if (!szAcc)
@@ -384,7 +386,7 @@ public:
         return true;
     }
 
-    static bool HandleAccountSetGmLevelCommand(ChatHandler* handler, char *args)
+    static bool HandleAccountSetGmLevelCommand(ChatHandler* handler, const char *args)
     {
         if (!*args)
             return false;
@@ -393,7 +395,7 @@ public:
         uint32 targetAccountId = 0;
         uint32 targetSecurity = 0;
         uint32 gm = 0;
-        char* arg1 = strtok(args, " ");
+        char* arg1 = strtok((char*)args, " ");
         char* arg2 = strtok(NULL, " ");
         char* arg3 = strtok(NULL, " ");
         bool isAccountNameGiven = true;
@@ -482,13 +484,13 @@ public:
     }
 
     /// Set password for account
-    static bool HandleAccountSetPasswordCommand(ChatHandler* handler, char *args)
+    static bool HandleAccountSetPasswordCommand(ChatHandler* handler, const char *args)
     {
         if (!*args)
             return false;
 
         ///- Get the command line arguments
-        char *szAccount = strtok (args," ");
+        char *szAccount = strtok ((char*)args," ");
         char *szPassword1 =  strtok (NULL," ");
         char *szPassword2 =  strtok (NULL," ");
 

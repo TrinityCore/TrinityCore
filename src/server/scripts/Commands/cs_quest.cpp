@@ -48,7 +48,7 @@ public:
         return commandTable;
     }
 
-    static bool HandleQuestAdd(ChatHandler* handler, char* args)
+    static bool HandleQuestAdd(ChatHandler* handler, const char* args)
     {
         Player* player = handler->getSelectedPlayer();
         if (!player)
@@ -60,7 +60,7 @@ public:
 
         // .addquest #entry'
         // number or [name] Shift-click form |color|Hquest:quest_id:quest_level|h[name]|h|r
-        char* cId = handler->extractKeyFromLink(args,"Hquest");
+        char* cId = handler->extractKeyFromLink((char*)args,"Hquest");
         if (!cId)
             return false;
 
@@ -102,7 +102,7 @@ public:
         return true;
     }
 
-    static bool HandleQuestRemove(ChatHandler* handler, char* args)
+    static bool HandleQuestRemove(ChatHandler* handler, const char* args)
     {
         Player* player = handler->getSelectedPlayer();
         if (!player)
@@ -114,7 +114,7 @@ public:
 
         // .removequest #entry'
         // number or [name] Shift-click form |color|Hquest:quest_id:quest_level|h[name]|h|r
-        char* cId = handler->extractKeyFromLink(args,"Hquest");
+        char* cId = handler->extractKeyFromLink((char*)args,"Hquest");
         if (!cId)
             return false;
 
@@ -149,7 +149,7 @@ public:
         return true;
     }
 
-    static bool HandleQuestComplete(ChatHandler* handler, char* args)
+    static bool HandleQuestComplete(ChatHandler* handler, const char* args)
     {
         Player* player = handler->getSelectedPlayer();
         if (!player)
@@ -161,7 +161,7 @@ public:
 
         // .quest complete #entry
         // number or [name] Shift-click form |color|Hquest:quest_id:quest_level|h[name]|h|r
-        char* cId = handler->extractKeyFromLink(args,"Hquest");
+        char* cId = handler->extractKeyFromLink((char*)args,"Hquest");
         if (!cId)
             return false;
 

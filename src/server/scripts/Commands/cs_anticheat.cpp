@@ -45,7 +45,7 @@ public:
         return commandTable;
     }
 
-    static bool HandleAntiCheatWarnCommand(ChatHandler* handler, char* args)
+    static bool HandleAntiCheatWarnCommand(ChatHandler* handler, const char* args)
     {
         if (!sWorld->getBoolConfig(CONFIG_ANTICHEAT_ENABLE))
             return false;
@@ -54,7 +54,7 @@ public:
         
         std::string strCommand;
 
-        char* command = strtok(args, " ");
+        char* command = strtok((char*)args, " ");
 
         if (command)
         {
@@ -84,7 +84,7 @@ public:
         return true;
     }
 
-    static bool HandleAntiCheatJailCommand(ChatHandler* handler, char* args)
+    static bool HandleAntiCheatJailCommand(ChatHandler* handler, const char* args)
     {
         if (!sWorld->getBoolConfig(CONFIG_ANTICHEAT_ENABLE))
             return false;
@@ -93,7 +93,7 @@ public:
         
         std::string strCommand;
 
-        char* command = strtok(args, " ");
+        char* command = strtok((char*)args, " ");
 
         if (command)
         {
@@ -133,14 +133,14 @@ public:
         return true;
     }
 
-    static bool HandleAntiCheatDeleteCommand(ChatHandler* handler, char* args)
+    static bool HandleAntiCheatDeleteCommand(ChatHandler* handler, const char* args)
     {
         if (!sWorld->getBoolConfig(CONFIG_ANTICHEAT_ENABLE))
             return false;
 
         std::string strCommand;
 
-        char* command = strtok(args, " "); //get entered name
+        char* command = strtok((char*)args, " "); //get entered name
 
         if (!command)
             return true;
@@ -163,14 +163,14 @@ public:
         return true;
     }
 
-    static bool HandleAntiCheatPlayerCommand(ChatHandler* handler, char* args)
+    static bool HandleAntiCheatPlayerCommand(ChatHandler* handler, const char* args)
     {
         if (!sWorld->getBoolConfig(CONFIG_ANTICHEAT_ENABLE))
             return false;
 
         std::string strCommand;
 
-        char* command = strtok(args, " ");
+        char* command = strtok((char*)args, " ");
 
         uint32 uiGUID = 0;
         Player* player = NULL;
@@ -214,11 +214,11 @@ public:
         return true;
     }
 
-    static bool HandleAntiCheatHandleCommand(ChatHandler* handler, char* args)
+    static bool HandleAntiCheatHandleCommand(ChatHandler* handler, const char* args)
     {
         std::string strCommand;
 
-        char* command = strtok(args, " ");
+        char* command = strtok((char*)args, " ");
         
         if (!command)
             return true;
@@ -242,7 +242,7 @@ public:
         return true;
     }
 
-    static bool HandleAntiCheatGlobalCommand(ChatHandler* handler, char* args)
+    static bool HandleAntiCheatGlobalCommand(ChatHandler* handler, const char* args)
     {
         if (!sWorld->getBoolConfig(CONFIG_ANTICHEAT_ENABLE))
         {
@@ -301,7 +301,7 @@ public:
         return true;
     }
 
-    static bool HandleAntiCheatBanAccountCommand(ChatHandler* handler, char *args)
+    static bool HandleAntiCheatBanAccountCommand(ChatHandler* handler, const char *args)
     {
         handler->HandleBanHelper(BAN_ACCOUNT_ANTICHEAT, args);
         return true;
