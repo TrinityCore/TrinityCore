@@ -94,6 +94,54 @@ public:
     };
 };
 
+/*#####
+# Set Oracle Faction Honored
+# Set Wolvar Faction Honored
+# INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
+# ('53487', 'spell_oracle_wolvar'),
+# ('54015', 'spell_oracle_wolvar');
+#####*/
+class spell_oracle_wolvar : public SpellScriptLoader
+{
+    public:
+        spell_oracle_wolvar() : SpellScriptLoader("spell_oracle_wolvar") { }
+
+        class spell_oracle_wolvar_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_oracle_wolvar_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* pTarget = GetHitUnit())
+                {
+                    if (pTarget->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    int32  rep_change = GetSpellInfo()->EffectBasePoints[EFFECT_1] + 1;
+
+                    uint32 faction_id = GetSpellInfo()->EffectBasePoints[EFFECT_0] + 1;
+
+                    FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction_id);
+
+                    if (!factionEntry)
+                        return;
+
+                    pTarget->ToPlayer()->GetReputationMgr().SetReputation(factionEntry, rep_change);
+                }
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_oracle_wolvar_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript *GetSpellScript() const
+        {
+            return new spell_oracle_wolvar_SpellScript;
+        }
+};
+
 
 /*#####
 # Sunreaver Disguise Spell for quest An Audience With The Arcanist
@@ -175,6 +223,7 @@ void AddSC_npc_wintergrasp_honor_vendor()
 {
     new npc_wintergrasp_honor_vendor;
     new mob_flyhack_banner;
+    new spell_oracle_wolvar;
     new spell_sunreaver_disguise;
     new spell_divine_intervention;
 }
