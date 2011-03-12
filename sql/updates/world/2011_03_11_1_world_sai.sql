@@ -1,6 +1,6 @@
 UPDATE `creature_template` SET `InhabitType`=7 WHERE `entry`=38153;
 UPDATE `creature_template` SET `npcflag`=0 WHERE `entry` IN (37187,37200);
-UPDATE `creature` SET `npcflag`=0 WHERE `entry` IN (37187,37200);
+UPDATE `creature` SET `npcflag`=0 WHERE `id` IN (37187,37200);
 UPDATE `creature` SET `npcflag`=`npcflag`|1 WHERE `guid`=200982; -- Set gossip flag for spawn at Deathbringer's Rise
 
 DELETE FROM `creature_text` WHERE `entry`=37187 AND `groupid` BETWEEN 15 AND 18;
