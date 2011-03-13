@@ -284,7 +284,6 @@ public:
             if (me->HasAura(SPELL_TWILIGHT_REVENGE))
                 me->RemoveAurasDueToSpell(SPELL_TWILIGHT_REVENGE);
 
-            me->ResetLootMode();
             me->SetHomePosition(3246.57f, 551.263f, 58.6164f, 4.66003f);
 
             achievProgress = 0;
