@@ -48,17 +48,20 @@ static const DoorData doorData[] =
     {0,                                      0,                          DOOR_TYPE_ROOM,    BOUNDARY_NONE} // END
 };
 
+// this doesnt have to only store questgivers, also can be used for related quest spawns
 struct WeeklyQuest
 {
-    uint32 npcStart;
+    uint32 creatureEntry;
     uint32 questId[2];  // 10 and 25 man versions
-} WeeklyQuestData[5] =
+} WeeklyQuestData[WEEKLY_NPCS] =
 {
-    {NPC_INFILTRATOR_MINCHAR,         {24869, 24875}},  // Deprogramming
-    {NPC_KOR_KRON_LIEUTENANT,         {24870, 24877}},  // Securing the Ramparts
-    {NPC_ALCHEMIST_ADRIANNA,          {24873, 24878}},  // Residue Rendezvous
-    {NPC_ALRIN_THE_AGILE,             {24874, 24879}},  // Blood Quickening
-    {NPC_VALITHRIA_DREAMWALKER_QUEST, {24872, 24880}},  // Respite for a Tormented Soul
+    {NPC_INFILTRATOR_MINCHAR,         {QUEST_DEPROGRAMMING_10,                 QUEST_DEPROGRAMMING_25                }}, // Deprogramming
+    {NPC_KOR_KRON_LIEUTENANT,         {QUEST_SECURING_THE_RAMPARTS_10,         QUEST_SECURING_THE_RAMPARTS_25        }}, // Securing the Ramparts
+    {NPC_ALCHEMIST_ADRIANNA,          {QUEST_RESIDUE_RENDEZVOUS_10,            QUEST_RESIDUE_RENDEZVOUS_25           }}, // Residue Rendezvous
+    {NPC_ALRIN_THE_AGILE,             {QUEST_BLOOD_QUICKENING_10,              QUEST_BLOOD_QUICKENING_25             }}, // Blood Quickening
+    {NPC_INFILTRATOR_MINCHAR_BQ,      {QUEST_BLOOD_QUICKENING_10,              QUEST_BLOOD_QUICKENING_25             }}, // Blood Quickening
+    {NPC_MINCHAR_BEAM_STALKER,        {QUEST_BLOOD_QUICKENING_10,              QUEST_BLOOD_QUICKENING_25             }}, // Blood Quickening
+    {NPC_VALITHRIA_DREAMWALKER_QUEST, {QUEST_RESPITE_FOR_A_TORNMENTED_SOUL_10, QUEST_RESPITE_FOR_A_TORNMENTED_SOUL_25}}, // Respite for a Tormented Soul
 };
 
 class instance_icecrown_citadel : public InstanceMapScript
@@ -73,6 +76,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadDoorData(doorData);
                 teamInInstance = 0;
+                heroicAttempts = 50;
                 ladyDeathwisperElevator = 0;
                 deathbringerSaurfang = 0;
                 saurfangDoor = 0;
@@ -103,6 +107,18 @@ class instance_icecrown_citadel : public InstanceMapScript
                 isNauseaEligible = true;
                 isOrbWhispererEligible = true;
                 coldflameJetsState = NOT_STARTED;
+                bloodQuickeningState = NOT_STARTED;
+                bloodQuickeningTimer = 0;
+                bloodQuickeningMinutes = 0;
+            }
+
+            void FillInitialWorldStates(WorldPacket& data)
+            {
+                data << uint32(WORLDSTATE_SHOW_TIMER)         << uint32(bloodQuickeningState == IN_PROGRESS);
+                data << uint32(WORLDSTATE_EXECUTION_TIME)     << uint32(bloodQuickeningMinutes);
+                data << uint32(WORLDSTATE_SHOW_ATTEMPTS)      << uint32(instance->IsHeroic());
+                data << uint32(WORLDSTATE_ATTEMPTS_REMAINING) << uint32(heroicAttempts);
+                data << uint32(WORLDSTATE_ATTEMPTS_MAX)       << uint32(50);
             }
 
             void OnPlayerEnter(Player* player)
@@ -228,11 +244,13 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case NPC_KOR_KRON_LIEUTENANT:
                     case NPC_ALCHEMIST_ADRIANNA:
                     case NPC_ALRIN_THE_AGILE:
+                    case NPC_INFILTRATOR_MINCHAR_BQ:
+                    case NPC_MINCHAR_BEAM_STALKER:
                     case NPC_VALITHRIA_DREAMWALKER_QUEST:
                     {
-                        for (uint8 questIndex = 0; questIndex < 5; ++questIndex)
+                        for (uint8 questIndex = 0; questIndex < WEEKLY_NPCS; ++questIndex)
                         {
-                            if (WeeklyQuestData[questIndex].npcStart == entry)
+                            if (WeeklyQuestData[questIndex].creatureEntry == entry)
                             {
                                 uint8 diffIndex = instance->GetSpawnMode() & 1;
                                 if (!sPoolMgr->IsSpawnedObject<Quest>(WeeklyQuestData[questIndex].questId[diffIndex]))
@@ -396,6 +414,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return coldflameJetsState;
                     case DATA_TEAM_IN_INSTANCE:
                         return teamInInstance;
+                    case DATA_HEROIC_ATTEMPTS:
+                        return heroicAttempts;
                     default:
                         break;
                 }
@@ -512,14 +532,47 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case DATA_PROFESSOR_PUTRICIDE:
                         HandleGameObject(plagueSigil, state != DONE);
+                        if (instance->IsHeroic())
+                        {
+                            if (state == FAIL && heroicAttempts)
+                            {
+                                --heroicAttempts;
+                                DoUpdateWorldState(WORLDSTATE_ATTEMPTS_REMAINING, heroicAttempts);
+                                if (!heroicAttempts)
+                                    if (Creature* putricide = instance->GetCreature(professorPutricide))
+                                        putricide->DespawnOrUnsummon();
+                            }
+                        }
                         break;
                     case DATA_BLOOD_QUEEN_LANA_THEL:
                         HandleGameObject(bloodwingSigil, state != DONE);
+                        if (instance->IsHeroic())
+                        {
+                            if (state == FAIL && heroicAttempts)
+                            {
+                                --heroicAttempts;
+                                DoUpdateWorldState(WORLDSTATE_ATTEMPTS_REMAINING, heroicAttempts);
+                                if (!heroicAttempts)
+                                    if (Creature* bq = instance->GetCreature(bloodQueenLanaThel))
+                                        bq->DespawnOrUnsummon();
+                            }
+                        }
                         break;
                     case DATA_VALITHRIA_DREAMWALKER:
                         break;
                     case DATA_SINDRAGOSA:
                         HandleGameObject(frostwingSigil, state != DONE);
+                        if (instance->IsHeroic())
+                        {
+                            if (state == FAIL && heroicAttempts)
+                            {
+                                --heroicAttempts;
+                                DoUpdateWorldState(WORLDSTATE_ATTEMPTS_REMAINING, heroicAttempts);
+                                if (!heroicAttempts)
+                                    if (Creature* sindra = instance->GetCreature(sindragosa))
+                                        sindra->DespawnOrUnsummon();
+                            }
+                        }
                         break;
                     case DATA_THE_LICH_KING:
                         break;
@@ -547,6 +600,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                         isOrbWhispererEligible = data ? true : false;
                         break;
                     case DATA_SINDRAGOSA_FROSTWYRMS:
+                        if (instance->IsHeroic() && !heroicAttempts)
+                            return;
                         if (data > 1)
                             frostwyrms = data;
                         else if (data == 1)
@@ -589,6 +644,31 @@ class instance_icecrown_citadel : public InstanceMapScript
                                     trap->AI()->DoAction(ACTION_STOP_TRAPS);
                         }
                         break;
+                    case DATA_BLOOD_QUICKENING_STATE:
+                    {
+                        // 3 is the index of Blood Quickening
+                        if (!sPoolMgr->IsSpawnedObject<Quest>(WeeklyQuestData[3].questId[instance->GetSpawnMode() & 1]))
+                            break;
+                        if (bloodQuickeningState == data)
+                            break;
+
+                        switch (data)
+                        {
+                            case IN_PROGRESS:
+                                bloodQuickeningTimer = 60000;
+                                bloodQuickeningMinutes = 30;
+                                DoUpdateWorldState(WORLDSTATE_SHOW_TIMER, 1);
+                                DoUpdateWorldState(WORLDSTATE_EXECUTION_TIME, bloodQuickeningMinutes);
+                                break;
+                            case DONE:
+                                bloodQuickeningTimer = 0;
+                                bloodQuickeningMinutes = 0;
+                                DoUpdateWorldState(WORLDSTATE_SHOW_TIMER, 0);
+                                break;
+                        }
+                        bloodQuickeningState = data;
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -772,7 +852,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                 OUT_SAVE_INST_DATA;
 
                 std::ostringstream saveStream;
-                saveStream << "I C " << GetBossSaveData() << uint32(coldflameJetsState);
+                saveStream << "I C " << GetBossSaveData() << uint32(coldflameJetsState)
+                    << " " << uint32(bloodQuickeningState) << " " << bloodQuickeningMinutes;
 
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return saveStream.str();
@@ -804,12 +885,45 @@ class instance_icecrown_citadel : public InstanceMapScript
                         SetBossState(i, EncounterState(tmpState));
                     }
 
-                    uint32 jets = 0;
-                    loadStream >> jets;
-                    coldflameJetsState = jets ? DONE : NOT_STARTED;
-                } else OUT_LOAD_INST_DATA_FAIL;
+                    uint32 temp = 0;
+                    loadStream >> temp;
+                    coldflameJetsState = temp ? DONE : NOT_STARTED;
+                    temp = 0;
+                    loadStream >> temp;
+                    bloodQuickeningState = temp ? DONE : NOT_STARTED;   // DONE means finished (not success/fail)
+                    loadStream >> bloodQuickeningMinutes;
+                }
+                else
+                    OUT_LOAD_INST_DATA_FAIL;
 
                 OUT_LOAD_INST_DATA_COMPLETE;
+            }
+
+            void Update(uint32 diff)
+            {
+                if (bloodQuickeningMinutes)
+                {
+                    if (bloodQuickeningTimer <= diff)
+                    {
+                        --bloodQuickeningMinutes;
+                        bloodQuickeningTimer = 60000;
+                        if (bloodQuickeningMinutes)
+                        {
+                            DoUpdateWorldState(WORLDSTATE_SHOW_TIMER, 1);
+                            DoUpdateWorldState(WORLDSTATE_EXECUTION_TIME, bloodQuickeningMinutes);
+                        }
+                        else
+                        {
+                            bloodQuickeningState = DONE;
+                            DoUpdateWorldState(WORLDSTATE_SHOW_TIMER, 0);
+                            if (Creature* bq = instance->GetCreature(bloodQueenLanaThel))
+                                bq->AI()->DoAction(ACTION_KILL_MINCHAR);
+                        }
+                        SaveToDB();
+                    }
+                    else
+                        bloodQuickeningTimer -= diff;
+                }
             }
 
         private:
@@ -837,10 +951,14 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 rimefang;
             std::set<uint64> coldflameJets;
             uint32 teamInInstance;
+            uint32 bloodQuickeningTimer;
+            uint16 heroicAttempts;
             uint16 coldflameJetsState;
             uint16 frostwyrms;
             uint16 spinestalkerTrash;
             uint16 rimefangTrash;
+            uint16 bloodQuickeningState;
+            uint16 bloodQuickeningMinutes;
             bool isBonedEligible;
             bool isOozeDanceEligible;
             bool isNauseaEligible;
