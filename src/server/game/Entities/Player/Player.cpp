@@ -7324,6 +7324,17 @@ void Player::UpdateArea(uint32 newArea)
     UpdatePvPState(true);
 
     UpdateAreaDependentAuras(newArea);
+
+    // previously this was in UpdateZone (but after UpdateArea) so nothing will break
+    pvpInfo.inNoPvPArea = false;
+    if (area && area->IsSanctuary())    // in sanctuary
+    {
+        SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
+        pvpInfo.inNoPvPArea = true;
+        CombatStopWithPets();
+    }
+    else
+        RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
 }
 
 void Player::UpdateZone(uint32 newZone, uint32 newArea)
@@ -7378,16 +7389,6 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
             pvpInfo.inHostileArea = false;
             break;
     }
-
-    pvpInfo.inNoPvPArea = false;
-    if (zone->IsSanctuary())       // in sanctuary
-    {
-        SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
-        pvpInfo.inNoPvPArea = true;
-        CombatStopWithPets();
-    }
-    else
-        RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
 
     if (zone->flags & AREA_FLAG_CAPITAL)                     // in capital city
     {
