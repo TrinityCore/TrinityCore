@@ -518,6 +518,7 @@ void BossAI::_Reset()
     if (!me->isAlive())
         return;
 
+    me->ResetLootMode();
     events.Reset();
     summons.DespawnAll();
     if (instance)
