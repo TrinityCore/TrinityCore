@@ -60,6 +60,7 @@ enum Spells
     SPELL_TWILIGHT_BLOODBOLT                = 71446,
     SPELL_INCITE_TERROR                     = 73070,
     SPELL_BLOODBOLT_WHIRL                   = 71772,
+    SPELL_ANNIHILATE                        = 71322,
 };
 
 enum Shadowmourne
@@ -82,7 +83,7 @@ static const uint32 vampireAuras[3][MAX_DIFFICULTY] =
 #define ESSENCE_OF_BLOOD_QUEEN_PLR RAID_MODE<uint32>(70879,71525,71530,71531)
 #define FRENZIED_BLOODTHIRST       RAID_MODE<uint32>(70877,71474,70877,71474)
 
-enum eEvents
+enum Events
 {
     EVENT_BERSERK                   = 1,
     EVENT_VAMPIRIC_BITE             = 2,
@@ -101,15 +102,17 @@ enum eEvents
 
 #define GUID_VAMPIRE 1
 
-enum ePoints
+enum Points
 {
     POINT_CENTER    = 1,
     POINT_AIR       = 2,
     POINT_GROUND    = 3,
+    POINT_MINCHAR   = 4,
 };
 
-static const Position centerPos = {4595.7090f, 2769.4190f, 400.6368f, 0.0000f};
-static const Position airPos    = {4595.7090f, 2769.4190f, 422.3893f, 0.0000f};
+static const Position centerPos  = {4595.7090f, 2769.4190f, 400.6368f, 0.000000f};
+static const Position airPos     = {4595.7090f, 2769.4190f, 422.3893f, 0.000000f};
+static const Position mincharPos = {4629.3711f, 2782.6089f, 424.6390f, 0.000000f};
 
 bool IsVampire(Unit const* unit)
 {
@@ -152,6 +155,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 me->SetSpeed(MOVE_FLIGHT, 0.642857f, true);
                 offtank = NULL;
                 vampires.clear();
+                creditBloodQuickening = false;
             }
 
             void EnterCombat(Unit* who)
@@ -170,9 +174,10 @@ class boss_blood_queen_lana_thel : public CreatureScript
 
                 DoCast(me, SPELL_SHROUD_OF_SORROW, true);
                 DoCast(me, SPELL_FRENZIED_BLOODTHIRST_VISUAL, true);
+                creditBloodQuickening = instance->GetData(DATA_BLOOD_QUICKENING_STATE) == IN_PROGRESS;
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit* killer)
             {
                 _JustDied();
                 Talk(SAY_DEATH);
@@ -185,10 +190,62 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_BLOOD_MIRROR_DUMMY);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DELIRIOUS_SLASH);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_PACT_OF_THE_DARKFALLEN);
+                // Blah, credit the quest
+                if (creditBloodQuickening)
+                {
+                    if (Player* plr = killer->ToPlayer())
+                        plr->RewardPlayerAndGroupAtEvent(NPC_INFILTRATOR_MINCHAR_BQ, plr);
+                    if (Creature* minchar = me->FindNearestCreature(NPC_INFILTRATOR_MINCHAR_BQ, 200.0f))
+                    {
+                        minchar->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                        minchar->SetFlying(false);
+                        minchar->SendMovementFlagUpdate();
+                        minchar->RemoveAllAuras();
+                        minchar->GetMotionMaster()->MoveCharge(4629.3711f, 2782.6089f, 401.5301f, SPEED_CHARGE/2.0f);
+                    }
+                }
+            }
+
+            void DoAction(const int32 action)
+            {
+                if (action != ACTION_KILL_MINCHAR)
+                    return;
+
+                if (instance->GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == IN_PROGRESS)
+                    killMinchar = true;
+                else
+                {
+                    me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                    me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, 0x01);
+                    me->SetFlying(true);
+                    me->SendMovementFlagUpdate();
+                    me->GetMotionMaster()->MovePoint(POINT_MINCHAR, mincharPos);
+                }
+            }
+
+            void EnterEvadeMode()
+            {
+                _EnterEvadeMode();
+                if (killMinchar)
+                {
+                    me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                    me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, 0x01);
+                    me->SetFlying(true);
+                    me->GetMotionMaster()->MovePoint(POINT_MINCHAR, mincharPos);
+                }
+                else
+                {
+                    me->GetMotionMaster()->MoveTargetedHome();
+                    Reset();
+                }
             }
 
             void JustReachedHome()
             {
+                me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, 0x01);
+                me->SetFlying(false);
+                me->SetReactState(REACT_AGGRESSIVE);
                 _JustReachedHome();
                 Talk(SAY_WIPE);
                 instance->SetBossState(DATA_BLOOD_QUEEN_LANA_THEL, FAIL);
@@ -229,11 +286,17 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                         me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, 0x01);
                         me->SetFlying(false);
+                        me->SendMovementFlagUpdate();
                         me->SetReactState(REACT_AGGRESSIVE);
                         if (Unit *victim = me->SelectVictim())
                             AttackStart(victim);
                         events.ScheduleEvent(EVENT_BLOOD_MIRROR, 2500, EVENT_GROUP_CANCELLABLE);
                         break;
+                    case POINT_MINCHAR:
+                        DoCast(me, SPELL_ANNIHILATE, true);
+                        // already in evade mode
+                        me->GetMotionMaster()->MoveTargetedHome();
+                        Reset();
                     default:
                         break;
                 }
@@ -346,6 +409,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                             me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                             me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, 0x01);
                             me->SetFlying(true);
+                            me->SendMovementFlagUpdate();
                             me->GetMotionMaster()->MovePoint(POINT_AIR, airPos);
                             break;
                         case EVENT_AIR_FLY_DOWN:
@@ -401,6 +465,8 @@ class boss_blood_queen_lana_thel : public CreatureScript
 
             Player* offtank;
             std::set<uint64> vampires;
+            bool creditBloodQuickening;
+            bool killMinchar;
         };
 
         CreatureAI* GetAI(Creature* creature) const

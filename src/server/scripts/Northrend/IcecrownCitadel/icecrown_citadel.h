@@ -74,9 +74,12 @@ enum DataTypes
     DATA_RIMEFANG                   = 24,
     DATA_COLDFLAME_JETS             = 25,
     DATA_TEAM_IN_INSTANCE           = 26,
+    DATA_BLOOD_QUICKENING_STATE     = 27,
+    DATA_HEROIC_ATTEMPTS            = 28,
 };
 
 #define MAX_ENCOUNTER 12
+#define WEEKLY_NPCS   7
 
 enum CreaturesIds
 {
@@ -101,12 +104,14 @@ enum CreaturesIds
     NPC_GARROSH_HELLSCREAM                      = 39372,
     NPC_KING_VARIAN_WRYNN                       = 39371,
 
-    // Weekly questgivers
+    // Weekly quests
     NPC_INFILTRATOR_MINCHAR                     = 38471,
     NPC_KOR_KRON_LIEUTENANT                     = 38491,
     NPC_SKYBREAKER_LIEUTENANT                   = 38492,
     NPC_ALCHEMIST_ADRIANNA                      = 38501,
     NPC_ALRIN_THE_AGILE                         = 38551,
+    NPC_INFILTRATOR_MINCHAR_BQ                  = 38558,
+    NPC_MINCHAR_BEAM_STALKER                    = 38557,
     NPC_VALITHRIA_DREAMWALKER_QUEST             = 38589,
 
     // Lord Marrowgar
@@ -288,9 +293,35 @@ enum SharedActions
     ACTION_ROTFACE_DEATH        = -366272,
     ACTION_CHANGE_PHASE         = -366780,
 
+    // Blood-Queen Lana'thel
+    ACTION_KILL_MINCHAR         = -379550,
+
     // Sindragosa
     ACTION_START_FROSTWYRM      = -368530,
     ACTION_TRIGGER_ASPHYXIATION = -368531,
+};
+
+enum WeekliesICC
+{
+    QUEST_DEPROGRAMMING_10                  = 24869,
+    QUEST_DEPROGRAMMING_25                  = 24875,
+    QUEST_SECURING_THE_RAMPARTS_10          = 24870,
+    QUEST_SECURING_THE_RAMPARTS_25          = 24877,
+    QUEST_RESIDUE_RENDEZVOUS_10             = 24873,
+    QUEST_RESIDUE_RENDEZVOUS_25             = 24878,
+    QUEST_BLOOD_QUICKENING_10               = 24874,
+    QUEST_BLOOD_QUICKENING_25               = 24879,
+    QUEST_RESPITE_FOR_A_TORNMENTED_SOUL_10  = 24872,
+    QUEST_RESPITE_FOR_A_TORNMENTED_SOUL_25  = 24880,
+};
+
+enum WorldStatesICC
+{
+    WORLDSTATE_SHOW_TIMER           = 4903,
+    WORLDSTATE_EXECUTION_TIME       = 4904,
+    WORLDSTATE_SHOW_ATTEMPTS        = 4940,
+    WORLDSTATE_ATTEMPTS_REMAINING   = 4941,
+    WORLDSTATE_ATTEMPTS_MAX         = 4942,
 };
 
 // Declaration
