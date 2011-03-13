@@ -8942,6 +8942,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
     uint16 NumberOfFields = 0;
     uint32 mapid = GetMapId();
     OutdoorPvP * pvp = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(zoneid);
+    InstanceScript* instance = GetInstanceScript();
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Sending SMSG_INIT_WORLD_STATES to Map: %u, Zone: %u", mapid, zoneid);
 
@@ -9011,6 +9012,9 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
             break;
         case 4710:
             NumberOfFields = 28;
+            break;
+        case 4812:
+            NumberOfFields = 13;
             break;
          default:
             NumberOfFields = 12;
@@ -9528,6 +9532,19 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 data << uint32(4294) << uint32(1); // 22 BG_IC_WORKSHOP_UNCONTROLLED
                 data << uint32(4243) << uint32(1); // 23 unknown
                 data << uint32(4345) << uint32(1); // 24 unknown
+            }
+            break;
+        // Icecrown Citadel
+        case 4812:
+            if (instance && mapid == 631)
+                instance->FillInitialWorldStates(data);
+            else
+            {
+                data << uint32(4903) << uint32(0);              // 9  WORLDSTATE_SHOW_TIMER (Blood Quickening weekly)
+                data << uint32(4904) << uint32(30);             // 10 WORLDSTATE_EXECUTION_TIME
+                data << uint32(4940) << uint32(0);              // 11 WORLDSTATE_SHOW_ATTEMPTS
+                data << uint32(4941) << uint32(50);             // 12 WORLDSTATE_ATTEMPTS_REMAINING
+                data << uint32(4942) << uint32(50);             // 13 WORLDSTATE_ATTEMPTS_MAX
             }
             break;
         default:
