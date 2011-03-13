@@ -232,7 +232,6 @@ class Group
         MemberSlotList const& GetMemberSlots() const;
         GroupReference* GetFirstMember();
         uint32 GetMembersCount() const;
-        void GetDataForXPAtKill(Unit const* victim, uint32& count,uint32& sum_level, Player* & member_with_max_level, Player* & not_gray_member_with_max_level);
         uint8 GetMemberGroup(uint64 guid) const;
 
         void ConvertToLFG();
