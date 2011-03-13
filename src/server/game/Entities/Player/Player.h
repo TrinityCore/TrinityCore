@@ -988,6 +988,41 @@ class TradeData
         uint64     m_items[TRADE_SLOT_COUNT];               // traded itmes from m_player side including non-traded slot
 };
 
+class KillRewarder
+{
+public:
+    KillRewarder(Player* killer, Unit* victim, bool isBattleGround);
+
+    void Reward();
+
+private:
+    void _InitXP(Player* player);
+    void _InitGroupData();
+
+    void _RewardHonor(Player* player);
+    void _RewardXP(Player* player, float rate);
+    void _RewardReputation(Player* player, float rate);
+    void _RewardKillCredit(Player* player);
+    void _RewardPlayer(Player* player, bool isDungeon);
+    void _RewardGroup();
+
+    Player* _killer;
+    Unit* _victim;
+    bool _isBattleGround;
+
+    bool _isPvP;
+
+    Group* _group;
+    float _groupRate;
+    uint8 _maxLevel;
+    Player* _maxNotGrayMember;
+    uint32 _count;
+    uint32 _sumLevel;
+    bool _isFullXP;
+
+    uint32 _xp;
+};
+
 class Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
@@ -1935,8 +1970,8 @@ class Player : public Unit, public GridObject<Player>
 
         bool IsAtGroupRewardDistance(WorldObject const* pRewardSource) const;
         bool IsAtRecruitAFriendDistance(WorldObject const* pOther) const;
-        bool RewardPlayerAndGroupAtKill(Unit* pVictim);
-        void RewardPlayerAndGroupAtEvent(uint32 creature_id,WorldObject* pRewardSource);
+        void RewardPlayerAndGroupAtKill(Unit* pVictim, bool isBattleGround);
+        void RewardPlayerAndGroupAtEvent(uint32 creature_id, WorldObject* pRewardSource);
         bool isHonorOrXPTarget(Unit* pVictim);
 
         bool GetsRecruitAFriendBonus(bool forXP);
