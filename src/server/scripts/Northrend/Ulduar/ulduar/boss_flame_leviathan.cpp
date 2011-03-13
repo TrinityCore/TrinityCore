@@ -362,7 +362,7 @@ public:
             if (uiShutdown == RAID_MODE(2,4))
             {
                 uiShutdown = 0;
-                events.ScheduleEvent(EVENT_SHUTDOWN, 4000);                
+                events.ScheduleEvent(EVENT_SHUTDOWN, 4000);
                 me->RemoveAurasDueToSpell(SPELL_OVERLOAD_CIRCUIT);
                 me->InterruptNonMeleeSpells(true);
                 return;
@@ -371,7 +371,7 @@ public:
             if (me->HasAura(SPELL_SYSTEMS_SHUTDOWN))
             {
                 me->SetReactState(REACT_PASSIVE);
-                me->AddUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);                
+                me->AddUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
                 return;
             }
@@ -383,7 +383,7 @@ public:
 
             if (me->HasUnitState(UNIT_STAT_CASTING))
                 return;
-            
+
 
             events.Update(diff);
 
@@ -415,7 +415,7 @@ public:
                 events.RepeatEvent(15*IN_MILLISECONDS);
                 break;
             case EVENT_SUMMON:
-                if (summons.size() < 15) 
+                if (summons.size() < 15)
                     if (Creature* pLift = DoSummonFlyer(MOB_MECHANOLIFT, me, 30.0f, 50.0f, 0))
                         pLift->GetMotionMaster()->MoveRandom(100);
                 events.RepeatEvent(2*IN_MILLISECONDS);
@@ -431,7 +431,7 @@ public:
             case EVENT_REPAIR:
                 me->MonsterTextEmote(EMOTE_REPAIR, 0, true);
                 me->ClearUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
-                events.RepeatEvent(EVENT_SHUTDOWN, 150*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_SHUTDOWN, 150*IN_MILLISECONDS);
                 events.CancelEvent(EVENT_REPAIR);
                 break;
             case EVENT_THORIM_S_HAMMER: // Tower of Storms
@@ -590,7 +590,7 @@ public:
                     return;
                 else
                  DoScriptText(SAY_PLAYER_RIDING,me);
-                 
+
                  if (Creature* pTurret = me->GetVehicleKit()->GetPassenger(1)->ToCreature())
                  {
                      pTurret->setFaction(me->GetVehicleBase()->getFaction());
@@ -604,7 +604,7 @@ public:
                  }
                  me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
-            //else 
+            //else
             //    if (seatId == SEAT_TURRET)
             //    {
             //        if (apply)
