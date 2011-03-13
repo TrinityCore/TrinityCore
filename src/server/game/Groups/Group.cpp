@@ -1161,28 +1161,6 @@ void Group::SetTargetIcon(uint8 id, uint64 whoGuid, uint64 targetGuid)
     BroadcastPacket(&data, true);
 }
 
-void Group::GetDataForXPAtKill(Unit const* victim, uint32& count,uint32& sum_level, Player* & member_with_max_level, Player* & not_gray_member_with_max_level)
-{
-    for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
-    {
-        Player* member = itr->getSource();
-        if (!member || !member->isAlive())                   // only for alive
-            continue;
-
-        if (!member->IsAtGroupRewardDistance(victim))        // at req. distance
-            continue;
-
-        ++count;
-        sum_level += member->getLevel();
-        if (!member_with_max_level || member_with_max_level->getLevel() < member->getLevel())
-            member_with_max_level = member;
-
-        uint32 gray_level = Trinity::XP::GetGrayLevel(member->getLevel());
-        if (victim->getLevel() > gray_level && (!not_gray_member_with_max_level || not_gray_member_with_max_level->getLevel() < member->getLevel()))
-            not_gray_member_with_max_level = member;
-    }
-}
-
 void Group::SendTargetIconList(WorldSession *session)
 {
     if (!session)

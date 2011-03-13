@@ -15057,7 +15057,7 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
             loot->generateMoneyLoot(creature->GetCreatureInfo()->mingold,creature->GetCreatureInfo()->maxgold);
         }
 
-        player->RewardPlayerAndGroupAtKill(pVictim);
+        player->RewardPlayerAndGroupAtKill(pVictim, false);
     }
 
     // Do KILL and KILLED procs. KILL proc is called only for the unit who landed the killing blow (and its owner - for pets and totems) regardless of who tapped the victim
