@@ -4805,7 +4805,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 return SPELL_FAILED_TARGET_AURASTATE;
 
             // Not allow casting on flying player or on vehicle player (if caster isnt vehicle)
-            if (target->HasUnitState(UNIT_STAT_IN_FLIGHT) || (target->HasUnitState(UNIT_STAT_ONVEHICLE) && target->GetVehicleBase() != m_caster))
+            if (target->HasUnitState(UNIT_STAT_IN_FLIGHT) /*|| (target->HasUnitState(UNIT_STAT_ONVEHICLE) && target->GetVehicleBase() != m_caster)*/)
                 return SPELL_FAILED_BAD_TARGETS;
 
             if (!m_IsTriggeredSpell && !m_caster->canSeeOrDetect(target))
