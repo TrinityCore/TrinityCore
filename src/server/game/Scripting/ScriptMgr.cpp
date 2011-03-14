@@ -142,6 +142,27 @@ ScriptMgr::ScriptMgr()
 
 ScriptMgr::~ScriptMgr()
 {
+}
+
+void ScriptMgr::Initialize()
+{
+    uint32 oldMSTime = getMSTime();
+
+    LoadDatabase();
+	// Load TeleNPC2 - maybe not the best place to load it ...
+	LoadNpcTele();
+
+    sLog->outString("Loading C++ scripts");
+
+    FillSpellSummary();
+    AddScripts();
+
+    sLog->outString(">> Loaded %u C++ scripts in %u ms", GetScriptCount(), GetMSTimeDiffToNow(oldMSTime));
+    sLog->outString();
+}
+
+void ScriptMgr::Unload()
+{
     #define SCR_CLEAR(T) \
         FOR_SCRIPTS(T, itr, end) \
             delete itr->second; \
@@ -174,23 +195,6 @@ ScriptMgr::~ScriptMgr()
     SCR_CLEAR(GroupScript);
 
     #undef SCR_CLEAR
-}
-
-void ScriptMgr::Initialize()
-{
-    uint32 oldMSTime = getMSTime();
-
-    LoadDatabase();
-	// Load TeleNPC2 - maybe not the best place to load it ...
-	LoadNpcTele();
-
-    sLog->outString("Loading C++ scripts");
-
-    FillSpellSummary();
-    AddScripts();
-
-    sLog->outString(">> Loaded %u C++ scripts in %u ms", GetScriptCount(), GetMSTimeDiffToNow(oldMSTime));
-    sLog->outString();
 }
 
 void ScriptMgr::LoadDatabase()

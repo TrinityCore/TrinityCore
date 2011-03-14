@@ -456,7 +456,7 @@ inline void KillRewarder::_InitGroupData()
                 }
         // 2.5. _isFullXP - flag identifying that for all group members victim is not gray,
         //      so 100% XP will be rewarded (50% otherwise).
-        _isFullXP = (_maxLevel == _maxNotGrayMember->getLevel());
+        _isFullXP = _maxNotGrayMember && (_maxLevel == _maxNotGrayMember->getLevel());
     }
     else
         _count = 1;
@@ -7382,6 +7382,17 @@ void Player::UpdateArea(uint32 newArea)
     UpdatePvPState(true);
 
     UpdateAreaDependentAuras(newArea);
+
+    // previously this was in UpdateZone (but after UpdateArea) so nothing will break
+    pvpInfo.inNoPvPArea = false;
+    if (area && area->IsSanctuary())    // in sanctuary
+    {
+        SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
+        pvpInfo.inNoPvPArea = true;
+        CombatStopWithPets();
+    }
+    else
+        RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
 }
 
 void Player::UpdateZone(uint32 newZone, uint32 newArea)
@@ -7445,16 +7456,6 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
             pvpInfo.inHostileArea = false;
             break;
     }
-
-    pvpInfo.inNoPvPArea = false;
-    if (zone->IsSanctuary())       // in sanctuary
-    {
-        SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
-        pvpInfo.inNoPvPArea = true;
-        CombatStopWithPets();
-    }
-    else
-        RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
 
     if (zone->flags & AREA_FLAG_CAPITAL)                     // in capital city
     {
@@ -9008,6 +9009,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
     uint16 NumberOfFields = 0;
     uint32 mapid = GetMapId();
     OutdoorPvP * pvp = sOutdoorPvPMgr->GetOutdoorPvPToZoneId(zoneid);
+    InstanceScript* instance = GetInstanceScript();
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Sending SMSG_INIT_WORLD_STATES to Map: %u, Zone: %u", mapid, zoneid);
 
@@ -9077,6 +9079,9 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
             break;
         case 4710:
             NumberOfFields = 28;
+            break;
+        case 4812:
+            NumberOfFields = 13;
             break;
          default:
             NumberOfFields = 12;
@@ -9603,6 +9608,19 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 data << uint32(4345) << uint32(1); // 24 unknown
             }
             break;
+        // Icecrown Citadel
+        case 4812:
+            if (instance && mapid == 631)
+                instance->FillInitialWorldStates(data);
+            else
+            {
+                data << uint32(4903) << uint32(0);              // 9  WORLDSTATE_SHOW_TIMER (Blood Quickening weekly)
+                data << uint32(4904) << uint32(30);             // 10 WORLDSTATE_EXECUTION_TIME
+                data << uint32(4940) << uint32(0);              // 11 WORLDSTATE_SHOW_ATTEMPTS
+                data << uint32(4941) << uint32(50);             // 12 WORLDSTATE_ATTEMPTS_REMAINING
+                data << uint32(4942) << uint32(50);             // 13 WORLDSTATE_ATTEMPTS_MAX
+            }
+            break;
         default:
             data << uint32(0x914) << uint32(0x0);           // 7
             data << uint32(0x913) << uint32(0x0);           // 8
@@ -10048,6 +10066,11 @@ Item* Player::GetItemByGuid(uint64 guid) const
                 return pItem;
 
     for (uint8 i = KEYRING_SLOT_START; i < CURRENCYTOKEN_SLOT_END; ++i)
+        if (Item *pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+            if (pItem->GetGUID() == guid)
+                return pItem;
+
+    for(int i = BANK_SLOT_ITEM_START; i < BANK_SLOT_ITEM_END; ++i)
         if (Item *pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
             if (pItem->GetGUID() == guid)
                 return pItem;
