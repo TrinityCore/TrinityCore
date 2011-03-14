@@ -217,7 +217,7 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,
 (13133,12,1,0, ''), -- Sindragosa kills (Icecrown 25 player)
 (13134,12,2,0, ''), -- Sindragosa kills (Heroic Icecrown 10 player)
 (13135,12,3,0, ''); -- Sindragosa kills (Heroic Icecrown 25 player)
-DELETE FROM `areatrigger_scripts` WHERE `entry`=5604;
+DELETE FROM `areatrigger_scripts` WHERE `entry` IN (5604,5698,5649);
 INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES
 (5604,'at_sindragosa_lair'),
 (5698, 'at_icc_saurfang_portal'),
@@ -350,13 +350,26 @@ UPDATE `creature_template` SET `modelid1` = 11686 WHERE `entry` IN (36633, 39305
 -- Make Invisible Stalker really invisible
 UPDATE `creature_template` SET `modelid1` = 11686 WHERE `entry` = 15214;
 -- Add Frostmourne platform
-INSERT INTO `gameobject` VALUES (512171,202161,631,15,1,  495.708,-2523.75,1045.95,  3.14159, 7.7568, 0,0,0,604800,100,1);
+REPLACE INTO `gameobject` VALUES (512171,202161,631,15,1,  495.708,-2523.75,1045.95,  3.14159, 7.7568, 0,0,0,604800,100,1);
 UPDATE `creature` SET `id` = 36823, `modelid` = 0, `curhealth` = 0, `spawntimesecs` = '604800' WHERE `guid` = 86812;
 UPDATE `creature` SET `id` = 36824, `modelid` = 0, `curhealth` = 0, `spawntimesecs` = '604800' WHERE `guid` = 86813;
 UPDATE `creature_template` SET `ScriptName` = 'npc_terenas_fighter_icc' WHERE `entry` = 36823;
 UPDATE `creature_template` SET `ScriptName` = 'npc_spirit_warden_icc' WHERE `entry` = 36824;
 UPDATE `creature_template` SET `dmg_multiplier` = 52 WHERE `entry` = 36824; -- Spirit Warden
 UPDATE `creature_template` SET `dmg_multiplier` = 35 WHERE `entry` = 36823; -- Terenas Menethil
+-- Achievement criteria for The Lich King
+-- Bane of the Fallen King (10 player heroic) 
+-- Realm First! Fall of the Lich King (25 player heroic) 
+-- The Frozen Throne (10 player) 
+-- The Frozen Throne (25 player) 
+-- The Light of Dawn (25 player heroic)
+DELETE FROM `achievement_criteria_data` where `criteria_id` IN (12825,12818,12764,12909,12826);
+INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
+(12825, 12, 2, 0, ''),
+(12818, 12, 3, 0, ''),
+(12764, 12, 0, 0, ''),
+(12909, 12, 1, 0, ''),
+(12826, 12, 3, 0, '');
 
 -- Blood Prince entries FROM TrinityCore
 DELETE FROM `creature_template` WHERE `entry` IN (37970, 37972, 37973, 38401, 38784, 38785, 38399, 38769, 38770, 38400, 38771, 38772);

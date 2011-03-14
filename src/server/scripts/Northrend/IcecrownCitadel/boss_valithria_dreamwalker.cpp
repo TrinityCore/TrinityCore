@@ -718,46 +718,6 @@ class npc_dreamcloud_icc : public CreatureScript
         }
 };
 
-class spell_valithria_summon_portal : public SpellScriptLoader
-{
-    public:
-        spell_valithria_summon_portal() : SpellScriptLoader("spell_valithria_summon_portal") { }
-
-        class spell_valithria_summon_portal_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_valithria_summon_portal_SpellScript);
-
-            void ChangeSummonPos(SpellEffIndex /*effIndex*/)
-            {
-                if (Creature *valithria = GetCaster()->ToCreature())
-                {
-                    uint32 instanceDifficulty = valithria->GetAI()->GetData(DATA_INSTANCE_DIFFICULTY);
-                    float x, y, distMin = 15.0f, distMax = 30.0f;
-                    valithria->GetPosition(x, y);
-                    float maxAngle = ((instanceDifficulty == 25) ?  static_cast<float>(2 * M_PI) :  static_cast<float>(M_PI));
-                    //Decrease ange by 90 degreese because portals should be spawned in front of boss in 10-man modes
-                    float angle = (float)rand_norm() * maxAngle - static_cast<float>(M_PI) / 2.0f;
-                    float summonDist = distMin + (distMax - distMin) * (float)rand_norm();
-                    float summonX = x + summonDist * cos(angle);
-                    float summonY = y + summonDist * sin(angle);
-
-                    WorldLocation* summonPos = GetTargetDest();
-                    summonPos->Relocate(summonX, summonY); 
-                }
-            }
-
-            void Register()
-            {
-                OnEffect += SpellEffectFn(spell_valithria_summon_portal_SpellScript::ChangeSummonPos, EFFECT_0, SPELL_EFFECT_SUMMON);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_valithria_summon_portal_SpellScript();
-        }
-};
-
 class spell_valithria_vigor : public SpellScriptLoader
 {
     public:
@@ -951,7 +911,7 @@ class npc_icc_combat_stalker : public CreatureScript
                     events.ScheduleEvent(EVENT_SUMMON_ABOMINATION, delayForKill4Mages+1000);
                     events.ScheduleEvent(EVENT_SUMMON_SUPPRESSOR, delayForKill4Mages+10000);
                     events.ScheduleEvent(EVENT_SUMMON_ZOMBIE_AND_ARCHMAGE, delayForKill4Mages+20000);
-                    events.ScheduleEvent(EVENT_SUMMON_BLAZING_SKELETON, delayForKill4Mages+27000);
+                    events.ScheduleEvent(EVENT_SUMMON_BLAZING_SKELETON, delayForKill4Mages+30000);
                 }
                 events.ScheduleEvent(EVENT_CHECK_WIPE, 2000);
                 pInstance->SetData(DATA_VALITHRIA_DREAMWALKER_EVENT, IN_PROGRESS);
@@ -1062,6 +1022,8 @@ class npc_icc_combat_stalker : public CreatureScript
                                 for (uint8 i = 0; i < 4; ++i)
                                     DoSummon(NPC_SUPPRESSOR, Pos[urand(0, RAID_MODE<uint8>(1, 3, 1, 3))]);
                                 m_uiSummonSuppressorTimer -= 2000;
+                                if (m_uiSummonSuppressorTimer < 2000)
+                                    m_uiSummonSuppressorTimer = 2000;
                             }
                             events.ScheduleEvent(EVENT_SUMMON_SUPPRESSOR, m_uiSummonSuppressorTimer);
                             break;
@@ -1070,8 +1032,12 @@ class npc_icc_combat_stalker : public CreatureScript
                         {
                             //One Blazing Skeleton at once
                             if (bSummonSkeletons)
+                            {
                                 DoSummon(NPC_SKELETON, Pos[urand(0, RAID_MODE<uint8>(1, 3, 1, 3))]);
-                            m_uiSummonSkeletonTimer -= 5000;
+                                m_uiSummonSkeletonTimer -= 5000;
+                                if (m_uiSummonSkeletonTimer < 5000)
+                                    m_uiSummonSkeletonTimer = 5000;
+                            }
                             events.ScheduleEvent(EVENT_SUMMON_BLAZING_SKELETON, m_uiSummonSkeletonTimer);
                             break;
                         }       
@@ -1426,8 +1392,6 @@ class npc_icc_valithria_supressor : public CreatureScript
                     return;
                 events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
-                    return;
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
@@ -1436,6 +1400,8 @@ class npc_icc_valithria_supressor : public CreatureScript
                         {
                             if (Creature *valithria = ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetData64(GUID_VALITHRIA_DREAMWALKER)))
                             {
+                                if (valithria->HasAura(SPELL_SUPPRESSION, me->GetGUID()))
+                                    return;
                                 if (me->GetDistance2d(valithria) > 10.0f)
                                 {
                                     //Come closer to boss
@@ -1443,6 +1409,7 @@ class npc_icc_valithria_supressor : public CreatureScript
                                 }
                                 else
                                 {
+
                                     DoCast(valithria, SPELL_SUPPRESSION);
                                 }
                                 events.ScheduleEvent(EVENT_CAST_SUPPRESSION, 1000);
@@ -1542,7 +1509,6 @@ void AddSC_boss_valithria()
     new npc_dreamcloud_icc();
     new npc_icc_combat_stalker();
     new npc_valithria_alternative();
-    new spell_valithria_summon_portal();
     new spell_valithria_vigor();
     new spell_dream_state();
     new npc_column_of_frost_icc();

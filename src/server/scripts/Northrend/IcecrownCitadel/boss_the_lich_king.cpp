@@ -187,7 +187,8 @@ enum Spells
     SPELL_DARK_HUNGER                = 69383,
     SPELL_DARK_HUNGER_HEAL_EFFECT    = 69384,
     SPELL_LIGHT_S_FAVOR              = 69382,
-    SPELL_RESTORE_SOUL               = 72595
+    SPELL_RESTORE_SOUL               = 72595,
+    SPELL_FEIGN_DEATH                = 5384,
 };
 
 enum eActions
@@ -3150,6 +3151,7 @@ class spell_lich_king_harvest_soul : public SpellScriptLoader
                     bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/)
                     {
                         pPlayer->NearTeleportTo(FrostmourneRoom[0].m_positionX, FrostmourneRoom[0].m_positionY, FrostmourneRoom[0].m_positionZ, FrostmourneRoom[0].m_orientation);
+                        pPlayer->RemoveAurasDueToSpell(SPELL_FEIGN_DEATH);
                         if (--attemptsLeft)
                             pPlayer->m_Events.AddEvent(new TeleportToFrostmourneRoom(pPlayer, attemptsLeft), pPlayer->m_Events.CalculateTime(uint64(1000)));
                         else
@@ -3177,6 +3179,10 @@ class spell_lich_king_harvest_soul : public SpellScriptLoader
                 if (isHeroic)
                     player->CastSpell(player, SPELL_HARVEST_SOUL_HEROIC_FROSTMOURNE_PLAYER_DEBUFF, true);
                 player->CastSpell(player, SPELL_IN_FROSTMOURNE_ROOM, true);
+
+                //Should use Feign death to emulate player's death
+                player->CastSpell(player, SPELL_FEIGN_DEATH, true);
+
                 player->getThreatManager().clearReferences();
                 player->GetMap()->LoadGrid(FrostmourneRoom[0].m_positionX, FrostmourneRoom[0].m_positionY);
                 player->m_Events.AddEvent(new TeleportToFrostmourneRoom(player, 2), player->m_Events.CalculateTime(uint64(2000)));
