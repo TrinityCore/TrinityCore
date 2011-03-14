@@ -15963,34 +15963,23 @@ void Unit::SetAuraStack(uint32 spellId, Unit *target, uint32 stack)
         aura->SetStackAmount(stack);
 }
 
-void Unit::ApplyResilience(const Unit *pVictim, float *crit, int32 *damage, bool isCrit, CombatRating type) const
+void Unit::ApplyResilience(Unit const* victim, float* crit, int32* damage, bool isCrit, CombatRating type) const
 {
-    if (IsVehicle() || pVictim->IsVehicle())
+    // player mounted on multi-passenger mount is also classified as vehicle
+    if (IsVehicle() || (victim->IsVehicle() && victim->GetTypeId() != TYPEID_PLAYER))
         return;
 
-    const Unit *source = ToPlayer();
-    if (!source)
-    {
-        source = ToCreature();
-        if (source)
-        {
-            source = source->ToCreature()->GetOwner();
-            if (source)
-                source = source->ToPlayer();
-        }
-    }
+    Unit const* source = NULL;
+    if (GetTypeId() == TYPEID_PLAYER)
+        source = this;
+    else if (GetTypeId() == TYPEID_UNIT && GetOwner() && GetOwner()->GetTypeId() == TYPEID_PLAYER)
+        source = GetOwner();
 
-    const Unit *target = pVictim->ToPlayer();
-    if (!target)
-    {
-        target = pVictim->ToCreature();
-        if (target)
-        {
-            target = target->ToCreature()->GetOwner();
-            if (target)
-                target = target->ToPlayer();
-        }
-    }
+    Unit const* target = NULL;
+    if (victim->GetTypeId() == TYPEID_PLAYER)
+        target = victim;
+    else if (victim->GetTypeId() == TYPEID_UNIT && victim->GetOwner() && victim->GetOwner()->GetTypeId() == TYPEID_PLAYER)
+        target = victim->GetOwner();
 
     if (!target)
         return;
@@ -16000,34 +15989,34 @@ void Unit::ApplyResilience(const Unit *pVictim, float *crit, int32 *damage, bool
         case CR_CRIT_TAKEN_MELEE:
             // Crit chance reduction works against nonpets
             if (crit)
-                *crit -= target->ToPlayer()->GetMeleeCritChanceReduction();
+                *crit -= target->GetMeleeCritChanceReduction();
             if (source && damage)
             {
                 if (isCrit)
-                    *damage -= target->ToPlayer()->GetMeleeCritDamageReduction(*damage);
-                *damage -= target->ToPlayer()->GetMeleeDamageReduction(*damage);
+                    *damage -= target->GetMeleeCritDamageReduction(*damage);
+                *damage -= target->GetMeleeDamageReduction(*damage);
             }
             break;
         case CR_CRIT_TAKEN_RANGED:
             // Crit chance reduction works against nonpets
             if (crit)
-                *crit -= target->ToPlayer()->GetRangedCritChanceReduction();
+                *crit -= target->GetRangedCritChanceReduction();
             if (source && damage)
             {
                 if (isCrit)
-                    *damage -= target->ToPlayer()->GetRangedCritDamageReduction(*damage);
-                *damage -= target->ToPlayer()->GetRangedDamageReduction(*damage);
+                    *damage -= target->GetRangedCritDamageReduction(*damage);
+                *damage -= target->GetRangedDamageReduction(*damage);
             }
             break;
         case CR_CRIT_TAKEN_SPELL:
             // Crit chance reduction works against nonpets
             if (crit)
-                *crit -= target->ToPlayer()->GetSpellCritChanceReduction();
+                *crit -= target->GetSpellCritChanceReduction();
             if (source && damage)
             {
                 if (isCrit)
-                    *damage -= target->ToPlayer()->GetSpellCritDamageReduction(*damage);
-                *damage -= target->ToPlayer()->GetSpellDamageReduction(*damage);
+                    *damage -= target->GetSpellCritDamageReduction(*damage);
+                *damage -= target->GetSpellDamageReduction(*damage);
             }
             break;
         default:
@@ -16157,15 +16146,13 @@ void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
 
 float Unit::GetCombatRatingReduction(CombatRating cr) const
 {
-    if (GetTypeId() == TYPEID_PLAYER)
-        return ((Player const*)this)->GetRatingBonusValue(cr);
-    else if (((Creature const*)this)->isPet())
-    {
-        // Player's pet get resilience from owner
+    if (Player const* player = ToPlayer())
+        return player->GetRatingBonusValue(cr);
+    // Player's pet get resilience from owner
+    else if (isPet())
         if (Unit* owner = GetOwner())
-            if (owner->GetTypeId() == TYPEID_PLAYER)
-                return ((Player*)owner)->GetRatingBonusValue(cr);
-    }
+            if (Player* player = owner->ToPlayer())
+                return player->GetRatingBonusValue(cr);
 
     return 0.0f;
 }
