@@ -1403,7 +1403,11 @@ void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit * caster) const
             SpellPeriodicAuraLogInfo pInfo(this, damage, overkill, absorb, resist, 0.0f, crit);
             target->SendPeriodicAuraLog(&pInfo);
 
-            caster->ProcDamageAndSpell(target, procAttacker, procVictim, procEx, damage, BASE_ATTACK, GetSpellProto());
+            // Rend should not proc anything from absorbs
+            if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_WARRIOR && GetSpellProto()->SpellFamilyFlags[0] & 0x20)
+                caster->ProcDamageAndSpell(target, procAttacker, procVictim, procEx, damage, BASE_ATTACK, GetSpellProto());
+            else
+                caster->ProcDamageAndSpell(target, procAttacker, procVictim, procEx, damage + absorb, BASE_ATTACK, GetSpellProto());
 
             caster->DealDamage(target, damage, &cleanDamage, DOT, GetSpellSchoolMask(GetSpellProto()), GetSpellProto(), true);
             break;
