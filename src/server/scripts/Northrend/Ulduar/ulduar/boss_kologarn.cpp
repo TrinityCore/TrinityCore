@@ -244,10 +244,10 @@ public:
             if (instance)
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);
         
-            //if (Unit* LeftArm = me->SummonCreature(NPC_LEFT_ARM, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
-                //LeftArm->EnterVehicle(vehicle, 0);
-            //if (Unit* RightArm = me->SummonCreature(NPC_RIGHT_ARM, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
-                //RightArm->EnterVehicle(vehicle, 1);
+            if (Unit* LeftArm = me->SummonCreature(NPC_LEFT_ARM, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
+                LeftArm->_EnterVehicle(vehicle, 0);
+            if (Unit* RightArm = me->SummonCreature(NPC_RIGHT_ARM, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
+                RightArm->_EnterVehicle(vehicle, 1);
         }
 
         void UpdateAI(const uint32 diff)
@@ -333,7 +333,7 @@ public:
                 case EVENT_LEFT:
                     if (Unit* LeftArm = me->SummonCreature(NPC_LEFT_ARM, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
                     {
-                        //LeftArm->EnterVehicle(vehicle, 0);
+                        LeftArm->_EnterVehicle(vehicle, 0);
                         DoCast(me, SPELL_ARM_RESPAWN, true);
                         me->MonsterTextEmote(EMOTE_LEFT, 0, true);
                         if (instance)
@@ -344,7 +344,7 @@ public:
                 case EVENT_RIGHT:
                     if (Unit* RightArm = me->SummonCreature(NPC_RIGHT_ARM, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
                     {
-                        //RightArm->EnterVehicle(vehicle, 1);
+                        RightArm->_EnterVehicle(vehicle, 1);
                         DoCast(me, SPELL_ARM_RESPAWN, true);
                         me->MonsterTextEmote(EMOTE_RIGHT, 0, true);
                         if (instance)
@@ -561,7 +561,7 @@ public:
                         {
                             if (GripTarget && GripTarget->isAlive())
                             {
-                                GripTarget->EnterVehicle(me, n);
+                                GripTarget->_EnterVehicle(me->GetVehicleKit(), n);
                                 me->AddAura(SPELL_STONE_GRIP, GripTarget);
                                 me->AddAura(SPELL_STONE_GRIP_STUN, GripTarget);
                                 GripTargetGUID[n] = NULL;

@@ -169,9 +169,9 @@ void Vehicle::RemoveAllPassengers()
 
     // Following the above logic, this assertion should NEVER fail.
     // Even in 'hacky' cases, there should at least be VEHICLE_SPELL_RIDE_HARDCODED on us.
-    SeatMap::const_iterator itr;
-    for (itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
-        ASSERT(!itr->second.passenger);
+    //SeatMap::const_iterator itr;
+    //for (itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
+    //    ASSERT(!itr->second.passenger);
 }
 
 bool Vehicle::HasEmptySeat(int8 seatId) const
