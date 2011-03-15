@@ -3224,8 +3224,18 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                     float radius = GetSpellRadiusForHostile(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[effIndex]));
 
                     uint32 amount = damage > 0 ? damage : 1;
-                    if (m_spellInfo->Id == 18662) // Curse of Doom
-                        amount = 1;
+		    switch (m_spellInfo->Id)
+		    {
+		    case 18662: // Curse of Doom
+		    case 1122: // Inferno
+		    case 4073: // Mechanical Dragonling
+		    case 12749: // Mithril Mechanical Dragonling
+		    case 19804: // Arcanite Dragonling
+		    case 48739: // Winterfin First Responder
+		    case 65783: // Ogre Pinata
+	            amount = 1;
+		    break;
+		    }
 
                     for (uint32 count = 0; count < amount; ++count)
                     {
