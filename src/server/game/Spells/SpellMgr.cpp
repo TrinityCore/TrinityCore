@@ -4163,6 +4163,10 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->DurationIndex = 587;
             count++;
             break;
+        case 51590: // Toss Ice Boulder
+            spellInfo->MaxAffectedTargets = 1;
+            count++;
+            break;
         default:
             break;
         }
