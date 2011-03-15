@@ -1091,11 +1091,10 @@ void Guardian::UpdateMaxHealth()
         case ENTRY_SUCCUBUS:    multiplicator = 9.1f;   break;
         case ENTRY_FELHUNTER:   multiplicator = 9.5f;   break;
         case ENTRY_FELGUARD:    multiplicator = 11.0f;  break;
-        case ENTRY_GHOUL:       multiplicator = 5.4f;   break;
         default:                multiplicator = 10.0f;  break;
     }
 
-    float value   = GetModifierValue(unitMod, BASE_VALUE) + GetCreateHealth();
+    float value = GetModifierValue(unitMod, BASE_VALUE) + GetCreateHealth();
     value  *= GetModifierValue(unitMod, BASE_PCT);
     value  += GetModifierValue(unitMod, TOTAL_VALUE) + stamina * multiplicator;
     value  *= GetModifierValue(unitMod, TOTAL_PCT);
