@@ -430,6 +430,13 @@ class boss_the_lich_king : public CreatureScript
                     instance->DoCompleteAchievement(RAID_MODE(ACHIEV_NECK_DEEP_IN_VILE_10,ACHIEV_NECK_DEEP_IN_VILE_25));
                 Cleanup();
                 DoCast(SPELL_PLAY_MOVIE);
+                if(Creature* father = me->FindNearestCreature(NPC_TERENAS_MENETHIL, 25.0f, true))
+                    father->SetVisible(false);
+                if(Creature* tirion = Unit::GetCreature(*me, uiTirionGUID))
+                {
+                    tirion->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    tirion->RemoveAllAuras();
+                }
             }
 
             void MovementInform(uint32 type, uint32 id)
@@ -963,7 +970,7 @@ class boss_the_lich_king : public CreatureScript
                                 //DoCast(me, SPELL_SUMMON_FROSTMOURNE);
                                 //DoCast(me, SPELL_SUMMON_BROKEN_FROSTMOURNE);
                                 //DoCast(me, SPELL_DROP_FROSTMOURNE);
-                                uiEndingTimer = 3000;
+                                uiEndingTimer = 1000;
                                 break;
                             }
                             case 13:
@@ -975,6 +982,7 @@ class boss_the_lich_king : public CreatureScript
                             }
                             case 14:
                             {
+                                SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
                                 DoScriptText(SAY_ENDING_6_KING, me);
                                 uiEndingTimer = 3000;
                                 break;
@@ -1315,7 +1323,8 @@ class npc_tirion_icc : public CreatureScript
 
             if (instance->GetData(DATA_LICH_KING_EVENT) == DONE)
             {
-                creature->MonsterSay("Sorry, The Lich King is already defeated on current raid lock. Clear raid lock and try again.", LANG_UNIVERSAL, player->GetGUID());
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "The Lich King was already defeated here. Teleport me back to the Light's Hammer", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
+                player->SEND_GOSSIP_MENU(GOSSIP_MENU, creature->GetGUID());
                 return true;
             }
 
@@ -1338,6 +1347,9 @@ class npc_tirion_icc : public CreatureScript
             {
                 case GOSSIP_ACTION_INFO_DEF+2:
                     creature->MonsterSay("OK, I'll wait for raid leader", LANG_UNIVERSAL, player->GetGUID());
+                    break;
+                case GOSSIP_ACTION_INFO_DEF+4:
+                    creature->CastSpell(player,SPELL_TELEPORT_ICC_LIGHT_S_HAMMER, true); player->GetGUID();
                     break;
                 case GOSSIP_ACTION_INFO_DEF+3:
                     CAST_AI(npc_tirion_icc::npc_tirion_iccAI, creature->AI())->DoAction(ACTION_START_EVENT);
@@ -2017,9 +2029,6 @@ class spell_lich_king_necrotic_plague : public SpellScriptLoader
                             if (!appAura)
                             {
                                 Unit *newCaster = lichKing;
-                                if (Creature *targetCreature = newTarget->ToCreature())
-                                    if (!targetCreature->IsFriendlyTo(target))
-                                        newCaster = target;
                                 newCaster->CastSpell(newTarget, spellId, true);
                                 appAura = newTarget->GetAura(spellId);
                                 --stacksTransferred; //One stack is already transferred
@@ -3211,7 +3220,8 @@ class npc_spirit_warden_icc : public CreatureScript
 enum eEvents
 {
     EVENT_SOUL_RIP = 1,
-    EVENT_DESTROY_SOUL
+    EVENT_DESTROY_SOUL,
+    EVENT_CHECK_SOUL_RIP_DISPELLED
 };
     public:
         npc_spirit_warden_icc() : CreatureScript("npc_spirit_warden_icc") { }
@@ -3267,6 +3277,7 @@ enum eEvents
                         me->SetHealth(me->GetMaxHealth());
                         events.ScheduleEvent(EVENT_SOUL_RIP, 5000);
                         events.ScheduleEvent(EVENT_DESTROY_SOUL, 60000);
+                        events.ScheduleEvent(EVENT_CHECK_SOUL_RIP_DISPELLED, 1000);
                         break;
                     }
                 }
@@ -3276,11 +3287,23 @@ enum eEvents
             {
                 if (!me->isAlive() || me->HasUnitState(UNIT_STAT_CASTING))
                     return;
+
                 events.Update(uiDiff);
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
+                        case EVENT_CHECK_SOUL_RIP_DISPELLED:
+                        {
+                            if (Creature *terenasFighter = ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetData64(GUID_TERENAS_FIGHTER)))
+                                if (!terenasFighter->HasAura(SPELL_SOUL_RIP, me->GetGUID()))
+                                {
+                                    me->InterruptNonMeleeSpells(false);
+                                    me->InterruptSpell(CURRENT_CHANNELED_SPELL, false);
+                                }
+                            events.ScheduleEvent(EVENT_CHECK_SOUL_RIP_DISPELLED, 1000);
+                            break;
+                        }
                         case EVENT_SOUL_RIP:
                         {
                             if (Creature *terenasFighter = ObjectAccessor::GetCreature(*me, me->GetInstanceScript()->GetData64(GUID_TERENAS_FIGHTER)))

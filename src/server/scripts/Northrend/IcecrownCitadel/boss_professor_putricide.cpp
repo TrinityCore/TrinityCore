@@ -20,6 +20,8 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "Group.h"
+#include "Spell.h"
 #include "icecrown_citadel.h"
 
 enum ScriptTexts
@@ -154,7 +156,13 @@ static const Position tablePos          = {4356.190f, 3262.90f, 389.4820f, 1.483
 
 static const uint32 oozeFloodSpells[4] = {69782, 69796, 69798, 69801};
 
-#define DATA_EXPERIMENT_STAGE   0
+enum PutricideData
+{
+    DATA_EXPERIMENT_STAGE   = 1,
+    DATA_PHASE              = 2,
+    DATA_ABOMINATION        = 3,
+};
+
 #define EXPERIMENT_STATE_OOZE   false
 #define EXPERIMENT_STATE_GAS    true
 
@@ -295,6 +303,9 @@ class boss_professor_putricide : public CreatureScript
                     me->GetMotionMaster()->MovementExpired();
                 if (GameObject* table = ObjectAccessor::GetGameObject(*me, instance->GetData64(GUID_PUTRICIDE_TABLE)))
                     table->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+                if (instance->GetData(DATA_ROTFACE_EVENT) == DONE && instance->GetData(DATA_FESTERGUT_EVENT) == DONE)
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+
             }
 
             void EnterCombat(Unit* who)
@@ -605,14 +616,23 @@ class boss_professor_putricide : public CreatureScript
 
             uint32 GetData(uint32 type)
             {
-                if (type == DATA_EXPERIMENT_STAGE)
+                switch (type)
                 {
-                    // ALSO MODIFIES!
-                    uint32 ret = uint32(experimentState);
-                    experimentState ^= true;
-                    return ret;
+                    case DATA_EXPERIMENT_STAGE:
+                    {
+                        // ALSO MODIFIES!
+                        uint32 ret = uint32(experimentState);
+                        experimentState ^= true;
+                        return ret;
+                    }
+                    case DATA_PHASE:
+                        return phase;
+                    case DATA_ABOMINATION:
+                        summons.RemoveNotExisting();    
+                        return summons.HasEntry(NPC_MUTATED_ABOMINATION_10) || summons.HasEntry(NPC_MUTATED_ABOMINATION_25);
+                    default:
+                        break;
                 }
-
                 return 0;
             }
 
@@ -1141,6 +1161,14 @@ class spell_putricide_unbound_plague : public SpellScriptLoader
         {
             PrepareSpellScript(spell_putricide_unbound_plague_SpellScript);
 
+            bool Validate(SpellEntry const* /*spell*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_UNBOUND_PLAGUE))
+                    return false;
+                if (!sSpellStore.LookupEntry(SPELL_UNBOUND_PLAGUE_SEARCHER))
+                    return false;
+                return true;
+            }
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (!GetHitUnit())
@@ -1292,6 +1320,62 @@ class spell_putricide_mutation_init : public SpellScriptLoader
     public:
         spell_putricide_mutation_init() : SpellScriptLoader("spell_putricide_mutation_init") { }
 
+
+        class spell_putricide_mutation_init_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_putricide_mutation_init_SpellScript);
+
+            SpellCastResult CheckRequirementInternal(SpellCustomErrors& extendedError)
+            {
+                InstanceScript* instance = GetTargetUnit()->GetInstanceScript();
+                if (!instance)
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+                Creature* professor = ObjectAccessor::GetCreature(*GetTargetUnit(), instance->GetData64(GUID_PROFESSOR_PUTRICIDE));
+                if (!professor)
+
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+                if (professor->AI()->GetData(DATA_PHASE) == PHASE_COMBAT_3 || !professor->isAlive())
+                {
+                    extendedError = SPELL_CUSTOM_ERROR_ALL_POTIONS_USED;
+                    return SPELL_FAILED_CUSTOM_ERROR;
+                }
+
+                if (professor->AI()->GetData(DATA_ABOMINATION))
+                {
+                    extendedError = SPELL_CUSTOM_ERROR_TOO_MANY_ABOMINATIONS;
+                    return SPELL_FAILED_CUSTOM_ERROR;
+                }
+
+                return SPELL_CAST_OK;
+            }
+
+            SpellCastResult CheckRequirement()
+            {
+                if (!GetTargetUnit())
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                if (GetTargetUnit()->GetTypeId() != TYPEID_PLAYER)
+                    return SPELL_FAILED_TARGET_NOT_PLAYER;
+
+                SpellCustomErrors extension = SPELL_CUSTOM_ERROR_NONE;
+                SpellCastResult result = CheckRequirementInternal(extension);
+                if (result != SPELL_CAST_OK)
+                {
+                    Spell::SendCastResult(GetTargetUnit()->ToPlayer(), GetSpellInfo(), 0, result, extension);
+                    return result;
+                }
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_putricide_mutation_init_SpellScript::CheckRequirement);
+            }
+        };
+
         class spell_putricide_mutation_init_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_putricide_mutation_init_AuraScript);
@@ -1313,6 +1397,11 @@ class spell_putricide_mutation_init : public SpellScriptLoader
                 OnEffectRemove += AuraEffectRemoveFn(spell_putricide_mutation_init_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
             }
         };
+
+        SpellScript* GetSpellScript() const
+        {    
+            return new spell_putricide_mutation_init_SpellScript();
+        }
 
         AuraScript* GetAuraScript() const
         {
@@ -1364,12 +1453,27 @@ class spell_putricide_mutated_transformation : public SpellScriptLoader
             void HandleSummon(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                uint32 entry = uint32(GetSpellInfo()->EffectMiscValue[effIndex]);
-                SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(uint32(GetSpellInfo()->EffectMiscValueB[effIndex]));
                 Unit* caster = GetOriginalCaster();
                 if (!caster)
                     return;
 
+                InstanceScript* instance = GetTargetUnit()->GetInstanceScript();
+                if (!instance)
+                    return;
+
+                Creature* putricide = ObjectAccessor::GetCreature(*GetTargetUnit(), instance->GetData64(GUID_PROFESSOR_PUTRICIDE));
+                if (!putricide)
+                    return;
+
+                if (putricide->AI()->GetData(DATA_ABOMINATION))
+                {
+                    if (Player* plrCaster = caster->ToPlayer())
+                        Spell::SendCastResult(plrCaster, GetSpellInfo(), 0, SPELL_FAILED_CUSTOM_ERROR, SPELL_CUSTOM_ERROR_TOO_MANY_ABOMINATIONS);
+                    return;
+                }
+
+                uint32 entry = uint32(GetSpellInfo()->EffectMiscValue[effIndex]);
+                SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(uint32(GetSpellInfo()->EffectMiscValueB[effIndex]));
                 uint32 duration = uint32(GetSpellDuration(GetSpellInfo()));
 
                 Position pos;
@@ -1386,6 +1490,8 @@ class spell_putricide_mutated_transformation : public SpellScriptLoader
 
                 summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, GetSpellInfo()->Id);
                 summon->SetCreatorGUID(caster->GetGUID());
+
+                putricide->AI()->JustSummoned(summon);
             }
 
             void Register()
@@ -1399,6 +1505,7 @@ class spell_putricide_mutated_transformation : public SpellScriptLoader
             return new spell_putricide_mutated_transformation_SpellScript();
         }
 };
+
 
 class spell_putricide_regurgitated_ooze : public SpellScriptLoader
 {

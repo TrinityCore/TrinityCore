@@ -30,6 +30,34 @@
 
 enum Texts
 {
+    // Highlord Tirion Fordring (at Light's Hammer)
+    SAY_TIRION_INTRO_1          = 0,    
+    SAY_TIRION_INTRO_2          = 1,    
+    SAY_TIRION_INTRO_3          = 2,
+    SAY_TIRION_INTRO_4          = 3,
+    SAY_TIRION_INTRO_H_5        = 4,
+    SAY_TIRION_INTRO_A_5        = 5,
+
+    // The Lich King (at Light's Hammer)    
+    SAY_LK_INTRO_1              = 0,    
+    SAY_LK_INTRO_2              = 1,    
+    SAY_LK_INTRO_3              = 2,
+    SAY_LK_INTRO_4              = 3,
+    SAY_LK_INTRO_5              = 4,    
+    // Highlord Bolvar Fordragon (at Light's Hammer)
+    SAY_BOLVAR_INTRO_1          = 0,
+
+    // High Overlord Saurfang (at Light's Hammer)
+    SAY_SAURFANG_INTRO_1        = 15,
+    SAY_SAURFANG_INTRO_2        = 16,
+    SAY_SAURFANG_INTRO_3        = 17,
+    SAY_SAURFANG_INTRO_4        = 18,
+
+    // Muradin Bronzebeard (at Light's Hammer)
+    SAY_MURADIN_INTRO_1         = 13,
+    SAY_MURADIN_INTRO_2         = 14,
+    SAY_MURADIN_INTRO_3         = 15,
+
     // Rotting Frost Giant
     EMOTE_DEATH_PLAGUE_WARNING  = 0,
 };
@@ -96,58 +124,88 @@ enum Spells
     SPELL_SHOOT_25                  = 72258,
 };
 
-enum eEvents
+enum Events
 {
+    // Highlord Tirion Fordring (at Light's Hammer)    
+    // The Lich King (at Light's Hammer)    
+    // Highlord Bolvar Fordragon (at Light's Hammer)    
+    // High Overlord Saurfang (at Light's Hammer)
+    // Muradin Bronzebeard (at Light's Hammer)
+    EVENT_TIRION_INTRO_2    = 1,
+    EVENT_TIRION_INTRO_3    = 2,    
+    EVENT_TIRION_INTRO_4    = 3,
+    EVENT_TIRION_INTRO_5    = 4,    
+    EVENT_LK_INTRO_1        = 5,    
+    EVENT_TIRION_INTRO_6    = 6,
+    EVENT_LK_INTRO_2        = 7,    
+    EVENT_LK_INTRO_3        = 8,    
+    EVENT_LK_INTRO_4        = 9,
+    EVENT_BOLVAR_INTRO_1    = 10,
+    EVENT_LK_INTRO_5        = 11,
+    EVENT_SAURFANG_INTRO_1  = 12,
+    EVENT_TIRION_INTRO_H_7  = 13,
+    EVENT_SAURFANG_INTRO_2  = 14,
+    EVENT_SAURFANG_INTRO_3  = 15,
+    EVENT_SAURFANG_INTRO_4  = 16,
+    EVENT_SAURFANG_RUN      = 17,
+    EVENT_MURADIN_INTRO_1   = 18,
+    EVENT_MURADIN_INTRO_2   = 19,
+    EVENT_MURADIN_INTRO_3   = 20,
+    EVENT_TIRION_INTRO_A_7  = 21,
+    EVENT_MURADIN_INTRO_4   = 22,
+    EVENT_MURADIN_INTRO_5   = 23,
+    EVENT_MURADIN_RUN       = 24,
+
     // Rotting Frost Giant
-    EVENT_DEATH_PLAGUE     = 1,
-    EVENT_STOMP               ,
-    EVENT_ARCTIC_BREATH       ,
+    EVENT_DEATH_PLAGUE      = 25,
+    EVENT_STOMP             = 26,
+    EVENT_ARCTIC_BREATH     = 27,
 
     // Frost Freeze Trap
-    EVENT_ACTIVATE_TRAP       ,
+    EVENT_ACTIVATE_TRAP     = 28,
     
     //Deathspeaker High Priest
-    EVENT_DARK_RECKONING      ,
+    EVENT_DARK_RECKONING    = 29,
     //Val'kyr Herald
-    EVENT_SEVERED_ESSENCE     ,
+    EVENT_SEVERED_ESSENCE   = 30,
 
     //Druid spells
-    EVENT_CAT_FORM            ,
-    EVENT_MANGLE              ,
-    EVENT_RIP                 ,
+    EVENT_CAT_FORM          = 31,
+    EVENT_MANGLE            = 32,
+    EVENT_RIP               = 33,
     //Warlock
-    EVENT_CORRUPTION          ,
-    EVENT_SHADOW_BOLT         ,
-    EVENT_RAIN_OF_CHAOS       ,
+    EVENT_CORRUPTION        = 34,
+    EVENT_SHADOW_BOLT       = 35,
+    EVENT_RAIN_OF_CHAOS     = 36,
     //Shaman
-    EVENT_REPLENISHING_RAINS  ,
-    EVENT_LIGHTNING_BOLT      ,
-    EVENT_CAN_CAST_REPLENISHING_RAINS,
+    EVENT_REPLENISHING_RAINS= 37,
+    EVENT_LIGHTNING_BOLT    = 38,
+    EVENT_CAN_CAST_REPLENISHING_RAINS= 39,
     //Rogue
-    EVENT_FOCUSED_ATTACKS     ,
-    EVENT_SINISTER_STRIKE     ,
-    EVENT_EVISCERATE          ,
+    EVENT_FOCUSED_ATTACKS   = 40,
+    EVENT_SINISTER_STRIKE   = 41,
+    EVENT_EVISCERATE        = 42,
     //Mage
-    EVENT_FIREBALL            ,
+    EVENT_FIREBALL          = 43,
     //Warrior
-    EVENT_BLOODTHIRST         ,
-    EVENT_HEROIC_LEAP         ,
+    EVENT_BLOODTHIRST       = 44,
+    EVENT_HEROIC_LEAP       = 45,
     //Dead Knight
-    EVENT_DEATH_GRIP          ,
-    EVENT_NECROTIC_STRIKE     ,
-    EVENT_PLAGUE_STRIKE       ,
+    EVENT_DEATH_GRIP        = 46,
+    EVENT_NECROTIC_STRIKE   = 47,
+    EVENT_PLAGUE_STRIKE     = 48,
     //Priest
-    EVENT_GREATER_HEAL        ,
-    EVENT_RENEW               ,
+    EVENT_GREATER_HEAL      = 49,
+    EVENT_RENEW             = 50,
     //Paladin
-    EVENT_CLEANSE             ,
-    EVENT_FLASH_OF_LIGHT      ,
-    EVENT_RADIANCE_AURA       ,
+    EVENT_CLEANSE           = 51,
+    EVENT_FLASH_OF_LIGHT    = 52,
+    EVENT_RADIANCE_AURA     = 53,
     EVENT_CAN_CAST_RADIANCE_AURA,
     //Hunter
-    EVENT_SHOOT               ,
-    EVENT_DISENGAGE           ,
-    EVENT_CAN_CAST_DISENGAGE
+    EVENT_SHOOT             = 54,
+    EVENT_DISENGAGE         = 55,
+    EVENT_CAN_CAST_DISENGAGE= 56,
 };
 enum eData
 {
@@ -173,6 +231,226 @@ enum eTrapActions
 {
     ACTION_DISARM_FROST_TRAP = 2
 };
+enum DataTypesICC    
+{
+    DATA_DAMNED_KILLS       = 1,    
+};
+    
+// at Light's Hammer
+class npc_highlord_tirion_fordring_lh : public CreatureScript    
+{
+    public:
+        npc_highlord_tirion_fordring_lh() : CreatureScript("npc_highlord_tirion_fordring_lh") { }    
+        struct npc_highlord_tirion_fordringAI : public ScriptedAI    
+        {    
+            npc_highlord_tirion_fordringAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript())
+            {    
+            }    
+    
+            void Reset()
+            {    
+                events.Reset();    
+                _theLichKing = 0;    
+                _bolvarFordragon = 0;    
+                _factionNPC = 0;
+                _damnedKills = 0;    
+            }    
+    
+            // IMPORTANT NOTE: This is triggered from per-GUID scripts    
+            // of The Damned SAI    
+            void SetData(uint32 type, uint32 data)    
+            {    
+                if (!instance)
+                    return;
+
+                if (type == DATA_DAMNED_KILLS && data == 1)    
+                {    
+                    if (++_damnedKills == 2)    
+                    {    
+                        if (Creature* theLichKing = me->FindNearestCreature(NPC_THE_LICH_KING_LH, 150.0f))    
+                        {
+                            if (Creature* bolvarFordragon = me->FindNearestCreature(NPC_HIGHLORD_BOLVAR_FORDRAGON_LH, 150.0f))
+                            {
+                                if (Creature* factionNPC = me->FindNearestCreature(instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE ? NPC_SE_HIGH_OVERLORD_SAURFANG : NPC_SE_MURADIN_BRONZEBEARD, 50.0f))
+                                {
+                                    me->setActive(true);
+                                    _theLichKing = theLichKing->GetGUID();
+                                    theLichKing->setActive(true);
+                                    _bolvarFordragon = bolvarFordragon->GetGUID();
+                                    bolvarFordragon->setActive(true);
+                                    _factionNPC = factionNPC->GetGUID();
+                                    factionNPC->setActive(true);
+                                }
+                            }    
+                        }    
+                        if (!_bolvarFordragon || !_theLichKing || !_factionNPC)
+                            return;    
+    
+                        Talk(SAY_TIRION_INTRO_1);    
+                        events.ScheduleEvent(EVENT_TIRION_INTRO_2, 4000);    
+                        events.ScheduleEvent(EVENT_TIRION_INTRO_3, 14000);
+                        events.ScheduleEvent(EVENT_TIRION_INTRO_4, 18000);    
+                        events.ScheduleEvent(EVENT_TIRION_INTRO_5, 31000);    
+                        events.ScheduleEvent(EVENT_LK_INTRO_1, 35000);
+                        events.ScheduleEvent(EVENT_TIRION_INTRO_6, 51000);
+                        events.ScheduleEvent(EVENT_LK_INTRO_2, 58000);    
+                        events.ScheduleEvent(EVENT_LK_INTRO_3, 74000);    
+                        events.ScheduleEvent(EVENT_LK_INTRO_4, 86000);    
+                        events.ScheduleEvent(EVENT_BOLVAR_INTRO_1, 100000);    
+                        events.ScheduleEvent(EVENT_LK_INTRO_5, 108000);
+
+
+                        if (instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
+                        {
+                            events.ScheduleEvent(EVENT_SAURFANG_INTRO_1, 120000);
+                            events.ScheduleEvent(EVENT_TIRION_INTRO_H_7, 129000);
+                            events.ScheduleEvent(EVENT_SAURFANG_INTRO_2, 139000);
+                            events.ScheduleEvent(EVENT_SAURFANG_INTRO_3, 150000);
+                            events.ScheduleEvent(EVENT_SAURFANG_INTRO_4, 162000);
+                            events.ScheduleEvent(EVENT_SAURFANG_RUN, 170000);
+                        }
+                        else
+                        {
+                            events.ScheduleEvent(EVENT_MURADIN_INTRO_1, 120000);
+                            events.ScheduleEvent(EVENT_MURADIN_INTRO_2, 124000);
+                            events.ScheduleEvent(EVENT_MURADIN_INTRO_3, 127000);
+                            events.ScheduleEvent(EVENT_TIRION_INTRO_A_7, 136000);
+                            events.ScheduleEvent(EVENT_MURADIN_INTRO_4, 144000);
+                            events.ScheduleEvent(EVENT_MURADIN_INTRO_5, 151000);
+                            events.ScheduleEvent(EVENT_MURADIN_RUN, 157000);
+                        }
+                    }    
+                }
+            }    
+    
+            void UpdateAI(uint32 const diff)    
+            {    
+                if (_damnedKills != 2)    
+                    return;    
+    
+                events.Update(diff);    
+    
+                while (uint32 eventId = events.ExecuteEvent())    
+                {    
+                    switch (eventId)    
+                    {    
+                        case EVENT_TIRION_INTRO_2:    
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
+                            break;    
+                        case EVENT_TIRION_INTRO_3:
+                            Talk(SAY_TIRION_INTRO_2);    
+                            break;    
+                        case EVENT_TIRION_INTRO_4:    
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
+                            break;    
+                        case EVENT_TIRION_INTRO_5:    
+                            Talk(SAY_TIRION_INTRO_3);    
+                            break;    
+                        case EVENT_LK_INTRO_1:    
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_POINT_NOSHEATHE);
+                            if (Creature* theLichKing = ObjectAccessor::GetCreature(*me, _theLichKing))
+                                theLichKing->AI()->Talk(SAY_LK_INTRO_1);
+                            break;    
+                        case EVENT_TIRION_INTRO_6:
+                            Talk(SAY_TIRION_INTRO_4);    
+                            break;    
+                        case EVENT_LK_INTRO_2:    
+                            if (Creature* theLichKing = ObjectAccessor::GetCreature(*me, _theLichKing))    
+                                theLichKing->AI()->Talk(SAY_LK_INTRO_2);    
+                            break;    
+                        case EVENT_LK_INTRO_3:    
+                            if (Creature* theLichKing = ObjectAccessor::GetCreature(*me, _theLichKing))    
+                                theLichKing->AI()->Talk(SAY_LK_INTRO_3);    
+                            break;    
+                        case EVENT_LK_INTRO_4:    
+                            if (Creature* theLichKing = ObjectAccessor::GetCreature(*me, _theLichKing))    
+                                theLichKing->AI()->Talk(SAY_LK_INTRO_4);    
+                            break;    
+                        case EVENT_BOLVAR_INTRO_1:    
+                            if (Creature* bolvarFordragon = ObjectAccessor::GetCreature(*me, _bolvarFordragon))    
+                            {    
+                                bolvarFordragon->AI()->Talk(SAY_BOLVAR_INTRO_1);    
+                                bolvarFordragon->setActive(false);    
+                            }    
+                            break;    
+                        case EVENT_LK_INTRO_5:    
+                            if (Creature* theLichKing = ObjectAccessor::GetCreature(*me, _theLichKing))
+                            {    
+                                theLichKing->AI()->Talk(SAY_LK_INTRO_5);    
+                                theLichKing->setActive(false);    
+                            }    
+                            break;
+
+                        case EVENT_SAURFANG_INTRO_1:
+                            if (Creature* saurfang = ObjectAccessor::GetCreature(*me, _factionNPC))
+                                saurfang->AI()->Talk(SAY_SAURFANG_INTRO_1);
+                            break;
+                        case EVENT_TIRION_INTRO_H_7:
+                            Talk(SAY_TIRION_INTRO_H_5);
+                            break;
+                        case EVENT_SAURFANG_INTRO_2:
+                            if (Creature* saurfang = ObjectAccessor::GetCreature(*me, _factionNPC))
+                                saurfang->AI()->Talk(SAY_SAURFANG_INTRO_2);
+                            break;
+                        case EVENT_SAURFANG_INTRO_3:
+                            if (Creature* saurfang = ObjectAccessor::GetCreature(*me, _factionNPC))
+                                saurfang->AI()->Talk(SAY_SAURFANG_INTRO_3);
+                            break;
+                        case EVENT_SAURFANG_INTRO_4:
+                            if (Creature* saurfang = ObjectAccessor::GetCreature(*me, _factionNPC))
+                                saurfang->AI()->Talk(SAY_SAURFANG_INTRO_4);
+                            break;
+                        case EVENT_MURADIN_RUN:
+                        case EVENT_SAURFANG_RUN:
+                            if (Creature* factionNPC = ObjectAccessor::GetCreature(*me, _factionNPC))
+                                factionNPC->GetMotionMaster()->MovePath(factionNPC->GetDBTableGUIDLow()*10, false);
+                            me->setActive(false);
+                            _damnedKills = 3;
+                            break;
+                        case EVENT_MURADIN_INTRO_1:
+                            if (Creature* muradin = ObjectAccessor::GetCreature(*me, _factionNPC))
+                                muradin->AI()->Talk(SAY_MURADIN_INTRO_1);
+                            break;
+                        case EVENT_MURADIN_INTRO_2:
+                            if (Creature* muradin = ObjectAccessor::GetCreature(*me, _factionNPC))
+                                muradin->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
+                            break;
+                        case EVENT_MURADIN_INTRO_3:
+                            if (Creature* muradin = ObjectAccessor::GetCreature(*me, _factionNPC))
+                                muradin->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
+                            break;
+                        case EVENT_TIRION_INTRO_A_7:
+                            Talk(SAY_TIRION_INTRO_A_5);
+                            break;
+                        case EVENT_MURADIN_INTRO_4:
+                            if (Creature* muradin = ObjectAccessor::GetCreature(*me, _factionNPC))
+                                muradin->AI()->Talk(SAY_MURADIN_INTRO_2);
+                            break;
+                        case EVENT_MURADIN_INTRO_5:
+                            if (Creature* muradin = ObjectAccessor::GetCreature(*me, _factionNPC))
+                                muradin->AI()->Talk(SAY_MURADIN_INTRO_3);
+                            break;    
+                        default:    
+                            break;
+                    }
+                }
+            }
+
+        private:    
+            EventMap events;
+            InstanceScript* const instance;    
+            uint64 _theLichKing;
+            uint64 _bolvarFordragon;
+            uint64 _factionNPC;    
+            uint16 _damnedKills;    
+        };
+    
+        CreatureAI* GetAI(Creature* creature) const    
+        {    
+            return new npc_highlord_tirion_fordringAI(creature);    
+        }
+};
+
 //class npc_cult_fanatic_and_adherent : public CreatureScript
 //{
 //    public:
@@ -329,18 +607,7 @@ public:
             return false;
         if (instance->IsEncounterInProgress())
             return false;
-        if (go->GetEntry() == GO_TELEPORT_FROZEN_THRONE)
-        {
-            if (instance->GetData(DATA_PROFESSOR_PUTRICIDE_EVENT) == DONE &&
-                instance->GetData(DATA_BLOOD_QUEEN_LANA_THEL_EVENT) == DONE && 
-                instance->GetData(DATA_SINDRAGOSA_EVENT) == DONE)
-            {
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT(GOSSIP_TELEPORT_FROZEN_THRONE), GOSSIP_SENDER_MAIN, SPELL_TELEPORT_ICC_FROZEN_THRONE);
-                player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, go->GetGUID());
-                return true;
-            }
-            return false;
-        }
+
         switch (go->GetEntry())
         {
             case GO_TELEPORT_ORATORY_OF_THE_DAMNED:
@@ -386,6 +653,8 @@ public:
         if (go->GetEntry() != GO_TELEPORT_SINDRAGOSA_S_LAIR &&
             instance->GetData(DATA_VALITHRIA_DREAMWALKER_EVENT) == DONE && instance->GetData(DATA_TELEPORT_SINDRAGOSA_S_LAIR_ACTIVATED) == DONE)
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT(GOSSIP_TELEPORT_SINDRAGOSAS_LAIR), GOSSIP_SENDER_MAIN, SPELL_TELEPORT_ICC_SINDRAGOSA_S_LAIR);
+        if (instance->GetData(DATA_BLOOD_QUEEN_LANA_THEL_EVENT) == DONE && instance->GetData(DATA_PROFESSOR_PUTRICIDE_EVENT) == DONE && instance->GetData(DATA_SINDRAGOSA_EVENT) == DONE && instance->GetData(DATA_TELEPORT_FROZEN_THRONE_ACTIVATED) == DONE)
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT(GOSSIP_TELEPORT_FROZEN_THRONE), GOSSIP_SENDER_MAIN, SPELL_TELEPORT_ICC_FROZEN_THRONE);
 
         player->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, go->GetGUID());
         return true;
@@ -1467,8 +1736,23 @@ public:
 
 };
 
+class at_icc_start_blood_quickening : public AreaTriggerScript
+{
+    public:
+        at_icc_start_blood_quickening() : AreaTriggerScript("at_icc_start_blood_quickening") { }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
+        {
+            if (InstanceScript* instance = player->GetInstanceScript())
+                if (instance->GetData(DATA_BLOOD_QUICKENING_STATE) == NOT_STARTED)
+                    instance->SetData(DATA_BLOOD_QUICKENING_STATE, IN_PROGRESS);
+            return true;
+        }
+};
+
 void AddSC_icecrown_citadel()
 {
+    new npc_highlord_tirion_fordring_lh();
     //new npc_cult_fanatic_and_adherent();
     new go_icecrown_teleporter();
     new npc_frost_freeze_trap();
@@ -1482,4 +1766,5 @@ void AddSC_icecrown_citadel()
     new spell_frost_giant_death_plague();
     new at_icc_saurfang_portal();
     new at_icc_shutdown_traps();
+    new at_icc_start_blood_quickening();
 }
