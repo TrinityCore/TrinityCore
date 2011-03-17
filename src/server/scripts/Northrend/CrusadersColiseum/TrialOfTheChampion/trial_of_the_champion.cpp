@@ -1,26 +1,37 @@
 /*
- * Copyright (C) 2008 - 2010 Trinity <http://www.trinitycore.org/
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
+/* ScriptData
+SDName: Trial Of the Champion
+SD%Complete:
+SDComment: 
+SDCategory: trial_of_the_champion
+EndScriptData */
+
+/* ContentData
+npc_announcer_toc5
+EndContentData */
 
 #include "ScriptPCH.h"
 #include "trial_of_the_champion.h"
 #include "Vehicle.h"
 
-#define GOSSIP_START_EVENT1     "Я готов к старту испытания."
-#define GOSSIP_START_EVENT2     "Я готов к следующему испытанию."
+#define GOSSIP_START_EVENT1     "I'm ready to start challenge."
+#define GOSSIP_START_EVENT2     "I'm ready for the next challenge."
 
 #define ORIENTATION             4.714f
 
@@ -28,12 +39,11 @@
 ## npc_announcer_toc5
 ######*/
 
-const Position SpawnPosition = {746.843f, 695.68f, 412.339f, 4.70776f};
+const Position SpawnPosition = {746.261f,657.401f,411.681f,4.65f};
 
 enum eEnums
 {
     SAY_START             = -1999926,
-    SAY_START2            = -1999950,
     SAY_START3            = -1999940,
     SAY_START5            = -1999936,
     SAY_START11           = -1999953,
@@ -239,53 +249,11 @@ class npc_announcer_toc5 : public CreatureScript
 public:
     npc_announcer_toc5() : CreatureScript("npc_announcer_toc5") { }
 
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new npc_announcer_toc5AI(pCreature);
-    }
-
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
-    {
-        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            pPlayer->CLOSE_GOSSIP_MENU();
-            CAST_AI(npc_announcer_toc5AI, pCreature->AI())->StartEncounter();
-        }
-
-        return true;
-    }
-
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
-    {
-        InstanceScript* pInstance = (InstanceScript*)pCreature->GetInstanceScript();
-
-        if (pInstance &&
-            pInstance->GetData(BOSS_GRAND_CHAMPIONS) == DONE &&
-            pInstance->GetData(BOSS_BLACK_KNIGHT) == DONE &&
-            (pInstance->GetData(BOSS_ARGENT_CHALLENGE_E) == DONE ||
-            pInstance->GetData(BOSS_ARGENT_CHALLENGE_P) == DONE))
-
-            return false;
-
-        if (pInstance &&
-            pInstance->GetData(BOSS_GRAND_CHAMPIONS) == NOT_STARTED &&
-            pInstance->GetData(BOSS_ARGENT_CHALLENGE_E) == NOT_STARTED &&
-            pInstance->GetData(BOSS_ARGENT_CHALLENGE_P) == NOT_STARTED &&
-            pInstance->GetData(BOSS_BLACK_KNIGHT) == NOT_STARTED)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        else if (pInstance)
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-
-        return true;
-    }
-
     struct npc_announcer_toc5AI : public ScriptedAI
     {
         npc_announcer_toc5AI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            pInstance = (InstanceScript*)pCreature->GetInstanceScript();
+            pInstance = pCreature->GetInstanceScript();
 
             uiSummonTimes = 0;
             uiPosition = 0;
@@ -309,8 +277,9 @@ public:
             Champion3List.clear();
 
             me->SetReactState(REACT_PASSIVE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+
             SetGrandChampionsForEncounter();
             SetArgentChampion();
         }
@@ -330,7 +299,6 @@ public:
         uint32 uiPhase;
         uint32 uiTimer;
 
-        uint64 uiBlackKnightGUID;
         uint64 uiVehicle1GUID;
         uint64 uiVehicle2GUID;
         uint64 uiVehicle3GUID;
@@ -350,7 +318,7 @@ public:
                 uiPhase = uiPhaseStep;
         }
 
-        void SetData(uint32 uiType, uint32 uiData)
+        void SetData(uint32 uiType, uint32 /*uiData*/)
         {
             switch (uiType)
             {
@@ -364,12 +332,10 @@ public:
                     NextStep(10000,false,1);
                     break;
                 case DATA_IN_POSITION: //movement done.
-                    me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
-                    me->GetMotionMaster()->MovePoint(1,735.898f, 651.961f, 411.93f);
-                    DoScriptText(SAY_START2, me);
+                    me->GetMotionMaster()->MovePoint(1,735.81f,661.92f,412.39f);
                     if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
                         pInstance->HandleGameObject(pGO->GetGUID(),false);
-                    NextStep(20000,false,3);
+                    NextStep(10000,false,3);
                     break;
                 case DATA_LESSER_CHAMPIONS_DEFEATED:
                 {
@@ -549,24 +515,29 @@ public:
         void DoStartArgentChampionEncounter()
         {
             DoScriptText(SAY_START3, me);
-            if (Creature* pBoss = me->SummonCreature(uiArgentChampion,SpawnPosition))
-            {
+            me->GetMotionMaster()->MovePoint(1,735.81f,661.92f,412.39f);
 
+            if (me->SummonCreature(uiArgentChampion,SpawnPosition))
+            {
                 for (uint8 i = 0; i < 3; ++i)
                 {
                     if (Creature* pTrash = me->SummonCreature(NPC_ARGENT_LIGHWIELDER,SpawnPosition))
+                    {
                         pTrash->AI()->SetData(i,0);
+                        pTrash->SetReactState(REACT_AGGRESSIVE);
+                    }
                     if (Creature* pTrash = me->SummonCreature(NPC_ARGENT_MONK,SpawnPosition))
+                    {    
                         pTrash->AI()->SetData(i,0);
+                        pTrash->SetReactState(REACT_AGGRESSIVE);
+                    }       
                     if (Creature* pTrash = me->SummonCreature(NPC_PRIESTESS,SpawnPosition))
+                    {
                         pTrash->AI()->SetData(i,0);
+                        pTrash->SetReactState(REACT_AGGRESSIVE);
+                    }
                 }
             }
-        }
-
-        void EnterCombat(Unit* pWho)
-        {
-
         }
 
         void SetGrandChampionsForEncounter()
@@ -601,8 +572,8 @@ public:
                 return;
 
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
-                        pInstance->HandleGameObject(pGO->GetGUID(),false);
+            if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE1)))
+                pInstance->HandleGameObject(pGO->GetGUID(),false);
 
             if (pInstance->GetData(BOSS_BLACK_KNIGHT) == NOT_STARTED)
             {
@@ -615,31 +586,16 @@ public:
                         DoStartArgentChampionEncounter();
                 }
 
-               if (pInstance->GetData(BOSS_GRAND_CHAMPIONS) == DONE &&
-                   pInstance->GetData(BOSS_ARGENT_CHALLENGE_E) == DONE ||
+               if ((pInstance->GetData(BOSS_GRAND_CHAMPIONS) == DONE &&
+                   pInstance->GetData(BOSS_ARGENT_CHALLENGE_E) == DONE) ||
                    pInstance->GetData(BOSS_ARGENT_CHALLENGE_P) == DONE)
-                {
-                   if (Unit* pBlackKnight = me->SummonCreature(VEHICLE_BLACK_KNIGHT,801.369507f, 640.574280f, 469.314362f, 3.97124f,TEMPSUMMON_DEAD_DESPAWN,180000))
-                    {
-                                uiBlackKnightGUID = pBlackKnight->GetGUID();
-                                pBlackKnight->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                                pBlackKnight->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
-                                me->SetUInt64Value(UNIT_FIELD_TARGET, uiBlackKnightGUID);
-                                if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
-                                                pInstance->HandleGameObject(pGO->GetGUID(),false);
-                    }
-                    me->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
-                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    me->SetReactState(REACT_AGGRESSIVE);
-                    DoScriptText(SAY_START5, me);
-                }
-
+               {
+                   me->SummonCreature(VEHICLE_BLACK_KNIGHT,769.834f,651.915f,447.035f,0);
+                   if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
+                       pInstance->HandleGameObject(pGO->GetGUID(),false);
+                   DoScriptText(SAY_START5, me);
+               }
             }
-        }
-
-        void Reset()
-        {
-            uiBlackKnightGUID = 0;
         }
 
         void AggroAllPlayers(Creature* pTemp)
@@ -653,10 +609,21 @@ public:
             {
                 if (Player* pPlayer = i->getSource())
                 {
-                    if (pPlayer->isGameMaster())
-                        continue;
-
-                    if (pPlayer->isAlive())
+                    if (pPlayer->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && !pPlayer->isGameMaster())
+                    {
+                        Creature* pCreature = pPlayer->GetVehicleBase()->ToCreature();  
+                        
+                        if (pCreature)
+                        {
+                            pTemp->SetHomePosition(me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(),me->GetOrientation());
+                            pTemp->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+                            pTemp->SetReactState(REACT_AGGRESSIVE);
+                            pTemp->SetInCombatWith(pCreature);
+                            pPlayer->SetInCombatWith(pTemp);
+                            pCreature->SetInCombatWith(pTemp);
+                            pTemp->AddThreat(pCreature, 0.0f);
+                        }
+                    } else if (pPlayer->isAlive() && !pPlayer->isGameMaster() )
                     {
                         pTemp->SetHomePosition(me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(),me->GetOrientation());
                         pTemp->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
@@ -665,9 +632,13 @@ public:
                         pPlayer->SetInCombatWith(pTemp);
                         pTemp->AddThreat(pPlayer, 0.0f);
                     }
+                    
+                    if (pPlayer->isGameMaster())
+                        continue;                   
                 }
             }
         }
+
 
        void UpdateAI(const uint32 uiDiff)
         {
@@ -730,10 +701,144 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_announcer_toc5AI(pCreature);
+    }
+
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    {
+        InstanceScript* pInstance = pCreature->GetInstanceScript();
+
+        if (pInstance &&
+            pInstance->GetData(BOSS_GRAND_CHAMPIONS) == DONE &&
+            pInstance->GetData(BOSS_BLACK_KNIGHT) == DONE &&
+            (pInstance->GetData(BOSS_ARGENT_CHALLENGE_E) == DONE ||
+            pInstance->GetData(BOSS_ARGENT_CHALLENGE_P) == DONE))
+
+            return false;
+
+        if (pInstance &&
+            pInstance->GetData(BOSS_GRAND_CHAMPIONS) == NOT_STARTED &&
+            pInstance->GetData(BOSS_ARGENT_CHALLENGE_E) == NOT_STARTED &&
+            pInstance->GetData(BOSS_ARGENT_CHALLENGE_P) == NOT_STARTED &&
+            pInstance->GetData(BOSS_BLACK_KNIGHT) == NOT_STARTED)
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        else if (pInstance)
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+
+        return true;
+    }
+
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    {
+        pPlayer->PlayerTalkClass->ClearMenus();
+        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+        {
+            pPlayer->CLOSE_GOSSIP_MENU();
+            CAST_AI(npc_announcer_toc5::npc_announcer_toc5AI, pCreature->AI())->StartEncounter();
+        }
+
+        return true;
+    }
+};
+
+enum ArgentTournamentSpells
+{
+    SPELL_DEFEND = 66482,
+};
+
+// Shield-Breaker 62575
+class spell_gen_shieldbreaker : public SpellScriptLoader
+{
+public:
+    spell_gen_shieldbreaker() : SpellScriptLoader("spell_gen_shieldbreaker") { }
+
+    class spell_gen_shieldbreaker_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_shieldbreaker_SpellScript)
+
+        void HandleScript(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit * target = GetHitUnit())
+                target->RemoveAuraFromStack(SPELL_DEFEND);
+        }
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_gen_shieldbreaker_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_gen_shieldbreaker_SpellScript();
+    }
+};
+
+// Charge 63010
+class spell_gen_atcharge : public SpellScriptLoader
+{
+public:
+    spell_gen_atcharge() : SpellScriptLoader("spell_gen_atcharge") { }
+
+    class spell_gen_atcharge_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_atcharge_SpellScript)
+
+        void HandleScript(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit * target = GetHitUnit())
+                target->RemoveAuraFromStack(SPELL_DEFEND);
+        }
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_gen_atcharge_SpellScript::HandleScript, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_gen_atcharge_SpellScript();
+    }
+};
+
+// Shield-Breaker 68504
+class spell_gen_npcshieldbreaker : public SpellScriptLoader
+{
+public:
+    spell_gen_npcshieldbreaker() : SpellScriptLoader("spell_gen_npcshieldbreaker") { }
+
+    class spell_gen_npcshieldbreaker_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_npcshieldbreaker_SpellScript)
+
+        void HandleScript(SpellEffIndex /*effIndex*/)
+        {
+            if (Unit * target = GetHitUnit())
+                target->RemoveAuraFromStack(SPELL_DEFEND);
+        }
+
+        void Register()
+        {
+            OnEffect += SpellEffectFn(spell_gen_npcshieldbreaker_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_gen_npcshieldbreaker_SpellScript();
+    }
 };
 
 void AddSC_trial_of_the_champion()
 {
     new npc_anstart();
     new npc_announcer_toc5();
+    new spell_gen_shieldbreaker();
+    new spell_gen_atcharge();
+    new spell_gen_npcshieldbreaker();
 }
