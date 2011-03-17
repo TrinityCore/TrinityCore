@@ -27806,7 +27806,7 @@ CREATE TABLE `vehicle_accessory` (
   `seat_id` TINYINT(1) SIGNED NOT NULL DEFAULT 0,
   `minion` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
   `description` TEXT NOT NULL,
-  PRIMARY KEY (`entry`, `seat_id`)
+  PRIMARY KEY (`accessory_entry`, `seat_id`)
 )
 COLLATE=utf8_general_ci
 ENGINE=MyISAM
