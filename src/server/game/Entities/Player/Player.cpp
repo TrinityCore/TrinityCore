@@ -7213,30 +7213,38 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, int32 honor, bool pvpt
     return true;
 }
 
+void Player::SetHonorPoints(uint32 value)
+{
+    if (value > sWorld->getIntConfig(CONFIG_MAX_HONOR_POINTS))
+        value = sWorld->getIntConfig(CONFIG_MAX_HONOR_POINTS);
+    SetUInt32Value(PLAYER_FIELD_HONOR_CURRENCY, value);
+    if (value)
+        AddKnownCurrency(ITEM_HONOR_POINTS_ID);
+}
+
+void Player::SetArenaPoints(uint32 value)
+{
+    if (value > sWorld->getIntConfig(CONFIG_MAX_ARENA_POINTS))
+        value = sWorld->getIntConfig(CONFIG_MAX_ARENA_POINTS);
+    SetUInt32Value(PLAYER_FIELD_ARENA_CURRENCY, value);
+    if (value)
+        AddKnownCurrency(ITEM_ARENA_POINTS_ID);
+}
+
 void Player::ModifyHonorPoints(int32 value)
 {
-    if (value < 0)
-    {
-        if (GetHonorPoints() > sWorld->getIntConfig(CONFIG_MAX_HONOR_POINTS))
-            SetHonorPoints(sWorld->getIntConfig(CONFIG_MAX_HONOR_POINTS) + value);
-        else
-            SetHonorPoints(GetHonorPoints() > uint32(-value) ? GetHonorPoints() + value : 0);
-    }
-    else
-        SetHonorPoints(GetHonorPoints() < sWorld->getIntConfig(CONFIG_MAX_HONOR_POINTS) - value ? GetHonorPoints() + value : sWorld->getIntConfig(CONFIG_MAX_HONOR_POINTS));
+    int32 newValue = int32(GetHonorPoints()) + value;
+    if (newValue < 0)
+        newValue = 0;
+    SetHonorPoints(uint32(newValue));
 }
 
 void Player::ModifyArenaPoints(int32 value)
 {
-    if (value < 0)
-    {
-        if (GetArenaPoints() > sWorld->getIntConfig(CONFIG_MAX_ARENA_POINTS))
-            SetArenaPoints(sWorld->getIntConfig(CONFIG_MAX_ARENA_POINTS) + value);
-        else
-            SetArenaPoints(GetArenaPoints() > uint32(-value) ? GetArenaPoints() + value : 0);
-    }
-    else
-        SetArenaPoints(GetArenaPoints() < sWorld->getIntConfig(CONFIG_MAX_ARENA_POINTS) - value ? GetArenaPoints() + value : sWorld->getIntConfig(CONFIG_MAX_ARENA_POINTS));
+    int32 newValue = int32(GetArenaPoints()) + value;
+    if (newValue < 0)
+        newValue = 0;
+    SetArenaPoints(uint32(newValue));
 }
 
 uint32 Player::GetGuildIdFromDB(uint64 guid)
@@ -16547,11 +16555,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     _LoadArenaTeamInfo(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADARENAINFO));
     _LoadArenaStatsInfo(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADARENASTATS));
 
-    uint32 arena_currency = fields[39].GetUInt32();
-    if (arena_currency > sWorld->getIntConfig(CONFIG_MAX_ARENA_POINTS))
-        arena_currency = sWorld->getIntConfig(CONFIG_MAX_ARENA_POINTS);
-
-    SetArenaPoints(arena_currency);
+    SetArenaPoints(fields[39].GetUInt32());
 
     // check arena teams integrity
     for (uint32 arena_slot = 0; arena_slot < MAX_ARENA_SLOT; ++arena_slot)
@@ -20388,7 +20392,7 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
     return crItem->maxcount != 0;
 }
 
-uint32 Player::GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot)
+uint32 Player::GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot) const
 {
     // returns the maximal personal arena rating that can be used to purchase items requiring this condition
     // the personal rating of the arena team must match the required limit as well
