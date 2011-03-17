@@ -168,9 +168,6 @@ enum Phases
 
 enum DeprogrammingData
 {
-    QUEST_DEPROGRAMMING_10  = 24869,
-    QUEST_DEPROGRAMMING_25  = 24875,
-
     NPC_DARNAVAN_10         = 38472,
     NPC_DARNAVAN_25         = 38485,
     NPC_DARNAVAN_CREDIT_10  = 39091,

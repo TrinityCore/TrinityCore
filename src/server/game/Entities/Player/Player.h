@@ -1021,6 +1021,41 @@ struct AnticheatData
     uint64 creation_time;
 };
 
+class KillRewarder
+{
+public:
+    KillRewarder(Player* killer, Unit* victim, bool isBattleGround);
+
+    void Reward();
+
+private:
+    void _InitXP(Player* player);
+    void _InitGroupData();
+
+    void _RewardHonor(Player* player);
+    void _RewardXP(Player* player, float rate);
+    void _RewardReputation(Player* player, float rate);
+    void _RewardKillCredit(Player* player);
+    void _RewardPlayer(Player* player, bool isDungeon);
+    void _RewardGroup();
+
+    Player* _killer;
+    Unit* _victim;
+    bool _isBattleGround;
+
+    bool _isPvP;
+
+    Group* _group;
+    float _groupRate;
+    uint8 _maxLevel;
+    Player* _maxNotGrayMember;
+    uint32 _count;
+    uint32 _sumLevel;
+    bool _isFullXP;
+
+    uint32 _xp;
+};
+
 class Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
@@ -1782,12 +1817,12 @@ class Player : public Unit, public GridObject<Player>
         {
             SetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + type, value);
         }
-        uint32 GetArenaTeamId(uint8 slot) { return GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + ARENA_TEAM_ID); }
-        uint32 GetArenaPersonalRating(uint8 slot) { return GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + ARENA_TEAM_PERSONAL_RATING); }
         static uint32 GetArenaTeamIdFromDB(uint64 guid, uint8 slot);
+        static void LeaveAllArenaTeams(uint64 guid);
+        uint32 GetArenaTeamId(uint8 slot) const { return GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + ARENA_TEAM_ID); }
+        uint32 GetArenaPersonalRating(uint8 slot) const { return GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + ARENA_TEAM_PERSONAL_RATING); }
         void SetArenaTeamIdInvited(uint32 ArenaTeamId) { m_ArenaTeamIdInvited = ArenaTeamId; }
         uint32 GetArenaTeamIdInvited() { return m_ArenaTeamIdInvited; }
-        static void LeaveAllArenaTeams(uint64 guid);
 
         Difficulty GetDifficulty(bool isRaid) const { return isRaid ? m_raidDifficulty : m_dungeonDifficulty; }
         Difficulty GetDungeonDifficulty() const { return m_dungeonDifficulty; }
@@ -1970,8 +2005,8 @@ class Player : public Unit, public GridObject<Player>
 
         bool IsAtGroupRewardDistance(WorldObject const* pRewardSource) const;
         bool IsAtRecruitAFriendDistance(WorldObject const* pOther) const;
-        bool RewardPlayerAndGroupAtKill(Unit* pVictim);
-        void RewardPlayerAndGroupAtEvent(uint32 creature_id,WorldObject* pRewardSource);
+        void RewardPlayerAndGroupAtKill(Unit* pVictim, bool isBattleGround);
+        void RewardPlayerAndGroupAtEvent(uint32 creature_id, WorldObject* pRewardSource);
         bool isHonorOrXPTarget(Unit* pVictim);
 
         bool GetsRecruitAFriendBonus(bool forXP);
@@ -1992,24 +2027,14 @@ class Player : public Unit, public GridObject<Player>
         /*********************************************************/
         void UpdateHonorFields();
         bool RewardHonor(Unit *pVictim, uint32 groupsize, int32 honor = -1, bool pvptoken = false);
-        uint32 GetHonorPoints() { return GetUInt32Value(PLAYER_FIELD_HONOR_CURRENCY); }
-        uint32 GetArenaPoints() { return GetUInt32Value(PLAYER_FIELD_ARENA_CURRENCY); }
+        uint32 GetHonorPoints() const { return GetUInt32Value(PLAYER_FIELD_HONOR_CURRENCY); }
+        uint32 GetArenaPoints() const { return GetUInt32Value(PLAYER_FIELD_ARENA_CURRENCY); }
         void ModifyHonorPoints(int32 value);
         void ModifyArenaPoints(int32 value);
-        uint32 GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot);
         void UpdateKnownTitles();
-        void SetHonorPoints(uint32 value)
-        {
-            SetUInt32Value(PLAYER_FIELD_HONOR_CURRENCY, value);
-            if (value)
-                AddKnownCurrency(ITEM_HONOR_POINTS_ID); // Arena Points
-        }
-        void SetArenaPoints(uint32 value)
-        {
-            SetUInt32Value(PLAYER_FIELD_ARENA_CURRENCY, value);
-            if (value)
-                AddKnownCurrency(ITEM_ARENA_POINTS_ID); // Arena Points
-        }
+        uint32 GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot) const;
+        void SetHonorPoints(uint32 value);
+        void SetArenaPoints(uint32 value);
 
         //End of PvP System
 
@@ -2510,7 +2535,7 @@ class Player : public Unit, public GridObject<Player>
         void _LoadAuras(PreparedQueryResult result, uint32 timediff);
         void _LoadGlyphAuras();
         void _LoadBoundInstances(PreparedQueryResult result);
-        void _LoadInventory(PreparedQueryResult result, uint32 timediff);
+        void _LoadInventory(PreparedQueryResult result, uint32 timeDiff);
         void _LoadMailInit(PreparedQueryResult resultUnread, PreparedQueryResult resultDelivery);
         void _LoadMail();
         void _LoadMailedItems(Mail *mail);
@@ -2726,6 +2751,7 @@ class Player : public Unit, public GridObject<Player>
         uint8 _CanStoreItem_InBag(uint8 bag, ItemPosCountVec& dest, ItemPrototype const *pProto, uint32& count, bool merge, bool non_specialized, Item *pSrcItem, uint8 skip_bag, uint8 skip_slot) const;
         uint8 _CanStoreItem_InInventorySlots(uint8 slot_begin, uint8 slot_end, ItemPosCountVec& dest, ItemPrototype const *pProto, uint32& count, bool merge, Item *pSrcItem, uint8 skip_bag, uint8 skip_slot) const;
         Item* _StoreItem(uint16 pos, Item *pItem, uint32 count, bool clone, bool update);
+        Item* _LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, Field* fields);
 
         std::set<uint32> m_refundableItems;
         void SendRefundInfo(Item* item);

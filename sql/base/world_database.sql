@@ -27295,7 +27295,7 @@ INSERT INTO `trinity_string` (`entry`,`content_default`,`content_loc1`,`content_
 (536, '   Home movement used for player?!?', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (537, '   Taxi flight', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (538, '   Unknown movement generator (%u)', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(539, 'Player selected NPC\nGUID: %u.\nFaction: %u.\nnpcFlags: %u.\nEntry: %u.\nDisplayID: %u (Native: %u).', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(539, 'Player selected NPC\nDB GUID: %u, current GUID: %u.\nFaction: %u.\nnpcFlags: %u.\nEntry: %u.\nDisplayID: %u (Native: %u).', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (540, 'Level: %u.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (541, 'Health (base): %u. (max): %u. (current): %u.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (542, 'Field Flags: %u.\nDynamic Flags: %u.\nFaction Template: %u.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
@@ -27806,7 +27806,7 @@ CREATE TABLE `vehicle_accessory` (
   `seat_id` TINYINT(1) SIGNED NOT NULL DEFAULT 0,
   `minion` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
   `description` TEXT NOT NULL,
-  PRIMARY KEY (`entry`, `seat_id`)
+  PRIMARY KEY (`accessory_entry`, `seat_id`)
 )
 COLLATE=utf8_general_ci
 ENGINE=MyISAM

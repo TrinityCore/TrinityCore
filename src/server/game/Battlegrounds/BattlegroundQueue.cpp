@@ -342,7 +342,7 @@ void BattlegroundQueue::RemovePlayer(const uint64& guid, bool decreaseInvitedCou
     // if invited to bg, and should decrease invited count, then do it
     if (decreaseInvitedCount && group->IsInvitedToBGInstanceGUID)
     {
-        Battleground* bg = sBattlegroundMgr->GetBattleground(group->IsInvitedToBGInstanceGUID, group->BgTypeId);
+        Battleground* bg = sBattlegroundMgr->GetBattleground(group->IsInvitedToBGInstanceGUID, BATTLEGROUND_AA ? BATTLEGROUND_TYPE_NONE : group->BgTypeId);
         if (bg)
             bg->DecreaseInvitedCount(group->Team);
     }

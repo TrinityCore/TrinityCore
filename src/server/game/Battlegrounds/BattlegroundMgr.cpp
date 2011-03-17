@@ -111,9 +111,6 @@ void BattlegroundMgr::Update(uint32 diff)
                 if (!m_ClientBattlegroundIds[i][bg->GetBracketId()].empty())
                     m_ClientBattlegroundIds[i][bg->GetBracketId()].erase(bg->GetClientInstanceID());
 
-                // Free up the instance id and allow it to be reused
-                sMapMgr->FreeInstanceId(bg->GetInstanceID());
-
                 delete bg;
             }
         }

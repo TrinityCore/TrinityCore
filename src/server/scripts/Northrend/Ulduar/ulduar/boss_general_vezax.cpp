@@ -106,9 +106,6 @@ public:
         {
             _Reset();
 
-            events.Reset();
-            summons.DespawnAll();
-            me->ResetLootMode();
             bShadowDodger = true;
             bSmellSaronite = true;
             bAnimusDead = false;
