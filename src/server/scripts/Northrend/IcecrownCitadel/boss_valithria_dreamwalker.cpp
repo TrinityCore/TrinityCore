@@ -362,6 +362,9 @@ class boss_valithria : public CreatureScript
                     events.Reset();
                     events.ScheduleEvent(EVENT_BERSERK, 1000);
                     instance->DoCompleteAchievement(RAID_MODE<uint32>(ACHIEV_VALITHRIA_DREAMWALKER_RESCUES_10N, ACHIEV_VALITHRIA_DREAMWALKER_RESCUES_25N, ACHIEV_VALITHRIA_DREAMWALKER_RESCUES_10H, ACHIEV_VALITHRIA_DREAMWALKER_RESCUES_25H));
+                    TPlayerList players = GetPlayersInTheMap(me->GetMap());
+                    for (TPlayerList::iterator it = players.begin(); it != players.end(); ++it)
+                        (*it)->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
                     if (instance->GetData(DATA_PORTAL_JOCKEY_ACHIEVEMENT))
                         instance->DoCompleteAchievement(RAID_MODE(ACHIEV_PORTAL_JOCKEY_10, ACHIEV_PORTAL_JOCKEY_25, ACHIEV_PORTAL_JOCKEY_10, ACHIEV_PORTAL_JOCKEY_25)); 
                 }

@@ -201,6 +201,9 @@ class boss_sindragosa : public CreatureScript
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FROST_BREATH_P2);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MYSTIC_BUFFET);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ASPHYXIATION);
+                TPlayerList players = GetPlayersInTheMap(me->GetMap());
+                for (TPlayerList::iterator it = players.begin(); it != players.end(); ++it)
+                    me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_AURA, false);
             }
             void Reset()
             {
@@ -330,15 +333,21 @@ class boss_sindragosa : public CreatureScript
                         DoZoneInCombat();
                         break;
                     case POINT_AIR_PHASE:
+                    {
                         me->RemoveAurasDueToSpell(SPELL_FROST_AURA);
                         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FROST_AURA);
+                        TPlayerList players = GetPlayersInTheMap(me->GetMap());
+                        for (TPlayerList::iterator it = players.begin(); it != players.end(); ++it)
+                            me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_AURA, true);
                         bombsLanded = 0;
                         //For debug purposes, just one target will be affected with Ice Tomb spell RAID_MODE<int32>(2, 5, 3, 6)
                         me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, 1, false);
                         //10 seconds instead of 8 because ice block affects players even after it's about to appear.
                         events.ScheduleEvent(EVENT_FROST_BOMB, 10000);
                         break;
+                    }
                     case POINT_LAND:
+                    {
                         me->SetFlying(false);
                         me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                         me->SetReactState(REACT_DEFENSIVE);
@@ -346,9 +355,13 @@ class boss_sindragosa : public CreatureScript
                             me->GetMotionMaster()->MovementExpired();
                         DoStartMovement(me->getVictim());
                         DoCast(me, SPELL_FROST_AURA);
+                        TPlayerList players = GetPlayersInTheMap(me->GetMap());
+                        for (TPlayerList::iterator it = players.begin(); it != players.end(); ++it)
+                            me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_AURA, false);
                         // trigger Asphyxiation
                         summons.DoAction(NPC_ICE_TOMB, ACTION_TRIGGER_ASPHYXIATION);
                         break;
+                    }
                     default:
                         break;
                 }
@@ -1381,6 +1394,14 @@ class spell_sindragosa_icy_grip : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
+                if (Unit *pUnit = GetHitUnit())
+                    if (pUnit->isAlive())
+                    {
+                        float x, y, z;
+                        GetCaster()->GetPosition(x, y, z);
+                        float speedXY = pUnit->GetExactDist2d(x, y) * 10.0f;
+                        pUnit->GetMotionMaster()->MoveJump(x, y, z+1.0f, speedXY, 1.0f);
+                    }
                 GetHitUnit()->CastSpell(GetCaster(), SPELL_ICY_GRIP_JUMP, true);
             }
 
@@ -1536,7 +1557,7 @@ class spell_frostwarden_handler_focus_fire : public SpellScriptLoader
         {
             PrepareAuraScript(spell_frostwarden_handler_focus_fire_AuraScript);
 
-            void PeriodicTick(AuraEffect const* aurEff)
+            void PeriodicTick(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
                 if (Unit* caster = GetCaster())
@@ -1616,6 +1637,9 @@ class at_sindragosa_lair : public AreaTriggerScript
 
                 if (!instance->GetData(DATA_SINDRAGOSA_FROSTWYRMS) && instance->GetBossState(DATA_SINDRAGOSA_EVENT) != DONE)
                 {
+                    if (player->GetMap()->IsHeroic() && !instance->GetData(DATA_HEROIC_ATTEMPTS))
+                        return true;
+
                     player->GetMap()->LoadGrid(SindragosaSpawnPos.GetPositionX(), SindragosaSpawnPos.GetPositionY());
                     if (Creature* sindragosa = player->GetMap()->SummonCreature(NPC_SINDRAGOSA, SindragosaSpawnPos))
                     {

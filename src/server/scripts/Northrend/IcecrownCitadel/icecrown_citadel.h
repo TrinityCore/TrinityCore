@@ -17,6 +17,7 @@
 
 #ifndef DEF_ICECROWN_CITADEL_H
 #define DEF_ICECROWN_CITADEL_H
+#define WEEKLY_NPCS   7
 
 #define ICCScriptName "instance_icecrown_citadel"
 
@@ -34,14 +35,16 @@ enum eEnums
 
 enum eAchievements
 {
-    //ACHIEV_BONED_10                             = 4534,
-    //ACHIEV_BONED_25                             = 4610,
-    //AVHIEV_FULL_HOUSE_10                        = 4535,
-    //AVHIEV_FULL_HOUSE_25                        = 4611,
+    ACHIEV_BONED_10                             = 4534,
+    ACHIEV_BONED_25                             = 4610,
+    ACHIEV_FROZEN_THRONE_10                    = 4530,
+    ACHIEV_FROZEN_THRONE_25                    = 4597,
+    AVHIEV_FULL_HOUSE_10                        = 4535,
+    AVHIEV_FULL_HOUSE_25                        = 4611,
     ACHIEV_MESS_10                              = 4537,
     ACHIEV_MESS_25                              = 4613,
-    //ACHIEVMENT_ONCE_BITTEN_TWICE_SHY_10         = 4539,
-    //ACHIEVMENT_ONCE_BITTEN_TWICE_SHY_25         = 4618,
+    ACHIEVMENT_ONCE_BITTEN_TWICE_SHY_10         = 4539,
+    ACHIEVMENT_ONCE_BITTEN_TWICE_SHY_25         = 4618,
     ACHIEV_ALL_YOU_CAN_EAT_10                   = 4580,
     ACHIEV_ALL_YOU_CAN_EAT_25                   = 4620,
     ACHIEV_BEEN_WAITING_A_LONG_TIME_FOR_THIS_10 = 4601,
@@ -51,9 +54,9 @@ enum eAchievements
     ACHIEV_PORTAL_JOCKEY_10                     = 4579,
     ACHIEV_PORTAL_JOCKEY_25                     = 4619,
     ACHIEV_VALITHRIA_DREAMWALKER_RESCUES_10N    = 4649,
-    ACHIEV_VALITHRIA_DREAMWALKER_RESCUES_10H    = 4674,// 	Valithria Dreamwalker rescues (Heroic Icecrown 10 player) 
-    ACHIEV_VALITHRIA_DREAMWALKER_RESCUES_25N    = 4675,// 	Valithria Dreamwalker rescues (Icecrown 25 player) 
-    ACHIEV_VALITHRIA_DREAMWALKER_RESCUES_25H    = 4676,// 	Valithria Dreamwalker rescues (Heroic Icecrown 25 player)
+    ACHIEV_VALITHRIA_DREAMWALKER_RESCUES_10H    = 4674,//     Valithria Dreamwalker rescues (Heroic Icecrown 10 player) 
+    ACHIEV_VALITHRIA_DREAMWALKER_RESCUES_25N    = 4675,//     Valithria Dreamwalker rescues (Icecrown 25 player) 
+    ACHIEV_VALITHRIA_DREAMWALKER_RESCUES_25H    = 4676,//     Valithria Dreamwalker rescues (Heroic Icecrown 25 player)
 };
 
 enum eAchievementCriteria
@@ -112,6 +115,10 @@ enum eCommonActions
     ACTION_ROTFACE_DEATH        = -366272,
     ACTION_CHANGE_PHASE         = -366780,
 
+
+    // Blood-Queen Lana'thel
+    ACTION_KILL_MINCHAR         = -379550,
+
     // Sindragosa
      ACTION_START_FROSTWYRM      = -368530,
      ACTION_TRIGGER_ASPHYXIATION = -368531,
@@ -140,6 +147,7 @@ enum Data
     DATA_SINDRAGOSA_FROSTWYRMS,
     DATA_SPINESTALKER_EVENT,
     DATA_RIMEFANG_EVENT,
+    DATA_TEAM_IN_INSTANCE,
     //Teleport state
     DATA_TELEPORT_ORATORY_OF_THE_DAMNED_ACTIVATED,
     DATA_TELEPORT_RAMPART_OF_SKULLS_ACTIVATED,
@@ -151,6 +159,8 @@ enum Data
     DATA_OOZE_VALVE_ACTIVATED,
     DATA_GAS_VALVE_ACTIVATED,
     DATA_NECROTIC_STACK,
+    DATA_BLOOD_QUICKENING_STATE,
+    DATA_HEROIC_ATTEMPTS,
     //Achievements
     DATA_NECK_DEEP_ACHIEVEMENT,
     DATA_BONED_ACHIEVEMENT,
@@ -221,6 +231,8 @@ enum Data64
     GUID_ICE_SHARD_2,         
     GUID_ICE_SHARD_3,
     GUID_ICE_SHARD_4,
+    GUID_LAVAMAN,
+    GUID_HANGINGMAN,
     GUID_FROSTY_EDGE_OUTER,
     GUID_FROSTY_EDGE_INNER,
     GUID_EDGE_DESTROY_WARNING
@@ -228,6 +240,21 @@ enum Data64
 
 enum eCreatures
 {
+    // At Light's Hammer    
+    NPC_HIGHLORD_TIRION_FORDRING_LH             = 37119,    
+    NPC_THE_LICH_KING_LH                        = 37181,    
+    NPC_HIGHLORD_BOLVAR_FORDRAGON_LH            = 37183,
+
+    // Weekly quests
+     NPC_INFILTRATOR_MINCHAR                     = 38471,
+     NPC_KOR_KRON_LIEUTENANT                     = 38491,
+     NPC_SKYBREAKER_LIEUTENANT                   = 38492,
+     NPC_ALCHEMIST_ADRIANNA                      = 38501,
+     NPC_ALRIN_THE_AGILE                         = 38551,
+     NPC_INFILTRATOR_MINCHAR_BQ                  = 38558,
+     NPC_MINCHAR_BEAM_STALKER                    = 38557,
+     NPC_VALITHRIA_DREAMWALKER_QUEST             = 38589,
+
     // Lord Marrowgar
     NPC_LORD_MARROWGAR                          = 36612,
     NPC_COLDFLAME                               = 36672,
@@ -272,6 +299,9 @@ enum eCreatures
     NPC_NIBY_THE_ALMIGHTY                       = 38182,
     NPC_GARROSH_HELLSCREAM                      = 39372,
     NPC_KING_VARIAN_WRYNN                       = 39371,
+
+    NPC_MUTATED_ABOMINATION_10                  = 37672,
+    NPC_MUTATED_ABOMINATION_25                  = 38285,
 
     NPC_FESTERGUT                               = 36626,
     NPC_PUDDLE_STALKER                          = 37013,
@@ -450,6 +480,8 @@ enum eGameobjects
     GO_FROSTY_EDGE_OUTER                      = 202188,
     GO_FROSTY_EDGE_INNER                      = 202189,
     GO_EDGE_DESTROY_WARNING                   = 202190,
+    GO_LAVAMAN                                = 202436,
+    GO_HANGINGMAN                             = 202437,
 
     // Teleports
     GO_TELEPORT_LIGHT_S_HAMMER                = 202242,
@@ -471,6 +503,30 @@ enum TeleporterSpells
     SPELL_TELEPORT_ICC_SINDRAGOSA_S_LAIR      = 70861,
     SPELL_TELEPORT_ICC_FROZEN_THRONE          = 70860
 };
+
+enum WeekliesICC
+{
+    QUEST_DEPROGRAMMING_10                  = 24869,
+    QUEST_DEPROGRAMMING_25                  = 24875,
+    QUEST_SECURING_THE_RAMPARTS_10          = 24870,
+    QUEST_SECURING_THE_RAMPARTS_25          = 24877,
+    QUEST_RESIDUE_RENDEZVOUS_10             = 24873,
+    QUEST_RESIDUE_RENDEZVOUS_25             = 24878,
+    QUEST_BLOOD_QUICKENING_10               = 24874,
+    QUEST_BLOOD_QUICKENING_25               = 24879,
+    QUEST_RESPITE_FOR_A_TORNMENTED_SOUL_10  = 24872,
+    QUEST_RESPITE_FOR_A_TORNMENTED_SOUL_25  = 24880,
+};
+
+enum WorldStatesICC
+{
+    WORLDSTATE_SHOW_TIMER           = 4903,
+    WORLDSTATE_EXECUTION_TIME       = 4904,
+    WORLDSTATE_SHOW_ATTEMPTS        = 4940,
+    WORLDSTATE_ATTEMPTS_REMAINING   = 4941,
+    WORLDSTATE_ATTEMPTS_MAX         = 4942,
+};
+
 void DespawnAllCreaturesAround(Creature *ref, uint32 entry);
 void UnsummonSpecificCreaturesNearby(Creature *ref, uint32 entry, float radius);
 void LeaveOnlyPlayers(std::list<Unit*> &unitList);
