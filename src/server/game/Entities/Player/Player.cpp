@@ -7224,8 +7224,8 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, int32 honor, bool pvpt
 
             if (pVictim->isJailed() || this->isJailed())
             {
-                sWorld->BanAccount(BAN_CHARACTER, pVictim->GetName(), "0", "Honor farm victim", "auto-ban");
-                sWorld->BanAccount(BAN_CHARACTER, this->GetName(), "0", "Honor farm killer", "auto-ban");
+                //sWorld->BanAccount(BAN_CHARACTER, pVictim->GetName(), "0", "Honor farm victim", "auto-ban");
+                //sWorld->BanAccount(BAN_CHARACTER, this->GetName(), "0", "Honor farm killer", "auto-ban");
                 return false;
             }
 
