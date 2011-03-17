@@ -6625,6 +6625,8 @@ bool Spell::CheckTargetCreatureType(Unit* target) const
         spellCreatureTargetMask =  0;
 
     // Polymorph and Grounding Totem
+    if (!target)
+        return false;
     if (target->GetEntry() == 5925 && m_spellInfo->SpellFamilyName == SPELLFAMILY_MAGE && (m_spellInfo->SpellFamilyFlags[0] & 0x1000000) && m_spellInfo->EffectApplyAuraName[0] == SPELL_AURA_MOD_CONFUSE)
         return true;
 
