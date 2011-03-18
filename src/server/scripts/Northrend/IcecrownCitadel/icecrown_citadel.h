@@ -15,8 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEF_ICECROWN_CITADEL_H
-#define DEF_ICECROWN_CITADEL_H
+#ifndef ICECROWN_CITADEL_H_
+#define ICECROWN_CITADEL_H_
 
 #define ICCScriptName "instance_icecrown_citadel"
 uint32 const EncounterCount = 12;
@@ -326,4 +326,4 @@ enum WorldStatesICC
     WORLDSTATE_ATTEMPTS_MAX         = 4942,
 };
 
-#endif // DEF_ICECROWN_CITADEL_H
+#endif // ICECROWN_CITADEL_H_
