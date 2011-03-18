@@ -26,7 +26,7 @@
 //* Deprogramming                (DONE)
 //* Securing the Ramparts        (DONE)
 //* Residue Rendezvous           (DONE)
-//* Blood Quickening                    // AreaTrigger 5729 starts the timer, pulling BQ before it runs out means success
+//* Blood Quickening             (DONE)
 //* Respite for a Tormented Soul
 
 enum Texts
