@@ -53,7 +53,7 @@ struct WeeklyQuest
 {
     uint32 creatureEntry;
     uint32 questId[2];  // 10 and 25 man versions
-} WeeklyQuestData[WEEKLY_NPCS] =
+} WeeklyQuestData[WeeklyNPCs] =
 {
     {NPC_INFILTRATOR_MINCHAR,         {QUEST_DEPROGRAMMING_10,                 QUEST_DEPROGRAMMING_25                }}, // Deprogramming
     {NPC_KOR_KRON_LIEUTENANT,         {QUEST_SECURING_THE_RAMPARTS_10,         QUEST_SECURING_THE_RAMPARTS_25        }}, // Securing the Ramparts
@@ -73,10 +73,10 @@ class instance_icecrown_citadel : public InstanceMapScript
         {
             instance_icecrown_citadel_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
-                SetBossNumber(MAX_ENCOUNTER);
+                SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
                 teamInInstance = 0;
-                heroicAttempts = 50;
+                heroicAttempts = MaxHeroicAttempts;
                 ladyDeathwisperElevator = 0;
                 deathbringerSaurfang = 0;
                 saurfangDoor = 0;
@@ -118,7 +118,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 data << uint32(WORLDSTATE_EXECUTION_TIME)     << uint32(bloodQuickeningMinutes);
                 data << uint32(WORLDSTATE_SHOW_ATTEMPTS)      << uint32(instance->IsHeroic());
                 data << uint32(WORLDSTATE_ATTEMPTS_REMAINING) << uint32(heroicAttempts);
-                data << uint32(WORLDSTATE_ATTEMPTS_MAX)       << uint32(50);
+                data << uint32(WORLDSTATE_ATTEMPTS_MAX)       << uint32(MaxHeroicAttempts);
             }
 
             void OnPlayerEnter(Player* player)
@@ -248,7 +248,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case NPC_MINCHAR_BEAM_STALKER:
                     case NPC_VALITHRIA_DREAMWALKER_QUEST:
                     {
-                        for (uint8 questIndex = 0; questIndex < WEEKLY_NPCS; ++questIndex)
+                        for (uint8 questIndex = 0; questIndex < WeeklyNPCs; ++questIndex)
                         {
                             if (WeeklyQuestData[questIndex].creatureEntry == entry)
                             {
@@ -876,7 +876,7 @@ class instance_icecrown_citadel : public InstanceMapScript
 
                 if (dataHead1 == 'I' && dataHead2 == 'C')
                 {
-                    for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+                    for (uint32 i = 0; i < EncounterCount; ++i)
                     {
                         uint32 tmpState;
                         loadStream >> tmpState;
