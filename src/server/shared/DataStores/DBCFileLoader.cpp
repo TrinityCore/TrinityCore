@@ -28,7 +28,7 @@ DBCFileLoader::DBCFileLoader()
     fieldsOffset = NULL;
 }
 
-bool DBCFileLoader::Load(const char *filename, const char *fmt)
+bool DBCFileLoader::Load(const char* filename, const char* fmt)
 {
     uint32 header;
     if (data)
@@ -37,7 +37,7 @@ bool DBCFileLoader::Load(const char *filename, const char *fmt)
         data = NULL;
     }
 
-    FILE * f = fopen(filename,"rb");
+    FILE* f = fopen(filename,"rb");
     if (!f)
         return false;
 
@@ -128,7 +128,7 @@ DBCFileLoader::Record DBCFileLoader::getRecord(size_t id)
     return Record(*this, data + id * recordSize);
 }
 
-uint32 DBCFileLoader::GetFormatRecordSize(const char * format, int32* index_pos)
+uint32 DBCFileLoader::GetFormatRecordSize(const char* format, int32* index_pos)
 {
     uint32 recordsize = 0;
     int32 i = -1;
@@ -170,7 +170,7 @@ uint32 DBCFileLoader::GetFormatRecordSize(const char * format, int32* index_pos)
     return recordsize;
 }
 
-char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**& indexTable, uint32 sqlRecordCount, uint32 sqlHighestIndex, char *& sqlDataTable)
+char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**& indexTable, uint32 sqlRecordCount, uint32 sqlHighestIndex, char*& sqlDataTable)
 {
     /*
     format STRING, NA, FLOAT,NA,INT <=>
@@ -183,8 +183,8 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
     this func will generate  entry[rows] data;
     */
 
-    typedef char * ptr;
-    if (strlen(format)!=fieldCount)
+    typedef char* ptr;
+    if (strlen(format) != fieldCount)
         return NULL;
 
     //get struct size and index pos
@@ -197,8 +197,9 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
         //find max index
         for (uint32 y = 0; y < recordCount; ++y)
         {
-            uint32 ind = getRecord(y).getUInt (i);
-            if (indi > maxi)maxi = ind;
+            uint32 ind = getRecord(y).getUInt(i);
+            if (ind > maxi)
+                maxi = ind;
         }
 
         // If higher index avalible from sql - use it instead of dbcs
@@ -208,7 +209,7 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
         ++maxi;
         records = maxi;
         indexTable = new ptr[maxi];
-        memset(indexTable, 0, imaxi * sizeof(ptr));
+        memset(indexTable, 0, maxi * sizeof(ptr));
     }
     else
     {
@@ -249,7 +250,7 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
                     offset += sizeof(char*);
                     break;
                 case FT_LOGIC:
-                    assert(false && "Attempted to load DBC files that do not have field types that match what is in the core. Check DBCfmt.h or your DBC files."); 
+                    assert(false && "Attempted to load DBC files that do not have field types that match what is in the core. Check DBCfmt.h or your DBC files.");
                     break;
                 case FT_NA:
                 case FT_NA_BYTE:
@@ -306,7 +307,7 @@ char* DBCFileLoader::AutoProduceStrings(const char* format, char* dataTable)
                     break;
                  }
                  case FT_LOGIC:
-                     assert(false && "Attempted to load DBC files that do not have field types that match what is in the core. Check DBCfmt.h or your DBC files.");
+                     assert(false && "Attempted to load DBC files that does not have field types that match what is in the core. Check DBCfmt.h or your DBC files.");
                      break;
                  case FT_NA:
                  case FT_NA_BYTE:
@@ -321,4 +322,3 @@ char* DBCFileLoader::AutoProduceStrings(const char* format, char* dataTable)
 
     return stringPool;
 }
-

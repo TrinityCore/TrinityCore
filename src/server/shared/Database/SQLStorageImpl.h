@@ -21,13 +21,13 @@
 
 template<class T>
 template<class S, class D>
-void SQLStorageLoaderBase<T>::convert(uint32 /*field_pos*/, S src, D &dst)
+void SQLStorageLoaderBase<T>::convert(uint32 /*field_pos*/, S src, D& dst)
 {
     dst = D(src);
 }
 
 template<class T>
-void SQLStorageLoaderBase<T>::convert_str_to_str(uint32 /*field_pos*/, char *src, char *&dst)
+void SQLStorageLoaderBase<T>::convert_str_to_str(uint32 /*field_pos*/, char* src, char*& dst)
 {
     if (!src)
     {
@@ -44,7 +44,7 @@ void SQLStorageLoaderBase<T>::convert_str_to_str(uint32 /*field_pos*/, char *src
 
 template<class T>
 template<class S>
-void SQLStorageLoaderBase<T>::convert_to_str(uint32 /*field_pos*/, S /*src*/, char * & dst)
+void SQLStorageLoaderBase<T>::convert_to_str(uint32 /*field_pos*/, S /*src*/, char*& dst)
 {
     dst = new char[1];
     *dst = 0;
@@ -52,17 +52,17 @@ void SQLStorageLoaderBase<T>::convert_to_str(uint32 /*field_pos*/, S /*src*/, ch
 
 template<class T>
 template<class D>
-void SQLStorageLoaderBase<T>::convert_from_str(uint32 /*field_pos*/, char * /*src*/, D& dst)
+void SQLStorageLoaderBase<T>::convert_from_str(uint32 /*field_pos*/, char* /*src*/, D& dst)
 {
     dst = 0;
 }
 
 template<class T>
 template<class V>
-void SQLStorageLoaderBase<T>::storeValue(V value, SQLStorage &store, char *p, int x, uint32 &offset)
+void SQLStorageLoaderBase<T>::storeValue(V value, SQLStorage& store, char* p, int x, uint32 &offset)
 {
-    T * subclass = (static_cast<T*>(this));
-    switch(store.dst_format[x])
+    T* subclass = (static_cast<T*>(this));
+    switch (store.dst_format[x])
     {
         case FT_LOGIC:
             subclass->convert(x, value, *((bool*)(&p[offset])) );
@@ -96,10 +96,10 @@ void SQLStorageLoaderBase<T>::storeValue(V value, SQLStorage &store, char *p, in
 }
 
 template<class T>
-void SQLStorageLoaderBase<T>::storeValue(char * value, SQLStorage &store, char *p, int x, uint32 &offset)
+void SQLStorageLoaderBase<T>::storeValue(char* value, SQLStorage& store, char* p, int x, uint32& offset)
 {
-    T * subclass = (static_cast<T*>(this));
-    switch(store.dst_format[x])
+    T* subclass = (static_cast<T*>(this));
+    switch (store.dst_format[x])
     {
         case FT_LOGIC:
             subclass->convert_from_str(x, value, *((bool*)(&p[offset])) );
@@ -133,18 +133,18 @@ void SQLStorageLoaderBase<T>::storeValue(char * value, SQLStorage &store, char *
 }
 
 template<class T>
-void SQLStorageLoaderBase<T>::Load(SQLStorage &store)
+void SQLStorageLoaderBase<T>::Load(SQLStorage& store)
 {
     uint32 maxi;
-    Field *fields;
+    Field* fields;
     QueryResult result = WorldDatabase.PQuery("SELECT MAX(%s) FROM %s", store.entry_field, store.table);
-    if(!result)
+    if (!result)
     {
-        sLog->outError("Error loading %s table (not exist?)\n", store.table);
+        sLog->outError("Error loading %s table (does not exist?)\n", store.table);
         exit(1);                                            // Stop server at loading non exited table or not accessable table
     }
 
-    maxi = (*result)[0].GetUInt32() + 1;
+    maxi = result->Fetch()[0].GetUInt32() + 1;
 
     result = WorldDatabase.PQuery("SELECT COUNT(*) FROM %s", store.table);
     if (result)
@@ -170,7 +170,7 @@ void SQLStorageLoaderBase<T>::Load(SQLStorage &store)
     if (store.iNumFields != result->GetFieldCount())
     {
         store.RecordCount = 0;
-        sLog->outError("Error in %s table, probably sql file format was updated (there should be %d fields in sql).\n", store.table, store.iNumFields);
+        sLog->outError("Error loading table %s, probably table format was updated (there should be %u fields in sql).\n", store.table, store.iNumFields);
         exit(1);                                            // Stop server at loading broken or non-compatible table.
     }
 
@@ -182,12 +182,12 @@ void SQLStorageLoaderBase<T>::Load(SQLStorage &store)
     do
     {
         fields = result->Fetch();
-        char *p = (char*)&_data[recordsize*count];
+        char* p = (char*)&_data[recordsize * count];
         newIndex[fields[0].GetUInt32()] = p;
 
         offset = 0;
         for (uint32 x = 0; x < store.iNumFields; ++x)
-            switch(store.src_format[x])
+            switch (store.src_format[x])
             {
                 case FT_LOGIC:
                     storeValue((bool)(fields[x].GetUInt32() > 0), store, p, x, offset);
@@ -216,13 +216,9 @@ void SQLStorageLoaderBase<T>::Load(SQLStorage &store)
 
             }
         ++count;
-    }
-    while( result->NextRow() );
-
-    delete result;
+    } while (result->NextRow());
 
     store.pIndex = newIndex;
     store.MaxEntry = maxi;
     store.data = _data;
 }
-
