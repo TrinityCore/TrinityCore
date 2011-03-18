@@ -174,10 +174,42 @@ void SQLStorageLoaderBase<T>::Load(SQLStorage& store)
         exit(1);                                            // Stop server at loading broken or non-compatible table.
     }
 
+    for (uint32 x = 0; x < store.iNumFields; ++x)
+    {
+        switch (store.dst_format[x])
+        {
+            case FT_LOGIC:
+                recordsize += sizeof(bool);
+                break;
+            case FT_BYTE:
+                recordsize += sizeof(char);
+                break;
+            case FT_INT:
+                recordsize += sizeof(uint32);
+                break;
+            case FT_FLOAT:
+                recordsize += sizeof(float);
+                break;
+            case FT_STRING:
+                recordsize += sizeof(char*);
+                break;
+            case FT_NA:
+            case FT_NA_BYTE:
+                break;
+            case FT_IND:
+            case FT_SORT:
+                assert(false && "SQL storage does not have sort field types!");
+                break;
+            default:
+                assert(false && "Unknown field format character in SQLStorage.cpp");
+                break;
+        }
+    }
+
     char** newIndex = new char*[maxi];
     memset(newIndex, 0, maxi * sizeof(char*));
 
-    char * _data = new char[store.RecordCount *recordsize];
+    char * _data = new char[store.RecordCount * recordsize];
     uint32 count = 0;
     do
     {
@@ -209,7 +241,7 @@ void SQLStorageLoaderBase<T>::Load(SQLStorage& store)
                     break;
                 case FT_IND:
                 case FT_SORT:
-                    assert(false && "SQL storage has a field type that does not match what is in the core. Check SQLStorage.cpp or your database.");
+                    assert(false && "SQL storage has a field type that is not allowed. Check your SQLStorage.cpp!");
                     break;
                 default:
                     assert(false && "Unknown field format character in SQLStorage.cpp");
