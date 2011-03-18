@@ -516,22 +516,17 @@ public:
                 if (i >= BUYBACK_SLOT_START && i < BUYBACK_SLOT_END)
                     continue;
 
-                Item *item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
-                if (!item) continue;
-                if (!item->IsBag())
+                if (Item *item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
                 {
-                    if (item->GetState() == state)
-                        handler->PSendSysMessage("bag: 255 slot: %d guid: %d owner: %d", item->GetSlot(), item->GetGUIDLow(), GUID_LOPART(item->GetOwnerGUID()));
-                }
-                else
-                {
-                    Bag *bag = (Bag*)item;
-                    for (uint8 j = 0; j < bag->GetBagSize(); ++j)
+                    if (Bag* bag = item->ToBag())
                     {
-                        Item* item2 = bag->GetItemByPos(j);
-                        if (item2 && item2->GetState() == state)
-                            handler->PSendSysMessage("bag: 255 slot: %d guid: %d owner: %d", item2->GetSlot(), item2->GetGUIDLow(), GUID_LOPART(item2->GetOwnerGUID()));
+                        for (uint8 j = 0; j < bag->GetBagSize(); ++j)
+                            if (Item* item2 = bag->GetItemByPos(j))
+                                if (item2->GetState() == state)
+                                    handler->PSendSysMessage("bag: 255 slot: %d guid: %d owner: %d", item2->GetSlot(), item2->GetGUIDLow(), GUID_LOPART(item2->GetOwnerGUID()));
                     }
+                    else if (item->GetState() == state)
+                        handler->PSendSysMessage("bag: 255 slot: %d guid: %d owner: %d", item->GetSlot(), item->GetGUIDLow(), GUID_LOPART(item->GetOwnerGUID()));
                 }
             }
         }
@@ -619,9 +614,8 @@ public:
                     error = true; continue;
                 }
 
-                if (item->IsBag())
+                if (Bag* bag = item->ToBag())
                 {
-                    Bag *bag = (Bag*)item;
                     for (uint8 j = 0; j < bag->GetBagSize(); ++j)
                     {
                         Item* item2 = bag->GetItemByPos(j);
