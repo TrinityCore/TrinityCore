@@ -19,6 +19,11 @@
 #define DEF_ICECROWN_CITADEL_H
 
 #define ICCScriptName "instance_icecrown_citadel"
+uint32 const EncounterCount = 12;
+uint32 const WeeklyNPCs = 7;
+uint32 const MaxHeroicAttempts = 50;
+// Defined in boss_sindragosa.cpp
+extern Position const SindragosaSpawnPos;
 
 // Shared spells used by more than one script
 enum SharedSpells
@@ -39,7 +44,7 @@ enum TeleporterSpells
     DEATHBRINGER_S_RISE_TELEPORT    = 70858,
     UPPER_SPIRE_TELEPORT            = 70859,
     FROZEN_THRONE_TELEPORT          = 70860,
-    SINDRAGOSA_S_LAIR_TELEPORT      = 70861
+    SINDRAGOSA_S_LAIR_TELEPORT      = 70861,
 };
 
 enum DataTypes
@@ -77,9 +82,6 @@ enum DataTypes
     DATA_BLOOD_QUICKENING_STATE     = 27,
     DATA_HEROIC_ATTEMPTS            = 28,
 };
-
-#define MAX_ENCOUNTER 12
-#define WEEKLY_NPCS   7
 
 enum CreaturesIds
 {
@@ -323,8 +325,5 @@ enum WorldStatesICC
     WORLDSTATE_ATTEMPTS_REMAINING   = 4941,
     WORLDSTATE_ATTEMPTS_MAX         = 4942,
 };
-
-// Declaration
-extern Position const SindragosaSpawnPos;
 
 #endif // DEF_ICECROWN_CITADEL_H
