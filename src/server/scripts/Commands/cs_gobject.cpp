@@ -250,7 +250,7 @@ public:
             {
                 if (initString)
                 {
-                    eventFilter  <<  "OR event IN (" <<*itr;
+                    eventFilter  <<  "OR eventEntry IN (" <<*itr;
                     initString =false;
                 }
                 else
@@ -264,8 +264,9 @@ public:
 
             result = WorldDatabase.PQuery("SELECT gameobject.guid, id, position_x, position_y, position_z, orientation, map, phaseMask, "
                 "(POW(position_x - %f, 2) + POW(position_y - %f, 2) + POW(position_z - %f, 2)) AS order_ FROM gameobject "
-                "LEFT OUTER JOIN game_event_gameobject on gameobject.guid=game_event_gameobject.guid WHERE map = '%i' %s ORDER BY order_ ASC LIMIT 10",
-                handler->GetSession()->GetPlayer()->GetPositionX(), handler->GetSession()->GetPlayer()->GetPositionY(), handler->GetSession()->GetPlayer()->GetPositionZ(), handler->GetSession()->GetPlayer()->GetMapId(),eventFilter.str().c_str());
+                "LEFT OUTER JOIN game_event_gameobject on gameobject.guid = game_event_gameobject.guid WHERE map = '%i' %s ORDER BY order_ ASC LIMIT 10",
+                handler->GetSession()->GetPlayer()->GetPositionX(), handler->GetSession()->GetPlayer()->GetPositionY(), handler->GetSession()->GetPlayer()->GetPositionZ(),
+                handler->GetSession()->GetPlayer()->GetMapId(),eventFilter.str().c_str());
         }
 
         if (!result)
