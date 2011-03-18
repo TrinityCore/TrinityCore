@@ -516,7 +516,7 @@ void WorldSession::HandleSellItemOpcode(WorldPacket & recv_data)
         }
 
         // prevent sell non empty bag by drag-and-drop at vendor's item list
-        if (pItem->IsBag() && !((Bag*)pItem)->IsEmpty())
+        if (pItem->IsNotEmptyBag())
         {
             _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, pCreature, itemguid, 0);
             return;
@@ -668,7 +668,7 @@ void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket & recv_data)
     {
         for (int i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
         {
-            if (Bag *pBag = (Bag*)_player->GetItemByPos(INVENTORY_SLOT_BAG_0,i))
+            if (Bag* pBag = _player->GetBagByPos(i))
             {
                 if (bagguid == pBag->GetGUID())
                 {
