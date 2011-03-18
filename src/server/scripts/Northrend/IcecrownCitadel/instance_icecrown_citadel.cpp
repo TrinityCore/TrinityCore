@@ -320,18 +320,18 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case GO_PLAGUE_SIGIL:
                         plagueSigil = go->GetGUID();
-                        if (GetBossState(DATA_PROFESSOR_PUTRICIDE))
-                            HandleGameObject(plagueSigil, true, go);
+                        if (GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE)
+                            HandleGameObject(plagueSigil, false, go);
                         break;
                     case GO_BLOODWING_SIGIL:
                         bloodwingSigil = go->GetGUID();
-                        if (GetBossState(DATA_PROFESSOR_PUTRICIDE))
-                            HandleGameObject(bloodwingSigil, true, go);
+                        if (GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE)
+                            HandleGameObject(bloodwingSigil, false, go);
                         break;
                     case GO_SIGIL_OF_THE_FROSTWING:
                         frostwingSigil = go->GetGUID();
-                        if (GetBossState(DATA_PROFESSOR_PUTRICIDE))
-                            HandleGameObject(frostwingSigil, true, go);
+                        if (GetBossState(DATA_SINDRAGOSA) == DONE)
+                            HandleGameObject(frostwingSigil, false, go);
                         break;
                     case GO_SCIENTIST_AIRLOCK_DOOR_COLLISION:
                         putricideCollision = go->GetGUID();
@@ -414,6 +414,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return coldflameJetsState;
                     case DATA_TEAM_IN_INSTANCE:
                         return teamInInstance;
+                    case DATA_BLOOD_QUICKENING_STATE:
+                        return bloodQuickeningState;
                     case DATA_HEROIC_ATTEMPTS:
                         return heroicAttempts;
                     default:
@@ -667,6 +669,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 break;
                         }
                         bloodQuickeningState = data;
+                        SaveToDB();
                         break;
                     }
                     default:
@@ -901,7 +904,7 @@ class instance_icecrown_citadel : public InstanceMapScript
 
             void Update(uint32 diff)
             {
-                if (bloodQuickeningMinutes)
+                if (bloodQuickeningState == IN_PROGRESS)
                 {
                     if (bloodQuickeningTimer <= diff)
                     {
