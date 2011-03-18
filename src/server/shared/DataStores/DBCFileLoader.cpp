@@ -134,7 +134,7 @@ uint32 DBCFileLoader::GetFormatRecordSize(const char* format, int32* index_pos)
     int32 i = -1;
     for (uint32 x = 0; format[x]; ++x)
     {
-        switch(format[x])
+        switch (format[x])
         {
             case FT_FLOAT:
                 recordsize += sizeof(float);
@@ -155,11 +155,15 @@ uint32 DBCFileLoader::GetFormatRecordSize(const char* format, int32* index_pos)
             case FT_BYTE:
                 recordsize += sizeof(uint8);
                 break;
+            case FT_NA:
+            case FT_NA_BYTE:
+                break;
             case FT_LOGIC:
-                assert(false && "Attempted to load DBC files that do not have field types that match what is in the core. Check DBCfmt.h or your DBC files.");
+                ASSERT(false && "Attempted to load DBC files that do not have field types that match what is in the core. Check DBCfmt.h or your DBC files.");
                 break;
             default:
-                assert(false && "Unknown field format character in DBCfmt.h");
+                sLog->outErrorDb("%c", format[x]);
+                ASSERT(false && "Unknown field format character in DBCfmt.h");
                 break;
         }
     }
@@ -230,7 +234,7 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
 
         for (uint32 x=0; x < fieldCount; ++x)
         {
-            switch(format[x])
+            switch (format[x])
             {
                 case FT_FLOAT:
                     *((float*)(&dataTable[offset])) = getRecord(y).getFloat(x);
@@ -250,14 +254,14 @@ char* DBCFileLoader::AutoProduceData(const char* format, uint32& records, char**
                     offset += sizeof(char*);
                     break;
                 case FT_LOGIC:
-                    assert(false && "Attempted to load DBC files that do not have field types that match what is in the core. Check DBCfmt.h or your DBC files.");
+                    ASSERT(false && "Attempted to load DBC files that do not have field types that match what is in the core. Check DBCfmt.h or your DBC files.");
                     break;
                 case FT_NA:
                 case FT_NA_BYTE:
                 case FT_SORT:
                     break;
                 default:
-                    assert(false && "Unknown field format character in DBCfmt.h");
+                    ASSERT(false && "Unknown field format character in DBCfmt.h");
                     break;
             }
         }
@@ -282,7 +286,7 @@ char* DBCFileLoader::AutoProduceStrings(const char* format, char* dataTable)
     {
         for (uint32 x = 0; x < fieldCount; ++x)
         {
-            switch(format[x])
+            switch (format[x])
             {
                 case FT_FLOAT:
                     offset += sizeof(float);
@@ -307,14 +311,14 @@ char* DBCFileLoader::AutoProduceStrings(const char* format, char* dataTable)
                     break;
                  }
                  case FT_LOGIC:
-                     assert(false && "Attempted to load DBC files that does not have field types that match what is in the core. Check DBCfmt.h or your DBC files.");
+                     ASSERT(false && "Attempted to load DBC files that does not have field types that match what is in the core. Check DBCfmt.h or your DBC files.");
                      break;
                  case FT_NA:
                  case FT_NA_BYTE:
                  case FT_SORT:
                      break;
                  default:
-                     assert(false && "Unknown field format character in DBCfmt.h");
+                     ASSERT(false && "Unknown field format character in DBCfmt.h");
                      break;
             }
         }
