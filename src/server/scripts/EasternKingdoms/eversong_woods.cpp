@@ -418,6 +418,8 @@ public:
                 {
                     if (Creature* paladinSpawn = Unit::GetCreature((*me), paladinGuid[paladinPhase]))
                     {
+			if (!paladinSpawn)
+			    return false;
                         CAST_AI(npc_second_trial_paladin::npc_secondTrialAI, paladinSpawn->AI())->Activate(me->GetGUID());
 
                         switch(paladinPhase)
