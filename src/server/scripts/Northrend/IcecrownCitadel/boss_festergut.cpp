@@ -277,7 +277,7 @@ class boss_festergut : public CreatureScript
         private:
             uint64 gasDummyGUID;
             uint32 maxInoculatedStack;
-            uint8 inhaleCounter;
+            uint32 inhaleCounter;
         };
 
         CreatureAI* GetAI(Creature* creature) const

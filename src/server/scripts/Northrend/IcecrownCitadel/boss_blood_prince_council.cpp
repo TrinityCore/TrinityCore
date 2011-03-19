@@ -270,7 +270,7 @@ class boss_blood_council_controller : public CreatureScript
 
             void SetData(uint32 /*type*/, uint32 data)
             {
-                resetCounter += data;
+                resetCounter += uint8(data);
                 if (resetCounter == 3)
                     EnterEvadeMode();
             }
@@ -334,7 +334,7 @@ class boss_blood_council_controller : public CreatureScript
                             if (newPrince)
                             {
                                 newPrince->SetHealth(me->GetHealth());
-                                newPrince->AI()->Talk(invocationOrder[invocationStage].textId);
+                                newPrince->AI()->Talk(uint8(invocationOrder[invocationStage].textId));
                             }
 
                             DoCast(me, invocationOrder[invocationStage].spellId);
@@ -352,10 +352,10 @@ class boss_blood_council_controller : public CreatureScript
             {
                 uint64 guid;
                 uint32 spellId;
-                uint8  textId;
+                uint32 textId;
                 uint32 visualSpell;
 
-                InvocationData(uint64 _guid, uint32 _spellId, int32 _textId, uint32 _visualSpell)
+                InvocationData(uint64 _guid, uint32 _spellId, uint32 _textId, uint32 _visualSpell)
                 {
                     guid = _guid;
                     spellId = _spellId;
@@ -365,8 +365,8 @@ class boss_blood_council_controller : public CreatureScript
 
                 InvocationData() : guid(0), spellId(0), textId(0), visualSpell(0) { }
             } invocationOrder[3];
-            uint8 invocationStage;
-            uint8 resetCounter;
+            uint32 invocationStage;
+            uint32 resetCounter;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -564,8 +564,8 @@ class boss_prince_keleseth_icc : public CreatureScript
 
         private:
             static const Position roomCenter;
-            bool isEmpowered;  // bool check faster than map lookup
             uint32 spawnHealth;
+            bool isEmpowered;  // bool check faster than map lookup
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1180,8 +1180,8 @@ class npc_ball_of_flame : public CreatureScript
             }
 
         private:
-            InstanceScript* instance;
             uint64 chaseGUID;
+            InstanceScript* instance;
             uint32 despawnTimer;
         };
 
@@ -1247,7 +1247,9 @@ class npc_kinetic_bomb : public CreatureScript
 
         private:
             EventMap events;
-            float x, y, groundZ;
+            float x;
+            float y;
+            float groundZ;
         };
 
         CreatureAI* GetAI(Creature* creature) const

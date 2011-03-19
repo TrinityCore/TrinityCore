@@ -329,25 +329,25 @@ enum WorldStatesICC
 class spell_trigger_spell_from_caster : public SpellScriptLoader
 {
     public:
-        spell_trigger_spell_from_caster(char const* scriptName, uint32 _triggerId) : SpellScriptLoader(scriptName), triggerId(_triggerId) { }
+        spell_trigger_spell_from_caster(char const* scriptName, uint32 triggerId) : SpellScriptLoader(scriptName), _triggerId(triggerId) { }
 
         class spell_trigger_spell_from_caster_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_trigger_spell_from_caster_SpellScript);
 
         public:
-            spell_trigger_spell_from_caster_SpellScript(uint32 _triggerId) : SpellScript(), triggerId(_triggerId) { }
+            spell_trigger_spell_from_caster_SpellScript(uint32 triggerId) : SpellScript(), _triggerId(triggerId) { }
 
             bool Validate(SpellEntry const* /*spell*/)
             {
-                if (!sSpellStore.LookupEntry(triggerId))
+                if (!sSpellStore.LookupEntry(_triggerId))
                     return false;
                 return true;
             }
 
             void HandleTrigger()
             {
-                GetCaster()->CastSpell(GetHitUnit(), triggerId, true);
+                GetCaster()->CastSpell(GetHitUnit(), _triggerId, true);
             }
 
             void Register()
@@ -355,7 +355,7 @@ class spell_trigger_spell_from_caster : public SpellScriptLoader
                 AfterHit += SpellHitFn(spell_trigger_spell_from_caster_SpellScript::HandleTrigger);
             }
 
-            uint32 triggerId;
+            uint32 _triggerId;
         };
 
         SpellScript* GetSpellScript() const
@@ -364,7 +364,7 @@ class spell_trigger_spell_from_caster : public SpellScriptLoader
         }
 
     private:
-        uint32 triggerId;
+        uint32 _triggerId;
 };
 
 #endif // ICECROWN_CITADEL_H_
