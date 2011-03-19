@@ -233,7 +233,7 @@ class boss_rotface : public CreatureScript
 
         private:
             uint32 infectionCooldown;
-            uint8 infectionStage;
+            uint32 infectionStage;
         };
 
         CreatureAI* GetAI(Creature* creature) const

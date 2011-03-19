@@ -252,9 +252,9 @@ class boss_lord_marrowgar : public CreatureScript
             }
 
         private:
+            Position coldflameLastPos;
             uint32 boneStormDuration;
             float baseSpeed;
-            Position coldflameLastPos;
             bool introDone;
             bool boneSlice;
         };
