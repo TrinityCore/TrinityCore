@@ -252,3 +252,11 @@ UPDATE `creature_template` SET `exp` = 0 WHERE `entry` = 32796;
 -- Fix Explosive shot from spd scaling
 DELETE FROM `spell_bonus_data` WHERE `entry`='53352';
 INSERT INTO `spell_bonus_data`(`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`ap_dot_bonus`,`comments`) VALUES ( '53352','0','0','0.14','0','Hunter - Explosive Shot (triggered)');
+
+--Fix Isle of Conquest
+DELETE FROM npc_spellclick_spells WHERE npc_entry IN (35413, 35419, 35431, 35433);
+INSERT INTO npc_spellclick_spells (`npc_entry`, `spell_id`, `quest_start`, `quest_start_active`, `quest_end`, `cast_flags`, `aura_required`, `aura_forbidden`, `user_type`) VALUES
+(35413, 60968, 0, 0, 0, 1, 0, 0, 0),
+(35419, 68503, 0, 0, 0, 1, 0, 0, 0),
+(35431, 46598, 0, 0, 0, 1, 0, 0, 0),
+(35433, 46598, 0, 0, 0, 1, 0, 0, 0); 
