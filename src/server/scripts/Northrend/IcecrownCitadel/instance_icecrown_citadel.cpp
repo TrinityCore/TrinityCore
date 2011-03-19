@@ -252,7 +252,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         {
                             if (WeeklyQuestData[questIndex].creatureEntry == entry)
                             {
-                                uint8 diffIndex = instance->GetSpawnMode() & 1;
+                                uint8 diffIndex = uint8(instance->GetSpawnMode() & 1);
                                 if (!sPoolMgr->IsSpawnedObject<Quest>(WeeklyQuestData[questIndex].questId[diffIndex]))
                                     entry = 0;
                                 break;
@@ -855,8 +855,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                 OUT_SAVE_INST_DATA;
 
                 std::ostringstream saveStream;
-                saveStream << "I C " << GetBossSaveData() << uint32(coldflameJetsState)
-                    << " " << uint32(bloodQuickeningState) << " " << bloodQuickeningMinutes;
+                saveStream << "I C " << GetBossSaveData() << coldflameJetsState
+                    << " " << bloodQuickeningState << " " << bloodQuickeningMinutes;
 
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return saveStream.str();
@@ -930,6 +930,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             }
 
         private:
+            std::set<uint64> coldflameJets;
             uint64 ladyDeathwisperElevator;
             uint64 deathbringerSaurfang;
             uint64 saurfangDoor;
@@ -952,15 +953,14 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 sindragosa;
             uint64 spinestalker;
             uint64 rimefang;
-            std::set<uint64> coldflameJets;
             uint32 teamInInstance;
             uint32 bloodQuickeningTimer;
+            uint32 coldflameJetsState;
+            uint32 frostwyrms;
+            uint32 spinestalkerTrash;
+            uint32 rimefangTrash;
+            uint32 bloodQuickeningState;
             uint16 heroicAttempts;
-            uint16 coldflameJetsState;
-            uint16 frostwyrms;
-            uint16 spinestalkerTrash;
-            uint16 rimefangTrash;
-            uint16 bloodQuickeningState;
             uint16 bloodQuickeningMinutes;
             bool isBonedEligible;
             bool isOozeDanceEligible;

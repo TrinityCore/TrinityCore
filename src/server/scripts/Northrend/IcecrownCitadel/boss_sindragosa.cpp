@@ -922,8 +922,8 @@ class npc_sindragosa_trash : public CreatureScript
             }
 
         private:
-            InstanceScript* instance;
             EventMap events;
+            InstanceScript* instance;
             uint32 frostwyrmId;
             bool isTaunted; // Frostwing Whelp only
         };
@@ -1011,7 +1011,7 @@ class spell_sindragosa_unchained_magic : public SpellScriptLoader
             void FilterTargets(std::list<Unit*>& unitList)
             {
                 unitList.remove_if(UnchainedMagicTargetSelector());
-                uint32 maxSize = GetCaster()->GetMap()->GetSpawnMode() & 1 ? 5 : 2;
+                uint32 maxSize = uint32(GetCaster()->GetMap()->GetSpawnMode() & 1 ? 5 : 2);
                 if (unitList.size() > maxSize)
                     Trinity::RandomResizeList(unitList, maxSize);
             }

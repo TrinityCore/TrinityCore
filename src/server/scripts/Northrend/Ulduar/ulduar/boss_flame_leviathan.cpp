@@ -385,7 +385,7 @@ public:
             }
 
             if (me->HasUnitState(UNIT_STAT_CASTING))
-                return;            
+                return;
 
             uint32 eventId = events.GetEvent();
 
@@ -795,7 +795,7 @@ public:
             me->GetMotionMaster()->MoveRandom(50);
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* /*pKiller*/)
         {
             me->GetMotionMaster()->MoveTargetedHome();
             DoCast(SPELL_DUSTY_EXPLOSION);

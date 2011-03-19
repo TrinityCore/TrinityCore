@@ -717,7 +717,7 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg : public SpellScriptLoader
                 SpellEntry const* damageSpell = sSpellStore.LookupEntry(SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE);
                 int32 damage = SpellMgr::CalculateSpellEffectAmount(damageSpell, EFFECT_0);
                 float multiplier = 0.3375f + 0.1f * uint32(aurEff->GetTickNumber()/10); // do not convert to 0.01f - we need tick number/10 as INT (damage increases every 10 ticks)
-                damage = uint32(damage * multiplier);
+                damage = int32(damage * multiplier);
                 GetTarget()->CastCustomSpell(SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE, SPELLVALUE_BASE_POINT0, damage, GetTarget(), true);
             }
 
