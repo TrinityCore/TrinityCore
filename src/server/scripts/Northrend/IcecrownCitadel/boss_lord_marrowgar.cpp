@@ -18,10 +18,9 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "SpellAuras.h"
-#include "icecrown_citadel.h"
 #include "MapManager.h"
+#include "icecrown_citadel.h"
 
 enum ScriptTexts
 {
@@ -252,9 +251,9 @@ class boss_lord_marrowgar : public CreatureScript
             }
 
         private:
+            Position coldflameLastPos;
             uint32 boneStormDuration;
             float baseSpeed;
-            Position coldflameLastPos;
             bool introDone;
             bool boneSlice;
         };

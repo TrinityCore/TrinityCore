@@ -684,7 +684,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x28F*/ { "CMSG_GROUP_ASSISTANT_LEADER",                  STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGroupAssistantLeaderOpcode},
     /*0x290*/ { "CMSG_BUYBACK_ITEM",                            STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleBuybackItem               },
     /*0x291*/ { "SMSG_SERVER_MESSAGE",                          STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
-    /*0x292*/ { "CMSG_SET_SAVED_INSTANCE_EXTEND",               STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
+    /*0x292*/ { "CMSG_SET_SAVED_INSTANCE_EXTEND",               STATUS_UNHANDLED,PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
     /*0x293*/ { "SMSG_LFG_OFFER_CONTINUE",                      STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x294*/ { "CMSG_MEETINGSTONE_CHEAT",                      STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
     /*0x295*/ { "SMSG_MEETINGSTONE_SETQUEUE",                   STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },

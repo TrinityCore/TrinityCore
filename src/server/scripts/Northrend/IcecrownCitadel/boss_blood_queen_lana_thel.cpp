@@ -18,7 +18,6 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "icecrown_citadel.h"
@@ -193,15 +192,17 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 // Blah, credit the quest
                 if (creditBloodQuickening)
                 {
+                    instance->SetData(DATA_BLOOD_QUICKENING_STATE, DONE);
                     if (Player* plr = killer->ToPlayer())
                         plr->RewardPlayerAndGroupAtEvent(NPC_INFILTRATOR_MINCHAR_BQ, plr);
                     if (Creature* minchar = me->FindNearestCreature(NPC_INFILTRATOR_MINCHAR_BQ, 200.0f))
                     {
                         minchar->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
+                        minchar->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, 0x01);
                         minchar->SetFlying(false);
                         minchar->SendMovementFlagUpdate();
                         minchar->RemoveAllAuras();
-                        minchar->GetMotionMaster()->MoveCharge(4629.3711f, 2782.6089f, 401.5301f, SPEED_CHARGE/2.0f);
+                        minchar->GetMotionMaster()->MoveCharge(4629.3711f, 2782.6089f, 401.5301f, SPEED_CHARGE/3.0f);
                     }
                 }
             }
@@ -715,7 +716,7 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg : public SpellScriptLoader
                 SpellEntry const* damageSpell = sSpellStore.LookupEntry(SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE);
                 int32 damage = SpellMgr::CalculateSpellEffectAmount(damageSpell, EFFECT_0);
                 float multiplier = 0.3375f + 0.1f * uint32(aurEff->GetTickNumber()/10); // do not convert to 0.01f - we need tick number/10 as INT (damage increases every 10 ticks)
-                damage = uint32(damage * multiplier);
+                damage = int32(damage * multiplier);
                 GetTarget()->CastCustomSpell(SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE, SPELLVALUE_BASE_POINT0, damage, GetTarget(), true);
             }
 

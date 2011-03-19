@@ -111,11 +111,11 @@ bool SummonList::HasEntry(uint32 entry)
 ScriptedAI::ScriptedAI(Creature* pCreature) : CreatureAI(pCreature),
     me(pCreature),
     IsFleeing(false),
-    m_bCombatMovement(true),
-    m_uiEvadeCheckCooldown(2500)
+    _isCombatMovementAllowed(true),
+    _evadeCheckCooldown(2500)
 {
-    m_heroicMode = me->GetMap()->IsHeroic();
-    m_difficulty = Difficulty(me->GetMap()->GetSpawnMode());
+    _isHeroic = me->GetMap()->IsHeroic();
+    _difficulty = Difficulty(me->GetMap()->GetSpawnMode());
 }
 
 void ScriptedAI::AttackStartNoMove(Unit* pWho)
@@ -187,15 +187,15 @@ void ScriptedAI::DoPlaySoundToSet(WorldObject* pSource, uint32 uiSoundId)
     pSource->PlayDirectSound(uiSoundId);
 }
 
-Creature* ScriptedAI::DoSpawnCreature(uint32 uiId, float fX, float fY, float fZ, float fAngle, uint32 uiType, uint32 uiDespawntime)
+Creature* ScriptedAI::DoSpawnCreature(uint32 entry, float offsetX, float offsetY, float offsetZ, float angle, uint32 type, uint32 despawntime)
 {
-    return me->SummonCreature(uiId, me->GetPositionX()+fX, me->GetPositionY()+fY, me->GetPositionZ()+fZ, fAngle, (TempSummonType)uiType, uiDespawntime);
+    return me->SummonCreature(entry, me->GetPositionX() + offsetX, me->GetPositionY() + offsetY, me->GetPositionZ() + offsetZ, angle, TempSummonType(type), despawntime);
 }
 
-SpellEntry const* ScriptedAI::SelectSpell(Unit* pTarget, uint32 uiSchool, uint32 uiMechanic, SelectTargetType selectTargets, uint32 uiPowerCostMin, uint32 uiPowerCostMax, float fRangeMin, float fRangeMax, SelectEffect selectEffects)
+SpellEntry const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mechanic, SelectTargetType targets, uint32 powerCostMin, uint32 powerCostMax, float rangeMin, float rangeMax, SelectEffect effects)
 {
     //No target so we can't cast
-    if (!pTarget)
+    if (!target)
         return false;
 
     //Silenced so we can't cast
@@ -204,101 +204,101 @@ SpellEntry const* ScriptedAI::SelectSpell(Unit* pTarget, uint32 uiSchool, uint32
 
     //Using the extended script system we first create a list of viable spells
     SpellEntry const* apSpell[CREATURE_MAX_SPELLS];
-    memset(apSpell, 0, sizeof(SpellEntry*)*CREATURE_MAX_SPELLS);
+    memset(apSpell, 0, CREATURE_MAX_SPELLS * sizeof(SpellEntry*));
 
-    uint32 uiSpellCount = 0;
+    uint32 spellCount = 0;
 
-    SpellEntry const* pTempSpell;
-    SpellRangeEntry const* pTempRange;
+    SpellEntry const* tempSpell = NULL;
+    SpellRangeEntry const* tempRange = NULL;
 
     //Check if each spell is viable(set it to null if not)
     for (uint32 i = 0; i < CREATURE_MAX_SPELLS; i++)
     {
-        pTempSpell = GetSpellStore()->LookupEntry(me->m_spells[i]);
+        tempSpell = sSpellStore.LookupEntry(me->m_spells[i]);
 
         //This spell doesn't exist
-        if (!pTempSpell)
+        if (!tempSpell)
             continue;
 
         // Targets and Effects checked first as most used restrictions
         //Check the spell targets if specified
-        if (selectTargets && !(SpellSummary[me->m_spells[i]].Targets & (1 << (selectTargets-1))))
+        if (targets && !(SpellSummary[me->m_spells[i]].Targets & (1 << (targets-1))))
             continue;
 
         //Check the type of spell if we are looking for a specific spell type
-        if (selectEffects && !(SpellSummary[me->m_spells[i]].Effects & (1 << (selectEffects-1))))
+        if (effects && !(SpellSummary[me->m_spells[i]].Effects & (1 << (effects-1))))
             continue;
 
         //Check for school if specified
-        if (uiSchool && (pTempSpell->SchoolMask & uiSchool) == 0)
+        if (school && (tempSpell->SchoolMask & school) == 0)
             continue;
 
         //Check for spell mechanic if specified
-        if (uiMechanic && pTempSpell->Mechanic != uiMechanic)
+        if (mechanic && tempSpell->Mechanic != mechanic)
             continue;
 
         //Make sure that the spell uses the requested amount of power
-        if (uiPowerCostMin && pTempSpell->manaCost < uiPowerCostMin)
+        if (powerCostMin && tempSpell->manaCost < powerCostMin)
             continue;
 
-        if (uiPowerCostMax && pTempSpell->manaCost > uiPowerCostMax)
+        if (powerCostMax && tempSpell->manaCost > powerCostMax)
             continue;
 
         //Continue if we don't have the mana to actually cast this spell
-        if (pTempSpell->manaCost > me->GetPower((Powers)pTempSpell->powerType))
+        if (tempSpell->manaCost > me->GetPower(Powers(tempSpell->powerType)))
             continue;
 
         //Get the Range
-        pTempRange = GetSpellRangeStore()->LookupEntry(pTempSpell->rangeIndex);
+        tempRange = GetSpellRangeStore()->LookupEntry(tempSpell->rangeIndex);
 
         //Spell has invalid range store so we can't use it
-        if (!pTempRange)
+        if (!tempRange)
             continue;
 
         //Check if the spell meets our range requirements
-        if (fRangeMin && me->GetSpellMinRangeForTarget(pTarget, pTempRange) < fRangeMin)
+        if (rangeMin && me->GetSpellMinRangeForTarget(target, tempRange) < rangeMin)
             continue;
-        if (fRangeMax && me->GetSpellMaxRangeForTarget(pTarget, pTempRange) > fRangeMax)
+        if (rangeMax && me->GetSpellMaxRangeForTarget(target, tempRange) > rangeMax)
             continue;
 
         //Check if our target is in range
-         if (me->IsWithinDistInMap(pTarget, (float)me->GetSpellMinRangeForTarget(pTarget, pTempRange)) || !me->IsWithinDistInMap(pTarget, (float)me->GetSpellMaxRangeForTarget(pTarget, pTempRange)))
+         if (me->IsWithinDistInMap(target, float(me->GetSpellMinRangeForTarget(target, tempRange))) || !me->IsWithinDistInMap(target, float(me->GetSpellMaxRangeForTarget(target, tempRange))))
             continue;
 
         //All good so lets add it to the spell list
-        apSpell[uiSpellCount] = pTempSpell;
-        ++uiSpellCount;
+        apSpell[spellCount] = tempSpell;
+        ++spellCount;
     }
 
     //We got our usable spells so now lets randomly pick one
-    if (!uiSpellCount)
+    if (!spellCount)
         return NULL;
 
-    return apSpell[rand()%uiSpellCount];
+    return apSpell[urand(0, spellCount - 1)];
 }
 
-bool ScriptedAI::CanCast(Unit* pTarget, SpellEntry const* pSpell, bool bTriggered)
+bool ScriptedAI::CanCast(Unit* target, SpellEntry const* spell, bool triggered /*= false*/)
 {
     //No target so we can't cast
-    if (!pTarget || !pSpell)
+    if (!target || !spell)
         return false;
 
     //Silenced so we can't cast
-    if (!bTriggered && me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED))
+    if (!triggered && me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED))
         return false;
 
     //Check for power
-    if (!bTriggered && me->GetPower((Powers)pSpell->powerType) < pSpell->manaCost)
+    if (!triggered && me->GetPower(Powers(spell->powerType)) < spell->manaCost)
         return false;
 
-    SpellRangeEntry const* pTempRange = GetSpellRangeStore()->LookupEntry(pSpell->rangeIndex);
+    SpellRangeEntry const* tempRange = GetSpellRangeStore()->LookupEntry(spell->rangeIndex);
 
     //Spell has invalid range store so we can't use it
-    if (!pTempRange)
+    if (!tempRange)
         return false;
 
     //Unit is out of range of this spell
-    if (me->IsInRange(pTarget, (float)me->GetSpellMinRangeForTarget(pTarget, pTempRange), (float)me->GetSpellMaxRangeForTarget(pTarget, pTempRange)))
+    if (me->IsInRange(target, float(me->GetSpellMinRangeForTarget(target, tempRange)), float(me->GetSpellMaxRangeForTarget(target, tempRange))))
         return false;
 
     return true;
@@ -417,29 +417,29 @@ Player* ScriptedAI::GetPlayerAtMinimumRange(float fMinimumRange)
     return pPlayer;
 }
 
-void ScriptedAI::SetEquipmentSlots(bool bLoadDefault, int32 uiMainHand, int32 uiOffHand, int32 uiRanged)
+void ScriptedAI::SetEquipmentSlots(bool loadDefault, int32 mainHand /*= EQUIP_NO_CHANGE*/, int32 offHand /*= EQUIP_NO_CHANGE*/, int32 ranged /*= EQUIP_NO_CHANGE*/)
 {
-    if (bLoadDefault)
+    if (loadDefault)
     {
-        if (CreatureInfo const* pInfo = GetCreatureTemplateStore(me->GetEntry()))
-            me->LoadEquipment(pInfo->equipmentId,true);
+        if (CreatureInfo const* creatureInfo = ObjectMgr::GetCreatureTemplate(me->GetEntry()))
+            me->LoadEquipment(creatureInfo->equipmentId, true);
 
         return;
     }
 
-    if (uiMainHand >= 0)
-        me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(uiMainHand));
+    if (mainHand >= 0)
+        me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(mainHand));
 
-    if (uiOffHand >= 0)
-        me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, uint32(uiOffHand));
+    if (offHand >= 0)
+        me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, uint32(offHand));
 
-    if (uiRanged >= 0)
-        me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, uint32(uiRanged));
+    if (ranged >= 0)
+        me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, uint32(ranged));
 }
 
-void ScriptedAI::SetCombatMovement(bool bCombatMove)
+void ScriptedAI::SetCombatMovement(bool allowMovement)
 {
-    m_bCombatMovement = bCombatMove;
+    _isCombatMovementAllowed = allowMovement;
 }
 
 enum eNPCs
@@ -452,13 +452,13 @@ enum eNPCs
 
 // Hacklike storage used for misc creatures that are expected to evade of outside of a certain area.
 // It is assumed the information is found elswehere and can be handled by the core. So far no luck finding such information/way to extract it.
-bool ScriptedAI::EnterEvadeIfOutOfCombatArea(const uint32 uiDiff)
+bool ScriptedAI::EnterEvadeIfOutOfCombatArea(uint32 const diff)
 {
-    if (m_uiEvadeCheckCooldown <= uiDiff)
-        m_uiEvadeCheckCooldown = 2500;
+    if (_evadeCheckCooldown <= diff)
+        _evadeCheckCooldown = 2500;
     else
     {
-        m_uiEvadeCheckCooldown -= uiDiff;
+        _evadeCheckCooldown -= diff;
         return false;
     }
 
@@ -496,20 +496,18 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea(const uint32 uiDiff)
     return true;
 }
 
-void Scripted_NoMovementAI::AttackStart(Unit* pWho)
+void Scripted_NoMovementAI::AttackStart(Unit* target)
 {
-    if (!pWho)
+    if (!target)
         return;
 
-    if (me->Attack(pWho, true))
-    {
-        DoStartNoMovement(pWho);
-    }
+    if (me->Attack(target, true))
+        DoStartNoMovement(target);
 }
 
-BossAI::BossAI(Creature *c, uint32 id) : ScriptedAI(c)
-, bossId(id), summons(me), instance(c->GetInstanceScript())
-, boundary(instance ? instance->GetBossBoundary(id) : NULL)
+BossAI::BossAI(Creature* creature, uint32 bossId) : ScriptedAI(creature)
+, _bossId(bossId), summons(creature), instance(creature->GetInstanceScript())
+, _boundary(instance ? instance->GetBossBoundary(bossId) : NULL)
 {
 }
 
@@ -522,7 +520,7 @@ void BossAI::_Reset()
     events.Reset();
     summons.DespawnAll();
     if (instance)
-        instance->SetBossState(bossId, NOT_STARTED);
+        instance->SetBossState(_bossId, NOT_STARTED);
 }
 
 void BossAI::_JustDied()
@@ -531,7 +529,7 @@ void BossAI::_JustDied()
     summons.DespawnAll();
     if (instance)
     {
-        instance->SetBossState(bossId, DONE);
+        instance->SetBossState(_bossId, DONE);
         instance->SaveToDB();
     }
 }
@@ -543,12 +541,12 @@ void BossAI::_EnterCombat()
     if (instance)
     {
         // bosses do not respawn, check only on enter combat
-        if (!instance->CheckRequiredBosses(bossId))
+        if (!instance->CheckRequiredBosses(_bossId))
         {
             EnterEvadeMode();
             return;
         }
-        instance->SetBossState(bossId, IN_PROGRESS);
+        instance->SetBossState(_bossId, IN_PROGRESS);
     }
 }
 
@@ -556,18 +554,19 @@ void BossAI::TeleportCheaters()
 {
     float x, y, z;
     me->GetPosition(x, y, z);
-    std::list<HostileReference*> &m_threatlist = me->getThreatManager().getThreatList();
-    for (std::list<HostileReference*>::iterator itr = m_threatlist.begin(); itr != m_threatlist.end(); ++itr)
-        if ((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER && !CheckBoundary((*itr)->getTarget()))
-            (*itr)->getTarget()->NearTeleportTo(x, y, z, 0);
+    std::list<HostileReference*>& threatList = me->getThreatManager().getThreatList();
+    for (std::list<HostileReference*>::iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
+        if (Unit* target = (*itr)->getTarget())
+            if (target->GetTypeId() == TYPEID_PLAYER && !CheckBoundary(target))
+                target->NearTeleportTo(x, y, z, 0);
 }
 
-bool BossAI::CheckBoundary(Unit *who)
+bool BossAI::CheckBoundary(Unit* who)
 {
-    if (!boundary || !who)
+    if (!GetBoundary() || !who)
         return true;
 
-    for (BossBoundaryMap::const_iterator itr = boundary->begin(); itr != boundary->end(); ++itr)
+    for (BossBoundaryMap::const_iterator itr = GetBoundary()->begin(); itr != GetBoundary()->end(); ++itr)
     {
         switch (itr->first)
         {
@@ -611,32 +610,35 @@ bool BossAI::CheckBoundary(Unit *who)
     return true;
 }
 
-void BossAI::JustSummoned(Creature *summon)
+void BossAI::JustSummoned(Creature* summon)
 {
     summons.Summon(summon);
     if (me->isInCombat())
         DoZoneInCombat(summon);
 }
 
-void BossAI::SummonedCreatureDespawn(Creature *summon)
+void BossAI::SummonedCreatureDespawn(Creature* summon)
 {
     summons.Despawn(summon);
 }
 
 // SD2 grid searchers.
-Creature *GetClosestCreatureWithEntry(WorldObject *pSource, uint32 uiEntry, float fMaxSearchRange, bool bAlive)
+Creature* GetClosestCreatureWithEntry(WorldObject* source, uint32 entry, float maxSearchRange, bool alive /*= true*/)
 {
-    return pSource->FindNearestCreature(uiEntry, fMaxSearchRange, bAlive);
+    return source->FindNearestCreature(entry, maxSearchRange, alive);
 }
-GameObject *GetClosestGameObjectWithEntry(WorldObject *pSource, uint32 uiEntry, float fMaxSearchRange)
+
+GameObject* GetClosestGameObjectWithEntry(WorldObject* source, uint32 entry, float maxSearchRange)
 {
-    return pSource->FindNearestGameObject(uiEntry, fMaxSearchRange);
+    return source->FindNearestGameObject(entry, maxSearchRange);
 }
-void GetCreatureListWithEntryInGrid(std::list<Creature*>& lList, WorldObject *pSource, uint32 uiEntry, float fMaxSearchRange)
+
+void GetCreatureListWithEntryInGrid(std::list<Creature*>& list, WorldObject* source, uint32 entry, float maxSearchRange)
 {
-    return pSource->GetCreatureListWithEntryInGrid(lList, uiEntry, fMaxSearchRange);
+    source->GetCreatureListWithEntryInGrid(list, entry, maxSearchRange);
 }
-void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& lList, WorldObject *pSource, uint32 uiEntry, float fMaxSearchRange)
+
+void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& list, WorldObject* source, uint32 entry, float maxSearchRange)
 {
-    return pSource->GetGameObjectListWithEntryInGrid(lList, uiEntry, fMaxSearchRange);
+    source->GetGameObjectListWithEntryInGrid(list, entry, maxSearchRange);
 }

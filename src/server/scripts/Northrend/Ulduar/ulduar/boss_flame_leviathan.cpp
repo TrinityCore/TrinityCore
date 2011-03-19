@@ -250,6 +250,7 @@ public:
         void Reset()
         {
             _Reset();
+            uiShutdown = 0;
             me->SetReactState(REACT_DEFENSIVE);
             if (me->GetVehicleKit())
             {
@@ -356,8 +357,10 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (!me->getVictim())
-                UpdateVictim();
+            if (!UpdateVictim() || !CheckInRoom())
+                return;
+
+            events.Update(diff);
 
             if (uiShutdown == RAID_MODE(2,4))
             {
@@ -383,9 +386,6 @@ public:
 
             if (me->HasUnitState(UNIT_STAT_CASTING))
                 return;
-
-
-            events.Update(diff);
 
             uint32 eventId = events.GetEvent();
 
@@ -795,7 +795,7 @@ public:
             me->GetMotionMaster()->MoveRandom(50);
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* /*pKiller*/)
         {
             me->GetMotionMaster()->MoveTargetedHome();
             DoCast(SPELL_DUSTY_EXPLOSION);

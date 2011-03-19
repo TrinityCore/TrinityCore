@@ -18,7 +18,6 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "SpellAuras.h"
 #include "icecrown_citadel.h"
 
@@ -233,7 +232,7 @@ class boss_rotface : public CreatureScript
 
         private:
             uint32 infectionCooldown;
-            uint8 infectionStage;
+            uint32 infectionStage;
         };
 
         CreatureAI* GetAI(Creature* creature) const

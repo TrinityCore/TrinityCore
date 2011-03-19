@@ -252,7 +252,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         {
                             if (WeeklyQuestData[questIndex].creatureEntry == entry)
                             {
-                                uint8 diffIndex = instance->GetSpawnMode() & 1;
+                                uint8 diffIndex = uint8(instance->GetSpawnMode() & 1);
                                 if (!sPoolMgr->IsSpawnedObject<Quest>(WeeklyQuestData[questIndex].questId[diffIndex]))
                                     entry = 0;
                                 break;
@@ -320,18 +320,18 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case GO_PLAGUE_SIGIL:
                         plagueSigil = go->GetGUID();
-                        if (GetBossState(DATA_PROFESSOR_PUTRICIDE))
-                            HandleGameObject(plagueSigil, true, go);
+                        if (GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE)
+                            HandleGameObject(plagueSigil, false, go);
                         break;
                     case GO_BLOODWING_SIGIL:
                         bloodwingSigil = go->GetGUID();
-                        if (GetBossState(DATA_PROFESSOR_PUTRICIDE))
-                            HandleGameObject(bloodwingSigil, true, go);
+                        if (GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE)
+                            HandleGameObject(bloodwingSigil, false, go);
                         break;
                     case GO_SIGIL_OF_THE_FROSTWING:
                         frostwingSigil = go->GetGUID();
-                        if (GetBossState(DATA_PROFESSOR_PUTRICIDE))
-                            HandleGameObject(frostwingSigil, true, go);
+                        if (GetBossState(DATA_SINDRAGOSA) == DONE)
+                            HandleGameObject(frostwingSigil, false, go);
                         break;
                     case GO_SCIENTIST_AIRLOCK_DOOR_COLLISION:
                         putricideCollision = go->GetGUID();
@@ -414,6 +414,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return coldflameJetsState;
                     case DATA_TEAM_IN_INSTANCE:
                         return teamInInstance;
+                    case DATA_BLOOD_QUICKENING_STATE:
+                        return bloodQuickeningState;
                     case DATA_HEROIC_ATTEMPTS:
                         return heroicAttempts;
                     default:
@@ -667,6 +669,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 break;
                         }
                         bloodQuickeningState = data;
+                        SaveToDB();
                         break;
                     }
                     default:
@@ -852,8 +855,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                 OUT_SAVE_INST_DATA;
 
                 std::ostringstream saveStream;
-                saveStream << "I C " << GetBossSaveData() << uint32(coldflameJetsState)
-                    << " " << uint32(bloodQuickeningState) << " " << bloodQuickeningMinutes;
+                saveStream << "I C " << GetBossSaveData() << coldflameJetsState
+                    << " " << bloodQuickeningState << " " << bloodQuickeningMinutes;
 
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return saveStream.str();
@@ -901,7 +904,7 @@ class instance_icecrown_citadel : public InstanceMapScript
 
             void Update(uint32 diff)
             {
-                if (bloodQuickeningMinutes)
+                if (bloodQuickeningState == IN_PROGRESS)
                 {
                     if (bloodQuickeningTimer <= diff)
                     {
@@ -927,6 +930,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             }
 
         private:
+            std::set<uint64> coldflameJets;
             uint64 ladyDeathwisperElevator;
             uint64 deathbringerSaurfang;
             uint64 saurfangDoor;
@@ -949,15 +953,14 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 sindragosa;
             uint64 spinestalker;
             uint64 rimefang;
-            std::set<uint64> coldflameJets;
             uint32 teamInInstance;
             uint32 bloodQuickeningTimer;
+            uint32 coldflameJetsState;
+            uint32 frostwyrms;
+            uint32 spinestalkerTrash;
+            uint32 rimefangTrash;
+            uint32 bloodQuickeningState;
             uint16 heroicAttempts;
-            uint16 coldflameJetsState;
-            uint16 frostwyrms;
-            uint16 spinestalkerTrash;
-            uint16 rimefangTrash;
-            uint16 bloodQuickeningState;
             uint16 bloodQuickeningMinutes;
             bool isBonedEligible;
             bool isOozeDanceEligible;
