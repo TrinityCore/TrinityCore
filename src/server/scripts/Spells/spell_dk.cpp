@@ -428,7 +428,7 @@ class spell_dk_spell_deflection : public SpellScriptLoader
             void Absorb(AuraEffect * /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
             {
                 // You have a chance equal to your Parry chance
-                if ((dmgInfo.GetDamageType() == DIRECT_DAMAGE) && roll_chance_f(GetTarget()->GetUnitParryChance()))
+                if ((dmgInfo.GetDamageType() == SPELL_DIRECT_DAMAGE) && roll_chance_f(GetTarget()->GetUnitParryChance()))
                     absorbAmount = CalculatePctN(dmgInfo.GetDamage(), absorbPct);
             }
 
