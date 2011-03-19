@@ -18,7 +18,10 @@
 #ifndef ICECROWN_CITADEL_H_
 #define ICECROWN_CITADEL_H_
 
+#include "SpellScript.h"
+
 #define ICCScriptName "instance_icecrown_citadel"
+
 uint32 const EncounterCount = 12;
 uint32 const WeeklyNPCs = 7;
 uint32 const MaxHeroicAttempts = 50;
