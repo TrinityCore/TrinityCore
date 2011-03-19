@@ -360,7 +360,7 @@ class spell_trigger_spell_from_caster : public SpellScriptLoader
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_trigger_spell_from_caster_SpellScript(triggerId);
+            return new spell_trigger_spell_from_caster_SpellScript(_triggerId);
         }
 
     private:
