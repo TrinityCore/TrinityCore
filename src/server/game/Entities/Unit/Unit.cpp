@@ -3770,7 +3770,7 @@ void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, Aura * except
     for (AuraEffectList::iterator iter = m_modAuras[auraType].begin(); iter != m_modAuras[auraType].end();)
     {
         Aura * aura = (*iter)->GetBase();
-        AuraApplication * aurApp = aura ->GetApplicationOfTarget(GetGUID());
+        AuraApplication * aurApp = aura->GetApplicationOfTarget(GetGUID());
 
         ++iter;
         if (aura != except && (!casterGUID || aura->GetCasterGUID() == casterGUID)
@@ -16637,17 +16637,7 @@ void Unit::ExitVehicle(Position const* exitPosition)
     if (!m_vehicle)
         return;
 
-    Unit *vehicleBase = m_vehicle->GetBase();
-    const AuraEffectList &modAuras = vehicleBase->GetAuraEffectsByType(SPELL_AURA_CONTROL_VEHICLE);
-    for (AuraEffectList::const_iterator itr = modAuras.begin(); itr != modAuras.end(); ++itr)
-    {
-        if ((*itr)->GetBase()->GetOwner() == this)
-        {
-            vehicleBase->RemoveAura((*itr)->GetBase());
-            break; // there should be no case that a vehicle has two auras for one owner
-        }
-    }
-
+    GetVehicleBase()->RemoveAurasByType(SPELL_AURA_CONTROL_VEHICLE, GetGUID());
    _ExitVehicle(exitPosition);
 }
 
