@@ -68,7 +68,7 @@ public:
         {
             pPlayer->CLOSE_GOSSIP_MENU();
             CAST_AI(npc_sergeant_bly::npc_sergeant_blyAI,pCreature->AI())->PlayerGUID = pPlayer->GetGUID();
-            pCreature->AI()->DoAction();
+            pCreature->AI()->DoAction(0);
         }
         return true;
     }
@@ -132,7 +132,7 @@ public:
                         case 1:
                             //weegli doesn't fight - he goes & blows up the door
                             if (Creature* pWeegli = pInstance->instance->GetCreature(pInstance->GetData64(ENTRY_WEEGLI)))
-                                pWeegli->AI()->DoAction();
+                                pWeegli->AI()->DoAction(0);
                             DoScriptText(SAY_1,me);
                             Text_Timer = 5000;
                             break;
@@ -268,7 +268,7 @@ public:
         {
             pPlayer->CLOSE_GOSSIP_MENU();
             //here we make him run to door, set the charge and run away off to nowhere
-            pCreature->AI()->DoAction();
+            pCreature->AI()->DoAction(0);
         }
         return true;
     }
