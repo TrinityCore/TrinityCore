@@ -27,7 +27,7 @@ class spell_generic_quest_update_entry_SpellScript : public SpellScript
 {
     PrepareSpellScript(spell_generic_quest_update_entry_SpellScript)
 private:
-    uint32 _spellEffect;
+    uint16 _spellEffect;
     uint8 _effIndex;
     uint32 _originalEntry;
     uint32 _newEntry;
@@ -35,21 +35,21 @@ private:
     uint32 _despawnTime;
 
 public:
-    spell_generic_quest_update_entry_SpellScript(uint32 spellEffect, uint8 effIndex, uint32 originalEntry, uint32 newEntry, bool shouldAttack, uint32 despawnTime = 0) :
+    spell_generic_quest_update_entry_SpellScript(uint16 spellEffect, uint8 effIndex, uint32 originalEntry, uint32 newEntry, bool shouldAttack, uint32 despawnTime = 0) :
         SpellScript(), _spellEffect(spellEffect), _effIndex(effIndex), _originalEntry(originalEntry),
         _newEntry(newEntry), _shouldAttack(shouldAttack), _despawnTime(despawnTime) { }
 
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
-        if (Creature* pCreatureTarget = GetHitCreature())
-            if (!pCreatureTarget->isPet() && pCreatureTarget->GetEntry() == _originalEntry)
+        if (Creature* creatureTarget = GetHitCreature())
+            if (!creatureTarget->isPet() && creatureTarget->GetEntry() == _originalEntry)
             {
-                pCreatureTarget->UpdateEntry(_newEntry);
-                if (_shouldAttack && pCreatureTarget->IsAIEnabled)
-                    pCreatureTarget->AI()->AttackStart(GetCaster());
+                creatureTarget->UpdateEntry(_newEntry);
+                if (_shouldAttack && creatureTarget->IsAIEnabled)
+                    creatureTarget->AI()->AttackStart(GetCaster());
 
                 if (_despawnTime)
-                    pCreatureTarget->DespawnOrUnsummon(_despawnTime);
+                    creatureTarget->DespawnOrUnsummon(_despawnTime);
             }
     }
 
@@ -756,6 +756,7 @@ class spell_q10041_q10040_who_are_they : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex effIndex)
             {
+                PreventHitDefaultEffect(effIndex);
                 if (!GetHitUnit() || !GetHitUnit()->ToPlayer())
                     return;
 

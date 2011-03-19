@@ -10478,12 +10478,9 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
         case SPELLFAMILY_HUNTER:
             // Steady Shot
             if(spellProto->SpellFamilyFlags[1] & 0x1)
-            {
-                // Glyph of Steady Shot
-                if (AuraEffect * aurEff = GetAuraEffect(56826, 0))
+                if (AuraEffect * aurEff = GetAuraEffect(56826, 0))  // Glyph of Steady Shot
                     if (pVictim->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_HUNTER, 0x00004000, 0, 0, GetGUID()))
                         AddPctN(DoneTotalMod, aurEff->GetAmount());
-            }
         break;
         case SPELLFAMILY_DEATHKNIGHT:
             // Improved Icy Touch

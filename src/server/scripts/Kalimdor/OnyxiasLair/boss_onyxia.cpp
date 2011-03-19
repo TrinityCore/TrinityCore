@@ -143,7 +143,7 @@ public:
 
         void Reset()
         {
-            if (!IsCombatMovement())
+            if (!IsCombatMovementAllowed())
                 SetCombatMovement(true);
 
             m_uiPhase = PHASE_START;
