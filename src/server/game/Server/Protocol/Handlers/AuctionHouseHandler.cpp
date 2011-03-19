@@ -188,7 +188,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
         return;
     }
 
-    if (it->IsBag() && !((Bag*)it)->IsEmpty())
+    if (!it->IsNotEmptyBag())
     {
         SendAuctionCommandResult(0, AUCTION_SELL_ITEM, AUCTION_INTERNAL_ERROR);
         return;

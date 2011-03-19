@@ -53,7 +53,7 @@ struct WeeklyQuest
 {
     uint32 creatureEntry;
     uint32 questId[2];  // 10 and 25 man versions
-} WeeklyQuestData[WEEKLY_NPCS] =
+} WeeklyQuestData[WeeklyNPCs] =
 {
     {NPC_INFILTRATOR_MINCHAR,         {QUEST_DEPROGRAMMING_10,                 QUEST_DEPROGRAMMING_25                }}, // Deprogramming
     {NPC_KOR_KRON_LIEUTENANT,         {QUEST_SECURING_THE_RAMPARTS_10,         QUEST_SECURING_THE_RAMPARTS_25        }}, // Securing the Ramparts
@@ -73,10 +73,10 @@ class instance_icecrown_citadel : public InstanceMapScript
         {
             instance_icecrown_citadel_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
-                SetBossNumber(MAX_ENCOUNTER);
+                SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
                 teamInInstance = 0;
-                heroicAttempts = 50;
+                heroicAttempts = MaxHeroicAttempts;
                 ladyDeathwisperElevator = 0;
                 deathbringerSaurfang = 0;
                 saurfangDoor = 0;
@@ -118,7 +118,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 data << uint32(WORLDSTATE_EXECUTION_TIME)     << uint32(bloodQuickeningMinutes);
                 data << uint32(WORLDSTATE_SHOW_ATTEMPTS)      << uint32(instance->IsHeroic());
                 data << uint32(WORLDSTATE_ATTEMPTS_REMAINING) << uint32(heroicAttempts);
-                data << uint32(WORLDSTATE_ATTEMPTS_MAX)       << uint32(50);
+                data << uint32(WORLDSTATE_ATTEMPTS_MAX)       << uint32(MaxHeroicAttempts);
             }
 
             void OnPlayerEnter(Player* player)
@@ -248,7 +248,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case NPC_MINCHAR_BEAM_STALKER:
                     case NPC_VALITHRIA_DREAMWALKER_QUEST:
                     {
-                        for (uint8 questIndex = 0; questIndex < WEEKLY_NPCS; ++questIndex)
+                        for (uint8 questIndex = 0; questIndex < WeeklyNPCs; ++questIndex)
                         {
                             if (WeeklyQuestData[questIndex].creatureEntry == entry)
                             {
@@ -320,18 +320,18 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case GO_PLAGUE_SIGIL:
                         plagueSigil = go->GetGUID();
-                        if (GetBossState(DATA_PROFESSOR_PUTRICIDE))
-                            HandleGameObject(plagueSigil, true, go);
+                        if (GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE)
+                            HandleGameObject(plagueSigil, false, go);
                         break;
                     case GO_BLOODWING_SIGIL:
                         bloodwingSigil = go->GetGUID();
-                        if (GetBossState(DATA_PROFESSOR_PUTRICIDE))
-                            HandleGameObject(bloodwingSigil, true, go);
+                        if (GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE)
+                            HandleGameObject(bloodwingSigil, false, go);
                         break;
                     case GO_SIGIL_OF_THE_FROSTWING:
                         frostwingSigil = go->GetGUID();
-                        if (GetBossState(DATA_PROFESSOR_PUTRICIDE))
-                            HandleGameObject(frostwingSigil, true, go);
+                        if (GetBossState(DATA_SINDRAGOSA) == DONE)
+                            HandleGameObject(frostwingSigil, false, go);
                         break;
                     case GO_SCIENTIST_AIRLOCK_DOOR_COLLISION:
                         putricideCollision = go->GetGUID();
@@ -414,6 +414,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return coldflameJetsState;
                     case DATA_TEAM_IN_INSTANCE:
                         return teamInInstance;
+                    case DATA_BLOOD_QUICKENING_STATE:
+                        return bloodQuickeningState;
                     case DATA_HEROIC_ATTEMPTS:
                         return heroicAttempts;
                     default:
@@ -667,6 +669,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                                 break;
                         }
                         bloodQuickeningState = data;
+                        SaveToDB();
                         break;
                     }
                     default:
@@ -876,7 +879,7 @@ class instance_icecrown_citadel : public InstanceMapScript
 
                 if (dataHead1 == 'I' && dataHead2 == 'C')
                 {
-                    for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+                    for (uint32 i = 0; i < EncounterCount; ++i)
                     {
                         uint32 tmpState;
                         loadStream >> tmpState;
@@ -901,7 +904,7 @@ class instance_icecrown_citadel : public InstanceMapScript
 
             void Update(uint32 diff)
             {
-                if (bloodQuickeningMinutes)
+                if (bloodQuickeningState == IN_PROGRESS)
                 {
                     if (bloodQuickeningTimer <= diff)
                     {
