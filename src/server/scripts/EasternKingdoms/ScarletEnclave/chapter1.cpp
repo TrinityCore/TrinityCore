@@ -1045,7 +1045,7 @@ public:
                     else
                     {
                         if (Creature *car = Unit::GetCreature(*me, carGUID))
-                            car->AI()->DoAction();
+                            car->AI()->DoAction(0);
                         IntroPhase = 0;
                     }
                 } else IntroTimer-=diff;
