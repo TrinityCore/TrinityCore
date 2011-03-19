@@ -326,4 +326,45 @@ enum WorldStatesICC
     WORLDSTATE_ATTEMPTS_MAX         = 4942,
 };
 
+class spell_trigger_spell_from_caster : public SpellScriptLoader
+{
+    public:
+        spell_trigger_spell_from_caster(char const* scriptName, uint32 _triggerId) : SpellScriptLoader(scriptName), triggerId(_triggerId) { }
+
+        class spell_trigger_spell_from_caster_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_trigger_spell_from_caster_SpellScript);
+
+        public:
+            spell_trigger_spell_from_caster_SpellScript(uint32 _triggerId) : SpellScript(), triggerId(_triggerId) { }
+
+            bool Validate(SpellEntry const* /*spell*/)
+            {
+                if (!sSpellStore.LookupEntry(triggerId))
+                    return false;
+                return true;
+            }
+
+            void HandleTrigger()
+            {
+                GetCaster()->CastSpell(GetHitUnit(), triggerId, true);
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_trigger_spell_from_caster_SpellScript::HandleTrigger);
+            }
+
+            uint32 triggerId;
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_trigger_spell_from_caster_SpellScript(triggerId);
+        }
+
+    private:
+        uint32 triggerId;
+};
+
 #endif // ICECROWN_CITADEL_H_
