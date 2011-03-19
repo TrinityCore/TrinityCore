@@ -57,7 +57,7 @@ struct ScriptedAI : public CreatureAI
     void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) {}
 
     //Called at World update tick
-    void UpdateAI(const uint32);
+    virtual void UpdateAI(uint32 const diff);
 
     //Called at creature death
     void JustDied(Unit* /*killer*/) {}
@@ -130,8 +130,6 @@ struct ScriptedAI : public CreatureAI
 
     void DoTeleportTo(float x, float y, float z, uint32 time = 0);
     void DoTeleportTo(float const pos[4]);
-
-    void DoAction(int32 const /*param*/) {}
 
     //Teleports a player without dropping threat (only teleports to same map)
     void DoTeleportPlayer(Unit* unit, float x, float y, float z, float o);
