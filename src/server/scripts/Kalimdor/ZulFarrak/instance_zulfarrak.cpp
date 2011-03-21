@@ -358,7 +358,6 @@ public:
 
 };
 
-
 void AddSC_instance_zulfarrak()
 {
     new instance_zulfarrak();

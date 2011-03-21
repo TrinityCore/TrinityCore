@@ -15,7 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 /* ScriptData
 SDName: Instance Trial of the Champion
 SDComment:
@@ -335,7 +334,6 @@ public:
     };
 
 };
-
 
 void AddSC_instance_trial_of_the_champion()
 {

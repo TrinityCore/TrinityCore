@@ -54,4 +54,3 @@ class ConfusedMovementGenerator
 };
 #endif
 
-

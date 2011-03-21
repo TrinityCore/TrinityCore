@@ -27,7 +27,6 @@
 #include "CreatureAI.h"
 #include "SpellAuras.h"
 
-
 template<class T>
 inline void
 Trinity::VisibleNotifier::Visit(GridRefManager<T> &m)

@@ -25,7 +25,6 @@ enum TrinityStrings
     LANG_SELECT_CHAR_OR_CREATURE        = 1,
     LANG_SELECT_CREATURE                = 2,
 
-
     // level 0 chat
     LANG_SYSTEMMESSAGE                  = 3,
     LANG_EVENTMESSAGE                   = 4,
@@ -950,7 +949,6 @@ enum TrinityStrings
     LANG_TRADE_OTHER_REQ                = 6610,
     LANG_MAIL_SENDER_REQ                = 6611,
     LANG_MAIL_RECEIVER_REQ              = 6612,
-
 
     // Used for GM Announcements
     LANG_GM_BROADCAST                    = 6613,

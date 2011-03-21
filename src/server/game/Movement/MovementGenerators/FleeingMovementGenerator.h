@@ -78,4 +78,3 @@ class TimedFleeingMovementGenerator
 
 #endif
 
-

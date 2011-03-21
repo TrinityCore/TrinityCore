@@ -121,8 +121,6 @@ public:
 
 };
 
-
-
 class npc_thrall : public CreatureScript
 {
 public:
@@ -201,8 +199,6 @@ public:
 
 };
 
-
-
 class npc_tyrande_whisperwind : public CreatureScript
 {
 public:
@@ -248,8 +244,6 @@ public:
     }
 
 };
-
-
 
 void AddSC_hyjal()
 {

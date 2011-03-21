@@ -153,7 +153,6 @@ public:
 
 };
 
-
 /*######
 ## go_mausoleum_door
 ## go_mausoleum_trigger

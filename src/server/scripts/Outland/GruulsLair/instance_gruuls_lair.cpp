@@ -191,7 +191,6 @@ public:
 
 };
 
-
 void AddSC_instance_gruuls_lair()
 {
     new instance_gruuls_lair();

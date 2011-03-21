@@ -174,7 +174,6 @@ public:
 
 };
 
-
 void AddSC_oculus()
 {
     new npc_oculus_drake();

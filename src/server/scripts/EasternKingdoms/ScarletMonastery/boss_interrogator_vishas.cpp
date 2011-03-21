@@ -116,7 +116,6 @@ public:
 
 };
 
-
 void AddSC_boss_interrogator_vishas()
 {
     new boss_interrogator_vishas();

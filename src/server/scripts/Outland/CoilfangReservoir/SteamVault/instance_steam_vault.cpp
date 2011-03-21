@@ -230,7 +230,6 @@ public:
 
 };
 
-
 void AddSC_instance_steam_vault()
 {
     new go_main_chambers_access_panel();

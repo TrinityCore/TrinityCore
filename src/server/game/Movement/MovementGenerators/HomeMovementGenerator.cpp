@@ -94,4 +94,3 @@ HomeMovementGenerator<Creature>::Update(Creature &owner, const uint32& time_diff
     return true;
 }
 
-

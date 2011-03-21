@@ -347,7 +347,6 @@ public:
 
 };
 
-
 void AddSC_boss_brutallus()
 {
     new boss_brutallus();

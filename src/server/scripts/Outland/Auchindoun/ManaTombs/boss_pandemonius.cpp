@@ -124,7 +124,6 @@ public:
 
 };
 
-
 void AddSC_boss_pandemonius()
 {
     new boss_pandemonius();

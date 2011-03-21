@@ -738,10 +738,6 @@ public:
 
 };
 
-
-
-
-
 void AddSC_halls_of_stone()
 {
     new npc_brann_hos();

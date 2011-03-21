@@ -210,7 +210,6 @@ public:
 
 };
 
-
 void AddSC_boss_noth()
 {
     new boss_noth();

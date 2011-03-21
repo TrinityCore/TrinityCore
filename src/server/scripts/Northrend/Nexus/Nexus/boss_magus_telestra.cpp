@@ -324,7 +324,6 @@ public:
 
 };
 
-
 void AddSC_boss_magus_telestra()
 {
     new boss_magus_telestra();

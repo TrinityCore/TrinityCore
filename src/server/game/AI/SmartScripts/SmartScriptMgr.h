@@ -692,7 +692,6 @@ struct SmartAction
             uint32 id;
         } taxi;
 
-
         struct
         {
             uint32 run;
@@ -761,7 +760,6 @@ struct SmartAction
         {
             uint32 id;
         } storeTargets;
-
 
         struct
         {

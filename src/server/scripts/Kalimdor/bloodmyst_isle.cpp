@@ -149,7 +149,6 @@ public:
 
 };
 
-
 void AddSC_bloodmyst_isle()
 {
     new mob_webbed_creature();

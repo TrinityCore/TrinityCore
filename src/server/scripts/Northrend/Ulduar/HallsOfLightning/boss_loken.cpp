@@ -220,7 +220,6 @@ public:
 
 };
 
-
 void AddSC_boss_loken()
 {
     new boss_loken();

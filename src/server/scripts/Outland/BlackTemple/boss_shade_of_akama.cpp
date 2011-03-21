@@ -881,8 +881,6 @@ public:
 
 };
 
-
-
 void AddSC_boss_shade_of_akama()
 {
     new boss_shade_of_akama();

@@ -84,7 +84,6 @@ public:
 
 };
 
-
 void AddSC_boss_hodir()
 {
     new boss_hodir();

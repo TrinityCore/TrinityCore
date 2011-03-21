@@ -195,7 +195,6 @@ public:
 
 };
 
-
 void AddSC_boss_curator()
 {
     new boss_curator();

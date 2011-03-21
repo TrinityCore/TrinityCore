@@ -115,7 +115,6 @@ enum LfgAnswer
     LFG_ANSWER_AGREE                             = 1
 };
 
-
 // Forward declaration (just to have all typedef together)
 struct LfgReward;
 struct LfgLockStatus;
@@ -209,7 +208,6 @@ struct LfgProposalPlayer
     LfgAnswer accept;                                      ///< Accept status (-1 not answer | 0 Not agree | 1 agree)
     uint32 groupLowGuid;                                   ///< Original group guid (Low guid) 0 if no original group
 };
-
 
 /// Stores group data related to proposal to join
 struct LfgProposal

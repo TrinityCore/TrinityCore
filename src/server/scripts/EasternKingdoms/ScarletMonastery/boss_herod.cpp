@@ -118,7 +118,6 @@ public:
 
 };
 
-
 class mob_scarlet_trainee : public CreatureScript
 {
 public:
@@ -158,7 +157,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_herod()
 {

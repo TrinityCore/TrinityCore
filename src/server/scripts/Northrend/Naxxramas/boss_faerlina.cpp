@@ -175,7 +175,6 @@ public:
 
 };
 
-
 class mob_faerlina_add : public CreatureScript
 {
 public:
@@ -214,7 +213,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_faerlina()
 {

@@ -312,7 +312,6 @@ void Unit::SendMonsterMoveWithSpeedToCurrentDestination(Player* player)
         SendMonsterMoveWithSpeed(x, y, z, 0, player);
 }
 
-
 void Unit::SendMonsterMoveWithSpeed(float x, float y, float z, uint32 transitTime, Player* player)
 {
     if (!transitTime)
@@ -3720,7 +3719,6 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit 
             else
                 RemoveAuraFromStack(iter, AURA_REMOVE_BY_ENEMY_SPELL);
 
-
             if (Aura * newAura = stealCharge ? stealer->GetAura(aura->GetId(), aura->GetCasterGUID()) : NULL)
             {
                 uint8 newCharges = newAura->GetCharges() + 1;
@@ -3835,7 +3833,6 @@ void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase)
             ++iter;
     }
 }
-
 
 void Unit::RemoveAurasWithInterruptFlags(uint32 flag, uint32 except)
 {
@@ -11104,7 +11101,6 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
     if (AuraEffect const* Tenacity = pVictim->GetAuraEffect(58549, 0))
         AddPctN(TakenTotalMod, Tenacity->GetAmount());
 
-
     // Healing taken percent
     float minval = (float)pVictim->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_HEALING_PCT);
     if (minval)
@@ -12654,7 +12650,6 @@ Unit* Creature::SelectVictim()
         if (target && _IsTargetAcceptable(target))
                 return target;
     }
-
 
     Unit::AuraEffectList const& iAuras = GetAuraEffectsByType(SPELL_AURA_MOD_INVISIBILITY);
     if(!iAuras.empty())

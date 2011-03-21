@@ -6418,7 +6418,6 @@ void AuraEffect::HandleAuraModFaction(AuraApplication const * aurApp, uint8 mode
     }
 }
 
-
 void AuraEffect::HandleComprehendLanguage(AuraApplication const * aurApp, uint8 mode, bool apply) const
 {
     if (!(mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK))

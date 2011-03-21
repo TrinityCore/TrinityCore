@@ -313,14 +313,12 @@ public:
             }
         }
 
-
         // TODO: effect 0 and effect 1 may be on different target
         void SpellHitTarget(Unit* pTarget, const SpellEntry* pSpell)
         {
             if (pSpell->Id == SPELL_PURSUED)
                 AttackStart(pTarget);
         }
-
 
         void JustDied(Unit* /*victim*/)
         {
@@ -837,7 +835,6 @@ public:
 
 };
 
-
 class spell_pool_of_tar : public CreatureScript
 {
 public:
@@ -1007,7 +1004,6 @@ public:
 
 };
 
-
 class npc_hodirs_fury : public CreatureScript
 {
 public:
@@ -1158,7 +1154,6 @@ public:
             {
                 pPlayer->PrepareGossipMenu(pCreature);
                 instance->instance->LoadGrid(364,-16); //make sure leviathan is loaded
-
 
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_ITEM_2,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+2);
                 pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());

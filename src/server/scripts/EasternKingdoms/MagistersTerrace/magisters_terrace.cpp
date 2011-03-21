@@ -171,9 +171,6 @@ public:
 
 };
 
-
-
-
 void AddSC_magisters_terrace()
 {
     new npc_kalecgos();

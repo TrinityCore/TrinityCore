@@ -99,7 +99,6 @@ public:
 
 };
 
-
 /*######
 ## npc_great_bear_spirit
 ######*/
@@ -158,7 +157,6 @@ public:
 
 };
 
-
 /*######
 ## npc_silva_filnaveth
 ######*/
@@ -215,7 +213,6 @@ public:
     }
 
 };
-
 
 /*######
 ## npc_clintar_spirit
@@ -550,7 +547,6 @@ public:
     };
 
 };
-
 
 /*####
 # npc_clintar_dreamwalker
