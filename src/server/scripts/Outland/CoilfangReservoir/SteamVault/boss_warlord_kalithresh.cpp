@@ -203,8 +203,6 @@ public:
 
 };
 
-
-
 void AddSC_boss_warlord_kalithresh()
 {
     new mob_naga_distiller();

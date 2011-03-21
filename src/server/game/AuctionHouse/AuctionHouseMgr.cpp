@@ -304,7 +304,6 @@ void AuctionHouseMgr::SendAuctionCancelledToBidderMail(AuctionEntry* auction, SQ
     }
 }
 
-
 void AuctionHouseMgr::LoadAuctionItems()
 {
     uint32 oldMSTime = getMSTime();
@@ -373,7 +372,6 @@ void AuctionHouseMgr::LoadAuctions()
     do
     {
         Field* fields = result->Fetch();
-
 
         AuctionEntry *aItem = new AuctionEntry();
         if (!aItem->LoadFromDB(fields))

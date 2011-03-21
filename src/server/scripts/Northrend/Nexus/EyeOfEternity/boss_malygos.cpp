@@ -185,7 +185,6 @@ public:
 
 };
 
-
 void AddSC_boss_malygos()
 {
     new boss_malygos();

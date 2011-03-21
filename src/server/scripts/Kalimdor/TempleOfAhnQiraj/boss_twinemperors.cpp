@@ -595,8 +595,6 @@ public:
 
 };
 
-
-
 void AddSC_boss_twinemperors()
 {
     new boss_veknilash();

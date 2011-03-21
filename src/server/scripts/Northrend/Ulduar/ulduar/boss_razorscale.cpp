@@ -562,7 +562,6 @@ public:
 
 };
 
-
 class npc_mole_machine_trigger : public CreatureScript
 {
 public:
@@ -627,7 +626,6 @@ public:
 
 };
 
-
 class npc_devouring_flame : public CreatureScript
 {
 public:
@@ -653,7 +651,6 @@ public:
     };
 
 };
-
 
 class npc_darkrune_watcher : public CreatureScript
 {
@@ -703,7 +700,6 @@ public:
 
 };
 
-
 class npc_darkrune_guardian : public CreatureScript
 {
 public:
@@ -742,7 +738,6 @@ public:
     };
 
 };
-
 
 class npc_darkrune_sentinel : public CreatureScript
 {
@@ -800,7 +795,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_razorscale()
 {

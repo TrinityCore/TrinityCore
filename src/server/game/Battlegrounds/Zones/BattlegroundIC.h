@@ -908,7 +908,6 @@ class BattlegroundIC : public Battleground
         Transport* gunshipAlliance;
         Transport* gunshipHorde;
 
-
         uint32 GetNextBanner(ICNodePoint* nodePoint,uint32 team, bool returnDefinitve);
 
         uint32 GetGateIDFromEntry(uint32 id)

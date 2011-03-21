@@ -155,7 +155,6 @@ public:
 
 };
 
-
 void AddSC_utgarde_keep()
 {
     new npc_dragonflayer_forge_master();

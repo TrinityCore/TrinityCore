@@ -254,7 +254,6 @@ public:
         }
     };
 
-
     CreatureAI *GetAI(Creature *creature) const
     {
         return new npc_air_force_botsAI(creature);
@@ -478,7 +477,6 @@ public:
         return new npc_dancing_flamesAI(creature);
     }
 };
-
 
 /*######
 ## Triage quest

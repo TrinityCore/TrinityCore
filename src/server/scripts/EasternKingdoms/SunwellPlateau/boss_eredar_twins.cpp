@@ -343,7 +343,6 @@ public:
 
 };
 
-
 class boss_alythess : public CreatureScript
 {
 public:
@@ -674,7 +673,6 @@ public:
 
 };
 
-
 class mob_shadow_image : public CreatureScript
 {
 public:
@@ -756,7 +754,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_eredar_twins()
 {

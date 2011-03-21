@@ -186,7 +186,6 @@ public:
 
 };
 
-
 void AddSC_boss_krystallus()
 {
     new boss_krystallus();

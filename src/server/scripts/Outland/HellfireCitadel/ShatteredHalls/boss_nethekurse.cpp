@@ -307,7 +307,6 @@ class boss_grand_warlock_nethekurse : public CreatureScript
         }
 };
 
-
 class mob_fel_orc_convert : public CreatureScript
 {
     public:

@@ -89,7 +89,6 @@ public:
 
 };
 
-
 void AddSC_boss_infinite_corruptor()
 {
     new boss_infinite_corruptor();

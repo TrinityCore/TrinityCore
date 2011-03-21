@@ -66,7 +66,6 @@ public:
 
 };
 
-
 void AddSC_black_temple()
 {
     new npc_spirit_of_olum();

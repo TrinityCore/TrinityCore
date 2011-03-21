@@ -456,8 +456,7 @@ public:
 
 };
 
-
-   void AddSC_instance_blackrock_depths()
+void AddSC_instance_blackrock_depths()
 {
     new instance_blackrock_depths();
 }

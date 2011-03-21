@@ -227,7 +227,6 @@ class instance_molten_core : public InstanceMapScript
         }
 };
 
-
 void AddSC_instance_molten_core()
 {
     new instance_molten_core();

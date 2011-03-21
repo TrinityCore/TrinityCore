@@ -240,7 +240,6 @@ public:
 
 };
 
-
 void AddSC_instance_culling_of_stratholme()
 {
     new instance_culling_of_stratholme();

@@ -15,7 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include "DatabaseEnv.h"
 #include "SQLStorage.h"
 #include "ObjectMgr.h"
@@ -2472,7 +2471,6 @@ void SmartScript::UpdateAIWhileCharmed(const uint32 diff)
 {
 }
 
-
 void SmartScript::DoAction(const int32 param)
 {
 }
@@ -2512,7 +2510,6 @@ uint32 SmartScript::DoChat(int8 id, uint64 whisperGuid)
     return 0;
 }*/
 // SmartScript end
-
 
 Unit* SmartScript::DoSelectLowestHpFriendly(float range, uint32 MinHPDiff)
 {

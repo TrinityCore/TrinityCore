@@ -103,7 +103,6 @@ public:
 
 };
 
-
 void AddSC_instance_razorfen_kraul()
 {
     new instance_razorfen_kraul();

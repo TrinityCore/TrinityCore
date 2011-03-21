@@ -246,7 +246,6 @@ public:
 
 };
 
-
 struct boss_faction_championsAI : public ScriptedAI
 {
     boss_faction_championsAI(Creature* pCreature, uint32 aitype) : ScriptedAI(pCreature)

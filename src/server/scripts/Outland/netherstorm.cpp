@@ -635,7 +635,6 @@ public:
 
 };
 
-
 class at_commander_dawnforge : public AreaTriggerScript
 {
 public:
@@ -716,8 +715,6 @@ public:
     }
 
 };
-
-
 
 /*######
 ## mob_phase_hunter
@@ -855,7 +852,6 @@ public:
     };
 
 };
-
 
 /*######
 ## npc_bessy
@@ -1051,7 +1047,6 @@ public:
         return true;
     }
 };
-
 
 void AddSC_netherstorm()
 {

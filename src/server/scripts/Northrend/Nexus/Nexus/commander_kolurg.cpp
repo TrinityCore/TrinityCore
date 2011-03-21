@@ -68,7 +68,6 @@ public:
 
 };
 
-
 void AddSC_boss_commander_kolurg()
 {
     new boss_commander_kolurg();

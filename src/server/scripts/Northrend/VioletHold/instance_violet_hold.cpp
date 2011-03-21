@@ -813,7 +813,6 @@ public:
     };
 };
 
-
 void AddSC_instance_violet_hold()
 {
     new instance_violet_hold();

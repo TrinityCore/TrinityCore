@@ -80,7 +80,6 @@ public:
 
 };
 
-
 void AddSC_boss_gelihast()
 {
     new boss_gelihast();

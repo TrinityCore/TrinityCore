@@ -176,7 +176,6 @@ public:
 
 };
 
-
 void AddSC_boss_doomwalker()
 {
     new boss_doomwalker();

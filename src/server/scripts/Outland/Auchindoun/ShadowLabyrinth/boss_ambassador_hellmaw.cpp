@@ -204,7 +204,6 @@ public:
 
 };
 
-
 void AddSC_boss_ambassador_hellmaw()
 {
     new boss_ambassador_hellmaw();

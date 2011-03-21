@@ -255,7 +255,6 @@ public:
 
 };
 
-
 /*######
 ## npc_daranelle
 ######*/
@@ -302,7 +301,6 @@ public:
 
 };
 
-
 /*######
 ## npc_overseer_nuaar
 ######*/
@@ -336,7 +334,6 @@ public:
     }
 
 };
-
 
 /*######
 ## npc_saikkal_the_elder
@@ -378,7 +375,6 @@ public:
     }
 
 };
-
 
 /*######
 ## go_legion_obelisk
@@ -429,11 +425,9 @@ public:
 
 };
 
-
 /*######
 ## npc_bloodmaul_brutebane
 ######*/
-
 
 enum eBloodmaul
 {
@@ -474,7 +468,6 @@ public:
     };
 
 };
-
 
 /*######
 ## npc_ogre_brute
@@ -537,7 +530,6 @@ public:
     };
 
 };
-
 
 /*######
 ## AddSC

@@ -267,7 +267,6 @@ struct advisorbase_ai : public ScriptedAI
     }
 };
 
-
 class boss_kaelthas : public CreatureScript
 {
     public:
@@ -1517,7 +1516,6 @@ class mob_phoenix_tk : public CreatureScript
         }
 };
 
-
 //Phoenix Egg AI
 class mob_phoenix_egg_tk : public CreatureScript
 {
@@ -1578,7 +1576,6 @@ class mob_phoenix_egg_tk : public CreatureScript
             return new mob_phoenix_egg_tkAI(pCreature);
         }
 };
-
 
 void AddSC_boss_kaelthas()
 {

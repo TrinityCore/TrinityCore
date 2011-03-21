@@ -189,7 +189,6 @@ public:
 
 };
 
-
 void AddSC_boss_lieutenant_drake()
 {
     new go_barrel_old_hillsbrad();

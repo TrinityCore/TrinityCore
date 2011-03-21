@@ -204,7 +204,6 @@ public:
 
 };
 
-
 void AddSC_boss_fankriss()
 {
     new boss_fankriss();

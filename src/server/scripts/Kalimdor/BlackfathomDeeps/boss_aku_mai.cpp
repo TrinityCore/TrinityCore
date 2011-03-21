@@ -89,7 +89,6 @@ public:
 
 };
 
-
 void AddSC_boss_aku_mai()
 {
     new boss_aku_mai();

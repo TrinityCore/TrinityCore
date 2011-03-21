@@ -358,7 +358,6 @@ void GameEventMgr::LoadFromDB()
         }
     }
 
-
     sLog->outString("Loading Game Event Creature Data...");
     {
         uint32 oldMSTime = getMSTime();

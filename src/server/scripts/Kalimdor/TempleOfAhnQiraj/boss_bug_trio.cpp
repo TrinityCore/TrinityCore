@@ -348,9 +348,6 @@ public:
 
 };
 
-
-
-
 void AddSC_bug_trio()
 {
     new boss_kri();

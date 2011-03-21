@@ -198,7 +198,6 @@ public:
 
 };
 
-
 /* ELEMENTALS */
 class mob_syth_fire : public CreatureScript
 {
@@ -308,7 +307,6 @@ public:
     };
 };
 
-
 class mob_syth_frost : public CreatureScript
 {
 public:
@@ -364,7 +362,6 @@ public:
 
 };
 
-
 class mob_syth_shadow : public CreatureScript
 {
 public:
@@ -419,7 +416,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_darkweaver_syth()
 {

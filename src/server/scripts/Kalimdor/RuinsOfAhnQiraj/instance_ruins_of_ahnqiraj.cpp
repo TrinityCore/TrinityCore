@@ -212,7 +212,6 @@ public:
 
 };
 
-
 void AddSC_instance_ruins_of_ahnqiraj()
 {
     new instance_ruins_of_ahnqiraj();

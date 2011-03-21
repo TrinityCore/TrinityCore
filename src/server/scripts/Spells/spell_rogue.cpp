@@ -252,7 +252,6 @@ public:
     }
 };
 
-
 class spell_rog_shiv : public SpellScriptLoader
 {
     public:

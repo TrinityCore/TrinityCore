@@ -202,7 +202,6 @@ public:
 
 };
 
-
 void AddSC_boss_gyth()
 {
     new boss_gyth();
