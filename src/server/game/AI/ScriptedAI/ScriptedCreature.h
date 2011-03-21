@@ -75,7 +75,7 @@ struct ScriptedAI : public CreatureAI
     void SpellHit(Unit* /*caster*/, SpellEntry const* /*spell*/) {}
 
     // Called when spell hits a target
-    void SpellHitTarget(Unit * /*target*/, SpellEntry const* /*spell*/) {}
+    void SpellHitTarget(Unit* /*target*/, SpellEntry const* /*spell*/) {}
 
     //Called at waypoint reached or PointMovement end
     void MovementInform(uint32 /*type*/, uint32 /*id*/) {}
