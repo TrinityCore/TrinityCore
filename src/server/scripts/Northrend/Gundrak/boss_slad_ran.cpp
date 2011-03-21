@@ -265,9 +265,6 @@ public:
 
 };
 
-
-
-
 void AddSC_boss_slad_ran()
 {
     new boss_slad_ran();

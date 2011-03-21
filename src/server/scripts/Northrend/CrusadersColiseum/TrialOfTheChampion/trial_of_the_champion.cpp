@@ -400,7 +400,6 @@ public:
             }
         }
 
-
        void UpdateAI(const uint32 uiDiff)
         {
             ScriptedAI::UpdateAI(uiDiff);

@@ -466,7 +466,6 @@ public:
 
 };
 
-
 void AddSC_instance_ulduar()
 {
     new instance_ulduar();

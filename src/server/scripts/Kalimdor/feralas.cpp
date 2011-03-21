@@ -64,7 +64,6 @@ public:
 
 };
 
-
 /*######
 ## npc_oox22fe
 ######*/
@@ -182,8 +181,6 @@ public:
     };
 
 };
-
-
 
 /*######
 ## npc_screecher_spirit

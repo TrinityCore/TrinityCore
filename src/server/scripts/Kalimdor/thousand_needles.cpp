@@ -106,8 +106,6 @@ public:
 
 };
 
-
-
 /*######
 # npc_lakota_windsong
 ######*/
@@ -202,8 +200,6 @@ public:
 
 };
 
-
-
 /*######
 # npc_paoka_swiftmountain
 ######*/
@@ -283,8 +279,6 @@ public:
     };
 
 };
-
-
 
 /*#####
 # npc_plucky
@@ -461,7 +455,6 @@ public:
     };
 
 };
-
 
 void AddSC_thousand_needles()
 {

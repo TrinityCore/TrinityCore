@@ -67,7 +67,6 @@ public:
 
 };
 
-
 /*#####
 # npc_kyle_frenzied
 ######*/
@@ -200,7 +199,6 @@ public:
 
 };
 
-
 /*#####
 # npc_plains_vision
 ######*/
@@ -314,7 +312,6 @@ public:
     };
 
 };
-
 
 /*#####
 #

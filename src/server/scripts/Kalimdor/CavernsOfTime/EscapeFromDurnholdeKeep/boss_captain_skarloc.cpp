@@ -150,7 +150,6 @@ public:
 
 };
 
-
 void AddSC_boss_captain_skarloc()
 {
     new boss_captain_skarloc();

@@ -467,7 +467,6 @@ class spell_ignis_slag_pot : public SpellScriptLoader
         }
 };
 
-
 void AddSC_boss_ignis()
 {
     new boss_ignis();

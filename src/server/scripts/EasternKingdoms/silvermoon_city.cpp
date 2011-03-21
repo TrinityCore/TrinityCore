@@ -103,7 +103,6 @@ public:
 
 };
 
-
 void AddSC_silvermoon_city()
 {
     new npc_blood_knight_stillblade();

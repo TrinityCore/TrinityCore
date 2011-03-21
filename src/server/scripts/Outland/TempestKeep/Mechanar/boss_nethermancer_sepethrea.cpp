@@ -114,7 +114,6 @@ class boss_nethermancer_sepethrea : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-
                 //Frost Attack
                 if (frost_attack_Timer <= diff)
                 {

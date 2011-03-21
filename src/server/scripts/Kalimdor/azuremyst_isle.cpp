@@ -285,9 +285,6 @@ public:
 
 };
 
-
-
-
 /*######
 ## npc_injured_draenei
 ######*/
@@ -407,7 +404,6 @@ public:
     };
 
 };
-
 
 /*######
 ## npc_geezle
@@ -574,7 +570,6 @@ public:
     };
 
 };
-
 
 enum eRavegerCage
 {

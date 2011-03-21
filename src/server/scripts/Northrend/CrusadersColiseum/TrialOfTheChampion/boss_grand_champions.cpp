@@ -529,7 +529,6 @@ public:
                 uiFireBallTimer = 5000;
             } else uiFireBallTimer -= uiDiff;
 
-
             if (!UpdateVictim() || me->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
                 return;
 
@@ -723,7 +722,6 @@ public:
     }
 };
 
-
 class boss_hunter_toc5 : public CreatureScript
 {
 public:
@@ -878,7 +876,6 @@ public:
         return new boss_hunter_toc5AI(pCreature);
     }
 };
-
 
 class boss_rouge_toc5 : public CreatureScript
 {

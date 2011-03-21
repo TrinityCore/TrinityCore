@@ -601,7 +601,6 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket & recv_data)
         sBattlegroundMgr->SendAreaSpiritHealerQueryOpcode(_player, bg, guid);
 }
 
-
 void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AREA_SPIRIT_HEALER_QUEUE");
@@ -621,7 +620,6 @@ void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket & recv_data)
     if (bg)
         bg->AddPlayerToResurrectQueue(guid, _player->GetGUID());
 }
-
 
 void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recv_data)
 {

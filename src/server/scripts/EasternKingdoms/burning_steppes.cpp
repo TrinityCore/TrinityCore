@@ -150,9 +150,6 @@ public:
 
 };
 
-
-
-
 void AddSC_burning_steppes()
 {
     new npc_ragged_john();

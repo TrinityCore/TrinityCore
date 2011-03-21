@@ -143,7 +143,6 @@ public:
 
 };
 
-
 void AddSC_boss_aeonus()
 {
     new boss_aeonus();

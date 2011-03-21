@@ -171,7 +171,6 @@ void BattlegroundDS::Reset()
     Battleground::Reset();
 }
 
-
 bool BattlegroundDS::SetupBattleground()
 {
     // gates

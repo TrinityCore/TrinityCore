@@ -368,7 +368,6 @@ public:
 
 };
 
-
 /*######
 ## mob_phalanx
 ######*/
@@ -538,7 +537,6 @@ public:
 
 };
 
-
 /*######
 ## npc_lokhtos_darkbargainer
 ######*/
@@ -605,7 +603,6 @@ public:
     }
 
 };
-
 
 /*######
 ## npc_dughal_stormwing
@@ -1203,8 +1200,6 @@ public:
     };
 
 };
-
-
 
 */
 

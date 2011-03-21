@@ -159,7 +159,6 @@ public:
 
 };
 
-
 void AddSC_boss_patchwerk()
 {
     new boss_patchwerk();

@@ -115,7 +115,6 @@ public:
 
 };
 
-
 void AddSC_boss_theravenian()
 {
     new boss_the_ravenian();

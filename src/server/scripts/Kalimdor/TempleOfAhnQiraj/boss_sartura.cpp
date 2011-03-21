@@ -297,8 +297,6 @@ public:
 
 };
 
-
-
 void AddSC_boss_sartura()
 {
     new boss_sartura();

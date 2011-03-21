@@ -439,7 +439,6 @@ class boss_janalai : public CreatureScript
             }
         };
 
-
         CreatureAI* GetAI(Creature* creature) const
         {
             return new boss_janalaiAI(creature);

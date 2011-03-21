@@ -179,7 +179,6 @@ public:
                 uiFrostboltTimer = urand(4*IN_MILLISECONDS,12*IN_MILLISECONDS);
             } else uiFrostboltTimer -= diff;
 
-
             // check if creature is not outside of building
             if (uiResetTimer < diff)
             {

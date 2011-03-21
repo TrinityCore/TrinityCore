@@ -141,7 +141,6 @@ void Channel::CleanOldChannelsInDB()
     }
 }
 
-
 void Channel::Join(uint64 p, const char *pass)
 {
     WorldPacket data;
