@@ -220,14 +220,6 @@ class boss_lady_deathwhisper : public CreatureScript
                 dominateMindCount = RAID_MODE<uint8>(0, 1, 1, 3);
             }
 
-            void InitializeAI()
-            {
-                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != GetScriptId(ICCScriptName))
-                    me->IsAIEnabled = false;
-                else if (!me->isDead())
-                    Reset();
-            }
-
             void Reset()
             {
                 _Reset();
@@ -628,7 +620,7 @@ class boss_lady_deathwhisper : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_lady_deathwhisperAI(creature);
+            return GetIcecrownCitadelAI<boss_lady_deathwhisperAI>(creature);
         }
 };
 
@@ -707,7 +699,7 @@ class npc_cult_fanatic : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_cult_fanaticAI(creature);
+            return GetIcecrownCitadelAI<npc_cult_fanaticAI>(creature);
         }
 };
 
@@ -793,7 +785,7 @@ class npc_cult_adherent : public CreatureScript
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
-            return new npc_cult_adherentAI(pCreature);
+            return GetIcecrownCitadelAI<npc_cult_adherentAI>(pCreature);
         }
 };
 
@@ -833,7 +825,7 @@ class npc_vengeful_shade : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_vengeful_shadeAI(creature);
+            return GetIcecrownCitadelAI<npc_vengeful_shadeAI>(creature);
         }
 };
 
@@ -953,7 +945,7 @@ class npc_darnavan : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_darnavanAI(creature);
+            return GetIcecrownCitadelAI<npc_darnavanAI>(creature);
         }
 };
 

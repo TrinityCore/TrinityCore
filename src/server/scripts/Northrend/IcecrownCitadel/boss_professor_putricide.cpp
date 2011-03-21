@@ -190,14 +190,6 @@ class boss_professor_putricide : public CreatureScript
                 phase = PHASE_NONE;
             }
 
-            void InitializeAI()
-            {
-                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != GetScriptId(ICCScriptName))
-                    me->IsAIEnabled = false;
-                else if (!me->isDead())
-                    Reset();
-            }
-
             void Reset()
             {
                 if (!(events.GetPhaseMask() & PHASE_MASK_NOT_SELF))
@@ -690,7 +682,7 @@ class boss_professor_putricide : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_professor_putricideAI(creature);
+            return GetIcecrownCitadelAI<boss_professor_putricideAI>(creature);
         }
 };
 
@@ -751,7 +743,7 @@ class npc_volatile_ooze : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_volatile_oozeAI(creature);
+            return GetIcecrownCitadelAI<npc_volatile_oozeAI>(creature);
         }
 };
 

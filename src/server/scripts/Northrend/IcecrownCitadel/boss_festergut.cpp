@@ -87,14 +87,6 @@ class boss_festergut : public CreatureScript
                 gasDummyGUID = 0;
             }
 
-            void InitializeAI()
-            {
-                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != GetScriptId(ICCScriptName))
-                    me->IsAIEnabled = false;
-                else if (!me->isDead())
-                    Reset();
-            }
-
             void Reset()
             {
                 _Reset();
@@ -281,7 +273,7 @@ class boss_festergut : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_festergutAI(creature);
+            return GetIcecrownCitadelAI<boss_festergutAI>(creature);
         }
 };
 
@@ -337,8 +329,7 @@ class npc_stinky_icc : public CreatureScript
 
             void JustDied(Unit* /*who*/)
             {
-                uint64 festergutGUID = instance ? instance->GetData64(DATA_FESTERGUT) : 0;
-                if (Creature* festergut = me->GetCreature(*me, festergutGUID))
+                if (Creature* festergut = me->GetCreature(*me, instance->GetData64(DATA_FESTERGUT)))
                     if (festergut->isAlive())
                         festergut->AI()->Talk(SAY_STINKY_DEAD);
             }
@@ -350,7 +341,7 @@ class npc_stinky_icc : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_stinky_iccAI(creature);
+            return GetIcecrownCitadelAI<npc_stinky_iccAI>(creature);
         }
 };
 
