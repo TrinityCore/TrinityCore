@@ -170,7 +170,6 @@ public:
 
 };
 
-
 void AddSC_boss_moorabi()
 {
     new boss_moorabi();

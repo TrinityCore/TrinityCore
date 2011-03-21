@@ -110,8 +110,6 @@ public:
 
 };
 
-
-
 void AddSC_teldrassil()
 {
     new npc_mist();

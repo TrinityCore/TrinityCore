@@ -268,7 +268,6 @@ public:
 
 };
 
-
 void AddSC_instance_halls_of_stone()
 {
     new instance_halls_of_stone();

@@ -167,8 +167,6 @@ public:
 
 };
 
-
-
 void AddSC_redridge_mountains()
 {
     new npc_corporal_keeshan();

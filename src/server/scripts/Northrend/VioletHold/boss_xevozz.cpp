@@ -224,7 +224,6 @@ public:
 
 };
 
-
 class mob_ethereal_sphere : public CreatureScript
 {
 public:
@@ -301,7 +300,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_xevozz()
 {

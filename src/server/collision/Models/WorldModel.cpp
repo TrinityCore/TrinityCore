@@ -28,7 +28,6 @@ template<> struct BoundsTrait<VMAP::GroupModel>
     static void getBounds(const VMAP::GroupModel& obj, G3D::AABox& out) { out = obj.GetBound(); }
 };
 
-
 namespace VMAP
 {
     bool IntersectTriangle(const MeshTriangle &tri, std::vector<Vector3>::const_iterator points, const G3D::Ray &ray, float &distance)

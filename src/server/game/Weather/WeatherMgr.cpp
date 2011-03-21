@@ -89,7 +89,6 @@ void WeatherMgr::LoadWeatherData()
         return;
     }
 
-
     do
     {
         Field *fields = result->Fetch();

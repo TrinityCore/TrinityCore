@@ -298,7 +298,6 @@ VehicleAI::VehicleAI(Creature *c) : CreatureAI(c), m_vehicle(c->GetVehicleKit())
     m_DismissTimer = VEHICLE_DISMISS_TIME;
 }
 
-
 //NOTE: VehicleAI::UpdateAI runs even while the vehicle is mounted
 void VehicleAI::UpdateAI(const uint32 diff)
 {

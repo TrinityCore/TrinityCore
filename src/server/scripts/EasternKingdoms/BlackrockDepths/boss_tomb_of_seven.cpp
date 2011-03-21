@@ -95,7 +95,6 @@ public:
 
 };
 
-
 enum DoomrelSpells
 {
     SPELL_SHADOWBOLTVOLLEY                                 = 15245,

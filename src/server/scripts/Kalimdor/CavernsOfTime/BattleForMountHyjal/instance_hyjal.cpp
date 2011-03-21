@@ -322,7 +322,6 @@ public:
 
 };
 
-
 void AddSC_instance_mount_hyjal()
 {
     new instance_hyjal();

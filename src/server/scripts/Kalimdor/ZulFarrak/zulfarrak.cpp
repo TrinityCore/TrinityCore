@@ -195,9 +195,6 @@ public:
 
 };
 
-
-
-
 /*######
 +## go_troll_cage
 +######*/
@@ -395,8 +392,6 @@ public:
     };
 
 };
-
-
 
 /*######
 ## go_shallow_grave

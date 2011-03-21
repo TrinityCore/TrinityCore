@@ -253,7 +253,6 @@ public:
 
 };
 
-
 void AddSC_boss_gruul()
 {
     new boss_gruul();

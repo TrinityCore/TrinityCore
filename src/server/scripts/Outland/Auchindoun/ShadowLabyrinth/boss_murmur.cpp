@@ -203,7 +203,6 @@ public:
 
 };
 
-
 void AddSC_boss_murmur()
 {
     new boss_murmur();

@@ -812,7 +812,6 @@ void Battleground::EndBattleground(uint32 winner)
                 UpdatePlayerScore(plr, SCORE_BONUS_HONOR, GetBonusHonorFromKill(loser_kills));
         }
 
-
         plr->ResetAllPowers();
         plr->CombatStopWithPets(true);
 

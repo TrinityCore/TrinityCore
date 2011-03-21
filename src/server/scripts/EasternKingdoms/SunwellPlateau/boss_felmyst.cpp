@@ -583,9 +583,6 @@ public:
 
 };
 
-
-
-
 void AddSC_boss_felmyst()
 {
     new boss_felmyst();

@@ -136,7 +136,6 @@ public:
 
 };
 
-
 void AddSC_boss_epoch_hunter()
 {
     new boss_epoch_hunter();

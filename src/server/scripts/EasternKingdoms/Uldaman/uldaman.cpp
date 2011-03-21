@@ -101,8 +101,6 @@ class mob_jadespine_basilisk : public CreatureScript
         }
 };
 
-
-
 /*######
 ## go_keystone_chamber
 ######*/

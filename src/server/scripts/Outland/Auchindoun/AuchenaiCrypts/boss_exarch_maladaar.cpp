@@ -125,7 +125,6 @@ public:
 
 };
 
-
 #define SAY_INTRO                   -1558000
 #define SAY_SUMMON                  -1558001
 
@@ -305,7 +304,6 @@ public:
 
 };
 
-
 #define SPELL_AV_MORTAL_STRIKE          16856
 #define SPELL_AV_SUNDER_ARMOR           16145
 
@@ -350,7 +348,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_exarch_maladaar()
 {

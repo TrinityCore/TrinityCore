@@ -4453,7 +4453,6 @@ bool ChatHandler::HandleChannelSetOwnership(const char *args)
     return true;
 }
 
-
 /*------------------------------------------
  *-------------TRINITY----------------------
  *-------------------------------------*/

@@ -302,7 +302,6 @@ public:
 
 };
 
-
 void AddSC_boss_mother_shahraz()
 {
     new boss_mother_shahraz();

@@ -135,7 +135,6 @@ public:
 
 };
 
-
 void AddSC_boss_meathook()
 {
     new boss_meathook();

@@ -157,7 +157,6 @@ public:
 
 };
 
-
 void AddSC_boss_lavanthor()
 {
     new boss_lavanthor();

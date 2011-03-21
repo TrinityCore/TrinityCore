@@ -54,7 +54,6 @@ void DisableMgr::LoadDisables()
         return;
     }
 
-
     Field* fields;
     do
     {

@@ -143,7 +143,6 @@ int ns1__executeCommand(soap* soap, char* command, char** result)
         return soap_sender_fault(soap, printBuffer, printBuffer);
 }
 
-
 void SOAPCommand::commandFinished(void* soapconnection, bool success)
 {
     SOAPCommand* con = (SOAPCommand*)soapconnection;

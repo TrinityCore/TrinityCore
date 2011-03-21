@@ -106,7 +106,6 @@ class boss_drakkari_colossus : public CreatureScript
 
                 phase = COLOSSUS_PHASE_NORMAL;
 
-
                 // Note: This should not be called, but before use SetBossState function we should use BossAI
                 //        in all the bosses of the instance
                 instance->SetData(DATA_DRAKKARI_COLOSSUS_EVENT, NOT_STARTED);
@@ -437,7 +436,6 @@ public:
                 }
             }
         }
-
 
         void AttackStart(Unit* attacker)
         {

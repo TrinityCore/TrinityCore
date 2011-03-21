@@ -202,7 +202,6 @@ public:
 
 };
 
-
 void AddSC_instance_magisters_terrace()
 {
     new instance_magisters_terrace();

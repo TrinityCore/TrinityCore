@@ -543,9 +543,6 @@ public:
 
 };
 
-
-
-
 class boss_grubbis : public CreatureScript
 {
 public:
@@ -591,7 +588,6 @@ public:
     };
 
 };
-
 
 void AddSC_gnomeregan()
 {
