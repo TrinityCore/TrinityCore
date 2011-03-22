@@ -200,7 +200,7 @@ void CleanupBloodPrinceCouncil(InstanceScript *instance, BossAI *ai)
     instance->SetBossState(DATA_BLOOD_PRINCE_COUNCIL_EVENT, FAIL);
     instance->SetData(DATA_BLOOD_PRINCE_COUNCIL_EVENT, FAIL);
     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SHADOW_RESONANCE);
-    //ai->summons.DespawnAll(); Izogfif, я временно закомментировал эту часть, тебе разбираться...
+    //ai->summons.DespawnAll(); 
     UnsummonSpecificCreaturesNearby(ai->me, NPC_SHOCK_VORTEX, 100.0f);
     UnsummonSpecificCreaturesNearby(ai->me, NPC_KINETIC_BOMB, 100.0f);
     UnsummonSpecificCreaturesNearby(ai->me, NPC_KINETIC_BOMB_TARGET, 100.0f);
