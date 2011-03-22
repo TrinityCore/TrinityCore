@@ -534,7 +534,7 @@ class npc_highlord_tirion_fordring_lh : public CreatureScript
 //
 //                    if (uiCurseTimer <= uiDiff)
 //                    {
-//                        if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1))
+//                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
 //                            DoCast(target, SPELL_CURSE_OF_TORPOR);
 //                        uiCurseTimer = urand(8000, 10000);
 //                    } else uiCurseTimer -= uiDiff;
