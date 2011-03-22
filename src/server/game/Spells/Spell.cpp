@@ -502,6 +502,7 @@ m_caster(Caster), m_spellValue(new SpellValue(m_spellInfo))
     m_preCastSpell = 0;
     m_triggeredByAuraSpell  = NULL;
     m_spellAura = NULL;
+    m_magnetingAura = NULL;
 
     //Auto Shot & Shoot (wand)
     m_autoRepeat = IsAutoRepeatRangedSpell(m_spellInfo);
@@ -1338,6 +1339,14 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
             if (unitTarget->ToCreature()->IsAIEnabled)
                 unitTarget->ToCreature()->AI()->AttackStart(m_caster);
         }
+    }
+
+    // Drop charge of magnet auras on hit
+    if (m_magnetingAura)
+    {
+        if (!m_magnetingAura->IsRemoved() && m_magnetingAura->GetCharges()>0)
+            m_magnetingAura->DropCharge();
+        m_magnetingAura = NULL;
     }
 
     if (missInfo != SPELL_MISS_EVADE && m_caster && !m_caster->IsFriendlyTo(unit) && !IsPositiveSpell(m_spellInfo->Id))
