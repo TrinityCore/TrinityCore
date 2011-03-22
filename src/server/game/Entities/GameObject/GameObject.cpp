@@ -537,7 +537,11 @@ void GameObject::Update(uint32 diff)
                 SetGoState(GO_STATE_READY);
 
                 //any return here in case battleground traps
+                if (GetGOInfo()->flags & GO_FLAG_NODESPAWN)
+                    return;
             }
+
+            loot.clear();
 
             if (GetOwnerGUID())
             {
@@ -550,6 +554,8 @@ void GameObject::Update(uint32 diff)
                 return;
             }
 
+            SetLootState(GO_READY);
+
             //burning flags in some battlegrounds, if you find better condition, just add it
             if (GetGOInfo()->IsDespawnAtAction() || GetGoAnimProgress() > 0)
             {
@@ -557,9 +563,6 @@ void GameObject::Update(uint32 diff)
                 //reset flags
                 SetUInt32Value(GAMEOBJECT_FLAGS, GetGOInfo()->flags);
             }
-
-            loot.clear();
-            SetLootState(GO_READY);
 
             if (!m_respawnDelayTime)
                 return;
