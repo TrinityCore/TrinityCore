@@ -4528,6 +4528,38 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
     {
         case SPELLFAMILY_GENERIC:
         {
+            if (unitTarget && unitTarget->HasAura(63050))
+            {
+                // reduces Sanity by %
+                uint32 sanityCount = 0;
+                switch(m_spellInfo->Id)
+                {
+                    case 63803: // Brain Link
+                    case 64168: // Lunatic Gaze
+                        sanityCount = 2; break;
+                    case 63830: // Malady of the Mind 10
+                    case 63881: // Malady of the Mind 25
+                        sanityCount = 3; break;
+                    case 64164: // Lunatic Gaze P3
+                        sanityCount = 4; break;
+                    case 63795: // Psychosis
+                        sanityCount = 9; break;
+                    case 64059: // Induce Madness
+                        sanityCount = 100; break;
+                }
+                if (sanityCount)
+                {
+                    if (Aura *aur = unitTarget->GetAura(63050))
+                    {
+                        int32 stack = aur->GetStackAmount() - sanityCount;
+                        if (stack <= 0)
+                            unitTarget->RemoveAurasDueToSpell(63050);
+                        else
+                            unitTarget->SetAuraStack(63050, unitTarget, stack);
+                    }
+                }
+            }
+
             switch(m_spellInfo->Id)
             {
                 //Sunreaver Disguis

@@ -219,7 +219,7 @@ public:
         uint32 EnrageTimer;
         uint32 FlameTimer;
         uint32 uiBotTimer;
-        bool checkBotAlive;
+        bool CheckBotAlive;
         bool Enraged;
 
         Phases phase;
@@ -237,7 +237,7 @@ public:
                 instance->SetData(DATA_MIMIRON_ELEVATOR, GO_STATE_ACTIVE);
                 instance->SetBossState(BOSS_MIMIRON, FAIL);
                 
-                for (uint8 data = DATA_LEVIATHAN_MK_II; data <= DATA_AERIAL_UNIT; ++data)
+                for (uint8 data = DATA_VX_001; data <= DATA_AERIAL_UNIT; ++data)
                 {
                     if (Creature *pCreature = me->GetCreature(*me, instance->GetData64(data)))
                     {
@@ -254,7 +254,7 @@ public:
             uiPhase_timer = -1;
             uiBotTimer = 0;
             MimironHardMode = false;
-            checkBotAlive = true;
+            CheckBotAlive = true;
             Enraged = false;
             DespawnCreatures(34362, 100);
         }
@@ -330,7 +330,7 @@ public:
             }
                 
             // All sections need to die within 10 seconds, else they respawn
-            if (checkBotAlive)
+            if (CheckBotAlive)
                 uiBotTimer = 0;
             else
             {
@@ -344,7 +344,7 @@ public:
                     if (Creature *pAerialUnit = me->GetCreature(*me, instance->GetData64(DATA_AERIAL_UNIT)))
                         pAerialUnit->AI()->DoAction(DO_AERIAL_ASSEMBLED);
 
-                    checkBotAlive = true;
+                    CheckBotAlive = true;
                 }
                 else
                 {
@@ -359,7 +359,7 @@ public:
                                             pVX_001->DisappearAndDie();
                                             pAerialUnit->DisappearAndDie();
                                             me->Kill(me, false);
-                                            checkBotAlive = true;
+                                            CheckBotAlive = true;
                                         }
                 }
             }
@@ -623,7 +623,7 @@ public:
                     JumpToNextStep(1000);
                     break;
                 case DO_ACTIVATE_DEATH_TIMER:
-                    checkBotAlive = false;
+                    CheckBotAlive = false;
                     break;
                 case DO_ACTIVATE_HARD_MODE:
                     MimironHardMode = true;
@@ -685,19 +685,8 @@ public:
             me->RemoveAllAuras();
             phase = PHASE_NULL;
             events.SetPhase(PHASE_NULL);
-        }
-        
-        void JustReachedHome()
-        {
-            if (vehicle->HasEmptySeat(3) && !me->isInCombat())
+            if (vehicle->HasEmptySeat(3))
                 vehicle->Reset();
-
-            if (Creature *turret = CAST_CRE(vehicle->GetPassenger(3)))
-            {
-                turret->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                turret->SetReactState(REACT_PASSIVE);
-                turret->AI()->EnterEvadeMode();
-            }
         }
 
         void KilledUnit(Unit *who)
@@ -874,6 +863,8 @@ public:
         {
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+            me->SetReactState(REACT_PASSIVE);
             uiNapalmShell = urand(4000, 8000);
         }
 

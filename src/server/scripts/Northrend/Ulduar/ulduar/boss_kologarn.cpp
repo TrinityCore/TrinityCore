@@ -129,7 +129,6 @@ public:
             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
             me->SetStandState(UNIT_STAND_STATE_SUBMERGED);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
-            SetCombatMovement(false);
             emerged = false;
         }
 
@@ -143,7 +142,7 @@ public:
         void MoveInLineOfSight(Unit* who)
         {
             // Birth animation
-            if (!emerged && me->IsWithinDistInMap(who, 40.0f) && who->GetTypeId() == TYPEID_PLAYER && !who->ToPlayer()->isGameMaster())
+            if (!emerged && me->IsWithinDistInMap(who, 40.0f) && who->ToPlayer() && !who->ToPlayer()->isGameMaster())
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetStandState(UNIT_STAND_STATE_STAND);
@@ -243,11 +242,8 @@ public:
             
             if (instance)
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);
-        
-            if (Unit* LeftArm = me->SummonCreature(NPC_LEFT_ARM, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
-                LeftArm->_EnterVehicle(vehicle, 0);
-            if (Unit* RightArm = me->SummonCreature(NPC_RIGHT_ARM, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation()))
-                RightArm->_EnterVehicle(vehicle, 1);
+
+            vehicle->Reset();
         }
 
         void UpdateAI(const uint32 diff)
@@ -320,11 +316,13 @@ public:
                         if (Creature* EyeBeam = me->SummonCreature(NPC_EYEBEAM_1,pTarget->GetPositionX(),pTarget->GetPositionY()+3,pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,10000))
                         {
                             EyeBeam->CastSpell(me, SPELL_EYEBEAM_VISUAL_1, true);
+                            EyeBeam->ClearUnitState(UNIT_STAT_CASTING);
                             EyeBeam->AI()->AttackStart(pTarget);
                         }
                         if (Creature* EyeBeam = me->SummonCreature(NPC_EYEBEAM_2,pTarget->GetPositionX(),pTarget->GetPositionY()-3,pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,10000))
                         {
                             EyeBeam->CastSpell(me, SPELL_EYEBEAM_VISUAL_2, true);
+                            EyeBeam->ClearUnitState(UNIT_STAT_CASTING);
                             EyeBeam->AI()->AttackStart(pTarget);
                         }
                     }
@@ -403,21 +401,6 @@ public:
             DoCast(me, SPELL_EYEBEAM_IMMUNITY);
             DoCast(me, SPELL_FOCUSED_EYEBEAM);
             me->SetDisplayId(11686);
-            checkTimer = 1500;
-        }
-
-        uint32 checkTimer;
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (checkTimer <= diff)
-            {
-                if (me->getVictim() && me->getVictim()->isAlive())
-                    me->GetMotionMaster()->MovePoint(0,me->getVictim()->GetPositionX(),me->getVictim()->GetPositionY(),me->getVictim()->GetPositionZ());
-            
-                checkTimer = 500;
-            }
-            else checkTimer -= diff;
         }
     };
 

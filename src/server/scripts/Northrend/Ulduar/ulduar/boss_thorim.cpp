@@ -499,7 +499,6 @@ public:
 
 };
 
-
 class npc_thorim_pre_phase : public CreatureScript
 {
 public:
