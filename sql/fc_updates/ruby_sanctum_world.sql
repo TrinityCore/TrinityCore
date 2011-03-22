@@ -42,3 +42,6 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 
 -- Xerestrasza
 UPDATE `creature_template` SET `ScriptName`='mob_xerestrasza', `AIName` ='' WHERE `entry`=40429;
+
+DELETE FROM `spell_script_names` WHERE `spell_id`=74769 AND `ScriptName`='spell_twilight_cutter';
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (74769,'spell_twilight_cutter');
