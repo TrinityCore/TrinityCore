@@ -6000,8 +6000,15 @@ SpellCastResult Spell::CheckItems()
     // do not take reagents for these item casts
     if (!(m_CastItem && m_CastItem->GetProto()->Flags & ITEM_PROTO_FLAG_TRIGGERED_CAST))
     {
+        bool checkReagents = !m_IsTriggeredSpell && !p_caster->CanNoReagentCast(m_spellInfo);
+        // Not own traded item (in trader trade slot) requires reagents even if triggered spell
+        if (!checkReagents)
+            if (Item* targetItem = m_targets.getItemTarget())
+                if (targetItem->GetOwnerGUID() != m_caster->GetGUID())
+                    checkReagents = true;
+
         // check reagents (ignore triggered spells with reagents processed by original spell) and special reagent ignore case.
-        if (!m_IsTriggeredSpell && !p_caster->CanNoReagentCast(m_spellInfo))
+        if (checkReagents)
         {
             for (uint32 i = 0; i < MAX_SPELL_REAGENTS; i++)
             {
@@ -6028,7 +6035,7 @@ SpellCastResult Spell::CheckItems()
                         }
                     }
                 }
-                if (!p_caster->HasItemCount(itemid,itemcount))
+                if (!p_caster->HasItemCount(itemid, itemcount))
                     return SPELL_FAILED_ITEM_NOT_READY;         //0x54
             }
         }
