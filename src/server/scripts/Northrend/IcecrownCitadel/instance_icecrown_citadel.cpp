@@ -79,6 +79,7 @@ class instance_icecrown_citadel : public InstanceMapScript
         {
             instance_icecrown_citadel_InstanceMapScript(InstanceMap* pMap) : InstanceScript(pMap)
             {
+                Initialize();
                 LoadDoorData(doorData);
                 uiDifficulty = pMap->GetDifficulty();
 
@@ -100,7 +101,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 uiSaurfangCache         = 0;
                 uiTerenasFighter        = 0;
                 uiSpiritWarden          = 0;
-            teamInInstance          = 0;
+                teamInInstance          = 0;
 
                 uiNecroticStack         = 0;
                 uiBloodCouncilController= 0;
@@ -205,6 +206,13 @@ class instance_icecrown_citadel : public InstanceMapScript
                 bloodQuickeningMinutes = 0;
             }
 
+            void Initialize()
+            {
+                memset(&uiEncounter, 0, sizeof(uiEncounter));
+                //While Gunship Battle is not implemented
+                uiEncounter[DATA_GUNSHIP_BATTLE_EVENT] = DONE;
+            }
+
             void FillInitialWorldStates(WorldPacket& data)
             {
                 data << uint32(WORLDSTATE_SHOW_TIMER)         << uint32(bloodQuickeningState == IN_PROGRESS);
@@ -212,9 +220,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                 data << uint32(WORLDSTATE_SHOW_ATTEMPTS)      << uint32(instance->IsHeroic());
                 data << uint32(WORLDSTATE_ATTEMPTS_REMAINING) << uint32(heroicAttempts);
                 data << uint32(WORLDSTATE_ATTEMPTS_MAX)       << uint32(50);
-                memset(&uiEncounter, 0, sizeof(uiEncounter));
-                //While Gunship Battle is not implemented
-                uiEncounter[DATA_GUNSHIP_BATTLE_EVENT] = DONE;
             };
 
             bool IsEncounterInProgress() const
@@ -1521,21 +1526,29 @@ class instance_icecrown_citadel : public InstanceMapScript
                     }
                     case DATA_NECK_DEEP_ACHIEVEMENT:         
                         uiNeckDeep = data;
+                        break;
                     case DATA_BEEN_WAITING_ACHIEVEMENT:         
                         uiNecroticStack = data;
+                        break;
                     //Teleports
                     case DATA_TELEPORT_ORATORY_OF_THE_DAMNED_ACTIVATED:
                         uiTeleportToOratoryOfTheDamnedActivated = data;
+                        break;
                     case DATA_TELEPORT_RAMPART_OF_SKULLS_ACTIVATED:
                         uiTeleportToRampartOfSkullsActivated = data;
+                        break;
                     case DATA_TELEPORT_DEATHBRINGER_S_RISE_ACTIVATED:
                         uiTeleportToDeathbringersRiseActivated = data;
+                        break;
                     case DATA_TELEPORT_UPPER_SPIRE_ACTIVATED:
                         uiTeleportToUpperSpireActivated = data;
+                        break;
                     case DATA_TELEPORT_SINDRAGOSA_S_LAIR_ACTIVATED:
                         uiTeleportToSindragosasLairActivated = data;
+                        break;
                     case DATA_TELEPORT_FROZEN_THRONE_ACTIVATED:
                         uiTeleportToFrozenThroneActivated = data;
+                        break;
                     default: 
                         break; 
                 }
@@ -1618,17 +1631,17 @@ class instance_icecrown_citadel : public InstanceMapScript
                 //While Gunship Battle isn't implemented
                 uiEncounter[DATA_GUNSHIP_BATTLE_EVENT] = DONE;
                 std::ostringstream saveStream;
-                saveStream << "I C" << uiEncounter[DATA_LORD_MARROWGAR_EVENT] << " " << uiEncounter[DATA_DEATHWHISPER_EVENT] << " " << uiEncounter[DATA_GUNSHIP_BATTLE_EVENT] << " " << uiEncounter[DATA_SAURFANG_EVENT]
+                saveStream << "I C " << uiEncounter[DATA_LORD_MARROWGAR_EVENT] << " " << uiEncounter[DATA_DEATHWHISPER_EVENT] << " " << uiEncounter[DATA_GUNSHIP_BATTLE_EVENT] << " " << uiEncounter[DATA_SAURFANG_EVENT]
                 << " " << uiEncounter[DATA_FESTERGUT_EVENT] << " " << uiEncounter[DATA_ROTFACE_EVENT] << " " << uiEncounter[DATA_PROFESSOR_PUTRICIDE_EVENT] << " " << uiEncounter[DATA_BLOOD_PRINCE_COUNCIL_EVENT] << " " << uiEncounter[DATA_BLOOD_QUEEN_LANA_THEL_EVENT]
                 << " " << uiEncounter[DATA_VALITHRIA_DREAMWALKER_EVENT] << " " << uiEncounter[DATA_SINDRAGOSA_EVENT] << " " << uiEncounter[DATA_LICH_KING_EVENT];
                 //Saving additional data
-                saveStream << " " << gasValveActivated << " " << oozeValveActivated << " " << coldflameJetsState << " " << uint32(bloodQuickeningState) << " " << bloodQuickeningMinutes;
-                saveStream << " " << uiTeleportToOratoryOfTheDamnedActivated;
-                saveStream << " " << uiTeleportToRampartOfSkullsActivated;
-                saveStream << " " << uiTeleportToDeathbringersRiseActivated;
-                saveStream << " " << uiTeleportToUpperSpireActivated;
-                saveStream << " " << uiTeleportToSindragosasLairActivated;
-                saveStream << " " << uiTeleportToFrozenThroneActivated;
+                saveStream << " " << uint32(gasValveActivated) << " " << uint32(oozeValveActivated) << " " << uint32(coldflameJetsState) << " " << uint32(bloodQuickeningState) << " " << uint32(bloodQuickeningMinutes);
+                saveStream << " " << uint32(uiTeleportToOratoryOfTheDamnedActivated);
+                saveStream << " " << uint32(uiTeleportToRampartOfSkullsActivated);
+                saveStream << " " << uint32(uiTeleportToDeathbringersRiseActivated);
+                saveStream << " " << uint32(uiTeleportToUpperSpireActivated);
+                saveStream << " " << uint32(uiTeleportToSindragosasLairActivated);
+                saveStream << " " << uint32(uiTeleportToFrozenThroneActivated);
 
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return saveStream.str();
@@ -1692,26 +1705,29 @@ class instance_icecrown_citadel : public InstanceMapScript
                 char dataHead1, dataHead2;
 
                 std::istringstream loadStream(in);
-                loadStream >> dataHead1 >> dataHead2;
+                uint32 data0, data1, data2, data3, data4, data5, data6, data7, data8, data9, data10, data11, data12, data13;
+                loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3 >> data4 >> data5 >> data6 >> data7 >> data8 >> data9 >> data10 >> data11 >> data12 >> data13;
 
                 if (dataHead1 == 'I' && dataHead2 == 'C')
                 {
-                    loadStream >> uiEncounter[DATA_LORD_MARROWGAR_EVENT];
-                    loadStream >> uiEncounter[DATA_DEATHWHISPER_EVENT];
-                    loadStream >> uiEncounter[DATA_GUNSHIP_BATTLE_EVENT];
+                    uiEncounter[DATA_LORD_MARROWGAR_EVENT] = data0;
+                    uiEncounter[DATA_DEATHWHISPER_EVENT] = data1;
+                    uiEncounter[DATA_GUNSHIP_BATTLE_EVENT] = data2;
                     //While not implemented
                     uiEncounter[DATA_GUNSHIP_BATTLE_EVENT] = DONE;
-                    loadStream >> uiEncounter[DATA_SAURFANG_EVENT];
-                    loadStream >> uiEncounter[DATA_FESTERGUT_EVENT];
-                    loadStream >> uiEncounter[DATA_ROTFACE_EVENT];
-                    loadStream >> uiEncounter[DATA_PROFESSOR_PUTRICIDE_EVENT];
-                    loadStream >> uiEncounter[DATA_BLOOD_PRINCE_COUNCIL_EVENT];
-                    loadStream >> uiEncounter[DATA_BLOOD_QUEEN_LANA_THEL_EVENT];
-                    loadStream >> uiEncounter[DATA_VALITHRIA_DREAMWALKER_EVENT];
-                    loadStream >> uiEncounter[DATA_SINDRAGOSA_EVENT];
-                    loadStream >> uiEncounter[DATA_LICH_KING_EVENT];
+                    uiEncounter[DATA_SAURFANG_EVENT] = data3;
+                    uiEncounter[DATA_FESTERGUT_EVENT] = data4;
+                    uiEncounter[DATA_ROTFACE_EVENT] = data5;
+                    uiEncounter[DATA_PROFESSOR_PUTRICIDE_EVENT] = data6;
+                    uiEncounter[DATA_BLOOD_PRINCE_COUNCIL_EVENT] = data7;
+                    uiEncounter[DATA_BLOOD_QUEEN_LANA_THEL_EVENT] = data8;
+                    uiEncounter[DATA_VALITHRIA_DREAMWALKER_EVENT] = data9;
+                    uiEncounter[DATA_SINDRAGOSA_EVENT] = data10;
+                    uiEncounter[DATA_LICH_KING_EVENT] = data11;
                     //Loading additional data
-                    loadStream >> gasValveActivated >> oozeValveActivated;
+                    gasValveActivated = data12;
+                    oozeValveActivated = data13;
+
                     for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                     {
                         if (uiEncounter[i] == IN_PROGRESS)
@@ -1883,14 +1899,14 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint8 isOrbWhispererEligible;
             uint8 isPortalJockeyEligible;
 
-            uint8 uiTeleportToOratoryOfTheDamnedActivated;
-            uint8 uiTeleportToRampartOfSkullsActivated;
-            uint8 uiTeleportToDeathbringersRiseActivated;
-            uint8 uiTeleportToUpperSpireActivated;
-            uint8 uiTeleportToSindragosasLairActivated;
-            uint8 uiTeleportToFrozenThroneActivated;
+            uint32 uiTeleportToOratoryOfTheDamnedActivated;
+            uint32 uiTeleportToRampartOfSkullsActivated;
+            uint32 uiTeleportToDeathbringersRiseActivated;
+            uint32 uiTeleportToUpperSpireActivated;
+            uint32 uiTeleportToSindragosasLairActivated;
+            uint32 uiTeleportToFrozenThroneActivated;
 
-         uint32 teamInInstance;
+            uint32 teamInInstance;
             uint32 uiEncounter[MAX_ENCOUNTER];
             std::map<uint64, Position> gameObjectPositions;
         };
