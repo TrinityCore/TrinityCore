@@ -4841,9 +4841,9 @@ SpellCastResult Spell::CheckCast(bool strict)
                 }
             }
 
-            // recheck LoS every channel tick
-            if ((!m_IsTriggeredSpell || (m_triggeredByAuraSpell && IsChanneledSpell(m_triggeredByAuraSpell))) && VMAP::VMapFactory::checkSpellForLoS(m_spellInfo->Id) && !m_caster->IsWithinLOSInMap(target))
+            if (!m_IsTriggeredSpell && VMAP::VMapFactory::checkSpellForLoS(m_spellInfo->Id) && !m_caster->IsWithinLOSInMap(target))
                 return SPELL_FAILED_LINE_OF_SIGHT;
+
         }
         else if (m_caster == target)
         {
