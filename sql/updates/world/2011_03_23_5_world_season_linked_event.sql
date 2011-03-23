@@ -1,2 +1,3 @@
 -- Delete wrongly assigned season linked events
-DELETE FROM `season_linked_event` WHERE `event` IN (124,125);
+-- DELETE FROM `season_linked_event` WHERE `event` IN (124,125);
+-- OUTDATED FIX, SORRY
