@@ -44,7 +44,7 @@ INSERT INTO `conditions` VALUES
 ('13','0','63702','0','18','1','32930','0','0','',"Focused Eyebeam (Kologarn)");
 -- Cleanup
 DELETE FROM `creature` WHERE `id` IN (33632, 33802, 34297, 32933, 32934, 33809, 33661, 33742);
-DELETE FROM vehicle_accessory WHERE entry = 32930;
+DELETE FROM `vehicle_template_accessory` WHERE entry = 32930;
 
 -- Auriaya
 UPDATE `creature_template` SET `baseattacktime` = 1500, `equipment_id` = 2422, `mechanic_immune_mask` = 617299807, `flags_extra` = 1 WHERE `entry` = 33515;
@@ -65,8 +65,10 @@ DELETE FROM `creature_equip_template` WHERE entry = 2422;
 INSERT INTO `creature_equip_template` VALUES ('2422','45315','0','0');
 -- Cleanup
 DELETE FROM `creature` WHERE `id` = 34014;
+
+/* not needed
 -- Auriaya movement path
-DELETE FROM `creature_addon` WHERE guid = 137496;
+DELETE FROM `creature_addon` WHERE guid in (select guid from `creature` where `id` = 33515);
 INSERT INTO `creature_addon` VALUES ('137496','1033515','0','0','0','0','0');
 UPDATE `creature` SET `MovementType` = 2 WHERE `guid` = 137496;
 DELETE FROM `waypoint_data` WHERE id = 1033515;
@@ -97,6 +99,7 @@ INSERT INTO `waypoint_data` (`id`, `point`, `position_x`, `position_y`, `positio
 ('1033515','24','2046.65','9.61','411.36','0','0','0','100','0'),
 ('1033515','25','2022.65','37.74','411.36','0','0','0','100','0'),
 ('1033515','26','2011.43','44.91','417.72','0','0','0','100','0');
+*/
 
 -- Hodir
 UPDATE `creature_template` SET `mechanic_immune_mask` = 650854239, `flags_extra` = 1, `ScriptName` = 'boss_hodir' WHERE `entry` = 32845;
@@ -135,8 +138,8 @@ UPDATE `creature_template` SET `mechanic_immune_mask` = 650854235, `ScriptName` 
 UPDATE `creature_template` SET `vehicleid` = 370, `mechanic_immune_mask` = 650854235, `ScriptName` = 'boss_leviathan_mk' WHERE `entry` = 33432;
 UPDATE `creature_template` SET `minlevel` = 83, `maxlevel` = 83, `mechanic_immune_mask` = 650854235, `flags_extra` = 1 WHERE `entry` = 34106;
 UPDATE `creature_template` SET `mechanic_immune_mask` = 650854235, `ScriptName` = 'boss_leviathan_mk_turret' WHERE `entry` = 34071;
-DELETE FROM vehicle_accessory WHERE entry = 33432;
-INSERT INTO vehicle_accessory (`entry`, `accessory_entry`, `seat_id`, `minion`, `description`) VALUES 
+DELETE FROM `vehicle_template_accessory` WHERE entry = 33432;
+INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`, `minion`, `description`) VALUES 
 (33432, 34071, 3, 1, 'Leviathan Mk II turret');
 UPDATE creature_template SET ScriptName = 'npc_proximity_mine' WHERE entry = 34362;
 DELETE FROM `creature_model_info` WHERE `modelid`=28831;
@@ -203,16 +206,14 @@ UPDATE `creature_template` SET `ScriptName` = 'npc_snaplasher' WHERE `entry` = 3
 -- Ancient Water Spirit
 UPDATE `creature_template` SET `ScriptName` = 'npc_ancient_water_spirit' WHERE `entry` = 33202;
 -- Cleanup
-DELETE FROM `creature` WHERE `guid` = 136607 OR id = 33575;
-
-
+DELETE FROM `creature` WHERE `id` = 33575;
 
 -- Thorim
 UPDATE `creature_template` SET `speed_walk` = 1.66667, `mechanic_immune_mask` = 650854239, `flags_extra` = 1, `ScriptName` = 'boss_thorim' WHERE `entry` = 32865;
 UPDATE `creature_template` SET `speed_walk` = 1.66667, `baseattacktime` = 1500, `equipment_id` = 1844, `mechanic_immune_mask` = 650854239 WHERE `entry` = 33147;
 DELETE FROM `creature` WHERE `id`=32865;
 INSERT INTO `creature` (`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`DeathState`,`MovementType`) VALUES
-(32865, 603, 3, 1, 28977, 0, 2134.967, -298.962, 438.331, 1.57, 604800, 0, 0, 4183500, 425800, 0, 1);
+(32865, 603, 3, 1, 28977, 0, 2134.967, -298.962, 438.331, 1.57, 604800, 0, 0, 4183500, 425800, 0, 0);
 DELETE FROM `spell_linked_spell` WHERE `spell_trigger`=62042;
 INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES
 ('62042','62470','1','Thorim: Deafening Thunder');
@@ -230,8 +231,9 @@ INSERT INTO `gameobject_template` (`entry`, `type`, `displayId`, `name`, `IconNa
 ('194265','1','295','Lever','','','','0','16','3','0','0','0','0','0','0','0','0','6000','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','','0');
 UPDATE `gameobject` SET `id` = 194265, `rotation2` = 1, `rotation3` = 0, `spawntimesecs` = 7200, `animprogress` = 100 WHERE `guid` = 55194;
 -- Cleanup
-DELETE FROM `creature` WHERE `id` IN (32885, 32883, 32908, 32907, 32882, 33110, 32886, 32879, 32892, 33140, 33141, 33378, 32874, 32875)
-OR guid IN (136694, 136695, 136666, 136706, 136754, 136653, 136756, 136757, 136725, 136718);
+DELETE FROM `creature` WHERE `id` IN (32885, 32883, 32908, 32907, 32882, 33110, 32886, 32879, 32892, 33140, 33141, 33378, 32874, 32875);
+-- OR guid IN (136694, 136695, 136666, 136706, 136754, 136653, 136756, 136757, 136725, 136718);
+
 -- Pre adds
 UPDATE `creature_template` SET `equipment_id` = 1849, `ScriptName` = 'npc_thorim_pre_phase' WHERE `entry` = 32885;
 UPDATE `creature_template` SET `equipment_id` = 1849 WHERE `entry` = 33153;
@@ -1096,8 +1098,8 @@ DELETE FROM `gameobject` WHERE `id` IN (195046, 195047, 194307, 194308);
 DELETE FROM creature WHERE id = 33167;
 UPDATE `creature_template` SET `modelid1` = 11686, `modelid2` = 0 WHERE `entry` IN (33364, 33369, 33108, 33366);
 
-DELETE FROM vehicle_accessory WHERE entry = 33113 AND seat_id IN (0, 1);
-INSERT INTO vehicle_accessory (`entry`, `accessory_entry`, `seat_id`, `minion`, `description`) VALUES
+DELETE FROM `vehicle_template_accessory` WHERE entry = 33113 AND seat_id IN (0, 1);
+INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`, `minion`, `description`) VALUES
 (33113, 33114, 0, 1, "Flame Leviathan"),
 (33113, 33114, 1, 1, "Flame Leviathan");
 
@@ -1210,8 +1212,8 @@ UPDATE `creature_template` SET `mechanic_immune_mask` = 650854235, `flags_extra`
 -- XT-002 correct vehicle id
 UPDATE `creature_template` SET `VehicleId` = 353 WHERE `entry` = 33293;
 -- XT-002 Hearth
-DELETE FROM `vehicle_accessory` WHERE `entry` = 33293;
-INSERT INTO vehicle_accessory (`entry`, `accessory_entry`, `seat_id`, `minion`, `description`) VALUES
+DELETE FROM `vehicle_template_accessory` WHERE `entry` = 33293;
+INSERT INTO `vehicle_template_accessory` (`entry`, `accessory_entry`, `seat_id`, `minion`, `description`) VALUES
 (33293, 33329, 0, 1, "XT-002 Hearth");
 -- Gravity Bomb
 DELETE FROM spell_script_names WHERE spell_id IN (63025, 64233);
@@ -1236,7 +1238,7 @@ INSERT INTO vehicle_template_accessory VALUES
 -- Sara
 UPDATE `creature_template` SET `mechanic_immune_mask` = 650854235, `flags_extra` = 1, `ScriptName` = 'boss_sara' WHERE `entry` IN (33134, 34332);
 UPDATE creature_model_info SET bounding_radius = 0.465, combat_reach = 45 WHERE modelid = 29117;
-UPDATE `creature` SET `spawndist` = 0 WHERE `id` = 33134;
+UPDATE `creature` SET `spawndist` = 0, `MovementType` = 0 WHERE `id` = 33134;
 -- Ominous cloud
 DELETE FROM `creature` WHERE `id`=33292;
 UPDATE `creature_template` SET `ScriptName` = 'npc_ominous_cloud' WHERE `entry` = 33292;

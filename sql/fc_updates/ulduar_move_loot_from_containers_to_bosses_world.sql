@@ -1,7 +1,7 @@
 /* Hack floor 2 of Ulduar YTDB 563 trinity*/
 
 -- delete doors from floor 2 Ulduar instance
-delete from gameobject where id in(194556, 194560, 194557, 194558, 194255, 194750, 194767);
+-- delete from gameobject where id in(194556, 194560, 194557, 194558, 194255, 194750, 194767);
 
 -- move loot from Gift of the Observer(container) to boss Algalon
 DELETE FROM `gameobject_loot_template` WHERE `entry`=194822;
