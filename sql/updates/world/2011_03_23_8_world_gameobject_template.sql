@@ -5,7 +5,7 @@ VALUES
 (300149,8,1287, 'TEMP Wrathscale Lair Fountain', '', '', '',0,0,1,0,0,0,0,0,0,223,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, '', '',1);
 
 -- NEEDS VISUAL (apart form Ruins of Stardust, its MISSING!)
-DELETE FROM `gameobject` WHERE `id`=300149
+DELETE FROM `gameobject` WHERE `id`=300149;
 INSERT INTO gameobject
    (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`)
 VALUES
