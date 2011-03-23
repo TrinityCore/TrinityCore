@@ -126,7 +126,7 @@ SET @EquiEntry = 1807; -- (creature_equip_template.entry - need 1)
 UPDATE `creature_template` SET `faction_A`=1701,`faction_H`=1701,`equipment_id`=@EquiEntry,`speed_walk`=1 WHERE `entry`=18697;
 DELETE FROM `creature_equip_template` WHERE `entry`=@EquiEntry;
 INSERT INTO `creature_equip_template` (`entry`,`equipentry1`,`equipentry2`,`equipentry3`) VALUES
-(@Entry,31301,32768,0);
+(@EquiEntry,31301,32768,0);
 DELETE FROM `creature_template_addon` WHERE `entry`=18697;
 INSERT INTO `creature_template_addon` (`entry`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
 (18697,0,0,1,0, NULL);
