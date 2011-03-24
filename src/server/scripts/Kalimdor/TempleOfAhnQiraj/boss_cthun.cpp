@@ -1323,12 +1323,6 @@ public:
 
 //GetAIs
 
-
-
-
-
-
-
 void AddSC_boss_cthun()
 {
     new boss_eye_of_cthun();

@@ -122,7 +122,6 @@ public:
 
 };
 
-
 void AddSC_boss_bloodmage_thalnos()
 {
     new boss_bloodmage_thalnos();

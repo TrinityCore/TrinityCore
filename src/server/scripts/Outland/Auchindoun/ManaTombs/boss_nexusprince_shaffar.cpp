@@ -215,7 +215,6 @@ public:
 
 };
 
-
 enum eEnums
 {
     SPELL_ARCANE_BOLT               = 15254,
@@ -308,7 +307,6 @@ public:
 
 };
 
-
 enum eEthereal
 {
     SPELL_ETHEREAL_APPRENTICE_FIREBOLT          = 32369,
@@ -360,7 +358,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_nexusprince_shaffar()
 {

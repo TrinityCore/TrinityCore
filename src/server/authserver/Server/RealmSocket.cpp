@@ -276,7 +276,6 @@ int RealmSocket::handle_input(ACE_HANDLE)
     return n == space ? 1 : 0;
 }
 
-
 void RealmSocket::set_session(Session* session)
 {
     if (session_ != NULL)

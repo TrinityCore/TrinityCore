@@ -103,7 +103,6 @@ public:
 
 };
 
-
 void AddSC_boss_kelris()
 {
     new boss_kelris();

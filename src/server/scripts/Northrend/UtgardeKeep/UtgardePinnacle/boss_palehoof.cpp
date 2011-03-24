@@ -276,7 +276,6 @@ public:
 
 };
 
-
 //ravenous furbolg's spells
 enum RavenousSpells
 {
@@ -389,7 +388,6 @@ public:
     };
 
 };
-
 
 //frenzied worgen's spells
 enum FrenziedSpells
@@ -506,7 +504,6 @@ public:
 
 };
 
-
 //ferocious rhino's spells
 enum FerociousSpells
 {
@@ -621,7 +618,6 @@ public:
     };
 
 };
-
 
 //massive jormungar's spells
 enum MassiveSpells

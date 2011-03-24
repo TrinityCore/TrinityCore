@@ -250,6 +250,7 @@ public:
         void Reset()
         {
             _Reset();
+            uiShutdown = 0;
             me->SetReactState(REACT_DEFENSIVE);
             if (me->GetVehicleKit())
             {
@@ -312,14 +313,12 @@ public:
             }
         }
 
-
         // TODO: effect 0 and effect 1 may be on different target
         void SpellHitTarget(Unit* pTarget, const SpellEntry* pSpell)
         {
             if (pSpell->Id == SPELL_PURSUED)
                 AttackStart(pTarget);
         }
-
 
         void JustDied(Unit* /*victim*/)
         {
@@ -356,8 +355,10 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (!me->getVictim())
-                UpdateVictim();
+            if (!UpdateVictim() || !CheckInRoom())
+                return;
+
+            events.Update(diff);
 
             if (uiShutdown == RAID_MODE(2,4))
             {
@@ -383,9 +384,6 @@ public:
 
             if (me->HasUnitState(UNIT_STAT_CASTING))
                 return;
-
-
-            events.Update(diff);
 
             uint32 eventId = events.GetEvent();
 
@@ -795,7 +793,7 @@ public:
             me->GetMotionMaster()->MoveRandom(50);
         }
 
-        void JustDied(Unit* pKiller)
+        void JustDied(Unit* /*pKiller*/)
         {
             me->GetMotionMaster()->MoveTargetedHome();
             DoCast(SPELL_DUSTY_EXPLOSION);
@@ -836,7 +834,6 @@ public:
     };
 
 };
-
 
 class spell_pool_of_tar : public CreatureScript
 {
@@ -1007,7 +1004,6 @@ public:
 
 };
 
-
 class npc_hodirs_fury : public CreatureScript
 {
 public:
@@ -1158,7 +1154,6 @@ public:
             {
                 pPlayer->PrepareGossipMenu(pCreature);
                 instance->instance->LoadGrid(364,-16); //make sure leviathan is loaded
-
 
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_ITEM_2,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+2);
                 pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());

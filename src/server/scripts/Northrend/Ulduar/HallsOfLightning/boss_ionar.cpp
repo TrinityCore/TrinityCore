@@ -292,8 +292,6 @@ public:
 
 };
 
-
-
 /*######
 ## mob_spark_of_ionar
 ######*/
@@ -379,7 +377,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_ionar()
 {

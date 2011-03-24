@@ -146,7 +146,6 @@ public:
 
 };
 
-
 /*######
 ## npc_highborne_lamenter
 ######*/
@@ -255,7 +254,6 @@ public:
     }
 
 };
-
 
 /*######
 ## AddSC

@@ -257,7 +257,6 @@ public:
 
 };
 
-
 void AddSC_instance_nexus()
 {
     new instance_nexus();

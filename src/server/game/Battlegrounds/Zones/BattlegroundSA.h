@@ -72,7 +72,6 @@ enum BG_SA_WorldStates
     BG_SA_YELLOW_GATEWS = 3638,
     BG_SA_ANCIENT_GATEWS = 3849,
 
-
     BG_SA_LEFT_GY_ALLIANCE = 3635,
     BG_SA_RIGHT_GY_ALLIANCE = 3636,
     BG_SA_CENTER_GY_ALLIANCE = 3637,
@@ -485,7 +484,6 @@ class BattlegroundSA : public Battleground
         void RemovePlayer(Player *plr,uint64 guid);
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
 
-
         /* Scorekeeping */
         /// Update score board
         void UpdatePlayerScore(Player *Source, uint32 type, uint32 value, bool doAddHonor = true);
@@ -541,7 +539,6 @@ class BattlegroundSA : public Battleground
         void SendTransportInit(Player *player);
         /// Send packet to player for destroy boats (client part)
         void SendTransportsRemove(Player * player);
-
 
         /// Id of attacker team
         TeamId Attackers;

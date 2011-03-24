@@ -1693,7 +1693,6 @@ void Spell::EffectForceCastWithValue(SpellEffIndex effIndex)
     caster->CastCustomSpell(unitTarget, spellInfo->Id, &bp, &bp, &bp, true, NULL, NULL, m_originalCasterGUID);
 }
 
-
 void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
 {
     // only unit case known

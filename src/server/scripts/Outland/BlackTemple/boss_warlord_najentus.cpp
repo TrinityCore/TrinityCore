@@ -226,7 +226,6 @@ public:
 
 };
 
-
 void AddSC_boss_najentus()
 {
     new boss_najentus();

@@ -15,7 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include "DatabaseEnv.h"
 #include "SQLStorage.h"
 #include "ObjectMgr.h"
@@ -210,7 +209,6 @@ void SmartAI::EndPath(bool fail)
         StartPath(mRun, GetScript()->GetPathId(), mCanRepeatPath);
     else
         GetScript()->SetPathId(0);
-
 
     ObjectList* targets = GetScript()->GetTargetList(SMART_ESCORT_TARGETS);
     if (targets && mEscortQuestID)

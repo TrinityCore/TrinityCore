@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "SpellAuraEffects.h"
+
 #ifndef DEF_ULDUAR_H
 #define DEF_ULDUAR_H
 
@@ -44,6 +46,7 @@ enum eTypes
     DATA_BRUNDIR,
 
     DATA_EXP_COMMANDER,
+    DATA_RAZORSCALE_CONTROL,
 
     // Kologarn:
     DATA_LEFT_ARM,
@@ -55,6 +58,8 @@ enum eNPCs
     NPC_LEVIATHAN               = 33113,
     NPC_IGNIS                   = 33118,
     NPC_RAZORSCALE              = 33186,
+    NPC_RAZORSCALE_CONTROLLER   = 33233,
+    NPC_STEELFORGED_DEFFENDER   = 33236,
     NPC_EXPEDITION_COMMANDER    = 33210,
     NPC_XT002                   = 33293,
     NPC_STEELBREAKER            = 32867,
@@ -77,6 +82,29 @@ enum eNPCs
     NPC_ALGALON                 = 32871,
 };
 
+enum eGameObjects
+{
+    GO_KOLOGARN_CHEST_HERO  = 195047,
+    GO_KOLOGARN_CHEST       = 195046,
+    GO_KOLOGARN_BRIDGE      = 194232,
+    GO_KOLOGARN_DOOR        = 194553,
+    GO_THORIM_CHEST_HERO    = 194315,
+    GO_THORIM_CHEST         = 194314,
+    GO_HODIR_CHEST_HERO     = 194308,
+    GO_HODIR_CHEST          = 194307,
+    GO_FREYA_CHEST_HERO     = 194325,
+    GO_FREYA_CHEST          = 194324,
+    GO_LEVIATHAN_DOOR       = 194905,
+    GO_LEVIATHAN_GATE       = 194630,
+    GO_VEZAX_DOOR           = 194750,
+    GO_MOLE_MACHINE         = 194316,
+    GO_RAZOR_HARPOON_1      = 194542,
+    GO_RAZOR_HARPOON_2      = 194541,
+    GO_RAZOR_HARPOON_3      = 194543,
+    GO_RAZOR_HARPOON_4      = 194519,
+    GO_RAZOR_BROKEN_HARPOON = 194565,
+};
+
 enum eTowerEvents
 {
     EVENT_TOWER_OF_STORM_DESTROYED     = 21031,
@@ -90,4 +118,5 @@ enum eAchievementCriteria
     ACHIEVEMENT_CRITERIA_HOT_POCKET_10                   = 10430, //ignis
     ACHIEVEMENT_CRITERIA_HOT_POCKET_25                   = 10431,
 };
+
 #endif

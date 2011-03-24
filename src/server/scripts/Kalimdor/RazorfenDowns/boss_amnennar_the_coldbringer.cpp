@@ -128,7 +128,6 @@ public:
 
 };
 
-
 void AddSC_boss_amnennar_the_coldbringer()
 {
     new boss_amnennar_the_coldbringer();

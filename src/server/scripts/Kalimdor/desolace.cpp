@@ -167,9 +167,6 @@ public:
 
 };
 
-
-
-
 /*######
 ## go_iruxos. Quest 5381
 ######*/
@@ -259,8 +256,6 @@ public:
     };
 
 };
-
-
 
 void AddSC_desolace()
 {

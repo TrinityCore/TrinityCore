@@ -235,7 +235,6 @@ public:
 
 };
 
-
 /*######
 ## npc_marin_noggenfogger
 ######*/
@@ -268,7 +267,6 @@ public:
     }
 
 };
-
 
 /*######
 ## npc_steward_of_time
@@ -315,8 +313,6 @@ public:
     }
 
 };
-
-
 
 /*######
 ## npc_stone_watcher_of_norgannon
@@ -381,7 +377,6 @@ public:
     }
 
 };
-
 
 /*######
 ## npc_OOX17
@@ -481,8 +476,6 @@ public:
     };
 
 };
-
-
 
 /*####
 # npc_tooga
@@ -648,8 +641,6 @@ public:
     };
 
 };
-
-
 
 void AddSC_tanaris()
 {

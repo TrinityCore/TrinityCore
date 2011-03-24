@@ -344,7 +344,6 @@ public:
 
 };
 
-
 void AddSC_instance_black_temple()
 {
     new instance_black_temple();

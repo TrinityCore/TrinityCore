@@ -99,7 +99,6 @@ public:
 
 };
 
-
 void AddSC_durotar()
 {
     new npc_lazy_peon();

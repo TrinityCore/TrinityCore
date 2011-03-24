@@ -159,7 +159,6 @@ public:
 
 };
 
-
 void AddSC_boss_cyanigosa()
 {
     new boss_cyanigosa();

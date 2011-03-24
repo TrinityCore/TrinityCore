@@ -84,7 +84,6 @@ public:
 
 };
 
-
 /*######
 ## go_gong
 ######*/
@@ -167,7 +166,6 @@ public:
     };
 
 };
-
 
 void AddSC_razorfen_downs()
 {

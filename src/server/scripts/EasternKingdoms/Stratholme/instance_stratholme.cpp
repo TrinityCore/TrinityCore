@@ -472,7 +472,6 @@ class instance_stratholme : public InstanceMapScript
         }
 };
 
-
 void AddSC_instance_stratholme()
 {
     new instance_stratholme();

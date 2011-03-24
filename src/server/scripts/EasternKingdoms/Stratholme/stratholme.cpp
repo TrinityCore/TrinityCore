@@ -111,7 +111,6 @@ public:
 
 };
 
-
 /*######
 ## mob_restless_soul
 ######*/
@@ -189,7 +188,6 @@ public:
     };
 
 };
-
 
 /*######
 ## mobs_spectral_ghostly_citizen
@@ -287,7 +285,6 @@ public:
     };
 
 };
-
 
 void AddSC_stratholme()
 {

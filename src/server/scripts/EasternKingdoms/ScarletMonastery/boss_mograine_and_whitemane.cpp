@@ -358,8 +358,6 @@ public:
 
 };
 
-
-
 void AddSC_boss_mograine_and_whitemane()
 {
     new boss_scarlet_commander_mograine();

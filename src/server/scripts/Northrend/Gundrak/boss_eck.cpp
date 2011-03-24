@@ -133,7 +133,6 @@ public:
 
 };
 
-
 class npc_ruins_dweller : public CreatureScript
 {
 public:
@@ -165,7 +164,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_eck()
 {

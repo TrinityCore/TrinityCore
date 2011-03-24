@@ -242,7 +242,6 @@ public:
 
 };
 
-
 class mob_malformed_ooze : public CreatureScript
 {
 public:
@@ -286,7 +285,6 @@ public:
 
 };
 
-
 class mob_iron_sludge : public CreatureScript
 {
 public:
@@ -315,7 +313,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_sjonnir()
 {

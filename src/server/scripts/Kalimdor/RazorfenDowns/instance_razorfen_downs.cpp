@@ -157,7 +157,6 @@ public:
                                 break;
                         }
 
-
                         if (Creature* creature = go->SummonCreature(uiCreature,2502.635f,844.140f,46.896f,0.633f))
                         {
                             if (uiGongWaves == 10 || uiGongWaves == 1)
@@ -209,7 +208,6 @@ public:
     };
 
 };
-
 
 void AddSC_instance_razorfen_downs()
 {

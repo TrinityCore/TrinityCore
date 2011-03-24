@@ -203,7 +203,6 @@ public:
 
 };
 
-
 void AddSC_instance_sunken_temple()
 {
     new instance_sunken_temple();

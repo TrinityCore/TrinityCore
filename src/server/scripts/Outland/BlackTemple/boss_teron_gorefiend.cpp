@@ -510,9 +510,6 @@ public:
 
 };
 
-
-
-
 void AddSC_boss_teron_gorefiend()
 {
     new mob_doom_blossom();

@@ -18,7 +18,6 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "Group.h"
 #include "Spell.h"
@@ -189,14 +188,6 @@ class boss_professor_putricide : public CreatureScript
                 baseSpeed(creature->GetSpeedRate(MOVE_RUN)), experimentState(EXPERIMENT_STATE_OOZE)
             {
                 phase = PHASE_NONE;
-            }
-
-            void InitializeAI()
-            {
-                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != GetScriptId(ICCScriptName))
-                    me->IsAIEnabled = false;
-                else if (!me->isDead())
-                    Reset();
             }
 
             void Reset()
@@ -691,7 +682,7 @@ class boss_professor_putricide : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_professor_putricideAI(creature);
+            return GetIcecrownCitadelAI<boss_professor_putricideAI>(creature);
         }
 };
 
@@ -752,7 +743,7 @@ class npc_volatile_ooze : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_volatile_oozeAI(creature);
+            return GetIcecrownCitadelAI<npc_volatile_oozeAI>(creature);
         }
 };
 

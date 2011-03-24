@@ -92,7 +92,6 @@ public:
 
 };
 
-
 enum SporeSpells
 {
     SPELL_FUNGAL_CREEP                                     = 29232
@@ -119,7 +118,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_loatheb()
 {

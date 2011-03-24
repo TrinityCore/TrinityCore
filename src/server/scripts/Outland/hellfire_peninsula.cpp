@@ -127,7 +127,6 @@ public:
 
 };
 
-
 /*######
 ## npc_ancestral_wolf
 ######*/
@@ -202,7 +201,6 @@ public:
 
 };
 
-
 /*######
 ## go_haaleshi_altar
 ######*/
@@ -256,7 +254,6 @@ public:
     }
 
 };
-
 
 /*######
 ## npc_tracy_proudwell
@@ -314,7 +311,6 @@ public:
 
 };
 
-
 /*######
 ## npc_trollbane
 ######*/
@@ -367,7 +363,6 @@ public:
     }
 
 };
-
 
 /*######
 ## npc_wounded_blood_elf
@@ -464,8 +459,6 @@ public:
 
 };
 
-
-
 /*######
 ## npc_fel_guard_hound
 ######*/
@@ -538,7 +531,6 @@ public:
     };
 
 };
-
 
 void AddSC_hellfire_peninsula()
 {

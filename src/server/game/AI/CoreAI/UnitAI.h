@@ -102,12 +102,12 @@ class UnitAI
     protected:
         Unit * const me;
     public:
-        explicit UnitAI(Unit *u) : me(u) {}
+        explicit UnitAI(Unit* unit) : me(unit) {}
         virtual ~UnitAI() {}
 
-        virtual bool CanAIAttack(const Unit * /*who*/) const { return true; }
-        virtual void AttackStart(Unit *);
-        virtual void UpdateAI(const uint32 diff) = 0;
+        virtual bool CanAIAttack(Unit const* /*target*/) const { return true; }
+        virtual void AttackStart(Unit* /*target*/);
+        virtual void UpdateAI(uint32 const diff) = 0;
 
         virtual void InitializeAI() { if (!me->isDead()) Reset(); }
 
@@ -117,10 +117,10 @@ class UnitAI
         virtual void OnCharmed(bool apply) = 0;
 
         // Pass parameters between AI
-        virtual void DoAction(const int32 /*param*/ = 0) {}
+        virtual void DoAction(int32 const /*param*/) {}
         virtual uint32 GetData(uint32 /*id = 0*/) { return 0; }
         virtual void SetData(uint32 /*id*/, uint32 /*value*/) {}
-        virtual void SetGUID(const uint64 &/*guid*/, int32 /*id*/ = 0) {}
+        virtual void SetGUID(uint64 const&/*guid*/, int32 /*id*/ = 0) {}
         virtual uint64 GetGUID(int32 /*id*/ = 0) { return 0; }
 
         Unit* SelectTarget(SelectAggroTarget targetType, uint32 position = 0, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
@@ -173,6 +173,7 @@ class UnitAI
         }
 
         void SelectTargetList(std::list<Unit*> &targetList, uint32 num, SelectAggroTarget targetType, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
+
         // Select the targets satifying the predicate.
         // predicate shall extend std::unary_function<Unit *, bool>
         template <class PREDICATE> void SelectTargetList(std::list<Unit*> &targetList, PREDICATE predicate, uint32 maxTargets, SelectAggroTarget targetType)
@@ -214,7 +215,7 @@ class UnitAI
         // Called when the unit heals
         virtual void HealDone(Unit* /*done_to*/, uint32& /*addhealth*/) {}
 
-        void AttackStartCaster(Unit *victim, float dist);
+        void AttackStartCaster(Unit* victim, float dist);
 
         void DoAddAuraToAllHostilePlayers(uint32 spellid);
         void DoCast(uint32 spellId);
@@ -233,7 +234,7 @@ class UnitAI
 
         virtual void sGossipHello(Player* /*player*/) {}
         virtual void sGossipSelect(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/) {}
-        virtual void sGossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, const char* /*code*/) {}
+        virtual void sGossipSelectCode(Player* /*player*/, uint32 /*sender*/, uint32 /*action*/, char const* /*code*/) {}
         virtual void sQuestAccept(Player* /*player*/, Quest const* /*quest*/) {}
         virtual void sQuestSelect(Player* /*player*/, Quest const* /*quest*/) {}
         virtual void sQuestComplete(Player* /*player*/, Quest const* /*quest*/) {}
@@ -254,8 +255,8 @@ class PlayerAI : public UnitAI
 class SimpleCharmedAI : public PlayerAI
 {
     public:
-        void UpdateAI(const uint32 diff);
-        SimpleCharmedAI(Player *p): PlayerAI(p) {}
+        void UpdateAI(uint32 const diff);
+        SimpleCharmedAI(Player* player): PlayerAI(player) {}
 };
 
 #endif

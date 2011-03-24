@@ -367,7 +367,6 @@ void FlightPathMovementGenerator::DoEventIfAny(Player& player, TaxiPathNodeEntry
 }
 
 
-
 //
 // Unique1's ASTAR Pathfinding Code... For future use & reference...
 //
@@ -693,5 +692,4 @@ int GetFCost(int to, int num, int parentNum, float *gcost)
     return (int)(gc + hc);
 }
 #endif                                                      //__PATHFINDING__
-
 

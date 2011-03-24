@@ -101,7 +101,6 @@ public:
 
 };
 
-
 void AddSC_boss_vectus()
 {
     new boss_vectus();

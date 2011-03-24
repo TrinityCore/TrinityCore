@@ -870,13 +870,11 @@ void CreatureEventAI::Reset()
     if (m_bEmptyList)
         return;
 
-
     for (CreatureEventAIList::iterator i = m_CreatureEventAIList.begin(); i != m_CreatureEventAIList.end(); ++i)
     {
         if ((*i).Event.event_type == EVENT_T_RESET)
             ProcessEvent(*i);
     }
-
 
     //Reset all events to enabled
     for (CreatureEventAIList::iterator i = m_CreatureEventAIList.begin(); i != m_CreatureEventAIList.end(); ++i)

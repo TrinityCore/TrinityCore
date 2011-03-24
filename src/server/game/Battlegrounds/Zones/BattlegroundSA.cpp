@@ -24,7 +24,6 @@
 #include "ObjectMgr.h"
 #include "WorldPacket.h"
 
-
 BattlegroundSA::BattlegroundSA()
 {
     m_StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_SA_START_TWO_MINUTES;
@@ -69,7 +68,6 @@ bool BattlegroundSA::ResetObjs()
 
     uint32 atF = BG_SA_Factions[Attackers];
     uint32 defF = BG_SA_Factions[Attackers ? TEAM_ALLIANCE : TEAM_HORDE];
-
 
     for (uint8 i = 0; i <BG_SA_MAXOBJ; i++)
         DelObject(i);

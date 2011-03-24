@@ -225,7 +225,6 @@ public:
 
 };
 
-
 void AddSC_instance_shadow_labyrinth()
 {
     new instance_shadow_labyrinth();

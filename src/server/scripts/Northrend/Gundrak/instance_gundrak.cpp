@@ -352,7 +352,6 @@ public:
                  << (uiDrakkariColossusStatue ? GetObjState(uiDrakkariColossusStatue) : GO_STATE_ACTIVE) << " " << (uiGalDarahStatue ? GetObjState(uiGalDarahStatue) : GO_STATE_READY) << " "
                  << (uiBridge ? GetObjState(uiBridge) : GO_STATE_ACTIVE) << " " << (uiCollision ? GetObjState(uiCollision) : GO_STATE_READY);
 
-
             str_data = saveStream.str();
 
             OUT_SAVE_INST_DATA_COMPLETE;
@@ -533,7 +532,6 @@ public:
     }
 
 };
-
 
 void AddSC_instance_gundrak()
 {

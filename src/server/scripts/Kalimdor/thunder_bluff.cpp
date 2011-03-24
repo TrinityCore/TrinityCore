@@ -135,8 +135,6 @@ public:
 
 };
 
-
-
 void AddSC_thunder_bluff()
 {
     new npc_cairne_bloodhoof();

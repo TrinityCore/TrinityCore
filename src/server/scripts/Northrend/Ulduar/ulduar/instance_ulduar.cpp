@@ -18,21 +18,10 @@
 #include "ScriptPCH.h"
 #include "ulduar.h"
 
-enum eGameObjects
+static const DoorData doorData[] =
 {
-    GO_KOLOGARN_CHEST_HERO  = 195047,
-    GO_KOLOGARN_CHEST       = 195046,
-    GO_KOLOGARN_BRIDGE      = 194232,
-    GO_KOLOGARN_DOOR        = 194553,
-    GO_THORIM_CHEST_HERO    = 194315,
-    GO_THORIM_CHEST         = 194314,
-    GO_HODIR_CHEST_HERO     = 194308,
-    GO_HODIR_CHEST          = 194307,
-    GO_FREYA_CHEST_HERO     = 194325,
-    GO_FREYA_CHEST          = 194324,
-    GO_LEVIATHAN_DOOR       = 194905,
-    GO_LEVIATHAN_GATE       = 194630,
-    GO_VEZAX_DOOR           = 194750,
+    {GO_LEVIATHAN_DOOR, TYPE_LEVIATHAN, DOOR_TYPE_ROOM,     BOUNDARY_S},
+    {0,                 0,              DOOR_TYPE_ROOM,     BOUNDARY_NONE}
 };
 
 class instance_ulduar : public InstanceMapScript
@@ -47,7 +36,7 @@ public:
 
     struct instance_ulduar_InstanceMapScript : public InstanceScript
     {
-        instance_ulduar_InstanceMapScript(Map* pMap) : InstanceScript(pMap) { Initialize(); };
+        instance_ulduar_InstanceMapScript(InstanceMap* map) : InstanceScript(map) { Initialize(); };
 
         uint32 uiEncounter[MAX_ENCOUNTER];
         std::string m_strInstData;
@@ -56,6 +45,8 @@ public:
         uint64 uiLeviathanGUID;
         uint64 uiIgnisGUID;
         uint64 uiRazorscaleGUID;
+        uint64 uiRazorscaleController;
+        uint64 uiRazorHarpoonGUIDs[3];
         uint64 uiExpCommanderGUID;
         uint64 uiXT002GUID;
         uint64 uiAssemblyGUIDs[3];
@@ -70,7 +61,6 @@ public:
         uint64 uiVezaxGUID;
         uint64 uiYoggSaronGUID;
         uint64 uiAlgalonGUID;
-        uint64 uiLeviathanDoor[7];
         uint64 uiLeviathanGateGUID;
         uint64 uiVezaxDoorGUID;
 
@@ -86,8 +76,10 @@ public:
         void Initialize()
         {
             SetBossNumber(MAX_ENCOUNTER);
+            LoadDoorData(doorData);
             uiIgnisGUID             = 0;
             uiRazorscaleGUID        = 0;
+            uiRazorscaleController  = 0;
             uiExpCommanderGUID      = 0;
             uiXT002GUID             = 0;
             uiKologarnGUID          = 0;
@@ -111,9 +103,9 @@ public:
             uiVezaxDoorGUID         = 0;
             flag                    = 0;
 
-            memset(&uiEncounter, 0, sizeof(uiEncounter));
-            memset(&uiAssemblyGUIDs, 0, sizeof(uiAssemblyGUIDs));
-            memset(&uiLeviathanDoor, 0, sizeof(uiLeviathanDoor));
+            memset(uiEncounter, 0, sizeof(uiEncounter));
+            memset(uiAssemblyGUIDs, 0, sizeof(uiAssemblyGUIDs));
+            memset(uiRazorHarpoonGUIDs, 0, sizeof(uiRazorHarpoonGUIDs));
         }
 
         bool IsEncounterInProgress() const
@@ -139,6 +131,9 @@ public:
                     break;
                 case NPC_RAZORSCALE:
                     uiRazorscaleGUID = creature->GetGUID();
+                    break;
+                case NPC_RAZORSCALE_CONTROLLER:
+                    uiRazorscaleController = creature->GetGUID();
                     break;
                 case NPC_EXPEDITION_COMMANDER:
                     uiExpCommanderGUID = creature->GetGUID();
@@ -236,22 +231,40 @@ public:
                     uiFreyaChestGUID = go->GetGUID();
                     break;
                 case GO_LEVIATHAN_DOOR:
-                    uiLeviathanDoor[flag] = go->GetGUID();
-                    HandleGameObject(NULL, true, go);
-                    flag++;
-                    if (flag == 7)
-                        flag =0;
+                    AddDoor(go, true);
                     break;
                 case GO_LEVIATHAN_GATE:
                     uiLeviathanGateGUID = go->GetGUID();
                     if (GetBossState(TYPE_LEVIATHAN) == DONE)
                         go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
-                    else
-                        HandleGameObject(NULL, false, go);
                     break;
                 case GO_VEZAX_DOOR:
                     uiVezaxDoorGUID = go->GetGUID();
                     HandleGameObject(NULL, false, go);
+                    break;
+                case GO_RAZOR_HARPOON_1:
+                    uiRazorHarpoonGUIDs[0] = go->GetGUID();
+                    break;
+                case GO_RAZOR_HARPOON_2:
+                    uiRazorHarpoonGUIDs[1] = go->GetGUID();
+                    break;
+                case GO_RAZOR_HARPOON_3:
+                    uiRazorHarpoonGUIDs[2] = go->GetGUID();
+                    break;
+                case GO_RAZOR_HARPOON_4:
+                    uiRazorHarpoonGUIDs[3] = go->GetGUID();
+                    break;
+            }
+        }
+
+        void OnGameObjectRemove(GameObject* go)
+        {
+            switch (go->GetEntry())
+            {
+                case GO_LEVIATHAN_DOOR:
+                    AddDoor(go, false);
+                    break;
+                default:
                     break;
             }
         }
@@ -291,13 +304,6 @@ public:
             switch (type)
             {
                 case TYPE_LEVIATHAN:
-                    if (state == IN_PROGRESS)
-                        for (uint8 uiI = 0; uiI < 7; ++uiI)
-                            HandleGameObject(uiLeviathanDoor[uiI],false);
-                    else
-                        for (uint8 uiI = 0; uiI < 7; ++uiI)
-                            HandleGameObject(uiLeviathanDoor[uiI],true);
-                    break;
                 case TYPE_IGNIS:
                 case TYPE_RAZORSCALE:
                 case TYPE_XT002:
@@ -382,6 +388,7 @@ public:
                 case TYPE_LEVIATHAN:            return uiLeviathanGUID;
                 case TYPE_IGNIS:                return uiIgnisGUID;
                 case TYPE_RAZORSCALE:           return uiRazorscaleGUID;
+                case DATA_RAZORSCALE_CONTROL:   return uiRazorscaleController;
                 case TYPE_XT002:                return uiXT002GUID;
                 case TYPE_KOLOGARN:             return uiKologarnGUID;
                 case DATA_LEFT_ARM:             return uiLeftArmGUID;
@@ -397,6 +404,10 @@ public:
 
                 // razorscale expedition commander
                 case DATA_EXP_COMMANDER:        return uiExpCommanderGUID;
+                case GO_RAZOR_HARPOON_1:        return uiRazorHarpoonGUIDs[0];
+                case GO_RAZOR_HARPOON_2:        return uiRazorHarpoonGUIDs[1];
+                case GO_RAZOR_HARPOON_3:        return uiRazorHarpoonGUIDs[2];
+                case GO_RAZOR_HARPOON_4:        return uiRazorHarpoonGUIDs[3];
                 // Assembly of Iron
                 case DATA_STEELBREAKER:         return uiAssemblyGUIDs[0];
                 case DATA_MOLGEIM:              return uiAssemblyGUIDs[1];

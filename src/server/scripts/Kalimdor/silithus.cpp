@@ -105,7 +105,6 @@ public:
 
 };
 
-
 /*###
 ## npcs_rutgar_and_frankal
 ###*/
@@ -220,7 +219,6 @@ public:
     }
 
 };
-
 
 /*####
 # quest_a_pawn_on_the_eternal_board (Defines)

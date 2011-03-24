@@ -90,7 +90,6 @@ public:
 
 };
 
-
 /*######
 ## npc_thrall_old_hillsbrad
 ######*/
@@ -563,9 +562,6 @@ public:
 
 };
 
-
-
-
 /*######
 ## npc_taretha
 ######*/
@@ -657,8 +653,6 @@ public:
     };
 
 };
-
-
 
 /*######
 ## AddSC

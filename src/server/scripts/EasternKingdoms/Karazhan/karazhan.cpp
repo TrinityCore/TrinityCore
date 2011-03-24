@@ -398,8 +398,6 @@ public:
 
 };
 
-
-
 /*###
 # npc_berthold
 ####*/
@@ -440,7 +438,6 @@ public:
     }
 
 };
-
 
 /*###
 # npc_image_of_medivh
@@ -648,7 +645,6 @@ public:
     };
 
 };
-
 
 void AddSC_karazhan()
 {

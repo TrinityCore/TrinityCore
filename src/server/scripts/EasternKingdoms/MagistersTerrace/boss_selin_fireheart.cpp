@@ -321,7 +321,6 @@ public:
 
 };
 
-
 class mob_fel_crystal : public CreatureScript
 {
 public:
@@ -367,7 +366,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_selin_fireheart()
 {

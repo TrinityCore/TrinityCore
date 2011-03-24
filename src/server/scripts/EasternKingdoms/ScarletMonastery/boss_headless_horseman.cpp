@@ -743,8 +743,6 @@ public:
 
 };
 
-
-
 class mob_pulsing_pumpkin : public CreatureScript
 {
 public:

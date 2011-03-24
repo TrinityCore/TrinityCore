@@ -91,7 +91,6 @@ public:
 
 };
 
-
 void AddSC_ironforge()
 {
     new npc_royal_historian_archesonus();

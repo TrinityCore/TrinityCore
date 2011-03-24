@@ -146,7 +146,6 @@ public:
 
 };
 
-
 class npc_deaths_head_ward_keeper : public CreatureScript
 {
 public:
@@ -192,8 +191,6 @@ public:
     };
 
 };
-
-
 
 void AddSC_razorfen_kraul()
 {

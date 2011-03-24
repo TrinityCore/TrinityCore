@@ -251,7 +251,6 @@ public:
 
 };
 
-
 enum GuardSpells
 {
     SPELL_GUSHING_WOUND                   = 39215,
@@ -333,7 +332,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_erekem()
 {

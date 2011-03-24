@@ -349,7 +349,6 @@ public:
 
 };
 
-
 void AddSC_boss_morogrim_tidewalker()
 {
     new boss_morogrim_tidewalker();

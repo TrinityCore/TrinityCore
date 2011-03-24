@@ -493,7 +493,6 @@ public:
 
 };
 
-
 //AI for Kil'jaeden
 class boss_kiljaeden : public CreatureScript
 {
@@ -679,7 +678,6 @@ public:
                 }
             }
         }
-
 
         void UpdateAI(const uint32 diff)
         {
@@ -909,7 +907,6 @@ public:
 
 };
 
-
 //AI for Hand of the Deceiver
 class mob_hand_of_the_deceiver : public CreatureScript
 {
@@ -1011,7 +1008,6 @@ public:
 
 };
 
-
 //AI for Felfire Portal
 class mob_felfire_portal : public CreatureScript
 {
@@ -1056,7 +1052,6 @@ public:
     };
 
 };
-
 
 //AI for Felfire Fiend
 class mob_volatile_felfire_fiend : public CreatureScript
@@ -1116,7 +1111,6 @@ public:
 
 };
 
-
 //AI for Armageddon target
 class mob_armageddon : public CreatureScript
 {
@@ -1171,7 +1165,6 @@ public:
     };
 
 };
-
 
 //AI for Shield Orbs
 class mob_shield_orb : public CreatureScript
@@ -1260,7 +1253,6 @@ public:
     };
 
 };
-
 
 //AI for Sinister Reflection
 class mob_sinster_reflection : public CreatureScript
@@ -1431,7 +1423,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_kiljaeden()
 {

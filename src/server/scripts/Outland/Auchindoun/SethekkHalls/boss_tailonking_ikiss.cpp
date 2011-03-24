@@ -211,7 +211,6 @@ public:
 
 };
 
-
 void AddSC_boss_talon_king_ikiss()
 {
     new boss_talon_king_ikiss();

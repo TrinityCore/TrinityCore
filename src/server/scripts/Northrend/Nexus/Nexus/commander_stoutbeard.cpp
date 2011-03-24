@@ -74,7 +74,6 @@ public:
 
 };
 
-
 void AddSC_boss_commander_stoutbeard()
 {
     new boss_commander_stoutbeard();

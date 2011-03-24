@@ -144,7 +144,6 @@ public:
 
 };
 
-
 void AddSC_boss_gluth()
 {
     new boss_gluth();

@@ -167,7 +167,6 @@ bool BattlegroundRV::HandlePlayerUnderMap(Player *player)
     return true;
 }
 
-
 void BattlegroundRV::HandleAreaTrigger(Player *Source, uint32 Trigger)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)

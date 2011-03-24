@@ -696,13 +696,6 @@ public:
 
 };
 
-
-
-
-
-
-
-
 void AddSC_boss_reliquary_of_souls()
 {
     new boss_reliquary_of_souls();

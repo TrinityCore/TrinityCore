@@ -254,7 +254,6 @@ public:
 
 };
 
-
 void AddSC_boss_mal_ganis()
 {
     new boss_mal_ganis();

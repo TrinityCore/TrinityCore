@@ -172,7 +172,6 @@ public:
 
 };
 
-
 void AddSC_boss_doomlordkazzak()
 {
     new boss_doomlord_kazzak();

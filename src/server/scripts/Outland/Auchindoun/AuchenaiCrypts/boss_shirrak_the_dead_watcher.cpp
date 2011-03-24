@@ -160,7 +160,6 @@ public:
 
 };
 
-
 class mob_focus_fire : public CreatureScript
 {
 public:
@@ -211,7 +210,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_shirrak_the_dead_watcher()
 {

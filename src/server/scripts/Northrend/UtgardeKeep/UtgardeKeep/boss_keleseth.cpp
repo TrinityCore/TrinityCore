@@ -362,9 +362,6 @@ public:
 
 };
 
-
-
-
 void AddSC_boss_keleseth()
 {
     new boss_keleseth();

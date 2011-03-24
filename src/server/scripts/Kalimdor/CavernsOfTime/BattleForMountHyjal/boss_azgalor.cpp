@@ -202,7 +202,6 @@ public:
 
 };
 
-
 #define SPELL_THRASH 12787
 #define SPELL_CRIPPLE 31406
 #define SPELL_WARSTOMP 31408
@@ -300,7 +299,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_azgalor()
 {

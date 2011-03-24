@@ -182,4 +182,3 @@ template void ConfusedMovementGenerator<Creature>::Reset(Creature &creature);
 template bool ConfusedMovementGenerator<Player>::Update(Player &player, const uint32 &diff);
 template bool ConfusedMovementGenerator<Creature>::Update(Creature &creature, const uint32 &diff);
 
-

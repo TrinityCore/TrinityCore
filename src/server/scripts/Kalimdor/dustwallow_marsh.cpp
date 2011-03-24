@@ -117,7 +117,6 @@ public:
 
 };
 
-
 /*######
 ## npc_restless_apparition
 ######*/
@@ -386,7 +385,6 @@ public:
 
 };
 
-
 /*######
 ## npc_nat_pagle
 ######*/
@@ -427,7 +425,6 @@ public:
     }
 
 };
-
 
 /*######
 ## npc_private_hendel
@@ -506,8 +503,6 @@ public:
 
 };
 
-
-
 /*######
 ## npc_zelfrax
 ######*/
@@ -547,7 +542,7 @@ public:
                 me->SetInCombatWith(pWho);
                 pWho->SetInCombatWith(me);
 
-                if (IsCombatMovement())
+                if (IsCombatMovementAllowed())
                     me->GetMotionMaster()->MoveChase(pWho);
             }
         }
@@ -634,7 +629,6 @@ public:
     {
        npc_stinkyAI(Creature* pCreature) : npc_escortAI(pCreature) { }
 
-
         void WaypointReached(uint32 i)
         {
             Player* pPlayer = GetPlayerForEscort();
@@ -711,7 +705,6 @@ public:
         }
     };
 };
-
 
 void AddSC_dustwallow_marsh()
 {

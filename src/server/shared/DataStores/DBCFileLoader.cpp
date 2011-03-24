@@ -21,6 +21,7 @@
 #include <string.h>
 
 #include "DBCFileLoader.h"
+#include "Errors.h"
 
 DBCFileLoader::DBCFileLoader()
 {
@@ -162,7 +163,6 @@ uint32 DBCFileLoader::GetFormatRecordSize(const char* format, int32* index_pos)
                 ASSERT(false && "Attempted to load DBC files that do not have field types that match what is in the core. Check DBCfmt.h or your DBC files.");
                 break;
             default:
-                sLog->outErrorDb("%c", format[x]);
                 ASSERT(false && "Unknown field format character in DBCfmt.h");
                 break;
         }

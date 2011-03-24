@@ -63,7 +63,6 @@ public:
 
 };
 
-
 /*######
 ## npc_augustus_the_touched
 ######*/
@@ -94,7 +93,6 @@ public:
     }
 
 };
-
 
 /*######
 ## npc_darrowshire_spirit
@@ -135,7 +133,6 @@ public:
     };
 
 };
-
 
 /*######
 ## npc_tirion_fordring
@@ -190,7 +187,6 @@ public:
     }
 
 };
-
 
 void AddSC_eastern_plaguelands()
 {

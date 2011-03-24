@@ -18,7 +18,6 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "icecrown_citadel.h"
 
@@ -182,14 +181,6 @@ class boss_blood_council_controller : public CreatureScript
             {
             }
 
-            void InitializeAI()
-            {
-                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != GetScriptId(ICCScriptName))
-                    me->IsAIEnabled = false;
-                else if (!me->isDead())
-                    Reset();
-            }
-
             void Reset()
             {
                 events.Reset();
@@ -270,7 +261,7 @@ class boss_blood_council_controller : public CreatureScript
 
             void SetData(uint32 /*type*/, uint32 data)
             {
-                resetCounter += data;
+                resetCounter += uint8(data);
                 if (resetCounter == 3)
                     EnterEvadeMode();
             }
@@ -334,7 +325,7 @@ class boss_blood_council_controller : public CreatureScript
                             if (newPrince)
                             {
                                 newPrince->SetHealth(me->GetHealth());
-                                newPrince->AI()->Talk(invocationOrder[invocationStage].textId);
+                                newPrince->AI()->Talk(uint8(invocationOrder[invocationStage].textId));
                             }
 
                             DoCast(me, invocationOrder[invocationStage].spellId);
@@ -352,10 +343,10 @@ class boss_blood_council_controller : public CreatureScript
             {
                 uint64 guid;
                 uint32 spellId;
-                uint8  textId;
+                uint32 textId;
                 uint32 visualSpell;
 
-                InvocationData(uint64 _guid, uint32 _spellId, int32 _textId, uint32 _visualSpell)
+                InvocationData(uint64 _guid, uint32 _spellId, uint32 _textId, uint32 _visualSpell)
                 {
                     guid = _guid;
                     spellId = _spellId;
@@ -365,13 +356,13 @@ class boss_blood_council_controller : public CreatureScript
 
                 InvocationData() : guid(0), spellId(0), textId(0), visualSpell(0) { }
             } invocationOrder[3];
-            uint8 invocationStage;
-            uint8 resetCounter;
+            uint32 invocationStage;
+            uint32 resetCounter;
         };
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_blood_council_controllerAI(creature);
+            return GetIcecrownCitadelAI<boss_blood_council_controllerAI>(creature);
         }
 };
 
@@ -394,9 +385,7 @@ class boss_prince_keleseth_icc : public CreatureScript
                     if (data->curhealth)
                         spawnHealth = data->curhealth;
 
-                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != GetScriptId(ICCScriptName))
-                    me->IsAIEnabled = false;
-                else if (!me->isDead())
+                if (!me->isDead())
                     JustRespawned();
 
                 me->SetReactState(REACT_DEFENSIVE);
@@ -564,13 +553,13 @@ class boss_prince_keleseth_icc : public CreatureScript
 
         private:
             static const Position roomCenter;
-            bool isEmpowered;  // bool check faster than map lookup
             uint32 spawnHealth;
+            bool isEmpowered;  // bool check faster than map lookup
         };
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_prince_kelesethAI(creature);
+            return GetIcecrownCitadelAI<boss_prince_kelesethAI>(creature);
         }
 };
 
@@ -595,9 +584,7 @@ class boss_prince_taldaram_icc : public CreatureScript
                     if (data->curhealth)
                         spawnHealth = data->curhealth;
 
-                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != GetScriptId(ICCScriptName))
-                    me->IsAIEnabled = false;
-                else if (!me->isDead())
+                if (!me->isDead())
                     JustRespawned();
 
                 me->SetReactState(REACT_DEFENSIVE);
@@ -777,7 +764,7 @@ class boss_prince_taldaram_icc : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_prince_taldaramAI(creature);
+            return GetIcecrownCitadelAI<boss_prince_taldaramAI>(creature);
         }
 };
 
@@ -800,9 +787,7 @@ class boss_prince_valanar_icc : public CreatureScript
                     if (data->curhealth)
                         spawnHealth = data->curhealth;
 
-                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != GetScriptId(ICCScriptName))
-                    me->IsAIEnabled = false;
-                else if (!me->isDead())
+                if (!me->isDead())
                     JustRespawned();
 
                 me->SetReactState(REACT_DEFENSIVE);
@@ -1001,7 +986,7 @@ class boss_prince_valanar_icc : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_prince_valanarAI(creature);
+            return GetIcecrownCitadelAI<boss_prince_valanarAI>(creature);
         }
 };
 
@@ -1016,14 +1001,6 @@ class npc_blood_queen_lana_thel : public CreatureScript
             {
                 introDone = false;
                 instance = creature->GetInstanceScript();
-            }
-
-            void InitializeAI()
-            {
-                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != GetScriptId(ICCScriptName))
-                    me->IsAIEnabled = false;
-                else if (!me->isDead())
-                    Reset();
             }
 
             void Reset()
@@ -1102,7 +1079,7 @@ class npc_blood_queen_lana_thel : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_blood_queen_lana_thelAI(creature);
+            return GetIcecrownCitadelAI<npc_blood_queen_lana_thelAI>(creature);
         }
 };
 
@@ -1180,14 +1157,14 @@ class npc_ball_of_flame : public CreatureScript
             }
 
         private:
-            InstanceScript* instance;
             uint64 chaseGUID;
+            InstanceScript* instance;
             uint32 despawnTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_ball_of_flameAI(creature);
+            return GetIcecrownCitadelAI<npc_ball_of_flameAI>(creature);
         }
 };
 
@@ -1247,12 +1224,14 @@ class npc_kinetic_bomb : public CreatureScript
 
         private:
             EventMap events;
-            float x, y, groundZ;
+            float x;
+            float y;
+            float groundZ;
         };
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_kinetic_bombAI(creature);
+            return GetIcecrownCitadelAI<npc_kinetic_bombAI>(creature);
         }
 };
 
@@ -1350,7 +1329,7 @@ class npc_dark_nucleus : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_dark_nucleusAI(creature);
+            return GetIcecrownCitadelAI<npc_dark_nucleusAI>(creature);
         }
 };
 

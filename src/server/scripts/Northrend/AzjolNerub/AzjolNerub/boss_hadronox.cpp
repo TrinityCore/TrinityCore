@@ -143,10 +143,10 @@ public:
 
             if (me->HasAura(SPELL_WEB_FRONT_DOORS) || me->HasAura(SPELL_WEB_SIDE_DOORS))
             {
-                if (IsCombatMovement())
+                if (IsCombatMovementAllowed())
                     SetCombatMovement(false);
             }
-            else if (!IsCombatMovement())
+            else if (!IsCombatMovementAllowed())
                 SetCombatMovement(true);
 
             if (uiPierceTimer <= diff)

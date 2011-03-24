@@ -185,7 +185,6 @@ public:
 
 };
 
-
 #define SPELL_DISPEL_MAGIC          17201
 #define SPELL_REPAIR                31532
 #define H_SPELL_REPAIR              37936
@@ -263,7 +262,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_mekgineer_steamrigger()
 {

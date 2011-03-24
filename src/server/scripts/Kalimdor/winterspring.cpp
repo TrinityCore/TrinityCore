@@ -96,7 +96,6 @@ public:
 
 };
 
-
 /*######
 ## npc_rivern_frostwind
 ######*/
@@ -129,7 +128,6 @@ public:
     }
 
 };
-
 
 /*######
 ## npc_witch_doctor_mauari
@@ -170,7 +168,6 @@ public:
     }
 
 };
-
 
 void AddSC_winterspring()
 {

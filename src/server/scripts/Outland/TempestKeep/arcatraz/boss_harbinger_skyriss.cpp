@@ -57,7 +57,6 @@ enum eSpells
     SPELL_33_ILLUSION      = 36932,                       //entry 21467
 };
 
-
 class boss_harbinger_skyriss : public CreatureScript
 {
     public:
@@ -278,7 +277,6 @@ class boss_harbinger_skyriss : public CreatureScript
         }
 };
 
-
 #define SPELL_MIND_REND_IMAGE   36929
 #define H_SPELL_MIND_REND_IMAGE 39021
 
@@ -304,7 +302,6 @@ class boss_harbinger_skyriss_illusion : public CreatureScript
             return new boss_harbinger_skyriss_illusionAI(creature);
         }
 };
-
 
 void AddSC_boss_harbinger_skyriss()
 {

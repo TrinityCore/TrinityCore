@@ -210,7 +210,6 @@ public:
 
 };
 
-
 void AddSC_boss_kazrogal()
 {
     new boss_kazrogal();

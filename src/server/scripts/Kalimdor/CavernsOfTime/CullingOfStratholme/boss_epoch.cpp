@@ -15,7 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 /* Script Data Start
 SDName: Boss epoch
 SDAuthor: Tartalo
@@ -150,7 +149,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_epoch()
 {

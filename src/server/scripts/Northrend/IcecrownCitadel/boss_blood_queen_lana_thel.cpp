@@ -18,7 +18,6 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellScript.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
 #include "icecrown_citadel.h"
@@ -131,14 +130,6 @@ class boss_blood_queen_lana_thel : public CreatureScript
         {
             boss_blood_queen_lana_thelAI(Creature* creature) : BossAI(creature, DATA_BLOOD_QUEEN_LANA_THEL)
             {
-            }
-
-            void InitializeAI()
-            {
-                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != GetScriptId(ICCScriptName))
-                    me->IsAIEnabled = false;
-                else if (!me->isDead())
-                    Reset();
             }
 
             void Reset()
@@ -473,7 +464,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_blood_queen_lana_thelAI(creature);
+            return GetIcecrownCitadelAI<boss_blood_queen_lana_thelAI>(creature);
         }
 };
 
@@ -717,7 +708,7 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg : public SpellScriptLoader
                 SpellEntry const* damageSpell = sSpellStore.LookupEntry(SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE);
                 int32 damage = SpellMgr::CalculateSpellEffectAmount(damageSpell, EFFECT_0);
                 float multiplier = 0.3375f + 0.1f * uint32(aurEff->GetTickNumber()/10); // do not convert to 0.01f - we need tick number/10 as INT (damage increases every 10 ticks)
-                damage = uint32(damage * multiplier);
+                damage = int32(damage * multiplier);
                 GetTarget()->CastCustomSpell(SPELL_PACT_OF_THE_DARKFALLEN_DAMAGE, SPELLVALUE_BASE_POINT0, damage, GetTarget(), true);
             }
 

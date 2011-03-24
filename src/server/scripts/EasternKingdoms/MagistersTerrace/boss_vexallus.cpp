@@ -194,7 +194,6 @@ public:
 
 };
 
-
 class mob_pure_energy : public CreatureScript
 {
 public:
@@ -226,7 +225,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_vexallus()
 {

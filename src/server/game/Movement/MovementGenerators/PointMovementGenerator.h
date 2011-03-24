@@ -63,4 +63,3 @@ class AssistanceMovementGenerator
 
 #endif
 
-

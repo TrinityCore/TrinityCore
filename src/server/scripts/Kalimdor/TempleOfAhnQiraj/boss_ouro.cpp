@@ -138,7 +138,6 @@ public:
 
 };
 
-
 void AddSC_boss_ouro()
 {
     new boss_ouro();

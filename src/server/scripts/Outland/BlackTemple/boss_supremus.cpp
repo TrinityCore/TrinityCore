@@ -298,9 +298,6 @@ public:
 
 };
 
-
-
-
 void AddSC_boss_supremus()
 {
     new boss_supremus();

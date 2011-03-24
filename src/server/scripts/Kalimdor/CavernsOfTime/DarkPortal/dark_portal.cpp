@@ -237,7 +237,6 @@ public:
 
 };
 
-
 struct Wave
 {
     uint32 PortalMob[4];                                    //spawns for portal waves (in order)
@@ -360,7 +359,6 @@ public:
 
 };
 
-
 #define SAY_SAAT_WELCOME        -1269019
 
 #define GOSSIP_ITEM_OBTAIN      "[PH] Obtain Chrono-Beacon"
@@ -406,7 +404,6 @@ public:
     }
 
 };
-
 
 void AddSC_dark_portal()
 {

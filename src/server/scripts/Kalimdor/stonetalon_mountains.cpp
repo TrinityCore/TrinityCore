@@ -86,7 +86,6 @@ public:
 
 };
 
-
 /*######
 ## npc_kaya_flathoof
 ######*/
@@ -166,7 +165,6 @@ public:
     }
 
 };
-
 
 /*######
 ## AddSC

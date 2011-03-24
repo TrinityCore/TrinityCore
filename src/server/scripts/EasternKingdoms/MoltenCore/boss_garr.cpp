@@ -153,7 +153,6 @@ class mob_firesworn : public CreatureScript
         }
 };
 
-
 void AddSC_boss_garr()
 {
     new boss_garr();

@@ -160,7 +160,6 @@ public:
 
 };
 
-
 void AddSC_boss_moam()
 {
     new boss_moam();

@@ -51,4 +51,3 @@ class RandomMovementGenerator
 };
 #endif
 
-

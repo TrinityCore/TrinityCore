@@ -1490,4 +1490,3 @@ void BattlegroundAV::ResetBGSubclass()
 
 }
 
-

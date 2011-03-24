@@ -309,7 +309,6 @@ class boss_ragnaros : public CreatureScript
         }
 };
 
-
 class mob_son_of_flame : public CreatureScript
 {
     public:

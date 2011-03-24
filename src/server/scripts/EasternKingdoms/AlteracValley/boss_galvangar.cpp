@@ -41,14 +41,12 @@ public:
     {
         boss_galvangarAI(Creature *c) : ScriptedAI(c) {}
 
-
         uint32 uiCleaveTimer;
         uint32 uiFrighteningShoutTimer;
         uint32 uiWhirlwind1Timer;
         uint32 uiWhirlwind2Timer;
         uint32 uiMortalStrikeTimer;
         uint32 uiResetTimer;
-
 
         void Reset()
         {

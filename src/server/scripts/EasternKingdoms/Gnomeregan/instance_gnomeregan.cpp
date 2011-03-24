@@ -137,7 +137,6 @@ public:
 
 };
 
-
 void AddSC_instance_gnomeregan()
 {
     new instance_gnomeregan();

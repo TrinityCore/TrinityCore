@@ -67,7 +67,6 @@ MailSender::MailSender(Player* sender)
     m_senderId = sender->GetGUIDLow();
 }
 
-
 MailReceiver::MailReceiver(Player* receiver) : m_receiver(receiver), m_receiver_lowguid(receiver->GetGUIDLow())
 {
 }

@@ -445,7 +445,6 @@ class boss_nalorakk : public CreatureScript
             }
         };
 
-
         CreatureAI* GetAI(Creature* creature) const
         {
             return new boss_nalorakkAI(creature);

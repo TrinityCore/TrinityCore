@@ -136,7 +136,6 @@ public:
 
 };
 
-
 void AddSC_boss_maiden_of_virtue()
 {
     new boss_maiden_of_virtue();

@@ -150,7 +150,6 @@ public:
 
 };
 
-
 void AddSC_boss_temporus()
 {
     new boss_temporus();

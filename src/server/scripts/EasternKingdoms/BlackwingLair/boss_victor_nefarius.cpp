@@ -381,9 +381,6 @@ public:
 
 };
 
-
-
-
 void AddSC_boss_victor_nefarius()
 {
     new boss_victor_nefarius();

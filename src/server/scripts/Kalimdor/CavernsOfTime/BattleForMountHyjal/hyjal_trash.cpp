@@ -626,7 +626,6 @@ public:
 
 };
 
-
 #define SPELL_FRENZY 31540
 
 class mob_ghoul : public CreatureScript
@@ -732,7 +731,6 @@ public:
     };
 
 };
-
 
 #define SPELL_RAISE_DEAD_1 31617
 #define SPELL_RAISE_DEAD_2 31624
@@ -856,7 +854,6 @@ public:
 
 };
 
-
 #define SPELL_BANSHEE_CURSE 31651
 #define SPELL_BANSHEE_WAIL 38183
 #define SPELL_ANTI_MAGIC_SHELL 31662
@@ -964,7 +961,6 @@ public:
 
 };
 
-
 #define SPELL_WEB 28991
 
 class mob_crypt_fiend : public CreatureScript
@@ -1057,7 +1053,6 @@ public:
 
 };
 
-
 #define SPELL_MANA_BURN 31729
 
 class mob_fel_stalker : public CreatureScript
@@ -1149,7 +1144,6 @@ public:
     };
 
 };
-
 
 #define SPELL_FROST_BREATH 31688
 
@@ -1267,7 +1261,6 @@ public:
     };
 
 };
-
 
 #define SPELL_GARGOYLE_STRIKE 31664
 
@@ -1408,7 +1401,6 @@ public:
     };
 
 };
-
 
 #define SPELL_EXPLODING_SHOT 7896
 

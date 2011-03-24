@@ -789,7 +789,6 @@ bool Aura::ModStackAmount(int32 num)
     return false;
 }
 
-
 bool Aura::IsPassive() const
 {
     return IsPassiveSpell(GetSpellProto());
@@ -815,6 +814,11 @@ bool Aura::CanBeSaved() const
 
     // No point in saving this, since the stable dialog can't be open on aura load anyway.
     if (HasEffectType(SPELL_AURA_OPEN_STABLE))
+        return false;
+
+    // Incanter's Absorbtion - considering the minimal duration and problems with aura stacking
+    // we skip saving this aura
+    if (GetId() == 44413)
         return false;
 
     return true;
@@ -1828,7 +1832,6 @@ void Aura::CallScriptEffectAfterAbsorbHandlers(AuraEffect * aurEff, AuraApplicat
         (*scritr)->_FinishScriptCall();
     }
 }
-
 
 void Aura::CallScriptEffectManaShieldHandlers(AuraEffect * aurEff, AuraApplication const * aurApp, DamageInfo & dmgInfo, uint32 & absorbAmount, bool & defaultPrevented)
 {

@@ -721,7 +721,6 @@ void PoolMgr::LoadFromDB()
         }
     }
 
-
     // Pool of pools
 
     sLog->outString("Loading Mother Pooling Data...");

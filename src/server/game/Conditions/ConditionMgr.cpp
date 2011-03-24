@@ -17,7 +17,6 @@
  */
 
 
-
 #include "Player.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
@@ -374,7 +373,6 @@ void ConditionMgr::LoadConditions(bool isReload)
         sLog->outString("Re-Loading `gossip_menu_option` Table for Conditions!");
         sObjectMgr->LoadGossipMenuItems();
     }
-
 
     QueryResult result = WorldDatabase.Query("SELECT SourceTypeOrReferenceId, SourceGroup, SourceEntry, ElseGroup, ConditionTypeOrReference,"
                                              " ConditionValue1, ConditionValue2, ConditionValue3, ErrorTextId, ScriptName FROM conditions");
@@ -1407,7 +1405,6 @@ void ConditionMgr::Clean()
     }
 
     m_ConditionMap.clear();
-
 
     for (VehicleSpellConditionMap::iterator itr = m_VehicleSpellConditions.begin(); itr != m_VehicleSpellConditions.end(); ++itr)
     {

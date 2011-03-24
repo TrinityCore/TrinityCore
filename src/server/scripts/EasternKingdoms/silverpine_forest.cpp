@@ -99,9 +99,6 @@ public:
 
 };
 
-
-
-
 /*######
 ## npc_deathstalker_erland
 ######*/
@@ -196,7 +193,6 @@ public:
     }
 
 };
-
 
 /*######
 ## pyrewood_ambush
@@ -383,8 +379,6 @@ public:
     };
 
 };
-
-
 
 /*######
 ## AddSC

@@ -184,7 +184,6 @@ public:
 
 };
 
-
 void AddSC_boss_zuramat()
 {
     new boss_zuramat();

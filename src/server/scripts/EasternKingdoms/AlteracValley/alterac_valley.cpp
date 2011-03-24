@@ -162,7 +162,6 @@ class mob_av_marshal_or_warmaster : public CreatureScript
                     uiEnrageTimer = urand(10*IN_MILLISECONDS,30*IN_MILLISECONDS);
                 }else uiEnrageTimer -= diff;
 
-
                 // check if creature is not outside of building
                 if (uiResetTimer <= diff)
                 {

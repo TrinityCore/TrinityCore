@@ -146,7 +146,6 @@ public:
 
 };
 
-
 void AddSC_boss_huhuran()
 {
     new boss_huhuran();

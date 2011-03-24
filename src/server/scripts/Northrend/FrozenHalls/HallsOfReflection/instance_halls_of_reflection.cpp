@@ -218,7 +218,6 @@ public:
                 return;
             }
 
-
             if (uiWaveCount && data == NOT_STARTED)
                 DoWipe();
 
@@ -422,7 +421,6 @@ public:
     };
 
 };
-
 
 void AddSC_instance_halls_of_reflection()
 {

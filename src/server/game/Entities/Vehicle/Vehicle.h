@@ -77,7 +77,6 @@ enum VehicleSpells
     VEHICLE_SPELL_PARACHUTE                      = 45472
 };
 
-
 struct VehicleSeat
 {
     explicit VehicleSeat(VehicleSeatEntry const *_seatInfo) : seatInfo(_seatInfo), passenger(NULL) {}

@@ -201,8 +201,6 @@ public:
 
 };
 
-
-
 void AddSC_boss_jandicebarov()
 {
     new boss_jandice_barov();

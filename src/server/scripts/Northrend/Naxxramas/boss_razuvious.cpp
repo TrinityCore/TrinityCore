@@ -135,7 +135,6 @@ public:
 
 };
 
-
 void AddSC_boss_razuvious()
 {
     new boss_razuvious();

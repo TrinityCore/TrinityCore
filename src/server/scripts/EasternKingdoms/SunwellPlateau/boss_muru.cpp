@@ -201,7 +201,6 @@ public:
 
 };
 
-
 class boss_muru : public CreatureScript
 {
 public:
@@ -367,7 +366,6 @@ public:
 
 };
 
-
 class npc_muru_portal : public CreatureScript
 {
 public:
@@ -452,7 +450,6 @@ public:
 
 };
 
-
 class npc_dark_fiend : public CreatureScript
 {
 public:
@@ -516,7 +513,6 @@ public:
 
 };
 
-
 class npc_void_sentinel : public CreatureScript
 {
 public:
@@ -572,7 +568,6 @@ public:
     };
 
 };
-
 
 class npc_blackhole : public CreatureScript
 {
@@ -652,7 +647,6 @@ public:
     };
 
 };
-
 
 void AddSC_boss_muru()
 {

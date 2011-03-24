@@ -188,8 +188,6 @@ public:
 
 };
 
-
-
 /*######
 ## npc_defias_traitor
 ######*/
@@ -262,8 +260,6 @@ public:
     };
 
 };
-
-
 
 void AddSC_westfall()
 {
