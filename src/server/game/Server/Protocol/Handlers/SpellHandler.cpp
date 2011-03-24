@@ -28,6 +28,7 @@
 #include "Totem.h"
 #include "TemporarySummon.h"
 #include "SpellAuras.h"
+#include "SpellAuraEffects.h"
 #include "CreatureAI.h"
 #include "ScriptMgr.h"
 #include "GameObjectAI.h"
@@ -574,9 +575,12 @@ void WorldSession::HandleMirrrorImageDataRequest(WorldPacket & recv_data)
         return;
 
     // Get creator of the unit
-    Unit *creator = ObjectAccessor::GetObjectInWorld(unit->GetCreatorGUID(),(Unit*)NULL);
-    if (!creator)
-        return;
+    Unit *creator = unit;
+
+    // Get SPELL_AURA_CLONE_CASTER caster
+    Unit::AuraEffectList const& CloneAuras = unit->GetAuraEffectsByType(SPELL_AURA_CLONE_CASTER);
+    if (!CloneAuras.empty())
+        creator = CloneAuras.front()->GetCaster();
 
     WorldPacket data(SMSG_MIRRORIMAGE_DATA, 68);
     data << uint64(guid);
