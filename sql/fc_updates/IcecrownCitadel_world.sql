@@ -29,7 +29,7 @@ UPDATE `creature_template` SET `ScriptName`='boss_the_lich_king' WHERE `entry` =
 -- Mobs
 UPDATE `creature_template` SET `ScriptName`='npc_tirion_icc' WHERE `entry`= 38995;
 UPDATE `creature_template` SET `ScriptName`='npc_swarming_shadows' WHERE `entry` = 38163;
-UPDATE `creature_template` SET `ScriptName`='npc_cold_flame' WHERE `entry` = 36672;
+UPDATE `creature_template` SET `ScriptName`='npc_coldflame' WHERE `entry` = 36672;
 UPDATE `creature_template` SET `ScriptName`='npc_bone_spike' WHERE `entry` = 36619;
 UPDATE `creature_template` SET `ScriptName`='npc_volatile_ooze' WHERE `entry` = 37697;
 UPDATE `creature_template` SET `ScriptName`='npc_valkyr_icc' WHERE `entry` = 36609;
@@ -56,8 +56,10 @@ UPDATE `creature_template` SET `ScriptName`='npc_blood_queen_lana_thel' WHERE `e
 UPDATE `creature_template` SET `ScriptName`='npc_kinetic_bomb' WHERE `entry`=38454;
 UPDATE `creature_template` SET `ScriptName`='npc_dark_nucleus' WHERE `entry`=38369;
 UPDATE `creature_template` SET `ScriptName`='npc_ball_of_flame' WHERE `entry` IN (38332,38451);
+UPDATE `creature_template` SET `ScriptName`='npc_kinetic_bomb_target' WHERE `entry` = 38458;
 
 -- Other
+-- UPDATE `creature_template` SET `equipment_id` = 0 WHERE `entry` IN (36597, 39166, 39167, 39168);
 UPDATE `creature_template` SET `minlevel` = 82, `maxlevel` = 82, `faction_A` = 14, `faction_H` = 14, `unit_flags` = 33554434, `type_flags` = 1024 WHERE `entry` = 36672;
 UPDATE `creature_template` SET `minlevel` = 82, `maxlevel` = 82, `faction_A` = 35, `faction_H` = 35 WHERE `entry` = 37950;
 UPDATE `creature_template` SET `minlevel` = 80, `maxlevel` = 80, `faction_A` = 14, `faction_H` = 14, `unit_flags` = 0, type_flags = 0, `VehicleId` = 533 WHERE `entry` IN (36619,38233,38459,38460);

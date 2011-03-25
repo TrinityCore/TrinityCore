@@ -200,7 +200,6 @@ void CleanupBloodPrinceCouncil(InstanceScript *instance, BossAI *ai)
     instance->SetBossState(DATA_BLOOD_PRINCE_COUNCIL_EVENT, FAIL);
     instance->SetData(DATA_BLOOD_PRINCE_COUNCIL_EVENT, FAIL);
     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SHADOW_RESONANCE);
-    //ai->summons.DespawnAll(); 
     UnsummonSpecificCreaturesNearby(ai->me, NPC_SHOCK_VORTEX, 100.0f);
     UnsummonSpecificCreaturesNearby(ai->me, NPC_KINETIC_BOMB, 100.0f);
     UnsummonSpecificCreaturesNearby(ai->me, NPC_KINETIC_BOMB_TARGET, 100.0f);
@@ -269,25 +268,34 @@ class boss_blood_council_controller : public CreatureScript
                 DoCast(me, SPELL_INVOCATION_OF_BLOOD_VALANAR);
 
                 if (Creature* keleseth = ObjectAccessor::GetCreature(*me, instance->GetData64(GUID_PRINCE_KELESETH_ICC)))
+                {
                     if (!keleseth->isInCombat())
                     {
                         DoZoneInCombat(keleseth);
                         keleseth->AI()->AttackStart(who);
                     }
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_ADD, keleseth);
+                }
 
                 if (Creature* taldaram = ObjectAccessor::GetCreature(*me, instance->GetData64(GUID_PRINCE_TALDARAM_ICC)))
+                {
                     if (!taldaram->isInCombat())
                     {
                         DoZoneInCombat(taldaram);
                         taldaram->AI()->AttackStart(who);
                     }
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_ADD, taldaram);
+                }
 
                 if (Creature* valanar = ObjectAccessor::GetCreature(*me, instance->GetData64(GUID_PRINCE_VALANAR_ICC)))
+                {
                     if (!valanar->isInCombat())
                     {
                         DoZoneInCombat(valanar);
                         valanar->AI()->AttackStart(who);
                     }
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_ADD, valanar);
+                }
 
                 events.ScheduleEvent(EVENT_INVOCATION_OF_BLOOD, 46500);
 
@@ -490,12 +498,14 @@ class boss_prince_keleseth_icc : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                 CleanupBloodPrinceCouncil(instance, this);
                 Talk(SAY_KELESETH_DEATH);
             }
 
             void JustReachedHome()
             {
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                 CleanupBloodPrinceCouncil(instance, this);
                 me->SetHealth(spawnHealth);
                 isEmpowered = false;
@@ -685,12 +695,14 @@ class boss_prince_taldaram_icc : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                 CleanupBloodPrinceCouncil(instance, this);
                 Talk(EMOTE_TALDARAM_DEATH);
             }
 
             void JustReachedHome()
             {
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                 CleanupBloodPrinceCouncil(instance, this);
                 me->SetHealth(spawnHealth);
                 isEmpowered = false;
@@ -895,12 +907,14 @@ class boss_prince_valanar_icc : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                 CleanupBloodPrinceCouncil(instance, this);
                 Talk(SAY_VALANAR_DEATH);
             }
 
             void JustReachedHome()
             {
+                instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                 me->SetHealth(me->GetMaxHealth());
                 isEmpowered = false;
                 removeFeignDeath(me);
@@ -1854,7 +1868,7 @@ class npc_shock_vortex : public CreatureScript
         }
 };
 
-void AddSC_boss_rat_des_blutes()
+void AddSC_boss_blood_prince_council()
 {
     new boss_blood_council_controller();
     new boss_prince_keleseth_icc();

@@ -787,6 +787,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_LAVAMAN:
                     {
                         uilavaman = go->GetGUID();
+                        if (uiEncounter[DATA_LICH_KING_EVENT] == DONE)
+                            go->SetRespawnTime(5*DAY);
                         break;
                     }
                     case GO_HANGINGMAN:
@@ -975,8 +977,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GUID_SPIRIT_ALARM3:                    return uiSpiritAlarm3;
                     case GUID_SPIRIT_ALARM4:                    return uiSpiritAlarm4;
 
-                    case GUID_LAVAMAN:                    return uilavaman;
-                    case GUID_HANGINGMAN:                    return uihangingman;
+                    case GUID_LAVAMAN:                          return uilavaman;
+                    case GUID_HANGINGMAN:                       return uihangingman;
 
                     case GUID_DEATHBOUND_WARD1:                 return uiDeathboundWard1;
                     case GUID_DEATHBOUND_WARD2:                 return uiDeathboundWard2;
@@ -1428,6 +1430,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                         {
                             if (GameObject *go = instance->GetGameObject(uilavaman))
                                 go->SetPhaseMask(1,true);
+                            if (GameObject *go = instance->GetGameObject(uilavaman))
+                                go->SetRespawnTime(5*DAY);;
                             if (GameObject *go = instance->GetGameObject(uihangingman))
                                 go->SetPhaseMask(2,true);
                         }
