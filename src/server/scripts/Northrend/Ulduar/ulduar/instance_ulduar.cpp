@@ -40,7 +40,6 @@ public:
 
         uint32 uiEncounter[MAX_ENCOUNTER];
         std::string m_strInstData;
-        uint8  flag;
 
         uint64 uiLeviathanGUID;
         uint64 uiIgnisGUID;
@@ -101,7 +100,6 @@ public:
             uiFreyaChestGUID        = 0;
             uiLeviathanGateGUID     = 0;
             uiVezaxDoorGUID         = 0;
-            flag                    = 0;
 
             memset(uiEncounter, 0, sizeof(uiEncounter));
             memset(uiAssemblyGUIDs, 0, sizeof(uiAssemblyGUIDs));
@@ -421,9 +419,20 @@ public:
         {
             switch (criteria_id)
             {
+                case ACHIEVEMENT_UNBROKEN_10:
+                case ACHIEVEMENT_UNBROKEN_25:
+                case ACHIEVEMENT_CRITERIA_SHUTOUT_10:
+                case ACHIEVEMENT_CRITERIA_SHUTOUT_25:
+                case ACHIEVEMENT_CRITERIA_3_CAR_GARAGE_CHOPPER_10:
+                case ACHIEVEMENT_CRITERIA_3_CAR_GARAGE_SIEGE_10:
+                case ACHIEVEMENT_CRITERIA_3_CAR_GARAGE_DEMOLISHER_10:
                 case ACHIEVEMENT_CRITERIA_HOT_POCKET_10:
-                    return true;
+                case ACHIEVEMENT_CRITERIA_QUICK_SHAVE_10:
+                case ACHIEVEMENT_CRITERIA_3_CAR_GARAGE_CHOPPER_25:
+                case ACHIEVEMENT_CRITERIA_3_CAR_GARAGE_SIEGE_25:
+                case ACHIEVEMENT_CRITERIA_3_CAR_GARAGE_DEMOLISHER_25:
                 case ACHIEVEMENT_CRITERIA_HOT_POCKET_25:
+                case ACHIEVEMENT_CRITERIA_QUICK_SHAVE_25:
                     return true;
                 default:
                     break;

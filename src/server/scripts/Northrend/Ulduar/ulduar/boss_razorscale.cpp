@@ -87,8 +87,6 @@ enum Actions
     ACTION_GROUND_PHASE                          = 2,
     ACTION_HARPOON_BUILD                         = 3,
     ACTION_PLACE_BROKEN_HARPOON                  = 4,
-    ACTION_HARPOON_VISUAL                        = 5,
-    ACTION_HARPOON_CAST                          = 6,
     ACTION_COMMANDER_RESET                       = 7,
 };
 
@@ -350,6 +348,8 @@ class boss_razorscale : public CreatureScript
             void JustDied(Unit* /*who*/)
             {
                 _JustDied();
+                if (Creature* controller = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_RAZORSCALE_CONTROL) : 0))
+                    controller->AI()->Reset();
             }
 
             void SpellHit(Unit* /*caster*/, SpellEntry const* spell)
