@@ -46,7 +46,7 @@ public:
         uint64 uiIgnisGUID;
         uint64 uiRazorscaleGUID;
         uint64 uiRazorscaleController;
-        uint64 uiRazorHarpoonGUIDs[3];
+        uint64 uiRazorHarpoonGUIDs[4];
         uint64 uiExpCommanderGUID;
         uint64 uiXT002GUID;
         uint64 uiAssemblyGUIDs[3];
