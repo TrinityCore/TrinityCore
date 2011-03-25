@@ -1764,7 +1764,7 @@ UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_si' WHERE `TypeId`=5;
 UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_ep' WHERE `TypeId`=6;
 
 /* ACHIEVEMENTS */
-DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (3693,6641,6642,6643,6644,3804,3805,3806,3807,3808,3809,3810,3811,3812,3813,1234,1239,5605,5606,12778,13036,13035,13037,12977,12967,12986,12982,12993,12780,13012,13011,13013,12062,12063,12064,12065,12183,12068,12060,12061,12822,12996,12972,12989) AND `type` IN (0,11);
+DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (3693,6641,6642,6643,6644,3804,3805,3806,3807,3808,3809,3810,3811,3812,3813,1234,1239,5605,5606,12778,13036,13035,13037,12977,12967,12986,12982,12993,12780,13012,13011,13013,12062,12063,12064,12065,12183,12068,12060,12061,12822,12996,12972,12989,10062,10063,10054,10055,10046,10047,10048,10049,10050,10051,10044,10045) AND `type` IN (0,11);
 INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,`ScriptName`) VALUES
 (3693,11,0,0, 'achievement_storm_glory'),
 (6641,11,0,0, 'achievement_school_of_hard_knocks'),
@@ -1809,7 +1809,19 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,
 (12822,11,0,0, 'achievement_all_you_can_eat'),
 (12996,11,0,0, 'achievement_all_you_can_eat'),
 (12972,11,0,0, 'achievement_all_you_can_eat'),
-(12989,11,0,0, 'achievement_all_you_can_eat');
+(12989,11,0,0, 'achievement_all_you_can_eat'),
+(10044,11,0,0, 'achievement_unbroken'),
+(10045,11,0,0, 'achievement_unbroken'),
+(10054,11,0,0, 'achievement_shutout'),
+(10055,11,0,0, 'achievement_shutout'),
+(10046,11,0,0, 'achievement_three_car_garage_chopper'),
+(10047,11,0,0, 'achievement_three_car_garage_siege'),
+(10048,11,0,0, 'achievement_three_car_garage_demolisher'),
+(10049,11,0,0, 'achievement_three_car_garage_chopper'),
+(10050,11,0,0, 'achievement_three_car_garage_siege'),
+(10051,11,0,0, 'achievement_three_car_garage_demolisher'),
+(10062,11,0,0, 'achievement_quick_shave'),
+(10063,11,0,0, 'achievement_quick_shave');
 
 /* SPELLS */
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
