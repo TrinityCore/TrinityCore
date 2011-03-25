@@ -18,6 +18,7 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellScript.h"
 #include "PoolMgr.h"
 #include "Group.h"
 #include "icecrown_citadel.h"
@@ -214,10 +215,18 @@ class boss_lady_deathwhisper : public CreatureScript
 
         struct boss_lady_deathwhisperAI : public BossAI
         {
-            boss_lady_deathwhisperAI(Creature* creature) : BossAI(creature, DATA_LADY_DEATHWHISPER)
+            boss_lady_deathwhisperAI(Creature* creature) : BossAI(creature, DATA_DEATHWHISPER_EVENT)
             {
                 introDone = false;
                 dominateMindCount = RAID_MODE<uint8>(0, 1, 1, 3);
+            }
+
+            void InitializeAI()
+            {
+                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != GetScriptId(ICCScriptName))
+                    me->IsAIEnabled = false;
+                else if (!me->isDead())
+                    Reset();
             }
 
             void Reset()
@@ -265,16 +274,6 @@ class boss_lady_deathwhisper : public CreatureScript
 
             void EnterCombat(Unit* who)
             {
-                if (!instance->CheckRequiredBosses(DATA_LADY_DEATHWHISPER, who->ToPlayer()))
-                {
-                    EnterEvadeMode();
-                    instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
-                    return;
-                }
-
-                me->setActive(true);
-                DoZoneInCombat();
-
                 events.Reset();
                 events.SetPhase(PHASE_ONE);
                 // phase-independent events
@@ -292,15 +291,16 @@ class boss_lady_deathwhisper : public CreatureScript
                 me->RemoveAurasDueToSpell(SPELL_SHADOW_CHANNELING);
                 DoCast(me, SPELL_MANA_BARRIER, true);
 
-                instance->SetBossState(DATA_LADY_DEATHWHISPER, IN_PROGRESS);
-            }
+                instance->SetBossState(DATA_DEATHWHISPER_EVENT, IN_PROGRESS);
+                instance->SetData(DATA_DEATHWHISPER_EVENT, IN_PROGRESS);            }
 
             void JustDied(Unit* killer)
             {
                 Talk(SAY_DEATH);
 
-                std::set<uint32> livingAddEntries;
-                // Full House achievement
+                instance->SetBossState(DATA_DEATHWHISPER_EVENT, DONE);                
+                instance->SetData(DATA_DEATHWHISPER_EVENT, DONE);                
+                std::set<uint32> livingAddEntries;                // Full House achievement
                 for (SummonList::iterator itr = summons.begin(); itr != summons.end(); ++itr)
                     if (Unit* unit = ObjectAccessor::GetUnit(*me, *itr))
                         if (unit->isAlive() && unit->GetEntry() != NPC_VENGEFUL_SHADE)
@@ -334,12 +334,14 @@ class boss_lady_deathwhisper : public CreatureScript
                 }
 
                 _JustDied();
+                summons.DespawnAll();
             }
 
             void JustReachedHome()
             {
                 _JustReachedHome();
-                instance->SetBossState(DATA_LADY_DEATHWHISPER, FAIL);
+                 instance->SetBossState(DATA_DEATHWHISPER_EVENT, FAIL);
+                 instance->SetData(DATA_DEATHWHISPER_EVENT, FAIL);
 
                 summons.DespawnAll();
                 if (Creature* darnavan = ObjectAccessor::GetCreature(*me, darnavanGUID))
@@ -620,7 +622,7 @@ class boss_lady_deathwhisper : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return GetIcecrownCitadelAI<boss_lady_deathwhisperAI>(creature);
+            return new boss_lady_deathwhisperAI(creature);
         }
 };
 
@@ -699,7 +701,7 @@ class npc_cult_fanatic : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return GetIcecrownCitadelAI<npc_cult_fanaticAI>(creature);
+            return new npc_cult_fanaticAI(creature);
         }
 };
 
@@ -785,7 +787,7 @@ class npc_cult_adherent : public CreatureScript
 
         CreatureAI* GetAI(Creature* pCreature) const
         {
-            return GetIcecrownCitadelAI<npc_cult_adherentAI>(pCreature);
+            return new npc_cult_adherentAI(pCreature);
         }
 };
 
@@ -825,7 +827,7 @@ class npc_vengeful_shade : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return GetIcecrownCitadelAI<npc_vengeful_shadeAI>(creature);
+            return new npc_vengeful_shadeAI(creature);
         }
 };
 
@@ -945,7 +947,7 @@ class npc_darnavan : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return GetIcecrownCitadelAI<npc_darnavanAI>(creature);
+            return new npc_darnavanAI(creature);
         }
 };
 
@@ -993,7 +995,7 @@ class spell_cultist_dark_martyrdom : public SpellScriptLoader
                 if (GetCaster()->isSummon())
                     if (Unit* owner = GetCaster()->ToTempSummon()->GetSummoner())
                         if (owner->GetEntry() == NPC_LADY_DEATHWHISPER)
-                            CAST_AI(DeathwisperAI, owner->ToCreature()->AI())->AddToReanimationQueue(GetCaster());
+                            CAST_AI(boss_lady_deathwhisper::boss_lady_deathwhisperAI, owner->ToCreature()->AI())->AddToReanimationQueue(GetCaster());
 
                 GetCaster()->Kill(GetCaster());
                 GetCaster()->SetDisplayId(uint32(GetCaster()->GetEntry() == NPC_CULT_FANATIC ? 38009 : 38010));
