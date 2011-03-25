@@ -5063,6 +5063,8 @@ void AuraEffect::HandleModTotalPercentStat(AuraApplication const * aurApp, uint8
     if ((GetMiscValue() == STAT_STAMINA) && (maxHPValue > 0) && (m_spellProto->Attributes & SPELL_ATTR0_UNK4))
     {
         uint32 newHPValue = target->CountPctFromMaxHealth(int32(100.0f * curHPValue / maxHPValue));
+        if (!newHPValue)
+            newHPValue = 1;
         target->SetHealth(newHPValue);
     }
 }
