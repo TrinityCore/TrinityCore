@@ -35,3 +35,6 @@ INSERT INTO `creature_template_addon` (`entry`,`mount`,`bytes1`,`bytes2`,`emote`
 
 UPDATE `creature_template` SET `unit_flags`=`unit_flags`|16777216, `ScriptName`='' WHERE `entry`=29708;
 UPDATE `creature_template` SET `InhabitType`=7 WHERE `entry`=29709;
+
+-- hack quest "An End To All Things..."
+UPDATE `quest_template` SET Method = 0 WHERE `entry` = 12779;
