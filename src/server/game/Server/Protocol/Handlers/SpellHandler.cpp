@@ -575,12 +575,14 @@ void WorldSession::HandleMirrrorImageDataRequest(WorldPacket & recv_data)
         return;
 
     // Get creator of the unit
-    Unit *creator = unit;
-
-    // Get SPELL_AURA_CLONE_CASTER caster
+    // This is SPELL_AURA_CLONE_CASTER caster
+    Unit *creator = NULL;
     Unit::AuraEffectList const& CloneAuras = unit->GetAuraEffectsByType(SPELL_AURA_CLONE_CASTER);
     if (!CloneAuras.empty())
         creator = CloneAuras.front()->GetCaster();
+
+    if (!creator || !creator->IsInWorld())
+        return;
 
     WorldPacket data(SMSG_MIRRORIMAGE_DATA, 68);
     data << uint64(guid);
