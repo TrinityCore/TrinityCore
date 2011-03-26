@@ -497,7 +497,7 @@ struct AchievementCriteriaEntry
     {
         uint32  additionalRequirement_type;
         uint32  additionalRequirement_value;
-    } additionalRequrements[MAX_CRITERIA_REQUIREMENTS];
+    } additionalRequirements[MAX_CRITERIA_REQUIREMENTS];
 
     //char*  name[16];                                      // 9-24
     //uint32 name_flags;                                    // 25
