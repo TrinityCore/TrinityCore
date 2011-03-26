@@ -22611,9 +22611,9 @@ void Player::StopCastingBindSight()
     {
         if (target->isType(TYPEMASK_UNIT))
         {
-            ((Unit*)target)->RemoveAura(SPELL_AURA_BIND_SIGHT, GetGUID());
-            ((Unit*)target)->RemoveAura(SPELL_AURA_MOD_POSSESS, GetGUID());
-            ((Unit*)target)->RemoveAura(SPELL_AURA_MOD_POSSESS_PET, GetGUID());
+            ((Unit*)target)->RemoveAurasByType(SPELL_AURA_BIND_SIGHT, GetGUID());
+            ((Unit*)target)->RemoveAurasByType(SPELL_AURA_MOD_POSSESS, GetGUID());
+            ((Unit*)target)->RemoveAurasByType(SPELL_AURA_MOD_POSSESS_PET, GetGUID());
         }
     }
 }
