@@ -699,7 +699,7 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
             {
                 if (caster->GetTypeId() == TYPEID_PLAYER)
                 {
-                    int32 value = (-1 * amount) - 10;
+                    int32 value = -1 * amount;
                     uint32 defva = uint32(caster->ToPlayer()->GetSkillValue(SKILL_DEFENSE) + caster->ToPlayer()->GetRatingBonusValue(CR_DEFENSE_SKILL));
 
                     if (defva > 400)
