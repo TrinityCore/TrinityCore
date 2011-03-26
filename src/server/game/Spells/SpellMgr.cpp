@@ -4086,6 +4086,10 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->MaxAffectedTargets = 1;
             count++;
             break;
+        case 66238: // Argent Tournament's Tabard
+            spellInfo->EffectImplicitTargetA[0] = TARGET_DST_DB;
+            count++;
+            break;
         default:
             break;
         }
