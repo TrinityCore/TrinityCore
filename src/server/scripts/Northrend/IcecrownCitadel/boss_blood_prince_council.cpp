@@ -350,22 +350,20 @@ class boss_blood_council_controller : public CreatureScript
             {
                 CleanupBloodPrinceCouncil(instance, this);
                 _JustDied();
-                // kill all other princes
-                if (Creature* prince = ObjectAccessor::GetCreature(*me, instance->GetData64(GUID_PRINCE_KELESETH_ICC)))
-                    killer->Kill(prince);
-                if (Creature* prince = ObjectAccessor::GetCreature(*me, instance->GetData64(GUID_PRINCE_VALANAR_ICC)))
-                    killer->Kill(prince);
-                if (Creature* prince = ObjectAccessor::GetCreature(*me, instance->GetData64(GUID_PRINCE_TALDARAM_ICC)))
-                    killer->Kill(prince);
 
                 for (uint8 i = 0; i < 2; ++i)
                 {
                     if (++invocationStage == 3)
                         invocationStage = 0;
 
+                    // kill all other princes
                     if (Creature* prince = ObjectAccessor::GetCreature(*me, invocationOrder[invocationStage].guid))
-                        prince->Kill(prince);
+                        killer->Kill(prince);
                 }
+
+                if (Creature* prince = ObjectAccessor::GetCreature(*me, instance->GetData64(GUID_PRINCE_VALANAR_ICC)))
+                    prince->SetLootRecipient(killer);
+
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SHADOW_PRISON_DUMMY);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SHADOW_RESONANCE);
                 instance->SetData(DATA_BLOOD_PRINCE_COUNCIL_EVENT, DONE);
