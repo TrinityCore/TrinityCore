@@ -261,7 +261,7 @@ class WorldScript : public ScriptObject, public UpdatableScript<void>
         virtual void OnShutdownCancel() { }
 
         // Called on every world tick (don't execute too heavy code here).
-        virtual void OnWorldUpdate(uint32 /*diff*/) { }
+        virtual void OnUpdate(uint32 /*diff*/) { }
 
         // Called when the world is started.
         virtual void OnStartup() { }

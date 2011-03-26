@@ -422,7 +422,7 @@ void ScriptMgr::OnShutdownCancel()
 
 void ScriptMgr::OnWorldUpdate(uint32 diff)
 {
-    FOREACH_SCRIPT(WorldScript)->OnUpdate(NULL, diff);
+    FOREACH_SCRIPT(WorldScript)->OnUpdate(diff);
 }
 
 void ScriptMgr::OnHonorCalculation(float& honor, uint8 level, float multiplier)
