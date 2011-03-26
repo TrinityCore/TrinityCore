@@ -197,8 +197,6 @@ void evadeToHome(Creature *me)
 }
 void CleanupBloodPrinceCouncil(InstanceScript *instance, BossAI *ai)
 {
-    instance->SetBossState(DATA_BLOOD_PRINCE_COUNCIL_EVENT, FAIL);
-    instance->SetData(DATA_BLOOD_PRINCE_COUNCIL_EVENT, FAIL);
     instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SHADOW_RESONANCE);
     UnsummonSpecificCreaturesNearby(ai->me, NPC_SHOCK_VORTEX, 100.0f);
     UnsummonSpecificCreaturesNearby(ai->me, NPC_KINETIC_BOMB, 100.0f);
@@ -917,6 +915,8 @@ class boss_prince_valanar_icc : public CreatureScript
                 isEmpowered = false;
                 removeFeignDeath(me);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SHADOW_RESONANCE);
+                instance->SetBossState(DATA_BLOOD_PRINCE_COUNCIL_EVENT, FAIL);
+                instance->SetData(DATA_BLOOD_PRINCE_COUNCIL_EVENT, FAIL);
             }
 
             void JustRespawned()
