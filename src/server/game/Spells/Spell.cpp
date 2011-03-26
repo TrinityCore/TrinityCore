@@ -4876,21 +4876,6 @@ SpellCastResult Spell::CheckCast(bool strict)
             if (!m_IsTriggeredSpell && VMAP::VMapFactory::checkSpellForLoS(m_spellInfo->Id) && !m_caster->IsWithinLOSInMap(target))
                 return SPELL_FAILED_LINE_OF_SIGHT;
 
-            // Do not allow "flying charges"
-            if (m_spellInfo->AttributesEx7 & SPELL_ATTR7_HAS_CHARGE_EFFECT)
-            {
-                float z_diff = target->GetPositionZ() - m_caster->GetPositionZ();
-                if (z_diff > 5.0f)
-                {
-                    float x_mid = (target->GetPositionX() + m_caster->GetPositionX()) / 2;
-                    float y_mid = (target->GetPositionY() + m_caster->GetPositionY()) / 2;
-                    float z_mid = (target->GetPositionZ() + m_caster->GetPositionZ()) / 2;
-                    float z_ground = m_caster->GetMap()->GetHeight(x_mid, y_mid, z_mid, true, 5.0f);
-                    if (fabs(z_mid - z_ground) > 1.0)
-                        return SPELL_FAILED_NOPATH;
-                }
-            }
-
         }
         else if (m_caster == target)
         {
