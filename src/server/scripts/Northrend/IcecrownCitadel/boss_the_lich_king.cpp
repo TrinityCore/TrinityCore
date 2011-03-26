@@ -407,7 +407,7 @@ class boss_the_lich_king : public CreatureScript
                 //http://www.youtube.com/watch?v=hseFPNkaqjE
                 events.ScheduleEvent(EVENT_INFEST, 5000, 0, PHASE_1);
                 events.ScheduleEvent(EVENT_SUMMON_SHAMBLING_HORROR, 20000, 0, PHASE_1);
-                events.ScheduleEvent(EVENT_NECROTIC_PLAGUE, 30000, 0, PHASE_1);
+                events.ScheduleEvent(EVENT_NECROTIC_PLAGUE, 35000, 0, PHASE_1);
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_SHADOW_TRAP, 10000, 0, PHASE_1);
                 DoScriptText(SAY_AGGRO, me);
@@ -540,10 +540,6 @@ class boss_the_lich_king : public CreatureScript
                     case NPC_VALKYR:
                     {
                         if (Unit *valkyrTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
-                        {
-                            summoned->AI()->SetGUID(valkyrTarget->GetGUID(), TYPE_VICTIM);
-                        }
-                        else if (Unit *valkyrTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                         {
                             summoned->AI()->SetGUID(valkyrTarget->GetGUID(), TYPE_VICTIM);
                         }
@@ -711,27 +707,27 @@ class boss_the_lich_king : public CreatureScript
                                 case EVENT_SUMMON_SHAMBLING_HORROR:
                                 {
                                     DoCast(SPELL_SUMMON_SHAMBLING_HORROR);
-                                    events.ScheduleEvent(EVENT_SUMMON_SHAMBLING_HORROR, 35000, 0, PHASE_1);
+                                    events.ScheduleEvent(EVENT_SUMMON_SHAMBLING_HORROR, 70000, 0, PHASE_1);
                                     break;
                                 }
                                 case EVENT_SUMMON_DRUDGE_GHOULS:
                                 {
                                     DoCast(SPELL_SUMMON_DRUDGE_GHOULS);
-                                    events.ScheduleEvent(EVENT_SUMMON_DRUDGE_GHOULS, 30000, 0, PHASE_1);
+                                    events.ScheduleEvent(EVENT_SUMMON_DRUDGE_GHOULS, 60000, 0, PHASE_1);
                                     break;
                                 }
                                 case EVENT_INFEST:
                                 {
                                     if(Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true, -SPELL_INFEST))
                                         DoCast(target, SPELL_INFEST);
-                                    events.ScheduleEvent(EVENT_INFEST, 20000, 0, PHASE_1);
+                                    events.ScheduleEvent(EVENT_INFEST, urand(25000, 30000), 0, PHASE_1);
                                     break;
                                 }
                                 case EVENT_NECROTIC_PLAGUE:
                                 {
                                     if(Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true, -EVENT_NECROTIC_PLAGUE))
                                         DoCast(target, SPELL_NECROTIC_PLAGUE);
-                                    events.ScheduleEvent(EVENT_NECROTIC_PLAGUE, 25000, 0, PHASE_1);
+                                    events.ScheduleEvent(EVENT_NECROTIC_PLAGUE, 50000, 0, PHASE_1);
                                     break;
                                 }
                                 case EVENT_SHADOW_TRAP:
@@ -768,14 +764,14 @@ class boss_the_lich_king : public CreatureScript
                                     if(Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                         DoCast(target, SPELL_SUMMON_RAGING_SPIRIT);
                                     events.RescheduleEvent(EVENT_PAIN_AND_SUFFERING, 3000, 0, PHASE_2_TRANSITION);
-                                    events.ScheduleEvent(EVENT_SUMMON_RAGING_SPIRIT, RAID_MODE<uint32>(20000, 15000, 20000, 15000), 0, GetPhase(events));
+                                    events.ScheduleEvent(EVENT_SUMMON_RAGING_SPIRIT, RAID_MODE<uint32>(60000, 40000, 60000, 40000), 0, GetPhase(events));
                                     break;
                                 }
                                 case EVENT_SUMMON_ICE_SPHERE:
                                 {
                                     events.RescheduleEvent(EVENT_PAIN_AND_SUFFERING, 3000, 0, GetPhase(events));
                                     DoCast(SPELL_SUMMON_ICE_SPEHERE);
-                                    events.ScheduleEvent(EVENT_SUMMON_ICE_SPHERE, urand(6000, 8000), 0, GetPhase(events));
+                                    events.ScheduleEvent(EVENT_SUMMON_ICE_SPHERE, urand(8000, 10000), 0, GetPhase(events));
                                     break;
                                 }
                                 case EVENT_BERSERK:
@@ -804,7 +800,7 @@ class boss_the_lich_king : public CreatureScript
                                     DoScriptText(SAY_EMOTE_DEFILE, me);
                                     if(Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                         DoCast(target, SPELL_SUMMON_DEFILE);
-                                    events.ScheduleEvent(EVENT_DEFILE, 35000, 0, PHASE_3);
+                                    events.ScheduleEvent(EVENT_DEFILE, urand(40000, 50000), 0, PHASE_3);
                                     break;
                                 }
                                 case EVENT_SOUL_REAPER:
