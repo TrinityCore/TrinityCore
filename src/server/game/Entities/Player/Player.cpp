@@ -805,11 +805,6 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     m_summon_y = 0.0f;
     m_summon_z = 0.0f;
 
-    //Default movement to run mode
-    //m_unit_movement_flags = 0;
-
-    m_AreaID = 0;
-
     m_mover = this;
     m_movedPlayer = this;
     m_seer = this;
@@ -6769,11 +6764,6 @@ void Player::CheckAreaExploreAndOutdoor()
 
     if (isInFlight())
         return;
-
-    if (!m_AreaID)
-        m_AreaID = GetAreaId();
-    if (m_AreaID != GetAreaId())
-        m_AreaID = GetAreaId();
 
     bool isOutdoor;
     uint16 areaFlag = GetBaseMap()->GetAreaFlag(GetPositionX(),GetPositionY(),GetPositionZ(), &isOutdoor);
