@@ -18212,6 +18212,7 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 ( 50141, 50001, 0, 'Blood Oath to Blood Oath Aura'),
 ( 61263, 61267, 0, 'Intravenous Healing Effect'),
 ( 61263, 61268, 0, 'Intravenous Mana Regeneration Effect'),
+(-57350,60242,0, 'Darkmoon Card: Illusion'),
 -- PvP Trinket / Every Man for Himself / Will of the Forsaken
 (7744, 72757, 0, 'Will of the Forsaken Cooldown Trigger (WOTF)'),
 (42292, 72752, 0, 'Will of the Forsaken Cooldown Trigger'),
