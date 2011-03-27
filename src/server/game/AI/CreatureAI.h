@@ -74,8 +74,8 @@ class CreatureAI : public UnitAI
         void SetGazeOn(Unit* target);
 
         Creature* DoSummon(uint32 entry, Position const& pos, uint32 despawnTime = 30000, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
-        Creature* DoSummon(uint32 entry, WorldObject *obj, float radius = 5.0f, uint32 despawnTime = 30000, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
-        Creature* DoSummonFlyer(uint32 entry, WorldObject *obj, float flightZ, float radius = 5.0f, uint32 despawnTime = 30000, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+        Creature* DoSummon(uint32 entry, WorldObject* obj, float radius = 5.0f, uint32 despawnTime = 30000, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+        Creature* DoSummonFlyer(uint32 entry, WorldObject* obj, float flightZ, float radius = 5.0f, uint32 despawnTime = 30000, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
 
     public:
         void Talk(uint8 id, uint64 WhisperGuid = 0);
@@ -85,7 +85,7 @@ class CreatureAI : public UnitAI
 
         /// == Reactions At =================================
 
-        // Called if IsVisible(Unit *who) is true at each *who move, reaction at visibility zone enter
+        // Called if IsVisible(Unit* who) is true at each who move, reaction at visibility zone enter
         void MoveInLineOfSight_Safe(Unit* who);
 
         // Called in Creature::Update when deathstate = DEAD. Inherited classes may maniuplate the ability to respawn based on scripted events.
@@ -131,7 +131,7 @@ class CreatureAI : public UnitAI
 
         void OnCharmed(bool apply);
 
-        //virtual void SpellClick(Player *player) {}
+        //virtual void SpellClick(Player* player) {}
 
         // Called at reaching home after evade
         virtual void JustReachedHome() {}
@@ -145,7 +145,7 @@ class CreatureAI : public UnitAI
 
         // Called when creature attack expected (if creature can and no have current victim)
         // Note: for reaction at hostile action must be called AttackedBy function.
-        //virtual void AttackStart(Unit *) {}
+        //virtual void AttackStart(Unit* ) {}
 
         // Called at World update tick
         //virtual void UpdateAI(const uint32 /*diff*/) {}
@@ -153,7 +153,7 @@ class CreatureAI : public UnitAI
         /// == State checks =================================
 
         // Is unit visible for MoveInLineOfSight
-        //virtual bool IsVisible(Unit *) const { return false; }
+        //virtual bool IsVisible(Unit* ) const { return false; }
 
         // called when the corpse of this creature gets removed
         virtual void CorpseRemoved(uint32& /*respawnDelay*/) {}
