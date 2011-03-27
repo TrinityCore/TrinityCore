@@ -51,7 +51,15 @@ SmartScript::SmartScript()
     meOrigGUID = 0;
     goOrigGUID = 0;
     mResumeActionList = true;
-    mLastInvoker = NULL;
+    mLastInvoker = 0;
+}
+
+SmartScript::~SmartScript()
+{
+    for (ObjectListMap::iterator itr = mTargetStorage->begin(); itr != mTargetStorage->end(); ++itr)
+        delete itr->second;
+
+    delete mTargetStorage;
 }
 
 void SmartScript::OnReset()
