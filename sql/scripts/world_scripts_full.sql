@@ -630,6 +630,16 @@ UPDATE `creature_template` SET `ScriptName`='npc_apprentice_mirveda' WHERE `entr
 UPDATE `creature_template` SET `ScriptName`='npc_infused_crystal' WHERE `entry`=16364;
 UPDATE `gameobject_template` SET `ScriptName`='go_second_trial' WHERE `entry` IN (182052);
 
+/* EYE OF ETERNITY */
+UPDATE `instance_template` SET `script`='instance_eye_of_eternity' WHERE `map`=616;
+UPDATE `creature_template` SET `ScriptName`='boss_malygos' WHERE `entry`=28859;
+UPDATE `creature_template` SET `ScriptName`='npc_power_spark' WHERE `entry`=30084;
+UPDATE `creature_template` SET `ScriptName`='npc_portal_eoe' WHERE `entry`=30118;
+UPDATE `creature_template` SET `ScriptName`='npc_hover_disk' WHERE `entry` IN (30234,30248);
+UPDATE `creature_template` SET `ScriptName`='npc_arcane_overload' WHERE `entry`=30282;
+UPDATE `creature_template` SET `ScriptName`='npc_wyrmrest_skytalon' WHERE `entry`=30161;
+UPDATE `creature_template` SET `ScriptName`='npc_alexstrasza_eoe' WHERE `entry`=32295;
+
 /* FELWOOD */
 UPDATE `creature_template` SET `ScriptName`='npcs_riverbreeze_and_silversky' WHERE `entry` IN (9528,9529);
 
@@ -2089,6 +2099,9 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 62166, 'spell_ulduar_stone_grip_cast_target'),
 ( 63981, 'spell_ulduar_stone_grip_cast_target'),
 ( 64702, 'spell_ulduar_squeezed_lifeless'),
+-- Eye Of Eternity
+( 56105, 'spell_malygos_vortex_dummy'),
+( 55873, 'spell_malygos_vortex_visual'),
 -- quest
 (  8913, 'spell_q55_sacred_cleansing'),
 ( 17271, 'spell_q5206_test_fetid_skull'),
