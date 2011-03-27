@@ -67,7 +67,7 @@ public:
                 work = true;
         }
 
-        void SpellHit(Unit *caster, const SpellEntry *spell)
+        void SpellHit(Unit* caster, const SpellEntry * spell)
         {
             if (spell->Id == SPELL_AWAKEN_PEON && caster->GetTypeId() == TYPEID_PLAYER
                 && CAST_PLR(caster)->GetQuestStatus(QUEST_LAZY_PEONS) == QUEST_STATUS_INCOMPLETE)
@@ -98,18 +98,72 @@ public:
     };
 };
 
-enum eTrigger
+enum Texts
 {
-    EVENT_CHECK_SUMMON_AURA             = 1,
+    // Tiger Matriarch Credit
+    SAY_MATRIARCH_AGGRO     = 0,
 
-    SAY_AGGRO                           = 0,
+    // Troll Volunteer
+    SAY_VOLUNTEER_START     = 0,
+    SAY_VOLUNTEER_END       = 1,
+};
 
+enum Spells
+{
+    // Tiger Matriarch Credit
     SPELL_SUMMON_MATRIARCH              = 75187,
     SPELL_NO_SUMMON_AURA                = 75213,
     SPELL_DETECT_INVIS                  = 75180,
     SPELL_SUMMON_ZENTABRA_TRIGGER       = 75212,
 
-    NPC_TIGER_VEHICLE                   = 40305
+    // Tiger Matriarch
+    SPELL_POUNCE                        = 61184,
+    SPELL_FURIOUS_BITE                  = 75164,
+    SPELL_SUMMON_ZENTABRA               = 75181,
+    SPELL_SPIRIT_OF_THE_TIGER_RIDER     = 75166,
+    SPELL_EJECT_PASSENGERS              = 50630,
+
+    // Troll Volunteer
+    SPELL_VOLUNTEER_AURA                = 75076,
+    SPELL_PETACT_AURA                   = 74071,
+    SPELL_QUEST_CREDIT                  = 75106,
+    SPELL_MOUNTING_CHECK                = 75420,
+    SPELL_TURNIN                        = 73953,
+    SPELL_AOE_TURNIN                    = 75107,
+
+    // Vol'jin War Drums
+    SPELL_MOTIVATE_1                    = 75088,
+    SPELL_MOTIVATE_2                    = 75086,
+};
+
+enum Creatures
+{
+    // Tiger Matriarch Credit
+    NPC_TIGER_VEHICLE                   = 40305,
+
+    // Troll Volunteer
+    NPC_URUZIN                          = 40253,
+    NPC_VOLUNTEER_1                     = 40264,
+    NPC_VOLUNTEER_2                     = 40260,
+
+    // Vol'jin War Drums
+    NPC_CITIZEN_1                       = 40256,
+    NPC_CITIZEN_2                       = 40257,
+};
+
+enum Events
+{
+    // Tiger Matriarch Credit
+    EVENT_CHECK_SUMMON_AURA             = 1,
+
+    // Tiger Matriarch
+    EVENT_POUNCE                        = 2,
+    EVENT_NOSUMMON                      = 3,
+};
+
+enum Points
+{
+    POINT_URUZIN                        = 4026400,
 };
 
 class npc_tiger_matriarch_credit : public CreatureScript
@@ -119,7 +173,7 @@ class npc_tiger_matriarch_credit : public CreatureScript
 
         struct npc_tiger_matriarch_creditAI : public Scripted_NoMovementAI
         {
-           npc_tiger_matriarch_creditAI(Creature *creature) : Scripted_NoMovementAI(creature)
+           npc_tiger_matriarch_creditAI(Creature* creature) : Scripted_NoMovementAI(creature)
            {
                events.ScheduleEvent(EVENT_CHECK_SUMMON_AURA, 2000);
            }
@@ -143,7 +197,7 @@ class npc_tiger_matriarch_credit : public CreatureScript
                                     me->AddAura(SPELL_NO_SUMMON_AURA, summoner);
                                     me->AddAura(SPELL_DETECT_INVIS, summoner);
                                     summoner->CastSpell(summoner, SPELL_SUMMON_MATRIARCH, true);
-                                    Talk(SAY_AGGRO, summoner->GetGUID());
+                                    Talk(SAY_MATRIARCH_AGGRO, summoner->GetGUID());
                                 }
                         }
                     }
@@ -162,18 +216,6 @@ class npc_tiger_matriarch_credit : public CreatureScript
         }
 };
 
-enum eMatriarch
-{
-    EVENT_POUNCE                        = 1,
-    EVENT_NOSUMMON                      = 2,
-
-    SPELL_POUNCE                        = 61184,
-    SPELL_FURIOUS_BITE                  = 75164,
-    SPELL_SUMMON_ZENTABRA               = 75181,
-    SPELL_SPIRIT_OF_THE_TIGER_RIDER     = 75166,
-    SPELL_EJECT_PASSENGERS              = 50630,
-};
-
 class npc_tiger_matriarch : public CreatureScript
 {
     public:
@@ -181,17 +223,17 @@ class npc_tiger_matriarch : public CreatureScript
 
         struct npc_tiger_matriarchAI : public ScriptedAI
         {
-            npc_tiger_matriarchAI(Creature *creature) : ScriptedAI(creature) {}
+            npc_tiger_matriarchAI(Creature* creature) : ScriptedAI(creature) {}
 
-            void IsSummonedBy(Unit* pSummoner)
+            void IsSummonedBy(Unit* summoner)
             {
-                if (pSummoner->GetTypeId() != TYPEID_PLAYER)
+                if (summoner->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                tiger = pSummoner->GetVehicle()->GetBase();
-                if (tiger)
+                _tiger = summoner->GetVehicle()->GetBase();
+                if (_tiger)
                 {
-                    me->AddThreat(tiger, 500000.0f);
+                    me->AddThreat(_tiger, 500000.0f);
                     DoCast(me, SPELL_FURIOUS_BITE);
                     events.ScheduleEvent(EVENT_POUNCE, 100);
                     events.ScheduleEvent(EVENT_NOSUMMON, 50000);
@@ -217,8 +259,8 @@ class npc_tiger_matriarch : public CreatureScript
             {
                if (HealthBelowPct(20))
                {
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     damage = 0;
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     if (Unit* vehSummoner = CAST_SUM(attacker)->GetSummoner())
                     {
                         vehSummoner->AddAura(SPELL_SUMMON_ZENTABRA_TRIGGER, vehSummoner);
@@ -238,7 +280,7 @@ class npc_tiger_matriarch : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (!tiger)
+                if (!_tiger)
                     return;
 
                 events.Update(diff);
@@ -251,8 +293,8 @@ class npc_tiger_matriarch : public CreatureScript
                             DoCastVictim(SPELL_POUNCE);
                             events.ScheduleEvent(EVENT_POUNCE, 30000);
                             break;
-                        case EVENT_NOSUMMON:
-                            if (Unit* vehSummoner = CAST_SUM(tiger)->GetSummoner())
+                        case EVENT_NOSUMMON: // Reapply SPELL_NO_SUMMON_AURA
+                            if (Unit* vehSummoner = CAST_SUM(_tiger)->GetSummoner())
                                 me->AddAura(SPELL_NO_SUMMON_AURA, vehSummoner);
                             events.ScheduleEvent(EVENT_NOSUMMON, 50000);
                             break;
@@ -266,7 +308,7 @@ class npc_tiger_matriarch : public CreatureScript
 
         private:
             EventMap events;
-            Unit* tiger;
+            Unit* _tiger;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -275,26 +317,9 @@ class npc_tiger_matriarch : public CreatureScript
         }
 };
 
-enum eVolunteer
-{
-    NPC_URUZIN              = 40253,
-    NPC_VOLUNTEER_1         = 40264,
-    NPC_VOLUNTEER_2         = 40260,
-
-    SPELL_VOLUNTEER_AURA    = 75076,
-    SPELL_PETACT_AURA       = 74071,
-    SPELL_QUEST_CREDIT      = 75106,
-    SPELL_MOUNTING_CHECK    = 75420,
-    SPELL_TURNIN            = 73953,
-    SPELL_AOE_TURNIN        = 75107,
-
-    SAY_START               = 0,
-    SAY_END                 = 1,
-};
-
 // These models was found in sniff.
 // TODO: generalize these models with race from dbc
-static uint32 trollmodel[] =
+uint32 const trollmodel[] =
 {11665,11734,11750,12037,12038,12042,12049,12849,13529,14759,15570,15701,
 15702,1882,1897,1976,2025,27286,2734,2735,4084,4085,4087,4089,4231,4357,
 4358,4360,4361,4362,4363,4370,4532,4537,4540,4610,6839,7037,9767,9768};
@@ -309,70 +334,69 @@ class npc_troll_volunteer : public CreatureScript
             npc_troll_volunteerAI(Creature* creature) : ScriptedAI(creature)
             {
                 Reset();
-                player = me->GetOwner()->ToPlayer();
+                Player* player = me->GetOwner()->ToPlayer();
 
                 switch (urand(1,4))
                 {
                     case 1:
-                        mountmodel = 6471;
+                        _mountModel = 6471;
                         break;
                     case 2:
-                        mountmodel = 6473;
+                        _mountModel = 6473;
                         break;
                     case 3:
-                        mountmodel = 6469;
+                        _mountModel = 6469;
                         break;
                     case 4:
-                        mountmodel = 6472;
+                        _mountModel = 6472;
                         break;
                 }
-                me->SetDisplayId(trollmodel[urand(0,39)]);
+                me->SetDisplayId(trollmodel[urand(0, 39)]);
                 if (player)
-                    me->GetMotionMaster()->MoveFollow(player, 5.0f, urand(120,240));
+                    me->GetMotionMaster()->MoveFollow(player, 5.0f, urand(120, 240));
             }
 
             void Reset()
             {
-                complete = false;
+                _complete = false;
                 me->AddAura(SPELL_VOLUNTEER_AURA, me);
                 me->AddAura(SPELL_MOUNTING_CHECK, me);
                 DoCast(me, SPELL_PETACT_AURA);
                 me->SetReactState(REACT_PASSIVE);
-                Talk(SAY_START);
+                Talk(SAY_VOLUNTEER_START);
             }
 
             // This is needed for mount check aura to know what mountmodel the npc got stored
             uint32 GetMountId()
             {
-                return mountmodel;
+                return _mountModel;
             }
 
             void MovementInform(uint32 type, uint32 id)
             {
                 if (type != POINT_MOTION_TYPE)
                     return;
-                if (id == 2)
+                if (id == POINT_URUZIN)
                     me->DespawnOrUnsummon();
             }
 
-            void SpellHit(Unit* caster, const SpellEntry* spell)
+            void SpellHit(Unit* caster, SpellEntry const* spell)
             {
-                if (spell->Id == SPELL_AOE_TURNIN && caster->GetEntry() == NPC_URUZIN && !complete)
+                if (spell->Id == SPELL_AOE_TURNIN && caster->GetEntry() == NPC_URUZIN && !_complete)
                 {
-                    complete = true;    // Preventing from giving credit twice
+                    _complete = true;    // Preventing from giving credit twice
                     DoCast(me, SPELL_TURNIN);
                     DoCast(me, SPELL_QUEST_CREDIT);
                     me->RemoveAurasDueToSpell(SPELL_MOUNTING_CHECK);
                     me->Unmount();
-                    Talk(SAY_END);
-                    me->GetMotionMaster()->MovePoint(2, caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ());
+                    Talk(SAY_VOLUNTEER_END);
+                    me->GetMotionMaster()->MovePoint(POINT_URUZIN, caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ());
                 }
             }
 
-            private:
-                uint32 mountmodel;
-                Player* player;
-                bool complete;
+        private:
+            uint32 _mountModel;
+            bool _complete;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -395,7 +419,8 @@ class spell_mount_check : public SpellScriptLoader
                     return false;
                 return true;
             }
-            void HandleEffectPeriodic(AuraEffect const * /*aurEff*/)
+
+            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
             {
                 Unit* target = GetTarget();
                 Unit* owner = target->GetOwner();
@@ -422,18 +447,10 @@ class spell_mount_check : public SpellScriptLoader
             }
         };
 
-        AuraScript *GetAuraScript() const
+        AuraScript* GetAuraScript() const
         {
             return new spell_mount_check_AuraScript();
         }
-};
-
-enum eMotivateSpells
-{
-    SPELL_MOTIVATE_1        = 75088,
-    SPELL_MOTIVATE_2        = 75086,
-    NPC_CITIZEN_1           = 40256,
-    NPC_CITIZEN_2           = 40257,
 };
 
 class spell_voljin_war_drums : public SpellScriptLoader
@@ -456,14 +473,15 @@ class spell_voljin_war_drums : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
-                if (Unit* unitTarget = GetHitUnit())
+                if (Unit* target = GetHitUnit())
                 {
-                    uint32 motivate;
-                    if (unitTarget->GetEntry() == NPC_CITIZEN_1)
+                    uint32 motivate = 0;
+                    if (target->GetEntry() == NPC_CITIZEN_1)
                         motivate = SPELL_MOTIVATE_1;
-                    else if (unitTarget->GetEntry() == NPC_CITIZEN_2)
+                    else if (target->GetEntry() == NPC_CITIZEN_2)
                         motivate = SPELL_MOTIVATE_2;
-                    caster->CastSpell(unitTarget, motivate, true, NULL, NULL, caster->GetGUID());
+                    if (motivate)
+                        caster->CastSpell(target, motivate, true, NULL, NULL, caster->GetGUID());
                 }
             }
 
