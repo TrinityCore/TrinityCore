@@ -597,6 +597,9 @@ UPDATE `creature_template` SET `ScriptName`='npc_narm_faulk' WHERE `entry`=6177;
 
 /* DUROTAR */
 UPDATE `creature_template` SET `ScriptName`='npc_lazy_peon' WHERE `entry`=10556;
+UPDATE `creature_template` SET `ScriptName`= 'npc_tiger_matriarch_credit' WHERE `entry`=40301;
+UPDATE `creature_template` SET `ScriptName`= 'npc_tiger_matriarch' WHERE `entry`=40312;
+UPDATE `creature_template` SET `ScriptName`= 'npc_troll_volunteer' WHERE `entry` IN (40260,40264);
 
 /* DUSKWOOD */
 DELETE FROM `areatrigger_scripts` WHERE `entry`=4017;
@@ -2102,6 +2105,9 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 -- Eye Of Eternity
 ( 56105, 'spell_malygos_vortex_dummy'),
 ( 55873, 'spell_malygos_vortex_visual'),
+-- Zalazane's Fall
+( 75420, 'spell_mount_check'),
+( 75102, 'spell_voljin_war_drums'),
 -- quest
 (  8913, 'spell_q55_sacred_cleansing'),
 ( 17271, 'spell_q5206_test_fetid_skull'),
