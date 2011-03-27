@@ -33,8 +33,8 @@
 class SmartScript
 {
     public:
-        ~SmartScript(){};
         SmartScript();
+        ~SmartScript();
 
         void OnInitialize(WorldObject* obj, AreaTriggerEntry const* at = NULL);
         void GetScript();
