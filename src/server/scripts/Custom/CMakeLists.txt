@@ -5,6 +5,7 @@ set(scripts_STAT_SRCS
   Custom/event_npc.cpp
   Custom/npc_lottery.cpp
   Custom/duel_reset.cpp
+  Custom/argent_tournament.cpp
 )
 
 message("  -> Prepared: Custom")
